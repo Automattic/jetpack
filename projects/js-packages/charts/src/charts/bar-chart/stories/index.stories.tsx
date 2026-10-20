@@ -10,6 +10,7 @@ import {
 	largeValuesData,
 	trafficData,
 	steadyTrafficData,
+	weeklyComparisonData,
 	themeArgTypes,
 	type SeriesLegendStoryControls,
 } from '../../../stories';
@@ -800,31 +801,7 @@ export const ComparisonSingle: Story = {
 		...Default.args,
 		showLegend: true,
 		legendCollapseGroups: false,
-		data: [
-			{
-				label: 'Views',
-				group: 'views',
-				data: [
-					{ label: 'Mon', value: 420 },
-					{ label: 'Tue', value: 580 },
-					{ label: 'Wed', value: 310 },
-					{ label: 'Thu', value: 750 },
-					{ label: 'Fri', value: 640 },
-				],
-			},
-			{
-				label: 'Views — previous',
-				group: 'views',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 510 },
-					{ label: 'Tue', value: 490 },
-					{ label: 'Wed', value: 430 },
-					{ label: 'Thu', value: 620 },
-					{ label: 'Fri', value: 700 },
-				],
-			},
-		],
+		data: weeklyComparisonData.slice( 0, 2 ),
 	},
 	parameters: {
 		docs: {
@@ -845,54 +822,7 @@ export const ComparisonMulti: Story = {
 		showLegend: true,
 		legendInteractive: true,
 		legendCollapseGroups: true,
-		data: [
-			{
-				label: 'Views',
-				group: 'views',
-				data: [
-					{ label: 'Mon', value: 420 },
-					{ label: 'Tue', value: 580 },
-					{ label: 'Wed', value: 310 },
-					{ label: 'Thu', value: 750 },
-					{ label: 'Fri', value: 640 },
-				],
-			},
-			{
-				label: 'Views — previous',
-				group: 'views',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 510 },
-					{ label: 'Tue', value: 490 },
-					{ label: 'Wed', value: 430 },
-					{ label: 'Thu', value: 620 },
-					{ label: 'Fri', value: 700 },
-				],
-			},
-			{
-				label: 'Visitors',
-				group: 'visitors',
-				data: [
-					{ label: 'Mon', value: 280 },
-					{ label: 'Tue', value: 390 },
-					{ label: 'Wed', value: 220 },
-					{ label: 'Thu', value: 500 },
-					{ label: 'Fri', value: 430 },
-				],
-			},
-			{
-				label: 'Visitors — previous',
-				group: 'visitors',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 340 },
-					{ label: 'Tue', value: 320 },
-					{ label: 'Wed', value: 290 },
-					{ label: 'Thu', value: 410 },
-					{ label: 'Fri', value: 460 },
-				],
-			},
-		],
+		data: weeklyComparisonData,
 	},
 	parameters: {
 		docs: {
@@ -904,12 +834,6 @@ export const ComparisonMulti: Story = {
 	},
 };
 
-const week = ( values: number[] ) =>
-	[ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun' ].map( ( label, index ) => ( {
-		label,
-		value: values[ index ],
-	} ) );
-
 export const ComparisonMultiOverlap: Story = {
 	args: {
 		...Default.args,
@@ -917,22 +841,7 @@ export const ComparisonMultiOverlap: Story = {
 		showLegend: true,
 		legendInteractive: true,
 		legendCollapseGroups: true,
-		data: [
-			{ label: 'Views', group: 'views', data: week( [ 420, 580, 310, 750, 640, 380, 290 ] ) },
-			{
-				label: 'Previous views',
-				group: 'views',
-				options: { type: 'comparison' as const },
-				data: week( [ 510, 490, 430, 620, 700, 350, 330 ] ),
-			},
-			{ label: 'Visitors', group: 'visitors', data: week( [ 280, 390, 220, 500, 430, 260, 190 ] ) },
-			{
-				label: 'Previous visitors',
-				group: 'visitors',
-				options: { type: 'comparison' as const },
-				data: week( [ 340, 320, 290, 410, 460, 240, 210 ] ),
-			},
-		],
+		data: weeklyComparisonData,
 	},
 	render: args => (
 		<BarChart
