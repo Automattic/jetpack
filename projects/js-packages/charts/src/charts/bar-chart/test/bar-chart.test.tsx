@@ -2169,7 +2169,7 @@ describe( 'BarChart', () => {
 				expect( tooltip ).toHaveTextContent( 'Previous period: No data' );
 			} );
 
-			test( 'draws no comparison shadow for a comparison bucket with no reading', () => {
+			test( 'draws no comparison bar for a comparison bucket with no reading', () => {
 				renderWithTheme( {
 					data: [
 						{

@@ -266,7 +266,7 @@ export function useBarChartOptions(
 
 		const valueScaleOptions = horizontal ? stableOptions.xScale : stableOptions.yScale;
 		const hasComparisonSeries = data.some( s => s.options?.type === 'comparison' );
-		// Comparison shadows share the primary bars' scale, so they force zero even when the caller opted out.
+		// Comparison bars share the primary bars' scale, so they force zero even when the caller opted out.
 		const includeZero = hasComparisonSeries || valueScaleOptions?.zero !== false;
 		const domain = valueScaleOptions?.domain
 			? null

@@ -3,7 +3,7 @@ export type ComparisonRect = { x: number; y: number; width: number; height: numb
 type ValueScale = ( ( v: number ) => number ) & { range: () => unknown[] };
 
 /**
- * Mirrors visx's getScaleBaseline so comparison shadows and primary bars
+ * Mirrors visx's getScaleBaseline so the selection ring and the bars
  * share the same baseline, including out-of-domain zero values.
  *
  * @param {ValueScale} scale - The continuous value scale.

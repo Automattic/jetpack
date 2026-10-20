@@ -10,7 +10,7 @@ export const DEFAULT_COMPARISON_WIDTH_FACTOR = 1.5;
 
 /**
  * Fraction of each per-series step left as a gap between bars within a single tick.
- * Larger = more space between adjacent series; the shadow spans `1 - COMPARISON_INNER_GAP` of the step.
+ * Larger = more space between adjacent series; the comparison bar spans `1 - COMPARISON_INNER_GAP` of the step.
  */
 export const COMPARISON_INNER_GAP = 0.1;
 

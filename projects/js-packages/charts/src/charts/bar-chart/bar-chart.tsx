@@ -394,11 +394,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	// Narrow the primary bars by widening the visx group padding — a real geometry change, so
 	// pattern fills and borders are not distorted (unlike a CSS transform/scale). The padding is
-	// set so the comparison shadow (drawn at slot × widthFactor) fills all but a small gap of each
+	// set so the comparison bar (drawn at slot × widthFactor) fills all but a small gap of each
 	// per-series step, leaving a small gap between series within a tick (the larger gap between
-	// ticks comes from the category band's own padding). Because shadow = step × (1 - p) ×
-	// widthFactor, choosing p = 1 - (1 - innerGap)/widthFactor makes the shadow span (1 - innerGap)
-	// of the step; the primary stays 1/widthFactor of the shadow.
+	// ticks comes from the category band's own padding). Because comparison = step × (1 - p) ×
+	// widthFactor, choosing p = 1 - (1 - innerGap)/widthFactor makes the comparison span (1 - innerGap)
+	// of the step; the primary stays 1/widthFactor of the comparison.
 	const groupPadding = useMemo( () => {
 		const basePadding = chartOptions.barGroup.padding;
 		if ( ! comparisonWidthFactor || comparisonWidthFactor <= 1 ) {
