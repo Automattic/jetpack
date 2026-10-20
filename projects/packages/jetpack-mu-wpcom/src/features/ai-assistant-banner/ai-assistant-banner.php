@@ -38,6 +38,10 @@ function wpcom_should_show_ai_assistant_banner() {
 		return false;
 	}
 
+	if ( wpcom_has_opted_out_of_wordpress_agent() ) {
+		return false;
+	}
+
 	if ( function_exists( 'get_user_attribute' ) ) {
 		$user_id = get_current_user_id();
 

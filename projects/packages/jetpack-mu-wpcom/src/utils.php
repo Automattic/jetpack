@@ -25,6 +25,27 @@ function wpcom_is_wordpress_agent_enabled(): bool {
 }
 
 /**
+ * Whether an admin turned the WordPress Agent off under Settings › Writing while it is on for the site.
+ *
+ * That checkbox saves `big_sky_enable` as 0, which Atomic also writes when the Agent is switched off.
+ *
+ * @return bool
+ */
+function wpcom_has_opted_out_of_wordpress_agent(): bool {
+	if ( '0' !== (string) get_option( 'big_sky_enable', '1' ) ) {
+		return false;
+	}
+
+	if ( function_exists( 'big_sky_is_enabled' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded above.
+		return (bool) big_sky_is_enabled();
+	}
+
+	// Switching the Agent off deactivates the Big Sky plugin, so an active one means the admin chose 0.
+	return class_exists( 'Big_Sky' );
+}
+
+/**
  * Whether the site is fully managed agency site.
  *
  * @return bool True if the site is fully managed agency site.
