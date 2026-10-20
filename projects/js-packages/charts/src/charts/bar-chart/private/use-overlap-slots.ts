@@ -19,13 +19,17 @@ export type OverlapSlots = {
 	slotKeys: string[];
 	slotOf: ( key: string ) => string;
 	thicknessOf: ( key: string ) => number;
-	/** One keyboard stop per slot: its longest visible series, front-most on a tie. */
-	stops: SeriesEntry[];
-	/** The keyboard index space, in the order `XYChartTooltip` walks the stops. */
+	/** The keyboard stops: every category a slot draws a bar at, category by category. */
 	positions: StopPosition[];
 };
 
-export type StopPosition = { stop: number; dataPointIndex: number };
+/** A slot at one category, named by its front-most bar there. */
+export type StopPosition = {
+	slotKey: string;
+	key: string;
+	datum: DataPointDate;
+	dataPointIndex: number;
+};
 
 export type SelectedSlot = SelectedBar & { index: number; members: SlotMember[] };
 
@@ -77,48 +81,72 @@ export function useOverlapSlots(
 			...( showsComparisons ? [ COMPARISON_SLOT ] : [] ),
 		];
 
-		const stops = slotKeys.flatMap( slot => {
-			const stop = entries
-				.filter( ( { series } ) => slotOf( series.label ) === slot )
-				.reduce< SeriesEntry | undefined >(
-					( longest, entry ) =>
-						longest && longest.series.data.length > entry.series.data.length ? longest : entry,
-					undefined
-				);
-			return stop ? [ stop ] : [];
-		} );
-
 		return {
 			entries,
 			keys: entries.map( ( { series } ) => series.label ),
 			slotKeys,
 			slotOf,
 			thicknessOf,
-			stops,
-			positions: getStopPositions( stops ),
+			positions: getStopPositions( entries, slotKeys, slotOf ),
 		};
 	}, [ enabled, seriesWithVisibility ] );
 }
 
 /**
- * Lists every data point of the stops, category by category.
+ * The category a data point sits at, as a key two points share when `isSameCategory` holds.
  *
- * @param stops - The keyboard stops.
+ * @param point - A data point.
+ * @return The category key.
+ */
+function categoryKey( point: DataPointDate ): string {
+	return point.label != null ? `label:${ point.label }` : `date:${ point.date?.getTime() }`;
+}
+
+/**
+ * Lists a stop for every slot at every category that slot draws a bar at, category by category.
+ *
+ * @param entries  - The visible series, back to front.
+ * @param slotKeys - The slots, in band order.
+ * @param slotOf   - The slot a series sits in.
  * @return The positions, in keyboard order.
  */
-function getStopPositions( stops: SeriesEntry[] ): StopPosition[] {
-	const length = Math.max( 0, ...stops.map( ( { series } ) => series.data.length ) );
-	const positions: StopPosition[] = [];
+function getStopPositions(
+	entries: SeriesEntry[],
+	slotKeys: string[],
+	slotOf: ( key: string ) => string
+): StopPosition[] {
+	const categories = new Map< string, Map< string, StopPosition > >();
 
-	for ( let dataPointIndex = 0; dataPointIndex < length; dataPointIndex++ ) {
-		stops.forEach( ( { series }, stop ) => {
-			if ( dataPointIndex < series.data.length ) {
-				positions.push( { stop, dataPointIndex } );
+	entries.forEach( ( { series } ) => {
+		( series.data as DataPointDate[] ).forEach( ( datum, dataPointIndex ) => {
+			if ( ! isBarRendered( datum ) ) {
+				return;
 			}
+			const key = categoryKey( datum );
+			const slots = categories.get( key ) ?? new Map< string, StopPosition >();
+			const slotKey = slotOf( series.label );
+			// Later entries are in front, so the last one at a category names its slot.
+			slots.set( slotKey, { slotKey, key: series.label, datum, dataPointIndex } );
+			categories.set( key, slots );
 		} );
+	} );
+
+	const ordered = [ ...categories.values() ];
+	const allDated = ordered.every( slots =>
+		[ ...slots.values() ].every( ( { datum } ) => datum.label == null && datum.date )
+	);
+	if ( allDated ) {
+		const time = ( slots: Map< string, StopPosition > ) =>
+			[ ...slots.values() ][ 0 ].datum.date?.getTime() ?? 0;
+		ordered.sort( ( a, b ) => time( a ) - time( b ) );
 	}
 
-	return positions;
+	return ordered.flatMap( slots =>
+		slotKeys.flatMap( slotKey => {
+			const position = slots.get( slotKey );
+			return position ? [ position ] : [];
+		} )
+	);
 }
 
 /**
@@ -138,34 +166,24 @@ export function getSelectedSlot(
 		return undefined;
 	}
 
-	const { dataPointIndex } = position;
-	const stop = slots.stops[ position.stop ]?.series;
-	const category = stop?.data[ dataPointIndex ] as DataPointDate | undefined;
-
-	if ( ! stop || ! category ) {
-		return undefined;
-	}
-
-	const slotKey = slots.slotOf( stop.label );
+	const { slotKey, key: stopKey, datum: category, dataPointIndex } = position;
 	const members = slots.entries.flatMap( ( { series } ) => {
 		const datum = ( series.data as DataPointDate[] ).find( point =>
 			isSameCategory( point, category )
 		);
-		return datum ? [ { key: series.label, datum } ] : [];
+		return datum && isBarRendered( datum ) ? [ { key: series.label, datum } ] : [];
 	} );
-	const slotBars = members.filter(
-		( { key, datum } ) => slots.slotOf( key ) === slotKey && isBarRendered( datum )
-	);
-
-	if ( ! slotBars.length ) {
-		return undefined;
-	}
+	const slotBars = members.filter( ( { key } ) => slots.slotOf( key ) === slotKey );
 
 	return {
 		data: slotBars.map( ( { datum } ) => datum ),
 		slotKey,
 		thickness: Math.max( ...slotBars.map( ( { key } ) => slots.thicknessOf( key ) ) ),
 		index: dataPointIndex,
-		members,
+		// The stop goes last: the last bar shown becomes the tooltip's nearest datum.
+		members: [
+			...members.filter( ( { key } ) => key !== stopKey ),
+			...members.filter( ( { key } ) => key === stopKey ),
+		],
 	};
 }

@@ -249,4 +249,45 @@ describe( 'BarChart overlap layout', () => {
 			barOf( 'Previous views', 1 ).x
 		);
 	} );
+
+	it( 'reaches every category a slot draws from the keyboard when its groups cover different categories', async () => {
+		const user = userEvent.setup();
+		const onDatumActivate = jest.fn();
+		renderOverlap( {
+			onDatumActivate,
+			data: [
+				{ label: 'Views', group: 'views', data: [ day( 'Mon', 100 ), day( 'Tue', 120 ) ] },
+				{ label: 'Visitors', group: 'visitors', data: [ day( 'Tue', 50 ), day( 'Wed', 60 ) ] },
+			],
+		} );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}{Enter}{ArrowRight}{Enter}{ArrowRight}{Enter}' );
+
+		expect(
+			onDatumActivate.mock.calls.map( ( [ { key, datum } ] ) => [ key, datum.label ] )
+		).toEqual( [
+			[ 'Views', 'Mon' ],
+			[ 'Visitors', 'Tue' ],
+			[ 'Visitors', 'Wed' ],
+		] );
+	} );
+
+	it( 'leaves a series with no reading at the selected category out of the keyboard tooltip', async () => {
+		const user = userEvent.setup();
+		renderOverlap( {
+			data: DATA.map( series =>
+				series.label === 'Visitors'
+					? { ...series, data: [ { label: 'Mon', value: null }, day( 'Tue', 50 ) ] }
+					: series
+			),
+		} );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+
+		const tooltip = screen.getByTestId( 'chart-tooltip-0' );
+		expect( tooltip ).toHaveTextContent( 'Views: 100' );
+		expect( tooltip ).not.toHaveTextContent( 'Visitors' );
+	} );
 } );

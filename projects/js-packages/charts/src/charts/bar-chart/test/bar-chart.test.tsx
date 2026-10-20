@@ -2755,6 +2755,29 @@ describe( 'BarChart', () => {
 			expect( bars[ 0 ] ).toHaveAttribute( 'fill', primaryColor );
 		} );
 
+		it( "fills a comparison bar in its datum's own color, as a primary bar does", () => {
+			render(
+				<BarChart
+					width={ 400 }
+					height={ 300 }
+					data={ [
+						{ label: 'This year', group: 'views', data: [ { label: 'Jan', value: 100 } ] },
+						{
+							label: 'Last year',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [ { label: 'Jan', value: 80, color: '#123456' } ],
+						},
+					] }
+				/>
+			);
+
+			expect( screen.getByTestId( 'bar-chart-comparison-1-0' ) ).toHaveAttribute(
+				'fill',
+				'#123456'
+			);
+		} );
+
 		it( 'hides the comparison shadow group from assistive technology', () => {
 			const data = [
 				{

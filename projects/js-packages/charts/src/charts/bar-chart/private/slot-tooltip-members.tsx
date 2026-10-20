@@ -8,10 +8,10 @@ export type SlotMember = { key: string; datum: DataPointDate };
 /**
  * Fills the tooltip with every bar of the keyboard-selected category, and only those.
  *
- * Render it before `XYChartTooltip`: effects run in tree order, so the stop that tooltip shows next stays the nearest datum.
+ * The last member shown becomes the tooltip's nearest datum, so the caller lists the keyboard stop last.
  *
  * @param props         - Component props.
- * @param props.members - The category's bars.
+ * @param props.members - The category's bars, the keyboard stop last.
  * @param props.index   - The selected data point.
  * @return No visual content.
  */

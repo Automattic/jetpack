@@ -37,8 +37,8 @@ export const ComparisonBars: FC< {
 	xAccessor: ( d: DataPointDate ) => string | number | Date | undefined;
 	yAccessor: ( d: DataPointDate ) => number | undefined;
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
-	/** Resolves the comparison bar's fill: its pattern when patterns are on, else its color. */
-	resolveFill: ( entry: ComparisonSeriesEntry ) => string;
+	/** Resolves a comparison bar's fill: its pattern when patterns are on, else its datum's or its series' color. */
+	resolveFill: ( entry: ComparisonSeriesEntry, datum: DataPointDate ) => string;
 } > = ( {
 	comparisonEntries,
 	primaryKeys,
@@ -86,7 +86,6 @@ export const ComparisonBars: FC< {
 
 		const { barStyles } = getElementStyles( { data: series, index } );
 		const widthFactor = barStyles?.widthFactor ?? DEFAULT_COMPARISON_WIDTH_FACTOR;
-		const fill = resolveFill( entry );
 		// The shadow is `widthFactor` × the (narrowed) primary slot. bar-chart.tsx narrows the
 		// primary bars by widening the group padding so this ratio holds with real geometry.
 
@@ -126,7 +125,7 @@ export const ComparisonBars: FC< {
 					y={ rect.y }
 					width={ rect.width }
 					height={ rect.height }
-					fill={ fill }
+					fill={ resolveFill( entry, datum ) }
 					opacity={ barStyles?.opacity }
 				/>
 			);

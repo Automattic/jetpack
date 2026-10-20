@@ -263,8 +263,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const overlapSlots = useOverlapSlots( isOverlap, seriesWithVisibility );
 
-	// An overlap layout steps the keyboard through its slots rather than its bars.
-	const stopEntries = overlapSlots?.stops ?? primaryEntries;
+	// An overlap layout steps the keyboard through `overlapSlots.positions`, and `SlotTooltipMembers` fills its tooltip.
+	const stopEntries = useMemo(
+		() => ( overlapSlots ? [] : primaryEntries ),
+		[ overlapSlots, primaryEntries ]
+	);
 
 	const totalPoints =
 		overlapSlots?.positions.length ??
@@ -284,20 +287,30 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	// within each data point — so the bar handed on is the one outlined.
 	const activateSelectedBar = useCallback(
 		( index: number ) => {
+			if ( overlapSlots ) {
+				const position = overlapSlots.positions[ index ];
+				if ( position ) {
+					onDatumActivate?.( {
+						datum: position.datum,
+						index: position.dataPointIndex,
+						key: position.key,
+					} );
+				}
+				return;
+			}
+
 			const stopCount = stopEntries.length;
 
 			if ( ! stopCount ) {
 				return;
 			}
 
-			const position = overlapSlots
-				? overlapSlots.positions[ index ]
-				: { stop: index % stopCount, dataPointIndex: Math.floor( index / stopCount ) };
-			const series = position && stopEntries[ position.stop ]?.series;
-			const datum = position && series?.data[ position.dataPointIndex ];
+			const dataPointIndex = Math.floor( index / stopCount );
+			const series = stopEntries[ index % stopCount ]?.series;
+			const datum = series?.data[ dataPointIndex ];
 
 			if ( series && datum ) {
-				onDatumActivate?.( { datum, index: position.dataPointIndex, key: series.label } );
+				onDatumActivate?.( { datum, index: dataPointIndex, key: series.label } );
 			}
 		},
 		[ overlapSlots, stopEntries, onDatumActivate ]
@@ -325,17 +338,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			if ( overlapSlots ) {
 				const hovered = overlapSlots.entries.find( ( { series } ) => series.label === key )?.series
 					.data[ index ] as DataPointDate | undefined;
-				const stop = overlapSlots.stops.findIndex(
-					( { series } ) => overlapSlots.slotOf( series.label ) === overlapSlots.slotOf( key )
-				);
-				const dataPointIndex = hovered
-					? ( overlapSlots.stops[ stop ]?.series.data as DataPointDate[] | undefined )?.findIndex(
-							point => isSameCategory( point, hovered )
+				const slotKey = overlapSlots.slotOf( key );
+				const position = hovered
+					? overlapSlots.positions.findIndex(
+							p => p.slotKey === slotKey && isSameCategory( p.datum, hovered )
 						)
-					: undefined;
-				const position = overlapSlots.positions.findIndex(
-					p => p.stop === stop && p.dataPointIndex === dataPointIndex
-				);
+					: -1;
 				if ( position >= 0 ) {
 					onChartPointerMove( position );
 				}
@@ -436,10 +444,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	const resolveComparisonFill = useCallback(
-		( entry: ComparisonSeriesEntry ) =>
+		( entry: ComparisonSeriesEntry, datum: DataPointDate ) =>
 			withPatterns
 				? `url(#${ getPatternId( chartId, entry.index ) })`
-				: ( barColors[ entry.index ] ?? '' ),
+				: ( datum.color ?? barColors[ entry.index ] ?? '' ),
 		[ withPatterns, chartId, barColors ]
 	);
 
