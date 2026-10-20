@@ -11,9 +11,11 @@ import { render, screen } from '@testing-library/react';
 import { HostLink } from '@wordpress/widget-primitives';
 import { createRef } from 'react';
 import { DASHBOARD_PAGE_SLUG } from '@jetpack-premium-analytics/routing';
+import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
  */
+import { getMockRouteLinkUrl, setMockRouteSearch } from '../tests/js/route-test-utils';
 import { AnalyticsWidgetHostProvider, toRouteTarget } from './widget-host';
 
 const BASE = `https://example.com/wp-admin/admin.php?page=${ DASHBOARD_PAGE_SLUG }`;
@@ -29,10 +31,10 @@ describe( 'AnalyticsWidgetHostProvider', () => {
 			</AnalyticsWidgetHostProvider>
 		);
 
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			'/reports/referrers?from=2026-03-01&to=2026-03-10'
-		);
+		const url = getMockRouteLinkUrl( screen.getByRole( 'link', { name: 'View all' } ) );
+		expect( url.pathname ).toBe( '/reports/referrers' );
+		expect( url.searchParams.get( 'from' ) ).toBe( '2026-03-01' );
+		expect( url.searchParams.get( 'to' ) ).toBe( '2026-03-10' );
 	} );
 
 	it( 'keeps a plain anchor for a href outside the dashboard', () => {
@@ -73,12 +75,38 @@ describe( 'AnalyticsWidgetHostProvider', () => {
 				</AnalyticsWidgetHostProvider>
 			);
 
-			expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-				'href',
-				'/reports/referrers'
-			);
+			expect(
+				getMockRouteLinkUrl( screen.getByRole( 'link', { name: 'View all' } ) ).pathname
+			).toBe( '/reports/referrers' );
 		} finally {
 			window.history.replaceState( null, '', previous );
+		}
+	} );
+
+	it( 'carries the dashboard report window and tab, the href winning on a shared key', () => {
+		setMockRouteSearch( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } );
+
+		try {
+			render(
+				<AnalyticsWidgetHostProvider base={ BASE }>
+					<DashboardSectionProvider section="traffic">
+						<HostLink
+							href={ `admin.php?page=${ DASHBOARD_PAGE_SLUG }&p=%2Freports%2Fcomments%3Fsection%3Dposts%26to%3D2026-03-05` }
+						>
+							View all
+						</HostLink>
+					</DashboardSectionProvider>
+				</AnalyticsWidgetHostProvider>
+			);
+
+			const url = getMockRouteLinkUrl( screen.getByRole( 'link', { name: 'View all' } ) );
+			expect( url.pathname ).toBe( '/reports/comments' );
+			expect( url.searchParams.get( 'from' ) ).toBe( '2026-03-01' );
+			expect( url.searchParams.get( 'to' ) ).toBe( '2026-03-05' );
+			expect( url.searchParams.get( 'ds' ) ).toBe( 'traffic' );
+			expect( url.searchParams.get( 'section' ) ).toBe( 'posts' );
+		} finally {
+			setMockRouteSearch();
 		}
 	} );
 } );

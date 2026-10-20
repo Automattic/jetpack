@@ -4,7 +4,11 @@
 import { Link } from '@wordpress/route';
 import { WidgetHostProvider } from '@wordpress/widget-primitives';
 import { forwardRef, useMemo } from 'react';
-import { matchDashboardHref } from '@jetpack-premium-analytics/routing';
+import { matchDashboardHref, pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import {
+	useDashboardOriginSearch,
+	useNormalizedReportParams,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import type { WidgetHost } from '@wordpress/widget-primitives';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
@@ -49,15 +53,19 @@ export function toRouteTarget( path: string ): { to: string; search?: Record< st
 type WidgetRouteLinkProps = { path: string } & Omit< ComponentPropsWithoutRef< 'a' >, 'href' >;
 
 /**
- * The router link a widget action mounts when its href targets a dashboard route. Menu items
- * and tooltip triggers reach the anchor through the ref.
+ * The router link a widget action mounts when its href targets a dashboard route. It carries the
+ * dashboard's report window and origin tab, as the widgets' own links do; a param the href
+ * declares wins. Menu items and tooltip triggers reach the anchor through the ref.
  */
 export const WidgetRouteLink = forwardRef< HTMLAnchorElement, WidgetRouteLinkProps >(
 	function UnforwardedWidgetRouteLink( { path, ...props }, ref ) {
 		const { to, search } = toRouteTarget( path );
+		const reportParams = useNormalizedReportParams();
+		const origin = useDashboardOriginSearch();
+		const withWindow = { ...pickReportDateParams( reportParams ), ...origin, ...search };
 
 		// The router types the search against a route tree it cannot resolve here.
-		return <Link ref={ ref } to={ to } search={ search as unknown as never } { ...props } />;
+		return <Link ref={ ref } to={ to } search={ withWindow as unknown as never } { ...props } />;
 	}
 );
 

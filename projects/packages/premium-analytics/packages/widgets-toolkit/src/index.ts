@@ -342,6 +342,7 @@ export {
 	useDashboardOriginSearch,
 	useElementSize,
 	type ElementSize,
+	useNormalizedReportParams,
 	useWidgetNavigationSearch,
 	useReportActions,
 	type ReportActionsOptions,
