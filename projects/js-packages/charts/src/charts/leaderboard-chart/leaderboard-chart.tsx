@@ -571,6 +571,16 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 									</div>
 								);
 							} ) }
+							{ isDiverging && (
+								<div
+									className={ clsx( styles.row, styles.zeroAxis ) }
+									data-leaderboard-axis
+									data-testid="leaderboard-chart-zero-axis"
+									aria-hidden="true"
+								>
+									<Text className={ styles.zeroAxisLabel }>{ valueFormatter( 0 ) }</Text>
+								</div>
+							) }
 						</Grid>
 					) }
 				</div>

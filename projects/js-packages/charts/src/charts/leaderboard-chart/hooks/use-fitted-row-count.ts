@@ -65,7 +65,16 @@ export function useFittedRowCount( enabled: boolean, rowCount: number, data: unk
 		}
 		setIsMeasurable( true );
 
-		const contentBottom = content.getBoundingClientRect().bottom + SUBPIXEL_TOLERANCE;
+		// The zero axis sticks to the bottom edge, so the rows must clear it and the gap above it.
+		const axis = content.querySelector< HTMLElement >(
+			':scope > [data-leaderboard-grid] > [data-leaderboard-axis]'
+		);
+		const axisSpace = axis
+			? axis.getBoundingClientRect().height +
+				( parseFloat( getComputedStyle( axis.parentElement! ).rowGap ) || 0 )
+			: 0;
+
+		const contentBottom = content.getBoundingClientRect().bottom - axisSpace + SUBPIXEL_TOLERANCE;
 
 		let fits = 0;
 		while ( fits < rowBottoms.length && rowBottoms[ fits ] <= contentBottom ) {
