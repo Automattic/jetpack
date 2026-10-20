@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { toSvgId } from '../../private/pie-keyboard-navigation/selected-segment-ring';
 import styles from '../bar-chart.module.scss';
 import { createGroupScale } from './band-scale';
-import { computeComparisonRect, getValueScaleBaseline } from './comparison-bars-geometry';
+import { computeSlotRect, getValueScaleBaseline } from './comparison-bars-geometry';
 import type { BandScale } from './band-scale';
 import type { DataPointDate } from '../../../types';
 import type { FC } from 'react';
@@ -68,14 +68,12 @@ export const SelectedBarRing: FC< {
 		return null;
 	}
 
-	const baseline = getValueScaleBaseline( valueScale );
-	const rect = computeComparisonRect( {
+	const rect = computeSlotRect( {
 		horizontal,
 		bandPosition,
 		slotOffset,
 		slotThickness: groupScale.bandwidth(),
-		valuePosition: Math.min( baseline, ...valuePositions ),
-		baseline: Math.max( baseline, ...valuePositions ),
+		valuePositions: [ getValueScaleBaseline( valueScale ), ...valuePositions ],
 		widthFactor: selected.thickness,
 	} );
 	const clipId = `bar-selected-ring-clip-${ toSvgId( chartId ) }`;

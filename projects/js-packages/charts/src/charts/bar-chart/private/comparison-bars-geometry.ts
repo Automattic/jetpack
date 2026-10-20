@@ -23,45 +23,35 @@ export function getValueScaleBaseline( scale: ValueScale ): number {
 }
 
 /**
- * Compute the rect for a comparison "shadow" bar, centered on the paired
- * primary bar slot and scaled by `widthFactor`.
+ * Compute the rect that spans `valuePositions` along the value axis, centered on a slot and scaled by `widthFactor` across it.
  *
- * @param {object}  params               - Geometry inputs.
- * @param {boolean} params.horizontal    - True for a horizontal bar chart, false for vertical.
- * @param {number}  params.bandPosition  - bandScale(category): start px of the category band.
- * @param {number}  params.slotOffset    - groupScale(primaryKey): offset of the primary slot within the band.
- * @param {number}  params.slotThickness - groupScale.bandwidth(): primary bar thickness in px.
- * @param {number}  params.valuePosition - valueScale(value): output px for the bar's data value.
- * @param {number}  params.baseline      - getValueScaleBaseline(valueScale): zero-line output px.
- * @param {number}  params.widthFactor   - Shadow thickness multiplier, e.g. 1.5 for 150% width.
- * @return {ComparisonRect} The {x, y, width, height} of the shadow rect.
+ * @param {object}   params                - Geometry inputs.
+ * @param {boolean}  params.horizontal     - True for a horizontal bar chart, false for vertical.
+ * @param {number}   params.bandPosition   - bandScale(category): start px of the category band.
+ * @param {number}   params.slotOffset     - groupScale(slotKey): offset of the slot within the band.
+ * @param {number}   params.slotThickness  - groupScale.bandwidth(): slot thickness in px.
+ * @param {number[]} params.valuePositions - Output px the rect must reach, such as the baseline and each bar's value.
+ * @param {number}   params.widthFactor    - Thickness multiplier, e.g. 1.5 for 150% width.
+ * @return {ComparisonRect} The {x, y, width, height} of the rect.
  */
-export function computeComparisonRect( params: {
+export function computeSlotRect( params: {
 	horizontal: boolean;
 	bandPosition: number;
 	slotOffset: number;
 	slotThickness: number;
-	valuePosition: number;
-	baseline: number;
+	valuePositions: number[];
 	widthFactor: number;
 } ): ComparisonRect {
-	const {
-		horizontal,
-		bandPosition,
-		slotOffset,
-		slotThickness,
-		valuePosition,
-		baseline,
-		widthFactor,
-	} = params;
+	const { horizontal, bandPosition, slotOffset, slotThickness, valuePositions, widthFactor } =
+		params;
 	const slotStart = bandPosition + slotOffset;
-	const shadowThickness = slotThickness * widthFactor;
-	const shadowStart = slotStart + slotThickness / 2 - shadowThickness / 2;
-	const valueStart = Math.min( valuePosition, baseline );
-	const valueLength = Math.abs( baseline - valuePosition );
+	const thickness = slotThickness * widthFactor;
+	const start = slotStart + slotThickness / 2 - thickness / 2;
+	const valueStart = Math.min( ...valuePositions );
+	const valueLength = Math.max( ...valuePositions ) - valueStart;
 
 	if ( horizontal ) {
-		return { x: valueStart, y: shadowStart, width: valueLength, height: shadowThickness };
+		return { x: valueStart, y: start, width: valueLength, height: thickness };
 	}
-	return { x: shadowStart, y: valueStart, width: shadowThickness, height: valueLength };
+	return { x: start, y: valueStart, width: thickness, height: valueLength };
 }
