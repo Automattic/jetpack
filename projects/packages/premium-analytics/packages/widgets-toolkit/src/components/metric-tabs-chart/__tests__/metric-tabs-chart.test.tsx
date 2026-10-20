@@ -703,11 +703,20 @@ describe( 'MetricTabsChart', () => {
 			'a counterpart seeded hidden',
 			[ { ...VIEWS, counterpartHidden: true }, VISITORS ],
 		],
-		[ 'grouped', 'a metric alone', [ METRIC ] ],
+		[ 'overlap', 'a metric alone', [ METRIC ] ],
 	] )( 'draws %s bars for %s', ( layout, _case, metrics ) => {
 		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } chartType="bar" /> );
 
 		expect( recordedPropsFor( mockBarSpy, 'Views' ).layout ).toBe( layout );
+	} );
+
+	it( 'draws a metric alone in the accent, its previous period in gray', () => {
+		setMockElementStyles( () => ( { color: '#3858E9' } ) );
+		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
+
+		expect(
+			recordedPropsFor( mockBarSpy, 'Views' ).series.map( series => series.options?.stroke )
+		).toEqual( [ '#3858E9', 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)' ] );
 	} );
 
 	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views

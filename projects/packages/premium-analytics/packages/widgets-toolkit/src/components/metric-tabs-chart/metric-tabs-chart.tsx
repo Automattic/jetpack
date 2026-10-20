@@ -164,8 +164,8 @@ function hasSeries( metric: MetricTab ): boolean {
 
 /**
  * How the selected metric's series are drawn. `line` keeps the previous period
- * as a dashed overlay; `bar` draws it as the translucent shadow behind each bar, or, with a
- * counterpart shown from the start, in gray beside the current period, the counterpart inside the metric's bar.
+ * as a dashed overlay; `bar` draws it in gray beside the current period, with a counterpart shown
+ * from the start inside the metric's bar. A counterpart that starts hidden keeps the translucent shadow behind each bar.
  */
 export type MetricTabsChartType = 'line' | 'bar';
 
@@ -334,9 +334,16 @@ function MetricChart( {
 	}, [ getElementStyles ] );
 
 	// A counterpart shown from the start is drawn inside the metric's bar, as Jetpack Stats draws visitors inside views.
-	const isOverlap = chartType === 'bar' && !! counterpart && ! metric.counterpartHidden;
+	const isOverlap = chartType === 'bar' && ! metric.counterpartHidden;
 
 	const { series, defaultHiddenSeries } = useMemo( () => {
+		if ( isOverlap && ! counterpart ) {
+			return {
+				series: buildSeries( metric, chartType, shades.accent, PREVIOUS_PERIOD_GRAYS.metric ),
+				defaultHiddenSeries: undefined,
+			};
+		}
+
 		if ( isOverlap && counterpart ) {
 			// The accent is the base charts tones the current period from; the unstroked counterpart takes its shade.
 			return {
