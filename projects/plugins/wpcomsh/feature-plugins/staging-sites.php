@@ -156,7 +156,7 @@ add_action( 'admin_print_footer_scripts', 'wpcomsh_disable_pingback_ui_on_stagin
  * @return array Filtered headers.
  */
 function wpcomsh_add_staging_site_robots_header( $headers ) {
-	if ( wpcomsh_is_staging_environment() ) {
+	if ( get_option( 'wpcom_is_staging_site' ) ) {
 		$existing                = $headers['X-Robots-Tag'] ?? '';
 		$headers['X-Robots-Tag'] = $existing ? $existing . ', noindex, nofollow' : 'noindex, nofollow';
 	}
@@ -173,7 +173,7 @@ add_filter( 'wp_headers', 'wpcomsh_add_staging_site_robots_header', PHP_INT_MAX 
  * @return array Filtered directives.
  */
 function wpcomsh_add_staging_site_robots_directives( $robots ) {
-	if ( ! wpcomsh_is_staging_environment() ) {
+	if ( ! get_option( 'wpcom_is_staging_site' ) ) {
 		return $robots;
 	}
 
