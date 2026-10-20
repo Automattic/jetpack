@@ -9,6 +9,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Status\Host;
 
@@ -19,8 +20,7 @@ require_once __DIR__ . '/../ai-launchpad/helpers.php';
 /**
  * Determines whether the current user is eligible for the AI assistant banner.
  *
- * Eligible users see it while the WordPress Agent is off. Once the Agent is on, the
- * banner's script shows it only if MCP access is still off for the site.
+ * Eligible users see it while the WordPress Agent or MCP access is off.
  *
  * @return bool
  */
@@ -56,37 +56,62 @@ function wpcom_should_show_ai_assistant_banner() {
 }
 
 /**
- * The endpoint the banner reads to check whether MCP access is on for this site.
+ * Whether MCP access is enabled for the current user on this site.
  *
- * Mirrors the Jetpack AI Hub: the native WordPress.com endpoint on Simple sites, and
- * Jetpack's proxy of it on Atomic sites.
+ * A short cache avoids repeated WordPress.com requests on Atomic Dashboards.
  *
- * @return array{path: string, format: string}
+ * @return bool|null True when on, false when off, or null when unavailable.
  */
-function wpcom_ai_assistant_banner_mcp_settings_api() {
-	if ( ( new Host() )->is_wpcom_simple() ) {
-		return array(
-			'path'   => '/wpcom/v2/sites/' . get_current_blog_id() . '/mcp-abilities',
-			'format' => 'wpcom',
-		);
+function wpcom_ai_assistant_banner_mcp_enabled() {
+	$blog_id = get_wpcom_blog_id();
+	if ( ! $blog_id ) {
+		return null;
 	}
 
-	return array(
-		'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
-		'format' => 'jetpack',
-	);
+	$cache_key = 'wpcom_ai_banner_mcp_' . $blog_id . '_' . get_current_user_id();
+	$cached    = get_transient( $cache_key );
+	if ( in_array( $cached, array( 'on', 'off', 'unavailable' ), true ) ) {
+		return 'unavailable' === $cached ? null : 'on' === $cached;
+	}
+
+	$path     = sprintf( '/sites/%d/mcp-abilities', $blog_id );
+	$response = ( new Host() )->is_wpcom_simple()
+		? Client::wpcom_json_api_request_as_blog( $path, '2', array( 'method' => 'GET' ), null, 'wpcom' )
+		: Client::wpcom_json_api_request_as_user( $path, '2', array( 'method' => 'GET' ), null, 'wpcom' );
+
+	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		return null;
+	}
+
+	$data = json_decode( wp_remote_retrieve_body( $response ), true );
+	if ( ! is_array( $data ) || ! array_key_exists( 'has_mcp_plan', $data ) ) {
+		return null;
+	}
+
+	if ( ! $data['has_mcp_plan'] ) {
+		set_transient( $cache_key, 'unavailable', 5 * MINUTE_IN_SECONDS );
+		return null;
+	}
+
+	if ( ! isset( $data['site_level_enabled'] ) ) {
+		return null;
+	}
+
+	$enabled = (bool) $data['site_level_enabled'];
+	set_transient( $cache_key, $enabled ? 'on' : 'off', 5 * MINUTE_IN_SECONDS );
+	return $enabled;
 }
 
 /**
- * Data for the banner's script: Tracks props, and the endpoint for checking MCP access.
+ * Data for the banner's script: Tracks props and the cached MCP state.
  *
  * @param string $screen_id The current admin screen id.
- * @return array{trackProps: array<string,string>, mcpSettingsApi: array{path: string, format: string}}
+ * @return array{trackProps: array<string,string>, mcpEnabled: bool|null}
  */
 function wpcom_ai_assistant_banner_script_data( $screen_id ) {
 	return array(
-		'trackProps'     => wpcom_ai_assistant_banner_tracks_props( $screen_id ),
-		'mcpSettingsApi' => wpcom_ai_assistant_banner_mcp_settings_api(),
+		'trackProps' => wpcom_ai_assistant_banner_tracks_props( $screen_id ),
+		'mcpEnabled' => wpcom_is_wordpress_agent_enabled() ? wpcom_ai_assistant_banner_mcp_enabled() : null,
 	);
 }
 

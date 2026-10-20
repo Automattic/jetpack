@@ -1,20 +1,9 @@
-import apiFetch from '@wordpress/api-fetch';
-
-/**
- * The endpoint the server passes for checking MCP access: the native WordPress.com
- * endpoint on Simple sites, or Jetpack's proxy of it on Atomic sites.
- */
-export interface McpSettingsApi {
-	path: string;
-	format: 'wpcom' | 'jetpack';
-}
-
 /**
  * Data the server localizes for the banner's script.
  */
 export interface BannerSettings {
 	trackProps?: Record< string, string >;
-	mcpSettingsApi?: McpSettingsApi;
+	mcpEnabled?: boolean | null;
 }
 
 /**
@@ -25,61 +14,22 @@ export interface Banner {
 }
 
 type Track = ( eventName: string, eventProperties: Record< string, string > ) => void;
-type FetchSettings = ( path: string ) => Promise< unknown >;
-
-/**
- * Whether MCP access is on, unavailable, or cannot be determined from the response.
- *
- * @param data   - Response from the MCP settings endpoint.
- * @param format - Which endpoint answered.
- * @return True unless the response explicitly says MCP access is off.
- */
-export function isMcpEnabled( data: unknown, format: McpSettingsApi[ 'format' ] ): boolean {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- untyped REST response.
-	const response = ( data ?? {} ) as any;
-
-	if ( format === 'wpcom' ) {
-		return response.has_mcp_plan === false || response.site_level_enabled !== false;
-	}
-
-	return (
-		response.has_mcp_access === false ||
-		response.mcp_abilities?.sites?.[ 0 ]?.site_level_enabled !== false
-	);
-}
 
 /**
  * Shows the banner and records an impression. The server hides the banner when the
- * WordPress Agent is already on, so then it shows only while MCP access is still off,
- * and stays hidden if the check fails.
+ * WordPress Agent is already on; it reveals the banner only when MCP is off.
  *
- * @param banner        - The banner element.
- * @param settings      - Data localized by the server.
- * @param track         - Records a Tracks event.
- * @param fetchSettings - Reads the MCP settings endpoint.
+ * @param banner   - The banner element.
+ * @param settings - Data localized by the server.
+ * @param track    - Records a Tracks event.
  */
-export async function showBanner(
-	banner: Banner,
-	settings: BannerSettings = {},
-	track: Track,
-	fetchSettings: FetchSettings = path => apiFetch( { path } )
-): Promise< void > {
-	const { trackProps = {}, mcpSettingsApi } = settings;
+export function showBanner( banner: Banner, settings: BannerSettings = {}, track: Track ): void {
+	const { trackProps = {}, mcpEnabled } = settings;
 
 	if ( banner.hidden ) {
-		if ( ! mcpSettingsApi?.path ) {
+		if ( mcpEnabled !== false ) {
 			return;
 		}
-
-		try {
-			const data = await fetchSettings( mcpSettingsApi.path );
-			if ( isMcpEnabled( data, mcpSettingsApi.format ) ) {
-				return;
-			}
-		} catch {
-			return;
-		}
-
 		banner.hidden = false;
 	}
 
