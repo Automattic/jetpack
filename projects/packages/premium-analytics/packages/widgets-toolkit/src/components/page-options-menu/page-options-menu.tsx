@@ -11,8 +11,8 @@ import { useCallback, useState } from 'react';
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
 import { canSendFeedback } from './can-send-feedback';
-import { FeedbackModal } from './feedback-modal';
 import { getClassicStatsUrl } from './classic-stats-url';
+import { FeedbackModal } from './feedback-modal';
 import { SwitchOffDialog } from './switch-off-dialog';
 
 export type PageOptionsMenuProps = {
