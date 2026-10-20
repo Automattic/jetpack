@@ -4,6 +4,7 @@ import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import OverviewItem from '../overview-item';
+import useOverviewLoadEvent from '../overview-item/use-overview-load-event';
 import useBoostSpeedScore from './use-boost-speed-score';
 import type { OverviewItemProps } from '../overview-item';
 import type { ProductCardComponent } from '../types';
@@ -28,6 +29,9 @@ const BoostOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const { status, manageUrl } = detail || {};
 	const isActive = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
+	const isScoreLoading = isLoading || ( ! speedLetterGrade && ! isSpeedScoreError );
+	useOverviewLoadEvent( PRODUCT_SLUGS.BOOST, isScoreLoading );
+
 	// A disconnected site has no score to fetch, so it shows Boost's status instead of a failure.
 	const hasFailed = isSpeedScoreError && isSiteConnected;
 
@@ -48,7 +52,7 @@ const BoostOverviewItem: ProductCardComponent = ( { admin } ) => {
 							href: `#${ MyJetpackRoutes.AddBoost }`,
 						}
 			}
-			isLoading={ isLoading || ( ! speedLetterGrade && ! isSpeedScoreError ) }
+			isLoading={ isScoreLoading }
 			loadingLabel={ __( 'Calculating…', 'jetpack-my-jetpack' ) }
 			error={
 				hasFailed

@@ -7,7 +7,6 @@ import useProduct from '../../../data/products/use-product';
 import useProductsByOwnership from '../../../data/products/use-products-by-ownership';
 import { getStatusLabel, getStatusTone } from '../../product-card/status';
 import styles from './style.module.scss';
-import useOverviewLoadEvent from './use-overview-load-event';
 import type { StatusTone } from '../../product-card/status';
 import type { ComponentProps, FC, ReactNode } from 'react';
 
@@ -87,7 +86,6 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	error,
 } ) => {
 	const statusBadge = useStatusBadge( slug );
-	useOverviewLoadEvent( slug, isLoading );
 
 	const productLinks: ReactNode[] = [];
 	if ( admin && action ) {
