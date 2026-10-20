@@ -425,28 +425,34 @@ describe( 'NewsletterSettingsApp', () => {
 			expect( leavePage() ).toBe( false );
 		} );
 
-		it( 'keeps unsaved edits, and keeps asking, after leaving the tab and coming back', async () => {
-			fetchSettings.mockResolvedValue( { ...defaultSettings } );
-			const { unmount } = render( <NewsletterSettingsApp /> );
-			await waitFor( () => expect( senderSettingsProps.current ).not.toBeNull() );
-
+		it( 'keeps asking while another section is still unsaved after one saves', async () => {
+			updateSettings.mockResolvedValue( {} );
+			await stageSubscribeModalChange();
 			await act( async () => {
 				senderSettingsProps.current.onChange( {
 					jetpack_subscriptions_from_name: 'Unsaved sender',
 				} );
 			} );
-			await waitFor( () => expect( senderSettingsProps.current.hasChanges ).toBe( true ) );
 
-			unmount();
-			senderSettingsProps.current = null;
-			render( <NewsletterSettingsApp /> );
-			await waitFor( () => expect( senderSettingsProps.current ).not.toBeNull() );
-			await waitFor( () => expect( fetchSettings ).toHaveBeenCalledTimes( 2 ) );
+			await act( async () => {
+				subscribeModalProps.current.onSave();
+			} );
+			await waitFor( () => expect( subscribeModalProps.current.hasChanges ).toBe( false ) );
 
-			expect( senderSettingsProps.current.hasChanges ).toBe( true );
-			expect( senderSettingsProps.current.data.jetpack_subscriptions_from_name ).toBe(
-				'Unsaved sender'
-			);
+			expect( leavePage() ).toBe( true );
+		} );
+
+		it( 'keeps asking after a save fails', async () => {
+			updateSettings.mockRejectedValueOnce( new Error( 'Network error' ) );
+			await stageSubscribeModalChange();
+
+			await act( async () => {
+				subscribeModalProps.current.onSave();
+			} );
+			await waitFor( () => expect( subscribeModalProps.current.isSaving ).toBe( false ) );
+
+			expect( console ).toHaveErrored();
+			expect( subscribeModalProps.current.hasChanges ).toBe( true );
 			expect( leavePage() ).toBe( true );
 		} );
 

@@ -80,19 +80,6 @@ let cachedSettings: NewsletterSettings | null = null;
 // enabled *in the saved state* (an unsaved toggle previews nothing).
 let cachedSavedSettings: NewsletterSettings | null = null;
 
-// Module-level cache of each manually saved section's staged edits, so leaving the Settings tab
-// and coming back keeps them (and their Save buttons and leave-page warning) instead of dropping them.
-type StagedSection =
-	'subscriptions' | 'senderName' | 'newsletterCategories' | 'welcomeEmail' | 'subscribeModal';
-const emptyStagedChanges = (): Record< StagedSection, Partial< NewsletterSettings > > => ( {
-	subscriptions: {},
-	senderName: {},
-	newsletterCategories: {},
-	welcomeEmail: {},
-	subscribeModal: {},
-} );
-let cachedStagedChanges = emptyStagedChanges();
-
 /**
  * Test-only: clear the module-level settings caches so each test starts cold.
  * The caches deliberately outlive any single component instance (that's the
@@ -103,7 +90,6 @@ let cachedStagedChanges = emptyStagedChanges();
 export function __resetNewsletterSettingsCacheForTests(): void {
 	cachedSettings = null;
 	cachedSavedSettings = null;
-	cachedStagedChanges = emptyStagedChanges();
 }
 
 export type NewsletterSettingsBodyProps = {
@@ -175,32 +161,32 @@ export function NewsletterSettingsBody( {
 
 	// Subscription settings state (for manual save).
 	const [ subscriptionChanges, setSubscriptionChanges ] = useState< Partial< NewsletterSettings > >(
-		() => cachedStagedChanges.subscriptions
+		{}
 	);
 	const [ isSavingSubscriptions, setIsSavingSubscriptions ] = useState( false );
 
 	// Sender name state (for manual save).
 	const [ senderNameChanges, setSenderNameChanges ] = useState< Partial< NewsletterSettings > >(
-		() => cachedStagedChanges.senderName
+		{}
 	);
 	const [ isSavingSenderName, setIsSavingSenderName ] = useState( false );
 
 	// Newsletter categories state (for manual save).
 	const [ newsletterCategoriesChanges, setNewsletterCategoriesChanges ] = useState<
 		Partial< NewsletterSettings >
-	>( () => cachedStagedChanges.newsletterCategories );
+	>( {} );
 	const [ isSavingNewsletterCategories, setIsSavingNewsletterCategories ] = useState( false );
 
 	// Welcome email state (for manual save).
 	const [ welcomeEmailChanges, setWelcomeEmailChanges ] = useState< Partial< NewsletterSettings > >(
-		() => cachedStagedChanges.welcomeEmail
+		{}
 	);
 	const [ isSavingWelcomeEmail, setIsSavingWelcomeEmail ] = useState( false );
 
 	// Subscribe modal heading state (for manual save).
 	const [ subscribeModalChanges, setSubscribeModalChanges ] = useState<
 		Partial< NewsletterSettings >
-	>( () => cachedStagedChanges.subscribeModal );
+	>( {} );
 	const [ isSavingSubscribeModal, setIsSavingSubscribeModal ] = useState( false );
 
 	// Auto-saved sections stage nothing, so count their requests that are still in flight.
@@ -236,22 +222,6 @@ export function NewsletterSettingsBody( {
 		return () => window.removeEventListener( 'beforeunload', warn );
 	}, [ mayLoseChanges ] );
 
-	useEffect( () => {
-		cachedStagedChanges = {
-			subscriptions: subscriptionChanges,
-			senderName: senderNameChanges,
-			newsletterCategories: newsletterCategoriesChanges,
-			welcomeEmail: welcomeEmailChanges,
-			subscribeModal: subscribeModalChanges,
-		};
-	}, [
-		subscriptionChanges,
-		senderNameChanges,
-		newsletterCategoriesChanges,
-		welcomeEmailChanges,
-		subscribeModalChanges,
-	] );
-
 	// Get newsletter script data.
 	const newsletterScriptData = useMemo( () => getNewsletterScriptData(), [] );
 
@@ -286,8 +256,7 @@ export function NewsletterSettingsBody( {
 		fetchSettings()
 			.then( ( settings: Record< string, unknown > ) => {
 				const normalized = normalizeSettings( settings );
-				// Keep edits staged before a tab switch on top of the refreshed values.
-				setData( Object.assign( {}, normalized, ...Object.values( cachedStagedChanges ) ) );
+				setData( normalized );
 				// Server truth on load is both the optimistic value and the saved baseline.
 				setSavedData( normalized );
 				setIsLoading( false );
@@ -323,8 +292,15 @@ export function NewsletterSettingsBody( {
 	// saves, and reverts all carry over to the next mount — a returning visitor
 	// sees their latest values, not a pre-save snapshot.
 	//
-	// Staged edits survive a remount too: they are cached alongside, restored into
-	// each section's `*Changes` state, and laid back over the background refetch.
+	// Known caveat (low severity): this mirrors the *optimistic* `data`, so a
+	// staged-but-unsaved edit briefly survives a tab switch — on remount the
+	// visitor sees the un-persisted value while the per-section `*Changes` state
+	// has reset to `{}` (no "unsaved changes" affordance), until the background
+	// refetch overwrites it with the server value. The end state is correct
+	// (server wins) and unsaved edits were already discarded on unmount pre-cache,
+	// so this isn't a regression. The structural fix is a persisted saved-baseline
+	// to reconcile against on remount (see the stacked preview-link PR's
+	// `savedData`); tracked as a follow-up.
 	useEffect( () => {
 		if ( data ) {
 			cachedSettings = data;
