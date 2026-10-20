@@ -41,7 +41,7 @@ export const getPaidPlanLink = alreadyHasTierPlans => {
  * @param {string|null} props.stripeConnectUrl - Stripe connect URL, null once connected.
  * @param {boolean}     props.hasTierPlans     - Whether a newsletter tier exists.
  * @param {string}      [props.accessLevel]    - The post's saved access level; omit to get only isPaidAvailable.
- * @param {boolean}     props.isLoading        - Whether the memberships status is still loading.
+ * @param {boolean}     [props.isLoading]      - Whether the memberships status is still loading.
  * @return {{isPaidAvailable: boolean, showPaidAsDisabled: boolean, showSetupPrompt: boolean}} Paid option state.
  */
 export const getPaidAccessState = ( {
