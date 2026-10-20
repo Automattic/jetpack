@@ -4,11 +4,29 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const projectsRoot = fileURLToPath( new URL( '../../../../', import.meta.url ) );
-const { build, skip } = JSON.parse(
-	readFileSync( new URL( './build-projects.json', import.meta.url ), 'utf8' )
-);
+const { build, skip } = readJson( new URL( './build-projects.json', import.meta.url ) );
 const projects = new Map();
 const names = { 'composer.json': new Map(), 'package.json': new Map() };
+
+/**
+ * Include the filename when JSON cannot be parsed.
+ *
+ * @param {string|URL} path - JSON file path.
+ * @return {object} Parsed manifest or build list.
+ */
+function readJson( path ) {
+	const content = readFileSync( path, 'utf8' );
+	let parsed;
+	try {
+		parsed = JSON.parse( content );
+	} catch ( error ) {
+		console.error(
+			`Invalid JSON in ${ path instanceof URL ? fileURLToPath( path ) : path }: ${ error.message }`
+		);
+		process.exit( 1 );
+	}
+	return parsed;
+}
 
 for ( const type of [ 'plugins', 'packages', 'js-packages', 'github-actions' ] ) {
 	for ( const dir of readdirSync( join( projectsRoot, type ), { withFileTypes: true } ) ) {
@@ -19,7 +37,7 @@ for ( const type of [ 'plugins', 'packages', 'js-packages', 'github-actions' ] )
 		const manifests = {};
 		for ( const file of Object.keys( names ) ) {
 			const path = join( projectsRoot, slug, file );
-			manifests[ file ] = existsSync( path ) ? JSON.parse( readFileSync( path, 'utf8' ) ) : {};
+			manifests[ file ] = existsSync( path ) ? readJson( path ) : {};
 			if ( manifests[ file ].name ) {
 				names[ file ].set( manifests[ file ].name, slug );
 			}
@@ -28,18 +46,7 @@ for ( const type of [ 'plugins', 'packages', 'js-packages', 'github-actions' ] )
 	}
 }
 
-const errors = [];
-for ( const slug of [ ...build, ...Object.keys( skip ) ] ) {
-	if ( ! projects.has( slug ) ) {
-		errors.push( `${ slug } does not exist: correct or remove it in build-projects.json.` );
-	}
-}
-for ( const [ slug, reason ] of Object.entries( skip ) ) {
-	if ( ! reason.trim() ) {
-		errors.push( `${ slug }: add a reason to the skip list in build-projects.json.` );
-	}
-}
-
+const directDependencies = new Map();
 // Direct dependencies are Composer require or npm dependencies of Boost or Jetpack,
 // mapped by manifest name to a monorepo project; dev and transitive dependencies are excluded.
 for ( const owner of [ 'plugins/boost', 'plugins/jetpack' ] ) {
@@ -52,32 +59,74 @@ for ( const owner of [ 'plugins/boost', 'plugins/jetpack' ] ) {
 			if ( ! slug ) {
 				continue;
 			}
-			// Build-bearing means a Composer build-production command beyond an echo placeholder.
-			const commands = projects.get( slug )[ 'composer.json' ].scripts?.[ 'build-production' ];
-			const hasBuild =
-				commands &&
-				[ commands ].flat().some( command => ! /^echo(?:\s+[^;&|]*)?$/.test( command.trim() ) );
-			if ( hasBuild && ! build.includes( slug ) && ! Object.hasOwn( skip, slug ) ) {
-				errors.push(
-					`${ slug } (${ owner }): add it to the build list or to the skip list with a reason in build-projects.json.`
-				);
+			if ( ! directDependencies.has( slug ) ) {
+				directDependencies.set( slug, new Set() );
 			}
+			directDependencies.get( slug ).add( owner );
 		}
 	}
 }
 
+const errors = [];
+const warnings = [];
+const targets = new Set( build );
+for ( const slug of targets ) {
+	if ( ! projects.has( slug ) ) {
+		errors.push( `${ slug } does not exist: correct or remove it in build-projects.json.` );
+	}
+	if ( build.indexOf( slug ) !== build.lastIndexOf( slug ) ) {
+		errors.push( `${ slug }: remove the duplicate from the build list in build-projects.json.` );
+	}
+	if ( Object.hasOwn( skip, slug ) ) {
+		errors.push( `${ slug }: keep it in either build or skip, not both, in build-projects.json.` );
+	}
+}
+for ( const [ slug, reason ] of Object.entries( skip ) ) {
+	if ( ! projects.has( slug ) || ! directDependencies.has( slug ) ) {
+		const issue = projects.has( slug )
+			? 'is no longer a direct dependency of Boost or Jetpack'
+			: 'does not exist';
+		warnings.push( `${ slug } ${ issue }: remove or update its skip in build-projects.json.` );
+	}
+	if ( ! reason.trim() ) {
+		errors.push( `${ slug }: add a reason to the skip list in build-projects.json.` );
+	}
+}
+for ( const [ slug, owners ] of directDependencies ) {
+	// Build-bearing means a Composer build-production command beyond an echo placeholder.
+	const commands = projects.get( slug )[ 'composer.json' ].scripts?.[ 'build-production' ];
+	const hasBuild =
+		commands &&
+		[ commands ].flat().some( command => ! /^echo(?:\s+[^;&|]*)?$/.test( command.trim() ) );
+	if ( ! hasBuild || targets.has( slug ) || Object.hasOwn( skip, slug ) ) {
+		continue;
+	}
+	const message = `${ slug } (${ [ ...owners ].join( ', ' ) })`;
+	const action =
+		'add it to the build list or to the skip list with a reason in build-projects.json.';
+	if ( owners.has( 'plugins/boost' ) ) {
+		errors.push( `${ message }: ${ action }` );
+	} else {
+		targets.add( slug );
+		warnings.push( `Building unlisted ${ message } for this run: ${ action }` );
+	}
+}
+
+for ( const warning of warnings ) {
+	console.warn( `::warning::${ warning }` );
+}
 if ( errors.length ) {
 	console.error( `Boost E2E build list needs attention:\n${ errors.join( '\n' ) }` );
 	process.exit( 1 );
 }
 console.log( 'Boost E2E build list check passed.' );
 
-if ( ! process.argv.includes( '--check' ) ) {
-	const result = spawnSync(
-		'pnpm',
-		[ 'jetpack', 'build', ...build, '-v', '--no-pnpm-install', '--production' ],
-		{ cwd: join( projectsRoot, '..' ), stdio: 'inherit' }
-	);
+const args = [ 'jetpack', 'build', ...targets, '-v', '--no-pnpm-install', '--production' ];
+// --check prints the planned arguments for local mutation proofs without building.
+if ( process.argv.includes( '--check' ) ) {
+	console.log( `Boost E2E build arguments: ${ JSON.stringify( args ) }` );
+} else {
+	const result = spawnSync( 'pnpm', args, { cwd: join( projectsRoot, '..' ), stdio: 'inherit' } );
 	if ( result.error ) {
 		console.error( result.error.message );
 	}
