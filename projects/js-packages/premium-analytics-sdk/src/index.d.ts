@@ -68,11 +68,6 @@ export type ReportActionsOptions = {
 	};
 };
 
-// Footer chrome, until every widget declares its footer through `useReportActions`.
-export declare const WidgetFooter: AnyComponent;
-export declare const ReportLink: AnyComponent;
-export declare const ExporterCsvDownloadButton: AnyComponent;
-
 // Charts and metrics: parts of the metric tabs and metric tiles kinds, until those kinds exist.
 export declare const ChartEmptyState: AnyComponent;
 export declare const MetricTabsChart: AnyComponent;
