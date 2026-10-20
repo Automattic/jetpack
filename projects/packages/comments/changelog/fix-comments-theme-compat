@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the comment form's layout intact in themes that resize the comment textarea, hide spans in the comments area, or pad the blocks inside a comment the form moves into on Reply.

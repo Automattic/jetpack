@@ -1,6 +1,6 @@
 // Reversed so the submit precedes the identity line in the DOM, and Tab
 // reaches it straight from the textarea. Wraps only for the too-long notice.
-.jetpack-comments__actions {
+.jetpack-comments .jetpack-comments__actions {
 	display: flex;
 	flex-flow: row-reverse wrap-reverse;
 	align-items: center;
@@ -17,7 +17,7 @@
 // A flex item, so the button sits on no text baseline and centres with
 // the avatar. Pinned against a theme's spacing around its own submit.
 .jetpack-comments .jetpack-comments__submit {
-	display: flex;
+	display: flex !important;
 	margin: 0 !important;
 	padding: 0 !important;
 
@@ -75,7 +75,7 @@
 // Always shares the row with the submit: a zero basis never forces a wrap, and
 // it takes whatever room is left, its link dropping under the name when short.
 .jetpack-comments__identity {
-	display: flex;
+	display: flex !important;
 	align-items: center;
 	gap: 0.75em;
 	flex: 1 1 0;
