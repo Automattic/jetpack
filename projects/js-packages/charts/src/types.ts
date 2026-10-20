@@ -314,6 +314,17 @@ export type BarStyles = {
 	opacity?: number;
 };
 
+/**
+ * How a bar chart places its series in a category. `grouped` puts each primary series in a slot of its own; `overlap` puts every primary in one slot and every comparison in a second, and overlaps the `group`s within each slot.
+ */
+export type BarChartLayout = 'grouped' | 'overlap';
+
+/** Options for `getBarColors` on the charts context. */
+export type BarColorsOptions = {
+	/** The layout the bars are drawn in. Defaults to `grouped`. */
+	layout?: BarChartLayout;
+};
+
 export type MultipleDataPointsDate = {
 	label: string;
 	data: DataPointDate[];

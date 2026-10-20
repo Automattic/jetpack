@@ -31,6 +31,7 @@ import {
 	LABEL_FALLBACK,
 	LABEL_INVERSE_FALLBACK,
 } from './private/catalog-pointers';
+import { getOverlapBarColors } from './private/overlap-bars';
 import { createPaletteGenerator } from './private/palette-generator';
 import { resolveOpaqueHex } from './private/resolve-opaque-hex';
 import { SERIES_PALETTE_POINTERS, SERIES_SLOT_1_FALLBACK } from './private/series-palette';
@@ -255,6 +256,24 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ providerTheme, resolveColor ]
 	);
 
+	const getBarColors = useCallback< NonNullable< GlobalChartsContextValue[ 'getBarColors' ] > >(
+		( series, { layout = 'grouped' } = {} ) => {
+			const colors = series.map( ( data, index ) => getElementStyles( { data, index } ).color );
+
+			if ( layout !== 'overlap' ) {
+				return colors;
+			}
+
+			return getOverlapBarColors(
+				series,
+				colors,
+				[ getElementStyles( { index: 0 } ).color, getElementStyles( { index: 1 } ).color ],
+				colorCache.background
+			);
+		},
+		[ getElementStyles, colorCache.background ]
+	);
+
 	// Keep hidden-series updates and no-op detection consistent across setters.
 	const updateHiddenSeries = useCallback(
 		( chartId: string, update: ( current: Set< string > ) => Set< string > ) => {
@@ -371,6 +390,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			theme: providerTheme,
 			formatting,
 			getElementStyles,
+			getBarColors,
 			toggleSeriesVisibility,
 			setSeriesVisibility,
 			setChartHiddenSeries,
@@ -388,6 +408,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			providerTheme,
 			formatting,
 			getElementStyles,
+			getBarColors,
 			toggleSeriesVisibility,
 			setSeriesVisibility,
 			setChartHiddenSeries,
