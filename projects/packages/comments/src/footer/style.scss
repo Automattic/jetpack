@@ -132,8 +132,6 @@
 .jetpack-comments .jetpack-comments__identity .jetpack-comments__avatar {
 	inline-size: var(--jetpack-comments-avatar-size);
 	block-size: var(--jetpack-comments-avatar-size);
-	// Pinned: themes place comment avatars absolutely, which pulls ours out of
-	// the row, onto the toolbar once Reply moves the form into a comment.
 	position: static !important;
 	margin: 0 !important;
 }
