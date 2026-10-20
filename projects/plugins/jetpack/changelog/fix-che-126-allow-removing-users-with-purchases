@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+WordPress.com Simple: Stop blocking removal of users who own purchases on the site, to match Atomic and Jetpack-connected sites.
