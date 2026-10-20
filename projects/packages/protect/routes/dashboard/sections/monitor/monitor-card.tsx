@@ -17,7 +17,8 @@ import './style.scss';
 const UPTIME_PATH = '/jetpack/v4/protect-dashboard/uptime';
 const CONNECT_URL = 'admin.php?page=my-jetpack#/connection';
 const MINUTES_PER_DAY = 1440;
-const onConnect = () => recordEvent( 'jetpack_protect_monitor_connect_link_click' );
+const onConnect = () =>
+	recordEvent( 'jetpack_protect_monitor_connect_link_click', { use_beacon: true } );
 const PERCENT = { style: 'percent', maximumFractionDigits: 3 } as const;
 
 /** Opens the Settings tab at this section's card. */

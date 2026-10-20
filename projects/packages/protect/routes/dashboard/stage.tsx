@@ -59,7 +59,12 @@ const Stage = () => {
 		}
 	}, [ activeTab, load ] );
 
-	useEffect( () => recordPageView( activeTab, requestedSection ), [ activeTab, requestedSection ] );
+	// Only a real Settings card goes to Tracks; `?section=` is free text from the URL.
+	const pageViewSection =
+		activeTab === 'settings' && sections.some( section => section.key === requestedSection )
+			? requestedSection
+			: undefined;
+	useEffect( () => recordPageView( activeTab, pageViewSection ), [ activeTab, pageViewSection ] );
 
 	return (
 		<AdminPage

@@ -35,6 +35,7 @@ window.jetpackProtectDashboard = { scan: report };
  * @return Resolves once the button is clicked.
  */
 function renderAndScan( answer: () => Promise< unknown > ) {
+	( recordEvent as jest.Mock ).mockClear();
 	mockApiFetch
 		.mockReset()
 		.mockImplementation( ( { method } ) =>
@@ -63,7 +64,9 @@ describe( 'Scan now', () => {
 	it( 'records jetpack_scan_scan_now', async () => {
 		await renderAndScan( () => Promise.resolve( report ) );
 
-		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_scan_scan_now', { has_plan: true } );
+		expect( ( recordEvent as jest.Mock ).mock.calls ).toEqual( [
+			[ 'jetpack_scan_scan_now', { has_plan: true } ],
+		] );
 	} );
 
 	it( 'shows why the scan didn’t start, and stops showing it as running', async () => {

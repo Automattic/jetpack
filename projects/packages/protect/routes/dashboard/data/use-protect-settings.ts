@@ -146,7 +146,6 @@ export default function useProtectSettings(): ProtectSettingsData {
 
 			try {
 				await apiFetch( { path, method: 'POST', data: patch } );
-				recordSettingEvents( patch, before );
 				dispatch( noticesStore ).createSuccessNotice(
 					__( 'Settings updated.', 'jetpack-protect-pkg' ),
 					{ type: 'snackbar', id: SAVED_NOTICE_ID }
@@ -188,6 +187,9 @@ export default function useProtectSettings(): ProtectSettingsData {
 					keys.forEach( key => next.splice( next.indexOf( key ), 1 ) );
 					return next;
 				} );
+			}
+			if ( saved ) {
+				recordSettingEvents( patch, before );
 			}
 			return saved;
 		},

@@ -61,17 +61,23 @@ describe( 'useProtectSettings', () => {
 	} );
 
 	it.each( [
-		[ 'confirms a save', Promise.resolve( {} ), [ 'Settings updated.' ], 1 ],
-		[ 'stays quiet when a save fails', Promise.reject( { message: 'Nope' } ), [], 0 ],
+		[
+			'confirms a save',
+			Promise.resolve( {} ),
+			[ 'Settings updated.' ],
+			[ [ { list: 'new' }, { list: 'old' } ] ],
+		],
+		[ 'stays quiet when a save fails', Promise.reject( { message: 'Nope' } ), [], [] ],
 	] )( '%s in a snackbar and Tracks', async ( _name, post, expected, tracked ) => {
-		respondWith( { post } );
+		respondWith( { get: Promise.resolve( { list: 'old' } ), post } );
 		( recordSettingEvents as jest.Mock ).mockClear();
 		const { result } = renderHook( () => useProtectSettings() );
+		await act( async () => result.current.load() );
 
 		await act( () => result.current.save( { list: 'new' } ) );
 
 		expect( snackbars() ).toEqual( expected );
-		expect( recordSettingEvents ).toHaveBeenCalledTimes( tracked );
+		expect( ( recordSettingEvents as jest.Mock ).mock.calls ).toEqual( tracked );
 	} );
 
 	it.each( [

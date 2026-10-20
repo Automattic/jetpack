@@ -245,13 +245,18 @@ class Dashboard_Test extends BaseTestCase {
 	 * @param bool $expected Whether the Tracks client should load.
 	 */
 	#[DataProvider( 'provide_tracking_consent' )]
-	public function test_enqueue_tracks_loads_the_client_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
+	public function test_tracks_loads_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
 		\Jetpack_Options::update_option( 'tos_agreed', $agreed );
 		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
 
 		Dashboard::enqueue_tracks();
+		ob_start();
+		Dashboard::print_tracks_state();
+		$printed = ob_get_clean();
 
 		$this->assertSame( $expected, wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+		$this->assertSame( $expected, false !== strpos( $printed, 'JP_CONNECTION_INITIAL_STATE' ) );
+		$this->assertSame( $expected, false !== strpos( $printed, 'window.jetpackProtectTracks = true;' ) );
 	}
 
 	/**

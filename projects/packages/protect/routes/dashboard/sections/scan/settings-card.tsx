@@ -5,7 +5,8 @@ import { CardRow, ProtectCard } from '../../components/card';
 import { recordEvent } from '../../data/analytics';
 import type { ScanContext } from './types';
 
-const onGetScan = () => recordEvent( 'jetpack_protect_scan_settings_get_scan_link_click' );
+const onGetScan = () =>
+	recordEvent( 'jetpack_protect_scan_settings_get_scan_link_click', { use_beacon: true } );
 
 /**
  * The Settings tab's Scan card: Scan has nothing to set here, so it explains and links out.

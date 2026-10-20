@@ -15,6 +15,7 @@ describe( 'recordEvent', () => {
 		mockInitialize.mockReset();
 		mockRecord.mockReset();
 		delete window.JP_CONNECTION_INITIAL_STATE;
+		window.jetpackProtectTracks = true;
 	} );
 
 	it.each( [
@@ -33,5 +34,13 @@ describe( 'recordEvent', () => {
 			[ 'jetpack_scan_scan_now', undefined ],
 			[ 'jetpack_protect_waf_enabled', { a: 1 } ],
 		] );
+	} );
+
+	it( 'records nothing when PHP didn’t allow Tracks', () => {
+		window.jetpackProtectTracks = undefined;
+
+		recordEvent( 'jetpack_scan_scan_now' );
+
+		expect( mockRecord ).not.toHaveBeenCalled();
 	} );
 } );

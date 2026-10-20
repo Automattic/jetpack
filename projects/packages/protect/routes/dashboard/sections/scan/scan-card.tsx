@@ -25,7 +25,9 @@ const pollInterval = ( polls: number ) => ( polls < 5 ? 5000 : 15000 );
 const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
 const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
 
-const onGetScan = () => recordEvent( 'jetpack_protect_scan_card_get_scan_link_click' );
+// `use_beacon` sends with a keepalive request, which outlives the navigation.
+const onGetScan = () =>
+	recordEvent( 'jetpack_protect_scan_card_get_scan_link_click', { use_beacon: true } );
 
 // About ten minutes of polling before asking the user to check again.
 const MAX_POLLS = 40;

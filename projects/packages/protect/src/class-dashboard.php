@@ -440,6 +440,21 @@ class Dashboard {
 	}
 
 	/**
+	 * Print what the page's Tracks client needs, only when Tracks is allowed.
+	 *
+	 * Tracks reads the WordPress.com user and blog ID from the connection state; the flag gates recording.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function print_tracks_state() {
+		if ( self::can_use_analytics() ) {
+			wp_print_inline_script_tag( Connection_Initial_State::render() . 'window.jetpackProtectTracks = true;' );
+		}
+	}
+
+	/**
 	 * Add the "Protect" item to the Jetpack sidebar, in place of the Jetpack Protect plugin's.
 	 *
 	 * @return void
@@ -476,10 +491,7 @@ class Dashboard {
 		$render_fn = self::RENDER_FUNCTION;
 		if ( function_exists( $render_fn ) ) {
 			self::print_initial_state();
-			// Tracks reads the WordPress.com user and blog ID from the connection state.
-			if ( self::can_use_analytics() ) {
-				wp_print_inline_script_tag( Connection_Initial_State::render() );
-			}
+			self::print_tracks_state();
 			// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Checked with function_exists(); defined in the generated build/, which Phan excludes.
 			$render_fn();
 			return;
