@@ -340,13 +340,24 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Get a nonempty string tag from request parameters.
+	 *
+	 * @param array $request Request parameters.
+	 * @return string|null Module tag, or null for an absent, empty, or non-string value.
+	 */
+	private static function get_module_tag( $request ) {
+		return ! empty( $request['module_tag'] ) && is_string( $request['module_tag'] ) ? $request['module_tag'] : null;
+	}
+
+	/**
 	 * Output views HTML.
 	 */
 	public function views() {
 		$views = $this->get_views();
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
-		$module_tag = empty( $_GET['module_tag'] ) || ! is_string( $_GET['module_tag'] ) ? 'all' : sanitize_title( wp_unslash( $_GET['module_tag'] ) );
+		$module_tag = self::get_module_tag( $_GET );
+		$module_tag = null === $module_tag ? 'all' : sanitize_title( wp_unslash( $module_tag ) );
 
 		echo "<ul class='subsubsub'>\n";
 		foreach ( $views as $class => $view ) {
@@ -380,9 +391,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	public static function is_module_displayed( $module ) {
 		// Handle module tag based filtering.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
-		if ( ! empty( $_REQUEST['module_tag'] ) && is_string( $_REQUEST['module_tag'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
-			$module_tag = sanitize_text_field( wp_unslash( $_REQUEST['module_tag'] ) );
+		$module_tag = self::get_module_tag( $_REQUEST );
+		if ( null !== $module_tag ) {
+			$module_tag = sanitize_text_field( wp_unslash( $module_tag ) );
 			if ( ! in_array( $module_tag, array_map( 'jetpack_get_module_i18n_tag', $module['module_tags'] ), true ) ) {
 				return false;
 			}
