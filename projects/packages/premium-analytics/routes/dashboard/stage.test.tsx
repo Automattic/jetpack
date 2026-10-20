@@ -658,6 +658,9 @@ describe( 'Dashboard report scope', () => {
 		[ 'traffic', DATE_FILTER_RANGE, true ],
 		[ 'insights', DATE_FILTER_YEAR, false ],
 	] as const )( 'applies the plan date limits on %s: %p', ( slug, dateFilter, isLimited ) => {
+		window.JetpackScriptData = {
+			premium_analytics: { plan_date_limited_sections: [ 'traffic' ] },
+		} as typeof window.JetpackScriptData;
 		mockSection( { slug, date_filter: dateFilter } );
 		useActiveSectionMock.mockReturnValue( [ slug, jest.fn(), true ] );
 		mockActiveSectionSlug = slug;

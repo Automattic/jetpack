@@ -169,8 +169,9 @@ publishes no gates gets `OPEN_DATE_POLICY`.
 
 ### `getSectionDatePolicy( section )`
 
-Returns `getStatsDatePolicy()` for a dashboard section whose dates follow the plan (Traffic, and
-the reports and ranges opened on it), and `OPEN_DATE_POLICY` for any other.
+Returns `getStatsDatePolicy()` for a dashboard section whose registration sets
+`follows_plan_date_limits` (Traffic, and the reports and ranges opened on it), and
+`OPEN_DATE_POLICY` for any other.
 `isPlanDateLimitedSection( section )` answers the same question as a boolean.
 
 **Returns:** `StatsDatePolicy`

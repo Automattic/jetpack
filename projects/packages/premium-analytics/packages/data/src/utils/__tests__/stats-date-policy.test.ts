@@ -164,13 +164,15 @@ describe( 'getStatsDatePolicy', () => {
 
 describe( 'getSectionDatePolicy', () => {
 	it.each( [
-		[ 'traffic', 'recent-7-days' ],
-		[ 'insights', undefined ],
-		[ 'store', undefined ],
-		[ undefined, undefined ],
-	] )( 'gives %p the plan limit %p', ( section, feature ) => {
+		[ 'traffic', [ 'traffic' ], 'recent-7-days' ],
+		[ 'insights', [ 'traffic' ], undefined ],
+		[ undefined, [ 'traffic' ], undefined ],
+		[ 'store', [ 'traffic', 'store' ], 'recent-7-days' ],
+		[ 'traffic', undefined, undefined ],
+	] )( 'gives %p, when the server limits %p, the plan limit %p', ( section, limited, feature ) => {
 		( getScriptData as jest.Mock ).mockReturnValue( {
 			premium_analytics: {
+				plan_date_limited_sections: limited,
 				plan_gates: {
 					locked_features: {
 						'recent-7-days': { description: '', support_url: '', upgrade_url: '' },

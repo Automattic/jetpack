@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	computePrimaryRange,
 	isYearPresetId,
@@ -139,17 +140,16 @@ export function getStatsDatePolicy(): StatsDatePolicy {
 	return deriveStatsDatePolicy( isStatsFeatureLocked, reportingTimeZone() );
 }
 
-// Insights is a year surface and stays out.
-const PLAN_DATE_LIMITED_SECTIONS: readonly string[] = [ 'traffic' ];
-
 /**
- * Whether a dashboard section's dates follow the plan.
+ * Whether a dashboard section's dates follow the plan, as its server registration declares.
  *
  * @param section - The section slug.
  * @return Whether its window is limited.
  */
 export function isPlanDateLimitedSection( section: string | undefined ): boolean {
-	return !! section && PLAN_DATE_LIMITED_SECTIONS.includes( section );
+	const limited = getScriptData()?.premium_analytics?.plan_date_limited_sections;
+
+	return !! section && Array.isArray( limited ) && limited.includes( section );
 }
 
 /**

@@ -20,6 +20,7 @@ export function planGatesScriptData(
 	return {
 		premium_analytics: {
 			...( sections && { sections } ),
+			plan_date_limited_sections: [ 'traffic' ],
 			plan_gates: { locked_features: lockedFeatures, locked_widget_types: {} },
 		},
 	};
