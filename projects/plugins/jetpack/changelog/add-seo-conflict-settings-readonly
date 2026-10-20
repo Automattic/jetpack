@@ -1,4 +1,4 @@
 Significance: patch
-Type: bugfix
+Type: other
+Comment: SEO: Lock the gated SEO settings that a conflicting SEO plugin overrides.
 
-SEO: While another SEO plugin manages your site's SEO, name it on the SEO settings page, lock the front-page description, and hide the search and social previews.

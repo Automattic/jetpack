@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: changed
+Comment: Settings: Name the conflicting SEO plugin, lock the front-page description, and hide the previews while it's active. The new SEO page is gated.
 
-Settings: While another SEO plugin manages the site's SEO, name it, lock the front-page description, and hide the search and social previews.
