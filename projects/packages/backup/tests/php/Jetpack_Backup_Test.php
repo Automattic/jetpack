@@ -224,7 +224,7 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
-	 * The six unconditionally-registered routes that answer out of
+	 * The unconditionally-registered routes that answer out of
 	 * WordPress.com, as route path => array( callback, HTTP method ).
 	 *
 	 * One list, two providers, so that adding a route here covers it
@@ -296,7 +296,7 @@ class Jetpack_Backup_Test extends TestCase {
 	/**
 	 * A success code reported as a string still lists the events.
 	 *
-	 * `list_backup_events()` is not one of the six routes covered by the
+	 * `list_backup_events()` is not one of the routes covered by the
 	 * providers above — it answers no route of its own and is read by the
 	 * `jetpack-backup/list-backup-events` ability, which flattens this
 	 * `null` into an empty list through `unwrap_response()`. So an uncast
