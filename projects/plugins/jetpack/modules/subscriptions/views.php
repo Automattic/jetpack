@@ -599,7 +599,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	public static function is_current_user_subscribed() {
 		$subscribed = isset( $_GET['subscribe'] ) && 'success' === $_GET['subscribe']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( self::is_wpcom() ) {
+		if ( self::is_wpcom() && class_exists( 'Blog_Subscription' ) && class_exists( 'Blog_Subscriber' ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 			$subscribed = is_user_logged_in() && Jetpack_Memberships::is_current_user_subscribed();
 		}
