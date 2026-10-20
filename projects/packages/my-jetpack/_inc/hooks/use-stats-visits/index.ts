@@ -66,7 +66,7 @@ const useStatsVisits = ( blogID: string, isEnabled: boolean, options: StatsVisit
 		return `${ baseEndpoint }?${ queryParams }`;
 	}, [ blogID, queryParams ] );
 
-	const { data, isLoading, error } = useSimpleQuery< StatsVisitsData >( {
+	const { data, isLoading, isError, error, refetch } = useSimpleQuery< StatsVisitsData >( {
 		name: QUERY_STATS_VISITS_KEY,
 		query: { path: endpoint() },
 		options: {
@@ -79,7 +79,9 @@ const useStatsVisits = ( blogID: string, isEnabled: boolean, options: StatsVisit
 	return {
 		data,
 		isLoading,
+		isError,
 		error,
+		refetch,
 	};
 };
 

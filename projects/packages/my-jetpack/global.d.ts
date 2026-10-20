@@ -585,6 +585,7 @@ interface Window {
 		myJetpackFlags: {
 			headerControls?: boolean;
 			overviewV1: boolean;
+			premiumAnalyticsEnabled: boolean;
 			showAiModuleToggle: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
