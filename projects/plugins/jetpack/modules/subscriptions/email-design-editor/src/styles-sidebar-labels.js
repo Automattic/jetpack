@@ -58,7 +58,7 @@ function stylesSidebarLabels() {
 			[
 				'Manage the fonts and typography used on text.',
 				_x(
-					'The default for your post body. The byline and footer follow its color, and the footer’s copyright line follows its font. Text that sets its own size or font in the post keeps it.',
+					'The default for your post body. The byline and footer follow its color, and the footer’s copyright line follows its font. Text that has its own size or font in the post won’t change here. Edit it in the post instead.',
 					'email design styles',
 					'jetpack'
 				),
@@ -75,7 +75,7 @@ function stylesSidebarLabels() {
 			[
 				'Manage the fonts and typography used on headings.',
 				_x(
-					'H1 styles your post title, H2 your site title and post headings, and H3–H6 the headings inside your post. The site title follows H2’s font only, not its size. All headings applies wherever you haven’t styled a level individually. A heading that sets its own size or font in the post keeps it.',
+					'H1 styles your post title, H2 your site title and post headings, and H3–H6 the headings inside your post. The site title follows H2’s font only, not its size. All headings applies wherever you haven’t styled a level individually. Headings that have their own size or font in the post won’t change here. Edit them in the post instead.',
 					'email design styles',
 					'jetpack'
 				),
