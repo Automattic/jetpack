@@ -77,7 +77,6 @@ export type {
 	LegendShapeLabel,
 	LegendShapeRenderProps,
 	BarChartLayout,
-	BarColorsOptions,
 } from './types';
 export type * from './visx/types';
 export type { PieChartProps, PieChartRenderTooltipParams } from './charts/pie-chart';

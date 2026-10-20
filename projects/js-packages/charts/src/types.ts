@@ -322,12 +322,6 @@ export type BarStyles = {
  */
 export type BarChartLayout = 'grouped' | 'overlap';
 
-/** Options for `getBarColors` on the charts context. */
-export type BarColorsOptions = {
-	/** The layout the bars are drawn in. Defaults to `grouped`. */
-	layout?: BarChartLayout;
-};
-
 export type MultipleDataPointsDate = {
 	label: string;
 	data: DataPointDate[];

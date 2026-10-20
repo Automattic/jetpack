@@ -1,7 +1,7 @@
 import { CSSProperties, ReactNode } from 'react';
 import type { BaseLegendItem } from '../../components/legend';
 import type {
-	BarColorsOptions,
+	BarChartLayout,
 	BarStyles,
 	ChartFormatting,
 	ChartType,
@@ -43,7 +43,7 @@ export interface GlobalChartsContextValue {
 	formatting: ChartFormatting;
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
 	/** The colors a bar chart fills these series with in a layout, by index. Optional so a hand-built context value still type-checks. */
-	getBarColors?: ( series: SeriesData[], options?: BarColorsOptions ) => string[];
+	getBarColors?: ( series: SeriesData[], options?: { layout?: BarChartLayout } ) => string[];
 	// Series visibility management shared by charts, legends, and programmatic controls.
 	toggleSeriesVisibility: ( chartId: string, seriesLabel: string ) => void;
 	setSeriesVisibility: ( chartId: string, seriesLabel: string, visible: boolean ) => void;
