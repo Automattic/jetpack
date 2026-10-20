@@ -33,7 +33,7 @@ function wpcom_unified_admin_tracks_props() {
 }
 
 /**
- * Bump a unified Tracks stat for every wp-admin page view, and for every time Screen Options is opened.
+ * Bump a unified Tracks stat for every wp-admin page view, and for every time Screen Options is opened or closed.
  */
 function wpcom_unified_track_admin_page_views() {
 	global $current_user, $current_screen;
@@ -65,9 +65,10 @@ function wpcom_unified_track_admin_page_views() {
 			document.addEventListener( 'click', function ( event ) {
 				var button = event.target.closest && event.target.closest( '#show-settings-link' );
 				var panel = button && document.getElementById( button.getAttribute( 'aria-controls' ) );
-				// This listener captures the click before core toggles the panel, so a hidden panel is about to open.
-				if ( panel && ! panel.getClientRects().length ) {
-					window._tkq.push( [ 'recordEvent', 'wpcom_admin_screen_options_open', props ] );
+				if ( panel ) {
+					// This listener captures the click before core toggles the panel, so a hidden panel is about to open.
+					var action = panel.getClientRects().length ? 'close' : 'open';
+					window._tkq.push( [ 'recordEvent', 'wpcom_admin_screen_options_toggle', Object.assign( { action: action }, props ) ] );
 				}
 			}, true );
 		} )( <?php echo wp_json_encode( array( 'route' => $current_screen->id ) + $site_props, JSON_HEX_TAG ); ?> );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Comments: Stop loading the subscribe modal on Atomic sites that use the new comment form, which never opens it.

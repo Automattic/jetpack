@@ -19,7 +19,8 @@ offline mode.
 The same call hooks the Sharing Buttons and Like blocks into block themes' single
 post and page templates, before or after the post content, wherever the
 `jetpack_sharing_buttons_auto_add` and `jetpack_likes_auto_add` options ask for
-them and the legacy buttons are off. No screen sets them yet; to try it:
+them and the legacy buttons are off. The settings REST route reads and saves them
+as `sharing_buttons_auto_add` and `likes_auto_add`; to try it without a screen:
 
 	wp option update jetpack_sharing_buttons_auto_add '["after_content"]' --format=json
 	wp option update jetpack_likes_auto_add '["before_content"]' --format=json

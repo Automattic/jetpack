@@ -297,7 +297,7 @@ class Initializer {
 		// Register All Playlists block.
 		self::register_videopress_all_playlists_block();
 
-		// Register the channel blocks' shared pieces: the playlist block's `source` and the editor data its picker reads.
+		// Register the playlist block's `source` and, where the channel feature is enabled, the channel blocks.
 		Channel_Blocks::register();
 	}
 
@@ -742,7 +742,15 @@ class Initializer {
 
 		if ( ! $is_browsed ) {
 			$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
+			if ( ! $block_attributes['videos'] ) {
+				return Channel_Blocks::render_empty_state( 'videos', $block_attributes );
+			}
 			return self::render_videopress_playlist_block( $block_attributes, '', $block );
+		}
+
+		// A site without videos gets the empty state, not filters with nothing to filter.
+		if ( ! Channel_Data::videos() ) {
+			return Channel_Blocks::render_empty_state( 'videos', $block_attributes );
 		}
 
 		$state   = Channel_Data::browse_request( $controls, $paginated, $order );
@@ -1049,7 +1057,10 @@ class Initializer {
 		$entries = self::sanitize_playlist_entries( $block_attributes['videos'] ?? null );
 
 		if ( ! $entries ) {
-			return '';
+			// A playlist picked from the index shows the empty state while the site has none.
+			return isset( $block_attributes['source'] ) && 'index' === $block_attributes['source'] && ! Channel::playlists()
+				? Channel_Blocks::render_empty_state( 'playlists', $block_attributes )
+				: '';
 		}
 
 		// Record the rendered GUIDs in the post's cached GUID list so private playlist

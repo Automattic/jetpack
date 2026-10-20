@@ -26,8 +26,10 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type SubscribersListAttributes = Record< never, never >;
 
 /** Base URL for the site's subscriber pages on WordPress.com or Jetpack Cloud. */
 function getSubscribersBaseUrl() {

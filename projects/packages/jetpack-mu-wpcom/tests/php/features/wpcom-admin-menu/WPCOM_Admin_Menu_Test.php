@@ -20,6 +20,17 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-ad
  */
 class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 
+	public function test_module_management_availability_follows_the_host_route() {
+		foreach ( array(
+			'personal-bundle' => false,
+			'value_bundle'    => false,
+			'business-bundle' => true,
+		) as $slug => $available ) {
+			\Automattic\Jetpack\Current_Plan::update_from_site_record( array( 'plan' => array( 'product_slug' => $slug ) ) );
+			$this->assertSame( $available, apply_filters( 'jetpack_my_jetpack_modules_management_available', true ), $slug );
+		}
+	}
+
 	/**
 	 * Admin user ID.
 	 *
@@ -77,6 +88,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 		remove_all_filters( 'rsm_jetpack_ui_modernization_backup' );
+		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
 		delete_option( 'wpcom_admin_interface' );
 		delete_option( 'wpcom_ai_launchpad_no_guidance' );
 		delete_option( 'wpcom_ai_launchpad_enabled' );
@@ -395,21 +407,91 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Sets up a Simple site with an admin and the native Activity Log flag on.
+	 *
+	 * Callers run in a separate process, because `wpcom_add_jetpack_submenu()` reads the real `IS_WPCOM` constant.
+	 *
+	 * @param bool $package_supports_simple Whether the bundled package can register the page on Simple.
+	 * @return string The site's domain.
+	 */
+	private function set_up_simple_site_with_native_activity_log( $package_supports_simple ) {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'simple_admin_user',
+					'user_pass'  => 'pass',
+					'user_email' => 'simple_admin@example.com',
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		require_once __DIR__ . '/fixtures/class-jetpack-activity-log.php';
+		// @phan-suppress-next-line PhanUndeclaredClassStaticProperty -- Declared in a fixture excluded from Phan, as the real package is.
+		\Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::$supports_simple = $package_supports_simple;
+		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_NATIVE_ACTIVITY_LOG_FLAG, '__return_true' );
+
+		return wp_parse_url( home_url(), PHP_URL_HOST );
+	}
+
+	/**
+	 * With the flag on, Simple sites show the native page instead of the Calypso link.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_jetpack_submenu_shows_native_activity_log_on_simple_sites_when_flagged() {
+		$domain = $this->set_up_simple_site_with_native_activity_log( true );
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertNull( $this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . $domain ) );
+		$native_item = $this->get_jetpack_submenu_item( 'jetpack-activity-log' );
+		$this->assertNotNull( $native_item );
+		$this->assertStringNotContainsString( 'hide-if-js', $native_item[4] ?? '' );
+	}
+
+	/**
+	 * Jetpack deploys separately, so the flag can be on while the bundled package predates Simple support.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_jetpack_submenu_falls_back_to_calypso_activity_log_when_the_package_cannot_register() {
+		$domain = $this->set_up_simple_site_with_native_activity_log( false );
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertNotNull( $this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . $domain ) );
+	}
+
+	/**
 	 * Exactly one Backup entry shows: wp-admin's once the flag is on and the page exists, else Calypso's.
 	 *
 	 * @dataProvider provide_backup_entry_cases
 	 *
-	 * @param bool   $flag_on         Whether the filter turns the flag on, rather than leaving the default.
+	 * @param string $setup           'default', 'filter off', or 'legacy sticker'.
 	 * @param bool   $page_registered Whether something registered the `jetpack-backup` page.
 	 * @param string $expected        The visible entry: 'calypso' or 'wp-admin'.
 	 */
 	#[DataProvider( 'provide_backup_entry_cases' )]
-	public function test_jetpack_submenu_shows_one_backup_entry( $flag_on, $page_registered, $expected ) {
+	public function test_jetpack_submenu_shows_one_backup_entry( $setup, $page_registered, $expected ) {
 		global $submenu;
 
 		\Jetpack_Options::update_option( 'id', 200 );
-		if ( $flag_on ) {
-			add_filter( 'rsm_jetpack_ui_modernization_backup', '__return_true' );
+		if ( 'filter off' === $setup ) {
+			add_filter( 'rsm_jetpack_ui_modernization_backup', '__return_false' );
+		}
+		if ( 'legacy sticker' === $setup ) {
+			$GLOBALS['wpcom_site_stickers_test_value'] = array( 'use-backup-legacy-dashboard' );
 		}
 		if ( $page_registered ) {
 			$submenu['jetpack'][] = array( 'Backup', 'manage_options', 'jetpack-backup', 'Jetpack VaultPress Backup' );
@@ -432,15 +514,16 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Flag value, page registration and the entry that should show.
+	 * What switches the flag, page registration and the entry that should show.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_backup_entry_cases() {
 		return array(
-			'default, page registered'    => array( false, true, 'calypso' ),
-			'on, page registered'         => array( true, true, 'wp-admin' ),
-			'on, nothing serves the slug' => array( true, false, 'calypso' ),
+			'default, page registered'         => array( 'default', true, 'wp-admin' ),
+			'filter off, page registered'      => array( 'filter off', true, 'calypso' ),
+			'legacy sticker, page registered'  => array( 'legacy sticker', true, 'calypso' ),
+			'default, nothing serves the slug' => array( 'default', false, 'calypso' ),
 		);
 	}
 
