@@ -34,8 +34,6 @@ jest.mock( '../site-readiness', () => ( {
 	...jest.requireActual( '../site-readiness' ),
 	isPremiumAnalyticsSiteConnected: () => true,
 } ) );
-jest.mock( '../reports/registry', () => ( { getReportDefinition: () => ( {} ) } ) );
-jest.mock( '../post-detail/config', () => ( { resolveTabId: ( section: string ) => section } ) );
 jest.mock( '@wordpress/route', () => ( {
 	redirect: ( options: object ) => ( { isRedirect: true, ...options } ),
 } ) );
