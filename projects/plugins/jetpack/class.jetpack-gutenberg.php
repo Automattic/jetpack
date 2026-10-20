@@ -900,16 +900,16 @@ class Jetpack_Gutenberg {
 			wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 		}
 		// AI Assistant
-		// Off while Jetpack › SEO is unavailable, since on Simple that page is the setting's only switch.
-		$is_seo_auto_enhance_enabled = apply_filters( 'ai_seo_enhancer_enabled', true )
-			&& get_option( 'ai_seo_enhancer_enabled', false )
+		// On Simple the setting can only be saved where the Jetpack › SEO page registers it.
+		$is_seo_auto_enhance_switchable = apply_filters( 'ai_seo_enhancer_enabled', true )
 			&& method_exists( '\Automattic\Jetpack\SEO\Initializer', 'is_available' )
 			&& \Automattic\Jetpack\SEO\Initializer::is_available()
 			&& \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible();
-		$ai_assistant_state          = array(
-			'is-enabled'                  => Jetpack_AI_Settings::is_ai_enabled(),
-			'is-seo-enabled'              => Jetpack_AI_Settings::is_ai_seo_enabled(),
-			'is-seo-auto-enhance-enabled' => $is_seo_auto_enhance_enabled,
+		$ai_assistant_state             = array(
+			'is-enabled'                     => Jetpack_AI_Settings::is_ai_enabled(),
+			'is-seo-enabled'                 => Jetpack_AI_Settings::is_ai_seo_enabled(),
+			'is-seo-auto-enhance-switchable' => $is_seo_auto_enhance_switchable,
+			'is-seo-auto-enhance-enabled'    => $is_seo_auto_enhance_switchable && (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 		);
 
 		$screen_base = null;

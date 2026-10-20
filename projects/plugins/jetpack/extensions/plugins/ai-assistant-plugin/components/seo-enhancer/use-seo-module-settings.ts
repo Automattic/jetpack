@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -31,7 +32,8 @@ export const useSeoModuleSettings = () => {
 			setIsToggling( true );
 			try {
 				await apiFetch( {
-					path: 'jetpack/v4/module/seo-tools',
+					// See the seo-enhancer store for why Simple differs.
+					path: isSimpleSite() ? '/wp/v2/settings' : 'jetpack/v4/module/seo-tools',
 					method: 'post',
 					data: { ai_seo_enhancer_enabled: ! isEnabled },
 				} );
