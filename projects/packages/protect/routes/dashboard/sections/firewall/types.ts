@@ -1,4 +1,3 @@
-import type { TracksUser } from '../../data/tracks';
 import type { ProtectSettings } from '../../data/use-protect-settings';
 import type { DashboardContext } from '../types';
 
@@ -27,8 +26,6 @@ export type FirewallState = {
 	hasScan: boolean;
 	/** Where to buy Scan, for the automatic rules it adds. */
 	upgradeUrl: string;
-	/** Who to record upsell views and clicks as, without Scan. */
-	tracksUserData?: TracksUser;
 	currentIp: string;
 	/** The IP lists and their on/off state as of page load, keyed like Jetpack settings. */
 	ipRules: ProtectSettings;

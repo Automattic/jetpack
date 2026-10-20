@@ -1,14 +1,12 @@
-import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { backup, bug, tool } from '@wordpress/icons';
 import FeatureUpsell from '../../components/feature-upsell';
-import recordEvent from '../../data/tracks';
 import { loadRotation, nextRotation, saveRotation } from './upsell-rotation';
-import type { TracksUser } from '../../data/tracks';
 
 type Copy = {
 	heading: string;
-	button: string;
+	/** Defaults to "Upgrade". */
+	button?: string;
 	/** Malware scanning, one-click fixes and scan history, in that order. */
 	features: [ string, string ][];
 };
@@ -19,7 +17,6 @@ const ICONS = [ bug, tool, backup ];
 const VARIANTS: Record< number, () => Copy > = {
 	1: () => ( {
 		heading: __( 'Get the rest of your site’s protection', 'jetpack-protect-pkg' ),
-		button: __( 'Upgrade', 'jetpack-protect-pkg' ),
 		features: [
 			[
 				__( 'Find malware', 'jetpack-protect-pkg' ),
@@ -43,7 +40,6 @@ const VARIANTS: Record< number, () => Copy > = {
 	} ),
 	2: () => ( {
 		heading: __( 'Spend less time worrying about your site', 'jetpack-protect-pkg' ),
-		button: __( 'Upgrade', 'jetpack-protect-pkg' ),
 		features: [
 			[
 				__( 'Malware scanning', 'jetpack-protect-pkg' ),
@@ -82,7 +78,6 @@ const VARIANTS: Record< number, () => Copy > = {
 	} ),
 	4: () => ( {
 		heading: __( 'Stop problems before your visitors see them', 'jetpack-protect-pkg' ),
-		button: __( 'Upgrade', 'jetpack-protect-pkg' ),
 		features: [
 			[
 				__( 'Spot malware early', 'jetpack-protect-pkg' ),
@@ -106,7 +101,6 @@ const VARIANTS: Record< number, () => Copy > = {
 	} ),
 	5: () => ( {
 		heading: __( 'Upgrade to Scan for complete protection', 'jetpack-protect-pkg' ),
-		button: __( 'Upgrade', 'jetpack-protect-pkg' ),
 		features: [
 			[
 				__( 'Malware scanning', 'jetpack-protect-pkg' ),
@@ -124,7 +118,6 @@ const VARIANTS: Record< number, () => Copy > = {
 	} ),
 	6: () => ( {
 		heading: __( 'Questions only Scan can answer', 'jetpack-protect-pkg' ),
-		button: __( 'Upgrade', 'jetpack-protect-pkg' ),
 		features: [
 			[
 				__( 'Is my site infected?', 'jetpack-protect-pkg' ),
@@ -145,7 +138,6 @@ const VARIANTS: Record< number, () => Copy > = {
 			'You’re checking your plugins. Now protect everything else.',
 			'jetpack-protect-pkg'
 		),
-		button: __( 'Upgrade', 'jetpack-protect-pkg' ),
 		features: [
 			[
 				__( 'Your files too', 'jetpack-protect-pkg' ),
@@ -191,8 +183,10 @@ type Props = {
 	/** Show `variant` as is, without rotating, for previews. */
 	forced?: boolean;
 	url: string;
-	tracksUser: TracksUser;
 };
+
+// Picked once per page load, so returning to the tab keeps the copy and doesn't touch storage.
+const picked = new Map< string, { variant: number; exposure: number } >();
 
 /**
  * Pick this browser's copy for today, and save it.
@@ -202,45 +196,36 @@ type Props = {
  * @return The variant and how many this browser has seen in the current cycle.
  */
 function pickVariant( start: number, forced: boolean ) {
-	if ( forced ) {
-		return { variant: start, exposure: 0 };
+	const cacheKey = `${ start }:${ forced }`;
+	let result = picked.get( cacheKey );
+	if ( ! result ) {
+		if ( forced ) {
+			result = { variant: start, exposure: 0 };
+		} else {
+			const stored = loadRotation( COUNT );
+			const rotation = nextRotation( stored, start, COUNT, Date.now() );
+			if ( rotation !== stored ) {
+				saveRotation( rotation );
+			}
+			result = { variant: rotation.variant, exposure: rotation.seen.length };
+		}
+		picked.set( cacheKey, result );
 	}
-	const rotation = nextRotation( loadRotation( COUNT ), start, COUNT, Date.now() );
-	saveRotation( rotation );
-	return { variant: rotation.variant, exposure: rotation.seen.length };
+	return result;
 }
 
 /**
  * The free plan's Scan upsell: what Scan adds, in the copy this site was assigned.
  *
- * @param props            - Component props.
- * @param props.variant    - The site's assigned copy, where this browser's rotation starts.
- * @param props.forced     - Show `variant` as is, for previews.
- * @param props.url        - Where to buy Scan.
- * @param props.tracksUser - Who to record views and clicks as.
+ * @param props         - Component props.
+ * @param props.variant - The site's assigned copy, where this browser's rotation starts.
+ * @param props.forced  - Show `variant` as is, for previews.
+ * @param props.url     - Where to buy Scan.
  * @return The card row.
  */
-export default function ScanUpsell( { variant = 1, forced = false, url, tracksUser }: Props ) {
-	const [ { variant: key, exposure } ] = useState( () =>
-		pickVariant( VARIANTS[ variant ] ? variant : 1, forced )
-	);
+export default function ScanUpsell( { variant = 1, forced = false, url }: Props ) {
+	const { variant: key, exposure } = pickVariant( VARIANTS[ variant ] ? variant : 1, forced );
 	const copy = VARIANTS[ key ]();
-
-	useEffect( () => {
-		recordEvent( tracksUser, 'jetpack_protect_dashboard_scan_upsell_view', {
-			variant: key,
-			exposure,
-		} );
-	}, [ tracksUser, key, exposure ] );
-
-	const onClick = useCallback(
-		() =>
-			recordEvent( tracksUser, 'jetpack_protect_dashboard_scan_upsell_click', {
-				variant: key,
-				exposure,
-			} ),
-		[ tracksUser, key, exposure ]
-	);
 
 	return (
 		<FeatureUpsell
@@ -252,7 +237,8 @@ export default function ScanUpsell( { variant = 1, forced = false, url, tracksUs
 			] ) }
 			button={ copy.button }
 			url={ url }
-			onClick={ onClick }
+			event="jetpack_protect_dashboard_scan_upsell"
+			eventProps={ { variant: key, exposure } }
 		/>
 	);
 }

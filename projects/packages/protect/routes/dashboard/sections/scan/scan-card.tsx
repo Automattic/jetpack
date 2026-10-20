@@ -243,7 +243,6 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 					variant={ scan.upsellVariant }
 					forced={ scan.upsellVariantForced }
 					url={ scan.url }
-					tracksUser={ scan.tracksUserData }
 				/>
 			) }
 			{ scan.hasPlan && (

@@ -1,4 +1,3 @@
-import type { TracksUser } from '../../data/tracks';
 import type { DashboardContext } from '../types';
 import type { Threat } from '@automattic/jetpack-scan';
 
@@ -23,7 +22,6 @@ export type ScanState = {
 	upsellVariant?: number;
 	/** Whether a filter chose `upsellVariant`, so it's shown without rotating. */
 	upsellVariantForced?: boolean;
-	tracksUserData?: TracksUser;
 	error: boolean;
 	scanning?: boolean;
 	lastChecked?: string | null;

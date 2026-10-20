@@ -1,34 +1,15 @@
-import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { published, rotateRight, shield } from '@wordpress/icons';
 import FeatureUpsell from '../../components/feature-upsell';
-import recordEvent from '../../data/tracks';
-import type { TracksUser } from '../../data/tracks';
 
 /**
  * The free plan's Firewall upsell: the automatic rules Scan adds.
  *
- * @param props            - Component props.
- * @param props.url        - Where to buy Scan.
- * @param props.tracksUser - Who to record views and clicks as.
+ * @param props     - Component props.
+ * @param props.url - Where to buy Scan.
  * @return The card row.
  */
-export default function FirewallUpsell( {
-	url,
-	tracksUser,
-}: {
-	url: string;
-	tracksUser: TracksUser;
-} ) {
-	useEffect( () => {
-		recordEvent( tracksUser, 'jetpack_protect_dashboard_firewall_upsell_view' );
-	}, [ tracksUser ] );
-
-	const onClick = useCallback(
-		() => recordEvent( tracksUser, 'jetpack_protect_dashboard_firewall_upsell_click' ),
-		[ tracksUser ]
-	);
-
+export default function FirewallUpsell( { url }: { url: string } ) {
 	return (
 		<FeatureUpsell
 			heading={ __( 'Let your firewall keep up with new attacks', 'jetpack-protect-pkg' ) }
@@ -55,9 +36,8 @@ export default function FirewallUpsell( {
 					__( 'Turn it on once and it works in the background.', 'jetpack-protect-pkg' ),
 				],
 			] }
-			button={ __( 'Upgrade', 'jetpack-protect-pkg' ) }
 			url={ url }
-			onClick={ onClick }
+			event="jetpack_protect_dashboard_firewall_upsell"
 		/>
 	);
 }

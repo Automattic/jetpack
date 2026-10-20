@@ -15,7 +15,6 @@ import {
 } from '../../components/card';
 import formatNumber from '../../components/format-number';
 import TabLink from '../../components/tab-link';
-import UpgradeGap from '../../components/upgrade-gap';
 import isModuleActive from '../../data/is-module-active';
 import {
 	CrossOriginError,
@@ -30,6 +29,7 @@ import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
 import { AUTOMATIC_RULES, IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
 import TestDetails from './test-details';
+import UpgradeGap from './upgrade-gap';
 import type { TestOutcome, TestResult } from './firewall-test';
 import type { FirewallBlocks, FirewallContext, FirewallState } from './types';
 import type { JSX } from 'react';
@@ -368,7 +368,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 				</CardRow>
 			) }
 			{ ! firewall.hasScan && rulesUpdatedAt === null && (
-				<FirewallUpsell url={ firewall.upgradeUrl } tracksUser={ firewall.tracksUserData } />
+				<FirewallUpsell url={ firewall.upgradeUrl } />
 			) }
 			{ ! firewall.hasScan && rulesUpdatedAt !== null && (
 				<UpgradeGap

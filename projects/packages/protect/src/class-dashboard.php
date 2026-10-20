@@ -8,11 +8,11 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
-use Jetpack_Tracks_Client;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -289,20 +289,6 @@ class Dashboard {
 	}
 
 	/**
-	 * The connected user's Tracks identity, without the email the client doesn't need.
-	 *
-	 * @return array|null
-	 */
-	public static function get_tracks_user() {
-		$identity = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
-
-		return $identity ? array(
-			'userid'   => $identity['userid'],
-			'username' => $identity['username'],
-		) : null;
-	}
-
-	/**
 	 * Whether a module can run on this site, and whether it is on.
 	 *
 	 * @param string $module Module slug.
@@ -330,6 +316,31 @@ class Dashboard {
 		}
 
 		self::load_wp_build( dirname( __DIR__ ) . '/build/build.php' );
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_tracks_identity' ), 20 );
+	}
+
+	/**
+	 * Add the connected WordPress.com user to the script data, for Tracks, unless another package already did.
+	 *
+	 * @param array $data The script data.
+	 * @return array
+	 */
+	public static function add_tracks_identity( $data ) {
+		if ( ! empty( $data['user']['current_user']['wpcom']['ID'] ) ) {
+			return $data;
+		}
+		$connected = ( new Connection_Manager() )->get_connected_user_data();
+		if ( empty( $connected['ID'] ) || empty( $connected['login'] ) ) {
+			return $data;
+		}
+		$data['user']['current_user']['wpcom'] = array_merge(
+			$data['user']['current_user']['wpcom'] ?? array(),
+			array(
+				'ID'    => $connected['ID'],
+				'login' => $connected['login'],
+			)
+		);
+		return $data;
 	}
 
 	/**

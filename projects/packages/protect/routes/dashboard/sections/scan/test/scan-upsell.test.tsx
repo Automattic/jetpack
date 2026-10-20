@@ -19,9 +19,7 @@ describe( 'ScanUpsell', () => {
 		async ( given, shown, button ) => {
 			recordEvent.mockClear();
 			window.localStorage.clear();
-			render(
-				<ScanUpsell variant={ given } url="#buy" tracksUser={ { userid: 1, username: 'a' } } />
-			);
+			render( <ScanUpsell variant={ given } url="#buy" /> );
 
 			await userEvent.click( screen.getByRole( 'link', { name: button } ) );
 

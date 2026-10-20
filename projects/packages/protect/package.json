@@ -50,6 +50,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-scan": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-protect/init": "link:packages/init",
 		"@wordpress/admin-ui": "2.12.0",
 		"@wordpress/api-fetch": "7.57.0",

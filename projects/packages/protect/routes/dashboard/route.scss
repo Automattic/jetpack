@@ -77,26 +77,6 @@ body.toplevel_page_jetpack-protect {
 	&__muted {
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
-}
-
-.jp-protect-upgrade-gap {
-
-	&__icon {
-		flex: none;
-		color: var(--wpds-color-foreground-content-error-weak);
-	}
-
-	&__title {
-		font-weight: 500;
-	}
-
-	&__link {
-		flex: none;
-		white-space: nowrap;
-	}
-}
-
-.jp-protect-card {
 
 	&__title {
 		margin: 0;

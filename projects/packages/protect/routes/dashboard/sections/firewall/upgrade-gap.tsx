@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
 import { ButtonLink, Stack, Text } from '@wordpress/ui';
-import { CardRow } from './card';
+import { CardRow } from '../../components/card';
 
 type Props = {
 	/** What the free plan leaves out, such as "Malware scanning". */

@@ -100,7 +100,6 @@ class Scan implements Dashboard_Section {
 			$has_plan ? array() : array(
 				'upsellVariant'       => self::get_upsell_variant(),
 				'upsellVariantForced' => (bool) has_filter( 'jetpack_protect_dashboard_scan_upsell_variant' ),
-				'tracksUserData'      => Dashboard::get_tracks_user(),
 			),
 			self::get_scan_report( $has_plan )
 		);

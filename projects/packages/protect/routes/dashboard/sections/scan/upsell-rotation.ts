@@ -1,4 +1,4 @@
-export const STORAGE_KEY = 'jetpack-protect-scan-upsell';
+const STORAGE_KEY = 'jetpack-protect-scan-upsell';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 

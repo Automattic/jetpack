@@ -1,24 +1,30 @@
 import analytics from '@automattic/jetpack-analytics';
 
-export type TracksUser = { userid: number; username: string } | null | undefined;
+type Props = Record< string, string | number >;
 
-let initialized = false;
+const viewed = new Set< string >();
 
 /**
- * Record a Tracks event as the connected user, identifying them the first time.
+ * Record a view once per page load, so returning to a tab doesn't count it again.
  *
- * @param user  - The connected user's Tracks identity, from page load.
+ * @param event - Event name.
+ * @param props - Event properties; a view with other properties counts separately.
+ */
+export function recordViewOnce( event: string, props: Props = {} ) {
+	const key = event + JSON.stringify( props );
+	if ( viewed.has( key ) ) {
+		return;
+	}
+	viewed.add( key );
+	analytics.tracks.recordEvent( event, props );
+}
+
+/**
+ * Record an event.
+ *
  * @param event - Event name.
  * @param props - Event properties.
  */
-export default function recordEvent(
-	user: TracksUser,
-	event: string,
-	props: Record< string, string | number > = {}
-) {
-	if ( ! initialized && user ) {
-		analytics.initialize( user.userid, user.username );
-		initialized = true;
-	}
+export function recordEvent( event: string, props: Props = {} ) {
 	analytics.tracks.recordEvent( event, props );
 }

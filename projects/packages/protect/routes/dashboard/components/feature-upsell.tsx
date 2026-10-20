@@ -1,5 +1,8 @@
+import { useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { ButtonLink, Stack, Text } from '@wordpress/ui';
+import { recordEvent, recordViewOnce } from '../data/tracks';
 import { CardRow } from './card';
 import type { ReactElement } from 'react';
 
@@ -7,23 +10,37 @@ type Props = {
 	heading: string;
 	/** Three features, each an icon, a title and a description. */
 	features: [ ReactElement, string, string ][];
-	button: string;
+	/** Defaults to "Upgrade". */
+	button?: string;
 	url: string;
-	onClick?: () => void;
+	/** Tracks event prefix; `_view` and `_click` are recorded with `eventProps`. */
+	event: string;
+	eventProps?: Record< string, string | number >;
 };
 
 /**
  * A card row selling an upgrade: a heading, the features it adds in columns, and a button.
  *
- * @param props          - Component props.
- * @param props.heading  - The pitch.
- * @param props.features - What the upgrade adds.
- * @param props.button   - The button's label.
- * @param props.url      - Where the button goes.
- * @param props.onClick  - Called on click, before following `url`.
+ * @param props            - Component props.
+ * @param props.heading    - The pitch.
+ * @param props.features   - What the upgrade adds.
+ * @param props.button     - The button's label.
+ * @param props.url        - Where the button goes.
+ * @param props.event      - Tracks event prefix.
+ * @param props.eventProps - Tracks event properties.
  * @return The row.
  */
-export default function FeatureUpsell( { heading, features, button, url, onClick }: Props ) {
+export default function FeatureUpsell( {
+	heading,
+	features,
+	button,
+	url,
+	event,
+	eventProps = {},
+}: Props ) {
+	// No dependencies: recordViewOnce drops repeats, and eventProps is a new object each render.
+	useEffect( () => recordViewOnce( `${ event }_view`, eventProps ) );
+
 	return (
 		<CardRow className="jp-protect-feature-upsell">
 			<Stack direction="column" gap="md">
@@ -50,9 +67,10 @@ export default function FeatureUpsell( { heading, features, button, url, onClick
 						href={ url }
 						size="compact"
 						className="jp-protect-feature-upsell__button"
-						onClick={ onClick }
+						// eslint-disable-next-line react/jsx-no-bind -- ButtonLink isn't memoized, so a stable handler buys nothing.
+						onClick={ () => recordEvent( `${ event }_click`, eventProps ) }
 					>
-						{ button }
+						{ button ?? __( 'Upgrade', 'jetpack-protect-pkg' ) }
 					</ButtonLink>
 				</Stack>
 			</Stack>

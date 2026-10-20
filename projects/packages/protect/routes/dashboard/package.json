@@ -6,6 +6,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-scan": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@testing-library/react": "16.3.3",
 		"@testing-library/user-event": "14.6.8",
 		"@wordpress/admin-ui": "2.12.0",

@@ -152,3 +152,20 @@
 		overflow-wrap: anywhere;
 	}
 }
+
+.jp-protect-upgrade-gap {
+
+	&__icon {
+		flex: none;
+		color: var(--wpds-color-foreground-content-error-weak);
+	}
+
+	&__title {
+		font-weight: 500;
+	}
+
+	&__link {
+		flex: none;
+		white-space: nowrap;
+	}
+}
