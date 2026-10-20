@@ -4,12 +4,10 @@
 import {
 	ReportScopeProvider,
 	chartInterval,
-	drawableIntervals,
-	getAllowedIntervalsForPreset,
 	getDefaultPreset,
 	getDefaultReportParams,
 	hasComparisonEnabled,
-	lockedDrawableIntervals,
+	intervalMenuOptions,
 	normalizeReportParams,
 	useScopeLockedIntervals,
 	type StatsPeriod,
@@ -301,20 +299,9 @@ function ReportParamsControl( {
 
 	// Staged, not committed: a range being drafted has to reshape the menu with
 	// it, or the click is dropped on Apply.
-	const intervalOptions = useMemo( () => {
-		const allowed = getAllowedIntervalsForPreset(
-			reportParams.preset,
-			reportParams.from ?? '',
-			reportParams.to ?? '',
-			lockedIntervals
-		);
-
-		return periods ? drawableIntervals( allowed, periods ) : allowed;
-	}, [ reportParams.preset, reportParams.from, reportParams.to, periods, lockedIntervals ] );
-
-	const lockedIntervalOptions = useMemo(
+	const { options: intervalOptions, lockedOptions: lockedIntervalOptions } = useMemo(
 		() =>
-			lockedDrawableIntervals(
+			intervalMenuOptions(
 				{ preset: reportParams.preset, from: reportParams.from, to: reportParams.to },
 				lockedIntervals,
 				periods

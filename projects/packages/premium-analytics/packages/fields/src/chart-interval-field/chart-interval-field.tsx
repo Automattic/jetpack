@@ -3,10 +3,8 @@
  */
 import {
 	chartInterval,
-	drawableIntervals,
-	getAllowedIntervalsForPreset,
 	getDefaultPreset,
-	lockedDrawableIntervals,
+	intervalMenuOptions,
 	normalizeReportParams,
 	useReportScope,
 	useScopeLockedIntervals,
@@ -59,16 +57,9 @@ function ChartIntervalControl( {
 		) as [ StatsPeriod, ...StatsPeriod[] ];
 		// Like the chart: a widget that owns its range reads it before the page's.
 		const params = normalizeReportParams( ownRange ?? search, getDefaultPreset() );
-		const allowed = getAllowedIntervalsForPreset(
-			params.preset,
-			params.from ?? '',
-			params.to ?? '',
-			lockedIntervals
-		);
 
 		return {
-			options: drawableIntervals( allowed, periods ),
-			lockedOptions: lockedDrawableIntervals( params, lockedIntervals, periods ),
+			...intervalMenuOptions( params, lockedIntervals, periods ),
 			value: chartInterval( { ...params, interval: data.chartInterval }, periods, lockedIntervals ),
 		};
 	}, [ elements, ownRange, search, data.chartInterval, lockedIntervals ] );

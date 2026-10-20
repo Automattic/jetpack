@@ -147,31 +147,18 @@ allowed.
 
 **Returns:** `IntervalType`
 
-### `getLockedIntervalsForPreset( preset, from, to, locked )`
+### `intervalMenuOptions( params, locked, periods? )`
 
-Returns the buckets the range could draw but `locked` withholds, for an interval menu to list as
-locked.
-
-**Parameters:**
-
-- `preset`: `PrimaryPresetId | undefined`
-- `from`: `string`
-- `to`: `string`
-- `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
-
-**Returns:** `LockableInterval[]` - In the range's order
-
-### `lockedDrawableIntervals( params, locked, periods? )`
-
-`getLockedIntervalsForPreset`, narrowed to the buckets a widget's chart draws.
+Returns what an interval menu lists: the buckets it can pick, and the ones the range could draw but
+`locked` withholds, to list after them with a lock. A bucket never lands in both.
 
 **Parameters:**
 
-- `params`: `Pick< ReportParams, 'preset' | 'from' | 'to' >`
+- `params`: `{ preset?: PrimaryPresetId; from?: string; to?: string }` - The range being edited
 - `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
-- `periods`: `readonly StatsPeriod[] | undefined` - The periods the chart draws; every bucket when omitted
+- `periods`: `readonly [ StatsPeriod, ...StatsPeriod[] ] | undefined` - The periods the chart draws; every bucket when omitted
 
-**Returns:** `LockableInterval[]`
+**Returns:** `{ options: IntervalType[]; lockedOptions: LockableInterval[] }` - Each in the range's order
 
 ### `needsReportDateParamsSeed( search?, lockedIntervals? )`
 
@@ -313,8 +300,7 @@ This package exports the following public API:
 - `getDefaultIntervalForPeriod` - Default interval for a preset / range
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
-- `getLockedIntervalsForPreset` - The buckets a range could draw that the plan locks
-- `lockedDrawableIntervals` - Those locked buckets a widget's chart draws
+- `intervalMenuOptions` - The open and the locked buckets an interval menu lists
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
 - `getStatsDatePolicy` - The date limits the site's plan sets
 - `getSectionDatePolicy` - The date limits a dashboard section follows

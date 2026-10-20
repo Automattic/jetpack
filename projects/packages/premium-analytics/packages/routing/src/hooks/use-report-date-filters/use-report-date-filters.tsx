@@ -2,9 +2,8 @@
  * External dependencies
  */
 import {
-	getAllowedIntervalsForPreset,
-	getLockedIntervalsForPreset,
 	hasComparisonEnabled,
+	intervalMenuOptions,
 	resolveIntervalForRange,
 	useScopeLockedIntervals,
 	type LockableInterval,
@@ -198,23 +197,10 @@ export function useReportDateFilters< TFrom extends string >(
 
 	// Listed and checked against the range being edited — see
 	// `getAllowedIntervalsForPreset` for why the draft and not the applied window.
-	const intervalOptions = useMemo(
+	const { options: intervalOptions, lockedOptions: lockedIntervalOptions } = useMemo(
 		() =>
-			getAllowedIntervalsForPreset(
-				presetId,
-				effective.from ?? '',
-				effective.to ?? '',
-				lockedIntervals
-			),
-		[ presetId, effective.from, effective.to, lockedIntervals ]
-	);
-
-	const lockedIntervalOptions = useMemo(
-		() =>
-			getLockedIntervalsForPreset(
-				presetId,
-				effective.from ?? '',
-				effective.to ?? '',
+			intervalMenuOptions(
+				{ preset: presetId, from: effective.from, to: effective.to },
 				lockedIntervals
 			),
 		[ presetId, effective.from, effective.to, lockedIntervals ]

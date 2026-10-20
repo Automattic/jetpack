@@ -86,7 +86,6 @@ export {
 export {
 	getAllowedIntervalsForPreset,
 	getDefaultIntervalForPeriod,
-	getLockedIntervalsForPreset,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
@@ -95,7 +94,7 @@ export {
 	chartInterval,
 	defaultPeriodForInterval,
 	drawableIntervals,
-	lockedDrawableIntervals,
+	intervalMenuOptions,
 } from './utils/periods';
 export {
 	getLockedFeature,
