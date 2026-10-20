@@ -549,9 +549,8 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Hidden by the page itself, since admins without a linked WordPress.com account never
-	 * load the WordPress.com menu that hides the rest of the Jetpack entries; a modernized
-	 * Backup is what Jetpack > Backup opens, so it stays.
+	 * Protect hides itself, since admins without a linked WordPress.com account never load the
+	 * WordPress.com menu; Backup leaves its entry to that menu, which links Calypso in its place.
 	 *
 	 * @param string $page        Page class.
 	 * @param bool   $modernized  Whether the Backup modernization filter is on.
@@ -581,7 +580,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	public static function provide_sidebar_visibility() {
 		return array(
 			'Backup, modernized'      => array( WPCOM_Backup::class, true, false ),
-			'Backup, legacy'          => array( WPCOM_Backup::class, false, true ),
+			'Backup, legacy'          => array( WPCOM_Backup::class, false, false ),
 			'Protect, either setting' => array( WPCOM_Scan::class, true, true ),
 		);
 	}

@@ -65,12 +65,12 @@ class WPCOM_Backup extends WPCOM_Hosting_Feature_Page {
 	}
 
 	/**
-	 * Once modernized, Jetpack > Backup opens this page, so its entry stays in the sidebar.
+	 * Left to wpcom_add_jetpack_submenu(), which hides the entry only where it links Calypso's Backup instead.
 	 *
 	 * @return bool
 	 */
 	public static function hides_menu_entry() {
-		return ! self::is_modernized();
+		return false;
 	}
 
 	/**
