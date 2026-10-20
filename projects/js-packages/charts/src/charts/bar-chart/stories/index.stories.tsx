@@ -10,6 +10,7 @@ import {
 	largeValuesData,
 	trafficData,
 	steadyTrafficData,
+	weekComparisonData,
 	themeArgTypes,
 	type SeriesLegendStoryControls,
 } from '../../../stories';
@@ -789,45 +790,21 @@ const longLabelData = [
 	},
 ];
 
-// Comparison mode: one primary series + one shadow series sharing the same group.
-// The shadow renders as a translucent bar (150% width, 50% opacity) centered behind
+// Comparison mode: one primary series + one comparison series sharing the same group.
+// The comparison renders as a wider bar in a tint of the primary's color, centered behind
 // the primary bar, making it easy to compare the current period against a previous one.
 export const ComparisonSingle: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
 		legendCollapseGroups: false,
-		data: [
-			{
-				label: 'Views',
-				group: 'views',
-				data: [
-					{ label: 'Mon', value: 420 },
-					{ label: 'Tue', value: 580 },
-					{ label: 'Wed', value: 310 },
-					{ label: 'Thu', value: 750 },
-					{ label: 'Fri', value: 640 },
-				],
-			},
-			{
-				label: 'Views — previous',
-				group: 'views',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 510 },
-					{ label: 'Tue', value: 490 },
-					{ label: 'Wed', value: 430 },
-					{ label: 'Thu', value: 620 },
-					{ label: 'Fri', value: 700 },
-				],
-			},
-		],
+		data: [ weekComparisonData.views, weekComparisonData.viewsPrevious ],
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'One primary series paired with a `type: "comparison"` series sharing the same `group`. The comparison series renders as a translucent (50% opacity) shadow bar at the standard slot width, behind a primary bar narrowed to 60% — so it reads as a shadow peeking around the current period. `legend.collapseGroups` is off here, the default, so each series keeps its own legend item; turn the `legendCollapseGroups` control on to fold the pair into a single **Views** item.',
+					'One primary series paired with a `type: "comparison"` series sharing the same `group`. The comparison series renders as an opaque bar in a tint of the primary\'s color at the standard slot width, behind a primary bar narrowed to 60% — so it reads as a shadow peeking around the current period. `legend.collapseGroups` is off here, the default, so each series keeps its own legend item; turn the `legendCollapseGroups` control on to fold the pair into a single **Views** item.',
 			},
 		},
 	},
@@ -843,52 +820,10 @@ export const ComparisonMulti: Story = {
 		legendInteractive: true,
 		legendCollapseGroups: true,
 		data: [
-			{
-				label: 'Views',
-				group: 'views',
-				data: [
-					{ label: 'Mon', value: 420 },
-					{ label: 'Tue', value: 580 },
-					{ label: 'Wed', value: 310 },
-					{ label: 'Thu', value: 750 },
-					{ label: 'Fri', value: 640 },
-				],
-			},
-			{
-				label: 'Views — previous',
-				group: 'views',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 510 },
-					{ label: 'Tue', value: 490 },
-					{ label: 'Wed', value: 430 },
-					{ label: 'Thu', value: 620 },
-					{ label: 'Fri', value: 700 },
-				],
-			},
-			{
-				label: 'Visitors',
-				group: 'visitors',
-				data: [
-					{ label: 'Mon', value: 280 },
-					{ label: 'Tue', value: 390 },
-					{ label: 'Wed', value: 220 },
-					{ label: 'Thu', value: 500 },
-					{ label: 'Fri', value: 430 },
-				],
-			},
-			{
-				label: 'Visitors — previous',
-				group: 'visitors',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 340 },
-					{ label: 'Tue', value: 320 },
-					{ label: 'Wed', value: 290 },
-					{ label: 'Thu', value: 410 },
-					{ label: 'Fri', value: 460 },
-				],
-			},
+			weekComparisonData.views,
+			weekComparisonData.viewsPrevious,
+			weekComparisonData.visitors,
+			weekComparisonData.visitorsPrevious,
 		],
 	},
 	parameters: {
@@ -896,6 +831,30 @@ export const ComparisonMulti: Story = {
 			description: {
 				story:
 					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width shadow bar sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts. With `legend.collapseGroups` each group is a single legend item (Views, Visitors), and because `legend.interactive` is also on, clicking one toggles both its current and previous-period series at once. Turn the `legendCollapseGroups` control off to get one item per series, each toggling alone.',
+			},
+		},
+	},
+};
+
+const { views, viewsPrevious, visitors, visitorsPrevious } = weekComparisonData;
+
+export const ComparisonMultiNested: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		legendInteractive: true,
+		data: [
+			{ ...views, group: 'current', options: { type: 'comparison' } },
+			{ ...visitors, group: 'current' },
+			{ ...viewsPrevious, label: 'Previous views', group: 'previous' },
+			{ ...visitorsPrevious, label: 'Previous visitors', group: 'previous', options: {} },
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'A comparison series need not be a previous period. Here each `group` is a period, and views is the comparison of visitors: the wider bar behind it, in a tint of the same color, with visitors darkened as needed to keep 3:1 against it. Every bar is its own hover target, and hiding visitors leaves views in its slot. The arrow keys step one slot at a time, and the ring goes around the whole slot.',
 			},
 		},
 	},
@@ -962,8 +921,10 @@ const radiusSeries: SeriesData[] = [
 
 const findBars = ( panel: HTMLElement ) =>
 	waitFor( () => {
-		const primary = panel.querySelector< SVGRectElement >( 'rect.visx-bar' );
-		const comparison = within( panel ).getByTestId( 'bar-chart-comparison-1-0' );
+		const primary = panel.querySelector< SVGRectElement >(
+			'rect.visx-bar:not([data-testid="bar-chart-comparison-bar"])'
+		);
+		const [ comparison ] = within( panel ).getAllByTestId( 'bar-chart-comparison-bar' );
 		if ( ! primary ) {
 			throw new Error( 'No bar rendered yet.' );
 		}

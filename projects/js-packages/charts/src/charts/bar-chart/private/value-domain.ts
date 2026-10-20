@@ -7,8 +7,7 @@ const EMPTY_DOMAIN: [ number, number ] = [ 0, 1 ];
 /**
  * The value a bar is drawn at, preferring `visualValue` so a zero still shows a sliver.
  *
- * A missing reading is NaN, not null: `ComparisonBars` coerces the value with `Number()`,
- * which turns null into 0 and would draw a comparison shadow at the baseline.
+ * A missing reading is NaN, not null, so it draws no bar rather than one at the baseline.
  *
  * @param point - A data point handed to visx.
  * @return The bar value, or NaN when the bucket has no reading.
@@ -29,16 +28,6 @@ export const isBarRendered = ( point: DataPoint | DataPointDate | EnhancedDataPo
 	Number.isFinite( getBarValue( point ) );
 
 /**
- * How many bars visx renders for a list of points.
- *
- * @param points - Data points handed to visx.
- * @return The number of points that get a bar.
- */
-export const countRenderedBars = (
-	points: ReadonlyArray< DataPoint | DataPointDate | EnhancedDataPoint >
-): number => points.filter( isBarRendered ).length;
-
-/**
  * An explicit domain for the value scale, or null to let visx fit one to the data.
  *
  * Zero goes into the domain here rather than through the scale's `zero` flag: visx applies
@@ -57,8 +46,7 @@ export const getValueScaleDomain = (
 	let min = Infinity;
 	let max = -Infinity;
 
-	// Only hidden series are skipped. Comparison series count too: visx sees just the
-	// primary BarSeries and would fit a domain too narrow for the comparison shadows.
+	// Only hidden series are skipped.
 	for ( const series of data ) {
 		if ( ! isSeriesRendered( series ) ) {
 			continue;

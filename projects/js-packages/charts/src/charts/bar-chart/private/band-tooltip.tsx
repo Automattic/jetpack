@@ -7,6 +7,8 @@ import type { BarChartProps } from '../types';
 type PointerHandler = NonNullable< Parameters< typeof useEventEmitter >[ 1 ] >;
 type PointerSelection = Parameters< NonNullable< BarChartProps[ 'onPointerUp' ] > >[ 0 ];
 
+const ownSlot = ( key: string ) => key;
+
 /**
  * Find a category by its painted center, including outer padding and reversed ranges.
  * @param data     - Registered series points.
@@ -41,6 +43,8 @@ export function nearestBandIndex< Datum >(
  * Correct visx's range-based band inversion, which omits outer padding.
  * @param root0               - Registered series selection.
  * @param root0.keys          - Visible series keys.
+ * @param root0.slotKeys      - The slots the band holds, when series share them.
+ * @param root0.slotOf        - The slot a series sits in, when series share them.
  * @param root0.groupPadding  - Padding between grouped bars.
  * @param root0.withTooltips  - Whether pointer events update the tooltip.
  * @param root0.onPointerDown - Receives the corrected pointer-down datum.
@@ -50,6 +54,8 @@ export function nearestBandIndex< Datum >(
  */
 export function BandTooltip( {
 	keys,
+	slotKeys = keys,
+	slotOf = ownSlot,
 	groupPadding,
 	withTooltips,
 	onPointerDown,
@@ -57,16 +63,18 @@ export function BandTooltip( {
 	onPointerMove,
 }: {
 	keys: string[];
+	slotKeys?: string[];
+	slotOf?: ( key: string ) => string;
 	groupPadding: number;
 	onPointerMove?: ( selection: PointerSelection ) => void;
 } & Pick< BarChartProps, 'withTooltips' | 'onPointerDown' | 'onPointerUp' > ) {
 	const { xScale, yScale, dataRegistry, horizontal } = useContext( DataContext );
-	const { showTooltip } = useContext( TooltipContext );
+	const { showTooltip, hideTooltip } = useContext( TooltipContext );
 	const scale = ( horizontal ? yScale : xScale ) as BandScale | undefined;
 	const bandwidth = scale?.bandwidth?.() ?? 0;
 	const groupScale = useMemo(
-		() => createGroupScale( keys, bandwidth, groupPadding ),
-		[ keys, bandwidth, groupPadding ]
+		() => createGroupScale( slotKeys, bandwidth, groupPadding ),
+		[ slotKeys, bandwidth, groupPadding ]
 	);
 	const getSelections = useCallback(
 		( params: Parameters< PointerHandler >[ 0 ] ) => {
@@ -91,7 +99,7 @@ export function BandTooltip( {
 					continue;
 				}
 				const datum = entry.data[ index ];
-				const start = Number( scale( accessor( datum ) ) ) + Number( groupScale( key ) );
+				const start = Number( scale( accessor( datum ) ) ) + Number( groupScale( slotOf( key ) ) );
 				const end = start + groupScale.step();
 				const position = horizontal ? point.y : point.x;
 				const distance =
@@ -108,7 +116,7 @@ export function BandTooltip( {
 			}
 			return selections;
 		},
-		[ scale, dataRegistry, horizontal, keys, groupScale ]
+		[ scale, dataRegistry, horizontal, keys, slotOf, groupScale ]
 	);
 	const handlePointer = useCallback< PointerHandler >(
 		params => {
@@ -138,6 +146,7 @@ export function BandTooltip( {
 		[ getSelections, withTooltips, showTooltip, onPointerDown, onPointerUp, onPointerMove ]
 	);
 	useEventEmitter( 'pointermove', withTooltips ? handlePointer : undefined );
+	useEventEmitter( 'pointerout', withTooltips ? hideTooltip : undefined );
 	useEventEmitter( 'pointerdown', handlePointer );
 	useEventEmitter( 'pointerup', onPointerUp ? handlePointer : undefined );
 	return null;

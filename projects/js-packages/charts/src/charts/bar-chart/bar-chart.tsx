@@ -20,6 +20,7 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
+import { getComparisonPrimaries } from '../../providers/chart-context/private/bar-colors';
 import { attachSubComponents } from '../../utils';
 import { warnOnce } from '../../utils/warn-once';
 import { useChartChildren } from '../private/chart-composition';
@@ -35,17 +36,17 @@ import {
 	useBarChartOptions,
 	BandHighlight,
 	BandTooltip,
-	ClassifiedBarSeries,
-	ComparisonBars,
+	SlottedBarSeries,
 	DEFAULT_COMPARISON_WIDTH_FACTOR,
 	COMPARISON_INNER_GAP,
 	MAX_GROUP_PADDING,
 	COMPARISON_TICK_GAP_FACTOR,
 	BASE_BAND_PADDING_INNER,
-	countRenderedBars,
 	isBarRendered,
+	SelectedBarRing,
+	SlotTooltipMembers,
 } from './private';
-import type { ComparisonSeriesEntry } from './private';
+import type { SelectedBar, SlotMember } from './private';
 import type { BarChartProps } from './types';
 import type { DataPointDate, SeriesData, Optional } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
@@ -56,6 +57,25 @@ export type { BarChartProps, BandHighlightSelection } from './types';
 
 // Base props type with optional responsive properties
 type BarChartBaseProps = Optional< BarChartProps, 'width' | 'height' | 'size' >;
+
+type SelectedSlot = SelectedBar & { index: number; members: SlotMember[] };
+
+type ComparisonSeriesEntry = {
+	series: SeriesData;
+	index: number;
+	primaryKey: string;
+	/** dataSorted index of the paired primary series, whose pattern the comparison shares. */
+	primaryIndex: number;
+};
+/**
+ * How far a bar reaches from the baseline.
+ *
+ * @param datum - The bar's datum.
+ * @return The bar's length in value units.
+ */
+function reach( datum: DataPointDate ): number {
+	return Math.abs( datum.value ?? 0 );
+}
 
 // Composition API types
 interface BarChartSubComponents {
@@ -169,7 +189,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
 
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles, getBarColors } = useGlobalChartsContext();
+	const barColors = useMemo( () => getBarColors( dataSorted ), [ getBarColors, dataSorted ] );
 
 	// A hidden series is unmounted, so it is not on the band scale either — the
 	// axis has to choose its tick values from what is left. Visibility is owned by
@@ -230,7 +251,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 	}, [ seriesWithVisibility ] );
 
-	// Derive primary vs comparison entries for comparison mode support.
 	const primaryEntries = useMemo(
 		() =>
 			seriesWithVisibility.filter(
@@ -239,44 +259,100 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ seriesWithVisibility ]
 	);
 
+	// A comparison keeps its primary's slot while the primary is hidden.
+	const comparisonEntries = useMemo( () => {
+		const entries: ComparisonSeriesEntry[] = [];
+		getComparisonPrimaries( dataWithVisibleZeros ).forEach( ( primaryIndex, index ) => {
+			const { series, isVisible } = seriesWithVisibility[ index ];
+			if ( isVisible ) {
+				entries.push( {
+					series,
+					index,
+					primaryKey: dataWithVisibleZeros[ primaryIndex ].label,
+					primaryIndex,
+				} );
+			}
+		} );
+		return entries;
+	}, [ dataWithVisibleZeros, seriesWithVisibility ] );
+
+	// Every drawn bar, back to front: comparisons behind their primaries.
+	const barEntries = useMemo(
+		() => [ ...comparisonEntries, ...primaryEntries ],
+		[ comparisonEntries, primaryEntries ]
+	);
+
+	const barKeys = useMemo( () => barEntries.map( ( { series } ) => series.label ), [ barEntries ] );
+
+	// Each bar's slot in a category, and its thickness there: a comparison sits in its primary's slot, wider than it.
+	const { slotKeys, slotOf, thicknessOf } = useMemo( () => {
+		const slotByKey = new Map< string, string >();
+		const thicknessByKey = new Map< string, number >();
+
+		comparisonEntries.forEach( ( { series, index, primaryKey } ) => {
+			slotByKey.set( series.label, primaryKey );
+			thicknessByKey.set(
+				series.label,
+				getElementStyles( { data: series, index } ).barStyles?.widthFactor ??
+					DEFAULT_COMPARISON_WIDTH_FACTOR
+			);
+		} );
+
+		const usedSlots = new Set( [
+			...primaryEntries.map( ( { series } ) => series.label ),
+			...slotByKey.values(),
+		] );
+
+		return {
+			slotKeys: seriesWithVisibility
+				.map( ( { series } ) => series.label )
+				.filter( label => usedSlots.has( label ) ),
+			slotOf: ( key: string ) => slotByKey.get( key ) ?? key,
+			thicknessOf: ( key: string ) => thicknessByKey.get( key ) ?? 1,
+		};
+	}, [ seriesWithVisibility, comparisonEntries, primaryEntries, getElementStyles ] );
+
+	// One keyboard stop per slot, carried by its primary, or by its comparison while the primary is hidden.
+	const stopEntries = useMemo(
+		() =>
+			slotKeys.flatMap( slot => {
+				const members = barEntries.filter( ( { series } ) => slotOf( series.label ) === slot );
+				const stop = members.at( -1 );
+				return stop ? [ stop ] : [];
+			} ),
+		[ slotKeys, barEntries, slotOf ]
+	);
+
 	const totalPoints =
-		Math.max( 0, ...primaryEntries.map( e => e.series.data.length ) ) * primaryEntries.length;
+		Math.max( 0, ...stopEntries.map( e => e.series.data.length ) ) * stopEntries.length;
 
-	const primaryKeys = useMemo(
-		() => primaryEntries.map( ( { series } ) => series.label ),
-		[ primaryEntries ]
-	);
+	// The keyboard-navigation index space and the selection ring both stride over the stops
+	// only; `XYChartTooltip` must use the same list, or its datum diverges from
+	// the selected bar once a comparison series shifts the indices.
+	const stopSeries = useMemo( () => stopEntries.map( ( { series } ) => series ), [ stopEntries ] );
 
-	// The keyboard-navigation index space and the highlight CSS both stride over primary
-	// bars only; `XYChartTooltip` must use the same list, or its datum diverges from
-	// the highlighted bar once a comparison series shifts the indices.
-	const primarySeries = useMemo(
-		() => primaryEntries.map( ( { series } ) => series ),
-		[ primaryEntries ]
-	);
-
-	// Walks the selected index the way the highlight style does — series-major
+	// Walks the selected index the way the selection ring does — series-major
 	// within each data point — so the bar handed on is the one outlined.
 	const activateSelectedBar = useCallback(
 		( index: number ) => {
-			const primaryCount = primaryEntries.length;
+			const stopCount = stopEntries.length;
 
-			if ( ! primaryCount ) {
+			if ( ! stopCount ) {
 				return;
 			}
 
-			const dataPointIndex = Math.floor( index / primaryCount );
-			const series = primaryEntries[ index % primaryCount ]?.series;
+			const dataPointIndex = Math.floor( index / stopCount );
+			const series = stopEntries[ index % stopCount ]?.series;
 			const datum = series?.data[ dataPointIndex ];
 
 			if ( series && datum ) {
 				onDatumActivate?.( { datum, index: dataPointIndex, key: series.label } );
 			}
 		},
-		[ primaryEntries, onDatumActivate ]
+		[ stopEntries, onDatumActivate ]
 	);
 
-	const visibleSeriesKey = useMemo( () => JSON.stringify( primaryKeys ), [ primaryKeys ] );
+	const visibleSeriesKey = useMemo( () => JSON.stringify( barKeys ), [ barKeys ] );
 
 	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown, onChartPointerMove } =
 		useKeyboardNavigation( {
@@ -292,42 +368,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const handlePointerMove = useCallback(
 		( { key, index }: { key: string; index: number } ) => {
-			const seriesIndex = primaryKeys.indexOf( key );
-			if ( seriesIndex >= 0 ) {
-				onChartPointerMove( index * primaryKeys.length + seriesIndex );
+			const stopIndex = stopEntries.findIndex(
+				( { series } ) => slotOf( series.label ) === slotOf( key )
+			);
+			if ( stopIndex >= 0 ) {
+				onChartPointerMove( index * stopEntries.length + stopIndex );
 			}
 		},
-		[ primaryKeys, onChartPointerMove ]
+		[ stopEntries, slotOf, onChartPointerMove ]
 	);
 
-	const comparisonEntries = useMemo( () => {
-		const primaryByGroup = new Map< string | undefined, { label: string; index: number } >(
-			primaryEntries.map( ( { series, index } ) => [
-				series.group,
-				{ label: series.label, index },
-			] )
-		);
-
-		const entries: ComparisonSeriesEntry[] = [];
-		seriesWithVisibility.forEach( ( { series, index, isVisible } ) => {
-			if ( ! isVisible || series.options?.type !== 'comparison' ) {
-				return;
-			}
-			const primary =
-				primaryByGroup.get( series.group ) ??
-				( primaryEntries.length === 1
-					? { label: primaryEntries[ 0 ].series.label, index: primaryEntries[ 0 ].index }
-					: undefined );
-			if ( ! primary || ! primaryKeys.includes( primary.label ) ) {
-				return;
-			}
-			entries.push( { series, index, primaryKey: primary.label, primaryIndex: primary.index } );
-		} );
-		return entries;
-	}, [ seriesWithVisibility, primaryEntries, primaryKeys ] );
-
-	// Comparison widthFactor (how much wider the shadow is than the primary) drives both the
-	// shadow width (in ComparisonBars) and the primary narrowing.
 	const comparisonWidthFactor = useMemo( () => {
 		if ( comparisonEntries.length === 0 ) return undefined;
 		return (
@@ -376,18 +426,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		( index: number ) => ( datum: DataPointDate ) =>
 			withPatterns
 				? `url(#${ getPatternId( chartId, index ) })`
-				: ( datum.color ?? getElementStyles( { data: dataSorted[ index ], index } ).color ),
-		[ withPatterns, getElementStyles, dataSorted, chartId ]
+				: ( datum.color ?? barColors[ index ] ),
+		[ withPatterns, barColors, chartId ]
 	);
 
-	// Comparison shadow fill: when patterns are on, reuse the paired primary's pattern so the
-	// shadow reads as the same series; otherwise use the comparison series' resolved color.
-	const resolveComparisonFill = useCallback(
-		( entry: ComparisonSeriesEntry ) =>
-			withPatterns
-				? `url(#${ getPatternId( chartId, entry.primaryIndex ) })`
-				: getElementStyles( { data: entry.series, index: entry.index } ).color,
-		[ withPatterns, chartId, getElementStyles ]
+	const getComparisonFill = useCallback(
+		( entry: ComparisonSeriesEntry ) => () =>
+			withPatterns ? `url(#${ getPatternId( chartId, entry.index ) })` : barColors[ entry.index ],
+		[ withPatterns, chartId, barColors ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -476,11 +522,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const createPatternBorderStyle = useCallback(
 		( index: number, color: string ) => {
 			const patternId = getPatternId( chartId, index );
-			// Border the primary bars and any comparison shadow reusing the same pattern,
-			// so a patterned shadow gets the same outline as its primary bar.
+			// A comparison bar reuses its primary's pattern, so this outlines both.
 			return `
-			.visx-bar[fill="url(#${ patternId })"],
-			.bar-chart__comparison-bar[fill="url(#${ patternId })"] {
+			.visx-bar[fill="url(#${ patternId })"] {
 				stroke: ${ color };
 				stroke-width: 1;
 				}
@@ -489,44 +533,48 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ chartId ]
 	);
 
-	const createKeyboardHighlightStyle = useCallback( () => {
-		if ( selectedIndex === undefined ) return '';
+	const selectedBar = useMemo( (): SelectedSlot | undefined => {
+		if ( selectedIndex === undefined ) return undefined;
 
-		// Use only primary entries: comparison series have no .visx-bar elements, so
-		// their indices must not appear in the nth-child selector.
-		// Pattern: [series1[0], series2[0], series3[0], series1[1], series2[1], series3[1], ...]
-		const primaryCount = primaryEntries.length;
-		if ( ! primaryCount ) {
-			return '';
+		// Pattern: [stop1[0], stop2[0], stop3[0], stop1[1], stop2[1], stop3[1], ...]
+		const stopCount = stopEntries.length;
+		if ( ! stopCount ) {
+			return undefined;
 		}
-		const dataPointIndex = Math.floor( selectedIndex / primaryCount );
-		const seriesIndex = selectedIndex % primaryCount;
-		const seriesData = primaryEntries[ seriesIndex ]?.series;
-		const datum = seriesData?.data[ dataPointIndex ];
+		const stop = stopEntries[ selectedIndex % stopCount ]?.series;
 
-		if ( ! seriesData || ! datum || ! isBarRendered( datum ) ) {
-			return '';
+		if ( ! stop ) {
+			return undefined;
 		}
 
-		// The single .visx-bar-group holds series after series, and only the points visx drew a bar for.
-		const domBarIndex =
-			primaryEntries
-				.slice( 0, seriesIndex )
-				.reduce( ( count, { series } ) => count + countRenderedBars( series.data ), 0 ) +
-			countRenderedBars( seriesData.data.slice( 0, dataPointIndex ) );
+		const dataPointIndex = Math.floor( selectedIndex / stopCount );
+		const slotKey = slotOf( stop.label );
+		const members = barEntries.map( ( { series } ) => ( {
+			key: series.label,
+			datum: series.data[ dataPointIndex ] as DataPointDate | undefined,
+		} ) );
+		const slotBars = members.filter(
+			( { key, datum } ) => slotOf( key ) === slotKey && datum && isBarRendered( datum )
+		);
+		// The ring goes around the whole slot: as wide as its widest bar, as long as its longest bar.
+		const longest = slotBars.reduce< DataPointDate | undefined >(
+			( best, { datum } ) =>
+				datum && ( ! best || reach( datum ) > reach( best ) ) ? datum : best,
+			undefined
+		);
 
-		// Use a CSS class selector instead of ID since useId() generates invalid CSS ID characters
-		const generatedStyles = `
-			.bar-chart[data-chart-id="bar-chart-${ chartId }"] .visx-bar-group .visx-bar:nth-child(${
-				domBarIndex + 1
-			}) {
-				stroke: #005fcc;
-				stroke-width: 2px;
-			}
-		`;
+		if ( ! longest ) {
+			return undefined;
+		}
 
-		return generatedStyles;
-	}, [ selectedIndex, primaryEntries, chartId ] );
+		return {
+			datum: longest,
+			slotKey,
+			thickness: Math.max( ...slotBars.map( ( { key } ) => thicknessOf( key ) ) ),
+			index: dataPointIndex,
+			members,
+		};
+	}, [ selectedIndex, stopEntries, barEntries, slotOf, thicknessOf ] );
 
 	// Validate data first
 	const error = validateData( dataSorted );
@@ -557,7 +605,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	}
 
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
-	const highlightedBarStyle = createKeyboardHighlightStyle();
 
 	const legendPosition = legend.position ?? 'bottom';
 	const legendElement = showLegend && (
@@ -676,28 +723,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										{ withPatterns && (
 											<>
 												<defs data-testid="bar-chart-patterns">
-													{ dataSorted.map( ( seriesData, index ) =>
-														renderPattern(
-															index,
-															getElementStyles( { data: seriesData, index } ).color
-														)
-													) }
+													{ barColors.map( ( color, index ) => renderPattern( index, color ) ) }
 												</defs>
 												<style>
-													{ dataSorted.map( ( seriesData, index ) =>
-														createPatternBorderStyle(
-															index,
-															getElementStyles( { data: seriesData, index } ).color
-														)
+													{ barColors.map( ( color, index ) =>
+														createPatternBorderStyle( index, color )
 													) }
 												</style>
 											</>
-										) }
-
-										{ highlightedBarStyle && (
-											<style data-testid="bar-chart-keyboard-highlight">
-												{ highlightedBarStyle }
-											</style>
 										) }
 
 										{ allSeriesHidden ? (
@@ -711,33 +744,25 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</SvgEmptyState>
 										) : null }
 
-										<ComparisonBars
-											comparisonEntries={ comparisonEntries }
-											primaryKeys={ primaryKeys }
-											groupPadding={ groupPadding }
-											horizontal={ horizontal }
-											xAccessor={ chartOptions.accessors.xAccessor }
-											yAccessor={
-												chartOptions.accessors.yAccessor as (
-													d: DataPointDate
-												) => number | undefined
-											}
-											getElementStyles={ getElementStyles }
-											resolveFill={ resolveComparisonFill }
-										/>
-
-										{ barClassName ? (
+										{ barClassName || comparisonEntries.length > 0 ? (
 											<g className="visx-bar-group">
-												{ primaryEntries.map( ( { series: seriesData, index } ) => (
-													<ClassifiedBarSeries
-														key={ seriesData.label }
-														dataKey={ seriesData.label }
-														data={ seriesData.data as DataPointDate[] }
+												{ barEntries.map( entry => (
+													<SlottedBarSeries
+														key={ entry.series.label }
+														dataKey={ entry.series.label }
+														data={ entry.series.data as DataPointDate[] }
 														xAccessor={ chartOptions.accessors.xAccessor }
 														yAccessor={ chartOptions.accessors.yAccessor }
-														colorAccessor={ getBarBackground( index ) }
-														barClassName={ barClassName }
-														primaryKeys={ primaryKeys }
+														colorAccessor={
+															'primaryKey' in entry
+																? getComparisonFill( entry )
+																: getBarBackground( entry.index )
+														}
+														barClassName={ 'primaryKey' in entry ? undefined : barClassName }
+														slotKeys={ slotKeys }
+														slotKey={ slotOf( entry.series.label ) }
+														thickness={ thicknessOf( entry.series.label ) }
+														isComparison={ 'primaryKey' in entry }
 														groupPadding={ groupPadding }
 													/>
 												) ) }
@@ -756,10 +781,27 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												) ) }
 											</BarGroup>
 										) }
+										{ selectedBar && (
+											<SelectedBarRing
+												chartId={ chartId }
+												selected={ selectedBar }
+												slotKeys={ slotKeys }
+												groupPadding={ groupPadding }
+												horizontal={ horizontal }
+												xAccessor={ chartOptions.accessors.xAccessor }
+												yAccessor={
+													chartOptions.accessors.yAccessor as (
+														d: DataPointDate
+													) => number | undefined
+												}
+											/>
+										) }
 										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after the primary series. */ }
 										{ ( withTooltips || onPointerDown || onPointerUp ) && (
 											<BandTooltip
-												keys={ primaryKeys }
+												keys={ barKeys }
+												slotKeys={ slotKeys }
+												slotOf={ slotOf }
 												groupPadding={ groupPadding }
 												withTooltips={ withTooltips }
 												onPointerDown={ onPointerDown }
@@ -796,6 +838,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</WholeNumberTicks>
 										) }
 
+										{ withTooltips && selectedBar && selectedBar.members.length > 1 && (
+											<SlotTooltipMembers
+												members={ selectedBar.members }
+												index={ selectedBar.index }
+											/>
+										) }
 										{ withTooltips && (
 											<XYChartTooltip
 												tooltipPlacement={ tooltipPlacement }
@@ -810,7 +858,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												keyboardFocusedClassName={
 													styles[ 'bar-chart__tooltip--keyboard-focused' ]
 												}
-												series={ primarySeries }
+												series={ stopSeries }
 												mode="individual"
 											/>
 										) }

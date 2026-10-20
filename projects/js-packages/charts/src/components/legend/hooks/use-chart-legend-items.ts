@@ -168,16 +168,17 @@ function buildSeriesLegendItem(
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode,
 	legendShape?: LegendShape< SeriesData[], number >
 ): BaseLegendItem {
-	const { color, glyph, shapeStyles } = getElementStyles( {
+	const styles = getElementStyles( {
 		data: member.series,
 		index: member.index,
 		legendShape,
 	} );
+	const { glyph, shapeStyles } = styles;
 
 	const baseItem: BaseLegendItem = {
 		label: member.series.label,
 		value: showValues ? member.series.data?.length?.toString() || '0' : '',
-		color,
+		color: styles.color,
 		shapeStyle: shapeStyles,
 		seriesLabels,
 	};
@@ -271,13 +272,18 @@ function buildComparisonLegendItem(
 		return null;
 	}
 
-	const { color, shapeStyles } = getElementStyles( {
+	const styles = getElementStyles( {
 		data: seriesData[ index ],
 		index,
 		legendShape,
 	} );
 
-	return { label, color, shapeStyle: shapeStyles, interactive: false };
+	return {
+		label,
+		color: styles.color,
+		shapeStyle: styles.shapeStyles,
+		interactive: false,
+	};
 }
 
 /**
@@ -308,13 +314,13 @@ function buildPerSeriesComparisonItems(
 			return [];
 		}
 
-		const { color, shapeStyles } = getElementStyles( { data: series, index, legendShape } );
+		const styles = getElementStyles( { data: series, index, legendShape } );
 
 		return [
 			{
 				label: formatLabel( owner.label ),
-				color,
-				shapeStyle: shapeStyles,
+				color: styles.color,
+				shapeStyle: styles.shapeStyles,
 				interactive: false,
 				describesSeries: series.label,
 			},
@@ -388,7 +394,7 @@ export function useChartLegendItems<
 		comparisonSeriesItems,
 		renderGlyph,
 	} = options;
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles, getBarColors } = useGlobalChartsContext();
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {
@@ -398,9 +404,15 @@ export function useChartLegendItems<
 		// Handle SeriesData (multiple series with data points)
 		if ( 'data' in data[ 0 ] ) {
 			const seriesData = data as SeriesData[];
+			// A line swatch takes the line's color, any other shape the bar's.
+			const barColors = legendShape === 'line' ? undefined : getBarColors( seriesData );
+			const getSwatchStyles = ( params: GetElementStylesParams ): ElementStyles => {
+				const styles = getElementStyles( params );
+				return barColors ? { ...styles, color: barColors[ params.index ] } : styles;
+			};
 			const items = processSeriesData(
 				seriesData,
-				getElementStyles,
+				getSwatchStyles,
 				showValues,
 				withGlyph,
 				glyphSize,
@@ -416,7 +428,7 @@ export function useChartLegendItems<
 						seriesData,
 						items,
 						comparisonSeriesItems,
-						getElementStyles,
+						getSwatchStyles,
 						legendShape
 					),
 				];
@@ -429,7 +441,7 @@ export function useChartLegendItems<
 						typeof comparisonItem === 'string'
 							? comparisonItem
 							: __( 'Comparison period', 'jetpack-charts' ),
-						getElementStyles,
+						getSwatchStyles,
 						legendShape
 					)
 				: null;
@@ -451,6 +463,7 @@ export function useChartLegendItems<
 	}, [
 		data,
 		getElementStyles,
+		getBarColors,
 		showValues,
 		legendValueDisplay,
 		withGlyph,

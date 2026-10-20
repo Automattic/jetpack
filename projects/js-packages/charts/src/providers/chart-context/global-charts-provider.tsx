@@ -25,6 +25,7 @@ import {
 import { sanitizeFormatting } from '../../utils/date-formatting';
 // Imported from the module rather than the `chart-scope` barrel: the barrel also pulls `use-standalone-scope-class`, which imports `GlobalChartsContext` back from this file. That cycle resolves today only because the binding is read lazily inside the hook body.
 import { ChartScopeContext } from '../chart-scope/chart-scope-context';
+import { getBarColors as getSeriesBarColors } from './private/bar-colors';
 import {
 	BACKGROUND_FALLBACK,
 	CATALOG_POINTERS,
@@ -235,15 +236,17 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 				typeof data.value === 'number' &&
 				! ( 'data' in data );
 
+			const color = resolveColor( {
+				group: data?.group,
+				index,
+				overrideColor:
+					overrideColor ||
+					( isSeriesData && data?.options?.stroke ) ||
+					( isPointPercentageData && data?.color ),
+			} );
+
 			return {
-				color: resolveColor( {
-					group: data?.group,
-					index,
-					overrideColor:
-						overrideColor ||
-						( isSeriesData && data?.options?.stroke ) ||
-						( isPointPercentageData && data?.color ),
-				} ),
+				color,
 				lineStyles: isSeriesData ? getSeriesLineStyles( data, index, providerTheme ) : {},
 				barStyles: isSeriesData ? getSeriesBarStyles( data, index, providerTheme ) : {},
 				glyph: providerTheme.glyphs?.[ index ],
@@ -253,6 +256,16 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			};
 		},
 		[ providerTheme, resolveColor ]
+	);
+
+	const getBarColors = useCallback< GlobalChartsContextValue[ 'getBarColors' ] >(
+		series =>
+			getSeriesBarColors(
+				series,
+				series.map( ( data, index ) => getElementStyles( { data, index } ).color ),
+				colorCache.background
+			),
+		[ getElementStyles, colorCache.background ]
 	);
 
 	// Keep hidden-series updates and no-op detection consistent across setters.
@@ -371,6 +384,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			theme: providerTheme,
 			formatting,
 			getElementStyles,
+			getBarColors,
 			toggleSeriesVisibility,
 			setSeriesVisibility,
 			setChartHiddenSeries,
@@ -388,6 +402,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			providerTheme,
 			formatting,
 			getElementStyles,
+			getBarColors,
 			toggleSeriesVisibility,
 			setSeriesVisibility,
 			setChartHiddenSeries,

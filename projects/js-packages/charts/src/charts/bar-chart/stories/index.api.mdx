@@ -82,7 +82,7 @@ type SeriesData = {
 	group?: string;
 	options?: {
 		stroke?: string;
-		/** Render this series as a translucent "shadow" behind the primary bar in the same `group`. */
+		/** Render this series as a wider, tinted bar behind the primary bar in the same `group`. */
 		type?: 'comparison';
 	};
 };
@@ -90,17 +90,19 @@ type SeriesData = {
 
 ## Comparison Styling (theme)
 
-Comparison shadow bars are styled via the chart theme at `barChart.barStyles.comparison`:
+Comparison bars are styled via the chart theme at `barChart.barStyles.comparison`:
 
 | Key | Type | Default | Description |
 | --- | ---- | ------- | ----------- |
-| `widthFactor` | `number` | `1.5` | How much wider the comparison bar is than the primary. The comparison shadow is the standard slot width and the primary bar is narrowed to `1 / widthFactor` of the slot. |
-| `opacity` | `number` | `0.5` | Opacity of the comparison shadow bar. |
+| `widthFactor` | `number` | `1.5` | How much wider the comparison bar is than the primary. The comparison bar is the standard slot width and the primary bar is narrowed to `1 / widthFactor` of the slot. |
+| `opacity` | `number` | none | Deprecated and ignored: comparison bars are opaque. |
+
+A comparison bar is opaque. Without its own `options.stroke`, it takes the lightest tint of its primary's color that keeps 3:1 against the chart background, and its primary darkens, where it must, to keep 3:1 against that tint. With one, both bars keep the colors they are given.
 
 ```typescript
 <GlobalChartsProvider
 	theme={ {
-		barChart: { barStyles: { comparison: { widthFactor: 1.5, opacity: 0.5 } } },
+		barChart: { barStyles: { comparison: { widthFactor: 1.5 } } },
 	} }
 >
 	<BarChart data={ data } />

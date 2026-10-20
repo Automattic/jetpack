@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { GlobalChartsProvider } from '../../../../providers';
+import { contrastRatio } from '../../../../providers/chart-context/private/perceptual-color';
 import { useChartLegendItems } from '../use-chart-legend-items';
 import type { DataPointPercentageCalculated, DataPointDate, SeriesData } from '../../../../types';
 import type { ReactNode } from 'react';
@@ -389,7 +390,7 @@ describe( 'useChartLegendItems', () => {
 			expect( result.current[ 1 ].shapeStyle ).toEqual( { strokeWidth: 2 } );
 		} );
 
-		test( "takes the first metric's color when several metrics carry a comparison", () => {
+		test( "takes the first metric's comparison tone when several metrics carry a comparison", () => {
 			const pairedData: SeriesData[] = [
 				{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
 				{
@@ -418,7 +419,10 @@ describe( 'useChartLegendItems', () => {
 				'Comparison period',
 			] );
 			expect( result.current[ 0 ].color ).not.toBe( result.current[ 1 ].color );
-			expect( result.current[ 2 ].color ).toBe( result.current[ 0 ].color );
+			expect( contrastRatio( result.current[ 2 ].color, '#ffffff' ) ).toBeLessThan( 3.1 );
+			expect(
+				contrastRatio( result.current[ 0 ].color, result.current[ 2 ].color )
+			).toBeGreaterThanOrEqual( 3 );
 		} );
 
 		test( 'adds nothing when no series is a comparison', () => {

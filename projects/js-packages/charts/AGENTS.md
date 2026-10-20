@@ -54,7 +54,7 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
   `process.env.NODE_ENV` fails with `TS2591` in their build and not in ours.
   `pnpm run typecheck` here will not catch it. Declare a local
   `declare const process: { env: Record< string, string | undefined > };` in any
-  file that needs it — `bar-chart/private/comparison-bars.tsx` does.
+  file that needs it — `utils/warn-once.ts` does.
 - **Never `deps.alwaysBundle` a package that transitively requires an external.**
   Pre-bundling is safe only for dependencies that require nothing themselves —
   `fast-deep-equal` qualifies, which is why `tsdown.config.ts` still lists it.

@@ -1,3 +1,20 @@
+// Clipped to outside the bar, each stroke shows only its outer half, so the
+// widths are doubled: a contrast gap at the edge, then the focus ring.
+.selected-ring__focus,
+.selected-ring__contrast {
+	fill: none;
+}
+
+.selected-ring__focus {
+	stroke: var(--wpds-color-stroke-focus);
+	stroke-width: calc(4 * var(--wpds-border-width-focus));
+}
+
+.selected-ring__contrast {
+	stroke: var(--a8c-charts-color-background, #fff);
+	stroke-width: calc(2 * var(--wpds-border-width-focus));
+}
+
 .bar-chart {
 
 	svg {
@@ -6,8 +23,7 @@
 
 	// The CSS property, not the attribute: an SVG geometry attribute does
 	// not substitute var().
-	:global(.visx-bar),
-	:global(.bar-chart__comparison-bar) {
+	:global(.visx-bar) {
 		rx: var(--a8c-charts-border-radius-bar-chart);
 	}
 

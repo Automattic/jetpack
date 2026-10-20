@@ -362,6 +362,42 @@ export const steadyTrafficData: SeriesData[] = [
 	},
 ];
 
+const weekSeries = (
+	label: string,
+	group: string,
+	values: number[],
+	type?: 'comparison'
+): SeriesData => ( {
+	label,
+	group,
+	options: type ? { type } : {},
+	data: [ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri' ].map( ( day, index ) => ( {
+		label: day,
+		value: values[ index ],
+	} ) ),
+} );
+
+/**
+ * A working week of views and visitors, each paired with the week before as a comparison series of its `group`.
+ * - Suitable for: BarChart comparison stories
+ */
+export const weekComparisonData = {
+	views: weekSeries( 'Views', 'views', [ 420, 580, 310, 750, 640 ] ),
+	viewsPrevious: weekSeries(
+		'Views — previous',
+		'views',
+		[ 510, 490, 430, 620, 700 ],
+		'comparison'
+	),
+	visitors: weekSeries( 'Visitors', 'visitors', [ 280, 390, 220, 500, 430 ] ),
+	visitorsPrevious: weekSeries(
+		'Visitors — previous',
+		'visitors',
+		[ 340, 320, 290, 410, 460 ],
+		'comparison'
+	),
+};
+
 /**
  * Traffic sources leaderboard data
  *

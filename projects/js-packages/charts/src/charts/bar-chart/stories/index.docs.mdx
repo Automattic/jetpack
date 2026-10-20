@@ -168,7 +168,7 @@ The component handles large numbers of series gracefully with automatic color cy
 
 ## Comparison Mode
 
-Add a comparison series — for example "this period vs. previous period" — by giving a series `options.type: 'comparison'`. It renders as a translucent "shadow" bar centered **behind** the primary series that shares its `group`. The shadow is wider than the primary bar (the primary is narrowed) so it peeks on each side and above, while a small gap is kept between series and a larger gap between ticks.
+Add a comparison series — for example "this period vs. previous period" — by giving a series `options.type: 'comparison'`. It renders as an opaque, tinted "shadow" bar centered **behind** the primary series that shares its `group`. The shadow is wider than the primary bar (the primary is narrowed) so it peeks on each side and above, while a small gap is kept between series and a larger gap between ticks.
 
 <Canvas of={ BarChartStories.ComparisonSingle } />
 
@@ -201,11 +201,30 @@ It composes with grouped bars: pair each primary series with its own `type: 'com
 - A comparison series pairs with the primary series that shares its `group` (when there is a single primary series, `group` can be omitted on both).
 - Comparison values are included in the value-axis domain, so a previous period taller than the current one is never clipped.
 - Comparison series must reuse the primary series' category keys (the `label`/`date` of each point) so each shadow lines up with its primary bar.
-- The comparison shadow isn't a separate hover/keyboard target (the primary bar drives interaction), but the tooltip shows both the current and previous period values for the hovered category.
+- The comparison shadow is a bar of its own: it has its own hover target, and it stays in its slot, at its size, while its primary is hidden. The arrow keys step one slot at a time, the focus ring goes around the shadow, and the tooltip holds every bar of the category.
 - Each series gets its own legend item by default. Set `legend.collapseGroups` to render one item per group, labeled by its primary series; combined with `legend.interactive`, clicking that item toggles the primary and its previous-period series together. Pair it with `legend.comparisonItem` to append a static item explaining the comparison shadow once `collapseGroups` folds it away. Use `legend.comparisonSeriesItems` instead to give each metric's comparison its own static item, labeled from the metric's label and left out while that metric is hidden. When every series is hidden, the axes are dropped and only the empty state is shown.
 - Collapsing the legend requires the primary and its comparison series to share a `group`. This is stricter than the bars themselves: rendering pairs a comparison with the sole primary even when `group` is omitted, but the legend has no single-primary fallback, so without a shared `group` the pair keeps separate legend items.
-- With pattern fills enabled (`withPatterns`), the comparison shadow reuses its primary bar's pattern at the same reduced opacity, so the pair reads as one series.
-- Styling comes from the theme at `barChart.barStyles.comparison`. `widthFactor` (default `1.5`) controls how much wider the comparison bar is than the primary — the primary is narrowed to `1 / widthFactor` of the slot — and `opacity` (default `0.5`) sets the shadow translucency.
+- A comparison bar is opaque. Without its own `options.stroke` it takes the lightest tint of its primary's color that keeps WCAG's 3:1 non-text contrast against the chart background, and its primary darkens, where it must, to keep 3:1 against that tint. With a stroke on the comparison, both bars keep the colors they are given. With pattern fills enabled (`withPatterns`), each bar gets its own pattern in its color.
+- Its geometry comes from the theme at `barChart.barStyles.comparison`. `widthFactor` (default `1.5`) controls how much wider the comparison bar is than the primary — the primary is narrowed to `1 / widthFactor` of the slot.
+
+### Nested Metrics
+
+A comparison need not be a previous period. Make the larger metric the comparison of the smaller one, as Jetpack Stats draws visitors inside views, and give each period its own `group`.
+
+<Canvas of={ BarChartStories.ComparisonMultiNested } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={[
+			{ label: 'Views', group: 'current', options: { type: 'comparison' }, data: views },
+			{ label: 'Visitors', group: 'current', data: visitors },
+			{ label: 'Previous views', group: 'previous', options: { type: 'comparison' }, data: previousViews },
+			{ label: 'Previous visitors', group: 'previous', data: previousVisitors },
+		]}
+		showLegend={true}
+	/>` }
+/>
 
 ## Visual Features
 

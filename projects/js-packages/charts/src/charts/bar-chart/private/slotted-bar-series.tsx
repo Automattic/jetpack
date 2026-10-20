@@ -16,19 +16,33 @@ type Props = Pick<
 	dataKey: string;
 	data: DataPointDate[];
 	colorAccessor: ( datum: DataPointDate ) => string;
-	barClassName: NonNullable< BarChartProps[ 'barClassName' ] >;
-	primaryKeys: string[];
+	barClassName?: BarChartProps[ 'barClassName' ];
+	slotKeys: string[];
+	/** The slot the bars sit in, when it is not named after the series. */
+	slotKey?: string;
+	/** The bars' thickness as a share of the slot, centered in it. */
+	thickness?: number;
+	isComparison?: boolean;
 	groupPadding: number;
 };
 
-const ClassifiedBarSeries = ( { barClassName, primaryKeys, groupPadding, ...props }: Props ) => {
+const SlottedBarSeries = ( {
+	barClassName,
+	slotKeys,
+	slotKey,
+	thickness = 1,
+	isComparison = false,
+	groupPadding,
+	...props
+}: Props ) => {
 	const { xScale, yScale, horizontal } = useContext( DataContext );
 	const bandScale = ( horizontal ? yScale : xScale ) as BandScale | undefined;
 	const valueScale = horizontal ? xScale : yScale;
 	const groupScale = useMemo(
-		() => createGroupScale( primaryKeys, bandScale?.bandwidth?.() ?? 0, groupPadding ),
-		[ primaryKeys, bandScale, groupPadding ]
+		() => createGroupScale( slotKeys, bandScale?.bandwidth?.() ?? 0, groupPadding ),
+		[ slotKeys, bandScale, groupPadding ]
 	);
+	const slot = slotKey ?? props.dataKey;
 	const renderGlyph = useCallback(
 		( {
 			datum,
@@ -45,13 +59,17 @@ const ClassifiedBarSeries = ( { barClassName, primaryKeys, groupPadding, ...prop
 			const baseline = getValueScaleBaseline(
 				valueScale as Parameters< typeof getValueScaleBaseline >[ 0 ]
 			);
+			const slotThickness = groupScale.bandwidth();
+			const barThickness = slotThickness * thickness;
 			const position =
 				Number( bandScale( ( horizontal ? props.yAccessor : props.xAccessor )( datum ) ) ) +
-				( groupScale( props.dataKey ) ?? 0 );
+				( groupScale( slot ) ?? 0 ) +
+				( slotThickness - barThickness ) / 2;
 			const value = horizontal ? x : y;
 			return (
 				<rect
-					className={ clsx( 'visx-bar', barClassName( datum ) ) }
+					className={ clsx( 'visx-bar', barClassName?.( datum ) ) }
+					data-testid={ isComparison ? 'bar-chart-comparison-bar' : undefined }
 					// visx's own Bars makes a bar focusable on the same condition.
 					tabIndex={ onFocus || onBlur ? 0 : undefined }
 					onBlur={ onBlur }
@@ -59,11 +77,11 @@ const ClassifiedBarSeries = ( { barClassName, primaryKeys, groupPadding, ...prop
 					onPointerMove={ onPointerMove }
 					onPointerOut={ onPointerOut }
 					onPointerUp={ onPointerUp }
-					// Same arithmetic as visx BaseBarGroup, so rounding matches the unclassified bars.
+					// Same arithmetic as visx BaseBarGroup, so rounding matches the bars it draws.
 					x={ horizontal ? baseline + Math.min( 0, value - baseline ) : position }
 					y={ horizontal ? position : baseline + Math.min( 0, value - baseline ) }
-					width={ horizontal ? Math.abs( value - baseline ) : groupScale.bandwidth() }
-					height={ horizontal ? groupScale.bandwidth() : Math.abs( value - baseline ) }
+					width={ horizontal ? Math.abs( value - baseline ) : barThickness }
+					height={ horizontal ? barThickness : Math.abs( value - baseline ) }
 					fill={ color }
 				/>
 			);
@@ -73,13 +91,16 @@ const ClassifiedBarSeries = ( { barClassName, primaryKeys, groupPadding, ...prop
 			valueScale,
 			horizontal,
 			groupScale,
-			props.dataKey,
+			slot,
+			thickness,
+			isComparison,
 			props.xAccessor,
 			props.yAccessor,
 			barClassName,
 		]
 	);
-	return <GlyphSeries { ...props } renderGlyph={ renderGlyph } />;
+	// BandTooltip owns pointer selection: these handlers subscribe after it and would rank bars by their tops, not their slots.
+	return <GlyphSeries { ...props } enableEvents={ false } renderGlyph={ renderGlyph } />;
 };
 
-export default ClassifiedBarSeries;
+export default SlottedBarSeries;

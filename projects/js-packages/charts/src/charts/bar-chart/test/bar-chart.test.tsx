@@ -10,17 +10,42 @@ import {
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
+import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
 import { steadyTrafficData } from '../../../stories/sample-data';
 import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { DataPointDate, SeriesData } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
+
+/**
+ * Lists the series a tooltip holds a datum for.
+ *
+ * @param params             - The tooltip params.
+ * @param params.tooltipData - The tooltip data.
+ * @return The series labels.
+ */
+function listTooltipKeys( { tooltipData }: RenderTooltipParams< DataPointDate > ) {
+	return Object.keys( tooltipData?.datumByKey ?? {} ).join( ', ' );
+}
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
 jest.mock( '../../../hooks/use-element-size', () => ( {
 	useElementSize: () => [ mockRefCallback, 500, 300 ],
 } ) );
+
+const geometryOf = ( element: Element ) =>
+	[ 'x', 'y', 'width', 'height' ].map( name =>
+		Number( element.getAttribute( name ) ).toFixed( 2 )
+	);
+
+const selectedRingGeometry = () => geometryOf( screen.getByTestId( 'bar-chart-selected-ring' ) );
+
+// eslint-disable-next-line testing-library/no-node-access -- visx renders the bars and takes no test id.
+const visxBars = () => document.querySelectorAll( '.visx-bar' );
+
+const comparisonBars = () => screen.queryAllByTestId( 'bar-chart-comparison-bar' );
 
 describe( 'BarChart', () => {
 	const defaultProps = {
@@ -301,6 +326,48 @@ describe( 'BarChart', () => {
 				);
 			}
 		} );
+
+		test.each( [
+			[ 'current', 0, 3, 'Visitors: 280', 'Previous', [] ],
+			[ 'previous', 1, 2, 'Previous visitors: 340', 'Visitors: 280', [] ],
+			[
+				'previous, comparison-only,',
+				1,
+				2,
+				'Previous views',
+				'Visitors: 280',
+				[ 'Previous visitors' ],
+			],
+		] )(
+			'names the %s slot under the pointer when a bar top in the other slot is nearer, until the pointer leaves',
+			async ( _, bar, otherPrimary, shown, absent, defaultHiddenSeries ) => {
+				const series = ( label: string, group: string, value: number, comparison = false ) => ( {
+					label,
+					group,
+					data: [ { label: 'Mon', value } ],
+					...( comparison && { options: { type: 'comparison' as const } } ),
+				} );
+				renderWithTheme( {
+					withTooltips: true,
+					defaultHiddenSeries,
+					data: [
+						series( 'Visitors', 'current', 280 ),
+						series( 'Views', 'current', 420, true ),
+						series( 'Previous visitors', 'previous', 340 ),
+						series( 'Previous views', 'previous', 510, true ),
+					],
+				} );
+				const geometry = barGeometry();
+				const [ x, , width ] = geometry[ bar ];
+				const clientX = x + width / 2;
+				hover( clientX, geometry[ otherPrimary ][ 1 ] );
+				const tooltip = await screen.findByRole( 'tooltip' );
+				await waitFor( () => expect( tooltip ).toHaveTextContent( shown ) );
+				expect( tooltip ).not.toHaveTextContent( absent );
+				pointer( 'pointerout', clientX, geometry[ otherPrimary ][ 1 ] );
+				await waitFor( () => expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument() );
+			}
+		);
 
 		test( 'selects the painted grouped bar at the outer edge of a padded band', async () => {
 			renderWithTheme( {
@@ -979,33 +1046,24 @@ describe( 'BarChart', () => {
 			expect( inChart().queryByText( /Invalid Date/ ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'ignores comparison series, which visx never puts on the band scale', () => {
-			// A comparison series carrying its own dates is a misuse the chart already
-			// warns about; the point here is that it does not also break the axis.
-			const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+		test( 'ticks the dates of a comparison series, which visx puts on the band scale like any bar', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'This period',
+						data: [ dated( 2026, 0, 1, 1 ), dated( 2026, 0, 4, 2 ) ],
+						options: {},
+					},
+					{
+						label: 'Prior period',
+						data: [ dated( 2025, 11, 26, 1 ), dated( 2025, 11, 29, 2 ) ],
+						options: { type: 'comparison' },
+					},
+				],
+			} );
 
-			try {
-				renderWithTheme( {
-					data: [
-						{
-							label: 'This period',
-							data: [ dated( 2026, 0, 1, 1 ), dated( 2026, 0, 4, 2 ) ],
-							options: {},
-						},
-						{
-							label: 'Prior period',
-							data: [ dated( 2025, 11, 26, 1 ), dated( 2025, 11, 29, 2 ) ],
-							options: { type: 'comparison' },
-						},
-					],
-				} );
-
-				expect( inChart().queryByText( 'Dec 26' ) ).not.toBeInTheDocument();
-				expect( inChart().queryByText( 'Dec 29' ) ).not.toBeInTheDocument();
-				expect( inChart().getByText( 'Jan 1' ) ).toBeInTheDocument();
-			} finally {
-				warn.mockRestore();
-			}
+			expect( inChart().getByText( 'Dec 26' ) ).toBeInTheDocument();
+			expect( inChart().getByText( 'Jan 1' ) ).toBeInTheDocument();
 		} );
 
 		test( 'drops the buckets of a series the legend has hidden', async () => {
@@ -1644,7 +1702,7 @@ describe( 'BarChart', () => {
 			expect( screen.queryByTestId( 'bar-chart-patterns' ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'comparison shadow reuses the primary bar pattern when patterns are enabled', () => {
+		test( 'fills a comparison with its own tinted pattern when patterns are enabled', () => {
 			renderWithTheme( {
 				withPatterns: true,
 				data: [
@@ -1668,11 +1726,10 @@ describe( 'BarChart', () => {
 				],
 			} );
 
-			const shadow = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ )[ 0 ];
-			const shadowFill = shadow.getAttribute( 'fill' );
-			// Shadow is filled with a pattern, not a solid color, and it references the PRIMARY
-			// series' pattern (index 0) rather than the comparison series' own index.
-			expect( shadowFill ).toMatch( /^url\(#bar-pattern-.+-0\)$/ );
+			expect( comparisonBars()[ 0 ] ).toHaveAttribute(
+				'fill',
+				expect.stringMatching( /^url\(#bar-pattern-.+-1\)$/ )
+			);
 		} );
 	} );
 
@@ -2135,8 +2192,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				expect( screen.queryByTestId( 'bar-chart-comparison-1-0' ) ).not.toBeInTheDocument();
-				expect( screen.getByTestId( 'bar-chart-comparison-1-1' ) ).toBeInTheDocument();
+				expect( comparisonBars() ).toHaveLength( 1 );
 			} );
 		} );
 
@@ -2275,7 +2331,7 @@ describe( 'BarChart', () => {
 					await user.keyboard( '{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'No data' );
-					expect( screen.queryByTestId( 'bar-chart-keyboard-highlight' ) ).not.toBeInTheDocument();
+					expect( screen.queryByTestId( 'bar-chart-selected-ring' ) ).not.toBeInTheDocument();
 				} );
 
 				test( 'outlines the first rendered bar for the first bucket with a reading', async () => {
@@ -2286,9 +2342,7 @@ describe( 'BarChart', () => {
 					await user.keyboard( '{ArrowRight}{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( '20' );
-					expect( screen.getByTestId( 'bar-chart-keyboard-highlight' ) ).toHaveTextContent(
-						/\.visx-bar:nth-child\(1\) \{/
-					);
+					expect( selectedRingGeometry() ).toEqual( geometryOf( visxBars()[ 0 ] ) );
 				} );
 
 				test( 'skips the bars an earlier series left out when outlining a later series', async () => {
@@ -2319,9 +2373,8 @@ describe( 'BarChart', () => {
 					await user.keyboard( '{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-3' ) ).toHaveTextContent( '15' );
-					expect( screen.getByTestId( 'bar-chart-keyboard-highlight' ) ).toHaveTextContent(
-						/\.visx-bar:nth-child\(4\) \{/
-					);
+					// Series A leaves out its first bucket, so Series B's second bar is the fourth drawn.
+					expect( selectedRingGeometry() ).toEqual( geometryOf( visxBars()[ 3 ] ) );
 				} );
 			} );
 		} );
@@ -2705,7 +2758,7 @@ describe( 'BarChart', () => {
 	} );
 
 	describe( 'Comparison Series', () => {
-		it( 'renders a translucent shadow behind the primary bar for a comparison series', () => {
+		it( 'draws a comparison series behind its primary, as opaque tones that keep 3:1 against the background and each other', () => {
 			const data = [
 				{
 					label: 'This year',
@@ -2727,25 +2780,25 @@ describe( 'BarChart', () => {
 			];
 			render( <BarChart data={ data } width={ 400 } height={ 300 } /> );
 
-			// two comparison shadow rects (one per data point)
-			// Match individual rect testids like bar-chart-comparison-1-0 (not the group wrapper)
-			const shadows = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
-			expect( shadows ).toHaveLength( 2 );
-			expect( shadows[ 0 ] ).toHaveAttribute( 'opacity', '0.5' );
-
-			// primary bars still render for the single primary series (visx .visx-bar)
-			// eslint-disable-next-line testing-library/no-node-access
-			const bars = document.querySelectorAll( '.visx-bar' );
-			expect( bars.length ).toBeGreaterThanOrEqual( 2 );
+			const [ comparison ] = comparisonBars();
+			const primary = Array.from( visxBars() ).at( -1 );
+			expect( comparisonBars() ).toHaveLength( 2 );
+			expect( visxBars() ).toHaveLength( 4 );
+			expect(
+				Number( comparison.getAttribute( 'width' ) ) / Number( primary.getAttribute( 'width' ) )
+			).toBeCloseTo( 1.5 );
+			expect( comparison ).not.toHaveAttribute( 'opacity' );
+			expect(
+				contrastRatio( comparison.getAttribute( 'fill' ), '#ffffff' )
+			).toBeGreaterThanOrEqual( 3 );
+			expect(
+				contrastRatio( primary.getAttribute( 'fill' ), comparison.getAttribute( 'fill' ) )
+			).toBeGreaterThanOrEqual( 3 );
 		} );
 
-		it( 'hides the comparison shadow group from assistive technology', () => {
+		it( 'keeps a comparison bar in its slot, at its size, while its primary is hidden', () => {
 			const data = [
-				{
-					label: 'This year',
-					group: 'views',
-					data: [ { label: 'Jan', value: 100 } ],
-				},
+				{ label: 'This year', group: 'views', data: [ { label: 'Jan', value: 100 } ] },
 				{
 					label: 'Last year',
 					group: 'views',
@@ -2753,41 +2806,53 @@ describe( 'BarChart', () => {
 					data: [ { label: 'Jan', value: 80 } ],
 				},
 			];
-			render( <BarChart data={ data } width={ 400 } height={ 300 } /> );
-
-			// The shadow is decorative: no keyboard/hover target and its value is surfaced
-			// through the tooltip, so it must not be announced as a separate element.
-			expect( screen.getByTestId( 'bar-chart-comparison-bars' ) ).toHaveAttribute(
-				'aria-hidden',
-				'true'
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<BarChartUnresponsive data={ data } width={ 400 } height={ 300 } chartId="kept" />
+				</GlobalChartsProvider>
 			);
+			const bandGeometry = () => {
+				const [ x, , width ] = geometryOf( comparisonBars()[ 0 ] );
+				return { x, width };
+			};
+			const shown = bandGeometry();
+
+			rerender(
+				<GlobalChartsProvider>
+					<BarChartUnresponsive
+						data={ data }
+						width={ 400 }
+						height={ 300 }
+						chartId="kept-hidden"
+						defaultHiddenSeries={ [ 'This year' ] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			expect( visxBars() ).toHaveLength( 1 );
+			expect( bandGeometry() ).toEqual( shown );
 		} );
 
-		it( 'renders comparison shadows in horizontal orientation', () => {
-			const data = [
-				{
-					label: 'This year',
-					group: 'views',
-					data: [
-						{ label: 'Jan', value: 100 },
-						{ label: 'Feb', value: 120 },
-					],
-				},
-				{
-					label: 'Last year',
-					group: 'views',
-					options: { type: 'comparison' as const },
-					data: [
-						{ label: 'Jan', value: 80 },
-						{ label: 'Feb', value: 140 },
-					],
-				},
-			];
-			render( <BarChart data={ data } orientation="horizontal" width={ 400 } height={ 300 } /> );
+		it( 'draws no comparison bar while the comparison is hidden', () => {
+			render(
+				<BarChart
+					data={ [
+						{ label: 'This year', group: 'views', data: [ { label: 'Jan', value: 100 } ] },
+						{
+							label: 'Last year',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [ { label: 'Jan', value: 80 } ],
+						},
+					] }
+					width={ 400 }
+					height={ 300 }
+					defaultHiddenSeries={ [ 'Last year' ] }
+				/>
+			);
 
-			const shadows = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
-			expect( shadows ).toHaveLength( 2 );
-			expect( shadows[ 0 ] ).toHaveAttribute( 'opacity', '0.5' );
+			expect( comparisonBars() ).toHaveLength( 0 );
+			expect( visxBars() ).toHaveLength( 1 );
 		} );
 
 		it( 'expands value-axis domain to include comparison values exceeding the primary max', () => {
@@ -2917,6 +2982,60 @@ describe( 'BarChart', () => {
 			// The visible tooltip must belong to a primary series
 			const tooltipText = tooltips[ 0 ].textContent ?? '';
 			expect( [ 'Series A', 'Series B' ].some( k => tooltipText.includes( k ) ) ).toBe( true );
+		} );
+	} );
+
+	describe( 'Comparison slots', () => {
+		const periods = [
+			{
+				label: 'Views',
+				group: 'current',
+				options: { type: 'comparison' as const },
+				data: [ { label: 'Jan', value: 100 } ],
+			},
+			{ label: 'Visitors', group: 'current', data: [ { label: 'Jan', value: 60 } ] },
+			{
+				label: 'Previous views',
+				group: 'previous',
+				options: { type: 'comparison' as const },
+				data: [ { label: 'Jan', value: 90 } ],
+			},
+			{
+				label: 'Previous visitors',
+				group: 'previous',
+				data: [ { label: 'Jan', value: 50 } ],
+			},
+		];
+
+		const renderSlots = () =>
+			render(
+				<GlobalChartsProvider>
+					<BarChartUnresponsive
+						width={ 400 }
+						height={ 300 }
+						chartId="test-nested"
+						withTooltips
+						renderTooltip={ listTooltipKeys }
+						data={ periods }
+					/>
+				</GlobalChartsProvider>
+			);
+
+		it( 'steps the keyboard one slot at a time, ringing the comparison around its primary and describing every bar of the category', async () => {
+			const user = userEvent.setup();
+			renderSlots();
+
+			screen.getByRole( 'application', { name: /bar chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			expect( selectedRingGeometry() ).toEqual( geometryOf( visxBars()[ 0 ] ) );
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent(
+				'Views, Previous views, Visitors, Previous visitors'
+			);
+
+			await user.keyboard( '{ArrowRight}' );
+
+			expect( selectedRingGeometry() ).toEqual( geometryOf( visxBars()[ 1 ] ) );
 		} );
 	} );
 

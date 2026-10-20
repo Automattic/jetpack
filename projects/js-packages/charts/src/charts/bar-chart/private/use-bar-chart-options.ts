@@ -109,10 +109,8 @@ const getBandDomain = (
 	const registry: Record< string, SeriesData > = {};
 
 	for ( const series of data ) {
-		// Comparison series register nothing with visx — `comparison-bars.tsx` draws
-		// onto the scales the primary series established — and a hidden series is
-		// unmounted, so neither contributes a key to the band scale.
-		if ( series.options?.type === 'comparison' || ! isSeriesRendered( series ) ) {
+		// A hidden series is unmounted, so it contributes no key to the band scale.
+		if ( ! isSeriesRendered( series ) ) {
 			continue;
 		}
 		registry[ series.label ] = series;
