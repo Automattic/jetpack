@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Modules: Fix an error when the module tag filter is an array.

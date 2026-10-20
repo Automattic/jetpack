@@ -9,12 +9,16 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+require_once JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php';
+
 /**
  * Test module related methods in Jetpack and Jetpack_Admin class.
  *
  * @covers \Jetpack_Admin
+ * @covers \Jetpack_Modules_List_Table
  */
 #[CoversClass( Jetpack_Admin::class )]
+#[CoversClass( Jetpack_Modules_List_Table::class )]
 class Get_Modules_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -254,5 +258,33 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	 */
 	public function test_get_module_module_no_info() {
 		$this->assertFalse( Jetpack::get_module( 'module-extras' ) );
+	}
+
+	/**
+	 * Ignore an array tag in both the view selector and the module filter.
+	 */
+	public function test_array_module_tag_is_ignored() {
+		$original_get     = $_GET;
+		$original_request = $_REQUEST;
+		try {
+			$_GET['module_tag']     = array( 'x' );
+			$_REQUEST['module_tag'] = array( 'x' );
+			$table                  = $this->getMockBuilder( Jetpack_Modules_List_Table::class )
+				->disableOriginalConstructor()
+				->onlyMethods( array( 'get_views' ) )
+				->getMock();
+			$table->expects( $this->once() )->method( 'get_views' )->willReturn( array( 'all' => 'All' ) );
+			ob_start();
+			try {
+				$table->views();
+			} finally {
+				$html = ob_get_clean();
+			}
+			$this->assertStringContainsString( "<li class='all current'>", $html );
+			$this->assertTrue( Jetpack_Modules_List_Table::is_module_displayed( array( 'module_tags' => array( 'Social' ) ) ) );
+		} finally {
+			$_GET     = $original_get;
+			$_REQUEST = $original_request;
+		}
 	}
 }
