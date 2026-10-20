@@ -114,7 +114,7 @@ describe( 'page-options-menu', () => {
 
 		it( 'offers no switching off where there is no classic Stats page to return to', async () => {
 			jest.mocked( getScriptData ).mockReturnValue( {
-				premium_analytics: { has_classic_stats_page: false },
+				premium_analytics: { classic_stats_url: null },
 			} as ReturnType< typeof getScriptData > );
 			const user = setupUser();
 			render( <PageOptionsMenu /> );

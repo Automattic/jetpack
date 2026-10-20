@@ -15,8 +15,8 @@ declare module '@automattic/jetpack-script-data' {
 			has_videopress?: boolean;
 			// Whether the reader may see Stats reports; a shop manager may see only the store's.
 			can_view_stats?: boolean;
-			// Whether a classic Stats menu page is registered, so the dashboard can be switched off for it.
-			has_classic_stats_page?: boolean;
+			// Where switching the dashboard off lands: the classic Stats page, or null while no plugin registers one.
+			classic_stats_url?: string | null;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];
 			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.
