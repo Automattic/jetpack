@@ -1095,6 +1095,14 @@ class Dashboard_Data {
 		$title_formats_editable = self::is_jetpack_seo_enabled();
 		$front_page_desc        = self::get_front_page_meta_description();
 
+		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
+		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+			// Same for the description, which the helper swaps for the legacy fallback while
+			// another plugin owns the output. Show the one Jetpack resumes with; it's locked.
+			$modern          = get_option( self::FRONT_PAGE_META_OPTION );
+			$front_page_desc = $modern ? $modern : get_option( self::LEGACY_FRONT_PAGE_META_OPTION, '' );
+		}
+
 		// A site that set a front-page description back when it was free for all
 		// WordPress.com Simple sites keeps editing it, even when otherwise plan-gated:
 		// the value stays live in the legacy option. The gated Settings uses this to keep

@@ -29,6 +29,7 @@ class DashboardDataTest extends SeoTestCase {
 		\Jetpack_Redux_State_Helper::$site_image        = '';
 		\Jetpack_AI_Settings::$is_ai_seo_enabled        = true;
 		delete_option( 'advanced_seo_title_formats' );
+		delete_option( Dashboard_Data::FRONT_PAGE_META_OPTION );
 		delete_option( 'jetpack_ai_seo_enabled' );
 		delete_option( 'jetpack_seo_sitemap_enabled' );
 		delete_option( 'jetpack_seo_canonical_urls_enabled' );
@@ -341,6 +342,16 @@ class DashboardDataTest extends SeoTestCase {
 
 		$this->assertEquals( (object) $formats, $settings['title_formats'] );
 		$this->assertFalse( $settings['title_formats_editable'] );
+	}
+
+	/**
+	 * The locked front-page description shows what Jetpack saved, not the helper's legacy fallback.
+	 */
+	public function test_get_settings_data_shows_the_saved_description_while_output_is_disabled() {
+		update_option( Dashboard_Data::FRONT_PAGE_META_OPTION, 'Saved description.' );
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+
+		$this->assertSame( 'Saved description.', Dashboard_Data::get_settings_data()['front_page_description'] );
 	}
 
 	/**
