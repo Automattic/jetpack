@@ -1,9 +1,3 @@
-.heading {
-	display: flex;
-	align-items: center;
-	gap: var(--spacing-base);
-}
-
 .items {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

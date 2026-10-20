@@ -1,4 +1,4 @@
-import { Card, Icon } from '@wordpress/ui';
+import { Card, Icon, Stack } from '@wordpress/ui';
 import styles from './style.module.scss';
 import type { ComponentProps, FC, ReactNode } from 'react';
 
@@ -17,10 +17,10 @@ export type OverviewSectionProps = {
 const OverviewSection: FC< OverviewSectionProps > = ( { icon, title, children } ) => (
 	<Card.Root render={ <section /> }>
 		<Card.Header>
-			<span className={ styles.heading }>
+			<Stack direction="row" align="center" gap="sm">
 				<Icon icon={ icon } size={ 20 } />
 				<Card.Title render={ <h3 /> }>{ title }</Card.Title>
-			</span>
+			</Stack>
 		</Card.Header>
 		<Card.Content>
 			<div className={ styles.items }>{ children }</div>
