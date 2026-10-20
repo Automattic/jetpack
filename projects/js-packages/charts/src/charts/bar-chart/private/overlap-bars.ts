@@ -1,6 +1,6 @@
+import { MIN_BACKGROUND_CONTRAST } from '../../../providers/chart-context/private/palette-generator';
+import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
 import { isValidHexColor, mixHexColors } from '../../../utils/color-utils';
-import { MIN_BACKGROUND_CONTRAST } from './palette-generator';
-import { contrastRatio } from './perceptual-color';
 import type { SeriesData } from '../../../types';
 
 export const PRIMARY_SLOT = 'primary';

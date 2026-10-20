@@ -1,9 +1,5 @@
 import { useMemo } from 'react';
-import {
-	COMPARISON_SLOT,
-	PRIMARY_SLOT,
-	getOverlapPlacements,
-} from '../../../providers/chart-context/private/overlap-bars';
+import { COMPARISON_SLOT, PRIMARY_SLOT, getOverlapPlacements } from './overlap-bars';
 import { isBarRendered } from './value-domain';
 import type { SelectedBar } from './selected-bar-ring';
 import type { SlotMember } from './slot-tooltip-members';

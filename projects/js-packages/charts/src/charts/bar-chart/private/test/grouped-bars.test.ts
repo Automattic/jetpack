@@ -1,6 +1,6 @@
-import { getGroupedBarColors } from '../private/grouped-bars';
-import { contrastRatio } from '../private/perceptual-color';
-import type { SeriesData } from '../../../types';
+import { contrastRatio } from '../../../../providers/chart-context/private/perceptual-color';
+import { getGroupedBarColors } from '../grouped-bars';
+import type { SeriesData } from '../../../../types';
 
 const series = ( label: string, group?: string, options: SeriesData[ 'options' ] = {} ) => ( {
 	label,

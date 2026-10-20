@@ -1,11 +1,7 @@
-import { relativeLuminance } from '../../../utils/color-utils';
-import {
-	getOverlapBarColors,
-	getOverlapPlacements,
-	tintWithContrast,
-} from '../private/overlap-bars';
-import { contrastRatio } from '../private/perceptual-color';
-import type { SeriesData } from '../../../types';
+import { contrastRatio } from '../../../../providers/chart-context/private/perceptual-color';
+import { relativeLuminance } from '../../../../utils/color-utils';
+import { getOverlapBarColors, getOverlapPlacements, tintWithContrast } from '../overlap-bars';
+import type { SeriesData } from '../../../../types';
 
 const series = ( label: string, group?: string, options: SeriesData[ 'options' ] = {} ) => ( {
 	label,
