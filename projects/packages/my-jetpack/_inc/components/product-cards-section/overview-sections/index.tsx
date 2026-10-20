@@ -18,7 +18,7 @@ type OverviewSectionsProps = {
 };
 
 /**
- * The Overview v1 heading and the sections built so far.
+ * The Overview heading and its sections.
  *
  * @param {OverviewSectionsProps} props - Component props.
  * @return {import('react').JSX.Element} The sections.
