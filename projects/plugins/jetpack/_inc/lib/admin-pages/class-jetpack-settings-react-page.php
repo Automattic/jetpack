@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Comments\Settings as Comments_Settings;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
@@ -318,5 +319,10 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 
 		// Adds Connection package initial state.
 		Connection_Initial_State::render_script( 'react-plugin' );
+
+		// The Discussion tab's comment form card ships in the comments package. The tab is a client-side route, so it loads with the page.
+		if ( method_exists( Comments_Settings::class, 'enqueue' ) && current_user_can( 'manage_options' ) ) {
+			Comments_Settings::enqueue();
+		}
 	}
 }

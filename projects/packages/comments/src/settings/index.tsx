@@ -1,6 +1,5 @@
 /* @jsxImportSource react */
-import analytics from '@automattic/jetpack-analytics';
-import restApi from '@automattic/jetpack-api';
+import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import {
 	DataForm,
@@ -22,7 +21,7 @@ import {
 	Text,
 } from '@wordpress/ui';
 import CommentFormPreview from './preview';
-import type { CommentFormSettings, PreviewData } from './types';
+import type { CommentFormSettings, HostProps, SettingsData } from './types';
 import type { ChangeEvent } from 'react';
 import './style.scss';
 
@@ -83,23 +82,10 @@ function Prompt( { data, field, onChange }: ControlProps ) {
 	);
 }
 
-type CommentFormSettingsCardProps = {
-	/** The form preview's data, or null where Jetpack Comments' new form isn't on. */
-	preview: PreviewData | null;
-	/** Whether readers can write in blocks. */
-	hasBlockEditor: boolean;
-	/** Whether the module can't be used, as in offline mode. */
-	isUnavailable?: boolean;
-	/** Called after a save, so the host can refresh what it holds. */
-	onSave?: () => void;
-	/** Called when the card gains or loses unsaved changes. */
-	onDirtyChange?: ( isDirty: boolean ) => void;
-};
-
 /**
  * The Comments module and the settings of the form it adds, with a live preview of that form.
  *
- * @param {CommentFormSettingsCardProps} props - Props.
+ * @param {SettingsData & HostProps} props - Props.
  * @return {JSX.Element} Card.
  */
 export default function CommentFormSettingsCard( {
@@ -108,16 +94,16 @@ export default function CommentFormSettingsCard( {
 	isUnavailable = false,
 	onSave,
 	onDirtyChange,
-}: CommentFormSettingsCardProps ) {
+	onToggle,
+}: SettingsData & HostProps ) {
 	const [ saved, setSaved ] = useState< Settings | null >( null );
 	const [ data, setData ] = useState< Settings | null >( null );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
 
 	useEffect( () => {
-		restApi
-			.fetchSettings()
-			.then( ( settings: Settings ) => {
+		apiFetch< Settings >( { path: '/jetpack/v4/settings' } )
+			.then( settings => {
 				setSaved( settings );
 				setData( settings );
 			} )
@@ -144,29 +130,21 @@ export default function CommentFormSettingsCard( {
 		onDirtyChange?.( hasChanges );
 	}, [ hasChanges, onDirtyChange ] );
 
-	const handleChange = useCallback( ( edits: DeepPartial< Settings > ) => {
-		// The same events the dashboard's toggles send.
-		for ( const [ setting, value ] of Object.entries( edits ) ) {
-			if ( 'comments' === setting ) {
-				analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
-					module: 'comments',
-					toggled: value ? 'on' : 'off',
-				} );
-			} else if ( 'boolean' === typeof value ) {
-				analytics.tracks.recordEvent( 'jetpack_wpa_settings_toggle', {
-					module: 'comments',
-					setting,
-					toggled: value ? 'on' : 'off',
-				} );
+	const handleChange = useCallback(
+		( edits: DeepPartial< Settings > ) => {
+			for ( const [ setting, value ] of Object.entries( edits ) ) {
+				if ( 'boolean' === typeof value ) {
+					onToggle?.( setting, value );
+				}
 			}
-		}
-		setData( current => ( { ...current, ...edits } ) );
-	}, [] );
+			setData( current => ( { ...current, ...edits } ) );
+		},
+		[ onToggle ]
+	);
 
 	const handleSave = useCallback( () => {
 		setIsSaving( true );
-		restApi
-			.updateSettings( changes )
+		apiFetch( { path: '/jetpack/v4/settings', method: 'POST', data: changes } )
 			.then( () => {
 				setSaved( current => ( { ...current, ...changes } ) );
 				createSuccessNotice( __( 'Comment settings saved.', 'jetpack-comments' ), {
