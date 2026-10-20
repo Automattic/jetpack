@@ -76,6 +76,10 @@ const frontPageHelp = __(
 	'Shown under your site name in search results and social shares. About the first 155 characters display in search, or 120 on mobile.',
 	'jetpack-seo'
 );
+const frontPageLockedHelp = __(
+	'Locked while another SEO plugin manages your SEO. Jetpack uses this again once it’s deactivated.',
+	'jetpack-seo'
+);
 // Keep in step with the 155 quoted in `frontPageHelp`.
 const descriptionSearchLength = 155;
 const descriptionMaxLength = 300;
@@ -200,6 +204,23 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// gated (the value stays live), so its card is shown below in that case too.
 	const gated = isGated();
 
+	// Another SEO plugin owns the output these fields feed, so they're locked. Gated sites
+	// report the output off too, but keep their grandfathered description editable.
+	const outputLocked = ! gated && ! local.title_formats_editable;
+	const lockedNotice = local.conflicting_seo_plugin
+		? sprintf(
+				/* translators: %s: name of the SEO plugin that controls the site's SEO output, e.g. Yoast SEO. */
+				__(
+					'%s is managing your SEO titles and descriptions, so Jetpack’s settings for them are locked while it’s active.',
+					'jetpack-seo'
+				),
+				local.conflicting_seo_plugin
+			)
+		: __(
+				'Another SEO plugin is managing your SEO titles and descriptions, so Jetpack’s settings for them are locked while it’s active.',
+				'jetpack-seo'
+			);
+
 	const frontPageDescriptionCard = (
 		<CollapsibleCard.Root defaultOpen={ false }>
 			<CollapsibleCard.Header render={ <h2 /> }>
@@ -223,12 +244,12 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						// also on this tab and leave two controls indistinguishable to a
 						// screen reader.
 						label={ __( 'Home page description', 'jetpack-seo' ) }
-						help={ frontPageHelp }
+						help={ outputLocked ? frontPageLockedHelp : frontPageHelp }
 						value={ local.front_page_description }
 						onChange={ next => setField( { front_page_description: next } ) }
 						maxLength={ descriptionMaxLength }
 						rows={ 3 }
-						disabled={ isSaving }
+						disabled={ isSaving || outputLocked }
 						__nextHasNoMarginBottom
 					/>
 					{ /* Count and Save share a row, matching the title-structure footer. */ }
@@ -251,7 +272,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						</Text>
 						<Button
 							onClick={ () => commitFields( [ 'front_page_description' ] ) }
-							disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
+							disabled={ isSaving || outputLocked || ! isDirty( [ 'front_page_description' ] ) }
 						>
 							{ saveLabel }
 						</Button>
@@ -263,6 +284,11 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
+			{ outputLocked && (
+				<Notice.Root intent="warning">
+					<Notice.Description>{ lockedNotice }</Notice.Description>
+				</Notice.Root>
+			) }
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>
@@ -398,7 +424,8 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 					{ frontPageDescriptionCard }
 
-					<SocialPreviewsCard description={ local.front_page_description } />
+					{ /* It previews Jetpack's tags, which aren't the ones a conflicting plugin outputs. */ }
+					{ ! outputLocked && <SocialPreviewsCard description={ local.front_page_description } /> }
 				</>
 			) }
 
