@@ -1,5 +1,9 @@
 import { relativeLuminance } from '../../../utils/color-utils';
-import { getOverlapBarColors, getOverlapPlacements } from '../private/overlap-bars';
+import {
+	getOverlapBarColors,
+	getOverlapPlacements,
+	tintWithContrast,
+} from '../private/overlap-bars';
 import { contrastRatio } from '../private/perceptual-color';
 import type { SeriesData } from '../../../types';
 
@@ -111,9 +115,22 @@ describe( 'getOverlapBarColors', () => {
 		];
 		const [ back ] = getOverlapBarColors( data, [ GREEN, BLUE ], [ BLUE, BLUE ], '#ffffff' );
 
-		expect( back ).toBe(
-			getOverlapBarColors( [ series( 'Views' ) ], [ GREEN ], [ GREEN, GREEN ], '#ffffff' )[ 0 ]
+		expect( back ).toBe( tintWithContrast( GREEN, '#ffffff' ) );
+	} );
+
+	it.each( [
+		[ 'its base when the base keeps 3:1', BLUE, BLUE ],
+		[ 'the nearest tone to 3:1 when the base does not', '#dbdbdb', undefined ],
+	] )( 'fills a slot with one layer with %s', ( _case, base, expected ) => {
+		const [ bar ] = getOverlapBarColors(
+			[ series( 'Comments' ) ],
+			[ base ],
+			[ base, GREEN ],
+			'#ffffff'
 		);
+
+		expect( bar ).toBe( expected ?? tintWithContrast( base, '#ffffff' ) );
+		expect( contrastRatio( bar, '#ffffff' ) ).toBeGreaterThanOrEqual( 3 );
 	} );
 
 	it.each( [

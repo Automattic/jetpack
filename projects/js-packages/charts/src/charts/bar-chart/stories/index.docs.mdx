@@ -231,7 +231,7 @@ Set `layout="overlap"` to draw one metric inside another, as Jetpack Stats draws
 
 **Notes:**
 
-- Bars are opaque. Each slot is toned from a base color: the back series' `options.stroke` if it has one, otherwise the palette color of the slot (the first palette color for the primaries, the second for the comparisons). The back bar takes the lightest tint of the base that keeps 3:1 contrast against the chart background, and each bar in front the shade of the base that keeps 3:1 against the bar behind it.
+- Bars are opaque. Each slot is toned from a base color: the back series' `options.stroke` if it has one, otherwise the palette color of the slot (the first palette color for the primaries, the second for the comparisons). The back bar takes the lightest tint of the base that keeps 3:1 contrast against the chart background, and each bar in front the shade of the base that keeps 3:1 against the bar behind it. A slot with no bar in front keeps the base itself when the base keeps 3:1 against the background.
 - A slot keeps the colors it was given when a front series has an `options.stroke` that differs from the base, or when a color or the background is not a hex color.
 - The legend swatches take the bar colors. For a custom tooltip or legend, read them with `getBarColors( series, { layout: 'overlap' } )` from `useGlobalChartsContext()`.
 - Hiding a series leaves the others in place: a comparison keeps its slot while its primary is hidden, and a group keeps its width while the group behind it is hidden.
