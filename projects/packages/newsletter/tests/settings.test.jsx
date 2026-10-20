@@ -347,7 +347,7 @@ describe( 'NewsletterSettingsApp', () => {
 			await waitFor( () => {
 				expect( subscribeModalProps.current ).not.toBeNull();
 			} );
-			act( () => {
+			await act( async () => {
 				subscribeModalProps.current.onChange( {
 					subscription_options: {
 						invitation: 'I',
@@ -373,6 +373,32 @@ describe( 'NewsletterSettingsApp', () => {
 
 		it( 'asks before leaving while a section has unsaved changes', async () => {
 			await stageSubscribeModalChange();
+
+			expect( leavePage() ).toBe( true );
+		} );
+
+		it( 'asks before leaving while the sender name has unsaved changes', async () => {
+			render( <NewsletterSettingsApp /> );
+			await waitFor( () => expect( senderSettingsProps.current ).not.toBeNull() );
+
+			await act( async () => {
+				senderSettingsProps.current.onChange( {
+					jetpack_subscriptions_from_name: 'Unsaved sender',
+				} );
+			} );
+			await waitFor( () => expect( senderSettingsProps.current.hasChanges ).toBe( true ) );
+
+			expect( leavePage() ).toBe( true );
+		} );
+
+		it( 'asks before leaving while an auto-saved setting is still saving', async () => {
+			updateSettings.mockReturnValueOnce( new Promise( () => {} ) );
+			render( <NewsletterSettingsApp /> );
+			await waitFor( () => expect( emailContentProps.current ).not.toBeNull() );
+
+			await act( async () => {
+				emailContentProps.current.onChange( { wpcom_featured_image_in_email: true } );
+			} );
 
 			expect( leavePage() ).toBe( true );
 		} );
