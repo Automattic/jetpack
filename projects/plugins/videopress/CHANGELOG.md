@@ -33,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Connection: Translate the Connectors card's text on sites that don't use English. [#53179]
+- Dashboard: Announce the views trend chart correctly to screen readers. [#53202]
 - My Jetpack: Hide other plugins' notices while the setup screen is open, and stop the full-screen layout breaking when another plugin adds an admin body class first. [#52765]
 - My Jetpack: Make the connection screen's Connect button and footer links reachable on shorter screens. [#53402]
 - My Jetpack: Show the highest-priority notice first when several are set at once. [#53400]
@@ -40,7 +41,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Only open a channel video page for a video uploaded to this site. [#53501]
 - Prevent new uploads from reusing video attachment IDs after a site restore. [#53791]
 - Show failed conversions with delete and re-upload guidance, and retry locked resumable uploads. [#53614]
-- Views trends chart: Announce the chart correctly to screen readers. [#53202]
 
 ## 3.7 - 2026-10-07
 ### Security
