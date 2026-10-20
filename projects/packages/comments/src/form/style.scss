@@ -26,3 +26,18 @@
 	clip-path: inset(50%);
 	white-space: nowrap;
 }
+
+// Anemone's Custom Colors never recolour its white reply panel,
+// so a dark palette's light text vanishes into it.
+.wp-theme-premiumanemone.custom-colors,
+.wp-theme-anemone.custom-colors {
+
+	.comment-respond:has(.jetpack-comments) {
+		background: transparent !important;
+
+		// Its red was picked for the white panel.
+		#cancel-comment-reply-link {
+			color: inherit;
+		}
+	}
+}

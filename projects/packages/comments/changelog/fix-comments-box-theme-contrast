@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Keep comment box text readable when a theme paints the reply area in a color that hides its text.
+Keep the comment form readable on the Anemone theme with a dark color palette.

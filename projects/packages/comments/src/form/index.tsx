@@ -2,7 +2,6 @@
 import '../shared/public-path';
 import { render } from 'preact';
 import { DialogHost, mountDialog } from '../modal/host';
-import { ensureContrast } from '../shared/contrast';
 import { resolveSubmitted } from '../shared/draft';
 import { CommentSignals, createSignals } from '../shared/state';
 import { recordEvent } from '../shared/tracks';
@@ -22,9 +21,8 @@ if (
 ) {
 	const reason = JetpackComments.version !== JETPACK_COMMENTS_VERSION ? 'version' : 'browser';
 
-	document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element => {
+	document.querySelectorAll( '.jetpack-comments' ).forEach( element => {
 		element.classList.add( 'is-plain' );
-		ensureContrast( element );
 
 		// Like `form_focus`, on the reach for the form, so a page view alone never loads Tracks.
 		const onFocusIn = () => {
@@ -65,7 +63,6 @@ if (
 
 		element.replaceChildren();
 		element.classList.add( 'is-mounted' );
-		ensureContrast( element );
 		render(
 			<CommentSignals.Provider value={ signals }>
 				<CommentForm form={ form } />
