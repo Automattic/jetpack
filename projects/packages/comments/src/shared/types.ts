@@ -109,8 +109,8 @@ export type Strings = {
 	signInRateLimited: string;
 };
 
-/** What build/standalone.js hands a host that is not the comment form. */
-export type StandaloneEditor = {
+/** What build/editor-loader.js hands a host that is not the comment form. */
+export type EditorLoader = {
 	/**
 	 * Fetch the editor. `locale` is core's translations of its strings, set before the chunk
 	 * loads; `assetsUrl` is the build directory, for a host whose script URL cannot be read.
@@ -126,6 +126,8 @@ export type Settings = {
 	version: string;
 	/** The build directory, which webpack loads the lazy chunks from. */
 	assetsUrl: string;
+	/** build/editor-loader.js, versioned, for a host outside the form. */
+	loaderUrl: string;
 	styleUrl: string;
 	isLoggedIn: boolean;
 	requireNameEmail: boolean;
@@ -152,6 +154,7 @@ export type Settings = {
 
 declare global {
 	const JetpackComments: Settings;
+	let __webpack_public_path__: string;
 	const JETPACK_COMMENTS_VERSION: string;
 
 	interface Window {
@@ -161,8 +164,8 @@ declare global {
 		jetpackCommentsEditorLabels?: EditorLabels;
 		/** The comment on the edit-comment screen, as the editor writes it. */
 		jetpackCommentsEditorContent?: string;
-		/** The standalone entry, for a host that loads build/standalone.js. */
-		JetpackCommentsEditor?: StandaloneEditor;
+		/** For a host that loads build/editor-loader.js. */
+		JetpackCommentsEditor?: EditorLoader;
 		/** The Tracks queue, which w.js drains. */
 		_tkq?: unknown[];
 	}
