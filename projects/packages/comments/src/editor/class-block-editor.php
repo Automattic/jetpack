@@ -229,6 +229,16 @@ class Block_Editor {
 			'div'        => array( 'class' => array( 'values' => array( 'wp-block-embed__wrapper' ) ) ),
 		);
 
+		/**
+		 * The tags and attributes the blocks in a comment may save, on top of the site's own comment tags.
+		 * A host that keeps a block of its own through `jetpack_comments_block_handlers` lets its markup through here.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $added Tags to add, in the shape `wp_kses_allowed_html` takes, for a comment that holds blocks.
+		 */
+		$added = apply_filters( 'jetpack_comments_allowed_html', $added );
+
 		return array_merge( $tags, $added );
 	}
 
@@ -444,7 +454,15 @@ class Block_Editor {
 			'editor'       => self::labels(),
 		);
 
-		return $settings;
+		/**
+		 * What a host needs to run the editor. The comment form's own `window.JetpackComments` is built from this too.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $settings The asset URLs, the comment length limit, whether blocks are on, the editor's
+		 *                        translations, and its labels.
+		 */
+		return apply_filters( 'jetpack_comments_editor_settings', $settings );
 	}
 
 	/**
