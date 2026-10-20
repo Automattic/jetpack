@@ -38,7 +38,8 @@ function wpcom_should_show_ai_assistant_banner() {
 		return false;
 	}
 
-	if ( wpcom_has_opted_out_of_wordpress_agent() ) {
+	// A site-level Agent toggle also writes the option, so neither value identifies the Writing control alone.
+	if ( wpcom_is_wordpress_agent_option_disabled() && wpcom_is_wordpress_agent_platform_enabled() ) {
 		return false;
 	}
 

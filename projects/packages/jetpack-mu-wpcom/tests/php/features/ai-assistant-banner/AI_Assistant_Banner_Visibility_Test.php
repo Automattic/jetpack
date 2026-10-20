@@ -90,7 +90,7 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Only a 0 saved while the Agent is on for the site counts as the admin opting out.
+	 * An option saved as 0 suppresses the banner only while the platform Agent is on.
 	 *
 	 * @dataProvider provide_opt_out_states
 	 * @runInSeparateProcess
@@ -104,7 +104,7 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 	#[DataProvider( 'provide_opt_out_states' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_has_opted_out_of_wordpress_agent( $is_simple, $option, $platform_on, $expected ) {
+	public function test_option_off_only_suppresses_banner_when_platform_agent_is_on( $is_simple, $option, $platform_on, $expected ) {
 		\Brain\Monkey\setUp();
 		if ( $is_simple ) {
 			\Brain\Monkey\Functions\when( 'big_sky_is_enabled' )->justReturn( $platform_on );
@@ -115,12 +115,12 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 			update_option( 'big_sky_enable', $option );
 		}
 
-		$this->assertSame( $expected, wpcom_has_opted_out_of_wordpress_agent() );
+		$this->assertSame( $expected, wpcom_is_wordpress_agent_option_disabled() && wpcom_is_wordpress_agent_platform_enabled() );
 		\Brain\Monkey\tearDown();
 	}
 
 	/**
-	 * Data provider for test_has_opted_out_of_wordpress_agent.
+	 * Data provider for test_option_off_only_suppresses_banner_when_platform_agent_is_on.
 	 *
 	 * @return array
 	 */
