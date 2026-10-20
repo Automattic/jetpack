@@ -8,12 +8,9 @@ import {
 	isDateLimitedPolicy,
 	normalizeReportParams,
 	withoutComparison,
+	type DateLimitFeature,
 	type StatsDatePolicy,
 } from '@jetpack-premium-analytics/data';
-/**
- * Internal dependencies
- */
-import { queueDateWindowNotice } from './date-window-notice';
 
 type Search = Record< string, unknown >;
 type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
@@ -55,14 +52,13 @@ export function adjustsStatsDateWindow( search: Search, policy: StatsDatePolicy 
  * @param search             - The search the route would load.
  * @param policy             - The date policy the page follows.
  * @param location           - Where the route loads it.
- * @param location.pathname  - The pathname, from `routePathname`.
  * @param location.requested - The search the reader asked for, `search` before a seed; omitted when they asked for none.
  * @return The limited search, or undefined.
  */
 export function limitStatsDateSearch(
 	search: Search,
 	policy: StatsDatePolicy,
-	{ pathname, requested }: { pathname: string; requested?: Search }
+	{ requested }: { requested?: Search } = {}
 ): Search | undefined {
 	if ( ! isDateLimitedPolicy( policy ) ) {
 		return undefined;
@@ -92,9 +88,19 @@ export function limitStatsDateSearch(
 		limited.preset = params.preset;
 	}
 
-	if ( isWindowAdjusted && policy.feature && isRequested ) {
-		queueDateWindowNotice( policy.feature, limited, pathname );
-	}
-
 	return limited;
+}
+
+/**
+ * The limit to tell the reader about when the plan moves the window they asked for.
+ *
+ * @param requested - The search the reader asked for.
+ * @param policy    - The date policy the page follows.
+ * @return The locked feature, or undefined.
+ */
+export function dateWindowNotice(
+	requested: Search,
+	policy: StatsDatePolicy
+): DateLimitFeature | undefined {
+	return policy.feature && adjustsStatsDateWindow( requested, policy ) ? policy.feature : undefined;
 }

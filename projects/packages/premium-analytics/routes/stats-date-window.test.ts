@@ -9,22 +9,12 @@ import { DASHBOARD_PREFERENCES_SCOPE, getStatsDatePolicy } from '@jetpack-premiu
  * Internal dependencies
  */
 import { planGatesScriptData } from '../tests/js/plan-gates-test-utils';
-import { dateWindowKey, takeDateWindowNotice } from './date-window-notice';
 import { dashboardSectionOf, limitStatsDateSearch } from './stats-date-window';
 
 jest.mock(
 	'@automattic/jetpack-script-data',
 	() => jest.requireActual( '../tests/js/script-data-test-utils' ).mockJetpackScriptData
 );
-
-/**
- * The notice the page would show on landing on a search, if any.
- *
- * @param search - The search the page shows.
- * @return The queued feature, or undefined.
- */
-const noticeOn = ( search: Record< string, unknown > | undefined ) =>
-	takeDateWindowNotice( dateWindowKey( search ?? {}, '/' ) );
 
 const setLocks = ( locked: string[], sections = [ 'traffic', 'store' ] ) =>
 	( getScriptData as jest.Mock ).mockReturnValue( planGatesScriptData( locked, sections ) );
@@ -36,12 +26,11 @@ beforeEach( () => {
 
 afterEach( () => {
 	jest.useRealTimers();
-	takeDateWindowNotice( '' );
 	dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
 } );
 
 describe( 'limitStatsDateSearch', () => {
-	it( 'opens a window the reader did not ask for on their default preset, without a notice', () => {
+	it( 'opens a window the reader did not ask for on their default preset', () => {
 		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', 'yesterday' );
 		const seeded = {
 			preset: 'all-time',
@@ -50,10 +39,9 @@ describe( 'limitStatsDateSearch', () => {
 			interval: 'month',
 		};
 
-		const limited = limitStatsDateSearch( seeded, getStatsDatePolicy(), { pathname: '/' } );
+		const limited = limitStatsDateSearch( seeded, getStatsDatePolicy() );
 
 		expect( limited ).toMatchObject( { preset: 'yesterday' } );
-		expect( noticeOn( limited ) ).toBeUndefined();
 	} );
 } );
 

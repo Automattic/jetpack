@@ -48,6 +48,7 @@ jest.mock( '../site-readiness', () => ( {
 jest.mock( '../stats-date-window', () => ( {
 	dashboardSectionOf: ( section?: string ) => section,
 	limitStatsDateSearch: jest.fn( () => undefined ),
+	dateWindowNotice: () => undefined,
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {

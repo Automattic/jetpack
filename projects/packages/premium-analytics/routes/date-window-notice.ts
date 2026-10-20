@@ -7,84 +7,35 @@ import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 import type { DateLimitFeature } from '@jetpack-premium-analytics/data';
 
-type Search = Record< string, unknown >;
 type NoticesActions = { createInfoNotice: ( message: string, options: object ) => void };
+type HistoryState = Record< string, unknown >;
 
 export const DATE_WINDOW_NOTICE_ID = 'jetpack-premium-analytics/date-window-limited';
 
-// `REPORT_DATE_PARAM_KEYS` plus `section`, spelled out so this module stays clear of the routing barrel.
-const WINDOW_KEYS = [
-	'from',
-	'to',
-	'preset',
-	'interval',
-	'comp',
-	'compare_from',
-	'compare_to',
-	'compare_preset',
-	'section',
-];
-
-type Pending = { feature: DateLimitFeature; key: string } | undefined;
-
-// Each route bundles its own copy of this module, so the held notice lives on globalThis.
-const PENDING_SLOT = Symbol.for( 'jetpack-premium-analytics/date-window-notice' );
-const slot = globalThis as typeof globalThis & { [ PENDING_SLOT ]?: Pending };
+export const DATE_WINDOW_NOTICE_STATE = 'jetpackPremiumAnalyticsDateWindowNotice';
 
 /**
- * A route's path with its params filled in, such as `/post/42` for `/post/$postId`.
+ * The history state a limiting redirect carries, so only the page it lands on shows the notice.
  *
- * @param path   - The route path.
- * @param params - The route params.
- * @return The pathname.
+ * A route's `beforeLoad` also runs to preload a hovered link, and a preload never commits its redirect.
+ *
+ * @param feature - The locked feature that moved the window, or undefined for no notice.
+ * @return The state, or undefined.
  */
-export function routePathname( path: string, params: Record< string, unknown > = {} ): string {
-	return path.replace( /\$(\w+)/g, ( match, name: string ) =>
-		params[ name ] === undefined ? match : String( params[ name ] )
-	);
+export function dateWindowNoticeState(
+	feature: DateLimitFeature | undefined
+): HistoryState | undefined {
+	return feature ? { [ DATE_WINDOW_NOTICE_STATE ]: feature } : undefined;
 }
 
 /**
- * What identifies a page's date window, alike for a redirect target and the page that renders it.
+ * Whether a history state value names a date limit.
  *
- * @param search   - The search.
- * @param pathname - The page's pathname, from `routePathname`.
- * @return The key.
+ * @param value - The value.
+ * @return Whether it is a `DateLimitFeature`.
  */
-export function dateWindowKey( search: Search, pathname: string ): string {
-	// The router hands values back JSON-parsed, so `comp: '1'` returns as the number 1.
-	return JSON.stringify( [
-		pathname,
-		...WINDOW_KEYS.map( key => ( search[ key ] === undefined ? null : String( search[ key ] ) ) ),
-	] );
-}
-
-/**
- * Hold a notice for the page that lands on a limited search.
- *
- * @param feature  - The locked feature that sets the limit.
- * @param search   - The search the route redirects to.
- * @param pathname - The pathname it redirects to.
- */
-export function queueDateWindowNotice(
-	feature: DateLimitFeature,
-	search: Search,
-	pathname: string
-): void {
-	slot[ PENDING_SLOT ] = { feature, key: dateWindowKey( search, pathname ) };
-}
-
-/**
- * Take the held notice: its feature when the page shows the search it was held for.
- *
- * @param key - The `dateWindowKey` of the search the page shows.
- * @return The feature, or undefined.
- */
-export function takeDateWindowNotice( key: string ): DateLimitFeature | undefined {
-	const held = slot[ PENDING_SLOT ];
-	slot[ PENDING_SLOT ] = undefined;
-
-	return held?.key === key ? held.feature : undefined;
+function isDateLimitFeature( value: unknown ): value is DateLimitFeature {
+	return value === 'recent-7-days' || value === 'long-date-presets';
 }
 
 /**
@@ -111,23 +62,22 @@ function announceDateWindowLimit( feature: DateLimitFeature ) {
 }
 
 /**
- * Show the notice a route held for the window this page shows.
- *
- * A route's `beforeLoad` also runs to preload a hovered link, so it only holds the notice.
- * The next page to render takes it, and discards it unless that page shows the window it was held for.
- *
- * @param pathname - The page's pathname, from `routePathname`.
+ * Show the notice the redirect that landed on this page carried.
  */
-export function useDateWindowNotice( pathname: string ): void {
-	const key = dateWindowKey(
-		( useSearch( { strict: false } ) as Search | undefined ) ?? {},
-		pathname
-	);
+export function useDateWindowNotice(): void {
+	const search = useSearch( { strict: false } );
 
 	useEffect( () => {
-		const feature = takeDateWindowNotice( key );
-		if ( feature ) {
-			announceDateWindowLimit( feature );
+		const state = window.history.state as HistoryState | null;
+		const feature = state?.[ DATE_WINDOW_NOTICE_STATE ];
+		if ( ! isDateLimitFeature( feature ) ) {
+			return;
 		}
-	}, [ key ] );
+
+		// Cleared so going back to this entry, or reloading it, does not repeat the notice.
+		const rest = { ...state };
+		delete rest[ DATE_WINDOW_NOTICE_STATE ];
+		window.history.replaceState( rest, '' );
+		announceDateWindowLimit( feature );
+	}, [ search ] );
 }

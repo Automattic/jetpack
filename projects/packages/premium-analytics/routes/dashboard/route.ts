@@ -13,13 +13,10 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { dateWindowNoticeState } from '../date-window-notice';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
-import { dashboardSectionOf, limitStatsDateSearch } from '../stats-date-window';
-import {
-	DASHBOARD_PATHNAME,
-	seedDashboardDateSearch,
-	type DashboardSearch,
-} from './section-date-window';
+import { dashboardSectionOf, dateWindowNotice, limitStatsDateSearch } from '../stats-date-window';
+import { seedDashboardDateSearch, type DashboardSearch } from './section-date-window';
 
 /**
  * Route lifecycle for the dashboard. The initial analytics sync is not a guard
@@ -56,10 +53,7 @@ export const route = {
 
 			next = seedDashboardDateSearch( params, policy );
 		} else {
-			next = limitStatsDateSearch( params, policy, {
-				pathname: DASHBOARD_PATHNAME,
-				requested: params,
-			} );
+			next = limitStatsDateSearch( params, policy, { requested: params } );
 		}
 
 		if ( next ) {
@@ -72,6 +66,7 @@ export const route = {
 				 * (TanStack widens it to `never`); cast as the routing package does.
 				 */
 				search: next as unknown as never,
+				state: dateWindowNoticeState( dateWindowNotice( params, policy ) ),
 			} );
 		}
 	},

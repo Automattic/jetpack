@@ -2,23 +2,19 @@
  * External dependencies
  */
 import { renderHook } from '@testing-library/react';
-import { REPORT_DATE_PARAM_KEYS } from '@jetpack-premium-analytics/routing';
 /**
  * Internal dependencies
  */
 import {
 	DATE_WINDOW_NOTICE_ID,
-	queueDateWindowNotice,
-	takeDateWindowNotice,
-	dateWindowKey,
+	dateWindowNoticeState,
 	useDateWindowNotice,
 } from './date-window-notice';
 
 const mockCreateInfoNotice = jest.fn();
 const mockDispatch: jest.Mock = jest.fn( () => ( { createInfoNotice: mockCreateInfoNotice } ) );
-let mockSearch: Record< string, unknown > = {};
 
-// Lazy: the routing barrel loads store modules that read `@wordpress/data` while it is still loading.
+// Lazy: `@wordpress/data` is still loading when this factory runs.
 jest.mock( '@wordpress/data', () => {
 	const actual = () => jest.requireActual( '@wordpress/data' );
 	return new Proxy(
@@ -32,19 +28,11 @@ jest.mock( '@wordpress/data', () => {
 	);
 } );
 jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => mockSearch,
+	useSearch: () => ( {} ),
 } ) );
 
-const LIMITED = {
-	from: '2026-10-09T00:00:00.000+00:00',
-	to: '2026-10-15T23:59:59.999+00:00',
-	preset: 'last-7-days',
-	interval: 'day',
-	section: 'traffic',
-};
-
 afterEach( () => {
-	takeDateWindowNotice( '' );
+	window.history.replaceState( null, '' );
 	jest.clearAllMocks();
 } );
 
@@ -58,12 +46,10 @@ describe( 'useDateWindowNotice', () => {
 			'long-date-presets',
 			'Your plan doesn’t include that period, so this page shows the last 30 days.',
 		],
-	] as const )( 'shows the %s notice once the page shows the window', ( feature, message ) => {
-		queueDateWindowNotice( feature, LIMITED, '/post/42' );
-		// The page's search can carry params the window does not name.
-		mockSearch = { ...LIMITED, ref: 'utm' };
+	] as const )( 'shows the %s notice the redirect carried, once', ( feature, message ) => {
+		window.history.replaceState( { key: 'abc', ...dateWindowNoticeState( feature ) }, '' );
 
-		const { rerender } = renderHook( () => useDateWindowNotice( '/post/42' ) );
+		const { rerender } = renderHook( () => useDateWindowNotice() );
 		rerender();
 
 		expect( mockDispatch ).toHaveBeenCalledWith( 'core/notices' );
@@ -72,45 +58,15 @@ describe( 'useDateWindowNotice', () => {
 			id: DATE_WINDOW_NOTICE_ID,
 			type: 'snackbar',
 		} );
+		expect( window.history.state ).toEqual( { key: 'abc' } );
 	} );
 
-	it( 'drops a notice queued for a window the page never shows', () => {
-		queueDateWindowNotice( 'recent-7-days', LIMITED, '/' );
-		mockSearch = { ...LIMITED, preset: 'yesterday' };
+	// A preloaded redirect never commits, so a later tab switch or Back lands on an entry without it.
+	it( 'shows nothing on an entry no redirect carried a notice to', () => {
+		window.history.replaceState( { key: 'abc' }, '' );
 
-		const { rerender } = renderHook( () => useDateWindowNotice( '/' ) );
-		mockSearch = LIMITED;
-		rerender();
+		renderHook( () => useDateWindowNotice() );
 
 		expect( mockCreateInfoNotice ).not.toHaveBeenCalled();
-	} );
-} );
-
-it( 'hands a held notice from one bundled copy of the module to another', () => {
-	let queueFrom!: typeof queueDateWindowNotice;
-	let takeFrom!: typeof takeDateWindowNotice;
-	jest.isolateModules( () => {
-		queueFrom = jest.requireActual( './date-window-notice' ).queueDateWindowNotice;
-	} );
-	jest.isolateModules( () => {
-		takeFrom = jest.requireActual( './date-window-notice' ).takeDateWindowNotice;
-	} );
-
-	queueFrom( 'recent-7-days', LIMITED, '/' );
-
-	expect( takeFrom( dateWindowKey( LIMITED, '/' ) ) ).toBe( 'recent-7-days' );
-} );
-
-describe( 'dateWindowKey', () => {
-	it.each( REPORT_DATE_PARAM_KEYS )( 'tells apart two windows that differ only in %s', key => {
-		expect( dateWindowKey( { ...LIMITED, [ key ]: 'other' }, '/' ) ).not.toBe(
-			dateWindowKey( LIMITED, '/' )
-		);
-	} );
-
-	it( 'reads a comparison flag the router parsed as a number like the one it was given', () => {
-		expect( dateWindowKey( { ...LIMITED, comp: 1 }, '/' ) ).toBe(
-			dateWindowKey( { ...LIMITED, comp: '1' }, '/' )
-		);
 	} );
 } );

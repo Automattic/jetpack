@@ -10,7 +10,7 @@ import { store as preferencesStore } from '@wordpress/preferences';
  * Internal dependencies
  */
 import { planGatesScriptData } from '../../tests/js/plan-gates-test-utils';
-import { dateWindowKey, takeDateWindowNotice } from '../date-window-notice';
+import { DATE_WINDOW_NOTICE_STATE } from '../date-window-notice';
 import { DATE_FILTER_RANGE, type DashboardSection } from './config';
 import { route } from './route';
 import { dateWindowForSectionSwitch } from './section-date-window';
@@ -51,20 +51,23 @@ type Search = Record< string, unknown >;
  *
  * @param search - The search the reader opens.
  * @param load   - The route's `beforeLoad`, given a search.
- * @return The search that loads, and how many redirects it took.
+ * @return The search that loads, how many redirects it took, and the notice the last one carried.
  */
 async function settle(
 	search: Search,
 	load = ( next: Search ) => route.beforeLoad( { search: next } as never )
 ) {
 	let current = search;
+	let notice: unknown;
 	for ( let hops = 0; hops < 3; hops++ ) {
 		try {
 			await load( current );
-			return { search: current, hops };
+			return { search: current, hops, notice };
 		} catch ( thrown ) {
 			expect( thrown ).toMatchObject( { isRedirect: true, replace: true, viewTransition: false } );
-			current = ( thrown as { search: Record< string, unknown > } ).search;
+			const redirected = thrown as { search: Search; state?: Search };
+			current = redirected.search;
+			notice = redirected.state?.[ DATE_WINDOW_NOTICE_STATE ];
 		}
 	}
 	throw new Error( `Still redirecting after 3 hops: ${ JSON.stringify( current ) }` );
@@ -79,19 +82,8 @@ beforeEach( () => {
 	jest.useFakeTimers().setSystemTime( new Date( '2026-10-15T12:00:00Z' ) );
 } );
 
-/**
- * The notice the page shows on landing on a search, if any.
- *
- * @param search   - The search the page shows.
- * @param pathname - Its pathname.
- * @return The queued feature, or undefined.
- */
-const noticeOn = ( search: Search, pathname = '/' ) =>
-	takeDateWindowNotice( dateWindowKey( search, pathname ) );
-
 afterEach( () => {
 	jest.useRealTimers();
-	takeDateWindowNotice( '' );
 	setSettings( DATE_SETTINGS );
 	rememberPreset( undefined );
 } );
@@ -145,7 +137,7 @@ describe.each( [
 		expect( settled.hops ).toBeLessThanOrEqual( 2 );
 		expect( settled.search ).toMatchObject( { preset: 'last-7-days', from: weekStart } );
 		expect( settled.search ).not.toHaveProperty( 'comp' );
-		expect( noticeOn( settled.search ) ).toBe( notice );
+		expect( settled.notice ).toBe( notice );
 	} );
 } );
 
@@ -167,7 +159,7 @@ it( 'tells a legacy-basic reader why a locked deep link opens on the last 30 day
 	const settled = await settle( { preset: 'last-12-months' } );
 
 	expect( settled.search ).toMatchObject( { preset: 'last-30-days' } );
-	expect( noticeOn( settled.search ) ).toBe( 'long-date-presets' );
+	expect( settled.notice ).toBe( 'long-date-presets' );
 } );
 
 const ALL_TIME = { preset: 'all-time', from: '2005-01-01', to: '2026-10-15' };
@@ -253,7 +245,7 @@ it.each( [
 		expect( settled.search ).toMatchObject( { section: 'traffic', preset } );
 		expect( settled.search.compare_preset ).toBe( comparePreset );
 		expect( settled.search.comp ).toBe( comparePreset && '1' );
-		expect( noticeOn( settled.search ) ).toBeUndefined();
+		expect( settled.notice ).toBeUndefined();
 	}
 );
 

@@ -74,7 +74,7 @@ import {
 	useSectionDateFilter,
 } from './hooks';
 import './overlay-focus-ring.scss';
-import { DASHBOARD_PATHNAME, dateWindowForSectionSwitch } from './section-date-window';
+import { dateWindowForSectionSwitch } from './section-date-window';
 import styles from './stage.module.scss';
 import type { OnboardingTourStep } from './components/onboarding-tour';
 import type { OnboardingFlow } from './hooks/use-onboarding';
@@ -284,7 +284,7 @@ function Dashboard(): JSX.Element {
 	const { dateLimits, offersComparison: planOffersComparison } = useStatsDateLimits(
 		isPlanDateLimitedSection( widgetSection )
 	);
-	useDateWindowNotice( DASHBOARD_PATHNAME );
+	useDateWindowNotice();
 	const lockedIntervals = dateLimits?.lockedIntervals;
 
 	/*

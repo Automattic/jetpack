@@ -23,10 +23,7 @@ import {
 	limitStatsDateSearch,
 } from '../stats-date-window';
 import { resolveSurfaceRange, toDateFilterSurface } from './config/date-filter';
-import { route } from './package.json';
 import type { DashboardSection } from './config/sections';
-
-export const DASHBOARD_PATHNAME = route.path;
 
 export type DashboardSearch = Record< string, unknown >;
 
@@ -56,10 +53,7 @@ export function seedDashboardDateSearch(
 	const merged = { ...params, ...normalized };
 	const seeded = hasComparisonEnabled( normalized ) ? merged : withoutComparison( merged );
 
-	return (
-		limitStatsDateSearch( seeded, policy, { pathname: DASHBOARD_PATHNAME, requested: params } ) ??
-		seeded
-	);
+	return limitStatsDateSearch( seeded, policy, { requested: params } ) ?? seeded;
 }
 
 /**
@@ -97,7 +91,7 @@ export function dateWindowForSectionSwitch(
 	const patch = section ? surfaceRangePatch( section, search, policy ) : undefined;
 	const patched = { ...search, ...patch };
 	// The comparison or bucket the plan strips, which the route would otherwise drop in a second navigation.
-	const limited = limitStatsDateSearch( patched, policy, { pathname: DASHBOARD_PATHNAME } );
+	const limited = limitStatsDateSearch( patched, policy );
 
 	return limited || patch ? pickDateWindow( limited ?? patched ) : undefined;
 }
