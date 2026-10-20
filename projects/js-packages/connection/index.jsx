@@ -30,6 +30,7 @@ export { default as ConnectionErrorSupportLink } from './components/connection-e
 export { ConnectionError } from './hooks/use-connection-error-notice';
 export { default as DisconnectDialog } from './components/disconnect-dialog';
 export { default as DisconnectCard } from './components/disconnect-card';
+export { default as DisconnectUserDialog } from './components/disconnect-user-dialog';
 export { default as useConnection } from './components/use-connection';
 export { default as ManageConnectionDialog } from './components/manage-connection-dialog';
 export { default as TransferConnectionOwnership } from './components/transfer-connection-ownership';

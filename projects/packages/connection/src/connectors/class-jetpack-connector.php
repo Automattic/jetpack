@@ -230,10 +230,6 @@ class Jetpack_Connector {
 
 		if ( $is_connected ) {
 			$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
-
-			if ( $manager->is_connection_owner() ) {
-				$data['hasOtherConnectedUsers'] = count( $manager->get_connected_users( 'any', 2 ) ) > 1;
-			}
 		}
 
 		$data['connectionOwnerEditUrl'] = static::get_connection_owner_edit_url( ( new Status() )->is_offline_mode() );

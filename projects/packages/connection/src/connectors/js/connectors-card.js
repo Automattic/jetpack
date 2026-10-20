@@ -22,6 +22,7 @@
 import {
 	CONNECTION_STORE_ID,
 	DisconnectDialog,
+	DisconnectUserDialog,
 	getTracksIdentity,
 	initializeTracksIdentity,
 	ProtectedOwnerConfirmation,
@@ -1541,7 +1542,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const { viewer, owner, ownerIsViewer, isOfflineMode, tracksIdentity, connectedPlugins } =
 		useCardConnection();
 	const { disconnectUserSuccess } = useDispatch( CONNECTION_STORE_ID );
-	const [ isUnlinking, setIsUnlinking ] = useState( false );
+	const [ isDisconnectUserOpen, setIsDisconnectUserOpen ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
 	const [ isTransferOpen, setIsTransferOpen ] = useState( false );
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
@@ -1553,63 +1554,6 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const confirmTriggerRef = useRef( null );
 	const disconnectSiteRef = useRef( null );
 	const disconnectAccountRef = useRef( null );
-
-	const executeUnlinkUser = async () => {
-		if ( isOfflineMode ) {
-			return;
-		}
-		setPendingConfirm( null );
-		setIsUnlinking( true );
-		setActionError( null );
-
-		try {
-			const body = { linked: false, force: true };
-			if ( viewer?.isOwner ) {
-				body[ 'disconnect-all-users' ] = true;
-			}
-
-			await apiRequest( 'jetpack/v4/connection/user', {
-				method: 'POST',
-				body,
-				fallbackError: __(
-					'Failed to disconnect the account. Please try again.',
-					'jetpack-connection'
-				),
-			} );
-
-			// A non-owner unlink only removes the viewer's token, which the store tracks. Otherwise
-			// card-only data such as protectedOwner changes too, so the page reloads.
-			if ( viewer?.isOwner || protectedOwner ) {
-				window.location.reload();
-				return;
-			}
-			disconnectUserSuccess();
-		} catch ( err ) {
-			setActionError( err.message );
-		} finally {
-			setIsUnlinking( false );
-		}
-	};
-
-	const handleUnlinkUser = () => {
-		confirmTriggerRef.current = disconnectAccountRef.current;
-		const message = viewer?.hasOtherConnectedUsers
-			? __(
-					'Your site will remain connected for essential services like likes and stats, but all user accounts will be disconnected.',
-					'jetpack-connection'
-				)
-			: __(
-					'Are you sure you want to disconnect your WordPress.com account?',
-					'jetpack-connection',
-					/* dummy arg to avoid bad minification */ 0
-				);
-
-		setPendingConfirm( {
-			title: __( 'Disconnect user account', 'jetpack-connection' ),
-			message,
-			onConfirm: executeUnlinkUser,
-		} );
-	};
 
 	return createElement(
 		VStack,
@@ -1640,7 +1584,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 													ref: transferOwnershipRef,
 													variant: 'link',
 													className: 'jetpack-connector__inline-action',
-													disabled: isUnlinking || isOfflineMode,
+													disabled: isOfflineMode,
 													onClick: () => setIsTransferOpen( true ),
 												},
 												__( 'Transfer ownership', 'jetpack-connection' )
@@ -1652,26 +1596,18 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 											ref: disconnectAccountRef,
 											variant: 'link',
 											isDestructive: true,
-											disabled: isUnlinking || isOfflineMode,
-											onClick: handleUnlinkUser,
+											disabled: isOfflineMode,
+											onClick: () => setIsDisconnectUserOpen( true ),
 											className: 'jetpack-connector__inline-action',
 										},
-										isUnlinking
-											? __( 'Disconnecting…', 'jetpack-connection' )
-											: __(
-													'Disconnect account',
-													'jetpack-connection',
-													/* dummy arg to avoid bad minification */ 0
-												)
+										__( 'Disconnect account', 'jetpack-connection' )
 									)
 								),
 				} )
 			: null,
 
 		// Release link, directly under the confirmed owner's own account row.
-		canReleaseProtectedOwner( viewer )
-			? createElement( ReleaseOwnershipSection, { isBusy: isUnlinking } )
-			: null,
+		canReleaseProtectedOwner( viewer ) ? createElement( ReleaseOwnershipSection ) : null,
 
 		// Connect prompt (only when the viewing admin is NOT linked).
 		! viewer && onConnect
@@ -1759,7 +1695,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 							variant: 'secondary',
 							isDestructive: true,
 							size: 'compact',
-							disabled: isUnlinking || isOfflineMode,
+							disabled: isOfflineMode,
 							onClick: () => setIsDisconnectDialogOpen( true ),
 							className: 'jetpack-connector__disconnect-site',
 						},
@@ -1802,6 +1738,32 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 					onClose: () => {
 						setIsDisconnectDialogOpen( false );
 						focusWhenReady( disconnectSiteRef.current );
+					},
+				} )
+			: null,
+		isDisconnectUserOpen
+			? createElement( DisconnectUserDialog, {
+					isOpen: true,
+					apiRoot,
+					apiNonce,
+					context: 'jetpack-connectors',
+					// A non-owner unlink only removes the viewer's token, which the store tracks.
+					// Otherwise card-only data such as protectedOwner changes too, so the page reloads.
+					onUnlinked: () => {
+						if ( viewer?.isOwner || protectedOwner ) {
+							window.location.reload();
+							return;
+						}
+						setIsDisconnectUserOpen( false );
+						disconnectUserSuccess();
+					},
+					onClose: () => {
+						setIsDisconnectUserOpen( false );
+						focusWhenReady( disconnectAccountRef.current );
+					},
+					onTransferOwnership: () => {
+						setIsDisconnectUserOpen( false );
+						setIsTransferOpen( true );
 					},
 				} )
 			: null,
