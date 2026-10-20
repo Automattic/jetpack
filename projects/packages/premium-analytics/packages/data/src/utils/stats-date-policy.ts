@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	computePrimaryRange,
 	isYearPresetId,
@@ -137,6 +138,38 @@ export function deriveStatsDatePolicy(
  */
 export function getStatsDatePolicy(): StatsDatePolicy {
 	return deriveStatsDatePolicy( isStatsFeatureLocked, reportingTimeZone() );
+}
+
+/**
+ * Whether a dashboard section's dates follow the plan, as its server registration declares.
+ *
+ * @param section - The section slug.
+ * @return Whether its window is limited.
+ */
+export function isPlanDateLimitedSection( section: string | undefined ): boolean {
+	const limited = getScriptData()?.premium_analytics?.plan_date_limited_sections;
+
+	return !! section && Array.isArray( limited ) && limited.includes( section );
+}
+
+/**
+ * The policy a dashboard section, or a page under it, follows.
+ *
+ * @param section - The section slug.
+ * @return The site's policy for a limited section, else `OPEN_DATE_POLICY`.
+ */
+export function getSectionDatePolicy( section: string | undefined ): StatsDatePolicy {
+	return isPlanDateLimitedSection( section ) ? getStatsDatePolicy() : OPEN_DATE_POLICY;
+}
+
+/**
+ * Whether a policy limits anything: a feature it locks, or a locked bucket.
+ *
+ * @param policy - The policy.
+ * @return Whether it sets a limit.
+ */
+export function isDateLimitedPolicy( policy: StatsDatePolicy ): boolean {
+	return !! policy.feature || policy.lockedIntervals.length > 0;
 }
 
 /**

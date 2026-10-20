@@ -1,9 +1,9 @@
-import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, rotateLeft } from '@wordpress/icons';
 import { Link as RouterLink } from '@wordpress/route';
 import { Card, Link, ButtonLink, Stack, Text } from '@wordpress/ui';
+import { formatDateTime } from '../../data/date-format';
 import { formatDuration } from '../../data/durations';
 import { formatStorageSize } from '../../data/storage-units';
 import { useBackupRuns } from '../../hooks/use-backup-runs';
@@ -194,7 +194,7 @@ export default function BackupDetail( { item }: Props ) {
 					{ item.stats }
 				</Text>
 				<Text variant="body-md" className="jpb-text-muted jpb-backup-detail__by">
-					<span>{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }</span>
+					<span>{ formatDateTime( item.publishedAt ) }</span>
 					<span>
 						{ createInterpolateElement(
 							sprintf(

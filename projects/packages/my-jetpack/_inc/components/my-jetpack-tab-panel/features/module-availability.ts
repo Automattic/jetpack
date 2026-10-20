@@ -116,10 +116,13 @@ export function getFeatureStatusLabel( state: FeatureState ): string | null {
  */
 export function isFeatureAvailable( state: FeatureState ): boolean {
 	const { control } = state;
+	// With the account-connect flag off, Available still lists installs the user cannot make.
+	const skipsBlockedInstalls = isAccountConnectEnabled();
 	return (
 		! state.pending &&
-		( control.kind !== 'install-jetpack' || ! control.blocked ) &&
-		( control.kind !== 'install-plugin' ||
+		( ! skipsBlockedInstalls || control.kind !== 'install-jetpack' || ! control.blocked ) &&
+		( ! skipsBlockedInstalls ||
+			control.kind !== 'install-plugin' ||
 			! control.blocked ||
 			Boolean( control.runsWithoutPlugin ) ) &&
 		( control.kind !== 'module' || control.module.override !== 'inactive' ) &&

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Features: Link the five security modules to their card on the Protect page, in place of their switches, while that page owns their settings. Point the Protect card's settings links there too.

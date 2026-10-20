@@ -34,35 +34,60 @@ export default function SafeState( { scan, isStarting, onScan }: Props ) {
 	const counts = getCheckedCounts( scan );
 	const nextCheck = getNextCheck( scan.lastChecked );
 	const nextScan = useHasPassed( nextCheck ) ? null : nextCheck;
+	const nextScanDate = nextScan && dateI18n( 'M j, gA', nextScan );
+
+	// The free check only compares versions with known vulnerabilities, so it can't call the site safe.
+	const copy = scan.hasPlan
+		? {
+				title: __( 'Your site is safe right now', 'jetpack-protect-pkg' ),
+				details: sprintf(
+					/* translators: %1$s is a number of plugins, such as "23 plugins". %2$s is a number of themes, such as "5 themes". */
+					__( 'No issues were found after scanning %1$s and %2$s.', 'jetpack-protect-pkg' ),
+					counts.plugins,
+					counts.themes
+				),
+				next: nextScanDate
+					? sprintf(
+							/* translators: %s is a date and time, such as "Sep 30, 9AM". */
+							__( 'Next scan will happen automatically on %s.', 'jetpack-protect-pkg' ),
+							nextScanDate
+						)
+					: __( 'Your site is scanned automatically every day.', 'jetpack-protect-pkg' ),
+				button: __( 'Scan again now', 'jetpack-protect-pkg' ),
+			}
+		: {
+				title: __( 'No known vulnerabilities found', 'jetpack-protect-pkg' ),
+				details: sprintf(
+					/* translators: %1$s is a number of plugins, such as "23 plugins". %2$s is a number of themes, such as "5 themes". */
+					__(
+						'None of your %1$s or %2$s has a known vulnerability. Your files aren’t checked for malware.',
+						'jetpack-protect-pkg'
+					),
+					counts.plugins,
+					counts.themes
+				),
+				next: nextScanDate
+					? sprintf(
+							/* translators: %s is a date and time, such as "Sep 30, 9AM". */
+							__( 'Next check will happen automatically on %s.', 'jetpack-protect-pkg' ),
+							nextScanDate
+						)
+					: __( 'Vulnerabilities are checked automatically every day.', 'jetpack-protect-pkg' ),
+				button: __( 'Check again now', 'jetpack-protect-pkg' ),
+			};
 
 	return (
 		<Stack className="jp-protect-safe" direction="column" align="center" gap="md">
 			<SafeShield />
 			<Text variant="heading-xl" render={ <h3 /> }>
-				{ __( 'Your site is safe right now', 'jetpack-protect-pkg' ) }
+				{ copy.title }
 			</Text>
 			<Text variant="body-lg" className="jp-protect-safe__details">
-				{ sprintf(
-					/* translators: %1$s is a number of plugins, such as "23 plugins". %2$s is a number of themes, such as "5 themes". */
-					__( 'No issues were found after scanning %1$s and %2$s.', 'jetpack-protect-pkg' ),
-					counts.plugins,
-					counts.themes
-				) }
+				{ copy.details }
 				<br />
-				{ nextScan
-					? sprintf(
-							/* translators: %s is a date and time, such as "Sep 30, 9AM". */
-							__( 'Next scan will happen automatically on %s.', 'jetpack-protect-pkg' ),
-							dateI18n( 'M j, gA', nextScan )
-						)
-					: __( 'Your site is scanned automatically every day.', 'jetpack-protect-pkg' ) }
+				{ copy.next }
 			</Text>
-			<ScanButton
-				scan={ scan }
-				isStarting={ isStarting }
-				onScan={ onScan }
-				label={ __( 'Scan again now', 'jetpack-protect-pkg' ) }
-			/>
+			<ScanButton scan={ scan } isStarting={ isStarting } onScan={ onScan } label={ copy.button } />
 		</Stack>
 	);
 }
