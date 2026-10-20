@@ -79,7 +79,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-my-jetpack",
 		"textdomain": "jetpack-my-jetpack",
 		"changelogger": {
