@@ -842,14 +842,12 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
-	 * The canonical switch is locked exactly when canonical output is disabled.
+	 * Turning canonical output off through the filter alone doesn't lock the switch.
 	 */
-	public function test_canonical_conflict_follows_the_disable_filter() {
-		$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_conflicted'] );
-
+	public function test_canonical_conflict_ignores_the_disable_filter() {
 		add_filter( 'jetpack_disable_canonical_urls', '__return_true' );
 		try {
-			$this->assertTrue( Dashboard_Data::get_settings_data()['canonical_conflicted'] );
+			$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_conflicted'] );
 		} finally {
 			remove_filter( 'jetpack_disable_canonical_urls', '__return_true' );
 		}

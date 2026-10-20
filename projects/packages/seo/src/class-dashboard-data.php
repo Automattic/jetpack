@@ -1084,8 +1084,9 @@ class Dashboard_Data {
 		$sitemap_active = $modules->is_active( 'sitemaps' );
 		$simple         = ( new Host() )->is_wpcom_simple();
 
-		/** This filter is documented in projects/plugins/jetpack/modules/canonical-urls.php */
-		$canonical_conflicted = (bool) apply_filters( 'jetpack_disable_canonical_urls', false );
+		// Ask the conflict check, not the disable filter: anyone can hook that filter just to turn the tags off.
+		// @phan-suppress-next-line PhanUndeclaredFunction -- guarded by function_exists; lives in plugins/jetpack.
+		$canonical_conflicted = function_exists( 'jetpack_canonical_urls_check_conflicts' ) && jetpack_canonical_urls_check_conflicts( false );
 
 		return array(
 			'search_engines_visible'     => (int) get_option( 'blog_public', 1 ) === 1,
