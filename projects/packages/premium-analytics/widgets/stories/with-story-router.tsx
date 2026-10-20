@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { DASHBOARD_PAGE_SLUG } from '@jetpack-premium-analytics/routing';
 import {
 	createMemoryHistory,
 	createRootRoute,
@@ -9,6 +10,7 @@ import {
 	RouterProvider,
 } from '@tanstack/react-router';
 import { createContext, useContext } from 'react';
+import { AnalyticsWidgetHostProvider } from '../../routes/widget-host';
 import type { Decorator } from '@storybook/react';
 import type { ReactNode } from 'react';
 
@@ -43,15 +45,21 @@ const storyRouter = createRouter( {
 	// TanStack's options type requires strictNullChecks, which this package does not enable.
 } as never );
 
+// The matcher judges action hrefs against the admin page, which the Storybook iframe is not.
+const STORY_DOCUMENT_URL = `https://example.com/wp-admin/admin.php?page=${ DASHBOARD_PAGE_SLUG }`;
+
 /**
  * Provides the router context that widget links need in Storybook. The report
  * and post-detail routes let `ReportLink` and `PostTitleLink` build the same
- * real href shapes as the app.
+ * real href shapes as the app, and the widget host mounts the router link for
+ * an action href that targets one of them.
  */
 export function StoryRouterProvider( { children }: { children: ReactNode } ) {
 	return (
 		<storyChildren.Provider value={ children }>
-			<RouterProvider router={ storyRouter } />
+			<AnalyticsWidgetHostProvider base={ STORY_DOCUMENT_URL }>
+				<RouterProvider router={ storyRouter } />
+			</AnalyticsWidgetHostProvider>
 		</storyChildren.Provider>
 	);
 }

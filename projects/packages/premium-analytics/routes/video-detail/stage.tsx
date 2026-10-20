@@ -31,6 +31,7 @@ import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { useWidgetModules } from '../use-widget-modules';
+import { AnalyticsWidgetHostProvider } from '../widget-host';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
@@ -162,64 +163,66 @@ function VideoDetail(): JSX.Element {
 	}
 
 	return (
-		<WidgetDashboard.Policy canPerform={ canPerform }>
-			<WidgetDashboard
-				widgetTypes={ widgetTypes }
-				isResolvingWidgetTypes={ isResolvingWidgetTypes }
-				resolveWidgetModule={ resolveWidgetModule }
-				layout={ layout }
-				onLayoutChange={ onLayoutChange }
-				onLayoutReset={ resetLayout }
-				gridSettings={ DETAIL_GRID }
-				editMode={ isCustomizing }
-				onEditChange={ onEditChange }
-			>
-				<DetailPageShell
-					visual={ <StatsPageIcon /> }
-					breadcrumbs={
-						<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
-							<StatsBreadcrumbs items={ breadcrumbs } />
-						</DetailPageBreadcrumbs>
-					}
-					actions={
-						<DetailPageActions
-							isCustomizing={ isCustomizing }
-							onCustomize={ canCustomize ? startCustomizing : undefined }
-							onReset={ resetToDefault }
-							editingActions={ <WidgetDashboard.Actions /> }
-						/>
-					}
+		<AnalyticsWidgetHostProvider>
+			<WidgetDashboard.Policy canPerform={ canPerform }>
+				<WidgetDashboard
+					widgetTypes={ widgetTypes }
+					isResolvingWidgetTypes={ isResolvingWidgetTypes }
+					resolveWidgetModule={ resolveWidgetModule }
+					layout={ layout }
+					onLayoutChange={ onLayoutChange }
+					onLayoutReset={ resetLayout }
+					gridSettings={ DETAIL_GRID }
+					editMode={ isCustomizing }
+					onEditChange={ onEditChange }
 				>
-					<DetailPageLayout
-						header={ videoHeaderSlots( {
-							summary,
-							performanceRange: dateFilters.appliedRange,
-						} ) }
-						// The presets render in every summary state, so the range stays
-						// adjustable while the video loads or errors.
-						controls={
-							<DateFiltersPanel
-								{ ...dateFilters }
-								{ ...dateControls }
-								onChange={ onDateChange }
-								onApply={ onDateApply }
+					<DetailPageShell
+						visual={ <StatsPageIcon /> }
+						breadcrumbs={
+							<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
+								<StatsBreadcrumbs items={ breadcrumbs } />
+							</DetailPageBreadcrumbs>
+						}
+						actions={
+							<DetailPageActions
+								isCustomizing={ isCustomizing }
+								onCustomize={ canCustomize ? startCustomizing : undefined }
+								onReset={ resetToDefault }
+								editingActions={ <WidgetDashboard.Actions /> }
 							/>
 						}
 					>
-						{ canRenderWidgets && ! isAnchoringAllTime ? (
-							<DetailPageSection>
-								<WidgetDashboard.Widgets />
-							</DetailPageSection>
-						) : null }
-						{ notice ? (
-							<DetailPageSection>
-								<PageNotice { ...notice } />
-							</DetailPageSection>
-						) : null }
-					</DetailPageLayout>
-				</DetailPageShell>
-			</WidgetDashboard>
-		</WidgetDashboard.Policy>
+						<DetailPageLayout
+							header={ videoHeaderSlots( {
+								summary,
+								performanceRange: dateFilters.appliedRange,
+							} ) }
+							// The presets render in every summary state, so the range stays
+							// adjustable while the video loads or errors.
+							controls={
+								<DateFiltersPanel
+									{ ...dateFilters }
+									{ ...dateControls }
+									onChange={ onDateChange }
+									onApply={ onDateApply }
+								/>
+							}
+						>
+							{ canRenderWidgets && ! isAnchoringAllTime ? (
+								<DetailPageSection>
+									<WidgetDashboard.Widgets />
+								</DetailPageSection>
+							) : null }
+							{ notice ? (
+								<DetailPageSection>
+									<PageNotice { ...notice } />
+								</DetailPageSection>
+							) : null }
+						</DetailPageLayout>
+					</DetailPageShell>
+				</WidgetDashboard>
+			</WidgetDashboard.Policy>
+		</AnalyticsWidgetHostProvider>
 	);
 }
 
