@@ -3,7 +3,7 @@
  */
 export interface BannerSettings {
 	trackProps?: Record< string, string >;
-	mcpEnabled?: boolean | null;
+	mcpState?: 'on' | 'off' | 'unavailable';
 }
 
 /**
@@ -24,10 +24,10 @@ type Track = ( eventName: string, eventProperties: Record< string, string > ) =>
  * @param track    - Records a Tracks event.
  */
 export function showBanner( banner: Banner, settings: BannerSettings = {}, track: Track ): void {
-	const { trackProps = {}, mcpEnabled } = settings;
+	const { trackProps = {}, mcpState } = settings;
 
 	if ( banner.hidden ) {
-		if ( mcpEnabled !== false ) {
+		if ( mcpState !== 'off' ) {
 			return;
 		}
 		banner.hidden = false;

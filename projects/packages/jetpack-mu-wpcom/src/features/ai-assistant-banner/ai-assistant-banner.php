@@ -106,12 +106,14 @@ function wpcom_ai_assistant_banner_mcp_enabled() {
  * Data for the banner's script: Tracks props and the cached MCP state.
  *
  * @param string $screen_id The current admin screen id.
- * @return array{trackProps: array<string,string>, mcpEnabled: bool|null}
+ * @return array{trackProps: array<string,string>, mcpState: string}
  */
 function wpcom_ai_assistant_banner_script_data( $screen_id ) {
+	$mcp_enabled = wpcom_is_wordpress_agent_enabled() ? wpcom_ai_assistant_banner_mcp_enabled() : null;
+
 	return array(
 		'trackProps' => wpcom_ai_assistant_banner_tracks_props( $screen_id ),
-		'mcpEnabled' => wpcom_is_wordpress_agent_enabled() ? wpcom_ai_assistant_banner_mcp_enabled() : null,
+		'mcpState'   => true === $mcp_enabled ? 'on' : ( false === $mcp_enabled ? 'off' : 'unavailable' ),
 	);
 }
 

@@ -16,16 +16,16 @@ describe( 'showBanner', () => {
 	} );
 
 	it( 'reveals a hidden banner only when MCP is explicitly off', () => {
-		for ( const mcpEnabled of [ false, true, null, undefined ] ) {
+		for ( const mcpState of [ 'off', 'on', 'unavailable', undefined ] as const ) {
 			const banner = { hidden: true };
 			const events: string[] = [];
 
-			showBanner( banner, { trackProps, mcpEnabled }, name => events.push( name ) );
+			showBanner( banner, { trackProps, mcpState }, name => events.push( name ) );
 
-			assert.equal( banner.hidden, mcpEnabled !== false );
+			assert.equal( banner.hidden, mcpState !== 'off' );
 			assert.deepEqual(
 				events,
-				mcpEnabled === false ? [ 'jetpack_ai_assistant_banner_impression' ] : []
+				mcpState === 'off' ? [ 'jetpack_ai_assistant_banner_impression' ] : []
 			);
 		}
 	} );

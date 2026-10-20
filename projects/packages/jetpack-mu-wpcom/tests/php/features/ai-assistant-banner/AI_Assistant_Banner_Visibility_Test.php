@@ -79,9 +79,9 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 
 		$data = wpcom_ai_assistant_banner_script_data( 'dashboard' );
 		$this->assertSame( wpcom_ai_assistant_banner_tracks_props( 'dashboard' ), $data['trackProps'] );
-		$this->assertFalse( $data['mcpEnabled'] );
+		$this->assertSame( 'off', $data['mcpState'] );
 
 		update_option( 'big_sky_enable', '0' );
-		$this->assertNull( wpcom_ai_assistant_banner_script_data( 'dashboard' )['mcpEnabled'] );
+		$this->assertSame( 'unavailable', wpcom_ai_assistant_banner_script_data( 'dashboard' )['mcpState'] );
 	}
 }
