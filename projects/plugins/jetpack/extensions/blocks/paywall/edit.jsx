@@ -17,7 +17,7 @@ import ConnectBanner from '../../shared/components/connect-banner';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
-import { getPaidPlanLink } from '../../shared/memberships/utils';
+import { getPaidAccessState, getPaidPlanLink } from '../../shared/memberships/utils';
 import useIsUserConnected from '../../shared/use-is-user-connected';
 
 function PaywallEdit( { clientId } ) {
@@ -48,11 +48,12 @@ function PaywallEdit( { clientId } ) {
 		};
 	} );
 
-	// Same rule as the Content access panel, so the toolbar and the panel never disagree:
-	// paid stays visible but disabled until it can be chosen, unless it is already the saved value.
-	const isPaidAvailable = stripeConnectUrl === null && hasTierPlans;
-	const showPaidAsDisabled =
-		! isPaidAvailable && accessLevel !== accessOptions.paid_subscribers.key;
+	// Same rule as the Content access panel: paid stays visible but disabled until it can be chosen.
+	const { showPaidAsDisabled } = getPaidAccessState( {
+		stripeConnectUrl,
+		hasTierPlans,
+		accessLevel,
+	} );
 
 	useEffect( () => {
 		// Change the access level from "everybody" to "subscribers" if the user adds a paywall block to a post.

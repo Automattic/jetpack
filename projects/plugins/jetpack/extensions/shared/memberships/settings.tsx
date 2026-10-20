@@ -25,7 +25,12 @@ import {
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
 import { getAccessDescription } from './newsletter-copy';
-import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+import {
+	getPaidAccessState,
+	getPaidPlanLink,
+	getShowMisconfigurationWarning,
+	MisconfigurationWarning,
+} from './utils';
 import type { ReactElement } from 'react';
 
 interface ReachForAccessLevelKeyArgs {
@@ -277,7 +282,6 @@ export function NewsletterAccessRadioButtons( {
 	postHasPaywallBlock = false,
 	explainPaywallConstraint = true,
 }: NewsletterAccessRadioButtonsProps ) {
-	const isStripeConnected = stripeConnectUrl === null;
 	const { totalSubscribers, paidSubscribers, paidNewsletterSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
@@ -285,11 +289,12 @@ export function NewsletterAccessRadioButtons( {
 	// Paid subscribers can only be chosen once Stripe is connected and a tier exists.
 	// Rather than hiding the option, we show it disabled alongside a link to set it up,
 	// so creators discover that paid newsletters are available to them.
-	const isPaidAvailable = isStripeConnected && hasTierPlans;
+	const { isPaidAvailable, showPaidAsDisabled } = getPaidAccessState( {
+		stripeConnectUrl,
+		hasTierPlans,
+		accessLevel,
+	} );
 	const isPaidSelected = accessLevel === accessOptions.paid_subscribers.key;
-	// Keep the option selectable when it is already the saved value, so a post set to
-	// paid before Stripe was disconnected does not end up with nothing selected.
-	const showPaidAsDisabled = ! isPaidAvailable && ! isPaidSelected;
 
 	// A paywall block splits the post, so "the whole post is public" stops being an
 	// option it can express. The option stays visible and disabled — the same treatment

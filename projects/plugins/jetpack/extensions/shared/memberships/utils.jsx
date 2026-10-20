@@ -33,6 +33,25 @@ export const getPaidPlanLink = alreadyHasTierPlans => {
 	return alreadyHasTierPlans ? link : link + '#add-tier-plan';
 };
 
+/**
+ * Whether "Paid subscribers" can be chosen, and whether to show it disabled.
+ * Shared by the Content access panel and the paywall block toolbar so they never disagree.
+ *
+ * @param {object}      props                  - Props.
+ * @param {string|null} props.stripeConnectUrl - Stripe connect URL, null once connected.
+ * @param {boolean}     props.hasTierPlans     - Whether a newsletter tier exists.
+ * @param {string}      props.accessLevel      - The post's saved access level.
+ * @return {{isPaidAvailable: boolean, showPaidAsDisabled: boolean}} Paid option state.
+ */
+export const getPaidAccessState = ( { stripeConnectUrl, hasTierPlans, accessLevel } ) => {
+	const isPaidAvailable = stripeConnectUrl === null && hasTierPlans;
+	// Keep the option selectable when it is already the saved value, so a post set to
+	// paid before Stripe was disconnected does not end up with nothing selected.
+	const showPaidAsDisabled =
+		! isPaidAvailable && accessLevel !== accessOptions.paid_subscribers.key;
+	return { isPaidAvailable, showPaidAsDisabled };
+};
+
 export const getShowMisconfigurationWarning = ( postVisibility, accessLevel ) => {
 	return postVisibility === 'private' && accessLevel !== accessOptions.everybody.key;
 };
