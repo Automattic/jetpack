@@ -132,9 +132,15 @@ export function useSetupModules(
 			const store = select( modulesStore ) as {
 				getJetpackModules: () => Record< string, MyJetpackModule >;
 				areModulesLoading: () => boolean;
+				hasFinishedResolution: ( selector: string ) => boolean;
 			};
 
-			return { modules: store.getJetpackModules(), isLoading: store.areModulesLoading() };
+			return {
+				modules: store.getJetpackModules(),
+				// The loading flag is still false on the render before the request starts.
+				isLoading:
+					store.areModulesLoading() || ! store.hasFinishedResolution( 'getJetpackModules' ),
+			};
 		},
 		[ enabled ]
 	);

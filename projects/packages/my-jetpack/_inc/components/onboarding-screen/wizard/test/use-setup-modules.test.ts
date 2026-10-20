@@ -9,9 +9,10 @@ jest.mock( '../../../../data/module-switch', () => ( {
 	requestModuleSwitch: ( ...args: unknown[] ) => mockRequestModuleSwitch( ...args ),
 } ) );
 
-const mockStore: { modules: Record< string, object >; isLoading: boolean } = {
+const mockStore: { modules: Record< string, object >; isLoading: boolean; resolved: boolean } = {
 	modules: {},
 	isLoading: false,
+	resolved: true,
 };
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { __esModule: true, store: 'modules' } ) );
@@ -22,6 +23,7 @@ jest.mock( '@wordpress/data', () => ( {
 		read( () => ( {
 			getJetpackModules: () => mockStore.modules,
 			areModulesLoading: () => mockStore.isLoading,
+			hasFinishedResolution: () => mockStore.resolved,
 		} ) ),
 	useDispatch: () => ( { updateJetpackModuleStatus: jest.fn() } ),
 } ) );
@@ -40,6 +42,7 @@ beforeEach( () => {
 	mockRequestModuleSwitch.mockReset();
 	mockStore.modules = {};
 	mockStore.isLoading = false;
+	mockStore.resolved = true;
 } );
 
 describe( 'Applying the wizard’s switches', () => {
@@ -105,6 +108,15 @@ describe( 'The modules the wizard offers', () => {
 		const { result } = renderHook( () => useSetupModules( undefined, false ) );
 
 		expect( result.current ).toEqual( { modules: [], isLoading: true } );
+	} );
+
+	// A reload straight onto the feature step must not say the list failed to load.
+	it( 'is loading until the request has finished, not only while it runs', () => {
+		mockStore.resolved = false;
+
+		const { result } = renderHook( () => useSetupModules() );
+
+		expect( result.current.isLoading ).toBe( true );
 	} );
 
 	it( 'locks host-forced modules and leaves out ones Jetpack does not have here', () => {

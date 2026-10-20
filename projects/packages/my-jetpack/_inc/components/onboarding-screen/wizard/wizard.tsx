@@ -442,7 +442,12 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				 */ }
 				{ ! isFinish && (
 					<NavigableRegion ariaLabel={ wizardTitle } className={ styles.rail }>
-						<div className={ styles[ 'rail-head' ] }>
+						<Stack
+							direction="column"
+							align="flex-start"
+							gap="xs"
+							className={ styles[ 'rail-head' ] }
+						>
 							{ /*
 							 * The words are on the control rather than in a tooltip. The mark
 							 * alone says nothing, and a tooltip is the one affordance a touch
@@ -468,7 +473,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 							<Text variant="body-md" className={ styles[ 'rail-count' ] }>
 								{ stepCount }
 							</Text>
-						</div>
+						</Stack>
 
 						{ /*
 						 * The <nav> itself is hidden below the rail breakpoint, so the collapsed

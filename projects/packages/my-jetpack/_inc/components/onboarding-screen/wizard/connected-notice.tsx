@@ -1,7 +1,7 @@
 import { useReducedMotion } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
-import { Icon, Text } from '@wordpress/ui';
+import { Icon, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import styles from './styles.module.scss';
 
@@ -17,7 +17,12 @@ export function ConnectedNotice() {
 	const reduced = useReducedMotion();
 
 	return (
-		<div className={ clsx( styles.connected, styles.wave ) } role="status">
+		<Stack
+			align="center"
+			gap="sm"
+			className={ clsx( styles.connected, styles.wave ) }
+			role="status"
+		>
 			<span className={ styles.connected__mark }>
 				{ /*
 				 * Not rendered at all under reduced motion; see `.finish-wash` in
@@ -41,6 +46,6 @@ export function ConnectedNotice() {
 			<Text variant="body-md" render={ <p /> } className={ styles.connected__text }>
 				{ __( 'Your site is connected', 'jetpack-my-jetpack' ) }
 			</Text>
-		</div>
+		</Stack>
 	);
 }

@@ -1101,12 +1101,12 @@ describe( 'Coming back to a run in progress', () => {
 		const { user, unmount } = setupWizard( { isUserConnected: true } );
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-		await user.click( screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } ) );
+		await user.click( screen.getByRole( 'switch', { name: 'Jetpack Stats' } ) );
 
 		unmount();
 		setupWizard( { isUserConnected: true } );
 
-		expect( screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } ) ).not.toBeChecked();
+		expect( screen.getByRole( 'switch', { name: 'Jetpack Stats' } ) ).not.toBeChecked();
 	} );
 
 	// Leaving ends the run, so the next visit must not be handed a finished one.
@@ -1184,8 +1184,8 @@ describe( 'What the finish screen claims', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		// The two already on are left alone; the two that were off are switched on.
-		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
-		await user.click( screen.getByRole( 'checkbox', { name: 'Contact Form' } ) );
+		await user.click( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'switch', { name: 'Contact Form' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		const note = await screen.findByText( 'Setup switched on 2 features.' );
@@ -1199,7 +1199,7 @@ describe( 'What the finish screen claims', () => {
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
-		await user.click( screen.getByRole( 'checkbox', { name: 'Contact Form' } ) );
+		await user.click( screen.getByRole( 'switch', { name: 'Contact Form' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		await expect(
@@ -1226,9 +1226,9 @@ describe( 'What the finish screen claims', () => {
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
-		await user.click( screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } ) );
-		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
-		await user.click( screen.getByRole( 'checkbox', { name: 'Contact Form' } ) );
+		await user.click( screen.getByRole( 'switch', { name: 'Jetpack Stats' } ) );
+		await user.click( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'switch', { name: 'Contact Form' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		await expect(
@@ -1243,7 +1243,7 @@ describe( 'What the finish screen claims', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		for ( const name of [ 'Jetpack Stats', 'Subscriptions' ] ) {
-			await user.click( screen.getByRole( 'checkbox', { name } ) );
+			await user.click( screen.getByRole( 'switch', { name } ) );
 		}
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
@@ -1297,8 +1297,8 @@ describe( 'The feature step', () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await featureStep( user );
 
-		expect( screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } ) ).toBeChecked();
-		expect( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) ).not.toBeChecked();
+		expect( screen.getByRole( 'switch', { name: 'Jetpack Stats' } ) ).toBeChecked();
+		expect( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) ).not.toBeChecked();
 	} );
 
 	// A request to move a host-forced module fails, as it does in Jetpack settings.
@@ -1309,7 +1309,10 @@ describe( 'The feature step', () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await featureStep( user );
 
-		expect( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	// Continue before the list arrives would apply nothing and report nothing changed.
@@ -1332,9 +1335,9 @@ describe( 'The feature step', () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await featureStep( user );
 
-		const toggle = screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } );
+		const toggle = screen.getByRole( 'switch', { name: 'Jetpack Stats' } );
 
-		expect( screen.getAllByRole( 'checkbox', { name: 'Jetpack Stats' } ) ).toHaveLength( 1 );
+		expect( screen.getAllByRole( 'switch', { name: 'Jetpack Stats' } ) ).toHaveLength( 1 );
 		expect( screen.getAllByText( 'Jetpack Stats' ) ).toHaveLength( 1 );
 		expect( toggle ).not.toHaveAttribute( 'aria-label' );
 		// The line under the name stays a description rather than joining the name.
@@ -1351,7 +1354,7 @@ describe( 'The feature step', () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await featureStep( user );
 
-		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		expect( mockApply ).toHaveBeenCalledWith( mockModules, { monitor: true } );

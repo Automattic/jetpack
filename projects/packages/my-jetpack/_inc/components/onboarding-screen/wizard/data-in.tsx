@@ -3,7 +3,7 @@ import styles from './styles.module.scss';
 
 /**
  * The plugins feeding the screen, on the step that asks which of them to switch
- * on. The flow keeps looping rather than settling.
+ * on. The flow runs once, then settles.
  *
  * `dangerouslySetInnerHTML` because the markup is a build-time constant from this
  * repository and nothing user-supplied reaches it. See `data-in-art.ts`.
