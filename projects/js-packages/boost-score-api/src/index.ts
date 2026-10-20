@@ -355,7 +355,6 @@ export type ScoreTier = 'good' | 'medium' | 'poor';
  * @return {ScoreTier} The tier.
  */
 export function getScoreTier( score: number ): ScoreTier {
-	// Keep tiers aligned with js-packages/components/components/boost-score-bar/index.tsx.
 	if ( score > 70 ) {
 		return 'good';
 	}
