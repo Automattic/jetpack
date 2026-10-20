@@ -349,6 +349,21 @@ function buildPerSeriesComparisonItems(
 }
 
 /**
+ * Orders one-per-series items as an overlap layout draws their slots: every primary, then every comparison.
+ * @param seriesData - The series the items were built from, one each
+ * @param items      - The legend items, in series order
+ * @return The legend items, primaries first
+ */
+function inSlotOrder( seriesData: SeriesData[], items: BaseLegendItem[] ): BaseLegendItem[] {
+	const isComparison = ( index: number ) => seriesData[ index ]?.options?.type === 'comparison';
+
+	return [
+		...items.filter( ( _item, index ) => ! isComparison( index ) ),
+		...items.filter( ( _item, index ) => isComparison( index ) ),
+	];
+}
+
+/**
  * Processes point data into legend items
  * @param pointData          - The point data to process
  * @param getElementStyles   - Function to get element styles
@@ -429,7 +444,7 @@ export function useChartLegendItems<
 			const getElementStyles = barColors
 				? withBarColors( getSeriesStyles, barColors )
 				: getSeriesStyles;
-			const items = processSeriesData(
+			const seriesItems = processSeriesData(
 				seriesData,
 				getElementStyles,
 				showValues,
@@ -439,6 +454,10 @@ export function useChartLegendItems<
 				renderGlyph,
 				legendShape
 			);
+			const items =
+				barLayout === 'overlap' && ! collapseGroups
+					? inSlotOrder( seriesData, seriesItems )
+					: seriesItems;
 
 			if ( comparisonSeriesItems ) {
 				return [

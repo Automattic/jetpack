@@ -445,6 +445,22 @@ describe( 'useChartLegendItems', () => {
 			expect( result.current.items[ 2 ].shapeStyle?.opacity ).toBe( comparisonOpacity );
 		} );
 
+		test.each( [
+			[ 'series order', undefined, [ 0, 1, 2, 3 ] ],
+			[ 'slot order, primaries first,', 'overlap', [ 0, 2, 1, 3 ] ],
+		] as const )(
+			'lists one item per series in %s with barLayout %s',
+			( _case, barLayout, order ) => {
+				const { result } = renderHook( () => useChartLegendItems( twoMetricData, { barLayout } ), {
+					wrapper,
+				} );
+
+				expect( result.current.map( item => item.label ) ).toEqual(
+					order.map( index => twoMetricData[ index ].label )
+				);
+			}
+		);
+
 		test( 'adds nothing when no series is a comparison', () => {
 			const { result } = renderHook(
 				() => useChartLegendItems( [ comparisonData[ 0 ] ], { comparisonItem: true } ),

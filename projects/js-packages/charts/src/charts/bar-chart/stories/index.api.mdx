@@ -112,7 +112,7 @@ Comparison styling applies to the `grouped` layout only. An `overlap` layout dra
 
 ## Overlap colors
 
-`getBarColors( series, { layout: 'overlap' } )` from `useGlobalChartsContext()` returns the color `BarChart` fills each series with, by index. Use it to color a custom tooltip's or legend's swatches. `useChartLegendItems( data, { barLayout: 'overlap' } )` does the same for legend items, and drops the comparison opacity from their swatches.
+`getBarColors( series, { layout: 'overlap' } )` from `useGlobalChartsContext()` returns the color `BarChart` fills each series with, by index. Use it to color a custom tooltip's or legend's swatches. `useChartLegendItems( data, { barLayout: 'overlap' } )` does the same for legend items, and drops the comparison opacity from their swatches. Without `collapseGroups`, it also lists the items in slot order: every primary, then every comparison.
 
 ## DataPointDate Type
 
