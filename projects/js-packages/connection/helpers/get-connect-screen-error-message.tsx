@@ -149,13 +149,13 @@ const sslMessage = ( siteUrl?: string ) =>
 		? sprintf(
 				/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
 				__(
-					'WordPress.com cannot securely connect to your site at %s because its SSL certificate could not be verified. Ask your hosting provider to fix the certificate.',
+					'WordPress.com couldn’t make a secure (HTTPS) connection to your site at %s. Its SSL certificate or HTTPS setup may be invalid. Ask your hosting provider to check it.',
 					'jetpack-connection-js'
 				),
 				siteUrl
 			)
 		: __(
-				'WordPress.com cannot securely connect to your site because its SSL certificate could not be verified. Ask your hosting provider to fix the certificate.',
+				'WordPress.com couldn’t make a secure (HTTPS) connection to your site. Its SSL certificate or HTTPS setup may be invalid. Ask your hosting provider to check it.',
 				'jetpack-connection-js'
 			);
 
@@ -276,12 +276,16 @@ export const getConnectScreenErrorMessage = (
 		case 'fail_domain_forbidden':
 		case 'fail_ip_forbidden':
 		case 'fail_domain_tld':
-		case 'fail_subdomain_wpcom':
 		case 'siteurl_private_ip':
 		case 'home_private_ip':
 		case 'siteurl_private_ip_dev':
 			return __(
 				'Your site is on a private network, so WordPress.com can’t reach it. Jetpack can only connect sites that are publicly accessible.',
+				'jetpack-connection-js'
+			);
+		case 'fail_subdomain_wpcom':
+			return __(
+				'Your site’s address is on WordPress.com. Jetpack connects WordPress sites hosted elsewhere, so it can’t connect this one.',
 				'jetpack-connection-js'
 			);
 		case 'connection_disabled':
@@ -306,12 +310,20 @@ export const getConnectScreenErrorMessage = (
 		case 'ssl_error':
 			return sslMessage();
 		case 'site_inaccessible':
-		case 'request_timeout':
-		case 'connection_timeout':
 		case 'connection_refused':
 		case 'connection_reset':
-		case 'bad_redirect_url':
 			return unreachableMessage();
+		case 'request_timeout':
+		case 'connection_timeout':
+			return __(
+				'WordPress.com timed out waiting for your site to answer. Your site may be slow or overloaded, or a firewall may be silently dropping the connection. Try again in a minute. If it keeps happening, ask your hosting provider to check.',
+				'jetpack-connection-js'
+			);
+		case 'bad_redirect_url':
+			return __(
+				'Your site redirected WordPress.com to an address it couldn’t use. Check the WordPress Address and Site Address in Settings › General, and any redirect rules on your site or host.',
+				'jetpack-connection-js'
+			);
 		case 'xml_rpc-32601':
 			return __(
 				'WordPress.com couldn’t connect to your site through xmlrpc.php. A security plugin or your hosting provider may be blocking it.',

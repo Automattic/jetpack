@@ -14,6 +14,37 @@ describe( 'getConnectScreenErrorMessage', () => {
 		);
 	} );
 
+	it.each( [
+		[
+			'fail_domain_tld',
+			'Your site is on a private network, so WordPress.com can’t reach it. Jetpack can only connect sites that are publicly accessible.',
+		],
+		[
+			'fail_subdomain_wpcom',
+			'Your site’s address is on WordPress.com. Jetpack connects WordPress sites hosted elsewhere, so it can’t connect this one.',
+		],
+		[
+			'request_timeout',
+			'WordPress.com timed out waiting for your site to answer. Your site may be slow or overloaded, or a firewall may be silently dropping the connection. Try again in a minute. If it keeps happening, ask your hosting provider to check.',
+		],
+		[
+			'bad_redirect_url',
+			'Your site redirected WordPress.com to an address it couldn’t use. Check the WordPress Address and Site Address in Settings › General, and any redirect rules on your site or host.',
+		],
+		[
+			'ssl_error',
+			'WordPress.com couldn’t make a secure (HTTPS) connection to your site. Its SSL certificate or HTTPS setup may be invalid. Ask your hosting provider to check it.',
+		],
+	] )( 'maps %s to its own message', ( code, expected ) => {
+		expect( getConnectScreenErrorMessage( code ) ).toBe( expected );
+	} );
+
+	it( 'maps both timeout codes to the timeout message', () => {
+		expect( getConnectScreenErrorMessage( 'connection_timeout' ) ).toBe(
+			getConnectScreenErrorMessage( 'request_timeout' )
+		);
+	} );
+
 	it( 'maps a registration HTTP failure to a message about reaching WordPress.com', () => {
 		expect( getConnectScreenErrorMessage( 'register_http_request_failed' ) ).toBe(
 			'Your site couldn’t reach WordPress.com. Ask your hosting provider to allow outgoing connections from your site to jetpack.wordpress.com.'
@@ -94,12 +125,7 @@ describe( 'getConnectScreenErrorMessage', () => {
 	it( 'maps WordPress.com failing to reach the site to one message', () => {
 		const message = getConnectScreenErrorMessage( 'site_inaccessible' );
 		expect( message ).toContain( 'WordPress.com couldn’t reach your site' );
-		for ( const code of [
-			'request_timeout',
-			'connection_timeout',
-			'connection_refused',
-			'connection_reset',
-		] ) {
+		for ( const code of [ 'connection_refused', 'connection_reset' ] ) {
 			expect( getConnectScreenErrorMessage( code ) ).toBe( message );
 		}
 		expect( getConnectScreenErrorMessage( 'host_lookup_fail' ) ).toContain( 'domain' );
@@ -271,7 +297,7 @@ describe( 'getRegistrationErrorDisplay', () => {
 			'couldn’t reach your site at https://example.com to verify it'
 		);
 		expect( display( 'site_inaccessible_526', text( 526 ) ).message ).toContain(
-			'connect to your site at https://example.com because'
+			'connection to your site at https://example.com. Its SSL'
 		);
 	} );
 
