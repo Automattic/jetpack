@@ -3,7 +3,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { configures } from '../types';
 import * as api from './api';
 import { errorMessage } from './error-message';
-import type { Slice, ThunkDispatch, ThunkSelect, WriteKind } from './store';
+import type { ThunkDispatch, ThunkSelect, WriteKind } from './store';
 import type {
 	CustomServiceFields,
 	Feature,
@@ -18,7 +18,6 @@ import type { dispatch as registryDispatch } from '@wordpress/data';
 interface ThunkArgs {
 	select: ThunkSelect;
 	dispatch: ThunkDispatch;
-	resolveSelect: Record< 'getStatus' | 'getSettings' | 'getServices', () => Promise< unknown > >;
 	registry: { dispatch: typeof registryDispatch };
 }
 
@@ -32,8 +31,6 @@ export interface SaveServicesOptions {
 	// Where a removed service sat, so Undo can put it back without reverting anything saved since.
 	undo?: { id: string; row: ServiceRow; index: number };
 }
-
-const READERS = { status: 'getStatus', settings: 'getSettings', services: 'getServices' } as const;
 
 // One snackbar for a run of moves, rather than one per tap.
 const SAVED_NOTICE_ID = 'sharing-likes-services-saved';
@@ -64,21 +61,16 @@ async function queued< T >( args: ThunkArgs, kind: WriteKind, task: () => Promis
 }
 
 /**
- * Read a slice again, dropping any read of it already in flight.
+ * Whether this is the only write of its kind queued or in flight.
  *
- * @param args  - Thunk arguments.
- * @param slice - Slice.
- * @return Resolves once the read lands or fails.
+ * Each save response carries its whole slice, so storing one while a later save of its kind waits would undo that save.
+ *
+ * @param args - Thunk arguments.
+ * @param kind - Write kind.
+ * @return Whether it is the last.
  */
-async function reread( args: ThunkArgs, slice: Slice ) {
-	args.dispatch.discardReads( slice );
-	args.dispatch.invalidateResolution( READERS[ slice ], [] );
-	try {
-		await args.resolveSelect[ READERS[ slice ] ]();
-	} catch {
-		// The screen keeps what it has.
-	}
-}
+const isLastWrite = ( args: ThunkArgs, kind: WriteKind ) =>
+	args.select.getPendingWrites( kind ) <= 1;
 
 /**
  * Notices dispatcher.
@@ -101,14 +93,12 @@ export const saveSetting =
 		const { select, dispatch } = args;
 		const previous = select.getSettings()?.[ key ];
 		dispatch.receive( 'settings', { ...select.getSettings(), [ key ]: value } );
-		const isLastSave = () => select.getPendingWrites( 'setting' ) <= 1;
 
 		return queued( args, 'setting', async () => {
 			let saved: Settings | undefined;
 			try {
 				saved = await api.saveSetting( key, value );
-				// Each response carries every setting, so one landing while another save waits would undo that save's value.
-				if ( isLastSave() ) {
+				if ( isLastWrite( args, 'setting' ) ) {
 					dispatch.receive( 'settings', saved );
 				}
 				notices( args ).createSuccessNotice(
@@ -127,12 +117,12 @@ export const saveSetting =
 				);
 				// A refused save usually means the screen is out of date: another tab, or a host forcing a module.
 				// A queued save's response refreshes the settings instead, without racing its optimistic value.
-				if ( isLastSave() ) {
-					reread( args, 'settings' );
+				if ( isLastWrite( args, 'setting' ) ) {
+					dispatch.reread( 'settings' );
 				}
 			}
 			// Saving Comment Likes can change which sections configure, and so which settings are offered.
-			await reread( args, 'status' );
+			await dispatch.reread( 'status' );
 			return saved;
 		} );
 	};
@@ -170,7 +160,6 @@ export const saveServices =
 		} else {
 			dispatch.discardReads( 'services' );
 		}
-		const isLastSave = () => select.getPendingWrites( 'services' ) <= 1;
 
 		const restore = () => {
 			const latest = select.getServices();
@@ -193,13 +182,11 @@ export const saveServices =
 				let response: Services | undefined;
 				try {
 					response = await api.saveServices( lists.visible, lists.hidden );
-					// Each response carries both lists, so one landing while another save waits would undo that save's order.
-					if ( isLastSave() ) {
+					if ( isLastWrite( args, 'services' ) ) {
 						dispatch.receive( 'services', response );
 					}
 				} catch ( error ) {
 					refused = error ?? new Error();
-					// A later change replaced these lists, and its own save settles them.
 					const latest = select.getServices();
 					if ( latest && sameLists( latest, lists ) ) {
 						dispatch.receive( 'services', { ...latest, ...previous } );
@@ -211,15 +198,15 @@ export const saveServices =
 						),
 						{ type: 'snackbar' }
 					);
-					if ( isLastSave() ) {
-						reread( args, 'services' );
+					if ( isLastWrite( args, 'services' ) ) {
+						dispatch.reread( 'services' );
 					}
 				}
-				// A refusal usually means the screen is stale, and an empty list hands a block theme's section to the block.
+				// A refusal, or an empty list on a block theme, can change which sections configure.
 				if ( refused || lists.visible.length + lists.hidden.length === 0 ) {
 					await Promise.all( [
-						reread( args, 'status' ),
-						select.getPendingWrites( 'setting' ) > 0 ? undefined : reread( args, 'settings' ),
+						dispatch.reread( 'status' ),
+						select.getPendingWrites( 'setting' ) > 0 ? undefined : dispatch.reread( 'settings' ),
 					] );
 				}
 				if ( refused ) {
@@ -401,15 +388,15 @@ export const runFeatureAction =
 			const sharing = select.getStatus()?.sharing.state;
 			// Which settings are offered follows the section variants; awaited so the next write waits for them.
 			await Promise.all( [
-				failed ? reread( args, 'status' ) : undefined,
+				failed ? dispatch.reread( 'status' ) : undefined,
 				// A pending save's response brings fresh settings, and this read could land after it.
-				select.getPendingWrites( 'setting' ) > 0 ? undefined : reread( args, 'settings' ),
-				// The route answers 409 once Sharing stops configuring, and a pending services save brings fresh lists.
+				select.getPendingWrites( 'setting' ) > 0 ? undefined : dispatch.reread( 'settings' ),
+				// Services only read while Sharing configures (see `useServices()`), and a pending services save brings fresh lists.
 				! failed &&
 				!! sharing &&
 				configures( sharing ) &&
 				select.getPendingWrites( 'services' ) === 0
-					? reread( args, 'services' )
+					? dispatch.reread( 'services' )
 					: undefined,
 			] );
 		} );

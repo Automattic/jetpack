@@ -3,7 +3,7 @@ import { fetchServices, fetchSettings, fetchStatus } from './api';
 import * as writes from './writes';
 import type { Services, Settings, SharingLikesScriptData, Status } from '../types';
 
-export const STORE_NAME = 'jetpack-sharing-likes/settings';
+const STORE_NAME = 'jetpack-sharing-likes/settings';
 
 export type Slice = 'status' | 'settings' | 'services';
 
@@ -21,6 +21,8 @@ export interface State {
 	services?: Services;
 	// Bumped by every local change to a slice, so a read that started before it is dropped when it lands.
 	versions: Record< Slice, number >;
+	// Whether the latest read of a slice failed.
+	failed: Record< Slice, boolean >;
 	// Writes queued or in flight, by kind.
 	pending: Record< WriteKind, number >;
 }
@@ -28,10 +30,12 @@ export interface State {
 type Action =
 	| { type: 'RECEIVE'; slice: Slice; value: Slices[ Slice ]; since?: number }
 	| { type: 'DISCARD_READS'; slice: Slice }
+	| { type: 'READ_FAILED'; slice: Slice; since: number }
 	| { type: 'WRITE_STARTED' | 'WRITE_SETTLED'; kind: WriteKind };
 
 const DEFAULT_STATE: State = {
 	versions: { status: 0, settings: 0, services: 0 },
+	failed: { status: false, settings: false, services: false },
 	pending: { setting: 0, services: 0, 'custom-service': 0, 'feature-action': 0 },
 };
 
@@ -45,21 +49,28 @@ const DEFAULT_STATE: State = {
 function reducer( state: State = DEFAULT_STATE, action: Action ): State {
 	switch ( action.type ) {
 		case 'RECEIVE':
-			if ( action.since === undefined ) {
-				return {
-					...state,
-					[ action.slice ]: action.value,
-					versions: { ...state.versions, [ action.slice ]: state.versions[ action.slice ] + 1 },
-				};
+			if ( action.since !== undefined && action.since !== state.versions[ action.slice ] ) {
+				return state;
 			}
-			return action.since === state.versions[ action.slice ]
-				? { ...state, [ action.slice ]: action.value }
-				: state;
+			return {
+				...state,
+				[ action.slice ]: action.value,
+				versions:
+					action.since === undefined
+						? { ...state.versions, [ action.slice ]: state.versions[ action.slice ] + 1 }
+						: state.versions,
+				failed: { ...state.failed, [ action.slice ]: false },
+			};
 		case 'DISCARD_READS':
 			return {
 				...state,
 				versions: { ...state.versions, [ action.slice ]: state.versions[ action.slice ] + 1 },
+				failed: { ...state.failed, [ action.slice ]: false },
 			};
+		case 'READ_FAILED':
+			return action.since === state.versions[ action.slice ]
+				? { ...state, failed: { ...state.failed, [ action.slice ]: true } }
+				: state;
 		case 'WRITE_STARTED':
 		case 'WRITE_SETTLED':
 			return {
@@ -97,6 +108,30 @@ const actions = {
 	discardReads( slice: Slice ): Action {
 		return { type: 'DISCARD_READS', slice };
 	},
+
+	/**
+	 * Record that a read which started at that version failed.
+	 *
+	 * @param slice - Slice.
+	 * @param since - The slice's version when the read started.
+	 * @return Action.
+	 */
+	readFailed( slice: Slice, since: number ): Action {
+		return { type: 'READ_FAILED', slice, since };
+	},
+
+	/**
+	 * Read a slice again, dropping any read of it already in flight.
+	 *
+	 * @param slice - Slice.
+	 * @return Thunk resolving once the read lands or fails.
+	 */
+	reread:
+		( slice: Slice ) =>
+		( { select, dispatch }: { select: ThunkSelect; dispatch: ThunkDispatch } ) => {
+			dispatch.discardReads( slice );
+			return load( dispatch, slice, select.getVersion( slice ) );
+		},
 
 	/**
 	 * Count a write as queued.
@@ -181,27 +216,54 @@ const selectors = {
 	 * @return Version.
 	 */
 	getVersion: ( state: State, slice: Slice ): number => state.versions[ slice ],
+
+	/**
+	 * Whether the latest read of a slice failed.
+	 *
+	 * @param state - State.
+	 * @param slice - Slice.
+	 * @return Whether it failed.
+	 */
+	hasReadFailed: ( state: State, slice: Slice ): boolean => state.failed[ slice ],
+};
+
+const FETCHERS: { [ S in Slice ]: () => Promise< Slices[ S ] > } = {
+	status: fetchStatus,
+	settings: fetchSettings,
+	services: fetchServices,
 };
 
 /**
- * A resolver that stores what it read unless the slice changed locally meanwhile.
+ * Read a slice, keeping the answer or the failure only while the slice is still at `since`.
+ *
+ * @param dispatch - Thunk dispatch.
+ * @param slice    - Slice.
+ * @param since    - The slice's version when the read started.
+ */
+async function load( dispatch: ThunkDispatch, slice: Slice, since: number ) {
+	try {
+		dispatch.receive( slice, await FETCHERS[ slice ](), since );
+	} catch {
+		dispatch.readFailed( slice, since );
+	}
+}
+
+/**
+ * A resolver that reads its slice at the slice's current version.
  *
  * @param slice - Slice.
- * @param fetch - Request.
  * @return Resolver.
  */
-function read< S extends Slice >( slice: S, fetch: () => Promise< Slices[ S ] > ) {
+function read( slice: Slice ) {
 	return () =>
-		async ( { select, dispatch }: { select: ThunkSelect; dispatch: ThunkDispatch } ) => {
-			const since = select.getVersion( slice );
-			dispatch.receive( slice, await fetch(), since );
-		};
+		( { select, dispatch }: { select: ThunkSelect; dispatch: ThunkDispatch } ) =>
+			load( dispatch, slice, select.getVersion( slice ) );
 }
 
 const resolvers = {
-	getStatus: read( 'status', fetchStatus ),
-	getSettings: read( 'settings', fetchSettings ),
-	getServices: read( 'services', fetchServices ),
+	getStatus: read( 'status' ),
+	getSettings: read( 'settings' ),
+	getServices: read( 'services' ),
 };
 
 export type ThunkSelect = {
@@ -216,9 +278,10 @@ export type ThunkSelect = {
 export type ThunkDispatch = {
 	receive: < S extends Slice >( slice: S, value: Slices[ S ], since?: number ) => void;
 	discardReads: ( slice: Slice ) => void;
+	readFailed: ( slice: Slice, since: number ) => void;
+	reread: ( slice: Slice ) => Promise< void >;
 	writeStarted: ( kind: WriteKind ) => void;
 	writeSettled: ( kind: WriteKind ) => void;
-	invalidateResolution: ( selector: string, args: unknown[] ) => void;
 	finishResolution: ( selector: string, args: unknown[] ) => void;
 	saveServices: ( ...args: Parameters< typeof writes.saveServices > ) => Promise< unknown >;
 };

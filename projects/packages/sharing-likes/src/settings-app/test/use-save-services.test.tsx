@@ -137,6 +137,32 @@ describe( 'useSaveServices', () => {
 		} );
 	} );
 
+	it( 'sends a queued save once the save before it is refused', async () => {
+		let puts = 0;
+		mockApiFetch.mockImplementation( ( { method, path } ) => {
+			if ( method === 'PUT' ) {
+				puts += 1;
+				return puts === 1 ? Promise.reject( { message: 'Refused.' } ) : Promise.resolve( services );
+			}
+			const reads: Record< string, unknown > = {
+				status: baseStatus,
+				settings: baseSettings,
+				services,
+			};
+			return Promise.resolve( reads[ path?.split( '/' ).pop() ?? '' ] );
+		} );
+		const { result } = renderSave();
+
+		await act( () =>
+			Promise.all( [
+				result.current( { visible: [ 'x', 'facebook' ], hidden: [ 'email' ] } ),
+				result.current( { visible: [ 'x', 'email', 'facebook' ], hidden: [] } ),
+			] )
+		);
+
+		expect( apiCalls( 'PUT' ) ).toHaveLength( 2 );
+	} );
+
 	it( 'rereads status and settings once no service is left', async () => {
 		mockApiFetch.mockImplementation( ( { method } ) =>
 			Promise.resolve( method === 'PUT' ? { ...services, visible: [], hidden: [] } : baseStatus )

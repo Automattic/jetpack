@@ -1,4 +1,5 @@
-import { useSelect } from '@wordpress/data';
+import { useRegistry, useSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 import { store } from './store';
 import type { Services, Settings, Status } from '../types';
 
@@ -30,13 +31,21 @@ export function useServices( enabled: boolean ): {
 	data: Services | undefined;
 	isPending: boolean;
 } {
+	const registry = useRegistry();
+	// A list that could not be loaded tries again when it next appears.
+	useEffect( () => {
+		if ( enabled && registry.select( store ).hasReadFailed( 'services' ) ) {
+			registry.dispatch( store ).reread( 'services' );
+		}
+	}, [ enabled, registry ] );
+
 	return useSelect(
 		select => {
 			if ( ! enabled ) {
 				return { data: undefined, isPending: true };
 			}
 			const data = select( store ).getServices();
-			return { data, isPending: ! data && ! select( store ).hasResolutionFailed( 'getServices' ) };
+			return { data, isPending: ! data && ! select( store ).hasReadFailed( 'services' ) };
 		},
 		[ enabled ]
 	);
