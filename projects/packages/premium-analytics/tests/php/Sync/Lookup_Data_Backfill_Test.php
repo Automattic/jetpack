@@ -68,7 +68,9 @@ class Lookup_Data_Backfill_Test extends TestCase {
 					'product_type' => 'simple',
 				),
 			),
-			'start_full_sync'           => true,
+			'get_product_ids'           => array( 7, 8 ),
+			'get_full_sync_status'      => array(),
+			'do_full_sync'              => true,
 		);
 
 		$backfill = $this->getMockBuilder( Lookup_Data_Backfill::class )
@@ -206,7 +208,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 				},
 			)
 		);
-		$backfill->expects( $this->once() )->method( 'start_full_sync' );
+		$backfill->expects( $this->once() )->method( 'do_full_sync' );
 
 		$backfill->start_backfill();
 
@@ -226,7 +228,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	public function test_starts_unless_wordpress_com_reports_the_oldest_order_product_with_its_type( array $row, bool $start ) {
 		self::set_scheduled_state();
 		$backfill = $this->backfill( array( 'fetch_wpcom_products' => array( $row ) ) );
-		$backfill->expects( $start ? $this->once() : $this->never() )->method( 'start_full_sync' );
+		$backfill->expects( $start ? $this->once() : $this->never() )->method( 'do_full_sync' );
 
 		$backfill->start_backfill();
 
@@ -256,14 +258,14 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	public function test_starts_without_a_completed_order_to_probe() {
 		$backfill = $this->backfill( array( 'find_oldest_order_product' => null ) );
 		$backfill->expects( $this->never() )->method( 'fetch_wpcom_products' );
-		$backfill->expects( $this->once() )->method( 'start_full_sync' );
+		$backfill->expects( $this->once() )->method( 'do_full_sync' );
 
 		$backfill->start_backfill();
 	}
 
 	public function test_second_action_for_the_same_run_does_nothing() {
 		$backfill = $this->backfill();
-		$backfill->expects( $this->once() )->method( 'start_full_sync' );
+		$backfill->expects( $this->once() )->method( 'do_full_sync' );
 
 		$backfill->start_backfill();
 		$backfill->start_backfill(); // @phan-suppress-current-line PhanPluginDuplicateAdjacentStatement -- The second action for the same run.
@@ -275,7 +277,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 		update_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, 1730000456 );
 		$backfill = $this->backfill();
 		$backfill->expects( $this->never() )->method( 'fetch_wpcom_products' );
-		$backfill->expects( $this->never() )->method( 'start_full_sync' );
+		$backfill->expects( $this->never() )->method( 'do_full_sync' );
 
 		$backfill->start_backfill();
 
@@ -304,20 +306,104 @@ class Lookup_Data_Backfill_Test extends TestCase {
 			'Jetpack disconnected'        => array( array( 'is_jetpack_connected' => false ) ),
 			'sync not allowed'            => array( array( 'is_sync_allowed' => false ) ),
 			'WordPress.com not answering' => array( array( 'fetch_wpcom_products' => null ) ),
-			'Jetpack refuses'             => array( array( 'start_full_sync' => false ) ),
+			'Jetpack refuses'             => array( array( 'do_full_sync' => false ) ),
 		);
 	}
 
 	public function test_starts_without_an_answer_once_the_retry_window_ends() {
 		$backfill = $this->backfill( array( 'fetch_wpcom_products' => null ) );
-		$backfill->expects( $this->once() )->method( 'start_full_sync' );
+		$backfill->expects( $this->once() )->method( 'do_full_sync' );
 
 		$backfill->start_backfill( time() - Lookup_Data_Backfill::RETRY_WINDOW );
 	}
 
 	public function test_stops_retrying_after_the_retry_window() {
+		self::set_scheduled_state();
+
 		$this->backfill( array( 'is_full_sync_running' => true ) )->start_backfill( time() - Lookup_Data_Backfill::RETRY_WINDOW );
 
 		$this->assertSame( array(), self::scheduled_hooks() );
+		$this->assertFalse( get_option( Lookup_Data_Backfill::STATE_OPTION ), 'the next dashboard check schedules a new run' );
+	}
+
+	/**
+	 * @dataProvider provide_full_sync_config
+	 * @param int[] $product_ids Products and variations.
+	 * @param array $config      Expected full sync config.
+	 */
+	#[DataProvider( 'provide_full_sync_config' )]
+	public function test_resends_the_catalog_of_products_only( array $product_ids, array $config ) {
+		$backfill = $this->backfill( array( 'get_product_ids' => $product_ids ) );
+		$backfill->expects( $this->once() )->method( 'do_full_sync' )->with( $this->identicalTo( $config ) );
+
+		$backfill->start_backfill();
+	}
+
+	public static function provide_full_sync_config() {
+		return array(
+			'products'    => array(
+				array( 7, 8 ),
+				array(
+					'woocommerce_analytics' => true,
+					'terms'                 => true,
+					'term_relationships'    => true,
+					'posts'                 => array( 7, 8 ),
+				),
+			),
+			'no products' => array( array(), array( 'woocommerce_analytics' => true ) ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_started_run
+	 * @param array $status   Stored full sync status.
+	 * @param bool  $running  Whether a full sync is running.
+	 * @param bool  $schedule Whether a new run is scheduled.
+	 * @param bool  $synced   Whether the data is marked synced.
+	 */
+	#[DataProvider( 'provide_started_run' )]
+	public function test_handles_a_started_run_on_the_next_check( array $status, bool $running, bool $schedule, bool $synced ) {
+		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
+		update_option(
+			Lookup_Data_Backfill::STATE_OPTION,
+			array(
+				'scheduled_at' => 1730000000,
+				'started_at'   => 1730000001,
+			)
+		);
+
+		$this->backfill(
+			array(
+				'get_full_sync_status' => $status,
+				'is_full_sync_running' => $running,
+			)
+		)->maybe_schedule();
+
+		$this->assertSame( $schedule ? array( Lookup_Data_Backfill::START_HOOK ) : array(), self::scheduled_hooks() );
+		$this->assertSame( $synced, Sync_Status_Tracker::lookup_data_synced() );
+	}
+
+	public static function provide_started_run() {
+		$ours = array(
+			'context'  => Lookup_Data_Backfill::FULL_SYNC_CONTEXT,
+			'finished' => 1730000500,
+			'progress' => array( 'woocommerce_analytics' => array( 'finished' => true ) ),
+		);
+
+		return array(
+			'replaced by a finished full sync' => array(
+				array(
+					'context'  => null,
+					'finished' => 1730000500,
+					'progress' => array( 'options' => array( 'finished' => true ) ),
+				),
+				false,
+				true,
+				false,
+			),
+			'replaced by a running full sync'  => array( array( 'context' => null ), true, false, false ),
+			'still running'                    => array( array( 'context' => Lookup_Data_Backfill::FULL_SYNC_CONTEXT ), true, false, false ),
+			'finished, end missed'             => array( $ours, false, false, true ),
+		);
 	}
 }

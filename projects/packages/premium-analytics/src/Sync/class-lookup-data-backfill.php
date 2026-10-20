@@ -105,7 +105,12 @@ class Lookup_Data_Backfill {
 	 * @return void
 	 */
 	public function maybe_schedule(): void {
-		if ( Sync_Status_Tracker::lookup_data_synced() || false !== get_option( self::STATE_OPTION ) ) {
+		if ( Sync_Status_Tracker::lookup_data_synced() ) {
+			return;
+		}
+
+		$state = get_option( self::STATE_OPTION );
+		if ( false !== $state && ! $this->forget_lost_run( $state ) ) {
 			return;
 		}
 
@@ -173,7 +178,40 @@ class Lookup_Data_Backfill {
 
 		if ( $can_retry ) {
 			$this->schedule( time() + self::RETRY_DELAY, $first_attempt );
+			return;
 		}
+
+		// Give up on this run; the next dashboard check schedules a new one.
+		delete_option( self::STATE_OPTION );
+	}
+
+	/**
+	 * Forget a started run whose full sync another one replaced, or settle one whose end the tracker missed.
+	 *
+	 * @param array|mixed $state Stored backfill state.
+	 * @return bool Whether the run was forgotten, so a new one can be scheduled.
+	 */
+	private function forget_lost_run( $state ): bool {
+		if ( ! is_array( $state ) || empty( $state['started_at'] ) ) {
+			return false;
+		}
+
+		$status = $this->get_full_sync_status();
+		if ( self::FULL_SYNC_CONTEXT === ( $status['context'] ?? null ) ) {
+			if ( empty( $status['finished'] ) ) {
+				return false;
+			}
+			if ( true === ( $status['progress']['woocommerce_analytics']['finished'] ?? false ) ) {
+				update_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, (int) $status['finished'] );
+				return false;
+			}
+		} elseif ( $this->is_full_sync_running() ) {
+			// The replacing full sync may include the module; the tracker marks the data synced if so.
+			return false;
+		}
+
+		delete_option( self::STATE_OPTION );
+		return true;
 	}
 
 	/**
@@ -352,6 +390,33 @@ class Lookup_Data_Backfill {
 	}
 
 	/**
+	 * The stored full sync status.
+	 *
+	 * @return array
+	 */
+	protected function get_full_sync_status(): array {
+		$module = Modules::get_module( 'full-sync' );
+		if ( ! $module ) {
+			return array();
+		}
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $module';
+
+		return (array) $module->get_status();
+	}
+
+	/**
+	 * IDs of all products and variations.
+	 *
+	 * @return int[]
+	 */
+	protected function get_product_ids(): array {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Runs once per store, from the backfill action.
+		return array_map( 'intval', $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_type IN ( 'product', 'product_variation' ) ORDER BY ID" ) );
+	}
+
+	/**
 	 * Start the full sync of the order lookup data and the product catalog.
 	 *
 	 * WordPress.com builds its product table from synced product posts and their product_type terms, which it
@@ -359,15 +424,28 @@ class Lookup_Data_Backfill {
 	 *
 	 * @return bool Whether Jetpack started it.
 	 */
-	protected function start_full_sync(): bool {
-		return Actions::do_full_sync(
-			array(
-				'woocommerce_analytics' => true,
-				'terms'                 => true,
-				'term_relationships'    => true,
-				'posts'                 => true,
-			),
-			self::FULL_SYNC_CONTEXT
-		);
+	private function start_full_sync(): bool {
+		$config      = array( 'woocommerce_analytics' => true );
+		$product_ids = $this->get_product_ids();
+		if ( $product_ids ) {
+			// term_relationships can't be limited to IDs; posts can, and only products build the catalog.
+			$config += array(
+				'terms'              => true,
+				'term_relationships' => true,
+				'posts'              => $product_ids,
+			);
+		}
+
+		return $this->do_full_sync( $config );
+	}
+
+	/**
+	 * Start a full sync with the backfill's context.
+	 *
+	 * @param array $config Full sync config by module name.
+	 * @return bool Whether Jetpack started it.
+	 */
+	protected function do_full_sync( array $config ): bool {
+		return Actions::do_full_sync( $config, self::FULL_SYNC_CONTEXT );
 	}
 }

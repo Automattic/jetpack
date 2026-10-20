@@ -156,7 +156,7 @@ class Sync_Status_Tracker {
 				return ! empty( $config[ $module_name ] );
 			}
 		);
-		// An array of IDs is a partial sync, which leaves the other orders without lookup data.
+		// An array config is a date range, a partial sync that leaves the other orders without lookup data.
 		$syncs_lookup_data = ! empty( $config['woocommerce_analytics'] ) && ! is_array( $config['woocommerce_analytics'] );
 		if ( ! $active && ! $syncs_lookup_data ) {
 			return;

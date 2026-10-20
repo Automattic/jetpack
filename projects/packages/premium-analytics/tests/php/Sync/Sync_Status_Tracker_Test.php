@@ -193,7 +193,15 @@ class Sync_Status_Tracker_Test extends TestCase {
 	public static function provide_lookup_data_full_sync_config() {
 		return array(
 			'full analytics sync'    => array( array( 'woocommerce_analytics' => true ), 1730000123 ),
-			'partial analytics sync' => array( array( 'woocommerce_analytics' => array( 1, 2 ) ), 0 ),
+			'partial analytics sync' => array(
+				array(
+					'woocommerce_analytics' => array(
+						'start_date' => '2024-01-01',
+						'end_date'   => '2024-02-01',
+					),
+				),
+				0,
+			),
 			'no analytics module'    => array( array( 'posts' => true ), 0 ),
 		);
 	}
