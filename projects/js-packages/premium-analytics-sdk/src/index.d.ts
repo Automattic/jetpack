@@ -48,10 +48,16 @@ export type WidgetStatus = {
 // renders them in the card footer. Returns whether the host places them.
 export declare function useReportActions( options: ReportActionsOptions ): boolean;
 export type ReportActionsOptions = {
-	// Report id the "View all" link opens, as `/reports/<report>`; none for no link.
+	// Action id of the link; a second call with another id adds a link beside "View all".
+	id?: string;
+	// Report id the link opens, as `/reports/<report>`; none for no link.
 	report?: string;
 	// Report tab the link opens (`?section=`).
 	section?: string;
+	// Link label; "View all" by default.
+	label?: string;
+	// Where the dashboard places the link; `high` (the footer's text action) by default.
+	relevance?: 'high' | 'medium' | 'low';
 	// The linked report's CSV download, offered once the rows settle; none for no download.
 	csv?: {
 		// The report's exporter, or the id of a report the dashboard exports.

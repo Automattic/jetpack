@@ -16,7 +16,7 @@ import {
 import { useWidgetNavigationSearch } from './use-widget-navigation-search';
 import type { ReportCsvExportStatus } from '../components/download-csv/use-report-csv-export';
 import type { ReportCsvExporter } from '../report-exports/types';
-import type { WidgetRuntimeAction } from '@wordpress/widget-primitives';
+import type { WidgetRelevance, WidgetRuntimeAction } from '@wordpress/widget-primitives';
 
 export type ReportCsvActionOptions< TItem, TRow > = {
 	/**
@@ -42,7 +42,12 @@ export type ReportCsvActionOptions< TItem, TRow > = {
 
 export type ReportActionsOptions< TItem, TRow > = {
 	/**
-	 * Report id in the reports registry, e.g. `posts`: "View all" opens `/reports/<report>`.
+	 * Action id. A second call with another id adds a link beside "View all". Defaults to `view-all`.
+	 */
+	id?: string;
+
+	/**
+	 * Report id in the reports registry, e.g. `posts`: the link opens `/reports/<report>`.
 	 */
 	report?: string;
 
@@ -50,6 +55,16 @@ export type ReportActionsOptions< TItem, TRow > = {
 	 * Report tab to open (`?section=`), resolved by the report's own resolver.
 	 */
 	section?: string;
+
+	/**
+	 * Link label. Defaults to "View all".
+	 */
+	label?: string;
+
+	/**
+	 * Where the host places the link. Defaults to `high`, the card footer's text action.
+	 */
+	relevance?: WidgetRelevance;
 
 	/**
 	 * The linked report's CSV download, offered once the widget's rows settle.
@@ -69,15 +84,21 @@ const SETTLED_EMPTY: ReportCsvExportStatus = {
  * places them by relevance, the link as the card footer's text action and the download as its
  * compact one.
  *
- * @param options         - The actions to declare.
- * @param options.report  - Report the "View all" link opens; none for no link.
- * @param options.section - Report tab the link opens.
- * @param options.csv     - The CSV download; none for no download.
+ * @param options           - The actions to declare.
+ * @param options.id        - Action id of the link.
+ * @param options.report    - Report the link opens; none for no link.
+ * @param options.section   - Report tab the link opens.
+ * @param options.label     - Link label.
+ * @param options.relevance - Where the host places the link.
+ * @param options.csv       - The CSV download; none for no download.
  * @return Whether the host places the actions.
  */
 export function useReportActions< TItem, TRow >( {
+	id = 'view-all',
 	report,
 	section,
+	label,
+	relevance = 'high',
 	csv,
 }: ReportActionsOptions< TItem, TRow > ): boolean {
 	const search = useWidgetNavigationSearch( { section } );
@@ -93,9 +114,9 @@ export function useReportActions< TItem, TRow >( {
 
 	if ( report ) {
 		actions.push( {
-			id: 'view-all',
-			label: __( 'View all', 'jetpack-premium-analytics-pkg' ),
-			relevance: 'high',
+			id,
+			label: label ?? __( 'View all', 'jetpack-premium-analytics-pkg' ),
+			relevance,
 			href: buildDashboardHref( `/reports/${ report }`, search ),
 		} );
 	}
