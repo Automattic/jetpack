@@ -3037,6 +3037,59 @@ describe( 'BarChart', () => {
 
 			expect( selectedRingGeometry() ).toEqual( geometryOf( visxBars()[ 1 ] ) );
 		} );
+
+		const renderSlot = ( views: DataPointDate[], visitors: DataPointDate[] ) =>
+			render(
+				<GlobalChartsProvider>
+					<BarChartUnresponsive
+						width={ 400 }
+						height={ 300 }
+						chartId="test-slot"
+						withTooltips
+						renderTooltip={ listTooltipKeys }
+						data={ [
+							{
+								label: 'Views',
+								group: 'current',
+								options: { type: 'comparison' as const },
+								data: views,
+							},
+							{ label: 'Visitors', group: 'current', data: visitors },
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+		it( 'rings a slot whose bars fall on both sides of zero', async () => {
+			const user = userEvent.setup();
+			renderSlot( [ { label: 'Jan', value: 100 } ], [ { label: 'Jan', value: -60 } ] );
+
+			screen.getByRole( 'application', { name: /bar chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			const ring = screen.getByTestId( 'bar-chart-selected-ring' );
+			const bars = [ ...visxBars() ];
+			const start = ( bar: Element ) => Number( bar.getAttribute( 'y' ) );
+			const end = ( bar: Element ) => start( bar ) + Number( bar.getAttribute( 'height' ) );
+			expect( start( ring ) ).toBeCloseTo( Math.min( ...bars.map( start ) ) );
+			expect( end( ring ) ).toBeCloseTo( Math.max( ...bars.map( end ) ) );
+		} );
+
+		it( 'describes only the bars at the selected category', async () => {
+			const user = userEvent.setup();
+			renderSlot(
+				[ { label: 'Feb', value: 80 } ],
+				[
+					{ label: 'Jan', value: 50 },
+					{ label: 'Feb', value: 60 },
+				]
+			);
+
+			screen.getByRole( 'application', { name: /bar chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( /^Visitors$/ );
+		} );
 	} );
 
 	describe( 'Interactive Legend', () => {

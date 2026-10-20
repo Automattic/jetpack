@@ -41,6 +41,8 @@ export interface ChartLegendOptions {
 	comparisonItem?: SeriesChartLegendConfig[ 'comparisonItem' ];
 	/** One static item per comparison series instead; see `SeriesChartLegendConfig`. */
 	comparisonSeriesItems?: SeriesChartLegendConfig[ 'comparisonSeriesItems' ];
+	/** Color each swatch as `BarChart` fills its bar, with a comparison's tint. Off by default. */
+	barColors?: boolean;
 }
 
 /**
@@ -392,6 +394,7 @@ export function useChartLegendItems<
 		collapseGroups = false,
 		comparisonItem = false,
 		comparisonSeriesItems,
+		barColors: withBarColors = false,
 		renderGlyph,
 	} = options;
 	const { getElementStyles, getBarColors } = useGlobalChartsContext();
@@ -404,8 +407,7 @@ export function useChartLegendItems<
 		// Handle SeriesData (multiple series with data points)
 		if ( 'data' in data[ 0 ] ) {
 			const seriesData = data as SeriesData[];
-			// A line swatch takes the line's color, any other shape the bar's.
-			const barColors = legendShape === 'line' ? undefined : getBarColors( seriesData );
+			const barColors = withBarColors ? getBarColors( seriesData ) : undefined;
 			const getSwatchStyles = ( params: GetElementStylesParams ): ElementStyles => {
 				const styles = getElementStyles( params );
 				return barColors ? { ...styles, color: barColors[ params.index ] } : styles;
@@ -471,6 +473,7 @@ export function useChartLegendItems<
 		collapseGroups,
 		comparisonItem,
 		comparisonSeriesItems,
+		withBarColors,
 		renderGlyph,
 		legendShape,
 	] );

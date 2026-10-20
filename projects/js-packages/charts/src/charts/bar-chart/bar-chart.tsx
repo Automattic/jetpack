@@ -68,13 +68,16 @@ type ComparisonSeriesEntry = {
 	primaryIndex: number;
 };
 /**
- * How far a bar reaches from the baseline.
+ * Whether two data points sit at the same category: the same label, or the same date.
  *
- * @param datum - The bar's datum.
- * @return The bar's length in value units.
+ * @param point    - A data point.
+ * @param category - The data point naming the category.
+ * @return Whether `point` is at `category`.
  */
-function reach( datum: DataPointDate ): number {
-	return Math.abs( datum.value ?? 0 );
+function isSameCategory( point: DataPointDate, category: DataPointDate ): boolean {
+	return category.label != null
+		? point.label === category.label
+		: !! category.date && !! point.date && point.date.getTime() === category.date.getTime();
 }
 
 // Composition API types
@@ -184,6 +187,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			collapseGroups: legendCollapseGroups,
 			comparisonItem: legendComparisonItem,
 			comparisonSeriesItems: legendComparisonSeriesItems,
+			barColors: true,
 		} ),
 		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems ]
 	);
@@ -451,12 +455,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			// Find the comparison value paired with the hovered primary series (same group)
 			// at the same category, so the tooltip can show both periods at once.
 			const comparisonEntry = comparisonEntries.find( entry => entry.primaryKey === primaryKey );
-			const comparisonDatum = comparisonEntry?.series.data.find( point => {
-				const p = point as DataPointDate;
-				return nearestDatum.label != null
-					? p.label === nearestDatum.label
-					: !! nearestDatum.date && !! p.date && p.date.getTime() === nearestDatum.date.getTime();
-			} ) as DataPointDate | undefined;
+			const comparisonDatum = ( comparisonEntry?.series.data as DataPointDate[] | undefined )?.find(
+				point => isSameCategory( point, nearestDatum )
+			);
 
 			// With a paired comparison value, show the category as the header and one row
 			// per period (primary + comparison).
@@ -548,27 +549,30 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		}
 
 		const dataPointIndex = Math.floor( selectedIndex / stopCount );
-		const slotKey = slotOf( stop.label );
-		const members = barEntries.map( ( { series } ) => ( {
-			key: series.label,
-			datum: series.data[ dataPointIndex ] as DataPointDate | undefined,
-		} ) );
-		const slotBars = members.filter(
-			( { key, datum } ) => slotOf( key ) === slotKey && datum && isBarRendered( datum )
-		);
-		// The ring goes around the whole slot: as wide as its widest bar, as long as its longest bar.
-		const longest = slotBars.reduce< DataPointDate | undefined >(
-			( best, { datum } ) =>
-				datum && ( ! best || reach( datum ) > reach( best ) ) ? datum : best,
-			undefined
-		);
+		const category = stop.data[ dataPointIndex ] as DataPointDate | undefined;
 
-		if ( ! longest ) {
+		if ( ! category ) {
 			return undefined;
 		}
 
+		const slotKey = slotOf( stop.label );
+		const members = barEntries.flatMap( ( { series } ) => {
+			const datum = ( series.data as DataPointDate[] ).find( point =>
+				isSameCategory( point, category )
+			);
+			return datum ? [ { key: series.label, datum } ] : [];
+		} );
+		const slotBars = members.filter(
+			( { key, datum } ) => slotOf( key ) === slotKey && isBarRendered( datum )
+		);
+
+		if ( ! slotBars.length ) {
+			return undefined;
+		}
+
+		// The ring goes around the whole slot: as wide as its widest bar, and across every bar's length.
 		return {
-			datum: longest,
+			data: slotBars.map( ( { datum } ) => datum ),
 			slotKey,
 			thickness: Math.max( ...slotBars.map( ( { key } ) => thicknessOf( key ) ) ),
 			index: dataPointIndex,

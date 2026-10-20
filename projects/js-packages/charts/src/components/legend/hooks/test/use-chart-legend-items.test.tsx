@@ -305,6 +305,23 @@ describe( 'useChartLegendItems', () => {
 			expect( result.current[ 1 ].color ).toBe( result.current[ 0 ].color );
 		} );
 
+		test.each( [
+			[ 'keeps its series color', {}, true ],
+			[ 'takes the bar tint with barColors', { barColors: true }, false ],
+		] )( 'a comparison swatch %s', ( _case, options, matchesPrimary ) => {
+			const { result } = renderHook(
+				() =>
+					useChartLegendItems( comparisonData, {
+						collapseGroups: true,
+						comparisonItem: true,
+						...options,
+					} ),
+				{ wrapper }
+			);
+
+			expect( result.current[ 1 ].color === result.current[ 0 ].color ).toBe( matchesPrimary );
+		} );
+
 		test( 'uses a string option as the label', () => {
 			const { result } = renderHook(
 				() =>
@@ -409,7 +426,12 @@ describe( 'useChartLegendItems', () => {
 			];
 
 			const { result } = renderHook(
-				() => useChartLegendItems( pairedData, { collapseGroups: true, comparisonItem: true } ),
+				() =>
+					useChartLegendItems( pairedData, {
+						collapseGroups: true,
+						comparisonItem: true,
+						barColors: true,
+					} ),
 				{ wrapper }
 			);
 

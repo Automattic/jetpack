@@ -10,7 +10,8 @@ import type { FC } from 'react';
 
 /** The bar the keyboard has selected. */
 export type SelectedBar = {
-	datum: DataPointDate;
+	/** The data of the bars the slot draws at the selected category, which the ring encloses. */
+	data: DataPointDate[];
 	/** The slot the bar sits in. */
 	slotKey: string;
 	/** The bar's thickness as a share of its slot. */
@@ -46,35 +47,35 @@ export const SelectedBarRing: FC< {
 	const bandScale = ( horizontal ? context?.yScale : context?.xScale ) as AnyScale | undefined;
 	const valueScale = ( horizontal ? context?.xScale : context?.yScale ) as AnyScale | undefined;
 	const bandwidth = bandScale?.bandwidth?.() ?? 0;
+	const [ category ] = selected.data;
 
-	if ( ! bandScale || ! valueScale || ! bandwidth ) {
+	if ( ! bandScale || ! valueScale || ! bandwidth || ! category ) {
 		return null;
 	}
 
 	const groupScale = createGroupScale( slotKeys, bandwidth, groupPadding );
 	const slotOffset = groupScale( selected.slotKey );
 	const bandPosition = Number(
-		bandScale( ( horizontal ? yAccessor : xAccessor )( selected.datum ) as never )
+		bandScale( ( horizontal ? yAccessor : xAccessor )( category ) as never )
 	);
-	const valuePosition = Number(
-		valueScale( Number( ( horizontal ? xAccessor : yAccessor )( selected.datum ) ) as never )
-	);
+	const valuePositions = selected.data
+		.map( datum =>
+			Number( valueScale( Number( ( horizontal ? xAccessor : yAccessor )( datum ) ) as never ) )
+		)
+		.filter( Number.isFinite );
 
-	if (
-		slotOffset == null ||
-		! Number.isFinite( bandPosition ) ||
-		! Number.isFinite( valuePosition )
-	) {
+	if ( slotOffset == null || ! Number.isFinite( bandPosition ) || ! valuePositions.length ) {
 		return null;
 	}
 
+	const baseline = getValueScaleBaseline( valueScale );
 	const rect = computeComparisonRect( {
 		horizontal,
 		bandPosition,
 		slotOffset,
 		slotThickness: groupScale.bandwidth(),
-		valuePosition,
-		baseline: getValueScaleBaseline( valueScale ),
+		valuePosition: Math.min( baseline, ...valuePositions ),
+		baseline: Math.max( baseline, ...valuePositions ),
 		widthFactor: selected.thickness,
 	} );
 	const clipId = `bar-selected-ring-clip-${ toSvgId( chartId ) }`;
