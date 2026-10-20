@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 // @codeCoverageIgnoreStart -- shadowed by the test stub in tests/lib/functions-wordpress.php.
 if ( ! function_exists( 'wpcom_themes_get_purchases' ) ) {
@@ -118,6 +119,8 @@ function wpcom_themes_tab_enqueue_script() {
 		array(),
 		(string) filemtime( __DIR__ . '/css/themes-tab.css' )
 	);
+
+	Common\wpcom_enqueue_tracking_scripts( jetpack_mu_wpcom_enqueue_assets( 'wpcom-themes-tab-tracks', array( 'js' ) ) );
 }
 add_action( 'load-theme-install.php', 'wpcom_themes_tab_enqueue_script' );
 

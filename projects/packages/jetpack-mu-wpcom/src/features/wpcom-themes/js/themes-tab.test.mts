@@ -55,6 +55,7 @@ it( 'adds the tab as the first filter link', () => {
 		document: {
 			querySelector: () => list,
 			createElement: node,
+			addEventListener: () => {},
 		},
 		window: { wpcomThemesTab: config },
 		wpcomThemesTab: config,
@@ -92,7 +93,7 @@ it( "offers the plan a theme needs in place of core's install button", () => {
 		upgradeLabel: 'Upgrade for %s',
 	};
 	const context = {
-		document: { querySelector: () => null, createElement: node },
+		document: { querySelector: () => null, createElement: node, addEventListener: () => {} },
 		window: { wpcomThemesTab: config, wp: { themes: { view: { Theme } } } },
 		wpcomThemesTab: config,
 	};
@@ -144,7 +145,7 @@ it( 'names the plan beside the author in the theme preview', () => {
 		upgradeLabel: 'Upgrade for %s',
 	};
 	const context = {
-		document: { querySelector: () => null, createElement: node },
+		document: { querySelector: () => null, createElement: node, addEventListener: () => {} },
 		window: {
 			wpcomThemesTab: config,
 			wp: { themes: { view: { Theme: { prototype: { render: () => undefined } }, Preview } } },
@@ -180,7 +181,7 @@ it( 'badges a theme the plan includes without taking its install away', () => {
 		upgradeLabel: 'Upgrade for %s',
 	};
 	const context = {
-		document: { querySelector: () => null, createElement: node },
+		document: { querySelector: () => null, createElement: node, addEventListener: () => {} },
 		window: { wpcomThemesTab: config, wp: { themes: { view: { Theme } } } },
 		wpcomThemesTab: config,
 	};
@@ -220,7 +221,7 @@ async function priceCard( theme: Record< string, string >, fetch: () => Promise<
 		priceWithPlan: '%1$s/mo, billed annually + %2$s',
 	};
 	const context = {
-		document: { querySelector: () => null, createElement: node },
+		document: { querySelector: () => null, createElement: node, addEventListener: () => {} },
 		window: { wpcomThemesTab: config, wp: { themes: { view: { Theme } } } },
 		wpcomThemesTab: config,
 		fetch,
@@ -314,7 +315,7 @@ it( 'leaves a theme from WordPress.org to core', () => {
 		upgradeLabel: 'Upgrade for %s',
 	};
 	const context = {
-		document: { querySelector: () => null, createElement: node },
+		document: { querySelector: () => null, createElement: node, addEventListener: () => {} },
 		window: { wpcomThemesTab: config, wp: { themes: { view: { Theme } } } },
 		wpcomThemesTab: config,
 	};
@@ -325,4 +326,91 @@ it( 'leaves a theme from WordPress.org to core', () => {
 	Theme.prototype.render.call( { el: card, model: { toJSON: () => ( { slug: 'ury' } ) } } );
 
 	assert.equal( asked, false );
+} );
+
+/**
+ * Loads the script with the hooks the origin marker uses, then renders themes through its decorator.
+ *
+ * @return The captured hooks and a way to render a theme as the tab, or as another tab, would.
+ */
+function markerPage() {
+	type Prefilter = ( options: { data?: unknown } ) => void;
+	type Listener = ( event: { target: unknown } ) => void;
+
+	let prefilter: Prefilter | undefined;
+	const listeners: Record< string, Listener > = {};
+	const Theme = { prototype: { render: () => undefined } };
+	const config = { sort: 'wpcom', label: 'Marketplace' };
+	const context = {
+		URL,
+		URLSearchParams,
+		document: {
+			querySelector: () => null,
+			createElement: node,
+			addEventListener: ( type: string, handler: Listener ) => ( listeners[ type ] = handler ),
+		},
+		window: {
+			wpcomThemesTab: config,
+			location: { href: 'https://example.org/wp-admin/theme-install.php' },
+			jQuery: { ajaxPrefilter: ( handler: Prefilter ) => ( prefilter = handler ) },
+			wp: { themes: { view: { Theme } } },
+		},
+		wpcomThemesTab: config,
+	};
+	const file = new URL( './themes-tab.js', import.meta.url ).pathname;
+	vm.createContext( context );
+	new vm.Script( readFileSync( file, 'utf8' ), { filename: file } ).runInContext( context );
+
+	return {
+		render: ( theme: Record< string, unknown > ) =>
+			Theme.prototype.render.call( { el: node( 'div' ), model: { toJSON: () => theme } } ),
+		install: ( data: string ) => {
+			const options = { data };
+			prefilter?.( options );
+			return options.data;
+		},
+		activate: ( type: string, stylesheet: string ) => {
+			const link = {
+				href: `https://example.org/wp-admin/themes.php?action=activate&stylesheet=${ stylesheet }&_wpnonce=x`,
+			};
+			listeners[ type ]?.( { target: { closest: () => link } } );
+			return new URL( link.href ).searchParams.get( 'wpcom_themes_origin' );
+		},
+	};
+}
+
+it( 'marks an install of a theme the tab listed', () => {
+	const page = markerPage();
+	page.render( { slug: 'organic-stax', wpcom_marketplace_tab: true } );
+
+	assert.equal(
+		page.install( 'action=install-theme&slug=organic-stax' ),
+		'action=install-theme&slug=organic-stax&wpcom_themes_origin=marketplace-tab'
+	);
+	assert.equal(
+		page.install( 'action=install-theme&slug=other' ),
+		'action=install-theme&slug=other'
+	);
+} );
+
+it( 'marks Activate for a theme the tab listed, however it is opened', () => {
+	const page = markerPage();
+	page.render( { slug: 'organic-stax', wpcom_marketplace_tab: true } );
+	page.render( { slug: 'other' } );
+
+	assert.equal( page.activate( 'click', 'organic-stax' ), 'marketplace-tab' );
+	assert.equal( page.activate( 'auxclick', 'organic-stax' ), 'marketplace-tab' );
+	assert.equal( page.activate( 'click', 'other' ), null );
+} );
+
+it( 'stops marking a theme once it renders outside the tab', () => {
+	const page = markerPage();
+	page.render( { slug: 'organic-stax', wpcom_marketplace_tab: true } );
+	page.render( { slug: 'organic-stax' } );
+
+	assert.equal(
+		page.install( 'action=install-theme&slug=organic-stax' ),
+		'action=install-theme&slug=organic-stax'
+	);
+	assert.equal( page.activate( 'click', 'organic-stax' ), null );
 } );

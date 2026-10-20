@@ -167,6 +167,67 @@
 		badge( el, theme );
 	};
 
+	const ORIGIN_PARAM = 'wpcom_themes_origin';
+	const ORIGIN = 'marketplace-tab';
+
+	// Core switches filters without reloading, so the latest render says where a theme is listed.
+	const tabSlugs = new Set();
+
+	/**
+	 * Remembers whether the tab, rather than another filter, last listed this theme.
+	 *
+	 * @param {object} theme - The theme being rendered.
+	 * @return {void}
+	 */
+	const noteOrigin = theme => {
+		if ( ! theme.slug ) {
+			return;
+		}
+
+		if ( theme.wpcom_marketplace_tab ) {
+			tabSlugs.add( theme.slug );
+		} else {
+			tabSlugs.delete( theme.slug );
+		}
+	};
+
+	if ( window.jQuery && window.jQuery.ajaxPrefilter ) {
+		window.jQuery.ajaxPrefilter( options => {
+			if ( typeof options.data !== 'string' ) {
+				return;
+			}
+
+			const params = new URLSearchParams( options.data );
+			if ( params.get( 'action' ) === 'install-theme' && tabSlugs.has( params.get( 'slug' ) ) ) {
+				options.data += `&${ ORIGIN_PARAM }=${ ORIGIN }`;
+			}
+		} );
+	}
+
+	// Capture phase, so the marker is on the link before default handling, whichever button opens it.
+	[ 'click', 'auxclick' ].forEach( type =>
+		document.addEventListener(
+			type,
+			event => {
+				const link = event.target.closest && event.target.closest( 'a[href]' );
+				if ( ! link ) {
+					return;
+				}
+
+				const url = new URL( link.href, window.location.href );
+				if (
+					url.pathname.endsWith( '/themes.php' ) &&
+					url.searchParams.get( 'action' ) === 'activate' &&
+					tabSlugs.has( url.searchParams.get( 'stylesheet' ) )
+				) {
+					url.searchParams.set( ORIGIN_PARAM, ORIGIN );
+					link.href = url.href;
+				}
+			},
+			true
+		)
+	);
+
 	/**
 	 * Decorates what a core view renders, leaving its own markup to core.
 	 *
@@ -180,7 +241,9 @@
 			const result = render.apply( this, arguments );
 			// A throw here would take the whole grid with it, so a view without a model is left alone.
 			if ( this.model ) {
-				decorate( this.el, this.model.toJSON() );
+				const theme = this.model.toJSON();
+				noteOrigin( theme );
+				decorate( this.el, theme );
 			}
 			return result;
 		};
