@@ -46,7 +46,7 @@ class Init_Ownership_Test extends TestCase {
 		);
 
 		$this->assertTrue( Cookie_Consent::is_initialized() );
-		$active = Cookie_Consent::get_active_config();
+		$active = Cookie_Consent::get_active_config() ?? array();
 		$this->assertSame( array( 'enabled', 'features' ), array_keys( $active ) );
 		$this->assertTrue( $active['enabled'] );
 		$this->assertFalse( $active['features']['geo'] );
@@ -57,7 +57,7 @@ class Init_Ownership_Test extends TestCase {
 		Cookie_Consent::init( array( 'features' => array( 'geo' => false ) ) );
 		Cookie_Consent::init( array( 'features' => array( 'geo' => true ) ) );
 
-		$active = Cookie_Consent::get_active_config();
+		$active = Cookie_Consent::get_active_config() ?? array();
 		$this->assertIsArray( $active );
 		$this->assertFalse( $active['features']['geo'] );
 		$this->assertFalse( Cookie_Consent::get_config()['features']['geo'] );
@@ -81,7 +81,7 @@ class Init_Ownership_Test extends TestCase {
 		Cookie_Consent::init( array( 'event_prefix' => 'second_consumer' ) );
 
 		$this->assertTrue( Cookie_Consent::is_initialized() );
-		$active = Cookie_Consent::get_active_config();
+		$active = Cookie_Consent::get_active_config() ?? array();
 		$this->assertIsArray( $active );
 		$this->assertTrue( $active['enabled'] );
 		$this->assertSame( 'second_consumer', Cookie_Consent::get_config()['event_prefix'] );
@@ -203,6 +203,7 @@ class Init_Ownership_Test extends TestCase {
 	public function test_init_after_a_throwing_config_filter_still_boots() {
 		add_filter(
 			'jetpack_cookie_consent_config',
+			/** @return never */
 			static function () {
 				throw new \RuntimeException( 'filter failed' );
 			}
