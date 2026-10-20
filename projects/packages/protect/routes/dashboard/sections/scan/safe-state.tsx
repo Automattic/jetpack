@@ -32,7 +32,7 @@ const PARTICLES = Array.from( { length: 12 }, ( _, i ) => {
  */
 export const SafeShield = ( { justScanned = false }: { justScanned?: boolean } ) => (
 	<svg
-		className="jp-protect-safe__shield"
+		className={ `jp-protect-safe__shield${ justScanned ? ' is-bursting' : '' }` }
 		width="80"
 		height="98"
 		viewBox="0 0 123 150"

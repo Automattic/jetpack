@@ -89,11 +89,11 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	const [ finishedScans, setFinishedScans ] = useState( 0 );
 	const wasScanning = useRef( isScanning );
 	useEffect( () => {
-		if ( wasScanning.current && ! isScanning ) {
+		if ( wasScanning.current && ! isScanning && ! scan.error ) {
 			setFinishedScans( count => count + 1 );
 		}
 		wasScanning.current = isScanning;
-	}, [ isScanning ] );
+	}, [ isScanning, scan.error ] );
 
 	// Ignored threats come from Scan history, which only a Scan plan has.
 	useEffect( () => {
@@ -160,6 +160,16 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 		);
 	}
 
+	const safeState = (
+		<SafeState
+			key={ finishedScans }
+			scan={ scan }
+			isStarting={ isStarting }
+			onScan={ startScan }
+			justScanned={ finishedScans > 0 }
+		/>
+	);
+
 	let body;
 	if ( scan.error ) {
 		body = (
@@ -178,17 +188,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			</CardRow>
 		);
 	} else if ( ! hasThreats ) {
-		body = (
-			<CardRow>
-				<SafeState
-					key={ finishedScans }
-					scan={ scan }
-					isStarting={ isStarting }
-					onScan={ startScan }
-					justScanned={ finishedScans > 0 }
-				/>
-			</CardRow>
-		);
+		body = <CardRow>{ safeState }</CardRow>;
 	} else {
 		body = (
 			<>
@@ -210,19 +210,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 					</CardRow>
 				) }
 				<CardRow className="jp-protect-card__threats">
-					<ThreatsList
-						threats={ threats }
-						canAct={ hasPlan }
-						empty={
-							<SafeState
-								key={ finishedScans }
-								scan={ scan }
-								isStarting={ isStarting }
-								onScan={ startScan }
-								justScanned={ finishedScans > 0 }
-							/>
-						}
-					/>
+					<ThreatsList threats={ threats } canAct={ hasPlan } empty={ safeState } />
 				</CardRow>
 			</>
 		);

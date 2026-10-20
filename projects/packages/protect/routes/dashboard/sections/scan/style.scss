@@ -92,9 +92,6 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 		transform-origin: center;
 	}
 
-	&__particle {
-		opacity: 0;
-	}
 
 	// Page load: a quiet settle. A scan finished on this page bursts instead.
 	&__badge {
@@ -105,17 +102,19 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 		animation: jp-protect-safe-reveal var(--wpds-motion-duration-md) var(--wpds-motion-easing-expressive) 150ms both;
 	}
 
-	&.is-celebrating &__badge {
+	&__shield.is-bursting &__badge {
 		animation:
 			jp-protect-safe-pop $jp-protect-spring-duration $jp-protect-spring both,
 			jp-protect-safe-fade var(--wpds-motion-duration-md) var(--wpds-motion-easing-expressive) both;
 	}
 
-	&.is-celebrating &__check {
+	&__shield.is-bursting &__check {
 		animation: jp-protect-safe-reveal 250ms var(--wpds-motion-easing-expressive) 180ms both;
 	}
 
-	&.is-celebrating &__particle {
+	// Only rendered for a burst.
+	&__particle {
+		opacity: 0;
 		animation:
 			jp-protect-safe-burst 700ms var(--wpds-motion-easing-expressive) 120ms both,
 			jp-protect-safe-burst-fade 700ms linear 120ms forwards;
@@ -140,20 +139,14 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 	// Reduced motion: a fade, without movement or particles.
 	@media (prefers-reduced-motion: reduce) {
 
-		&__badge {
-			animation: jp-protect-safe-fade var(--wpds-motion-duration-md) ease both;
-		}
-
-		&__check {
-			animation: none;
-		}
-
-		&.is-celebrating &__badge,
+		&__badge,
+		&__shield.is-bursting &__badge,
 		&.is-celebrating > :nth-child(n + 2) {
 			animation: jp-protect-safe-fade var(--wpds-motion-duration-md) ease both;
 		}
 
-		&.is-celebrating &__check {
+		&__check,
+		&__shield.is-bursting &__check {
 			animation: none;
 		}
 
