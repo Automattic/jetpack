@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Activity_Log;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use function add_query_arg;
 use function admin_url;
 use function esc_url_raw;
@@ -44,7 +43,7 @@ class Initial_State {
 			'title'              => 'Jetpack Security',
 			'wpcom_product_slug' => 'jetpack_security_t1_yearly',
 		);
-		if ( ! ( new Host() )->is_wpcom_platform() && method_exists( My_Jetpack_Products::class, 'get_bundle_offer' ) ) {
+		if ( ! $is_wpcom_simple && method_exists( My_Jetpack_Products::class, 'get_bundle_offer' ) ) {
 			$upgrade = My_Jetpack_Products::get_bundle_offer( 'security' );
 		}
 
