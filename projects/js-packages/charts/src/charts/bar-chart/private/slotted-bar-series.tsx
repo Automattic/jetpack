@@ -2,7 +2,7 @@ import { DataContext, GlyphSeries } from '@visx/xychart';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { createGroupScale } from './band-scale';
-import { getValueScaleBaseline } from './comparison-bars-geometry';
+import { computeSlotRect, getValueScaleBaseline } from './comparison-bars-geometry';
 import type { BandScale } from './band-scale';
 import type { DataPointDate } from '../../../types';
 import type { BarChartProps } from '../types';
@@ -47,21 +47,20 @@ const SlottedBarSeries = ( {
 			const baseline = getValueScaleBaseline(
 				valueScale as Parameters< typeof getValueScaleBaseline >[ 0 ]
 			);
-			const slotThickness = groupScale.bandwidth();
-			const barThickness = slotThickness * thickness;
-			const position =
-				Number( bandScale( ( horizontal ? props.yAccessor : props.xAccessor )( datum ) ) ) +
-				( groupScale( slotKey ) ?? 0 ) +
-				( slotThickness - barThickness ) / 2;
-			const value = horizontal ? x : y;
+			const rect = computeSlotRect( {
+				horizontal: !! horizontal,
+				bandPosition: Number(
+					bandScale( ( horizontal ? props.yAccessor : props.xAccessor )( datum ) )
+				),
+				slotOffset: groupScale( slotKey ) ?? 0,
+				slotThickness: groupScale.bandwidth(),
+				valuePositions: [ baseline, horizontal ? x : y ],
+				widthFactor: thickness,
+			} );
 			return (
 				<rect
+					{ ...rect }
 					className={ clsx( 'visx-bar', barClassName?.( datum ) ) }
-					// Same arithmetic as visx BaseBarGroup, so rounding matches the bars it draws.
-					x={ horizontal ? baseline + Math.min( 0, value - baseline ) : position }
-					y={ horizontal ? position : baseline + Math.min( 0, value - baseline ) }
-					width={ horizontal ? Math.abs( value - baseline ) : barThickness }
-					height={ horizontal ? barThickness : Math.abs( value - baseline ) }
 					fill={ color }
 				/>
 			);
