@@ -28,15 +28,10 @@
 	&,
 	&:focus {
 		border: 0 !important;
-		box-shadow: none !important;
-		outline: none !important;
-	}
-
-	// The fill goes to the box instead, read by matchFill() with this lifted.
-	&:not(.is-reading-fill),
-	&:not(.is-reading-fill):focus {
 		background: transparent !important;
+		box-shadow: none !important;
 		color: inherit;
+		outline: none !important;
 	}
 }
 

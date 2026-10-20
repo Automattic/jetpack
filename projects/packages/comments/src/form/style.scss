@@ -17,15 +17,12 @@ div.jetpack-comments:where(.is-mounted) div:where(:not(.components-popover, .com
 	padding: 0;
 }
 
-// One box around the textarea and the submit row, in the post's own colours or
-// the theme's textarea fill. Nested to outrank a block theme's rules.
+// One box around the textarea and the submit row, in the post's own colours.
+// Nested to outrank a block theme's rules.
 .jetpack-comments .jetpack-comments__box {
 	position: relative;
 	border: 2px solid currentColor;
 	overflow-anchor: none;
-	// From matchFill(). An unset ink is invalid, so the colour inherits as before.
-	background: var(--jetpack-comments-fill, transparent);
-	color: var(--jetpack-comments-ink);
 }
 
 .jetpack-comments__visually-hidden {
