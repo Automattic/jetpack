@@ -41,7 +41,11 @@ domReady( () => {
 	}
 
 	function getFocusableElements() {
-		return wp.dom.focus.tabbable.find( dialog );
+		return Array.from(
+			dialog.querySelectorAll(
+				'a[href], area[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), iframe, summary, [contenteditable="true"], [tabindex]:not([tabindex="-1"])'
+			)
+		).filter( element => element.getClientRects().length > 0 );
 	}
 
 	// The page behind stays in the tab order, so wrap Tab and Shift+Tab at the dialog's edges.
@@ -141,7 +145,15 @@ domReady( () => {
 		dialog.focus();
 		// The dialog is still hidden at the start of its fade-in, so focus can fail until that ends.
 		if ( document.activeElement !== dialog ) {
-			dialog.addEventListener( 'transitionend', () => dialog.focus(), { once: true } );
+			dialog.addEventListener(
+				'transitionend',
+				() => {
+					if ( modal.classList.contains( 'open' ) && ! dialog.contains( document.activeElement ) ) {
+						dialog.focus();
+					}
+				},
+				{ once: true }
+			);
 		}
 		window.addEventListener( 'keydown', closeModalOnEscapeKeydown );
 		window.addEventListener( 'click', closeOnWindowClick );

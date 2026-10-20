@@ -28,20 +28,21 @@ const pressTab = ( shiftKey = false ) =>
 	);
 
 describe( 'Subscribe pop-up', () => {
+	let windowListeners = [];
+
 	beforeEach( () => {
 		jest.useFakeTimers();
 		window.localStorage.clear();
-		// jsdom has no layout, so @wordpress/dom would see every element as hidden; the live check covers that.
-		global.wp = {
-			domReady: callback => callback(),
-			dom: {
-				focus: {
-					tabbable: {
-						find: element => Array.from( element.querySelectorAll( 'a[href], button, input' ) ),
-					},
-				},
-			},
-		};
+		global.wp = { domReady: callback => callback() };
+		// jsdom has no layout, so report every element as visible; the live check covers hidden ones.
+		jest.spyOn( Element.prototype, 'getClientRects' ).mockReturnValue( [ {} ] );
+		// Each test loads the script again, so drop the window listeners the last copy added.
+		windowListeners = [];
+		const addEventListener = window.addEventListener.bind( window );
+		jest.spyOn( window, 'addEventListener' ).mockImplementation( ( ...args ) => {
+			windowListeners.push( args );
+			addEventListener( ...args );
+		} );
 		global.Jetpack_Subscriptions = {
 			modalLoadTime: 0,
 			modalScrollThreshold: 50,
@@ -52,6 +53,8 @@ describe( 'Subscribe pop-up', () => {
 	} );
 
 	afterEach( () => {
+		windowListeners.forEach( args => window.removeEventListener( ...args ) );
+		jest.restoreAllMocks();
 		jest.useRealTimers();
 	} );
 
@@ -94,7 +97,16 @@ describe( 'Subscribe pop-up', () => {
 		expect( close ).toHaveFocus();
 	} );
 
-	it( 'gives focus back when it closes with Escape', () => {
+	it( 'wraps Shift+Tab from the dialog itself to its last control', () => {
+		loadModalScript();
+		const close = document.querySelector( '.jetpack-subscribe-modal__close' );
+
+		pressTab( true );
+
+		expect( close ).toHaveFocus();
+	} );
+
+	it( 'gives focus back to the page when it closes with Escape', () => {
 		loadModalScript();
 		const dialog = document.querySelector( '.jetpack-subscribe-modal__modal-content' );
 
@@ -102,5 +114,6 @@ describe( 'Subscribe pop-up', () => {
 
 		expect( document.querySelector( '.jetpack-subscribe-modal' ) ).not.toHaveClass( 'open' );
 		expect( dialog ).not.toContainElement( document.activeElement );
+		expect( document.body ).toHaveFocus();
 	} );
 } );
