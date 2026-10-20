@@ -391,7 +391,7 @@ export const runFeatureAction =
 				failed ? dispatch.reread( 'status' ) : undefined,
 				// A pending save's response brings fresh settings, and this read could land after it.
 				select.getPendingWrites( 'setting' ) > 0 ? undefined : dispatch.reread( 'settings' ),
-				// Services only read while Sharing configures (see `useServices()`), and a pending services save brings fresh lists.
+				// Services can only be read while Sharing configures (see `useServices()`); a pending services save brings fresh lists.
 				! failed &&
 				!! sharing &&
 				configures( sharing ) &&
