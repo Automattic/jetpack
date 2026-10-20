@@ -553,9 +553,15 @@ class Block_Editor {
 				continue;
 			}
 
-			foreach ( $handler( $block, $render, $context ) as $kept_block ) {
-				$inner                      = $kept_block['innerBlocks'];
-				$content                    = $kept_block['innerContent'];
+			$returned = $handler( $block, $render, $context );
+
+			if ( ! is_array( $returned ) ) {
+				continue;
+			}
+
+			foreach ( $returned as $kept_block ) {
+				$inner                      = $kept_block['innerBlocks'] ?? array();
+				$content                    = $kept_block['innerContent'] ?? array();
 				$kept_block['innerBlocks']  = array();
 				$kept_block['innerContent'] = array();
 
