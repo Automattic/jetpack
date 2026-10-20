@@ -1,3 +1,4 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { getBlogId } from './site';
 import type { SubscribersFilter, SubscribersSortField } from '../data/types';
@@ -118,13 +119,17 @@ function writeViewToUrl( view: View ): URLSearchParams {
 }
 
 /**
- * Per-site `localStorage` key for the remembered page size. Scoped to the blog so an admin who
- * manages several sites in one browser keeps a separate choice for each.
+ * `localStorage` key for the remembered page size, per site and per user, or null when either id
+ * is unknown (so nothing is shared across sites or people using one browser).
  *
- * @return Storage key.
+ * @return Storage key, or null.
  */
-function perPageStorageKey(): string {
-	return `jetpack-newsletter:subscribers-per-page:${ getBlogId() ?? 'default' }`;
+function perPageStorageKey(): string | null {
+	const blogId = getBlogId();
+	const userId = getScriptData()?.user?.current_user?.id;
+	return blogId && userId
+		? `jetpack-newsletter:subscribers-per-page:${ blogId }:${ userId }`
+		: null;
 }
 
 /**
@@ -133,8 +138,12 @@ function perPageStorageKey(): string {
  * @return Remembered page size, or undefined.
  */
 function readSavedPerPage(): number | undefined {
+	const key = perPageStorageKey();
+	if ( ! key ) {
+		return undefined;
+	}
 	try {
-		const saved = Number( window.localStorage.getItem( perPageStorageKey() ) );
+		const saved = Number( window.localStorage.getItem( key ) );
 		return Number.isFinite( saved ) && saved > 0 ? saved : undefined;
 	} catch {
 		// localStorage can be unavailable (privacy mode, blocked storage).
@@ -148,10 +157,12 @@ function readSavedPerPage(): number | undefined {
  * @param perPage - Page size to remember.
  */
 function savePerPage( perPage: number | undefined ): void {
+	const key = perPageStorageKey();
+	if ( ! key || ! perPage ) {
+		return;
+	}
 	try {
-		if ( perPage ) {
-			window.localStorage.setItem( perPageStorageKey(), String( perPage ) );
-		}
+		window.localStorage.setItem( key, String( perPage ) );
 	} catch {
 		// localStorage can be unavailable or full; the URL still carries the choice.
 	}
@@ -160,7 +171,7 @@ function savePerPage( perPage: number | undefined ): void {
 /**
  * View-state hook with URL persistence. Initializes from `window.location.search` (so back/forward
  * and bookmarks restore the table state) and keeps the URL in sync via `history.replaceState`.
- * The page size is also remembered per site, so a fresh visit without `pp` keeps the last choice.
+ * The page size is also remembered per site and user, so a fresh visit without `pp` keeps the last choice.
  *
  * @param defaultView - Fallback view when the URL has no relevant params.
  * @return Tuple of `[view, setView]`, mirroring `useState`.

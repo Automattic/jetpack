@@ -1,9 +1,11 @@
+import { getSiteData } from '@automattic/jetpack-script-data';
 import { act, renderHook } from '@testing-library/react';
 import { useViewState } from '../_inc/subscribers/lib/use-view-state';
 import type { View } from '@wordpress/dataviews';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getSiteData: jest.fn( () => ( { wpcom: { blog_id: 123 } } ) ),
+	getScriptData: jest.fn( () => ( { user: { current_user: { id: 1 } } } ) ),
 } ) );
 
 const defaultView: View = { type: 'table', page: 1, perPage: 20 };
@@ -47,6 +49,15 @@ describe( 'useViewState', () => {
 		const { result: laterVisit } = openPage( '?page=jetpack-newsletter' );
 
 		expect( laterVisit.current[ 0 ].perPage ).toBe( 50 );
+	} );
+
+	it( 'remembers nothing when the site has no WordPress.com id', () => {
+		jest.mocked( getSiteData ).mockReturnValue( { wpcom: { blog_id: 0 } } as never );
+		const { result: firstVisit, unmount } = openPage( '?page=jetpack-newsletter' );
+		act( () => firstVisit.current[ 1 ]( { ...firstVisit.current[ 0 ], perPage: 50 } ) );
+		unmount();
+
+		expect( window.localStorage ).toHaveLength( 0 );
 	} );
 
 	it( 'uses the default page size when nothing is remembered', () => {
