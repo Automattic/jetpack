@@ -89,7 +89,9 @@ export const shouldShowCompactStatsCard = (
 const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 	const { showFullJetpackStatsCard = false, overviewV1 = false } =
 		getMyJetpackWindowInitialState( 'myJetpackFlags' );
-	const placeholders = Array.from( { length: overviewV1 ? 9 - OVERVIEW_V1_SLUGS.length : 9 } );
+	const loadingPlaceholders = Array.from( {
+		length: overviewV1 ? 9 - OVERVIEW_V1_SLUGS.length : 9,
+	} );
 	const { userIsAdmin = false, canUserViewStats = false } = getMyJetpackWindowInitialState();
 	const { detail: statsDetail } = useProduct( PRODUCT_SLUGS.STATS );
 	const statsStatus = statsDetail?.status;
@@ -164,7 +166,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 				horizontalGap={ 3 }
 			>
 				{ isLoading ? (
-					placeholders.map( ( _, index ) => (
+					loadingPlaceholders.map( ( _, index ) => (
 						<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ index }>
 							<LoadingBlock width="100%" height="200px" />
 						</Col>
