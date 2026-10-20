@@ -70,6 +70,8 @@ type ChartProps = {
 	legendInteractive?: boolean;
 	comparisonLabel?: string;
 	baseline?: 'zero' | 'padded';
+	overlayGroup?: string;
+	previousStrokes?: Record< string, string >;
 	onPointerDown?: ( params: PointerParams ) => void;
 	onPointerUp?: ( params: PointerParams ) => void;
 	onDatumActivate?: ( params: { datum: unknown } ) => void;
@@ -297,12 +299,12 @@ describe( 'MetricTabsChart', () => {
 		}
 	} );
 
-	it( 'omits the transparent gradient for bars, which would erase the shadow bar', () => {
+	it( 'omits the transparent gradient for bars, which would erase the previous-period bar', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
 
 		// The line chart suppresses its own area fill so only the current period
-		// is filled; a bar's fill *is* the shadow, so it must not be zeroed out.
+		// is filled; a bar's fill *is* the bar, so it must not be zeroed out.
 		expect( recordedSeries( mockLineSpy )[ 1 ].options?.gradient ).toEqual( {
 			from: 'transparent',
 			to: 'transparent',
@@ -662,14 +664,12 @@ describe( 'MetricTabsChart', () => {
 	} );
 
 	it.each( [
-		[ 'line', mockLineSpy ],
-		[ 'bar', mockBarSpy ],
+		[ 'line', mockLineSpy, [ '#3858E9', '#1c2c75' ], [ '#3858E9', '#1c2c75' ] ],
+		[ 'bar', mockBarSpy, [ undefined, '#3858E9' ], [ '#3858E9', undefined ] ],
 	] as const )(
-		'draws the selected metric in the accent and its counterpart in a dark shade, previous periods included (%s)',
-		async ( chartType, spy ) => {
-			const accent = '#3858E9';
-			const darkShade = '#1c2c75';
-			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? accent : '#5AA61B' } ) );
+		"draws a line in the accent with its counterpart in a dark shade, and the smaller metric's bars in the accent, leaving the larger one's to the chart's tint (%s)",
+		async ( chartType, spy, onViews, onVisitors ) => {
+			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? '#3858E9' : '#5AA61B' } ) );
 			const user = userEvent.setup();
 			render(
 				<MetricTabsChart
@@ -680,11 +680,46 @@ describe( 'MetricTabsChart', () => {
 			);
 			const strokes = ( label: string ) =>
 				recordedPropsFor( spy, label ).series.map( series => series.options?.stroke );
-			const expected = [ accent, accent, darkShade, darkShade ];
+			const bothPeriods = ( [ metric, counterpart ]: readonly ( string | undefined )[] ) => [
+				metric,
+				metric,
+				counterpart,
+				counterpart,
+			];
 
-			expect( strokes( 'Views' ) ).toEqual( expected );
+			expect( strokes( 'Views' ) ).toEqual( bothPeriods( onViews ) );
 			await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
-			expect( strokes( 'Visitors' ) ).toEqual( expected );
+			expect( strokes( 'Visitors' ) ).toEqual( bothPeriods( onVisitors ) );
+		}
+	);
+
+	it( 'draws a metric alone as bars in the untinted accent', () => {
+		setMockElementStyles( () => ( { color: '#3858E9' } ) );
+		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
+
+		expect(
+			recordedPropsFor( mockBarSpy, 'Views' ).series.map( series => series.options?.stroke )
+		).toEqual( [ '#3858E9', '#3858E9' ] );
+	} );
+
+	const LIGHT_GRAY = '#dbdbdb';
+	const DARK_GRAY = '#7c7c7c';
+
+	it.each( [
+		[ 'a shown counterpart', [ VIEWS, VISITORS ], 'visitors', DARK_GRAY ],
+		[ 'a metric alone', [ METRIC ], 'views', undefined ],
+	] as const )(
+		'slots the periods with the smaller metric in front, the previous period in gray, for %s',
+		( _case, metrics, front, frontGray ) => {
+			render(
+				<MetricTabsChart metrics={ [ ...metrics ] } dataFormat={ DATA_FORMAT } chartType="bar" />
+			);
+			const props = recordedPropsFor( mockBarSpy, metrics[ 0 ].label );
+
+			expect( [ props.overlayGroup, props.previousStrokes ] ).toEqual( [
+				front,
+				{ views: LIGHT_GRAY, ...( frontGray && { visitors: frontGray } ) },
+			] );
 		}
 	);
 

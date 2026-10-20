@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react';
 
-type ChartSeries = { label: string; options?: { type?: string } };
+type ChartSeries = {
+	label: string;
+	options?: { type?: string; stroke?: string };
+};
 
 type ElementStylesParams = { data: ChartSeries; index: number };
 
@@ -16,12 +19,19 @@ export const mockBarChartLegendSpy = jest.fn();
 export const mockLineChartSpy = jest.fn();
 export const mockLineChartLegendSpy = jest.fn();
 
-// Mirrors the real theme: a comparison series shares its primary's colour and is
-// set apart only by opacity.
+// Mirrors the real theme: a comparison series shares its primary's colour.
 const defaultElementStyles = ( { data }: ElementStylesParams ): ElementStyles => ( {
 	color: '#3858E9',
-	barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5, opacity: 0.5 } : {},
+	barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5 } : {},
 } );
+
+/**
+ * The fill the charts context reports for the bar at an index of the series it is handed.
+ *
+ * @param index - The bar's index.
+ * @return A color unique to that index.
+ */
+export const mockBarColor = ( index: number ) => `#bar${ index }`;
 
 /** The sparkline margin the charts context's theme hands out. */
 export const mockSparklineMargin = { top: 2, right: 2, bottom: 2, left: 2 };
@@ -118,13 +128,29 @@ export const mockChartExternals = () => ( {
 		<div data-testid="sparkline" data-points={ data.join( ',' ) } />
 	),
 	// One item per non-comparison series, as `collapseGroups` would produce.
-	useChartLegendItems: ( data: ChartSeries[] ) =>
-		data
+	useChartLegendItems: (
+		data: ChartSeries[],
+		options?: { comparisonSeriesItems?: ( metric: string ) => string }
+	) => [
+		...data
 			.filter( series => series.options?.type !== 'comparison' )
 			.map( series => ( { label: series.label, color: '#3858E9' } ) ),
+		...( options?.comparisonSeriesItems
+			? data
+					.filter( series => series.options?.type === 'comparison' )
+					.map( series => ( {
+						label: series.label,
+						color: '#3858E9',
+						describesSeries: series.label,
+					} ) )
+			: [] ),
+	],
 	useGlobalChartsContext: () => ( {
-		getElementStyles: ( params: ElementStylesParams ) => elementStyles( params ),
+		getElementStyles: elementStyles,
+		getBarColors: ( series: ChartSeries[] ) =>
+			series.map( ( _item, index ) => mockBarColor( index ) ),
 		getHiddenSeries: () => new Set( hiddenSeries ),
+		isSeriesVisible: ( _chartId: string, label: string ) => ! hiddenSeries.has( label ),
 		theme: { sparkline: { margin: mockSparklineMargin } },
 	} ),
 } );

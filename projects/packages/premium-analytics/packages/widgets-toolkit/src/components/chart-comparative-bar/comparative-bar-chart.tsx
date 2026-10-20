@@ -54,7 +54,8 @@ type RenderTooltipParams = Parameters< NonNullable< BarChartProps[ 'renderToolti
 export type ComparativeBarChartProps = {
 	/**
 	 * Series to draw. A series marked `options.type: 'comparison'` renders as
-	 * the previous-period shadow behind its same-`group` primary series.
+	 * the previous-period shadow behind its same-`group` primary series, or in the
+	 * previous period's slot when `overlayGroup` slots the bars.
 	 */
 	series: ComparativeBarChartSeries[];
 
@@ -116,6 +117,15 @@ export type ComparativeBarChartProps = {
 	 */
 	tooltipExtras?: TooltipExtraSeries[];
 
+	/**
+	 * Give each period one slot, with this group's bar in front of the other groups' bars;
+	 * the previous period's slot sits beside the current one. The bars behind take the theme's comparison style.
+	 */
+	overlayGroup?: string;
+
+	/** Each group's previous-period color, applied only while `overlayGroup` slots the bars. */
+	previousStrokes?: Record< string, string >;
+
 	/** Pointer-down on the plot, carrying the datum nearest the pointer. */
 	onPointerDown?: BarChartProps[ 'onPointerDown' ];
 
@@ -125,6 +135,56 @@ export type ComparativeBarChartProps = {
 	/** Enter or Space on the keyboard-selected bar, carrying its datum. */
 	onDatumActivate?: BarChartProps[ 'onDatumActivate' ];
 };
+
+/**
+ * Whether a series draws a previous period.
+ *
+ * @param item - The series.
+ * @return Whether it is a previous period.
+ */
+function isPreviousPeriod( item: ComparativeBarChartSeries ): boolean {
+	return item.options?.type === 'comparison';
+}
+
+const PREVIOUS_SLOT = 'previous';
+
+/**
+ * Regroups the series by period: each period takes one slot, with the front group as its primary
+ * and the other groups as comparisons behind it.
+ *
+ * @param series          - The aligned series.
+ * @param frontGroup      - The group drawn in front.
+ * @param colorOf         - Each series' color before regrouping, which the palette assigns by group.
+ * @param previousStrokes - Each group's previous-period color, overriding the series' own.
+ * @return The series as the bar chart draws them.
+ */
+function toPeriodSlots(
+	series: ComparativeBarChartSeries[],
+	frontGroup: string,
+	colorOf: ( item: ComparativeBarChartSeries, index: number ) => string,
+	previousStrokes: Record< string, string > = {}
+): ComparativeBarChartSeries[] {
+	return series.map( ( item, index ) => {
+		const isPrevious = isPreviousPeriod( item );
+		const isFront = item.group === frontGroup;
+		const previousStroke =
+			isPrevious && item.group !== undefined ? previousStrokes[ item.group ] : undefined;
+
+		return {
+			...item,
+			group: isPrevious ? PREVIOUS_SLOT : 'current',
+			options: {
+				...item.options,
+				// A comparison left unstroked takes the chart's tint of its primary's color.
+				stroke:
+					previousStroke ??
+					item.options?.stroke ??
+					( isFront ? colorOf( item, index ) : undefined ),
+				type: isFront ? undefined : 'comparison',
+			},
+		};
+	} );
+}
 
 /**
  * A date-keyed bar chart with previous-period comparison, built on
@@ -148,6 +208,8 @@ export function ComparativeBarChart( {
 	legendInteractive = false,
 	comparisonLabel,
 	tooltipExtras,
+	overlayGroup,
+	previousStrokes,
 	onPointerDown,
 	onPointerUp,
 	onDatumActivate,
@@ -155,7 +217,7 @@ export function ComparativeBarChart( {
 	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
-	const { getElementStyles, theme } = useGlobalChartsContext();
+	const { getElementStyles, getBarColors, isSeriesVisible, theme } = useGlobalChartsContext();
 
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
@@ -171,6 +233,19 @@ export function ComparativeBarChart( {
 	// Aligning moves comparison dates onto the primary series' band slots; the
 	// originals survive in `realDate` for tooltips.
 	const alignedSeries = useMemo( () => alignSeriesDates( series ), [ series ] );
+	const isSlotted = !! overlayGroup && alignedSeries.some( item => item.group === overlayGroup );
+	const barSeries = useMemo(
+		() =>
+			isSlotted && overlayGroup
+				? toPeriodSlots(
+						alignedSeries,
+						overlayGroup,
+						( item, index ) => getElementStyles( { data: item, index } ).color,
+						previousStrokes
+					)
+				: alignedSeries,
+		[ alignedSeries, overlayGroup, isSlotted, getElementStyles, previousStrokes ]
+	);
 
 	const isEmptyData = useMemo( () => isEmptyChartData( alignedSeries ), [ alignedSeries ] );
 	// An all-zero selected metric must not hide the extras that do have data.
@@ -179,15 +254,16 @@ export function ComparativeBarChart( {
 		[ isEmptyData, tooltipExtras ]
 	);
 
-	// The opacity matters: a comparison series shares its primary's colour, dimmed
-	// only by the theme — without it the swatch reads as an identical twin.
+	const barColors = useMemo( () => getBarColors( barSeries ), [ getBarColors, barSeries ] );
+	const barColorOf = useCallback(
+		( label: string ) => barColors[ barSeries.findIndex( drawn => drawn.label === label ) ],
+		[ barColors, barSeries ]
+	);
+
+	// Each swatch follows `alignedSeries`, colored as the bar it names is drawn.
 	const seriesStyles = useMemo< TooltipStyle[] >(
-		() =>
-			alignedSeries.map( ( seriesData, index ) => {
-				const { color, barStyles } = getElementStyles( { data: seriesData, index } );
-				return { stroke: color, opacity: barStyles?.opacity };
-			} ),
-		[ alignedSeries, getElementStyles ]
+		() => alignedSeries.map( ( { label } ) => ( { stroke: barColorOf( label ) } ) ),
+		[ alignedSeries, barColorOf ]
 	);
 
 	// Multipliers keep the tick labels short.
@@ -208,11 +284,47 @@ export function ComparativeBarChart( {
 	);
 
 	const primarySeriesByGroup = useMemo( () => resolvePrimarySeriesByGroup( series ), [ series ] );
-	const { config: legendConfig, items: legendItems } = useComparativeLegend(
-		alignedSeries,
-		legendInteractive,
-		comparisonLabel
-	);
+	const {
+		config: legendConfig,
+		items: comparativeLegendItems,
+		comparisonLabel: previousPeriodLabel,
+	} = useComparativeLegend( alignedSeries, legendInteractive, comparisonLabel );
+	// The previous slot is painted as one unit, so one static item names it after its widest shown bar:
+	// the comparison setting, not the legend, shows and hides it.
+	const legendItems = useMemo( () => {
+		if ( ! isSlotted ) {
+			return comparativeLegendItems;
+		}
+
+		const metricItems = comparativeLegendItems
+			.filter( item => ! item.describesSeries )
+			.map( item => ( { ...item, color: barColorOf( item.label ) ?? item.color } ) );
+		const previous = barSeries.find(
+			item => item.group === PREVIOUS_SLOT && isSeriesVisible( chartId, item.label )
+		);
+
+		if ( ! previous ) {
+			return metricItems;
+		}
+
+		return [
+			...metricItems,
+			{
+				label: previousPeriodLabel,
+				color: barColorOf( previous.label ),
+				shapeStyle: metricItems[ 0 ]?.shapeStyle,
+				interactive: false,
+			},
+		];
+	}, [
+		comparativeLegendItems,
+		isSlotted,
+		barSeries,
+		barColorOf,
+		previousPeriodLabel,
+		isSeriesVisible,
+		chartId,
+	] );
 
 	const formatTooltipBucket = useCallback(
 		( point: ComparativeDatePointDate ) => formatBucketTooltipDate( point, displayResolution ),
@@ -220,9 +332,7 @@ export function ComparativeBarChart( {
 	);
 
 	/**
-	 * Re-attaches the hovered category's previous-period value to the tooltip
-	 * data: the bar chart's default tooltip only carries the primary series, so
-	 * without this the shadow bar would be visible but its value unreadable.
+	 * Gives every comparison a tooltip row at the hovered category, a dash where its bucket is missing, and lists the rows in the series' given order.
 	 *
 	 * @param tooltipData - The tooltip data from the chart.
 	 * @return The same data with a previous-period entry appended when one exists.
@@ -240,7 +350,7 @@ export function ComparativeBarChart( {
 			const augmented = { ...datumByKey };
 
 			for ( const [ index, seriesData ] of alignedSeries.entries() ) {
-				if ( seriesData.options?.type !== 'comparison' || augmented[ seriesData.label ] ) {
+				if ( augmented[ seriesData.label ] || seriesData.options?.type !== 'comparison' ) {
 					continue;
 				}
 
@@ -266,14 +376,21 @@ export function ComparativeBarChart( {
 				};
 			}
 
-			return { ...tooltipData, datumByKey: augmented };
+			// The tooltip lists rows in key order, so the series keep their given order, not the order the chart draws them.
+			const ordered = Object.fromEntries(
+				alignedSeries
+					.filter( seriesData => augmented[ seriesData.label ] )
+					.map( seriesData => [ seriesData.label, augmented[ seriesData.label ] ] )
+			);
+
+			return { ...tooltipData, datumByKey: { ...ordered, ...augmented } };
 		},
 		[ alignedSeries, primarySeriesByGroup ]
 	);
 
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => {
-			// `seriesStyles` follows `alignedSeries`, so the model pairs rows by that order.
+			// `seriesStyles` follows `alignedSeries`, so the model pairs rows by index.
 			const model = buildDatedTooltipModel( {
 				tooltipData: withComparisonDatum( params.tooltipData ),
 				series: alignedSeries,
@@ -333,7 +450,7 @@ export function ComparativeBarChart( {
 				chartId={ chartId }
 				ariaLabel={ formatChartName( chartTitle ) }
 				className={ styles.chartContent }
-				data={ alignedSeries }
+				data={ barSeries }
 				options={ chartOptions }
 				defaultHiddenSeries={ defaultHiddenSeries }
 				legend={ legendConfig }

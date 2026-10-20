@@ -11,11 +11,7 @@ from the chart theme through `useGlobalChartsContext()`. It **must be rendered i
 `GlobalChartsProvider`** — outside one that hook throws, before `BarChart` gets a chance to supply
 its own.
 
-That is also why there is deliberately no `styles` prop. The comparison shadow's geometry comes
-from the theme's `barChart.barStyles.comparison.widthFactor`, and its distinctness from the current
-period comes from that entry's `opacity` — passing fills in here would decouple the shadow from the
-bar it shadows. Theme styles are read back only to tint the tooltip swatches, so they match what the
-chart drew.
+That is also why there is deliberately no `styles` prop. The comparison bar's width comes from the theme's `barChart.barStyles.comparison.widthFactor`. Charts draws a comparison opaque. Unless the comparison sets its own `stroke`, charts tints it from its primary's color and darkens the primary where needed, so the pair keeps 3:1 against the card and against each other. `overlayGroup` leaves the current period's comparisons unstroked for that, and `previousStrokes` gives the previous period exact colors. The chart's bar colors are read back only to color the tooltip and legend swatches, so they match what the chart drew.
 
 ## Usage
 
@@ -29,6 +25,8 @@ A series marked `options.type: 'comparison'` renders as the previous-period shad
 same-`group` primary series, and is the only kind `alignSeriesDates` moves: it re-dates such a
 series onto the dates of the first series in the array. A chart may draw more than one metric — a
 second current-period series keeps its own dates.
+
+With `overlayGroup`, the series are regrouped by period instead: each period takes one slot, the previous period's beside the current one, and the `overlayGroup` series is the primary, with the other groups' series as wider comparisons behind it. A comparison stays in its slot while the primary is hidden. The legend then names the previous period with one static item.
 
 ## Props
 
@@ -45,6 +43,8 @@ second current-period series keeps its own dates.
 | `defaultHiddenSeries` | `readonly string[]`           | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive`               |
 | `legendInteractive`   | `boolean`                     | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false`                               |
 | `comparisonLabel`     | `string`                      | No       | Names the comparison in each metric's previous-period legend item, e.g. "Prev. 30 days". Defaults to "Previous period"                    |
+| `overlayGroup`        | `string`                      | No       | Give each period one slot, with this group's bar in front of the others                                                                   |
+| `previousStrokes`     | `Record< string, string >`    | No       | Each group's previous-period color, applied only with `overlayGroup`                                                                      |
 
 ## Date alignment and tooltips
 

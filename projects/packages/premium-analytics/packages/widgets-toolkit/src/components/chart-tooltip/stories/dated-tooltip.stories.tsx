@@ -38,6 +38,11 @@ const LINE = { stroke: '#3858E9', strokeWidth: 2 };
 const LINE_PREVIOUS = { stroke: '#3858E9', strokeDasharray: '4 4', strokeWidth: 1.5 };
 const GREEN = { stroke: '#008A20', strokeWidth: 2 };
 const GREEN_PREVIOUS = { stroke: '#008A20', strokeDasharray: '4 4', strokeWidth: 1.5 };
+// The tones charts fills a bar and its comparison with, on a white card.
+const BAR_TONES: Record< string, { primary: string; comparison: string } > = {
+	'#3858E9': { primary: '#273ea4', comparison: '#798ef0' },
+	'#008A20': { primary: '#005514', comparison: '#42a85a' },
+};
 
 const ROWS: DatedTooltipRow[] = [
 	{
@@ -104,12 +109,15 @@ export const BarChartWithComparison: Story = {
 				row.indicator.kind === 'series'
 					? {
 							...row,
-							indicator: { kind: 'series', style: { stroke: row.indicator.style.stroke } },
+							indicator: {
+								kind: 'series',
+								style: { stroke: BAR_TONES[ row.indicator.style.stroke ?? '' ]?.primary },
+							},
 							previous: row.previous && {
 								...row.previous,
 								indicator: {
 									kind: 'series',
-									style: { stroke: row.indicator.style.stroke, opacity: 0.5 },
+									style: { stroke: BAR_TONES[ row.indicator.style.stroke ?? '' ]?.comparison },
 								},
 							},
 						}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Traffic summary: Draw visitors inside the views bar in bar charts, as Jetpack Stats does, and the previous period in its own gray bars on every tab.

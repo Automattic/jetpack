@@ -8,10 +8,13 @@ import { getSettings, setSettings } from '@wordpress/date';
  */
 import {
 	mockBarChartLegendSpy,
+	mockBarColor,
 	mockBarChartSpy,
 	mockSparklineMargin,
 	resetMockCharts,
 	setMockChartHeight,
+	setMockElementStyles,
+	setMockHiddenSeries,
 } from '../../../../../../tests/js/chart-test-utils';
 import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { ComparativeBarChart } from '../comparative-bar-chart';
@@ -109,6 +112,7 @@ function recordedProps(): {
 	};
 	margin?: Record< string, number >;
 	chartId: string;
+	data: ComparativeBarChartSeries[];
 	defaultHiddenSeries?: readonly string[];
 	legend: {
 		collapseGroups: boolean;
@@ -342,22 +346,11 @@ describe( 'ComparativeBarChart', () => {
 
 		// The chart lists both current periods before either previous period, while the
 		// styles follow the series, so a positional lookup would hand rows the wrong style.
-		expect( july.indicator ).toEqual( {
-			kind: 'series',
-			style: { stroke: '#3858E9', opacity: undefined },
-		} );
-		expect( july.previous?.indicator ).toEqual( {
-			kind: 'series',
-			style: { stroke: '#3858E9', opacity: 0.5 },
-		} );
-		expect( visitors.indicator ).toEqual( {
-			kind: 'series',
-			style: { stroke: '#3858E9', opacity: undefined },
-		} );
-		expect( visitors.previous?.indicator ).toEqual( {
-			kind: 'series',
-			style: { stroke: '#3858E9', opacity: 0.5 },
-		} );
+		const tone = ( stroke: string ) => ( { kind: 'series', style: { stroke } } );
+		expect( july.indicator ).toEqual( tone( mockBarColor( 0 ) ) );
+		expect( july.previous?.indicator ).toEqual( tone( mockBarColor( 1 ) ) );
+		expect( visitors.indicator ).toEqual( tone( mockBarColor( 2 ) ) );
+		expect( visitors.previous?.indicator ).toEqual( tone( mockBarColor( 3 ) ) );
 	} );
 
 	// A shorter comparison period has no bar for the last buckets; the column stays,
@@ -373,7 +366,7 @@ describe( 'ComparativeBarChart', () => {
 		const model = tooltipModelFor( hoveredJuly( JULY_3 ) );
 		expect( model.rows[ 0 ].previous ).toEqual( {
 			value: null,
-			indicator: { kind: 'series', style: { stroke: '#3858E9', opacity: 0.5 } },
+			indicator: { kind: 'series', style: { stroke: mockBarColor( 1 ) } },
 		} );
 		expect( model.previousDate ).toBeUndefined();
 	} );
@@ -412,6 +405,8 @@ describe( 'ComparativeBarChart', () => {
 				items: [
 					{ label: 'July', color: '#3858E9', interactive: false },
 					{ label: 'Visitors', color: '#3858E9' },
+					{ label: 'June', color: '#3858E9', describesSeries: 'June' },
+					{ label: 'Visitors · June', color: '#3858E9', describesSeries: 'Visitors · June' },
 				],
 			} )
 		);
@@ -478,6 +473,120 @@ describe( 'ComparativeBarChart', () => {
 			expect( recordedOptions() ).not.toHaveProperty( 'yScale' );
 			// No override, so the chart keeps the gutters `useChartMargin` measured.
 			expect( recordedProps().margin ).toBeUndefined();
+		} );
+	} );
+
+	describe( 'overlayGroup', () => {
+		const layout = () =>
+			recordedProps().data.map( ( { label, group, options } ) => [ label, group, options?.type ] );
+
+		it( 'gives each period a slot, with the overlay group as its primary and the others as comparisons behind', () => {
+			render(
+				<ComparativeBarChart
+					series={ PAIRED_SERIES }
+					dataFormat={ DATA_FORMAT }
+					overlayGroup="visitors"
+				/>
+			);
+
+			expect( layout() ).toEqual( [
+				[ 'July', 'current', 'comparison' ],
+				[ 'June', 'previous', 'comparison' ],
+				[ 'Visitors', 'current', undefined ],
+				[ 'Visitors · June', 'previous', undefined ],
+			] );
+		} );
+
+		it( "keeps the overlay group's palette color, which the palette assigns by group, and leaves the comparisons to the chart's tint", () => {
+			setMockElementStyles( ( { data } ) => ( {
+				color: data?.label.startsWith( 'Visitors' ) ? '#1c2c75' : '#3858E9',
+			} ) );
+			render(
+				<ComparativeBarChart
+					series={ PAIRED_SERIES }
+					dataFormat={ DATA_FORMAT }
+					overlayGroup="visitors"
+				/>
+			);
+
+			expect( recordedProps().data.map( item => item.options?.stroke ) ).toEqual( [
+				undefined,
+				undefined,
+				'#1c2c75',
+				'#1c2c75',
+			] );
+		} );
+
+		it.each( [
+			[ 'while slotted', 'visitors', [ '#888', '#555' ] ],
+			[ 'not without an overlay group', undefined, [ undefined, undefined ] ],
+			[ 'not with an overlay group that names no series', 'nowhere', [ undefined, undefined ] ],
+		] )( 'paints the previous periods in previousStrokes %s', ( _case, overlayGroup, expected ) => {
+			render(
+				<ComparativeBarChart
+					series={ PAIRED_SERIES }
+					dataFormat={ DATA_FORMAT }
+					overlayGroup={ overlayGroup }
+					previousStrokes={ { views: '#888', visitors: '#555' } }
+				/>
+			);
+
+			const previous = recordedProps().data.filter( item => item.label.includes( 'June' ) );
+			expect( previous.map( item => item.options?.stroke ) ).toEqual( expected );
+		} );
+
+		it.each( [
+			[ 'every metric is shown', [], mockBarColor( 1 ) ],
+			[ 'the back metric is hidden', [ 'July', 'June' ], mockBarColor( 3 ) ],
+		] )(
+			"names the previous slot in one static legend item, in its widest shown bar's color, while %s",
+			( _case, hidden, previousColor ) => {
+				setMockHiddenSeries( hidden );
+				render(
+					<ComparativeBarChart
+						series={ PAIRED_SERIES }
+						dataFormat={ DATA_FORMAT }
+						overlayGroup="visitors"
+					/>
+				);
+
+				const items = mockBarChartLegendSpy.mock.calls.at( -1 )[ 0 ].items;
+				expect(
+					items.map( ( item: { label: string; color: string; interactive?: boolean } ) => [
+						item.label,
+						item.color,
+						item.interactive,
+					] )
+				).toEqual( [
+					[ 'July', mockBarColor( 0 ), false ],
+					[ 'Visitors', mockBarColor( 2 ), undefined ],
+					[ 'Previous period', previousColor, false ],
+				] );
+			}
+		);
+
+		it( 'lists both metrics with their previous periods in series order, whatever order the chart reports them', () => {
+			render(
+				<ComparativeBarChart
+					series={ PAIRED_SERIES }
+					dataFormat={ DATA_FORMAT }
+					overlayGroup="visitors"
+				/>
+			);
+
+			expect(
+				readings(
+					tooltipModelFor(
+						{ datum: { date: JULY_1, value: 40 }, key: 'Visitors' },
+						{ datum: { date: JULY_1, value: 30 }, key: 'Visitors · June' },
+						{ datum: { date: JULY_1, value: 100 }, key: 'July' },
+						{ datum: { date: JULY_1, value: 80 }, key: 'June' }
+					)
+				)
+			).toEqual( [
+				[ 'July', 100, 80 ],
+				[ 'Visitors', 40, 30 ],
+			] );
 		} );
 	} );
 

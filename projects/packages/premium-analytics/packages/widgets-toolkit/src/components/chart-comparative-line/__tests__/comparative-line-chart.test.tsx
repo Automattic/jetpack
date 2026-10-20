@@ -337,6 +337,16 @@ describe( 'ComparativeLineChart', () => {
 				items: [
 					{ label: 'Views', color: '#3858E9', interactive: false },
 					{ label: 'Visitors', color: '#3858E9' },
+					{
+						label: 'Views · previous period',
+						color: '#3858E9',
+						describesSeries: 'Views · previous period',
+					},
+					{
+						label: 'Visitors · previous period',
+						color: '#3858E9',
+						describesSeries: 'Visitors · previous period',
+					},
 				],
 			} )
 		);

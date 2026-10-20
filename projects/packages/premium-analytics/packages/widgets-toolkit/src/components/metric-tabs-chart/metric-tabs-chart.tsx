@@ -55,8 +55,15 @@ const CARD_GAP = 8;
  */
 const CLICK_DRAG_TOLERANCE_PX = 6;
 
-/** How far a counterpart's color moves from the accent toward black; interim until UNI-847 settles the shades. */
+/** How far a counterpart's line color moves from the accent toward black. */
 const DARK_SHADE_BLEND = 0.5;
+
+const PREVIOUS_PERIOD_TONES = {
+	/** `--wpds-color-stroke-surface-neutral`. Under 3:1 against the card by design, so the previous period recedes. */
+	light: '#dbdbdb',
+	/** The lightest gray that keeps WCAG's 3:1 against `light`. */
+	dark: '#7c7c7c',
+};
 
 /** The pointer-event payload both comparative charts report. */
 type ChartPointerParams = Parameters<
@@ -156,8 +163,18 @@ function hasSeries( metric: MetricTab ): boolean {
 }
 
 /**
+ * The sum of a series' readings.
+ *
+ * @param data - The series.
+ * @return The sum, counting a missing reading as zero.
+ */
+function sumOf( data: MetricTabDatum[] ): number {
+	return data.reduce( ( sum, datum ) => sum + ( datum.value ?? 0 ), 0 );
+}
+
+/**
  * How the selected metric's series are drawn. `line` keeps the previous period
- * as a dashed overlay; `bar` draws it as the translucent shadow behind each bar.
+ * as a dashed overlay; `bar` draws it in gray, in a slot beside the current period's.
  */
 export type MetricTabsChartType = 'line' | 'bar';
 
@@ -210,17 +227,17 @@ export interface MetricTabsChartProps {
 /**
  * Build the chart series for a metric: current period plus, when present, the
  * previous period as a same-`group` comparison series. A line needs its area
- * fill suppressed — that gradient would erase the bar chart's shadow fill.
+ * fill suppressed — that gradient would erase a bar's fill.
  *
  * @param metric    - The metric to draw.
  * @param chartType - How the metric is drawn.
- * @param stroke    - The color of both periods.
+ * @param stroke    - The color of both periods, or none for the chart's own.
  * @return The chart series.
  */
 function buildSeries(
 	metric: MetricTab,
 	chartType: MetricTabsChartType,
-	stroke: string
+	stroke: string | undefined
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
 		{
@@ -320,22 +337,54 @@ function MetricChart( {
 	const { getElementStyles } = useGlobalChartsContext();
 	const shades = useMemo( () => {
 		const accent = getElementStyles( { index: 0 } ).color;
+
 		return { accent, dark: mixHexColors( accent, '#000000', DARK_SHADE_BLEND ) };
 	}, [ getElementStyles ] );
 
+	// Bars give each period a slot, with the smaller metric of a pair inside the larger one's bar, as Jetpack Stats draws visitors inside views. The chart tones the current pair from the accent.
+	const barTones = useMemo( () => {
+		if ( chartType !== 'bar' ) {
+			return undefined;
+		}
+
+		if ( ! counterpart ) {
+			return {
+				overlayGroup: metric.key,
+				strokes: { [ metric.key ]: shades.accent },
+				previousStrokes: { [ metric.key ]: PREVIOUS_PERIOD_TONES.light },
+			};
+		}
+
+		const [ front, back ] =
+			sumOf( counterpart.current ) <= sumOf( metric.current )
+				? [ counterpart, metric ]
+				: [ metric, counterpart ];
+
+		return {
+			overlayGroup: front.key,
+			strokes: { [ front.key ]: shades.accent },
+			previousStrokes: {
+				[ front.key ]: PREVIOUS_PERIOD_TONES.dark,
+				[ back.key ]: PREVIOUS_PERIOD_TONES.light,
+			},
+		};
+	}, [ chartType, metric, counterpart, shades ] );
+
 	const { series, defaultHiddenSeries } = useMemo( () => {
-		const active = buildSeries( metric, chartType, shades.accent );
+		const strokeOf = ( key: string, lineStroke: string ) =>
+			barTones ? barTones.strokes[ key ] : lineStroke;
+		const active = buildSeries( metric, chartType, strokeOf( metric.key, shades.accent ) );
 
 		if ( ! counterpart ) {
 			return { series: active, defaultHiddenSeries: undefined };
 		}
 
-		const paired = buildSeries( counterpart, chartType, shades.dark );
+		const paired = buildSeries( counterpart, chartType, strokeOf( counterpart.key, shades.dark ) );
 		return {
 			series: [ ...active, ...paired ],
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
-	}, [ metric, counterpart, chartType, shades ] );
+	}, [ metric, counterpart, chartType, barTones, shades ] );
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
 
@@ -432,6 +481,8 @@ function MetricChart( {
 			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
 			tooltipExtras={ tooltipExtras }
+			overlayGroup={ barTones?.overlayGroup }
+			previousStrokes={ barTones?.previousStrokes }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>

@@ -19,7 +19,7 @@ type LegendShape = Parameters< typeof useLockedPrimaryLegendItems >[ 2 ];
  * @param interactive     - Whether the reader can show and hide metrics from the legend.
  * @param comparisonLabel - The comparison's legend name, e.g. "Prev. 30 days".
  * @param shape           - The legend shape, when the chart's default is not `rect`.
- * @return The config to hand the chart and the items to hand its legend.
+ * @return The config to hand the chart, the items to hand its legend, and the comparison's name.
  */
 export function useComparativeLegend(
 	series: SeriesData[],
@@ -43,5 +43,5 @@ export function useComparativeLegend(
 	);
 	const items = useLockedPrimaryLegendItems( series, config, shape );
 
-	return { config, items };
+	return { config, items, comparisonLabel };
 }

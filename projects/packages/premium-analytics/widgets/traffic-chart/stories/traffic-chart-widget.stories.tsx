@@ -85,7 +85,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range and comparison come from the dashboard controls. The bucket size is the widget's own `chartInterval` attribute, clamped to what the range allows. \"Chart type\" is the `chartType` attribute (`relevance: 'high'`, so the host renders it in the widget header). Which metric is plotted is the chart's own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; at the hourly grain the second request asks for visitors, likes, and comments in daily buckets, so their cards still show the day totals (skipped for a window that does not cover whole days, such as `Last 24 hours`). Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
+					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range and comparison come from the dashboard controls. The bucket size is the widget's own `chartInterval` attribute, clamped to what the range allows. \"Chart type\" is the `chartType` attribute (`relevance: 'high'`, so the host renders it in the widget header). Which metric is plotted is the chart's own tab selection. When comparison is on, each tab shows its period-over-period delta, and `line` draws the previous period as a same-colour dashed line. For `bar`, the previous period takes its own slot in neutral grays on every tab, and with Views and Visitors both shown, visitors sits inside the views bar. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; at the hourly grain the second request asks for visitors, likes, and comments in daily buckets, so their cards still show the day totals (skipped for a window that does not cover whole days, such as `Last 24 hours`). Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
 			},
 		},
 	},
@@ -123,8 +123,8 @@ export const BarChart: Story = {
 };
 
 /**
- * Bars with comparison on: the previous period renders as the translucent
- * shadow bar behind each current-period bar.
+ * Bars with comparison on: visitors sits inside the views bar, and the previous
+ * period takes its own slot in neutral grays.
  */
 export const BarChartWithComparison: Story = {
 	render: renderTrafficChart,
