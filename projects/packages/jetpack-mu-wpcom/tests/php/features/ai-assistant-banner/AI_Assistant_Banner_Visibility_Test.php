@@ -109,7 +109,7 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 		if ( $is_simple ) {
 			\Brain\Monkey\Functions\when( 'big_sky_is_enabled' )->justReturn( $platform_on );
 		} elseif ( $platform_on ) {
-			class_alias( \stdClass::class, 'Big_Sky' );
+			class_alias( self::class, 'Big_Sky' );
 		}
 		if ( null !== $option ) {
 			update_option( 'big_sky_enable', $option );
