@@ -1168,7 +1168,8 @@ class Dashboard_Data {
 	 *
 	 * `aiSeoEnabled` is reported separately rather than folded into availability:
 	 * with the control off the card is disabled, not hidden, so the saved choice
-	 * stays visible — the same treatment the Traffic page gives it.
+	 * stays visible — the same treatment the Traffic page gives it. `aiEnabled`
+	 * reports the site-wide Jetpack AI switch so the tab can name which one is off.
 	 *
 	 * @return array
 	 */
@@ -1180,6 +1181,8 @@ class Dashboard_Data {
 		// does not exist, so the enhancer keeps its pre-control behavior.
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_AI_Settings lives in plugins/jetpack and is guarded by is_callable.
 		$ai_seo_on = ! is_callable( array( 'Jetpack_AI_Settings', 'is_ai_seo_enabled' ) ) || \Jetpack_AI_Settings::is_ai_seo_enabled();
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_AI_Settings lives in plugins/jetpack and is guarded by is_callable.
+		$ai_on = ! is_callable( array( 'Jetpack_AI_Settings', 'is_ai_enabled' ) ) || \Jetpack_AI_Settings::is_ai_enabled();
 
 		// Current_Plan comes from the jetpack-plans package (a dependency of this
 		// package since the plan-gating work), so it's always available here; the
@@ -1192,6 +1195,7 @@ class Dashboard_Data {
 				'available'    => $filter_on && $plan_supports,
 				'enabled'      => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 				'aiSeoEnabled' => $ai_seo_on,
+				'aiEnabled'    => $ai_on,
 			),
 			'llmsTxt'  => array(
 				'enabled'  => Llms_Txt::is_enabled(),
