@@ -2,6 +2,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { MyJetpackModule } from '../../../types';
 import { getActivationStatusLabel } from '../utils';
+import { isAccountConnectEnabled } from './mappings';
 import type { FeatureState } from './feature-state';
 
 export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'backup', 'waf', 'wordads' ];
@@ -106,10 +107,13 @@ export function getFeatureStatusLabel( state: FeatureState ): string {
  */
 export function isFeatureAvailable( state: FeatureState ): boolean {
 	const { control } = state;
+	// With the account-connect flag off, Available still lists installs the user cannot make.
+	const skipsBlockedInstalls = isAccountConnectEnabled();
 	return (
 		! state.pending &&
-		( control.kind !== 'install-jetpack' || ! control.blocked ) &&
-		( control.kind !== 'install-plugin' ||
+		( ! skipsBlockedInstalls || control.kind !== 'install-jetpack' || ! control.blocked ) &&
+		( ! skipsBlockedInstalls ||
+			control.kind !== 'install-plugin' ||
 			! control.blocked ||
 			Boolean( control.runsWithoutPlugin ) ) &&
 		( control.kind !== 'module' || control.module.override !== 'inactive' ) &&

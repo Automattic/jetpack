@@ -142,7 +142,7 @@ class Widget_Type {
 	 *
 	 * Null when the widget did not declare the field.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @var array|null
 	 */
@@ -193,7 +193,7 @@ class Widget_Type {
 	 * Plan feature the widget cannot show anything without, such as `videos`. A plan that lacks
 	 * it shows the widget locked. Null when every plan includes the widget.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @var string|null
 	 */

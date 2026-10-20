@@ -50,12 +50,12 @@ jobs:
           TOKEN: ${{ secrets.RENOVATE_TOKEN }}
         run: |
           curl --no-progress-meter --header "Authorization: Bearer $TOKEN" https://api.github.com/rate_limit
-      - uses: renovatebot/github-action@6d26fcf0275dc65624cbc3d51fe78bc773f98321 # v46.3.6
+      - uses: renovatebot/github-action@f0f41e5f2e706165f6814b1d0f0d0e319de7d1d9 # v46.3.8
         with:
           configurationFile: /tmp/monorepo/.github/renovate-config.js
           token: ${{ secrets.RENOVATE_TOKEN }}
           mount-docker-socket: true
-          renovate-version: 44.115.7
+          renovate-version: 44.171.1
         env:
           LOG_LEVEL: ${{ github.event.inputs.logLevel || 'debug' }}
           RENOVATE_DRY_RUN: ${{ github.event.inputs.dryRun == 'no' && 'null' || github.event.inputs.dryRun || 'null' }}

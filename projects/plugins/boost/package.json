@@ -90,7 +90,7 @@
 		"autoprefixer": "10.4.20",
 		"browserslist": "^4.24.0",
 		"concurrently": "10.0.5",
-		"jest": "30.5.1",
+		"jest": "30.5.2",
 		"livereload": "0.10.3",
 		"path-browserify": "1.0.1",
 		"postcss": "8.5.23",

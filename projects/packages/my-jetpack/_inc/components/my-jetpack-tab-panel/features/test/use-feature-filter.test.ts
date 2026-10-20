@@ -11,6 +11,11 @@ const buildState = ( feature: Partial< MainFeature >, status = 'inactive' ): Fea
 const security = { slug: 'security', name: 'Security' };
 
 describe( 'matchesFilter', () => {
+	afterEach( () => {
+		window.myJetpackInitialState.myJetpackFlags =
+			{} as typeof window.myJetpackInitialState.myJetpackFlags;
+	} );
+
 	it( 'keeps every feature under All', () => {
 		expect( matchesFilter( buildState( {} ), 'all' ) ).toBe( true );
 	} );
@@ -58,12 +63,18 @@ describe( 'matchesFilter', () => {
 			},
 			true,
 		],
-	] )( 'filters a blocked %s by whether it can already run', ( _, control, available ) => {
-		const state = buildState( { plugin: 'jetpack-search', plugin_status: 'inactive' } );
-		state.control = control;
-		expect( matchesFilter( state, 'available' ) ).toBe( available );
-		expect( matchesFilter( state, 'all' ) ).toBe( true );
-	} );
+	] )(
+		'with the account-connect flag on, filters a blocked %s by whether it can already run',
+		( _, control, available ) => {
+			window.myJetpackInitialState.myJetpackFlags = {
+				accountConnect: true,
+			} as typeof window.myJetpackInitialState.myJetpackFlags;
+			const state = buildState( { plugin: 'jetpack-search', plugin_status: 'inactive' } );
+			state.control = control;
+			expect( matchesFilter( state, 'available' ) ).toBe( available );
+			expect( matchesFilter( state, 'all' ) ).toBe( true );
+		}
+	);
 
 	it( 'splits Active and Inactive on the live status, not the catalog', () => {
 		const on = buildState( {}, 'active' );
