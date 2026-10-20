@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
@@ -49,8 +50,10 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 	 * Atomic's cached MCP result preserves all three banner states without another API call.
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_cached_mcp_result() {
 		define( 'IS_ATOMIC', true );
 		$cache_key = 'wpcom_ai_banner_mcp_' . get_current_blog_id() . '_' . get_current_user_id();
@@ -69,8 +72,10 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 	 * The script gets MCP state only when the WordPress Agent is on.
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_script_data_carries_cached_mcp_state() {
 		define( 'IS_ATOMIC', true );
 		$cache_key = 'wpcom_ai_banner_mcp_' . get_current_blog_id() . '_' . get_current_user_id();
