@@ -359,7 +359,7 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	 * @param bool|null $expected The value passed to the page, or null when it is left out.
 	 */
 	#[DataProvider( 'feature_ui_once_connected_cases' )]
-	public function test_flags_say_whether_the_feature_ui_waits_only_for_the_owner( $site, $flag_on, $expected ) {
+	public function test_flags_say_whether_the_feature_ui_is_waiting_for_owner( $site, $flag_on, $expected ) {
 		try {
 			Initializer::register_feature_flags();
 			if ( $flag_on ) {

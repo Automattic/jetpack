@@ -1491,7 +1491,7 @@ class Initializer {
 		);
 
 		if ( $flags['accountConnect'] ) {
-			$flags['showAiModuleToggleOnceConnected'] = Products\Jetpack_Ai::is_feature_ui_enabled_once_connected();
+			$flags['showAiModuleToggleOnceConnected'] = Products\Jetpack_Ai::is_feature_ui_waiting_for_owner();
 		}
 
 		return $flags;

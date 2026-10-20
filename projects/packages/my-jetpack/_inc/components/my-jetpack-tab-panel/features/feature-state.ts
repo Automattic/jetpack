@@ -247,7 +247,7 @@ export function resolveFeatureState(
 			$module?.requires_user_connection ||
 			gatedModule?.requires_user_connection
 		);
-	// Jetpack AI's switch is hidden until it can run; when the account is all it lacks, it offers Connect too.
+	// The AI pre-release gate hides its switch; when the account is all AI lacks, the card offers Connect past the gate.
 	const aiWaitsForAccount =
 		feature.product === 'jetpack-ai' && needsAccountHere && isAiToggleWaitingForAccount();
 	const resolved =
