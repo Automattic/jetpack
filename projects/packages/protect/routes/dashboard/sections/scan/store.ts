@@ -1,3 +1,4 @@
+import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useSyncExternalStore } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
 import type { ScanState } from './types';
@@ -30,12 +31,22 @@ export function createStore< T >( initial: () => T ) {
 			listeners.add( listener );
 			return () => listeners.delete( listener );
 		},
+		/** Drop updates so the next read starts over from `initial`; for tests. */
+		reset() {
+			value = undefined;
+			isSet = false;
+		},
 	};
 }
 
 const scanStore = createStore(
 	() => window.jetpackProtectDashboard?.scan as ScanState | undefined
 );
+
+/** Forget fetched and edited reports, so tests start from the page state. */
+export const resetScan = (): void => {
+	scanStore.reset();
+};
 
 /**
  * The latest report, for code outside React.
@@ -62,6 +73,17 @@ export function mergeScan( next?: Partial< ScanState > ) {
 	if ( next ) {
 		setScan( current => ( { ...current, ...next } ) );
 	}
+}
+
+/**
+ * Fetch Scan's report from WordPress.com into the store, marking it failed when that doesn't work.
+ *
+ * @return Resolves once the store is updated; never rejects.
+ */
+export function refreshScan(): Promise< void > {
+	return apiFetch< ScanState >( { path: SCAN_PATH } )
+		.then( mergeScan )
+		.catch( () => setScan( current => ( { ...current, error: true, scanning: false } ) ) );
 }
 
 /**

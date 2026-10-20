@@ -18,12 +18,11 @@ import { HISTORY_THREAT_PARAM, loadHistory, useHistory } from '../history/store'
 import useOpenThreat from '../use-open-threat';
 import { groupThreats } from './group-threats';
 import { SafeShield } from './safe-state';
-import { THREAT_PARAM, useScan, useSearchParam } from './store';
+import { THREAT_PARAM, refreshScan, useScan, useSearchParam } from './store';
 import { getThreatRowActions } from './threat-row-actions';
 import threatsIcon from './threats-icon';
 import { getThreatFields } from './threats-list';
 import type { ScanThreat } from './types';
-import type { HistoryState } from '../history';
 import type { ReactElement } from 'react';
 
 const DEFAULT_LAYOUTS = { table: {} };
@@ -246,16 +245,19 @@ const getFixed = ( item: ScanThreat ) => item.fixedOn ?? '';
 /**
  * The threats a link names, such as the ones in a threat email, grouped by what Scan has done with them.
  *
- * @param props         - Component props.
- * @param props.ids     - The threat ids from the link.
- * @param props.openTab - Switches dashboard tabs, which leaves the report.
+ * @param props            - Component props.
+ * @param props.ids        - The threat ids from the link.
+ * @param props.hasHistory - Whether the plan has Scan history, which the History tab also needs.
+ * @param props.openTab    - Switches dashboard tabs, which leaves the report.
  * @return The report.
  */
 export default function ThreatReport( {
 	ids,
+	hasHistory,
 	openTab,
 }: {
 	ids: string[];
+	hasHistory: boolean;
 	openTab: ( tab: string ) => void;
 } ) {
 	const scan = useScan();
@@ -265,11 +267,13 @@ export default function ThreatReport( {
 	const scanNotRun = ! scanFailed && ! scan?.lastChecked;
 	const active = scan?.threats ?? NO_THREATS;
 	const canAct = Boolean( scan?.hasPlan );
-	// History is fetched only where its section says the plan has it.
-	const hasHistory = Boolean(
-		( window.jetpackProtectDashboard?.history as HistoryState | undefined )?.hasPlan
-	);
 	const [ refreshing, setRefreshing ] = useState( hasHistory );
+
+	// The page's copy of Scan's report can predate the alert, so read it fresh before trusting what's missing.
+	const [ scanFresh, setScanFresh ] = useState( false );
+	useEffect( () => {
+		refreshScan().finally( () => setScanFresh( true ) );
+	}, [] );
 
 	const reload = useCallback( () => {
 		setRefreshing( true );
@@ -308,9 +312,10 @@ export default function ThreatReport( {
 			} ),
 		[ ids, scanFailed, scanNotRun, active, scan?.ignored, known ]
 	);
-	// While history reloads, an id missing from the last copy may be a threat just fixed.
-	const notFound = refreshing ? [] : groups.notFound;
-	const pending = refreshing ? [ ...groups.pending, ...groups.notFound ] : groups.pending;
+	// While either list reloads, an id missing from the last copy may be a threat just found or fixed.
+	const checking = refreshing || ! scanFresh;
+	const notFound = checking ? [] : groups.notFound;
+	const pending = checking ? [ ...groups.pending, ...groups.notFound ] : groups.pending;
 
 	const [ threatParam ] = useSearchParam( THREAT_PARAM );
 	const [ historyParam ] = useSearchParam( HISTORY_THREAT_PARAM );

@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useSyncExternalStore } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { createStore, setScan } from '../scan/store';
-import type { ScanThreat } from '../scan/types';
+import type { ScanState, ScanThreat } from '../scan/types';
 
 /** The search param naming the history threat open in the inspector. */
 export const HISTORY_THREAT_PARAM = 'historyThreat';
@@ -33,16 +33,16 @@ export function loadHistory( refresh = false ): Promise< void > {
 	if ( ! refresh && historyStore.get().threats ) {
 		return Promise.resolve();
 	}
+	// Check and clear in one callback, so no refresh can slip in between them.
 	const run = (): Promise< void > =>
 		fetchHistory().then( () => {
 			if ( refetch ) {
 				refetch = false;
 				return run();
 			}
+			inFlight = null;
 		} );
-	inFlight = run().finally( () => {
-		inFlight = null;
-	} );
+	inFlight = run();
 	return inFlight;
 }
 
@@ -55,12 +55,7 @@ function fetchHistory(): Promise< void > {
 	return apiFetch< ScanThreat[] >( { path: '/jetpack/v4/protect-dashboard/history' } )
 		.then( threats => {
 			historyStore.set( () => ( { threats, error: null } ) );
-			// The same response has the ignored threats; a list Scan already holds may have newer edits.
-			setScan( scan =>
-				scan.ignored
-					? scan
-					: { ...scan, ignored: threats.filter( item => item.status === 'ignored' ) }
-			);
+			setScan( scan => ( { ...scan, ignored: mergeIgnored( scan, threats ) } ) );
 		} )
 		.catch( ( e: { message?: string } ) =>
 			historyStore.set( current => ( {
@@ -68,6 +63,24 @@ function fetchHistory(): Promise< void > {
 				error: e?.message || __( 'Scan history is unavailable right now.', 'jetpack-protect-pkg' ),
 			} ) )
 		);
+}
+
+/**
+ * The ignored list after a history load: the client's own edits, plus threats history ignored that it doesn't know of.
+ *
+ * @param scan    - The Scan state, whose lists may hold newer ignores and unignores.
+ * @param history - The history response.
+ * @return The ignored threats.
+ */
+function mergeIgnored( scan: ScanState, history: ScanThreat[] ): ScanThreat[] {
+	const fromHistory = history.filter( item => item.status === 'ignored' );
+	if ( ! scan.ignored ) {
+		return fromHistory;
+	}
+	const known = new Set(
+		[ ...scan.ignored, ...( scan.threats ?? [] ) ].map( item => String( item.id ) )
+	);
+	return [ ...scan.ignored, ...fromHistory.filter( item => ! known.has( String( item.id ) ) ) ];
 }
 
 /**

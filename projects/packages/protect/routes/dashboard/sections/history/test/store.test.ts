@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { getScan, resetScan } from '../../scan/store';
 import { loadHistory } from '../store';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -23,5 +24,20 @@ describe( 'loadHistory', () => {
 		responses[ 1 ]( [] );
 		await flush();
 		expect( refreshed ).toBe( true );
+	} );
+
+	it( 'adds threats history ignored to the client-held list, skipping ones the client moved', async () => {
+		resetScan();
+		const threat = ( id: number, status: string ) => ( { id, status, title: `Threat ${ id }` } );
+		window.jetpackProtectDashboard = {
+			scan: { threats: [ threat( 6, 'current' ) ], ignored: [ threat( 5, 'ignored' ) ] },
+		};
+		mockApiFetch.mockResolvedValue( [ 4, 5, 6 ].map( id => threat( id, 'ignored' ) ) );
+
+		await loadHistory( true );
+
+		expect( getScan()?.ignored?.map( item => item.id ) ).toEqual( [ 5, 4 ] );
+		delete window.jetpackProtectDashboard;
+		resetScan();
 	} );
 } );

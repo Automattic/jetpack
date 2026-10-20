@@ -68,7 +68,11 @@ const Stage = () => {
 		return (
 			<AdminPage className="jp-protect-dashboard" breadcrumbs={ <ThreatReportBreadcrumbs /> }>
 				<div className="jp-protect-dashboard__body">
-					<ThreatReport ids={ reportIds } openTab={ openTab } />
+					<ThreatReport
+						ids={ reportIds }
+						hasHistory={ sectionTabs.some( tab => tab.key === 'history' ) }
+						openTab={ openTab }
+					/>
 				</div>
 			</AdminPage>
 		);
