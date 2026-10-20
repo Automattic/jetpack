@@ -74,6 +74,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		sitemap_url: '',
 		canonical_active: false,
 		canonical_switchable: true,
+		canonical_conflicted: false,
 		schema: {} as SettingsResponse[ 'schema' ],
 		...overrides,
 	};
@@ -163,6 +164,22 @@ describe( 'Settings module completion status', () => {
 			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i } )
 		).resolves.toBeDisabled();
 		expect( screen.getAllByText( /managed by your hosting platform/i ) ).toHaveLength( 2 );
+	} );
+
+	it( 'locks the canonical switch while another SEO plugin controls canonical URLs', async () => {
+		render(
+			<SettingsScreen
+				form={ buildForm( { canonical_active: true, canonical_conflicted: true } ) }
+			/>
+		);
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
+		).resolves.toBeDisabled();
+		expect(
+			screen.getByText( /Jetpack won't add canonical URLs to avoid conflicts/i )
+		).toBeVisible();
 	} );
 
 	describe( 'Site visibility — counts its two toggles', () => {

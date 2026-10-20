@@ -55,6 +55,14 @@ const platformManagedHelp = __(
 	'This setting is managed by your hosting platform and cannot be changed here.',
 	'jetpack-seo'
 );
+const canonicalHelp = __(
+	"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
+	'jetpack-seo'
+);
+const canonicalConflictHelp = __(
+	"Another SEO plugin is active, so Jetpack won't add canonical URLs to avoid conflicts. Deactivate that plugin to use this setting.",
+	'jetpack-seo'
+);
 // Figures are what search *displays*, not a limit we enforce. Google measures a
 // pixel width (920px desktop / 680px mobile), which works out around 155 and 120
 // characters.
@@ -175,6 +183,13 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// so they move straight from not-started to complete.
 	const canonicalStatus: SettingStatus = local.canonical_active ? 'complete' : 'not-started';
 	const frontPageStatus: SettingStatus = local.front_page_description ? 'complete' : 'not-started';
+
+	let canonicalHelpText: string = canonicalHelp;
+	if ( ! local.canonical_switchable ) {
+		canonicalHelpText = platformManagedHelp;
+	} else if ( local.canonical_conflicted ) {
+		canonicalHelpText = canonicalConflictHelp;
+	}
 
 	// On plan-gated sites (below-Premium WordPress.com) the Settings tab keeps only
 	// the two always-valid sections (site visibility + verification, both backed by
@@ -360,17 +375,10 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						<CollapsibleCard.Content>
 							<ToggleControl
 								label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
-								help={
-									! local.canonical_switchable
-										? platformManagedHelp
-										: __(
-												"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
-												'jetpack-seo'
-											)
-								}
+								help={ canonicalHelpText }
 								checked={ local.canonical_active }
 								onChange={ next => commit( { canonical_active: next } ) }
-								disabled={ isSaving || ! local.canonical_switchable }
+								disabled={ isSaving || ! local.canonical_switchable || local.canonical_conflicted }
 								__nextHasNoMarginBottom
 							/>
 						</CollapsibleCard.Content>
