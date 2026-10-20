@@ -57,7 +57,9 @@ class Init_Ownership_Test extends TestCase {
 		Cookie_Consent::init( array( 'features' => array( 'geo' => false ) ) );
 		Cookie_Consent::init( array( 'features' => array( 'geo' => true ) ) );
 
-		$this->assertFalse( Cookie_Consent::get_active_config()['features']['geo'] );
+		$active = Cookie_Consent::get_active_config();
+		$this->assertIsArray( $active );
+		$this->assertFalse( $active['features']['geo'] );
 		$this->assertFalse( Cookie_Consent::get_config()['features']['geo'] );
 	}
 
@@ -79,7 +81,9 @@ class Init_Ownership_Test extends TestCase {
 		Cookie_Consent::init( array( 'event_prefix' => 'second_consumer' ) );
 
 		$this->assertTrue( Cookie_Consent::is_initialized() );
-		$this->assertTrue( Cookie_Consent::get_active_config()['enabled'] );
+		$active = Cookie_Consent::get_active_config();
+		$this->assertIsArray( $active );
+		$this->assertTrue( $active['enabled'] );
 		$this->assertSame( 'second_consumer', Cookie_Consent::get_config()['event_prefix'] );
 		$this->assertNotFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
 		$this->assertNotFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ) ) );
@@ -107,8 +111,10 @@ class Init_Ownership_Test extends TestCase {
 		Cookie_Consent::init( array( 'features' => array( 'geo' => true ) ) );
 
 		$this->assertCount( 1, $received );
-		$this->assertFalse( $received[0]['features']['geo'] );
-		$this->assertSame( Cookie_Consent::get_active_config(), $received[0] );
+		$first = reset( $received );
+		$this->assertIsArray( $first );
+		$this->assertFalse( $first['features']['geo'] );
+		$this->assertSame( Cookie_Consent::get_active_config(), $first );
 	}
 
 	public function test_initialized_action_does_not_fire_for_a_disabled_init() {
@@ -127,7 +133,9 @@ class Init_Ownership_Test extends TestCase {
 		Cookie_Consent::init();
 
 		$this->assertCount( 1, $received );
-		$this->assertTrue( $received[0]['enabled'] );
+		$first = reset( $received );
+		$this->assertIsArray( $first );
+		$this->assertTrue( $first['enabled'] );
 	}
 
 	public function test_initialized_action_fires_after_the_runtime_hooks_are_registered() {
