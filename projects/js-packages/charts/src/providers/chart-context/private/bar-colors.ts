@@ -52,15 +52,14 @@ export function tintWithContrast( color: string, background: string ): string {
 /**
  * A color, or the tone of it nearest the original that keeps 3:1 against a bar it is drawn over.
  *
- * @param color      - A hex color.
- * @param under      - The hex color of the bar behind it.
- * @param background - The hex chart background, which `under` is a tint toward.
+ * @param color - A hex color.
+ * @param under - The hex color of the bar behind it.
  * @return A hex color.
  */
-export function shadeWithContrast( color: string, under: string, background: string ): string {
+export function shadeWithContrast( color: string, under: string ): string {
 	const passes = ( tone: string ) => contrastRatio( tone, under ) >= MIN_BACKGROUND_CONTRAST;
 
-	return passes( color ) ? color : blendToEdge( color, awayFrom( background ), passes );
+	return passes( color ) ? color : blendToEdge( color, awayFrom( under ), passes );
 }
 
 /**
@@ -121,7 +120,7 @@ export function getBarColors(
 
 		const tint = tintWithContrast( colors[ primary ], background );
 		barColors[ comparison ] = tint;
-		barColors[ primary ] = shadeWithContrast( colors[ primary ], tint, background );
+		barColors[ primary ] = shadeWithContrast( colors[ primary ], tint );
 	} );
 
 	return barColors;

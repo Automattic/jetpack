@@ -49,6 +49,7 @@ describe( 'getBarColors', () => {
 	it.each( [
 		[ 'a light color on white', '#c7e0f4', '#ffffff' ],
 		[ 'a color on a dark background', '#3858e9', '#1e1e1e' ],
+		[ 'a color on a mid-tone background', '#3858e9', '#777777' ],
 	] )(
 		'gives a comparison the lightest tint that keeps 3:1 against the background, and its primary 3:1 against the tint, for %s',
 		( _, color, background ) => {
