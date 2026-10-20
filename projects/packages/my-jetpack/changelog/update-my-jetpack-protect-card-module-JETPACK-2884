@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect: Keep the Protect card active when Brute force protection is off on sites with the Protect page.

@@ -1,6 +1,6 @@
 <?php
 /**
- * The VideoPress channel blocks.
+ * The channel blocks: channel details, video details, playlist details and episode navigation.
  *
  * @package automattic/jetpack-videopress
  */
@@ -23,9 +23,10 @@ class Channel_Blocks {
 	 * @var array<string, string>
 	 */
 	const BLOCKS = array(
-		'videopress/channel-details'  => 'render_channel_details',
-		'videopress/video-details'    => 'render_video_details',
-		'videopress/playlist-details' => 'render_playlist_details',
+		'videopress/channel-details'    => 'render_channel_details',
+		'videopress/video-details'      => 'render_video_details',
+		'videopress/playlist-details'   => 'render_playlist_details',
+		'videopress/episode-navigation' => 'render_episode_navigation',
 	);
 
 	/**
@@ -104,6 +105,85 @@ class Channel_Blocks {
 			$handle,
 			'window.videopressChannelEditor = ' . wp_json_encode( array( 'playlists' => $playlists ), JSON_HEX_TAG | JSON_UNESCAPED_SLASHES ) . ';',
 			'before'
+		);
+	}
+
+	/**
+	 * Empty state modes, the first being the default ( render nothing ).
+	 *
+	 * @var string[]
+	 */
+	const EMPTY_STATE_MODES = array( 'none', 'author', 'all' );
+
+	/**
+	 * A block's `emptyState` mode.
+	 *
+	 * @param mixed $attributes Block attributes.
+	 *
+	 * @return string One of EMPTY_STATE_MODES.
+	 */
+	public static function empty_state_mode( $attributes ) {
+		return is_array( $attributes ) && isset( $attributes['emptyState'] ) && in_array( $attributes['emptyState'], self::EMPTY_STATE_MODES, true )
+			? $attributes['emptyState']
+			: self::EMPTY_STATE_MODES[0];
+	}
+
+	/**
+	 * The empty state a block shows when the channel has no videos or no playlists:
+	 * a call to action for people who can add some, a short note for visitors in "all" mode.
+	 *
+	 * @param string $kind          "videos" or "playlists".
+	 * @param mixed  $attributes    Block attributes, for the `emptyState` mode.
+	 * @param string $wrapper_class Classes for the block wrapper, besides `is-empty`.
+	 *
+	 * @return string Markup, or an empty string when nothing should show.
+	 */
+	public static function render_empty_state( $kind, $attributes, $wrapper_class = '' ) {
+		$mode = self::empty_state_mode( $attributes );
+		if ( 'none' === $mode ) {
+			return '';
+		}
+		$is_videos = 'playlists' !== $kind;
+		$can_act   = current_user_can( $is_videos ? 'upload_files' : 'edit_posts' );
+		if ( ! $can_act && 'all' !== $mode ) {
+			return '';
+		}
+
+		$action = '';
+		if ( $can_act ) {
+			$copy   = $is_videos
+				? array(
+					__( 'Upload your first video', 'jetpack-videopress-pkg' ),
+					__( 'Videos you upload to the media library appear here, with their own page on your channel.', 'jetpack-videopress-pkg' ),
+				)
+				: array(
+					__( 'Create your first playlist', 'jetpack-videopress-pkg' ),
+					__( 'Add a Video Playlist block to a post or page and give it a title: it is listed here and gets its own page.', 'jetpack-videopress-pkg' ),
+				);
+			$action = sprintf(
+				'<a class="videopress-empty-state__action wp-element-button" href="%1$s">%2$s</a>',
+				esc_url( admin_url( $is_videos ? 'media-new.php' : 'post-new.php' ) ),
+				esc_html( $is_videos ? __( 'Upload a video', 'jetpack-videopress-pkg' ) : __( 'Write a post', 'jetpack-videopress-pkg' ) )
+			);
+		} else {
+			$copy = $is_videos
+				? array( __( 'No videos yet', 'jetpack-videopress-pkg' ), __( 'New videos will appear here.', 'jetpack-videopress-pkg' ) )
+				: array( __( 'No playlists yet', 'jetpack-videopress-pkg' ), __( 'Playlists will appear here.', 'jetpack-videopress-pkg' ) );
+		}
+
+		$markup = sprintf(
+			'<div class="videopress-empty-state is-%1$s is-for-%2$s"><p class="videopress-empty-state__title">%3$s</p><p class="videopress-empty-state__text">%4$s</p>%5$s</div>',
+			$is_videos ? 'videos' : 'playlists',
+			$can_act ? 'author' : 'visitor',
+			esc_html( $copy[0] ),
+			esc_html( $copy[1] ),
+			$action
+		);
+
+		return sprintf(
+			'<div %1$s>%2$s</div>',
+			get_block_wrapper_attributes( array( 'class' => trim( $wrapper_class . ' is-empty' ) ) ),
+			$markup
 		);
 	}
 
@@ -272,7 +352,7 @@ class Channel_Blocks {
 		$is_latest  = isset( $attributes['source'] ) && 'latest' === $attributes['source'];
 		$guid       = $post instanceof WP_Post ? Channel::guid( $post ) : '';
 		if ( ! $post instanceof WP_Post || '' === $guid ) {
-			return '';
+			return $is_latest ? self::render_empty_state( 'videos', $attributes, 'videopress-video-details' ) : '';
 		}
 		$details  = Channel_Data::video_details( $guid, $post );
 		$record   = Channel_Data::record( $post );
@@ -358,7 +438,9 @@ class Channel_Blocks {
 		$source     = isset( $attributes['source'] ) && 'index' === $attributes['source'] ? 'index' : 'queried';
 		$playlist   = Channel::source_playlist( $source, isset( $attributes['sourcePlaylistId'] ) ? (string) $attributes['sourcePlaylistId'] : '' );
 		if ( ! $playlist ) {
-			return '';
+			return 'index' === $source && ! Channel::playlists()
+				? self::render_empty_state( 'playlists', $attributes, 'videopress-playlist-details is-source-index' )
+				: '';
 		}
 
 		$count    = count( $playlist['videos'] );
@@ -416,6 +498,59 @@ class Channel_Blocks {
 			'<div %1$s>%2$s</div>',
 			get_block_wrapper_attributes( array( 'class' => 'videopress-playlist-details is-source-' . $source ) ),
 			$markup
+		);
+	}
+
+	/**
+	 * Previous and next episode on a video page: within the playlist the page
+	 * plays from, else in upload order.
+	 *
+	 * @return string
+	 */
+	public static function render_episode_navigation() {
+		$guid = Channel::queried_guid();
+		if ( '' === $guid ) {
+			return '';
+		}
+
+		$playlist = Channel::queried_playlist();
+		$sequence = $playlist ? array_column( $playlist['videos'], 'guid' ) : array();
+		if ( ! in_array( $guid, $sequence, true ) ) {
+			$playlist = null;
+			$sequence = array_reverse( array_column( Channel_Data::videos(), 'guid' ) );
+		}
+		$position = array_search( $guid, $sequence, true );
+		if ( false === $position ) {
+			return '';
+		}
+
+		$links = '';
+		foreach ( array(
+			'prev' => array( $position - 1, __( '← Previous episode', 'jetpack-videopress-pkg' ) ),
+			'next' => array( $position + 1, __( 'Next episode →', 'jetpack-videopress-pkg' ) ),
+		) as $direction => list( $index, $label ) ) {
+			$other = $sequence[ $index ] ?? '';
+			$id    = '' !== $other ? Channel::attachment_id( $other ) : 0;
+			if ( ! $id ) {
+				continue;
+			}
+			$links .= sprintf(
+				'<a class="videopress-episode-navigation__link is-%1$s" href="%2$s" rel="%1$s"><span class="videopress-episode-navigation__label">%3$s</span><span class="videopress-episode-navigation__title">%4$s</span></a>',
+				esc_attr( $direction ),
+				esc_url( Channel::video_url( $id, $playlist ? $playlist['key'] : '' ) ),
+				esc_html( $label ),
+				esc_html( Channel_Data::video_details( $other, $id )['title'] )
+			);
+		}
+		if ( '' === $links ) {
+			return '';
+		}
+
+		return sprintf(
+			'<nav %1$s aria-label="%2$s">%3$s</nav>',
+			get_block_wrapper_attributes( array( 'class' => 'videopress-episode-navigation' ) ),
+			esc_attr__( 'Episodes', 'jetpack-videopress-pkg' ),
+			$links
 		);
 	}
 }

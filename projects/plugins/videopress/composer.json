@@ -37,7 +37,6 @@
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-videopress-plugin",
 		"autorelease": true,
-		"autotagger": true,
 		"changelogger": {
 			"versioning": "wordpress"
 		},

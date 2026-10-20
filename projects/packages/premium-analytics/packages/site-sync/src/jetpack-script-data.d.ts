@@ -19,6 +19,8 @@ declare module '@automattic/jetpack-script-data' {
 			classic_stats_url?: string | null;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];
+			// Slugs of the tabs whose dates follow the plan's Stats limits. Absent with `sections`.
+			plan_date_limited_sections?: string[];
 			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.
 			store_currency?: { code: string; symbol: string };
 			// The roles the Stats settings list, and the screen that switches Stats on and off; absent for users who cannot manage options.
@@ -34,6 +36,20 @@ declare module '@automattic/jetpack-script-data' {
 					{ description: string; support_url: string; upgrade_url: string }
 				>;
 				locked_widget_types: Record< string, string >;
+				// Absent from servers that predate section gates.
+				locked_sections?: Record<
+					string,
+					{
+						title: string;
+						description: string;
+						features: string[];
+						upgrade_label: string;
+						expand_label: string;
+						support_url: string;
+						upgrade_url: string;
+						open_widget_types: string[];
+					}
+				>;
 			};
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
 			purchase_success?: { type: 'paid' | 'free' };

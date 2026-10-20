@@ -14,7 +14,7 @@ use Automattic\Jetpack\Protect_Models\Status_Model;
  */
 class Status {
 
-	const PACKAGE_VERSION = '0.8.1';
+	const PACKAGE_VERSION = '0.9.0';
 	/**
 	 * Name of the option where status is stored
 	 *
@@ -65,7 +65,7 @@ class Status {
 	/**
 	 * Gets the last status stored on the site, even if it has expired, without asking WordPress.com.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @return Status_Model|null Null when no status has been stored yet.
 	 */
@@ -77,7 +77,7 @@ class Status {
 	/**
 	 * Whether the stored status is missing or old enough that get_status() would fetch a new one.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @return bool
 	 */

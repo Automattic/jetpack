@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
+import { keys } from '../../data/query-client';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	useActivityById,
@@ -101,12 +102,14 @@ function requestedPaths(): string[] {
  * Isolated per test so one test's cached page cannot satisfy another's
  * query — the request counts below are load-bearing.
  *
+ * @param seed - Fills the client's cache before the hook mounts.
  * @return A wrapper component.
  */
-function wrapper() {
+function wrapper( seed?: ( client: QueryClient ) => void ) {
 	const client = new QueryClient( {
 		defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
 	} );
+	seed?.( client );
 	return ( { children }: { children: ReactNode } ) =>
 		createElement( QueryClientProvider, { client }, children );
 }
@@ -158,6 +161,66 @@ describe( 'useActivityLog', () => {
 		// of a multi-page log is ever in hand.
 		expect( requestedPaths() ).toHaveLength( 2 );
 		expect( requestedPaths()[ 1 ] ).toContain( 'sort_order=asc' );
+	} );
+
+	describe( 'when a page fails', () => {
+		const THIRTY = {
+			current: { orderedItems: [ backupEntry( NEWEST_ID, '2026-08-20T10:00:00+00:00' ) ] },
+			totalItems: 30,
+			totalPages: 3,
+		};
+
+		/**
+		 * Answer every request with the thirty-row log, except those whose path holds `failing`.
+		 *
+		 * @param failing - Path fragment that rejects.
+		 */
+		function failRequestsWith( failing: string ) {
+			mockedApiFetch.mockImplementation( ( options: { path?: string } ) => {
+				const path = options?.path ?? '';
+				if ( ! path.includes( '/site/rewindable-activity' ) ) {
+					return Promise.resolve( {} );
+				}
+				return path.includes( failing )
+					? Promise.reject( new Error( 'down' ) )
+					: Promise.resolve( THIRTY );
+			} );
+		}
+
+		it( 'counts the pages from the first page when this hook never saw an answer', async () => {
+			failRequestsWith( 'page=2' );
+			const { result } = renderHook(
+				() =>
+					useActivityLog( { page: 2, pageSize: ACTIVITY_LOG_DEFAULT_PER_PAGE, sortOrder: 'desc' } ),
+				{
+					wrapper: wrapper( client =>
+						client.setQueryData(
+							keys.activityLogPage( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+							THIRTY
+						)
+					),
+				}
+			);
+
+			await waitFor( () => expect( result.current.error ).not.toBeNull() );
+			expect( result.current.totalPages ).toBe( 3 );
+			expect( result.current.totalItems ).toBe( 30 );
+		} );
+
+		it( 'counts the pages at the new page size when a per-page change fails', async () => {
+			failRequestsWith( 'number=20' );
+			const { rerender, result } = renderHook(
+				( { pageSize }: { pageSize: number } ) =>
+					useActivityLog( { page: 1, pageSize, sortOrder: 'desc' } ),
+				{ wrapper: wrapper(), initialProps: { pageSize: ACTIVITY_LOG_DEFAULT_PER_PAGE } }
+			);
+			await waitFor( () => expect( result.current.totalPages ).toBe( 3 ) );
+
+			rerender( { pageSize: 20 } );
+
+			await waitFor( () => expect( result.current.error ).not.toBeNull() );
+			expect( result.current.totalPages ).toBe( 2 );
+		} );
 	} );
 } );
 

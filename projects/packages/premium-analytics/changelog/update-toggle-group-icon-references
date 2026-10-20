@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Widgets: let a chart type option name its icon as a `jpa/<name>` reference, the form a widget.json can carry.

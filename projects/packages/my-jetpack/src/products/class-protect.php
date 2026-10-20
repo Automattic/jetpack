@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
@@ -86,11 +87,18 @@ class Protect extends Hybrid_Product {
 	public static $slug = 'protect';
 
 	/**
-	 * The Jetpack module name
+	 * The Jetpack module name, used where the `protect-dashboard` module is not on offer.
 	 *
 	 * @var string
 	 */
 	public static $module_name = 'protect';
+
+	/**
+	 * The module that loads the Protect page.
+	 *
+	 * @var string
+	 */
+	const DASHBOARD_MODULE_NAME = 'protect-dashboard';
 
 	/**
 	 * The filename (id) of the plugin associated with this product.
@@ -109,6 +117,46 @@ class Protect extends Hybrid_Product {
 	 * @var string
 	 */
 	public static $plugin_slug = 'jetpack-protect';
+
+	/**
+	 * Get the module that switches Protect on: the Protect page's, wherever the Jetpack plugin offers it.
+	 *
+	 * Not with the standalone plugin active: the page module would take over that plugin's dashboard (see JETPACK-3062).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public static function get_module_name() {
+		if ( ! static::is_standalone_plugin_active() && self::is_dashboard_module_available() ) {
+			return self::DASHBOARD_MODULE_NAME;
+		}
+		return static::$module_name;
+	}
+
+	/**
+	 * Leave the standalone plugin alone where the Jetpack plugin already delivers the Protect page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function should_use_standalone_plugin() {
+		return ! ( static::is_jetpack_plugin_active() && self::is_dashboard_module_available() );
+	}
+
+	/**
+	 * Whether the Jetpack plugin offers the module that loads the Protect page, which only happens while its flag is on.
+	 *
+	 * Not Modules::is_module(): it passes any slug.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_dashboard_module_available() {
+		return in_array( self::DASHBOARD_MODULE_NAME, (array) ( new Modules() )->get_available(), true );
+	}
 
 	/**
 	 * Activate local product steps without scheduling connected modules offline.
@@ -442,14 +490,43 @@ class Protect extends Hybrid_Product {
 	public static function get_post_checkout_urls_by_feature() {
 		return array(
 			self::SCAN_FEATURE_SLUG     => self::get_post_checkout_url(),
-			self::FIREWALL_FEATURE_SLUG => admin_url( 'admin.php?page=jetpack-protect#/firewall' ),
+			self::FIREWALL_FEATURE_SLUG => self::get_firewall_settings_url(),
 		);
+	}
+
+	/**
+	 * Where each Jetpack security module's settings live while the Protect package's dashboard is the Protect page.
+	 *
+	 * Screens that would offer one of these settings link there instead.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array<string, string> Settings URLs keyed by module slug; empty without the dashboard.
+	 */
+	public static function get_protect_page_module_urls() {
+		// method_exists, not class_exists: an older bundled Protect package can ship the class without it.
+		$dashboard = 'Automattic\Jetpack\Protect\Dashboard';
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional Protect package, guarded by method_exists.
+		if ( ! did_action( 'jetpack_protect_dashboard_initialized' ) || ! method_exists( $dashboard, 'get_module_settings_urls' ) ) {
+			return array();
+		}
+
+		return (array) $dashboard::get_module_settings_urls();
+	}
+
+	/**
+	 * The firewall's settings: the Protect page's Firewall card, or the standalone plugin's Firewall screen.
+	 *
+	 * @return string
+	 */
+	private static function get_firewall_settings_url() {
+		return self::get_protect_page_module_urls()['waf'] ?? admin_url( 'admin.php?page=jetpack-protect#/firewall' );
 	}
 
 	/**
 	 * Whether wp-admin has a Protect page, from the standalone plugin or the Protect package's dashboard.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @return bool
 	 */
@@ -500,7 +577,7 @@ class Protect extends Hybrid_Product {
 	public static function get_manage_urls_by_feature() {
 		return array(
 			self::SCAN_FEATURE_SLUG     => self::get_manage_url(),
-			self::FIREWALL_FEATURE_SLUG => admin_url( 'admin.php?page=jetpack-protect#/firewall' ),
+			self::FIREWALL_FEATURE_SLUG => self::get_firewall_settings_url(),
 		);
 	}
 

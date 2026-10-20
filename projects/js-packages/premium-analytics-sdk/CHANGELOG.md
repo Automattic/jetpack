@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.5.0 - 2026-10-19
+### Added
+- Add stated totals to the Donut props. [#53707]
+- Add `Columns`, the kind for a few categories compared across the periods as vertical bars. [#53476]
+- Add `Locations`, the kind that lists a ranking of places beside the map that draws them. [#53534]
+- Declare the optional chart title of the Columns, Donut, Funnel and Locations components, which names their charts for screen readers. [#53333]
+
+### Changed
+- Declare the optional action of a widget empty state. [#53411]
+- Declare the option that opens a widget empty state link in a new tab. [#53541]
+
 ## 0.4.0 - 2026-10-12
 ### Added
 - Add the `half-ring` variant of `Donut`, the breakdown drawn as a semi-circle, and its `withTotal` switch. [#53429]

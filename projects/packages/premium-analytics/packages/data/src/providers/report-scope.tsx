@@ -9,15 +9,24 @@ import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { NO_LOCKED_INTERVALS, type LockableInterval } from '../utils/interval';
 import type { StatsDatePolicy } from '../utils/stats-date-policy';
 
+/** The copy and links of the upsell beside a control's locked options. */
+export type DateLimitUpsellCopy = {
+	description: string;
+	supportUrl: string;
+	upgradeUrl: string;
+	/** Called when the reader follows the upgrade link. */
+	onUpgradeClick?: () => void;
+};
+
 /** Date options the site's plan withholds, for the controls to show as locked. */
 export type DateLimits = Pick<
 	StatsDatePolicy,
 	'lockedPresetIds' | 'earliestDate' | 'lockedIntervals'
 > & {
-	/** The copy and links of the upsell beside the locked options. */
-	upsell?: { description: string; supportUrl: string; upgradeUrl: string };
-	/** Called when the reader follows the upsell's upgrade link. */
-	onUpgradeClick?: () => void;
+	/** Explains the locked periods. */
+	upsell?: DateLimitUpsellCopy;
+	/** Explains the locked chart intervals. */
+	intervalUpsell?: DateLimitUpsellCopy;
 };
 
 /**

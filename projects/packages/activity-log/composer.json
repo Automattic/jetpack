@@ -60,7 +60,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-activity-log",
 		"textdomain": "jetpack-activity-log",
 		"version-constants": {

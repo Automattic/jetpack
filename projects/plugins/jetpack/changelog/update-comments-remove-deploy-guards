@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-Comment: Comments: Drop the staged-deploy guards around the jetpack-comments package, which now ships in every build.
-
