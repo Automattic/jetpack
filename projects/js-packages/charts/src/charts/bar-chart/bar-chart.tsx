@@ -171,8 +171,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			collapseGroups: legendCollapseGroups,
 			comparisonItem: legendComparisonItem,
 			comparisonSeriesItems: legendComparisonSeriesItems,
+			barLayout: isOverlap ? layout : undefined,
 		} ),
-		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems ]
+		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems, isOverlap, layout ]
 	);
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
 

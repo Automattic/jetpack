@@ -8,6 +8,7 @@ import {
 } from '../../../providers';
 import { formatPercentage } from '../../../utils';
 import type {
+	BarChartLayout,
 	ComparisonItemLabel,
 	SeriesData,
 	DataPointDate,
@@ -41,6 +42,36 @@ export interface ChartLegendOptions {
 	comparisonItem?: SeriesChartLegendConfig[ 'comparisonItem' ];
 	/** One static item per comparison series instead; see `SeriesChartLegendConfig`. */
 	comparisonSeriesItems?: SeriesChartLegendConfig[ 'comparisonSeriesItems' ];
+	/**
+	 * Color each swatch as `BarChart` fills its bar in this layout. Unset, swatches keep their series colors.
+	 */
+	barLayout?: BarChartLayout;
+}
+
+/**
+ * Wraps `getElementStyles` so a swatch takes its bar's color, opaque as the bar is.
+ * @param getElementStyles - Function to get element styles
+ * @param barColors        - Each series' bar color, by index
+ * @return Element styles with the bar's color
+ */
+function withBarColors(
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
+	barColors: string[]
+): ( params: GetElementStylesParams ) => ElementStyles {
+	return params => {
+		const styles = getElementStyles( params );
+		const { opacity, ...shapeStyles } = styles.shapeStyles;
+
+		return {
+			...styles,
+			color: barColors[ params.index ] ?? styles.color,
+			// Only the translucency `barStyles` lent the swatch goes; a series' own legend opacity stays.
+			shapeStyles:
+				opacity !== undefined && opacity === styles.barStyles?.opacity
+					? shapeStyles
+					: styles.shapeStyles,
+		};
+	};
 }
 
 /**
@@ -386,9 +417,10 @@ export function useChartLegendItems<
 		collapseGroups = false,
 		comparisonItem = false,
 		comparisonSeriesItems,
+		barLayout,
 		renderGlyph,
 	} = options;
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles: getSeriesStyles, getBarColors } = useGlobalChartsContext();
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {
@@ -398,6 +430,10 @@ export function useChartLegendItems<
 		// Handle SeriesData (multiple series with data points)
 		if ( 'data' in data[ 0 ] ) {
 			const seriesData = data as SeriesData[];
+			const barColors = barLayout && getBarColors?.( seriesData, { layout: barLayout } );
+			const getElementStyles = barColors
+				? withBarColors( getSeriesStyles, barColors )
+				: getSeriesStyles;
 			const items = processSeriesData(
 				seriesData,
 				getElementStyles,
@@ -440,7 +476,7 @@ export function useChartLegendItems<
 		// Handle DataPointDate or DataPointPercentageCalculated (single data points)
 		return processPointData(
 			data as ( DataPointDate | DataPointPercentageCalculated )[],
-			getElementStyles,
+			getSeriesStyles,
 			showValues,
 			legendValueDisplay,
 			withGlyph,
@@ -450,7 +486,8 @@ export function useChartLegendItems<
 		);
 	}, [
 		data,
-		getElementStyles,
+		getSeriesStyles,
+		getBarColors,
 		showValues,
 		legendValueDisplay,
 		withGlyph,
@@ -458,6 +495,7 @@ export function useChartLegendItems<
 		collapseGroups,
 		comparisonItem,
 		comparisonSeriesItems,
+		barLayout,
 		renderGlyph,
 		legendShape,
 	] );

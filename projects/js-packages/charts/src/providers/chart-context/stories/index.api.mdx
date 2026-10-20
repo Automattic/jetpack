@@ -47,6 +47,7 @@ interface GlobalChartsContextValue {
 	// Theme and styling
 	theme: CompleteChartTheme;
 	getElementStyles: (params: GetElementStylesParams) => ElementStyles;
+	getBarColors?: (series: SeriesData[], options?: { layout?: 'grouped' | 'overlap' }) => string[];
 
 	// Locale and time zone every date the charts print is rendered in
 	formatting: ChartFormatting;
@@ -73,6 +74,7 @@ interface GlobalChartsContextValue {
 
 | Member | Note |
 | ------ | ---- |
+| `getBarColors` | The colors `BarChart` fills these series with in a `layout`, by index, so a custom tooltip or legend can match the bars. For `grouped` (the default) each is the series' `color`. For `overlap`, see [the bar chart's overlap layout](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#overlap-layout). Optional on the type, so a hand-built context value without it still type-checks; `GlobalChartsProvider` always supplies it. |
 | `seedChartHiddenSeries` | Backs the `defaultHiddenSeries` prop. The provider records which chart IDs it has seeded, so a chart that unmounts and comes back keeps whatever the reader had shown or hidden. |
 | `isColorPaletteResolved` | `false` until the color cache has resolved from the DOM and painted. Use it to defer transitions that would otherwise interpolate from a fallback color. |
 | `formatting` | `{ locale?: string; timeZone?: string }`, from the provider's props. Read it with `useChartFormatting()`, which returns the runtime's own defaults outside a provider rather than throwing. |

@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { GlobalChartsProvider } from '../../../../providers';
+import { GlobalChartsProvider, useGlobalChartsContext } from '../../../../providers';
 import { useChartLegendItems } from '../use-chart-legend-items';
 import type { DataPointPercentageCalculated, DataPointDate, SeriesData } from '../../../../types';
 import type { ReactNode } from 'react';
@@ -419,6 +419,30 @@ describe( 'useChartLegendItems', () => {
 			] );
 			expect( result.current[ 0 ].color ).not.toBe( result.current[ 1 ].color );
 			expect( result.current[ 2 ].color ).toBe( result.current[ 0 ].color );
+		} );
+
+		test.each( [
+			[ 'keeps the series colors, comparisons translucent,', undefined, 'grouped', 0.5 ],
+			[ 'takes the opaque overlap bar colors', 'overlap', 'overlap', undefined ],
+		] as const )( '%s with barLayout %s', ( _case, barLayout, colorLayout, comparisonOpacity ) => {
+			const { result } = renderHook(
+				() => ( {
+					items: useChartLegendItems( twoMetricData, {
+						collapseGroups: true,
+						comparisonSeriesItems: perMetricLabel,
+						barLayout,
+					} ),
+					context: useGlobalChartsContext(),
+				} ),
+				{ wrapper }
+			);
+			const colors =
+				result.current.context.getBarColors?.( twoMetricData, { layout: colorLayout } ) ?? [];
+
+			expect( result.current.items.map( item => item.color ) ).toEqual(
+				[ 0, 2, 1, 3 ].map( index => colors[ index ] )
+			);
+			expect( result.current.items[ 2 ].shapeStyle?.opacity ).toBe( comparisonOpacity );
 		} );
 
 		test( 'adds nothing when no series is a comparison', () => {

@@ -128,6 +128,15 @@ describe( 'BarChart overlap layout', () => {
 		} );
 	} );
 
+	it( 'colors its legend swatches as its bars', () => {
+		renderOverlap( { chartId: 'overlap-legend' } );
+
+		const colors = context.getBarColors?.( DATA, { layout: 'overlap' } );
+		expect(
+			context.getChartData( 'overlap-legend' )?.legendItems.map( item => item.color )
+		).toEqual( colors );
+	} );
+
 	it.each( [
 		[
 			'a comparison keeps its slot while its primary is hidden',
