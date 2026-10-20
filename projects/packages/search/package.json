@@ -135,6 +135,7 @@
 					"@jetpack-search/init"
 				]
 			}
-		]
+		],
+		"sharedModules": "../admin-ui/package.json"
 	}
 }

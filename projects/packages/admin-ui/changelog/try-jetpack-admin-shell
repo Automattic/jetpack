@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add an experimental admin shell that keeps Jetpack dashboards loaded for instant switching, plus shared script modules for common libraries.
