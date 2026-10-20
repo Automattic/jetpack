@@ -37,7 +37,9 @@ import type { KeyboardEvent, MouseEvent } from 'react';
 
 import './style.scss';
 
-export { wp } from './wp';
+// Its own download, so a site whose host registers no blocks never fetches it.
+export const loadNamespaces = () =>
+	import( /* webpackChunkName: "editor-wp" */ './wp' ).then( module => module.wp );
 
 // The chunk runs once per page, however many forms it serves.
 [ paragraph, list, listItem, quote, code ].forEach( block => block.init() );

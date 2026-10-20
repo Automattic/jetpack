@@ -9,7 +9,7 @@ export type EditorProps = {
 	labels: EditorLabels;
 	/**
 	 * The blocks the "+" menu offers, in order, by name. Left out, the package's own set. A name with no
-	 * registered block is skipped, so a host registers its blocks through `wp.blocks` before mounting.
+	 * registered block is skipped, so a host registers its blocks through `loadNamespaces()` before mounting.
 	 */
 	blocks?: string[];
 	/** The caret's offset into the text, or -1 for the end. Left out, the editor takes no focus. */
