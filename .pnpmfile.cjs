@@ -234,6 +234,27 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
+	// Bump problematic ranges for now; should be safe:
+	// p1792520152276519-slack-C05Q5HSS013
+	if (
+		pkg.name === '@wordpress/build' &&
+		pkg.peerDependencies?.[ '@wordpress/theme' ] === '>=0.8.0 <3.0.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/theme' ] = '>=0.8.0 <=3.0.0';
+	}
+	if (
+		pkg.name === '@automattic/launchpad' &&
+		pkg.peerDependencies?.[ '@wordpress/i18n' ] === '^6.21.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/i18n' ] += ' || ^7.0.0';
+	}
+	if (
+		pkg.name === 'newspack-icons' &&
+		pkg.peerDependencies?.[ '@wordpress/primitives' ] === '^3.0.0 || ^4.0.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/primitives' ] += ' || ^5.0.0';
+	}
+
 	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
 	// @see https://github.com/mjeanroy/rollup-plugin-license/issues/2110
 	if ( pkg.name === 'rollup-plugin-license' ) {
