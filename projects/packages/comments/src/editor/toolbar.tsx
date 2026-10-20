@@ -3,11 +3,10 @@ import { BlockControls, store as blockEditorStore } from '@wordpress/block-edito
 import { createBlock, getBlockType, switchToBlockType } from '@wordpress/blocks';
 import { DropdownMenu, Toolbar, ToolbarGroup, ToolbarItem } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import type { IconType } from './types';
-import type { EditorLabels } from '../shared/types';
+import type { BlockToolbarProps, IconType } from './types';
 
-// The blocks a comment offers; embeds and images only where the site allows them.
-const names = [
+// The blocks a comment offers unless the host lists its own; embeds and images only where the site allows them.
+const defaults = [
 	'core/paragraph',
 	'core/list',
 	'core/quote',
@@ -37,7 +36,7 @@ const menuItem = ( name: string, onClick: () => void ) => {
 };
 
 // The toolbar across the top, for the selected block and its text.
-export const BlockToolbar = ( { labels }: { labels: EditorLabels } ) => {
+export const BlockToolbar = ( { labels, blocks = defaults }: BlockToolbarProps ) => {
 	const { root, index } = useSelect( select => {
 		const { getSelectedBlockClientIds, getBlock, getBlockHierarchyRootClientId, getBlockIndex } =
 			select( blockEditorStore );
@@ -55,7 +54,8 @@ export const BlockToolbar = ( { labels }: { labels: EditorLabels } ) => {
 		return null;
 	}
 
-	const offered = names.filter( name => getBlockType( name ) );
+	// A name the host listed but never registered would crash the menu.
+	const offered = blocks.filter( name => getBlockType( name ) );
 
 	// Gutenberg's inserter is stubbed out, so "+" offers the same blocks, after the selected one.
 	const inserts = offered.map( name =>
@@ -65,9 +65,9 @@ export const BlockToolbar = ( { labels }: { labels: EditorLabels } ) => {
 	// Gutenberg's own switcher is not exported, so the comment offers its own blocks.
 	const type = getBlockType( root.name )!;
 	const switches = offered.flatMap( name => {
-		const blocks = name === root.name ? null : switchToBlockType( root, name );
+		const switched = name === root.name ? null : switchToBlockType( root, name );
 
-		return blocks ? [ menuItem( name, () => replaceBlocks( root.clientId, blocks ) ) ] : [];
+		return switched ? [ menuItem( name, () => replaceBlocks( root.clientId, switched ) ) ] : [];
 	} );
 
 	return (

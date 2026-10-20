@@ -7,6 +7,11 @@ export type EditorProps = {
 	initialContent: string;
 	/** The editor's own strings, translated in PHP. */
 	labels: EditorLabels;
+	/**
+	 * The blocks the "+" menu offers, in order, by name. Left out, the package's own set. A name with no
+	 * registered block is skipped, so a host registers its blocks through `wp.blocks` before mounting.
+	 */
+	blocks?: string[];
 	/** The caret's offset into the text, or -1 for the end. Left out, the editor takes no focus. */
 	focus?: () => number;
 	placeholder: string;
@@ -16,6 +21,8 @@ export type EditorProps = {
 	/** The editor broke; the caller brings its textarea back. */
 	onError: ( error: unknown ) => void;
 };
+
+export type BlockToolbarProps = { labels: EditorLabels; blocks?: string[] };
 
 export type BoundaryProps = { onError: ( error: unknown ) => void; children: ReactNode };
 
