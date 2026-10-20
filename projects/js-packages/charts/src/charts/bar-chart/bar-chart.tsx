@@ -64,8 +64,6 @@ type ComparisonSeriesEntry = {
 	series: SeriesData;
 	index: number;
 	primaryKey: string;
-	/** dataSorted index of the paired primary series, whose pattern the comparison shares. */
-	primaryIndex: number;
 };
 /**
  * Whether two data points sit at the same category: the same label, or the same date.
@@ -273,7 +271,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					series,
 					index,
 					primaryKey: dataWithVisibleZeros[ primaryIndex ].label,
-					primaryIndex,
 				} );
 			}
 		} );
@@ -523,7 +520,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const createPatternBorderStyle = useCallback(
 		( index: number, color: string ) => {
 			const patternId = getPatternId( chartId, index );
-			// A comparison bar reuses its primary's pattern, so this outlines both.
 			return `
 			.visx-bar[fill="url(#${ patternId })"] {
 				stroke: ${ color };

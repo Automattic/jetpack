@@ -198,7 +198,7 @@ It composes with grouped bars: pair each primary series with its own `type: 'com
 
 **Notes:**
 
-- A comparison series pairs with the primary series that shares its `group` (when there is a single primary series, `group` can be omitted on both).
+- A comparison series pairs with the primary series that shares its `group` (when there is a single primary series, `group` can be omitted on both). Pair one comparison with each primary: a second one draws over the first.
 - Comparison values are included in the value-axis domain, so a previous period taller than the current one is never clipped.
 - Comparison series must reuse the primary series' category keys (the `label`/`date` of each point) so each comparison bar lines up with its primary bar.
 - A comparison bar stays in its slot, at its size, and hoverable while its primary is hidden. While both show, hovering either names the slot's primary as the nearest datum, so the tooltip pairs the two. The arrow keys step one slot at a time, the focus ring goes around every bar in the slot, and the tooltip holds every bar of the category.

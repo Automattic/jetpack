@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Bar chart: Draw comparison bars as opaque bars of their own, which keep their slot while the primary is hidden, have their own hover target, and take keyboard focus with their primary. Unless its stroke gives it a color of its own, a comparison takes a tint of its primary's color, and the pair keeps WCAG's 3:1 contrast against the background and each other. `useChartLegendItems` takes a `barColors` option that colors swatches the same way. The `barChart.barStyles.comparison.opacity` theme key is deprecated and has no effect.
+Bar chart: Draw comparison bars as opaque bars of their own, which keep their slot and stay hoverable while the primary is hidden, and take keyboard focus with their primary. Only the bars at the current category fill the tooltip. Unless its stroke gives it a color of its own, a comparison takes a tint of its primary's color, and the pair keeps WCAG's 3:1 contrast against the background and each other. `useChartLegendItems` takes a `barColors` option that colors swatches the same way. The `barChart.barStyles.comparison.opacity` theme key is deprecated and has no effect.

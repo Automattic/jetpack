@@ -44,17 +44,7 @@ const SlottedBarSeries = ( {
 	);
 	const slot = slotKey ?? props.dataKey;
 	const renderGlyph = useCallback(
-		( {
-			datum,
-			x,
-			y,
-			color,
-			onBlur,
-			onFocus,
-			onPointerMove,
-			onPointerOut,
-			onPointerUp,
-		}: GlyphProps< DataPointDate > ) => {
+		( { datum, x, y, color }: GlyphProps< DataPointDate > ) => {
 			if ( ! bandScale?.bandwidth || ! valueScale ) return null;
 			const baseline = getValueScaleBaseline(
 				valueScale as Parameters< typeof getValueScaleBaseline >[ 0 ]
@@ -70,13 +60,6 @@ const SlottedBarSeries = ( {
 				<rect
 					className={ clsx( 'visx-bar', barClassName?.( datum ) ) }
 					data-testid={ isComparison ? 'bar-chart-comparison-bar' : undefined }
-					// visx's own Bars makes a bar focusable on the same condition.
-					tabIndex={ onFocus || onBlur ? 0 : undefined }
-					onBlur={ onBlur }
-					onFocus={ onFocus }
-					onPointerMove={ onPointerMove }
-					onPointerOut={ onPointerOut }
-					onPointerUp={ onPointerUp }
 					// Same arithmetic as visx BaseBarGroup, so rounding matches the bars it draws.
 					x={ horizontal ? baseline + Math.min( 0, value - baseline ) : position }
 					y={ horizontal ? position : baseline + Math.min( 0, value - baseline ) }

@@ -91,7 +91,7 @@ export function getComparisonPrimaries( series: SeriesData[] ): Map< number, num
 }
 
 /**
- * The colors a bar chart fills its series with. A comparison without a `stroke` in a color of its own takes the lightest tint of its primary's color that keeps 3:1 against the background, and its primary darkens until it keeps 3:1 against that tint.
+ * The colors a bar chart fills its series with. A comparison without a `stroke` in a color of its own takes the lightest tint of its primary's color that keeps 3:1 against the background, and its primary moves away from that tint, darker or lighter, until it keeps 3:1 against it.
  *
  * @param series     - The chart's series.
  * @param colors     - Each series' resolved color.
