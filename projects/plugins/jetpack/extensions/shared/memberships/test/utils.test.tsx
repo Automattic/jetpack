@@ -95,6 +95,17 @@ describe( 'getPaidAccessState', () => {
 		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: true } );
 	} );
 
+	test( 'does not disable paid while the memberships status is still loading', () => {
+		expect(
+			getPaidAccessState( {
+				stripeConnectUrl: null,
+				hasTierPlans: false,
+				accessLevel: accessOptions.subscribers.key,
+				isLoading: true,
+			} )
+		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: false } );
+	} );
+
 	test( 'keeps paid selectable on a post already set to paid after Stripe disconnects', () => {
 		expect(
 			getPaidAccessState( {

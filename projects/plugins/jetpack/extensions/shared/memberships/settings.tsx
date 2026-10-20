@@ -286,9 +286,7 @@ export function NewsletterAccessRadioButtons( {
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
 
-	// Paid subscribers can only be chosen once Stripe is connected and a tier exists.
-	// Rather than hiding the option, we show it disabled alongside a link to set it up,
-	// so creators discover that paid newsletters are available to them.
+	// Show paid disabled with a setup link beside it, so creators discover paid newsletters.
 	const { isPaidAvailable, showPaidAsDisabled } = getPaidAccessState( {
 		stripeConnectUrl,
 		hasTierPlans,

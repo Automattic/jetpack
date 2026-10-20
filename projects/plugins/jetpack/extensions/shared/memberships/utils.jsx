@@ -41,14 +41,21 @@ export const getPaidPlanLink = alreadyHasTierPlans => {
  * @param {string|null} props.stripeConnectUrl - Stripe connect URL, null once connected.
  * @param {boolean}     props.hasTierPlans     - Whether a newsletter tier exists.
  * @param {string}      props.accessLevel      - The post's saved access level.
+ * @param {boolean}     props.isLoading        - Whether the memberships status is still loading.
  * @return {{isPaidAvailable: boolean, showPaidAsDisabled: boolean}} Paid option state.
  */
-export const getPaidAccessState = ( { stripeConnectUrl, hasTierPlans, accessLevel } ) => {
+export const getPaidAccessState = ( {
+	stripeConnectUrl,
+	hasTierPlans,
+	accessLevel,
+	isLoading = false,
+} ) => {
 	const isPaidAvailable = stripeConnectUrl === null && hasTierPlans;
 	// Keep the option selectable when it is already the saved value, so a post set to
-	// paid before Stripe was disconnected does not end up with nothing selected.
+	// paid before Stripe was disconnected does not end up with nothing selected. While the
+	// status is still loading, "not known yet" must not read as "not set up".
 	const showPaidAsDisabled =
-		! isPaidAvailable && accessLevel !== accessOptions.paid_subscribers.key;
+		! isLoading && ! isPaidAvailable && accessLevel !== accessOptions.paid_subscribers.key;
 	return { isPaidAvailable, showPaidAsDisabled };
 };
 

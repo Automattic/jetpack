@@ -40,19 +40,22 @@ function PaywallEdit( { clientId } ) {
 		};
 	}, [ clientId, getBlock ] );
 
-	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
-		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
+	const { stripeConnectUrl, hasTierPlans, isLoading } = useSelect( select => {
+		const { getNewsletterTierProducts, getConnectUrl, isApiStateLoading } = select(
+			'jetpack/membership-products'
+		);
 		return {
+			isLoading: isApiStateLoading(),
 			stripeConnectUrl: getConnectUrl(),
 			hasTierPlans: getNewsletterTierProducts()?.length !== 0,
 		};
 	} );
 
-	// Same rule as the Content access panel: paid stays visible but disabled until it can be chosen.
 	const { showPaidAsDisabled } = getPaidAccessState( {
 		stripeConnectUrl,
 		hasTierPlans,
 		accessLevel,
+		isLoading,
 	} );
 
 	useEffect( () => {
@@ -137,7 +140,6 @@ function PaywallEdit( { clientId } ) {
 										closeDropdown();
 									} }
 									disabled={ showPaidAsDisabled }
-									accessibleWhenDisabled
 									isSelected={ accessLevel === accessOptions.paid_subscribers.key }
 									icon={ accessLevel === accessOptions.paid_subscribers.key && check }
 									iconPosition="right"

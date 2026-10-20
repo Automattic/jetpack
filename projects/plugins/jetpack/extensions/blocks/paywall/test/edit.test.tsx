@@ -51,6 +51,7 @@ registry.registerStore( 'jetpack/membership-products', {
 	selectors: {
 		getConnectUrl: () => mockConnectUrl,
 		getNewsletterTierProducts: () => mockTierProducts,
+		isApiStateLoading: () => false,
 	},
 } );
 
