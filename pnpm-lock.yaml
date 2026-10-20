@@ -2126,9 +2126,6 @@ importers:
       '@wordpress/compose':
         specifier: 9.1.0
         version: 9.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/data':
-        specifier: 11.1.0
-        version: 11.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/dataviews':
         specifier: 22.0.0
         version: 22.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -2156,12 +2153,6 @@ importers:
       '@wordpress/url':
         specifier: 5.1.0
         version: 5.1.0
-      moment:
-        specifier: 2.31.0
-        version: 2.31.0
-      prop-types:
-        specifier: ^15.8.1
-        version: 15.8.1
       react:
         specifier: 19.3.0
         version: 19.3.0
@@ -2208,42 +2199,15 @@ importers:
       '@wordpress/build':
         specifier: 0.27.0
         version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
-      '@wordpress/theme-build-tools':
-        specifier: 1.0.0
-        version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
-      autoprefixer:
-        specifier: 10.4.20
-        version: 10.4.20(postcss@8.5.23)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.9
-      concurrently:
-        specifier: 10.0.5
-        version: 10.0.5
       jest:
         specifier: 30.5.2
         version: 30.5.2
-      postcss:
-        specifier: 8.5.23
-        version: 8.5.23
-      postcss-loader:
-        specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.23)(webpack@5.112.2)
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
-      sass-loader:
-        specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
-      storybook:
-        specifier: 10.6.3
-        version: 10.6.3(@types/react@19.3.0)(react@19.3.0)
-      webpack:
-        specifier: 5.112.2
-        version: 5.112.2(postcss@8.5.23)(webpack-cli@7.2.1)
-      webpack-cli:
-        specifier: 7.2.1
-        version: 7.2.1(webpack@5.112.2)
 
   projects/packages/blaze:
     dependencies:

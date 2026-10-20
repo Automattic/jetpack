@@ -12,10 +12,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use function add_action;
-use function add_filter;
 use function has_action;
 use function remove_all_actions;
-use function remove_all_filters;
 use function set_current_screen;
 
 require_once __DIR__ . '/mock-wp-build-render-page.php';
@@ -44,12 +42,9 @@ class Admin_Notices_Suppression_Test extends TestCase {
 
 		set_current_screen( self::SCREEN_ID );
 		$_GET['page'] = Jetpack_Backup::JETPACK_BACKUP_SLUG;
-
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 	}
 
 	public function tearDown(): void {
-		remove_all_filters( Jetpack_Backup::MODERNIZATION_FILTER );
 		remove_all_actions( 'admin_notices' );
 		remove_all_actions( 'all_admin_notices' );
 		remove_all_actions( 'admin_enqueue_scripts' );
@@ -116,18 +111,6 @@ class Admin_Notices_Suppression_Test extends TestCase {
 			has_action( 'admin_notices', $jitm_callback ),
 			'JITMs are a first-party channel and must survive the suppression.'
 		);
-	}
-
-	public function test_legacy_dashboard_suppresses_nothing() {
-		remove_all_filters( Jetpack_Backup::MODERNIZATION_FILTER );
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
-
-		list( $foreign, $jitm_callback ) = $this->register_both_notices();
-
-		Jetpack_Backup::admin_init();
-
-		$this->assertNotFalse( has_action( 'admin_notices', $foreign ) );
-		$this->assertNotFalse( has_action( 'admin_notices', $jitm_callback ) );
 	}
 
 	public function test_a_screen_that_opted_out_of_jitms_gets_none_back() {

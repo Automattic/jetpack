@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the legacy dashboard, the `rsm_jetpack_ui_modernization_backup` filter and the `use-backup-legacy-dashboard` sticker. The redesigned dashboard is the only one.

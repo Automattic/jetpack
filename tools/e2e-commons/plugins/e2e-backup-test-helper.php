@@ -6,9 +6,9 @@
  * Version: 1.0.0
  * Text Domain: jetpack
  *
- * Turns on the Backup modernization filter and answers the dashboard's WordPress.com requests
- * locally. `<Gates>` reads the plan from `/rewind/capabilities`, which `e2e-plan-helper.php`
- * cannot fake, and under interception a restore never leaves the site.
+ * Answers the Backup dashboard's WordPress.com requests locally. `<Gates>` reads the plan from
+ * `/rewind/capabilities`, which `e2e-plan-helper.php` cannot fake, and under interception a
+ * restore never leaves the site.
  *
  * @package automattic/jetpack
  */
@@ -44,7 +44,6 @@ const E2E_BACKUP_FILE_URL     = 'https://example.com/jetpack-backup-e2e/notes.tx
 const E2E_BACKUP_DOWNLOAD_URL = 'https://example.com/jetpack-backup-e2e/backup.zip';
 const E2E_BACKUP_FILE_CONTENT = 'Hello from the Jetpack Backup e2e fake.';
 
-add_filter( 'rsm_jetpack_ui_modernization_backup', '__return_true' );
 add_filter( 'pre_http_request', 'e2e_jetpack_backup_intercept', 3, 3 );
 
 /**
