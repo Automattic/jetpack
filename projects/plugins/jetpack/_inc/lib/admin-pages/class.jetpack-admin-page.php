@@ -163,6 +163,7 @@ abstract class Jetpack_Admin_Page {
 		if ( ! apply_filters( 'rest_enabled', true ) ) {
 			return false;
 		}
+		// Keep this probe from changing the admin user; see My Jetpack's Initializer::is_modules_rest_api_enabled().
 		$user = wp_get_current_user();
 		$auth = false;
 		try {

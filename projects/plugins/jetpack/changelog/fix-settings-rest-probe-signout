@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Settings: Preserve the signed-in user when checking REST API availability.
+Admin pages: Keep administrators signed in on the Settings and Modules pages when another plugin's REST authentication filter returns null.
