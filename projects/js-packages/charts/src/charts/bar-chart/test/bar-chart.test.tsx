@@ -369,6 +369,37 @@ describe( 'BarChart', () => {
 			}
 		);
 
+		test( 'describes only the bars at the hovered category', async () => {
+			renderWithTheme( {
+				withTooltips: true,
+				renderTooltip: listTooltipKeys,
+				data: [
+					{
+						label: 'Visitors',
+						group: 'current',
+						data: [
+							{ label: 'Jan', value: 50 },
+							{ label: 'Feb', value: 60 },
+						],
+					},
+					{
+						label: 'Views',
+						group: 'current',
+						options: { type: 'comparison' },
+						data: [ { label: 'Jan', value: 100 } ],
+					},
+				],
+			} );
+			const geometry = barGeometry();
+			const center = ( [ x, y, width, height ]: number[] ) =>
+				[ x + width / 2, y + height / 2 ] as const;
+			hover( ...center( geometry[ 0 ] ) );
+			const tooltip = await screen.findByRole( 'tooltip' );
+			await waitFor( () => expect( tooltip ).toHaveTextContent( 'Views, Visitors' ) );
+			hover( ...center( geometry[ geometry.length - 1 ] ) );
+			await waitFor( () => expect( tooltip ).toHaveTextContent( /^Visitors$/ ) );
+		} );
+
 		test( 'selects the painted grouped bar at the outer edge of a padded band', async () => {
 			renderWithTheme( {
 				withTooltips: true,
@@ -3075,10 +3106,10 @@ describe( 'BarChart', () => {
 			expect( end( ring ) ).toBeCloseTo( Math.max( ...bars.map( end ) ) );
 		} );
 
-		it( 'describes only the bars at the selected category', async () => {
+		it( 'describes only the bars at the selected category, dropping those of the last', async () => {
 			const user = userEvent.setup();
 			renderSlot(
-				[ { label: 'Feb', value: 80 } ],
+				[ { label: 'Jan', value: 80 } ],
 				[
 					{ label: 'Jan', value: 50 },
 					{ label: 'Feb', value: 60 },
@@ -3087,8 +3118,10 @@ describe( 'BarChart', () => {
 
 			screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 			await user.keyboard( '{ArrowRight}' );
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Views, Visitors' );
 
-			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( /^Visitors$/ );
+			await user.keyboard( '{ArrowRight}' );
+			expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( /^Visitors$/ );
 		} );
 	} );
 

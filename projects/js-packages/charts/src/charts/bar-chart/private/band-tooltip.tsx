@@ -69,7 +69,7 @@ export function BandTooltip( {
 	onPointerMove?: ( selection: PointerSelection ) => void;
 } & Pick< BarChartProps, 'withTooltips' | 'onPointerDown' | 'onPointerUp' > ) {
 	const { xScale, yScale, dataRegistry, horizontal } = useContext( DataContext );
-	const { showTooltip, hideTooltip } = useContext( TooltipContext );
+	const { showTooltip, hideTooltip, updateTooltip } = useContext( TooltipContext );
 	const scale = ( horizontal ? yScale : xScale ) as BandScale | undefined;
 	const bandwidth = scale?.bandwidth?.() ?? 0;
 	const groupScale = useMemo(
@@ -82,28 +82,26 @@ export function BandTooltip( {
 			if ( ! point || ! scale?.bandwidth ) {
 				return [];
 			}
+			const position = horizontal ? point.y : point.x;
 			const selections: PointerSelection[] = [];
+			const bands: number[] = [];
 			for ( const key of keys ) {
 				const entry = dataRegistry?.get( key );
 				if ( ! entry ) {
 					continue;
 				}
 				const accessor = horizontal ? entry.yAccessor : entry.xAccessor;
-				const index = nearestBandIndex(
-					entry.data,
-					accessor,
-					scale,
-					horizontal ? point.y : point.x
-				);
+				const index = nearestBandIndex( entry.data, accessor, scale, position );
 				if ( index < 0 ) {
 					continue;
 				}
 				const datum = entry.data[ index ];
-				const start = Number( scale( accessor( datum ) ) ) + Number( groupScale( slotOf( key ) ) );
+				const band = Number( scale( accessor( datum ) ) );
+				const start = band + Number( groupScale( slotOf( key ) ) );
 				const end = start + groupScale.step();
-				const position = horizontal ? point.y : point.x;
 				const distance =
 					position >= start && position <= end ? 0 : Math.abs( position - ( start + end ) / 2 );
+				bands.push( band );
 				selections.push( {
 					event: params.event,
 					key,
@@ -114,7 +112,14 @@ export function BandTooltip( {
 					distanceY: horizontal ? distance : 0,
 				} );
 			}
-			return selections;
+			// A series without a datum at the hovered category must not lend the tooltip a neighbor's.
+			const bandDistance = ( band: number ) => Math.abs( band + scale.bandwidth() / 2 - position );
+			const hoveredBand = bands.reduce< number | undefined >(
+				( best, band ) =>
+					best === undefined || bandDistance( band ) < bandDistance( best ) ? band : best,
+				undefined
+			);
+			return selections.filter( ( _, index ) => bands[ index ] === hoveredBand );
 		},
 		[ scale, dataRegistry, horizontal, keys, slotOf, groupScale ]
 	);
@@ -133,6 +138,8 @@ export function BandTooltip( {
 				onPointerMove?.( nearest );
 			}
 			if ( withTooltips && params?.event.type !== 'pointerup' ) {
+				// visx merges each datum into the previous tooltip's, which would keep a bar the pointer has left.
+				updateTooltip?.( state => ( { ...state, tooltipData: undefined } ) );
 				selections.forEach( showTooltip );
 			}
 			const callback = params?.event.type === 'pointerdown' ? onPointerDown : onPointerUp;
@@ -143,7 +150,15 @@ export function BandTooltip( {
 				callback( nearest );
 			}
 		},
-		[ getSelections, withTooltips, showTooltip, onPointerDown, onPointerUp, onPointerMove ]
+		[
+			getSelections,
+			withTooltips,
+			showTooltip,
+			updateTooltip,
+			onPointerDown,
+			onPointerUp,
+			onPointerMove,
+		]
 	);
 	useEventEmitter( 'pointermove', withTooltips ? handlePointer : undefined );
 	useEventEmitter( 'pointerout', withTooltips ? hideTooltip : undefined );

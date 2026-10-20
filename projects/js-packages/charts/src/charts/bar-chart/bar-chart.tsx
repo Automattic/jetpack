@@ -841,7 +841,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</WholeNumberTicks>
 										) }
 
-										{ withTooltips && selectedBar && selectedBar.members.length > 1 && (
+										{ withTooltips && selectedBar && (
 											<SlotTooltipMembers
 												members={ selectedBar.members }
 												index={ selectedBar.index }
