@@ -39,15 +39,32 @@ export function buildCorePayload(
 	if ( local.front_page_description !== baseline.front_page_description ) {
 		payload.advanced_seo_front_page_description = local.front_page_description;
 	}
-	// The codes are sub-keys of one option, so the whole map goes when any of them
-	// changes; the server merges it over the codes already stored.
-	if (
-		VERIFICATION_KEYS.some( key => local.verification[ key ] !== baseline.verification[ key ] )
-	) {
-		payload.verification_services_codes = local.verification;
+	// The codes are sub-keys of one option, merged server-side over the stored ones, so
+	// only changed codes go: a whole map would overwrite a code saved meanwhile.
+	const codes = changedCodes( baseline, local );
+	if ( Object.keys( codes ).length > 0 ) {
+		payload.verification_services_codes = codes;
 	}
 
 	return payload;
+}
+
+/**
+ * The verification codes that differ from the baseline.
+ *
+ * @param baseline - The last-saved server state.
+ * @param local    - The current form state.
+ * @return The changed codes, keyed by service.
+ */
+export function changedCodes(
+	baseline: SettingsResponse,
+	local: SettingsResponse
+): Partial< SettingsResponse[ 'verification' ] > {
+	return Object.fromEntries(
+		VERIFICATION_KEYS.filter(
+			key => local.verification[ key ] !== baseline.verification[ key ]
+		).map( key => [ key, local.verification[ key ] ] )
+	);
 }
 
 /**

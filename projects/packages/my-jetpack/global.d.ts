@@ -651,8 +651,20 @@ interface Window {
 					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
 						available: boolean;
+						catalog_available?: boolean;
+						requires_support?: boolean;
 						wpcom_product_slug: string;
 						wpcom_free_product_slug?: string;
+						terms?: Array< {
+							available: boolean;
+							wpcom_product_slug: string;
+							product_term?: string;
+							currency_code?: string;
+							full_price?: number;
+							discount_price?: number;
+							full_price_per_month?: number;
+							discount_price_per_month?: number;
+						} >;
 						product_term: string;
 						currency_code: string;
 						full_price: number;
@@ -756,6 +768,8 @@ interface Window {
 			showCard: boolean;
 			redirect: string;
 		};
+		// Security modules whose settings live on the Protect page, keyed by module slug; empty without that page.
+		protectPageModuleUrls?: Record< string, string >;
 		// Null unless the partner coupon screen replaces the dashboard.
 		partnerCoupon?: {
 			coupon: {

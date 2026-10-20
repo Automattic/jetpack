@@ -7,15 +7,18 @@
 
 namespace Automattic\Jetpack\Activity_Log;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
-use Jetpack_Options;
+use function add_query_arg;
 use function admin_url;
 use function esc_url_raw;
 use function get_bloginfo;
 use function get_locale;
 use function get_option;
 use function get_site_url;
+use function rawurlencode;
 use function wp_create_nonce;
+use function wp_get_current_user;
 use function wp_json_encode;
 use function wp_parse_url;
 
@@ -32,13 +35,21 @@ class Initial_State {
 		$gmt_offset      = get_option( 'gmt_offset' );
 		$timezone_string = get_option( 'timezone_string' );
 		$home_host       = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		$site_suffix     = ( new Status() )->get_site_suffix();
+		$is_wpcom_simple = Jetpack_Activity_Log::is_wpcom_simple();
 
 		return array(
 			'jetpackStatus' => array(
-				'calypsoSlug' => ( new Status() )->get_site_suffix(),
+				'calypsoSlug' => $site_suffix,
+			),
+			'config'        => array(
+				// Simple sites have no Jetpack REST API to proxy through, so the app calls WordPress.com directly.
+				'apiSource'       => $is_wpcom_simple ? 'wpcom' : 'jetpack',
+				'wpcomUpgradeUrl' => $is_wpcom_simple ? self::get_wpcom_upgrade_url( $site_suffix ) : '',
+				'tracksUserData'  => $is_wpcom_simple ? self::get_wpcom_tracks_user_data() : null,
 			),
 			'siteData'      => array(
-				'id'                    => Jetpack_Options::get_option( 'id' ),
+				'id'                    => Connection_Manager::get_site_id( true ),
 				'title'                 => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
 				'adminUrl'              => esc_url_raw( admin_url() ),
 				'slug'                  => is_string( $home_host ) ? $home_host : '',
@@ -61,6 +72,42 @@ class Initial_State {
 				// checkout. See `Jetpack_Activity_Log::admin_init()`.
 				'refreshAccess' => wp_create_nonce( Jetpack_Activity_Log::REFRESH_ACCESS_NONCE_ACTION ),
 			),
+		);
+	}
+
+	/**
+	 * WordPress.com plan selection, returning here after checkout or cancel.
+	 *
+	 * @param string $site_suffix The site's Calypso slug.
+	 * @return string
+	 */
+	private static function get_wpcom_upgrade_url( $site_suffix ) {
+		$page_url = rawurlencode( admin_url( 'admin.php?page=' . Jetpack_Activity_Log::PAGE_SLUG ) );
+
+		return add_query_arg(
+			array(
+				'siteSlug'    => rawurlencode( $site_suffix ),
+				'redirect_to' => $page_url,
+				'cancel_to'   => $page_url,
+			),
+			'https://wordpress.com/setup/plan-upgrade/'
+		);
+	}
+
+	/**
+	 * The Tracks identity of the current user, who on Simple is the WordPress.com user.
+	 *
+	 * @return array{userid: int, username: string}|null
+	 */
+	private static function get_wpcom_tracks_user_data() {
+		$user = wp_get_current_user();
+		if ( ! $user->exists() ) {
+			return null;
+		}
+
+		return array(
+			'userid'   => $user->ID,
+			'username' => $user->user_login,
 		);
 	}
 

@@ -140,15 +140,9 @@ function Reader( props ) {
 		<div>
 			<QuerySite />
 			<h1 className="screen-reader-text">{ __( 'Jetpack Reader Settings', 'jetpack' ) }</h1>
-			<h2 className="jp-settings__section-title">
-				{ searchTerm
-					? __( 'Reader', 'jetpack' )
-					: __(
-							'Discover and follow your favorite sites with the WordPress.com Reader.',
-							'jetpack',
-							/* dummy arg to avoid bad minification */ 0
-						) }
-			</h2>
+			{ searchTerm && (
+				<h2 className="jp-settings__section-title">{ __( 'Reader', 'jetpack' ) }</h2>
+			) }
 			<SettingsCard
 				{ ...props }
 				header={ __( 'Reader Visibility', 'jetpack' ) }

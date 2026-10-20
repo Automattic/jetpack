@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Block editor: Report that the Forms module is off when the form block is unavailable, so the editor can say why.

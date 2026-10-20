@@ -12,4 +12,10 @@
 	&__lone {
 		--wp-ui-button-foreground-color-disabled: var(--wpds-color-foreground-content-neutral-weak);
 	}
+
+	// The popup is as wide as its content; short labels would squeeze the copy.
+	&__lock-notice {
+		inline-size: max-content;
+		max-inline-size: 280px;
+	}
 }

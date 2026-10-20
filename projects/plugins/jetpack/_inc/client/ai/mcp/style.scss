@@ -8,6 +8,7 @@
 		text-align: start;
 		border-radius: 0;
 		box-shadow: none;
+		border-block-start: var(--wpds-border-width-xs) solid rgba(0, 0, 0, 0.1);
 
 		&:hover {
 			background: var(--wpds-color-background-surface-neutral-weak);
@@ -24,8 +25,8 @@
 		}
 	}
 
-	&__action-card {
-		overflow: hidden;
+	&__summary-rows {
+		margin-block-start: var(--wpds-dimension-gap-xl);
 	}
 
 	&__connect-row {
@@ -163,10 +164,6 @@
 	// row rather than as a separate paragraph.
 	.components-base-control__help {
 		margin-top: 0;
-	}
-
-	&__access-card {
-		overflow: hidden;
 	}
 
 	// Explainer steps: icon beside the text in one column on phones, icon

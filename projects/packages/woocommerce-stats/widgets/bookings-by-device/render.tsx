@@ -11,8 +11,13 @@ import { __ } from '@wordpress/i18n';
  */
 import { SalesByDevice } from '../../src/components/sales-by-device';
 import { BOOKINGS_FILTER } from '../../src/reports';
-import type { BookingsByDeviceAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type BookingsByDeviceAttributes = Record< never, never >;
 
 type BookingsByDeviceRenderAttributes = BookingsByDeviceAttributes &
 	Partial< ReportParamsFieldAttributes >;
