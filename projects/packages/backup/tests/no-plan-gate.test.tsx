@@ -122,10 +122,6 @@ describe( 'No-plan gate', () => {
 	it( 'offers a way in for someone who already bought a license', async () => {
 		renderScreen( NoBackupPlanScreen );
 
-		// Relative, deliberately: `JPBACKUP_INITIAL_STATE` is not emitted
-		// on the modernized page, so the absolute `adminUrl` the legacy
-		// header used is not available — and does not need to be, since
-		// this renders inside wp-admin already.
 		await expect(
 			screen.findByRole( 'link', { name: /^Use license key$/ } )
 		).resolves.toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/add-license' );

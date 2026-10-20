@@ -1,10 +1,7 @@
 /**
  * How full a site's backup storage is, as five named levels.
  *
- * Only the parameter types were widened, from `number` to
- * `number | null | undefined`. That is what the callers have always
- * passed — every legacy selector ends in `?? null` — and it is what makes
- * the function's own `=== null` guards mean something. No branch changed.
+ * Parameters take `null` while data loads; the `=== null` guards depend on it.
  *
  * This module is pure: six scalars in, a level name or `null` out. No
  * store, no globals, no i18n.
