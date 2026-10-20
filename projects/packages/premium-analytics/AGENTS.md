@@ -301,7 +301,8 @@ lazy-loaded by the dashboard at runtime.
 > module paths as provisional rather than a long-term API.
 
 These rules apply to registered dashboard widgets: folders with `package.json`,
-`widget.json`, `widget.ts`, and `render.tsx` that the dashboard can lazy-load.
+`widget.json`, and `render.tsx` that the dashboard can lazy-load, plus `widget.ts` when the
+widget has live metadata.
 Presentational-only component folders under `widgets/` are out of scope unless they
 are being converted into registered widgets.
 
@@ -313,7 +314,7 @@ Each new widget MUST ship as a self-contained folder with these files:
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
 ├── widget.json                             # declarative metadata (name, icon, title, description, help, category, presentation)
-├── widget.ts                               # runtime-only definition (attributes, example)
+├── widget.ts                               # only with live metadata (attributes, example)
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx
 ```
@@ -326,8 +327,8 @@ Notes:
 - `icon` lives in `widget.json` too, as a `jpa/<name>` reference the dashboard resolves against
   the collection `packages/icons/src/resolve.ts` lists: `@wordpress/icons` glyphs by kebab-case
   name (`jpa/chart-bar`) plus the dashboard's own illustrations. A name outside that list
-  resolves to nothing, so add it to the map before naming it. A widget with nothing live keeps
-  `widget.ts` for its attribute type and exports `{}`.
+  resolves to nothing, so add it to the map before naming it. A widget with nothing live ships
+  no `widget.ts`; its attribute type lives in `render.tsx`.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
   `Leaderboard`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
@@ -363,10 +364,11 @@ export default function MyWidget( {
 }
 ```
 
-The widget's own attribute shape is declared and exported once from `widget.ts`,
-alongside the `attributes`/`example` schema it describes. `render.tsx` imports that type;
-it may compose a render-only type with host fields like `Partial<ReportParamsFieldAttributes>`,
-but it must not re-declare the widget's own attributes. A widget with no own attributes
+The widget's own attribute shape is declared and exported once: in `widget.ts` when the widget
+has one, alongside the `attributes`/`example` schema it describes, and imported by `render.tsx`;
+otherwise in `render.tsx` itself, where stories and tests import it. `render.tsx` may compose a
+render-only type with host fields like `Partial<ReportParamsFieldAttributes>`, but it must not
+re-declare the widget's own attributes. A widget with no own attributes
 must type its shape as `Record< never, never >`, not `Record< string, never >` — the
 latter's `[key: string]: never` index signature collapses composed host fields such as
 `reportParams` to `never`, while `Record< never, never >` composes cleanly.
@@ -519,6 +521,9 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 };
 ```
 
+A widget without `widget.ts` drops the `widgetDefinition` import and passes the manifest
+alone: `createStoryWidgetType( widgetManifest )`.
+
 **3. `WithComparison` — only when the widget's hook populates `comparisonRows`** (see the
 criterion above). Add a `withComparison` control, thread it through the render helper, and add
 the second close-up. It should show the period-over-period values the render path consumes:
@@ -611,9 +616,9 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   `widget.ts` default export carries only `attributes` and `example`, and `icon` is a
   `widget.json` reference. Stories read the declarative fields from `widget.json` via
   `createStoryWidgetType()`, which resolves the icon the way the host does.
-- Re-declaring the attribute type in `render.tsx` — the shape is declared once in `widget.ts`
-  and imported in `render.tsx`; render-only types may compose that imported shape with host
-  fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate the shape.
+- Declaring the attribute type twice — a widget with a `widget.ts` declares the shape there and
+  `render.tsx` imports it; one without declares it in `render.tsx`. Render-only types may compose
+  that shape with host fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate it.
 - Typing a zero-attribute widget as `Record< string, never >` — its `[key: string]: never`
   index signature collapses composed host fields like `reportParams` to `never` and breaks the
   typecheck. Use `Record< never, never >` instead.

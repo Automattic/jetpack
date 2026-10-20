@@ -5,7 +5,7 @@ A registered dashboard widget is a folder under `widgets/`, auto-discovered by c
 
 - `package.json` — workspace package for the lazy-loaded render bundle.
 - `widget.json` — static metadata (name, icon, title, description, help, category, presentation).
-- `widget.ts` — live, non-serializable metadata (default export: attributes, example). The icon is a `widget.json` reference, `jpa/<name>`, resolved against the collection `packages/icons/src/resolve.ts` lists: `@wordpress/icons` glyphs by kebab-case name plus the dashboard's own illustrations. A name outside that list resolves to nothing, so add it to the map before naming it. A widget with nothing live keeps the file for its attribute type and exports `{}`.
+- `widget.ts` — live, non-serializable metadata (default export: attributes, example), only when the widget has some. The icon is a `widget.json` reference, `jpa/<name>`, resolved against the collection `packages/icons/src/resolve.ts` lists: `@wordpress/icons` glyphs by kebab-case name plus the dashboard's own illustrations. A name outside that list resolves to nothing, so add it to the map before naming it. A widget with nothing live has no `widget.ts`: the dashboard builds its type from the record alone, and its attribute type lives in `render.tsx`.
 - `render.tsx` — default-export React component.
 - `style.module.css` — optional; CSS Modules, tokens from `@wordpress/theme` (`--wpds-*`).
 
@@ -26,9 +26,11 @@ The render component is bound by `WidgetRenderProps<Item>` from
 `@wordpress/widget-primitives`: it receives only `{ attributes, setAttributes }`.
 `attributes` may arrive empty — default it (`= {}`).
 
-The attribute shape (`Item`) is declared and exported once from `widget.ts`,
-alongside the `attributes`/`example` schema it describes; `render.tsx` imports it
-rather than redeclaring it, so the schema and the render props cannot drift.
+The attribute shape (`Item`) is declared and exported once. A widget with a
+`widget.ts` declares it there, alongside the `attributes`/`example` schema it
+describes, and `render.tsx` imports it rather than redeclaring it, so the schema
+and the render props cannot drift. A widget without one declares it in
+`render.tsx`, where its stories and tests import it.
 If the host injects extra infrastructure fields through `attributes`, compose a
 render-only type from the imported widget attribute type plus the host field type.
 Do not re-declare the widget's own attribute shape in `render.tsx`.
