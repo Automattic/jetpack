@@ -146,6 +146,19 @@ describe( 'PaywallEdit', () => {
 		).toHaveAttribute( 'aria-describedby', setupLink.id );
 	} );
 
+	test( 'keeps paid subscribers selectable on a paid post after Stripe disconnects', async () => {
+		mockConnectUrl = 'https://example.com/connect-stripe';
+		renderPaywall();
+
+		await userEvent.click(
+			screen.getByRole( 'button', { name: accessOptions.paid_subscribers.label } )
+		);
+
+		expect(
+			screen.getByRole( 'menuitem', { name: accessOptions.paid_subscribers.label } )
+		).not.toHaveAttribute( 'aria-disabled' );
+	} );
+
 	test( 'offers paid subscribers in the toolbar once payments are set up', async () => {
 		mockAccessLevel = accessOptions.subscribers.key;
 		renderPaywall();

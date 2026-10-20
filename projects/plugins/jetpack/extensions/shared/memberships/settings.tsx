@@ -299,9 +299,9 @@ export function NewsletterAccessRadioButtons( {
 	// A paywall block splits the post, so "the whole post is public" stops being an
 	// option it can express. The option stays visible and disabled — the same treatment
 	// paid subscribers gets — with a notice saying why, rather than the panel silently
-	// changing shape. The saved-value guard is the same as above: the paywall block
-	// moves the post off "everybody" when it is inserted, but until that lands we must
-	// not leave the group with nothing selected.
+	// changing shape. As with paid in getPaidAccessState, the saved value stays selectable:
+	// the paywall block moves the post off "everybody" when it is inserted, but until that
+	// lands we must not leave the group with nothing selected.
 	const isEverybodySelected = accessLevel === accessOptions.everybody.key;
 	const showEverybodyAsDisabled = !! postHasPaywallBlock && ! isEverybodySelected;
 
