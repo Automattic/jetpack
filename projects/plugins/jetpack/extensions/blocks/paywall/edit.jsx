@@ -9,14 +9,15 @@ import {
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { arrowDown, Icon, people, check } from '@wordpress/icons';
+import { arrowDown, Icon, people, check, external } from '@wordpress/icons';
+import { VisuallyHidden } from '@wordpress/ui';
 import ConnectBanner from '../../shared/components/connect-banner';
-import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
+import { getPaidPlanLink } from '../../shared/memberships/utils';
 import useIsUserConnected from '../../shared/use-is-user-connected';
 
 function PaywallEdit( { clientId } ) {
@@ -47,8 +48,11 @@ function PaywallEdit( { clientId } ) {
 		};
 	} );
 
-	const [ showDialog, setShowDialog ] = useState( false );
-	const closeDialog = () => setShowDialog( false );
+	// Same rule as the Content access panel, so the toolbar and the panel never disagree:
+	// paid stays visible but disabled until it can be chosen, unless it is already the saved value.
+	const isPaidAvailable = stripeConnectUrl === null && hasTierPlans;
+	const showPaidAsDisabled =
+		! isPaidAvailable && accessLevel !== accessOptions.paid_subscribers.key;
 
 	useEffect( () => {
 		// Change the access level from "everybody" to "subscribers" if the user adds a paywall block to a post.
@@ -56,14 +60,6 @@ function PaywallEdit( { clientId } ) {
 			setAccess( accessOptions.subscribers.key );
 		}
 	}, [ accessLevel, setAccess ] );
-
-	function selectAccess( value ) {
-		if ( accessOptions.paid_subscribers.key === value && ( stripeConnectUrl || ! hasTierPlans ) ) {
-			setShowDialog( true );
-			return;
-		}
-		setAccess( value );
-	}
 
 	if ( ! isUserConnected ) {
 		return (
@@ -125,7 +121,7 @@ function PaywallEdit( { clientId } ) {
 							<MenuGroup>
 								<MenuItem
 									onClick={ () => {
-										selectAccess( accessOptions.subscribers.key );
+										setAccess( accessOptions.subscribers.key );
 										closeDropdown();
 									} }
 									isSelected={ accessLevel === accessOptions.subscribers.key }
@@ -136,9 +132,11 @@ function PaywallEdit( { clientId } ) {
 								</MenuItem>
 								<MenuItem
 									onClick={ () => {
-										selectAccess( accessOptions.paid_subscribers.key );
+										setAccess( accessOptions.paid_subscribers.key );
 										closeDropdown();
 									} }
+									disabled={ showPaidAsDisabled }
+									accessibleWhenDisabled
 									isSelected={ accessLevel === accessOptions.paid_subscribers.key }
 									icon={ accessLevel === accessOptions.paid_subscribers.key && check }
 									iconPosition="right"
@@ -146,11 +144,30 @@ function PaywallEdit( { clientId } ) {
 									{ getLabel( accessOptions.paid_subscribers.key ) }
 								</MenuItem>
 							</MenuGroup>
+							{ showPaidAsDisabled && (
+								<MenuGroup>
+									<MenuItem
+										href={ getPaidPlanLink( hasTierPlans ) }
+										target="_blank"
+										rel="noopener noreferrer"
+										icon={ external }
+										iconPosition="right"
+										onClick={ closeDropdown }
+									>
+										{ __( 'Turn on paid subscribers', 'jetpack' ) }
+										<VisuallyHidden render={ <span /> }>
+											{
+												/* translators: accessibility text */
+												__( '(opens in a new tab)', 'jetpack' )
+											}
+										</VisuallyHidden>
+									</MenuItem>
+								</MenuGroup>
+							) }
 						</>
 					) }
 				</ToolbarDropdownMenu>
 			</BlockControls>
-			<PlansSetupDialog closeDialog={ closeDialog } showDialog={ showDialog } />
 			<InspectorControls>
 				<PanelBody
 					className="jetpack-subscribe-newsletters-panel"

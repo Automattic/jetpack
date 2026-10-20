@@ -1,4 +1,5 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { createRegistry, RegistryProvider } from '@wordpress/data';
 import { accessOptions } from '../../../shared/memberships/constants';
 import PaywallEdit from '../edit';
@@ -8,6 +9,8 @@ const CLIENT_ID = 'paywall-client-id';
 const mockSetAccess = jest.fn();
 let mockAccessLevel: string;
 let mockPaywallBlock: { clientId: string } | undefined;
+let mockConnectUrl: string | null;
+let mockTierProducts: Array< { id: number } >;
 
 // The block reads the access level from post meta and writes it back through these two hooks.
 // Standing in for them is what lets the test say what the post's access is, and see what the
@@ -26,12 +29,11 @@ jest.mock( '../../../shared/memberships/settings', () => ( {
 jest.mock( '@wordpress/block-editor', () => ( {
 	store: { name: 'core/block-editor' },
 	useBlockProps: () => ( {} ),
-	BlockControls: () => null,
+	BlockControls: ( { children } ) => children,
 	InspectorControls: () => null,
 } ) );
 
 jest.mock( '@wordpress/editor', () => ( { store: { name: 'core/editor' } } ) );
-jest.mock( '../../../shared/components/plans-setup-dialog', () => () => null );
 jest.mock( '../../../shared/use-is-user-connected', () => () => true );
 
 // Everything the block looks up through useSelect, in one place.
@@ -47,8 +49,8 @@ registry.registerStore( 'core/block-editor', {
 registry.registerStore( 'jetpack/membership-products', {
 	reducer: () => ( {} ),
 	selectors: {
-		getConnectUrl: () => null,
-		getNewsletterTierProducts: () => [ { id: 1 } ],
+		getConnectUrl: () => mockConnectUrl,
+		getNewsletterTierProducts: () => mockTierProducts,
 	},
 } );
 
@@ -65,6 +67,45 @@ describe( 'PaywallEdit', () => {
 		jest.clearAllMocks();
 		mockAccessLevel = accessOptions.paid_subscribers.key;
 		mockPaywallBlock = { clientId: CLIENT_ID };
+		mockConnectUrl = null;
+		mockTierProducts = [ { id: 1 } ];
+	} );
+
+	// The toolbar used to offer paid subscribers as a normal choice while the Content access
+	// panel showed it disabled, so the two controls for the same setting disagreed.
+	test( 'shows paid subscribers as unavailable in the toolbar until payments are set up', async () => {
+		mockAccessLevel = accessOptions.subscribers.key;
+		mockConnectUrl = 'https://example.com/connect-stripe';
+		mockTierProducts = [];
+		renderPaywall();
+
+		await userEvent.click(
+			screen.getByRole( 'button', { name: accessOptions.subscribers.label } )
+		);
+
+		expect(
+			screen.getByRole( 'menuitem', { name: accessOptions.paid_subscribers.label } )
+		).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByRole( 'menuitem', { name: /Turn on paid subscribers/ } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( '#add-tier-plan' )
+		);
+	} );
+
+	test( 'offers paid subscribers in the toolbar once payments are set up', async () => {
+		mockAccessLevel = accessOptions.subscribers.key;
+		renderPaywall();
+
+		await userEvent.click(
+			screen.getByRole( 'button', { name: accessOptions.subscribers.label } )
+		);
+
+		expect(
+			screen.getByRole( 'menuitem', { name: accessOptions.paid_subscribers.label } )
+		).not.toHaveAttribute( 'aria-disabled' );
+		expect(
+			screen.queryByRole( 'menuitem', { name: /Turn on paid subscribers/ } )
+		).not.toBeInTheDocument();
 	} );
 
 	test( 'reopens the post to everyone once the block has been removed from it', () => {
