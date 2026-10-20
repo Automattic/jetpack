@@ -6,6 +6,7 @@ import { Button, Icon, Notice, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useRef, useState } from 'react';
 import {
+	BRAND_COLOR,
 	CONNECTION_FROM,
 	CONNECTION_RETURN_URL,
 	connectionErrorCode,
@@ -152,10 +153,10 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 				) }
 
 				{ /* Square corners from the theme's own radius scale, not a hardcoded zero. */ }
-				<ThemeProvider cornerRadius="none">
+				<ThemeProvider color={ BRAND_COLOR } cornerRadius="none">
 					<Button
 						variant="solid"
-						className={ clsx( styles[ 'primary-green' ], styles[ 'start-primary' ] ) }
+						className={ styles[ 'start-primary' ] }
 						onClick={ handleConnect }
 						loading={ isConnecting }
 						loadingAnnouncement={ __( 'Connecting your site…', 'jetpack-my-jetpack' ) }

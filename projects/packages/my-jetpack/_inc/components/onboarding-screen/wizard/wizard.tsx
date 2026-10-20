@@ -19,6 +19,7 @@ import { ConnectedNotice } from './connected-notice';
 import { DataInArt } from './data-in';
 import { EverywhereArt } from './everywhere';
 import {
+	BRAND_COLOR,
 	canContinue,
 	clampStep,
 	featuresDescription,
@@ -604,18 +605,23 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 													{ __( 'Back', 'jetpack-my-jetpack' ) }
 												</Button>
 											) }
-											<Button
-												variant="solid"
-												className={ styles[ 'primary-green' ] }
-												onClick={ handleContinue }
-												// The features step offers no options, so it is the list arriving that it waits on.
-												disabled={ ! canAdvance || busy || ( isFeatures && modulesLoading ) }
-												loading={ isApplying }
-												loadingAnnouncement={ __( 'Setting up your site…', 'jetpack-my-jetpack' ) }
-											>
-												{ __( 'Continue', 'jetpack-my-jetpack' ) }
-												<Button.Icon icon={ chevronRight } />
-											</Button>
+											<ThemeProvider color={ BRAND_COLOR }>
+												<Button
+													variant="solid"
+													className={ styles[ 'readable-disabled' ] }
+													onClick={ handleContinue }
+													// The features step offers no options, so it is the list arriving that it waits on.
+													disabled={ ! canAdvance || busy || ( isFeatures && modulesLoading ) }
+													loading={ isApplying }
+													loadingAnnouncement={ __(
+														'Setting up your site…',
+														'jetpack-my-jetpack'
+													) }
+												>
+													{ __( 'Continue', 'jetpack-my-jetpack' ) }
+													<Button.Icon icon={ chevronRight } />
+												</Button>
+											</ThemeProvider>
 										</Stack>
 									) }
 								</Stack>

@@ -2,9 +2,10 @@ import { JetpackLogo } from '@automattic/jetpack-components';
 import { useReducedMotion } from '@wordpress/compose';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { check, lineSolid } from '@wordpress/icons';
-import { ButtonLink, Icon, Stack, Text } from '@wordpress/ui';
+import { ThemeProvider } from '@wordpress/theme';
+import { ButtonLink, Card, Icon, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { tallyResults } from '../lib';
+import { BRAND_COLOR, tallyResults } from '../lib';
 import styles from '../styles.module.scss';
 import type { SetupModuleResult } from '../use-setup-modules';
 import type { MouseEvent } from 'react';
@@ -227,12 +228,19 @@ export function FinishStep( {
 						</Text>
 
 						{ /* Safari drops the list role off a `list-style: none` list, so the count goes unsaid. */ }
-						<ul
+						<Card.Root
+							render={ <ul /> }
 							role="list"
 							className={ clsx( styles[ 'finish-card' ], styles.wave, styles[ 'wave-3' ] ) }
 						>
 							{ results.map( result => (
-								<li key={ result.slug } className={ styles[ 'finish-row' ] }>
+								<Stack
+									key={ result.slug }
+									render={ <li /> }
+									align="center"
+									gap="md"
+									className={ styles[ 'finish-row' ] }
+								>
 									<span
 										aria-hidden="true"
 										className={ clsx(
@@ -248,9 +256,9 @@ export function FinishStep( {
 									<Text variant="body-md" className={ styles[ 'finish-row__state' ] }>
 										{ statusLabel( result ) }
 									</Text>
-								</li>
+								</Stack>
 							) ) }
-						</ul>
+						</Card.Root>
 					</Stack>
 				) }
 
@@ -259,15 +267,17 @@ export function FinishStep( {
 					gap="sm"
 					className={ clsx( styles[ 'finish-actions' ], styles.wave, styles[ 'wave-4' ] ) }
 				>
-					<ButtonLink
-						variant="solid"
-						href={ exitUrl }
-						onClick={ onLeave }
-						aria-disabled={ isLeaving || undefined }
-						className={ clsx( styles[ 'primary-green' ], styles[ 'finish-primary' ] ) }
-					>
-						{ __( 'Go to My Jetpack', 'jetpack-my-jetpack' ) }
-					</ButtonLink>
+					<ThemeProvider color={ BRAND_COLOR }>
+						<ButtonLink
+							variant="solid"
+							href={ exitUrl }
+							onClick={ onLeave }
+							aria-disabled={ isLeaving || undefined }
+							className={ styles[ 'finish-primary' ] }
+						>
+							{ __( 'Go to My Jetpack', 'jetpack-my-jetpack' ) }
+						</ButtonLink>
+					</ThemeProvider>
 
 					<ButtonLink
 						variant="minimal"

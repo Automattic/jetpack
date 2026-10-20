@@ -3,13 +3,10 @@ import { ThemeProvider } from '@wordpress/theme';
 import { Icon, Stack, Switch, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useId } from 'react';
-import { isWanted } from '../lib';
+import { BRAND_COLOR, isWanted } from '../lib';
 import styles from '../styles.module.scss';
 import { StepHeading } from './step-heading';
 import type { SetupModule } from '../use-setup-modules';
-
-// --jp-green-50, the contrast-safe green: the seed the switches' brand ramp is built from.
-const SWITCH_PRIMARY = '#008710';
 
 type FeaturesStepProps = {
 	// Owned by the wizard so the panel region can be labelled by the heading.
@@ -163,7 +160,7 @@ export function FeaturesStep( {
 				</Text>
 			) }
 
-			<ThemeProvider color={ { primary: SWITCH_PRIMARY } }>
+			<ThemeProvider color={ BRAND_COLOR }>
 				<div className={ clsx( styles[ 'feature-rows' ], styles.wave, styles[ 'wave-3' ] ) }>
 					{ modules.map( ( module, index ) => (
 						<div

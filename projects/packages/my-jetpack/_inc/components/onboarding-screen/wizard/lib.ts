@@ -34,6 +34,12 @@ export interface WizardStepOption {
  */
 export const SITE_TYPE_OTHER = 'other';
 
+/*
+ * The ThemeProvider seed for everything Jetpack green: --jp-green-50. Seeded
+ * with #069e08 the label turns near-black; this one keeps it near-white, 4.58:1.
+ */
+export const BRAND_COLOR = { primary: '#008710' };
+
 /**
  * One row of the start screen's benefits list.
  */

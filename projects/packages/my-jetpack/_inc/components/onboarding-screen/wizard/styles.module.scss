@@ -1398,21 +1398,14 @@ $rail-row-min-height: 40px;
 }
 
 .finish-card {
-	display: flex;
 	inline-size: 100%;
-	flex-direction: column;
 	margin: 0;
 	padding: 0;
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-	border-radius: var(--wpds-border-radius-lg);
 	list-style: none;
 	text-align: start;
 }
 
 .finish-row {
-	display: flex;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-md);
 	padding-block: var(--wpds-dimension-padding-sm);
 	padding-inline: var(--wpds-dimension-padding-md);
 
@@ -1683,16 +1676,10 @@ $rail-row-min-height: 40px;
 }
 
 /*
- * The contrast-safe green, not the identity green: #069e08 fails AA for white
- * text at body size. White label rather than the brand default #eff0f2, which
- * is 4.11:1 on --jp-green-50 against white's 4.70:1. The disabled pair is
- * overridden for the same reason: the brand default is 2.7:1, this one 4.2:1.
+ * ThemeProvider's disabled pair comes from the background ramp, so the green
+ * seed cannot move it: it is 2.7:1 (#8d8d8d on #e6e6e6), and this one is 4.2:1.
  */
-.primary-green {
-	--wp-ui-button-background-color: var(--jp-green-50);
-	--wp-ui-button-background-color-active: var(--jp-green-60);
-	--wp-ui-button-foreground-color: var(--jp-white);
-	--wp-ui-button-foreground-color-active: var(--jp-white);
+.readable-disabled {
 	--wp-ui-button-background-color-disabled: var(--wpds-color-background-interactive-neutral-weak-active);
 	--wp-ui-button-foreground-color-disabled: var(--wpds-color-foreground-interactive-neutral-weak);
 }
