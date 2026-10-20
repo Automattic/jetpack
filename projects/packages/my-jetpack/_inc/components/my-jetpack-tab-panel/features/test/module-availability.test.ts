@@ -51,19 +51,27 @@ describe( 'isFeatureAvailable', () => {
 			{} as typeof window.myJetpackInitialState.myJetpackFlags;
 	} );
 
+	const blockedPlugin = {
+		kind: 'install-plugin',
+		plugin: 'jetpack-boost',
+		blocked: 'not_permitted',
+	};
+	const blockedJetpack = { kind: 'install-jetpack', installed: false, blocked: 'not_permitted' };
+
 	it.each( [
-		[ false, true ],
-		[ true, false ],
-	] )(
-		'with the account-connect flag on: %s, counts a blocked plugin install as Available: %s',
-		( accountConnect, available ) => {
+		[ 'off', 'plugin install', true, blockedPlugin ],
+		[ 'off', 'Jetpack install', true, blockedJetpack ],
+		[ 'on', 'plugin install', false, blockedPlugin ],
+	] as const )(
+		'with the account-connect flag %s, lists a blocked %s in Available: %s',
+		( flag, _, available, control ) => {
 			window.myJetpackInitialState.myJetpackFlags = {
-				accountConnect,
+				accountConnect: flag === 'on',
 			} as typeof window.myJetpackInitialState.myJetpackFlags;
 			const state = {
 				feature: { slug: 'boost', name: 'Boost', plugin: 'jetpack-boost' },
 				status: 'inactive',
-				control: { kind: 'install-plugin', plugin: 'jetpack-boost', blocked: 'not_permitted' },
+				control,
 			} as FeatureState;
 
 			expect( isFeatureAvailable( state ) ).toBe( available );
