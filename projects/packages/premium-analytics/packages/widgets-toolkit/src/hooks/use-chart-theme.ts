@@ -29,10 +29,6 @@ export function useChartTheme(): ChartTheme {
 					fontSize: 'var(--wpds-typography-font-size-sm)',
 					fontWeight: 400,
 				},
-				containerStyles: {
-					rowGap: 'var( --wpds-dimension-padding-sm )',
-					columnGap: 'var( --wpds-dimension-padding-sm )',
-				},
 			},
 			leaderboardChart: {
 				labelSpacing: 'xs',

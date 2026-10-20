@@ -1,6 +1,14 @@
 import apiFetch from '@wordpress/api-fetch';
+import { dispatch } from '@wordpress/data';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
+
+// One id, so a burst of saves shows one snackbar.
+const SAVED_NOTICE_ID = 'jetpack-protect-settings-saved';
+
+type Failure = { message: string; keys: string[] };
+const NO_KEYS: string[] = [];
 
 /** Flat Jetpack settings, keyed by option or module slug, as `jetpack/v4/settings` returns them. */
 export type ProtectSettings = Record< string, unknown >;
@@ -17,12 +25,16 @@ export type ProtectSettingsData = {
 	isLoaded: boolean;
 	waf: WafConfig | null;
 	error: string | null;
+	/** The keys whose save failed, so a card shows only its own errors; empty when loading failed. */
+	errorKeys: string[];
 	dismissError: () => void;
 	isSaving: ( key: string ) => boolean;
 	/** Fetches the settings once; later calls do nothing unless the fetch failed. */
 	load: () => void;
-	/** Saves to `path` (default `/jetpack/v4/settings`) and merges the patch into `settings`. */
-	save: ( patch: ProtectSettings, path?: string ) => Promise< void >;
+	/** Saves to `path` (default `/jetpack/v4/settings`) and merges the patch into `settings`; resolves to whether it saved. */
+	save: ( patch: ProtectSettings, path?: string ) => Promise< boolean >;
+	/** Re-reads the given keys, for settings the server changes as a side effect of another save. */
+	refresh: ( keys: string[] ) => Promise< void >;
 };
 
 /**
@@ -36,7 +48,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 	const [ settings, setSettingsState ] = useState< ProtectSettings | null >( null );
 	const [ waf, setWaf ] = useState< WafConfig | null >( null );
 	const [ isLoaded, setIsLoaded ] = useState( false );
-	const [ error, setError ] = useState< string | null >( null );
+	const [ failure, setFailure ] = useState< Failure | null >( null );
 	const [ saving, setSaving ] = useState< string[] >( [] );
 	const settingsRef = useRef< ProtectSettings | null >( null );
 	const loadStarted = useRef( false );
@@ -53,7 +65,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 			return;
 		}
 		loadStarted.current = true;
-		setError( null );
+		setFailure( null );
 
 		Promise.all( [
 			apiFetch< ProtectSettings >( { path: '/jetpack/v4/settings' } ),
@@ -70,7 +82,10 @@ export default function useProtectSettings(): ProtectSettingsData {
 			} )
 			.catch( () => {
 				loadStarted.current = false;
-				setError( __( 'Your settings couldn’t be loaded.', 'jetpack-protect-pkg' ) );
+				setFailure( {
+					message: __( 'Your settings couldn’t be loaded.', 'jetpack-protect-pkg' ),
+					keys: NO_KEYS,
+				} );
 			} );
 	}, [ setSettings ] );
 
@@ -85,10 +100,15 @@ export default function useProtectSettings(): ProtectSettingsData {
 			keys.forEach( key => savedKeys.current.add( key ) );
 			setSettings( { ...before, ...patch } );
 			setSaving( current => [ ...current, ...keys ] );
-			setError( null );
+			setFailure( null );
+			let saved = true;
 
 			try {
 				await apiFetch( { path, method: 'POST', data: patch } );
+				dispatch( noticesStore ).createSuccessNotice(
+					__( 'Settings updated.', 'jetpack-protect-pkg' ),
+					{ type: 'snackbar', id: SAVED_NOTICE_ID }
+				);
 			} catch ( e ) {
 				const rolledBack = { ...settingsRef.current };
 				keys.forEach( key => {
@@ -104,10 +124,13 @@ export default function useProtectSettings(): ProtectSettingsData {
 					}
 				} );
 				setSettings( rolledBack );
-				setError(
-					( e as { message?: string } )?.message ||
-						__( 'Your change couldn’t be saved. Try again.', 'jetpack-protect-pkg' )
-				);
+				setFailure( {
+					message:
+						( e as { message?: string } )?.message ||
+						__( 'Your change couldn’t be saved. Try again.', 'jetpack-protect-pkg' ),
+					keys,
+				} );
+				saved = false;
 			} finally {
 				// One entry per save in flight, so an overlapping save of the same key keeps it busy.
 				setSaving( current => {
@@ -116,15 +139,40 @@ export default function useProtectSettings(): ProtectSettingsData {
 					return next;
 				} );
 			}
+			return saved;
+		},
+		[ setSettings ]
+	);
+
+	const refresh = useCallback(
+		async ( keys: string[] ) => {
+			try {
+				const latest = await apiFetch< ProtectSettings >( { path: '/jetpack/v4/settings' } );
+				const fresh = keys.filter( key => key in latest ).map( key => [ key, latest[ key ] ] );
+				setSettings( { ...settingsRef.current, ...Object.fromEntries( fresh ) } );
+			} catch {
+				// Keep what we have; the next full load corrects it.
+			}
 		},
 		[ setSettings ]
 	);
 
 	const isSaving = useCallback( ( key: string ) => saving.includes( key ), [ saving ] );
-	const dismissError = useCallback( () => setError( null ), [] );
+	const dismissError = useCallback( () => setFailure( null ), [] );
 
 	return useMemo(
-		() => ( { settings, isLoaded, waf, error, dismissError, isSaving, load, save } ),
-		[ settings, isLoaded, waf, error, dismissError, isSaving, load, save ]
+		() => ( {
+			settings,
+			isLoaded,
+			waf,
+			error: failure?.message ?? null,
+			errorKeys: failure?.keys ?? NO_KEYS,
+			dismissError,
+			isSaving,
+			load,
+			save,
+			refresh,
+		} ),
+		[ settings, isLoaded, waf, failure, dismissError, isSaving, load, save, refresh ]
 	);
 }

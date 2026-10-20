@@ -300,6 +300,10 @@ By default, the chart fills its parent container's height (`height="100%"`), con
 	/>` }
 />
 
+Below 180px of height the chart tightens the spacing between the rate, the step labels and the bars, so the bars keep their room in a short container:
+
+<Canvas of={ ConversionFunnelChartStories.ShortHeight } />
+
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
@@ -388,6 +392,7 @@ Measure content consumption funnel from page views to conversions.
 
 ### Screen Reader Support
 
+- Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - **ARIA Roles**: Each funnel step uses `role="button"` for proper semantic meaning
 - **ARIA Labels**: Each step has `aria-label` with the step name
 - **Alternative Text**: Step labels and rates are accessible to screen readers

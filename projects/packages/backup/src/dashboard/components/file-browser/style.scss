@@ -3,6 +3,11 @@
 	flex-direction: column;
 	gap: 8px;
 
+	// Focused only by script, when a retry clears the error; see `.jpb-overview`.
+	&:focus {
+		outline: none;
+	}
+
 	&__selection {
 		padding: 8px 0;
 		border-bottom: 1px solid #dcdcde;
@@ -19,13 +24,12 @@
 
 			// `align-self` is load-bearing: grid stretches the card to its row's
 			// height — the tree's — and a stretched card has nowhere to travel.
-			// Silently unsticks if `Card.Root` ever becomes `overflow: hidden`:
-			// that makes `.jpb-backup-detail` the scrollport, not `.jpb-dashboard-body`.
+			// Unsticks if a scroll container appears between it and its scrollport:
+			// `.jpb-backup-detail__body` side by side, `.jpb-dashboard-body` stacked.
 			> .jpb-file-info-card {
 				position: sticky;
 				align-self: start;
-				// Zero because the scrollport is `.jpb-dashboard-body`; the admin
-				// bar and the sticky `Page` header sit outside it, above its top.
+				// Zero: both scrollports start below the admin bar and the page header.
 				inset-block-start: 0;
 			}
 		}

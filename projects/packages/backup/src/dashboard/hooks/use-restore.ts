@@ -14,6 +14,7 @@ import {
 } from '../data/api/restore';
 import { keys } from '../data/query-client';
 import { useAdoptedRestore } from './use-adopted-restore';
+import { RECONNECT_AFTER_FAILURES, usePollFailures } from './use-poll-failures';
 import type { AdoptedRestore } from './use-adopted-restore';
 import type { RestoreStatusResponse } from '../data/api/restore';
 import type { ReferenceId } from '../types/failure-reference';
@@ -73,8 +74,12 @@ type DeriveInput = {
 	/** Our restore, found already over in the collection; null when no row matches. */
 	settledOutcome: { succeeded: boolean; restoreId: number } | null;
 	statusError: Error | null;
+	/** Consecutive failed status polls since the last good one. */
+	pollFailures: number;
 	data: RestoreStatusResponse | undefined;
 	lostTrack: boolean;
+	/** Whether the restores collection has been read successfully since submitting. */
+	restoresRead: boolean;
 };
 
 /**
@@ -101,8 +106,10 @@ function deriveState( input: DeriveInput ): RestoreState {
 		restoreId,
 		settledOutcome,
 		statusError,
+		pollFailures,
 		data,
 		lostTrack,
+		restoresRead,
 	} = input;
 
 	if ( errorMessage ) {
@@ -143,6 +150,14 @@ function deriveState( input: DeriveInput ): RestoreState {
 						reference: { code: null, id: { kind: 'restore', value: settledOutcome.restoreId } },
 					};
 		}
+		// A collection we could not read has not shown that nothing started.
+		if ( lostTrack && ! restoresRead ) {
+			return {
+				phase: 'lost-track',
+				detail: unconfirmed,
+				reference: { code: failureCode, id: referenceId },
+			};
+		}
 		if ( lostTrack ) {
 			return {
 				phase: 'error',
@@ -162,7 +177,14 @@ function deriveState( input: DeriveInput ): RestoreState {
 	// likely still running — we just cannot watch it any more. Reporting
 	// that as an error offers a retry, which upstream refuses as a bare
 	// failure rather than as anything the reader can act on.
-	if ( restoreId !== null && statusError ) {
+	//
+	// Unless the last reading showed the restore alive, or there is no reading
+	// yet: then a failed poll is temporary, and the silence deadline decides.
+	if (
+		restoreId !== null &&
+		statusError &&
+		( lostTrack || ( data !== undefined && ! isSignOfLife( data.status ) ) )
+	) {
 		return {
 			phase: 'lost-track',
 			detail: statusError.message || null,
@@ -193,6 +215,7 @@ function deriveState( input: DeriveInput ): RestoreState {
 				phase: 'progress',
 				percent: Math.round( data.progress ?? 0 ),
 				message: data.message,
+				...( pollFailures >= RECONNECT_AFTER_FAILURES && { reconnecting: true } ),
 			};
 		default:
 			// `queued`, `not-found`, `unknown`, or nothing yet. All the
@@ -392,6 +415,16 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		refetchInterval: recovering ? POLL_INTERVAL_MS : false,
 	} );
 
+	// Latched: a later unreadable read must not take back an earlier good one.
+	const [ restoresRead, setRestoresRead ] = useState( false );
+	const restoresData = restoresQuery.data;
+	const restoresUpdatedAt = restoresQuery.dataUpdatedAt;
+	useEffect( () => {
+		if ( aliveAt !== null && Array.isArray( restoresData ) && restoresUpdatedAt >= aliveAt ) {
+			setRestoresRead( true );
+		}
+	}, [ aliveAt, restoresData, restoresUpdatedAt ] );
+
 	const recoveredId = useMemo( () => {
 		if ( ! needsId || startedRewindId === null ) {
 			return null;
@@ -461,6 +494,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 	// Clearing `lostTrack` is what makes it mean "nothing heard lately"
 	// rather than "there was once a five-minute gap". Without it the flag
 	// latches on the first gap and no later evidence can undo it.
+	const pollFailures = usePollFailures( statusQuery.errorUpdatedAt, statusQuery.dataUpdatedAt );
 	const observedStatus = statusQuery.data?.status;
 	const statusUpdatedAt = statusQuery.dataUpdatedAt;
 	useEffect( () => {
@@ -496,6 +530,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		setStartedRewindId( null );
 		setAliveAt( null );
 		setLostTrack( false );
+		setRestoresRead( false );
 		lastSeenUpdateAt.current = 0;
 		resetMutation();
 	}, [ resetMutation ] );
@@ -514,8 +549,10 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		restoreId,
 		settledOutcome,
 		statusError: statusQuery.error,
+		pollFailures,
 		data: statusQuery.data,
 		lostTrack,
+		restoresRead,
 	} );
 
 	return {

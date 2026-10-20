@@ -180,8 +180,7 @@ describe( 'Overview page view', () => {
 		);
 	}
 
-	beforeEach( async () => {
-		( await import( '../src/dashboard/screens/overview' ) ).resetPageViewForTesting();
+	beforeEach( () => {
 		// Declared, not incidental: these tests are what pin the page view firing on a
 		// plan-less visit, which is why the event sits above `<Gates>`. The bare
 		// `mockResolvedValue( null )` produced the same verdict, but silently.
@@ -379,7 +378,7 @@ describe( 'Modify schedule', () => {
 		await userEvent.click( await modifyButton() );
 		await userEvent.click( await screen.findByRole( 'combobox', { name: 'Backup window' } ) );
 		// Jest runs in America/Sao_Paulo and the site settings default to UTC, so 3 AM is hour 3.
-		await userEvent.click( await screen.findByRole( 'option', { name: '3:00-3:59 AM' } ) );
+		await userEvent.click( await screen.findByRole( 'option', { name: '3:00-3:59 am' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
 	}
 

@@ -5,6 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.11.0] - 2026-10-19
+### Added
+- Add a feature flag for the shared header's global controls. [#53631]
+- Add the shared header's connection control, behind a feature flag. [#53655]
+- Features: Show unavailable modules with their reasons and add an available-only filter. [#53308]
+- Onboarding: Add a full-screen setup wizard behind a feature flag, off by default. It connects the site, asks what the site is for, and records that setup was finished or skipped. [#52765]
+
+### Changed
+- Expiring plan notice: Show WordPress.com's own notice for its plans instead of the generated one. [#53711]
+- Scan: Open the Protect page in WP Admin instead of Jetpack Cloud when the site has one, and leave the threats alert out of the My Jetpack menu count when the Protect menu item shows the number of threats. [#53566]
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53806]
+
+### Removed
+- Remove the `jetpack_my_jetpack_overview_v1` filter; the `my-jetpack-overview-v1` feature flag now turns on Overview v1, which is still in development. [#53781]
+
+### Fixed
+- Connection: Make the connection screen's Connect button and footer links reachable on shorter screens. [#53402]
+- Features: Hide the legacy Custom Content Types module. [#53402]
+- Onboarding: Hide other plugins' notices while the setup screen is open, and stop the full-screen layout breaking when another plugin adds an admin body class first. [#52765]
+- Update the Post List activation message to describe what the feature does. [#52921]
+
+## [6.10.0] - 2026-10-14
+### Added
+- Add an opt-in Features page for managing local features in offline mode. [#53280]
+- Add a `jetpack_my_jetpack_overview_v1` filter that turns on Overview v1. [#53627]
+- Add shared data for the header's connection status. [#53243]
+- Print where Jetpack AI is managed in the admin script data, so other screens can link to it. [#53519]
+
+### Changed
+- Connection card: Show a connection error while your account is still to be connected, instead of only asking you to connect it. [#53409]
+
+### Deprecated
+- Deprecate `get_features_by_tier()` on every product except Boost, and remove the unused `features_by_tier` and `is_tiered_pricing` fields from the product data. [#53199]
+
+### Fixed
+- Notices: Show the highest-priority notice first when several are set at once. [#53400]
+
+## [6.9.1] - 2026-10-12
+### Changed
+- Features: Offer the Protect switch through Jetpack when the Protect Dashboard feature flag is on. [#53182]
+- Overview: Stop asking to connect a WordPress.com account when nothing in use needs one. [#53242]
+
+### Fixed
+- Connection card: Ask for a user connection as soon as a plugin that needs one is switched on, without a reload. [#53356]
+- Connection card: Stop asking for a user connection as soon as the plugin that needed one is switched off, without a reload. [#53367]
+- Features: Stop requesting the Jetpack module list when the Jetpack plugin is not active. [#53249]
+- Products: Stop reporting an error when switching VideoPress off while the Jetpack plugin is inactive. [#53371]
+- Report a bundle the site has no plan for as needing a plan, rather than as switched off or needing a user connection. [#53287]
+
 ## [6.9.0] - 2026-10-07
 ### Changed
 - Features tab: List VaultPress Backup among the plans that include Activity Log history, and simplify the Search paid-plan wording. VideoPress plan comparison: Show the ad-free, customizable player as included in the free plan. [#53181]
@@ -3037,6 +3087,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.10.0...6.11.0
+[6.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.9.1...6.10.0
+[6.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.9.0...6.9.1
 [6.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.8.0...6.9.0
 [6.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.1...6.8.0
 [6.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.0...6.7.1

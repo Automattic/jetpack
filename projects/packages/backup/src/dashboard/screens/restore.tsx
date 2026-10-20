@@ -1,10 +1,12 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
+import { speak } from '@wordpress/a11y';
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
-import { dateI18n } from '@wordpress/date';
-import { useCallback, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { useCallback, useEffect, useState } from '@wordpress/element';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
 	arrowLeft,
+	arrowRight,
 	backup as backupIcon,
 	caution,
 	cloudDownload,
@@ -12,11 +14,23 @@ import {
 	error as errorIcon,
 } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
-import { Button, Card, EmptyState, LinkButton, Notice, Spinner, Stack, Text } from '@wordpress/ui';
+import {
+	Button,
+	Card,
+	EmptyState,
+	Link as ExternalLink,
+	ButtonLink,
+	Notice,
+	Spinner,
+	Stack,
+	Text,
+} from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
+import { formatDate, formatDateTime } from '../data/date-format';
+import { useSiteSuffix } from '../hooks/use-connection';
 import { useGateState } from '../hooks/use-gate-state';
 import { useRestore } from '../hooks/use-restore';
 import { useStepFocus } from '../hooks/use-step-focus';
@@ -48,6 +62,7 @@ const STILL_RUNNING_PHASES = new Set( [ 'checking', 'queued', 'progress' ] );
 export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
 	const gate = useGateState();
+	const siteSuffix = useSiteSuffix();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 
 	const { state, submit, reset, adopted } = useRestore( rewindId, gate.status === 'ready' );
@@ -63,6 +78,16 @@ export default function RestoreScreen() {
 	// An empty checklist would restore *everything* rather than nothing —
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
 	const hasSelection = hasSelectedItems( items );
+
+	const lostTrack = __(
+		"We've lost track of this restore. It may still be running — you'll get an email when it finishes.",
+		'jetpack-backup-pkg'
+	);
+	useEffect( () => {
+		if ( state.phase === 'lost-track' ) {
+			speak( lostTrack, 'polite' );
+		}
+	}, [ state.phase, lostTrack ] );
 
 	// When the restore on screen was already running before this screen
 	// opened, the heading has to name *its* backup. It need not be the one
@@ -103,7 +128,7 @@ export default function RestoreScreen() {
 		<DashboardLayout>
 			<div className="jpb-restore">
 				<Link to="/" className="jpb-restore__back">
-					<Icon icon={ arrowLeft } size={ 18 } />
+					<Icon icon={ isRTL() ? arrowRight : arrowLeft } size={ 18 } />
 					{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
 				</Link>
 				<Card.Root className="jpb-restore__card">
@@ -120,8 +145,11 @@ export default function RestoreScreen() {
 									{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
 								</Text>
 								<Text variant="body-md" className="jpb-text-muted">
-									{ __( 'Restore point:', 'jetpack-backup-pkg' ) }{ ' ' }
-									{ dateI18n( 'M j, Y, g:i A', restorePoint, undefined ) }
+									{ sprintf(
+										/* translators: %s: date and time of the backup. */
+										__( 'Restore point: %s', 'jetpack-backup-pkg' ),
+										formatDateTime( restorePoint )
+									) }
 								</Text>
 							</Stack>
 						</Stack>
@@ -262,6 +290,11 @@ export default function RestoreScreen() {
 								{ state.message && (
 									<EmptyState.Description>{ state.message }</EmptyState.Description>
 								) }
+								{ state.reconnecting && (
+									<EmptyState.Description>
+										{ __( 'Reconnecting…', 'jetpack-backup-pkg' ) }
+									</EmptyState.Description>
+								) }
 							</EmptyState.Root>
 						) }
 						{ /*
@@ -284,7 +317,7 @@ export default function RestoreScreen() {
 													"A restore of your %s backup is already running. You can't start another from here until it finishes.",
 													'jetpack-backup-pkg'
 												),
-												dateI18n( 'M j, Y', restorePoint, undefined )
+												formatDate( restorePoint )
 											)
 										: __(
 												"A restore is already running for this site. You can't start another from here until it finishes.",
@@ -311,9 +344,9 @@ export default function RestoreScreen() {
 									</Text>
 								</EmptyState.Title>
 								<EmptyState.Actions>
-									<LinkButton variant="solid" render={ <Link to="/" /> }>
+									<ButtonLink variant="solid" render={ <Link to="/" /> }>
 										{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
-									</LinkButton>
+									</ButtonLink>
 								</EmptyState.Actions>
 							</EmptyState.Root>
 						) }
@@ -345,10 +378,19 @@ export default function RestoreScreen() {
 										__( 'Some items could not be restored.', 'jetpack-backup-pkg' ) }
 								</EmptyState.Description>
 								<ErrorReference { ...state.reference } />
+								<ExternalLink
+									openInNewTab
+									href={ getRedirectUrl(
+										'jetpack-restore-troubleshooting',
+										siteSuffix ? { site: siteSuffix } : {}
+									) }
+								>
+									{ __( 'Learn more', 'jetpack-backup-pkg' ) }
+								</ExternalLink>
 								<EmptyState.Actions>
-									<LinkButton variant="solid" render={ <Link to="/" /> }>
+									<ButtonLink variant="solid" render={ <Link to="/" /> }>
 										{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
-									</LinkButton>
+									</ButtonLink>
 								</EmptyState.Actions>
 							</EmptyState.Root>
 						) }
@@ -399,10 +441,7 @@ export default function RestoreScreen() {
 							<Stack direction="column" gap="sm">
 								<Notice.Root intent="warning">
 									<Notice.Description ref={ stepHeadingRef } tabIndex={ -1 }>
-										{ __(
-											"We've lost track of this restore. It may still be running — you'll get an email when it finishes.",
-											'jetpack-backup-pkg'
-										) }
+										{ lostTrack }
 									</Notice.Description>
 								</Notice.Root>
 								{ state.detail && (

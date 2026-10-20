@@ -89,7 +89,7 @@ class PayPal_Payment_Buttons {
 	 * Feature flag that lets a merchant connect the PayPal sandbox from the
 	 * connection wizard. Off, the wizard connects to production only.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.1
 	 * @var string
 	 */
 	public const SANDBOX_FLAG = 'paypal-payments-sandbox';
@@ -181,7 +181,7 @@ class PayPal_Payment_Buttons {
 	 *
 	 * A site already connected to the sandbox stays connected either way.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.1
 	 * @return bool
 	 */
 	public static function is_sandbox_enabled() {

@@ -14,6 +14,9 @@ const FALLBACK: InitialState = {
 	warnings: [],
 	upgradeUrl: 'https://wordpress.com/plans/',
 	activateUrl: 'https://wordpress.com/setup/transferring-hosted-site',
+	supportUrl: 'https://wordpress.com/help/contact',
+	hasRevertedTransfer: false,
+	transferFailed: false,
 };
 
 /**

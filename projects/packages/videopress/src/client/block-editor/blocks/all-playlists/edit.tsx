@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { EmptyStateControl } from '../../channel/editor-controls';
 import { blockStyleVars } from './block-style-vars';
 import { hydratePoster } from './hydrate-poster';
 import { MAX_COLUMNS, MAX_PER_PAGE, MIN_COLUMNS, MIN_PER_PAGE } from './types';
@@ -73,8 +74,17 @@ export default function AllPlaylistsEdit( {
 	attributes,
 	setAttributes,
 }: BlockEditProps< AllPlaylistsAttributes > ) {
-	const { layout, columns, perPage, orderBy, showDescription, showVideoCount, pagination } =
-		attributes;
+	const {
+		layout,
+		columns,
+		perPage,
+		orderBy,
+		showDescription,
+		showVideoCount,
+		pagination,
+		excludeCurrent,
+		showUpdated,
+	} = attributes;
 	const { status, html, summary } = useRenderedPreview( attributes );
 
 	const styleVars = blockStyleVars( attributes );
@@ -170,8 +180,14 @@ export default function AllPlaylistsEdit( {
 						{ value: 'newest', label: __( 'Newest first', 'jetpack-videopress-pkg' ) },
 						{ value: 'oldest', label: __( 'Oldest first', 'jetpack-videopress-pkg' ) },
 						{ value: 'title', label: __( 'Title A–Z', 'jetpack-videopress-pkg' ) },
+						{ value: 'updated', label: __( 'Recently updated', 'jetpack-videopress-pkg' ) },
 					] }
 					onChange={ ( value: string ) => setAttributes( { orderBy: value as AllPlaylistsOrder } ) }
+				/>
+				<EmptyStateControl
+					kind="playlists"
+					value={ attributes.emptyState }
+					onChange={ emptyState => setAttributes( { emptyState } ) }
 				/>
 			</PanelBody>
 
@@ -187,6 +203,22 @@ export default function AllPlaylistsEdit( {
 					label={ __( 'Video count', 'jetpack-videopress-pkg' ) }
 					checked={ showVideoCount }
 					onChange={ ( value: boolean ) => setAttributes( { showVideoCount: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Last update and length', 'jetpack-videopress-pkg' ) }
+					checked={ !! showUpdated }
+					onChange={ ( value: boolean ) => setAttributes( { showUpdated: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Hide the playlist being viewed', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'For channel playlist pages, e.g. a “More playlists” row.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ !! excludeCurrent }
+					onChange={ ( value: boolean ) => setAttributes( { excludeCurrent: value } ) }
 				/>
 			</PanelBody>
 

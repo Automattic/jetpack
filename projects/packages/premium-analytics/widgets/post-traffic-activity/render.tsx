@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	CALENDAR_HEATMAP_CELL_GAP,
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
@@ -13,6 +12,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	fitWeekColumns,
+	formatChartName,
 	formatViewCount,
 	toDay,
 	useCalendarHeatmapData,
@@ -30,8 +30,16 @@ import { seen } from '@wordpress/icons';
  */
 import styles from './style.module.css';
 import usePostTrafficActivity from './use-post-traffic-activity';
-import type { PostTrafficActivityAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * The Traffic activity widget has no configurable attributes: it always shows
+ * the daily view heatmap of the post the page is scoped to (via
+ * `reportParams.post_id`). `Record< never, never >` (not
+ * `Record< string, never >`) so the render-only type can compose host fields
+ * such as `reportParams` without collapsing them to `never`.
+ */
+export type PostTrafficActivityAttributes = Record< never, never >;
 
 type PostTrafficActivityRenderAttributes = PostTrafficActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -170,7 +178,6 @@ function PostTrafficActivityInner() {
 					// A post with no traffic renders the all-blank grid (the sparse
 					// treatment), so the empty state only covers the missing scope.
 					empty={ {
-						icon: reports,
 						description: __(
 							'Open a post or page report to see its traffic activity here.',
 							'jetpack-premium-analytics-pkg'
@@ -191,6 +198,9 @@ function PostTrafficActivityInner() {
 								<HeatmapChartUnresponsive
 									data={ heatmapData }
 									rowLabels={ rowLabels }
+									ariaLabel={ formatChartName(
+										__( 'Traffic activity', 'jetpack-premium-analytics-pkg' )
+									) }
 									primaryColor="var(--wp-admin-theme-color, #3858e9)"
 									withTooltips
 									// The page span is already sized to the card, so width tracks
@@ -209,6 +219,11 @@ function PostTrafficActivityInner() {
 	);
 }
 
+/**
+ * The post detail Traffic view's activity card: the scoped post's daily views
+ * over the dashboard date range as a calendar heatmap (week columns, weekday
+ * rows). Days without traffic stay blank cells, per the design, while the grid stays complete.
+ */
 export default function PostTrafficActivity( { attributes = {} }: PostTrafficActivityWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

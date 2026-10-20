@@ -482,6 +482,7 @@ describe( 'AiOverview', () => {
 	} );
 
 	test( 'tracks: a quick start card click records the connector slug', async () => {
+		window.jetpackAiSettings.isSelfHosted = true;
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -500,6 +501,7 @@ describe( 'AiOverview', () => {
 	} );
 
 	test( 'quick start: renders the two connector cards through the redirect service', async () => {
+		window.jetpackAiSettings.isSelfHosted = true;
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -511,19 +513,38 @@ describe( 'AiOverview', () => {
 		// The frame's Quick start row: Connect ChatGPT / Connect Claude, each a
 		// nav row whose destination lives in the redirect service.
 		const slugByName = {
-			'Connect Claude': 'jetpack-ai-hub-overview-quick-start-claude',
-			'Connect ChatGPT': 'jetpack-ai-hub-overview-quick-start-chatgpt',
+			'Connect Claude': 'jetpack-ai-hub-overview-quick-start-claude-self-hosted',
+			'Connect ChatGPT': 'jetpack-ai-hub-overview-quick-start-chatgpt-self-hosted',
 		};
 		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
 			const card = screen.getByRole( 'link', { name: new RegExp( name ) } );
-			expect( card ).toHaveAttribute( 'href', expect.stringContaining( slug ) );
+			expect( card ).toHaveAttribute( 'href', expect.stringMatching( `source=${ slug }(&|$)` ) );
 		}
 		expect(
 			screen.getByText( 'Give Claude access to your site by installing the connector.' )
 		).toBeInTheDocument();
 		expect(
-			screen.getByText( 'Give ChatGPT access to your site by installing the connector.' )
+			screen.getByText( 'Give ChatGPT access to your site by installing the plugin.' )
 		).toBeInTheDocument();
+	} );
+
+	test( 'quick start: WordPress.com sites keep the WordPress.com links', async () => {
+		window.jetpackAiSettings.isSelfHosted = false;
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		for ( const client of [ 'ChatGPT', 'Claude' ] ) {
+			expect(
+				screen.getByRole( 'link', { name: new RegExp( `Connect ${ client }` ) } )
+			).toHaveAttribute(
+				'href',
+				expect.stringMatching(
+					`source=jetpack-ai-hub-overview-quick-start-${ client.toLowerCase() }(&|$)`
+				)
+			);
+		}
 	} );
 
 	test( 'quick start: each card opens in a new tab and says so', async () => {

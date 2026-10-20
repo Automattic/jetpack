@@ -1,14 +1,67 @@
+@use "../../styles/widget-container" as *;
+
+/*
+ * One grid for the header and every row, which take its columns through
+ * subgrid, so each value column lines up whatever its contents' width.
+ */
 .root {
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-template-columns:
+		minmax(0, 1fr)
+		repeat(var(--metric-list-value-count, 1), auto);
+	align-content: start;
+	column-gap: var(--wpds-dimension-gap-lg);
 	block-size: 100%;
 	min-block-size: 0;
 	overflow: hidden;
 }
 
-.list {
+/* For the short-tile query; see widget-state.module.scss. */
+.hasColumns {
+	container-type: size;
+}
+
+.empty {
 	display: flex;
 	flex-direction: column;
+}
+
+.header,
+.list,
+.row {
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
+}
+
+.header {
+	padding-block-end: var(--wpds-dimension-padding-xs);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-xs);
+	line-height: var(--wpds-typography-line-height-xs);
+	text-transform: uppercase;
+}
+
+.headerLabel {
+	min-inline-size: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.headerValue {
+	white-space: nowrap;
+	text-align: end;
+}
+
+@container (max-block-size: #{$widget-short-max-block-size}) {
+
+	.header {
+		display: none;
+	}
+}
+
+.list {
 	margin: 0;
 	padding: 0;
 	list-style: none;
@@ -16,10 +69,7 @@
 
 /* Match compact leaderboard rows. */
 .row {
-	display: grid;
-	grid-template-columns: 1fr auto;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-lg);
 	min-block-size: 36px;
 }
 

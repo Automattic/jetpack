@@ -1,8 +1,10 @@
 export {
 	getInsertableWidgetTypeNames,
+	hasStoreSection,
 	isSectionAwaitingSync,
 	resolveSectionHeading,
 	resolveSectionId,
+	SETTINGS_SECTION,
 	type DashboardSection,
 	type DashboardSectionId,
 } from './sections';
@@ -11,7 +13,8 @@ export {
 	DATE_FILTER_RANGE,
 	DATE_FILTER_YEAR,
 	offersDateComparison,
-	resolvePresetForSurface,
+	resolveSurfaceRange,
+	toDateFilterSurface,
 	type DateFilterOptions,
 	type DateFilterSurface,
 } from './date-filter';

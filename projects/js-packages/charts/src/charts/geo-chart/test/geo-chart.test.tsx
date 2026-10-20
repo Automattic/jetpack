@@ -1,7 +1,8 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { Chart } from 'react-google-charts';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { Chart, type GoogleDataTableColumnRoleType } from 'react-google-charts';
 import { GlobalChartsProvider } from '../../../providers';
 import GeoChart, { GeoChartUnresponsive } from '../geo-chart';
+import type { GeoChartProps } from '../types';
 
 // Mock react-google-charts
 jest.mock( 'react-google-charts', () => ( {
@@ -97,20 +98,54 @@ describe( 'GeoChart', () => {
 			expect( data ).toEqual( testData );
 		} );
 
-		test( 'sanitizes HTML tooltip content to prevent XSS', () => {
-			const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
-				[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
-				[ 'US', 100, '<b>United States</b><script>alert("xss")</script>' ],
-				[ 'CA', 50, '<b>Canada</b><img src=x onerror="alert(1)">' ],
-			];
-			renderWithTheme( { data: testData } );
+		test.each( [ true, 'true', 1, 'false' ] )(
+			'sanitizes HTML tooltip content when p.html is %p',
+			html => {
+				const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
+					[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html } } ],
+					[ 'US', 100, '<b>United States</b><script>alert("xss")</script>' ],
+					[ 'CA', 50, '<b>Canada</b><img src=x onerror="alert(1)">' ],
+				];
+				renderWithTheme( { data: testData } );
 
-			const chartData = screen.getByTestId( 'chart-data' );
-			const data = JSON.parse( chartData.textContent || '[]' );
+				const chartData = screen.getByTestId( 'chart-data' );
+				const data = JSON.parse( chartData.textContent || '[]' );
 
-			// Script tags and img (not in allowlist) should be stripped
-			expect( data[ 1 ][ 2 ] ).toBe( '<b>United States</b>' );
-			expect( data[ 2 ][ 2 ] ).toBe( '<b>Canada</b>' );
+				// Script tags and img (not in allowlist) should be stripped
+				expect( data[ 1 ][ 2 ] ).toBe( '<b>United States</b>' );
+				expect( data[ 2 ][ 2 ] ).toBe( '<b>Canada</b>' );
+			}
+		);
+
+		const unsafe = '<b>US</b><img src=x onerror="alert(1)">';
+		const htmlColumn = { type: 'string', role: 'tooltip', p: { html: true } };
+		const textColumn = { type: 'string', role: 'tooltip' };
+
+		test.each( [
+			[
+				'a cell flagged HTML in a text column',
+				textColumn,
+				{ v: unsafe, p: { html: true } },
+				{ v: '<b>US</b>', p: { html: true } },
+			],
+			[
+				'an object cell in an HTML column',
+				htmlColumn,
+				{ v: unsafe, f: unsafe },
+				{ v: '<b>US</b>', f: '<b>US</b>' },
+			],
+			[ 'a plain cell in a text column, which Google escapes', textColumn, unsafe, unsafe ],
+		] )( 'sanitizes tooltip markup in %s', ( _, column, cell, expected ) => {
+			renderWithTheme( {
+				data: [
+					[ 'Country', 'Value', column ],
+					[ 'US', 100, cell ],
+				],
+			} );
+
+			const data = JSON.parse( screen.getByTestId( 'chart-data' ).textContent || '[]' );
+
+			expect( data[ 1 ][ 2 ] ).toEqual( expected );
 		} );
 
 		test( 'handles header-only data with HTML tooltip column and no data rows', () => {
@@ -170,41 +205,22 @@ describe( 'GeoChart', () => {
 			expect( options.legend ).toBe( 'none' );
 		} );
 
-		test( 'sets tooltip trigger to focus with isHtml false by default', () => {
-			renderWithTheme();
-
-			const chartOptions = screen.getByTestId( 'chart-options' );
-			const options = JSON.parse( chartOptions.textContent || '{}' );
-
-			expect( options.tooltip ).toEqual( { trigger: 'focus', isHtml: false } );
-		} );
-
-		test( 'enables HTML tooltips when data has HTML tooltip column', () => {
-			const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
-				[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
-				[ 'US', 100, '<b>United States</b><br/>100 orders' ],
-				[ 'CA', 50, '<b>Canada</b><br/>50 orders' ],
+		test( 'sets tooltip trigger to focus with isHtml true', () => {
+			const data: GeoChartProps[ 'data' ] = [
+				[
+					'Country',
+					'Value',
+					{ type: 'string', role: 'tooltip' as GoogleDataTableColumnRoleType },
+				],
+				[ 'US', 100, 'United States: 100 orders' ],
+				[ 'CA', 50, 'Canada: 50 orders' ],
 			];
-			renderWithTheme( { data: testData } );
+			renderWithTheme( { data } );
 
 			const chartOptions = screen.getByTestId( 'chart-options' );
 			const options = JSON.parse( chartOptions.textContent || '{}' );
 
 			expect( options.tooltip ).toEqual( { trigger: 'focus', isHtml: true } );
-		} );
-
-		test( 'keeps isHtml false for text-only tooltips', () => {
-			const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
-				[ 'Country', 'Value', { type: 'string', role: 'tooltip' } ],
-				[ 'US', 100, 'United States: 100 orders' ],
-				[ 'CA', 50, 'Canada: 50 orders' ],
-			];
-			renderWithTheme( { data: testData } );
-
-			const chartOptions = screen.getByTestId( 'chart-options' );
-			const options = JSON.parse( chartOptions.textContent || '{}' );
-
-			expect( options.tooltip ).toEqual( { trigger: 'focus', isHtml: false } );
 		} );
 
 		test( 'does not include region in options when set to world (default)', () => {
@@ -281,13 +297,18 @@ describe( 'GeoChart', () => {
 	} );
 
 	describe( 'Chart Events', () => {
-		test( 'does not pass chart events when onError is omitted', () => {
+		test( "hides Google's own SVG label from screen readers once the map is ready", () => {
 			renderWithTheme();
 
-			const chartEvents = screen.getByTestId( 'chart-events' );
-			const events = JSON.parse( chartEvents.textContent || '[]' );
+			const svg = document.createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
+			screen.getByTestId( 'google-chart-mock' ).appendChild( svg );
 
-			expect( events ).toEqual( [] );
+			const chartProps = ChartMock.mock.calls[ ChartMock.mock.calls.length - 1 ]?.[ 0 ];
+			chartProps.chartEvents
+				.find( ( event: { eventName: string } ) => event.eventName === 'ready' )
+				.callback( {} );
+
+			expect( svg ).toHaveAttribute( 'aria-hidden', 'true' );
 		} );
 
 		test( 'calls onError when Google Charts emits an error', () => {
@@ -412,6 +433,16 @@ describe( 'GeoChart', () => {
 
 			// The component should call the custom placeholder function
 			expect( customPlaceholder ).toHaveBeenCalled();
+		} );
+
+		test( 'keeps the placeholder outside the chart until Google Charts loads', () => {
+			renderWithTheme();
+
+			expect( screen.getByTestId( 'geo-chart-loading' ) ).toBeInTheDocument();
+
+			act( () => ChartMock.mock.calls[ ChartMock.mock.calls.length - 1 ][ 0 ].onLoad() );
+
+			expect( screen.queryByTestId( 'geo-chart-loading' ) ).not.toBeInTheDocument();
 		} );
 	} );
 

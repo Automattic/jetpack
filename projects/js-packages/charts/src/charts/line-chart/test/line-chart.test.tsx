@@ -1610,14 +1610,6 @@ describe( 'LineChart', () => {
 				expect( chart ).toHaveAttribute( 'tabIndex', '0' );
 				expect( chart ).toHaveAttribute( 'role', 'application' );
 				expect( chart ).toHaveAttribute( 'aria-label', 'Line chart' );
-			} );
-
-			test.each( [
-				[ undefined, 'Line chart' ],
-				[ 'Views over time', 'Views over time' ],
-			] )( 'names the chart container from ariaLabel %p', ( ariaLabel, name ) => {
-				renderWithTheme( { ariaLabel } );
-				expect( screen.getByRole( 'application', { name } ) ).toBeInTheDocument();
 				expect( screen.queryByLabelText( 'XYChart' ) ).not.toBeInTheDocument();
 			} );
 

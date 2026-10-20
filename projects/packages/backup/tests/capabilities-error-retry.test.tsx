@@ -195,3 +195,22 @@ describe( 'Gates — retrying a failed capabilities read', () => {
 		await expect( view.findByText( 'dashboard body' ) ).resolves.toBeInTheDocument();
 	} );
 } );
+
+describe( 'Gates — the failed capabilities read', () => {
+	it( 'links "contact support" to the support redirect', async () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: 'example.wordpress.com',
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+		answerWith( [ unreadable ] );
+
+		const view = within( renderGate() );
+
+		const link = await view.findByRole( 'link', { name: /^contact support/ } );
+		expect( link ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-contact-support&site=example.wordpress.com'
+		);
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+} );

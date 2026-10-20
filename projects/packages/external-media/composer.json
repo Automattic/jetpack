@@ -48,7 +48,6 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-external-media/compare/v${old}...v${new}"
 		},
-		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "0.9.x-dev"
 		},
