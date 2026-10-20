@@ -1,4 +1,4 @@
-// CI hack.
+// CI hack. If you want to run tests against React 18 locally, you could set it to 18 and then run `pnpm dedupe` (just don't commit that change, or the resulting lockfile changes).
 const withReactVersion = undefined;
 
 /**
