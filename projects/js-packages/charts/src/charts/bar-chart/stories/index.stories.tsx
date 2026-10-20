@@ -913,7 +913,7 @@ const week = ( values: number[] ) =>
 		value: values[ index ],
 	} ) );
 
-export const OverlapLayout: Story = {
+export const ComparisonMultiOverlap: Story = {
 	args: {
 		...Default.args,
 		layout: 'overlap',
