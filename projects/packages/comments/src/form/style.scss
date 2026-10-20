@@ -10,6 +10,13 @@
 	--jetpack-comments-avatar-size: 40px;
 }
 
+// Past a theme's `.comment div`, which Reply moves the form under, yet below
+// every rule of ours with two classes. Popovers and block content keep theirs.
+.jetpack-comments.is-mounted,
+div.jetpack-comments:where(.is-mounted) div:where(:not(.components-popover, .components-popover *, .editor-styles-wrapper *)) {
+	padding: 0;
+}
+
 // One box around the textarea and the submit row, in the post's own colours.
 // Nested to outrank a block theme's rules.
 .jetpack-comments .jetpack-comments__box {
@@ -25,19 +32,4 @@
 	overflow: hidden;
 	clip-path: inset(50%);
 	white-space: nowrap;
-}
-
-// Anemone's Custom Colors never recolour its white reply panel,
-// so a dark palette's light text vanishes into it.
-.wp-theme-premiumanemone.custom-colors,
-.wp-theme-anemone.custom-colors {
-
-	.comment-respond:has(.jetpack-comments) {
-		background: transparent;
-
-		// Its red was picked for the white panel.
-		#cancel-comment-reply-link {
-			color: inherit;
-		}
-	}
 }
