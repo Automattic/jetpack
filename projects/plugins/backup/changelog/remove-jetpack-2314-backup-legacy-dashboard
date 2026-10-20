@@ -1,5 +1,4 @@
-Significance: patch
-Type: changed
-Comment: Remove a stale mirror-exclude entry and an e2e comment; no user-facing change.
+Significance: minor
+Type: removed
 
-
+Remove the legacy dashboard. The `rsm_jetpack_ui_modernization_backup` filter no longer restores it.
