@@ -190,6 +190,14 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'force_refresh', $this->requests[3]['url'] );
 	}
 
+	public function test_clearing_the_cache_misses_it() {
+		$this->get_report();
+		Api_Proxy_Controller::clear_cache();
+		$this->get_report();
+
+		$this->assertCount( 2, $this->requests );
+	}
+
 	/**
 	 * @dataProvider data_date_types
 	 *

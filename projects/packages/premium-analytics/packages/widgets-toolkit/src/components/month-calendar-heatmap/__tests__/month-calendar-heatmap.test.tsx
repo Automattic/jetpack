@@ -13,7 +13,7 @@ const VALUE_BY_DAY = { '2025-10-03': 2 };
 const RANGE = { start: '2025-10-01', end: '2026-09-14' };
 
 const LABELS = {
-	ariaLabel: 'Monthly posting activity',
+	chartTitle: 'Monthly posting activity',
 	formatValue: ( value: number ) => `${ value } posts`,
 	emptyLabel: 'No posts',
 	lessLabel: 'Fewer posts',
@@ -24,7 +24,9 @@ describe( 'MonthCalendarHeatmap', () => {
 	it( 'names the grid and labels both ends of the legend', () => {
 		render( <MonthCalendarHeatmap valueByDay={ VALUE_BY_DAY } range={ RANGE } { ...LABELS } /> );
 
-		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
+		).toBeInTheDocument();
 		expect( screen.getByText( 'Fewer posts' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'More posts' ) ).toBeInTheDocument();
 	} );
@@ -53,7 +55,7 @@ describe( 'MonthCalendarHeatmap', () => {
 	it( 'steps the arrow keys day by day across a month boundary', async () => {
 		const user = userEvent.setup();
 		render( <MonthCalendarHeatmap valueByDay={ VALUE_BY_DAY } range={ RANGE } { ...LABELS } /> );
-		const grid = screen.getByRole( 'grid', { name: 'Monthly posting activity' } );
+		const grid = screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } );
 		const selectedName = () =>
 			within( grid )
 				.getAllByRole( 'gridcell' )

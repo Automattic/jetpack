@@ -1,17 +1,20 @@
 /**
  * External dependencies
  */
+import { type DateLimitUpsellCopy, type LockableInterval } from '@jetpack-premium-analytics/data';
 import { type IntervalType } from '@jetpack-premium-analytics/datetime';
 import { Button, Icon, IconButton } from '@jetpack-premium-analytics/externals';
 import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
-import { chartBar, check, chevronDown } from '@wordpress/icons';
+import { chartBar, check, chevronDown, lock } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useState } from 'react';
 /**
  * Internal dependencies
  */
 import { DateControlPopover } from '../date-control-popover';
+import { DateLimitUpsell } from '../date-limit-upsell';
 import {
 	DATE_CONTROL_TRIGGER_DEFAULTS,
 	openOnArrowDown,
@@ -25,6 +28,12 @@ type DateIntervalDropdownProps = {
 	 * a widget that owns its control, from what its chart draws.
 	 */
 	options: readonly IntervalType[];
+
+	/** Buckets listed after `options` with a lock, which cannot be picked. */
+	lockedOptions?: readonly LockableInterval[];
+
+	/** Why the locked buckets are locked, shown under the menu; its description is read as each one's. */
+	lockUpsell?: DateLimitUpsellCopy;
 
 	/**
 	 * The bucket the widgets are currently drawing.
@@ -91,13 +100,16 @@ function getTriggerLabel( value?: IntervalType ): string {
 }
 
 /**
- * The chart bucket-size control: a menu of what the active range allows.
+ * The chart bucket-size control: a menu of what the active range allows, and what the plan locks.
  *
  * The glyph trigger (not a clock: it buckets the charts, doesn't narrow the period) opens
- * even with one option. With `withLabel` it names the bucket, and is disabled with one.
+ * even with one option. With `withLabel` it names the bucket, and is disabled with one
+ * option and none locked.
  */
 export function DateIntervalDropdown( {
 	options,
+	lockedOptions = [],
+	lockUpsell,
 	value,
 	label,
 	withLabel = false,
@@ -108,9 +120,19 @@ export function DateIntervalDropdown( {
 	const triggerLabel = label ?? getTriggerLabel( value );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const onKeyDown = openOnArrowDown( { isOpen, onToggle: () => setIsOpen( true ), disabled } );
+	const lockDescriptionId = useInstanceId(
+		DateIntervalDropdown,
+		'date-interval-dropdown__lock-description'
+	);
 
 	// The trigger's own Button, so the lone bucket sits where the menu's trigger would.
-	if ( withLabel && value && options.length === 1 && options[ 0 ] === value ) {
+	if (
+		withLabel &&
+		value &&
+		options.length === 1 &&
+		options[ 0 ] === value &&
+		! lockedOptions.length
+	) {
 		return (
 			<Button
 				variant="minimal"
@@ -177,8 +199,26 @@ export function DateIntervalDropdown( {
 							</MenuItem>
 						);
 					} ) }
+					{ lockedOptions.map( option => (
+						<MenuItem
+							key={ option }
+							role="menuitemradio"
+							isSelected={ false }
+							icon={ lock }
+							disabled
+							aria-describedby={ lockUpsell ? lockDescriptionId : undefined }
+						>
+							{ getIntervalLabel( option ) }
+						</MenuItem>
+					) ) }
 				</MenuGroup>
 			</NavigableMenu>
+
+			{ lockedOptions.length > 0 && lockUpsell && (
+				<div className="date-interval-dropdown__lock-notice">
+					<DateLimitUpsell upsell={ lockUpsell } descriptionId={ lockDescriptionId } />
+				</div>
+			) }
 		</DateControlPopover>
 	);
 }

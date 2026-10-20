@@ -1,11 +1,12 @@
 /*
  * External dependencies
  */
-import { ActionButton, AdminPage, Col, Container } from '@automattic/jetpack-components';
+import { ActionButton, AdminPage } from '@automattic/jetpack-components';
 import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 /*
@@ -28,7 +29,7 @@ import EvaluationRecommendations from '../evaluation-recommendations';
 import { getHeaderControls } from '../header-controls';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
-import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { getModulesManagementUrl, resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
@@ -56,7 +57,7 @@ export const GlobalNotice = ( { message, title, options } ) => {
 	const hideCloseButton = options.hideCloseButton ?? true;
 
 	return (
-		<div className={ styles.notice }>
+		<div className={ clsx( styles.notice, styles[ 'notice-gap' ] ) }>
 			<Notice.Root intent={ options.level || 'info' }>
 				{ title && <Notice.Title>{ title }</Notice.Title> }
 				{ /* `render={ <div /> }`: `message` can carry block content, but Description defaults to a `span`. */ }
@@ -167,6 +168,7 @@ export default function MyJetpackScreen() {
 
 	const optionalMenuItems = buildOptionalMenuItems( {
 		adminUrl,
+		modulesManagementUrl: getModulesManagementUrl( `${ adminUrl }admin.php?page=jetpack_modules` ),
 		isDevVersion,
 		userIsAdmin,
 		isSiteConnected,
@@ -199,23 +201,13 @@ export default function MyJetpackScreen() {
 			<MyJetpackTabPanel
 				beforeContent={
 					<>
-						{ ! isNewUser && (
-							<Container horizontalSpacing={ 0 }>
-								<Col>
-									<JitmSlot />
-								</Col>
-							</Container>
-						) }
+						{ ! isNewUser && <JitmSlot /> }
 						{ noticeMessage && (
-							<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-								<Col>
-									<GlobalNotice
-										message={ noticeMessage }
-										title={ noticeTitle }
-										options={ noticeOptions }
-									/>
-								</Col>
-							</Container>
+							<GlobalNotice
+								message={ noticeMessage }
+								title={ noticeTitle }
+								options={ noticeOptions }
+							/>
 						) }
 					</>
 				}

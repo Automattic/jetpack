@@ -18,7 +18,6 @@
 		align-items: center;
 		justify-content: center;
 		flex-wrap: wrap;
-		row-gap: var(--wpds-dimension-gap-xs) !important;
 	}
 
 	.legendItem {
@@ -27,7 +26,6 @@
 		flex: 0 1 auto;
 		gap: var(--wpds-dimension-gap-sm);
 		justify-content: flex-start;
-		padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
 	}
 
 	.legendLabel {

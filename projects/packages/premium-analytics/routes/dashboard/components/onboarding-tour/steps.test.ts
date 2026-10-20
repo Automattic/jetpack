@@ -40,6 +40,18 @@ describe( 'onboardingTourSteps', () => {
 		expect( steps ).toHaveLength( 3 );
 	} );
 
+	it( 'leaves out the arranging steps where the section cannot be customized', () => {
+		const steps = onboardingTourSteps(
+			{ firstWidget: null, dateControls: null, optionsMenu: null, sectionTabs: null },
+			{ withFeedback: true, withCustomize: false }
+		);
+
+		expect( steps.map( step => step.title ) ).toEqual( [
+			'A better date picker',
+			'One last thing',
+		] );
+	} );
+
 	it( 'keeps the steps whose anchors are not mounted yet', () => {
 		const steps = onboardingTourSteps( {
 			firstWidget: null,

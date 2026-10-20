@@ -15,8 +15,13 @@ import { __ } from '@wordpress/i18n';
  */
 import styles from './style.module.css';
 import { useVisitorsByLocation } from './use-visitors-by-location';
-import type { VisitorsByLocationAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type VisitorsByLocationAttributes = Record< never, never >;
 
 type VisitorsByLocationRenderAttributes = VisitorsByLocationAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -37,6 +42,7 @@ function VisitorsByLocation(): JSX.Element {
 			<div className={ styles.locations }>
 				<Locations
 					valueLabel={ __( 'Store visitors', 'jetpack-woocommerce-stats-pkg' ) }
+					chartTitle={ __( 'Store visitors by location', 'jetpack-woocommerce-stats-pkg' ) }
 					rows={ rows }
 					status={ {
 						isLoading,

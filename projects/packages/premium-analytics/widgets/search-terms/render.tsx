@@ -20,8 +20,10 @@ import { __ } from '@wordpress/i18n';
  */
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import useSearchTermViews from './use-search-term-views';
-import { type SearchTermsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type SearchTermsAttributes = Record< never, never >;
 
 type SearchTermsRenderAttributes = Partial< ReportParamsFieldAttributes > & SearchTermsAttributes;
 
@@ -55,6 +57,7 @@ function SearchTermsInner() {
 
 	return (
 		<Leaderboard
+			chartTitle={ __( 'Top searched terms', 'jetpack-premium-analytics-pkg' ) }
 			rows={ rows }
 			columns={ { label: __( 'Search terms', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
 			status={ {

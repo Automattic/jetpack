@@ -1,39 +1,16 @@
 .jp-protect-card {
 
-	// Full-bleed rows whose contents set their own padding.
-	&__row.jp-protect-card__stats,
-	&__row.jp-protect-card__threats {
-		padding: 0;
-	}
-
-	&__row.jp-protect-card__stats {
-		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+	&__row.jp-protect-card__cells.jp-protect-card__stats {
+		--jp-protect-cells: 3;
 
 		> * {
-			padding: 20px var(--wp-ui-card-padding);
-		}
-
-		> * + * {
-			border-inline-start:
-				var(--wpds-border-width-xs) solid
-				var(--wpds-color-stroke-surface-neutral);
-		}
-
-		@media (max-width: 600px) {
-			grid-template-columns: minmax(0, 1fr);
-
-			> * + * {
-				border-inline-start: 0;
-				border-block-start:
-					var(--wpds-border-width-xs) solid
-					var(--wpds-color-stroke-surface-neutral);
-			}
+			padding-block: var(--wpds-dimension-padding-xl);
 		}
 	}
 
+	// Full-bleed, so the threat list sets its own padding.
 	&__row.jp-protect-card__threats {
-		padding-block-end: 8px;
+		padding: 0 0 var(--wpds-dimension-padding-sm);
 	}
 }
 

@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -247,7 +248,7 @@ class Jetpack_Debugger {
 									'p' => array(),
 								)
 							),
-							esc_attr( Jetpack::admin_url( 'page=jetpack_modules' ) ),
+							esc_attr( method_exists( Initializer::class, 'get_modules_management_url' ) ? Initializer::get_modules_management_url() : Jetpack::admin_url( 'page=jetpack_modules' ) ),
 							esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' )
 						);
 					}
