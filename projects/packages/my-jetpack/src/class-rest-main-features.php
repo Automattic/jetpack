@@ -376,7 +376,7 @@ class REST_Main_Features {
 	}
 
 	/**
-	 * Carry out the action on the plugin, through the product that owns it where there is one.
+	 * Carry out the action on the plugin and its product.
 	 *
 	 * @param string $slug   WordPress.org plugin slug.
 	 * @param string $action One of install, activate or deactivate.
@@ -395,13 +395,11 @@ class REST_Main_Features {
 				return new WP_Error( 'not_installed', __( 'That plugin is not installed.', 'jetpack-my-jetpack' ) );
 			}
 
-			// The product knows what else it switched on, such as the Jetpack module behind it.
-			if ( $product_class ) {
-				$deactivated = $product_class::deactivate();
-				return is_wp_error( $deactivated ) ? $deactivated : true;
+			deactivate_plugins( $file );
+			if ( $product_class && is_subclass_of( $product_class, Hybrid_Product::class ) ) {
+				return $product_class::do_product_specific_deactivation();
 			}
 
-			deactivate_plugins( $file );
 			return true;
 		}
 

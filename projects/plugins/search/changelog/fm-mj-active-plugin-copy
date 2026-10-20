@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Show active Beta or -dev plugin copies correctly and deactivate the active copy when a stable copy is also installed.
