@@ -1,3 +1,5 @@
+import { backgroundBehind } from '../shared/contrast';
+
 // Shared by every form on the page. A failure clears it, so the next reach tries again.
 let editorModule: Promise< typeof import( '../editor' ) > | null = null;
 
@@ -27,14 +29,7 @@ export const preloadEditor = () => {
 export const matchTheme = ( box: HTMLElement, textarea: HTMLTextAreaElement ) => {
 	const { fontFamily, fontSize, lineHeight } = getComputedStyle( textarea );
 	const { color } = getComputedStyle( box );
-	// The first ancestor that paints a background.
-	let background = '';
-	for ( let node = box.parentElement; node && ! background; node = node.parentElement ) {
-		const { backgroundColor } = getComputedStyle( node );
-		if ( backgroundColor !== 'rgba(0, 0, 0, 0)' && backgroundColor !== 'transparent' ) {
-			background = backgroundColor;
-		}
-	}
+	const background = backgroundBehind( box );
 
 	// Every read before any write, so the page restyles once.
 	box.style.setProperty( '--jetpack-comments-font-family', fontFamily );

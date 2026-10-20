@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep comment box text readable when a theme paints the reply area in a color that hides its text.

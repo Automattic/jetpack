@@ -122,6 +122,11 @@
 	}
 }
 
+// The theme's link colour fails with the text colour it replaced.
+.jetpack-comments.has-own-color .jetpack-comments__identity a.jetpack-comments__link {
+	color: inherit;
+}
+
 .jetpack-comments__avatar,
 .jetpack-comments__avatar-link {
 	display: flex;

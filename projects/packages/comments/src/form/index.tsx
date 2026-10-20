@@ -2,6 +2,7 @@
 import '../shared/public-path';
 import { render } from 'preact';
 import { DialogHost, mountDialog } from '../modal/host';
+import { ensureContrast } from '../shared/contrast';
 import { resolveSubmitted } from '../shared/draft';
 import { CommentSignals, createSignals } from '../shared/state';
 import { recordEvent } from '../shared/tracks';
@@ -63,6 +64,7 @@ if (
 
 		element.replaceChildren();
 		element.classList.add( 'is-mounted' );
+		ensureContrast( element );
 		render(
 			<CommentSignals.Provider value={ signals }>
 				<CommentForm form={ form } />
