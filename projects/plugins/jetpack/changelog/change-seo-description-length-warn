@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+SEO: Warn when the front-page description runs longer than search results display, and say when it reaches the maximum length.
