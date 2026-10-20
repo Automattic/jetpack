@@ -1,7 +1,7 @@
 .selected-ring {
 	fill: none;
-	stroke: #005fcc;
-	stroke-width: 2px;
+	stroke: var(--wpds-color-stroke-focus);
+	stroke-width: var(--wpds-border-width-focus);
 }
 
 .bar-chart {
