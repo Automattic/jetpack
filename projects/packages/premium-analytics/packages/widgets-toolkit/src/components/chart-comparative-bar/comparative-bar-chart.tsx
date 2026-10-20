@@ -118,9 +118,12 @@ export type ComparativeBarChartProps = {
 	tooltipExtras?: TooltipExtraSeries[];
 
 	/**
-	 * The bar chart's layout. `overlap` draws each `group` inside the one before it, with the previous period in a slot beside the current one; the tooltip and legend swatches then take the chart's bar colors.
+	 * The bar chart's layout. `overlap` draws each `group` inside the one before it, with the previous period in a slot beside the current one; the tooltip and legend swatches then take the chart's bar colors, and one legend item names the previous period.
 	 */
 	layout?: BarChartLayout;
+
+	/** Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked. */
+	primarySeries?: string;
 
 	/** Pointer-down on the plot, carrying the datum nearest the pointer. */
 	onPointerDown?: BarChartProps[ 'onPointerDown' ];
@@ -155,6 +158,7 @@ export function ComparativeBarChart( {
 	comparisonLabel,
 	tooltipExtras,
 	layout,
+	primarySeries,
 	onPointerDown,
 	onPointerUp,
 	onDatumActivate,
@@ -162,7 +166,7 @@ export function ComparativeBarChart( {
 	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
-	const { getElementStyles, getBarColors, theme } = useGlobalChartsContext();
+	const { getElementStyles, getBarColors, isSeriesVisible, theme } = useGlobalChartsContext();
 	const overlapLayout = layout === 'overlap' ? layout : undefined;
 
 	// The measured Stack fills its container (flex), so its height is independent
@@ -218,13 +222,51 @@ export function ComparativeBarChart( {
 	);
 
 	const primarySeriesByGroup = useMemo( () => resolvePrimarySeriesByGroup( series ), [ series ] );
-	const { config: legendConfig, items: legendItems } = useComparativeLegend(
+	const {
+		config: legendConfig,
+		items: comparativeLegendItems,
+		comparisonLabel: previousPeriodLabel,
+	} = useComparativeLegend(
 		alignedSeries,
 		legendInteractive,
 		comparisonLabel,
 		undefined,
-		overlapLayout
+		overlapLayout,
+		primarySeries
 	);
+	// Overlap paints the previous period as one slot, so one item names it, in the color of its widest shown bar.
+	const legendItems = useMemo( () => {
+		if ( ! overlapLayout ) {
+			return comparativeLegendItems;
+		}
+
+		const metricItems = comparativeLegendItems.filter( item => ! item.describesSeries );
+		const widestPrevious = alignedSeries.findIndex(
+			item => item.options?.type === 'comparison' && isSeriesVisible( chartId, item.label )
+		);
+
+		if ( widestPrevious === -1 ) {
+			return metricItems;
+		}
+
+		return [
+			...metricItems,
+			{
+				label: previousPeriodLabel,
+				color: seriesStyles[ widestPrevious ].stroke,
+				shapeStyle: metricItems[ 0 ]?.shapeStyle,
+				interactive: false,
+			},
+		];
+	}, [
+		overlapLayout,
+		comparativeLegendItems,
+		alignedSeries,
+		isSeriesVisible,
+		chartId,
+		previousPeriodLabel,
+		seriesStyles,
+	] );
 
 	const formatTooltipBucket = useCallback(
 		( point: ComparativeDatePointDate ) => formatBucketTooltipDate( point, displayResolution ),

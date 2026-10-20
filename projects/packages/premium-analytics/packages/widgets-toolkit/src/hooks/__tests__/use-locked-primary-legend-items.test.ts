@@ -40,6 +40,22 @@ describe( 'useLockedPrimaryLegendItems', () => {
 		);
 	} );
 
+	it( 'moves the named primary item first and pins it', () => {
+		mockUseChartLegendItems.mockReturnValue( [
+			{ label: 'Views', color: '#111111', seriesLabels: [ 'Views' ] },
+			{ label: 'Visitors', color: '#222222', seriesLabels: [ 'Visitors' ] },
+		] );
+
+		const { result } = renderHook( () =>
+			useLockedPrimaryLegendItems( SERIES, {}, undefined, 'Visitors' )
+		);
+
+		expect( result.current ).toEqual( [
+			{ label: 'Visitors', color: '#222222', seriesLabels: [ 'Visitors' ], interactive: false },
+			{ label: 'Views', color: '#111111', seriesLabels: [ 'Views' ] },
+		] );
+	} );
+
 	it( 'returns an empty legend as is', () => {
 		mockUseChartLegendItems.mockReturnValue( [] );
 

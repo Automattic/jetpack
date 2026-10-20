@@ -13,6 +13,7 @@ import {
 	mockSparklineMargin,
 	resetMockCharts,
 	setMockChartHeight,
+	setMockHiddenSeries,
 } from '../../../../../../tests/js/chart-test-utils';
 import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { ComparativeBarChart } from '../comparative-bar-chart';
@@ -410,8 +411,34 @@ describe( 'ComparativeBarChart', () => {
 		);
 		expect(
 			mockBarChartLegendSpy.mock.calls.at( -1 )[ 0 ].items.map( ( { color } ) => color )
-		).toEqual( [ mockOverlapBarColor( 0 ), mockOverlapBarColor( 2 ) ] );
+		).toEqual( [ mockOverlapBarColor( 0 ), mockOverlapBarColor( 2 ), mockOverlapBarColor( 1 ) ] );
 	} );
+
+	it.each( [
+		[ 'its widest bar', [], 1 ],
+		[ 'its widest shown bar', [ 'July', 'June' ], 3 ],
+	] )(
+		'names the overlap previous period with one legend item, in the color of %s',
+		( _case, hidden, colorIndex ) => {
+			setMockHiddenSeries( hidden );
+			render(
+				<ComparativeBarChart
+					series={ PAIRED_SERIES }
+					dataFormat={ DATA_FORMAT }
+					layout="overlap"
+					comparisonLabel="Prev. 7 days"
+				/>
+			);
+			setMockHiddenSeries();
+
+			expect( mockBarChartLegendSpy.mock.calls.at( -1 )[ 0 ].items.at( -1 ) ).toEqual( {
+				label: 'Prev. 7 days',
+				color: mockOverlapBarColor( colorIndex ),
+				shapeStyle: undefined,
+				interactive: false,
+			} );
+		}
+	);
 
 	it( 'passes visibility settings through to the chart and legend', () => {
 		render(

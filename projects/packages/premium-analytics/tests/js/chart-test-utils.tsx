@@ -146,6 +146,7 @@ export const mockChartExternals = () => ( {
 					: elementStyles( { data, index } ).color
 			),
 		getHiddenSeries: () => new Set( hiddenSeries ),
+		isSeriesVisible: ( _chartId: string, label: string ) => ! hiddenSeries.has( label ),
 		theme: { sparkline: { margin: mockSparklineMargin } },
 	} ),
 } );

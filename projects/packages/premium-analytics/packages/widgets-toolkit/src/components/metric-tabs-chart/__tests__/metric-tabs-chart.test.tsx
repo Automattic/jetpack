@@ -667,17 +667,19 @@ describe( 'MetricTabsChart', () => {
 			'a line in the accent, its counterpart in a dark shade',
 			'line',
 			mockLineSpy,
+			[ 'Views', 'Visitors' ],
 			[ '#3858E9', '#3858E9', '#1c2c75', '#1c2c75' ],
 		],
 		[
-			'overlapping bars from the accent, left to the chart to shade, the previous period in grays',
+			'overlapping bars, the larger metric behind in the accent, the smaller left to the chart to shade, the previous period in grays',
 			'bar',
 			mockBarSpy,
+			[ 'Views', 'Views' ],
 			[ '#3858E9', 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)', undefined, '#7c7c7c' ],
 		],
 	] as const )(
 		'draws the selected metric and its counterpart as %s',
-		async ( _case, chartType, spy, expected ) => {
+		async ( _case, chartType, spy, [ viewsFirst, visitorsFirst ], expected ) => {
 			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? '#3858E9' : '#5AA61B' } ) );
 			const user = userEvent.setup();
 			render(
@@ -690,24 +692,40 @@ describe( 'MetricTabsChart', () => {
 			const strokes = ( label: string ) =>
 				recordedPropsFor( spy, label ).series.map( series => series.options?.stroke );
 
-			expect( strokes( 'Views' ) ).toEqual( expected );
+			expect( strokes( viewsFirst ) ).toEqual( expected );
 			await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
-			expect( strokes( 'Visitors' ) ).toEqual( expected );
+			expect( strokes( visitorsFirst ) ).toEqual( expected );
 		}
 	);
 
 	it.each( [
-		[ 'overlap', 'a counterpart shown from the start', [ VIEWS, VISITORS ] ],
-		[
-			'grouped',
-			'a counterpart seeded hidden',
-			[ { ...VIEWS, counterpartHidden: true }, VISITORS ],
-		],
-		[ 'overlap', 'a metric alone', [ METRIC ] ],
-	] )( 'draws %s bars for %s', ( layout, _case, metrics ) => {
+		[ 'a counterpart shown from the start', [ VIEWS, VISITORS ] ],
+		[ 'a counterpart seeded hidden', [ { ...VIEWS, counterpartHidden: true }, VISITORS ] ],
+		[ 'a metric alone', [ METRIC ] ],
+	] )( 'draws overlap bars for %s', ( _case, metrics ) => {
 		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } chartType="bar" /> );
 
-		expect( recordedPropsFor( mockBarSpy, 'Views' ).layout ).toBe( layout );
+		expect( recordedPropsFor( mockBarSpy, 'Views' ) ).toMatchObject( {
+			layout: 'overlap',
+			primarySeries: 'Views',
+		} );
+	} );
+
+	it( 'draws the larger metric of a pair behind, the picked one first in the legend', async () => {
+		const user = userEvent.setup();
+		render(
+			<MetricTabsChart
+				metrics={ [ VIEWS, { ...VISITORS, counterpartHidden: true } ] }
+				dataFormat={ DATA_FORMAT }
+				chartType="bar"
+			/>
+		);
+		await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
+
+		expect( recordedPropsFor( mockBarSpy, 'Views' ) ).toMatchObject( {
+			primarySeries: 'Visitors',
+			defaultHiddenSeries: [ 'Views', expect.stringContaining( 'Views' ) ],
+		} );
 	} );
 
 	it( 'draws a metric alone in the accent, its previous period in gray', () => {

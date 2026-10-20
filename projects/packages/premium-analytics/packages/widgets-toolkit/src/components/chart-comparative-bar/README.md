@@ -46,10 +46,11 @@ second current-period series keeps its own dates.
 | `legendInteractive`   | `boolean`                     | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false`                               |
 | `comparisonLabel`     | `string`                      | No       | Names the comparison in each metric's previous-period legend item, e.g. "Prev. 30 days". Defaults to "Previous period"                    |
 | `layout`              | `'grouped' \| 'overlap'`      | No       | The bar chart's layout; see below. Defaults to `grouped`                                                                                  |
+| `primarySeries`       | `string`                      | No       | Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked                   |
 
 ## Overlap layout
 
-With `layout="overlap"`, the chart draws each `group` inside the one before it, and the previous period in a slot beside the current one. The bars are opaque and charts tones them, so the tooltip and legend swatches read their colors from `getBarColors` on the charts context instead of the series colors. The series keep their `group`s: `group` still names the metric.
+With `layout="overlap"`, the chart draws each `group` inside the one before it, and the previous period in a slot beside the current one. The bars are opaque and charts tones them, so the tooltip and legend swatches read their colors from `getBarColors` on the charts context instead of the series colors. The series keep their `group`s: `group` still names the metric. The legend names the previous period with one item, in the color of its widest shown bar.
 
 ## Date alignment and tooltips
 

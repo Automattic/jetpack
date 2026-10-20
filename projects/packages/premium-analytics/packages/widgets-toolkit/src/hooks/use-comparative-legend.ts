@@ -20,14 +20,16 @@ type LegendShape = Parameters< typeof useLockedPrimaryLegendItems >[ 2 ];
  * @param comparisonLabel - The comparison's legend name, e.g. "Prev. 30 days".
  * @param shape           - The legend shape, when the chart's default is not `rect`.
  * @param barLayout       - The bar chart layout whose bar colors the swatches take, if any.
- * @return The config to hand the chart and the items to hand its legend.
+ * @param primaryLabel    - The label of the metric the reader picked, when it is not the first series drawn.
+ * @return The config to hand the chart, the items to hand its legend, and the comparison's name.
  */
 export function useComparativeLegend(
 	series: SeriesData[],
 	interactive: boolean,
 	comparisonLabel: string = __( 'Previous period', 'jetpack-premium-analytics-pkg' ),
 	shape?: LegendShape,
-	barLayout?: BarChartLayout
+	barLayout?: BarChartLayout,
+	primaryLabel?: string
 ) {
 	const config = useMemo(
 		() => ( {
@@ -44,7 +46,7 @@ export function useComparativeLegend(
 		[ interactive, comparisonLabel ]
 	);
 	const itemOptions = useMemo( () => ( { ...config, barLayout } ), [ config, barLayout ] );
-	const items = useLockedPrimaryLegendItems( series, itemOptions, shape );
+	const items = useLockedPrimaryLegendItems( series, itemOptions, shape, primaryLabel );
 
-	return { config, items };
+	return { config, items, comparisonLabel };
 }

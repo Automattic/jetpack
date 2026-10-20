@@ -60,9 +60,9 @@ const DARK_SHADE_BLEND = 0.5;
 
 /** The previous period's grays when bars overlap, so they recede behind the current period. */
 const PREVIOUS_PERIOD_GRAYS = {
-	metric: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)',
-	/** The lightest gray that keeps WCAG's 3:1 against `metric`'s default, which it is drawn inside. */
-	counterpart: '#7c7c7c',
+	back: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)',
+	/** The lightest gray that keeps WCAG's 3:1 against `back`'s default, which it is drawn inside. */
+	front: '#7c7c7c',
 };
 
 /** The pointer-event payload both comparative charts report. */
@@ -163,9 +163,18 @@ function hasSeries( metric: MetricTab ): boolean {
 }
 
 /**
+ * The sum of a series' readings.
+ *
+ * @param data - The series.
+ * @return The sum, counting a missing reading as zero.
+ */
+function sumOf( data: MetricTabDatum[] ): number {
+	return data.reduce( ( sum, datum ) => sum + ( datum.value ?? 0 ), 0 );
+}
+
+/**
  * How the selected metric's series are drawn. `line` keeps the previous period
- * as a dashed overlay; `bar` draws it in gray beside the current period, with a counterpart shown
- * from the start inside the metric's bar. A counterpart that starts hidden keeps the translucent shadow behind each bar.
+ * as a dashed overlay; `bar` draws it in gray beside the current period, with the smaller metric of a pair inside the larger one's bar.
  */
 export type MetricTabsChartType = 'line' | 'bar';
 
@@ -333,25 +342,32 @@ function MetricChart( {
 		return { accent, dark: mixHexColors( accent, '#000000', DARK_SHADE_BLEND ) };
 	}, [ getElementStyles ] );
 
-	// A counterpart shown from the start is drawn inside the metric's bar, as Jetpack Stats draws visitors inside views.
-	const isOverlap = chartType === 'bar' && ! metric.counterpartHidden;
+	// Bars draw the smaller metric of a pair inside the larger one's bar, as Jetpack Stats draws visitors inside views.
+	const isOverlap = chartType === 'bar';
 
 	const { series, defaultHiddenSeries } = useMemo( () => {
 		if ( isOverlap && ! counterpart ) {
 			return {
-				series: buildSeries( metric, chartType, shades.accent, PREVIOUS_PERIOD_GRAYS.metric ),
+				series: buildSeries( metric, chartType, shades.accent, PREVIOUS_PERIOD_GRAYS.back ),
 				defaultHiddenSeries: undefined,
 			};
 		}
 
 		if ( isOverlap && counterpart ) {
-			// The accent is the base charts tones the current period from; the unstroked counterpart takes its shade.
+			const [ back, front ] =
+				sumOf( counterpart.current ) > sumOf( metric.current )
+					? [ counterpart, metric ]
+					: [ metric, counterpart ];
+			// The accent is the base charts tones the current period from; the unstroked front metric takes its shade.
+			const backSeries = buildSeries( back, chartType, shades.accent, PREVIOUS_PERIOD_GRAYS.back );
+			const frontSeries = buildSeries( front, chartType, undefined, PREVIOUS_PERIOD_GRAYS.front );
+			const counterpartSeries = back === counterpart ? backSeries : frontSeries;
+
 			return {
-				series: [
-					...buildSeries( metric, chartType, shades.accent, PREVIOUS_PERIOD_GRAYS.metric ),
-					...buildSeries( counterpart, chartType, undefined, PREVIOUS_PERIOD_GRAYS.counterpart ),
-				],
-				defaultHiddenSeries: undefined,
+				series: [ ...backSeries, ...frontSeries ],
+				defaultHiddenSeries: metric.counterpartHidden
+					? counterpartSeries.map( item => item.label )
+					: undefined,
 			};
 		}
 
@@ -463,7 +479,8 @@ function MetricChart( {
 			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
 			tooltipExtras={ tooltipExtras }
-			layout={ isOverlap ? 'overlap' : 'grouped' }
+			layout="overlap"
+			primarySeries={ metric.label }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>
