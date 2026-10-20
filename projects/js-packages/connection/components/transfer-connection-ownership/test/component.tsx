@@ -88,7 +88,7 @@ describe( 'TransferConnectionOwnership', () => {
 		render( <TransferConnectionOwnership { ...props } /> );
 
 		await waitFor( () =>
-			expect( screen.findByRole( 'button', { name: 'Continue' } ) ).resolves.not.toHaveAttribute(
+			expect( screen.getByRole( 'button', { name: 'Continue' } ) ).not.toHaveAttribute(
 				'aria-disabled',
 				'true'
 			)
