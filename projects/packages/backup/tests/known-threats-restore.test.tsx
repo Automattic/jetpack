@@ -1,5 +1,10 @@
 const mockApiFetch = jest.fn();
+const mockSpeak = jest.fn();
 let mockRewindId = '1786663613.9425';
+
+jest.mock( '@wordpress/a11y', () => ( {
+	speak: ( ...args: unknown[] ) => mockSpeak( ...args ),
+} ) );
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -16,6 +21,7 @@ jest.mock( '@wordpress/route', () => ( {
 // Imports must come after the jest.mock factories above.
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ANNOUNCE_WINDOW_MS, resetAnnouncerForTesting } from '../src/dashboard/data/announce';
 import { KNOWN_THREATS_TIMEOUT_MS } from '../src/dashboard/data/api/known-threats';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
@@ -161,6 +167,8 @@ async function enabled( confirm: HTMLElement ): Promise< HTMLElement > {
 }
 
 beforeEach( () => {
+	resetAnnouncerForTesting();
+	mockSpeak.mockReset();
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 	mockApiFetch.mockReset();
@@ -287,6 +295,28 @@ describe( 'known threats on the Restore screen', () => {
 		expect( view.queryByText( /Restore failed/ ) ).not.toBeInTheDocument();
 		expect( view.queryByText( /threats/i ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'a clean backup', () => Promise.resolve( CLEAN ), true ],
+		[
+			'threats_unavailable',
+			() => Promise.reject( { code: 'threats_unavailable', data: { status: 404 } } ),
+			false,
+		],
+		[ 'a body without a summary', () => Promise.resolve( { threats: [] } ), false ],
+	] )(
+		'says no threats were found only when the check answered: %s',
+		async ( _label, threats, said ) => {
+			arrange( threats );
+			const view = within( renderScreen() );
+
+			await enabled( await view.findByRole( 'button', { name: CONFIRM } ) );
+			await act( () => new Promise( resolve => setTimeout( resolve, ANNOUNCE_WINDOW_MS + 50 ) ) );
+
+			const spoken = mockSpeak.mock.calls.map( ( [ message ] ) => message ).join( ' ' );
+			expect( spoken.includes( 'No known threats found in this backup.' ) ).toBe( said );
+		}
+	);
 
 	it( 'never asks on a site that cannot check, and restores as before', async () => {
 		window.JPBACKUP_DASHBOARD_STATE = { knownThreatsAvailable: false };

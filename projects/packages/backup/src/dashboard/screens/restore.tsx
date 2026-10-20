@@ -31,6 +31,7 @@ import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import KnownThreatsWarning from '../components/known-threats';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
+import { announce } from '../data/announce';
 import { formatDate, formatDateTime } from '../data/date-format';
 import { useSiteSuffix } from '../hooks/use-connection';
 import { useGateState } from '../hooks/use-gate-state';
@@ -113,24 +114,25 @@ export default function RestoreScreen() {
 		setAcknowledged( false );
 		headingNode.current?.focus();
 	}, [ rewindId ] );
-	// Said once when the check that held Confirm back finds nothing.
+	// Said once when the check that held Confirm back answers that the backup is clean. An
+	// unavailable check is not a clean one, so it says nothing.
 	const wasChecking = useRef( false );
 	useEffect( () => {
 		if ( checkingThreats ) {
 			wasChecking.current = true;
 		} else if ( wasChecking.current ) {
 			wasChecking.current = false;
-			if ( ! needsAcknowledgement ) {
-				speak( __( 'No known threats found in this backup.', 'jetpack-backup-pkg' ), 'polite' );
+			if ( knownThreats?.summary.flagged === 0 ) {
+				announce( __( 'No known threats found in this backup.', 'jetpack-backup-pkg' ) );
 			}
 		}
-	}, [ checkingThreats, needsAcknowledgement ] );
+	}, [ checkingThreats, knownThreats ] );
 
 	// Focus stays on the checkbox; say that the restore it was blocking is open.
 	const handleAcknowledge = useCallback( ( next: boolean ) => {
 		setAcknowledged( next );
 		if ( next ) {
-			speak( __( 'You can now restore this backup.', 'jetpack-backup-pkg' ), 'polite' );
+			announce( __( 'You can now restore this backup.', 'jetpack-backup-pkg' ) );
 		}
 	}, [] );
 	const handleRetry = useCallback( () => {

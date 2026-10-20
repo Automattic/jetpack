@@ -1,4 +1,3 @@
-import { speak } from '@wordpress/a11y';
 import { useInstanceId } from '@wordpress/compose';
 import {
 	createInterpolateElement,
@@ -20,6 +19,7 @@ import {
 	Tooltip,
 	VisuallyHidden,
 } from '@wordpress/ui';
+import { announce } from '../../data/announce';
 import { containingBackup } from '../../data/api/known-threats';
 import { formatDateTime } from '../../data/date-format';
 import { formatDuration } from '../../data/durations';
@@ -131,12 +131,11 @@ export default function BackupDetail( { item }: Props ) {
 	const handleAcknowledge = useCallback( ( next: boolean ) => {
 		setAcknowledged( next );
 		if ( next ) {
-			speak(
+			announce(
 				__(
 					'You can now restore this backup with "Restore to this point", at the top of this panel.',
 					'jetpack-backup-pkg'
-				),
-				'polite'
+				)
 			);
 		}
 	}, [] );

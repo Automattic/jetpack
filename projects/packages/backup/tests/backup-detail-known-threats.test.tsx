@@ -153,9 +153,11 @@ describe( 'Backup detail for a backup with known threats', () => {
 
 		// Focus stays on the checkbox, and screen readers hear where the restore now is.
 		expect( checkbox ).toHaveFocus();
-		expect( mockSpeak ).toHaveBeenCalledWith(
-			'You can now restore this backup with "Restore to this point", at the top of this panel.',
-			'polite'
+		await waitFor( () =>
+			expect( mockSpeak ).toHaveBeenCalledWith(
+				'You can now restore this backup with "Restore to this point", at the top of this panel.',
+				'polite'
+			)
 		);
 
 		expect( screen.getByRole( 'link', { name: /Restore to this point/ } ) ).toHaveAttribute(
