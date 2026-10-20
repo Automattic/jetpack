@@ -26,6 +26,21 @@ describe( 'OnboardingWelcomeModal', () => {
 		expect( screen.getByRole( 'button', { name: 'Close' } ) ).toBeInTheDocument();
 	} );
 
+	it( 'promises no arranging where the reader cannot customize', () => {
+		render(
+			<OnboardingWelcomeModal
+				open
+				withCustomize={ false }
+				onStart={ jest.fn() }
+				onDismiss={ jest.fn() }
+			/>
+		);
+
+		const dialog = screen.getByRole( 'dialog', { name: 'Welcome to the new Stats' } );
+		expect( dialog ).toHaveTextContent( "It brings your site's traffic into one clear page." );
+		expect( dialog ).not.toHaveTextContent( 'move and resize' );
+	} );
+
 	it( 'renders nothing while closed', () => {
 		renderModal( false );
 

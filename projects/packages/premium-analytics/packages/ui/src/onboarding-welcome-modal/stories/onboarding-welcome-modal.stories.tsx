@@ -16,7 +16,9 @@ const meta: Meta< typeof OnboardingWelcomeModal > = {
 					'the new experience over the widget grid animation and hands off to ' +
 					'the tour.\n\n' +
 					'`variant` picks the journey: the new Stats, the WooCommerce tab for a ' +
-					'reader who already knows the new Stats, or both as two slides.\n\n' +
+					'reader who already knows the new Stats, or both as two slides. ' +
+					'`withCustomize={ false }` drops the promise of moving and resizing ' +
+					'widgets, for a section the plan locks.\n\n' +
 					'The consumer owns the open state. `onStart` fires when the reader ' +
 					'presses Take a quick tour; `onDismiss` when they close the dialog any other ' +
 					'way, naming which (the close button or Escape; a click outside is ignored). The ' +
@@ -32,7 +34,13 @@ export default meta;
 
 type Story = StoryObj< typeof OnboardingWelcomeModal >;
 
-function WelcomeModalDemo( { variant }: { variant?: OnboardingWelcomeVariant } ) {
+function WelcomeModalDemo( {
+	variant,
+	withCustomize,
+}: {
+	variant?: OnboardingWelcomeVariant;
+	withCustomize?: boolean;
+} ) {
 	const [ open, setOpen ] = useState( true );
 	const [ outcome, setOutcome ] = useState< string | null >( null );
 
@@ -50,6 +58,7 @@ function WelcomeModalDemo( { variant }: { variant?: OnboardingWelcomeVariant } )
 			<OnboardingWelcomeModal
 				open={ open }
 				variant={ variant }
+				withCustomize={ withCustomize }
 				onStart={ () => close( 'started the tour' ) }
 				onDismiss={ reason => close( `dismissed (${ reason })` ) }
 			/>
@@ -78,4 +87,11 @@ export const Store: Story = {
  */
 export const StatsAndStore: Story = {
 	render: () => <WelcomeModalDemo variant="stats-and-store" />,
+};
+
+/**
+ * A free site's locked Traffic section, which offers no Customize.
+ */
+export const WithoutCustomize: Story = {
+	render: () => <WelcomeModalDemo withCustomize={ false } />,
 };

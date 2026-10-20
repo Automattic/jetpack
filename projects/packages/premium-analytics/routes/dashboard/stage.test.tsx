@@ -20,6 +20,7 @@ import { useCallback } from 'react';
  */
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { onboardingTourSteps } from './components';
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
 	useActiveSection,
@@ -137,8 +138,16 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 			<span>{ containerElement ? 'measuring header' : 'measuring body' }</span>
 		</>
 	),
-	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
-		open ? <div data-testid="onboarding-welcome-modal" /> : null,
+	OnboardingWelcomeModal: ( {
+		open,
+		withCustomize,
+	}: {
+		open: boolean;
+		withCustomize?: boolean;
+	} ) =>
+		open ? (
+			<div data-testid="onboarding-welcome-modal" data-with-customize={ String( withCustomize ) } />
+		) : null,
 	// Forwards the ref and marks the notice slot, since the stage relies on
 	// both: the ref feeds the year surface's measurement, and the notice's
 	// place in the slot is asserted below.
@@ -403,7 +412,7 @@ jest.mock( './components', () => ( {
 		<div data-testid="locked-section">{ section }</div>
 	),
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
-	onboardingTourSteps: () => [],
+	onboardingTourSteps: jest.fn( () => [] ),
 	DashboardNotices: () => <div data-testid="dashboard-notices" />,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
@@ -996,6 +1005,37 @@ describe( 'Dashboard onboarding', () => {
 		expect( screen.getByTestId( 'onboarding-welcome-modal' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'onboarding-tour' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		{ plan: 'a paid', isLocked: false, offersComparison: true },
+		{ plan: 'a free', isLocked: true, offersComparison: false },
+	] )(
+		"matches the onboarding copy to what $plan site's section offers",
+		( { isLocked, offersComparison } ) => {
+			jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison } );
+			if ( isLocked ) {
+				useLockedSectionLayoutMock.mockImplementation( ( section, layout, onLayoutChange ) => ( {
+					...passThroughLockedLayout( section, layout, onLayoutChange ),
+					lockedSection: { title: 'Unlock site growth analytics' } as LockedSectionGate,
+				} ) );
+			}
+			useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'modal' } );
+
+			render( <Dashboard /> );
+
+			expect( screen.getByTestId( 'onboarding-welcome-modal' ) ).toHaveAttribute(
+				'data-with-customize',
+				String( ! isLocked )
+			);
+			expect( jest.mocked( onboardingTourSteps ) ).toHaveBeenLastCalledWith(
+				expect.anything(),
+				expect.objectContaining( {
+					withCustomize: ! isLocked,
+					withComparison: offersComparison,
+				} )
+			);
+		}
+	);
 
 	it( 'runs the tour once the modal hands over', () => {
 		useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'tour' } );
