@@ -127,6 +127,14 @@ final class Dashboard_Section {
 	public $requires_sync = false;
 
 	/**
+	 * Whether the plan's Stats date limits apply to the section's window.
+	 *
+	 * @since $$next-version$$
+	 * @var bool
+	 */
+	public $follows_plan_date_limits = false;
+
+	/**
 	 * Message, or a callback returning one, shown above the section's widgets; null when none.
 	 *
 	 * @since 0.13.0
@@ -338,6 +346,10 @@ final class Dashboard_Section {
 
 		if ( isset( $args['requires_sync'] ) ) {
 			$this->requires_sync = (bool) $args['requires_sync'];
+		}
+
+		if ( isset( $args['follows_plan_date_limits'] ) ) {
+			$this->follows_plan_date_limits = (bool) $args['follows_plan_date_limits'];
 		}
 
 		if ( array_key_exists( 'notice', $args ) ) {

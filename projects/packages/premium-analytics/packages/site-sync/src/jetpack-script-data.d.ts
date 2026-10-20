@@ -17,6 +17,8 @@ declare module '@automattic/jetpack-script-data' {
 			can_view_stats?: boolean;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];
+			// Slugs of the tabs whose dates follow the plan's Stats limits. Absent with `sections`.
+			plan_date_limited_sections?: string[];
 			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.
 			store_currency?: { code: string; symbol: string };
 			// The roles the Stats settings list, and the screen that switches Stats on and off; absent for users who cannot manage options.
