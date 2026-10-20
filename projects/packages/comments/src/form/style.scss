@@ -48,3 +48,13 @@ div.jetpack-comments:where(.is-mounted) div:where(:not(.components-popover, .com
 		}
 	}
 }
+
+// Shoreditch's wpcom stylesheet greys out all of `#comments #respond form`,
+// so its blue submit loses the white text the theme gives it.
+.wp-theme-pubshoreditch,
+.wp-theme-shoreditch {
+
+	.jetpack-comments .jetpack-comments__submit input {
+		color: #fff !important;
+	}
+}
