@@ -205,18 +205,11 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 				continue;
 			}
 
-			const cacheKey = JSON.stringify( project.targets );
-			if ( ! dependencyCache.has( cacheKey ) ) {
-				dependencyCache.set(
-					cacheKey,
-					execSync(
-						`pnpm jetpack dependencies list --add-dependencies ${ project.targets.join( ' ' ) }`
-					)
-						.toString()
-						.split( '\n' )
-				);
+			const command = `pnpm jetpack dependencies list --add-dependencies ${ project.targets.join( ' ' ) }`;
+			if ( ! dependencyCache.has( command ) ) {
+				dependencyCache.set( command, execSync( command ).toString().split( '\n' ) );
 			}
-			const targets = dependencyCache.get( cacheKey );
+			const targets = dependencyCache.get( command );
 
 			if ( Object.keys( changedProjects ).some( target => targets.includes( target ) ) ) {
 				pushBothVersions( project );
