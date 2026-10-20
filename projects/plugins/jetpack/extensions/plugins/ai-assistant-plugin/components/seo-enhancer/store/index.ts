@@ -8,6 +8,7 @@ import { createReduxStore, register, select } from '@wordpress/data';
  * Internal dependencies
  */
 import { FEATURES } from '../constants';
+import { isAutoEnhanceSettingOn } from '../is-auto-enhance-setting-on';
 import * as actions from './actions';
 import reducer from './reducer';
 import * as selectors from './selectors';
@@ -17,8 +18,11 @@ export const STORE_NAME = 'jetpack/seo-enhancer';
 let isAutoEnhanceEnabled = false;
 
 try {
-	// Will always be false on simple sites, as jetpack modules request will return 404
-	if ( ! isSimpleSite() ) {
+	// Simple has no `jetpack/v4` module routes to read or save this setting, so it arrives with
+	// the editor state there and only Jetpack › SEO can switch it.
+	if ( isSimpleSite() ) {
+		isAutoEnhanceEnabled = isAutoEnhanceSettingOn();
+	} else {
 		const seoModuleSettings = (
 			select( modulesStore ) as unknown as JetpackModuleSelector
 		 ).getJetpackModules()[ 'seo-tools' ];
