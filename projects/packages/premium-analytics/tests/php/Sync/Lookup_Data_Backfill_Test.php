@@ -90,6 +90,14 @@ class Lookup_Data_Backfill_Test extends TestCase {
 		return array_column( $GLOBALS['jpa_test_scheduled_actions'], 'hook' );
 	}
 
+	/**
+	 * Record the standalone plugin's full sync and the milestone it set.
+	 */
+	private static function record_earlier_syncs(): void {
+		update_option( Lookup_Data_Backfill::PLUGIN_FULL_SYNC_OPTION, 1730000100 );
+		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
+	}
+
 	private static function set_scheduled_state(): void {
 		update_option(
 			Lookup_Data_Backfill::STATE_OPTION,
@@ -101,7 +109,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	}
 
 	public function test_schedules_once_after_an_earlier_analytics_full_sync() {
-		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
+		self::record_earlier_syncs();
 		$backfill = $this->backfill();
 
 		$backfill->maybe_schedule();
@@ -118,7 +126,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	 */
 	#[DataProvider( 'provide_trigger' )]
 	public function test_checks_on_sync_status_and_dashboard_load_only( callable $trigger, bool $schedule ) {
-		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
+		self::record_earlier_syncs();
 
 		$trigger( $this->backfill() );
 
@@ -151,7 +159,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	}
 
 	public function test_does_not_schedule_when_already_backfilled() {
-		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
+		self::record_earlier_syncs();
 		update_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, 1730000456 );
 
 		$this->backfill()->maybe_schedule();
@@ -170,12 +178,18 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	/**
 	 * @dataProvider provide_nothing_to_backfill
 	 * @param array $results Store checks.
+	 * @param bool  $plugin  Whether the standalone plugin's full sync ran.
 	 */
 	#[DataProvider( 'provide_nothing_to_backfill' )]
-	public function test_marks_done_when_nothing_is_missing( array $results ) {
-		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
+	public function test_marks_done_when_nothing_is_missing( array $results, bool $plugin = true ) {
+		self::record_earlier_syncs();
+		if ( ! $plugin ) {
+			delete_option( Lookup_Data_Backfill::PLUGIN_FULL_SYNC_OPTION );
+		}
+		$backfill = $this->backfill( $results );
+		$backfill->expects( $this->never() )->method( 'fetch_wpcom_products' );
 
-		$this->backfill( $results )->maybe_schedule();
+		$backfill->maybe_schedule();
 
 		$this->assertSame( array(), self::scheduled_hooks() );
 		$this->assertGreaterThan( 0, (int) get_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, 0 ) );
@@ -183,8 +197,9 @@ class Lookup_Data_Backfill_Test extends TestCase {
 
 	public static function provide_nothing_to_backfill() {
 		return array(
-			'no orders'           => array( array( 'has_orders' => false ) ),
-			'empty lookup tables' => array( array( 'has_lookup_rows' => false ) ),
+			'no orders'            => array( array( 'has_orders' => false ) ),
+			'empty lookup tables'  => array( array( 'has_lookup_rows' => false ) ),
+			'never ran the plugin' => array( array(), false ),
 		);
 	}
 
@@ -363,7 +378,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	 */
 	#[DataProvider( 'provide_started_run' )]
 	public function test_handles_a_started_run_on_the_next_check( array $status, bool $running, bool $schedule, bool $synced ) {
-		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
+		self::record_earlier_syncs();
 		update_option(
 			Lookup_Data_Backfill::STATE_OPTION,
 			array(

@@ -53,6 +53,11 @@ class Lookup_Data_Backfill {
 	const RETRY_WINDOW = DAY_IN_SECONDS;
 
 	/**
+	 * Set by the standalone WooCommerce Analytics plugin when its first full sync finishes; it survives deactivation.
+	 */
+	const PLUGIN_FULL_SYNC_OPTION = 'woocommerce_analytics_initial_full_sync_finished';
+
+	/**
 	 * Lookup tables the standalone plugin left out of its sync.
 	 */
 	const LOOKUP_TABLES = array( 'wc_order_product_lookup', 'wc_order_tax_lookup', 'wc_order_coupon_lookup' );
@@ -119,7 +124,8 @@ class Lookup_Data_Backfill {
 			return;
 		}
 
-		if ( ! $this->has_orders() || ! $this->has_lookup_rows() ) {
+		// Without the standalone plugin's full sync, Premium Analytics sent every order's lookup data itself.
+		if ( (int) get_option( self::PLUGIN_FULL_SYNC_OPTION, 0 ) <= 0 || ! $this->has_orders() || ! $this->has_lookup_rows() ) {
 			update_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, time() );
 			return;
 		}
