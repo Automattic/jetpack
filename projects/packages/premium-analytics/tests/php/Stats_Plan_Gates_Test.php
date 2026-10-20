@@ -466,7 +466,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Only a free site loses whole sections, as classic Stats replaces its Insights and Traffic pages.
+	 * Only a free site loses whole sections.
 	 *
 	 * @dataProvider provide_locked_sections
 	 *

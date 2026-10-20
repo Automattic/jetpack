@@ -185,6 +185,7 @@ function Dashboard(): JSX.Element {
 	);
 	const isSectionLocked = !! lockedSection;
 	// Edit mode survives a tab switch, so leave it on arriving at a section that cannot be arranged.
+	// The exit is recorded against the section arrived at, as Done after any tab switch is.
 	useEffect( () => {
 		if ( editMode && isSectionLocked ) {
 			onEditChange( false );

@@ -60,7 +60,9 @@ describe( 'LockedSection', () => {
 	it( 'shows the plan pitch with its first four features, the upgrade and the support link', () => {
 		render( <LockedSection section="insights" /> );
 
-		expect( screen.getByRole( 'heading', { name: 'Unlock site insights' } ) ).toBeVisible();
+		expect(
+			screen.getByRole( 'heading', { level: 3, name: 'Unlock site insights' } )
+		).toBeVisible();
 		expect(
 			screen.getByText( 'Get detailed insights into your site’s performance with a Personal plan.' )
 		).toBeVisible();
@@ -80,8 +82,10 @@ describe( 'LockedSection', () => {
 	it( 'expands to every feature and collapses back', async () => {
 		render( <LockedSection section="insights" /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Show all Personal features' } ) );
+		const toggle = screen.getByRole( 'button', { name: 'Show all Personal features' } );
+		await userEvent.click( toggle );
 		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( 11 );
+		expect( toggle ).toHaveAttribute( 'aria-controls', screen.getAllByRole( 'list' )[ 1 ].id );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Show less' } ) );
 		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( 4 );

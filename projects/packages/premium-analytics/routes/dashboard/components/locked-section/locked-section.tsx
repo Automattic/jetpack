@@ -7,7 +7,7 @@ import { WidgetGridAnimation } from '@jetpack-premium-analytics/ui';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { check, chevronDown, chevronUp, lock } from '@wordpress/icons';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -27,6 +27,7 @@ export function LockedSection( { section }: { section: string } ) {
 	const trackEvent = useTrackEvent();
 	const locked = getLockedSection( section );
 	const [ isExpanded, setIsExpanded ] = useState( false );
+	const moreFeaturesId = useId();
 	const isLocked = !! locked;
 
 	useEffect( () => {
@@ -70,8 +71,8 @@ export function LockedSection( { section }: { section: string } ) {
 
 	const mainFeatures = locked.features.slice( 0, COLLAPSED_FEATURE_COUNT );
 	const moreFeatures = locked.features.slice( COLLAPSED_FEATURE_COUNT );
-	const featureList = ( features: string[] ) => (
-		<Stack render={ <ul /> } direction="column" gap="sm" className={ styles.features }>
+	const featureList = ( features: string[], id?: string ) => (
+		<Stack id={ id } render={ <ul /> } direction="column" gap="sm" className={ styles.features }>
 			{ features.map( feature => (
 				<Stack key={ feature } render={ <li /> } direction="row" align="center" gap="sm">
 					<Icon icon={ check } size={ 20 } className={ styles.check } />
@@ -87,7 +88,7 @@ export function LockedSection( { section }: { section: string } ) {
 				<Stack direction="column" align="start" gap="lg" className={ styles.copy }>
 					<Icon icon={ lock } size={ 32 } />
 					<Stack direction="column" gap="sm">
-						<Text variant="heading-xl" render={ <h2 /> }>
+						<Text variant="heading-xl" render={ <h3 /> }>
 							{ locked.title }
 						</Text>
 						<Text variant="body-lg" className={ styles.description }>
@@ -114,6 +115,7 @@ export function LockedSection( { section }: { section: string } ) {
 							variant="minimal"
 							size="compact"
 							aria-expanded={ isExpanded }
+							aria-controls={ moreFeaturesId }
 							onClick={ toggleExpanded }
 						>
 							{ isExpanded
@@ -122,7 +124,10 @@ export function LockedSection( { section }: { section: string } ) {
 							<Button.Icon icon={ isExpanded ? chevronUp : chevronDown } />
 						</Button>
 					) }
-					{ isExpanded && featureList( moreFeatures ) }
+					{ /* Always rendered, so `aria-controls` points at an element while collapsed. */ }
+					{ moreFeatures.length > 0 && (
+						<div hidden={ ! isExpanded }>{ featureList( moreFeatures, moreFeaturesId ) }</div>
+					) }
 				</Stack>
 				<div className={ styles.visual }>
 					<WidgetGridAnimation />
