@@ -152,7 +152,7 @@ add_action( 'admin_print_footer_scripts', 'wpcomsh_disable_pingback_ui_on_stagin
 /**
  * Tells search engines not to index staging sites, even when `blog_public` allows it.
  *
- * @param array $headers Headers.
+ * @param array $headers HTTP response headers.
  * @return array Filtered headers.
  */
 function wpcomsh_add_staging_site_robots_header( $headers ) {
@@ -177,7 +177,7 @@ function wpcomsh_add_staging_site_robots_directives( $robots ) {
 		return $robots;
 	}
 
-	// Otherwise the tag would read "index, noindex".
+	// Drop `index` and `follow` so the tag can't read "index, noindex".
 	unset( $robots['index'], $robots['follow'] );
 
 	$robots['noindex']  = true;
