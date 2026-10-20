@@ -26,11 +26,11 @@ The render component is bound by `WidgetRenderProps<Item>` from
 `@wordpress/widget-primitives`: it receives only `{ attributes, setAttributes }`.
 `attributes` may arrive empty — default it (`= {}`).
 
-The attribute shape (`Item`) is declared and exported once. A widget with a
-`widget.ts` declares it there, alongside the `attributes`/`example` schema it
+The attribute shape (`Item`) is declared once. A widget with a `widget.ts`
+declares and exports it there, alongside the `attributes`/`example` schema it
 describes, and `render.tsx` imports it rather than redeclaring it, so the schema
 and the render props cannot drift. A widget without one declares it in
-`render.tsx`, where its stories and tests import it.
+`render.tsx`.
 If the host injects extra infrastructure fields through `attributes`, compose a
 render-only type from the imported widget attribute type plus the host field type.
 Do not re-declare the widget's own attribute shape in `render.tsx`.
@@ -57,7 +57,9 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { MyAttributes } from './widget';
+
+// A widget with a `widget.ts` imports this from './widget' instead.
+export type MyAttributes = Record< never, never >;
 
 type MyWidgetRenderAttributes = MyAttributes & Partial< ReportParamsFieldAttributes >;
 
