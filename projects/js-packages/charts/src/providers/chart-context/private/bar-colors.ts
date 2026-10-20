@@ -92,7 +92,7 @@ export function getComparisonPrimaries( series: SeriesData[] ): Map< number, num
 }
 
 /**
- * The colors a bar chart fills its series with. A comparison without its own `stroke` takes the lightest tint of its primary's color that keeps 3:1 against the background, and its primary darkens until it keeps 3:1 against that tint.
+ * The colors a bar chart fills its series with. A comparison without a `stroke` in a color of its own takes the lightest tint of its primary's color that keeps 3:1 against the background, and its primary darkens until it keeps 3:1 against that tint.
  *
  * @param series     - The chart's series.
  * @param colors     - Each series' resolved hex color.
@@ -107,7 +107,10 @@ export function getBarColors(
 	const barColors = [ ...colors ];
 
 	getComparisonPrimaries( series ).forEach( ( primary, comparison ) => {
-		if ( series[ comparison ].options?.stroke ) {
+		const hasOwnColor =
+			!! series[ comparison ].options?.stroke &&
+			colors[ comparison ].toLowerCase() !== colors[ primary ].toLowerCase();
+		if ( hasOwnColor ) {
 			return;
 		}
 

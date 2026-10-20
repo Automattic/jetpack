@@ -91,7 +91,23 @@ describe( 'getBarColors', () => {
 		);
 	} );
 
-	it( 'keeps the colors of a comparison with its own stroke, and its primary', () => {
+	it( 'tints a comparison stroked in its primary color', () => {
+		const tinted = getBarColors(
+			[ series( 'Views' ), series( 'Previous', { type: 'comparison' } ) ],
+			[ '#3858e9', '#3858e9' ],
+			'#ffffff'
+		);
+
+		expect(
+			getBarColors(
+				[ series( 'Views' ), series( 'Previous', { type: 'comparison', stroke: '#3858E9' } ) ],
+				[ '#3858e9', '#3858E9' ],
+				'#ffffff'
+			)
+		).toEqual( tinted );
+	} );
+
+	it( 'keeps the colors of a comparison stroked in a color of its own, and its primary', () => {
 		const data = [
 			series( 'Views' ),
 			series( 'Previous', { type: 'comparison', stroke: '#dbdbdb' } ),

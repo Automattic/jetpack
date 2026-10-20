@@ -97,7 +97,7 @@ Comparison bars are styled via the chart theme at `barChart.barStyles.comparison
 | `widthFactor` | `number` | `1.5` | How much wider the comparison bar is than the primary. The comparison bar is the standard slot width and the primary bar is narrowed to `1 / widthFactor` of the slot. |
 | `opacity` | `number` | none | Deprecated and ignored: comparison bars are opaque. |
 
-A comparison bar is opaque. Without its own `options.stroke`, it takes the lightest tint of its primary's color that keeps 3:1 against the chart background, and its primary darkens, where it must, to keep 3:1 against that tint. With one, both bars keep the colors they are given.
+A comparison bar is opaque. Unless its `options.stroke` gives it a color other than its primary's, it takes the lightest tint of its primary's color that keeps 3:1 against the chart background, and its primary darkens, where it must, to keep 3:1 against that tint. With a color of its own, both bars keep the colors they are given.
 
 ```typescript
 <GlobalChartsProvider

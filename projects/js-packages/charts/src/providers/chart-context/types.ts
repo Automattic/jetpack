@@ -41,7 +41,7 @@ export interface GlobalChartsContextValue {
 	/** Locale and time zone every date the charts print is rendered in. */
 	formatting: ChartFormatting;
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
-	/** The colors a bar chart fills these series with, by index: a comparison without its own `stroke`, and its primary, take tones that keep 3:1 against the background and each other. */
+	/** The colors a bar chart fills these series with, by index: a comparison without a `stroke` in a color of its own, and its primary, take tones that keep 3:1 against the background and each other. */
 	getBarColors: ( series: SeriesData[] ) => string[];
 	// Series visibility management shared by charts, legends, and programmatic controls.
 	toggleSeriesVisibility: ( chartId: string, seriesLabel: string ) => void;
