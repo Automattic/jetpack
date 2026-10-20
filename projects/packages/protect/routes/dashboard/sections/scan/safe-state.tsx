@@ -5,7 +5,7 @@ import { getCheckedCounts } from './labels';
 import ScanButton, { getNextCheck, useHasPassed } from './scan-button';
 import type { ScanState } from './types';
 
-const SafeShield = () => (
+export const SafeShield = () => (
 	<svg width="80" height="98" viewBox="0 0 123 150" aria-hidden="true" focusable="false">
 		<path
 			d="M61.365 0L0 27.273v40.909C0 106.023 26.182 141.409 61.365 150c35.183-8.591 61.365-43.977 61.365-81.818v-40.91L61.365 0z"
