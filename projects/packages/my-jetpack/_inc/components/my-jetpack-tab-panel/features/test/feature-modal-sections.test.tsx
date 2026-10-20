@@ -91,6 +91,14 @@ describe( 'FeatureDelivery', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	it( 'says why an active module waiting for an account offers Connect', () => {
+		render(
+			<FeatureDelivery state={ { ...moduleState( false, 'active' ), accountNeeded: true } } />
+		);
+
+		expect( screen.getByText( 'Requires a connected WordPress.com account' ) ).toBeVisible();
+	} );
+
 	it( 'explains how to turn on a module nobody forced', () => {
 		render( <FeatureDelivery state={ moduleState( false, 'inactive' ) } /> );
 

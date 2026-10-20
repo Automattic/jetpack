@@ -121,10 +121,17 @@ describe( 'MoreFeatures', () => {
 		}
 	);
 
-	it.each( [ 'waf', 'backup' ] as const )(
-		'explains the multisite-blocked %s and leaves it out of Available',
-		module => {
+	it.each( [
+		[ 'waf', false ],
+		[ 'backup', false ],
+		[ 'waf', true ],
+	] as const )(
+		'explains the multisite-blocked %s once and leaves it out of Available (account connect: %s)',
+		( module, accountConnect ) => {
 			setSiteEditor( { isBlockTheme: false } );
+			window.myJetpackInitialState.myJetpackFlags = {
+				accountConnect,
+			} as typeof window.myJetpackInitialState.myJetpackFlags;
 			window.JetpackScriptData.site.is_multisite = true;
 			try {
 				const blockedModule = { ...sharing, module, activated: true };

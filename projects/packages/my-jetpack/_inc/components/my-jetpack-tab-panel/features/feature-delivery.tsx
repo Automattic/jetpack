@@ -111,8 +111,8 @@ function getNote( state: FeatureState, pluginName: string ): string {
 }
 
 /**
- * The module limitation, a missing account with no button to connect it, and the action's setup
- * note in the feature details.
+ * The module limitation, a missing account nothing else explains, and the action's setup note in
+ * the feature details.
  *
  * @param {FeatureDeliveryProps} props       - The component props.
  * @param {FeatureState}         props.state - Live state for the feature.
@@ -133,9 +133,12 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	// A blocked install never reaches the next step, so naming it would only mislead.
 	const setupNote = getInstallBlockReason( state ) ? '' : feature.setup_note;
 	// Here rather than beside the buttons, where a long reason pushes Upgrade out of a phone-sized
-	// window. A host-forced feature already lists it beside its forced reason.
+	// window. A host-forced feature already lists it beside its forced reason. An active module
+	// gets it too, or its Connect would sit beside Deactivate with nothing saying why.
 	const accountNote =
-		needsAccountWithoutConnect( state ) && ! getForcedReason( state )
+		( needsAccountWithoutConnect( state ) ||
+			( state.accountNeeded && state.status === 'active' && state.control.kind === 'module' ) ) &&
+		! getForcedReason( state )
 			? getFeatureUnavailableReason( state )
 			: '';
 
