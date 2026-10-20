@@ -130,15 +130,20 @@ describe( 'Report stage report scope', () => {
 			premium_analytics: { plan_date_limited_sections: [ 'traffic' ] },
 		} as typeof window.JetpackScriptData;
 		mockGetReportDefinition.mockReturnValue( { load: mockLoad, dashboardSection: section } );
-		jest.mocked( useStatsDateLimits ).mockReturnValue( {
-			offersComparison: true,
-			dateLimits: { lockedPresetIds: [], lockedIntervals: [ 'week' ] },
-		} );
+		jest.mocked( useStatsDateLimits ).mockImplementation( limited =>
+			limited
+				? {
+						offersComparison: true,
+						dateLimits: { lockedPresetIds: [], lockedIntervals: [ 'week' ] },
+					}
+				: { offersComparison: true }
+		);
 
 		render( <ReportStage /> );
 
-		await expect( screen.findByText( 'locked: week' ) ).resolves.toBeInTheDocument();
-		expect( useStatsDateLimits ).toHaveBeenLastCalledWith( isLimited );
+		await expect(
+			screen.findByText( `locked: ${ isLimited ? 'week' : 'none' }` )
+		).resolves.toBeInTheDocument();
 		expect( useDateWindowNotice ).toHaveBeenCalled();
 	} );
 } );

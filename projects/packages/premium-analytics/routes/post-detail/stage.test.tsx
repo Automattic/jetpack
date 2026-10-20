@@ -687,17 +687,21 @@ describe( 'post detail stage', () => {
 				premium_analytics: { plan_date_limited_sections: sections },
 			} as unknown as typeof window.JetpackScriptData;
 			mockSummary();
-			jest.mocked( useStatsDateLimits ).mockReturnValue( {
-				offersComparison: true,
-				dateLimits: { lockedPresetIds: [], lockedIntervals: [ 'week' ] },
-			} );
+			jest.mocked( useStatsDateLimits ).mockImplementation( limited =>
+				limited
+					? {
+							offersComparison: true,
+							dateLimits: { lockedPresetIds: [], lockedIntervals: [ 'week' ] },
+						}
+					: { offersComparison: true }
+			);
+			const lockedIntervals = isLimited ? [ 'week' ] : undefined;
 
 			render( stage() );
 
-			expect( useStatsDateLimits ).toHaveBeenLastCalledWith( isLimited );
-			expect( screen.getByText( 'locked: week' ) ).toBeInTheDocument();
-			expect( mockDateFilterOptions ).toEqual( { lockedIntervals: [ 'week' ] } );
-			expect( mockPeriodHostLockedIntervals ).toEqual( [ 'week' ] );
+			expect( screen.getByText( `locked: ${ isLimited ? 'week' : 'none' }` ) ).toBeInTheDocument();
+			expect( mockDateFilterOptions ).toEqual( { lockedIntervals } );
+			expect( mockPeriodHostLockedIntervals ).toEqual( lockedIntervals );
 			expect( useDateWindowNotice ).toHaveBeenCalled();
 		}
 	);
