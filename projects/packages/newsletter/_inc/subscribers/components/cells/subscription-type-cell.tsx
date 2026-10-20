@@ -9,9 +9,7 @@ type Props = {
 };
 
 /**
- * Subscription type cell — each paid plan renders as a stable-intent `Badge` named after the plan,
- * and each complimentary subscription as an informational badge named after the comped plan
- * ("Comp: Gold"); a reader with neither gets a neutral "Free" badge.
+ * Subscription type cell: one badge per paid or comped plan, or "Free" when there are none.
  *
  * @param props            - Component props.
  * @param props.subscriber - Subscriber row.

@@ -63,10 +63,8 @@ export function getResolvedPlans( subscriber: Subscriber ): ResolvedPlan[] {
 }
 
 /**
- * Resolve a subscriber's overall subscription type, applying the same priority
- * `SubscriptionTypeCell` renders: paid wins over comp, comp over free. Shared with
- * the DataViews "Subscription type" filter so filtering and the rendered badge
- * agree (a free-only subscriber must read as `free`, not `paid`).
+ * Resolve a subscriber's single subscription type for the DataViews "Subscription type" filter:
+ * paid over comp over free, so a subscriber with both a paid plan and a comp files under paid.
  *
  * @param subscriber - Subscriber.
  * @return The subscription type.
