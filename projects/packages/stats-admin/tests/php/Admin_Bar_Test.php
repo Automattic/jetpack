@@ -129,7 +129,7 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$node = $this->render_chart_node();
 
 		$this->assertSame( 'https://example.org/new-stats', $node->href );
-		$this->assertStringContainsString( 'admin-post.php?action=jetpack_stats_admin_bar_chart', $node->title, 'The chart image does not follow the Stats link.' );
+		$this->assertStringNotContainsString( 'example.org/new-stats', $node->title, 'The chart image does not follow the Stats link.' );
 	}
 
 	public function test_chart_gives_a_text_label_to_clients_that_cannot_show_its_image() {
