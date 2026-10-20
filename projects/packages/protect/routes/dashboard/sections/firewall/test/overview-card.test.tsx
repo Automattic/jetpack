@@ -19,6 +19,8 @@ const props = {
 		available: true,
 		active: true,
 		blockedCount: 1,
+		blockedToday: 1,
+		blockedLast30Days: 1,
 		recentBlocks: [],
 		hasScan: false,
 		currentIp: '192.0.2.44',
@@ -28,6 +30,7 @@ const props = {
 			jetpack_waf_ip_allow_list: '',
 			jetpack_waf_ip_allow_list_enabled: false,
 		},
+		rulesUpdatedAt: null,
 	},
 	settings: {
 		settings: null,
@@ -37,6 +40,13 @@ const props = {
 	},
 	openTab: jest.fn(),
 } as unknown as FirewallContext;
+
+const refreshed = ( count: number, recentBlocks: unknown[] = [] ) => ( {
+	blockedCount: count,
+	blockedToday: count,
+	blockedLast30Days: count,
+	recentBlocks,
+} );
 
 const BLOCKED = {
 	outcome: 'blocked',
@@ -50,10 +60,9 @@ const BLOCKED = {
 describe( 'FirewallOverviewCard', () => {
 	it( 'reports the test in a snackbar whose Learn more opens the steps', async () => {
 		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
-		( apiFetch as unknown as jest.Mock ).mockResolvedValue( {
-			blockedCount: 2,
-			recentBlocks: [ { id: 1, timestamp: '', ruleId: -2, reason: 'firewall test' } ],
-		} );
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue(
+			refreshed( 2, [ { id: 1, timestamp: '', ruleId: -2, reason: 'firewall test' } ] )
+		);
 		render( <FirewallOverviewCard { ...props } /> );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
@@ -118,7 +127,7 @@ describe( 'FirewallOverviewCard', () => {
 	it( 'turns the firewall on from the card while it is off', async () => {
 		render( <FirewallOverviewCard { ...props } state={ { ...props.state, active: false } } /> );
 
-		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Enable firewall' } ) );
+		await userEvent.click( screen.getByRole( 'switch', { name: 'Enable firewall' } ) );
 
 		expect( props.settings.save ).toHaveBeenCalledWith( { waf: true } );
 	} );
@@ -131,7 +140,7 @@ describe( 'FirewallOverviewCard', () => {
 			wafHeader: null,
 			allowedHeader: 'ip allow list',
 		} );
-		( apiFetch as unknown as jest.Mock ).mockResolvedValue( { blockedCount: 1, recentBlocks: [] } );
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( refreshed( 1 ) );
 		render( <FirewallOverviewCard { ...props } /> );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
@@ -183,7 +192,7 @@ describe( 'FirewallOverviewCard', () => {
 
 	it( 'takes its snackbar along when the tab changes, as Learn more opens this card’s dialog', async () => {
 		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
-		( apiFetch as unknown as jest.Mock ).mockResolvedValue( { blockedCount: 2, recentBlocks: [] } );
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( refreshed( 2 ) );
 		const { unmount } = render( <FirewallOverviewCard { ...props } /> );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
 
@@ -197,7 +206,7 @@ describe( 'FirewallOverviewCard', () => {
 		( runFirewallTest as jest.Mock ).mockReturnValue(
 			new Promise( resolve => ( finish = resolve ) )
 		);
-		( apiFetch as unknown as jest.Mock ).mockResolvedValue( { blockedCount: 2, recentBlocks: [] } );
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( refreshed( 2 ) );
 		const { unmount } = render( <FirewallOverviewCard { ...props } /> );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
 
@@ -215,5 +224,67 @@ describe( 'FirewallOverviewCard', () => {
 		document.documentElement.lang = '';
 
 		expect( screen.getByText( /^1.?234$/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows each block count under its own label, and when the rules were updated', () => {
+		render(
+			<FirewallOverviewCard
+				{ ...props }
+				state={ {
+					...props.state,
+					blockedToday: 3,
+					blockedLast30Days: 45,
+					blockedCount: 678,
+					rulesUpdatedAt: 1760000000,
+				} }
+			/>
+		);
+
+		// Each label's text runs straight into its value's.
+		expect( document.body ).toHaveTextContent(
+			'Blocked today3Blocked in the last 30 days45All-time blocked requests678'
+		);
+		expect( document.body ).toHaveTextContent( 'Rules last updatedOct 9, 2025' );
+	} );
+
+	it( 'updates every count from the refresh after a test', async () => {
+		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( {
+			blockedCount: 90,
+			blockedToday: 4,
+			blockedLast30Days: 56,
+			recentBlocks: [],
+		} );
+		render( <FirewallOverviewCard { ...props } /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+
+		expect( document.body ).toHaveTextContent(
+			'Blocked today4Blocked in the last 30 days56All-time blocked requests90'
+		);
+	} );
+
+	it( 'drops the rules date once the Settings tab turns the rules off', () => {
+		render(
+			<FirewallOverviewCard
+				{ ...props }
+				state={ { ...props.state, rulesUpdatedAt: 1760000000 } }
+				settings={ {
+					...props.settings,
+					settings: { waf: true, jetpack_waf_automatic_rules: false },
+				} }
+			/>
+		);
+
+		expect( screen.queryByText( 'Rules last updated' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'opens the Settings tab at its own card', async () => {
+		const openTab = jest.fn();
+		render( <FirewallOverviewCard { ...props } openTab={ openTab } /> );
+
+		await userEvent.setup().click( screen.getByRole( 'link', { name: 'Configure Firewall' } ) );
+
+		expect( openTab ).toHaveBeenCalledWith( 'settings', { section: 'firewall' } );
 	} );
 } );

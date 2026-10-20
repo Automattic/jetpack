@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Dashboard: expose the Locations widget kind through the SDK; the widget contract is 1.11.0.

@@ -47,7 +47,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.10.0';
+	const PACKAGE_VERSION = '6.12.0';
 
 	/**
 	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
@@ -88,6 +88,11 @@ class Initializer {
 	const ONBOARDING_SCRIPT_HANDLE = 'my_jetpack_onboarding';
 
 	/**
+	 * Handle for the webpack bundle that gives dashboards outside My Jetpack the shared header's controls.
+	 */
+	const HEADER_CONTROLS_SCRIPT_HANDLE = 'my-jetpack-header-controls';
+
+	/**
 	 * The wp-build page ID, which the generated enqueue check expects as the screen ID.
 	 */
 	const WP_BUILD_PAGE_ID = 'my-jetpack-dashboard';
@@ -119,6 +124,20 @@ class Initializer {
 	public const HEADER_CONTROLS_FLAG = 'my-jetpack-header-controls';
 
 	/**
+	 * Feature flag for Overview v1.
+	 *
+	 * @var string
+	 */
+	public const OVERVIEW_V1_FLAG = 'my-jetpack-overview-v1';
+
+	/**
+	 * Feature flag for sending classic Modules links to Features.
+	 *
+	 * @var string
+	 */
+	public const MODULES_TO_FEATURES_FLAG = 'my-jetpack-modules-to-features';
+
+	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
 	 *
 	 * @var object
@@ -143,6 +162,7 @@ class Initializer {
 		// Before the gate: the Jetpack plugin renders this package's connection screen and footer
 		// links even where My Jetpack is off, and `myJetpackInitialState` only exists on its own page.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_admin_script_data' ) );
+		add_action( 'admin_head', array( __CLASS__, 'print_modules_fallback' ) );
 
 		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
@@ -578,7 +598,7 @@ class Initializer {
 	 * does not apply. `is_wpcom_platform()` covers Simple and WordPress.com on Atomic, and
 	 * requires wpcomsh, so other Atomic-hosted products still count as self-hosted here.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @return bool
 	 */
@@ -609,7 +629,7 @@ class Initializer {
 	 *
 	 * @internal Not part of the package's public API.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @return bool
 	 */
@@ -620,7 +640,7 @@ class Initializer {
 	/**
 	 * The wizard's configuration, or null while the takeover stays on its single screen.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @return array{exitUrl: string, dashboardUrl: string}|null
 	 */
@@ -840,6 +860,7 @@ class Initializer {
 					'assetsUrl'             => self::get_assets_url(),
 					'isJetpackPluginActive' => class_exists( 'Jetpack' ),
 					'hiddenFeatures'        => Feature_Visibility::get_hidden(),
+					'deprecatedModules'     => Feature_Visibility::get_deprecated_modules(),
 					'myJetpackFlags'        => self::get_my_jetpack_flags(),
 				)
 			);
@@ -854,6 +875,7 @@ class Initializer {
 			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
 				wp_enqueue_script( 'wp-jp-i18n-loader' );
 			}
+			self::maybe_enqueue_header_controls_script();
 			return;
 		}
 
@@ -870,6 +892,7 @@ class Initializer {
 		$data_handle = self::DATA_SCRIPT_HANDLE;
 		wp_register_script( $data_handle, false, array(), self::PACKAGE_VERSION, true );
 		wp_enqueue_script( $data_handle );
+		self::maybe_enqueue_header_controls_script();
 
 		if ( self::is_my_jetpack_admin_request() && self::is_onboarding_takeover() ) {
 			Assets::register_script(
@@ -948,12 +971,14 @@ class Initializer {
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'canUserViewStats'       => current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ),
 				'hiddenFeatures'         => Feature_Visibility::get_hidden(),
+				'deprecatedModules'      => Feature_Visibility::get_deprecated_modules(),
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'isJetpackPluginActive'  => class_exists( 'Jetpack' ),
 				'latestBoostSpeedScores' => $latest_score,
 				'seoOptIn'               => self::get_seo_opt_in_state(),
+				'protectPageModuleUrls'  => (object) Products\Protect::get_protect_page_module_urls(),
 				'partnerCoupon'          => self::get_partner_coupon_screen(),
 			)
 		);
@@ -1014,6 +1039,161 @@ class Initializer {
 	}
 
 	/**
+	 * Whether module management can use the REST API.
+	 *
+	 * @since 6.11.0
+	 * @return bool
+	 */
+	public static function is_modules_rest_api_enabled() {
+		/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+		$enabled = apply_filters( 'rest_enabled', true );
+		$user    = wp_get_current_user();
+		$auth    = false;
+		// Passing true skips WordPress's nonce check, which would sign the user out; restore the user if another filter clears it.
+		try {
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			$auth = apply_filters( 'rest_authentication_errors', true );
+		} finally {
+			wp_set_current_user( $user->ID );
+		}
+		return $enabled && ! is_wp_error( $enabled ) && false !== $auth && ! is_wp_error( $auth );
+	}
+
+	/**
+	 * Get a Features management link with a classic Modules fallback.
+	 *
+	 * @since 6.11.0
+	 * @param array     $args     Query arguments from a classic Modules screen link; only `s` and `module_tag` can carry over to Features.
+	 * @param bool|null $eligible Set to true when the URL points at the Features tab, false when it is the classic Modules screen.
+	 * @return string The management URL.
+	 */
+	public static function get_modules_management_url( $args = array(), &$eligible = null ) {
+		$eligible = false;
+		/**
+		 * Filters whether links to the classic Modules screen may send people to the Features tab in My Jetpack instead.
+		 *
+		 * @since 6.11.0
+		 * @param bool $available True to allow the Features tab; false keeps the classic Modules screen, for a host where My Jetpack is not shown.
+		 */
+		$available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
+		$available = $available && Feature_Flags::is_enabled( self::MODULES_TO_FEATURES_FLAG );
+		$classic   = add_query_arg( array_merge( urlencode_deep( $args ), array( 'page' => 'jetpack_modules' ) ), admin_url( 'admin.php' ) );
+		if (
+			! $available
+			|| array_diff( array_keys( $args ), array( 's', 'module_tag' ) )
+			|| array_filter( $args, 'is_string' ) !== $args
+			|| ! Plugins_Installer::is_plugin_active( 'jetpack/jetpack.php' )
+			|| ! current_user_can( 'jetpack_manage_modules' )
+			|| ! current_user_can( 'manage_options' )
+			|| ! self::current_user_can_access_page()
+			|| ( new Status() )->is_offline_mode()
+			|| ( new Status_Host() )->is_wpcom_simple()
+			|| is_network_admin()
+			|| ! self::should_initialize()
+			|| ! ( new Connection_Manager() )->is_connected()
+			|| null !== self::get_partner_coupon_screen()
+			|| ! self::is_modules_rest_api_enabled()
+		) {
+			return $classic;
+		}
+
+		if ( isset( $args['module_tag'] ) && '' !== $args['module_tag'] ) {
+			if ( ! function_exists( 'jetpack_get_module_i18n_tag' ) ) {
+				return $classic;
+			}
+			$known      = array();
+			$modules    = new Modules();
+			$hidden     = Main_Features::get_hidden_modules();
+			$deprecated = Feature_Visibility::get_deprecated_modules();
+			foreach ( $modules->get_available() as $slug ) {
+				if ( in_array( $slug, $hidden, true ) || ( in_array( $slug, $deprecated, true ) && ! $modules->is_active( $slug ) ) ) {
+					continue;
+				}
+				$module = $modules->get( $slug );
+				$known  = array_merge( $known, $module['module_tags'] ?? array() );
+			}
+			$known = array_map( array( Jetpack::class, 'translate_module_tag' ), $known );
+			if ( ! in_array( $args['module_tag'], $known, true ) ) {
+				return $classic;
+			}
+		}
+
+		if ( isset( $args['s'] ) && '' !== $args['s'] ) {
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
+			$hidden        = Main_Features::get_hidden_modules();
+			$deprecated    = Feature_Visibility::get_deprecated_modules();
+			$hidden_match  = false;
+			$visible_match = false;
+			foreach ( Jetpack::get_translated_modules( \Jetpack_Admin::init()->get_modules() ) as $slug => $module ) {
+				if ( ! empty( $args['module_tag'] ) && ! in_array( $args['module_tag'], $module['module_tags'], true ) ) {
+					continue;
+				}
+				$text  = $module['name'] . ' ' . $module['description'] . ' ' . $module['long_description'] . ' ' . $module['search_terms'] . ' ' . implode( ',', $module['module_tags'] );
+				$match = function_exists( 'mb_stripos' ) ? mb_stripos( $text, $args['s'] ) : stripos( $text, $args['s'] );
+				if ( false === $match ) {
+					continue;
+				}
+				if ( in_array( $slug, $hidden, true ) || ( in_array( $slug, $deprecated, true ) && ! $module['activated'] ) ) {
+					$hidden_match = true;
+				} else {
+					$visible_match = true;
+					break;
+				}
+			}
+			if ( $hidden_match && ! $visible_match ) {
+				return $classic;
+			}
+		}
+
+		$eligible = true;
+		$hash     = array();
+		if ( isset( $args['s'] ) && '' !== $args['s'] ) {
+			$hash['search'] = $args['s'];
+		}
+		if ( isset( $args['module_tag'] ) && '' !== $args['module_tag'] ) {
+			$hash['module_tag'] = $args['module_tag'];
+		}
+		return add_query_arg(
+			array_merge(
+				urlencode_deep( $args ),
+				array(
+					'page'             => 'my-jetpack',
+					'modules_fallback' => '1',
+				)
+			),
+			admin_url( 'admin.php' )
+		)
+			. '#/features' . ( $hash ? '?' . http_build_query( $hash, '', '&', PHP_QUERY_RFC3986 ) : '' );
+	}
+
+	/**
+	 * On a My Jetpack page reached from a redirected Modules link (`modules_fallback=1`), send the browser back to the classic Modules screen:
+	 * always when JavaScript is off, and for everyone when the REST API is off or blocked.
+	 *
+	 * @since 6.11.0
+	 * @return void
+	 */
+	public static function print_modules_fallback() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only navigation fallback.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Only the exact allowlisted marker is accepted.
+		if ( 'my-jetpack' !== ( $_GET['page'] ?? null ) || '1' !== ( $_GET['modules_fallback'] ?? null ) || ! Plugins_Installer::is_plugin_active( 'jetpack/jetpack.php' ) || ! current_user_can( 'jetpack_manage_modules' ) ) {
+			return;
+		}
+		$args = array( 'page' => 'jetpack_modules' );
+		foreach ( array( 's', 'module_tag' ) as $key ) {
+			if ( isset( $_GET[ $key ] ) && is_string( $_GET[ $key ] ) ) {
+				$args[ $key ] = sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
+			}
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		$meta = '<meta http-equiv="refresh" content="0; url=' . esc_url( add_query_arg( urlencode_deep( $args ), admin_url( 'admin.php' ) ) ) . '">';
+		echo '<noscript>' . $meta . '</noscript>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- URL escaped above.
+		if ( ! self::is_modules_rest_api_enabled() ) {
+			echo $meta; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- URL escaped above.
+		}
+	}
+
+	/**
 	 * Get the slug and label of the Features tab, for footer links to it.
 	 *
 	 * Kept for footers built before the Products tab was removed: Jetpack 16.3 calls this, and
@@ -1045,6 +1225,10 @@ class Initializer {
 		$data['myJetpack']['isAvailable']     = self::is_admin_page_available();
 		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
 		$data['myJetpack']['productsSection'] = self::get_products_section();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only selects which navigation data to seed.
+		if ( in_array( $_GET['page'] ?? '', array( 'my-jetpack', 'jetpack-settings', 'jetpack' ), true ) ) {
+			$data['myJetpack']['modulesManagementUrl'] = self::get_modules_management_url();
+		}
 
 		// Only administrators can open the pages this points at, so spare everyone else the lookup.
 		if ( current_user_can( 'manage_options' ) ) {
@@ -1203,7 +1387,7 @@ class Initializer {
 	/**
 	 * Register My Jetpack's feature flags.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @return void
 	 */
@@ -1214,6 +1398,61 @@ class Initializer {
 				'default'     => false,
 				'description' => 'Show the global controls in the shared header of My Jetpack and Boost.',
 				'owner'       => 'my-jetpack',
+			)
+		);
+		Feature_Flags::register(
+			self::OVERVIEW_V1_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show Overview v1 in My Jetpack.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+		Feature_Flags::register(
+			self::MODULES_TO_FEATURES_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Open supported classic Modules links in Features.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+	}
+
+	/**
+	 * Whether the shared header shows its controls: the flag is on, My Jetpack runs, and not in offline Features.
+	 *
+	 * Boost's dashboard gets My Jetpack's page state even where My Jetpack is off, hence the second check.
+	 * Offline Features prints no connection state for the controls to read, and has no connection to show.
+	 *
+	 * @return bool
+	 */
+	private static function is_header_controls_enabled() {
+		return Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG )
+			&& self::should_initialize()
+			&& ! self::is_offline_features_enabled();
+	}
+
+	/**
+	 * Give dashboards outside My Jetpack, such as Boost's, the header's controls as a shared script.
+	 *
+	 * Bundling them instead would ship a second copy of the connection package next to the page's own.
+	 *
+	 * @return void
+	 */
+	private static function maybe_enqueue_header_controls_script() {
+		if ( self::is_my_jetpack_admin_request() || ! self::is_header_controls_enabled() ) {
+			return;
+		}
+
+		Assets::register_script(
+			self::HEADER_CONTROLS_SCRIPT_HANDLE,
+			'../build/header-controls.js',
+			__FILE__,
+			array(
+				'dependencies' => array( self::DATA_SCRIPT_HANDLE ),
+				'enqueue'      => true,
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-my-jetpack',
 			)
 		);
 	}
@@ -1231,7 +1470,7 @@ class Initializer {
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
-			'headerControls'           => Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG ),
+			'headerControls'           => self::is_header_controls_enabled(),
 			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
@@ -1245,13 +1484,7 @@ class Initializer {
 	 * @return bool
 	 */
 	public static function is_overview_v1_enabled() {
-		/**
-		 * Filters whether My Jetpack shows Overview v1.
-		 *
-		 * @since 6.10.0
-		 * @param bool $enabled Whether to show Overview v1. Default false.
-		 */
-		return (bool) apply_filters( 'jetpack_my_jetpack_overview_v1', false );
+		return Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG );
 	}
 
 	/**

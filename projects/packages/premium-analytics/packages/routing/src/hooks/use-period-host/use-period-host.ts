@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useSettlePeriodChange, type ReportScope } from '@jetpack-premium-analytics/data';
+import {
+	useSettlePeriodChange,
+	type LockableInterval,
+	type ReportScope,
+} from '@jetpack-premium-analytics/data';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
@@ -22,22 +26,24 @@ type PeriodHost = {
  * Let the widgets on a surface set its period, and draw the date control's
  * attention when they do. Both come from one call, so a host wires them together.
  *
- * @param surface      - The surface's key: a dashboard section slug, or a `postSurface`.
- * @param appliedRange - The range its date control shows.
- * @param isShown      - Whether the date control is on screen.
+ * @param surface         - The surface's key: a dashboard section slug, or a `postSurface`.
+ * @param appliedRange    - The range its date control shows.
+ * @param isShown         - Whether the date control is on screen.
+ * @param lockedIntervals - The buckets the surface's plan locks.
  * @return The period the widgets open, and the attention the control draws.
  */
 export function usePeriodHost(
 	surface: string,
 	appliedRange: DateRange | undefined,
-	isShown: boolean
+	isShown: boolean,
+	lockedIntervals?: readonly LockableInterval[]
 ): PeriodHost {
 	const commitExactRange = useCommitExactRange();
 	const attentionId = useSettlePeriodChange( surface, appliedRange, isShown );
 
 	const openPeriod = useCallback< OpenPeriod >(
-		range => commitExactRange( surface, range ),
-		[ commitExactRange, surface ]
+		range => commitExactRange( surface, range, { lockedIntervals } ),
+		[ commitExactRange, surface, lockedIntervals ]
 	);
 
 	return { openPeriod, attentionId };

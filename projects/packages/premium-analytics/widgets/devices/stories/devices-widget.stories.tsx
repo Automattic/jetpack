@@ -11,7 +11,6 @@ import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stori
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import DevicesRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -24,7 +23,7 @@ const DEVICES_RENDER_MODULE = 'storybook/devices';
 
 // Carry the widget's metadata. `presentation` comes from widget.json ( 'framed' ),
 // so the host frames the widget and renders its identity (title + icon).
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface DevicesStoryControls {
 	withComparison: boolean;

@@ -89,14 +89,9 @@ export class Traffic extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Traffic Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ this.props.searchTerm
-						? __( 'Traffic', 'jetpack' )
-						: __(
-								'Maximize your site’s visibility in search engines and view traffic patterns in real time.',
-								'jetpack'
-							) }
-				</h2>
+				{ this.props.searchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Traffic', 'jetpack' ) }</h2>
+				) }
 				{ foundRelated && <RelatedPosts { ...commonProps } /> }
 				{ foundMovedToDashboard && <SeoOptInBanner /> }
 				{ ! seoMovedToDashboard && ( foundSeo || foundCanonicalUrls ) && (

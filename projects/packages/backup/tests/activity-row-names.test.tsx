@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ActivityList from '../src/dashboard/components/activity-list';
+import { formatDateTime } from '../src/dashboard/data/date-format';
 import { INITIAL_VIEW } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
@@ -74,17 +75,23 @@ it( 'names each row by its own restore point, not by the shared summary', async 
 	renderList();
 
 	await expect(
-		screen.findByRole( 'button', { name: `${ SUMMARY } Aug 20, 2026, 10:00 AM` } )
+		screen.findByRole( 'button', {
+			name: `${ SUMMARY } ${ formatDateTime( PAGE.current.orderedItems[ 0 ].published ) }`,
+		} )
 	).resolves.toBeInTheDocument();
 	expect(
-		screen.getByRole( 'button', { name: `${ SUMMARY } Aug 20, 2026, 10:01 AM` } )
+		screen.getByRole( 'button', {
+			name: `${ SUMMARY } ${ formatDateTime( PAGE.current.orderedItems[ 1 ].published ) }`,
+		} )
 	).toBeInTheDocument();
 } );
 
 it( 'no longer answers to the summary alone, which every row shares', async () => {
 	renderList();
 	await expect(
-		screen.findByRole( 'button', { name: /Aug 20, 2026, 10:00 AM/ } )
+		screen.findByRole( 'button', {
+			name: `${ SUMMARY } ${ formatDateTime( PAGE.current.orderedItems[ 0 ].published ) }`,
+		} )
 	).resolves.toBeInTheDocument();
 
 	expect( screen.queryByRole( 'button', { name: SUMMARY } ) ).not.toBeInTheDocument();
@@ -112,13 +119,17 @@ it( 'describes a backup with known threats by its badge and warning', async () =
 	arrangeFlaggedBackup();
 	renderList();
 
-	const button = await screen.findByRole( 'button', { name: /Aug 20, 2026, 10:00 AM/ } );
+	const button = await screen.findByRole( 'button', {
+		name: `${ SUMMARY } ${ formatDateTime( PAGE.current.orderedItems[ 0 ].published ) }`,
+	} );
 	await expect( screen.findByText( 'Known threats (3)' ) ).resolves.toBeInTheDocument();
 	expect( button ).toHaveAccessibleDescription(
 		/Known threats \(3\).*This backup is known to contain 3 security threats\./
 	);
 	expect(
-		screen.getByRole( 'button', { name: /Aug 20, 2026, 10:01 AM/ } )
+		screen.getByRole( 'button', {
+			name: `${ SUMMARY } ${ formatDateTime( PAGE.current.orderedItems[ 1 ].published ) }`,
+		} )
 	).not.toHaveAccessibleDescription( /Known threats/ );
 } );
 

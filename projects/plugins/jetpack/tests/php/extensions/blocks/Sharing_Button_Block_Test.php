@@ -15,8 +15,10 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/sharing-button/sharing-but
 
 /**
  * @covers ::Automattic\Jetpack\Extensions\Sharing_Button_Block\register_block
+ * @covers ::Automattic\Jetpack\Extensions\Sharing_Button_Block\render_block
  */
 #[CoversFunction( 'Automattic\Jetpack\Extensions\Sharing_Button_Block\register_block' )]
+#[CoversFunction( 'Automattic\Jetpack\Extensions\Sharing_Button_Block\render_block' )]
 class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -88,5 +90,35 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 			'Simple'      => array( true, 5 ),
 			'self-hosted' => array( false, false ),
 		);
+	}
+
+	/**
+	 * Two buttons for one service and post must not share a label id, nor point at each other's label.
+	 */
+	public function test_repeated_button_labels_itself_with_its_own_span() {
+		register_block();
+		$post_id         = self::factory()->post->create();
+		$GLOBALS['post'] = get_post( $post_id );
+		$button          = '<!-- wp:jetpack/sharing-button {"service":"facebook"} /-->';
+
+		$tags  = new WP_HTML_Tag_Processor( do_blocks( $button . $button ) );
+		$links = array();
+		while ( $tags->next_tag() ) {
+			if ( 'A' === $tags->get_tag() ) {
+				$links[] = array(
+					'shared'   => $tags->get_attribute( 'data-shared' ),
+					'label_by' => $tags->get_attribute( 'aria-labelledby' ),
+				);
+			} elseif ( 'SPAN' === $tags->get_tag() && true === $tags->get_attribute( 'hidden' ) ) {
+				$links[ count( $links ) - 1 ]['label_id'] = $tags->get_attribute( 'id' );
+			}
+		}
+
+		$this->assertCount( 2, $links );
+		$this->assertNotSame( $links[0]['label_id'], $links[1]['label_id'] );
+		foreach ( $links as $link ) {
+			$this->assertSame( $link['label_id'], $link['label_by'] );
+			$this->assertSame( "sharing-facebook-$post_id", $link['shared'] );
+		}
 	}
 }

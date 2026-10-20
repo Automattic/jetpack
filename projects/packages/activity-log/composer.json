@@ -66,7 +66,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-activity-log",
 		"textdomain": "jetpack-activity-log",
 		"version-constants": {
@@ -76,7 +75,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-activity-log/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.5.x-dev"
+			"dev-trunk": "0.6.x-dev"
 		}
 	},
 	"config": {

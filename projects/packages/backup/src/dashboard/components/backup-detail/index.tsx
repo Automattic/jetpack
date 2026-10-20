@@ -1,6 +1,5 @@
 import { speak } from '@wordpress/a11y';
 import { useInstanceId } from '@wordpress/compose';
-import { dateI18n } from '@wordpress/date';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -22,6 +21,7 @@ import {
 	VisuallyHidden,
 } from '@wordpress/ui';
 import { containingBackup } from '../../data/api/known-threats';
+import { formatDateTime } from '../../data/date-format';
 import { formatDuration } from '../../data/durations';
 import { formatStorageSize } from '../../data/storage-units';
 import { useBackupRuns } from '../../hooks/use-backup-runs';
@@ -265,7 +265,7 @@ export default function BackupDetail( { item }: Props ) {
 					{ item.stats }
 				</Text>
 				<Text variant="body-md" className="jpb-text-muted jpb-backup-detail__by">
-					<span>{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }</span>
+					<span>{ formatDateTime( item.publishedAt ) }</span>
 					<span>
 						{ createInterpolateElement(
 							sprintf(

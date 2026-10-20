@@ -352,16 +352,17 @@ export default function ActivityList( {
 	// failed request leaves it empty — so without this a 5xx tells the
 	// reader their site has no activity. The `empty` slot is the same node
 	// that copy renders in, so replacing it puts the reason exactly where
-	// the wrong answer used to be.
-	const failure = error ? (
-		<QueryError
-			title={ __( "We couldn't load your site's activity.", 'jetpack-backup-pkg' ) }
-			error={ error }
-			onRetry={ refetch }
-			isRetrying={ isFetching }
-			returnFocusTo={ headingRef }
-		/>
-	) : undefined;
+	// the wrong answer used to be. Overview reports a log that never answered.
+	const failure =
+		error && totalPages !== null ? (
+			<QueryError
+				title={ __( "We couldn't load your site's activity.", 'jetpack-backup-pkg' ) }
+				error={ error }
+				onRetry={ refetch }
+				isRetrying={ isFetching }
+				returnFocusTo={ headingRef }
+			/>
+		) : undefined;
 
 	// A stale page DataViews kept, or a merged restore row, leaves the `empty`
 	// slot unrendered — so a failure then needs somewhere else to report from.

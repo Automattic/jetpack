@@ -52,7 +52,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-admin-ui",
 		"textdomain": "jetpack-admin-ui",
 		"changelogger": {

@@ -36,7 +36,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-jwt",
 		"changelogger": {
 			"link-template": "https://github.com/automattic/jetpack-jwt/compare/v${old}...v${new}"

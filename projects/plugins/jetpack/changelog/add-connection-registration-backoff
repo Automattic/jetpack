@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Connection: Skip site registration in offline mode, and stop retrying it on every page load after an error that retrying cannot fix.
