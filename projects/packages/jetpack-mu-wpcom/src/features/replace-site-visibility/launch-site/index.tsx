@@ -22,6 +22,7 @@ interface Props {
 	siteDomain: string;
 	sitePlan?: { product_slug: string; product_name?: string };
 	hasCustomDomain: boolean;
+	usePublishCopy: boolean;
 }
 
 const LaunchSite = ( {
@@ -37,6 +38,7 @@ const LaunchSite = ( {
 	siteDomain,
 	sitePlan,
 	hasCustomDomain,
+	usePublishCopy,
 }: Props ) => {
 	const [ , variant ] = useSiteLaunchGatingVariant();
 	const [ showPreLaunchModal, setShowPreLaunchModal ] = useState( false );
@@ -57,16 +59,27 @@ const LaunchSite = ( {
 
 	const showPreviewLink = isAnyComingSoonEnabled && hasSitePreviewLink;
 
-	const descriptions = {
-		comingSoon: __(
-			'Your site hasn\'t been launched yet. It is hidden from visitors behind a "Coming Soon" notice until it is launched.',
-			'jetpack-mu-wpcom'
-		),
-		private: __(
-			"Your site hasn't been launched yet. It's private; only you can see it until it is launched.",
-			'jetpack-mu-wpcom'
-		),
-	};
+	const descriptions = usePublishCopy
+		? {
+				comingSoon: __(
+					'Your site hasn\'t been published yet. It is hidden from visitors behind a "Coming Soon" notice until it is published.',
+					'jetpack-mu-wpcom'
+				),
+				private: __(
+					"Your site hasn't been published yet. It's private; only you can see it until it is published.",
+					'jetpack-mu-wpcom'
+				),
+			}
+		: {
+				comingSoon: __(
+					'Your site hasn\'t been launched yet. It is hidden from visitors behind a "Coming Soon" notice until it is launched.',
+					'jetpack-mu-wpcom'
+				),
+				private: __(
+					"Your site hasn't been launched yet. It's private; only you can see it until it is launched.",
+					'jetpack-mu-wpcom'
+				),
+			};
 
 	const handleLaunchClick = () => {
 		wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
@@ -97,7 +110,9 @@ const LaunchSite = ( {
 				style={ { marginTop: '0.5em' } }
 				onClick={ handleLaunchClick }
 			>
-				{ __( 'Launch site', 'jetpack-mu-wpcom' ) }
+				{ usePublishCopy
+					? __( 'Publish site', 'jetpack-mu-wpcom' )
+					: __( 'Launch site', 'jetpack-mu-wpcom' ) }
 			</button>
 			{ showPreviewLink && (
 				<SitePreviewLink

@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Launch button: Rename the admin bar "Launch site" button to "Publish site".
+Site launch: Add an experiment that says "Publish" instead of "Launch" on the site launch entry points.

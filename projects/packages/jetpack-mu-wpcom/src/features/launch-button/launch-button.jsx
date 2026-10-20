@@ -16,14 +16,18 @@ const icon = (
 	</svg>
 );
 
+const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTTON_DATA : {};
+
 const Content = () => (
 	<>
 		<span className="ab-icon">{ icon }</span>
-		<span className="ab-label">{ __( 'Publish site', 'jetpack-mu-wpcom' ) }</span>
+		<span className="ab-label">
+			{ launchButtonData.usePublishCopy
+				? __( 'Publish site', 'jetpack-mu-wpcom' )
+				: __( 'Launch site', 'jetpack-mu-wpcom' ) }
+		</span>
 	</>
 );
-
-const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTTON_DATA : {};
 
 /**
  * The LaunchButton component.
