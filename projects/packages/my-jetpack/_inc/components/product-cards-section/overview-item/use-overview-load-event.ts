@@ -3,8 +3,7 @@ import useProduct from '../../../data/products/use-product';
 import useAnalytics from '../../../hooks/use-analytics';
 
 /**
- * Record the product card's load event once the product's data has loaded,
- * so the My Jetpack dashboard stays comparable.
+ * Record the product card load event once the data has loaded.
  *
  * @param {JetpackModuleWithCard} slug      - The product slug.
  * @param {boolean}               isLoading - Whether the product's data is still loading.
