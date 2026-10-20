@@ -1,6 +1,5 @@
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
-import { toSvgId } from '../../private/pie-keyboard-navigation/selected-segment-ring';
 import styles from '../bar-chart.module.scss';
 import { createGroupScale } from './band-scale';
 import { computeSlotRect, getValueScaleBaseline } from './comparison-bars-geometry';
@@ -22,10 +21,9 @@ type AnyScale = ( ( input: unknown ) => number ) &
 	Partial< Pick< BandScale, 'bandwidth' > > & { range: () => unknown[] };
 
 /**
- * Marks the keyboard-selected bar with a two-tone ring outside its edge, so the ring reads against any bar color.
+ * Outlines every bar in the keyboard-selected slot.
  *
  * @param props              - Component props.
- * @param props.chartId      - The chart's id, which keeps the clip path unique on a page with several charts.
  * @param props.selected     - The selected bar.
  * @param props.slotKeys     - The slots, in the order the bar group lays them out.
  * @param props.groupPadding - The bar group's padding.
@@ -35,14 +33,13 @@ type AnyScale = ( ( input: unknown ) => number ) &
  * @return The ring, or nothing when the bar has no position.
  */
 export const SelectedBarRing: FC< {
-	chartId: string;
 	selected: SelectedBar;
 	slotKeys: string[];
 	groupPadding: number;
 	horizontal: boolean;
 	xAccessor: ( d: DataPointDate ) => string | number | Date | undefined;
 	yAccessor: ( d: DataPointDate ) => number | undefined;
-} > = ( { chartId, selected, slotKeys, groupPadding, horizontal, xAccessor, yAccessor } ) => {
+} > = ( { selected, slotKeys, groupPadding, horizontal, xAccessor, yAccessor } ) => {
 	const context = useContext( DataContext );
 	const bandScale = ( horizontal ? context?.yScale : context?.xScale ) as AnyScale | undefined;
 	const valueScale = ( horizontal ? context?.xScale : context?.yScale ) as AnyScale | undefined;
@@ -76,24 +73,13 @@ export const SelectedBarRing: FC< {
 		valuePositions: [ getValueScaleBaseline( valueScale ), ...valuePositions ],
 		widthFactor: selected.thickness,
 	} );
-	const clipId = `bar-selected-ring-clip-${ toSvgId( chartId ) }`;
-	const clipPath = `url(#${ clipId })`;
-
 	return (
-		<g pointerEvents="none" aria-hidden="true">
-			<clipPath id={ clipId }>
-				<path
-					clipRule="evenodd"
-					d={ `M-1e6 -1e6H1e6V1e6H-1e6Z M${ rect.x } ${ rect.y }h${ rect.width }v${ rect.height }h${ -rect.width }Z` }
-				/>
-			</clipPath>
-			<rect { ...rect } clipPath={ clipPath } className={ styles[ 'selected-ring__focus' ] } />
-			<rect
-				{ ...rect }
-				clipPath={ clipPath }
-				className={ styles[ 'selected-ring__contrast' ] }
-				data-testid="bar-chart-selected-ring"
-			/>
-		</g>
+		<rect
+			{ ...rect }
+			pointerEvents="none"
+			aria-hidden="true"
+			className={ styles[ 'selected-ring' ] }
+			data-testid="bar-chart-selected-ring"
+		/>
 	);
 };

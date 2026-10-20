@@ -787,7 +787,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										) }
 										{ selectedBar && (
 											<SelectedBarRing
-												chartId={ chartId }
 												selected={ selectedBar }
 												slotKeys={ slotKeys }
 												groupPadding={ groupPadding }
