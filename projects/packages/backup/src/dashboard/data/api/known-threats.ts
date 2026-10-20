@@ -40,6 +40,12 @@ export type KnownThreats = {
 	truncated: boolean;
 };
 
+/**
+ * History state, keyed to the rewind id, that the backup details leave when their checkbox opens the
+ * restore screen. Not a search param, so a crafted link can't arrive already acknowledged.
+ */
+export const ACKNOWLEDGED_STATE_KEY = 'jpbKnownThreatsAcknowledged';
+
 /** How long Confirm waits for the check before restoring without it; apiFetch has no timeout. */
 export const KNOWN_THREATS_TIMEOUT_MS = 12000;
 

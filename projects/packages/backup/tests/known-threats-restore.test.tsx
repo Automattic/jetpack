@@ -333,6 +333,23 @@ describe( 'known threats on the Restore screen', () => {
 		);
 	} );
 
+	it.each( [
+		[ 'this backup', REWIND_ID, true ],
+		[ 'another backup', '1786600000.1', false ],
+	] )(
+		"starts ticked only from the details' acknowledgement of %s",
+		async ( _label, acknowledgedId, ticked ) => {
+			window.history.replaceState( { jpbKnownThreatsAcknowledged: acknowledgedId }, '' );
+			arrange( () => Promise.resolve( FLAGGED ) );
+			const view = within( renderScreen() );
+
+			await expect(
+				view.findByRole( 'checkbox', { name: ACKNOWLEDGE, checked: ticked } )
+			).resolves.toBeInTheDocument();
+			window.history.replaceState( null, '' );
+		}
+	);
+
 	it( 'returns to the confirm step on threats_not_acknowledged', async () => {
 		let refused = false;
 		arrange(

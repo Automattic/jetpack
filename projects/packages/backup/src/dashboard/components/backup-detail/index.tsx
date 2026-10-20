@@ -20,7 +20,7 @@ import {
 	VisuallyHidden,
 } from '@wordpress/ui';
 import { announce } from '../../data/announce';
-import { containingBackup } from '../../data/api/known-threats';
+import { ACKNOWLEDGED_STATE_KEY, containingBackup } from '../../data/api/known-threats';
 import { formatDateTime } from '../../data/date-format';
 import { formatDuration } from '../../data/durations';
 import { formatStorageSize } from '../../data/storage-units';
@@ -124,9 +124,6 @@ export default function BackupDetail( { item }: Props ) {
 		'jetpack-backup-pkg'
 	);
 
-	// FileBrowser rebuilds the array on every recompute, so a plain
-	// setter would re-render this subtree on selections that changed
-	// nothing. Returning `prev` unchanged lets React bail out instead.
 	// Focus stays on the checkbox, below Restore in the header; say where the restore it was blocking is.
 	const handleAcknowledge = useCallback( ( next: boolean ) => {
 		setAcknowledged( next );
@@ -139,6 +136,10 @@ export default function BackupDetail( { item }: Props ) {
 			);
 		}
 	}, [] );
+
+	// FileBrowser rebuilds the array on every recompute, so a plain
+	// setter would re-render this subtree on selections that changed
+	// nothing. Returning `prev` unchanged lets React bail out instead.
 	const handleSelectionIdsChange = useCallback( ( next: string[] ) => {
 		setSelectedIds( prev =>
 			prev.length === next.length && prev.every( ( id, index ) => id === next[ index ] )
@@ -242,7 +243,9 @@ export default function BackupDetail( { item }: Props ) {
 									<RouterLink
 										to={ `/restore/${ item.rewindId }` }
 										// Untyped route tree; see the download link above.
-										{ ...( knownThreats ? { search: { acknowledged: true } as never } : {} ) }
+										{ ...( knownThreats
+											? { state: { [ ACKNOWLEDGED_STATE_KEY ]: item.rewindId } as never }
+											: {} ) }
 									/>
 								}
 							>

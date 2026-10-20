@@ -17,14 +17,14 @@ jest.mock( '@wordpress/route', () => ( {
 	Link: ( {
 		children,
 		to,
-		search,
+		state,
 		...rest
 	}: {
 		children: React.ReactNode;
 		to: string;
-		search?: Record< string, string >;
+		state?: Record< string, unknown >;
 	} ) => (
-		<a href={ search ? `${ to }?${ new URLSearchParams( search ).toString() }` : to } { ...rest }>
+		<a href={ to } data-state={ state ? JSON.stringify( state ) : undefined } { ...rest }>
 			{ children }
 		</a>
 	),
@@ -88,7 +88,7 @@ beforeEach( () => {
 } );
 
 describe( 'Backup detail for a backup with known threats', () => {
-	it( 'keeps Restore off until the threats are acknowledged, then pre-ticks the restore screen', async () => {
+	it( 'keeps Restore off until the threats are acknowledged, then opens the restore screen acknowledged', async () => {
 		const user = userEvent.setup();
 		render(
 			<QueryClientProvider>
@@ -160,9 +160,11 @@ describe( 'Backup detail for a backup with known threats', () => {
 			)
 		);
 
-		expect( screen.getByRole( 'link', { name: /Restore to this point/ } ) ).toHaveAttribute(
-			'href',
-			'/restore/1792244435.274?acknowledged=true'
+		const restoreLink = screen.getByRole( 'link', { name: /Restore to this point/ } );
+		expect( restoreLink ).toHaveAttribute( 'href', '/restore/1792244435.274' );
+		expect( restoreLink ).toHaveAttribute(
+			'data-state',
+			JSON.stringify( { jpbKnownThreatsAcknowledged: '1792244435.274' } )
 		);
 	} );
 } );

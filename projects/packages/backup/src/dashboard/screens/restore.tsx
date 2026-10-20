@@ -13,7 +13,7 @@ import {
 	check,
 	error as errorIcon,
 } from '@wordpress/icons';
-import { Link, useParams, useSearch } from '@wordpress/route';
+import { Link, useParams } from '@wordpress/route';
 import {
 	Button,
 	Card,
@@ -32,6 +32,7 @@ import InvalidRewindId from '../components/invalid-rewind-id';
 import KnownThreatsWarning from '../components/known-threats';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { announce } from '../data/announce';
+import { ACKNOWLEDGED_STATE_KEY } from '../data/api/known-threats';
 import { formatDate, formatDateTime } from '../data/date-format';
 import { useSiteSuffix } from '../hooks/use-connection';
 import { useGateState } from '../hooks/use-gate-state';
@@ -80,10 +81,11 @@ export default function RestoreScreen() {
 		refetch: refetchKnownThreats,
 		isLoading: checkingThreats,
 	} = useKnownThreats( rewindId, gate.status === 'ready' && isValidRewindId( rewindId ) );
-	// Ticked already when the overview's own checkbox sent the reader here.
-	const search = useSearch( { strict: false } ) as { acknowledged?: boolean | string };
+	// Ticked already when the backup details' own checkbox sent the reader here.
 	const [ acknowledged, setAcknowledged ] = useState(
-		search.acknowledged === true || search.acknowledged === 'true'
+		() =>
+			( window.history.state as Record< string, unknown > | null )?.[ ACKNOWLEDGED_STATE_KEY ] ===
+			rewindId
 	);
 	const needsAcknowledgement = threatsRefused || ( knownThreats?.summary.flagged ?? 0 ) > 0;
 	const { data: backupsKnownThreats } = useBackupsKnownThreats( {
