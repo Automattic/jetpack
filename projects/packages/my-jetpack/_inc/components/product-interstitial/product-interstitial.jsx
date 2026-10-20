@@ -237,7 +237,7 @@ export default function ProductInterstitial( {
 						horizontalGap={ 0 }
 						fluid
 					>
-						<Col sm={ 4 } md={ 4 } lg={ showSidebar ? 7 : 12 }>
+						<Col sm={ 4 } md={ showSidebar ? 4 : 8 } lg={ showSidebar ? 7 : 12 }>
 							<ProductDetailCard
 								slug={ slug }
 								trackButtonClick={ trackProductOrBundleClick }
