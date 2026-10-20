@@ -2,7 +2,7 @@
 
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice, Stack } from '@wordpress/ui';
 import EnableSeoCard from '../../components/enable-seo-card';
@@ -124,10 +124,19 @@ const OverviewScreen: FC = () => {
 			{ ! data.plan.seo_enabled_for_site && (
 				<Notice.Root intent="warning">
 					<Notice.Description>
-						{ __(
-							'SEO tools are not enabled on this site. Some cards reflect the underlying WordPress options only.',
-							'jetpack-seo'
-						) }
+						{ data.conflicting_seo_plugin
+							? sprintf(
+									/* translators: %s: name of the SEO plugin that controls the site's SEO output, e.g. Yoast SEO. */
+									__(
+										'%s is managing your SEO titles and descriptions, so Jetpack’s are turned off.',
+										'jetpack-seo'
+									),
+									data.conflicting_seo_plugin
+								)
+							: __(
+									'SEO tools are not enabled on this site. Some cards reflect the underlying WordPress options only.',
+									'jetpack-seo'
+								) }
 					</Notice.Description>
 				</Notice.Root>
 			) }
