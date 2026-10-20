@@ -1,4 +1,5 @@
 Significance: patch
-Type: bugfix
+Type: other
+Comment: SEO Enhancer: Follow the Jetpack › SEO auto-generate switch in the editor on WordPress.com Simple sites where the new SEO page is available.
 
-SEO: Generate missing titles, descriptions, and image alt text automatically on WordPress.com Simple sites when the AI SEO Enhancer is turned on in Jetpack › SEO.
+
