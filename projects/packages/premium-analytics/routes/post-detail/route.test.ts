@@ -15,6 +15,10 @@ jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isDashboardSectionAvailable: jest.fn( () => true ),
 } ) );
+jest.mock( '../stats-date-window', () => ( {
+	limitStatsDateSearch: jest.fn( () => undefined ),
+	dateWindowNotice: () => undefined,
+} ) );
 jest.mock( './config', () => ( {
 	resolveTabId: ( section: string ) => section,
 } ) );

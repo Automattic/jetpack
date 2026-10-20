@@ -395,9 +395,11 @@ class REST_Main_Features {
 				return new WP_Error( 'not_installed', __( 'That plugin is not installed.', 'jetpack-my-jetpack' ) );
 			}
 
+			$is_hybrid   = $product_class && is_subclass_of( $product_class, Hybrid_Product::class );
+			$module_name = $is_hybrid ? $product_class::get_module_name() : null;
 			deactivate_plugins( $file );
-			if ( $product_class && is_subclass_of( $product_class, Hybrid_Product::class ) ) {
-				return $product_class::do_product_specific_deactivation();
+			if ( $is_hybrid ) {
+				return $product_class::do_product_specific_deactivation( $module_name );
 			}
 
 			return true;

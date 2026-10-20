@@ -1,7 +1,10 @@
 /**
  * Internal dependencies
  */
+import { Navigate } from 'react-router';
 import { assetUrl } from '../../assets/url';
+import { MyJetpackRoutes } from '../../constants';
+import useProduct from '../../data/products/use-product';
 import PricingInterstitial from './pricing-interstitial';
 import ProductInterstitial from './product-interstitial';
 
@@ -161,5 +164,28 @@ export function CompleteInterstitial() {
 		<ProductInterstitial slug="complete" installsPlugin={ true }>
 			<img src={ completeImage } alt="Complete" />
 		</ProductInterstitial>
+	);
+}
+
+/**
+ * Render the Pro bundle purchase page.
+ *
+ * @return {object} Pro purchase page.
+ */
+export function ProInterstitial() {
+	const { detail, isLoading, isRefetching } = useProduct( 'pro' );
+	const canShowPro =
+		detail?.hasPaidPlanForProduct ||
+		detail?.pricingForUi?.catalogAvailable === true ||
+		detail?.pricingForUi?.available === true;
+	if ( ! isLoading && ! isRefetching && ! canShowPro ) {
+		return <Navigate to={ MyJetpackRoutes.Home } replace />;
+	}
+	return (
+		<div hidden={ ! canShowPro }>
+			<ProductInterstitial slug="pro" installsPlugin={ true }>
+				<img src={ completeImage } alt="" />
+			</ProductInterstitial>
+		</div>
 	);
 }

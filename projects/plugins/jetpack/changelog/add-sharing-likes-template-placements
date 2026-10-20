@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Remove unfinished Sharing Buttons auto-add code that never ran; the Sharing & Likes package replaces it, and the block sets it up on Simple's front end.
-
-

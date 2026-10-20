@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-10-19
+### Changed
+- Load Jetpack Comments on every site in place of the Verbum comment form. [#53525]
+- Update package dependencies. [#53004]
+
+### Fixed
+- Fix comments from readers signed in with WordPress.com going to spam or not showing after posting, and Backspace or undo wiping a comment being written. [#53717]
+- Fix the comment editor crashing on paragraphs, lists, quotes, and code, and fall back to the plain comment box when a block crashes. [#53658]
+- Refuse a signed-in comment posted from another site, so that site cannot sign the reader out, and allow sign-in on sites that send no referrer. [#53772]
+- Show the default avatar instead of a broken image on old comments left with an X (Twitter) login. [#53761]
+
 ## [0.6.0] - 2026-10-14
 ### Added
 - Add the image block to the comment editor, and list embeds and images in its add block menu. Approved comments show up to four images. [#53527]
@@ -96,6 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add an on-site comment form with a textarea, guest name and email fields, and reply threading when the `jetpack_comments_new_hotness` filter returns true. [#51466]
 - Initial version. [#51210]
 
+[0.7.0]: https://github.com/Automattic/jetpack-comments/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Automattic/jetpack-comments/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-comments/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-comments/compare/v0.3.0...v0.4.0

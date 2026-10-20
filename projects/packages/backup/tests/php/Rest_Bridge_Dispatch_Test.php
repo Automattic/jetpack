@@ -357,6 +357,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 
 		if ( ! $modernized ) {
 			remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+			add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
 		}
 
 		$wp_rest_server = new WP_REST_Server();
@@ -364,6 +365,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 		$routes = array_keys( $wp_rest_server->get_routes() );
 
 		if ( ! $modernized ) {
+			remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
 			add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		}
 
