@@ -6,7 +6,7 @@ import type { DataPointDate } from '../../../types';
 export type SlotMember = { key: string; datum: DataPointDate };
 
 /**
- * Fills the tooltip with every bar of the keyboard-selected category and nothing else, where the keyboard alone would show only the selected slot's stop and keep any datum it showed before.
+ * Fills the tooltip with every bar of the keyboard-selected category, and only those.
  *
  * Render it before `XYChartTooltip`: effects run in tree order, so the stop that tooltip shows next stays the nearest datum.
  *

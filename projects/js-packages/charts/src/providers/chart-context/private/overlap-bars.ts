@@ -120,7 +120,7 @@ export function shadeWithContrast( color: string, under: string, background: str
 }
 
 /**
- * The colors an overlap layout fills its series with. In each slot, the back layer takes the lightest tint of the slot's base color that keeps 3:1 against the background, and each layer in front the shade of the base that keeps 3:1 against the layer behind it. A slot whose front series has a `stroke` of its own keeps the colors it was given.
+ * The colors an overlap layout fills its series with: per slot, the back layer tinted to 3:1 against the background and each layer in front shaded to 3:1 against the one behind. A front series with its own `stroke` keeps its slot's colors as given.
  *
  * @param series     - Every series of the chart.
  * @param colors     - Each series' resolved color.

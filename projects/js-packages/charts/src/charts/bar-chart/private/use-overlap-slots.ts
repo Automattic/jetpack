@@ -19,9 +19,9 @@ export type OverlapSlots = {
 	slotKeys: string[];
 	slotOf: ( key: string ) => string;
 	thicknessOf: ( key: string ) => number;
-	/** One keyboard stop per slot, carried by its visible series with the most categories, front-most on a tie, so every drawn slot is reachable. */
+	/** One keyboard stop per slot: its longest visible series, front-most on a tie. */
 	stops: SeriesEntry[];
-	/** The keyboard index space: each stop's data points, category by category, skipping points a stop does not have, in the order `XYChartTooltip` walks them. */
+	/** The keyboard index space, in the order `XYChartTooltip` walks the stops. */
 	positions: StopPosition[];
 };
 

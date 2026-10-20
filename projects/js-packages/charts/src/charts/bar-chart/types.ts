@@ -34,9 +34,7 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVis
 	/** CSS class for each primary bar, in addition to visx-bar. */
 	barClassName?: ( datum: DataPointDate ) => string | undefined;
 	orientation?: 'horizontal' | 'vertical';
-	/**
-	 * `grouped` (default) gives each primary series a slot of its own. `overlap` draws every primary in one slot and every comparison in a second, with each `group` a narrower, opaque bar in front of the one before it, toned to keep 3:1 contrast.
-	 */
+	/** Defaults to `grouped`. */
 	layout?: BarChartLayout;
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
