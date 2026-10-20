@@ -44,7 +44,25 @@ export type WidgetStatus = {
 	refetch?: () => unknown;
 };
 
-// Footer chrome, until widgets declare their footer as actions the host renders.
+// Report actions: the "View all" link and the report's CSV download, declared to the dashboard, which
+// renders them in the card footer. Returns whether the host places them.
+export declare function useReportActions( options: ReportActionsOptions ): boolean;
+export type ReportActionsOptions = {
+	// Report id the "View all" link opens, as `/reports/<report>`; none for no link.
+	report?: string;
+	// Report tab the link opens (`?section=`).
+	section?: string;
+	// The linked report's CSV download, offered once the rows settle; none for no download.
+	csv?: {
+		// The report's exporter, or the id of a report the dashboard exports.
+		exporter?: any;
+		report?: string;
+		status: { isLoading: boolean; isFetching: boolean; isError: boolean };
+		rowCount: number;
+	};
+};
+
+// Footer chrome, until every widget declares its footer through `useReportActions`.
 export declare const WidgetFooter: AnyComponent;
 export declare const ReportLink: AnyComponent;
 export declare const ExporterCsvDownloadButton: AnyComponent;
