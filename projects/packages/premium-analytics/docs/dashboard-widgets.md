@@ -262,6 +262,7 @@ The major changes when a widget built against the previous contract stops workin
 | 1.13.0 | `chartTitle` on `Columns`, `Donut`, `Funnel`, `Leaderboard`, `Locations` and `MetricTabsChart`: "Chart: <title>" for screen readers, "Map: <title>" for the `Locations` map. |
 | 1.14.0 | `attributes` on the record, which lead the module's by `id`.                                                                                                                 |
 | 1.15.0 | A `jpa/toggle-group` option names its `icon` by reference, the form a `widget.json` can carry.                                                                               |
+| 1.16.0 | `useReportActions`: a widget declares its View all link and CSV download, and the dashboard renders them in the card footer.                                                 |
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 
