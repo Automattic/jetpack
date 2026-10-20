@@ -11,6 +11,7 @@ import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import { steadyTrafficData } from '../../../stories/sample-data';
+import { selectedBarRingBounds } from '../../../test-utils/selected-bar-ring';
 import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
 import { useBarColors } from '../use-bar-colors';
@@ -29,14 +30,7 @@ const geometryOf = ( element: Element ) =>
 	);
 
 const selectedRingGeometry = () =>
-	(
-		screen
-			.getByTestId( 'bar-chart-selected-ring' )
-			.getAttribute( 'd' )
-			?.match( /-?[\d.e+]+/g ) ?? []
-	)
-		.slice( 0, 4 )
-		.map( value => Number( value ).toFixed( 2 ) );
+	Object.values( selectedBarRingBounds() ).map( value => value.toFixed( 2 ) );
 
 // eslint-disable-next-line testing-library/no-node-access -- visx renders the bars and takes no test id.
 const visxBars = () => document.querySelectorAll( '.visx-bar' );

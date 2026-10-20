@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
+import { selectedBarRingBounds as selectedRing } from '../../../test-utils/selected-bar-ring';
 import { BarChartUnresponsive } from '../bar-chart';
 import { useBarColors, type GetBarColors } from '../use-bar-colors';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
@@ -57,12 +58,6 @@ const geometry = ( element: Element ): Rect => ( {
 	width: Number( element.getAttribute( 'width' ) ),
 	height: Number( element.getAttribute( 'height' ) ),
 } );
-
-const selectedRing = (): Rect => {
-	const d = screen.getByTestId( 'bar-chart-selected-ring' ).getAttribute( 'd' ) ?? '';
-	const [ x, y, width, height ] = ( d.match( /-?[\d.e+]+/g ) ?? [] ).map( Number );
-	return { x, y, width, height };
-};
 
 // Back to front, each series' bars in category order.
 const BAR_ORDER = [ 'Views', 'Previous views', 'Visitors', 'Previous visitors' ];
