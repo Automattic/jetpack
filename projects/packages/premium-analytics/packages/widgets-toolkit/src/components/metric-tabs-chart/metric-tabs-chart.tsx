@@ -59,10 +59,9 @@ const CLICK_DRAG_TOLERANCE_PX = 6;
 const DARK_SHADE_BLEND = 0.5;
 
 const PREVIOUS_PERIOD_TONES = {
-	/** The darkest gray that keeps WCAG's 3:1 against `dark`. Under 3:1 against the card by design, so the previous period recedes. */
-	light: '#cacaca',
-	/** `--wpds-color-foreground-content-neutral-weak`. */
-	dark: '#707070',
+	/** The darkest gray that keeps WCAG's 3:1 against `dark`'s default. Under 3:1 against the card by design, so the previous period recedes. */
+	light: '#c7c7c7',
+	dark: 'var(--wpds-color-stroke-interactive-neutral-strong, #6e6e6e)',
 };
 
 /** The pointer-event payload both comparative charts report. */
