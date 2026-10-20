@@ -11,6 +11,7 @@ interface SelectedRingProps {
 	chartId: string;
 	/** The selected shape's path. */
 	d: string;
+	/** `inside` keeps the ring clear of the SVG edge; `outside` leaves the shape's fill uncovered. */
 	side: SelectedRingSide;
 	testId?: string;
 }
@@ -37,7 +38,7 @@ export const toSvgId = ( value: string ) =>
 	).join( '' );
 
 /**
- * Marks a selected shape with a two-tone ring, a focus-colored ring and a contrast ring, so it reads against any fill. Drawn `inside` the edge, the SVG edge cannot cut it off; drawn `outside`, it leaves the shape's fill uncovered.
+ * Marks a selected shape with a focus-colored ring and a contrast ring, so it reads against any fill.
  *
  * @param {SelectedRingProps} props - Component props
  * @return {JSX.Element} The ring
