@@ -80,6 +80,10 @@
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
+	&__muted {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
 	&__badge-content {
 		display: inline-flex;
 		align-items: center;

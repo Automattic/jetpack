@@ -1,0 +1,139 @@
+/**
+ * Collapsible card shared by the MCP Read and Write views.
+ */
+
+import { Button } from '@wordpress/components';
+import { Fragment, useCallback, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { chevronDown, chevronUp } from '@wordpress/icons';
+import { Card, Stack, SwitchControl, Text } from '@wordpress/ui';
+import { groupToolsBySubCategory } from './groups';
+
+const LABEL_SHOW_OPERATIONS = __( 'Show operations', 'jetpack' );
+const LABEL_HIDE_OPERATIONS = __( 'Hide operations', 'jetpack' );
+
+/**
+ * A single tool toggle row.
+ *
+ * @param {object}   props               - Component props.
+ * @param {string}   props.toolId        - Tool identifier.
+ * @param {object}   props.tool          - Tool descriptor from the API.
+ * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
+ * @param {Function} props.onToggle      - Called with (toolId, enabled).
+ * @return {object} Component markup.
+ */
+function ToolToggle( { toolId, tool, savingToolIds, onToggle } ) {
+	const handleChange = useCallback( checked => onToggle( toolId, checked ), [ toolId, onToggle ] );
+	return (
+		<SwitchControl
+			checked={ tool.enabled }
+			disabled={ savingToolIds.has( toolId ) }
+			label={ tool.title }
+			description={ tool.description }
+			onCheckedChange={ handleChange }
+		/>
+	);
+}
+
+/**
+ * Tool toggles split into sub-category sections.
+ *
+ * @param {object}   props               - Component props.
+ * @param {Array}    props.tools         - Tool entries, each as [toolId, ability].
+ * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
+ * @param {Function} props.onToolChange  - Called with (toolId, enabled).
+ * @return {object} Component markup.
+ */
+export function McpToolSections( { tools, savingToolIds, onToolChange } ) {
+	return groupToolsBySubCategory( tools ).map( ( { subCategory, tools: subTools }, subIndex ) => (
+		<Fragment key={ subCategory ?? '__ungrouped__' }>
+			{ subIndex > 0 && <div className="jetpack-ai-mcp__sub-divider" /> }
+			<div
+				className={
+					subIndex === 0 ? 'jetpack-ai-mcp__group-body' : 'jetpack-ai-mcp__sub-group-body'
+				}
+			>
+				<Stack direction="column" gap="md">
+					{ subTools.map( ( [ toolId, tool ] ) => (
+						<ToolToggle
+							key={ toolId }
+							toolId={ toolId }
+							tool={ tool }
+							savingToolIds={ savingToolIds }
+							onToggle={ onToolChange }
+						/>
+					) ) }
+				</Stack>
+			</div>
+		</Fragment>
+	) );
+}
+
+/**
+ * Collapsible card with a group-wide "Enable all" toggle.
+ *
+ * @param {object}   props               - Component props.
+ * @param {string}   [props.id]          - DOM id for the card.
+ * @param {string}   props.label         - Group title.
+ * @param {string}   [props.description] - Muted text under the title.
+ * @param {boolean}  props.allEnabled    - Whether every tool in the group is on.
+ * @param {boolean}  props.isSaving      - Disables the toggle while a save is in flight.
+ * @param {boolean}  [props.forceOpen]   - Keep the card open regardless of the chevron.
+ * @param {*}        [props.group]       - Opaque value handed back to onEnableAll.
+ * @param {Function} props.onEnableAll   - Called with (enabled, group).
+ * @param {object}   props.children      - Card body, rendered while open.
+ * @return {object} Component markup.
+ */
+export default function McpGroupCard( {
+	id,
+	label,
+	description,
+	allEnabled,
+	isSaving,
+	forceOpen = false,
+	group,
+	onEnableAll,
+	children,
+} ) {
+	const [ isToggledOpen, setIsToggledOpen ] = useState( false );
+	const isOpen = forceOpen || isToggledOpen;
+	const handleEnableAll = useCallback(
+		enabled => onEnableAll( enabled, group ),
+		[ onEnableAll, group ]
+	);
+	const handleChevron = useCallback( () => setIsToggledOpen( open => ! open ), [] );
+
+	return (
+		<Card.Root id={ id }>
+			<Card.Content>
+				<div className="jetpack-ai-mcp__group-header">
+					<Stack direction="column" gap="xs" className="jetpack-ai-mcp__group-info">
+						<Text weight={ 600 }>{ label }</Text>
+						{ description && (
+							<Text variant="body-sm" className="jetpack-ai-mcp__muted">
+								{ description }
+							</Text>
+						) }
+					</Stack>
+					<div className="jetpack-ai-mcp__group-toggle">
+						<SwitchControl
+							checked={ allEnabled }
+							disabled={ isSaving }
+							label={ __( 'Enable all', 'jetpack' ) }
+							onCheckedChange={ handleEnableAll }
+						/>
+					</div>
+					<Button
+						className="jetpack-ai-mcp__group-chevron"
+						icon={ isOpen ? chevronUp : chevronDown }
+						label={ isOpen ? LABEL_HIDE_OPERATIONS : LABEL_SHOW_OPERATIONS }
+						aria-expanded={ isOpen }
+						disabled={ forceOpen }
+						onClick={ handleChevron }
+					/>
+				</div>
+				{ isOpen && children }
+			</Card.Content>
+		</Card.Root>
+	);
+}
