@@ -131,7 +131,7 @@ The chart automatically handles negative growth with appropriate color coding:
 
 ### Negative Values
 
-A negative `currentShare` or `previousShare` switches every row to a diverging layout: a zero line runs through the center of the track, negative bars extend toward the inline start and positive bars toward the inline end. Divide by the largest absolute value so both directions share one scale:
+A negative `currentShare` or `previousShare` switches every row to a diverging layout: a zero line runs through the center of the track, negative bars extend toward the inline start and positive bars toward the inline end. A zero label, formatted with `valueFormatter`, sits under the last row; with `fitRows` it stays pinned to the bottom edge. Divide by the largest absolute value so both directions share one scale:
 
 <Canvas of={ LeaderboardChartStories.NegativeValues } />
 

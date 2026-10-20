@@ -162,6 +162,9 @@ describe( 'LeaderboardChart', () => {
 		render( <LeaderboardChart data={ data } withComparison={ withComparison } /> );
 
 		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( expected );
+		expect( screen.queryAllByTestId( 'leaderboard-chart-zero-axis' ) ).toHaveLength(
+			expected ? 1 : 0
+		);
 	} );
 
 	it( 'shows custom label when provided', () => {

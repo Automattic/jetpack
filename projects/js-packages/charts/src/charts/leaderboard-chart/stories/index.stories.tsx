@@ -599,6 +599,7 @@ export const NegativeValues: Story = {
 		data: netSalesData,
 		withComparison: true,
 		loading: false,
+		containerHeight: '460px',
 		valueFormatter: ( value: number ) =>
 			formatMetricValue( value, 'currency', {
 				useMultipliers: false,
@@ -621,12 +622,13 @@ export const NegativeValuesWidgetSize: Story = {
 		containerWidth: '319px',
 		containerHeight: '420px',
 		showLegend: true,
+		fitRows: true,
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Sized like a dashboard widget. Drag the bottom-right corner of the container to resize it.',
+					'Sized like a dashboard widget, with `fitRows` on. Drag the bottom-right corner of the container to resize it.',
 			},
 		},
 	},

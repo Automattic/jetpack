@@ -5,6 +5,7 @@ import { LeaderboardChartUnresponsive as LeaderboardChart } from '../leaderboard
 import type { LeaderboardEntry } from '../../../types';
 
 const ROW_HEIGHT = 40;
+const AXIS_HEIGHT = 20;
 
 const makeData = ( count: number ): LeaderboardEntry[] =>
 	Array.from( { length: count }, ( _, index ) => ( {
@@ -39,6 +40,10 @@ const mockLayout = (
 	Element.prototype.getBoundingClientRect = function () {
 		if ( this.classList.contains( 'leaderboardChart__content' ) ) {
 			return { top: 0, bottom: box.height, height: box.height } as DOMRect;
+		}
+
+		if ( this.hasAttribute?.( 'data-leaderboard-axis' ) ) {
+			return { top: 0, bottom: AXIS_HEIGHT, height: AXIS_HEIGHT } as DOMRect;
 		}
 
 		const rowIndex = this.getAttribute?.( 'data-row-index' );
@@ -100,6 +105,19 @@ describe( 'LeaderboardChart fitRows', () => {
 		expect( screen.getByText( 'Row 2' ) ).not.toBeVisible();
 		expect( screen.getByText( 'Row 3' ) ).not.toBeVisible();
 		expect( screen.getByText( 'Row 4' ) ).not.toBeVisible();
+	} );
+
+	it( 'keeps room for the zero axis when a share is negative', () => {
+		layout = mockLayout( 3 * ROW_HEIGHT );
+		const data = makeData( 5 ).map( ( entry, index ) =>
+			index === 4 ? { ...entry, currentShare: -50 } : entry
+		);
+
+		render( <LeaderboardChart data={ data } fitRows /> );
+
+		expect( screen.getByText( 'Row 1' ) ).toBeVisible();
+		expect( screen.getByText( 'Row 2' ) ).not.toBeVisible();
+		expect( screen.getByTestId( 'leaderboard-chart-zero-axis' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows every row when they fit exactly', () => {
