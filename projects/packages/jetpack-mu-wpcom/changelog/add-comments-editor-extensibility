@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Register the Jetpack Comments content filters on every WordPress.com request, so comments written through admin-ajax or the public API keep their blocks.
