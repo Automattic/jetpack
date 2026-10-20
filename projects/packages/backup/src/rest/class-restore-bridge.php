@@ -174,8 +174,11 @@ class Restore_Bridge {
 			$request_body['types'] = $named_types;
 		}
 
-		// Always sent: WordPress.com skips the known-threats check for signed restores that omit it.
-		$request_body['acknowledge_threats'] = true === rest_sanitize_boolean( $request->get_param( 'acknowledge_threats' ) );
+		// WordPress.com skips the known-threats check for signed restores that omit the flag,
+		// so only sites that can show the warning send it.
+		if ( self::known_threats_available() ) {
+			$request_body['acknowledge_threats'] = true === rest_sanitize_boolean( $request->get_param( 'acknowledge_threats' ) );
+		}
 
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/rewind/restores', $blog_id ),
@@ -290,6 +293,15 @@ class Restore_Bridge {
 	}
 
 	/**
+	 * Whether this site checks backups for known threats. Only WoA sites do, for now.
+	 *
+	 * @return bool
+	 */
+	public static function known_threats_available() {
+		return ( new Host() )->is_woa_site();
+	}
+
+	/**
 	 * The answer for a site whose known threats can't be read, so the screen restores as before.
 	 *
 	 * @return WP_Error
@@ -306,14 +318,13 @@ class Restore_Bridge {
 	 * Known Scan threat counts for the newest 100 backups, by backup period, and the newest
 	 * backup without known threats. Proxies GET wpcom/v3 /sites/{blog_id}/rewind/backups.
 	 *
-	 * Only WoW sites are checked for now; elsewhere, and without Scan, the answer is
-	 * `threats_unavailable` so the dashboard shows no badges.
+	 * Without Scan, or off WoA, the answer is `threats_unavailable` and the dashboard shows no badges.
 	 *
 	 * @param WP_REST_Request $request The REST request; `with_clean_rewind_id` also finds when the clean backup finished.
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_backups_known_threats( WP_REST_Request $request ) {
-		if ( ! ( new Host() )->is_woa_site() ) {
+		if ( ! self::known_threats_available() ) {
 			return self::threats_unavailable();
 		}
 
@@ -439,20 +450,15 @@ class Restore_Bridge {
 	}
 
 	/**
-	 * Known Scan threats in a backup.
+	 * Known Scan threats in a backup. Proxies GET wpcom/v2 /sites/{blog_id}/rewind/backups/{rewind_id}/threats.
 	 *
-	 * Proxies GET wpcom/v2 /sites/{blog_id}/rewind/backups/{rewind_id}/threats. A site
-	 * without Scan gets a 403 upstream, answered here as a 404 `threats_unavailable`
-	 * so the screen can restore as it always has.
-	 *
-	 * Only WoW sites are checked for now; every other site gets the same
-	 * `threats_unavailable` without a request to WordPress.com.
+	 * Without Scan (a 403 upstream), or off WoA, the answer is a 404 `threats_unavailable`.
 	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_known_threats( WP_REST_Request $request ) {
-		if ( ! ( new Host() )->is_woa_site() ) {
+		if ( ! self::known_threats_available() ) {
 			return self::threats_unavailable();
 		}
 

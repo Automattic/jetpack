@@ -25,8 +25,8 @@ type Result = {
 	submit: ( items: RestoreItems, acknowledgeThreats?: boolean ) => void;
 	reset: () => void;
 	/**
-	 * Set on a server-side refusal over unacknowledged known threats. An edge case: the
-	 * acknowledgement normally happens on this screen, and WordPress.com lets plugin restores through.
+	 * Set on a server-side refusal over unacknowledged known threats. An edge case: the screen
+	 * normally asks first, and is refused only when its own check was unavailable or out of date.
 	 */
 	threatsRefused: boolean;
 	/**

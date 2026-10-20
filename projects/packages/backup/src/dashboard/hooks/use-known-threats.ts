@@ -4,6 +4,16 @@ import { keys } from '../data/query-client';
 import type { KnownThreats } from '../data/api/known-threats';
 
 /**
+ * Whether this site checks backups for known threats. Elsewhere the routes can only answer
+ * `threats_unavailable`, so the queries stay idle.
+ *
+ * @return Whether the known-threats queries may run.
+ */
+function knownThreatsAvailable(): boolean {
+	return window.JPBACKUP_DASHBOARD_STATE?.knownThreatsAvailable === true;
+}
+
+/**
  * The known Scan threats in a backup; `data` is null when they are unavailable.
  *
  * A later read that fails keeps the threats already shown, so a warning never disappears.
@@ -20,7 +30,7 @@ export function useKnownThreats( rewindId: string, enabled = true ) {
 			( await fetchKnownThreats( rewindId ) ) ??
 			client.getQueryData< KnownThreats | null >( keys.knownThreats( rewindId ) ) ??
 			null,
-		enabled,
+		enabled: enabled && knownThreatsAvailable(),
 	} );
 }
 
@@ -40,6 +50,6 @@ export function useBackupsKnownThreats( {
 		queryKey: keys.backupsKnownThreats( withCleanRewindId ),
 		queryFn: () => fetchBackupsKnownThreats( withCleanRewindId ),
 		staleTime: 5 * 60_000,
-		enabled,
+		enabled: enabled && knownThreatsAvailable(),
 	} );
 }

@@ -64,6 +64,7 @@ function renderList( onSelect: ( id: string ) => void = noop ) {
 }
 
 beforeEach( () => {
+	window.JPBACKUP_DASHBOARD_STATE = { knownThreatsAvailable: true };
 	mockApiFetch.mockReset();
 	mockApiFetch.mockResolvedValue( PAGE );
 	window.JP_CONNECTION_INITIAL_STATE = {

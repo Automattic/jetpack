@@ -63,9 +63,10 @@ class Initial_State {
 			),
 			'config'        => array(
 				// Simple sites have no Jetpack REST API to proxy through, so the app calls WordPress.com directly.
-				'apiSource'       => $is_wpcom_simple ? 'wpcom' : 'jetpack',
-				'wpcomUpgradeUrl' => $is_wpcom_simple ? self::get_wpcom_upgrade_url( $site_suffix ) : '',
-				'tracksUserData'  => $is_wpcom_simple ? self::get_wpcom_tracks_user_data() : null,
+				'apiSource'             => $is_wpcom_simple ? 'wpcom' : 'jetpack',
+				'wpcomUpgradeUrl'       => $is_wpcom_simple ? self::get_wpcom_upgrade_url( $site_suffix ) : '',
+				'tracksUserData'        => $is_wpcom_simple ? self::get_wpcom_tracks_user_data() : null,
+				'knownThreatsAvailable' => REST_Controller::known_threats_available(),
 			),
 			'siteData'      => array(
 				'id'                    => Connection_Manager::get_site_id( true ),

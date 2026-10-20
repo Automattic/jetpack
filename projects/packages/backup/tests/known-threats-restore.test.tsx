@@ -164,6 +164,7 @@ beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 	mockApiFetch.mockReset();
+	window.JPBACKUP_DASHBOARD_STATE = { knownThreatsAvailable: true };
 	window.JP_CONNECTION_INITIAL_STATE = {
 		...window.JP_CONNECTION_INITIAL_STATE,
 		connectionStatus: CONNECTED,
@@ -285,6 +286,21 @@ describe( 'known threats on the Restore screen', () => {
 		expect( postedBodies()[ 0 ] ).not.toHaveProperty( 'acknowledge_threats' );
 		expect( view.queryByText( /Restore failed/ ) ).not.toBeInTheDocument();
 		expect( view.queryByText( /threats/i ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'never asks on a site that cannot check, and restores as before', async () => {
+		window.JPBACKUP_DASHBOARD_STATE = { knownThreatsAvailable: false };
+		arrange( () => Promise.resolve( FLAGGED ) );
+		const user = userEvent.setup();
+		const view = within( renderScreen() );
+
+		await user.click( await enabled( await view.findByRole( 'button', { name: CONFIRM } ) ) );
+
+		await waitFor( () => expect( postedBodies() ).toHaveLength( 1 ) );
+		expect( postedBodies()[ 0 ] ).not.toHaveProperty( 'acknowledge_threats' );
+		expect( mockApiFetch ).not.toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringContaining( '/threats' ) } )
+		);
 	} );
 
 	it( 'returns to the confirm step on threats_not_acknowledged', async () => {

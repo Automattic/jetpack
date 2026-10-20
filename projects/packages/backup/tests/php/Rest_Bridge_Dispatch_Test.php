@@ -85,7 +85,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 		add_action( 'rest_api_init', array( Rest_Controller::class, 'register_routes' ) );
 		do_action( 'rest_api_init' );
 
-		// A WoW site, so the known-threats route reaches WordPress.com.
+		// A WoA site, so the known-threats route reaches WordPress.com.
 		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );

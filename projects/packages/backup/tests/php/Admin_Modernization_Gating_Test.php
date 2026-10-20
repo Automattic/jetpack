@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Backup\V0005;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -83,6 +84,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->reset_scripts();
 		$this->set_admin_menu_items( array() );
 
+		Constants::clear_constants();
 		Status_Cache::clear();
 		WorDBless_Options::init()->clear_options();
 
@@ -285,7 +287,20 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		Jetpack_Backup::render_connection_initial_state();
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'window.JPBACKUP_DASHBOARD_STATE={"activityLogUrl":null};', $output );
+		$this->assertStringContainsString( 'window.JPBACKUP_DASHBOARD_STATE={"activityLogUrl":null,"knownThreatsAvailable":false};', $output );
+	}
+
+	public function test_render_connection_initial_state_marks_known_threats_available_on_woa() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
+
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '"knownThreatsAvailable":true', $output );
 	}
 
 	public function test_render_connection_initial_state_emits_the_activity_log_url_when_the_page_exists() {

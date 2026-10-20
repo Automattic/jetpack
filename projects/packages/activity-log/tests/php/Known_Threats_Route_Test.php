@@ -219,7 +219,7 @@ class Known_Threats_Route_Test extends TestCase {
 	}
 
 	/**
-	 * Makes the site look like a WoW site to `Host::is_woa_site()`.
+	 * Makes the site look like a WoA site to `Host::is_woa_site()`.
 	 */
 	private function arrange_woa_site() {
 		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );

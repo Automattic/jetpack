@@ -58,6 +58,7 @@ beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 	mockApiFetch.mockReset();
+	window.JPBACKUP_DASHBOARD_STATE = { knownThreatsAvailable: true };
 	mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
 		const path = o?.path ?? '';
 		if ( path.includes( '/rewind/backups/known-threats' ) ) {

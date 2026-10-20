@@ -423,10 +423,18 @@ class REST_Controller {
 	}
 
 	/**
+	 * Whether this site checks backups for known threats. Only WoA sites do, for now.
+	 *
+	 * @return bool
+	 */
+	public static function known_threats_available() {
+		return ( new Host() )->is_woa_site();
+	}
+
+	/**
 	 * Known Scan threat counts for the site's newest 100 backups, by backup period.
 	 *
-	 * Only WoW sites are checked for now. Elsewhere, and when the site has no Scan, the answer is
-	 * `threats_unavailable` (404) so the log shows no badges.
+	 * Without Scan, or off WoA, the answer is `threats_unavailable` (404) and the log shows no badges.
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
@@ -438,7 +446,7 @@ class REST_Controller {
 		);
 
 		$blog_id = (int) Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id || ! ( new Host() )->is_woa_site() ) {
+		if ( ! $blog_id || ! self::known_threats_available() ) {
 			return $unavailable;
 		}
 

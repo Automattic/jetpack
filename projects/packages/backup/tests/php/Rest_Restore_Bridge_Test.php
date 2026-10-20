@@ -669,6 +669,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 * A ticked acknowledgement travels to WordPress.com; the arg schema coerces the string form.
 	 */
 	public function test_initiate_restore_forwards_acknowledge_threats() {
+		$this->arrange_woa_site();
 		$this->arrange_wpcom(
 			array(
 				'ok'         => true,
@@ -693,6 +694,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 */
 	#[DataProvider( 'provide_unacknowledged' )]
 	public function test_initiate_restore_sends_false_without_an_acknowledgement( $acknowledge ) {
+		$this->arrange_woa_site();
 		$this->arrange_wpcom(
 			array(
 				'ok'         => true,
@@ -708,6 +710,25 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		Restore_Bridge::initiate_restore( $request );
 
 		$this->assertFalse( ( (array) $this->captured_body )['acknowledge_threats'] );
+	}
+
+	/**
+	 * Off WoA the flag stays out of the request, which keeps WordPress.com's exemption for a site with no warning.
+	 */
+	public function test_initiate_restore_omits_acknowledge_threats_off_woa() {
+		$this->arrange_wpcom(
+			array(
+				'ok'         => true,
+				'restore_id' => 5,
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'acknowledge_threats', true );
+		Restore_Bridge::initiate_restore( $request );
+
+		$this->assertArrayNotHasKey( 'acknowledge_threats', (array) $this->captured_body );
 	}
 
 	/**
@@ -980,7 +1001,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$this->assertLessThanOrEqual( time() + 5 * MINUTE_IN_SECONDS, $expires );
 	}
 
-	public function test_backups_known_threats_are_unavailable_off_wow() {
+	public function test_backups_known_threats_are_unavailable_off_woa() {
 		$this->arrange_wpcom( array( 'backups' => array() ) );
 
 		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/known-threats' ) );
@@ -991,10 +1012,10 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * Known threats are a WoW-only check for now: elsewhere the route answers "unavailable"
+	 * Known threats are a WoA-only check for now: elsewhere the route answers "unavailable"
 	 * without asking WordPress.com, so the screen restores as it always has.
 	 */
-	public function test_known_threats_route_is_unavailable_off_wow() {
+	public function test_known_threats_route_is_unavailable_off_woa() {
 		$this->arrange_wpcom( array( 'summary' => array( 'flagged' => 1 ) ) );
 
 		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/123/threats' ) );
@@ -1177,7 +1198,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * Makes the site look like a WoW site to `Host::is_woa_site()`.
+	 * Makes the site look like a WoA site to `Host::is_woa_site()`.
 	 */
 	private function arrange_woa_site() {
 		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );

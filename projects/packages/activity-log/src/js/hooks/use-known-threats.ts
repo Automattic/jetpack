@@ -1,5 +1,6 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { config } from '../config';
 
 /** Known Scan threat counts for one backup, as WordPress.com reports them. */
 export type BackupKnownThreats = {
@@ -18,7 +19,7 @@ type KnownThreatsResponse = { backups?: BackupPeriod[] };
 
 /**
  * The newest 100 backups with their known-threat counts, newest first. Empty when the
- * site has no Scan, isn't a WoW site, or the request fails: the log then shows no badges.
+ * site has no Scan or the request fails: the log then shows no badges.
  *
  * @return `queryOptions` ready to pass to `useQuery`.
  */
@@ -47,7 +48,7 @@ export function knownThreatsQuery() {
  * @return The backup's counts, or undefined.
  */
 export function useBackupKnownThreats( rewindId?: string ): BackupKnownThreats | undefined {
-	const { data } = useQuery( knownThreatsQuery() );
+	const { data } = useQuery( { ...knownThreatsQuery(), enabled: config.knownThreatsAvailable } );
 	if ( ! rewindId || ! data ) {
 		return undefined;
 	}

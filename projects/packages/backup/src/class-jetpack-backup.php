@@ -1198,7 +1198,13 @@ class Jetpack_Backup {
 			. '</script>';
 
 		echo '<script id="jetpack-backup-dashboard-state">window.JPBACKUP_DASHBOARD_STATE='
-			. wp_json_encode( array( 'activityLogUrl' => self::get_activity_log_url() ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
+			. wp_json_encode(
+				array(
+					'activityLogUrl'        => self::get_activity_log_url(),
+					'knownThreatsAvailable' => \Automattic\Jetpack\Backup\V0005\REST\Restore_Bridge::known_threats_available(),
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
 			. ';</script>';
 	}
 
