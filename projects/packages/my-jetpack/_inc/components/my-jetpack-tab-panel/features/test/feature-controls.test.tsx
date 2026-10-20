@@ -722,10 +722,9 @@ describe( 'features waiting for an account', () => {
 			);
 			expect( leavePageFor ).toHaveBeenCalledTimes( connections );
 			// Install has already turned its plugin on, so the return has nothing to finish.
-			expect( ( getUserConnectionUrl as jest.Mock ).mock.calls ).toEqual(
-				Array( connections ).fill( [
-					{ redirect_url: expect.not.stringContaining( 'connect_intent' ) },
-				] )
+			expect( getUserConnectionUrl ).toHaveBeenCalledTimes( connections );
+			expect( getUserConnectionUrl ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { redirect_url: expect.stringContaining( 'connect_intent' ) } )
 			);
 		}
 	);

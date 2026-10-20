@@ -644,6 +644,10 @@ describe( 'FeaturesContent after connecting the account', () => {
 	};
 
 	let nowSpy: jest.SpyInstance | undefined;
+	const anHourLater = () => {
+		const at = Date.now();
+		nowSpy = jest.spyOn( Date, 'now' ).mockReturnValue( at + 60 * 60 * 1000 );
+	};
 
 	beforeEach( () => {
 		window.sessionStorage.clear();
@@ -693,16 +697,15 @@ describe( 'FeaturesContent after connecting the account', () => {
 		expect( screen.getByTestId( 'route' ) ).toHaveTextContent( /^\?view=list$/ );
 	} );
 
-	it.each( [
-		[ 'the account is still missing', () => ( mockConnected = false ) ],
-		[ 'the return is for another tab', () => 'another' ],
+	it.each< [ string, () => string | void ] >( [
 		[
-			'the click is over an hour old',
+			'the account is still missing',
 			() => {
-				const at = Date.now();
-				nowSpy = jest.spyOn( Date, 'now' ).mockReturnValue( at + 60 * 60 * 1000 );
+				mockConnected = false;
 			},
 		],
+		[ 'the return is for another tab', () => 'another' ],
+		[ 'the click is over an hour old', anHourLater ],
 		[
 			'Back from WordPress.com showed the cached page',
 			() => {
@@ -715,9 +718,9 @@ describe( 'FeaturesContent after connecting the account', () => {
 	] )( 'turns nothing on when %s', ( _, setup ) => {
 		mockStates = [ monitor ];
 		const id = rememberConnectIntent( 'monitor' );
-		const returnId = setup();
+		const returnId = setup() ?? id;
 
-		renderAt( `/features?connect_intent=${ typeof returnId === 'string' ? returnId : id }` );
+		renderAt( `/features?connect_intent=${ returnId }` );
 
 		expect( requests() ).toEqual( [] );
 	} );
@@ -744,8 +747,7 @@ describe( 'FeaturesContent after connecting the account', () => {
 		[
 			'the hour ran out meanwhile',
 			() => {
-				const at = Date.now();
-				nowSpy = jest.spyOn( Date, 'now' ).mockReturnValue( at + 60 * 60 * 1000 );
+				anHourLater();
 				return monitor;
 			},
 		],
@@ -769,8 +771,7 @@ describe( 'FeaturesContent after connecting the account', () => {
 		const id = rememberConnectIntent( 'monitor' );
 		const view = renderAt( `/features?connect_intent=${ id }` );
 
-		const at = Date.now();
-		nowSpy = jest.spyOn( Date, 'now' ).mockReturnValue( at + 60 * 60 * 1000 );
+		anHourLater();
 		mockIsLoading = false;
 		view.rerenderAt();
 

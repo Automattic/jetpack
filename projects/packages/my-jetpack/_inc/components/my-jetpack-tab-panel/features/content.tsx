@@ -105,10 +105,7 @@ function FeaturesTabContent() {
 		() => [ ...states, ...moreFeatures.flatMap( group => group.states ) ],
 		[ states, moreFeatures ]
 	);
-	const turnOn = useConnectResume(
-		allStates,
-		! isLoading && ( mainFeatures.jetpack !== 'active' || modulesLoaded )
-	);
+	const turnOn = useConnectResume( allStates, ! isLoading && modulesLoaded );
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
 

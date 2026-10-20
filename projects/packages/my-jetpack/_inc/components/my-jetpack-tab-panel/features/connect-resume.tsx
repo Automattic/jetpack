@@ -107,7 +107,7 @@ export function resetConnectIntentForTests() {
 }
 
 /**
- * Whether the return turns the feature on: the bulk switch's rule says it can be switched here, and it is not already on.
+ * Whether the return turns the feature on, by the bulk switch's rule.
  *
  * @param state - The feature's live state after the return.
  * @return Whether to turn it on.
@@ -156,7 +156,7 @@ export function useConnectResume( states: FeatureState[], ready: boolean ): Feat
 			return;
 		}
 		if ( state && connected && isFresh( click ) && canTurnOn( state ) ) {
-			turnOn = taken;
+			turnOn = click;
 			setDecided( true );
 		}
 		taken = null;
