@@ -2744,7 +2744,9 @@ describe( 'BarChart', () => {
 			const shadows = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
 			expect( shadows ).toHaveLength( 2 );
 			expect( shadows[ 0 ] ).toHaveAttribute( 'fill', comparisonColor );
-			expect( shadows[ 0 ] ).toHaveAttribute( 'opacity', opacity ? String( opacity ) : null );
+			expect( shadows[ 0 ].attributes.getNamedItem( 'opacity' )?.value ).toBe(
+				opacity ? String( opacity ) : undefined
+			);
 			expect( comparisonColor === primaryColor ).toBe( !! opacity );
 
 			// eslint-disable-next-line testing-library/no-node-access
