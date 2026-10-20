@@ -34,21 +34,20 @@ Connect and disconnect actions performed from the card go through the package's 
 
 The card reads connection state from the `jetpack-connection` store, which `Initial_State` fills, so it shows the same facts as the package's own components on the screen (the transfer and protected-owner dialogs):
 
-| Card shows                | Store source                                                                                                                                                                                             |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Registered / connected    | `getConnectionStatus()` — `isRegistered`, `hasConnectedOwner`                                                                                                                                            |
-| Offline mode              | `getIsOfflineMode()`                                                                                                                                                                                     |
-| Blog ID, first connection | `getBlogId()`, with `isRegistered`                                                                                                                                                                       |
-| Your account              | `getUserConnectionData().currentUser`, with `isUserConnected` from the status                                                                                                                            |
-| Connection owner          | `getConnectionOwner()` — only for users with `jetpack_connect`. It comes from the `master_user` option, so the card shows it, and your account, only while the owner's token works (`hasConnectedOwner`) |
-| Connected plugins         | `getConnectedPlugins()`                                                                                                                                                                                  |
+| Card shows                | Store source                                                                                                                                                                                                                                                                              |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registered / connected    | `getConnectionStatus()` — `isRegistered`, `hasConnectedOwner`                                                                                                                                                                                                                             |
+| Offline mode              | `getIsOfflineMode()`                                                                                                                                                                                                                                                                      |
+| Blog ID, first connection | `getBlogId()`, with `isRegistered`                                                                                                                                                                                                                                                        |
+| Your account              | `getUserConnectionData().currentUser`, with `isUserConnected` from the status                                                                                                                                                                                                             |
+| Connection owner          | `getConnectionOwner()` — only for users with `jetpack_connect`. It comes from the `master_user` option, so the card shows it, and your account, only while the owner's token works (`hasConnectedOwner`). Other viewers get the name alone from `getUserConnectionData().connectionOwner` |
+| Connected plugins         | `getConnectedPlugins()`                                                                                                                                                                                                                                                                   |
 
 Everything else is card-only and comes from `Jetpack_Connector::get_connector_data()` through the `script_module_data_@automattic/jetpack-connection-connectors` filter. Some of it stays there because the store has no equivalent:
 
 - `viewerLocal` — the viewer's local display name and email. The store carries only the WordPress.com ones, so the card falls back to these when the WordPress.com lookup fails.
-- `cardConnectionOwner` — the connection owner, sent only for a connected site when the viewer lacks `jetpack_connect`, so the store has no owner. That happens in offline mode, and for a multisite site admin when Jetpack is network-activated and the network doesn't let site admins manage their own connection.
 - `hasOtherConnectedUsers` — sent to the owner only, to warn that disconnecting them disconnects every user.
-- `canEditConnectionOwner` — whether the owner row links to their profile. Multisite site admins cannot edit other users.
+- `connectionOwnerEditUrl` — the owner's profile URL, or null when the viewer may not open it (no `jetpack_connect` outside offline mode, or no `edit_user`, as for multisite site admins).
 - `pluginLogos` — logo URLs by plugin slug, which third parties add through the `jetpack_connection_plugin_logos` filter.
 - `apiRoot` / `apiNonce` — the store drops these from its initial state and has no selector for them.
 - `isInSafeMode` — the store's `connectionStatus.isStaging` holds the same value but is due to be deprecated.

@@ -59,9 +59,7 @@ const apiNonce = data.apiNonce || '';
 const redirectUri = data.redirectUri || '';
 const viewerLocal = data.viewerLocal || {};
 const hasOtherConnectedUsers = Boolean( data.hasOtherConnectedUsers );
-const canEditConnectionOwner = Boolean( data.canEditConnectionOwner );
-// Only for a viewer the store withholds the owner from; see get_card_connection_owner().
-const cardConnectionOwner = data.cardConnectionOwner || null;
+const connectionOwnerEditUrl = data.connectionOwnerEditUrl || null;
 const connectedUsersUrl = data.connectedUsersUrl || '';
 const pluginLogos = data.pluginLogos || {};
 const siteDetails = data.siteDetails || null;
@@ -135,7 +133,12 @@ function useCardConnection() {
 		const currentUser = userConnectionData?.currentUser || null;
 		// Account rows need a connected owner. The store's owner comes from the master_user option, so
 		// without this gate it would also name an owner whose token is broken.
-		const owner = isConnected ? storeOwner || cardConnectionOwner : null;
+		let owner = isConnected ? storeOwner : null;
+		// Without jetpack_connect (offline mode, network-restricted site admins) the store withholds the
+		// owner object, but userConnectionData still names the connected owner.
+		if ( isConnected && ! owner && userConnectionData?.connectionOwner ) {
+			owner = { id: null, displayName: userConnectionData.connectionOwner };
+		}
 		const viewer = isConnected
 			? buildViewer( currentUser, Boolean( connectionStatus.isUserConnected ) )
 			: null;
@@ -162,10 +165,12 @@ function useCardConnection() {
 						id: owner.id,
 						displayName: owner.displayName,
 						avatar: owner.avatar || '',
-						editUrl: canEditConnectionOwner ? 'user-edit.php?user_id=' + owner.id : null,
+						editUrl: connectionOwnerEditUrl,
 					}
 				: null,
-			ownerIsViewer: Boolean( owner && currentUser && owner.id === currentUser.id ),
+			ownerIsViewer: owner?.id
+				? Boolean( currentUser && owner.id === currentUser.id )
+				: Boolean( owner && currentUser?.isMaster ),
 			connectedPlugins,
 			// Stats and Backups are Jetpack-plugin features, so only cite them as examples
 			// of paused features when a Jetpack-family plugin is actually connected.

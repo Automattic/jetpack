@@ -106,7 +106,6 @@ class Jetpack_Connector_Test extends TestCase {
 		wp_set_current_user( 0 );
 
 		remove_all_filters( 'jetpack_offline_mode' );
-		remove_all_filters( 'jetpack_disconnect_cap' );
 		remove_all_filters( 'jetpack_is_in_safe_mode' );
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_connection_protected_owner_default_ui' );
@@ -202,7 +201,7 @@ class Jetpack_Connector_Test extends TestCase {
 			),
 			$data['viewerLocal']
 		);
-		$this->assertFalse( $data['canEditConnectionOwner'] );
+		$this->assertNull( $data['connectionOwnerEditUrl'] );
 		$this->assertArrayNotHasKey( 'siteDetails', $data );
 		$this->assertArrayNotHasKey( 'connectedUsersUrl', $data );
 		$this->assertArrayNotHasKey( 'hasOtherConnectedUsers', $data );
@@ -310,11 +309,11 @@ class Jetpack_Connector_Test extends TestCase {
 	 * @param bool $map_caps      Whether the connection capabilities are mapped.
 	 * @param bool $has_owner     Whether a connection owner is stored.
 	 * @param bool $offline       Whether the site is in offline mode, which denies jetpack_connect but still shows the owner.
-	 * @param bool $expected      Expected canEditConnectionOwner.
-	 * @dataProvider provide_can_edit_connection_owner
+	 * @param bool $expected      Whether the card gets a profile URL.
+	 * @dataProvider provide_connection_owner_edit_url
 	 */
-	#[DataProvider( 'provide_can_edit_connection_owner' )]
-	public function test_can_edit_connection_owner( $map_caps, $has_owner, $offline, $expected ) {
+	#[DataProvider( 'provide_connection_owner_edit_url' )]
+	public function test_connection_owner_edit_url( $map_caps, $has_owner, $offline, $expected ) {
 		if ( $map_caps ) {
 			$this->map_connection_caps();
 		}
@@ -327,15 +326,15 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		$this->assertSame( $expected, $data['canEditConnectionOwner'] );
+		$this->assertSame( $expected, null !== $data['connectionOwnerEditUrl'] );
 	}
 
 	/**
-	 * Data provider for test_can_edit_connection_owner.
+	 * Data provider for test_connection_owner_edit_url.
 	 *
 	 * @return array
 	 */
-	public static function provide_can_edit_connection_owner() {
+	public static function provide_connection_owner_edit_url() {
 		return array(
 			'admin, owner stored' => array( true, true, false, true ),
 			'no owner stored'     => array( true, false, false, false ),
@@ -409,55 +408,6 @@ class Jetpack_Connector_Test extends TestCase {
 	private function map_connection_caps() {
 		$this->caps_manager = new Manager();
 		add_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1, 4 );
-	}
-
-	/**
-	 * The card carries the owner only for a viewer the store withholds it from.
-	 *
-	 * @param bool $offline    Whether the site is in offline mode.
-	 * @param bool $restricted Whether the network denies the viewer jetpack_connect.
-	 * @param bool $expected   Whether the card carries the owner.
-	 * @dataProvider provide_card_connection_owner
-	 */
-	#[DataProvider( 'provide_card_connection_owner' )]
-	public function test_card_connection_owner( $offline, $restricted, $expected ) {
-		$this->map_connection_caps();
-		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
-		\Jetpack_Options::update_option( 'id', 12345 );
-		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
-		\Jetpack_Options::update_option(
-			'user_tokens',
-			array( $this->admin_id => 'ownerkey.private.' . $this->admin_id )
-		);
-		if ( $offline ) {
-			add_filter( 'jetpack_offline_mode', '__return_true' );
-		}
-		if ( $restricted ) {
-			// What Jetpack_Network::set_multisite_disconnect_cap() returns for a site admin.
-			add_filter( 'jetpack_disconnect_cap', static fn() => array( 'do_not_allow' ) );
-		}
-
-		$data = Jetpack_Connector::get_connector_data( array() );
-
-		if ( $expected ) {
-			$this->assertSame( $this->admin_id, $data['cardConnectionOwner']['id'] );
-			$this->assertSame( 'Local Admin', $data['cardConnectionOwner']['displayName'] );
-		} else {
-			$this->assertArrayNotHasKey( 'cardConnectionOwner', $data );
-		}
-	}
-
-	/**
-	 * Data provider for test_card_connection_owner.
-	 *
-	 * @return array
-	 */
-	public static function provide_card_connection_owner() {
-		return array(
-			'admin with jetpack_connect'    => array( false, false, false ),
-			'offline mode'                  => array( true, false, true ),
-			'admin without jetpack_connect' => array( false, true, true ),
-		);
 	}
 
 	/**
