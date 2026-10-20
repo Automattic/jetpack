@@ -32,9 +32,7 @@ export function useLockedPrimaryLegendItems(
 	return useMemo( () => {
 		const primaryIndex = Math.max(
 			0,
-			items.findIndex(
-				item => item.label === primaryLabel || item.seriesLabels?.includes( primaryLabel ?? '' )
-			)
+			items.findIndex( item => item.label === primaryLabel )
 		);
 		const primary = items[ primaryIndex ];
 
