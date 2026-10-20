@@ -91,8 +91,10 @@ export type { IntervalType, LockableInterval } from './utils/interval';
 export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
 export {
 	getLockedFeature,
+	getLockedSection,
 	getLockedWidgetFeature,
 	isStatsFeatureLocked,
+	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
 export {

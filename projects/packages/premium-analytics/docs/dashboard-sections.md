@@ -170,6 +170,8 @@ Reset deletes the stored entry rather than copying the default into it, so a sec
 
 A section that declares no layout opens in customize mode on the empty state, since `WidgetDashboard` treats an empty layout as "no widgets". A section meant to be read declares one.
 
+A section the site's plan locks is the exception: it shows only its open widgets, never enters customize mode, and renders the upgrade prompt below them (see [Locking a widget by plan](dashboard-widgets.md#locking-a-widget-by-plan)).
+
 ## Insertable widget types
 
 The inserter offers the types a section places by default, and nothing else unless the section says so. The registration passes `insertable_widget_types`, a list of widget type names, for the widgets the section offers without placing them: the WooCommerce tab declares its over-time charts there, since its default layout stopped placing them.
