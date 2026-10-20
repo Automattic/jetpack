@@ -1,15 +1,21 @@
-import { CheckboxControl } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
-import { dateI18n } from '@wordpress/date';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { Fragment, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Icon, cautionFilled } from '@wordpress/icons';
+import { chevronDown, chevronUp } from '@wordpress/icons';
 import { Link as RouterLink } from '@wordpress/route';
-import { Link, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
+import {
+	Button,
+	CheckboxControl,
+	Collapsible,
+	Link,
+	Notice,
+	Text,
+	Tooltip,
+	VisuallyHidden,
+} from '@wordpress/ui';
 import { announce, cancelAnnouncement } from '../../data/announce';
 import { parseRestoreWhen } from '../../data/api/restore';
-import { formatBrowserDate } from '../../data/date-format';
-import { KnownThreatsToggle } from './badge';
+import { formatDate, formatDateTime } from '../../data/date-format';
 import './style.scss';
 import type { KnownThreat, KnownThreats } from '../../data/api/known-threats';
 
@@ -26,14 +32,14 @@ type Props = {
 };
 
 /**
- * A threat date in the browser's local calendar, as Scan shows it elsewhere.
+ * A threat date in the site's own format and timezone, like every other date in the dashboard.
  *
  * @param value - A UTC timestamp; one with no zone is read as UTC, not local time.
  * @return The formatted date, or an empty string when it cannot be read.
  */
-function localDate( value: string | null | undefined ): string {
+function threatDate( value: string | null | undefined ): string {
 	const ms = value ? parseRestoreWhen( value ) : null;
-	return ms === null ? '' : formatBrowserDate( ms );
+	return ms === null ? '' : formatDate( ms );
 }
 
 /**
@@ -65,6 +71,25 @@ function where( threat: KnownThreat ): string {
 }
 
 /**
+ * A path that wraps only after its slashes, never inside a file name.
+ *
+ * @param path - The path.
+ * @return The path with a line-break opportunity after each slash.
+ */
+function breakablePath( path: string ) {
+	return path.split( '/' ).map( ( segment, index, segments ) => (
+		<Fragment key={ index }>
+			{ segment }
+			{ index < segments.length - 1 && (
+				<>
+					/<wbr />
+				</>
+			) }
+		</Fragment>
+	) );
+}
+
+/**
  * The threat's status today.
  *
  * @param threat - The threat.
@@ -72,7 +97,7 @@ function where( threat: KnownThreat ): string {
  */
 function statusNow( threat: KnownThreat ): string {
 	if ( threat.state === 'fixed' ) {
-		const fixedOn = localDate( threat.fixed_on );
+		const fixedOn = threatDate( threat.fixed_on );
 		return fixedOn
 			? sprintf(
 					/* translators: %s: the date the threat was fixed. */
@@ -88,8 +113,26 @@ function statusNow( threat: KnownThreat ): string {
 }
 
 /**
- * The known-threats warning as WordPress.com shows it: the sentence, a link to the newest clean
- * backup, the "Known threats (N)" toggle with its list, and, on the restore screen, the checkbox.
+ * When a threat was first seen and where it stands now, as one line.
+ *
+ * @param threat - The threat.
+ * @return The line.
+ */
+function threatDetails( threat: KnownThreat ): string {
+	const reportedOn = threatDate( threat.reported_on );
+	return reportedOn
+		? sprintf(
+				/* translators: 1: the date Scan first detected a threat, 2: its status now, such as "Open" or "Fixed Oct 17, 2026". */
+				__( 'First detected %1$s · %2$s', 'jetpack-backup-pkg' ),
+				reportedOn,
+				statusNow( threat )
+			)
+		: statusNow( threat );
+}
+
+/**
+ * The known-threats warning: the sentence, the threats behind a "Show threats" toggle, a link to
+ * the newest clean backup and, on the restore screen and in the backup details, the checkbox.
  *
  * Also rendered after the edge case of a server-side refusal over threats the screen did not
  * know about, when `threats` may be null.
@@ -110,10 +153,9 @@ export default function KnownThreatsWarning( {
 	restoreInsteadRewindId,
 }: Props ) {
 	const [ open, setOpen ] = useState( false );
-	const toggle = useCallback( () => setOpen( previous => ! previous ), [] );
-	const instanceId = useInstanceId( KnownThreatsWarning );
-	const tableId = `jpb-known-threats-${ instanceId }`;
-	const restoreInsteadHintId = `jpb-known-threats-restore-instead-${ instanceId }`;
+	const restoreInsteadHintId = `jpb-known-threats-restore-instead-${ useInstanceId(
+		KnownThreatsWarning
+	) }`;
 	const restoreInsteadHint = __(
 		"It's the most recent backup with no known security threats.",
 		'jetpack-backup-pkg'
@@ -156,131 +198,124 @@ export default function KnownThreatsWarning( {
 
 	return (
 		<div className="jpb-known-threats">
-			<p className="jpb-known-threats__message">
-				<span className="jpb-known-threats__icon">
-					<Icon icon={ cautionFilled } size={ 24 } />
-				</span>
-				<span>
+			<Notice.Root intent="warning">
+				<Notice.Description>
 					{ warning ||
 						__(
 							'This backup is known to contain security threats. Acknowledge them to restore it.',
 							'jetpack-backup-pkg'
 						) }
-				</span>
-			</p>
-			{ flagged > 0 && ( rows.length > 0 || vulnerable > 0 ) && (
-				<KnownThreatsToggle
-					count={ flagged }
-					open={ open }
-					onToggle={ toggle }
-					controls={ tableId }
-				/>
-			) }
-			{ open && (
-				<div id={ tableId } className="jpb-known-threats__table-wrap">
-					{ rows.length > 0 && (
-						<table
-							className="jpb-known-threats__table"
-							aria-label={ __( 'Known threats in this backup', 'jetpack-backup-pkg' ) }
-						>
-							<thead>
-								<tr>
-									<th scope="col">{ __( 'Threat', 'jetpack-backup-pkg' ) }</th>
-									<th scope="col">{ __( 'Where', 'jetpack-backup-pkg' ) }</th>
-									<th scope="col">{ __( 'First detected', 'jetpack-backup-pkg' ) }</th>
-									<th scope="col">{ __( 'Status now', 'jetpack-backup-pkg' ) }</th>
-								</tr>
-							</thead>
-							<tbody>
-								{ rows.map( threat => (
-									<tr key={ threat.id }>
-										<td>{ threatName( threat ) }</td>
-										<td>
-											<bdi>{ where( threat ) }</bdi>
-										</td>
-										<td>{ localDate( threat.reported_on ) }</td>
-										<td>{ statusNow( threat ) }</td>
-									</tr>
-								) ) }
-							</tbody>
-						</table>
-					) }
-					{ truncated && (
-						<Text variant="body-sm" render={ <p /> }>
-							{ sprintf(
-								/* translators: %d: number of threats listed above. */
-								_n(
-									'Showing the first %d threat.',
-									'Showing the first %d threats.',
-									listed,
-									'jetpack-backup-pkg'
-								),
-								listed
-							) }
-						</Text>
-					) }
-					{ vulnerable > 0 && (
-						<Text variant="body-sm" render={ <p /> }>
-							{ sprintf(
-								/* translators: %d: number of vulnerable plugin or theme versions in the backup. */
-								_n(
-									'Also: %d vulnerable plugin or theme version.',
-									'Also: %d vulnerable plugin or theme versions.',
-									vulnerable,
-									'jetpack-backup-pkg'
-								),
-								vulnerable
-							) }
-						</Text>
-					) }
-				</div>
-			) }
-			{ showRestoreInstead && (
-				// The tooltip gives the link no accessible description, so the hidden text does.
-				<Tooltip.Root>
-					<Tooltip.Trigger render={ <span className="jpb-known-threats__restore-instead-wrap" /> }>
-						<Link
-							className="jpb-known-threats__restore-instead"
-							aria-describedby={ restoreInsteadHintId }
-							render={
-								<RouterLink to={ `/restore/${ restoreInsteadRewindId ?? restoreInsteadPeriod }` } />
-							}
-						>
-							{ restoreInsteadRewindId
-								? sprintf(
-										/* translators: %s: a backup's date and time, e.g. "Oct 17, 2026 at 2:30 PM". */
-										__( 'Restore %s backup instead', 'jetpack-backup-pkg' ),
-										dateI18n(
-											/* translators: date and time format, see https://www.php.net/manual/datetime.format.php */
-											__( 'M j, Y \\a\\t g:i A', 'jetpack-backup-pkg' ),
-											new Date( Number( restoreInsteadRewindId ) * 1000 ),
-											undefined
+				</Notice.Description>
+				{ flagged > 0 && ( rows.length > 0 || vulnerable > 0 ) && (
+					<Notice.Description render={ <div /> }>
+						<Collapsible.Root open={ open } onOpenChange={ setOpen }>
+							<Collapsible.Trigger
+								render={ <Button variant="minimal" tone="neutral" size="compact" /> }
+							>
+								{ open
+									? __( 'Hide threats', 'jetpack-backup-pkg' )
+									: __( 'Show threats', 'jetpack-backup-pkg' ) }
+								<Button.Icon icon={ open ? chevronUp : chevronDown } />
+							</Collapsible.Trigger>
+							<Collapsible.Panel className="jpb-known-threats__panel">
+								{ rows.length > 0 && (
+									<ul
+										className="jpb-known-threats__list"
+										aria-label={ __( 'Known threats in this backup', 'jetpack-backup-pkg' ) }
+									>
+										{ rows.map( threat => (
+											<li key={ threat.id } className="jpb-known-threats__threat">
+												<Text variant="body-md" className="jpb-known-threats__name">
+													{ threatName( threat ) }
+												</Text>
+												{ where( threat ) && (
+													<Text variant="body-sm" className="jpb-known-threats__where">
+														<bdi>{ breakablePath( where( threat ) ) }</bdi>
+													</Text>
+												) }
+												<Text variant="body-sm">{ threatDetails( threat ) }</Text>
+											</li>
+										) ) }
+									</ul>
+								) }
+								{ truncated && (
+									<Text variant="body-sm" render={ <p /> }>
+										{ sprintf(
+											/* translators: %d: number of threats listed above. */
+											_n(
+												'Showing the first %d threat.',
+												'Showing the first %d threats.',
+												listed,
+												'jetpack-backup-pkg'
+											),
+											listed
+										) }
+									</Text>
+								) }
+								{ vulnerable > 0 && (
+									<Text variant="body-sm" render={ <p /> }>
+										{ sprintf(
+											/* translators: %d: number of vulnerable plugin or theme versions in the backup. */
+											_n(
+												'Also: %d vulnerable plugin or theme version.',
+												'Also: %d vulnerable plugin or theme versions.',
+												vulnerable,
+												'jetpack-backup-pkg'
+											),
+											vulnerable
+										) }
+									</Text>
+								) }
+							</Collapsible.Panel>
+						</Collapsible.Root>
+					</Notice.Description>
+				) }
+				{ showRestoreInstead && (
+					// A description rather than `Notice.Actions`, whose links don't wrap at phone width.
+					<Notice.Description render={ <div /> }>
+						{ /* The tooltip gives the link no accessible description, so the hidden text does. */ }
+						<Tooltip.Root>
+							<Tooltip.Trigger
+								render={
+									<Link
+										tone="neutral"
+										aria-describedby={ restoreInsteadHintId }
+										render={
+											<RouterLink
+												to={ `/restore/${ restoreInsteadRewindId ?? restoreInsteadPeriod }` }
+											/>
+										}
+									/>
+								}
+							>
+								{ restoreInsteadRewindId
+									? sprintf(
+											/* translators: %s: a backup's date and time. */
+											__( 'Restore %s backup instead', 'jetpack-backup-pkg' ),
+											formatDateTime( new Date( Number( restoreInsteadRewindId ) * 1000 ) )
 										)
-									)
-								: __(
-										'Restore the latest backup without known threats instead',
-										'jetpack-backup-pkg'
-									) }
-						</Link>
+									: __(
+											'Restore the latest backup without known threats instead',
+											'jetpack-backup-pkg'
+										) }
+							</Tooltip.Trigger>
+							<Tooltip.Popup>{ restoreInsteadHint }</Tooltip.Popup>
+						</Tooltip.Root>
 						<VisuallyHidden id={ restoreInsteadHintId } render={ <span /> }>
 							{ restoreInsteadHint }
 						</VisuallyHidden>
-					</Tooltip.Trigger>
-					<Tooltip.Popup>{ restoreInsteadHint }</Tooltip.Popup>
-				</Tooltip.Root>
-			) }
+					</Notice.Description>
+				) }
+			</Notice.Root>
 			{ onAcknowledge && (
-				<div className="jpb-known-threats__acknowledgement">
-					<CheckboxControl
-						__nextHasNoMarginBottom
-						label={ __(
-							'I understand this backup contains known threats and want to restore it anyway.',
-							'jetpack-backup-pkg'
-						) }
-						checked={ acknowledged }
-						onChange={ onAcknowledge }
-					/>
-				</div>
+				<CheckboxControl
+					label={ __(
+						'I understand this backup contains known threats and want to restore it anyway.',
+						'jetpack-backup-pkg'
+					) }
+					checked={ acknowledged }
+					onCheckedChange={ onAcknowledge }
+				/>
 			) }
 		</div>
 	);

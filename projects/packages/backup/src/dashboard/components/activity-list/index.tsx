@@ -34,7 +34,6 @@ import './style.scss';
 import type { ActivitySortOrder } from '../../data/api/activity-log';
 import type { ActivityItem, ActivityKind } from '../../types/activity';
 import type { Field, View } from '@wordpress/dataviews';
-import type { MouseEvent } from 'react';
 
 const ICON_BY_KIND: Record< ActivityKind, typeof cloud > = {
 	backup: cloud,
@@ -173,28 +172,6 @@ function runMeta( run: NonNullable< ReturnType< BackupRunLookup > > ): string {
 }
 
 /**
- * Clicks the select button of the list row an element sits in.
- *
- * @param event - The click on an element above the row's button.
- */
-function selectRow( event: MouseEvent< HTMLElement > ) {
-	let node: HTMLElement | null = event.currentTarget.parentElement;
-	while ( node ) {
-		const button = node.querySelector< HTMLButtonElement >( 'button.dataviews-view-list__item' );
-		if ( button ) {
-			button.click();
-			return;
-		}
-		node = node.parentElement;
-	}
-}
-
-/**
- *
- * @param root0
- * @param root0.item
- */
-/**
  * Descriptions cell — single muted line with the timestamp, a backup's
  * size and duration once known, and the optional summary.
  *
@@ -245,14 +222,7 @@ function KnownThreatsCell( { item }: { item: ActivityItem } ) {
 	if ( flagged === 0 ) {
 		return null;
 	}
-	return (
-		// Lifted above the row's full-size select button so the tooltip can be hovered; a click
-		// on it still selects the row. Keyboard users select with that button itself.
-		// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-		<span className="jpb-activity-list__known-threats" onClick={ selectRow }>
-			<KnownThreatsBadgeWithWarning count={ flagged } />
-		</span>
-	);
+	return <KnownThreatsBadgeWithWarning count={ flagged } />;
 }
 
 /**

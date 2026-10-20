@@ -35,30 +35,8 @@
 	font-weight: 500;
 }
 
-// Follows the event text on its line. The pill is taller than a
-// line of text, so it is centred on the text instead.
+// Below the event text, so the title and description keep their line.
 .site-activity-logs__event-badge {
-	display: inline-block;
-	margin-inline-start: 8px;
-	margin-block: -4px;
-	vertical-align: middle;
-}
-
-.site-activity-logs__known-threats-badge {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-xs);
-	padding-block: var(--wpds-dimension-padding-xs);
-	padding-inline: var(--wpds-dimension-padding-sm);
-	border-radius: var(--wpds-border-radius-lg);
-	background-color: var(--wpds-color-background-surface-warning);
-	color: var(--wpds-color-foreground-content-warning);
-	font-size: var(--wpds-typography-font-size-sm);
-	line-height: var(--wpds-typography-line-height-xs);
-	white-space: nowrap;
-
-	svg {
-		flex-shrink: 0;
-		fill: currentColor;
-	}
+	display: flex;
+	margin-block-start: var(--wpds-dimension-gap-xs);
 }

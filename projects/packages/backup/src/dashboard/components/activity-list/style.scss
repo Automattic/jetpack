@@ -148,11 +148,3 @@
 		white-space: nowrap;
 	}
 }
-
-// Above the row's full-size select button (z-index 1), so the
-// badge's tooltip can be hovered.
-.jpb-activity-list__known-threats {
-	position: relative;
-	z-index: 2;
-	cursor: pointer;
-}

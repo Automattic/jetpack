@@ -14,19 +14,29 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 	useNavigate: () => jest.fn(),
 	useParams: () => ( {} ),
-	Link: ( {
-		children,
-		to,
-		state,
-		...rest
-	}: {
-		children: React.ReactNode;
-		to: string;
-		state?: Record< string, unknown >;
-	} ) => (
-		<a href={ to } data-state={ state ? JSON.stringify( state ) : undefined } { ...rest }>
-			{ children }
-		</a>
+	Link: jest.requireActual( 'react' ).forwardRef(
+		(
+			{
+				children,
+				to,
+				state,
+				...rest
+			}: {
+				children: React.ReactNode;
+				to: string;
+				state?: Record< string, unknown >;
+			},
+			ref: React.Ref< HTMLAnchorElement >
+		) => (
+			<a
+				ref={ ref }
+				href={ to }
+				data-state={ state ? JSON.stringify( state ) : undefined }
+				{ ...rest }
+			>
+				{ children }
+			</a>
+		)
 	),
 } ) );
 
@@ -35,6 +45,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import BackupDetail from '../src/dashboard/components/backup-detail';
 import { resetAnnouncerForTesting } from '../src/dashboard/data/announce';
+import { formatDateTime } from '../src/dashboard/data/date-format';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 import type { BackupActivityItem } from '../src/dashboard/types/activity';
@@ -128,26 +139,22 @@ describe( 'Backup detail for a backup with known threats', () => {
 		);
 		await user.unhover( restore );
 
-		// aria-controls only once the list it names is in the page.
-		const toggle = screen.getByRole( 'button', { name: 'Known threats (3)' } );
+		const toggle = screen.getByRole( 'button', { name: 'Show threats' } );
 		expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
-		// The clean-backup link sits below the Known threats toggle, as on WordPress.com.
-		expect(
-			toggle.compareDocumentPosition(
-				screen.getByRole( 'link', { name: /^Restore .+ backup instead$/ } )
-			)
-		).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
-		expect( toggle ).not.toHaveAttribute( 'aria-controls' );
+		// The clean-backup link sits below the threats toggle.
+		const restoreInstead = screen.getByRole( 'link', {
+			name: `Restore ${ formatDateTime( new Date( 1792200135.5 * 1000 ) ) } backup instead`,
+		} );
+		expect( toggle.compareDocumentPosition( restoreInstead ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
 		await user.click( toggle );
 		expect( toggle ).toHaveAttribute( 'aria-expanded', 'true' );
-		expect( toggle ).toHaveAttribute( 'aria-controls' );
-		expect( screen.getByRole( 'table' ) ).toBeVisible();
-		expect(
-			screen.getByRole( 'link', { name: 'Restore Oct 17, 2026 at 1:22 AM backup instead' } )
-		).toHaveAttribute( 'href', '/restore/1792200135.5' );
-		expect(
-			screen.getByRole( 'link', { name: 'Restore Oct 17, 2026 at 1:22 AM backup instead' } )
-		).toHaveAccessibleDescription( "It's the most recent backup with no known security threats." );
+		expect( screen.getByRole( 'list', { name: 'Known threats in this backup' } ) ).toBeVisible();
+		expect( restoreInstead ).toHaveAttribute( 'href', '/restore/1792200135.5' );
+		expect( restoreInstead ).toHaveAccessibleDescription(
+			"It's the most recent backup with no known security threats."
+		);
 
 		await user.click( checkbox );
 

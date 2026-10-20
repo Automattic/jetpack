@@ -15,7 +15,18 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 	useNavigate: () => () => {},
 	useParams: () => ( { rewindId: mockRewindId } ),
-	Link: ( { children, ...rest }: { children: React.ReactNode } ) => <a { ...rest }>{ children }</a>,
+	Link: jest
+		.requireActual( 'react' )
+		.forwardRef(
+			(
+				{ children, to, ...rest }: { children: React.ReactNode; to: string },
+				ref: React.Ref< HTMLAnchorElement >
+			) => (
+				<a ref={ ref } href={ to } { ...rest }>
+					{ children }
+				</a>
+			)
+		),
 } ) );
 
 // Imports must come after the jest.mock factories above.
@@ -23,6 +34,7 @@ import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ANNOUNCE_WINDOW_MS, resetAnnouncerForTesting } from '../src/dashboard/data/announce';
 import { KNOWN_THREATS_TIMEOUT_MS } from '../src/dashboard/data/api/known-threats';
+import { formatDateTime } from '../src/dashboard/data/date-format';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 import RestoreScreen from '../src/dashboard/screens/restore';
@@ -53,7 +65,7 @@ const FLAGGED = {
 			target: '/srv/htdocs/wp-content/uploads/x.php',
 			path: 'wp-content/uploads/x.php',
 			status: 'current',
-			// UTC with no zone, as WordPress.com sends it: still the 16th in the browser's GMT-3.
+			// UTC with no zone, as WordPress.com sends it.
 			reported_on: '2026-10-17 01:30:00',
 			fixed_on: null,
 		},
@@ -206,23 +218,28 @@ describe( 'known threats on the Restore screen', () => {
 		);
 		await user.unhover( confirm );
 
-		const toggle = view.getByRole( 'button', { name: 'Known threats (2)' } );
+		const toggle = view.getByRole( 'button', { name: 'Show threats' } );
 		expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
 		await user.click( toggle );
 		expect( toggle ).toHaveAttribute( 'aria-expanded', 'true' );
-		const rows = within(
-			view.getByRole( 'table', { name: 'Known threats in this backup' } )
-		).getAllByRole( 'row' );
-		expect( rows.map( row => row.textContent ) ).toEqual( [
-			expect.stringMatching( /Threat.*Where.*First detected.*Status now/ ),
-			'PHP.Backdoor.Generic' + 'wp-content/uploads/x.php' + 'October 16, 2026' + 'Open',
-			'Database threat' + 'wp_options' + 'October 17, 2026' + 'Fixed October 17, 2026',
+		expect( toggle ).toHaveAccessibleName( 'Hide threats' );
+		const items = within(
+			view.getByRole( 'list', { name: 'Known threats in this backup' } )
+		).getAllByRole( 'listitem' );
+		// In the site's own date format and timezone, like the dashboard's other dates.
+		expect( items.map( item => item.textContent ) ).toEqual( [
+			'PHP.Backdoor.Generic' +
+				'wp-content/uploads/x.php' +
+				'First detected October 17, 2026 · Open',
+			'Database threat' + 'wp_options' + 'First detected October 17, 2026 · Fixed October 18, 2026',
 		] );
 		expect( view.getByText( 'Also: 1 vulnerable plugin or theme version.' ) ).toBeInTheDocument();
 		expect( view.getByText( 'Showing the first 3 threats.' ) ).toBeInTheDocument();
 		// Named by when the clean backup finished, which the restore screen asks the list for.
 		await expect(
-			view.findByText( 'Restore Oct 17, 2026 at 1:22 AM backup instead' )
+			view.findByRole( 'link', {
+				name: `Restore ${ formatDateTime( new Date( 1792200135.5 * 1000 ) ) } backup instead`,
+			} )
 		).resolves.toBeInTheDocument();
 
 		await user.click( view.getByRole( 'checkbox', { name: ACKNOWLEDGE } ) );

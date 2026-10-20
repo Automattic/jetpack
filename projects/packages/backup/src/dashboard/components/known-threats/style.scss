@@ -1,68 +1,41 @@
-// The warning box of WordPress.com's restore page: a 4% wash of the
-// warning colour.
 .jpb-known-threats {
 	display: flex;
 	flex-direction: column;
-	align-items: flex-start;
-	gap: 8px;
-	padding: 16px;
-	border-radius: 4px;
-	background-color: color-mix(in srgb, #e68b28 4%, transparent);
+	gap: var(--wpds-dimension-gap-md);
 
-	&__message {
+	&__panel {
 		display: flex;
-		gap: 5px;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-sm);
+		padding-block-start: var(--wpds-dimension-padding-xs);
+
+		p {
+			margin: 0;
+		}
+	}
+
+	// One threat per item, stacked, so long paths have the full width at any size.
+	&__list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-md);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	&__threat {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
 		margin: 0;
 	}
 
-	// The icon is drawn in currentColor.
-	&__icon {
-		display: inline-flex;
-		flex-shrink: 0;
-		color: #d67709;
+	&__name {
+		font-weight: var(--wpds-typography-font-weight-emphasis);
 	}
 
-	&__restore-instead {
-		font-size: 13px;
-	}
-
-	// The acknowledgement is the decision the warning asks for, so it gets its own
-	// section below a rule, away from the clean-backup link above it.
-	&__acknowledgement {
-		align-self: stretch;
-		margin-block-start: 4px;
-		padding-block-start: 16px;
-		border-block-start: 1px solid #e1bc7c;
-
-		.components-checkbox-control__label {
-			font-weight: 600;
-		}
-	}
-
-	&__table-wrap {
-		align-self: stretch;
-		overflow-x: auto;
-	}
-
-	&__table {
-		inline-size: 100%;
-		border-collapse: collapse;
-
-		th,
-		td {
-			padding-block: 8px;
-			padding-inline: 0 12px;
-			border-block-end: 1px solid #dcdcde;
-			text-align: start;
-			vertical-align: top;
-		}
-
-		th {
-			font-weight: 600;
-		}
-
-		td:nth-child(2) {
-			overflow-wrap: anywhere;
-		}
+	&__where {
+		overflow-wrap: break-word;
 	}
 }
