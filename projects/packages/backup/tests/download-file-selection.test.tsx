@@ -310,7 +310,10 @@ describe( 'Download screen without a file selection', () => {
 			error: '',
 		};
 		await waitFor( () => expect( region ).toHaveTextContent( /^Your download is ready$/ ) );
-		expect( screen.getAllByRole( 'status' ) ).toEqual( [ region ] );
+		// The checklist stays under a ready download, so its hint is the one other region.
+		for ( const other of screen.getAllByRole( 'status' ).filter( node => node !== region ) ) {
+			expect( other ).toBeEmptyDOMElement();
+		}
 	} );
 
 	it( 'still offers the category checklist and submits nothing on its own', async () => {
