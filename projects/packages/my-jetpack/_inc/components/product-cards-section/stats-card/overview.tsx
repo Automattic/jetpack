@@ -8,7 +8,7 @@ import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpa
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useStatsVisits from '../../../hooks/use-stats-visits';
-import { processStatsData, VISITS_OPTIONS } from '../../stats-section';
+import { getDetailedStatsHref, processStatsData, VISITS_OPTIONS } from '../../stats-section';
 import StatsCards from '../../stats-section/cards';
 import OverviewItem from '../overview-item';
 import useOverviewLoadEvent from '../overview-item/use-overview-load-event';
@@ -45,8 +45,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 		} );
 	}, [ recordEvent ] );
 
-	const viewStatsQuery = premiumAnalyticsEnabled ? '' : '&force_refresh=1';
-	const detailedStatsHref = manageUrl ? `${ manageUrl }${ viewStatsQuery }` : undefined;
+	const detailedStatsHref = getDetailedStatsHref( manageUrl, premiumAnalyticsEnabled );
 	const label = __( 'Views in the last 7 days', 'jetpack-my-jetpack' );
 
 	if ( ! isActive ) {

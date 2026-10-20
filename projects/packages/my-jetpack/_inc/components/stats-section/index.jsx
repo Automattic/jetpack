@@ -120,6 +120,18 @@ export const processStatsData = visitsData => {
 };
 
 /**
+ * Build the link to the detailed stats page.
+ *
+ * @param {string}  manageUrl               - The Stats product's manage URL.
+ * @param {boolean} premiumAnalyticsEnabled - Whether the URL is the Premium Analytics dashboard.
+ * @return {string|undefined} The link, or undefined without a manage URL.
+ */
+export const getDetailedStatsHref = ( manageUrl, premiumAnalyticsEnabled ) => {
+	const query = premiumAnalyticsEnabled ? '' : '&force_refresh=1';
+	return manageUrl ? `${ manageUrl }${ query }` : undefined;
+};
+
+/**
  * Stats section component for My Jetpack Stats product card with a chart and counts.
  *
  * @return {import('react').JSX.Element} Stats section component
@@ -165,8 +177,7 @@ const StatsSection = () => {
 		[ status, manageUrl ]
 	);
 
-	const viewStatsQuery = premiumAnalyticsEnabled ? '' : '&force_refresh=1';
-	const viewStatsHref = manageUrl ? `${ manageUrl }${ viewStatsQuery }` : undefined;
+	const viewStatsHref = getDetailedStatsHref( manageUrl, premiumAnalyticsEnabled );
 
 	const viewStatsButton = {
 		href: viewStatsHref,
