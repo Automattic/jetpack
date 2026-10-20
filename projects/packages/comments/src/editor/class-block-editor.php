@@ -30,35 +30,52 @@ class Block_Editor {
 	private $has_blocks = false;
 
 	/**
-	 * Register the hooks. Safe to call more than once.
+	 * Register every hook. Safe to call more than once.
 	 *
 	 * @return Block_Editor
 	 */
 	public static function init() {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
+		$instance = self::init_content();
+
+		if ( ! has_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) ) ) {
+			// The edit-comment screen, for a comment that holds blocks.
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
 		}
 
-		return self::$instance;
+		return $instance;
 	}
 
 	/**
-	 * Hook in around core's comment filtering.
+	 * Register the hooks around core's comment filtering alone, for a host that saves and draws
+	 * comments without the form. Each gates itself on is_enabled() when it runs. Safe to call more than once.
+	 *
+	 * @return Block_Editor
 	 */
-	private function __construct() {
+	public static function init_content() {
+		if ( null !== self::$instance ) {
+			return self::$instance;
+		}
+
+		self::$instance = new self();
+
 		// Either side of kses at 10, which lets the markup of these blocks through.
-		add_filter( 'pre_comment_content', array( $this, 'keep_allowed_blocks' ), 9 );
-		add_filter( 'pre_comment_content', array( $this, 'forget_blocks' ), 11 );
-		add_filter( 'wp_kses_allowed_html', array( $this, 'allowed_html' ), 10, 2 );
+		add_filter( 'pre_comment_content', array( self::$instance, 'keep_allowed_blocks' ), 9 );
+		add_filter( 'pre_comment_content', array( self::$instance, 'forget_blocks' ), 11 );
+		add_filter( 'wp_kses_allowed_html', array( self::$instance, 'allowed_html' ), 10, 2 );
 		// Ahead of wpautop at 30.
 		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5, 2 );
 		add_filter( 'render_block_core/image', array( Images::class, 'render_core' ), 10, 2 );
 		// Core writes the stored content into its comment emails; WordPress.com has its own templates.
 		add_filter( 'comment_notification_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
 		add_filter( 'comment_moderation_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
-		// The edit-comment screen, for a comment that holds blocks.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
+
+		return self::$instance;
 	}
+
+	/**
+	 * Made through init() or init_content() alone.
+	 */
+	private function __construct() {}
 
 	/**
 	 * Core's translations of the strings in strings.php, and the plural rules under '', in one Jed messages set.
