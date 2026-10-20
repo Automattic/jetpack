@@ -62,12 +62,9 @@ class Dns_Check {
 		if ( null !== $pre ) {
 			return (string) $pre;
 		}
-		if ( ! function_exists( 'dns_get_record' ) ) {
-			return '';
-		}
-		$records = @dns_get_record( $domain, DNS_TXT ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Lookup failures just mean "unknown".
-		foreach ( is_array( $records ) ? $records : array() as $record ) {
-			$txt = (string) ( $record['txt'] ?? '' );
+		// Every lookup goes through Dns_Lookup, so tests and local mocks can fake it.
+		$values = Dns_Lookup::txt_values( (string) $domain );
+		foreach ( is_array( $values ) ? $values : array() as $txt ) {
 			if ( 0 === stripos( $txt, 'v=spf1' ) ) {
 				return $txt;
 			}
@@ -96,12 +93,30 @@ class Dns_Check {
 			);
 		}
 
-		$all    = '/\s([~?+-]?all)\s*$/i';
-		$merged = preg_match( $all, $existing ) ? preg_replace( $all, ' ' . self::RELAY_INCLUDE . ' $1', $existing ) : $existing . ' ' . self::RELAY_INCLUDE;
+		// Insert before the `all` mechanism wherever it sits: anything after it is never evaluated.
+		$all    = '/\s([~?+-]?all)(?=\s|$)/i';
+		$merged = preg_match( $all, $existing ) ? preg_replace( $all, ' ' . self::RELAY_INCLUDE . ' $1', $existing, 1 ) : $existing . ' ' . self::RELAY_INCLUDE;
 		return array(
 			'value' => (string) $merged,
 			'state' => 'merge',
 		);
+	}
+
+	/**
+	 * How many DNS lookups an SPF record's own terms cost. Nested includes aren't followed.
+	 *
+	 * @param string $record SPF record.
+	 * @return int
+	 */
+	public static function spf_lookups( $record ) {
+		$count = 0;
+		foreach ( preg_split( '/\s+/', strtolower( trim( (string) $record ) ) ) as $term ) {
+			$term = ltrim( $term, '+-~?' );
+			if ( preg_match( '/^(include:|exists:|redirect=)|^(a|mx|ptr)(:|\/|$)/', $term ) ) {
+				++$count;
+			}
+		}
+		return $count;
 	}
 
 	/**

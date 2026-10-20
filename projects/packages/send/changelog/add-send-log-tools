@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Log: Add search, filters for status, source plugin and date, resend with editable recipients, a setting for how long emails are kept (one week by default), clearer failure reasons with technical details, and an optional debug log. Overview: Add a date range for email activity, from the last 24 hours to the last 365 days or custom dates, with numbers that stay when emails leave the log.

@@ -3,7 +3,7 @@
  *
  * Plugin Name: Jetpack Send
  * Plugin URI: https://jetpack.com/
- * Description: Reliable delivery for the emails your site sends, powered by MailChannels.
+ * Description: Reliable delivery for the emails your site sends.
  * Version: 0.1.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
@@ -66,6 +66,7 @@ add_filter(
 	}
 );
 
+register_deactivation_hook( __FILE__, array( 'Jetpack_Send', 'deactivate' ) );
 register_uninstall_hook( __FILE__, array( 'Jetpack_Send', 'uninstall' ) );
 
 // Main plugin class.

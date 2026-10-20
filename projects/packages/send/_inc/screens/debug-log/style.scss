@@ -1,0 +1,97 @@
+@use "@wordpress/base-styles/breakpoints";
+
+// The debug log fills the page like the Log, with its own spacing.
+.jetpack-send-debug,
+.jetpack-send-debug .dataviews-wrapper {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-block-size: 0;
+}
+
+.jetpack-send-debug__notice {
+	padding-block-start: var(--wpds-dimension-padding-2xl);
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+// The tools drop under the search and chips when they don't fit beside them,
+// so they never squeeze the search box.
+.jetpack-send-debug__toolbar {
+	flex-wrap: wrap;
+	min-block-size: var(--wpds-dimension-size-lg);
+}
+
+.jetpack-send-debug__find {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+
+	@media ( max-width: breakpoints.$break-medium ) {
+		flex-basis: 100%;
+	}
+}
+
+// The same width as the Log's search box.
+.jetpack-send-debug__find .dataviews-search {
+	inline-size: var(--wpds-dimension-surface-width-xs);
+
+	@media ( max-width: breakpoints.$break-medium ) {
+		inline-size: 100%;
+	}
+}
+
+.jetpack-send-debug__tools {
+	flex: none;
+	margin-inline-start: auto;
+}
+
+// The open entry's row in DataViews' selected colours, as in the Log.
+.jetpack-send-debug .dataviews-view-table .dataviews-view-table__row:has([data-open]) > td,
+.jetpack-send-debug
+.dataviews-view-list
+div[role="row"]:has([data-open])
+.dataviews-view-list__item-wrapper {
+	background-color: var(--wpds-color-background-interactive-brand-weak-active);
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+// A long message wraps, so the table fits its column and Time stays clear
+// of the sticky actions.
+.jetpack-send-debug .dataviews-view-table .dataviews-title-field {
+	white-space: normal;
+}
+
+.jetpack-send-debug__message {
+	overflow-wrap: anywhere;
+}
+
+.jetpack-send-debug .dataviews-view-table time {
+	white-space: nowrap;
+}
+
+.jetpack-send-debug__empty {
+	margin-inline: auto;
+	padding-block: var(--wpds-dimension-padding-3xl);
+}
+
+// The panel's message fits its text, so the focus ring it gets on opening
+// hugs it, clear of the letters.
+.jetpack-send-debug__title {
+	align-self: flex-start;
+	overflow-wrap: anywhere;
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: var(--wpds-border-width-focus);
+	}
+}
+
+.jetpack-send-debug__loading {
+	min-block-size: var(--wpds-dimension-surface-width-xs);
+}
+
+// The details are as wide as the panel; long ones scroll inside it.
+.jetpack-send-debug__context {
+	align-self: stretch;
+	max-block-size: var(--wpds-dimension-surface-width-sm);
+	overflow: auto;
+}

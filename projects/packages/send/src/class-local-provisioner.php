@@ -84,6 +84,16 @@ class Local_Provisioner implements Provisioner {
 	 * @return array|WP_Error
 	 */
 	public function provision( $domain ) {
+		return self::note_provision( $domain, $this->create_account( $domain ) );
+	}
+
+	/**
+	 * The steps of provision().
+	 *
+	 * @param string $domain Sending domain.
+	 * @return array|WP_Error
+	 */
+	private function create_account( $domain ) {
 		$handle  = self::handle_for_site();
 		$created = $this->parent_client->create_sub_account( $handle, self::company_name() );
 		if ( is_wp_error( $created ) && 'jetpack_send_http_409' !== $created->get_error_code() ) {
@@ -96,7 +106,7 @@ class Local_Provisioner implements Provisioner {
 		}
 		$api_key = (string) ( $key['key'] ?? $key['api_key'] ?? $key['value'] ?? '' );
 		if ( '' === $api_key ) {
-			return new WP_Error( 'jetpack_send_no_api_key', __( 'MailChannels did not return an API key for the new sub-account.', 'jetpack-send-pkg' ), array( 'status' => 502 ) );
+			return new WP_Error( 'jetpack_send_no_api_key', __( 'The sending service did not return an API key for the new account.', 'jetpack-send-pkg' ), array( 'status' => 502 ) );
 		}
 
 		if ( null !== $this->send_limit ) {
@@ -182,12 +192,72 @@ class Local_Provisioner implements Provisioner {
 			return $usage;
 		}
 
-		return array(
-			'total_usage'   => (int) ( $usage['total_usage'] ?? 0 ),
-			'monthly_limit' => (int) ( $usage['monthly_limit'] ?? -1 ),
-			'period_start'  => (string) ( $usage['period_start_date'] ?? '' ),
-			'period_end'    => (string) ( $usage['period_end_date'] ?? '' ),
+		return self::note_usage(
+			array(
+				'total_usage'   => (int) ( $usage['total_usage'] ?? 0 ),
+				'monthly_limit' => (int) ( $usage['monthly_limit'] ?? -1 ),
+				'period_start'  => (string) ( $usage['period_start_date'] ?? '' ),
+				'period_end'    => (string) ( $usage['period_end_date'] ?? '' ),
+			)
 		);
+	}
+
+	/**
+	 * Note a provisioning result in the debug log. Never the key.
+	 *
+	 * @param string         $domain Sending domain.
+	 * @param array|WP_Error $result provision()'s result.
+	 * @return array|WP_Error The result, unchanged.
+	 */
+	private static function note_provision( $domain, $result ) {
+		$failed = is_wp_error( $result );
+		$status = $failed ? $result->get_error_code() : 'created';
+		Debug_Log::add(
+			$failed ? 'error' : 'info',
+			'account',
+			'account.provision',
+			$failed
+				/* translators: %s: an error code. */
+				? sprintf( __( 'Sending account failed: %s.', 'jetpack-send-pkg' ), $status )
+				: __( 'Sending account created.', 'jetpack-send-pkg' ),
+			array(
+				'provider' => 'local',
+				'domain'   => (string) $domain,
+				'status'   => $status,
+				'code'     => $failed ? $status : '',
+			)
+		);
+		return $result;
+	}
+
+	/**
+	 * Note usage in the debug log.
+	 *
+	 * @param array|WP_Error $usage get_usage()'s result.
+	 * @return array|WP_Error The result, unchanged.
+	 */
+	private static function note_usage( $usage ) {
+		// Read on every Overview visit, so it's noted only when the number or the limit moved.
+		if ( is_array( $usage ) && Debug_Log::changed( 'usage', (int) ( $usage['total_usage'] ?? 0 ) . '/' . (int) ( $usage['monthly_limit'] ?? 0 ) ) ) {
+			$used  = (int) ( $usage['total_usage'] ?? 0 );
+			$limit = (int) ( $usage['monthly_limit'] ?? 0 );
+			Debug_Log::add(
+				'debug',
+				'account',
+				'account.usage',
+				$limit < 0
+					/* translators: %d: emails used this period. */
+					? sprintf( __( 'Usage: %d, no monthly limit.', 'jetpack-send-pkg' ), $used )
+					/* translators: 1: emails used this period, 2: the plan's limit. */
+					: sprintf( __( 'Usage: %1$d of %2$d.', 'jetpack-send-pkg' ), $used, $limit ),
+				array(
+					'used'       => $used,
+					'limit'      => $limit,
+					'period_end' => (string) ( $usage['period_end'] ?? '' ),
+				)
+			);
+		}
+		return $usage;
 	}
 
 	/**

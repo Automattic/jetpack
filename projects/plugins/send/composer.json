@@ -1,10 +1,11 @@
 {
 	"name": "automattic/jetpack-send-plugin",
-	"description": "Transactional email for Jetpack sites, delivered through MailChannels.",
+	"description": "Reliable delivery for the emails your site sends.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-send": "@dev",
+		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev"
 	},

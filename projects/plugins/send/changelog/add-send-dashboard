@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Show a dashboard once setup is done, with sending, domain and monthly usage cards, a chart of email activity, recent emails, and the plugins that send the most. In the Log, open an email in a side panel beside the list, filter emails by date, status and type, delete them one at a time or several at once, and see each sender's avatar and which emails your host sent instead.

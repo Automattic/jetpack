@@ -100,6 +100,7 @@ class Dns_Check_Test extends BaseTestCase {
 			'merges before an uppercase all' => array( 'v=spf1 include:_spf.google.com ~ALL', 'v=spf1 include:_spf.google.com include:relay.mailchannels.net ~ALL', 'merge' ),
 			'appends when there is no all'   => array( 'v=spf1 include:_spf.google.com', 'v=spf1 include:_spf.google.com include:relay.mailchannels.net', 'merge' ),
 			'already includes the relay'     => array( 'v=spf1 INCLUDE:relay.mailchannels.net ~all', 'v=spf1 INCLUDE:relay.mailchannels.net ~all', 'present' ),
+			'merges before a mid-record all' => array( 'v=spf1 include:x.example -all exp=why.example', 'v=spf1 include:x.example include:relay.mailchannels.net -all exp=why.example', 'merge' ),
 		);
 	}
 
@@ -119,5 +120,27 @@ class Dns_Check_Test extends BaseTestCase {
 			),
 			Dns_Check::spf_suggestion( $existing )
 		);
+	}
+
+	public function test_spf_lookups_counts_only_terms_that_cost_a_lookup() {
+		$this->assertSame( 6, Dns_Check::spf_lookups( 'v=spf1 a mx:mail.example ptr ~include:x.example exists:%{i}.example redirect=y.example ip4:192.0.2.1 all' ) );
+	}
+
+	public function test_existing_spf_goes_through_the_lookup_filter() {
+		$filter = static function ( $pre, $name, $type ) {
+			unset( $pre );
+			return 'example.com' === $name && DNS_TXT === $type
+				? array(
+					array( 'txt' => 'google-site-verification=abc' ),
+					array( 'entries' => array( 'v=spf1 include:_spf.google.com', ' ~all' ) ),
+				)
+				: array();
+		};
+		add_filter( 'jetpack_send_pre_dns_lookup', $filter, 10, 3 );
+
+		$spf = Dns_Check::existing_spf( 'example.com' );
+		remove_filter( 'jetpack_send_pre_dns_lookup', $filter, 10 );
+
+		$this->assertSame( 'v=spf1 include:_spf.google.com ~all', $spf );
 	}
 }

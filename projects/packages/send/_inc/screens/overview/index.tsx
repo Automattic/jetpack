@@ -1,16 +1,52 @@
+import { speak } from '@wordpress/a11y';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
-import ConnectCard from './connect-card';
-import DnsCard from './dns-card';
-import IntroBanner from './intro-banner';
-import SetupCard from './setup-card';
-import StatusCard from './status-card';
-import TestEmailCard from './test-email-card';
-import UsageCard from './usage-card';
+import { useSetupModeContext } from '../../components/setup-mode';
+import Dashboard from './dashboard';
+import { SENDING_TITLE_ID } from './sending-card';
+import { setupMode } from './setup/model';
+import SetupPage from './setup/setup-page';
+import { fromLine } from './setup-step';
+import type { SetupMode } from './setup/model';
 import type { SendStatus } from '../../data/types';
 
 const OverviewScreen = ( { status }: { status: SendStatus } ) => {
 	const { account } = status;
+	const context = useSetupModeContext();
+	// Outside StatusGate (tests), decide here, once per mount.
+	const [ ownMode, setOwnMode ] = useState< SetupMode >( () => setupMode( status ) );
+	const decided = context?.mode ?? ownMode;
+	const mode: SetupMode = account ? decided : 'setup';
+	const [ justFinished, setJustFinished ] = useState( false );
+	const finishContext = context?.finish;
+
+	const onFinish = useCallback( () => {
+		setJustFinished( true );
+		if ( finishContext ) {
+			finishContext();
+		} else {
+			setOwnMode( 'active' );
+		}
+	}, [ finishContext ] );
+
+	// The Sending card already shows Active with the From line, so Finish announces it and moves
+	// focus there instead of adding a notice that says it again.
+	useEffect( () => {
+		if ( ! justFinished || mode !== 'active' ) {
+			return;
+		}
+		speak(
+			sprintf(
+				/* translators: %s: the From line, like "Example Site <owner@example.com>". */
+				__( 'Sending is on. Your site’s emails now come from %s.', 'jetpack-send-pkg' ),
+				fromLine( status )
+			)
+		);
+		window.requestAnimationFrame( () => document.getElementById( SENDING_TITLE_ID )?.focus() );
+		// Once, right after Finish.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ justFinished, mode ] );
 
 	return (
 		<>
@@ -28,47 +64,8 @@ const OverviewScreen = ( { status }: { status: SendStatus } ) => {
 					</Notice.Description>
 				</Notice.Root>
 			) }
-			{ status.provisioner === 'local' && (
-				<Notice.Root intent="info">
-					<Notice.Description>
-						{ __(
-							'Development provisioner active: Send creates MailChannels sub-accounts with the parent API key from wp-config.php.',
-							'jetpack-send-pkg'
-						) }
-					</Notice.Description>
-					{ !! account?.zone_records?.length && (
-						<details className="jetpack-send-zone-records">
-							<summary>
-								{ __(
-									'TXT records the Jetpack DNS zone must publish for these CNAMEs to resolve',
-									'jetpack-send-pkg'
-								) }
-							</summary>
-							<ul>
-								{ account.zone_records.map( record => (
-									<li key={ record.name }>
-										<code>{ record.name }</code>
-										<code>{ record.value }</code>
-									</li>
-								) ) }
-							</ul>
-						</details>
-					) }
-				</Notice.Root>
-			) }
-			<IntroBanner />
-			{ ! account && ! status.provisioner && <ConnectCard connectUrl={ status.connect_url } /> }
-			{ ! account && status.provisioner && (
-				<SetupCard suggestedDomain={ status.suggested_domain } />
-			) }
-			{ account && (
-				<>
-					<StatusCard status={ status } account={ account } />
-					<DnsCard account={ account } spfSuggestion={ status.spf_suggestion } />
-					<UsageCard />
-					<TestEmailCard defaultTo={ status.admin_email } />
-				</>
-			) }
+			{ mode === 'setup' && <SetupPage status={ status } onFinish={ onFinish } /> }
+			{ mode === 'active' && account && <Dashboard status={ status } account={ account } /> }
 		</>
 	);
 };

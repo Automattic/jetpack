@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f05b12b9076a3af2e9c957d439dd4782",
+    "content-hash": "85038c897421fe3306526e565af82bd3",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -343,7 +343,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "6bf10704aa6241cf7d03a212d94e12ef109a15fc"
+                "reference": "df95486386612103ec484208abbc5a6e2d1543f3"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -380,7 +380,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.9.x-dev"
+                    "dev-trunk": "9.12.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -412,6 +412,12 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
@@ -538,6 +544,59 @@
             }
         },
         {
+            "name": "automattic/jetpack-logo",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/logo",
+                "reference": "fb0c8e4d82cfdd03a1c8798527f9c6f2220c2512"
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-logo",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "4.0.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A logo for Jetpack",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-redirect",
             "version": "dev-trunk",
             "dist": {
@@ -652,12 +711,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/send",
-                "reference": "a0876d13c3645746cc7bc5dffd257260752f1aa9"
+                "reference": "0298a5ee50f2292c8f15117c41f98ac406d6417b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.4"
             },
@@ -700,12 +760,27 @@
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Transactional email for Jetpack sites, delivered through MailChannels.",
+            "description": "Reliable delivery for the emails your site sends.",
             "transport-options": {
                 "relative": true
             }
@@ -847,7 +922,8 @@
     "stability-flags": {
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-composer-plugin": 20,
-        "automattic/jetpack-send": 20
+        "automattic/jetpack-send": 20,
+        "automattic/jetpack-status": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

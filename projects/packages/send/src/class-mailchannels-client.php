@@ -33,12 +33,37 @@ class MailChannels_Client {
 	private $api_key;
 
 	/**
+	 * The last answer's status, time taken, content type and size.
+	 *
+	 * @var array{status: int, ms: int, content_type: string, bytes: int}
+	 */
+	private $last = array(
+		'status'       => 0,
+		'ms'           => 0,
+		'content_type' => '',
+		'bytes'        => 0,
+	);
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string $api_key API key.
 	 */
 	public function __construct( $api_key ) {
 		$this->api_key = (string) $api_key;
+		// Whatever this request records, the key is never in it.
+		Debug_Log::secret( $this->api_key );
+	}
+
+	/**
+	 * The last answer's status, how long it took in milliseconds, its content type and size.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{status: int, ms: int, content_type: string, bytes: int}
+	 */
+	public function last_response() {
+		return $this->last;
 	}
 
 	/**
@@ -48,7 +73,7 @@ class MailChannels_Client {
 	 * @return array|WP_Error
 	 */
 	public function send( array $payload ) {
-		return $this->request( 'POST', '/send', $payload, array(), 15 );
+		return $this->request( 'POST', '/send', $payload, array(), 30 );
 	}
 
 	/**
@@ -117,7 +142,8 @@ class MailChannels_Client {
 	 * @return array|WP_Error
 	 */
 	public function get_sub_account_usage( $handle ) {
-		return $this->request( 'GET', '/sub-account/' . rawurlencode( $handle ) . '/usage' );
+		// Read on every Overview visit; a successful read isn't worth a debug entry each time.
+		return $this->request( 'GET', '/sub-account/' . rawurlencode( $handle ) . '/usage', null, array(), 30, true );
 	}
 
 	/**
@@ -176,9 +202,11 @@ class MailChannels_Client {
 	 * @param array|null $body    JSON body.
 	 * @param array      $query   Query arguments.
 	 * @param int        $timeout Seconds.
-	 * @return array|WP_Error Decoded body, or an error with data `{status, errors}`.
+	 * @param bool       $quiet   Leave a successful answer out of the debug log.
+	 * @return array|WP_Error Decoded body, or an error with data `{status, errors, ms}`; a network error keeps
+	 *                        WordPress's code, the cURL error number and when it happened.
 	 */
-	private function request( $method, $path, $body = null, array $query = array(), $timeout = 30 ) {
+	private function request( $method, $path, $body = null, array $query = array(), $timeout = 30, $quiet = false ) {
 		$url = self::BASE_URL . $path;
 		if ( $query ) {
 			$url = add_query_arg( $query, $url );
@@ -197,21 +225,63 @@ class MailChannels_Client {
 			$args['body']                    = wp_json_encode( $body, JSON_UNESCAPED_SLASHES );
 		}
 
+		$started  = microtime( true );
 		$response = wp_remote_request( $url, $args );
+		$ms       = (int) round( ( microtime( true ) - $started ) * 1000 );
+		// The path without its query, which is all the debug log needs.
+		$where = array(
+			'method' => $method,
+			'path'   => $path,
+		);
 		if ( is_wp_error( $response ) ) {
-			return new WP_Error(
-				'jetpack_send_transport',
-				$response->get_error_message(),
-				array(
-					'status' => 0,
-					'errors' => array(),
+			$message = $response->get_error_message();
+			$errno   = preg_match( '/cURL error (\d+)/i', $message, $match ) ? (int) $match[1] : 0;
+			$data    = array(
+				'status'    => 0,
+				'errors'    => array(),
+				'wp_code'   => (string) $response->get_error_code(),
+				'errno'     => $errno,
+				'phase'     => Failure_Reason::transport_phase( $errno, $message ),
+				'ms'        => $ms,
+				'timeout_s' => (int) $timeout,
+			);
+			Debug_Log::add(
+				'error',
+				'sending',
+				'api.transport_error',
+				'after_send' === $data['phase']
+					/* translators: %s: the network error, e.g. "cURL error 28: Operation timed out". */
+					? sprintf( __( 'No answer after sending: %s', 'jetpack-send-pkg' ), $message )
+					/* translators: %s: the network error, e.g. "cURL error 7: Failed to connect". */
+					: sprintf( __( 'Couldn’t reach the email service: %s', 'jetpack-send-pkg' ), $message ),
+				$where + $data + array( 'message' => $message )
+			);
+			return new WP_Error( 'jetpack_send_transport', $message, $data );
+		}
+
+		$code       = (int) wp_remote_retrieve_response_code( $response );
+		$raw        = (string) wp_remote_retrieve_body( $response );
+		$decoded    = '' === $raw ? array() : json_decode( $raw, true );
+		$this->last = array(
+			'status'       => $code,
+			'ms'           => $ms,
+			'content_type' => (string) wp_remote_retrieve_header( $response, 'content-type' ),
+			'bytes'        => strlen( $raw ),
+		);
+		$ok         = $code >= 200 && $code < 300;
+		if ( ! $quiet || ! $ok ) {
+			Debug_Log::add(
+				$ok ? 'debug' : ( 429 === $code ? 'warning' : 'error' ),
+				'sending',
+				'api.call',
+				/* translators: 1: HTTP method, 2: the API path, 3: HTTP status, 4: milliseconds. */
+				sprintf( __( '%1$s %2$s → HTTP %3$d in %4$d ms.', 'jetpack-send-pkg' ), $method, $path, $code, $ms ),
+				$where + $this->last + array(
+					'request_id' => is_array( $decoded ) && is_scalar( $decoded['request_id'] ?? null ) ? (string) $decoded['request_id'] : '',
+					'body'       => null === $decoded && '' !== $raw ? '<not JSON, ' . strlen( $raw ) . ' bytes>' : Debug_Log::service_body( $decoded ),
 				)
 			);
 		}
-
-		$code    = (int) wp_remote_retrieve_response_code( $response );
-		$raw     = (string) wp_remote_retrieve_body( $response );
-		$decoded = '' === $raw ? array() : json_decode( $raw, true );
 
 		if ( $code < 200 || $code >= 300 ) {
 			$errors = self::extract_errors( $decoded );
@@ -220,10 +290,13 @@ class MailChannels_Client {
 				$errors
 					? implode( ' ', $errors )
 					/* translators: %d: HTTP status code. */
-					: sprintf( __( 'MailChannels returned HTTP %d.', 'jetpack-send-pkg' ), $code ),
+					: sprintf( __( 'The sending service returned HTTP %d.', 'jetpack-send-pkg' ), $code ),
 				array(
-					'status' => $code,
-					'errors' => $errors,
+					'status'       => $code,
+					'errors'       => $errors,
+					'ms'           => $ms,
+					'content_type' => $this->last['content_type'],
+					'bytes'        => $this->last['bytes'],
 				)
 			);
 		}

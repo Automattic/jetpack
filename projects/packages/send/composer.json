@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-send",
-	"description": "Transactional email for Jetpack sites, delivered through MailChannels.",
+	"description": "Reliable delivery for the emails your site sends.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
@@ -8,6 +8,7 @@
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
@@ -37,6 +38,12 @@
 		],
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-js-coverage": [
+			"pnpm run test-coverage"
 		],
 		"test-php": [
 			"@composer phpunit"

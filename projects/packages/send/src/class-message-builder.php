@@ -53,7 +53,7 @@ class Message_Builder {
 	 *
 	 * @param array $atts     wp_mail() attributes: to, subject, message, headers, attachments, embeds.
 	 * @param array $settings Send settings, as returned by Settings::get().
-	 * @param array $account  The provisioned account; only `domain` is read.
+	 * @param array $account  The provisioned account; `domain` and `dkim_selector` are read.
 	 * @return array|WP_Error The payload, or why MailChannels can't send this message.
 	 */
 	public static function build( array $atts, array $settings, array $account ) {
@@ -63,20 +63,24 @@ class Message_Builder {
 		if ( empty( $to ) ) {
 			// Core can send Cc- or Bcc-only mail; MailChannels requires a To.
 			if ( $headers['cc'] || $headers['bcc'] ) {
-				return self::unsupported();
+				return self::unsupported( 'cc_only' );
 			}
 			return new WP_Error( 'jetpack_send_no_recipients', __( 'The email has no valid recipient.', 'jetpack-send-pkg' ) );
 		}
 
 		/** This filter is documented in wp-includes/pluggable.php */
 		$content_type = (string) apply_filters( 'wp_mail_content_type', '' !== $headers['content_type'] ? $headers['content_type'] : 'text/plain' );
-		if (
-			! empty( $atts['embeds'] )
-			|| '' !== $headers['boundary']
-			|| 0 === stripos( $content_type, 'multipart/' )
-			|| ( '' !== $headers['charset'] && ! in_array( strtolower( $headers['charset'] ), array( 'utf-8', 'utf8' ), true ) )
-		) {
-			return self::unsupported();
+		if ( ! empty( $atts['embeds'] ) ) {
+			return self::unsupported( 'embeds' );
+		}
+		if ( '' !== $headers['boundary'] ) {
+			return self::unsupported( 'boundary' );
+		}
+		if ( 0 === stripos( $content_type, 'multipart/' ) ) {
+			return self::unsupported( 'multipart' );
+		}
+		if ( '' !== $headers['charset'] && ! in_array( strtolower( $headers['charset'] ), array( 'utf-8', 'utf8' ), true ) ) {
+			return self::unsupported( 'charset:' . strtolower( substr( $headers['charset'], 0, 40 ) ) );
 		}
 
 		$attachments = self::encode_attachments( $atts['attachments'] ?? array() );
@@ -99,6 +103,12 @@ class Message_Builder {
 				$reply_to = array( self::address( $from_email, $from_name ) );
 			}
 			$from_email = self::configured_from_email( $settings, $domain );
+		}
+
+		// A message with no Reply-To of its own goes back to the site's chosen inbox, if any.
+		$default_reply_to = (string) ( $settings['reply_to'] ?? '' );
+		if ( empty( $reply_to ) && is_email( $default_reply_to ) && strtolower( $default_reply_to ) !== strtolower( $from_email ) ) {
+			$reply_to = array( self::address( $default_reply_to, '' ) );
 		}
 
 		$personalization = array( 'to' => $to );
@@ -124,17 +134,46 @@ class Message_Builder {
 		if ( $attachments ) {
 			$payload['attachments'] = $attachments;
 		}
+		// MailChannels only signs with its stored key when the request names the selector.
+		$dkim_selector = (string) ( $account['dkim_selector'] ?? '' );
+		if ( '' !== $dkim_selector && '' !== $domain ) {
+			$payload['dkim_domain']   = $domain;
+			$payload['dkim_selector'] = $dkim_selector;
+		}
 
 		return $payload;
 	}
 
 	/**
+	 * The From address a message without its own From header is sent with.
+	 *
+	 * @param array $settings Send settings, as returned by Settings::get().
+	 * @param array $account  The provisioned account; only `domain` is read.
+	 * @return array{email: string, name: string}
+	 */
+	public static function sender( array $settings, array $account ) {
+		$domain = strtolower( (string) $account['domain'] );
+		/** This filter is documented in wp-includes/pluggable.php */
+		$email = (string) apply_filters( 'wp_mail_from', self::configured_from_email( $settings, $domain ) );
+		/** This filter is documented in wp-includes/pluggable.php */
+		$name = (string) apply_filters( 'wp_mail_from_name', self::configured_from_name( $settings ) );
+		if ( ! self::is_on_domain( $email, $domain ) ) {
+			$email = self::configured_from_email( $settings, $domain );
+		}
+		return array(
+			'email' => $email,
+			'name'  => $name,
+		);
+	}
+
+	/**
 	 * The error for a message Send can't represent faithfully, which Mailer hands to core.
 	 *
+	 * @param string $feature What it uses: `embeds`, `boundary`, `multipart`, `charset:<name>` or `cc_only`.
 	 * @return WP_Error
 	 */
-	private static function unsupported() {
-		return new WP_Error( 'jetpack_send_unsupported', __( 'This email uses features Send does not support.', 'jetpack-send-pkg' ) );
+	private static function unsupported( $feature ) {
+		return new WP_Error( 'jetpack_send_unsupported', __( 'This email uses features Send does not support.', 'jetpack-send-pkg' ), array( 'feature' => $feature ) );
 	}
 
 	/**
@@ -219,6 +258,18 @@ class Message_Builder {
 		}
 
 		return $parsed;
+	}
+
+	/**
+	 * Parse recipients the way a message's To is parsed, e.g. a logged recipient list.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|array $value Addresses.
+	 * @return array[] `{email, name?}` objects; invalid addresses are dropped.
+	 */
+	public static function parse_recipients( $value ) {
+		return self::parse_address_list( $value );
 	}
 
 	/**
@@ -322,7 +373,7 @@ class Message_Builder {
 			return array(
 				array(
 					'type'  => 'text/plain',
-					'value' => self::html_to_text( $message ),
+					'value' => self::plain_text( $message, 'text/html' ),
 				),
 				array(
 					'type'  => 'text/html',
@@ -340,13 +391,19 @@ class Message_Builder {
 	}
 
 	/**
-	 * A readable plain-text version of an HTML body.
+	 * A readable plain-text version of a body; plain text comes back as it is.
 	 *
-	 * @param string $html HTML.
+	 * @since $$next-version$$
+	 *
+	 * @param string $body         Body.
+	 * @param string $content_type `text/html` or `text/plain`.
 	 * @return string
 	 */
-	private static function html_to_text( $html ) {
-		$text = preg_replace( '#<br\s*/?>#i', "\n", $html );
+	public static function plain_text( $body, $content_type = 'text/html' ) {
+		if ( 'text/html' !== strtolower( (string) $content_type ) ) {
+			return (string) $body;
+		}
+		$text = preg_replace( '#<br\s*/?>#i', "\n", (string) $body );
 		$text = preg_replace( '#</(p|div|h[1-6]|li|tr|table|ul|ol|blockquote)>#i', "\n\n", $text );
 		$text = html_entity_decode( wp_strip_all_tags( $text ), ENT_QUOTES, 'UTF-8' );
 		$text = preg_replace( '/[ \t]+/', ' ', $text );
@@ -390,7 +447,8 @@ class Message_Builder {
 	private static function encode_attachments( $attachments ) {
 		$encoded = array();
 		$total   = 0;
-		foreach ( self::attachment_files( $attachments ) as $file ) {
+		$files   = self::attachment_files( $attachments );
+		foreach ( $files as $file ) {
 			$path = $file['path'];
 			// Stream wrappers such as phar:// can trigger deserialization; core's PHPMailer refuses them too.
 			if ( preg_match( '#^[a-z][a-z\d+.-]*://#i', $path ) || ! is_file( $path ) || ! is_readable( $path ) ) {
@@ -403,7 +461,17 @@ class Message_Builder {
 
 			$total += (int) filesize( $path );
 			if ( $total > self::MAX_ATTACHMENT_BYTES ) {
-				return new WP_Error( 'jetpack_send_attachment_too_large', __( 'The attachments are larger than 20 MB.', 'jetpack-send-pkg' ) );
+				return new WP_Error(
+					'jetpack_send_attachment_too_large',
+					__( 'The attachments are larger than 20 MB.', 'jetpack-send-pkg' ),
+					array(
+						'attachments' => array(
+							'count' => count( $files ),
+							// Read up to the file that went over; later paths aren't checked yet.
+							'bytes' => $total,
+						),
+					)
+				);
 			}
 
 			$type      = wp_check_filetype( $file['filename'] );

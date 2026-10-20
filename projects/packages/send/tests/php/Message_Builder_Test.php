@@ -109,7 +109,7 @@ class Message_Builder_Test extends BaseTestCase {
 			),
 			'string headers with Cc, Bcc, Reply-To and names' => array(
 				array(
-					'to'      => 'Jane Doe <jane@example.org>, bob@example.org',
+					'to'      => 'Help Desk <help@example.org>, billing@example.org',
 					'headers' => "Cc: cc@example.org\r\nBcc: Hidden <bcc@example.org>\r\nReply-To: support@example.com",
 				),
 				array(
@@ -117,10 +117,10 @@ class Message_Builder_Test extends BaseTestCase {
 						array(
 							'to'  => array(
 								array(
-									'email' => 'jane@example.org',
-									'name'  => 'Jane Doe',
+									'email' => 'help@example.org',
+									'name'  => 'Help Desk',
 								),
-								array( 'email' => 'bob@example.org' ),
+								array( 'email' => 'billing@example.org' ),
 							),
 							'cc'  => array( array( 'email' => 'cc@example.org' ) ),
 							'bcc' => array(
@@ -144,20 +144,20 @@ class Message_Builder_Test extends BaseTestCase {
 				),
 			),
 			'off-domain From is replaced and kept as Reply-To' => array(
-				array( 'headers' => array( 'From: Store <store@gmail.com>' ) ),
+				array( 'headers' => array( 'From: Store <store@example.net>' ) ),
 				array(
 					'from'     => array(
 						'email' => 'hello@example.com',
 						'name'  => 'Store',
 					),
 					'reply_to' => array(
-						'email' => 'store@gmail.com',
+						'email' => 'store@example.net',
 						'name'  => 'Store',
 					),
 				),
 			),
 			'off-domain From keeps an explicit Reply-To' => array(
-				array( 'headers' => array( 'From: store@gmail.com', 'Reply-To: help@example.com' ) ),
+				array( 'headers' => array( 'From: store@example.net', 'Reply-To: help@example.com' ) ),
 				array(
 					'from'     => array(
 						'email' => 'hello@example.com',
@@ -207,9 +207,29 @@ class Message_Builder_Test extends BaseTestCase {
 		}
 	}
 
+	public function test_build_names_the_dkim_key_only_when_the_account_has_one() {
+		$atts = array(
+			'to'      => 'customer@example.org',
+			'subject' => 'Hi',
+			'message' => 'Body',
+		);
+
+		$account = array(
+			'domain'        => 'Example.com',
+			'dkim_selector' => 'jpsend',
+		);
+		$signed  = Message_Builder::build( $atts, self::SETTINGS, $account );
+		$this->assertSame( 'example.com', $signed['dkim_domain'] );
+		$this->assertSame( 'jpsend', $signed['dkim_selector'] );
+
+		$unsigned = Message_Builder::build( $atts, self::SETTINGS, self::ACCOUNT );
+		$this->assertArrayNotHasKey( 'dkim_domain', $unsigned );
+		$this->assertArrayNotHasKey( 'dkim_selector', $unsigned );
+	}
+
 	public function test_build_applies_wp_mail_filters_before_enforcing_the_domain() {
 		add_filter( 'wp_mail_content_type', fn() => 'text/html' );
-		add_filter( 'wp_mail_from', fn() => 'woo@gmail.com' );
+		add_filter( 'wp_mail_from', fn() => 'woo@example.net' );
 		add_filter( 'wp_mail_from_name', fn() => 'Woo' );
 
 		$payload = $this->build( array( 'message' => 'Hi<br>there' ) );
@@ -223,7 +243,7 @@ class Message_Builder_Test extends BaseTestCase {
 		);
 		$this->assertSame(
 			array(
-				'email' => 'woo@gmail.com',
+				'email' => 'woo@example.net',
 				'name'  => 'Woo',
 			),
 			$payload['reply_to']
@@ -241,6 +261,82 @@ class Message_Builder_Test extends BaseTestCase {
 			),
 			$payload['content']
 		);
+	}
+
+	/**
+	 * The site's Reply-To setting against what the message itself says.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_default_reply_to() {
+		return array(
+			'used when the message has none'       => array( 'owner@example.org', '', array( 'email' => 'owner@example.org' ) ),
+			"the message's own Reply-To wins"      => array( 'owner@example.org', 'Reply-To: help@example.com', array( 'email' => 'help@example.com' ) ),
+			'an off-domain sender stays reachable' => array(
+				'owner@example.org',
+				'From: Store <store@example.net>',
+				array(
+					'email' => 'store@example.net',
+					'name'  => 'Store',
+				),
+			),
+			'skipped when it is the From address'  => array( 'Hello@example.com', '', null ),
+			'an invalid address is ignored'        => array( 'not-an-email', '', null ),
+			'none when the setting is empty'       => array( '', '', null ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_default_reply_to
+	 *
+	 * @param string     $setting  The `reply_to` setting.
+	 * @param string     $headers  wp_mail() headers.
+	 * @param array|null $expected Expected Reply-To, or null for none.
+	 */
+	#[DataProvider( 'provide_default_reply_to' )]
+	public function test_build_falls_back_to_the_sites_reply_to( $setting, $headers, $expected ) {
+		$atts = array(
+			'to'      => 'customer@example.org',
+			'subject' => 'Hi',
+			'message' => 'Body',
+			'headers' => $headers,
+		);
+
+		$payload = Message_Builder::build( $atts, array_merge( self::SETTINGS, array( 'reply_to' => $setting ) ), self::ACCOUNT );
+
+		$this->assertSame( $expected, $payload['reply_to'] ?? null );
+	}
+
+	/**
+	 * `wp_mail_from` results and the sender they give.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_sender_filters() {
+		return array(
+			'on-domain filter is honoured' => array( 'orders@example.com', 'orders@example.com' ),
+			'off-domain filter is undone'  => array( 'woo@example.net', 'hello@example.com' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_sender_filters
+	 *
+	 * @param string $filtered What `wp_mail_from` returns.
+	 * @param string $expected Expected sender address.
+	 */
+	#[DataProvider( 'provide_sender_filters' )]
+	public function test_sender_matches_what_build_sends_from( $filtered, $expected ) {
+		add_filter( 'wp_mail_from', fn() => $filtered );
+
+		$this->assertSame(
+			array(
+				'email' => $expected,
+				'name'  => 'Example Shop',
+			),
+			Message_Builder::sender( self::SETTINGS, self::ACCOUNT )
+		);
+		$this->assertSame( $expected, $this->build()['from']['email'] );
 	}
 
 	public function test_build_encodes_attachments_from_lists_and_named_arrays() {
@@ -274,24 +370,25 @@ class Message_Builder_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Messages MailChannels can't take, and the error each returns.
+	 * Messages MailChannels can't take, the error each returns, and the feature it names.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_unbuildable_messages() {
 		return array(
-			'no valid recipient'        => array( array( 'to' => 'not-an-email' ), 'jetpack_send_no_recipients' ),
-			'custom multipart boundary' => array( array( 'headers' => 'Content-Type: multipart/alternative; boundary="abc"' ), 'jetpack_send_unsupported' ),
-			'unreadable attachment'     => array( array( 'attachments' => array( '/nonexistent/file.pdf' ) ), 'jetpack_send_attachment_unreadable' ),
-			'stream wrapper path'       => array( array( 'attachments' => array( 'phar:///tmp/x.phar/file.txt' ) ), 'jetpack_send_attachment_unreadable' ),
-			'inline embeds'             => array( array( 'embeds' => array( '/tmp/logo.png' ) ), 'jetpack_send_unsupported' ),
-			'non-UTF-8 charset'         => array( array( 'headers' => 'Content-Type: text/plain; charset=ISO-8859-1' ), 'jetpack_send_unsupported' ),
+			'no valid recipient'        => array( array( 'to' => 'not-an-email' ), 'jetpack_send_no_recipients', null ),
+			'custom multipart boundary' => array( array( 'headers' => 'Content-Type: multipart/alternative; boundary="abc"' ), 'jetpack_send_unsupported', 'boundary' ),
+			'unreadable attachment'     => array( array( 'attachments' => array( '/nonexistent/file.pdf' ) ), 'jetpack_send_attachment_unreadable', null ),
+			'stream wrapper path'       => array( array( 'attachments' => array( 'phar:///tmp/x.phar/file.txt' ) ), 'jetpack_send_attachment_unreadable', null ),
+			'inline embeds'             => array( array( 'embeds' => array( '/tmp/logo.png' ) ), 'jetpack_send_unsupported', 'embeds' ),
+			'non-UTF-8 charset'         => array( array( 'headers' => 'Content-Type: text/plain; charset=ISO-8859-1' ), 'jetpack_send_unsupported', 'charset:iso-8859-1' ),
 			'only a Bcc recipient'      => array(
 				array(
 					'to'      => '',
 					'headers' => 'Bcc: hidden@example.org',
 				),
 				'jetpack_send_unsupported',
+				'cc_only',
 			),
 		);
 	}
@@ -299,15 +396,17 @@ class Message_Builder_Test extends BaseTestCase {
 	/**
 	 * @dataProvider provide_unbuildable_messages
 	 *
-	 * @param array  $overrides wp_mail() attributes.
-	 * @param string $code      Expected error code.
+	 * @param array       $overrides wp_mail() attributes.
+	 * @param string      $code      Expected error code.
+	 * @param string|null $feature   The feature Technical details names.
 	 */
 	#[DataProvider( 'provide_unbuildable_messages' )]
-	public function test_build_returns_an_error_for_unbuildable_messages( array $overrides, $code ) {
+	public function test_build_returns_an_error_for_unbuildable_messages( array $overrides, $code, $feature ) {
 		$result = $this->build( $overrides );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( $code, $result->get_error_code() );
+		$this->assertSame( $feature, $result->get_error_data()['feature'] ?? null );
 	}
 
 	public function test_build_rejects_attachments_over_the_size_limit() {

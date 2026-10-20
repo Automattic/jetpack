@@ -1,0 +1,468 @@
+@use "@wordpress/base-styles/breakpoints";
+
+// The Overview once setup is finished. Cards stack below the wrap point.
+// No container queries: their conditions can't take tokens, so width
+// switches use the flex-basis clamp below.
+.jetpack-send-dashboard {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+	animation:
+		jetpack-send-dashboard-in var(--wpds-motion-duration-md)
+		var(--wpds-motion-easing-subtle);
+
+	@media ( prefers-reduced-motion: reduce ) {
+		animation: none;
+	}
+}
+
+@keyframes jetpack-send-dashboard-in {
+
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.jetpack-send-dashboard__row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	gap: var(--wpds-dimension-gap-lg);
+}
+
+// Sending, Domain and This month: equal cards side by side when the row is
+// wide enough, else one per line, never two and one. The flex-basis flips
+// between 0 and 100% at that width.
+.jetpack-send-dashboard__status {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+}
+
+.jetpack-send-dashboard__cards {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-lg);
+}
+
+.jetpack-send-dashboard__cell {
+	display: flex;
+	flex: 1 1 clamp(0%, calc(( var(--wpds-dimension-surface-width-xl) - 100% ) * 999), 100%);
+	flex-direction: column;
+	min-inline-size: 0;
+
+	> * {
+		flex: 1 1 auto;
+	}
+
+	// Stacked on a phone, the cards take the task cards' tighter padding,
+	// keeping the chart nearer the top.
+	@media ( max-width: breakpoints.$break-medium ) {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	}
+}
+
+// As tall as the badges beside the other titles, so the titles line up, even
+// when a badge wraps under its title.
+.jetpack-send-card__heading {
+	min-block-size: var(--wpds-dimension-size-sm);
+
+	> :first-child {
+		display: flex;
+		align-items: center;
+		min-block-size: var(--wpds-dimension-size-sm);
+	}
+}
+
+// A heading badge moves under the title when the card is narrow, never
+// breaking inside itself.
+.jetpack-send-card__badge {
+	flex: none;
+	white-space: nowrap;
+}
+
+.jetpack-send-domain__name {
+	overflow-wrap: anywhere;
+}
+
+// The top-row cards share a height; their actions sit along the bottom.
+.jetpack-send-card__body {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+}
+
+.jetpack-send-card__stack {
+	flex: 1 1 auto;
+}
+
+.jetpack-send-card__actions {
+	margin-block-start: auto;
+}
+
+// The big number in This month, like the metric tabs.
+.jetpack-send-usage__count {
+	font-variant-numeric: tabular-nums;
+}
+
+.jetpack-send-sending__address {
+	overflow-wrap: anywhere;
+}
+
+.jetpack-send-dashboard__main,
+.jetpack-send-dashboard__side {
+	display: flex;
+	flex-direction: column;
+	min-inline-size: 0;
+
+	> * {
+		flex: 1 1 auto;
+	}
+}
+
+.jetpack-send-dashboard__main {
+	flex: 2 1 var(--wpds-dimension-surface-width-sm);
+}
+
+.jetpack-send-dashboard__side {
+	flex: 1 1 var(--wpds-dimension-surface-width-xs);
+}
+
+.jetpack-send-dashboard__footer {
+	padding-block-start: var(--wpds-dimension-padding-md);
+	border-block-start:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+}
+
+// Metric cards over the chart, as on the Jetpack Stats overview.
+// The card fill marks the selection.
+.jetpack-send-metric-tabs {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+.jetpack-send-metric-tabs__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-sm);
+	inline-size: 100%;
+	overflow: visible;
+
+	// The selection underline; the card fill shows selection instead.
+	> [role="presentation"],
+	> .jetpack-send-metric-tabs__tab > svg {
+		display: none;
+	}
+}
+
+// One row when the four fit, else two by two, never a lone card on its own row.
+// Each card is a control, so its edge and fills are interactive tokens: an
+// accessible edge at rest, a tint on hover, the brand fill and edge when
+// picked.
+.jetpack-send-metric-tabs__tab {
+	flex:
+		1 1
+		clamp(0%, calc(( var(--wpds-dimension-surface-width-lg) - 100% ) * 999), calc(50% - var(--wpds-dimension-gap-sm)));
+	min-inline-size: fit-content;
+	block-size: auto;
+	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
+	border-radius: var(--wpds-border-radius-lg);
+	transition: background-color var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
+
+	&:hover {
+		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	}
+
+	&[aria-selected="true"] {
+		border-color: var(--wpds-color-stroke-interactive-brand);
+		background-color: var(--wpds-color-background-interactive-brand-weak-active);
+
+		// Full-strength label: muted text is under 4.5:1 on the picked fill.
+		.jetpack-send-muted {
+			color: var(--wpds-color-foreground-content-neutral);
+		}
+	}
+
+	// The focus ring follows the card's corners.
+	&::after {
+		inset: 0;
+		border-radius: var(--wpds-border-radius-lg);
+	}
+
+	@media ( prefers-reduced-motion: reduce ) {
+		transition: none;
+	}
+}
+
+.jetpack-send-metric-tabs__tooltip {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+.jetpack-send-metric-tabs__tooltip-value {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+.jetpack-send-metric-tabs__content {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--wpds-dimension-gap-xs);
+	font-variant-numeric: tabular-nums;
+	text-align: start;
+}
+
+// Holds the header's height while the range control is hidden.
+.jetpack-send-activity__header {
+	min-block-size: var(--wpds-dimension-size-md);
+}
+
+// While a new range loads, the old dates and numbers fade back, so they don't
+// read as the new range's.
+.jetpack-send-activity__body,
+.jetpack-send-activity__dates {
+	transition: opacity var(--wpds-motion-duration-md) var(--wpds-motion-easing-subtle);
+
+	@media ( prefers-reduced-motion: reduce ) {
+		transition: none;
+	}
+
+	.jetpack-send-activity[aria-busy="true"] & {
+		opacity: 0.5;
+	}
+}
+
+.jetpack-send-activity__empty {
+	margin-inline: auto;
+	padding-block: var(--wpds-dimension-padding-xl);
+}
+
+.jetpack-send-activity__empty--compact {
+	padding-block: var(--wpds-dimension-padding-lg);
+}
+
+// The chart draws at its box's measured width. Containment keeps that width
+// out of the page's sizing, so a narrower window narrows the box and the
+// chart redraws, rather than holding the page at its old width.
+.jetpack-send-metric-tabs__chart {
+	block-size: var(--wpds-dimension-surface-width-xs);
+	overflow: hidden;
+	contain: inline-size;
+}
+
+// Series colour per metric, on the chart's own scope element,
+// so it beats the package default.
+.jetpack-send-metric-tabs__chart--fallback .a8c-charts-scope {
+	--a8c-charts-color-series-1: var(--wpds-color-stroke-surface-neutral-strong);
+}
+
+.jetpack-send-metric-tabs__chart--failed .a8c-charts-scope {
+	--a8c-charts-color-series-1: var(--wpds-color-stroke-surface-error-strong);
+}
+
+.jetpack-send-metric-tabs__chart .a8c-charts-scope {
+	--a8c-charts-border-radius-bar-chart: var(--wpds-border-radius-sm);
+}
+
+// Recent emails and What sends the most: one grid per list, each row a
+// subgrid, so icons, badges, times and counts line up down the card. Rows keep
+// the Stats hairline.
+.jetpack-send-list {
+	display: grid;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm) var(--wpds-dimension-gap-md);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+// Avatar | subject and time | status. Status is as wide as its widest badge.
+.jetpack-send-list--recent {
+	grid-template-columns: var(--wpds-dimension-size-sm) minmax(0, 1fr) max-content;
+}
+
+// Icon | name | count.
+.jetpack-send-list--origins {
+	grid-template-columns: var(--wpds-dimension-size-sm) minmax(0, 1fr) max-content;
+}
+
+.jetpack-send-list__row {
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
+	align-items: center;
+	margin: 0;
+	padding-block-end: var(--wpds-dimension-padding-sm);
+	border-block-end:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+
+	&:last-child {
+		padding-block-end: 0;
+		border-block-end: 0;
+	}
+}
+
+// The subject, then who it went to and when.
+.jetpack-send-list__main {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs);
+	min-inline-size: 0;
+}
+
+.jetpack-send-list__meta {
+	display: flex;
+	align-items: baseline;
+	gap: var(--wpds-dimension-gap-xs);
+	min-inline-size: 0;
+}
+
+// Plain row titles, underlined on hover and focus, like WordPress list tables.
+.jetpack-send-list__title {
+	color: var(--wpds-color-foreground-content-neutral);
+	text-decoration: none;
+
+	&:hover,
+	&:focus-visible {
+		text-decoration: underline;
+	}
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: var(--wpds-border-width-xs);
+		border-radius: var(--wpds-border-radius-xs);
+	}
+}
+
+.jetpack-send-list__subject {
+	display: flex;
+	flex: 1 1 0%;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	min-inline-size: 0;
+}
+
+// One line, cut with an ellipsis; the full text stays in the markup and the
+// tooltip.
+.jetpack-send-list__truncate {
+	min-inline-size: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.jetpack-send-list__badge {
+	flex-shrink: 0;
+}
+
+// Badges end on the card's content edge, so they line up whatever their width.
+.jetpack-send-list__status {
+	display: flex;
+	justify-self: end;
+}
+
+.jetpack-send-list__time,
+.jetpack-send-list__count {
+	flex: none;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.jetpack-send-list__count {
+	justify-self: end;
+	text-align: end;
+}
+
+// Plugin logos and WordPress's own glyphs share the avatars' round frame.
+.jetpack-send-origin-icon {
+	position: relative;
+	display: flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	inline-size: var(--wpds-dimension-size-sm);
+	block-size: var(--wpds-dimension-size-sm);
+	overflow: hidden;
+	border-radius: 50%;
+	box-shadow: inset 0 0 0 var(--wpds-border-width-xs) var(--wpds-color-stroke-surface-neutral);
+
+	// Plugin icons often carry their own margin, so they're drawn a quarter
+	// larger than the frame (an eighth past each edge) to fill the circle.
+	> img {
+		position: absolute;
+		inset-block-start: -12.5%;
+		inset-inline-start: -12.5%;
+		inline-size: 125%;
+		max-inline-size: none;
+		block-size: 125%;
+		object-fit: cover;
+	}
+}
+
+// The glyph sits inside the circle with room around it, like the initials.
+.jetpack-send-origin-icon--glyph {
+	background: var(--wpds-color-background-surface-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+
+	> svg {
+		inline-size: var(--wpds-dimension-size-xs);
+		block-size: var(--wpds-dimension-size-xs);
+		fill: currentColor;
+	}
+}
+
+.jetpack-send-skeleton {
+	border-radius: var(--wpds-border-radius-md);
+}
+
+// A metric card: its label and number lines, padding and edge.
+.jetpack-send-skeleton--tab {
+	flex: 1 1 0;
+	block-size: calc(var(--wpds-typography-line-height-md) + var(--wpds-dimension-gap-xs) + var(--wpds-typography-line-height-2xl) + 2 * (var(--wpds-dimension-padding-md) + var(--wpds-border-width-xs)));
+}
+
+.jetpack-send-skeleton--chart {
+	inline-size: 100%;
+	block-size: var(--wpds-dimension-surface-width-xs);
+}
+
+// A list row: the avatar or icon, then one line across the other columns.
+.jetpack-send-skeleton--avatar,
+.jetpack-send-skeleton--icon {
+	inline-size: var(--wpds-dimension-size-sm);
+	block-size: var(--wpds-dimension-size-sm);
+	border-radius: 50%;
+}
+
+.jetpack-send-skeleton--line {
+	grid-column: 2 / -1;
+	block-size: var(--wpds-typography-line-height-md);
+}
+
+// This month's big number.
+.jetpack-send-skeleton--count {
+	inline-size: 50%;
+	block-size: var(--wpds-typography-line-height-2xl);
+}
+
+// One line of body-md text, and a Meter track.
+.jetpack-send-skeleton--body-md {
+	inline-size: 50%;
+	block-size: var(--wpds-typography-line-height-sm);
+}
+
+.jetpack-send-skeleton--meter {
+	inline-size: 100%;
+	block-size: var(--wpds-dimension-size-4xs);
+	border-radius: var(--wpds-border-radius-lg);
+}

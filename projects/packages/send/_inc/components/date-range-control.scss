@@ -1,0 +1,9 @@
+// Preset labels line up on the left, like a menu.
+.jetpack-send-range__preset {
+	justify-content: flex-start;
+}
+
+// The note wraps instead of widening the presets column.
+.jetpack-send-range__note {
+	max-inline-size: var(--wpds-dimension-surface-width-xs);
+}

@@ -35,7 +35,7 @@ class Wpcom_Provisioner implements Provisioner {
 	 * @return array|WP_Error
 	 */
 	public function provision( $domain ) {
-		return $this->request( 'POST', 'provision', array( 'domain' => $domain ) );
+		return self::note_provision( $domain, $this->request( 'POST', 'provision', array( 'domain' => $domain ) ) );
 	}
 
 	/**
@@ -45,7 +45,7 @@ class Wpcom_Provisioner implements Provisioner {
 	 * @return array|WP_Error
 	 */
 	public function get_usage( array $account ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Endpoint is site-scoped.
-		return $this->request( 'GET', 'usage' );
+		return self::note_usage( $this->request( 'GET', 'usage' ) );
 	}
 
 	/**
@@ -57,6 +57,64 @@ class Wpcom_Provisioner implements Provisioner {
 	public function deprovision( array $account ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Endpoint is site-scoped.
 		$result = $this->request( 'POST', 'deprovision', array() );
 		return is_wp_error( $result ) ? $result : true;
+	}
+
+	/**
+	 * Note a provisioning result in the debug log. Never the key.
+	 *
+	 * @param string         $domain Sending domain.
+	 * @param array|WP_Error $result provision()'s result.
+	 * @return array|WP_Error The result, unchanged.
+	 */
+	private static function note_provision( $domain, $result ) {
+		$failed = is_wp_error( $result );
+		$status = $failed ? $result->get_error_code() : 'created';
+		Debug_Log::add(
+			$failed ? 'error' : 'info',
+			'account',
+			'account.provision',
+			$failed
+				/* translators: %s: an error code. */
+				? sprintf( __( 'Sending account failed: %s.', 'jetpack-send-pkg' ), $status )
+				: __( 'Sending account created.', 'jetpack-send-pkg' ),
+			array(
+				'provider' => 'wpcom',
+				'domain'   => (string) $domain,
+				'status'   => $status,
+				'code'     => $failed ? $status : '',
+			)
+		);
+		return $result;
+	}
+
+	/**
+	 * Note usage in the debug log.
+	 *
+	 * @param array|WP_Error $usage get_usage()'s result.
+	 * @return array|WP_Error The result, unchanged.
+	 */
+	private static function note_usage( $usage ) {
+		// Read on every Overview visit, so it's noted only when the number or the limit moved.
+		if ( is_array( $usage ) && Debug_Log::changed( 'usage', (int) ( $usage['total_usage'] ?? 0 ) . '/' . (int) ( $usage['monthly_limit'] ?? 0 ) ) ) {
+			$used  = (int) ( $usage['total_usage'] ?? 0 );
+			$limit = (int) ( $usage['monthly_limit'] ?? 0 );
+			Debug_Log::add(
+				'debug',
+				'account',
+				'account.usage',
+				$limit < 0
+					/* translators: %d: emails used this period. */
+					? sprintf( __( 'Usage: %d, no monthly limit.', 'jetpack-send-pkg' ), $used )
+					/* translators: 1: emails used this period, 2: the plan's limit. */
+					: sprintf( __( 'Usage: %1$d of %2$d.', 'jetpack-send-pkg' ), $used, $limit ),
+				array(
+					'used'       => $used,
+					'limit'      => $limit,
+					'period_end' => (string) ( $usage['period_end'] ?? '' ),
+				)
+			);
+		}
+		return $usage;
 	}
 
 	/**

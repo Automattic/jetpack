@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Badge, Tooltip, VisuallyHidden } from '@wordpress/ui';
+import { Badge, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
 import type { LogRow } from '../../data/types';
 
 const STATUS_INTENT = { sent: 'stable', fallback: 'medium', failed: 'high' } as const;
@@ -11,18 +11,9 @@ const STATUS_INTENT = { sent: 'stable', fallback: 'medium', failed: 'high' } as 
  */
 export const statusLabels = (): Record< LogRow[ 'status' ], string > => ( {
 	sent: __( 'Sent', 'jetpack-send-pkg' ),
-	fallback: __( 'Fallback', 'jetpack-send-pkg' ),
+	fallback: __( 'Sent by your host', 'jetpack-send-pkg' ),
 	failed: __( 'Failed', 'jetpack-send-pkg' ),
 } );
-
-/**
- * A log row's creation time in the viewer's locale.
- *
- * @param createdAt - UTC `Y-m-d H:i:s` from the log table.
- * @return The formatted date and time.
- */
-export const logDate = ( createdAt: string ) =>
-	new Date( `${ createdAt.replace( ' ', 'T' ) }Z` ).toLocaleString();
 
 type Props = {
 	status: LogRow[ 'status' ];
@@ -40,9 +31,11 @@ const StatusBadge = ( { status, error }: Props ) => {
 		<Tooltip.Root>
 			<Tooltip.Trigger className="jetpack-send-status-trigger">
 				{ badge }
-				<VisuallyHidden>{ error }</VisuallyHidden>
+				<VisuallyHidden render={ <span /> }>{ error }</VisuallyHidden>
 			</Tooltip.Trigger>
-			<Tooltip.Popup>{ error }</Tooltip.Popup>
+			<Tooltip.Popup>
+				<Text variant="body-md">{ error }</Text>
+			</Tooltip.Popup>
 		</Tooltip.Root>
 	);
 };

@@ -78,7 +78,35 @@ class Account {
 			return null;
 		}
 		unset( $account['api_key'] );
+
+		$zone = (string) ( $account['dns_host']['apex'] ?? '' );
+		if ( '' === $zone ) {
+			$zone = (string) ( $account['domain'] ?? '' );
+		}
+		foreach ( (array) ( $account['dns_records'] ?? array() ) as $i => $record ) {
+			$account['dns_records'][ $i ]['host'] = self::relative_host( (string) ( $record['name'] ?? '' ), $zone );
+		}
 		return $account;
+	}
+
+	/**
+	 * A record name relative to its DNS zone, as most providers' host fields expect.
+	 *
+	 * @param string $name Full record name.
+	 * @param string $zone Zone root, e.g. `example.com`.
+	 * @return string The short host, `@` for the zone root, or the name unchanged when outside the zone.
+	 */
+	public static function relative_host( $name, $zone ) {
+		$name = strtolower( rtrim( $name, '.' ) );
+		$zone = strtolower( rtrim( $zone, '.' ) );
+		if ( '' === $zone ) {
+			return $name;
+		}
+		if ( $name === $zone ) {
+			return '@';
+		}
+		$suffix = '.' . $zone;
+		return substr( $name, -strlen( $suffix ) ) === $suffix ? substr( $name, 0, -strlen( $suffix ) ) : $name;
 	}
 
 	/**
