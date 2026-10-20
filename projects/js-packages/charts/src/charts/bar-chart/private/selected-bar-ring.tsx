@@ -1,6 +1,6 @@
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
-import { toSvgId } from '../../private/pie-keyboard-navigation/selected-segment-ring';
+import { toSvgId } from '../../private/selected-ring/selected-ring';
 import styles from '../bar-chart.module.scss';
 import { createGroupScale } from './band-scale';
 import { computeSlotRect, getValueScaleBaseline } from './comparison-bars-geometry';

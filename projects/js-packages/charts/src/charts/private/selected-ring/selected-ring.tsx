@@ -1,4 +1,4 @@
-import styles from './pie-keyboard-navigation.module.scss';
+import styles from './selected-ring.module.scss';
 
 interface SelectedSegmentRingProps {
 	/** The chart's id, which keeps the clip path unique on a page with several charts. */
