@@ -23,7 +23,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * Namespaced section identifier. Its slug, `woocommerce`, keys the section's URL and stored layouts.
@@ -346,7 +346,7 @@ class Analytics_Dashboard {
 		/**
 		 * Filters whether WooCommerce was detected.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.2.0
 		 *
 		 * @param bool $is_available Whether WooCommerce was detected in the current request.
 		 */

@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Behind a feature flag: the full date and time follow the site's date and time settings.

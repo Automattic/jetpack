@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status\Host;
 
@@ -106,7 +105,7 @@ class Main_Features {
 					'plugin'  => '',
 					'free'    => true,
 				),
-				'plans'            => array( 'backup', 'security', 'complete' ),
+				'plans'            => array( 'backup', 'security', 'pro', 'complete' ),
 				// The WordPress.com site feature the Activity Log package gates its paid history on.
 				'paid_feature'     => 'full-activity-log',
 			),
@@ -136,7 +135,7 @@ class Main_Features {
 					'plugin_url'  => 'https://wordpress.org/plugins/akismet/',
 					'free'        => true,
 				),
-				'plans'            => array( 'security', 'complete' ),
+				'plans'            => array( 'security', 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack Akismet Anti-spam', 'jetpack-my-jetpack' ),
 			),
 			'backup'            => array(
@@ -161,7 +160,7 @@ class Main_Features {
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-backup/',
 					'free'        => false,
 				),
-				'plans'            => array( 'security', 'complete' ),
+				'plans'            => array( 'security', 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' ),
 			),
 			'blaze'             => array(
@@ -214,7 +213,7 @@ class Main_Features {
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-boost/',
 					'free'        => true,
 				),
-				'plans'            => array( 'complete' ),
+				'plans'            => array( 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack Boost', 'jetpack-my-jetpack' ),
 			),
 			'crm'               => array(
@@ -243,7 +242,7 @@ class Main_Features {
 					'plugin_url'  => 'https://wordpress.org/plugins/zero-bs-crm/',
 					'free'        => true,
 				),
-				'plans'            => array( 'complete' ),
+				'plans'            => array( 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack CRM Entrepreneur', 'jetpack-my-jetpack' ),
 			),
 			'jetpack-ai'        => array(
@@ -271,7 +270,7 @@ class Main_Features {
 					'plugin'  => '',
 					'free'    => true,
 				),
-				'plans'            => array( 'complete' ),
+				'plans'            => array( 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack AI Assistant', 'jetpack-my-jetpack' ),
 			),
 			'jetpack-forms'     => array(
@@ -297,7 +296,7 @@ class Main_Features {
 					'plugin'  => '',
 					'free'    => true,
 				),
-				'plans'            => array( 'complete' ),
+				'plans'            => array( 'pro', 'complete' ),
 			),
 			'newsletter'        => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
@@ -326,7 +325,7 @@ class Main_Features {
 					'plugin'  => '',
 					'free'    => true,
 				),
-				'plans'            => array( 'growth', 'complete' ),
+				'plans'            => array( 'growth', 'pro', 'complete' ),
 			),
 			'podcast'           => array(
 				'info_url'         => 'https://jetpack.com/podcast/',
@@ -354,7 +353,7 @@ class Main_Features {
 					'plugin'  => '',
 					'free'    => true,
 				),
-				'plans'            => array( 'growth', 'complete' ),
+				'plans'            => array( 'growth', 'pro', 'complete' ),
 			),
 			'protect-dashboard' => array(
 				'info_url'         => 'https://jetpack.com/protect/',
@@ -365,7 +364,7 @@ class Main_Features {
 				'icon'             => 'shield',
 				'product'          => 'protect',
 				// Not `protect`: that module is Brute Force Protection, which has its own row.
-				'module'           => 'protect-dashboard',
+				'module'           => Products\Protect::DASHBOARD_MODULE_NAME,
 				'essential'        => true,
 				'interstitial'     => '/add-protect',
 				'free_highlights'  => array(
@@ -379,15 +378,14 @@ class Main_Features {
 					__( 'Instant email alerts when a threat is found', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					// Only while the Jetpack plugin offers its flag-gated `protect-dashboard` module, and never on
-					// WordPress.com Simple, whose partial bootstrap skips the flag. Not is_module(): it passes any slug.
-					'jetpack'     => ! ( new Host() )->is_wpcom_simple() && in_array( 'protect-dashboard', (array) ( new Modules() )->get_available(), true ),
+					// Never on WordPress.com Simple, whose partial bootstrap skips the module's flag.
+					'jetpack'     => ! ( new Host() )->is_wpcom_simple() && Products\Protect::is_dashboard_module_available(),
 					'plugin'      => 'jetpack-protect',
 					'plugin_name' => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-protect/',
 					'free'        => true,
 				),
-				'plans'            => array( 'security', 'complete' ),
+				'plans'            => array( 'security', 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack Scan', 'jetpack-my-jetpack' ),
 			),
 			'search'            => array(
@@ -417,7 +415,7 @@ class Main_Features {
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-search/',
 					'free'        => true,
 				),
-				'plans'            => array( 'complete' ),
+				'plans'            => array( 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack Search', 'jetpack-my-jetpack' ),
 			),
 			'social'            => array(
@@ -446,7 +444,7 @@ class Main_Features {
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-social/',
 					'free'        => true,
 				),
-				'plans'            => array( 'growth', 'complete' ),
+				'plans'            => array( 'growth', 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack Social', 'jetpack-my-jetpack' ),
 			),
 			'stats'             => array(
@@ -475,7 +473,7 @@ class Main_Features {
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-stats/',
 					'free'        => true,
 				),
-				'plans'            => array( 'growth', 'complete' ),
+				'plans'            => array( 'growth', 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack Stats', 'jetpack-my-jetpack' ),
 			),
 			'videopress'        => array(
@@ -503,7 +501,7 @@ class Main_Features {
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-videopress/',
 					'free'        => true,
 				),
-				'plans'            => array( 'complete' ),
+				'plans'            => array( 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack VideoPress', 'jetpack-my-jetpack' ),
 			),
 		);
@@ -527,7 +525,7 @@ class Main_Features {
 		foreach ( $definition['plans'] ?? array() as $slug ) {
 			$bundle_class = Products::get_product_class( $slug );
 
-			if ( $bundle_class ) {
+			if ( $bundle_class && ( 'pro' !== $slug || ( ! $local && ( $bundle_class::has_paid_plan_for_product() || ! empty( $bundle_class::get_pricing_for_ui()['available'] ) ) ) ) ) {
 				$badge = array(
 					'slug' => $slug,
 					'name' => $bundle_class::get_title(),
@@ -572,7 +570,7 @@ class Main_Features {
 		foreach ( $definition['plans'] ?? array() as $plan ) {
 			$bundle_class = Products::get_product_class( $plan );
 
-			if ( $bundle_class ) {
+			if ( $bundle_class && ( 'pro' !== $plan || ! empty( $bundle_class::get_pricing_for_ui()['available'] ) ) ) {
 				return array(
 					'path' => '/add-' . $plan,
 					'name' => $bundle_class::get_title(),
@@ -916,7 +914,7 @@ class Main_Features {
 	/**
 	 * Slugs the host has hidden, plus the module behind each hidden feature or product.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 * @return string[] Hidden module and feature slugs.
 	 */
 	public static function get_hidden_modules() {
@@ -925,7 +923,7 @@ class Main_Features {
 			$names = array_filter( array( $slug, $definition['product'] ?? '', $definition['module'] ?? '' ) );
 			if ( array_intersect( $names, $hidden ) ) {
 				$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
-				$hidden[]      = $definition['module'] ?? ( $product_class ? $product_class::$module_name : '' );
+				$hidden[]      = $definition['module'] ?? ( $product_class ? $product_class::get_module_name() : '' );
 			}
 		}
 		return array_values( array_unique( array_filter( $hidden ) ) );
@@ -1022,6 +1020,9 @@ class Main_Features {
 				'product'          => $definition['product'] ?? '',
 				'module'           => $definition['module'] ?? '',
 			);
+			if ( 'activity-log' === $slug && ! $local && true === ( Products\Pro::get_pricing_for_ui()['catalog_available'] ?? false ) ) {
+				$feature['paid_highlights'][0] = __( '30 days of history with VaultPress Backup or Jetpack Pro, a full year with Jetpack Complete', 'jetpack-my-jetpack' );
+			}
 			if ( $local ) {
 				unset( $feature['included'], $feature['setup_note'] );
 			}
