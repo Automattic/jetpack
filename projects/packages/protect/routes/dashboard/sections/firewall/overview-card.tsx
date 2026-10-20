@@ -41,8 +41,14 @@ const UNAVAILABLE: FirewallState = {
 	ipRules: {},
 };
 
+// The only setting this card saves.
+const FIREWALL_KEYS = [ 'waf' ];
+
 // One id for the test's snackbars, so the result replaces "Testing the firewall…".
 const NOTICE_ID = 'jetpack-protect-firewall-test';
+
+/** Opens the Settings tab at this section's card. */
+const SETTINGS_PARAMS = { section: 'firewall' };
 
 type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 
@@ -274,7 +280,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					onOpenChange={ setDetailsOpen }
 				/>
 			) }
-			<SettingsErrorRow settings={ settings } />
+			<SettingsErrorRow settings={ settings } keys={ FIREWALL_KEYS } />
 			{ ! active && (
 				<CardRow>
 					<FirewallToggle data={ settings } />
@@ -287,7 +293,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 							label={ __( 'All-time blocked requests', 'jetpack-protect-pkg' ) }
 							value={ blocks.blockedCount === null ? '—' : formatNumber( blocks.blockedCount ) }
 						/>
-						<TabLink tab="settings" onOpen={ openTab }>
+						<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
 							{ __( 'Configure Firewall', 'jetpack-protect-pkg' ) }
 						</TabLink>
 					</Stack>

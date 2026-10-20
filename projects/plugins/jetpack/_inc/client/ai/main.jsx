@@ -479,7 +479,7 @@ export default function App() {
 						) }
 
 						{ ! isLoading && ! error && !! blogId && ! userUnlinked && hasMcpAccess && (
-							<Stack direction="column" gap="md">
+							<Stack direction="column" gap="lg">
 								{ view === 'mcp' && (
 									<McpHub
 										mcpAbilities={ mcpAbilities }

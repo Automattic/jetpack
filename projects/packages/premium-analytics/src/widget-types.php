@@ -45,7 +45,7 @@ const WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_widget_types';
  *
  * @since 0.9.0
  */
-const WIDGET_API_VERSION = '1.14.0';
+const WIDGET_API_VERSION = '1.15.0';
 
 /**
  * Returns the i18n schema describing which widget metadata fields are
@@ -506,6 +506,7 @@ const WIDGET_TYPE_PLAN_FEATURES = array(
 	'jpa/most-commented-authors'         => 'insights',
 	'jpa/shares'                         => 'insights',
 	'jpa/tags'                           => 'tags',
+	'jpa/post-all-time-traffic'          => 'recent-7-days',
 );
 
 /**

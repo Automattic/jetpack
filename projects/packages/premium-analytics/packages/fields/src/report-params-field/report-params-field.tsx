@@ -10,6 +10,7 @@ import {
 	getDefaultReportParams,
 	hasComparisonEnabled,
 	normalizeReportParams,
+	useScopeLockedIntervals,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -188,8 +189,11 @@ function ReportParamsControl( {
 	} = useStagedValue< ReportParams >( committed, saveReportParams );
 
 	const defaultPreset = getDefaultPreset();
+	const lockedIntervals = useScopeLockedIntervals();
 
-	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset );
+	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset, {
+		lockedIntervals,
+	} );
 
 	const range = {
 		from: decodeDateSearchParam( reportParams.from ),
@@ -300,15 +304,18 @@ function ReportParamsControl( {
 		const allowed = getAllowedIntervalsForPreset(
 			reportParams.preset,
 			reportParams.from ?? '',
-			reportParams.to ?? ''
+			reportParams.to ?? '',
+			lockedIntervals
 		);
 
 		return periods ? drawableIntervals( allowed, periods ) : allowed;
-	}, [ reportParams.preset, reportParams.from, reportParams.to, periods ] );
+	}, [ reportParams.preset, reportParams.from, reportParams.to, periods, lockedIntervals ] );
 
 	// Check what the chart draws, through the call the chart itself makes: a
 	// stored bucket the widget clamps away is not what is on screen.
-	const interval = periods ? chartInterval( reportParams, periods ) : reportParams.interval;
+	const interval = periods
+		? chartInterval( reportParams, periods, lockedIntervals )
+		: reportParams.interval;
 
 	const changeInterval = useCallback(
 		( nextInterval: IntervalType ) => {

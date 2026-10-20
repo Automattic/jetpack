@@ -92,7 +92,7 @@ class Scan_Status extends Status {
 	/**
 	 * Gets the last Scan status stored on the site, even if it has expired, without asking WordPress.com.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @return Status_Model|null Null when no status has been stored yet.
 	 */

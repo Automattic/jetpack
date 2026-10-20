@@ -180,8 +180,7 @@ describe( 'Overview page view', () => {
 		);
 	}
 
-	beforeEach( async () => {
-		( await import( '../src/dashboard/screens/overview' ) ).resetPageViewForTesting();
+	beforeEach( () => {
 		// Declared, not incidental: these tests are what pin the page view firing on a
 		// plan-less visit, which is why the event sits above `<Gates>`. The bare
 		// `mockResolvedValue( null )` produced the same verdict, but silently.

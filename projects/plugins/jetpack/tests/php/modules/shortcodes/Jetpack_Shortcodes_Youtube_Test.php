@@ -118,7 +118,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	/**
 	 * @author robertbpugh
 	 * @dataProvider get_youtube_regex_urls
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param string $url      The URL to match.
 	 * @param bool   $expected Whether the regex should match it.

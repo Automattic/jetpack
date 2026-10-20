@@ -133,14 +133,21 @@ export function UnavailableCard( { icon, title }: { icon: ReactElement; title: s
 }
 
 /**
- * A row showing the last settings save error, if any.
+ * A row showing why the last save of one of the card's settings failed, until dismissed.
  *
  * @param props          - Component props.
  * @param props.settings - Jetpack settings, with their error.
- * @return The row, or nothing.
+ * @param props.keys     - The settings this card saves.
+ * @return The row, or nothing without an error from one of `keys`.
  */
-export function SettingsErrorRow( { settings }: { settings: ProtectSettingsData } ) {
-	if ( ! settings.error ) {
+export function SettingsErrorRow( {
+	settings,
+	keys,
+}: {
+	settings: ProtectSettingsData;
+	keys: string[];
+} ) {
+	if ( ! settings.error || ! settings.errorKeys.some( key => keys.includes( key ) ) ) {
 		return null;
 	}
 	return (

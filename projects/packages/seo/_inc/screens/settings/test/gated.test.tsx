@@ -74,6 +74,7 @@ const buildForm = ( hasLegacy: boolean ): SettingsForm => {
 		setField: jest.fn(),
 		setSchemaSettings: jest.fn(),
 		setVerification: jest.fn(),
+		saveVerification: jest.fn(),
 		commit: jest.fn(),
 		commitFields: jest.fn(),
 		isDirty: () => false,

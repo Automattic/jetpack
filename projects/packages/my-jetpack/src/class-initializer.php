@@ -47,7 +47,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.10.0';
+	const PACKAGE_VERSION = '6.11.0';
 
 	/**
 	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
@@ -605,7 +605,7 @@ class Initializer {
 	 * does not apply. `is_wpcom_platform()` covers Simple and WordPress.com on Atomic, and
 	 * requires wpcomsh, so other Atomic-hosted products still count as self-hosted here.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @return bool
 	 */
@@ -636,7 +636,7 @@ class Initializer {
 	 *
 	 * @internal Not part of the package's public API.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @return bool
 	 */
@@ -647,7 +647,7 @@ class Initializer {
 	/**
 	 * The wizard's configuration, or null while the takeover stays on its single screen.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @return array{exitUrl: string, dashboardUrl: string}|null
 	 */
@@ -985,6 +985,7 @@ class Initializer {
 				'isJetpackPluginActive'  => class_exists( 'Jetpack' ),
 				'latestBoostSpeedScores' => $latest_score,
 				'seoOptIn'               => self::get_seo_opt_in_state(),
+				'protectPageModuleUrls'  => (object) Products\Protect::get_protect_page_module_urls(),
 				'partnerCoupon'          => self::get_partner_coupon_screen(),
 			)
 		);
@@ -1047,7 +1048,7 @@ class Initializer {
 	/**
 	 * Whether module management can use the REST API.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 * @return bool
 	 */
 	public static function is_modules_rest_api_enabled() {
@@ -1068,7 +1069,7 @@ class Initializer {
 	/**
 	 * Get a Features management link with a classic Modules fallback.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 * @param array     $args     Query arguments from a classic Modules screen link; only `s` and `module_tag` can carry over to Features.
 	 * @param bool|null $eligible Set to true when the URL points at the Features tab, false when it is the classic Modules screen.
 	 * @return string The management URL.
@@ -1078,7 +1079,7 @@ class Initializer {
 		/**
 		 * Filters whether links to the classic Modules screen may send people to the Features tab in My Jetpack instead.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.11.0
 		 * @param bool $available True to allow the Features tab; false keeps the classic Modules screen, for a host where My Jetpack is not shown.
 		 */
 		$available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
@@ -1176,7 +1177,7 @@ class Initializer {
 	 * On a My Jetpack page reached from a redirected Modules link (`modules_fallback=1`), send the browser back to the classic Modules screen:
 	 * always when JavaScript is off, and for everyone when the REST API is off or blocked.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 * @return void
 	 */
 	public static function print_modules_fallback() {
@@ -1393,7 +1394,7 @@ class Initializer {
 	/**
 	 * Register My Jetpack's feature flags.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @return void
 	 */

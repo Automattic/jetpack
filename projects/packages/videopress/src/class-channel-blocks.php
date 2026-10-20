@@ -1,6 +1,6 @@
 <?php
 /**
- * The VideoPress channel blocks.
+ * The channel blocks: channel details, video details, playlist details and episode navigation.
  *
  * @package automattic/jetpack-videopress
  */
@@ -23,9 +23,10 @@ class Channel_Blocks {
 	 * @var array<string, string>
 	 */
 	const BLOCKS = array(
-		'videopress/channel-details'  => 'render_channel_details',
-		'videopress/video-details'    => 'render_video_details',
-		'videopress/playlist-details' => 'render_playlist_details',
+		'videopress/channel-details'    => 'render_channel_details',
+		'videopress/video-details'      => 'render_video_details',
+		'videopress/playlist-details'   => 'render_playlist_details',
+		'videopress/episode-navigation' => 'render_episode_navigation',
 	);
 
 	/**
@@ -416,6 +417,59 @@ class Channel_Blocks {
 			'<div %1$s>%2$s</div>',
 			get_block_wrapper_attributes( array( 'class' => 'videopress-playlist-details is-source-' . $source ) ),
 			$markup
+		);
+	}
+
+	/**
+	 * Previous and next episode on a video page: within the playlist the page
+	 * plays from, else in upload order.
+	 *
+	 * @return string
+	 */
+	public static function render_episode_navigation() {
+		$guid = Channel::queried_guid();
+		if ( '' === $guid ) {
+			return '';
+		}
+
+		$playlist = Channel::queried_playlist();
+		$sequence = $playlist ? array_column( $playlist['videos'], 'guid' ) : array();
+		if ( ! in_array( $guid, $sequence, true ) ) {
+			$playlist = null;
+			$sequence = array_reverse( array_column( Channel_Data::videos(), 'guid' ) );
+		}
+		$position = array_search( $guid, $sequence, true );
+		if ( false === $position ) {
+			return '';
+		}
+
+		$links = '';
+		foreach ( array(
+			'prev' => array( $position - 1, __( '← Previous episode', 'jetpack-videopress-pkg' ) ),
+			'next' => array( $position + 1, __( 'Next episode →', 'jetpack-videopress-pkg' ) ),
+		) as $direction => list( $index, $label ) ) {
+			$other = $sequence[ $index ] ?? '';
+			$id    = '' !== $other ? Channel::attachment_id( $other ) : 0;
+			if ( ! $id ) {
+				continue;
+			}
+			$links .= sprintf(
+				'<a class="videopress-episode-navigation__link is-%1$s" href="%2$s" rel="%1$s"><span class="videopress-episode-navigation__label">%3$s</span><span class="videopress-episode-navigation__title">%4$s</span></a>',
+				esc_attr( $direction ),
+				esc_url( Channel::video_url( $id, $playlist ? $playlist['key'] : '' ) ),
+				esc_html( $label ),
+				esc_html( Channel_Data::video_details( $other, $id )['title'] )
+			);
+		}
+		if ( '' === $links ) {
+			return '';
+		}
+
+		return sprintf(
+			'<nav %1$s aria-label="%2$s">%3$s</nav>',
+			get_block_wrapper_attributes( array( 'class' => 'videopress-episode-navigation' ) ),
+			esc_attr__( 'Episodes', 'jetpack-videopress-pkg' ),
+			$links
 		);
 	}
 }
