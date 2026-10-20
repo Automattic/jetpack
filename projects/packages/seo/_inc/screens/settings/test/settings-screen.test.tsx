@@ -176,7 +176,9 @@ describe( 'Settings module completion status', () => {
 		await expect(
 			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
 		).resolves.toBeDisabled();
-		expect( screen.getByText( /Another SEO plugin is controlling canonical URLs/i ) ).toBeVisible();
+		expect(
+			screen.getByText( /Jetpack won't add canonical URLs to avoid conflicts/i )
+		).toBeVisible();
 	} );
 
 	describe( 'Site visibility — counts its two toggles', () => {

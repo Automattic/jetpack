@@ -59,7 +59,7 @@ const canonicalHelp = __(
 	'jetpack-seo'
 );
 const canonicalConflictHelp = __(
-	'Another SEO plugin is controlling canonical URLs. This setting cannot be changed while it is active.',
+	"Another SEO plugin is active, so Jetpack won't add canonical URLs to avoid conflicts. Deactivate that plugin to use this setting.",
 	'jetpack-seo'
 );
 // Figures are what search *displays*, not a limit we enforce — the field is
