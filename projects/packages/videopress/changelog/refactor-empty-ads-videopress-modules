@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Drop the empty Top videos widget module; the dashboard builds the type from the record.
+
+
