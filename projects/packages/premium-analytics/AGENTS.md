@@ -314,7 +314,7 @@ Each new widget MUST ship as a self-contained folder with these files:
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
 ├── widget.json                             # everything JSON can carry: name, icon, title, description, help, category, presentation, static attributes
-├── widget.ts                               # only what JSON cannot: getElements/getValue/setValue, helper-built fields, example
+├── widget.ts                               # optional: only what JSON cannot (getElements/getValue/setValue, helper-built fields, example)
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx
 ```
