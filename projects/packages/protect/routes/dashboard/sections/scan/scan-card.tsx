@@ -9,7 +9,7 @@ import { HISTORY_STATUS_PARAM } from '../history/store';
 import SafeState from './safe-state';
 import ScanButton from './scan-button';
 import ScanningState from './scanning-state';
-import { SCAN_PATH, mergeScan, setScan, useScan } from './store';
+import { SCAN_PATH, mergeScan, refreshScan, useScan } from './store';
 import { loadIgnored } from './threat-actions';
 import threatsIcon from './threats-icon';
 import ThreatsList from './threats-list';
@@ -92,19 +92,11 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 		}
 	}, [ hasPlan ] );
 
-	const fetchScan = useCallback(
-		() =>
-			apiFetch< ScanState >( { path: SCAN_PATH } )
-				.then( mergeScan )
-				.catch( () => setScan( current => ( { ...current, error: true, scanning: false } ) ) ),
-		[]
-	);
-
 	const refresh = useCallback( () => {
 		setIsFetching( true );
 		setPolls( 0 );
-		fetchScan().finally( () => setIsFetching( false ) );
-	}, [ fetchScan ] );
+		refreshScan().finally( () => setIsFetching( false ) );
+	}, [] );
 
 	const startScan = useCallback( () => {
 		setIsStarting( true );
@@ -129,11 +121,11 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			return;
 		}
 		const timer = setTimeout(
-			() => fetchScan().finally( () => setPolls( count => count + 1 ) ),
+			() => refreshScan().finally( () => setPolls( count => count + 1 ) ),
 			pollInterval( polls )
 		);
 		return () => clearTimeout( timer );
-	}, [ isScanning, isHidden, polls, fetchScan ] );
+	}, [ isScanning, isHidden, polls ] );
 
 	// The running scan gets the whole card, without the header and footer.
 	if ( isScanning ) {

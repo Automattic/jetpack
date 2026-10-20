@@ -7,6 +7,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { home, link, seen } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
 import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import UpsellBanner from '../../components/upsell-banner';
@@ -62,9 +63,9 @@ const canonicalConflictHelp = __(
 	"Another SEO plugin is active, so Jetpack won't add canonical URLs to avoid conflicts. Deactivate that plugin to use this setting.",
 	'jetpack-seo'
 );
-// Figures are what search *displays*, not a limit we enforce — the field is
-// deliberately uncapped. Google measures a pixel width (920px desktop / 680px
-// mobile), which works out around 155 and 120 characters.
+// Figures are what search *displays*, not a limit we enforce. Google measures a
+// pixel width (920px desktop / 680px mobile), which works out around 155 and 120
+// characters.
 //
 // No social figure is quoted on purpose. `functions.opengraph.php` truncates
 // `og:description` at 197, but that happens *before* the `jetpack_open_graph_tags`
@@ -75,6 +76,9 @@ const frontPageHelp = __(
 	'Shown under your site name in search results and social shares. About the first 155 characters display in search, or 120 on mobile.',
 	'jetpack-seo'
 );
+// Keep in step with the 155 quoted in `frontPageHelp`.
+const descriptionSearchLength = 155;
+const descriptionMaxLength = 300;
 
 interface Props {
 	form: SettingsForm;
@@ -167,6 +171,13 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// Count code points, not UTF-16 units, so an emoji or an astral character
 	// counts once rather than twice.
 	const descriptionLength = [ ...local.front_page_description ].length;
+	// `maxLength` caps UTF-16 units, so test the cap in those: an emoji spends two.
+	const descriptionAtMax = local.front_page_description.length >= descriptionMaxLength;
+	const descriptionCount = sprintf(
+		/* translators: %d: number of characters currently in the front-page description. */
+		_n( '%d character', '%d characters', descriptionLength, 'jetpack-seo' ),
+		descriptionLength
+	);
 
 	// Single toggles and single fields are binary — they have no partial state,
 	// so they move straight from not-started to complete.
@@ -215,20 +226,28 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						help={ frontPageHelp }
 						value={ local.front_page_description }
 						onChange={ next => setField( { front_page_description: next } ) }
-						maxLength={ 300 }
+						maxLength={ descriptionMaxLength }
 						rows={ 3 }
 						disabled={ isSaving }
 						__nextHasNoMarginBottom
 					/>
-					{ /* Count and Save share a row, matching the title-structure footer. The
-					     count is informational only — nothing here is capped. */ }
+					{ /* Count and Save share a row, matching the title-structure footer. */ }
 					<Stack direction="row" justify="space-between" align="center" gap="sm">
-						<Text variant="body-sm" className={ styles.charCount }>
-							{ sprintf(
-								/* translators: %d: number of characters currently in the front-page description. */
-								_n( '%d character', '%d characters', descriptionLength, 'jetpack-seo' ),
-								descriptionLength
-							) }
+						<Text
+							variant="body-sm"
+							className={ clsx( styles.charCount, {
+								[ styles.charCountWarn ]:
+									descriptionLength > descriptionSearchLength && ! descriptionAtMax,
+								[ styles.charCountMax ]: descriptionAtMax,
+							} ) }
+						>
+							{ descriptionAtMax
+								? sprintf(
+										/* translators: %s: the character count, e.g. "300 characters". */
+										__( '%s — Maximum characters reached.', 'jetpack-seo' ),
+										descriptionCount
+									)
+								: descriptionCount }
 						</Text>
 						<Button
 							onClick={ () => commitFields( [ 'front_page_description' ] ) }

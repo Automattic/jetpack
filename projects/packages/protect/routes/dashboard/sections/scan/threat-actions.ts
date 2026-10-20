@@ -5,7 +5,7 @@ import { __, sprintf, type TransformedText } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { getThreatLabel } from './labels';
-import { SCAN_PATH, createStore, getScan, mergeScan, setScan } from './store';
+import { SCAN_PATH, createStore, editScan, getScan, startRead, startReportRead } from './store';
 import type { ScanState, ScanThreat } from './types';
 
 type FixStatus = { status: string; error?: string | null; scan?: ScanState };
@@ -138,8 +138,9 @@ const otherThan = ( threat: ScanThreat ) => ( item: ScanThreat ) =>
  * @return Resolves once the list is in the store; failures leave it unloaded.
  */
 export function loadIgnored(): Promise< void > {
+	const apply = startRead();
 	return apiFetch< ScanThreat[] >( { path: `${ SCAN_PATH }/ignored` } )
-		.then( ignored => mergeScan( { ignored } ) )
+		.then( ignored => apply( { ignored } ) )
 		.catch( () => {} );
 }
 
@@ -172,7 +173,7 @@ function setIgnored( threat: ScanThreat, ignore: boolean, open?: OpenThreat ): P
 	} )
 		.then( () => {
 			const moved = { ...threat, status: ignore ? ( 'ignored' as const ) : ( 'current' as const ) };
-			setScan( current => {
+			editScan( current => {
 				const threats = ( current.threats ?? [] ).filter( otherThan( threat ) );
 				const ignored = ( current.ignored ?? [] ).filter( otherThan( threat ) );
 				return ignore
@@ -229,6 +230,7 @@ export async function fixThreat( threat: ScanThreat, open?: OpenThreat ): Promis
 	notifyStarted( threat, __( 'Fixing the threat in %s…', 'jetpack-protect-pkg' ), open );
 
 	try {
+		let apply = startReportRead();
 		let result = await apiFetch< FixStatus >( { path: threatPath( id, 'fix' ), method: 'POST' } );
 		for ( let polls = 0; result.status !== 'fixed' && result.status !== 'not_fixed'; polls++ ) {
 			if ( polls >= MAX_FIX_POLLS ) {
@@ -243,11 +245,19 @@ export async function fixThreat( threat: ScanThreat, open?: OpenThreat ): Promis
 				);
 			}
 			await new Promise( resolve => setTimeout( resolve, FIX_POLL_INTERVAL ) );
+			apply = startReportRead();
 			result = await apiFetch< FixStatus >( { path: threatPath( id, 'fix' ) } );
 		}
 
-		mergeScan( result.scan );
+		if ( result.scan ) {
+			apply( result.scan );
+		}
 		if ( result.status === 'fixed' ) {
+			// A Scan read already in flight predates the fix, so record it like the reader's own edits.
+			editScan( current => ( {
+				...current,
+				threats: current.threats?.filter( otherThan( threat ) ),
+			} ) );
 			setBusy( id );
 			/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 			return notify( threat, __( 'Fixed the threat in %s.', 'jetpack-protect-pkg' ) );
@@ -320,7 +330,7 @@ export function deleteSoftware( threat: ScanThreat ): Promise< string | null > {
 		data: { type, slug },
 	} )
 		.then( () => {
-			setScan( current => ( {
+			editScan( current => ( {
 				...current,
 				threats: ( current.threats ?? [] ).filter( isElsewhere ),
 				ignored: current.ignored?.filter( isElsewhere ),

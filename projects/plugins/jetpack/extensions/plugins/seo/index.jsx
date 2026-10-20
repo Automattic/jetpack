@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { LinkPreviewModalWithTrigger } from '@automattic/jetpack-publicize/link-preview';
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { isSimpleSite, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	useModuleStatus,
 	getJetpackExtensionAvailability,
@@ -51,9 +51,10 @@ const isSeoEnhancerAvailable =
 	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
 	supportsPublishSidebar;
 
-// Automatic generation never runs on Simple sites and follows the AI SEO
-// feature everywhere else.
 const canHaveAutoEnhance = canAutoEnhanceMetadata();
+
+// The editor can't save this setting on Simple; see the seo-enhancer store.
+const hideAutoEnhanceToggle = isSimpleSite();
 
 // The AI SEO feature covers manual and automatic generation alike (host and
 // master gates folded in server-side); with it off the enhancer is not
@@ -184,7 +185,10 @@ const Seo = () => {
 			<JetpackPluginSidebar>
 				<PanelBody title={ __( 'Optimize SEO', 'jetpack' ) } className="jetpack-seo-panel">
 					{ isSeoEnhancerAvailable && hasRequiredPlanForEnhancer && isAiSeoFeatureEnabled && (
-						<SeoEnhancer placement="jetpack-sidebar" disableAutoEnhance={ ! canHaveAutoEnhance } />
+						<SeoEnhancer
+							placement="jetpack-sidebar"
+							hideAutoEnhanceToggle={ hideAutoEnhanceToggle }
+						/>
 					) }
 					<PanelRow
 						className={ clsx( {
@@ -236,7 +240,10 @@ const Seo = () => {
 				icon={ <JetpackEditorPanelLogo /> }
 			>
 				{ isSeoEnhancerAvailable && hasRequiredPlanForEnhancer && isAiSeoFeatureEnabled && (
-					<SeoEnhancer placement="document-settings" disableAutoEnhance={ ! canHaveAutoEnhance } />
+					<SeoEnhancer
+						placement="document-settings"
+						hideAutoEnhanceToggle={ hideAutoEnhanceToggle }
+					/>
 				) }
 				<PanelRow>
 					<SeoTitlePanel />
@@ -260,7 +267,7 @@ const Seo = () => {
 					{ isSeoEnhancerAvailable && hasRequiredPlanForEnhancer && isAiSeoFeatureEnabled && (
 						<SeoEnhancer
 							placement="jetpack-prepublish-sidebar"
-							disableAutoEnhance={ ! canHaveAutoEnhance }
+							hideAutoEnhanceToggle={ hideAutoEnhanceToggle }
 						/>
 					) }
 					<PanelRow>
