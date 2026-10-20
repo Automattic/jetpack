@@ -288,7 +288,7 @@ export function NewsletterAccessRadioButtons( {
 	const isLoading = useSelect( select => select( membershipProductsStore ).isApiStateLoading() );
 
 	// Show paid disabled with a setup link beside it, so creators discover paid newsletters.
-	const { isPaidAvailable, showPaidAsDisabled } = getPaidAccessState( {
+	const { isPaidAvailable, showPaidAsDisabled, showSetupPrompt } = getPaidAccessState( {
 		stripeConnectUrl,
 		hasTierPlans,
 		isLoading,
@@ -362,7 +362,7 @@ export function NewsletterAccessRadioButtons( {
 			value: accessOptions.paid_subscribers.key,
 			label: withCount( accessOptions.paid_subscribers.label, paidSubscribersReach ),
 			disabled: showPaidAsDisabled,
-			describedBy: showPaidAsDisabled ? setupLinkId : undefined,
+			describedBy: showSetupPrompt ? setupLinkId : undefined,
 		},
 	];
 
@@ -399,7 +399,7 @@ export function NewsletterAccessRadioButtons( {
 					) ) }
 				</div>
 			</fieldset>
-			{ showPaidAsDisabled && (
+			{ showSetupPrompt && (
 				<Link id={ setupLinkId } openInNewTab href={ getPaidPlanLink( hasTierPlans ) }>
 					{ __( 'Turn on paid subscribers', 'jetpack' ) }
 				</Link>

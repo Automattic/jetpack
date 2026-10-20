@@ -72,7 +72,7 @@ describe( 'getPaidAccessState', () => {
 	test( 'offers paid access once Stripe is connected and a tier exists', () => {
 		expect(
 			getPaidAccessState( { ...connected, accessLevel: accessOptions.subscribers.key } )
-		).toEqual( { isPaidAvailable: true, showPaidAsDisabled: false } );
+		).toEqual( { isPaidAvailable: true, showPaidAsDisabled: false, showSetupPrompt: false } );
 	} );
 
 	test( 'disables paid access without Stripe', () => {
@@ -82,7 +82,7 @@ describe( 'getPaidAccessState', () => {
 				hasTierPlans: true,
 				accessLevel: accessOptions.subscribers.key,
 			} )
-		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: true } );
+		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: true, showSetupPrompt: true } );
 	} );
 
 	test( 'disables paid access without a tier', () => {
@@ -92,10 +92,10 @@ describe( 'getPaidAccessState', () => {
 				hasTierPlans: false,
 				accessLevel: accessOptions.everybody.key,
 			} )
-		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: true } );
+		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: true, showSetupPrompt: true } );
 	} );
 
-	test( 'does not disable paid while the memberships status is still loading', () => {
+	test( 'keeps paid disabled but holds the setup prompt while the status is loading', () => {
 		expect(
 			getPaidAccessState( {
 				stripeConnectUrl: null,
@@ -103,7 +103,7 @@ describe( 'getPaidAccessState', () => {
 				accessLevel: accessOptions.subscribers.key,
 				isLoading: true,
 			} )
-		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: false } );
+		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: true, showSetupPrompt: false } );
 	} );
 
 	test( 'keeps paid selectable on a post already set to paid after Stripe disconnects', () => {
@@ -113,6 +113,6 @@ describe( 'getPaidAccessState', () => {
 				hasTierPlans: true,
 				accessLevel: accessOptions.paid_subscribers.key,
 			} )
-		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: false } );
+		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: false, showSetupPrompt: false } );
 	} );
 } );

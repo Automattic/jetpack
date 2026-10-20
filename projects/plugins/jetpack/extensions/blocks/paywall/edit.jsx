@@ -52,8 +52,8 @@ function PaywallEdit( { clientId } ) {
 		};
 	} );
 
-	const paidSetupId = `${ useInstanceId( PaywallEdit ) }-paid-setup`;
-	const { isPaidAvailable, showPaidAsDisabled } = getPaidAccessState( {
+	const paidSetupId = useInstanceId( PaywallEdit, 'jetpack-paywall-paid-setup' );
+	const { showPaidAsDisabled, showSetupPrompt } = getPaidAccessState( {
 		stripeConnectUrl,
 		hasTierPlans,
 		accessLevel,
@@ -138,15 +138,11 @@ function PaywallEdit( { clientId } ) {
 								</MenuItem>
 								<MenuItem
 									onClick={ () => {
-										// Paid can't be granted until Stripe and a tier exist, so never save it
-										// before then, even while the status is still loading.
-										if ( isPaidAvailable || accessLevel === accessOptions.paid_subscribers.key ) {
-											setAccess( accessOptions.paid_subscribers.key );
-										}
+										setAccess( accessOptions.paid_subscribers.key );
 										closeDropdown();
 									} }
 									disabled={ showPaidAsDisabled }
-									aria-describedby={ showPaidAsDisabled ? paidSetupId : undefined }
+									aria-describedby={ showSetupPrompt ? paidSetupId : undefined }
 									isSelected={ accessLevel === accessOptions.paid_subscribers.key }
 									icon={ accessLevel === accessOptions.paid_subscribers.key && check }
 									iconPosition="right"
@@ -154,7 +150,7 @@ function PaywallEdit( { clientId } ) {
 									{ getLabel( accessOptions.paid_subscribers.key ) }
 								</MenuItem>
 							</MenuGroup>
-							{ showPaidAsDisabled && (
+							{ showSetupPrompt && (
 								<MenuGroup>
 									<MenuItem
 										id={ paidSetupId }

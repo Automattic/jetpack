@@ -93,7 +93,7 @@ describe( 'PaywallEdit', () => {
 		);
 	} );
 
-	test( 'keeps paid subscribers enabled while the membership status is loading', async () => {
+	test( 'keeps paid subscribers disabled without a setup prompt while the status is loading', async () => {
 		mockAccessLevel = accessOptions.subscribers.key;
 		mockConnectUrl = null;
 		mockTierProducts = [];
@@ -106,7 +106,10 @@ describe( 'PaywallEdit', () => {
 
 		expect(
 			screen.getByRole( 'menuitem', { name: accessOptions.paid_subscribers.label } )
-		).not.toHaveAttribute( 'aria-disabled' );
+		).toHaveAttribute( 'aria-disabled', 'true' );
+		expect(
+			screen.queryByRole( 'menuitem', { name: /Turn on paid subscribers/ } )
+		).not.toBeInTheDocument();
 	} );
 
 	test( 'does not save paid access when it is clicked while the status is loading', async () => {

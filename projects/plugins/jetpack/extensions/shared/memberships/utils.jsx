@@ -42,7 +42,7 @@ export const getPaidPlanLink = alreadyHasTierPlans => {
  * @param {boolean}     props.hasTierPlans     - Whether a newsletter tier exists.
  * @param {string}      props.accessLevel      - The post's saved access level.
  * @param {boolean}     props.isLoading        - Whether the memberships status is still loading.
- * @return {{isPaidAvailable: boolean, showPaidAsDisabled: boolean}} Paid option state.
+ * @return {{isPaidAvailable: boolean, showPaidAsDisabled: boolean, showSetupPrompt: boolean}} Paid option state.
  */
 export const getPaidAccessState = ( {
 	stripeConnectUrl,
@@ -52,11 +52,13 @@ export const getPaidAccessState = ( {
 } ) => {
 	const isPaidAvailable = stripeConnectUrl === null && hasTierPlans;
 	// Keep the option selectable when it is already the saved value, so a post set to
-	// paid before Stripe was disconnected does not end up with nothing selected. While the
-	// status is still loading, "not known yet" must not read as "not set up".
+	// paid before Stripe was disconnected does not end up with nothing selected.
 	const showPaidAsDisabled =
-		! isLoading && ! isPaidAvailable && accessLevel !== accessOptions.paid_subscribers.key;
-	return { isPaidAvailable, showPaidAsDisabled };
+		! isPaidAvailable && accessLevel !== accessOptions.paid_subscribers.key;
+	// While the status is still loading the option stays disabled, but "not known yet" must
+	// not be presented as "not set up", so the setup prompt waits for the status.
+	const showSetupPrompt = showPaidAsDisabled && ! isLoading;
+	return { isPaidAvailable, showPaidAsDisabled, showSetupPrompt };
 };
 
 export const getShowMisconfigurationWarning = ( postVisibility, accessLevel ) => {
