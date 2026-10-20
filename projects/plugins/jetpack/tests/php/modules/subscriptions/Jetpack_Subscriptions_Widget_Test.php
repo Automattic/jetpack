@@ -9,7 +9,6 @@ require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
 require_once JETPACK__PLUGIN_DIR . 'tests/php/extensions/blocks/premium-content/mocks/class-blog-subscriber.php';
 require_once JETPACK__PLUGIN_DIR . 'tests/php/extensions/blocks/premium-content/mocks/class-blog-subscription.php';
 require_once JETPACK__PLUGIN_DIR . 'tests/php/extensions/blocks/premium-content/mocks/wpcom-subs-is-subscribed.php';
-require_once JETPACK__PLUGIN_DIR . 'tests/php/extensions/blocks/premium-content/mocks/trait-without-wpcom-include-warning.php';
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -45,7 +44,8 @@ class Jetpack_Subscriptions_Widget_Test extends WP_UnitTestCase {
 			wp_set_current_user( self::factory()->user->create( array( 'user_email' => self::SUBSCRIBER_EMAIL ) ) );
 		}
 		$GLOBALS['wpcom_subs_is_subscribed_mock_return'] = $following;
-		$_GET['subscribe']                               = 'success';
+		// On WordPress.com the check ignores ?subscribe=success, so seeding it must not flip the result.
+		$_GET['subscribe'] = 'success';
 
 		$subscribed = $this->without_wpcom_include_warning( array( Jetpack_Subscriptions_Widget::class, 'is_current_user_subscribed' ) );
 
@@ -60,6 +60,7 @@ class Jetpack_Subscriptions_Widget_Test extends WP_UnitTestCase {
 	public static function provide_wpcom_subscription_states() {
 		return array(
 			'Reader follower with no email subscription' => array( true, true, true ),
+			'logged-in reader who does not follow'       => array( false, true, false ),
 			'logged out, even after ?subscribe=success'  => array( true, false, false ),
 		);
 	}

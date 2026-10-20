@@ -9,7 +9,6 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subsc
 require_once __DIR__ . '/mocks/class-blog-subscriber.php';
 require_once __DIR__ . '/mocks/class-blog-subscription.php';
 require_once __DIR__ . '/mocks/wpcom-subs-is-subscribed.php';
-require_once __DIR__ . '/mocks/trait-without-wpcom-include-warning.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
