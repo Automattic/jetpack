@@ -40,14 +40,8 @@ domReady( () => {
 		dialog.setAttribute( 'aria-label', Jetpack_Subscriptions.modalLabel );
 	}
 
-	let focusBeforeOpen = null;
-
 	function getFocusableElements() {
-		return Array.from(
-			dialog.querySelectorAll(
-				'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-			)
-		);
+		return wp.dom.focus.tabbable.find( dialog );
 	}
 
 	// The page behind stays in the tab order, so wrap Tab and Shift+Tab at the dialog's edges.
@@ -141,7 +135,6 @@ domReady( () => {
 			return;
 		}
 
-		focusBeforeOpen = document.activeElement;
 		modal.classList.add( 'open' );
 		document.body.classList.add( 'jetpack-subscribe-modal-open' );
 		dialog.addEventListener( 'keydown', keepFocusInDialog );
@@ -159,13 +152,9 @@ domReady( () => {
 		modal.classList.remove( 'open' );
 		document.body.classList.remove( 'jetpack-subscribe-modal-open' );
 		dialog.removeEventListener( 'keydown', keepFocusInDialog );
+		// The pop-up only opens while nothing has focus, so hand focus back to the page itself.
 		if ( dialog.contains( document.activeElement ) ) {
-			// The pop-up only opens while nothing has focus, so this returns focus to the page.
-			if ( focusBeforeOpen && focusBeforeOpen !== document.body && focusBeforeOpen.focus ) {
-				focusBeforeOpen.focus();
-			} else {
-				document.activeElement.blur();
-			}
+			document.activeElement.blur();
 		}
 		window.removeEventListener( 'keydown', closeModalOnEscapeKeydown );
 		window.removeEventListener( 'storage', onLocalStorage );

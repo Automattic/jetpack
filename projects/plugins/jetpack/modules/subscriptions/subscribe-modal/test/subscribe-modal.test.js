@@ -31,7 +31,17 @@ describe( 'Subscribe pop-up', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
 		window.localStorage.clear();
-		global.wp = { domReady: callback => callback() };
+		// jsdom has no layout, so @wordpress/dom would see every element as hidden; the live check covers that.
+		global.wp = {
+			domReady: callback => callback(),
+			dom: {
+				focus: {
+					tabbable: {
+						find: element => Array.from( element.querySelectorAll( 'a[href], button, input' ) ),
+					},
+				},
+			},
+		};
 		global.Jetpack_Subscriptions = {
 			modalLoadTime: 0,
 			modalScrollThreshold: 50,

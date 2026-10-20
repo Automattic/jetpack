@@ -61,7 +61,7 @@ class Jetpack_Subscribe_Modal {
 	public function enqueue_assets() {
 		if ( $this->should_user_see_modal() ) {
 			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
-			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
+			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready', 'wp-dom' ), JETPACK__VERSION, true );
 
 			/**
 			 * Filter how many milliseconds until the Subscribe Modal appears.
