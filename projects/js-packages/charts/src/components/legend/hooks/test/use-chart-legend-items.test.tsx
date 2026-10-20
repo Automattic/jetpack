@@ -426,15 +426,9 @@ describe( 'useChartLegendItems', () => {
 				'takes the grouped comparison tints, a collapsed group in its comparison tint,',
 				'grouped',
 				[ 1, 3, 1, 3 ],
-				undefined,
 			],
-			[
-				'takes the opaque overlap bar colors, dropping the deprecated opacity,',
-				'overlap',
-				[ 0, 2, 1, 3 ],
-				0.5,
-			],
-		] as const )( '%s with barLayout %s', ( _case, barLayout, colorOrder, opacity ) => {
+			[ 'takes the opaque overlap bar colors', 'overlap', [ 0, 2, 1, 3 ] ],
+		] as const )( '%s with barLayout %s', ( _case, barLayout, colorOrder ) => {
 			const { result } = renderHook(
 				() => ( {
 					items: useChartLegendItems( twoMetricData, {
@@ -444,17 +438,7 @@ describe( 'useChartLegendItems', () => {
 					} ),
 					context: useGlobalChartsContext(),
 				} ),
-				{
-					wrapper: ( { children }: { children: ReactNode } ) => (
-						<GlobalChartsProvider
-							theme={
-								opacity ? { barChart: { barStyles: { comparison: { opacity } } } } : undefined
-							}
-						>
-							{ children }
-						</GlobalChartsProvider>
-					),
-				}
+				{ wrapper }
 			);
 			const colors =
 				result.current.context.getBarColors?.( twoMetricData, { layout: barLayout } ) ?? [];
@@ -462,7 +446,6 @@ describe( 'useChartLegendItems', () => {
 			expect( result.current.items.map( item => item.color ) ).toEqual(
 				colorOrder.map( index => colors[ index ] )
 			);
-			expect( result.current.items[ 2 ].shapeStyle?.opacity ).toBeUndefined();
 		} );
 
 		test( 'lists one item per series in slot order, primaries first, with barLayout overlap', () => {

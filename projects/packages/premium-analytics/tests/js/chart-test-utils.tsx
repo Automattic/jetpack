@@ -16,11 +16,10 @@ export const mockBarChartLegendSpy = jest.fn();
 export const mockLineChartSpy = jest.fn();
 export const mockLineChartLegendSpy = jest.fn();
 
-// Mirrors the real theme: a comparison series shares its primary's colour and is
-// set apart only by opacity.
+// Mirrors the real theme: a comparison series shares its primary's color.
 const defaultElementStyles = ( { data }: ElementStylesParams ): ElementStyles => ( {
 	color: '#3858E9',
-	barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5, opacity: 0.5 } : {},
+	barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5 } : {},
 } );
 
 /**

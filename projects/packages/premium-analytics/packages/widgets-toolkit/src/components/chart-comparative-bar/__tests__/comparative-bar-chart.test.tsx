@@ -13,6 +13,7 @@ import {
 	mockSparklineMargin,
 	resetMockCharts,
 	setMockChartHeight,
+	setMockElementStyles,
 	setMockHiddenSeries,
 } from '../../../../../../tests/js/chart-test-utils';
 import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
@@ -336,6 +337,7 @@ describe( 'ComparativeBarChart', () => {
 	} );
 
 	it( 'gives each row the swatch of its own series, the comparison its own too', () => {
+		setMockElementStyles( ( { index } ) => ( { color: `#series${ index }` } ) );
 		render( <ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
 
 		const [ july, visitors ] = tooltipModelFor( hoveredJuly( JULY_1 ), {
@@ -345,22 +347,14 @@ describe( 'ComparativeBarChart', () => {
 
 		// The chart lists both current periods before either previous period, while the
 		// styles follow the series, so a positional lookup would hand rows the wrong style.
-		expect( july.indicator ).toEqual( {
-			kind: 'series',
-			style: { stroke: '#3858E9', opacity: undefined },
-		} );
-		expect( july.previous?.indicator ).toEqual( {
-			kind: 'series',
-			style: { stroke: '#3858E9', opacity: 0.5 },
-		} );
-		expect( visitors.indicator ).toEqual( {
-			kind: 'series',
-			style: { stroke: '#3858E9', opacity: undefined },
-		} );
-		expect( visitors.previous?.indicator ).toEqual( {
-			kind: 'series',
-			style: { stroke: '#3858E9', opacity: 0.5 },
-		} );
+		expect(
+			[ july, july.previous, visitors, visitors.previous ].map( row => row?.indicator )
+		).toEqual(
+			[ 0, 1, 2, 3 ].map( index => ( {
+				kind: 'series',
+				style: { stroke: `#series${ index }` },
+			} ) )
+		);
 	} );
 
 	// A shorter comparison period has no bar for the last buckets; the column stays,
@@ -376,7 +370,7 @@ describe( 'ComparativeBarChart', () => {
 		const model = tooltipModelFor( hoveredJuly( JULY_3 ) );
 		expect( model.rows[ 0 ].previous ).toEqual( {
 			value: null,
-			indicator: { kind: 'series', style: { stroke: '#3858E9', opacity: 0.5 } },
+			indicator: { kind: 'series', style: { stroke: '#3858E9' } },
 		} );
 		expect( model.previousDate ).toBeUndefined();
 	} );
