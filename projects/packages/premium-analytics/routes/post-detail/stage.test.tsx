@@ -22,6 +22,7 @@ import type { ReactNode } from 'react';
 let mockSearch: Record< string, unknown > = {};
 let mockDateFilterOverrides: Record< string, unknown > = {};
 let mockDateFilterOptions: unknown;
+let mockPeriodHostLockedIntervals: unknown;
 
 // The dashboard props the stage handed to the (mocked) WidgetDashboard.
 let mockDashboardProps: {
@@ -43,6 +44,10 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	// Spread the real module so the report registry's tab configs, which call
 	// `defineReportTabs`, still resolve now that the registry is not mocked.
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
+	usePeriodHost: ( ...args: unknown[] ) => {
+		mockPeriodHostLockedIntervals = args[ 3 ];
+		return jest.requireActual( '@jetpack-premium-analytics/routing' ).usePeriodHost( ...args );
+	},
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: ( _from: string, options?: unknown ) => {
 		mockDateFilterOptions = options;
@@ -334,6 +339,8 @@ describe( 'post detail stage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
+		delete window.JetpackScriptData;
+		mockPeriodHostLockedIntervals = undefined;
 		mockSearch = { from: '2026-06-01', to: '2026-06-16', post_id: '41' };
 		mockActiveTab = 'traffic';
 		mockEmailNotSent = false;
@@ -669,19 +676,31 @@ describe( 'post detail stage', () => {
 		expect( screen.getByText( 'Post widgets without comparison' ) ).toBeInTheDocument();
 	} );
 
-	it( 'holds the page and its widgets to the plan’s date limits', () => {
-		mockSummary();
-		jest.mocked( useStatsDateLimits ).mockReturnValue( {
-			offersComparison: true,
-			dateLimits: { lockedPresetIds: [], lockedIntervals: [ 'week' ] },
-		} );
+	it.each( [
+		[ [ 'traffic' ], true ],
+		[ [ 'store' ], false ],
+	] )(
+		'holds the page and its widgets to the plan’s date limits when %p follow them',
+		( sections, isLimited ) => {
+			window.JetpackScriptData = {
+				user: { current_user: { capabilities: {} } },
+				premium_analytics: { plan_date_limited_sections: sections },
+			} as unknown as typeof window.JetpackScriptData;
+			mockSummary();
+			jest.mocked( useStatsDateLimits ).mockReturnValue( {
+				offersComparison: true,
+				dateLimits: { lockedPresetIds: [], lockedIntervals: [ 'week' ] },
+			} );
 
-		render( stage() );
+			render( stage() );
 
-		expect( screen.getByText( 'locked: week' ) ).toBeInTheDocument();
-		expect( mockDateFilterOptions ).toEqual( { lockedIntervals: [ 'week' ] } );
-		expect( useDateWindowNotice ).toHaveBeenCalled();
-	} );
+			expect( useStatsDateLimits ).toHaveBeenLastCalledWith( isLimited );
+			expect( screen.getByText( 'locked: week' ) ).toBeInTheDocument();
+			expect( mockDateFilterOptions ).toEqual( { lockedIntervals: [ 'week' ] } );
+			expect( mockPeriodHostLockedIntervals ).toEqual( [ 'week' ] );
+			expect( useDateWindowNotice ).toHaveBeenCalled();
+		}
+	);
 
 	it( 'keeps the two-crumb trail when no report origin is present', () => {
 		mockSummary();

@@ -38,7 +38,7 @@ export function dashboardSectionOf( section: unknown ): string | undefined {
  *
  * @param search - The search the route would load.
  * @param policy - The date policy the page follows.
- * @return The search, copied.
+ * @return A copy of the search, without its dates when they name a locked year or all time.
  */
 export function withoutCarriedYearWindow( search: Search, policy: StatsDatePolicy ): Search {
 	// Only a year surface such as Insights offers a year or all time, so a locked one was carried

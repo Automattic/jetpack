@@ -3,7 +3,7 @@
  */
 import {
 	ensureCoreSettingsReady,
-	getStatsDatePolicy,
+	getSectionDatePolicy,
 	needsReportDateParamsSeed,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -68,7 +68,7 @@ export const route = {
 		const resolvedSection = currentSearch.section
 			? resolveTabId( currentSearch.section )
 			: undefined;
-		const policy = getStatsDatePolicy();
+		const policy = getSectionDatePolicy( getReportDefinition( 'posts' )?.dashboardSection );
 		const { lockedIntervals } = policy;
 		const needsDateSeed = needsReportDateParamsSeed( currentSearch, lockedIntervals );
 		const needsPostSeed = currentSearch.post_id !== postId;

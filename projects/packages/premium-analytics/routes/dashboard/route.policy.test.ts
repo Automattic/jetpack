@@ -83,6 +83,11 @@ async function settle(
 	throw new Error( `Still redirecting after 3 hops: ${ JSON.stringify( current ) }` );
 }
 
+const loadPost = ( next: Search ) =>
+	postRoute.beforeLoad( { params: { postId: '42' }, search: next } as never );
+const loadPostsReport = ( next: Search ) =>
+	reportRoute.beforeLoad( { params: { report: 'posts' }, search: next } as never );
+
 const setLocks = ( ...features: string[] ) =>
 	( getScriptData as jest.Mock ).mockReturnValue(
 		planGatesScriptData( features, [ 'traffic', 'store' ] )
@@ -154,10 +159,10 @@ describe.each( [
 describe( 'the date-limit notice on a free site', () => {
 	beforeEach( () => setLocks( ...FREE_LOCKS ) );
 
-	it( 'stays quiet when a post opens on its own window', async () => {
+	it( 'opens a post from a report on the plan window without a notice', async () => {
 		const settled = await settle(
 			{ from: '2025-01-01', to: '2025-01-31', interval: 'day', ref: 'posts' },
-			next => postRoute.beforeLoad( { params: { postId: '42' }, search: next } as never )
+			loadPost
 		);
 
 		expect( settled.hops ).toBe( 1 );
@@ -165,29 +170,28 @@ describe( 'the date-limit notice on a free site', () => {
 		expect( settled.notice ).toBeUndefined();
 	} );
 
-	it.each( [
-		[
-			'/post/42',
-			( next: Search ) =>
-				postRoute.beforeLoad( { params: { postId: '42' }, search: next } as never ),
-		],
-		[
-			'/reports/posts',
-			( next: Search ) =>
-				reportRoute.beforeLoad( { params: { report: 'posts' }, search: next } as never ),
-		],
-	] )(
-		'tells the reader why a shared link to %s moved to the last 7 days',
-		async ( _path, load ) => {
-			const settled = await settle(
-				{ from: '2025-01-01', to: '2025-01-31', interval: 'day', post_id: '42' },
-				load
-			);
+	it( 'tells the reader why a shared link to a post moved to the last 7 days', async () => {
+		const settled = await settle(
+			{ from: '2025-01-01', to: '2025-01-31', interval: 'day', post_id: '42' },
+			loadPost
+		);
 
-			expect( settled.search ).toMatchObject( { preset: 'last-7-days' } );
-			expect( settled.notice ).toBe( 'recent-7-days' );
-		}
-	);
+		expect( settled.search ).toMatchObject( { preset: 'last-7-days' } );
+		expect( settled.notice ).toBe( 'recent-7-days' );
+	} );
+
+	it( 'leaves a post open when its report’s tab does not follow the plan', async () => {
+		const { premium_analytics: data } = planGatesScriptData( FREE_LOCKS );
+		( getScriptData as jest.Mock ).mockReturnValue( {
+			premium_analytics: { ...data, plan_date_limited_sections: [] },
+		} );
+		const link = { from: '2025-01-01', to: '2025-01-31', interval: 'day', post_id: '42' };
+
+		const settled = await settle( link, loadPost );
+
+		expect( settled.search ).toMatchObject( { from: '2025-01-01', to: '2025-01-31' } );
+		expect( settled.notice ).toBeUndefined();
+	} );
 
 	it( 'stays quiet on a report the plan locks, since it shows no window', async () => {
 		setLocks( ...FREE_LOCKS, 'referrers' );
@@ -200,12 +204,22 @@ describe( 'the date-limit notice on a free site', () => {
 	} );
 } );
 
+it.each( [
+	[ 'tells the reader why a shared all-time link moved', {}, 'long-date-presets' ],
+	[ 'opens all time carried over from Insights quietly', { ds: 'insights' }, undefined ],
+] )( 'on a legacy-basic report, %s', async ( _name, origin, notice ) => {
+	setLocks( ...LEGACY_BASIC_LOCKS );
+
+	const settled = await settle( { ...ALL_TIME, ...origin }, loadPostsReport );
+
+	expect( settled.search ).not.toMatchObject( { preset: 'all-time' } );
+	expect( settled.notice ).toBe( notice );
+} );
+
 it( 'opens a report on its default, without a notice, for a year carried over from Insights', async () => {
 	setLocks( ...LEGACY_BASIC_LOCKS );
 
-	const settled = await settle( { preset: 'year-2025', ds: 'insights' }, next =>
-		reportRoute.beforeLoad( { params: { report: 'posts' }, search: next } as never )
-	);
+	const settled = await settle( { preset: 'year-2025', ds: 'insights' }, loadPostsReport );
 
 	expect( settled.search ).not.toMatchObject( { preset: 'year-2025' } );
 	expect( settled.notice ).toBeUndefined();

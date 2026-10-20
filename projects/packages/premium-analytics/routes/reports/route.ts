@@ -8,7 +8,10 @@ import {
 	needsReportDateParamsSeed,
 	OPEN_DATE_POLICY,
 } from '@jetpack-premium-analytics/data';
-import { pickDashboardOriginParams } from '@jetpack-premium-analytics/routing';
+import {
+	DASHBOARD_ORIGIN_PARAM,
+	pickDashboardOriginParams,
+} from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -58,7 +61,12 @@ export const route = {
 			definition.feature && isStatsFeatureLocked( definition.feature )
 				? OPEN_DATE_POLICY
 				: getSectionDatePolicy( definition.dashboardSection );
-		const currentSearch = withoutCarriedYearWindow( search ?? {}, policy ) as ReportRouteSearch;
+		// A report's own menu can link to All time, so only a link from Insights carries one over.
+		const currentSearch = (
+			search?.[ DASHBOARD_ORIGIN_PARAM ] === 'insights'
+				? withoutCarriedYearWindow( search, policy )
+				: { ...search }
+		) as ReportRouteSearch;
 		// A `section` from a link may not belong to this report (e.g. forwarded from a
 		// dashboard widget); resolve it so a shareable URL never persists a bogus section.
 		const resolvedSection =

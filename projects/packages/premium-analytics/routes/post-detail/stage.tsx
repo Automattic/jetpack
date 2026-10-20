@@ -1,5 +1,6 @@
 import {
 	AnalyticsQueryClientProvider,
+	isPlanDateLimitedSection,
 	PeriodChangeSignalProvider,
 	postSurface,
 	ReportScopeProvider,
@@ -33,6 +34,7 @@ import { useParams } from '@wordpress/route';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { useDateWindowNotice } from '../date-window-notice';
 import { DETAIL_GRID } from '../grid';
+import { getReportDefinition } from '../reports/registry';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { useStatsDateLimits } from '../use-stats-date-limits';
@@ -67,7 +69,9 @@ function PostDetail(): JSX.Element {
 	const postId = Number( postIdParam );
 
 	const summary = usePostSummary( postId );
-	const { dateLimits } = useStatsDateLimits( true );
+	const { dateLimits } = useStatsDateLimits(
+		isPlanDateLimitedSection( getReportDefinition( 'posts' )?.dashboardSection )
+	);
 	useDateWindowNotice();
 	const lockedIntervals = dateLimits?.lockedIntervals;
 
