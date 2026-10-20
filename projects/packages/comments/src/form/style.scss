@@ -36,28 +36,3 @@ div.jetpack-comments:where(.is-mounted) div:where(:not(.components-popover, .com
 	clip-path: inset(50%);
 	white-space: nowrap;
 }
-
-// Anemone's Custom Colors never recolour its white reply panel,
-// so a dark palette's light text vanishes into it.
-.wp-theme-premiumanemone.custom-colors,
-.wp-theme-anemone.custom-colors {
-
-	.comment-respond:has(.jetpack-comments) {
-		background: transparent;
-
-		// Its red was picked for the white panel.
-		#cancel-comment-reply-link {
-			color: inherit;
-		}
-	}
-}
-
-// Shoreditch's wpcom stylesheet greys out all of `#comments #respond form`,
-// so its blue submit loses the white text the theme gives it.
-.wp-theme-pubshoreditch,
-.wp-theme-shoreditch {
-
-	.jetpack-comments .jetpack-comments__submit input {
-		color: #fff !important;
-	}
-}
