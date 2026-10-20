@@ -4,13 +4,13 @@
  *
  * Named for the bridges rather than the controller: a `Rest_Controller_Test`
  * here would differ only in case from this package's existing
- * `REST_Controller_Test` (the legacy `V0005\REST_Controller`), which breaks
+ * `REST_Controller_Test` (the legacy `V0006\REST_Controller`), which breaks
  * checkouts on case-insensitive filesystems.
  *
  * @package automattic/jetpack-backup-plugin
  */
 
-namespace Automattic\Jetpack\Backup\V0005\REST;
+namespace Automattic\Jetpack\Backup\V0006\REST;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -26,7 +26,7 @@ use function wp_json_encode;
 /**
  * Tests that `Rest_Controller::register_routes()` registers every bridge route, and only those.
  *
- * @covers \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller
+ * @covers \Automattic\Jetpack\Backup\V0006\REST\Rest_Controller
  */
 #[CoversClass( Rest_Controller::class )]
 class Rest_Bridge_Gating_Test extends TestCase {

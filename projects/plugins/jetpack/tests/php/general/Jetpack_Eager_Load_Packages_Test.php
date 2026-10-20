@@ -385,7 +385,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * End-to-end counterpart for Backup, via `/has-backup-plan`, which only `initialize()` registers.
+	 * End-to-end counterpart for Backup, via `/backup-promoted-product-info`, which only `initialize()` registers.
 	 */
 	public function test_deferred_backup_routes_register_when_rest_api_init_fires() {
 		$this->set_up_backup_test();
@@ -394,7 +394,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 
 		// Clean slate so registration can only happen via the re-add below.
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
-		remove_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup', 'register_rest_routes' ) );
+		remove_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0006\\Jetpack_Backup', 'register_rest_routes' ) );
 
 		// Mirror the gate's deferred front-end-GET wiring.
 		add_action( 'rest_api_init', array( Jetpack::class, 'configure_backup_package' ), 0 );
@@ -403,7 +403,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		do_action( 'rest_api_init' );
 
 		$this->assertTrue(
-			$this->has_route_under( '/jetpack/v4/has-backup-plan' ),
+			$this->has_route_under( '/jetpack/v4/backup-promoted-product-info' ),
 			'Deferred Backup bootstrap did not register its REST routes when rest_api_init fired.'
 		);
 	}

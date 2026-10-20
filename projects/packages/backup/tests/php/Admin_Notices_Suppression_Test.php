@@ -5,7 +5,7 @@
  * @package automattic/jetpack-backup
  */
 
-namespace Automattic\Jetpack\Backup\V0005;
+namespace Automattic\Jetpack\Backup\V0006;
 
 use Automattic\Jetpack\JITMS\JITM;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -19,7 +19,7 @@ use function set_current_screen;
 require_once __DIR__ . '/mock-wp-build-render-page.php';
 
 /**
- * @covers \Automattic\Jetpack\Backup\V0005\Jetpack_Backup
+ * @covers \Automattic\Jetpack\Backup\V0006\Jetpack_Backup
  */
 #[CoversClass( Jetpack_Backup::class )]
 class Admin_Notices_Suppression_Test extends TestCase {

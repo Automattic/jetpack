@@ -29,7 +29,7 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
 */
 
 use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
-use Automattic\Jetpack\Backup\V0005\Jetpack_Backup as My_Jetpack_Backup;
+use Automattic\Jetpack\Backup\V0006\Jetpack_Backup as My_Jetpack_Backup;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -179,7 +179,7 @@ add_filter(
 	}
 );
 
-register_deactivation_hook( __FILE__, array( 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup', 'plugin_deactivation' ) );
+register_deactivation_hook( __FILE__, array( 'Automattic\\Jetpack\\Backup\\V0006\\Jetpack_Backup', 'plugin_deactivation' ) );
 
 // Main plugin class.
 My_Jetpack_Backup::initialize();
