@@ -3,6 +3,7 @@ import { dashboard, shield, trendingUp } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import LoadingBlock from '../../loading-block';
+import OverviewBlogPosts from '../../overview-blog-posts';
 import BoostOverviewItem from '../boost-card/overview';
 import OverviewSection from '../overview-section';
 import ProtectOverviewItem from '../protect-card/overview';
@@ -65,6 +66,7 @@ const OverviewSections: FC< OverviewSectionsProps > = ( {
 						<BoostOverviewItem admin={ admin } />
 					</OverviewSection>
 				) }
+				<OverviewBlogPosts />
 			</>
 		) }
 	</div>
