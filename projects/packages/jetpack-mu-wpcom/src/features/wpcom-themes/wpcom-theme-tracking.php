@@ -122,12 +122,52 @@ function wpcom_themes_tracks_switch_theme( $new_theme_name, $new_theme, $old_the
 	$event_props = array_merge(
 		array( 'blog_id' => get_wpcom_blog_id() ),
 		$old_theme_props,
-		$new_theme_props
+		$new_theme_props,
+		array( 'origin' => wpcom_themes_tracks_get_origin() )
 	);
 
 	Common\wpcom_record_tracks_event( 'wpcom_theme_switch', $event_props );
 }
 add_action( 'switch_theme', 'wpcom_themes_tracks_switch_theme', 12, 3 );
+
+/**
+ * Work out the source and type of a theme install or update.
+ *
+ * @param string $hook_action The `action` from the upgrader hook data.
+ * @return array{source: string, type: string}
+ */
+function wpcom_themes_tracks_install_source_and_type( $hook_action ) {
+	$install_props = array(
+		'source' => '', // Intentionally left empty for debugging purposes.
+		'type'   => 'upload',
+	);
+
+	// Trying to distinguish between a manual upload vs a standard install or upgrade. It's not security sensitive.
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$action    = $_GET['action'] ?? '';
+	$overwrite = $_GET['overwrite'] ?? '';
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+	if ( $hook_action === 'install' && ! $action ) {
+		// Install theme via wp-admin UI
+		$install_props['source'] = 'wp-admin';
+		$install_props['type']   = 'install';
+	} elseif ( $hook_action === 'install' && $action === 'upload-theme' && ! $overwrite ) {
+		// Upload a theme via wp-admin (new theme)
+		$install_props['source'] = 'wp-admin';
+		$install_props['type']   = 'upload';
+	} elseif ( $hook_action === 'install' && $action === 'upload-theme' && $overwrite === 'update-theme' ) {
+		// Upload a theme via wp-admin (existing theme)
+		$install_props['source'] = 'wp-admin';
+		$install_props['type']   = 'update';
+	} elseif ( $hook_action === 'update' && $action === 'do-theme-upgrade' ) {
+		// Update theme via update-core.php
+		$install_props['source'] = 'wp-admin';
+		$install_props['type']   = 'bulk-update';
+	}
+
+	return $install_props;
+}
 
 /**
  * Record a theme install via wp-admin.
@@ -153,41 +193,14 @@ function wpcom_themes_tracks_install_theme( $upgrader, $hook_extra ) {
 		return;
 	}
 
-	$theme         = wp_get_theme( $theme_slug );
-	$theme_props   = wpcom_themes_tracks_get_theme_props( $theme );
-	$install_props = array(
-		'source' => '', // Intentionally left empty for debugging purposes.
-		'type'   => 'upload',
-	);
-
-	// Trying to distinguish between a manual upload vs a standard install or upgrade. It's not security sensitive.
-	// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	$action    = $_GET['action'] ?? '';
-	$overwrite = $_GET['overwrite'] ?? '';
-	// phpcs:enable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-
-	if ( $hook_extra['action'] === 'install' && ! $action ) {
-		// Install theme via wp-admin UI
-		$install_props['source'] = 'wp-admin';
-		$install_props['type']   = 'install';
-	} elseif ( $hook_extra['action'] === 'install' && $action === 'upload-theme' && ! $overwrite ) {
-		// Upload a theme via wp-admin (new theme)
-		$install_props['source'] = 'wp-admin';
-		$install_props['type']   = 'upload';
-	} elseif ( $hook_extra['action'] === 'install' && $action === 'upload-theme' && $overwrite === 'update-theme' ) {
-		// Upload a theme via wp-admin (existing theme)
-		$install_props['source'] = 'wp-admin';
-		$install_props['type']   = 'update';
-	} elseif ( $hook_extra['action'] === 'update' && $action === 'do-theme-upgrade' ) {
-		// Update theme via update-core.php
-		$install_props['source'] = 'wp-admin';
-		$install_props['type']   = 'bulk-update';
-	}
+	$theme       = wp_get_theme( $theme_slug );
+	$theme_props = wpcom_themes_tracks_get_theme_props( $theme );
 
 	$event_props = array_merge(
 		array( 'blog_id' => get_wpcom_blog_id() ),
 		$theme_props,
-		$install_props
+		wpcom_themes_tracks_install_source_and_type( $hook_extra['action'] ),
+		array( 'origin' => wpcom_themes_tracks_get_origin() )
 	);
 
 	Common\wpcom_record_tracks_event( 'wpcom_theme_install', $event_props );
