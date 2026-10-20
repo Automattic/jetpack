@@ -3,7 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
 import { DEFAULT_RESTORE_ITEMS } from '../../types/restore';
-import { useDownload } from '../use-download';
+import { useDownload, POLL_INTERVAL_MS } from '../use-download';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
@@ -220,9 +220,13 @@ describe( 'useDownload — a status poll that fails', () => {
 	 * @param ms - How far to advance.
 	 */
 	async function advance( ms: number ) {
-		await act( async () => {
-			await jest.advanceTimersByTimeAsync( ms );
-		} );
+		// Advance in small steps (POLL_INTERVAL_MS). Longer steps never give React 19 a gap between updates, so it throws "Maximum update depth exceeded".
+		while ( ms > 0 ) {
+			await act( async () => {
+				await jest.advanceTimersByTimeAsync( Math.min( ms, POLL_INTERVAL_MS ) );
+			} );
+			ms -= POLL_INTERVAL_MS;
+		}
 	}
 
 	/**
