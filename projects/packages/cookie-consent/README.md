@@ -61,11 +61,11 @@ Cookie_Consent::uninstall( true );
 
 ### Init ownership
 
-The package runs one instance per request, and the first enabled `init()` call owns it: a later `init()` from any consumer is a no-op. A disabled `init()` (`enabled` false) does not claim the package, so a consumer that bundles the package but keeps it off does not block another consumer's enabled `init()` later in the same request. A consumer that shares a site with another one (for example two plugins bundling the package) can detect an owner instead of having its config silently ignored:
+The first enabled `init()` in a request owns the package; later `init()` calls from any consumer are no-ops. A disabled `init()` (`enabled` false) does not claim it, so another consumer's enabled `init()` can still boot it. A consumer sharing a site with another one can detect an owner instead of having its config silently ignored:
 
-- `Cookie_Consent::is_initialized()` returns whether an enabled `init()` booted the package in this request. It stays false after a disabled `init()`.
-- `Cookie_Consent::get_active_config()` returns the stable part of the config the package booted with, or `null` when no enabled `init()` ran. Only two keys are returned: `enabled` (always `true`) and `features` (every `features.*` toggle, resolved). The rest of the resolved config is internal.
-- The `jetpack_cookie_consent_initialized` action fires once, when an enabled `init()` boots the package, with the same array `get_active_config()` returns. It does not fire for a disabled `init()`. It fires after `init()` has registered every runtime hook, so a listener that calls `deactivate()` leaves the package fully inactive, but only until another consumer's enabled `init()` boots it again: `deactivate()` clears the ownership latch. To keep the package off site-wide, return `enabled => false` from the `jetpack_cookie_consent_config` filter instead.
+- `Cookie_Consent::is_initialized()`: whether an enabled `init()` booted the package in this request (false after a disabled one).
+- `Cookie_Consent::get_active_config()`: `enabled` (always `true`) and the resolved `features`, or `null` when no enabled `init()` ran. The rest of the config is internal.
+- `jetpack_cookie_consent_initialized` action: fires once, with the same array, after an enabled `init()` has registered every runtime hook (never for a disabled one). A listener that calls `deactivate()` turns the package off only until another consumer's enabled `init()`, since `deactivate()` clears the latch; to keep it off site-wide, return `enabled => false` from `jetpack_cookie_consent_config`.
 
 ```php
 if ( Cookie_Consent::is_initialized() ) {
@@ -76,17 +76,17 @@ if ( Cookie_Consent::is_initialized() ) {
 Cookie_Consent::init( $my_config );
 ```
 
-A consumer that boots the package after another one should call `init()` on the `init` action at a priority below 10, or earlier. With the `ccpa_page` feature on, `init()` adds the CCPA page creation to `init` at priority 10, so a later call misses it for that request. Premium Analytics calls `init()` on `init` at priority 0.
+Call `init()` on the `init` action at a priority below 10, or earlier: with `ccpa_page` on, `init()` hooks the CCPA page creation to `init` at priority 10, which a later call misses for that request. Premium Analytics uses priority 0.
 
-An `init()` call from a `jetpack_cookie_consent_config` filter callback, while another `init()` is resolving its config, returns early instead of recursing.
+An `init()` from a `jetpack_cookie_consent_config` callback while another `init()` resolves its config returns early instead of recursing.
 
 ### Configuration
 
-`Cookie_Consent::init( array $config = array() )` takes the whole configuration as a single argument. `$config` is partial — every key is optional and falls back to a package default — and is resolved via `Config_Schema` on each `init()` call until the first enabled one; after that `init()` is idempotent and ignores later configs (see `src/schema/class-config-schema.php` for the full shape). The consuming plugin should pass everything it needs up front here.
+`Cookie_Consent::init( array $config = array() )` takes the whole configuration as a single argument. `$config` is partial — every key is optional and falls back to a package default — and is resolved via `Config_Schema` by each `init()` until the first enabled one, after which later configs are ignored (see `src/schema/class-config-schema.php` for the full shape). The consuming plugin should pass everything it needs up front here.
 
 #### Master switch
 
-Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at all, including the consent-log REST controller. A disabled `init()` does not claim the package, so another consumer's enabled `init()` later in the request still boots it (see [Init ownership](#init-ownership)):
+Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at all, including the consent-log REST controller. A disabled `init()` does not claim the package (see [Init ownership](#init-ownership)):
 
 ```php
 Cookie_Consent::init(
@@ -118,7 +118,7 @@ Cookie_Consent::init(
 
 Turning `geo` off stops resolving a visitor's region and excluding the geo cookies from Jetpack Boost's cache key, but the frontend module still receives a `geo` config sub-object (with `geoEnabled: false`) rather than none at all, since the module dereferences it unconditionally.
 
-With `geo` off, every visitor gets the opt-in consent model, so when the banner or the footer links are on the package also declares `optin` to the WP Consent API on the server (`wp_get_consent_type`, priority 20). PHP `wp_has_consent()` then returns false for every category, `functional` included, until the visitor makes a choice, and afterwards follows the `wp_consent_*` cookies the banner writes, matching the browser. The banner never writes `preferences`, so `wp_has_consent( 'preferences' )` stays false. A consent type another tool declares on `wp_get_consent_type` at a priority below 20 is kept; a filter above 20 runs after this one and overrides it. With `geo` on, the consent model depends on the visitor's region, which only the browser resolves, so the server-side type is left alone.
+With `geo` off every visitor is opt-in, so when `banner` or `footer_links` is on the package also declares `optin` to the WP Consent API on the server (`wp_get_consent_type`, priority 20; a type declared below 20 is kept, a filter above 20 overrides it). PHP `wp_has_consent()` then returns false for every category, `functional` included, until the visitor chooses, then follows the `wp_consent_*` cookies the banner writes. The banner never writes `preferences`, so `wp_has_consent( 'preferences' )` stays false. With `geo` on the server-side type is left alone, since only the browser resolves the region.
 
 The `banner`, `ccpa_page`, and `footer_links` toggles surface interactive consent UI that shares runtime resources, so each resource is gated on _every_ feature that needs it — not on `banner` alone:
 

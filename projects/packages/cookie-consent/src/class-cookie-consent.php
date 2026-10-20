@@ -70,8 +70,7 @@ class Cookie_Consent {
 	private static $config = null;
 
 	/**
-	 * Whether an init() call is resolving its configuration, so a nested init()
-	 * from a `jetpack_cookie_consent_config` filter callback returns early.
+	 * Whether init() is resolving its configuration (reentrancy guard).
 	 *
 	 * @var bool
 	 */
@@ -96,19 +95,8 @@ class Cookie_Consent {
 	 * and stashes the configuration, bails entirely when `enabled` is false, and
 	 * otherwise registers each hook slice only when its `features.*` toggle is on.
 	 *
-	 * Each call resolves the configuration until the first enabled one. That call boots
-	 * the package and latches: from then on init() is idempotent, and a later call, from
-	 * the same or another consumer, is a no-op until deactivate() clears the latch. A
-	 * disabled call (`enabled` false after the `jetpack_cookie_consent_config` filter)
-	 * registers nothing and does not latch, so a consumer that bundles the package but
-	 * keeps it off does not block another consumer's enabled init() in the same request.
-	 * An init() made from a `jetpack_cookie_consent_config` filter callback while a call
-	 * is resolving returns early.
-	 *
-	 * deactivate() clears the latch, so a listener of `jetpack_cookie_consent_initialized`
-	 * that calls it only stops the package until another consumer's enabled init(). To
-	 * keep the package off site-wide, return `enabled => false` from the
-	 * `jetpack_cookie_consent_config` filter instead.
+	 * The first enabled call latches until deactivate(); a disabled call does not latch,
+	 * and a nested call from the config filter returns early.
 	 *
 	 * @param array $config Partial consumer config, resolved via Config_Schema.
 	 */
@@ -132,17 +120,11 @@ class Cookie_Consent {
 		self::register_runtime_hooks( $resolved );
 
 		/**
-		 * Fires once, when an enabled init() call boots the package.
-		 *
-		 * Does not fire for a disabled init(), which does not boot the package. Fires after
-		 * every runtime hook is registered, so a listener that calls deactivate() leaves the
-		 * package fully inactive, until another consumer's enabled init() boots it again.
-		 * The site-wide switch is the `jetpack_cookie_consent_config` filter (`enabled` false).
+		 * Fires once, after an enabled init() has registered every runtime hook.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param array $active_config The stable part of the configuration the package runs
-		 *                             with: `enabled` and `features`. See get_active_config().
+		 * @param array $active_config See get_active_config().
 		 */
 		do_action( 'jetpack_cookie_consent_initialized', self::get_active_config() );
 	}
@@ -173,12 +155,7 @@ class Cookie_Consent {
 			add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
 
 			if ( ! $features['geo'] ) {
-				// With geo off the banner flow treats every visitor as opt-in (view.ts), but it
-				// only tells the browser. Declare the same type on the server so the WP Consent
-				// API's PHP wp_has_consent() stops answering true for visitors who refused or
-				// have not chosen yet. With geo on the type depends on the visitor's region,
-				// which only the browser resolves, so the server keeps its default. Priority 20
-				// lets a consent type another tool declared at the default priority win.
+				// With geo off view.ts treats every visitor as opt-in; mirror it for PHP wp_has_consent().
 				add_filter( 'wp_get_consent_type', array( __CLASS__, 'declare_optin_consent_type' ), 20 );
 			}
 		}
@@ -231,12 +208,7 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Whether an enabled init() call has booted the package in this request.
-	 *
-	 * The first enabled init() wins: a later call, from the same or another consumer, is a
-	 * no-op. A disabled init() does not count and leaves this false. Check this before
-	 * calling init() to detect that another consumer owns the package, then read
-	 * get_active_config() to see what it runs with.
+	 * Whether an enabled init() has booted the package in this request.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -247,12 +219,8 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * The stable part of the configuration the package booted with, or null when no
-	 * enabled init() has run.
-	 *
-	 * Only `enabled` (always true here) and `features` (every `features.*` toggle,
-	 * resolved) are returned. The rest of the resolved config is internal and may change
-	 * without notice.
+	 * The stable part of the active configuration (`enabled` and `features`), or null
+	 * when no enabled init() has run.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -315,10 +283,7 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Declare the opt-in consent type to the WP Consent API on the server.
-	 *
-	 * Hooked to `wp_get_consent_type` when the banner flow runs with geo off. A type
-	 * another consent tool already declared is kept.
+	 * Declare the opt-in consent type to the WP Consent API, keeping one another tool declared.
 	 *
 	 * @internal Public only because WordPress hooks require a public callable.
 	 *
