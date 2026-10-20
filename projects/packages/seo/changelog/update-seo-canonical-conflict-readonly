@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: changed
+Comment: Settings: Lock the Canonical URLs switch while another SEO plugin is active. The new SEO page is still gated.
 
-Settings: Lock the Canonical URLs switch while another SEO plugin is active.

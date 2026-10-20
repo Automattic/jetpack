@@ -1,4 +1,4 @@
 Significance: patch
-Type: bugfix
+Type: other
+Comment: SEO: Load the canonical URLs conflict check while the module is off, so the gated SEO page can lock its switch.
 
-SEO: Lock the Canonical URLs switch on the SEO settings page while another SEO plugin is active.
