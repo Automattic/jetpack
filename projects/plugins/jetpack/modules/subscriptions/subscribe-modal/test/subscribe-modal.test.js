@@ -106,6 +106,28 @@ describe( 'Subscribe pop-up', () => {
 		expect( close ).toHaveFocus();
 	} );
 
+	it( 'keeps focus on the dialog when it has nothing else to focus', () => {
+		document.querySelector( '.jetpack-subscribe-modal__modal-content form' ).remove();
+		document.querySelector( '.jetpack-subscribe-modal__close' ).remove();
+		loadModalScript();
+		const dialog = document.querySelector( '.jetpack-subscribe-modal__modal-content' );
+
+		pressTab();
+
+		expect( dialog ).toHaveFocus();
+	} );
+
+	it( 'moves focus in after the fade-in when the first try fails', () => {
+		jest.spyOn( HTMLElement.prototype, 'focus' ).mockImplementationOnce( () => {} );
+		loadModalScript();
+		const dialog = document.querySelector( '.jetpack-subscribe-modal__modal-content' );
+		expect( dialog ).not.toHaveFocus();
+
+		dialog.dispatchEvent( new Event( 'transitionend' ) );
+
+		expect( dialog ).toHaveFocus();
+	} );
+
 	it( 'gives focus back to the page when it closes with Escape', () => {
 		loadModalScript();
 		const dialog = document.querySelector( '.jetpack-subscribe-modal__modal-content' );
