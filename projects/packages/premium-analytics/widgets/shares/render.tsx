@@ -20,8 +20,10 @@ import { Stack } from '@jetpack-premium-analytics/externals';
  */
 import styles from './style.module.css';
 import useShareViews from './use-share-views';
-import { type SharesAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type SharesAttributes = Record< never, never >;
 
 type SharesRenderAttributes = Partial< ReportParamsFieldAttributes > & SharesAttributes;
 type SharesWidgetProps = WidgetRenderProps< SharesRenderAttributes >;

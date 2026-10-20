@@ -88,6 +88,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			array( 'name' => 'jpa/devices' ),
 			array( 'name' => 'jpa/locations' ),
 			array( 'name' => 'jpa/referrers' ),
+			array( 'name' => 'jpa/post-all-time-traffic' ),
 			array( 'name' => 'jpa/open-to-all' ),
 		);
 		add_action( Widget_Type_Registry::REGISTER_ACTION, array( $this, 'register_plugin_widget_type' ), 20 );
@@ -303,6 +304,21 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The author and video detail pages apply no date limits, so every tier that limits dates must lock them.
+	 */
+	public function test_a_date_limited_tier_locks_the_author_and_video_reports() {
+		$date_limited = array_filter(
+			STATS_TIERS,
+			static fn( $tier ) => (bool) array_intersect( array( 'recent-7-days', 'long-date-presets' ), get_locked_stats_features( $tier ) )
+		);
+		$this->assertNotEmpty( $date_limited );
+
+		foreach ( $date_limited as $tier ) {
+			$this->assertEmpty( array_diff( array( 'authors', 'videos' ), get_locked_stats_features( $tier ) ), $tier );
+		}
+	}
+
+	/**
 	 * A widget type locks when its registered plan feature does, whichever plugin registered it.
 	 *
 	 * @dataProvider provide_locked_widget_types
@@ -348,10 +364,11 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'free locks the whole widget'      => array(
 				STATS_TIER_FREE,
 				array(
-					'jpa/devices'       => 'devices',
-					'jpa/locations'     => 'countries',
-					'jpa/referrers'     => 'referrers',
-					'plugin/top-videos' => 'videos',
+					'jpa/devices'               => 'devices',
+					'jpa/locations'             => 'countries',
+					'jpa/post-all-time-traffic' => 'recent-7-days',
+					'jpa/referrers'             => 'referrers',
+					'plugin/top-videos'         => 'videos',
 				),
 			),
 		);
@@ -449,6 +466,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'generic copy' => array( 'insights', 'Upgrade your plan to unlock Jetpack Stats.', '' ),
 			// Keyed through the card's mapping, which no other test fails on if it reverts to insights.
 			'tags card'    => array( WIDGET_TYPE_PLAN_FEATURES['jpa/tags'], 'Track the most viewed <link>tags & categories</link>.', 'https://wordpress.com/support/stats/learn-insights-about-your-website/#all-time-insights' ),
+			'intervals'    => array( 'intervals', 'Group your charts by week, month or year.', '' ),
 		);
 	}
 

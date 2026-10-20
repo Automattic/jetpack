@@ -3,6 +3,8 @@ export {
 	ReportScopeProvider,
 	useReportScope,
 	useScopeLockedIntervals,
+	type DateLimits,
+	type DateLimitUpsellCopy,
 	type ReportScope,
 } from './providers/report-scope';
 export {
@@ -88,7 +90,12 @@ export {
 	resolveIntervalForRange,
 } from './utils/interval';
 export type { IntervalType, LockableInterval } from './utils/interval';
-export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
+export {
+	chartInterval,
+	defaultPeriodForInterval,
+	drawableIntervals,
+	intervalMenuOptions,
+} from './utils/periods';
 export {
 	getLockedFeature,
 	getLockedSection,
@@ -97,6 +104,18 @@ export {
 	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export {
+	applyStatsDatePolicy,
+	getPolicyDefaultPreset,
+	getSectionDatePolicy,
+	getStatsDatePolicy,
+	isDateLimitedPolicy,
+	isPlanDateLimitedSection,
+	isPresetLockedByPolicy,
+	OPEN_DATE_POLICY,
+	type DateLimitFeature,
+	type StatsDatePolicy,
+} from './utils/stats-date-policy';
 export {
 	DASHBOARD_PREFERENCES_SCOPE,
 	getDefaultPreset,

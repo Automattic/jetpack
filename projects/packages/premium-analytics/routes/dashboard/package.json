@@ -36,6 +36,7 @@
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@tanstack/react-query": "5.102.8",
 		"@testing-library/react": "16.3.3",
-		"@testing-library/user-event": "14.6.8"
+		"@testing-library/user-event": "14.6.8",
+		"@wordpress/date": "5.57.0"
 	}
 }
