@@ -415,11 +415,12 @@ describe( 'ComparativeBarChart', () => {
 	} );
 
 	it.each( [
-		[ 'its widest bar', [], 1 ],
-		[ 'its widest shown bar', [ 'July', 'June' ], 3 ],
+		[ 'its widest bar', [], undefined, 1 ],
+		[ 'its widest shown bar', [ 'July', 'June' ], undefined, 3 ],
+		[ "the picked metric's bar, even when a wider one is shown", [], 'Visitors', 3 ],
 	] )(
 		'names the overlap previous period with one legend item, in the color of %s',
-		( _case, hidden, colorIndex ) => {
+		( _case, hidden, primarySeries, colorIndex ) => {
 			setMockHiddenSeries( hidden );
 			render(
 				<ComparativeBarChart
@@ -427,6 +428,7 @@ describe( 'ComparativeBarChart', () => {
 					dataFormat={ DATA_FORMAT }
 					layout="overlap"
 					comparisonLabel="Prev. 7 days"
+					primarySeries={ primarySeries }
 				/>
 			);
 			setMockHiddenSeries();

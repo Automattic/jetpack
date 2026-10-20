@@ -235,18 +235,22 @@ export function ComparativeBarChart( {
 		layout ?? 'grouped',
 		primarySeries
 	);
-	// Overlap paints the previous period as one slot, so one item names it, in the color of its widest shown bar.
+	// Overlap paints the previous period as one slot, so one item names it, in the color of the picked metric's previous bar, or else of its widest shown bar.
 	const legendItems = useMemo( () => {
 		if ( ! overlapLayout ) {
 			return comparativeLegendItems;
 		}
 
 		const metricItems = comparativeLegendItems.filter( item => ! item.describesSeries );
-		const widestPrevious = alignedSeries.findIndex(
-			item => item.options?.type === 'comparison' && isSeriesVisible( chartId, item.label )
+		const pickedGroup = alignedSeries.find( item => item.label === primarySeries )?.group;
+		const shownPrevious = alignedSeries.flatMap( ( item, index ) =>
+			item.options?.type === 'comparison' && isSeriesVisible( chartId, item.label ) ? [ index ] : []
 		);
+		const legendPrevious =
+			shownPrevious.find( index => alignedSeries[ index ].group === pickedGroup ) ??
+			shownPrevious[ 0 ];
 
-		if ( widestPrevious === -1 ) {
+		if ( legendPrevious === undefined ) {
 			return metricItems;
 		}
 
@@ -254,7 +258,7 @@ export function ComparativeBarChart( {
 			...metricItems,
 			{
 				label: previousPeriodLabel,
-				color: seriesStyles[ widestPrevious ].stroke,
+				color: seriesStyles[ legendPrevious ].stroke,
 				shapeStyle: metricItems[ 0 ]?.shapeStyle,
 				interactive: false,
 			},
@@ -263,6 +267,7 @@ export function ComparativeBarChart( {
 		overlapLayout,
 		comparativeLegendItems,
 		alignedSeries,
+		primarySeries,
 		isSeriesVisible,
 		chartId,
 		previousPeriodLabel,
