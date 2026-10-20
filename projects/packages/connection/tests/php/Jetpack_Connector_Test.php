@@ -629,6 +629,44 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
+	 * Test that the Tracks scripts load only when tracking is allowed.
+	 *
+	 * @param bool $tos_agreed Whether the site agreed to the terms of service.
+	 * @param bool $offline    Whether the site is in offline mode.
+	 * @param bool $expected   Whether the Tracks scripts should be enqueued.
+	 * @dataProvider provide_tracking_states
+	 */
+	#[DataProvider( 'provide_tracking_states' )]
+	public function test_enqueue_loads_tracks_only_when_tracking_is_allowed( $tos_agreed, $offline, $expected ) {
+		\Jetpack_Options::update_option( 'tos_agreed', $tos_agreed );
+		if ( $offline ) {
+			add_filter( 'jetpack_offline_mode', '__return_true' );
+		}
+		$restore = $this->stub_module_build( array( 'version' => 'test-card-version' ) );
+
+		try {
+			$this->enqueue_on_connectors_screen();
+		} finally {
+			$restore();
+		}
+
+		$this->assertSame( $expected, wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * Tracking states for the Tracks enqueue.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_tracking_states() {
+		return array(
+			'agreed'          => array( true, false, true ),
+			'not agreed'      => array( false, false, false ),
+			'agreed, offline' => array( true, true, false ),
+		);
+	}
+
+	/**
 	 * Builds missing a file, as in a checkout that hasn't run the build or mid-deploy.
 	 *
 	 * @return array[]
