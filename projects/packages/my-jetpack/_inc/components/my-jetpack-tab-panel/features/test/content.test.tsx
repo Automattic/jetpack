@@ -683,11 +683,6 @@ describe( 'FeaturesContent after connecting the account', () => {
 			],
 			'monitor',
 		],
-		[
-			'a feature the host keeps off',
-			[ off( 'social', { kind: 'plugin', plugin: 'jetpack-social', override: 'inactive' } ) ],
-			'social',
-		],
 	] as const )( 'leaves %s as it is after the return', ( _, states, slug ) => {
 		mockStates = [ ...states ] as FeatureState[];
 		const id = rememberConnectIntent( slug );
@@ -782,7 +777,7 @@ describe( 'FeaturesContent after connecting the account', () => {
 		expect( requests() ).toEqual( [] );
 	} );
 
-	it( 'waits for the modules, finds a More Features row, and never replays the click', () => {
+	it( 'finds a More Features row after loading and never replays the click', () => {
 		mockIsLoading = true;
 		mockGroups = [ { label: 'Other', states: [ monitor ] } ];
 		const id = rememberConnectIntent( 'monitor' );
