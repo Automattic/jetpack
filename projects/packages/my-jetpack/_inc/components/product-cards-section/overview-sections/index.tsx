@@ -33,36 +33,39 @@ const OverviewSections: FC< OverviewSectionsProps > = ( {
 		<Text variant="heading-xl" render={ <h2 /> } className={ styles.welcome }>
 			{ __( 'Welcome to Jetpack', 'jetpack-my-jetpack' ) }
 		</Text>
-		{ isLoading && (
+		{ isLoading ? (
 			<>
 				<LoadingBlock width="100%" height="350px" />
 				<LoadingBlock width="100%" height="150px" />
 				<LoadingBlock width="100%" height="150px" />
 			</>
-		) }
-		{ ! isLoading && showStats && (
-			<OverviewSection
-				icon={ trendingUp }
-				title={ __( 'How is your site growing?', 'jetpack-my-jetpack' ) }
-			>
-				<StatsOverviewItem admin={ admin } />
-			</OverviewSection>
-		) }
-		{ ! isLoading && slugs.includes( PRODUCT_SLUGS.PROTECT ) && (
-			<OverviewSection
-				icon={ shield }
-				title={ __( 'How well is my site protected?', 'jetpack-my-jetpack' ) }
-			>
-				<ProtectOverviewItem admin={ admin } />
-			</OverviewSection>
-		) }
-		{ ! isLoading && slugs.includes( PRODUCT_SLUGS.BOOST ) && (
-			<OverviewSection
-				icon={ dashboard }
-				title={ __( 'What is my site status?', 'jetpack-my-jetpack' ) }
-			>
-				<BoostOverviewItem admin={ admin } />
-			</OverviewSection>
+		) : (
+			<>
+				{ showStats && (
+					<OverviewSection
+						icon={ trendingUp }
+						title={ __( 'How is your site growing?', 'jetpack-my-jetpack' ) }
+					>
+						<StatsOverviewItem admin={ admin } />
+					</OverviewSection>
+				) }
+				{ slugs.includes( PRODUCT_SLUGS.PROTECT ) && (
+					<OverviewSection
+						icon={ shield }
+						title={ __( 'How well is my site protected?', 'jetpack-my-jetpack' ) }
+					>
+						<ProtectOverviewItem admin={ admin } />
+					</OverviewSection>
+				) }
+				{ slugs.includes( PRODUCT_SLUGS.BOOST ) && (
+					<OverviewSection
+						icon={ dashboard }
+						title={ __( 'What is my site status?', 'jetpack-my-jetpack' ) }
+					>
+						<BoostOverviewItem admin={ admin } />
+					</OverviewSection>
+				) }
+			</>
 		) }
 	</div>
 );
