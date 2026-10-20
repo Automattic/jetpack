@@ -57,6 +57,7 @@ class Jetpack_Admin_Page_Test extends WP_UnitTestCase {
 	public static function rest_probe_cases() {
 		return array(
 			'null'        => array( null, false, true ),
+			'false'       => array( false, false, true ),
 			'WP_Error'    => array( new WP_Error( 'rest_denied' ), false, false ),
 			'switch user' => array( true, true, true ),
 		);
