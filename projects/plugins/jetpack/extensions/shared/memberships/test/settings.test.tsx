@@ -146,7 +146,6 @@ describe( 'NewsletterAccessRadioButtons', () => {
 		paidNewsletterSubscribers?: number;
 		paidSubscribersByTier?: Record< string, number >;
 		tierProducts?: TierProduct[];
-		savedTier?: { title: string; is_deleted: boolean } | null;
 	}
 
 	const createMockSelect =
@@ -156,15 +155,10 @@ describe( 'NewsletterAccessRadioButtons', () => {
 			paidNewsletterSubscribers,
 			paidSubscribersByTier,
 			tierProducts = [],
-			savedTier = null,
 		}: MockSelectOptions = {} ) =>
 		( store: MockStore ) => {
 			if ( store === editorStore ) {
-				return {
-					getCurrentPostType: () => 'post',
-					getCurrentPostAttribute: ( attribute: string ) =>
-						attribute === 'jetpack_newsletter_tier' ? savedTier : undefined,
-				};
+				return { getCurrentPostType: () => 'post' };
 			}
 			if ( store === membershipProductsStore ) {
 				return {
@@ -367,11 +361,7 @@ describe( 'NewsletterAccessRadioButtons', () => {
 			);
 		} );
 
-		test.each( [
-			[ 'Premium (deleted)', { title: 'Premium', is_deleted: true } ],
-			[ 'Premium', { title: 'Premium', is_deleted: false } ],
-			[ 'Deleted tier', null ],
-		] )( 'labels a saved tier that is no longer offered as "%s"', ( label, savedTier ) => {
+		test( 'labels a saved tier that is no longer offered as deleted', () => {
 			mockUseEntityProp.mockReturnValue( [
 				{ [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 9 },
 				mockSetPostMeta,
@@ -379,13 +369,10 @@ describe( 'NewsletterAccessRadioButtons', () => {
 
 			renderPanel(
 				{ accessLevel: 'paid_subscribers' },
-				{
-					tierProducts: [ { id: 1, title: 'Basic', price: 5, interval: '1 month' } ],
-					savedTier,
-				}
+				{ tierProducts: [ { id: 1, title: 'Basic', price: 5, interval: '1 month' } ] }
 			);
 
-			expect( screen.getByRole( 'radio', { name: label } ) ).toBeChecked();
+			expect( screen.getByRole( 'radio', { name: 'Deleted tier' } ) ).toBeChecked();
 		} );
 
 		// One tier with 1 subscriber; only the "All paid subscribers" count varies.
