@@ -23,6 +23,7 @@ class Cookie_Consent_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		wp_dequeue_style( self::HANDLE );
 		wp_deregister_style( self::HANDLE );
+		wp_styles()->done = array_diff( wp_styles()->done, array( self::HANDLE ) );
 
 		parent::tear_down();
 	}
@@ -52,7 +53,8 @@ class Cookie_Consent_Test extends \WP_UnitTestCase {
 	public function test_prints_only_new_rules_when_head_is_done() {
 		$this->print_head_with( '.a{color:red}' );
 		$before = CookieConsent\get_custom_css_rules();
-		wp_add_inline_style( self::HANDLE, '.b{color:blue}</style><script>x</script>' );
+		// wp_add_inline_style() rejects the tag, so queue it directly as another plugin could.
+		wp_styles()->add_data( self::HANDLE, 'after', array_merge( $before, array( '.b{color:blue}</style><script>x</script>' ) ) );
 
 		ob_start();
 		CookieConsent\print_late_custom_css_rules( $before );
