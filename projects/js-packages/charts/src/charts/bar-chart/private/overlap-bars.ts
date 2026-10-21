@@ -120,7 +120,7 @@ export function shadeWithContrast( color: string, under: string, background: str
 }
 
 /**
- * The colors an overlap layout fills its series with: per slot, the back layer tinted to 3:1 against the background and each layer in front shaded to 3:1 against the one behind. A slot with one layer keeps its base when that keeps 3:1. A front series with its own `stroke` keeps its slot's colors as given.
+ * The colors an overlap layout fills its series with: per slot, the back layer tinted to 3:1 against the background and each layer in front shaded to 3:1 against the one behind. A slot whose front-most series has its own `stroke` keeps its colors as given.
  *
  * @param series     - Every series of the chart.
  * @param colors     - Each series' resolved color.
@@ -146,35 +146,30 @@ export function getOverlapBarColors(
 			return;
 		}
 
-		const backLayer = Math.min( ...members.map( ( { layer } ) => layer ) );
-		const back = members.find( ( { layer } ) => layer === backLayer );
+		const layers = [ ...new Set( members.map( ( { layer } ) => layer ) ) ].sort(
+			( a, b ) => a - b
+		);
+		const back = members.find( ( { layer } ) => layer === layers[ 0 ] );
 		const base =
 			back && series[ back.index ].options?.stroke ? colors[ back.index ] : slotColors[ slotIndex ];
-		const isCustomized = members.some(
+		const isFrontStroked = members.some(
 			( { index, layer } ) =>
-				layer !== backLayer &&
-				!! series[ index ].options?.stroke &&
-				colors[ index ].toLowerCase() !== base.toLowerCase()
+				layer === layers[ layers.length - 1 ] && !! series[ index ].options?.stroke
 		);
 
 		// A paint such as `currentColor` or `url(#gradient)` cannot be toned, so the slot keeps the colors it was given.
-		if ( isCustomized || ! isValidHexColor( base ) || ! isValidHexColor( background ) ) {
+		if ( isFrontStroked || ! isValidHexColor( base ) || ! isValidHexColor( background ) ) {
 			return;
 		}
 
 		const toneByLayer = new Map< number, string >();
-		const layers = [ ...new Set( members.map( ( { layer } ) => layer ) ) ].sort(
-			( a, b ) => a - b
-		);
-		// A bar with none in front needs no room for one, so it keeps its base unless the base itself falls below 3:1.
-		const backTone =
-			layers.length === 1 && contrastRatio( base, background ) >= MIN_BACKGROUND_CONTRAST
-				? base
-				: tintWithContrast( base, background );
 		let under: string | undefined;
 
 		layers.forEach( layer => {
-			const tone = under === undefined ? backTone : shadeWithContrast( base, under, background );
+			const tone =
+				under === undefined
+					? tintWithContrast( base, background )
+					: shadeWithContrast( base, under, background );
 			toneByLayer.set( layer, tone );
 			under = tone;
 		} );

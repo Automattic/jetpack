@@ -57,11 +57,10 @@ const CLICK_DRAG_TOLERANCE_PX = 6;
 
 const LINE_COUNTERPART_SHADE_BLEND = 0.5;
 
-/** The previous period's grays when bars overlap, so they recede behind the current period. */
+/** The previous period's grays when bars overlap, the same on every tab. The back gray is under 3:1 against the background, so the previous period recedes. */
 const PREVIOUS_PERIOD_GRAYS = {
 	back: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)',
-	/** The lightest gray that keeps WCAG's 3:1 against `back`'s default, which it is drawn inside. */
-	front: '#7c7c7c',
+	front: 'var(--wpds-color-foreground-content-neutral-weak, #707070)',
 };
 
 /** The pointer-event payload both comparative charts report. */
@@ -348,9 +347,10 @@ function MetricChart( {
 	const isOverlap = chartType === 'bar';
 
 	const { series, defaultHiddenSeries } = useMemo( () => {
+		// The current period is left unstroked, so charts tones it from the accent: the back metric, or a metric alone, takes the tint and a front metric the shade.
 		if ( isOverlap && ! counterpart ) {
 			return {
-				series: buildSeries( metric, chartType, shades.accent, PREVIOUS_PERIOD_GRAYS.back ),
+				series: buildSeries( metric, chartType, undefined, PREVIOUS_PERIOD_GRAYS.back ),
 				defaultHiddenSeries: undefined,
 			};
 		}
@@ -360,8 +360,7 @@ function MetricChart( {
 				sumOf( counterpart.current ) > sumOf( metric.current )
 					? [ counterpart, metric ]
 					: [ metric, counterpart ];
-			// The accent is the base charts tones the current period from; the unstroked front metric takes its shade.
-			const backSeries = buildSeries( back, chartType, shades.accent, PREVIOUS_PERIOD_GRAYS.back );
+			const backSeries = buildSeries( back, chartType, undefined, PREVIOUS_PERIOD_GRAYS.back );
 			const frontSeries = buildSeries( front, chartType, undefined, PREVIOUS_PERIOD_GRAYS.front );
 			const counterpartSeries = back === counterpart ? backSeries : frontSeries;
 

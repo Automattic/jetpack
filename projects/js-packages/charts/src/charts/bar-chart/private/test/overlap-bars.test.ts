@@ -114,10 +114,7 @@ describe( 'getOverlapBarColors', () => {
 		expect( back ).toBe( tintWithContrast( GREEN, '#ffffff' ) );
 	} );
 
-	it.each( [
-		[ 'its base when the base keeps 3:1', BLUE, BLUE ],
-		[ 'the nearest tone to 3:1 when the base does not', '#dbdbdb', undefined ],
-	] )( 'fills a slot with one layer with %s', ( _case, base, expected ) => {
+	it.each( [ BLUE, '#dbdbdb' ] )( 'tints a bar alone in its slot from %s, as a back bar', base => {
 		const [ bar ] = getOverlapBarColors(
 			[ series( 'Comments' ) ],
 			[ base ],
@@ -125,8 +122,7 @@ describe( 'getOverlapBarColors', () => {
 			'#ffffff'
 		);
 
-		expect( bar ).toBe( expected ?? tintWithContrast( base, '#ffffff' ) );
-		expect( contrastRatio( bar, '#ffffff' ) ).toBeGreaterThanOrEqual( 3 );
+		expect( bar ).toBe( tintWithContrast( base, '#ffffff' ) );
 	} );
 
 	it.each( [
@@ -134,9 +130,15 @@ describe( 'getOverlapBarColors', () => {
 			'a front series stroked in a color of its own',
 			[
 				series( 'Previous views', 'views', { type: 'comparison', stroke: '#dbdbdb' } ),
-				series( 'Previous visitors', 'visitors', { type: 'comparison', stroke: '#7c7c7c' } ),
+				series( 'Previous visitors', 'visitors', { type: 'comparison', stroke: '#707070' } ),
 			],
-			[ '#dbdbdb', '#7c7c7c' ],
+			[ '#dbdbdb', '#707070' ],
+			'#ffffff',
+		],
+		[
+			'a bar alone in its slot stroked in a color of its own',
+			[ series( 'Previous comments', 'comments', { type: 'comparison', stroke: '#dbdbdb' } ) ],
+			[ '#dbdbdb' ],
 			'#ffffff',
 		],
 		[
