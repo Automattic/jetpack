@@ -1,45 +1,33 @@
 import { __ } from '@wordpress/i18n';
-import { backup } from '@wordpress/icons';
 import { Button, ButtonLink, Notice, Text } from '@wordpress/ui';
 import { useState } from 'react';
 import { TransferActivationModal } from './activation-modal.tsx';
 import { Callout } from './callout.tsx';
-import { DownloadPanel } from './download-panel.tsx';
 import { needsConfirmation } from './eligibility.ts';
+import { useFeature } from './feature-context.ts';
 import { upsell } from './icons.tsx';
-import { backupsCalloutIllustration } from './illustration.ts';
-import {
-	TRACKS_FEATURE_ID,
-	ViewTracker,
-	recordActivationConfirm,
-	recordTracksEvent,
-} from './tracks.ts';
+import { ViewTracker, useTracks } from './tracks.ts';
 import type { InitialState } from './types.ts';
 
 /**
- * Shown when the site's plan does not include backups, with any backup a reverted transfer left.
+ * Shown when the site's plan does not include the feature.
  *
  * @param props       - Component props.
  * @param props.state - Resolved initial state.
  * @return The rendered prompt.
  */
 export function UpgradeScreen( { state }: { state: InitialState } ) {
-	const upsellProps = { upsell_id: TRACKS_FEATURE_ID, upsell_feature_id: TRACKS_FEATURE_ID };
+	const { icon, illustration, upgrade, UpgradeExtra } = useFeature();
+	const { tracksFeatureId, recordTracksEvent } = useTracks();
+	const upsellProps = { upsell_id: tracksFeatureId, upsell_feature_id: tracksFeatureId };
 
 	return (
 		<>
 			<Callout
-				icon={ backup }
-				title={ __( 'Secure your content with Jetpack Backups', 'jetpack-mu-wpcom' ) }
-				image={ backupsCalloutIllustration }
-				description={
-					<Text>
-						{ __(
-							'Protect your site with scheduled and real-time backups—giving you the ultimate “undo” button and peace of mind that your content is always safe.',
-							'jetpack-mu-wpcom'
-						) }
-					</Text>
-				}
+				icon={ icon }
+				title={ upgrade.title }
+				image={ illustration }
+				description={ <Text>{ upgrade.description }</Text> }
 				actions={
 					<>
 						<ViewTracker
@@ -50,7 +38,11 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
 							variant="solid"
 							size="compact"
 							href={ state.upgradeUrl }
-							onClick={ () => recordTracksEvent( 'calypso_dashboard_upsell_click', upsellProps ) }
+							onClick={ () => {
+								recordTracksEvent( 'calypso_dashboard_upsell_click', upsellProps );
+								// Checkout treats any tab with an opener as its popup and won't navigate back.
+								window.opener = null;
+							} }
 						>
 							<ButtonLink.Icon icon={ upsell } />
 							{ __( 'Upgrade plan', 'jetpack-mu-wpcom' ) }
@@ -58,19 +50,21 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
 					</>
 				}
 			/>
-			{ state.hasRevertedTransfer && <DownloadPanel supportUrl={ state.supportUrl } /> }
+			{ UpgradeExtra && <UpgradeExtra state={ state } /> }
 		</>
 	);
 }
 
 /**
- * Shown when the site has a backup-capable plan and can be transferred.
+ * Shown when the site has a plan that includes the feature and can be transferred.
  *
  * @param props       - Component props.
  * @param props.state - Resolved initial state.
  * @return The rendered prompt.
  */
 export function ActivateScreen( { state }: { state: InitialState } ) {
+	const { icon, illustration, activate } = useFeature();
+	const { tracksFeatureId, recordTracksEvent, recordActivationConfirm } = useTracks();
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	// A site with nothing to surface can start the transfer directly; the modal
@@ -79,7 +73,7 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 
 	const handleClick = () => {
 		recordTracksEvent( 'calypso_dashboard_hosting_feature_activation_click', {
-			feature_id: TRACKS_FEATURE_ID,
+			feature_id: tracksFeatureId,
 			show_modal: showModalFirst,
 		} );
 
@@ -94,16 +88,11 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 		<>
 			<ViewTracker
 				eventName="calypso_dashboard_hosting_feature_activation_impression"
-				properties={ { feature_id: TRACKS_FEATURE_ID } }
+				properties={ { feature_id: tracksFeatureId } }
 			/>
 			{ state.transferFailed && (
 				<Notice.Root intent="error">
-					<Notice.Description>
-						{ __(
-							'There was a problem activating backups. Please contact our support team for help.',
-							'jetpack-mu-wpcom'
-						) }
-					</Notice.Description>
+					<Notice.Description>{ activate.failed }</Notice.Description>
 					<Notice.Actions>
 						<Notice.ActionLink href={ state.supportUrl } openInNewTab>
 							{ __( 'Contact support', 'jetpack-mu-wpcom' ) }
@@ -112,17 +101,12 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 				</Notice.Root>
 			) }
 			<Callout
-				icon={ backup }
-				title={ __( 'Activate backups for this site', 'jetpack-mu-wpcom' ) }
-				image={ backupsCalloutIllustration }
+				icon={ icon }
+				title={ activate.title }
+				image={ illustration }
 				description={
 					<>
-						<Text>
-							{ __(
-								'Your plan includes backups. To switch them on, your site needs to move to our hosting platform.',
-								'jetpack-mu-wpcom'
-							) }
-						</Text>
+						<Text>{ activate.description }</Text>
 						<Text>{ __( 'Your site stays online during the move.', 'jetpack-mu-wpcom' ) }</Text>
 					</>
 				}
@@ -134,7 +118,7 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 							disabled={ state.transferFailed }
 							onClick={ handleClick }
 						>
-							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
+							{ activate.action }
 						</Button>
 					) : (
 						<ButtonLink
@@ -143,7 +127,7 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 							href={ state.activateUrl }
 							onClick={ handleClick }
 						>
-							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
+							{ activate.action }
 						</ButtonLink>
 					)
 				}
@@ -170,24 +154,22 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
  * @return The rendered prompt.
  */
 export function InProgressScreen() {
+	const { icon, illustration, inProgress } = useFeature();
+	const { tracksFeatureId } = useTracks();
+
 	return (
 		<>
 			<ViewTracker
 				eventName="calypso_dashboard_hosting_transfer_in_progress_impression"
-				properties={ { feature_id: TRACKS_FEATURE_ID } }
+				properties={ { feature_id: tracksFeatureId } }
 			/>
 			<Callout
-				icon={ backup }
-				title={ __( 'Setting up backups', 'jetpack-mu-wpcom' ) }
-				image={ backupsCalloutIllustration }
+				icon={ icon }
+				title={ inProgress.title }
+				image={ illustration }
 				description={
 					<>
-						<Text>
-							{ __(
-								'Your site is being moved to our hosting platform so backups can be switched on.',
-								'jetpack-mu-wpcom'
-							) }
-						</Text>
+						<Text>{ inProgress.description }</Text>
 						<Text>
 							{ __(
 								'This usually takes a few minutes. You can keep using your site while it happens, and we will email you when it is done.',
