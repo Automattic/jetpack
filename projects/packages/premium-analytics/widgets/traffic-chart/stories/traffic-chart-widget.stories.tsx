@@ -50,7 +50,7 @@ const CHART_TYPE_ARG_TYPES = {
 	},
 } as const;
 
-const DEFAULT_CHART_ARGS = { chartType: 'line' } as const;
+const DEFAULT_CHART_ARGS = { chartType: 'bar' } as const;
 
 function renderTrafficChart( { withComparison, chartType }: TrafficChartStoryControls ) {
 	return (
@@ -105,7 +105,8 @@ export const Default: Story = {
 };
 
 /**
- * Same close-up with the period-over-period delta and previous-period overlay.
+ * Same close-up with comparison on: the previous period takes a gray slot beside the current one,
+ * and on the Views and Visitors tabs visitors sits inside the views bar.
  */
 export const WithComparison: Story = {
 	render: renderTrafficChart,
@@ -114,21 +115,20 @@ export const WithComparison: Story = {
 };
 
 /**
- * The same widget drawn as bars — the `chartType` attribute set to `bar`.
+ * The same widget drawn as lines — the `chartType` attribute set to `line`.
  */
-export const BarChart: Story = {
+export const LineChart: Story = {
 	render: renderTrafficChart,
-	args: { withComparison: false, ...DEFAULT_CHART_ARGS, chartType: 'bar' },
+	args: { withComparison: false, chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
 /**
- * Bars with comparison on: the previous period takes a gray slot beside the current one,
- * and on the Views and Visitors tabs visitors sits inside the views bar.
+ * Lines with comparison on: the previous period is a dashed line in the same color.
  */
-export const BarChartWithComparison: Story = {
+export const LineChartWithComparison: Story = {
 	render: renderTrafficChart,
-	args: { withComparison: true, ...DEFAULT_CHART_ARGS, chartType: 'bar' },
+	args: { withComparison: true, chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
