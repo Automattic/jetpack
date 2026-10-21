@@ -1,67 +1,52 @@
-import { getUserConnectionUrl } from '@automattic/jetpack-connection';
-import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
-import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../../constants';
-import useActivatePlugins from '../../../data/products/use-activate-plugins';
+import { useEffect, useMemo } from 'react';
+import { PRODUCT_STATUSES } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
 import useConnectSite from '../../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
+import useProductStatusAction from '../../action-button/use-product-status-action';
 import type { OverviewItemLink } from '.';
 
 /**
- * The link for a product that isn't active: it connects, activates or adds the product, as the product card's button does.
+ * The product card's action for the product's status, with the item's own label for adding or activating it.
  *
  * @param {JetpackModuleWithCard} slug  - The product slug.
- * @param {string}                label - The label for activating or adding the product.
- * @return {{action: OverviewItemLink | undefined, isPending: boolean}} The link, left out while it is pending.
+ * @param {string}                label - The label for adding or activating the product.
+ * @return {{action: OverviewItemLink | undefined, forcedOffReason: string | null}} The link, and why the host keeps the product off.
  */
 const useStatusAction = ( slug: JetpackModuleWithCard, label: string ) => {
-	const { detail } = useProduct( slug );
-	const { status, requiresUserConnection } = detail || {};
-	const { isRegistered, isUserConnected, siteIsRegistering } = useMyJetpackConnection();
-	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
-	const { activate, isPending: isActivating } = useActivatePlugins( slug );
+	const { detail, refetch } = useProduct( slug );
+	const { isRegistered } = useMyJetpackConnection();
 	const { connectSite } = useConnectSite( {
 		tracksInfo: { event: 'jetpack_myjetpack_product_card_fix_site_connection', properties: {} },
 	} );
+	const primaryActionOverride = useMemo(
+		() => ( {
+			[ PRODUCT_STATUSES.ABSENT ]: { label },
+			[ PRODUCT_STATUSES.INACTIVE ]: { label },
+		} ),
+		[ label ]
+	);
+	const { action, forcedOffReason } = useProductStatusAction( slug, {
+		primaryActionOverride,
+		fixSiteConnectionHandler: connectSite,
+		tracksIdentifier: 'product_card',
+	} );
 
-	const handleActivate = useCallback( () => {
-		if ( ( ! isRegistered || ! isUserConnected ) && requiresUserConnection ) {
-			navigateToConnectionPage();
-			return;
+	// Matches the product card, which refetches its product once the site is registered.
+	const status = detail?.status;
+	useEffect( () => {
+		if ( isRegistered ) {
+			refetch();
 		}
-		activate();
-	}, [
-		activate,
-		isRegistered,
-		isUserConnected,
-		requiresUserConnection,
-		navigateToConnectionPage,
-	] );
+	}, [ isRegistered, status, refetch ] );
 
-	const handleConnectSite = useCallback( () => connectSite( undefined ), [ connectSite ] );
+	const { label: actionLabel, href, onClick, disabled } = action;
+	const link: OverviewItemLink | undefined =
+		disabled || ! actionLabel
+			? undefined
+			: { label: actionLabel, href, onClick: onClick && ( () => onClick( undefined ) ) };
 
-	const isPending =
-		isActivating || ( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
-	let action: OverviewItemLink | undefined;
-	switch ( status ) {
-		case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
-			action = { label: __( 'Connect', 'jetpack-my-jetpack' ), onClick: handleConnectSite };
-			break;
-		case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
-			action = { label: __( 'Connect', 'jetpack-my-jetpack' ), href: getUserConnectionUrl() };
-			break;
-		case PRODUCT_STATUSES.INACTIVE:
-		case PRODUCT_STATUSES.MODULE_DISABLED:
-		case PRODUCT_STATUSES.NEEDS_ACTIVATION:
-			action = { label, onClick: handleActivate };
-			break;
-		default:
-			action = { label, href: `#/add-${ slug }` };
-	}
-
-	return { action: isPending ? undefined : action, isPending };
+	return { action: link, forcedOffReason };
 };
 
 export default useStatusAction;

@@ -9,16 +9,23 @@ import {
 } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
+import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
-import OverviewItem from '../overview-item';
+import OverviewItem, { isHealthyStatus } from '../overview-item';
 import useOverviewLoadEvent from '../overview-item/use-overview-load-event';
+import useStatusAction from '../overview-item/use-status-action';
 import type { OverviewItemLink } from '../overview-item';
 import type { ProductCardComponent } from '../types';
 
 const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const { detail, isLoading: isLoadingProduct } = useProduct( PRODUCT_SLUGS.PROTECT );
-	const { isPluginActive = false, hasPaidPlanForProduct = false, manageUrl } = detail || {};
+	const { status, isPluginActive = false, hasPaidPlanForProduct = false, manageUrl } = detail || {};
+	const { recordEvent } = useAnalytics();
+	const { action: statusAction, forcedOffReason } = useStatusAction(
+		PRODUCT_SLUGS.PROTECT,
+		__( 'Activate Protect', 'jetpack-my-jetpack' )
+	);
 	const { isSiteConnected } = useMyJetpackConnection();
 	const {
 		data,
@@ -49,6 +56,10 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 					? __( 'Fix threats', 'jetpack-my-jetpack' )
 					: __( 'Manage Protect', 'jetpack-my-jetpack' ),
 				href: manageUrl,
+				onClick: () =>
+					recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
+						product: PRODUCT_SLUGS.PROTECT,
+					} ),
 			};
 		}
 		failureReason = __( 'Failed to load threats', 'jetpack-my-jetpack' );
@@ -62,6 +73,10 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 		upgrade = {
 			label: __( 'Scan threats', 'jetpack-my-jetpack' ),
 			href: `#${ generatePath( MyJetpackRoutes.AddProtect ) }`,
+			onClick: () =>
+				recordEvent( 'jetpack_myjetpack_product_card_add_click', {
+					product: PRODUCT_SLUGS.PROTECT,
+				} ),
 		};
 		failureReason = __( 'Failed to load blocked logins', 'jetpack-my-jetpack' );
 	}
@@ -83,10 +98,11 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 					? { label: __( 'Off', 'jetpack-my-jetpack' ), intent: 'none' }
 					: undefined
 			}
-			action={ action }
+			action={ isHealthyStatus( PRODUCT_SLUGS.PROTECT, status ) ? action : statusAction }
 			upgrade={ upgrade }
 			isLoading={ isLoading }
 			error={ hasFailed ? { reason: failureReason, onRetry: refetch } : undefined }
+			forcedOffReason={ forcedOffReason }
 		/>
 	);
 };

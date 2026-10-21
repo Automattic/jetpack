@@ -32,7 +32,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const isRetrying = isError && isFetching;
 	const isStatsLoading = isLoading || isRetrying;
 	useOverviewLoadEvent( PRODUCT_SLUGS.STATS, isActive && isStatsLoading );
-	const { action: statusAction, isPending: isStatusActionPending } = useStatusAction(
+	const { action: statusAction, forcedOffReason } = useStatusAction(
 		PRODUCT_SLUGS.STATS,
 		__( 'Activate Stats', 'jetpack-my-jetpack' )
 	);
@@ -59,7 +59,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 					hideTitle
 					chartBelowCounts
 				/>
-				{ admin && detailedStatsHref && (
+				{ detailedStatsHref && (
 					<div>
 						<Link href={ detailedStatsHref } onClick={ onDetailedStatsClick }>
 							{ __( 'More stats', 'jetpack-my-jetpack' ) }
@@ -77,7 +77,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 			admin={ admin }
 			label={ __( 'Views in the last 7 days', 'jetpack-my-jetpack' ) }
 			action={ isActive ? undefined : statusAction }
-			isLoading={ ( isActive && isStatsLoading ) || isStatusActionPending }
+			isLoading={ isActive && isStatsLoading }
 			error={
 				isActive && isError
 					? {
@@ -86,6 +86,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 						}
 					: undefined
 			}
+			forcedOffReason={ forcedOffReason }
 		/>
 	);
 };

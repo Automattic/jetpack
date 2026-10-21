@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
+import useAnalytics from '../../../hooks/use-analytics';
 import OverviewItem from '../overview-item';
 import useOverviewLoadEvent from '../overview-item/use-overview-load-event';
 import useStatusAction from '../overview-item/use-status-action';
@@ -33,17 +34,25 @@ const BoostOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const isScoreLoading = isLoading || ( ! speedLetterGrade && ! isSpeedScoreError );
 	useOverviewLoadEvent( PRODUCT_SLUGS.BOOST, isScoreLoading );
 
-	// A disconnected site has no score to fetch, so it shows Boost's status instead of a failure.
-	const hasFailed = isSpeedScoreError && isSiteConnected;
+	// Without a connection or an active Boost, a missing score isn't a failure: the item shows Boost's status.
+	const hasFailed = isSpeedScoreError && isSiteConnected && isActive;
 
-	const { action: statusAction, isPending: isStatusActionPending } = useStatusAction(
+	const { recordEvent } = useAnalytics();
+	const { action: statusAction, forcedOffReason } = useStatusAction(
 		PRODUCT_SLUGS.BOOST,
 		__( 'Activate to optimize', 'jetpack-my-jetpack' )
 	);
 
 	const getAction = (): OverviewItemLink | undefined => {
 		if ( isActive && manageUrl ) {
-			return { label: __( 'Optimize speed', 'jetpack-my-jetpack' ), href: manageUrl };
+			return {
+				label: __( 'Optimize speed', 'jetpack-my-jetpack' ),
+				href: manageUrl,
+				onClick: () =>
+					recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
+						product: PRODUCT_SLUGS.BOOST,
+					} ),
+			};
 		}
 		return statusAction;
 	};
@@ -58,7 +67,7 @@ const BoostOverviewItem: ProductCardComponent = ( { admin } ) => {
 				currentSpeedScore === null ? undefined : TIER_TONES[ getScoreTier( currentSpeedScore ) ]
 			}
 			action={ getAction() }
-			isLoading={ isScoreLoading || isStatusActionPending }
+			isLoading={ isScoreLoading }
 			loadingLabel={ __( 'Calculating…', 'jetpack-my-jetpack' ) }
 			error={
 				hasFailed
@@ -68,6 +77,7 @@ const BoostOverviewItem: ProductCardComponent = ( { admin } ) => {
 						}
 					: undefined
 			}
+			forcedOffReason={ forcedOffReason }
 		/>
 	);
 };

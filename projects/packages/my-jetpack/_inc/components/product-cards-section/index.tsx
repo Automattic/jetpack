@@ -190,10 +190,14 @@ interface ProductCardsSectionProps {
 
 const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } ) => {
 	const { filteredOwnedProducts, isLoading } = useFilteredProducts();
+	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+	const hasGridProducts = filteredOwnedProducts.some(
+		slug => ! overviewV1 || ! OVERVIEW_V1_SLUGS.includes( slug )
+	);
 
 	return (
 		<>
-			{ ( isLoading || filteredOwnedProducts.length > 0 ) && (
+			{ ( isLoading || hasGridProducts ) && (
 				<Container
 					horizontalSpacing={ 0 }
 					horizontalGap={ noticeMessage ? 3 : 6 }

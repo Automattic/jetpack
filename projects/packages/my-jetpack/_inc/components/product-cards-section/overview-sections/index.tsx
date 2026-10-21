@@ -25,6 +25,12 @@ const OverviewSections: FC = () => {
 	// showFullJetpackStatsCard means Jetpack or the Stats plugin is active.
 	const showStats =
 		canUserViewStats && ( showFullJetpackStatsCard || slugs.includes( PRODUCT_SLUGS.STATS ) );
+	const showProtect = slugs.includes( PRODUCT_SLUGS.PROTECT );
+	const showBoost = slugs.includes( PRODUCT_SLUGS.BOOST );
+
+	if ( ! isLoading && ! showStats && ! showProtect && ! showBoost ) {
+		return null;
+	}
 
 	return (
 		<div className={ styles.sections }>
@@ -47,7 +53,7 @@ const OverviewSections: FC = () => {
 							<StatsOverviewItem admin={ admin } />
 						</OverviewSection>
 					) }
-					{ slugs.includes( PRODUCT_SLUGS.PROTECT ) && (
+					{ showProtect && (
 						<OverviewSection
 							icon={ shield }
 							title={ __( 'How well is my site protected?', 'jetpack-my-jetpack' ) }
@@ -55,7 +61,7 @@ const OverviewSections: FC = () => {
 							<ProtectOverviewItem admin={ admin } />
 						</OverviewSection>
 					) }
-					{ slugs.includes( PRODUCT_SLUGS.BOOST ) && (
+					{ showBoost && (
 						<OverviewSection
 							icon={ dashboard }
 							title={ __( 'What is my site status?', 'jetpack-my-jetpack' ) }

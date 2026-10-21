@@ -3,14 +3,20 @@ import userEvent from '@testing-library/user-event';
 import OverviewItem from '..';
 
 jest.mock( '../../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
+let mockStatus = 'active';
+
 jest.mock( '../../../../data/products/use-product', () => () => ( {
-	detail: { name: 'Stats', status: 'active' },
+	detail: { name: 'Stats', status: mockStatus },
 } ) );
 jest.mock( '../../../../data/products/use-products-by-ownership', () => () => ( {
 	data: { ownedProducts: [ 'stats' ] },
 } ) );
 
 describe( 'OverviewItem', () => {
+	beforeEach( () => {
+		mockStatus = 'active';
+	} );
+
 	it.each( [
 		[ 'loading', { isLoading: true }, 'Loading…' ],
 		[
@@ -40,5 +46,34 @@ describe( 'OverviewItem', () => {
 		expect( screen.queryByText( 'More stats' ) ).not.toBeInTheDocument();
 		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 		expect( onRetry ).toHaveBeenCalled();
+	} );
+
+	it.each( [
+		[ 'boost', 'expired', 'Expired plan', 1 ],
+		[ 'boost', 'inactive', 'Inactive', 1 ],
+		[ 'boost', 'active', 'Active', 0 ],
+		[ 'protect', 'needs_attention_warning', 'Needs attention', 0 ],
+	] )( 'shows a %s value with its %s status as %s %d times', ( slug, status, badge, count ) => {
+		mockStatus = status;
+		render( <OverviewItem slug={ slug as 'boost' } admin label="Score" value="B" /> );
+
+		expect( screen.getByText( 'B' ) ).toBeInTheDocument();
+		expect( screen.queryAllByText( badge ) ).toHaveLength( count );
+	} );
+
+	it( 'shows why the host keeps the product off instead of its action', () => {
+		mockStatus = 'module_disabled';
+		render(
+			<OverviewItem
+				slug="stats"
+				admin
+				label="Views"
+				action={ { label: 'Activate Stats', href: '#' } }
+				forcedOffReason="Disabled by your host"
+			/>
+		);
+
+		expect( screen.getByText( 'Disabled by your host' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Activate Stats' ) ).not.toBeInTheDocument();
 	} );
 } );
