@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { Readable, Writable } from 'stream';
 import { jest } from '@jest/globals';
+import yargs from 'yargs';
 
 const fsStub = {
 	readFileSync: jest.fn( () => '' ),
@@ -57,6 +58,7 @@ const {
 	applyParallelEnv,
 	PARALLEL_ENV_KEYS,
 	cleanCmdHandler,
+	dockerDefine,
 } = await import( '../../../commands/docker.js' );
 
 /**
@@ -288,7 +290,7 @@ describe( 'shouldReadParallelEnv', () => {
 
 	// Commands registered without defaultOpts leave argv.type undefined.
 	test( 'false when no container type was parsed', () => {
-		expect( shouldReadParallelEnv( { _: [ 'docker', 'link-plugin' ] } ) ).toBe( false );
+		expect( shouldReadParallelEnv( { _: [ 'docker', 'phpunit-wpcomsh' ] } ) ).toBe( false );
 	} );
 } );
 
@@ -416,6 +418,18 @@ describe( 'applyParallelEnv', () => {
 			await defaultDockerCmdHandler( argv );
 			expect( getProjectName( argv ) ).toBe( 'jetpack_wtfix' );
 		} );
+	} );
+
+	// A builder without defaultOpts leaves argv.type unset, which skips the .env read.
+	describe( 'registered through dockerDefine', () => {
+		test.each( [ [ 'link-plugin' ], [ 'unlink-plugin' ] ] )(
+			'`%s` runs compose against the worktree instance',
+			async cmd => {
+				seedEnvFile( seededEnv );
+				await dockerDefine( yargs( [ 'docker', cmd, 'boost' ] ) ).parseAsync();
+				expect( composeEnv().COMPOSE_PROJECT_NAME ).toBe( 'jetpack_wtfix' );
+			}
+		);
 	} );
 } );
 

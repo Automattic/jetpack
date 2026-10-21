@@ -1429,24 +1429,22 @@ export function dockerDefine( yargs ) {
 					command: 'link-plugin <plugin_slug>',
 					description:
 						'Links a monorepo plugin folder with the plugin folder of your Docker env. Plugin will be considered installed.',
-					builder: yargCmd => {
-						yargCmd.positional( 'plugin_slug', {
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).positional( 'plugin_slug', {
 							describe: 'The plugin slug',
 							type: 'string',
-						} );
-					},
+						} ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'unlink-plugin <plugin_slug>',
 					description:
 						'Uninks a monorepo plugin folder from the plugin folder of your Docker env. Plugin will be considered not installed.',
-					builder: yargCmd => {
-						yargCmd.positional( 'plugin_slug', {
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).positional( 'plugin_slug', {
 							describe: 'The plugin slug',
 							type: 'string',
-						} );
-					},
+						} ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				// JT commands
