@@ -271,13 +271,9 @@ class Admin_Menu {
 	 * @return void
 	 */
 	public static function take_over_akismet_menu() {
-		$removed_menu     = remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
-		$removed_deferred = remove_action( 'jetpack_admin_menu', array( 'Akismet_Admin', 'load_menu' ) );
-
-		// Akismet is not adding an entry on this request, so neither do we.
-		if ( ! $removed_menu && ! $removed_deferred ) {
-			return;
-		}
+		// Older Jetpack plugins unhook Akismet's admin_menu callback themselves and rely on this item.
+		remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+		remove_action( 'jetpack_admin_menu', array( 'Akismet_Admin', 'load_menu' ) );
 
 		self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 	}

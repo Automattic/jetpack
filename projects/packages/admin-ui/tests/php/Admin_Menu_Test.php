@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Admin_UI;
 
 use Automattic\Jetpack\Feature_Policy;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -123,18 +125,6 @@ class Admin_Menu_Test extends TestCase {
 		wp_deregister_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
 		wp_dequeue_script( 'wp-theme' );
 		wp_deregister_script( 'wp-theme' );
-	}
-
-	/**
-	 * Drop the Akismet hooks a test added, since this TestCase does not restore hooks.
-	 *
-	 * @return void
-	 */
-	public function tearDown(): void {
-		remove_action( 'admin_menu', array( $this, 'fire_jetpack_admin_menu' ), 998 );
-		remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
-		remove_all_actions( 'jetpack_admin_menu' );
-		parent::tearDown();
 	}
 
 	/**
@@ -419,25 +409,49 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Akismet's item sorts below POSITION_FIRST, whether Admin_Menu starts before or after Akismet hooks in.
+	 * Akismet's item sorts below POSITION_FIRST however Admin_Menu and Akismet are ordered.
 	 *
-	 * @param bool $late Whether Akismet has already deferred its item to jetpack_admin_menu when Admin_Menu starts.
+	 * Runs alone because the Akismet_Admin stub, once loaded, would add Akismet to every other test's menu.
 	 *
-	 * @dataProvider akismet_timing_data
+	 * @param string $order Which side hooks in first; see akismet_order_data().
+	 *
+	 * @dataProvider akismet_order_data
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
-	#[DataProvider( 'akismet_timing_data' )]
-	public function test_akismet_item_sorts_below_the_first_item( $late ) {
+	#[DataProvider( 'akismet_order_data' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_akismet_item_sorts_below_the_first_item( $order ) {
 		global $submenu;
+
+		require_once __DIR__ . '/stubs/class-akismet-admin.php';
 
 		wp_set_current_user( self::$admin_user_id );
 
 		// The Jetpack plugin fires jetpack_admin_menu at 998, before Admin_Menu registers at 1000.
-		add_action( 'admin_menu', array( $this, 'fire_jetpack_admin_menu' ), 998 );
+		add_action(
+			'admin_menu',
+			function () {
+				do_action( 'jetpack_admin_menu' );
+			},
+			998
+		);
 
-		if ( $late ) {
+		if ( 'akismet-first' === $order ) {
 			\Akismet_Admin::admin_menu();
 		} else {
 			add_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+		}
+
+		if ( 'legacy-jetpack' === $order ) {
+			add_action(
+				'admin_menu',
+				function () {
+					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+				},
+				4
+			);
 		}
 
 		Admin_Menu::add_menu( 'First', 'First', 'edit_posts', 'akismet-first', '__return_null', Admin_Menu::POSITION_FIRST );
@@ -455,20 +469,12 @@ class Admin_Menu_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public static function akismet_timing_data() {
+	public static function akismet_order_data() {
 		return array(
-			'Admin_Menu starts first' => array( false ),
-			'Akismet hooks in first'  => array( true ),
+			'Admin_Menu starts first'                 => array( 'admin-menu-first' ),
+			'Akismet hooks in first'                  => array( 'akismet-first' ),
+			'an older Jetpack unhooks Akismet itself' => array( 'legacy-jetpack' ),
 		);
-	}
-
-	/**
-	 * Stands in for the Jetpack plugin's admin page, which fires jetpack_admin_menu.
-	 *
-	 * @return void
-	 */
-	public function fire_jetpack_admin_menu() {
-		do_action( 'jetpack_admin_menu' );
 	}
 
 	/**

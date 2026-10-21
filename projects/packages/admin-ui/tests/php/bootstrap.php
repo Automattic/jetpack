@@ -18,10 +18,6 @@ if ( ! class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
 	require_once __DIR__ . '/../../../connection/src/class-manager.php';
 }
 
-if ( ! class_exists( 'Akismet_Admin' ) ) {
-	require_once __DIR__ . '/stubs/class-akismet-admin.php';
-}
-
 define( 'WP_DEBUG', true );
 
 // Initialize WordPress test environment
