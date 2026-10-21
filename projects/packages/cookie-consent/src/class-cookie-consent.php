@@ -104,6 +104,7 @@ class Cookie_Consent {
 		if ( self::$initialized || self::$resolving ) {
 			return;
 		}
+		$resolved        = array();
 		self::$resolving = true;
 		try {
 			$resolved = self::resolve_config( $config );
@@ -118,15 +119,6 @@ class Cookie_Consent {
 
 		self::$initialized = true;
 		self::register_runtime_hooks( $resolved );
-
-		/**
-		 * Fires once, after an enabled init() has registered every runtime hook.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param array $active_config See get_active_config().
-		 */
-		do_action( 'jetpack_cookie_consent_initialized', self::get_active_config() );
 	}
 
 	/**
@@ -153,11 +145,6 @@ class Cookie_Consent {
 			// Also rendered for footer-links-only sites so the manage-preferences link can
 			// reopen the modal; it only auto-shows when the banner feature is on (view.ts).
 			add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
-
-			if ( ! $features['geo'] ) {
-				// With geo off view.ts treats every visitor as opt-in; mirror it for PHP wp_has_consent().
-				add_filter( 'wp_get_consent_type', array( __CLASS__, 'declare_optin_consent_type' ), 20 );
-			}
 		}
 
 		if ( $features['footer_links'] ) {
@@ -208,36 +195,6 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Whether an enabled init() has booted the package in this request.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	public static function is_initialized() {
-		return self::$initialized;
-	}
-
-	/**
-	 * The stable part of the active configuration (`enabled` and `features`), or null
-	 * when no enabled init() has run.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return array{enabled: bool, features: array<string, bool>}|null
-	 */
-	public static function get_active_config() {
-		if ( ! self::$initialized || ! is_array( self::$config ) ) {
-			return null;
-		}
-
-		return array(
-			'enabled'  => (bool) self::$config['enabled'],
-			'features' => self::$config['features'],
-		);
-	}
-
-	/**
 	 * Deactivate Cookie Consent runtime hooks and scheduled events.
 	 *
 	 * Consumers should call this from their plugin deactivation hook. This keeps
@@ -247,15 +204,15 @@ class Cookie_Consent {
 	 * @since 0.1.0
 	 */
 	public static function deactivate() {
-		// These mirror the full set of hooks init() can register across every
+		// These mirror the full set of hooks register_runtime_hooks() can add across every
 		// features.* toggle, and matter only when a consumer deactivates within
-		// the same request (e.g. a runtime toggle). Removing a hook that a gated
-		// init() never added is a harmless no-op, so this list stays unconditional
+		// the same request (e.g. a runtime toggle). Removing a hook that an off
+		// toggle never added is a harmless no-op, so this list stays unconditional
 		// rather than re-deriving which toggles were on. The standard
 		// register_deactivation_hook path runs in a separate admin request where
 		// these hooks never fire, so the durable cleanup is the cron unschedule and
-		// setting unregister below. Keep this list in sync with init() whenever a
-		// hook is added there.
+		// setting unregister below. Keep this list in sync with
+		// register_runtime_hooks() whenever a hook is added there.
 		remove_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		remove_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
 		remove_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );
@@ -272,7 +229,6 @@ class Cookie_Consent {
 		remove_filter( 'get_pages', array( __CLASS__, 'exclude_ccpa_from_get_pages' ), 10 );
 		remove_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
 		remove_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ), 10 );
-		remove_filter( 'wp_get_consent_type', array( __CLASS__, 'declare_optin_consent_type' ), 20 );
 
 		if ( function_exists( 'unregister_setting' ) ) {
 			unregister_setting( 'general', self::CCPA_PAGE_ID_OPTION );
@@ -280,22 +236,6 @@ class Cookie_Consent {
 
 		Consent_Log_Controller::deactivate();
 		self::$initialized = false;
-	}
-
-	/**
-	 * Declare the opt-in consent type to the WP Consent API, keeping one another tool declared.
-	 *
-	 * @internal Public only because WordPress hooks require a public callable.
-	 *
-	 * @param mixed $consent_type Consent type declared so far, if any.
-	 * @return string
-	 */
-	public static function declare_optin_consent_type( $consent_type ) {
-		if ( is_string( $consent_type ) && '' !== $consent_type ) {
-			return $consent_type;
-		}
-
-		return 'optin';
 	}
 
 	/**

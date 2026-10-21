@@ -37,9 +37,6 @@ These are the supported, stable entry points consumers may depend on. Everything
 | `Cookie_Consent::init( array $config = array() )`           | PHP static method     | Entry point                     |
 | `Cookie_Consent::deactivate()`                              | PHP static method     | Lifecycle                       |
 | `Cookie_Consent::uninstall( $delete_consent_logs = false )` | PHP static method     | Lifecycle                       |
-| `Cookie_Consent::is_initialized()`                          | PHP static method     | Init ownership                  |
-| `Cookie_Consent::get_active_config()`                       | PHP static method     | Init ownership                  |
-| `jetpack_cookie_consent_initialized`                        | WP action             | Init ownership                  |
 | `jetpack_cookie_consent_config`                             | WP filter             | Configuration                   |
 | `jetpack_cookie_consent_log_retention_days`                 | WP filter             | Configuration                   |
 | `POST jetpack/v4/cookie-consent/consent-log`                | REST route            | Consent logging                 |
@@ -59,26 +56,11 @@ These are the supported, stable entry points consumers may depend on. Everything
 Cookie_Consent::uninstall( true );
 ```
 
-### Init ownership
+### More than one consumer
 
-The first enabled `init()` in a request owns the package; later `init()` calls from any consumer are no-ops. A disabled `init()` (`enabled` false) does not claim it, so another consumer's enabled `init()` can still boot it. A consumer sharing a site with another one can detect an owner instead of having its config silently ignored:
+The first enabled `init()` in a request wins; later `init()` calls from any consumer are no-ops until `deactivate()`. A disabled `init()` (`enabled` false) registers nothing and does not claim the package, so a later enabled `init()`, from the same or another consumer, still boots it.
 
-- `Cookie_Consent::is_initialized()`: whether an enabled `init()` booted the package in this request (false after a disabled one).
-- `Cookie_Consent::get_active_config()`: `enabled` (always `true`) and the resolved `features`, or `null` when no enabled `init()` ran. The rest of the config is internal.
-- `jetpack_cookie_consent_initialized` action: fires once, with the same array, after an enabled `init()` has registered every runtime hook (never for a disabled one). A listener that calls `deactivate()` turns the package off only until another consumer's enabled `init()`, since `deactivate()` clears the latch; to keep it off site-wide, return `enabled => false` from `jetpack_cookie_consent_config`.
-
-```php
-if ( Cookie_Consent::is_initialized() ) {
-	$active = Cookie_Consent::get_active_config();
-	// Another consumer owns the package: step aside, or tell the site admin.
-	return;
-}
-Cookie_Consent::init( $my_config );
-```
-
-Call `init()` on the `init` action at a priority below 10, or earlier: with `ccpa_page` on, `init()` hooks the CCPA page creation to `init` at priority 10, which a later call misses for that request. Premium Analytics uses priority 0.
-
-An `init()` from a `jetpack_cookie_consent_config` callback while another `init()` resolves its config returns early instead of recursing.
+Call `init()` on the `init` action at a priority below 10, or earlier: with `ccpa_page` on, `init()` hooks the CCPA page creation to `init` at priority 10, which a later call misses for that request.
 
 ### Configuration
 
@@ -86,7 +68,7 @@ An `init()` from a `jetpack_cookie_consent_config` callback while another `init(
 
 #### Master switch
 
-Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at all, including the consent-log REST controller. A disabled `init()` does not claim the package (see [Init ownership](#init-ownership)):
+Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at all, including the consent-log REST controller. A disabled `init()` does not claim the package (see [More than one consumer](#more-than-one-consumer)):
 
 ```php
 Cookie_Consent::init(
@@ -117,8 +99,6 @@ Cookie_Consent::init(
 ```
 
 Turning `geo` off stops resolving a visitor's region and excluding the geo cookies from Jetpack Boost's cache key, but the frontend module still receives a `geo` config sub-object (with `geoEnabled: false`) rather than none at all, since the module dereferences it unconditionally.
-
-With `geo` off every visitor is opt-in, so when `banner` or `footer_links` is on the package also declares `optin` to the WP Consent API on the server (`wp_get_consent_type`, priority 20; a type declared below 20 is kept, a filter above 20 overrides it). PHP `wp_has_consent()` then returns false for every category, `functional` included, until the visitor chooses, then follows the `wp_consent_*` cookies the banner writes. The banner never writes `preferences`, so `wp_has_consent( 'preferences' )` stays false. With `geo` on the server-side type is left alone, since only the browser resolves the region.
 
 The `banner`, `ccpa_page`, and `footer_links` toggles surface interactive consent UI that shares runtime resources, so each resource is gated on _every_ feature that needs it — not on `banner` alone:
 
@@ -306,7 +286,7 @@ The token-defining rule uses `:where()` (zero specificity), so any of these mech
 
 The following are implementation details. They may change or be removed in any release without notice, and consumers must not depend on them:
 
-- The block-hook and Interactivity callbacks on `Cookie_Consent` (`register_footer_navigation_links`, `set_footer_navigation_link_attributes`, `add_ccpa_*`, `add_gdpr_manage_preferences_directives`, `mark_footer_links_injected`, `maybe_render_footer_links_fallback`, `maybe_suppress_privacy_policy_link`, `declare_optin_consent_type`, etc.). These are `public` only because WordPress hooks require a public callable.
+- The block-hook and Interactivity callbacks on `Cookie_Consent` (`register_footer_navigation_links`, `set_footer_navigation_link_attributes`, `add_ccpa_*`, `add_gdpr_manage_preferences_directives`, `mark_footer_links_injected`, `maybe_render_footer_links_fallback`, `maybe_suppress_privacy_policy_link`, etc.). These are `public` only because WordPress hooks require a public callable.
 - Config accessors and helpers such as `get_config()`, `get_copy()`, `get_consent_categories()`, and the other `get_*` methods.
 - The `wp_consent_type_defined` JS event.
 - The consent-log database table, its schema, and the `jetpack_cookie_consent_consent_log_db_version` / `jetpack_cookie_consent_ccpa_page_*` option keys.

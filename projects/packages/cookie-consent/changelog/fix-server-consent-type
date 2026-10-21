@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Declare the opt-in consent type to the WP Consent API on the server when geo is off, so PHP `wp_has_consent()` matches the visitor's choice.
