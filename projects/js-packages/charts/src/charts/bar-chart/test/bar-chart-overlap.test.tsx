@@ -276,21 +276,37 @@ describe( 'BarChart overlap layout', () => {
 		] );
 	} );
 
-	it( 'leaves a series with no reading at the selected category out of the keyboard tooltip', async () => {
-		const user = userEvent.setup();
-		renderOverlap( {
-			data: DATA.map( series =>
-				series.label === 'Visitors'
-					? { ...series, data: [ { label: 'Mon', value: null }, day( 'Tue', 50 ) ] }
-					: series
-			),
-		} );
+	it.each( [
+		[
+			'keyboard',
+			async () => {
+				const user = userEvent.setup();
+				await user.tab();
+				await user.keyboard( '{ArrowRight}' );
+				return screen.getByTestId( 'chart-tooltip-0' );
+			},
+		],
+		[
+			'hover',
+			() => {
+				pointer( 'pointermove', center( barOf( 'Views' ) ) );
+				return screen.findByRole( 'tooltip' );
+			},
+		],
+	] )(
+		'leaves a series with no reading at the category out of the %s tooltip',
+		async ( _case, openTooltip ) => {
+			renderOverlap( {
+				data: DATA.map( series =>
+					series.label === 'Visitors'
+						? { ...series, data: [ { label: 'Mon', value: null }, day( 'Tue', 50 ) ] }
+						: series
+				),
+			} );
 
-		await user.tab();
-		await user.keyboard( '{ArrowRight}' );
-
-		const tooltip = screen.getByTestId( 'chart-tooltip-0' );
-		expect( tooltip ).toHaveTextContent( 'Views: 100' );
-		expect( tooltip ).not.toHaveTextContent( 'Visitors' );
-	} );
+			const tooltip = await openTooltip();
+			expect( tooltip ).toHaveTextContent( 'Views: 100' );
+			expect( tooltip ).not.toHaveTextContent( 'Visitors' );
+		}
+	);
 } );

@@ -395,7 +395,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ withPatterns, chartId, barColors ]
 	);
 
-	// Lists every bar at the hovered category, in the order of the data.
+	// Lists every drawn bar at the hovered category, in the order of the data.
 	const renderOverlapTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
 			const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -413,7 +413,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ categoryLabel }</div>
 					{ dataSorted.flatMap( ( { label } ) => {
 						const datum = datumByKey[ label ]?.datum;
-						return datum
+						return datum && isBarRendered( datum )
 							? [
 									<Fragment key={ label }>
 										{ renderTooltipRow( label, formatReading( datum.value ) ) }
