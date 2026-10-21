@@ -181,8 +181,8 @@ class Block_Editor {
 	/**
 	 * Let the tags these blocks save through kses, for a comment that holds them.
 	 *
-	 * @param array  $tags    Allowed tags.
-	 * @param string $context The kses context.
+	 * @param array|mixed $tags    Allowed tags. Null when an earlier filter drops them.
+	 * @param string      $context The kses context.
 	 * @return array
 	 */
 	public function allowed_html( $tags, $context ) {
@@ -191,7 +191,7 @@ class Block_Editor {
 		}
 
 		return array_merge(
-			$tags,
+			(array) $tags,
 			array(
 				'p'          => array(),
 				'br'         => array(),
@@ -218,12 +218,12 @@ class Block_Editor {
 	/**
 	 * The comment's HTML without the block delimiters, and without any block the editor does not offer.
 	 *
-	 * @param string           $content Comment content.
+	 * @param string|mixed     $content Comment content.
 	 * @param \WP_Comment|null $comment The comment, where the caller has it.
-	 * @return string
+	 * @return string|mixed
 	 */
 	public static function render( $content, $comment = null ) {
-		if ( ! has_blocks( $content ) ) {
+		if ( ! is_string( $content ) || ! has_blocks( $content ) ) {
 			return $content;
 		}
 
@@ -237,11 +237,15 @@ class Block_Editor {
 	/**
 	 * Core's comment email, with the comment's block markup replaced by the text it draws.
 	 *
-	 * @param string $message    The email body.
-	 * @param int    $comment_id The comment the email is about.
-	 * @return string
+	 * @param string|mixed $message    The email body.
+	 * @param int          $comment_id The comment the email is about.
+	 * @return string|mixed
 	 */
 	public static function render_in_email( $message, $comment_id ) {
+		if ( ! is_string( $message ) ) {
+			return $message;
+		}
+
 		$comment = get_comment( $comment_id );
 
 		if ( ! $comment instanceof \WP_Comment || ! has_blocks( $comment->comment_content ) ) {
