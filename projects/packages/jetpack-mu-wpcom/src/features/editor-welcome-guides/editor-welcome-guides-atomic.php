@@ -100,7 +100,7 @@ function wpcom_editor_welcome_guides_atomic_request( string $method, ?array $bod
  * first when an editor screen loads for the current user and the cache is missing or stale.
  * A failed fetch keeps the cache and still records the time, so nothing retries until the TTL passes.
  *
- * @param array $dismissed Guides another provider supplied, ignored here.
+ * @param array $dismissed Value passed into the filter, not used: the cached guides replace it.
  * @param int   $user_id   User ID.
  * @return array Map of preferences scope to dismissed guide keys.
  */
