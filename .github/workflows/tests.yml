@@ -55,6 +55,7 @@ jobs:
       MONOREPO_BASE: ${{ github.workspace }}
       WITH_WOOCOMMERCE: ${{ matrix.with-woocommerce }}
       WITH_WPCOMSH: ${{ matrix.with-wpcomsh }}
+      WITH_REACT_VERSION: ${{ matrix.with-react-version }}
       COVERAGE: ${{ matrix.coverage }}
       SPLIT_NUM: ${{ matrix.split-num }}
       SPLIT_TOTAL: ${{ matrix.split-total }}
@@ -93,9 +94,17 @@ jobs:
 
       - name: Monorepo install
         run: |
-          echo "::group::Pnpm"
-          pnpm install
-          echo "::endgroup::"
+          if [[ "$WITH_REACT_VERSION" =~ ^[0-9]+$ ]]; then
+            echo "Overriding React version to $WITH_REACT_VERSION"
+            sed -i -e 's/^const withReactVersion = undefined;$/const withReactVersion = '"$WITH_REACT_VERSION"';/' .pnpmfile.cjs
+            echo "::group::Pnpm update"
+            pnpm update -r "react@^$WITH_REACT_VERSION" "react-dom@^$WITH_REACT_VERSION"
+            echo "::endgroup::"
+          else
+            echo "::group::Pnpm"
+            pnpm install
+            echo "::endgroup::"
+          fi
 
       - name: Detect changed projects
         id: changed

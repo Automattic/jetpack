@@ -597,7 +597,25 @@ describe( 'Newsletter preview: device selector', () => {
 
 		mockViewportWidth = 1280;
 		rerender( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
-
+		await expect( screen.findByRole( 'radio', { name: 'Desktop' } ) ).resolves.toBeInTheDocument();
 		expect( iframe ).toHaveStyle( { width: '100%' } );
+	} );
+
+	it( 'rebuilds the control when the offered devices change, so its highlight is re-measured', async () => {
+		mockViewportWidth = 900;
+
+		const { rerender } = render(
+			<NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } />
+		);
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+		const narrowControl = screen.getByRole( 'radiogroup', { name: 'Preview device' } );
+
+		mockViewportWidth = 1280;
+		rerender( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+
+		await expect( screen.findByRole( 'radio', { name: 'Desktop' } ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'radiogroup', { name: 'Preview device' } ) ).not.toBe(
+			narrowControl
+		);
 	} );
 } );
