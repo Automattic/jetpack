@@ -340,6 +340,10 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			() => dataSorted.filter( series => isSeriesVisible( series.label ) ),
 			[ dataSorted, isSeriesVisible ]
 		);
+		const visibleSeriesKey = useMemo(
+			() => JSON.stringify( visibleSeries.map( series => series.label ) ),
+			[ visibleSeries ]
+		);
 
 		// Check if all series are hidden
 		const allSeriesHidden = useMemo( () => {
@@ -404,6 +408,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			setIsNavigating,
 			chartRef,
 			totalPoints: visibleSeries[ 0 ]?.data.length || 0,
+			visibleSeriesKey,
 			onActivate: activateSelectedPoint,
 			preventTooltipScroll: tooltipPlacement === 'below-axis',
 		} );

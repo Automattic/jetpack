@@ -1927,6 +1927,45 @@ describe( 'LineChart', () => {
 			}
 		);
 
+		it( 'does not leave a series hidden mid-navigation in the keyboard tooltip', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						data={ [
+							defaultProps.data[ 0 ],
+							{
+								label: 'Series B',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 15 },
+									{ date: new Date( '2024-01-02' ), value: 25 },
+								],
+							},
+						] }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId="test-keyboard-tooltip-hide-mid-navigation"
+					/>
+				</GlobalChartsProvider>
+			);
+
+			screen.getByRole( 'application', { name: /line chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
+			await expect(
+				screen.findByTestId( 'line-chart-tooltip-content' )
+			).resolves.toHaveTextContent( 'Series A' );
+
+			await user.click( screen.getByRole( 'button', { name: /Series A/ } ) );
+
+			await waitFor( () =>
+				expect( screen.queryByTestId( 'line-chart-tooltip-content' ) ).not.toBeInTheDocument()
+			);
+		} );
+
 		it( 'does not filter series when legendInteractive is false', () => {
 			render(
 				<GlobalChartsProvider>
