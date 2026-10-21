@@ -1,5 +1,5 @@
 /**
- * Builds the Jetpack Comments front-end bundle.
+ * Builds the Jetpack Comments front-end bundle, and the settings card for Jetpack's Discussion settings.
  */
 
 import fs from 'fs';
@@ -28,7 +28,7 @@ const babelOpts = {
 	presets: [ [ '@automattic/jetpack-webpack-config/babel/preset' ] ],
 };
 
-export default {
+const frontEnd = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
@@ -121,3 +121,58 @@ export default {
 		...jetpackWebpackConfig.watchOptions,
 	},
 };
+
+// React from core, like the dashboard that renders it, and strings in the package's own domain.
+const settings = {
+	mode: jetpackWebpackConfig.mode,
+	devtool: jetpackWebpackConfig.devtool,
+	entry: {
+		settings: path.join( __dirname, 'src/settings/main.tsx' ),
+	},
+	output: {
+		...jetpackWebpackConfig.output,
+		path: path.join( __dirname, 'build' ),
+	},
+	optimization: {
+		...jetpackWebpackConfig.optimization,
+	},
+	resolve: {
+		...jetpackWebpackConfig.resolve,
+	},
+	externals: {
+		...jetpackWebpackConfig.externals,
+	},
+	node: false,
+	module: {
+		strictExportPresence: true,
+		rules: [
+			jetpackWebpackConfig.TranspileRule( {
+				exclude: /node_modules\//,
+			} ),
+			jetpackWebpackConfig.TranspileRule( {
+				includeNodeModules: [ '@automattic/jetpack-' ],
+			} ),
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+			jetpackWebpackConfig.CssRule( {
+				extensions: [ 'css', 'sass', 'scss' ],
+				extraLoaders: [
+					{
+						loader: 'postcss-loader',
+						options: {
+							postcssOptions: {
+								config: path.join( __dirname, 'postcss.config.js' ),
+							},
+						},
+					},
+					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
+				],
+			} ),
+		],
+	},
+	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+	watchOptions: {
+		...jetpackWebpackConfig.watchOptions,
+	},
+};
+
+export default [ frontEnd, settings ];

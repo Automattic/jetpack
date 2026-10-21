@@ -82,9 +82,9 @@ class Embeds extends WP_REST_Controller {
 		 *
 		 * @since 0.5.0
 		 *
-		 * @param bool $enabled Whether to offer it. Default true, wherever the block editor is on.
+		 * @param bool $enabled Whether to offer it. Default the site's setting, which starts on, wherever the block editor is on.
 		 */
-		return Comments::is_enabled() && Block_Editor::is_enabled() && (bool) apply_filters( 'jetpack_comments_block_editor_embeds', true );
+		return Comments::is_enabled() && Block_Editor::is_enabled() && (bool) apply_filters( 'jetpack_comments_block_editor_embeds', (bool) get_option( 'jetpack_comments_embeds', true ) );
 	}
 
 	/**

@@ -1736,6 +1736,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'comments',
 			),
+			'jetpack_comments_images'                   => array(
+				'description'       => esc_html__( 'Allow images in comments', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'comments',
+			),
+			'jetpack_comments_embeds'                   => array(
+				'description'       => esc_html__( 'Allow embeds in comments', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'comments',
+			),
 
 			// Custom Content Types.
 			'jetpack_portfolio'                         => array(
