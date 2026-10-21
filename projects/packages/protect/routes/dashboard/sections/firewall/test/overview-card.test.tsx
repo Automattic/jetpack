@@ -4,11 +4,13 @@ import apiFetch from '@wordpress/api-fetch';
 import { select } from '@wordpress/data';
 import { check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordViewOnce } from '../../../data/tracks';
 import { runFirewallTest } from '../firewall-test';
 import FirewallOverviewCard from '../overview-card';
 import type { FirewallContext } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../../../data/tracks' );
 jest.mock( '../firewall-test', () => ( {
 	...jest.requireActual( '../firewall-test' ),
 	runFirewallTest: jest.fn(),
@@ -281,13 +283,22 @@ describe( 'FirewallOverviewCard', () => {
 	} );
 
 	it.each( [
-		[ 'never had automatic rules', null, 'Let your firewall keep up with new attacks' ],
-		[ 'rules stopped updating', 1773446400, 'Your automatic firewall rules have stopped updating' ],
-	] )( 'sells automatic rules for a site that %s', ( _, rulesUpdatedAt, heading ) => {
+		[ 'never had automatic rules', null, 'Let your firewall keep up with new attacks', {} ],
+		[
+			'rules stopped updating',
+			1773446400,
+			'Your automatic firewall rules have stopped updating',
+			{ state: 'stopped' },
+		],
+	] )( 'sells automatic rules for a site that %s', ( _, rulesUpdatedAt, heading, eventProps ) => {
 		render( <FirewallOverviewCard { ...props } state={ { ...props.state, rulesUpdatedAt } } /> );
 
 		expect( screen.getByText( heading ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Upgrade/ } ) ).toHaveAttribute( 'href', '#upgrade' );
+		expect( recordViewOnce ).toHaveBeenLastCalledWith(
+			'jetpack_protect_dashboard_firewall_upsell_view',
+			eventProps
+		);
 	} );
 
 	it.each( [ null, 1773446400 ] )(

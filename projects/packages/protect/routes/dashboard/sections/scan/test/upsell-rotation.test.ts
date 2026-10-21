@@ -22,6 +22,11 @@ describe( 'nextRotation', () => {
 			{ variant: 2, shownAt: NOW, seen: [ 1, 4, 5, 6, 7, 8, 2 ] },
 		],
 		[
+			'moves on when the copy was shown in the future',
+			{ variant: 5, shownAt: NOW + 48 * HOUR, seen: [ 4, 5 ] },
+			{ variant: 6, shownAt: NOW, seen: [ 4, 5, 6 ] },
+		],
+		[
 			'starts a new cycle once every variant was shown',
 			{ variant: 3, shownAt: NOW - 25 * HOUR, seen: [ 4, 5, 6, 7, 8, 1, 2, 3 ] },
 			{ variant: 4, shownAt: NOW, seen: [ 4 ] },

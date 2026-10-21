@@ -28,7 +28,8 @@ export function nextRotation(
 	if ( ! stored ) {
 		return { variant: start, shownAt: now, seen: [ start ] };
 	}
-	if ( now - stored.shownAt < DAY_IN_MS ) {
+	// A shownAt in the future (the clock was ahead) counts as expired, or the copy never changes.
+	if ( now >= stored.shownAt && now - stored.shownAt < DAY_IN_MS ) {
 		return stored;
 	}
 	const seen = stored.seen.length >= count ? [] : stored.seen;

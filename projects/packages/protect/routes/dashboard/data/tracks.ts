@@ -22,6 +22,17 @@ function identify() {
 }
 
 /**
+ * Add the site's WordPress.com blog ID, which the analytics client only takes from `jpTracksContext`.
+ *
+ * @param props - Event properties.
+ * @return The properties to send.
+ */
+function withSite( props: Props ): Props {
+	const blogId = getScriptData()?.site?.wpcom?.blog_id;
+	return blogId ? { blog_id: blogId, ...props } : props;
+}
+
+/**
  * Record a view once per page load, so returning to a tab doesn't count it again.
  *
  * @param event - Event name.
@@ -34,7 +45,7 @@ export function recordViewOnce( event: string, props: Props = {} ) {
 	}
 	viewed.add( key );
 	identify();
-	analytics.tracks.recordEvent( event, props );
+	analytics.tracks.recordEvent( event, withSite( props ) );
 }
 
 /**
@@ -45,5 +56,5 @@ export function recordViewOnce( event: string, props: Props = {} ) {
  */
 export function recordEvent( event: string, props: Props = {} ) {
 	identify();
-	analytics.tracks.recordEvent( event, props );
+	analytics.tracks.recordEvent( event, withSite( props ) );
 }
