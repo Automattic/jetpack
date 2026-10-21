@@ -174,4 +174,21 @@ describe( 'Backup detail for a backup with known threats', () => {
 			JSON.stringify( { jpbKnownThreatsAcknowledged: '1792244435.274' } )
 		);
 	} );
+
+	it( 'checks a backup older than the newest 100 on its own', async () => {
+		render(
+			<QueryClientProvider>
+				<BackupDetail item={ { ...ITEM, rewindId: '1790000000.1' } } />
+			</QueryClientProvider>
+		);
+
+		await expect(
+			screen.findByRole( 'checkbox', {
+				name: 'I understand this backup contains known threats and want to restore it anyway.',
+			} )
+		).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringContaining( '/1790000000.1/threats' ) } )
+		);
+	} );
 } );

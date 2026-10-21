@@ -311,10 +311,13 @@ export default function BackupDetail( { item }: Props ) {
  * @return The threats and the newest clean backup, or null.
  */
 function useBackupKnownThreats( rewindId: string ) {
-	const { data: backups } = useBackupsKnownThreats();
-	const flagged = ( containingBackup( backups, rewindId )?.knownThreats?.flagged ?? 0 ) > 0;
-	const { data: threats } = useKnownThreats( rewindId, flagged );
-	const warns = flagged && !! threats && threats.summary.flagged > 0;
+	const { data: backups, isPending } = useBackupsKnownThreats();
+	const backup = containingBackup( backups, rewindId );
+	// The counts cover only the newest 100 backups, so an older one, or one the counts
+	// couldn't be read for, is checked on its own, as the restore screen does.
+	const check = backup ? ( backup.knownThreats?.flagged ?? 0 ) > 0 : ! isPending;
+	const { data: threats } = useKnownThreats( rewindId, check );
+	const warns = check && !! threats && threats.summary.flagged > 0;
 	const { data: withCleanRewindId } = useBackupsKnownThreats( {
 		withCleanRewindId: true,
 		enabled: warns,
