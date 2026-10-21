@@ -532,7 +532,7 @@ class Main_Features {
 		foreach ( $definition['plans'] ?? array() as $slug ) {
 			$bundle_class = Products::get_product_class( $slug );
 
-			if ( $bundle_class && ( 'pro' !== $slug || ( ! $local && ( $bundle_class::has_paid_plan_for_product() || ! empty( $bundle_class::get_pricing_for_ui()['available'] ) ) ) ) ) {
+			if ( $bundle_class && ( $local ? 'pro' !== $slug : ( $bundle_class::has_paid_plan_for_product() || ! empty( $bundle_class::get_pricing_for_ui()['available'] ) ) ) ) {
 				$badge = array(
 					'slug' => $slug,
 					'name' => $bundle_class::get_title(),
@@ -617,7 +617,7 @@ class Main_Features {
 		foreach ( $definition['plans'] ?? array() as $plan ) {
 			$bundle_class = Products::get_product_class( $plan );
 
-			if ( $bundle_class && ( 'pro' !== $plan || ! empty( $bundle_class::get_pricing_for_ui()['available'] ) ) ) {
+			if ( $bundle_class && ! empty( $bundle_class::get_pricing_for_ui()['available'] ) ) {
 				return array(
 					'path' => '/add-' . $plan,
 					'name' => $bundle_class::get_title(),
@@ -1090,6 +1090,8 @@ class Main_Features {
 			);
 			if ( 'activity-log' === $slug && ! $local && true === ( Products\Pro::get_pricing_for_ui()['catalog_available'] ?? false ) ) {
 				$feature['paid_highlights'][0] = __( '30 days of history with VaultPress Backup or Jetpack Pro, a full year with Jetpack Complete', 'jetpack-my-jetpack' );
+			} elseif ( 'activity-log' === $slug && ! $local && false === ( Products\Security::get_pricing_for_ui()['available'] ?? null ) ) {
+				$feature['paid_highlights'][0] = __( '30 days of history with VaultPress Backup, a full year with Jetpack Complete', 'jetpack-my-jetpack' );
 			}
 			if ( $local ) {
 				unset( $feature['included'], $feature['setup_note'] );

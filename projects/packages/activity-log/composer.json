@@ -17,7 +17,8 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-test-environment": "@dev",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/phpunit-select-config": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -70,6 +71,11 @@
 		},
 		"branch-alias": {
 			"dev-trunk": "0.6.x-dev"
+		},
+		"dependencies": {
+			"test-only": [
+				"packages/my-jetpack"
+			]
 		}
 	},
 	"config": {
