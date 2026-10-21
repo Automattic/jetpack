@@ -74,13 +74,25 @@ describe( 'checkAnalyticsEnabled', () => {
 		expect( mockPrompt ).not.toHaveBeenCalled();
 	} );
 
-	test( 'asks once and saves the answer from a terminal', async () => {
+	test( 'does not ask in CI, even from a terminal', async () => {
 		setTty( true, true );
-		mockPrompt.mockResolvedValueOnce( { analyticsEnabled: false } );
+		process.env.CI = 'true';
 
 		await expect( checkAnalyticsEnabled() ).resolves.toBe( false );
-		expect( mockPrompt ).toHaveBeenCalledTimes( 1 );
-		expect( store.get( 'askedToEnableAnalytics' ) ).toBe( true );
-		expect( store.get( 'analyticsEnabled' ) ).toBe( false );
+		expect( mockPrompt ).not.toHaveBeenCalled();
+		expect( store.size ).toBe( 0 );
 	} );
+
+	test.each( [ true, false ] )(
+		'asks once from a terminal and saves the answer %s',
+		async answer => {
+			setTty( true, true );
+			mockPrompt.mockResolvedValueOnce( { analyticsEnabled: answer } );
+
+			await expect( checkAnalyticsEnabled() ).resolves.toBe( answer );
+			expect( mockPrompt ).toHaveBeenCalledTimes( 1 );
+			expect( store.get( 'askedToEnableAnalytics' ) ).toBe( true );
+			expect( store.get( 'analyticsEnabled' ) ).toBe( answer );
+		}
+	);
 } );
