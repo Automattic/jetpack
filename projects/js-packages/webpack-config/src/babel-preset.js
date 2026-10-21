@@ -17,17 +17,6 @@ function normalizePolyfillName( name ) {
 
 const normalizedPolyfillModules = wpPolyfillModules.map( normalizePolyfillName );
 
-/**
- * Check whether any of the supported `wp-polyfill` versions include this polyfill.
- *
- * @param {string} name - The polyfill name to check.
- *
- * @return {boolean} Whether any of the supported `wp-polyfill` versions include this polyfill
- */
-function isPolyfillSupported( name ) {
-	return normalizedPolyfillModules.includes( normalizePolyfillName( name ) );
-}
-
 module.exports = ( api, opts = {} ) => {
 	const ret = {
 		sourceType: opts.sourceType || 'unambiguous',
@@ -45,6 +34,10 @@ module.exports = ( api, opts = {} ) => {
 	 * @return {boolean} Whether the polyfill should be injected.
 	 */
 	function shouldInjectPolyfill( name, defaultShouldInject ) {
+		if ( ! defaultShouldInject ) {
+			return false;
+		}
+
 		// The `exclude` option isn't compatible with `shouldInjectPolyfill`, so we need
 		// to check for exclusions ourselves.
 		// `include` isn't compatible either, but that's not an option on this preset.
@@ -54,7 +47,7 @@ module.exports = ( api, opts = {} ) => {
 		}
 
 		// Only inject if the polyfill is supported by `wp-polyfill`.
-		return isPolyfillSupported( name ) ? defaultShouldInject : false;
+		return normalizedPolyfillModules.includes( normalizePolyfillName( name ) );
 	}
 
 	if ( opts.autoWpPolyfill !== false ) {
