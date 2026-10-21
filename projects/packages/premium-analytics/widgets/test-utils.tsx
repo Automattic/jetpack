@@ -54,7 +54,7 @@ export function captureCsvDownloads() {
 		// A download the widget declares as an action: the host runs its callback.
 		runAndSave: async ( action: WidgetRuntimeAction ) => {
 			if ( ! ( 'callback' in action ) ) {
-				throw new Error( `Action "" is a link, not a download.` );
+				throw new Error( `Action "${ action.id }" is a link, not a download.` );
 			}
 			await act( async () => {
 				await action.callback();

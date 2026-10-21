@@ -51,7 +51,7 @@ export function createWidgetActionsHost() {
 		runDeclaredAction: async ( id: string ) => {
 			const action = declaredAction( id );
 			if ( ! action || ! ( 'callback' in action ) ) {
-				throw new Error( `No callback action "" is declared.` );
+				throw new Error( `No callback action "${ id }" is declared.` );
 			}
 			await act( async () => {
 				await action.callback();

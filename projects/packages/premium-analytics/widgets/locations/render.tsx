@@ -252,8 +252,6 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 
 	const chartTitle = __( 'Top locations', 'jetpack-premium-analytics-pkg' );
 
-	// The back link stays a sibling of <WidgetState> so users can drill back up
-	// from an empty or failed drilled view.
 	// View all opens the whole tab; only the download follows the drill-down.
 	useReportActions( {
 		report: 'locations',
@@ -265,6 +263,8 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		},
 	} );
 
+	// The back link stays a sibling of <WidgetState> so users can drill back up
+	// from an empty or failed drilled view.
 	return (
 		<div className={ styles.content }>
 			{ bodyHeader }
