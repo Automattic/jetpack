@@ -28,6 +28,13 @@ class REST_Blog_Posts {
 	const POST_COUNT = 3;
 
 	/**
+	 * Transient set while the feed is failing, so an outage costs one fetch an hour.
+	 *
+	 * @var string
+	 */
+	const FAILED_TRANSIENT = 'jetpack_my_jetpack_blog_posts_failed';
+
+	/**
 	 * Register the route.
 	 *
 	 * @return void
@@ -59,10 +66,15 @@ class REST_Blog_Posts {
 	 * @return WP_REST_Response
 	 */
 	public static function get_blog_posts() {
-		// fetch_feed() caches the parsed feed in a transient for 12 hours.
+		if ( get_transient( self::FAILED_TRANSIENT ) ) {
+			return rest_ensure_response( array() );
+		}
+
+		// fetch_feed() caches a parsed feed for 12 hours, but never a failure.
 		$feed = fetch_feed( self::FEED_URL );
 
 		if ( is_wp_error( $feed ) ) {
+			set_transient( self::FAILED_TRANSIENT, 1, HOUR_IN_SECONDS );
 			return rest_ensure_response( array() );
 		}
 
@@ -74,7 +86,7 @@ class REST_Blog_Posts {
 			}
 
 			$enclosure = $item->get_enclosure();
-			$thumbnail = $enclosure ? esc_url_raw( (string) $enclosure->get_thumbnail() ) : '';
+			$thumbnail = $enclosure ? (string) $enclosure->get_thumbnail() : '';
 
 			$posts[] = array(
 				// The feed parser returns entity-encoded text; the client renders plain text.
@@ -82,7 +94,8 @@ class REST_Blog_Posts {
 				'link'      => $link,
 				'date'      => $item->get_date( 'c' ),
 				'excerpt'   => wp_trim_words( html_entity_decode( (string) $item->get_description(), ENT_QUOTES, 'UTF-8' ), 20, '…' ),
-				'thumbnail' => '' === $thumbnail ? null : $thumbnail,
+				// Jetpack.com crops on request; the full upload is megabytes for a 56px image.
+				'thumbnail' => '' === $thumbnail ? null : esc_url_raw( add_query_arg( 'resize', '112,112', $thumbnail ) ),
 			);
 		}
 
