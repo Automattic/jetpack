@@ -69,6 +69,26 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A failed Atomic check does not retry on every Dashboard load.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_failed_atomic_mcp_check_is_cached_briefly() {
+		define( 'IS_ATOMIC', true );
+		$cache_key = 'wpcom_ai_banner_mcp_' . get_current_blog_id() . '_' . get_current_user_id();
+
+		$this->assertNull( wpcom_ai_assistant_banner_mcp_enabled() );
+		$this->assertSame( 'unavailable', get_transient( $cache_key ) );
+
+		$expires = (int) get_option( '_transient_timeout_' . $cache_key );
+		$this->assertGreaterThan( time(), $expires );
+		$this->assertLessThanOrEqual( time() + MINUTE_IN_SECONDS, $expires );
+	}
+
+	/**
 	 * The script gets MCP state only when the WordPress Agent is on.
 	 *
 	 * @runInSeparateProcess

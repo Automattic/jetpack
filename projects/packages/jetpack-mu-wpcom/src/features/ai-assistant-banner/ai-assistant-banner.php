@@ -83,11 +83,17 @@ function wpcom_ai_assistant_banner_mcp_enabled() {
 		: Client::wpcom_json_api_request_as_user( $path, '2', array( 'method' => 'GET' ), null, 'wpcom' );
 
 	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		if ( ! $is_simple ) {
+			set_transient( $cache_key, 'unavailable', MINUTE_IN_SECONDS );
+		}
 		return null;
 	}
 
 	$data = json_decode( wp_remote_retrieve_body( $response ), true );
 	if ( ! is_array( $data ) || ! array_key_exists( 'has_mcp_plan', $data ) ) {
+		if ( ! $is_simple ) {
+			set_transient( $cache_key, 'unavailable', MINUTE_IN_SECONDS );
+		}
 		return null;
 	}
 
@@ -99,6 +105,9 @@ function wpcom_ai_assistant_banner_mcp_enabled() {
 	}
 
 	if ( ! isset( $data['site_level_enabled'] ) ) {
+		if ( ! $is_simple ) {
+			set_transient( $cache_key, 'unavailable', MINUTE_IN_SECONDS );
+		}
 		return null;
 	}
 
