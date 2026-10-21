@@ -88,23 +88,8 @@ class Jetpack_Admin {
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
 
 		if ( class_exists( 'Akismet_Admin' ) ) {
-			// If the site has Jetpack Anti-spam, change the Akismet menu label and logo accordingly.
-			$site_products         = array_column( Jetpack_Plan::get_products(), 'product_slug' );
-			$has_anti_spam_product = count( array_intersect( array( 'jetpack_anti_spam', 'jetpack_anti_spam_monthly' ), $site_products ) ) > 0;
-
-			if ( Jetpack_Plan::supports( 'akismet' ) || Jetpack_Plan::supports( 'antispam' ) || $has_anti_spam_product ) {
-				// Prevent Akismet from adding a menu item.
-				add_action(
-					'admin_menu',
-					function () {
-						remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
-					},
-					4
-				);
-
-				// Add an Anti-spam menu item for Jetpack. This is handled automatically by the Admin_Menu as long as it has been initialized.
-				Admin_Menu::init();
-			}
+			// Admin_Menu registers the Akismet menu item, so it sorts with the rest of the Jetpack menu.
+			Admin_Menu::init();
 
 			// Render the unified Jetpack header/footer chrome on Akismet's admin pages by
 			// consuming Akismet's `akismet_header` / `akismet_footer` action hooks. This does

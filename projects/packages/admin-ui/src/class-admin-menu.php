@@ -237,6 +237,7 @@ class Admin_Menu {
 		self::$initialized            = false;
 		self::$top_level_initialized  = false;
 
+		remove_action( 'admin_menu', array( __CLASS__, 'take_over_akismet_menu' ), 4 );
 		remove_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 );
 		remove_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 );
 		remove_action( 'admin_menu', array( __CLASS__, 'top_level_menu_hook_callback' ), 1000 );
@@ -246,25 +247,43 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Handles the Akismet menu item when used alongside other stand-alone plugins
+	 * Registers the Akismet menu item through this class, so it sorts with the rest of the Jetpack menu.
 	 *
-	 * When Jetpack plugin is present, Akismet menu item is moved under the Jetpack top level menu, but if Akismet is active alongside other stand-alone plugins,
-	 * we use this method to move the menu item.
+	 * Akismet hooks admin_menu at priority 5 and, when the Jetpack plugin is active, defers its entry to
+	 * jetpack_admin_menu, which fires before this class registers its sorted items.
 	 */
 	private static function handle_akismet_menu() {
-		if ( class_exists( 'Akismet_Admin' ) ) {
-			add_action(
-				'admin_menu',
-				function () {
-					// Prevent Akismet from adding a menu item.
-					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+		if ( ! class_exists( 'Akismet_Admin' ) ) {
+			return;
+		}
 
-					// Add an Anti-spam menu item for Jetpack.
-					self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
-				},
-				4
-			);
+		// Initialized after priority 5, as when My Jetpack is the first caller: Akismet has already deferred.
+		if ( has_action( 'jetpack_admin_menu', array( 'Akismet_Admin', 'load_menu' ) ) ) {
+			self::take_over_akismet_menu();
+		} else {
+			add_action( 'admin_menu', array( __CLASS__, 'take_over_akismet_menu' ), 4 );
+		}
+	}
 
+	/**
+	 * Stops Akismet from adding its own menu item and queues ours in its place.
+	 *
+	 * @return void
+	 */
+	public static function take_over_akismet_menu() {
+		$removed_menu     = remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+		$removed_deferred = remove_action( 'jetpack_admin_menu', array( 'Akismet_Admin', 'load_menu' ) );
+
+		// Akismet is not adding an entry on this request, so neither do we.
+		if ( ! $removed_menu && ! $removed_deferred ) {
+			return;
+		}
+
+		$hook = self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
+
+		// Akismet's own registration adds its help tab, so keep it.
+		if ( is_callable( array( 'Akismet_Admin', 'admin_help' ) ) ) {
+			add_action( 'load-' . $hook, array( 'Akismet_Admin', 'admin_help' ) );
 		}
 	}
 

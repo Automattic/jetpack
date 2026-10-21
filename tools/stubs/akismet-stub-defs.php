@@ -47,6 +47,7 @@ return array(
 			'class' => array(
 				'Akismet_Admin' => array(
 					'method' => array(
+						'admin_help',
 						'admin_menu',
 						'display_page',
 						'get_akismet_user',

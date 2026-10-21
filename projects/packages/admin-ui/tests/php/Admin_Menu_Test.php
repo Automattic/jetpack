@@ -126,6 +126,18 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * Drop the Akismet hooks a test added, since this TestCase does not restore hooks.
+	 *
+	 * @return void
+	 */
+	public function tearDown(): void {
+		remove_action( 'admin_menu', array( $this, 'fire_jetpack_admin_menu' ), 998 );
+		remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+		remove_all_actions( 'jetpack_admin_menu' );
+		parent::tearDown();
+	}
+
+	/**
 	 * Tests whether the page_suffix we return in our method will match the page_suffix returned by the native WP methods
 	 *
 	 * The idea of this test is to make sure our returned value for the page suffix always matches the value that will be returned
@@ -404,6 +416,59 @@ class Admin_Menu_Test extends TestCase {
 			Admin_Menu::get_top_level_menu_item_slug(),
 			array( 'all-hidden-a', 'all-hidden-b' )
 		);
+	}
+
+	/**
+	 * Akismet's item sorts below POSITION_FIRST, whether Admin_Menu starts before or after Akismet hooks in.
+	 *
+	 * @param bool $late Whether Akismet has already deferred its item to jetpack_admin_menu when Admin_Menu starts.
+	 *
+	 * @dataProvider akismet_timing_data
+	 */
+	#[DataProvider( 'akismet_timing_data' )]
+	public function test_akismet_item_sorts_below_the_first_item( $late ) {
+		global $submenu;
+
+		wp_set_current_user( self::$admin_user_id );
+
+		// The Jetpack plugin fires jetpack_admin_menu at 998, before Admin_Menu registers at 1000.
+		add_action( 'admin_menu', array( $this, 'fire_jetpack_admin_menu' ), 998 );
+
+		if ( $late ) {
+			\Akismet_Admin::admin_menu();
+		} else {
+			add_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+		}
+
+		Admin_Menu::add_menu( 'First', 'First', 'edit_posts', 'akismet-first', '__return_null', Admin_Menu::POSITION_FIRST );
+
+		do_action( 'admin_menu' );
+
+		$slugs = array_column( $submenu['jetpack'], 2 );
+
+		$this->assertSame( 'akismet-first', $slugs[0] );
+		$this->assertCount( 1, array_keys( $slugs, 'akismet-key-config', true ) );
+	}
+
+	/**
+	 * Data provider for test_akismet_item_sorts_below_the_first_item.
+	 *
+	 * @return array
+	 */
+	public static function akismet_timing_data() {
+		return array(
+			'Admin_Menu starts first' => array( false ),
+			'Akismet hooks in first'  => array( true ),
+		);
+	}
+
+	/**
+	 * Stands in for the Jetpack plugin's admin page, which fires jetpack_admin_menu.
+	 *
+	 * @return void
+	 */
+	public function fire_jetpack_admin_menu() {
+		do_action( 'jetpack_admin_menu' );
 	}
 
 	/**
