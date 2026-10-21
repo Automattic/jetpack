@@ -27,11 +27,11 @@ describe( 'formatRowDate', () => {
 		}
 	} );
 
-	test( 'uses the site time format and the locale date-time format', () => {
+	test( 'uses the site date and time formats', () => {
 		const original = getSettings();
 		setSettings( {
 			...original,
-			formats: { ...original.formats, time: 'H:i', datetime: 'j M Y H:i' },
+			formats: { ...original.formats, date: 'j M Y', time: 'H:i' },
 		} );
 		try {
 			expect( formatRowDate( '2026-10-06T17:00:00Z', NOW ) ).toBe( 'Today, 17:00' );

@@ -24,6 +24,7 @@ const SEED: SettingsResponse = {
 	title_formats: { posts: [ { type: 'token', value: 'site_name' } ] },
 	title_separator: '-',
 	title_formats_editable: true,
+	conflicting_seo_plugin: '',
 	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
@@ -33,6 +34,7 @@ const SEED: SettingsResponse = {
 	sitemap_url: '',
 	canonical_active: false,
 	canonical_switchable: true,
+	canonical_conflicted: false,
 	schema: makeSchemaSettings(),
 };
 

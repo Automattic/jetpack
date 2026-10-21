@@ -6,3 +6,4 @@ import '../../routes/reports/comments/config/fields.test';
 import '../../routes/reports/emails/config/fields.test';
 import '../../routes/reports/utm/config/fields.test';
 import '../../routes/reports/videos/config/fields.test';
+import '../../routes/use-detail-date-controls.test';
