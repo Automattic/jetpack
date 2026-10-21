@@ -290,6 +290,20 @@ describe( 'FirewallOverviewCard', () => {
 		expect( screen.getByRole( 'link', { name: /Upgrade/ } ) ).toHaveAttribute( 'href', '#upgrade' );
 	} );
 
+	it.each( [ null, 1773446400 ] )(
+		'sells nothing to a site with Scan (rules updated at %s)',
+		rulesUpdatedAt => {
+			render(
+				<FirewallOverviewCard
+					{ ...props }
+					state={ { ...props.state, hasScan: true, rulesUpdatedAt } }
+				/>
+			);
+
+			expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'opens the Settings tab at its own card', async () => {
 		const openTab = jest.fn();
 		render( <FirewallOverviewCard { ...props } openTab={ openTab } /> );

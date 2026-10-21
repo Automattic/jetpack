@@ -1,6 +1,4 @@
-import analytics from '@automattic/jetpack-analytics';
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
@@ -59,13 +57,6 @@ const Stage = () => {
 	const { load } = settings;
 	const reportIds = parseThreatIds( search[ REPORT_PARAM ] );
 	const showReport = reportIds.length > 0 && Boolean( state.scan );
-
-	useEffect( () => {
-		const wpcomUser = getScriptData()?.user?.current_user?.wpcom;
-		if ( wpcomUser?.ID && wpcomUser?.login ) {
-			analytics.initialize( wpcomUser.ID, wpcomUser.login );
-		}
-	}, [] );
 
 	useEffect( () => {
 		if ( activeTab === 'settings' && ! showReport ) {

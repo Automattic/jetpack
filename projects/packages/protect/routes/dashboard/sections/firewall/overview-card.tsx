@@ -385,6 +385,8 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 						dateI18n( 'M j, Y', rulesUpdatedAt * 1000, undefined )
 					) }
 					url={ firewall.upgradeUrl }
+					event="jetpack_protect_dashboard_firewall_upsell"
+					eventProps={ { state: 'stopped' } }
 				/>
 			) }
 		</ProtectCard>

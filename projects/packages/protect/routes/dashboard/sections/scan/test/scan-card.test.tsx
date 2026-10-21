@@ -60,6 +60,7 @@ describe( 'ScanCard without Scan', () => {
 			screen.getByText( 'We couldn’t check your site for vulnerabilities right now.' )
 		).toBeInTheDocument();
 		expect( screen.queryByText( 'No known vulnerabilities found' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -69,6 +70,7 @@ describe( 'ScanCard with Scan', () => {
 
 		expect( screen.getByText( 'Your site is safe right now' ) ).toBeInTheDocument();
 		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 } );
 

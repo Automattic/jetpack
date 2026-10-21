@@ -1,7 +1,9 @@
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
 import { ButtonLink, Stack, Text } from '@wordpress/ui';
 import { CardRow } from '../../components/card';
+import { recordEvent, recordViewOnce } from '../../data/tracks';
 
 type Props = {
 	/** What the free plan leaves out, such as "Malware scanning". */
@@ -10,6 +12,9 @@ type Props = {
 	description: string;
 	/** Where to buy Scan. */
 	url: string;
+	/** Tracks event prefix; `_view` and `_click` are recorded with `eventProps`. */
+	event: string;
+	eventProps?: Record< string, string | number >;
 };
 
 /**
@@ -19,9 +24,13 @@ type Props = {
  * @param props.title       - What the free plan leaves out.
  * @param props.description - What that means for this site.
  * @param props.url         - Where to buy Scan.
+ * @param props.event       - Tracks event prefix.
+ * @param props.eventProps  - Tracks event properties.
  * @return The row.
  */
-export default function UpgradeGap( { title, description, url }: Props ) {
+export default function UpgradeGap( { title, description, url, event, eventProps = {} }: Props ) {
+	useEffect( () => recordViewOnce( `${ event }_view`, eventProps ) );
+
 	return (
 		<CardRow className="jp-protect-upgrade-gap">
 			<Stack direction="row" gap="md" align="center" justify="space-between">
@@ -36,7 +45,13 @@ export default function UpgradeGap( { title, description, url }: Props ) {
 						</Text>
 					</Stack>
 				</Stack>
-				<ButtonLink href={ url } size="compact" className="jp-protect-upgrade-gap__link">
+				<ButtonLink
+					href={ url }
+					size="compact"
+					className="jp-protect-upgrade-gap__link"
+					// eslint-disable-next-line react/jsx-no-bind -- ButtonLink isn't memoized, so a stable handler buys nothing.
+					onClick={ () => recordEvent( `${ event }_click`, eventProps ) }
+				>
 					{ __( 'Upgrade', 'jetpack-protect-pkg' ) }
 				</ButtonLink>
 			</Stack>
