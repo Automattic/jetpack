@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.18] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [0.2.17] - 2026-10-19
+### Changed
+- Update package dependencies. [#53806]
+
+## [0.2.16] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## [0.2.15] - 2026-10-14
+### Changed
+- Update dependencies.
+
+## [0.2.14] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [0.2.13] - 2026-10-06
+### Changed
+- Update dependencies.
+
+## [0.2.12] - 2026-10-05
+### Changed
+- Update dependencies.
+
+## [0.2.11] - 2026-09-28
+### Changed
+- Internal updates.
+
+## [0.2.10] - 2026-09-23
+### Changed
+- Update dependencies.
+
+## [0.2.9] - 2026-09-18
+### Changed
+- Update package dependencies. [#52187]
+
+## [0.2.8] - 2026-09-15
+### Changed
+- Update package dependencies. [#52297]
+
+## [0.2.7] - 2026-09-14
+### Changed
+- Update dependencies.
+
+## [0.2.6] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
 ## [0.2.5] - 2026-09-01
 ### Changed
 - Declare react-dom, which @wordpress/element now requires as a peer dependency. [#51303]
@@ -61,6 +113,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#49757]
 
+[0.2.18]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.17...v0.2.18
+[0.2.17]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.16...v0.2.17
+[0.2.16]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.15...v0.2.16
+[0.2.15]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.14...v0.2.15
+[0.2.14]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.13...v0.2.14
+[0.2.13]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.12...v0.2.13
+[0.2.12]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.11...v0.2.12
+[0.2.11]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.10...v0.2.11
+[0.2.10]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.9...v0.2.10
+[0.2.9]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.8...v0.2.9
+[0.2.8]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.7...v0.2.8
+[0.2.7]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.6...v0.2.7
+[0.2.6]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Automattic/jetpack-shared-stores/compare/v0.2.2...v0.2.3

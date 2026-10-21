@@ -18,7 +18,7 @@ jest.mock( '@wordpress/route', () => ( {
 	// Models `search`, which the real Link renders into the href rather than onto
 	// the DOM node. A bare `<a { ...rest }>` mock only survives while the `ls`
 	// fixtures carry no `id`; give one an id and the object reaches a DOM node
-	// and `@wordpress/jest-console` fails the suite on React's unknown-prop warning.
+	// and the `jetpack-js-tools` console guard fails the test on React's unknown-prop warning.
 	Link: ( {
 		children,
 		to,
@@ -46,8 +46,6 @@ import QueryClientProvider from '../src/dashboard/providers/query-client-provide
 import type { BackupActivityItem } from '../src/dashboard/types/activity';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
-
-const SETTLE = { timeout: 10000 };
 
 const ITEM: BackupActivityItem = {
 	id: 'act-cloud',
@@ -186,7 +184,7 @@ describe( 'Download link carrying the file selection', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'File: wp-config.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: wp-config.php' } )
 		).resolves.toBeInTheDocument();
 
 		expect( screen.getByRole( 'link', { name: /Download backup/ } ) ).toHaveAttribute(
@@ -202,7 +200,7 @@ describe( 'Download link carrying the file selection', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'File: wp-config.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: wp-config.php' } )
 		).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select wp-config.php' } ) );
@@ -237,7 +235,7 @@ describe( 'Download link carrying the file selection', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'Folder: themes' }, SETTLE )
+			screen.findByRole( 'button', { name: 'Folder: themes' } )
 		).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select themes' } ) );
@@ -264,7 +262,7 @@ describe( 'Download link carrying the file selection', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'File: orphan.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: orphan.php' } )
 		).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select orphan.php' } ) );
@@ -291,6 +289,33 @@ describe( 'Download link carrying the file selection', () => {
 } );
 
 describe( 'Download screen without a file selection', () => {
+	// A live region that arrives together with its text is missed by screen
+	// readers, so the one node must exist first and have its text updated.
+	it( 'announces each phase in the region that was already there', async () => {
+		render( <DownloadStage /> );
+
+		// First `status` is the screen's region; the selection hint comes after it.
+		const region = ( await screen.findAllByRole( 'status' ) )[ 0 ];
+		expect( region ).toBeEmptyDOMElement();
+
+		await userEvent.click( await screen.findByRole( 'button', { name: /Generate download/ } ) );
+		await waitFor( () => expect( region ).toHaveTextContent( /^Preparing download…$/ ) );
+
+		downloadStatus = {
+			id: 4242,
+			status: 'finished',
+			progress: 100,
+			url: 'https://example.com/archive.zip',
+			valid_until: '2026-09-04T00:00:00+00:00',
+			error: '',
+		};
+		await waitFor( () => expect( region ).toHaveTextContent( /^Your download is ready$/ ) );
+		// The checklist stays under a ready download, so its hint is the one other region.
+		const others = screen.getAllByRole( 'status' ).filter( node => node !== region );
+		expect( others ).toHaveLength( 1 );
+		expect( others[ 0 ] ).toBeEmptyDOMElement();
+	} );
+
 	it( 'still offers the category checklist and submits nothing on its own', async () => {
 		render( <DownloadStage /> );
 
@@ -298,10 +323,10 @@ describe( 'Download screen without a file selection', () => {
 		// on it: the button exists and is armed, which only makes sense
 		// alongside a list of categories to arm it.
 		await expect(
-			screen.findByRole( 'button', { name: /Generate download/ }, SETTLE )
+			screen.findByRole( 'button', { name: /Generate download/ } )
 		).resolves.toBeInTheDocument();
 		for ( const label of ITEM_LABELS ) {
-			expect( screen.getByRole( 'checkbox', { name: label } ) ).toBeChecked();
+			expect( screen.getByRole( 'checkbox', { name: new RegExp( `^${ label }` ) } ) ).toBeChecked();
 		}
 
 		// The other half of "unchanged": the waiting state the selection
@@ -324,7 +349,7 @@ describe( 'Download screen without a file selection', () => {
 		render( <DownloadStage /> );
 
 		await expect(
-			screen.findByRole( 'button', { name: /Generate download/ }, SETTLE )
+			screen.findByRole( 'button', { name: /Generate download/ } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Preparing download…' ) ).not.toBeInTheDocument();
 		expect( postCalls() ).toHaveLength( 0 );
@@ -343,31 +368,22 @@ describe( 'Download screen with a file selection', () => {
 		// to preparing the archive, which is the state that replaces the
 		// checklist. A screen that rendered nothing at all would fail here.
 		await expect(
-			screen.findByText( 'Preparing download…', undefined, SETTLE )
+			screen.findByText( 'Preparing download…', { selector: 'span' } )
 		).resolves.toBeInTheDocument();
 
 		for ( const label of ITEM_LABELS ) {
-			expect( screen.queryByRole( 'checkbox', { name: label } ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'checkbox', { name: new RegExp( `^${ label }` ) } )
+			).not.toBeInTheDocument();
 		}
 		expect( screen.queryByRole( 'button', { name: /Generate download/ } ) ).not.toBeInTheDocument();
-	} );
-
-	// The bare role query is unambiguous: the checklist branch that carries the
-	// screen's other `role="status"` never renders alongside a file selection.
-	it( 'announces that the archive is being prepared, and only that line', async () => {
-		render( <DownloadStage /> );
-
-		// Exact, for the reason given in `restore-progress-message.test.tsx`.
-		await expect( screen.findByRole( 'status', undefined, SETTLE ) ).resolves.toHaveTextContent(
-			/^Preparing download…$/
-		);
 	} );
 
 	it( 'asks WordPress.com for the archive once, without being clicked', async () => {
 		render( <DownloadStage /> );
 
 		await expect(
-			screen.findByText( 'Preparing download…', undefined, SETTLE )
+			screen.findByText( 'Preparing download…', { selector: 'span' } )
 		).resolves.toBeInTheDocument();
 
 		const posts = postCalls();
@@ -380,13 +396,39 @@ describe( 'Download screen with a file selection', () => {
 		render( <DownloadStage /> );
 
 		await expect(
-			screen.findByText( 'Preparing download…', undefined, SETTLE )
+			screen.findByText( 'Preparing download…', { selector: 'span' } )
 		).resolves.toBeInTheDocument();
 
 		expect( initiateCalls()[ 0 ]?.data ).toEqual( {
 			types: { paths: true },
 			include_path_list: [ WP_CONFIG_ID, README_ID ],
 		} );
+	} );
+
+	it( 'offers Contact support when the download fails', async () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: 'example.wordpress.com',
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+		mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
+			const path = o?.path ?? '';
+			if ( path.includes( '/site/capabilities' ) ) {
+				return Promise.resolve( { hasBackupPlan: true, hasScan: false } );
+			}
+			if ( path.includes( '/backups/download/' ) ) {
+				return Promise.reject( { code: 'download_initiate_failed', message: 'No luck.' } );
+			}
+			return Promise.resolve( {} );
+		} );
+
+		render( <DownloadStage /> );
+
+		const link = await screen.findByRole( 'link', { name: /^Contact support/ } );
+		expect( link ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-contact-support&site=example.wordpress.com'
+		);
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'retries with the file selection rather than the whole site', async () => {
@@ -410,9 +452,9 @@ describe( 'Download screen with a file selection', () => {
 
 		render( <DownloadStage /> );
 
-		await userEvent.click( await screen.findByRole( 'button', { name: /Try again/ }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: /Try again/ } ) );
 
-		await waitFor( () => expect( initiateCalls() ).toHaveLength( 2 ), SETTLE );
+		await waitFor( () => expect( initiateCalls() ).toHaveLength( 2 ) );
 		expect( initiateCalls()[ 1 ]?.data ).toEqual( {
 			types: { paths: true },
 			include_path_list: [ WP_CONFIG_ID, README_ID ],
@@ -433,10 +475,10 @@ describe( 'Download screen with a file selection', () => {
 		// the job queued — so waiting on the element alone would pass on a
 		// bar that never took a number from the poll. The polled value is
 		// the assertion that matters.
-		const bar = await screen.findByRole( 'progressbar', undefined, SETTLE );
+		const bar = await screen.findByRole( 'progressbar' );
 		// A number, not a string: `toHaveValue` on `<progress>` reads
 		// `element.value`, which the DOM has already coerced.
-		await waitFor( () => expect( bar ).toHaveValue( 36 ), SETTLE );
+		await waitFor( () => expect( bar ).toHaveValue( 36 ) );
 		// The spinner is the state the bar replaces, so its departure is
 		// half the behaviour. `Spinner` renders an explicit
 		// `role="presentation"`, which is the handle on it.
@@ -454,9 +496,7 @@ describe( 'Download screen with a file selection', () => {
 
 		// Wait for a live poll first, so the flip below lands on a screen
 		// that is genuinely waiting rather than one still mid-POST.
-		await expect(
-			screen.findByRole( 'progressbar', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'progressbar' ) ).resolves.toBeInTheDocument();
 
 		downloadStatus = {
 			id: 4242,
@@ -467,16 +507,9 @@ describe( 'Download screen with a file selection', () => {
 			error: '',
 		};
 
-		const link = await screen.findByRole( 'link', { name: 'Download the file' }, SETTLE );
+		const link = await screen.findByRole( 'link', { name: 'Download file' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/archive.zip' );
-		// `Notice` also speaks its text through `wp.a11y.speak`, which
-		// mirrors the string into a live region — so an unscoped query
-		// matches twice. The visible notice is the one under assertion.
-		expect(
-			screen.getByText( 'Your download is ready.', {
-				ignore: '.a11y-speak-region, script, style',
-			} )
-		).toBeInTheDocument();
+		expect( link ).toHaveAttribute( 'download' );
 		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
 	} );
 
@@ -487,7 +520,7 @@ describe( 'Download screen with a file selection', () => {
 		render( <DownloadStage /> );
 
 		await expect(
-			screen.findByText( "This download link isn't valid.", undefined, SETTLE )
+			screen.findByText( "This download link isn't valid." )
 		).resolves.toBeInTheDocument();
 		expect( postCalls() ).toHaveLength( 0 );
 	} );
@@ -507,7 +540,7 @@ describe( 'From the file browser to the request', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'Folder: themes' }, SETTLE )
+			screen.findByRole( 'button', { name: 'Folder: themes' } )
 		).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select themes' } ) );
@@ -522,7 +555,7 @@ describe( 'From the file browser to the request', () => {
 		} );
 		render( <DownloadStage /> );
 		await expect(
-			screen.findByText( 'Preparing download…', undefined, SETTLE )
+			screen.findByText( 'Preparing download…', { selector: 'span' } )
 		).resolves.toBeInTheDocument();
 
 		// Three entries for two ticked rows: the folder's id is itself a

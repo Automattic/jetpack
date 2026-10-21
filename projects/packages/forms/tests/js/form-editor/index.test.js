@@ -17,9 +17,8 @@ describe( 'Form Editor Module', () => {
 		test( 'should track previous categories when moving to front', async () => {
 			// This verifies the implementation preserves original category order
 			// by returning the previous categories array from moveFormsCategoryToFront
-			const { moveContactFormCategoryToFront } = await import(
-				'../../../src/form-editor/utils/category-utils'
-			);
+			const { moveContactFormCategoryToFront } =
+				await import( '../../../src/form-editor/utils/category-utils' );
 
 			const originalCategories = [
 				{ slug: 'text', title: 'Text' },
@@ -55,9 +54,8 @@ describe( 'Form Editor Module', () => {
 		test( 'should fallback to moveToBack when no previous categories', async () => {
 			// This verifies that when previousCategories is empty,
 			// moveFormsCategoryBackToOriginalOrder falls back to moveContactFormCategoryToBack
-			const { moveContactFormCategoryToBack } = await import(
-				'../../../src/form-editor/utils/category-utils'
-			);
+			const { moveContactFormCategoryToBack } =
+				await import( '../../../src/form-editor/utils/category-utils' );
 
 			const categories = [
 				{ slug: 'contact-form', title: 'Forms' },

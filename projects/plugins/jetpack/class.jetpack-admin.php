@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
+use Automattic\Jetpack\Protect\Dashboard as Protect_Dashboard;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -57,6 +58,9 @@ class Jetpack_Admin {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
 		$jetpack_react = new Jetpack_React_Page();
 
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-settings-react-page.php';
+		$jetpack_settings = new Jetpack_Settings_React_Page();
+
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-settings-page.php';
 		$fallback_page = new Jetpack_Settings_Page();
 
@@ -69,7 +73,8 @@ class Jetpack_Admin {
 		add_action( 'admin_init', array( $jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $jetpack_react, 'add_actions' ), 998 );
 		add_action( 'admin_menu', array( $jetpack_react, 'remove_jetpack_menu' ), 2000 );
-		add_action( 'jetpack_admin_menu', array( $jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
+		add_action( 'admin_menu', array( $jetpack_settings, 'maybe_load_wp_build' ), 1 );
+		add_action( 'jetpack_admin_menu', array( $jetpack_settings, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $fallback_page, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_about, 'add_actions' ) );
@@ -243,6 +248,7 @@ class Jetpack_Admin {
 		$modules           = array();
 		$jetpack_active    = Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
+		$protect_page_urls = self::get_protect_page_module_urls();
 		foreach ( $available_modules as $module ) {
 			$module_array = Jetpack::get_module( $module );
 			if ( $module_array ) {
@@ -277,6 +283,7 @@ class Jetpack_Admin {
 				$module_array['configure_url']      = Jetpack::module_configuration_url( $module );
 				$module_array['override']           = $overrides->get_module_override( $module );
 				$module_array['disabled']           = $is_available ? '' : 'disabled="disabled"';
+				$module_array['deactivation_note']  = Jetpack::get_module_deactivation_note( $module );
 
 				ob_start();
 				/**
@@ -341,6 +348,12 @@ class Jetpack_Admin {
 					apply_filters( 'jetpack_module_configurable_' . $module, false )
 				) {
 					$module_array['configurable'] = sprintf( '<a href="%1$s">%2$s</a>', esc_url( $module_array['configure_url'] ), __( 'Configure', 'jetpack' ) );
+				}
+
+				// The Protect page's link replaces both the switch and Configure.
+				$module_array['protect_page_url'] = $protect_page_urls[ $module ] ?? '';
+				if ( $module_array['protect_page_url'] ) {
+					$module_array['configurable'] = false;
 				}
 
 				$modules[ $module ] = $module_array;
@@ -484,6 +497,22 @@ class Jetpack_Admin {
 	}
 
 	/**
+	 * Where each security module's settings live while the Protect page owns them, keyed by module slug.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array<string, string> Empty while the Protect page is off.
+	 */
+	public static function get_protect_page_module_urls() {
+		// method_exists, not class_exists: another plugin's older copy of the package can win the autoloader.
+		if ( ! did_action( 'jetpack_protect_dashboard_initialized' ) || ! method_exists( Protect_Dashboard::class, 'get_module_settings_urls' ) ) {
+			return array();
+		}
+
+		return Protect_Dashboard::get_module_settings_urls();
+	}
+
+	/**
 	 * Handle an unrecognized action.
 	 *
 	 * @param string $action Action.
@@ -497,6 +526,7 @@ class Jetpack_Admin {
 				}
 
 				$modules = isset( $_GET['modules'] ) ? array_map( 'sanitize_key', wp_unslash( (array) $_GET['modules'] ) ) : array();
+				$modules = array_diff( $modules, array_keys( self::get_protect_page_module_urls() ) );
 				foreach ( $modules as $module ) {
 					Jetpack::log( 'activate', $module );
 					Jetpack::activate_module( $module, false );
@@ -511,6 +541,7 @@ class Jetpack_Admin {
 				}
 
 				$modules = isset( $_GET['modules'] ) ? array_map( 'sanitize_key', wp_unslash( (array) $_GET['modules'] ) ) : array();
+				$modules = array_diff( $modules, array_keys( self::get_protect_page_module_urls() ) );
 				foreach ( $modules as $module ) {
 					Jetpack::log( 'deactivate', $module );
 					Jetpack::deactivate_module( $module );
@@ -647,7 +678,7 @@ class Jetpack_Admin {
 	 */
 	public function add_jetpack_admin_body_class( $classes ) {
 		if ( $this->is_jetpack_admin_page() ) {
-			return trim( $classes ) . ' jetpack-admin-page ';
+			return ltrim( trim( $classes ) . ' jetpack-admin-page ' );
 		}
 		return $classes;
 	}

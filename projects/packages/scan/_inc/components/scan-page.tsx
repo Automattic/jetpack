@@ -5,7 +5,7 @@ import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { useHeaderActions } from '../../src/js/header-actions-context';
 import './scan-page.scss';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 export type ScanTab = 'active' | 'history';
 

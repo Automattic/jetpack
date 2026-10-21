@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { QueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -11,14 +12,11 @@ import { statsAppPurchasesQuery } from '../stats-app-purchases-query';
 import { statsAppProxyQuery } from '../stats-app-query';
 import {
 	statsAppReferrersMarkSpamMutation,
-	statsAppReferrersSpamQuery,
 	statsAppReferrersUnmarkSpamMutation,
 } from '../stats-app-referrers-spam-query';
-import { statsAppSiteHasNeverPublishedPostQuery } from '../stats-app-site-has-never-published-post-query';
 import { statsArchivesQuery } from '../stats-archives-query';
+import { statsAuthorAllTimeOrApproximateQuery, statsAuthorQuery } from '../stats-author-query';
 import { statsClicksQuery } from '../stats-clicks-query';
-import { statsCommentFollowersQuery } from '../stats-comment-followers-query';
-import { statsCommentsQuery } from '../stats-comments-query';
 import { statsCountryViewsQuery } from '../stats-country-views-query';
 import { statsDevicesQuery } from '../stats-devices-query';
 import {
@@ -33,19 +31,15 @@ import {
 import { statsFileDownloadsQuery } from '../stats-file-downloads-query';
 import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
-import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostCommentsQuery } from '../stats-post-comments-query';
 import { statsPostQuery } from '../stats-post-query';
+import { statsProxyQuery } from '../stats-query';
 import { statsReferrersQuery } from '../stats-referrers-query';
 import { statsSearchTermsQuery } from '../stats-search-terms-query';
 import { statsSingleVideoQuery } from '../stats-single-video-query';
 import { statsStreakQuery } from '../stats-streak-query';
-import {
-	statsSubscribersCountsQuery,
-	statsSubscribersQuery,
-	statsSubscribersReportQuery,
-} from '../stats-subscribers-query';
+import { statsSubscribersQuery, statsSubscribersReportQuery } from '../stats-subscribers-query';
 import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopAuthorsQuery } from '../stats-top-authors-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
@@ -53,17 +47,10 @@ import { statsUtmQuery } from '../stats-utm-query';
 import { statsVideoPlaysQuery } from '../stats-video-plays-query';
 import { statsVideoPlaysSummaryQuery } from '../stats-video-plays-summary-query';
 import { statsVisitsQuery } from '../stats-visits-query';
-import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../stats-wordads-query';
+import { statsWordAdsStatsQuery } from '../stats-wordads-query';
 import type { StatsReportParams } from '../stats-query';
 
 jest.mock( '@wordpress/api-fetch' );
-
-// `localTZDate()` defaults to the site zone, so pin it rather than letting the
-// machine timezone decide the WordAds "today" clamp.
-setSettings( {
-	...getSettings(),
-	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
-} );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
@@ -79,12 +66,34 @@ function setSimpleScriptData() {
 }
 
 describe( 'Stats query factories', () => {
+	let dateSettings: ReturnType< typeof getSettings >;
+	let scriptData: PropertyDescriptor | undefined;
+
+	// `localTZDate()` defaults to the site zone, so pin it rather than letting the
+	// machine timezone decide the WordAds "today" clamp.
+	beforeAll( () => {
+		dateSettings = getSettings();
+		setSettings( {
+			...dateSettings,
+			timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+		} );
+	} );
+
 	beforeEach( () => {
 		mockApiFetch.mockReset();
+		scriptData = Object.getOwnPropertyDescriptor( window, 'JetpackScriptData' );
 	} );
 
 	afterEach( () => {
-		delete window.JetpackScriptData;
+		if ( scriptData ) {
+			Object.defineProperty( window, 'JetpackScriptData', scriptData );
+		} else {
+			delete window.JetpackScriptData;
+		}
+	} );
+
+	afterAll( () => {
+		setSettings( dateSettings );
 	} );
 
 	it( 'disables report queries until a date range is available', () => {
@@ -116,6 +125,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'referrers',
+			'UTC',
 		] );
 	} );
 
@@ -137,6 +147,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'post',
+			'UTC',
 		] );
 	} );
 
@@ -151,6 +162,80 @@ describe( 'Stats query factories', () => {
 				},
 			] )
 		);
+	} );
+
+	it.each( [
+		[
+			'a window',
+			{ period: 'day', from: '2026-07-01', to: '2026-07-07' },
+			{ period: 'day', start_date: '2026-07-01', date: '2026-07-07' },
+		],
+		[ 'the whole history', { period: 'month', num: -1 }, { period: 'month', num: -1 } ],
+		[
+			'today, past the post limit',
+			{ period: 'day', num: 1, approximate: true },
+			{ period: 'day', num: 1, approximate: 'true' },
+		],
+	] as const )( 'builds author stats query keys over %s', ( _name, params, apiParams ) => {
+		const query = statsAuthorQuery( 7, params );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'author',
+			'1.1',
+			'stats/author/7',
+			'GET',
+			apiParams,
+			undefined,
+			'author',
+			'UTC',
+		] );
+	} );
+
+	describe( 'statsAuthorAllTimeOrApproximateQuery', () => {
+		const ALL_TIME = /stats\/author\/7\?period=month&num=-1/;
+		const APPROXIMATE = /stats\/author\/7\?period=day&num=1&approximate=true/;
+
+		function run( reply: ( path: string ) => unknown ) {
+			mockApiFetch.mockImplementation( ( { path }: { path?: string } ) => {
+				const result = reply( path ?? '' );
+				return result instanceof Error || ( result as { error?: string } )?.error
+					? Promise.reject( result )
+					: Promise.resolve( result );
+			} );
+			return new QueryClient().fetchQuery( statsAuthorAllTimeOrApproximateQuery( 7 ) );
+		}
+
+		it( 'reads the all-time report when the author is within the post limit', async () => {
+			await expect(
+				run( () => ( { start_date: '2021-03-02', data: [] } ) )
+			).resolves.toMatchObject( { isApproximate: false, report: { startDate: '2021-03-02' } } );
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'falls back to the approximate report past the post limit', async () => {
+			await expect(
+				run( path =>
+					ALL_TIME.test( path )
+						? { error: 'too_many_posts', status: 400 }
+						: { first_content_date: '2023-07-04 10:00:00', data: [] }
+				)
+			).resolves.toMatchObject( {
+				isApproximate: true,
+				report: { firstContentDate: '2023-07-04 10:00:00' },
+			} );
+			expect(
+				mockApiFetch.mock.calls.map( ( [ { path } ] ) => APPROXIMATE.test( path ?? '' ) )
+			).toEqual( [ false, true ] );
+		} );
+
+		it( 'fails on any other all-time error without asking for the approximate report', async () => {
+			await expect(
+				run( () => ( { error: 'unknown_author', status: 404 } ) )
+			).rejects.toMatchObject( { error: 'unknown_author' } );
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		} );
 	} );
 
 	it( 'disables post stats queries until a positive post ID is available', () => {
@@ -170,6 +255,7 @@ describe( 'Stats query factories', () => {
 			{ number: 10, type: 'comment', status: 'approved', order: 'DESC' },
 			undefined,
 			'postComments',
+			'UTC',
 		] );
 		expect( query.enabled ).toBe( true );
 	} );
@@ -193,6 +279,7 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'emailBreakdown',
+			'UTC',
 		] );
 	} );
 
@@ -208,6 +295,7 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'emailBreakdown',
+			'UTC',
 		] );
 	} );
 
@@ -234,6 +322,7 @@ describe( 'Stats query factories', () => {
 			undefined,
 			'emailTimeSeries',
 			{ window_start: '2026-06-01', window_end: '2026-06-07' },
+			'UTC',
 		] );
 	} );
 
@@ -352,7 +441,23 @@ describe( 'Stats query factories', () => {
 			expect.objectContaining( { filter_by_country: 'US' } ),
 			undefined,
 			'locations',
+			'UTC',
 		] );
+	} );
+
+	it( 'includes filter_by_region alongside the country it scopes', () => {
+		const query = statsLocationsQuery( {
+			from: '2026-06-16',
+			to: '2026-06-16',
+			interval: 'day',
+			geoMode: 'city',
+			filter_by_country: 'US',
+			filter_by_region: 'Minnesota',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual(
+			expect.objectContaining( { filter_by_country: 'US', filter_by_region: 'Minnesota' } )
+		);
 	} );
 
 	it( 'omits filter_by_country from query params when not provided', () => {
@@ -364,6 +469,7 @@ describe( 'Stats query factories', () => {
 		} );
 
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'filter_by_country' );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'filter_by_region' );
 	} );
 
 	it( 'builds location query keys from geoMode', () => {
@@ -384,25 +490,8 @@ describe( 'Stats query factories', () => {
 			expect.objectContaining( { date: '2026-06-16' } ),
 			undefined,
 			'locations',
+			'UTC',
 		] );
-	} );
-
-	it( 'requests summarized data for multi-day report ranges', () => {
-		const query = statsTopPostsQuery( {
-			from: '2026-06-01',
-			to: '2026-06-07',
-			interval: 'day',
-		} );
-
-		expect( query.queryKey ).toEqual(
-			expect.arrayContaining( [
-				expect.objectContaining( {
-					date: '2026-06-07',
-					start_date: '2026-06-01',
-					summarize: 1,
-				} ),
-			] )
-		);
 	} );
 
 	it( 'sends offset-bearing top-posts date params through untrimmed', () => {
@@ -449,26 +538,8 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'fileDownloads',
+			'UTC',
 		] );
-		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
-	} );
-
-	it( 'keeps file-downloads day-bucketed and summarized when the caller only passes a range', () => {
-		// A long range arrives with a coarse chart interval, which must not become
-		// the period — the endpoint would count the range in weeks and stop
-		// returning one row per file.
-		const query = statsFileDownloadsQuery( {
-			from: '2026-04-01',
-			to: '2026-06-29',
-			interval: 'week',
-		} );
-
-		expect( query.queryKey[ 5 ] ).toMatchObject( {
-			period: 'day',
-			summarize: 1,
-			start_date: '2026-04-01',
-			date: '2026-06-29',
-		} );
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 	} );
 
@@ -497,6 +568,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'searchTerms',
+			'UTC',
 		] );
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 	} );
@@ -525,6 +597,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'clicks',
+			'UTC',
 		] );
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 	} );
@@ -537,15 +610,6 @@ describe( 'Stats query factories', () => {
 			summarize: 1,
 		} );
 
-		expect( query.queryKey[ 5 ] ).toEqual( {
-			period: 'day',
-			start_date: '2026-07-09',
-			date: '2026-07-14',
-			max: 0,
-			summarize: 1,
-			complete_stats: 1,
-		} );
-		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 		expect( query.queryKey ).toEqual( [
 			'stats',
 			'video-plays-summary',
@@ -562,115 +626,119 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'videoPlays',
+			'UTC',
 		] );
-	} );
-
-	it( 'requests summarized archives data for multi-day ranges', () => {
-		const query = statsArchivesQuery( {
-			from: '2026-06-01',
-			to: '2026-06-07',
-			interval: 'day',
-		} );
-
-		expect( query.queryKey ).toEqual(
-			expect.arrayContaining( [
-				'stats/archives',
-				expect.objectContaining( {
-					date: '2026-06-07',
-					start_date: '2026-06-01',
-					summarize: 1,
-				} ),
-			] )
-		);
 	} );
 
 	// None of the list endpoints declares `days`, so WPCOM drops it before the
 	// handler runs and the window comes from `start_date` + `date` instead.
 	it.each( [
-		[ 'top-posts', statsTopPostsQuery ],
-		[ 'archives', statsArchivesQuery ],
-		[ 'top-authors', statsTopAuthorsQuery ],
-		[ 'country-views', statsCountryViewsQuery ],
-		[ 'location-views', statsLocationsQuery ],
-		[ 'video-plays', statsVideoPlaysQuery ],
-		[ 'clicks', statsClicksQuery ],
-		[ 'referrers', statsReferrersQuery ],
-		[ 'search-terms', statsSearchTermsQuery ],
-		[ 'file-downloads', statsFileDownloadsQuery ],
-	] )( 'omits the unsupported days parameter from the %s range request', ( _name, factory ) => {
-		const query = factory( {
-			from: '2026-06-01',
-			to: '2026-06-07',
-			interval: 'day',
-		} as StatsReportParams );
+		[ 'top-posts', statsTopPostsQuery, { skip_archives: 1 } ],
+		[ 'archives', statsArchivesQuery, { skip_archives: 1 } ],
+		[ 'top-authors', statsTopAuthorsQuery, {} ],
+		[ 'country-views', statsCountryViewsQuery, {} ],
+		[ 'location-views', statsLocationsQuery, {} ],
+		[ 'video-plays', statsVideoPlaysQuery, {} ],
+		[ 'clicks', statsClicksQuery, {} ],
+		[ 'referrers', statsReferrersQuery, {} ],
+		[ 'search-terms', statsSearchTermsQuery, {} ],
+		[ 'file-downloads', statsFileDownloadsQuery, {} ],
+	] )(
+		'omits the unsupported days parameter from the %s range request',
+		( _name, factory, endpointParams ) => {
+			const query = factory( {
+				from: '2026-06-01',
+				to: '2026-06-07',
+				interval: 'day',
+			} as StatsReportParams );
 
-		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
-		// `summarize` and `period` are derived from `days` before it is dropped, so
-		// they belong here: moving the omission any earlier would silently lose them.
-		expect( query.queryKey[ 5 ] ).toMatchObject( {
-			start_date: '2026-06-01',
-			date: '2026-06-07',
-			period: 'day',
+			expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+			// `summarize` and `period` are derived from `days` before it is dropped, so
+			// they belong here: moving the omission any earlier would silently lose them.
+			expect( query.queryKey[ 5 ] ).toEqual( {
+				start_date: '2026-06-01',
+				date: '2026-06-07',
+				period: 'day',
+				summarize: 1,
+				...endpointParams,
+			} );
+		}
+	);
+
+	it( 'leaves an all-time window to WPCOM as a summarized negative num', () => {
+		const params = statsReferrersQuery( {
+			from: '2020-01-01T00:00:00.000+00:00',
+			to: '2026-10-07T23:59:59.999+00:00',
+			interval: 'day',
+			num: -1,
+		} ).queryKey[ 5 ];
+
+		expect( params ).toMatchObject( {
+			num: -1,
 			summarize: 1,
+			date: '2026-10-07T23:59:59.999+00:00',
 		} );
+		expect( params ).not.toHaveProperty( 'start_date' );
 	} );
 
-	it( 'builds tags query keys for the Calypso endpoint path', () => {
-		const query = statsTagsQuery( {} );
+	it( 'asks the UTM endpoint for all time in days', () => {
+		const query = statsUtmQuery( {
+			from: '2020-01-01',
+			to: '2026-10-07',
+			interval: 'day',
+			num: -1,
+		} );
 
-		expect( query.enabled ).toBe( true );
-		expect( query.queryKey ).toEqual( [
-			'stats',
-			'tags',
-			'1.1',
-			'stats/tags',
-			'GET',
-			{},
-			undefined,
-			'tags',
-		] );
+		expect( query.queryKey[ 5 ] ).toMatchObject( { days: -1, start_date: '' } );
 	} );
 
 	// The endpoint rewrites `max < 1` back to its default of 10 rather than reading
 	// it as "all rows", so a `0` must not reach it.
-	it( 'leaves a non-positive tags max off the request', () => {
-		expect( statsTagsQuery( { max: 0 } ).queryKey ).toEqual( [
-			'stats',
-			'tags',
-			'1.1',
-			'stats/tags',
-			'GET',
-			{},
-			undefined,
-			'tags',
-		] );
-	} );
+	it( 'sends the tags window as date and start_date, with max only when positive', () => {
+		const query = statsTagsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			max: 0,
+		} );
 
-	it( 'passes max through tags query keys', () => {
-		const query = statsTagsQuery( { max: 10 } );
-
-		expect( query.enabled ).toBe( true );
 		expect( query.queryKey ).toEqual( [
 			'stats',
 			'tags',
 			'1.1',
 			'stats/tags',
 			'GET',
-			{ max: 10 },
+			{ period: 'day', date: '2026-06-07', start_date: '2026-06-01', summarize: 1 },
 			undefined,
 			'tags',
+			'UTC',
 		] );
+		expect(
+			statsTagsQuery( { from: '2026-06-01', to: '2026-06-07', interval: 'day', max: 10 } )
+				.queryKey[ 5 ]
+		).toEqual( {
+			period: 'day',
+			date: '2026-06-07',
+			start_date: '2026-06-01',
+			max: 10,
+			summarize: 1,
+		} );
 	} );
 
-	// A date would change the cache key without changing a row. `StatsTagsParams`
-	// already rejects one, so this spreads past the type to cover untyped callers.
-	it( 'never sends a date on the tags query, whatever the selected period', () => {
-		const tagsQueryKey = ( period: Record< string, unknown > ) =>
-			statsTagsQuery( { max: 10, ...period } ).queryKey;
-		const maxOnly = [ 'stats', 'tags', '1.1', 'stats/tags', 'GET', { max: 10 }, undefined, 'tags' ];
+	// One ranking pass whatever the length: per-day keeps 50 posts a day and one
+	// pass keeps 50 for the window, so switching by length would make a longer
+	// range count fewer posts than a shorter one.
+	it.each( [
+		[ '1 day', '2026-06-01', '2026-06-01' ],
+		[ '365 days', '2025-07-02', '2026-07-01' ],
+	] )( 'summarizes the tags query at every length (%s)', ( _label, from, to ) => {
+		const params = statsTagsQuery( { from, to, interval: 'day' } ).queryKey[ 5 ] as Record<
+			string,
+			unknown
+		>;
 
-		expect( tagsQueryKey( { to: '2026-01-31T23:59:59.999-08:00' } ) ).toEqual( maxOnly );
-		expect( tagsQueryKey( { date: '2026-06-30', period: 'year', days: 365 } ) ).toEqual( maxOnly );
+		expect( params.summarize ).toBe( 1 );
+		expect( params.days ).toBeUndefined();
 	} );
 
 	it( 'builds devices query keys from the selected device property', () => {
@@ -690,6 +758,7 @@ describe( 'Stats query factories', () => {
 			expect.objectContaining( { date: '2026-06-16' } ),
 			undefined,
 			'devices',
+			'UTC',
 		] );
 	} );
 
@@ -703,29 +772,6 @@ describe( 'Stats query factories', () => {
 		expect( query.queryKey ).toEqual(
 			expect.arrayContaining( [ 'devices-screensize', 'stats/devices/screensize', 'devices' ] )
 		);
-	} );
-
-	it( 'builds comment followers query keys from pagination params without a date', () => {
-		const query = statsCommentFollowersQuery( {
-			max: 20,
-			page: 3,
-		} );
-
-		expect( query.enabled ).toBe( true );
-		expect( query.queryKey ).toEqual( [
-			'stats',
-			'comment-followers',
-			'1.1',
-			'stats/comment-followers',
-			'GET',
-			expect.objectContaining( {
-				max: 20,
-				page: 3,
-			} ),
-			undefined,
-			'commentFollowers',
-		] );
-		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'period' );
 	} );
 
 	it( 'keeps list reports day-bucketed when the dashboard interval is coarser', () => {
@@ -791,6 +837,7 @@ describe( 'Stats query factories', () => {
 			{ type: 'all', filter_admin: false, max: 10 },
 			undefined,
 			'followers',
+			'UTC',
 		] );
 	} );
 
@@ -810,26 +857,7 @@ describe( 'Stats query factories', () => {
 			{ type: 'wpcom', filter_admin: true, max: 20 },
 			undefined,
 			'followers',
-		] );
-	} );
-
-	it( 'requests the email summary with Calypso defaults', () => {
-		const query = statsEmailSummaryQuery();
-
-		expect( query.queryKey ).toEqual( [
-			'stats',
-			'email-summary',
-			'1.1',
-			'stats/emails/summary',
-			'GET',
-			{
-				period: 'alltime',
-				quantity: 10,
-				sort_field: 'post_date',
-				sort_order: 'desc',
-			},
-			undefined,
-			'emailSummary',
+			'UTC',
 		] );
 	} );
 
@@ -873,34 +901,8 @@ describe( 'Stats query factories', () => {
 			{ period: 'month' },
 			undefined,
 			'singleVideo',
+			'UTC',
 		] );
-	} );
-
-	it( 'forwards a supported single-video metric type', () => {
-		const query = statsSingleVideoQuery( 31533, {
-			period: 'month',
-			statType: 'watch_time',
-		} );
-
-		expect( query.queryKey[ 5 ] ).toEqual( {
-			period: 'month',
-			statType: 'watch_time',
-		} );
-	} );
-
-	it( 'converts the report date range for the single video request', () => {
-		const query = statsSingleVideoQuery( 31533, {
-			from: '2026-06-08',
-			to: '2026-06-14',
-			interval: 'day',
-		} );
-
-		expect( query.queryKey[ 5 ] ).toEqual( {
-			period: 'day',
-			date: '2026-06-14',
-			start_date: '2026-06-08',
-			days: 7,
-		} );
 	} );
 
 	it( 'combines statType=all with the report date range', () => {
@@ -946,7 +948,7 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	it( 'builds app notices query keys for the local REST endpoint', () => {
+	it( 'keys a forced app notices refresh apart from the regular read', () => {
 		expect( statsAppNoticesQuery().queryKey ).toEqual( [ 'stats-app', 'notices', {} ] );
 		expect( statsAppNoticesQuery( { force_refresh: true } ).queryKey ).toEqual( [
 			'stats-app',
@@ -1031,40 +1033,9 @@ describe( 'Stats query factories', () => {
 			{ source: 'stats-feedback' },
 			undefined,
 			'highlights',
+			'UTC',
 		] );
 		expect( query.staleTime ).toBe( STATS_HIGHLIGHTS_STALE_TIME );
-	} );
-
-	it( 'builds comments query keys without date params', () => {
-		const query = statsCommentsQuery();
-		expect( query.enabled ).toBe( true );
-		expect( query.queryKey ).toEqual( [
-			'stats',
-			'comments',
-			'1.1',
-			'stats/comments',
-			'GET',
-			{},
-			undefined,
-			'comments',
-		] );
-	} );
-
-	it( 'shares app query keys for empty and omitted params', () => {
-		expect(
-			statsAppProxyQuery( {
-				name: 'purchases',
-				version: '1.1',
-				endpoint: 'stats-app/purchases',
-			} ).queryKey
-		).toEqual(
-			statsAppProxyQuery( {
-				name: 'purchases',
-				version: '1.1',
-				endpoint: 'stats-app/purchases',
-				params: {},
-			} ).queryKey
-		);
 	} );
 
 	it( 'builds app purchases query keys for the upgrades endpoint', () => {
@@ -1075,19 +1046,6 @@ describe( 'Stats query factories', () => {
 			'upgrades',
 			'GET',
 			{ site: 41 },
-			{},
-			true,
-		] );
-	} );
-
-	it( 'passes purchases endpoint filters without report param coercion', () => {
-		expect( statsAppPurchasesQuery( { type: 'transferred' } ).queryKey ).toEqual( [
-			'stats-app',
-			'purchases',
-			'1.2',
-			'upgrades',
-			'GET',
-			{ type: 'transferred' },
 			{},
 			true,
 		] );
@@ -1114,6 +1072,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'subscribers',
+			'UTC',
 		] );
 	} );
 
@@ -1132,21 +1091,6 @@ describe( 'Stats query factories', () => {
 				} ),
 			] )
 		);
-	} );
-
-	it( 'builds subscribers counts query keys with a typed sanitizer', () => {
-		const query = statsSubscribersCountsQuery();
-
-		expect( query.queryKey ).toEqual( [
-			'stats',
-			'subscribers-counts',
-			'2',
-			'subscribers/counts',
-			'GET',
-			{},
-			undefined,
-			'subscribersCounts',
-		] );
 	} );
 
 	it( 'maps a daily dashboard range onto subscribers unit/quantity/date', () => {
@@ -1202,6 +1146,31 @@ describe( 'Stats query factories', () => {
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'date' );
 	} );
 
+	it.each( [
+		[ 'subscribers', statsSubscribersReportQuery ],
+		[ 'WordAds', statsWordAdsStatsQuery ],
+	] )( 'labels a %s week the range starts in with the range start', async ( _name, toQuery ) => {
+		mockApiFetch.mockResolvedValueOnce( {
+			unit: 'week',
+			fields: [ 'period', 'views' ],
+			data: [
+				[ '2025-12-29', 1 ],
+				[ '2026-01-05', 2 ],
+			],
+		} );
+
+		const query = toQuery( {
+			from: '2026-01-01',
+			to: '2026-01-11',
+			interval: 'week',
+		} as StatsReportParams );
+		const report = ( await ( query.queryFn as () => Promise< unknown > )() ) as {
+			data: Array< { date_start: string } >;
+		};
+
+		expect( report.data[ 0 ].date_start ).toBe( '2026-01-01T00:00:00' );
+	} );
+
 	it( 'builds WordAds stats query keys with the range translated to endpoint params', () => {
 		const query = statsWordAdsStatsQuery( {
 			from: '2026-05-01',
@@ -1226,7 +1195,9 @@ describe( 'Stats query factories', () => {
 			{
 				period: 'month',
 				date: '2026-06-30',
+				start_date: '2026-05-01',
 			},
+			'UTC',
 		] );
 	} );
 
@@ -1316,32 +1287,6 @@ describe( 'Stats query factories', () => {
 
 	it( 'disables WordAds stats queries until a date is available', () => {
 		expect( statsWordAdsStatsQuery( {} as StatsReportParams ).enabled ).toBe( false );
-	} );
-
-	it( 'sends an unclamped WordAds window end through untrimmed', () => {
-		// Both halves of the old UTC/raw-string problem are fixed server-side, so
-		// the client no longer strips the offset.
-		jest.useFakeTimers().setSystemTime( new Date( '2026-07-15T12:00:00Z' ) );
-
-		try {
-			expect(
-				statsWordAdsStatsQuery( {
-					from: '2026-06-01T00:00:00.000-07:00',
-					to: '2026-06-07T23:59:59.000-07:00',
-					interval: 'day',
-				} ).queryKey
-			).toEqual(
-				expect.arrayContaining( [
-					expect.objectContaining( {
-						unit: 'day',
-						date: '2026-06-07T23:59:59.000-07:00',
-						quantity: 7,
-					} ),
-				] )
-			);
-		} finally {
-			jest.useRealTimers();
-		}
 	} );
 
 	it( 'leaves an offset-bearing WordAds window ending today unclamped', () => {
@@ -1438,19 +1383,6 @@ describe( 'Stats query factories', () => {
 		}
 	} );
 
-	it( 'builds WordAds earnings query keys without request params', () => {
-		expect( statsWordAdsEarningsQuery().queryKey ).toEqual( [
-			'stats',
-			'wordads-earnings',
-			'1.1',
-			'wordads/earnings',
-			'GET',
-			{},
-			undefined,
-			'wordAdsEarnings',
-		] );
-	} );
-
 	// The endpoint recounts the buckets from start_date/date and ignores a bucket
 	// count sent alongside them, so neither `quantity` nor `days` belongs here.
 	it( 'bounds visits with the range alone', () => {
@@ -1515,6 +1447,7 @@ describe( 'Stats query factories', () => {
 			undefined,
 			'utm',
 			{ utm_param: 'utm_campaign,utm_source,utm_medium' },
+			'UTC',
 		] );
 		expect( query.enabled ).toBe( true );
 	} );
@@ -1573,41 +1506,11 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
-	it( 'bounds a coarser visits unit the same way', () => {
-		const query = statsVisitsQuery( {
-			from: '2026-06-01',
-			to: '2026-06-30',
-			interval: 'month',
-		} );
-		const apiParams = query.queryKey[ 5 ] as Record< string, unknown >;
-
-		expect( apiParams ).toEqual( {
-			unit: 'month',
-			date: '2026-06-30',
-			start_date: '2026-06-01',
-			stat_fields: 'views,visitors',
-		} );
-	} );
-
-	it( 'builds insights query keys without report params', () => {
-		expect( statsInsightsQuery().queryKey ).toEqual( [
-			'stats',
-			'insights',
-			'1.1',
-			'stats/insights',
-			'GET',
-			{},
-			undefined,
-			'insights',
-		] );
-	} );
-
 	it( 'builds streak query keys with Calypso endpoint params', () => {
 		const query = statsStreakQuery( {
 			from: '2026-06-01',
 			to: '2026-06-30',
 			interval: 'day',
-			gmtOffset: 12,
 			max: 3000,
 		} );
 
@@ -1621,11 +1524,11 @@ describe( 'Stats query factories', () => {
 			{
 				startDate: '2026-06-01',
 				endDate: '2026-06-30',
-				gmtOffset: 12,
 				max: 3000,
 			},
 			undefined,
 			'streak',
+			'UTC',
 		] );
 	} );
 
@@ -1633,32 +1536,41 @@ describe( 'Stats query factories', () => {
 		expect( statsStreakQuery( {} as StatsReportParams ).enabled ).toBe( false );
 	} );
 
-	it( 'builds the published state query against the WPCOM proxy endpoint', () => {
-		expect( statsAppSiteHasNeverPublishedPostQuery( { 'include-pages': true } ).queryKey ).toEqual(
-			[
-				'stats-app',
-				'site-has-never-published-post',
-				'2',
-				'site-has-never-published-post',
-				'GET',
-				{ 'include-pages': true },
-				{},
-				false,
-			]
-		);
+	it( 'normalizes a streak response in the reporting timezone, without requesting it', async () => {
+		// 2016-04-29 23:30 UTC has already turned the page in India.
+		const settings = getSettings();
+		setSettings( {
+			...settings,
+			timezone: { string: 'Asia/Kolkata', offset: 5.5, offsetFormatted: '5.5', abbr: 'IST' },
+		} );
+		mockApiFetch.mockResolvedValueOnce( { data: { 1461972600: 1 } } );
+
+		try {
+			const query = statsStreakQuery( { from: '2026-06-01', to: '2026-06-30', interval: 'day' } );
+			const queryFn = query.queryFn as () => Promise< unknown >;
+
+			await expect( queryFn() ).resolves.toEqual( { '2016-04-30': 1 } );
+			expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).not.toContain( 'timezone' );
+		} finally {
+			setSettings( settings );
+		}
 	} );
 
-	it( 'builds the referrers spam app query key', () => {
-		expect( statsAppReferrersSpamQuery().queryKey ).toEqual( [
-			'stats-app',
-			'referrers-spam',
-			'1.1',
-			'stats/referrers/spam',
-			'GET',
-			{},
-			{},
-			false,
-		] );
+	it( 'lets the query params name the reporting zone, overriding the environment', async () => {
+		// The file pins the environment to UTC, where the same instant is the 29th.
+		mockApiFetch.mockResolvedValueOnce( { data: { 1461972600: 1 } } );
+
+		const query = statsProxyQuery( {
+			name: 'streak',
+			version: '1.1',
+			endpoint: 'stats/streak',
+			params: { timezone: 'Asia/Kolkata' },
+			sanitizer: 'streak',
+		} );
+		const queryFn = query.queryFn as () => Promise< unknown >;
+
+		await expect( queryFn() ).resolves.toEqual( { '2016-04-30': 1 } );
+		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).not.toContain( 'timezone' );
 	} );
 
 	it( 'builds referrers spam mutation requests with domain query params', () => {

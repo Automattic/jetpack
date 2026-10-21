@@ -1658,13 +1658,43 @@ class The_Neverending_Home_Page {
 
 		if ( isset( $_REQUEST['query_args'] ) && is_array( $_REQUEST['query_args'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 			foreach ( wp_unslash( $_REQUEST['query_args'] ) as $var => $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, sanitized below.
-				if ( in_array( $var, $allowed_vars, true ) && ! empty( $value ) ) {
-					$query_args[ $var ] = filter_var( $value );
+				if ( ! in_array( $var, $allowed_vars, true ) || empty( $value ) ) {
+					continue;
 				}
+
+				if ( 'post_type' === $var && ! self::is_queryable_post_type( $value ) ) {
+					continue;
+				}
+
+				$query_args[ $var ] = filter_var( $value );
 			}
 		}
 
 		return $query_args;
+	}
+
+	/**
+	 * Whether a post type supplied with the request may be queried on the front end.
+	 *
+	 * Core applies this test to the main query in WP::parse_request(), but the
+	 * Infinite Scroll query is a secondary one and never passes through it.
+	 *
+	 * @param mixed $post_type Post type name, or array of names, from the request.
+	 * @return bool
+	 */
+	private static function is_queryable_post_type( $post_type ) {
+		// WP_Query expands 'any' to the types that opted into search results.
+		if ( 'any' === $post_type ) {
+			return true;
+		}
+
+		foreach ( (array) $post_type as $type ) {
+			if ( ! is_string( $type ) || ! is_post_type_viewable( $type ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

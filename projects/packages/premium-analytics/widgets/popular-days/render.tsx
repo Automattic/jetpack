@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	describeError,
 	MetricSparklineSkeleton,
@@ -17,9 +16,14 @@ import { useMemo } from 'react';
  */
 import styles from './style.module.css';
 import { usePopularDays } from './use-popular-days';
-import type { PopularDaysAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
+
+/**
+ * Configurable attributes for the Popular days widget. There are none: the
+ * metric is fixed and the date range comes from the dashboard picker.
+ */
+export type PopularDaysAttributes = Record< never, never >;
 
 // Report params are usually URL-driven (WidgetRoot's fallback), but the host and
 // Storybook may also pass them via `attributes`.
@@ -55,13 +59,9 @@ function PopularDaysReport() {
 									'jetpack-premium-analytics-pkg'
 								),
 								onRetry: refetch,
-						  } )
+							} )
 						: null
 				}
-				empty={ {
-					icon: calendar,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
 				renderLoading={ <MetricSparklineSkeleton withHeadlineCount /> }
 			>
 				<PeakDistribution

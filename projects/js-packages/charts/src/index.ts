@@ -10,6 +10,9 @@ export {
 	HeatmapChart,
 	HeatmapChartUnresponsive,
 	buildCalendarHeatmapData,
+	buildMonthCalendarHeatmapData,
+	useCalendarHeatmapData,
+	useMonthCalendarHeatmapData,
 } from './charts/heatmap-chart';
 export { LeaderboardChart, LeaderboardChartUnresponsive } from './charts/leaderboard-chart';
 export { LineChart, LineChartUnresponsive } from './charts/line-chart';
@@ -18,7 +21,7 @@ export { PieSemiCircleChart, PieSemiCircleChartUnresponsive } from './charts/pie
 export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
 
 // Components
-export { BaseTooltip } from './components/tooltip';
+export { BaseTooltip, TooltipBox } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
 export { TrendIndicator } from './components/trend-indicator';
 
@@ -32,6 +35,7 @@ export {
 	GlobalChartsProvider,
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
+	useChartFormatting,
 	GlobalChartsContext,
 	defaultTheme,
 	useChartScopeElement,
@@ -55,6 +59,7 @@ export type {
 	ChartTheme,
 	CompleteChartTheme,
 	AxisOptions,
+	ChartFormatting,
 	TickResolution,
 	ScaleOptions,
 	LegendItemStyles,
@@ -63,6 +68,7 @@ export type {
 	LegendPosition,
 	ChartLegendConfig,
 	SeriesChartLegendConfig,
+	ComparisonItemLabel,
 	SeriesVisibilityProps,
 	BaseChartProps,
 	GoogleDataTableColumn,
@@ -77,7 +83,13 @@ export type {
 	PieSemiCircleChartProps,
 	PieSemiCircleChartRenderTooltipParams,
 } from './charts/pie-semi-circle-chart';
-export type { GeoChartProps, GeoRegion, GeoResolution, GeoChartError } from './charts/geo-chart';
+export type {
+	GeoChartProps,
+	GeoRegion,
+	GeoResolution,
+	GeoDisplayMode,
+	GeoChartError,
+} from './charts/geo-chart';
 export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
@@ -86,13 +98,18 @@ export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
 export { useLeaderboardLegendItems } from './charts/leaderboard-chart/hooks';
 
 // Previously available via '@automattic/charts/tooltip', '@automattic/charts/legend'
-export { AccessibleTooltip } from './components/tooltip';
-export type { BaseTooltipProps, TooltipData, TooltipProps } from './components/tooltip';
+export { AccessibleTooltip, XYChartTooltip } from './components/tooltip';
+export type {
+	BaseTooltipProps,
+	TooltipBoxProps,
+	TooltipData,
+	TooltipProps,
+} from './components/tooltip';
 export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';
 
 // Previously available via '@automattic/charts/bar-chart', '@automattic/charts/line-chart', etc.
 export type { AreaChartProps } from './charts/area-chart';
-export type { BarChartProps } from './charts/bar-chart';
+export type { BarChartProps, BandHighlightSelection } from './charts/bar-chart';
 export type {
 	BarListChartProps,
 	RenderLabelProps,
@@ -109,9 +126,14 @@ export type {
 export type {
 	HeatmapChartProps,
 	HeatmapColumn,
+	HeatmapColumnGroup,
 	HeatmapCell,
 	HeatmapTooltipData,
+	CalendarHeatmapOptions,
 	CalendarHeatmapResult,
+	MonthCalendarHeatmapOptions,
+	MonthCalendarHeatmapRange,
+	MonthCalendarHeatmapResult,
 } from './charts/heatmap-chart';
 export type { LeaderboardChartProps } from './charts/leaderboard-chart';
 export type {
@@ -126,6 +148,7 @@ export type { SparklineProps, GradientConfig, SparklineDataPoint } from './chart
 
 // Utilities
 export {
+	getBucketInfo,
 	parseAsLocalDate,
 	formatMetricValue,
 	formatPercentage,
@@ -134,3 +157,6 @@ export {
 } from './utils';
 export * from './utils/color-utils';
 export type { MetricValueType } from './utils';
+export type { BucketInfo } from './types';
+
+export type { CrosshairStyle } from './visx/types';

@@ -14,8 +14,9 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * @return bool
  */
 function wpcomsh_is_admin_menu_api_request() {
-	// phpcs:ignore WordPress.Security
-	return 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+	$route = wp_unslash( $_GET['rest_route'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	return str_starts_with( wp_unslash( $_SERVER['REQUEST_URI'] ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		&& is_string( $route ) && str_starts_with( $route, '/wpcom/v2/admin-menu' );
 }
 
 /**
@@ -39,6 +40,21 @@ function wpcomsh_mimic_admin_page_load() {
 			function () {
 				require_once ABSPATH . 'wp-admin/includes/admin.php';
 			}
+		);
+
+		// Valid requests will exit before here, but ensure custom code doesn't handle things poorly.
+		add_action(
+			'wp',
+			/**
+			 * Rejects the request.
+			 *
+			 * @return never
+			 */
+			function () {
+				status_header( 400 );
+				exit;
+			},
+			PHP_INT_MIN
 		);
 	}
 }
@@ -229,6 +245,18 @@ function wpcomsh_get_wpcom_admin_interface_option() {
 }
 // This pre_option_{$option} hook runs before the option is retrieved from the database with get_option().
 add_filter( 'pre_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interface_option' );
+
+/**
+ * Use the Classic style (WP Admin) on a site that never chose an admin interface style, as WordPress.com does.
+ *
+ * It replaces a default the caller passes too, such as the one Settings > General passes to check a radio.
+ *
+ * @return string
+ */
+function wpcomsh_get_wpcom_admin_interface_default() {
+	return 'wp-admin';
+}
+add_filter( 'default_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interface_default' );
 
 /**
  * Color scheme from Calypso (/me/account) is stored as user option,

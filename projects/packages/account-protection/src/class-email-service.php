@@ -119,7 +119,7 @@ class Email_Service {
 	 * @return true|\WP_Error True if the email was resent successfully, \WP_Error otherwise.
 	 */
 	public function resend_auth_email( int $user_id, array $transient_data, string $token ) {
-		if ( $transient_data['requests'] >= Config::PASSWORD_DETECTION_EMAIL_REQUEST_LIMIT ) {
+		if ( $transient_data['requests'] >= Config::PASSWORD_DETECTION_EMAIL_REQUEST_LIMIT || $this->user_email_limit_reached( $user_id ) ) {
 			return new \WP_Error( 'email_request_limit_exceeded', __( 'Email request limit exceeded. Please try again later.', 'jetpack-account-protection' ) );
 		}
 
@@ -131,6 +131,7 @@ class Email_Service {
 			return $resend;
 		}
 
+		$this->count_user_email( $user_id );
 		++$transient_data['requests'];
 
 		if ( ! set_transient( Config::PREFIX . "_{$token}", $transient_data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION ) ) {
@@ -138,6 +139,41 @@ class Email_Service {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get the name of the transient counting the codes emailed to a user across the network.
+	 *
+	 * @param int $user_id The user ID.
+	 *
+	 * @return string
+	 */
+	public static function get_user_email_count_key( int $user_id ): string {
+		return Config::PREFIX . "_email_requests_user_{$user_id}";
+	}
+
+	/**
+	 * Whether the user has been emailed as many codes as the limit allows, counted across the network.
+	 *
+	 * @param int $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	public function user_email_limit_reached( int $user_id ): bool {
+		return (int) get_site_transient( self::get_user_email_count_key( $user_id ) ) >= Config::PASSWORD_DETECTION_EMAIL_REQUEST_LIMIT;
+	}
+
+	/**
+	 * Count a code emailed to a user.
+	 *
+	 * @param int $user_id The user ID.
+	 *
+	 * @return void
+	 */
+	public function count_user_email( int $user_id ): void {
+		$key = self::get_user_email_count_key( $user_id );
+
+		set_site_transient( $key, (int) get_site_transient( $key ) + 1, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
 	}
 
 	/**

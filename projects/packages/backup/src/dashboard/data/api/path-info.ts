@@ -13,10 +13,13 @@ import { apiCall, apiPath } from './_helpers';
  * code taken from the manifest path's second character, not a mime
  * type; it exists to drive granular download, and the info card keeps
  * deriving previewability from the file extension the way Calypso does.
+ *
+ * `size` has been observed arriving as a decimal string while `mtime`
+ * arrives as a number, so the union keeps both shapes.
  */
 export type PathInfoResponse = {
 	error?: string;
-	size?: number;
+	size?: string | number;
 	hash?: string;
 	mtime?: number;
 	data_type?: number;

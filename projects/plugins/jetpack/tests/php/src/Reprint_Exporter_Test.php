@@ -806,16 +806,24 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 * A missing, stale, or future enabled timestamp keeps the window closed.
 	 */
 	public function test_export_window_closed_when_missing_stale_or_future() {
-		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+		// One fixed time for both the stored value and the check, so the
+		// boundaries below are exact.
+		$now  = time();
+		$skew = Reprint_Exporter::HMAC_CLOCK_SKEW;
 
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() - ( HOUR_IN_SECONDS + 60 ) );
-		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+		$this->assertFalse( Reprint_Exporter::is_export_window_open( $now ) );
 
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() + Reprint_Exporter::HMAC_CLOCK_SKEW + 1 );
-		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $now - ( HOUR_IN_SECONDS + 1 ) );
+		$this->assertFalse( Reprint_Exporter::is_export_window_open( $now ), 'A second past the hour is stale.' );
 
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() + Reprint_Exporter::HMAC_CLOCK_SKEW - 1 );
-		$this->assertTrue( Reprint_Exporter::is_export_window_open() );
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $now - HOUR_IN_SECONDS );
+		$this->assertTrue( Reprint_Exporter::is_export_window_open( $now ), 'Exactly an hour old still counts.' );
+
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $now + $skew + 1 );
+		$this->assertFalse( Reprint_Exporter::is_export_window_open( $now ), 'A second past the skew tolerance is rejected.' );
+
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $now + $skew );
+		$this->assertTrue( Reprint_Exporter::is_export_window_open( $now ), 'Exactly the skew tolerance is allowed.' );
 
 		Reprint_Exporter::open_export_window();
 		$this->assertTrue( Reprint_Exporter::is_export_window_open() );

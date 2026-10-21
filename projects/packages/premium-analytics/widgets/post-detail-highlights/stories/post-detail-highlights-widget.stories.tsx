@@ -31,7 +31,6 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostDetailHighlightsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -184,8 +183,7 @@ export const Empty: Story = {
 };
 
 interface PostDetailHighlightsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		PostDetailHighlightsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, PostDetailHighlightsStoryControls {}
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
@@ -199,7 +197,7 @@ function PostDetailHighlightsDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ POST_DETAIL_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={
 				PostDetailHighlightsRender as ComponentType< WidgetRenderProps< unknown > >
@@ -213,7 +211,7 @@ export const WidgetDashboardWithWidget: StoryObj< PostDetailHighlightsDashboardS
 	render: args => <PostDetailHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 4,
+		widgetWidth: 3,
 		widgetHeight: 1,
 		withComparison: true,
 		hasPostScope: true,

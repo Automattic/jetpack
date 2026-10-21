@@ -13,7 +13,6 @@ import {
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import TagsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -25,7 +24,7 @@ const TAGS_RENDER_MODULE = 'storybook/tags';
 
 // Build the story widget type from its manifest and module. `presentation`
 // comes from widget.json ( 'framed' ), so the host frames the widget.
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 function renderTags() {
 	return <TagsRender attributes={ { reportParams: getDefaultQueryParams() } } />;
@@ -43,7 +42,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Tags & categories" widget. Displays the site\'s most visited tags and categories over the seven days ending yesterday, ranked by views — the endpoint takes no date parameters, so the section\'s date filter does not reach it. Single tags/categories link to their archive; grouped rows (several tags/categories sharing posts) drill down to their members. Ported from the Jetpack Stats Tags & categories module.',
+					'The "Tags & categories" widget. Displays the tags and categories of the site\'s most viewed posts over the dashboard\'s period, ranked by views; the endpoint reports no comparison. Single tags/categories link to their archive; grouped rows (several tags/categories sharing posts) drill down to their members. Ported from the Jetpack Stats Tags & categories module.',
 			},
 		},
 	},
@@ -89,8 +88,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral tag glyph
- * and "Learn about your most visited tags & categories to track engaging topics.").
+ * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: renderTags,

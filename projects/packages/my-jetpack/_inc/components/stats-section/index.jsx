@@ -11,8 +11,10 @@ import StatsCards from './cards';
 
 /**
  * Options for the stats visits hook
+ *
+ * @type {{ period: 'day', quantity: number, date: Date }}
  */
-const VISITS_OPTIONS = {
+export const VISITS_OPTIONS = {
 	period: 'day',
 	quantity: 14,
 	date: new Date( Date.now() + new Date().getTimezoneOffset() * 60000 ), // now in UTC to match Stats
@@ -22,9 +24,9 @@ const VISITS_OPTIONS = {
  * Process 14-day stats data to extract current and previous 7-day periods
  *
  * @param {object} visitsData - Raw visits data from API with fields and data arrays
- * @return {object} Object containing counts, previousCounts, and chartData for last 7 days
+ * @return {{ counts: object, previousCounts: object, chartData: ?{ fields: string[], data: Array } }} Object containing counts, previousCounts, and chartData for last 7 days
  */
-const processStatsData = visitsData => {
+export const processStatsData = visitsData => {
 	if (
 		! visitsData ||
 		! visitsData.fields ||
@@ -120,6 +122,18 @@ const processStatsData = visitsData => {
 };
 
 /**
+ * Build the link to the detailed stats page.
+ *
+ * @param {string}  manageUrl               - The Stats product's manage URL.
+ * @param {boolean} premiumAnalyticsEnabled - Whether the URL is the Premium Analytics dashboard.
+ * @return {string|undefined} The link, or undefined without a manage URL.
+ */
+export const getDetailedStatsHref = ( manageUrl, premiumAnalyticsEnabled ) => {
+	const query = premiumAnalyticsEnabled ? '' : '&force_refresh=1';
+	return manageUrl ? `${ manageUrl }${ query }` : undefined;
+};
+
+/**
  * Stats section component for My Jetpack Stats product card with a chart and counts.
  *
  * @return {import('react').JSX.Element} Stats section component
@@ -165,8 +179,7 @@ const StatsSection = () => {
 		[ status, manageUrl ]
 	);
 
-	const viewStatsQuery = premiumAnalyticsEnabled ? '' : '&force_refresh=1';
-	const viewStatsHref = manageUrl ? `${ manageUrl }${ viewStatsQuery }` : undefined;
+	const viewStatsHref = getDetailedStatsHref( manageUrl, premiumAnalyticsEnabled );
 
 	const viewStatsButton = {
 		href: viewStatsHref,
@@ -204,6 +217,7 @@ const StatsSection = () => {
 				headingLevel={ 3 }
 				chartData={ chartData }
 				isLoading={ isVisitsDataLoading }
+				detailedStatsHref={ viewStatsHref }
 				onDetailedStatsClick={ onDetailedStatsClick }
 			/>
 		</ProductCard>

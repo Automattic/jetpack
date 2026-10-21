@@ -60,7 +60,7 @@ export const InactiveRelatedPostsPlaceholder = ( {
 								'Activate Related Posts',
 								'jetpack',
 								/* dummy arg to avoid bad minification */ 0
-						  ) }
+							) }
 				</Button>
 				<div className="components-placeholder__learn-more">
 					<Link openInNewTab href={ supportLink }>

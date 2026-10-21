@@ -23,6 +23,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -37,6 +38,7 @@ use function do_action;
 use function esc_url_raw;
 use function get_option;
 use function is_wp_error;
+use function menu_page_url;
 use function rest_ensure_response;
 use function update_option;
 use function wp_add_inline_script;
@@ -105,6 +107,9 @@ class Jetpack_Backup {
 	const JETPACK_BACKUP_PRODUCT_IDS = array(
 		2014, // JETPACK_COMPLETE.
 		2015, // JETPACK_COMPLETE_MONTHLY.
+		2024, // JETPACK_PRO_MONTHLY.
+		2025, // JETPACK_PRO_YEARLY.
+		2026, // JETPACK_PRO_BI_YEARLY.
 		2016, // JETPACK_SECURITY_TIER_1_YEARLY.
 		2017, // JETPACK_SECURITY_TIER_1_MONTHLY.
 		2019, // JETPACK_SECURITY_TIER_2_YEARLY.
@@ -125,27 +130,85 @@ class Jetpack_Backup {
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
-	 * When this filter returns true, "Jetpack > Backup" renders the new
-	 * wp-build dashboard instead of the legacy React app.
+	 * Returning false renders the legacy React app on "Jetpack > Backup" instead of the wp-build dashboard.
 	 */
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
 
 	/**
-	 * Constructor.
+	 * Blog sticker that puts a site back on the legacy dashboard.
+	 *
+	 * Atomic sees it only if it is on WordPress.com's `atomic_site_stickers()` allowlist.
 	 */
-	public static function initialize() {
+	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
+
+	/**
+	 * Rewind state read from WordPress.com, memoized for the request.
+	 *
+	 * A class property and not a function static so tests can clear it.
+	 *
+	 * @var object|null
+	 */
+	private static $rewind_state = null;
+
+	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
+
+	/**
+	 * Initialization options.
+	 *
+	 * @var array
+	 */
+	const DEFAULT_INIT_OPTIONS = array(
+		// A host that already ensured a connection under its own slug must not have it
+		// re-ensured here as `jetpack-backup`, which would rename the site's connection.
+		'manage_connection' => true,
+	);
+
+	/**
+	 * Constructor.
+	 *
+	 * @param array $options Overrides for self::DEFAULT_INIT_OPTIONS.
+	 */
+	public static function initialize( array $options = array() ) {
 		if ( did_action( 'jetpack_backup_initialized' ) ) {
 			return;
 		}
 
-		// Set up the REST authentication hooks.
-		Connection_Rest_Authentication::init();
+		$options = array_merge( self::DEFAULT_INIT_OPTIONS, $options );
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
+
+		if ( $options['manage_connection'] ) {
+			self::init_standalone_connection();
+		}
+
+		// Jetpack Backup abilities are registered from `actions.php` at package
+		// autoload time so the surface is available in every consumer that
+		// loads this package (both the standalone Backup plugin and the
+		// Jetpack plugin), not only when `Jetpack_Backup::initialize()` runs.
+
+		/**
+		 * Runs right after the Jetpack Backup package is initialized.
+		 *
+		 * @since 1.3.0
+		 */
+		do_action( 'jetpack_backup_initialized' );
+	}
+
+	/**
+	 * Set up the connection, sync and identity-crisis packages under the standalone plugin's slug.
+	 */
+	private static function init_standalone_connection() {
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
 
 		// Init Jetpack packages.
 		add_action(
@@ -173,18 +236,6 @@ class Jetpack_Backup {
 		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade_db' ), 20 );
 
 		add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 3 );
-
-		// Jetpack Backup abilities are registered from `actions.php` at package
-		// autoload time so the surface is available in every consumer that
-		// loads this package (both the standalone Backup plugin and the
-		// Jetpack plugin), not only when `Jetpack_Backup::initialize()` runs.
-
-		/**
-		 * Runs right after the Jetpack Backup package is initialized.
-		 *
-		 * @since 1.3.0
-		 */
-		do_action( 'jetpack_backup_initialized' );
 	}
 
 	/**
@@ -196,10 +247,10 @@ class Jetpack_Backup {
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'plugin_settings_page' );
 
-		// The relabel rides the modernized dashboard rather than the filter alone,
+		// The page title's relabel rides the modernized dashboard rather than the filter alone,
 		// so a fallback to the legacy page also falls back to the legacy title.
 		$page_title = $wp_build_active ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
-		$menu_title = $wp_build_active ? 'VaultPress Backup' : 'Backup'; // Product name, do not translate.
+		$menu_title = 'Backup'; // Product name, do not translate.
 
 		$page_suffix = Admin_Menu::add_menu(
 			$page_title,
@@ -207,7 +258,11 @@ class Jetpack_Backup {
 			'manage_options',
 			self::JETPACK_BACKUP_SLUG,
 			$callback,
-			7
+			null,
+			array(
+				'product' => 'backup',
+				'key'     => 'jetpack-backup',
+			)
 		);
 
 		if ( $page_suffix ) {
@@ -222,13 +277,14 @@ class Jetpack_Backup {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 
 		if ( self::is_wp_build_dashboard_active() ) {
-			// The modernized Backup overview is a focused, full-screen product
-			// surface. Suppress JITMs and other core/plugin admin notices so they
-			// don't reflow on top of the dual-pane layout. Mirrors how Jetpack
-			// Forms handles its dashboard page
-			// (`plugins/forms/src/dashboard/class-dashboard.php`).
-			remove_all_actions( 'admin_notices' );
-			remove_all_actions( 'all_admin_notices' );
+			// Notices reflow the dual-pane layout, so clear them but keep our own.
+			// An older jetpack-jitm may predate the helper; the fallback costs the JITM.
+			if ( method_exists( JITM::class, 'suppress_foreign_admin_notices' ) ) {
+				JITM::suppress_foreign_admin_notices();
+			} else {
+				remove_all_actions( 'admin_notices' );
+				remove_all_actions( 'all_admin_notices' );
+			}
 		}
 	}
 
@@ -352,7 +408,7 @@ class Jetpack_Backup {
 			'/has-backup-plan',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::has_backup_plan',
+				'callback'            => __CLASS__ . '::get_backup_plan_state',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 			)
 		);
@@ -507,21 +563,18 @@ class Jetpack_Backup {
 	 * A WordPress.com blip then reaches the dashboard as an empty success, which
 	 * is how a paying customer ends up looking at the first-run screen. A
 	 * WP_Error makes the REST layer answer with a status, so every caller's
-	 * existing failure path runs.
+	 * existing failure path runs. WordPress.com's reason, when its reply has one,
+	 * rides along as `data.wpcom`; unlike preflight's, these routes' callers are all
+	 * in this package, so the extra key is safe.
 	 *
-	 * @param int $status The upstream response code, already cast to an int, or 0
-	 *                    when the request never reached WordPress.com.
+	 * @param array|\WP_Error $response The wp_remote_* response.
 	 * @return WP_Error
 	 */
-	private static function get_failed_fetch_error( $status = 0 ) {
-		return new WP_Error(
+	private static function get_failed_fetch_error( $response ) {
+		return REST\Rest_Controller::upstream_error(
+			$response,
 			'failed_to_fetch_data',
-			esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup-pkg' ),
-			array(
-				// A transport failure has no status at all, and `status_header( 0 )`
-				// emits an invalid status line — so anything falsy becomes a 500.
-				'status' => $status ? $status : 500,
-			)
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup-pkg' )
 		);
 	}
 
@@ -547,7 +600,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -558,46 +611,75 @@ class Jetpack_Backup {
 	/**
 	 * Hits the wpcom api to check rewind status.
 	 *
-	 * @return Object|WP_Error
+	 * Bounded well clear of a healthy round trip; `Client`'s 10s default is too
+	 * long for the synchronous `authorize_redirect` this sits on.
+	 *
+	 * @return object|WP_Error The decoded rewind state, or a WP_Error if WordPress.com could not be read.
 	 */
 	private static function get_rewind_state_from_wpcom() {
-		static $status = null;
-
-		if ( $status !== null ) {
-			return $status;
+		if ( self::$rewind_state !== null ) {
+			return self::$rewind_state;
 		}
 
 		$site_id = Jetpack_Options::get_option( 'id' );
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 5 ), null, 'wpcom' );
 
 		// Cast: `wp_remote_retrieve_response_code()` hands back whatever the
-		// transport put there, and a numeric-string `'200'` fails this
-		// strict comparison. The result is memoized in `$status` and read by
-		// `has_backup_plan()`, which answers false for a `WP_Error` — so a
-		// site that does have Backup is told, for the rest of the request,
-		// that it does not. That answer is acted on: it backs the
-		// `/has-backup-plan` route and the standalone-license upsell.
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'rewind_state_fetch_failed' );
+		// transport put there, and a numeric-string `'200'` fails this strict
+		// comparison.
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response );
 		}
 
-		$body   = wp_remote_retrieve_body( $response );
-		$status = json_decode( $body );
-		return $status;
+		$state = json_decode( wp_remote_retrieve_body( $response ) );
+
+		// A 200 with no `state` is a read that failed, not a site without a
+		// plan. Caching it would hold that answer for the rest of the request;
+		// refusing lets a later caller ask again and get a real one.
+		if ( ! is_object( $state ) || ! isset( $state->state ) ) {
+			return new WP_Error(
+				'rewind_state_unreadable',
+				esc_html__( 'Unable to read the backup plan details for this site.', 'jetpack-backup-pkg' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		self::$rewind_state = $state;
+		return self::$rewind_state;
+	}
+
+	/**
+	 * Checks whether the site supports the product, reporting an unreadable answer as an error.
+	 *
+	 * @since 5.0.1
+	 *
+	 * @return bool|WP_Error True when the site has Backup, or a WP_Error if WordPress.com could not be read.
+	 */
+	public static function get_backup_plan_state() {
+		$rewind_data = static::get_rewind_state_from_wpcom();
+
+		if ( is_wp_error( $rewind_data ) ) {
+			return $rewind_data;
+		}
+
+		return 'unavailable' !== $rewind_data->state;
 	}
 
 	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
-	 * @return boolean
+	 * Answers a plan it could not read as absent, which is the one place that
+	 * decision is made for every `bool` caller.
+	 *
+	 * @return bool
 	 */
 	public static function has_backup_plan() {
-		$rewind_data = static::get_rewind_state_from_wpcom();
-		if ( is_wp_error( $rewind_data ) ) {
-			return false;
-		}
-		return is_object( $rewind_data ) && isset( $rewind_data->state ) && 'unavailable' !== $rewind_data->state;
+		$state = static::get_backup_plan_state();
+
+		return ! is_wp_error( $state ) && $state;
 	}
 
 	/**
@@ -622,7 +704,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -651,7 +733,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -830,13 +912,13 @@ class Jetpack_Backup {
 
 		// Bail if there was an error or malformed response.
 		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
-			return self::get_failed_fetch_error();
+			return self::get_failed_fetch_error( $response );
 		}
 
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -884,7 +966,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -911,7 +993,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -1024,7 +1106,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -1051,7 +1133,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -1081,7 +1163,7 @@ class Jetpack_Backup {
 			return;
 		}
 
-		self::load_wp_build();
+		self::load_wp_build_with_screen_alias();
 
 		// wp-build registers standalone modules (e.g. the init module) on
 		// wp_default_scripts, which has already fired by admin_menu. Register them
@@ -1090,7 +1172,6 @@ class Jetpack_Backup {
 			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
 		}
 
-		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
 	}
 
@@ -1112,13 +1193,30 @@ class Jetpack_Backup {
 		echo '<script id="jetpack-backup-connection-initial-state">'
 			. Connection_Initial_State::render() // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render() returns pre-escaped JSON.
 			. '</script>';
+
+		echo '<script id="jetpack-backup-dashboard-state">window.JPBACKUP_DASHBOARD_STATE='
+			. wp_json_encode( array( 'activityLogUrl' => self::get_activity_log_url() ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
+			. ';</script>';
+	}
+
+	/**
+	 * The Activity Log admin page URL, or null when that page is not registered.
+	 *
+	 * Asks the admin menu rather than building the URL, so a site where the
+	 * Activity Log module is off or unavailable gets no link.
+	 *
+	 * @return string|null
+	 */
+	public static function get_activity_log_url() {
+		$url = menu_page_url( 'jetpack-activity-log', false );
+		return $url ? $url : null;
 	}
 
 	/**
 	 * Load the wp-build entry file and register its polyfills.
 	 *
-	 * Only called on `?page=jetpack-backup` admin requests when the
-	 * modernization filter is enabled. Keeps wp-build off every other request.
+	 * Only called on `?page=jetpack-backup` admin requests when `is_modernized()`
+	 * is true. Keeps wp-build off every other request.
 	 *
 	 * @return void
 	 */
@@ -1141,6 +1239,30 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * Load wp-build with the screen ID aliased across its generated enqueue check.
+	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @return void
+	 */
+	private static function load_wp_build_with_screen_alias() {
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () {
+					self::load_wp_build();
+				}
+			);
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+	}
+
+	/**
 	 * Alias the current screen ID to satisfy wp-build's auto-generated enqueue check.
 	 *
 	 * Wp-build's `<page>-wp-admin` enqueue callback enqueues only when the screen ID
@@ -1151,30 +1273,53 @@ class Jetpack_Backup {
 	 * Hooked only when modernization is on AND we're on the Backup admin page,
 	 * so this never affects any other request.
 	 *
-	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @since 5.0.4 Takes no argument; hooked on `admin_enqueue_scripts`.
+	 *
 	 * @return void
 	 */
-	public static function alias_screen_id_for_wp_build( $screen ) {
-		if ( ! is_object( $screen ) ) {
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
 			return;
 		}
 
-		$screen->id = 'jetpack-backup-dashboard';
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = 'jetpack-backup-dashboard';
 	}
 
 	/**
-	 * Returns true when the wp-build modernization filter is enabled.
+	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
+	 *
+	 * @since 5.0.4
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Returns the modernization filter's value, which defaults to true unless the site has the legacy dashboard sticker.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
+	 * @since $$next-version$$ Defaults to true.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		$has_legacy_sticker = function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER );
+
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, ! $has_legacy_sticker );
 	}
 
 	/**
-	 * Returns true when the modernization filter is on AND the wp-build dashboard loaded.
+	 * Returns true when `is_modernized()` is true AND the wp-build dashboard loaded.
 	 *
 	 * `build/` is gitignored, so the render function is absent in any unbuilt checkout
 	 * and in any release whose wp-build step failed. Every consumer of the modernized

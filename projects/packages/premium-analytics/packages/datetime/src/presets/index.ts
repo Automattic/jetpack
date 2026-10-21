@@ -7,7 +7,9 @@ export {
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
 	PRESET_LAST_365_DAYS,
+	PRESET_MONTH_TO_DATE,
 	PRESET_LAST_MONTH,
+	PRESET_YEAR_TO_DATE,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,
@@ -15,7 +17,7 @@ export {
 	MENU_SURFACE_PRESETS,
 	MENU_SURFACE_PRESET_GROUPS,
 	QUICK_SURFACE_PRESETS,
-	DETAIL_SURFACE_PRESETS,
+	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 	YEAR_PRESET_PREFIX,
 	isSelectablePreset,
 	isPrimaryPreset,
@@ -46,4 +48,4 @@ export {
 	type QuickSurfaceOptions,
 } from './primary';
 
-export { getComparisonOptions, type ComparisonOption } from './comparison';
+export { findComparisonOption, getComparisonOptions, type ComparisonOption } from './comparison';

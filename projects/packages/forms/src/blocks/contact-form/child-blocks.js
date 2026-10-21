@@ -82,6 +82,6 @@ export const childBlocks = [
 				JetpackStepDivider,
 				JetpackStepNavigation,
 				JetpackProgressIndicator,
-		  ]
+			]
 		: [] ),
 ];

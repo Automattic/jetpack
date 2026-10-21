@@ -56,22 +56,17 @@
 	// never rendered.
 	flex: 1 1 auto;
 
-	// Containing block for the pin marker below, and the scope that lets the
-	// marker's timeline reach the header beside it: a named timeline is
-	// otherwise invisible to anything but its own descendants.
-	position: relative;
+	// Lets the pinned header's timeline, published by the marker beside it,
+	// reach the header: a named timeline is otherwise invisible to anything
+	// but its own descendants.
 	timeline-scope: --section-header-pin;
+}
 
+.body {
 	padding-block-end: var(--wpds-dimension-padding-3xl);
 	// Match the horizontal padding of the page header and the section tabs so the
 	// widget grid lines up with them instead of sitting flush to the edge.
 	padding-inline: var(--wpds-dimension-padding-2xl);
-}
-
-.refreshFailure {
-	// Sits below the header row inside the pinned band; the band's own bottom
-	// padding keeps it clear of the widgets.
-	margin-block-start: var(--wpds-dimension-gap-md);
 }
 
 .widgets {
@@ -88,83 +83,5 @@
 	section:first-of-type {
 		display: flex;
 		flex-direction: column;
-	}
-}
-
-/*
- * Publishes the `--section-header-pin` timeline the header condenses against:
- * only the route knows where the header pins, since what it clears is the
- * route's own tab list. The marker's top edge sits exactly where the header
- * comes to rest, so its view timeline's `exit` phase opens as the header
- * sticks, and its height is how far the condense runs. Measured, never
- * painted.
- */
-.pinMarker {
-	position: absolute;
-	inset-block-start: 0;
-	inline-size: 1px;
-	block-size: 40px;
-	visibility: hidden;
-	pointer-events: none;
-	view-timeline-name: --section-header-pin;
-	view-timeline-axis: block;
-}
-
-.sectionHeader {
-	// Pins at 0 rather than under the page header's height: the scroll
-	// container is the sections root, which begins where the page header ends.
-	position: sticky;
-	inset-block-start: 0;
-	z-index: 1;
-
-	/*
-	 * A stuck header must be opaque, and it takes the page header's fill: this
-	 * band is page chrome, not the widgets' canvas, and the hairline is the
-	 * edge between the two. The negative margin spans it across the panel's
-	 * gutter to cover content passing under it; the matching padding keeps the
-	 * header row in place and the container query's measured width unchanged.
-	 */
-	margin-inline: calc(-1 * var(--wpds-dimension-padding-2xl));
-	padding-inline: var(--wpds-dimension-padding-2xl);
-	background: var(--wpds-color-background-surface-neutral-strong);
-	border-block-end:
-		var(--wpds-border-width-xs) solid
-		var(--wpds-color-stroke-surface-neutral-weak);
-
-	// The gap above was the tab bar's bottom margin, moved inside the fill so
-	// the fill starts at the tabs' hairline.
-	padding-block-start: var(--wpds-dimension-gap-lg);
-	padding-block-end: var(--wpds-dimension-gap-lg);
-
-	margin-block-end: var(--wpds-dimension-gap-lg);
-}
-
-// Same gate as the component's condense (see `section-header.module.scss`):
-// without timeline support the 0s fallback animation would freeze the
-// padding in its pinned state.
-@supports (animation-timeline: --section-header-pin) {
-
-	.sectionHeader {
-		// Tightens the padding on the timeline the header condenses on: once
-		// pinned there are no tabs left to clear, and the band should cost the
-		// widgets as little height as it can.
-		animation: condense-section-header linear both;
-		animation-timeline: --section-header-pin;
-		animation-range: exit;
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-
-		.sectionHeader {
-			animation: none;
-		}
-	}
-}
-
-@keyframes condense-section-header {
-
-	to {
-		padding-block-start: var(--wpds-dimension-gap-sm);
-		padding-block-end: var(--wpds-dimension-gap-sm);
 	}
 }

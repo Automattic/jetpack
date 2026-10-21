@@ -1614,6 +1614,30 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Whether the current user may read the given media item through a media GET endpoint.
+	 *
+	 * Requires `edit_posts`, which Contributors hold, and returns only attachments. Any
+	 * other post type is reported as unknown media.
+	 *
+	 * @param int $media_id Media post ID.
+	 * @return true|WP_Error True if the item may be returned, WP_Error otherwise.
+	 */
+	public function check_media_item_read_permission( $media_id ) {
+		// upload_files can probably be used for other endpoints but we want contributors to be able to use media too.
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot view media', 403 );
+		}
+
+		$media_item = get_post( $media_id );
+
+		if ( $media_item && 'attachment' !== $media_item->post_type ) {
+			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get a media item.
 	 *
 	 * @param int $media_id Media post ID.

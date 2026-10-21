@@ -204,14 +204,6 @@ class Contact_Form_Plugin {
 		add_action( 'dynamic_sidebar_before', array( $this, 'track_current_widget_before' ) );
 		add_action( 'dynamic_sidebar_after', array( $this, 'track_current_widget_after' ) );
 
-		// If Text Widgets don't get shortcode processed, hack ours into place.
-		if (
-			version_compare( get_bloginfo( 'version' ), '4.9-z', '<=' )
-			&& ! has_filter( 'widget_text', 'do_shortcode' )
-		) {
-			add_filter( 'widget_text', array( $this, 'widget_shortcode_hack' ), 5 );
-		}
-
 		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_blocklist' ), 10, 2 );
 		add_filter( 'jetpack_contact_form_in_comment_disallowed_list', array( $this, 'is_in_disallowed_list' ), 10, 2 );
 		// Akismet to the rescue
@@ -1565,11 +1557,10 @@ class Contact_Form_Plugin {
 			return;
 		}
 		\Automattic\Jetpack\Menu_Badges\Menu_Badges::init(); // idempotent; wires the renderer.
-		$slug = apply_filters( 'jetpack_forms_alpha', true ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
 		\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
 			'jetpack-forms',
 			array(
-				'menu_slug' => $slug,
+				'menu_slug' => Dashboard::FORMS_WPBUILD_ADMIN_SLUG,
 				'count'     => self::get_unread_count(),
 				'type'      => 'count',
 			)
@@ -1863,7 +1854,7 @@ class Contact_Form_Plugin {
 		// In future version we will be able to skip this step.
 		$form = Contact_Form::$forms[ $hash ] ?? null;
 
-		// No form may mean user is using do_shortcode, grab the form using the stored post meta
+		// No form may mean user is using apply_shortcodes, grab the form using the stored post meta
 		if ( ! $form && is_numeric( $id ) && $hash ) {
 
 			// Get shortcode from post meta
@@ -1884,7 +1875,7 @@ class Contact_Form_Plugin {
 				}
 
 				$shortcode = '[contact-form' . $parameters . ']' . $shortcode . '[/contact-form]';
-				do_shortcode( $shortcode );
+				apply_shortcodes( $shortcode );
 
 				// Recreate form
 				$form = Contact_Form::$last;
@@ -2267,8 +2258,12 @@ class Contact_Form_Plugin {
 	 * @param string $text The widget text.
 	 *
 	 * @return string The contact-form filtered widget text
+	 *
+	 * @deprecated 8.3.4 Core processes shortcodes in text widgets since WordPress 4.9.
 	 */
 	public function widget_shortcode_hack( $text ) {
+		_deprecated_function( __METHOD__, 'package-8.3.4' );
+
 		if ( ! preg_match( '/\[contact-form([^a-zA-Z_-])/', $text ) ) {
 			return $text;
 		}
@@ -2278,7 +2273,7 @@ class Contact_Form_Plugin {
 		self::$using_contact_form_field = true;
 		$this->add_shortcode();
 
-		$text = do_shortcode( $text );
+		$text = apply_shortcodes( $text );
 
 		self::$using_contact_form_field = false;
 		$GLOBALS['shortcode_tags']      = $old; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -3976,8 +3971,8 @@ class Contact_Form_Plugin {
 	 * Redirect users from the edit-feedback and edit-jetpack_form screens to the Jetpack Forms admin page.
 	 *
 	 * This method is hooked to 'current_screen' and redirects:
-	 * - edit-jetpack_form: to #/forms (legacy) or &p=/forms (wp-build)
-	 * - edit-feedback: to #/responses?status=inbox (legacy) or &p=/responses/inbox (wp-build)
+	 * - edit-jetpack_form: to &p=/forms
+	 * - edit-feedback: to &p=/responses/inbox
 	 *
 	 * @since 6.0.0
 	 */

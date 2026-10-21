@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
 import { useSiteLaunchGatingVariant } from '../../common/hooks';
 import PreLaunchSiteModal from '../../common/pre-launch-site-modal';
@@ -28,15 +27,18 @@ const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTT
 
 /**
  * The LaunchButton component.
+ * @param {object} props           - Component props.
+ * @param {string} props.launchUrl - The admin bar node's launch-flow URL, `back_to` set to this page.
  * @return {React.ReactNode} The LaunchButton component.
  */
-export function LaunchButton() {
+export function LaunchButton( { launchUrl } ) {
 	const [ , variant ] = useSiteLaunchGatingVariant();
 	const [ showPreLaunchModal, setShowPreLaunchModal ] = useState( false );
 
 	const qualifiesForPreLaunch = shouldShowPreLaunchModal( {
 		sitePlan: launchButtonData.sitePlan,
 		hasCustomDomain: launchButtonData.hasCustomDomain,
+		isTrial: launchButtonData.isTrial,
 	} );
 
 	// Site launch gating: 'semi_gated_site_launch' is the shipped default. The other
@@ -45,12 +47,6 @@ export function LaunchButton() {
 		case 'semi_gated_site_launch':
 		case null:
 		default: {
-			// Markup should match what's coming from the back-end.
-			const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
-				siteSlug: launchButtonData.siteDomain,
-				ref: 'wp-admin',
-			} );
-
 			return (
 				<>
 					<a

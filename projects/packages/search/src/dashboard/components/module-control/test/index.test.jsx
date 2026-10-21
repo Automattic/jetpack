@@ -73,6 +73,10 @@ jest.mock( 'components/search-suggestions-control', () => props => {
 } );
 
 jest.mock( 'components/upsell-nudge', () => () => <div data-testid="instant-search-upsell" /> );
+jest.mock( 'hooks/use-activate-search-free', () => () => ( {
+	run: jest.fn(),
+	isActivating: false,
+} ) );
 
 jest.mock( 'store', () => ( {
 	STORE_ID: 'jetpack-search-plugin',
@@ -111,6 +115,22 @@ describe( 'ModuleControl', () => {
 		mockReaderChatControl.mockClear();
 		mockSearchSuggestionsControl.mockClear();
 	} );
+
+	test.each( [ true, false ] )(
+		'over-limit Site Chat saving lock when enabled is %s',
+		isEnabled => {
+			render(
+				<ModuleControl
+					{ ...defaultProps }
+					isDisabledFromOverLimit
+					isReaderChatEnabled={ isEnabled }
+				/>
+			);
+			expect( mockReaderChatControl ).toHaveBeenCalledWith(
+				expect.objectContaining( { isSaving: ! isEnabled } )
+			);
+		}
+	);
 
 	test( 'renders Reader Chat, AI Agent Access, and Search Suggestions after the Instant Search setting', () => {
 		render( <ModuleControl { ...defaultProps } /> );
@@ -178,8 +198,8 @@ describe( 'ModuleControl', () => {
 		);
 	} );
 
-	test( 'disables Reader Chat controls when the Search module group is over limit', () => {
-		render( <ModuleControl { ...defaultProps } isDisabledFromOverLimit /> );
+	test( 'disables Reader Chat controls while settings are saving', () => {
+		render( <ModuleControl { ...defaultProps } isSavingEitherOption /> );
 
 		expect( mockReaderChatControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {

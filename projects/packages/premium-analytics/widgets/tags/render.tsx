@@ -15,29 +15,30 @@ import {
 	resolveLeaderboardRowAction,
 	safeHttpUrl,
 	sharePercentage,
+	tagRowGlyph,
 	useWidgetDrillDown,
+	useWidgetRootContext,
+	ExporterCsvDownloadButton,
+	tagsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { tag as tagIllustration } from '@jetpack-premium-analytics/icons';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { category, tag as tagGlyph } from '@wordpress/icons';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
+import { useNoPublishedPosts } from '../use-no-published-posts';
 import styles from './style.module.css';
 import useTagViews, { type TagChildView } from './use-tag-views';
-import { type TagsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type TagsAttributes = Record< never, never >;
 
 type TagsRenderAttributes = Partial< ReportParamsFieldAttributes > & TagsAttributes;
 type TagsWidgetProps = WidgetRenderProps< TagsRenderAttributes >;
-
-// The Stats sanitizer marks a category with the `folder` glyph key; every other
-// row is a tag.
-const rowGlyph = ( labelIcon: string ) => ( labelIcon === 'folder' ? category : tagGlyph );
 
 interface TagGroupMembersProps {
 	/**
@@ -58,7 +59,7 @@ function TagGroupMembers( { members }: TagGroupMembersProps ) {
 				<LeaderboardRow
 					key={ member.id }
 					label={ member.label }
-					media={ { kind: 'icon', icon: rowGlyph( member.labelIcon ) } }
+					media={ { kind: 'icon', icon: tagRowGlyph( member.labelIcon ) } }
 					action={ resolveLeaderboardRowAction( {
 						href: safeHttpUrl( member.link ) ?? undefined,
 						hasChildren: false,
@@ -70,7 +71,9 @@ function TagGroupMembers( { members }: TagGroupMembersProps ) {
 }
 
 function TagsInner() {
+	const { reportParams } = useWidgetRootContext();
 	const { data, isLoading, isFetching, isError, refetch } = useTagViews( {
+		reportParams,
 		max: WIDGET_ROW_LIMIT,
 	} );
 
@@ -82,8 +85,11 @@ function TagsInner() {
 		resetDrillDown: clearSelection,
 	} = useWidgetDrillDown< string >();
 
+	const isEmptyList = ! isLoading && ! isError && data.length === 0;
+	const { noPublishedPosts, isChecking } = useNoPublishedPosts( isEmptyList );
+
 	const selectedGroup = useMemo(
-		() => ( selectedLabel ? data.find( row => row.label === selectedLabel ) ?? null : null ),
+		() => ( selectedLabel ? ( data.find( row => row.label === selectedLabel ) ?? null ) : null ),
 		[ data, selectedLabel ]
 	);
 
@@ -107,7 +113,7 @@ function TagsInner() {
 				// their members instead. Single tag/category rows link out directly.
 				...buildLeaderboardRow( {
 					label: row.label,
-					media: { kind: 'icon', icon: rowGlyph( row.labelIcon ) },
+					media: { kind: 'icon', icon: tagRowGlyph( row.labelIcon ) },
 					action: resolveLeaderboardRowAction( {
 						href: safeHttpUrl( row.link ) ?? undefined,
 						hasChildren: isGroup,
@@ -135,7 +141,7 @@ function TagsInner() {
 					/>
 				) }
 				<WidgetState
-					isLoading={ isLoading }
+					isLoading={ isLoading || isChecking }
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
@@ -148,13 +154,16 @@ function TagsInner() {
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
 					} }
-					empty={ {
-						icon: tagIllustration,
-						description: __(
-							'Learn about your most visited tags & categories to track engaging topics.',
-							'jetpack-premium-analytics-pkg'
-						),
-					} }
+					empty={
+						noPublishedPosts
+							? {
+									description: __(
+										'You don’t have tags or categories recorded yet.',
+										'jetpack-premium-analytics-pkg'
+									),
+								}
+							: undefined
+					}
 					// The drilled-in view is a plain link list, not a leaderboard, so it
 					// keeps the default shape.
 					renderLoading={
@@ -165,6 +174,7 @@ function TagsInner() {
 						<TagGroupMembers members={ selectedGroup.children } />
 					) : (
 						<LeaderboardChart
+							chartTitle={ __( 'Top tags & categories', 'jetpack-premium-analytics-pkg' ) }
 							data={ leaderboardData }
 							withOverlayLabel
 							showLegend={ false }
@@ -176,12 +186,21 @@ function TagsInner() {
 								type: 'number',
 								options: { useMultipliers: false, decimals: 0 },
 							} }
+							columns={ {
+								label: __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
+								metric: 'views',
+							} }
 						/>
 					) }
 				</WidgetState>
 			</div>
 			<WidgetFooter>
 				<ReportLink report="tags" />
+				<ExporterCsvDownloadButton
+					exporter={ tagsCsvExporter }
+					status={ { isLoading, isFetching, isError } }
+					rowCount={ data.length }
+				/>
 			</WidgetFooter>
 		</Stack>
 	);

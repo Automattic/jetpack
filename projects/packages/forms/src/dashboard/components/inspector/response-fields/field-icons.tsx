@@ -23,6 +23,7 @@ import textIcon from '../../../../blocks/field-text/icon.jsx';
 import textareaIcon from '../../../../blocks/field-textarea/icon.jsx';
 import timeIcon from '../../../../blocks/field-time/icon.jsx';
 import type { FieldType } from '../../../../types/index.ts';
+import type { JSX } from 'react';
 
 /**
  * Map of field types to their icon definitions.

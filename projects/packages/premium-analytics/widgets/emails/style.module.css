@@ -20,3 +20,7 @@
 	min-inline-size: 0;
 	min-block-size: 0;
 }
+
+.rate {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}

@@ -51,9 +51,31 @@ export interface UserData {
 	current_user: CurrentUserData;
 }
 
+/**
+ * Data My Jetpack prints on every Jetpack admin page, so other packages can link into it.
+ */
+export interface MyJetpackScriptData {
+	/** Whether My Jetpack initialized and its admin page is reachable by the current user. */
+	isAvailable?: boolean;
+	/** Site editor state. Only on the My Jetpack page. */
+	siteEditor?: {
+		isBlockTheme: boolean;
+		isSharingBlockAvailable: boolean;
+		isLikeBlockAvailable: boolean;
+		activeThemeStylesheet: string;
+	};
+	/** Absolute URL of My Jetpack's built images directory, with a trailing slash. */
+	assetsUrl?: string;
+	/** Navigation data for released footers; current My Jetpack always points to Features. */
+	productsSection?: { slug: 'features'; label: string } | null;
+	/** Where Jetpack AI is managed: the Jetpack AI Hub, or My Jetpack's AI page while the Hub is not open to the site. */
+	aiManageUrl?: string;
+}
+
 export interface JetpackScriptData {
 	site: SiteData;
 	user: UserData;
+	myJetpack?: MyJetpackScriptData;
 }
 
 declare global {

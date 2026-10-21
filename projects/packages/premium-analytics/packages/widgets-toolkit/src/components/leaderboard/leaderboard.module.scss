@@ -1,0 +1,16 @@
+.root {
+	container-type: inline-size;
+	height: 100%;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.content {
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+// Rows may run flush to the footer rule; the static legend needs room above it.
+.legendAboveFooter {
+	padding-block-end: var(--wpds-dimension-padding-md);
+}

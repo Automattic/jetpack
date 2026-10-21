@@ -94,22 +94,32 @@ export function toFileNode( name: string, raw: WpcomFileNode, parentPath: string
 	};
 }
 
+type Options = {
+	enabled?: boolean;
+};
+
 /**
  * Hook returning the children of a folder inside a backup.
  *
  * Passing `null` for `folderPath` is the "ask for the root tree" idiom;
  * the hook treats it as a query for `/`.
  *
- * @param rewindId   - The backup's rewind id (decimal-suffix-safe).
- * @param folderPath - Folder to load, or null for the root.
+ * @param rewindId        - The backup's rewind id (decimal-suffix-safe).
+ * @param folderPath      - Folder to load, or null for the root.
+ * @param options         - Query options.
+ * @param options.enabled - False never fetches and only reads the cache, for a closed folder or a file row. Defaults to true.
  * @return Children list, loading flag, error, refetch.
  */
-export function useFileTree( rewindId: string, folderPath: string | null ): Result {
+export function useFileTree(
+	rewindId: string,
+	folderPath: string | null,
+	{ enabled = true }: Options = {}
+): Result {
 	const path = folderPath ?? BASE_FOLDER_PATH;
 	const query = useQuery( {
 		queryKey: keys.fileTree( rewindId, path ),
 		queryFn: () => fetchFileTree( rewindId, path ),
-		enabled: Boolean( rewindId ),
+		enabled: enabled && Boolean( rewindId ),
 	} );
 	const { refetch } = query;
 
@@ -135,14 +145,19 @@ export function useFileTree( rewindId: string, folderPath: string | null ): Resu
 		refetch();
 	}, [ refetch ] );
 
-	// Held across the retry: React Query rewinds this query to `pending`
-	// when it refetches after a failure, so without this the reason
-	// disappears the moment the reader clicks the retry button.
-	const error = useStickyError( query.error, query.isFetching );
+	// `networkMode: 'online'` parks an offline request rather than failing it, so
+	// the first read is neither loading nor errored and holds no children — which
+	// the tree read as an answered "empty". `isPending` spares a parked refetch,
+	// which still has its children.
+	const isParkedOffline = query.isPending && query.isPaused;
+	// Held across the retry: React Query rewinds this query to `pending` when it
+	// refetches after a failure, so without this the reason disappears the moment
+	// the reader clicks retry — and an offline retry parks rather than fetching.
+	const error = useStickyError( query.error, query.isFetching || isParkedOffline );
 
 	return {
 		children,
-		isLoading: query.isLoading,
+		isLoading: query.isLoading || isParkedOffline,
 		isFetching: query.isFetching,
 		error,
 		refetch: retry,

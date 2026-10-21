@@ -127,7 +127,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.scripts.test-php`: If the package contains any PHPUnit tests, this must run the necessary commands. See [PHP tests](#php-tests) for details.
   * `.scripts.skip-test-php`: Run before `.scripts.test-php` in CI. If it exits with code 3, the test run will be skipped.
 * `.extra.autorelease`: Set truthy to enable automatic creation of a GitHub release for tagged versions. See [Mirror repositories > Auto-release](#auto-release) for details.
-* `.extra.autotagger`: Set truthy to enable automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
+* `.extra.autotagger`: Configure the automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
 * `.extra.changelogger`: Configuration object for [Changelogger](#jetpack-changelogger). See [its documentation](https://github.com/Automattic/jetpack-changelogger#configuration) for details.
 * `.extra.changelogger-default-type`: Certain of our tools automatically create Changelogger change entries. This is the value to use for `--type` when doing so. Default type is `changed`.
 * `.extra.dependencies.build`: This optional array specifies the "slugs" of any within-monorepo build dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/changelogger`.
@@ -164,6 +164,7 @@ A project must define `.scripts.build-development` and/or `.scripts.build-produc
 The build commands should assume that `pnpm install` and `composer install` have already been run, and _must not_ run them again.
 
 * If you're building JavaScript bundles with Webpack and [@automattic/jetpack-webpack-config](../projects/js-packages/webpack-config/README.md) (more information on setup [in the README.md](../projects/js-packages/webpack-config/README.md)), note that your build-production command should set `NODE_ENV=production` and `BABEL_ENV=production`.
+* If you're moving an admin dashboard from Webpack onto the wp-build (esbuild) pipeline, follow the [wp-build porting checklist](wp-build-porting-checklist.md).
 * If you run into problems with Composer not recognizing the local git branch as being the right version, try setting `COMPOSER_ROOT_VERSION=dev-trunk` in the environment.
 * When building for the mirror repos, note that `COMPOSER_MIRROR_PATH_REPOS=1` will be set in the environment and the list of repositories in `composer.json` may be altered.
   This is not normally done in development environments, even with `jetpack build --production`.
@@ -416,15 +417,15 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
 6. Set `.extra.mirror-repo` in your project's `composer.json` to the name of the repo.
-   * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build" artifact and make sure it contains your project, and that there are no extra or missing files.
+   * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build.tar.xz" artifact and make sure it contains your project, and that there are no extra or missing files.
 
 ### Autotagger
 
-If `.extra.autotagger` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will read the most recent version from the mirrored `CHANGELOG.md` in each push to trunk, and create the tag if that version has no prerelease or build suffix.
+All mirror repos will include a GitHub Action that will read the most recent version from the mirrored `CHANGELOG.md` in each push to trunk, and create the tag if that version has no prerelease or build suffix.
 
-If `.extra.autotagger` is set to an object with a truthy value for `major` (i.e. if `.extra.autotagger.major` is truthy), the GitHub Action will additionally create or update a major-version tag as is common for GitHub Action repositories.
+If `.extra.autotagger.major` is set to a truthy value, the GitHub Action will additionally create or update a major-version tag as is common for GitHub Action repositories.
 
-If `.extra.autotagger` is set to an object with falsey value for `v` (i.e. if `.extra.autotagger.v` is set and falsey), the tag will not be prefixed with "v".
+If `.extra.autotagger.v` is set to a falsey value, the tag will not be prefixed with "v".
 
 Note that, for this to work, you'll need to create a secret `API_TOKEN_GITHUB` in the mirror repo. The value of the secret must be a GitHub access token. See PCYsg-xsv-p2#mirror-repo-secrets for details.
 
@@ -440,6 +441,8 @@ If `.extra.autorelease` is set to an object, the following are recognized:
 
 * `.extra.autorelease.slug`: Base name for the zip file, and the name of the base directory inside. If this is omitted, `.extra.wp-plugin-slug` or `.extra.beta-plugin-slug` will be used. If that is also not set, the portion of `.name` after the `/` will be used.
 * `.extra.autorelease.titlefmt`: Format for the release title. Must contain a single `%s`, which will be replaced with the version tagged. If omitted, the release title will simply be the version number.
+
+Versions with a prerelease suffix (e.g. `1.2-beta` or `1.2-a.3`) are marked as prereleases on GitHub, except for rolling releases, which are always marked "Latest".
 
 Note the following will also be done by the build process:
 

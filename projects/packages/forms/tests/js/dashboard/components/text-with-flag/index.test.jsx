@@ -10,9 +10,8 @@ await jest.unstable_mockModule( '../../../../../src/util/country-names-translate
 } ) );
 
 // Import component after mocks are set up
-const { default: TextWithFlag } = await import(
-	'../../../../../src/dashboard/components/text-with-flag/index.tsx'
-);
+const { default: TextWithFlag } =
+	await import( '../../../../../src/dashboard/components/text-with-flag/index.tsx' );
 
 describe( 'TextWithFlag', () => {
 	describe( 'Valid country codes', () => {

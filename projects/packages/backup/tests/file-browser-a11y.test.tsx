@@ -16,6 +16,7 @@ import userEvent from '@testing-library/user-event';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../src/dashboard/components/file-browser';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
+import type { FileSelection } from '../src/dashboard/components/file-browser';
 
 /** Selection is irrelevant to these assertions; the rows render regardless. */
 const noop = () => {};
@@ -23,20 +24,28 @@ const noop = () => {};
 const ROOT = {
 	'wp-content': { type: 'dir', has_children: true },
 	'wp-config.php': { type: 'file', period: '1786644531', manifest_path: 'f5:/wp-config.php' },
+	// The busy assertion below needs a file whose preview actually fetches;
+	// `wp-config.php` waits for a reveal click and so never reports busy.
+	'readme.txt': { type: 'file', period: '1786644531', manifest_path: 'f5:/readme.txt' },
 };
 
 /**
  * Render the browser over the root listing.
  *
+ * @param selection         - Selection to render with.
+ * @param onSelectionChange - Receives the next selection.
  * @return Nothing; assertions read from `screen`.
  */
-async function renderBrowser(): Promise< void > {
+async function renderBrowser(
+	selection: FileSelection = EMPTY_FILE_SELECTION,
+	onSelectionChange: ( next: FileSelection ) => void = noop
+): Promise< void > {
 	render(
 		<QueryClientProvider>
 			<FileBrowser
 				rewindId="1786644531.123"
-				selection={ EMPTY_FILE_SELECTION }
-				onSelectionChange={ noop }
+				selection={ selection }
+				onSelectionChange={ onSelectionChange }
 			/>
 		</QueryClientProvider>
 	);
@@ -86,6 +95,51 @@ describe( 'row checkboxes', () => {
 	} );
 } );
 
+describe( 'the selection checkbox', () => {
+	const selectionOf = ( ...paths: string[] ): FileSelection => ( {
+		selected: new Set( paths ),
+		deselected: new Set(),
+	} );
+	const ALL = selectionOf( '/wp-content', '/wp-config.php', '/readme.txt' );
+	// As assistive tech reads it: `indeterminate` overrides `checked`.
+	const stateOf = ( box: HTMLInputElement ) => {
+		if ( box.indeterminate ) {
+			return 'mixed';
+		}
+		return box.checked ? 'checked' : 'unchecked';
+	};
+
+	// The mixed rows matter most: nothing undoes a clear, so a partial selection must survive a click.
+	it.each( [
+		[ 'nothing', EMPTY_FILE_SELECTION, 'Select all', 'unchecked', '0 items selected', ALL ],
+		[ 'some', selectionOf( '/wp-config.php' ), 'Select all', 'mixed', '1 item selected', ALL ],
+		[
+			'all but one file',
+			{ ...ALL, deselected: new Set( [ '/wp-content/index.php' ] ) },
+			'Select all',
+			'mixed',
+			// `wp-content` is unexpanded, so it still counts as one unit.
+			'3 items selected',
+			ALL,
+		],
+		[ 'everything', ALL, 'Clear selection', 'checked', '3 items selected', EMPTY_FILE_SELECTION ],
+	] )(
+		'with %s selected, is named for what a click does, and does it',
+		async ( _label, selection, name, state, count, next ) => {
+			const onSelectionChange = jest.fn();
+			await renderBrowser( selection, onSelectionChange );
+
+			const box = screen.getByRole< HTMLInputElement >( 'checkbox', { name } );
+			expect( box ).toHaveAccessibleDescription( count );
+			expect( stateOf( box ) ).toBe( state );
+
+			await userEvent.click( box );
+
+			expect( onSelectionChange ).toHaveBeenLastCalledWith( next );
+		}
+	);
+} );
+
 describe( 'the folder toggle', () => {
 	it( 'points aria-controls at the region it expands', async () => {
 		await renderBrowser();
@@ -116,8 +170,7 @@ describe( 'the preview pane', () => {
 	} );
 
 	// Without this the reader has to tab through every remaining tree row to
-	// reach content they just asked for, and on a scrolled tree the card
-	// renders off-screen entirely.
+	// reach content they just asked for.
 	it( 'takes focus when a file is opened', async () => {
 		await renderBrowser();
 		await userEvent.click( screen.getByRole( 'button', { name: 'File: wp-config.php' } ) );
@@ -164,9 +217,9 @@ describe( 'the preview while it loads', () => {
 		} );
 
 		await renderBrowser();
-		await userEvent.click( screen.getByRole( 'button', { name: 'File: wp-config.php' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'File: readme.txt' } ) );
 
-		const preview = await screen.findByRole( 'region', { name: 'Preview of wp-config.php' } );
+		const preview = await screen.findByRole( 'region', { name: 'Preview of readme.txt' } );
 		expect( preview ).toHaveAttribute( 'aria-busy', 'true' );
 		expect( screen.getByText( 'Loading preview…' ) ).toBeInTheDocument();
 

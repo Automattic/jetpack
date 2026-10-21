@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.0] - 2026-10-19
+### Added
+- Add a one-time test request the firewall blocks unless the IP allow list lets it through, and a reader for recently blocked requests. [#53193]
+
+### Fixed
+- Brute Force Protection: Fix correct logins being rejected after the math challenge, and keep the username and login destination when the password must be entered again. [#50681]
+- Brute Force Protection: Run login checks once per request instead of once per internal lookup. [#50681]
+- Read blocked-request counts from the database, so a persistent object cache no longer shows stale totals. [#53193]
+
+## [0.29.3] - 2026-10-12
+### Fixed
+- Brute Force Protection: Let new users set their password from a blocked IP, and stop sending recovery emails to accounts that have not set one yet. [#53323]
+
+## [0.29.2] - 2026-10-05
+### Changed
+- Internal updates.
+
+## [0.29.1] - 2026-09-28
+### Changed
+- Update dependencies. [#52691]
+
+### Fixed
+- Standalone mode: Avoid a fatal error for visitors on the IP block list. [#52682]
+- Standalone mode: Fix blank Jetpack admin pages when the bootstrap file points at an older copy of the plugin, and avoid a fatal error when that copy is gone. [#52539]
+
 ## [0.29.0] - 2026-09-01
 ### Removed
 - Minimum supported PHP version is now 7.4. [#51515]
@@ -570,6 +595,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.30.0]: https://github.com/Automattic/jetpack-waf/compare/v0.29.3...v0.30.0
+[0.29.3]: https://github.com/Automattic/jetpack-waf/compare/v0.29.2...v0.29.3
+[0.29.2]: https://github.com/Automattic/jetpack-waf/compare/v0.29.1...v0.29.2
+[0.29.1]: https://github.com/Automattic/jetpack-waf/compare/v0.29.0...v0.29.1
 [0.29.0]: https://github.com/Automattic/jetpack-waf/compare/v0.28.11...v0.29.0
 [0.28.11]: https://github.com/Automattic/jetpack-waf/compare/v0.28.10...v0.28.11
 [0.28.10]: https://github.com/Automattic/jetpack-waf/compare/v0.28.9...v0.28.10

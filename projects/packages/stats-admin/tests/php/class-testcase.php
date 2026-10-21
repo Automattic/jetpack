@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
 use ReflectionProperty;
@@ -32,6 +34,13 @@ abstract class TestCase extends PHPUnit_TestCase {
 	 * @var int
 	 */
 	protected $editor_id;
+
+	/**
+	 * Connection option override owned by the current test.
+	 *
+	 * @var \Closure|null
+	 */
+	private $connection_options_filter;
 
 	/**
 	 * Setting up the test.
@@ -68,6 +77,31 @@ abstract class TestCase extends PHPUnit_TestCase {
 		// outlive the mocked options and the cleared database.
 		( new Connection_Manager() )->reset_connection_status();
 		$this->reset_stats_options();
+		$this->reset_plan_caches();
+	}
+
+	/**
+	 * Present the site as Atomic, where wpcomsh answers feature checks from the site's purchases.
+	 */
+	protected function make_site_atomic() {
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->reset_plan_caches();
+	}
+
+	/**
+	 * Drop the plan and feature lists `Current_Plan` memoizes for the request.
+	 */
+	protected function reset_plan_caches() {
+		foreach ( array( 'active_plan_cache', 'atomic_site_specific_features' ) as $name ) {
+			$property = new ReflectionProperty( Current_Plan::class, $name );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$property->setValue( null, null );
+		}
+
+		$GLOBALS['wpcom_test_site_purchases'] = array( (object) array( 'product_slug' => 'personal-bundle' ) );
 	}
 
 	/**
@@ -88,6 +122,8 @@ abstract class TestCase extends PHPUnit_TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 		wp_set_current_user( 0 );
+		Constants::clear_single_constant( 'IS_ATOMIC' );
+		$this->reset_plan_caches();
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Posts::init()->clear_all_posts();
@@ -95,6 +131,9 @@ abstract class TestCase extends PHPUnit_TestCase {
 
 		remove_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+		if ( $this->connection_options_filter ) {
+			remove_filter( 'jetpack_options', $this->connection_options_filter );
+		}
 		delete_option( Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
 	}
 
@@ -111,14 +150,29 @@ abstract class TestCase extends PHPUnit_TestCase {
 	 */
 	protected function disconnect_site_keeping_blog_id() {
 		$this->disconnect_site();
-		add_filter(
-			'jetpack_options',
-			static function ( $value, $name ) {
-				return 'id' === $name ? '999' : $value;
-			},
-			10,
-			2
-		);
+		$this->connection_options_filter = static function ( $value, $name ) {
+			return 'id' === $name ? '999' : $value;
+		};
+		add_filter( 'jetpack_options', $this->connection_options_filter, 10, 2 );
+	}
+
+	/**
+	 * Replace the blog token with one that has no dot — no secret half — simulating an
+	 * administrator writing an invalid value directly into the options table.
+	 */
+	protected function use_invalid_blog_token() {
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
+		$this->connection_options_filter = static function ( $value, $name ) {
+			switch ( $name ) {
+				case 'blog_token':
+					return 'nodot-token';
+				case 'id':
+					return '999';
+			}
+			return $value;
+		};
+		add_filter( 'jetpack_options', $this->connection_options_filter, 10, 2 );
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**
@@ -161,6 +215,16 @@ abstract class TestCase extends PHPUnit_TestCase {
 					'message' => 'ok',
 				),
 				'body'     => '{"cache_buster": "calypso-4917-8664-g72a154d63a"}',
+			);
+		}
+
+		if ( strpos( $url, '/jetpack-stats-dashboard/notices' ) !== false && strpos( $url, 'include_details=true' ) !== false ) {
+			return array(
+				'response' => array(
+					'code'    => 200,
+					'message' => 'ok',
+				),
+				'body'     => '{"opt_in_new_stats":{"show":true,"status":null,"postponed_count":0,"next_show_at":null},"opt_out_new_stats":{"show":true,"status":null,"postponed_count":0,"next_show_at":null},"new_stats_feedback":{"show":false,"status":"postponed","postponed_count":1,"next_show_at":1788000000},"traffic_page_settings":{"show":false,"status":"dismissed","postponed_count":2,"next_show_at":null}}',
 			);
 		}
 

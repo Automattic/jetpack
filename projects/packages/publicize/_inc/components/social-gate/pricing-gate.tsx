@@ -5,10 +5,11 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
-import { Button, Card, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Button, Card, ButtonLink, Stack, Text } from '@wordpress/ui';
 import useProductInfo from '../../hooks/use-product-info';
 import { store as socialStore } from '../../social-store';
 import { getRefreshPlanQuery, getSocialScriptData } from '../../utils';
+import type { JSX } from 'react';
 
 const PAID_FEATURES = [
 	__( 'Schedule posts in advance', 'jetpack-publicize-pkg' ),
@@ -90,7 +91,7 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 							? __(
 									'Unlock scheduling, custom images, and more with a paid plan.',
 									'jetpack-publicize-pkg'
-							  )
+								)
 							: __( 'Unlock the full power of Jetpack Social.', 'jetpack-publicize-pkg' ) }
 					</p>
 					{ monthlyPrice != null && (
@@ -108,7 +109,7 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 									? __(
 											'per month for the first year, then billed yearly',
 											'jetpack-publicize-pkg'
-									  )
+										)
 									: __( 'per month, billed yearly', 'jetpack-publicize-pkg' ) }
 							</span>
 						</div>
@@ -134,9 +135,9 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 						) ) }
 					</Stack>
 					<Stack className="jetpack-social-gate__actions" direction="row" justify="center" gap="md">
-						<LinkButton variant="solid" href={ getSocialUrl }>
+						<ButtonLink variant="solid" href={ getSocialUrl }>
 							{ __( 'Get Social', 'jetpack-publicize-pkg' ) }
-						</LinkButton>
+						</ButtonLink>
 						<Button
 							variant="outline"
 							onClick={ onStartForFree }
@@ -150,7 +151,7 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 										'Start for free',
 										'Pricing page CTA for Social admin page',
 										'jetpack-publicize-pkg'
-								  ) }
+									) }
 						</Button>
 					</Stack>
 				</Card.Content>

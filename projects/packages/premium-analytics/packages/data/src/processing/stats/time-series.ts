@@ -1,24 +1,33 @@
-import { formatDatePartWithTime, getDatePart } from '@jetpack-premium-analytics/datetime';
+import {
+	formatDatePartWithTime,
+	getDatePart,
+	parseExactLabel,
+} from '@jetpack-premium-analytics/datetime';
 import {
 	endOfISOWeek,
 	endOfMonth,
 	endOfYear,
 	format,
-	isValid,
-	parse,
 	startOfISOWeek,
 	startOfMonth,
 	startOfYear,
 } from 'date-fns';
 import { safeParseFloat } from '../../utils/parsing';
-import { createStatsBucketWindowFilter, type StatsBucketFilter } from './bucket-window';
+import {
+	createStatsBucketWindowFilter,
+	isWallClockStamp,
+	type StatsBucketFilter,
+} from './bucket-window';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
+	DAY_END_TIME,
+	DAY_START_TIME,
 	getStatsIntervalFields,
 	normalizeStatsSummary,
 } from './utils';
 import type {
+	StatsIntervalFields,
 	StatsNormalizedDataPoint,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
@@ -37,7 +46,6 @@ export type StatsTimeSeriesReport = StatsNormalizedReport & {
 
 const nonMetricFields = [ 'period', 'time_interval', 'date', 'date_start', 'date_end', 'hour' ];
 const dateFormat = 'yyyy-MM-dd';
-const referenceDate = new Date( 2001, 0, 1 );
 
 function numericTimeSeriesRow( row: StatsRecord ) {
 	return Object.fromEntries(
@@ -117,8 +125,8 @@ function getPrimaryMetricValue( row: StatsRecord ) {
 function getDateFnsIntervalFields( startDate: Date, endDate: Date ) {
 	return {
 		time_interval: format( startDate, dateFormat ),
-		date_start: formatDatePartWithTime( format( startDate, dateFormat ), '00:00:00' ),
-		date_end: formatDatePartWithTime( format( endDate, dateFormat ), '23:59:59' ),
+		date_start: formatDatePartWithTime( format( startDate, dateFormat ), DAY_START_TIME ),
+		date_end: formatDatePartWithTime( format( endDate, dateFormat ), DAY_END_TIME ),
 	};
 }
 
@@ -130,9 +138,9 @@ function getWeekIntervalFields( period: string ) {
 	}
 
 	const normalizedPeriod = `${ match[ 1 ] }-W${ match[ 2 ].padStart( 2, '0' ) }`;
-	const parsed = parse( normalizedPeriod, "RRRR-'W'II", referenceDate );
+	const parsed = parseExactLabel( normalizedPeriod, "RRRR-'W'II" );
 
-	if ( ! isValid( parsed ) || format( parsed, "RRRR-'W'II" ) !== normalizedPeriod ) {
+	if ( ! parsed ) {
 		return null;
 	}
 
@@ -148,13 +156,9 @@ function getWpcomWeekIntervalFields( period: string ) {
 		return null;
 	}
 
-	const parsed = parse(
-		`${ match[ 1 ] }-${ match[ 2 ] }-${ match[ 3 ] }`,
-		'yyyy-MM-dd',
-		referenceDate
-	);
+	const parsed = parseExactLabel( `${ match[ 1 ] }-${ match[ 2 ] }-${ match[ 3 ] }`, dateFormat );
 
-	if ( ! isValid( parsed ) ) {
+	if ( ! parsed ) {
 		return null;
 	}
 
@@ -162,9 +166,9 @@ function getWpcomWeekIntervalFields( period: string ) {
 }
 
 function getMonthIntervalFields( period: string ) {
-	const parsed = parse( period, 'yyyy-MM', referenceDate );
+	const parsed = parseExactLabel( period, 'yyyy-MM' );
 
-	if ( ! isValid( parsed ) || format( parsed, 'yyyy-MM' ) !== period ) {
+	if ( ! parsed ) {
 		return null;
 	}
 
@@ -172,9 +176,9 @@ function getMonthIntervalFields( period: string ) {
 }
 
 function getYearIntervalFields( period: string ) {
-	const parsed = parse( period, 'yyyy', referenceDate );
+	const parsed = parseExactLabel( period, 'yyyy' );
 
-	if ( ! isValid( parsed ) || format( parsed, 'yyyy' ) !== period ) {
+	if ( ! parsed ) {
 		return null;
 	}
 
@@ -225,14 +229,6 @@ function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: strin
 		return getHourIntervalFields( rawPeriod, row.hour );
 	}
 
-	if ( typeof row.date_start === 'string' && typeof row.date_end === 'string' ) {
-		return {
-			time_interval: row.date_start,
-			date_start: row.date_start,
-			date_end: row.date_end,
-		};
-	}
-
 	if ( unit === 'hour' && typeof rawPeriod === 'string' ) {
 		const packed = rawPeriod.match( packedHourlyPeriod );
 
@@ -244,13 +240,30 @@ function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: strin
 	return getTimeSeriesIntervalFields( rawPeriod, unit );
 }
 
-// Rebuild a summary bound from a query date when no rows came back. Rows stamp
-// their bounds as timezone-naive wall times, so the query's own offset cannot be
-// passed through verbatim — it would be converted, not read as a label.
-function toSummaryBound( value: string | undefined, time: string ) {
+// Rows stamp their bounds as timezone-naive wall times, so the query's own offset
+// cannot be passed through verbatim — it would be converted, not read as a label.
+function toRangeBound( value: string | undefined, time: string ) {
 	const datePart = getDatePart( value );
 
 	return datePart ? formatDatePartWithTime( datePart, time ) : '';
+}
+
+// A week the requested range cuts through is stamped with the range's edge, so
+// no bucket claims a day outside it (UNI-842).
+function clipWeekToRange(
+	range: StatsIntervalFields,
+	start: string,
+	end: string
+): StatsIntervalFields {
+	if ( ! isWallClockStamp( range.date_start ) || ! isWallClockStamp( range.date_end ) ) {
+		return range;
+	}
+
+	return {
+		...range,
+		date_start: start && range.date_start < start ? start : range.date_start,
+		date_end: end && range.date_end > end ? end : range.date_end,
+	};
 }
 
 function getTimeSeriesSummarySidecars( response: StatsRecord ) {
@@ -262,23 +275,6 @@ function getTimeSeriesSummarySidecars( response: StatsRecord ) {
 	};
 }
 
-export function isStatsTimeSeriesPayload( payload: unknown ) {
-	const response = coerceStatsRecord( payload );
-
-	if (
-		coerceStatsArray( response.fields ).length ||
-		Object.keys( coerceStatsRecord( response.days ) ).length
-	) {
-		return true;
-	}
-
-	const firstRow = coerceStatsRecord( coerceStatsArray< StatsRecord >( response.data )[ 0 ] );
-
-	return Boolean(
-		firstRow.period || firstRow.time_interval || firstRow.date || firstRow.date_start
-	);
-}
-
 export function sanitizeStatsTimeSeriesResponse(
 	payload: unknown,
 	query?: StatsQueryParams,
@@ -286,10 +282,16 @@ export function sanitizeStatsTimeSeriesResponse(
 ): StatsTimeSeriesReport {
 	const response = coerceStatsRecord( payload );
 	const unit = String( response.unit ?? query?.period ?? 'day' );
+	const rangeStart = toRangeBound( query?.start_date, DAY_START_TIME );
+	const rangeEnd = toRangeBound( query?.end_date ?? query?.date, DAY_END_TIME );
 	const buckets = parseTimeSeriesRows( payload ).map( row => {
 		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
+		const range = getRowIntervalFields( row, rawPeriod, unit );
 
-		return { row, range: getRowIntervalFields( row, rawPeriod, unit ) };
+		return {
+			row,
+			range: unit === 'week' ? clipWeekToRange( range, rangeStart, rangeEnd ) : range,
+		};
 	} );
 	// Filter before the summary, so dropped buckets inflate neither the totals nor
 	// the chart. Only an endpoint-specific sanitizer supplies a filter.
@@ -325,8 +327,8 @@ export function sanitizeStatsTimeSeriesResponse(
 		summary: {
 			...getTimeSeriesSummarySidecars( response ),
 			...summary,
-			date_start: firstRow?.date_start ?? toSummaryBound( query?.start_date, '00:00:00' ),
-			date_end: lastRow?.date_end ?? toSummaryBound( query?.end_date ?? query?.date, '23:59:59' ),
+			date_start: firstRow?.date_start ?? rangeStart,
+			date_end: lastRow?.date_end ?? rangeEnd,
 		},
 		data,
 	};

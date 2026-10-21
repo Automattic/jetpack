@@ -12,17 +12,20 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Error_Handler as Connection_Error_Handler;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\ExPlat;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Menu_Badges\Menu_Badges;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Partner_Coupon;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host as Status_Host;
@@ -30,6 +33,7 @@ use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 use Jetpack;
 use WP_Error;
 
@@ -43,7 +47,55 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.1.0';
+	const PACKAGE_VERSION = '6.12.0';
+
+	/**
+	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
+	 */
+	const ONBOARDING_WIZARD_FEATURE_FLAG = 'my-jetpack-onboarding-wizard';
+
+	/**
+	 * User option recording that this user chose to skip setup.
+	 *
+	 * Per user rather than per site, because skipping is one person saying "not
+	 * now": a second admin arriving at a site nobody has set up should still be
+	 * offered the flow. Finishing it is the site-wide fact, and that is
+	 * ONBOARDING_COMPLETED_OPTION.
+	 *
+	 * A user option rather than plain user meta: `wp_usermeta` is network-wide, so
+	 * without the blog prefix a skip on one site would silence setup on all of them.
+	 */
+	const ONBOARDING_DISMISSED_USER_OPTION = 'jetpack_my_jetpack_onboarding_dismissed';
+
+	/**
+	 * Option recording that someone has finished setup on this site.
+	 *
+	 * Site-wide, because the flow connects the site and switches modules on, so a
+	 * second admin does not need it again. Deliberately not autoloaded.
+	 */
+	const ONBOARDING_COMPLETED_OPTION = 'jetpack_my_jetpack_onboarding_completed';
+
+	/**
+	 * Handle for the classic script that carries the React initial state.
+	 *
+	 * Plugins that render My Jetpack components on their own pages (Boost) depend on this name.
+	 */
+	const DATA_SCRIPT_HANDLE = 'my_jetpack_main_app';
+
+	/**
+	 * Handle for the webpack bundle that renders the onboarding takeover.
+	 */
+	const ONBOARDING_SCRIPT_HANDLE = 'my_jetpack_onboarding';
+
+	/**
+	 * Handle for the webpack bundle that gives dashboards outside My Jetpack the shared header's controls.
+	 */
+	const HEADER_CONTROLS_SCRIPT_HANDLE = 'my-jetpack-header-controls';
+
+	/**
+	 * The wp-build page ID, which the generated enqueue check expects as the screen ID.
+	 */
+	const WP_BUILD_PAGE_ID = 'my-jetpack-dashboard';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -59,9 +111,38 @@ class Initializer {
 		'jetpack-social',
 		'jetpack-videopress',
 		'jetpack-search',
+		'jetpack-stats',
 	);
 
 	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
+
+	/**
+	 * Feature flag for connecting the WordPress.com account from a Features card that needs one.
+	 *
+	 * @var string
+	 */
+	public const ACCOUNT_CONNECT_FLAG = 'my-jetpack-account-connect';
+
+	/**
+	 * Feature flag for the shared header's global controls.
+	 *
+	 * @var string
+	 */
+	public const HEADER_CONTROLS_FLAG = 'my-jetpack-header-controls';
+
+	/**
+	 * Feature flag for Overview v1.
+	 *
+	 * @var string
+	 */
+	public const OVERVIEW_V1_FLAG = 'my-jetpack-overview-v1';
+
+	/**
+	 * Feature flag for sending classic Modules links to Features.
+	 *
+	 * @var string
+	 */
+	public const MODULES_TO_FEATURES_FLAG = 'my-jetpack-modules-to-features';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -71,14 +152,43 @@ class Initializer {
 	public static $site_info;
 
 	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
+
+	/**
 	 * Initialize My Jetpack
 	 *
 	 * @return void
 	 */
 	public static function init() {
+		self::register_feature_flags();
+
+		// Before the gate: the Jetpack plugin renders this package's connection screen and footer
+		// links even where My Jetpack is off, and `myJetpackInitialState` only exists on its own page.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_admin_script_data' ) );
+		add_action( 'admin_head', array( __CLASS__, 'print_modules_fallback' ) );
+
 		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
 		}
+
+		if ( self::is_offline_features_enabled() ) {
+			add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );
+			Connection_Rest_Authentication::init();
+			add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'use_local_module_options' ), 10, 3 );
+			add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'restore_module_options' ), 10, 3 );
+			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
+			add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+			add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
+			do_action( 'my_jetpack_init' );
+			return;
+		}
+
+		// Answer "is this product on?" for admin menu registration.
+		Menu_Visibility::init();
 
 		// Extend jetpack plugins action links.
 		Products::extend_plugins_action_links();
@@ -96,9 +206,19 @@ class Initializer {
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
+		// Both of wp-build's deadlines fall later in this request: its enqueue check must be
+		// hooked before `admin_enqueue_scripts`, and its render function defined before
+		// the page callback.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
+
+		// Nothing else gets to talk over the takeover. See both methods for why it
+		// takes two hooks rather than one.
+		add_action( 'in_admin_header', array( __CLASS__, 'silence_onboarding_notices' ), PHP_INT_MAX );
+		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_onboarding_jitms' ), 10, 2 );
 		// Registered on admin_menu (not admin_init) and well before priority 100000, so the
 		// counts it registers exist before the menu-badges renderer runs on admin_menu 100000.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_show_red_bubble' ), 30 );
@@ -118,6 +238,40 @@ class Initializer {
 		 * @since 0.1.0
 		 */
 		do_action( 'my_jetpack_init' );
+	}
+
+	/**
+	 * Keep uncached module-list options local on the offline route.
+	 *
+	 * @since 6.10.0
+	 * @param mixed            $response Response before the callback.
+	 * @param array            $handler  Route handler.
+	 * @param \WP_REST_Request $request  REST request.
+	 * @return mixed
+	 */
+	public static function use_local_module_options( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress REST filter signature.
+		if ( '/jetpack/v4/module/all' === $request->get_route() ) {
+			add_filter( 'default_option_monitor_receive_notifications', '__return_false' );
+			add_filter( 'default_option_post_by_email_address' . get_current_user_id(), '__return_false' );
+		}
+		return $response;
+	}
+
+	/**
+	 * Restore normal option reads after the offline module-list callback.
+	 *
+	 * @since 6.10.0
+	 * @param mixed            $response Response after the callback.
+	 * @param array            $handler  Route handler.
+	 * @param \WP_REST_Request $request  REST request.
+	 * @return mixed
+	 */
+	public static function restore_module_options( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress REST filter signature.
+		if ( '/jetpack/v4/module/all' === $request->get_route() ) {
+			remove_filter( 'default_option_monitor_receive_notifications', '__return_false' );
+			remove_filter( 'default_option_post_by_email_address' . get_current_user_id(), '__return_false' );
+		}
+		return $response;
 	}
 
 	/**
@@ -159,15 +313,34 @@ class Initializer {
 	 * @return void
 	 */
 	public static function add_my_jetpack_menu_item() {
+		if ( self::is_offline_features_enabled() && ! self::current_user_can_access_page() ) {
+			return;
+		}
+
+		$position    = defined( Admin_Menu::class . '::POSITION_FIRST' ) ? Admin_Menu::POSITION_FIRST : -10;
+		$menu_slug   = 'my-jetpack';
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			'edit_posts',
-			'my-jetpack',
+			$menu_slug,
 			array( __CLASS__, 'admin_page' ),
-			-1
+			$position
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		// Users who can edit posts but have no Jetpack menu get an admin_page_ hook instead.
+		add_action( 'load-admin_page_' . $menu_slug, array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
+	 * Whether the current user may access the page selected by My Jetpack.
+	 *
+	 * @since 6.10.0
+	 * @return bool
+	 */
+	public static function current_user_can_access_page() {
+		return current_user_can( 'edit_posts' )
+			&& ( ! self::is_offline_features_enabled() || REST_Main_Features::permissions_callback() );
 	}
 
 	/**
@@ -176,33 +349,18 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
-		$connection = new Connection_Manager();
+		if ( self::is_offline_features_enabled() ) {
+			if ( ! self::current_user_can_access_page() ) {
+				wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack-my-jetpack' ), 403 );
+			}
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+			return;
+		}
+
+		self::maybe_redirect_to_onboarding();
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Checking for partner coupon redemption flow
-		$show_coupon_redemption = isset( $_GET['showCouponRedemption'] );
-
-		// Redirect to Jetpack dashboard for partner coupon redemption
-		if ( $show_coupon_redemption ) {
-			wp_safe_redirect( admin_url( 'admin.php?page=jetpack&showCouponRedemption=1#/dashboard' ) );
-			exit( 0 );
-		}
-
-		// Handle onboarding redirects based on connection status
-		$redirect_args = self::get_onboarding_redirect_args( $step, $connection->is_connected(), self::is_onboarding_available() );
-
-		if ( null !== $redirect_args ) {
-			$admin_page = add_query_arg( $redirect_args, admin_url( 'admin.php' ) );
-			$location   = wp_sanitize_redirect( $admin_page );
-
-			// Remove wp_get_referer filter applied in `fix_redirect` method of `Jetpack_Admin` class
-			remove_filter( 'wp_redirect', 'wp_get_referer' );
-			wp_safe_redirect( $location );
-
-			exit( 0 );
-		}
 
 		// If the user reaches the onboarding page, add a class to the body
 		if ( $step === 'onboarding' ) {
@@ -215,18 +373,130 @@ class Initializer {
 	}
 
 	/**
+	 * Whether this user has already settled setup, one way or the other.
+	 *
+	 * Two separate facts. Finishing is site-wide: the wizard connects the site and
+	 * switches modules on, so once it is done nobody needs the takeover again.
+	 * Skipping is this person saying "not now", and it must not answer for the next
+	 * admin who arrives at a site nobody has set up.
+	 *
+	 * @internal Not part of the package's public API.
+	 *
+	 * @return bool
+	 */
+	public static function is_onboarding_settled() {
+		if ( get_option( self::ONBOARDING_COMPLETED_OPTION, false ) ) {
+			return true;
+		}
+
+		return (bool) get_user_option( self::ONBOARDING_DISMISSED_USER_OPTION );
+	}
+
+	/**
+	 * Send the user into setup when they land on My Jetpack without one.
+	 *
+	 * Runs from My Jetpack's own page load, which nothing but a request for that page
+	 * reaches and which fires before any output, so it needs no guards of its own.
+	 *
+	 * @return void
+	 */
+	public static function maybe_redirect_to_onboarding() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
+		$step          = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
+		$redirect_args = self::get_onboarding_redirect_args_for_step( $step );
+
+		if ( null === $redirect_args ) {
+			return;
+		}
+
+		$location = wp_sanitize_redirect( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) );
+
+		// Remove wp_get_referer filter applied in `fix_redirect` method of `Jetpack_Admin` class
+		remove_filter( 'wp_redirect', 'wp_get_referer' );
+		wp_safe_redirect( $location );
+
+		exit( 0 );
+	}
+
+	/**
+	 * Get the setup redirect for the current user and site at the requested step.
+	 *
+	 * @param string $step The requested setup step, or empty for the dashboard.
+	 * @return array|null Query args for the redirect, or null to stay on the page.
+	 */
+	private static function get_onboarding_redirect_args_for_step( $step ) {
+		$wizard_enabled = self::is_onboarding_wizard_enabled();
+		$connection     = new Connection_Manager();
+
+		// Only the wizard connects a user, so only it may count a site-only connection as
+		// unfinished setup. The single screen can only register the site, so asking it for
+		// an owner leaves that site on a screen with no way back out.
+		$connection_done = $wizard_enabled ? $connection->has_connected_owner() : $connection->is_connected();
+
+		// Onboarding's only action is the connect request, which answers a user
+		// without `jetpack_connect` with a 403.
+		return self::get_onboarding_redirect_args(
+			$step,
+			$connection_done,
+			self::is_onboarding_available() && current_user_can( 'jetpack_connect' ),
+			$wizard_enabled,
+			// Only the wizard records a settled run, and only a registered site may act on one:
+			// My Jetpack requires the site connection that accepting the terms creates.
+			$wizard_enabled && $connection->is_connected() && self::is_onboarding_settled()
+		);
+	}
+
+	/**
 	 * Whether the My Jetpack onboarding flow is available on this site.
 	 *
 	 * WordPress.com Simple sites are connected by definition and don't manage their
 	 * connection through My Jetpack, so the onboarding flow (which asks the user to
-	 * connect) never applies there.
+	 * connect) never applies there. A pending partner coupon brings its own connect screen.
 	 *
 	 * @internal Not part of the package's public API.
 	 *
 	 * @return bool
 	 */
 	public static function is_onboarding_available() {
-		return ! ( new Status_Host() )->is_wpcom_simple();
+		if ( self::is_offline_features_enabled() ) {
+			return false;
+		}
+		return ! ( new Status_Host() )->is_wpcom_simple() && null === self::get_partner_coupon_screen();
+	}
+
+	/**
+	 * The partner coupon screen's data, when it should replace the dashboard.
+	 *
+	 * Coupons exist only with the Jetpack plugin, which supplies their products and images.
+	 *
+	 * @since 6.5.0
+	 *
+	 * @return array{coupon: array, assetBaseUrl: string}|null
+	 */
+	public static function get_partner_coupon_screen() {
+		if (
+			self::is_offline_features_enabled()
+			|| ! self::should_initialize()
+			|| ! current_user_can( 'manage_options' )
+			|| ! Jetpack_Constants::is_defined( 'JETPACK__PLUGIN_FILE' )
+		) {
+			return null;
+		}
+
+		$coupon = Partner_Coupon::get_coupon();
+		if ( ! $coupon ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks which screen renders.
+		if ( ! isset( $_GET['showCouponRedemption'] ) && ( new Connection_Manager() )->has_connected_owner() ) {
+			return null;
+		}
+
+		return array(
+			'coupon'       => $coupon,
+			'assetBaseUrl' => plugins_url( '', Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+		);
 	}
 
 	/**
@@ -235,25 +505,81 @@ class Initializer {
 	 * @internal Not part of the package's public API.
 	 *
 	 * @param string $step                 The current `step` query param.
-	 * @param bool   $is_connected         Whether the site is connected to WordPress.com.
+	 * @param bool   $connection_done      Whether the connection the takeover asks for is in place:
+	 *                                     a connected owner with the wizard, a connected site without it.
 	 * @param bool   $onboarding_available Whether the onboarding flow is available on this site.
+	 * @param bool   $wizard_enabled       Whether the takeover renders the setup wizard.
+	 * @param bool   $is_settled           Whether this user has already finished or skipped setup.
 	 * @return array|null Query args for the redirect, or null to stay on the current page.
 	 */
-	public static function get_onboarding_redirect_args( $step, $is_connected, $onboarding_available ) {
-		if ( $onboarding_available && ! $is_connected && $step !== 'onboarding' ) {
-			// Redirect to onboarding if not connected
+	public static function get_onboarding_redirect_args( $step, $connection_done, $onboarding_available, $wizard_enabled = false, $is_settled = false ) {
+		/*
+		 * Only the automatic redirect is suppressed once setup is settled. Asking for
+		 * the onboarding page by its own URL still works, so someone who skipped can
+		 * go back to it, and so can a second admin the site-wide flag does not cover.
+		 */
+		if ( $onboarding_available && ! $connection_done && ! $is_settled && $step !== 'onboarding' ) {
+			// The connection setup asks for is not in place, so setup is unfinished.
 			return array(
 				'page' => 'my-jetpack',
 				'step' => 'onboarding',
 			);
 		}
 
-		if ( $step === 'onboarding' && ( ! $onboarding_available || $is_connected ) ) {
-			// Redirect away from onboarding if already connected or onboarding is not available on this site
+		// The wizard connects mid-flow: the user authorizes on WordPress.com and is sent
+		// back here to finish setup, so arriving connected is not the same as finishing.
+		if ( $step === 'onboarding' && $connection_done && $onboarding_available && $wizard_enabled ) {
+			return null;
+		}
+
+		if ( $step === 'onboarding' && ( ! $onboarding_available || $connection_done ) ) {
+			// Nothing left to set up here, or onboarding does not apply on this site.
 			return array( 'page' => 'my-jetpack' );
 		}
 
 		return null;
+	}
+
+	/**
+	 * Empty the notice channels while the takeover is on screen.
+	 *
+	 * The takeover hides `.notice`, `.error` and `.updated` in CSS, which only
+	 * catches notices that use WordPress's own classes. Plenty do not, and a plugin
+	 * announcing itself in its own markup lands on top of a full-screen flow that
+	 * has no way to scroll past it.
+	 *
+	 * On `in_admin_header`, the last hook before `admin-header.php` prints notices,
+	 * so a notice registered late is caught too.
+	 *
+	 * @return void
+	 */
+	public static function silence_onboarding_notices() {
+		if ( ! self::is_onboarding_request() ) {
+			return;
+		}
+
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
+		remove_all_actions( 'network_admin_notices' );
+		remove_all_actions( 'user_admin_notices' );
+	}
+
+	/**
+	 * Keep Just In Time Messages off the takeover.
+	 *
+	 * Emptying the notice channels above would also drop the JITM, since that is how
+	 * it renders, but only after it has enqueued its script and stylesheet. This is
+	 * the package's own opt-out and it runs before any of that.
+	 *
+	 * The screen id cannot answer this on its own: the takeover and the My Jetpack
+	 * dashboard are the same screen, and only the query arg separates them.
+	 *
+	 * @param bool   $show      Whether to show JITMs on this screen.
+	 * @param string $screen_id The current screen's id.
+	 * @return bool
+	 */
+	public static function hide_onboarding_jitms( $show, $screen_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Required by the filter signature.
+		return self::is_onboarding_request() ? false : $show;
 	}
 
 	/**
@@ -264,7 +590,7 @@ class Initializer {
 	 * @return string The modified body classes.
 	 */
 	public static function add_onboarding_admin_body_class( $classes ) {
-		$classes .= 'jetpack-admin-full-screen';
+		$classes .= ' jetpack-admin-full-screen';
 		return $classes;
 	}
 
@@ -281,26 +607,252 @@ class Initializer {
 	}
 
 	/**
-	 * Register polyfills for the wp-notices / wp-private-apis / wp-rich-text / wp-theme
-	 * handles the My Jetpack app bundle depends on but WP < 7.0 does not ship (or ships
-	 * with an incomplete allowlist).
+	 * Whether the onboarding takeover renders the setup wizard.
 	 *
-	 * `wp-rich-text` is needed because the bundle reaches `@wordpress/dataviews` (via
-	 * `@wordpress/ui`), whose dataform controls unlock rich-text's `privateApis` at module
-	 * scope. WP 6.9 exports none, so without the polyfill the bundle throws "Cannot unlock
-	 * an undefined object" and the page renders blank.
+	 * Self-hosted only. On WordPress.com the platform owns the connection and nobody chose
+	 * to install Jetpack, so a screen inviting them to start with it and connect an account
+	 * does not apply. `is_wpcom_platform()` covers Simple and WordPress.com on Atomic, and
+	 * requires wpcomsh, so other Atomic-hosted products still count as self-hosted here.
+	 *
+	 * @since 6.11.0
+	 *
+	 * @return bool
+	 */
+	public static function is_onboarding_wizard_enabled() {
+		if ( ( new Status_Host() )->is_wpcom_platform() ) {
+			return false;
+		}
+
+		if ( ! Feature_Flags::is_enabled( self::ONBOARDING_WIZARD_FEATURE_FLAG ) ) {
+			return false;
+		}
+
+		// The wizard registers the site at its own first step, which writes the marker
+		// below, so asking again on the way back from WordPress.com would drop someone
+		// out of a run already under way.
+		if ( ( new Connection_Manager() )->is_connected() ) {
+			return true;
+		}
+
+		return self::has_never_registered_jetpack();
+	}
+
+	/**
+	 * Whether the Jetpack plugin has never registered this site.
+	 *
+	 * `unique_registrations` is written on `jetpack_site_registered` by the Jetpack plugin
+	 * alone, so a site that has only ever run a standalone plugin still reads as new here.
+	 *
+	 * @internal Not part of the package's public API.
+	 *
+	 * @since 6.11.0
+	 *
+	 * @return bool
+	 */
+	public static function has_never_registered_jetpack() {
+		return ! \Jetpack_Options::get_option( 'unique_registrations' );
+	}
+
+	/**
+	 * The wizard's configuration, or null while the takeover stays on its single screen.
+	 *
+	 * @since 6.11.0
+	 *
+	 * @return array{exitUrl: string, dashboardUrl: string}|null
+	 */
+	public static function get_onboarding_wizard_state() {
+		if ( ! self::is_onboarding_wizard_enabled() ) {
+			return null;
+		}
+
+		return array(
+			// Where skipping the wizard lands: the admin menu is hidden, so leaving is always one click.
+			'exitUrl'      => admin_url( 'admin.php?page=my-jetpack' ),
+			// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
+			'dashboardUrl' => admin_url(),
+		);
+	}
+
+	/**
+	 * Whether the current request targets the My Jetpack admin page.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @return bool
+	 */
+	public static function is_my_jetpack_admin_request() {
+		if ( ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		return sanitize_text_field( wp_unslash( $_GET['page'] ) ) === 'my-jetpack'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Whether the current request is the full-viewport onboarding takeover.
+	 *
+	 * Onboarding hides all wp-admin chrome and never renders through wp-build. The page
+	 * is part of the question: `in_admin_header` and the JITM filter run everywhere.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @return bool
+	 */
+	public static function is_onboarding_request() {
+		if ( ! self::is_my_jetpack_admin_request() ) {
+			return false;
+		}
+
+		if ( ! isset( $_GET['step'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		return sanitize_text_field( wp_unslash( $_GET['step'] ) ) === 'onboarding'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Whether this request is the onboarding takeover rather than the dashboard.
+	 *
+	 * Loading wp-build, enqueueing scripts and rendering the page must all agree,
+	 * so they share this one expression.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @return bool
+	 */
+	public static function is_onboarding_takeover() {
+		return self::is_onboarding_request() && self::is_onboarding_available();
+	}
+
+	/**
+	 * Alias the screen ID to satisfy wp-build's generated enqueue check.
+	 *
+	 * @since 6.3.0
 	 *
 	 * @return void
 	 */
-	public static function register_wp_build_polyfills() {
-		if ( ! class_exists( WP_Build_Polyfills::class ) ) {
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+
+		if ( ! $screen ) {
 			return;
+		}
+
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = self::WP_BUILD_PAGE_ID;
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), since JITM builds its message path from the screen ID.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Whether this request should load wp-build at all.
+	 *
+	 * Also what keeps WP_Build_Polyfills from replacing core scripts on every other admin page.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @return bool
+	 */
+	public static function should_load_wp_build() {
+		return self::is_my_jetpack_admin_request() && ! self::is_onboarding_takeover();
+	}
+
+	/**
+	 * Whether this request renders the dashboard through wp-build.
+	 *
+	 * The generated render function is missing where the package was never built.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @return bool
+	 */
+	public static function should_render_wp_build() {
+		return ! self::is_onboarding_takeover()
+			&& function_exists( 'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page' );
+	}
+
+	/**
+	 * Load wp-build for the My Jetpack dashboard.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		if ( ! self::should_load_wp_build() ) {
+			return;
+		}
+
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+
+		if ( file_exists( $build_index ) ) {
+			self::load_wp_build( $build_index );
+		}
+	}
+
+	/**
+	 * Require the generated wp-build index and wire it into this request.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @param string $build_index Path to the generated `build.php`.
+	 * @return void
+	 */
+	public static function load_wp_build( $build_index ) {
+		self::require_wp_build_with_screen_alias( $build_index );
+
+		// wp-build hooks module registration to wp_default_scripts, which has
+		// already fired by admin_menu — call it directly or the init module
+		// never reaches the import map.
+		if ( function_exists( 'jetpack_my_jetpack_register_script_modules' ) ) {
+			jetpack_my_jetpack_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
 		}
 
 		WP_Build_Polyfills::register(
 			'my-jetpack',
-			array( 'wp-notices', 'wp-private-apis', 'wp-rich-text', 'wp-theme' )
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
 		);
+	}
+
+	/**
+	 * Require the generated build file with the screen ID aliased across its enqueue check.
+	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @param string $build_index Path to the generated `build.php`.
+	 * @return void
+	 */
+	private static function require_wp_build_with_screen_alias( $build_index ) {
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () use ( $build_index ) {
+					require_once $build_index;
+				}
+			);
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		require_once $build_index;
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
 	}
 
 	/**
@@ -309,12 +861,39 @@ class Initializer {
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
-		// Register the wp-build-polyfills shim before the extension hook below or
-		// the app script can enqueue against wp-theme / wp-private-apis / wp-notices.
-		// WP_Build_Polyfills registers synchronously on its first caller, so calling
-		// it after a hook consumer would leave our handles recorded but unregistered
-		// for this request.
-		self::register_wp_build_polyfills();
+		if ( self::is_offline_features_enabled() ) {
+			$data_handle = self::DATA_SCRIPT_HANDLE;
+			wp_register_script( $data_handle, false, array(), self::PACKAGE_VERSION, true );
+			wp_enqueue_script( $data_handle );
+			add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
+			wp_localize_script(
+				$data_handle,
+				'myJetpackInitialState',
+				array(
+					'isOfflineFeatures'     => true,
+					'products'              => array( 'items' => array() ),
+					'adminUrl'              => esc_url( admin_url() ),
+					'assetsUrl'             => self::get_assets_url(),
+					'isJetpackPluginActive' => class_exists( 'Jetpack' ),
+					'hiddenFeatures'        => Feature_Visibility::get_hidden(),
+					'deprecatedModules'     => Feature_Visibility::get_deprecated_modules(),
+					'myJetpackFlags'        => self::get_my_jetpack_flags(),
+				)
+			);
+			wp_localize_script(
+				$data_handle,
+				'myJetpackRest',
+				array(
+					'apiRoot'  => esc_url_raw( rest_url() ),
+					'apiNonce' => wp_create_nonce( 'wp_rest' ),
+				)
+			);
+			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
+			self::maybe_enqueue_header_controls_script();
+			return;
+		}
 
 		/**
 		 * Fires after the My Jetpack page is initialized.
@@ -324,16 +903,30 @@ class Initializer {
 		 */
 		do_action( 'myjetpack_enqueue_scripts' );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
-		Assets::register_script(
-			'my_jetpack_main_app',
-			'../build/index.js',
-			__FILE__,
-			array(
-				'enqueue'    => true,
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-my-jetpack',
-			)
-		);
+
+		// Script-less: it only prints the state below, before the dashboard's boot runs on DOMContentLoaded.
+		$data_handle = self::DATA_SCRIPT_HANDLE;
+		wp_register_script( $data_handle, false, array(), self::PACKAGE_VERSION, true );
+		wp_enqueue_script( $data_handle );
+		self::maybe_enqueue_header_controls_script();
+
+		if ( self::is_my_jetpack_admin_request() && self::is_onboarding_takeover() ) {
+			Assets::register_script(
+				self::ONBOARDING_SCRIPT_HANDLE,
+				'../build/onboarding.js',
+				__FILE__,
+				array(
+					'dependencies' => array( $data_handle ),
+					'enqueue'      => true,
+					'in_footer'    => true,
+					'textdomain'   => 'jetpack-my-jetpack',
+				)
+			);
+		} elseif ( self::should_render_wp_build() && wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			// Registered on every admin page but only enqueued when depended on; the esbuild bundles don't pull it in.
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
+		}
+
 		$modules             = new Modules();
 		$connection          = new Connection_Manager();
 		$speed_score_history = new Speed_Score_History( get_site_url() );
@@ -352,12 +945,16 @@ class Initializer {
 		}
 
 		wp_localize_script(
-			'my_jetpack_main_app',
+			$data_handle,
 			'myJetpackInitialState',
 			array(
 				'products'               => array(
 					'items' => Products::get_products(),
 				),
+				'mainFeatures'           => Main_Features::get_state(),
+				'featuresBanner'         => array( 'isDismissed' => REST_Main_Features::is_banner_dismissed() ),
+				'onboardingWizard'       => self::get_onboarding_wizard_state(),
+				'header'                 => self::get_header_state(),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
@@ -371,6 +968,7 @@ class Initializer {
 				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
 				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
 				'adminUrl'               => esc_url( admin_url() ),
+				'assetsUrl'              => self::get_assets_url(),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				'lifecycleStats'         => array(
@@ -388,17 +986,21 @@ class Initializer {
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'canUserViewStats'       => current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ),
+				'hiddenFeatures'         => Feature_Visibility::get_hidden(),
+				'deprecatedModules'      => Feature_Visibility::get_deprecated_modules(),
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'isJetpackPluginActive'  => class_exists( 'Jetpack' ),
 				'latestBoostSpeedScores' => $latest_score,
 				'seoOptIn'               => self::get_seo_opt_in_state(),
+				'protectPageModuleUrls'  => (object) Products\Protect::get_protect_page_module_urls(),
+				'partnerCoupon'          => self::get_partner_coupon_screen(),
 			)
 		);
 
 		wp_localize_script(
-			'my_jetpack_main_app',
+			$data_handle,
 			'myJetpackRest',
 			array(
 				'apiRoot'  => esc_url_raw( rest_url() ),
@@ -407,12 +1009,26 @@ class Initializer {
 		);
 
 		// Connection Initial State.
-		Connection_Initial_State::render_script( 'my_jetpack_main_app' );
+		Connection_Initial_State::render_script( $data_handle );
 
 		// Required for Analytics.
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * What the shared header needs beyond the rest of the state, so it renders without a request.
+	 *
+	 * @since 6.10.0
+	 *
+	 * @return array{connectorsUrl: string|null} The state.
+	 */
+	public static function get_header_state() {
+		return array(
+			// The same probe the connection package uses: the core screen ships with WordPress 7.0.
+			'connectorsUrl' => file_exists( ABSPATH . 'wp-admin/options-connectors.php' ) ? admin_url( 'options-connectors.php' ) : null,
+		);
 	}
 
 	/**
@@ -422,7 +1038,7 @@ class Initializer {
 	 * @return array
 	 */
 	public static function add_script_data( $data ) {
-		$block_availability = class_exists( '\Jetpack_Gutenberg' )
+		$block_availability = ! self::is_offline_features_enabled() && class_exists( '\Jetpack_Gutenberg' )
 			? \Jetpack_Gutenberg::get_cached_availability()
 			: array();
 
@@ -430,10 +1046,278 @@ class Initializer {
 			'isBlockTheme'            => function_exists( 'wp_is_block_theme' ) && wp_is_block_theme(),
 			'isSharingBlockAvailable' => isset( $block_availability['sharing-buttons'] )
 				&& $block_availability['sharing-buttons']['available'],
+			'isLikeBlockAvailable'    => isset( $block_availability['like'] )
+				&& $block_availability['like']['available'],
 			'activeThemeStylesheet'   => get_stylesheet(),
 		);
 
 		return $data;
+	}
+
+	/**
+	 * Whether module management can use the REST API.
+	 *
+	 * @since 6.11.0
+	 * @return bool
+	 */
+	public static function is_modules_rest_api_enabled() {
+		/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+		$enabled = apply_filters( 'rest_enabled', true );
+		$user    = wp_get_current_user();
+		$auth    = false;
+		// Passing true skips WordPress's nonce check, which would sign the user out; restore the user if another filter clears it.
+		try {
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			$auth = apply_filters( 'rest_authentication_errors', true );
+		} finally {
+			wp_set_current_user( $user->ID );
+		}
+		return $enabled && ! is_wp_error( $enabled ) && false !== $auth && ! is_wp_error( $auth );
+	}
+
+	/**
+	 * Get a Features management link with a classic Modules fallback.
+	 *
+	 * @since 6.11.0
+	 * @param array     $args     Query arguments from a classic Modules screen link; only `s` and `module_tag` can carry over to Features.
+	 * @param bool|null $eligible Set to true when the URL points at the Features tab, false when it is the classic Modules screen.
+	 * @return string The management URL.
+	 */
+	public static function get_modules_management_url( $args = array(), &$eligible = null ) {
+		$eligible = false;
+		/**
+		 * Filters whether links to the classic Modules screen may send people to the Features tab in My Jetpack instead.
+		 *
+		 * @since 6.11.0
+		 * @param bool $available True to allow the Features tab; false keeps the classic Modules screen, for a host where My Jetpack is not shown.
+		 */
+		$available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
+		$available = $available && self::is_modules_to_features_enabled();
+		$classic   = add_query_arg( array_merge( urlencode_deep( $args ), array( 'page' => 'jetpack_modules' ) ), admin_url( 'admin.php' ) );
+		if (
+			! $available
+			|| array_diff( array_keys( $args ), array( 's', 'module_tag' ) )
+			|| array_filter( $args, 'is_string' ) !== $args
+			// Keep links on Modules unless Features can show controls for this installation.
+			|| Main_Features::PLUGIN_ACTIVE !== Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG )
+			|| ! current_user_can( 'jetpack_manage_modules' )
+			|| ! current_user_can( 'manage_options' )
+			|| ! self::current_user_can_access_page()
+			|| ( new Status() )->is_offline_mode()
+			|| ( new Status_Host() )->is_wpcom_simple()
+			|| is_network_admin()
+			|| ! self::should_initialize()
+			|| ! ( new Connection_Manager() )->is_connected()
+			|| null !== self::get_partner_coupon_screen()
+			// Predict My Jetpack's setup redirect for a Features URL with no step; keep both decisions in sync.
+			|| null !== self::get_onboarding_redirect_args_for_step( '' )
+			|| ! self::is_modules_rest_api_enabled()
+		) {
+			return $classic;
+		}
+
+		if ( isset( $args['module_tag'] ) && '' !== $args['module_tag'] ) {
+			if ( ! function_exists( 'jetpack_get_module_i18n_tag' ) ) {
+				return $classic;
+			}
+			$known      = array();
+			$modules    = new Modules();
+			$hidden     = Main_Features::get_hidden_modules();
+			$deprecated = Feature_Visibility::get_deprecated_modules();
+			foreach ( $modules->get_available() as $slug ) {
+				if ( in_array( $slug, $hidden, true ) || ( in_array( $slug, $deprecated, true ) && ! $modules->is_active( $slug ) ) ) {
+					continue;
+				}
+				$module = $modules->get( $slug );
+				$known  = array_merge( $known, $module['module_tags'] ?? array() );
+			}
+			$known = array_map( array( Jetpack::class, 'translate_module_tag' ), $known );
+			if ( ! in_array( $args['module_tag'], $known, true ) ) {
+				return $classic;
+			}
+		}
+
+		if ( isset( $args['s'] ) && '' !== $args['s'] ) {
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
+			$hidden        = Main_Features::get_hidden_modules();
+			$deprecated    = Feature_Visibility::get_deprecated_modules();
+			$hidden_match  = false;
+			$visible_match = false;
+			foreach ( Jetpack::get_translated_modules( \Jetpack_Admin::init()->get_modules() ) as $slug => $module ) {
+				if ( ! empty( $args['module_tag'] ) && ! in_array( $args['module_tag'], $module['module_tags'], true ) ) {
+					continue;
+				}
+				$text  = $module['name'] . ' ' . $module['description'] . ' ' . $module['long_description'] . ' ' . $module['search_terms'] . ' ' . implode( ',', $module['module_tags'] );
+				$match = function_exists( 'mb_stripos' ) ? mb_stripos( $text, $args['s'] ) : stripos( $text, $args['s'] );
+				if ( false === $match ) {
+					continue;
+				}
+				if ( in_array( $slug, $hidden, true ) || ( in_array( $slug, $deprecated, true ) && ! $module['activated'] ) ) {
+					$hidden_match = true;
+				} else {
+					$visible_match = true;
+					break;
+				}
+			}
+			if ( $hidden_match && ! $visible_match ) {
+				return $classic;
+			}
+		}
+
+		$eligible = true;
+		$hash     = array();
+		if ( isset( $args['s'] ) && '' !== $args['s'] ) {
+			$hash['search'] = $args['s'];
+		}
+		if ( isset( $args['module_tag'] ) && '' !== $args['module_tag'] ) {
+			$hash['module_tag'] = $args['module_tag'];
+		}
+		return add_query_arg(
+			array_merge(
+				urlencode_deep( $args ),
+				array(
+					'page'             => 'my-jetpack',
+					'modules_fallback' => '1',
+				)
+			),
+			admin_url( 'admin.php' )
+		)
+			. '#/features' . ( $hash ? '?' . http_build_query( $hash, '', '&', PHP_QUERY_RFC3986 ) : '' );
+	}
+
+	/**
+	 * With `my-jetpack-modules-to-features` on, send My Jetpack requests with `modules_fallback=1` back to classic Modules:
+	 * always without JavaScript, and for everyone when REST is unavailable.
+	 *
+	 * @since 6.11.0
+	 * @return void
+	 */
+	public static function print_modules_fallback() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only navigation fallback.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Only the exact allowlisted marker is accepted.
+		if ( ! self::is_modules_to_features_enabled() || 'my-jetpack' !== ( $_GET['page'] ?? null ) || '1' !== ( $_GET['modules_fallback'] ?? null ) || Main_Features::PLUGIN_ACTIVE !== Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ) || ! current_user_can( 'jetpack_manage_modules' ) ) {
+			return;
+		}
+		$args = array( 'page' => 'jetpack_modules' );
+		foreach ( array( 's', 'module_tag' ) as $key ) {
+			if ( isset( $_GET[ $key ] ) && is_string( $_GET[ $key ] ) ) {
+				$args[ $key ] = sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
+			}
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		$meta = '<meta http-equiv="refresh" content="0; url=' . esc_url( add_query_arg( urlencode_deep( $args ), admin_url( 'admin.php' ) ) ) . '">';
+		echo '<noscript>' . $meta . '</noscript>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- URL escaped above.
+		if ( ! self::is_modules_rest_api_enabled() ) {
+			echo $meta; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- URL escaped above.
+		}
+	}
+
+	/**
+	 * Get the slug and label of the Features tab, for footer links to it.
+	 *
+	 * Kept for footers built before the Products tab was removed: Jetpack 16.3 calls this, and
+	 * older JS footers read it from script data. Without it they link to "Products".
+	 *
+	 * @since 6.4.0
+	 *
+	 * @return array{slug: string, label: string}
+	 */
+	public static function get_products_section() {
+		return array(
+			'slug'  => 'features',
+			'label' => _x( 'Features', 'Navigation item', 'jetpack-my-jetpack' ),
+		);
+	}
+
+	/**
+	 * Add My Jetpack's availability, image base URL and link targets to admin script data.
+	 *
+	 * Printed on every admin page by Script_Data, so the connection screen can resolve its
+	 * illustrations and Jetpack footers know whether to link to My Jetpack.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @param array $data Script data.
+	 * @return array
+	 */
+	public static function add_admin_script_data( $data ) {
+		$data['myJetpack']['isAvailable']     = self::is_admin_page_available();
+		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
+		$data['myJetpack']['productsSection'] = self::get_products_section();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only selects which navigation data to seed.
+		if ( in_array( $_GET['page'] ?? '', array( 'my-jetpack', 'jetpack-settings', 'jetpack' ), true ) ) {
+			$data['myJetpack']['modulesManagementUrl'] = self::get_modules_management_url();
+		}
+
+		// Only administrators can open the pages this points at, so spare everyone else the lookup.
+		if ( current_user_can( 'manage_options' ) ) {
+			$data['myJetpack']['aiManageUrl'] = esc_url_raw( Products\Jetpack_Ai::get_manage_url() );
+		}
+
+		if (
+			self::is_my_jetpack_admin_request()
+			&& self::is_offline_features_enabled()
+			&& self::should_initialize()
+			&& REST_Main_Features::permissions_callback()
+		) {
+			$data['myJetpack']['offlineFeatures'] = array(
+				'mainFeatures' => Main_Features::get_state( true ),
+				'plugins'      => Plugins_Installer::get_plugins(),
+			);
+			$data['myJetpack']['offlineFeatures']['mainFeatures']['available_admin_pages'] = self::get_registered_admin_page_slugs();
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Get the slugs of registered admin pages.
+	 *
+	 * Skip hooks containing `?`: they are `edit.php?post_type=...` style pages, not page slugs.
+	 *
+	 * @return string[]
+	 */
+	private static function get_registered_admin_page_slugs() {
+		global $_registered_pages;
+
+		$hooks = array_filter(
+			array_keys( $_registered_pages ?? array() ),
+			static fn( $hook ) => false !== strpos( $hook, '_page_' ) && false === strpos( $hook, '?' )
+		);
+
+		return array_values(
+			array_unique(
+				array_map( static fn( $hook ) => substr( $hook, strpos( $hook, '_page_' ) + 6 ), $hooks )
+			)
+		);
+	}
+
+	/**
+	 * Whether My Jetpack's admin page is available to the current user.
+	 *
+	 * Meaningful only after admin_menu has registered the page.
+	 *
+	 * @since 6.5.0
+	 *
+	 * @return bool
+	 */
+	public static function is_admin_page_available() {
+		global $_registered_pages;
+
+		return did_action( 'my_jetpack_init' ) > 0
+			&& isset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] )
+			&& current_user_can( 'edit_posts' );
+	}
+
+	/**
+	 * Get the base URL of the package's built images, with a trailing slash.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @return string
+	 */
+	public static function get_assets_url() {
+		return trailingslashit( Assets::normalize_path( plugins_url( '../build/images/', __FILE__ ) ) );
 	}
 
 	/**
@@ -520,6 +1404,87 @@ class Initializer {
 	}
 
 	/**
+	 * Register My Jetpack's feature flags.
+	 *
+	 * @since 6.11.0
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::ACCOUNT_CONNECT_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show Needs user account on Features cards, and connect the account from their Install or Connect button.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+		Feature_Flags::register(
+			self::HEADER_CONTROLS_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show the global controls in the shared header of My Jetpack and Boost.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+		Feature_Flags::register(
+			self::OVERVIEW_V1_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show Overview v1 in My Jetpack.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+		Feature_Flags::register(
+			self::MODULES_TO_FEATURES_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Open supported classic Modules links in Features.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+	}
+
+	/**
+	 * Whether the shared header shows its controls: the flag is on, My Jetpack runs, and not in offline Features.
+	 *
+	 * Boost's dashboard gets My Jetpack's page state even where My Jetpack is off, hence the second check.
+	 * Offline Features prints no connection state for the controls to read, and has no connection to show.
+	 *
+	 * @return bool
+	 */
+	private static function is_header_controls_enabled() {
+		return Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG )
+			&& self::should_initialize()
+			&& ! self::is_offline_features_enabled();
+	}
+
+	/**
+	 * Give dashboards outside My Jetpack, such as Boost's, the header's controls as a shared script.
+	 *
+	 * Bundling them instead would ship a second copy of the connection package next to the page's own.
+	 *
+	 * @return void
+	 */
+	private static function maybe_enqueue_header_controls_script() {
+		if ( self::is_my_jetpack_admin_request() || ! self::is_header_controls_enabled() ) {
+			return;
+		}
+
+		Assets::register_script(
+			self::HEADER_CONTROLS_SCRIPT_HANDLE,
+			'../build/header-controls.js',
+			__FILE__,
+			array(
+				'dependencies' => array( self::DATA_SCRIPT_HANDLE ),
+				'enqueue'      => true,
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-my-jetpack',
+			)
+		);
+	}
+
+	/**
 	 *  Build flags for My Jetpack UI
 	 *
 	 *  @return array
@@ -527,18 +1492,36 @@ class Initializer {
 	public static function get_my_jetpack_flags() {
 		$flags = array(
 			'videoPressStats'          => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
-			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ),
+			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ) || Products\Stats::is_standalone_plugin_active(),
 			// Only says which destination `manage_url` is: the legacy Stats page
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
-			// Pre-release gate: only internal testing environments get the AI
-			// card's module toggle. The helper lives in the Jetpack plugin, so
-			// standalone installs resolve to false. Remove when the AI settings
-			// page goes public.
-			'showAiModuleToggle'       => function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment(),
+			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
+			'headerControls'           => self::is_header_controls_enabled(),
+			'accountConnect'           => Feature_Flags::is_enabled( self::ACCOUNT_CONNECT_FLAG ),
+			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
 		return $flags;
+	}
+
+	/**
+	 * Whether My Jetpack shows Overview v1.
+	 *
+	 * @since 6.10.0
+	 * @return bool
+	 */
+	public static function is_overview_v1_enabled() {
+		return Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG );
+	}
+
+	/**
+	 * Whether Modules links may use Features.
+	 *
+	 * @return bool
+	 */
+	private static function is_modules_to_features_enabled() {
+		return Feature_Flags::is_enabled( self::MODULES_TO_FEATURES_FLAG );
 	}
 
 	/**
@@ -553,7 +1536,7 @@ class Initializer {
 	 *   real availability switch and the same one the SEO package gates its own surface behind);
 	 * - the site is self-hosted — WordPress.com (Simple + Atomic) decides its own SEO surface, so
 	 *   the opt-in card is for self-hosted installs only;
-	 * - the install hasn't opted in yet — `jetpack_seo_surface_visible` is still false. On wpcom
+	 * - the install hasn't opted in yet — the SEO surface isn't visible. On wpcom
 	 *   the SEO package's `is_seo_surface_visible()` short-circuits to `true`, so the
 	 *   "not visible yet" check also doubles as the self-hosted guard, but we check the platform
 	 *   explicitly for clarity.
@@ -586,15 +1569,17 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// Asked again here rather than inferred from the redirect: with the wizard on a
+		// connected user is deliberately left on this screen to finish setup, and anyone
+		// who cannot connect never reaches it.
+		if ( self::is_onboarding_takeover() ) {
+			echo '<div id="my-jetpack-container"></div>';
+			return;
+		}
 
-		// No connection check needed here: admin_init() has already redirected connected users away from onboarding.
-		// Availability IS re-checked on purpose: this render can run even when that redirect did not,
-		// and the check below is what keeps the onboarding route off WordPress.com Simple sites.
-		$is_onboarding = $step === 'onboarding' && self::is_onboarding_available();
-
-		// Add data attribute for onboarding, otherwise render normal container
-		echo '<div id="my-jetpack-container" ' . ( $is_onboarding ? 'data-route="onboarding"' : '' ) . '></div>';
+		if ( self::should_render_wp_build() ) {
+			jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- should_render_wp_build() checks function_exists(); defined in the generated build/pages/, which Phan excludes.
+		}
 	}
 
 	/**
@@ -603,11 +1588,18 @@ class Initializer {
 	 * @return void
 	 */
 	public static function register_rest_endpoints() {
+		if ( self::is_offline_features_enabled() ) {
+			( new REST_Main_Features() )->register_rest_routes();
+			return;
+		}
+
 		new REST_Products();
 		new REST_Purchases();
-		new REST_Zendesk_Chat();
 		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
+
+		( new REST_Onboarding() )->register_rest_routes();
+		( new REST_Main_Features() )->register_rest_routes();
 
 		Products::register_product_endpoints();
 		Historically_Active_Modules::register_rest_endpoints();
@@ -653,19 +1645,46 @@ class Initializer {
 	public static function should_initialize() {
 		$should = true;
 
-		// All options presented in My Jetpack require a connection to WordPress.com.
 		if ( ( new Status() )->is_offline_mode() ) {
-			$should = false;
+			$should = self::is_offline_features_enabled();
 		}
 
 		/**
 		 * Allows filtering whether My Jetpack should be initialized.
+		 * Outside REST requests, once the user is set, this cannot enable offline Features for a user without access.
 		 *
 		 * @since 0.5.0-alpha
 		 *
 		 * @param bool $shoud_initialize Should we initialize My Jetpack?
 		 */
-		return apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
+		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
+
+		// REST authenticates after route registration; its permission callbacks check access.
+		if ( self::is_offline_features_enabled() && ! Jetpack_Constants::is_true( 'REST_REQUEST' ) && function_exists( 'wp_get_current_user' ) && did_action( 'set_current_user' ) && ! self::current_user_can_access_page() ) {
+			return false;
+		}
+
+		return $should;
+	}
+
+	/**
+	 * Whether the site uses the local Features entry instead of the connected dashboard.
+	 *
+	 * @since 6.10.0
+	 * @return bool
+	 */
+	public static function is_offline_features_enabled() {
+		if ( ! ( new Status() )->is_offline_mode() ) {
+			return false;
+		}
+
+		/**
+		 * Enable local Features data and entry in offline mode.
+		 *
+		 * @since 6.10.0
+		 * @param bool $enabled Whether to enable offline Features. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', false );
 	}
 
 	/**
@@ -894,12 +1913,29 @@ class Initializer {
 		// Report each non-silent alert to the central menu-badges registry as an
 		// attention entry (count 1). The registry + renderer own the badge.
 		Menu_Badges::init(); // idempotent; wires the renderer.
+
+		// Connection errors are owned by the Error Handler (the single source of truth):
+		// surface any it reports for this viewer as their own attention entry. Read live
+		// rather than from the red-bubble transient, since that cache is not viewer-keyed.
+		$has_connection_error = self::has_connection_error();
+		if ( $has_connection_error ) {
+			Notification_Counts::register(
+				'my-jetpack-connection-error',
+				array(
+					'menu_slug' => 'my-jetpack',
+					'type'      => 'attention',
+				)
+			);
+		}
+
+		$counted_elsewhere = self::get_alerts_counted_elsewhere();
 		foreach ( array_keys( $red_bubble_alerts ) as $slug ) {
-			// Protect reports its own count directly to the registry, but only when its
-			// standalone plugin is active (see class-jetpack-protect.php::admin_page_init()).
-			// If the standalone plugin isn't active, nobody else registers this count, so we
-			// must not skip it here or the alert silently disappears from the menu total.
-			if ( 'protect_has_threats' === $slug && Products\Protect::is_standalone_plugin_active() ) {
+			if ( in_array( $slug, $counted_elsewhere, true ) ) {
+				continue;
+			}
+			// The missing-connection slug and a connection error describe the same broken
+			// connection; count it once (the error, above, is the more specific signal).
+			if ( $has_connection_error && 'missing-connection' === $slug ) {
 				continue;
 			}
 			Notification_Counts::register(
@@ -910,6 +1946,36 @@ class Initializer {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Whether the Connection Error Handler reports a displayable connection error
+	 * for the current viewer.
+	 *
+	 * Read live (not via the red-bubble transient): get_displayable_errors() is a
+	 * cached option read that the Error Handler already scopes and caches per viewer.
+	 * Guarded for the mid-plugin-update window, where a stale connection package
+	 * predating the method can be loaded.
+	 *
+	 * @return bool
+	 */
+	private static function has_connection_error() {
+		if ( ! class_exists( Connection_Error_Handler::class ) || ! method_exists( Connection_Error_Handler::class, 'get_displayable_errors' ) ) {
+			return false;
+		}
+		return ! empty( Connection_Error_Handler::get_instance()->get_displayable_errors() );
+	}
+
+	/**
+	 * Alerts left out of the My Jetpack badge because another menu item already counts them.
+	 *
+	 * The Protect page reports its own count, from the standalone plugin (class-jetpack-protect.php::admin_page_init())
+	 * or the Protect package's dashboard; without either, nobody else counts the threats, so they must stay.
+	 *
+	 * @return string[] Alert slugs.
+	 */
+	private static function get_alerts_counted_elsewhere() {
+		return Products\Protect::has_protect_page() ? array( 'protect_has_threats' ) : array();
 	}
 
 	/**
@@ -928,6 +1994,11 @@ class Initializer {
 				'in_footer' => true,
 			)
 		);
+		wp_localize_script(
+			'my-jetpack-notification-bubble',
+			'myJetpackNotificationBubble',
+			array( 'excludedAlerts' => self::get_alerts_counted_elsewhere() )
+		);
 	}
 
 	/**
@@ -938,7 +2009,7 @@ class Initializer {
 	public static function get_recommended_modules() {
 		$recommendations_evaluation = \Jetpack_Options::get_option( 'recommendations_evaluation', null );
 
-		if ( ! $recommendations_evaluation ) {
+		if ( empty( $recommendations_evaluation ) || ! is_array( $recommendations_evaluation ) ) {
 			return null;
 		}
 

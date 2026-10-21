@@ -4,14 +4,14 @@
  * so the anchoring under test is the production one.
  */
 jest.mock( '@jetpack-premium-analytics/data', () => {
-	const { toLocalTZ, dateToISOStringWithTZ, siteTimeZone } = jest.requireActual(
+	const { toLocalTZ, dateToISOStringWithTZ, reportingTimeZone } = jest.requireActual(
 		'@jetpack-premium-analytics/datetime'
 	);
 	return {
 		localTZDate: ( value?: number | string | Date, timezone?: string ) =>
-			toLocalTZ( value, timezone ?? siteTimeZone() ),
+			toLocalTZ( value, timezone ?? reportingTimeZone() ),
 		dateToISOStringWithLocalTZ: ( date: Date, timezone?: string ) =>
-			dateToISOStringWithTZ( date, timezone ?? siteTimeZone() ),
+			dateToISOStringWithTZ( date, timezone ?? reportingTimeZone() ),
 	};
 } );
 /**
@@ -22,6 +22,7 @@ import { getSettings, setSettings } from '@wordpress/date';
  * Internal dependencies
  */
 import { deriveComparisonRange } from '../derive-comparison-range';
+import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
 
 const DEFAULTS = getSettings();
 
@@ -138,6 +139,75 @@ describe( 'deriveComparisonRange', () => {
 		).toEqual( {
 			compare_from: '2026-07-02T00:00:00.000+00:00',
 			compare_to: '2026-07-31T23:59:59.999+00:00',
+			compare_preset: 'previous-period',
+		} );
+	} );
+
+	// A weekday-aligned period on a single day is the same window last week
+	// names, so the menu lists it under previous-week; the link takes that
+	// window, not the previous day, and keeps its preset.
+	it( 'takes the window of the entry a folded weekday preset is listed under', () => {
+		expect(
+			deriveComparisonRange( {
+				from: '2026-06-08T00:00:00.000Z',
+				to: '2026-06-08T23:59:59.999Z',
+				comp: '1',
+				compare_preset: 'previous-period-match-day-of-week',
+				preset: 'yesterday',
+			} )
+		).toEqual( {
+			compare_from: '2026-06-01T00:00:00.000+00:00',
+			compare_to: '2026-06-01T23:59:59.999+00:00',
+			compare_preset: 'previous-period-match-day-of-week',
+		} );
+	} );
+
+	// Writing the listing entry's id back would turn a weekday choice into a
+	// calendar one the moment a range change passes through whole weeks.
+	it( 'keeps a weekday preset across a range change that folds it', () => {
+		const at = ( to: string, compare_preset?: ComparisonPresetId ) =>
+			deriveComparisonRange( {
+				from: '2026-06-01T00:00:00.000Z',
+				to: `${ to }T23:59:59.999Z`,
+				comp: '1',
+				compare_preset,
+			} );
+
+		const fourteenDays = at( '2026-06-14', 'previous-period-match-day-of-week' );
+		expect( fourteenDays ).toEqual( {
+			compare_from: '2026-05-18T00:00:00.000+00:00',
+			compare_to: '2026-05-31T23:59:59.999+00:00',
+			compare_preset: 'previous-period-match-day-of-week',
+		} );
+
+		expect( at( '2026-06-15', fourteenDays?.compare_preset ) ).toEqual( {
+			compare_from: '2026-05-11T00:00:00.000+00:00',
+			compare_to: '2026-05-25T23:59:59.999+00:00',
+			compare_preset: 'previous-period-match-day-of-week',
+		} );
+	} );
+
+	it( 'steps a to-date preset back by its completed window and stops where it does', () => {
+		// `last-12-months` as read on 20 August 2026.
+		const range = {
+			from: '2025-09-01T00:00:00.000Z',
+			to: '2026-08-20T23:59:59.999Z',
+			comp: '1' as const,
+			compare_preset: 'previous-period' as const,
+		};
+
+		// Twelve months back from the first, running as many days short as the
+		// reference does: 354 days against 354, not against 365.
+		expect( deriveComparisonRange( { ...range, preset: 'last-12-months' } ) ).toEqual( {
+			compare_from: '2024-09-01T00:00:00.000+00:00',
+			compare_to: '2025-08-20T23:59:59.999+00:00',
+			compare_preset: 'previous-period',
+		} );
+
+		// The same dates picked by hand are a day count.
+		expect( deriveComparisonRange( { ...range, preset: 'custom' } ) ).toEqual( {
+			compare_from: '2024-09-12T00:00:00.000+00:00',
+			compare_to: '2025-08-31T23:59:59.999+00:00',
 			compare_preset: 'previous-period',
 		} );
 	} );

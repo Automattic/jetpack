@@ -1,7 +1,5 @@
 /**
- * Measure page performance for a WordPress wp-admin scenario: LCP (via PerformanceObserver),
- * TTFB, FCP, and the summed runtime bundle size (decodedBytesKB). Logs in, then reloads either
- * the wp-admin Dashboard (default) or a scenario's targeted admin page, and captures the metrics.
+ * Measure browser performance and backend request metrics for a WordPress scenario.
  */
 
 import fs from 'fs';
@@ -34,8 +32,92 @@ function loadCalibration() {
 // Load calibration at module init
 const calibration = loadCalibration();
 
+/** Install fresh load observers before scripts execute on each navigation. */
+/* eslint-disable no-undef -- This runs in browser context via Playwright. */
+function initializeLoadObservers() {
+	// Keep resource captures complete beyond the browser's default 250-entry buffer.
+	performance.setResourceTimingBufferSize( 10000 );
+	window.__lcpEntries = [];
+	window.__lcpObserver = new PerformanceObserver( list => {
+		for ( const entry of list.getEntries() ) {
+			window.__lcpEntries.push( {
+				startTime: entry.startTime,
+				element: entry.element?.tagName || 'unknown',
+				size: entry.size,
+				url: entry.url,
+			} );
+		}
+	} );
+	window.__lcpObserver.observe( { type: 'largest-contentful-paint', buffered: true } );
+
+	let observer = null;
+	let entries = null;
+	let longTaskError = 'unsupported';
+	const record = tasks => {
+		for ( const task of tasks ) {
+			entries.push( { startTime: task.startTime, duration: task.duration } );
+		}
+	};
+	try {
+		if ( PerformanceObserver.supportedEntryTypes.includes( 'longtask' ) ) {
+			longTaskError = null;
+			observer = new PerformanceObserver( list => {
+				try {
+					record( list.getEntries() );
+				} catch {
+					entries = null;
+					longTaskError = 'callback-threw';
+				}
+			} );
+			entries = [];
+			observer.observe( { type: 'longtask', buffered: true } );
+		}
+	} catch {
+		entries = null;
+		longTaskError = 'observe-threw';
+	}
+
+	window.__finalizeLongTasks = cutoff => {
+		try {
+			if ( entries === null ) {
+				return { tbt: null, longTasks: null, longTaskError };
+			}
+			if ( ! Number.isFinite( cutoff ) ) {
+				return { tbt: null, longTasks: null, longTaskError: 'invalid-cutoff' };
+			}
+			// Flush completed tasks whose observer callback has not run yet.
+			record( observer.takeRecords() );
+			if (
+				entries.some(
+					task =>
+						! Number.isFinite( task.startTime ) ||
+						! Number.isFinite( task.duration ) ||
+						task.startTime < 0 ||
+						task.duration < 0
+				)
+			) {
+				return { tbt: null, longTasks: null, longTaskError: 'invalid-entry' };
+			}
+			const longTasks = entries.filter( task => task.startTime + task.duration <= cutoff );
+			return {
+				tbt: longTasks.reduce( ( sum, task ) => sum + Math.max( 0, task.duration - 50 ), 0 ),
+				longTasks,
+			};
+		} catch {
+			return { tbt: null, longTasks: null, longTaskError: 'finalizer-threw' };
+		} finally {
+			try {
+				observer?.disconnect();
+			} catch {
+				// Cleanup failure must not discard the captured result.
+			}
+		}
+	};
+}
+/* eslint-enable no-undef */
+
 /**
- * Measure LCP (and the other summary fields) for a scenario's page.
+ * Measure browser timings, runtime bundle size and configured backend fields for a scenario.
  *
  * Defaults to the wp-admin Dashboard flow (log in, reload, measure). When the scenario
  * targets a specific admin page, `scenario.path` + `scenario.waitForSelector` steer it to
@@ -47,7 +129,7 @@ const calibration = loadCalibration();
  * @param {string} password   - wp-admin password.
  * @param {number} iterations - Number of measurement iterations.
  * @param {object} [scenario] - Scenario config; reads optional `path`, `waitForSelector`,
- *                            `expectUrlIncludes`, `loadState`, and `minResourceCount`.
+ *                            `expectUrlIncludes`, `expectUrlHash`, `loadState`, `minResourceCount`, and `metrics`.
  * @return {Promise<object>} { summary, results, url }.
  */
 async function measureLCP( url, username, password, iterations = 5, scenario = {} ) {
@@ -73,7 +155,9 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 	// the warm-up settle and the measured settle can never disagree about which path they are on.
 	const useResourceSettle = navWaitUntil !== 'networkidle';
 
-	console.log( `Measuring LCP for ${ url }${ targetPath || '' } (${ iterations } iterations)...` );
+	console.log(
+		`Measuring page performance for ${ url }${ targetPath || '' } (${ iterations } iterations)...`
+	);
 
 	for ( let i = 0; i < iterations; i++ ) {
 		const browser = await chromium.launch( {
@@ -113,39 +197,14 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 		try {
 			console.log( `  Iteration ${ i + 1 }/${ iterations }...` );
 
-			// Step 0: Set up LCP capture and the enlarged Resource Timing buffer via addInitScript.
+			// Step 0: Install buffered LCP/long-task capture and the enlarged Resource Timing buffer.
 			// This injects code that runs BEFORE any page script on EVERY navigation from here on
 			// (login, warm-up and the measured reload — each document gets a fresh copy, so the
 			// reload's __lcpEntries never contain earlier pages' entries). Installed before the
 			// FIRST navigation on purpose: the warm-up resource-count settle reads the timing
 			// buffer, and the browser's 250-entry default would silently cap (and false-settle)
 			// the count once the page's real load grows past it.
-			/* eslint-disable no-undef -- This runs in browser context via Playwright */
-			await context.addInitScript( () => {
-				// This runs in the browser context before page load
-
-				// Raise the Resource Timing buffer well above the default 250 entries. This metric
-				// exists to watch a GROWING count of @wordpress/* editor module files, so the
-				// measured quantity and the default cap would collide exactly as the tracked
-				// regression worsens — past 250 the tail would drop and the decoded-bytes sum would
-				// silently under-count. (~91 resources today; this is headroom, not a live fix.)
-				performance.setResourceTimingBufferSize( 10000 );
-
-				window.__lcpEntries = [];
-				window.__lcpObserver = new PerformanceObserver( list => {
-					const entries = list.getEntries();
-					for ( const entry of entries ) {
-						window.__lcpEntries.push( {
-							startTime: entry.startTime,
-							element: entry.element?.tagName || 'unknown',
-							size: entry.size,
-							url: entry.url,
-						} );
-					}
-				} );
-				window.__lcpObserver.observe( { type: 'largest-contentful-paint', buffered: true } );
-			} );
-			/* eslint-enable no-undef */
+			await context.addInitScript( initializeLoadObservers );
 
 			// Step 1: Log in to WordPress (not measured)
 			await page.goto( `${ url }/wp-login.php`, {
@@ -188,7 +247,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 
 			// Step 2: Reload for a clean measurement of the current page — the Dashboard, or the
 			// page navigated to above.
-			await page.reload( { waitUntil: navWaitUntil, timeout: 60000 } );
+			const navigationResponse = await page.reload( { waitUntil: navWaitUntil, timeout: 60000 } );
 
 			// Wait for the measured page's content to be present after reload.
 			if ( pageReadySelector ) {
@@ -214,8 +273,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			// Wait for the resource payload to finish loading and LCP to finalize (LCP stops
 			// updating after user input or visibility change).
 			if ( ! useResourceSettle ) {
-				// Default path (Dashboard, My Jetpack): network quiescence is a reliable
-				// "everything loaded" signal and more robust than a fixed timeout on slow systems.
+				// Wait for network quiescence rather than a fixed timeout on slow systems.
 				await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
 			} else {
 				// Resilient path (scenarios with a perpetually-pending request, e.g. Forms — see
@@ -235,11 +293,18 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			// Refuse to measure the wrong page. Asserted here (after every redirect and the client
 			// route settle) so a mis-targeted or redirected page fails the iteration instead of
 			// posting off-target bytes to this scenario's permanent, no-rollback CodeVitals keys.
-			assertExpectedUrl( page.url(), expectUrlIncludes );
+			assertExpectedUrl( page.url(), expectUrlIncludes, scenario.expectUrlHash );
 
 			// Collect all metrics
 			/* eslint-disable no-undef -- This runs in browser context via Playwright */
 			const metrics = await page.evaluate( () => {
+				const loadFinalizedAt = performance.now();
+				const blocking = window.__finalizeLongTasks?.( loadFinalizedAt ) ?? {
+					tbt: null,
+					longTasks: null,
+					longTaskError: 'finalizer-missing',
+				};
+
 				// Disconnect observer to finalize LCP
 				if ( window.__lcpObserver ) {
 					window.__lcpObserver.disconnect();
@@ -276,6 +341,11 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				const fp = paintEntries.find( p => p.name === 'first-paint' );
 
 				return {
+					loadFinalizedAt,
+					tbt: blocking.tbt,
+					longTasks: blocking.longTasks,
+					longTaskError: blocking.longTaskError,
+
 					// LCP - primary metric
 					lcp: lcp,
 					lcpElement: lcpElement,
@@ -298,6 +368,12 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 					transferSize: navigation ? navigation.transferSize : null,
 					encodedBodySize: navigation ? navigation.encodedBodySize : null,
 					decodedBodySize: navigation ? navigation.decodedBodySize : null,
+					serverTiming: navigation
+						? navigation.serverTiming.map( entry => ( {
+								name: entry.name,
+								duration: entry.duration,
+							} ) )
+						: [],
 				};
 			} );
 
@@ -331,7 +407,10 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				// Fold the summed decoded payload into the per-iteration metrics block (as KB) so
 				// readIterationField/buildSummary aggregate it alongside lcp/ttfb/fcp. It lives on
 				// resourceStats too (the `resources` block below) for the saved results file.
-				metrics: { ...metrics, decodedBytesKB: resourceStats.totalDecodedBodySizeKB },
+				...( await captureNavigationMetrics( navigationResponse, scenario, {
+					...metrics,
+					decodedBytesKB: resourceStats.totalDecodedBodySizeKB,
+				} ) ),
 				resources: resourceStats,
 				timestamp: new Date().toISOString(),
 			} );
@@ -339,6 +418,11 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			console.log(
 				`    LCP: ${ metrics.lcp.toFixed( 2 ) }ms (element: ${ metrics.lcpElement }, entries: ${
 					metrics.lcpEntriesCount
+				})`
+			);
+			console.log(
+				`    TBT: ${ Number.isFinite( metrics.tbt ) ? `${ metrics.tbt.toFixed( 2 ) }ms` : `missing (${ metrics.longTaskError })` } (long tasks: ${
+					metrics.longTasks?.length ?? 'missing'
 				})`
 			);
 		} catch ( error ) {
@@ -363,29 +447,111 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 }
 
 /**
- * Metric fields aggregated into the summary. LCP stays first: it is the load-bearing
- * value (unchanged), and it also populates the flat top-level summary for backward-compat.
- * TTFB and FCP are already captured per iteration (see the page.evaluate block above);
- * this is where they finally get aggregated into the summary.
- *
- * `decodedBytesKB` is the summed per-resource decodedBodySize (folded into the per-iteration
- * metrics block above): the page's runtime payload in KB. Unlike the timing fields it is
- * deterministic — throttle- and noise-independent — so the median across iterations is exact.
- * It is aggregated for every scenario but posted only by those that list it in `metrics[]`;
- * scenarios that don't (the dashboard) keep it as diagnostic data in `results.json` and never
- * send it to CodeVitals.
+ * Browser and backend summary fields, with LCP first for the legacy flat summary.
  */
-const SUMMARY_FIELDS = [ 'lcp', 'ttfb', 'fcp', 'decodedBytesKB' ];
+const SUMMARY_FIELDS = [
+	'lcp',
+	'ttfb',
+	'fcp',
+	'decodedBytesKB',
+	'tbt',
+	'wpTotal',
+	'wpMemoryUsage',
+	'wpDbQueries',
+];
+
+/**
+ * Merge configured backend fields into browser metrics, preserving failed-capture diagnostics.
+ *
+ * @param {object|null} response - Measured reload response.
+ * @param {object}      scenario - Scenario metric definitions.
+ * @param {object}      metrics  - Browser metrics for the iteration.
+ * @return {Promise<object>} Merged metrics and navigation diagnostics.
+ */
+async function captureNavigationMetrics( response, scenario, metrics ) {
+	const { longTaskError, ...browserMetrics } = metrics;
+	const capture = {
+		metrics: browserMetrics,
+		...( longTaskError ? { longTaskError } : {} ),
+		navigationUrl: response?.url() ?? null,
+		navigationStatus: response?.status() ?? null,
+	};
+	if (
+		! scenario.metrics?.some( metric =>
+			[ 'wpTotal', 'wpMemoryUsage', 'wpDbQueries' ].includes( metric.field )
+		)
+	) {
+		return capture;
+	}
+	try {
+		capture.serverTimingHeader = ( await response?.headerValue( 'server-timing' ) ) ?? null;
+		capture.metrics = { ...browserMetrics, ...parseServerTiming( capture.serverTimingHeader ) };
+	} catch ( error ) {
+		capture.serverTimingError = error.message;
+	}
+	return capture;
+}
+
+/**
+ * Extract the fixture's three admin metrics, rejecting missing or malformed durations.
+ *
+ * @param {string|null} header - The measured navigation's Server-Timing header.
+ * @return {object} PHP time in ms, peak memory in bytes, and database query count.
+ * @throws {Error} Missing, malformed or oversized backend header.
+ */
+function parseServerTiming( header ) {
+	if ( header?.length > 4096 ) {
+		throw new Error( 'Server-Timing header exceeds 4096 characters' );
+	}
+	const fields = {
+		'wp-total': 'wpTotal',
+		'wp-memory-usage': 'wpMemoryUsage',
+		'wp-db-queries': 'wpDbQueries',
+	};
+	const metrics = {};
+	// Quoted descriptions may contain commas or semicolons, including escaped quotes.
+	const members = ( header || '' ).match( /(?:[^,";]+|"(?:[^"\\]|\\.)*"|;)+/g ) || [];
+	for ( const member of members ) {
+		const parts = member.match( /(?:[^;"]+|"(?:[^"\\]|\\.)*")+/g ) || [];
+		const name = parts.shift()?.trim();
+		if ( ! Object.hasOwn( fields, name ) ) {
+			continue;
+		}
+		const durations = parts.filter( part => /^\s*dur\s*(?:=|$)/i.test( part ) );
+		const raw =
+			durations.length === 1
+				? durations[ 0 ].match( /^\s*dur\s*=\s*(\d+(?:\.\d+)?)\s*$/i )?.[ 1 ]
+				: null;
+		const value = raw == null ? NaN : Number( raw );
+		if (
+			Object.hasOwn( metrics, fields[ name ] ) ||
+			! Number.isFinite( value ) ||
+			( name !== 'wp-total' && ! Number.isSafeInteger( value ) )
+		) {
+			throw new Error( `Invalid Server-Timing duration for ${ name }` );
+		}
+		metrics[ fields[ name ] ] = value;
+	}
+	const missing = Object.entries( fields ).filter(
+		( [ , field ] ) => ! Object.hasOwn( metrics, field )
+	);
+	if ( missing.length ) {
+		throw new Error(
+			`Missing Server-Timing metric(s): ${ missing.map( ( [ name ] ) => name ).join( ', ' ) }`
+		);
+	}
+	return metrics;
+}
 
 /**
  * Read one metric field from a single iteration's result.
  *
  * LCP lives at the top level (r.lcp) exactly as before, so its value source is byte-for-byte
- * unchanged; the other Core Web Vitals come from the captured per-iteration `metrics` block.
+ * unchanged; browser and backend fields come from the per-iteration `metrics` block.
  *
  * @param {object} result - One entry from the measureLCP results array.
  * @param {string} field  - Metric field name (e.g. 'lcp', 'ttfb', 'fcp').
- * @return {number|null|undefined} The raw value, or null/undefined when the browser had none.
+ * @return {number|null|undefined} The raw value, or null/undefined when capture had none.
  */
 function readIterationField( result, field ) {
 	if ( field === 'lcp' ) {
@@ -395,13 +561,9 @@ function readIterationField( result, field ) {
 }
 
 /**
- * Summary stats for one field across the valid iterations, rounded to whole ms to match
- * the original LCP-only summary. Non-finite samples (a browser that reported null for a
- * field on some iteration) are dropped before aggregating. A field whose finite samples do
- * not cover a MAJORITY of the valid iterations returns null so the caller omits it and the
- * poster fails closed on the missing field rather than posting a fabricated 0 — or, worse, a
- * thin value (e.g. a field captured on 1 of 5 runs) as a full "median" with stdDev 0, a
- * low-confidence point indistinguishable from a real full-sample median in the append-only store.
+ * Summarize one field across valid iterations, rounded to whole units.
+ * Require a strict majority of finite samples so missing captures cannot become
+ * fabricated zeros or low-confidence medians in the append-only store.
  *
  * @param {Array<number|null|undefined>} values - Raw per-iteration values for the field.
  * @return {{median:number,mean:number,min:number,max:number,stdDev:number}|null} Rounded stats, or null.
@@ -764,24 +926,22 @@ function assertCaptureComplete( resourceStats, scenario ) {
 }
 
 /**
- * Refuse to measure the wrong page.
+ * Refuse a final URL that fails the configured substring or exact hash guard.
  *
- * Scope, on purpose: this catches a page whose FINAL URL no longer contains the expected route —
- * the concrete threat here is class-dashboard.php server-redirecting a bare page URL to the forms
- * LIST, which strips the pinned `p=/responses/inbox` from the URL, so this fires. It does NOT prove
- * the SPA client-rendered the inbox: a client-side route divergence that keeps the URL would pass.
- * That is a deliberate trade — a stricter DOM-selector assertion would throw on every iteration if
- * the guessed selector is wrong or the markup shifts, which blackholes the scenario's whole series
- * on the append-only store. The URL check defends the real redirect without that failure mode.
- *
- * decodeURIComponent can throw on a malformed URL; we catch and re-throw as a mis-target so the
- * iteration fails closed (no post) with a clear message rather than an opaque URIError.
+ * URL guards do not prove rendered content; targeted scenarios also supply a visible selector.
+ * Malformed URLs fail the iteration closed rather than allowing an off-target measurement.
  *
  * @param {string}      currentUrl        - The page's final URL (page.url()).
  * @param {string|null} expectUrlIncludes - Substring the final URL must contain, or null to skip.
- * @throws {Error} When the final URL does not contain the expected route (or cannot be decoded).
+ * @param {string}      [expectUrlHash]   - Exact final hash route, including the leading #.
+ * @throws {Error} When the final URL cannot be parsed/decoded or fails either configured guard.
  */
-function assertExpectedUrl( currentUrl, expectUrlIncludes ) {
+function assertExpectedUrl( currentUrl, expectUrlIncludes, expectUrlHash ) {
+	if ( expectUrlHash && new URL( currentUrl ).hash !== expectUrlHash ) {
+		throw new Error(
+			`Wrong page: expected hash "${ expectUrlHash }" but landed on "${ currentUrl }"`
+		);
+	}
 	if ( ! expectUrlIncludes ) {
 		return;
 	}
@@ -906,7 +1066,9 @@ async function main() {
 	console.log(
 		'  2. Reload the scenario page (Dashboard, or a targeted admin page) for a clean load'
 	);
-	console.log( '  3. Measure LCP, TTFB, FCP, and the summed bundle size' );
+	console.log(
+		'  3. Measure LCP, TTFB, FCP, load TBT, runtime bundle size and configured backend fields'
+	);
 	console.log( '' );
 	console.log( 'Configuration:' );
 	for ( const scenario of SCENARIOS ) {
@@ -935,7 +1097,11 @@ async function main() {
 				scenario
 			);
 			console.log(
-				`✓ ${ scenario.name } median LCP: ${ measurements[ scenario.key ].summary.median }ms\n`
+				`✓ ${ scenario.name } median LCP: ${ measurements[ scenario.key ].summary.median }ms; median TBT: ${
+					measurements[ scenario.key ].summary.tbt
+						? `${ measurements[ scenario.key ].summary.tbt.median }ms`
+						: 'missing'
+				}\n`
 			);
 		} catch ( error ) {
 			console.error( `✗ ${ scenario.name } measurement failed:`, error.message, '\n' );
@@ -957,7 +1123,11 @@ async function main() {
 			continue;
 		}
 		if ( measurement && ! measurement.error ) {
-			console.log( `  ${ scenario.name }: ${ measurement.summary.median }ms` );
+			console.log(
+				`  ${ scenario.name }: median LCP ${ measurement.summary.median }ms; median TBT ${
+					measurement.summary.tbt ? `${ measurement.summary.tbt.median }ms` : 'missing'
+				}`
+			);
 		} else if ( scenario.optional ) {
 			console.log(
 				`  ${ scenario.name }: FAILED (optional — build continues, its keys skip this build) - ${
@@ -995,7 +1165,7 @@ async function main() {
 						enabled: true,
 						rate: calibration.cpuRate,
 						calibratedAt: calibration.calibratedAt,
-				  }
+					}
 				: { enabled: false },
 		},
 		measurements,
@@ -1049,6 +1219,9 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 
 export {
 	measureLCP,
+	captureNavigationMetrics,
+	parseServerTiming,
+	initializeLoadObservers,
 	resolveResultsGit,
 	buildSummary,
 	findIncompleteSummaryFields,

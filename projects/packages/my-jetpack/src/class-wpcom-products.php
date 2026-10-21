@@ -37,11 +37,47 @@ class Wpcom_Products {
 	const MY_JETPACK_PURCHASES_TRANSIENT_KEY = 'my-jetpack-purchases';
 
 	/**
-	 * Store the data on failed WPCOM requests.
+	 * How long, in seconds, a purchases lookup is reused before WPCOM is asked again
+	 *
+	 * @var int
+	 */
+	const MY_JETPACK_PURCHASES_CACHE_DURATION = 5;
+
+	/**
+	 * How long, in seconds, a failed WPCOM request answers later callers before it is retried
+	 *
+	 * @var int
+	 */
+	const WPCOM_REQUEST_FAILURE_CACHE_DURATION = 5;
+
+	/**
+	 * The request label the site purchases lookup records its failures under
+	 *
+	 * @var string
+	 */
+	const PURCHASES_REQUEST_LABEL = 'get_site_current_purchases';
+
+	/**
+	 * Store the data on failed WPCOM requests, each with the time it stops answering.
 	 *
 	 * @var array
 	 */
 	private static $wpcom_request_failures = array();
+
+	/**
+	 * A successful purchases lookup, kept so one WPCOM request serves a whole render
+	 * even when the transient write does not retain (e.g. an object cache evicting under load)
+	 *
+	 * @var mixed
+	 */
+	private static $site_purchases = null;
+
+	/**
+	 * Unix time at which the memo above stops being used
+	 *
+	 * @var int
+	 */
+	private static $site_purchases_expires = 0;
 
 	/**
 	 * Fetches the list of products from WPCOM
@@ -102,7 +138,13 @@ class Wpcom_Products {
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 
 		if ( 200 === $response_code ) {
-			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			if ( is_object( $products ) ) {
+				return $products;
+			}
+			$error = new WP_Error( 'invalid_wpcom_products', __( 'Unable to read the products list from WordPress.com', 'jetpack-my-jetpack' ) );
+			static::set_request_failure( $request_label, $error );
+			return $error;
 		} else {
 			$error = new WP_Error(
 				'failed_to_fetch_wpcom_products',
@@ -123,7 +165,7 @@ class Wpcom_Products {
 	private static function build_check_hash() {
 		static $has_user_data_fetch_error = false;
 
-		$hash_string = 'check_hash_';
+		$hash_string = 'check_hash_' . Jetpack_Options::get_option( 'id' ) . '_' . get_user_locale();
 		$connection  = new Connection_Manager();
 
 		if ( $connection->is_connected() ) {
@@ -175,7 +217,7 @@ class Wpcom_Products {
 		}
 
 		$cache_date = get_user_meta( get_current_user_id(), self::CACHE_DATE_META_NAME, true );
-		return time() - (int) $cache_date > DAY_IN_SECONDS;
+		return time() - (int) $cache_date > 5 * MINUTE_IN_SECONDS;
 	}
 
 	/**
@@ -208,7 +250,15 @@ class Wpcom_Products {
 		if ( is_wp_error( $products ) ) {
 			// Let's see if we have it cached.
 			$cached = self::get_products_from_cache();
-			if ( ! empty( $cached ) ) {
+			if ( is_object( $cached ) ) {
+				// Pro requires confirmed availability; existing offers retain their cached behavior.
+				$cached = clone $cached;
+				foreach ( $cached as $slug => $product ) {
+					if ( str_starts_with( $slug, 'jetpack_pro_' ) && is_object( $product ) ) {
+						$cached->$slug            = clone $product;
+						$cached->$slug->available = false;
+					}
+				}
 				return $cached;
 			} else {
 				return $products;
@@ -310,19 +360,21 @@ class Wpcom_Products {
 	 * @return Object|WP_Error
 	 */
 	public static function get_site_current_purchases() {
-		static $purchases = null;
-
-		if ( $purchases !== null ) {
-			return $purchases;
-		}
-
-		// Check for a cached value before doing lookup
+		// Read the cache first, so a memo can never outrank a warm lookup.
 		$stored_purchases = get_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 		if ( $stored_purchases !== false ) {
 			return $stored_purchases;
 		}
 
-		$request_failure = static::get_request_failure( 'get_site_current_purchases' );
+		/*
+		 * Checked after the transient so it can never outrank a warm cache, but kept so a
+		 * dashboard render still makes a single WPCOM request when the transient write is dropped.
+		 */
+		if ( self::$site_purchases !== null && time() < self::$site_purchases_expires ) {
+			return self::$site_purchases;
+		}
+
+		$request_failure = static::get_request_failure( self::PURCHASES_REQUEST_LABEL );
 		if ( null !== $request_failure ) {
 			return $request_failure;
 		}
@@ -338,14 +390,17 @@ class Wpcom_Products {
 		);
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			$error = new WP_Error( 'purchases_state_fetch_failed' );
-			static::set_request_failure( 'get_site_current_purchases', $error );
+			static::set_request_failure( self::PURCHASES_REQUEST_LABEL, $error );
 			return $error;
 		}
 
 		$body      = wp_remote_retrieve_body( $response );
 		$purchases = json_decode( $body );
 		// Set short transient to help with repeated lookups on the same page load
-		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, 5 );
+		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, self::MY_JETPACK_PURCHASES_CACHE_DURATION );
+
+		self::$site_purchases         = $purchases;
+		self::$site_purchases_expires = time() + self::MY_JETPACK_PURCHASES_CACHE_DURATION;
 
 		return $purchases;
 	}
@@ -377,6 +432,19 @@ class Wpcom_Products {
 	}
 
 	/**
+	 * Forget the cached site purchases — the in-process memo, the memoized failure, and the
+	 * transient — so the next call asks WPCOM again.
+	 *
+	 * @return void
+	 */
+	public static function reset_purchases_cache() {
+		self::$site_purchases         = null;
+		self::$site_purchases_expires = 0;
+		unset( static::$wpcom_request_failures[ self::PURCHASES_REQUEST_LABEL ] );
+		delete_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+	}
+
+	/**
 	 * Record the request failure to prevent repeated requests.
 	 *
 	 * @param string   $request_label The request label.
@@ -385,7 +453,10 @@ class Wpcom_Products {
 	 * @return void
 	 */
 	private static function set_request_failure( $request_label, WP_Error $error ) {
-		static::$wpcom_request_failures[ $request_label ] = $error;
+		static::$wpcom_request_failures[ $request_label ] = array(
+			'error'   => $error,
+			'expires' => time() + self::WPCOM_REQUEST_FAILURE_CACHE_DURATION,
+		);
 	}
 
 	/**
@@ -396,10 +467,16 @@ class Wpcom_Products {
 	 * @return null|WP_Error
 	 */
 	private static function get_request_failure( $request_label ) {
-		if ( array_key_exists( $request_label, static::$wpcom_request_failures ) ) {
-			return static::$wpcom_request_failures[ $request_label ];
+		if ( ! isset( static::$wpcom_request_failures[ $request_label ] ) ) {
+			return null;
 		}
 
-		return null;
+		// Expire rather than answer for the life of the process, which can outlast the outage.
+		if ( time() >= static::$wpcom_request_failures[ $request_label ]['expires'] ) {
+			unset( static::$wpcom_request_failures[ $request_label ] );
+			return null;
+		}
+
+		return static::$wpcom_request_failures[ $request_label ]['error'];
 	}
 }

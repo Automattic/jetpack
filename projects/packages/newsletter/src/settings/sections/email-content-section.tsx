@@ -11,6 +11,7 @@ import { Radio } from '../components/radio';
 import { Toggle } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
+import type { JSX } from 'react';
 
 interface EmailContentSectionProps {
 	data: NewsletterSettings;

@@ -114,11 +114,6 @@ class Sharing_Source_Js_Dialog_Test extends WP_UnitTestCase {
 		);
 		$class   = $classes[ $service ];
 
-		/*
-		 * Sharing sources are instantiated with the string service slug as the id in production
-		 * (see Sharing_Service), so the int phpdoc on the constructor is inaccurate here.
-		 */
-		// @phan-suppress-next-line PhanTypeMismatchArgument
 		$source = new $class( $service, array( 'button_style' => 'icon' ) );
 		$source->display_footer();
 	}

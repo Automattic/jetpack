@@ -9,7 +9,10 @@ import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockResponse,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
@@ -22,7 +25,6 @@ import {
 import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PopularPostRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -48,7 +50,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Popular post (12 months)" widget shows the site\'s most-viewed post of the last 12 months, with its publish date and its all-time views, likes, and comments. The window is the widget\'s own — the dashboard date range does not change which post wins — and it only picks the winner: every tile comes from the all-time `stats/post` response, so the three cannot measure different periods. There is no `WithComparison` story: the card shows no period-over-period delta, so the dashboard story below carries the comparison report params instead.',
+					'The "Most popular in the last year" widget shows the site\'s most-viewed post of the last 12 months, with its publish date and its all-time views, likes, and comments. The window is the widget\'s own — the dashboard date range does not change which post wins — and it only picks the winner: every tile comes from the all-time `stats/post` response, so the three cannot measure different periods. There is no `WithComparison` story: the card shows no period-over-period delta, so the dashboard story below carries the comparison report params instead.',
 			},
 		},
 	},
@@ -123,7 +125,31 @@ export const Empty: Story = {
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/top-posts', 'empty' );
-		return () => forceStatsMockState( 'stats/top-posts', null );
+		setReportMockResponse( '/wp/v2/posts', [ { id: 1 } ] );
+		return () => {
+			forceStatsMockState( 'stats/top-posts', null );
+			setReportMockResponse( '/wp/v2/posts', null );
+		};
+	},
+};
+
+export const EmptyNoPosts: Story = {
+	render: renderPopularPost,
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		const scriptData = window.JetpackScriptData;
+		window.JetpackScriptData = {
+			...scriptData,
+			site: { ...scriptData?.site, admin_url: 'https://example.com/blog/wp-admin/' },
+		} as typeof window.JetpackScriptData;
+		forceStatsMockState( 'stats/top-posts', 'empty' );
+		forceStatsMockState( '/wp/v2/posts', 'empty' );
+		return () => {
+			window.JetpackScriptData = scriptData;
+			forceStatsMockState( 'stats/top-posts', null );
+			forceStatsMockState( '/wp/v2/posts', null );
+		};
 	},
 };
 
@@ -136,7 +162,7 @@ function PopularPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetCont
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ POPULAR_POST_RENDER_MODULE }
 			renderComponent={ PopularPostRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( true ) } }

@@ -11,16 +11,7 @@ import type { LibraryItem } from '../../types/library';
 type Props = { item: LibraryItem };
 
 /**
- * Render the media-area for one DataViews grid card. Layers (priority order):
- * 1. uploading / promoting / deleting → ProgressBar overlay
- * 2. failed    → red overlay with Retry
- * 3. local     → "Local video" placeholder + hover-revealed Upload button
- * 4. videopress → thumbnail image + duration badge + click/hover "Edit details"
- *
- * For idle VideoPress videos the whole thumbnail is a button that opens the
- * video's Details (mirroring Core, where clicking the media opens it), and the
- * shared `.vp-library__hover-action` overlay reveals an "Edit details" label on
- * hover/focus. Local videos keep their existing "Upload to VideoPress" button.
+ * Show upload progress or a poster, with details access for upload drafts and VideoPress videos.
  *
  * @param props      - Component props.
  * @param props.item - The library item rendered by this card.
@@ -45,6 +36,21 @@ export default function ThumbnailField( { item }: Props ) {
 				<img className="vp-library__thumbnail-image" src={ posterUrl } alt={ title } />
 			) : null }
 
+			{ isVideoPressIdle && item.conversionFailed ? (
+				<Stack
+					direction="column"
+					gap="xs"
+					align="center"
+					justify="center"
+					className="vp-library__failed"
+				>
+					<Text>{ __( 'Conversion failed', 'jetpack-videopress-pkg' ) }</Text>
+					<Text variant="body-sm">
+						{ __( 'Delete this video and upload it again.', 'jetpack-videopress-pkg' ) }
+					</Text>
+				</Stack>
+			) : null }
+
 			{ isVideoPressIdle && isProcessing ? (
 				<Stack
 					direction="column"
@@ -59,7 +65,7 @@ export default function ThumbnailField( { item }: Props ) {
 									/* translators: %d: transcoding progress percentage */
 									__( 'Processing %d%%', 'jetpack-videopress-pkg' ),
 									processingProgress
-							  )
+								)
 							: __( 'Processing', 'jetpack-videopress-pkg' ) }
 					</Text>
 					<ProgressBar
@@ -75,7 +81,7 @@ export default function ThumbnailField( { item }: Props ) {
 				</span>
 			) : null }
 
-			{ isVideoPressIdle ? (
+			{ isVideoPressIdle || ( id.startsWith( 'upload-' ) && upload.status !== 'failed' ) ? (
 				<button
 					type="button"
 					className="vp-library__open-details"
@@ -158,7 +164,11 @@ export default function ThumbnailField( { item }: Props ) {
 					<Text>{ failureLabel.summary }</Text>
 					{ /* Own line rather than joined onto the summary: the tile is too
 					     narrow for one string, and the Retry button sits below. */ }
-					{ failureLabel.cause ? <Text variant="body-sm">{ failureLabel.cause }</Text> : null }
+					{ failureLabel.cause ? (
+						<Text variant="body-sm" className="vp-library__failed-cause">
+							{ failureLabel.cause }
+						</Text>
+					) : null }
 					<Button size="compact" onClick={ () => retryUpload( id ) }>
 						{ __( 'Retry', 'jetpack-videopress-pkg' ) }
 					</Button>

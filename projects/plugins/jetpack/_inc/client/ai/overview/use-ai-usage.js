@@ -8,7 +8,6 @@
 
 import {
 	PLAN_TYPE_FREE,
-	PLAN_TYPE_UNLIMITED,
 	usePlanType as getPlanType,
 } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
@@ -37,57 +36,36 @@ export function anchorDateToUtc( value ) {
 }
 
 /**
- * Normalize the ai-assistant-feature payload for display, following
- * ai-client's free/tiered/unlimited rules. The i4 card shows what is
- * AVAILABLE (limit − used), so that is derived here.
+ * Normalize the ai-assistant-feature payload for display, with the live
+ * entitlement as the only source of truth (billing metadata can lag behind
+ * migrations). The product has two states: Free gets a meter and an upgrade
+ * offer; any paid plan gets nothing — nothing to meter, no higher tier to
+ * sell. The i4 card shows what is AVAILABLE (limit − used), so that is
+ * derived here.
  *
  * @param {object} data - Raw endpoint payload (dash-cased keys).
- * @return {object} { unlimited, isFree, requestsCount, requestsLimit, requestsAvailable, planLabel, showUpgrade }
+ * @return {object} { isFree, requestsCount, requestsLimit, requestsAvailable, showUpgrade }
  */
 export function normalizeUsage( data ) {
-	const currentTier = data?.[ 'current-tier' ] ?? null;
-	const planType = getPlanType( currentTier );
-	const unlimited = planType === PLAN_TYPE_UNLIMITED;
+	const planType = getPlanType( data?.[ 'current-tier' ] ?? null );
+	// A payload that doesn't positively identify the free tier gets no card
+	// rather than a guessed meter.
 	const isFree = planType === PLAN_TYPE_FREE;
-	// A payload without a tier can't be split into period-vs-limit halves, so
-	// it reads the free-shape pair — a consistent count against its own limit.
-	const useFreeCounts = isFree || ! currentTier;
 
-	let requestsCount = null;
-	let requestsLimit = null;
-	if ( ! unlimited ) {
-		requestsCount =
-			( useFreeCounts
-				? data?.[ 'requests-count' ]
-				: data?.[ 'usage-period' ]?.[ 'requests-count' ] ) ?? null;
-		requestsLimit =
-			( useFreeCounts
-				? data?.[ 'requests-limit' ]
-				: currentTier?.limit || data?.[ 'requests-limit' ] ) ?? null;
-	}
+	const requestsCount = ( isFree ? data?.[ 'requests-count' ] : null ) ?? null;
+	const requestsLimit = ( isFree ? data?.[ 'requests-limit' ] : null ) ?? null;
 	const requestsAvailable =
 		requestsCount !== null && requestsLimit !== null
 			? Math.max( 0, requestsLimit - requestsCount )
 			: null;
 
-	// Free is upgradable by definition, whatever the payload says about tiers.
-	const showUpgrade =
-		! unlimited &&
-		( isFree || Boolean( data?.[ 'next-tier' ] ) || data?.[ 'site-require-upgrade' ] === true );
-
-	// Only a real plan name belongs here. "Free" is one; a tier's limit or
-	// "Unlimited" is not — both just repeat the requests cell — so a paid site
-	// with no purchase name to show leaves this empty.
-	const planLabel = isFree ? __( 'Free', 'jetpack' ) : null;
-
 	return {
-		unlimited,
 		isFree,
 		requestsCount,
 		requestsLimit,
 		requestsAvailable,
-		planLabel,
-		showUpgrade,
+		// Free is upgradable by definition, whatever the payload says about tiers.
+		showUpgrade: isFree,
 	};
 }
 

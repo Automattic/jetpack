@@ -53,8 +53,7 @@ Notes:
 ```tsx
 import { useMemo, useCallback } from 'react';
 import { useStagedSearch, encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
-import { localTZDate } from '@jetpack-premium-analytics/data';
-import type { DateRange } from '@jetpack-premium-analytics/datetime';
+import { localTZDate, type DateRange } from '@jetpack-premium-analytics/datetime';
 
 type Search = {
 	from?: string;

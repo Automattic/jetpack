@@ -1,5 +1,4 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -9,7 +8,6 @@ import {
 	getSandboxDomain,
 	fetchSiteConnectionTest,
 } from 'state/connection';
-import { HeaderNav } from './header-nav';
 
 export class Masthead extends Component {
 	trackLogoClick = () => {
@@ -71,14 +69,13 @@ export class Masthead extends Component {
 			<header className="jp-masthead">
 				<div className="jp-masthead__inside-container">
 					<div className="jp-masthead__title-container">
-						<a onClick={ this.trackLogoClick } className="jp-masthead__logo-link" href="#dashboard">
+						<a onClick={ this.trackLogoClick } className="jp-masthead__logo-link" href="#/settings">
 							<JetpackLogo showText={ false } height={ 20 } />
 						</a>
 						<h2 className="jp-masthead__title">{ this.getTitle() }</h2>
 						{ offlineNotice }
 						{ sandboxedBadge }
 					</div>
-					{ isWoASite() && <HeaderNav location={ this.props.location } /> }
 				</div>
 			</header>
 		);

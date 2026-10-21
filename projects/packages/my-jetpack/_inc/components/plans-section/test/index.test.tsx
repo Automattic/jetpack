@@ -1,12 +1,12 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import useProduct from '../../../data/products/use-product';
-import useSimpleQuery from '../../../data/use-simple-query';
+import useSitePurchases from '../../../data/use-site-purchases';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import PlansSection from '../index';
 
 jest.mock( '../../../data/products/use-product' );
-jest.mock( '../../../data/use-simple-query' );
+jest.mock( '../../../data/use-site-purchases' );
 jest.mock( '../../../hooks/use-my-jetpack-connection' );
 jest.mock( '../../../hooks/use-analytics', () => ( {
 	__esModule: true,
@@ -21,6 +21,7 @@ jest.mock( '../../../utils/get-purchase-plan-url', () => ( {
 	default: () => 'https://example.org/purchase',
 } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getScriptData: () => ( { myJetpack: {} } ),
 	getMyJetpackUrl: ( path = '' ) =>
 		`https://example.org/wp-admin/admin.php?page=my-jetpack${ path }`,
 } ) );
@@ -29,7 +30,7 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 } ) );
 
 const mockUseProduct = useProduct as jest.MockedFunction< typeof useProduct >;
-const mockUseSimpleQuery = useSimpleQuery as jest.MockedFunction< typeof useSimpleQuery >;
+const mockUseSitePurchases = useSitePurchases as jest.MockedFunction< typeof useSitePurchases >;
 const mockUseMyJetpackConnection = useMyJetpackConnection as jest.MockedFunction<
 	typeof useMyJetpackConnection
 >;
@@ -48,11 +49,11 @@ const buildPurchase = ( product_name: string ): Purchase =>
 	} ) as unknown as Purchase;
 
 const setPurchases = ( purchases: Purchase[] ) => {
-	mockUseSimpleQuery.mockReturnValue( {
+	mockUseSitePurchases.mockReturnValue( {
 		data: purchases,
 		isLoading: false,
 		isError: false,
-	} as ReturnType< typeof useSimpleQuery > );
+	} as ReturnType< typeof useSitePurchases > );
 };
 
 describe( 'PlansSection', () => {
@@ -106,5 +107,32 @@ describe( 'PlansSection', () => {
 				screen.getByRole( 'link', { name: 'Activate a license (requires a user connection)' } )
 			).toBeInTheDocument();
 		} );
+	} );
+
+	describe( 'the "View included features" link', () => {
+		it( 'opens the included Features filter when the catalog includes a feature', () => {
+			window.myJetpackInitialState.mainFeatures = {
+				features: [ { included: true } ],
+			} as MainFeaturesState;
+			render( <PlansSection /> );
+
+			expect( screen.getByRole( 'link', { name: 'View included features' } ) ).toHaveAttribute(
+				'href',
+				'https://example.org/wp-admin/admin.php?page=my-jetpack#/features?filter=included'
+			);
+		} );
+
+		it.each( [ undefined, { features: [ { included: false } ] } ] )(
+			'does not offer an empty included list even when there is a purchase (%s)',
+			catalog => {
+				setPurchases( [ buildPurchase( 'Domain registration' ) ] );
+				window.myJetpackInitialState.mainFeatures = catalog as MainFeaturesState;
+				render( <PlansSection /> );
+
+				expect(
+					screen.queryByRole( 'link', { name: 'View included features' } )
+				).not.toBeInTheDocument();
+			}
+		);
 	} );
 } );

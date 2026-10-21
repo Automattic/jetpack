@@ -11,6 +11,7 @@ import DefaultShareMessageCard from './default-share-message-card';
 import PublicizeInactiveEmptyState from './publicize-inactive-empty-state';
 import SocialModuleCard from './social-module-card';
 import { useTurnOnSocial } from './turn-on-social-context';
+import type { JSX } from 'react';
 import './style.scss';
 
 /**

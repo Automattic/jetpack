@@ -8,6 +8,7 @@
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-status": "@dev",
@@ -52,10 +53,9 @@
 	"prefer-stable": true,
 	"extra": {
 		"autorelease": true,
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-newsletter",
 		"branch-alias": {
-			"dev-trunk": "0.13.x-dev"
+			"dev-trunk": "0.18.x-dev"
 		},
 		"textdomain": "jetpack-newsletter",
 		"version-constants": {

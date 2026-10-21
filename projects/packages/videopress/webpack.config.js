@@ -1,6 +1,5 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 
 // Configuration shared by every build in this package.
 const baseConfig = {
@@ -68,14 +67,32 @@ module.exports = [
 			'block-editor/blocks/video/view': './src/client/block-editor/blocks/video/view.ts',
 
 			// Video Playlist block
-			'block-editor/blocks/playlist/index': './src/client/block-editor/blocks/playlist/index.ts',
+			'block-editor/blocks/playlist/index': './src/client/block-editor/blocks/playlist/index.tsx',
 			'block-editor/blocks/playlist/view': './src/client/block-editor/blocks/playlist/view.ts',
+
+			// Latest Videos Playlist block: editor only, it shares the playlist block's view assets.
+			'block-editor/blocks/latest-videos-playlist/index':
+				'./src/client/block-editor/blocks/latest-videos-playlist/index.ts',
+
+			// All Playlists block
+			'block-editor/blocks/all-playlists/index':
+				'./src/client/block-editor/blocks/all-playlists/index.tsx',
+			'block-editor/blocks/all-playlists/view':
+				'./src/client/block-editor/blocks/all-playlists/view.ts',
+
+			// Channel blocks: server-rendered, editor script only.
+			'block-editor/blocks/channel-details/index':
+				'./src/client/block-editor/blocks/channel-details/index.tsx',
+			'block-editor/blocks/video-details/index':
+				'./src/client/block-editor/blocks/video-details/index.tsx',
+			'block-editor/blocks/playlist-details/index':
+				'./src/client/block-editor/blocks/playlist-details/index.tsx',
+			'block-editor/blocks/episode-navigation/index':
+				'./src/client/block-editor/blocks/episode-navigation/index.tsx',
 
 			'lib/token-bridge': './src/client/lib/token-bridge/index.ts',
 			'lib/player-bridge': './src/client/lib/player-bridge/index.ts',
-
-			// VideoPress dashboard page
-			'admin/index': './src/client/admin/index.jsx',
+			'lib/inline-player': './src/client/lib/inline-player/index.ts',
 
 			// Page-level shell stylesheet for the modernized dashboard. CSS-only
 			// entry: emits build/dashboard-shell/index.css enqueued by
@@ -89,32 +106,31 @@ module.exports = [
 			// Divi editor extensions
 			'divi-editor/index': './src/client/divi-editor/index.js',
 		},
-		plugins: [
-			...jetpackWebpackConfig.StandardPlugins(),
-			new CopyWebpackPlugin( {
-				patterns: [
-					{
-						context: 'src/client/block-editor/blocks',
-						from: './*/block.json',
-						to: './block-editor/blocks/[path]/[name].json',
-					},
-					{
-						from: 'src/client/block-editor/extensions/index.json',
-						to: './block-editor/extensions/index.json',
-					},
-					{
-						context: 'src/dashboard/components/onboarding-modal/images',
-						// Every extension in this folder has to be listed or the file
-						// silently 404s at runtime: JPEG and PNG for the stills, SVG
-						// for the wireframe brand artwork. Deliberately no video
-						// extensions — the plugin bundle must not ship one; the welcome
-						// modal's intro film is VideoPress-hosted (see intro-video.tsx).
-						from: './*.{jpeg,png,svg}',
-						to: './dashboard/onboarding-modal/images/[name][ext]',
-					},
-				],
-			} ),
-		],
+		output: {
+			...baseConfig.output,
+			copy: [
+				{
+					context: 'src/client/block-editor/blocks',
+					from: './*/block.json',
+					filename: './block-editor/blocks/[path]/[name].json',
+				},
+				{
+					from: 'src/client/block-editor/extensions/index.json',
+					filename: './block-editor/extensions/index.json',
+				},
+				{
+					context: 'src/dashboard/components/onboarding-modal/images',
+					// Every extension in this folder has to be listed or the file
+					// silently 404s at runtime: JPEG and PNG for the stills, SVG
+					// for the wireframe brand artwork. Deliberately no video
+					// extensions — the plugin bundle must not ship one; the welcome
+					// modal's intro film is VideoPress-hosted (see intro-video.tsx).
+					from: './*.{jpeg,png,svg}',
+					filename: './dashboard/onboarding-modal/images/[name][ext]',
+				},
+			],
+		},
+		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 	},
 
 	// The Divi 5 Visual Builder module ships as a Divi extension, so it must bind
@@ -127,6 +143,26 @@ module.exports = [
 		...baseConfig,
 		entry: {
 			'divi-5/index': './src/client/divi-5/index.js',
+		},
+		output: {
+			...baseConfig.output,
+			copy: [
+				/*
+				 * Divi 5 module metadata read by PHP at runtime (module
+				 * registration and the Divi 5 Migrator). Copied into build/
+				 * because src/client is production-excluded from the package.
+				 */
+				{
+					context: 'src/client/divi-5/modules',
+					from: './*/module.json',
+					filename: './divi-5/modules/[path]/[name].json',
+				},
+				{
+					context: 'src/client/divi-5/modules',
+					from: './*/conversion-outline.json',
+					filename: './divi-5/modules/[path]/[name].json',
+				},
+			],
 		},
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
@@ -142,25 +178,6 @@ module.exports = [
 						},
 					},
 				},
-			} ),
-			new CopyWebpackPlugin( {
-				patterns: [
-					/*
-					 * Divi 5 module metadata read by PHP at runtime (module
-					 * registration and the Divi 5 Migrator). Copied into build/
-					 * because src/client is production-excluded from the package.
-					 */
-					{
-						context: 'src/client/divi-5/modules',
-						from: './*/module.json',
-						to: './divi-5/modules/[path]/[name].json',
-					},
-					{
-						context: 'src/client/divi-5/modules',
-						from: './*/conversion-outline.json',
-						to: './divi-5/modules/[path]/[name].json',
-					},
-				],
 			} ),
 		],
 	},

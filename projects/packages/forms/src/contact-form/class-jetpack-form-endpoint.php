@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use WP_REST_Request;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * REST endpoint for the jetpack_form custom post type.
  */

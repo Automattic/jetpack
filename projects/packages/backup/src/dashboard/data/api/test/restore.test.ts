@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { fetchRecentRestores } from '../restore';
+import { fetchRecentRestores, parseRestoreWhen } from '../restore';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
@@ -52,13 +52,10 @@ describe( 'fetchRecentRestores', () => {
 	test.each( [
 		[ 'finished', true ],
 		[ 'FINISHED', true ],
-		// Both spellings, because the collection route maps nothing and
-		// `Restore_Bridge::STATUS_MAP` already equates these two. Pinning
-		// this to `finished` alone would silently kill the review prompt's
-		// restore trigger on any site whose upstream says `success`.
+		// The collection route maps nothing, and `Restore_Bridge::STATUS_MAP`
+		// equates `success` with `finished`.
 		[ 'success', true ],
-		// Settled and not a failure, but not a restore to ask anyone to
-		// praise either — kept distinct here as `STATUS_MAP` keeps it.
+		// Settled but not a clean success, kept distinct as `STATUS_MAP` keeps it.
 		[ 'success-with-errors', false ],
 		[ 'fail', false ],
 		[ 'aborted', false ],
@@ -100,5 +97,31 @@ describe( 'fetchRecentRestores', () => {
 		respondWith( [ { restore_id: 1, rewind_id: 1786512000.11 } ] );
 		const rows = await fetchRecentRestores();
 		expect( rows?.[ 0 ].rewind_id ).toBe( '1786512000.11' );
+	} );
+} );
+
+// On a UTC runner every assertion below would pass against the naive parse too.
+describe( 'parseRestoreWhen', () => {
+	test( 'reads a zone-less stamp as UTC rather than the browser zone', () => {
+		expect( parseRestoreWhen( '2026-09-03 14:11:00' ) ).toBe( Date.UTC( 2026, 8, 3, 14, 11 ) );
+		// What `Date.parse` would have made of it, three hours late.
+		expect( parseRestoreWhen( '2026-09-03 14:11:00' ) ).not.toBe(
+			Date.parse( '2026-09-03 14:11:00' )
+		);
+	} );
+
+	test( 'reads a zone-less ISO stamp as UTC too', () => {
+		expect( parseRestoreWhen( '2026-09-03T14:11:00' ) ).toBe( Date.UTC( 2026, 8, 3, 14, 11 ) );
+	} );
+
+	test.each( [ '2026-09-03T14:11:00Z', '2026-09-03T11:11:00-03:00', '2026-09-03T11:11:00-0300' ] )(
+		'honours the designator on %p',
+		stamp => {
+			expect( parseRestoreWhen( stamp ) ).toBe( Date.UTC( 2026, 8, 3, 14, 11 ) );
+		}
+	);
+
+	test.each( [ '', '   ', 'whenever' ] )( 'answers null for %p', stamp => {
+		expect( parseRestoreWhen( stamp ) ).toBeNull();
 	} );
 } );

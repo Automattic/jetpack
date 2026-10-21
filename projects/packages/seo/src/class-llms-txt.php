@@ -4,8 +4,8 @@
  *
  * Serves a root-level `/llms.txt` — the emerging convention (llmstxt.org) for
  * giving AI assistants a curated, Markdown map of a site's key content. Gated on
- * the durable option `jetpack_seo_llms_txt_enabled` (round-tripped through the
- * existing `/jetpack/v4/settings` endpoint by the AI tab).
+ * the durable option `jetpack_seo_llms_txt_enabled` (round-tripped through core's
+ * `/wp/v2/settings` endpoint by the GEO tab).
  *
  * Serving approach: this hooks `template_redirect` and inspects the raw request
  * path rather than registering a rewrite rule, so it needs no rewrite flush and
@@ -74,7 +74,7 @@ class Llms_Txt {
 	 * @return bool
 	 */
 	public static function can_serve() {
-		$has_static_file = defined( 'ABSPATH' ) && file_exists( ABSPATH . 'llms.txt' );
+		$has_static_file = defined( 'ABSPATH' ) && Static_Files::exists( 'llms.txt' );
 
 		/**
 		 * Filters whether WordPress can serve the dynamic `/llms.txt`. Hosts that
@@ -277,16 +277,16 @@ class Llms_Txt {
 	 */
 	private static function summary( $post ) {
 		if ( has_excerpt( $post ) ) {
+			// A manual excerpt is a deliberate public summary; a body gate does not withhold it.
 			$raw = get_the_excerpt( $post );
-		} elseif (
-			get_post_meta( $post->ID, '_jetpack_memberships_contains_paid_content', true )
-			|| get_post_meta( $post->ID, '_jetpack_memberships_contains_paywalled_content', true )
-			|| has_block( 'premium-content/container', $post )
-			|| has_block( 'jetpack/paywall', $post )
-		) {
-			return '';
+		} elseif ( Content_Gate::is_gated( $post ) ) {
+			$teaser = Content_Gate::public_teaser( $post );
+			if ( '' === $teaser ) {
+				return '';
+			}
+			$raw = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $teaser ) ), 30, '' );
 		} else {
-			$raw = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post->post_content ) ), 30, '' );
+			$raw = wp_trim_words( wp_strip_all_tags( strip_shortcodes( get_the_excerpt( $post ) ) ), 30, '' );
 		}
 
 		// Collapse whitespace so a link line stays on one row.

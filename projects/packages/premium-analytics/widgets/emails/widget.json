@@ -1,10 +1,29 @@
 {
 	"name": "jpa/stats-emails",
+	"icon": "jpa/envelope",
 	"title": "Latest emails sent",
-	"description": "Open and click rates for your latest emails.",
+	"description": "Opens or clicks, with their rates, for your latest emails.",
 	"help": {
-		"content": "Your most recently sent emails, including their open and click rates."
+		"content": "Your most recently sent emails, with their opens and open rate, or clicks and click rate."
 	},
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "metric",
+			"type": "jpa/select",
+			"label": "View by",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "opens",
+					"label": "Opened"
+				},
+				{
+					"value": "clicks",
+					"label": "Clicked"
+				}
+			]
+		}
+	]
 }

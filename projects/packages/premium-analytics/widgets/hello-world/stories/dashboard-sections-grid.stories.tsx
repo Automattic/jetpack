@@ -111,9 +111,9 @@ const storySections = [
 		default_layout: [],
 	},
 	{
-		id: 'woocommerce/store',
-		slug: 'store',
-		label: 'Store',
+		id: 'woocommerce-analytics/woocommerce',
+		slug: 'woocommerce',
+		label: 'WooCommerce',
 		order: 40,
 		default_layout: [],
 	},
@@ -139,16 +139,18 @@ function DashboardSectionsGridStory() {
 				{ sections.map( section => (
 					<Tabs.Panel key={ section.slug } value={ section.slug } className={ styles.content }>
 						{ activeSection === section.slug ? (
-							<WidgetDashboard
-								widgetTypes={ widgetTypes }
-								layout={ layout }
-								onLayoutChange={ setLayout }
-								resolveWidgetModule={ resolveWidgetModule }
-								editMode
-							>
-								<WidgetDashboard.NoWidgetsState />
-								<WidgetDashboard.Widgets className={ styles.widgets } />
-							</WidgetDashboard>
+							<div className={ styles.body }>
+								<WidgetDashboard
+									widgetTypes={ widgetTypes }
+									layout={ layout }
+									onLayoutChange={ setLayout }
+									resolveWidgetModule={ resolveWidgetModule }
+									editMode
+								>
+									<WidgetDashboard.NoWidgetsState />
+									<WidgetDashboard.Widgets className={ styles.widgets } />
+								</WidgetDashboard>
+							</div>
 						) : null }
 					</Tabs.Panel>
 				) ) }

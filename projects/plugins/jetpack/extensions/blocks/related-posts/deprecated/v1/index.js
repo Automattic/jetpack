@@ -13,7 +13,7 @@ export const migrate = ( attrs, innerBlocks ) => {
 						level: 3,
 					} ),
 					...innerBlocks,
-			  ]
+				]
 			: innerBlocks,
 	];
 };

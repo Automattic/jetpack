@@ -1,27 +1,25 @@
-@use "../styles/menu-trigger";
-
-// A menu, not a form field, so it is built on `Dropdown`. The box and its
-// states come from the shared trigger mixin; what stays here is the trigger's
-// own layout, which carries a glyph, a label and a caret.
+// The box and its states are the Button's own. What stays here is what the
+// Button has no part for: the attention fill, the label's truncation, the seam.
 .date-period-dropdown {
-
-	@include menu-trigger.container;
-
+	// The attention fill sits behind the label; isolating keeps its negative
+	// z-index inside the button rather than under the page.
 	&__toggle {
+		isolation: isolate;
+	}
 
-		@include menu-trigger.toggle;
+	// A period set by a navigation, not the reader: the trigger fills with the
+	// brand color and lets it go, the way a pressed preset looks. The outline
+	// focus ring is drawn outside the box, so the fill never covers it.
+	&__attention {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		border-radius: inherit;
+		background: var(--wpds-color-background-interactive-brand-weak-active);
+		pointer-events: none;
 
-		gap: var(--wpds-dimension-size-5xs);
-		font-family: var(--wpds-typography-font-family-body);
-		// The input layout lifts small text to 16px on phones, so the control
-		// stays the size of its row-mates where the panel collapses.
-		font-size: max(var(--wpds-typography-font-size-md), 16px);
-		// The Button asks for an emphasis weight; a select trigger takes the
-		// weight of the text around it.
-		font-weight: inherit;
-
-		@media (min-width: 600px) {
-			font-size: var(--wpds-typography-font-size-md);
+		@media (prefers-reduced-motion: no-preference) {
+			animation: date-period-dropdown-attention var(--date-period-dropdown-attention-duration) ease-out both;
 		}
 	}
 
@@ -35,13 +33,6 @@
 	&__glyph,
 	&__caret {
 		flex: 0 0 auto;
-	}
-
-	// The calendar opens beside the list rather than replacing it, so the panel
-	// is the row holding both.
-	&__panel {
-		display: flex;
-		align-items: flex-start;
 	}
 
 	// Owned here rather than by the calendar: it is the seam between the
@@ -67,5 +58,12 @@
 	from {
 		opacity: 0;
 		transform: translateX(calc(-1 * var(--wpds-dimension-size-5xs)));
+	}
+}
+
+@keyframes date-period-dropdown-attention {
+
+	to {
+		opacity: 0;
 	}
 }

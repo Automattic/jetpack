@@ -40,7 +40,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 	public function test_shortcodes_crowdsignal() {
 		$content = '[crowdsignal]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -52,7 +52,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 	public function test_shortcodes_polldaddy() {
 		$content = '[polldaddy]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -66,7 +66,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 		$id      = 9541291;
 		$content = '[polldaddy poll=' . $id . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals(
 			sprintf(
@@ -87,7 +87,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 		$id      = 9541291;
 		$content = '[crowdsignal poll=' . $id . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals(
 			sprintf(
@@ -108,7 +108,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 		$id      = 9541291;
 		$content = '[crowdsignal poll=' . $id . ' type="slider"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals(
 			sprintf(
@@ -129,7 +129,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 		$id      = '7676FB1FF2B56CE9';
 		$content = '[polldaddy survey=' . $id . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals(
 			sprintf(
@@ -150,7 +150,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 		$id      = '7676FB1FF2B56CE9';
 		$content = '[crowdsignal survey=' . $id . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals(
 			sprintf(
@@ -171,7 +171,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 		$id      = '7676FB1FF2B56CE9';
 		$content = '[crowdsignal survey=' . $id . ' type="iframe" width="400" height="600"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals(
 			sprintf(
@@ -200,7 +200,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 			$title
 		);
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals(
 			sprintf(

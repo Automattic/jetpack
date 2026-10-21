@@ -1,6 +1,7 @@
 export { AnnualHighlightsSkeleton } from './annual-highlights-skeleton';
 export { GenericSkeleton } from './generic-skeleton';
 export { HeatmapSkeleton } from './heatmap-skeleton';
+export { MonthCalendarHeatmapSkeleton } from './month-calendar-heatmap-skeleton';
 export {
 	MetricSparklineSkeleton,
 	type MetricSparklineSkeletonProps,

@@ -168,7 +168,7 @@ function sanitizeCommentContent( html ) {
 	} );
 
 	// `querySelectorAll` matches elements only, so comment nodes reach `innerHTML` untouched. In
-	// this destination that is not inert punctuation: a quote's value is serialized into post
+	// this destination that is not inert punctuation: a reposted quote is serialized into post
 	// content, where `<!-- wp:html -->` is a block delimiter. Left in place, an injected delimiter
 	// ends the quote early and opens a block of the attacker's choosing when the victim saves.
 	const walker = doc.createTreeWalker( doc.body, NodeFilter.SHOW_COMMENT );
@@ -179,6 +179,60 @@ function sanitizeCommentContent( html ) {
 	comments.forEach( comment => comment.remove() );
 
 	return doc.body.innerHTML;
+}
+
+/**
+ * Builds the paragraph blocks that make up a quote's body.
+ *
+ * `core/quote` stopped rendering its `value` attribute in WordPress 6.1: the block now keeps its
+ * body in inner blocks, and all that survives of `value` is a load-time migration that reads it
+ * with a `p` selector. Anything not inside a top-level `<p>` is therefore dropped on sight, which
+ * is why a reposted comment used to come out as an empty quote with the author still attached.
+ * Building the inner blocks here skips that migration, and the deprecated attribute, entirely.
+ *
+ * Runs of content that are not already paragraphs are wrapped rather than discarded, so a body
+ * that mixes the two keeps all of itself.
+ *
+ * @param {string} html - Quote body, as HTML. Already sanitized when it came from a comment.
+ * @return {Array} `core/paragraph` blocks, empty when there is nothing to show.
+ */
+function createQuoteBody( html ) {
+	// An inert document: assigning innerHTML here never executes scripts or loads subresources.
+	const doc = document.implementation.createHTMLDocument( '' );
+	doc.body.innerHTML = html;
+
+	/*
+	 * `blockquote` is the one thing the comment allowlist keeps that cannot live inside a
+	 * paragraph: wrapping it in one below would serialize to `<p><blockquote>`, which the parser
+	 * closes early on the way back in, stranding the text outside the block it belongs to. Unwrap
+	 * it instead, so a quote inside a comment keeps its words and loses only its indentation.
+	 * The list is static and in document order, so a nested blockquote is still visited.
+	 */
+	doc.body.querySelectorAll( 'blockquote' ).forEach( quote => {
+		quote.replaceWith( ...quote.childNodes );
+	} );
+
+	let wrapper = null;
+	Array.from( doc.body.childNodes ).forEach( node => {
+		if ( node.nodeName === 'P' ) {
+			wrapper = null;
+			return;
+		}
+
+		if ( wrapper ) {
+			wrapper.append( node );
+			return;
+		}
+
+		wrapper = doc.createElement( 'p' );
+		node.replaceWith( wrapper );
+		wrapper.append( node );
+	} );
+
+	return Array.from( doc.body.children )
+		.map( paragraph => paragraph.innerHTML )
+		.filter( content => content.trim() !== '' )
+		.map( content => createBlock( 'core/paragraph', { content } ) );
 }
 
 const safeUrl = getSafeUrl( url );
@@ -195,20 +249,21 @@ if ( safeUrl ) {
 		if ( text && text !== title ) {
 			const link = `<a href="${ escapeAttribute( safeUrl ) }">${ escapeHTML( title ) }</a>`;
 			blocks.push(
-				createBlock( 'core/quote', {
-					value: `<p>${ escapeHTML( text ) }</p>`,
-					citation: link,
-				} )
+				createBlock( 'core/quote', { citation: link }, [
+					createBlock( 'core/paragraph', { content: escapeHTML( text ) } ),
+				] )
 			);
 		}
 
 		if ( commentContent ) {
-			blocks.push(
-				createBlock( 'core/quote', {
-					value: sanitizeCommentContent( commentContent ),
-					citation: escapeHTML( commentAuthor ),
-				} )
-			);
+			const commentBody = createQuoteBody( sanitizeCommentContent( commentContent ) );
+
+			// A quote of nothing, credited to someone, is worse than no quote at all.
+			if ( commentBody.length ) {
+				blocks.push(
+					createBlock( 'core/quote', { citation: escapeHTML( commentAuthor ) }, commentBody )
+				);
+			}
 		}
 		blocks.push( createBlock( 'core/embed', { url: safeUrl, type: 'wp-embed' } ) );
 

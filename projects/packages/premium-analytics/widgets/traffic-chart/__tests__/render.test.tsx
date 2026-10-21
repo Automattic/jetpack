@@ -1,25 +1,27 @@
 /**
  * External dependencies
  */
-import { render } from '@testing-library/react';
+import { queryClient, ReportScopeProvider } from '@jetpack-premium-analytics/data';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import TrafficChartRender from '../render';
 import useTrafficChart from '../use-traffic-chart';
+import widget from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 jest.mock( '../use-traffic-chart' );
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-// The click lands in the date-filter controller, so a recorder stands in for it.
-const mockDrillDown = jest.fn();
-jest.mock( '@jetpack-premium-analytics/routing', () => ( {
-	useReportDateFilters: () => ( {
-		drillDown: ( ...args: unknown[] ) => mockDrillDown( ...args ),
-	} ),
-} ) );
+setSettings( {
+	...getSettings(),
+	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+} );
 
 // The chart itself is not this file's subject: `useTrafficChart` resolves the
 // bucket. The stand-in records props so the click handler can be driven.
@@ -33,6 +35,10 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 const mockUseTrafficChart = jest.mocked( useTrafficChart );
+const mockApiFetch = jest.mocked( apiFetch );
+const originalScriptData = window.JetpackScriptData;
+
+const V1_KEY = 'jetpack_stats_chart_type_123';
 
 // `normalizeReportParams` coerces away an interval the range disallows, so each
 // one needs a range long enough to survive reaching the widget.
@@ -60,8 +66,26 @@ function chartClickHandler(): ( date: Date ) => void {
 	return calls[ calls.length - 1 ][ 0 ].onDatumClick;
 }
 
+/** The `chartType` the widget handed the chart on the latest render. */
+function drawnChartType(): string {
+	const calls = mockMetricTabsChart.mock.calls;
+	return calls[ calls.length - 1 ][ 0 ].chartType;
+}
+
 beforeEach( () => {
-	mockDrillDown.mockClear();
+	jest.useFakeTimers();
+	window.JetpackScriptData = {
+		...originalScriptData,
+		site: {
+			...originalScriptData?.site,
+			admin_url: 'https://example.com/blog/wp-admin/',
+			wpcom: { blog_id: 123 },
+		},
+	} as typeof window.JetpackScriptData;
+	queryClient.clear();
+	window.localStorage.clear();
+	mockApiFetch.mockReset();
+	mockMetricTabsChart.mockClear();
 	mockUseTrafficChart.mockReset();
 	mockUseTrafficChart.mockReturnValue( {
 		metrics: [
@@ -79,23 +103,148 @@ beforeEach( () => {
 	} );
 } );
 
-describe( 'TrafficChart bucket size', () => {
-	it.each( [ 'hour', 'day', 'week', 'month' ] )( 'follows the page interval: %s', interval => {
-		render( <TrafficChartRender attributes={ { reportParams: reportParams( interval ) } } /> );
+afterEach( () => {
+	window.JetpackScriptData = originalScriptData;
+	jest.useRealTimers();
+} );
 
-		expect( requestedBucket() ).toBe( interval );
+describe( 'TrafficChart chart type', () => {
+	it( 'draws bars by default', () => {
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+	} );
+} );
+
+describe( 'TrafficChart inherited Stats v1 choice', () => {
+	const attributes = { reportParams: reportParams( 'day' ) };
+
+	it( 'draws the chart type Stats v1 saved, without writing it to the layout', () => {
+		window.localStorage.setItem( V1_KEY, 'line' );
+		const setAttributes = jest.fn();
+
+		render( <TrafficChartRender attributes={ attributes } setAttributes={ setAttributes } /> );
+
+		expect( drawnChartType() ).toBe( 'line' );
+		expect( setAttributes ).not.toHaveBeenCalled();
 	} );
 
-	// `year` is the only interval the dashboard still offers that this chart has
-	// no bucket for, so it is what reaches the clamp to the coarsest offered.
-	it( 'resolves a page interval this chart cannot draw to one it can', () => {
-		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } /> );
+	it( 'lets a chart type set on the widget win', () => {
+		window.localStorage.setItem( V1_KEY, 'line' );
 
-		expect( requestedBucket() ).toBe( 'month' );
+		render( <TrafficChartRender attributes={ { ...attributes, chartType: 'bar' } } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+	} );
+
+	it( 'ignores a saved value that is not a chart type', () => {
+		window.localStorage.setItem( V1_KEY, 'pie' );
+
+		render( <TrafficChartRender attributes={ attributes } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+	} );
+
+	it( 'ignores a choice saved for a different site', () => {
+		window.localStorage.setItem( 'jetpack_stats_chart_type_999', 'line' );
+
+		render( <TrafficChartRender attributes={ attributes } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+	} );
+
+	it( 'falls back to the default when the site id is unknown', () => {
+		window.JetpackScriptData = undefined as unknown as typeof window.JetpackScriptData;
+		window.localStorage.setItem( V1_KEY, 'line' );
+
+		render( <TrafficChartRender attributes={ attributes } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+	} );
+
+	it( 'falls back to the default when browser storage cannot be read', () => {
+		jest.spyOn( Storage.prototype, 'getItem' ).mockImplementation( () => {
+			throw new Error( 'blocked' );
+		} );
+
+		render( <TrafficChartRender attributes={ attributes } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+		jest.restoreAllMocks();
+	} );
+} );
+
+describe( 'Traffic chart type switch', () => {
+	function chartTypeSwitchValue( item: { chartType?: 'line' | 'bar' } ) {
+		const field = widget.attributes.find( attribute => attribute.id === 'chartType' );
+		return ( field as unknown as { getValue: ( args: { item: object } ) => unknown } ).getValue( {
+			item,
+		} );
+	}
+
+	it( 'shows bars when nothing is saved', () => {
+		expect( chartTypeSwitchValue( {} ) ).toBe( 'bar' );
+	} );
+
+	it( 'shows a saved choice', () => {
+		expect( chartTypeSwitchValue( { chartType: 'line' } ) ).toBe( 'line' );
+	} );
+
+	it( 'shows the choice Stats v1 saved when nothing is saved here', () => {
+		window.localStorage.setItem( V1_KEY, 'line' );
+
+		expect( chartTypeSwitchValue( {} ) ).toBe( 'line' );
+	} );
+} );
+
+describe( 'TrafficChart bucket size', () => {
+	it.each( [
+		[ 'week', 'day' ],
+		[ 'month', 'week' ],
+	] as const )( 'draws the saved bucket: %s', ( chartInterval, range ) => {
+		render(
+			<TrafficChartRender attributes={ { reportParams: reportParams( range ), chartInterval } } />
+		);
+
+		expect( requestedBucket() ).toBe( chartInterval );
+	} );
+
+	it( "draws the range's default bucket, not the page's, when none is saved", () => {
+		render(
+			<TrafficChartRender
+				attributes={ {
+					reportParams: { ...RANGE_FOR_INTERVAL.day, interval: 'week' } as ReportParams,
+				} }
+			/>
+		);
+
+		expect( requestedBucket() ).toBe( 'day' );
+	} );
+
+	it( 'clamps a saved bucket the range rules out', () => {
+		render(
+			<TrafficChartRender
+				attributes={ { reportParams: reportParams( 'hour' ), chartInterval: 'week' } }
+			/>
+		);
+
+		expect( requestedBucket() ).toBe( 'hour' );
+	} );
+
+	it( 'draws days for a saved bucket the plan locks', () => {
+		render(
+			<ReportScopeProvider dateLimits={ { lockedPresetIds: [], lockedIntervals: [ 'week' ] } }>
+				<TrafficChartRender
+					attributes={ { reportParams: reportParams( 'day' ), chartInterval: 'week' } }
+				/>
+			</ReportScopeProvider>
+		);
+
+		expect( requestedBucket() ).toBe( 'day' );
 	} );
 
 	// The Group by attribute this widget used to declare (WOOA7S-1987): a saved
-	// layout can still carry it, and it must not override the page.
+	// layout can still carry it, and it must not override the range's bucket.
 	it( 'ignores a granularity persisted before the widget dropped the control', () => {
 		const staleAttributes = {
 			reportParams: reportParams( 'month' ),
@@ -107,32 +256,174 @@ describe( 'TrafficChart bucket size', () => {
 
 		expect( requestedBucket() ).toBe( 'month' );
 	} );
-
-	// The widget resolves this from `reportParams` alone, so it cannot need a
-	// host setter — and cannot dirty the saved layout just by rendering.
-	it( 'writes nothing, whatever it is handed', () => {
-		const setAttributes = jest.fn();
-
-		render(
-			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'month' ) } }
-				setAttributes={ setAttributes }
-			/>
-		);
-
-		expect( setAttributes ).not.toHaveBeenCalled();
-	} );
 } );
 
 describe( 'TrafficChart drill-down', () => {
-	// A yearly page draws in months here, so the click must name the month:
-	// left to the page interval, a click on March would open the whole year.
-	it( 'names the bucket size it drew, not the page interval', () => {
+	// A multi-year range draws in months here, so the click must open the month:
+	// left to the page interval, a click on February would open the whole year.
+	it( 'sets the period to the bar it drew, not the page interval', () => {
+		const openPeriod = jest.fn();
+		render(
+			<ReportScopeProvider openPeriod={ openPeriod }>
+				<TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } />
+			</ReportScopeProvider>
+		);
+
+		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+
+		expect( openPeriod ).toHaveBeenCalledWith( {
+			from: new Date( '2026-02-01T00:00:00.000Z' ),
+			to: new Date( '2026-02-28T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'cuts an edge bar to the window it drew', () => {
+		const openPeriod = jest.fn();
+		render(
+			<ReportScopeProvider openPeriod={ openPeriod }>
+				<TrafficChartRender
+					attributes={ {
+						reportParams: { from: '2026-02-10', to: '2026-06-30' } as ReportParams,
+						chartInterval: 'month',
+					} }
+				/>
+			</ReportScopeProvider>
+		);
+
+		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+
+		expect( openPeriod ).toHaveBeenCalledWith( {
+			from: new Date( '2026-02-10T00:00:00.000Z' ),
+			to: new Date( '2026-02-28T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'leaves the bars inert on a surface with no period to set', () => {
 		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } /> );
 
-		const clicked = new Date( '2026-02-14T00:00:00.000Z' );
-		chartClickHandler()( clicked );
+		expect( chartClickHandler() ).toBeUndefined();
+	} );
+} );
 
-		expect( mockDrillDown ).toHaveBeenCalledWith( clicked, 'month' );
+describe( 'TrafficChart with an idle window', () => {
+	const zeroFilled = ( key: string, label: string ) => ( {
+		key,
+		label,
+		value: 0,
+		current: [
+			{ date: new Date( '2026-05-01' ), value: 0 },
+			{ date: new Date( '2026-05-02' ), value: 0 },
+		],
+	} );
+
+	async function renderEmptyViews( posts: unknown ) {
+		mockUseTrafficChart.mockReturnValue( {
+			metrics: [ zeroFilled( 'views', 'Views' ) ],
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} );
+		mockApiFetch.mockResolvedValue( posts );
+
+		const view = render(
+			<TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } />
+		);
+
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'latest-post' ] )?.status ).toBe( 'success' )
+		);
+
+		const calls = mockMetricTabsChart.mock.calls;
+		const { empty } = calls[ calls.length - 1 ][ 0 ];
+		render( empty );
+		return view;
+	}
+
+	it( 'offers Create post when an empty Views result has no published post', async () => {
+		await renderEmptyViews( [] );
+
+		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/blog/wp-admin/post-new.php'
+		);
+		expect( screen.getByText( /You haven't published any posts yet/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'holds the chart and its empty message back while the published-post check is pending', async () => {
+		mockUseTrafficChart.mockReturnValue( {
+			metrics: [ zeroFilled( 'views', 'Views' ) ],
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} );
+		let resolvePosts!: ( value: unknown ) => void;
+		mockApiFetch.mockImplementation(
+			() =>
+				new Promise( resolve => {
+					resolvePosts = resolve;
+				} )
+		);
+
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'latest-post' ] )?.fetchStatus ).toBe( 'fetching' )
+		);
+
+		expect( mockMetricTabsChart ).not.toHaveBeenCalled();
+
+		await act( async () => resolvePosts( [] ) );
+		await waitFor( () => expect( mockMetricTabsChart ).toHaveBeenCalled() );
+	} );
+
+	it( 'keeps Create post while the empty Views result refetches', async () => {
+		const { rerender } = await renderEmptyViews( [] );
+		mockUseTrafficChart.mockReturnValue( {
+			metrics: [ zeroFilled( 'views', 'Views' ) ],
+			isLoading: false,
+			isFetching: true,
+			isError: false,
+			refetch: jest.fn(),
+		} );
+
+		rerender( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+		const calls = mockMetricTabsChart.mock.calls;
+		const { empty } = calls[ calls.length - 1 ][ 0 ];
+		expect( empty.props.action?.label ).toBe( 'Create post' );
+	} );
+
+	it( 'keeps the generic message when a post has no views in the range', async () => {
+		await renderEmptyViews( [ { id: 7 } ] );
+
+		expect( screen.queryByRole( 'link', { name: 'Create post' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'keeps the generic empty state when the published-post check fails', async () => {
+		mockUseTrafficChart.mockReturnValue( {
+			metrics: [ zeroFilled( 'views', 'Views' ) ],
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} );
+		mockApiFetch.mockRejectedValue( { code: 'rest_forbidden', data: { status: 403 } } );
+
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'latest-post' ] )?.status ).toBe( 'error' )
+		);
+		const calls = mockMetricTabsChart.mock.calls;
+		const { empty } = calls[ calls.length - 1 ][ 0 ];
+		expect( empty.props.action ).toBeUndefined();
+	} );
+
+	it( 'does not check posts when Views has traffic', () => {
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 } );

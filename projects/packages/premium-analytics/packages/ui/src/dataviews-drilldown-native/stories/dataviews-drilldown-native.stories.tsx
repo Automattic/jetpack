@@ -1,6 +1,7 @@
 import { DataViewsDrilldownNative } from '../dataviews-drilldown-native';
 import type { DataViewRenderFieldProps, Field } from '@jetpack-premium-analytics/externals';
 import type { Meta, StoryObj } from '@storybook/react';
+import type { JSX } from 'react';
 
 type ReferrerRow = {
 	id: string;
@@ -195,31 +196,16 @@ const mediumElements = [
 	{ value: 'direct', label: 'Direct' },
 ];
 
-/*
- * Cell content is entirely consumer-rendered in DataViews, so styling parent
- * rows differently (bold here) is a plain field `render` concern — no
- * DataViews internals involved.
- */
-const referrerParentIds = new Set(
-	[ ...rows, ...PAGINATED_ROWS ].map( row => row.parentId ).filter( Boolean )
-);
-
 function ReferrerField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Element {
-	const label = referrerParentIds.has( item.id ) ? (
-		<strong>{ item.referrer }</strong>
-	) : (
-		<>{ item.referrer }</>
-	);
-
 	if ( item.href ) {
 		return (
 			<a href={ item.href } target="_blank" rel="noreferrer">
-				{ label }
+				{ item.referrer }
 			</a>
 		);
 	}
 
-	return label;
+	return <>{ item.referrer }</>;
 }
 
 /**
@@ -240,24 +226,16 @@ function ThumbnailReferrerField( { item }: DataViewRenderFieldProps< ReferrerRow
 	);
 }
 
-const archiveParentIds = new Set( archiveRows.map( row => row.parentId ).filter( Boolean ) );
-
 function ArchiveTitleField( { item }: DataViewRenderFieldProps< ArchiveRow > ): JSX.Element {
-	const label = archiveParentIds.has( item.id ) ? (
-		<strong>{ item.title }</strong>
-	) : (
-		<>{ item.title }</>
-	);
-
 	if ( item.href ) {
 		return (
 			<a href={ item.href } target="_blank" rel="noreferrer">
-				{ label }
+				{ item.title }
 			</a>
 		);
 	}
 
-	return label;
+	return <>{ item.title }</>;
 }
 
 function formatDate( value: string ): string {
@@ -505,6 +483,17 @@ export const Archives: ArchiveStory = {
 		getItemId: getArchiveItemId,
 		getItemParentId: getArchiveItemParentId,
 		initialView: archiveInitialView,
+		hideLevelMarkers: true,
+		collapsible: true,
+		defaultExpanded: 'none',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The Posts & Pages › Archives tab: archive pages grouped under their type, folded like the other drilldown reports, every row at the title weight.',
+			},
+		},
 	},
 };
 
@@ -563,7 +552,7 @@ export const LongGroupTitle: Story = {
 				? {
 						...row,
 						referrer: `${ row.referrer } and Aggregators, Syndication Partners and Every Other Long-Winded Category Name a Site Might Report`,
-				  }
+					}
 				: row
 		),
 	},

@@ -19,7 +19,7 @@ use Automattic\Jetpack\RTC\REST_RTC_Notices;
  */
 class RTC {
 
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * Option names for the RTC setting.
@@ -118,7 +118,7 @@ class RTC {
 	 * @return bool
 	 */
 	public static function is_turned_on() {
-		return self::is_allowed() && (bool) get_option( self::OPTION_NEW );
+		return (bool) get_option( self::OPTION_NEW ) && self::is_allowed();
 	}
 
 	/**
@@ -293,6 +293,11 @@ class RTC {
 	 * @return mixed
 	 */
 	public static function filter_rtc_option( $value ) {
+		// An explicitly disabled setting needs no eligibility check.
+		if ( '0' === $value ) {
+			return $value;
+		}
+
 		// RTC not allowed: force the option off, regardless of what's in the DB.
 		if ( ! self::is_allowed() ) {
 			return '0';

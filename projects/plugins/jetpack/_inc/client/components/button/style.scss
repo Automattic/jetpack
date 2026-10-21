@@ -62,16 +62,16 @@
 		}
 		// Make the left margin of the small plus icon visually less huge
 		.gridicons-plus-small {
-			margin-left: -4px;
+			margin-inline-start: -4px;
 		}
 		// Reset the left margin if the button contains only the plus icon
 		.gridicons-plus-small:last-of-type {
-			margin-left: 0;
+			margin-inline-start: 0;
 		}
 		// Make plus icon nudged closer to adjacent icons
 		// for add-people and add-plugin type buttons
 		.gridicons-plus-small + .gridicon {
-			margin-left: -4px;
+			margin-inline-start: -4px;
 		}
 
 	}
@@ -84,7 +84,7 @@
 		position: relative;
 		top: 4px;
 		margin-top: -2px;
-		margin-left: 10px;
+		margin-inline-start: 10px;
 		width: 18px;
 		height: 18px;
 	}
@@ -156,8 +156,8 @@
 .dops-button.is-borderless {
 	box-shadow: none;
 	color: color.adjust(calypso-colors.$gray, $lightness: -10%);
-	padding-left: 0;
-	padding-right: 0;
+	padding-inline-start: 0;
+	padding-inline-end: 0;
 
 	&:hover {
 		color: calypso-colors.$gray-dark;

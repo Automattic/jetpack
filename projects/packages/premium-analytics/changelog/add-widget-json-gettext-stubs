@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Widget titles, descriptions, help notes and settings labels declared in widget.json reach the translation catalog.

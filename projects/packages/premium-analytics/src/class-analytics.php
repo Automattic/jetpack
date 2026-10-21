@@ -7,11 +7,14 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
@@ -21,7 +24,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.5.0';
+	const PACKAGE_VERSION = '0.13.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -62,6 +65,10 @@ class Analytics {
 	 *
 	 * Registers the full local surface: the site serves the WPCOM data proxy,
 	 * notices, sync bootstrap, and the dashboard support routes itself.
+	 *
+	 * Hosts call this on every request once the flag is on, never only on admin ones: the
+	 * store-event tracker listens on the front end. {@see self::load_dashboard_surface()} is what
+	 * keeps the admin-only work off those requests.
 	 *
 	 * @param array $options Optional configuration options.
 	 *                       Supported keys:
@@ -170,6 +177,12 @@ class Analytics {
 	 * @return void
 	 */
 	private static function boot_shared_services() {
+		// On every request: flags are read and toggled outside the admin too.
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
+			require_once __DIR__ . '/dashboard-policy.php';
+		}
+		register_dashboard_feature_flags();
+
 		// Must be hooked before admin_menu and rest_api_init check the capability.
 		Capabilities::register();
 
@@ -182,8 +195,8 @@ class Analytics {
 
 		self::register_script_data();
 
-		// The posts and pages list tables link their views column here.
-		Post_List_Link::register();
+		// Stats links elsewhere (post list table, admin bar, action bar) open this dashboard.
+		Stats_Links::register();
 	}
 
 	/**
@@ -215,6 +228,8 @@ class Analytics {
 	 * Runs on nearly every admin page load, so the payload stays to two strings,
 	 * a bool, and one capability check.
 	 *
+	 * `can_view` is Stats access: every link other surfaces build from it opens a Stats view.
+	 *
 	 * @param array $data The script data.
 	 * @return array The script data with the analytics key added.
 	 */
@@ -222,7 +237,7 @@ class Analytics {
 		$data['analytics'] = array(
 			'enabled'   => true,
 			'page_slug' => self::MENU_PAGE_SLUG,
-			'can_view'  => current_user_can( Capabilities::VIEW_ANALYTICS ),
+			'can_view'  => Capabilities::current_user_can_view_stats(),
 			'timezone'  => self::site_timezone(),
 		);
 
@@ -272,21 +287,21 @@ class Analytics {
 
 		Sync_Status_Tracker::configure();
 
-		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
-		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
+		// Opts in to the shared woocommerce_analytics sync module so Sync_Status_Tracker has a full sync to observe.
 		Sync_Configuration::register();
 	}
 
 	/**
-	 * Register the site-served REST API: the WPCOM data proxy and notices.
+	 * Register the site-served REST API: the WPCOM data proxy, notices and the Stats settings.
 	 *
-	 * Both self-gate on their own rest_api_init hooks.
+	 * Each self-gates on its own rest_api_init hook.
 	 *
 	 * @return void
 	 */
 	private static function register_local_api() {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
+		Stats_Settings::configure();
 	}
 
 	/**
@@ -317,14 +332,21 @@ class Analytics {
 			require_once __DIR__ . '/widget-modules.php';
 		}
 
-		// Default layout's first-load preference injection.
-		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+		// Default layout primitives and the bundled defaults' seed.
+		if ( ! function_exists( __NAMESPACE__ . '\\get_dashboard_default_widget_instance' ) ) {
 			require_once __DIR__ . '/dashboard-layout.php';
 		}
 
-		// Dashboard sections and their default layout seeding.
+		// Dashboard section API, then the package's own sections registered through it.
 		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
 			require_once __DIR__ . '/dashboard-sections.php';
+		}
+		if ( ! function_exists( __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
+			require_once __DIR__ . '/default-dashboard-sections.php';
+		}
+		// An older copy of the package may have loaded dashboard-sections.php under the previous name.
+		if ( function_exists( __NAMESPACE__ . '\\configure_dashboard_sections_script_data' ) ) {
+			configure_dashboard_sections_script_data();
 		}
 
 		// Default-on CSV export settings and server-side disable filter.
@@ -339,6 +361,27 @@ class Analytics {
 			require_once __DIR__ . '/videopress-availability.php';
 		}
 		configure_videopress_availability();
+
+		// The plan's locked Stats features, for the client's locked states.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_stats_plan_gates' ) ) {
+			require_once __DIR__ . '/stats-plan-gates.php';
+		}
+		configure_stats_plan_gates();
+
+		// The purchase a Stats checkout returned with, for the thank-you notice.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_purchase_success' ) ) {
+			require_once __DIR__ . '/purchase-success.php';
+		}
+		configure_purchase_success();
+
+		// When the site first opened the dashboard, for notices that wait a while before showing.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_dashboard_first_visit' ) ) {
+			require_once __DIR__ . '/dashboard-first-visit.php';
+		}
+		configure_dashboard_first_visit();
+
+		// Temporary: carries a default layout move into layouts readers customized before it.
+		Stored_Layout_Move::register();
 	}
 
 	/**
@@ -363,6 +406,7 @@ class Analytics {
 		$build_entry = self::$build_entry ?? __DIR__ . '/../build/build.php';
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
+			require_once __DIR__ . '/sdk-module.php';
 		}
 	}
 
@@ -429,6 +473,8 @@ class Analytics {
 			);
 
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
+			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_tracks_transport' ) );
+			add_filter( 'jetpack_admin_js_script_data', array( static::class, 'add_tracks_identity_script_data' ), 20 );
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
@@ -465,6 +511,9 @@ class Analytics {
 	 * Uses wp-build's `-wp-admin` variant so Core applies the menu capability check. Reports the
 	 * page and widget artifacts independently since the build loader includes each conditionally.
 	 *
+	 * Queued through Admin_Menu rather than registered here, so the entry is reachable by the
+	 * `jetpack_admin_menu_visibility` filter.
+	 *
 	 * @return void
 	 */
 	public static function register_admin_menu() {
@@ -499,15 +548,17 @@ class Analytics {
 
 		$menu_title = self::menu_title();
 
-		add_menu_page(
-			esc_html( $menu_title ),
-			esc_html( $menu_title ),
-			Capabilities::VIEW_ANALYTICS,
-			self::MENU_PAGE_SLUG,
-			$render_callback,
-			'dashicons-chart-bar',
-			2
-		);
+		$menu_title = esc_html( $menu_title );
+
+		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
+		if ( ! method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
+			add_menu_page( $menu_title, $menu_title, Capabilities::VIEW_ANALYTICS, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2 );
+			return;
+		}
+
+		// A fixed key rather than the slug, which carries a build-specific suffix. No gate:
+		// the dashboard has no My Jetpack product class and no module to name.
+		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, Capabilities::VIEW_ANALYTICS, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-premium-analytics' ) );
 	}
 
 	/**
@@ -564,5 +615,61 @@ class Analytics {
 		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
 			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
+	}
+
+	/**
+	 * Load the Tracks transport for the dashboard.
+	 *
+	 * `@automattic/jetpack-analytics` only queues events into `window._tkq` — its own w.js
+	 * loader is disabled — so without this handle no `jetpack_premium_analytics_*` event
+	 * ever flushes. Simple is skipped because stats.php already prints the same script.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_tracks_transport() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+	}
+
+	/**
+	 * Publish the WPCOM identity the dashboard attributes its Tracks events to.
+	 *
+	 * Core's script data carries only the local user. Publicize is the one package that fills
+	 * `current_user.wpcom` in, and the standalone plugin does not bundle it, so without this
+	 * every event would land anonymous there.
+	 *
+	 * @param array $data The script data.
+	 * @return array The script data with the WPCOM identity added.
+	 */
+	public static function add_tracks_identity_script_data( $data ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$wpcom_user = array(
+				'ID'    => get_current_user_id(),
+				'login' => wp_get_current_user()->user_login,
+			);
+		} else {
+			$connected = ( new Connection_Manager() )->get_connected_user_data();
+
+			if ( empty( $connected['ID'] ) || empty( $connected['login'] ) ) {
+				return $data;
+			}
+
+			// Only the two fields `identifyUser` needs: the rest of the connected-user payload
+			// is profile data the dashboard never reads.
+			$wpcom_user = array(
+				'ID'    => $connected['ID'],
+				'login' => $connected['login'],
+			);
+		}
+
+		$data['user']['current_user']['wpcom'] = array_merge(
+			$data['user']['current_user']['wpcom'] ?? array(),
+			$wpcom_user
+		);
+
+		return $data;
 	}
 }

@@ -11,8 +11,8 @@ describe( 'resolveFontSize', () => {
 			expect( resolveFontSize( 13.5 ) ).toBe( 13.5 );
 		} );
 
-		it( 'returns undefined for NaN', () => {
-			expect( resolveFontSize( NaN ) ).toBeUndefined();
+		it.each( [ NaN, Infinity, -12 ] )( 'returns undefined for %p', val => {
+			expect( resolveFontSize( val ) ).toBeUndefined();
 		} );
 	} );
 
@@ -25,7 +25,16 @@ describe( 'resolveFontSize', () => {
 		it( 'parses pixel strings', () => {
 			expect( resolveFontSize( '12px' ) ).toBe( 12 );
 			expect( resolveFontSize( '13.5px' ) ).toBe( 13.5 );
+			expect( resolveFontSize( '.5px' ) ).toBe( 0.5 );
+			expect( resolveFontSize( '+12px' ) ).toBe( 12 );
 		} );
+
+		it.each( [ '12.px', '12.', '-12px', '-.5', '9'.repeat( 400 ) + 'px' ] )(
+			'rejects %p, which is not a valid font size',
+			val => {
+				expect( resolveFontSize( val ) ).toBeUndefined();
+			}
+		);
 
 		it( 'trims whitespace before parsing', () => {
 			expect( resolveFontSize( '  14px  ' ) ).toBe( 14 );

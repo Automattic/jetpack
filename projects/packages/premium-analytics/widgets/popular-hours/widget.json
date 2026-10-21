@@ -1,5 +1,6 @@
 {
 	"name": "jpa/popular-hours",
+	"icon": "jpa/scheduled",
 	"title": "Popular hours",
 	"description": "The hour of the day that draws the most views, with the distribution across the day.",
 	"help": {

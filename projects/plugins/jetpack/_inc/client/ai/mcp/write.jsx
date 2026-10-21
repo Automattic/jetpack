@@ -157,7 +157,7 @@ export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdat
 	const siteAccountAbilities = siteContextToolIds.size
 		? Object.fromEntries(
 				Object.entries( accountAbilities ).filter( ( [ id ] ) => siteContextToolIds.has( id ) )
-		  )
+			)
 		: accountAbilities;
 	const isMcpEnabled = getSiteLevelEnabled( mcpAbilities ?? {}, blogId );
 	const mergedAbilities = mergeSiteMcpAbilities(
@@ -242,7 +242,7 @@ export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdat
 	);
 
 	return (
-		<Stack direction="column" gap="md">
+		<Stack direction="column" gap="lg">
 			<Card>
 				<CardBody>
 					<Stack direction="column" gap="md">
@@ -261,7 +261,7 @@ export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdat
 			</Card>
 
 			{ groups.length > 0 ? (
-				<Stack direction="column" gap="sm">
+				<Stack direction="column" gap="lg">
 					{ groups.map( ( { group: descriptor, label, tools: groupTools } ) => (
 						<GroupCard
 							key={ descriptor?.name ?? '__other__' }

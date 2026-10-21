@@ -176,7 +176,7 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 												'Connect to Google Drive',
 												'', // Dummy context to avoid bad minification. See https://github.com/Automattic/jetpack/tree/e3f007ec7ac80715f3d82db33c9ed8098a7b45b4/projects/js-packages/i18n-check-webpack-plugin#conditional-function-call-compaction
 												'jetpack-forms'
-										  ) }
+											) }
 								</Button>
 							) }
 						</>

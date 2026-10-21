@@ -2,36 +2,47 @@
  * External dependencies
  */
 import { useStatsReferrers, type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	flattenReferrerRows,
+	getReferrerSpamDomain,
+	getSummarizedReportQueryParams,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-/**
- * Internal dependencies
- */
-import { flattenReferrerRows } from './aggregate';
+
+const NO_DOMAINS: ReadonlySet< string > = new Set();
 
 /**
  * Fetch and derive the Referrers report table records.
  *
- * @param reportParams - The shared report-window parameters.
+ * @param reportParams  - The shared report-window parameters.
+ * @param hiddenDomains - Spam domains to drop, with their nested rows.
  * @return Hierarchical table records.
  */
-export function useReferrersReportRecords( reportParams: ReportParams ) {
-	// Match Calypso's detailed Referrers request: summarize the selected day
-	// range and request every row for client-side search, sorting, and pagination.
+export function useReferrersReportRecords(
+	reportParams: ReportParams,
+	hiddenDomains: ReadonlySet< string > = NO_DOMAINS
+) {
 	const recordsParams = useMemo(
-		() => ( {
-			...reportParams,
-			max: 0,
-			summarize: 1,
-			period: 'day',
-		} ),
+		() => getSummarizedReportQueryParams( reportParams ),
 		[ reportParams ]
 	);
 	const report = useStatsReferrers( recordsParams );
 	const comparisonRows = report.comparisonRows?.rows;
-	const rows = useMemo( () => flattenReferrerRows( comparisonRows ?? [] ), [ comparisonRows ] );
+	const rows = useMemo(
+		() =>
+			flattenReferrerRows(
+				( comparisonRows ?? [] ).filter( item => {
+					const domain = getReferrerSpamDomain( item );
+
+					return ! domain || ! hiddenDomains.has( domain );
+				} )
+			),
+		[ comparisonRows, hiddenDomains ]
+	);
 
 	return {
 		isError: report.isError,
+		error: report.error,
 		refetch: report.refetch,
 		rows,
 		isLoading: report.isLoading,

@@ -1,14 +1,89 @@
-import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
-import { __ } from '@wordpress/i18n';
 import {
+	currentUserCan,
+	getMyJetpackUrl,
+	getScriptData,
+	isSimpleSite,
+} from '@automattic/jetpack-script-data';
+import { __, sprintf } from '@wordpress/i18n';
+import { MyJetpackRoutes } from '../../constants';
+import {
+	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
 	MY_JETPACK_SECTION_OVERVIEW,
-	MY_JETPACK_SECTION_PRODUCTS,
+	MY_JETPACK_SECTION_LEGACY_PRODUCTS,
 } from './constants';
 import type { TabPanel } from '@wordpress/components';
 import type { ComponentProps } from 'react';
 
 type TabPanelProps = ComponentProps< typeof TabPanel >;
+
+// Carried by a pricing page opened from a feature's details, so checkout can return there.
+const RETURN_FEATURE_PARAM = 'return_feature';
+
+/**
+ * Link to a pricing page that sends checkout back to a feature's details.
+ *
+ * @param path    - The pricing route, such as `/add-social`.
+ * @param feature - The feature's slug.
+ * @return The hash link.
+ */
+export function getFeaturePricingHref( path: string, feature: string ) {
+	return `#${ path }?${ new URLSearchParams( { [ RETURN_FEATURE_PARAM ]: feature } ) }`;
+}
+
+/**
+ * Where checkout returns to when the pricing page was opened from a feature's details.
+ *
+ * Read from the hash rather than the router, so the detail cards outside a route can use it.
+ *
+ * @param hash - The page's location hash.
+ * @return The admin URL of the feature's details, or an empty string.
+ */
+export function getFeatureCheckoutReturnUrl( hash = window.location.hash ) {
+	const feature = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' ).get( RETURN_FEATURE_PARAM );
+
+	return feature
+		? getMyJetpackUrl( `#${ MyJetpackRoutes.Features }?${ new URLSearchParams( { feature } ) }` )
+		: '';
+}
+
+// What an account connection started from Features brings back: the open feature, layout, search, tag
+// and filter. A status filter is left behind, since connecting can move the feature out of it.
+const CONNECT_RETURN_PARAMS = [ 'feature', 'view', 'search', 'module_tag', 'filter' ];
+const STATUS_FILTERS = [ 'available', 'active', 'inactive' ];
+
+/**
+ * Where an account connection started from Features returns to.
+ *
+ * Read from the hash rather than the router, so it still answers once an install has replaced the button that asked.
+ *
+ * @param hash - The page's location hash.
+ * @return The admin URL of the same Features view.
+ */
+export function getFeatureConnectReturnUrl( hash = window.location.hash ) {
+	const current = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' );
+	const kept = new URLSearchParams();
+	CONNECT_RETURN_PARAMS.forEach( key => {
+		const value = current.get( key );
+		if ( value && ! ( key === 'filter' && STATUS_FILTERS.includes( value ) ) ) {
+			kept.set( key, value );
+		}
+	} );
+	const query = kept.toString();
+
+	return getMyJetpackUrl( `#${ MyJetpackRoutes.Features }${ query ? `?${ query }` : '' }` );
+}
+
+/**
+ * Where links to manage Jetpack modules go, as the server decided: the Features tab when the site can use it, else the classic Modules screen.
+ *
+ * @param classicUrl - Classic Modules screen URL, used when the page data has no URL (an older My Jetpack package, or a page that does not send one).
+ * @return The management URL.
+ */
+export function getModulesManagementUrl( classicUrl: string ): string {
+	const data = getScriptData()?.myJetpack as { modulesManagementUrl?: string } | undefined;
+	return data?.modulesManagementUrl || classicUrl;
+}
 
 /**
  * Get the My Jetpack sections.
@@ -22,8 +97,8 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
 			title: __( 'Overview', 'jetpack-my-jetpack' ),
 		},
 		{
-			name: MY_JETPACK_SECTION_PRODUCTS,
-			title: __( 'Products', 'jetpack-my-jetpack' ),
+			name: MY_JETPACK_SECTION_FEATURES,
+			title: __( 'Features', 'jetpack-my-jetpack' ),
 		},
 		{
 			name: MY_JETPACK_SECTION_HELP,
@@ -31,34 +106,69 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
 		},
 	];
 
-	// WordPress.com Simple sites only get the Products section.
+	// WordPress.com Simple sites only get the Features section.
 	if ( isSimpleSite() ) {
-		return tabs.filter( tab => tab.name === MY_JETPACK_SECTION_PRODUCTS );
+		return tabs.filter( tab => tab.name === MY_JETPACK_SECTION_FEATURES );
 	}
 
 	if ( currentUserCan( 'manage_options' ) ) {
 		return tabs;
 	}
 
-	// If the user is not an admin, remove the Products tab.
-	return tabs.filter( tab => tab.name !== MY_JETPACK_SECTION_PRODUCTS );
+	// If the user is not an admin, remove the Features tab.
+	return tabs.filter( tab => tab.name !== MY_JETPACK_SECTION_FEATURES );
 }
 
 /**
- * Get the default My Jetpack section.
+ * Resolve a URL section to the section to render.
  *
- * @return The name of the first available section.
+ * The retired `products` section resolves to Features, so saved links and older plugins still land.
+ *
+ * @param section - The section from the URL.
+ * @return The resolved section, or the first available section when it is not valid.
  */
-export function getDefaultMyJetpackSection() {
-	return getMyJetpackSections()[ 0 ].name;
+export function resolveMyJetpackSection( section?: string ) {
+	const aliased =
+		section === MY_JETPACK_SECTION_LEGACY_PRODUCTS ? MY_JETPACK_SECTION_FEATURES : section;
+	const sections = getMyJetpackSections();
+
+	return sections.some( item => item.name === aliased ) ? aliased : sections[ 0 ].name;
 }
 
 /**
- * Check if the given section is a valid My Jetpack section.
+ * The badge label for whether something is switched on.
  *
- * @param section - The section to check.
- * @return True if the section is valid, false otherwise.
+ * Both labels here and in getSwitchLabel() are bound before the branch: minification folds
+ * `c ? __( a ) : __( b )` into one call with a ternary msgid, which the i18n check rejects.
+ *
+ * @param isActive - Whether the feature or module is running.
+ * @return The translated label.
  */
-export function isValidMyJetpackSection( section: string ) {
-	return getMyJetpackSections().some( item => item.name === section );
+export function getActivationStatusLabel( isActive: boolean ): string {
+	const activeText = __( 'Active', 'jetpack-my-jetpack' );
+	const inactiveText = __( 'Inactive', 'jetpack-my-jetpack' );
+
+	return isActive ? activeText : inactiveText;
+}
+
+/**
+ * The label for a control that switches a feature on or off.
+ *
+ * @param isOn - Whether the feature is currently on.
+ * @param name - The feature's name.
+ * @return The label for what the control will do.
+ */
+export function getSwitchLabel( isOn: boolean, name: string ): string {
+	const deactivateLabel = sprintf(
+		/* translators: %s is the feature name. */
+		__( 'Deactivate %s', 'jetpack-my-jetpack' ),
+		name
+	);
+	const activateLabel = sprintf(
+		/* translators: %s is the feature name. */
+		__( 'Activate %s', 'jetpack-my-jetpack' ),
+		name
+	);
+
+	return isOn ? deactivateLabel : activateLabel;
 }

@@ -2,6 +2,8 @@ import { __, _x } from '@wordpress/i18n';
 
 export const GOODREADS_DEFAULT_TITLE = __( 'My Bookshelf', 'jetpack' );
 
+export const GOODREADS_ALLOWED_HOSTS = [ 'goodreads.com' ];
+
 export const GOODREADS_SHELF_OPTIONS = [
 	{
 		label: _x( 'Read', 'perfect participle - eg. I read a book yesterday.', 'jetpack' ),

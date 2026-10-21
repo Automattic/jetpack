@@ -50,8 +50,10 @@
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-stats-plugin",
 		"release-branch-prefix": "stats",
-		"beta-plugin-slug": "jetpack-stats",
+		"wp-plugin-slug": "jetpack-stats",
+		"wp-svn-autopublish": true,
 		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-stats-plugin/compare/${old}...${new}",
 			"versioning": "semver"
 		},
 		"version-constants": {
@@ -60,7 +62,7 @@
 	},
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "29f459d83ca5f0666183989c5a327600_jetpack_statsⓥ0_1_0_alpha",
+		"autoloader-suffix": "29f459d83ca5f0666183989c5a327600_jetpack_statsⓥ1_0_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,

@@ -26,6 +26,8 @@ permissions:
 env:
   FORCE_COLOR: 1
   USE_CLOUDFLARE_TUNNEL: ${{ case( vars.E2E_TUNNEL_TYPE == 'cloudflare', '1', '' ) }}
+  # Trade some archive size for much faster compression.
+  XZ_OPT: -3 -T0
 
 jobs:
   create-test-matrix:
@@ -43,10 +45,10 @@ jobs:
       # For pull requests, list-changed-projects.sh needs the merge base.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/deepen-to-merge-base
+        uses: $/.github/actions/deepen-to-merge-base
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: false
 
@@ -95,7 +97,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - name: Install monorepo
         run: pnpm install
@@ -141,16 +143,14 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Creating artifact"
-          sed 's!^!./!' /tmp/changed.txt /tmp/changedl.txt | tar -cvvf "$BUILD_GROUP.tar.xz" --verbatim-files-from --files-from=-
+          sed 's!^!./!' /tmp/changed.txt /tmp/changedl.txt | tar --xz -cvvf "$BUILD_GROUP.tar.xz" --verbatim-files-from --files-from=-
           echo "::endgroup::"
 
       - name: Save ${{ matrix.buildGroup }} build cache
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           path: ${{ matrix.buildGroup }}.tar.xz
           retention-days: 1
-          # Already compressed.
-          compression-level: 0
           archive: false
 
   e2e-tests:
@@ -175,7 +175,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Restore ${{ matrix.buildGroup }} build cache
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         if: needs.build-projects.result == 'success'
         with:
           name: ${{ matrix.buildGroup }}.tar.xz
@@ -184,10 +184,10 @@ jobs:
         env:
           BUILD_GROUP: ${{ matrix.buildGroup }}
         run: |
-          tar -xvvf "$BUILD_GROUP.tar.xz" .
+          tar --xz -xvvf "$BUILD_GROUP.tar.xz" .
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - name: Install cloudflared
         if: env.USE_CLOUDFLARE_TUNNEL
@@ -296,7 +296,7 @@ jobs:
       - name: Upload test artifacts
         if: ${{ always() }}
         continue-on-error: true
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           # The WordPress version is part of the name: without it the two runs of a project would
           # race for the same artifact and upload-artifact would fail on the duplicate.
@@ -356,6 +356,23 @@ jobs:
               .addRaw('Please note that it can take a few minutes after the e2e tests checks are complete for the report to be available.', true)
               .write()
 
+      - name: Download test artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          # Without this we'd also pull the build-cache tarballs, which this job has no use for.
+          pattern: test-output-*
+          path: test-output
+
+      - name: Upload CTRF report
+        continue-on-error: true
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.A8C_TEST_REPORTS_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.A8C_TEST_REPORTS_S3_SECRET_ACCESS_KEY }}
+          S3_ROOT: ${{ secrets.A8C_TEST_REPORTS_S3_ROOT }}
+        run: |
+          # One report per matrix job, each named with the run's timestamp.
+          find test-output -name 'ctrf-report-*.json' -type f -exec aws s3 cp {} "$S3_ROOT/reports/ctrf/jetpack/" \;
+
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest
@@ -373,7 +390,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Set up tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - name: Build action
         env:
@@ -385,7 +402,7 @@ jobs:
         working-directory: ./projects/github-actions/test-results-to-slack
 
       - name: Download test artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           # Without this we'd also pull the build-cache tarballs, which this job has no use for.
           pattern: test-output-*

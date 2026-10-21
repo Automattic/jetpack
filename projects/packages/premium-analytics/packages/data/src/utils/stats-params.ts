@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDatePart } from '@jetpack-premium-analytics/datetime';
+import { getDatePart, localTZDate } from '@jetpack-premium-analytics/datetime';
 import {
 	differenceInCalendarISOWeeks,
 	differenceInCalendarMonths,
@@ -11,7 +11,6 @@ import {
 /**
  * Internal dependencies
  */
-import { localTZDate } from './date';
 import { getDaysBetweenInclusive } from './interval';
 import type { ReportParams } from './search';
 import type { StatsProxyParams } from '../api/stats-proxy-fetch';
@@ -35,9 +34,15 @@ export type StatsQueryParamFields = {
 	// — deliberately absent from statsParamKeys so it can never reach a request.
 	window_start?: string;
 	window_end?: string;
+	// Sanitizer-only, and stripped alongside the trim window: the zone the
+	// report is normalized in, resolved once by `statsProxyQuery`.
+	timezone?: string;
 };
 
 export type StatsQueryParams = StatsProxyParams & StatsQueryParamFields;
+
+/** What a response sanitizer is handed: the request params, plus the report's zone. */
+export type StatsSanitizerParams = StatsQueryParams & { timezone: string };
 
 type StatsQueryParamInput = Partial< ReportParams > & {
 	[ key: string ]: unknown;
@@ -147,6 +152,16 @@ export function getPeriodsBetweenInclusive(
 	return BUCKET_COUNTERS[ period ]( from, to );
 }
 
+/**
+ * Whether a `num` asks WPCOM for all time: every period from the start of the site's Stats.
+ *
+ * @param num - The `num` query param.
+ * @return True for a negative `num`.
+ */
+export function isAllTimeNum( num: unknown ): boolean {
+	return Number( num ) < 0;
+}
+
 export function reportParamsToStatsQueryParams(
 	params: StatsQueryParamInput = {}
 ): StatsQueryParams {
@@ -156,11 +171,17 @@ export function reportParamsToStatsQueryParams(
 			.map( key => [ key, params[ key ] ] )
 	) as StatsQueryParams;
 
+	const allTime = isAllTimeNum( params.num );
+	if ( allTime ) {
+		delete statsParams.start_date;
+	}
+
 	const period = params.period ?? getStatsPeriodFromInterval( params.interval );
 	// Stats v1.1 resolves an offset-bearing ISO datetime to the local calendar
 	// day (WOOA7S-1656/1664), so start_date/end_date pass through untrimmed.
 	const endDate = params.end_date ?? params.date ?? params.to;
-	const startDate = params.start_date ?? params.from;
+	// A start date would override the all-time window WPCOM derives from `num`.
+	const startDate = allTime ? undefined : ( params.start_date ?? params.from );
 	const days =
 		params.days ??
 		( startDate && endDate ? getDaysBetweenInclusive( startDate, endDate ) : undefined );
@@ -175,12 +196,13 @@ export function reportParamsToStatsQueryParams(
 }
 
 export function statsQueryParamsToApiParams( params: StatsQueryParams = {} ): StatsProxyParams {
-	// window_start/window_end are sanitizer-only (see StatsQueryParamFields);
-	// stripped here so a stray one can't leak into request URLs or query keys.
+	// window_start/window_end/timezone are sanitizer-only (see StatsQueryParamFields);
+	// stripped here so a stray one can't leak into a request URL.
 	const { end_date: endDate, ...apiParams } = params;
 
 	delete apiParams.window_start;
 	delete apiParams.window_end;
+	delete apiParams.timezone;
 
 	return {
 		...apiParams,

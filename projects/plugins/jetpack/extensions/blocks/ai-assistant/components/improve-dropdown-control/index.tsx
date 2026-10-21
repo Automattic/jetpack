@@ -23,13 +23,9 @@ export const IMPROVE_KEY_MAKE_SHORTER = 'make-shorter' as const;
 export const IMPROVE_KEY_SUMMARIZE = 'summarize' as const;
 
 type ImproveKeyProp =
-	| typeof IMPROVE_KEY_SUMMARIZE
-	| typeof IMPROVE_KEY_MAKE_LONGER
-	| typeof IMPROVE_KEY_MAKE_SHORTER;
+	typeof IMPROVE_KEY_SUMMARIZE | typeof IMPROVE_KEY_MAKE_LONGER | typeof IMPROVE_KEY_MAKE_SHORTER;
 type ImproveSuggestionProp =
-	| typeof PROMPT_TYPE_SUMMARIZE
-	| typeof PROMPT_TYPE_MAKE_LONGER
-	| typeof PROMPT_TYPE_MAKE_SHORTER;
+	typeof PROMPT_TYPE_SUMMARIZE | typeof PROMPT_TYPE_MAKE_LONGER | typeof PROMPT_TYPE_MAKE_SHORTER;
 
 const quickActionsList = [
 	{

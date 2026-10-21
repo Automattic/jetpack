@@ -12,6 +12,8 @@
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-status": "@dev",
@@ -65,7 +67,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-backup",
 		"textdomain": "jetpack-backup-pkg",
 		"version-constants": {
@@ -75,7 +76,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "5.0.x-dev"
+			"dev-trunk": "5.1.x-dev"
 		}
 	},
 	"config": {

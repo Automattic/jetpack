@@ -1,8 +1,9 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { Button, Tooltip } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { EmptyState, Text } from '@wordpress/ui';
 import { useVideoPressUpgrade } from '../../hooks/use-videopress-upgrade';
 import { FREE_TIER_AT_LIMIT_MESSAGE, FREE_TIER_AT_LIMIT_NOTICE_ID } from '../free-tier-notice';
@@ -67,7 +68,7 @@ const UploadDropzone = ( {
 } ) => {
 	const inputRef = useRef< HTMLInputElement >( null );
 	const [ dragging, setDragging ] = useState( false );
-	const { createErrorNotice } = useGlobalNotices();
+	const { createErrorNotice } = useDispatch( noticesStore );
 	const runUpgrade = useVideoPressUpgrade();
 	const plural = ( copyVariant ?? ( allowMultiple ? 'multiple' : 'single' ) ) === 'multiple';
 	const dropzoneClassName = `vp-upload-dropzone${ dragging ? ' is-dragging' : '' }${
@@ -82,6 +83,7 @@ const UploadDropzone = ( {
 		createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
 			id: FREE_TIER_AT_LIMIT_NOTICE_ID,
 			actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
+			type: 'snackbar',
 		} );
 	}, [ createErrorNotice, runUpgrade ] );
 
@@ -111,6 +113,7 @@ const UploadDropzone = ( {
 				// someone holding one is simply untrue.
 				createErrorNotice( await describeRefusal( files ), {
 					id: INVALID_FILE_NOTICE_ID,
+					type: 'snackbar',
 				} );
 				return;
 			}
@@ -193,22 +196,27 @@ const UploadDropzone = ( {
 				 * top of the one this surface already has.
 				 */ }
 				<EmptyState.Icon icon={ upload } className="vp-upload-dropzone__icon" />
-				<Text variant="body-lg" className="vp-upload-dropzone__hint">
+				{ /*
+				 * Same type as the design system's own empty state (the
+				 * treatment Jetpack Social's "Auto-sharing is turned off" uses):
+				 * heading-lg for the hint, body-md for the sub copy.
+				 */ }
+				<Text variant="heading-lg" className="vp-upload-dropzone__hint">
 					{ plural
 						? __( 'Drag and drop your videos here', 'jetpack-videopress-pkg' )
 						: __( 'Drag and drop your video here', 'jetpack-videopress-pkg' ) }
 				</Text>
-				<Text variant="body-sm" className="vp-upload-dropzone__sub">
+				<Text variant="body-md" className="vp-upload-dropzone__sub">
 					{ subCopy ??
 						( plural
 							? __(
 									'Add one or several. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
 									'jetpack-videopress-pkg'
-							  )
+								)
 							: __(
 									'Add one video. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
 									'jetpack-videopress-pkg'
-							  ) ) }
+								) ) }
 				</Text>
 				{ /*
 				 * `aria-disabled`, not `disabled`. The two halves of this one

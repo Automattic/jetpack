@@ -6,6 +6,8 @@ import {
 	type DataPointDate,
 	type LineStyles,
 } from '@jetpack-premium-analytics/externals';
+import type { CountLabel, DataFormat } from '../../types';
+import type { ReactElement } from 'react';
 
 /**
  * Types
@@ -13,11 +15,38 @@ import {
 export type ComparativeDatePointDate = DataPointDate & {
 	date: Date; // <- date is required by the comparative line chart.
 	realDate?: Date;
+	/** The last instant of the point's own bucket, which `alignSeriesDates` never moves. */
+	endDate?: Date;
+	/** Read out by the tooltip for a bucket with no reading, e.g. why it is missing. */
+	note?: string;
+	/** A bucket with no reading drawn at its `value` to keep the line whole; the tooltip reads no value. */
+	missing?: boolean;
 };
 
 export type ComparativeLineChartSeries = SeriesData & {
 	// We expect SeriesData.data to be an array of DataPointDate.
 	data: ComparativeDatePointDate[];
+	/** A comparison series reads its group's, as it does the group's name. */
+	countLabel?: CountLabel;
+};
+
+/**
+ * A series the tooltip reads out but the chart does not draw: its point for the
+ * hovered date joins the rows, named after `label` and formatted its own way.
+ */
+export type TooltipExtraSeries = {
+	label: string;
+	/** A `@wordpress/icons` icon, drawn in place of a series swatch since the chart draws no mark for the row. */
+	icon?: ReactElement;
+	/**
+	 * The comparison period's points, each placed on the current period's date with
+	 * its own in `realDate`. Read beside the current reading, in the comparison column.
+	 */
+	previous?: ComparativeDatePointDate[];
+	data: ComparativeDatePointDate[];
+	/** Falls back to the chart's `dataFormat`. */
+	dataFormat?: DataFormat;
+	countLabel?: CountLabel;
 };
 
 /**

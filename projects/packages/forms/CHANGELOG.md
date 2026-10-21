@@ -5,6 +5,114 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.3.4] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53675]
+- Update package dependencies. [#53806]
+- Use apply_shortcodes() terminology instead of do_shortcode(). [#53552]
+
+### Fixed
+- Fix a PHP warning and broken form when a contact form shortcode is nested inside another one. [#53603]
+- Form editor: Add labels and usage hints to the embed code and shortcode fields in the "add it to a page" dialog. [#53664]
+
+## [8.3.3] - 2026-10-12
+### Changed
+- Update package dependencies. [#53223]
+
+### Fixed
+- Contact Form: Keep brackets in submitted values escaped, so they cannot run shortcodes, on WordPress versions with the new HTML sanitizer. [#53335]
+- Dashboard: Fix error notices shown after deleting or trashing a form, even though it succeeded. [#53164]
+
+## [8.3.2] - 2026-10-12
+### Changed
+- Internal updates.
+
+## [8.3.1] - 2026-10-12
+### Fixed
+- Restore scrolling on the standalone single response page.
+
+## [8.3.0] - 2026-10-05
+### Added
+- Add conditional logic to form fields, available on WordPress.com Business plans and higher and on all Jetpack sites. [#52783]
+
+### Changed
+- Make the Delete spam button act on the selected responses or the current filter, show how many responses it will delete, and delete large queues in chunks with progress. [#48130]
+- Update package dependencies. [#52999]
+
+### Fixed
+- Dashboard: Start the Delete permanently and Mark as spam confirmations on Cancel, so pressing Enter no longer permanently deletes a form or marks a response as spam. [#53027]
+- Dashboard: Start the Empty trash and Delete spam confirmations on Cancel and show Delete in red, so pressing Enter no longer permanently deletes every response in that folder. [#52979]
+
+## [8.2.2] - 2026-09-29
+### Fixed
+- Dashboard: Stop logging a console error about missing Jetpack configuration. [#52809]
+
+## [8.2.1] - 2026-09-28
+### Changed
+- Dashboard: Replace experimental layout and text components with their `@wordpress/ui` equivalents. [#52492]
+
+### Fixed
+- Detect Jetpack CRM installs that use a custom plugin folder or file name. [#52725]
+- Remove the duplicate divider between the dashboard header and the tabs. [#52641]
+- Rating field: Cap the scale when rendering a form or a response so a malformed value cannot exhaust memory. [#52007]
+- Show Jetpack in-dashboard messages on the Forms dashboard. [#52641]
+
+### Removed
+- Dashboard: Remove an unused integrations modal. [#52492]
+
+## [8.2.0] - 2026-09-21
+### Added
+- Conditional logic: Add a "Done" button to the rules dialog. [#52347]
+
+### Changed
+- Conditional logic: Open the Conditional logic panel by default on a field that has conditions. [#52347]
+- Dashboard: Reopen on the last tab used instead of always the default. [#52249]
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+### Deprecated
+- Dashboard: Deprecate `Dashboard::SCRIPT_HANDLE`. [#52296]
+
+### Removed
+- Dashboard: Remove the legacy dashboard code and the deprecated `Dashboard_View_Switch` class. [#52296]
+
+### Fixed
+- Dashboard: Open the Forms tab when it is requested directly instead of falling back to Responses. [#52249]
+
+## [8.1.0] - 2026-09-15
+### Changed
+- Form editor: Add additional analytics to welcome guide. [#52148]
+- Hide the Forms sidebar item when Forms is not active. [#52156]
+- Update package dependencies. [#52105] [#52297]
+
+### Deprecated
+- Dashboard: Deprecate the `jetpack_forms_alpha` filter, which no longer selects anything. [#51395]
+
+### Fixed
+- Dashboard: Restore the missing border on the responses comment panel. [#52152]
+- Prevent extra forms from being created when the block placeholder is clicked more than once. [#52099]
+- Stop the Forms data stores from logging a duplicate registration error in the browser console. [#52153]
+
+## [8.0.3] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+## [8.0.2] - 2026-09-09
+### Fixed
+- Responses: Restore multi-page printing of a single response. [#52096]
+- Responses: Scroll a single response from the page edge instead of from inside the reading column. [#52096]
+
+## [8.0.1] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+### Fixed
+- Add an empty alt attribute to the image option thumbnails in the form success summary. [#51781]
+- Hide the Lead Capture pattern on WordPress.com, matching the block variation that is already hidden there. [#51857]
+- Keep editor-initialized defaults from marking imported forms as changed. [#52053]
+- Load active module state before the editor module store. [#51888]
+
 ## [8.0.0] - 2026-09-01
 ### Added
 - Add help text to form fields, and show the date field's expected format below the input instead of in its label. Preserve help text across field transformations and form details, and fix field descriptions for inset-label styles. [#51122]
@@ -2705,6 +2813,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[8.3.4]: https://github.com/automattic/jetpack-forms/compare/v8.3.3...v8.3.4
+[8.3.3]: https://github.com/automattic/jetpack-forms/compare/v8.3.2...v8.3.3
+[8.3.2]: https://github.com/automattic/jetpack-forms/compare/v8.3.1...v8.3.2
+[8.3.1]: https://github.com/automattic/jetpack-forms/compare/v8.3.0...v8.3.1
+[8.3.0]: https://github.com/automattic/jetpack-forms/compare/v8.2.2...v8.3.0
+[8.2.2]: https://github.com/automattic/jetpack-forms/compare/v8.2.1...v8.2.2
+[8.2.1]: https://github.com/automattic/jetpack-forms/compare/v8.2.0...v8.2.1
+[8.2.0]: https://github.com/automattic/jetpack-forms/compare/v8.1.0...v8.2.0
+[8.1.0]: https://github.com/automattic/jetpack-forms/compare/v8.0.3...v8.1.0
+[8.0.3]: https://github.com/automattic/jetpack-forms/compare/v8.0.2...v8.0.3
+[8.0.2]: https://github.com/automattic/jetpack-forms/compare/v8.0.1...v8.0.2
+[8.0.1]: https://github.com/automattic/jetpack-forms/compare/v8.0.0...v8.0.1
 [8.0.0]: https://github.com/automattic/jetpack-forms/compare/v7.26.0...v8.0.0
 [7.26.0]: https://github.com/automattic/jetpack-forms/compare/v7.25.0...v7.26.0
 [7.25.0]: https://github.com/automattic/jetpack-forms/compare/v7.24.0...v7.25.0

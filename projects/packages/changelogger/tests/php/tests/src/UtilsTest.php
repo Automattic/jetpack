@@ -29,7 +29,6 @@ use Symfony\Component\Process\Process;
 #[CoversClass( Utils::class )]
 class UtilsTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertObjectProperty;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
 	/**
 	 * Test runCommand.
@@ -381,6 +380,8 @@ class UtilsTest extends TestCase {
 			),
 		);
 		Utils::runCommand( array( 'git', 'init', '-b', 'main', '.' ), ...$args );
+		Utils::runCommand( array( 'git', 'config', '--local', 'gc.auto', '0' ), ...$args );
+		Utils::runCommand( array( 'git', 'config', '--local', 'maintenance.auto', 'false' ), ...$args );
 		Utils::runCommand( array( 'git', 'add', 'in-git.txt' ), ...$args );
 		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit (#123)' ), ...$args );
 

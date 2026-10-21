@@ -1,0 +1,245 @@
+import { act, renderHook, waitFor } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
+import { useServices } from '../data/queries';
+import { store } from '../data/store';
+import { useFeatureAction } from '../data/use-feature-action';
+import { useSaveServices } from '../data/use-save-services';
+import { useSaveSetting } from '../data/use-save-setting';
+import {
+	apiCalls,
+	baseSettings,
+	baseStatus,
+	createTestRegistry,
+	snackbarMessages,
+	wrapperFor,
+} from './helpers';
+import type { Services, Settings, Status } from '../types';
+
+jest.mock( '@wordpress/api-fetch' );
+const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
+
+const switched: Status = { ...baseStatus, sharing: { state: 'block_call_to_action' } };
+
+/**
+ * Render the action hook in a seeded registry.
+ *
+ * @return Hook result and registry.
+ */
+function renderAction() {
+	const registry = createTestRegistry();
+	const { result } = renderHook( () => useFeatureAction(), { wrapper: wrapperFor( registry ) } );
+	return { result, registry };
+}
+
+beforeEach( () => {
+	mockApiFetch.mockReset();
+} );
+
+describe( 'useFeatureAction', () => {
+	it( 're-renders from the returned status and reads settings again', async () => {
+		mockApiFetch.mockImplementation( ( { method } ) =>
+			Promise.resolve( method === 'POST' ? switched : baseSettings )
+		);
+		const { result, registry } = renderAction();
+
+		act( () => result.current.run( 'sharing', 'switch-to-block' ) );
+
+		await waitFor( () =>
+			expect( registry.select( store ).getStatus()?.sharing.state ).toBe( 'block_call_to_action' )
+		);
+		expect( apiCalls( 'POST' ) ).toEqual( [
+			{ path: '/wpcom/v2/sharing-likes/sharing/switch-to-block', method: 'POST' },
+		] );
+		await waitFor( () =>
+			expect( apiCalls() ).toContainEqual( { path: '/wpcom/v2/sharing-likes/settings' } )
+		);
+	} );
+
+	it( 'shows the server message when the action is refused', async () => {
+		mockApiFetch.mockImplementation( ( { method } ) =>
+			method === 'POST'
+				? Promise.reject( { message: 'The feature could not be turned on.' } )
+				: Promise.resolve( baseStatus )
+		);
+		const { result } = renderAction();
+
+		act( () => result.current.run( 'likes', 'activate' ) );
+
+		await waitFor( () =>
+			expect( snackbarMessages() ).toContain( 'The feature could not be turned on.' )
+		);
+	} );
+	it.each( [
+		[
+			'Sharing hands off to the block',
+			() => Promise.resolve( switched ),
+			'Settings have been saved',
+		],
+		[ 'the action is refused', () => Promise.reject( { message: 'Refused.' } ), 'Refused.' ],
+	] as [ string, () => Promise< unknown >, string ][] )(
+		'does not read the services list again when %s',
+		async ( _when, post, notice ) => {
+			mockApiFetch.mockImplementation( ( { method } ) =>
+				method === 'POST'
+					? post()
+					: Promise.resolve( { visible: [ 'x' ], hidden: [], services: [] } )
+			);
+			const registry = createTestRegistry();
+			const { result } = renderHook(
+				() => {
+					useServices( true );
+					return useFeatureAction();
+				},
+				{ wrapper: wrapperFor( registry ) }
+			);
+			await waitFor( () => expect( apiCalls() ).toHaveLength( 1 ) );
+
+			act( () => result.current.run( 'sharing', 'switch-to-block' ) );
+
+			await waitFor( () => expect( snackbarMessages() ).toContain( notice ) );
+			await waitFor( () => expect( result.current.isPending ).toBe( false ) );
+			expect( apiCalls().filter( ( { path } ) => path?.endsWith( '/services' ) ) ).toHaveLength(
+				1
+			);
+		}
+	);
+
+	it( "lets a refused action's status read finish before the next action runs", async () => {
+		let resolveStatus!: ( value: Status ) => void;
+		const statusRead = new Promise< Status >( resolve => ( resolveStatus = resolve ) );
+		mockApiFetch.mockImplementation( ( { path, method } ) => {
+			if ( method === 'POST' ) {
+				return path?.includes( 'likes/activate' )
+					? Promise.reject( { message: 'Refused.' } )
+					: Promise.resolve( switched );
+			}
+			return path?.endsWith( '/status' ) ? statusRead : Promise.resolve( baseSettings );
+		} );
+		const registry = createTestRegistry();
+		const { result } = renderHook( () => useFeatureAction(), { wrapper: wrapperFor( registry ) } );
+
+		act( () => {
+			result.current.run( 'likes', 'activate' );
+			result.current.run( 'sharing', 'switch-to-block' );
+		} );
+		await waitFor( () =>
+			expect( apiCalls() ).toContainEqual( { path: '/wpcom/v2/sharing-likes/status' } )
+		);
+		expect( apiCalls( 'POST' ) ).toHaveLength( 1 );
+
+		await act( async () => resolveStatus( baseStatus ) );
+
+		await waitFor( () =>
+			expect( registry.select( store ).getStatus()?.sharing.state ).toBe( 'block_call_to_action' )
+		);
+	} );
+
+	it( "keeps a save's value when the action before it reads settings again", async () => {
+		let resolvePut!: ( value: Settings ) => void;
+		const put = new Promise< Settings >( resolve => ( resolvePut = resolve ) );
+		mockApiFetch.mockImplementation( ( { method } ) => {
+			if ( method === 'POST' ) {
+				return Promise.resolve( switched );
+			}
+			return method === 'PUT' ? put : Promise.resolve( baseSettings );
+		} );
+		const registry = createTestRegistry();
+		const { result } = renderHook(
+			() => ( { action: useFeatureAction(), save: useSaveSetting() } ),
+			{ wrapper: wrapperFor( registry ) }
+		);
+
+		let saved: Promise< unknown > = Promise.resolve();
+		act( () => {
+			result.current.action.run( 'sharing', 'switch-to-block' );
+			saved = result.current.save( 'button_style', 'icon' );
+		} );
+		await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 1 ) );
+
+		expect( registry.select( store ).getSettings() ).toMatchObject( {
+			button_style: 'icon',
+		} );
+
+		await act( async () => {
+			resolvePut( { ...baseSettings, button_style: 'icon' } );
+			await saved;
+		} );
+	} );
+
+	it( "drops a settings read that lands after a save's optimistic value", async () => {
+		let resolveRead!: ( value: Settings ) => void;
+		const read = new Promise< Settings >( resolve => ( resolveRead = resolve ) );
+		let resolvePut!: ( value: Settings ) => void;
+		const put = new Promise< Settings >( resolve => ( resolvePut = resolve ) );
+		mockApiFetch.mockImplementation( ( { method } ) => {
+			if ( method === 'POST' ) {
+				return Promise.resolve( switched );
+			}
+			return method === 'PUT' ? put : read;
+		} );
+		const registry = createTestRegistry();
+		const { result } = renderHook(
+			() => ( { action: useFeatureAction(), save: useSaveSetting() } ),
+			{ wrapper: wrapperFor( registry ) }
+		);
+
+		act( () => result.current.action.run( 'sharing', 'switch-to-block' ) );
+		await waitFor( () =>
+			expect( apiCalls() ).toContainEqual( { path: '/wpcom/v2/sharing-likes/settings' } )
+		);
+		let saved: Promise< unknown > = Promise.resolve();
+		act( () => {
+			saved = result.current.save( 'button_style', 'icon' );
+		} );
+		await act( async () => resolveRead( baseSettings ) );
+
+		expect( registry.select( store ).getSettings()?.button_style ).toBe( 'icon' );
+
+		await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 1 ) );
+		await act( async () => {
+			resolvePut( { ...baseSettings, button_style: 'icon' } );
+			await saved;
+		} );
+	} );
+
+	it( 'keeps a queued order when the action before it reads services again', async () => {
+		const services: Services = {
+			visible: [ 'facebook', 'x' ],
+			hidden: [],
+			services: [
+				{ id: 'facebook', name: 'Facebook', custom: false, deprecated: false },
+				{ id: 'x', name: 'X', custom: false, deprecated: false },
+			],
+		};
+		let resolvePut!: ( value: Services ) => void;
+		const put = new Promise< Services >( resolve => ( resolvePut = resolve ) );
+		mockApiFetch.mockImplementation( ( { method, path } ) => {
+			if ( method === 'POST' ) {
+				return Promise.resolve( baseStatus );
+			}
+			if ( method === 'PUT' ) {
+				return put;
+			}
+			return Promise.resolve( path?.endsWith( '/services' ) ? services : baseSettings );
+		} );
+		const registry = createTestRegistry( { services } );
+		const { result } = renderHook(
+			() => ( { action: useFeatureAction(), save: useSaveServices() } ),
+			{ wrapper: wrapperFor( registry ) }
+		);
+
+		let saved: Promise< unknown > = Promise.resolve();
+		act( () => {
+			result.current.action.run( 'likes', 'activate' );
+			saved = result.current.save( { visible: [ 'x', 'facebook' ], hidden: [] } );
+		} );
+		await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 1 ) );
+
+		expect( registry.select( store ).getServices()?.visible ).toEqual( [ 'x', 'facebook' ] );
+
+		await act( async () => {
+			resolvePut( { ...services, visible: [ 'x', 'facebook' ] } );
+			await saved;
+		} );
+	} );
+} );

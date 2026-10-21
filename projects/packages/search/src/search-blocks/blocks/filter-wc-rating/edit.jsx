@@ -111,7 +111,7 @@ export default function FilterWcRatingEdit( { attributes, setAttributes } ) {
 					/* translators: %d is the rating threshold (1-4). */
 					_n( '%d star and up', '%d stars and up', star, 'jetpack-search-pkg' ),
 					star
-			  );
+				);
 
 	const previewStars = STAR_VALUES.filter( s => enabledSet.has( s ) );
 

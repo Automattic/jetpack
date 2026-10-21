@@ -1,5 +1,6 @@
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty, chevronRight } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState, useCallback } from 'react';
 import formatNumber from '../../utils/format-number';
@@ -110,11 +111,14 @@ const getDynamicTitle = metric => {
  * @param {object}   props.counts               - Counts object for the current period.
  * @param {object}   props.previousCounts       - Counts object for the previous period.
  * @param {number}   props.headingLevel         - Heading level between 1 and 6.
- * @param {Array}    props.chartData            - Chart data for the bar chart visualization.
+ * @param {?object}  props.chartData            - Chart data for the bar chart visualization.
  * @param {boolean}  props.isLoading            - Whether the data is loading.
+ * @param {string}   props.detailedStatsHref    - Destination of the detailed stats link.
  * @param {Function} props.onDetailedStatsClick - Function to handle detailed stats click.
+ * @param {boolean}  [props.hideTitle]          - Whether to leave out the linked title, when a container already has one.
+ * @param {boolean}  [props.chartBelowCounts]   - Whether to show the chart after the counts instead of before them.
  *
- * @return {object} StatsCards React component.
+ * @return {import('react').JSX.Element} StatsCards React component.
  */
 const StatsCards = ( {
 	counts,
@@ -122,7 +126,10 @@ const StatsCards = ( {
 	headingLevel,
 	chartData,
 	isLoading,
+	detailedStatsHref,
 	onDetailedStatsClick,
+	hideTitle = false,
+	chartBelowCounts = false,
 } ) => {
 	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
 
@@ -155,15 +162,6 @@ const StatsCards = ( {
 		[ handleMetricSelect ]
 	);
 
-	const handleKeyDown = useCallback(
-		e => {
-			if ( e.key === 'Enter' || e.key === ' ' ) {
-				onDetailedStatsClick();
-			}
-		},
-		[ onDetailedStatsClick ]
-	);
-
 	// Get icon for selected metric
 	const getMetricIcon = useCallback( metric => {
 		const icons = {
@@ -175,31 +173,36 @@ const StatsCards = ( {
 		return icons[ metric ] || icons.views;
 	}, [] );
 
+	const chart = (
+		<StatsChart
+			data={ transformedChartData }
+			isLoading={ isLoading }
+			href={ detailedStatsHref }
+			onClick={ onDetailedStatsClick }
+			selectedMetric={ selectedMetric }
+			metricIcon={ getMetricIcon( selectedMetric ) }
+		/>
+	);
+
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
-			<div
-				className={ styles[ 'section-title-container' ] }
-				onClick={ onDetailedStatsClick }
-				role="button"
-				tabIndex={ 0 }
-				onKeyDown={ handleKeyDown }
-			>
-				<Heading className={ styles[ 'section-title' ] }>
-					<span>{ getDynamicTitle( selectedMetric ) }</span>
-				</Heading>
-				<div>
-					<Icon icon={ chevronRight } />
-				</div>
-			</div>
+			{ ! hideTitle && (
+				<Link
+					tone="neutral"
+					className={ styles[ 'section-title-container' ] }
+					href={ detailedStatsHref }
+					onClick={ detailedStatsHref ? onDetailedStatsClick : undefined }
+				>
+					<Heading className={ styles[ 'section-title' ] }>
+						<span>{ getDynamicTitle( selectedMetric ) }</span>
+					</Heading>
+					<div>
+						<Icon icon={ chevronRight } />
+					</div>
+				</Link>
+			) }
 
-			<StatsChart
-				data={ transformedChartData }
-				isLoading={ isLoading }
-				onClick={ onDetailedStatsClick }
-				onKeyDown={ handleKeyDown }
-				selectedMetric={ selectedMetric }
-				metricIcon={ getMetricIcon( selectedMetric ) }
-			/>
+			{ ! chartBelowCounts && chart }
 
 			<ul className={ clsx( styles[ 'cards-list' ], styles[ 'my-jetpack-stats-cards' ] ) }>
 				<CountComparisonCard
@@ -263,6 +266,7 @@ const StatsCards = ( {
 					onClick={ handleCommentsClick }
 				/>
 			</ul>
+			{ chartBelowCounts && chart }
 		</div>
 	);
 };

@@ -48,7 +48,7 @@ const PublicizePanel = ( { prePublish }: PublicizePanelProps ) => {
 		: {
 				title: __( 'Share to social media', 'jetpack-publicize-pkg' ),
 				className: styles.panel,
-		  };
+			};
 
 	return (
 		<PanelWrapper { ...wrapperProps }>

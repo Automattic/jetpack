@@ -20,10 +20,6 @@
 		border: var(--wpds-border-width-xs) solid CanvasText;
 	}
 
-	// A touch above true center: dialog convention weights the empty space
-	// toward the bottom, and the band-heavy layout reads better lifted.
-	inset-block-start: 42%;
-
 	// The video sits flush to the popup's top corners, above the padded body.
 	// `Dialog.Popup` is `overflow: hidden`, so the band inherits its radius.
 	&__media {
@@ -104,13 +100,29 @@
 		container-type: inline-size;
 	}
 
-	// Title and lede type comes from Dialog.Title/Description's own variants —
-	// no size overrides (the design system's internals are not a stable API to
-	// override; if the Figma spec's larger scale returns, the ask is a variant
-	// prop on the components). The lede runs the full modal width;
-	// `text-wrap: pretty` keeps its second line from breaking mid-phrase.
-	&__lede {
+	// Dialog.Description exposes no size variant (it pins body-md), so the lede
+	// takes its scale from the design system's tokens here. The selector names
+	// the element and sits under `__body` on purpose: the design system ships
+	// an unlayered, element-scoped guard rule (`p.…`, specificity 0,1,1) that
+	// sets font-size and line-height on paragraphs, and a lone class loses to
+	// it. `__body p.__lede` is 0,2,1 and wins. The title stays at
+	// Dialog.Title's own heading-xl.
+
+	// The lede matches the card bodies' `body-lg` variant: lg size on the md
+	// line-height (15px/24px). `text-wrap: pretty` keeps its last line from
+	// breaking mid-phrase.
+	&__body p.vp-onboarding-modal__lede {
+		font-size: var(--wpds-typography-font-size-lg);
+		line-height: var(--wpds-typography-line-height-md);
 		text-wrap: pretty;
+	}
+
+	// Both paragraphs on the weak foreground: Dialog.Description otherwise
+	// inherits the popup's strong content colour, and the lede and the card
+	// bodies read as different voices.
+	&__lede,
+	&__card-body {
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	// Three equal columns; the hairlines between them are drawn as centered
@@ -171,10 +183,6 @@
 	&__card-title {
 		margin-block-end: var(--wpds-dimension-gap-xs);
 		color: var(--wpds-color-foreground-content-neutral);
-	}
-
-	&__card-body {
-		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	&__footer {

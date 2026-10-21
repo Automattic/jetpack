@@ -1,9 +1,12 @@
 <?php
 
+use Automattic\Jetpack\Assets\Shared_Stores_Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * @covers \Jetpack_Gutenberg
@@ -96,6 +99,97 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			'onion',
 			'potato',
 			'tomato',
+		);
+	}
+
+	/**
+	 * The modules store initializes immediately, so its state must be localized on
+	 * the shared-store handle rather than on a later editor script.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_editor_initial_state_is_localized_on_shared_modules_store() {
+		global $current_screen;
+
+		$previous_screen = $current_screen;
+		$current_screen  = convert_to_screen( 'post' );
+		$current_screen->is_block_editor( true );
+		Shared_Stores_Assets::register_assets();
+		wp_register_style( 'jetpack-blocks-editor', false, array(), JETPACK__VERSION );
+
+		try {
+			Jetpack_Gutenberg::enqueue_block_editor_assets();
+
+			$scripts = wp_scripts();
+			$this->assertStringContainsString(
+				'Jetpack_Editor_Initial_State',
+				(string) $scripts->get_data( Shared_Stores_Assets::SCRIPT_HANDLE, 'data' )
+			);
+			$this->assertEmpty( $scripts->get_data( 'jetpack-blocks-editor', 'data' ) );
+		} finally {
+			$current_screen = $previous_screen;
+		}
+	}
+
+	/**
+	 * The SEO package registers the auto-generate setting for saving when it starts,
+	 * so the editor must not offer or read that setting before then.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_seo_package_started
+	 *
+	 * @param bool $started Whether the SEO package has started.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'provide_seo_package_started' )]
+	public function test_seo_auto_enhance_waits_for_the_seo_package( $started ) {
+		global $current_screen;
+
+		// Available everywhere but started only where the host boots it, as on WordPress.com.
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		update_option( 'jetpack_seo_surface_visible_v2', true );
+		update_option( 'ai_seo_enhancer_enabled', true );
+		if ( $started ) {
+			do_action( 'jetpack_seo_init' );
+		}
+
+		$previous_screen = $current_screen;
+		$current_screen  = convert_to_screen( 'post' );
+		$current_screen->is_block_editor( true );
+		Shared_Stores_Assets::register_assets();
+		wp_register_style( 'jetpack-blocks-editor', false, array(), JETPACK__VERSION );
+
+		try {
+			Jetpack_Gutenberg::enqueue_block_editor_assets();
+		} finally {
+			$current_screen = $previous_screen;
+		}
+
+		preg_match(
+			'/Jetpack_Editor_Initial_State = (\{.*\});/',
+			(string) wp_scripts()->get_data( Shared_Stores_Assets::SCRIPT_HANDLE, 'data' ),
+			$matches
+		);
+		$state = (array) json_decode( $matches[1], true );
+
+		$this->assertSame( $started, $state['ai-assistant']['is-seo-auto-enhance-switchable'] );
+		$this->assertSame( $started, $state['ai-assistant']['is-seo-auto-enhance-enabled'] );
+	}
+
+	/**
+	 * Whether the SEO package has started.
+	 *
+	 * @return array
+	 */
+	public static function provide_seo_package_started() {
+		return array(
+			'started'     => array( true ),
+			'not started' => array( false ),
 		);
 	}
 
@@ -821,9 +915,9 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			preg_match_all( '/add_action\s*\(\s*[\'"]init[\'"]/', $source ),
 			"Lazy block {$feature} must add exactly one init registration callback."
 		);
-		$this->assertSame(
-			0,
-			preg_match( '/jetpack_register_block\s*\(\s*[\'"](?!jetpack\/' . preg_quote( $feature, '/' ) . '[\'"])/', $source ),
+		$this->assertDoesNotMatchRegularExpression(
+			'/jetpack_register_block\s*\(\s*[\'"](?!jetpack\/' . preg_quote( $feature, '/' ) . '[\'"])/',
+			$source,
 			"Lazy block {$feature} must not explicitly register a differently named block."
 		);
 		$this->assertStringNotContainsString( 'render_email_callback', $source, "Lazy block {$feature} must not register an e-mail renderer." );

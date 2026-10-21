@@ -17,7 +17,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as RestoreStage } from '../routes/restore/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
@@ -25,7 +25,6 @@ import { queryClient } from '../src/dashboard/data/query-client';
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const RESTORE_ID = 912682;
 const REWIND_ID = '1786663613.9425';
-const SETTLE = { timeout: 10000 };
 
 /**
  * Answer capabilities and the initiate POST, then let the status poll
@@ -33,8 +32,9 @@ const SETTLE = { timeout: 10000 };
  *
  * @param progress - The `progress` field the status poll reports.
  * @param message  - The `message` field the status poll reports.
+ * @param status   - The `status` field the status poll reports.
  */
-function arrange( progress: number, message: string ) {
+function arrange( progress: number, message: string, status = 'running' ) {
 	mockApiFetch.mockImplementation( ( o: { path?: string; method?: string } ) => {
 		const path = o?.path ?? '';
 		if ( path.includes( '/site/capabilities' ) ) {
@@ -46,7 +46,7 @@ function arrange( progress: number, message: string ) {
 		if ( path.includes( '/status' ) ) {
 			return Promise.resolve( {
 				id: RESTORE_ID,
-				status: 'running',
+				status,
 				progress,
 				rewind_id: REWIND_ID,
 				error_code: '',
@@ -73,7 +73,7 @@ beforeEach( () => {
  * Start a restore with the default six-of-six checklist.
  */
 async function startRestore() {
-	await userEvent.click( await screen.findByRole( 'button', { name: /Confirm restore/ }, SETTLE ) );
+	await userEvent.click( await screen.findByRole( 'button', { name: /Confirm restore/ } ) );
 }
 
 describe( 'the Restore screen during a running restore', () => {
@@ -84,28 +84,38 @@ describe( 'the Restore screen during a running restore', () => {
 		await startRestore();
 
 		await expect(
-			screen.findByText( 'Checking remote files: 22396', undefined, SETTLE )
+			screen.findByText( 'Checking remote files: 22396' )
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'announces that the restore started, and only that line', async () => {
-		arrange( 0, 'Checking remote files: 22396' );
-		render( <RestoreStage /> );
+	// One region for the whole screen, mounted before the phase changes: a live
+	// region that arrives together with its text is missed by screen readers.
+	// Exact text, so the region cannot widen to the per-poll percentage.
+	it.each( [
+		[ 'queued', 0, /^Your restore is queued and will begin automatically\.$/ ],
+		[ 'running', 0, /^Restoring from backup…$/ ],
+		[ 'finished', 100, /^Restore complete\.$/ ],
+		[ 'finished-with-errors', 100, /^Restore finished with errors$/ ],
+	] )(
+		'announces a restore that is %s in the region that was already there',
+		async ( status, progress, title ) => {
+			arrange( progress, 'Checking remote files: 22396', status );
+			render( <RestoreStage /> );
 
-		await startRestore();
-		// Wait for the phase first: the idle branch's own `role="status"` is still
-		// mounted, empty, until the submission settles.
-		await expect(
-			screen.findByText( '0% complete', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+			// Past the initial check, so the region is idle-empty. It is the first
+			// `status`; the selection hint comes after it.
+			await expect(
+				screen.findByRole( 'button', { name: /Confirm restore/ } )
+			).resolves.toBeVisible();
+			const region = screen.getAllByRole( 'status' )[ 0 ];
+			expect( region ).toBeEmptyDOMElement();
 
-		// Exact, not `toHaveTextContent`: that matches a substring on any ancestor,
-		// so it passes with the role moved onto the whole block — which is the
-		// re-announce-every-poll regression this scoping exists to prevent.
-		await expect( screen.findByRole( 'status', undefined, SETTLE ) ).resolves.toHaveTextContent(
-			/^Restoring…$/
-		);
-	} );
+			await startRestore();
+
+			await waitFor( () => expect( region ).toHaveTextContent( title ) );
+			expect( screen.getAllByRole( 'status' ) ).toEqual( [ region ] );
+		}
+	);
 
 	// Both figures, so a hardcoded `0%` cannot pass: the preflight pins it at
 	// zero, but the readout has to track the real value once it moves.
@@ -115,8 +125,26 @@ describe( 'the Restore screen during a running restore', () => {
 
 		await startRestore();
 
-		await expect(
-			screen.findByText( `${ percent }% complete`, undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( `${ percent }% complete` ) ).resolves.toBeInTheDocument();
+	} );
+} );
+
+describe( 'the Restore screen after a restore that finished with errors', () => {
+	it( 'links to the restore troubleshooting guide', async () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: 'example.wordpress.com',
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+		arrange( 100, 'Some files were skipped', 'finished-with-errors' );
+		render( <RestoreStage /> );
+
+		await startRestore();
+
+		const link = await screen.findByRole( 'link', { name: /^Learn more/ } );
+		expect( link ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-restore-troubleshooting&site=example.wordpress.com'
+		);
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 } );

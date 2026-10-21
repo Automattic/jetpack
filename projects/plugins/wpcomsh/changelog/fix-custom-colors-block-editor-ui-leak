@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Custom Colors: Scope Customizer colors to the editor content so they no longer leak into the block editor UI (e.g. the sidebar's Categories panel).

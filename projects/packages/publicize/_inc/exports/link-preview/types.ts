@@ -39,12 +39,4 @@ export type LinkPreviewData = {
 };
 
 export type LinkPreviewPlatform =
-	| 'bluesky'
-	| 'facebook'
-	| 'google'
-	| 'linkedin'
-	| 'mastodon'
-	| 'nextdoor'
-	| 'threads'
-	| 'tumblr'
-	| 'x';
+	'bluesky' | 'facebook' | 'google' | 'linkedin' | 'mastodon' | 'threads' | 'tumblr' | 'x';

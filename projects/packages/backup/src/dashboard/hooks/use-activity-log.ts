@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useRef } from '@wordpress/element';
 import {
 	fetchActivityLog,
 	type ActivitySortOrder,
@@ -7,8 +7,10 @@ import {
 	type WpcomActivityLogResponse,
 } from '../data/api/activity-log';
 import { normalizeActivityLog } from '../data/normalize/activity-log';
+import { findRestoreRow, isRestoreRowId, mergeRestoreRows } from '../data/normalize/restores';
 import { keys } from '../data/query-client';
 import { useCanQueryWpcom } from './use-connection';
+import { useRecentRestores } from './use-recent-restores';
 import { useStickyError } from './use-sticky-error';
 import type { ActivityItem } from '../types/activity';
 
@@ -21,7 +23,12 @@ type Args = {
 type Result = {
 	items: ActivityItem[];
 	totalItems: number;
-	totalPages: number;
+	/**
+	 * Null until the feed has answered, then kept even if a later page fails:
+	 * DataViews leaves the page alone while the total is unknown, but clamps it to 1 when
+	 * handed a fallback count.
+	 */
+	totalPages: number | null;
 	isLoading: boolean;
 	/**
 	 * True while a refetch is in flight. Distinct from `isLoading`, which
@@ -30,6 +37,19 @@ type Result = {
 	 * whole duration of a retry.
 	 */
 	isFetching: boolean;
+	/**
+	 * True while `keepPreviousData` is standing in for a key that has not
+	 * answered yet — so it separates a page or sort change, which the reader
+	 * asked for, from a background refetch, which they did not.
+	 */
+	isPlaceholderData: boolean;
+	/**
+	 * True when React Query parked the request instead of sending it, which
+	 * `networkMode: 'online'` does for an offline browser. Neither fetching nor
+	 * errored — so callers that read an absence as an answer need this to tell
+	 * "nothing there" from "never asked".
+	 */
+	isPaused: boolean;
 	error: Error | null;
 	refetch: () => void;
 };
@@ -81,24 +101,72 @@ function useActivityPageQuery( page: number, pageSize: number, sortOrder: Activi
  * does the paging, `totalItems` / `totalPages` come back in the
  * envelope, and DataViews owns the footer.
  *
+ * The site's restores are folded in on top of that; see `ActivityKind`.
+ *
  * @param args           - Query args.
  * @param args.page      - 1-indexed page number.
  * @param args.pageSize  - Items per page.
  * @param args.sortOrder - Sort direction, from the list's Order control.
- * @return Items, total items, total pages, loading, error, refetch.
+ * @return Items, total items, total pages, loading, paused, error, refetch.
  */
 export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 	const query = useActivityPageQuery( page, pageSize, sortOrder );
+	const restores = useRecentRestores( useCanQueryWpcom() );
 	const { refetch } = query;
 	// Held across the retry: React Query rewinds this query to `pending`
 	// when it refetches after a failure, so without this the reason
 	// disappears the moment the reader clicks the retry button.
 	const error = useStickyError( query.error, query.isFetching );
 
-	const items = useMemo(
+	const entries = useMemo(
 		() => normalizeActivityLog( query.data?.current?.orderedItems ),
 		[ query.data ]
 	);
+
+	// The server's own count, not the merged one: restore rows land on a single
+	// page, so counting them would misreport how many pages there are.
+	const answer = query.data && {
+		totalItems: query.data.totalItems ?? entries.length,
+		totalPages: query.data.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) ),
+	};
+	// A failed page has no count of its own, and DataViews hides its pager at zero items,
+	// which strands the reader there. Overview keeps the page-1 query mounted, so it
+	// covers a hook that never saw an answer.
+	const queryClient = useQueryClient();
+	const firstPage = queryClient.getQueryData< WpcomActivityLogResponse >(
+		keys.activityLogPage( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, ACTIVITY_LOG_NEWEST_FIRST )
+	);
+	const lastAnswer = useRef< ( NonNullable< typeof answer > & { pageSize: number } ) | null >(
+		null
+	);
+	if ( answer && ! query.isPlaceholderData ) {
+		lastAnswer.current = { ...answer, pageSize };
+	}
+	const known =
+		lastAnswer.current ??
+		( firstPage?.totalItems !== undefined && firstPage.totalPages !== undefined
+			? { ...firstPage, pageSize: ACTIVITY_LOG_DEFAULT_PER_PAGE }
+			: null );
+	const totalItems = known?.totalItems ?? 0;
+	// Recounted when the page size changed since the answer, or a failed per-page change keeps the old count.
+	const recount = known && known.pageSize !== pageSize;
+	const knownPages = recount
+		? Math.max( 1, Math.ceil( known.totalItems / pageSize ) )
+		: known?.totalPages;
+	const totalPages = answer?.totalPages ?? knownPages ?? null;
+
+	// A retry has no rows of its own: `keepPreviousData` would stand in the last page's.
+	const showsPlaceholder = query.isPlaceholderData && error !== null;
+	// Only once the feed has answered: a failed page holds no rows, and merged
+	// restores would fill it, hiding the failure the list's `empty` slot reports.
+	const items = useMemo( () => {
+		if ( showsPlaceholder ) {
+			return [];
+		}
+		return query.isSuccess && totalPages !== null
+			? mergeRestoreRows( entries, restores.data, { page, totalPages, sortOrder } )
+			: entries;
+	}, [ showsPlaceholder, query.isSuccess, entries, restores.data, page, totalPages, sortOrder ] );
 
 	// Wrapped so callers can hand it straight to `onClick` without
 	// returning a floating promise from the event handler.
@@ -108,10 +176,12 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 
 	return {
 		items,
-		totalItems: query.data?.totalItems ?? items.length,
-		totalPages: query.data?.totalPages ?? Math.max( 1, Math.ceil( items.length / pageSize ) ),
+		totalItems,
+		totalPages,
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
+		isPlaceholderData: query.isPlaceholderData,
+		isPaused: query.isPaused,
 		error,
 		refetch: retry,
 	};
@@ -126,26 +196,42 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
  * selections that are not clicks — a bookmarked `?selected=` on a page nothing
  * has loaded, and the newest-backup default pinned by the hook below.
  *
+ * A null item never means "no such row": it is equally the answer while the page
+ * query is in flight, after it failed, and while the row sits on a page nothing
+ * has loaded — `hasAnswered` is the list's page verdict, not the whole log's.
+ *
  * @param id        - Selection id: `rewindId` for backup items, `activity_id` otherwise.
  * @param page      - The page currently shown in the list.
  * @param pageSize  - The per-page setting currently shown in the list.
  * @param sortOrder - The sort direction currently shown in the list.
- * @return The matching item, or null when nothing in the cached page(s) matches.
+ * @return The matching item or null, whether the list's page query has answered, its failure if it did, and whether it is fetching now (false when paused or disabled).
  */
 export function useActivityById(
 	id: string | null,
 	page: number,
 	pageSize: number,
 	sortOrder: ActivitySortOrder
-): ActivityItem | null {
+): {
+	item: ActivityItem | null;
+	hasAnswered: boolean;
+	error: Error | null;
+	isFetching: boolean;
+} {
 	// Follows the list's `sortOrder`: it is part of the cache key, so pinning it
 	// here would open a second query for rows already on screen.
 	const query = useActivityPageQuery( page, pageSize, sortOrder );
+	const restores = useRecentRestores( useCanQueryWpcom() );
 	const queryClient = useQueryClient();
+	// A merged restore row is never in the feed, so its id is answered by the
+	// collection instead — including which query decides `hasAnswered`.
+	const isRestore = id !== null && isRestoreRowId( id );
 
-	return useMemo( () => {
+	const item = useMemo( () => {
 		if ( ! id ) {
 			return null;
+		}
+		if ( isRestore ) {
+			return findRestoreRow( restores.data, id );
 		}
 		const found = findById( query.data?.current?.orderedItems, id );
 		if ( found ) {
@@ -167,7 +253,14 @@ export function useActivityById(
 		// `queryClient` is stable; the cache scan re-runs whenever the
 		// active page query resolves (covered by `query.data`).
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ id, query.data ] );
+	}, [ id, isRestore, restores.data, query.data ] );
+
+	return {
+		item,
+		hasAnswered: isRestore ? restores.isSuccess : query.isSuccess,
+		error: isRestore ? restores.error : query.error,
+		isFetching: isRestore ? restores.isFetching : query.isFetching,
+	};
 }
 
 /**
@@ -213,19 +306,21 @@ export function useDefaultBackupRewindId(): string | null {
  * is paginated over the full retention window and does not have that
  * blind spot.
  *
- * `isError` is reported separately from `isLoading` because callers must
- * treat the two the same way and React Query does not. A failed query is
- * not loading and holds no rows, so `hasRestorePoints` comes back a
+ * `isError` and `isPaused` are reported separately from `isLoading`
+ * because callers must treat all three the same way and React Query does
+ * not. A query that failed, and a first read parked because the browser is
+ * offline, are both not loading and hold no rows, so `hasRestorePoints` comes back a
  * confident `false` for a question that was never actually answered —
  * which is indistinguishable, to a caller reading only the first two
  * values, from a site that genuinely has no restore points.
  *
- * @return Whether a restore point is visible, whether the answer has loaded, and whether asking failed.
+ * @return Whether a restore point is visible, whether the answer has loaded, and whether asking failed or was parked.
  */
 export function useHasRestorePoints(): {
 	hasRestorePoints: boolean;
 	isLoading: boolean;
 	isError: boolean;
+	isPaused: boolean;
 } {
 	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, ACTIVITY_LOG_NEWEST_FIRST );
 	const hasRestorePoints = useMemo(
@@ -235,7 +330,14 @@ export function useHasRestorePoints(): {
 			),
 		[ query.data ]
 	);
-	return { hasRestorePoints, isLoading: query.isLoading, isError: query.isError };
+	return {
+		hasRestorePoints,
+		isLoading: query.isLoading,
+		isError: query.isError,
+		// `isPending` too: a parked *refetch* still holds its rows, and reporting
+		// that as unanswered would pull the first-run panel off a genuinely empty site.
+		isPaused: query.isPending && query.isPaused,
+	};
 }
 
 /**

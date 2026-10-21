@@ -21,6 +21,7 @@ import Blaze from './blaze';
 import { GoogleAnalytics } from './google-analytics';
 import { RelatedPosts } from './related-posts';
 import SEO from './seo';
+import SeoOptInBanner from './seo-optin-banner';
 import Shortlinks from './shortlinks';
 import { SiteStats } from './site-stats';
 import Sitemaps from './sitemaps';
@@ -65,9 +66,8 @@ export class Traffic extends Component {
 		// new page. Existing self-hosted installs that haven't opted in keep them
 		// (JETPACK-1682).
 		const seoMovedToDashboard = getScriptData()?.seo?.surface_visible === true;
-		// The pointer notice stands in for every section we hide, so show it whenever
-		// any of them would have rendered — including a settings search for "sitemap"
-		// or "verification" that matches even when the SEO section itself does not.
+		// The opt-in and pointer notices cover every section that moves, so show them for any of
+		// those, including a "sitemap" or "verification" search that misses the SEO section.
 		const foundMovedToDashboard =
 			foundSeo || foundCanonicalUrls || foundSitemaps || foundVerification;
 
@@ -89,15 +89,11 @@ export class Traffic extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Traffic Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ this.props.searchTerm
-						? __( 'Traffic', 'jetpack' )
-						: __(
-								'Maximize your site’s visibility in search engines and view traffic patterns in real time.',
-								'jetpack'
-						  ) }
-				</h2>
+				{ this.props.searchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Traffic', 'jetpack' ) }</h2>
+				) }
 				{ foundRelated && <RelatedPosts { ...commonProps } /> }
+				{ foundMovedToDashboard && <SeoOptInBanner /> }
 				{ ! seoMovedToDashboard && ( foundSeo || foundCanonicalUrls ) && (
 					<SEO
 						{ ...commonProps }
@@ -108,9 +104,13 @@ export class Traffic extends Component {
 					/>
 				) }
 				{ seoMovedToDashboard && foundMovedToDashboard && (
-					<SimpleNotice status="is-info" showDismiss={ false } className="jp-seo-moved-banner">
+					<SimpleNotice
+						status="is-info"
+						showDismiss={ false }
+						className="jp-seo-moved-banner"
+						title={ __( 'Jetpack SEO has its own dashboard', 'jetpack' ) }
+					>
 						<div className="jp-seo-moved-banner__content">
-							<strong>{ __( 'Jetpack SEO has its own dashboard', 'jetpack' ) }</strong>
 							<p>
 								{ __(
 									'Manage your search engine optimization settings from the redesigned SEO dashboard.',

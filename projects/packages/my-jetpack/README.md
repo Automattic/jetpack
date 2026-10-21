@@ -20,7 +20,25 @@ add_action( 'init', function() {
 
 ### Conditionally loading licensing UI behind a feature flag
 
-To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license`, add a filter on `jetpack_my_jetpack_should_enable_add_license_screen` and return false: `add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );`
+To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license`, add a filter on `jetpack_my_jetpack_should_enable_add_license_screen` and return false: `add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );` My Jetpack applies this filter automatically when initializing the offline Features entry described below.
+
+### Managing features
+
+Where Features opens (sites registered with WordPress.com, and offline sites with the offline entry enabled), My Jetpack Features shows all eligible features by default, including unavailable modules and their reasons. Unavailable modules have no switch or bulk selection. Choose **Available** to exclude unavailable features, forced-off modules, and installed plugins forced inactive. Search spans all eligible features, and choosing a filter clears the search. Feature filters, search, layout, and an open feature remain in the URL across reloads.
+
+When a standalone plugin provides an alternative, its card retains the install or activation action and explains the Jetpack module's limitation. Plan and connection restrictions retain applicable upgrade routes. Backup, Firewall, and Ads remain unavailable on multisite. Features hidden by the host stay hidden; forced and network-activated features retain their existing controls, with host reasons only in the details window of main cards; forced modules the site cannot run are listed as unavailable with their reasons.
+
+Enable the default-off `my-jetpack-account-connect` flag with `add_filter( 'jetpack_feature_flag_enabled_my-jetpack-account-connect', '__return_true' );` to connect the WordPress.com account from the features that need one. This applies on a site registered with WordPress.com without a connected owner, for an administrator whose own account is not connected either, while the connection reports no errors. Those features, such as Activity Log, Newsletter, Social and Backup, show **Needs user account** on the card and in its details, whether or not their plugin or Jetpack is installed, unless the host forces them off or multisite blocks them. A missing Social or Backup plugin, or a missing or inactive Jetpack, keeps **Install** or **Activate**, which turns the plugin on and then starts the account connection. An installed plugin or a module offers **Connect** instead of its switch, whether it is on or off: Connect starts the connection and changes nothing else, and the switch returns once the account is connected. A feature already on keeps **Deactivate** in its details. **Available** and bulk actions leave these features out, and the connection returns to the same Features view without its status filter. With the flag on, **Available** also leaves out features whose only action is an install the current user cannot make. A blocked install does not exclude a product that already runs without its plugin.
+
+Enable the default-off `my-jetpack-modules-to-features` flag with `add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_true' );` to send eligible legacy Modules links to Features through browser navigation, carrying saved searches and recognized module tags. Search and tag together narrow the results; **Clear tag** removes only the tag. These views include a **Classic Modules list** link that preserves the current search and tag and remains available if feature data fails to load. Purpose-group and active/inactive filters, unknown tags, and tags or saved searches matching only hidden features stay on Modules. Links reach Features only when My Jetpack detects Jetpack as installed and active, including Jetpack Beta with both `jetpack/` and `jetpack-dev/` installed and only Beta active. Features and Modules links prefer an active copy when several declared copies are installed; with none active, they keep the first installed copy. Must-use installations without an active plugin file retain Modules and their existing module controls. Sites or users without Features access, sites where My Jetpack would redirect to setup or a partner coupon screen, offline sites (even with the offline entry enabled), and disabled REST access retain Modules with the search and tag arguments preserved. Without JavaScript, legacy links and repointed management links also reach Modules; the server-printed fallback and its REST probe run only while the Modules-to-Features flag is enabled. The pinned footer and its Reset action remain available. Hosts that do not show My Jetpack can keep all management links on Modules with `add_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );`.
+
+#### Offline Mode
+
+The offline Features entry is off by default. Register `add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );` before My Jetpack initializes, for example in a must-use plugin, and visit `/wp-admin/admin.php?page=my-jetpack#/features` on a site in offline mode. My Jetpack opens Features without connection onboarding; other hash routes redirect there while preserving the query string.
+
+Users need permission to edit posts and activate plugins, plus manage the network on multisite. The Jetpack plugin keeps its Modules and Settings entry for users who cannot access Features. Local modules can be switched and retain their state after reload. The Features controller refuses to activate modules that require a connection; standalone plugins can still be activated and may run their own activation steps, including Social enabling its module.
+
+The offline page skips product, ownership, notification, and history queries. It does not prevent requests elsewhere in shared Jetpack code: the Search plan lookup with copied credentials and connected-user script data on a cold cache can still contact WordPress.com.
 
 ## Architecture
 
@@ -35,7 +53,8 @@ To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license
 
 #### React Frontend (`_inc/`)
 
-- **Main App** (`admin.jsx`): Entry point with React Router setup
+- **Main App** (`app.jsx`): React Router setup, rendered by the wp-build route in `routes/dashboard/`
+- **Onboarding** (`onboarding.jsx`): Webpack entry for the full-screen onboarding takeover
 - **Components** (`components/`): Reusable UI components for product cards, screens, and interstitials
 - **Data Layer** (`data/`): Custom hooks and API integration using React Query (see [Data Layer Documentation](./_inc/data/README.md))
 - **Context** (`context/`): Global state management for notices and values
@@ -130,7 +149,8 @@ To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license
 
 ### React Files
 
-- `_inc/admin.jsx` - Main React application entry point
+- `_inc/app.jsx` - Main React application, rendered by `routes/dashboard/stage.tsx`
+- `_inc/onboarding.jsx` - Onboarding takeover entry point
 - `_inc/providers.tsx` - Context providers wrapper
 - `_inc/constants.ts` - Route definitions and constants
 - `_inc/components/my-jetpack-screen/` - Main dashboard screen

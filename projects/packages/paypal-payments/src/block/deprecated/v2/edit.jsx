@@ -197,7 +197,7 @@ class SimplePaymentsEdit extends Component {
 										/* translators: %s: an email address. */
 										__( '%s is not a valid email address.', 'jetpack-paypal-payments' ),
 										email
-								  )
+									)
 								: null,
 						fieldPriceError:
 							apiErrorKey === 'spay_price'

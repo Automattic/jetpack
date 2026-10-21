@@ -56,6 +56,8 @@ const buildOverview = (): OverviewResponse => ( {
 	plan: {
 		seo_enabled_for_site: true,
 	},
+	conflicting_seo_plugin: '',
+	verification_switchable: true,
 } );
 
 describe( 'OverviewScreen', () => {
@@ -84,5 +86,20 @@ describe( 'OverviewScreen', () => {
 
 		expect( screen.getByText( 'Site visibility' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Site verification' ) ).toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'names the plugin that owns the output', 'Yoast SEO', /^Yoast SEO is managing your SEO/ ],
+		[ 'falls back when no plugin is named', '', /^SEO tools are not enabled/ ],
+	] )( 'with SEO output off, %s', ( _, plugin, notice ) => {
+		getOverview.mockReturnValue( {
+			...buildOverview(),
+			plan: { seo_enabled_for_site: false },
+			conflicting_seo_plugin: plugin,
+		} );
+
+		render( <OverviewScreen /> );
+
+		expect( screen.getByText( notice ) ).toBeInTheDocument();
 	} );
 } );

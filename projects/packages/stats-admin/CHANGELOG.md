@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.39.0 - 2026-10-12
+### Added
+- Add the jetpack_stats_url filter to the admin bar views chart, the admin bar Stats menu link and the post list Views column, and deprecate jetpack_stats_post_list_column_url in its favor. [#52905]
+- Stats app: Pass the site timezone to the app, so links into the new analytics dashboard keep whole days across daylight-saving changes. [#52905]
+
+### Changed
+- Admin bar: Add the Stats chart from admin_bar_menu, so the admin-bar REST endpoint returns it too. [#53082]
+- Settings: Save the WordPress.com Reader setting through the Stats package, and answer a save the site did not store with a 500 status. [#53357]
+
+### Fixed
+- Post list column: Show view counts on lists with more than 100 posts, such as Pages, instead of leaving them blank. [#53045]
+
+## 0.38.2 - 2026-10-05
+### Fixed
+- Decide the dashboard's paywalls from the site's current features rather than from a plan it cached before its last upgrade. [#52098]
+
+## 0.38.1 - 2026-09-28
+### Fixed
+- Notices: Prevent a dismissed notice from coming back for up to 5 minutes after it is dismissed. [#52599]
+
+## 0.38.0 - 2026-09-23
+### Added
+- Add a REST route to read and change the Stats settings, for the Settings tab in the Stats dashboard. [#52540]
+- Add the views chart and Stats link to the admin bar, and let any plugin that ships Stats add the Stats widget to the WordPress dashboard. [#52528]
+
+## 0.37.0 - 2026-09-21
+### Changed
+- Hide WordPress admin notices on the Stats dashboard, and let hosts show or hide the Stats sidebar entry. [#52351]
+
+## 0.36.0 - 2026-09-15
+### Added
+- Notices: Add an `include_details` parameter that returns a detail record per notice, so a dismissal can escalate, and accept a dismissal that omits `postponed_for`. [#52075]
+
+## 0.35.1 - 2026-09-08
+### Fixed
+- Stats: Fix endless spinner when the blog token is invalid. [#51998]
+
 ## 0.35.0 - 2026-09-01
 ### Removed
 - Minimum supported PHP version is now 7.4. [#51515]

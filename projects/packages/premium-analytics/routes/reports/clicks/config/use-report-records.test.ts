@@ -16,7 +16,19 @@ import type {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
 	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
+	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
 const mockUseStatsClicks = useStatsClicks as jest.MockedFunction< typeof useStatsClicks >;
@@ -124,23 +136,6 @@ describe( 'useClicksReportRecords', () => {
 			} ),
 		] );
 		expect( result.current.hasComparison ).toBe( true );
-	} );
-
-	it( 'preserves the report loading state while comparison data loads', () => {
-		mockUseStatsClicks.mockReturnValue( {
-			primary: { data: report },
-			comparison: { data: undefined },
-			comparisonRows: { rows: primaryRows, hasComparison: false },
-			hasComparison: false,
-			isLoading: true,
-			isFetching: true,
-		} as ReturnType< typeof useStatsClicks > );
-
-		const { result } = renderHook( () => useClicksReportRecords( reportParams ) );
-
-		expect( result.current.isLoading ).toBe( true );
-		expect( result.current.isFetching ).toBe( true );
-		expect( result.current.rows ).toHaveLength( 1 );
 	} );
 
 	it( 'surfaces active fetching after the initial load has settled', () => {

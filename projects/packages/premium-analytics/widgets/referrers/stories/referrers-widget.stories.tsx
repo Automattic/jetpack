@@ -18,7 +18,6 @@ import { withStoryRouter } from '../../stories/with-story-router';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import ReferrersRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -29,15 +28,14 @@ registerStatsMocks();
 
 const REFERRERS_RENDER_MODULE = 'storybook/referrers';
 
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface ReferrersStoryControls {
 	withComparison: boolean;
 }
 
 interface ReferrersDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		ReferrersStoryControls {}
+	extends WidgetDashboardWithWidgetControls, ReferrersStoryControls {}
 
 function renderReferrersWidget( { withComparison }: ReferrersStoryControls ) {
 	return (
@@ -137,8 +135,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral globe
- * glyph and "No referrers in this period.").
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderReferrersOnPreset( 'last-365-days' ),

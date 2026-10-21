@@ -110,7 +110,7 @@ const TitleStructureRow: FC< RowProps > = ( {
 			const input = inputRef.current;
 			const insert = `[${ TOKEN_LABELS[ tokenId ] }]`;
 			// Insert at the caret when we can read it; otherwise append.
-			const caret = input ? input.selectionStart ?? value.length : value.length;
+			const caret = input ? ( input.selectionStart ?? value.length ) : value.length;
 			setFromString( value.slice( 0, caret ) + insert + value.slice( caret ) );
 			// Restore focus + place the caret after the inserted placeholder.
 			const nextCaret = caret + insert.length;

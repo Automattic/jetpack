@@ -25,6 +25,28 @@ class JetpackStateNotices extends Component {
 		this.setState( { showNotice: false } );
 	};
 
+	/**
+	 * Generic copy for error codes that have no message of their own.
+	 *
+	 * @param {string} key - The error code.
+	 * @return {Element} Message element.
+	 */
+	getGenericErrorMessage = key =>
+		createInterpolateElement(
+			sprintf(
+				/* translators: %s: an error code. */
+				__(
+					'<s>Your Jetpack has a glitch.</s> We’re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s',
+					'jetpack'
+				),
+				key
+			),
+			{
+				s: <strong />,
+			}
+		);
+
+	// Some codes here also have (deliberately different) copy in the connection package's getConnectScreenErrorMessage; review both when changing one.
 	getErrorFromKey = key => {
 		const errorDesc = this.props.jetpackStateNoticesErrorDescription || false;
 		let message;
@@ -121,6 +143,8 @@ class JetpackStateNotices extends Component {
 				break;
 			case 'no_role':
 			case 'no_cap':
+			case 'cannot_save_secrets':
+			case 'jetpack_id':
 			case 'no_code':
 			case 'no_state':
 			case 'invalid_state':
@@ -150,23 +174,12 @@ class JetpackStateNotices extends Component {
 			case 'verify_secret_1_malformed':
 			case 'verify_secrets_missing':
 			case 'verify_secrets_mismatch':
-				message = createInterpolateElement(
-					sprintf(
-						/* translators: %s: an error code and message. */
-						__(
-							'<s>Your Jetpack has a glitch.</s> We’re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s',
-							'jetpack'
-						),
-						key
-					),
-					{
-						s: <strong />,
-					}
-				);
+				message = this.getGenericErrorMessage( key );
 				break;
 
 			default:
-				message = key;
+				// Codes with no case of their own get generic glitch copy; errorDesc (if any) is appended below.
+				message = this.getGenericErrorMessage( key );
 		}
 
 		if ( errorDesc ) {
@@ -288,7 +301,7 @@ class JetpackStateNotices extends Component {
 	};
 
 	render() {
-		return <div>{ this.state.showNotice ? this.renderContent() : null }</div>;
+		return this.state.showNotice ? ( this.renderContent() ?? null ) : null;
 	}
 }
 

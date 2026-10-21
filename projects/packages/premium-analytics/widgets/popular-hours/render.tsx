@@ -10,16 +10,16 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { scheduled } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import { usePopularHours } from './use-popular-hours';
-import type { PopularHoursAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
+
+export type PopularHoursAttributes = Record< never, never >;
 
 type PopularHoursRenderAttributes = PopularHoursAttributes & Partial< ReportParamsFieldAttributes >;
 
@@ -52,13 +52,9 @@ function PopularHoursReport() {
 									'jetpack-premium-analytics-pkg'
 								),
 								onRetry: refetch,
-						  } )
+							} )
 						: null
 				}
-				empty={ {
-					icon: scheduled,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
 			>
 				<PeakDistribution
 					label={ peak?.label ?? '' }

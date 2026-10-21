@@ -182,6 +182,139 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The endpoint loads collision-free helpers in the partial WordPress.com bootstrap.
+	 */
+	public function test_loads_site_verification_helpers_in_partial_wpcom_bootstrap() {
+		$script = __DIR__ . '/fixtures/site-settings-partial-wpcom-bootstrap.php';
+
+		$output    = array();
+		$exit_code = 0;
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec -- A separate process is required to simulate a partial legacy bootstrap.
+		exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $script ) . ' 2>&1', $output, $exit_code );
+
+		$this->assertSame(
+			0,
+			$exit_code,
+			"Partial WordPress.com bootstrap failed:\n" . implode( "\n", $output )
+		);
+		$this->assertSame( array( 'OK' ), $output );
+	}
+
+	/**
+	 * Invalid site verification codes return an actionable client error and are not saved.
+	 */
+	public function test_post_rejects_invalid_site_verification_code() {
+		$existing_codes = array( 'bing' => 'existing-code' );
+		update_option( 'verification_services_codes', $existing_codes );
+
+		$setting = wp_json_encode(
+			array( 'verification_services_codes' => array( 'bing' => 'not a valid token' ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$response = $this->make_post_request( $setting );
+
+		$this->assertWPError( $response );
+		$this->assertSame( 'invalid_input', $response->get_error_code() );
+		$this->assertSame( 400, $response->get_error_data() );
+		$this->assertSame( $existing_codes, get_option( 'verification_services_codes' ) );
+	}
+
+	/**
+	 * A valid site verification meta tag is reduced to its content value and saved.
+	 */
+	public function test_post_saves_site_verification_code_from_meta_tag() {
+		$code    = '+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=';
+		$setting = wp_json_encode(
+			array(
+				'verification_services_codes' => array(
+					'google' => '<meta name="google-site-verification" content="' . $code . '" />',
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$response = $this->make_post_request( $setting );
+
+		$this->assertSame(
+			array( 'google' => $code ),
+			$response['updated']['verification_services_codes']
+		);
+		$this->assertSame(
+			array( 'google' => $code ),
+			get_option( 'verification_services_codes' )
+		);
+	}
+
+	/**
+	 * A boolean false remains a supported way to clear a verification code.
+	 */
+	public function test_post_clears_site_verification_code_with_false() {
+		$setting = wp_json_encode(
+			array( 'verification_services_codes' => array( 'google' => false ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$response = $this->make_post_request( $setting );
+
+		$this->assertSame(
+			array( 'google' => '' ),
+			$response['updated']['verification_services_codes']
+		);
+		$this->assertSame( array( 'google' => '' ), get_option( 'verification_services_codes' ) );
+	}
+
+	/**
+	 * A non-scalar verification code is rejected without clearing the stored value.
+	 */
+	public function test_post_rejects_non_scalar_site_verification_code() {
+		$existing_codes = array( 'google' => 'existing-code' );
+		update_option( 'verification_services_codes', $existing_codes );
+
+		$setting = wp_json_encode(
+			array( 'verification_services_codes' => array( 'google' => array() ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$response = $this->make_post_request( $setting );
+
+		$this->assertWPError( $response );
+		$this->assertSame( 'invalid_input', $response->get_error_code() );
+		$this->assertSame( $existing_codes, get_option( 'verification_services_codes' ) );
+	}
+
+	/**
+	 * Data provider for allow lists the endpoint must reject.
+	 *
+	 * @return array<string,array{array,string}> [ $allow_list, $expected_error_code ]
+	 */
+	public static function invalid_protect_allow_lists() {
+		return array(
+			'nested entry'    => array( array( array( '198.51.100.1' ) ), 'invalid_input' ),
+			'invalid address' => array( array( '198.51.100.1', 'not-an-ip' ), 'invalid_ip' ),
+		);
+	}
+
+	/**
+	 * An invalid allow list is rejected without changing the stored list.
+	 *
+	 * @dataProvider invalid_protect_allow_lists
+	 *
+	 * @param array  $allow_list          The posted allow list.
+	 * @param string $expected_error_code The expected error code.
+	 */
+	#[DataProvider( 'invalid_protect_allow_lists' )]
+	public function test_post_rejects_invalid_protect_allow_list( $allow_list, $expected_error_code ) {
+		update_option( 'jetpack_waf_ip_allow_list', '203.0.113.5' );
+
+		$response = $this->make_post_request( wp_json_encode( array( 'jetpack_protect_whitelist' => $allow_list ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertWPError( $response );
+		$this->assertSame( $expected_error_code, $response->get_error_code() );
+		$this->assertSame( '203.0.113.5', get_option( 'jetpack_waf_ip_allow_list' ) );
+	}
+
+	/**
 	 * The free tier description is capped to 500 characters to match the
 	 * paid-tier description field.
 	 */
@@ -419,6 +552,16 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 		$this->assertSame( array( 'hide_free_tier' => false ), get_option( 'subscription_options' ) );
 	}
 
+	public function test_post_sharing_options_keeps_the_label_backslashes() {
+		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+
+		$this->make_post_request( wp_json_encode( array( 'sharing_label' => 'Share \o/' ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->make_post_request( wp_json_encode( array( 'sharing_button_style' => 'icon' ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertSame( 'icon', $response['updated']['sharing_button_style'] );
+		$this->assertSame( 'Share \o/', get_option( 'sharing-options' )['global']['sharing_label'] );
+	}
+
 	/**
 	 * Returns the response of a successful GET request to `sites/%s/settings`.
 	 */
@@ -604,6 +747,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_default_country'      => array( 'woocommerce_default_country', '' ),
 			'woocommerce_store_postcode'       => array( 'woocommerce_store_postcode', '' ),
 			'woocommerce_onboarding_profile'   => array( 'woocommerce_onboarding_profile', array() ),
+			'verification_services_codes'      => array( 'verification_services_codes', null ),
 			'supports_free_tier_customization' => array( 'supports_free_tier_customization', true ),
 			// With no free tier description set, the rendered value is an empty string.
 			'free_tier_description_rendered'   => array( 'free_tier_description_rendered', '' ),
@@ -645,6 +789,16 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_default_country'    => array( 'woocommerce_default_country', 'woocommerce_default_country', 'US:NY' ),
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', 'woocommerce_store_postcode', '98738' ),
 			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', 'woocommerce_onboarding_profile', array( 'test' => 'test value' ) ),
+			'verification_services_codes'    => array(
+				'verification_services_codes',
+				'verification_services_codes',
+				array(
+					'google'    => 'google-test-code',
+					'bing'      => 'bing-test-code',
+					'pinterest' => 'pinterest-test-code',
+					'yandex'    => 'yandex-test-code',
+				),
+			),
 			// Add MCP settings GET test
 			'mcp_abilities'                  => array(
 				'mcp_abilities',        // option name
@@ -690,6 +844,16 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_onboarding_profile bool'       => array( 'woocommerce_onboarding_profile', true, array( true ) ),
 			'woocommerce_onboarding_profile example'    => array( 'woocommerce_onboarding_profile', static::$onboarding_profile_example, static::$onboarding_profile_example ),
 			'show_on_front'                             => array( 'show_on_front', 'page', 'page' ),
+			'jetpack_protect_whitelist'                 => array(
+				'jetpack_protect_whitelist',
+				array( '203.0.113.5', '198.51.100.1-198.51.100.20' ),
+				array( 'local' => array( '203.0.113.5', '198.51.100.1 - 198.51.100.20' ) ),
+			),
+			'jetpack_protect_whitelist GET shape'       => array(
+				'jetpack_protect_whitelist',
+				array( 'local' => array( '203.0.113.5' ) ),
+				array( 'local' => array( '203.0.113.5' ) ),
+			),
 			'subscription_options html'                 => array(
 				'subscription_options',
 				array(

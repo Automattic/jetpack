@@ -5,8 +5,18 @@ import UploadDropzone from '../index';
 import { selectFilesForPlan } from '../select-files';
 
 const mockCreateErrorNotice = jest.fn();
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: () => ( {
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	keyedReducer: jest.fn( ( _key, reducer ) => reducer ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: () => ( {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: ( ...args: unknown[] ) => mockCreateErrorNotice( ...args ),
 		createInfoNotice: jest.fn(),
@@ -199,6 +209,7 @@ describe( 'UploadDropzone', () => {
 		await waitFor( () =>
 			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Only video files can be uploaded.', {
 				id: 'vp-upload-invalid-file',
+				type: 'snackbar',
 			} )
 		);
 		expect( onFiles ).not.toHaveBeenCalled();
@@ -225,7 +236,7 @@ describe( 'UploadDropzone', () => {
 		await waitFor( () =>
 			expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
 				'WEBM files can’t be uploaded. Convert your video to MP4 or MOV, then try again.',
-				{ id: 'vp-upload-invalid-file' }
+				{ id: 'vp-upload-invalid-file', type: 'snackbar' }
 			)
 		);
 		expect( mockCreateErrorNotice ).not.toHaveBeenCalledWith(

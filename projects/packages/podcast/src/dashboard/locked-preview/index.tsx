@@ -3,7 +3,7 @@
 
 import { useId } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { LinkButton } from '@wordpress/ui';
+import { ButtonLink } from '@wordpress/ui';
 import { buildUpgradeCheckoutUrl, getUpgradePlanName } from '../upgrade';
 import './style.scss';
 
@@ -30,12 +30,12 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
 					__( 'Episode dashboard included with %s', 'jetpack-podcast' ),
 					planName
-			  )
+				)
 			: sprintf(
 					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
 					__( 'Episode stats included with %s', 'jetpack-podcast' ),
 					planName
-			  );
+				);
 	const description =
 		variant === 'episodes'
 			? sprintf(
@@ -45,12 +45,12 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 						'jetpack-podcast'
 					),
 					planName
-			  )
+				)
 			: sprintf(
 					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
 					__( 'Upgrade to %s to see downloads by episode, app, and country.', 'jetpack-podcast' ),
 					planName
-			  );
+				);
 
 	return (
 		<div className="podcast-locked-preview" role="region" aria-labelledby={ titleId }>
@@ -128,22 +128,24 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 			<div className="podcast-locked-preview__overlay">
 				<div className="podcast-locked-preview__card">
 					<h2 id={ titleId } className="podcast-locked-preview__title">
-						{ title }
+						{ planName ? title : __( 'This feature requires a paid plan.', 'jetpack-podcast' ) }
 					</h2>
-					<p className="podcast-locked-preview__description">{ description }</p>
-					<LinkButton
-						variant="solid"
-						href={ checkoutUrl }
-						className="podcast-locked-preview__cta"
-						// eslint-disable-next-line jsx-a11y/no-autofocus
-						autoFocus
-					>
-						{ sprintf(
-							/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
-							__( 'Upgrade to %s', 'jetpack-podcast' ),
-							planName
-						) }
-					</LinkButton>
+					{ planName && <p className="podcast-locked-preview__description">{ description }</p> }
+					{ checkoutUrl && (
+						<ButtonLink
+							variant="solid"
+							href={ checkoutUrl }
+							className="podcast-locked-preview__cta"
+							// eslint-disable-next-line jsx-a11y/no-autofocus
+							autoFocus
+						>
+							{ sprintf(
+								/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+								__( 'Upgrade to %s', 'jetpack-podcast' ),
+								planName
+							) }
+						</ButtonLink>
+					) }
 				</div>
 			</div>
 		</div>

@@ -1,5 +1,6 @@
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { Notice } from '@jetpack-premium-analytics/externals';
+import { speak } from '@wordpress/a11y';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 
@@ -46,24 +47,25 @@ export function StaleDataNotice( {
 			? __(
 					"Couldn't refresh. Showing data from less than a minute ago.",
 					'jetpack-premium-analytics-pkg'
-			  )
+				)
 			: sprintf(
 					/* translators: %s: how long ago the data on screen was fetched, e.g. "5 minutes ago". */
 					__( "Couldn't refresh. Showing data from %s.", 'jetpack-premium-analytics-pkg' ),
 					formatRelativeSince( new Date( updatedAt ).toISOString(), new Date( updatedAt + age ) )
-			  );
+				);
+
+	// A fixed announcement, not `message`: the ageing label would interrupt a
+	// screen reader every minute.
+	const announcement = __(
+		"Couldn't refresh. The numbers on screen may be out of date.",
+		'jetpack-premium-analytics-pkg'
+	);
+	useEffect( () => {
+		speak( announcement, 'polite' );
+	}, [ announcement ] );
 
 	return (
-		// A fixed announcement, not `message`: the ageing label would interrupt a
-		// screen reader every minute, and the default (children) would trail Retry's label.
-		<Notice.Root
-			intent="warning"
-			className={ className }
-			spokenMessage={ __(
-				"Couldn't refresh. The numbers on screen may be out of date.",
-				'jetpack-premium-analytics-pkg'
-			) }
-		>
+		<Notice.Root intent="warning" className={ className }>
 			<Notice.Description>{ message }</Notice.Description>
 			{ onRetry && (
 				<Notice.Actions>

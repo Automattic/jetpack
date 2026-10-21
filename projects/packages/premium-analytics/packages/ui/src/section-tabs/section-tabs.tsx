@@ -2,11 +2,12 @@ import { Tabs } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './section-tabs.module.scss';
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 
 export type SectionTab< TabId extends string = string > = {
 	id: TabId;
 	label: string;
+	disabled?: boolean;
 };
 
 export interface SectionTabsProps< TabId extends string = string > {
@@ -22,13 +23,15 @@ export interface SectionTabsProps< TabId extends string = string > {
 	children?: ReactNode;
 
 	/**
-	 * Optional class applied to the tab list wrapper. This component does not
-	 * own any horizontal page-gutter padding itself, so callers that render the
-	 * tab bar full-bleed (e.g. outside a padded content container) supply it here.
+	 * Optional class applied to the tab list wrapper, which already carries the
+	 * page gutter and the page header's fill.
 	 */
 	className?: string;
 
 	rootClassName?: string;
+
+	/** Receives the tab list wrapper, for a tour step to highlight. */
+	tabListRef?: Ref< HTMLDivElement >;
 }
 
 /**
@@ -45,6 +48,7 @@ export function SectionTabs< TabId extends string = string >( {
 	children,
 	className,
 	rootClassName,
+	tabListRef,
 }: SectionTabsProps< TabId > ) {
 	const handleValueChange = useCallback(
 		( tabId: string ) => onChange( tabId as TabId ),
@@ -53,10 +57,10 @@ export function SectionTabs< TabId extends string = string >( {
 
 	return (
 		<Tabs.Root value={ value } onValueChange={ handleValueChange } className={ rootClassName }>
-			<div className={ clsx( styles.tabList, className ) }>
+			<div ref={ tabListRef } className={ clsx( styles.tabList, className ) }>
 				<Tabs.List variant="minimal">
 					{ tabs.map( tab => (
-						<Tabs.Tab key={ tab.id } value={ tab.id }>
+						<Tabs.Tab key={ tab.id } value={ tab.id } disabled={ tab.disabled }>
 							{ tab.label }
 						</Tabs.Tab>
 					) ) }

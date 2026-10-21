@@ -1,0 +1,361 @@
+<?php
+/**
+ * The package's own dashboard sections: the built-in tabs, their availability gates and default
+ * layouts, and the filters over those gates. They register through the section API in
+ * dashboard-sections.php, the same way a plugin extending the dashboard does; the Ads tab and the
+ * WooCommerce tab are such sections, registered by their own packages.
+ *
+ * @package automattic/jetpack-premium-analytics
+ */
+
+namespace Automattic\Jetpack\PremiumAnalytics;
+
+use Automattic\Jetpack\Modules;
+
+// Guarded on a symbol the file declares, so a second copy of the package can't
+// redeclare it. See the include block in Analytics::load_dashboard_components().
+if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
+	require_once __DIR__ . '/dashboard-sections.php';
+}
+
+/**
+ * Filter through which Subscribers section availability is resolved.
+ */
+const SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_subscribers_dashboard_section_available';
+
+/**
+ * Whether the Subscribers dashboard section should be exposed.
+ *
+ * Sites without Jetpack have no module state to check, so the section remains
+ * available. Modules::is_active() also returns true on WPCOM Simple.
+ *
+ * @since 0.3.0
+ *
+ * @return bool True when the subscriptions module is active and the reader may see Stats.
+ */
+function is_subscribers_dashboard_section_available() {
+	// Outside the filter, which answers only whether the module is there.
+	if ( ! Capabilities::current_user_can_view_stats() ) {
+		return false;
+	}
+
+	$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'subscriptions' );
+
+	/**
+	 * Filters whether the Subscribers dashboard section is available.
+	 *
+	 * @since 0.3.0
+	 *
+	 * @param bool $is_available Whether the subscriptions module was detected in the current request.
+	 */
+	return (bool) apply_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
+}
+
+/**
+ * The Traffic tab's default widget layout.
+ *
+ * @return array Widget instances.
+ */
+function get_traffic_section_default_layout() {
+	return array(
+		// Rows fill the three-column grid in the prototype's order.
+		// Row 1: traffic chart.
+		get_dashboard_default_widget_instance(
+			'default-traffic-chart-widget-instance',
+			'jpa/traffic-chart',
+			0,
+			3,
+			2
+		),
+		// Row 2: most-viewed posts + referrers + devices.
+		get_dashboard_default_widget_instance(
+			'default-stats-top-posts-widget-instance',
+			'jpa/stats-top-posts',
+			1,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-referrers-widget-instance',
+			'jpa/referrers',
+			2,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-devices-widget-instance',
+			'jpa/devices',
+			3,
+			1,
+			2
+		),
+		// Row 3: locations map + top platforms.
+		get_dashboard_default_widget_instance(
+			'default-locations-widget-instance',
+			'jpa/locations',
+			4,
+			2,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-top-platforms-widget-instance',
+			'jpa/top-platforms',
+			5,
+			1,
+			2
+		),
+		// Row 4: UTM insights + clicks; the VideoPress package seeds Top videos at order 8.
+		get_dashboard_default_widget_instance(
+			'default-utm-insights-widget-instance',
+			'jpa/utm-insights',
+			6,
+			1,
+			2,
+			array(
+				'utmDimension' => 'utm_source,utm_medium',
+			)
+		),
+		get_dashboard_default_widget_instance(
+			'default-clicks-widget-instance',
+			'jpa/clicks',
+			7,
+			1,
+			2
+		),
+		// Row 5: authors + search terms + file downloads (Simple only).
+		get_dashboard_default_widget_instance(
+			'default-authors-widget-instance',
+			'jpa/authors',
+			9,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-search-terms-widget-instance',
+			'jpa/search-terms',
+			10,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-file-downloads-widget-instance',
+			'jpa/file-downloads',
+			11,
+			1,
+			2
+		),
+		// Row 6: tags & categories, ranked over the tab's period.
+		get_dashboard_default_widget_instance(
+			'default-tags-widget-instance',
+			'jpa/tags',
+			12,
+			2,
+			2
+		),
+	);
+}
+
+/**
+ * The Insights tab's default widget layout.
+ *
+ * @return array Widget instances.
+ */
+function get_insights_section_default_layout() {
+	return array(
+		// Rows follow the design (WOOA7S-2009); Emails lives on the Subscribers tab.
+		// Row 1: highlights banner.
+		get_dashboard_default_widget_instance(
+			'default-annual-highlights-widget-instance',
+			'jpa/annual-highlights',
+			0,
+			3,
+			1
+		),
+		// Row 2: at-a-glance cards. Two rows tall: their display-sized figures overflow a 200px tile.
+		get_dashboard_default_widget_instance(
+			'default-all-time-stats-widget-instance',
+			'jpa/all-time-stats',
+			1,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-most-popular-time-widget-instance',
+			'jpa/most-popular-time',
+			2,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-most-popular-day-widget-instance',
+			'jpa/most-popular-day',
+			3,
+			1,
+			2
+		),
+		// Row 3: the two post spotlights.
+		get_dashboard_default_widget_instance(
+			'default-popular-post-widget-instance',
+			'jpa/popular-post',
+			4,
+			2,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-latest-post-widget-instance',
+			'jpa/latest-post',
+			5,
+			1,
+			2
+		),
+		// Row 4: posting-activity heatmap. Two rows tall so the months wrap into larger days.
+		get_dashboard_default_widget_instance(
+			'default-posting-activity-widget-instance',
+			'jpa/posting-activity',
+			6,
+			3,
+			2
+		),
+		// Row 5: the all-time views table, one row per year. Two rows tall so a
+		// few years fit before the grid scrolls.
+		get_dashboard_default_widget_instance(
+			'default-views-over-years-widget-instance',
+			'jpa/views-over-years',
+			7,
+			3,
+			2
+		),
+		// Row 6: most commented posts + most commented authors fill the row, so shares
+		// (Simple only) opens row 7 instead of pushing authors down with a gap on both rows.
+		get_dashboard_default_widget_instance(
+			'default-most-commented-posts-widget-instance',
+			'jpa/most-commented-posts',
+			8,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-most-commented-authors-widget-instance',
+			'jpa/most-commented-authors',
+			9,
+			2,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-shares-widget-instance',
+			'jpa/shares',
+			10,
+			1,
+			2
+		),
+	);
+}
+
+/**
+ * The Subscribers tab's default widget layout.
+ *
+ * @return array Widget instances.
+ */
+function get_subscribers_section_default_layout() {
+	return array(
+		// Row 1: subscribers chart.
+		get_dashboard_default_widget_instance(
+			'default-subscribers-chart-widget-instance',
+			'jpa/subscribers-chart',
+			0,
+			3,
+			2
+		),
+		// Row 2: subscriber highlights.
+		get_dashboard_default_widget_instance(
+			'default-subscriber-highlights-widget-instance',
+			'jpa/subscriber-highlights',
+			1,
+			3,
+			1
+		),
+		// Row 3: latest subscribers + the wider latest emails sent table.
+		get_dashboard_default_widget_instance(
+			'default-subscribers-list-widget-instance',
+			'jpa/subscribers-list',
+			2,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-subscribers-emails-widget-instance',
+			'jpa/stats-emails',
+			3,
+			2,
+			2,
+			array(
+				'metric' => 'opens',
+			)
+		),
+	);
+}
+
+/**
+ * Registers the default Premium Analytics dashboard sections.
+ *
+ * Hooked on the registration action and safe to call directly: a section already registered
+ * is skipped.
+ *
+ * @param Dashboard_Section_Registry|null $registry Optional. The registry being hydrated. Defaults to the main instance.
+ * @return void
+ */
+function register_default_dashboard_sections( $registry = null ) {
+	if ( ! $registry instanceof Dashboard_Section_Registry ) {
+		$registry = Dashboard_Section_Registry::get_instance();
+	}
+
+	$sections = array(
+		'analytics/traffic'     => array(
+			'label'                    => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
+			'title'                    => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
+			'order'                    => 10,
+			// Only the Traffic summary groups by interval, and it saves its own.
+			'date_filter_options'      => array(
+				'with_header_interval_control' => false,
+			),
+			'follows_plan_date_limits' => true,
+			'default_layout'           => __NAMESPACE__ . '\\get_traffic_section_default_layout',
+		),
+		'analytics/insights'    => array(
+			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
+			'title'               => __( 'Site insights', 'jetpack-premium-analytics-pkg' ),
+			'order'               => 20,
+			// Insights reads whole history: all time and single years, with nothing
+			// to compare them against. Most widgets have fixed periods of their own,
+			// so no header control; Highlights hosts the only year control.
+			'date_filter'         => Dashboard_Section::DATE_FILTER_YEAR,
+			'date_filter_options' => array(
+				'with_date_comparison'     => false,
+				'with_header_date_control' => false,
+			),
+			'default_layout'      => __NAMESPACE__ . '\\get_insights_section_default_layout',
+		),
+		'analytics/subscribers' => array(
+			'label'               => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
+			'title'               => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
+			'order'               => 30,
+			'is_available'        => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
+			// Only the summary chart supports dates, so it owns the control. No
+			// Subscribers widget supports comparison.
+			'date_filter_options' => array(
+				'with_date_comparison'     => false,
+				'with_header_date_control' => false,
+			),
+			'default_layout'      => __NAMESPACE__ . '\\get_subscribers_section_default_layout',
+		),
+	);
+
+	foreach ( $sections as $id => $args ) {
+		if ( ! $registry->is_registered( DASHBOARD_NAME, $id ) ) {
+			$registry->register( DASHBOARD_NAME, $id, $args );
+		}
+	}
+}
+
+// Registered when the registry hydrates, through the same action a plugin extending the dashboard uses.
+add_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );

@@ -3,6 +3,7 @@ import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, lock, check } from '@wordpress/icons';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
+import { canOfferUpgrade } from '../../../../../../../_inc/overview/lib/use-modules-state';
 import styles from './graph-component.module.scss';
 import { PerformanceHistoryData } from '../lib/types';
 
@@ -46,24 +47,28 @@ const GraphComponent = ( {
 	if ( needsUpgrade ) {
 		return (
 			<DummyGraph>
-				<Popover
-					icon={ <Icon icon={ lock } /> }
-					action={
-						<InterstitialModalCTA
-							identifier="historical-performance"
-							customModalTrigger={
-								<Button onClick={ handleUpgrade }>{ __( 'Upgrade now!', 'jetpack-boost' ) }</Button>
-							}
-						/>
-					}
-				>
-					<p>
-						{ __(
-							'Upgrade and learn more about your site performance over time.',
-							'jetpack-boost'
-						) }
-					</p>
-				</Popover>
+				{ canOfferUpgrade() && (
+					<Popover
+						icon={ <Icon icon={ lock } /> }
+						action={
+							<InterstitialModalCTA
+								identifier="historical-performance"
+								customModalTrigger={
+									<Button onClick={ handleUpgrade }>
+										{ __( 'Upgrade now!', 'jetpack-boost' ) }
+									</Button>
+								}
+							/>
+						}
+					>
+						<p>
+							{ __(
+								'Upgrade and learn more about your site performance over time.',
+								'jetpack-boost'
+							) }
+						</p>
+					</Popover>
+				) }
 			</DummyGraph>
 		);
 	}

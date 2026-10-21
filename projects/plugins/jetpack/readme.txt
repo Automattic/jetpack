@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 16.2-a.5
+Stable tag: 16.4-a.3
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1
@@ -326,128 +326,123 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.2-a.5 - 2026-09-01
+### 16.4-a.3 - 2026-10-19
 #### Enhancements
-- AI: Add Quick start links for connecting Claude and ChatGPT to the AI Hub Overview.
-- AI: Rename the admin page and menu item to Jetpack AI, update the page description, and point the "turned off" notice at Jetpack Products.
-- AI: Show the Learn more link for the Writing Assistant instead of the editor link.
-- Boost: Wait up to four minutes for slow speed tests in My Jetpack and At a Glance instead of timing out after two.
-- Charts: Follow the WordPress admin color scheme for chart series colors.
-- Charts: Update chart grid, axis and label colors immediately when the theme changes.
-- Connection: Cache the WordPress.com site record briefly so the Jetpack dashboard does not make a request per view.
-- Forms: Add a guide to the form editor for people new to the block editor.
-- Forms: Add help text to form fields and show the date field's expected format below its input.
-- Forms: Allow a file upload field to accept more than one file.
-- Forms: Make form navigation actions real links so they can be opened in a new tab.
-- Forms: Remember which response columns are shown, and their order, for each form.
-- Forms: Rewrite the missing forms modal to reassure people that forms already on their pages keep working, and spell out the steps to add them to the list.
-- AI: Add an AI SEO control to the AI settings page. The AI sidebar's SEO suggestions follow it, separately from the automatic-generation setting.
-- AI: Make the editor and automatic-generation toggles follow the AI SEO control, preserving saved choices when it is switched off and back on.
-- AI: On sites with the WordPress Agent, replace the "Improve with AI" panel with a dismissible notice pointing to it.
-- AI: Return to the Jetpack AI Hub after upgrading from it, and point My Jetpack's AI links at the Hub.
-- AI: Support the AI Hub on WordPress.com Simple sites.
-- My Jetpack: Allow the Automattic for Agencies banner to be dismissed.
-- Premium Analytics: Add a year dropdown to the Year in review (Highlights) widget header, defaulting to the current year, and drop its metric selector so the card always shows posts, words, likes, and comments.
-- Premium Analytics: Add breathing room above and below the Top locations map.
-- Premium Analytics: Add the Most popular day widget to the default Insights layout, and say in its help note that its figures are all-time.
-- Premium Analytics: Add the Most popular time card to the default Insights layout.
-- Premium Analytics: Add total and per-post image counts to the Annual insights report.
-- Premium Analytics: Build the comparison menu from the applied date range and restore the same-period-last-week option.
-- Premium Analytics: Chart interval control: name the active interval in the button's tooltip, and give its menu a heading.
-- Premium Analytics: Click a point on the Traffic chart to narrow the dashboard to that period.
-- Premium Analytics: Date range control: name a custom range covering a whole month or year by that period, and spell the dates out in the button's tooltip.
-- Premium Analytics: Divide a widget's metrics with lines instead of boxing each one.
-- Premium Analytics: Fold the video detail highlight metrics into the Video performance chart as selectable tabs.
-- Premium Analytics: Give shared leaderboard rows one row height, bar radius, and link hover.
-- Premium Analytics: Lead the post and video detail date presets with All time and match the selected preset to the design.
-- Premium Analytics: Match the Most viewed and Videos leaderboard row labels to the other widgets.
-- Premium Analytics: Match the remaining leaderboard row labels to the other widgets.
-- Premium Analytics: Move the Ads date range into the WordAds card's own header, and drop the section header's date filter.
-- Premium Analytics: Post detail: the email tabs' opens and clicks timelines cover the first 30 days after the send instead of the page date filter, which no longer shows there; the other email cards stay all-time.
-- Premium Analytics: Remove the date configuration subtitle from the section header.
-- Premium Analytics: Remove the page descriptions from the dashboard and report pages.
-- Premium Analytics: Rename the Top pages CSV comparison column to "Views (Previous Period)" and move it after the primary columns.
-- Premium Analytics: Retitle the Popular post card to "Most popular post in the last 12 months" and pin it to the last 12 months.
-- Premium Analytics: Shorten the Popular post card title so it survives a narrow dashboard cell.
-- Premium Analytics: Show all-time views, visitors, and posts in the default Insights layout.
-- Premium Analytics: Tighten the Latest subscribers rows so more subscribers fit the widget.
-- Premium Analytics: Tighten the spacing between leaderboard rows.
-- Premium Analytics: Turn the dashboard period comparison off by default.
-- Search: Preserve the saved AI Answers choice while site-wide AI is off, disable unavailable controls, and honor the host AI opt-out in the AI Answer block. Require Instant Search to enable AI Answers.
-- Sitemaps: Speed up sitemap generation and reduce its memory use on sites with many posts and images.
-- Stats: Use the page-level chart interval for the Traffic summary chart.
-- VideoPress: Add a first-run welcome modal to the dashboard.
-- VideoPress: Invite the first upload with a dropzone when the video library is empty.
-
-#### Improved compatibility
-- CSV import and export in Forms and Stats now process data containing backslashed quotation marks as specified in the relevant standard.
-- Updated PHP version requirements to PHP 7.4 or newer.
+- AI: Send the editor's and Jetpack Settings' AI links to the Jetpack AI Hub where it is available, and to jetpack.com for users who cannot manage the site.
+- Comments: Replace the Verbum comment form with Jetpack Comments and remove the Color scheme setting.
+- Connection: Skip site registration in offline mode, and stop retrying it on every page load after an error that retrying cannot fix.
+- Connection: Transfer connection ownership to another administrator without leaving your site.
+- Connection: Transfer connection ownership to another connected administrator from the Connectors page.
+- Jetpack AI: Link self-hosted sites to the Jetpack ChatGPT plugin.
+- Knowledge: Add storage and REST APIs without requiring the Gutenberg experiment.
+- My Jetpack: Show a connection error on the Overview connection card while your account is still to be connected, instead of only asking you to connect it.
+- My Jetpack: Show unavailable features with their reasons and add an Available filter.
+- PayPal Payment Buttons: Call a PayPal payment a payment button everywhere, and payment links and buttons where both are meant. The admin page is now PayPal Payment Buttons.
+- PayPal Payment Buttons: Gray the preview button in the Create new form until the link is created.
+- PayPal Payment Buttons: List the posts and pages using a payment button on its admin detail view, drafts included, with edit and view links.
+- PayPal Payment Buttons: Move the connection panel's actions into the menus, drop the unused connect Success step, and show Sandbox under Log out for sandbox accounts.
+- PayPal Payment Buttons: Show the PayPal logo and a clearer connect message in the block's placeholder before PayPal is connected.
+- PayPal Payment Buttons: Show the style controls under a saved payment link's details instead of in a Styles tab.
+- Premium Analytics: Add All time to the report date menu, covering everything since the site's stats began.
+- Premium Analytics: Add column headers naming the rows and the metric to the Insights lists, Top tags & categories, Email breakdown and Top viewed posts.
+- Premium Analytics: Always offer adding and removing widgets on the dashboard.
+- Premium Analytics: Draw tabbed metric charts in the admin color, with the metric paired in the Traffic summary in a darker shade, instead of a different color per metric.
+- Premium Analytics: Explain what Tags & categories shows when the plan locks it.
+- Premium Analytics: Introduce the WooCommerce tab in the Stats onboarding for store owners.
+- Premium Analytics: Let Store performance pick its metrics in the widget header.
+- Premium Analytics: Lighten heatmap colors in cards such as Posting activity and Views over years, while keeping low values distinct from empty cells.
+- Premium Analytics: Link locked Stats features to WordPress.com support pages in the user's language.
+- Premium Analytics: Move a Top tags & categories tile a reader placed on a customized Insights layout to their Traffic layout, once.
+- Premium Analytics: Name each metric's comparison period in line and bar chart legends, such as "Views (Prev. 30 days)".
+- Premium Analytics: Name the rows and what the values count above the Traffic tab lists, following the selected view and each drill-down level.
+- Premium Analytics: Offer a Create post action in empty Traffic and Popular post widgets when the site has no published posts.
+- Premium Analytics: Offer a URL builder when the selected UTM report has no visits.
+- Premium Analytics: Offer the sales, orders and visitors over time widgets in the WooCommerce tab's inserter.
+- Premium Analytics: Rearrange the WooCommerce tab's default layout, which no longer includes the sales, orders and visitors over time widgets.
+- Premium Analytics: Remember your Compare choice, including No comparison, the next time you open Stats.
+- Premium Analytics: Remove the region toggle from Store visitors by location, which now lists countries worldwide.
+- Premium Analytics: Reports: fold the Archives tab like the other drilldown reports, with a chevron on each archive type and every row at one weight.
+- Premium Analytics: Say that nothing is recorded yet in eight empty Traffic widgets when the site has no views at all, and in Top tags & categories when no post is published, instead of the text about the selected period.
+- Premium Analytics: Say when the site has no subscribers yet in the empty Subscriber summary widget, with a Learn more link.
+- Premium Analytics: Show a notice when the site nears or passes its plan's monthly views limit.
+- Premium Analytics: Show an upload link in Top videos when the site has no VideoPress videos.
+- Premium Analytics: Show paid Stats features as locked, with an upgrade link, on plans that do not include them.
+- Premium Analytics: Show plan usage on the Settings tab in a taller, brand-colored meter.
+- Premium Analytics: Show the Bookings metric of Store performance only on stores running WooCommerce Bookings.
+- Premium Analytics: Show the same search icon in every widget empty state, including the post, email, video and author pages, and reword the empty text of several widgets and the Ads earnings history.
+- Premium Analytics: Show the Top performing products rows before their thumbnails load.
+- Premium Analytics: Show the WooCommerce tab on sites running WooCommerce.
+- Premium Analytics: Show what the values count above Top pages and Latest emails sent, and the unit in the tooltip of an abbreviated value.
+- Premium Analytics: Tell store owners on the WooCommerce tab when the store has no orders yet.
+- Premium Analytics: Thank the reader for their Stats purchase when checkout returns to the dashboard.
+- Premium Analytics: Use the dashboard's generic empty state in the WooCommerce widgets for a period with no data.
+- Related Posts: Expose the "Show related content after posts" on/off toggle in Settings > Reading by default so users can disable the feature, including on Portfolio custom post type pages.
+- Scan: Point the admin bar threats notice and My Jetpack at the Protect dashboard instead of Jetpack Cloud, drop the external Scan menu item, show the number of threats next to the Protect menu item, and show a red alert icon on the Protect dashboard Scan card when there are threats, when the Protect dashboard is active. The admin bar and the menu item share one threat count, which loads without delaying admin pages.
+- Social: Tighten the spacing between wrapped legend rows in the Overview traffic chart.
+- Stats: Show location map tooltips in Premium Analytics and Podcast stats on the same dark surface, and at the same distance from the cursor, as the other chart tooltips.
+- VideoPress: Add a Channel Details block to channel sites, with the channel's handle, subscribers, videos, playlists, views and start date.
+- VideoPress: Add an Episode Navigation block.
+- VideoPress: Add a page per playlist on channel sites, with All Playlists cards linking to it and a Video Playlist block option to show the playlist being viewed.
+- VideoPress: Add a Playlist Details block.
+- VideoPress: Add a Video Details block, and let the VideoPress Video block play the newest upload.
+- VideoPress: Let the Latest Videos Playlist block sort, search, filter by length and paginate, and show view counts.
+- VideoPress: Let the Video Playlist block show a playlist published on the site, and let the All Playlists block sort by last update and show each playlist's last update and length.
+- VideoPress: Open this site's video pages from a Video Playlist in the same tab, and mark the video being viewed.
 
 #### Bug fixes
-- Activity Log: Ensure table content wraps neatly onto a new line if long.
-- Admin bar: Fix a fatal error when the endpoint's global `$wp_admin_bar` is null.
-- Admin dashboards: Continue the wp-admin menu color behind the page frame on WordPress.com and third-party admin color schemes.
-- Admin dashboards: Keep the page header and content in view when the wp-admin menu is taller than the window.
-- AI: Render scheduled task results as Markdown.
-- AI: Prevent saving the General Settings page from turning off Jetpack AI features.
-- Backup: Fix the backup overview ability reporting no storage usage, storage limit or backup time.
-- Backup: Show a failure message when your backup status cannot be read, rather than the screen that says your first backup is on its way, and let the "Back up now" button recover when a backup could not be queued.
-- Backup: Show storage usage and the plan limit the right way round when the interface is translated.
-- Blocks: Keep blocks that load outside the post editor available in front-end block editors such as P2, by never deferring their registration. See JETPACK-1747.
-- Blogging Prompts: Scope the endpoint's query filters to the prompts query so they no longer modify unrelated queries (e.g. Gutenberg global styles lookups) run while prompts are being rendered.
-- Carousel: Keep the loading overlay hidden when the module stylesheet is missing.
-- Contact Form: Bind the posted form id to the signed form when validating a token-authenticated submission.
-- Forms: Cancel in-flight uploads and release previews when a form containing a file upload field is reset.
-- Forms: Fix checkbox and consent field alignment in the editor on classic themes.
-- Forms: Fix several problems with adding more than one file at once to the file upload field, and with uploads that stall or fail.
-- Forms: Fix the form editor welcome guide artwork not loading on WordPress.com Simple sites.
-- Forms: Keep an option's label when switching it to the "Other" option.
-- Forms: Keep one column per form field on a form's responses when a field is moved, and read every answer from the field it belongs to.
-- Forms: Keep prev/next working on a single response after marking it as spam or trash, open responses instantly from the list, and add keyboard shortcuts for triaging responses.
-- Forms: Keep the remaining files when a folder or dragged text is included in a multi-file drop on the file upload field.
-- Forms: Let screen readers announce a date field's own label instead of the date picker instructions.
-- Forms: Prevent a new choice option from inheriting the previous option's label when pressing Enter.
-- Forms: Remove an uploaded file from the form immediately instead of waiting for the server, so a slow connection no longer leaves the file upload field looking stuck.
-- Forms: Restore the Integrations button in the Form block toolbar when the settings sidebar is closed.
-- Forms: Space out the files listed on a response and line their download buttons up on one edge.
-- Forms: Stop uploading a file that was removed while its upload was still being prepared.
-- Forms: Validate a required phone field with a default country against what the input actually shows, so it can no longer be submitted empty.
-- AI: Show connection notices instead of raw connection errors on the MCP settings page when the site or the current user is not connected to WordPress.com.
-- My Jetpack: Keep the Automattic for Agencies banner hidden after dismissing it and switching tabs.
-- My Jetpack: Stop repeating the partner lookup request on every page load.
-- Newsletter: Hide the "View delivery details" stats link in the publish panels when the Stats module is disabled, so the copy no longer points to an unavailable page.
-- Newsletter: Prevent unsupported date filtering on the Subscribers page.
-- Podcast: Scope the generated episodes list to the posts the current user can edit, matching the Posts screen.
-- Premium Analytics: Align title link styling across widgets: external video rows gain the standard outbound marker, long titles no longer clip it, and hover underlines cover only the title text.
-- Premium Analytics: Drop the Last 24 hours range from the WordAds card, which has no hourly data to chart.
-- Premium Analytics: Fall back to the last page of a table instead of reporting no results when a date range returns fewer rows than the current page.
-- Premium Analytics: Fix the email opens/clicks timeline charting hours outside the selected window.
-- Premium Analytics: Fix the Subscribers summary help text to describe the cumulative subscriber total the chart plots, not new subscribers.
-- Premium Analytics: Include the last day of the selected range in the WordAds card.
-- Premium Analytics: Keep the custom range Apply button disabled when re-selecting "No comparison".
-- Premium Analytics: Keep the Year in review report link reachable.
-- Premium Analytics: Link a subscriber's name to their subscriber details page.
-- Premium Analytics: Most popular day gives its Day and Views labels the weight the design has them at and the heading structure a screen reader can navigate, states a share of views only when there is an all-time total to take it from, and drops the Retry a reader without stats access cannot use.
-- Premium Analytics: Post detail: stop the Post traffic layout from flashing when an email tab is opened directly, and show placeholder lines in the header while the title loads.
-- Premium Analytics: Print Tags & categories view counts in full, and list far more rows in its report.
-- Premium Analytics: Print the Annual insights words-per-post average whole, as the old Stats report does.
-- Premium Analytics: Remove the quarterly chart interval option, which never changed the chart.
-- Premium Analytics: Show abbreviated month names on chart x-axes in line and area views.
-- Premium Analytics: Show a notice when a refresh fails, instead of silently leaving the previous numbers on screen.
-- Premium Analytics: Show email subject lines with characters like "&" instead of their HTML codes.
-- Premium Analytics: Show the Most popular time day and hour in the site's locale.
-- Premium Analytics: Show the most recent subscribers in the Latest subscribers widget.
-- Premium Analytics: Show the whole Most popular day card on a short tile instead of clipping it.
-- Premium Analytics: Show titles and names with characters like "&" instead of their HTML codes.
-- Premium Analytics: Stop the Ads chart interval menu offering buckets the WordAds chart cannot draw.
-- SEO: Stop the search-engine indexing toggle from publishing a private or coming-soon site.
-- SEO Tools: Fix og:description leaking the first post's custom SEO description on archive and latest-posts homepage views.
-- Stats: Fix access for users whose allowed role is not their first assigned role.
-- Tiled Gallery: Remove the forced gray background on images that made transparent areas appear gray.
-- VideoPress: Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, let private videos preview in the block editor canvas, load live metadata for private playlist entries for authorized viewers, and show a lock placeholder on playlist thumbnails of private videos the viewer cannot access.
-- VideoPress: Say when a video upload failed because of a Jetpack connection problem, instead of only "Upload failed".
-- VideoPress: Say when a video upload from the Video block failed because of a Jetpack connection problem, instead of only "Failed to upload your video".
-- VideoPress: Show the Jetpack connection error notice on the VideoPress dashboard again.
+- Brute Force Protection: Fix correct logins being rejected after the math challenge, and keep the username and login destination when the password must be entered again.
+- CLI: Make `wp jetpack protect allow` read the current IP allow list, so adding an IP no longer replaces the existing entries.
+- Comments: Show the default avatar instead of a broken image on old comments left with an X (Twitter) login.
+- Connection: Translate the Connectors card's text on sites that don't use English.
+- External Media: Prevent a fatal error when the copy endpoint receives a malformed media parameter.
+- Forms: Add labels and usage hints to the embed code and shortcode fields in the "add it to a page" dialog.
+- Forms: Fix a PHP warning and broken form when a contact form shortcode is nested inside another one.
+- Jetpack AI: Show the Jetpack AI box on My Jetpack as turned off, with its switch locked, when the host or custom code has turned AI off.
+- Map block: Preserve saved locations when opening or resizing the editor and prevent stale address lookups from overwriting newer edits. Center maps after marker changes, keep deleted markers removed, and show address lookup failures.
+- Monitor: Show each user their own downtime email setting instead of the one another admin saved last.
+- My Jetpack: Hide other plugins' notices while the setup screen is open, and stop the full-screen layout breaking when another plugin adds an admin body class first.
+- My Jetpack: Hide the legacy Custom Content Types module from Features.
+- My Jetpack: Make the connection screen's Connect button and footer links reachable on shorter screens.
+- My Jetpack: Show the highest-priority notice first when several are set at once.
+- Newsletter: Always use the logged-out version of a post when the ActivityPub plugin shares it to the Fediverse.
+- Newsletter: Correct the email design Styles panel descriptions to match which parts of the email each control actually changes.
+- Newsletter: Preview the post you came from when opening Email Design from a post's email preview.
+- PayPal Payment Buttons: Collect the shipping address without a shipping fee, from a new "Shipping address" toggle. Tax or shipping from PayPal settings now shows an error until the address is on.
+- PayPal Payment Buttons: Keep the fields of a payment link that the block does not edit when the block is saved.
+- Podcast: Give the downloads by location map an accessible name for screen readers.
+- Podcast: Translate the dashboard's interface strings.
+- Post by Email: Forget a user's saved address when they disconnect from WordPress.com, so reconnecting with a different account no longer shows the old one.
+- Post List: Update the module description to reflect what the feature does.
+- Premium Analytics: Fix the center total of donut and semi-circle charts showing through the chart tooltip.
+- Premium Analytics: Give map, leaderboard and conversion funnel charts an accessible name and role for screen readers.
+- Premium Analytics: Hide redundant labels from single-metric widgets whose titles already identify the metric.
+- Premium Analytics: Keep a deep link's day interval and date label when its ISO offsets were pasted with an unencoded plus, which the querystring reads as a space.
+- Premium Analytics: Keep conversion funnel bars and empty-state messages visible in one-row widgets.
+- Premium Analytics: Keep long figures in the metric cards above the charts from being cut off, spread the cards evenly over their rows, and show full figures when the cards collapse into a dropdown.
+- Premium Analytics: Load the author page on sites that block the WordPress users endpoint.
+- Premium Analytics: Name each widget chart after its widget, so screen readers can tell the charts on a dashboard apart.
+- Premium Analytics: Set wrapped chart legend rows closer together, and space legend items the same way in every chart.
+- Premium Analytics: Show a focus ring on conversion funnel steps when you move to them with the keyboard.
+- Premium Analytics: Show no value, rather than 0 with a -100% change, for store averages and conversion rate over a period with no orders or sessions.
+- Premium Analytics: Show the author's name in the author page breadcrumb.
+- Premium Analytics: Show the empty state in the WooCommerce report charts when the period and its comparison have no activity, instead of a flat line at zero.
+- Premium Analytics: Show the new Stats plan and views limit on the first load after a Jetpack Stats purchase, instead of the old ones for up to five minutes.
+- Premium Analytics: Stop showing zeros in the WooCommerce tab for a few minutes after a store's first sync finishes.
+- Premium Analytics: Stop the WooCommerce tab from reporting a sync error for stores whose data already finished syncing.
+- SEO: Fix saving settings, clearing front-page descriptions, and switching sitemaps off on private sites. Preserve unsaved title structure edits when saving another row.
+- SEO: Keep disabled GEO settings off after reloading. Detect static robots.txt and llms.txt files on supported managed hosting. Hide the Site visibility progress badge on private sites.
+- SEO: Line up the Enable SEO tools card on the Settings, Content, and GEO tabs with the Overview tab.
+- SEO Tools: Fix the homepage and archive pages being hidden from search engines when their newest post is.
+- Settings: Show the classic Modules list when the REST API rejects authentication.
+- Sharing: Include the post image in the Pinterest button on AMP pages, so Pinterest no longer asks visitors to upload one.
+- Shortcodes: Recognize YouTube live links so livestreams embed and show a thumbnail, including private and unlisted streams.
+- Sitemaps: Fix one URL from the other URLs filter being skipped after every 50.
+- Slideshow block: Keep slides exposed as list items to screen readers, fixing an accessibility audit error.
+- Social: Fix low-contrast placeholder chips in the share message help text and the available placeholders list.
+- Traffic settings: Add spacing below the notice pointing to the SEO dashboard.
+- VideoPress: Only open a channel video page for a video uploaded to this site.
+- VideoPress: Prevent new uploads from reusing video attachment IDs after a site restore.
+- VideoPress: Show failed conversions with delete and re-upload guidance, and retry locked resumable uploads.
 
 --------
 

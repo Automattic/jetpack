@@ -31,10 +31,10 @@ import './style.scss';
 const debug = debugFactory( 'seo-enhancer:index' );
 
 export function SeoEnhancer( {
-	disableAutoEnhance = false,
+	hideAutoEnhanceToggle = false,
 	placement = null,
 }: {
-	disableAutoEnhance?: boolean;
+	hideAutoEnhanceToggle?: boolean;
 	placement?: 'jetpack-sidebar' | 'document-settings' | 'jetpack-prepublish-sidebar';
 } ) {
 	const { tracks } = useAnalytics();
@@ -56,7 +56,7 @@ export function SeoEnhancer( {
 		return blocks.length
 			? getAllBlocks().filter(
 					block => block.name === 'core/image' && block.attributes.url && ! block.attributes.alt
-			  )
+				)
 			: [];
 	}, [ blocks ] );
 
@@ -101,7 +101,7 @@ export function SeoEnhancer( {
 					<BaseControl.VisualLabel className="ai-seo-enhancer-label">
 						{ __( 'Metadata AI Generator', 'jetpack' ) }
 					</BaseControl.VisualLabel>
-					{ ! disableAutoEnhance && (
+					{ ! hideAutoEnhanceToggle && (
 						<ToggleControl
 							checked={ isEnabled }
 							disabled={ isToggling || isLoading }
@@ -129,7 +129,7 @@ export function SeoEnhancer( {
 							) ) }
 						</div>
 					) }
-					{ isEnabled && ! disableAutoEnhance && (
+					{ isEnabled && (
 						<SeoEnhancerTaskList
 							isPrePublish={ placement === 'jetpack-prepublish-sidebar' }
 							imageBlocks={ imageBlocks }

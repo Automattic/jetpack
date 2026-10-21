@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 
 /**
@@ -24,9 +26,17 @@ class Dashboard {
 	private static $initialized = false;
 
 	/**
+	 * Transient that throttles the plan refresh below.
+	 *
+	 * @var string
+	 */
+	private const PLAN_REFRESH_TRANSIENT = 'jetpack_stats_admin_plan_refresh';
+
+	/**
 	 * Priority for the dashboard menu
 	 * For Jetpack sites: Jetpack uses 998 and 'Admin_Menu' uses 1000, so we need to use 999.
-	 * For simple site: the value is overriden in a child class with value 100000 to wait for all menus to be registered.
+	 *
+	 * Admin_Menu registers what it has queued at priority 1000, so this has to stay below it.
 	 *
 	 * @var int
 	 */
@@ -54,6 +64,9 @@ class Dashboard {
 	/**
 	 * Add a "Stats" top-level admin menu.
 	 *
+	 * Declares no `product` gate: that resolves false without the Jetpack plugin, which is
+	 * exactly when the standalone Stats plugin registers this page.
+	 *
 	 * @return void
 	 */
 	public function add_wp_admin_menu() {
@@ -66,18 +79,25 @@ class Dashboard {
 			return;
 		}
 
-		$page_suffix = add_menu_page(
-			__( 'Stats', 'jetpack-stats-admin' ),
-			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
-			$this->get_capability(),
-			'stats',
-			array( $this, 'render' ),
-			'dashicons-chart-bar',
-			2
-		);
+		$page_title = __( 'Stats', 'jetpack-stats-admin' );
+		$menu_title = _x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' );
+		$capability = $this->get_capability();
+		$callback   = array( $this, 'render' );
+
+		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
+		if ( method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
+			// The key the legacy Stats screen in the Jetpack plugin also declares, so hosts name Stats once.
+			$page_suffix = Admin_Menu::add_top_level_menu( $page_title, $menu_title, $capability, 'stats', $callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-stats' ) );
+		} else {
+			$page_suffix = add_menu_page( $page_title, $menu_title, $capability, 'stats', $callback, 'dashicons-chart-bar', 2 );
+		}
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+			// The dashboard renders full bleed, so core notices stacked above it look broken.
+			if ( method_exists( Admin_Menu::class, 'hide_core_admin_notices' ) ) {
+				add_action( 'load-' . $page_suffix, array( Admin_Menu::class, 'hide_core_admin_notices' ) );
+			}
 		}
 	}
 
@@ -158,7 +178,35 @@ JS;
 	 * Initialize the admin resources.
 	 */
 	public function admin_init() {
+		$this->maybe_refresh_plan();
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+	}
+
+	/**
+	 * Fill an empty plan cache before the config data that reads it is printed.
+	 *
+	 * The app cannot refresh the plan it paywalls on, so a site that never stored one renders as
+	 * free. Throttled and time-boxed, because WordPress.com can keep answering without a plan.
+	 */
+	private function maybe_refresh_plan() {
+		if ( ! Main::is_site_connected() ) {
+			return;
+		}
+
+		// method_exists guard: an older plans package may win the autoloader on another plugin.
+		if ( method_exists( Jetpack_Plan::class, 'get_wpcom_site_specific_features' )
+			&& null !== Jetpack_Plan::get_wpcom_site_specific_features() ) {
+			return;
+		}
+
+		$plan = Jetpack_Plan::get();
+		if ( ! empty( $plan['features']['active'] ) || get_transient( self::PLAN_REFRESH_TRANSIENT ) ) {
+			return;
+		}
+
+		set_transient( self::PLAN_REFRESH_TRANSIENT, 1, 15 * MINUTE_IN_SECONDS );
+
+		Jetpack_Plan::refresh_from_wpcom( array( 'timeout' => 5 ) );
 	}
 
 	/**

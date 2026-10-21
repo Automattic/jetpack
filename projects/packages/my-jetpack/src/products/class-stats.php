@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Initializer;
-use Automattic\Jetpack\My_Jetpack\Module_Product;
-use Automattic\Jetpack\My_jetpack\Products;
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class responsible for handling the Jetpack Stats product
  */
-class Stats extends Module_Product {
+class Stats extends Hybrid_Product {
 	/**
 	 * The product slug
 	 *
@@ -48,14 +48,18 @@ class Stats extends Module_Product {
 	 *
 	 * @var string|null
 	 */
-	public static $plugin_slug = self::JETPACK_PLUGIN_SLUG;
+	public static $plugin_slug = 'jetpack-stats';
 
 	/**
 	 * The Plugin file associated with stats
 	 *
-	 * @var string|null
+	 * @var string[]
 	 */
-	public static $plugin_filename = self::JETPACK_PLUGIN_FILENAME;
+	public static $plugin_filename = array(
+		'jetpack-stats/jetpack-stats.php',
+		'stats/jetpack-stats.php',
+		'jetpack-stats-dev/jetpack-stats.php',
+	);
 
 	/**
 	 * Stats only requires site connection, not user connection
@@ -63,13 +67,6 @@ class Stats extends Module_Product {
 	 * @var bool
 	 */
 	public static $requires_user_connection = false;
-
-	/**
-	 * Stats does not have a standalone plugin (yet?)
-	 *
-	 * @var bool
-	 */
-	public static $has_standalone_plugin = false;
 
 	/**
 	 * Whether this product has a free offering
@@ -190,16 +187,22 @@ class Stats extends Module_Product {
 	 */
 	public static function get_status() {
 		$status = parent::get_status();
-		if ( Products::STATUS_MODULE_DISABLED === $status && ! Initializer::is_registered() ) {
+		if ( in_array( $status, array( Products::STATUS_MODULE_DISABLED, Products::STATUS_NEEDS_PLAN ), true ) && ! Initializer::is_registered() ) {
 			// If the site has never been connected before, show the "Learn more" CTA,
 			// that points to the add Stats product interstitial.
-			$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
+			return Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
+		}
+		if ( Products::STATUS_NEEDS_PLAN === $status ) {
+			// Recognizing the standalone plugin makes the base class ask an unowned site to
+			// buy a plan while that plugin is inactive, but Stats is free from the Jetpack
+			// plugin, so the card keeps offering activation.
+			$status = Products::STATUS_NEEDS_ACTIVATION;
 		}
 		return $status;
 	}
 	/**
 	 * Checks whether the product can be upgraded to a different product.
-	 * Stats Commercial plan (highest tier) & Jetpack Complete are not upgradable.
+	 * Stats Commercial's highest tier and bundle subscriptions are not upgradable here.
 	 * Also we don't push PWYW users to upgrade.
 	 *
 	 * @return boolean
@@ -213,9 +216,10 @@ class Stats extends Module_Product {
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( ! is_wp_error( $purchases_data ) && is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				// Jetpack complete includes Stats commercial & cannot be upgraded
+				// Stats changes for bundle owners go through plan management.
 				if (
 					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_pro_' ) ||
 					str_starts_with( $purchase->product_slug, 'jetpack_growth' )
 				) {
 					return false;

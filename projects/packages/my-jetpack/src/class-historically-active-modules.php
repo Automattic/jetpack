@@ -75,8 +75,12 @@ class Historically_Active_Modules {
 			}
 
 			// If the module has been disabled due to a manual user action,
-			// or because of a missing plan error, remove it from the array
-			if ( in_array( $status, Products::$disabled_module_statuses, true ) ) {
+			// or because of a missing plan error, remove it from the array.
+			// A bundle without a plan reports needs_plan rather than module_disabled, so it goes too.
+			if (
+				in_array( $status, Products::$disabled_module_statuses, true ) ||
+				( Products::STATUS_NEEDS_PLAN === $status && $product_classes[ $product_slug ]::is_bundle_product() )
+			) {
 				$historically_active_modules = array_values( array_diff( $historically_active_modules, array( $product_slug ) ) );
 			}
 		}

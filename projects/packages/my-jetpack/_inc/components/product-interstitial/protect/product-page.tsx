@@ -2,9 +2,10 @@
  * External dependencies
  */
 import { AdminPage, Col, Container, getRedirectUrl } from '@automattic/jetpack-components';
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Button, Card } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, shield, login } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -34,8 +35,9 @@ import styles from './style.module.scss';
  * @return {object} React component for the product page
  */
 export default function ProtectProductPage() {
-	const { onClickGoBack } = useGoBack( { slug: 'protect', fallback: '/products' } );
+	const { onClickGoBack } = useGoBack( { slug: 'protect', fallback: MyJetpackRoutes.Features } );
 	const { detail, isLoading: isLoadingProduct } = useProduct( 'protect' );
+	const { detail: securityDetail } = useProduct( 'security' );
 	const { isSiteConnected } = useMyJetpackConnection();
 	const { recordEvent } = useAnalytics();
 	const navigateToUpgrade = useMyJetpackNavigate( MyJetpackRoutes.AddProtect );
@@ -75,11 +77,16 @@ export default function ProtectProductPage() {
 		navigateToUpgrade();
 	}, [ recordEvent, navigateToUpgrade ] );
 
-	const cloudScanUrl = getRedirectUrl( 'my-jetpack-manage-scan' );
+	const hasProtectPage = !! detail?.hasProtectPage;
+	const scanResultsUrl = detail?.scanResultsUrl || getRedirectUrl( 'my-jetpack-manage-scan' );
 	const scanVsProtectUrl = getRedirectUrl( 'jetpack-protect-support', {
 		anchor: 'jetpack-protect-jetpack-scan-and-wpscan-understand-the-difference',
 	} );
-	const securityFeaturesUrl = getRedirectUrl( 'jetpack-security' );
+	const securityIsRetired = securityDetail?.pricingForUi?.available === false;
+	const replacement = securityDetail?.purchaseReplacement;
+	const securityFeaturesUrl = securityIsRetired
+		? getMyJetpackUrl( `#/add-${ replacement?.slug }` )
+		: getRedirectUrl( 'jetpack-security' );
 
 	return (
 		<AdminPage
@@ -87,7 +94,7 @@ export default function ProtectProductPage() {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to="/products"
+					to={ MyJetpackRoutes.Features }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
@@ -118,8 +125,10 @@ export default function ProtectProductPage() {
 								</Button>
 							) }
 							{ hasPaidPlan && (
-								<Button variant="primary" href={ cloudScanUrl }>
-									{ __( 'View scan results on Jetpack Cloud', 'jetpack-my-jetpack' ) }
+								<Button variant="primary" href={ scanResultsUrl }>
+									{ hasProtectPage
+										? __( 'View scan results', 'jetpack-my-jetpack' )
+										: __( 'View scan results on Jetpack Cloud', 'jetpack-my-jetpack' ) }
 								</Button>
 							) }
 						</div>
@@ -285,24 +294,39 @@ export default function ProtectProductPage() {
 				</Col>
 
 				{ /* Upgrade Section */ }
-				{ ! hasPaidPlan && (
+				{ ! hasPaidPlan && ( ! securityIsRetired || replacement ) && (
 					<Col className={ styles[ 'product-interstitial__section' ] }>
 						<div className={ styles[ 'product-interstitial__section-wrapper' ] }>
 							<h2 className={ styles[ 'product-interstitial__section-heading' ] }>
 								{ __( 'Want comprehensive protection?', 'jetpack-my-jetpack' ) }
 							</h2>
 							<p className={ styles[ 'product-interstitial__section-sub-heading' ] }>
-								{ __(
-									'Jetpack Security provides easy-to-use, comprehensive WordPress site security, including real-time backups, a web application firewall, malware scanning, and spam protection.',
-									'jetpack-my-jetpack'
-								) }
+								{ securityIsRetired
+									? sprintf(
+											/* translators: %s is the name of an available Jetpack bundle. */
+											__(
+												'%s includes real-time backups, malware scanning, and spam protection.',
+												'jetpack-my-jetpack'
+											),
+											replacement.title
+										)
+									: __(
+											'Jetpack Security provides easy-to-use, comprehensive WordPress site security, including real-time backups, a web application firewall, malware scanning, and spam protection.',
+											'jetpack-my-jetpack'
+										) }
 							</p>
 							<div className={ styles[ 'product-interstitial__cta-buttons' ] }>
 								<Button variant="primary" onClick={ handleUpgradeClick }>
 									{ __( 'Secure your site', 'jetpack-my-jetpack' ) }
 								</Button>
 								<Link openInNewTab href={ securityFeaturesUrl }>
-									{ __( 'Learn more about Jetpack Security', 'jetpack-my-jetpack' ) }
+									{ securityIsRetired
+										? sprintf(
+												/* translators: %s is the name of an available Jetpack bundle. */
+												__( 'Learn more about %s', 'jetpack-my-jetpack' ),
+												replacement.title
+											)
+										: __( 'Learn more about Jetpack Security', 'jetpack-my-jetpack' ) }
 								</Link>
 							</div>
 						</div>

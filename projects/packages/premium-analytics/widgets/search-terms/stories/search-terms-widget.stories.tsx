@@ -13,7 +13,6 @@ import {
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SearchTermsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -25,7 +24,7 @@ const SEARCH_TERMS_RENDER_MODULE = 'storybook/search-terms';
 
 // Build the story widget type from its manifest and module. `presentation`
 // comes from widget.json ( 'framed' ), so the host frames the widget.
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface SearchTermsStoryControls {
 	withComparison: boolean;
@@ -127,8 +126,8 @@ export const ErrorRetryable: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral search
- * glyph and "No search terms in this period.").
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderSearchTermsOnPreset( 'last-year' ),
@@ -141,8 +140,7 @@ export const Empty: Story = {
 };
 
 interface SearchTermsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SearchTermsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SearchTermsStoryControls {}
 
 function SearchTermsDashboardStory( {
 	withComparison,

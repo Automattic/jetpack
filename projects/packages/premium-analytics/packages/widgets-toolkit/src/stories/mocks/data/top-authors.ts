@@ -149,3 +149,70 @@ export const mockTopAuthorsComparisonData = {
 		],
 	},
 };
+
+/** Every mocked author's first content: what `num=-1` starts at, whatever window is asked for. */
+export const MOCK_AUTHOR_FIRST_CONTENT_DAY = `${ new Date().getUTCFullYear() - 3 }-03-14`;
+
+/**
+ * A `stats/author/<id>` response: the author's views per bucket over the window,
+ * plus window totals.
+ *
+ * @param authorId  - The requested author; an unknown one reads as the first.
+ * @param startDate - The window's first day, `yyyy-MM-dd`.
+ * @param endDate   - The window's last day, `yyyy-MM-dd`.
+ * @param period    - The bucket size.
+ * @return The response body.
+ */
+export function buildAuthorStatsData(
+	authorId: number,
+	startDate: string,
+	endDate: string,
+	period: 'day' | 'week' | 'month' | 'year' = 'day'
+) {
+	const authors = mockTopAuthorsData.summary.authors;
+	const author = authors.find( row => row.author_id === authorId ) ?? authors[ 0 ];
+	const cursor = new Date( `${ startDate }T00:00:00Z` );
+	const end = new Date( `${ endDate }T00:00:00Z` );
+	const dayCount = Math.max( 1, Math.round( ( end.getTime() - cursor.getTime() ) / 86400000 ) + 1 );
+
+	if ( period === 'week' ) {
+		cursor.setUTCDate( cursor.getUTCDate() - ( ( cursor.getUTCDay() + 6 ) % 7 ) );
+	} else if ( period === 'month' ) {
+		cursor.setUTCDate( 1 );
+	} else if ( period === 'year' ) {
+		cursor.setUTCMonth( 0, 1 );
+	}
+	const bucketDays = { day: 1, week: 7, month: 30, year: 365 }[ period ];
+	const data: [ string, number ][] = [];
+
+	while ( cursor <= end ) {
+		const weekly = 0.7 + 0.3 * Math.sin( ( cursor.getUTCDate() / 7 ) * Math.PI * 2 );
+		const share = Math.min( 1, bucketDays / dayCount ) * weekly;
+
+		data.push( [ cursor.toISOString().slice( 0, 10 ), Math.round( author.views * share ) ] );
+		if ( period === 'month' ) {
+			cursor.setUTCMonth( cursor.getUTCMonth() + 1 );
+		} else if ( period === 'year' ) {
+			cursor.setUTCFullYear( cursor.getUTCFullYear() + 1 );
+		} else {
+			cursor.setUTCDate( cursor.getUTCDate() + bucketDays );
+		}
+	}
+
+	const views = data.reduce( ( sum, [ , bucket ] ) => sum + bucket, 0 );
+
+	return {
+		date: endDate,
+		start_date: startDate,
+		period,
+		views,
+		fields: [ 'period', 'views' ],
+		data,
+		approximate: false,
+		likes: Math.round( views * 0.04 ),
+		comments: Math.round( views * 0.01 ),
+		author: { name: author.name, avatar: author.avatar, author_id: author.author_id },
+		content_counts: { post: author.posts.length },
+		first_content_date: `${ MOCK_AUTHOR_FIRST_CONTENT_DAY } 09:00:00`,
+	};
+}

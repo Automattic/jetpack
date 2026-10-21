@@ -1,0 +1,32 @@
+{
+	"name": "woocommerce-analytics/net-sales-over-time",
+	"icon": "jpa/chart-bar",
+	"title": "Net sales over time",
+	"description": "Monitor your total revenue after discounts, returns, or adjustments over a set period of time.",
+	"help": {
+		"content": "Monitor your total revenue — after any discounts, returns, or adjustments — over a set period of time."
+	},
+	"category": "orders",
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "chartType",
+			"type": "jpa/toggle-group",
+			"label": "Chart type",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "line",
+					"label": "Line chart",
+					"icon": "jpa/chart-line"
+				},
+				{
+					"value": "bar",
+					"label": "Bar chart",
+					"icon": "jpa/chart-bar"
+				}
+			]
+		}
+	],
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}
