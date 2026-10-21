@@ -141,6 +141,7 @@ test.describe( 'a report the plan locks', () => {
 		await expect(
 			dashboard.page.getByRole( 'link', { name: 'Upgrade', exact: true } )
 		).toBeVisible();
+		await dashboard.waitForStatsIdle();
 		expect( dashboard.statsEndpoints() ).not.toContain( 'referrers' );
 	} );
 
@@ -153,6 +154,7 @@ test.describe( 'a report the plan locks', () => {
 		await expect(
 			dashboard.page.getByRole( 'heading', { level: 2, name: 'Top authors', exact: true } )
 		).toBeVisible();
+		await dashboard.waitForStatsIdle();
 		expect( dashboard.statsEndpoints() ).not.toContain( 'top-authors' );
 	} );
 } );

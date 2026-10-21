@@ -140,18 +140,19 @@ export class Dashboard {
 			}
 		} );
 		page.on( 'request', request => {
-			const url = new URL( decodeURIComponent( request.url() ) );
-			if ( isStatsRequest( request ) ) {
-				this.statsRequests.push( url );
-				this.statsInFlight++;
-				this.lastStatsActivity = Date.now();
+			if ( ! isStatsRequest( request ) ) {
+				return;
 			}
+			this.statsRequests.push( new URL( decodeURIComponent( request.url() ) ) );
+			this.statsInFlight++;
+			this.lastStatsActivity = Date.now();
 		} );
 		const settle = ( request: Request ) => {
-			if ( isStatsRequest( request ) ) {
-				this.statsInFlight--;
-				this.lastStatsActivity = Date.now();
+			if ( ! isStatsRequest( request ) ) {
+				return;
 			}
+			this.statsInFlight--;
+			this.lastStatsActivity = Date.now();
 		};
 		page.on( 'requestfinished', settle );
 		page.on( 'requestfailed', settle );
@@ -159,12 +160,16 @@ export class Dashboard {
 
 	/**
 	 * Waits until no Stats request has been in flight for a moment, since some widgets send a follow-up once the first reply lands.
+	 * The quiet time counts from the call too: a page can render before its widgets send anything.
 	 */
 	async waitForStatsIdle() {
+		const since = Date.now();
 		await expect
-			.poll( () => this.statsInFlight === 0 && Date.now() - this.lastStatsActivity > 500, {
-				intervals: [ 250 ],
-			} )
+			.poll(
+				() =>
+					this.statsInFlight === 0 && Date.now() - Math.max( this.lastStatsActivity, since ) > 500,
+				{ message: 'Stats requests kept going', intervals: [ 250 ] }
+			)
 			.toBe( true );
 	}
 
