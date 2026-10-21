@@ -106,7 +106,7 @@ export default function McpGroupCard( {
 
 	return (
 		<Card.Root id={ id }>
-			<Card.Content>
+			<Card.Content className="jetpack-ai-mcp__card-content">
 				<div className="jetpack-ai-mcp__group-header">
 					<Stack direction="column" gap="xs" className="jetpack-ai-mcp__group-info">
 						<Text className="jetpack-ai-mcp__group-title">{ label }</Text>

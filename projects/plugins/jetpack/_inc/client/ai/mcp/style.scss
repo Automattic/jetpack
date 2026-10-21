@@ -80,6 +80,11 @@
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
+	&__card-content {
+		padding-block: 16px;
+		padding-inline: 24px;
+	}
+
 	&__muted {
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
