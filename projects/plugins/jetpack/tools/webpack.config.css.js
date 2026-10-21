@@ -42,7 +42,7 @@ const sharedWebpackConfig = {
 		rules: [
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
-				sass: { sassOptions: { style: 'expanded' } },
+				sass: true,
 			} ),
 
 			// Leave fonts and images in place.

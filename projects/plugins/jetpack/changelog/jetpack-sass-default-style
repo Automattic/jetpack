@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Drop the explicit sass style option from the CSS webpack config; the unminified CSS bundles are now emitted compressed.
