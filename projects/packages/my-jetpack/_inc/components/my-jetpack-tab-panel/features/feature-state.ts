@@ -25,7 +25,7 @@ import type { ProductCamelCase } from '../../../data/types';
 import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
 
 // A running product reports these rather than `active` once its plan needs attention or nears expiry.
-const RUNNING_ON_PLAN_STATUSES: string[] = [
+export const RUNNING_ON_PLAN_STATUSES: string[] = [
 	PRODUCT_STATUSES.ACTIVE,
 	PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING,
 	PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR,
@@ -40,6 +40,9 @@ const RUNNING_ON_PLAN_STATUSES: string[] = [
  */
 export type FeatureControl =
 	| { kind: 'module'; module: MyJetpackModule }
+	// The plan decides it, whichever plugin delivers it: the card sells or renews the plan instead.
+	// `activatePlugin` names the installed plugin that is off, for a site that pays already.
+	| { kind: 'plan'; activatePlugin?: string }
 	| { kind: 'plugin'; plugin: string; override?: 'active' | 'inactive' }
 	| { kind: 'install-plugin'; plugin: string; runsWithoutPlugin?: true; blocked?: InstallBlock }
 	| { kind: 'install-jetpack'; installed: boolean; blocked?: InstallBlock }
@@ -65,7 +68,8 @@ export type FeatureState = {
 	// True while this feature's own switch has a request out.
 	isSwitching?: boolean;
 	// Whether the feature is switched on here, which is not whether a plan covers it:
-	// the wp-admin sidebar asks the same question, and the two have to agree.
+	// the wp-admin sidebar asks the same question, and the two have to agree. A plan-driven
+	// module is the exception: this says whether the plan runs it, and its menu can outlast the plan.
 	status: 'active' | 'inactive';
 	// The feature needs an account the site does not have: Connect, or Install for a missing plugin, starts one.
 	accountNeeded?: boolean;
@@ -128,6 +132,21 @@ export function getModuleUnavailableNote( state: FeatureState ): string | undefi
 export function getForcedReason( state: FeatureState ): string | null {
 	const { control } = state;
 
+	// Off without the plan is a sale, which Upgrade offers; off with it has no Upgrade, so it says why.
+	if ( control.kind === 'plan' ) {
+		if ( state.status === 'active' ) {
+			return __( 'Included in your plan', 'jetpack-my-jetpack' );
+		}
+
+		if ( isPlanExpired( state ) ) {
+			return __( 'Your plan expired', 'jetpack-my-jetpack' );
+		}
+
+		return state.feature.included
+			? __( 'Included in your plan, but not running', 'jetpack-my-jetpack' )
+			: null;
+	}
+
 	if ( control.kind === 'module' ) {
 		const status = getModuleStatus( control.module );
 
@@ -141,6 +160,16 @@ export function getForcedReason( state: FeatureState ): string | null {
 	}
 
 	return state.unavailableReason ?? null;
+}
+
+/**
+ * Whether the plan behind a plan-driven feature has expired, which Renew offers to resume.
+ *
+ * @param state - The feature's live state.
+ * @return True when the plan expired.
+ */
+export function isPlanExpired( state: FeatureState ): boolean {
+	return state.control.kind === 'plan' && state.product?.status === PRODUCT_STATUSES.EXPIRED;
 }
 
 /**
@@ -280,6 +309,30 @@ function resolveMechanism(
 			status: 'inactive',
 			control: { kind: 'none', override: gatedModule.override || undefined },
 			unavailableReason: getModuleAvailability( gatedModule ).reason,
+		};
+	}
+
+	// Delivered by Jetpack or the installed standalone plugin. A host forcing the module only
+	// flips a switch the plan ignores, so only multisite or a missing module explain themselves below.
+	const deliversPlan = $module
+		? ! getModuleStatus( { ...$module, override: false } ).reason
+		: feature.plugin_status !== 'not-installed' && feature.plugin_override !== 'inactive';
+	// Offline Features mode never loads products, so the plugin's own switch stands in.
+	if ( feature.plan_driven && deliversPlan && ( product || ! isOfflineFeatures() ) ) {
+		return {
+			feature,
+			product,
+			// Until the product arrives there is no plan to read.
+			pending: ! product,
+			status:
+				product?.hasPaidPlanForProduct && RUNNING_ON_PLAN_STATUSES.includes( product.status )
+					? 'active'
+					: 'inactive',
+			control: {
+				kind: 'plan',
+				...( ! $module &&
+					feature.plugin_status === 'inactive' && { activatePlugin: feature.plugin } ),
+			},
 		};
 	}
 
@@ -467,7 +520,7 @@ export function useAccountConnected(): boolean {
 }
 
 /**
- * Whether the card offers Connect for a module or installed plugin waiting for an account.
+ * Whether the card offers Connect for a module, installed plugin or plan-driven feature waiting for an account.
  *
  * A missing plugin keeps Install, which connects once the plugin is on.
  *
@@ -476,7 +529,7 @@ export function useAccountConnected(): boolean {
  */
 export function offersConnect( state: FeatureState ): boolean {
 	return Boolean(
-		state.accountNeeded && ( state.control.kind === 'module' || state.control.kind === 'plugin' )
+		state.accountNeeded && [ 'module', 'plugin', 'plan' ].includes( state.control.kind )
 	);
 }
 

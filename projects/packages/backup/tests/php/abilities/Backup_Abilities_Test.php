@@ -670,7 +670,7 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The backup module only switches the wp-admin dashboard, so a plan holder who turned it off still gets the abilities.
+	 * The plan, not the backup module, decides Backup, so a plan holder who turned the module off still gets the abilities.
 	 */
 	public function test_register_ignores_the_backup_module(): void {
 		if ( ! function_exists( 'wp_register_ability' ) || ! function_exists( 'wp_has_ability' ) ) {
@@ -692,7 +692,6 @@ class Backup_Abilities_Test extends BaseTestCase {
 			),
 			HOUR_IN_SECONDS
 		);
-		$this->assertFalse( \Automattic\Jetpack\My_Jetpack\Products\Backup::is_active(), 'Precondition: the module being off makes the product inactive.' );
 
 		$this->ensure_site_category();
 		$this->simulate_doing_abilities_init();

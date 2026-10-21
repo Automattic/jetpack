@@ -7,6 +7,7 @@ import { FeatureDelivery } from '../feature-delivery';
 import { FeatureItem } from '../feature-item';
 import { FeatureModalActions } from '../feature-modal-actions';
 import { resolveFeatureState } from '../feature-state';
+import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureState } from '../feature-state';
 
@@ -246,9 +247,14 @@ describe( 'FeatureAction', () => {
 		expect( countControls() ).toBe( 0 );
 	} );
 
-	it( 'leaves the switch slot empty for a module a host forced on', () => {
+	it( 'leaves the switch slot empty for a module a host forced on, even with a plan to sell', () => {
+		const feature = buildFeature( {
+			upgrade: { path: '/add-complete', name: 'Jetpack Complete' },
+		} );
 		const { container } = render(
-			<FeatureAction state={ buildState( { kind: 'module', module: forcedModule } ) } />
+			<FeatureAction
+				state={ buildState( { kind: 'module', module: forcedModule }, { feature } ) }
+			/>
 		);
 
 		expect( container ).toBeEmptyDOMElement();
@@ -266,6 +272,49 @@ describe( 'FeatureAction', () => {
 
 		expect( container ).toBeEmptyDOMElement();
 	} );
+
+	it( 'offers Upgrade in place of a switch for Backup without its plan, and nothing with it', () => {
+		const feature = buildFeature( {
+			slug: 'backup',
+			upgrade: { path: '/add-backup', name: 'Jetpack VaultPress Backup' },
+		} );
+		const control = { kind: 'plan' } as const;
+
+		const { rerender } = render( <FeatureAction state={ buildState( control, { feature } ) } /> );
+
+		expect(
+			screen.getByRole( 'link', { name: 'Upgrade to Jetpack VaultPress Backup' } )
+		).toBeVisible();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+
+		rerender( <FeatureAction state={ buildState( control, { feature, status: 'active' } ) } /> );
+
+		expect( countControls() + screen.queryAllByRole( 'link' ).length ).toBe( 0 );
+	} );
+
+	it.each( [
+		[ 'Activate', true ],
+		[ 'Upgrade to Jetpack VaultPress Backup', false ],
+	] )(
+		'offers %s, not a switch, for Backup whose plugin is installed but off',
+		( name, included ) => {
+			const feature = buildFeature( {
+				slug: 'backup',
+				included,
+				upgrade: included
+					? { path: '', name: '' }
+					: { path: '/add-backup', name: 'Jetpack VaultPress Backup' },
+			} );
+			render(
+				<FeatureAction
+					state={ buildState( { kind: 'plan', activatePlugin: 'jetpack-backup' }, { feature } ) }
+				/>
+			);
+
+			expect( screen.getByRole( included ? 'button' : 'link', { name } ) ).toBeVisible();
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it( 'renders nothing when this site cannot switch the feature', () => {
 		const { container } = render( <FeatureAction state={ buildState( { kind: 'none' } ) } /> );
@@ -420,6 +469,22 @@ describe( 'FeatureModalActions', () => {
 		expect( screen.getByText( /by your host or site administrator/ ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [ true, false ] )(
+		'offers Activate for Backup\u2019s installed plugin only when the site pays for it: %s',
+		included => {
+			const feature = buildFeature( { slug: 'backup', included } );
+			render(
+				<FeatureModalActions
+					state={ buildState( { kind: 'plan', activatePlugin: 'jetpack-backup' }, { feature } ) }
+				/>
+			);
+
+			expect( screen.queryAllByRole( 'button', { name: 'Activate' } ) ).toHaveLength(
+				included ? 1 : 0
+			);
+		}
+	);
 } );
 
 describe( 'FeatureItem', () => {
@@ -636,6 +701,24 @@ describe( 'features waiting for an account', () => {
 			false,
 			true
 		);
+	const accountPlan = () =>
+		resolveFeatureState(
+			buildFeature( {
+				slug: 'backup',
+				name: 'Backup',
+				product: 'backup',
+				plugin: 'jetpack-backup',
+				plugin_status: 'active',
+				plan_driven: true,
+				needs_account: true,
+			} ),
+			'not-installed',
+			{ slug: 'backup', status: 'needs_plan', hasPaidPlanForProduct: false } as ProductCamelCase,
+			{},
+			{},
+			false,
+			true
+		);
 	// Waits for the click's plugin request and whatever was chained on it.
 	const settle = async () => {
 		await Promise.all( mockRun.mock.results.map( result => result.value ) );
@@ -646,6 +729,7 @@ describe( 'features waiting for an account', () => {
 		[ 'a module saved as on', accountModule( true ), 'Connect account for Activity Log' ],
 		[ 'a plugin that is off', accountPlugin( 'inactive' ), 'Connect account for Backup' ],
 		[ 'a plugin that is on', accountPlugin( 'active' ), 'Connect account for Backup' ],
+		[ 'a plan-driven feature', accountPlan(), 'Connect account for Backup' ],
 		[ 'a missing plugin', accountPlugin( 'not-installed' ), 'Install' ],
 	] as const )(
 		'offers only what is missing on the card for %s, with the account badge and no account sentence',

@@ -2,14 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { PlacementSection } from '../sections/placement-section';
-import {
-	apiCalls,
-	baseSettings,
-	baseStatus,
-	renderWithData,
-	resetNotices,
-	setScriptData,
-} from './helpers';
+import { apiCalls, baseSettings, baseStatus, renderWithData, setScriptData } from './helpers';
 
 jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
@@ -19,7 +12,6 @@ beforeEach( () => {
 	mockApiFetch.mockImplementation( ( { method } ) =>
 		Promise.resolve( method === 'PUT' ? baseSettings : baseStatus )
 	);
-	resetNotices();
 	setScriptData();
 } );
 

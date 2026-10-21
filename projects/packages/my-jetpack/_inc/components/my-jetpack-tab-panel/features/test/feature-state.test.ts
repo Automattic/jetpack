@@ -333,6 +333,129 @@ describe( 'resolveFeatureState, for a module the plan does not cover', () => {
 	} );
 } );
 
+describe( 'resolveFeatureState, for a feature its plan decides', () => {
+	const backup = buildFeature( {
+		slug: 'backup',
+		in_jetpack: true,
+		product: 'backup',
+		plugin: 'jetpack-backup',
+		plan_driven: true,
+	} );
+	const modules = {
+		backup: buildModule( { module: 'backup', activated: true } ),
+	};
+
+	it.each( [
+		[ PRODUCT_STATUSES.ACTIVE, true, 'active', 'Included in your plan' ],
+		[ PRODUCT_STATUSES.EXPIRING_SOON, true, 'active', 'Included in your plan' ],
+		[ PRODUCT_STATUSES.EXPIRED, true, 'inactive', 'Your plan expired' ],
+		[ PRODUCT_STATUSES.NEEDS_PLAN, false, 'inactive', null ],
+	] )(
+		'reads its state from the plan and offers no switch: %s',
+		( productStatus, hasPaidPlanForProduct, status, reason ) => {
+			const state = resolveFeatureState(
+				backup,
+				'active',
+				{ status: productStatus, hasPaidPlanForProduct } as ProductCamelCase,
+				modules,
+				{}
+			);
+
+			expect( state.status ).toBe( status );
+			expect( getForcedReason( state ) ).toBe( reason );
+			expect( state.control.kind ).toBe( 'plan' );
+		}
+	);
+
+	it.each( [
+		[ 'Jetpack', 'active', 'not-installed', '', modules, { kind: 'plan' } ],
+		[ 'the standalone plugin', 'not-installed', 'active', '', {}, { kind: 'plan' } ],
+		[
+			'the standalone plugin, installed but off',
+			'not-installed',
+			'inactive',
+			'',
+			{},
+			{ kind: 'plan', activatePlugin: 'jetpack-backup' },
+		],
+		[ 'neither', 'not-installed', 'not-installed', '', {}, { kind: 'install-plugin' } ],
+		[
+			'a plugin a host forced off',
+			'not-installed',
+			'inactive',
+			'inactive',
+			{},
+			{ kind: 'plugin', override: 'inactive' },
+		],
+		[
+			'Jetpack, with the module switched off',
+			'active',
+			'not-installed',
+			'',
+			{ backup: buildModule( { module: 'backup', activated: false } ) },
+			{ kind: 'plan' },
+		],
+		[
+			'Jetpack, with a host forcing the module off',
+			'active',
+			'not-installed',
+			'',
+			{ backup: buildModule( { module: 'backup', activated: false, override: 'inactive' } ) },
+			{ kind: 'plan' },
+		],
+	] as const )(
+		'follows the plan when %s delivers it',
+		( _case, jetpack, pluginStatus, pluginOverride, siteModules, control ) => {
+			const state = resolveFeatureState(
+				{ ...backup, plugin_status: pluginStatus, plugin_override: pluginOverride },
+				jetpack,
+				{ status: PRODUCT_STATUSES.ACTIVE, hasPaidPlanForProduct: true } as ProductCamelCase,
+				siteModules,
+				{}
+			);
+
+			expect( state.control ).toEqual( expect.objectContaining( control ) );
+			expect( 'activatePlugin' in state.control ).toBe( 'activatePlugin' in control );
+		}
+	);
+
+	it( 'explains a plan that is paid for but not running, which has no Upgrade to offer', () => {
+		const state = resolveFeatureState(
+			{ ...backup, included: true },
+			'active',
+			{ status: PRODUCT_STATUSES.INACTIVE, hasPaidPlanForProduct: true } as ProductCamelCase,
+			modules,
+			{}
+		);
+
+		expect( state.status ).toBe( 'inactive' );
+		expect( getForcedReason( state ) ).toBe( 'Included in your plan, but not running' );
+	} );
+
+	it( 'waits for the product before saying whether the plan runs it', () => {
+		expect( resolveFeatureState( backup, 'active', undefined, modules, {} ).pending ).toBe( true );
+	} );
+
+	it( 'leaves the standalone plugin its switch in offline Features mode, which loads no products', () => {
+		const previousInitial = window.myJetpackInitialState;
+		window.myJetpackInitialState = { isOfflineFeatures: true } as typeof previousInitial;
+		try {
+			const state = resolveFeatureState(
+				{ ...backup, plugin_status: 'active', plugin_override: '' },
+				'not-installed',
+				undefined,
+				{},
+				{}
+			);
+
+			expect( state.pending ).toBeFalsy();
+			expect( state.control.kind ).toBe( 'plugin' );
+		} finally {
+			window.myJetpackInitialState = previousInitial;
+		}
+	} );
+} );
+
 describe( 'resolveFeatureState, for a feature a plan runs without its plugin', () => {
 	const backup = buildFeature( {
 		slug: 'backup',
