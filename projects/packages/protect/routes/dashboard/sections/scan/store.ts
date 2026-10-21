@@ -135,7 +135,7 @@ export function editScan( update: ScanEdit ) {
  *
  * @param next - The report.
  */
-export function mergeScan( next?: Partial< ScanState > ) {
+function mergeScan( next?: Partial< ScanState > ) {
 	if ( next ) {
 		setScan( current => ( { ...current, ...next } ) );
 	}

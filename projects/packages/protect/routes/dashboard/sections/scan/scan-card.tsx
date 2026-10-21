@@ -46,7 +46,10 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	useEffect( () => {
 		// The free check never reports as scanning; its answer is in once the request settles.
 		const freeCheckDone = ! hasPlan && wasStarting.current && ! isStarting && ! startError;
-		if ( ( wasScanning.current && ! isScanning && ! scan.error ) || freeCheckDone ) {
+		if (
+			( wasScanning.current && ! isScanning && ! scan.error && ! startError ) ||
+			freeCheckDone
+		) {
 			setFinishedScans( count => count + 1 );
 		}
 		wasScanning.current = isScanning;
