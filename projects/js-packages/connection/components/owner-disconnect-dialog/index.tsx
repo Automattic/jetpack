@@ -125,11 +125,13 @@ const OwnerDisconnectDialog = ( {
 							title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
 							onClick={ handleTransferClick }
 							action="transfer"
+							disabled={ isDisconnecting }
 						/>
 					) }
 				</div>
 				<DisconnectActionFooter
 					stayLabel={ __( 'Stay connected', 'jetpack-connection-js' ) }
+					stayDisabled={ isDisconnecting }
 					onStay={ handleStayConnected }
 					disconnectLabel={ isDisconnecting ? disconnectingText : disconnectText }
 					disconnectDisabled={ isDisconnecting || isOfflineMode }

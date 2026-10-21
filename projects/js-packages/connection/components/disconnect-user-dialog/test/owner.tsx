@@ -61,6 +61,30 @@ describe( 'DisconnectUserDialog, for the connection owner', () => {
 		expect( mockUnlinkUser ).not.toHaveBeenCalled();
 	} );
 
+	// The transfer flow is the way out of this warning, so it is the exit most likely to be
+	// taken mid-request — and taking it would leave the unlink running behind a dialog the
+	// host closes when it lands.
+	it( 'closes neither exit while the request is in flight', async () => {
+		const user = userEvent.setup();
+		const onTransferOwnership = jest.fn();
+		// Left pending on purpose: settling it would update state outside act().
+		mockUnlinkUser.mockReturnValue( new Promise( () => {} ) );
+		render( <DisconnectUserDialog { ...testProps } onTransferOwnership={ onTransferOwnership } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
+
+		expect( screen.getByRole( 'button', { name: 'Stay connected' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+
+		const transfer = screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } );
+		expect( transfer ).toHaveAttribute( 'aria-disabled', 'true' );
+		await user.click( transfer );
+		expect( onTransferOwnership ).not.toHaveBeenCalled();
+		expect( testProps.onClose ).not.toHaveBeenCalled();
+	} );
+
 	// Last, and the only test here that completes an unlink: a successful one clears isMaster in
 	// the store, so anything owner-shaped after it would render as a non-owner.
 	it( 'disconnects every user on confirm, and reports it against its host', async () => {
