@@ -55,7 +55,6 @@ const CARD_GAP = 8;
  */
 const CLICK_DRAG_TOLERANCE_PX = 6;
 
-/** How far a counterpart's color moves from the accent toward black; interim until UNI-847 settles the shades. */
 const DARK_SHADE_BLEND = 0.5;
 
 /** The previous period's grays when bars overlap, so they recede behind the current period. */
