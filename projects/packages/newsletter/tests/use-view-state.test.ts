@@ -20,6 +20,7 @@ const openPage = ( search = '' ) => {
 describe( 'useViewState', () => {
 	beforeEach( () => {
 		window.localStorage.clear();
+		jest.mocked( getSiteData ).mockReturnValue( { wpcom: { blog_id: 123 } } as never );
 	} );
 
 	it( 'remembers the chosen page size the next time the screen opens', () => {
