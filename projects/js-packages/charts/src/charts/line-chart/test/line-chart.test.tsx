@@ -1658,11 +1658,17 @@ describe( 'LineChart', () => {
 				} );
 			} );
 
-			test( 'Enter names the point from the first visible series when the first is hidden', async () => {
+			test.each( [
+				[ 'the first is hidden', [ { ...SERIES_A, data: SERIES_A.data.slice( 0, 1 ) }, SERIES_B ] ],
+				[
+					'the first visible series is empty',
+					[ SERIES_A, { ...SERIES_A, label: 'Empty', data: [] }, SERIES_B ],
+				],
+			] )( 'Enter reaches every visible point when %s', async ( _, data ) => {
 				const user = userEvent.setup();
 				const onDatumActivate = jest.fn();
 				renderWithTheme( {
-					data: [ { ...SERIES_A, data: SERIES_A.data.slice( 0, 1 ) }, SERIES_B ],
+					data,
 					defaultHiddenSeries: [ 'Series A' ],
 					chartId: 'activation-hidden-first',
 					onDatumActivate,
