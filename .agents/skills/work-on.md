@@ -201,7 +201,7 @@ jp docker install
 
 WordPress image pulls can take several minutes on a cold cache — if `jp docker install` fails with "WordPress install is incomplete! Perhaps it is still downloading?", wait ~30s and retry once before escalating.
 
-The clone flags (`--clone-from`, `--no-clone`) documented in `tools/docker/README.md` belong to `jetpack docker up`. `jp docker up` hands its arguments straight to `docker compose`, which rejects them — see the flag note below.
+The clone flags (`--clone-from`, `--no-clone`) documented in `tools/docker/README.md` belong to `jetpack docker up`. `jp docker up` hands its arguments straight to `docker compose`, which rejects them.
 
 **Run every `jp docker` subcommand from the worktree, and pass no `--name`.** They all read `tools/docker/.env`, so they already target this instance. The four that run `docker compose` on the host — `up`, `stop`, `down`, `clean` — reject `--name` outright, because compose has no such flag.
 
@@ -307,9 +307,9 @@ Record the PR as soon as it exists — this is the checkpoint a coordinator wait
 
 - `jp docker stop` — stops the containers and frees ports. DB, uploads, and `node_modules` remain on disk for review follow-ups. Run it from the worktree, whose `tools/docker/.env` names the instance; from anywhere else it stops the user's primary `jetpack_dev`.
 
-Do NOT run automatically — wait for PR merge or explicit user request:
-- `jp docker clean --yes` (destroys that instance's DB). It targets the instance named in the worktree's `tools/docker/.env`, so run it from the worktree and do not pass `--name`. Without `--yes` it refuses, because an agent has no terminal to confirm at.
-- `git worktree remove <path>` (removes the worktree + scratchpad, including its `tools/docker/.env`, which releases the seeded ports and instance name for reuse).
+Do NOT run automatically — wait for PR merge or explicit user request. Then run these from the worktree, in this order:
+1. `jp docker clean --yes` (destroys that instance's DB). It targets the instance named in the worktree's `tools/docker/.env`, so do not pass `--name`. First confirm `COMPOSE_PROJECT_NAME` in that file matches `instance` in `.work-on/env.json` and is not `jetpack_dev`; if it does not, stop and ask, because `--yes` removes the only other check.
+2. `git worktree remove <path>` (removes the worktree + scratchpad, including its `tools/docker/.env`, which releases the seeded ports and instance name for reuse). Never before step 1: once `.env` is gone, `clean` falls back to `jetpack_dev`.
 
 **On failure** (any phase errors out):
 
@@ -395,7 +395,7 @@ Before creating a new instance:
 docker ps -a --filter 'name=jetpack_' --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
 ```
 
-Instance names come from git's worktree id, so two live worktrees cannot collide by construction — and `seed-worktree-env.sh` refuses to seed a name another worktree has already claimed. What you're looking for here is an *orphan*: a container from a worktree that was removed without `jp docker clean`. Match names against `git worktree list`; anything unmatched is stale, and stopping or cleaning it is the user's call.
+Instance names come from git's worktree id, so two live worktrees cannot collide by construction — and `seed-worktree-env.sh` refuses to seed a name another worktree has already claimed. What you're looking for here is an *orphan*: a container from a worktree that was removed without `jp docker clean`. Match names against `git worktree list`; anything unmatched is stale, and stopping or cleaning it is the user's call. Do not offer `jetpack docker clean --name <id>` from the primary checkout for it without saying that `clean` also empties the shared `tools/docker/wordpress/`, which the primary instance uses.
 
 ## When to pause and ask
 

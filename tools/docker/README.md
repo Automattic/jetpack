@@ -238,7 +238,7 @@ The CLI treats the worktree's `tools/docker/.env` as a per-instance config file,
 
 `tools/docker/default.env` → worktree's `tools/docker/.env` → CLI flags → `process.env`
 
-Reading applies to `up`, `stop`, `down`, `clean`, `wp`, `exec`, `phpunit` and the rest, so a seeded worktree tears down and shells into its own instance rather than the shared `jetpack_dev`. The `--type e2e` flow is excluded: it passes its own `--name t1` and ports.
+Reading applies to `up`, `stop`, `down`, `clean`, `wp`, `exec`, `phpunit` and the rest, so a seeded worktree tears down and shells into its own instance rather than the shared `jetpack_dev`. The `--type e2e` flow is excluded: it passes its own `--name t1` and ports. `jetpack docker clean` refuses to run while an exported `COMPOSE_PROJECT_NAME` disagrees with the instance it resolved.
 
 **What the CLI writes:**
 
@@ -292,9 +292,9 @@ jetpack docker clean --name feature
 git worktree remove ../jetpack-feature
 ```
 
-Each of the above needs the same `--name` you used when bringing the instance up. The primary `jetpack_dev` instance is untouched.
+Each of the above needs the same `--name` you used when bringing the instance up, unless you run it from the seeded worktree, whose `tools/docker/.env` supplies it. `stop` and `down` leave the primary `jetpack_dev` instance untouched, but `clean` also empties `tools/docker/wordpress/` and `tools/docker/wordpress-develop/`, which every instance shares; its confirmation lists them.
 
-**`jp` is not `jetpack` here.** `jp docker up|stop|down|clean` run `docker compose` on the host rather than forwarding to this CLI, so they have no `--name` and refuse it. They read `COMPOSE_PROJECT_NAME` from `tools/docker/.env` instead — use the seeded-worktree flow above, or run these four as `jetpack docker`.
+**`jp` is not `jetpack` here.** `jp docker up|stop|down|clean` run `docker compose` on the host rather than forwarding to this CLI, so they have no `--name` and refuse it. They read `COMPOSE_PROJECT_NAME` from `tools/docker/.env` instead, and that file outranks an exported value, the reverse of `jetpack docker`. Use the seeded-worktree flow above, or run these four as `jetpack docker`.
 
 #### Notes & gotchas
 
