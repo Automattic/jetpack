@@ -171,7 +171,7 @@ describe( 'PricingInterstitial free tier for Search', () => {
 } );
 
 it.each( [ 'security', 'growth', 'complete' ] )(
-	'preserves %s offers through Pro rollout and leaves retirement to a follow-up',
+	'preserves %s offers until retirement, then uses the available replacement',
 	legacyBundle => {
 		mockBundleSlug = legacyBundle;
 		const pro = {
@@ -201,8 +201,16 @@ it.each( [ 'security', 'growth', 'complete' ] )(
 		rerender( <PricingInterstitial slug="search" /> );
 		expect( screen.getByRole( 'button', { name: `Get ${ legacyBundle }` } ) ).toBeEnabled();
 		legacy.pricingForUi.available = false;
+		legacy.purchaseReplacement = legacyBundle === 'complete' ? null : { slug: 'complete' };
 		rerender( <PricingInterstitial slug="search" /> );
-		expect( screen.getByRole( 'button', { name: `Get ${ legacyBundle }` } ) ).toBeInTheDocument();
-		expect( screen.queryByTestId( 'bundle-offer' ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: `Get ${ legacyBundle }` } )
+		).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'bundle-offer' )?.textContent ?? null ).toBe(
+			legacyBundle === 'complete' ? null : 'complete'
+		);
+		legacy.hasPaidPlanForProduct = true;
+		rerender( <PricingInterstitial slug="search" /> );
+		expect( screen.getByTestId( 'bundle-offer' ) ).toHaveTextContent( legacyBundle );
 	}
 );

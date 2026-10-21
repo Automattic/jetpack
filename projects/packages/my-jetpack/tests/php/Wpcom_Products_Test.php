@@ -298,14 +298,14 @@ class Wpcom_Products_Test extends TestCase {
 			$this->assertSame( array( 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly' ), array_column( $pro['terms'], 'wpcom_product_slug' ) );
 			$this->assertSame( array( $expected, $expected ), array_column( $pro['terms'], 'available' ) );
 			$complete = Complete::get_pricing_for_ui();
-			$this->assertTrue( $complete['available'] );
+			$this->assertSame( false !== $availability, $complete['available'] );
 			if ( $expected ) {
 				$this->assertSame( array( true, true, true ), array_column( $complete['terms'], 'available' ) );
 			} else {
 				$this->assertArrayNotHasKey( 'terms', $complete );
 			}
-			$this->assertTrue( Security::get_pricing_for_ui()['available'] );
-			$this->assertTrue( Growth::get_pricing_for_ui()['available'] );
+			$this->assertSame( false !== $availability, Security::get_pricing_for_ui()['available'] );
+			$this->assertSame( false !== $availability, Growth::get_pricing_for_ui()['available'] );
 		} finally {
 			remove_filter( 'pre_http_request', $filter );
 		}
@@ -375,7 +375,63 @@ class Wpcom_Products_Test extends TestCase {
 	}
 
 	/**
-	 * Only Pro follows catalog availability; existing offers retain their prelaunch behavior.
+	 * @dataProvider retired_bundle_offers
+	 * @param bool        $pro Pro availability.
+	 * @param bool        $legacy Legacy availability.
+	 * @param bool        $complete Complete availability.
+	 * @param string|null $purchase Existing purchase.
+	 * @param string|null $expected Offered bundle.
+	 */
+	#[DataProvider( 'retired_bundle_offers' )]
+	public function test_retired_bundle_offer( $pro, $legacy, $complete, $purchase, $expected ) {
+		$this->create_user_and_login();
+		Wpcom_Products::reset_purchases_cache();
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchase ? array( (object) array( 'product_slug' => $purchase ) ) : array(), HOUR_IN_SECONDS );
+		$catalog = (object) array();
+		foreach ( array(
+			'jetpack_security_t1_yearly' => $legacy,
+			'jetpack_growth_yearly'      => $legacy,
+			'jetpack_pro_yearly'         => $pro,
+			'jetpack_complete'           => $complete,
+		) as $slug => $available ) {
+			$catalog->$slug = (object) array(
+				'available'     => $available,
+				'cost'          => 348,
+				'currency_code' => 'USD',
+				'product_term'  => 'year',
+			);
+		}
+		$filter = static fn() => array(
+			'response' => array( 'code' => 200 ),
+			'body'     => wp_json_encode( $catalog, JSON_UNESCAPED_SLASHES ),
+		);
+		add_filter( 'pre_http_request', $filter );
+		try {
+			foreach ( array( 'security', 'growth' ) as $slug ) {
+				$this->assertSame( 'legacy' === $expected ? $slug : $expected, Products::get_bundle_offer( $slug )['slug'] ?? null );
+			}
+		} finally {
+			remove_filter( 'pre_http_request', $filter );
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function retired_bundle_offers() {
+		return array(
+			'prelaunch'       => array( false, true, true, null, 'legacy' ),
+			'launch'          => array( true, false, true, null, 'pro' ),
+			'Pro rollback'    => array( false, false, true, null, 'complete' ),
+			'full rollback'   => array( false, true, true, null, 'legacy' ),
+			'assisted change' => array( true, false, true, 'jetpack_security_t2_yearly', 'complete' ),
+			'Complete owner'  => array( true, false, true, 'jetpack_complete', 'complete' ),
+			'all off sale'    => array( false, false, false, null, null ),
+		);
+	}
+
+	/**
+	 * Retired offers stay off after rollback and failed refreshes.
 	 */
 	public function test_launch_rollback_and_failed_refresh() {
 		$this->create_user_and_login();
@@ -435,11 +491,11 @@ class Wpcom_Products_Test extends TestCase {
 			$this->assertTrue( Growth::get_pricing_for_ui()['available'] );
 			$legacy_available = false;
 			Wpcom_Products::get_products( true );
-			$this->assertTrue( Security::get_pricing_for_ui()['available'] );
-			$this->assertTrue( Growth::get_pricing_for_ui()['available'] );
+			$this->assertFalse( Security::get_pricing_for_ui()['available'] );
+			$this->assertFalse( Growth::get_pricing_for_ui()['available'] );
 			$available = true;
 			Wpcom_Products::get_products( true );
-			$this->assertTrue( Complete::get_pricing_for_ui()['available'] );
+			$this->assertFalse( Complete::get_pricing_for_ui()['available'] );
 		} finally {
 			remove_filter( 'pre_http_request', $filter );
 		}
@@ -449,8 +505,8 @@ class Wpcom_Products_Test extends TestCase {
 			$pricing = Pro::get_pricing_for_ui();
 			$this->assertFalse( $pricing['available'] );
 			$this->assertFalse( $pricing['catalog_available'] );
-			$this->assertTrue( Security::get_pricing_for_ui()['available'] );
-			$this->assertTrue( Growth::get_pricing_for_ui()['available'] );
+			$this->assertFalse( Security::get_pricing_for_ui()['available'] );
+			$this->assertFalse( Growth::get_pricing_for_ui()['available'] );
 			$this->assertSame( 348, $pricing['full_price'] );
 		} finally {
 			remove_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
