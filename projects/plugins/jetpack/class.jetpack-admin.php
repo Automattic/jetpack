@@ -88,8 +88,10 @@ class Jetpack_Admin {
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
 
 		if ( class_exists( 'Akismet_Admin' ) ) {
-			// Admin_Menu registers the Akismet menu item, so it sorts with the rest of the Jetpack menu.
-			Admin_Menu::init();
+			// Network Admin never fires admin_menu, so starting Admin_Menu there would only add its upgrade item.
+			if ( ! is_network_admin() ) {
+				Admin_Menu::init();
+			}
 
 			// Render the unified Jetpack header/footer chrome on Akismet's admin pages by
 			// consuming Akismet's `akismet_header` / `akismet_footer` action hooks. This does
