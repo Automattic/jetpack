@@ -21,7 +21,8 @@ const WPCOM_EDITOR_WELCOME_GUIDES_CACHE_META = 'wpcom_editor_welcome_guides';
 const WPCOM_EDITOR_WELCOME_GUIDES_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
 
 /**
- * Whether the request renders one of the editors, the only page loads allowed to wait for WordPress.com.
+ * Whether the page being loaded is an editor screen.
+ * Only editor screens fetch from WordPress.com; every other page uses the cached guides.
  *
  * @return bool
  */
