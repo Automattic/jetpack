@@ -188,7 +188,7 @@ function print_late_custom_css_rules( $rules_before ) {
 
 	$new_rules = array_diff( get_custom_css_rules(), $rules_before );
 	if ( $new_rules ) {
-		echo '<style id="jetpack-cookie-consent-custom-css">' . wp_strip_all_tags( implode( '', $new_rules ) ) . '</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<style id="jetpack-cookie-consent-custom-css">' . str_ireplace( '</style', '', implode( '', $new_rules ) ) . '</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
 
