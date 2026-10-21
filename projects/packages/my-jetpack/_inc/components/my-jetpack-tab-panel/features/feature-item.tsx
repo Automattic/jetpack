@@ -6,12 +6,15 @@ import clsx from 'clsx';
 import { useCallback } from 'react';
 import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { getProtectPageUrl } from '../../../utils/protect-page';
-import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
-import { getModuleUnavailableNote } from './feature-state';
-import { getFeatureUnavailableReason, getModuleStatus } from './module-availability';
+import { getModuleUnavailableNote, offersConnect } from './feature-state';
+import {
+	getFeatureStatusLabel,
+	getFeatureUnavailableReason,
+	getModuleStatus,
+} from './module-availability';
 import styles from './styles.module.scss';
 import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
@@ -81,7 +84,8 @@ export function FeatureItem( {
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen?.( feature.slug ), [ feature.slug, onOpen ] );
 	const unavailable = getFeatureUnavailableReason( state );
-	const reason = unavailable || getModuleUnavailableNote( state );
+	// The badge already says an account is needed, so the card does not repeat it.
+	const reason = ( ! state.accountNeeded && unavailable ) || getModuleUnavailableNote( state );
 	const statusId = `feature-status-${ feature.slug }`;
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
@@ -93,7 +97,12 @@ export function FeatureItem( {
 	// A card with details keeps its manage link in the modal; the stretched title would cover one here.
 	// A migration notice says the legacy settings no longer apply, so it gets no link either.
 	const settingsUrl =
-		! onOpen && ! migration && isActive && ! state.isSwitching && state.control.kind === 'module'
+		! onOpen &&
+		! migration &&
+		isActive &&
+		! state.accountNeeded &&
+		! state.isSwitching &&
+		state.control.kind === 'module'
 			? getModuleSettingsUrl( state.control.module )
 			: undefined;
 
@@ -101,6 +110,7 @@ export function FeatureItem( {
 		<div
 			className={ clsx( styles[ 'feature-item' ], className, {
 				[ styles[ 'feature-item--static' ] ]: ! onOpen,
+				[ styles[ 'feature-item--connect' ] ]: ! state.pending && offersConnect( state ),
 			} ) }
 			data-feature={ feature.slug }
 		>
@@ -153,9 +163,7 @@ export function FeatureItem( {
 
 					{ ! isSettling && ! migration && (
 						<Badge id={ statusId } intent={ isActive && ! unavailable ? 'stable' : 'none' }>
-							{ unavailable
-								? __( 'Unavailable', 'jetpack-my-jetpack' )
-								: getActivationStatusLabel( isActive ) }
+							{ getFeatureStatusLabel( state ) }
 						</Badge>
 					) }
 
