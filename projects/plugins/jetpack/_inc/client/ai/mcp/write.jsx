@@ -131,7 +131,7 @@ export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdat
 	);
 
 	return (
-		<Stack direction="column" gap="lg">
+		<Stack direction="column" gap="md">
 			<McpToolbar
 				allEnabled={ pageAllEnabled }
 				isDisabled={ isSavingAny || writeTools.length === 0 }
@@ -139,7 +139,7 @@ export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdat
 			/>
 
 			{ groups.length > 0 ? (
-				<Stack direction="column" gap="lg">
+				<Stack direction="column" gap="md">
 					{ groups.map( ( { group: descriptor, label, tools: groupTools } ) => (
 						<McpGroupCard
 							key={ descriptor?.name ?? '__other__' }
