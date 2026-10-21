@@ -404,6 +404,40 @@ const isProjectRunning = project => {
 };
 
 /**
+ * Warns when the local dev image's default PHP is older than check-php-version.sh allows.
+ */
+const warnOnOutdatedImagePhp = () => {
+	const image = 'automattic/jetpack-wordpress-dev:latest';
+	if ( spawnSync( 'docker', [ 'image', 'inspect', image ], { stdio: 'ignore' } ).status !== 0 ) {
+		return; // Compose will pull a current image.
+	}
+
+	// Piped over stdin rather than mounted, as Docker Desktop may refuse to share the checkout.
+	const res = spawnSync(
+		'docker',
+		[
+			'run',
+			'--rm',
+			'-i',
+			'--entrypoint',
+			'bash',
+			image,
+			'-c',
+			'source /etc/docker-args.sh && bash -s "$PHP_VERSION"',
+		],
+		{ input: fs.readFileSync( `${ dockerFolder }/bin/check-php-version.sh` ), encoding: 'utf8' }
+	);
+	if ( res.status !== 0 ) {
+		console.warn( res.stderr.trim() );
+		console.warn(
+			chalk.yellow(
+				`Run \`docker pull ${ image }\`, then this command again. If PHP is still too old after pulling, an updated image hasn't been published yet.`
+			)
+		);
+	}
+};
+
+/**
  * Pipe `wp db export` from a source container into `wp db import` on a target container,
  * surfacing failures from either side independently.
  *
@@ -853,6 +887,10 @@ const defaultDockerCmdHandler = async argv => {
 
 	executor( argv, setEnv );
 	executor( argv, setConfig );
+
+	if ( argv._[ 1 ] === 'up' ) {
+		warnOnOutdatedImagePhp();
+	}
 
 	const opts = buildDefaultCmd( argv );
 	const envOpts = buildEnv( argv );
