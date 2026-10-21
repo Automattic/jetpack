@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-wp-build-polyfills",
-	"version": "0.6.4",
+	"version": "0.6.5",
 	"private": true,
 	"description": "Polyfills for WordPress Core packages not available or incomplete in older WP versions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wp-build-polyfills/#readme",
@@ -12,6 +12,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"bin": {
+		"emit-widget-strings": "bin/emit-widget-strings.js",
 		"provide-boot-asset-file": "bin/provide-boot-asset-file.js",
 		"stamp-textdomains": "bin/stamp-textdomains.js",
 		"strip-unminified-prod": "bin/strip-unminified-prod.js"

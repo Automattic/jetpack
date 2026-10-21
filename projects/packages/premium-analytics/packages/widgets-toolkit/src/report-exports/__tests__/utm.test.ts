@@ -10,12 +10,7 @@ import {
 /**
  * Internal dependencies
  */
-import {
-	aggregateUtmRows,
-	getUtmDimensionOptions,
-	getUtmReportSection,
-	utmCsvExporters,
-} from '../utm';
+import { aggregateUtmRows, getUtmReportSection, utmCsvExporters } from '../utm';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -171,13 +166,5 @@ describe( 'utmCsvExporters', () => {
 			[ 'newsletter / email', 18 ],
 			[ 'newsletter / email > Landing page', 12 ],
 		] );
-	} );
-} );
-
-describe( 'getUtmDimensionOptions', () => {
-	it( 'lists every dimension in report tab order', () => {
-		expect( getUtmDimensionOptions() ).toEqual(
-			UTM_DIMENSIONS.map( ( [ , value, label ] ) => ( { label, value } ) )
-		);
 	} );
 } );

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { FeatureVariant } from '../components/feature-variant';
 import { SECTION_GAP } from '../components/section-card';
-import { apiCalls, baseStatus, renderWithData, resetNotices } from './helpers';
+import { apiCalls, baseStatus, renderWithData } from './helpers';
 import type { Feature, SectionState } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -12,7 +12,6 @@ const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockApiFetch.mockResolvedValue( baseStatus );
-	resetNotices();
 } );
 
 describe( 'FeatureVariant', () => {

@@ -163,7 +163,11 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 					</Button>
 				</ThemeProvider>
 
-				<TermsOfService className={ styles[ 'start-terms' ] } agreeButtonLabel={ primaryLabel } />
+				<TermsOfService
+					className={ styles[ 'start-terms' ] }
+					variant="body-md"
+					agreeButtonLabel={ primaryLabel }
+				/>
 			</div>
 		</div>
 	);
