@@ -112,7 +112,9 @@ Comparison styling applies to the `grouped` layout only. An `overlap` layout dra
 
 ## Bar colors
 
-`useBarColors()` returns a function, `( series, { layout } ) => string[]`, that gives the color `BarChart` fills each series with in that layout, by index. Use it to color a custom tooltip's or legend's swatches. `useChartLegendItems( data, { barLayout } )` does the same for legend items. For `overlap` without `collapseGroups`, it also lists the items in slot order: every primary, then every comparison.
+`useBarColors()` returns a function, `( series, { layout } ) => string[]`, that gives the color `BarChart` fills each series with in that layout, by index. Use it to color a custom tooltip's swatches.
+
+`useBarLegendItems( data, { layout, ...legendOptions }, legendShape? )` builds the legend items `BarChart` registers for its own and composition legends, for a custom legend. It takes the `useChartLegendItems` options plus `layout`. With a layout, every swatch takes its bar's color; in `overlap` the swatches are opaque and, without `collapseGroups`, the items are in slot order: every primary, then every comparison; in `grouped`, a collapsed group's swatch takes its comparison's tint. Without a layout, it returns `useChartLegendItems`' items unchanged.
 
 ## DataPointDate Type
 

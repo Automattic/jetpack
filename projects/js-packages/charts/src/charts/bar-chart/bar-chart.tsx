@@ -3,7 +3,7 @@ import { Axis, Grid, XYChart } from '@visx/xychart';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Fragment, useCallback, useContext, useState, useRef, useMemo } from 'react';
-import { Legend, useChartLegendItems } from '../../components/legend';
+import { Legend } from '../../components/legend';
 import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
@@ -50,6 +50,7 @@ import {
 	getSelectedSlot,
 } from './private';
 import { useBarColors } from './use-bar-colors';
+import { useBarLegendItems } from './use-bar-legend-items';
 import type { ComparisonSeriesEntry } from './private';
 import type { BarChartProps } from './types';
 import type { DataPointDate, SeriesData, Optional } from '../../types';
@@ -171,11 +172,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			collapseGroups: legendCollapseGroups,
 			comparisonItem: legendComparisonItem,
 			comparisonSeriesItems: legendComparisonSeriesItems,
-			barLayout: layout,
+			layout,
 		} ),
 		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems, layout ]
 	);
-	const legendItems = useChartLegendItems( dataSorted, legendOptions );
+	const legendItems = useBarLegendItems( dataSorted, legendOptions );
 
 	const { getElementStyles, theme: providerTheme } = useGlobalChartsContext();
 	const getBarColors = useBarColors();

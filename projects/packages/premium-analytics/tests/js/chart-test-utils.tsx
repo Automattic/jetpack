@@ -125,14 +125,14 @@ export const mockChartExternals = () => ( {
 		<div data-testid="sparkline" data-points={ data.join( ',' ) } />
 	),
 	// One item per non-comparison series, as `collapseGroups` would produce.
-	useChartLegendItems: ( data: ChartSeries[], options?: { barLayout?: string } ) =>
+	useBarLegendItems: ( data: ChartSeries[], options?: { layout?: string } ) =>
 		data.flatMap( ( series, index ) =>
 			series.options?.type === 'comparison'
 				? []
 				: [
 						{
 							label: series.label,
-							color: options?.barLayout === 'overlap' ? mockOverlapBarColor( index ) : '#3858E9',
+							color: options?.layout === 'overlap' ? mockOverlapBarColor( index ) : '#3858E9',
 						},
 					]
 		),

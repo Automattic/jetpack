@@ -131,15 +131,19 @@ describe( 'BarChart overlap layout', () => {
 		} );
 	} );
 
-	it( 'lists its legend in slot order, its swatches colored as its bars', () => {
-		renderOverlap( { chartId: 'overlap-legend' } );
+	it( 'lists its composition legend in slot order, its swatches colored as its bars', () => {
+		renderOverlap( { chartId: 'overlap-legend', children: <BarChartUnresponsive.Legend /> } );
 
+		const order = [ 0, 2, 1, 3 ];
+		expect( screen.getAllByTestId( 'legend-item' ).map( item => item.textContent ) ).toEqual(
+			order.map( index => DATA[ index ].label )
+		);
 		const colors = getBarColors( DATA, { layout: 'overlap' } );
 		expect(
 			context
 				.getChartData( 'overlap-legend' )
 				?.legendItems.map( ( { label, color } ) => [ label, color ] )
-		).toEqual( [ 0, 2, 1, 3 ].map( index => [ DATA[ index ].label, colors[ index ] ] ) );
+		).toEqual( order.map( index => [ DATA[ index ].label, colors[ index ] ] ) );
 	} );
 
 	it.each( [

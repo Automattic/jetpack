@@ -1,5 +1,4 @@
 import { renderHook } from '@testing-library/react';
-import { useBarColors } from '../../../../charts/bar-chart/use-bar-colors';
 import { GlobalChartsProvider } from '../../../../providers';
 import { useChartLegendItems } from '../use-chart-legend-items';
 import type { DataPointPercentageCalculated, DataPointDate, SeriesData } from '../../../../types';
@@ -422,41 +421,24 @@ describe( 'useChartLegendItems', () => {
 			expect( result.current[ 2 ].color ).toBe( result.current[ 0 ].color );
 		} );
 
-		test.each( [
-			[
-				'takes the grouped comparison tints, a collapsed group in its comparison tint,',
-				'grouped',
-				[ 1, 3, 1, 3 ],
-			],
-			[ 'takes the opaque overlap bar colors', 'overlap', [ 0, 2, 1, 3 ] ],
-		] as const )( '%s with barLayout %s', ( _case, barLayout, colorOrder ) => {
+		test( 'colors each swatch, comparison items included, from seriesColors by series index', () => {
+			const seriesColors = [ '#111111', '#222222', '#333333', '#444444' ];
 			const { result } = renderHook(
-				() => ( {
-					items: useChartLegendItems( twoMetricData, {
+				() =>
+					useChartLegendItems( twoMetricData, {
 						collapseGroups: true,
 						comparisonSeriesItems: perMetricLabel,
-						barLayout,
+						seriesColors,
 					} ),
-					getBarColors: useBarColors(),
-				} ),
-				{ wrapper }
-			);
-			const colors = result.current.getBarColors( twoMetricData, { layout: barLayout } );
-
-			expect( result.current.items.map( item => item.color ) ).toEqual(
-				colorOrder.map( index => colors[ index ] )
-			);
-		} );
-
-		test( 'lists one item per series in slot order, primaries first, with barLayout overlap', () => {
-			const { result } = renderHook(
-				() => useChartLegendItems( twoMetricData, { barLayout: 'overlap' } ),
 				{ wrapper }
 			);
 
-			expect( result.current.map( item => item.label ) ).toEqual(
-				[ 0, 2, 1, 3 ].map( index => twoMetricData[ index ].label )
-			);
+			expect( result.current.map( item => item.color ) ).toEqual( [
+				'#111111',
+				'#333333',
+				'#222222',
+				'#444444',
+			] );
 		} );
 
 		test( 'adds nothing when no series is a comparison', () => {

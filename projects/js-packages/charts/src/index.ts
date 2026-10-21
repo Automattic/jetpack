@@ -1,6 +1,11 @@
 // Charts
 export { AreaChart, AreaChartUnresponsive } from './charts/area-chart';
-export { BarChart, BarChartUnresponsive, useBarColors } from './charts/bar-chart';
+export {
+	BarChart,
+	BarChartUnresponsive,
+	useBarColors,
+	useBarLegendItems,
+} from './charts/bar-chart';
 export { BarListChart, BarListChartUnresponsive } from './charts/bar-list-chart';
 export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
 export { GeoChart, GeoChartUnresponsive } from './charts/geo-chart';
@@ -110,7 +115,7 @@ export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './compone
 
 // Previously available via '@automattic/charts/bar-chart', '@automattic/charts/line-chart', etc.
 export type { AreaChartProps } from './charts/area-chart';
-export type { BarChartProps, BandHighlightSelection } from './charts/bar-chart';
+export type { BarChartProps, BandHighlightSelection, BarLegendOptions } from './charts/bar-chart';
 export type {
 	BarListChartProps,
 	RenderLabelProps,

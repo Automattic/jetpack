@@ -45,7 +45,7 @@ export function useComparativeLegend(
 		} ),
 		[ interactive, comparisonLabel ]
 	);
-	const itemOptions = useMemo( () => ( { ...config, barLayout } ), [ config, barLayout ] );
+	const itemOptions = useMemo( () => ( { ...config, layout: barLayout } ), [ config, barLayout ] );
 	const items = useLockedPrimaryLegendItems( series, itemOptions, shape, primaryLabel );
 
 	return { config, items, comparisonLabel };

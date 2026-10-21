@@ -1,7 +1,6 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { useBarColors } from '../../../charts/bar-chart/use-bar-colors';
 import {
 	useGlobalChartsContext,
 	type GetElementStylesParams,
@@ -9,7 +8,6 @@ import {
 } from '../../../providers';
 import { formatPercentage } from '../../../utils';
 import type {
-	BarChartLayout,
 	ComparisonItemLabel,
 	SeriesData,
 	DataPointDate,
@@ -43,35 +41,24 @@ export interface ChartLegendOptions {
 	comparisonItem?: SeriesChartLegendConfig[ 'comparisonItem' ];
 	/** One static item per comparison series instead; see `SeriesChartLegendConfig`. */
 	comparisonSeriesItems?: SeriesChartLegendConfig[ 'comparisonSeriesItems' ];
-	/**
-	 * Color each swatch as `BarChart` fills its bar in this layout. Unset, swatches keep their series colors.
-	 */
-	barLayout?: BarChartLayout;
+	/** Each series' swatch color, by index, in place of its series color. */
+	seriesColors?: string[];
 }
 
 /**
- * Wraps `getElementStyles` so a swatch takes its bar's color. Overlap bars are always opaque, so their swatches are too.
+ * Wraps `getElementStyles` so a swatch takes the color given for its series.
  * @param getElementStyles - Function to get element styles
- * @param barColors        - Each series' bar color, by index
- * @param barLayout        - The layout the bars are drawn in
- * @return Element styles with the bar's color
+ * @param seriesColors     - Each series' swatch color, by index
+ * @return Element styles with the given color
  */
-function withBarColors(
+function withSeriesColors(
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
-	barColors: string[],
-	barLayout: BarChartLayout
+	seriesColors: string[]
 ): ( params: GetElementStylesParams ) => ElementStyles {
 	return params => {
 		const styles = getElementStyles( params );
 
-		return {
-			...styles,
-			color: barColors[ params.index ] ?? styles.color,
-			shapeStyles:
-				barLayout === 'overlap'
-					? { ...styles.shapeStyles, opacity: undefined }
-					: styles.shapeStyles,
-		};
+		return { ...styles, color: seriesColors[ params.index ] ?? styles.color };
 	};
 }
 
@@ -355,42 +342,6 @@ function buildPerSeriesComparisonItems(
 }
 
 /**
- * Orders one-per-series items as an overlap layout draws their slots: every primary, then every comparison.
- * @param seriesData - The series the items were built from, one each
- * @param items      - The legend items, in series order
- * @return The legend items, primaries first
- */
-function inSlotOrder( seriesData: SeriesData[], items: BaseLegendItem[] ): BaseLegendItem[] {
-	const isComparison = ( index: number ) => seriesData[ index ]?.options?.type === 'comparison';
-
-	return [
-		...items.filter( ( _item, index ) => ! isComparison( index ) ),
-		...items.filter( ( _item, index ) => isComparison( index ) ),
-	];
-}
-
-/**
- * Colors each collapsed group's swatch as its comparison bar, the wider bar that frames the group, when it has one.
- * @param seriesData - The series the items were built from
- * @param items      - The collapsed legend items
- * @param barColors  - Each series' bar color, by index
- * @return The legend items, recolored
- */
-function inComparisonTints(
-	seriesData: SeriesData[],
-	items: BaseLegendItem[],
-	barColors: string[]
-): BaseLegendItem[] {
-	return items.map( item => {
-		const comparisonIndex = seriesData.findIndex(
-			series => series.options?.type === 'comparison' && item.seriesLabels?.includes( series.label )
-		);
-
-		return comparisonIndex === -1 ? item : { ...item, color: barColors[ comparisonIndex ] };
-	} );
-}
-
-/**
  * Processes point data into legend items
  * @param pointData          - The point data to process
  * @param getElementStyles   - Function to get element styles
@@ -454,11 +405,10 @@ export function useChartLegendItems<
 		collapseGroups = false,
 		comparisonItem = false,
 		comparisonSeriesItems,
-		barLayout,
+		seriesColors,
 		renderGlyph,
 	} = options;
 	const { getElementStyles: getSeriesStyles } = useGlobalChartsContext();
-	const getBarColors = useBarColors();
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {
@@ -468,12 +418,10 @@ export function useChartLegendItems<
 		// Handle SeriesData (multiple series with data points)
 		if ( 'data' in data[ 0 ] ) {
 			const seriesData = data as SeriesData[];
-			const barColors = barLayout && getBarColors( seriesData, { layout: barLayout } );
-			const getElementStyles =
-				barLayout && barColors
-					? withBarColors( getSeriesStyles, barColors, barLayout )
-					: getSeriesStyles;
-			const seriesItems = processSeriesData(
+			const getElementStyles = seriesColors
+				? withSeriesColors( getSeriesStyles, seriesColors )
+				: getSeriesStyles;
+			const items = processSeriesData(
 				seriesData,
 				getElementStyles,
 				showValues,
@@ -483,12 +431,6 @@ export function useChartLegendItems<
 				renderGlyph,
 				legendShape
 			);
-			let items = seriesItems;
-			if ( barLayout === 'overlap' && ! collapseGroups ) {
-				items = inSlotOrder( seriesData, seriesItems );
-			} else if ( barLayout === 'grouped' && collapseGroups && barColors ) {
-				items = inComparisonTints( seriesData, seriesItems, barColors );
-			}
 
 			if ( comparisonSeriesItems ) {
 				return [
@@ -532,7 +474,6 @@ export function useChartLegendItems<
 	}, [
 		data,
 		getSeriesStyles,
-		getBarColors,
 		showValues,
 		legendValueDisplay,
 		withGlyph,
@@ -540,7 +481,7 @@ export function useChartLegendItems<
 		collapseGroups,
 		comparisonItem,
 		comparisonSeriesItems,
-		barLayout,
+		seriesColors,
 		renderGlyph,
 		legendShape,
 	] );
