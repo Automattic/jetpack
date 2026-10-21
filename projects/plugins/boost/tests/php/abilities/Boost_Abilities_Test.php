@@ -636,6 +636,10 @@ class Boost_Abilities_Test extends BaseTestCase {
 			'message' => 'Only one caching system can be used at a time.',
 		);
 		$notices = new \ReflectionProperty( Page_Cache_Setup::class, 'notices' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$notices->setAccessible( true );
+		}
 		$notices->setValue( null, array( $notice ) );
 
 		$result = Boost_Abilities::set_module_status(
