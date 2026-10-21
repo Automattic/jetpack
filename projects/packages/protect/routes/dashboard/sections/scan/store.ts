@@ -222,6 +222,11 @@ export function startScan(): Promise< void > {
 		);
 }
 
+/** Hide why the last scan request failed. */
+export function dismissScanError(): void {
+	requestStore.set( request => ( { ...request, startError: null } ) );
+}
+
 /**
  * Read the report again after polling gave up, with a fresh round of polls.
  *

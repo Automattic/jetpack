@@ -10,6 +10,7 @@ import sections from './sections';
 import { CLOSED_INSPECTOR } from './sections/inspector-params';
 import { REPORT_PARAM, parseThreatIds } from './sections/scan/group-threats';
 import HeaderScanButton from './sections/scan/header-scan-button';
+import ScanStartNotice from './sections/scan/scan-start-notice';
 import { useScanPolling } from './sections/scan/store';
 import ThreatReport, { ThreatReportBreadcrumbs } from './sections/scan/threat-report';
 import './route.scss';
@@ -106,6 +107,7 @@ const Stage = () => {
 					</Tabs.List>
 				</div>
 				<div className="jp-protect-dashboard__body">
+					<ScanStartNotice />
 					<Tabs.Panel value="overview">
 						{ activeTab === 'overview' && <Overview { ...context } /> }
 					</Tabs.Panel>

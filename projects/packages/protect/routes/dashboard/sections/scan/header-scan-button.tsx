@@ -1,18 +1,33 @@
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import ScanButton from './scan-button';
-import { startScan, useIsScanning, useScan, useScanRequest } from './store';
+import { checkScanAgain, startScan, useIsScanning, useScan, useScanRequest } from './store';
 import type { ScanState } from './types';
 
 /**
- * The page header's Scan button.
+ * The page header's Scan button, or Check again once polling a running scan gives up.
  *
  * @return The button.
  */
 export default function HeaderScanButton() {
 	// The stage only renders this once PHP has printed the Scan state.
 	const scan = useScan() as ScanState;
-	const { isStarting } = useScanRequest();
+	const { isStarting, hasStoppedPolling } = useScanRequest();
 	const isScanning = useIsScanning();
+	const [ isChecking, setIsChecking ] = useState( false );
+	const checkAgain = useCallback( () => {
+		setIsChecking( true );
+		checkScanAgain().finally( () => setIsChecking( false ) );
+	}, [] );
+
+	if ( isScanning && hasStoppedPolling ) {
+		return (
+			<Button variant="outline" size="compact" onClick={ checkAgain } loading={ isChecking }>
+				{ __( 'Check again', 'jetpack-protect-pkg' ) }
+			</Button>
+		);
+	}
 
 	return (
 		<ScanButton

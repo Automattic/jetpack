@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
-import { Button, Card, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import { HISTORY_STATUS_PARAM } from '../history/store';
@@ -153,15 +153,8 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 							'jetpack-protect-pkg'
 						)
 			}
-			titleAside={ <LastScanned lastChecked={ scan.lastChecked } /> }
+			titleAside={ scan.lastChecked ? <LastScanned lastChecked={ scan.lastChecked } /> : undefined }
 		>
-			{ startError && (
-				<CardRow>
-					<Notice.Root intent="error">
-						<Notice.Description>{ startError }</Notice.Description>
-					</Notice.Root>
-				</CardRow>
-			) }
 			{ body }
 			{ ! scan.hasPlan && ! scan.error && (
 				<ScanUpsell

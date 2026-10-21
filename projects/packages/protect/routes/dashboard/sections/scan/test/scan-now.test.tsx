@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import HeaderScanButton from '../header-scan-button';
 import ScanCard from '../scan-card';
+import ScanStartNotice from '../scan-start-notice';
 import { resetScan, setScan } from '../store';
 import type { ScanState } from '../types';
 
@@ -67,19 +68,23 @@ describe( 'Scan now', () => {
 		expect( screen.queryByText( 'Scanning…' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows why the scan didn’t start, and stops showing it as running', async () => {
-		await renderAndScan( () =>
-			Promise.reject( {
-				code: 'scan_not_started',
-				message: 'The scan couldn’t be started: Unable to find a valid site.',
-			} )
+	it( 'shows why the scan didn’t start until dismissed, and stops showing it as running', async () => {
+		const message = 'The scan couldn’t be started: Unable to find a valid site.';
+		await renderAndScan(
+			() => Promise.reject( { code: 'scan_not_started', message } ),
+			<>
+				<ScanStartNotice />
+				<ScanCard openTab={ jest.fn() } />
+			</>
 		);
 
-		await expect(
-			screen.findByText( 'The scan couldn’t be started: Unable to find a valid site.' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( message ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Scanning…' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Scan again now' } ) ).toBeEnabled();
+
+		await userEvent.click( screen.getByRole( 'button', { name: /dismiss|close/i } ) );
+
+		expect( screen.queryByText( message ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the scan as running in the card when started from the page header', async () => {
