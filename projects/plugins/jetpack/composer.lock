@@ -193,7 +193,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/activity-log",
-                "reference": "bded142811fa00a18ecbe8ffd4cce0f0d5ff3b5c"
+                "reference": "335a72866ee04c03fb88c86d87e7554c407bfb18"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -207,6 +207,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -226,6 +227,11 @@
                 },
                 "branch-alias": {
                     "dev-trunk": "0.6.x-dev"
+                },
+                "dependencies": {
+                    "test-only": [
+                        "packages/my-jetpack"
+                    ]
                 }
             },
             "autoload": {
@@ -2957,7 +2963,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "cf92e4baa1affc5e4944fce239240a9ebd656a7a"
+                "reference": "7f60fbf10ad66e5eea9ba5e026767489a3dde91d"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -2971,6 +2977,7 @@
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -2991,6 +2998,11 @@
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-podcast/compare/v${old}...v${new}"
+                },
+                "dependencies": {
+                    "test-only": [
+                        "packages/my-jetpack"
+                    ]
                 }
             },
             "autoload": {
