@@ -36,14 +36,12 @@ export const resolveDockerEnv = ( monorepoRoot, args, parseEnv ) => {
 		envVars.PORT_WORDPRESS = isE2e ? '8889' : '80';
 	}
 
-	if (
-		! (
-			envVars.PHP_VERSION &&
-			envVars.COMPOSER_VERSION &&
-			envVars.NODE_VERSION &&
-			envVars.PNPM_VERSION
-		)
-	) {
+	if ( ! (
+		envVars.PHP_VERSION &&
+		envVars.COMPOSER_VERSION &&
+		envVars.NODE_VERSION &&
+		envVars.PNPM_VERSION
+	) ) {
 		const versions = fs.readFileSync( resolve( monorepoRoot, '.github/versions.sh' ), 'utf8' );
 		const versionVars = {};
 		versions.split( '\n' ).forEach( line => {
