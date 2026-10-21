@@ -1,5 +1,12 @@
 /* eslint playwright/expect-expect: [ "warn", { assertFunctionNames: [ "expect", "expectTrafficLoaded" ] } ] */
-import { test, expect, setSiteState, routeParam, type Dashboard } from '../fixtures/dashboard';
+import {
+	test,
+	expect,
+	setSiteState,
+	route,
+	routeParam,
+	type Dashboard,
+} from '../fixtures/dashboard';
 
 const LIMIT_NOTICE = 'Your plan doesn’t include that period';
 
@@ -155,7 +162,7 @@ test.describe( 'a report the plan locks', () => {
 		await dashboard.open( '/author/1' );
 
 		await expect( dashboard.page ).toHaveURL( url =>
-			decodeURIComponent( url.searchParams.get( 'p' ) ?? '' ).startsWith( '/reports/authors' )
+			route( url ).startsWith( '/reports/authors' )
 		);
 		await expect(
 			dashboard.page.getByRole( 'heading', { level: 2, name: 'Top authors', exact: true } )

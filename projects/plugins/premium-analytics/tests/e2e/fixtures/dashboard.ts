@@ -174,7 +174,7 @@ export class Dashboard {
 	}
 
 	/**
-	 * The Stats endpoints requested since the last `resetTracking()`.
+	 * The Stats endpoints requested in this test, or since the last `resetTracking()`.
 	 *
 	 * @return Endpoint names such as `visits` or `referrers`, sorted.
 	 */
@@ -186,7 +186,7 @@ export class Dashboard {
 	}
 
 	/**
-	 * The windows `stats/visits` was asked for since the last `resetTracking()`.
+	 * The windows `stats/visits` was asked for in this test, or since the last `resetTracking()`.
 	 *
 	 * @return `start_date..date` pairs, sorted.
 	 */
@@ -268,7 +268,7 @@ export class Dashboard {
 }
 
 /**
- * Counts history writes from the first script on, since a tab switch that pushes twice looks the same once it settles.
+ * Counts history writes, run as an init script so it wraps `history` before the app's first write.
  */
 function countHistoryWrites() {
 	const counted = window as unknown as HistoryWritesWindow;
