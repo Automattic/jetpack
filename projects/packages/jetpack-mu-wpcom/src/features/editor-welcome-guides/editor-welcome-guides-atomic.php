@@ -1,7 +1,7 @@
 <?php
 /**
- * Atomic side of the once-per-user editor welcome guides: answers the shared hooks from a
- * per-site copy of the user's WordPress.com record, refreshed when an editor screen loads.
+ * On Atomic sites, fetches the welcome guides the user has dismissed on WordPress.com, caches
+ * them in user meta, and reports new dismissals back.
  *
  * @package automattic/jetpack-mu-wpcom
  */
