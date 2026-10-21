@@ -44,6 +44,10 @@ export interface UserConnectionData {
 		username?: string;
 		/** The viewer's local WordPress user ID. */
 		id?: number;
+		/** The viewer's local display name. */
+		displayName?: string;
+		/** The viewer's local email address. */
+		email?: string;
 		isMaster?: boolean;
 		possibleAccountErrors?: Record< string, unknown >;
 		[ key: string ]: unknown;

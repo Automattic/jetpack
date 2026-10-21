@@ -67,7 +67,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-backup",
 		"textdomain": "jetpack-backup-pkg",
 		"version-constants": {

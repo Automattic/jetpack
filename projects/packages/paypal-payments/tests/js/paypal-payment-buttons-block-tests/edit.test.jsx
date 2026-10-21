@@ -73,6 +73,14 @@ jest.mock( '@wordpress/element', () => ( {
 // The tax hint interpolates a Link into its sentence. The rel here is eslint's rule
 // for target="_blank", so it says nothing about the real Link.
 jest.mock( '@wordpress/ui', () => ( {
+	Notice: {
+		Root: ( { children, intent } ) => (
+			<div data-testid="notice" data-status={ intent }>
+				{ children }
+			</div>
+		),
+		Description: ( { children } ) => <span>{ children }</span>,
+	},
 	Link: ( { href, children, openInNewTab } ) => (
 		<a
 			href={ href }
@@ -7605,6 +7613,67 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
+	describe( 'User who may not manage PayPal', () => {
+		const saved = {
+			isApiManaged: true,
+			resourceId: 'PLB-EDITOR1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-EDITOR1',
+		};
+		const forbidden = {
+			code: 'rest_forbidden',
+			message: 'You do not have permission to manage PayPal settings.',
+			data: { status: 403 },
+		};
+
+		it( 'shows a saved button read-only, with no connection claim and no control', async () => {
+			apiFetch.mockRejectedValue( forbidden );
+
+			renderForm( saved );
+
+			await expect(
+				screen.findByText( 'Only a site administrator can edit this payment button.' )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /Your PayPal account is disconnected/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByTestId( 'toolbar-Delete payment button' ) ).not.toBeInTheDocument();
+			expect( screen.queryByTestId( 'inspector-controls' ) ).not.toBeInTheDocument();
+			// Every other PayPal route would be refused too.
+			expect( apiFetch.mock.calls.map( ( [ { path } ] ) => path ) ).toEqual( [
+				expect.stringMatching( /\/connection$/ ),
+			] );
+		} );
+
+		it( 'says who can create a button instead of opening the wizard', async () => {
+			apiFetch.mockRejectedValue( forbidden );
+			// The step the last admin to use this browser left the wizard on.
+			window.localStorage.setItem( 'jetpack-paypal-wizard-step', 'credentials' );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect(
+				screen.findByText(
+					'Only a site administrator can connect PayPal and create payment buttons.'
+				)
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTestId( 'inspector-controls' ) ).not.toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Client ID' ) ).not.toBeInTheDocument();
+		} );
+
+		it.each( [
+			[ 'a stale nonce', { code: 'rest_cookie_invalid_nonce', data: { status: 403 } } ],
+			[ 'a network failure', { code: 'fetch_error' } ],
+		] )( 'still opens the wizard after %s', async ( _label, error ) => {
+			apiFetch.mockRejectedValue( error );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect(
+				screen.findByText( 'Connect your PayPal business account to accept payments via PayPal.' )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByTestId( 'inspector-controls' ) ).toBeInTheDocument();
+		} );
+	} );
+
 	describe( 'PayPal account status', () => {
 		/**
 		 * Answer the connection check and the status read.
@@ -7810,7 +7879,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
+			await expect(
+				screen.findByText( /Only a site administrator can connect PayPal/ )
+			).resolves.toBeInTheDocument();
 			expect( statusCalls() ).toHaveLength( 0 );
 		} );
 	} );

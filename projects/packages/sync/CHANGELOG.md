@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.3] - 2026-10-20
+### Changed
+- Internal updates.
+
 ## [5.4.2] - 2026-10-15
 ### Fixed
 - WooCommerce Analytics: Avoid a PHP 8.1+ deprecation notice when syncing refunds without a cost of goods value. [#53592]
@@ -1879,6 +1883,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[5.4.3]: https://github.com/Automattic/jetpack-sync/compare/v5.4.2...v5.4.3
 [5.4.2]: https://github.com/Automattic/jetpack-sync/compare/v5.4.1...v5.4.2
 [5.4.1]: https://github.com/Automattic/jetpack-sync/compare/v5.4.0...v5.4.1
 [5.4.0]: https://github.com/Automattic/jetpack-sync/compare/v5.3.0...v5.4.0

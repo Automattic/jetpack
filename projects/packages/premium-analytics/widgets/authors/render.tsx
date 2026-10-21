@@ -32,8 +32,10 @@ import { useEffect, useMemo } from 'react';
 import { buildTopAuthorsData, type AuthorLeaderboardRow } from './build-top-authors-data';
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
-import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type AuthorsAttributes = Record< never, never >;
 
 // Report params are usually URL-driven (WidgetRoot's fallback), but callers may
 // also pass them via `attributes`. Compose the render-only shape to cover both.

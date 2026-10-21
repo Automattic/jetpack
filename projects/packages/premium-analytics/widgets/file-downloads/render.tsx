@@ -36,11 +36,13 @@ import {
  */
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
-import { type FileDownloadsAttributes } from './widget';
 /**
  * Types
  */
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type FileDownloadsAttributes = Record< never, never >;
 
 type FileDownloadsRenderAttributes = FileDownloadsAttributes &
 	Partial< ReportParamsFieldAttributes >;

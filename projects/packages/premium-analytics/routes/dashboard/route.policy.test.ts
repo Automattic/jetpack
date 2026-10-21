@@ -11,6 +11,8 @@ import { store as preferencesStore } from '@wordpress/preferences';
  */
 import { planGatesScriptData } from '../../tests/js/plan-gates-test-utils';
 import { DATE_WINDOW_NOTICE_STATE } from '../date-window-notice';
+import { route as postRoute } from '../post-detail/route';
+import { route as reportRoute } from '../reports/route';
 import { DATE_FILTER_RANGE, type DashboardSection } from './config';
 import { route } from './route';
 import { dateWindowForSectionSwitch } from './section-date-window';
@@ -34,6 +36,14 @@ jest.mock( '../site-readiness', () => ( {
 	...jest.requireActual( '../site-readiness' ),
 	isPremiumAnalyticsSiteConnected: () => true,
 } ) );
+jest.mock( '../reports/registry', () => ( {
+	getReportDefinition: ( id?: string ) =>
+		( {
+			posts: { dashboardSection: 'traffic', feature: 'top-posts' },
+			referrers: { dashboardSection: 'traffic', feature: 'referrers' },
+		} )[ id ?? '' ] ?? {},
+} ) );
+jest.mock( '../post-detail/config', () => ( { resolveTabId: ( section: string ) => section } ) );
 jest.mock( '@wordpress/route', () => ( {
 	redirect: ( options: object ) => ( { isRedirect: true, ...options } ),
 } ) );
@@ -72,6 +82,11 @@ async function settle(
 	}
 	throw new Error( `Still redirecting after 3 hops: ${ JSON.stringify( current ) }` );
 }
+
+const loadPost = ( next: Search ) =>
+	postRoute.beforeLoad( { params: { postId: '42' }, search: next } as never );
+const loadPostsReport = ( next: Search ) =>
+	reportRoute.beforeLoad( { params: { report: 'posts' }, search: next } as never );
 
 const setLocks = ( ...features: string[] ) =>
 	( getScriptData as jest.Mock ).mockReturnValue(
@@ -139,6 +154,75 @@ describe.each( [
 		expect( settled.search ).not.toHaveProperty( 'comp' );
 		expect( settled.notice ).toBe( notice );
 	} );
+} );
+
+describe( 'the date-limit notice on a free site', () => {
+	beforeEach( () => setLocks( ...FREE_LOCKS ) );
+
+	it( 'opens a post from a report on the plan window without a notice', async () => {
+		const settled = await settle(
+			{ from: '2025-01-01', to: '2025-01-31', interval: 'day', ref: 'posts' },
+			loadPost
+		);
+
+		expect( settled.hops ).toBe( 1 );
+		expect( settled.search ).toMatchObject( { preset: 'last-7-days', post_id: '42' } );
+		expect( settled.notice ).toBeUndefined();
+	} );
+
+	it( 'tells the reader why a shared link to a post moved to the last 7 days', async () => {
+		const settled = await settle(
+			{ from: '2025-01-01', to: '2025-01-31', interval: 'day', post_id: '42' },
+			loadPost
+		);
+
+		expect( settled.search ).toMatchObject( { preset: 'last-7-days' } );
+		expect( settled.notice ).toBe( 'recent-7-days' );
+	} );
+
+	it( 'leaves a post open when its report’s tab does not follow the plan', async () => {
+		const { premium_analytics: data } = planGatesScriptData( FREE_LOCKS );
+		( getScriptData as jest.Mock ).mockReturnValue( {
+			premium_analytics: { ...data, plan_date_limited_sections: [] },
+		} );
+		const link = { from: '2025-01-01', to: '2025-01-31', interval: 'day', post_id: '42' };
+
+		const settled = await settle( link, loadPost );
+
+		expect( settled.search ).toMatchObject( { from: '2025-01-01', to: '2025-01-31' } );
+		expect( settled.notice ).toBeUndefined();
+	} );
+
+	it( 'stays quiet on a report the plan locks, since it shows no window', async () => {
+		setLocks( ...FREE_LOCKS, 'referrers' );
+
+		const settled = await settle( { from: '2025-01-01', to: '2025-01-31', interval: 'day' }, next =>
+			reportRoute.beforeLoad( { params: { report: 'referrers' }, search: next } as never )
+		);
+
+		expect( settled.notice ).toBeUndefined();
+	} );
+} );
+
+it.each( [
+	[ 'tells the reader why a shared all-time link moved', {}, 'long-date-presets' ],
+	[ 'opens all time carried over from Insights quietly', { ds: 'insights' }, undefined ],
+] )( 'on a legacy-basic report, %s', async ( _name, origin, notice ) => {
+	setLocks( ...LEGACY_BASIC_LOCKS );
+
+	const settled = await settle( { ...ALL_TIME, ...origin }, loadPostsReport );
+
+	expect( settled.search ).not.toMatchObject( { preset: 'all-time' } );
+	expect( settled.notice ).toBe( notice );
+} );
+
+it( 'opens a report on its default, without a notice, for a year carried over from Insights', async () => {
+	setLocks( ...LEGACY_BASIC_LOCKS );
+
+	const settled = await settle( { preset: 'year-2025', ds: 'insights' }, loadPostsReport );
+
+	expect( settled.search ).not.toMatchObject( { preset: 'year-2025' } );
+	expect( settled.notice ).toBeUndefined();
 } );
 
 it.each( [

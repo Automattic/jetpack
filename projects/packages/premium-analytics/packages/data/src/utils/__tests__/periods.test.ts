@@ -1,7 +1,12 @@
 /**
  * Internal dependencies
  */
-import { chartInterval, defaultPeriodForInterval, drawableIntervals } from '../periods';
+import {
+	chartInterval,
+	defaultPeriodForInterval,
+	drawableIntervals,
+	intervalMenuOptions,
+} from '../periods';
 
 // The period sets in use.
 const DAY_WEEK_MONTH = [ 'day', 'week', 'month' ] as const;
@@ -160,5 +165,19 @@ describe( 'chartInterval', () => {
 		expect( chartInterval( { ...CUSTOM_3_DAYS, interval: undefined }, DAY_WEEK_MONTH ) ).toBe(
 			'day'
 		);
+	} );
+} );
+
+describe( 'intervalMenuOptions', () => {
+	const MULTI_YEAR = { preset: undefined, from: '2023-01-01', to: '2026-06-30' };
+	const LAST_30_DAYS = { preset: 'last-30-days' as const, from: '2026-09-16', to: '2026-10-15' };
+	const LOCKED = [ 'week', 'month', 'year' ] as const;
+
+	it.each( [
+		[ 'a chart that draws no years', MULTI_YEAR, HOUR_DAY_WEEK_MONTH, [ 'day' ], [ 'month' ] ],
+		[ 'a widget that declares no periods', MULTI_YEAR, undefined, [ 'day' ], [ 'month', 'year' ] ],
+		[ 'a chart without days', LAST_30_DAYS, [ 'week', 'month' ] as const, [ 'week' ], [] ],
+	] )( 'splits the buckets for %s', ( _, params, periods, options, lockedOptions ) => {
+		expect( intervalMenuOptions( params, LOCKED, periods ) ).toEqual( { options, lockedOptions } );
 	} );
 } );

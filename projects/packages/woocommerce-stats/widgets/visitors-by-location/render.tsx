@@ -15,8 +15,14 @@ import { __ } from '@wordpress/i18n';
  */
 import styles from './style.module.css';
 import { useVisitorsByLocation } from './use-visitors-by-location';
-import type { VisitorsByLocationAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { JSX } from 'react';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type VisitorsByLocationAttributes = Record< never, never >;
 
 type VisitorsByLocationRenderAttributes = VisitorsByLocationAttributes &
 	Partial< ReportParamsFieldAttributes >;
