@@ -105,9 +105,10 @@ function newsletter_dev_mock_wpcom_response( $response, $args, $url ) {
 	}
 
 	static $logged = array();
-	if ( null === $body && ! isset( $logged[ $path ] ) ) {
-		$logged[ $path ] = true;
-		error_log( "newsletter-dev-mock: no sample data for {$args['method']} $path" );
+	$call          = "{$args['method']} $path";
+	if ( null === $body && ! isset( $logged[ $call ] ) ) {
+		$logged[ $call ] = true;
+		error_log( "newsletter-dev-mock: no sample data for $call" );
 	}
 
 	return array(
