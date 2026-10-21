@@ -1,8 +1,8 @@
-import { BaseControl, TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Badge, Link, Notice } from '@wordpress/ui';
+import { Badge, InputControl, Link, Notice, SwitchControl } from '@wordpress/ui';
 import { getIntegrationSettings, updateIntegrationSettings } from './integration-settings.ts';
 import type { CardItem, CardBuilderProps } from './types.ts';
+import type { ChangeEvent } from 'react';
 
 export const SLACK_SLUG = 'jetpack/slack';
 
@@ -81,19 +81,17 @@ export function buildSlackCard( {
 				),
 		},
 		body: isEditor ? (
-			<BaseControl __nextHasNoMarginBottom={ true }>
-				<TextControl
+			<div>
+				<InputControl
 					label={ __( 'Slack webhook URL', 'jetpack-forms' ) }
 					value={ webhookUrl }
 					type="url"
 					placeholder="https://hooks.slack.com/services/…"
-					onChange={ ( value: string ) =>
+					onChange={ ( event: ChangeEvent< HTMLInputElement > ) =>
 						updateIntegrationSettings( SLACK_SLUG, attributes, setAttributes, {
-							webhookUrl: value.trim(),
+							webhookUrl: event.target.value.trim(),
 						} )
 					}
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize={ true }
 				/>
 				{ webhookUrl && ! isConfigured && (
 					<Notice.Root intent="error" style={ { marginBlockStart: '8px' } }>
@@ -110,21 +108,20 @@ export function buildSlackCard( {
 						{ __( 'How to create a Slack webhook URL', 'jetpack-forms' ) }
 					</Link>
 				</p>
-				<ToggleControl
+				<SwitchControl
 					label={ __( 'Include response content', 'jetpack-forms' ) }
-					help={ __(
+					description={ __(
 						'Post the answers to Slack. Turn this off to send only a notification and a link, keeping response content on your site.',
 						'jetpack-forms'
 					) }
 					checked={ includeContent }
-					onChange={ ( value: boolean ) =>
+					onCheckedChange={ ( value: boolean ) =>
 						updateIntegrationSettings( SLACK_SLUG, attributes, setAttributes, {
 							includeContent: value,
 						} )
 					}
-					__nextHasNoMarginBottom={ true }
 				/>
-			</BaseControl>
+			</div>
 		) : (
 			<div>
 				<p className="integration-card__description">
