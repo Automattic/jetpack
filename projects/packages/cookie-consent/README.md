@@ -56,13 +56,19 @@ These are the supported, stable entry points consumers may depend on. Everything
 Cookie_Consent::uninstall( true );
 ```
 
+### More than one consumer
+
+The first enabled `init()` in a request wins; later `init()` calls from any consumer are no-ops until `deactivate()`. A disabled `init()` (`enabled` false) registers nothing and does not claim the package, so a later enabled `init()`, from the same or another consumer, still boots it.
+
+Call `init()` on the `init` action at a priority below 10, or earlier: with `ccpa_page` on, `init()` hooks the CCPA page creation to `init` at priority 10, which a later call misses for that request.
+
 ### Configuration
 
-`Cookie_Consent::init( array $config = array() )` takes the whole configuration as a single argument. `$config` is partial — every key is optional and falls back to a package default — and is resolved once, on the first `init()` call, via `Config_Schema` (see `src/schema/class-config-schema.php` for the full shape). The consuming plugin should pass everything it needs up front here.
+`Cookie_Consent::init( array $config = array() )` takes the whole configuration as a single argument. `$config` is partial — every key is optional and falls back to a package default — and is resolved via `Config_Schema` by each `init()` until the first enabled one, after which later configs are ignored (see `src/schema/class-config-schema.php` for the full shape). The consuming plugin should pass everything it needs up front here.
 
 #### Master switch
 
-Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at all, including the consent-log REST controller:
+Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at all, including the consent-log REST controller. A disabled `init()` does not claim the package (see [More than one consumer](#more-than-one-consumer)):
 
 ```php
 Cookie_Consent::init(
