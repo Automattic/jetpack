@@ -62,10 +62,10 @@ async function getSupportedReleases() {
 }
 
 /**
- * Look up release polyfill info in `known-releases.json`.
+ * Look up release polyfill modules in `known-releases.json`.
  *
  * @param {string} version - WordPress version, e.g. `'7.0.7'`.
- * @return {{corejs: string, modules: string[]}|undefined} Release info, if known.
+ * @return {string[]|undefined} Module names, if known.
  */
 function getKnownRelease( version ) {
 	// Assume polyfills remain unchanged within each minor version.
@@ -95,74 +95,38 @@ function parseModulesFromComment( bundle ) {
 }
 
 /**
- * Parse the core-js version from the header comment of a core-js bundle.
- *
- * @param {string} bundle - Bundle source.
- * @return {string} Version, e.g. `'3.39.0'`.
- */
-function parseCoreJsVersionFromComment( bundle ) {
-	const startMarker = '* core-js ';
-	const start = bundle.indexOf( startMarker );
-	if ( start === -1 ) {
-		throw new Error( 'No core-js version found in bundle' );
-	}
-	return bundle
-		.slice( start + startMarker.length )
-		.split( '\n' )[ 0 ]
-		.trim();
-}
-
-/**
- * Get polyfill info from a WordPress build's `wp-polyfill.js` bundle.
+ * Get the polyfill modules from a WordPress build's `wp-polyfill.js` bundle.
  *
  * @param {string} svnPath - Path in the core SVN repo, e.g. `'tags/7.0.7'` or `'trunk'`.
- * @return {Promise<{corejs: string, modules: string[]|undefined}>} Bundle info.
+ * @return {Promise<string[]|undefined>} Module names, if listed.
  */
-async function getBundleInfo( svnPath ) {
+async function getBundleModules( svnPath ) {
 	const bundle = await fetchText(
 		`https://core.svn.wordpress.org/${ svnPath }/wp-includes/js/dist/vendor/wp-polyfill.js`
 	);
-
-	return {
-		corejs: parseCoreJsVersionFromComment( bundle ),
-		modules: parseModulesFromComment( bundle ),
-	};
+	return parseModulesFromComment( bundle );
 }
 
 const { min, releases } = await getSupportedReleases();
 const modulesByRelease = {};
 for ( const version of releases ) {
-	let coreJsVersion;
-
-	const knownRelease = getKnownRelease( version );
-	if ( knownRelease ) {
-		modulesByRelease[ version ] = knownRelease.modules;
-		coreJsVersion = knownRelease.corejs;
-	} else {
-		const { corejs, modules } = await getBundleInfo( `tags/${ version }` );
-		if ( ! modules ) {
-			throw new Error( `WordPress ${ version }: no modules comment in wp-polyfill.js` );
-		}
-		modulesByRelease[ version ] = modules;
-		coreJsVersion = corejs;
+	const modules = getKnownRelease( version ) ?? ( await getBundleModules( `tags/${ version }` ) );
+	if ( ! modules ) {
+		throw new Error( `WordPress ${ version }: no modules comment in wp-polyfill.js` );
 	}
-
-	console.log(
-		`WordPress ${ version } (core-js ${ coreJsVersion }): ${ modulesByRelease[ version ].length } modules`
-	);
+	modulesByRelease[ version ] = modules;
+	console.log( `WordPress ${ version }: ${ modules.length } modules` );
 }
 
-const nightly = await getBundleInfo( 'trunk' );
+const nightly = await getBundleModules( 'trunk' );
 // At time of writing, Core nightly releases still don't include the module metadata.
 // Instead of aborting the script, skip the nightly polyfill info, for now.
 // Once Core nightly releases start including the metadata, this check can be removed.
-if ( nightly.modules ) {
-	modulesByRelease.nightly = nightly.modules;
-	console.log(
-		`WordPress nightly (core-js ${ nightly.corejs }): ${ nightly.modules.length } modules`
-	);
+if ( nightly ) {
+	modulesByRelease.nightly = nightly;
+	console.log( `WordPress nightly: ${ nightly.length } modules` );
 } else {
-	console.log( `WordPress nightly (core-js ${ nightly.corejs }): no module metadata, skipping` );
+	console.log( 'WordPress nightly: no module metadata, skipping' );
 }
 
 const modules = [ ...new Set( Object.values( modulesByRelease ).flat() ) ].sort();
