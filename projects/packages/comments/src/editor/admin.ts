@@ -10,6 +10,11 @@ if ( textarea && labels ) {
 	box.style.cssText = '--jetpack-comments-pad: 12px; border: 1px solid #dcdcde; background: #fff';
 	const container = box.appendChild( document.createElement( 'div' ) );
 	container.className = 'jetpack-comments__editor';
+	// Inside the box, so falling back to the raw textarea stops the save pruning its blocks.
+	const field = box.appendChild( document.createElement( 'input' ) );
+	field.type = 'hidden';
+	field.name = 'jetpack_comments_editor';
+	field.value = '1';
 	textarea.after( box );
 	// Quicktags' buttons would write to the hidden textarea, behind the editor's back.
 	const quicktags = document.querySelector< HTMLElement >( '#qt_content_toolbar' );

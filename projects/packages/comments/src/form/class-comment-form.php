@@ -362,6 +362,7 @@ class Comment_Form {
 			. $plain
 			. '</div>'
 			. $noscript
+			. '<input type="hidden" name="' . Block_Editor::FIELD . '" value="1" />'
 			. get_comment_id_fields( $post_id );
 	}
 
