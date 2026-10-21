@@ -4074,15 +4074,6 @@ importers:
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
-      '@testing-library/dom':
-        specifier: 10.4.2
-        version: 10.4.2
-      '@testing-library/react':
-        specifier: 16.3.3
-        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@testing-library/user-event':
-        specifier: 14.6.8
-        version: 14.6.8(@testing-library/dom@10.4.2)
       '@types/canvas-confetti':
         specifier: 1.9.0
         version: 1.9.0
@@ -4107,9 +4098,6 @@ importers:
       concurrently:
         specifier: 10.0.5
         version: 10.0.5
-      jest:
-        specifier: 30.5.2
-        version: 30.5.2
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3

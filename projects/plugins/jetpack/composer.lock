@@ -2957,7 +2957,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "e61de59b850f7f52434ac2d79449b1e6131bf8cc"
+                "reference": "cf92e4baa1affc5e4944fce239240a9ebd656a7a"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -3017,12 +3017,6 @@
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ],
-                "test-js": [
-                    "pnpm run test"
-                ],
-                "test-js-coverage": [
-                    "pnpm run test-coverage"
                 ]
             },
             "license": [
