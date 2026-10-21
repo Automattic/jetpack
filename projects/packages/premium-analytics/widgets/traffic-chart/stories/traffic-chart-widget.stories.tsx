@@ -52,6 +52,9 @@ const CHART_TYPE_ARG_TYPES = {
 
 const DEFAULT_CHART_ARGS = { chartType: 'bar' } as const;
 
+// The full row, as the default dashboard layout places the widget.
+const DASHBOARD_STORY_ARGS = { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS, widgetWidth: 3 };
+
 function renderTrafficChart( { withComparison, chartType }: TrafficChartStoryControls ) {
 	return (
 		<TrafficChartRender
@@ -152,7 +155,7 @@ export const Hourly: StoryObj< WidgetDashboardWithWidgetControls > = {
 			attributes={ { reportParams: getDefaultQueryParams( false, 'last-24-hours' ) } }
 		/>
 	),
-	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS },
+	args: { ...DASHBOARD_STORY_ARGS },
 	argTypes: { ...widgetDashboardWithWidgetArgTypes },
 };
 
@@ -247,7 +250,7 @@ function TrafficChartDashboardStory( {
 export const WidgetDashboardWithWidget: StoryObj< TrafficChartDashboardStoryProps > = {
 	render: args => <TrafficChartDashboardStory { ...args } />,
 	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		...DASHBOARD_STORY_ARGS,
 		withComparison: true,
 		...DEFAULT_CHART_ARGS,
 	},
