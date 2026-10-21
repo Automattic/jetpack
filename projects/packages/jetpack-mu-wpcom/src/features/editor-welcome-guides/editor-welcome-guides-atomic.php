@@ -16,7 +16,7 @@ use Automattic\Jetpack\Connection\Client;
 const WPCOM_EDITOR_WELCOME_GUIDES_CACHE_META = 'wpcom_editor_welcome_guides';
 
 /**
- * How long the copy is served without asking WordPress.com again, even on editor screens.
+ * How long the copy is served before an editor screen asks WordPress.com again.
  */
 const WPCOM_EDITOR_WELCOME_GUIDES_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
 
