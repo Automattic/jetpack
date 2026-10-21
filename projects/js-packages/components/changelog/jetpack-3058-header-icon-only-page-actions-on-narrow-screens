@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-AdminPage: Add a page action button that shows only its icon on screens 390px wide or narrower.
+AdminPage: Add a page action button that shows only its icon on screens 480px wide or narrower.

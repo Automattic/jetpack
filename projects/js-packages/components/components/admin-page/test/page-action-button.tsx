@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { dashboard } from '@wordpress/icons';
 import PageActionButton from '../page-action-button.tsx';
 
-// useMediaQuery caches the first MediaQueryList per query and reads its `matches` live.
+// useViewportMatch's useMediaQuery caches the first MediaQueryList per query and reads its `matches` live.
 const narrowScreen = {
 	matches: false,
 	addEventListener: jest.fn(),
@@ -16,8 +16,8 @@ beforeAll( () => {
 
 describe( 'PageActionButton', () => {
 	it.each( [
-		[ 'its label', 400, false, 'Run speed test' ],
-		[ 'only its icon', 390, true, '' ],
+		[ 'its label', 481, false, 'Run speed test' ],
+		[ 'only its icon', 480, true, '' ],
 	] )( 'shows %s at %ipx', ( _, __, isNarrow, text ) => {
 		narrowScreen.matches = isNarrow;
 		render( <PageActionButton label="Run speed test" icon={ dashboard } /> );
@@ -25,6 +25,6 @@ describe( 'PageActionButton', () => {
 		const button = screen.getByRole( 'button', { name: 'Run speed test' } );
 
 		expect( button ).toHaveTextContent( text );
-		expect( window.matchMedia ).toHaveBeenCalledWith( '(max-width: 390px)' );
+		expect( window.matchMedia ).toHaveBeenCalledWith( 'screen and (max-width: 480px)' );
 	} );
 } );

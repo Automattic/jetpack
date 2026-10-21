@@ -1,12 +1,9 @@
-import { useMediaQuery } from '@wordpress/compose';
+import { useViewportMatch } from '@wordpress/compose';
 import { Button, IconButton } from '@wordpress/ui';
 import { forwardRef } from 'react';
 import type { ComponentProps, ForwardRefExoticComponent, ForwardedRef, RefAttributes } from 'react';
 
-// At this width and below, page actions show only their icon so the header's title keeps its room.
-const NARROW_SCREEN_QUERY = '(max-width: 390px)';
-
-export type PageActionButtonProps = ComponentProps< typeof IconButton >;
+type PageActionButtonProps = ComponentProps< typeof IconButton >;
 
 /**
  * A page action for `AdminPage`'s `actions`: a labelled button, or an icon button on narrow screens.
@@ -25,7 +22,8 @@ function PageActionButton(
 	{ label, icon, shortcut, positioner, ...buttonProps }: PageActionButtonProps,
 	ref: ForwardedRef< HTMLButtonElement >
 ) {
-	const isNarrowScreen = useMediaQuery( NARROW_SCREEN_QUERY );
+	// On phones, page actions show only their icon so the header's title keeps its room.
+	const isNarrowScreen = useViewportMatch( 'mobile', '<' );
 
 	if ( isNarrowScreen ) {
 		return (
