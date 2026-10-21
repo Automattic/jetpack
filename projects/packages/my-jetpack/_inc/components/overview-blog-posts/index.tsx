@@ -8,8 +8,6 @@ import OverviewSection from '../product-cards-section/overview-section';
 import styles from './style.module.scss';
 import type { FC } from 'react';
 
-const BLOG_URL = 'https://jetpack.com/resources/';
-
 type BlogPost = {
 	title: string;
 	link: string;
@@ -64,7 +62,7 @@ const OverviewBlogPosts: FC = () => {
 						</Stack>
 					) ) }
 				</Stack>
-				<Link href={ BLOG_URL } openInNewTab>
+				<Link href="https://jetpack.com/resources/" openInNewTab>
 					{ __( 'Read more', 'jetpack-my-jetpack' ) }
 				</Link>
 			</Stack>
