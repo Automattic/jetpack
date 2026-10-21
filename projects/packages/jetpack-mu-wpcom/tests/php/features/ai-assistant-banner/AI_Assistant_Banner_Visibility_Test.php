@@ -29,6 +29,7 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 		delete_transient( 'wpcom_ai_banner_mcp_' . get_current_blog_id() . '_' . get_current_user_id() );
 		Constants::clear_constants();
 		delete_option( 'big_sky_enable' );
+		delete_option( 'wpcom_ai_assistant_banner_completed' );
 		parent::tear_down();
 	}
 
@@ -108,5 +109,28 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 
 		update_option( 'big_sky_enable', '0' );
 		$this->assertSame( 'unavailable', wpcom_ai_assistant_banner_script_data( 'dashboard' )['mcpState'] );
+		$this->assertFalse( get_option( 'wpcom_ai_assistant_banner_completed' ) );
+	}
+
+	/**
+	 * The first load with the Agent and MCP on records a timestamp that later loads keep.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_script_data_records_completion_once() {
+		define( 'IS_ATOMIC', true );
+		set_transient( 'wpcom_ai_banner_mcp_' . get_current_blog_id() . '_' . get_current_user_id(), 'on', 5 * MINUTE_IN_SECONDS );
+		update_option( 'big_sky_enable', '1' );
+		update_option( 'wpcom_ai_assistant_banner_completed', 1000 );
+
+		$this->assertSame( 'on', wpcom_ai_assistant_banner_script_data( 'dashboard' )['mcpState'] );
+		$this->assertSame( 1000, (int) get_option( 'wpcom_ai_assistant_banner_completed' ) );
+
+		delete_option( 'wpcom_ai_assistant_banner_completed' );
+		wpcom_ai_assistant_banner_script_data( 'dashboard' );
+		$this->assertEqualsWithDelta( time(), (int) get_option( 'wpcom_ai_assistant_banner_completed' ), 5 );
 	}
 }

@@ -34,6 +34,10 @@ function wpcom_should_show_ai_assistant_banner() {
 		return false;
 	}
 
+	if ( get_option( 'wpcom_ai_assistant_banner_completed' ) ) {
+		return false;
+	}
+
 	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( WPCOM_Features::BIG_SKY ) ) {
 		return false;
 	}
@@ -126,6 +130,11 @@ function wpcom_ai_assistant_banner_mcp_enabled() {
  */
 function wpcom_ai_assistant_banner_script_data( $screen_id ) {
 	$mcp_enabled = wpcom_is_wordpress_agent_enabled() ? wpcom_ai_assistant_banner_mcp_enabled() : null;
+
+	// Record when the site first had every AI tool on, so later loads skip the MCP check.
+	if ( true === $mcp_enabled ) {
+		add_option( 'wpcom_ai_assistant_banner_completed', time(), '', false );
+	}
 
 	return array(
 		'trackProps' => wpcom_ai_assistant_banner_tracks_props( $screen_id ),
