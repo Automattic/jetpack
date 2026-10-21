@@ -7,12 +7,9 @@
 
 namespace Automattic\Jetpack\CookieConsent;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
-
 /**
- * @coversNothing
+ * Tests for the banner template.
  */
-#[CoversNothing]
 class Cookie_Banner_Content_Test extends TestCase {
 
 	/**
