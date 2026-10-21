@@ -55,9 +55,7 @@ export { formatListMetricCount, getListMetricLabel, type ListMetric } from './li
 export { HOURS_DATA_FORMAT } from './hours-data-format';
 export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
 export {
-	MONTHLY_HEATMAP_METRICS,
 	monthlyHeatmapLabels,
-	monthlyHeatmapMetricAttributeField,
 	resolveMonthlyHeatmapMetric,
 	type MonthlyHeatmapMetric,
 } from './monthly-heatmap-metric';
