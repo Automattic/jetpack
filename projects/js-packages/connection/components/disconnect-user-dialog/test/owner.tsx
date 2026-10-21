@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // ESM test: static jest.mock does not work under --experimental-vm-modules, so mock the modules
@@ -50,28 +50,6 @@ describe( 'DisconnectUserDialog, for the connection owner', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	it( 'disconnects every user on confirm', async () => {
-		const user = userEvent.setup();
-		render( <DisconnectUserDialog { ...testProps } /> );
-
-		await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
-
-		expect( mockUnlinkUser ).toHaveBeenCalledWith( true, { disconnectAllUsers: true } );
-	} );
-
-	// The owner path records its own events, so the host's context has to reach them too.
-	it( 'reports the owner events against the host that rendered it', async () => {
-		const user = userEvent.setup();
-		render( <DisconnectUserDialog { ...testProps } context="connectors" /> );
-
-		await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
-
-		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_manage_connection_dialog_owner_disconnect_click',
-			{ context: 'connectors' }
-		);
-	} );
-
 	it( 'offers the transfer flow as the way out', async () => {
 		const user = userEvent.setup();
 		const onTransferOwnership = jest.fn();
@@ -81,5 +59,27 @@ describe( 'DisconnectUserDialog, for the connection owner', () => {
 
 		expect( onTransferOwnership ).toHaveBeenCalledTimes( 1 );
 		expect( mockUnlinkUser ).not.toHaveBeenCalled();
+	} );
+
+	// Last, and the only test here that completes an unlink: a successful one clears isMaster in
+	// the store, so anything owner-shaped after it would render as a non-owner.
+	it( 'disconnects every user on confirm, and reports it against its host', async () => {
+		const user = userEvent.setup();
+		render( <DisconnectUserDialog { ...testProps } context="connectors" /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
+
+		expect( mockUnlinkUser ).toHaveBeenCalledWith( true, { disconnectAllUsers: true } );
+		// The owner path records its own events, so the host's context has to reach them too.
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_manage_connection_dialog_owner_disconnect_click',
+			{ context: 'connectors' }
+		);
+		await waitFor( () =>
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_manage_connection_dialog_owner_disconnect_success',
+				{ context: 'connectors' }
+			)
+		);
 	} );
 } );

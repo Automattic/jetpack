@@ -19,12 +19,11 @@ const connectionStatus = ( state = {}, action ) => {
 		case SET_CONNECTION_STATUS:
 			return { ...state, ...action.connectionStatus };
 		case DISCONNECT_USER_SUCCESS:
-			// Disconnecting the owner takes every user's connection with it, so the site is left
-			// with no connected owner. A non-owner's unlink leaves the owner's token alone.
+			// A non-owner's unlink leaves the owner's token alone.
 			return {
 				...state,
 				isUserConnected: false,
-				...( action.disconnectedAllUsers ? { hasConnectedOwner: false } : {} ),
+				...( action.wasConnectionOwner ? { hasConnectedOwner: false } : {} ),
 			};
 	}
 
@@ -90,7 +89,19 @@ const authorizationUrl = ( state, action ) => {
 const userConnectionData = ( state, action ) => {
 	switch ( action.type ) {
 		case DISCONNECT_USER_SUCCESS:
-			return { ...state, currentUser: { ...state?.currentUser, isConnected: false } };
+			// Matches what the endpoint reports once the token is gone: no WordPress.com identity
+			// to show, and no mismatch to report about a user who is no longer connected.
+			return {
+				...state,
+				currentUser: {
+					...state?.currentUser,
+					isConnected: false,
+					wpcomUser: { avatar: false },
+					possibleAccountErrors: {},
+					...( action.wasConnectionOwner ? { isMaster: false } : {} ),
+				},
+				...( action.wasConnectionOwner ? { connectionOwner: null } : {} ),
+			};
 		case SET_CONNECTION_OWNER:
 			// Whoever transferred is no longer the owner: handing it to yourself is refused.
 			return {
@@ -105,6 +116,9 @@ const userConnectionData = ( state, action ) => {
 
 const connectionOwner = ( state = null, action ) => {
 	switch ( action.type ) {
+		case DISCONNECT_USER_SUCCESS:
+			// The owner's unlink deletes the master_user option, so there is no owner of record.
+			return action.wasConnectionOwner ? null : state;
 		case SET_CONNECTION_OWNER:
 			return { id: action.owner.id, displayName: action.owner.displayName };
 		default:

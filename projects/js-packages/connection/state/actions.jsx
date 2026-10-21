@@ -57,14 +57,15 @@ const setUserIsConnecting = isConnecting => {
 /**
  * Record that the current user is no longer connected to WordPress.com.
  *
- * @param {object}  [options]                      - Options.
- * @param {boolean} [options.disconnectedAllUsers] - Whether the unlink took every other user's
- *                                                 connection with it, as disconnecting the
- *                                                 owner does, leaving no connected owner.
+ * @param {object}  [options]                    - Options.
+ * @param {boolean} [options.wasConnectionOwner] - Whether the unlinked user owned the connection.
+ *                                               Disconnecting the owner deletes the
+ *                                               `master_user` option, so the site is left with
+ *                                               no owner of record either.
  * @return {object} The action.
  */
-const disconnectUserSuccess = ( { disconnectedAllUsers = false } = {} ) => {
-	return { type: DISCONNECT_USER_SUCCESS, disconnectedAllUsers };
+const disconnectUserSuccess = ( { wasConnectionOwner = false } = {} ) => {
+	return { type: DISCONNECT_USER_SUCCESS, wasConnectionOwner };
 };
 
 const setRegistrationError = registrationError => {
@@ -178,9 +179,13 @@ const refreshConnectedPlugins =
  */
 const unlinkUser =
 	( { force = false, disconnectAllUsers = false } = {} ) =>
-	async ( { dispatch } ) => {
+	async ( { dispatch, select } ) => {
+		// Read before the request: what the unlink means for the store follows from who the
+		// viewer is, not from what the caller asked the endpoint to do.
+		const wasConnectionOwner = Boolean( select.getUserConnectionData()?.currentUser?.isMaster );
+
 		await restApi.unlinkUser( force, { disconnectAllUsers } );
-		dispatch( disconnectUserSuccess( { disconnectedAllUsers: disconnectAllUsers } ) );
+		dispatch( disconnectUserSuccess( { wasConnectionOwner } ) );
 	};
 
 const actions = {
