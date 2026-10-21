@@ -29,8 +29,9 @@ function hasRepeatedKey( query: string ): boolean {
  *
  * It belongs here when it targets the same document and admin `page`; the route is what `p`
  * carries, its query included. A href a route navigation would deliver differently than a full
- * page load is not one: a hash, params beyond `page` and `p`, duplicates of either, a `p` that is
- * not a root-relative path, or a query key that repeats.
+ * page load is not one: params beyond `page` and `p`, duplicates of either, a `p` that is not a
+ * root-relative path, or a query key that repeats. A hash stays a plain anchor too, by choice:
+ * the router would carry it, but no dashboard route reads one.
  *
  * @param href - The href, absolute or relative.
  * @param base - Document URL the href is judged against. Defaults to the current location.
