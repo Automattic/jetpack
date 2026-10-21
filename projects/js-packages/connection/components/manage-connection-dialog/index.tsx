@@ -279,7 +279,6 @@ const ManageConnectionDialog = ( {
 							onClose={ handleCloseDisconnectUserDialog }
 							apiRoot={ apiRoot }
 							apiNonce={ apiNonce }
-							onDisconnected={ onDisconnected }
 							onUnlinked={ handleUnlinked }
 							onTransferOwnership={ openTransferFromOwnerDialog }
 							context={ context }

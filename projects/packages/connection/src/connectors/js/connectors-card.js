@@ -33,7 +33,7 @@ import * as components from '@wordpress/components';
 // Namespace import: a missing named export would fail the whole module before the fallbacks run.
 // eslint-disable-next-line import/no-unresolved -- resolved via WP import map at runtime.
 import * as connectors from '@wordpress/connectors';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import {
 	createElement,
 	createInterpolateElement,
@@ -1541,7 +1541,6 @@ function IDCPanel() {
 function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const { viewer, owner, ownerIsViewer, isOfflineMode, tracksIdentity, connectedPlugins } =
 		useCardConnection();
-	const { disconnectUserSuccess } = useDispatch( CONNECTION_STORE_ID );
 	const [ isDisconnectUserOpen, setIsDisconnectUserOpen ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
 	const [ isTransferOpen, setIsTransferOpen ] = useState( false );
@@ -1747,15 +1746,14 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 					apiRoot,
 					apiNonce,
 					context: 'jetpack-connectors',
-					// A non-owner unlink only removes the viewer's token, which the store tracks.
-					// Otherwise card-only data such as protectedOwner changes too, so the page reloads.
+					// The unlink already recorded itself in the store, which a non-owner's row reads
+					// from. Otherwise card-only data such as protectedOwner changed too, so reload.
 					onUnlinked: () => {
 						if ( viewer?.isOwner || protectedOwner ) {
 							window.location.reload();
 							return;
 						}
 						setIsDisconnectUserOpen( false );
-						disconnectUserSuccess();
 					},
 					onClose: () => {
 						setIsDisconnectUserOpen( false );

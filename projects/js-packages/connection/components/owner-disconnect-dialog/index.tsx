@@ -2,10 +2,11 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import restApi from '@automattic/jetpack-api';
 import { Modal } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
+import { STORE_ID } from '../../state/store';
 import DisconnectActionFooter from '../shared/disconnect-action-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import useConnection from '../use-connection';
@@ -62,6 +63,7 @@ const OwnerDisconnectDialog = ( {
 	// The hook seeds the REST API singleton from these values, and reports offline mode,
 	// where WordPress.com cannot be reached to action the disconnect.
 	const { isOfflineMode } = useConnection( { apiRoot, apiNonce } );
+	const { unlinkUser } = useDispatch( STORE_ID );
 
 	const handleTransferClick = useCallback(
 		( e?: MouseEvent< HTMLElement > ) => {
@@ -86,8 +88,7 @@ const OwnerDisconnectDialog = ( {
 		setDisconnectError( '' );
 
 		// Disconnect owner with force and disconnect-all-users parameters
-		restApi
-			.unlinkUser( true, { disconnectAllUsers: true } )
+		unlinkUser( { force: true, disconnectAllUsers: true } )
 			.then( () => {
 				// Track successful disconnect
 				jetpackAnalytics.tracks.recordEvent(
@@ -112,7 +113,7 @@ const OwnerDisconnectDialog = ( {
 				);
 				setIsDisconnecting( false );
 			} );
-	}, [ context, onDisconnected, onUnlinked ] );
+	}, [ context, onDisconnected, onUnlinked, unlinkUser ] );
 
 	return (
 		isOpen && (

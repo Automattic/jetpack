@@ -2,13 +2,14 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import restApi from '@automattic/jetpack-api';
 import { Modal } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { STORE_ID } from '../../state/store';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
 import DisconnectActionFooter from '../shared/disconnect-action-footer';
 import useConnection from '../use-connection';
@@ -22,8 +23,6 @@ export interface DisconnectUserDialogProps {
 	apiRoot: string;
 	/** API nonce. */
 	apiNonce: string;
-	/** Callback after the owner's disconnection takes the whole connection with it. */
-	onDisconnected?: () => void;
 	/** Callback after the user is unlinked. The host decides what closes and what reloads. */
 	onUnlinked?: () => void;
 	/** Opens the ownership transfer flow, offered to an owner. Omit to hide that action. */
@@ -46,7 +45,6 @@ const DisconnectUserDialog = ( {
 	onClose,
 	apiRoot,
 	apiNonce,
-	onDisconnected,
 	onUnlinked,
 	onTransferOwnership,
 	context = 'jetpack-dashboard',
@@ -61,6 +59,7 @@ const DisconnectUserDialog = ( {
 	// initializer of its own, and reports offline mode, where WordPress.com cannot be
 	// reached to action the disconnect.
 	const { userConnectionData, isOfflineMode } = useConnection( { apiRoot, apiNonce } );
+	const { unlinkUser } = useDispatch( STORE_ID );
 	const currentUser = userConnectionData?.currentUser;
 
 	const isAdmin = !! currentUser?.permissions?.manage_options;
@@ -74,10 +73,8 @@ const DisconnectUserDialog = ( {
 		setIsDisconnecting( true );
 		setDisconnectError( '' );
 
-		restApi
-			// Passing true to unlink will force the user disconnection.
-			// This is needed for an admin to disconnect themselves.
-			.unlinkUser( isAdmin )
+		// Forced for an administrator, who needs it to unlink themselves.
+		unlinkUser( { force: isAdmin } )
 			.then( () => {
 				setIsDisconnecting( false );
 				onUnlinked?.();
@@ -96,7 +93,7 @@ const DisconnectUserDialog = ( {
 				setDisconnectError( errorMessage );
 				setIsDisconnecting( false );
 			} );
-	}, [ context, isAdmin, onUnlinked ] );
+	}, [ context, isAdmin, onUnlinked, unlinkUser ] );
 
 	if ( isOwner ) {
 		return (
@@ -105,7 +102,6 @@ const DisconnectUserDialog = ( {
 				onClose={ onClose }
 				apiRoot={ apiRoot }
 				apiNonce={ apiNonce }
-				onDisconnected={ onDisconnected }
 				onUnlinked={ onUnlinked }
 				onTransferOwnership={ onTransferOwnership }
 				context={ context }

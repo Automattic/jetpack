@@ -67,7 +67,7 @@ describe( 'ManageConnectionDialog, for a non-owner', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
 
-		expect( mockUnlinkUser ).toHaveBeenCalledWith( false );
+		expect( mockUnlinkUser ).toHaveBeenCalledWith( false, { disconnectAllUsers: false } );
 		await waitFor( () => expect( testProps.onUnlinked ).toHaveBeenCalledTimes( 1 ) );
 		expect( testProps.onClose ).toHaveBeenCalledTimes( 1 );
 	} );

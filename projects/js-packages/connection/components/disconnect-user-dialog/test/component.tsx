@@ -68,7 +68,7 @@ describe( 'DisconnectUserDialog', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
 
-		expect( mockUnlinkUser ).toHaveBeenCalledWith( true );
+		expect( mockUnlinkUser ).toHaveBeenCalledWith( true, { disconnectAllUsers: false } );
 		await waitFor( () => expect( onUnlinked ).toHaveBeenCalledTimes( 1 ) );
 		expect( testProps.onClose ).not.toHaveBeenCalled();
 	} );

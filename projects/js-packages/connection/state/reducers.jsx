@@ -19,7 +19,13 @@ const connectionStatus = ( state = {}, action ) => {
 		case SET_CONNECTION_STATUS:
 			return { ...state, ...action.connectionStatus };
 		case DISCONNECT_USER_SUCCESS:
-			return { ...state, isUserConnected: false };
+			// Disconnecting the owner takes every user's connection with it, so the site is left
+			// with no connected owner. A non-owner's unlink leaves the owner's token alone.
+			return {
+				...state,
+				isUserConnected: false,
+				...( action.disconnectedAllUsers ? { hasConnectedOwner: false } : {} ),
+			};
 	}
 
 	return state;
@@ -83,6 +89,8 @@ const authorizationUrl = ( state, action ) => {
 
 const userConnectionData = ( state, action ) => {
 	switch ( action.type ) {
+		case DISCONNECT_USER_SUCCESS:
+			return { ...state, currentUser: { ...state?.currentUser, isConnected: false } };
 		case SET_CONNECTION_OWNER:
 			// Whoever transferred is no longer the owner: handing it to yourself is refused.
 			return {

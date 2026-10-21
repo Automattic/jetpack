@@ -54,8 +54,17 @@ const setUserIsConnecting = isConnecting => {
 	return { type: SET_USER_IS_CONNECTING, isConnecting };
 };
 
-const disconnectUserSuccess = () => {
-	return { type: DISCONNECT_USER_SUCCESS };
+/**
+ * Record that the current user is no longer connected to WordPress.com.
+ *
+ * @param {object}  [options]                      - Options.
+ * @param {boolean} [options.disconnectedAllUsers] - Whether the unlink took every other user's
+ *                                                 connection with it, as disconnecting the
+ *                                                 owner does, leaving no connected owner.
+ * @return {object} The action.
+ */
+const disconnectUserSuccess = ( { disconnectedAllUsers = false } = {} ) => {
+	return { type: DISCONNECT_USER_SUCCESS, disconnectedAllUsers };
 };
 
 const setRegistrationError = registrationError => {
@@ -153,6 +162,27 @@ const refreshConnectedPlugins =
 		} );
 	};
 
+/**
+ * Unlink the current user from WordPress.com and record it in the store.
+ *
+ * The one place an unlink happens, so every surface reflects it the same way rather than
+ * patching its own copy of the connection state afterwards. Rejects with the API's error so
+ * the caller can word the failure for its own audience.
+ *
+ * @param {object}  [options]                    - Options.
+ * @param {boolean} [options.force]              - Force the disconnection. An administrator
+ *                                               unlinking themselves needs it.
+ * @param {boolean} [options.disconnectAllUsers] - Also unlink every other user, which
+ *                                               disconnecting the owner requires.
+ * @return {Function} Thunk.
+ */
+const unlinkUser =
+	( { force = false, disconnectAllUsers = false } = {} ) =>
+	async ( { dispatch } ) => {
+		await restApi.unlinkUser( force, { disconnectAllUsers } );
+		dispatch( disconnectUserSuccess( { disconnectedAllUsers: disconnectAllUsers } ) );
+	};
+
 const actions = {
 	setConnectionOwner,
 	setConnectionStatus,
@@ -167,6 +197,7 @@ const actions = {
 	registerSite,
 	connectUser,
 	disconnectUserSuccess,
+	unlinkUser,
 	setConnectedPlugins,
 	refreshConnectedPlugins,
 	setConnectionErrors,

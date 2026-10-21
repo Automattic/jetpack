@@ -44,7 +44,7 @@ describe( 'DisconnectUserDialog, for a non-administrator', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
 
-		expect( mockUnlinkUser ).toHaveBeenCalledWith( false );
+		expect( mockUnlinkUser ).toHaveBeenCalledWith( false, { disconnectAllUsers: false } );
 	} );
 
 	it( 'points at a site admin when unlink fails, having no way to update Jetpack', async () => {
