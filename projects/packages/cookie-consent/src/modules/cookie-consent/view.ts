@@ -97,6 +97,41 @@ let manageLinkConsentListenerRegistered = false;
 let tracksConsentListenerRegistered = false;
 const gdprManageLinkContexts = new Set< GdprManageLinkContext >();
 
+// The visitor's region when it needs no geo request: geo off, or both geo cookies set.
+function getGeoStateWithoutRequest( config: StoreConfig ): GeoState | null {
+	if ( config.geoEnabled === false ) {
+		return { initialized: true, countryCode: UNKNOWN_COUNTRY_CODE, region: '' };
+	}
+
+	const countryCode = getCookie( config.geo.countryCodeCookie );
+	const region = getCookie( config.geo.regionCookie );
+	if ( countryCode === null || region === null ) {
+		return null;
+	}
+
+	return { initialized: true, countryCode, region };
+}
+
+// Settle a GPC conflict before DOMContentLoaded, when consumers such as the Jetpack Stats
+// pixel read wp_has_consent(). Without a known region, init waits for the geo lookup.
+function applyGpcAtModuleLoad(): void {
+	if ( ! window.wp_set_consent || ! hasGpcConflictWithStoredConsent() ) {
+		return;
+	}
+
+	const config = getConfig( 'jetpack/cookie-consent' ) as unknown as StoreConfig | undefined;
+	if ( ! config?.geo ) {
+		return;
+	}
+
+	const geo = getGeoStateWithoutRequest( config );
+	if ( geo?.countryCode ) {
+		applyGpcToStoredConsent( geo.countryCode, geo.region || '', config );
+	}
+}
+
+applyGpcAtModuleLoad();
+
 function shouldShowManagePreferencesLink( config: StoreConfig ): boolean {
 	return (
 		geoState.countryCode !== null &&
@@ -451,29 +486,17 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// getConfig() is not typed, so we need to assert the type.
 			const config = getConfig() as unknown as StoreConfig;
 
-			// Geo-based rules are disabled: treat every visitor as unknown so the default
-			// (opt-in/show-banner) path applies, without ever calling the geolocation provider.
-			if ( config.geoEnabled === false ) {
-				geoState = { initialized: true, countryCode: UNKNOWN_COUNTRY_CODE, region: '' };
+			// Geo off (every visitor is unknown, so the default opt-in path applies) or the
+			// region is in the geo cookies: no request to the geolocation provider.
+			const knownGeoState = getGeoStateWithoutRequest( config );
+			if ( knownGeoState ) {
+				geoState = knownGeoState;
 				return geoState;
 			}
 
 			// PHP (class-cookie-consent.php) always emits a fully-normalized nested `geo`, so the
 			// store config is already the resolved GeoConfig; no client-side reconciliation needed.
 			const geoConfig = config.geo;
-
-			// Check if we already have country code from cookies
-			const cachedCountryCode = getCookie( geoConfig.countryCodeCookie );
-			const cachedRegion = getCookie( geoConfig.regionCookie );
-
-			if ( cachedCountryCode !== null && cachedRegion !== null ) {
-				geoState = {
-					initialized: true,
-					countryCode: cachedCountryCode,
-					region: cachedRegion,
-				};
-				return geoState;
-			}
 
 			// If either the country_code or region cookie is missing, fetch geolocation.
 			// `no-store` avoids using the browser HTTP cache for this visitor-specific response.

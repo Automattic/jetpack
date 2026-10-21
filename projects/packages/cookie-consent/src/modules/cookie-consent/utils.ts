@@ -8,8 +8,8 @@ import type { ConsentType, ConsentEventType, ConsentEventChoices, ConsentCategor
 
 export const UNKNOWN_COUNTRY_CODE = 'UNKNOWN';
 
-// Set when the visitor chose while sending GPC, so GPC does not override that choice. Never set
-// for auto_granted consent, which is opted out once the visitor reaches a region honoring GPC.
+// Set when the visitor chose while sending GPC, or when a region ignoring GPC kept their stored
+// choice, so GPC does not override that choice or trigger a geo lookup on later loads.
 export const GPC_CHOICE_COOKIE = 'jetpack_cookie_consent_gpc';
 const GPC_CHOICE_COOKIE_DURATION = 365 * 24 * 60 * 60;
 const ACTIVE_CHOICE_EVENT_TYPES: ConsentEventType[] = [
@@ -286,14 +286,19 @@ export function regionHonorsGpc( countryCode: string, region: string, config: Co
 	return pertainsToCCPA( countryCode, region, config );
 }
 
-// handleConsentByRegion covers GPC before a first choice; this opts out a stored choice once
-// (the save marks it as made under GPC), so a later explicit grant is kept.
+// handleConsentByRegion covers GPC before a first choice; this opts out a stored one. It runs
+// once: afterwards no optional category is allowed, so no conflict is left.
 export function applyGpcToStoredConsent(
 	countryCode: string,
 	region: string,
 	config: Config
 ): boolean {
-	if ( ! hasGpcConflictWithStoredConsent() || ! regionHonorsGpc( countryCode, region, config ) ) {
+	if ( ! hasGpcConflictWithStoredConsent() ) {
+		return false;
+	}
+
+	if ( ! regionHonorsGpc( countryCode, region, config ) ) {
+		setCookie( GPC_CHOICE_COOKIE, '1', GPC_CHOICE_COOKIE_DURATION );
 		return false;
 	}
 
@@ -308,6 +313,9 @@ export function handleConsentByRegion(
 	context: Context,
 	bannerEnabled: boolean = true
 ): void {
+	const gpcOptOut =
+		hasOptedOutViaGlobalPrivacyControl() && regionHonorsGpc( countryCode, region, config );
+
 	if ( isGdprCountry( countryCode, config ) ) {
 		// GDPR: Opt-in model - show banner for explicit consent
 		setConsentType( 'optin' );
@@ -317,7 +325,7 @@ export function handleConsentByRegion(
 		// can still grant consent later via the "Manage Privacy Preferences" footer link.
 		// Gated by a config flag so the legal decision is a value, not a code change;
 		// the conservative default (honor GPC) applies when the flag is omitted.
-		if ( config.gdprHonorsGpc !== false && hasOptedOutViaGlobalPrivacyControl() ) {
+		if ( gpcOptOut ) {
 			context.showBanner = false;
 			saveConsentChoices( getConsentChoices( false ), 'opt-out' );
 			return;
@@ -339,7 +347,7 @@ export function handleConsentByRegion(
 		context.showBanner = false;
 		setConsentType( 'optout' );
 
-		if ( hasOptedOutViaGlobalPrivacyControl() ) {
+		if ( gpcOptOut ) {
 			saveConsentChoices( getConsentChoices( false ), 'opt-out' );
 			return;
 		}

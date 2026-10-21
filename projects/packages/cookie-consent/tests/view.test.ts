@@ -105,18 +105,25 @@ async function runAction( generator: Generator< unknown, unknown, unknown > ): P
 
 /**
  * Define the optional WP Consent API setter for tests that need the banner init path.
+ *
+ * @param {Function} implementation - Optional setter body, e.g. to write the consent cookie.
  */
-function mockWpSetConsent(): void {
+function mockWpSetConsent( implementation?: ( category: string, value: string ) => void ): void {
 	Object.defineProperty( window, 'wp_set_consent', {
 		configurable: true,
-		value: jest.fn(),
+		value: jest.fn( implementation ),
 	} );
 }
 
-beforeEach( async () => {
-	// Re-import per test so the module-level geoState singleton starts uninitialized.
+/**
+ * Import the view module fresh, so its module-level state and load-time code run again.
+ */
+async function importView(): Promise< void > {
 	jest.resetModules();
+	await import( '../src/modules/cookie-consent/view' );
+}
 
+beforeEach( async () => {
 	cookieWrites = [];
 	cookieJar = '';
 	imageSources = [];
@@ -141,7 +148,8 @@ beforeEach( async () => {
 		return config;
 	} );
 
-	await import( '../src/modules/cookie-consent/view' );
+	// Re-import per test so the module-level geoState singleton starts uninitialized.
+	await importView();
 } );
 
 afterEach( () => {
@@ -289,9 +297,18 @@ describe( 'GPC for a returning visitor', () => {
 	const wpSetConsentCalls = () =>
 		( window.wp_set_consent as unknown as jest.Mock ).mock.calls as Array< [ string, string ] >;
 
+	// Write the consent cookie like the WP Consent API, so later reads see the opt-out.
+	const setConsentCookie = ( category: string, value: string ) => {
+		const name = `wp_consent_${ category }`;
+		cookieJar = [
+			...cookieJar.split( '; ' ).filter( pair => pair && ! pair.startsWith( `${ name }=` ) ),
+			`${ name }=${ value }`,
+		].join( '; ' );
+	};
+
 	beforeEach( () => {
 		originalGpc = Object.getOwnPropertyDescriptor( window.navigator, 'globalPrivacyControl' );
-		mockWpSetConsent();
+		mockWpSetConsent( setConsentCookie );
 	} );
 
 	afterEach( () => {
@@ -345,7 +362,7 @@ describe( 'GPC for a returning visitor', () => {
 		expect( wpSetConsentCalls() ).toContainEqual( [ 'marketing', 'deny' ] );
 		expect( wpSetConsentCalls() ).toContainEqual( [ 'statistics', 'deny' ] );
 		expect( context.showBanner ).toBe( false );
-		expect( imageSources ).toHaveLength( 0 );
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
 	} );
 
 	it( 'opts out a returning visitor with geo off', async () => {
@@ -376,6 +393,52 @@ describe( 'GPC for a returning visitor', () => {
 		expect( wpSetConsentCalls() ).toHaveLength( 0 );
 		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
 		expect( console ).toHaveWarned();
+	} );
+
+	it( 'opts out at module load when the geo cookies hold the region', async () => {
+		setGpc( true );
+		cookieJar = `${ ALL_ALLOWED }; country_code=FR; region=Brittany`;
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await importView();
+
+		expect( fetchMock ).not.toHaveBeenCalled();
+		expect( wpSetConsentCalls() ).toContainEqual( [ 'statistics', 'deny' ] );
+		expect( cookieJar ).toContain( 'wp_consent_statistics=deny' );
+	} );
+
+	it( 'opts out at module load with geo off', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		mockGetConfig.mockReturnValue( { ...makeConfig(), geoEnabled: false } );
+
+		await importView();
+
+		expect( wpSetConsentCalls() ).toContainEqual( [ 'marketing', 'deny' ] );
+	} );
+
+	it( 'leaves the conflict to init at module load when the region needs a lookup', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await importView();
+
+		expect( fetchMock ).not.toHaveBeenCalled();
+		expect( wpSetConsentCalls() ).toHaveLength( 0 );
+	} );
+
+	it( 'remembers a choice kept at module load in a region that ignores GPC', async () => {
+		setGpc( true );
+		cookieJar = `${ ALL_ALLOWED }; country_code=US; region=Texas`;
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await importView();
+
+		expect( wpSetConsentCalls() ).toHaveLength( 0 );
+		expect(
+			cookieWrites.some( write => write.startsWith( 'jetpack_cookie_consent_gpc=1;' ) )
+		).toBe( true );
 	} );
 
 	it( 'keeps the stored choice and loads Tracks in an unregulated region', async () => {

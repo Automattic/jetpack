@@ -294,6 +294,22 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 		expect( context.showBanner ).toBe( false );
 		expect( wasDenied( 'statistics' ) ).toBe( true );
 	} );
+
+	it( 'honors GPC in a CCPA region when GDPR honoring is off, and ignores it elsewhere', () => {
+		setGpc( true );
+
+		handleConsentByRegion(
+			'US',
+			'california',
+			{ ...baseConfig, gdprHonorsGpc: false },
+			{ showBanner: false }
+		);
+		expect( wasDenied( 'statistics' ) ).toBe( true );
+
+		consentCalls = [];
+		handleConsentByRegion( 'US', 'texas', baseConfig, { showBanner: false } );
+		expect( wasAllowed( 'statistics' ) ).toBe( true );
+	} );
 } );
 
 describe( 'registry-driven consent choices', () => {
@@ -715,7 +731,7 @@ describe( 'GPC for a returning visitor', () => {
 		);
 	} );
 
-	it( 'opts out a GPC visitor auto-granted in an unregulated region once they reach a CCPA one', () => {
+	it( 'opts out a GPC visitor auto-granted in an unregulated region whose next load is from a CCPA one', () => {
 		// Brave sends GPC on every request. First visit from Texas: implied consent, no mark.
 		setGpc( true );
 		handleConsentByRegion( 'US', 'texas', config, { showBanner: false } );
@@ -856,6 +872,10 @@ describe( 'GPC for a returning visitor', () => {
 
 		expect( applyGpcToStoredConsent( 'US', 'texas', config ) ).toBe( false );
 		expect( consentCalls ).toHaveLength( 0 );
+		// Remembered, so later loads neither recheck nor look the region up again.
+		expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) ) ).toBe(
+			true
+		);
 	} );
 
 	it( 'keeps a choice the visitor made with GPC on', () => {
