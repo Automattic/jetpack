@@ -19,11 +19,12 @@ const connectionStatus = ( state = {}, action ) => {
 		case SET_CONNECTION_STATUS:
 			return { ...state, ...action.connectionStatus };
 		case DISCONNECT_USER_SUCCESS:
-			// A non-owner's unlink leaves the owner's token alone.
+			// A non-owner's unlink leaves the owner's token alone. `isActive` is the deprecated
+			// spelling of `hasConnectedOwner` and the endpoint reports the same value for both.
 			return {
 				...state,
 				isUserConnected: false,
-				...( action.wasConnectionOwner ? { hasConnectedOwner: false } : {} ),
+				...( action.wasConnectionOwner ? { hasConnectedOwner: false, isActive: false } : {} ),
 			};
 	}
 

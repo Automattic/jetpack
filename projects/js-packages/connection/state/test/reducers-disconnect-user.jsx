@@ -23,7 +23,12 @@ const storeWith = ( initialState, storeId ) => {
  * @return {object} Initial state.
  */
 const connectedState = viewerIsOwner => ( {
-	connectionStatus: { isRegistered: true, isUserConnected: true, hasConnectedOwner: true },
+	connectionStatus: {
+		isActive: true,
+		isRegistered: true,
+		isUserConnected: true,
+		hasConnectedOwner: true,
+	},
 	connectionOwner: { id: 1, displayName: 'Original Owner' },
 	userConnectionData: {
 		currentUser: {
@@ -58,6 +63,7 @@ describe( 'disconnectUserSuccess', () => {
 		dispatch( id ).disconnectUserSuccess();
 
 		expect( select( id ).getConnectionStatus().hasConnectedOwner ).toBe( true );
+		expect( select( id ).getConnectionStatus().isActive ).toBe( true );
 		expect( select( id ).getConnectionOwner() ).toEqual( { id: 1, displayName: 'Original Owner' } );
 		expect( select( id ).getUserConnectionData().connectionOwner ).toBe( 'Original Owner' );
 	} );
@@ -69,6 +75,8 @@ describe( 'disconnectUserSuccess', () => {
 		dispatch( id ).disconnectUserSuccess( { wasConnectionOwner: true } );
 
 		expect( select( id ).getConnectionStatus().hasConnectedOwner ).toBe( false );
+		// The endpoint reports the deprecated isActive as the same value.
+		expect( select( id ).getConnectionStatus().isActive ).toBe( false );
 		expect( select( id ).getConnectionOwner() ).toBeNull();
 		expect( select( id ).getUserConnectionData().currentUser.isMaster ).toBe( false );
 		expect( select( id ).getUserConnectionData().connectionOwner ).toBeNull();
