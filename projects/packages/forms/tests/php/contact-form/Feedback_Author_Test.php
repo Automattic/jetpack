@@ -119,6 +119,33 @@ class Feedback_Author_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test get_display_name with fallback when both name and email are empty.
+	 */
+	public function test_get_display_name_with_fallback() {
+		$author = new Feedback_Author();
+
+		$this->assertSame( 'Anonymous', $author->get_display_name( 'Anonymous' ) );
+	}
+
+	/**
+	 * Test get_display_name with fallback when name is present.
+	 */
+	public function test_get_display_name_with_fallback_and_name() {
+		$author = new Feedback_Author( 'Jane Doe' );
+
+		$this->assertSame( 'Jane Doe', $author->get_display_name( 'Anonymous' ) );
+	}
+
+	/**
+	 * Test get_display_name with fallback when only email is present.
+	 */
+	public function test_get_display_name_with_fallback_and_email() {
+		$author = new Feedback_Author( '', 'jane@example.com' );
+
+		$this->assertSame( 'jane@example.com', $author->get_display_name( 'Anonymous' ) );
+	}
+
+	/**
 	 * Test get_avatar_url with email.
 	 */
 	public function test_get_avatar_url_with_email() {
