@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\SEO\Dashboard_Data;
+use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -30,7 +31,7 @@ class SEO_Module_State_Test extends WP_UnitTestCase {
 		update_option( 'jetpack_seo_canonical_urls_enabled', ! in_array( 'canonical-urls', $active_modules, true ) );
 		update_option( 'jetpack_seo_module_state_reconciled', true );
 		update_option( 'jetpack_seo_suppress_wp_sitemap', true );
-		update_option( 'jetpack_seo_surface_visible', true );
+		update_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION, true );
 
 		$modules   = new Modules();
 		$sitemaps  = $modules->is_active( 'sitemaps' );
@@ -46,7 +47,7 @@ class SEO_Module_State_Test extends WP_UnitTestCase {
 			$this->assertSame( $sitemaps, $modules->is_active( 'sitemaps' ) );
 			$this->assertSame( $canonical, $modules->is_active( 'canonical-urls' ) );
 			$this->assertTrue( (bool) get_option( 'jetpack_seo_suppress_wp_sitemap' ) );
-			$this->assertTrue( (bool) get_option( 'jetpack_seo_surface_visible' ) );
+			$this->assertTrue( (bool) get_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION ) );
 		}
 	}
 
@@ -82,8 +83,31 @@ class SEO_Module_State_Test extends WP_UnitTestCase {
 		add_filter( 'jetpack_active_modules', '__return_empty_array' );
 
 		$this->assertTrue( Dashboard_Data::get_settings_data()['sitemap_active'] );
-		$this->assertTrue( Dashboard_Data::get_settings_data()['canonical_active'] );
+		// Simple's canonical switch is its own option, off until an admin saves it.
+		$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_active'] );
 		$this->assertTrue( Dashboard_Data::get_overview_data()['site_visibility']['sitemap_active'] );
+	}
+
+	/**
+	 * The dashboard sees a conflicting SEO plugin while the canonical module is off.
+	 *
+	 * Separate process: Jetpack_Canonical_Urls_Test loads the module file, which hooks the check itself.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_reports_canonical_conflict_while_module_is_off() {
+		require_once JETPACK__PLUGIN_DIR . 'modules/module-extras.php';
+		Jetpack_Options::update_option( 'active_modules', array() );
+
+		$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_conflicted'] );
+
+		update_option( 'active_plugins', array( 'wordpress-seo/wp-seo.php' ) );
+
+		$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_active'] );
+		$this->assertTrue( Dashboard_Data::get_settings_data()['canonical_conflicted'] );
 	}
 
 	/**

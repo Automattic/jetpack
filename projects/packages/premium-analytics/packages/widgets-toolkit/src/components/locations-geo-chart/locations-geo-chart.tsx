@@ -8,6 +8,7 @@ import { useCallback, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
+import { formatMapName } from '../../helpers/format-chart-name';
 import { buildLocationsGeoChart } from './build-geo-data';
 import type { LocationsGeoFocusCountry, LocationsGeoMode, LocationsGeoRow } from './build-geo-data';
 
@@ -34,6 +35,10 @@ export interface LocationsGeoChartProps {
 	focusCountry?: LocationsGeoFocusCountry;
 	/** Debounce for the chart's own resize observer, in milliseconds. */
 	resizeDebounceTime?: number;
+	/** What the figure is, as the tooltip names it. Defaults to Views. */
+	valueLabel?: string;
+	/** What the map shows, such as the widget title; the map is named "Map: <title>". */
+	chartTitle?: string;
 }
 
 /**
@@ -50,6 +55,8 @@ export function LocationsGeoChart( {
 	mode,
 	focusCountry,
 	resizeDebounceTime = RESIZE_DEBOUNCE_MS,
+	valueLabel,
+	chartTitle,
 }: LocationsGeoChartProps ) {
 	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
 		Set< string >
@@ -61,8 +68,8 @@ export function LocationsGeoChart( {
 		? ! unsupportedProvinceMapCountries.has( focusCountryCode )
 		: true;
 	const { data, region, resolution, displayMode } = useMemo(
-		() => buildLocationsGeoChart( { rows, mode, focusCountry, provinceMapSupported } ),
-		[ focusCountry, mode, provinceMapSupported, rows ]
+		() => buildLocationsGeoChart( { rows, mode, focusCountry, provinceMapSupported, valueLabel } ),
+		[ focusCountry, mode, provinceMapSupported, rows, valueLabel ]
 	);
 	const useProvinceMap = resolution === 'provinces';
 
@@ -109,6 +116,7 @@ export function LocationsGeoChart( {
 	return (
 		<GeoChart
 			data={ data }
+			ariaLabel={ formatMapName( chartTitle ) }
 			resizeDebounceTime={ resizeDebounceTime }
 			region={ region }
 			resolution={ resolution }

@@ -1,1 +1,1 @@
-export { useOnboarding } from './use-onboarding';
+export { useOnboarding, type OnboardingFlow } from './use-onboarding';

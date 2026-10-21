@@ -24,7 +24,6 @@ import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { stage as DownloadStage } from '../routes/download/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
-import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const PER_PAGE = 10;
@@ -168,7 +167,6 @@ async function roundTripViaDownload( view: ReturnType< typeof renderApp > ): Pro
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
-	resetListStateForTesting();
 
 	log = Array.from( { length: PER_PAGE }, ( _, index ) => rewindId( index ) );
 	mockApiFetch.mockReset();

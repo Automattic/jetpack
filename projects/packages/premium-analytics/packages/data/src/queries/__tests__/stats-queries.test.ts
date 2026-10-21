@@ -665,6 +665,33 @@ describe( 'Stats query factories', () => {
 		}
 	);
 
+	it( 'leaves an all-time window to WPCOM as a summarized negative num', () => {
+		const params = statsReferrersQuery( {
+			from: '2020-01-01T00:00:00.000+00:00',
+			to: '2026-10-07T23:59:59.999+00:00',
+			interval: 'day',
+			num: -1,
+		} ).queryKey[ 5 ];
+
+		expect( params ).toMatchObject( {
+			num: -1,
+			summarize: 1,
+			date: '2026-10-07T23:59:59.999+00:00',
+		} );
+		expect( params ).not.toHaveProperty( 'start_date' );
+	} );
+
+	it( 'asks the UTM endpoint for all time in days', () => {
+		const query = statsUtmQuery( {
+			from: '2020-01-01',
+			to: '2026-10-07',
+			interval: 'day',
+			num: -1,
+		} );
+
+		expect( query.queryKey[ 5 ] ).toMatchObject( { days: -1, start_date: '' } );
+	} );
+
 	// The endpoint rewrites `max < 1` back to its default of 10 rather than reading
 	// it as "all rows", so a `0` must not reach it.
 	it( 'sends the tags window as date and start_date, with max only when positive', () => {

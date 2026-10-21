@@ -38,6 +38,46 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		'version'     => '1.0',
 		'screenshot'  => 'https://theme.files.wordpress.com/2023/02/stax-featured.jpg',
 		'demo_uri'    => 'https://stax.organicthemes.com/',
+		'block_theme' => true,
+		'date_added'  => '2023-02-01',
+		'taxonomies'  => array(),
+		'theme_tier'  => array( 'slug' => 'personal' ),
+	);
+
+	/**
+	 * A partner theme as the tier listing returns it, sold by the month and by the year.
+	 *
+	 * @var array
+	 */
+	private const PARTNER_THEMES = array(
+		'themes' => array(
+			array(
+				'id'              => 'organic-stax',
+				'product_details' => array(
+					array( 'product_slug' => 'theme_stax_monthly' ),
+					array( 'product_slug' => 'theme_stax_yearly' ),
+				),
+			),
+		),
+	);
+
+	/**
+	 * Those two products, as the store returns them.
+	 *
+	 * @var array
+	 */
+	private const STORE_PRODUCTS = array(
+		'theme_stax_monthly' => array(
+			'product_type'         => 'marketplace_theme',
+			'product_term'         => 'month',
+			'billing_product_slug' => 'theme-stax',
+		),
+		'theme_stax_yearly'  => array(
+			'product_type'           => 'marketplace_theme',
+			'product_term'           => 'year',
+			'billing_product_slug'   => 'theme-stax',
+			'cost_per_month_display' => '$7.20',
+		),
 	);
 
 	/**
@@ -77,8 +117,10 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		Cache::clear();
 		wp_deregister_script( 'wpcom-themes-tab' );
 
-		delete_transient( wpcom_themes_tab_cache_key( 1 ) );
-		delete_transient( wpcom_themes_tab_cache_key( 2 ) );
+		// The shared reader caches in the object cache.
+		wp_cache_flush();
+
+		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -136,20 +178,71 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Answers matching requests with a JSON body, and anything unmatched with a 404.
+	 *
+	 * @param array<string, array> $routes URL fragment to response body.
+	 * @return void
+	 */
+	private function answer_wpcom( array $routes ) {
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $routes ) {
+				$this->requests[] = $url;
+
+				foreach ( $routes as $fragment => $body ) {
+					if ( str_contains( $url, $fragment ) ) {
+						return array(
+							'response' => array(
+								'code'    => 200,
+								'message' => 'OK',
+							),
+							'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+						);
+					}
+				}
+
+				return array(
+					'response' => array(
+						'code'    => 404,
+						'message' => 'Not Found',
+					),
+					'body'     => '{}',
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * Answers the two reads that pricing a partner theme takes.
+	 *
+	 * @param array|null $store Store products, or null for the ones both fixtures share.
+	 * @return void
+	 */
+	private function answer_with_partner_prices( ?array $store = null ) {
+		$this->answer_wpcom(
+			array(
+				'tier=partner' => array( 'body' => self::PARTNER_THEMES ),
+				'/products'    => $store ?? self::STORE_PRODUCTS,
+			)
+		);
+	}
+
+	/**
 	 * Answers with a page of themes.
 	 *
 	 * @param array $themes Themes on the page, malformed entries included.
 	 * @param int   $found  Total across all pages.
 	 * @return void
 	 */
-	private function answer_with_themes( array $themes, $found ) {
+	private function answer_with_themes( array $themes, $found = null ) {
+		unset( $found );
+
 		$this->answer_wpcom_with(
 			200,
 			wp_json_encode(
-				array(
-					'themes' => $themes,
-					'found'  => $found,
-				),
+				array( 'body' => array( 'themes' => $themes ) ),
 				JSON_UNESCAPED_SLASHES
 			)
 		);
@@ -162,7 +255,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 * @return void
 	 */
 	private function answer_with_theme( array $theme ) {
-		$this->answer_wpcom_with( 200, wp_json_encode( $theme, JSON_UNESCAPED_SLASHES ) );
+		$this->answer_wpcom_with( 200, wp_json_encode( array( 'body' => $theme ), JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**
@@ -203,7 +296,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_themes_have_the_fields_core_reads() {
 		$this->enable_tab();
-		$this->answer_with_themes( array( array( 'id' => 'sparse' ) ), 1 );
+		$this->answer_with_themes( array( self::THEME ) );
 
 		$theme = $this->query( array( 'browse' => WPCOM_THEMES_TAB ) )->themes[0];
 
@@ -211,6 +304,8 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 			$this->assertObjectHasProperty( $field, $theme );
 		}
 		$this->assertArrayHasKey( 'display_name', $theme->author );
+		$this->assertObjectHasProperty( 'installed', $theme );
+		$this->assertSame( 'personal', $theme->theme_tier );
 	}
 
 	/**
@@ -226,11 +321,15 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Scrolling the grid asks WordPress.com for the matching page.
+	 * Scrolling the grid slices a catalog that was fetched once, rather than asking per page.
 	 */
-	public function test_passes_the_page_through() {
+	public function test_pages_through_the_catalog_from_one_fetch() {
 		$this->enable_tab();
-		$this->answer_with_themes( array( self::THEME ), WPCOM_THEMES_TAB_PER_PAGE + 1 );
+		$themes = array();
+		for ( $i = 1; $i <= WPCOM_THEMES_TAB_PER_PAGE + 50; $i++ ) {
+			$themes[] = array_merge( self::THEME, array( 'id' => 'theme-' . $i ) );
+		}
+		$this->answer_with_themes( $themes );
 
 		$result = $this->query(
 			array(
@@ -239,9 +338,12 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$this->assertStringContainsString( 'page=2', $this->requests[0] );
+		$this->assertCount( 50, $result->themes );
+		$this->assertSame( 'theme-' . ( WPCOM_THEMES_TAB_PER_PAGE + 1 ), $result->themes[0]->slug );
+		$this->assertSame( 2, $result->info['page'] );
 		$this->assertSame( 2, $result->info['pages'] );
-		$this->assertSame( WPCOM_THEMES_TAB_PER_PAGE + 1, $result->info['results'] );
+		$this->assertSame( WPCOM_THEMES_TAB_PER_PAGE + 50, $result->info['results'] );
+		$this->assertCount( 1, $this->requests );
 	}
 
 	/**
@@ -259,9 +361,9 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A failed read shows an empty tab, and is cached so an outage is not retried on every view.
+	 * A failed read is not cached, so a moment's trouble does not empty the tab for a day.
 	 */
-	public function test_failure_is_empty_and_cached() {
+	public function test_failure_is_empty_and_not_cached() {
 		$this->enable_tab();
 		$this->answer_wpcom_with( 500, '{}' );
 
@@ -271,7 +373,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array(), $first->themes );
 		$this->assertSame( 0, $first->info['results'] );
 		$this->assertSame( array(), $second->themes );
-		$this->assertCount( 1, $this->requests );
+		$this->assertCount( 2, $this->requests );
 	}
 
 	/**
@@ -385,5 +487,117 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		$this->assertFalse( wpcom_themes_tab_enabled() );
+	}
+
+	/**
+	 * Checkout returns to the theme once bought, and back to the tab when it is abandoned.
+	 *
+	 * Both are query values rather than paths, so both are encoded.
+	 */
+	public function test_checkout_returns_to_the_theme_it_was_bought_for() {
+		$url = wpcom_themes_tab_checkout_url( 'example-bundle', 'example' );
+
+		$this->assertStringContainsString( 'https://wordpress.com/checkout/example.org/example-bundle', $url );
+		$this->assertStringContainsString( 'checkoutBackUrl=' . rawurlencode( wpcom_themes_tab_url() ), $url );
+		$this->assertStringContainsString(
+			'redirect_to=' . rawurlencode( admin_url( 'theme-install.php?theme=example' ) ),
+			$url
+		);
+	}
+
+	/**
+	 * A theme needing no plan is badged as included, and keeps the install core would run.
+	 */
+	public function test_a_theme_needing_no_plan_is_included() {
+		$theme = wpcom_themes_tab_add_plan(
+			(object) array(
+				'slug'       => 'example',
+				'theme_tier' => 'free',
+			)
+		);
+
+		$this->assertSame( 'Included with plan', $theme->plan_badge );
+		$this->assertFalse( isset( $theme->upgrade_url ) );
+	}
+
+	/**
+	 * A partner theme names the product to price it by, and sells itself rather than a plan.
+	 */
+	public function test_a_partner_theme_is_priced_and_sold() {
+		$this->answer_with_partner_prices();
+
+		$theme = $this->add_plan_to_partner_theme();
+
+		// The theme lists its monthly product first, and the one to quote is still the yearly one.
+		$this->assertSame( 'theme_stax_yearly', $theme->price_product );
+		$this->assertStringContainsString( 'theme_stax_yearly', $theme->purchase_url );
+		$this->assertStringContainsString(
+			'redirect_to=' . rawurlencode( admin_url( 'theme-install.php?theme=organic-stax' ) ),
+			$theme->purchase_url
+		);
+	}
+
+	/**
+	 * A site that needs the plan as well buys both at once, which checkout splits on the comma.
+	 */
+	public function test_checkout_can_charge_for_a_plan_and_a_theme_together() {
+		$url = wpcom_themes_tab_checkout_url( array( 'personal-bundle', 'theme_stax_yearly' ), 'organic-stax' );
+
+		$this->assertStringContainsString( '/checkout/example.org/personal-bundle,theme_stax_yearly?', $url );
+	}
+
+	/**
+	 * A theme the site already subscribes to is core's to install, so it is not sold again.
+	 */
+	public function test_a_subscribed_partner_theme_claims_nothing() {
+		$this->answer_with_partner_prices();
+		// Matched on the billing slug, so the monthly subscription answers for the yearly product.
+		$GLOBALS['wpcom_get_site_purchases_test_value'] = array( (object) array( 'billing_product_slug' => 'theme-stax' ) );
+
+		$theme = $this->add_plan_to_partner_theme();
+
+		$this->assertFalse( isset( $theme->price_product ) );
+		$this->assertFalse( isset( $theme->purchase_url ) );
+	}
+
+	/**
+	 * A partner theme the store has no product for says nothing rather than a price we do not have.
+	 */
+	public function test_an_unsold_partner_theme_claims_nothing() {
+		$this->answer_with_partner_prices( array() );
+
+		$theme = $this->add_plan_to_partner_theme();
+
+		$this->assertFalse( isset( $theme->price_product ) );
+		$this->assertFalse( isset( $theme->purchase_url ) );
+	}
+
+	/**
+	 * A theme the store has withdrawn cannot be bought, so it is not offered either.
+	 */
+	public function test_a_withdrawn_partner_theme_claims_nothing() {
+		$store                                   = self::STORE_PRODUCTS;
+		$store['theme_stax_yearly']['available'] = false;
+		$this->answer_with_partner_prices( $store );
+
+		$theme = $this->add_plan_to_partner_theme();
+
+		$this->assertFalse( isset( $theme->price_product ) );
+		$this->assertFalse( isset( $theme->purchase_url ) );
+	}
+
+	/**
+	 * The partner theme the fixtures price, as the grid hands it over.
+	 *
+	 * @return stdClass
+	 */
+	private function add_plan_to_partner_theme() {
+		return wpcom_themes_tab_add_plan(
+			(object) array(
+				'slug'       => 'organic-stax',
+				'name'       => 'STAX',
+				'theme_tier' => 'partner',
+			)
+		);
 	}
 }

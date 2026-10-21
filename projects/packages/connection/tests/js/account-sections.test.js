@@ -9,8 +9,7 @@ before( async () => {
 } );
 
 const owner = { displayName: 'Owner' };
-const brokenOwner = { displayName: 'Owner', isConnectionBroken: true, isCurrentUser: false };
-const brokenOwnerViewing = { ...brokenOwner, isCurrentUser: true };
+const brokenOwner = { displayName: 'Owner', isConnectionBroken: true };
 const secondAdmin = { displayName: 'Second', isOwner: false };
 const ownerViewing = { displayName: 'Owner', isOwner: true };
 
@@ -20,69 +19,62 @@ describe( 'getAccountSections', () => {
 	for ( const [ name, state, expected ] of [
 		[
 			'broken owner with the owner banner: banner only',
-			{ connectionOwner: brokenOwnerViewing, isOwnerReconnectOffered: true },
+			{ owner: brokenOwner, ownerIsViewer: true, isOwnerReconnectOffered: true },
 			none,
 		],
 		[
 			'broken owner without the owner banner: prompt, no row for themselves',
-			{ connectionOwner: brokenOwnerViewing, isOwnerReconnectOffered: false },
+			{ owner: brokenOwner, ownerIsViewer: true, isOwnerReconnectOffered: false },
 			{ ...none, connectPrompt: true },
 		],
 		[
 			'broken owner while a protected owner is pending: no unconfirmed row for themselves',
-			{ connectionOwner: brokenOwnerViewing, isProtectedOwnerPending: true },
+			{ owner: brokenOwner, ownerIsViewer: true, isProtectedOwnerPending: true },
 			{ ...none, connectPrompt: true },
 		],
 		[
 			'unlinked admin with the owner banner: owner row, no takeover prompt',
-			{ connectionOwner: brokenOwner, isOwnerReconnectOffered: true },
+			{ owner: brokenOwner, isOwnerReconnectOffered: true },
 			{ ...none, ownerRow: true },
 		],
 		[
 			'unlinked admin offered no owner reconnect (no banner, or ownership locked): takeover prompt and owner row',
-			{ connectionOwner: brokenOwner, isOwnerReconnectOffered: false },
+			{ owner: brokenOwner, isOwnerReconnectOffered: false },
 			{ ...none, connectPrompt: true, ownerRow: true },
 		],
 		[
 			'admin beside a broken owner while a protected owner is pending: owner row, not unconfirmed',
-			{ connectionOwner: brokenOwner, isProtectedOwnerPending: true },
+			{ owner: brokenOwner, isProtectedOwnerPending: true },
 			{ ...none, connectPrompt: true, ownerRow: true },
 		],
 		[
 			'linked admin beside a broken owner: owner row only',
-			{ currentUser: secondAdmin, connectionOwner: brokenOwner, isOwnerReconnectOffered: true },
+			{ viewer: secondAdmin, owner: brokenOwner, isOwnerReconnectOffered: true },
 			{ ...none, ownerRow: true },
 		],
 		[
 			'healthy owner: their account row stands in for the owner row',
-			{ currentUser: ownerViewing, connectionOwner: owner },
+			{ viewer: ownerViewing, owner, ownerIsViewer: true },
 			none,
 		],
 		[
 			'unlinked admin beside a healthy owner: prompt and owner row',
-			{ connectionOwner: owner },
+			{ owner },
 			{ ...none, connectPrompt: true, ownerRow: true },
 		],
 		[
 			'protected owner pending: unconfirmed row replaces the owner row',
-			{ currentUser: secondAdmin, connectionOwner: owner, isProtectedOwnerPending: true },
+			{ viewer: secondAdmin, owner: owner, isProtectedOwnerPending: true },
 			{ ...none, unconfirmedOwnerRow: true },
 		],
-		[
-			'site with no owner: prompt only',
-			{ connectionOwner: null },
-			{ ...none, connectPrompt: true },
-		],
-		[
-			'no connect action: no prompt',
-			{ connectionOwner: owner, canConnect: false },
-			{ ...none, ownerRow: true },
-		],
+		[ 'site with no owner: prompt only', { owner: null }, { ...none, connectPrompt: true } ],
+		[ 'no connect action: no prompt', { owner, canConnect: false }, { ...none, ownerRow: true } ],
 	] ) {
 		it( name, () => {
 			assert.deepEqual(
 				getAccountSections( {
-					currentUser: null,
+					viewer: null,
+					ownerIsViewer: false,
 					canConnect: true,
 					isOwnerReconnectOffered: false,
 					isProtectedOwnerPending: false,
@@ -95,14 +87,14 @@ describe( 'getAccountSections', () => {
 } );
 
 describe( 'getConnectPromptKind', () => {
-	for ( const [ connectionOwner, expected ] of [
-		[ brokenOwnerViewing, 'reconnect-owner' ],
-		[ brokenOwner, 'take-over' ],
-		[ owner, 'secondary' ],
-		[ null, 'first' ],
+	for ( const [ cardOwner, ownerIsViewer, expected ] of [
+		[ brokenOwner, true, 'reconnect-owner' ],
+		[ brokenOwner, false, 'take-over' ],
+		[ owner, false, 'secondary' ],
+		[ null, false, 'first' ],
 	] ) {
 		it( `returns ${ expected }`, () => {
-			assert.equal( getConnectPromptKind( connectionOwner ), expected );
+			assert.equal( getConnectPromptKind( cardOwner, ownerIsViewer ), expected );
 		} );
 	}
 } );

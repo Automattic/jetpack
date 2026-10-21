@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
-use Automattic\Jetpack\Newsletter\Urls as Newsletter_Urls;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -28,10 +27,15 @@ class Jetpack_Email_Design_Editor {
 	const PAGE_SLUG = 'jetpack-email-design';
 
 	/**
-	 * The feature flag gating the screen. Registered off, forced on for testing with
-	 * `wp companion feature-flag enable jetpack-email-design`.
+	 * The feature flag gating the screen. Registered off, and on Atomic answered by the
+	 * sticker below rather than by `wp companion feature-flag enable jetpack-email-design`.
 	 */
 	const FEATURE_FLAG = 'jetpack-email-design';
+
+	/**
+	 * The WordPress.com blog sticker that turns the screen on. See NL-1040.
+	 */
+	const STICKER = 'email-design-editor';
 
 	/**
 	 * The script handle, and the id of the element the editor mounts into.
@@ -58,6 +62,10 @@ class Jetpack_Email_Design_Editor {
 		// and cron too — `wp companion feature-flag list` reads it from one of those.
 		self::register_feature_flags();
 
+		// Last, so that on Atomic the sticker cannot be overridden by a filter added later --
+		// a flag that outlives the sticker is not a kill switch.
+		add_filter( 'jetpack_feature_flag_enabled_' . self::FEATURE_FLAG, array( __CLASS__, 'filter_flag_from_sticker' ), PHP_INT_MAX );
+
 		add_action( 'admin_menu', array( __CLASS__, 'add_admin_page' ) );
 
 		// Priority 20, because `Newsletter\Settings::add_script_data()` replaces the whole
@@ -66,7 +74,10 @@ class Jetpack_Email_Design_Editor {
 	}
 
 	/**
-	 * Tell the Newsletter settings page where this screen is, or that there is none.
+	 * Tell the admin where this screen is, or that there is none.
+	 *
+	 * The bare URL: each surface that links here adds its own `return` arg, because each one is
+	 * somewhere different to go back to. {@see self::exit_url()} reads and validates it.
 	 *
 	 * @param array $data The script data so far.
 	 * @return array The script data, with `newsletter.emailDesignUrl` null when there is no screen.
@@ -74,12 +85,7 @@ class Jetpack_Email_Design_Editor {
 	public static function add_script_data( $data ) {
 		$url = self::get_url();
 
-		// The `return` arg is what sends the editor's back button here rather than to the
-		// dashboard; {@see self::exit_url()} is where it is read and validated. Encoded first
-		// because `add_query_arg()` does not: the settings URL's own `&` would end the value.
-		$data['newsletter']['emailDesignUrl'] = '' === $url
-			? null
-			: add_query_arg( 'return', rawurlencode( Newsletter_Urls::get_newsletter_settings_url() ), $url );
+		$data['newsletter']['emailDesignUrl'] = '' === $url ? null : $url;
 
 		return $data;
 	}
@@ -112,11 +118,34 @@ class Jetpack_Email_Design_Editor {
 	}
 
 	/**
+	 * Answer the flag from the Atomic sticker, where there is one to read.
+	 *
+	 * The incoming value is dropped rather than widened: on Atomic the sticker is the whole
+	 * switch, so removing it has to close the screen even where the flag was forced on.
+	 *
+	 * Off Atomic wpcomsh's reader answers false for every sticker, because its
+	 * `Atomic_Persistent_Data` is a blank stand-in there -- hence the platform check, or the
+	 * flag would be pinned off on a site whose only way in is the flag. The reader is checked
+	 * as well: a host can define `IS_ATOMIC` without loading wpcomsh, and calling it then is
+	 * a fatal.
+	 *
+	 * @param bool $enabled Whether the flag is enabled so far.
+	 * @return bool
+	 */
+	public static function filter_flag_from_sticker( $enabled ) {
+		if ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC || ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			return (bool) $enabled;
+		}
+
+		return (bool) wpcomsh_is_site_sticker_active( self::STICKER );
+	}
+
+	/**
 	 * Whether the screen should exist on this site.
 	 *
-	 * The WordPress.com `email-design-editor` sticker gates the bootstrap endpoint, not this
-	 * page: a Jetpack site cannot read stickers without an API call, so the screen carries
-	 * its own gate.
+	 * On Atomic the `email-design-editor` sticker decides, through the filter above; on Simple
+	 * wpcom's mu-plugin turns the flag on alongside it. A self-hosted site cannot read its own
+	 * blog's stickers, so the flag is the gate there -- the sticker still gates the bootstrap.
 	 *
 	 * @return bool
 	 */
@@ -314,18 +343,46 @@ class Jetpack_Email_Design_Editor {
 				'listings' => $exit_url,
 			),
 			'userEmail'      => wp_get_current_user()->user_email,
+
+			// The post the canvas should preview, where the previewer sent one. The design itself
+			// stays site-wide. {@see self::preview_post_id()}
+			'postId'         => self::preview_post_id(),
 		);
+	}
+
+	/**
+	 * The post the canvas should preview, or null to leave the default.
+	 *
+	 * The previewer's link carries the post the reader was looking at, so changing the design does
+	 * not replace it with the sample post. See NL-1051.
+	 *
+	 * Capability-checked here as well as on WordPress.com, so a hand-edited URL cannot name a post
+	 * this user may not read. `absint()` is as forgiving as `exit_url()`'s validation -- `12abc`
+	 * arrives as 12 -- which only ever yields an id shape `edit_post` then has the final word on.
+	 *
+	 * @return int|null
+	 */
+	private static function preview_post_id() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read as a preview target only, and capability-checked below.
+		$post_id = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0;
+
+		if ( $post_id > 0 && current_user_can( 'edit_post', $post_id ) ) {
+			return $post_id;
+		}
+
+		return null;
 	}
 
 	/**
 	 * Where the editor's header buttons leave to.
 	 *
-	 * The `return` arg the Newsletter settings link carries, so the editor goes back to whichever
-	 * of its two entry points was used. Validated like core's Customizer validates its own
+	 * The `return` arg, where the surface that linked here sent one, so the editor goes back the
+	 * way the reader came. Validated like core's Customizer validates its own
 	 * (`wp-admin/customize.php`), and narrowed to wp-admin so the button cannot be aimed off it.
 	 *
-	 * Without a usable one -- entered from Appearance, a bookmark, a reload -- the dashboard, as
-	 * the site editor does from the same menu (`__experimentalDashboardLink`).
+	 * Without a usable one -- Appearance, a bookmark, a reload, or the previewer's new tab, which
+	 * sends none on purpose -- the dashboard, as the site editor does from the same menu
+	 * (`__experimentalDashboardLink`).
 	 *
 	 * @return string
 	 */

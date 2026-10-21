@@ -3,10 +3,11 @@
  */
 import {
 	chartInterval,
-	drawableIntervals,
-	getAllowedIntervalsForPreset,
 	getDefaultPreset,
+	intervalMenuOptions,
 	normalizeReportParams,
+	useReportScope,
+	useScopeLockedIntervals,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import { INTERVAL_TYPES } from '@jetpack-premium-analytics/datetime';
@@ -46,29 +47,28 @@ function ChartIntervalControl( {
 	const ownRange =
 		data.reportParams && Object.keys( data.reportParams ).length > 0 ? data.reportParams : null;
 	const elements = field.elements;
+	const lockedIntervals = useScopeLockedIntervals();
+	const intervalUpsell = useReportScope().dateLimits?.intervalUpsell;
 
 	// Clamp, don't rewrite: the saved bucket shows again once the range allows it.
-	const { options, value } = useMemo( () => {
+	const { options, lockedOptions, value } = useMemo( () => {
 		const periods = (
 			elements?.length ? elements.map( ( { value: period } ) => period ) : INTERVAL_TYPES
 		) as [ StatsPeriod, ...StatsPeriod[] ];
 		// Like the chart: a widget that owns its range reads it before the page's.
 		const params = normalizeReportParams( ownRange ?? search, getDefaultPreset() );
-		const allowed = getAllowedIntervalsForPreset(
-			params.preset,
-			params.from ?? '',
-			params.to ?? ''
-		);
 
 		return {
-			options: drawableIntervals( allowed, periods ),
-			value: chartInterval( { ...params, interval: data.chartInterval }, periods ),
+			...intervalMenuOptions( params, lockedIntervals, periods ),
+			value: chartInterval( { ...params, interval: data.chartInterval }, periods, lockedIntervals ),
 		};
-	}, [ elements, ownRange, search, data.chartInterval ] );
+	}, [ elements, ownRange, search, data.chartInterval, lockedIntervals ] );
 
 	return (
 		<DateIntervalDropdown
 			options={ options }
+			lockedOptions={ lockedOptions }
+			lockUpsell={ intervalUpsell }
 			value={ value }
 			withLabel
 			triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }

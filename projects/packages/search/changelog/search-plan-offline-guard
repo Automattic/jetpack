@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid requesting the Search plan in offline mode.

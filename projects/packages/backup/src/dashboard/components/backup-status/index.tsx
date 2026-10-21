@@ -60,6 +60,22 @@ export function replacesOverview(
 }
 
 /**
+ * The guide that matches why the newest backup attempt failed.
+ *
+ * @param code - The newest attempt's status, or null when it has none to quote.
+ * @return The redirect slug.
+ */
+export function troubleDocSlug( code: string | null | undefined ): string {
+	if ( code === 'credential-error' || code === 'http-only-error' ) {
+		return 'jetpack-backup-credentials';
+	}
+	if ( code === 'not-accessible' ) {
+		return 'jetpack-backup-site-unreachable';
+	}
+	return 'jetpack-backup-troubleshooting';
+}
+
+/**
  * The one line that turns "your backups are failing" into something the
  * reader can act on.
  *
@@ -68,12 +84,15 @@ export function replacesOverview(
  * who lands in either needs the same next step. Keeping one msgid also
  * stops the two copies drifting apart in translation.
  *
+ * @param props      - Component props.
+ * @param props.code - The newest attempt's status, which picks the guide.
  * @return The rendered support line.
  */
-export function ContactSupportLine() {
+export function ContactSupportLine( { code }: { code?: string | null } ) {
 	const siteSuffix = useSiteSuffix();
+	const site = siteSuffix ? { site: siteSuffix } : {};
 
-	return createInterpolateElement(
+	const support = createInterpolateElement(
 		__( '<a>Get in touch with us</a> to get your site backups going again.', 'jetpack-backup-pkg' ),
 		{
 			a: (
@@ -81,13 +100,23 @@ export function ContactSupportLine() {
 					openInNewTab
 					className="jpb-backup-status__link"
 					// Omitted rather than passed as undefined — see `useSiteSuffix`.
-					href={ getRedirectUrl(
-						'jetpack-contact-support',
-						siteSuffix ? { site: siteSuffix } : {}
-					) }
+					href={ getRedirectUrl( 'jetpack-contact-support', site ) }
 				/>
 			),
 		}
+	);
+
+	return (
+		<>
+			{ support }{ ' ' }
+			<Link
+				openInNewTab
+				className="jpb-backup-status__link"
+				href={ getRedirectUrl( troubleDocSlug( code ), site ) }
+			>
+				{ __( 'Learn more', 'jetpack-backup-pkg' ) }
+			</Link>
+		</>
 	);
 }
 
@@ -137,7 +166,7 @@ export default function BackupStatusPanel( {
 								{ __( 'We are having trouble backing up your site', 'jetpack-backup-pkg' ) }
 							</EmptyState.Title>
 							<EmptyState.Description>
-								<ContactSupportLine />
+								<ContactSupportLine code={ reference?.code } />
 							</EmptyState.Description>
 							{ reference && <ErrorReference { ...reference } /> }
 						</EmptyState.Root>

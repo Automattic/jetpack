@@ -48,6 +48,13 @@ export const REQUIRED_FIELD_ERROR = __(
 	'jetpack-paypal-payments'
 );
 
+// PayPal's link builder copy, word for word. PayPal rejects tax or shipping from PayPal
+// settings without the address.
+export const ADDRESS_REQUIRED_ERROR = __(
+	'You need to be able to collect customer shipping address first.',
+	'jetpack-paypal-payments'
+);
+
 /**
  * Check the decimals a price carries against what PayPal accepts for the currency.
  *
@@ -421,9 +428,9 @@ export function hasCheckoutOptionError( errors ) {
  * Validate every form field at once.
  *
  * Two things consume each key: hasBlockingError() below, which disables the save
- * button, and a control's `help`, which tells the merchant what is wrong. A key
- * that reaches only the first leaves a dead button and nothing on screen saying
- * why. Adding a key here means adding the `help` that renders it.
+ * button, and a control's `help` or the error row under a select, which tells the
+ * merchant what is wrong. A key that reaches only the first leaves a dead button
+ * and nothing on screen saying why. Adding a key here means adding what renders it.
  *
  * Return every key on every call, `null` where it does not apply - building the
  * object conditionally would shrink the key set the tests enumerate, and the
@@ -451,6 +458,7 @@ export function hasCheckoutOptionError( errors ) {
  * @param {string}  fields.shippingValue           - Shipping fee, or the first-item fee.
  * @param {string}  fields.shippingAdditionalValue
  *                                                 - The per-extra-item fee. Optional.
+ * @param {boolean} fields.collectShippingAddress  - Whether checkout asks for the address.
  * @return {object} An error message or null, keyed by field.
  */
 export function getValidationErrors( {
@@ -473,6 +481,7 @@ export function getValidationErrors( {
 	shippingMode,
 	shippingValue,
 	shippingAdditionalValue,
+	collectShippingAddress,
 } ) {
 	const currency = currencyCode || 'USD';
 
@@ -486,6 +495,10 @@ export function getValidationErrors( {
 		// PREFERENCE takes its rate from the merchant's PayPal profile.
 		taxValue:
 			taxEnabled && 'PREFERENCE' !== taxType ? validateTax( taxType, taxValue, currency ) : null,
+		taxType:
+			taxEnabled && 'PREFERENCE' === taxType && ! collectShippingAddress
+				? ADDRESS_REQUIRED_ERROR
+				: null,
 		handlingValue: handlingEnabled ? validateMoney( handlingValue, currency ) : null,
 		discountValue: discountEnabled
 			? validateDiscount( discountType, discountValue, comparisonPrice, currency )
@@ -499,6 +512,10 @@ export function getValidationErrors( {
 		shippingAdditionalValue:
 			shippingEnabled && 'QUANTITY' === shippingMode && '' !== ( shippingAdditionalValue ?? '' )
 				? validateMoney( shippingAdditionalValue, currency )
+				: null,
+		shippingMode:
+			shippingEnabled && 'PROFILE' === shippingMode && ! collectShippingAddress
+				? ADDRESS_REQUIRED_ERROR
 				: null,
 		currencyCode: validateCurrency( currencyCode ),
 	};
@@ -551,4 +568,16 @@ export function getUserFriendlyError( err ) {
  */
 export function isNotFound( err ) {
 	return err?.code === 'paypal_api_resource_not_found' || err?.data?.status === 404;
+}
+
+/**
+ * Whether an API error says this user may not manage PayPal on the site.
+ *
+ * A stale nonce is a 403 too, but that is the tab's problem, not the user's role.
+ *
+ * @param {object} err - The apiFetch error.
+ * @return {boolean} True for a 403 other than a stale nonce.
+ */
+export function isForbidden( err ) {
+	return err?.data?.status === 403 && err?.code !== 'rest_cookie_invalid_nonce';
 }

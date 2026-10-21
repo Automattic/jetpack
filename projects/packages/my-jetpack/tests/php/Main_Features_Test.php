@@ -14,6 +14,20 @@ use PHPUnit\Framework\TestCase;
  */
 class Main_Features_Test extends TestCase {
 
+	public function test_rest_state_omits_page_load_admin_pages() {
+		global $_registered_pages;
+		$original          = $_registered_pages;
+		$_registered_pages = array(
+			'jetpack_page_jetpack-forms'  => true,
+			'toplevel_page_jetpack-boost' => true,
+		);
+		try {
+			$this->assertArrayNotHasKey( 'available_admin_pages', Main_Features::get_state( true ) );
+		} finally {
+			$_registered_pages = $original;
+		}
+	}
+
 	public function test_local_catalog_keeps_cloud_cards_and_local_plugin_metadata_without_ownership() {
 		$plugins = function () {
 			return array( 'jetpack-boost-dev/jetpack-boost.php' => array( 'Name' => 'Boost' ) );
@@ -39,6 +53,57 @@ class Main_Features_Test extends TestCase {
 		} finally {
 			remove_filter( 'all_plugins', $plugins );
 		}
+	}
+
+	public function test_local_catalog_links_protect_to_its_page_once_the_dashboard_loads() {
+		do_action( 'jetpack_protect_dashboard_initialized' );
+		try {
+			$features = array_column( Main_Features::get_state( true )['features'], null, 'slug' );
+			$this->assertSame( admin_url( 'admin.php?page=jetpack-protect' ), $features['protect-dashboard']['manage_url'] );
+		} finally {
+			unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		}
+	}
+
+	/**
+	 * Seed the catalog independently of other test classes' user caches.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		$user = wp_insert_user(
+			array(
+				'user_login' => 'feature_catalog_admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( is_wp_error( $user ) ? username_exists( 'feature_catalog_admin' ) : $user );
+		Wpcom_Products::reset_request_failures();
+		Wpcom_Products::reset_purchases_cache();
+		$this->own( array() );
+		$this->set_pro_available( false );
+	}
+
+	/**
+	 * @param bool $available Whether Pro is on sale.
+	 */
+	private function set_pro_available( $available ) {
+		$products = (object) array();
+		foreach ( array( 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly', 'jetpack_complete', 'jetpack_complete_bi_yearly', 'jetpack_complete_monthly', 'jetpack_backup_t1_yearly' ) as $slug ) {
+			$products->$slug = (object) array(
+				'available'     => str_starts_with( $slug, 'jetpack_pro_' ) ? $available : true,
+				'cost'          => 348,
+				'currency_code' => 'USD',
+				'product_term'  => str_ends_with( $slug, '_monthly' ) ? 'month' : ( str_ends_with( $slug, '_bi_yearly' ) ? 'two years' : 'year' ),
+			);
+		}
+		$filter = static fn() => array(
+			'response' => array( 'code' => 200 ),
+			'body'     => wp_json_encode( $products, JSON_UNESCAPED_SLASHES ),
+		);
+		add_filter( 'pre_http_request', $filter );
+		Wpcom_Products::get_products( true );
+		remove_filter( 'pre_http_request', $filter );
 	}
 
 	/**
@@ -131,6 +196,17 @@ class Main_Features_Test extends TestCase {
 		sort( $essential );
 
 		$this->assertSame( array( 'boost', 'jetpack-forms', 'protect-dashboard', 'stats' ), $essential );
+	}
+
+	/**
+	 * The page reads this without Jetpack's module list, so it must match the modules that need an account.
+	 */
+	public function test_features_that_need_an_account_say_so() {
+		$features = array_column( Main_Features::get_features( true ), 'needs_account', 'slug' );
+		$slugs    = array_keys( array_filter( $features ) );
+		sort( $slugs );
+
+		$this->assertSame( array( 'activity-log', 'backup', 'jetpack-ai', 'newsletter', 'social' ), $slugs );
 	}
 
 	/**
@@ -334,7 +410,7 @@ class Main_Features_Test extends TestCase {
 			foreach ( $feature['plans'] ?? array() as $plan ) {
 				$this->assertContains(
 					$plan,
-					array( 'backup', 'security', 'complete', 'growth' ),
+					array( 'backup', 'security', 'pro', 'complete', 'growth' ),
 					"Feature {$slug} lists an unknown plan: {$plan}"
 				);
 			}
@@ -380,15 +456,17 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * The badges name the bundles a feature is sold in, so an empty list would quietly
-	 * drop the only thing the modal says about buying it.
+	 * @dataProvider provide_pro_availability
+	 * @param bool $available Whether Pro is on sale.
 	 */
-	public function test_plan_badges_name_the_bundles_that_include_a_feature() {
+	#[DataProvider( 'provide_pro_availability' )]
+	public function test_plan_badges_name_the_bundles_that_include_a_feature( $available ) {
+		$this->set_pro_available( $available );
 		$features = array_column( Main_Features::get_features(), 'plans', 'slug' );
 		$backup   = array_column( $features['backup'], 'name', 'slug' );
 
 		$this->assertArrayHasKey( 'security', $backup );
-		$this->assertNotEmpty( $backup['security'] );
+		$this->assertSame( $available, isset( $backup['pro'] ) );
 		$this->assertArrayHasKey( 'complete', $backup );
 		// Blaze is not sold in a bundle, so it earns no badges.
 		$this->assertSame( array(), $features['blaze'] );
@@ -654,9 +732,12 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * Without a product page of its own, the upgrade sells the cheapest bundle that includes the feature.
+	 * @dataProvider provide_pro_availability
+	 * @param bool $available Whether Pro is on sale.
 	 */
-	public function test_upgrade_falls_back_to_the_cheapest_bundle() {
+	#[DataProvider( 'provide_pro_availability' )]
+	public function test_upgrade_falls_back_to_the_cheapest_bundle( $available ) {
+		$this->set_pro_available( $available );
 		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
 
 		$this->assertSame( '/add-backup', $upgrades['activity-log']['path'] );
@@ -664,7 +745,7 @@ class Main_Features_Test extends TestCase {
 		$this->assertSame( '/add-growth', $upgrades['newsletter']['path'] );
 		$this->assertSame( '/add-growth', $upgrades['podcast']['path'] );
 		$this->assertSame( 'Jetpack Growth', $upgrades['podcast']['name'] );
-		$this->assertSame( '/add-complete', $upgrades['jetpack-forms']['path'] );
+		$this->assertSame( $available ? '/add-pro' : '/add-complete', $upgrades['jetpack-forms']['path'] );
 		$this->assertSame( '/add-akismet', $upgrades['anti-spam']['path'] );
 		$this->assertSame(
 			array(
@@ -672,6 +753,29 @@ class Main_Features_Test extends TestCase {
 				'name' => '',
 			),
 			$upgrades['blaze']
+		);
+	}
+
+	/**
+	 * @dataProvider provide_pro_availability
+	 * @param bool $available Whether Pro is on sale.
+	 */
+	#[DataProvider( 'provide_pro_availability' )]
+	public function test_activity_log_copy_follows_pro_availability( $available ) {
+		$this->set_pro_available( $available );
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
+		$copy     = $features['activity-log']['paid_highlights'][0];
+		$this->assertSame( $available, false !== strpos( $copy, 'Jetpack Pro' ) );
+		$this->assertSame( ! $available, false !== strpos( $copy, 'Jetpack Security' ) );
+	}
+
+	/**
+	 * @return array Prelaunch and launched catalog states.
+	 */
+	public static function provide_pro_availability() {
+		return array(
+			'before launch' => array( false ),
+			'launched'      => array( true ),
 		);
 	}
 

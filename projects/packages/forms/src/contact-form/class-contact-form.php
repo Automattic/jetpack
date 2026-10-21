@@ -82,6 +82,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $current_form;
 
 	/**
+	 * Whether a form's content is being parsed right now, used to detect a nested [contact-form].
+	 *
+	 * @var bool
+	 */
+	private static $is_building_form = false;
+
+	/**
 	 * All found forms, indexed by hash.
 	 *
 	 * @var array
@@ -559,7 +566,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'formTitle'              => $attributes['formTitle'] ?? '',
 		);
 
-		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
+		$nested_attributes = $this->get_nested_form_attributes( $content, $attributes );
+		$attributes        = array_merge( shortcode_atts( $this->defaults, $attributes, 'contact-form' ), $nested_attributes );
 
 		// Transform boolean saveResponses to string for backend compatibility
 		if ( isset( $attributes['saveResponses'] ) && is_bool( $attributes['saveResponses'] ) ) {
@@ -574,7 +582,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// We only enable the contact-field shortcode temporarily while processing the contact-form shortcode.
 		Contact_Form_Plugin::$using_contact_form_field = true;
 
+		self::$is_building_form = true;
 		parent::__construct( $attributes, $content );
+		self::$is_building_form = false;
 
 		// There were no fields in the contact form. The form was probably just [contact-form /]. Build a default form.
 		if ( empty( $this->fields ) ) {
@@ -599,6 +609,37 @@ class Contact_Form extends Contact_Form_Shortcode {
 		Contact_Form_Plugin::$using_contact_form_field = false;
 
 		$this->apply_initial_field_visibility();
+	}
+
+	/**
+	 * Attributes from [contact-form] shortcodes nested in this form's content that the form did not set itself.
+	 *
+	 * Resolved before fields are built, since fields read form attributes such as `subject` as they render.
+	 *
+	 * @param string|array|null $content             The form's inner content.
+	 * @param array             $explicit_attributes Attributes this form was given, before defaults were applied.
+	 * @return array
+	 */
+	private function get_nested_form_attributes( $content, $explicit_attributes ) {
+		if ( ! is_string( $content ) || ! preg_match_all( '/' . get_shortcode_regex( array( 'contact-form' ) ) . '/s', $content, $matches, PREG_SET_ORDER ) ) {
+			return array();
+		}
+
+		$nested_attributes = array();
+		foreach ( $matches as $match ) {
+			$attributes = shortcode_parse_atts( $match[3] );
+			// Skip escaped [[contact-form]], which renders as literal text.
+			if ( ( '[' !== $match[1] || ']' !== $match[6] ) && is_array( $attributes ) ) {
+				$nested_attributes += $attributes;
+			}
+		}
+
+		$internal_attributes = array_flip( array( 'id', 'ref', 'widget', 'block_template', 'block_template_part' ) );
+		return array_diff_key(
+			array_intersect_key( $nested_attributes, $this->defaults ),
+			$explicit_attributes,
+			$internal_attributes
+		);
 	}
 
 	/**
@@ -1370,7 +1411,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 	/**
 	 * Store shortcode content for recall later
-	 *  - used to receate shortcode when user uses do_shortcode
+	 *  - used to recreate shortcode when user uses apply_shortcodes
 	 *
 	 * @deprecated 5.0.0
 	 */
@@ -1463,6 +1504,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		global $post, $page, $multipage; // $page is used in the contact-form submission redirect
 		if ( Settings::is_syncing() ) {
 			return '';
+		}
+
+		// A form nested in another form's content would reset the outer form's state; merge its fields into the outer form instead.
+		if ( self::$is_building_form ) {
+			return $content === null ? '' : apply_shortcodes( $content );
 		}
 
 		// Handle ref attribute - load form from jetpack_form post

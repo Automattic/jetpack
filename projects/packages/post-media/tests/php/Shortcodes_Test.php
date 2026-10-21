@@ -44,6 +44,13 @@ class Shortcodes_Test extends TestCase {
 	}
 
 	/**
+	 * Test extracting a YouTube video ID from a live URL.
+	 */
+	public function test_get_youtube_id_with_live_url() {
+		$this->assertSame( 'VIDEO_ID', Shortcodes::get_youtube_id( 'https://www.youtube.com/live/VIDEO_ID?si=SHARE_ID' ) );
+	}
+
+	/**
 	 * Test extracting a YouTube video ID from a youtu.be short URL.
 	 */
 	public function test_get_youtube_id_with_short_url() {

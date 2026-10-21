@@ -177,6 +177,8 @@ function PostsReport(): JSX.Element {
 				initialView={ RECORDS_VIEW }
 				searchLabel={ __( 'Search archives', 'jetpack-premium-analytics-pkg' ) }
 				hideLevelMarkers
+				collapsible
+				defaultExpanded="none"
 			/>
 		);
 
@@ -192,6 +194,7 @@ function PostsReport(): JSX.Element {
 				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
+				withAllTime
 			>
 				<ReportErrorState
 					status={ records }

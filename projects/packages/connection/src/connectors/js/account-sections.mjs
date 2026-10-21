@@ -25,40 +25,42 @@ export function offersOwnerReconnect( notice ) {
 /**
  * Which connect prompt copy applies to a viewer whose account is not linked.
  *
- * @param {object|null} connectionOwner - The card's connectionOwner data.
+ * @param {object|null} owner         - The card's connection owner, or null.
+ * @param {boolean}     ownerIsViewer - Whether the viewer is the connection owner.
  * @return {string} `reconnect-owner`, `take-over`, `secondary`, or `first`.
  */
-export function getConnectPromptKind( connectionOwner ) {
-	if ( connectionOwner?.isConnectionBroken ) {
+export function getConnectPromptKind( owner, ownerIsViewer ) {
+	if ( owner?.isConnectionBroken ) {
 		// Authorizing while the owner's token is broken takes the vacant owner slot.
-		return connectionOwner.isCurrentUser ? 'reconnect-owner' : 'take-over';
+		return ownerIsViewer ? 'reconnect-owner' : 'take-over';
 	}
 
-	return connectionOwner ? 'secondary' : 'first';
+	return owner ? 'secondary' : 'first';
 }
 
 /**
  * Decide which account rows and prompts to render, so no viewer sees the same account twice.
  *
  * @param {object}      state                         - Card state.
- * @param {object|null} state.currentUser             - The viewer's linked account, or null.
- * @param {object|null} state.connectionOwner         - The connection owner, or null.
+ * @param {object|null} state.viewer                  - The viewer's linked account, or null.
+ * @param {object|null} state.owner                   - The connection owner, or null.
+ * @param {boolean}     state.ownerIsViewer           - Whether the viewer is the connection owner.
  * @param {boolean}     state.canConnect              - Whether the card offers a connect action.
  * @param {boolean}     state.isOwnerReconnectOffered - Whether the error banner offers to reconnect the owner.
  * @param {boolean}     state.isProtectedOwnerPending - Whether a protected owner is unconfirmed.
  * @return {{connectPrompt: boolean, unconfirmedOwnerRow: boolean, ownerRow: boolean}} Sections to render.
  */
 export function getAccountSections( {
-	currentUser,
-	connectionOwner,
+	viewer,
+	owner,
+	ownerIsViewer,
 	canConnect,
 	isOwnerReconnectOffered,
 	isProtectedOwnerPending,
 } ) {
-	const isOwnerConnectionBroken = Boolean( connectionOwner?.isConnectionBroken );
+	const isOwnerConnectionBroken = Boolean( owner?.isConnectionBroken );
 	// A broken owner viewing the card is covered by the prompt or the banner, not by a row.
-	const showsOwnerRow =
-		Boolean( connectionOwner ) && ! currentUser?.isOwner && ! connectionOwner.isCurrentUser;
+	const showsOwnerRow = Boolean( owner ) && ! ownerIsViewer;
 
 	// A broken owner is still the owner of record, so pending protected-owner state can't unconfirm them.
 	const isOwnerUnconfirmed = isProtectedOwnerPending && ! isOwnerConnectionBroken;
@@ -66,7 +68,7 @@ export function getAccountSections( {
 	return {
 		// The owner banner already says who must reconnect and offers the CTA.
 		connectPrompt:
-			! currentUser && canConnect && ! ( isOwnerConnectionBroken && isOwnerReconnectOffered ),
+			! viewer && canConnect && ! ( isOwnerConnectionBroken && isOwnerReconnectOffered ),
 		unconfirmedOwnerRow: showsOwnerRow && isOwnerUnconfirmed,
 		ownerRow: showsOwnerRow && ! isOwnerUnconfirmed,
 	};

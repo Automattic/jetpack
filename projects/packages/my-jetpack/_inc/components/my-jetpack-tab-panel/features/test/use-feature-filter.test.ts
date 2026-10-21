@@ -11,9 +11,70 @@ const buildState = ( feature: Partial< MainFeature >, status = 'inactive' ): Fea
 const security = { slug: 'security', name: 'Security' };
 
 describe( 'matchesFilter', () => {
+	afterEach( () => {
+		window.myJetpackInitialState.myJetpackFlags =
+			{} as typeof window.myJetpackInitialState.myJetpackFlags;
+	} );
+
 	it( 'keeps every feature under All', () => {
 		expect( matchesFilter( buildState( {} ), 'all' ) ).toBe( true );
 	} );
+
+	it.each( [ true, false ] )(
+		'filters host-forced-on modules by whether the site can run them (available: %s)',
+		available => {
+			const state = buildState( {}, 'active' );
+			state.control = { kind: 'module', module: { available, override: 'active' } as never };
+			expect( matchesFilter( state, 'available' ) ).toBe( available );
+			expect( matchesFilter( state, 'active' ) ).toBe( available );
+			expect( matchesFilter( state, 'inactive' ) ).toBe( ! available );
+			expect( matchesFilter( state, 'all' ) ).toBe( true );
+		}
+	);
+
+	it.each< [ string, FeatureState[ 'control' ], boolean ] >( [
+		[
+			'module',
+			{ kind: 'module', module: { available: true, override: 'inactive' } as never },
+			false,
+		],
+		[
+			'installed plugin',
+			{ kind: 'plugin', plugin: 'jetpack-search', override: 'inactive' },
+			false,
+		],
+		[
+			'plugin install',
+			{ kind: 'install-plugin', plugin: 'jetpack-search', blocked: 'disabled' },
+			false,
+		],
+		[
+			'Jetpack install',
+			{ kind: 'install-jetpack', installed: false, blocked: 'disabled' },
+			false,
+		],
+		[
+			'paid product running without its plugin',
+			{
+				kind: 'install-plugin',
+				plugin: 'jetpack-search',
+				blocked: 'disabled',
+				runsWithoutPlugin: true,
+			},
+			true,
+		],
+	] )(
+		'with the account-connect flag on, filters a blocked %s by whether it can already run',
+		( _, control, available ) => {
+			window.myJetpackInitialState.myJetpackFlags = {
+				accountConnect: true,
+			} as typeof window.myJetpackInitialState.myJetpackFlags;
+			const state = buildState( { plugin: 'jetpack-search', plugin_status: 'inactive' } );
+			state.control = control;
+			expect( matchesFilter( state, 'available' ) ).toBe( available );
+			expect( matchesFilter( state, 'all' ) ).toBe( true );
+		}
+	);
 
 	it( 'splits Active and Inactive on the live status, not the catalog', () => {
 		const on = buildState( {}, 'active' );
@@ -63,18 +124,26 @@ describe( 'getFeatureFilters', () => {
 
 		expect( values( 'all' ) ).toEqual( [
 			'all',
+			'available',
 			'active',
 			'inactive',
 			'essential',
 			'security',
 			'growth',
 		] );
-		expect( values( 'all', true ) ).toEqual( [ 'all', 'active', 'inactive', 'included' ] );
+		expect( values( 'all', true ) ).toEqual( [
+			'all',
+			'available',
+			'active',
+			'inactive',
+			'included',
+		] );
 	} );
 
 	it( 'still gives Included in plan a pill when a link selects it mid-visit', () => {
 		expect( getFeatureFilters( 'included' ).map( ( { value } ) => value ) ).toEqual( [
 			'all',
+			'available',
 			'active',
 			'inactive',
 			'included',

@@ -97,6 +97,17 @@ function resolveEntry( packageName, subEntry = null ) {
 	return path.join( pkgDir, pkg.module || pkg.main );
 }
 
+/**
+ * Read the version of a bundled package.
+ *
+ * @param {string} packageName - npm package name.
+ * @return {string} The package.json version.
+ */
+function resolvePackageVersion( packageName ) {
+	const pkgPath = localRequire.resolve( `${ packageName }/package.json` );
+	return JSON.parse( readFileSync( pkgPath, 'utf8' ) ).version;
+}
+
 // ── Shared config ───────────────────────────────────────────────────────────
 
 // Files inside upstream @wordpress packages that import a helper from
@@ -278,8 +289,9 @@ const VENDOR_EXTERNALS = {
 };
 
 class PolyfillModulePlugin {
-	constructor( { skipPackage } ) {
+	constructor( { skipPackage, packageVersion } ) {
 		this.skipPackage = skipPackage;
+		this.packageVersion = packageVersion;
 	}
 
 	apply( compiler ) {
@@ -402,6 +414,9 @@ class PolyfillModulePlugin {
 								parts.push( `'module_dependencies' => array(${ modDepsPhp })` );
 							}
 							parts.push( `'version' => '${ hash }'` );
+							if ( this.packageVersion ) {
+								parts.push( `'package_version' => '${ this.packageVersion }'` );
+							}
 
 							const assetContent = `<?php return array(${ parts.join( ', ' ) });\n`;
 							const assetFilename = jsFile.replace( /\.m?js$/i, '.asset.php' );
@@ -451,7 +466,10 @@ const esmConfigs = modulePolyfills.map( polyfill => ( {
 			DependencyExtractionPlugin: false,
 			...disabledPlugins,
 		} ),
-		new PolyfillModulePlugin( { skipPackage: polyfill.packageName } ),
+		new PolyfillModulePlugin( {
+			skipPackage: polyfill.packageName,
+			packageVersion: resolvePackageVersion( polyfill.packageName ),
+		} ),
 	],
 } ) );
 

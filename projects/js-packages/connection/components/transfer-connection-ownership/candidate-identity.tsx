@@ -9,37 +9,29 @@ import { Stack, Text } from '@wordpress/ui';
 import './style.scss';
 
 export interface AvatarBadgeProps {
-	/** Name the badge stands for. */
-	name: string;
-	/** Whether this is the person taking ownership over. */
-	isIncoming?: boolean;
+	/** Avatar URL. */
+	avatar?: string;
 }
 
 /**
- * Round initials badge for one person.
+ * Round avatar for one person.
  *
  * @param {AvatarBadgeProps} props - Component props.
  * @return {import('react').ReactNode} The AvatarBadge component.
  */
-export const AvatarBadge = ( { name, isIncoming }: AvatarBadgeProps ) => {
-	const initials = name
-		.split( /\s+/ )
-		.slice( 0, 2 )
-		.map( part => part.charAt( 0 ) )
-		.join( '' )
-		.toUpperCase();
+export const AvatarBadge = ( { avatar }: AvatarBadgeProps ) => {
+	if ( ! avatar ) {
+		return null;
+	}
 
 	return (
-		<span
-			className={
-				isIncoming
-					? 'jp-connection__transfer-ownership__avatar is-incoming'
-					: 'jp-connection__transfer-ownership__avatar'
-			}
-			aria-hidden="true"
-		>
-			{ initials }
-		</span>
+		<img
+			src={ avatar }
+			alt=""
+			width={ 48 }
+			height={ 48 }
+			className="jp-connection__transfer-ownership__avatar"
+		/>
 	);
 };
 
@@ -50,6 +42,8 @@ export interface CandidateIdentityProps {
 	login: string;
 	/** Email address, shown beside the login. */
 	email?: string;
+	/** Avatar URL. */
+	avatar?: string;
 }
 
 /**
@@ -58,14 +52,14 @@ export interface CandidateIdentityProps {
  * @param {CandidateIdentityProps} props - Component props.
  * @return {import('react').ReactNode} The CandidateIdentity component.
  */
-const CandidateIdentity = ( { displayName, login, email }: CandidateIdentityProps ) => (
+const CandidateIdentity = ( { displayName, login, email, avatar }: CandidateIdentityProps ) => (
 	<Stack
 		direction="row"
 		align="center"
 		gap="md"
 		className="jp-connection__transfer-ownership__identity"
 	>
-		<AvatarBadge name={ displayName } isIncoming />
+		<AvatarBadge avatar={ avatar } />
 		<Stack direction="column" className="jp-connection__transfer-ownership__who">
 			<Text render={ <strong /> }>{ displayName }</Text>
 			<Text className="jp-connection__transfer-ownership__meta">

@@ -41,7 +41,7 @@ class Jetpack_Connector {
 	/**
 	 * Path of the card's built script module relative to this file, without the extension.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.11.0
 	 *
 	 * @var string
 	 */
@@ -106,7 +106,7 @@ class Jetpack_Connector {
 	 * Skips the card when its built files are missing.
 	 *
 	 * @since 8.2.0
-	 * @since $$next-version$$ Loads the webpack build from dist/, with its dependencies and version from the asset file.
+	 * @since 9.11.0 Loads the webpack build from dist/, with its dependencies and version from the asset file.
 	 */
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
@@ -146,7 +146,7 @@ class Jetpack_Connector {
 		}
 		wp_enqueue_script_module( static::MODULE_ID );
 
-		// A script module can't depend on classic scripts, so the card's globals are enqueued beside it.
+		// A script module can't depend on classic scripts, so the ones the card imports are enqueued beside it.
 		// Assets::enqueue_script also loads the stylesheet registered with the handle.
 		foreach ( $asset['dependencies'] ?? array() as $handle ) {
 			Assets::enqueue_script( $handle );
@@ -161,7 +161,7 @@ class Jetpack_Connector {
 	/**
 	 * Read the asset file the build emits beside the card's script module.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.11.0
 	 *
 	 * @param string $module_path Path of the built module, without the extension.
 	 * @return array|null Asset data, or null if the module or its asset file is missing, or the asset is invalid.
@@ -180,8 +180,13 @@ class Jetpack_Connector {
 	/**
 	 * Build the data passed to the script module via the script_module_data_ filter.
 	 *
+	 * Card-only data. Connection state that the package's components also read (registration,
+	 * owner, viewer, connected plugins, offline mode) comes from the jetpack-connection store,
+	 * which Initial_State fills, so it is not repeated here.
+	 *
 	 * @since 8.2.0
-	 * @since $$next-version$$ Includes the viewer's account and the owner when the owner's token is broken, and `connectorsUrl`.
+	 * @since 9.13.0 Shared connection state moved to the jetpack-connection store.
+	 * @since $$next-version$$ Adds `connectorsUrl`, and sends `connectedUsersUrl` once the site is registered.
 	 *
 	 * @param array $data Existing script module data.
 	 * @return array Filtered script module data.
@@ -191,10 +196,6 @@ class Jetpack_Connector {
 		$is_registered = $manager->is_connected();
 		$is_connected  = $is_registered && $manager->has_connected_owner();
 
-		$data['isConnected']          = $is_connected;
-		$data['isRegistered']         = $is_registered;
-		$data['isOfflineMode']        = ( new Status() )->is_offline_mode();
-		$data['isFirstConnection']    = ! $is_registered && ! (bool) \Jetpack_Options::get_option( 'id' );
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']          = static::get_connectors_page_path();
@@ -203,16 +204,17 @@ class Jetpack_Connector {
 		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = static::get_connector_logo_url();
 
-		$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
+		$connected_plugins   = $manager->get_connected_plugins();
+		$connected_plugins   = is_array( $connected_plugins ) ? $connected_plugins : array();
+		$data['pluginLogos'] = static::get_plugin_logos( array_keys( $connected_plugins ) );
 
 		if ( $is_registered ) {
 			$data['siteDetails'] = array(
-				'blogId'  => (int) \Jetpack_Options::get_option( 'id' ),
 				'siteUrl' => site_url(),
 				'homeUrl' => home_url(),
 			);
 
-			if ( in_array( 'jetpack', array_column( $data['connectedPlugins'], 'slug' ), true ) ) {
+			if ( array_key_exists( 'jetpack', $connected_plugins ) ) {
 				$data['ssoStatus'] = ( new Modules() )->is_active( 'sso', false );
 			}
 
@@ -220,21 +222,17 @@ class Jetpack_Connector {
 		}
 
 		// Not gated on $is_connected: has_connected_owner() is false when the owner's token breaks,
-		// which would drop a healthy viewer's account and the owner the error notice refers to.
-		if ( $is_registered ) {
-			$current_user     = static::get_current_user_data( $manager );
-			$connection_owner = static::get_connection_owner_data( $manager );
-
-			if ( null !== $current_user ) {
-				$data['currentUser'] = $current_user;
-			}
-			if ( null !== $connection_owner ) {
-				$data['connectionOwner'] = $connection_owner;
-			}
-			if ( null !== $current_user || null !== $connection_owner ) {
-				$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
-			}
+		// and the card still lists the owner of record and a healthy viewer's account then.
+		$has_account_rows = (int) \Jetpack_Options::get_option( 'master_user' ) > 0 || $manager->is_user_connected();
+		if ( $is_registered && $has_account_rows ) {
+			$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
 		}
+
+		if ( $is_connected && $manager->is_connection_owner() ) {
+			$data['hasOtherConnectedUsers'] = count( $manager->get_connected_users( 'any', 2 ) ) > 1;
+		}
+
+		$data['connectionOwnerEditUrl'] = static::get_connection_owner_edit_url( ( new Status() )->is_offline_mode() );
 
 		$protected_owner = static::get_protected_owner_card_state( $manager );
 		if ( null !== $protected_owner ) {
@@ -256,12 +254,13 @@ class Jetpack_Connector {
 	/**
 	 * Add Jetpack Identity Crisis (Safe Mode) data to the script module data.
 	 *
-	 * The connector card uses this to swap the status badge to "Safe Mode" and
-	 * to render IDC resolution options (migrate / start fresh / stay in safe
+	 * Sent only in Safe Mode, which the card reads from the store's `connectionStatus.isInSafeMode`.
+	 * The card uses it to render IDC resolution options (migrate / start fresh / stay in safe
 	 * mode) in the expanded details. Mirrors the data assembled by
 	 * \Automattic\Jetpack\IdentityCrisis\UI::get_initial_state_data().
 	 *
 	 * @since 8.7.0
+	 * @since 9.13.0 No longer sends `isInSafeMode`; the card reads it from the store.
 	 *
 	 * @param array $data Script module data passed by reference.
 	 */
@@ -270,11 +269,7 @@ class Jetpack_Connector {
 			return;
 		}
 
-		$in_safe_mode = ( new Status() )->in_safe_mode();
-
-		$data['isInSafeMode'] = $in_safe_mode;
-
-		if ( ! $in_safe_mode ) {
+		if ( ! ( new Status() )->in_safe_mode() ) {
 			return;
 		}
 
@@ -298,6 +293,9 @@ class Jetpack_Connector {
 	 *
 	 * `viewerIsConfirmedOwner` is that method's `is_current_user_the_po`. It tells the recovery
 	 * copy apart: an owner whose own token broke is asked to reconnect, not to connect.
+	 *
+	 * The card always uses the package dialogs. `jetpack_connection_protected_owner_default_ui`
+	 * is for a consumer's own surface, not this one.
 	 *
 	 * @since 9.9.0
 	 *
@@ -326,126 +324,25 @@ class Jetpack_Connector {
 	}
 
 	/**
-	 * Get the current (logged-in) user's connection details.
+	 * The connection owner's profile URL, for a viewer who may open it.
 	 *
-	 * @param Manager $manager Connection manager instance.
-	 * @return array|null Current user data or null if not connected.
+	 * Needs `jetpack_connect` outside offline mode, so a restricted site admin sees the name as plain
+	 * text. get_edit_user_link() adds the `edit_user` check, since multisite site admins cannot edit other users.
+	 *
+	 * @since 9.13.0
+	 *
+	 * @param bool $is_offline_mode Whether the site is in offline mode.
+	 * @return string|null
 	 */
-	private static function get_current_user_data( $manager ) {
-		$user_id = get_current_user_id();
-
-		if ( ! $user_id || ! $manager->is_user_connected( $user_id ) ) {
-			return null;
-		}
-
-		$user      = get_userdata( $user_id );
-		$user_info = static::resolve_user_fields( $user, $manager->get_connected_user_data( $user_id ) );
-		$is_owner  = $manager->is_connection_owner( $user_id );
-
-		$has_other_connected_users = false;
-		if ( $is_owner ) {
-			$connected_users           = $manager->get_connected_users( 'any', 2 );
-			$has_other_connected_users = count( $connected_users ) > 1;
-		}
-
-		return array_merge(
-			$user_info,
-			array(
-				'isOwner'                => $is_owner,
-				'hasOtherConnectedUsers' => $has_other_connected_users,
-			)
-		);
-	}
-
-	/**
-	 * Get the connection owner details for the script module.
-	 *
-	 * When the owner's token is broken, falls back to the owner's local account, flagged with
-	 * `isConnectionBroken`, so the card can still name who has to reconnect.
-	 *
-	 * @since $$next-version$$ Returns the owner when their token is broken.
-	 *
-	 * @param Manager $manager Connection manager instance.
-	 * @return array|null Owner data or null if unavailable.
-	 */
-	private static function get_connection_owner_data( $manager ) {
-		$connected_owner = $manager->get_connection_owner();
-
-		if ( false !== $connected_owner ) {
-			$fields = static::resolve_user_fields(
-				$connected_owner,
-				$manager->get_connected_user_data( $connected_owner->ID )
-			);
-
-			$fields['localLogin'] = $connected_owner->user_login;
-
-			return $fields;
-		}
-
-		// Same owner-of-record lookup and gate as Initial_State::get_data(), which explains why.
-		if ( ! current_user_can( 'jetpack_connect' ) ) {
+	private static function get_connection_owner_edit_url( $is_offline_mode ) {
+		if ( ! $is_offline_mode && ! current_user_can( 'jetpack_connect' ) ) {
 			return null;
 		}
 
 		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
-		$owner    = $owner_id > 0 ? get_userdata( $owner_id ) : false;
-		if ( ! $owner instanceof \WP_User ) {
-			return null;
-		}
+		$url      = $owner_id > 0 ? get_edit_user_link( $owner_id ) : '';
 
-		// Local fields only: the WordPress.com lookup needs the token that is broken.
-		$fields = static::resolve_user_fields( $owner, false );
-
-		$fields['localLogin']         = $owner->user_login;
-		$fields['isConnectionBroken'] = true;
-		$fields['isCurrentUser']      = get_current_user_id() === $owner->ID;
-
-		return $fields;
-	}
-
-	/**
-	 * Merge local WP user fields with WordPress.com user data.
-	 *
-	 * WPCOM values take precedence when available. Returns the common
-	 * user shape used by both currentUser and connectionOwner.
-	 *
-	 * @param \WP_User|false $wp_user        Local WordPress user object (false if unavailable).
-	 * @param array|false    $wpcom_user_data WPCOM user data from the connection manager.
-	 * @return array User data with displayName, login, email, and avatar.
-	 */
-	private static function resolve_user_fields( $wp_user, $wpcom_user_data ) {
-		$display_name = $wp_user ? $wp_user->display_name : '';
-		$login        = $wp_user ? $wp_user->user_login : '';
-		$email        = $wp_user ? $wp_user->user_email : '';
-
-		if ( is_array( $wpcom_user_data ) ) {
-			if ( ! empty( $wpcom_user_data['display_name'] ) ) {
-				$display_name = $wpcom_user_data['display_name'];
-			}
-			if ( ! empty( $wpcom_user_data['login'] ) ) {
-				$login = $wpcom_user_data['login'];
-			}
-			if ( ! empty( $wpcom_user_data['email'] ) ) {
-				$email = $wpcom_user_data['email'];
-			}
-		}
-
-		$user_id = $wp_user ? $wp_user->ID : 0;
-
-		return array(
-			'displayName' => $display_name,
-			'login'       => $login,
-			'email'       => $email,
-			'avatar'      => $user_id
-				? get_avatar_url(
-					$user_id,
-					array(
-						'size'    => 48,
-						'default' => 'mysteryman',
-					)
-				)
-				: '',
-		);
+		return '' !== $url ? $url : null;
 	}
 
 	/**
@@ -543,37 +440,27 @@ class Jetpack_Connector {
 	}
 
 	/**
-	 * Get connected plugins data for the script module.
+	 * Map connected plugin slugs to their logo URLs.
 	 *
-	 * @param Manager $manager Connection manager instance.
-	 * @return array List of connected plugin data.
+	 * The plugin list itself comes from the jetpack-connection store; logos stay here because
+	 * third parties add them through a PHP filter.
+	 *
+	 * @since 9.13.0
+	 *
+	 * @param string[] $slugs Connected plugin slugs.
+	 * @return array<string,string> Logo URL by slug, for slugs that have one.
 	 */
-	private static function get_connected_plugins_data( $manager ) {
-		$plugins = $manager->get_connected_plugins();
+	private static function get_plugin_logos( $slugs ) {
+		$logos = array();
 
-		if ( is_wp_error( $plugins ) || ! is_array( $plugins ) ) {
-			return array();
-		}
-
-		$result = array();
-
-		foreach ( $plugins as $slug => $plugin_data ) {
-			$name = $plugin_data['name'] ?? $slug;
-
-			$entry = array(
-				'name' => $name,
-				'slug' => $slug,
-			);
-
-			$logo_url = static::get_plugin_logo_url( $slug );
+		foreach ( $slugs as $slug ) {
+			$logo_url = static::get_plugin_logo_url( (string) $slug );
 			if ( $logo_url ) {
-				$entry['logoUrl'] = $logo_url;
+				$logos[ $slug ] = $logo_url;
 			}
-
-			$result[] = $entry;
 		}
 
-		return $result;
+		return $logos;
 	}
 
 	/**

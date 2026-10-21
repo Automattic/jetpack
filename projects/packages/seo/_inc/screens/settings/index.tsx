@@ -7,6 +7,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { home, link, seen } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
 import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import UpsellBanner from '../../components/upsell-banner';
@@ -54,9 +55,17 @@ const platformManagedHelp = __(
 	'This setting is managed by your hosting platform and cannot be changed here.',
 	'jetpack-seo'
 );
-// Figures are what search *displays*, not a limit we enforce — the field is
-// deliberately uncapped. Google measures a pixel width (920px desktop / 680px
-// mobile), which works out around 155 and 120 characters.
+const canonicalHelp = __(
+	"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
+	'jetpack-seo'
+);
+const canonicalConflictHelp = __(
+	"Another SEO plugin is active, so Jetpack won't add canonical URLs to avoid conflicts. Deactivate that plugin to use this setting.",
+	'jetpack-seo'
+);
+// Figures are what search *displays*, not a limit we enforce. Google measures a
+// pixel width (920px desktop / 680px mobile), which works out around 155 and 120
+// characters.
 //
 // No social figure is quoted on purpose. `functions.opengraph.php` truncates
 // `og:description` at 197, but that happens *before* the `jetpack_open_graph_tags`
@@ -67,6 +76,13 @@ const frontPageHelp = __(
 	'Shown under your site name in search results and social shares. About the first 155 characters display in search, or 120 on mobile.',
 	'jetpack-seo'
 );
+const frontPageLockedHelp = __(
+	'Locked while another SEO plugin manages your SEO. Jetpack uses this again once it’s deactivated.',
+	'jetpack-seo'
+);
+// Keep in step with the 155 quoted in `frontPageHelp`.
+const descriptionSearchLength = 155;
+const descriptionMaxLength = 300;
 
 interface Props {
 	form: SettingsForm;
@@ -92,6 +108,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		setField,
 		setSchemaSettings,
 		setVerification,
+		saveVerification,
 		commit,
 		commitFields,
 		isDirty,
@@ -158,11 +175,25 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// Count code points, not UTF-16 units, so an emoji or an astral character
 	// counts once rather than twice.
 	const descriptionLength = [ ...local.front_page_description ].length;
+	// `maxLength` caps UTF-16 units, so test the cap in those: an emoji spends two.
+	const descriptionAtMax = local.front_page_description.length >= descriptionMaxLength;
+	const descriptionCount = sprintf(
+		/* translators: %d: number of characters currently in the front-page description. */
+		_n( '%d character', '%d characters', descriptionLength, 'jetpack-seo' ),
+		descriptionLength
+	);
 
 	// Single toggles and single fields are binary — they have no partial state,
 	// so they move straight from not-started to complete.
 	const canonicalStatus: SettingStatus = local.canonical_active ? 'complete' : 'not-started';
 	const frontPageStatus: SettingStatus = local.front_page_description ? 'complete' : 'not-started';
+
+	let canonicalHelpText: string = canonicalHelp;
+	if ( ! local.canonical_switchable ) {
+		canonicalHelpText = platformManagedHelp;
+	} else if ( local.canonical_conflicted ) {
+		canonicalHelpText = canonicalConflictHelp;
+	}
 
 	// On plan-gated sites (below-Premium WordPress.com) the Settings tab keeps only
 	// the two always-valid sections (site visibility + verification, both backed by
@@ -172,6 +203,23 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// when it was free for all WordPress.com Simple sites keeps editing it even when
 	// gated (the value stays live), so its card is shown below in that case too.
 	const gated = isGated();
+
+	// Another SEO plugin owns the output these fields feed, so they're locked. Gated sites
+	// report the output off too, but keep their grandfathered description editable.
+	const outputLocked = ! gated && ! local.title_formats_editable;
+	const lockedNotice = local.conflicting_seo_plugin
+		? sprintf(
+				/* translators: %s: name of the SEO plugin that controls the site's SEO output, e.g. Yoast SEO. */
+				__(
+					'%s is managing your SEO titles and descriptions, so Jetpack’s settings for them are locked while it’s active.',
+					'jetpack-seo'
+				),
+				local.conflicting_seo_plugin
+			)
+		: __(
+				'Another SEO plugin is managing your SEO titles and descriptions, so Jetpack’s settings for them are locked while it’s active.',
+				'jetpack-seo'
+			);
 
 	const frontPageDescriptionCard = (
 		<CollapsibleCard.Root defaultOpen={ false }>
@@ -196,27 +244,35 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						// also on this tab and leave two controls indistinguishable to a
 						// screen reader.
 						label={ __( 'Home page description', 'jetpack-seo' ) }
-						help={ frontPageHelp }
+						help={ outputLocked ? frontPageLockedHelp : frontPageHelp }
 						value={ local.front_page_description }
 						onChange={ next => setField( { front_page_description: next } ) }
-						maxLength={ 300 }
+						maxLength={ descriptionMaxLength }
 						rows={ 3 }
-						disabled={ isSaving }
+						disabled={ isSaving || outputLocked }
 						__nextHasNoMarginBottom
 					/>
-					{ /* Count and Save share a row, matching the title-structure footer. The
-					     count is informational only — nothing here is capped. */ }
+					{ /* Count and Save share a row, matching the title-structure footer. */ }
 					<Stack direction="row" justify="space-between" align="center" gap="sm">
-						<Text variant="body-sm" className={ styles.charCount }>
-							{ sprintf(
-								/* translators: %d: number of characters currently in the front-page description. */
-								_n( '%d character', '%d characters', descriptionLength, 'jetpack-seo' ),
-								descriptionLength
-							) }
+						<Text
+							variant="body-sm"
+							className={ clsx( styles.charCount, {
+								[ styles.charCountWarn ]:
+									descriptionLength > descriptionSearchLength && ! descriptionAtMax,
+								[ styles.charCountMax ]: descriptionAtMax,
+							} ) }
+						>
+							{ descriptionAtMax
+								? sprintf(
+										/* translators: %s: the character count, e.g. "300 characters". */
+										__( '%s — Maximum characters reached.', 'jetpack-seo' ),
+										descriptionCount
+									)
+								: descriptionCount }
 						</Text>
 						<Button
 							onClick={ () => commitFields( [ 'front_page_description' ] ) }
-							disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
+							disabled={ isSaving || outputLocked || ! isDirty( [ 'front_page_description' ] ) }
 						>
 							{ saveLabel }
 						</Button>
@@ -228,6 +284,11 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
+			{ outputLocked && (
+				<Notice.Root intent="warning">
+					<Notice.Description>{ lockedNotice }</Notice.Description>
+				</Notice.Root>
+			) }
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>
@@ -304,6 +365,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							: undefined
 					}
 					onChange={ setVerification }
+					saveGoogleCode={ code => saveVerification( 'google', code ) }
 					onCommit={ () => commitFields( [ 'verification' ] ) }
 					disabled={ isSaving }
 					open={ verificationOpen }
@@ -325,37 +387,28 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						<AuthorProfileCard />
 					</div>
 
-					{ ! simpleSite && (
-						<CollapsibleCard.Root defaultOpen={ false }>
-							<CollapsibleCard.Header render={ <h2 /> }>
-								<Stack direction="row" justify="space-between" align="center" gap="sm">
-									<Card.Title>
-										<CardTitleIcon icon={ link } title={ __( 'Canonical URLs', 'jetpack-seo' ) } />
-									</Card.Title>
-									<CollapsibleCard.HeaderDescription>
-										<StatusIndicator status={ canonicalStatus } />
-									</CollapsibleCard.HeaderDescription>
-								</Stack>
-							</CollapsibleCard.Header>
-							<CollapsibleCard.Content>
-								<ToggleControl
-									label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
-									help={
-										! local.canonical_switchable
-											? platformManagedHelp
-											: __(
-													"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
-													'jetpack-seo'
-												)
-									}
-									checked={ local.canonical_active }
-									onChange={ next => commit( { canonical_active: next } ) }
-									disabled={ isSaving || ! local.canonical_switchable }
-									__nextHasNoMarginBottom
-								/>
-							</CollapsibleCard.Content>
-						</CollapsibleCard.Root>
-					) }
+					<CollapsibleCard.Root defaultOpen={ false }>
+						<CollapsibleCard.Header render={ <h2 /> }>
+							<Stack direction="row" justify="space-between" align="center" gap="sm">
+								<Card.Title>
+									<CardTitleIcon icon={ link } title={ __( 'Canonical URLs', 'jetpack-seo' ) } />
+								</Card.Title>
+								<CollapsibleCard.HeaderDescription>
+									<StatusIndicator status={ canonicalStatus } />
+								</CollapsibleCard.HeaderDescription>
+							</Stack>
+						</CollapsibleCard.Header>
+						<CollapsibleCard.Content>
+							<ToggleControl
+								label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
+								help={ canonicalHelpText }
+								checked={ local.canonical_active }
+								onChange={ next => commit( { canonical_active: next } ) }
+								disabled={ isSaving || ! local.canonical_switchable || local.canonical_conflicted }
+								__nextHasNoMarginBottom
+							/>
+						</CollapsibleCard.Content>
+					</CollapsibleCard.Root>
 
 					<TitleStructureField
 						formats={ local.title_formats }
@@ -371,7 +424,8 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 					{ frontPageDescriptionCard }
 
-					<SocialPreviewsCard description={ local.front_page_description } />
+					{ /* It previews Jetpack's tags, which aren't the ones a conflicting plugin outputs. */ }
+					{ ! outputLocked && <SocialPreviewsCard description={ local.front_page_description } /> }
 				</>
 			) }
 

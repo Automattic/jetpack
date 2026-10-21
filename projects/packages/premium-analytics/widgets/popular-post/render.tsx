@@ -3,7 +3,6 @@
  */
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { toAuthorId } from '@jetpack-premium-analytics/data';
-import { search } from '@jetpack-premium-analytics/icons';
 import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
@@ -17,14 +16,23 @@ import {
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import { usePopularPost } from './use-popular-post';
 import { useNoPublishedPosts } from '../use-no-published-posts';
-import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * Widget attributes shape.
+ *
+ * @property authorScoped - Rank one author's posts over the page range instead
+ *                        of the site's over the last 12 months. Set by the
+ *                        author detail composition; not a user-facing control.
+ */
+export type PopularPostAttributes = {
+	authorScoped?: boolean;
+};
 
 // The host's `reportParams` only matter to an author-scoped instance; the
 // dashboard card reports on its own pinned window.
@@ -56,7 +64,6 @@ function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
 				isError={ false }
 				isEmpty
 				empty={ {
-					icon: trendingUp,
 					description: __(
 						'Open an author to see their most viewed post here.',
 						'jetpack-premium-analytics-pkg'
@@ -129,7 +136,6 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 				authorId
 					? undefined
 					: {
-							icon: noPublishedPosts ? search : trendingUp,
 							description: noPublishedPosts
 								? __(
 										"Your most-read post will show here once you've published one.",
@@ -162,6 +168,11 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 	);
 }
 
+/**
+ * The Insights "Most popular post" module: the site's most-viewed post of the
+ * last 12 months. The window only picks the winner; the views, likes, and
+ * comments shown for it are all-time totals.
+ */
 export default function PopularPost( { attributes = {} }: PopularPostWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

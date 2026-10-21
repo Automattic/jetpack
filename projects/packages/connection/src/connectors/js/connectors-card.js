@@ -4,15 +4,14 @@
  *
  * Built by webpack into dist/connectors/ and loaded via
  * wp_enqueue_script_module() with `@wordpress/connectors` as a static
- * dependency. Uses classic-script globals for element, i18n, and
- * components which are always loaded on admin pages. Imports from
- * `@automattic/jetpack-connection` resolve to the shared jetpack-connection
- * script, which the PHP enqueues from the asset file's dependencies.
+ * dependency. Its other imports are classic scripts, which the PHP
+ * enqueues beside it from the asset file's `dependencies`.
  *
  * Name, description, and logo are provided by the PHP registration
  * in register_connector() and merged automatically by the store.
- * This module adds the render function and passes connection-specific
- * data (owner, plugins, disconnect) via script module data.
+ * This module adds the render function. Connection state shared with the
+ * package's components comes from the jetpack-connection store; the
+ * card-only extras come from script module data.
  *
  * The render prop naming differs between WP core (name, logo) and
  * the Gutenberg plugin (label, icon), so the card accepts both.
@@ -20,10 +19,28 @@
  * @see Jetpack_Connector::enqueue_script_module()
  */
 
-import { ConnectionErrorView, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import {
+	CONNECTION_STORE_ID,
+	ConnectionErrorView,
+	ProtectedOwnerConfirmation,
+	ProtectedOwnerRelease,
+	TransferConnectionOwnership,
+	useConnectionErrorNotice,
+} from '@automattic/jetpack-connection';
+import * as components from '@wordpress/components';
 // Namespace import: a missing named export would fail the whole module before the fallbacks run.
 // eslint-disable-next-line import/no-unresolved -- resolved via WP import map at runtime.
 import * as connectors from '@wordpress/connectors';
+import { useDispatch, useSelect } from '@wordpress/data';
+import {
+	createElement,
+	createInterpolateElement,
+	useState,
+	useEffect,
+	useMemo,
+	useRef,
+} from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import {
 	getAccountSections,
 	getConnectPromptKind,
@@ -34,28 +51,25 @@ const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
 const ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
 
-const { createElement, createInterpolateElement, useState, useEffect, useRef } = window.wp.element;
-const { __, _x, sprintf } = window.wp.i18n;
-const { Button, Modal, Notice, Tooltip } = window.wp.components;
-const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
-const VStack = window.wp.components.__experimentalVStack || window.wp.components.VStack;
-const Text = window.wp.components.__experimentalText || window.wp.components.Text;
+const { Button, Modal, Notice, Tooltip } = components;
+const HStack = components.__experimentalHStack || components.HStack;
+const VStack = components.__experimentalVStack || components.VStack;
+const Text = components.__experimentalText || components.Text;
 
 const MODULE_ID = '@automattic/jetpack-connection-connectors';
 const dataEl = document.getElementById( `wp-script-module-data-${ MODULE_ID }` );
 const data = JSON.parse( dataEl?.textContent ?? '{}' );
 
-const initialIsConnected = Boolean( data.isConnected );
-const initialIsRegistered = Boolean( data.isRegistered );
+// Card-only data. Connection state the package's components also read comes from the store; see useCardConnection().
 const apiRoot = data.apiRoot || '';
 const apiNonce = data.apiNonce || '';
 const redirectUri = data.redirectUri || '';
 // Absolute form of redirectUri, for flows that redirect without resolving it against wp-admin.
 const connectorsUrl = data.connectorsUrl || undefined;
-const currentUser = data.currentUser || null;
-const connectionOwner = data.connectionOwner || null;
+const hasOtherConnectedUsers = Boolean( data.hasOtherConnectedUsers );
+const connectionOwnerEditUrl = data.connectionOwnerEditUrl || null;
 const connectedUsersUrl = data.connectedUsersUrl || '';
-const connectedPlugins = data.connectedPlugins || [];
+const pluginLogos = data.pluginLogos || {};
 const siteDetails = data.siteDetails || null;
 const isWoaSite = Boolean( data.isWoaSite );
 const isVipSite = Boolean( data.isVipSite );
@@ -64,32 +78,129 @@ const CONNECTOR_LOGO = data.connectorLogoUrl
 	? createElement( 'img', { src: data.connectorLogoUrl, alt: '', width: 36, height: 36 } )
 	: null;
 const ssoStatus = data.ssoStatus ?? null;
-const isFirstConnection = Boolean( data.isFirstConnection );
-const isOfflineMode = Boolean( data.isOfflineMode );
-const isInSafeMode = Boolean( data.isInSafeMode );
 const isSafeModeConfirmed = Boolean( data.isSafeModeConfirmed );
 const idc = data.idc || null;
 const protectedOwner = data.protectedOwner || null;
-// The owner's token is missing or malformed; connectionOwner then holds their local account only.
-const isOwnerConnectionBroken = Boolean( connectionOwner?.isConnectionBroken );
-// Stats and Backups are Jetpack-plugin features, so only cite them as examples
-// of paused features when a Jetpack-family plugin is actually connected.
-// Other plugin families (WooCommerce, Automattic for Agencies) fall back to the
-// generic "features that sync with WordPress.com" wording.
-const hasJetpackPlugin = connectedPlugins.some(
-	plugin => plugin.slug === 'jetpack' || plugin.slug.startsWith( 'jetpack-' )
-);
-// Per the Jetpack Connection language guidelines, use "store" whenever a
-// WooCommerce-family plugin is connected (Woo is the user's primary context),
-// and "site" otherwise.
-const hasWooPlugin = connectedPlugins.some( plugin => plugin.slug.startsWith( 'woocommerce' ) );
-const subjectNoun = hasWooPlugin
-	? _x(
-			'store',
-			'The thing connected to WordPress.com, in a WooCommerce context.',
-			'jetpack-connection'
-		)
-	: _x( 'site', 'The thing connected to WordPress.com.', 'jetpack-connection' );
+
+/**
+ * The viewer's account row, or null when they have no user connection.
+ *
+ * WordPress.com values win; the local name and email fill in when the WordPress.com lookup failed.
+ *
+ * @param {object}  currentUser     - userConnectionData.currentUser from the store.
+ * @param {boolean} isUserConnected - Whether the viewer holds a user token.
+ * @return {object|null} Viewer row data.
+ */
+function buildViewer( currentUser, isUserConnected ) {
+	if ( ! isUserConnected || ! currentUser ) {
+		return null;
+	}
+
+	const wpcomUser = currentUser.wpcomUser || {};
+	const isOwner = Boolean( currentUser.isMaster );
+
+	return {
+		displayName: wpcomUser.display_name || currentUser.displayName || currentUser.username || '',
+		login: wpcomUser.login || currentUser.username || '',
+		email: wpcomUser.email || currentUser.email || '',
+		avatar: currentUser.gravatar || '',
+		isOwner,
+		hasOtherConnectedUsers: isOwner && hasOtherConnectedUsers,
+	};
+}
+
+/**
+ * Connection state for the card, read from the jetpack-connection store.
+ *
+ * @return {object} Connection state and the values derived from it.
+ */
+function useCardConnection() {
+	const {
+		connectionStatus,
+		userConnectionData,
+		owner: storeOwner,
+		plugins,
+		isOfflineMode,
+		blogId,
+	} = useSelect( select => {
+		const store = select( CONNECTION_STORE_ID );
+		return {
+			connectionStatus: store.getConnectionStatus(),
+			userConnectionData: store.getUserConnectionData(),
+			owner: store.getConnectionOwner(),
+			plugins: store.getConnectedPlugins(),
+			isOfflineMode: store.getIsOfflineMode(),
+			blogId: store.getBlogId() || null,
+		};
+	}, [] );
+
+	return useMemo( () => {
+		const isRegistered = Boolean( connectionStatus.isRegistered );
+		const isConnected = isRegistered && Boolean( connectionStatus.hasConnectedOwner );
+		const currentUser = userConnectionData?.currentUser || null;
+		// The store's owner comes from the master_user option, so it still names an owner whose token
+		// is broken; the card flags them so the rows and prompt can say who has to reconnect.
+		let owner = isRegistered ? storeOwner : null;
+		const isOwnerConnectionBroken = Boolean( owner ) && ! isConnected;
+		// Without jetpack_connect (offline mode, network-restricted site admins) the store withholds the
+		// owner object, but userConnectionData still names the connected owner.
+		if ( isConnected && ! owner && userConnectionData?.connectionOwner ) {
+			owner = { id: null, displayName: userConnectionData.connectionOwner };
+		}
+		// Not gated on isConnected, so a healthy viewer keeps their row when the owner's token breaks.
+		const viewer = isRegistered
+			? buildViewer( currentUser, Boolean( connectionStatus.isUserConnected ) )
+			: null;
+		// The initial state sends a WP_Error object when the plugin list can't be read.
+		const connectedPlugins = ( Array.isArray( plugins ) ? plugins : [] ).map( plugin => ( {
+			name: plugin.name || plugin.slug,
+			slug: plugin.slug,
+			logoUrl: pluginLogos[ plugin.slug ] || null,
+		} ) );
+		// Per the Jetpack Connection language guidelines, use "store" whenever a
+		// WooCommerce-family plugin is connected (Woo is the user's primary context),
+		// and "site" otherwise.
+		const hasWooPlugin = connectedPlugins.some( plugin => plugin.slug.startsWith( 'woocommerce' ) );
+
+		return {
+			isRegistered,
+			isConnected,
+			isOfflineMode: Boolean( isOfflineMode ),
+			isFirstConnection: ! isRegistered && ! blogId,
+			isInSafeMode: isRegistered && Boolean( connectionStatus.isInSafeMode ),
+			blogId,
+			viewer,
+			owner: owner
+				? {
+						id: owner.id,
+						displayName: owner.displayName,
+						avatar: owner.avatar || '',
+						editUrl: connectionOwnerEditUrl,
+						isConnectionBroken: isOwnerConnectionBroken,
+					}
+				: null,
+			isOwnerConnectionBroken,
+			ownerIsViewer: owner?.id
+				? Boolean( currentUser && owner.id === currentUser.id )
+				: Boolean( owner && currentUser?.isMaster ),
+			connectedPlugins,
+			// Stats and Backups are Jetpack-plugin features, so only cite them as examples
+			// of paused features when a Jetpack-family plugin is actually connected.
+			// Other plugin families (WooCommerce, Automattic for Agencies) fall back to the
+			// generic "features that sync with WordPress.com" wording.
+			hasJetpackPlugin: connectedPlugins.some(
+				plugin => plugin.slug === 'jetpack' || plugin.slug.startsWith( 'jetpack-' )
+			),
+			subjectNoun: hasWooPlugin
+				? _x(
+						'store',
+						'The thing connected to WordPress.com, in a WooCommerce context.',
+						'jetpack-connection'
+					)
+				: _x( 'site', 'The thing connected to WordPress.com.', 'jetpack-connection' ),
+		};
+	}, [ connectionStatus, userConnectionData, storeOwner, plugins, isOfflineMode, blogId ] );
+}
 
 /**
  * Make a POST/GET request to a Jetpack REST endpoint with the standard
@@ -355,7 +466,7 @@ function StatusBadge( { label, modifier = 'connected' } ) {
  *
  * @param {object}            props            - Component props.
  * @param {string}            props.title      - Section heading (uppercase label).
- * @param {object|null}       props.user       - User data object with displayName, login, avatar.
+ * @param {object|null}       props.user       - User data object with displayName, login, avatar, and an optional editUrl.
  * @param {string|false|null} props.subtitle   - Override for the default login/email line. Pass false to hide entirely.
  * @param {object|null}       props.actionSlot - Optional element rendered at the end of the user row.
  * @param {boolean}           props.showShield - Whether to show the protected-owner shield beside the title.
@@ -391,11 +502,11 @@ function UserSection( { title, user, subtitle = null, actionSlot = null, showShi
 				createElement(
 					VStack,
 					{ spacing: 0 },
-					user.localLogin
+					user.editUrl
 						? createElement(
 								'a',
 								{
-									href: 'users.php?s=' + encodeURIComponent( user.localLogin ),
+									href: user.editUrl,
 									className: 'jetpack-connector__user-link',
 								},
 								createElement( Text, { weight: 600, size: 13 }, user.displayName )
@@ -417,6 +528,8 @@ function UserSection( { title, user, subtitle = null, actionSlot = null, showShi
  * @return {object|null} React element or null.
  */
 function ConnectedPluginsSection() {
+	const { connectedPlugins } = useCardConnection();
+
 	if ( ! connectedPlugins.length ) {
 		return null;
 	}
@@ -602,15 +715,16 @@ function protectedOwnerIsEstablished() {
  * Only the confirmed owner, and only once ownership is settled: every pending state already
  * offers its own slot, and releasing from one of those would unlock a lock nobody holds yet.
  *
+ * @param {object|null} viewer - The viewer's row data from useCardConnection().
  * @return {boolean} True when the release row should be shown.
  */
-function canReleaseProtectedOwner() {
+function canReleaseProtectedOwner( viewer ) {
 	// Holding the connection too, which is the gate the release endpoint applies: a settled site
 	// has the anchored owner there, and a shared binding alone would earn a 403.
 	return (
 		protectedOwnerIsEstablished() &&
 		Boolean( protectedOwner?.viewerIsConfirmedOwner ) &&
-		Boolean( currentUser?.isOwner )
+		Boolean( viewer?.isOwner )
 	);
 }
 
@@ -623,8 +737,7 @@ function canReleaseProtectedOwner() {
  */
 function ReleaseOwnershipSection( { isBusy = false } ) {
 	const [ isReleaseOpen, setIsReleaseOpen ] = useState( false );
-	const [ releaseError, setReleaseError ] = useState( null );
-	const Release = window.JetpackConnection?.ProtectedOwnerRelease;
+	const { isOfflineMode, subjectNoun } = useCardConnection();
 
 	return createElement(
 		VStack,
@@ -635,30 +748,12 @@ function ReleaseOwnershipSection( { isBusy = false } ) {
 				variant: 'link',
 				className: 'jetpack-connector__inline-action',
 				disabled: isBusy || isOfflineMode,
-				onClick: () => {
-					if ( ! window.JetpackConnection?.ProtectedOwnerRelease ) {
-						setReleaseError(
-							__(
-								'Could not open the release dialog. Reload the page and try again.',
-								'jetpack-connection'
-							)
-						);
-						return;
-					}
-					setReleaseError( null );
-					setIsReleaseOpen( true );
-				},
+				onClick: () => setIsReleaseOpen( true ),
 			},
 			__( 'Release ownership', 'jetpack-connection' )
 		),
-		releaseError
-			? createElement( ErrorNotice, {
-					message: releaseError,
-					onDismiss: () => setReleaseError( null ),
-				} )
-			: null,
-		isReleaseOpen && Release
-			? createElement( Release, {
+		isReleaseOpen && ProtectedOwnerRelease
+			? createElement( ProtectedOwnerRelease, {
 					isOpen: true,
 					apiRoot,
 					apiNonce,
@@ -677,7 +772,7 @@ function ReleaseOwnershipSection( { isBusy = false } ) {
  */
 function ProtectedOwnerSection() {
 	const [ isConfirmOpen, setIsConfirmOpen ] = useState( false );
-	const [ confirmError, setConfirmError ] = useState( null );
+	const { subjectNoun } = useCardConnection();
 	const kind = protectedOwnerSlotKind();
 	let title;
 	let body;
@@ -750,19 +845,7 @@ function ProtectedOwnerSection() {
 				{
 					variant: 'link',
 					className: 'jetpack-connector__inline-action',
-					onClick: () => {
-						if ( ! window.JetpackConnection?.ProtectedOwnerConfirmation ) {
-							setConfirmError(
-								__(
-									'Could not open the confirmation. Reload the page and try again.',
-									'jetpack-connection'
-								)
-							);
-							return;
-						}
-						setConfirmError( null );
-						setIsConfirmOpen( true );
-					},
+					onClick: () => setIsConfirmOpen( true ),
 				},
 				sprintf(
 					// translators: %s: "site" or "store".
@@ -786,21 +869,13 @@ function ProtectedOwnerSection() {
 		);
 	}
 
-	const Confirmation = window.JetpackConnection?.ProtectedOwnerConfirmation;
-
 	return createElement(
 		VStack,
 		{ spacing: 3, className: 'jetpack-connector__section' },
 		createElement( SectionHeading, { title, showShield: true } ),
 		body,
-		confirmError
-			? createElement( ErrorNotice, {
-					message: confirmError,
-					onDismiss: () => setConfirmError( null ),
-				} )
-			: null,
-		isConfirmOpen && Confirmation
-			? createElement( Confirmation, {
+		isConfirmOpen && ProtectedOwnerConfirmation
+			? createElement( ProtectedOwnerConfirmation, {
 					isOpen: true,
 					apiRoot,
 					apiNonce,
@@ -822,7 +897,8 @@ function ProtectedOwnerSection() {
  * @return {object} React element.
  */
 function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
-	const promptKind = getConnectPromptKind( connectionOwner );
+	const { isOfflineMode, owner, ownerIsViewer } = useCardConnection();
+	const promptKind = getConnectPromptKind( owner, ownerIsViewer );
 	const isReconnectingOwner = 'reconnect-owner' === promptKind;
 
 	// When a connection owner is already linked, the viewing admin is
@@ -938,6 +1014,42 @@ function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
 }
 
 /**
+ * Modal hosting the ownership transfer flow.
+ *
+ * The shared component carries the choose → confirm → done flow and its own actions, so the
+ * card supplies only the modal, its heading and the way out.
+ *
+ * @param {object}   props               - Component props.
+ * @param {Function} props.onClose       - Called when the modal is dismissed.
+ * @param {Function} props.onTransferred - Called once WordPress.com has accepted the new owner.
+ * @return {object} React element.
+ */
+function TransferOwnershipModal( { onClose, onTransferred } ) {
+	const [ isTransferring, setIsTransferring ] = useState( false );
+
+	return createElement(
+		Modal,
+		{
+			title: __( 'Transfer connection ownership', 'jetpack-connection' ),
+			onRequestClose: onClose,
+			size: 'small',
+			className: 'jetpack-connector__transfer-modal',
+			focusOnMount: 'firstElement',
+			// A transfer cannot be undone halfway, so every way out is held shut while it runs.
+			isDismissible: ! isTransferring,
+			shouldCloseOnClickOutside: ! isTransferring,
+			shouldCloseOnEsc: ! isTransferring,
+		},
+		createElement( TransferConnectionOwnership, {
+			apiRoot,
+			apiNonce,
+			onBusyChange: setIsTransferring,
+			onTransferred,
+		} )
+	);
+}
+
+/**
  * Read-only modal showing blog ID, site URL, home URL, and SSO status.
  *
  * @param {object}   props         - Component props.
@@ -945,6 +1057,7 @@ function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
  * @return {object} React element.
  */
 function SiteDetailsModal( { onClose } ) {
+	const { blogId } = useCardConnection();
 	const row = ( label, value ) => [
 		createElement(
 			Text,
@@ -970,7 +1083,7 @@ function SiteDetailsModal( { onClose } ) {
 		createElement(
 			'div',
 			{ className: 'jetpack-connector__details-modal' },
-			...row( __( 'Blog ID', 'jetpack-connection' ), String( siteDetails.blogId ) ),
+			...row( __( 'Blog ID', 'jetpack-connection' ), String( blogId ?? '' ) ),
 			...row( __( 'Site URL', 'jetpack-connection' ), siteDetails.siteUrl ),
 			...row( __( 'Home URL', 'jetpack-connection' ), siteDetails.homeUrl ),
 			...( ssoStatus !== null
@@ -1063,6 +1176,7 @@ function IDCPanel() {
 	const [ error, setError ] = useState( null );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 	const [ showWhy, setShowWhy ] = useState( false );
+	const { hasJetpackPlugin, subjectNoun } = useCardConnection();
 
 	const handleMigrate = async () => {
 		setBusyAction( 'migrate' );
@@ -1464,12 +1578,18 @@ function ExpandedDetails( {
 	onConnect = null,
 	connectionErrorNotice = null,
 } ) {
+	const { viewer, owner, ownerIsViewer, isOwnerConnectionBroken, isOfflineMode } =
+		useCardConnection();
+	const { disconnectUserSuccess } = useDispatch( CONNECTION_STORE_ID );
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ isUnlinking, setIsUnlinking ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
+	const [ isTransferOpen, setIsTransferOpen ] = useState( false );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 	const [ actionError, setActionError ] = useState( null );
 	const detailsLinkRef = useRef( null );
+	const transferOwnershipRef = useRef( null );
+	const transferredRef = useRef( false );
 	const confirmTriggerRef = useRef( null );
 	const disconnectSiteRef = useRef( null );
 	const disconnectAccountRef = useRef( null );
@@ -1516,7 +1636,7 @@ function ExpandedDetails( {
 
 		try {
 			const body = { linked: false, force: true };
-			if ( currentUser?.isOwner ) {
+			if ( viewer?.isOwner ) {
 				body[ 'disconnect-all-users' ] = true;
 			}
 
@@ -1528,7 +1648,14 @@ function ExpandedDetails( {
 					'jetpack-connection'
 				),
 			} );
-			window.location.reload();
+
+			// A non-owner unlink only removes the viewer's token, which the store tracks. Otherwise
+			// card-only data such as protectedOwner changes too, so the page reloads.
+			if ( viewer?.isOwner || protectedOwner ) {
+				window.location.reload();
+				return;
+			}
+			disconnectUserSuccess();
 		} catch ( err ) {
 			setActionError( err.message );
 		} finally {
@@ -1538,17 +1665,16 @@ function ExpandedDetails( {
 
 	const handleUnlinkUser = () => {
 		confirmTriggerRef.current = disconnectAccountRef.current;
-		const message =
-			currentUser?.isOwner && currentUser?.hasOtherConnectedUsers
-				? __(
-						'Your site will remain connected for essential services like likes and stats, but all user accounts will be disconnected.',
-						'jetpack-connection'
-					)
-				: __(
-						'Are you sure you want to disconnect your WordPress.com account?',
-						'jetpack-connection',
-						/* dummy arg to avoid bad minification */ 0
-					);
+		const message = viewer?.hasOtherConnectedUsers
+			? __(
+					'Your site will remain connected for essential services like likes and stats, but all user accounts will be disconnected.',
+					'jetpack-connection'
+				)
+			: __(
+					'Are you sure you want to disconnect your WordPress.com account?',
+					'jetpack-connection',
+					/* dummy arg to avoid bad minification */ 0
+				);
 
 		setPendingConfirm( {
 			title: __( 'Disconnect user account', 'jetpack-connection' ),
@@ -1562,8 +1688,9 @@ function ExpandedDetails( {
 		! isOfflineMode && connectionErrorNotice?.hasConnectionError && ConnectionErrorView
 	);
 	const sections = getAccountSections( {
-		currentUser,
-		connectionOwner,
+		viewer,
+		owner,
+		ownerIsViewer,
 		canConnect: Boolean( onConnect ),
 		isOwnerReconnectOffered: isErrorBannerShown && offersOwnerReconnect( connectionErrorNotice ),
 		isProtectedOwnerPending: protectedOwnerIsPending(),
@@ -1581,39 +1708,57 @@ function ExpandedDetails( {
 			: null,
 
 		// Current user info + unlink action (only when the viewing admin is linked).
-		currentUser
+		viewer
 			? createElement( UserSection, {
-					title: connectedAccountTitle( currentUser ),
-					user: currentUser,
+					title: connectedAccountTitle( viewer ),
+					user: viewer,
 					// This row stands in for the connection-owner row when the viewer is the
 					// owner, so it carries the shield the other row would have shown.
-					showShield: Boolean( currentUser.isOwner ) && protectedOwnerIsEstablished(),
+					showShield: viewer.isOwner && protectedOwnerIsEstablished(),
 					actionSlot:
-						isManagedPlatformSite && currentUser.isOwner
+						isManagedPlatformSite && viewer.isOwner
 							? null
 							: createElement(
-									Button,
-									{
-										ref: disconnectAccountRef,
-										variant: 'link',
-										isDestructive: true,
-										disabled: isUnlinking || isDisconnecting || isOfflineMode,
-										onClick: handleUnlinkUser,
-										className: 'jetpack-connector__inline-action',
-									},
-									isUnlinking
-										? __( 'Disconnecting…', 'jetpack-connection' )
-										: __(
-												'Disconnect account',
-												'jetpack-connection',
-												/* dummy arg to avoid bad minification */ 0
+									// The links right-align themselves; an alignment prop here would fight the mobile reset.
+									VStack,
+									{ spacing: 1 },
+									viewer.isOwner
+										? createElement(
+												Button,
+												{
+													ref: transferOwnershipRef,
+													variant: 'link',
+													className: 'jetpack-connector__inline-action',
+													disabled: isUnlinking || isDisconnecting || isOfflineMode,
+													onClick: () => setIsTransferOpen( true ),
+												},
+												__( 'Transfer ownership', 'jetpack-connection' )
 											)
+										: null,
+									createElement(
+										Button,
+										{
+											ref: disconnectAccountRef,
+											variant: 'link',
+											isDestructive: true,
+											disabled: isUnlinking || isDisconnecting || isOfflineMode,
+											onClick: handleUnlinkUser,
+											className: 'jetpack-connector__inline-action',
+										},
+										isUnlinking
+											? __( 'Disconnecting…', 'jetpack-connection' )
+											: __(
+													'Disconnect account',
+													'jetpack-connection',
+													/* dummy arg to avoid bad minification */ 0
+												)
+									)
 								),
 				} )
 			: null,
 
 		// Release link, directly under the confirmed owner's own account row.
-		canReleaseProtectedOwner()
+		canReleaseProtectedOwner( viewer )
 			? createElement( ReleaseOwnershipSection, { isBusy: isUnlinking || isDisconnecting } )
 			: null,
 
@@ -1630,7 +1775,7 @@ function ExpandedDetails( {
 		sections.unconfirmedOwnerRow
 			? createElement( UserSection, {
 					title: __( 'Connection owner — unconfirmed', 'jetpack-connection' ),
-					user: connectionOwner,
+					user: owner,
 					subtitle: false,
 				} )
 			: null,
@@ -1641,7 +1786,7 @@ function ExpandedDetails( {
 		sections.ownerRow
 			? createElement( UserSection, {
 					title: __( 'Connection owner', 'jetpack-connection' ),
-					user: connectionOwner,
+					user: owner,
 					subtitle: false,
 					// An anchored owner whose token broke is still the confirmed owner.
 					showShield:
@@ -1733,6 +1878,24 @@ function ExpandedDetails( {
 						focusWhenReady( confirmTriggerRef.current );
 					},
 				} )
+			: null,
+		isTransferOpen
+			? createElement( TransferOwnershipModal, {
+					onTransferred: () => {
+						transferredRef.current = true;
+					},
+					// Reloads for card-only data, held until the done step has been read.
+					onClose: () => {
+						setIsTransferOpen( false );
+
+						if ( transferredRef.current ) {
+							window.location.reload();
+							return;
+						}
+
+						focusWhenReady( transferOwnershipRef.current );
+					},
+				} )
 			: null
 	);
 }
@@ -1757,8 +1920,15 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	const connectorName = name || label;
 	const connectorLogo = logo || icon || CONNECTOR_LOGO;
 	const [ isExpanded, setIsExpanded ] = useState( false );
-	const isConnected = initialIsConnected;
-	const isSiteRegistered = initialIsRegistered;
+	const {
+		isConnected,
+		isRegistered: isSiteRegistered,
+		isOfflineMode,
+		isFirstConnection,
+		isInSafeMode,
+		isOwnerConnectionBroken,
+		viewer,
+	} = useCardConnection();
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	const [ connectError, setConnectError ] = useState( data.authError || null );
 	const connectionErrorNotice = useConnectionErrorNotice( {
@@ -1767,7 +1937,6 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		reconnectFrom: 'jetpack-connector',
 	} );
 	const connectionErrorSeverity = ! isOfflineMode ? connectionErrorNotice.severity : null;
-
 	// Reset "Connecting…" state when the page is restored from bfcache
 	// (e.g. user hits Back after being redirected to the auth page).
 	useEffect( () => {
@@ -1854,7 +2023,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		);
 
 		if ( isExpanded ) {
-			const needsUserConnection = ! currentUser;
+			const needsUserConnection = ! viewer;
 			expandedContent = createElement(
 				'div',
 				{ className: 'jetpack-connector__expanded' },

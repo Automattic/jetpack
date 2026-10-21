@@ -11,7 +11,13 @@ jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 		setApiNonce: jest.fn(),
 		fetchConnectionOwnerCandidates: () =>
 			Promise.resolve( [
-				{ id: 7, login: 'kazz', displayName: 'Kazz', email: 'kazz@example.com' },
+				{
+					id: 7,
+					login: 'kazz',
+					displayName: 'Kazz',
+					email: 'kazz@example.com',
+					avatar: 'https://example.com/kazz.png',
+				},
 			] ),
 		setConnectionOwner: jest.fn(),
 	},
@@ -33,8 +39,9 @@ describe( 'TransferConnectionOwnership on a protected-owner site', () => {
 		const user = userEvent.setup();
 		render( <TransferConnectionOwnership { ...props } /> );
 
+		await expect( screen.findByRole( 'option', { name: /Kazz/ } ) ).resolves.toBeInTheDocument();
 		await user.selectOptions(
-			await screen.findByRole( 'combobox', { name: /New connection owner/ } ),
+			screen.getByRole( 'combobox', { name: /New connection owner/ } ),
 			'7'
 		);
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );

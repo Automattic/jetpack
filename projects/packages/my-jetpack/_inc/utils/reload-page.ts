@@ -22,3 +22,15 @@ export function reloadPage() {
 export function loadMyJetpackHomePage() {
 	window.location.href = getMyJetpackUrl();
 }
+
+/**
+ * Wrapper to leave the app with a full page load to another URL.
+ *
+ * Extracted so it can be mocked in tests.
+ *
+ * @param {string} url - Where to go.
+ * @return {undefined}
+ */
+export function leavePageFor( url: string ) {
+	window.location.href = url;
+}
