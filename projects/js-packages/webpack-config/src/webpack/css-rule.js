@@ -36,15 +36,13 @@ const PostcssLoader = ( { postcssOptions = {}, ...options } = {} ) => ( {
 } );
 
 const CssRule = ( options = {} ) => {
-	const exts = options.extensions || ( options.sass ? [ 'css', 'sass', 'scss' ] : [ 'css' ] );
-	const hasOwnPostcss = ( options.extraLoaders || [] ).some( l =>
-		/postcss-loader/.test( l.loader )
-	);
+	const exts = options.extensions || [ 'css', 'sass', 'scss' ];
+	const hasLoader = name => ( options.extraLoaders || [] ).some( l => l.loader?.includes( name ) );
+	const withDefault = ( Loader, opt, name ) =>
+		opt === false || hasLoader( name ) ? [] : [ Loader( opt === true ? {} : opt ) ];
 	const extraLoaders = [
-		...( options.postcss === false || hasOwnPostcss
-			? []
-			: [ PostcssLoader( options.postcss === true ? {} : options.postcss ) ] ),
-		...( options.sass ? [ SassLoader( options.sass === true ? {} : options.sass ) ] : [] ),
+		...withDefault( PostcssLoader, options.postcss, 'postcss-loader' ),
+		...withDefault( SassLoader, options.sass, 'sass-loader' ),
 		...( options.extraLoaders || [] ),
 	];
 

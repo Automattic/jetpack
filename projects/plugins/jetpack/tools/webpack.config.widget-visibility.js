@@ -52,7 +52,7 @@ module.exports = {
 			} ),
 
 			// Handle CSS.
-			jetpackWebpackConfig.CssRule( { sass: true } ),
+			jetpackWebpackConfig.CssRule(),
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),
