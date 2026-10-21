@@ -1,17 +1,16 @@
-import { useCallback, useRef, useState } from '@wordpress/element';
+import { Guide } from '@wordpress/components';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, key, shield, wordpress } from '@wordpress/icons';
-import { Button, ButtonLink, Dialog, Text } from '@wordpress/ui';
 import gauge from '../../sections/monitor/icon';
 import { SafeShield } from '../../sections/scan/safe-state';
 import './style.scss';
 import type { ReactElement, ReactNode } from 'react';
 
-const LEARN_MORE_URL = 'https://jetpack.com/protect/';
 const SEEN_KEY = `jetpack-protect-welcome-seen-${ window.location.host }`;
 
 /**
- * Whether the welcome modal was already dismissed in this browser.
+ * Whether the welcome guide was already dismissed in this browser.
  *
  * @return True once dismissed; also true when storage is unreadable, so it never nags.
  */
@@ -30,141 +29,106 @@ function saveDismissal(): void {
 	try {
 		window.localStorage.setItem( SEEN_KEY, '1' );
 	} catch {
-		// Private browsing or full quota: the modal just greets them again next load.
+		// Private browsing or full quota: the guide just greets them again next load.
 	}
 }
 
-type WelcomeCard = {
-	icon: ReactNode;
+type WelcomePage = {
+	art: ReactNode;
 	title: string;
 	body: string;
 };
 
-const CARDS: WelcomeCard[] = [
+/**
+ * The guide's pages: what the dashboard is, then one per thing it does.
+ *
+ * @return The pages, translated at render time.
+ */
+const getPages = (): WelcomePage[] => [
 	{
-		icon: <Icon icon={ shield } size={ 24 } />,
+		art: <SafeShield justScanned />,
+		title: __( 'Your site’s security, in one place', 'jetpack-protect-pkg' ),
+		body: __(
+			'Protect watches your site around the clock and tells you when something needs your attention. Here’s what it does for you.',
+			'jetpack-protect-pkg'
+		),
+	},
+	{
+		art: <Icon icon={ shield } size={ 64 } />,
 		title: __( 'Scan for threats', 'jetpack-protect-pkg' ),
 		body: __(
-			'We check WordPress, your plugins and themes against a database of known vulnerabilities every day.',
+			'Every day we check WordPress, your plugins and themes against a database of known vulnerabilities, and show you how to fix what we find.',
 			'jetpack-protect-pkg'
 		),
 	},
 	{
-		icon: <Icon icon={ wordpress } size={ 24 } />,
+		art: <Icon icon={ wordpress } size={ 64 } />,
 		title: __( 'Block attacks at the door', 'jetpack-protect-pkg' ),
 		body: __(
-			'The firewall stops malicious requests before they ever reach your site.',
+			'The firewall stops malicious requests before they ever reach your site, with rules that update automatically.',
 			'jetpack-protect-pkg'
 		),
 	},
 	{
-		icon: <Icon icon={ key } size={ 24 } />,
+		art: <Icon icon={ key } size={ 64 } />,
 		title: __( 'Stop password guessing', 'jetpack-protect-pkg' ),
 		body: __(
-			'Brute force protection blocks bots that hammer your login page.',
+			'Brute force protection blocks bots that hammer your login page, so only real people get a chance to sign in.',
 			'jetpack-protect-pkg'
 		),
 	},
 	{
-		icon: <Icon icon={ gauge } size={ 24 } />,
-		title: __( 'Know when you’re down', 'jetpack-protect-pkg' ),
+		art: <Icon icon={ gauge } size={ 64 } />,
+		title: __( 'Know the moment you’re down', 'jetpack-protect-pkg' ),
 		body: __(
-			'Downtime monitoring checks your site every few minutes and emails you if it goes offline.',
+			'Downtime monitoring checks your site every few minutes and emails you if it goes offline — and again when it’s back.',
 			'jetpack-protect-pkg'
 		),
 	},
 ];
 
 /**
- * First-visit welcome modal explaining what the Protect dashboard does. `&welcome=1` re-opens it.
+ * First-visit welcome guide explaining what the Protect dashboard does. `&welcome=1` re-opens it.
  *
- * @return The modal.
+ * @return The guide, or null once dismissed.
  */
-export default function WelcomeModal(): ReactElement {
+export default function WelcomeModal(): ReactElement | null {
 	const [ isOpen, setIsOpen ] = useState(
 		() =>
 			new URLSearchParams( window.location.search ).get( 'welcome' ) === '1' || ! hasSeenWelcome()
 	);
-	const popupRef = useRef< HTMLDivElement >( null );
 
 	const dismiss = useCallback( () => {
 		saveDismissal();
 		setIsOpen( false );
 	}, [] );
-	const onOpenChange = useCallback(
-		( open: boolean ) => {
-			if ( ! open ) {
-				dismiss();
-			}
-		},
-		[ dismiss ]
-	);
+
+	if ( ! isOpen ) {
+		return null;
+	}
 
 	return (
-		<Dialog.Root open={ isOpen } onOpenChange={ onOpenChange }>
-			{ /* Focusing the popup announces the title and lede first, rather than the close button. */ }
-			<Dialog.Popup
-				ref={ popupRef }
-				initialFocus={ popupRef }
-				size="medium"
-				className="jp-protect-welcome"
-			>
-				<div className="jp-protect-welcome__band">
-					<Dialog.CloseIconButton
-						className="jp-protect-welcome__close"
-						label={ __( 'Close', 'jetpack-protect-pkg' ) }
-					/>
-					<SafeShield justScanned={ isOpen } />
-				</div>
-
-				<Dialog.Content className="jp-protect-welcome__body">
-					<Dialog.Title>
-						{ __( 'Your site’s security, in one place', 'jetpack-protect-pkg' ) }
-					</Dialog.Title>
-					<Dialog.Description className="jp-protect-welcome__lede">
-						{ __(
-							'Protect watches your site around the clock. It finds vulnerabilities, blocks attacks, and tells you when something needs your attention — so you can get back to building.',
-							'jetpack-protect-pkg'
-						) }
-					</Dialog.Description>
-
-					{ /* list-style: none strips list semantics in Safari; the role restores them. */ }
-					<ul className="jp-protect-welcome__cards" role="list">
-						{ CARDS.map( card => (
-							<li key={ card.title } className="jp-protect-welcome__card">
-								<span className="jp-protect-welcome__card-icon" aria-hidden="true">
-									{ card.icon }
-								</span>
-								<span className="jp-protect-welcome__card-text">
-									<Text
-										variant="heading-md"
-										render={ <span /> }
-										className="jp-protect-welcome__card-title"
-									>
-										{ card.title }
-									</Text>
-									<Text
-										variant="body-md"
-										render={ <span /> }
-										className="jp-protect-welcome__card-body"
-									>
-										{ card.body }
-									</Text>
-								</span>
-							</li>
-						) ) }
-					</ul>
-				</Dialog.Content>
-
-				<Dialog.Footer className="jp-protect-welcome__footer">
-					<ButtonLink variant="minimal" tone="neutral" href={ LEARN_MORE_URL } openInNewTab>
-						{ __( 'Learn more', 'jetpack-protect-pkg' ) }
-					</ButtonLink>
-					<Button variant="solid" tone="neutral" onClick={ dismiss }>
-						{ __( 'Got it', 'jetpack-protect-pkg' ) }
-					</Button>
-				</Dialog.Footer>
-			</Dialog.Popup>
-		</Dialog.Root>
+		<Guide
+			className="jp-protect-welcome"
+			contentLabel={ __( 'Welcome to Protect', 'jetpack-protect-pkg' ) }
+			finishButtonText={ __( 'Get started', 'jetpack-protect-pkg' ) }
+			onFinish={ dismiss }
+			pages={ getPages().map( ( page, index ) => ( {
+				image: (
+					<div
+						className={ `jp-protect-welcome__art jp-protect-welcome__art--${ index + 1 }` }
+						aria-hidden="true"
+					>
+						<span className="jp-protect-welcome__art-badge">{ page.art }</span>
+					</div>
+				),
+				content: (
+					<>
+						<h1 className="jp-protect-welcome__heading">{ page.title }</h1>
+						<p className="jp-protect-welcome__text">{ page.body }</p>
+					</>
+				),
+			} ) ) }
+		/>
 	);
 }
