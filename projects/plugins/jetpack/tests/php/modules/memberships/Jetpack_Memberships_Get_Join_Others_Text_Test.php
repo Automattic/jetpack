@@ -63,13 +63,13 @@ class Jetpack_Memberships_Get_Join_Others_Text_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests full alias format via jetpack_subscriber_count_format filter.
+	 * Tests full alias format via jetpack_memberships_subscriber_count_format filter.
 	 *
 	 * @return void
 	 */
 	public function test_full_format_alias() {
 		add_filter(
-			'jetpack_subscriber_count_format',
+			'jetpack_memberships_subscriber_count_format',
 			function () {
 				return 'full';
 			}

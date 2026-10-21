@@ -1102,7 +1102,7 @@ class Jetpack_Memberships {
 	 * Transforms a number into a human-readable join text string.
 	 *
 	 * Supports short form (e.g. 45.8K), longer rounded format (e.g. 45,800), and raw count (e.g. 45,806)
-	 * via the `jetpack_memberships_subscriber_count_format` and `jetpack_subscriber_count_format` filters.
+	 * via the `jetpack_memberships_subscriber_count_format` filter.
 	 *
 	 * @param int $subscribers_total Total number of subscribers.
 	 *
@@ -1119,17 +1119,7 @@ class Jetpack_Memberships {
 		 * @param string $format            Subscriber count format ('short', 'rounded', 'raw', or 'full'). Default 'short'.
 		 * @param int    $subscribers_total Total number of subscribers.
 		 */
-		$format = apply_filters( 'jetpack_subscriber_count_format', 'short', $subscribers_total );
-
-		/**
-		 * Filter the format used for the subscriber count in the join others text (memberships-scoped).
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param string $format            Subscriber count format ('short', 'rounded', 'raw', or 'full'). Default 'short'.
-		 * @param int    $subscribers_total Total number of subscribers.
-		 */
-		$format = apply_filters( 'jetpack_memberships_subscriber_count_format', $format, $subscribers_total );
+		$format = apply_filters( 'jetpack_memberships_subscriber_count_format', 'short', $subscribers_total );
 
 		switch ( strtolower( (string) $format ) ) {
 			case 'raw':
