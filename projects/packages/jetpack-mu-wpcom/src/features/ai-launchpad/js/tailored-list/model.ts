@@ -59,6 +59,8 @@ export interface LaunchpadData {
 	difm_offer?: DifmOffer | null;
 	// Whether the server has latched the list as done.
 	list_completed?: boolean;
+	// Whether the next tailoring is for an AI-built site.
+	ai_built?: boolean;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */

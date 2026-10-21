@@ -77,6 +77,7 @@ export function App() {
 				locale={ initialData?.site?.language }
 				uiLocale={ initialData?.user_language }
 				copy={ copy }
+				aiBuilt={ !! initialData?.ai_built }
 				onComplete={ ( input, tailoring ) => {
 					setPendingTailor( () => tailoring );
 					setGoal( input.goal );
