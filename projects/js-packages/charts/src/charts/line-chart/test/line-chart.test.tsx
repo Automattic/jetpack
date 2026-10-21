@@ -6,7 +6,7 @@ import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef, type ComponentProps } from 'react';
 import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
-import LineChart, { LineChartUnresponsive } from '../line-chart';
+import LineChart, { LineChartUnresponsive, renderDefaultTooltip } from '../line-chart';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { DataPointDate, SeriesData } from '../../../types';
 import type { ChartInstanceRef } from '../../private/chart-instance-context';
@@ -1858,6 +1858,54 @@ describe( 'LineChart', () => {
 			const legendItem = screen.getAllByRole( 'button' )[ 0 ];
 			expect( legendItem ).toHaveAttribute( 'aria-pressed', 'false' );
 		} );
+
+		it.each( [ 'Series A', 'Series B' ] )(
+			'leaves %s out of the keyboard tooltip once it is hidden',
+			async hiddenLabel => {
+				const user = userEvent.setup();
+				const visibleLabel = hiddenLabel === 'Series A' ? 'Series B' : 'Series A';
+				const renderTooltip = jest.fn( renderDefaultTooltip );
+
+				render(
+					<GlobalChartsProvider>
+						<LineChartUnresponsive
+							width={ 500 }
+							height={ 300 }
+							data={ [
+								defaultProps.data[ 0 ],
+								{
+									label: 'Series B',
+									data: [
+										{ date: new Date( '2024-01-01' ), value: 15 },
+										{ date: new Date( '2024-01-02' ), value: 25 },
+									],
+								},
+							] }
+							withGradientFill={ false }
+							showLegend={ true }
+							legend={ { interactive: true } }
+							renderTooltip={ renderTooltip }
+							chartId={ `test-keyboard-tooltip-hidden-${ hiddenLabel }` }
+						/>
+					</GlobalChartsProvider>
+				);
+
+				await user.click( screen.getByRole( 'button', { name: new RegExp( hiddenLabel ) } ) );
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}' );
+
+				const tooltip = await screen.findByTestId( 'line-chart-tooltip-content' );
+				expect( tooltip ).toHaveTextContent( visibleLabel );
+				expect( tooltip ).not.toHaveTextContent( hiddenLabel );
+				expect( renderTooltip ).toHaveBeenLastCalledWith(
+					expect.objectContaining( {
+						tooltipData: expect.objectContaining( {
+							nearestDatum: expect.objectContaining( { key: visibleLabel } ),
+						} ),
+					} )
+				);
+			}
+		);
 
 		it( 'does not filter series when legendInteractive is false', () => {
 			render(

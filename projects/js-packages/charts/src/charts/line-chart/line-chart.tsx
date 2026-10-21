@@ -336,6 +336,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			} ) );
 		}, [ dataSorted, hiddenSeries ] );
 
+		const visibleSeries = useMemo(
+			() => dataSorted.filter( series => isSeriesVisible( series.label ) ),
+			[ dataSorted, isSeriesVisible ]
+		);
+
 		// Check if all series are hidden
 		const allSeriesHidden = useMemo( () => {
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
@@ -424,8 +429,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		}, [ dataSorted, isSeriesVisible ] );
 
 		const hasWholeNumberValues = useMemo(
-			() => hasOnlyWholeNumbers( dataSorted.filter( series => isSeriesVisible( series.label ) ) ),
-			[ dataSorted, isSeriesVisible ]
+			() => hasOnlyWholeNumbers( visibleSeries ),
+			[ visibleSeries ]
 		);
 
 		const chartOptions = useMemo( () => {
@@ -482,12 +487,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		// Classified from the rendered series, like the axis above: a hidden
 		// hourly line must not leave the tooltip naming an hour the axis dropped.
 		const bucketInfo = useMemo(
-			() =>
-				getBucketInfo(
-					dataSorted.filter( series => isSeriesVisible( series.label ) ),
-					options?.axis?.x?.tickResolution
-				),
-			[ dataSorted, isSeriesVisible, options?.axis?.x?.tickResolution ]
+			() => getBucketInfo( visibleSeries, options?.axis?.x?.tickResolution ),
+			[ visibleSeries, options?.axis?.x?.tickResolution ]
 		);
 
 		const tooltipRenderGlyph = useMemo( () => {
@@ -809,7 +810,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													keyboardFocusedClassName={
 														styles[ 'line-chart__tooltip--keyboard-focused' ]
 													}
-													series={ dataSorted }
+													series={ visibleSeries }
 												/>
 											) }
 
