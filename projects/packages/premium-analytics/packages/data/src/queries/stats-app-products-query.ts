@@ -15,7 +15,7 @@ type StatsAppProductsResponse = Record< string, StatsAppProduct >;
 /**
  * The Jetpack product price list.
  *
- * @param currency - The buyer's checkout currency. Without it WordPress.com prices the list by the site server's location, as the request carries no user.
+ * @param currency - The buyer's checkout currency. Without it WordPress.com prices the list for the visitor's location.
  * @return The query options.
  */
 export const statsAppProductsQuery = ( currency?: string ) =>

@@ -447,6 +447,67 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_products_are_priced_for_each_visitor_and_not_cached_across_visitors() {
+		$forwarded = $this->forwarded_ips_for_reads( 'products', array( '203.0.113.5', '203.0.113.5', '198.51.100.7' ) );
+
+		$this->assertSame( array( '203.0.113.5', '198.51.100.7' ), $forwarded );
+	}
+
+	public function test_other_reads_do_not_send_the_visitor_ip() {
+		$this->assertSame( array( null ), $this->forwarded_ips_for_reads( 'stats/top-posts', array( '203.0.113.5' ) ) );
+	}
+
+	/**
+	 * Read an endpoint once per visitor IP, and record the `X-Forwarded-For` of each request that reached WordPress.com.
+	 *
+	 * @param string   $endpoint The proxied endpoint.
+	 * @param string[] $ips      The visitor IP of each read, in order.
+	 * @return array<int, string|null> One entry per request sent; a cached read sends none.
+	 */
+	private function forwarded_ips_for_reads( string $endpoint, array $ips ): array {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 4242 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+		$remote_addr = $_SERVER['REMOTE_ADDR'] ?? null;
+
+		$forwarded = array();
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args ) use ( &$forwarded ) {
+				$forwarded[] = $args['headers']['X-Forwarded-For'] ?? null;
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{}',
+					'headers'  => array(),
+				);
+			},
+			10,
+			2
+		);
+
+		try {
+			foreach ( $ips as $ip ) {
+				$_SERVER['REMOTE_ADDR'] = $ip;
+				$this->controller->handle_data_request( $this->build_data_request( 'GET', $endpoint, array(), '1.1' ) );
+			}
+		} finally {
+			remove_all_filters( 'pre_http_request' );
+			if ( null === $remote_addr ) {
+				unset( $_SERVER['REMOTE_ADDR'] );
+			} else {
+				$_SERVER['REMOTE_ADDR'] = $remote_addr;
+			}
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'id' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
+
+		return $forwarded;
+	}
+
 	/**
 	 * @return array<string, array{0: array<string, mixed>, 1: string, 2: string}>
 	 */
