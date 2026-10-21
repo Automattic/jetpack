@@ -51,7 +51,7 @@ run() {
 }
 
 # listening PORT — is localhost:PORT taken? Same rules as the script's port_in_use (a connect
-# still pending after about a second counts as taken), kept separate so trunk's script can be tested.
+# still pending after about a second counts as taken), defined here so expectations don't come from it.
 listening() {
 	local host pid waited
 	for host in 127.0.0.1 ::1; do
@@ -291,13 +291,16 @@ time.sleep(30)' "$BUSY" &
 	new_primary "$PRIMARY4"
 	git -C "$PRIMARY4" worktree add -q "$TMP/p4-wt" -b br-p4-wt
 	FULL="$( first_free 8080 )"
+	READY="$TMP/full-queue-ready"
+	# Writes "full" to READY only once a fresh connect really times out, so the probe's bound is
+	# what this case exercises (an OS that still accepts it writes "open" and the case is skipped).
 	python3 -c 'import socket, sys, time
-port = int(sys.argv[1])
+port, ready = int(sys.argv[1]), sys.argv[2]
 s = socket.socket()
 s.bind(("127.0.0.1", port))
-s.listen(0)
+s.listen(1)
 held = []
-for _ in range(8):
+for _ in range(16):
     c = socket.socket()
     c.setblocking(False)
     try:
@@ -305,18 +308,36 @@ for _ in range(8):
     except BlockingIOError:
         pass
     held.append(c)
-time.sleep(30)' "$FULL" &
+probe = socket.socket()
+probe.settimeout(0.5)
+try:
+    probe.connect(("127.0.0.1", port))
+    state = "open"
+except OSError:
+    state = "full"
+with open(ready, "w") as f:
+    f.write(state)
+time.sleep(30)' "$FULL" "$READY" &
 	LISTENER=$!
-	sleep 1
-	EXPECTED="$( first_free $(( FULL + 1 )) )"
-	START=$SECONDS
-	run "$TMP/p4-wt"
-	if [ $(( SECONDS - START )) -le 10 ]; then
-		pass "a full accept queue does not stall the seeder"
-	else
-		bad "a full accept queue does not stall the seeder (took $(( SECONDS - START ))s)"
-	fi
-	assert_grep "$TMP/p4-wt/tools/docker/.env" "^PORT_WORDPRESS=${EXPECTED}\$" "port ${FULL} with a full accept queue is skipped"
+	for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
+		[ -s "$READY" ] && break
+		sleep 0.25
+	done
+	case "$( cat "$READY" 2>/dev/null )" in
+		full )
+			EXPECTED="$( first_free $(( FULL + 1 )) )"
+			START=$SECONDS
+			run "$TMP/p4-wt"
+			if [ $(( SECONDS - START )) -le 10 ]; then
+				pass "a full accept queue does not stall the seeder"
+			else
+				bad "a full accept queue does not stall the seeder (took $(( SECONDS - START ))s)"
+			fi
+			assert_grep "$TMP/p4-wt/tools/docker/.env" "^PORT_WORDPRESS=${EXPECTED}\$" "port ${FULL} with a full accept queue is skipped"
+			;;
+		open ) echo "  skip - this OS accepted a connect past the full queue, so the timeout case did not run" ;;
+		* )    bad "full-queue test listener never came up on port ${FULL}" ;;
+	esac
 	kill "$LISTENER" 2>/dev/null || true
 	wait "$LISTENER" 2>/dev/null || true
 else
