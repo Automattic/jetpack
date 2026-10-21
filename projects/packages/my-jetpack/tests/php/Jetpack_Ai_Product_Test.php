@@ -362,6 +362,7 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	public function test_flags_say_whether_the_feature_ui_is_waiting_for_owner( $site, $flag_on, $expected ) {
 		try {
 			Initializer::register_feature_flags();
+			activate_plugins( 'jetpack/jetpack.php' );
 			if ( $flag_on ) {
 				add_filter( 'jetpack_feature_flag_enabled_' . Initializer::ACCOUNT_CONNECT_FLAG, '__return_true' );
 			}
@@ -376,7 +377,6 @@ class Jetpack_Ai_Product_Test extends TestCase {
 				// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock in ./assets/jetpack-mock-plugin.txt
 				\Jetpack::$available_modules = array();
 			}
-			activate_plugins( 'jetpack/jetpack.php' );
 			if ( 'owner connected' === $site ) {
 				$this->connect_site_and_owner();
 			} elseif ( 'not registered' !== $site ) {
