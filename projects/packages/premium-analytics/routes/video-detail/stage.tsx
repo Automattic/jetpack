@@ -3,6 +3,7 @@
  */
 import { AnalyticsQueryClientProvider, ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import {
+	DashboardWidgetHostProvider,
 	pickReportNavigationParams,
 	useReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
@@ -16,6 +17,7 @@ import {
 	DetailPageShell,
 	describeError,
 	useDetailPageCustomize,
+	useHostLinkSearch,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
 	type PageNoticeProps,
@@ -31,7 +33,6 @@ import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { useWidgetModules } from '../use-widget-modules';
-import { AnalyticsWidgetHostProvider } from '../widget-host';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
@@ -163,7 +164,7 @@ function VideoDetail(): JSX.Element {
 	}
 
 	return (
-		<AnalyticsWidgetHostProvider>
+		<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 			<WidgetDashboard.Policy canPerform={ canPerform }>
 				<WidgetDashboard
 					widgetTypes={ widgetTypes }
@@ -222,7 +223,7 @@ function VideoDetail(): JSX.Element {
 					</DetailPageShell>
 				</WidgetDashboard>
 			</WidgetDashboard.Policy>
-		</AnalyticsWidgetHostProvider>
+		</DashboardWidgetHostProvider>
 	);
 }
 

@@ -451,6 +451,19 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 
 	const llmsTxtEffectivelyOn = Boolean( searchEnginesVisible && llmsTxt?.enabled );
 
+	let enhancerHelp: string | undefined;
+	if ( ! enhancer.aiSeoEnabled ) {
+		enhancerHelp = enhancer.aiEnabled
+			? __(
+					'AI SEO is turned off for this site, so nothing is generated. Your choice is saved and applies again when AI SEO is turned back on.',
+					'jetpack-seo'
+				)
+			: __(
+					'Jetpack AI is turned off for this site, so nothing is generated. Your choice is saved and applies again when Jetpack AI is turned back on.',
+					'jetpack-seo'
+				);
+	}
+
 	return (
 		<div className="jetpack-seo-geo">
 			{ llmsTxt && (
@@ -535,14 +548,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 							checked={ enhancer.enabled }
 							onChange={ setEnhancerEnabled }
 							disabled={ isSaving || ! enhancer.aiSeoEnabled }
-							help={
-								enhancer.aiSeoEnabled
-									? undefined
-									: __(
-											'AI SEO is turned off for this site, so nothing is generated. Your choice is saved and applies again when AI SEO is turned back on.',
-											'jetpack-seo'
-										)
-							}
+							help={ enhancerHelp }
 							__nextHasNoMarginBottom
 						/>
 					</CollapsibleCard.Content>

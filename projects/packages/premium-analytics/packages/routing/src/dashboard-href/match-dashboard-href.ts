@@ -1,5 +1,6 @@
 /**
- * Admin page the dashboard SPA is served from.
+ * Admin page the dashboard SPA is served from. Mirrors `Analytics::MENU_PAGE_SLUG`, the PHP
+ * constant that registers the page; the manifests' action hrefs carry the same literal.
  */
 export const DASHBOARD_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 

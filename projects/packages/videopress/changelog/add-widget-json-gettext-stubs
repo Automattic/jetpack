@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Top videos widget: the title, description and help note declared in widget.json reach the translation catalog.

@@ -6,7 +6,11 @@ import {
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { ButtonLink } from '@jetpack-premium-analytics/externals';
-import { usePeriodHost, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import {
+	DashboardWidgetHostProvider,
+	usePeriodHost,
+	useReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
 	PeriodChangeStatus,
@@ -25,6 +29,7 @@ import {
 	DetailPageShell,
 	describeError,
 	useDetailPageCustomize,
+	useHostLinkSearch,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -39,7 +44,6 @@ import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
-import { AnalyticsWidgetHostProvider } from '../widget-host';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { withWidgetTypeAliases } from '../widget-type-aliases';
 import { postHeaderSlots } from './components';
@@ -225,7 +229,7 @@ function PostDetail(): JSX.Element {
 				appliedRange={ dateFilters.appliedRange }
 			/>
 			<ReportScopeProvider openPeriod={ openPeriod } dateLimits={ dateLimits }>
-				<AnalyticsWidgetHostProvider>
+				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
 							widgetTypes={ pageWidgetTypes }
@@ -325,7 +329,7 @@ function PostDetail(): JSX.Element {
 							</DetailPageShell>
 						</WidgetDashboard>
 					</WidgetDashboard.Policy>
-				</AnalyticsWidgetHostProvider>
+				</DashboardWidgetHostProvider>
 			</ReportScopeProvider>
 		</>
 	);

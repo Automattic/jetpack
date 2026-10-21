@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
-import { DASHBOARD_PAGE_SLUG } from '@jetpack-premium-analytics/routing';
+import {
+	DASHBOARD_PAGE_SLUG,
+	DashboardWidgetHostProvider,
+} from '@jetpack-premium-analytics/routing';
 import {
 	createMemoryHistory,
 	createRootRoute,
@@ -9,8 +12,8 @@ import {
 	createRouter,
 	RouterProvider,
 } from '@tanstack/react-router';
+import { useHostLinkSearch } from '@jetpack-premium-analytics/widgets-toolkit';
 import { createContext, useContext } from 'react';
-import { AnalyticsWidgetHostProvider } from '../../routes/widget-host';
 import type { Decorator } from '@storybook/react';
 import type { ReactNode } from 'react';
 
@@ -57,9 +60,9 @@ const STORY_DOCUMENT_URL = `https://example.com/wp-admin/admin.php?page=${ DASHB
 export function StoryRouterProvider( { children }: { children: ReactNode } ) {
 	return (
 		<storyChildren.Provider value={ children }>
-			<AnalyticsWidgetHostProvider base={ STORY_DOCUMENT_URL }>
+			<DashboardWidgetHostProvider base={ STORY_DOCUMENT_URL } useLinkSearch={ useHostLinkSearch }>
 				<RouterProvider router={ storyRouter } />
-			</AnalyticsWidgetHostProvider>
+			</DashboardWidgetHostProvider>
 		</storyChildren.Provider>
 	);
 }

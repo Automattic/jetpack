@@ -9,6 +9,7 @@ import {
 import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import {
 	buildReportLink,
+	DashboardWidgetHostProvider,
 	pickReportNavigationParams,
 	usePeriodHost,
 	useReportDateFilters,
@@ -28,6 +29,7 @@ import {
 	DetailPageShell,
 	describeError,
 	useDetailPageCustomize,
+	useHostLinkSearch,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
 	type PageNoticeProps,
@@ -42,7 +44,6 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { DETAIL_GRID } from '../grid';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { useWidgetModules } from '../use-widget-modules';
-import { AnalyticsWidgetHostProvider } from '../widget-host';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { toWidgetTypeBaseNames, withWidgetTypeAliases } from '../widget-type-aliases';
 import { authorHeaderSlots } from './components';
@@ -217,7 +218,7 @@ function AuthorDetail(): JSX.Element {
 				appliedRange={ dateFilters.appliedRange }
 			/>
 			<ReportScopeProvider openPeriod={ openPeriod }>
-				<AnalyticsWidgetHostProvider>
+				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
 							widgetTypes={ pageWidgetTypes }
@@ -275,7 +276,7 @@ function AuthorDetail(): JSX.Element {
 							</DetailPageShell>
 						</WidgetDashboard>
 					</WidgetDashboard.Policy>
-				</AnalyticsWidgetHostProvider>
+				</DashboardWidgetHostProvider>
 			</ReportScopeProvider>
 		</>
 	);
