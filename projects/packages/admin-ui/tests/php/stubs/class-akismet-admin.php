@@ -21,7 +21,4 @@ class Akismet_Admin {
 
 	/** Page callback. */
 	public static function display_page() {}
-
-	/** Help tab callback. */
-	public static function admin_help() {}
 }

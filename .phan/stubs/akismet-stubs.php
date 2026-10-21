@@ -60,14 +60,6 @@ class Akismet_Admin
     {
     }
     /**
-     * Add help to the Akismet page
-     *
-     * @return false if not the Akismet page
-     */
-    public static function admin_help()
-    {
-    }
-    /**
      * Get Akismet user subscription information.
      *
      * @param string $api_key The Akismet API key.

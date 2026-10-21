@@ -279,12 +279,7 @@ class Admin_Menu {
 			return;
 		}
 
-		$hook = self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
-
-		// Akismet's own registration adds its help tab, so keep it.
-		if ( is_callable( array( 'Akismet_Admin', 'admin_help' ) ) ) {
-			add_action( 'load-' . $hook, array( 'Akismet_Admin', 'admin_help' ) );
-		}
+		self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 	}
 
 	/**
