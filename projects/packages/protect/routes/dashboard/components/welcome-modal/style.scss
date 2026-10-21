@@ -1,0 +1,127 @@
+$band-ground: #f0f7f0;
+
+.jp-protect-welcome {
+	max-inline-size: min(42.5rem, calc(100vw - 3rem));
+	border: 0;
+
+	@media (forced-colors: active) {
+		border: var(--wpds-border-width-xs) solid CanvasText;
+	}
+
+	// Full-bleed band: green glows behind the shield,
+	// as in the My Jetpack feature modal.
+	&__band {
+		position: relative;
+		display: flex;
+		flex: 0 0 auto;
+		align-items: center;
+		justify-content: center;
+		block-size: 13rem;
+		overflow: hidden;
+		background:
+			radial-gradient(40% 80% at 20% 30%, rgba(6, 158, 8, 0.28), transparent 72%),
+			radial-gradient(36% 70% at 82% 75%, rgba(184, 230, 191, 0.9), transparent 72%),
+			radial-gradient(30% 60% at 60% 10%, rgba(0, 135, 99, 0.18), transparent 72%),
+			$band-ground;
+
+		.jp-protect-safe__shield {
+			overflow: visible;
+		}
+	}
+
+	&__close {
+		position: absolute;
+		inset-block-start: var(--wpds-dimension-padding-lg);
+		inset-inline-end: var(--wpds-dimension-padding-lg);
+		z-index: 1;
+
+		// 44px hit target around the 32px button.
+		&::after {
+			content: "";
+			position: absolute;
+			inset: -6px;
+		}
+	}
+
+	&__body {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-md);
+		padding-block-end: var(--wpds-dimension-padding-lg);
+		container-type: inline-size;
+	}
+
+	&__body p.jp-protect-welcome__lede {
+		font-size: var(--wpds-typography-font-size-lg);
+		line-height: var(--wpds-typography-line-height-md);
+		text-wrap: pretty;
+	}
+
+	&__lede,
+	&__card-body {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__cards {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--wpds-dimension-gap-md);
+		margin: 0;
+		padding: var(--wpds-dimension-padding-sm) 0 0;
+		list-style: none;
+	}
+
+	&__card {
+		display: flex;
+		gap: var(--wpds-dimension-gap-md);
+		margin: 0;
+		padding: var(--wpds-dimension-padding-lg);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+		border-radius: var(--wpds-border-radius-md);
+	}
+
+	&__card-icon {
+		display: inline-flex;
+		flex: 0 0 auto;
+		align-items: center;
+		justify-content: center;
+		inline-size: 40px;
+		block-size: 40px;
+		border-radius: 50%;
+		background: #e6f2e8;
+		color: var(--jp-green, #069e08);
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	&__card-text {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+	}
+
+	&__card-title {
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+
+	&__footer {
+		gap: var(--wpds-dimension-gap-md);
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+
+	@container (max-width: 480px) {
+
+		&__cards {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+
+	@media (max-width: 782px) {
+
+		&__band {
+			block-size: 9rem;
+		}
+	}
+}
