@@ -54,6 +54,17 @@ describe( 'SubscriptionTypeCell', () => {
 		expect( screen.getByText( 'Comp: Silver' ) ).toHaveAttribute( 'data-intent', 'informational' );
 	} );
 
+	it( 'leaves out expired plans', () => {
+		render(
+			<SubscriptionTypeCell
+				subscriber={ subscriberWith( [ paid, { ...comp( 'Silver' ), status: 'expired' } ] ) }
+			/>
+		);
+
+		expect( screen.getByText( /^Monthly/ ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Comp: Silver' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'shows Free when there is no paid or comp plan', () => {
 		render( <SubscriptionTypeCell subscriber={ subscriberWith( [] ) } /> );
 

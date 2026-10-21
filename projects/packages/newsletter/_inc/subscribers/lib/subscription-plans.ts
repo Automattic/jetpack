@@ -14,7 +14,7 @@ export type ResolvedPlan = {
 /**
  * Format a subscriber's plans for display, mirroring Calypso's `useSubscriptionPlans` hook.
  *
- * - Drops legacy gift subscriptions (`is_gift && !is_comp`).
+ * - Drops expired plans and legacy gift subscriptions (`is_gift && !is_comp`).
  * - Maps `is_comp` → `is_complimentary` and computes `is_free` from `renewal_price`.
  * - Renders comp plans as "Comp: {title}", free as "Free", paid as "{interval} ({price})".
  *
@@ -25,7 +25,7 @@ export function getResolvedPlans( subscriber: Subscriber ): ResolvedPlan[] {
 	const plans = subscriber.plans ?? [];
 
 	return plans.reduce< ResolvedPlan[] >( ( acc, plan: SubscriptionPlan ) => {
-		if ( plan.is_gift && ! plan.is_comp ) {
+		if ( plan.status === 'expired' || ( plan.is_gift && ! plan.is_comp ) ) {
 			return acc;
 		}
 
