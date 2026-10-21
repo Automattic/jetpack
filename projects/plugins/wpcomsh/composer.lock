@@ -881,7 +881,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "29c6114880670c509c74de5e6deb88cb3e51072e"
+                "reference": "081ccac180faac861f58bae732f67d216d46b4ea"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -917,7 +917,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.12.x-dev"
+                    "dev-trunk": "9.13.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1818,7 +1818,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "cf317d243fab66cf5135bbdb251c2cfead9ec730"
+                "reference": "345fedf21eaa330e9d0c1f701590f514f90c7562"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1841,7 +1841,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.14.x-dev"
+                    "dev-trunk": "0.15.x-dev"
                 }
             },
             "autoload": {

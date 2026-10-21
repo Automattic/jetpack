@@ -54,6 +54,7 @@ class Rest_Bridge_Gating_Test extends TestCase {
 		'/jetpack/v4/rewind/backup/path-info',
 		'/jetpack/v4/backups/download/(?P<rewind_id>[A-Za-z0-9.\-]+)',
 		'/jetpack/v4/backups/download/(?P<rewind_id>[A-Za-z0-9.\-]+)/status',
+		'/jetpack/v4/backups/downloads',
 		'/jetpack/v4/rewind/to/(?P<rewind_id>[A-Za-z0-9.\-]+)',
 		'/jetpack/v4/rewind/restore/(?P<restore_id>\d+)/status',
 		'/jetpack/v4/site/backup/schedule',

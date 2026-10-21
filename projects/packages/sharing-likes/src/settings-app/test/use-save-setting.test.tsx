@@ -1,13 +1,12 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { queryKeys, useSettings, useStatus } from '../data/queries';
+import { store } from '../data/store';
 import { useSaveSetting } from '../data/use-save-setting';
 import {
 	apiCalls,
 	baseSettings,
 	baseStatus,
-	createTestQueryClient,
-	resetNotices,
+	createTestRegistry,
 	snackbarMessages,
 	wrapperFor,
 } from './helpers';
@@ -17,21 +16,14 @@ jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
 /**
- * Render the save hook alongside active status and settings queries, as the screen does.
+ * Render the save hook in a seeded registry.
  *
- * @return Hook result and query client.
+ * @return Hook result and registry.
  */
 function renderSave() {
-	const queryClient = createTestQueryClient();
-	const { result } = renderHook(
-		() => {
-			useStatus();
-			useSettings();
-			return useSaveSetting();
-		},
-		{ wrapper: wrapperFor( queryClient ) }
-	);
-	return { result, queryClient };
+	const registry = createTestRegistry();
+	const { result } = renderHook( () => useSaveSetting(), { wrapper: wrapperFor( registry ) } );
+	return { result, registry };
 }
 
 /**
@@ -51,7 +43,6 @@ function deferred< T >() {
 
 beforeEach( () => {
 	mockApiFetch.mockReset();
-	resetNotices();
 } );
 
 describe( 'useSaveSetting', () => {
@@ -72,17 +63,17 @@ describe( 'useSaveSetting', () => {
 		expect( snackbarMessages() ).toContain( 'Settings have been saved' );
 	} );
 
-	it( 'replaces the cached settings with the response', async () => {
+	it( 'replaces the stored settings with the response', async () => {
 		// Saving can change which settings are offered, so keys come and go.
 		const saved: Settings = { likes_enabled: true, reblogs_enabled: true, button_style: 'icon' };
 		mockApiFetch.mockImplementation( ( { method } ) =>
 			Promise.resolve( method === 'PUT' ? saved : baseStatus )
 		);
-		const { result, queryClient } = renderSave();
+		const { result, registry } = renderSave();
 
 		await act( () => result.current( 'button_style', 'icon' ) );
 
-		expect( queryClient.getQueryData< Settings >( queryKeys.settings ) ).toEqual( saved );
+		expect( registry.select( store ).getSettings() ).toEqual( saved );
 	} );
 
 	it( 'rolls back and shows the server message when a save fails', async () => {
@@ -96,11 +87,11 @@ describe( 'useSaveSetting', () => {
 			// A settings read that never lands, so only the rollback can restore the value.
 			return path?.endsWith( '/status' ) ? Promise.resolve( baseStatus ) : new Promise( () => {} );
 		} );
-		const { result, queryClient } = renderSave();
+		const { result, registry } = renderSave();
 
 		await act( () => result.current( 'comment_likes_enabled', true ) );
 
-		expect( queryClient.getQueryData< Settings >( queryKeys.settings ) ).toMatchObject( {
+		expect( registry.select( store ).getSettings() ).toMatchObject( {
 			comment_likes_enabled: false,
 		} );
 		expect( snackbarMessages() ).toContain(
@@ -132,7 +123,7 @@ describe( 'useSaveSetting', () => {
 				}
 				return 'likes_enabled' in ( data as object ) ? first.promise : second.promise;
 			} );
-			const { result, queryClient } = renderSave();
+			const { result, registry } = renderSave();
 
 			let saves: Promise< unknown >[] = [];
 			act( () => {
@@ -149,7 +140,7 @@ describe( 'useSaveSetting', () => {
 			} );
 			await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 2 ) );
 
-			expect( queryClient.getQueryData< Settings >( queryKeys.settings ) ).toMatchObject( {
+			expect( registry.select( store ).getSettings() ).toMatchObject( {
 				likes_enabled: likesEnabled,
 				button_style: 'icon',
 			} );
@@ -171,7 +162,7 @@ describe( 'useSaveSetting', () => {
 			}
 			return apiCalls( 'PUT' ).length === 1 ? first.promise : second.promise;
 		} );
-		const { result, queryClient } = renderSave();
+		const { result, registry } = renderSave();
 
 		let saves: Promise< unknown >[] = [];
 		act( () => {
@@ -185,9 +176,7 @@ describe( 'useSaveSetting', () => {
 			await saves[ 0 ];
 		} );
 
-		expect( queryClient.getQueryData< Settings >( queryKeys.settings )?.button_style ).toBe(
-			'text'
-		);
+		expect( registry.select( store ).getSettings()?.button_style ).toBe( 'text' );
 
 		await act( async () => {
 			second.resolve( { ...baseSettings, button_style: 'text' } );
@@ -195,7 +184,7 @@ describe( 'useSaveSetting', () => {
 		} );
 	} );
 
-	it( 'sends a queued save without waiting on retries of a failed status read', async () => {
+	it( 'sends a queued save after a failed status read', async () => {
 		mockApiFetch.mockImplementation( ( { method, path } ) => {
 			if ( method === 'PUT' ) {
 				return Promise.resolve( baseSettings );

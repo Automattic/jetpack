@@ -66,7 +66,7 @@ class Main_Features {
 	 *
 	 * Keyed by feature slug. `delivery` says what switches the feature: Protect ships inside
 	 * Jetpack too, but its switch is its own plugin, so it sets `jetpack` false and names
-	 * only that.
+	 * only that. `needs_account` repeats the feature module's "Requires User Connection" header.
 	 *
 	 * @return array<string, array<string, mixed>> Feature definitions keyed by feature slug.
 	 */
@@ -92,6 +92,7 @@ class Main_Features {
 				'icon'             => 'list',
 				'admin_page'       => 'jetpack-activity-log',
 				'module'           => 'activity-log',
+				'needs_account'    => true,
 				'free_highlights'  => array(
 					__( 'Your 20 most recent events', 'jetpack-my-jetpack' ),
 					__( 'Who changed what, from posts to plugin updates and logins', 'jetpack-my-jetpack' ),
@@ -146,6 +147,7 @@ class Main_Features {
 				'long_description' => __( 'Every change you make is saved off-site as it happens, so your content and WooCommerce orders stay safe even if your host goes down. Restore your site in one click, even when it is offline.', 'jetpack-my-jetpack' ),
 				'icon'             => 'backup',
 				'product'          => 'backup',
+				'needs_account'    => true,
 				'interstitial'     => '/add-backup',
 				'setup_note'       => __( 'Backups start once you add a paid plan.', 'jetpack-my-jetpack' ),
 				'paid_highlights'  => array(
@@ -253,6 +255,7 @@ class Main_Features {
 				'long_description' => __( 'Generate posts, tables, forms and images from a prompt, then change the tone, translate, or fix unclear sentences to make your writing easier to read. Before you publish, improve your title and create a featured image in one click.', 'jetpack-my-jetpack' ),
 				'icon'             => 'star',
 				'product'          => 'jetpack-ai',
+				'needs_account'    => true,
 				'interstitial'     => '/add-jetpack-ai',
 				'free_highlights'  => array(
 					/* translators: %d is the number of free requests, such as 20. */
@@ -307,6 +310,7 @@ class Main_Features {
 				'icon'             => 'envelope',
 				'product'          => 'newsletter',
 				'module'           => 'subscriptions',
+				'needs_account'    => true,
 				'free_highlights'  => array(
 					__( 'No limit on subscribers or email sends', 'jetpack-my-jetpack' ),
 					__( 'Import up to 100 subscribers', 'jetpack-my-jetpack' ),
@@ -426,6 +430,7 @@ class Main_Features {
 				'long_description' => __( 'Reach your followers on Facebook, Instagram, Threads, Bluesky, LinkedIn, Mastodon, Nextdoor and Tumblr without leaving WordPress. Posts share automatically when you publish, and you can re-share or schedule them later.', 'jetpack-my-jetpack' ),
 				'icon'             => 'share',
 				'product'          => 'social',
+				'needs_account'    => true,
 				'interstitial'     => '/add-social',
 				'free_highlights'  => array(
 					__( 'Unlimited shares', 'jetpack-my-jetpack' ),
@@ -722,7 +727,7 @@ class Main_Features {
 	/**
 	 * The installed file for a plugin, by the names its product declares where there is one.
 	 *
-	 * A product lists every folder its plugin ships under, including the -dev checkout.
+	 * Prefer an active copy when several declared folders are installed, including -dev checkouts.
 	 *
 	 * @param string      $slug          WordPress.org plugin slug.
 	 * @param string|null $product_class The product behind the plugin, when it has one.
@@ -730,14 +735,28 @@ class Main_Features {
 	 */
 	public static function get_plugin_file( $slug, $product_class = null ) {
 		if ( Product::JETPACK_PLUGIN_SLUG === $slug ) {
-			return Product::get_installed_plugin_filename( 'jetpack' ) ?? false;
+			$filenames = Product::JETPACK_PLUGIN_FILENAME;
+		} elseif ( $product_class && $product_class::$has_standalone_plugin ) {
+			$filenames = $product_class::get_plugin_filename();
+		} else {
+			return Plugins_Installer::get_plugin_id_by_slug( $slug );
 		}
 
-		if ( $product_class && $product_class::$has_standalone_plugin ) {
-			return $product_class::get_installed_plugin_filename();
+		$plugins   = Plugins_Installer::get_plugins();
+		$installed = false;
+		foreach ( (array) $filenames as $file ) {
+			if ( ! isset( $plugins[ $file ] ) ) {
+				continue;
+			}
+			if ( $plugins[ $file ]['active'] ) {
+				return $file;
+			}
+			if ( false === $installed ) {
+				$installed = $file;
+			}
 		}
 
-		return Plugins_Installer::get_plugin_id_by_slug( $slug );
+		return $installed;
 	}
 
 	/**
@@ -1019,6 +1038,8 @@ class Main_Features {
 				// so the catalog never ships a status of its own.
 				'product'          => $definition['product'] ?? '',
 				'module'           => $definition['module'] ?? '',
+				// Read even without Jetpack, whose module list would otherwise say so.
+				'needs_account'    => ! empty( $definition['needs_account'] ),
 			);
 			if ( 'activity-log' === $slug && ! $local && true === ( Products\Pro::get_pricing_for_ui()['catalog_available'] ?? false ) ) {
 				$feature['paid_highlights'][0] = __( '30 days of history with VaultPress Backup or Jetpack Pro, a full year with Jetpack Complete', 'jetpack-my-jetpack' );

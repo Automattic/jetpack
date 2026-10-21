@@ -1,6 +1,9 @@
-.terms-of-service {
-	font-size: var(--font-body);
+// No specificity, so any consumer class sets the colour without a tie.
+:where(.terms-of-service) {
 	color: var(--jp-black);
+}
+
+.terms-of-service {
 
 	.terms-of-service__link {
 		white-space: nowrap;

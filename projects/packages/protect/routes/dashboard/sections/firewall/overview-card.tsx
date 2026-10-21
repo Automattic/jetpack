@@ -30,6 +30,7 @@ import { AUTOMATIC_RULES, IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
 import TestDetails from './test-details';
 import type { TestOutcome, TestResult } from './firewall-test';
 import type { FirewallBlocks, FirewallContext, FirewallState } from './types';
+import type { JSX } from 'react';
 import './style.scss';
 
 const UNAVAILABLE: FirewallState = {
