@@ -235,23 +235,47 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		normalizeFeedLimit
 	);
 
+	const draftRef = useRef( draft );
+	draftRef.current = draft;
+
+	// Discrete choices show the new value right away instead of snapping back
+	// to the saved one until the request returns, and roll back if it fails.
+	const commitChoice = useCallback(
+		( updates: PodcastSettingsUpdate ) => {
+			const saved = draftRef.current;
+			if ( ! saved ) {
+				return;
+			}
+			const previous = Object.fromEntries(
+				Object.keys( updates ).map( key => [ key, saved[ key as keyof PodcastSettings ] ] )
+			) as PodcastSettingsUpdate;
+			setDraft( current => current && { ...current, ...updates } );
+			saveSettings( updates, {
+				onSuccess: setDraft,
+				onError: () => setDraft( current => current && { ...current, ...previous } ),
+			} );
+		},
+		[ saveSettings ]
+	);
+
 	// Discrete-action handlers — these controls "commit" on each user choice
 	// (no blur ambiguity), so they save immediately.
 	const handleCategorySelect = useCallback(
-		( id: number ) => commit( { podcasting_category_id: id } ),
-		[ commit ]
+		( id: number ) => commitChoice( { podcasting_category_id: id } ),
+		[ commitChoice ]
 	);
 	const handleExplicitChange = useCallback(
-		( value: string ) => commit( { podcasting_explicit: value === 'yes' } ),
-		[ commit ]
+		( value: string ) => commitChoice( { podcasting_explicit: value === 'yes' } ),
+		[ commitChoice ]
 	);
 	const handleCoverSelect = useCallback(
-		( id: number, url: string ) => commit( { podcasting_image: url, podcasting_image_id: id } ),
-		[ commit ]
+		( id: number, url: string ) =>
+			commitChoice( { podcasting_image: url, podcasting_image_id: id } ),
+		[ commitChoice ]
 	);
 	const handleCoverRemove = useCallback(
-		() => commit( { podcasting_image: '', podcasting_image_id: 0 } ),
-		[ commit ]
+		() => commitChoice( { podcasting_image: '', podcasting_image_id: 0 } ),
+		[ commitChoice ]
 	);
 	const topicValue = useMemo(
 		() =>

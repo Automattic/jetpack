@@ -24,6 +24,7 @@
 		"build:wp-build": "wp-build",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run build:strip-unminified-prod",
 		"clean": "rm -rf build/ dist/",
+		"test": "jest --config=tests/jest.config.js --passWithNoTests",
 		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:watch:wp-build'",
 		"watch:wp-build": "wp-build --watch"
 	},
@@ -75,6 +76,9 @@
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@babel/core": "7.29.7",
 		"@babel/runtime": "7.29.7",
+		"@testing-library/dom": "10.4.2",
+		"@testing-library/react": "16.3.3",
+		"@testing-library/user-event": "14.6.8",
 		"@types/canvas-confetti": "1.9.0",
 		"@types/react": "18.3.31",
 		"@wordpress/base-styles": "13.3.0",
@@ -83,6 +87,7 @@
 		"@wordpress/theme": "2.3.0",
 		"browserslist": "^4.24.0",
 		"concurrently": "10.0.5",
+		"jest": "30.5.2",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5"
 	},
