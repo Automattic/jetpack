@@ -306,17 +306,19 @@ export default function KnownThreatsWarning( {
 						</VisuallyHidden>
 					</Notice.Description>
 				) }
+				{ onAcknowledge && (
+					<Notice.Description render={ <div /> } className="jpb-known-threats__acknowledgement">
+						<CheckboxControl
+							label={ __(
+								'I understand this backup contains known threats and want to restore it anyway.',
+								'jetpack-backup-pkg'
+							) }
+							checked={ acknowledged }
+							onCheckedChange={ onAcknowledge }
+						/>
+					</Notice.Description>
+				) }
 			</Notice.Root>
-			{ onAcknowledge && (
-				<CheckboxControl
-					label={ __(
-						'I understand this backup contains known threats and want to restore it anyway.',
-						'jetpack-backup-pkg'
-					) }
-					checked={ acknowledged }
-					onCheckedChange={ onAcknowledge }
-				/>
-			) }
 		</div>
 	);
 }

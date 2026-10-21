@@ -16,6 +16,15 @@
 		}
 	}
 
+	// The decision the warning asks for, set apart from the link above it.
+	&__acknowledgement {
+		margin-block-start: var(--wpds-dimension-gap-sm);
+		padding-block-start: var(--wpds-dimension-padding-md);
+		border-block-start:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-warning);
+	}
+
 	// One threat per item, stacked, so long paths have the full width at any size.
 	&__list {
 		display: flex;
