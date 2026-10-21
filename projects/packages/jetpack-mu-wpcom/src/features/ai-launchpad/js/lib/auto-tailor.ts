@@ -13,7 +13,9 @@ const CLAIM_PATH = `${ ENDPOINT }/auto-tailor-claim`;
  * @param tailoring - The run this load claimed.
  * @return The same run.
  */
-export function releaseClaimOnLeave< T >( tailoring: Promise< T > ): Promise< T > {
+export function releaseClaimOnLeave< T extends { saveError?: unknown } >(
+	tailoring: Promise< T >
+): Promise< T > {
 	if ( typeof window === 'undefined' ) {
 		return tailoring;
 	}
@@ -21,8 +23,11 @@ export function releaseClaimOnLeave< T >( tailoring: Promise< T > ): Promise< T 
 		apiFetch( { path: CLAIM_PATH, method: 'DELETE', keepalive: true } ).catch( () => {} );
 	};
 	window.addEventListener( 'pagehide', release );
-	const stop = () => window.removeEventListener( 'pagehide', release );
-	tailoring.then( stop, stop );
+	// Stay attached after a failed save: the server ignores the release once a list exists.
+	tailoring.then(
+		result => ! result?.saveError && window.removeEventListener( 'pagehide', release ),
+		() => {}
+	);
 	return tailoring;
 }
 
@@ -33,6 +38,7 @@ export interface WaitOptions {
 	sleep?: ( ms: number ) => Promise< unknown >;
 	intervalMs?: number;
 	maxPolls?: number;
+	onTimeout?: () => void;
 }
 
 /**
@@ -57,7 +63,7 @@ export function buildAutoInput( data: LaunchpadData ): WizardInput | null {
  *
  * @param copy    - The site copy to tailor with.
  * @param options - Injection points and poll limits.
- * @return The saved result, or this load's own when it took over.
+ * @return The saved result, or this load's own when it took over; never settles after a timeout.
  */
 export async function waitForTailoring(
 	copy: SiteCopy,
@@ -69,6 +75,8 @@ export async function waitForTailoring(
 		sleep = ms => new Promise( resolve => setTimeout( resolve, ms ) ),
 		intervalMs = 5000,
 		maxPolls = 60,
+		// Reloading re-runs the initial decision, which tailors or shows the wizard by then.
+		onTimeout = () => window.location.reload(),
 	} = options;
 
 	for ( let poll = 0; poll < maxPolls; poll++ ) {
@@ -91,5 +99,6 @@ export async function waitForTailoring(
 			return releaseClaimOnLeave( tailorFn( input, copy, true ) );
 		}
 	}
-	throw new Error( 'Timed out waiting for the site setup list.' );
+	onTimeout();
+	return new Promise< TailorResult >( () => {} );
 }

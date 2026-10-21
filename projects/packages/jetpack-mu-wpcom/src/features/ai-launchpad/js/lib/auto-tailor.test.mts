@@ -16,7 +16,8 @@ registerHooks( {
 		return nextResolve( specifier, context );
 	},
 } );
-const { buildAutoInput, waitForTailoring } = await import( './auto-tailor.ts' );
+const { buildAutoInput, releaseClaimOnLeave, waitForTailoring } =
+	await import( './auto-tailor.ts' );
 
 const COPY = {} as SiteCopy;
 const OUTPUT = { tasks: [] } as unknown as TailoredOutput;
@@ -118,9 +119,38 @@ describe( 'waitForTailoring', () => {
 		assert.equal( fetches, 2 );
 	} );
 
-	it( 'rejects after maxPolls', async () => {
+	it( 'hands over to onTimeout after maxPolls and never settles', async () => {
 		const { options, calls } = harness( Array( 3 ).fill( data( { auto_tailoring: true } ) ) );
-		await assert.rejects( waitForTailoring( COPY, options ) );
+		let timeouts = 0;
+		let settled = false;
+		waitForTailoring( COPY, { ...options, onTimeout: () => timeouts++ } ).finally( () => {
+			settled = true;
+		} );
+		await new Promise( resolve => setImmediate( resolve ) );
 		assert.equal( calls.fetches, 3 );
+		assert.equal( timeouts, 1 );
+		assert.equal( settled, false );
+	} );
+} );
+
+describe( 'releaseClaimOnLeave', () => {
+	it( 'keeps the pagehide release until a list is saved', async () => {
+		for ( const [ result, removed ] of [
+			[ RESULT, 1 ],
+			[ { ...RESULT, saveError: { retry: async () => true } }, 0 ],
+		] as const ) {
+			const counts = { added: 0, removed: 0 };
+			( globalThis as { window?: unknown } ).window = {
+				addEventListener: () => counts.added++,
+				removeEventListener: () => counts.removed++,
+			};
+			try {
+				await releaseClaimOnLeave( Promise.resolve( result as TailorResult ) );
+				await new Promise( resolve => setImmediate( resolve ) );
+			} finally {
+				delete ( globalThis as { window?: unknown } ).window;
+			}
+			assert.deepEqual( counts, { added: 1, removed } );
+		}
 	} );
 } );

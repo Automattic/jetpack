@@ -200,7 +200,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
-	 * Tasks the AI builder already did, never offered on an AI-built site: its content, its design, and its name.
+	 * Tasks the AI builder already did, never offered on an AI-built site: its content, its design (store design
+	 * included), and its name. AI_Launchpad_Task_Menu_Test checks the JS AI-built fallback lists against it.
 	 */
 	const AI_BUILT_EXCLUDED_TASK_IDS = array(
 		'first_post_published',
@@ -217,6 +218,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		'design_edited',
 		'front_page_updated',
 		'pick_fonts_colors',
+		'woo_customize_store',
 		'site_title',
 		'setup_general',
 	);
@@ -1481,6 +1483,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	/**
 	 * Claims the automatic tailoring run for this request, so a reload or a second tab waits instead of tailoring twice.
+	 * Best-effort: two near-simultaneous loads can both win, costing at worst one extra tailoring run.
 	 *
 	 * @return bool Whether this request won the claim.
 	 */

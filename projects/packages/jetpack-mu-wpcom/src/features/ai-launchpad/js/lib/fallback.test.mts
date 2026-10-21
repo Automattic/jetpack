@@ -111,39 +111,15 @@ describe( 'selectFallback', () => {
 	} );
 } );
 
-// Mirrors AI_Launchpad_REST::AI_BUILT_EXCLUDED_TASK_IDS.
-const BUILDER_TASKS = new Set( [
-	'first_post_published',
-	'add_about_page',
-	'update_about_page',
-	'add_new_page',
-	'edit_page',
-	'add_contact_page',
-	'add_events_page',
-	'add_video_page',
-	'add_gallery_page',
-	'add_portfolio_piece',
-	'site_theme_selected',
-	'design_edited',
-	'front_page_updated',
-	'pick_fonts_colors',
-	'site_title',
-	'setup_general',
-] );
-
 describe( 'selectFallback on an AI-built site', () => {
 	for ( const goal of GOALS ) {
-		it( `gives goal "${ goal }" six menu tasks, launch last, none of the builder's`, () => {
+		it( `gives goal "${ goal }" six menu tasks, launch last`, () => {
 			const output = selectFallback( inputFor( goal ), ENGLISH_SITE_COPY, true );
 			const ids = output.tasks.map( task => task.id );
 
 			assert.deepEqual( validateAgainstSchema( output, AGENT_OUTPUT_SCHEMA ), [] );
 			assert.equal( ids.length, 6 );
 			assert.ok( LAUNCH_TASKS.has( ids[ ids.length - 1 ] ) );
-			assert.deepEqual(
-				ids.filter( id => BUILDER_TASKS.has( id ) ),
-				[]
-			);
 			assert.deepEqual(
 				ids.filter( id => ! TASK_MENU.includes( id ) ),
 				[]

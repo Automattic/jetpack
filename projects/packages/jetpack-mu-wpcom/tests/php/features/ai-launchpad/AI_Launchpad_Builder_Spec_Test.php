@@ -118,9 +118,7 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 	public function test_builder_input_composes_the_description( $spec, $expected ) {
 		update_option( 'big_sky_site_metadata', wp_json_encode( $spec, JSON_UNESCAPED_SLASHES ) );
 
-		$input = wpcom_ai_launchpad_builder_input();
-
-		$this->assertSame( $expected, $input['description'] );
+		$this->assertSame( $expected, $this->builder_input()['description'] );
 	}
 
 	/**
@@ -188,7 +186,7 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$this->assertSame( 1000, mb_strlen( wpcom_ai_launchpad_builder_input()['description'] ) );
+		$this->assertSame( 1000, mb_strlen( $this->builder_input()['description'] ) );
 	}
 
 	/**
@@ -208,10 +206,10 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 		);
 
 		update_option( 'blogname', 'Bob &amp; Sue&#039;s' );
-		$this->assertSame( "Bob & Sue's", wpcom_ai_launchpad_builder_input()['site_name'] );
+		$this->assertSame( "Bob & Sue's", $this->builder_input()['site_name'] );
 
 		update_option( 'blogname', '' );
-		$this->assertSame( 'Spec Title', wpcom_ai_launchpad_builder_input()['site_name'] );
+		$this->assertSame( 'Spec Title', $this->builder_input()['site_name'] );
 	}
 
 	/**
@@ -229,7 +227,7 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$this->assertSame( 'sell', wpcom_ai_launchpad_builder_input()['goal'] );
+		$this->assertSame( 'sell', $this->builder_input()['goal'] );
 	}
 
 	/**
@@ -249,5 +247,17 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		$this->assertNull( wpcom_ai_launchpad_builder_input() );
+	}
+
+	/**
+	 * The builder input, asserted non-null.
+	 *
+	 * @return array
+	 */
+	private function builder_input() {
+		$input = wpcom_ai_launchpad_builder_input();
+		$this->assertIsArray( $input );
+
+		return $input;
 	}
 }

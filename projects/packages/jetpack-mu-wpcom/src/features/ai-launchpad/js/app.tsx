@@ -27,6 +27,7 @@ export function App() {
 	const [ view, setView ] = useState< View | null >( null );
 	const [ pendingTailor, setPendingTailor ] = useState< Promise< TailorResult > | undefined >();
 	// The goal picked in the wizard, forwarded to the list for its heading.
+	const [ fromWizard, setFromWizard ] = useState( false );
 	const [ goal, setGoal ] = useState< GoalSlug | undefined >();
 	// Handed to the list so returning users don't refetch the same endpoint.
 	const [ initialData, setInitialData ] = useState< LaunchpadData | undefined >();
@@ -106,6 +107,7 @@ export function App() {
 				copy={ copy }
 				aiBuilt={ !! initialData?.ai_built }
 				onComplete={ ( input, tailoring ) => {
+					setFromWizard( true );
 					setPendingTailor( () => tailoring );
 					setGoal( input.goal );
 					// The wizard wrote the entered Name to blogname; keep the preview
@@ -132,6 +134,7 @@ export function App() {
 			site={ initialData?.site }
 			goal={ goal }
 			copy={ copy }
+			fromWizard={ fromWizard }
 		/>
 	);
 }

@@ -109,10 +109,10 @@ const AI_BUILT_GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 	],
 	sell: [
 		'woo_products',
-		'woo_customize_store',
 		'set_up_payments',
 		'add_site_icon',
 		'domain_upsell',
+		'connect_social_media',
 		'site_launched',
 	],
 	newsletter: [
