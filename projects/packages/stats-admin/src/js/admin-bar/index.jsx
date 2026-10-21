@@ -7,6 +7,11 @@ import './style.scss';
 
 const DAYS = 7;
 
+const SAMPLE_DATA = {
+	views: [ 412, 388, 451, 530, 497, 612, 284 ],
+	visitors: [ 198, 176, 214, 251, 233, 287, 141 ],
+};
+
 /**
  * Fetch daily views and visitors for the last DAYS days.
  *
@@ -33,19 +38,20 @@ const sum = values => values.reduce( ( total, value ) => total + value, 0 );
 /**
  * The admin bar sparkline and the panel shown on hover.
  *
- * @param {object}      props         - Component props.
- * @param {number}      props.blogId  - The WordPress.com blog ID.
- * @param {HTMLElement} props.chartEl - Where the sparkline renders, inside the admin bar link.
+ * @param {object}      props            - Component props.
+ * @param {number}      props.blogId     - The WordPress.com blog ID.
+ * @param {boolean}     props.sampleData - Whether to show SAMPLE_DATA instead of fetching stats.
+ * @param {HTMLElement} props.chartEl    - Where the sparkline renders, inside the admin bar link.
  * @return {object} The panel, with the sparkline portaled into the admin bar link.
  */
-function AdminBarStats( { blogId, chartEl } ) {
+function AdminBarStats( { blogId, sampleData, chartEl } ) {
 	const [ state, setState ] = useState( { status: 'loading', views: [], visitors: [] } );
 
 	useEffect( () => {
-		fetchVisits( blogId )
+		( sampleData ? Promise.resolve( SAMPLE_DATA ) : fetchVisits( blogId ) )
 			.then( data => setState( { status: 'success', ...data } ) )
 			.catch( () => setState( { status: 'error', views: [], visitors: [] } ) );
-	}, [ blogId ] );
+	}, [ blogId, sampleData ] );
 
 	const formatNumber = new Intl.NumberFormat( document.documentElement.lang || undefined ).format;
 	const metricValue = values =>
@@ -91,8 +97,10 @@ function AdminBarStats( { blogId, chartEl } ) {
 
 const panelEl = document.getElementById( 'jetpack-stats-admin-bar-panel' );
 const chartEl = document.getElementById( 'jetpack-stats-admin-bar-chart' );
-const blogId = window.jetpackStatsAdminBar?.blogId;
+const { blogId, sampleData = false } = window.jetpackStatsAdminBar ?? {};
 
-if ( panelEl && chartEl && blogId ) {
-	createRoot( panelEl ).render( <AdminBarStats blogId={ blogId } chartEl={ chartEl } /> );
+if ( panelEl && chartEl && ( blogId || sampleData ) ) {
+	createRoot( panelEl ).render(
+		<AdminBarStats blogId={ blogId } sampleData={ sampleData } chartEl={ chartEl } />
+	);
 }

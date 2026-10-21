@@ -173,9 +173,21 @@ class Admin_Bar {
 			)
 		);
 
+		$config = array(
+			'blogId'     => (int) \Jetpack_Options::get_option( 'id' ),
+			/**
+			 * Filters whether the 7-day chart shows made-up numbers instead of fetching stats, for design reviews on test sites.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $sample_data Whether to show sample data. Default false.
+			 */
+			'sampleData' => (bool) apply_filters( 'jetpack_stats_admin_bar_sample_data', false ),
+		);
+
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			'window.jetpackStatsAdminBar = ' . wp_json_encode( array( 'blogId' => (int) \Jetpack_Options::get_option( 'id' ) ), JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+			'window.jetpackStatsAdminBar = ' . wp_json_encode( $config, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 			'before'
 		);
 	}
