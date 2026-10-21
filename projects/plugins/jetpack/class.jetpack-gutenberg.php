@@ -900,9 +900,15 @@ class Jetpack_Gutenberg {
 			wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 		}
 		// AI Assistant
-		$ai_assistant_state = array(
-			'is-enabled'     => Jetpack_AI_Settings::is_ai_enabled(),
-			'is-seo-enabled' => Jetpack_AI_Settings::is_ai_seo_enabled(),
+		// The SEO package registers the setting for saving once it starts; see the seo-enhancer store.
+		// Not `Initializer::is_available()`: WordPress.com may not start it on every site the plan allows.
+		$is_seo_auto_enhance_switchable = apply_filters( 'ai_seo_enhancer_enabled', true )
+			&& did_action( 'jetpack_seo_init' ) > 0;
+		$ai_assistant_state             = array(
+			'is-enabled'                     => Jetpack_AI_Settings::is_ai_enabled(),
+			'is-seo-enabled'                 => Jetpack_AI_Settings::is_ai_seo_enabled(),
+			'is-seo-auto-enhance-switchable' => $is_seo_auto_enhance_switchable,
+			'is-seo-auto-enhance-enabled'    => $is_seo_auto_enhance_switchable && (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 		);
 
 		$screen_base = null;

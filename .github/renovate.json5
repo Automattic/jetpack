@@ -71,6 +71,8 @@
 			matchPackageNames: [
 				// Let this go to the Storybook monorepo group instead. It has a tightly tied peer dep.
 				'!eslint-plugin-storybook',
+				// Same for the WordPress group.
+				'!@wordpress/eslint-plugin',
 			],
 		},
 		{

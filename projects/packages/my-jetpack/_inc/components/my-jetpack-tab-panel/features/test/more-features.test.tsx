@@ -284,6 +284,22 @@ describe( 'MoreFeatures', () => {
 		expect( link() ).not.toBeInTheDocument();
 	} );
 
+	it( 'links to no settings for a module still waiting for an account', () => {
+		setSiteEditor( { isBlockTheme: false } );
+		const waiting = {
+			...sharing,
+			activated: true,
+			available: false,
+			requires_user_connection: true,
+			configure_url: 'https://example.com/settings',
+		};
+
+		render( <FeatureItem state={ getModuleFeatureState( waiting, {}, true ) } /> );
+
+		expect( screen.getByText( 'Needs user account' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^Configure / } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'links to no settings where the Site Editor block replaces the module', () => {
 		setSiteEditor( {
 			isBlockTheme: true,
