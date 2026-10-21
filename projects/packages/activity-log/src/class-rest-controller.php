@@ -271,7 +271,7 @@ class REST_Controller {
 	 *
 	 * On WordPress.com Simple sites the feature is checked locally instead.
 	 *
-	 * @since $$next-version$$ Checks the feature locally on WordPress.com Simple sites.
+	 * @since 0.6.0 Checks the feature locally on WordPress.com Simple sites.
 	 *
 	 * @return bool True when the site has the full-activity-log feature.
 	 */
