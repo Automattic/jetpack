@@ -8,7 +8,7 @@ services:
   ## and reuse it if we need to remove containers and images for rebuilding from scratch.
   db:
     image: mariadb:lts
-    pull_policy: weekly
+    pull_policy: ${PULL_POLICY:-weekly}
     volumes:
       - ./data/${COMPOSE_PROJECT_NAME}_mysql:/var/lib/mysql
       - ./logs/${COMPOSE_PROJECT_NAME}/mysql:/var/log/mysql
@@ -34,7 +34,7 @@ services:
     depends_on:
       - db
     image: automattic/jetpack-wordpress-dev:latest
-    pull_policy: daily
+    pull_policy: ${PULL_POLICY:-daily}
     volumes:
       ## WordPress and its plugins and themes should be defined in volumeMappings in jetpack-docker-config-default.yml or jetpack-docker-config.yml, not here!
       ## That avoids having to define them both here and in the "sftp" service.
