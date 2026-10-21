@@ -1,7 +1,7 @@
 import { useInstanceId } from '@wordpress/compose';
 import { Fragment, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { chevronDown, chevronUp } from '@wordpress/icons';
+import { caution, chevronDown, chevronUp } from '@wordpress/icons';
 import { Link as RouterLink } from '@wordpress/route';
 import {
 	Button,
@@ -210,11 +210,33 @@ export default function KnownThreatsWarning( {
 					<Notice.Description render={ <div /> }>
 						<Collapsible.Root open={ open } onOpenChange={ setOpen }>
 							<Collapsible.Trigger
-								render={ <Button variant="minimal" tone="neutral" size="compact" /> }
+								render={
+									<Button
+										variant="outline"
+										tone="neutral"
+										size="compact"
+										aria-label={
+											open
+												? sprintf(
+														/* translators: %d: number of known security threats in a backup; the button hides the list of threats. */
+														__( 'Known threats (%d), hide threats', 'jetpack-backup-pkg' ),
+														flagged
+													)
+												: sprintf(
+														/* translators: %d: number of known security threats in a backup; the button shows the list of threats. */
+														__( 'Known threats (%d), show threats', 'jetpack-backup-pkg' ),
+														flagged
+													)
+										}
+									/>
+								}
 							>
-								{ open
-									? __( 'Hide threats', 'jetpack-backup-pkg' )
-									: __( 'Show threats', 'jetpack-backup-pkg' ) }
+								<Button.Icon icon={ caution } />
+								{ sprintf(
+									/* translators: %d: number of known security threats in a backup. */
+									__( 'Known threats (%d)', 'jetpack-backup-pkg' ),
+									flagged
+								) }
 								<Button.Icon icon={ open ? chevronUp : chevronDown } />
 							</Collapsible.Trigger>
 							<Collapsible.Panel className="jpb-known-threats__panel">

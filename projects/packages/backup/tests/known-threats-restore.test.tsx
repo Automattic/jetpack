@@ -218,11 +218,11 @@ describe( 'known threats on the Restore screen', () => {
 		);
 		await user.unhover( confirm );
 
-		const toggle = view.getByRole( 'button', { name: 'Show threats' } );
+		const toggle = view.getByRole( 'button', { name: 'Known threats (2), show threats' } );
 		expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
 		await user.click( toggle );
 		expect( toggle ).toHaveAttribute( 'aria-expanded', 'true' );
-		expect( toggle ).toHaveAccessibleName( 'Hide threats' );
+		expect( toggle ).toHaveAccessibleName( 'Known threats (2), hide threats' );
 		const items = within(
 			view.getByRole( 'list', { name: 'Known threats in this backup' } )
 		).getAllByRole( 'listitem' );
