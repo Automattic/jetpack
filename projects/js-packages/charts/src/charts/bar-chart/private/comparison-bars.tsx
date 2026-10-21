@@ -1,7 +1,7 @@
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
 import { createGroupScale } from './band-scale';
-import { computeComparisonRect, getValueScaleBaseline } from './comparison-bars-geometry';
+import { computeSlotRect, getValueScaleBaseline } from './comparison-bars-geometry';
 import { DEFAULT_COMPARISON_WIDTH_FACTOR } from './comparison-constants';
 import type { BandScale } from './band-scale';
 import type { ElementStyles, GetElementStylesParams } from '../../../providers';
@@ -106,13 +106,12 @@ export const ComparisonBars: FC< {
 				return;
 			}
 
-			const rect = computeComparisonRect( {
+			const rect = computeSlotRect( {
 				horizontal,
 				bandPosition,
 				slotOffset: slotOffset as number,
 				slotThickness,
-				valuePosition,
-				baseline,
+				valuePositions: [ baseline, valuePosition ],
 				widthFactor,
 			} );
 
