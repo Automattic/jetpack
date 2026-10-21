@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: changed
+Comment: GEO: Explain that Jetpack AI is turned off when that is why the AI SEO Enhancer cannot generate anything. The new SEO page is still gated.
 
-GEO: Explain that Jetpack AI is turned off when that is why the AI SEO Enhancer cannot generate anything.

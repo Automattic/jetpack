@@ -74,6 +74,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		sitemap_url: '',
 		canonical_active: false,
 		canonical_switchable: true,
+		canonical_conflicted: false,
 		schema: {} as SettingsResponse[ 'schema' ],
 		...overrides,
 	};
@@ -119,6 +120,42 @@ const statusFor = ( moduleTitle: string ): string | undefined => {
 	return undefined;
 };
 
+describe( 'Another SEO plugin owning the output', () => {
+	const openDescription = () => {
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Front-page description' } ) );
+		return screen.findByRole( 'textbox', { name: 'Home page description' } );
+	};
+
+	// A plugin can switch Jetpack's output off without naming itself; the lock can't depend on the name.
+	it.each( [
+		[ 'Yoast SEO', /^Yoast SEO is managing your SEO/ ],
+		[ '', /^Another SEO plugin is managing your SEO/ ],
+	] )(
+		'with "%s" in charge, locks the description and hides the previews',
+		async ( plugin, notice ) => {
+			render(
+				<SettingsScreen
+					form={ buildForm( { conflicting_seo_plugin: plugin, title_formats_editable: false } ) }
+				/>
+			);
+
+			expect( screen.getByText( notice ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'social previews' ) ).not.toBeInTheDocument();
+			await expect( openDescription() ).resolves.toBeDisabled();
+			expect( screen.getByText( /^Locked while another SEO plugin/ ) ).toBeInTheDocument();
+		}
+	);
+
+	it( 'leaves both alone while Jetpack owns the output', async () => {
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( screen.queryByText( /is managing your SEO/ ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'social previews' ) ).toBeInTheDocument();
+		await expect( openDescription() ).resolves.toBeEnabled();
+	} );
+} );
+
 describe( 'Indexing toggle on an unpublished site', () => {
 	const indexingToggle = () =>
 		screen.getByRole( 'checkbox', { name: /Allow search engines to index this site/i } );
@@ -163,6 +200,22 @@ describe( 'Settings module completion status', () => {
 			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i } )
 		).resolves.toBeDisabled();
 		expect( screen.getAllByText( /managed by your hosting platform/i ) ).toHaveLength( 2 );
+	} );
+
+	it( 'locks the canonical switch while another SEO plugin controls canonical URLs', async () => {
+		render(
+			<SettingsScreen
+				form={ buildForm( { canonical_active: true, canonical_conflicted: true } ) }
+			/>
+		);
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
+		).resolves.toBeDisabled();
+		expect(
+			screen.getByText( /Jetpack won't add canonical URLs to avoid conflicts/i )
+		).toBeVisible();
 	} );
 
 	describe( 'Site visibility — counts its two toggles', () => {

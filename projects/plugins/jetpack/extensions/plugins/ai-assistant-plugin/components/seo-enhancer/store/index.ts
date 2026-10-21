@@ -18,8 +18,8 @@ export const STORE_NAME = 'jetpack/seo-enhancer';
 let isAutoEnhanceEnabled = false;
 
 try {
-	// Simple has no `jetpack/v4` module routes to read or save this setting, so it arrives with
-	// the editor state there and only Jetpack › SEO can switch it.
+	// Simple has no `jetpack/v4` module routes, so this setting arrives with the editor state
+	// there and saves through `/wp/v2/settings`, which only Jetpack › SEO registers.
 	if ( isSimpleSite() ) {
 		isAutoEnhanceEnabled = isAutoEnhanceSettingOn();
 	} else {

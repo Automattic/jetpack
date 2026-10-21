@@ -39,6 +39,7 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	sitemap_url: '',
 	canonical_active: false,
 	canonical_switchable: true,
+	canonical_conflicted: false,
 	schema: SEEDED_SCHEMA,
 };
 

@@ -11,7 +11,7 @@ The relevant class is `Automattic\Jetpack\Connection\Jetpack_Connector`.
 `Jetpack_Connector::init()` is called automatically when you configure the connection package (it runs from `Manager::configure()`), so no extra setup is required in your plugin. Initialization wires up three things:
 
 1. **Connector registration** — on `wp_connectors_init`, registers a `wordpress_com` connector (a `cloud_service` type with `authentication.method = none`) in the core registry.
-2. **Script module** — on the Connectors admin screen, enqueues the `@automattic/jetpack-connection-connectors` script module (and its stylesheet), which provides a custom render function for the card. The module is built by webpack into `dist/connectors/`, and its `connectors-card.asset.php` lists the script modules (`module_dependencies`) and classic scripts (`dependencies`) it imports; the classic scripts are enqueued beside it. If either built file is missing, the card is skipped.
+2. **Script module** — on the Connectors admin screen, enqueues the `@automattic/jetpack-connection-connectors` script module (and its stylesheet), which provides a custom render function for the card. The module is built by webpack into `dist/connectors/`, and its `connectors-card.asset.php` lists the script modules (`module_dependencies`) and classic scripts (`dependencies`) it imports; the classic scripts are enqueued beside it. If either built file is missing, the card is skipped. The Tracks script (`jp-tracks`, w.js) is enqueued too when tracking is allowed (`Tracking::should_enable_tracking()`, as on My Jetpack), so the shared components' events are recorded. The card identifies the viewer to Tracks by their WordPress.com account (`initializeTracksIdentity()`), so dialogs that don't do it themselves still attribute their events.
 3. **Auth error capture** — on `jetpack_client_authorize_error`, stores the error so it can be surfaced in the card after an authorization attempt.
 
 ## What the card shows
@@ -29,6 +29,8 @@ Depending on connection state, the card surfaces:
 - **Auth errors** — any error captured from the last authorization attempt.
 
 Connect and disconnect actions performed from the card go through the package's existing connection REST endpoints. Connecting and disconnecting are disabled while the site is in offline mode.
+
+**Disconnect site** opens the package's shared `DisconnectDialog`, the same one My Jetpack shows: it lists the connected plugins and links to help. The card leaves out the dialog's disconnect survey by not passing `connectedSiteId`. Its Tracks events carry `context: connectors`. The Safe Mode panel's disconnect keeps its own confirmation, which explains that only this site's stale connection is cleared.
 
 ## Where the card's data comes from
 

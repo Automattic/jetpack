@@ -34,6 +34,7 @@ const SEED: SettingsResponse = {
 	sitemap_url: '',
 	canonical_active: false,
 	canonical_switchable: true,
+	canonical_conflicted: false,
 	schema: makeSchemaSettings(),
 };
 

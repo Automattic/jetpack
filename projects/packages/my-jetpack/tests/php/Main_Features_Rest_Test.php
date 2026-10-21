@@ -147,14 +147,40 @@ class Main_Features_Rest_Test extends TestCase {
 		return array_column( $response->get_data()['features'], 'plugin_status', 'slug' )['boost'];
 	}
 
-	public function test_activates_and_deactivates_a_mapped_plugin() {
-		$activated = $this->send( 'jetpack-boost', 'activate' );
-		$this->assertSame( 200, $activated->get_status() );
-		$this->assertSame( Main_Features::PLUGIN_ACTIVE, $this->boost_status( $activated ) );
+	/**
+	 * @dataProvider mapped_plugin_copies
+	 * @param string|null $active_copy Plugin copy already active before the request.
+	 */
+	#[DataProvider( 'mapped_plugin_copies' )]
+	public function test_activates_and_deactivates_a_mapped_plugin( $active_copy ) {
+		$plugins_filter = static function ( $plugins ) use ( $active_copy ) {
+			if ( $active_copy ) {
+				$plugins[ $active_copy ] = array( 'Name' => 'Boost' );
+			}
+			return $plugins;
+		};
+		add_filter( 'all_plugins', $plugins_filter );
+		try {
+			if ( $active_copy ) {
+				update_option( 'active_plugins', array( $active_copy ) );
+			}
+			$activated = $this->send( 'jetpack-boost', 'activate' );
+			$this->assertSame( 200, $activated->get_status() );
+			$this->assertSame( Main_Features::PLUGIN_ACTIVE, $this->boost_status( $activated ) );
 
-		$deactivated = $this->send( 'jetpack-boost', 'deactivate' );
-		$this->assertSame( 200, $deactivated->get_status() );
-		$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( $deactivated ) );
+			$deactivated = $this->send( 'jetpack-boost', 'deactivate' );
+			$this->assertSame( 200, $deactivated->get_status() );
+			$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( $deactivated ) );
+		} finally {
+			remove_filter( 'all_plugins', $plugins_filter );
+		}
+	}
+
+	public static function mapped_plugin_copies() {
+		return array(
+			'stable only'                        => array( null ),
+			'dev active beside installed stable' => array( 'jetpack-boost-dev/jetpack-boost.php' ),
+		);
 	}
 
 	/**

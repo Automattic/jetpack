@@ -48,6 +48,8 @@ export interface SettingsResponse {
 	sitemap_url: string;
 	canonical_active: boolean;
 	canonical_switchable: boolean;
+	// Read-only: another SEO plugin owns canonical output, so the switch is locked.
+	canonical_conflicted: boolean;
 	// Read by the Settings bootstrap; saved through `/jetpack/v4/seo/schema-settings`.
 	schema: SchemaSettings;
 }
