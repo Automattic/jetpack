@@ -293,7 +293,7 @@ export const useKeyboardNavigation = ( {
 	const previousTotalPoints = useRef( totalPoints );
 	const previousVisibleSeriesKey = useRef( visibleSeriesKey );
 
-	// Hiding or showing a series moves every index onto a different bar. The count alone misses a
+	// Hiding or showing a series re-points every index. The count alone misses a
 	// swap that keeps it the same, such as hiding one series while revealing another of equal length.
 	// Clear rather than clamp once focus has left the chart: a new tooltip would pull focus back.
 	useEffect( () => {
