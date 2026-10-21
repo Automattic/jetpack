@@ -12,38 +12,27 @@
 // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Logging unmatched calls is the point of a dev mock.
 
 /**
- * Store fake connection tokens, keeping whatever was there so deactivation can restore it.
+ * Fake a WordPress.com connection for user 1 (the Docker admin). Nothing is written to the database,
+ * so deactivating the plugin leaves the site exactly as it was.
+ *
+ * @param mixed  $value Stored value.
+ * @param string $name  Option name, without the `jetpack_` prefix.
+ * @return mixed
  */
-function newsletter_dev_mock_activate() {
-	$keys   = array( 'id', 'blog_token', 'master_user', 'user_tokens' );
-	$backup = array();
-	foreach ( $keys as $key ) {
-		$backup[ $key ] = Jetpack_Options::get_option( $key );
+function newsletter_dev_mock_connection( $value, $name ) {
+	switch ( $name ) {
+		case 'id':
+			return 12345678;
+		case 'blog_token':
+			return 'devmockblogtoken.devmocksecret';
+		case 'master_user':
+			return 1;
+		case 'user_tokens':
+			return array( 1 => 'devmockusertoken.devmocksecret.1' );
 	}
-	update_option( 'newsletter_dev_mock_backup', $backup, false );
-
-	$user_id = get_current_user_id() ? get_current_user_id() : 1;
-	Jetpack_Options::update_option( 'id', 12345678 );
-	Jetpack_Options::update_option( 'blog_token', 'devmockblogtoken.devmocksecret' );
-	Jetpack_Options::update_option( 'master_user', $user_id );
-	Jetpack_Options::update_option( 'user_tokens', array( $user_id => "devmockusertoken.devmocksecret.$user_id" ) );
+	return $value;
 }
-register_activation_hook( __FILE__, 'newsletter_dev_mock_activate' );
-
-/**
- * Put the connection back the way it was before activation.
- */
-function newsletter_dev_mock_deactivate() {
-	foreach ( (array) get_option( 'newsletter_dev_mock_backup', array() ) as $key => $value ) {
-		if ( false === $value || null === $value ) {
-			Jetpack_Options::delete_option( $key );
-		} else {
-			Jetpack_Options::update_option( $key, $value );
-		}
-	}
-	delete_option( 'newsletter_dev_mock_backup' );
-}
-register_deactivation_hook( __FILE__, 'newsletter_dev_mock_deactivate' );
+add_filter( 'jetpack_options', 'newsletter_dev_mock_connection', 10, 2 );
 
 // A localhost site is in offline mode, which stops connection-only modules (Subscriptions included) from loading.
 add_filter( 'jetpack_offline_mode', '__return_false', 99 );
@@ -78,7 +67,7 @@ function newsletter_dev_mock_subscriber_stats() {
  * @param false|array|WP_Error $response Short-circuit value.
  * @param array                $args     Request arguments.
  * @param string               $url      Request URL.
- * @return false|array
+ * @return false|array|WP_Error
  */
 function newsletter_dev_mock_wpcom_response( $response, $args, $url ) {
 	$host = wp_parse_url( $url, PHP_URL_HOST );
@@ -91,9 +80,16 @@ function newsletter_dev_mock_wpcom_response( $response, $args, $url ) {
 	if ( preg_match( '#/sites/\d+/subscribers/stats$#', $path ) ) {
 		$body = newsletter_dev_mock_subscriber_stats();
 	} else {
-		$fixtures = json_decode( (string) file_get_contents( __DIR__ . '/fixtures.json' ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
-		foreach ( (array) $fixtures as $pattern => $fixture ) {
-			if ( preg_match( '#' . $pattern . '#', $path ) ) {
+		static $fixtures = null;
+		if ( null === $fixtures ) {
+			$fixtures = json_decode( (string) file_get_contents( __DIR__ . '/fixtures.json' ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
+			if ( ! is_array( $fixtures ) ) {
+				error_log( 'newsletter-dev-mock: fixtures.json is not valid JSON: ' . json_last_error_msg() );
+				$fixtures = array();
+			}
+		}
+		foreach ( $fixtures as $pattern => $fixture ) {
+			if ( preg_match( '#' . str_replace( '#', '\\#', $pattern ) . '#', $path ) ) {
 				$body = $fixture;
 				break;
 			}
