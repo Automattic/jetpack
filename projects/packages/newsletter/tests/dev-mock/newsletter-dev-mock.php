@@ -35,7 +35,9 @@ function newsletter_dev_mock_connection( $value, $name ) {
 add_filter( 'jetpack_options', 'newsletter_dev_mock_connection', 10, 2 );
 
 // A localhost site is in offline mode, which stops connection-only modules (Subscriptions included) from loading.
+// The option covers a database where offline mode was switched on and stored.
 add_filter( 'jetpack_offline_mode', '__return_false', 99 );
+add_filter( 'pre_option_jetpack_offline_mode', '__return_zero' );
 
 // With a connection, Sync would start queueing changes in the database for a WordPress.com that isn't there.
 add_filter( 'pre_option_jetpack_sync_settings_disable', '__return_true' );
@@ -92,7 +94,10 @@ function newsletter_dev_mock_wpcom_response( $response, $args, $url ) {
 			}
 		}
 		foreach ( $fixtures as $pattern => $fixture ) {
-			if ( preg_match( '#' . str_replace( '#', '\\#', $pattern ) . '#', $path ) ) {
+			$matched = preg_match( '#' . str_replace( '#', '\\#', $pattern ) . '#', $path );
+			if ( false === $matched ) {
+				error_log( "newsletter-dev-mock: invalid pattern in fixtures.json: $pattern" );
+			} elseif ( $matched ) {
 				$body = $fixture;
 				break;
 			}

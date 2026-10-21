@@ -58,6 +58,7 @@
 				"plans": [
 					{
 						"subscription_id": 77,
+						"paid_subscription_id": "7701",
 						"status": "active",
 						"renew_interval": "1 month",
 						"renewal_price": 5,

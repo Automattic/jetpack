@@ -92,7 +92,7 @@ Users can extended these configurations further via override config file `tools/
 
 The default config file `tools/docker/jetpack-docker-config-default.yml` includes inline comments explaining the structure of config, but here's quick overview. The configuration is grouped per environment type: `default`, `dev`, `e2e`. Each type may define `volumeMappings` and `extras`:
 
-* `volumeMappings` - list of key value pairs which defines local directory mappings with following structure: local_path: wordpress_container_path
+* `volumeMappings` - list of key value pairs which defines local directory mappings with following structure: local_path: wordpress_container_path. Append `:ro` to the container path to mount it read-only.
 * `extras` - basically any other configuration that is supported by Docker compose.
 
 ## Working with containers
