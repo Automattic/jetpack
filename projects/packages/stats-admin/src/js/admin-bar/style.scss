@@ -11,6 +11,13 @@
 		display: block;
 		inline-size: 88px;
 		block-size: 20px;
+		line-height: 0;
+
+		// Sparkline's wrapper is inline-block; the admin bar's
+		// 32px line-height would push it down.
+		.sparkline {
+			display: block;
+		}
 	}
 
 	&:hover > .ab-sub-wrapper,
