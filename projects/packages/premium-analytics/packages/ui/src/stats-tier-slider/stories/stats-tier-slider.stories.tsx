@@ -18,8 +18,8 @@ const UPGRADE_FROM_100K: StatsUpgradeTier[] = [
 	{ views: 500000, price: 50000, upgradePrice: 30000 },
 	{ views: 1000000, price: 70000, upgradePrice: 50000 },
 	{ views: 2000000, price: 95000, upgradePrice: 75000, perUnitFee: 25000, extensionStep: 1000000 },
-	{ views: 3000000, price: 120000, upgradePrice: 100000 },
-	{ views: 4000000, price: 145000, upgradePrice: 125000 },
+	{ views: 3000000, price: 120000, upgradePrice: 100000, perUnitFee: 25000 },
+	{ views: 4000000, price: 145000, upgradePrice: 125000, perUnitFee: 25000 },
 ];
 
 function ControlledSlider( props: ComponentProps< typeof StatsTierSlider > ) {

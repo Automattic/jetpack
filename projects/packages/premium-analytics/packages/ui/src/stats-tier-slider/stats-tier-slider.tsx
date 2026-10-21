@@ -4,6 +4,7 @@
 import { formatCurrency, formatNumberCompact } from '@automattic/number-formatters';
 import { Stack, Text } from '@jetpack-premium-analytics/externals';
 import { RangeControl } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import styles from './stats-tier-slider.module.scss';
 import type { StatsUpgradeTier } from '@jetpack-premium-analytics/data';
@@ -20,7 +21,13 @@ export interface StatsTierSliderProps {
 	onChange: ( index: number ) => void;
 }
 
-/** Formats a yearly price, in the currency's smallest unit, as a monthly price. */
+/**
+ * Formats a yearly price, in the currency's smallest unit, as a monthly price.
+ *
+ * @param yearlyPrice  - The yearly price.
+ * @param currencyCode - The price's currency.
+ * @return The monthly price.
+ */
 function formatMonthly( yearlyPrice: number, currencyCode: string ): string {
 	return formatCurrency( yearlyPrice / 12, currencyCode, {
 		isSmallestUnit: true,
@@ -28,8 +35,18 @@ function formatMonthly( yearlyPrice: number, currencyCode: string ): string {
 	} );
 }
 
-/** Pick a Stats tier by its monthly views limit, with the monthly price it costs. */
+/**
+ * Pick a Stats tier by its monthly views limit, with the monthly price it costs.
+ *
+ * @param props              - The component props.
+ * @param props.tiers        - The tiers to pick from.
+ * @param props.currencyCode - The prices' currency.
+ * @param props.value        - The index of the selected tier.
+ * @param props.onChange     - Called with the index of the picked tier.
+ * @return The slider, or nothing without tiers.
+ */
 export function StatsTierSlider( { tiers, currencyCode, value, onChange }: StatsTierSliderProps ) {
+	const handleChange = useCallback( ( next?: number ) => onChange( next ?? 0 ), [ onChange ] );
 	const lastIndex = tiers.length - 1;
 	const index = Math.min( Math.max( value, 0 ), lastIndex );
 	const tier = tiers[ index ];
@@ -104,7 +121,7 @@ export function StatsTierSlider( { tiers, currencyCode, value, onChange }: Stats
 						viewsLabel,
 						payable
 					) }
-					onChange={ next => onChange( next ?? 0 ) }
+					onChange={ handleChange }
 				/>
 			) }
 			<Text variant="body-md" className={ styles.caption }>

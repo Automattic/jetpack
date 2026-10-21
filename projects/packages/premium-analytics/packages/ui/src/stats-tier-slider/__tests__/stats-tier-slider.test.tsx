@@ -8,6 +8,13 @@ const TIERS: StatsUpgradeTier[] = [
 	{ views: 2000000, price: 95000, upgradePrice: 0, perUnitFee: 25000, extensionStep: 1000000 },
 ];
 
+/**
+ * Renders the slider at a tier.
+ *
+ * @param value - The index of the selected tier.
+ * @param tiers - The tiers to pick from.
+ * @return The render result.
+ */
 function renderSlider( value: number, tiers = TIERS ) {
 	return render(
 		<StatsTierSlider tiers={ tiers } currencyCode="USD" value={ value } onChange={ jest.fn() } />
@@ -53,4 +60,22 @@ describe( 'StatsTierSlider', () => {
 			)
 		).toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'explains', 'above the first classic tier', 250000, true ],
+		[ 'does not explain', 'at the first classic tier', 10000, false ],
+	] )(
+		'%s the minimum when the cheapest tier is %s',
+		( _, __, firstViews: number, explained: boolean ) => {
+			renderSlider( 0, [
+				{ views: firstViews, price: 30000, upgradePrice: 0 },
+				{ views: 500000, price: 50000, upgradePrice: 0 },
+			] );
+
+			expect(
+				screen.queryByText( 'The minimum views limit is set by your current tier and usage.' ) !==
+					null
+			).toBe( explained );
+		}
+	);
 } );
