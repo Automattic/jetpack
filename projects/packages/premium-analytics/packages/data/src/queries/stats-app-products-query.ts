@@ -12,9 +12,16 @@ type StatsAppProduct = {
 
 type StatsAppProductsResponse = Record< string, StatsAppProduct >;
 
-export const statsAppProductsQuery = () =>
+/**
+ * The Jetpack product price list.
+ *
+ * @param currency - The buyer's checkout currency. Without it WordPress.com prices the list by the site server's location, as the request carries no user.
+ * @return The query options.
+ */
+export const statsAppProductsQuery = ( currency?: string ) =>
 	statsAppProxyQuery< StatsAppProductsResponse >( {
 		name: 'products',
 		version: '1.1',
 		endpoint: 'products',
+		params: currency ? { currency } : undefined,
 	} );

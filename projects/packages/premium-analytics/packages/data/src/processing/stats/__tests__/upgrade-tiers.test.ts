@@ -84,6 +84,7 @@ describe( 'getAvailableUpgradeTiers', () => {
 		);
 
 		expect( tiers[ 0 ].views ).toBe( 250000 );
+		expect( tiers.every( tier => tier.upgradePrice === 0 ) ).toBe( true );
 	} );
 
 	it( 'offers only the million-view steps above a purchased extension step', () => {

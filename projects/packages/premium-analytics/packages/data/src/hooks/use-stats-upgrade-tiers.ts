@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
@@ -14,9 +15,11 @@ const STATS_COMMERCIAL_PRODUCT = 'jetpack_stats_yearly';
 
 export type { StatsUpgradeTier } from '../processing/stats/upgrade-tiers';
 
-/** The Stats tiers the site can upgrade to, priced in the site's checkout currency. */
+/** The Stats tiers the site can upgrade to, priced in the current user's checkout currency. */
 export function useStatsUpgradeTiers() {
-	const products = useStatsAppQuery( statsAppProductsQuery() );
+	const currency =
+		getScriptData()?.connection?.userConnectionData?.currentUser?.wpcomUser?.user_currency;
+	const products = useStatsAppQuery( statsAppProductsQuery( currency ) );
 	const usage = useStatsAppPlanUsage();
 
 	const product = products.data?.[ STATS_COMMERCIAL_PRODUCT ];

@@ -67,6 +67,7 @@ describe( 'useStatsUpgradeTiers', () => {
 
 	afterEach( () => {
 		jest.useRealTimers();
+		delete window.JetpackScriptData;
 	} );
 
 	it( 'offers only the tiers above the purchased one, in the price list currency', async () => {
@@ -92,5 +93,21 @@ describe( 'useStatsUpgradeTiers', () => {
 		const { result } = await renderTiers();
 
 		expect( result.current.isError ).toBe( true );
+	} );
+
+	it( "prices the tiers in the user's checkout currency, not the one WordPress.com guesses for the site", async () => {
+		window.JetpackScriptData = {
+			connection: {
+				userConnectionData: { currentUser: { wpcomUser: { avatar: false, user_currency: 'EUR' } } },
+			},
+		} as unknown as typeof window.JetpackScriptData;
+		mockEndpoints( () => Promise.resolve( PURCHASED_100K ) );
+
+		await renderTiers();
+
+		const productsRequest = mockApiFetch.mock.calls.find( ( [ { path } ] ) =>
+			path.includes( '/products' )
+		);
+		expect( productsRequest?.[ 0 ].path ).toContain( 'currency=EUR' );
 	} );
 } );
