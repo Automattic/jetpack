@@ -1,8 +1,11 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FeatureDelivery } from '../feature-delivery';
+import { FeatureItem } from '../feature-item';
 import { FeatureModal } from '../feature-modal';
 import { FeaturePaid, UpgradeButton } from '../feature-paid';
+import { resolveFeatureState } from '../feature-state';
 import { FeaturesTrackingProvider } from '../features-tracking-context';
 import type { FeatureState } from '../feature-state';
 
@@ -138,6 +141,59 @@ describe( 'FeatureDelivery', () => {
 } );
 
 describe( 'FeaturePaid', () => {
+	it( 'offers no Upgrade or plan links for unavailable gated AI forced off', () => {
+		const state = resolveFeatureState(
+			{
+				...feature,
+				slug: 'jetpack-ai',
+				product: 'jetpack-ai',
+				upgrade: { path: '/add-ai', name: 'Jetpack AI' },
+			},
+			'active',
+			undefined,
+			{
+				ai: {
+					module: 'ai',
+					available: false,
+					unavailable_reason: 'Requires a connected WordPress.com account',
+					override: 'inactive',
+				} as never,
+			},
+			{}
+		);
+		expect( state.control.kind ).toBe( 'none' );
+		render(
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
+		);
+
+		expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps Upgrade and plans when an unavailable module has no standalone plugin', () => {
+		const state = moduleState( false, 'inactive' );
+		if ( state.control.kind === 'module' ) {
+			state.control.module.available = false;
+			state.control.module.unavailable_reason = 'A connection is required';
+		}
+		state.feature = {
+			...feature,
+			plugin: '',
+			upgrade: { path: '/add-complete', name: 'Complete' },
+		};
+		render(
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
+		);
+		expect( screen.getByRole( 'link', { name: 'Jetpack Complete' } ) ).toBeVisible();
+		expect( screen.getByRole( 'link', { name: 'Upgrade to Complete' } ) ).toBeVisible();
+	} );
+
 	it( 'leaves out the plans for a module a host forced off', () => {
 		render( <FeaturePaid state={ moduleState( 'inactive', 'inactive' ) } /> );
 
@@ -178,6 +234,72 @@ describe( 'FeaturePaid', () => {
 		expect(
 			screen.getByRole( 'link', { name: 'Upgrade to Jetpack Akismet Anti-spam' } )
 		).toHaveAttribute( 'href', '#/add-akismet?return_feature=anti-spam' );
+	} );
+
+	it( 'sends the upgrade to a host\u2019s own plans, leaving out the Jetpack ones and the address', async () => {
+		const url = 'https://wordpress.com/plans/example.com?plan=business-bundle';
+		const state = {
+			...installedPlugin,
+			feature: {
+				...installedPlugin.feature,
+				upgrade: { path: '', name: 'WordPress.com Business', url },
+			},
+		} as FeatureState;
+		render(
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
+		);
+
+		const upgrade = screen.getByRole( 'link', { name: 'Upgrade to WordPress.com Business' } );
+		expect( upgrade ).toHaveAttribute( 'href', url );
+		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+
+		// jsdom cannot navigate to another document.
+		upgrade.addEventListener( 'click', event => event.preventDefault() );
+		await userEvent.click( upgrade );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_features_upgrade_click', {
+			feature: 'anti-spam',
+			target: 'host',
+		} );
+	} );
+
+	it( 'renews an expired plan on its purchase page, even where a host sells its own plans', async () => {
+		const purchase = 'https://wordpress.com/me/purchases/example.com/123';
+		const state = {
+			feature: {
+				...feature,
+				slug: 'backup',
+				name: 'Backup',
+				plans: [ { slug: 'security', name: 'Jetpack Security' } ],
+				upgrade: { path: '', name: 'WordPress.com Business', url: 'https://example.com/plans' },
+			},
+			product: { status: 'expired', managePaidPlanPurchaseUrl: purchase },
+			status: 'inactive',
+			control: { kind: 'plan' },
+		} as unknown as FeatureState;
+		render(
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
+		);
+
+		const renew = screen.getByRole( 'link', { name: 'Renew the plan for Backup' } );
+		expect( renew ).toHaveAttribute( 'href', purchase );
+		expect( renew ).toHaveTextContent( 'Renew' );
+		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+
+		// jsdom cannot navigate to another document.
+		renew.addEventListener( 'click', event => event.preventDefault() );
+		await userEvent.click( renew );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_features_upgrade_click', {
+			feature: 'backup',
+			target: 'renew',
+		} );
 	} );
 
 	it( 'drops the upgrade when the catalog has nothing to sell this site', () => {
@@ -288,6 +410,105 @@ describe( 'FeatureModal Free column', () => {
 				onClose={ jest.fn() }
 			/>
 		);
+
+	it( 'keeps Install, Upgrade and plans with a module note when the standalone plugin is missing', () => {
+		const state = resolveFeatureState(
+			{
+				...feature,
+				plugin: 'jetpack-search',
+				plugin_status: 'not-installed',
+				module: 'search',
+				upgrade: { path: '/add-search', name: 'Search' },
+			},
+			'active',
+			undefined,
+			{
+				search: {
+					module: 'search',
+					available: false,
+					activated: false,
+					unavailable_reason: 'Requires a Search plan',
+				} as never,
+			},
+			{}
+		);
+		render(
+			<QueryClientProvider client={ new QueryClient() }>
+				<FeatureModal
+					state={ state }
+					position={ 1 }
+					total={ 1 }
+					onStep={ jest.fn() }
+					onClose={ jest.fn() }
+				/>
+			</QueryClientProvider>
+		);
+		expect( screen.getByRole( 'button', { name: 'Install' } ) ).toBeVisible();
+		expect( screen.getByRole( 'link', { name: 'Upgrade to Search' } ) ).toBeVisible();
+		expect( screen.getByRole( 'link', { name: 'Jetpack Complete' } ) ).toBeVisible();
+		expect( screen.getByText( 'Jetpack module: Requires a Search plan' ) ).toBeVisible();
+		expect( screen.getByText( 'Inactive' ) ).toBeVisible();
+	} );
+
+	it( 'agrees with the card status for an unavailable feature with no standalone route', () => {
+		const state = moduleState( false, 'inactive' );
+		state.feature = { ...feature, plugin: '' };
+		if ( state.control.kind === 'module' ) {
+			state.control.module.available = false;
+			state.control.module.unavailable_reason = 'A connection is required';
+		}
+		const view = render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+		expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
+		expect( screen.getByText( 'A connection is required' ) ).toBeVisible();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		view.unmount();
+		renderModal( state );
+		expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
+		expect( screen.getByText( 'A connection is required' ) ).toBeVisible();
+		expect( screen.queryByRole( 'button', { name: /Activate/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [ false, 'active' ] as const )(
+		'offers no Install, Upgrade or plan links for multisite-blocked Backup with override %s',
+		override => {
+			const previous = window.JetpackScriptData;
+			window.JetpackScriptData = { site: { is_multisite: true } } as typeof previous;
+			try {
+				const state = resolveFeatureState(
+					{
+						...feature,
+						slug: 'backup',
+						name: 'VaultPress Backup',
+						module: 'backup',
+						plugin: 'jetpack-backup',
+						plugin_status: 'not-installed',
+						upgrade: { path: '/add-backup', name: 'VaultPress Backup' },
+					},
+					'active',
+					undefined,
+					{ backup: { module: 'backup', available: true, activated: false, override } as never },
+					{}
+				);
+				render(
+					<QueryClientProvider client={ new QueryClient() }>
+						<FeatureModal
+							state={ state }
+							position={ 1 }
+							total={ 1 }
+							onStep={ jest.fn() }
+							onClose={ jest.fn() }
+						/>
+					</QueryClientProvider>
+				);
+				expect( screen.getByText( 'Not available on multisite' ) ).toBeVisible();
+				expect( screen.queryByRole( 'button', { name: 'Install' } ) ).not.toBeInTheDocument();
+				expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
+				expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+			} finally {
+				window.JetpackScriptData = previous;
+			}
+		}
+	);
 
 	it( 'shows the Free column when the feature has free highlights', () => {
 		renderModal( modalState( [ 'Unlimited forms' ] ) );

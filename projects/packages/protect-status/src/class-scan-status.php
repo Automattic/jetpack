@@ -90,6 +90,18 @@ class Scan_Status extends Status {
 	}
 
 	/**
+	 * Gets the last Scan status stored on the site, even if it has expired, without asking WordPress.com.
+	 *
+	 * @since 0.9.0
+	 *
+	 * @return Status_Model|null Null when no status has been stored yet.
+	 */
+	public static function get_cached_status() {
+		$scan_data = self::get_from_options();
+		return is_object( $scan_data ) ? self::normalize_api_data( $scan_data ) : null;
+	}
+
+	/**
 	 * Gets the Scan API endpoint
 	 *
 	 * @return WP_Error|string

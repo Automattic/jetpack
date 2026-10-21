@@ -1,4 +1,9 @@
-import { currentUserCan, getMyJetpackUrl, isSimpleSite } from '@automattic/jetpack-script-data';
+import {
+	currentUserCan,
+	getMyJetpackUrl,
+	getScriptData,
+	isSimpleSite,
+} from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import { MyJetpackRoutes } from '../../constants';
 import {
@@ -40,6 +45,44 @@ export function getFeatureCheckoutReturnUrl( hash = window.location.hash ) {
 	return feature
 		? getMyJetpackUrl( `#${ MyJetpackRoutes.Features }?${ new URLSearchParams( { feature } ) }` )
 		: '';
+}
+
+// What an account connection started from Features brings back: the open feature, layout, search, tag
+// and filter. A status filter is left behind, since connecting can move the feature out of it.
+const CONNECT_RETURN_PARAMS = [ 'feature', 'view', 'search', 'module_tag', 'filter' ];
+const STATUS_FILTERS = [ 'available', 'active', 'inactive' ];
+
+/**
+ * Where an account connection started from Features returns to.
+ *
+ * Read from the hash rather than the router, so it still answers once an install has replaced the button that asked.
+ *
+ * @param hash - The page's location hash.
+ * @return The admin URL of the same Features view.
+ */
+export function getFeatureConnectReturnUrl( hash = window.location.hash ) {
+	const current = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' );
+	const kept = new URLSearchParams();
+	CONNECT_RETURN_PARAMS.forEach( key => {
+		const value = current.get( key );
+		if ( value && ! ( key === 'filter' && STATUS_FILTERS.includes( value ) ) ) {
+			kept.set( key, value );
+		}
+	} );
+	const query = kept.toString();
+
+	return getMyJetpackUrl( `#${ MyJetpackRoutes.Features }${ query ? `?${ query }` : '' }` );
+}
+
+/**
+ * Where links to manage Jetpack modules go, as the server decided: the Features tab when the site can use it, else the classic Modules screen.
+ *
+ * @param classicUrl - Classic Modules screen URL, used when the page data has no URL (an older My Jetpack package, or a page that does not send one).
+ * @return The management URL.
+ */
+export function getModulesManagementUrl( classicUrl: string ): string {
+	const data = getScriptData()?.myJetpack as { modulesManagementUrl?: string } | undefined;
+	return data?.modulesManagementUrl || classicUrl;
 }
 
 /**

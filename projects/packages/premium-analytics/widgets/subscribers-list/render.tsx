@@ -9,7 +9,6 @@ import {
 	type StatsNormalizedReport,
 } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
-import { customer } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
 	SubscriberListSkeleton,
@@ -27,8 +26,10 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type SubscribersListAttributes = Record< never, never >;
 
 /** Base URL for the site's subscriber pages on WordPress.com or Jetpack Cloud. */
 function getSubscribersBaseUrl() {
@@ -145,8 +146,7 @@ function SubscribersReport() {
 				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
-				icon: customer,
-				description: __( 'No subscribers yet.', 'jetpack-premium-analytics-pkg' ),
+				description: __( 'You don’t have subscribers yet.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<SubscribersRoster items={ items } moreCount={ moreCount } />

@@ -40,11 +40,11 @@ jest.mock( '../../../hooks/use-is-jetpack-user-new', () => ( {
 } ) );
 
 // The real `TabContent` pulls in the full features/overview/help trees; a stub
-// that echoes its section name is enough to assert which section rendered.
+// that echoes its notices and section name is enough to assert what rendered.
 jest.mock( '../tab-content', () => ( {
-	TabContent: ( { name }: { name: string } ) => {
+	TabContent: ( { name, beforeContent }: { name: string; beforeContent?: unknown } ) => {
 		const react = jest.requireActual( 'react' );
-		return react.createElement( 'div', { 'data-testid': 'tab-content' }, name );
+		return react.createElement( 'div', { 'data-testid': 'tab-content' }, beforeContent, name );
 	},
 } ) );
 
@@ -95,6 +95,19 @@ describe( 'MyJetpackTabPanel', () => {
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 		expect( mockNavigate ).not.toHaveBeenCalled();
 		expect( callsFor( 'jetpack_myjetpack_tab_view' ) ).toHaveLength( 1 );
+	} );
+
+	it.each( [
+		[ 'the single-section view', true ],
+		[ 'the tabbed view', false ],
+	] )( 'hands the notices to the section in %s', async ( _, isSimple ) => {
+		mockIsSimpleSite.mockReturnValue( isSimple );
+		mockSection = MY_JETPACK_SECTION_FEATURES;
+
+		render( <MyJetpackTabPanel beforeContent={ <div>Notice</div> } /> );
+
+		const notice = await screen.findByText( 'Notice' );
+		expect( screen.getByTestId( 'tab-content' ) ).toContainElement( notice );
 	} );
 
 	it( 'canonicalizes a stale or invalid hash without recording a tab click', async () => {

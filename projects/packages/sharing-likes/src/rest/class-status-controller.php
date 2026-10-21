@@ -88,20 +88,21 @@ final class Status_Controller extends Controller {
 
 		return rest_ensure_response(
 			array(
-				'sharing'         => array(
+				'sharing'                  => array(
 					'state' => $sharing_state,
 				),
-				'likes'           => array(
+				'likes'                    => array(
 					'state'     => $likes_state,
 					'supported' => Environment::likes_supported(),
 				),
 				// No variants: comments have no block to move to.
-				'comment_likes'   => array(
+				'comment_likes'            => array(
 					'supported'              => Environment::likes_supported(),
 					'follows_likes_settings' => $comment_likes_follow,
 				),
-				'placement'       => Section_State::shows_placement( $sharing_state, $likes_state, $comment_likes_follow ),
-				'site_editor_url' => Environment::single_template_editor_url(),
+				'placement'                => Section_State::shows_placement( $sharing_state, $likes_state, $comment_likes_follow ),
+				'site_editor_url'          => Environment::single_template_editor_url(),
+				'page_template_editor_url' => Environment::page_template_editor_url(),
 			)
 		);
 	}

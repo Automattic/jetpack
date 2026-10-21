@@ -173,6 +173,7 @@
 }
 
 .jetpack-connector__modal .components-button:focus:not(:focus-visible),
+.jetpack-connector__transfer-modal .components-button:focus:not(:focus-visible),
 .jetpack-connector__confirm-modal .components-button:focus:not(:focus-visible) {
 	box-shadow: none;
 	outline: none;

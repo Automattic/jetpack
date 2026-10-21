@@ -11,14 +11,18 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { payment } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { PAYMENT_STATUS_FILTERS, useReportOrders } from '../../src/reports';
-import type { PaymentStatusAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type PaymentStatusAttributes = Record< never, never >;
 
 type PaymentStatusRenderAttributes = PaymentStatusAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -68,6 +72,7 @@ function PaymentStatus() {
 	return (
 		<Donut
 			segments={ segments }
+			chartTitle={ __( 'Payment status', 'jetpack-woocommerce-stats-pkg' ) }
 			status={ {
 				isLoading,
 				isFetching,
@@ -83,10 +88,6 @@ function PaymentStatus() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: payment,
-				description: __( 'No order revenue in this period.', 'jetpack-woocommerce-stats-pkg' ),
-			} }
 			format={ CURRENCY_FORMAT }
 		/>
 	);

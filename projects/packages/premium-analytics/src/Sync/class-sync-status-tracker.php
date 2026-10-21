@@ -79,6 +79,7 @@ class Sync_Status_Tracker {
 
 		$data = $response->get_data();
 		if ( is_array( $data ) ) {
+			self::maybe_backfill_milestone();
 			$data['initial_full_sync_finished'] = self::milestone();
 			$response->set_data( $data );
 		}
@@ -165,7 +166,55 @@ class Sync_Status_Tracker {
 			return;
 		}
 		$full_status['finished'] = $finished_at;
-		update_option( self::INITIAL_ANALYTICS_SYNC_OPTION, $finished_at );
+		self::set_milestone( $full_status );
+	}
+
+	/**
+	 * Set the milestone from a stored full-sync status whose analytics module already finished.
+	 *
+	 * Covers a full sync that ended before this listener ran (an older Jetpack, or before Premium Analytics was enabled).
+	 *
+	 * @return void
+	 */
+	private static function maybe_backfill_milestone(): void {
+		if ( self::milestone_reached() ) {
+			return;
+		}
+
+		$module = Modules::get_module( 'full-sync' );
+		if ( ! $module ) {
+			return;
+		}
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $module';
+
+		$full_status = $module->get_status();
+		$finished_at = isset( $full_status['finished'] ) ? (int) $full_status['finished'] : 0;
+		if ( $finished_at <= 0 || empty( $full_status['progress'] ) || ! is_array( $full_status['progress'] ) ) {
+			return;
+		}
+
+		$progress = $full_status['progress'];
+		foreach ( self::get_analytics_sync_modules() as $module_name ) {
+			if ( isset( $progress[ $module_name ]['finished'] ) && true === $progress[ $module_name ]['finished'] ) {
+				// The sender sets the milestone before it stores `finished`, so re-read it past the
+				// request's option cache to avoid firing the action a second time.
+				if ( (int) \Jetpack_Options::get_raw_option( self::INITIAL_ANALYTICS_SYNC_OPTION, 0 ) > 0 ) {
+					return;
+				}
+				self::set_milestone( $full_status );
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Persist the milestone and fire the one-time action.
+	 *
+	 * @param array $full_status Final full-sync status, with a positive `finished` timestamp.
+	 * @return void
+	 */
+	private static function set_milestone( array $full_status ): void {
+		update_option( self::INITIAL_ANALYTICS_SYNC_OPTION, (int) $full_status['finished'] );
 
 		/**
 		 * Fires once when the analytics-relevant initial full sync completes.

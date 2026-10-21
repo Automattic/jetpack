@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fit the first-backup and trouble status card to narrow screens in the modernized dashboard, which is behind a feature flag.
-

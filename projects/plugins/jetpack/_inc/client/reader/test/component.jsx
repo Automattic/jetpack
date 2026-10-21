@@ -98,11 +98,9 @@ describe( 'Reader', () => {
 	};
 
 	describe( 'When active', () => {
-		it( 'renders the section title', () => {
-			render( <Reader { ...defaultProps } />, { initialState } );
-			expect(
-				screen.getByText( 'Discover and follow your favorite sites with the WordPress.com Reader.' )
-			).toBeInTheDocument();
+		it( 'labels its group of search results', () => {
+			render( <Reader { ...defaultProps } searchTerm="reader" />, { initialState } );
+			expect( screen.getByRole( 'heading', { name: 'Reader', level: 2 } ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the screen reader heading', () => {

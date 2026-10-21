@@ -310,7 +310,10 @@ describe( 'Download screen without a file selection', () => {
 			error: '',
 		};
 		await waitFor( () => expect( region ).toHaveTextContent( /^Your download is ready$/ ) );
-		expect( screen.getAllByRole( 'status' ) ).toEqual( [ region ] );
+		// The checklist stays under a ready download, so its hint is the one other region.
+		const others = screen.getAllByRole( 'status' ).filter( node => node !== region );
+		expect( others ).toHaveLength( 1 );
+		expect( others[ 0 ] ).toBeEmptyDOMElement();
 	} );
 
 	it( 'still offers the category checklist and submits nothing on its own', async () => {
@@ -400,6 +403,32 @@ describe( 'Download screen with a file selection', () => {
 			types: { paths: true },
 			include_path_list: [ WP_CONFIG_ID, README_ID ],
 		} );
+	} );
+
+	it( 'offers Contact support when the download fails', async () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: 'example.wordpress.com',
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+		mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
+			const path = o?.path ?? '';
+			if ( path.includes( '/site/capabilities' ) ) {
+				return Promise.resolve( { hasBackupPlan: true, hasScan: false } );
+			}
+			if ( path.includes( '/backups/download/' ) ) {
+				return Promise.reject( { code: 'download_initiate_failed', message: 'No luck.' } );
+			}
+			return Promise.resolve( {} );
+		} );
+
+		render( <DownloadStage /> );
+
+		const link = await screen.findByRole( 'link', { name: /^Contact support/ } );
+		expect( link ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-contact-support&site=example.wordpress.com'
+		);
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'retries with the file selection rather than the whole site', async () => {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Plugin Conflicts Guardian: fix the staged rollout so the pre-flight plugin check reaches its intended share of sites.
