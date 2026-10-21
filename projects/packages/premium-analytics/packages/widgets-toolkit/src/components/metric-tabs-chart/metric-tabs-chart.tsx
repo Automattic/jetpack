@@ -55,7 +55,7 @@ const CARD_GAP = 8;
  */
 const CLICK_DRAG_TOLERANCE_PX = 6;
 
-const DARK_SHADE_BLEND = 0.5;
+const LINE_COUNTERPART_SHADE_BLEND = 0.5;
 
 /** The previous period's grays when bars overlap, so they recede behind the current period. */
 const PREVIOUS_PERIOD_GRAYS = {
@@ -338,7 +338,10 @@ function MetricChart( {
 	const { getElementStyles } = useGlobalChartsContext();
 	const shades = useMemo( () => {
 		const accent = getElementStyles( { index: 0 } ).color;
-		return { accent, dark: mixHexColors( accent, '#000000', DARK_SHADE_BLEND ) };
+		return {
+			accent,
+			lineCounterpart: mixHexColors( accent, '#000000', LINE_COUNTERPART_SHADE_BLEND ),
+		};
 	}, [ getElementStyles ] );
 
 	// Bars draw the smaller metric of a pair inside the larger one's bar, as Jetpack Stats v1 draws visitors inside views.
@@ -376,7 +379,7 @@ function MetricChart( {
 			return { series: active, defaultHiddenSeries: undefined };
 		}
 
-		const paired = buildSeries( counterpart, chartType, shades.dark );
+		const paired = buildSeries( counterpart, chartType, shades.lineCounterpart );
 		return {
 			series: [ ...active, ...paired ],
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
