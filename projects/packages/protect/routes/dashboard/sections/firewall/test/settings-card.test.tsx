@@ -80,4 +80,24 @@ describe( 'FirewallSettingsCard', () => {
 		expect( screen.queryAllByText( 'Standalone mode' ) ).toHaveLength( labels );
 		expect( screen.queryByText( BOOTSTRAP_PATH, { exact: false } ) !== null ).toBe( showsPath );
 	} );
+
+	it( 'replaces the settings with the host’s firewall where the host provides one', () => {
+		render(
+			<FirewallSettingsCard
+				{ ...( {
+					state: { providedByHost: true },
+					settings: {
+						settings: {},
+						waf: { waf_supported: false },
+						save: jest.fn(),
+						isSaving: () => false,
+					},
+				} as unknown as FirewallContext ) }
+			/>
+		);
+
+		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
+		expect( screen.getByText( /Your host provides a firewall/ ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
 } );
