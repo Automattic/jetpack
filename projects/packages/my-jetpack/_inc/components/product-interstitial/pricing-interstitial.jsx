@@ -48,12 +48,19 @@ export default function PricingInterstitial( { slug } ) {
 	const config = getProductConfigs()[ slug ];
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
 	const { detail: proDetail } = useProduct( 'pro' );
+	const { detail: legacyBundleDetail } = useProduct( config?.bundle );
 	const proIsOnSale = proDetail?.pricingForUi?.catalogAvailable === true;
+	const legacyIsRetired = legacyBundleDetail?.pricingForUi?.available === false;
+	const useNewBundleOffer = proIsOnSale || legacyIsRetired;
 	const preferredBundle =
 		proDetail?.pricingForUi?.available === true && ! proDetail?.hasPaidPlanForProduct
 			? 'pro'
 			: 'complete';
-	const bundleSlug = proIsOnSale ? preferredBundle : config?.bundle;
+	const fallbackBundle =
+		legacyIsRetired && ! legacyBundleDetail?.hasPaidPlanForProduct
+			? legacyBundleDetail?.purchaseReplacement?.slug
+			: config?.bundle;
+	const bundleSlug = proIsOnSale ? preferredBundle : fallbackBundle;
 	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( bundleSlug );
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
@@ -521,7 +528,7 @@ export default function PricingInterstitial( { slug } ) {
 								/>
 							) ) }
 						</PricingTableColumn>
-						{ ! proIsOnSale && (
+						{ ! useNewBundleOffer && (
 							<PricingTableColumn className={ styles[ 'pricing-column' ] }>
 								<PricingTableHeader title={ config.tiers.bundle.name }>
 									{ bundlePricing ? (
@@ -557,16 +564,18 @@ export default function PricingInterstitial( { slug } ) {
 						) }
 					</PricingTable>
 				</Col>
-				{ proIsOnSale && bundleDetail?.pricingForUi?.available === true && (
-					<Col>
-						<ProductDetailCard
-							slug={ bundleSlug }
-							isUpsell
-							onClick={ handleGetBundleOffer }
-							isFetching={ buttonsDisabled }
-						/>
-					</Col>
-				) }
+				{ useNewBundleOffer &&
+					( bundleDetail?.pricingForUi?.available === true ||
+						bundleDetail?.hasPaidPlanForProduct ) && (
+						<Col>
+							<ProductDetailCard
+								slug={ bundleSlug }
+								isUpsell
+								onClick={ handleGetBundleOffer }
+								isFetching={ buttonsDisabled }
+							/>
+						</Col>
+					) }
 			</Container>
 		</AdminPage>
 	);
