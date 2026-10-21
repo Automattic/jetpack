@@ -18,8 +18,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { type MostCommentedAuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type MostCommentedAuthorsAttributes = Record< never, never >;
 
 type MostCommentedAuthorsRenderAttributes = MostCommentedAuthorsAttributes &
 	Partial< ReportParamsFieldAttributes >;

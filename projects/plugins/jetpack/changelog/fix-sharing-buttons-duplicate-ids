@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing Buttons block: Avoid duplicate ids when the block appears more than once on a page.

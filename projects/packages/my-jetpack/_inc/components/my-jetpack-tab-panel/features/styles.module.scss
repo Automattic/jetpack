@@ -474,20 +474,6 @@ $band-ground: #f8f8f8;
 	min-inline-size: 8rem;
 }
 
-// A segmented control: one soft track, the active layout a tile inside it. The
-// padding takes the compact (32px) buttons to the search box's 40px height.
-$view-group-padding: 4px;
-
-.view-group {
-	// The groove color, not the button's own hover fill: those are the same
-	// value, so hovering an unpressed button would show no change at all.
-	background: var(--wpds-color-background-track-neutral);
-	// The buttons' radius plus the track's padding, so the corners nest.
-	border-radius: calc(var(--wpds-border-radius-md) + #{$view-group-padding});
-	gap: 2px;
-	padding: $view-group-padding;
-}
-
 // Rounded like the feature icons beside them.
 .view-button {
 	border-color: transparent;

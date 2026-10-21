@@ -6,6 +6,11 @@
 	margin-inline: auto;
 }
 
+// The warning above the card grid, spaced off it by the grid's own gap.
+.notice {
+	margin-block-end: var(--wpds-dimension-gap-lg);
+}
+
 .grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

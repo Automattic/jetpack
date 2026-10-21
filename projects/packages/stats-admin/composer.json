@@ -48,7 +48,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-stats-admin",
 		"branch-alias": {
 			"dev-trunk": "0.39.x-dev"

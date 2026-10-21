@@ -346,7 +346,8 @@ class Waf_Blocklog_Manager {
 	 * @return int
 	 */
 	public static function get_thirty_days_block_counts() {
-		$stats        = self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
+		// Old days are only pruned when a block is written, so a quiet site still has them.
+		$stats        = self::filter_last_30_days( (array) self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() ) );
 		$total_blocks = 0;
 
 		foreach ( $stats as $count ) {

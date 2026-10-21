@@ -558,12 +558,13 @@ describe( 'useReportDateFilters', () => {
 		[ 'passed in', { lockedIntervals: LOCKED_INTERVALS }, undefined ],
 		[ 'declared by the report scope', undefined, scopeWithLocks ],
 	] )(
-		'offers and stages only the buckets the plan leaves open, with locks %s',
+		'offers and stages only the buckets the plan leaves open, listing the rest locked, with locks %s',
 		( _name, options, wrapper ) => {
 			mockSearch = { preset: 'last-30-days' };
 			const { result } = renderHook( () => useReportDateFilters( '/', options ), { wrapper } );
 
 			expect( result.current.intervalOptions ).toEqual( [ 'day' ] );
+			expect( result.current.lockedIntervalOptions ).toEqual( [ 'week' ] );
 
 			act( () => {
 				result.current.onChange(

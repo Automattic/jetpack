@@ -15,6 +15,7 @@ use Automattic\Jetpack\Waf\Waf_Request;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Automattic\Jetpack\Waf\Waf_Self_Check;
+use Automattic\Jetpack\Waf\Waf_Stats;
 use WP_Error;
 use WP_REST_Server;
 
@@ -60,9 +61,10 @@ class Firewall implements Dashboard_Section {
 			Dashboard::get_module_state( 'waf' ),
 			self::get_blocks(),
 			array(
-				'hasScan'   => Dashboard::has_scan_plan(),
-				'currentIp' => self::get_current_ip(),
-				'ipRules'   => self::get_ip_rules(),
+				'hasScan'        => Dashboard::has_scan_plan(),
+				'currentIp'      => self::get_current_ip(),
+				'ipRules'        => self::get_ip_rules(),
+				'rulesUpdatedAt' => self::get_rules_updated_at(),
 			)
 		);
 	}
@@ -124,17 +126,36 @@ class Firewall implements Dashboard_Section {
 	}
 
 	/**
-	 * The recent blocks and the all-time count, refreshed after a test.
+	 * The recent blocks and the block counts, refreshed after a test.
+	 *
+	 * Today and the last 30 days are UTC days, as the firewall records them.
 	 *
 	 * @return array
 	 */
 	public static function get_blocks() {
+		$counts = class_exists( Waf_Stats::class ) ? Waf_Stats::get_blocked_requests() : array();
+
 		return array(
-			'recentBlocks' => self::get_recent_blocks(),
-			'blockedCount' => class_exists( Waf_Blocklog_Manager::class )
-				? Waf_Blocklog_Manager::get_all_time_block_count()
-				: null,
+			'recentBlocks'      => self::get_recent_blocks(),
+			'blockedCount'      => isset( $counts['all_time'] ) ? (int) $counts['all_time'] : null,
+			'blockedToday'      => isset( $counts['current_day'] ) ? (int) $counts['current_day'] : null,
+			'blockedLast30Days' => isset( $counts['thirty_days'] ) ? (int) $counts['thirty_days'] : null,
 		);
+	}
+
+	/**
+	 * When the automatic rules were last downloaded, as a Unix timestamp, or null while they're off or never were.
+	 *
+	 * @return int|null
+	 */
+	public static function get_rules_updated_at() {
+		if ( ! class_exists( Waf_Stats::class ) || ! Waf_Rules_Manager::automatic_rules_enabled() ) {
+			return null;
+		}
+
+		$timestamp = (int) Waf_Stats::get_automatic_rules_last_updated();
+
+		return $timestamp > 0 ? $timestamp : null;
 	}
 
 	/**

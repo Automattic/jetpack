@@ -7,5 +7,23 @@
 		"content": "Your most recently sent emails, with their opens and open rate, or clicks and click rate."
 	},
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "metric",
+			"type": "jpa/select",
+			"label": "View by",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "opens",
+					"label": "Opened"
+				},
+				{
+					"value": "clicks",
+					"label": "Clicked"
+				}
+			]
+		}
+	]
 }
