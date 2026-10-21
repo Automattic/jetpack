@@ -151,7 +151,6 @@ module.exports = async () => {
 
 					// Handle CSS.
 					jetpackWebpackConfig.CssRule( {
-						extensions: [ 'css', 'scss' ],
 						extraLoaders: [
 							{
 								loader: 'postcss-loader',

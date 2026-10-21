@@ -33,7 +33,6 @@ export default {
 		rules: [
 			jetpackWebpackConfig.TranspileRule( { exclude: /node_modules\// } ),
 			jetpackWebpackConfig.CssRule( {
-				extensions: [ 'css', 'sass', 'scss' ],
 				extraLoaders: [
 					{
 						loader: 'postcss-loader',

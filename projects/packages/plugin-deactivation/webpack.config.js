@@ -35,7 +35,6 @@ module.exports = [
 
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
-					extensions: [ 'css', 'sass', 'scss' ],
 					extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
 				} ),
 

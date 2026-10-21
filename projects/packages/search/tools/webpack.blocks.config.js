@@ -88,7 +88,6 @@ module.exports = {
 			jetpackWebpackConfig.TranspileRule( { exclude: /node_modules\// } ),
 			jetpackWebpackConfig.TranspileRule( { includeNodeModules: [ '@automattic/jetpack-' ] } ),
 			jetpackWebpackConfig.CssRule( {
-				extensions: [ 'css', 'sass', 'scss' ],
 				extraLoaders: [
 					{
 						loader: 'postcss-loader',

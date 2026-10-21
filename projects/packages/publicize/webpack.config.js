@@ -49,7 +49,6 @@ const socialWebpackConfig = {
 
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
-				extensions: [ 'css', 'sass', 'scss' ],
 				extraLoaders: [
 					{
 						loader: 'postcss-loader',

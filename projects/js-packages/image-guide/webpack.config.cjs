@@ -52,7 +52,6 @@ module.exports = {
 				},
 			} ),
 			jetpackWebpackConfig.CssRule( {
-				extensions: [ 'css', 'scss' ],
 				// Boost copies only guide.css, so it cannot resolve a separate CSS source map.
 				CssLoader: { sourceMap: false },
 				extraLoaders: [

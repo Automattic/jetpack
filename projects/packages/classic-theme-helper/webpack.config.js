@@ -32,9 +32,7 @@ const sharedWebpackConfig = {
 			} ),
 
 			// Handle CSS.
-			jetpackWebpackConfig.CssRule( {
-				extensions: [ 'css' ],
-			} ),
+			jetpackWebpackConfig.CssRule(),
 		],
 	},
 	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],

@@ -88,7 +88,6 @@ module.exports = [
 
 				// Handle CSS.
 				jetpackConfig.CssRule( {
-					extensions: [ 'css', 'scss' ],
 					extraLoaders: [
 						{
 							loader: 'postcss-loader',

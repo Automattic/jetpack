@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Rely on the default CssRule extensions in the webpack config.

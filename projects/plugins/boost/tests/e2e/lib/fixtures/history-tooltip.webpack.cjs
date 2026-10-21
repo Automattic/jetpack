@@ -18,7 +18,6 @@ module.exports = {
 			config.TranspileRule( { includeNodeModules: [ '@automattic/jetpack-' ] } ),
 			...config.BundledWpPkgsTranspileRules( { textdomain: 'jetpack-boost' } ),
 			config.CssRule( {
-				extensions: [ 'css', 'sass', 'scss' ],
 				extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
 			} ),
 			config.FileRule(),
