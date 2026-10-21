@@ -11,7 +11,7 @@ declare( strict_types = 1 );
 use Automattic\Jetpack\Connection\Client;
 
 /**
- * User meta holding the copy of the record: `checked` timestamp and `dismissed` map.
+ * User meta key for the cached guides: when they were last fetched and which ones are dismissed.
  */
 const WPCOM_EDITOR_WELCOME_GUIDES_CACHE_META = 'wpcom_editor_welcome_guides';
 
