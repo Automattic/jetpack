@@ -184,7 +184,8 @@ On success it updates the package store with the new owner, so surfaces reading 
 ### Properties
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
-- *onTransferred* - callback, to be called with the new owner's local user ID once WordPress.com has accepted the change. Only needed for logic beyond the store update, such as analytics or closing the surrounding surface.
+- *onTransferred* - callback, called with the new owner's local user ID once WordPress.com has accepted the change. Only needed for logic beyond the store update, such as analytics or closing the surrounding surface.
+- *onBusyChange* - callback, called with whether a transfer is in flight, so a host can hold its own exits shut while it runs.
 
 ### Important Notes
 The component renders only the controls its own steps need: `Continue`, `Back` between steps, and the transfer itself. Leaving the flow is the host surface's business, so there is no Cancel, Close or Done button — add one in your own chrome if the surface needs it.

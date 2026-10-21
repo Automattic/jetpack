@@ -1,9 +1,10 @@
 import { dateI18n, getSettings } from '@wordpress/date';
-import { _x } from '@wordpress/i18n';
+import { _x, sprintf } from '@wordpress/i18n';
 
 type DateInput = Parameters< typeof dateI18n >[ 1 ];
 
-// Core fills `formats` from Settings > General and translates its defaults.
+// `formats.date` and `formats.time` follow Settings > General.
+// `formats.datetime` is a translation, so it is not used.
 
 /**
  * A date and time in the site's own formats.
@@ -13,7 +14,12 @@ type DateInput = Parameters< typeof dateI18n >[ 1 ];
  * @return The formatted date and time.
  */
 export function formatDateTime( value: DateInput, timezone?: string ): string {
-	return dateI18n( getSettings().formats.datetime, value, timezone );
+	return sprintf(
+		/* translators: 1: a date, 2: a time of day. */
+		_x( '%1$s %2$s', 'date and time', 'jetpack-backup-pkg' ),
+		dateI18n( getSettings().formats.date, value, timezone ),
+		formatTime( value, timezone )
+	);
 }
 
 /**

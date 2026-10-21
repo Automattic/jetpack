@@ -13,7 +13,6 @@ import {
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import TagsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -25,7 +24,7 @@ const TAGS_RENDER_MODULE = 'storybook/tags';
 
 // Build the story widget type from its manifest and module. `presentation`
 // comes from widget.json ( 'framed' ), so the host frames the widget.
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 function renderTags() {
 	return <TagsRender attributes={ { reportParams: getDefaultQueryParams() } } />;
@@ -89,8 +88,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral tag glyph
- * and "Learn about your most visited tags & categories to track engaging topics.").
+ * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: renderTags,

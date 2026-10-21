@@ -40,6 +40,7 @@ class DashboardSettingsTest extends TestCase {
 		Dashboard_Data::VERIFICATION_CODES_OPTION,
 		Dashboard_Data::FRONT_PAGE_META_OPTION,
 		Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION,
+		Canonical_Urls::OPTION,
 	);
 
 	/**
@@ -841,6 +842,18 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
+	 * Turning canonical output off through the filter alone doesn't lock the switch.
+	 */
+	public function test_canonical_conflict_ignores_the_disable_filter() {
+		add_filter( 'jetpack_disable_canonical_urls', '__return_true' );
+		try {
+			$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_conflicted'] );
+		} finally {
+			remove_filter( 'jetpack_disable_canonical_urls', '__return_true' );
+		}
+	}
+
+	/**
 	 * An available module remains switchable while it is inactive.
 	 */
 	public function test_available_modules_are_switchable() {
@@ -870,6 +883,60 @@ class DashboardSettingsTest extends TestCase {
 			$this->assertSame( 'jetpack_seo_module_unavailable', $response->get_data()['code'] );
 			$this->assertSame( array( 'sitemaps' ), \Jetpack_Options::get_option( 'active_modules' ) );
 		}
+	}
+
+	/**
+	 * Simple's canonical switch saves and reads its own option, not the module state Simple reports.
+	 */
+	public function test_simple_canonical_switch_round_trips_through_its_option() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		add_filter( 'jetpack_active_modules', array( $this, 'force_sitemaps_and_canonical_active' ) );
+		$this->act_as( 'administrator' );
+
+		try {
+			$settings = Dashboard_Data::get_settings_data();
+			$this->assertFalse( $settings['canonical_active'] );
+			$this->assertTrue( $settings['canonical_switchable'] );
+
+			foreach ( array( true, false ) as $enabled ) {
+				$response = $this->update_modules( array( 'canonical_active' => $enabled ) );
+
+				$this->assertSame( 200, $response->get_status() );
+				$this->assertSame( (int) $enabled, (int) get_option( Canonical_Urls::OPTION ) );
+				$this->assertSame( $enabled, Dashboard_Data::get_settings_data()['canonical_active'] );
+			}
+		} finally {
+			remove_filter( 'jetpack_active_modules', array( $this, 'force_sitemaps_and_canonical_active' ) );
+		}
+	}
+
+	/**
+	 * Simple stores nothing from a non-admin or a non-boolean canonical write.
+	 *
+	 * @dataProvider provide_bad_simple_canonical_writes
+	 * @param string $role   Role of the requesting user.
+	 * @param mixed  $value  Submitted `canonical_active` value.
+	 * @param int    $status Expected response status.
+	 */
+	#[DataProvider( 'provide_bad_simple_canonical_writes' )]
+	public function test_simple_canonical_switch_rejects_bad_writes( $role, $value, $status ) {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->act_as( $role );
+
+		$response = $this->update_modules( array( 'canonical_active' => $value ) );
+
+		$this->assertSame( $status, $response->get_status() );
+		$this->assertFalse( get_option( Canonical_Urls::OPTION ) );
+	}
+
+	/**
+	 * @return array<string, array{string, mixed, int}>
+	 */
+	public static function provide_bad_simple_canonical_writes() {
+		return array(
+			'subscriber'        => array( 'subscriber', true, 403 ),
+			'non-boolean value' => array( 'administrator', 'yes', 400 ),
+		);
 	}
 
 	/**
@@ -1000,6 +1067,7 @@ class DashboardSettingsTest extends TestCase {
 		$this->update_modules( array( 'canonical_active' => true ) );
 
 		$this->assertTrue( ( new Modules() )->is_active( 'canonical-urls' ) );
+		$this->assertFalse( get_option( Canonical_Urls::OPTION ) );
 	}
 
 	/**

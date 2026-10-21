@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Features: Stop requesting the Jetpack module list when the Jetpack plugin is not active.

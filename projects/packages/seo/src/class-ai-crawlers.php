@@ -15,7 +15,7 @@
  *
  * Caveat: the `robots_txt` filter only feeds WordPress's *virtual* robots.txt.
  * A detected static file in the WordPress installation is not modified — a
- * limitation surfaced in the AI tab (see {@see self::has_static_robots_txt()}).
+ * limitation surfaced in the GEO tab (see {@see self::has_static_robots_txt()}).
  *
  * @package automattic/jetpack-seo-package
  */
@@ -31,7 +31,7 @@ class Ai_Crawlers {
 	 * Option holding the sparse map of per-crawler overrides
 	 * (`slug => bool`, true = blocked). Only entries that deviate from the bot's
 	 * default policy are stored. Registered with `show_in_rest` by
-	 * {@see Dashboard_Data::register_rest_settings()} so the AI tab can save it.
+	 * {@see Dashboard_Data::register_rest_settings()} so the GEO tab can save it.
 	 *
 	 * @var string
 	 */
@@ -271,7 +271,7 @@ class Ai_Crawlers {
 	 * Whether the site allows search-engine (and therefore AI-crawler) indexing.
 	 *
 	 * When `blog_public` is off, WordPress disallows everything in robots.txt, so
-	 * per-crawler controls are moot — the AI tab surfaces this instead of showing
+	 * per-crawler controls are moot — the GEO tab surfaces this instead of showing
 	 * toggles that can't take effect.
 	 *
 	 * @return bool
@@ -353,7 +353,7 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * The AI tab's crawler bootstrap payload: the catalog (camelCased for JS), the
+	 * The GEO tab's crawler bootstrap payload: the catalog (camelCased for JS), the
 	 * current sparse override map, and the environment flags that decide whether
 	 * the controls render or are replaced by an explanation.
 	 *
@@ -385,7 +385,7 @@ class Ai_Crawlers {
 
 	/**
 	 * URL of the settings screen holding "Prevent third-party sharing", linked from
-	 * the AI tab when that setting is governing crawler access.
+	 * the GEO tab when that setting is governing crawler access.
 	 *
 	 * Points at wp-admin → Settings → Reading, which is the same-origin home of the
 	 * option on the sites where it exists (WordPress.com). Left as a package method

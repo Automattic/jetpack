@@ -21,12 +21,15 @@ jest.mock(
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: () => ( { className: 'wp-block-jetpack-paypal-payment-buttons' } ),
 } ) );
-jest.mock( '@wordpress/components', () => ( {
-	Notice: ( { children, status } ) => (
-		<div data-testid="notice" data-status={ status }>
-			{ children }
-		</div>
-	),
+jest.mock( '@wordpress/ui', () => ( {
+	Notice: {
+		Root: ( { children, intent } ) => (
+			<div data-testid="notice" data-status={ intent }>
+				{ children }
+			</div>
+		),
+		Description: ( { children } ) => <span>{ children }</span>,
+	},
 } ) );
 jest.mock( '@wordpress/i18n', () => ( { __: text => text } ) );
 

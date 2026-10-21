@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WooCommerce Stats: Rearrange the WooCommerce tab's default layout, which no longer includes the sales, orders and visitors over time widgets.

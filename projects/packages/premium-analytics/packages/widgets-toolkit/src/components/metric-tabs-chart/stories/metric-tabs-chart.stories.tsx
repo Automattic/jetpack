@@ -128,6 +128,18 @@ export const SingleMetric: Story = {
 };
 
 /**
+ * A host title that already names the metric can hide the repeated visual
+ * label while the chart and accessible headline keep the metric's name.
+ */
+export const SingleMetricWithoutLabel: Story = {
+	args: {
+		metrics: [ { ...METRICS[ 0 ], previousValue: undefined, previous: undefined } ],
+		dataFormat: DATA_FORMAT,
+		hideSingleMetricLabel: true,
+	},
+};
+
+/**
  * The same metrics drawn as bars, with the previous period as the translucent
  * shadow bar behind each current-period bar.
  */

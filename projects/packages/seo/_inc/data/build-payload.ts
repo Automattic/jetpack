@@ -4,7 +4,7 @@
 // in isolation (see `test/build-payload.test.ts`).
 
 import { VERIFICATION_KEYS } from './verification-services';
-import type { SettingsResponse } from './settings-types';
+import type { SettingsResponse, VerificationKey } from './settings-types';
 
 /**
  * Build the changed-fields payload for WordPress core's settings endpoint
@@ -39,15 +39,68 @@ export function buildCorePayload(
 	if ( local.front_page_description !== baseline.front_page_description ) {
 		payload.advanced_seo_front_page_description = local.front_page_description;
 	}
-	// The codes are sub-keys of one option, so the whole map goes when any of them
-	// changes; the server merges it over the codes already stored.
-	if (
-		VERIFICATION_KEYS.some( key => local.verification[ key ] !== baseline.verification[ key ] )
-	) {
-		payload.verification_services_codes = local.verification;
+	// The codes are sub-keys of one option, merged server-side over the stored ones, so
+	// only changed codes go: a whole map would overwrite a code saved meanwhile.
+	const codes = changedCodes( baseline, local );
+	if ( Object.keys( codes ).length > 0 ) {
+		payload.verification_services_codes = codes;
 	}
 
 	return payload;
+}
+
+/**
+ * The verification codes that differ from the baseline.
+ *
+ * @param baseline - The last-saved server state.
+ * @param local    - The current form state.
+ * @return The changed codes, keyed by service.
+ */
+export function changedCodes(
+	baseline: SettingsResponse,
+	local: SettingsResponse
+): Partial< SettingsResponse[ 'verification' ] > {
+	return Object.fromEntries(
+		VERIFICATION_KEYS.filter(
+			key => local.verification[ key ] !== baseline.verification[ key ]
+		).map( key => [ key, local.verification[ key ] ] )
+	);
+}
+
+/**
+ * Read a `/wp/v2/settings` response back into form fields — the inverse of
+ * `buildCorePayload()`, mapped the way the server's own settings read does.
+ *
+ * @param response - The endpoint's response: every registered setting as stored.
+ * @return The stored values for the fields the response carries.
+ */
+export function readCoreResponse( response: unknown ): Partial< SettingsResponse > {
+	const stored: Partial< SettingsResponse > = {};
+	if ( ! response || typeof response !== 'object' ) {
+		return stored;
+	}
+	const saved = response as Record< string, unknown >;
+
+	if ( 'blog_public' in saved ) {
+		stored.search_engines_visible = Number( saved.blog_public ) === 1;
+	}
+	if ( 'advanced_seo_title_formats' in saved ) {
+		stored.title_formats = ( saved.advanced_seo_title_formats ??
+			{} ) as SettingsResponse[ 'title_formats' ];
+	}
+	if ( 'advanced_seo_front_page_description' in saved ) {
+		stored.front_page_description = String( saved.advanced_seo_front_page_description ?? '' );
+	}
+	if ( 'verification_services_codes' in saved ) {
+		const codes = ( saved.verification_services_codes ?? {} ) as Partial<
+			Record< VerificationKey, string >
+		>;
+		stored.verification = Object.fromEntries(
+			VERIFICATION_KEYS.map( key => [ key, codes[ key ] ?? '' ] )
+		) as SettingsResponse[ 'verification' ];
+	}
+
+	return stored;
 }
 
 // The settings whose write switches a Jetpack module. Core's settings endpoint

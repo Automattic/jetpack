@@ -34,9 +34,12 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
-import { type ClicksAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type ClicksAttributes = Record< never, never >;
 
 type ClicksRenderAttributes = ClicksAttributes & Partial< ReportParamsFieldAttributes >;
 type ClicksWidgetProps = WidgetRenderProps< ClicksRenderAttributes >;
@@ -180,11 +183,13 @@ export function ClicksLeaderboard( {
 }: ClicksLeaderboardProps ) {
 	return (
 		<LeaderboardChart
+			chartTitle={ __( 'Top links clicked', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Links', 'jetpack-premium-analytics-pkg' ), metric: 'clicks' } }
 		/>
 	);
 }
@@ -228,6 +233,11 @@ function ClicksInner() {
 		}
 	}, [ selectedClickLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedClick ] );
 
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: rows.length === 0 },
+		__( 'You don’t have clicked links recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
+
 	const handleDrillDown = useCallback(
 		( row: ClickRow ) => {
 			selectClick( row.label );
@@ -248,7 +258,7 @@ function ClicksInner() {
 			<div className={ styles.content }>
 				{ backLink }
 				<WidgetState
-					isLoading={ isLoading }
+					isLoading={ emptyState.isLoading }
 					isFetching={ isFetching }
 					// `placeholderData` keeps the prior period's rows on screen while `isError`
 					// flips true, so a transient refetch failure should not replace them.
@@ -263,6 +273,7 @@ function ClicksInner() {
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
 					} }
+					empty={ emptyState.empty }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<ClicksLeaderboard

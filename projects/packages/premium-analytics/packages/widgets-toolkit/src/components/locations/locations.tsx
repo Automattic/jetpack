@@ -61,6 +61,8 @@ type LocationsProps = {
 	 * Rows the list shows, and the skeleton's height. Defaults to the widget row limit.
 	 */
 	maxRows?: number;
+	/** What the widget shows, such as its title; the list is named "Chart: <title>" and the map "Map: <title>". */
+	chartTitle?: string;
 };
 
 const DEFAULT_FORMAT: DataFormat = {
@@ -85,6 +87,7 @@ export function Locations( {
 	valueLabel,
 	country,
 	maxRows = WIDGET_ROW_LIMIT,
+	chartTitle,
 }: LocationsProps ): JSX.Element {
 	const { isLoading, isFetching, isError, refetch } = status;
 	const hasComparison = !! status.hasComparison;
@@ -118,6 +121,7 @@ export function Locations( {
 						showLegend={ false }
 						dataFormat={ format }
 						className={ styles.list }
+						chartTitle={ chartTitle }
 					/>
 
 					<Stack justify="center" align="center" className={ styles.map }>
@@ -127,6 +131,7 @@ export function Locations( {
 							focusCountry={ data.focusCountry }
 							valueLabel={ valueLabel }
 							resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
+							chartTitle={ chartTitle }
 						/>
 					</Stack>
 				</div>

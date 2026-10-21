@@ -333,7 +333,7 @@ class Jetpack_XMLRPC_Server {
 			if ( isset( $request['from'] ) ) {
 				$this->connection->add_register_request_param( 'from', (string) $request['from'] );
 			}
-			$registered = $this->connection->try_registration();
+			$registered = $this->connection->try_registration( true, true );
 			if ( is_wp_error( $registered ) ) {
 				return $this->error( $registered, 'remote_register' );
 			} elseif ( ! $registered ) {

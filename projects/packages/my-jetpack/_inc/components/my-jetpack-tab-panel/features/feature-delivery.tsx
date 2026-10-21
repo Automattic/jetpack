@@ -2,7 +2,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { Icon, Stack, Text } from '@wordpress/ui';
-import { getForcedReason, getInstallBlockReason } from './feature-state';
+import { getForcedReason, getInstallBlockReason, getModuleUnavailableNote } from './feature-state';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -27,8 +27,8 @@ function getNote( state: FeatureState, pluginName: string ): string {
 	}
 
 	switch ( control.kind ) {
-		case 'install-plugin':
-			return sprintf(
+		case 'install-plugin': {
+			const installNote = sprintf(
 				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
 				__(
 					'Installing adds the free <plugin>%s</plugin> plugin and turns it on. You won’t be charged.',
@@ -36,9 +36,19 @@ function getNote( state: FeatureState, pluginName: string ): string {
 				),
 				pluginName
 			);
+			const installAndConnectNote = sprintf(
+				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
+				__(
+					'Installing adds the free <plugin>%s</plugin> plugin and turns it on, then connects your WordPress.com account. You won’t be charged.',
+					'jetpack-my-jetpack'
+				),
+				pluginName
+			);
+			return state.accountNeeded ? installAndConnectNote : installNote;
+		}
 
-		case 'plugin':
-			return sprintf(
+		case 'plugin': {
+			const activateNote = sprintf(
 				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
 				__(
 					'The <plugin>%s</plugin> plugin is already installed. Activating turns it on.',
@@ -46,15 +56,31 @@ function getNote( state: FeatureState, pluginName: string ): string {
 				),
 				pluginName
 			);
+			const connectNote = sprintf(
+				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
+				__(
+					'The <plugin>%s</plugin> plugin is already installed. Connect your WordPress.com account, then turn it on here.',
+					'jetpack-my-jetpack'
+				),
+				pluginName
+			);
+			return state.accountNeeded ? connectNote : activateNote;
+		}
 
-		case 'module':
-			return __(
+		case 'module': {
+			const moduleNote = __(
 				'Built into Jetpack, so there is nothing to install. Activating turns it on.',
 				'jetpack-my-jetpack'
 			);
+			const connectFirstNote = __(
+				'Built into Jetpack, so there is nothing to install. Connect your WordPress.com account, then turn it on here if it’s still off.',
+				'jetpack-my-jetpack'
+			);
+			return state.accountNeeded ? connectFirstNote : moduleNote;
+		}
 
-		case 'install-jetpack':
-			return sprintf(
+		case 'install-jetpack': {
+			const jetpackNote = sprintf(
 				/* translators: %s is a feature name, such as "Stats". */
 				__(
 					'%s is part of the Jetpack plugin. Installing Jetpack turns it on. You won’t be charged.',
@@ -62,6 +88,16 @@ function getNote( state: FeatureState, pluginName: string ): string {
 				),
 				feature.name
 			);
+			const jetpackConnectNote = sprintf(
+				/* translators: %s is a feature name, such as "Activity Log". */
+				__(
+					'%s is part of the Jetpack plugin. Once Jetpack is on you’ll connect your WordPress.com account, then you can turn it on here if it’s still off. You won’t be charged.',
+					'jetpack-my-jetpack'
+				),
+				feature.name
+			);
+			return state.accountNeeded ? jetpackConnectNote : jetpackNote;
+		}
 
 		default:
 			return '';
@@ -69,7 +105,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 }
 
 /**
- * What the button beside an inactive feature's name will do to turn it on.
+ * The module limitation and the action's setup note in the feature details.
  *
  * @param {FeatureDeliveryProps} props       - The component props.
  * @param {FeatureState}         props.state - Live state for the feature.
@@ -77,14 +113,16 @@ function getNote( state: FeatureState, pluginName: string ): string {
  */
 export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	const { feature } = state;
-
-	// Once it runs, how it arrived is no longer the question; forced off, the header badge says why.
-	if ( state.status === 'active' || getForcedReason( state ) ) {
-		return null;
+	const moduleNote = getModuleUnavailableNote( state );
+	const isSettled = state.status === 'active' || Boolean( getForcedReason( state ) );
+	// An active plugin does not remove its module's limitation.
+	// One still waiting for an account keeps its setup note, since that step is still ahead.
+	if ( isSettled && ! state.accountNeeded ) {
+		return moduleNote ? <Text variant="body-sm">{ moduleNote }</Text> : null;
 	}
 
 	const pluginName = feature.plugin_name || feature.name;
-	const note = getNote( state, pluginName );
+	const note = isSettled ? '' : getNote( state, pluginName );
 	// A blocked install never reaches the next step, so naming it would only mislead.
 	const setupNote = getInstallBlockReason( state ) ? '' : feature.setup_note;
 
@@ -97,6 +135,7 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 			<Icon icon={ info } size={ 20 } className={ styles[ 'inline-icon' ] } />
 			{ /* Separate sentences rather than a joined string: not every script spaces them. */ }
 			<Stack direction="column" gap="xs">
+				{ moduleNote ? <Text variant="body-sm">{ moduleNote }</Text> : null }
 				{ note ? (
 					<Text variant="body-sm">
 						{ createInterpolateElement( note, {

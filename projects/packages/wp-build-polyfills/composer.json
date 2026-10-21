@@ -54,7 +54,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-wp-build-polyfills",
 		"textdomain": "jetpack-wp-build-polyfills",
 		"changelogger": {

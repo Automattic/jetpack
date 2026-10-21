@@ -128,3 +128,23 @@ describe( 'the Restore screen during a running restore', () => {
 		await expect( screen.findByText( `${ percent }% complete` ) ).resolves.toBeInTheDocument();
 	} );
 } );
+
+describe( 'the Restore screen after a restore that finished with errors', () => {
+	it( 'links to the restore troubleshooting guide', async () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: 'example.wordpress.com',
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+		arrange( 100, 'Some files were skipped', 'finished-with-errors' );
+		render( <RestoreStage /> );
+
+		await startRestore();
+
+		const link = await screen.findByRole( 'link', { name: /^Learn more/ } );
+		expect( link ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-restore-troubleshooting&site=example.wordpress.com'
+		);
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+} );

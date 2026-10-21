@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+TermsOfService: Render with Text from @wordpress/ui. The `variant` prop now takes a @wordpress/ui Text variant, and the legacy Text spacing and `component` props are removed.

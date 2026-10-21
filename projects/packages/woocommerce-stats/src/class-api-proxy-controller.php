@@ -23,7 +23,7 @@ use WP_REST_Server;
  * For now it carries its own forward. The route has the shape of the proxy controller the
  * connection package is getting, so this class can shrink to a registration on it.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Api_Proxy_Controller {
 
@@ -41,6 +41,11 @@ class Api_Proxy_Controller {
 	 * How long a successful response stays cached.
 	 */
 	private const CACHE_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Option holding the cache generation, part of every cache key.
+	 */
+	private const CACHE_GENERATION_OPTION = 'jetpack_woocommerce_stats_proxy_cache_generation';
 
 	/**
 	 * Timeout of the request to WordPress.com, in seconds.
@@ -76,6 +81,17 @@ class Api_Proxy_Controller {
 	}
 
 	/**
+	 * Drop every cached report, such as the empty ones WordPress.com answers with during the
+	 * store's initial sync. Bumps the generation instead of deleting, since an object cache can't
+	 * list transients by prefix.
+	 *
+	 * @return void
+	 */
+	public static function clear_cache() {
+		update_option( self::CACHE_GENERATION_OPTION, (int) get_option( self::CACHE_GENERATION_OPTION, 0 ) + 1, false );
+	}
+
+	/**
 	 * Register the route. It only reads, and only below `analytics/reports/`.
 	 *
 	 * @return void
@@ -105,8 +121,7 @@ class Api_Proxy_Controller {
 	 * @return bool
 	 */
 	public function check_permission() {
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce registers this capability.
-		return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );
+		return Analytics_Dashboard::current_user_can_view_store_reports();
 	}
 
 	/**
@@ -257,7 +272,7 @@ class Api_Proxy_Controller {
 	}
 
 	/**
-	 * Transient key of a path and its params, whatever their order.
+	 * Transient key of a path and its params, whatever their order, in the current cache generation.
 	 *
 	 * @param string $path   WordPress.com path, without the query string.
 	 * @param array  $params Forwarded query params.
@@ -266,6 +281,8 @@ class Api_Proxy_Controller {
 	private function get_cache_key( $path, array $params ) {
 		ksort( $params );
 
-		return self::CACHE_PREFIX . md5( $path . '|' . wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
+		$generation = (int) get_option( self::CACHE_GENERATION_OPTION, 0 );
+
+		return self::CACHE_PREFIX . md5( $generation . '|' . $path . '|' . wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
 	}
 }

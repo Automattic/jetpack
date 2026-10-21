@@ -94,6 +94,26 @@ describe( 'normalizeReportParams', () => {
 		expect( result.preset ).toBeUndefined();
 	} );
 
+	// An unencoded `+` in a pasted link reaches the router as a space.
+	it( 'restores the plus a querystring decoded away from explicit dates', () => {
+		const result = normalizeReportParams( {
+			from: '2026-01-20T00:00:00.000 05:00',
+			to: '2026-02-18T23:59:59.999 05:00',
+			interval: 'day',
+			comp: '1',
+			compare_from: '2025-12-21T00:00:00.000 05:00',
+			compare_to: '2026-01-19T23:59:59.999 05:00',
+		} );
+
+		expect( result ).toMatchObject( {
+			from: '2026-01-20T00:00:00.000+05:00',
+			to: '2026-02-18T23:59:59.999+05:00',
+			interval: 'day',
+			compare_from: '2025-12-21T00:00:00.000+05:00',
+			compare_to: '2026-01-19T23:59:59.999+05:00',
+		} );
+	} );
+
 	it( 'uses explicit dates as-is when preset is custom', () => {
 		const customFrom = '2026-01-01T00:00:00.000-05:00';
 		const customTo = '2026-01-31T23:59:59.999-05:00';
@@ -317,5 +337,13 @@ describe( 'normalizeReportParams', () => {
 		} );
 
 		expect( result.author_id ).toBeUndefined();
+	} );
+
+	it( 'keeps a locked range on days instead of resolving it to weeks', () => {
+		expect(
+			normalizeReportParams( { from: '2026-01-01', to: '2026-06-30', interval: 'day' }, undefined, {
+				lockedIntervals: [ 'week', 'month', 'year' ],
+			} ).interval
+		).toBe( 'day' );
 	} );
 } );

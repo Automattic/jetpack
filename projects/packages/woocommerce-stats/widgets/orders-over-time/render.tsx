@@ -13,8 +13,14 @@ import { __, _n } from '@wordpress/i18n';
  */
 import { ReportMetricChart } from '../../src/components/report-metric-chart';
 import { useReportOrders } from '../../src/reports';
-import type { OrdersOverTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * @property chartType - How the series is drawn. Defaults to `line`.
+ */
+export type OrdersOverTimeAttributes = {
+	chartType?: ChartDisplayChartType;
+};
 
 type OrdersOverTimeRenderAttributes = OrdersOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -37,11 +43,11 @@ function OrdersOverTime( { chartType }: { chartType?: ChartDisplayChartType } ) 
 		<ReportMetricChart
 			report={ useReportOrders( reportParams ) }
 			chartType={ chartType }
+			chartTitle={ __( 'Orders over time', 'jetpack-woocommerce-stats-pkg' ) }
 			field="orders_no"
 			label={ __( 'Orders', 'jetpack-woocommerce-stats-pkg' ) }
 			countLabel={ countLabel }
 			dataFormat={ { type: 'number' } }
-			emptyText={ __( 'No orders in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 			errorText={ __(
 				"We couldn't load orders. Please try again in a moment.",
 				'jetpack-woocommerce-stats-pkg'
