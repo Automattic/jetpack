@@ -205,6 +205,17 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				/>
 			) : null }
 
+			{ control.kind === 'plan' && control.activatePlugin && feature.included ? (
+				<InstallButton
+					state={ state }
+					origin="modal"
+					plugin={ control.activatePlugin }
+					name={ pluginName }
+					label={ __( 'Activate', 'jetpack-my-jetpack' ) }
+					action="activate"
+				/>
+			) : null }
+
 			{ control.kind === 'install-jetpack' && ! control.blocked ? (
 				<JetpackButton state={ state } origin="modal" installed={ control.installed } />
 			) : null }

@@ -97,8 +97,8 @@ class Backup_Abilities extends Registrar {
 	 * Is the Jetpack Backup product actually loaded on this site?
 	 *
 	 * True when a plugin that ships Backup is active and the site has a Backup plan. Deliberately
-	 * not `My_Jetpack\Products\Backup::is_active()`: that also follows the backup module, which only
-	 * switches the wp-admin dashboard, while backups keep running on WordPress.com. The plan lookup
+	 * not `My_Jetpack\Products\Backup::is_active()`: next to an older Jetpack plugin that still
+	 * follows the backup module, while backups keep running on WordPress.com. The plan lookup
 	 * is cached in `MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY`.
 	 *
 	 * The `jetpack_backup_abilities_should_load` filter lets consumers and
