@@ -62,13 +62,13 @@ describe( 'DisconnectUserDialog, for the connection owner', () => {
 	// The owner path records its own events, so the host's context has to reach them too.
 	it( 'reports the owner events against the host that rendered it', async () => {
 		const user = userEvent.setup();
-		render( <DisconnectUserDialog { ...testProps } context="jetpack-connectors" /> );
+		render( <DisconnectUserDialog { ...testProps } context="connectors" /> );
 
 		await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_manage_connection_dialog_owner_disconnect_click',
-			{ context: 'jetpack-connectors' }
+			{ context: 'connectors' }
 		);
 	} );
 

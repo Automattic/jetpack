@@ -1745,7 +1745,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 					isOpen: true,
 					apiRoot,
 					apiNonce,
-					context: 'jetpack-connectors',
+					context: 'connectors',
 					// The unlink already recorded itself in the store, which a non-owner's row reads
 					// from. Otherwise card-only data such as protectedOwner changed too, so reload.
 					onUnlinked: () => {
