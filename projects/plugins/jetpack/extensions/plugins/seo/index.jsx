@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { LinkPreviewModalWithTrigger } from '@automattic/jetpack-publicize/link-preview';
-import { isSimpleSite, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	useModuleStatus,
 	getJetpackExtensionAvailability,
@@ -53,8 +53,7 @@ const isSeoEnhancerAvailable =
 
 const canHaveAutoEnhance = canAutoEnhanceMetadata();
 
-// The editor can't save this setting on Simple; see the seo-enhancer store.
-const hideAutoEnhanceToggle = isSimpleSite();
+const hideAutoEnhanceToggle = ! canHaveAutoEnhance;
 
 // The AI SEO feature covers manual and automatic generation alike (host and
 // master gates folded in server-side); with it off the enhancer is not
