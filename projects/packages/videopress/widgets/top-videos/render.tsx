@@ -196,9 +196,8 @@ function TopVideosReport() {
 /**
  * The Top videos widget: a leaderboard of the site's most played VideoPress videos.
  *
- * @param props            - Widget render props.
- * @param props.attributes - Widget attributes, with the report params the dashboard injects.
- * @param props.setError   - Dashboard error handler.
+ * @param {TopVideosWidgetProps} props - Widget render props.
+ *
  * @return The widget.
  */
 export default function TopVideos( { attributes = {}, setError }: TopVideosWidgetProps ) {

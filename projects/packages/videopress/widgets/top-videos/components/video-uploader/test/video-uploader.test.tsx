@@ -19,9 +19,28 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 } ) );
 
 jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
+	Button: ( { children, onClick }: { children: ReactNode; onClick?: () => void } ) => (
+		<button onClick={ onClick }>{ children }</button>
+	),
+	ButtonLink: ( { children, href }: { children: ReactNode; href: string } ) => (
+		<a href={ href }>{ children }</a>
+	),
+	Progress: {
+		Root: ( { children, ...props }: { children: ReactNode } ) => (
+			<div role="progressbar" { ...props }>
+				{ children }
+			</div>
+		),
+		Track: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+		Indicator: () => <div />,
+	},
 	Stack: ( { children, role }: { children: ReactNode; role?: string } ) => (
 		<div role={ role }>{ children }</div>
 	),
+	Text: ( { children, className }: { children: ReactNode; className?: string } ) => (
+		<span className={ className }>{ children }</span>
+	),
+	VisuallyHidden: ( { children }: { children: ReactNode } ) => <span>{ children }</span>,
 	WidgetFooter: ( { children }: { children: ReactNode } ) => <footer>{ children }</footer>,
 	getVideoPosterUrl: ( poster?: string | null ) => poster ?? undefined,
 } ) );

@@ -1,12 +1,15 @@
 /**
  * External dependencies
  */
-import { Stack, getVideoPosterUrl } from '@automattic/jetpack-premium-analytics-sdk';
+import {
+	ButtonLink,
+	Stack,
+	Text,
+	getVideoPosterUrl,
+} from '@automattic/jetpack-premium-analytics-sdk';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, video as videoIcon } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
@@ -20,6 +23,7 @@ export type UploadedVideoProps = {
 	 * The uploaded file, for a title until the record answers.
 	 */
 	file: File;
+
 	/**
 	 * The media the upload created.
 	 */
@@ -29,9 +33,7 @@ export type UploadedVideoProps = {
 /**
  * The video the upload created, followed while it transcodes.
  *
- * @param props       - Component props.
- * @param props.file  - The uploaded file.
- * @param props.media - The media the upload created.
+ * @param {UploadedVideoProps} props - Component props.
  * @return The video block.
  */
 export function UploadedVideo( { file, media }: UploadedVideoProps ) {
@@ -74,15 +76,18 @@ export function UploadedVideo( { file, media }: UploadedVideoProps ) {
 			) : (
 				<Icon icon={ videoIcon } size={ 40 } className="vp-top-videos-uploaded-video__icon" />
 			) }
+
 			<Text variant="body-md" className="vp-top-videos-uploaded-video__name">
 				{ title }
 			</Text>
+
 			<Text variant="body-md" className="vp-top-videos-uploaded-video__message">
 				{ message }
 			</Text>
-			<Button variant="secondary" __next40pxDefaultSize href={ detailsUrl }>
+
+			<ButtonLink variant="solid" href={ detailsUrl }>
 				{ __( 'View video', 'jetpack-videopress-pkg' ) }
-			</Button>
+			</ButtonLink>
 		</Stack>
 	);
 }

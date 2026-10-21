@@ -2,10 +2,6 @@
 	padding: var(--wpds-dimension-padding-md);
 	text-align: center;
 
-	&__icon {
-		color: var(--wpds-color-stroke-surface-neutral-weak);
-	}
-
 	&__poster {
 		inline-size: 160px;
 		aspect-ratio: 16 / 9;

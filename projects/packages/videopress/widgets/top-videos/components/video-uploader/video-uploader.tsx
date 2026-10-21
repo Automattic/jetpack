@@ -23,18 +23,26 @@ type UploadPhase =
 	| { status: 'uploaded'; file: File; media: VideoMediaProps };
 
 type UploaderBodyProps = {
+	/**
+	 * The upload phase.
+	 */
 	phase: UploadPhase;
+
+	/**
+	 * Receives the dropped or picked files.
+	 */
 	onFiles: ( files: File[] ) => void;
+
+	/**
+	 * Starts a failed upload again.
+	 */
 	onRetry: ( file: File ) => void;
 };
 
 /**
  * What the tile shows for the phase: the dropzone, the file in flight, or the video it created.
  *
- * @param props         - Component props.
- * @param props.phase   - The upload phase.
- * @param props.onFiles - Receives the dropped or picked files.
- * @param props.onRetry - Starts a failed upload again.
+ * @param {UploaderBodyProps} props - Component props.
  * @return The body for the phase.
  */
 function UploaderBody( { phase, onFiles, onRetry }: UploaderBodyProps ) {
@@ -70,6 +78,7 @@ export type VideoUploaderProps = {
 	 * Rendered under the body, as the leaderboard renders its footer.
 	 */
 	footer: ReactNode;
+
 	/**
 	 * Called once the upload lands, with the media it created.
 	 */
@@ -80,9 +89,7 @@ export type VideoUploaderProps = {
  * The widget's empty-library body: the dashboard's dropzone, then the upload's
  * progress, then the video it created while it transcodes, all inside the tile.
  *
- * @param props            - Component props.
- * @param props.footer     - The widget footer.
- * @param props.onUploaded - Receives the media once the upload lands.
+ * @param {VideoUploaderProps} props - Component props.
  * @return The widget body.
  */
 export function VideoUploader( { footer, onUploaded }: VideoUploaderProps ) {
@@ -131,6 +138,7 @@ export function VideoUploader( { footer, onUploaded }: VideoUploaderProps ) {
 			<Stack direction="column" justify="safe center" className="vp-top-videos-uploader__body">
 				<UploaderBody phase={ phase } onFiles={ onFiles } onRetry={ upload } />
 			</Stack>
+
 			<WidgetFooter>{ footer }</WidgetFooter>
 		</Stack>
 	);
