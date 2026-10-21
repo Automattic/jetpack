@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useConnection } from '@automattic/jetpack-connection';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import {
@@ -36,6 +37,7 @@ import styles from './upgrade-page.module.scss';
 import type { JSX } from 'react';
 
 const DASHBOARD_PATH = 'admin.php?page=jetpack-premium-analytics-wp-admin';
+const UPGRADE_PATH = `${ DASHBOARD_PATH }&p=${ encodeURIComponent( '/upgrade' ) }`;
 
 /**
  * Why a site that already holds a tier should upgrade it.
@@ -82,6 +84,10 @@ export function UpgradePage(): JSX.Element {
 	const ownership = useStatsOwnership();
 	const { isCommercialOwned, hasAnyStatsPlan, bundledPlanName } = ownership;
 	const [ tierIndex, setTierIndex ] = useState( 0 );
+	const { handleConnectUser, userIsConnecting } = useConnection( {
+		from: 'jetpack-premium-analytics',
+		redirectUri: UPGRADE_PATH,
+	} );
 
 	useEffect( () => {
 		trackEvent( 'jetpack_premium_analytics_upgrade_view', { from } );
@@ -109,7 +115,7 @@ export function UpgradePage(): JSX.Element {
 					isUserConnected,
 					isUpgrade: hasAnyStatsPlan,
 					redirectPath: DASHBOARD_PATH,
-					backPath: `${ DASHBOARD_PATH }&p=${ encodeURIComponent( '/upgrade' ) }`,
+					backPath: UPGRADE_PATH,
 				} )
 			: undefined;
 
@@ -242,11 +248,9 @@ export function UpgradePage(): JSX.Element {
 								) }
 							</Notice.Description>
 							<Notice.Actions>
-								<Notice.ActionLink
-									href={ `${ site?.admin_url }admin.php?page=my-jetpack#/connection` }
-								>
+								<Notice.ActionButton onClick={ handleConnectUser } loading={ userIsConnecting }>
 									{ __( 'Connect your account', 'jetpack-premium-analytics-pkg' ) }
-								</Notice.ActionLink>
+								</Notice.ActionButton>
 							</Notice.Actions>
 						</Notice.Root>
 					) }

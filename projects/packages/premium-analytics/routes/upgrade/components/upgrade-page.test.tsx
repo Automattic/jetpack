@@ -3,6 +3,7 @@
  */
 import { AnalyticsQueryClientProvider, queryClient } from '@jetpack-premium-analytics/data';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -15,6 +16,10 @@ jest.mock(
 	() => jest.requireActual( '../../../tests/js/analytics-test-utils' ).mockJetpackAnalytics
 );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+const mockHandleConnectUser = jest.fn();
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	useConnection: () => ( { handleConnectUser: mockHandleConnectUser, userIsConnecting: false } ),
+} ) );
 jest.mock( '@wordpress/route', () => ( {
 	Link: jest.requireActual( '../../../tests/js/route-test-utils' ).mockWordPressRoute.Link,
 	useSearch: () => ( {} ),
@@ -105,6 +110,7 @@ describe( 'UpgradePage', () => {
 		jest.useFakeTimers();
 		queryClient.clear();
 		mockApiFetch.mockReset();
+		mockHandleConnectUser.mockReset();
 	} );
 
 	afterEach( () => {
@@ -139,6 +145,25 @@ describe( 'UpgradePage', () => {
 		expect(
 			screen.queryByRole( 'link', { name: 'Upgrade now and continue' } )
 		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Upgrade now and continue' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		await user.click( screen.getByRole( 'button', { name: 'Connect your account' } ) );
+		expect( mockHandleConnectUser ).toHaveBeenCalled();
+	} );
+
+	it( 'offers no checkout until purchases load, since they decide between a new purchase and an upgrade', async () => {
+		setScriptData( true );
+		mockEndpoints();
+		const answer = mockApiFetch.getMockImplementation() as ( req: { path: string } ) => unknown;
+		mockApiFetch.mockImplementation( ( req: { path: string } ) =>
+			req.path.includes( 'upgrades' ) ? new Promise( () => {} ) : answer( req )
+		);
+		await renderPage();
+
 		expect( screen.getByRole( 'button', { name: 'Upgrade now and continue' } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'

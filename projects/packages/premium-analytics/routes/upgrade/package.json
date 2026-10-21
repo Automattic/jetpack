@@ -6,6 +6,7 @@
 		"page": "jetpack-premium-analytics"
 	},
 	"dependencies": {
+		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@jetpack-premium-analytics/data": "workspace:*",

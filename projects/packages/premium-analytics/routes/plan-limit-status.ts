@@ -6,7 +6,7 @@ import type { StatsAppPlanUsage } from '@jetpack-premium-analytics/data';
 // The share of the limit at which Stats starts warning, matching Calypso.
 const NEAR_LIMIT_USAGE_RATIO = 0.9;
 
-export type PlanLimitStatus = {
+type PlanLimitStatus = {
 	isOver: boolean;
 };
 
