@@ -1,4 +1,5 @@
 import { AnalyticsQueryClientProvider, queryClient } from '@jetpack-premium-analytics/data';
+import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { PlanUsageCard } from './plan-usage-card';
@@ -83,6 +84,21 @@ describe( 'PlanUsageCard', () => {
 		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
 			'href',
 			expect.stringContaining( '/upgrade?source=jetpack-premium-analytics' )
+		);
+	} );
+
+	it( 'names the tab it sits in on the upgrade link, so the upgrade page returns to Settings', async () => {
+		render(
+			<AnalyticsQueryClientProvider>
+				<DashboardSectionProvider section="settings">
+					<PlanUsageCard />
+				</DashboardSectionProvider>
+			</AnalyticsQueryClientProvider>
+		);
+
+		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
+			'href',
+			expect.stringContaining( 'ds=settings' )
 		);
 	} );
 
