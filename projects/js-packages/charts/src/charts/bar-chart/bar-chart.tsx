@@ -1,5 +1,5 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
-import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
+import { Axis, Grid, XYChart } from '@visx/xychart';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Fragment, useCallback, useContext, useState, useRef, useMemo } from 'react';
@@ -35,7 +35,7 @@ import {
 	useBarChartOptions,
 	BandHighlight,
 	BandTooltip,
-	ClassifiedBarSeries,
+	BarLayer,
 	ComparisonBars,
 	DEFAULT_COMPARISON_WIDTH_FACTOR,
 	COMPARISON_INNER_GAP,
@@ -44,12 +44,10 @@ import {
 	BASE_BAND_PADDING_INNER,
 	countRenderedBars,
 	isBarRendered,
-	SlottedBarSeries,
-	SelectedBarRing,
 	SlotTooltipMembers,
+	useBarStops,
 	useOverlapSlots,
 	getSelectedSlot,
-	isSameCategory,
 } from './private';
 import { useBarColors } from './use-bar-colors';
 import type { ComparisonSeriesEntry } from './private';
@@ -263,62 +261,23 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const overlapSlots = useOverlapSlots( isOverlap, seriesWithVisibility );
 
-	// An overlap layout steps the keyboard through `overlapSlots.positions`, and `SlotTooltipMembers` fills its tooltip.
-	const stopEntries = useMemo(
-		() => ( overlapSlots ? [] : primaryEntries ),
-		[ overlapSlots, primaryEntries ]
-	);
-
-	const totalPoints =
-		overlapSlots?.positions.length ??
-		Math.max( 0, ...stopEntries.map( e => e.series.data.length ) ) * stopEntries.length;
-
 	const primaryKeys = useMemo(
 		() => primaryEntries.map( ( { series } ) => series.label ),
 		[ primaryEntries ]
 	);
 
-	// The keyboard-navigation index space and the highlight both stride over the stops only;
-	// `XYChartTooltip` must use the same list, or its datum diverges from
-	// the highlighted bar once a comparison series shifts the indices.
-	const stopSeries = useMemo( () => stopEntries.map( ( { series } ) => series ), [ stopEntries ] );
+	// The keyboard index space, the highlight and `XYChartTooltip` must share these stops, or the tooltip's datum diverges from the highlighted bar.
+	const stops = useBarStops( overlapSlots, primaryEntries );
+	const { barAt, stopOf } = stops;
 
-	// Walks the selected index the way the highlight style does — series-major
-	// within each data point — so the bar handed on is the one outlined.
 	const activateSelectedBar = useCallback(
-		( index: number ) => {
-			if ( overlapSlots ) {
-				const position = overlapSlots.positions[ index ];
-				if ( position ) {
-					onDatumActivate?.( {
-						datum: position.datum,
-						index: position.dataPointIndex,
-						key: position.key,
-					} );
-				}
-				return;
-			}
-
-			const stopCount = stopEntries.length;
-
-			if ( ! stopCount ) {
-				return;
-			}
-
-			const dataPointIndex = Math.floor( index / stopCount );
-			const series = stopEntries[ index % stopCount ]?.series;
-			const datum = series?.data[ dataPointIndex ];
-
-			if ( series && datum ) {
-				onDatumActivate?.( { datum, index: dataPointIndex, key: series.label } );
+		( stop: number ) => {
+			const bar = barAt( stop );
+			if ( bar ) {
+				onDatumActivate?.( bar );
 			}
 		},
-		[ overlapSlots, stopEntries, onDatumActivate ]
-	);
-
-	const visibleSeriesKey = useMemo(
-		() => JSON.stringify( overlapSlots?.keys ?? primaryKeys ),
-		[ overlapSlots, primaryKeys ]
+		[ barAt, onDatumActivate ]
 	);
 
 	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown, onChartPointerMove } =
@@ -328,34 +287,19 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints,
+			totalPoints: stops.count,
 			onActivate: activateSelectedBar,
-			visibleSeriesKey,
+			visibleSeriesKey: stops.key,
 		} );
 
 	const handlePointerMove = useCallback(
 		( { key, index }: { key: string; index: number } ) => {
-			if ( overlapSlots ) {
-				const hovered = overlapSlots.entries.find( ( { series } ) => series.label === key )?.series
-					.data[ index ] as DataPointDate | undefined;
-				const slotKey = overlapSlots.slotOf( key );
-				const position = hovered
-					? overlapSlots.positions.findIndex(
-							p => p.slotKey === slotKey && isSameCategory( p.datum, hovered )
-						)
-					: -1;
-				if ( position >= 0 ) {
-					onChartPointerMove( position );
-				}
-				return;
-			}
-
-			const stopIndex = primaryKeys.indexOf( key );
-			if ( stopIndex >= 0 ) {
-				onChartPointerMove( index * stopEntries.length + stopIndex );
+			const stop = stopOf( key, index );
+			if ( stop !== undefined ) {
+				onChartPointerMove( stop );
 			}
 		},
-		[ overlapSlots, primaryKeys, stopEntries, onChartPointerMove ]
+		[ stopOf, onChartPointerMove ]
 	);
 
 	const comparisonEntries = useMemo( () => {
@@ -822,71 +766,18 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											resolveFill={ resolveComparisonFill }
 										/>
 
-										{ overlapSlots && (
-											<g className="visx-bar-group">
-												{ overlapSlots.entries.map( ( { series: seriesData, index } ) => (
-													<SlottedBarSeries
-														key={ seriesData.label }
-														dataKey={ seriesData.label }
-														data={ seriesData.data as DataPointDate[] }
-														xAccessor={ chartOptions.accessors.xAccessor }
-														yAccessor={ chartOptions.accessors.yAccessor }
-														colorAccessor={ getBarBackground( index ) }
-														barClassName={ barClassName }
-														slotKeys={ overlapSlots.slotKeys }
-														slotKey={ overlapSlots.slotOf( seriesData.label ) }
-														thickness={ overlapSlots.thicknessOf( seriesData.label ) }
-														groupPadding={ groupPadding }
-													/>
-												) ) }
-											</g>
-										) }
-										{ overlapSlots && selectedSlot && (
-											<SelectedBarRing
-												selected={ selectedSlot }
-												slotKeys={ overlapSlots.slotKeys }
-												groupPadding={ groupPadding }
-												horizontal={ horizontal }
-												xAccessor={ chartOptions.accessors.xAccessor }
-												yAccessor={
-													chartOptions.accessors.yAccessor as (
-														d: DataPointDate
-													) => number | undefined
-												}
-											/>
-										) }
-
-										{ ! overlapSlots && barClassName && (
-											<g className="visx-bar-group">
-												{ primaryEntries.map( ( { series: seriesData, index } ) => (
-													<ClassifiedBarSeries
-														key={ seriesData.label }
-														dataKey={ seriesData.label }
-														data={ seriesData.data as DataPointDate[] }
-														xAccessor={ chartOptions.accessors.xAccessor }
-														yAccessor={ chartOptions.accessors.yAccessor }
-														colorAccessor={ getBarBackground( index ) }
-														barClassName={ barClassName }
-														primaryKeys={ primaryKeys }
-														groupPadding={ groupPadding }
-													/>
-												) ) }
-											</g>
-										) }
-										{ ! overlapSlots && ! barClassName && (
-											<BarGroup padding={ groupPadding }>
-												{ primaryEntries.map( ( { series: seriesData, index } ) => (
-													<BarSeries
-														key={ seriesData?.label }
-														dataKey={ seriesData?.label }
-														data={ seriesData.data as DataPointDate[] }
-														yAccessor={ chartOptions.accessors.yAccessor }
-														xAccessor={ chartOptions.accessors.xAccessor }
-														colorAccessor={ getBarBackground( index ) }
-													/>
-												) ) }
-											</BarGroup>
-										) }
+										<BarLayer
+											overlapSlots={ overlapSlots }
+											selectedSlot={ selectedSlot }
+											primaryEntries={ primaryEntries }
+											primaryKeys={ primaryKeys }
+											getBarBackground={ getBarBackground }
+											barClassName={ barClassName }
+											groupPadding={ groupPadding }
+											horizontal={ horizontal }
+											xAccessor={ chartOptions.accessors.xAccessor }
+											yAccessor={ chartOptions.accessors.yAccessor }
+										/>
 										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after the primary series. */ }
 										{ ( withTooltips || onPointerDown || onPointerUp ) && (
 											<BandTooltip
@@ -951,7 +842,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												keyboardFocusedClassName={
 													styles[ 'bar-chart__tooltip--keyboard-focused' ]
 												}
-												series={ stopSeries }
+												series={ stops.series }
 												mode="individual"
 											/>
 										) }
