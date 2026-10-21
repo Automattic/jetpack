@@ -23,6 +23,10 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
 
+jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => () => ( {
+	hasConnectionError: false,
+} ) );
+
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: ( selector: ( select: unknown ) => unknown ) =>
 		selector( () => ( {

@@ -57,3 +57,12 @@ export function getProductModules() {
 	delete gated[ 'jetpack-ai' ];
 	return gated;
 }
+
+/**
+ * Whether the `my-jetpack-account-connect` flag is on, which shows features waiting for an account.
+ *
+ * @return Whether Features marks and connects the account a feature needs.
+ */
+export function isAccountConnectEnabled(): boolean {
+	return Boolean( getMyJetpackWindowInitialState( 'myJetpackFlags' ).accountConnect );
+}

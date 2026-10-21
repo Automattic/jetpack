@@ -77,7 +77,7 @@ describe( 'GEO route stage', () => {
 
 		Stage();
 		const geo = {
-			enhancer: { available: true, enabled: false, aiSeoEnabled: true },
+			enhancer: { available: true, enabled: false, aiSeoEnabled: true, aiEnabled: true },
 			llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
 			crawlers: { catalog: [], overrides: {} },
 		};

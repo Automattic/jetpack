@@ -17,7 +17,7 @@ describe( 'geo-store', () => {
 
 	it( 'replaces the enhancer state on setEnhancer', () => {
 		const registry = makeRegistry();
-		const next = { available: true, enabled: true, aiSeoEnabled: false };
+		const next = { available: true, enabled: true, aiSeoEnabled: false, aiEnabled: true };
 		registry.dispatch( geoStore ).setEnhancer( next );
 		expect( registry.select( geoStore ).getEnhancer() ).toEqual( next );
 	} );

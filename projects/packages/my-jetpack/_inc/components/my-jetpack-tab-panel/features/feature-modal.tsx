@@ -3,7 +3,6 @@ import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { check, chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Dialog, IconButton, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getActivationStatusLabel } from '../utils';
 import { getArrowStep, getStepKey } from './arrow-navigation';
 import { getBandStyle } from './band-palette';
 import { FeatureBand } from './feature-band';
@@ -14,7 +13,7 @@ import { FeatureInstallNotice } from './feature-install-notice';
 import { FeatureLinks } from './feature-links';
 import { FeatureModalActions } from './feature-modal-actions';
 import { FeaturePaid } from './feature-paid';
-import { getFeatureUnavailableReason } from './module-availability';
+import { getFeatureStatusLabel, getFeatureUnavailableReason } from './module-availability';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -96,6 +95,20 @@ type FeatureModalProps = {
 	onStep: ( slug: string ) => void;
 	onClose: () => void;
 };
+
+/**
+ * The details window's status badge style, matching the card's for a feature waiting for an account.
+ *
+ * @param state    - Live state for the feature.
+ * @param isActive - Whether the feature is running.
+ * @return The badge intent.
+ */
+function getModalStatusIntent( state: FeatureState, isActive: boolean ) {
+	if ( state.accountNeeded ) {
+		return 'none';
+	}
+	return isActive ? 'stable' : 'draft';
+}
 
 /**
  * The feature's details, shown over the grid rather than on a page of its own.
@@ -240,10 +253,8 @@ export function FeatureModal( {
 						<Stack direction="column" gap="xs" className={ styles[ 'modal-heading' ] }>
 							<Dialog.Title>{ feature.name }</Dialog.Title>
 							<Stack direction="row" align="center" gap="sm" wrap="wrap">
-								<Badge intent={ isActive ? 'stable' : 'draft' }>
-									{ unavailable
-										? __( 'Unavailable', 'jetpack-my-jetpack' )
-										: getActivationStatusLabel( isActive ) }
+								<Badge intent={ getModalStatusIntent( state, isActive ) }>
+									{ getFeatureStatusLabel( state ) }
 								</Badge>
 								{ feature.essential ? (
 									<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>

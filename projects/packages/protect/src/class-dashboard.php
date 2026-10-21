@@ -103,6 +103,7 @@ class Dashboard {
 	public static function init( array $menu_options = array() ) {
 		self::$menu_options = $menu_options;
 
+		add_action( 'admin_init', array( __CLASS__, 'maybe_redirect_threat_report' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		// Before Admin_Menu registers its items at 1000, and after the Protect plugin adds its own on `_admin_menu`.
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
@@ -315,6 +316,48 @@ class Dashboard {
 	public static function is_dashboard_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
 		return isset( $_GET['page'] ) && self::MENU_SLUG === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+	}
+
+	/**
+	 * Send a `&threats=` link, such as a threat email's, to the route that reads it.
+	 *
+	 * @return void
+	 */
+	public static function maybe_redirect_threat_report() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only redirects; nothing is changed.
+		$redirect = self::is_dashboard_request() ? self::get_threat_report_redirect( wp_unslash( $_GET ) ) : null;
+		if ( $redirect ) {
+			wp_safe_redirect( $redirect );
+			exit( 0 );
+		}
+	}
+
+	/**
+	 * The threat report URL for a request whose top-level `threats` param lists threat ids.
+	 *
+	 * The wp-build router reads search params only from inside `p`, so links name the ids at the top level instead.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $query The request's query args.
+	 * @return string|null The URL, or null when the request needs no redirect.
+	 */
+	public static function get_threat_report_redirect( array $query ) {
+		if ( isset( $query['p'] ) || ! isset( $query['threats'] ) || ! is_string( $query['threats'] ) ) {
+			return null;
+		}
+		// Drop any id that isn't all digits, as the client does, rather than merging what's left of it.
+		$ids = array_filter( array_map( 'trim', explode( ',', $query['threats'] ) ), 'ctype_digit' );
+		if ( ! $ids ) {
+			return null;
+		}
+		return add_query_arg(
+			array(
+				'page' => self::MENU_SLUG,
+				'p'    => rawurlencode( '/?threats=' . implode( ',', $ids ) ),
+			),
+			admin_url( 'admin.php' )
+		);
 	}
 
 	/**

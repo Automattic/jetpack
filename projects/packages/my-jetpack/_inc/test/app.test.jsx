@@ -5,6 +5,7 @@ import useMyJetpackConnection from '../hooks/use-my-jetpack-connection';
 
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '../hooks/use-my-jetpack-connection' );
+jest.mock( '../hooks/use-paid-menu-sync', () => ( { usePaidMenuSync: jest.fn() } ) );
 
 jest.mock( '../components/my-jetpack-screen', () => ( {
 	__esModule: true,
