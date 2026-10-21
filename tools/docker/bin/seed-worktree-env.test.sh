@@ -50,8 +50,8 @@ run() {
 	RUN_OUT="$( cd "$1" && ./tools/docker/bin/seed-worktree-env.sh 2>&1 )" && RUN_RC=0 || RUN_RC=$?
 }
 
-# listening PORT — does something accept connections on 127.0.0.1:PORT right now?
-listening() { ( : < "/dev/tcp/127.0.0.1/$1" ) 2>/dev/null; }
+# listening PORT — does something accept connections on localhost:PORT right now?
+listening() { ( : < "/dev/tcp/127.0.0.1/$1" ) 2>/dev/null || ( : < "/dev/tcp/::1/$1" ) 2>/dev/null; }
 # first_free PORT — the first port at or above PORT with no listener. The script skips busy
 # ports, so on a dev machine with 8080 taken the expected values move up with it.
 first_free() {
@@ -85,10 +85,10 @@ assert_absent "$PRIMARY/tools/docker/.env" 'COMPOSE_PROJECT_NAME' "primary .env 
 
 # --- a linked worktree seeds a unique name + base ports --------------------
 add_wt wt-a
+WP_A="$( first_free 8080 )"
 run "$TMP/wt-a"
 assert_rc zero "linked worktree seeds (exit 0)"
 assert_grep "$( env_of wt-a )" '^COMPOSE_PROJECT_NAME=jetpack_wt-a$' "name derives from the git worktree id"
-WP_A="$( first_free 8080 )"
 assert_grep "$( env_of wt-a )" "^PORT_WORDPRESS=${WP_A}\$"           "WordPress port lands on the first free port from 8080"
 
 # --- re-running is idempotent ----------------------------------------------
@@ -99,10 +99,11 @@ if [ "$( grep -c '^COMPOSE_PROJECT_NAME=' "$( env_of wt-a )" )" = 1 ]; then pass
 # --- name-only .env gets its ports backfilled around the sibling -----------
 add_wt wt-b
 printf 'COMPOSE_PROJECT_NAME=jetpack_beta\n' > "$( env_of wt-b )"
+WP_B="$( first_free $(( WP_A + 1 )) )"
 run "$TMP/wt-b"
 assert_rc zero "name-only .env backfills (exit 0)"
 assert_grep "$( env_of wt-b )" '^COMPOSE_PROJECT_NAME=jetpack_beta$' "hand-set name is kept"
-assert_grep "$( env_of wt-b )" "^PORT_WORDPRESS=$( first_free $(( WP_A + 1 )) )\$" "backfilled port avoids the sibling's port"
+assert_grep "$( env_of wt-b )" "^PORT_WORDPRESS=${WP_B}\$"           "backfilled port avoids the sibling's port"
 
 # --- a name a sibling already uses is refused (concern 1) ------------------
 add_wt wt-c
@@ -247,18 +248,23 @@ if command -v python3 >/dev/null 2>&1; then
 	python3 -c 'import socket, sys, time
 s = socket.socket()
 s.bind(("127.0.0.1", int(sys.argv[1])))
-s.listen(1)
+s.listen(16)
 time.sleep(30)' "$BUSY" &
 	LISTENER=$!
 	for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
 		listening "$BUSY" && break
 		sleep 0.25
 	done
-	run "$TMP/p3-wt"
+	if listening "$BUSY"; then
+		EXPECTED="$( first_free $(( BUSY + 1 )) )"
+		run "$TMP/p3-wt"
+		assert_rc zero "seeds beside a busy port (exit 0)"
+		assert_grep "$TMP/p3-wt/tools/docker/.env" "^PORT_WORDPRESS=${EXPECTED}\$" "busy port ${BUSY} is skipped for the next free one"
+	else
+		bad "test listener never came up on port ${BUSY}, so the busy-port case could not run"
+	fi
 	kill "$LISTENER" 2>/dev/null || true
 	wait "$LISTENER" 2>/dev/null || true
-	assert_rc zero "seeds beside a busy port (exit 0)"
-	assert_grep "$TMP/p3-wt/tools/docker/.env" "^PORT_WORDPRESS=$( first_free $(( BUSY + 1 )) )\$" "busy port ${BUSY} is skipped for the next free one"
 else
 	echo "  skip - python3 not found, so the busy-port case did not run"
 fi

@@ -16,7 +16,7 @@
 #   - a no-op in the primary checkout, which keeps using `jetpack_dev`.
 #
 # It skips ports recorded in other worktrees' .env files, the primary defaults, and any port that
-# already has a listener on 127.0.0.1. Known limitation (acceptable for a manual dev helper): it
+# already has a listener on localhost. Known limitation (acceptable for a manual dev helper): it
 # does not lock against another worktree seeding at the same instant. A genuine clash surfaces as
 # a `jp docker up` "address already in use" error; re-run after editing .env.
 #
@@ -57,10 +57,29 @@ is_claimed() {
 	esac
 }
 
-# Does something already accept connections on host port $1, such as another app or an SSH
-# tunnel? bash's own /dev/tcp needs no extra tool, and a closed localhost port refuses at once.
+# Is something already listening on localhost port $1, such as another app or an SSH tunnel?
+# A closed port refuses at once. A probe still waiting after about a second (a listener whose
+# accept queue is full can drop the connect) counts as busy rather than stalling the script.
 port_in_use() {
-	( : < "/dev/tcp/127.0.0.1/$1" ) 2>/dev/null
+	local host pid waited
+	for host in 127.0.0.1 ::1; do
+		( : < "/dev/tcp/$host/$1" ) 2>/dev/null &
+		pid=$!
+		waited=0
+		while kill -0 "$pid" 2>/dev/null; do
+			if [ "$waited" -ge 20 ]; then
+				kill "$pid" 2>/dev/null || true
+				wait "$pid" 2>/dev/null || true
+				return 0
+			fi
+			sleep 0.05
+			waited=$(( waited + 1 ))
+		done
+		if wait "$pid"; then
+			return 0
+		fi
+	done
+	return 1
 }
 
 # Reserve the first free port at or above $1 into CLAIMED and return it via ALLOCATED. Writing
