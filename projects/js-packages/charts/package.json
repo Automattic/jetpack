@@ -105,8 +105,8 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "^7.29.7",
-		"@storybook/addon-docs": "10.4.6",
-		"@storybook/react": "10.4.6",
+		"@storybook/addon-docs": "10.6.3",
+		"@storybook/react": "10.6.3",
 		"@testing-library/dom": "^10.0.0",
 		"@testing-library/jest-dom": "^6.0.0",
 		"@testing-library/react": "^16.0.0",
@@ -130,7 +130,7 @@
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
 		"sass-embedded": "1.97.3",
-		"storybook": "10.4.6",
+		"storybook": "10.6.3",
 		"tsdown": "0.23.1",
 		"typescript": "6.0.3"
 	},
