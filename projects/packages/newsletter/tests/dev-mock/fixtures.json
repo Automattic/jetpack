@@ -128,5 +128,16 @@
 				"complete": false
 			}
 		]
+	},
+	"/sites/\\d+/memberships/products$": {
+		"products": [
+			{
+				"id": 77,
+				"title": "Gold",
+				"currency": "USD",
+				"price": "5.00",
+				"interval": "1 month"
+			}
+		]
 	}
 }

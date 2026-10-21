@@ -92,12 +92,19 @@ function newsletter_dev_mock_wpcom_response( $response, $args, $url ) {
 				error_log( 'newsletter-dev-mock: fixtures.json is not valid JSON: ' . json_last_error_msg() );
 				$fixtures = array();
 			}
+			$compiled = array();
+			foreach ( $fixtures as $pattern => $fixture ) {
+				$regex = '#' . str_replace( '#', '\\#', $pattern ) . '#';
+				if ( false === preg_match( $regex, '' ) ) {
+					error_log( "newsletter-dev-mock: invalid pattern in fixtures.json: $pattern" );
+					continue;
+				}
+				$compiled[ $regex ] = $fixture;
+			}
+			$fixtures = $compiled;
 		}
-		foreach ( $fixtures as $pattern => $fixture ) {
-			$matched = preg_match( '#' . str_replace( '#', '\\#', $pattern ) . '#', $path );
-			if ( false === $matched ) {
-				error_log( "newsletter-dev-mock: invalid pattern in fixtures.json: $pattern" );
-			} elseif ( $matched ) {
+		foreach ( $fixtures as $regex => $fixture ) {
+			if ( preg_match( $regex, $path ) ) {
 				$body = $fixture;
 				break;
 			}
