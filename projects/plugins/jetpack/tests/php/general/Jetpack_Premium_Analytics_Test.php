@@ -14,8 +14,10 @@ require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
  * Tests for Jetpack::is_premium_analytics_enabled().
  *
  * @covers \Jetpack
+ * @covers \Jetpack_Stats_Feature_Flags
  */
 #[CoversClass( Jetpack::class )]
+#[CoversClass( Jetpack_Stats_Feature_Flags::class )]
 class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
