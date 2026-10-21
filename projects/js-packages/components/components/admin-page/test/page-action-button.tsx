@@ -31,18 +31,25 @@ describe( 'PageActionButton', () => {
 		expect( window.matchMedia ).toHaveBeenCalledWith( 'screen and (max-width: 480px)' );
 	} );
 
-	it( 'keeps focus when the screen crosses the breakpoint', () => {
+	it.each( [
+		[ 'the button', 'Run speed test' ],
+		[ 'another element', 'Other' ],
+	] )( 'keeps focus on %s when the screen crosses the breakpoint', ( _, focused ) => {
 		narrowScreen.matches = false;
-		render( <PageActionButton label="Run speed test" icon={ dashboard } /> );
-		act( () => screen.getByRole( 'button', { name: 'Run speed test' } ).focus() );
+		render(
+			<>
+				<button>Other</button>
+				<PageActionButton label="Run speed test" icon={ dashboard } />
+			</>
+		);
+		act( () => screen.getByRole( 'button', { name: focused } ).focus() );
 
 		act( () => {
 			narrowScreen.matches = true;
 			notifyChange();
 		} );
 
-		const button = screen.getByRole( 'button', { name: 'Run speed test' } );
-		expect( button ).toHaveTextContent( '' );
-		expect( button ).toHaveFocus();
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveTextContent( '' );
+		expect( screen.getByRole( 'button', { name: focused } ) ).toHaveFocus();
 	} );
 } );
