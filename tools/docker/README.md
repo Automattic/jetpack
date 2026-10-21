@@ -427,7 +427,7 @@ To set up Jurassic Tube and establish a tunnel to your local machine, follow the
 
 ### PHP version requirement
 
-`jetpack docker jt-up` refuses to open a tunnel when the PHP version in the running WordPress container is older than `MIN_PHP_VERSION_TUNNEL` in `.github/versions.sh`.
+`jetpack docker jt-up` refuses to open a tunnel when the PHP version in the running WordPress container is not on the latest point release of its branch, as listed in `MIN_PHP_VERSION_TUNNEL` in `.github/versions.sh`.
 
 ### Recommended Proxy Configuration
 

@@ -41,6 +41,7 @@ const {
 	shouldManageParallelEnv,
 	PARALLEL_ENV_KEYS,
 	isVersionAtLeast,
+	meetsBranchMinimums,
 } = await import( '../../../commands/docker.js' );
 
 /**
@@ -664,5 +665,20 @@ describe( 'isVersionAtLeast', () => {
 		[ '8.10.0', '8.2', true ],
 	] )( '%s vs %s -> %s', ( version, minimum, expected ) => {
 		expect( isVersionAtLeast( version, minimum ) ).toBe( expected );
+	} );
+} );
+
+describe( 'meetsBranchMinimums', () => {
+	const minimums = '7.4.33 8.0.30 8.1.34 8.2.34 8.3.35 8.4.26 8.5.11';
+	it.each( [
+		[ '8.3.35', true ],
+		[ '8.3.20', false ],
+		[ '8.2.34', true ],
+		[ '7.4.33', true ],
+		[ '7.4.30', false ],
+		[ '7.3.33', false ],
+		[ '8.6.0', true ],
+	] )( '%s -> %s', ( version, expected ) => {
+		expect( meetsBranchMinimums( version, minimums ) ).toBe( expected );
 	} );
 } );

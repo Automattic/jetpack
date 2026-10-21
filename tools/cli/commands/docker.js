@@ -1090,6 +1090,23 @@ export const isVersionAtLeast = ( version, minimum ) => {
 };
 
 /**
+ * Checks a version against space-separated per-branch minimums, e.g. "8.2.34 8.3.35".
+ *
+ * @param {string} version - Version to check.
+ * @param {string} minimums - Minimum release for each allowed branch.
+ * @return {boolean} True if the version is allowed.
+ */
+export const meetsBranchMinimums = ( version, minimums ) => {
+	const list = String( minimums ).split( /\s+/ ).filter( Boolean );
+	const branch = String( version ).split( '.' ).slice( 0, 2 ).join( '.' );
+	const same = list.find( m => m.split( '.' ).slice( 0, 2 ).join( '.' ) === branch );
+	if ( same ) {
+		return isVersionAtLeast( version, same );
+	}
+	return list.every( m => isVersionAtLeast( version, m ) );
+};
+
+/**
  * Exits unless the running WordPress container's PHP meets the tunnel minimum.
  *
  * @param {object} argv - Yargs object
@@ -1129,10 +1146,10 @@ const assertTunnelPhpVersion = argv => {
 		process.exit( 1 );
 	}
 
-	if ( ! isVersionAtLeast( version, minimum ) ) {
+	if ( ! meetsBranchMinimums( version, minimum ) ) {
 		console.error(
 			chalk.red(
-				`Refusing to open a tunnel: the container runs PHP ${ version }, but PHP ${ minimum } or newer is required (MIN_PHP_VERSION_TUNNEL in .github/versions.sh).`
+				`Refusing to open a tunnel: the container runs PHP ${ version }, but one of PHP ${ minimum.split( /\s+/ ).join( ', ' ) } or newer in its branch is required (MIN_PHP_VERSION_TUNNEL in .github/versions.sh).`
 			)
 		);
 		process.exit( 1 );
