@@ -404,47 +404,6 @@ const isProjectRunning = project => {
 };
 
 /**
- * Pulls the dev image at most once a day, as tools/docker/bin/monorepo does for its image.
- */
-const refreshDevImage = () => {
-	const image = 'automattic/jetpack-wordpress-dev:latest';
-	const stampFile = `${ dockerFolder }/data/.wordpress-image-check`;
-	if ( process.env.FORCE_PULL !== '1' ) {
-		try {
-			if ( Date.now() - fs.statSync( stampFile ).mtimeMs < 86400000 ) {
-				return;
-			}
-		} catch {
-			// No stamp yet.
-		}
-	}
-
-	const inspect = spawnSync(
-		'docker',
-		[
-			'image',
-			'inspect',
-			'--format',
-			'{{index .Config.Labels "org.opencontainers.image.revision"}}',
-			image,
-		],
-		{ encoding: 'utf8' }
-	);
-	// Missing: compose pulls it anyway. No CI revision label: built locally, and a pull would replace it.
-	if ( inspect.status !== 0 || ! inspect.stdout.trim() ) {
-		return;
-	}
-
-	console.log( chalk.cyan( `Checking for an updated ${ image }...` ) );
-	if ( spawnSync( 'docker', [ 'pull', image ], { stdio: 'inherit' } ).status !== 0 ) {
-		console.warn( chalk.yellow( `Could not pull ${ image }. Using the local copy.` ) );
-		return;
-	}
-	fs.mkdirSync( `${ dockerFolder }/data`, { recursive: true } );
-	fs.writeFileSync( stampFile, '' );
-};
-
-/**
  * Pipe `wp db export` from a source container into `wp db import` on a target container,
  * surfacing failures from either side independently.
  *
@@ -894,10 +853,6 @@ const defaultDockerCmdHandler = async argv => {
 
 	executor( argv, setEnv );
 	executor( argv, setConfig );
-
-	if ( argv._[ 1 ] === 'up' ) {
-		refreshDevImage();
-	}
 
 	const opts = buildDefaultCmd( argv );
 	const envOpts = buildEnv( argv );
