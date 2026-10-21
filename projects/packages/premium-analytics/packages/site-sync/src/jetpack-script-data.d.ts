@@ -50,6 +50,8 @@ declare module '@automattic/jetpack-script-data' {
 						open_widget_types: string[];
 					}
 				>;
+				// The paid plan offer the banner shows, or null when the site does not qualify (see docs/dashboard-widgets.md). The URL is empty when there is nowhere to buy it, and `has_stats_product` says whether the site has the free Jetpack Stats product.
+				free_site_upgrade?: { upgrade_url: string; has_stats_product: boolean } | null;
 			};
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
 			purchase_success?: { type: 'paid' | 'free' };
