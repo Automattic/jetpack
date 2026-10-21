@@ -93,6 +93,16 @@ describe( 'toRouteTarget', () => {
 			{ to: '/reports/referrers', search: { from: '2026-03-01', comp: '1' } },
 		],
 		[ 'a bare number as a number', '/posts?author=12', { to: '/posts', search: { author: 12 } } ],
+		[
+			'a decimal as the number the router reads',
+			'/posts?rate=1.0',
+			{ to: '/posts', search: { rate: 1 } },
+		],
+		[
+			'an exponent as the number the router reads',
+			'/posts?n=1e3',
+			{ to: '/posts', search: { n: 1000 } },
+		],
 	] )( 'hands the router %s', ( _, path, expected ) => {
 		expect( toRouteTarget( path ) ).toEqual( expected );
 	} );
