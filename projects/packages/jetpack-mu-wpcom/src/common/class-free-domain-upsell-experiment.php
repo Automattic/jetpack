@@ -14,7 +14,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Free_Domain_Upsell_Experiment {
 
-	const EXPERIMENT_NAME = 'calypso_omnibar_free_domain_upsell_test';
+	const EXPERIMENT_NAME = 'calypso_omnibar_upsell_202610';
 
 	/**
 	 * Which sidebar JITM the current user/site would qualify for, or null.
