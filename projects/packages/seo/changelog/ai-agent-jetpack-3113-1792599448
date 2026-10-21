@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: changed
+Comment: Keep the SEO menu item in the sidebar when the seo-tools module is off. The new SEO page is gated.
 
-Keep the SEO menu item in the sidebar even when the seo-tools module is off, so the module can be turned back on from the page.
