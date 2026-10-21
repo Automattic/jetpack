@@ -834,6 +834,21 @@ export const ComparisonMulti: Story = {
 	},
 };
 
+const GAPS_BY_SERIES: Record< string, Record< string, number | null > > = {
+	Views: { Wed: null },
+	Visitors: { Wed: null, Sat: 0 },
+	'Previous views': { Tue: null, Fri: 0 },
+	'Previous visitors': { Tue: null, Fri: 0 },
+};
+
+const weeklyComparisonWithGaps = weeklyComparisonData.map( series => ( {
+	...series,
+	data: series.data.map( point => {
+		const gaps = GAPS_BY_SERIES[ series.label ] ?? {};
+		return point.label in gaps ? { ...point, value: gaps[ point.label ] } : point;
+	} ),
+} ) );
+
 export const ComparisonMultiOverlap: Story = {
 	args: {
 		...Default.args,
@@ -841,7 +856,8 @@ export const ComparisonMultiOverlap: Story = {
 		showLegend: true,
 		legendInteractive: true,
 		legendCollapseGroups: true,
-		data: weeklyComparisonData,
+		showZeroValues: true,
+		data: weeklyComparisonWithGaps,
 	},
 	render: args => (
 		<BarChart
@@ -853,7 +869,7 @@ export const ComparisonMultiOverlap: Story = {
 		docs: {
 			description: {
 				story:
-					'`layout="overlap"` with two groups. Views and Visitors share the current period\'s slot, with Visitors as the narrower bar in front; Previous views and Previous visitors share the slot beside it. Each slot is toned from its palette color so every bar keeps 3:1 contrast against the background or the bar behind it, and the legend swatches match. With `legend.collapseGroups` each group is one legend item, so hiding Visitors hides Previous visitors too; the other bars keep their slots and widths. `legend.comparisonItem` names the comparison slot with one static item, in the color of its back bar. Turn the `legendCollapseGroups` control off to list each series alone, in slot order. Arrow keys step one slot at a time.',
+					'`layout="overlap"` with two groups. Views and Visitors share the current period\'s slot, with Visitors as the narrower bar in front; Previous views and Previous visitors share the slot beside it. Each slot is toned from its palette color so every bar keeps 3:1 contrast against the background or the bar behind it, and the legend swatches match. With `legend.collapseGroups` each group is one legend item, so hiding Visitors hides Previous visitors too; the other bars keep their slots and widths. `legend.comparisonItem` names the comparison slot with one static item, in the color of its back bar. Turn the `legendCollapseGroups` control off to list each series alone, in slot order. Arrow keys step one slot at a time. Some days have gaps: Wednesday has no current reading and Tuesday no previous one, so those slots draw nothing and their tooltips read "No data". Saturday\'s current visitors and Friday\'s previous period are real zeros, drawn as stubs with `showZeroValues`.',
 			},
 		},
 	},
