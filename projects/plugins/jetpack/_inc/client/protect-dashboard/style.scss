@@ -1,0 +1,329 @@
+@use "sass:meta";
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// DataViews ships its table styles separately; the reused Scan list needs them.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+// Same content column as the Jetpack AI page (708px wrapper, 24px gutters).
+$column: 660px;
+$gutter: 24px;
+
+body.jetpack_page_jetpack-protect-spike {
+
+	@include jetpack-admin-page-layout;
+}
+
+.jp-protect-dashboard__panel {
+	box-sizing: border-box;
+	max-inline-size: $column + 2 * $gutter;
+	margin-inline: auto;
+	padding: $gutter;
+
+	// The DataViews variant uses the full page width.
+	&.is-wide {
+		max-inline-size: none;
+	}
+}
+
+.jp-protect-dashboard__boxes {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.jp-protect-dashboard__section-title {
+	margin-block: 32px 16px;
+	font-size: 16px;
+}
+
+.jp-protect-box {
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.jp-protect-box__header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 20px 24px;
+}
+
+.jp-protect-box__icon {
+	flex-shrink: 0;
+	fill: currentColor;
+}
+
+.jp-protect-box__title {
+	margin: 0;
+	font-size: 18px;
+	font-weight: 400;
+}
+
+.jp-protect-box__badge {
+	color: #757575;
+	font-size: 14px;
+}
+
+.jp-protect-box__toggle {
+	margin-inline-start: auto;
+}
+
+.jp-protect-box__description {
+	margin: 0;
+	padding: 0 24px 20px;
+	border-block-end: 1px solid #f0f0f0;
+	font-size: 14px;
+}
+
+.jp-protect-box__row {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 20px 24px;
+
+	& + & {
+		border-block-start: 1px solid #f0f0f0;
+	}
+}
+
+.jp-protect-box__row-extra {
+	padding-inline-start: 52px;
+}
+
+.jp-protect-box__actions {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.jp-protect-box__stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+	gap: 12px;
+}
+
+.jp-protect-box__stat {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 12px 16px;
+	border-radius: 6px;
+	background: #f6f7f7;
+
+	&.is-ok .jp-protect-box__stat-value {
+		color: #008710;
+	}
+
+	&.is-warning .jp-protect-box__stat-value {
+		color: #d63638;
+	}
+}
+
+.jp-protect-box__stat-value {
+	font-size: 18px;
+	font-weight: 500;
+}
+
+.jp-protect-box__stat-label {
+	color: #757575;
+	font-size: 12px;
+}
+
+.jp-protect-box__row > .components-button {
+	align-self: flex-start;
+}
+
+.jp-protect-status {
+	display: flex;
+	gap: 24px;
+	align-items: flex-start;
+	box-sizing: border-box;
+
+	// Room for a two-line message, so switching state doesn't push the page down.
+	min-block-size: 160px;
+	padding: 32px;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.jp-protect-status__shield {
+	flex-shrink: 0;
+	inline-size: 48px;
+	block-size: 56px;
+}
+
+.jp-protect-status__content {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+}
+
+.jp-protect-status__title {
+	margin: 0;
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.jp-protect-status__body {
+	margin: 0;
+	font-size: 15px;
+	line-height: 1.6;
+}
+
+.jp-protect-threats {
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	background: #fff;
+
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+}
+
+.jp-protect-threats__header,
+.jp-protect-threat__summary.components-button {
+	display: grid;
+	grid-template-columns: 96px 1fr 24px;
+	gap: 16px;
+	align-items: center;
+	box-sizing: border-box;
+	inline-size: 100%;
+	padding: 16px 20px;
+	text-align: start;
+
+	.has-fix & {
+		grid-template-columns: 96px 1fr auto 24px;
+	}
+}
+
+.jp-protect-threats__header {
+	border-block-end: 1px solid #f0f0f0;
+	color: #757575;
+}
+
+.jp-protect-threat + .jp-protect-threat {
+	border-block-start: 1px solid #f0f0f0;
+}
+
+.jp-protect-threat__summary.components-button {
+	block-size: auto;
+	border-radius: 0;
+	color: inherit;
+
+	&:hover:not(:disabled) {
+		color: inherit;
+		background: #f6f7f7;
+	}
+}
+
+.jp-protect-threat__details {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+}
+
+.jp-protect-threat__title {
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.jp-protect-threat__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	color: #757575;
+}
+
+.jp-protect-threat__fixed-on {
+	color: #008710;
+}
+
+.jp-protect-threat__severity {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 500;
+
+	&.is-critical {
+		background: #facfd2;
+		color: #8a2424;
+	}
+
+	&.is-high {
+		background: #f5e6b3;
+		color: #614200;
+	}
+
+	&.is-low {
+		background: #f0f0f0;
+		color: #50575e;
+	}
+}
+
+.jp-protect-threat__status {
+	padding: 2px 10px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+
+	&.is-fixed {
+		background: #008710;
+		color: #fff;
+	}
+
+	&.is-ignored {
+		background: #50575e;
+		color: #fff;
+	}
+}
+
+.jp-protect-threat__body {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 8px 20px 24px calc(96px + 16px + 20px);
+
+	h3 {
+		margin: 0;
+		font-size: 14px;
+	}
+
+	p {
+		margin: 0;
+	}
+}
+
+.jp-protect-threat__actions {
+	display: flex;
+	gap: 8px;
+}
+
+.jp-protect-history__intro {
+	margin: 0;
+	font-size: 14px;
+}
+
+.jp-protect-history__filters {
+	display: flex;
+	justify-content: center;
+
+	.components-button {
+		border-radius: 0;
+	}
+}
+
+.jp-protect-history__empty {
+	margin: 0;
+	color: #757575;
+	text-align: center;
+}

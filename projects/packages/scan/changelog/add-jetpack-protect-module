@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Allow the active threats and history lists to limit their DataViews layouts.

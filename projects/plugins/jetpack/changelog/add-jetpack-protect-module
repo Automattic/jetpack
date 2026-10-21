@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Protect: Add an exploratory alternative Protect dashboard as its own module, for comparison with the Protect page.
