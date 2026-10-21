@@ -219,9 +219,8 @@ describe( 'known threats on the Restore screen', () => {
 		await user.unhover( confirm );
 
 		const toggle = view.getByRole( 'button', { name: 'Show threats' } );
-		// The badge sits beside the toggle and is never a control itself.
-		expect( view.getByText( 'Known threats (2)' ) ).toBeVisible();
-		expect( view.queryByRole( 'button', { name: /Known threats/ } ) ).not.toBeInTheDocument();
+		// The warning already says how many threats there are, so no badge repeats it.
+		expect( view.queryByText( 'Known threats (2)' ) ).not.toBeInTheDocument();
 		expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
 		await user.click( toggle );
 		expect( toggle ).toHaveAttribute( 'aria-expanded', 'true' );

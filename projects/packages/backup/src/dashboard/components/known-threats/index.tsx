@@ -1,9 +1,10 @@
 import { useInstanceId } from '@wordpress/compose';
 import { Fragment, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
+import { chevronDown, chevronUp } from '@wordpress/icons';
 import { Link as RouterLink } from '@wordpress/route';
 import {
+	Button,
 	CheckboxControl,
 	Collapsible,
 	Link,
@@ -15,7 +16,6 @@ import {
 import { announce, cancelAnnouncement } from '../../data/announce';
 import { parseRestoreWhen } from '../../data/api/restore';
 import { formatDate, formatDateTime } from '../../data/date-format';
-import { KnownThreatsBadge } from './badge';
 import './style.scss';
 import type { KnownThreat, KnownThreats } from '../../data/api/known-threats';
 
@@ -209,21 +209,14 @@ export default function KnownThreatsWarning( {
 				{ flagged > 0 && ( rows.length > 0 || vulnerable > 0 ) && (
 					<Notice.Description render={ <div /> }>
 						<Collapsible.Root open={ open } onOpenChange={ setOpen }>
-							<div className="jpb-known-threats__summary">
-								<KnownThreatsBadge count={ flagged } />
-								{ /* A link's look, a button's role: it shows and hides the list below. */ }
-								<Collapsible.Trigger
-									render={ <Link tone="neutral" render={ <button type="button" /> } /> }
-									className="jpb-known-threats__toggle"
-								>
-									<span className="jpb-known-threats__toggle-label">
-										{ open
-											? __( 'Hide threats', 'jetpack-backup-pkg' )
-											: __( 'Show threats', 'jetpack-backup-pkg' ) }
-									</span>
-									<Icon icon={ open ? chevronUp : chevronDown } size={ 20 } />
-								</Collapsible.Trigger>
-							</div>
+							<Collapsible.Trigger
+								render={ <Button variant="outline" tone="neutral" size="compact" /> }
+							>
+								{ open
+									? __( 'Hide threats', 'jetpack-backup-pkg' )
+									: __( 'Show threats', 'jetpack-backup-pkg' ) }
+								<Button.Icon icon={ open ? chevronUp : chevronDown } />
+							</Collapsible.Trigger>
 							<Collapsible.Panel className="jpb-known-threats__panel">
 								{ rows.length > 0 && (
 									<ul

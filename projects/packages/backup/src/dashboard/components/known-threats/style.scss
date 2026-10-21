@@ -3,37 +3,6 @@
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-md);
 
-	&__summary {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--wpds-dimension-gap-sm);
-	}
-
-	// A link's look on a button: drop the browser's button chrome.
-	&__toggle {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--wpds-dimension-gap-xs);
-		padding: 0;
-		border: 0;
-		background: none;
-		font: inherit;
-		cursor: pointer;
-
-		svg {
-			flex-shrink: 0;
-			fill: currentColor;
-		}
-	}
-
-	// Link's underline only reaches anchors, so the label takes it here.
-	&__toggle-label {
-		text-decoration: underline;
-		text-decoration-thickness: from-font;
-		text-underline-offset: 0.2em;
-	}
-
 	&__panel {
 		display: flex;
 		flex-direction: column;
