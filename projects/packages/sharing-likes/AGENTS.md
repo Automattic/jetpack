@@ -69,8 +69,9 @@ the lists again without it.
 
 In `BLOCK_CALL_TO_ACTION`, `TemplatePlacements` replaces the Site Editor link with
 two cards per section, saving the template placements (see "Template placements"
-below). Each save sends the whole list, so ticking one card replaces the other. It
-falls back to the Site Editor link only where `settings` does not offer the key.
+below). Each save sends a one-item list, or an empty one, so ticking one card
+unticks the other. It falls back to the Site Editor link only where `settings` does
+not offer the key and no write is pending; while one is, the cards show disabled.
 
 ## Per-post switches
 
