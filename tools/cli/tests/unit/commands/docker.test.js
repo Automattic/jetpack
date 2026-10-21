@@ -94,7 +94,10 @@ const makeMockProc = ( { exitCode = 0, stdoutData = '', error = null } = {} ) =>
 	return proc;
 };
 
+// shellExecutor layers process.env over the compose env, so a value exported in the shell leaks in.
+const exportedProjectName = process.env.COMPOSE_PROJECT_NAME;
 beforeEach( () => {
+	delete process.env.COMPOSE_PROJECT_NAME;
 	fsStub.readFileSync.mockReset();
 	fsStub.writeFileSync.mockReset();
 	fsStub.appendFileSync.mockReset();
@@ -104,6 +107,12 @@ beforeEach( () => {
 	cpStub.spawn.mockReset();
 	cpStub.spawnSync.mockReset();
 	cpStub.spawnSync.mockReturnValue( { status: 0, stdout: '', stderr: '' } );
+} );
+
+afterAll( () => {
+	if ( exportedProjectName !== undefined ) {
+		process.env.COMPOSE_PROJECT_NAME = exportedProjectName;
+	}
 } );
 
 describe( 'getProjectName', () => {
@@ -909,24 +918,33 @@ describe( 'cleanCmdHandler', () => {
 		] );
 	} );
 
-	test( 'names the exported COMPOSE_PROJECT_NAME that compose will act on', async () => {
-		process.env.COMPOSE_PROJECT_NAME = 'jetpack_exported';
-		try {
-			await cleanCmdHandler( {
-				_: [ 'docker', 'clean' ],
-				type: 'dev',
-				name: 'feature',
-				yes: true,
-			} );
-		} finally {
-			delete process.env.COMPOSE_PROJECT_NAME;
-		}
+	test.each( [ [ 'jetpack_exported' ], [ '' ] ] )(
+		'refuses when COMPOSE_PROJECT_NAME is exported as %p, which compose would act on instead',
+		async exported => {
+			process.env.COMPOSE_PROJECT_NAME = exported;
 
-		const announced = console.log.mock.calls.flat().join( '\n' );
-		expect( announced ).toContain( 'jetpack_exported' );
-		expect( announced ).not.toContain( 'jetpack_feature' );
-		expect( composeCalls()[ 0 ][ 2 ].env.COMPOSE_PROJECT_NAME ).toBe( 'jetpack_exported' );
-		expect( rmCalls()[ 0 ][ 1 ] ).toContain( 'tools/docker/data/jetpack_exported_mysql/' );
+			await expect(
+				cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', name: 'feature', yes: true } )
+			).rejects.toThrow( 'EXIT:1' );
+
+			expect( composeCalls() ).toHaveLength( 0 );
+			expect( rmCalls() ).toHaveLength( 0 );
+		}
+	);
+
+	test( 'removes nothing when `compose down -v` fails', async () => {
+		cpStub.spawnSync.mockImplementation( ( cmd, args ) => ( {
+			status: cmd === 'docker' && args?.includes( 'down' ) ? 1 : 0,
+			stdout: '',
+			stderr: '',
+		} ) );
+
+		await expect(
+			cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', yes: true } )
+		).rejects.toThrow( 'EXIT:1' );
+
+		expect( composeCalls() ).toHaveLength( 1 );
+		expect( rmCalls() ).toHaveLength( 0 );
 	} );
 
 	test( 'refuses and exits non-zero without a TTY and without --yes', async () => {

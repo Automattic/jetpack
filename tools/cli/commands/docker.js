@@ -1189,8 +1189,17 @@ export const cleanCmdHandler = async argv => {
 	// another's paths. Idempotent, so the second call is a no-op.
 	applyParallelEnv( argv );
 
-	// shellExecutor lets an exported COMPOSE_PROJECT_NAME win, so name what compose will tear down.
-	const project = process.env.COMPOSE_PROJECT_NAME || getProjectName( argv );
+	const project = getProjectName( argv );
+	// shellExecutor lets an exported COMPOSE_PROJECT_NAME win, so compose would tear down that one.
+	const exported = process.env.COMPOSE_PROJECT_NAME;
+	if ( exported !== undefined && exported !== project ) {
+		console.error(
+			chalk.red(
+				`COMPOSE_PROJECT_NAME is exported as '${ exported }', but 'clean' resolved '${ project }', so nothing was removed. Unset it or make the two match.`
+			)
+		);
+		process.exit( 1 );
+	}
 	// `wordpress/` and `wordpress-develop/` are shared by every instance rather than
 	// per-project, which is why the plan lists them. The glob is expanded by `shell: true`.
 	const paths = [
