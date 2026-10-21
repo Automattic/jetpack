@@ -25,6 +25,12 @@ export async function checkAnalyticsEnabled() {
 			return false;
 		}
 
+		// Nobody can answer without a terminal (a script, an agent, `jp` piping into Docker), and
+		// the prompt would hang or exit. Skip it unsaved, so the next interactive run still asks.
+		if ( ! process.stdin.isTTY ) {
+			return false;
+		}
+
 		const prompt = await enquirer.prompt( [
 			{
 				type: 'confirm',
