@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, key, shield } from '@wordpress/icons';
 import gauge from '../../sections/monitor/icon';
 import { SafeShield } from '../../sections/scan/safe-state';
-import ScanArt, { SCAN_ART_VARIANTS, type ScanArtVariant } from './scan-art';
+import ScanArt from './scan-art';
 import './style.scss';
 import type { ReactElement, ReactNode } from 'react';
 
@@ -55,10 +55,9 @@ const getBundledFeatures = () => [
 /**
  * The guide's pages: the new dashboard, Scan, then what's now bundled in.
  *
- * @param scanArt - Which Scan header exploration to show.
  * @return The pages, translated at render time.
  */
-const getPages = ( scanArt: ScanArtVariant ): WelcomePage[] => [
+const getPages = (): WelcomePage[] => [
 	{
 		art: (
 			<span className="jp-protect-welcome__art-badge">
@@ -72,7 +71,7 @@ const getPages = ( scanArt: ScanArtVariant ): WelcomePage[] => [
 		),
 	},
 	{
-		art: <ScanArt variant={ scanArt } />,
+		art: <ScanArt />,
 		title: __( 'Scan for threats', 'jetpack-protect-pkg' ),
 		body: __(
 			'Every day we check WordPress, your plugins and themes against a database of known vulnerabilities, and show you how to fix what we find.',
@@ -118,12 +117,6 @@ export default function WelcomeModal(): ReactElement | null {
 			new URLSearchParams( window.location.search ).get( 'welcome' ) === '1' || ! hasSeenWelcome()
 	);
 
-	// Exploration switch: `&scan_art=radar` etc. picks the Scan page's header.
-	const [ scanArt ] = useState( () => {
-		const requested = new URLSearchParams( window.location.search ).get( 'scan_art' );
-		return SCAN_ART_VARIANTS.find( variant => variant === requested ) ?? SCAN_ART_VARIANTS[ 0 ];
-	} );
-
 	const dismiss = useCallback( () => {
 		saveDismissal();
 		setIsOpen( false );
@@ -139,7 +132,7 @@ export default function WelcomeModal(): ReactElement | null {
 			contentLabel={ __( 'Welcome to Protect', 'jetpack-protect-pkg' ) }
 			finishButtonText={ __( 'Get started', 'jetpack-protect-pkg' ) }
 			onFinish={ dismiss }
-			pages={ getPages( scanArt ).map( ( page, index ) => ( {
+			pages={ getPages().map( ( page, index ) => ( {
 				image: (
 					<div
 						className={ `jp-protect-welcome__art jp-protect-welcome__art--${ index + 1 }` }
