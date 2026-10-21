@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { tailor } from './tailor.ts';
+import { setTracksContext, trackWizardBypassed } from './tracks.ts';
 import type { SiteCopy, TailorResult, WizardInput } from './types.ts';
 import type { LaunchpadData } from '../tailored-list/model.ts';
 
@@ -7,20 +8,38 @@ const ENDPOINT = '/wpcom/v2/ai-launchpad';
 const CLAIM_PATH = `${ ENDPOINT }/auto-tailor-claim`;
 
 /**
+ * Free this load's claim on the automatic tailoring run.
+ *
+ * @param token - The claim's token, from the read that won it.
+ */
+export function releaseClaim( token: string ): void {
+	apiFetch( {
+		path: `${ CLAIM_PATH }?token=${ encodeURIComponent( token ) }`,
+		method: 'DELETE',
+		keepalive: true,
+	} ).catch( () => {} );
+}
+
+/**
  * Free the automatic tailoring run if the page is left before it settles, so the next load
  * tailors without waiting out the claim.
  *
  * @param tailoring - The run this load claimed.
+ * @param token     - The claim's token.
  * @return The same run.
  */
 export function releaseClaimOnLeave< T extends { saveError?: unknown } >(
-	tailoring: Promise< T >
+	tailoring: Promise< T >,
+	token: string
 ): Promise< T > {
 	if ( typeof window === 'undefined' ) {
 		return tailoring;
 	}
-	const release = () => {
-		apiFetch( { path: CLAIM_PATH, method: 'DELETE', keepalive: true } ).catch( () => {} );
+	const release = ( event: PageTransitionEvent ) => {
+		// A page kept in the back/forward cache may resume and finish tailoring.
+		if ( ! event.persisted ) {
+			releaseClaim( token );
+		}
 	};
 	window.addEventListener( 'pagehide', release );
 	// Stay attached after a failed save: the server ignores the release once a list exists.
@@ -39,6 +58,26 @@ export interface WaitOptions {
 	intervalMs?: number;
 	maxPolls?: number;
 	onTimeout?: () => void;
+}
+
+/**
+ * Tailor an AI-built site without the wizard, recording the bypass.
+ *
+ * @param input    - The input from buildAutoInput().
+ * @param copy     - The site copy to tailor with.
+ * @param token    - The claim's token.
+ * @param tailorFn - The tailoring function.
+ * @return The tailoring run.
+ */
+export function startAutoTailor(
+	input: WizardInput,
+	copy: SiteCopy,
+	token: string,
+	tailorFn: typeof tailor = tailor
+): Promise< TailorResult > {
+	setTracksContext( { goal: input.goal } );
+	trackWizardBypassed( { reason: 'ai_builder' } );
+	return releaseClaimOnLeave( tailorFn( input, copy, true ), token );
 }
 
 /**
@@ -96,7 +135,7 @@ export async function waitForTailoring(
 		}
 		const input = buildAutoInput( data );
 		if ( input ) {
-			return releaseClaimOnLeave( tailorFn( input, copy, true ) );
+			return startAutoTailor( input, copy, data.auto_tailor_token ?? '', tailorFn );
 		}
 		if ( ! data.auto_tailoring ) {
 			// Nothing is pending anymore (dismissed elsewhere, or no claimable spec).

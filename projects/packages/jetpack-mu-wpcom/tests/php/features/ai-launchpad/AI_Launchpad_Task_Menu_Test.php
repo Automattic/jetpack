@@ -84,11 +84,12 @@ class AI_Launchpad_Task_Menu_Test extends \WorDBless\BaseTestCase {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local package file.
 		$source = file_get_contents( $path );
 		$this->assertIsString( $source );
-		$this->assertSame( 1, preg_match( '/AI_BUILT_GOAL_TASK_IDS[^=]*=\s*\{(.*?)^\};/ms', $source, $block ), 'Could not parse AI_BUILT_GOAL_TASK_IDS from fallback.ts.' );
-		preg_match_all( "/'([a-z0-9_]+)'/", $block[1], $ids );
-		$this->assertNotEmpty( $ids[1] );
+		$this->assertSame( 1, preg_match( '/\bAI_BUILT_GOAL_TASK_IDS\b[^=]*=\s*\{(.*?)\}\s*;/s', $source, $block ), 'Could not parse AI_BUILT_GOAL_TASK_IDS from fallback.ts.' );
+		// Quoted strings not followed by a colon, so quoted goal keys are skipped.
+		preg_match_all( '/([\'"])([a-z0-9_]+)\1(?!\s*:)/', $block[1], $ids );
+		$this->assertNotEmpty( $ids[2], 'Could not parse any task id from AI_BUILT_GOAL_TASK_IDS.' );
 
-		$this->assertSame( array(), array_values( array_intersect( $ids[1], AI_Launchpad_REST::AI_BUILT_EXCLUDED_TASK_IDS ) ) );
+		$this->assertSame( array(), array_values( array_intersect( $ids[2], AI_Launchpad_REST::AI_BUILT_EXCLUDED_TASK_IDS ) ) );
 	}
 
 	/**

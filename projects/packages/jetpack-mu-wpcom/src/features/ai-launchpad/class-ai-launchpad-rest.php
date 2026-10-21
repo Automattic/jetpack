@@ -340,6 +340,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'release_auto_tailor_claim' ),
 					'permission_callback' => array( $this, 'can_write' ),
+					'args'                => array(
+						'token' => array(
+							'description' => 'The token the claiming read returned, so only that load can release its claim.',
+							'type'        => 'string',
+							'required'    => true,
+						),
+					),
 				),
 			)
 		);
@@ -622,11 +629,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		$inferred_input = null;
 		$auto_tailoring = false;
+		$claim_token    = null;
 		$auto_tailor    = $request instanceof WP_REST_Request && $request->get_param( 'auto_tailor' );
 		if ( $shows_wizard && $auto_tailor && current_user_can( 'manage_options' ) ) {
 			$builder_input = wpcom_ai_launchpad_builder_input();
 			if ( null !== $builder_input ) {
-				if ( $this->claim_auto_tailoring() ) {
+				$claim_token = $this->claim_auto_tailoring();
+				if ( null !== $claim_token ) {
 					$inferred_input = $this->adopt_builder_input( $builder_input );
 					$wizard         = get_option( self::OPTION_WIZARD );
 				} else {
@@ -650,6 +659,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'inferred_input'     => $inferred_input,
 			// Another load is tailoring this site right now, so this one waits for its list.
 			'auto_tailoring'     => $auto_tailoring,
+			// Proves ownership of the claim when this load releases it.
+			'auto_tailor_token'  => $claim_token,
 			// The language this request is translated into, which is the reader's own. Task subtitles
 			// follow it, since they are read here and never published.
 			'user_language'      => determine_locale(),
@@ -1442,18 +1453,26 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	/**
 	 * Frees the automatic tailoring run a leaving load had claimed, so the next load tailors without waiting.
 	 *
+	 * @param WP_REST_Request $request The request, carrying the claim's token.
 	 * @return array
 	 */
-	public function release_auto_tailor_claim() {
-		$released = ! is_array( get_option( self::OPTION_AI_OUTPUT ) ) && delete_option( self::OPTION_AUTO_TAILOR_CLAIM );
+	public function release_auto_tailor_claim( $request ) {
+		$claim    = (string) get_option( self::OPTION_AUTO_TAILOR_CLAIM );
+		$parts    = explode( ':', $claim, 2 );
+		$token    = (string) $request->get_param( 'token' );
+		$released = '' !== $token
+			&& isset( $parts[1] )
+			&& hash_equals( $parts[1], $token )
+			&& ! is_array( get_option( self::OPTION_AI_OUTPUT ) )
+			&& delete_option( self::OPTION_AUTO_TAILOR_CLAIM );
 
 		return array( 'released' => $released );
 	}
 
 	/**
-	 * Records the builder's input as the wizard answers, unless the user already gave their own.
+	 * Records the builder's input as the wizard answers, or reuses an existing answer's goal.
 	 *
-	 * Never touches blogname or blogdescription, which the builder already set.
+	 * The builder's name and description are always used; blogname and blogdescription are never touched.
 	 *
 	 * @param array $builder_input The builder's input.
 	 * @return array The input to tailor with.
@@ -1486,18 +1505,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * Claims the automatic tailoring run for this request, so a reload or a second tab waits instead of tailoring twice.
 	 * Best-effort: two near-simultaneous loads can both win, costing at worst one extra tailoring run.
 	 *
-	 * @return bool Whether this request won the claim.
+	 * @return string|null The claim's token when this request won it, null otherwise.
 	 */
 	private function claim_auto_tailoring() {
-		$now = time();
-		if ( add_option( self::OPTION_AUTO_TAILOR_CLAIM, $now, '', false ) ) {
-			return true;
+		$now   = time();
+		$token = wp_generate_password( 20, false );
+		// Stored as "time:token"; the int cast below reads the time part.
+		$claim = $now . ':' . $token;
+		if ( add_option( self::OPTION_AUTO_TAILOR_CLAIM, $claim, '', false ) ) {
+			return $token;
 		}
 		if ( $now - (int) get_option( self::OPTION_AUTO_TAILOR_CLAIM ) < self::AUTO_TAILOR_CLAIM_TTL ) {
-			return false;
+			return null;
 		}
-		update_option( self::OPTION_AUTO_TAILOR_CLAIM, $now, false );
-		return true;
+		update_option( self::OPTION_AUTO_TAILOR_CLAIM, $claim, false );
+		return $token;
 	}
 
 	/**

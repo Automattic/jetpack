@@ -1,16 +1,15 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { buildAutoInput, releaseClaimOnLeave, waitForTailoring } from './lib/auto-tailor.ts';
+import {
+	buildAutoInput,
+	releaseClaim,
+	startAutoTailor,
+	waitForTailoring,
+} from './lib/auto-tailor.ts';
 import { readOnce } from './lib/initial-read.ts';
 import { decideInitialView, isAllTasksMode, type View } from './lib/orchestration.ts';
-import { tailor } from './lib/tailor.ts';
-import {
-	contextFromInferred,
-	contextFromTaskIds,
-	setTracksContext,
-	trackWizardBypassed,
-} from './lib/tracks.ts';
+import { contextFromInferred, contextFromTaskIds, setTracksContext } from './lib/tracks.ts';
 import { TailoredList } from './tailored-list/tailored-list.tsx';
 import { Wizard } from './wizard/wizard.tsx';
 import type { GoalSlug, TailorResult } from './lib/types.ts';
@@ -68,12 +67,11 @@ export function App() {
 			const nextView = allTasks ? 'list' : decideInitialView( data );
 			const siteCopy = data.site?.copy;
 			const input = nextView === 'auto' ? buildAutoInput( data ) : null;
+			const token = data.auto_tailor_token ?? '';
 			if ( input && siteCopy ) {
-				setTracksContext( { goal: input.goal } );
-				trackWizardBypassed( { reason: 'ai_builder' } );
 				setGoal( input.goal );
 				// Start it here, not in the updater, which React may call twice.
-				const tailoring = releaseClaimOnLeave( tailor( input, siteCopy, true ) );
+				const tailoring = startAutoTailor( input, siteCopy, token );
 				setPendingTailor( () => tailoring );
 				setView( 'list' );
 			} else if ( nextView === 'waiting' && siteCopy ) {
@@ -81,6 +79,10 @@ export function App() {
 				setPendingTailor( () => waiting );
 				setView( 'list' );
 			} else {
+				if ( input ) {
+					// Nothing can tailor without the site copy, so don't hold the site for the claim's lifetime.
+					releaseClaim( token );
+				}
 				setView( nextView );
 			}
 		} );

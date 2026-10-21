@@ -18,6 +18,7 @@ registerHooks( {
 } );
 const { buildAutoInput, releaseClaimOnLeave, waitForTailoring } =
 	await import( './auto-tailor.ts' );
+const { resetTracksContext } = await import( './tracks.ts' );
 
 const COPY = {} as SiteCopy;
 const OUTPUT = { tasks: [] } as unknown as TailoredOutput;
@@ -95,12 +96,25 @@ describe( 'waitForTailoring', () => {
 		}
 	} );
 
-	it( 'tailors itself when a poll hands it the input', async () => {
+	it( 'tailors itself when a poll hands it the input, recording the bypass', async () => {
 		const { options, calls } = harness( [ data( { inferred_input: INFERRED } ) ] );
-		assert.equal( await waitForTailoring( COPY, options ), RESULT );
+		const win = { _tkq: [] as unknown[], addEventListener() {}, removeEventListener() {} };
+		( globalThis as { window?: unknown } ).window = win;
+		resetTracksContext();
+		try {
+			assert.equal( await waitForTailoring( COPY, options ), RESULT );
+		} finally {
+			delete ( globalThis as { window?: unknown } ).window;
+		}
 		assert.deepEqual( calls.tailored, [
 			[ { ...INFERRED, locale: 'en', ui_locale: 'en' }, COPY, true ],
 		] );
+		const events = win._tkq.filter( entry => ( entry as unknown[] )[ 0 ] === 'recordEvent' );
+		assert.equal( events.length, 1 );
+		const [ , name, props ] = events[ 0 ] as [ string, string, Record< string, unknown > ];
+		assert.equal( name, 'jetpack_ai_launchpad_wizard_bypassed' );
+		assert.equal( props.reason, 'ai_builder' );
+		assert.equal( props.goal, 'sell' );
 	} );
 
 	it( 'keeps polling after a failed poll', async () => {
@@ -154,12 +168,39 @@ describe( 'releaseClaimOnLeave', () => {
 				removeEventListener: () => counts.removed++,
 			};
 			try {
-				await releaseClaimOnLeave( Promise.resolve( result as TailorResult ) );
+				await releaseClaimOnLeave( Promise.resolve( result as TailorResult ), 'token' );
 				await new Promise( resolve => setImmediate( resolve ) );
 			} finally {
 				delete ( globalThis as { window?: unknown } ).window;
 			}
 			assert.deepEqual( counts, { added: 1, removed } );
+		}
+	} );
+} );
+
+describe( 'releaseClaimOnLeave on pagehide', () => {
+	it( 'releases with the token, except from the back/forward cache', async () => {
+		const requests: { path?: string; method?: string }[] = [];
+		const apiFetch = ( await import( '@wordpress/api-fetch' ) ).default;
+		apiFetch.use( async options => {
+			requests.push( options );
+			return {};
+		} );
+		let handler: ( event: { persisted: boolean } ) => void = () => {};
+		( globalThis as { window?: unknown } ).window = {
+			addEventListener: ( _: string, fn: typeof handler ) => ( handler = fn ),
+			removeEventListener: () => {},
+		};
+		try {
+			releaseClaimOnLeave( new Promise< TailorResult >( () => {} ), 'a b' );
+			handler( { persisted: true } );
+			assert.equal( requests.length, 0 );
+			handler( { persisted: false } );
+			assert.equal( requests.length, 1 );
+			assert.equal( requests[ 0 ].method, 'DELETE' );
+			assert.match( requests[ 0 ].path ?? '', /auto-tailor-claim\?token=a%20b$/ );
+		} finally {
+			delete ( globalThis as { window?: unknown } ).window;
 		}
 	} );
 } );

@@ -29,6 +29,7 @@ import {
 	nextIncompleteId,
 	isCompleteOnClickTask,
 	isTaskActionable,
+	recordsWizardCompleted,
 	resolveCtaUrl,
 	tasksFromFixture,
 	type EnrichedTask,
@@ -217,7 +218,7 @@ export function TailoredList( {
 			// render) so the event carries the freshly inferred props instead of
 			// waiting a render cycle. An empty landing (tailor and read both failed)
 			// is an error state, not a tasklist — no completion is recorded for it.
-			if ( fromWizard && pendingTailor && nextTasks.length > 0 ) {
+			if ( recordsWizardCompleted( fromWizard, !! pendingTailor, nextTasks.length ) ) {
 				setTracksContext( contextFromInferred( nextOutput?.inferred ) );
 				setTracksContext( contextFromTaskIds( nextTasks.map( task => task.id ) ) );
 				trackWizardCompleted();

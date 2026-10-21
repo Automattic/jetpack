@@ -61,6 +61,8 @@ export interface LaunchpadData {
 	inferred_input?: InferredInput | null;
 	// Whether another load is already tailoring this site's list.
 	auto_tailoring?: boolean;
+	// Proves this load owns the claim when it releases it; set alongside inferred_input.
+	auto_tailor_token?: string | null;
 	site?: SiteData;
 	// The persisted wizard input; seeds the Tracks goal before tailoring exists.
 	wizard?: { goal?: string } | null;
@@ -383,4 +385,21 @@ function humanizeTaskId( id: string ): string {
 		.split( '_' )
 		.map( word => word.charAt( 0 ).toUpperCase() + word.slice( 1 ) )
 		.join( ' ' );
+}
+
+/**
+ * Whether a landing on the list counts as finishing the wizard: only a wizard-started run that
+ * rendered tasks does, never an automatic tailoring or an empty error state.
+ *
+ * @param fromWizard       - Whether the pending run came from the wizard.
+ * @param hasPendingTailor - Whether a tailoring run is pending.
+ * @param taskCount        - How many tasks will render.
+ * @return Whether to record wizard_completed.
+ */
+export function recordsWizardCompleted(
+	fromWizard: boolean,
+	hasPendingTailor: boolean,
+	taskCount: number
+): boolean {
+	return fromWizard && hasPendingTailor && taskCount > 0;
 }

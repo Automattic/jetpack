@@ -1552,7 +1552,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			$first['inferred_input']
 		);
 		$this->assertFalse( $first['auto_tailoring'] );
-		$this->assertNotFalse( get_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM ) );
+		$this->assertNotEmpty( $first['auto_tailor_token'] );
+		$this->assertStringEndsWith( ':' . $first['auto_tailor_token'], get_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM ) );
 		$this->assertSame( 'build', $first['wizard']['goal'] );
 		$this->assertSame( 'ai_builder', get_option( AI_Launchpad_REST::OPTION_WIZARD )['source'] );
 		$this->assertSame( 'Sunrise Bakery', get_option( 'blogname' ) );
@@ -1561,6 +1562,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertNull( $second['inferred_input'] );
 		$this->assertTrue( $second['auto_tailoring'] );
+		$this->assertNull( $second['auto_tailor_token'] );
 	}
 
 	/**
@@ -1574,7 +1576,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	#[DataProvider( 'provide_claim_ages' )]
 	public function test_get_reclaims_only_a_stale_claim( $age, $served ) {
 		$this->seed_builder_spec();
-		update_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM, time() - $age, false );
+		update_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM, ( time() - $age ) . ':old', false );
 
 		$data = $this->call_api( 'GET', '', null, array( 'auto_tailor' => '1' ) )->get_data();
 
@@ -1679,23 +1681,25 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Releasing frees the claim only while no list exists.
+	 * Releasing frees the claim only for its owner, and only while no list exists.
 	 *
 	 * @dataProvider provide_claim_releases
 	 *
-	 * @param bool $tailored Whether the site already has a list.
+	 * @param bool   $tailored Whether the site already has a list.
+	 * @param string $token    The token the release sends.
+	 * @param bool   $released Whether the claim is freed.
 	 */
 	#[DataProvider( 'provide_claim_releases' )]
-	public function test_release_frees_the_claim_only_without_a_list( $tailored ) {
+	public function test_release_frees_only_the_owners_claim_without_a_list( $tailored, $token, $released ) {
 		if ( $tailored ) {
 			$this->seed_tailored_site();
 		}
-		update_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM, time(), false );
+		update_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM, time() . ':owner', false );
 
-		$data = $this->call_api( 'DELETE', '/auto-tailor-claim' )->get_data();
+		$data = $this->call_api( 'DELETE', '/auto-tailor-claim', null, array( 'token' => $token ) )->get_data();
 
-		$this->assertSame( ! $tailored, $data['released'] );
-		$this->assertSame( $tailored, false !== get_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM ) );
+		$this->assertSame( $released, $data['released'] );
+		$this->assertSame( ! $released, false !== get_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM ) );
 	}
 
 	/**
@@ -1705,8 +1709,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_claim_releases() {
 		return array(
-			'no list yet'  => array( false ),
-			'a saved list' => array( true ),
+			'the owner, no list yet'  => array( false, 'owner', true ),
+			'the owner, a saved list' => array( true, 'owner', false ),
+			'another load'            => array( false, 'intruder', false ),
 		);
 	}
 
