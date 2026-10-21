@@ -2,8 +2,8 @@
 /**
  * AI Assistant Banner for the WordPress.com dashboard.
  *
- * Displays a banner prompting Business/Commerce admins to set up AI tools. It stays
- * until dismissed while either the WordPress Agent or MCP access is off for the site.
+ * Displays a banner prompting Business/Commerce admins to set up AI tools until
+ * they dismiss it or both the WordPress Agent and MCP access have been on once.
  * Works on both Simple and Atomic sites via cross-platform utilities.
  *
  * @package automattic/jetpack-mu-wpcom
@@ -20,7 +20,8 @@ require_once __DIR__ . '/../ai-launchpad/helpers.php';
 /**
  * Determines whether the current user is eligible for the AI assistant banner.
  *
- * Eligible users see it while the WordPress Agent or MCP access is off.
+ * Eligible users see it while either tool is off, until they dismiss it or
+ * both tools have been on once for that user.
  *
  * @return bool
  */
@@ -31,10 +32,6 @@ function wpcom_should_show_ai_assistant_banner() {
 
 	// Check dismissal early — most users will have dismissed over time.
 	if ( get_user_meta( get_current_user_id(), 'wpcom_ai_assistant_banner_dismissed', true ) ) {
-		return false;
-	}
-
-	if ( get_option( 'wpcom_ai_assistant_banner_completed' ) ) {
 		return false;
 	}
 
@@ -131,9 +128,9 @@ function wpcom_ai_assistant_banner_mcp_enabled() {
 function wpcom_ai_assistant_banner_script_data( $screen_id ) {
 	$mcp_enabled = wpcom_is_wordpress_agent_enabled() ? wpcom_ai_assistant_banner_mcp_enabled() : null;
 
-	// Record when the site first had every AI tool on, so later loads skip the MCP check.
+	// Dismiss for this user once both tools are on, so later loads skip the MCP check.
 	if ( true === $mcp_enabled ) {
-		add_option( 'wpcom_ai_assistant_banner_completed', time(), '', false );
+		wpcom_ai_assistant_banner_record_dismissal();
 	}
 
 	return array(
@@ -292,11 +289,18 @@ function wpcom_maybe_add_ai_assistant_banner() {
 add_action( 'current_screen', 'wpcom_maybe_add_ai_assistant_banner' );
 
 /**
+ * Record when the current user dismissed the AI assistant banner.
+ */
+function wpcom_ai_assistant_banner_record_dismissal() {
+	update_user_meta( get_current_user_id(), 'wpcom_ai_assistant_banner_dismissed', time() );
+}
+
+/**
  * AJAX handler to dismiss the AI assistant banner.
  */
 function wpcom_dismiss_ai_assistant_banner() {
 	check_ajax_referer( 'dismiss_ai_assistant_banner', 'nonce' );
-	update_user_meta( get_current_user_id(), 'wpcom_ai_assistant_banner_dismissed', '1' );
+	wpcom_ai_assistant_banner_record_dismissal();
 	wp_send_json_success( null, 200, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_dismiss_ai_assistant_banner', 'wpcom_dismiss_ai_assistant_banner' );

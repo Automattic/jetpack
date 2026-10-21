@@ -27,9 +27,9 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		delete_transient( 'wpcom_ai_banner_mcp_' . get_current_blog_id() . '_' . get_current_user_id() );
+		delete_user_meta( get_current_user_id(), 'wpcom_ai_assistant_banner_dismissed' );
 		Constants::clear_constants();
 		delete_option( 'big_sky_enable' );
-		delete_option( 'wpcom_ai_assistant_banner_completed' );
 		parent::tear_down();
 	}
 
@@ -109,28 +109,42 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 
 		update_option( 'big_sky_enable', '0' );
 		$this->assertSame( 'unavailable', wpcom_ai_assistant_banner_script_data( 'dashboard' )['mcpState'] );
-		$this->assertFalse( get_option( 'wpcom_ai_assistant_banner_completed' ) );
+		$this->assertEmpty( get_user_meta( get_current_user_id(), 'wpcom_ai_assistant_banner_dismissed', true ) );
 	}
 
 	/**
-	 * The first load with the Agent and MCP on records a timestamp that later loads keep.
+	 * Completing setup dismisses the banner for the current user only.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_script_data_records_completion_once() {
+	public function test_script_data_auto_dismisses_current_user() {
 		define( 'IS_ATOMIC', true );
+		$user_id       = wp_insert_user(
+			array(
+				'user_login' => 'ai_banner_admin_' . wp_rand(),
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		$other_user_id = wp_insert_user(
+			array(
+				'user_login' => 'ai_banner_other_' . wp_rand(),
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
 		set_transient( 'wpcom_ai_banner_mcp_' . get_current_blog_id() . '_' . get_current_user_id(), 'on', 5 * MINUTE_IN_SECONDS );
 		update_option( 'big_sky_enable', '1' );
-		update_option( 'wpcom_ai_assistant_banner_completed', 1000 );
 
 		$this->assertSame( 'on', wpcom_ai_assistant_banner_script_data( 'dashboard' )['mcpState'] );
-		$this->assertSame( 1000, (int) get_option( 'wpcom_ai_assistant_banner_completed' ) );
+		$this->assertEqualsWithDelta( time(), (int) get_user_meta( $user_id, 'wpcom_ai_assistant_banner_dismissed', true ), 5 );
+		$this->assertEmpty( get_user_meta( $other_user_id, 'wpcom_ai_assistant_banner_dismissed', true ) );
 
-		delete_option( 'wpcom_ai_assistant_banner_completed' );
-		wpcom_ai_assistant_banner_script_data( 'dashboard' );
-		$this->assertEqualsWithDelta( time(), (int) get_option( 'wpcom_ai_assistant_banner_completed' ), 5 );
+		update_option( 'big_sky_enable', '0' );
+		$this->assertFalse( wpcom_should_show_ai_assistant_banner() );
 	}
 }
