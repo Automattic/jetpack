@@ -54,6 +54,14 @@ export { default as thirdPartyCookiesFallbackHelper } from './helpers/third-part
 export { default as getCalypsoOrigin } from './helpers/get-calypso-origin';
 export * from './helpers/get-user-connection-url.ts';
 export { getReconnectErrorMessage } from './helpers/get-reconnect-error-message.ts';
+export { getTracksIdentity, initializeTracksIdentity } from './helpers/tracks-identity.ts';
+export {
+	getConnectScreenErrorMessage,
+	getRegistrationErrorCode,
+	getRegistrationErrorDescription,
+	getRegistrationErrorDisplay,
+	getRegistrationErrorSummary,
+} from './helpers/get-connect-screen-error-message';
 
 /**
  * Store

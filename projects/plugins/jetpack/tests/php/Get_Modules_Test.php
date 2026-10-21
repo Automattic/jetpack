@@ -1,6 +1,6 @@
 <?php
 /**
- * Test module related methods in Jetpack and Jetpack_Admin class.
+ * Test module discovery, administration, and list-table filtering.
  *
  * @package jetpack
  */
@@ -9,12 +9,16 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+require_once JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php';
+
 /**
- * Test module related methods in Jetpack and Jetpack_Admin class.
+ * Test module discovery, administration, and list-table filtering.
  *
  * @covers \Jetpack_Admin
+ * @covers \Jetpack_Modules_List_Table
  */
 #[CoversClass( Jetpack_Admin::class )]
+#[CoversClass( Jetpack_Modules_List_Table::class )]
 class Get_Modules_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -254,5 +258,37 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	 */
 	public function test_get_module_module_no_info() {
 		$this->assertFalse( Jetpack::get_module( 'module-extras' ) );
+	}
+
+	/**
+	 * Ignore an array tag in the view selector.
+	 */
+	public function test_array_module_tag_selects_all_view() {
+		$original_get = $_GET;
+		try {
+			$_GET['module_tag'] = array( 'x' );
+			$table              = $this->getMockBuilder( Jetpack_Modules_List_Table::class )
+				->disableOriginalConstructor()
+				->onlyMethods( array( 'get_views' ) )
+				->getMock();
+			$table->expects( $this->once() )->method( 'get_views' )->willReturn( array( 'all' => 'All' ) );
+			$this->expectOutputRegex( "/\A<ul class='subsubsub'>\s*<li class='all current'>All<\/li>\s*<\/ul>\z/" );
+			$table->views();
+		} finally {
+			$_GET = $original_get;
+		}
+	}
+
+	/**
+	 * Ignore an array tag in the module filter.
+	 */
+	public function test_array_module_tag_does_not_filter_modules() {
+		$original_request = $_REQUEST;
+		try {
+			$_REQUEST['module_tag'] = array( 'x' );
+			$this->assertTrue( Jetpack_Modules_List_Table::is_module_displayed( array( 'module_tags' => array( 'Social' ) ) ) );
+		} finally {
+			$_REQUEST = $original_request;
+		}
 	}
 }

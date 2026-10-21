@@ -4,6 +4,8 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -196,6 +198,17 @@ class Main_Features_Test extends TestCase {
 		sort( $essential );
 
 		$this->assertSame( array( 'boost', 'jetpack-forms', 'protect-dashboard', 'stats' ), $essential );
+	}
+
+	/**
+	 * The page reads this without Jetpack's module list, so it must match the modules that need an account.
+	 */
+	public function test_features_that_need_an_account_say_so() {
+		$features = array_column( Main_Features::get_features( true ), 'needs_account', 'slug' );
+		$slugs    = array_keys( array_filter( $features ) );
+		sort( $slugs );
+
+		$this->assertSame( array( 'activity-log', 'backup', 'jetpack-ai', 'newsletter', 'social' ), $slugs );
 	}
 
 	/**
@@ -582,12 +595,13 @@ class Main_Features_Test extends TestCase {
 	 * Fakes the site's purchases, so ownership is read without a request to WordPress.com.
 	 *
 	 * @param string[] $product_slugs The WordPress.com product slugs the site pays for.
+	 * @param string   $expiry_status The purchases' expiry status.
 	 */
-	private function own( array $product_slugs ) {
+	private function own( array $product_slugs, $expiry_status = 'active' ) {
 		$purchases = array_map(
 			fn( $slug ) => (object) array(
 				'product_slug'  => $slug,
-				'expiry_status' => 'active',
+				'expiry_status' => $expiry_status,
 				'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
 			),
 			$product_slugs
@@ -617,6 +631,113 @@ class Main_Features_Test extends TestCase {
 		foreach ( array( 'activity-log', 'podcast', 'jetpack-forms', 'newsletter', 'anti-spam' ) as $slug ) {
 			$this->assertSame( '', $upgrades[ $slug ]['path'], "Feature {$slug} still offers an upgrade to a Complete site." );
 		}
+	}
+
+	/**
+	 * A host's upgrade URL reaches only a site that has something to buy, and only as a web address.
+	 *
+	 * @dataProvider provide_host_upgrade_urls
+	 *
+	 * @param string[]    $owned    The products the site pays for.
+	 * @param string      $url      The URL the host sends.
+	 * @param string|null $expected The URL the feature carries, or null for none.
+	 */
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_host_upgrade_url( $owned, $url, $expected ) {
+		$this->own( $owned );
+		$send_to_host = static function ( $upgrade ) use ( $url ) {
+			return array_merge( $upgrade, array( 'url' => $url ) );
+		};
+		add_filter( 'jetpack_my_jetpack_feature_upgrade', $send_to_host );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+		remove_filter( 'jetpack_my_jetpack_feature_upgrade', $send_to_host );
+
+		$this->assertSame( $expected, $upgrades['backup']['url'] ?? null );
+	}
+
+	/**
+	 * Data provider for test_host_upgrade_url.
+	 *
+	 * @return array
+	 */
+	public static function provide_host_upgrade_urls() {
+		return array(
+			'no plan'         => array( array(), 'https://example.com/plans', 'https://example.com/plans' ),
+			'owns Complete'   => array( array( 'jetpack_complete' ), 'https://example.com/plans', null ),
+			'javascript: URL' => array( array(), 'javascript:alert(1)', '' ),
+		);
+	}
+
+	/**
+	 * A filter that returns something other than an array leaves the upgrade as it was.
+	 */
+	public function test_non_array_upgrade_filter_keeps_the_upgrade() {
+		$before = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+		add_filter( 'jetpack_my_jetpack_feature_upgrade', '__return_empty_string' );
+
+		$after = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+		remove_filter( 'jetpack_my_jetpack_feature_upgrade', '__return_empty_string' );
+
+		$this->assertSame( $before, $after );
+	}
+
+	/**
+	 * Only Backup's card follows the plan instead of a switch.
+	 */
+	public function test_only_backup_is_plan_driven() {
+		$plan_driven = array_keys( array_filter( array_column( Main_Features::get_features(), 'plan_driven', 'slug' ) ) );
+
+		$this->assertSame( array( 'backup' ), $plan_driven );
+	}
+
+	/**
+	 * Next to an older Jetpack plugin the module still decides Backup, so its card keeps the switch.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_backup_is_not_plan_driven_next_to_an_older_jetpack() {
+		require_once __DIR__ . '/assets/older-jetpack-mock-plugin.txt';
+
+		$backup = array_column( Main_Features::get_features(), null, 'slug' )['backup'];
+
+		$this->assertFalse( $backup['plan_driven'] );
+	}
+
+	/**
+	 * An expired plan is sold again rather than counted as included, but only for a plan-driven feature.
+	 *
+	 * @dataProvider provide_plan_expiry
+	 *
+	 * @param string $slug          The feature slug.
+	 * @param string $product_slug  The purchase's product slug.
+	 * @param string $expiry_status The purchase's expiry status.
+	 * @param bool   $included      Whether the feature should count as included.
+	 */
+	#[DataProvider( 'provide_plan_expiry' )]
+	public function test_only_a_plan_driven_feature_counts_expiry( $slug, $product_slug, $expiry_status, $included ) {
+		$this->own( array( $product_slug ), $expiry_status );
+
+		$feature = array_column( Main_Features::get_features(), null, 'slug' )[ $slug ];
+
+		$this->assertSame( $included, $feature['included'] );
+		$this->assertSame( ! $included, '' !== $feature['upgrade']['path'] );
+	}
+
+	/**
+	 * Data provider for test_only_a_plan_driven_feature_counts_expiry.
+	 *
+	 * @return array
+	 */
+	public static function provide_plan_expiry() {
+		return array(
+			'active Backup'  => array( 'backup', 'jetpack_backup_t1_yearly', 'active', true ),
+			'expired Backup' => array( 'backup', 'jetpack_backup_t1_yearly', 'expired', false ),
+			'expired Search' => array( 'search', 'jetpack_search', 'expired', true ),
+		);
 	}
 
 	/**
@@ -743,6 +864,28 @@ class Main_Features_Test extends TestCase {
 			),
 			$upgrades['blaze']
 		);
+	}
+
+	public function test_retired_bundles_are_not_offered_but_owned_names_remain() {
+		$this->set_pro_available( true );
+		$catalog = Wpcom_Products::get_products();
+		foreach ( array( 'jetpack_security_t1_yearly', 'jetpack_growth_yearly' ) as $slug ) {
+			$catalog->$slug = (object) array(
+				'available'     => false,
+				'cost'          => 348,
+				'currency_code' => 'USD',
+				'product_term'  => 'year',
+			);
+		}
+		update_user_meta( get_current_user_id(), Wpcom_Products::CACHE_META_NAME, $catalog );
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
+		$this->assertNotContains( 'security', array_column( $features['backup']['plans'], 'slug' ) );
+		$this->assertNotContains( 'growth', array_column( $features['podcast']['plans'], 'slug' ) );
+		$this->assertSame( '/add-pro', $features['podcast']['upgrade']['path'] );
+		$this->own( array( 'jetpack_security_t1_yearly' ) );
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
+		$plans    = array_column( $features['backup']['plans'], null, 'slug' );
+		$this->assertTrue( $plans['security']['owned'] );
 	}
 
 	/**
