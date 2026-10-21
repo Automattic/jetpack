@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 // ESM test: static jest.mock does not work under --experimental-vm-modules, so mock the modules
 // with unstable_mockModule (must run before the dynamic import of the component below).
 const mockUnlinkUser = jest.fn< ( ...args: unknown[] ) => Promise< unknown > >();
+const mockRecordEvent = jest.fn();
 
 jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 	__esModule: true,
@@ -13,7 +14,7 @@ jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 
 jest.unstable_mockModule( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
-	default: { tracks: { recordEvent: jest.fn() } },
+	default: { tracks: { recordEvent: mockRecordEvent } },
 } ) );
 
 // Own file because the store fixes the viewer when `state/store` is first evaluated.
@@ -56,6 +57,19 @@ describe( 'DisconnectUserDialog, for the connection owner', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
 
 		expect( mockUnlinkUser ).toHaveBeenCalledWith( true, { disconnectAllUsers: true } );
+	} );
+
+	// The owner path records its own events, so the host's context has to reach them too.
+	it( 'reports the owner events against the host that rendered it', async () => {
+		const user = userEvent.setup();
+		render( <DisconnectUserDialog { ...testProps } context="jetpack-connectors" /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_manage_connection_dialog_owner_disconnect_click',
+			{ context: 'jetpack-connectors' }
+		);
 	} );
 
 	it( 'offers the transfer flow as the way out', async () => {

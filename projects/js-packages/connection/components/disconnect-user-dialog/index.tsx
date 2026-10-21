@@ -58,8 +58,9 @@ const DisconnectUserDialog = ( {
 	const disconnectText = __( 'Disconnect', 'jetpack-connection-js' );
 
 	// The hook seeds the REST API singleton from these values, so the dialog needs no
-	// initializer of its own.
-	const { userConnectionData } = useConnection( { apiRoot, apiNonce } );
+	// initializer of its own, and reports offline mode, where WordPress.com cannot be
+	// reached to action the disconnect.
+	const { userConnectionData, isOfflineMode } = useConnection( { apiRoot, apiNonce } );
 	const currentUser = userConnectionData?.currentUser;
 
 	const isAdmin = !! currentUser?.permissions?.manage_options;
@@ -107,6 +108,7 @@ const DisconnectUserDialog = ( {
 				onDisconnected={ onDisconnected }
 				onUnlinked={ onUnlinked }
 				onTransferOwnership={ onTransferOwnership }
+				context={ context }
 			/>
 		);
 	}
@@ -138,7 +140,7 @@ const DisconnectUserDialog = ( {
 					stayDisabled={ isDisconnecting }
 					onStay={ onClose }
 					disconnectLabel={ isDisconnecting ? disconnectingText : disconnectText }
-					disconnectDisabled={ isDisconnecting }
+					disconnectDisabled={ isDisconnecting || isOfflineMode }
 					onDisconnect={ handleDisconnect }
 					error={ disconnectError }
 				/>

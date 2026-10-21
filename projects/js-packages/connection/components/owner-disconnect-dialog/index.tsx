@@ -6,9 +6,9 @@ import restApi from '@automattic/jetpack-api';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
-import useRestApiInit from '../../hooks/use-rest-api-init';
 import DisconnectActionFooter from '../shared/disconnect-action-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
+import useConnection from '../use-connection';
 import './style.scss';
 import type { MouseEvent } from 'react';
 
@@ -27,6 +27,12 @@ interface OwnerDisconnectDialogProps {
 	onUnlinked?: () => void;
 	/** Opens the ownership transfer flow. Omit to hide that action. */
 	onTransferOwnership?: () => void;
+	/**
+	 * The context in which this component is being used, recorded with the dialog's events.
+	 * Deliberately undefined by default: a named fallback would attribute a caller that forgot
+	 * it to the wrong surface, where an absent one is findable in the data.
+	 */
+	context?: string;
 }
 
 /**
@@ -43,6 +49,7 @@ const OwnerDisconnectDialog = ( {
 	onDisconnected,
 	onUnlinked,
 	onTransferOwnership,
+	context,
 }: OwnerDisconnectDialogProps ) => {
 	// Add state for disconnect status and error
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
@@ -52,8 +59,9 @@ const OwnerDisconnectDialog = ( {
 	const disconnectingText = __( 'Disconnecting…', 'jetpack-connection-js' );
 	const disconnectText = __( 'Disconnect', 'jetpack-connection-js' );
 
-	// Initialize the REST API
-	useRestApiInit( apiRoot, apiNonce );
+	// The hook seeds the REST API singleton from these values, and reports offline mode,
+	// where WordPress.com cannot be reached to action the disconnect.
+	const { isOfflineMode } = useConnection( { apiRoot, apiNonce } );
 
 	const handleTransferClick = useCallback(
 		( e?: MouseEvent< HTMLElement > ) => {
@@ -70,7 +78,8 @@ const OwnerDisconnectDialog = ( {
 	const handleDisconnectAnyway = useCallback( () => {
 		// Track disconnect click
 		jetpackAnalytics.tracks.recordEvent(
-			'jetpack_manage_connection_dialog_owner_disconnect_click'
+			'jetpack_manage_connection_dialog_owner_disconnect_click',
+			{ context }
 		);
 
 		setIsDisconnecting( true );
@@ -82,7 +91,8 @@ const OwnerDisconnectDialog = ( {
 			.then( () => {
 				// Track successful disconnect
 				jetpackAnalytics.tracks.recordEvent(
-					'jetpack_manage_connection_dialog_owner_disconnect_success'
+					'jetpack_manage_connection_dialog_owner_disconnect_success',
+					{ context }
 				);
 				// Don't close modal or change state since page will reload
 				onDisconnected && onDisconnected();
@@ -91,7 +101,8 @@ const OwnerDisconnectDialog = ( {
 			.catch( () => {
 				// Track failed disconnect
 				jetpackAnalytics.tracks.recordEvent(
-					'jetpack_manage_connection_dialog_owner_disconnect_error'
+					'jetpack_manage_connection_dialog_owner_disconnect_error',
+					{ context }
 				);
 				setDisconnectError(
 					__(
@@ -101,7 +112,7 @@ const OwnerDisconnectDialog = ( {
 				);
 				setIsDisconnecting( false );
 			} );
-	}, [ onDisconnected, onUnlinked ] );
+	}, [ context, onDisconnected, onUnlinked ] );
 
 	return (
 		isOpen && (
@@ -136,7 +147,7 @@ const OwnerDisconnectDialog = ( {
 					stayLabel={ __( 'Stay connected', 'jetpack-connection-js' ) }
 					onStay={ handleStayConnected }
 					disconnectLabel={ isDisconnecting ? disconnectingText : disconnectText }
-					disconnectDisabled={ isDisconnecting }
+					disconnectDisabled={ isDisconnecting || isOfflineMode }
 					onDisconnect={ handleDisconnectAnyway }
 					error={ disconnectError }
 				/>
