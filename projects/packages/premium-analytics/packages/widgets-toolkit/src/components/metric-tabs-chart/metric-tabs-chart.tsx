@@ -342,7 +342,7 @@ function MetricChart( {
 		return { accent, dark: mixHexColors( accent, '#000000', DARK_SHADE_BLEND ) };
 	}, [ getElementStyles ] );
 
-	// Bars draw the smaller metric of a pair inside the larger one's bar, as Jetpack Stats draws visitors inside views.
+	// Bars draw the smaller metric of a pair inside the larger one's bar, as Jetpack Stats v1 draws visitors inside views.
 	const isOverlap = chartType === 'bar';
 
 	const { series, defaultHiddenSeries } = useMemo( () => {

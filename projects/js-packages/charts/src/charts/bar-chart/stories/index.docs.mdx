@@ -210,7 +210,7 @@ It composes with grouped bars: pair each primary series with its own `type: 'com
 
 ## Overlap Layout
 
-Set `layout="overlap"` to draw one metric inside another, as Jetpack Stats draws visitors inside views. Each category has up to two slots: every primary series sits in the first, and every `type: 'comparison'` series in a second beside it while any comparison is shown. Within a slot, the `group`s overlap: the first group in `data` is the back bar at the full slot width, and each later group is narrower and drawn in front (with two groups, the front bar is half as wide). Series without a `group` share one layer.
+Set `layout="overlap"` to draw one metric inside another, as Jetpack Stats v1 draws visitors inside views. Each category has up to two slots: every primary series sits in the first, and every `type: 'comparison'` series in a second beside it while any comparison is shown. Within a slot, the `group`s overlap: the first group in `data` is the back bar at the full slot width, and each later group is narrower and drawn in front (with two groups, the front bar is half as wide). Series without a `group` share one layer.
 
 <Canvas of={ BarChartStories.ComparisonMultiOverlap } />
 
