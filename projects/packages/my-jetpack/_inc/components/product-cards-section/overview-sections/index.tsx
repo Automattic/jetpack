@@ -1,7 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import { dashboard, shield, trendingUp } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
+import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
+import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useFilteredProducts from '../../../hooks/use-filtered-products';
 import LoadingBlock from '../../loading-block';
@@ -25,6 +27,10 @@ const OverviewSections: FC = () => {
 	// showFullJetpackStatsCard means Jetpack or the Stats plugin is active.
 	const showStats =
 		canUserViewStats && ( showFullJetpackStatsCard || slugs.includes( PRODUCT_SLUGS.STATS ) );
+	const { detail: statsDetail } = useProduct( PRODUCT_SLUGS.STATS );
+	const isStatsActive =
+		statsDetail?.status === PRODUCT_STATUSES.ACTIVE ||
+		statsDetail?.status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const showProtect = slugs.includes( PRODUCT_SLUGS.PROTECT );
 	const showBoost = slugs.includes( PRODUCT_SLUGS.BOOST );
 
@@ -49,6 +55,11 @@ const OverviewSections: FC = () => {
 						<OverviewSection
 							icon={ trendingUp }
 							title={ __( 'How is your site growing?', 'jetpack-my-jetpack' ) }
+							headerEnd={
+								isStatsActive && (
+									<Text variant="body-md">{ __( 'Last 7 days', 'jetpack-my-jetpack' ) }</Text>
+								)
+							}
 						>
 							<StatsOverviewItem admin={ admin } />
 						</OverviewSection>

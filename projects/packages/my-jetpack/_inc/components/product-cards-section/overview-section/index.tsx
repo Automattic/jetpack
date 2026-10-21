@@ -5,6 +5,7 @@ import type { ComponentProps, FC, ReactNode } from 'react';
 export type OverviewSectionProps = {
 	icon: ComponentProps< typeof Icon >[ 'icon' ];
 	title: string;
+	headerEnd?: ReactNode;
 	children: ReactNode;
 };
 
@@ -14,12 +15,15 @@ export type OverviewSectionProps = {
  * @param {OverviewSectionProps} props - Component props.
  * @return {import('react').JSX.Element} The section.
  */
-const OverviewSection: FC< OverviewSectionProps > = ( { icon, title, children } ) => (
+const OverviewSection: FC< OverviewSectionProps > = ( { icon, title, headerEnd, children } ) => (
 	<Card.Root render={ <section /> }>
 		<Card.Header>
-			<Stack direction="row" align="center" gap="sm">
-				<Icon icon={ icon } size={ 20 } />
-				<Card.Title render={ <h3 /> }>{ title }</Card.Title>
+			<Stack direction="row" align="center" justify="space-between" gap="sm">
+				<Stack direction="row" align="center" gap="sm">
+					<Icon icon={ icon } size={ 20 } />
+					<Card.Title render={ <h3 /> }>{ title }</Card.Title>
+				</Stack>
+				{ headerEnd }
 			</Stack>
 		</Card.Header>
 		<Card.Content>
