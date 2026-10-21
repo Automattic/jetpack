@@ -14,6 +14,7 @@ namespace Automattic\Jetpack_Boost\Tests\Abilities;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Automattic\Jetpack_Boost\Abilities\Boost_Abilities;
 use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -244,7 +245,7 @@ class Boost_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'boolean', $ability['input_schema']['properties']['active']['type'] );
 
 		$this->assertSame( 'object', $ability['output_schema']['type'] );
-		$this->assertSame( array( 'slug', 'active', 'changed' ), array_keys( $ability['output_schema']['properties'] ) );
+		$this->assertSame( array( 'slug', 'active', 'changed', 'notices' ), array_keys( $ability['output_schema']['properties'] ) );
 		$this->assertSame( 'string', $ability['output_schema']['properties']['slug']['type'] );
 		$this->assertSame( 'boolean', $ability['output_schema']['properties']['active']['type'] );
 		$this->assertSame( 'boolean', $ability['output_schema']['properties']['changed']['type'] );
@@ -622,6 +623,33 @@ class Boost_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'jetpack_boost_page_cache_setup_failed', $result->get_error_code() );
 		$this->assertStringContainsString( 'not-using-permalinks', $result->get_error_message() );
 		$this->assertTrue( (bool) $stays_on, 'Page Cache must stay on when its setup fails.' );
+		$this->assertSame( array( 'notices' => array() ), $result->get_error_data() );
+	}
+
+	public function test_set_module_status_passes_on_page_cache_setup_notices(): void {
+		$option_name = 'jetpack_boost_status_page-cache';
+		delete_option( $option_name );
+		update_option( 'permalink_structure', '' );
+		// Stands in for the notice setup adds when it switches off WP Super Cache, which needs its config on disk.
+		$notice  = array(
+			'title'   => 'WP Super Cache Has Been Deactivated',
+			'message' => 'Only one caching system can be used at a time.',
+		);
+		$notices = new \ReflectionProperty( Page_Cache_Setup::class, 'notices' );
+		$notices->setValue( null, array( $notice ) );
+
+		$result = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => 'page_cache',
+				'active' => true,
+			)
+		);
+
+		$notices->setValue( null, array() );
+		delete_option( $option_name );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( array( 'notices' => array( $notice ) ), $result->get_error_data() );
 	}
 
 	public function test_set_module_status_treats_a_saved_on_status_as_unchanged(): void {
