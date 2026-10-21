@@ -22,10 +22,7 @@ const loadModalScript = () => {
 	jest.runOnlyPendingTimers();
 };
 
-const pressTab = ( shiftKey = false ) =>
-	document.activeElement.dispatchEvent(
-		new KeyboardEvent( 'keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true } )
-	);
+const focusPageBehind = () => document.querySelector( 'a[href="#before"]' ).focus();
 
 describe( 'Subscribe pop-up', () => {
 	let windowListeners = [];
@@ -84,24 +81,24 @@ describe( 'Subscribe pop-up', () => {
 		expect( dialog ).toContainElement( document.activeElement );
 	} );
 
-	it( 'keeps Tab and Shift+Tab inside the dialog', () => {
+	it( 'sends focus that reaches the page behind back into the dialog', () => {
 		loadModalScript();
 		const email = document.querySelector( 'input[type="email"]' );
 		const close = document.querySelector( '.jetpack-subscribe-modal__close' );
 
 		close.focus();
-		pressTab();
+		focusPageBehind();
 		expect( email ).toHaveFocus();
 
-		pressTab( true );
+		focusPageBehind();
 		expect( close ).toHaveFocus();
 	} );
 
-	it( 'wraps Shift+Tab from the dialog itself to its last control', () => {
+	it( 'wraps focus that leaves from the dialog itself to its last control', () => {
 		loadModalScript();
 		const close = document.querySelector( '.jetpack-subscribe-modal__close' );
 
-		pressTab( true );
+		focusPageBehind();
 
 		expect( close ).toHaveFocus();
 	} );
@@ -112,7 +109,7 @@ describe( 'Subscribe pop-up', () => {
 		loadModalScript();
 		const dialog = document.querySelector( '.jetpack-subscribe-modal__modal-content' );
 
-		pressTab();
+		focusPageBehind();
 
 		expect( dialog ).toHaveFocus();
 	} );

@@ -48,27 +48,29 @@ domReady( () => {
 		).filter( element => element.getClientRects().length > 0 );
 	}
 
-	// The page behind stays in the tab order, so wrap Tab and Shift+Tab at the dialog's edges.
+	// The page behind stays in the tab order, and Safari's Tab skips links and buttons by default, so
+	// catch focus wherever it lands outside. Focus that left from the start of the dialog (Shift+Tab)
+	// wraps to its last control; anything else to its first.
 	function keepFocusInDialog( event ) {
-		if ( event.key !== 'Tab' ) {
+		if ( dialog.contains( event.target ) ) {
 			return;
 		}
 		const focusable = getFocusableElements();
-		if ( ! focusable.length ) {
-			event.preventDefault();
+		const leftFromStart = event.relatedTarget === dialog || event.relatedTarget === focusable[ 0 ];
+		const target = leftFromStart ? focusable[ focusable.length - 1 ] : focusable[ 0 ];
+		( target || dialog ).focus();
+	}
+
+	// The pop-up prints in the footer, so Tab from its last control can leave the document, and no
+	// focusin fires then. Wrap that one move here.
+	function wrapTabFromLastControl( event ) {
+		if ( event.key !== 'Tab' || event.shiftKey ) {
 			return;
 		}
-		const first = focusable[ 0 ];
-		const last = focusable[ focusable.length - 1 ];
-		if (
-			event.shiftKey &&
-			( document.activeElement === first || document.activeElement === dialog )
-		) {
+		const focusable = getFocusableElements();
+		if ( event.target === focusable[ focusable.length - 1 ] ) {
 			event.preventDefault();
-			last.focus();
-		} else if ( ! event.shiftKey && document.activeElement === last ) {
-			event.preventDefault();
-			first.focus();
+			focusable[ 0 ].focus();
 		}
 	}
 
@@ -141,7 +143,8 @@ domReady( () => {
 
 		modal.classList.add( 'open' );
 		document.body.classList.add( 'jetpack-subscribe-modal-open' );
-		dialog.addEventListener( 'keydown', keepFocusInDialog );
+		document.addEventListener( 'focusin', keepFocusInDialog );
+		dialog.addEventListener( 'keydown', wrapTabFromLastControl );
 		dialog.focus();
 		// The dialog is still hidden at the start of its fade-in, so focus can fail until that ends.
 		if ( document.activeElement !== dialog ) {
@@ -163,7 +166,8 @@ domReady( () => {
 	function closeModal() {
 		modal.classList.remove( 'open' );
 		document.body.classList.remove( 'jetpack-subscribe-modal-open' );
-		dialog.removeEventListener( 'keydown', keepFocusInDialog );
+		document.removeEventListener( 'focusin', keepFocusInDialog );
+		dialog.removeEventListener( 'keydown', wrapTabFromLastControl );
 		// The pop-up only opens while nothing has focus, so hand focus back to the page itself.
 		if ( dialog.contains( document.activeElement ) ) {
 			document.activeElement.blur();

@@ -40,6 +40,10 @@ body.jetpack-subscribe-modal-open {
 	visibility: visible;
 }
 
+.jetpack-subscribe-modal__modal-content:focus {
+	outline: none;
+}
+
 /*
  * These text-wrap properties still have limited browser
  * support, but based on feedback still adding them for when
