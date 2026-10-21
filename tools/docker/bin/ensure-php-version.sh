@@ -56,7 +56,6 @@ printf '\e[1m== Installing PHP %s ==\e[0m\n' "$VER"
 apt-get update -q
 apt-get install -qy "${PKGS[@]}"
 apt-get install -qy --no-install-recommends "${NO_RECOMMENDS_PKGS[@]}"
-"$( dirname "${BASH_SOURCE[0]}" )/check-php-version.sh" "$VER"
 
 # Enable our custom config for the new version.
 [[ -e "/etc/php/${VER}/mods-available/jetpack-wordpress.ini" ]] || ln -s /var/lib/jetpack-config/php.ini "/etc/php/${VER}/mods-available/jetpack-wordpress.ini"

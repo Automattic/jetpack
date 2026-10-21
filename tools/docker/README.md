@@ -129,6 +129,8 @@ Start the containers (WordPress, MySQL and Mailpit) defined in `docker-compose.y
 
 This command will rebuild the WordPress container if you made any changes to `docker-compose.yml`.
 
+Once a day, it also pulls the latest published `automattic/jetpack-wordpress-dev` image, which is rebuilt daily to pick up package updates. Set `FORCE_PULL=1` to check now. An image you built locally with `jetpack docker build-image` is never replaced.
+
 For running the containers in the background, use:
 
 ```sh

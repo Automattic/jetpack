@@ -404,37 +404,44 @@ const isProjectRunning = project => {
 };
 
 /**
- * Warns when the local dev image's default PHP is older than check-php-version.sh allows.
+ * Pulls the dev image at most once a day, as tools/docker/bin/monorepo does for its image.
  */
-const warnOnOutdatedImagePhp = () => {
+const refreshDevImage = () => {
 	const image = 'automattic/jetpack-wordpress-dev:latest';
-	if ( spawnSync( 'docker', [ 'image', 'inspect', image ], { stdio: 'ignore' } ).status !== 0 ) {
-		return; // Compose will pull a current image.
+	const stampFile = `${ dockerFolder }/data/.wordpress-image-check`;
+	if ( process.env.FORCE_PULL !== '1' ) {
+		try {
+			if ( Date.now() - fs.statSync( stampFile ).mtimeMs < 86400000 ) {
+				return;
+			}
+		} catch {
+			// No stamp yet.
+		}
 	}
 
-	// Piped over stdin rather than mounted, as Docker Desktop may refuse to share the checkout.
-	const res = spawnSync(
+	const inspect = spawnSync(
 		'docker',
 		[
-			'run',
-			'--rm',
-			'-i',
-			'--entrypoint',
-			'bash',
+			'image',
+			'inspect',
+			'--format',
+			'{{index .Config.Labels "org.opencontainers.image.revision"}}',
 			image,
-			'-c',
-			'source /etc/docker-args.sh && bash -s "$PHP_VERSION"',
 		],
-		{ input: fs.readFileSync( `${ dockerFolder }/bin/check-php-version.sh` ), encoding: 'utf8' }
+		{ encoding: 'utf8' }
 	);
-	if ( res.status !== 0 ) {
-		console.warn( res.stderr.trim() );
-		console.warn(
-			chalk.yellow(
-				`Run \`docker pull ${ image }\`, then this command again. If PHP is still too old after pulling, an updated image hasn't been published yet.`
-			)
-		);
+	// Missing: compose pulls it anyway. No CI revision label: built locally, and a pull would replace it.
+	if ( inspect.status !== 0 || ! inspect.stdout.trim() ) {
+		return;
 	}
+
+	console.log( chalk.cyan( `Checking for an updated ${ image }...` ) );
+	if ( spawnSync( 'docker', [ 'pull', image ], { stdio: 'inherit' } ).status !== 0 ) {
+		console.warn( chalk.yellow( `Could not pull ${ image }. Using the local copy.` ) );
+		return;
+	}
+	fs.mkdirSync( `${ dockerFolder }/data`, { recursive: true } );
+	fs.writeFileSync( stampFile, '' );
 };
 
 /**
@@ -889,7 +896,7 @@ const defaultDockerCmdHandler = async argv => {
 	executor( argv, setConfig );
 
 	if ( argv._[ 1 ] === 'up' ) {
-		warnOnOutdatedImagePhp();
+		refreshDevImage();
 	}
 
 	const opts = buildDefaultCmd( argv );

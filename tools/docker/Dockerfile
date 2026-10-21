@@ -63,7 +63,6 @@ RUN git config --global --add safe.directory /usr/local/src/jetpack-monorepo
 COPY ./config/php.ini /var/lib/jetpack-config/php.ini
 RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 	--mount=type=bind,source=./bin/ensure-php-version.sh,target=/usr/local/bin/ensure-php-version.sh \
-	--mount=type=bind,source=./bin/check-php-version.sh,target=/usr/local/bin/check-php-version.sh \
 	: "${PHP_VERSION:?Build argument PHP_VERSION needs to be set and non-empty.}" \
 	&& ensure-php-version.sh "$PHP_VERSION" \
 	&& a2enconf "php$PHP_VERSION-fpm" \
