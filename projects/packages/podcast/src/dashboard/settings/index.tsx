@@ -235,23 +235,34 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		normalizeFeedLimit
 	);
 
+	// The last values the server confirmed. A failed choice rolls back to these,
+	// not to the draft, which may hold another choice that is still saving.
+	const savedSettings = useRef( settings );
+	useEffect( () => {
+		savedSettings.current = settings;
+	}, [ settings ] );
+
 	// Discrete choices show the new value right away instead of snapping back
 	// to the saved one until the request returns, and roll back if it fails.
 	const commitChoice = useCallback(
 		( updates: PodcastSettingsUpdate ) => {
-			if ( ! draft ) {
-				return;
-			}
-			const previous = Object.fromEntries(
-				Object.keys( updates ).map( key => [ key, draft[ key as keyof PodcastSettings ] ] )
-			) as PodcastSettingsUpdate;
 			setDraft( current => current && { ...current, ...updates } );
 			saveSettings( updates, {
 				onSuccess: setDraft,
-				onError: () => setDraft( current => current && { ...current, ...previous } ),
+				onError: () =>
+					setDraft( current => {
+						const saved = savedSettings.current;
+						if ( ! current || ! saved ) {
+							return current;
+						}
+						const restored = Object.fromEntries(
+							Object.keys( updates ).map( key => [ key, saved[ key as keyof PodcastSettings ] ] )
+						);
+						return { ...current, ...restored };
+					} ),
 			} );
 		},
-		[ draft, saveSettings ]
+		[ saveSettings ]
 	);
 
 	// Discrete-action handlers — these controls "commit" on each user choice

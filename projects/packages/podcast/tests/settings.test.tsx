@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SettingsTab from '../src/dashboard/settings';
 
@@ -84,5 +84,19 @@ describe( 'SettingsTab post category', () => {
 		await user.selectOptions( screen.getByRole( 'combobox', { name: 'Post category' } ), '7' );
 
 		expect( screen.getByRole( 'combobox', { name: 'Post category' } ) ).toHaveValue( '5' );
+	} );
+
+	it( 'goes back to the saved category when two quick changes both fail', async () => {
+		const user = userEvent.setup();
+		const pending = [];
+		mockMutate.mockImplementation( ( _updates, callbacks ) => pending.push( callbacks ) );
+		render( <SettingsTab /> );
+		const picker = screen.getByRole( 'combobox', { name: 'Post category' } );
+
+		await user.selectOptions( picker, '7' );
+		await user.selectOptions( picker, '5' );
+		act( () => pending.forEach( callbacks => callbacks.onError( new Error( 'nope' ) ) ) );
+
+		expect( picker ).toHaveValue( '5' );
 	} );
 } );
