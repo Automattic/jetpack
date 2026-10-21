@@ -50,16 +50,30 @@ run() {
 	RUN_OUT="$( cd "$1" && ./tools/docker/bin/seed-worktree-env.sh 2>&1 )" && RUN_RC=0 || RUN_RC=$?
 }
 
-# --- a primary repo with the script committed at tools/docker/bin ----------
+# listening PORT — does something accept connections on 127.0.0.1:PORT right now?
+listening() { ( : < "/dev/tcp/127.0.0.1/$1" ) 2>/dev/null; }
+# first_free PORT — the first port at or above PORT with no listener. The script skips busy
+# ports, so on a dev machine with 8080 taken the expected values move up with it.
+first_free() {
+	local p="$1"
+	while listening "$p"; do p=$(( p + 1 )); done
+	printf '%s' "$p"
+}
+
+# new_primary DIR — a primary repo with the script committed at tools/docker/bin.
+new_primary() {
+	mkdir -p "$1/tools/docker/bin"
+	git -C "$1" init -q
+	git -C "$1" config user.email test@example.test
+	git -C "$1" config user.name  seed-test
+	cp "$SUT" "$1/tools/docker/bin/seed-worktree-env.sh"
+	chmod +x "$1/tools/docker/bin/seed-worktree-env.sh"
+	git -C "$1" add -A
+	git -C "$1" commit -qm init
+}
+
 PRIMARY="$TMP/primary"
-mkdir -p "$PRIMARY/tools/docker/bin"
-git -C "$PRIMARY" init -q
-git -C "$PRIMARY" config user.email test@example.test
-git -C "$PRIMARY" config user.name  seed-test
-cp "$SUT" "$PRIMARY/tools/docker/bin/seed-worktree-env.sh"
-chmod +x "$PRIMARY/tools/docker/bin/seed-worktree-env.sh"
-git -C "$PRIMARY" add -A
-git -C "$PRIMARY" commit -qm init
+new_primary "$PRIMARY"
 
 add_wt() { git -C "$PRIMARY" worktree add -q "$TMP/$1" -b "br-$1"; }
 env_of() { printf '%s/tools/docker/.env' "$TMP/$1"; }
@@ -74,7 +88,8 @@ add_wt wt-a
 run "$TMP/wt-a"
 assert_rc zero "linked worktree seeds (exit 0)"
 assert_grep "$( env_of wt-a )" '^COMPOSE_PROJECT_NAME=jetpack_wt-a$' "name derives from the git worktree id"
-assert_grep "$( env_of wt-a )" '^PORT_WORDPRESS=8080$'               "base WordPress port lands at 8080"
+WP_A="$( first_free 8080 )"
+assert_grep "$( env_of wt-a )" "^PORT_WORDPRESS=${WP_A}\$"           "WordPress port lands on the first free port from 8080"
 
 # --- re-running is idempotent ----------------------------------------------
 run "$TMP/wt-a"
@@ -87,7 +102,7 @@ printf 'COMPOSE_PROJECT_NAME=jetpack_beta\n' > "$( env_of wt-b )"
 run "$TMP/wt-b"
 assert_rc zero "name-only .env backfills (exit 0)"
 assert_grep "$( env_of wt-b )" '^COMPOSE_PROJECT_NAME=jetpack_beta$' "hand-set name is kept"
-assert_grep "$( env_of wt-b )" '^PORT_WORDPRESS=8081$'              "backfilled port avoids the sibling's 8080"
+assert_grep "$( env_of wt-b )" "^PORT_WORDPRESS=$( first_free $(( WP_A + 1 )) )\$" "backfilled port avoids the sibling's port"
 
 # --- a name a sibling already uses is refused (concern 1) ------------------
 add_wt wt-c
@@ -206,14 +221,7 @@ assert_rc nonzero "an unbalanced-quote name is rejected (Compose-invalid)"
 # sibling pins base ports via a colon-space and an export form; without the lenient sibling reader
 # the fresh worktree would reuse them, colliding at `up`.
 PRIMARY2="$TMP/primary2"
-mkdir -p "$PRIMARY2/tools/docker/bin"
-git -C "$PRIMARY2" init -q
-git -C "$PRIMARY2" config user.email test@example.test
-git -C "$PRIMARY2" config user.name  seed-test
-cp "$SUT" "$PRIMARY2/tools/docker/bin/seed-worktree-env.sh"
-chmod +x "$PRIMARY2/tools/docker/bin/seed-worktree-env.sh"
-git -C "$PRIMARY2" add -A
-git -C "$PRIMARY2" commit -qm init
+new_primary "$PRIMARY2"
 git -C "$PRIMARY2" worktree add -q "$TMP/p2-sib"   -b br-p2-sib
 git -C "$PRIMARY2" worktree add -q "$TMP/p2-fresh" -b br-p2-fresh
 printf 'COMPOSE_PROJECT_NAME: jetpack_p2sib\nPORT_WORDPRESS: 8080\nexport PORT_PHPMY=8282\n' > "$TMP/p2-sib/tools/docker/.env"
@@ -227,6 +235,33 @@ git -C "$PRIMARY2" worktree add -q "$TMP/p2-dupe" -b br-p2-dupe
 printf 'COMPOSE_PROJECT_NAME=jetpack_p2sib\n' > "$TMP/p2-dupe/tools/docker/.env"
 run "$TMP/p2-dupe"
 assert_rc nonzero "a name duplicating a colon-space sibling is rejected"
+
+# --- a port something is already listening on is skipped -------------------
+# A fresh repo, so no sibling claims anything; hold the port the script would otherwise pick.
+PRIMARY3="$TMP/primary3"
+new_primary "$PRIMARY3"
+git -C "$PRIMARY3" worktree add -q "$TMP/p3-wt" -b br-p3-wt
+BUSY="$( first_free 8080 )"
+if command -v python3 >/dev/null 2>&1; then
+	# Bounded sleep, so the listener exits on its own even if this script dies before the kill.
+	python3 -c 'import socket, sys, time
+s = socket.socket()
+s.bind(("127.0.0.1", int(sys.argv[1])))
+s.listen(1)
+time.sleep(30)' "$BUSY" &
+	LISTENER=$!
+	for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
+		listening "$BUSY" && break
+		sleep 0.25
+	done
+	run "$TMP/p3-wt"
+	kill "$LISTENER" 2>/dev/null || true
+	wait "$LISTENER" 2>/dev/null || true
+	assert_rc zero "seeds beside a busy port (exit 0)"
+	assert_grep "$TMP/p3-wt/tools/docker/.env" "^PORT_WORDPRESS=$( first_free $(( BUSY + 1 )) )\$" "busy port ${BUSY} is skipped for the next free one"
+else
+	echo "  skip - python3 not found, so the busy-port case did not run"
+fi
 
 # --- reaching the primary through a symlinked path is still a no-op ---------
 # (Guards the pwd -P handling that resolves --absolute-git-dir's symlink resolution.)
