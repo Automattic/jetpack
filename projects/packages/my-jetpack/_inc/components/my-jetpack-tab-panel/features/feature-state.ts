@@ -504,7 +504,7 @@ export function useFeaturesNeedsAccount(): boolean {
 }
 
 /**
- * Whether the card offers Connect for a module or installed plugin waiting for an account.
+ * Whether the card offers Connect for a module, installed plugin or plan-driven feature waiting for an account.
  *
  * A missing plugin keeps Install, which connects once the plugin is on.
  *
@@ -513,7 +513,7 @@ export function useFeaturesNeedsAccount(): boolean {
  */
 export function offersConnect( state: FeatureState ): boolean {
 	return Boolean(
-		state.accountNeeded && ( state.control.kind === 'module' || state.control.kind === 'plugin' )
+		state.accountNeeded && [ 'module', 'plugin', 'plan' ].includes( state.control.kind )
 	);
 }
 

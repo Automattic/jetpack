@@ -7,6 +7,7 @@ import { FeatureDelivery } from '../feature-delivery';
 import { FeatureItem } from '../feature-item';
 import { FeatureModalActions } from '../feature-modal-actions';
 import { resolveFeatureState } from '../feature-state';
+import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureState } from '../feature-state';
 
@@ -700,6 +701,24 @@ describe( 'features waiting for an account', () => {
 			false,
 			true
 		);
+	const accountPlan = () =>
+		resolveFeatureState(
+			buildFeature( {
+				slug: 'backup',
+				name: 'Backup',
+				product: 'backup',
+				plugin: 'jetpack-backup',
+				plugin_status: 'active',
+				plan_driven: true,
+				needs_account: true,
+			} ),
+			'not-installed',
+			{ slug: 'backup', status: 'needs_plan', hasPaidPlanForProduct: false } as ProductCamelCase,
+			{},
+			{},
+			false,
+			true
+		);
 	// Waits for the click's plugin request and whatever was chained on it.
 	const settle = async () => {
 		await Promise.all( mockRun.mock.results.map( result => result.value ) );
@@ -710,6 +729,7 @@ describe( 'features waiting for an account', () => {
 		[ 'a module saved as on', accountModule( true ), 'Connect account for Activity Log' ],
 		[ 'a plugin that is off', accountPlugin( 'inactive' ), 'Connect account for Backup' ],
 		[ 'a plugin that is on', accountPlugin( 'active' ), 'Connect account for Backup' ],
+		[ 'a plan-driven feature', accountPlan(), 'Connect account for Backup' ],
 		[ 'a missing plugin', accountPlugin( 'not-installed' ), 'Install' ],
 	] as const )(
 		'offers only what is missing on the card for %s, with the account badge and no account sentence',
