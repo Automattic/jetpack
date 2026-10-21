@@ -86,7 +86,7 @@ class REST_Blog_Posts {
 			}
 
 			$enclosure = $item->get_enclosure();
-			$thumbnail = $enclosure ? (string) $enclosure->get_thumbnail() : '';
+			$thumbnail = $enclosure ? esc_url_raw( (string) $enclosure->get_thumbnail() ) : '';
 
 			$posts[] = array(
 				// The feed parser returns entity-encoded text; the client renders plain text.
@@ -95,7 +95,7 @@ class REST_Blog_Posts {
 				'date'      => $item->get_date( 'c' ),
 				'excerpt'   => wp_trim_words( html_entity_decode( (string) $item->get_description(), ENT_QUOTES, 'UTF-8' ), 20, '…' ),
 				// Jetpack.com crops on request; the full upload is megabytes for a 56px image.
-				'thumbnail' => '' === $thumbnail ? null : esc_url_raw( add_query_arg( 'resize', '112,112', $thumbnail ) ),
+				'thumbnail' => '' === $thumbnail ? null : add_query_arg( 'resize', '112,112', $thumbnail ),
 			);
 		}
 

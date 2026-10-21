@@ -56,7 +56,7 @@ class Rest_Blog_Posts_Test extends TestCase {
 		);
 	}
 
-	public function test_returns_posts_with_resized_thumbnails_and_null_when_missing() {
+	public function test_returns_posts_with_resized_thumbnails_and_null_when_missing_or_unsafe() {
 		$this->serve_feed(
 			array(
 				'headers'  => array( 'content-type' => 'application/rss+xml' ),
@@ -85,6 +85,13 @@ class Rest_Blog_Posts_Test extends TestCase {
 					'link'      => 'https://jetpack.com/resources/no-image/',
 					'date'      => '2026-10-07T19:48:41+00:00',
 					'excerpt'   => 'No thumbnail here.',
+					'thumbnail' => null,
+				),
+				array(
+					'title'     => 'A post with an unsafe image',
+					'link'      => 'https://jetpack.com/resources/unsafe-image/',
+					'date'      => '2026-10-02T17:59:46+00:00',
+					'excerpt'   => 'Unsafe thumbnail.',
 					'thumbnail' => null,
 				),
 			),
