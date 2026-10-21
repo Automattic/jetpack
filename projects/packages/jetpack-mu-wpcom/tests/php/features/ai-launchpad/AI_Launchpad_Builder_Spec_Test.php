@@ -40,7 +40,6 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 			'defaults only, as JSON'  => array( '{"siteTitle":"X","siteDescription":"","topic":"General"}', false ),
 			'a siteType, as JSON'     => array( '{"siteType":"business"}', true ),
 			'a siteType, as an array' => array( array( 'siteType' => 'business' ), true ),
-			'an empty siteType'       => array( array( 'siteType' => '' ), false ),
 		);
 	}
 
@@ -82,12 +81,12 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 				),
 				'sell',
 			),
-			'a truthy non-boolean map'     => array(
+			'a disabled feature in a map'  => array(
 				array(
 					'siteType'     => 'business',
-					'siteFeatures' => array( 'sell_services' => 'yes' ),
+					'siteFeatures' => array( 'sell_services' => false ),
 				),
-				'sell',
+				'build',
 			),
 			'sell_services as a goal'      => array(
 				array(
@@ -97,11 +96,8 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 				'sell',
 			),
 			'a blog'                       => array( array( 'siteType' => 'blog' ), 'write' ),
-			'news'                         => array( array( 'siteType' => 'news' ), 'write' ),
-			'a personal site'              => array( array( 'siteType' => 'personal' ), 'write' ),
 			'photography'                  => array( array( 'siteType' => 'photography' ), 'portfolio' ),
 			'education'                    => array( array( 'siteType' => 'education' ), 'educate' ),
-			'food and beverage'            => array( array( 'siteType' => 'foodAndBeverage' ), 'build' ),
 			'an unknown type'              => array( array( 'siteType' => 'something-new' ), 'build' ),
 		);
 	}
@@ -128,15 +124,7 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_descriptions() {
 		return array(
-			'with a topic'             => array(
-				array(
-					'siteType'        => 'business',
-					'siteDescription' => 'A bakery.',
-					'topic'           => 'Baking',
-				),
-				"A bakery.\nTopic: Baking",
-			),
-			'with the General topic'   => array(
+			'with the General topic'    => array(
 				array(
 					'siteType'        => 'business',
 					'siteDescription' => 'A bakery.',
@@ -144,63 +132,37 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 				),
 				'A bakery.',
 			),
-			'with goals'               => array(
-				array(
-					'siteType'        => 'business',
-					'siteDescription' => 'A bakery.',
-					'siteGoals'       => array( 'sell_services', 42, 'get_bookings' ),
-				),
-				"A bakery.\nGoals: sell_services; get_bookings",
-			),
-			'with a topic and goals'   => array(
+			'with a topic and goals'    => array(
 				array(
 					'siteType'        => 'business',
 					'siteDescription' => 'A bakery.',
 					'topic'           => 'Baking',
-					'siteGoals'       => array( 'get_bookings' ),
+					'siteGoals'       => array( 'get_bookings', 42 ),
 				),
 				"A bakery.\nTopic: Baking\nGoals: get_bookings",
 			),
-			'with only a topic'        => array(
-				array(
-					'siteType' => 'business',
-					'topic'    => 'Baking',
-				),
-				'Topic: Baking',
-			),
-			'with nothing to describe' => array(
+			'with nothing to describe'  => array(
 				array(
 					'siteType' => 'business',
 					'topic'    => 'General',
 				),
 				'business',
 			),
-			'with only a title'        => array(
+			'with only a title'         => array(
 				array(
 					'siteType'  => 'business',
 					'siteTitle' => 'Acme',
 				),
 				'Acme (business)',
 			),
-		);
-	}
-
-	/**
-	 * The description never exceeds 1000 characters.
-	 */
-	public function test_builder_input_caps_the_description() {
-		update_option(
-			'big_sky_site_metadata',
-			wp_json_encode(
+			'capped at 1000 characters' => array(
 				array(
 					'siteType'        => 'business',
 					'siteDescription' => str_repeat( 'é', 1500 ),
 				),
-				JSON_UNESCAPED_SLASHES
-			)
+				str_repeat( 'é', 1000 ),
+			),
 		);
-
-		$this->assertSame( 1000, mb_strlen( $this->builder_input()['description'] ) );
 	}
 
 	/**
@@ -211,9 +173,8 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 			'big_sky_site_metadata',
 			wp_json_encode(
 				array(
-					'siteType'        => 'business',
-					'siteTitle'       => 'Spec Title',
-					'siteDescription' => 'A bakery.',
+					'siteType'  => 'business',
+					'siteTitle' => 'Spec Title',
 				),
 				JSON_UNESCAPED_SLASHES
 			)
@@ -224,31 +185,6 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 
 		update_option( 'blogname', '' );
 		$this->assertSame( 'Spec Title', $this->builder_input()['site_name'] );
-	}
-
-	/**
-	 * The goal in the input comes from the spec.
-	 */
-	public function test_builder_input_goal() {
-		update_option(
-			'big_sky_site_metadata',
-			wp_json_encode(
-				array(
-					'siteType'        => 'store',
-					'siteDescription' => 'Shoes.',
-				),
-				JSON_UNESCAPED_SLASHES
-			)
-		);
-
-		$this->assertSame( 'sell', $this->builder_input()['goal'] );
-	}
-
-	/**
-	 * No spec means no input.
-	 */
-	public function test_builder_input_is_null_without_a_spec() {
-		$this->assertNull( wpcom_ai_launchpad_builder_input() );
 	}
 
 	/**

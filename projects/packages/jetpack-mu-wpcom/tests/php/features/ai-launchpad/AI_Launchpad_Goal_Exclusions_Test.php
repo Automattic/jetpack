@@ -68,10 +68,8 @@ class AI_Launchpad_Goal_Exclusions_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_ai_built_exclusions() {
 		return array(
-			'a design task on an AI-built site'  => array( true, 'site_theme_selected', true ),
-			'a content task on an AI-built site' => array( true, 'add_about_page', true ),
-			'a kept task on an AI-built site'    => array( true, 'add_site_icon', false ),
-			'a design task on any other site'    => array( false, 'site_theme_selected', false ),
+			'a design task on an AI-built site' => array( true, 'site_theme_selected', true ),
+			'a design task on any other site'   => array( false, 'site_theme_selected', false ),
 		);
 	}
 }

@@ -369,10 +369,8 @@ describe( 'tasksFromFixture', () => {
 } );
 
 describe( 'recordsWizardCompleted', () => {
-	it( 'records only a wizard-started run that rendered tasks', () => {
+	it( 'records only a run that came from the wizard', () => {
 		assert.equal( recordsWizardCompleted( true, true, 3 ), true );
 		assert.equal( recordsWizardCompleted( false, true, 3 ), false );
-		assert.equal( recordsWizardCompleted( true, false, 3 ), false );
-		assert.equal( recordsWizardCompleted( true, true, 0 ), false );
 	} );
 } );

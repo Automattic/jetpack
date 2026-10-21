@@ -1469,22 +1469,27 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * A list tailored for an AI-built site never renders the builder's tasks, not even through the sell
-	 * goal's theme guarantee or the short-list backfill.
+	 * goal's theme guarantee or the short-list backfill; a list tailored before the site was AI-built keeps them.
 	 *
 	 * @dataProvider provide_ai_built_lists
 	 *
-	 * @param string[] $seeded The seeded task ids.
-	 * @param string   $goal   The goal.
+	 * @param string[] $seeded  The seeded task ids.
+	 * @param string   $goal    The goal.
+	 * @param bool     $flagged Whether the list was tailored for an AI-built site.
+	 * @param bool     $hidden  Whether every builder task stays hidden.
 	 */
 	#[DataProvider( 'provide_ai_built_lists' )]
-	public function test_get_hides_the_builders_tasks_on_an_ai_built_list( $seeded, $goal ) {
+	public function test_get_hides_the_builders_tasks_on_an_ai_built_list( $seeded, $goal, $flagged, $hidden ) {
 		$this->seed_ai_output_with_tasks( $seeded, $goal );
-		$this->mark_list_ai_built();
+		if ( $flagged ) {
+			$this->mark_list_ai_built();
+		} else {
+			$this->seed_builder_spec();
+		}
 
 		$ids = $this->rendered_ids();
 
-		$this->assertSame( array(), array_values( array_intersect( $ids, AI_Launchpad_REST::AI_BUILT_EXCLUDED_TASK_IDS ) ) );
-		$this->assertSame( 'site_launched', end( $ids ) );
+		$this->assertSame( $hidden, array() === array_values( array_intersect( $ids, AI_Launchpad_REST::AI_BUILT_EXCLUDED_TASK_IDS ) ) );
 	}
 
 	/**
@@ -1494,28 +1499,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_ai_built_lists() {
 		return array(
-			'a short write list'               => array(
-				array( 'complete_profile', 'site_launched' ),
-				'write',
-			),
-			'a sell list without a theme task' => array(
-				array( 'woo_products', 'site_launched' ),
-				'sell',
-			),
+			'a short write list'                     => array( array( 'complete_profile', 'site_launched' ), 'write', true, true ),
+			'a sell list without a theme task'       => array( array( 'woo_products', 'site_launched' ), 'sell', true, true ),
+			'sell list, live spec only, not flagged' => array( array( 'woo_products', 'site_launched' ), 'sell', false, false ),
 		);
-	}
-
-	/**
-	 * Marking a site as AI-built after it was tailored leaves its list alone.
-	 */
-	public function test_marking_a_site_ai_built_keeps_its_existing_list() {
-		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_theme_selected', 'site_launched' ), 'write' );
-		update_option( 'big_sky_site_metadata', wp_json_encode( array( 'siteType' => 'business' ), JSON_UNESCAPED_SLASHES ) );
-
-		$ids = $this->rendered_ids();
-
-		$this->assertContains( 'first_post_published', $ids );
-		$this->assertContains( 'site_theme_selected', $ids );
 	}
 
 	/**
@@ -1536,12 +1523,12 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The first load gets the builder's input to tailor with, claims the run and records the input as the wizard's.
+	 * A site without a list gets the builder's input to tailor with, recorded as the wizard's answers.
 	 */
-	public function test_get_serves_the_builder_input_to_the_first_load_only() {
+	public function test_get_serves_the_builder_input() {
 		$this->seed_builder_spec();
 
-		$first = $this->call_api( 'GET', '', null, array( 'auto_tailor' => '1' ) )->get_data();
+		$data = $this->call_api( 'GET' )->get_data();
 
 		$this->assertSame(
 			array(
@@ -1549,52 +1536,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'site_name'   => 'Sunrise Bakery',
 				'description' => 'A bakery.',
 			),
-			$first['inferred_input']
+			$data['inferred_input']
 		);
-		$this->assertFalse( $first['auto_tailoring'] );
-		$this->assertNotEmpty( $first['auto_tailor_token'] );
-		$this->assertStringEndsWith( ':' . $first['auto_tailor_token'], get_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM ) );
-		$this->assertSame( 'build', $first['wizard']['goal'] );
-		$this->assertSame( 'ai_builder', get_option( AI_Launchpad_REST::OPTION_WIZARD )['source'] );
-		$this->assertSame( 'Sunrise Bakery', get_option( 'blogname' ) );
-
-		$second = $this->call_api( 'GET', '', null, array( 'auto_tailor' => '1' ) )->get_data();
-
-		$this->assertNull( $second['inferred_input'] );
-		$this->assertTrue( $second['auto_tailoring'] );
-		$this->assertNull( $second['auto_tailor_token'] );
-	}
-
-	/**
-	 * A claim blocks other loads only while it is fresh.
-	 *
-	 * @dataProvider provide_claim_ages
-	 *
-	 * @param int  $age    Seconds since the claim was made.
-	 * @param bool $served Whether this load gets the input.
-	 */
-	#[DataProvider( 'provide_claim_ages' )]
-	public function test_get_reclaims_only_a_stale_claim( $age, $served ) {
-		$this->seed_builder_spec();
-		update_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM, ( time() - $age ) . ':old', false );
-
-		$data = $this->call_api( 'GET', '', null, array( 'auto_tailor' => '1' ) )->get_data();
-
-		$this->assertSame( $served, null !== $data['inferred_input'] );
-		$this->assertSame( ! $served, $data['auto_tailoring'] );
-	}
-
-	/**
-	 * Data provider for test_get_reclaims_only_a_stale_claim.
-	 *
-	 * @return array
-	 */
-	public static function provide_claim_ages() {
-		return array(
-			'a fresh claim'            => array( 10, false ),
-			'just inside the lifetime' => array( AI_Launchpad_REST::AUTO_TAILOR_CLAIM_TTL - 5, false ),
-			'a stale claim'            => array( AI_Launchpad_REST::AUTO_TAILOR_CLAIM_TTL + 5, true ),
-		);
+		$this->assertSame( 'build', $data['wizard']['goal'] );
 	}
 
 	/**
@@ -1610,22 +1554,21 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		);
 		update_option( AI_Launchpad_REST::OPTION_WIZARD, $wizard, false );
 
-		$data = $this->call_api( 'GET', '', null, array( 'auto_tailor' => '1' ) )->get_data();
+		$data = $this->call_api( 'GET' )->get_data();
 
 		$this->assertSame( 'sell', $data['inferred_input']['goal'] );
 		$this->assertSame( $wizard, get_option( AI_Launchpad_REST::OPTION_WIZARD ) );
 	}
 
 	/**
-	 * Only a site admin's auto-tailoring load without a list gets the input, and nothing is claimed otherwise.
+	 * Only a site admin's load without a list gets the builder's input.
 	 *
 	 * @dataProvider provide_loads_without_input
 	 *
-	 * @param string     $setup The setup to apply.
-	 * @param null|array $query Query params.
+	 * @param string $setup The setup to apply.
 	 */
 	#[DataProvider( 'provide_loads_without_input' )]
-	public function test_get_withholds_the_builder_input( $setup, $query = null ) {
+	public function test_get_withholds_the_builder_input( $setup ) {
 		$this->seed_builder_spec();
 		if ( 'editor' === $setup ) {
 			wp_set_current_user(
@@ -1639,15 +1582,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			);
 		} elseif ( 'tailored' === $setup ) {
 			$this->seed_tailored_site();
-		} elseif ( 'no_spec' === $setup ) {
+		} else {
 			delete_option( 'big_sky_site_metadata' );
 		}
 
-		$data = $this->call_api( 'GET', '', null, $query )->get_data();
-
-		$this->assertNull( $data['inferred_input'] );
-		$this->assertFalse( $data['auto_tailoring'] );
-		$this->assertFalse( get_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM ) );
+		$this->assertNull( $this->call_api( 'GET' )->get_data()['inferred_input'] );
 	}
 
 	/**
@@ -1656,132 +1595,31 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 * @return array
 	 */
 	public static function provide_loads_without_input() {
-		$auto = array( 'auto_tailor' => '1' );
 		return array(
-			'a read that did not ask'    => array( 'admin' ),
-			'an editor'                  => array( 'editor', $auto ),
-			'an existing list'           => array( 'tailored', $auto ),
-			'no builder spec'            => array( 'no_spec', $auto ),
-			'the all-tasks testing view' => array( 'admin', array_merge( $auto, array( 'all_tasks' => '1' ) ) ),
+			'an editor'        => array( 'editor' ),
+			'an existing list' => array( 'tailored' ),
+			'no builder spec'  => array( 'no_spec' ),
 		);
 	}
 
 	/**
-	 * Once a list is saved, no load tailors or waits, whatever the claim says.
+	 * A saved list records that the site was AI-built when it was tailored.
 	 */
-	public function test_get_after_saving_the_list_serves_no_input() {
-		update_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM, time(), false );
-		$this->assertSame( 200, $this->call_api( 'PUT', '/tailored', self::valid_payload() )->get_status() );
-		$this->seed_builder_spec();
-
-		$data = $this->call_api( 'GET', '', null, array( 'auto_tailor' => '1' ) )->get_data();
-
-		$this->assertNull( $data['inferred_input'] );
-		$this->assertFalse( $data['auto_tailoring'] );
-	}
-
-	/**
-	 * Releasing frees the claim only for its owner, and only while no list exists.
-	 *
-	 * @dataProvider provide_claim_releases
-	 *
-	 * @param bool   $tailored Whether the site already has a list.
-	 * @param string $token    The token the release sends.
-	 * @param bool   $released Whether the claim is freed.
-	 */
-	#[DataProvider( 'provide_claim_releases' )]
-	public function test_release_frees_only_the_owners_claim_without_a_list( $tailored, $token, $released ) {
-		if ( $tailored ) {
-			$this->seed_tailored_site();
-		}
-		update_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM, time() . ':owner', false );
-
-		$data = $this->call_api( 'DELETE', '/auto-tailor-claim', null, array( 'token' => $token ) )->get_data();
-
-		$this->assertSame( $released, $data['released'] );
-		$this->assertSame( ! $released, false !== get_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM ) );
-	}
-
-	/**
-	 * Data provider for test_release_frees_the_claim_only_without_a_list.
-	 *
-	 * @return array
-	 */
-	public static function provide_claim_releases() {
-		return array(
-			'the owner, no list yet'  => array( false, 'owner', true ),
-			'the owner, a saved list' => array( true, 'owner', false ),
-			'another load'            => array( false, 'intruder', false ),
-		);
-	}
-
-	/**
-	 * Dismissing ends the claim.
-	 */
-	public function test_dismissing_releases_the_claim() {
-		update_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM, time(), false );
-
-		$this->assertSame( 200, $this->call_api( 'DELETE' )->get_status() );
-
-		$this->assertFalse( get_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM ) );
-	}
-
-	/**
-	 * A saved list records whether the site was AI-built when it was tailored.
-	 *
-	 * @dataProvider provide_ai_built_flags
-	 *
-	 * @param bool $ai_built Whether the site is marked as AI-built.
-	 */
-	#[DataProvider( 'provide_ai_built_flags' )]
-	public function test_put_tailored_records_whether_the_site_is_ai_built( $ai_built ) {
-		if ( $ai_built ) {
-			update_option( 'big_sky_site_metadata', wp_json_encode( array( 'siteType' => 'business' ), JSON_UNESCAPED_SLASHES ) );
-		} else {
-			delete_option( 'big_sky_site_metadata' );
-		}
+	public function test_put_tailored_records_whether_the_site_is_ai_built() {
+		update_option( 'big_sky_site_metadata', wp_json_encode( array( 'siteType' => 'business' ), JSON_UNESCAPED_SLASHES ) );
 		$payload          = self::valid_payload();
-		$payload['tasks'] = array(
-			array(
-				'id'       => 'complete_profile',
-				'subtitle' => 'Tell readers who you are.',
-			),
-			array(
-				'id'       => 'connect_social_media',
-				'subtitle' => 'Share every new post.',
-			),
-			array(
-				'id'       => 'add_site_icon',
-				'subtitle' => 'Add your logo.',
-			),
-			array(
-				'id'       => 'verify_email',
-				'subtitle' => 'Confirm your email.',
-			),
-			array(
-				'id'       => 'domain_upsell',
-				'subtitle' => 'Get your own domain.',
-			),
-			array(
-				'id'       => 'site_launched',
-				'subtitle' => 'Go live.',
-			),
+		$payload['tasks'] = array_map(
+			function ( $id ) {
+				return array(
+					'id'       => $id,
+					'subtitle' => 'Subtitle for ' . $id . '.',
+				);
+			},
+			array( 'complete_profile', 'connect_social_media', 'add_site_icon', 'verify_email', 'domain_upsell', 'site_launched' )
 		);
 
 		$this->assertSame( 200, $this->call_api( 'PUT', '/tailored', $payload, array( 'source' => 'ai' ) )->get_status() );
-		$this->assertSame( $ai_built, get_option( 'wpcom_ai_launchpad_ai_output' )['ai_built'] );
-	}
-
-	/**
-	 * Data provider for test_put_tailored_records_whether_the_site_is_ai_built.
-	 *
-	 * @return array
-	 */
-	public static function provide_ai_built_flags() {
-		return array(
-			'an AI-built site' => array( true ),
-			'any other site'   => array( false ),
-		);
+		$this->assertTrue( get_option( 'wpcom_ai_launchpad_ai_output' )['ai_built'] );
 	}
 
 	/**

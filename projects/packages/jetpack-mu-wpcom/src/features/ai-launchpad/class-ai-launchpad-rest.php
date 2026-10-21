@@ -19,13 +19,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	// Set once; cleared only by an explicit reset (re-tailor, dismiss, reset).
 	const OPTION_COMPLETED = 'wpcom_ai_launchpad_completed';
 
-	const OPTION_AUTO_TAILOR_CLAIM = 'wpcom_ai_launchpad_auto_tailor_claim';
-
 	// The goals the wizard offers.
 	const GOALS = array( 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' );
-
-	// Long enough for one tailoring run; a load that left mid-run frees the site after it.
-	const AUTO_TAILOR_CLAIM_TTL = 180;
 
 	/**
 	 * Options whose writes can finish a task outside Site Setup: every listener records completion in the statuses
@@ -312,13 +307,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'can_read' ),
 					'args'                => array(
 						// Testing aid: render the full task catalog so every task can be exercised from one site.
-						'all_tasks'   => array(
+						'all_tasks' => array(
 							'description' => 'Return the full task catalog instead of the tailored list (testing aid).',
-							'type'        => 'boolean',
-							'default'     => false,
-						),
-						'auto_tailor' => array(
-							'description' => 'Whether this load may claim the automatic tailoring run of an AI-built site. A successful claim also records the inferred wizard answers, so the read has side effects.',
 							'type'        => 'boolean',
 							'default'     => false,
 						),
@@ -328,25 +318,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'dismiss' ),
 					'permission_callback' => array( $this, 'can_write' ),
-				),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			$this->rest_base . '/auto-tailor-claim',
-			array(
-				array(
-					'methods'             => WP_REST_Server::DELETABLE,
-					'callback'            => array( $this, 'release_auto_tailor_claim' ),
-					'permission_callback' => array( $this, 'can_write' ),
-					'args'                => array(
-						'token' => array(
-							'description' => 'The token the claiming read returned, so only that load can release its claim.',
-							'type'        => 'string',
-							'required'    => true,
-						),
-					),
 				),
 			)
 		);
@@ -628,19 +599,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$shows_wizard = ! is_array( $ai_output ) && ! $all_tasks;
 
 		$inferred_input = null;
-		$auto_tailoring = false;
-		$claim_token    = null;
-		$auto_tailor    = $request instanceof WP_REST_Request && $request->get_param( 'auto_tailor' );
-		if ( $shows_wizard && $auto_tailor && current_user_can( 'manage_options' ) ) {
+		if ( $shows_wizard && current_user_can( 'manage_options' ) ) {
 			$builder_input = wpcom_ai_launchpad_builder_input();
 			if ( null !== $builder_input ) {
-				$claim_token = $this->claim_auto_tailoring();
-				if ( null !== $claim_token ) {
-					$inferred_input = $this->adopt_builder_input( $builder_input );
-					$wizard         = get_option( self::OPTION_WIZARD );
-				} else {
-					$auto_tailoring = true;
-				}
+				$inferred_input = $this->adopt_builder_input( $builder_input );
+				$wizard         = get_option( self::OPTION_WIZARD );
 			}
 		}
 
@@ -655,12 +618,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'is_eligible'        => true,
 			// Whether the next tailoring is for an AI-built site, so the client fallback skips the builder's tasks.
 			'ai_built'           => wpcom_ai_launchpad_is_ai_built(),
-			// What the AI Website Builder learned, for a site that skips the wizard; served to one load at a time.
+			// What the AI Website Builder learned, so an AI-built site skips the wizard and tailors with it.
 			'inferred_input'     => $inferred_input,
-			// Another load is tailoring this site right now, so this one waits for its list.
-			'auto_tailoring'     => $auto_tailoring,
-			// Proves ownership of the claim when this load releases it.
-			'auto_tailor_token'  => $claim_token,
 			// The language this request is translated into, which is the reader's own. Task subtitles
 			// follow it, since they are read here and never published.
 			'user_language'      => determine_locale(),
@@ -1252,7 +1211,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		delete_option( self::OPTION_AI_OUTPUT );
 		delete_option( self::OPTION_SKIPPED );
 		delete_option( self::OPTION_COMPLETED );
-		delete_option( self::OPTION_AUTO_TAILOR_CLAIM );
 		update_option( self::OPTION_DISMISSED, true, true );
 
 		return array( 'dismissed' => true );
@@ -1451,25 +1409,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Frees the automatic tailoring run a leaving load had claimed, so the next load tailors without waiting.
-	 *
-	 * @param WP_REST_Request $request The request, carrying the claim's token.
-	 * @return array
-	 */
-	public function release_auto_tailor_claim( $request ) {
-		$claim    = (string) get_option( self::OPTION_AUTO_TAILOR_CLAIM );
-		$parts    = explode( ':', $claim, 2 );
-		$token    = (string) $request->get_param( 'token' );
-		$released = '' !== $token
-			&& isset( $parts[1] )
-			&& hash_equals( $parts[1], $token )
-			&& ! is_array( get_option( self::OPTION_AI_OUTPUT ) )
-			&& delete_option( self::OPTION_AUTO_TAILOR_CLAIM );
-
-		return array( 'released' => $released );
-	}
-
-	/**
 	 * Records the builder's input as the wizard answers, or reuses an existing answer's goal.
 	 *
 	 * The builder's name and description are always used; blogname and blogdescription are never touched.
@@ -1499,27 +1438,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		return $builder_input;
-	}
-
-	/**
-	 * Claims the automatic tailoring run for this request, so a reload or a second tab waits instead of tailoring twice.
-	 * Best-effort: two near-simultaneous loads can both win, costing at worst one extra tailoring run.
-	 *
-	 * @return string|null The claim's token when this request won it, null otherwise.
-	 */
-	private function claim_auto_tailoring() {
-		$now   = time();
-		$token = wp_generate_password( 20, false );
-		// Stored as "time:token"; the int cast below reads the time part.
-		$claim = $now . ':' . $token;
-		if ( add_option( self::OPTION_AUTO_TAILOR_CLAIM, $claim, '', false ) ) {
-			return $token;
-		}
-		if ( $now - (int) get_option( self::OPTION_AUTO_TAILOR_CLAIM ) < self::AUTO_TAILOR_CLAIM_TTL ) {
-			return null;
-		}
-		update_option( self::OPTION_AUTO_TAILOR_CLAIM, $claim, false );
-		return $token;
 	}
 
 	/**

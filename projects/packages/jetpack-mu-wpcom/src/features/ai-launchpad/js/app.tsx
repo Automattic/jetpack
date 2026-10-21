@@ -3,13 +3,17 @@ import { useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import {
 	buildAutoInput,
-	releaseClaim,
-	startAutoTailor,
-	waitForTailoring,
-} from './lib/auto-tailor.ts';
-import { readOnce } from './lib/initial-read.ts';
-import { decideInitialView, isAllTasksMode, type View } from './lib/orchestration.ts';
-import { contextFromInferred, contextFromTaskIds, setTracksContext } from './lib/tracks.ts';
+	decideInitialView,
+	isAllTasksMode,
+	type View,
+} from './lib/orchestration.ts';
+import { tailor } from './lib/tailor.ts';
+import {
+	contextFromInferred,
+	contextFromTaskIds,
+	setTracksContext,
+	trackWizardBypassed,
+} from './lib/tracks.ts';
 import { TailoredList } from './tailored-list/tailored-list.tsx';
 import { Wizard } from './wizard/wizard.tsx';
 import type { GoalSlug, TailorResult } from './lib/types.ts';
@@ -25,8 +29,8 @@ export function App() {
 	// null while the initial read is in flight.
 	const [ view, setView ] = useState< View | null >( null );
 	const [ pendingTailor, setPendingTailor ] = useState< Promise< TailorResult > | undefined >();
-	// The goal picked in the wizard, forwarded to the list for its heading.
 	const [ fromWizard, setFromWizard ] = useState( false );
+	// The goal picked in the wizard, forwarded to the list for its heading.
 	const [ goal, setGoal ] = useState< GoalSlug | undefined >();
 	// Handed to the list so returning users don't refetch the same endpoint.
 	const [ initialData, setInitialData ] = useState< LaunchpadData | undefined >();
@@ -35,10 +39,8 @@ export function App() {
 		let cancelled = false;
 		// Testing aid: ?all_tasks=1 skips the wizard and renders the full catalog.
 		const allTasks = isAllTasksMode( window.location.search );
-		const path = allTasks
-			? '/wpcom/v2/ai-launchpad?all_tasks=1'
-			: '/wpcom/v2/ai-launchpad?auto_tailor=1';
-		readOnce( path, () => apiFetch< LaunchpadData >( { path } ) ).then( data => {
+		const path = allTasks ? '/wpcom/v2/ai-launchpad?all_tasks=1' : '/wpcom/v2/ai-launchpad';
+		apiFetch< LaunchpadData >( { path } ).then( data => {
 			if ( cancelled ) {
 				return;
 			}
@@ -67,22 +69,15 @@ export function App() {
 			const nextView = allTasks ? 'list' : decideInitialView( data );
 			const siteCopy = data.site?.copy;
 			const input = nextView === 'auto' ? buildAutoInput( data ) : null;
-			const token = data.auto_tailor_token ?? '';
 			if ( input && siteCopy ) {
+				setTracksContext( { goal: input.goal } );
+				trackWizardBypassed( { reason: 'ai_builder' } );
 				setGoal( input.goal );
 				// Start it here, not in the updater, which React may call twice.
-				const tailoring = startAutoTailor( input, siteCopy, token );
+				const tailoring = tailor( input, siteCopy, true );
 				setPendingTailor( () => tailoring );
 				setView( 'list' );
-			} else if ( nextView === 'waiting' && siteCopy ) {
-				const waiting = waitForTailoring( siteCopy );
-				setPendingTailor( () => waiting );
-				setView( 'list' );
 			} else {
-				if ( input ) {
-					// Nothing can tailor without the site copy, so don't hold the site for the claim's lifetime.
-					releaseClaim( token );
-				}
 				setView( nextView );
 			}
 		} );

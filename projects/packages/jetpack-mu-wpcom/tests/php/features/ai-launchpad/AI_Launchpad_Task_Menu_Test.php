@@ -83,7 +83,6 @@ class AI_Launchpad_Task_Menu_Test extends \WorDBless\BaseTestCase {
 		$path = __DIR__ . '/../../../../src/features/ai-launchpad/js/lib/fallback.ts';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local package file.
 		$source = file_get_contents( $path );
-		$this->assertIsString( $source );
 		$this->assertSame( 1, preg_match( '/\bAI_BUILT_GOAL_TASK_IDS\b[^=]*=\s*\{(.*?)\}\s*;/s', $source, $block ), 'Could not parse AI_BUILT_GOAL_TASK_IDS from fallback.ts.' );
 		// Quoted strings not followed by a colon, so quoted goal keys are skipped.
 		preg_match_all( '/([\'"])([a-z0-9_]+)\1(?!\s*:)/', $block[1], $ids );

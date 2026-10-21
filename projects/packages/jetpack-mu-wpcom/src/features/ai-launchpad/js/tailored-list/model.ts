@@ -55,14 +55,9 @@ export interface LaunchpadData {
 	tasks: EnrichedTask[];
 	ai_output: {
 		payload: TailoredOutput;
-		source?: string;
 	} | null;
-	// Served only to the one load that should tailor an AI-built site (`?auto_tailor=1`).
+	// What the AI Website Builder learned, served when an AI-built site has no list yet.
 	inferred_input?: InferredInput | null;
-	// Whether another load is already tailoring this site's list.
-	auto_tailoring?: boolean;
-	// Proves this load owns the claim when it releases it; set alongside inferred_input.
-	auto_tailor_token?: string | null;
 	site?: SiteData;
 	// The persisted wizard input; seeds the Tracks goal before tailoring exists.
 	wizard?: { goal?: string } | null;

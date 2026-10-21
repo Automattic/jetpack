@@ -1,4 +1,4 @@
-import type { InferredInput, TailoredOutput } from './types.ts';
+import type { InferredInput, TailoredOutput, WizardInput } from './types.ts';
 
 /**
  * The slice of `GET /wpcom/v2/ai-launchpad` the host reads to decide which view
@@ -9,16 +9,16 @@ export interface OrchestrationData {
 		payload: TailoredOutput;
 	} | null;
 	inferred_input?: InferredInput | null;
-	auto_tailoring?: boolean;
+	site?: { language?: string };
+	user_language?: string;
 }
 
 /** Which top-level view the host renders. */
-export type View = 'wizard' | 'list' | 'auto' | 'waiting';
+export type View = 'wizard' | 'list' | 'auto';
 
 /**
- * Decide the initial view: sites with AI output see the list. Without it, AI-built sites
- * skip the wizard: `auto` when this load should tailor, `waiting` when another already is.
- * Everything else sees the wizard.
+ * Decide the initial view: sites with AI output see the list, AI-built sites without it
+ * tailor automatically (`auto`), and everything else sees the wizard.
  *
  * @param data - The relevant slice of the `GET /ai-launchpad` response.
  * @return The view to render on load.
@@ -27,10 +27,21 @@ export function decideInitialView( data: OrchestrationData ): View {
 	if ( data.ai_output ) {
 		return 'list';
 	}
-	if ( data.inferred_input ) {
-		return 'auto';
+	return data.inferred_input ? 'auto' : 'wizard';
+}
+
+/**
+ * Build the tailoring input an AI-built site skips the wizard with.
+ *
+ * @param data - The relevant slice of the `GET /ai-launchpad` response.
+ * @return The input, or null when the server inferred none.
+ */
+export function buildAutoInput( data: OrchestrationData ): WizardInput | null {
+	if ( ! data.inferred_input ) {
+		return null;
 	}
-	return data.auto_tailoring ? 'waiting' : 'wizard';
+	const locale = data.site?.language || 'en';
+	return { ...data.inferred_input, locale, ui_locale: data.user_language || locale };
 }
 
 /**
