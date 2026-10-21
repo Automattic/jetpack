@@ -45,7 +45,9 @@ jest.mock( '@woocommerce/email-editor', () => {
 	);
 	mockCapturedHeadingTitle = __( 'Headings', 'jetpack' );
 
-	return { ExperimentalEmailEditor: MockEmailEditor };
+	// The store name as well as the editor: the watchers address the package's store by it, and a
+	// mock without it makes `select()` throw rather than report an unregistered store.
+	return { ExperimentalEmailEditor: MockEmailEditor, storeName: 'email-editor/editor' };
 } );
 
 const mockRegisterBlockType = jest.fn();
@@ -548,6 +550,40 @@ describe( 'Email design editor entry point', () => {
 			await loadEntryPoint();
 
 			expect( mountedEditorProps().config.editorSettings.styles ).toEqual( [ { css: 'body{}' } ] );
+		} );
+
+		it( 'sizes image captions from the design the bundle carries', async () => {
+			mockApiFetch.mockResolvedValue(
+				bootstrapBundle( {
+					global_styles: {
+						...bootstrapBundle().global_styles,
+						record: {
+							...bootstrapBundle().global_styles.record,
+							styles: { typography: { fontSize: '22px' } },
+						},
+					},
+				} )
+			);
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// Without it the caption cells inherit the `font-size: 0px` the image tables carry.
+			expect( mountedEditorProps().config.editorSettings.styles ).toContainEqual( {
+				css: '.is-root-container{--wpcom-email-root-font-size:22px; }',
+			} );
+		} );
+
+		it( 'leaves captions to the fallback when neither half of the bundle sets a size', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect(
+				mountedEditorProps().config.editorSettings.styles.some( ( { css } ) =>
+					css.includes( '--wpcom-email-root-font-size' )
+				)
+			).toBe( false );
 		} );
 
 		it( 'does not pass the bundle through in its own shape', async () => {
