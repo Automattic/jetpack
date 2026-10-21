@@ -424,6 +424,10 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
+	// Jetpack > Protect. Calypso's Scan owns the nav for now, so the Jetpack plugin's Protect
+	// page is hidden rather than removed and `page=jetpack-protect` still opens it.
+	wpcom_hide_submenu_page( 'jetpack', 'jetpack-protect' );
+
 	// Jetpack > Backup. Until the wp-admin page takes over, Calypso owns the nav and `jetpack-backup`
 	// is hidden rather than removed, so links into it keep working.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
