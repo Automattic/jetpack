@@ -3,10 +3,9 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Modal } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
-import { STORE_ID } from '../../state/store';
+import { useCallback } from 'react';
+import useUnlinkUser from '../../hooks/use-unlink-user';
 import DisconnectActionFooter from '../shared/disconnect-action-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import useConnection from '../use-connection';
@@ -22,8 +21,6 @@ interface OwnerDisconnectDialogProps {
 	apiRoot: string;
 	/** API nonce. */
 	apiNonce: string;
-	/** Callback after successful disconnection. */
-	onDisconnected?: () => void;
 	/** Callback after user is unlinked. */
 	onUnlinked?: () => void;
 	/** Opens the ownership transfer flow. Omit to hide that action. */
@@ -47,14 +44,11 @@ const OwnerDisconnectDialog = ( {
 	onClose,
 	apiRoot,
 	apiNonce,
-	onDisconnected,
 	onUnlinked,
 	onTransferOwnership,
 	context,
 }: OwnerDisconnectDialogProps ) => {
-	// Add state for disconnect status and error
-	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
-	const [ disconnectError, setDisconnectError ] = useState( '' );
+	const { isDisconnecting, error: disconnectError, unlink } = useUnlinkUser();
 
 	// Add these string constants
 	const disconnectingText = __( 'Disconnecting…', 'jetpack-connection-js' );
@@ -63,7 +57,6 @@ const OwnerDisconnectDialog = ( {
 	// The hook seeds the REST API singleton from these values, and reports offline mode,
 	// where WordPress.com cannot be reached to action the disconnect.
 	const { isOfflineMode } = useConnection( { apiRoot, apiNonce } );
-	const { unlinkUser } = useDispatch( STORE_ID );
 
 	const handleTransferClick = useCallback(
 		( e?: MouseEvent< HTMLElement > ) => {
@@ -78,42 +71,31 @@ const OwnerDisconnectDialog = ( {
 	}, [ onClose ] );
 
 	const handleDisconnectAnyway = useCallback( () => {
-		// Track disconnect click
 		jetpackAnalytics.tracks.recordEvent(
 			'jetpack_manage_connection_dialog_owner_disconnect_click',
 			{ context }
 		);
 
-		setIsDisconnecting( true );
-		setDisconnectError( '' );
+		unlink( {
+			force: true,
+			disconnectAllUsers: true,
+			errorMessage: __(
+				'There was a problem disconnecting your account. Please try again.',
+				'jetpack-connection-js'
+			),
+		} ).then( succeeded => {
+			jetpackAnalytics.tracks.recordEvent(
+				succeeded
+					? 'jetpack_manage_connection_dialog_owner_disconnect_success'
+					: 'jetpack_manage_connection_dialog_owner_disconnect_error',
+				{ context }
+			);
 
-		// Disconnect owner with force and disconnect-all-users parameters
-		unlinkUser( { force: true, disconnectAllUsers: true } )
-			.then( () => {
-				// Track successful disconnect
-				jetpackAnalytics.tracks.recordEvent(
-					'jetpack_manage_connection_dialog_owner_disconnect_success',
-					{ context }
-				);
-				// Don't close modal or change state since page will reload
-				onDisconnected && onDisconnected();
+			if ( succeeded ) {
 				onUnlinked && onUnlinked();
-			} )
-			.catch( () => {
-				// Track failed disconnect
-				jetpackAnalytics.tracks.recordEvent(
-					'jetpack_manage_connection_dialog_owner_disconnect_error',
-					{ context }
-				);
-				setDisconnectError(
-					__(
-						'There was a problem disconnecting your account. Please try again.',
-						'jetpack-connection-js'
-					)
-				);
-				setIsDisconnecting( false );
-			} );
-	}, [ context, onDisconnected, onUnlinked, unlinkUser ] );
+			}
+		} );
+	}, [ context, onUnlinked, unlink ] );
 
 	return (
 		isOpen && (

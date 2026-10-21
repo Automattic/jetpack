@@ -3,13 +3,12 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Modal } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import { STORE_ID } from '../../state/store';
+import useUnlinkUser from '../../hooks/use-unlink-user';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
 import DisconnectActionFooter from '../shared/disconnect-action-footer';
 import useConnection from '../use-connection';
@@ -49,8 +48,7 @@ const DisconnectUserDialog = ( {
 	onTransferOwnership,
 	context = 'jetpack-dashboard',
 }: DisconnectUserDialogProps ) => {
-	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
-	const [ disconnectError, setDisconnectError ] = useState( '' );
+	const { isDisconnecting, error: disconnectError, unlink } = useUnlinkUser();
 
 	const disconnectingText = __( 'Disconnecting…', 'jetpack-connection-js' );
 	const disconnectText = __( 'Disconnect', 'jetpack-connection-js' );
@@ -59,7 +57,6 @@ const DisconnectUserDialog = ( {
 	// initializer of its own, and reports offline mode, where WordPress.com cannot be
 	// reached to action the disconnect.
 	const { userConnectionData, isOfflineMode } = useConnection( { apiRoot, apiNonce } );
-	const { unlinkUser } = useDispatch( STORE_ID );
 	const currentUser = userConnectionData?.currentUser;
 
 	const isAdmin = !! currentUser?.permissions?.manage_options;
@@ -70,30 +67,24 @@ const DisconnectUserDialog = ( {
 			context,
 		} );
 
-		setIsDisconnecting( true );
-		setDisconnectError( '' );
+		let errorMessage: string = __(
+			'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please visit your plugins page and make sure all Jetpack plugins are updated.',
+			'jetpack-connection-js'
+		);
+		if ( ! isAdmin ) {
+			errorMessage = __(
+				'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please ask a site admin to update Jetpack',
+				'jetpack-connection-js'
+			);
+		}
 
 		// Forced for an administrator, who needs it to unlink themselves.
-		unlinkUser( { force: isAdmin } )
-			.then( () => {
-				setIsDisconnecting( false );
+		unlink( { force: isAdmin, errorMessage } ).then( succeeded => {
+			if ( succeeded ) {
 				onUnlinked?.();
-			} )
-			.catch( () => {
-				let errorMessage: string = __(
-					'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please visit your plugins page and make sure all Jetpack plugins are updated.',
-					'jetpack-connection-js'
-				);
-				if ( ! isAdmin ) {
-					errorMessage = __(
-						'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please ask a site admin to update Jetpack',
-						'jetpack-connection-js'
-					);
-				}
-				setDisconnectError( errorMessage );
-				setIsDisconnecting( false );
-			} );
-	}, [ context, isAdmin, onUnlinked, unlinkUser ] );
+			}
+		} );
+	}, [ context, isAdmin, onUnlinked, unlink ] );
 
 	if ( isOwner ) {
 		return (
