@@ -5,11 +5,11 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: jest.fn(),
 } ) );
 
-const setSeoState = ( isEnabled: boolean, isAutoEnhanceOn = false ) => {
+const setSeoState = ( isEnabled: boolean, isSwitchable = false ) => {
 	window.Jetpack_Editor_Initial_State = {
 		'ai-assistant': {
 			'is-seo-enabled': isEnabled,
-			'is-seo-auto-enhance-enabled': isAutoEnhanceOn,
+			'is-seo-auto-enhance-switchable': isSwitchable,
 		},
 	} as unknown as Window[ 'Jetpack_Editor_Initial_State' ];
 };
@@ -20,14 +20,14 @@ describe( 'canAutoEnhanceMetadata', () => {
 	} );
 
 	it.each( [
-		[ 'saved on', true, true, true ],
-		[ 'saved off', true, false, false ],
-		[ 'saved on but the SEO feature off', false, true, false ],
+		[ 'with the SEO page', true, true, true ],
+		[ 'without the SEO page', true, false, false ],
+		[ 'with the SEO page but the SEO feature off', false, true, false ],
 	] )(
-		'on Simple follows the saved setting: %s',
-		( _label, isSeoEnabled, isAutoEnhanceOn, expected ) => {
+		'on Simple needs the SEO page to switch the setting: %s',
+		( _label, isSeoEnabled, isSwitchable, expected ) => {
 			( isSimpleSite as jest.Mock ).mockReturnValue( true );
-			setSeoState( isSeoEnabled, isAutoEnhanceOn );
+			setSeoState( isSeoEnabled, isSwitchable );
 
 			expect( canAutoEnhanceMetadata() ).toBe( expected );
 		}

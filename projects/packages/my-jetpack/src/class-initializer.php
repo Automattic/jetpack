@@ -395,27 +395,8 @@ class Initializer {
 	 */
 	public static function maybe_redirect_to_onboarding() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
-		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
-
-		$wizard_enabled = self::is_onboarding_wizard_enabled();
-		$connection     = new Connection_Manager();
-
-		// Only the wizard connects a user, so only it may count a site-only connection as
-		// unfinished setup. The single screen can only register the site, so asking it for
-		// an owner leaves that site on a screen with no way back out.
-		$connection_done = $wizard_enabled ? $connection->has_connected_owner() : $connection->is_connected();
-
-		// Onboarding's only action is the connect request, which answers a user
-		// without `jetpack_connect` with a 403.
-		$redirect_args = self::get_onboarding_redirect_args(
-			$step,
-			$connection_done,
-			self::is_onboarding_available() && current_user_can( 'jetpack_connect' ),
-			$wizard_enabled,
-			// Only the wizard records a settled run, and only a registered site may act on one:
-			// My Jetpack requires the site connection that accepting the terms creates.
-			$wizard_enabled && $connection->is_connected() && self::is_onboarding_settled()
-		);
+		$step          = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
+		$redirect_args = self::get_onboarding_redirect_args_for_step( $step );
 
 		if ( null === $redirect_args ) {
 			return;
@@ -428,6 +409,34 @@ class Initializer {
 		wp_safe_redirect( $location );
 
 		exit( 0 );
+	}
+
+	/**
+	 * Get the setup redirect for the current user and site at the requested step.
+	 *
+	 * @param string $step The requested setup step, or empty for the dashboard.
+	 * @return array|null Query args for the redirect, or null to stay on the page.
+	 */
+	private static function get_onboarding_redirect_args_for_step( $step ) {
+		$wizard_enabled = self::is_onboarding_wizard_enabled();
+		$connection     = new Connection_Manager();
+
+		// Only the wizard connects a user, so only it may count a site-only connection as
+		// unfinished setup. The single screen can only register the site, so asking it for
+		// an owner leaves that site on a screen with no way back out.
+		$connection_done = $wizard_enabled ? $connection->has_connected_owner() : $connection->is_connected();
+
+		// Onboarding's only action is the connect request, which answers a user
+		// without `jetpack_connect` with a 403.
+		return self::get_onboarding_redirect_args(
+			$step,
+			$connection_done,
+			self::is_onboarding_available() && current_user_can( 'jetpack_connect' ),
+			$wizard_enabled,
+			// Only the wizard records a settled run, and only a registered site may act on one:
+			// My Jetpack requires the site connection that accepting the terms creates.
+			$wizard_enabled && $connection->is_connected() && self::is_onboarding_settled()
+		);
 	}
 
 	/**
@@ -1076,13 +1085,14 @@ class Initializer {
 		 * @param bool $available True to allow the Features tab; false keeps the classic Modules screen, for a host where My Jetpack is not shown.
 		 */
 		$available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
-		$available = $available && Feature_Flags::is_enabled( self::MODULES_TO_FEATURES_FLAG );
+		$available = $available && self::is_modules_to_features_enabled();
 		$classic   = add_query_arg( array_merge( urlencode_deep( $args ), array( 'page' => 'jetpack_modules' ) ), admin_url( 'admin.php' ) );
 		if (
 			! $available
 			|| array_diff( array_keys( $args ), array( 's', 'module_tag' ) )
 			|| array_filter( $args, 'is_string' ) !== $args
-			|| ! Plugins_Installer::is_plugin_active( 'jetpack/jetpack.php' )
+			// Keep links on Modules unless Features can show controls for this installation.
+			|| Main_Features::PLUGIN_ACTIVE !== Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG )
 			|| ! current_user_can( 'jetpack_manage_modules' )
 			|| ! current_user_can( 'manage_options' )
 			|| ! self::current_user_can_access_page()
@@ -1092,6 +1102,8 @@ class Initializer {
 			|| ! self::should_initialize()
 			|| ! ( new Connection_Manager() )->is_connected()
 			|| null !== self::get_partner_coupon_screen()
+			// Predict My Jetpack's setup redirect for a Features URL with no step; keep both decisions in sync.
+			|| null !== self::get_onboarding_redirect_args_for_step( '' )
 			|| ! self::is_modules_rest_api_enabled()
 		) {
 			return $classic;
@@ -1167,8 +1179,8 @@ class Initializer {
 	}
 
 	/**
-	 * On a My Jetpack page reached from a redirected Modules link (`modules_fallback=1`), send the browser back to the classic Modules screen:
-	 * always when JavaScript is off, and for everyone when the REST API is off or blocked.
+	 * With `my-jetpack-modules-to-features` on, send My Jetpack requests with `modules_fallback=1` back to classic Modules:
+	 * always without JavaScript, and for everyone when REST is unavailable.
 	 *
 	 * @since 6.11.0
 	 * @return void
@@ -1176,7 +1188,7 @@ class Initializer {
 	public static function print_modules_fallback() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only navigation fallback.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Only the exact allowlisted marker is accepted.
-		if ( 'my-jetpack' !== ( $_GET['page'] ?? null ) || '1' !== ( $_GET['modules_fallback'] ?? null ) || ! Plugins_Installer::is_plugin_active( 'jetpack/jetpack.php' ) || ! current_user_can( 'jetpack_manage_modules' ) ) {
+		if ( ! self::is_modules_to_features_enabled() || 'my-jetpack' !== ( $_GET['page'] ?? null ) || '1' !== ( $_GET['modules_fallback'] ?? null ) || Main_Features::PLUGIN_ACTIVE !== Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ) || ! current_user_can( 'jetpack_manage_modules' ) ) {
 			return;
 		}
 		$args = array( 'page' => 'jetpack_modules' );
@@ -1485,6 +1497,15 @@ class Initializer {
 	 */
 	public static function is_overview_v1_enabled() {
 		return Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG );
+	}
+
+	/**
+	 * Whether Modules links may use Features.
+	 *
+	 * @return bool
+	 */
+	private static function is_modules_to_features_enabled() {
+		return Feature_Flags::is_enabled( self::MODULES_TO_FEATURES_FLAG );
 	}
 
 	/**

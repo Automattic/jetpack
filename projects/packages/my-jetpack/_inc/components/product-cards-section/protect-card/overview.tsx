@@ -12,6 +12,7 @@ import useSimpleQuery from '../../../data/use-simple-query';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 import OverviewItem from '../overview-item';
+import useOverviewLoadEvent from '../overview-item/use-overview-load-event';
 import type { OverviewItemLink } from '../overview-item';
 import type { ProductCardComponent } from '../types';
 
@@ -22,6 +23,7 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const {
 		data,
 		isLoading: isLoadingProtectData,
+		isFetching,
 		isError,
 		error,
 		refetch,
@@ -66,6 +68,9 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 
 	// A disconnected site answers "not_connected": Protect is off there, not failing.
 	const hasFailed = isError && error?.code !== 'not_connected';
+	const isRetrying = isError && isFetching;
+	const isLoading = isLoadingProduct || isLoadingProtectData || isRetrying;
+	useOverviewLoadEvent( PRODUCT_SLUGS.PROTECT, isLoading );
 
 	return (
 		<OverviewItem
@@ -80,7 +85,7 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 			}
 			action={ action }
 			upgrade={ upgrade }
-			isLoading={ isLoadingProduct || isLoadingProtectData }
+			isLoading={ isLoading }
 			error={ hasFailed ? { reason: failureReason, onRetry: refetch } : undefined }
 		/>
 	);

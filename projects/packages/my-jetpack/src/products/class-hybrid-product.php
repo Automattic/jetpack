@@ -146,20 +146,26 @@ abstract class Hybrid_Product extends Product {
 	}
 
 	/**
-	 * Deactivates the product.
+	 * Deactivate the plugin and its saved active Jetpack module.
+	 * Otherwise products switched on through the Jetpack module stay half on.
 	 *
-	 * In addition to the parent's plugin deactivation, also deactivates the
-	 * matching Jetpack module when `static::get_module_name()` returns one and the
-	 * module is saved and active — otherwise Hybrid products activated via
-	 * the Jetpack-module path stay half-on after "deactivation".
-	 *
-	 * @return bool|WP_Error True on success (matches Product::deactivate()),
-	 *                       WP_Error if the module deactivation failed.
+	 * @return true|WP_Error True on success, or an error if module deactivation fails.
 	 */
 	public static function deactivate() {
 		// Before the parent call: deactivating the standalone plugin can change which module the product reads.
-		$module_name          = static::get_module_name();
-		$result               = parent::deactivate();
+		$module_name = static::get_module_name();
+		parent::deactivate();
+		return static::do_product_specific_deactivation( $module_name );
+	}
+
+	/**
+	 * Deactivate the product's saved active Jetpack module.
+	 *
+	 * @since $$next-version$$
+	 * @param string|null $module_name Module selected before deactivating the plugin.
+	 * @return true|WP_Error True on success, or an error if module deactivation fails.
+	 */
+	public static function do_product_specific_deactivation( $module_name ) {
 		$modules              = new Modules();
 		$saved_active_modules = (array) \Jetpack_Options::get_option( 'active_modules', array() );
 
@@ -177,7 +183,7 @@ abstract class Hybrid_Product extends Product {
 			}
 		}
 
-		return $result;
+		return true;
 	}
 
 	/**

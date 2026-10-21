@@ -9,7 +9,6 @@ jest.mock( 'react', () => {
 
 let mockEnhancerAvailable = false;
 let mockCanAutoEnhance = true;
-let mockIsSimple = false;
 const mockEnhancer = jest.fn( () => null );
 let mockIsModuleActive = true;
 let mockPublishSidebarOpen = false;
@@ -58,7 +57,6 @@ jest.mock( '@automattic/jetpack-publicize/link-preview', () => ( {
 } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isWpcomPlatformSite: () => false,
-	isSimpleSite: () => mockIsSimple,
 } ) );
 
 jest.mock( '@wordpress/editor', () => ( {
@@ -123,7 +121,6 @@ describe( 'Seo panel', () => {
 		mockEnhancer.mockClear();
 		mockEnhancerAvailable = false;
 		mockCanAutoEnhance = true;
-		mockIsSimple = false;
 		mockIsModuleActive = true;
 		mockPublishSidebarOpen = false;
 	} );
@@ -165,17 +162,17 @@ describe( 'Seo panel', () => {
 	} );
 
 	it.each( [
-		[ 'hides the auto-generate toggle on Simple', true ],
-		[ 'shows the auto-generate toggle elsewhere', false ],
-	] )( '%s', ( _label, isSimple ) => {
+		[ 'hides the auto-generate toggle where auto mode cannot run', false ],
+		[ 'shows the auto-generate toggle where auto mode can run', true ],
+	] )( '%s', ( _label, canAutoEnhance ) => {
 		mockEnhancerAvailable = true;
-		mockIsSimple = isSimple;
+		mockCanAutoEnhance = canAutoEnhance;
 
 		renderSeo();
 
 		expect( mockEnhancer ).toHaveBeenCalled();
 		for ( const [ props ] of mockEnhancer.mock.calls ) {
-			expect( props.hideAutoEnhanceToggle ).toBe( isSimple );
+			expect( props.hideAutoEnhanceToggle ).toBe( ! canAutoEnhance );
 		}
 	} );
 

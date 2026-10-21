@@ -29,6 +29,7 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	title_formats: {},
 	title_separator: '-',
 	title_formats_editable: true,
+	conflicting_seo_plugin: '',
 	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
@@ -38,6 +39,7 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	sitemap_url: '',
 	canonical_active: false,
 	canonical_switchable: true,
+	canonical_conflicted: false,
 	schema: SEEDED_SCHEMA,
 };
 

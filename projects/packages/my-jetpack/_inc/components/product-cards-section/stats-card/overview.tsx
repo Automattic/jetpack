@@ -22,13 +22,15 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const { recordEvent } = useAnalytics();
 	const isActive = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
-	const { data, isLoading, isError, refetch } = useStatsVisits(
+	const { data, isLoading, isFetching, isError, refetch } = useStatsVisits(
 		blogID,
 		isSiteConnected && isActive,
 		VISITS_OPTIONS
 	);
 	const { counts, previousCounts, chartData } = useMemo( () => processStatsData( data ), [ data ] );
-	useOverviewLoadEvent( PRODUCT_SLUGS.STATS, isActive && isLoading );
+	const isRetrying = isError && isFetching;
+	const isStatsLoading = isLoading || isRetrying;
+	useOverviewLoadEvent( PRODUCT_SLUGS.STATS, isActive && isStatsLoading );
 
 	const onDetailedStatsClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_stats_card_seedetailedstats_click', {
@@ -38,7 +40,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 
 	const detailedStatsHref = getDetailedStatsHref( manageUrl, premiumAnalyticsEnabled );
 
-	if ( isActive && ! isLoading && ! isError ) {
+	if ( isActive && ! isStatsLoading && ! isError ) {
 		return (
 			<Stack direction="column" gap="lg">
 				<StatsCards
@@ -77,7 +79,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 							href: `#${ MyJetpackRoutes.AddStats }`,
 						}
 			}
-			isLoading={ isActive && isLoading }
+			isLoading={ isActive && isStatsLoading }
 			error={
 				isActive && isError
 					? {
