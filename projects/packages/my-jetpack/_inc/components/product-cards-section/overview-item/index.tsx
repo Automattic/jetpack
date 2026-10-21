@@ -23,6 +23,8 @@ export type OverviewItemLink = {
 	href?: string;
 	onClick?: () => void;
 	ariaLabel?: string;
+	// Only an action without a link can be disabled, as the product card's button is while it's busy.
+	disabled?: boolean;
 };
 
 export type OverviewItemProps = {
@@ -125,7 +127,15 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 				key="action"
 				{ ...( action.href
 					? { href: action.href, onClick: action.onClick }
-					: { render: <Button variant="unstyled" onClick={ action.onClick } /> } ) }
+					: {
+							render: (
+								<Button
+									variant="unstyled"
+									onClick={ action.onClick }
+									disabled={ action.disabled }
+								/>
+							),
+						} ) }
 				aria-label={ action.ariaLabel }
 			>
 				{ action.label }

@@ -26,6 +26,9 @@ const OVERVIEW_V1_SLUGS: JetpackModule[] = [
 	PRODUCT_SLUGS.BOOST,
 ];
 
+const isInOverviewSections = ( slug: JetpackModule, overviewV1: boolean ) =>
+	overviewV1 && OVERVIEW_V1_SLUGS.includes( slug );
+
 type DisplayItemsProps = {
 	slugs: JetpackModule[];
 	isLoading: boolean;
@@ -125,7 +128,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 			return false;
 		}
 
-		if ( overviewV1 && OVERVIEW_V1_SLUGS.includes( slug ) ) {
+		if ( isInOverviewSections( slug, overviewV1 ) ) {
 			return false;
 		}
 
@@ -192,7 +195,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 	const { filteredOwnedProducts, isLoading } = useFilteredProducts();
 	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const hasGridProducts = filteredOwnedProducts.some(
-		slug => ! overviewV1 || ! OVERVIEW_V1_SLUGS.includes( slug )
+		slug => ! isInOverviewSections( slug, overviewV1 )
 	);
 
 	return (

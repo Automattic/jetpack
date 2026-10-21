@@ -27,7 +27,7 @@ const useStatusAction = ( slug: JetpackModuleWithCard, label: string ) => {
 		} ),
 		[ label ]
 	);
-	const { action, forcedOffReason } = useProductStatusAction( slug, {
+	const { action, isBusy, forcedOffReason } = useProductStatusAction( slug, {
 		primaryActionOverride,
 		fixSiteConnectionHandler: connectSite,
 		tracksIdentifier: 'product_card',
@@ -52,6 +52,7 @@ const useStatusAction = ( slug: JetpackModuleWithCard, label: string ) => {
 					label: actionLabel,
 					href,
 					onClick: onClick && ( () => onClick( undefined ) ),
+					disabled: isBusy,
 					// "Connect" alone is ambiguous when several sections offer it.
 					ariaLabel: isConnectionError
 						? sprintf(
