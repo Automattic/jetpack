@@ -384,17 +384,17 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		}, [ rescaleYOnVisibilityChange, dataSorted, isSeriesVisible, options?.yScale ] );
 
 		// Keyboard navigation steps through x positions, and the grouped tooltip
-		// reads every series at that position; the first series names the point.
+		// reads every visible series at that position; the first visible series names the point.
 		const activateSelectedPoint = useCallback(
 			( index: number ) => {
-				const series = dataSorted[ 0 ];
+				const series = visibleSeries[ 0 ];
 				const datum = series?.data[ index ];
 
 				if ( series && datum ) {
 					onDatumActivate?.( { datum, index, key: series.label } );
 				}
 			},
-			[ dataSorted, onDatumActivate ]
+			[ visibleSeries, onDatumActivate ]
 		);
 
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -403,7 +403,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints: dataSorted[ 0 ]?.data.length || 0,
+			totalPoints: visibleSeries[ 0 ]?.data.length || 0,
 			onActivate: activateSelectedPoint,
 			preventTooltipScroll: tooltipPlacement === 'below-axis',
 		} );

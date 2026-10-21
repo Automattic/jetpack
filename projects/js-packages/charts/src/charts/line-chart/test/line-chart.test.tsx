@@ -1658,6 +1658,26 @@ describe( 'LineChart', () => {
 				} );
 			} );
 
+			test( 'Enter names the point from the first visible series when the first is hidden', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( {
+					data: [ { ...SERIES_A, data: SERIES_A.data.slice( 0, 1 ) }, SERIES_B ],
+					defaultHiddenSeries: [ 'Series A' ],
+					chartId: 'activation-hidden-first',
+					onDatumActivate,
+				} );
+
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					datum: SERIES_B.data[ 1 ],
+					index: 1,
+					key: 'Series B',
+				} );
+			} );
+
 			test( 'Enter with no point selected activates nothing', async () => {
 				const user = userEvent.setup();
 				const onDatumActivate = jest.fn();
