@@ -20,9 +20,10 @@ const mockHandleConnectUser = jest.fn();
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	useConnection: () => ( { handleConnectUser: mockHandleConnectUser, userIsConnecting: false } ),
 } ) );
+const mockSearch = jest.fn( () => ( {} ) );
 jest.mock( '@wordpress/route', () => ( {
 	Link: jest.requireActual( '../../../tests/js/route-test-utils' ).mockWordPressRoute.Link,
-	useSearch: () => ( {} ),
+	useSearch: () => mockSearch(),
 } ) );
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: () => null,
@@ -105,12 +106,24 @@ async function renderPage() {
 	await act( () => jest.runAllTimersAsync() );
 }
 
+/**
+ * Reads the checkout link.
+ *
+ * @return The checkout URL.
+ */
+function getCheckoutUrl(): URL {
+	return new URL(
+		screen.getByRole( 'link', { name: 'Upgrade now and continue' } ).getAttribute( 'href' ) ?? ''
+	);
+}
+
 describe( 'UpgradePage', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockHandleConnectUser.mockReset();
+		mockSearch.mockReturnValue( {} );
 	} );
 
 	afterEach( () => {
@@ -209,5 +222,52 @@ describe( 'UpgradePage', () => {
 		expect( screen.getByText( /will be credited towards the upgrade/ ) ).toBeInTheDocument();
 		expect( screen.getByText( /Your site has reached its views limit/ ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Real-time data on visitors' ) ).not.toBeInTheDocument();
+		// Cross-grades only work on the site checkout, not the blog-id one a new purchase uses.
+		expect( getCheckoutUrl().pathname ).toMatch( /^\/checkout\/example\.com\// );
+	} );
+
+	it( 'still tells a site with a bundled plan and a paid tier that the plan views stack, without a count that includes both', async () => {
+		setScriptData( true );
+		mockEndpoints(
+			[
+				{
+					product_slug: 'jetpack_complete',
+					product_name: 'Jetpack Complete',
+					is_jetpack_stats_product: true,
+				},
+				{ product_slug: 'jetpack_stats_yearly', is_jetpack_stats_product: true },
+			],
+			undefined,
+			{
+				views_limit: 110000,
+				billable_monthly_views: 1000,
+				current_tier: { minimum_price: 10000, limit: 10000 },
+				current_usage: { views_count: 1000 },
+			}
+		);
+		await renderPage();
+
+		expect(
+			screen.getByText(
+				'Your Jetpack Complete plan already includes views for Stats. Views from this purchase will stack on top, so you keep what you already have.'
+			)
+		).toBeInTheDocument();
+	} );
+
+	it( 'returns from checkout to the upgrade page with the report window and tab it was opened with', async () => {
+		mockSearch.mockReturnValue( {
+			from: '2026-10-01',
+			to: '2026-10-07',
+			ds: 'traffic',
+			source: 'locked',
+		} );
+		setScriptData( true );
+		mockEndpoints();
+		await renderPage();
+
+		const back = new URL( getCheckoutUrl().searchParams.get( 'checkoutBackUrl' ) ?? '' );
+		expect( back.searchParams.get( 'p' ) ).toBe(
+			'/upgrade?from=2026-10-01&to=2026-10-07&ds=traffic&source=locked'
+		);
 	} );
 } );

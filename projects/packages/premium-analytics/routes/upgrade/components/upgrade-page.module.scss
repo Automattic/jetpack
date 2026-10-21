@@ -80,6 +80,8 @@ $upgrade-pitch-max-inline-size: 500px;
 
 	@media (max-width: 900px) {
 		position: relative;
+		// In the column layout a flex basis would win over the block size.
+		flex: none;
 		block-size: 480px;
 	}
 }

@@ -19,7 +19,7 @@
 		"test-tz": "for tz in America/Los_Angeles Asia/Tokyo; do TZ=$tz LC_ALL=en_US.UTF-8 jest --config=tests/jest.tz.config.cjs || exit 1; done",
 		"typecheck": "tsgo --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
-		"watch": "wp-build --watch"
+		"watch": "pnpm run build:copy-images && wp-build --watch"
 	},
 	"wpPlugin": {
 		"name": "jpa",

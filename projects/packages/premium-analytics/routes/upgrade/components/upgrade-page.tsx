@@ -37,7 +37,24 @@ import styles from './upgrade-page.module.scss';
 import type { JSX } from 'react';
 
 const DASHBOARD_PATH = 'admin.php?page=jetpack-premium-analytics-wp-admin';
-const UPGRADE_PATH = `${ DASHBOARD_PATH }&p=${ encodeURIComponent( '/upgrade' ) }`;
+
+/**
+ * The admin path back to this page, keeping the report window, tab and entry point it was opened with.
+ *
+ * @param search - The page's search params.
+ * @return The admin-relative path.
+ */
+function getUpgradePath( search: Record< string, unknown > | undefined ): string {
+	const query = new URLSearchParams();
+	for ( const [ key, value ] of Object.entries( search ?? {} ) ) {
+		if ( typeof value === 'string' || typeof value === 'number' ) {
+			query.set( key, String( value ) );
+		}
+	}
+	const queryString = query.toString();
+	const path = queryString ? `/upgrade?${ queryString }` : '/upgrade';
+	return `${ DASHBOARD_PATH }&p=${ encodeURIComponent( path ) }`;
+}
 
 /**
  * Why a site that already holds a tier should upgrade it.
@@ -84,9 +101,10 @@ export function UpgradePage(): JSX.Element {
 	const ownership = useStatsOwnership();
 	const { isCommercialOwned, hasAnyStatsPlan, bundledPlanName } = ownership;
 	const [ tierIndex, setTierIndex ] = useState( 0 );
+	const upgradePath = getUpgradePath( search );
 	const { handleConnectUser, userIsConnecting } = useConnection( {
 		from: 'jetpack-premium-analytics',
-		redirectUri: UPGRADE_PATH,
+		redirectUri: upgradePath,
 	} );
 
 	useEffect( () => {
@@ -115,7 +133,7 @@ export function UpgradePage(): JSX.Element {
 					isUserConnected,
 					isUpgrade: hasAnyStatsPlan,
 					redirectPath: DASHBOARD_PATH,
-					backPath: UPGRADE_PATH,
+					backPath: upgradePath,
 				} )
 			: undefined;
 
@@ -186,10 +204,11 @@ export function UpgradePage(): JSX.Element {
 							'jetpack-premium-analytics-pkg'
 						) }
 					</Text>
-					{ bundledPlanName && ! isCommercialOwned && (
+					{ bundledPlanName && (
 						<Notice.Root intent="warning">
 							<Notice.Description>
-								{ usage?.views_limit
+								{ /* With a commercial tier too, the limit already counts the plan's views. */ }
+								{ ! isCommercialOwned && usage?.views_limit
 									? sprintf(
 											/* translators: %1$s: a plan name, e.g. "Jetpack Complete"; %2$s: a views count, e.g. "100K". */
 											__(
