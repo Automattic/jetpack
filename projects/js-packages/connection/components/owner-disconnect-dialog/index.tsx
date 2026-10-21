@@ -106,6 +106,8 @@ const OwnerDisconnectDialog = ( {
 					labelledby: 'jp-connection__owner-disconnect-dialog__heading',
 				} }
 				onRequestClose={ handleStayConnected }
+				shouldCloseOnEsc={ ! isDisconnecting }
+				shouldCloseOnClickOutside={ ! isDisconnecting }
 				className="jp-connection__disconnect-dialog"
 			>
 				<div className="jp-connection__disconnect-dialog__content">

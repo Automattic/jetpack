@@ -26,7 +26,11 @@ export interface DisconnectUserDialogProps {
 	onUnlinked?: () => void;
 	/** Opens the ownership transfer flow, offered to an owner. Omit to hide that action. */
 	onTransferOwnership?: () => void;
-	/** The context in which this component is being used. */
+	/**
+	 * The context in which this component is being used, recorded with the dialog's events.
+	 * Deliberately undefined by default: a named fallback would attribute a caller that forgot
+	 * it to the wrong surface, where an absent one is findable in the data.
+	 */
 	context?: string;
 }
 
@@ -46,7 +50,7 @@ const DisconnectUserDialog = ( {
 	apiNonce,
 	onUnlinked,
 	onTransferOwnership,
-	context = 'jetpack-dashboard',
+	context,
 }: DisconnectUserDialogProps ) => {
 	const { isDisconnecting, error: disconnectError, unlink } = useUnlinkUser();
 
@@ -111,6 +115,8 @@ const DisconnectUserDialog = ( {
 					labelledby: 'jp-connection__disconnect-user-dialog__heading',
 				} }
 				onRequestClose={ onClose }
+				shouldCloseOnEsc={ ! isDisconnecting }
+				shouldCloseOnClickOutside={ ! isDisconnecting }
 				className="jp-connection__disconnect-dialog"
 			>
 				<div className="jp-connection__disconnect-dialog__content">

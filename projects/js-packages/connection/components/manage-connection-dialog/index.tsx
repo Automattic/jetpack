@@ -274,15 +274,18 @@ const ManageConnectionDialog = ( {
 							context={ context }
 						/>
 
-						<DisconnectUserDialog
-							isOpen={ isDisconnectUserDialogOpen }
-							onClose={ handleCloseDisconnectUserDialog }
-							apiRoot={ apiRoot }
-							apiNonce={ apiNonce }
-							onUnlinked={ handleUnlinked }
-							onTransferOwnership={ openTransferFromOwnerDialog }
-							context={ context }
-						/>
+						{ /* Mounted only while open, so a failed attempt cannot survive a reopen. */ }
+						{ isDisconnectUserDialogOpen && (
+							<DisconnectUserDialog
+								isOpen
+								onClose={ handleCloseDisconnectUserDialog }
+								apiRoot={ apiRoot }
+								apiNonce={ apiNonce }
+								onUnlinked={ handleUnlinked }
+								onTransferOwnership={ openTransferFromOwnerDialog }
+								context={ context }
+							/>
+						) }
 					</Modal>
 				</>
 			) }

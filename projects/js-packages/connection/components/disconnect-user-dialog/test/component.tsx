@@ -73,6 +73,22 @@ describe( 'DisconnectUserDialog', () => {
 		expect( testProps.onClose ).not.toHaveBeenCalled();
 	} );
 
+	// Esc and a click outside bypass the disabled Cancel, which would leave the request
+	// running against a dialog that is no longer on screen.
+	it( 'cannot be dismissed while the request is in flight', async () => {
+		const user = userEvent.setup();
+		// Left pending on purpose: settling it would update state after the assertions,
+		// outside act().
+		mockUnlinkUser.mockReturnValue( new Promise( () => {} ) );
+		render( <DisconnectUserDialog { ...testProps } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
+		await user.keyboard( '{Escape}' );
+
+		expect( testProps.onClose ).not.toHaveBeenCalled();
+		expect( screen.getByRole( 'dialog', { name: dialogName } ) ).toBeInTheDocument();
+	} );
+
 	it( 'shows the admin-oriented error and re-enables the button when unlink fails', async () => {
 		const user = userEvent.setup();
 		mockUnlinkUser.mockRejectedValueOnce( new Error( 'nope' ) );
