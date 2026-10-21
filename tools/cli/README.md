@@ -141,4 +141,4 @@ In addition, when you run `jetpack draft disable`, it will offer to run the pre-
 
 ## Privacy
 
-To effectively improve the Jetpack CLI tool, we optionally collect [general analytics data](https://jetpack.com/support/privacy/#analytics). Jetpack CLI will ask before enabling data collection. It only asks when run from a terminal: in CI, a script, or any other run without one, it skips the question and collects nothing until a later run from a terminal asks, or you turn it on yourself. You can always enable or disable the data collection preference by running: `jetpack cli analytics <on|off>`
+To effectively improve the Jetpack CLI tool, we optionally collect [general analytics data](https://jetpack.com/support/privacy/#analytics). Jetpack CLI will ask before enabling data collection, and you can always enable or disable the data collection preference by running: `jetpack cli analytics <on|off>`
