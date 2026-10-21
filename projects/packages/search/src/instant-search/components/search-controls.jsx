@@ -5,7 +5,6 @@ import './search-controls.scss';
 const SearchControls = props => {
 	return (
 		<div className="jetpack-instant-search__search-form-controls" role="form">
-			{ props.children }
 			{ props.enableSort && (
 				<SearchSort
 					onChange={ props.onChangeSort }
@@ -13,6 +12,7 @@ const SearchControls = props => {
 					value={ props.sort }
 				/>
 			) }
+			{ props.children }
 		</div>
 	);
 };

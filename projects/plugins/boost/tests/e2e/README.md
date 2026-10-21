@@ -48,6 +48,14 @@ However, Boost has some shortcuts to get the environment started and run all the
 - `pnpm test-e2e:run` - This command will run the e2e tests.
 - `pnpm test-e2e:stop` - This command will stop the e2e testing environment.
 
+## E2E build projects
+
+`build-projects.json` lists the projects built for the suites and the reasons for skipping others.
+Every build-bearing direct dependency of Boost or Jetpack must be in `build` or `skip`.
+Unlisted Boost dependencies fail the check; Jetpack-only dependencies warn and build automatically.
+Skip reasons record what was checked, including source consumption or suite pages/state and unverified conditions.
+From this directory, run `node build.mjs --check` to validate the lists and print the build targets without building.
+
 ## History tooltip rendering regression
 
 `specs/base/history-tooltip-overlap.test.ts` bundles the production history card, Charts, and dashboard styles with deterministic data. It uses the runner's Chromium and includes My Jetpack's global tooltip styles to check both daily bar charts, the recorded-day popover's scores, dots and hoverability, empty days, and narrow-screen bounds.

@@ -340,7 +340,10 @@ const PreviewDeviceSelector = ( {
 	}
 
 	return (
+		// Remount when the options change: the highlight only re-measures when the selected
+		// option resizes, so a moved option would leave it on the old position.
 		<ToggleGroupControl
+			key={ devices.map( device => device.name ).join() }
 			__nextHasNoMarginBottom
 			label={ __( 'Preview device', 'jetpack' ) }
 			hideLabelFromVision

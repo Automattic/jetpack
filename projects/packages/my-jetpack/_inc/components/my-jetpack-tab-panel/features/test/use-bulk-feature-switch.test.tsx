@@ -102,6 +102,11 @@ describe( 'isBulkSwitchable', () => {
 			false,
 		],
 		[
+			'a plugin waiting for an account',
+			{ ...pluginState( 'jetpack-social', 'active' ), accountNeeded: true } as FeatureState,
+			false,
+		],
+		[
 			'a plugin that needs installing',
 			{ ...pluginState( 'akismet', 'inactive' ), control: { kind: 'install-plugin', plugin: 'a' } },
 			false,

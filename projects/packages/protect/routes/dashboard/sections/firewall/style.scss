@@ -111,6 +111,17 @@
 	}
 }
 
+.jp-protect-firewall-overview__stats {
+	display: grid;
+	inline-size: 100%;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 24px;
+
+	@media (max-width: 600px) {
+		grid-template-columns: 1fr;
+	}
+}
+
 .jp-protect-firewall-overview__columns {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
@@ -131,4 +142,13 @@
 
 .jp-protect-ip-rule__error {
 	color: var(--wpds-color-foreground-content-error);
+}
+
+.jp-protect-firewall-standalone {
+	margin: 0;
+
+	// The bootstrap path is one long word.
+	&__code {
+		overflow-wrap: anywhere;
+	}
 }
