@@ -1,0 +1,150 @@
+/**
+ * External dependencies
+ */
+import CONNECTION_STORE_ID from '@automattic/jetpack-connection/state/store-id';
+import useConnection from '@automattic/jetpack-connection/use-connection';
+import { getScriptData } from '@automattic/jetpack-script-data';
+import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useDispatch } from '@wordpress/data';
+import { useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import { navigateTo } from './navigate';
+
+const DASHBOARD_PATH = 'admin.php?page=jetpack-premium-analytics-wp-admin';
+
+/**
+ * The connection flow's sanctioned `from` for a new caller: an unknown one returns the visitor to the Jetpack plans page instead of `redirect_uri`.
+ */
+const CONNECTION_FROM = 'jetpack-connector';
+
+/**
+ * Tracks only queues an event, and leaving the page in the same tick cancels the request that sends it.
+ */
+const TRACKS_FLUSH_DELAY = 250;
+
+export type Plan = 'free' | 'paid' | 'existing';
+
+type Registration = { authorizeUrl?: string };
+
+/**
+ * The blog id WordPress.com just assigned, read off the authorization URL's `client_id`.
+ *
+ * @param authorizeUrl - The URL registration returned.
+ * @return The blog id, or `null` when the URL carries none.
+ */
+function readBlogId( authorizeUrl: string | undefined ): number | null {
+	try {
+		const clientId = Number( new URL( authorizeUrl ?? '' ).searchParams.get( 'client_id' ) );
+
+		return Number.isInteger( clientId ) && clientId > 0 ? clientId : null;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Opened with a page load, so the upgrade page reads the blog id registration just assigned.
+ */
+const UPGRADE_PATH = `${ DASHBOARD_PATH }&p=${ encodeURIComponent( '/upgrade?source=pricing_grid' ) }`;
+
+/**
+ * Leave the page once Tracks has had time to send what it queued.
+ *
+ * @param url - Where to go.
+ */
+function navigateOnceRecorded( url: string ) {
+	setTimeout( () => {
+		navigateTo( url );
+	}, TRACKS_FLUSH_DELAY );
+}
+
+/**
+ * The plan choice a site makes before it is connected, and the registration each choice starts.
+ *
+ * @return The handlers, whether a choice is in flight, and the last error.
+ */
+export function usePlanChoice() {
+	const trackEvent = useTrackEvent();
+	const [ isBusy, setIsBusy ] = useState( false );
+	const [ error, setError ] = useState< string | null >( null );
+
+	// Also points the connection store's REST client at this site, which `registerSite` relies on.
+	const { isOfflineMode } = useConnection( {
+		from: CONNECTION_FROM,
+		redirectUri: DASHBOARD_PATH,
+	} );
+	const { registerSite, connectUser } = useDispatch( CONNECTION_STORE_ID ) as {
+		registerSite: ( args: { redirectUri: string; from: string } ) => Promise< Registration >;
+		connectUser: ( args: {
+			from: string;
+			redirectUri: string;
+			redirectFunc: ( url: string ) => void;
+		} ) => Promise< unknown >;
+	};
+
+	// Nothing else identifies a site before it registers, and it ties these events to the checkout.
+	const siteSuffix = getScriptData()?.site?.suffix ?? '';
+
+	const track = ( name: string, plan: Plan, properties: Record< string, unknown > = {} ) =>
+		trackEvent( `jetpack_premium_analytics_pre_connection_${ name }`, {
+			site_suffix: siteSuffix,
+			plan,
+			...properties,
+		} );
+
+	const fail = ( plan: Plan ) => {
+		track( 'register_failed', plan );
+		setError(
+			__(
+				'Jetpack could not connect this site to WordPress.com. Please try again.',
+				'jetpack-premium-analytics-pkg'
+			)
+		);
+		setIsBusy( false );
+	};
+
+	// Leaves `isBusy` set on success: the browser is on its way to WordPress.com.
+	const choose = async ( plan: Plan ) => {
+		setError( null );
+		setIsBusy( true );
+		track( 'register_start', plan );
+
+		let blogId: number | null;
+
+		try {
+			const registration = await registerSite( {
+				redirectUri: DASHBOARD_PATH,
+				from: CONNECTION_FROM,
+			} );
+			blogId = readBlogId( registration?.authorizeUrl );
+		} catch {
+			fail( plan );
+			return;
+		}
+
+		// The one event carrying both keys, so it joins everything above to what the site does once it has an id.
+		track( 'register_success', plan, { blog_id: blogId } );
+
+		if ( plan !== 'paid' ) {
+			connectUser( {
+				from: CONNECTION_FROM,
+				redirectUri: DASHBOARD_PATH,
+				redirectFunc: navigateOnceRecorded,
+			} );
+			return;
+		}
+
+		navigateOnceRecorded( UPGRADE_PATH );
+	};
+
+	return {
+		choose,
+		isBusy,
+		error,
+		isOfflineMode,
+		siteSuffix,
+	};
+}
