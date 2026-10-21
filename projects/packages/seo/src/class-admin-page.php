@@ -13,6 +13,12 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 
@@ -78,10 +84,11 @@ class Admin_Page {
 			self::MENU_SLUG,
 			$callback,
 			null,
-			// SEO has no My Jetpack product class, so the module is the only gate available.
+			// No module gate: the menu must stay visible even when seo-tools is off so the
+			// user can turn it back on from the page. Hosts may still use the
+			// jetpack_admin_menu_visibility filter to hide it via the 'jetpack-seo' key.
 			array(
-				'module' => 'seo-tools',
-				'key'    => 'jetpack-seo',
+				'key' => 'jetpack-seo',
 			)
 		);
 
@@ -106,6 +113,81 @@ class Admin_Page {
 
 		self::load_wp_build_with_screen_alias();
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
+
+		// Without the context the client records nothing, so another script's Tracks transport can't send our events.
+		if ( self::can_use_analytics() ) {
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+			add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_tracks_context' ) );
+		}
+	}
+
+	/**
+	 * Load the Tracks transport, without which `recordSeoEvent()` only queues into `window._tkq`.
+	 *
+	 * Skipped on Simple, where stats.php already prints w.js; a second copy re-sends the queue.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_tracks_transport() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+	}
+
+	/**
+	 * Whether the site has opted into Tracks, as `Jetpack::initialize_tracking()` checks.
+	 *
+	 * WordPress.com's own terms cover Simple and Atomic, which `should_enable_tracking()` misreads.
+	 *
+	 * @return bool
+	 */
+	public static function can_use_analytics() {
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return true;
+		}
+
+		$tracking = new Tracking( 'jetpack', new Connection_Manager() );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() );
+	}
+
+	/**
+	 * Identifiers the client attaches to every SEO Tracks event.
+	 *
+	 * `blog_id` is the WordPress.com id, or 0 before connecting, so a local id never collides with one.
+	 *
+	 * @return array{blog_id:int, site_type:string, is_a11n:bool, is_test:bool, product_version:string}
+	 */
+	public static function get_tracks_context() {
+		$host = new Host();
+		if ( $host->is_wpcom_simple() ) {
+			$site_type = 'simple';
+		} elseif ( $host->is_woa_site() ) {
+			$site_type = 'atomic';
+		} else {
+			$site_type = 'jetpack';
+		}
+
+		$blog_id = (int) $host->get_wpcom_site_id();
+
+		// `is_automattician()` exists on Simple only; on Atomic, the a8c proxy is what identifies us.
+		$is_a11n = ( function_exists( 'is_automattician' ) && (bool) is_automattician() )
+			|| Constants::is_true( 'AT_PROXIED_REQUEST' );
+
+		// `Status::is_staging_site()` would cover this, but it is deprecated.
+		$is_test = (bool) get_option( 'wpcom_is_staging_site' )
+			|| 'production' !== wp_get_environment_type()
+			|| ( new Status() )->is_local_site();
+
+		return array(
+			'blog_id'         => $blog_id,
+			'site_type'       => $site_type,
+			'is_a11n'         => $is_a11n,
+			'is_test'         => $is_test,
+			'product_version' => Initializer::PACKAGE_VERSION,
+		);
 	}
 
 	/**
@@ -265,6 +347,22 @@ class Admin_Page {
 			'is_gated'   => $is_gated,
 			'upsell_url' => $is_gated ? Initializer::get_upsell_url() : '',
 		);
+
+		return $data;
+	}
+
+	/**
+	 * Add the Tracks context to the SEO script data.
+	 *
+	 * @param array $data Script data being injected onto the page.
+	 * @return array
+	 */
+	public static function inject_tracks_context( $data ) {
+		if ( ! is_array( $data ) ) {
+			$data = array();
+		}
+
+		$data[ Initializer::SCRIPT_DATA_KEY ]['tracks'] = self::get_tracks_context();
 
 		return $data;
 	}

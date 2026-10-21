@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Vulnerability results, from Scan on a paid plan or Protect's free daily check, and on-demand scans.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Scan implements Dashboard_Section {
 
@@ -144,6 +144,27 @@ class Scan implements Dashboard_Section {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( __CLASS__, 'get_ignored_threats' ),
 				'permission_callback' => array( __CLASS__, 'can_act_on_threats' ),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/protect-dashboard/scan/software/delete',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'delete_software' ),
+				'permission_callback' => array( Dashboard::class, 'can_manage' ),
+				'args'                => array(
+					'type' => array(
+						'type'     => 'string',
+						'enum'     => array( 'plugins', 'themes' ),
+						'required' => true,
+					),
+					'slug' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
 			)
 		);
 
@@ -273,6 +294,60 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
+	 * Delete an inactive plugin or a theme the site doesn't use, so its threats go with it.
+	 *
+	 * @param WP_REST_Request $request The request, with the extension `type` and `slug`.
+	 * @return array|WP_Error
+	 */
+	public static function delete_software( WP_REST_Request $request ) {
+		$type = $request['type'];
+		$slug = $request['slug'];
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/theme.php';
+
+		// Looked up by key, so only the slug of installed software matches and anything else is refused.
+		$file  = 'plugins' === $type ? ( Dashboard_Threats::get_plugin_files( get_plugins() )[ $slug ] ?? null ) : null;
+		$theme = 'themes' === $type ? ( wp_get_themes( array( 'errors' => null ) )[ $slug ] ?? null ) : null;
+		if ( ! Dashboard_Threats::can_delete( $type, $file, $theme ) ) {
+			return new WP_Error( 'software_not_deletable', __( 'This can’t be deleted here. It may be in use, or already gone.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
+		}
+
+		$deleted = null;
+		if ( self::can_write_files() ) {
+			$deleted = 'plugins' === $type ? delete_plugins( array( $file ) ) : delete_theme( $theme->get_stylesheet() );
+		}
+		if ( true !== $deleted ) {
+			return new WP_Error( 'software_not_deleted', is_wp_error( $deleted ) ? $deleted->get_error_message() : __( 'WordPress couldn’t delete the files. Try deleting it from the Plugins or Themes screen.', 'jetpack-protect-pkg' ), array( 'status' => 500 ) );
+		}
+
+		delete_transient( self::HISTORY_CACHE );
+		if ( class_exists( Status::class ) ) {
+			Scan_Status::delete_option();
+			Protect_Status::delete_option();
+		}
+		return array( 'ok' => true );
+	}
+
+	/**
+	 * Whether WordPress can delete files without asking for filesystem credentials.
+	 *
+	 * Core's delete functions print the credentials form and exit when it can't, which a REST request can't show.
+	 *
+	 * @return bool
+	 */
+	private static function can_write_files() {
+		if ( 'direct' === get_filesystem_method() ) {
+			return true;
+		}
+		ob_start();
+		$has_credentials = request_filesystem_credentials( self_admin_url() );
+		ob_end_clean();
+		return (bool) $has_credentials;
+	}
+
+	/**
 	 * Ask Scan to fix a threat.
 	 *
 	 * @param WP_REST_Request $request The request, with the threat `id`.
@@ -384,9 +459,10 @@ class Scan implements Dashboard_Section {
 			$response = is_wp_error( $api_url )
 				? $api_url
 				: Client::wpcom_json_api_request_as_blog( $api_url . '/enqueue', '2', array( 'method' => 'POST' ), null, 'wpcom' );
-			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			$error    = self::get_enqueue_error( $response );
+			if ( $error ) {
 				self::release_request_lock();
-				return new WP_Error( 'scan_not_started', __( 'The scan couldn’t be started. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
+				return $error;
 			}
 			Scan_Status::delete_option();
 			delete_transient( self::HISTORY_CACHE );
@@ -394,12 +470,35 @@ class Scan implements Dashboard_Section {
 			/**
 			 * Fires after the Protect dashboard enqueues a scan on WordPress.com.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.1.0
 			 */
 			do_action( 'jetpack_protect_dashboard_scan_started' );
 		}
 
 		return self::get_scan_report( $has_plan, true );
+	}
+
+	/**
+	 * Why WordPress.com didn't enqueue a scan, including a `success: false` it answers with a 200.
+	 *
+	 * @param array|WP_Error $response The enqueue response.
+	 * @return WP_Error|null The error, with WordPress.com's reason when it gives one, or null once enqueued.
+	 */
+	private static function get_enqueue_error( $response ) {
+		$body = is_wp_error( $response ) ? null : json_decode( wp_remote_retrieve_body( $response ) );
+		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) && false !== ( $body->success ?? null ) ) {
+			return null;
+		}
+
+		$reasons = (array) ( $body->error->errors ?? array() );
+		$reason  = $reasons ? (array) reset( $reasons ) : array();
+		$reason  = $reason[0] ?? $body->message ?? null;
+		$message = is_string( $reason ) && '' !== $reason
+			/* translators: %s is the reason WordPress.com gave, such as "Unable to find a valid site." */
+			? sprintf( __( 'The scan couldn’t be started: %s', 'jetpack-protect-pkg' ), $reason )
+			: __( 'The scan couldn’t be started. Try again in a few minutes.', 'jetpack-protect-pkg' );
+
+		return new WP_Error( 'scan_not_started', $message, array( 'status' => 502 ) );
 	}
 
 	/**

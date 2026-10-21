@@ -19,62 +19,9 @@ if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
 }
 
 /**
- * Filter through which WooCommerce section availability is resolved.
- */
-const WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_woocommerce_dashboard_section_available';
-
-/**
  * Filter through which Subscribers section availability is resolved.
  */
 const SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_subscribers_dashboard_section_available';
-
-/**
- * Whether the WooCommerce dashboard section should be exposed.
- *
- * @return bool True when WooCommerce is active.
- */
-function is_woocommerce_dashboard_section_available() {
-	$is_available = class_exists( 'WooCommerce' ) || function_exists( 'WC' );
-
-	/**
-	 * Filters whether the WooCommerce dashboard section is available.
-	 *
-	 * @param bool $is_available Whether WooCommerce was detected in the current request.
-	 */
-	return (bool) apply_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
-}
-
-/**
- * Whether the current user should be shown the WooCommerce dashboard section.
- *
- * The sibling is_woocommerce_dashboard_section_available() answers "is
- * WooCommerce here"; this adds "and may this reader see store data".
- *
- * @since 0.1.0
- *
- * @return bool
- */
-function is_woocommerce_dashboard_section_available_to_current_user() {
-	return is_woocommerce_dashboard_section_available() && Capabilities::current_user_can_view_store_reports();
-}
-
-/**
- * Whether the Store dashboard section should be exposed.
- *
- * The site's own opt-in needs the Store flag; the blog sticker and the
- * `jetpack_premium_analytics_enabled` filter leave the option off and keep every section.
- *
- * @since 0.10.0
- *
- * @return bool
- */
-function is_store_dashboard_section_available() {
-	// An older copy of the package may have loaded dashboard-policy.php without the flag.
-	$is_enabled = ! get_option( Enablement_Setting::ENABLED_OPTION )
-		|| ( function_exists( __NAMESPACE__ . '\\is_dashboard_store_section_enabled' ) && is_dashboard_store_section_enabled() );
-
-	return $is_enabled && is_woocommerce_dashboard_section_available_to_current_user();
-}
 
 /**
  * Whether the Subscribers dashboard section should be exposed.
@@ -364,14 +311,15 @@ function register_default_dashboard_sections( $registry = null ) {
 
 	$sections = array(
 		'analytics/traffic'     => array(
-			'label'               => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
-			'title'               => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
-			'order'               => 10,
+			'label'                    => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
+			'title'                    => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
+			'order'                    => 10,
 			// Only the Traffic summary groups by interval, and it saves its own.
-			'date_filter_options' => array(
+			'date_filter_options'      => array(
 				'with_header_interval_control' => false,
 			),
-			'default_layout'      => __NAMESPACE__ . '\\get_traffic_section_default_layout',
+			'follows_plan_date_limits' => true,
+			'default_layout'           => __NAMESPACE__ . '\\get_traffic_section_default_layout',
 		),
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),

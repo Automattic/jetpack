@@ -5,9 +5,27 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
+// @codeCoverageIgnoreStart -- shadowed by the test stub in tests/lib/functions-wordpress.php.
+if ( ! function_exists( 'wpcom_themes_get_purchases' ) ) {
+	/**
+	 * Source of purchase data for the themes tab, pre-definable by a test as
+	 * wpcom_expiry_get_purchases() is, and for the reason given there.
+	 *
+	 * @return array
+	 *
+	 * @phan-suppress PhanRedefineFunction -- phan sees both this and the test stub as definitions even though only one loads at runtime.
+	 */
+	function wpcom_themes_get_purchases() {
+		if ( function_exists( 'wpcom_get_site_purchases' ) ) {
+			return wpcom_get_site_purchases();
+		}
+
+		return array();
+	}
+}
+// @codeCoverageIgnoreEnd
 
 /**
  * The tab's `data-sort` value, which core's theme.js sends to themes_api() as `browse`.
@@ -23,18 +41,6 @@ const WPCOM_THEMES_TAB_FLAG = 'wpcom-themes-marketplace-tab';
  * Themes per request, which is also the grid's page size.
  */
 const WPCOM_THEMES_TAB_PER_PAGE = 100;
-
-/**
- * Query args a theme's demo site reads to render as a preview, as the Calypso showcase passes them.
- *
- * Without these the demo site shows its own "get this theme on WordPress.com" promos inside the
- * preview, and counts the view in the demo site's stats.
- */
-const WPCOM_THEMES_TAB_PREVIEW_ARGS = array(
-	'demo'          => 'true',
-	'iframe'        => 'true',
-	'theme_preview' => 'true',
-);
 
 /**
  * Registers the feature flag.
@@ -78,20 +84,39 @@ function wpcom_themes_tab_enqueue_script() {
 		return;
 	}
 
+	// Core's theme.js owns the views this decorates, and routes on DOM ready rather than on load.
 	wp_enqueue_script(
 		'wpcom-themes-tab',
 		plugins_url( 'js/themes-tab.js', __FILE__ ),
-		array(),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION,
+		array( 'theme' ),
+		// The package version does not change between builds of it, and these are served for a year.
+		(string) filemtime( __DIR__ . '/js/themes-tab.js' ),
 		array( 'in_footer' => true )
 	);
 	wp_localize_script(
 		'wpcom-themes-tab',
 		'wpcomThemesTab',
 		array(
-			'sort'  => WPCOM_THEMES_TAB,
-			'label' => _x( 'Marketplace', 'Theme Installer', 'jetpack-mu-wpcom' ),
+			'sort'           => WPCOM_THEMES_TAB,
+			'label'          => _x( 'Marketplace', 'Theme Installer', 'jetpack-mu-wpcom' ),
+			'upgrade'        => __( 'Upgrade', 'jetpack-mu-wpcom' ),
+			/* translators: %s: Theme name. */
+			'upgradeLabel'   => __( 'Upgrade for %s', 'jetpack-mu-wpcom' ),
+			'subscribe'      => __( 'Subscribe', 'jetpack-mu-wpcom' ),
+			/* translators: %s: Theme name. */
+			'subscribeLabel' => __( 'Subscribe to %s', 'jetpack-mu-wpcom' ),
+			'products'       => WPCom_Themes_Store::PRODUCTS_URL,
+			/* translators: %s: Price per month, for example $7.20. */
+			'price'          => __( '%s/mo, billed annually', 'jetpack-mu-wpcom' ),
+			/* translators: 1: Price per month, for example $7.20. 2: Plan name, for example Personal plan. */
+			'priceWithPlan'  => __( '%1$s/mo, billed annually + %2$s', 'jetpack-mu-wpcom' ),
 		)
+	);
+	wp_enqueue_style(
+		'wpcom-themes-tab',
+		plugins_url( 'css/themes-tab.css', __FILE__ ),
+		array(),
+		(string) filemtime( __DIR__ . '/css/themes-tab.css' )
 	);
 }
 add_action( 'load-theme-install.php', 'wpcom_themes_tab_enqueue_script' );
@@ -125,10 +150,204 @@ function wpcom_themes_tab_redirect_to_default_view() {
 		return;
 	}
 
-	wp_safe_redirect( admin_url( 'theme-install.php?browse=' . WPCOM_THEMES_TAB ) );
+	wp_safe_redirect( wpcom_themes_tab_url() );
 	exit;
 }
 add_action( 'load-theme-install.php', 'wpcom_themes_tab_redirect_to_default_view' );
+/**
+ * This tab's own URL.
+ *
+ * @return string
+ */
+function wpcom_themes_tab_url() {
+	return admin_url( 'theme-install.php?browse=' . WPCOM_THEMES_TAB );
+}
+
+/**
+ * Where to buy the plan a theme needs.
+ *
+ * Checkout returns to the theme itself, where the plan now allows an install, and back out to
+ * the tab if it is abandoned instead.
+ *
+ * @param string|array $products One product slug, or the several checkout should charge for at once.
+ * @param string       $slug     Theme slug.
+ * @return string
+ */
+function wpcom_themes_tab_checkout_url( $products, string $slug ) {
+	$url = sprintf(
+		'https://wordpress.com/checkout/%s/%s',
+		rawurlencode( (string) wp_parse_url( home_url(), PHP_URL_HOST ) ),
+		// Checkout splits this segment on commas, so each slug is encoded but the separator is not.
+		implode( ',', array_map( 'rawurlencode', (array) $products ) )
+	);
+
+	// Checkout honours these on the site's own host, and add_query_arg() does not encode values.
+	return add_query_arg(
+		array(
+			'checkoutBackUrl' => rawurlencode( wpcom_themes_tab_url() ),
+			'redirect_to'     => rawurlencode( admin_url( 'theme-install.php?theme=' . rawurlencode( $slug ) ) ),
+		),
+		$url
+	);
+}
+
+/**
+ * Says what a theme costs this site, for the badge every card carries.
+ *
+ * Core's grid offers Install for whatever it is given, so a theme the plan excludes also has to
+ * carry the upgrade that belongs in its place.
+ *
+ * @param stdClass $theme A theme in the themes API shape.
+ * @return stdClass The theme, carrying its badge and, when the plan excludes it, an upgrade.
+ */
+function wpcom_themes_tab_add_plan( $theme ) {
+	$tier = isset( $theme->theme_tier ) ? (string) $theme->theme_tier : '';
+
+	// A partner theme is sold rather than granted, so its badge is a price and not a plan.
+	if ( WPCom_Themes_Tiers::PARTNER === $tier ) {
+		return wpcom_themes_tab_add_subscription( $theme );
+	}
+
+	$plan = WPCom_Themes_Tiers::plan_for( $tier );
+
+	if ( '' === $plan || WPCom_Themes_Tiers::site_can_use( $tier ) ) {
+		$theme->plan_badge = __( 'Included with plan', 'jetpack-mu-wpcom' );
+
+		return $theme;
+	}
+
+	$theme->plan_badge  = WPCom_Themes_Tiers::plan_name_for( $tier );
+	$theme->upgrade_url = wpcom_themes_tab_checkout_url( $plan, (string) ( $theme->slug ?? '' ) );
+
+	return $theme;
+}
+
+/**
+ * Offers the subscription a partner theme needs, which no plan includes.
+ *
+ * The badge is left for the browser to write, because the store prices a request where it comes
+ * from: read here it would quote the web server's currency rather than the reader's.
+ *
+ * @param stdClass $theme A theme in the themes API shape.
+ * @return stdClass The theme, carrying what to price and where to buy it.
+ */
+function wpcom_themes_tab_add_subscription( $theme ) {
+	$slug         = (string) ( $theme->slug ?? '' );
+	$subscription = wpcom_themes_tab_subscription( $slug );
+
+	// A theme already paid for is core's to install, and one the store does not sell is not ours
+	// to sell. Both are left to core's own button, which a partner theme still defeats. DOTCOM-18722.
+	if ( array() === $subscription || $subscription['owned'] ) {
+		return $theme;
+	}
+
+	// Every paid plan grants the tier, so this is only ever the cheapest one.
+	$plan = WPCom_Themes_Tiers::site_can_use( WPCom_Themes_Tiers::PARTNER )
+		? ''
+		: WPCom_Themes_Tiers::plan_for( WPCom_Themes_Tiers::PARTNER );
+
+	$theme->price_product = $subscription['product'];
+	$theme->price_plan    = '' === $plan ? '' : WPCom_Themes_Tiers::plan_name_for( WPCom_Themes_Tiers::PARTNER );
+	// Checkout charges for the plan and the theme together, so one purchase is enough to install.
+	$theme->purchase_url = wpcom_themes_tab_checkout_url(
+		'' === $plan ? $subscription['product'] : array( $plan, $subscription['product'] ),
+		$slug
+	);
+
+	return $theme;
+}
+
+/**
+ * How a partner theme is sold, and whether this site has already bought it.
+ *
+ * @param string $slug Theme slug.
+ * @return array{product: string, owned: bool}|array{} Empty when the store does not sell it.
+ */
+function wpcom_themes_tab_subscription( string $slug ) {
+	if ( '' === $slug ) {
+		return array();
+	}
+
+	$store    = wpcom_themes_tab_store();
+	$products = $store->products();
+
+	foreach ( wpcom_themes_tab_api()->fetch_partner_products()[ $slug ] ?? array() as $sold_as ) {
+		$product_slug = (string) ( $sold_as->product_slug ?? '' );
+		$product      = $products[ $product_slug ] ?? null;
+
+		if ( null === $product || WPCom_Themes_Store::TERM !== $product['term'] ) {
+			continue;
+		}
+
+		return array(
+			'product' => $product_slug,
+			'owned'   => in_array( $product['billing_slug'], $store->subscriptions(), true ),
+		);
+	}
+
+	return array();
+}
+
+/**
+ * The shared WordPress.com themes reader, which wpcomsh also uses for core's own tabs.
+ *
+ * @return WPCom_Themes_Api
+ */
+function wpcom_themes_tab_api() {
+	static $api;
+	if ( ! $api ) {
+		$api = new WPCom_Themes_Api( new WPCom_Themes_Cache() );
+	}
+
+	return $api;
+}
+
+/**
+ * The store reader, which prices the themes no plan includes.
+ *
+ * @return WPCom_Themes_Store
+ */
+function wpcom_themes_tab_store() {
+	static $store;
+	if ( ! $store ) {
+		$store = new WPCom_Themes_Store( new WPCom_Themes_Cache() );
+	}
+
+	return $store;
+}
+
+/**
+ * The shared mapper, which shapes a WordPress.com theme the way core's grid reads it.
+ *
+ * @return WPCom_Themes_Mapper
+ */
+function wpcom_themes_tab_mapper() {
+	static $mapper;
+	if ( ! $mapper ) {
+		$mapper = new WPCom_Themes_Mapper();
+	}
+
+	return $mapper;
+}
+
+/**
+ * Every theme the tab lists, in the order WordPress.com returns them.
+ *
+ * The shared reader fetches and caches the whole catalog, so the tab pages through it here rather
+ * than asking for a page at a time.
+ *
+ * @return array<stdClass>
+ */
+function wpcom_themes_tab_catalog() {
+	return array_values(
+		array_filter(
+			wpcom_themes_tab_api()->fetch_all_non_delisted_themes(),
+			static function ( $theme ) {
+				return is_object( $theme ) && ! empty( $theme->id ) && is_string( $theme->id );
+			}
+		)
+	);
+}
 
 /**
  * Answers the tab's query in place of the WordPress.org themes API.
@@ -145,7 +364,7 @@ function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
 
 	// A `?theme=<slug>` preview link, loaded directly, looks its theme up by slug rather than by tab.
 	if ( ! isset( $args->browse ) && isset( $args->theme ) && is_string( $args->theme ) ) {
-		$theme = wpcom_themes_tab_find_theme( $args->theme );
+		$theme = wpcom_themes_tab_api()->fetch_theme( $args->theme );
 
 		return null === $theme ? $result : (object) array(
 			'info'   => array(
@@ -153,7 +372,7 @@ function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
 				'pages'   => 1,
 				'results' => 1,
 			),
-			'themes' => array( wpcom_themes_tab_to_api_theme( $theme ) ),
+			'themes' => array( wpcom_themes_tab_add_plan( wpcom_themes_tab_mapper()->map_wpcom_to_wporg( $theme ) ) ),
 		);
 	}
 
@@ -161,168 +380,21 @@ function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
 		return $result;
 	}
 
-	$page    = isset( $args->page ) ? max( 1, (int) $args->page ) : 1;
-	$catalog = wpcom_themes_tab_get_catalog( $page );
+	$themes = wpcom_themes_tab_catalog();
+	$page   = isset( $args->page ) ? max( 1, (int) $args->page ) : 1;
+	$mapper = wpcom_themes_tab_mapper();
+
+	// Only the page core asked for is mapped: mapping reads each theme from disk to say whether it
+	// is installed.
+	$shown = array_slice( $themes, ( $page - 1 ) * WPCOM_THEMES_TAB_PER_PAGE, WPCOM_THEMES_TAB_PER_PAGE );
 
 	return (object) array(
 		'info'   => array(
 			'page'    => $page,
-			'pages'   => (int) ceil( $catalog['found'] / WPCOM_THEMES_TAB_PER_PAGE ),
-			'results' => $catalog['found'],
+			'pages'   => (int) ceil( count( $themes ) / WPCOM_THEMES_TAB_PER_PAGE ),
+			'results' => count( $themes ),
 		),
-		'themes' => array_map( 'wpcom_themes_tab_to_api_theme', $catalog['themes'] ),
+		'themes' => array_values( array_map( 'wpcom_themes_tab_add_plan', array_map( array( $mapper, 'map_wpcom_to_wporg' ), $shown ) ) ),
 	);
 }
 add_filter( 'themes_api', 'wpcom_themes_tab_serve_themes_api', 10, 3 );
-
-/**
- * Shapes a catalog theme the way wp_ajax_query_themes() and the `tmpl-theme` template read it.
- *
- * @param array $theme A theme from wpcom_themes_tab_get_catalog().
- * @return object
- */
-function wpcom_themes_tab_to_api_theme( array $theme ) {
-	return (object) array(
-		'slug'           => $theme['slug'],
-		'name'           => $theme['name'],
-		'version'        => $theme['version'],
-		'author'         => array( 'display_name' => $theme['author'] ),
-		'description'    => $theme['description'],
-		'screenshot_url' => $theme['screenshot_url'],
-		'preview_url'    => $theme['preview_url'],
-		'rating'         => 0,
-		'num_ratings'    => 0,
-		'requires'       => false,
-		'requires_php'   => false,
-	);
-}
-
-/**
- * The transient caching one page of the catalog.
- *
- * @param int $page Page number.
- * @return string
- */
-function wpcom_themes_tab_cache_key( $page ) {
-	return 'wpcom_themes_tab_v2_' . $page;
-}
-
-/**
- * One page of the themes the tab lists, cached.
- *
- * @param int $page Page number.
- * @return array{themes: array[], found: int} Empty when WordPress.com cannot be read.
- */
-function wpcom_themes_tab_get_catalog( $page = 1 ) {
-	$cache_key = wpcom_themes_tab_cache_key( $page );
-	$cached    = get_transient( $cache_key );
-	if ( is_array( $cached ) ) {
-		return $cached;
-	}
-
-	$catalog = wpcom_themes_tab_fetch_catalog( $page );
-	if ( null === $catalog ) {
-		// Cache the miss briefly, so an outage costs one request per five minutes, not one per view.
-		$catalog = array(
-			'themes' => array(),
-			'found'  => 0,
-		);
-		set_transient( $cache_key, $catalog, 5 * MINUTE_IN_SECONDS );
-
-		return $catalog;
-	}
-
-	set_transient( $cache_key, $catalog, 6 * HOUR_IN_SECONDS );
-
-	return $catalog;
-}
-
-/**
- * A theme whose `?theme=<slug>` preview this tab answers, read from WordPress.com by slug.
- *
- * Every theme WordPress.com has is answered here, including ones WordPress.org also carries, so a
- * preview shows our screenshot and demo rather than WordPress.org's copy of the same theme.
- *
- * @param string $slug Theme slug.
- * @return array|null Null when WordPress.com does not have the theme.
- */
-function wpcom_themes_tab_find_theme( $slug ) {
-	if ( ! method_exists( Client::class, 'wpcom_json_api_request_as_blog' ) ) {
-		return null;
-	}
-
-	$response = Client::wpcom_json_api_request_as_blog( '/themes/' . rawurlencode( $slug ), '1.2' );
-	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		return null;
-	}
-
-	return wpcom_themes_tab_to_catalog_theme( json_decode( wp_remote_retrieve_body( $response ), true ) );
-}
-
-/**
- * Reads one page of themes from `/wpcom/v2/themes`.
- *
- * @param int $page Page number.
- * @return array{themes: array[], found: int}|null Null on any failure.
- */
-function wpcom_themes_tab_fetch_catalog( $page ) {
-	if ( ! method_exists( Client::class, 'wpcom_json_api_request_as_blog' ) ) {
-		return null;
-	}
-
-	$path = add_query_arg(
-		array(
-			'number' => WPCOM_THEMES_TAB_PER_PAGE,
-			'page'   => $page,
-		),
-		'/themes'
-	);
-
-	$response = Client::wpcom_json_api_request_as_blog( $path, '2', array(), null, 'wpcom' );
-	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		return null;
-	}
-
-	$body = json_decode( wp_remote_retrieve_body( $response ), true );
-	if ( ! is_array( $body ) || ! is_array( $body['themes'] ?? null ) ) {
-		return null;
-	}
-
-	$themes = array();
-	foreach ( $body['themes'] as $theme ) {
-		$mapped = wpcom_themes_tab_to_catalog_theme( $theme );
-		if ( null !== $mapped ) {
-			$themes[] = $mapped;
-		}
-	}
-
-	return array(
-		'themes' => $themes,
-		'found'  => (int) ( $body['found'] ?? count( $themes ) ),
-	);
-}
-
-/**
- * Shapes one theme from `/themes` or `/themes/<slug>` into the array the tab works with.
- *
- * @param mixed $theme A theme from either endpoint.
- * @return array|null Null when the theme has no usable slug.
- */
-function wpcom_themes_tab_to_catalog_theme( $theme ) {
-	// `id` is the bare directory name; `stylesheet` can carry a `pub/` prefix for WordPress.com's own themes.
-	if ( ! is_array( $theme ) || empty( $theme['id'] ) || ! is_string( $theme['id'] ) ) {
-		return null;
-	}
-
-	$demo_uri = (string) ( $theme['demo_uri'] ?? '' );
-
-	return array(
-		'slug'           => $theme['id'],
-		'name'           => (string) ( $theme['name'] ?? $theme['id'] ),
-		'author'         => (string) ( $theme['author'] ?? '' ),
-		'description'    => (string) ( $theme['description'] ?? '' ),
-		'version'        => (string) ( $theme['version'] ?? '' ),
-		'screenshot_url' => (string) ( $theme['screenshot'] ?? '' ),
-		'preview_url'    => '' === $demo_uri ? '' : add_query_arg( WPCOM_THEMES_TAB_PREVIEW_ARGS, $demo_uri ),
-	);
-}

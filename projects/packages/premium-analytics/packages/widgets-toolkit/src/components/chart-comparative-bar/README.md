@@ -32,17 +32,19 @@ second current-period series keeps its own dates.
 
 ## Props
 
-| Prop               | Type                          | Required | Description                                                   |
-| ------------------ | ----------------------------- | -------- | ------------------------------------------------------------- |
-| `series`           | `ComparativeBarChartSeries[]` | Yes      | Series to draw                                                |
-| `dataFormat`       | `DataFormat`                  | Yes      | Format for values (Y-axis ticks and tooltips)                 |
-| `tickFormat`       | `DateFormatName`              | No       | Named X-axis date format; uses the chart default when omitted |
-| `compactWhenShort` | `boolean`                     | No       | Degrade to a sparkline under 140px of chart area              |
-| `maxWidth`         | `number`                      | No       | Maximum chart width                                           |
-| `className`        | `string`                      | No       | CSS class for the chart container                             |
-| `chartId`          | `string`                      | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
-| `defaultHiddenSeries` | `readonly string[]`        | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive` |
-| `legendInteractive` | `boolean`                    | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false` |
+| Prop                  | Type                          | Required | Description                                                                                                                               |
+| --------------------- | ----------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `series`              | `ComparativeBarChartSeries[]` | Yes      | Series to draw                                                                                                                            |
+| `dataFormat`          | `DataFormat`                  | Yes      | Format for values (Y-axis ticks and tooltips)                                                                                             |
+| `tickFormat`          | `DateFormatName`              | No       | Named X-axis date format; uses the chart default when omitted                                                                             |
+| `compactWhenShort`    | `boolean`                     | No       | Degrade to a sparkline under 140px of chart area                                                                                          |
+| `maxWidth`            | `number`                      | No       | Maximum chart width                                                                                                                       |
+| `className`           | `string`                      | No       | CSS class for the chart container                                                                                                         |
+| `chartTitle`          | `string`                      | No       | What the chart shows, such as the widget title; the chart is named "Chart: <title>"                                                       |
+| `chartId`             | `string`                      | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
+| `defaultHiddenSeries` | `readonly string[]`           | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive`               |
+| `legendInteractive`   | `boolean`                     | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false`                               |
+| `comparisonLabel`     | `string`                      | No       | Names the comparison in each metric's previous-period legend item, e.g. "Prev. 30 days". Defaults to "Previous period"                    |
 
 ## Date alignment and tooltips
 

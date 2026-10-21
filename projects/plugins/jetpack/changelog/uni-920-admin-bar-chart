@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Stats: Load the admin bar views chart independently of the Stats page.

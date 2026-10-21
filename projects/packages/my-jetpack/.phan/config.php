@@ -23,6 +23,7 @@ return make_phan_config(
 			'tests/php/stubs/wp-build-render-page\.php',
 			// Redeclares Admin_Menu without the resolver, which would shadow the real class everywhere.
 			'tests/php/stubs/older-admin-ui/',
+			'tests/php/stubs/class-jetpack-gutenberg\.php',
 		),
 		'parse_file_list'    => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
@@ -34,6 +35,7 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/jetpack.php',                             // JETPACK__VERSION
 			__DIR__ . '/../../../plugins/jetpack/functions.global.php',                    // function jetpack_is_internal_testing_environment
 			__DIR__ . '/../../../plugins/jetpack/class.jetpack.php',                       // class Jetpack
+			__DIR__ . '/../../../plugins/jetpack/class.jetpack-admin.php',
 			__DIR__ . '/../../../plugins/jetpack/_inc/lib/class-jetpack-ai-helper.php',    // class Jetpack_AI_Helper
 			__DIR__ . '/../../../plugins/jetpack/3rd-party/class.jetpack-amp-support.php', // class Jetpack_AMP_Support
 			__DIR__ . '/../../../plugins/jetpack/class.jetpack-gutenberg.php',             // class Jetpack_Gutenberg

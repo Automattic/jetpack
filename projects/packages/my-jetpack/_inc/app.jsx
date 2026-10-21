@@ -9,6 +9,7 @@ import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router';
 import AddLicenseScreen from './components/add-license-screen';
 import ConnectionScreen from './components/connection-screen';
 import MyJetpackScreen from './components/my-jetpack-screen';
+import OfflineFeaturesScreen from './components/offline-features-screen';
 import PartnerCouponGate from './components/partner-coupon-gate';
 import {
 	AntiSpamInterstitial,
@@ -26,12 +27,15 @@ import {
 	SecurityInterstitial,
 	GrowthInterstitial,
 	CompleteInterstitial,
+	ProInterstitial,
 } from './components/product-interstitial';
 import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/product-page';
 import ProtectProductPage from './components/product-interstitial/protect/product-page';
 import RedeemTokenScreen from './components/redeem-token-screen';
 import { MyJetpackRoutes } from './constants';
 import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
+import { isOfflineFeatures } from './data/utils/offline-features';
+import { usePaidMenuSync } from './hooks/use-paid-menu-sync';
 import Providers from './providers';
 import './style.module.scss';
 
@@ -50,17 +54,54 @@ function ScrollToTop() {
 }
 
 /**
+ * Keep Features query state when an offline entry uses another hash route.
+ *
+ * @return {import('react').ReactElement} The offline screen or its redirect.
+ */
+function OfflineFeaturesRoute() {
+	const { pathname, search } = useLocation();
+
+	return pathname === '/features' ? (
+		<OfflineFeaturesScreen />
+	) : (
+		<Navigate replace to={ `/features${ search }` } />
+	);
+}
+
+/**
+ * Bring the sidebar up to date with a plan bought before this page drew it, on any route.
+ *
+ * @return {null} Renders nothing.
+ */
+function PaidMenuSync() {
+	usePaidMenuSync();
+	return null;
+}
+
+/**
  * The My Jetpack app tree, rendered by the wp-build stage.
  *
  * @return {import('react').ReactElement} The App component.
  */
 export default function App() {
+	if ( isOfflineFeatures() ) {
+		return (
+			<Providers>
+				<HashRouter>
+					<ScrollToTop />
+					<OfflineFeaturesRoute />
+				</HashRouter>
+			</Providers>
+		);
+	}
+
 	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();
 
 	return (
 		<Providers>
 			<HashRouter>
 				<ScrollToTop />
+				<PaidMenuSync />
 				<PartnerCouponGate>
 					<Routes>
 						<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackScreen /> } />
@@ -90,6 +131,7 @@ export default function App() {
 						<Route path={ MyJetpackRoutes.AddSecurity } element={ <SecurityInterstitial /> } />
 						<Route path={ MyJetpackRoutes.AddGrowth } element={ <GrowthInterstitial /> } />
 						<Route path={ MyJetpackRoutes.AddComplete } element={ <CompleteInterstitial /> } />
+						<Route path={ MyJetpackRoutes.AddPro } element={ <ProInterstitial /> } />
 						<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
 						{ /* Fallback route. Required to prevent visiting `?page=my-jetpack#wpbody-content` from raising an exception. */ }
 						<Route path="*" element={ <MyJetpackScreen /> } />

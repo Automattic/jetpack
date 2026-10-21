@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -28,6 +29,17 @@ class Sync_Status_Tracker_Test extends TestCase {
 	#[Before]
 	public function set_up() {
 		\WorDBless\Options::init()->clear_options();
+		// Raw options query $wpdb directly, which WorDBless doesn't back.
+		add_filter( 'jetpack_disabled_raw_options', array( $this, 'bypass_full_sync_status_raw_option' ) );
+	}
+
+	/**
+	 * @param array $options Raw options read through the Options API instead.
+	 * @return array
+	 */
+	public function bypass_full_sync_status_raw_option( $options ) {
+		$options['jetpack_sync_full_status'] = true;
+		return $options;
 	}
 
 	/**
@@ -38,6 +50,7 @@ class Sync_Status_Tracker_Test extends TestCase {
 		delete_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION );
 		remove_all_actions( Sync_Status_Tracker::MILESTONE_ACTION );
 		remove_all_filters( 'jetpack_premium_analytics_sync_modules' );
+		remove_all_filters( 'jetpack_disabled_raw_options' );
 		\WorDBless\Options::init()->clear_options();
 	}
 
@@ -241,5 +254,71 @@ class Sync_Status_Tracker_Test extends TestCase {
 		$result = Sync_Status_Tracker::enrich_sync_status_response( $passthrough, null, $request );
 
 		$this->assertSame( $passthrough, $result );
+	}
+
+	public function test_enrich_backfills_milestone_from_finished_analytics_full_sync() {
+		$fired = 0;
+		add_action(
+			Sync_Status_Tracker::MILESTONE_ACTION,
+			function () use ( &$fired ) {
+				++$fired;
+			}
+		);
+		\Jetpack_Options::update_raw_option(
+			'jetpack_sync_full_status',
+			array(
+				'started'  => 1730000000,
+				'finished' => 1730000123,
+				'progress' => array( 'woocommerce_analytics' => array( 'finished' => true ) ),
+				'config'   => array( 'woocommerce_analytics' => true ),
+			)
+		);
+		$request = new \WP_REST_Request( 'GET', Sync_Status_Tracker::SYNC_STATUS_ROUTE );
+
+		$result = Sync_Status_Tracker::enrich_sync_status_response( new \WP_REST_Response( array() ), null, $request );
+		Sync_Status_Tracker::enrich_sync_status_response( new \WP_REST_Response( array() ), null, $request );
+
+		$this->assertSame( 1730000123, $result->get_data()['initial_full_sync_finished'] );
+		$this->assertSame( 1, $fired, 'fires the milestone action once' );
+	}
+
+	/**
+	 * @dataProvider provide_full_sync_status_without_finished_analytics
+	 * @param array $full_status Stored full-sync status.
+	 */
+	#[DataProvider( 'provide_full_sync_status_without_finished_analytics' )]
+	public function test_enrich_does_not_backfill_milestone( array $full_status ) {
+		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $full_status );
+		$request = new \WP_REST_Request( 'GET', Sync_Status_Tracker::SYNC_STATUS_ROUTE );
+
+		$result = Sync_Status_Tracker::enrich_sync_status_response( new \WP_REST_Response( array() ), null, $request );
+
+		$this->assertSame( 0, $result->get_data()['initial_full_sync_finished'] );
+	}
+
+	public static function provide_full_sync_status_without_finished_analytics() {
+		return array(
+			'sync still running'          => array(
+				array(
+					'started'  => 1730000000,
+					'finished' => false,
+					'progress' => array( 'woocommerce_analytics' => array( 'finished' => true ) ),
+				),
+			),
+			'finished without analytics'  => array(
+				array(
+					'started'  => 1730000000,
+					'finished' => 1730000123,
+					'progress' => array( 'posts' => array( 'finished' => true ) ),
+				),
+			),
+			'analytics bucket unfinished' => array(
+				array(
+					'started'  => 1730000000,
+					'finished' => 1730000123,
+					'progress' => array( 'woocommerce_analytics' => array( 'finished' => false ) ),
+				),
+			),
+		);
 	}
 }

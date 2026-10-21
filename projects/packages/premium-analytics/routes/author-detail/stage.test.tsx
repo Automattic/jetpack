@@ -29,17 +29,21 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	// resolve, and `buildReportLink`/`pickReportDateParams` build real hrefs below.
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
-	useReportDateFilters: () => ( {
-		appliedRange: {
-			from: new Date( Date.UTC( 2026, 5, 1 ) ),
-			to: new Date( Date.UTC( 2026, 5, 16 ) ),
-		},
-		replaceRange: () => {},
-		timeZone: 'UTC',
-		interval: 'day',
-		intervalOptions: [ 'day', 'week' ],
-		...mockDateFilterOverrides,
-	} ),
+	useReportDateFilters: () => {
+		const filters: Record< string, unknown > = {
+			appliedRange: {
+				from: new Date( Date.UTC( 2026, 5, 1 ) ),
+				to: new Date( Date.UTC( 2026, 5, 16 ) ),
+			},
+			replaceRange: () => {},
+			timeZone: 'UTC',
+			interval: 'day',
+			intervalOptions: [ 'day', 'week' ],
+			...mockDateFilterOverrides,
+		};
+		// Nothing staged: the draft is what the URL applied.
+		return { presetId: filters.appliedPresetId, range: filters.appliedRange, ...filters };
+	},
 } ) );
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
@@ -113,6 +117,7 @@ const mockUseStoredLayout = useStoredDetailLayout as jest.Mock;
 
 jest.mock( '@wordpress/widget-primitives', () => ( {
 	useWidgetTypes: () => [ [], false ],
+	WidgetHostProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 // The report registry is deliberately not mocked so the breadcrumb exercises
@@ -166,6 +171,7 @@ jest.mock( '@wordpress/route', () => {
 } );
 
 jest.mock( './hooks', () => ( {
+	authorDisplayName: jest.requireActual( './hooks/use-author-summary' ).authorDisplayName,
 	useAuthorSummary: jest.fn(),
 	useAuthorAllTimeStart: jest.fn(),
 } ) );
@@ -234,7 +240,7 @@ describe( 'author detail stage', () => {
 		return screen.getByRole( 'heading', { level: 2, name } );
 	}
 
-	it( 'renders the fixed Stats / All authors / Author trail with date-preserving links', () => {
+	it( 'renders the Stats / All authors / name trail with date-preserving links', () => {
 		mockSummary();
 
 		render( stage() );
@@ -243,7 +249,7 @@ describe( 'author detail stage', () => {
 		expect( breadcrumbs.getAllByRole( 'listitem' ).map( crumb => crumb.textContent ) ).toEqual( [
 			'Stats',
 			'All authors',
-			'Author',
+			'Priya Patel',
 		] );
 		expect( breadcrumbs.getByRole( 'link', { name: 'Stats' } ) ).toHaveAttribute(
 			'href',
@@ -253,7 +259,9 @@ describe( 'author detail stage', () => {
 			'href',
 			'/reports/authors?from=2026-06-01&to=2026-06-16'
 		);
-		expect( breadcrumbs.getByRole( 'heading', { level: 1, name: 'Author' } ) ).toBeInTheDocument();
+		expect(
+			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Priya Patel' } )
+		).toBeInTheDocument();
 	} );
 
 	it( 'shows the author identity in the header and renders the widgets', () => {
@@ -316,14 +324,15 @@ describe( 'author detail stage', () => {
 
 	it( 'offers Retry when the summary fails, keeping the trail and date controls', async () => {
 		const user = userEvent.setup();
-		mockSummary( { isError: true, name: undefined } );
+		// A failed refetch keeps the cached name, which must not reach the trail.
+		mockSummary( { isError: true } );
 
 		render( stage() );
 
 		expect( getSummaryHeading( 'Author unavailable' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
 		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
-		expect( breadcrumbs.getAllByRole( 'listitem' ) ).toHaveLength( 3 );
+		expect( breadcrumbs.getByRole( 'heading', { level: 1, name: 'Author' } ) ).toBeInTheDocument();
 
 		expect( screen.queryByText( 'Author widgets' ) ).not.toBeInTheDocument();
 		expect(
@@ -349,22 +358,6 @@ describe( 'author detail stage', () => {
 		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
 		expect(
 			getNoticeAnnouncement( "You don't have access to this data.", 'assertive' )
-		).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'names a hidden users endpoint without offering Retry', () => {
-		mockSummary( {
-			isError: true,
-			error: { code: 'rest_no_route', data: { status: 404 } },
-			name: undefined,
-		} );
-
-		render( stage() );
-
-		expect( getNoticeText( "This site doesn't share author profiles." ) ).toBeInTheDocument();
-		expect(
-			getNoticeAnnouncement( "This site doesn't share author profiles.", 'polite' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );

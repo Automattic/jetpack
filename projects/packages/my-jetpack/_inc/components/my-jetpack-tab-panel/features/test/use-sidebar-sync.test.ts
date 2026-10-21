@@ -1,4 +1,4 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { onSwitchWritten } from '../../../../data/switch-written';
 import { useSidebarSync } from '../use-sidebar-sync';
 
@@ -25,6 +25,14 @@ describe( 'useSidebarSync', () => {
 	let fetchMock: jest.Mock;
 	let switchWritten: () => void;
 
+	// The refresh runs on promises alone, so it has settled one task later,
+	// with no wall-clock deadline for a stalled CI runner to miss.
+	const writeSwitch = () =>
+		act( async () => {
+			switchWritten();
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+		} );
+
 	beforeEach( () => {
 		document.body.innerHTML = page( 'my-jetpack' );
 		fetchMock = jest.fn();
@@ -46,9 +54,7 @@ describe( 'useSidebarSync', () => {
 
 		const { result } = renderHook( () => useSidebarSync( [ feature( 'stats' ) ] ) );
 
-		act( () => switchWritten() );
-
-		await waitFor( () => expect( result.current.pointer ).not.toBeNull() );
+		await writeSwitch();
 
 		expect( fetchMock ).toHaveBeenCalledWith(
 			'https://example.com/wp-admin/tools.php',
@@ -68,9 +74,7 @@ describe( 'useSidebarSync', () => {
 
 		const { result } = renderHook( () => useSidebarSync( [ feature( 'stats' ) ] ) );
 
-		act( () => switchWritten() );
-
-		await waitFor( () => expect( result.current.pointer ).not.toBeNull() );
+		await writeSwitch();
 
 		expect( result.current.pointer?.label ).toBe( '2 features are now in your menu' );
 		expect( result.current.pointer?.elements.map( item => item.textContent ) ).toEqual( [
@@ -86,11 +90,11 @@ describe( 'useSidebarSync', () => {
 
 		const { result } = renderHook( () => useSidebarSync( [ feature( 'stats' ) ] ) );
 
-		act( () => switchWritten() );
-		await waitFor( () => expect( result.current.pointer ).not.toBeNull() );
+		await writeSwitch();
+		expect( result.current.pointer ).not.toBeNull();
 
-		act( () => switchWritten() );
-		await waitFor( () => expect( result.current.pointer ).toBeNull() );
+		await writeSwitch();
+		expect( result.current.pointer ).toBeNull();
 	} );
 
 	it( 'aborts a refresh a newer write supersedes', async () => {
@@ -106,11 +110,10 @@ describe( 'useSidebarSync', () => {
 
 		const { result } = renderHook( () => useSidebarSync( [ feature( 'stats' ) ] ) );
 
-		act( () => switchWritten() );
-		act( () => switchWritten() );
+		await writeSwitch();
+		await writeSwitch();
 
-		await waitFor( () => expect( result.current.pointer ).not.toBeNull() );
-
+		expect( result.current.pointer ).not.toBeNull();
 		expect( fetchMock.mock.calls[ 0 ][ 1 ].signal.aborted ).toBe( true );
 		expect( fetchMock.mock.calls[ 1 ][ 1 ].signal.aborted ).toBe( false );
 	} );
@@ -122,10 +125,9 @@ describe( 'useSidebarSync', () => {
 
 		const { result } = renderHook( () => useSidebarSync( [ feature( 'stats' ) ] ) );
 
-		act( () => switchWritten() );
+		await writeSwitch();
 
-		await waitFor( () => expect( result.current.pointer ).not.toBeNull() );
-
+		expect( result.current.pointer ).not.toBeNull();
 		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
 	} );
 
@@ -134,10 +136,7 @@ describe( 'useSidebarSync', () => {
 
 		renderHook( () => useSidebarSync( [ feature( 'stats' ) ] ) );
 
-		act( () => switchWritten() );
-
-		await waitFor( () => expect( fetchMock ).toHaveBeenCalledTimes( 2 ) );
-		await act( () => new Promise( resolve => setTimeout( resolve, 20 ) ) );
+		await writeSwitch();
 
 		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
 	} );

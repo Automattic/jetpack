@@ -17,6 +17,13 @@ const baseArgs = {
 
 describe( 'buildOptionalMenuItems', () => {
 	describe( 'Modules link', () => {
+		it( 'uses the supplied Features destination without changing the click handler', () => {
+			const url = 'admin.php?page=my-jetpack&modules_fallback=1#/features';
+			const [ item ] = buildOptionalMenuItems( { ...baseArgs, modulesManagementUrl: url } );
+			expect( item.href ).toBe( url );
+			expect( item.onClick ).toBe( baseArgs.onModulesClick );
+		} );
+
 		it( 'includes the Modules link for an admin on a connected self-hosted site', () => {
 			const items = buildOptionalMenuItems( baseArgs );
 

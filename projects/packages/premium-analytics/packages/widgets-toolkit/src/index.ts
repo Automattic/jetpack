@@ -52,6 +52,8 @@ export {
 	type DonutProps,
 	type DonutSegmentInput,
 	Funnel,
+	Locations,
+	Columns,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -143,6 +145,8 @@ export {
 	FeedbackModal,
 	type FeedbackSource,
 	PageEmptyState,
+	LockedPage,
+	LockedWidget,
 	PageNotice,
 	type PageNoticeProps,
 	PageOptionsMenu,
@@ -227,16 +231,17 @@ export {
 	getArchiveGroupLabel,
 	getArchiveTypeLabel,
 	getAuthorName,
+	getAuthorPostsQueryParams,
 	getAuthorsReportQueryParams,
 	getLocationColumnLabel,
 	getLocationsReportQueryParams,
 	getLocationsReportSection,
+	getLocationsSectionLabel,
 	getLocationsScopeParams,
 	getPostsReportQueryParams,
 	getReferrerSpamDomain,
 	getSummarizedReportQueryParams,
 	getUtmDimensionLabel,
-	getUtmDimensionOptions,
 	getUtmReportQueryParams,
 	getUtmReportSection,
 	getVideosReportQueryParams,
@@ -283,8 +288,9 @@ export type { ReportParamsFieldAttributes } from './fields';
 export {
 	calculateDelta,
 	flagUrl,
-	BOOKINGS_FILTER,
 	formatLegendLabels,
+	formatChartName,
+	formatMapName,
 	formatDisplayLabel,
 	buildCsv,
 	buildCsvDateRangeFilename,
@@ -300,7 +306,6 @@ export {
 	defaultPeriodForInterval,
 	buildMetricTab,
 	siteChartFormatting,
-	CHART_TYPE_ELEMENTS,
 	type ChartDisplayChartType,
 	CALENDAR_HEATMAP_CELL_GAP,
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
@@ -308,6 +313,8 @@ export {
 	compareOptionalNumbers,
 	formatEmailRate,
 	formatViewCount,
+	formatListMetricCount,
+	getListMetricLabel,
 	HOURS_DATA_FORMAT,
 	getClicksRateSignals,
 	getKnownEmailRate,
@@ -317,9 +324,7 @@ export {
 	MONTHS_IN_YEAR,
 	monthOrder,
 	type MonthKey,
-	MONTHLY_HEATMAP_METRICS,
 	monthlyHeatmapLabels,
-	monthlyHeatmapMetricAttributeField,
 	resolveMonthlyHeatmapMetric,
 	type MonthlyHeatmapMetric,
 	monthlyHeatmapLifeStart,
@@ -349,18 +354,6 @@ export {
 	useTrackedDateRangeApply,
 	useWidgetDrillDown,
 } from './hooks';
-
-/**
- * Widget components
- */
-export {
-	BookingsRevenueByCustomerTypeWidget,
-	RevenueByCustomerTypeWidget,
-	SalesByCouponWidget,
-	TotalReturnsWidget,
-	VisitorsByLocationWidget,
-	SalesByDeviceWidget,
-} from './widgets';
 
 /**
  * Types

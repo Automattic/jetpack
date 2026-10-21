@@ -42,6 +42,10 @@ class Dashboard_Test extends BaseTestCase {
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );
+		foreach ( array_keys( Dashboard::MODULE_SECTIONS ) as $module ) {
+			remove_all_filters( Dashboard::CONFIGURATION_URL_FILTER . $module );
+			remove_all_filters( 'jetpack_module_configurable_' . $module );
+		}
 		foreach ( array( 'jetpack_page_', 'admin_page_' ) as $prefix ) {
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG );
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG . '-network' );
@@ -134,6 +138,36 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertIsArray( $item );
 		$this->assertSame( array( Dashboard::class, 'render' ), $item['function'] );
 		$this->assertFalse( Admin_Menu::remove_menu( Dashboard::MENU_SLUG ) );
+	}
+
+	/**
+	 * Each security module and the card its Configure link should open.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_security_modules() {
+		return array(
+			'Firewall'            => array( 'waf', 'firewall' ),
+			'Brute force'         => array( 'protect', 'loginProtection' ),
+			'Account protection'  => array( 'account-protection', 'loginProtection' ),
+			'WordPress.com login' => array( 'sso', 'loginProtection' ),
+			'Downtime monitoring' => array( 'monitor', 'monitor' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_security_modules
+	 *
+	 * @param string $module  Module slug.
+	 * @param string $section The section whose card should open.
+	 */
+	#[DataProvider( 'provide_security_modules' )]
+	public function test_security_module_configure_links_open_their_settings_card( $module, $section ) {
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3D' . $section ),
+			apply_filters( 'jetpack_module_configuration_url_' . $module, 'https://example.com/default' )
+		);
+		$this->assertTrue( apply_filters( 'jetpack_module_configurable_' . $module, false ) );
 	}
 
 	public function test_init_announces_the_dashboard() {
@@ -246,6 +280,40 @@ class Dashboard_Test extends BaseTestCase {
 		}
 
 		$this->assertSame( $expected, Dashboard::is_dashboard_request() );
+	}
+
+	/**
+	 * Threat report requests and the dashboard URL each should redirect to.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_threat_report_requests() {
+		$report = admin_url( 'admin.php?page=jetpack-protect&p=%2F%3Fthreats%3D' );
+		return array(
+			'ids'                   => array( array( 'threats' => '12,34' ), $report . '12%2C34' ),
+			'ids with junk dropped' => array( array( 'threats' => '12, 3<4,x, 56' ), $report . '12%2C56' ),
+			'no ids left'           => array( array( 'threats' => 'abc' ), null ),
+			'no threats param'      => array( array(), null ),
+			'an array'              => array( array( 'threats' => array( '12' ) ), null ),
+			'already routed'        => array(
+				array(
+					'threats' => '12',
+					'p'       => '/',
+				),
+				null,
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_threat_report_requests
+	 *
+	 * @param array       $query    The request's query args.
+	 * @param string|null $expected The redirect, or null for none.
+	 */
+	#[DataProvider( 'provide_threat_report_requests' )]
+	public function test_get_threat_report_redirect_moves_the_ids_into_the_route( $query, $expected ) {
+		$this->assertSame( $expected, Dashboard::get_threat_report_redirect( $query ) );
 	}
 
 	public function test_restore_screen_id_undoes_the_alias() {

@@ -17,9 +17,11 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 // helpers.php defines the shared option reader the listeners depend on, so it loads first.
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/../../common/wp-build-script-translations.php';
 require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
+require_once __DIR__ . '/class-ai-launchpad-difm-offer.php';
 require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
@@ -61,10 +63,23 @@ class AI_Launchpad {
 			return;
 		}
 
+		add_action( 'admin_page_access_denied', array( __CLASS__, 'redirect_to_dashboard' ) );
+
 		self::load_wp_build();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_initial_state' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_script_translations' ), 20 );
+	}
+
+	/**
+	 * Sends a Site Setup visit the page can't serve (done, dismissed, ineligible, not an admin) to the Dashboard
+	 * instead of core's "not allowed" screen, e.g. a refresh right after the last task or an old bookmark.
+	 *
+	 * @return never
+	 */
+	public static function redirect_to_dashboard() {
+		wp_safe_redirect( admin_url( 'index.php' ) );
+		exit;
 	}
 
 	/**
@@ -198,7 +213,7 @@ class AI_Launchpad {
 
 		// The same URL the generated route registrations use, so core resolves the same catalog names.
 		$build_constants = require $constants;
-		$translations    = wpcom_ai_launchpad_script_translations( $build_dir . '/i18n-manifest.json', $build_constants['build_url'] );
+		$translations    = wpcom_wp_build_script_translations( $build_dir . '/i18n-manifest.json', $build_constants['build_url'], 'site-setup' );
 
 		if ( null !== $translations ) {
 			wp_add_inline_script( $handle, $translations, 'before' );

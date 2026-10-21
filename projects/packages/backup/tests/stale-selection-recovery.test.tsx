@@ -48,8 +48,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { speak } from '@wordpress/a11y';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
-import { queryClient } from '../src/dashboard/data/query-client';
-import { resetListStateForTesting } from '../src/dashboard/screens/overview';
+import { keys, queryClient } from '../src/dashboard/data/query-client';
+import { ACTIVITY_LOG_DEFAULT_PER_PAGE } from '../src/dashboard/hooks/use-activity-log';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
@@ -67,6 +67,7 @@ const GROUP_LABEL = 'Backup activity';
 const FAILURE_REASON = 'Service unavailable';
 const LOADING = 'Loading item details…';
 const LOAD_FAILED = "We couldn't load this item.";
+const ACTIVITY_FAILED = "We couldn't load your site's activity.";
 
 /**
  * One completed backup, in WPCOM's rewindable-activity shape.
@@ -195,9 +196,6 @@ function mockEndpoints( {
 }
 
 beforeEach( () => {
-	// Module state, so one test's selection would otherwise seed the next.
-	resetListStateForTesting();
-
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 
@@ -378,13 +376,20 @@ describe( 'A selection the activity log has not answered for', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByText( LOAD_FAILED, { ignore: '.a11y-speak-region' } )
+			screen.findByText( ACTIVITY_FAILED, { ignore: '.a11y-speak-region' } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( NOT_FOUND ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: CLEAR } ) ).not.toBeInTheDocument();
 	} );
 
 	it( "leaves the failure to the list's announcement, which carries the reason", async () => {
+		// A failed refetch keeps the stale rows, so the list reports it and the pane does not
+		// find the row. `updatedAt` in the past is what makes the mount refetch at all.
+		queryClient.setQueryData(
+			keys.activityLogPage( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+			{ current: { orderedItems: [ postEntry() ] }, totalItems: 1, totalPages: 1 },
+			{ updatedAt: Date.now() - 60_000 }
+		);
 		mockEndpoints( { activity: 'error', backups: [] } );
 
 		render( <OverviewStage /> );

@@ -1,10 +1,18 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { useSearch } from '@wordpress/route';
+import { resetHistory } from '../sections/history/store';
+import { SCAN_PATH, resetScan, setScan } from '../sections/scan/store';
 import { stage as Stage } from '../stage';
+import type { ScanState } from '../sections/scan/types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
-jest.mock( '@wordpress/route', () => ( { useSearch: jest.fn(), useNavigate: () => jest.fn() } ) );
+const mockNavigate = jest.fn();
+jest.mock( '@wordpress/route', () => ( {
+	useSearch: jest.fn(),
+	useNavigate: () => mockNavigate,
+} ) );
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
 	default: ( { children } ) => children,
@@ -12,10 +20,53 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const mockUseSearch = useSearch as unknown as jest.Mock;
+const HISTORY_PATH = '/jetpack/v4/protect-dashboard/history';
+const lastChecked = '2026-10-20 12:00:00';
+const threat5 = { id: 5, title: 'Threat 5', severity: 3 };
+const responses = new Map< string, unknown[] >();
+
+/**
+ * Queue responses for a path, in order; an Error rejects. Unqueued requests never settle.
+ *
+ * @param path   - The REST path.
+ * @param values - The responses.
+ */
+function respond( path: string, ...values: unknown[] ) {
+	responses.set( path, [ ...( responses.get( path ) ?? [] ), ...values ] );
+}
+
+/**
+ * Render the report for threat 5 over this page state.
+ *
+ * @param state - The page state from PHP.
+ */
+function showReport( state: Record< string, unknown > ) {
+	window.jetpackProtectDashboard = state;
+	mockUseSearch.mockReturnValue( { threats: '5' } );
+	render( <Stage /> );
+}
+
+const findGroup = ( name: string ) => screen.findByRole( 'heading', { level: 2, name } );
+
+const requestsTo = ( path: string ) =>
+	mockApiFetch.mock.calls.filter( ( [ options ] ) => options.path === path ).length;
 
 describe( 'Protect dashboard stage', () => {
 	beforeEach( () => {
-		mockApiFetch.mockReset().mockReturnValue( new Promise( () => {} ) );
+		responses.clear();
+		mockApiFetch.mockReset().mockImplementation( ( { path } ) => {
+			const next = responses.get( path )?.shift();
+			if ( next === undefined ) {
+				return new Promise( () => {} );
+			}
+			return next instanceof Error ? Promise.reject( next ) : Promise.resolve( next );
+		} );
+	} );
+
+	afterEach( () => {
+		delete window.jetpackProtectDashboard;
+		resetScan();
+		resetHistory();
 	} );
 
 	it.each( [
@@ -27,5 +78,150 @@ describe( 'Protect dashboard stage', () => {
 
 		expect( screen.getByRole( 'tab', { selected: true } ) ).toHaveTextContent( selected );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( requests );
+	} );
+
+	it.each( [
+		[ 'shows the report in place of the tabs', { scan: { hasPlan: true, lastChecked } }, false ],
+		[ 'keeps the tabs without a Scan section', {}, true ],
+	] )( 'with threat ids in the URL, %s', ( _name, state, hasTabs ) => {
+		showReport( state );
+
+		expect( screen.queryAllByRole( 'tab' ).length > 0 ).toBe( hasTabs );
+	} );
+
+	it.each( [
+		[ 'says the site is safe', [], true, 'Your site is safe right now' ],
+		[ 'never calls a site without Scan safe', [], false, 'No known vulnerabilities found' ],
+		[
+			'only clears the alert when other threats remain',
+			[ 9 ],
+			true,
+			'Nothing from your alert needs fixing',
+		],
+		[ 'shows no all-clear while a threat is active', [ 5 ], true, null ],
+	] )( 'the threat report %s', async ( _name, activeIds, hasPlan, heading ) => {
+		const threats = activeIds.map( id => ( { id, title: `Threat ${ id }`, severity: 3 } ) );
+		const scan = { hasPlan, lastChecked, threats };
+		respond( SCAN_PATH, scan );
+		showReport( { scan } );
+
+		await expect(
+			heading ? screen.findByText( heading ) : findGroup( 'Needs attention' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { level: 3 } )?.textContent ?? null ).toBe( heading );
+	} );
+
+	it( 'the threat report reads Scan fresh before calling a threat gone', async () => {
+		const cached = { hasPlan: true, lastChecked, threats: [] };
+		respond( SCAN_PATH, { ...cached, threats: [ threat5 ] } );
+		showReport( { scan: cached } );
+
+		expect( screen.queryByRole( 'heading', { level: 3 } ) ).not.toBeInTheDocument();
+		await expect( findGroup( 'Needs attention' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'No longer detected' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'the threat report holds the all-clear until Scan answers', async () => {
+		const scan = { hasPlan: true, lastChecked, threats: [] };
+		respond( HISTORY_PATH, [ { ...threat5, status: 'fixed', fixedOn: '2026-10-20T12:00:00Z' } ] );
+		showReport( { scan, history: { hasPlan: true } } );
+
+		await expect( findGroup( 'Fixed' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { level: 3 } ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'Scan’s report failed', { scan: { hasPlan: true, lastChecked } }, new Error( 'Boom' ), null ],
+		[
+			'Scan hasn’t finished its first check',
+			{ scan: { hasPlan: true, scanning: true, lastChecked: null, threats: [] } },
+			{ hasPlan: true, scanning: true, lastChecked: null, threats: [] },
+			null,
+		],
+		[
+			'Scan history failed',
+			{ scan: { hasPlan: true, lastChecked, threats: [] }, history: { hasPlan: true } },
+			{ hasPlan: true, lastChecked, threats: [] },
+			new Error( 'Boom' ),
+		],
+	] )(
+		'the threat report never reads as clear when %s',
+		async ( _name, state, scanResponse, historyResponse ) => {
+			respond( SCAN_PATH, scanResponse );
+			if ( historyResponse ) {
+				respond( HISTORY_PATH, historyResponse );
+			}
+			showReport( state );
+
+			await expect( screen.findByText( 'Status unavailable' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( 'No longer detected' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'heading', { level: 3 } ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it.each( [
+		[
+			'a fix reloads history and lands in Fixed',
+			( scan: ScanState ) => ( { ...scan, threats: [] } ),
+			'Fixed',
+			2,
+		],
+		[
+			'an ignore moves the row without reloading history',
+			( scan: ScanState ) => ( {
+				...scan,
+				threats: [],
+				ignored: [ { ...threat5, status: 'ignored' } ],
+			} ),
+			'Ignored',
+			1,
+		],
+	] )( 'in the threat report, %s', async ( _name, update, group, historyRequests ) => {
+		const scan = { hasPlan: true, lastChecked, threats: [ threat5 ] };
+		respond( SCAN_PATH, scan );
+		respond(
+			HISTORY_PATH,
+			[],
+			[ { ...threat5, status: 'fixed', fixedOn: '2026-10-20T12:00:00Z' } ]
+		);
+		showReport( { scan, history: { hasPlan: true } } );
+		await expect( findGroup( 'Needs attention' ) ).resolves.toBeInTheDocument();
+
+		act( () => setScan( update as ( current: ScanState ) => ScanState ) );
+
+		await expect( findGroup( group ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'No longer detected' ) ).not.toBeInTheDocument();
+		expect( requestsTo( HISTORY_PATH ) ).toBe( historyRequests );
+	} );
+
+	it( 'the threat report links to the Overview, leaving the report', async () => {
+		const scan = {
+			hasPlan: true,
+			lastChecked,
+			threats: [ { id: 9, title: 'Threat 9', severity: 3 } ],
+		};
+		respond( SCAN_PATH, scan );
+		showReport( { scan } );
+
+		await userEvent.click(
+			await screen.findByRole( 'link', { name: 'See them on the Overview.' } )
+		);
+
+		const { search } = mockNavigate.mock.lastCall[ 0 ];
+		expect( search( { threats: '5' } ) ).toEqual( {} );
+	} );
+
+	it( 'switching tabs closes the threat inspector', async () => {
+		mockUseSearch.mockReturnValue( { threat: '7' } );
+		render( <Stage /> );
+
+		await userEvent.click( screen.getByRole( 'tab', { name: 'Settings' } ) );
+
+		const { search } = mockNavigate.mock.lastCall[ 0 ];
+		expect( search( { threat: '7', historyThreat: '3' } ) ).toEqual( {
+			threat: undefined,
+			historyThreat: undefined,
+			tab: 'settings',
+		} );
 	} );
 } );

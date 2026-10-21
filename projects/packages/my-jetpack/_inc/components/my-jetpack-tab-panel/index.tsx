@@ -15,7 +15,7 @@ import type { ReactNode } from 'react';
  * My Jetpack Tab panel component.
  *
  * @param {object}    root0               - Component props.
- * @param {ReactNode} root0.beforeContent - Content to render between the tab separator and tab content.
+ * @param {ReactNode} root0.beforeContent - Notices passed through to TabContent.
  * @return The rendered component.
  */
 export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNode } ) {
@@ -68,8 +68,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 			return (
 				<>
 					<FullWidthSeparator />
-					{ beforeContent }
-					<TabContent name={ tab.name as MyJetpackSection } />
+					<TabContent name={ tab.name as MyJetpackSection } beforeContent={ beforeContent } />
 				</>
 			);
 		},
@@ -125,8 +124,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		return (
 			<div className={ clsx( styles[ 'single-tab-content' ], 'jetpack-my-jetpack-tab-panel' ) }>
 				<FullWidthSeparator />
-				{ beforeContent }
-				<TabContent name={ currentTab as MyJetpackSection } />
+				<TabContent name={ currentTab as MyJetpackSection } beforeContent={ beforeContent } />
 			</div>
 		);
 	}

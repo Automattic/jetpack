@@ -71,6 +71,8 @@
 			matchPackageNames: [
 				// Let this go to the Storybook monorepo group instead. It has a tightly tied peer dep.
 				'!eslint-plugin-storybook',
+				// Same for the WordPress group.
+				'!@wordpress/eslint-plugin',
 			],
 		},
 		{
@@ -156,17 +158,6 @@
 	},
 
 	customManagers: [
-		// Update the renovate-version in the action itself.
-		// See also https://github.com/renovatebot/github-action/issues/756
-		{
-			customType: 'regex',
-			managerFilePatterns: [ '.github/workflows/renovate.yml' ],
-			matchStrings: [ 'renovate-version: (?<currentValue>[^\\s]+)' ],
-			datasourceTemplate: 'docker',
-			depNameTemplate: 'renovate',
-			packageNameTemplate: 'ghcr.io/renovatebot/renovate',
-		},
-
 		// wpcomsh's wordpress/classic-editor-plugin fake-package.
 		{
 			customType: 'regex',

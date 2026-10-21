@@ -513,7 +513,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	/**
 	 * Proxy POST /wpcom/v2/sites/{blog_id}/subscribers/send-bounce-confirmation.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error

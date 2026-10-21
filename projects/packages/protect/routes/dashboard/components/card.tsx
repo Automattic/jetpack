@@ -1,4 +1,6 @@
-import { Badge, Card, Icon, Stack, Text } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
+import { Badge, Card, Icon, Notice, Stack, Text } from '@wordpress/ui';
+import type { ProtectSettingsData } from '../data/use-protect-settings';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 
 export type CardStatus = { label: string; intent: ComponentProps< typeof Badge >[ 'intent' ] };
@@ -103,5 +105,57 @@ export function Stat( {
 				{ value }
 			</Text>
 		</Stack>
+	);
+}
+
+/**
+ * A card for a feature this site can't use.
+ *
+ * @param props       - Component props.
+ * @param props.icon  - The feature's icon.
+ * @param props.title - The feature's name.
+ * @return The card.
+ */
+export function UnavailableCard( { icon, title }: { icon: ReactElement; title: string } ) {
+	return (
+		<ProtectCard
+			icon={ icon }
+			title={ title }
+			status={ { label: __( 'Unavailable', 'jetpack-protect-pkg' ), intent: 'none' } }
+		>
+			<CardRow>
+				<Text variant="body-md">
+					{ __( 'This feature isn’t available on your site.', 'jetpack-protect-pkg' ) }
+				</Text>
+			</CardRow>
+		</ProtectCard>
+	);
+}
+
+/**
+ * A row showing why the last save of one of the card's settings failed, until dismissed.
+ *
+ * @param props          - Component props.
+ * @param props.settings - Jetpack settings, with their error.
+ * @param props.keys     - The settings this card saves.
+ * @return The row, or nothing without an error from one of `keys`.
+ */
+export function SettingsErrorRow( {
+	settings,
+	keys,
+}: {
+	settings: ProtectSettingsData;
+	keys: string[];
+} ) {
+	if ( ! settings.error || ! settings.errorKeys.some( key => keys.includes( key ) ) ) {
+		return null;
+	}
+	return (
+		<CardRow>
+			<Notice.Root intent="error">
+				<Notice.Description>{ settings.error }</Notice.Description>
+				<Notice.CloseIconButton onClick={ settings.dismissError } />
+			</Notice.Root>
+		</CardRow>
 	);
 }

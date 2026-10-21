@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
@@ -706,6 +706,32 @@ describe( 'LeaderboardChart', () => {
 			);
 		} );
 
+		it( 'renders each entry as a list item, keeping clickable rows as named buttons', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						mockData[ 0 ],
+						{ ...mockData[ 1 ], ariaLabel: 'Open Home', onClick: jest.fn() },
+						{
+							...mockData[ 1 ],
+							id: 'about',
+							ariaLabel: 'Open About',
+							onClick: jest.fn(),
+							hasInteractiveLabel: true,
+						},
+					] }
+				/>
+			);
+			const items = screen.getAllByRole( 'listitem' );
+			expect( items ).toHaveLength( 3 );
+			expect(
+				within( items[ 1 ] ).getByRole( 'button', { name: 'Open Home' } )
+			).toBeInTheDocument();
+			expect(
+				within( items[ 2 ] ).getByRole( 'button', { name: 'Open About' } )
+			).toBeInTheDocument();
+		} );
+
 		it( 'does not render a button for entries without onClick', () => {
 			render( <LeaderboardChart data={ [ mockData[ 0 ] ] } /> );
 			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
@@ -721,15 +747,18 @@ describe( 'LeaderboardChart', () => {
 
 	describe( 'grid gaps', () => {
 		// eslint-disable-next-line testing-library/no-node-access -- The grid is rendered by `Grid` from @wordpress/components, which takes no test id.
-		const grid = () => document.querySelector( '[data-leaderboard-grid]' );
+		const grid = () => document.querySelector< HTMLElement >( '[data-leaderboard-grid]' );
 
 		it( 'hands the catalog role to the grid', () => {
 			render( <LeaderboardChart data={ mockData } /> );
 
-			expect( grid() ).toHaveStyle( {
-				gridRowGap: 'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)',
-				gridColumnGap: 'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)',
-			} );
+			// Grid writes its gaps into custom properties and reads them from a stylesheet.
+			expect( grid().style.getPropertyValue( '--wp-components-grid-row-gap' ) ).toBe(
+				'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)'
+			);
+			expect( grid().style.getPropertyValue( '--wp-components-grid-column-gap' ) ).toBe(
+				'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)'
+			);
 		} );
 	} );
 } );

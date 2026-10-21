@@ -177,6 +177,10 @@ type TopPostsLeaderboardProps = {
 	 * its breadcrumbs return to the date range the widget is showing.
 	 */
 	detailSearch?: Record< string, unknown >;
+	/**
+	 * What the rows are, named in the column header.
+	 */
+	rowsLabel: string;
 };
 
 /**
@@ -189,14 +193,17 @@ export const TopPostsLeaderboard = ( {
 	withComparison = false,
 	onDrillDown,
 	detailSearch = {},
+	rowsLabel,
 }: TopPostsLeaderboardProps ) => {
 	return (
 		<LeaderboardChart
+			chartTitle={ __( 'Top pages', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows, withComparison, detailSearch, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: rowsLabel, metric: 'views' } }
 		/>
 	);
 };
@@ -271,6 +278,7 @@ function TopPostsReport() {
 						rows={ rows }
 						withComparison={ withComparison }
 						detailSearch={ detailSearch }
+						rowsLabel={ __( 'Pages', 'jetpack-premium-analytics-pkg' ) }
 					/>
 				</WidgetState>
 			</div>
@@ -421,6 +429,7 @@ function ArchivesReport() {
 						rows={ activeRows }
 						withComparison={ withComparison }
 						onDrillDown={ handleDrillDown }
+						rowsLabel={ __( 'Archives', 'jetpack-premium-analytics-pkg' ) }
 					/>
 				</WidgetState>
 			</div>
