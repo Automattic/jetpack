@@ -118,7 +118,7 @@ class Jetpack_Mu_Wpcom {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_jetpack_ai' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_jetpack_comments_routes' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_jetpack_comments_hooks' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
@@ -864,15 +864,19 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Register Jetpack Comments' browser-facing routes ahead of the comment
-	 * experience gates. admin-ajax is is_admin(), and a public-api request runs
-	 * plugins_loaded on the wrong blog, so load_verbum_comments() skips both.
-	 * Runs on every request, blog 1 and P2s included, on purpose: the routes
-	 * gate themselves on Comments::is_enabled(), as Posts_To_Podcast_Endpoint does.
+	 * Register Jetpack Comments' browser-facing routes and its comment content
+	 * filters ahead of the comment experience gates. admin-ajax is is_admin(),
+	 * which o2 writes comments through, and a public-api request runs
+	 * plugins_loaded on the API blog, so load_verbum_comments() skips both, and
+	 * P2 sites besides. Runs on every request, blog 1 and P2s included, on
+	 * purpose: the routes gate themselves on Comments::is_enabled(), as
+	 * Posts_To_Podcast_Endpoint does, and the content filters on
+	 * Block_Editor::is_enabled(), each on whichever blog is current when it runs.
 	 */
-	public static function load_jetpack_comments_routes() {
+	public static function load_jetpack_comments_hooks() {
 		\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
 		\Automattic\Jetpack\Comments\Embeds::init();
+		\Automattic\Jetpack\Comments\Block_Editor::init_content();
 	}
 
 	/**

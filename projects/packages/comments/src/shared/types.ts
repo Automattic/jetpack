@@ -114,6 +114,9 @@ export type EditorLoader = {
 	/**
 	 * Fetch the editor. `locale` is core's translations of its strings, set before the chunk
 	 * loads; `assetsUrl` is the build directory, for a host whose script URL cannot be read.
+	 * Resolves with the editor module: `mountEditor`, and `loadNamespaces`, which fetches the
+	 * bundled copies of the block packages as a separate download, for a host to register a block
+	 * of its own against before it mounts.
 	 */
 	load: ( options?: {
 		locale?: LocaleData;

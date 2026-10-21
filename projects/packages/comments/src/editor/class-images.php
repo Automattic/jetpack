@@ -34,12 +34,12 @@ class Images {
 	 * An http image, one past the comment's limit, or any where images are off or the comment may not
 	 * draw them is a paragraph holding the link. At render, the figure draws the image.
 	 *
-	 * @param array     $block  Parsed image block.
-	 * @param bool|null $render Null while saving; at render, whether the comment may show the image.
-	 * @param int       $count  Images the comment has drawn so far, counted up here.
-	 * @return array|null The block to keep, if any.
+	 * @param array     $block   Parsed image block.
+	 * @param bool|null $render  Null while saving; at render, whether the comment may show the image.
+	 * @param array     $context The handlers' shared state; `images` counts the ones the comment has drawn so far.
+	 * @return array The blocks to keep in its place: the image or link, then its caption, if any.
 	 */
-	public static function block( array $block, $render, &$count ) {
+	public static function block( array $block, $render, array &$context ) {
 		// This editor keeps the URL in the attributes; Verbum's kept it on an img.
 		$tags = new \WP_HTML_Tag_Processor( $block['innerHTML'] );
 		$url  = $block['attrs']['url'] ?? ( $tags->next_tag( 'img' ) ? $tags->get_attribute( 'src' ) : null );
@@ -49,15 +49,15 @@ class Images {
 		$url = strlen( $url ) > 2048 ? '' : esc_url_raw( $url, array( 'http', 'https' ) );
 
 		if ( ! $url ) {
-			return null;
+			return Block_Editor::with_caption( null, $block );
 		}
 
 		$link = Block_Editor::paragraph( '<a href="' . esc_url( $url ) . '" rel="nofollow ugc">' . esc_html( $url ) . '</a>' );
 
 		// An http image would be mixed content on the https page. Checked before the count, which only
 		// images that draw use up: four a comment at most.
-		if ( ! self::is_enabled() || false === $render || 'https' !== wp_parse_url( $url, PHP_URL_SCHEME ) || ++$count > 4 ) {
-			return $link;
+		if ( ! self::is_enabled() || false === $render || 'https' !== wp_parse_url( $url, PHP_URL_SCHEME ) || ++$context['images'] > 4 ) {
+			return Block_Editor::with_caption( $link, $block );
 		}
 
 		if ( null === $render ) {
@@ -78,11 +78,13 @@ class Images {
 			$html           = '<figure class="wp-block-image">' . $img->get_updated_html() . '</figure>';
 		}
 
-		$block['innerBlocks']  = array();
-		$block['innerHTML']    = $html;
-		$block['innerContent'] = array( $html );
+		$figure = $block;
 
-		return $block;
+		$figure['innerBlocks']  = array();
+		$figure['innerHTML']    = $html;
+		$figure['innerContent'] = array( $html );
+
+		return Block_Editor::with_caption( $figure, $block );
 	}
 
 	/**
@@ -98,9 +100,9 @@ class Images {
 			return $content;
 		}
 
-		$count = 0;
-		$link  = self::block( $block, false, $count );
+		$context = array( 'images' => 0 );
+		$link    = self::block( $block, false, $context );
 
-		return $link ? $link['innerHTML'] : $content;
+		return $link ? $link[0]['innerHTML'] : $content;
 	}
 }

@@ -1,0 +1,120 @@
+import {
+	BlockControls,
+	BlockEditorProvider,
+	BlockIcon,
+	BlockList,
+	BlockTools,
+	InnerBlocks,
+	InspectorControls,
+	ObserveTyping,
+	RichText,
+	URLInput,
+	URLPopover,
+	WritingFlow,
+	store as blockEditorStore,
+	useBlockProps,
+	useInnerBlocksProps,
+} from '@wordpress/block-editor';
+import {
+	cloneBlock,
+	createBlock,
+	getBlockContent,
+	getBlockType,
+	getBlockTypes,
+	parse,
+	registerBlockStyle,
+	registerBlockType,
+	registerBlockVariation,
+	serialize,
+	setDefaultBlockName,
+	store as blocksStore,
+	switchToBlockType,
+	unregisterBlockType,
+} from '@wordpress/blocks';
+import * as components from '@wordpress/components';
+import {
+	createReduxStore,
+	dispatch,
+	register,
+	select,
+	subscribe,
+	useDispatch,
+	useSelect,
+} from '@wordpress/data';
+import * as element from '@wordpress/element';
+import {
+	addAction,
+	addFilter,
+	applyFilters,
+	doAction,
+	removeAction,
+	removeFilter,
+} from '@wordpress/hooks';
+import { __, _n, _nx, _x, isRTL, sprintf } from '@wordpress/i18n';
+import {
+	applyFormat,
+	create,
+	getActiveFormat,
+	insert,
+	registerFormatType,
+	removeFormat,
+	toHTMLString,
+	toggleFormat,
+	unregisterFormatType,
+} from '@wordpress/rich-text';
+
+// The bundle has no externals, so a host's block must be registered against these copies, not core's wp.*.
+// The six packages the editor shares are named on purpose: a namespace import keeps every export of a
+// module the editor's own chunk holds, so the names a host needs are listed here, and one that needs more
+// adds it. Components and element are only in the host's chunk, so they come whole.
+export const wp = {
+	blocks: {
+		registerBlockType,
+		unregisterBlockType,
+		registerBlockVariation,
+		registerBlockStyle,
+		createBlock,
+		cloneBlock,
+		getBlockType,
+		getBlockTypes,
+		getBlockContent,
+		switchToBlockType,
+		setDefaultBlockName,
+		parse,
+		serialize,
+		store: blocksStore,
+	},
+	blockEditor: {
+		RichText,
+		useBlockProps,
+		useInnerBlocksProps,
+		InnerBlocks,
+		BlockControls,
+		InspectorControls,
+		BlockIcon,
+		BlockEditorProvider,
+		BlockList,
+		BlockTools,
+		ObserveTyping,
+		WritingFlow,
+		URLInput,
+		URLPopover,
+		store: blockEditorStore,
+	},
+	components,
+	element,
+	richText: {
+		registerFormatType,
+		unregisterFormatType,
+		applyFormat,
+		removeFormat,
+		toggleFormat,
+		getActiveFormat,
+		insert,
+		create,
+		toHTMLString,
+	},
+	hooks: { addFilter, removeFilter, applyFilters, addAction, removeAction, doAction },
+	data: { useSelect, useDispatch, select, dispatch, subscribe, register, createReduxStore },
+	i18n: { __, _x, _n, _nx, sprintf, isRTL },
+};

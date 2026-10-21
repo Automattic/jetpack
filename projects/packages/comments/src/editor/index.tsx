@@ -37,6 +37,10 @@ import type { KeyboardEvent, MouseEvent } from 'react';
 
 import './style.scss';
 
+// Its own download, so a site whose host registers no blocks never fetches it.
+export const loadNamespaces = () =>
+	import( /* webpackChunkName: "editor-wp" */ './wp' ).then( module => module.wp );
+
 // The chunk runs once per page, however many forms it serves.
 [ paragraph, list, listItem, quote, code ].forEach( block => block.init() );
 setDefaultBlockName( paragraph.name );
@@ -135,6 +139,7 @@ const WritingArea = ( { undo, redo, children }: WritingAreaProps ) => {
 const Editor = ( {
 	initialContent,
 	labels,
+	blocks: offered,
 	focus,
 	placeholder,
 	onChange,
@@ -215,7 +220,7 @@ const Editor = ( {
 				{ focus && <FocusOnMount offset={ offset } /> }
 				<WritingArea undo={ undo } redo={ redo }>
 					<div className="jetpack-comments__toolbar">
-						<BlockToolbar labels={ labels } />
+						<BlockToolbar labels={ labels } blocks={ offered } />
 					</div>
 					{ /* In the page, not an iframe, so the blocks wear the theme's type. */ }
 					<BlockTools>

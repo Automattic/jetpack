@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Let a host register comment block handlers, kses additions and editor settings through filters, and let it fetch the editor's bundled namespaces and list the blocks it offers.

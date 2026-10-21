@@ -30,35 +30,52 @@ class Block_Editor {
 	private $has_blocks = false;
 
 	/**
-	 * Register the hooks. Safe to call more than once.
+	 * Register every hook. Safe to call more than once.
 	 *
 	 * @return Block_Editor
 	 */
 	public static function init() {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
+		$instance = self::init_content();
+
+		if ( ! has_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) ) ) {
+			// The edit-comment screen, for a comment that holds blocks.
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
 		}
 
-		return self::$instance;
+		return $instance;
 	}
 
 	/**
-	 * Hook in around core's comment filtering.
+	 * Register the hooks around core's comment filtering alone, for a host that saves and draws
+	 * comments without the form. Each gates itself on is_enabled() when it runs. Safe to call more than once.
+	 *
+	 * @return Block_Editor
 	 */
-	private function __construct() {
+	public static function init_content() {
+		if ( null !== self::$instance ) {
+			return self::$instance;
+		}
+
+		self::$instance = new self();
+
 		// Either side of kses at 10, which lets the markup of these blocks through.
-		add_filter( 'pre_comment_content', array( $this, 'keep_allowed_blocks' ), 9 );
-		add_filter( 'pre_comment_content', array( $this, 'forget_blocks' ), 11 );
-		add_filter( 'wp_kses_allowed_html', array( $this, 'allowed_html' ), 10, 2 );
+		add_filter( 'pre_comment_content', array( self::$instance, 'keep_allowed_blocks' ), 9 );
+		add_filter( 'pre_comment_content', array( self::$instance, 'forget_blocks' ), 11 );
+		add_filter( 'wp_kses_allowed_html', array( self::$instance, 'allowed_html' ), 10, 2 );
 		// Ahead of wpautop at 30.
 		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5, 2 );
 		add_filter( 'render_block_core/image', array( Images::class, 'render_core' ), 10, 2 );
 		// Core writes the stored content into its comment emails; WordPress.com has its own templates.
 		add_filter( 'comment_notification_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
 		add_filter( 'comment_moderation_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
-		// The edit-comment screen, for a comment that holds blocks.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
+
+		return self::$instance;
 	}
+
+	/**
+	 * Made through init() or init_content() alone.
+	 */
+	private function __construct() {}
 
 	/**
 	 * Core's translations of the strings in strings.php, and the plural rules under '', in one Jed messages set.
@@ -143,7 +160,8 @@ class Block_Editor {
 	 */
 	public function forget_blocks( $content ) {
 		if ( $this->has_blocks && ( has_block( 'core/embed', $content ) || has_block( 'core/image', $content ) ) ) {
-			$content = wp_slash( serialize_blocks( self::restore( parse_blocks( wp_unslash( $content ) ) ) ) );
+			$context = array( 'images' => 0 );
+			$content = wp_slash( serialize_blocks( self::restore( parse_blocks( wp_unslash( $content ) ), $context ) ) );
 		}
 
 		$this->has_blocks = false;
@@ -154,11 +172,11 @@ class Block_Editor {
 	/**
 	 * Undo kses at every depth: the embed and image URLs as they were.
 	 *
-	 * @param array $blocks Parsed blocks.
-	 * @param int   $images Images kept so far.
+	 * @param array $blocks  Parsed blocks.
+	 * @param array $context The handlers' shared state, counting the images kept so far.
 	 * @return array
 	 */
-	private static function restore( array $blocks, &$images = 0 ) {
+	private static function restore( array $blocks, array &$context ) {
 		foreach ( $blocks as $i => $block ) {
 			// Core's kses pass over block attributes wrote & as &amp; in each embed's URL. Put it back,
 			// or the editor's save no longer matches the markup when the comment is edited.
@@ -167,11 +185,11 @@ class Block_Editor {
 			}
 
 			if ( 'core/image' === $block['blockName'] ) {
-				$blocks[ $i ] = Images::block( $block, null, $images ) ?? $block;
+				$blocks[ $i ] = Images::block( $block, null, $context )[0] ?? $block;
 			}
 
 			if ( $block['innerBlocks'] ) {
-				$blocks[ $i ]['innerBlocks'] = self::restore( $block['innerBlocks'], $images );
+				$blocks[ $i ]['innerBlocks'] = self::restore( $block['innerBlocks'], $context );
 			}
 		}
 
@@ -190,29 +208,38 @@ class Block_Editor {
 			return $tags;
 		}
 
-		return array_merge(
-			$tags,
-			array(
-				'p'          => array(),
-				'br'         => array(),
-				'li'         => array(),
-				// The one class each block saves, without which the editor reads it as invalid.
-				'blockquote' => array(
-					'cite'  => true,
-					'class' => array( 'values' => array( 'wp-block-quote' ) ),
-				),
-				'pre'        => array( 'class' => array( 'values' => array( 'wp-block-code' ) ) ),
-				'ul'         => array( 'class' => array( 'values' => array( 'wp-block-list' ) ) ),
-				// Verbum's lists could also start elsewhere, or count down.
-				'ol'         => array(
-					'class'    => array( 'values' => array( 'wp-block-list' ) ),
-					'start'    => true,
-					'reversed' => true,
-				),
-				'figure'     => array( 'class' => array( 'values' => array( 'wp-block-embed', 'wp-block-image' ) ) ),
-				'div'        => array( 'class' => array( 'values' => array( 'wp-block-embed__wrapper' ) ) ),
-			)
+		$added = array(
+			'p'          => array(),
+			'br'         => array(),
+			'li'         => array(),
+			// The one class each block saves, without which the editor reads it as invalid.
+			'blockquote' => array(
+				'cite'  => true,
+				'class' => array( 'values' => array( 'wp-block-quote' ) ),
+			),
+			'pre'        => array( 'class' => array( 'values' => array( 'wp-block-code' ) ) ),
+			'ul'         => array( 'class' => array( 'values' => array( 'wp-block-list' ) ) ),
+			// Verbum's lists could also start elsewhere, or count down.
+			'ol'         => array(
+				'class'    => array( 'values' => array( 'wp-block-list' ) ),
+				'start'    => true,
+				'reversed' => true,
+			),
+			'figure'     => array( 'class' => array( 'values' => array( 'wp-block-embed', 'wp-block-image' ) ) ),
+			'div'        => array( 'class' => array( 'values' => array( 'wp-block-embed__wrapper' ) ) ),
 		);
+
+		/**
+		 * The tags and attributes the blocks in a comment may save, on top of the site's own comment tags.
+		 * A host that keeps a block of its own through `jetpack_comments_block_handlers` lets its markup through here.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $added Tags to add, in the shape `wp_kses_allowed_html` takes, for a comment that holds blocks.
+		 */
+		$added = apply_filters( 'jetpack_comments_allowed_html', $added );
+
+		return array_merge( $tags, $added );
 	}
 
 	/**
@@ -231,7 +258,26 @@ class Block_Editor {
 		$embed = $comment instanceof \WP_Comment && '1' === (string) $comment->comment_approved && ! is_admin();
 
 		// With their attributes cleared, what is left of the delimiters is this shape alone.
-		return (string) preg_replace( '#<!-- /?wp:[a-z0-9/-]+ /?-->#', '', serialize_blocks( self::allowed( parse_blocks( $content ), $embed ) ) );
+		return (string) preg_replace( '#<!-- /?wp:[a-z0-9/-]+ /?-->#', '', serialize_blocks( self::without_attrs( self::allowed( parse_blocks( $content ), $embed ) ) ) );
+	}
+
+	/**
+	 * The blocks with their attributes cleared at every depth: a host's handler may keep some, and
+	 * the markup carries everything a rendered block draws.
+	 *
+	 * @param array $blocks Parsed blocks.
+	 * @return array
+	 */
+	private static function without_attrs( array $blocks ) {
+		foreach ( $blocks as $i => $block ) {
+			$blocks[ $i ]['attrs'] = array();
+
+			if ( $block['innerBlocks'] ) {
+				$blocks[ $i ]['innerBlocks'] = self::without_attrs( $block['innerBlocks'] );
+			}
+		}
+
+		return $blocks;
 	}
 
 	/**
@@ -397,7 +443,7 @@ class Block_Editor {
 		$assets_url = trailingslashit( Assets::normalize_path( plugins_url( '../../build', __FILE__ ) ) );
 		$asset      = include dirname( __DIR__, 2 ) . '/build/editor-loader.asset.php';
 
-		return array(
+		$settings = array(
 			// Where the lazy chunks live; a plugin that combines scripts moves the bundle elsewhere.
 			'assetsUrl'    => $assets_url,
 			// Versioned like the chunks, since a host that does not enqueue the entry gets no version from WordPress.
@@ -407,6 +453,16 @@ class Block_Editor {
 			'editorLocale' => self::is_enabled() ? self::locale_data() : (object) array(),
 			'editor'       => self::labels(),
 		);
+
+		/**
+		 * What a host needs to run the editor. The comment form's own `window.JetpackComments` is built from this too.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $settings The asset URLs, the comment length limit, whether blocks are on, the editor's
+		 *                        translations, and its labels.
+		 */
+		return apply_filters( 'jetpack_comments_editor_settings', $settings );
 	}
 
 	/**
@@ -425,69 +481,153 @@ class Block_Editor {
 	}
 
 	/**
-	 * The allowed blocks, at every depth.
+	 * The allowed blocks, at every depth: each handed to its handler, and dropped where it has none.
 	 *
 	 * @param array     $blocks Parsed blocks.
 	 * @param bool|null $render Null while saving; at render, whether embeds and images may draw.
-	 * @param int       $images Images kept so far.
 	 * @return array
 	 */
-	private static function allowed( array $blocks, $render = null, &$images = 0 ) {
+	private static function allowed( array $blocks, $render = null ) {
+		$context = array( 'images' => 0 );
+
+		return self::prune( $blocks, $render, self::handlers(), $context );
+	}
+
+	/**
+	 * What keeps each kind of block, by block name.
+	 *
+	 * @return array
+	 */
+	private static function handlers() {
+		$plain    = array( __CLASS__, 'plain_block' );
+		$handlers = array(
+			'core/paragraph' => $plain,
+			'core/list'      => $plain,
+			'core/list-item' => $plain,
+			'core/quote'     => $plain,
+			'core/code'      => $plain,
+			'core/heading'   => array( __CLASS__, 'heading_block' ),
+			'core/image'     => array( Images::class, 'block' ),
+			'core/embed'     => array( Embeds::class, 'block' ),
+		);
+
+		/**
+		 * What keeps each kind of block a comment may hold, by block name. A block whose name has no
+		 * handler is dropped. Consulted when a comment is saved and again each time it is rendered.
+		 *
+		 * A handler is `callable( array $block, ?bool $render, array &$context ): array`. `$block` is one
+		 * parsed block; `$render` is null while saving, otherwise whether the comment may draw media;
+		 * `$context` is shared across the comment's whole tree for one pass, starting as
+		 * `array( 'images' => 0 )`. It returns the blocks to keep in the block's place, none to drop it. The
+		 * package then prunes each kept block's inner blocks, so a handler deals with its own block alone.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $handlers Handlers keyed by block name.
+		 */
+		return apply_filters( 'jetpack_comments_block_handlers', $handlers );
+	}
+
+	/**
+	 * The blocks their handlers keep, with each one's inner blocks pruned the same way.
+	 *
+	 * @param array     $blocks   Parsed blocks.
+	 * @param bool|null $render   Null while saving; at render, whether embeds and images may draw.
+	 * @param array     $handlers Handlers keyed by block name.
+	 * @param array     $context  The handlers' shared state.
+	 * @return array
+	 */
+	private static function prune( array $blocks, $render, array $handlers, array &$context ) {
 		$kept = array();
 
 		foreach ( $blocks as $block ) {
-			// Verbum's editor also offered captions on both; this one keeps their text.
-			if ( 'core/image' === $block['blockName'] || 'core/embed' === $block['blockName'] ) {
-				$media = 'core/embed' === $block['blockName'] ? Embeds::block( $block, $render ) : Images::block( $block, $render, $images );
-
-				if ( $media ) {
-					$kept[] = $media;
-				}
-
-				if ( preg_match( '#<figcaption[^>]*>(.*?)</figcaption>#s', $block['innerHTML'], $caption ) && '' !== trim( $caption[1] ) ) {
-					$kept[] = self::paragraph( trim( $caption[1] ) );
-				}
-
-				continue;
-			}
-
-			// Verbum kept headings where the site's comment tags allowed them; this editor has none.
-			if ( 'core/heading' === $block['blockName'] ) {
-				if ( preg_match( '#<h([1-6])[^>]*>(.*?)</h\1>#s', $block['innerHTML'], $heading ) && '' !== trim( $heading[2] ) ) {
-					$kept[] = self::paragraph( '<strong>' . trim( $heading[2] ) . '</strong>' );
-				}
-				continue;
-			}
-
 			// A null name is the markup between blocks, which kses sees like any other.
-			if ( null !== $block['blockName'] && ! in_array( $block['blockName'], array( 'core/paragraph', 'core/list', 'core/list-item', 'core/quote', 'core/code' ), true ) ) {
+			if ( null === $block['blockName'] ) {
+				$kept[] = $block;
 				continue;
 			}
 
-			// The markup carries everything these blocks draw, but the editor reads a list's kind, start, and
-			// direction from its attributes alone. Rendering strips delimiters that carry none.
-			$block['attrs'] = null === $render && 'core/list' === $block['blockName'] ? array_intersect_key( $block['attrs'], array_flip( array( 'ordered', 'start', 'reversed' ) ) ) : array();
+			$handler = $handlers[ $block['blockName'] ] ?? null;
 
-			$inner                 = $block['innerBlocks'];
-			$content               = $block['innerContent'];
-			$block['innerBlocks']  = array();
-			$block['innerContent'] = array();
-
-			// Each null in innerContent marks where the next inner block goes.
-			foreach ( $content as $chunk ) {
-				if ( null !== $chunk ) {
-					$block['innerContent'][] = $chunk;
-					continue;
-				}
-
-				// An image or embed in a quote can come back as more than one block.
-				foreach ( self::allowed( array( array_shift( $inner ) ), $render, $images ) as $child ) {
-					$block['innerBlocks'][]  = $child;
-					$block['innerContent'][] = null;
-				}
+			if ( ! is_callable( $handler ) ) {
+				continue;
 			}
 
-			$kept[] = $block;
+			$returned = $handler( $block, $render, $context );
+
+			if ( ! is_array( $returned ) ) {
+				continue;
+			}
+
+			foreach ( $returned as $kept_block ) {
+				$inner                      = $kept_block['innerBlocks'] ?? array();
+				$content                    = $kept_block['innerContent'] ?? array();
+				$kept_block['innerBlocks']  = array();
+				$kept_block['innerContent'] = array();
+
+				// Each null in innerContent marks where the next inner block goes.
+				foreach ( $content as $chunk ) {
+					if ( null !== $chunk ) {
+						$kept_block['innerContent'][] = $chunk;
+						continue;
+					}
+
+					// An image or embed in a quote can come back as more than one block.
+					foreach ( self::prune( array( array_shift( $inner ) ), $render, $handlers, $context ) as $child ) {
+						$kept_block['innerBlocks'][]  = $child;
+						$kept_block['innerContent'][] = null;
+					}
+				}
+
+				$kept[] = $kept_block;
+			}
+		}
+
+		return $kept;
+	}
+
+	/**
+	 * A block whose markup carries everything it draws, kept as it is.
+	 *
+	 * @param array     $block  Parsed block.
+	 * @param bool|null $render Null while saving.
+	 * @return array
+	 */
+	public static function plain_block( array $block, $render = null ) {
+		// The editor reads a list's kind, start, and direction from its attributes alone. Rendering strips
+		// delimiters that carry none.
+		$block['attrs'] = null === $render && 'core/list' === $block['blockName'] ? array_intersect_key( $block['attrs'], array_flip( array( 'ordered', 'start', 'reversed' ) ) ) : array();
+
+		return array( $block );
+	}
+
+	/**
+	 * A heading as a bold paragraph: Verbum kept headings where the site's comment tags allowed them; this editor has none.
+	 *
+	 * @param array $block Parsed heading block.
+	 * @return array
+	 */
+	public static function heading_block( array $block ) {
+		if ( preg_match( '#<h([1-6])[^>]*>(.*?)</h\1>#s', $block['innerHTML'], $heading ) && '' !== trim( $heading[2] ) ) {
+			return array( self::paragraph( '<strong>' . trim( $heading[2] ) . '</strong>' ) );
+		}
+
+		return array();
+	}
+
+	/**
+	 * A figure's media, where kept, then its caption as a paragraph: Verbum's editor offered captions
+	 * on images and embeds, and this one keeps their text.
+	 *
+	 * @param array|null $media The block the figure became, if any.
+	 * @param array      $block The parsed figure block.
+	 * @return array
+	 */
+	public static function with_caption( $media, array $block ) {
+		$kept = $media ? array( $media ) : array();
+
+		if ( preg_match( '#<figcaption[^>]*>(.*?)</figcaption>#s', $block['innerHTML'], $caption ) && '' !== trim( $caption[1] ) ) {
+			$kept[] = self::paragraph( trim( $caption[1] ) );
 		}
 
 		return $kept;

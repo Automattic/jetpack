@@ -466,11 +466,12 @@ class Embeds extends WP_REST_Controller {
 	 * site will not embed becomes a paragraph holding the link. At render, the figure holds the
 	 * embed itself, or the link where it may not.
 	 *
-	 * @param array     $block  Parsed embed block.
-	 * @param bool|null $render Null while saving; at render, whether the comment may show the embed.
-	 * @return array|null The block to keep, if any.
+	 * @param array     $block   Parsed embed block.
+	 * @param bool|null $render  Null while saving; at render, whether the comment may show the embed.
+	 * @param array     $context The handlers' shared state, unused here.
+	 * @return array The blocks to keep in its place: the embed or link, then its caption, if any.
 	 */
-	public static function block( array $block, $render = null ) {
+	public static function block( array $block, $render = null, array &$context = array() ) {
 		$raw = isset( $block['attrs']['url'] ) && is_string( $block['attrs']['url'] ) ? $block['attrs']['url'] : '';
 		$url = self::trusted_url( $raw );
 
@@ -479,7 +480,7 @@ class Embeds extends WP_REST_Controller {
 			$link = esc_url_raw( $raw, array( 'http', 'https' ) );
 			$text = $link ? '<a href="' . esc_url( $link ) . '" rel="nofollow ugc">' . esc_html( $link ) . '</a>' : esc_html( $raw );
 
-			return '' === $text ? null : Block_Editor::paragraph( $text );
+			return Block_Editor::with_caption( '' === $text ? null : Block_Editor::paragraph( $text ), $block );
 		}
 
 		if ( null === $render ) {
@@ -515,12 +516,13 @@ class Embeds extends WP_REST_Controller {
 			}
 		}
 
-		$html = "\n<figure class=\"wp-block-embed\"><div class=\"wp-block-embed__wrapper\">\n$content\n</div></figure>\n";
+		$html   = "\n<figure class=\"wp-block-embed\"><div class=\"wp-block-embed__wrapper\">\n$content\n</div></figure>\n";
+		$figure = $block;
 
-		$block['innerBlocks']  = array();
-		$block['innerHTML']    = $html;
-		$block['innerContent'] = array( $html );
+		$figure['innerBlocks']  = array();
+		$figure['innerHTML']    = $html;
+		$figure['innerContent'] = array( $html );
 
-		return $block;
+		return Block_Editor::with_caption( $figure, $block );
 	}
 }
