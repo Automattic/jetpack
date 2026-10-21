@@ -24,6 +24,74 @@ class Stats_Links {
 	 */
 	public static function register() {
 		add_filter( 'jetpack_stats_url', array( __CLASS__, 'filter_url' ), 10, 2 );
+		add_action( 'admin_page_access_denied', array( __CLASS__, 'open_retired_stats_page' ) );
+	}
+
+	/**
+	 * Open the dashboard in place of `admin.php?page=stats` once no plugin registers that page.
+	 *
+	 * Core fires this just before its 403, so it never runs while classic Stats is still there.
+	 *
+	 * @return void
+	 */
+	public static function open_retired_stats_page() {
+		if ( ! self::is_retired_stats_page_request() ) {
+			return;
+		}
+
+		nocache_headers();
+		self::render_retired_stats_page();
+		exit( 0 );
+	}
+
+	/**
+	 * Whether this request is for the classic Stats page, which is gone, by a user who can read Stats here.
+	 *
+	 * @return bool
+	 */
+	public static function is_retired_stats_page_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks where to send the reader.
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+
+		return 'stats' === $page
+			&& '' === menu_page_url( 'stats', false )
+			&& Capabilities::current_user_can_view_stats();
+	}
+
+	/**
+	 * Print a page that sends the reader to the dashboard route matching the old `#!/stats/…` link.
+	 *
+	 * Mapped in the browser because the fragment never reaches the server.
+	 *
+	 * @return void
+	 */
+	public static function render_retired_stats_page() {
+		$script = sprintf(
+			'( function () {
+				var sections = { insights: "insights", subscribers: "subscribers", store: "woocommerce" };
+				var route = /^#!\/stats\/([a-z]+)\/?(\d*)/.exec( window.location.hash ) || [];
+				var path = "/";
+				if ( "post" === route[ 1 ] && Number( route[ 2 ] ) > 0 ) {
+					path = "/post/" + route[ 2 ];
+				} else if ( Object.prototype.hasOwnProperty.call( sections, route[ 1 ] ) ) {
+					path = "/?section=" + sections[ route[ 1 ] ];
+				}
+				window.location.replace( %s + encodeURIComponent( path ) );
+			} )();',
+			wp_json_encode( Analytics::dashboard_url( '' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+		);
+
+		?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="<?php echo esc_attr( get_bloginfo( 'charset' ) ); ?>">
+<noscript><meta http-equiv="refresh" content="0;url=<?php echo esc_url( Analytics::dashboard_url( '/' ) ); ?>"></noscript>
+		<?php wp_print_inline_script_tag( $script ); ?>
+</head>
+<body></body>
+</html>
+		<?php
 	}
 
 	/**

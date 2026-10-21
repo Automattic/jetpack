@@ -888,11 +888,12 @@ class Jetpack {
 	 *
 	 * Stats v2 (formerly "Premium Analytics") ships with the plugin behind this
 	 * flag while it rolls out (WOOA7S-1595). When enabled it adds its own admin
-	 * menu alongside the existing Stats UI; it never replaces or hides the
-	 * legacy Stats menu, admin-bar entries, post-list column, or WP dashboard
-	 * widget. The Stats module's tracking is unaffected either way, and Stats v2
-	 * reads what that module collects, so while the module is off the plugin
-	 * answers false here before even reading the flag.
+	 * menu and never hides the admin-bar entries, post-list column, or WP
+	 * dashboard widget. The classic Stats menu stays alongside it until the
+	 * `jetpack-stats-classic-page-retired` feature flag retires it. The Stats
+	 * module's tracking is unaffected either way, and Stats v2 reads what that
+	 * module collects, so while the module is off the plugin answers false here
+	 * before even reading the flag.
 	 *
 	 * The package has to be loadable for this to be true, so a site with the
 	 * flag on but a missing package answers false here and never adds the
@@ -922,9 +923,13 @@ class Jetpack {
 		 *
 		 * @since 16.1
 		 *
-		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false).
+		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false), or true once the classic Stats page is retired.
 		 */
-		$flag = (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
+		$flag = (bool) apply_filters(
+			'jetpack_premium_analytics_enabled',
+			// A site that once switched Stats v2 off would otherwise be left with no Stats page.
+			Jetpack_Stats_Feature_Flags::is_classic_page_retired() || (bool) get_option( 'jetpack_premium_analytics_enabled' )
+		);
 
 		self::$premium_analytics_enabled = $flag && class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' );
 
