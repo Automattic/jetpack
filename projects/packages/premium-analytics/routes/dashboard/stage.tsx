@@ -6,7 +6,11 @@ import {
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { usePeriodHost, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import {
+	DashboardWidgetHostProvider,
+	usePeriodHost,
+	useReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
 import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import {
 	DateFiltersPanel,
@@ -35,7 +39,6 @@ import { useDateWindowNotice } from '../date-window-notice';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
-import { AnalyticsWidgetHostProvider } from '../widget-host';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
 	DashboardNotices,
@@ -476,7 +479,7 @@ function Dashboard(): JSX.Element {
 				dateLimits={ dateLimits }
 			>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
-				<AnalyticsWidgetHostProvider>
+				<DashboardWidgetHostProvider>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
 							widgetTypes={ widgetTypes }
@@ -606,7 +609,7 @@ function Dashboard(): JSX.Element {
 							</Page>
 						</WidgetDashboard>
 					</WidgetDashboard.Policy>
-				</AnalyticsWidgetHostProvider>
+				</DashboardWidgetHostProvider>
 			</ReportScopeProvider>
 		</>
 	);

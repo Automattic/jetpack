@@ -1,5 +1,5 @@
 jest.mock( '@wordpress/route', () => {
-	const { mockWordPressRoute } = jest.requireActual( '../tests/js/route-test-utils' );
+	const { mockWordPressRoute } = jest.requireActual( '../../../../../tests/js/route-test-utils' );
 
 	return mockWordPressRoute;
 } );
@@ -10,23 +10,24 @@ jest.mock( '@wordpress/route', () => {
 import { render, screen } from '@testing-library/react';
 import { HostLink } from '@wordpress/widget-primitives';
 import { createRef } from 'react';
-import { DASHBOARD_PAGE_SLUG } from '@jetpack-premium-analytics/routing';
 /**
  * Internal dependencies
  */
-import { AnalyticsWidgetHostProvider, toRouteTarget } from './widget-host';
+import { DASHBOARD_PAGE_SLUG } from '../../dashboard-href';
+import { DashboardWidgetHostProvider } from '../dashboard-widget-host-provider';
+import { toRouteTarget } from '../to-route-target';
 
 const BASE = `https://example.com/wp-admin/admin.php?page=${ DASHBOARD_PAGE_SLUG }`;
 const REFERRERS_HREF = `admin.php?page=${ DASHBOARD_PAGE_SLUG }&p=%2Freports%2Freferrers`;
 
-describe( 'AnalyticsWidgetHostProvider', () => {
+describe( 'DashboardWidgetHostProvider', () => {
 	it( 'mounts the router link for an action href that targets a dashboard route', () => {
 		render(
-			<AnalyticsWidgetHostProvider base={ BASE }>
+			<DashboardWidgetHostProvider base={ BASE }>
 				<HostLink href={ `${ REFERRERS_HREF }%3Ffrom%3D2026-03-01%26to%3D2026-03-10` }>
 					View all
 				</HostLink>
-			</AnalyticsWidgetHostProvider>
+			</DashboardWidgetHostProvider>
 		);
 
 		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
@@ -37,9 +38,9 @@ describe( 'AnalyticsWidgetHostProvider', () => {
 
 	it( 'keeps a plain anchor for a href outside the dashboard', () => {
 		render(
-			<AnalyticsWidgetHostProvider base={ BASE }>
+			<DashboardWidgetHostProvider base={ BASE }>
 				<HostLink href="https://wordpress.com/subscribers/example.com">Manage</HostLink>
-			</AnalyticsWidgetHostProvider>
+			</DashboardWidgetHostProvider>
 		);
 
 		expect( screen.getByRole( 'link', { name: 'Manage' } ) ).toHaveAttribute(
@@ -52,11 +53,11 @@ describe( 'AnalyticsWidgetHostProvider', () => {
 		const ref = createRef< HTMLAnchorElement >();
 
 		render(
-			<AnalyticsWidgetHostProvider base={ BASE }>
+			<DashboardWidgetHostProvider base={ BASE }>
 				<HostLink ref={ ref } href={ REFERRERS_HREF }>
 					View all
 				</HostLink>
-			</AnalyticsWidgetHostProvider>
+			</DashboardWidgetHostProvider>
 		);
 
 		expect( ref.current ).toBe( screen.getByRole( 'link', { name: 'View all' } ) );
@@ -68,9 +69,9 @@ describe( 'AnalyticsWidgetHostProvider', () => {
 
 		try {
 			render(
-				<AnalyticsWidgetHostProvider>
+				<DashboardWidgetHostProvider>
 					<HostLink href={ REFERRERS_HREF }>View all</HostLink>
-				</AnalyticsWidgetHostProvider>
+				</DashboardWidgetHostProvider>
 			);
 
 			expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
