@@ -360,13 +360,15 @@ async function addLabels( payload: PullRequestEvent, octokit: OctokitClient ): P
 
 	debug( `add-labels: Adding labels ${ labelsToAdd } to PR #${ number }` );
 
-	const params = { owner: owner.login, repo: name, issue_number: number, labels: labelsToAdd };
-	try {
-		await octokit.rest.issues.addLabels( params );
-	} catch ( error ) {
-		// Sometimes the request fails (perhaps a timeout) but works on a rerun.
-		debug( `add-labels: Got ${ error }. Retrying once.` );
-		await octokit.rest.issues.addLabels( params );
+	// Large requests sometimes fail (perhaps a timeout), so add labels in batches.
+	const batchSize = 30;
+	for ( let i = 0; i < labelsToAdd.length; i += batchSize ) {
+		await octokit.rest.issues.addLabels( {
+			owner: owner.login,
+			repo: name,
+			issue_number: number,
+			labels: labelsToAdd.slice( i, i + batchSize ),
+		} );
 	}
 }
 
