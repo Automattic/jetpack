@@ -10,7 +10,7 @@ import {
 	snackbarMessages,
 	wrapperFor,
 } from './helpers';
-import type { Settings } from '../types';
+import type { SettingKey, Settings } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
@@ -76,28 +76,34 @@ describe( 'useSaveSetting', () => {
 		expect( registry.select( store ).getSettings() ).toEqual( saved );
 	} );
 
-	it( 'rolls back and shows the server message when a save fails', async () => {
-		mockApiFetch.mockImplementation( ( { method, path } ) => {
-			if ( method === 'PUT' ) {
-				return Promise.reject( {
-					code: 'rest_sharing_likes_comment_likes_unchanged',
-					message: 'Comment Likes could not be switched on or off on this site.',
-				} );
-			}
-			// A settings read that never lands, so only the rollback can restore the value.
-			return path?.endsWith( '/status' ) ? Promise.resolve( baseStatus ) : new Promise( () => {} );
-		} );
-		const { result, registry } = renderSave();
+	it.each( [
+		[ 'comment_likes_enabled', true ],
+		[ 'show', [ 'post' ] ],
+	] as [ SettingKey, Settings[ SettingKey ] ][] )(
+		'rolls %s back and shows the server message when a save fails',
+		async ( key, value ) => {
+			mockApiFetch.mockImplementation( ( { method, path } ) => {
+				if ( method === 'PUT' ) {
+					return Promise.reject( {
+						code: 'rest_sharing_likes_comment_likes_unchanged',
+						message: 'Comment Likes could not be switched on or off on this site.',
+					} );
+				}
+				// A settings read that never lands, so only the rollback can restore the value.
+				return path?.endsWith( '/status' )
+					? Promise.resolve( baseStatus )
+					: new Promise( () => {} );
+			} );
+			const { result, registry } = renderSave();
 
-		await act( () => result.current( 'comment_likes_enabled', true ) );
+			await act( () => result.current( key, value ) );
 
-		expect( registry.select( store ).getSettings() ).toMatchObject( {
-			comment_likes_enabled: false,
-		} );
-		expect( snackbarMessages() ).toContain(
-			'Comment Likes could not be switched on or off on this site.'
-		);
-	} );
+			expect( registry.select( store ).getSettings()?.[ key ] ).toEqual( baseSettings[ key ] );
+			expect( snackbarMessages() ).toContain(
+				'Comment Likes could not be switched on or off on this site.'
+			);
+		}
+	);
 
 	it.each( [
 		{
