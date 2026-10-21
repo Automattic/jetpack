@@ -56,8 +56,8 @@ function RowCheckbox( { state, isSelected, onSelect }: RowCheckboxProps ) {
 		[ slug, onSelect ]
 	);
 
-	// A forced feature has no control to point at, so it gets no checkbox; the hidden one holds the column.
-	if ( getForcedReason( state ) ) {
+	// Forced and plan-driven features have no switch, so no checkbox; the hidden one holds the column.
+	if ( getForcedReason( state ) || state.control.kind === 'plan' ) {
 		return (
 			<span className={ styles[ 'row-checkbox-placeholder' ] } aria-hidden="true">
 				<CheckboxControl __nextHasNoMarginBottom checked={ false } disabled onChange={ onChange } />
