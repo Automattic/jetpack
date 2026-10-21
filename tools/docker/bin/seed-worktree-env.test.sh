@@ -50,8 +50,27 @@ run() {
 	RUN_OUT="$( cd "$1" && ./tools/docker/bin/seed-worktree-env.sh 2>&1 )" && RUN_RC=0 || RUN_RC=$?
 }
 
-# listening PORT — does something accept connections on localhost:PORT right now?
-listening() { ( : < "/dev/tcp/127.0.0.1/$1" ) 2>/dev/null || ( : < "/dev/tcp/::1/$1" ) 2>/dev/null; }
+# listening PORT — is localhost:PORT taken? Same rules as the script's port_in_use (a connect
+# still pending after about a second counts as taken), kept separate so trunk's script can be tested.
+listening() {
+	local host pid waited
+	for host in 127.0.0.1 ::1; do
+		( : < "/dev/tcp/$host/$1" ) 2>/dev/null &
+		pid=$!
+		waited=0
+		while kill -0 "$pid" 2>/dev/null; do
+			if [ "$waited" -ge 20 ]; then
+				kill "$pid" 2>/dev/null || true
+				wait "$pid" 2>/dev/null || true
+				return 0
+			fi
+			sleep 0.05
+			waited=$(( waited + 1 ))
+		done
+		if wait "$pid"; then return 0; fi
+	done
+	return 1
+}
 # first_free PORT — the first port at or above PORT with no listener. The script skips busy
 # ports, so on a dev machine with 8080 taken the expected values move up with it.
 first_free() {
@@ -265,8 +284,43 @@ time.sleep(30)' "$BUSY" &
 	fi
 	kill "$LISTENER" 2>/dev/null || true
 	wait "$LISTENER" 2>/dev/null || true
+
+	# A listener whose accept queue is full drops new connects instead of refusing them. Fresh repo
+	# again, so the port the previous case wrote to .env is not claimed.
+	PRIMARY4="$TMP/primary4"
+	new_primary "$PRIMARY4"
+	git -C "$PRIMARY4" worktree add -q "$TMP/p4-wt" -b br-p4-wt
+	FULL="$( first_free 8080 )"
+	python3 -c 'import socket, sys, time
+port = int(sys.argv[1])
+s = socket.socket()
+s.bind(("127.0.0.1", port))
+s.listen(0)
+held = []
+for _ in range(8):
+    c = socket.socket()
+    c.setblocking(False)
+    try:
+        c.connect(("127.0.0.1", port))
+    except BlockingIOError:
+        pass
+    held.append(c)
+time.sleep(30)' "$FULL" &
+	LISTENER=$!
+	sleep 1
+	EXPECTED="$( first_free $(( FULL + 1 )) )"
+	START=$SECONDS
+	run "$TMP/p4-wt"
+	if [ $(( SECONDS - START )) -le 10 ]; then
+		pass "a full accept queue does not stall the seeder"
+	else
+		bad "a full accept queue does not stall the seeder (took $(( SECONDS - START ))s)"
+	fi
+	assert_grep "$TMP/p4-wt/tools/docker/.env" "^PORT_WORDPRESS=${EXPECTED}\$" "port ${FULL} with a full accept queue is skipped"
+	kill "$LISTENER" 2>/dev/null || true
+	wait "$LISTENER" 2>/dev/null || true
 else
-	echo "  skip - python3 not found, so the busy-port case did not run"
+	echo "  skip - python3 not found, so the busy-port cases did not run"
 fi
 
 # --- reaching the primary through a symlinked path is still a no-op ---------
