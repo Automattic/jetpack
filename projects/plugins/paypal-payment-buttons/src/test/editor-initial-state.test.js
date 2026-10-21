@@ -35,6 +35,7 @@ describe( 'PayPal editor initial state', () => {
 			feature_flags: {
 				'existing-feature': true,
 				'paypal-payments-api-managed-buttons': false,
+				'paypal-payments-sandbox': false,
 			},
 		} );
 	} );
@@ -52,7 +53,10 @@ describe( 'PayPal editor initial state', () => {
 			expect( window.Jetpack_Editor_Initial_State ).toEqual( {
 				...initialState,
 				available_blocks: { 'paypal-payment-buttons': { available: true } },
-				feature_flags: { 'paypal-payments-api-managed-buttons': false },
+				feature_flags: {
+					'paypal-payments-api-managed-buttons': false,
+					'paypal-payments-sandbox': false,
+				},
 			} );
 		}
 	);
