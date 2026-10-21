@@ -1972,6 +1972,56 @@ describe( 'LineChart', () => {
 			);
 		} );
 
+		it( 'drops a series hidden programmatically from an open keyboard tooltip', async () => {
+			const user = userEvent.setup();
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						chartId="test-keyboard-tooltip-programmatic-hide"
+						data={ [
+							{
+								label: 'Series A',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 10 },
+									{ date: new Date( '2024-01-02' ), value: 20 },
+									{ date: new Date( '2024-01-03' ), value: 30 },
+								],
+							},
+							{
+								label: 'Series B',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 15 },
+									{ date: new Date( '2024-01-02' ), value: 25 },
+								],
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			screen.getByRole( 'application', { name: /line chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}{ArrowRight}' );
+			await expect(
+				screen.findByTestId( 'line-chart-tooltip-content' )
+			).resolves.toHaveTextContent( 'Series A' );
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-keyboard-tooltip-programmatic-hide', 'Series A' );
+			} );
+
+			await waitFor( () => expect( screen.queryByText( 'Series A:' ) ).not.toBeInTheDocument() );
+		} );
+
 		it( 'does not filter series when legendInteractive is false', () => {
 			render(
 				<GlobalChartsProvider>
