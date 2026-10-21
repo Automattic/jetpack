@@ -77,29 +77,15 @@ class REST_Blog_Posts {
 			$thumbnail = $enclosure ? esc_url_raw( (string) $enclosure->get_thumbnail() ) : '';
 
 			$posts[] = array(
-				// SimplePie returns entity-encoded text; the client renders plain text.
+				// The feed parser returns entity-encoded text; the client renders plain text.
 				'title'     => html_entity_decode( (string) $item->get_title(), ENT_QUOTES, 'UTF-8' ),
 				'link'      => $link,
 				'date'      => $item->get_date( 'c' ),
-				'excerpt'   => self::get_excerpt( (string) $item->get_description() ),
+				'excerpt'   => wp_trim_words( html_entity_decode( (string) $item->get_description(), ENT_QUOTES, 'UTF-8' ), 20, '…' ),
 				'thumbnail' => '' === $thumbnail ? null : $thumbnail,
 			);
 		}
 
 		return rest_ensure_response( $posts );
-	}
-
-	/**
-	 * Plain-text excerpt of a feed item's description.
-	 *
-	 * @param string $description The item's description, as HTML.
-	 * @return string
-	 */
-	private static function get_excerpt( $description ) {
-		$text = html_entity_decode( wp_strip_all_tags( $description ), ENT_QUOTES, 'UTF-8' );
-		// WordPress feeds end each description with " […]".
-		$text = preg_replace( '/\s*\[…\]\s*$/u', '', $text );
-
-		return wp_trim_words( $text, 20, '…' );
 	}
 }
