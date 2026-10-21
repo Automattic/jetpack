@@ -20,6 +20,14 @@ body.jetpack_page_jetpack-ai {
 	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) > :has(> .jp-admin-page-tabs) {
 		flex-shrink: 0;
 	}
+
+	// The off-white page surface under the header, as on My Jetpack's tab
+	// content and the VideoPress dashboard, so the hub's white cards read as
+	// cards. The tab strip keeps its own white surface. No wpds token has this
+	// value yet; those screens hardcode it too.
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
+		background-color: #fcfcfc;
+	}
 }
 
 .jetpack-ai-admin {
