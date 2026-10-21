@@ -3,7 +3,8 @@
  */
 export interface BannerSettings {
 	trackProps?: Record< string, string >;
-	mcpState?: 'on' | 'off' | 'unavailable';
+	/** wp_localize_script converts the PHP visibility value to a string. */
+	shouldShowBanner?: '1' | '0';
 }
 
 /**
@@ -16,21 +17,19 @@ export interface Banner {
 type Track = ( eventName: string, eventProperties: Record< string, string > ) => void;
 
 /**
- * Shows the banner and records an impression. The server hides the banner when the
- * WordPress Agent is already on; it reveals the banner only when MCP is off.
+ * Shows the banner when requested by the server and records an impression.
  *
  * @param banner   - The banner element.
  * @param settings - Data localized by the server.
  * @param track    - Records a Tracks event.
  */
 export function showBanner( banner: Banner, settings: BannerSettings = {}, track: Track ): void {
-	const { trackProps = {}, mcpState } = settings;
+	const { trackProps = {}, shouldShowBanner } = settings;
+	const shouldShow = shouldShowBanner === undefined ? ! banner.hidden : shouldShowBanner === '1';
 
-	if ( banner.hidden ) {
-		if ( mcpState !== 'off' ) {
-			return;
-		}
-		banner.hidden = false;
+	banner.hidden = ! shouldShow;
+	if ( ! shouldShow ) {
+		return;
 	}
 
 	track( 'jetpack_ai_assistant_banner_impression', trackProps );

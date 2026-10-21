@@ -120,22 +120,23 @@ function wpcom_ai_assistant_banner_mcp_enabled() {
 }
 
 /**
- * Data for the banner's script: Tracks props and the MCP state.
+ * Data for the banner's script: Tracks props and banner visibility.
  *
  * @param string $screen_id The current admin screen id.
- * @return array{trackProps: array<string,string>, mcpState: string}
+ * @return array{trackProps: array<string,string>, shouldShowBanner: string}
  */
 function wpcom_ai_assistant_banner_script_data( $screen_id ) {
-	$mcp_enabled = wpcom_is_wordpress_agent_enabled() ? wpcom_ai_assistant_banner_mcp_enabled() : null;
+	$agent_enabled         = wpcom_is_wordpress_agent_enabled();
+	$agent_and_mcp_enabled = $agent_enabled ? wpcom_ai_assistant_banner_mcp_enabled() : null;
 
 	// Dismiss for this user once both tools are on, so later loads skip the MCP check.
-	if ( true === $mcp_enabled ) {
+	if ( true === $agent_and_mcp_enabled ) {
 		wpcom_ai_assistant_banner_record_dismissal();
 	}
 
 	return array(
-		'trackProps' => wpcom_ai_assistant_banner_tracks_props( $screen_id ),
-		'mcpState'   => true === $mcp_enabled ? 'on' : ( false === $mcp_enabled ? 'off' : 'unavailable' ),
+		'trackProps'       => wpcom_ai_assistant_banner_tracks_props( $screen_id ),
+		'shouldShowBanner' => ( ! $agent_enabled || false === $agent_and_mcp_enabled ) ? '1' : '0',
 	);
 }
 

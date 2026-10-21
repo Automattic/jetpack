@@ -90,14 +90,14 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The script gets MCP state only when the WordPress Agent is on.
+	 * The script gets a banner visibility decision for each AI tools state.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_script_data_carries_cached_mcp_state() {
+	public function test_script_data_carries_banner_visibility() {
 		define( 'IS_ATOMIC', true );
 		$cache_key = 'wpcom_ai_banner_mcp_' . get_current_blog_id() . '_' . get_current_user_id();
 		set_transient( $cache_key, 'off', 5 * MINUTE_IN_SECONDS );
@@ -105,10 +105,13 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 
 		$data = wpcom_ai_assistant_banner_script_data( 'dashboard' );
 		$this->assertSame( wpcom_ai_assistant_banner_tracks_props( 'dashboard' ), $data['trackProps'] );
-		$this->assertSame( 'off', $data['mcpState'] );
+		$this->assertSame( '1', $data['shouldShowBanner'] );
+
+		set_transient( $cache_key, 'unavailable', 5 * MINUTE_IN_SECONDS );
+		$this->assertSame( '0', wpcom_ai_assistant_banner_script_data( 'dashboard' )['shouldShowBanner'] );
 
 		update_option( 'big_sky_enable', '0' );
-		$this->assertSame( 'unavailable', wpcom_ai_assistant_banner_script_data( 'dashboard' )['mcpState'] );
+		$this->assertSame( '1', wpcom_ai_assistant_banner_script_data( 'dashboard' )['shouldShowBanner'] );
 		$this->assertEmpty( get_user_meta( get_current_user_id(), 'wpcom_ai_assistant_banner_dismissed', true ) );
 	}
 
@@ -140,7 +143,7 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 		set_transient( 'wpcom_ai_banner_mcp_' . get_current_blog_id() . '_' . get_current_user_id(), 'on', 5 * MINUTE_IN_SECONDS );
 		update_option( 'big_sky_enable', '1' );
 
-		$this->assertSame( 'on', wpcom_ai_assistant_banner_script_data( 'dashboard' )['mcpState'] );
+		$this->assertSame( '0', wpcom_ai_assistant_banner_script_data( 'dashboard' )['shouldShowBanner'] );
 		$this->assertEqualsWithDelta( time(), (int) get_user_meta( $user_id, 'wpcom_ai_assistant_banner_dismissed', true ), 5 );
 		$this->assertEmpty( get_user_meta( $other_user_id, 'wpcom_ai_assistant_banner_dismissed', true ) );
 
