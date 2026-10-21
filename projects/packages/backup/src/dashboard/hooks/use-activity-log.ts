@@ -217,6 +217,7 @@ export function useActivityById(
 	hasAnswered: boolean;
 	error: Error | null;
 	isFetching: boolean;
+	retryLookup?: () => void;
 } {
 	// Follows the list's `sortOrder`: it is part of the cache key, so pinning it
 	// here would open a second query for rows already on screen.
@@ -261,18 +262,24 @@ export function useActivityById(
 		canQuery && id !== null && isValidRewindId( id ) && query.isSuccess && ! loadedItem;
 	const around = useQuery( {
 		queryKey: keys.activityLogAround( id ?? '' ),
-		queryFn: () => fetchActivityLog( aroundRewindId( id as string ) ),
+		queryFn: () => fetchActivityAroundBackup( id as string ),
 		enabled: searchesAround,
 		// A finished backup's row never changes.
 		staleTime: Infinity,
 	} );
+	const lookupError = useStickyError( around.error, around.isFetching );
+	const { refetch: refetchAround } = around;
+	const retryLookup = useCallback( () => {
+		refetchAround();
+	}, [ refetchAround ] );
 
 	if ( searchesAround ) {
 		return {
 			item: findById( around.data?.current?.orderedItems, id as string ),
 			hasAnswered: around.isSuccess,
-			error: around.error,
+			error: lookupError,
 			isFetching: around.isFetching,
+			retryLookup,
 		};
 	}
 	return {
@@ -281,6 +288,26 @@ export function useActivityById(
 		error: isRestore ? restores.error : query.error,
 		isFetching: isRestore ? restores.isFetching : query.isFetching,
 	};
+}
+
+/**
+ * Search every page of the window before declaring a backup absent.
+ *
+ * @param rewindId - The backup to find.
+ * @return The matching page, or the final page when no match exists.
+ */
+async function fetchActivityAroundBackup( rewindId: string ): Promise< WpcomActivityLogResponse > {
+	const args = aroundRewindId( rewindId );
+	let page = 1;
+	let response: WpcomActivityLogResponse;
+	do {
+		response = await fetchActivityLog( { ...args, page } );
+		if ( findById( response.current?.orderedItems, rewindId ) ) {
+			return response;
+		}
+		page++;
+	} while ( page <= ( response.totalPages ?? 1 ) );
+	return response;
 }
 
 /**

@@ -321,6 +321,30 @@ describe( 'A selection on a page nothing has loaded', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
+	it( 'announces and retries a lookup failure while the list remains healthy', async () => {
+		mockSearch.mockReturnValue( { selected: PAGE_TWO_ID } );
+		const answer = mockApiFetch.getMockImplementation()!;
+		let failLookup = true;
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) =>
+			failLookup && options.path?.includes( 'after=' )
+				? Promise.reject( new Error( FAILURE_REASON ) )
+				: answer( options )
+		);
+		render( <OverviewStage /> );
+		await expect( screen.findByText( LOAD_FAILED ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( ACTIVITY_FAILED ) ).not.toBeInTheDocument();
+		expect( screen.getByText( FAILURE_REASON ) ).toBeInTheDocument();
+		await waitFor( () =>
+			expect( speak ).toHaveBeenCalledWith( expect.stringContaining( LOAD_FAILED ), 'assertive' )
+		);
+		failLookup = false;
+		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+		await expect(
+			screen.findByRole( 'heading', { name: 'Backup complete (page 2)' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( LOAD_FAILED ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'does not report any other row as gone', async () => {
 		mockSearch.mockReturnValue( { selected: 'act-post-2' } );
 

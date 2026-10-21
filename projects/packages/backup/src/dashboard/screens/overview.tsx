@@ -439,7 +439,7 @@ function RightPane( {
 	onClearSelected: () => void;
 } ) {
 	// All four must match the list's arguments — this reads its cache entry.
-	const { item, hasAnswered, error, isFetching } = useActivityById(
+	const { item, hasAnswered, error, isFetching, retryLookup } = useActivityById(
 		selectedId,
 		page,
 		pageSize,
@@ -472,13 +472,14 @@ function RightPane( {
 	if ( ! item && error ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
-				{ /*
-				 * Neither the upstream reason nor a retry: the list beside this pane
-				 * reports the activity feed's failure with both, and a second copy of
-				 * each is two error notices and two buttons for one thing to fix.
-				 * Silent too: spoken beside the list's notice, it would only repeat the failure.
-				 */ }
-				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } silent />
+				{ /* Only the independent lookup needs its own report; the list reports page failures. */ }
+				<QueryError
+					title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) }
+					error={ retryLookup ? error : undefined }
+					onRetry={ retryLookup }
+					isRetrying={ isFetching }
+					silent={ ! retryLookup }
+				/>
 			</div>
 		);
 	}

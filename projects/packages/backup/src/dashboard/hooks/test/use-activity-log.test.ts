@@ -407,6 +407,44 @@ describe( 'useActivityById', () => {
 describe( 'useActivityById for an id no loaded page holds', () => {
 	const UNLISTED_ID = '1786300000';
 
+	it.each( [ true, false ] )(
+		'exhausts a busy window unless it finds the backup (present: %s)',
+		async present => {
+			mockedApiFetch.mockImplementation( ( options: { path?: string } ) => {
+				const args = new URLSearchParams( options.path?.split( '?' )[ 1 ] );
+				if ( ! args.has( 'after' ) ) {
+					return Promise.resolve( DESCENDING );
+				}
+				const page = Number( args.get( 'page' ) );
+				return Promise.resolve( {
+					current: {
+						orderedItems:
+							present && page === 2
+								? [ backupEntry( UNLISTED_ID, '2026-08-09T18:26:40Z' ) ]
+								: Array.from( { length: 10 }, ( _, i ) => ( {
+										activity_id: `post-${ page }-${ i }`,
+										gridicon: 'posts',
+										summary: 'Post published',
+										published: '2026-08-09T18:26:39Z',
+									} ) ),
+					},
+					totalPages: 3,
+				} );
+			} );
+			const { result } = renderHook(
+				() => useActivityById( UNLISTED_ID, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+				{ wrapper: wrapper() }
+			);
+			await waitFor( () => expect( result.current.hasAnswered ).toBe( true ) );
+			expect( result.current.item?.id ?? null ).toBe(
+				present ? `activity-${ UNLISTED_ID }` : null
+			);
+			expect( windowRequests().map( args => args.get( 'page' ) ) ).toEqual(
+				present ? [ '1', '2' ] : [ '1', '2', '3' ]
+			);
+		}
+	);
+
 	/**
 	 * Requests for a time window rather than a page.
 	 *
