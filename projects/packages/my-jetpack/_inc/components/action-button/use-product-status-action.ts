@@ -23,13 +23,17 @@ export type ProductStatusActionOptions = {
 /**
  * The action a product's card offers for its status.
  *
- * @param {JetpackModule}              slug    - The product slug.
- * @param {ProductStatusActionOptions} options - Label overrides, the site connection handler and the Tracks prefix.
+ * @param {JetpackModule}              slug      - The product slug.
+ * @param {ProductStatusActionOptions} [options] - Label overrides, the site connection handler and the Tracks prefix.
  * @return {{action: Partial<SecondaryButtonProps>, isBusy: boolean, forcedOffReason: string | null}} The action, whether it is busy, and why the host keeps the product off.
  */
 const useProductStatusAction = (
 	slug: JetpackModule,
-	{ primaryActionOverride, fixSiteConnectionHandler, tracksIdentifier }: ProductStatusActionOptions
+	{
+		primaryActionOverride,
+		fixSiteConnectionHandler,
+		tracksIdentifier,
+	}: ProductStatusActionOptions = {}
 ) => {
 	const {
 		data: { ownedProducts },
