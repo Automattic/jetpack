@@ -147,6 +147,8 @@ class Main_Features {
 				'long_description' => __( 'Every change you make is saved off-site as it happens, so your content and WooCommerce orders stay safe even if your host goes down. Restore your site in one click, even when it is offline.', 'jetpack-my-jetpack' ),
 				'icon'             => 'backup',
 				'product'          => 'backup',
+				// The plan decides it, whichever plugin delivers it, so its card has no switch.
+				'plan_driven'      => true,
 				'needs_account'    => true,
 				'interstitial'     => '/add-backup',
 				'setup_note'       => __( 'Backups start once you add a paid plan.', 'jetpack-my-jetpack' ),
@@ -530,7 +532,7 @@ class Main_Features {
 		foreach ( $definition['plans'] ?? array() as $slug ) {
 			$bundle_class = Products::get_product_class( $slug );
 
-			if ( $bundle_class && ( 'pro' !== $slug || ( ! $local && ( $bundle_class::has_paid_plan_for_product() || ! empty( $bundle_class::get_pricing_for_ui()['available'] ) ) ) ) ) {
+			if ( $bundle_class && ( $local ? 'pro' !== $slug : ( $bundle_class::has_paid_plan_for_product() || ! empty( $bundle_class::get_pricing_for_ui()['available'] ) ) ) ) {
 				$badge = array(
 					'slug' => $slug,
 					'name' => $bundle_class::get_title(),
@@ -543,6 +545,46 @@ class Main_Features {
 		}
 
 		return $badges;
+	}
+
+	/**
+	 * Lets a host send a feature's Upgrade button to its own plans instead of Jetpack's.
+	 *
+	 * @param array  $upgrade  The Jetpack route, from get_upgrade().
+	 * @param string $slug     The feature slug.
+	 * @param bool   $included Whether the site already pays for the feature.
+	 * @return array{path: string, name: string, url?: string}
+	 */
+	private static function filter_upgrade( array $upgrade, $slug, $included ) {
+		/**
+		 * Filters where a My Jetpack feature's Upgrade button goes.
+		 *
+		 * Set `url` to an absolute address to replace the My Jetpack route, which also drops the
+		 * Jetpack plans the feature's details would otherwise link to. Ignored when `$included`.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array  $upgrade  `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is.
+		 * @param string $slug     The feature slug.
+		 * @param bool   $included Whether the site already pays for the feature.
+		 */
+		$filtered = apply_filters( 'jetpack_my_jetpack_feature_upgrade', $upgrade, $slug, $included );
+
+		if ( ! is_array( $filtered ) ) {
+			return $upgrade;
+		}
+
+		$result = array(
+			'path' => (string) ( $filtered['path'] ?? '' ),
+			'name' => (string) ( $filtered['name'] ?? '' ),
+		);
+
+		// A site that already pays has nothing to buy, wherever a host would send it.
+		if ( ! $included && ! empty( $filtered['url'] ) ) {
+			$result['url'] = esc_url_raw( (string) $filtered['url'] );
+		}
+
+		return $result;
 	}
 
 	/**
@@ -575,7 +617,7 @@ class Main_Features {
 		foreach ( $definition['plans'] ?? array() as $plan ) {
 			$bundle_class = Products::get_product_class( $plan );
 
-			if ( $bundle_class && ( 'pro' !== $plan || ! empty( $bundle_class::get_pricing_for_ui()['available'] ) ) ) {
+			if ( $bundle_class && ! empty( $bundle_class::get_pricing_for_ui()['available'] ) ) {
 				return array(
 					'path' => '/add-' . $plan,
 					'name' => $bundle_class::get_title(),
@@ -594,14 +636,17 @@ class Main_Features {
 	 * @return bool
 	 */
 	private static function is_included_in_plan( $definition, $product_class ) {
-		if ( $product_class && self::pays_for_product( $product_class ) ) {
+		// An expired purchase still matches by slug; a plan-driven card offers to renew it instead.
+		$expiry_counts = ! empty( $definition['plan_driven'] );
+
+		if ( $product_class && self::pays_for_product( $product_class ) && ! ( $expiry_counts && $product_class::is_paid_plan_expired() ) ) {
 			return true;
 		}
 
 		foreach ( $definition['plans'] ?? array() as $plan ) {
 			$bundle_class = Products::get_product_class( $plan );
 
-			if ( $bundle_class && $bundle_class::has_paid_plan_for_product() ) {
+			if ( $bundle_class && $bundle_class::has_paid_plan_for_product() && ! ( $expiry_counts && $bundle_class::is_paid_plan_expired() ) ) {
 				return true;
 			}
 		}
@@ -1017,6 +1062,8 @@ class Main_Features {
 				'icon'             => $definition['icon'],
 				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
+				// An older Jetpack plugin still lets the module decide, so the card keeps its switch there.
+				'plan_driven'      => ! empty( $definition['plan_driven'] ) && ( ! $product_class || ! method_exists( $product_class, 'is_plan_driven' ) || $product_class::is_plan_driven() ),
 				'in_jetpack'       => $delivery['jetpack'] ?? false,
 				'plugin'           => $plugin,
 				'plugin_name'      => $plugin ? ( $delivery['plugin_name'] ?? $definition['name'] ) : '',
@@ -1026,7 +1073,7 @@ class Main_Features {
 				'free_highlights'  => $definition['free_highlights'] ?? array(),
 				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
 				'pricing_notes'    => $definition['pricing_notes'] ?? array(),
-				'upgrade'          => $local ? null : self::get_upgrade( $definition, $product_class, $included ),
+				'upgrade'          => $local ? null : self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included ),
 				'included'         => $included,
 				// Both notes tell the site what to buy next, which a site that pays already has.
 				'setup_note'       => $included ? '' : ( $definition['setup_note'] ?? '' ),
@@ -1043,6 +1090,8 @@ class Main_Features {
 			);
 			if ( 'activity-log' === $slug && ! $local && true === ( Products\Pro::get_pricing_for_ui()['catalog_available'] ?? false ) ) {
 				$feature['paid_highlights'][0] = __( '30 days of history with VaultPress Backup or Jetpack Pro, a full year with Jetpack Complete', 'jetpack-my-jetpack' );
+			} elseif ( 'activity-log' === $slug && ! $local && false === ( Products\Security::get_pricing_for_ui()['available'] ?? null ) ) {
+				$feature['paid_highlights'][0] = __( '30 days of history with VaultPress Backup, a full year with Jetpack Complete', 'jetpack-my-jetpack' );
 			}
 			if ( $local ) {
 				unset( $feature['included'], $feature['setup_note'] );
