@@ -33,7 +33,7 @@ const jetpackAiImage = assetUrl( 'components/product-interstitial/assets/jetpack
  * @return {object}                       JetpackAIInterstitialMoreRequests react component.
  */
 export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } ) {
-	const title = __( 'Do you need more requests for Jetpack AI Assistant?', 'jetpack-my-jetpack' );
+	const title = __( 'Do you need more requests for Jetpack AI?', 'jetpack-my-jetpack' );
 	const longDescription = __(
 		'Allow us to assist you in discovering the optimal plan tailored to your requirements, ensuring you can continue using the most advanced AI technology Jetpack has to offer.',
 		'jetpack-my-jetpack'

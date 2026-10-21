@@ -271,7 +271,7 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'complete' ),
-				'paid_product'     => __( 'Jetpack AI Assistant', 'jetpack-my-jetpack' ),
+				'paid_product'     => __( 'Jetpack AI', 'jetpack-my-jetpack' ),
 			),
 			'jetpack-forms'     => array(
 				'info_url'         => 'https://jetpack.com/forms/',
