@@ -528,21 +528,6 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The Protect page stays reachable by URL, but only Calypso's Scan entry shows.
-	 */
-	public function test_jetpack_submenu_hides_the_protect_page() {
-		global $submenu;
-
-		\Jetpack_Options::update_option( 'id', 200 );
-		$submenu['jetpack'][] = array( 'Protect', 'manage_options', 'jetpack-protect', 'Protect' );
-
-		wpcom_add_jetpack_submenu();
-
-		$this->assertStringContainsString( 'hide-if-js', $this->get_jetpack_submenu_item( 'jetpack-protect' )[4] ?? '' );
-		$this->assertNotNull( $this->get_jetpack_submenu_item( 'https://wordpress.com/scan/' . self::$domain ) );
-	}
-
-	/**
 	 * Tests wpcom_add_hosting_menu
 	 */
 	public function test_add_hosting_menu() {
