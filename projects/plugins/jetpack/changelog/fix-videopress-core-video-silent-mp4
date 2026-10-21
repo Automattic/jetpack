@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Play the HD file that includes audio when a core Video block uses a VideoPress upload.

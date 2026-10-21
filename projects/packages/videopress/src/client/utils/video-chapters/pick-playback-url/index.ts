@@ -16,6 +16,10 @@
  * reads as the playhead "tripping" on one second. The 480p rendition is
  * visually identical at stage size and a fraction of the bandwidth.
  *
+ * A streaming rendition's `mp4` holds only its video track, so renditions
+ * whose `mp4_muxed` carries the audio win first, in the same order, with
+ * std (always muxed) before the silent ladder. 1080p is never picked.
+ *
  * @param vp                     - The `media_details.videopress` block from the REST response, or
  *                               a v1.1 `videos/{guid}` item (same `file_url_base`/`files` shape) —
  *                               the Editor tab and the chapter manager modal derive playback URLs
@@ -28,11 +32,17 @@
  */
 export function pickPlaybackUrl( vp?: {
 	file_url_base?: { https?: string };
-	files?: Record< string, { mp4?: string } >;
+	files?: Record< string, { mp4?: string; mp4_muxed?: string } >;
 } ): string | undefined {
 	const base = vp?.file_url_base?.https;
 	if ( ! base || ! vp?.files ) {
 		return undefined;
+	}
+	for ( const rendition of [ 'dvd', 'hd', 'std' ] ) {
+		const muxed = vp.files[ rendition ]?.mp4_muxed;
+		if ( muxed ) {
+			return base + muxed;
+		}
 	}
 	for ( const rendition of [ 'dvd', 'std', 'hd' ] ) {
 		const mp4 = vp.files[ rendition ]?.mp4;

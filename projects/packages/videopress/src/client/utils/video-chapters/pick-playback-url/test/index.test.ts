@@ -33,6 +33,34 @@ describe( 'pickPlaybackUrl', () => {
 		).toBeUndefined();
 	} );
 
+	it( 'prefers a rendition that carries its audio track', () => {
+		// Streaming renditions' `mp4` is video-only; `mp4_muxed` also has the audio.
+		expect(
+			pickPlaybackUrl( {
+				file_url_base: { https: BASE },
+				files: {
+					dvd: { mp4: 'clip_dvd.mp4' },
+					hd: { mp4: 'clip_hd.mp4', mp4_muxed: 'clip_hd.muxed.mp4' },
+					std: { mp4: 'clip_std.mp4', mp4_muxed: 'clip_std.mp4' },
+				},
+			} )
+		).toBe( `${ BASE }clip_hd.muxed.mp4` );
+	} );
+
+	it( 'falls back to std over a silent ladder rendition', () => {
+		expect(
+			pickPlaybackUrl( {
+				file_url_base: { https: BASE },
+				files: {
+					dvd: { mp4: 'clip_dvd.mp4' },
+					hd: { mp4: 'clip_hd.mp4' },
+					hd_1080p: { mp4: 'clip_hd_1080p.mp4', mp4_muxed: 'clip_hd_1080p.muxed.mp4' },
+					std: { mp4: 'clip_std.mp4', mp4_muxed: 'clip_std.mp4' },
+				},
+			} )
+		).toBe( `${ BASE }clip_std.mp4` );
+	} );
+
 	it( 'joins the base and the best available rendition', () => {
 		expect(
 			pickPlaybackUrl( {

@@ -132,6 +132,25 @@ class VideoPress_Gutenberg {
 	}
 
 	/**
+	 * The rendition file to play in place of the uploaded video.
+	 *
+	 * A streaming rendition's `mp4` holds only its video track; `mp4_muxed` is the file that also carries the audio.
+	 * Responses that predate `mp4_muxed` keep using the hd `mp4`.
+	 *
+	 * @param object $files The `files` object of a VideoPress video details response.
+	 * @return string|null File name relative to `file_url_base`.
+	 */
+	private static function get_mp4_with_audio( $files ) {
+		foreach ( array( 'hd', 'hd_1080p', 'dvd', 'std' ) as $rendition ) {
+			if ( ! empty( $files->{ $rendition }->mp4_muxed ) ) {
+				return $files->{ $rendition }->mp4_muxed;
+			}
+		}
+
+		return $files->hd->mp4 ?? null;
+	}
+
+	/**
 	 * Render the core video block replacing the src attribute with the VideoPress URL
 	 *
 	 * @param array  $attributes Array containing the video block attributes.
@@ -154,11 +173,13 @@ class VideoPress_Gutenberg {
 		$videopress_id   = video_get_info_by_blogpostid( $blog_id, $post_id )->guid;
 		$videopress_data = videopress_get_video_details( $videopress_id );
 
-		if ( empty( $videopress_data->file_url_base->https ) || empty( $videopress_data->files->hd->mp4 ) ) {
+		$videopress_file = empty( $videopress_data->files ) ? null : self::get_mp4_with_audio( $videopress_data->files );
+
+		if ( empty( $videopress_data->file_url_base->https ) || empty( $videopress_file ) ) {
 			return $content;
 		}
 
-		$videopress_url = $videopress_data->file_url_base->https . $videopress_data->files->hd->mp4;
+		$videopress_url = $videopress_data->file_url_base->https . $videopress_file;
 
 		$pattern = '/(\s)src=([\'"])(?:(?!\2).)+?\2/';
 
