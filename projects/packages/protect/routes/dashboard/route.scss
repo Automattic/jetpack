@@ -128,3 +128,47 @@ body.toplevel_page_jetpack-protect {
 		min-inline-size: 360px;
 	}
 }
+
+.jp-protect-feature-upsell {
+
+	&__heading,
+	&__title {
+		font-weight: 500;
+	}
+
+	&__body {
+		display: flex;
+		gap: var(--wpds-dimension-gap-lg);
+		align-items: center;
+		justify-content: space-between;
+
+		// The button drops below the features, aligned with them.
+		@media (max-width: 600px) {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+	}
+
+	&__features {
+		display: grid;
+		flex: 1;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--wpds-dimension-gap-lg);
+
+		@media (max-width: 600px) {
+			grid-template-columns: minmax(0, 1fr);
+			align-self: stretch;
+		}
+	}
+
+	&__icon {
+		flex: none;
+		fill: none;
+		color: var(--wpds-color-foreground-interactive-brand);
+	}
+
+	&__button {
+		flex: none;
+		white-space: nowrap;
+	}
+}

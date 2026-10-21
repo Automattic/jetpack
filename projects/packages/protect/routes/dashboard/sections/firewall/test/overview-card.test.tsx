@@ -4,11 +4,13 @@ import apiFetch from '@wordpress/api-fetch';
 import { select } from '@wordpress/data';
 import { check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordViewOnce } from '../../../data/tracks';
 import { runFirewallTest } from '../firewall-test';
 import FirewallOverviewCard from '../overview-card';
 import type { FirewallContext } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../../../data/tracks' );
 jest.mock( '../firewall-test', () => ( {
 	...jest.requireActual( '../firewall-test' ),
 	runFirewallTest: jest.fn(),
@@ -23,6 +25,7 @@ const props = {
 		blockedLast30Days: 1,
 		recentBlocks: [],
 		hasScan: false,
+		upgradeUrl: '#upgrade',
 		currentIp: '192.0.2.44',
 		ipRules: {
 			jetpack_waf_ip_block_list: '203.0.113.7\n203.0.113.8',
@@ -278,6 +281,39 @@ describe( 'FirewallOverviewCard', () => {
 
 		expect( screen.queryByText( 'Rules last updated' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'never had automatic rules', null, 'Let your firewall keep up with new attacks', {} ],
+		[
+			'rules stopped updating',
+			1773446400,
+			'Your automatic firewall rules have stopped updating',
+			{ state: 'stopped' },
+		],
+	] )( 'sells automatic rules for a site that %s', ( _, rulesUpdatedAt, heading, eventProps ) => {
+		render( <FirewallOverviewCard { ...props } state={ { ...props.state, rulesUpdatedAt } } /> );
+
+		expect( screen.getByText( heading ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Upgrade/ } ) ).toHaveAttribute( 'href', '#upgrade' );
+		expect( recordViewOnce ).toHaveBeenLastCalledWith(
+			'jetpack_protect_dashboard_firewall_upsell_view',
+			eventProps
+		);
+	} );
+
+	it.each( [ null, 1773446400 ] )(
+		'sells nothing to a site with Scan (rules updated at %s)',
+		rulesUpdatedAt => {
+			render(
+				<FirewallOverviewCard
+					{ ...props }
+					state={ { ...props.state, hasScan: true, rulesUpdatedAt } }
+				/>
+			);
+
+			expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it( 'opens the Settings tab at its own card', async () => {
 		const openTab = jest.fn();

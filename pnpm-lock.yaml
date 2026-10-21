@@ -4329,6 +4329,9 @@ importers:
 
   projects/packages/protect:
     dependencies:
+      '@automattic/jetpack-analytics':
+        specifier: workspace:*
+        version: link:../../js-packages/analytics
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
@@ -4338,6 +4341,9 @@ importers:
       '@automattic/jetpack-scan':
         specifier: workspace:*
         version: link:../../js-packages/scan
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       '@jetpack-protect/init':
         specifier: link:packages/init
         version: link:packages/init
