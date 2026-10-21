@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Text } from '@wordpress/ui';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -62,11 +62,14 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 		);
 	};
 
+	// Refetch only when the site connects after mount; on load the products query is already fresh.
+	const wasRegistered = useRef( isRegistered );
 	useEffect( () => {
-		if ( isRegistered ) {
+		if ( isRegistered && ! wasRegistered.current ) {
 			refetch();
 		}
-	}, [ isRegistered, status, refetch ] );
+		wasRegistered.current = isRegistered;
+	}, [ isRegistered, refetch ] );
 
 	return (
 		<ProductCard

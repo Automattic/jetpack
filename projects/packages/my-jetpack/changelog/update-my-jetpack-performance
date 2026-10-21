@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Speed up the dashboard by removing duplicate product and plan requests on page load.
