@@ -1,0 +1,365 @@
+// Every variant loops on one 4s cycle; `--i` staggers items within it.
+$cycle: 4s;
+$green: #069e08;
+
+.jp-protect-scan-art {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--wpds-color-foreground-content-neutral);
+
+	&__check {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 20px;
+		block-size: 20px;
+		border-radius: 50%;
+		background: $green;
+		animation: jp-protect-scan-pop $cycle calc(0.5s + var(--i, 0) * 0.5s) infinite both;
+
+		svg {
+			fill: #fff;
+		}
+	}
+
+	&__card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		inline-size: 260px;
+		padding-block: 6px;
+		overflow: hidden;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 8px 24px rgba(0, 48, 16, 0.12);
+	}
+
+	&__row {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 8px 14px;
+		font-size: 13px;
+
+		& + & {
+			border-block-start:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral-weak);
+		}
+	}
+
+	&__label {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		text-align: start;
+
+		span {
+			font-size: 12px;
+			color: var(--wpds-color-foreground-content-neutral-weak);
+		}
+	}
+
+	&__status {
+		position: relative;
+		display: inline-grid;
+
+		> * {
+			grid-area: 1 / 1;
+		}
+	}
+
+	&__pending {
+		inline-size: 20px;
+		block-size: 20px;
+		box-sizing: border-box;
+		border: 2px solid var(--wpds-color-stroke-surface-neutral-weak);
+		border-radius: 50%;
+	}
+
+	// Checklist: a scan line runs down the card, rows tick off behind it.
+	&__scanline {
+		position: absolute;
+		inset-inline: 0;
+		inset-block-start: 0;
+		block-size: 32px;
+		background: linear-gradient(to bottom, transparent, rgba(6, 158, 8, 0.16));
+		border-block-end: 2px solid $green;
+		opacity: 0;
+		pointer-events: none;
+		animation: jp-protect-scan-line $cycle 0.2s infinite;
+	}
+
+	// Radar: a sweep turns over two rings; each target pings as it passes.
+	&--radar {
+		inline-size: 200px;
+		block-size: 200px;
+	}
+
+	&__ring {
+		position: absolute;
+		inset: 0;
+		border: 1px solid rgba(6, 158, 8, 0.3);
+		border-radius: 50%;
+
+		&.is-inner {
+			inset: 45px;
+		}
+	}
+
+	&__sweep {
+		position: absolute;
+		inset: 0;
+		border-radius: 50%;
+		background: conic-gradient(rgba(6, 158, 8, 0.35), rgba(6, 158, 8, 0) 25%);
+		mask: radial-gradient(circle, transparent 36px, #000 37px);
+		animation: jp-protect-scan-spin $cycle linear infinite;
+	}
+
+	&__blip {
+		position: absolute;
+		inset-block-start: 50%;
+		inset-inline-start: 50%;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 36px;
+		block-size: 36px;
+		margin: -18px;
+		border-radius: 50%;
+		background: #fff;
+		box-shadow: 0 4px 12px rgba(0, 48, 16, 0.12);
+		transform: rotate(calc(60deg + var(--i) * 110deg)) translate(80px) rotate(calc(-60deg - var(--i) * 110deg));
+		animation: jp-protect-scan-ping $cycle linear calc(var(--i) * 110 / 360 * #{$cycle} + 0.65s) infinite;
+	}
+
+	// Trio: a light slides across the three targets, each earns a check.
+	&--trio {
+		gap: 24px;
+		padding: 24px;
+
+		.jp-protect-welcome__art-badge {
+			position: relative;
+		}
+
+		.jp-protect-scan-art__check {
+			position: absolute;
+			inset-block-start: -2px;
+			inset-inline-end: -2px;
+			box-shadow: 0 0 0 3px #fff;
+		}
+	}
+
+	&__light {
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: 0;
+		inline-size: 80px;
+		background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.9), transparent);
+		opacity: 0;
+		animation: jp-protect-scan-light $cycle 0.2s infinite;
+	}
+
+	// Fixed: a vulnerable plugin gets patched.
+	&__pill {
+		padding: 2px 8px;
+		border-radius: 2px;
+		font-size: 12px;
+		font-weight: 500;
+		white-space: nowrap;
+
+		&.is-bad {
+			background: #fcf0f1;
+			color: #b32d2e;
+			animation: jp-protect-scan-out $cycle infinite both;
+		}
+
+		&.is-good {
+			background: #edfaef;
+			color: #007017;
+			animation: jp-protect-scan-in $cycle infinite both;
+		}
+	}
+
+	&__fix-bar {
+		block-size: 3px;
+		margin-inline: 14px;
+		margin-block: 2px 4px;
+		border-radius: 2px;
+		background: $green;
+		transform-origin: left;
+		animation: jp-protect-scan-fix $cycle infinite both;
+
+		:dir(rtl) & {
+			transform-origin: right;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+
+		&,
+		* {
+			animation: none !important;
+		}
+
+		&__scanline,
+		&__light,
+		&__sweep,
+		&__fix-bar,
+		&__pill.is-bad {
+			display: none;
+		}
+	}
+}
+
+@keyframes jp-protect-scan-pop {
+
+	0%,
+	5% {
+		opacity: 0;
+		transform: scale(0);
+	}
+
+	12% {
+		opacity: 1;
+		transform: scale(1.2);
+	}
+
+	16%,
+	85% {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	95%,
+	100% {
+		opacity: 0;
+		transform: scale(1);
+	}
+}
+
+@keyframes jp-protect-scan-line {
+
+	0% {
+		opacity: 1;
+		transform: translateY(-32px);
+	}
+
+	45% {
+		opacity: 1;
+		transform: translateY(130px);
+	}
+
+	46%,
+	100% {
+		opacity: 0;
+		transform: translateY(130px);
+	}
+}
+
+@keyframes jp-protect-scan-spin {
+
+	to {
+		transform: rotate(1turn);
+	}
+}
+
+@keyframes jp-protect-scan-ping {
+
+	0% {
+		box-shadow: 0 0 0 0 rgba(6, 158, 8, 0.5);
+		color: $green;
+	}
+
+	20% {
+		box-shadow: 0 0 0 12px rgba(6, 158, 8, 0);
+		color: $green;
+	}
+
+	40%,
+	100% {
+		box-shadow: 0 4px 12px rgba(0, 48, 16, 0.12);
+		color: inherit;
+	}
+}
+
+@keyframes jp-protect-scan-light {
+
+	0% {
+		opacity: 1;
+		transform: translateX(-80px);
+	}
+
+	50% {
+		opacity: 1;
+		transform: translateX(340px);
+	}
+
+	51%,
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes jp-protect-scan-out {
+
+	0%,
+	45% {
+		opacity: 1;
+	}
+
+	50%,
+	92% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes jp-protect-scan-in {
+
+	0%,
+	45% {
+		opacity: 0;
+		transform: scale(0.8);
+	}
+
+	52% {
+		opacity: 1;
+		transform: scale(1.1);
+	}
+
+	56%,
+	92% {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes jp-protect-scan-fix {
+
+	0%,
+	10% {
+		transform: scaleX(0);
+		opacity: 1;
+	}
+
+	45% {
+		transform: scaleX(1);
+		opacity: 1;
+	}
+
+	55%,
+	100% {
+		transform: scaleX(1);
+		opacity: 0;
+	}
+}

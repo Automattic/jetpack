@@ -4,11 +4,12 @@ $band-ground: #f0f7f0;
 .jp-protect-welcome {
 	inline-size: min(420px, calc(100vw - 32px));
 
-	// Reserve the tallest page's height so the footer doesn't jump between pages.
+	// The tallest page's height on every page, so the footer never moves.
+	// A minimum, not a fixed height, so longer translations aren't clipped.
 	@media (min-width: 600px) {
 
 		.components-guide__container {
-			min-block-size: 480px;
+			min-block-size: 560px;
 		}
 	}
 
@@ -37,16 +38,6 @@ $band-ground: #f0f7f0;
 			--jp-protect-glow-a: 50% 85%;
 			--jp-protect-glow-b: 85% 20%;
 		}
-
-		&--4 {
-			--jp-protect-glow-a: 15% 70%;
-			--jp-protect-glow-b: 70% 15%;
-		}
-
-		&--5 {
-			--jp-protect-glow-a: 85% 60%;
-			--jp-protect-glow-b: 30% 20%;
-		}
 	}
 
 	&__art-badge {
@@ -58,16 +49,45 @@ $band-ground: #f0f7f0;
 		border-radius: 50%;
 		background: #fff;
 		box-shadow: 0 8px 24px rgba(0, 48, 16, 0.12);
-		color: var(--jp-green, #069e08);
+		color: var(--wpds-color-foreground-content-neutral);
 
-		svg {
-			fill: currentColor;
+		&.is-small {
+			inline-size: 72px;
+			block-size: 72px;
 		}
 
 		.jp-protect-safe__shield {
 			overflow: visible;
 			inline-size: 64px;
 			block-size: auto;
+		}
+	}
+
+	&__art-trio {
+		display: flex;
+		gap: 16px;
+	}
+
+	&__features {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		margin-block: 0 24px;
+		margin-inline: 0;
+		padding-inline: 24px;
+		list-style: none;
+
+		li {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin: 0;
+			font-size: 13px;
+			font-weight: 500;
+		}
+
+		svg {
+			flex: 0 0 auto;
 		}
 	}
 
