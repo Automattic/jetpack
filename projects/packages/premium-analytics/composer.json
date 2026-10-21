@@ -65,7 +65,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-premium-analytics",
 		"textdomain": "jetpack-premium-analytics-pkg",
 		"version-constants": {

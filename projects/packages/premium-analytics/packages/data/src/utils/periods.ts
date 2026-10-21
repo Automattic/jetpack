@@ -3,12 +3,13 @@
  */
 import {
 	getAllowedIntervalsForPreset,
+	getLockedIntervalsForPreset,
 	NO_LOCKED_INTERVALS,
 	type LockableInterval,
 } from './interval';
 import { getStatsPeriodFromInterval, type StatsPeriod } from './stats-params';
 import type { ReportParams } from './search';
-import type { IntervalType } from '@jetpack-premium-analytics/datetime';
+import type { IntervalType, PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 
 /**
  * Bucket sizes ordered finest to coarsest, so a mapped period the widget does
@@ -114,4 +115,32 @@ export function chartInterval< P extends StatsPeriod >(
 	// No stored bucket means the range default, which leads the list without
 	// being its finest: a year-long range defaults to months over weeks.
 	return defaultPeriodForInterval( params.interval ?? first, [ first, ...rest ] );
+}
+
+type MenuRange = { preset?: PrimaryPresetId; from?: string; to?: string };
+
+/**
+ * What an interval menu lists: the buckets it can pick, and after them the ones the plan locks.
+ *
+ * One call, so a bucket the chart falls back to is never also listed locked.
+ *
+ * @param params  - The range the menu reads.
+ * @param locked  - The buckets the plan locks.
+ * @param periods - The periods the chart draws; every bucket when the widget declares none.
+ * @return The open and the locked buckets, each in the range's order.
+ */
+export function intervalMenuOptions(
+	params: MenuRange,
+	locked: readonly LockableInterval[],
+	periods?: readonly [ StatsPeriod, ...StatsPeriod[] ]
+): { options: IntervalType[]; lockedOptions: LockableInterval[] } {
+	const from = params.from ?? '';
+	const to = params.to ?? '';
+	const allowed = getAllowedIntervalsForPreset( params.preset, from, to, locked );
+	const options: IntervalType[] = periods ? drawableIntervals( allowed, periods ) : allowed;
+	const lockedOptions = getLockedIntervalsForPreset( params.preset, from, to, locked ).filter(
+		interval => ( ! periods || periods.includes( interval ) ) && ! options.includes( interval )
+	);
+
+	return { options, lockedOptions };
 }

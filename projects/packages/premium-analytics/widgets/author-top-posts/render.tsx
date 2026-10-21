@@ -25,8 +25,13 @@ import { __ } from '@wordpress/i18n';
  */
 import styles from './style.module.css';
 import useAuthorTopPosts from './use-author-top-posts';
-import type { AuthorTopPostsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes. `Record< never, never >` so the render-only type
+ * can compose host fields such as `reportParams` without collapsing to `never`.
+ */
+export type AuthorTopPostsAttributes = Record< never, never >;
 
 type AuthorTopPostsRenderAttributes = AuthorTopPostsAttributes &
 	Partial< ReportParamsFieldAttributes >;

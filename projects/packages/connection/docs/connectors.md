@@ -16,11 +16,12 @@ The relevant class is `Automattic\Jetpack\Connection\Jetpack_Connector`.
 
 ## What the card shows
 
-The card's render function receives data via the `script_module_data_@automattic/jetpack-connection-connectors` filter. Depending on connection state, it surfaces:
+Depending on connection state, the card surfaces:
 
-- **Connection / registration status** — `isRegistered` (site has a blog token), `isConnected` (registered *and* has a connected owner), and `isOfflineMode`.
-- **Site details** — blog id, site URL, and home URL once registered.
-- **Connection owner and current user** — display name, login, email, and avatar, sourced from WordPress.com data where available, plus whether the current user is the owner.
+- **Connection / registration status** — whether the site is registered (has a blog token) and connected (registered _and_ has a connected owner), and whether it is in offline mode.
+- **Site details** — blog ID, site URL, and home URL once registered.
+- **Your account** — the viewer's WordPress.com name, login, email, and avatar, and whether they own the connection.
+- **Connection owner** — name and avatar, linked to their profile when the viewer can edit that user.
 - **Connected plugins** — the plugins currently sharing the connection.
 - **SSO status** — when the Jetpack plugin is connected.
 - **Safe Mode / Identity Crisis** — when the site is in Safe Mode, the status badge swaps to "Safe Mode" and the card renders the resolution options (migrate / start fresh / stay in safe mode).
@@ -29,8 +30,33 @@ The card's render function receives data via the `script_module_data_@automattic
 
 Connect and disconnect actions performed from the card go through the package's existing connection REST endpoints. Connecting and disconnecting are disabled while the site is in offline mode.
 
+## Where the card's data comes from
+
+The card reads connection state from the `jetpack-connection` store, which `Initial_State` fills, so it shows the same facts as the package's own components on the screen (the transfer and protected-owner dialogs):
+
+| Card shows                | Store source                                                                                                                                                                                                                                                                              |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registered / connected    | `getConnectionStatus()` — `isRegistered`, `hasConnectedOwner`                                                                                                                                                                                                                             |
+| Safe Mode                 | `getConnectionStatus()` — `isInSafeMode`                                                                                                                                                                                                                                                  |
+| Offline mode              | `getIsOfflineMode()`                                                                                                                                                                                                                                                                      |
+| Blog ID, first connection | `getBlogId()`, with `isRegistered`                                                                                                                                                                                                                                                        |
+| Your account              | `getUserConnectionData().currentUser`, with `isUserConnected` from the status. Its local `displayName` and `email` fill in when the WordPress.com lookup fails                                                                                                                            |
+| Connection owner          | `getConnectionOwner()` — only for users with `jetpack_connect`. It comes from the `master_user` option, so the card shows it, and your account, only while the owner's token works (`hasConnectedOwner`). Other viewers get the name alone from `getUserConnectionData().connectionOwner` |
+| Connected plugins         | `getConnectedPlugins()`                                                                                                                                                                                                                                                                   |
+
+Everything else is card-only and comes from `Jetpack_Connector::get_connector_data()` through the `script_module_data_@automattic/jetpack-connection-connectors` filter. Some of it stays there because the store has no equivalent:
+
+- `hasOtherConnectedUsers` — sent to the owner only, to warn that disconnecting them disconnects every user.
+- `connectionOwnerEditUrl` — the owner's profile URL, or null when the viewer may not open it (no `jetpack_connect` outside offline mode, or no `edit_user`, as for multisite site admins).
+- `pluginLogos` — logo URLs by plugin slug, which third parties add through the `jetpack_connection_plugin_logos` filter.
+- `apiRoot` / `apiNonce` — the store drops these from its initial state and has no selector for them.
+
+The rest — site and home URLs, SSO status, Safe Mode details, protected-owner state, hosting flags, auth errors, the connector's name, description, and logo, the redirect path, and the connected users link — is specific to the card. Card-only data is not added to `Initial_State`, which every consumer of the connection package receives.
+
+Actions that change only store data update the card in place, such as a non-owner disconnecting their own account. Actions that also change card-only data reload the page.
+
 ## Customization
 
-The card data is assembled server-side in `Jetpack_Connector::get_connector_data()` and passed through the `script_module_data_@automattic/jetpack-connection-connectors` filter, so consumers can adjust the payload by hooking that filter if needed.
+Consumers can adjust the card-only payload by hooking the `script_module_data_@automattic/jetpack-connection-connectors` filter.
 
 The Safe Mode / Identity Crisis data mirrors what `\Automattic\Jetpack\IdentityCrisis\UI::get_initial_state_data()` provides, and is only added when the `Identity_Crisis` class is available and the site is actually in Safe Mode.
