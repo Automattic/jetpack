@@ -895,6 +895,26 @@ describe( 'cleanCmdHandler', () => {
 		] );
 	} );
 
+	test( 'names the exported COMPOSE_PROJECT_NAME that compose will act on', async () => {
+		process.env.COMPOSE_PROJECT_NAME = 'jetpack_exported';
+		try {
+			await cleanCmdHandler( {
+				_: [ 'docker', 'clean' ],
+				type: 'dev',
+				name: 'feature',
+				yes: true,
+			} );
+		} finally {
+			delete process.env.COMPOSE_PROJECT_NAME;
+		}
+
+		const announced = console.log.mock.calls.flat().join( '\n' );
+		expect( announced ).toContain( 'jetpack_exported' );
+		expect( announced ).not.toContain( 'jetpack_feature' );
+		expect( composeCalls()[ 0 ][ 2 ].env.COMPOSE_PROJECT_NAME ).toBe( 'jetpack_exported' );
+		expect( rmCalls()[ 0 ][ 1 ] ).toContain( 'tools/docker/data/jetpack_exported_mysql/' );
+	} );
+
 	test( 'refuses and exits non-zero without a TTY and without --yes', async () => {
 		process.stdin.isTTY = false;
 		process.stdout.isTTY = false;
