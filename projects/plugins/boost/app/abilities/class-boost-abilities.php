@@ -430,7 +430,8 @@ class Boost_Abilities extends Registrar {
 			);
 		}
 
-		$changed = $desired !== $module->is_enabled();
+		// A saved status reads back as "1", not true.
+		$changed = $desired !== (bool) $module->is_enabled();
 		if ( $changed ) {
 			if ( ! $module->update( $desired ) ) {
 				return new \WP_Error(

@@ -13,6 +13,7 @@ namespace Automattic\Jetpack_Boost\Tests\Abilities;
 
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Automattic\Jetpack_Boost\Abilities\Boost_Abilities;
+use Automattic\Jetpack_Boost\Lib\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -604,7 +605,7 @@ class Boost_Abilities_Test extends BaseTestCase {
 	public function test_set_module_status_runs_page_cache_setup_and_reports_its_failure(): void {
 		$option_name = 'jetpack_boost_status_page-cache';
 		delete_option( $option_name );
-		// Setup refuses plain permalinks before it writes any file.
+		// Plain permalinks fail verification, before any setup step writes.
 		update_option( 'permalink_structure', '' );
 
 		$result = Boost_Abilities::set_module_status(
@@ -614,10 +615,32 @@ class Boost_Abilities_Test extends BaseTestCase {
 			)
 		);
 
+		$stays_on = ( new Status( 'page_cache' ) )->get();
 		delete_option( $option_name );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_boost_page_cache_setup_failed', $result->get_error_code() );
+		$this->assertStringContainsString( 'not-using-permalinks', $result->get_error_message() );
+		$this->assertTrue( (bool) $stays_on, 'Page Cache must stay on when its setup fails.' );
+	}
+
+	public function test_set_module_status_treats_a_saved_on_status_as_unchanged(): void {
+		$option_name = 'jetpack_boost_status_minify-css';
+		// update_option() stores true as "1", which is what a later read returns.
+		update_option( $option_name, '1' );
+
+		$result = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => 'minify_css',
+				'active' => true,
+			)
+		);
+
+		delete_option( $option_name );
+
+		$this->assertIsArray( $result );
+		$this->assertTrue( $result['active'] );
+		$this->assertFalse( $result['changed'] );
 	}
 
 	public function test_set_module_status_returns_error_when_update_option_fails(): void {
