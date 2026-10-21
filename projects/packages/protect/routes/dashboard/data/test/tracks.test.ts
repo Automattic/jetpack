@@ -7,13 +7,12 @@ type TestWindow = { _tkq: Queue; JetpackScriptData: object };
  * @param scriptData - The page's `JetpackScriptData`.
  * @return The queued calls.
  */
-function queueFor( scriptData: object ): Queue {
+async function queueFor( scriptData: object ): Promise< Queue > {
 	const win = window as unknown as TestWindow;
 	win._tkq = [];
 	win.JetpackScriptData = scriptData;
-	jest.isolateModules( () => {
-		// eslint-disable-next-line @typescript-eslint/no-require-imports -- isolateModules needs a fresh require.
-		const { recordEvent, recordViewOnce } = require( '../tracks' );
+	await jest.isolateModulesAsync( async () => {
+		const { recordEvent, recordViewOnce } = await import( '../tracks' );
 		recordViewOnce( 'jetpack_protect_test_view', { variant: 2 } );
 		recordEvent( 'jetpack_protect_test_click', { variant: 2 } );
 	} );
@@ -42,7 +41,7 @@ describe( 'tracks', () => {
 				[ 'recordEvent', 'jetpack_protect_test_click', { variant: 2 } ],
 			],
 		],
-	] )( '%s', ( _, scriptData, expected ) => {
-		expect( queueFor( scriptData ) ).toEqual( expected );
+	] )( '%s', async ( _, scriptData, expected ) => {
+		await expect( queueFor( scriptData ) ).resolves.toEqual( expected );
 	} );
 } );
