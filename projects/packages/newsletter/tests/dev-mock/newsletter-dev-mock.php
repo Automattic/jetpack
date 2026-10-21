@@ -43,6 +43,19 @@ add_filter( 'pre_option_jetpack_offline_mode', '__return_zero' );
 add_filter( 'pre_option_jetpack_sync_settings_disable', '__return_true' );
 
 /**
+ * Exclude every visitor from Stats. The tracker runs in the browser, out of reach of the HTTP
+ * mock, and would send real view beacons for the fake site ID.
+ *
+ * @param array $ips IP addresses excluded from Stats.
+ * @return array
+ */
+function newsletter_dev_mock_skip_stats_tracking( $ips ) {
+	$ips[] = ( new Automattic\Jetpack\Status\Visitor() )->get_ip( true );
+	return $ips;
+}
+add_filter( 'jetpack_stats_excluded_ips', 'newsletter_dev_mock_skip_stats_tracking' );
+
+/**
  * Subscriber totals for the last 30 days, rising from 10 to 45, as the dashboard widget expects.
  *
  * @return array Response body.
