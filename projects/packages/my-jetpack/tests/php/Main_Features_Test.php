@@ -199,6 +199,17 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * The page reads this without Jetpack's module list, so it must match the modules that need an account.
+	 */
+	public function test_features_that_need_an_account_say_so() {
+		$features = array_column( Main_Features::get_features( true ), 'needs_account', 'slug' );
+		$slugs    = array_keys( array_filter( $features ) );
+		sort( $slugs );
+
+		$this->assertSame( array( 'activity-log', 'backup', 'jetpack-ai', 'newsletter', 'social' ), $slugs );
+	}
+
+	/**
 	 * Every feature's artwork ships with the package, under the name its URL points at.
 	 */
 	public function test_every_feature_has_a_bundled_image() {
