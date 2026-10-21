@@ -29,7 +29,9 @@ import {
 	handleConsentByRegion,
 	getConsentChoices,
 	hasGpcConflictWithStoredConsent,
+	hasOptedOutViaGlobalPrivacyControl,
 	applyGpcToStoredConsent,
+	regionHonorsGpc,
 	type GeoConfig,
 } from './utils';
 import type { ConsentEvent, ConsentEventChoices } from './types';
@@ -45,6 +47,7 @@ interface CookieBannerContext {
 	showModal: boolean;
 	categories: ConsentEventChoices;
 	textExpanded: boolean;
+	gpcNotice: boolean;
 }
 
 interface CcpaContext {
@@ -112,6 +115,48 @@ function getGeoStateWithoutRequest( config: StoreConfig ): GeoState | null {
 	return { initialized: true, countryCode, region };
 }
 
+// Fetch the visitor's region from the geo provider and cache it in the geo cookies.
+async function lookUpGeoState( config: StoreConfig ): Promise< GeoState > {
+	// PHP (class-cookie-consent.php) always emits a fully-normalized nested `geo`, so the
+	// store config is already the resolved GeoConfig; no client-side reconciliation needed.
+	const geoConfig = config.geo;
+
+	// If either the country_code or region cookie is missing, fetch geolocation.
+	// `no-store` avoids using the browser HTTP cache for this visitor-specific response.
+	try {
+		if ( ! geoConfig.apiUrl ) {
+			throw new Error( 'Geolocation provider URL is not configured' );
+		}
+
+		const response = await fetch( geoConfig.apiUrl, { cache: 'no-store' } );
+		if ( ! response.ok ) {
+			throw new Error( 'Geolocation request failed' );
+		}
+
+		const data = ( await response.json() ) as GeoApiResponse;
+		const countryCode = data.country_short || UNKNOWN_COUNTRY_CODE;
+		const region = data.region || '';
+
+		// Store country code and region in cookies
+		setCookie( geoConfig.countryCodeCookie, countryCode, geoConfig.cookieDuration );
+		setCookie( geoConfig.regionCookie, region, geoConfig.cookieDuration );
+
+		return { initialized: true, countryCode, region };
+	} catch ( error: unknown ) {
+		// A custom geo provider URL can fail independently (typo, CORS, 5xx, non-JSON), so
+		// surface it at warn level to make a misconfigured endpoint diagnosable in production.
+		// eslint-disable-next-line no-console
+		console.warn( error );
+		if ( ! geoConfig.showOnError ) {
+			return { initialized: true, countryCode: null, region: null };
+		}
+
+		// On error, set to unknown so the default path shows the banner.
+		setCookie( geoConfig.countryCodeCookie, UNKNOWN_COUNTRY_CODE, geoConfig.cookieDuration );
+		return { initialized: true, countryCode: UNKNOWN_COUNTRY_CODE, region: '' };
+	}
+}
+
 // Settle a GPC conflict before DOMContentLoaded, when consumers such as the Jetpack Stats
 // pixel read wp_has_consent(). Without a known region, init waits for the geo lookup.
 function applyGpcAtModuleLoad(): void {
@@ -131,6 +176,26 @@ function applyGpcAtModuleLoad(): void {
 }
 
 applyGpcAtModuleLoad();
+
+function gpcNoticeApplies( geo: GeoState | null, config: StoreConfig ): boolean {
+	return (
+		hasOptedOutViaGlobalPrivacyControl() &&
+		!! geo?.countryCode &&
+		regionHonorsGpc( geo.countryCode, geo.region || '', config )
+	);
+}
+
+// The footer modal can open before any region is known, so look it up only for a GPC visitor.
+async function updateGpcNotice(
+	context: CookieBannerContext,
+	config: StoreConfig
+): Promise< void > {
+	if ( ! geoState.initialized && hasOptedOutViaGlobalPrivacyControl() ) {
+		geoState = getGeoStateWithoutRequest( config ) ?? ( await lookUpGeoState( config ) );
+	}
+
+	context.gpcNotice = gpcNoticeApplies( geoState.initialized ? geoState : null, config );
+}
 
 function shouldShowManagePreferencesLink( config: StoreConfig ): boolean {
 	return (
@@ -207,6 +272,10 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		get showModal() {
 			const context = getContext< CookieBannerContext >();
 			return context.showModal;
+		},
+		get modalGpcNoticeId() {
+			const context = getContext< CookieBannerContext >();
+			return context.gpcNotice ? 'cookie-consent-modal-gpc-notice' : null;
 		},
 		// CCPA state
 		get isCcpaRegion() {
@@ -494,58 +563,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				return geoState;
 			}
 
-			// PHP (class-cookie-consent.php) always emits a fully-normalized nested `geo`, so the
-			// store config is already the resolved GeoConfig; no client-side reconciliation needed.
-			const geoConfig = config.geo;
-
-			// If either the country_code or region cookie is missing, fetch geolocation.
-			// `no-store` avoids using the browser HTTP cache for this visitor-specific response.
-			try {
-				if ( ! geoConfig.apiUrl ) {
-					throw new Error( 'Geolocation provider URL is not configured' );
-				}
-
-				const response = ( yield fetch( geoConfig.apiUrl, { cache: 'no-store' } ) ) as Response;
-				if ( ! response.ok ) {
-					throw new Error( 'Geolocation request failed' );
-				}
-
-				const data = ( yield response.json() ) as GeoApiResponse;
-				const countryCode = data.country_short || UNKNOWN_COUNTRY_CODE;
-				const region = data.region || '';
-
-				// Store country code and region in cookies
-				setCookie( geoConfig.countryCodeCookie, countryCode, geoConfig.cookieDuration );
-				setCookie( geoConfig.regionCookie, region, geoConfig.cookieDuration );
-
-				geoState = {
-					initialized: true,
-					countryCode,
-					region,
-				};
-			} catch ( error: unknown ) {
-				// A custom geo provider URL can fail independently (typo, CORS, 5xx, non-JSON), so
-				// surface it at warn level to make a misconfigured endpoint diagnosable in production.
-				// eslint-disable-next-line no-console
-				console.warn( error );
-				if ( ! geoConfig.showOnError ) {
-					geoState = {
-						initialized: true,
-						countryCode: null,
-						region: null,
-					};
-					return geoState;
-				}
-
-				// On error, set to unknown so the default path shows the banner.
-				geoState = {
-					initialized: true,
-					countryCode: UNKNOWN_COUNTRY_CODE,
-					region: '',
-				};
-				setCookie( geoConfig.countryCodeCookie, UNKNOWN_COUNTRY_CODE, geoConfig.cookieDuration );
-			}
-
+			geoState = ( yield lookUpGeoState( config ) ) as GeoState;
 			return geoState;
 		},
 
@@ -584,6 +602,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// still render on a banner-disabled site to back the footer modal, so we pass
 			// the flag down rather than skipping the whole call.
 			if ( 'showBanner' in context ) {
+				( context as CookieBannerContext ).gpcNotice = gpcNoticeApplies( geoData, config );
 				if ( hasConsentSet() ) {
 					// Returning visitor, here only on a GPC conflict (see init).
 					applyGpcToStoredConsent(
@@ -657,6 +676,8 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				}
 
 				const bannerContext = context as CookieBannerContext;
+				// getConfig() is not typed, so we need to assert the type.
+				const config = getConfig() as unknown as StoreConfig;
 
 				openModalFromFooter = () => {
 					const currentConsent = readConsentChoices();
@@ -666,14 +687,16 @@ const { actions } = store( 'jetpack/cookie-consent', {
 					openedFromFooter = true;
 
 					lockScrollAndFocusModal();
+					void updateGpcNotice( bannerContext, config );
 				};
-
-				// getConfig() is not typed, so we need to assert the type.
-				const config = getConfig() as unknown as StoreConfig;
 
 				// Force-preview, like the auto-show above, only applies when the banner
 				// feature is on (the markup may exist only to back the footer modal).
 				if ( config.forcePreview && isFeatureEnabled( 'banner' ) ) {
+					bannerContext.gpcNotice = gpcNoticeApplies( getGeoStateWithoutRequest( config ), config );
+					if ( bannerContext.gpcNotice ) {
+						setContextCategories( bannerContext, getConsentChoices( false ) );
+					}
 					context.showBanner = true;
 					trackPrivacyBannerView();
 					return;

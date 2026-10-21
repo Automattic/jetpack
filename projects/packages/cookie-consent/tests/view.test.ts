@@ -441,6 +441,104 @@ describe( 'GPC for a returning visitor', () => {
 		).toBe( true );
 	} );
 
+	describe( 'conflict notice', () => {
+		const GPC_OPTED_OUT =
+			'wp_consent_functional=allow; wp_consent_statistics=deny; wp_consent_statistics-anonymous=deny; wp_consent_marketing=deny';
+		const ANALYTICS_ON = {
+			target: Object.assign( document.createElement( 'input' ), {
+				type: 'checkbox',
+				checked: true,
+			} ),
+		};
+		ANALYTICS_ON.target.dataset.consentCategory = 'analytics';
+
+		const openFromFooter = async ( context: Record< string, unknown > ) => {
+			mockGetContext.mockReturnValue( context );
+			await storeCallbacks.init();
+			storeActions.openManagePreferences( { preventDefault: jest.fn() } );
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+		};
+
+		beforeEach( () => {
+			mockGetConfig.mockReturnValue( makeConfig() );
+		} );
+
+		it.each( [
+			[ 'a GDPR region', 'FR', 'Brittany', true ],
+			[ 'a CCPA region', 'US', 'California', true ],
+			[ 'a region that ignores GPC', 'US', 'Texas', false ],
+		] )( 'is shown in the footer modal for %s', async ( _, country, region, shown ) => {
+			setGpc( true );
+			cookieJar = `${ GPC_OPTED_OUT }; country_code=${ country }; region=${ region }`;
+			const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
+
+			await openFromFooter( context );
+
+			expect( context.showModal ).toBe( true );
+			expect( context.gpcNotice ).toBe( shown );
+		} );
+
+		it( 'is not shown with the banner to a GDPR visitor without GPC', async () => {
+			setGpc( false );
+			const context = { showBanner: false, gpcNotice: false };
+			mockGetContext.mockReturnValue( context );
+			mockGdprGeoLookup();
+
+			await runAction(
+				storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
+			);
+
+			expect( context.showBanner ).toBe( true );
+			expect( context.gpcNotice ).toBe( false );
+		} );
+
+		it( 'looks up the region for a returning visitor whose geo cookies expired', async () => {
+			setGpc( true );
+			cookieJar = GPC_OPTED_OUT;
+			mockGdprGeoLookup();
+			const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
+
+			await openFromFooter( context );
+
+			expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+			expect( context.gpcNotice ).toBe( true );
+		} );
+
+		it( 'grants nothing when the visitor switches a category on and then dismisses the modal', async () => {
+			setGpc( true );
+			cookieJar = `${ GPC_OPTED_OUT }; country_code=FR; region=Brittany`;
+			const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
+			await openFromFooter( context );
+
+			storeActions.toggleCategory( ANALYTICS_ON );
+			storeActions.onModalKeyDown( { key: 'Escape', preventDefault: jest.fn() } );
+			storeActions.closeModal();
+
+			expect( context.showModal ).toBe( false );
+			expect( wpSetConsentCalls() ).toHaveLength( 0 );
+			expect(
+				cookieWrites.some( write => write.startsWith( 'jetpack_cookie_consent_gpc=' ) )
+			).toBe( false );
+			expect( cookieJar ).toContain( 'wp_consent_statistics=deny' );
+		} );
+
+		it( 'keeps the choice over GPC when the visitor switches a category on and saves', async () => {
+			setGpc( true );
+			cookieJar = `${ GPC_OPTED_OUT }; country_code=FR; region=Brittany`;
+			const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
+			await openFromFooter( context );
+
+			storeActions.toggleCategory( ANALYTICS_ON );
+			storeActions.savePreferences();
+
+			expect( wpSetConsentCalls() ).toContainEqual( [ 'statistics', 'allow' ] );
+			expect( wpSetConsentCalls() ).toContainEqual( [ 'marketing', 'deny' ] );
+			expect(
+				cookieWrites.some( write => write.startsWith( 'jetpack_cookie_consent_gpc=1;' ) )
+			).toBe( true );
+		} );
+	} );
+
 	it( 'keeps the stored choice and loads Tracks in an unregulated region', async () => {
 		setGpc( true );
 		cookieJar = ALL_ALLOWED;
