@@ -46,7 +46,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-cookie-consent",
 		"textdomain": "jetpack-cookie-consent",
 		"changelogger": {

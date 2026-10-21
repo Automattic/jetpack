@@ -50,7 +50,6 @@ import { speak } from '@wordpress/a11y';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { keys, queryClient } from '../src/dashboard/data/query-client';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE } from '../src/dashboard/hooks/use-activity-log';
-import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
@@ -197,9 +196,6 @@ function mockEndpoints( {
 }
 
 beforeEach( () => {
-	// Module state, so one test's selection would otherwise seed the next.
-	resetListStateForTesting();
-
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 

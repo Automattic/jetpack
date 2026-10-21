@@ -545,6 +545,8 @@ type MainFeature = {
 	docs_url: string;
 	product: string;
 	module: string;
+	// Whether the feature needs a connected WordPress.com user account.
+	needs_account?: boolean;
 };
 
 interface Window {
@@ -586,6 +588,7 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
+			accountConnect?: boolean;
 			headerControls?: boolean;
 			overviewV1: boolean;
 			showAiModuleToggle: boolean;
@@ -654,8 +657,20 @@ interface Window {
 					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
 						available: boolean;
+						catalog_available?: boolean;
+						requires_support?: boolean;
 						wpcom_product_slug: string;
 						wpcom_free_product_slug?: string;
+						terms?: Array< {
+							available: boolean;
+							wpcom_product_slug: string;
+							product_term?: string;
+							currency_code?: string;
+							full_price?: number;
+							discount_price?: number;
+							full_price_per_month?: number;
+							discount_price_per_month?: number;
+						} >;
 						product_term: string;
 						currency_code: string;
 						full_price: number;

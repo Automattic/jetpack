@@ -616,10 +616,10 @@ export function NewsletterSettingsBody( {
 				isDisabled={ ! hasConnectedOwner }
 				className={ ! hasConnectedOwner ? 'newsletter-settings-disabled' : undefined }
 			>
-				<Stack gap="xl" direction="column" className="newsletter-settings">
+				<Stack gap="lg" direction="column" className="newsletter-settings">
 					{ isModernized ? (
 						<Disabled isDisabled={ ! data.subscriptions }>
-							<Stack gap="xl" direction="column">
+							<Stack gap="lg" direction="column">
 								<PaidNewsletterSection
 									isNewsletterEnabled={ data.subscriptions }
 									hasActivePlan={ data.newsletter_has_active_plan }
@@ -708,7 +708,7 @@ export function NewsletterSettingsBody( {
 							<NewsletterSection data={ data } onChange={ autoSaveNewsletterSettings } />
 
 							<Disabled isDisabled={ ! data.subscriptions }>
-								<Stack gap="xl" direction="column">
+								<Stack gap="lg" direction="column">
 									<LegacySubscriptionsSection
 										data={ data }
 										onChange={ handleSubscriptionChange }

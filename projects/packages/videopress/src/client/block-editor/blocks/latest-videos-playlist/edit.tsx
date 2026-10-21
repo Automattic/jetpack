@@ -13,6 +13,7 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { EmptyStateControl } from '../../channel/editor-controls';
 import ServerPreview from '../../channel/server-preview';
 import { PlaylistSettingsPanels, PlaylistStylesControls } from '../playlist/inspector-controls';
 import usePublishTracking from '../playlist/use-publish-tracking';
@@ -162,6 +163,11 @@ export default function LatestVideosPlaylistEdit( {
 						label={ __( 'Views and upload date', 'jetpack-videopress-pkg' ) }
 						checked={ !! showMeta }
 						onChange={ ( value: boolean ) => setAttributes( { showMeta: value } ) }
+					/>
+					<EmptyStateControl
+						kind="videos"
+						value={ attributes.emptyState }
+						onChange={ emptyState => setAttributes( { emptyState } ) }
 					/>
 					<ToggleControl
 						__nextHasNoMarginBottom

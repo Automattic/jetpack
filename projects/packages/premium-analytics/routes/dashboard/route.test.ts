@@ -7,6 +7,9 @@ import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
+	getPolicyDefaultPreset: jest.fn( () => undefined ),
+	getSectionDatePolicy: () => ( { lockedIntervals: [] } ),
+	isPresetLockedByPolicy: () => true,
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	normalizeReportParams: jest.fn( ( search: Record< string, string | undefined > ) => ( {
 		from: '2026-06-01T00:00:00',
@@ -40,6 +43,13 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
+} ) );
+
+jest.mock( '../stats-date-window', () => ( {
+	dashboardSectionOf: ( section?: string ) => section,
+	limitStatsDateSearch: jest.fn( () => undefined ),
+	dateWindowNotice: () => undefined,
+	withoutCarriedYearWindow: ( search: object ) => ( { ...search } ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {

@@ -8,9 +8,19 @@
 // that the reason appears and that the misleading empty-state copy does
 // not.
 
+const mockRecordEvent = jest.fn();
 const mockApiFetch = jest.fn();
+
 const mockSearch = jest.fn< Record< string, unknown >, [] >();
 const mockNavigate = jest.fn();
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: {
+		initialize: jest.fn(),
+		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
+	},
+} ) );
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -30,7 +40,6 @@ import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import ErrorBoundary from '../src/dashboard/components/error-boundary';
 import { queryClient } from '../src/dashboard/data/query-client';
-import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const CAPABILITIES = { hasBackupPlan: true, hasScan: false };
@@ -135,7 +144,6 @@ function mockTwoPages( page2: () => Promise< unknown > ) {
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
-	resetListStateForTesting();
 
 	mockApiFetch.mockReset();
 	mockApiFetch.mockResolvedValue( CAPABILITIES );
@@ -313,13 +321,17 @@ describe( 'file browser', () => {
 } );
 
 describe( 'ErrorBoundary', () => {
+	beforeEach( () => {
+		mockRecordEvent.mockReset();
+	} );
+
 	/**
 	 * Stands in for the known real hazard: `toFileNode` raising
 	 * `RangeError: Invalid time value` on a malformed manifest timestamp,
 	 * inside a `useMemo` on the render path.
 	 */
 	function Exploding(): never {
-		throw new Error( 'Invalid time value' );
+		throw new RangeError( 'Invalid time value' );
 	}
 
 	it( 'replaces a crashed subtree with a recoverable message', () => {
@@ -334,6 +346,38 @@ describe( 'ErrorBoundary', () => {
 		expect( screen.getByRole( 'button', { name: 'Reload the page' } ) ).toBeInTheDocument();
 		// React logs the caught error, and so does componentDidCatch —
 		// The `jetpack-js-tools` console guard fails the test unless that is claimed.
+		expect( console ).toHaveErrored();
+	} );
+
+	it.each( [
+		[ 'with a screen', 'download', { screen: 'download', error_type: 'RangeError' } ],
+		[ 'without a screen', undefined, { error_type: 'RangeError' } ],
+	] as const )(
+		'records one crash event %s and nothing from the error text',
+		( _label, routeName, expected ) => {
+			render(
+				<ErrorBoundary screen={ routeName }>
+					<Exploding />
+				</ErrorBoundary>
+			);
+
+			expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_dashboard_crash', expected );
+			expect( console ).toHaveErrored();
+		}
+	);
+
+	it( 'still renders the fallback when Tracks throws', () => {
+		mockRecordEvent.mockImplementation( () => {
+			throw new Error( 'tracks unavailable' );
+		} );
+		render(
+			<ErrorBoundary>
+				<Exploding />
+			</ErrorBoundary>
+		);
+
+		expect( screen.getByText( 'Something went wrong' ) ).toBeInTheDocument();
 		expect( console ).toHaveErrored();
 	} );
 
