@@ -107,8 +107,8 @@
 		"@testing-library/react": "^16.3.0",
 		"@testing-library/user-event": "^14.6.1",
 		"@types/lodash": "4.17.26",
-		"@types/react": "18.3.31",
-		"@types/react-dom": "18.3.7",
+		"@types/react": "19.3.0",
+		"@types/react-dom": "19.3.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/api-fetch": "7.57.0",
 		"@wordpress/browserslist-config": "6.57.0",
@@ -128,8 +128,8 @@
 		"sharp": "0.35.5"
 	},
 	"optionalDependencies": {
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react": "19.3.0",
+		"react-dom": "19.3.0"
 	},
 	"wpPlugin": {
 		"name": "jetpack_forms",

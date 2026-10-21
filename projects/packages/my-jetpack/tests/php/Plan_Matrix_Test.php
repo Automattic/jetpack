@@ -124,16 +124,16 @@ class Plan_Matrix_Test extends TestCase {
 			'direct/off'           => Products::STATUS_INACTIVE,
 			'direct/on'            => Products::STATUS_ACTIVE,
 		),
-		// Backup runs from the Jetpack plugin behind its module, so its standalone plugin's state never gates it.
+		// Backup follows the plan on the Jetpack plugin, so neither its module nor its standalone plugin gates it.
 		'backup'        => array(
 			'none/plugin_absent'   => Products::STATUS_NEEDS_PLAN,
 			'none/off'             => Products::STATUS_NEEDS_PLAN,
 			'none/on'              => Products::STATUS_NEEDS_PLAN,
-			'bundle/plugin_absent' => Products::STATUS_MODULE_DISABLED,
-			'bundle/off'           => Products::STATUS_MODULE_DISABLED,
+			'bundle/plugin_absent' => Products::STATUS_ACTIVE,
+			'bundle/off'           => Products::STATUS_ACTIVE,
 			'bundle/on'            => Products::STATUS_ACTIVE,
-			'direct/plugin_absent' => Products::STATUS_MODULE_DISABLED,
-			'direct/off'           => Products::STATUS_MODULE_DISABLED,
+			'direct/plugin_absent' => Products::STATUS_ACTIVE,
+			'direct/off'           => Products::STATUS_ACTIVE,
 			'direct/on'            => Products::STATUS_ACTIVE,
 		),
 		'boost'         => array(
