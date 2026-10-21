@@ -123,7 +123,7 @@ class Protect extends Hybrid_Product {
 	 *
 	 * Not with the standalone plugin active: the page module would take over that plugin's dashboard (see JETPACK-3062).
 	 *
-	 * @since $$next-version$$
+	 * @since 6.12.0
 	 *
 	 * @return string
 	 */
@@ -137,7 +137,7 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Leave the standalone plugin alone where the Jetpack plugin already delivers the Protect page.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.12.0
 	 *
 	 * @return bool
 	 */
@@ -150,7 +150,7 @@ class Protect extends Hybrid_Product {
 	 *
 	 * Not Modules::is_module(): it passes any slug.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.12.0
 	 *
 	 * @return bool
 	 */
@@ -499,7 +499,7 @@ class Protect extends Hybrid_Product {
 	 *
 	 * Screens that would offer one of these settings link there instead.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.12.0
 	 *
 	 * @return array<string, string> Settings URLs keyed by module slug; empty without the dashboard.
 	 */

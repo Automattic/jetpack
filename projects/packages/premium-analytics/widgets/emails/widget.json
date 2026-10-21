@@ -8,6 +8,24 @@
 	},
 	"category": "stats",
 	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "metric",
+			"type": "jpa/select",
+			"label": "View by",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "opens",
+					"label": "Opened"
+				},
+				{
+					"value": "clicks",
+					"label": "Clicked"
+				}
+			]
+		}
+	],
 	"actions": [
 		{
 			"id": "view-all",

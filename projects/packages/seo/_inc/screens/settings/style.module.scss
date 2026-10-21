@@ -27,6 +27,15 @@
 	font-variant-numeric: tabular-nums;
 }
 
+// Past what search displays, then at the field's cap.
+.charCountWarn {
+	color: var(--wpds-color-foreground-content-warning-weak);
+}
+
+.charCountMax {
+	color: var(--wpds-color-foreground-content-error-weak);
+}
+
 // The "while it's off" list in the Advanced module. Body text, not the muted
 // explainer style — these are consequences to read, not hints about a field.
 // wp-admin's `ul { list-style: none; }` (common.css) strips the markers. It's

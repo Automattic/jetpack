@@ -6,7 +6,11 @@ import {
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { usePeriodHost, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import {
+	DashboardWidgetHostProvider,
+	usePeriodHost,
+	useReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
 import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import {
 	DateFiltersPanel,
@@ -35,17 +39,14 @@ import { useDateWindowNotice } from '../date-window-notice';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
-import { AnalyticsWidgetHostProvider } from '../widget-host';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
+	DashboardNotices,
 	DashboardSections,
 	FeedbackBanner,
 	OnboardingTour,
 	onboardingTourSteps,
-	hasPurchaseSuccess,
 	LockedSection,
-	PlanLimitNotice,
-	PurchaseSuccessNotice,
 	RefreshFailureNotice,
 	SectionNotice,
 	SectionSyncNotice,
@@ -478,7 +479,7 @@ function Dashboard(): JSX.Element {
 				dateLimits={ dateLimits }
 			>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
-				<AnalyticsWidgetHostProvider>
+				<DashboardWidgetHostProvider>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
 							widgetTypes={ widgetTypes }
@@ -543,14 +544,7 @@ function Dashboard(): JSX.Element {
 											{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
 											{ activeSection === section.slug && isSectionCommitted ? (
 												<div className={ styles.body }>
-													{ /* A checkout return holds the plan limit notice back for the
-													     whole load, even once dismissed. */ }
-													{ ! editMode &&
-														( hasPurchaseSuccess() ? (
-															<PurchaseSuccessNotice />
-														) : (
-															<PlanLimitNotice />
-														) ) }
+													{ ! editMode && <DashboardNotices /> }
 
 													{ /* Behind the onboarding journey: it introduces the tabs
 													     the banner asks about. */ }
@@ -615,7 +609,7 @@ function Dashboard(): JSX.Element {
 							</Page>
 						</WidgetDashboard>
 					</WidgetDashboard.Policy>
-				</AnalyticsWidgetHostProvider>
+				</DashboardWidgetHostProvider>
 			</ReportScopeProvider>
 		</>
 	);
