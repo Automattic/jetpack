@@ -109,7 +109,7 @@
 		"require-from-string": "2.0.2",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"storybook": "10.4.6",
+		"storybook": "10.6.2",
 		"typescript": "6.0.3",
 		"webpack": "5.111.1",
 		"webpack-cli": "7.2.1"

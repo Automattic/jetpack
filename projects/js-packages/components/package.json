@@ -137,7 +137,7 @@
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
 		"require-from-string": "2.0.2",
-		"storybook": "10.4.6",
+		"storybook": "10.6.2",
 		"ts-dedent": "2.2.0",
 		"typescript": "6.0.3",
 		"webpack": "5.111.1",

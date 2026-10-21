@@ -130,7 +130,7 @@
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
 		"sass-embedded": "1.97.3",
-		"storybook": "10.4.6",
+		"storybook": "10.6.2",
 		"tsdown": "0.23.1",
 		"typescript": "6.0.3"
 	},

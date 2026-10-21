@@ -68,7 +68,7 @@
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
 		"semver": "7.7.3",
-		"storybook": "10.4.6",
+		"storybook": "10.6.2",
 		"stylelint": "17.14.1",
 		"stylelint-config-recommended": "18.0.0",
 		"stylelint-config-recommended-scss": "17.0.1",
