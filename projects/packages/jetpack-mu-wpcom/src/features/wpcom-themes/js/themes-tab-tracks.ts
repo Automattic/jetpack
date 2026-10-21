@@ -45,13 +45,21 @@ export function clickEvent( dataset: DOMStringMap ):
  * @param track - Records one Tracks event.
  */
 export function trackThemesTab( doc: Document, track: Track ) {
-	// On the document: the links are created as cards render, long after this runs.
-	doc.addEventListener( 'click', event => {
+	const onClick = ( event: MouseEvent ) => {
+		// A middle-click opens checkout in a new tab and fires only auxclick; skip right-clicks.
+		if ( event.type === 'auxclick' && event.button !== 1 ) {
+			return;
+		}
+
 		const link = ( event.target as Element ).closest< HTMLElement >( 'a[data-wpcom-themes-track]' );
 		const tracked = link ? clickEvent( link.dataset ) : null;
 
 		if ( tracked ) {
 			track( ...tracked );
 		}
-	} );
+	};
+
+	// On the document, as the links are created as cards render; capturing, so no handler can stop it.
+	doc.addEventListener( 'click', onClick, true );
+	doc.addEventListener( 'auxclick', onClick, true );
 }

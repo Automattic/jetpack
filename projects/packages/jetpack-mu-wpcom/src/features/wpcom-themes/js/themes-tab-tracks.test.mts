@@ -55,23 +55,26 @@ describe( 'clickEvent', () => {
 } );
 
 describe( 'trackThemesTab', () => {
-	it( 'records a click inside a tracked link, and nothing for anywhere else', () => {
-		type OnClick = ( event: { target: unknown } ) => void;
+	it( 'records clicks and middle-clicks on a tracked link, and nothing else', () => {
+		type OnClick = ( event: { type: string; button: number; target: unknown } ) => void;
 
 		const events: unknown[] = [];
-		let onClick: OnClick | undefined;
+		const handlers: Record< string, OnClick > = {};
 		const doc = {
-			addEventListener: ( _type: string, handler: OnClick ) => ( onClick = handler ),
+			addEventListener: ( type: string, handler: OnClick, capture: boolean ) => {
+				assert.equal( capture, true, `${ type } listens while capturing` );
+				handlers[ type ] = handler;
+			},
 		} as unknown as Document;
-		const link = {
-			dataset: { wpcomThemesTrack: 'upgrade', theme: 'organic-stax', context: 'card' },
-		};
+		const onLink = { closest: () => ( { dataset: { wpcomThemesTrack: 'upgrade', theme: 'x' } } ) };
 
 		trackThemesTab( doc, ( ...event ) => events.push( event ) );
-		onClick?.( { target: { closest: () => link } } );
-		onClick?.( { target: { closest: () => null } } );
+		handlers.click( { type: 'click', button: 0, target: onLink } );
+		handlers.auxclick( { type: 'auxclick', button: 1, target: onLink } );
+		handlers.auxclick( { type: 'auxclick', button: 2, target: onLink } );
+		handlers.click( { type: 'click', button: 0, target: { closest: () => null } } );
 
-		assert.equal( events.length, 1 );
-		assert.equal( ( events[ 0 ] as unknown[] )[ 0 ], 'wpcom_marketplace_tab_theme_purchase_click' );
+		assert.equal( events.length, 2 );
+		assert.equal( ( events[ 1 ] as unknown[] )[ 0 ], 'wpcom_marketplace_tab_theme_purchase_click' );
 	} );
 } );
