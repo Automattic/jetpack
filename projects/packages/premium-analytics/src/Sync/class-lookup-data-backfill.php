@@ -197,14 +197,23 @@ class Lookup_Data_Backfill {
 	}
 
 	/**
-	 * Forget a started run whose full sync another one replaced, or settle one whose end the tracker missed.
+	 * Forget a run whose action is gone or whose full sync another one replaced, or settle one whose end the tracker missed.
 	 *
 	 * @param array|mixed $state Stored backfill state.
 	 * @return bool Whether the run was forgotten, so a new one can be scheduled.
 	 */
 	private function forget_lost_run( $state ): bool {
-		if ( ! is_array( $state ) || empty( $state['started_at'] ) ) {
+		if ( ! is_array( $state ) ) {
 			return false;
+		}
+
+		if ( empty( $state['started_at'] ) ) {
+			// A canceled or failed action leaves nothing to start the run.
+			if ( ! function_exists( 'as_has_scheduled_action' ) || as_has_scheduled_action( self::START_HOOK ) ) {
+				return false;
+			}
+			delete_option( self::STATE_OPTION );
+			return true;
 		}
 
 		$status = $this->get_full_sync_status();

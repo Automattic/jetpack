@@ -379,6 +379,31 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	}
 
 	/**
+	 * @dataProvider provide_scheduled_run
+	 * @param bool $pending Whether the run's action is still pending.
+	 */
+	#[DataProvider( 'provide_scheduled_run' )]
+	public function test_releases_a_scheduled_run_whose_action_is_gone( bool $pending ) {
+		self::record_earlier_syncs();
+		self::set_scheduled_state();
+		if ( $pending ) {
+			as_schedule_single_action( time(), Lookup_Data_Backfill::START_HOOK, array( 0 ) );
+		}
+
+		$this->backfill()->maybe_schedule();
+
+		$this->assertCount( 1, self::scheduled_hooks() );
+		$this->assertSame( $pending, 1730000000 === get_option( Lookup_Data_Backfill::STATE_OPTION )['scheduled_at'], 'only a gone action gets a new run' );
+	}
+
+	public static function provide_scheduled_run() {
+		return array(
+			'action pending' => array( true ),
+			'action gone'    => array( false ),
+		);
+	}
+
+	/**
 	 * @dataProvider provide_started_run
 	 * @param array $status   Stored full sync status.
 	 * @param bool  $running  Whether a full sync is running.
