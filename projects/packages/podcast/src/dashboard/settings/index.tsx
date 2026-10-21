@@ -1,9 +1,6 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	Button,
-	Card,
-	CardBody,
-	CardHeader,
 	FormTokenField,
 	Modal,
 	Notice,
@@ -19,6 +16,7 @@ import {
 } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 import CategoryPicker from '../category-picker';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
 import { getValidationIssues } from '../hooks/use-validation-issues';
@@ -334,7 +332,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 
 	return (
 		<VStack
-			spacing={ 5 }
+			spacing={ 4 }
 			className="podcast__settings"
 			onFocus={ rememberFocus }
 			onBlur={ forgetFocus }
@@ -350,11 +348,11 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 				</Notice>
 			) }
 
-			<Card>
-				<CardHeader>
-					<h2 className="podcast__section-heading">{ __( 'Post category', 'jetpack-podcast' ) }</h2>
-				</CardHeader>
-				<CardBody>
+			<Card.Root>
+				<Card.Header>
+					<Card.Title render={ <h2 /> }>{ __( 'Post category', 'jetpack-podcast' ) }</Card.Title>
+				</Card.Header>
+				<Card.Content>
 					<VStack spacing={ 3 }>
 						<Text variant="muted">
 							{ __(
@@ -368,14 +366,14 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							disabled={ isLocked }
 						/>
 					</VStack>
-				</CardBody>
-			</Card>
+				</Card.Content>
+			</Card.Root>
 
-			<Card>
-				<CardHeader>
-					<h2 className="podcast__section-heading">{ __( 'Show details', 'jetpack-podcast' ) }</h2>
-				</CardHeader>
-				<CardBody>
+			<Card.Root>
+				<Card.Header>
+					<Card.Title render={ <h2 /> }>{ __( 'Show details', 'jetpack-podcast' ) }</Card.Title>
+				</Card.Header>
+				<Card.Content>
 					<VStack spacing={ 4 }>
 						<Text variant="muted">
 							{ __(
@@ -419,14 +417,14 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							{ ...copyrightField }
 						/>
 					</VStack>
-				</CardBody>
-			</Card>
+				</Card.Content>
+			</Card.Root>
 
-			<Card>
-				<CardHeader>
-					<h2 className="podcast__section-heading">{ __( 'Feed settings', 'jetpack-podcast' ) }</h2>
-				</CardHeader>
-				<CardBody>
+			<Card.Root>
+				<Card.Header>
+					<Card.Title render={ <h2 /> }>{ __( 'Feed settings', 'jetpack-podcast' ) }</Card.Title>
+				</Card.Header>
+				<Card.Content>
 					<VStack spacing={ 4 }>
 						<Text variant="muted">
 							{ __(
@@ -507,16 +505,16 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							{ ...feedLimitField }
 						/>
 					</VStack>
-				</CardBody>
-			</Card>
+				</Card.Content>
+			</Card.Root>
 
-			<Card>
-				<CardHeader>
-					<h2 className="podcast__section-heading">
+			<Card.Root>
+				<Card.Header>
+					<Card.Title render={ <h2 /> }>
 						{ __( 'Stop publishing your podcast', 'jetpack-podcast' ) }
-					</h2>
-				</CardHeader>
-				<CardBody>
+					</Card.Title>
+				</Card.Header>
+				<Card.Content>
 					<VStack spacing={ 3 } alignment="flex-start">
 						<Text variant="muted">
 							{ __(
@@ -534,8 +532,8 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							{ __( 'Stop publishing', 'jetpack-podcast' ) }
 						</Button>
 					</VStack>
-				</CardBody>
-			</Card>
+				</Card.Content>
+			</Card.Root>
 
 			{ confirmDisable && (
 				<Modal

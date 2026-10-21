@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/canonical-urls.php';
 
 /**
@@ -480,5 +482,34 @@ class Jetpack_Canonical_Urls_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'paged=2', $url );
 		$this->assertStringNotContainsString( 'utm_source', $url );
 		$this->assertStringNotContainsString( 'fbclid', $url );
+	}
+
+	/**
+	 * Test that the conflict check disables output only for a conflicting plugin or an earlier filter.
+	 *
+	 * @dataProvider conflict_check_provider
+	 *
+	 * @param bool     $disabled       Value from earlier filters.
+	 * @param string[] $active_plugins Active plugin paths.
+	 * @param bool     $expected       Expected result.
+	 */
+	#[DataProvider( 'conflict_check_provider' )]
+	public function test_conflict_check( $disabled, $active_plugins, $expected ) {
+		update_option( 'active_plugins', $active_plugins );
+
+		$this->assertSame( $expected, jetpack_canonical_urls_check_conflicts( $disabled ) );
+	}
+
+	/**
+	 * Data provider for test_conflict_check.
+	 *
+	 * @return array[]
+	 */
+	public static function conflict_check_provider() {
+		return array(
+			'no SEO plugin'    => array( false, array( 'akismet/akismet.php' ), false ),
+			'Yoast active'     => array( false, array( 'wordpress-seo/wp-seo.php' ), true ),
+			'already disabled' => array( true, array(), true ),
+		);
 	}
 }
