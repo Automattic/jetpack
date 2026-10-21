@@ -2,7 +2,6 @@ import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { Badge, Button, Icon, Link, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useProductsByOwnership from '../../../data/products/use-products-by-ownership';
 import { getStatusLabel, getStatusTone } from '../../product-card/status';
@@ -19,7 +18,7 @@ export type OverviewItemBadge = {
 
 export type OverviewItemLink = {
 	label: string;
-	href: string;
+	href?: string;
 	onClick?: () => void;
 };
 
@@ -57,12 +56,10 @@ const useStatusBadge = ( slug: JetpackModuleWithCard ): OverviewItemBadge => {
 	} = useProductsByOwnership();
 	const status = detail?.status;
 	const isOwned = !! ownedProducts?.includes( slug );
-	// Protect reports found threats as "needs attention", but its value already shows them.
-	const suppressNeedsAttention = slug === PRODUCT_SLUGS.PROTECT;
 
 	return {
-		label: getStatusLabel( status, isOwned, suppressNeedsAttention ),
-		intent: TONE_INTENTS[ getStatusTone( status, isOwned, suppressNeedsAttention ) ],
+		label: getStatusLabel( status, isOwned, false ),
+		intent: TONE_INTENTS[ getStatusTone( status, isOwned, false ) ],
 	};
 };
 
@@ -90,7 +87,12 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	const productLinks: ReactNode[] = [];
 	if ( admin && action ) {
 		productLinks.push(
-			<Link key="action" href={ action.href } onClick={ action.onClick }>
+			<Link
+				key="action"
+				{ ...( action.href
+					? { href: action.href, onClick: action.onClick }
+					: { render: <Button variant="unstyled" onClick={ action.onClick } /> } ) }
+			>
 				{ action.label }
 			</Link>
 		);

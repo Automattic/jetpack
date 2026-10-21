@@ -1,10 +1,11 @@
 import { getScoreTier } from '@automattic/jetpack-boost-score-api';
 import { __ } from '@wordpress/i18n';
-import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../../constants';
+import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import OverviewItem from '../overview-item';
 import useOverviewLoadEvent from '../overview-item/use-overview-load-event';
+import useStatusAction from '../overview-item/use-status-action';
 import useBoostSpeedScore from './use-boost-speed-score';
 import type { OverviewItemLink, OverviewItemProps } from '../overview-item';
 import type { ProductCardComponent } from '../types';
@@ -35,14 +36,16 @@ const BoostOverviewItem: ProductCardComponent = ( { admin } ) => {
 	// A disconnected site has no score to fetch, so it shows Boost's status instead of a failure.
 	const hasFailed = isSpeedScoreError && isSiteConnected;
 
-	const getAction = (): OverviewItemLink => {
+	const { action: statusAction, isPending: isStatusActionPending } = useStatusAction(
+		PRODUCT_SLUGS.BOOST,
+		__( 'Activate to optimize', 'jetpack-my-jetpack' )
+	);
+
+	const getAction = (): OverviewItemLink | undefined => {
 		if ( isActive && manageUrl ) {
 			return { label: __( 'Optimize speed', 'jetpack-my-jetpack' ), href: manageUrl };
 		}
-		return {
-			label: __( 'Activate to optimize', 'jetpack-my-jetpack' ),
-			href: `#${ MyJetpackRoutes.AddBoost }`,
-		};
+		return statusAction;
 	};
 
 	return (
@@ -55,7 +58,7 @@ const BoostOverviewItem: ProductCardComponent = ( { admin } ) => {
 				currentSpeedScore === null ? undefined : TIER_TONES[ getScoreTier( currentSpeedScore ) ]
 			}
 			action={ getAction() }
-			isLoading={ isScoreLoading }
+			isLoading={ isScoreLoading || isStatusActionPending }
 			loadingLabel={ __( 'Calculating…', 'jetpack-my-jetpack' ) }
 			error={
 				hasFailed
