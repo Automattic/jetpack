@@ -1551,10 +1551,13 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const disconnectSiteRef = useRef( null );
 	const disconnectAccountRef = useRef( null );
 
-	// Same shape as ManageConnectionDialog passes. Memoized so the dialog's analytics effect doesn't re-fire.
+	// Analytics identity must be the WordPress.com account, not the local one; unset when not connected.
 	const disconnectDialogUser = useMemo(
-		() => ( { ID: currentUser?.id, login: currentUser?.username } ),
-		[ currentUser?.id, currentUser?.username ]
+		() =>
+			currentUser?.isConnected
+				? { ID: currentUser.wpcomUser?.ID, login: currentUser.wpcomUser?.login }
+				: {},
+		[ currentUser?.isConnected, currentUser?.wpcomUser?.ID, currentUser?.wpcomUser?.login ]
 	);
 
 	const executeUnlinkUser = async () => {
