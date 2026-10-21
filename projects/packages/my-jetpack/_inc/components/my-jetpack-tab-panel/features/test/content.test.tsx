@@ -725,6 +725,20 @@ describe( 'FeaturesContent after connecting the account', () => {
 		expect( requests() ).toEqual( [] );
 	} );
 
+	it( 'forgets the click on a return with the flag off, so a reload with it on turns nothing on', () => {
+		mockStates = [ monitor ];
+		const id = rememberConnectIntent( 'monitor' );
+		setFlag( false );
+		renderAt( `/features?connect_intent=${ id }` ).unmount();
+
+		// A reload of the same return URL is a new page load.
+		resetConnectIntentForTests();
+		setFlag( true );
+		renderAt( `/features?connect_intent=${ id }` );
+
+		expect( requests() ).toEqual( [] );
+	} );
+
 	it( 'still turns the feature on once when the mount that decided goes away first', () => {
 		const id = rememberConnectIntent( 'monitor' );
 		const wrapper = ( { children }: { children: React.ReactNode } ) => (

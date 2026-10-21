@@ -133,18 +133,17 @@ export function useConnectResume( states: FeatureState[], ready: boolean ): Feat
 	const connected = useAccountConnected();
 	const [ , setDecided ] = useState( false );
 
-	if ( enabled ) {
-		takeConnectIntent( returnId );
-	}
+	// Forget the click even with resuming off, so turning it on and reloading cannot replay it.
+	takeConnectIntent( returnId );
 
 	// Keeps the id out of the address bar and out of links copied from it.
 	useEffect( () => {
-		if ( enabled && returnId ) {
+		if ( returnId ) {
 			const next = new URLSearchParams( searchParams );
 			next.delete( CONNECT_INTENT_PARAM );
 			setSearchParams( next, { replace: true } );
 		}
-	}, [ enabled, returnId, searchParams, setSearchParams ] );
+	}, [ returnId, searchParams, setSearchParams ] );
 
 	useEffect( () => {
 		if ( ! enabled || ! ready || ! taken ) {
