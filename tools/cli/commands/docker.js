@@ -1071,6 +1071,75 @@ const execDockerCmdHandler = argv => {
 };
 
 /**
+ * Checks whether a dotted version is at least a minimum version.
+ *
+ * @param {string} version - Version to check, e.g. "8.3.12".
+ * @param {string} minimum - Minimum version, e.g. "8.2".
+ * @return {boolean} True if version >= minimum.
+ */
+export const isVersionAtLeast = ( version, minimum ) => {
+	const a = String( version ).split( '.' ).map( Number );
+	const b = String( minimum ).split( '.' ).map( Number );
+	for ( let i = 0; i < Math.max( a.length, b.length ); i++ ) {
+		const diff = ( a[ i ] || 0 ) - ( b[ i ] || 0 );
+		if ( diff !== 0 ) {
+			return diff > 0;
+		}
+	}
+	return true;
+};
+
+/**
+ * Exits unless the running WordPress container's PHP meets the tunnel minimum.
+ *
+ * @param {object} argv - Yargs object
+ */
+const assertTunnelPhpVersion = argv => {
+	const minimum = buildEnv( argv ).MIN_PHP_VERSION_TUNNEL;
+	if ( ! minimum ) {
+		return;
+	}
+
+	const ps = spawnSync(
+		'docker',
+		[
+			'ps',
+			'--filter',
+			`label=com.docker.compose.project=${ getProjectName( argv ) }`,
+			'--filter',
+			'label=com.docker.compose.service=wordpress',
+			'--filter',
+			'status=running',
+			'--format',
+			'{{.ID}}',
+		],
+		{ encoding: 'utf8' }
+	);
+	const container = ps.stdout?.trim().split( '\n' )[ 0 ];
+	if ( ! container ) {
+		return; // Not running; the tunnel failure path reports that.
+	}
+
+	const php = spawnSync( 'docker', [ 'exec', container, 'php', '-r', 'echo PHP_VERSION;' ], {
+		encoding: 'utf8',
+	} );
+	const version = php.stdout?.trim();
+	if ( php.status !== 0 || ! version ) {
+		console.error( chalk.red( 'Unable to determine the PHP version in the Docker container.' ) );
+		process.exit( 1 );
+	}
+
+	if ( ! isVersionAtLeast( version, minimum ) ) {
+		console.error(
+			chalk.red(
+				`Refusing to open a tunnel: the container runs PHP ${ version }, but PHP ${ minimum } or newer is required (MIN_PHP_VERSION_TUNNEL in .github/versions.sh).`
+			)
+		);
+		process.exit( 1 );
+	}
+};
+
+/**
  * Execution handler for Jurassic Tube commands
  *
  * @param {object} argv - Yargs object
@@ -1102,6 +1171,8 @@ const execJtCmdHandler = argv => {
 			);
 			process.exit( dockerPs.status );
 		}
+
+		assertTunnelPhpVersion( argv );
 
 		cmd = jtTunnelFile;
 		console.warn(
