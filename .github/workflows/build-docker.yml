@@ -4,6 +4,8 @@ on:
     branches: [ 'trunk' ]
     paths:
       - 'tools/docker/Dockerfile'
+      - 'tools/docker/bin/check-php-version.sh'
+      - 'tools/docker/bin/ensure-php-version.sh'
       - 'tools/docker/bin/run.sh'
       - 'tools/docker/config/*'
       - '.github/versions.sh'
@@ -11,6 +13,8 @@ on:
   pull_request:
     paths:
       - 'tools/docker/Dockerfile'
+      - 'tools/docker/bin/check-php-version.sh'
+      - 'tools/docker/bin/ensure-php-version.sh'
       - 'tools/docker/bin/run.sh'
       - 'tools/docker/config/*'
       - '.github/versions.sh'

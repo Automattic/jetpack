@@ -19,6 +19,7 @@ WORKDIR /app
 
 # Combine all repository setup, package installation, and cleanup into one layer
 RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
+    --mount=type=bind,source=./bin/check-php-version.sh,target=/usr/local/bin/check-php-version.sh \
     # Setup repositories and keys
     apt-get update && apt-get install -y curl gpg language-pack-en-base lsb-release ca-certificates \
     && curl -fsSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb \
@@ -65,6 +66,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
         locales \
         libatomic1 \
         "nodejs$(apt-cache show nodejs | sed -n "/^Version: ${NODE_VERSION}-/ { s/^Version: /=/p; q }" )" \
+    && check-php-version.sh "$PHP_VERSION" \
     # Cleanup
     && apt-get remove --purge -y python3-apt \
     && apt-get remove --purge --auto-remove -y gpg \

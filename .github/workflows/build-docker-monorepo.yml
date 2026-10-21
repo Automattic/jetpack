@@ -5,12 +5,14 @@ on:
     paths:
       - 'tools/docker/Dockerfile.monorepo'
       - 'tools/docker/bin/monorepo'
+      - 'tools/docker/bin/check-php-version.sh'
       - '.github/versions.sh'
       - '.github/workflows/build-docker-monorepo.yml'
   pull_request:
     paths:
       - 'tools/docker/Dockerfile.monorepo'
       - 'tools/docker/bin/monorepo'
+      - 'tools/docker/bin/check-php-version.sh'
       - '.github/versions.sh'
       - '.github/workflows/build-docker-monorepo.yml'
   workflow_dispatch:
