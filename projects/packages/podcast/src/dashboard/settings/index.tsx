@@ -235,19 +235,15 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		normalizeFeedLimit
 	);
 
-	const draftRef = useRef( draft );
-	draftRef.current = draft;
-
 	// Discrete choices show the new value right away instead of snapping back
 	// to the saved one until the request returns, and roll back if it fails.
 	const commitChoice = useCallback(
 		( updates: PodcastSettingsUpdate ) => {
-			const saved = draftRef.current;
-			if ( ! saved ) {
+			if ( ! draft ) {
 				return;
 			}
 			const previous = Object.fromEntries(
-				Object.keys( updates ).map( key => [ key, saved[ key as keyof PodcastSettings ] ] )
+				Object.keys( updates ).map( key => [ key, draft[ key as keyof PodcastSettings ] ] )
 			) as PodcastSettingsUpdate;
 			setDraft( current => current && { ...current, ...updates } );
 			saveSettings( updates, {
@@ -255,7 +251,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 				onError: () => setDraft( current => current && { ...current, ...previous } ),
 			} );
 		},
-		[ saveSettings ]
+		[ draft, saveSettings ]
 	);
 
 	// Discrete-action handlers — these controls "commit" on each user choice
