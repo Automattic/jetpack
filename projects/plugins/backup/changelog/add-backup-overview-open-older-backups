@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Activity Log: Link backup dates to that backup in the Backup dashboard, which now opens any backup from a link, not only those on the activity page it shows.
