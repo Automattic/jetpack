@@ -96,11 +96,18 @@ export function KnownThreatsBadge( { activity }: { activity: Activity } ) {
  * range-less payloads like `post__published`. Plugs into DataViews'
  * `descriptionField` slot for the Activity layout.
  *
- * @param props          - Component props.
- * @param props.activity - Normalized Activity for the current log row.
+ * @param props                  - Component props.
+ * @param props.activity         - Normalized Activity for the current log row.
+ * @param props.withThreatsBadge - Whether to end with the Known threats badge.
  * @return The description element, or null when the activity has none.
  */
-export function ActivityEventDescription( { activity }: { activity: Activity } ) {
+export function ActivityEventDescription( {
+	activity,
+	withThreatsBadge = true,
+}: {
+	activity: Activity;
+	withThreatsBadge?: boolean;
+} ) {
 	const { activityDescription, activityObject } = activity;
 	const hasRanges = activityDescription.items.some(
 		item => typeof item === 'object' && item !== null && 'type' in item
@@ -115,7 +122,7 @@ export function ActivityEventDescription( { activity }: { activity: Activity } )
 	return (
 		<span>
 			{ objectHref ? <a href={ objectHref }>{ formattedContent }</a> : formattedContent }
-			<KnownThreatsBadge activity={ activity } />
+			{ withThreatsBadge && <KnownThreatsBadge activity={ activity } /> }
 		</span>
 	);
 }
@@ -141,7 +148,9 @@ export function ActivityEvent( { activity }: { activity: Activity } ) {
 				className="site-activity-logs__event-content"
 			>
 				<ActivityEventTitle activity={ activity } />
-				<ActivityEventDescription activity={ activity } />
+				<ActivityEventDescription activity={ activity } withThreatsBadge={ false } />
+				{ /* Wraps onto its own line, starting under the title. */ }
+				<KnownThreatsBadge activity={ activity } />
 			</HStack>
 		</HStack>
 	);
