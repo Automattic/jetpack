@@ -111,11 +111,8 @@ function load_assets( $attr, $content ) {
 	 */
 	$content = add_css_fallback_values( $content );
 
-	return sprintf(
-		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
-		$content
-	);
+	// The saved markup already carries the block classes; a wrapper would take core's Custom CSS class instead of the banner.
+	return $content;
 }
 
 /**
@@ -155,10 +152,45 @@ function render_cookie_consent_template() {
 	$parsed = parse_blocks( $template );
 	if ( ! empty( $parsed[0] ) ) {
 		$parsed[0]['attrs']['render_from_template'] = true;
+
+		$custom_css_before = get_custom_css_rules();
 		echo render_block( $parsed[0] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		print_late_custom_css_rules( $custom_css_before );
 	}
 }
 add_action( 'wp_footer', __NAMESPACE__ . '\render_cookie_consent_template' );
+
+/**
+ * Get the block Custom CSS rules queued so far (WordPress 7.0+).
+ *
+ * @since $$next-version$$
+ *
+ * @return string[] Rules, empty when the core handle is not in use.
+ */
+function get_custom_css_rules() {
+	$rules = wp_styles()->get_data( 'wp-block-custom-css', 'after' );
+	return is_array( $rules ) ? $rules : array();
+}
+
+/**
+ * Print Custom CSS rules queued since the snapshot, if the core handle already printed in the head.
+ *
+ * The banner renders in the footer, too late for rules it queues to print on their own.
+ *
+ * @since $$next-version$$
+ *
+ * @param string[] $rules_before Rules from get_custom_css_rules() before the render.
+ */
+function print_late_custom_css_rules( $rules_before ) {
+	if ( ! wp_style_is( 'wp-block-custom-css', 'done' ) ) {
+		return;
+	}
+
+	$new_rules = array_diff( get_custom_css_rules(), $rules_before );
+	if ( $new_rules ) {
+		echo '<style id="jetpack-cookie-consent-custom-css">' . wp_strip_all_tags( implode( '', $new_rules ) ) . '</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+}
 
 /**
  * Register cookie_consent_template setting
