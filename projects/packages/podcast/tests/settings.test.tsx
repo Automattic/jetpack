@@ -4,22 +4,21 @@ import SettingsTab from '../src/dashboard/settings';
 
 const mockMutate = jest.fn();
 
+const mockSaved = {
+	podcasting_category_id: 5,
+	podcasting_title: 'Show',
+	podcasting_summary: '',
+	podcasting_talent_name: '',
+	podcasting_copyright: '',
+	podcasting_email: '',
+	podcasting_explicit: false,
+	podcasting_image: '',
+	podcasting_image_id: 0,
+	podcasting_feed_limit: 10,
+};
+
 jest.mock( '../src/dashboard/hooks/use-podcast-settings', () => ( {
-	usePodcastSettings: () => ( {
-		data: {
-			podcasting_category_id: 5,
-			podcasting_title: 'Show',
-			podcasting_summary: '',
-			podcasting_talent_name: '',
-			podcasting_copyright: '',
-			podcasting_email: '',
-			podcasting_explicit: false,
-			podcasting_image: '',
-			podcasting_image_id: 0,
-			podcasting_feed_limit: 10,
-		},
-		isLoading: false,
-	} ),
+	usePodcastSettings: () => ( { data: mockSaved, isLoading: false } ),
 	useUpdatePodcastSettings: () => ( { mutate: mockMutate, isPending: false } ),
 } ) );
 
@@ -39,6 +38,7 @@ jest.mock( '../src/dashboard/category-picker', () => {
 			>
 				<option value="5">Episodes</option>
 				<option value="7">Shows</option>
+				<option value="9">Talks</option>
 			</select>
 		),
 	};
@@ -86,6 +86,18 @@ describe( 'SettingsTab post category', () => {
 		expect( screen.getByRole( 'combobox', { name: 'Post category' } ) ).toHaveValue( '5' );
 	} );
 
+	it( 'shows the saved category once the save succeeds', async () => {
+		const user = userEvent.setup();
+		mockMutate.mockImplementation( ( _updates, callbacks ) =>
+			callbacks?.onSuccess?.( { ...mockSaved, podcasting_category_id: 7 } )
+		);
+		render( <SettingsTab /> );
+
+		await user.selectOptions( screen.getByRole( 'combobox', { name: 'Post category' } ), '7' );
+
+		expect( screen.getByRole( 'combobox', { name: 'Post category' } ) ).toHaveValue( '7' );
+	} );
+
 	it( 'goes back to the saved category when two quick changes both fail', async () => {
 		const user = userEvent.setup();
 		const pending = [];
@@ -94,9 +106,13 @@ describe( 'SettingsTab post category', () => {
 		const picker = screen.getByRole( 'combobox', { name: 'Post category' } );
 
 		await user.selectOptions( picker, '7' );
-		await user.selectOptions( picker, '5' );
-		act( () => pending.forEach( callbacks => callbacks.onError( new Error( 'nope' ) ) ) );
+		await user.selectOptions( picker, '9' );
 
+		// The first failure must not undo the newer pick that is still saving.
+		act( () => pending[ 0 ].onError( new Error( 'nope' ) ) );
+		expect( picker ).toHaveValue( '9' );
+
+		act( () => pending[ 1 ].onError( new Error( 'nope' ) ) );
 		expect( picker ).toHaveValue( '5' );
 	} );
 } );

@@ -248,15 +248,22 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		( updates: PodcastSettingsUpdate ) => {
 			setDraft( current => current && { ...current, ...updates } );
 			saveSettings( updates, {
-				onSuccess: setDraft,
+				onSuccess: record => {
+					savedSettings.current = record;
+					setDraft( record );
+				},
 				onError: () =>
 					setDraft( current => {
 						const saved = savedSettings.current;
 						if ( ! current || ! saved ) {
 							return current;
 						}
+						// Leave a key alone once the user has picked something newer;
+						// that choice's own save decides what it ends up as.
 						const restored = Object.fromEntries(
-							Object.keys( updates ).map( key => [ key, saved[ key as keyof PodcastSettings ] ] )
+							( Object.keys( updates ) as ( keyof PodcastSettings )[] )
+								.filter( key => current[ key ] === updates[ key ] )
+								.map( key => [ key, saved[ key ] ] )
 						);
 						return { ...current, ...restored };
 					} ),

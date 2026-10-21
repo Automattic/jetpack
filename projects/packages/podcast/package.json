@@ -24,7 +24,7 @@
 		"build:wp-build": "wp-build",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run build:strip-unminified-prod",
 		"clean": "rm -rf build/ dist/",
-		"test": "jest --config=tests/jest.config.js --passWithNoTests",
+		"test": "jest --config=tests/jest.config.js",
 		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:watch:wp-build'",
 		"watch:wp-build": "wp-build --watch"
 	},
