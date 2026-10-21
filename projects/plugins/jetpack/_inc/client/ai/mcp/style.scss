@@ -90,7 +90,7 @@
 
 	// Hashed class name on the description: match its stable suffix.
 	&__tool-switch [class*="__description"] {
-		margin-block-start: var(--wpds-dimension-gap-sm);
+		margin-block-start: var(--wpds-dimension-gap-xs);
 		line-height: 18px;
 	}
 
