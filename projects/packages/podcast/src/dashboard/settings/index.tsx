@@ -246,11 +246,21 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	// to the saved one until the request returns, and roll back if it fails.
 	const commitChoice = useCallback(
 		( updates: PodcastSettingsUpdate ) => {
+			const keys = Object.keys( updates ) as ( keyof PodcastSettings )[];
+			// Keys the user has picked again since this save started. Their own
+			// save decides what they end up as, so this one leaves them alone.
+			const newerPicks = ( current: PodcastSettings ) =>
+				Object.fromEntries(
+					keys
+						.filter( key => current[ key ] !== updates[ key ] )
+						.map( key => [ key, current[ key ] ] )
+				);
+
 			setDraft( current => current && { ...current, ...updates } );
 			saveSettings( updates, {
 				onSuccess: record => {
 					savedSettings.current = record;
-					setDraft( record );
+					setDraft( current => ( current ? { ...record, ...newerPicks( current ) } : record ) );
 				},
 				onError: () =>
 					setDraft( current => {
@@ -258,14 +268,8 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 						if ( ! current || ! saved ) {
 							return current;
 						}
-						// Leave a key alone once the user has picked something newer;
-						// that choice's own save decides what it ends up as.
-						const restored = Object.fromEntries(
-							( Object.keys( updates ) as ( keyof PodcastSettings )[] )
-								.filter( key => current[ key ] === updates[ key ] )
-								.map( key => [ key, saved[ key ] ] )
-						);
-						return { ...current, ...restored };
+						const restored = Object.fromEntries( keys.map( key => [ key, saved[ key ] ] ) );
+						return { ...current, ...restored, ...newerPicks( current ) };
 					} ),
 			} );
 		},
@@ -477,7 +481,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 									__nextHasNoMarginBottom
 									__experimentalExpandOnFocus
 									__experimentalValidateInput={ isKnownTopic }
-									__experimentalShowHowTo={ false }
+									help=""
 									label={ __( 'Podcast topics', 'jetpack-podcast' ) }
 									value={ draftTopics }
 									suggestions={ TOPIC_SUGGESTIONS }

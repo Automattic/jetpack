@@ -49,12 +49,6 @@ jest.mock( '../src/dashboard/settings/cover-image-control', () => ( {
 	default: () => null,
 } ) );
 
-// The topics field passes a deprecated FormTokenField prop, which warns; it isn't under test here.
-jest.mock( '@wordpress/components', () => ( {
-	...jest.requireActual( '@wordpress/components' ),
-	FormTokenField: () => null,
-} ) );
-
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: () => ( { podcast: {} } ),
 } ) );
@@ -96,6 +90,23 @@ describe( 'SettingsTab post category', () => {
 		await user.selectOptions( screen.getByRole( 'combobox', { name: 'Post category' } ), '7' );
 
 		expect( screen.getByRole( 'combobox', { name: 'Post category' } ) ).toHaveValue( '7' );
+	} );
+
+	it( 'keeps a newer pick when an older save succeeds', async () => {
+		const user = userEvent.setup();
+		const pending = [];
+		mockMutate.mockImplementation( ( _updates, callbacks ) => pending.push( callbacks ) );
+		render( <SettingsTab /> );
+		const picker = screen.getByRole( 'combobox', { name: 'Post category' } );
+
+		await user.selectOptions( picker, '7' );
+		await user.selectOptions( picker, '9' );
+
+		act( () => pending[ 0 ].onSuccess( { ...mockSaved, podcasting_category_id: 7 } ) );
+		expect( picker ).toHaveValue( '9' );
+
+		act( () => pending[ 1 ].onSuccess( { ...mockSaved, podcasting_category_id: 9 } ) );
+		expect( picker ).toHaveValue( '9' );
 	} );
 
 	it( 'goes back to the saved category when two quick changes both fail', async () => {
