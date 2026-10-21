@@ -49,7 +49,7 @@ describe( 'FeatureVariant', () => {
 		[ 'likes', 'block_call_to_action', [ 'Add the Like block to your theme’s template.' ], null ],
 		[ 'likes', 'off', [ 'Like buttons are turned off for this site.' ], 'Turn on Like buttons' ],
 	] as [ Feature, SectionState, string[], string | null ][] )(
-		'%s %s',
+		'%s %s, on a server that does not offer the placements',
 		( feature, state, texts, button ) => {
 			renderWithData(
 				<FeatureVariant feature={ feature } state={ state }>

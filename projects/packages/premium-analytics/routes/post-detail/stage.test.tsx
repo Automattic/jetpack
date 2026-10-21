@@ -192,6 +192,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 
 jest.mock( '@wordpress/widget-primitives', () => ( {
 	useWidgetTypes: () => [ [], false ],
+	WidgetHostProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {

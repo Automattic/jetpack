@@ -63,12 +63,19 @@ export default function ProductInterstitial( {
 } ) {
 	const { detail } = useProduct( slug );
 	const { detail: proDetail } = useProduct( 'pro' );
+	const { detail: legacyBundleDetail } = useProduct( bundle );
 	const proIsOnSale = proDetail?.pricingForUi?.catalogAvailable === true;
+	const legacyIsRetired = legacyBundleDetail?.pricingForUi?.available === false;
 	const preferredBundle =
 		proDetail?.pricingForUi?.available === true && ! proDetail?.hasPaidPlanForProduct
 			? 'pro'
 			: 'complete';
-	const offeredBundle = bundle && proIsOnSale ? preferredBundle : bundle;
+	const fallbackBundle =
+		legacyIsRetired && ! legacyBundleDetail?.hasPaidPlanForProduct
+			? legacyBundleDetail?.purchaseReplacement?.slug
+			: bundle;
+	const offeredBundle = bundle && proIsOnSale ? preferredBundle : fallbackBundle;
+	const showSidebar = ! bundle || Boolean( offeredBundle || children );
 	const { detail: bundleDetail } = useProduct( offeredBundle );
 	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 
@@ -88,7 +95,9 @@ export default function ProductInterstitial( {
 		redirectUri,
 	} );
 	const showBundledTOS =
-		! hideTOS && !! bundle && ( ! proIsOnSale || bundleDetail?.pricingForUi?.available === true );
+		! hideTOS &&
+		!! bundle &&
+		( ! ( proIsOnSale || legacyIsRetired ) || bundleDetail?.pricingForUi?.available === true );
 	const productName = detail?.title;
 	const bundleName = bundleDetail?.title;
 	const bundledTosLabels = [
@@ -228,7 +237,7 @@ export default function ProductInterstitial( {
 						horizontalGap={ 0 }
 						fluid
 					>
-						<Col sm={ 4 } md={ 4 } lg={ 7 }>
+						<Col sm={ 4 } md={ showSidebar ? 4 : 8 } lg={ showSidebar ? 7 : 12 }>
 							<ProductDetailCard
 								slug={ slug }
 								trackButtonClick={ trackProductOrBundleClick }
@@ -244,29 +253,30 @@ export default function ProductInterstitial( {
 								isFetchingSuccess={ isSuccess }
 							/>
 						</Col>
-						<Col
-							sm={ 4 }
-							md={ 4 }
-							lg={ 5 }
-							className={ clsx( styles.imageContainer, imageContainerClassName ) }
-						>
-							{ bundle ? (
-								<ProductDetailCard
-									slug={ offeredBundle }
-									trackButtonClick={ trackProductOrBundleClick }
-									onClick={ clickHandler }
-									className={ isUpgradableByBundle ? styles.container : null }
-									hideTOS={ hideTOS || showBundledTOS }
-									quantity={ quantity }
-									highlightLastFeature={ highlightLastFeature }
-									isFetching={ isActivating }
-									isFetchingSuccess={ isSuccess }
-									isUpsell={ true }
-								/>
-							) : (
-								children
-							) }
-						</Col>
+						{ showSidebar && (
+							<Col
+								sm={ 4 }
+								md={ 4 }
+								lg={ 5 }
+								className={ clsx( styles.imageContainer, imageContainerClassName ) }
+							>
+								{ bundle && offeredBundle && (
+									<ProductDetailCard
+										slug={ offeredBundle }
+										trackButtonClick={ trackProductOrBundleClick }
+										onClick={ clickHandler }
+										className={ isUpgradableByBundle ? styles.container : null }
+										hideTOS={ hideTOS || showBundledTOS }
+										quantity={ quantity }
+										highlightLastFeature={ highlightLastFeature }
+										isFetching={ isActivating }
+										isFetchingSuccess={ isSuccess }
+										isUpsell={ true }
+									/>
+								) }
+								{ ! offeredBundle && children }
+							</Col>
+						) }
 					</Container>
 				</Col>
 				<Col>
