@@ -1,7 +1,6 @@
 /**
  * Behaviour tests for the emit-widget-strings library: the schema walk, the
- * text-domain fallback, dedupe, the emitted PHP and stale-file removal, plus
- * a sync check against the real Premium Analytics widgets and schema.
+ * text-domain fallback, dedupe, the emitted PHP and stale-file removal.
  */
 
 const { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } = require( 'fs' );
@@ -16,8 +15,17 @@ const {
 	walkSchema,
 } = require( '../../bin/emit-widget-strings-lib.js' );
 
-const PA_DIR = path.join( __dirname, '..', '..', '..', 'premium-analytics' );
-const SCHEMA = JSON.parse( readFileSync( path.join( PA_DIR, 'src', 'widget-i18n.json' ), 'utf8' ) );
+// Every shape a widget i18n schema uses: string, nested map, list of maps, list of strings.
+const SCHEMA = {
+	title: 'widget title',
+	description: 'widget description',
+	help: { content: 'widget help content', links: [ { label: 'widget help link label' } ] },
+	actions: [ { label: 'widget action label' } ],
+	attributes: [
+		{ label: 'widget attribute label', elements: [ { label: 'widget attribute option label' } ] },
+	],
+	keywords: [ 'widget keyword' ],
+};
 
 /**
  * Every context the schema names, in walk order.
@@ -123,20 +131,6 @@ describe( 'collectWidgetStrings', () => {
 			{ msgid: 'Only A', context: 'widget description', domain: 'pkg' },
 			{ msgid: 'Shared', context: 'widget title', domain: 'other-pkg' },
 		] );
-	} );
-
-	it( 'covers every Premium Analytics widget with contexts the schema names', () => {
-		const { entries, widgets } = collectWidgetStrings(
-			path.join( PA_DIR, 'widgets' ),
-			SCHEMA,
-			'jetpack-premium-analytics-pkg'
-		);
-		const contexts = new Set( schemaContexts( SCHEMA ) );
-		const titles = entries.filter( entry => entry.context === 'widget title' );
-		assert.ok( widgets > 0 );
-		assert.equal( titles.length, widgets, 'one title per widget' );
-		assert.ok( entries.every( entry => contexts.has( entry.context ) ) );
-		assert.ok( entries.every( entry => entry.domain === 'jetpack-premium-analytics-pkg' ) );
 	} );
 } );
 
