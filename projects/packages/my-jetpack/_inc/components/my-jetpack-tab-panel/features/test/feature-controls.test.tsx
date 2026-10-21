@@ -474,17 +474,26 @@ describe( 'FeatureItem', () => {
 	);
 
 	it.each( [
-		[ 'a switch', false, 'Manage Firewall in Protect' ],
-		[ 'nothing, for a module a host forced on,', 'active' as const, 'Configure Firewall' ],
-	] )( 'links to the Protect page in place of %s', ( _, override, linkName ) => {
+		[ 'a switch', false, 'Manage Firewall in Protect', false, 'active' ],
+		[ 'a switch, flag on, while on,', false, 'Manage Firewall in Protect', true, 'active' ],
+		[ 'a switch, flag on, while off,', false, 'Manage Firewall in Protect', true, 'inactive' ],
+		[
+			'nothing, for a module a host forced on,',
+			'active' as const,
+			'Configure Firewall',
+			false,
+			'active',
+		],
+	] )( 'links to the Protect page in place of %s', ( _, override, linkName, flag, status ) => {
 		const previousInitial = window.myJetpackInitialState;
 		window.myJetpackInitialState = {
 			protectPageModuleUrls: { waf: 'admin.php?page=jetpack-protect&p=firewall' },
+			myJetpackFlags: { accountConnect: flag },
 		} as unknown as typeof previousInitial;
 		const waf = {
 			module: 'waf',
 			available: true,
-			activated: true,
+			activated: status === 'active',
 			override,
 			configure_url: 'admin.php?page=jetpack-protect&p=firewall',
 		} as MyJetpackModule;
@@ -494,7 +503,7 @@ describe( 'FeatureItem', () => {
 				<FeatureItem
 					state={ buildState(
 						{ kind: 'module', module: waf },
-						{ status: 'active', feature: buildFeature( { slug: 'waf', name: 'Firewall' } ) }
+						{ status, feature: buildFeature( { slug: 'waf', name: 'Firewall' } ) }
 					) }
 				/>
 			);
@@ -508,6 +517,8 @@ describe( 'FeatureItem', () => {
 		);
 		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		// The link cannot say whether the module is on, so the badge does.
+		expect( screen.getByText( status === 'active' ? 'Active' : 'Inactive' ) ).toBeInTheDocument();
 	} );
 
 	const forcedOn = buildState( { kind: 'module', module: forcedModule }, { status: 'active' } );

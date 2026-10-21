@@ -106,7 +106,12 @@ export function FeatureItem( {
 	// says what to do there and drops a status badge that would only confuse next to it.
 	const migration =
 		state.control.kind === 'module' ? getBlockThemeMigration( state.control.module ) : null;
-	const statusLabel = migration ? null : getFeatureStatusLabel( state );
+	// Manage in Protect stands in for the switch but cannot say whether the module is on.
+	const linksToProtect =
+		state.control.kind === 'module' &&
+		! getForcedReason( state ) &&
+		Boolean( getProtectPageUrl( state.control.module.module ) );
+	const statusLabel = migration ? null : getFeatureStatusLabel( state, linksToProtect );
 	// A card with details keeps its manage link in the modal; the stretched title would cover one here.
 	// A migration notice says the legacy settings no longer apply, so it gets no link either.
 	const settingsUrl =
