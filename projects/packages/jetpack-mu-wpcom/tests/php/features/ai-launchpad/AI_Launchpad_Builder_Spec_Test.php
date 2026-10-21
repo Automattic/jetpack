@@ -107,7 +107,7 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The description is the spec's description, topic and goals, in that order.
+	 * The description is the spec's description, topic and goals, else its title and type.
 	 *
 	 * @dataProvider provide_descriptions
 	 *
@@ -128,7 +128,7 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_descriptions() {
 		return array(
-			'with a topic'           => array(
+			'with a topic'             => array(
 				array(
 					'siteType'        => 'business',
 					'siteDescription' => 'A bakery.',
@@ -136,7 +136,7 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 				),
 				"A bakery.\nTopic: Baking",
 			),
-			'with the General topic' => array(
+			'with the General topic'   => array(
 				array(
 					'siteType'        => 'business',
 					'siteDescription' => 'A bakery.',
@@ -144,7 +144,7 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 				),
 				'A bakery.',
 			),
-			'with goals'             => array(
+			'with goals'               => array(
 				array(
 					'siteType'        => 'business',
 					'siteDescription' => 'A bakery.',
@@ -152,7 +152,7 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 				),
 				"A bakery.\nGoals: sell_services; get_bookings",
 			),
-			'with a topic and goals' => array(
+			'with a topic and goals'   => array(
 				array(
 					'siteType'        => 'business',
 					'siteDescription' => 'A bakery.',
@@ -161,12 +161,26 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 				),
 				"A bakery.\nTopic: Baking\nGoals: get_bookings",
 			),
-			'with only a topic'      => array(
+			'with only a topic'        => array(
 				array(
 					'siteType' => 'business',
 					'topic'    => 'Baking',
 				),
 				'Topic: Baking',
+			),
+			'with nothing to describe' => array(
+				array(
+					'siteType' => 'business',
+					'topic'    => 'General',
+				),
+				'business',
+			),
+			'with only a title'        => array(
+				array(
+					'siteType'  => 'business',
+					'siteTitle' => 'Acme',
+				),
+				'Acme (business)',
 			),
 		);
 	}
@@ -231,21 +245,9 @@ class AI_Launchpad_Builder_Spec_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * No spec, or nothing to describe, means no input.
+	 * No spec means no input.
 	 */
-	public function test_builder_input_is_null_without_a_usable_spec() {
-		$this->assertNull( wpcom_ai_launchpad_builder_input() );
-
-		update_option(
-			'big_sky_site_metadata',
-			wp_json_encode(
-				array(
-					'siteType' => 'business',
-					'topic'    => 'General',
-				),
-				JSON_UNESCAPED_SLASHES
-			)
-		);
+	public function test_builder_input_is_null_without_a_spec() {
 		$this->assertNull( wpcom_ai_launchpad_builder_input() );
 	}
 

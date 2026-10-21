@@ -318,7 +318,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 							'default'     => false,
 						),
 						'auto_tailor' => array(
-							'description' => 'Whether this load may claim the automatic tailoring run of an AI-built site.',
+							'description' => 'Whether this load may claim the automatic tailoring run of an AI-built site. A successful claim also records the inferred wizard answers, so the read has side effects.',
 							'type'        => 'boolean',
 							'default'     => false,
 						),
@@ -1363,6 +1363,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			}
 		}
 
+		// Tailoring follows the live spec; a saved list follows its own flag (is_list_ai_built).
 		if ( wpcom_ai_launchpad_is_ai_built() ) {
 			$excluded = array_merge( $excluded, self::AI_BUILT_EXCLUDED_TASK_IDS );
 		}

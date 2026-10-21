@@ -592,7 +592,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_goal_from_builder_spec' ) ) {
 
 if ( ! function_exists( 'wpcom_ai_launchpad_builder_input' ) ) {
 	/**
-	 * The wizard input inferred from the builder spec, or null when there is nothing to describe.
+	 * The wizard input inferred from the builder spec, or null when the site is not AI-built.
 	 *
 	 * @return array|null An array with goal, site_name and description.
 	 */
@@ -617,10 +617,12 @@ if ( ! function_exists( 'wpcom_ai_launchpad_builder_input' ) ) {
 		}
 
 		$description = trim( implode( "\n", $lines ) );
-		$description = function_exists( 'mb_substr' ) ? mb_substr( $description, 0, 1000, 'UTF-8' ) : substr( $description, 0, 1000 );
+		// The spec always has a siteType, so an AI-built site never falls back to the wizard.
 		if ( '' === $description ) {
-			return null;
+			$title       = isset( $spec['siteTitle'] ) && is_string( $spec['siteTitle'] ) ? trim( $spec['siteTitle'] ) : '';
+			$description = '' === $title ? $spec['siteType'] : $title . ' (' . $spec['siteType'] . ')';
 		}
+		$description = function_exists( 'mb_substr' ) ? mb_substr( $description, 0, 1000, 'UTF-8' ) : substr( $description, 0, 1000 );
 
 		$site_name = trim( wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES ) );
 		if ( '' === $site_name && isset( $spec['siteTitle'] ) && is_string( $spec['siteTitle'] ) ) {

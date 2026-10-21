@@ -131,6 +131,15 @@ describe( 'waitForTailoring', () => {
 		assert.equal( timeouts, 1 );
 		assert.equal( settled, false );
 	} );
+
+	it( 'hands over to onTimeout as soon as nothing is pending', async () => {
+		const { options, calls } = harness( [ data( {} ), data( { auto_tailoring: true } ) ] );
+		let timeouts = 0;
+		waitForTailoring( COPY, { ...options, onTimeout: () => timeouts++ } );
+		await new Promise( resolve => setImmediate( resolve ) );
+		assert.equal( calls.fetches, 1 );
+		assert.equal( timeouts, 1 );
+	} );
 } );
 
 describe( 'releaseClaimOnLeave', () => {

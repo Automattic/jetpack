@@ -98,6 +98,10 @@ export async function waitForTailoring(
 		if ( input ) {
 			return releaseClaimOnLeave( tailorFn( input, copy, true ) );
 		}
+		if ( ! data.auto_tailoring ) {
+			// Nothing is pending anymore (dismissed elsewhere, or no claimable spec).
+			break;
+		}
 	}
 	onTimeout();
 	return new Promise< TailorResult >( () => {} );
