@@ -199,6 +199,27 @@ class Stats_Links_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Core fires the action for every denied admin page, so anything but the retired Stats page passes through.
+	 */
+	public function test_other_denied_pages_are_left_alone() {
+		$this->login_as( 'administrator' );
+		$_GET['page']                         = 'stats';
+		$_GET[ Stats_Links::ROUTE_QUERY_ARG ] = '#!/stats/day/123';
+		$GLOBALS['_parent_pages']['stats']    = false;
+		add_filter(
+			'wp_redirect',
+			/** @return never */
+			static function ( $location ) {
+				throw new \RuntimeException( $location );
+			}
+		);
+
+		$this->expectNotToPerformAssertions();
+
+		Stats_Links::open_retired_stats_page();
+	}
+
+	/**
 	 * Data for test_retired_stats_page_opens_the_matching_route.
 	 *
 	 * @return array
