@@ -65,6 +65,7 @@ describe( 'getAvailableUpgradeTiers', () => {
 		expect( views( tiers ) ).toEqual( [ 250000, 500000, 1000000, 2000000, 3000000, 4000000 ] );
 		expect( tiers[ 0 ].upgradePrice ).toBe( 10000 );
 		expect( tiers[ 4 ] ).toMatchObject( { price: 120000, upgradePrice: 100000 } );
+		expect( tiers[ 5 ].perUnitFee ).toBe( 25000 );
 	} );
 
 	it( 'does not count the views a bundled plan adds as a purchased tier', () => {

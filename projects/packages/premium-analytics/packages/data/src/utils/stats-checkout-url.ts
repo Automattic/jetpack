@@ -1,6 +1,6 @@
 const STATS_COMMERCIAL_PRODUCT = 'jetpack_stats_yearly';
 
-export type StatsCheckoutUrlOptions = {
+type StatsCheckoutUrlOptions = {
 	/** The monthly views limit to buy. */
 	quantity: number;
 	adminUrl: string;

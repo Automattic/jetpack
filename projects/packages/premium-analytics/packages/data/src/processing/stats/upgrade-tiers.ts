@@ -19,7 +19,7 @@ export type StatsUpgradeTier = {
 	price: number;
 	/** What the upgrade costs on top of the current purchase; 0 when the site has none. */
 	upgradePrice: number;
-	/** The yearly fee per extra million views, set on the open-ended tier only. */
+	/** The yearly fee per extra million views, set on the open-ended tier and its steps. */
 	perUnitFee?: number;
 	/** Views per extension step, set on the open-ended tier only. */
 	extensionStep?: number;
@@ -100,6 +100,7 @@ function withExtensionTiers( tiers: StatsUpgradeTier[], usage: PlanUsage ): Stat
 			views: highest.views + step * extensionStep,
 			price,
 			upgradePrice: purchasedPrice > 0 ? price - purchasedPrice : 0,
+			perUnitFee: highest.perUnitFee,
 		} );
 	}
 
