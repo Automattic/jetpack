@@ -839,6 +839,12 @@ class Jetpack_Mu_Wpcom {
 	 * Load Verbum Comments.
 	 */
 	public static function load_verbum_comments() {
+		// public-api boots on its own blog, so decide once the request has switched to its target.
+		if ( 'public-api.wordpress.com' === wp_parse_url( home_url(), PHP_URL_HOST ) ) {
+			add_action( 'rest_api_switched_to_blog', array( __CLASS__, 'load_verbum_comments' ) );
+			return;
+		}
+
 		if ( class_exists( 'Verbum_Comments' ) ) {
 			return;
 		} else {

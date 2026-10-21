@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep the blocks in comments saved by other editors and the REST API, so their headings no longer turn into bold paragraphs.

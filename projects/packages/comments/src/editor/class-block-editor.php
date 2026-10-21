@@ -15,13 +15,6 @@ use Automattic\Jetpack\Assets;
 class Block_Editor {
 
 	/**
-	 * The field each host of this editor posts with the comment, so blocks from other clients are not pruned.
-	 *
-	 * @var string
-	 */
-	const FIELD = 'jetpack_comments_editor';
-
-	/**
 	 * Singleton instance.
 	 *
 	 * @var Block_Editor|null
@@ -35,13 +28,6 @@ class Block_Editor {
 	 * @var bool
 	 */
 	private $has_blocks = false;
-
-	/**
-	 * Whether that comment came from this editor, and so has its blocks pruned to the ones it offers.
-	 *
-	 * @var bool
-	 */
-	private $from_editor = false;
 
 	/**
 	 * Register the hooks. Safe to call more than once.
@@ -141,10 +127,8 @@ class Block_Editor {
 	 */
 	public function keep_allowed_blocks( $content ) {
 		$this->has_blocks = self::is_enabled() && has_blocks( $content );
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only decides whether the blocks are pruned.
-		$this->from_editor = $this->has_blocks && isset( $_REQUEST[ self::FIELD ] );
 
-		if ( ! $this->from_editor ) {
+		if ( ! $this->has_blocks ) {
 			return $content;
 		}
 
@@ -158,12 +142,11 @@ class Block_Editor {
 	 * @return string
 	 */
 	public function forget_blocks( $content ) {
-		if ( $this->from_editor && ( has_block( 'core/embed', $content ) || has_block( 'core/image', $content ) ) ) {
+		if ( $this->has_blocks && ( has_block( 'core/embed', $content ) || has_block( 'core/image', $content ) ) ) {
 			$content = wp_slash( serialize_blocks( self::restore( parse_blocks( wp_unslash( $content ) ) ) ) );
 		}
 
-		$this->has_blocks  = false;
-		$this->from_editor = false;
+		$this->has_blocks = false;
 
 		return $content;
 	}
@@ -207,9 +190,8 @@ class Block_Editor {
 			return $tags;
 		}
 
-		$tags = (array) $tags;
-
-		foreach (
+		return array_merge(
+			(array) $tags,
 			array(
 				'p'          => array(),
 				'br'         => array(),
@@ -229,13 +211,8 @@ class Block_Editor {
 				),
 				'figure'     => array( 'class' => array( 'values' => array( 'wp-block-embed', 'wp-block-image' ) ) ),
 				'div'        => array( 'class' => array( 'values' => array( 'wp-block-embed__wrapper' ) ) ),
-			) as $tag => $attributes
-		) {
-			// The host's own rules win, so a wider allowlist such as P2's is not narrowed.
-			$tags[ $tag ] = (array) ( $tags[ $tag ] ?? array() ) + $attributes;
-		}
-
-		return $tags;
+			)
+		);
 	}
 
 	/**
