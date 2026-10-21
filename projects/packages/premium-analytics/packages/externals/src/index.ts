@@ -85,6 +85,7 @@ export {
 	Meter,
 	Notice,
 	Popover,
+	Progress,
 	RangeCalendar,
 	SearchableChipSelectControl,
 	SelectControl,

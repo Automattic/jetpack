@@ -280,6 +280,18 @@ export type StatsVideoPlaysComparisonItem = any;
 export declare const EarningsHistoryList: AnyComponent;
 export declare function flattenEarningsBreakdown( ...args: any[] ): any;
 
-// UI primitives the widgets share with the dashboard, so no widget bundles its own copy.
+// UI primitives the widgets share with the dashboard, so no widget bundles its own copy. They go
+// the day `@wordpress/ui` ships as a script module and wp-build externalizes it on its own.
 export declare const Badge: AnyComponent;
+export declare const Button: AnyComponent;
+export declare const ButtonLink: AnyComponent;
+export declare const Progress: {
+	Root: AnyComponent;
+	Track: AnyComponent;
+	Indicator: AnyComponent;
+	Label: AnyComponent;
+	Value: AnyComponent;
+};
 export declare const Stack: AnyComponent;
+export declare const Text: AnyComponent;
+export declare const VisuallyHidden: AnyComponent;
