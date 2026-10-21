@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-arKRDc7iy+qLpd+z5esSTot1u/0AN/U327aGpZdOV10=
+pnpmfileChecksum: sha256-g855moOG05hFgvAbq1GwpCJL8P6YnPKcErX0MZKNSIU=
 
 patchedDependencies:
   '@wordpress/build': 151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022
@@ -7499,7 +7499,7 @@ packages:
   '@automattic/launchpad@1.3.1':
     resolution: {integrity: sha512-39/AsGpkp/2ZeE2geHligAfslr5KQvK446JnO4kTAbEEHjPveSqrzoiseG93rW1dQWxzVangFSS+Esckw8D8iw==}
     peerDependencies:
-      '@wordpress/i18n': ^6.21.0
+      '@wordpress/i18n': ^6.21.0 || ^7.0.0
       react: ^18.3.1 || ^19.0.0
       react-dom: ^18.3.1 || ^19.0.0
 
@@ -11452,7 +11452,7 @@ packages:
     engines: {node: '>=22.13.0'}
     hasBin: true
     peerDependencies:
-      '@wordpress/theme': '>=0.8.0 <3.0.0'
+      '@wordpress/theme': '>=0.8.0 <=3.0.0'
     peerDependenciesMeta:
       '@wordpress/theme':
         optional: true
@@ -15813,7 +15813,7 @@ packages:
   newspack-icons@1.2.0:
     resolution: {integrity: sha512-Hqz0StNPHQ+U2e7RMwEoTi9vvX2CgwpcsQ9UQVNo7ARXRY9TfXDsMf2gdA8haHmcW9S9g90vV5G9ENLpA+v+1Q==}
     peerDependencies:
-      '@wordpress/primitives': ^3.0.0 || ^4.0.0
+      '@wordpress/primitives': ^3.0.0 || ^4.0.0 || ^5.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
 
   no-case@3.0.4:
