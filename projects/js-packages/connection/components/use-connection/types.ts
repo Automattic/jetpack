@@ -49,6 +49,8 @@ export interface UserConnectionData {
 		/** The viewer's local email address. */
 		email?: string;
 		isMaster?: boolean;
+		/** The viewer's capabilities, as `REST_Connector::get_user_connection_data()` sends them. */
+		permissions?: Record< string, boolean >;
 		possibleAccountErrors?: Record< string, unknown >;
 		[ key: string ]: unknown;
 	};

@@ -4,27 +4,14 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { Modal } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
-import useRestApiInit from '../../hooks/use-rest-api-init';
-import { STORE_ID } from '../../state/store';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
 import DisconnectActionFooter from '../shared/disconnect-action-footer';
-
-type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
-
-interface CurrentUserConnectionData {
-	/** Whether the user is the connection owner. */
-	isMaster?: boolean;
-	/** The user's capabilities. */
-	permissions?: {
-		manage_options?: boolean;
-	};
-}
+import useConnection from '../use-connection';
 
 export interface DisconnectUserDialogProps {
 	/** Whether the dialog is open. */
@@ -70,16 +57,13 @@ const DisconnectUserDialog = ( {
 	const disconnectingText = __( 'Disconnecting…', 'jetpack-connection-js' );
 	const disconnectText = __( 'Disconnect', 'jetpack-connection-js' );
 
-	useRestApiInit( apiRoot, apiNonce );
+	// The hook seeds the REST API singleton from these values, so the dialog needs no
+	// initializer of its own.
+	const { userConnectionData } = useConnection( { apiRoot, apiNonce } );
+	const currentUser = userConnectionData?.currentUser;
 
-	const currentUser = useSelect( ( select: StoreSelector ) => {
-		const data = select( STORE_ID ).getUserConnectionData() as
-			{ currentUser?: CurrentUserConnectionData } | false;
-		return data ? data.currentUser || {} : {};
-	}, [] );
-
-	const isAdmin = !! currentUser.permissions?.manage_options;
-	const isOwner = !! currentUser.isMaster;
+	const isAdmin = !! currentUser?.permissions?.manage_options;
+	const isOwner = !! currentUser?.isMaster;
 
 	const handleDisconnect = useCallback( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_manage_connection_dialog_disconnect_user_click', {
