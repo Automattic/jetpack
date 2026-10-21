@@ -427,7 +427,17 @@ class Admin_Menu_Test extends TestCase {
 
 		require_once __DIR__ . '/stubs/class-akismet-admin.php';
 
-		wp_set_current_user( self::$admin_user_id );
+		// PHPUnit 9 does not run setUpBeforeClass() in the child process, so make the admin here.
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'akismet_order_admin',
+					'user_pass'  => 'pass',
+					'user_email' => 'akismet_order_admin@example.com',
+					'role'       => 'administrator',
+				)
+			)
+		);
 
 		// The Jetpack plugin fires jetpack_admin_menu at 998, before Admin_Menu registers at 1000.
 		add_action(
