@@ -109,6 +109,22 @@ describe( 'SettingsTab post category', () => {
 		expect( picker ).toHaveValue( '9' );
 	} );
 
+	it( 'rolls back to the value an earlier save confirmed when a newer save fails', async () => {
+		const user = userEvent.setup();
+		const pending = [];
+		mockMutate.mockImplementation( ( _updates, callbacks ) => pending.push( callbacks ) );
+		render( <SettingsTab /> );
+		const picker = screen.getByRole( 'combobox', { name: 'Post category' } );
+
+		await user.selectOptions( picker, '7' );
+		await user.selectOptions( picker, '9' );
+
+		act( () => pending[ 0 ].onSuccess( { ...mockSaved, podcasting_category_id: 7 } ) );
+		act( () => pending[ 1 ].onError( new Error( 'nope' ) ) );
+
+		expect( picker ).toHaveValue( '7' );
+	} );
+
 	it( 'goes back to the saved category when two quick changes both fail', async () => {
 		const user = userEvent.setup();
 		const pending = [];
