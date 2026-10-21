@@ -95,7 +95,7 @@ function newsletter_dev_mock_wpcom_response( $response, $args, $url ) {
 			$compiled = array();
 			foreach ( $fixtures as $pattern => $fixture ) {
 				$regex = '#' . str_replace( '#', '\\#', $pattern ) . '#';
-				if ( false === preg_match( $regex, '' ) ) {
+				if ( false === preg_match( $regex, $path ) ) {
 					error_log( "newsletter-dev-mock: invalid pattern in fixtures.json: $pattern" );
 					continue;
 				}
