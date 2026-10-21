@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { Badge, Button, Icon, Link, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
+import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useProductsByOwnership from '../../../data/products/use-products-by-ownership';
@@ -19,8 +20,9 @@ export type OverviewItemBadge = {
 
 export type OverviewItemLink = {
 	label: string;
-	href: string;
+	href?: string;
 	onClick?: () => void;
+	ariaLabel?: string;
 };
 
 export type OverviewItemProps = {
@@ -35,6 +37,7 @@ export type OverviewItemProps = {
 	isLoading?: boolean;
 	loadingLabel?: string;
 	error?: { reason: string; onRetry: () => void };
+	forcedOffReason?: string | null;
 };
 
 const TONE_INTENTS: Record< StatusTone, BadgeIntent > = {
@@ -45,24 +48,47 @@ const TONE_INTENTS: Record< StatusTone, BadgeIntent > = {
 };
 
 /**
- * The product's own status as a badge, for an item that has no value to show.
+ * Whether the product is working, so its item needs no status badge beside its value.
+ *
+ * @param {JetpackModuleWithCard} slug   - The product slug.
+ * @param {string | undefined}    status - The product status, undefined while it loads.
+ * @return {boolean} Whether the product is working.
+ */
+export const isHealthyStatus = ( slug: JetpackModuleWithCard, status?: string ): boolean => {
+	switch ( status ) {
+		case undefined:
+		case PRODUCT_STATUSES.ACTIVE:
+		case PRODUCT_STATUSES.CAN_UPGRADE:
+			return true;
+		// Protect reports found threats as "needs attention", but its value already shows them.
+		case PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING:
+		case PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR:
+			return slug === PRODUCT_SLUGS.PROTECT;
+		default:
+			return false;
+	}
+};
+
+/**
+ * The product's own status as a badge, and whether the product is working.
  *
  * @param {JetpackModuleWithCard} slug - The product slug.
- * @return {OverviewItemBadge} The badge.
+ * @return {{badge: OverviewItemBadge, isHealthy: boolean}} The badge and whether the product is working.
  */
-const useStatusBadge = ( slug: JetpackModuleWithCard ): OverviewItemBadge => {
+const useStatusBadge = ( slug: JetpackModuleWithCard ) => {
 	const { detail } = useProduct( slug );
 	const {
 		data: { ownedProducts },
 	} = useProductsByOwnership();
 	const status = detail?.status;
 	const isOwned = !! ownedProducts?.includes( slug );
-	// Protect reports found threats as "needs attention", but its value already shows them.
-	const suppressNeedsAttention = slug === PRODUCT_SLUGS.PROTECT;
 
 	return {
-		label: getStatusLabel( status, isOwned, suppressNeedsAttention ),
-		intent: TONE_INTENTS[ getStatusTone( status, isOwned, suppressNeedsAttention ) ],
+		badge: {
+			label: getStatusLabel( status, isOwned, false ),
+			intent: TONE_INTENTS[ getStatusTone( status, isOwned, false ) ],
+		},
+		isHealthy: isHealthyStatus( slug, status ),
 	};
 };
 
@@ -84,13 +110,24 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	isLoading = false,
 	loadingLabel,
 	error,
+	forcedOffReason,
 } ) => {
-	const statusBadge = useStatusBadge( slug );
+	const { badge: ownStatusBadge, isHealthy } = useStatusBadge( slug );
+	const statusBadge: OverviewItemBadge = forcedOffReason
+		? { label: forcedOffReason, intent: 'medium' }
+		: ownStatusBadge;
+	const showsStatus = ! isHealthy || !! forcedOffReason;
 
 	const productLinks: ReactNode[] = [];
-	if ( admin && action ) {
+	if ( admin && action && ! forcedOffReason ) {
 		productLinks.push(
-			<Link key="action" href={ action.href } onClick={ action.onClick }>
+			<Link
+				key="action"
+				{ ...( action.href
+					? { href: action.href, onClick: action.onClick }
+					: { render: <Button variant="unstyled" onClick={ action.onClick } /> } ) }
+				aria-label={ action.ariaLabel }
+			>
 				{ action.label }
 			</Link>
 		);
@@ -124,10 +161,11 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 				{ valueTone && (
 					<span className={ clsx( styles.dot, styles[ `is-${ valueTone }` ] ) } aria-hidden />
 				) }
+				{ showsStatus && <Badge intent={ statusBadge.intent }>{ statusBadge.label }</Badge> }
 			</Stack>
 		);
 	} else {
-		const shownBadge = badge ?? statusBadge;
+		const shownBadge = showsStatus ? statusBadge : ( badge ?? statusBadge );
 		content = <Badge intent={ shownBadge.intent }>{ shownBadge.label }</Badge>;
 	}
 

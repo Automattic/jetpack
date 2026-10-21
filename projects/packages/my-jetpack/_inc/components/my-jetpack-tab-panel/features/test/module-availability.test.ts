@@ -1,6 +1,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { getModuleStatus } from '../module-availability';
+import { getModuleStatus, isFeatureAvailable } from '../module-availability';
 import type { MyJetpackModule } from '../../../../types';
+import type { FeatureState } from '../feature-state';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: jest.fn(),
@@ -42,4 +43,38 @@ describe( 'getModuleStatus', () => {
 			}
 		);
 	} );
+} );
+
+describe( 'isFeatureAvailable', () => {
+	afterEach( () => {
+		window.myJetpackInitialState.myJetpackFlags =
+			{} as typeof window.myJetpackInitialState.myJetpackFlags;
+	} );
+
+	const blockedPlugin = {
+		kind: 'install-plugin',
+		plugin: 'jetpack-boost',
+		blocked: 'not_permitted',
+	};
+	const blockedJetpack = { kind: 'install-jetpack', installed: false, blocked: 'not_permitted' };
+
+	it.each( [
+		[ 'off', 'plugin install', true, blockedPlugin ],
+		[ 'off', 'Jetpack install', true, blockedJetpack ],
+		[ 'on', 'plugin install', false, blockedPlugin ],
+	] as const )(
+		'with the account-connect flag %s, lists a blocked %s in Available: %s',
+		( flag, _, available, control ) => {
+			window.myJetpackInitialState.myJetpackFlags = {
+				accountConnect: flag === 'on',
+			} as typeof window.myJetpackInitialState.myJetpackFlags;
+			const state = {
+				feature: { slug: 'boost', name: 'Boost', plugin: 'jetpack-boost' },
+				status: 'inactive',
+				control,
+			} as FeatureState;
+
+			expect( isFeatureAvailable( state ) ).toBe( available );
+		}
+	);
 } );

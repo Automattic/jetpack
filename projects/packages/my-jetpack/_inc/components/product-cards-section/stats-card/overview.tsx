@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Link, Stack } from '@wordpress/ui';
 import { useCallback, useMemo } from 'react';
-import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../../constants';
+import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
@@ -12,6 +12,7 @@ import { getDetailedStatsHref, processStatsData, VISITS_OPTIONS } from '../../st
 import StatsCards from '../../stats-section/cards';
 import OverviewItem from '../overview-item';
 import useOverviewLoadEvent from '../overview-item/use-overview-load-event';
+import useStatusAction from '../overview-item/use-status-action';
 import type { ProductCardComponent } from '../types';
 
 const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
@@ -31,6 +32,10 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const isRetrying = isError && isFetching;
 	const isStatsLoading = isLoading || isRetrying;
 	useOverviewLoadEvent( PRODUCT_SLUGS.STATS, isActive && isStatsLoading );
+	const { action: statusAction, forcedOffReason } = useStatusAction(
+		PRODUCT_SLUGS.STATS,
+		__( 'Activate Stats', 'jetpack-my-jetpack' )
+	);
 
 	const onDetailedStatsClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_stats_card_seedetailedstats_click', {
@@ -54,7 +59,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 					hideTitle
 					chartBelowCounts
 				/>
-				{ admin && detailedStatsHref && (
+				{ detailedStatsHref && (
 					<div>
 						<Link href={ detailedStatsHref } onClick={ onDetailedStatsClick }>
 							{ __( 'More stats', 'jetpack-my-jetpack' ) }
@@ -71,14 +76,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 			slug={ PRODUCT_SLUGS.STATS }
 			admin={ admin }
 			label={ __( 'Views in the last 7 days', 'jetpack-my-jetpack' ) }
-			action={
-				isActive
-					? undefined
-					: {
-							label: __( 'Activate Stats', 'jetpack-my-jetpack' ),
-							href: `#${ MyJetpackRoutes.AddStats }`,
-						}
-			}
+			action={ isActive ? undefined : statusAction }
 			isLoading={ isActive && isStatsLoading }
 			error={
 				isActive && isError
@@ -88,6 +86,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 						}
 					: undefined
 			}
+			forcedOffReason={ forcedOffReason }
 		/>
 	);
 };

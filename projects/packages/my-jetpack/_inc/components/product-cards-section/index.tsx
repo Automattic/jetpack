@@ -11,7 +11,6 @@ import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
 import CrmCard from './crm-card';
-import OverviewSections from './overview-sections';
 import ProtectCard from './protect-card';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
@@ -149,15 +148,6 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 					<StatsSection />
 				</Col>
 			) }
-			{ overviewV1 && (
-				<OverviewSections
-					slugs={ slugs }
-					admin={ isAdmin }
-					showStats={ canUserViewStats }
-					isLoading={ isLoading }
-				/>
-			) }
-
 			<Container
 				className={ styles.cardlist }
 				tagName="ul"
@@ -200,10 +190,14 @@ interface ProductCardsSectionProps {
 
 const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } ) => {
 	const { filteredOwnedProducts, isLoading } = useFilteredProducts();
+	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+	const hasGridProducts = filteredOwnedProducts.some(
+		slug => ! overviewV1 || ! OVERVIEW_V1_SLUGS.includes( slug )
+	);
 
 	return (
 		<>
-			{ ( isLoading || filteredOwnedProducts.length > 0 ) && (
+			{ ( isLoading || hasGridProducts ) && (
 				<Container
 					horizontalSpacing={ 0 }
 					horizontalGap={ noticeMessage ? 3 : 6 }
