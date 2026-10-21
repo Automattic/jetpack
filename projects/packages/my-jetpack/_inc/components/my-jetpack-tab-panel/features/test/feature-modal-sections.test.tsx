@@ -91,10 +91,11 @@ describe( 'FeatureDelivery', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'says why an active module waiting for an account offers Connect', () => {
-		render(
-			<FeatureDelivery state={ { ...moduleState( false, 'active' ), accountNeeded: true } } />
-		);
+	it.each( [
+		[ 'module', moduleState( false, 'active' ) ],
+		[ 'plugin', { ...installedPlugin, status: 'active' } as FeatureState ],
+	] )( 'says why an active %s waiting for an account offers Connect', ( _, state ) => {
+		render( <FeatureDelivery state={ { ...state, accountNeeded: true } } /> );
 
 		expect( screen.getByText( 'Requires a connected WordPress.com account' ) ).toBeVisible();
 	} );

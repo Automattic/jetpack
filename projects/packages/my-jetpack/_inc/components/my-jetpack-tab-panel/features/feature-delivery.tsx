@@ -7,6 +7,7 @@ import {
 	getInstallBlockReason,
 	getModuleUnavailableNote,
 	needsAccountWithoutConnect,
+	offersConnect,
 } from './feature-state';
 import { getFeatureUnavailableReason } from './module-availability';
 import styles from './styles.module.scss';
@@ -133,11 +134,11 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	// A blocked install never reaches the next step, so naming it would only mislead.
 	const setupNote = getInstallBlockReason( state ) ? '' : feature.setup_note;
 	// Here rather than beside the buttons, where a long reason pushes Upgrade out of a phone-sized
-	// window. A host-forced feature already lists it beside its forced reason. An active module
+	// window. A host-forced feature already lists it beside its forced reason. An active feature
 	// gets it too, or its Connect would sit beside Deactivate with nothing saying why.
 	const accountNote =
 		( needsAccountWithoutConnect( state ) ||
-			( state.accountNeeded && state.status === 'active' && state.control.kind === 'module' ) ) &&
+			( offersConnect( state ) && state.status === 'active' ) ) &&
 		! getForcedReason( state )
 			? getFeatureUnavailableReason( state )
 			: '';
