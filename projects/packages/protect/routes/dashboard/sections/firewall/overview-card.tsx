@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, caution, check, closeSmall, info } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Button, Stack } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import {
 	CardRow,
 	ProtectCard,
@@ -26,7 +26,6 @@ import {
 import FirewallToggle from './firewall-toggle';
 import FirewallUpsell from './firewall-upsell';
 import shieldFlame from './icon';
-import HostProvidedCard from './host-provided-card';
 import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
 import { AUTOMATIC_RULES, IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
@@ -273,12 +272,25 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		setIsTesting( false );
 	}, [ active, blocks.recentBlocks ] );
 
-	if ( firewall.providedByHost ) {
-		return <HostProvidedCard />;
-	}
-
 	if ( ! firewall.available ) {
-		return <UnavailableCard icon={ shieldFlame } title={ title } />;
+		return firewall.providedByHost ? (
+			<ProtectCard
+				icon={ shieldFlame }
+				title={ title }
+				status={ { label: __( 'Active', 'jetpack-protect-pkg' ), intent: 'stable' } }
+			>
+				<CardRow>
+					<Text variant="body-md">
+						{ __(
+							'Your host provides a firewall for your site, so you’re all set.',
+							'jetpack-protect-pkg'
+						) }
+					</Text>
+				</CardRow>
+			</ProtectCard>
+		) : (
+			<UnavailableCard icon={ shieldFlame } title={ title } />
+		);
 	}
 
 	return (
