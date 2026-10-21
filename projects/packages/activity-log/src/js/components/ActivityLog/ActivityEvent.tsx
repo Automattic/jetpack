@@ -1,7 +1,7 @@
 import { __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { Badge, VisuallyHidden } from '@wordpress/ui';
+import { Badge, Tooltip, VisuallyHidden } from '@wordpress/ui';
 import { useBackupKnownThreats } from '../../hooks/use-known-threats';
 import { buildObjectAdminLink } from './admin-links';
 import { renderFormattedContent } from './formatted-block';
@@ -75,17 +75,23 @@ export function KnownThreatsBadge( { activity }: { activity: Activity } ) {
 		),
 		knownThreats.flagged
 	);
-	// Same badge as the Backup dashboard.
+	// Same badge as the Backup dashboard. The warning isn't shown nearby, so hovering explains it.
 	return (
 		<span className="site-activity-logs__event-badge">
-			<Badge intent="medium">
-				{ sprintf(
-					/* translators: %d: number of known security threats in a backup. */
-					__( 'Known threats (%d)', 'jetpack-activity-log' ),
-					knownThreats.flagged
-				) }
-			</Badge>
-			<VisuallyHidden render={ <span /> }>{ description }</VisuallyHidden>
+			<Tooltip.Root>
+				{ /* The badge itself, not its full-width row, is what hovers. */ }
+				<Tooltip.Trigger render={ <span /> }>
+					<Badge intent="medium">
+						{ sprintf(
+							/* translators: %d: number of known security threats in a backup. */
+							__( 'Known threats (%d)', 'jetpack-activity-log' ),
+							knownThreats.flagged
+						) }
+					</Badge>
+					<VisuallyHidden render={ <span /> }>{ description }</VisuallyHidden>
+				</Tooltip.Trigger>
+				<Tooltip.Popup>{ description }</Tooltip.Popup>
+			</Tooltip.Root>
 		</span>
 	);
 }
