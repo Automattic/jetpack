@@ -139,6 +139,19 @@ class Firewall_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Hosts such as WordPress.com set this filter from their own code, so its name is a contract.
+	 */
+	public function test_host_provides_the_firewall_only_through_the_filter() {
+		$this->assertFalse( Firewall::is_provided_by_host() );
+
+		add_filter( 'jetpack_protect_firewall_provided_by_host', '__return_true' );
+		$provided = Firewall::is_provided_by_host();
+		remove_filter( 'jetpack_protect_firewall_provided_by_host', '__return_true' );
+
+		$this->assertTrue( $provided );
+	}
+
+	/**
 	 * Data provider for test_rules_date_is_only_sent_while_the_rules_are_on.
 	 *
 	 * @return array

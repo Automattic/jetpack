@@ -1,4 +1,4 @@
-Significance: patch
-Type: changed
+Significance: minor
+Type: added
 
-Firewall: Show the firewall as active on WordPress.com sites with Atomic hosting, where the host provides it.
+Firewall: Show the firewall as active where the host provides its own, which hosts declare through the new `jetpack_protect_firewall_provided_by_host` filter.

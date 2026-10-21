@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Protect\Sections;
 
 use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Dashboard_Section;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
 use Automattic\Jetpack\Waf\Waf_Constants;
 use Automattic\Jetpack\Waf\Waf_Request;
@@ -67,10 +66,27 @@ class Firewall implements Dashboard_Section {
 				'currentIp'      => self::get_current_ip(),
 				'ipRules'        => self::get_ip_rules(),
 				'rulesUpdatedAt' => self::get_rules_updated_at(),
-				// WordPress.com runs its own firewall in front of WoA sites, where Jetpack's stays off.
-				'providedByHost' => ( new Host() )->is_woa_site(),
+				'providedByHost' => self::is_provided_by_host(),
 			)
 		);
+	}
+
+	/**
+	 * Whether the host runs its own firewall in place of Jetpack's.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_provided_by_host() {
+		/**
+		 * Filters whether the site's host runs its own firewall, which the Protect page then reports as active.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $provided Whether the host provides the firewall. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_protect_firewall_provided_by_host', false );
 	}
 
 	/**
