@@ -9,6 +9,7 @@ import {
 import { normalizeActivityLog } from '../data/normalize/activity-log';
 import { findRestoreRow, isRestoreRowId, mergeRestoreRows } from '../data/normalize/restores';
 import { keys } from '../data/query-client';
+import { isValidRewindId } from '../types/rewind-id';
 import { useCanQueryWpcom } from './use-connection';
 import { useRecentRestores } from './use-recent-restores';
 import { useStickyError } from './use-sticky-error';
@@ -196,15 +197,15 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
  * selections that are not clicks — a bookmarked `?selected=` on a page nothing
  * has loaded, and the newest-backup default pinned by the hook below.
  *
- * A null item never means "no such row": it is equally the answer while the page
- * query is in flight, after it failed, and while the row sits on a page nothing
- * has loaded — `hasAnswered` is the list's page verdict, not the whole log's.
+ * A backup the loaded pages don't hold is fetched on its own, by the few seconds
+ * around its rewind id, so `hasAnswered` with a null item means it doesn't exist.
+ * For any other id it means only that no loaded page holds it.
  *
  * @param id        - Selection id: `rewindId` for backup items, `activity_id` otherwise.
  * @param page      - The page currently shown in the list.
  * @param pageSize  - The per-page setting currently shown in the list.
  * @param sortOrder - The sort direction currently shown in the list.
- * @return The matching item or null, whether the list's page query has answered, its failure if it did, and whether it is fetching now (false when paused or disabled).
+ * @return The matching item or null, whether the lookup has answered, its failure if it did, and whether it is fetching now (false when paused or disabled).
  */
 export function useActivityById(
 	id: string | null,
@@ -220,13 +221,14 @@ export function useActivityById(
 	// Follows the list's `sortOrder`: it is part of the cache key, so pinning it
 	// here would open a second query for rows already on screen.
 	const query = useActivityPageQuery( page, pageSize, sortOrder );
-	const restores = useRecentRestores( useCanQueryWpcom() );
+	const canQuery = useCanQueryWpcom();
+	const restores = useRecentRestores( canQuery );
 	const queryClient = useQueryClient();
 	// A merged restore row is never in the feed, so its id is answered by the
 	// collection instead — including which query decides `hasAnswered`.
 	const isRestore = id !== null && isRestoreRowId( id );
 
-	const item = useMemo( () => {
+	const loadedItem = useMemo( () => {
 		if ( ! id ) {
 			return null;
 		}
@@ -255,11 +257,46 @@ export function useActivityById(
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ id, isRestore, restores.data, query.data ] );
 
+	const searchesAround =
+		canQuery && id !== null && isValidRewindId( id ) && query.isSuccess && ! loadedItem;
+	const around = useQuery( {
+		queryKey: keys.activityLogAround( id ?? '' ),
+		queryFn: () => fetchActivityLog( aroundRewindId( id as string ) ),
+		enabled: searchesAround,
+		// A finished backup's row never changes.
+		staleTime: Infinity,
+	} );
+
+	if ( searchesAround ) {
+		return {
+			item: findById( around.data?.current?.orderedItems, id as string ),
+			hasAnswered: around.isSuccess,
+			error: around.error,
+			isFetching: around.isFetching,
+		};
+	}
 	return {
-		item,
+		item: loadedItem,
 		hasAnswered: isRestore ? restores.isSuccess : query.isSuccess,
 		error: isRestore ? restores.error : query.error,
 		isFetching: isRestore ? restores.isFetching : query.isFetching,
+	};
+}
+
+/**
+ * The query for the log around one backup: its "Backup complete" row is stamped with its rewind id.
+ *
+ * @param rewindId - A rewind id that has passed `isValidRewindId`.
+ * @return Fetch args for a narrow, oldest-first window.
+ */
+function aroundRewindId( rewindId: string ) {
+	const seconds = Number.parseInt( rewindId, 10 );
+	const iso = ( at: number ) => new Date( at * 1000 ).toISOString().replace( '.000Z', 'Z' );
+	return {
+		after: iso( seconds - 1 ),
+		before: iso( seconds + 2 ),
+		sort_order: 'asc' as const,
+		number: 10,
 	};
 }
 

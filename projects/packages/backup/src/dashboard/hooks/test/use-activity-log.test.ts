@@ -403,3 +403,61 @@ describe( 'useActivityById', () => {
 		expect( requestedPaths() ).toEqual( [ expect.stringContaining( 'sort_order=asc' ) ] );
 	} );
 } );
+
+describe( 'useActivityById for an id no loaded page holds', () => {
+	const UNLISTED_ID = '1786300000';
+
+	/**
+	 * Requests for a time window rather than a page.
+	 *
+	 * @return The window requests' query args.
+	 */
+	function windowRequests(): URLSearchParams[] {
+		return requestedPaths()
+			.map( path => new URLSearchParams( path.split( '?' )[ 1 ] ) )
+			.filter( args => args.has( 'after' ) );
+	}
+
+	it.each( [ UNLISTED_ID, `${ UNLISTED_ID }.817` ] )(
+		'asks for the seconds around backup %s',
+		async rewindId => {
+			const { result } = renderHook(
+				() => useActivityById( rewindId, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+				{ wrapper: wrapper() }
+			);
+
+			await waitFor( () => expect( result.current.hasAnswered ).toBe( true ) );
+
+			expect( windowRequests() ).toHaveLength( 1 );
+			const args = windowRequests()[ 0 ];
+			expect( args.get( 'after' ) ).toBe( '2026-08-09T18:26:39Z' );
+			expect( args.get( 'before' ) ).toBe( '2026-08-09T18:26:42Z' );
+			expect( args.get( 'sort_order' ) ).toBe( 'asc' );
+		}
+	);
+
+	it( 'waits for that lookup rather than answering from the page', async () => {
+		mockedApiFetch.mockImplementation( ( options: { path?: string } ) =>
+			options?.path?.includes( 'after=' ) ? new Promise( () => {} ) : Promise.resolve( DESCENDING )
+		);
+		const { result } = renderHook(
+			() => useActivityById( UNLISTED_ID, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+			{ wrapper: wrapper() }
+		);
+
+		await waitFor( () => expect( windowRequests() ).toHaveLength( 1 ) );
+
+		expect( result.current ).toMatchObject( { item: null, hasAnswered: false, isFetching: true } );
+	} );
+
+	it( 'leaves any other id to the loaded pages', async () => {
+		const { result } = renderHook(
+			() => useActivityById( 'activity-unlisted', 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+			{ wrapper: wrapper() }
+		);
+
+		await waitFor( () => expect( result.current.hasAnswered ).toBe( true ) );
+
+		expect( windowRequests() ).toHaveLength( 0 );
+	} );
+} );
