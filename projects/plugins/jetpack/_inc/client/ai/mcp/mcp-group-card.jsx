@@ -26,6 +26,7 @@ function ToolToggle( { toolId, tool, savingToolIds, onToggle } ) {
 	const handleChange = useCallback( checked => onToggle( toolId, checked ), [ toolId, onToggle ] );
 	return (
 		<SwitchControl
+			className="jetpack-ai-mcp__tool-switch"
 			checked={ tool.enabled }
 			disabled={ savingToolIds.has( toolId ) }
 			label={ tool.title }
@@ -108,7 +109,7 @@ export default function McpGroupCard( {
 			<Card.Content>
 				<div className="jetpack-ai-mcp__group-header">
 					<Stack direction="column" gap="xs" className="jetpack-ai-mcp__group-info">
-						<Text weight={ 600 }>{ label }</Text>
+						<Text className="jetpack-ai-mcp__group-title">{ label }</Text>
 						{ description && (
 							<Text variant="body-sm" className="jetpack-ai-mcp__muted">
 								{ description }
