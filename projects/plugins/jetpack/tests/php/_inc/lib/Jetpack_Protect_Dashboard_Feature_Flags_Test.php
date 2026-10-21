@@ -43,7 +43,7 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 					'ATOMIC_CLIENT_ID'     => 1,
 					'WPCOMSH__PLUGIN_FILE' => true,
 				),
-				false,
+				true,
 			),
 			'flag on, WordPress.com Simple' => array( null, array( 'IS_WPCOM' => true ), false ),
 		);
@@ -57,7 +57,7 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 	 * @param bool      $available Whether the module should be available.
 	 */
 	#[DataProvider( 'provide_sites' )]
-	public function test_module_is_available_only_with_the_flag_on_outside_wordpress_com( $flag, $constants, $available ) {
+	public function test_module_is_available_only_with_the_flag_on_outside_wordpress_com_simple( $flag, $constants, $available ) {
 		if ( null !== $flag ) {
 			add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Protect_Dashboard_Feature_Flags::DASHBOARD, $flag ? '__return_true' : '__return_false' );
 		}
