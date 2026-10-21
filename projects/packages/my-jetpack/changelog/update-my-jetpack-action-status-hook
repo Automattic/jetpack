@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Move the product card's per-status action into a reusable hook; no visible change.
+
