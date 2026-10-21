@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.19] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [1.2.18] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## [1.2.17] - 2026-10-12
+### Added
+- Admin page layout: Add a header mixin that keeps the page header the same height on every screen and centers the logo. [#53435]
+
+### Fixed
+- Admin page layout: let consumers override the scrolling middle's children again, which the JITM slot exclusion had out-ranked. [#53365]
+
 ## [1.2.16] - 2026-10-05
 ### Added
 - Add missing Jetpack palette CSS custom properties from ThemeProvider. [#50108]
@@ -589,6 +604,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[1.2.19]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.18...1.2.19
+[1.2.18]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.17...1.2.18
+[1.2.17]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.16...1.2.17
 [1.2.16]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.15...1.2.16
 [1.2.15]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.14...1.2.15
 [1.2.14]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.13...1.2.14

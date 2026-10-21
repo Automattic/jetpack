@@ -18,6 +18,7 @@ import SubscribersAffirmation, {
 } from '../../shared/memberships/subscribers-affirmation';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import paywallBlockMetadata from '../paywall/block.json';
+import type { JSX } from 'react';
 
 // PluginSidebar identifier: the `jetpack-subscriptions` plugin's `jetpack-newsletter-settings-sidebar`.
 const NEWSLETTER_SIDEBAR_IDENTIFIER = 'jetpack-subscriptions/jetpack-newsletter-settings-sidebar';

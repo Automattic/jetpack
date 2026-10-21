@@ -4,7 +4,6 @@
 import { useStatsSite } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	AbbreviatedValue,
 	describeError,
@@ -21,8 +20,14 @@ import { Stack } from '@jetpack-premium-analytics/externals';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { MostPopularDayAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * The widget has no user-configurable attributes. The "most popular day"
+ * highlight is a site-wide summary that does not depend on the dashboard date
+ * range, so no report params are consumed either.
+ */
+export type MostPopularDayAttributes = Record< never, never >;
 
 // The highlight is site-wide and ignores report params, but the host may still
 // inject them via `attributes`, so the shape has to accept them.
@@ -109,9 +114,8 @@ function MostPopularDayReport() {
 						onRetry: () => void refetch(),
 					} ) }
 					empty={ {
-						icon: calendar,
 						description: __(
-							'Not enough views yet to pick a most popular day.',
+							'Your best day for traffic will show here once visitors start arriving.',
 							'jetpack-premium-analytics-pkg'
 						),
 					} }

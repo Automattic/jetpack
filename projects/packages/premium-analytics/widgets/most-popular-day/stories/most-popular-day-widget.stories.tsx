@@ -23,7 +23,6 @@ import {
 	type ReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import MostPopularDayRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -118,8 +117,7 @@ export const ErrorRetryable: Story = {
 };
 
 /**
- * Resolved without a usable `views_best_day`: the widget shows its empty state
- * (the neutral calendar glyph and the "not enough views" message).
+ * Resolved without a usable `views_best_day`: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: renderMostPopularDay,
@@ -132,7 +130,7 @@ function MostPopularDayDashboardStory( dashboardArgs: WidgetDashboardWithWidgetC
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ MOST_POPULAR_DAY_RENDER_MODULE }
 			renderComponent={ MostPopularDayRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( true ) } }

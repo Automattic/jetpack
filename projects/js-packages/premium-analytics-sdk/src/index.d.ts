@@ -27,7 +27,8 @@ type WidgetStateEmpty = {
 	icon?: any;
 	description?: string;
 	action?:
-		{ label: string; href: string; onClick?: never } | { label: string; onClick: () => void };
+		| { label: string; href: string; openInNewTab?: boolean; onClick?: never }
+		| { label: string; onClick: () => void };
 };
 
 // What a widget kind knows about its request, in the data layer's terms. Every kind takes it.
@@ -94,6 +95,11 @@ export type DonutProps = {
 	variant?: 'ring' | 'half-ring';
 	// Whether the total of the segments shows; off for shares that add up to one. Defaults to on.
 	withTotal?: boolean;
+	// What the chart shows, such as the widget title; the chart is named "Chart: <title>".
+	chartTitle?: string;
+	// The total the report states, for segments that need not add up to it. Omit to sum them.
+	total?: number;
+	previousTotal?: number;
 };
 
 // Funnels: steps as counts in, with the rate of the whole, the shares and the states handled.
@@ -118,6 +124,8 @@ export type FunnelProps = {
 	empty?: WidgetStateEmpty;
 	// Format of the step counts, in the tooltip. Defaults to compact integers.
 	format?: DataFormat;
+	// What the chart shows, such as the widget title; the chart is named "Chart: <title>".
+	chartTitle?: string;
 };
 
 // Columns: a few categories compared across the periods as vertical bars, with the series per
@@ -128,8 +136,8 @@ export type ColumnInput = {
 	label: string;
 	// Figure for the selected period.
 	value: number;
-	// Figure for the comparison period; undefined draws as 0 there.
-	previousValue?: number;
+	// Figure for the comparison period; undefined draws as 0 there, and null, no figure, draws no bar.
+	previousValue?: number | null;
 };
 export type ColumnsProps = {
 	// The columns in order; each one draws once per period.
@@ -141,6 +149,41 @@ export type ColumnsProps = {
 	empty?: WidgetStateEmpty;
 	// Format of the figures, on the y axis and in the tooltip. Defaults to compact integers.
 	format?: DataFormat;
+	// What the chart shows, such as the widget title; the chart is named "Chart: <title>".
+	chartTitle?: string;
+};
+
+// Locations: a ranking of places in, the list with flags beside the map that draws them, the
+// shares, deltas and states handled.
+export declare const Locations: ComponentType< LocationsProps >;
+export type LocationRowInput = {
+	// ISO country code on the world map; the region's name inside a country.
+	id: string;
+	label: string;
+	// Figure for the selected period.
+	value: number;
+	// Figure for the comparison period; undefined when the location has no match there.
+	previousValue?: number;
+};
+export type LocationsProps = {
+	// The ranking in order: countries, or the regions of `country`. The map draws them all, the
+	// list the first `maxRows`.
+	rows: readonly LocationRowInput[];
+	status: WidgetStatus;
+	// Omit for the generic message with a Retry bound to `status.refetch`.
+	error?: WidgetStateError;
+	// Omit for the generic "no results for this time period" state.
+	empty?: WidgetStateEmpty;
+	// Defaults to compact integers.
+	format?: DataFormat;
+	// What the figure is, as the map tooltip names it.
+	valueLabel: string;
+	// The country the rows are regions of; omit for countries on the world map.
+	country?: { code: string; name: string };
+	// Rows the list shows. Defaults to the widget row limit.
+	maxRows?: number;
+	// What the widget shows, such as its title; the list is named "Chart: <title>" and the map "Map: <title>".
+	chartTitle?: string;
 };
 
 // Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.

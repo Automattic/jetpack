@@ -616,11 +616,19 @@ class Jetpack_CLI extends WP_CLI_Command {
 					/* translators: %s is the name of a Jetpack module */
 					WP_CLI::error( sprintf( __( '%s is enabled by your host or site administrator, so it stays on.', 'jetpack' ), $module['name'] ) );
 				}
+				$note = Jetpack::get_module_deactivation_note( $module_slug );
+				if ( $note ) {
+					WP_CLI::warning( $note );
+				}
 				/* translators: %s is the name of a Jetpack module */
 				WP_CLI::success( sprintf( __( '%s has been deactivated.', 'jetpack' ), $module['name'] ) );
 				break;
 			case 'deactivate_all':
+				$notes = array_filter( array_map( array( 'Jetpack', 'get_module_deactivation_note' ), Jetpack::get_active_modules() ) );
 				Jetpack::delete_active_modules();
+				foreach ( array_unique( $notes ) as $note ) {
+					WP_CLI::warning( $note );
+				}
 				WP_CLI::success( __( 'All modules deactivated!', 'jetpack' ) );
 				break;
 			case 'toggle':
@@ -667,14 +675,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 		switch ( $action ) {
 			case 'allow':
-				$allow         = array();
-				$new_ip        = $args[1];
-				$current_allow = get_site_option( 'jetpack_protect_whitelist', array() ); // @todo Update the option name.
+				$allow  = array();
+				$new_ip = $args[1];
 
-				// Build array of IPs that are already on the allowed list.
-				// Re-build manually instead of using jetpack_protect_format_allow_list() so we can easily get
-				// low & high range params for IP_Utils::ip_address_is_in_range().
-				foreach ( $current_allow as $allowed ) {
+				/*
+				 * Build array of IPs that are already on the allowed list.
+				 * Re-build manually instead of using format_allow_list() so we can easily get
+				 * low & high range params for IP_Utils::ip_address_is_in_range().
+				 */
+				foreach ( Brute_Force_Protection_Shared_Functions::get_local_allow_list() as $allowed ) {
 
 					// IP ranges.
 					if ( $allowed->range ) {
@@ -685,7 +694,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 							WP_CLI::error( sprintf( __( '%s is already on the always allow list.', 'jetpack' ), $new_ip ) );
 							break;
 						}
-						$allow[] = $allowed->range_low . ' - ' . $allowed->range_high;
+						// A CIDR range has no upper bound of its own.
+						$allow[] = null === $allowed->range_high ? $allowed->range_low : $allowed->range_low . ' - ' . $allowed->range_high;
 
 					} else { // Individual IPs.
 
@@ -699,6 +709,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 					}
 				}
+
+				// A leftover legacy allow list is merged into every read, so entries already saved come back twice.
+				$allow = array_unique( $allow );
 
 				/*
 				 * List the allowed IPs.

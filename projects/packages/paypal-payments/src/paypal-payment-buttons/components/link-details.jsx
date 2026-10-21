@@ -7,14 +7,14 @@
 import { DropdownMenu } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { moreVertical, pencil, update } from '@wordpress/icons';
+import { moreVertical, pencil, trash, update } from '@wordpress/icons';
 import { linkDate } from '../utils/link-date';
 import { linkPrice } from '../utils/link-price';
 
 /**
  * What the sidebar shows for a saved link: its name and price, then when it
- * was made, its id and where it is used. Edit and Change item are in the menu
- * beside the name.
+ * was made, its id and where it is used. Edit, Change item and Delete are in
+ * the menu beside the name.
  *
  * @param {object}       props               - Component props.
  * @param {object}       props.attributes    - Block attributes.
@@ -24,6 +24,8 @@ import { linkPrice } from '../utils/link-price';
  * @param {Function}     props.onChangeLink  - Open the picker of the account's other links.
  * @param {boolean}      props.canChangeLink - Whether there is another link to switch to, or the
  *                                           list is still being read.
+ * @param {Function}     props.onDelete      - Open the delete dialog.
+ * @param {boolean}      props.canDelete     - Whether Delete can run: connected and not busy.
  * @return {Element} The view.
  */
 export default function LinkDetails( {
@@ -33,6 +35,8 @@ export default function LinkDetails( {
 	onEdit,
 	onChangeLink,
 	canChangeLink,
+	onDelete,
+	canDelete,
 } ) {
 	const { productName, resourceId, adjustableQuantity, maxQuantity } = attributes;
 	const price = linkPrice( attributes );
@@ -42,7 +46,7 @@ export default function LinkDetails( {
 	let usedOn = unknown;
 	if ( typeof resource?.embeds === 'number' ) {
 		usedOn = sprintf(
-			/* translators: %d: number of published posts embedding the payment link */
+			/* translators: %d: number of published posts embedding the payment button */
 			_n( '%d published post', '%d published posts', resource.embeds, 'jetpack-paypal-payments' ),
 			resource.embeds
 		);
@@ -54,7 +58,7 @@ export default function LinkDetails( {
 		// payment link's path. Plain text like its siblings: wp-admin gives every `code`
 		// a grey monospace box.
 		[ __( 'Hosted ID', 'jetpack-paypal-payments' ), ( resourceId || '' ).replace( /^PLB-/, '' ) ],
-		[ __( 'Link used on', 'jetpack-paypal-payments' ), usedOn ],
+		[ __( 'Used on', 'jetpack-paypal-payments' ), usedOn ],
 	];
 	if ( adjustableQuantity ) {
 		rows.push( [ __( 'Max quantity', 'jetpack-paypal-payments' ), maxQuantity ] );
@@ -69,7 +73,7 @@ export default function LinkDetails( {
 				</h2>
 				<DropdownMenu
 					icon={ moreVertical }
-					label={ __( 'Payment link options', 'jetpack-paypal-payments' ) }
+					label={ __( 'Payment button options', 'jetpack-paypal-payments' ) }
 					toggleProps={ { size: 'small' } }
 					controls={ [
 						{
@@ -82,6 +86,12 @@ export default function LinkDetails( {
 							icon: update,
 							onClick: onChangeLink,
 							isDisabled: ! canChangeLink,
+						},
+						{
+							title: __( 'Delete', 'jetpack-paypal-payments' ),
+							icon: trash,
+							onClick: onDelete,
+							isDisabled: ! canDelete,
 						},
 					] }
 				/>

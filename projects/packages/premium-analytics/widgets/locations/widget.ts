@@ -1,9 +1,3 @@
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
-
 export type LocationsAttributes = {
 	geoGranularity?: 'country' | 'region' | 'city';
 };
@@ -14,28 +8,6 @@ export type LocationsAttributes = {
  * unavailable for some countries, so those fall back to the country-level world map.
  */
 export default {
-	attributes: [
-		{
-			id: 'geoGranularity',
-			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
-			type: 'jpa/select',
-			elements: [
-				{
-					label: __( 'Countries', 'jetpack-premium-analytics-pkg' ),
-					value: 'country',
-				},
-				{
-					label: __( 'Regions', 'jetpack-premium-analytics-pkg' ),
-					value: 'region',
-				},
-				{
-					label: __( 'Cities', 'jetpack-premium-analytics-pkg' ),
-					value: 'city',
-				},
-			],
-			relevance: 'high',
-		},
-	] as WidgetAttributeField< LocationsAttributes >[],
 	example: {
 		attributes: {
 			geoGranularity: 'country',

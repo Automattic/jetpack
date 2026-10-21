@@ -154,7 +154,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site stats overview', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, views over the last 7 and 30 days, the current posting streak, today\'s top post, and today\'s top referrer. Shape: { date, views_today, visitors_today, views_week, views_month, streak: { current_length, longest_length, longest_start, longest_end }, top_post: { id, title, views }, top_referrer: { name, views }, partial: bool, errors?: [string] }. `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), and `referrers` (`top_referrer`). Fields fed by a failed sub-call are placeholders (0, empty, or null) rather than confirmed values, so cross-reference `errors` before treating a 0 or null as authoritative. If every sub-call fails, returns `jetpack_stats_data_unavailable`. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
+				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, views over the last 7 and 30 days, the current posting streak, today\'s top post, and today\'s top referrer. Shape: { date, views_today, visitors_today, views_week, views_month, streak: { current_length, longest_length, longest_start, longest_end }, top_post: { id, title, views }, top_referrer: { name, views }, partial: bool, errors?: [string] }. `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `streak.current_length` is 0 unless the latest posting streak reaches today or yesterday. `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), and `referrers` (`top_referrer`). Fields fed by a failed sub-call are placeholders (0, empty, or null) rather than confirmed values, so cross-reference `errors` before treating a 0 or null as authoritative. If every sub-call fails, returns `jetpack_stats_data_unavailable`. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -202,7 +202,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get top stats content', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Uniform shape: { type, period, date, num, max, items: [ { rank, label, value, href?, id? } ] } — agents MUST NOT see a different shape per type. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num`. `downloads` only works on WordPress.com sites that do not use Jetpack; elsewhere it returns `jetpack_stats_invalid_type`. Precondition: site must be connected to WordPress.com.',
+				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Uniform shape: { type, period, date, num, max, items: [ { rank, label, value, href?, id? } ] } — agents MUST NOT see a different shape per type. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday. `downloads` only works on WordPress.com sites that do not use Jetpack; elsewhere it returns `jetpack_stats_invalid_type`. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -661,7 +661,7 @@ class Stats_Abilities extends Registrar {
 			'visitors_today' => $last_day ? $last_day['visitors'] : 0,
 			'views_week'     => (int) array_sum( array_column( array_slice( $days, -7 ), 'views' ) ),
 			'views_month'    => (int) array_sum( array_column( $days, 'views' ) ),
-			'streak'         => self::extract_streak_summary( $values['streak'] ),
+			'streak'         => self::extract_streak_summary( $values['streak'], $today ),
 			'top_post'       => null === $top_post ? null : array(
 				'id'    => $top_post['id'],
 				'title' => $top_post['label'],
@@ -724,9 +724,9 @@ class Stats_Abilities extends Registrar {
 			'max'    => $max,
 		);
 		// Without `summarize`, WPCOM returns each period separately and only the first would be read.
+		// Several summarized endpoints ignore `period` and read `num` as days, so ask for the days the periods cover.
 		if ( $num > 1 ) {
-			$args['num']       = $num;
-			$args['summarize'] = 1;
+			$args = array_merge( $args, self::summary_window( $period, $num, $date ) );
 		}
 
 		$stats = self::get_wpcom_stats();
@@ -1225,13 +1225,19 @@ class Stats_Abilities extends Registrar {
 	/**
 	 * Extract a compact streak summary from the WPCOM streak response.
 	 *
-	 * @param array $streak Raw WPCOM streak response: `{ streak: { long: { start, end, length }, current: { … } } }`.
+	 * WPCOM's `current` is the latest run of posting days even when it ended long ago, so it only counts
+	 * as current when it ends today or yesterday.
+	 *
+	 * @param array  $streak Raw WPCOM streak response: `{ streak: { long: { start, end, length }, current: { … } } }`.
+	 * @param string $today  The site's today, YYYY-MM-DD.
 	 * @return array Compact `{ current_length, longest_length, longest_start, longest_end }`.
 	 */
-	private static function extract_streak_summary( array $streak ): array {
-		$runs = $streak['streak'] ?? array();
+	private static function extract_streak_summary( array $streak, string $today ): array {
+		$runs      = $streak['streak'] ?? array();
+		$yesterday = gmdate( 'Y-m-d', strtotime( $today . ' -1 day' ) );
+		$ongoing   = (string) ( $runs['current']['end'] ?? '' ) >= $yesterday;
 		return array(
-			'current_length' => (int) ( $runs['current']['length'] ?? 0 ),
+			'current_length' => $ongoing ? (int) ( $runs['current']['length'] ?? 0 ) : 0,
 			'longest_length' => (int) ( $runs['long']['length'] ?? 0 ),
 			'longest_start'  => (string) ( $runs['long']['start'] ?? '' ),
 			'longest_end'    => (string) ( $runs['long']['end'] ?? '' ),
@@ -1336,6 +1342,35 @@ class Stats_Abilities extends Registrar {
 			);
 		}
 		return $series;
+	}
+
+	/**
+	 * The days covering `$num` periods ending with the one containing `$date`, as summarized request args.
+	 *
+	 * With `summarize=1`, WPCOM's top-posts, referrers, clicks, country-views and video-plays ignore `period`
+	 * and read `num` as days, and top-authors and file-downloads return nothing for longer periods. Every one
+	 * of them totals `num` days ending on `date`, so the window is sent that way. The last period runs to its
+	 * end or to today, whichever is first, unless `$date` itself is later.
+	 *
+	 * @param string $period One of self::PERIODS.
+	 * @param int    $num    Number of periods, 2 or more.
+	 * @param string $date   YYYY-MM-DD inside the last period.
+	 * @return array `{ period: 'day', date, num, summarize: 1 }`.
+	 */
+	private static function summary_window( string $period, int $num, string $date ): array {
+		$utc        = new \DateTimeZone( 'UTC' );
+		$requested  = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date, $utc );
+		$today      = \DateTimeImmutable::createFromFormat( '!Y-m-d', self::today(), $utc );
+		$last_start = self::period_start( $date, $period );
+		$first      = $last_start->modify( '-' . ( $num - 1 ) . ' ' . $period );
+		$end        = max( $requested, min( $last_start->modify( '+1 ' . $period . ' -1 day' ), $today ) );
+
+		return array(
+			'period'    => 'day',
+			'date'      => $end->format( 'Y-m-d' ),
+			'num'       => (int) $first->diff( $end )->days + 1,
+			'summarize' => 1,
+		);
 	}
 
 	/**

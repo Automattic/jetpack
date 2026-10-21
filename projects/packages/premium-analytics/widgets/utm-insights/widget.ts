@@ -1,14 +1,7 @@
 /**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
-
-/**
  * Internal dependencies
  */
 import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
-import { getUtmDimensionOptions } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Widget attributes shape.
@@ -29,15 +22,6 @@ export type UtmInsightsAttributes = {
  * host renders its control.
  */
 export default {
-	attributes: [
-		{
-			id: 'utmDimension',
-			label: __( 'UTM parameter', 'jetpack-premium-analytics-pkg' ),
-			type: 'jpa/select',
-			elements: getUtmDimensionOptions(),
-			relevance: 'high',
-		},
-	] as WidgetAttributeField< UtmInsightsAttributes >[],
 	example: {
 		attributes: {
 			utmDimension: 'utm_source,utm_medium',

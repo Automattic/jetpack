@@ -218,6 +218,8 @@ describe( 'PostsReportPage', () => {
 			expect.objectContaining( {
 				data: records.archives.rows,
 				hideLevelMarkers: true,
+				collapsible: true,
+				defaultExpanded: 'none',
 				isFetching: true,
 				searchLabel: 'Search archives',
 			} )

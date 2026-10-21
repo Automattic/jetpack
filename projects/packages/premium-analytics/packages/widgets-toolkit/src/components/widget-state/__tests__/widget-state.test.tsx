@@ -199,6 +199,31 @@ describe( 'WidgetState', () => {
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
 	} );
 
+	it( 'opens an empty-state link in a new tab only when the action asks for it', () => {
+		const action = { label: 'Learn more', href: 'https://jetpack.com/social/' };
+		const { rerender } = render(
+			<WidgetState isLoading={ false } isError={ false } isEmpty empty={ { action } }>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).not.toHaveAttribute( 'target' );
+
+		rerender(
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ { action: { ...action, openInNewTab: true } } }
+			>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+			'target',
+			'_blank'
+		);
+	} );
+
 	it( 'runs an empty-state button action without navigating', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		const onClick = jest.fn();
@@ -248,7 +273,7 @@ describe( 'WidgetState', () => {
 		expect( svgPathOf( container ) ).toBe( iconPathOf( <>{ search }</> ) );
 	} );
 
-	it( 'renders no icon, not the generic magnifier, for a widget’s own copy that names none', () => {
+	it( 'keeps the generic magnifier, not a bare message, for a widget’s own copy that names no icon', () => {
 		const { container } = render(
 			<WidgetState
 				isLoading={ false }
@@ -260,7 +285,7 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.getByText( 'Open an author to see their top posts here.' ) ).toBeInTheDocument();
-		expect( svgPathOf( container ) ).toBeNull();
+		expect( svgPathOf( container ) ).toBe( iconPathOf( <>{ search }</> ) );
 	} );
 
 	it( 'renders the icon a widget names for its own copy instead of the generic magnifier', () => {

@@ -26,3 +26,6 @@ export const funnelConforms: typeof Api.Funnel = null as unknown as typeof Facad
 
 // And when the facade's `Columns` stops accepting the props the contract declares.
 export const columnsConforms: typeof Api.Columns = null as unknown as typeof Facade.Columns;
+
+// And when the facade's `Locations` stops accepting the props the contract declares.
+export const locationsConforms: typeof Api.Locations = null as unknown as typeof Facade.Locations;

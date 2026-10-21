@@ -35,12 +35,14 @@ describe( 'TransferConnectionOwnership', () => {
 			login: 'kazz',
 			displayName: 'Kazz',
 			email: 'kazz@example.com',
+			avatar: 'https://example.com/kazz.png',
 		},
 		{
 			id: 9,
 			login: 'alexm',
 			displayName: 'Alex Moreno',
 			email: 'alex@example.com',
+			avatar: 'https://example.com/alex.png',
 		},
 	];
 
@@ -54,8 +56,9 @@ describe( 'TransferConnectionOwnership', () => {
 	};
 
 	const chooseKazz = async ( user: ReturnType< typeof userEvent.setup > ) => {
+		await expect( screen.findByRole( 'option', { name: /Kazz/ } ) ).resolves.toBeInTheDocument();
 		await user.selectOptions(
-			await screen.findByRole( 'combobox', { name: /New connection owner/ } ),
+			screen.getByRole( 'combobox', { name: /New connection owner/ } ),
 			'7'
 		);
 	};
@@ -84,9 +87,12 @@ describe( 'TransferConnectionOwnership', () => {
 		mockFetchCandidates.mockResolvedValue( [ candidates[ 0 ] ] );
 		render( <TransferConnectionOwnership { ...props } /> );
 
-		await expect(
-			screen.findByRole( 'button', { name: 'Continue' } )
-		).resolves.not.toHaveAttribute( 'aria-disabled', 'true' );
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Continue' } ) ).not.toHaveAttribute(
+				'aria-disabled',
+				'true'
+			)
+		);
 		expect( screen.getByRole( 'combobox', { name: /New connection owner/ } ) ).toHaveTextContent(
 			'Kazz'
 		);
@@ -99,7 +105,7 @@ describe( 'TransferConnectionOwnership', () => {
 		).resolves.toBeInTheDocument();
 
 		// @wordpress/ui keeps disabled buttons focusable, so it marks them with aria-disabled.
-		expect( screen.getByRole( 'button', { name: 'Continue' } ) ).toHaveAttribute(
+		await expect( screen.findByRole( 'button', { name: 'Continue' } ) ).resolves.toHaveAttribute(
 			'aria-disabled',
 			'true'
 		);
@@ -128,6 +134,25 @@ describe( 'TransferConnectionOwnership', () => {
 			screen.findByRole( 'combobox', { name: /New connection owner/ } )
 		).resolves.toBeInTheDocument();
 		expect( mockSetConnectionOwner ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps focus on a control when the step changes', async () => {
+		const user = userEvent.setup();
+		const { container } = render( <TransferConnectionOwnership { ...props } /> );
+		const focused = () => container.ownerDocument.activeElement?.tagName;
+		await chooseKazz( user );
+
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: 'Transfer ownership' } )
+		).resolves.toBeInTheDocument();
+		expect( focused() ).toBe( 'BUTTON' );
+
+		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: 'Continue' } )
+		).resolves.toBeInTheDocument();
+		expect( focused() ).toBe( 'BUTTON' );
 	} );
 
 	it( 'reports the transfer as soon as it lands', async () => {
@@ -200,7 +225,13 @@ describe( 'TransferConnectionOwnership', () => {
 	// into that string rather than passed as a child could break the parse.
 	it( 'renders a display name containing markup literally', async () => {
 		mockFetchCandidates.mockResolvedValue( [
-			{ id: 7, login: 'kazz', displayName: '<b>Kazz</b>', email: 'kazz@example.com' },
+			{
+				id: 7,
+				login: 'kazz',
+				displayName: '<b>Kazz</b>',
+				email: 'kazz@example.com',
+				avatar: 'https://example.com/kazz.png',
+			},
 		] );
 		const user = userEvent.setup();
 		render( <TransferConnectionOwnership { ...props } /> );

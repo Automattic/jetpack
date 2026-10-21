@@ -5,24 +5,18 @@
  * @package
  */
 
-import {
-	Button,
-	CheckboxControl,
-	Modal,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API; stable ConfirmDialog not yet exported by @wordpress/components.
-	__experimentalConfirmDialog as ConfirmDialog,
-} from '@wordpress/components';
+import { Button, CheckboxControl, Modal } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-// PayPal's certification checklist prescribes this sentence for every disconnect confirmation.
+// PayPal's certification checklist prescribes this sentence for the log-out confirmation.
 const disconnectWarning = __(
 	'Disconnecting your PayPal account will prevent you from offering PayPal services and products on your website. Do you wish to continue?',
 	'jetpack-paypal-payments'
 );
 
 /**
- * The delete confirmation. PayPal cannot pause or restore a payment link, so
+ * The delete confirmation. PayPal cannot pause or restore a payment button, so
  * the merchant has to acknowledge that before the delete button is enabled.
  *
  * @param {object}   props           - Component props.
@@ -35,14 +29,14 @@ export function DeleteLinkDialog( { onConfirm, onCancel } ) {
 
 	return (
 		<Modal
-			title={ __( 'Delete payment link', 'jetpack-paypal-payments' ) }
+			title={ __( 'Delete payment button', 'jetpack-paypal-payments' ) }
 			onRequestClose={ onCancel }
 			size="medium"
 			className="jetpack-paypal-payment-buttons__delete-dialog"
 		>
 			<p>
 				{ __(
-					'This permanently deletes the payment link from your PayPal account. PayPal cannot pause, deactivate, or restore it.',
+					'This permanently deletes the payment button from your PayPal account. PayPal cannot pause, deactivate, or restore it.',
 					'jetpack-paypal-payments'
 				) }
 			</p>
@@ -72,8 +66,6 @@ export function DeleteLinkDialog( { onConfirm, onCancel } ) {
 
 /**
  * The account menu's log-out confirmation.
- *
- * The same disconnect the PayPal Connection panel runs, worded for the menu.
  *
  * @param {object}   props           - Component props.
  * @param {Function} props.onConfirm - Log out of PayPal.
@@ -157,24 +149,20 @@ export function UnsavedChangesDialog( { canSave, isSaving, onSave, onDiscard, on
 }
 
 /**
- * The confirmation dialogs for destructive actions — delete, disconnect and log out.
+ * The confirmation dialogs for destructive actions — delete and log out.
  *
- * @param {object}   props                          - Component props.
- * @param {boolean}  props.showDeleteConfirm        - Whether the delete confirmation is open.
- * @param {Function} props.setShowDeleteConfirm     - Setter for the delete confirmation.
- * @param {boolean}  props.showDisconnectConfirm    - Whether the disconnect confirmation is open.
- * @param {Function} props.setShowDisconnectConfirm - Setter for the disconnect confirmation.
- * @param {boolean}  props.showLogOutConfirm        - Whether the log-out confirmation is open.
- * @param {Function} props.setShowLogOutConfirm     - Setter for the log-out confirmation.
- * @param {Function} props.executeDeleteButton      - Delete the payment after the user confirms.
- * @param {Function} props.executeDisconnect        - Disconnect PayPal after the user confirms.
+ * @param {object}   props                      - Component props.
+ * @param {boolean}  props.showDeleteConfirm    - Whether the delete confirmation is open.
+ * @param {Function} props.setShowDeleteConfirm - Setter for the delete confirmation.
+ * @param {boolean}  props.showLogOutConfirm    - Whether the log-out confirmation is open.
+ * @param {Function} props.setShowLogOutConfirm - Setter for the log-out confirmation.
+ * @param {Function} props.executeDeleteButton  - Delete the payment link after the user confirms.
+ * @param {Function} props.executeDisconnect    - Disconnect PayPal after the user confirms.
  * @return {Element} The confirmation dialogs.
  */
 export default function ConfirmDialogs( {
 	showDeleteConfirm,
 	setShowDeleteConfirm,
-	showDisconnectConfirm,
-	setShowDisconnectConfirm,
 	showLogOutConfirm,
 	setShowLogOutConfirm,
 	executeDeleteButton,
@@ -196,38 +184,6 @@ export default function ConfirmDialogs( {
 					onConfirm={ executeDeleteButton }
 					onCancel={ () => setShowDeleteConfirm( false ) }
 				/>
-			) }
-			{ showDisconnectConfirm && (
-				<ConfirmDialog
-					title={ __( 'Disconnect PayPal Account', 'jetpack-paypal-payments' ) }
-					confirmButtonText={ __( 'Disconnect', 'jetpack-paypal-payments' ) }
-					onConfirm={ executeDisconnect }
-					onCancel={ () => setShowDisconnectConfirm( false ) }
-				>
-					<div className="jetpack-paypal-payment-buttons__confirm-body">
-						<p>{ disconnectWarning }</p>
-						<ul>
-							<li>
-								{ __(
-									'This disconnects PayPal for the whole site, not just this block.',
-									'jetpack-paypal-payments'
-								) }
-							</li>
-							<li>
-								{ __(
-									'Every payment button on this site will need PayPal reconnected before it can be edited or deleted.',
-									'jetpack-paypal-payments'
-								) }
-							</li>
-							<li>
-								{ __(
-									'Buttons you have already published keep working for buyers.',
-									'jetpack-paypal-payments'
-								) }
-							</li>
-						</ul>
-					</div>
-				</ConfirmDialog>
 			) }
 		</>
 	);

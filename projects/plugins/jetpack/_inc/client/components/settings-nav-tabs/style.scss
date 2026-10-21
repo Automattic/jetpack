@@ -74,3 +74,8 @@ $spacing-base: var(--spacing-base, 8px);
 .jp-settings-nav__tab {
 	flex: 0 0 auto;
 }
+
+// wp-admin's unlayered `button { font-size: inherit }` beats the layered token.
+.jp-settings-nav [role="tab"] {
+	font-size: var(--wpds-typography-font-size-md);
+}

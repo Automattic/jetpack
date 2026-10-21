@@ -47,16 +47,18 @@ class REST_Main_Features {
 			)
 		);
 
-		register_rest_route(
-			self::ROUTE_NAMESPACE,
-			'my-jetpack/site/features/banner/dismiss',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => __CLASS__ . '::dismiss_banner',
-				// Anyone who can see My Jetpack sees the banner, so anyone who can see it may dismiss it.
-				'permission_callback' => array( Initializer::class, 'permissions_callback' ),
-			)
-		);
+		if ( ! Initializer::is_offline_features_enabled() ) {
+			register_rest_route(
+				self::ROUTE_NAMESPACE,
+				'my-jetpack/site/features/banner/dismiss',
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => __CLASS__ . '::dismiss_banner',
+					// Anyone who can see My Jetpack sees the banner, so anyone who can see it may dismiss it.
+					'permission_callback' => array( Initializer::class, 'permissions_callback' ),
+				)
+			);
+		}
 
 		register_rest_route(
 			self::ROUTE_NAMESPACE,
@@ -152,7 +154,7 @@ class REST_Main_Features {
 	 * @return \WP_REST_Response
 	 */
 	public static function get_state() {
-		return rest_ensure_response( Main_Features::get_state() );
+		return rest_ensure_response( Main_Features::get_state( Initializer::is_offline_features_enabled() ) );
 	}
 
 	/**
@@ -191,7 +193,7 @@ class REST_Main_Features {
 			return $result;
 		}
 
-		return rest_ensure_response( Main_Features::get_state() );
+		return rest_ensure_response( Main_Features::get_state( Initializer::is_offline_features_enabled() ) );
 	}
 
 	/**
@@ -246,7 +248,7 @@ class REST_Main_Features {
 
 		return rest_ensure_response(
 			array(
-				'state'  => Main_Features::get_state(),
+				'state'  => Main_Features::get_state( Initializer::is_offline_features_enabled() ),
 				'failed' => $failed,
 			)
 		);
@@ -270,6 +272,12 @@ class REST_Main_Features {
 		// Already where it was asked to be: nothing to do, as with plugins above.
 		if ( $modules->is_active( $slug ) === $active ) {
 			return true;
+		}
+
+		if ( $active && Initializer::is_offline_features_enabled()
+			&& ! Main_Features::module_works_locally( $slug )
+		) {
+			return new WP_Error( 'switch_failed', __( 'Could not be switched on: unavailable in Offline Mode.', 'jetpack-my-jetpack' ) );
 		}
 
 		// Gotcha: activate() still redirects and exits when a legacy plugin it replaces (such as
@@ -368,7 +376,7 @@ class REST_Main_Features {
 	}
 
 	/**
-	 * Carry out the action on the plugin, through the product that owns it where there is one.
+	 * Carry out the action on the plugin and its product.
 	 *
 	 * @param string $slug   WordPress.org plugin slug.
 	 * @param string $action One of install, activate or deactivate.
@@ -387,13 +395,13 @@ class REST_Main_Features {
 				return new WP_Error( 'not_installed', __( 'That plugin is not installed.', 'jetpack-my-jetpack' ) );
 			}
 
-			// The product knows what else it switched on, such as the Jetpack module behind it.
-			if ( $product_class ) {
-				$deactivated = $product_class::deactivate();
-				return is_wp_error( $deactivated ) ? $deactivated : true;
+			$is_hybrid   = $product_class && is_subclass_of( $product_class, Hybrid_Product::class );
+			$module_name = $is_hybrid ? $product_class::get_module_name() : null;
+			deactivate_plugins( $file );
+			if ( $is_hybrid ) {
+				return $product_class::do_product_specific_deactivation( $module_name );
 			}
 
-			deactivate_plugins( $file );
 			return true;
 		}
 
@@ -429,7 +437,11 @@ class REST_Main_Features {
 		// A refusal is not fatal here — the plugin is on either way, so failing the request
 		// would contradict the state it returns and invite a retry of what already happened.
 		if ( $product_class ) {
-			$product_class::do_product_specific_activation( true );
+			if ( is_subclass_of( $product_class, Hybrid_Product::class ) ) {
+				$product_class::do_product_specific_activation( true, Initializer::is_offline_features_enabled() );
+			} else {
+				$product_class::do_product_specific_activation( true );
+			}
 		}
 
 		return true;

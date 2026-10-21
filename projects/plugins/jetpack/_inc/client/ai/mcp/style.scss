@@ -8,6 +8,7 @@
 		text-align: start;
 		border-radius: 0;
 		box-shadow: none;
+		border-block-start: var(--wpds-border-width-xs) solid rgba(0, 0, 0, 0.1);
 
 		&:hover {
 			background: var(--wpds-color-background-surface-neutral-weak);
@@ -20,12 +21,12 @@
 
 		// Row decoration icons (Read / Write).
 		svg.jetpack-ai-mcp__row-icon {
-			fill: var(--wpds-color-foreground-content-neutral);
+			color: var(--wpds-color-foreground-content-neutral);
 		}
 	}
 
-	&__action-card {
-		overflow: hidden;
+	&__summary-rows {
+		margin-block-start: var(--wpds-dimension-gap-xl);
 	}
 
 	&__connect-row {
@@ -77,6 +78,26 @@
 		flex-shrink: 0;
 		margin-top: 2px;
 		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__card-content {
+		padding-block: 16px;
+		padding-inline: 24px;
+	}
+
+	&__muted {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__group-title {
+		font-size: 14px;
+		font-weight: 600;
+	}
+
+	// Hashed class name on the description: match its stable suffix.
+	&__tool-switch [class*="__description"] {
+		margin-block-start: var(--wpds-dimension-gap-xs);
+		line-height: 18px;
 	}
 
 	&__badge-content {
@@ -163,10 +184,6 @@
 	// row rather than as a separate paragraph.
 	.components-base-control__help {
 		margin-top: 0;
-	}
-
-	&__access-card {
-		overflow: hidden;
 	}
 
 	// Explainer steps: icon beside the text in one column on phones, icon
