@@ -722,7 +722,7 @@ class Main_Features {
 	/**
 	 * The installed file for a plugin, by the names its product declares where there is one.
 	 *
-	 * A product lists every folder its plugin ships under, including the -dev checkout.
+	 * Prefer an active copy when several declared folders are installed, including -dev checkouts.
 	 *
 	 * @param string      $slug          WordPress.org plugin slug.
 	 * @param string|null $product_class The product behind the plugin, when it has one.
@@ -730,14 +730,28 @@ class Main_Features {
 	 */
 	public static function get_plugin_file( $slug, $product_class = null ) {
 		if ( Product::JETPACK_PLUGIN_SLUG === $slug ) {
-			return Product::get_installed_plugin_filename( 'jetpack' ) ?? false;
+			$filenames = Product::JETPACK_PLUGIN_FILENAME;
+		} elseif ( $product_class && $product_class::$has_standalone_plugin ) {
+			$filenames = $product_class::get_plugin_filename();
+		} else {
+			return Plugins_Installer::get_plugin_id_by_slug( $slug );
 		}
 
-		if ( $product_class && $product_class::$has_standalone_plugin ) {
-			return $product_class::get_installed_plugin_filename();
+		$plugins   = Plugins_Installer::get_plugins();
+		$installed = false;
+		foreach ( (array) $filenames as $file ) {
+			if ( ! isset( $plugins[ $file ] ) ) {
+				continue;
+			}
+			if ( $plugins[ $file ]['active'] ) {
+				return $file;
+			}
+			if ( false === $installed ) {
+				$installed = $file;
+			}
 		}
 
-		return Plugins_Installer::get_plugin_id_by_slug( $slug );
+		return $installed;
 	}
 
 	/**
