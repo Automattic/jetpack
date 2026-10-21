@@ -121,8 +121,8 @@ class Integration_Assets_Test extends BaseTestCase {
 
 		$this->assertFalse( wp_script_is( 'never-registered', 'enqueued' ) );
 		$this->assertNotEmpty( $warned, 'An unregistered handle should trigger _doing_it_wrong.' );
-		$this->assertStringContainsString( 'never-registered', $warned[0] );
-		$this->assertStringContainsString( 'acme/slack', $warned[0] );
+		$this->assertStringContainsString( 'never-registered', implode( "\n", $warned ) );
+		$this->assertStringContainsString( 'acme/slack', implode( "\n", $warned ) );
 	}
 
 	/**

@@ -76,23 +76,20 @@ class Integration_Assets {
 		Built_In_Integrations::register();
 
 		foreach ( Integration_Registry::available() as $slug => $args ) {
-			$handle = isset( $args[ $key ] ) ? $args[ $key ] : null;
+			$handle = $args[ $key ] ?? null;
 
 			if ( ! $handle || ! is_string( $handle ) ) {
 				continue;
 			}
 
 			if ( ! wp_script_is( $handle, 'registered' ) ) {
-				_doing_it_wrong(
-					__METHOD__,
-					sprintf(
-						/* translators: 1: script handle, 2: integration slug. */
-						esc_html__( 'The script "%1$s" declared by the "%2$s" integration is not registered. Register it with wp_register_script() before Jetpack Forms enqueues it.', 'jetpack-forms' ),
-						esc_html( $handle ),
-						esc_html( $slug )
-					),
-					'jetpack-forms-$$next-version$$'
+				$message = sprintf(
+					/* translators: 1: script handle, 2: integration slug. */
+					esc_html__( 'The script "%1$s" declared by the "%2$s" integration is not registered. Register it with wp_register_script() before Jetpack Forms enqueues it.', 'jetpack-forms' ),
+					esc_html( $handle ),
+					esc_html( $slug )
 				);
+				_doing_it_wrong( __METHOD__, $message, 'jetpack-forms-$$next-version$$' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 				continue;
 			}
 

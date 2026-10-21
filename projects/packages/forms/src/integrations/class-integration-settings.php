@@ -42,7 +42,7 @@ class Integration_Settings {
 
 		if ( null !== $legacy_attribute ) {
 			$name  = $legacy_attribute['name'];
-			$value = isset( $form_attributes[ $name ] ) ? $form_attributes[ $name ] : null;
+			$value = $form_attributes[ $name ] ?? null;
 
 			// A legacy attribute holding a single scalar stands for one named setting, so
 			// callers still receive a settings array rather than a bare value.
@@ -54,7 +54,7 @@ class Integration_Settings {
 
 			$settings = null === $value ? array() : $value;
 		} else {
-			$container = isset( $form_attributes[ self::CONTAINER_ATTRIBUTE ] ) ? $form_attributes[ self::CONTAINER_ATTRIBUTE ] : array();
+			$container = $form_attributes[ self::CONTAINER_ATTRIBUTE ] ?? array();
 			$settings  = ( is_array( $container ) && isset( $container[ $slug ] ) ) ? $container[ $slug ] : array();
 		}
 

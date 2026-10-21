@@ -102,6 +102,7 @@ class Integration_Settings_Test extends BaseTestCase {
 
 		$this->assertSame( array(), Integration_Settings::get( 'slack', array() ) );
 		$this->assertSame( array(), Integration_Settings::get( 'slack', array( 'integrations' => array() ) ) );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Deliberately passes a non-array.
 		$this->assertSame( array(), Integration_Settings::get( 'slack', null ) );
 	}
 

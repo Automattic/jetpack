@@ -88,11 +88,8 @@ class Integration_Registry {
 	 */
 	public static function register( $slug, array $args = array() ) {
 		if ( ! is_string( $slug ) || ! preg_match( self::SLUG_PATTERN, $slug ) ) {
-			_doing_it_wrong(
-				__METHOD__,
-				esc_html( 'Integration slugs must look like "name" or "vendor/name", using word characters and hyphens.' ),
-				'jetpack-forms-$$next-version$$'
-			);
+			$message = esc_html( 'Integration slugs must look like "name" or "vendor/name", using word characters and hyphens.' );
+			_doing_it_wrong( __METHOD__, $message, 'jetpack-forms-$$next-version$$' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 			return false;
 		}
 
@@ -136,7 +133,7 @@ class Integration_Registry {
 	 * @return array|null The normalized definition, or null when nothing is registered.
 	 */
 	public static function get( $slug ) {
-		return isset( self::$integrations[ $slug ] ) ? self::$integrations[ $slug ] : null;
+		return self::$integrations[ $slug ] ?? null;
 	}
 
 	/**

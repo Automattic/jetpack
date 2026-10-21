@@ -111,6 +111,7 @@ class Slack_Test extends BaseTestCase {
 
 		$payload = $this->requests[0]['body'];
 
+		$this->assertIsArray( $payload );
 		$this->assertArrayHasKey( 'blocks', $payload );
 		$this->assertSame( 'header', $payload['blocks'][0]['type'] );
 		$this->assertStringContainsString( 'Contact Us', $payload['blocks'][0]['text']['text'] );

@@ -75,7 +75,7 @@ class Slack {
 	 * @return void
 	 */
 	public static function send( array $context ) {
-		$settings = isset( $context['settings'] ) ? $context['settings'] : array();
+		$settings = $context['settings'] ?? array();
 		$url      = isset( $settings['webhookUrl'] ) ? trim( (string) $settings['webhookUrl'] ) : '';
 
 		// A form can be enabled while the URL is missing or has been edited into something
@@ -187,7 +187,7 @@ class Slack {
 
 		foreach ( (array) $feedback->get_compiled_fields( 'email', 'label|value' ) as $field ) {
 			$label = isset( $field['label'] ) ? (string) $field['label'] : '';
-			$value = isset( $field['value'] ) ? $field['value'] : '';
+			$value = $field['value'] ?? '';
 
 			if ( is_array( $value ) ) {
 				$value = implode( ', ', array_map( 'strval', $value ) );
@@ -277,8 +277,8 @@ class Slack {
 	/**
 	 * Record whether the message went out, for stats and for debugging a silent integration.
 	 *
-	 * @param int            $post_id  Feedback post ID.
-	 * @param array|WP_Error $response The result of the request to Slack.
+	 * @param int             $post_id  Feedback post ID.
+	 * @param array|\WP_Error $response The result of the request to Slack.
 	 * @return void
 	 */
 	private static function record_result( $post_id, $response ) {

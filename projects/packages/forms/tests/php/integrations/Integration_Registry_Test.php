@@ -35,6 +35,7 @@ class Integration_Registry_Test extends BaseTestCase {
 
 		$args = Integration_Registry::get( 'slack' );
 
+		$this->assertIsArray( $args );
 		$this->assertSame( 'Slack', $args['title'] );
 		$this->assertSame( 'service', $args['type'] );
 		$this->assertFalse( $args['enabled_by_default'] );
@@ -70,8 +71,8 @@ class Integration_Registry_Test extends BaseTestCase {
 		$this->assertTrue( Integration_Registry::register( 'jetpack/slack', array( 'title' => 'Slack' ) ) );
 		$this->assertTrue( Integration_Registry::register( 'acme/slack', array( 'title' => 'Acme Slack' ) ) );
 
-		$this->assertSame( 'Slack', Integration_Registry::get( 'jetpack/slack' )['title'] );
-		$this->assertSame( 'Acme Slack', Integration_Registry::get( 'acme/slack' )['title'] );
+		$this->assertSame( 'Slack', Integration_Registry::get( 'jetpack/slack' )['title'] ?? null );
+		$this->assertSame( 'Acme Slack', Integration_Registry::get( 'acme/slack' )['title'] ?? null );
 		$this->assertCount( 2, Integration_Registry::all() );
 	}
 
@@ -95,7 +96,7 @@ class Integration_Registry_Test extends BaseTestCase {
 		Integration_Registry::register( 'slack', array( 'title' => 'Second' ) );
 
 		$this->assertCount( 1, Integration_Registry::all() );
-		$this->assertSame( 'Second', Integration_Registry::get( 'slack' )['title'] );
+		$this->assertSame( 'Second', Integration_Registry::get( 'slack' )['title'] ?? null );
 	}
 
 	/**
