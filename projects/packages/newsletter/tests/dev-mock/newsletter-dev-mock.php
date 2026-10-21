@@ -12,8 +12,8 @@
 // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Logging unmatched calls is the point of a dev mock.
 
 /**
- * Fake a WordPress.com connection for user 1 (the Docker admin). Nothing is written to the database,
- * so deactivating the plugin leaves the site exactly as it was.
+ * Fake a WordPress.com connection for user 1 (the Docker admin). No connection data is stored,
+ * so deactivating the plugin leaves the connection exactly as it was.
  *
  * @param mixed  $value Stored value.
  * @param string $name  Option name, without the `jetpack_` prefix.
@@ -36,6 +36,9 @@ add_filter( 'jetpack_options', 'newsletter_dev_mock_connection', 10, 2 );
 
 // A localhost site is in offline mode, which stops connection-only modules (Subscriptions included) from loading.
 add_filter( 'jetpack_offline_mode', '__return_false', 99 );
+
+// With a connection, Sync would start queueing changes in the database for a WordPress.com that isn't there.
+add_filter( 'pre_option_jetpack_sync_settings_disable', '__return_true' );
 
 /**
  * Subscriber totals for the last 30 days, rising from 10 to 45, as the dashboard widget expects.

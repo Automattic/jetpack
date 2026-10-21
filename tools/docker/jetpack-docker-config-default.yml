@@ -17,7 +17,8 @@ default:
 dev:
   volumeMappings:
     # Inactive until activated: fakes a WordPress.com connection so the newsletter screens render locally.
-    projects/packages/newsletter/tests/dev-mock/: /var/www/html/wp-content/plugins/newsletter-dev-mock/
+    # Read-only, so deleting the plugin in wp-admin can't delete it from the checkout.
+    projects/packages/newsletter/tests/dev-mock/: /var/www/html/wp-content/plugins/newsletter-dev-mock/:ro
   extras:
     services:
       phpmyadmin:

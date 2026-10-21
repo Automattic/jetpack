@@ -14,7 +14,7 @@ jp docker wp -- jetpack module activate blocks   # without it, the editor loads 
 jp docker wp -- option update sm_enabled 1       # turns on the subscribe pop-up
 ```
 
-If your Docker site was already running before this mount existed, run `jp docker up` again so the container picks it up. In a worktree with its own Docker instance, add `--name <instance>` after `wp`. The mock connects user 1 (the Docker admin) through the `jetpack_options` filter and writes nothing to the database, so deactivating it leaves the site as it was. Every WordPress.com call without sample data returns a 404 and writes a `newsletter-dev-mock: no sample data for ...` line to `wp-content/debug.log`; add a pattern for that path to `tests/dev-mock/fixtures.json` to fill it.
+If your Docker site was already running before this mount existed, run `jp docker up` again so the container picks it up. In a worktree with its own Docker instance, add `--name <instance>` after `wp`. The mock connects user 1 (the Docker admin) through the `jetpack_options` filter and stores no connection data, so deactivating it leaves the connection as it was. It also turns off Jetpack Sync while active, since there's no WordPress.com to sync to. Every WordPress.com call without sample data returns a 404 and writes a `newsletter-dev-mock: no sample data for ...` line to `wp-content/debug.log`; add a pattern for that path to `tests/dev-mock/fixtures.json` to fill it.
 
 ## Feature map
 
