@@ -177,13 +177,37 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		}
 	}, [ isLocked ] );
 
+	// The last values the server confirmed. A failed choice rolls back to these,
+	// not to the draft, which may hold another choice that is still saving.
+	const savedSettings = useRef( settings );
+	useEffect( () => {
+		savedSettings.current = settings;
+	}, [ settings ] );
+
+	// Which save owns each key the user has picked but the server hasn't
+	// confirmed yet. Two saves can overlap before the controls lock, and a
+	// response must not overwrite a pick a later save is still carrying.
+	const pendingSaves = useRef( new Map< keyof PodcastSettings, number >() );
+	const lastSaveId = useRef( 0 );
+
+	// Take the server-merged record, but keep every pick that is still saving.
+	const acceptSaved = useCallback( ( record: PodcastSettings ) => {
+		savedSettings.current = record;
+		const pending = Array.from( pendingSaves.current.keys() );
+		setDraft( current =>
+			current
+				? { ...record, ...Object.fromEntries( pending.map( key => [ key, current[ key ] ] ) ) }
+				: record
+		);
+	}, [] );
+
 	// Save a partial update, then resync draft from the server-merged record so
 	// `isDirty` and reference checks fall back to false on the saved keys.
 	const commit = useCallback(
 		( updates: PodcastSettingsUpdate ) => {
-			saveSettings( updates, { onSuccess: setDraft } );
+			saveSettings( updates, { onSuccess: acceptSaved } );
 		},
-		[ saveSettings ]
+		[ saveSettings, acceptSaved ]
 	);
 
 	// Curry `commit` once per field key so the per-field editor only knows
@@ -235,23 +259,63 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		normalizeFeedLimit
 	);
 
+	// Discrete choices show the new value right away instead of snapping back
+	// to the saved one until the request returns, and roll back if it fails.
+	const commitChoice = useCallback(
+		( updates: PodcastSettingsUpdate ) => {
+			const keys = Object.keys( updates ) as ( keyof PodcastSettings )[];
+			const saveId = ++lastSaveId.current;
+			keys.forEach( key => pendingSaves.current.set( key, saveId ) );
+
+			// Release the keys this save still owns and return them. A key a
+			// later save has taken over is that save's to settle.
+			const settle = () =>
+				keys.filter( key => {
+					if ( pendingSaves.current.get( key ) !== saveId ) {
+						return false;
+					}
+					pendingSaves.current.delete( key );
+					return true;
+				} );
+
+			setDraft( current => current && { ...current, ...updates } );
+			saveSettings( updates, {
+				onSuccess: record => {
+					settle();
+					acceptSaved( record );
+				},
+				onError: () => {
+					const owned = settle();
+					const saved = savedSettings.current;
+					if ( ! saved || owned.length === 0 ) {
+						return;
+					}
+					const restored = Object.fromEntries( owned.map( key => [ key, saved[ key ] ] ) );
+					setDraft( current => current && { ...current, ...restored } );
+				},
+			} );
+		},
+		[ saveSettings, acceptSaved ]
+	);
+
 	// Discrete-action handlers — these controls "commit" on each user choice
 	// (no blur ambiguity), so they save immediately.
 	const handleCategorySelect = useCallback(
-		( id: number ) => commit( { podcasting_category_id: id } ),
-		[ commit ]
+		( id: number ) => commitChoice( { podcasting_category_id: id } ),
+		[ commitChoice ]
 	);
 	const handleExplicitChange = useCallback(
-		( value: string ) => commit( { podcasting_explicit: value === 'yes' } ),
-		[ commit ]
+		( value: string ) => commitChoice( { podcasting_explicit: value === 'yes' } ),
+		[ commitChoice ]
 	);
 	const handleCoverSelect = useCallback(
-		( id: number, url: string ) => commit( { podcasting_image: url, podcasting_image_id: id } ),
-		[ commit ]
+		( id: number, url: string ) =>
+			commitChoice( { podcasting_image: url, podcasting_image_id: id } ),
+		[ commitChoice ]
 	);
 	const handleCoverRemove = useCallback(
-		() => commit( { podcasting_image: '', podcasting_image_id: 0 } ),
-		[ commit ]
+		() => commitChoice( { podcasting_image: '', podcasting_image_id: 0 } ),
+		[ commitChoice ]
 	);
 	const topicValue = useMemo(
 		() =>
@@ -439,7 +503,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 									__nextHasNoMarginBottom
 									__experimentalExpandOnFocus
 									__experimentalValidateInput={ isKnownTopic }
-									__experimentalShowHowTo={ false }
+									help=""
 									label={ __( 'Podcast topics', 'jetpack-podcast' ) }
 									value={ draftTopics }
 									suggestions={ TOPIC_SUGGESTIONS }

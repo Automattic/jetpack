@@ -189,6 +189,39 @@ export function NewsletterSettingsBody( {
 	>( {} );
 	const [ isSavingSubscribeModal, setIsSavingSubscribeModal ] = useState( false );
 
+	// Auto-saved sections stage nothing, so count their requests that are still in flight.
+	const [ pendingAutoSaves, setPendingAutoSaves ] = useState( 0 );
+
+	const hasSubscriptionChanges = Object.keys( subscriptionChanges ).length > 0;
+	const hasSenderNameChanges = Object.keys( senderNameChanges ).length > 0;
+	const hasNewsletterCategoriesChanges = Object.keys( newsletterCategoriesChanges ).length > 0;
+	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
+	const hasSubscribeModalChanges = Object.keys( subscribeModalChanges ).length > 0;
+
+	const mayLoseChanges =
+		hasSubscriptionChanges ||
+		hasSenderNameChanges ||
+		hasNewsletterCategoriesChanges ||
+		hasWelcomeEmailChanges ||
+		hasSubscribeModalChanges ||
+		pendingAutoSaves > 0;
+
+	// Ask the browser to confirm leaving the page while an edit is unsaved or still saving.
+	useEffect( () => {
+		if ( ! mayLoseChanges ) {
+			return;
+		}
+
+		const warn = ( event: BeforeUnloadEvent ) => {
+			event.preventDefault();
+			// Older browsers only prompt when this is set.
+			event.returnValue = '';
+		};
+
+		window.addEventListener( 'beforeunload', warn );
+		return () => window.removeEventListener( 'beforeunload', warn );
+	}, [ mayLoseChanges ] );
+
 	// Get newsletter script data.
 	const newsletterScriptData = useMemo( () => getNewsletterScriptData(), [] );
 
@@ -319,6 +352,7 @@ export function NewsletterSettingsBody( {
 			setData( prev => ( { ...prev, ...updates } ) );
 
 			// Save to backend.
+			setPendingAutoSaves( count => count + 1 );
 			updateSettings( updates )
 				.then( () => {
 					// Advance the saved baseline now that these values are persisted.
@@ -331,6 +365,9 @@ export function NewsletterSettingsBody( {
 					createErrorNotice( err.message || __( 'Failed to save settings', 'jetpack-newsletter' ) );
 					// Revert optimistic update on error.
 					setData( data );
+				} )
+				.finally( () => {
+					setPendingAutoSaves( count => count - 1 );
 				} );
 		},
 		[ createErrorNotice, createSuccessNotice, data, siteType ]
@@ -586,12 +623,6 @@ export function NewsletterSettingsBody( {
 	if ( ! data ) {
 		return null;
 	}
-
-	const hasSubscriptionChanges = Object.keys( subscriptionChanges ).length > 0;
-	const hasSenderNameChanges = Object.keys( senderNameChanges ).length > 0;
-	const hasNewsletterCategoriesChanges = Object.keys( newsletterCategoriesChanges ).length > 0;
-	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
-	const hasSubscribeModalChanges = Object.keys( subscribeModalChanges ).length > 0;
 
 	return (
 		<>
