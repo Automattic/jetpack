@@ -1,5 +1,5 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { getBlogId } from './site';
 import type { SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { View } from '@wordpress/dataviews';
@@ -186,15 +186,17 @@ export function useViewState( defaultView: View ): [ View, ( next: View ) => voi
 		};
 	} );
 
-	// Save only sizes the admin picks here, not one that arrived in a shared link's `pp` param.
-	const skipFirstSave = useRef( true );
-	useEffect( () => {
-		if ( skipFirstSave.current ) {
-			skipFirstSave.current = false;
-			return;
-		}
-		savePerPage( view.perPage );
-	}, [ view.perPage ] );
+	// Save only sizes the admin picks here, not one that arrived in a shared link's `pp` param. This
+	// runs in the setter rather than an effect, since StrictMode runs effects twice on mount.
+	const setView = useCallback(
+		( next: View ) => {
+			if ( next.perPage !== view.perPage ) {
+				savePerPage( next.perPage );
+			}
+			setViewState( next );
+		},
+		[ view.perPage ]
+	);
 
 	// Sync URL when the view changes — but skip the very first render, since we just hydrated
 	// from the URL and would otherwise trigger an immediate replaceState with the same values.
@@ -211,5 +213,5 @@ export function useViewState( defaultView: View ): [ View, ( next: View ) => voi
 		window.history.replaceState( window.history.state, '', newUrl );
 	}, [ view ] );
 
-	return [ view, setViewState ];
+	return [ view, setView ];
 }

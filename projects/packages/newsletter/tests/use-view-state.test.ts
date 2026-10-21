@@ -1,5 +1,6 @@
 import { getSiteData } from '@automattic/jetpack-script-data';
 import { act, renderHook } from '@testing-library/react';
+import { StrictMode } from 'react';
 import { useViewState } from '../_inc/subscribers/lib/use-view-state';
 import type { View } from '@wordpress/dataviews';
 
@@ -10,9 +11,10 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 
 const defaultView: View = { type: 'table', page: 1, perPage: 20 };
 
+// StrictMode, as in wp-admin with SCRIPT_DEBUG on, runs each effect twice on mount.
 const openPage = ( search = '' ) => {
 	window.history.replaceState( null, '', `/wp-admin/admin.php${ search }` );
-	return renderHook( () => useViewState( defaultView ) );
+	return renderHook( () => useViewState( defaultView ), { wrapper: StrictMode } );
 };
 
 describe( 'useViewState', () => {
@@ -49,6 +51,12 @@ describe( 'useViewState', () => {
 		const { result: laterVisit } = openPage( '?page=jetpack-newsletter' );
 
 		expect( laterVisit.current[ 0 ].perPage ).toBe( 50 );
+	} );
+
+	it( 'remembers nothing until a page size is picked', () => {
+		openPage( '?page=jetpack-newsletter' ).unmount();
+
+		expect( window.localStorage ).toHaveLength( 0 );
 	} );
 
 	it( 'remembers nothing when the site has no WordPress.com id', () => {
