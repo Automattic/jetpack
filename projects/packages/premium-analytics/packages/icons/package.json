@@ -7,8 +7,8 @@
 	"types": "src/index.ts",
 	"sideEffects": false,
 	"dependencies": {
-		"@wordpress/icons": "^18.0.0",
-		"@wordpress/primitives": "4.57.0",
+		"@wordpress/icons": "^19.0.0",
+		"@wordpress/primitives": "5.0.0",
 		"react": "19.3.0"
 	},
 	"devDependencies": {
