@@ -3,14 +3,7 @@ import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { TemplatePlacements } from '../components/template-placements';
 import { LikeButtonsSection } from '../sections/like-buttons-section';
-import {
-	apiCalls,
-	baseSettings,
-	baseStatus,
-	renderWithData,
-	resetNotices,
-	setScriptData,
-} from './helpers';
+import { apiCalls, baseSettings, baseStatus, renderWithData, setScriptData } from './helpers';
 import type { Feature, Settings, Status, TemplatePlacement } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -79,7 +72,6 @@ function cardsWithPreview(): string[] {
 
 beforeEach( () => {
 	mockApiFetch.mockReset();
-	resetNotices();
 	setScriptData();
 } );
 

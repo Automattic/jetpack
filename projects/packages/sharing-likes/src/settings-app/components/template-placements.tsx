@@ -1,10 +1,9 @@
 import CheckboxCard, { CheckboxCardGrid } from '@automattic/jetpack-components/checkbox-card';
-import { useIsFetching, useIsMutating, useMutationState } from '@tanstack/react-query';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Fieldset, Link, Text } from '@wordpress/ui';
-import { SAVE_SETTING_KEY, WRITES_KEY, queryKeys, useSettings, useStatus } from '../data/queries';
-import { useSaveSetting, type SettingChange } from '../data/use-save-setting';
+import { useIsSaving, useSettings, useStatus } from '../data/queries';
+import { useSaveSetting } from '../data/use-save-setting';
 import { PlacementIllustration, type PlacedBlock } from './placement-illustrations';
 import { SettingGroup } from './section-card';
 import type { Feature, TemplatePlacement } from '../types';
@@ -40,28 +39,6 @@ function copyFor( feature: Feature ) {
 }
 
 /**
- * The placements of the last save that went through, which the optimistic cache value hides while saves are pending.
- *
- * @param key     - Setting.
- * @param current - Cached value.
- * @return Saved placements.
- */
-function useSavedPlacements(
-	key: ( typeof SETTING_KEYS )[ Feature ],
-	current: TemplatePlacement[]
-): TemplatePlacement[] {
-	// Saves run one at a time, so the oldest pending one still holds what the server has.
-	const oldestPending = useMutationState( {
-		filters: { mutationKey: SAVE_SETTING_KEY, status: 'pending' },
-		select: mutation => mutation.state.variables as SettingChange | undefined,
-	} ).find( change => change?.key === key );
-
-	return oldestPending
-		? ( ( oldestPending.previous as TemplatePlacement[] | undefined ) ?? [] )
-		: current;
-}
-
-/**
  * Cards that add the feature's block before or after the content of single posts and pages.
  *
  * @param props          - Props.
@@ -80,13 +57,10 @@ export function TemplatePlacements( {
 	const key = SETTING_KEYS[ feature ];
 	const offered = useSettings()?.[ key ];
 	const selected = offered ?? [];
-	const saved = useSavedPlacements( key, selected );
 	const saveSetting = useSaveSetting();
-	// "Switch to the … block" lands in this variant before settings are read again, so the key is still missing.
-	const settling =
-		useIsMutating( { mutationKey: WRITES_KEY } ) +
-			useIsFetching( { queryKey: queryKeys.settings } ) >
-		0;
+	// While a write is pending the stored settings may not be what the server has yet. A feature action
+	// counts until settings are read again, so right after "Switch to the … block" the key can still be missing.
+	const saving = useIsSaving();
 
 	const handleChange = useCallback(
 		( name: string, next: boolean ) => {
@@ -96,7 +70,7 @@ export function TemplatePlacements( {
 		[ key, saveSetting ]
 	);
 
-	if ( ! offered && ! settling ) {
+	if ( ! offered && ! saving ) {
 		return <>{ fallback }</>;
 	}
 
@@ -123,9 +97,8 @@ export function TemplatePlacements( {
 							checked={ selected.includes( placement ) }
 							onChange={ handleChange }
 							previewUrl={
-								selected.includes( placement ) && saved.includes( placement )
-									? previewUrl
-									: undefined
+								// The template only has the block once the save has gone through.
+								selected.includes( placement ) && ! saving ? previewUrl : undefined
 							}
 							disabled={ ! offered }
 						/>
