@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the SEO menu item in the sidebar even when the seo-tools module is off, so the module can be turned back on from the page.
