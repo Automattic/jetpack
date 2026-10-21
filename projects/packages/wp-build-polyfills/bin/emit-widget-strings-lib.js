@@ -1,16 +1,8 @@
 /**
- * Library for the `emit-widget-strings` bin.
- *
- * wp-build copies each widget's `widget.json` metadata into
- * `build/widgets/registry.php` as plain literals, and the widget registry
- * translates them at hydration with `_x( value, context, domain )`, the
- * contexts coming from the widget i18n schema (`widget-i18n.json`). No
- * extractor reads either file, so on their own the (msgid, msgctxt) pairs
- * never reach a catalog: `wp i18n make-pot` knows `block.json` natively,
- * `widget.json` not yet. This emits a PHP file nothing loads, holding one
- * `_x()` per value with the exact context and domain the registry will look
- * up, the way core's `wp-admin/includes/continents-cities.php` exists for
- * gettext alone.
+ * Library for the `emit-widget-strings` bin: one `_x()` per translatable
+ * `widget.json` value, so gettext extraction sees the strings the widget
+ * registry translates at hydration. Rationale and usage: README,
+ * "widget.json strings".
  */
 
 const fs = require( 'fs' );

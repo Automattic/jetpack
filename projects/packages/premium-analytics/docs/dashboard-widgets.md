@@ -191,7 +191,7 @@ Every record says where its bundles' catalogs live. `routes/widget-module-i18n.t
 
 `createWidgetModuleResolver()` caches the record's manifest by URL once (`loadI18nManifest()` in wp-build-polyfills) and loads the bundle's catalog under the record's `textdomain` before importing. The metadata bundles are preloaded the same way. A record without a text domain is treated as the package's own.
 
-The `widget.json` strings take the PHP lane instead: the registry translates them at hydration with the contexts in `src/widget-i18n.json`, and `emit-widget-strings` (wp-build-polyfills) writes `build/widgets/widget-strings.php` at build time, one `_x()` per value with that context and the widget's text domain, so extraction sees them. Nothing loads the file. A package whose widgets register through this registry runs the bin against this package's schema.
+The `widget.json` strings take the PHP lane instead: the registry translates them at hydration with the contexts in `src/widget-i18n.json`, and the `emit-widget-strings` build step of wp-build-polyfills (see its README) hands extraction one `_x()` per value. A package whose widgets register through this registry runs it against this package's schema.
 
 What the catalog load hashes is the bundle path relative to the plugin, the way WordPress names JS translation files. A package vendored inside a plugin therefore needs its text domain aliased in the plugin's `i18n-map.php`, as this package's is.
 

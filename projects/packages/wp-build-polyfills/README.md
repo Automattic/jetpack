@@ -100,7 +100,7 @@ wp-build copies each widget's `widget.json` metadata into `build/widgets/registr
 "build:widget-strings": "emit-widget-strings --schema ../premium-analytics/src/widget-i18n.json"
 ```
 
-`--schema` defaults to `src/widget-i18n.json`; `--domain`, `--widgets` and `--out` override the package domain, the widgets directory and the output path.
+`--schema` defaults to `src/widget-i18n.json`; `--domain` (composer.json `extra.textdomain`), `--widgets` (`widgets`) and `--out` (`build/widgets/widget-strings.php`) override the package domain, the widgets directory and the output path.
 
 ## Safety checks
 

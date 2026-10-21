@@ -2,17 +2,9 @@
 /* global process */
 
 /**
- * Thin wrapper around the emit-widget-strings library. Run from a package
- * directory, it writes `build/widgets/widget-strings.php`: one `_x()` per
- * translatable `widget.json` value, so gettext extraction sees the metadata
- * the widget registry translates at hydration.
- *
- * Flags: `--domain` (default: composer.json `extra.textdomain`) for widgets
- * that declare no `textdomain`; `--schema` (default: `src/widget-i18n.json`),
- * the i18n schema the registry uses; `--widgets` (default: `widgets`); `--out`
- * (default: `build/widgets/widget-strings.php`).
- *
- * See `emit-widget-strings-lib.js` for context and behaviour details.
+ * Run from a package directory after wp-build, writes
+ * `build/widgets/widget-strings.php` from the package's `widget.json` files.
+ * Flags and rationale: README, "widget.json strings".
  */
 
 const fs = require( 'fs' );
