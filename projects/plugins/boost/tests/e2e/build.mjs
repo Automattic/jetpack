@@ -128,7 +128,7 @@ if ( errors.length ) {
 console.log( 'Boost E2E build list check passed.' );
 
 const args = [ 'jetpack', 'build', ...targets, '-v', '--no-pnpm-install', '--production' ];
-// --check prints the planned arguments for local mutation proofs without building.
+// --check validates the lists and prints the build arguments without building.
 if ( process.argv.includes( '--check' ) ) {
 	console.log( `Boost E2E build arguments: ${ JSON.stringify( args ) }` );
 } else {
