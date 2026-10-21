@@ -90,11 +90,12 @@ class Backup_Product_Test extends TestCase {
 	 * @param bool  $missed    Whether a refresh missed the plan moments ago.
 	 * @param bool  $in_admin  Whether Manage should open wp-admin.
 	 * @param bool  $holds_off Whether a refresh is held off afterwards.
+	 * @param bool  $shared    Whether another request refreshed the plan moments ago.
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	#[DataProvider( 'provide_manage_urls' )]
-	public function test_manage_url_follows_the_plan( $stored, $wpcom, $refreshed, $dashboard, $missed, $in_admin, $holds_off ) {
+	public function test_manage_url_follows_the_plan( $stored, $wpcom, $refreshed, $dashboard, $missed, $in_admin, $holds_off, $shared = false ) {
 		( new Tokens() )->update_blog_token( 'key.secret' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -124,6 +125,7 @@ class Backup_Product_Test extends TestCase {
 		);
 		$dashboard || add_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
 		$missed && set_transient( Backup::PLAN_REFRESH_MISS_TRANSIENT_KEY, true, MINUTE_IN_SECONDS );
+		$shared && set_transient( Wpcom_Products::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY, 1, MINUTE_IN_SECONDS );
 
 		$this->assertSame( $in_admin, admin_url( 'admin.php?page=jetpack-backup' ) === Backup::get_manage_url() );
 		$this->assertSame( $holds_off, (bool) get_transient( Backup::PLAN_REFRESH_MISS_TRANSIENT_KEY ) );
@@ -138,6 +140,7 @@ class Backup_Product_Test extends TestCase {
 		return array(
 			'a stored Backup plan'                   => array( array( 'backups' ), array(), array(), true, false, true, false ),
 			'a purchase the stored plan catches up'  => array( array(), array( 'backups' ), array( 'backups' ), true, false, true, false ),
+			'a catch-up after a shared refresh'      => array( array(), array( 'backups' ), array( 'backups' ), true, false, true, false, true ),
 			'a purchase the stored plan lacks still' => array( array(), array( 'backups' ), array(), true, false, false, true ),
 			'a recent miss holds off the refresh'    => array( array(), array( 'backups' ), array( 'backups' ), true, true, false, true ),
 			'no plan'                                => array( array(), array(), array(), true, false, false, false ),

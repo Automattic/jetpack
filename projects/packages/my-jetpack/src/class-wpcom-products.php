@@ -425,7 +425,8 @@ class Wpcom_Products {
 
 		// The page render and the REST requests it fires all reload, so share one refresh between them.
 		if ( $reload && ! $reloaded_already ) {
-			if ( ! get_transient( self::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY ) ) {
+			// Without a site ID nothing was asked, so leave the first request after connecting free to.
+			if ( ! get_transient( self::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY ) && Connection_Manager::get_site_id( true ) ) {
 				Current_Plan::refresh_from_wpcom();
 				set_transient( self::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY, 1, self::MY_JETPACK_PLAN_REFRESH_CACHE_DURATION );
 			}
