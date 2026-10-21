@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useReportScope } from '@jetpack-premium-analytics/data';
+import { useReportScope, type LockableInterval } from '@jetpack-premium-analytics/data';
 import {
 	isComparisonPresetId,
 	isPrimaryPreset,
@@ -18,6 +18,7 @@ import { useMemo, useCallback, useState } from 'react';
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
+import { DateLimitUpsell } from '../date-limit-upsell';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 import type { DateControlTriggerProps } from '../utils/date-control-trigger';
@@ -90,6 +91,9 @@ export type DateFiltersPanelProps = {
 	 */
 	intervalOptions?: readonly IntervalType[];
 
+	/** The buckets the range would allow but the plan locks, listed with a lock. */
+	lockedIntervalOptions?: readonly LockableInterval[];
+
 	onChange: DatePeriodDropdownProps[ 'onChange' ];
 
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
@@ -148,6 +152,7 @@ export function DateFiltersPanel( {
 	withIntervalControl = false,
 	interval,
 	intervalOptions,
+	lockedIntervalOptions,
 	onChange,
 	onComparisonChange,
 	onIntervalChange,
@@ -171,7 +176,7 @@ export function DateFiltersPanel( {
 	 * Read rather than a prop, so this and the widgets share one declaration —
 	 * a header can never offer a comparison the widgets below aren't fetching.
 	 */
-	const { offersComparison } = useReportScope();
+	const { offersComparison, dateLimits } = useReportScope();
 
 	// Unknown values (e.g. garbage from the URL) become undefined, which the
 	// dropdown reads as the custom preset.
@@ -253,13 +258,24 @@ export function DateFiltersPanel( {
 			withIntervalControl && intervalOptions && onIntervalChange ? (
 				<DateIntervalDropdown
 					options={ intervalOptions }
+					lockedOptions={ lockedIntervalOptions }
+					lockUpsell={ dateLimits?.intervalUpsell }
 					value={ interval }
 					disabled={ disabled }
 					triggerProps={ triggerProps }
 					onChange={ onIntervalChange }
 				/>
 			) : null,
-		[ withIntervalControl, interval, intervalOptions, disabled, triggerProps, onIntervalChange ]
+		[
+			withIntervalControl,
+			interval,
+			intervalOptions,
+			lockedIntervalOptions,
+			dateLimits?.intervalUpsell,
+			disabled,
+			triggerProps,
+			onIntervalChange,
+		]
 	);
 
 	return (
@@ -292,6 +308,9 @@ export function DateFiltersPanel( {
 						allTimeStartsOnServer={ allTimeStartsOnServer }
 						withCustomRange={ withCustomRange }
 						attentionId={ attentionId }
+						lockedPresetIds={ dateLimits?.lockedPresetIds }
+						earliestDate={ dateLimits?.earliestDate }
+						lockNotice={ dateLimits?.upsell && <DateLimitUpsell upsell={ dateLimits.upsell } /> }
 					/>
 				</BaseControl>
 

@@ -21,6 +21,18 @@ class Wpcom_Themes_Tiers_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Premium themes need the Personal plan, which is what a card offering the upgrade must say.
+	 *
+	 * The tier kept its name when it moved to Personal, so the two no longer match.
+	 */
+	public function test_the_plan_a_tier_needs() {
+		$this->assertSame( 'personal-bundle', WPCom_Themes_Tiers::plan_for( 'premium' ) );
+		$this->assertSame( 'business-bundle', WPCom_Themes_Tiers::plan_for( 'sensei' ) );
+		$this->assertSame( 'business-bundle', WPCom_Themes_Tiers::plan_for( 'woocommerce' ) );
+		$this->assertSame( '', WPCom_Themes_Tiers::plan_for( 'free' ) );
+	}
+
+	/**
 	 * The capability name follows the tier slug, which is the convention wpcomsh relies on.
 	 */
 	public function test_capability_name_follows_the_tier() {

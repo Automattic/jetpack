@@ -19,7 +19,7 @@ type StatusStateFunction = (
 	suppressNeedsAttention: boolean
 ) => string;
 
-const getStatusLabel: StatusStateFunction = ( status, isOwned, suppressNeedsAttention ) => {
+export const getStatusLabel: StatusStateFunction = ( status, isOwned, suppressNeedsAttention ) => {
 	switch ( status ) {
 		case PRODUCT_STATUSES.ACTIVE:
 		case PRODUCT_STATUSES.CAN_UPGRADE:
@@ -59,22 +59,36 @@ const getStatusLabel: StatusStateFunction = ( status, isOwned, suppressNeedsAtte
 	}
 };
 
-const getStatusClassName: StatusStateFunction = ( status, isOwned, suppressNeedsAttention ) => {
+export type StatusTone = 'active' | 'warning' | 'inactive' | 'error';
+
+/**
+ * The tone a product's status is shown in, such as the colour of its dot.
+ *
+ * @param {ProductStatus} status                 - The product status.
+ * @param {boolean}       isOwned                - Whether the site owns the product.
+ * @param {boolean}       suppressNeedsAttention - Whether to show "needs attention" as active.
+ * @return {StatusTone} The tone.
+ */
+export const getStatusTone = (
+	status: ProductStatus,
+	isOwned: boolean,
+	suppressNeedsAttention: boolean
+): StatusTone => {
 	switch ( status ) {
 		case PRODUCT_STATUSES.ACTIVE:
 		case PRODUCT_STATUSES.CAN_UPGRADE:
-			return styles.active;
+			return 'active';
 		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
 		case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
 		case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 		case PRODUCT_STATUSES.EXPIRING_SOON:
-			return styles.warning;
+			return 'warning';
 		case PRODUCT_STATUSES.INACTIVE:
 		case PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION:
 		case PRODUCT_STATUSES.NEEDS_ACTIVATION:
-			return styles.inactive;
+			return 'inactive';
 		case PRODUCT_STATUSES.NEEDS_PLAN:
-			return isOwned ? styles.warning : styles.inactive;
+			return isOwned ? 'warning' : 'inactive';
 		case PRODUCT_STATUSES.EXPIRED:
 		case PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING:
 			/**
@@ -83,18 +97,21 @@ const getStatusClassName: StatusStateFunction = ( status, isOwned, suppressNeeds
 			 * status as 'Active'.
 			 */
 			if ( suppressNeedsAttention ) {
-				return styles.active;
+				return 'active';
 			}
-			return styles.warning;
+			return 'warning';
 		case PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR:
 			if ( suppressNeedsAttention ) {
-				return styles.active;
+				return 'active';
 			}
-			return styles.error;
+			return 'error';
 		default:
-			return styles.inactive;
+			return 'inactive';
 	}
 };
+
+const getStatusClassName: StatusStateFunction = ( status, isOwned, suppressNeedsAttention ) =>
+	styles[ getStatusTone( status, isOwned, suppressNeedsAttention ) ];
 
 const Status: FC< StatusProps > = ( {
 	status,

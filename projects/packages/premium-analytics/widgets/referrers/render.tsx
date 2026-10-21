@@ -35,8 +35,10 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
-import type { ReferrersAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type ReferrersAttributes = Record< never, never >;
 
 type ReferrersRenderAttributes = ReferrersAttributes & Partial< ReportParamsFieldAttributes >;
 
@@ -155,11 +157,13 @@ export function ReferrersLeaderboard( {
 }: ReferrersLeaderboardProps ) {
 	return (
 		<LeaderboardChart
+			chartTitle={ __( 'Top referrers', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Referrers', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
 		/>
 	);
 }
@@ -315,6 +319,10 @@ function ReferrersInner() {
 	);
 }
 
+/**
+ * Shows the websites and search engines referring visitors for the selected
+ * dashboard date range via the PA proxy at `stats/referrers`.
+ */
 export default function ReferrersWidget( {
 	attributes = {},
 }: WidgetRenderProps< ReferrersRenderAttributes > ) {

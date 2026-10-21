@@ -56,6 +56,18 @@ export function getLocationColumnLabel( section: LocationsReportSection ): strin
 	}
 }
 
+/** The section's plural place type, which heads its report tab, widget header and dropdown option. */
+export function getLocationsSectionLabel( section: LocationsReportSection ): string {
+	switch ( section ) {
+		case 'regions':
+			return __( 'Regions', 'jetpack-premium-analytics-pkg' );
+		case 'cities':
+			return __( 'Cities', 'jetpack-premium-analytics-pkg' );
+		default:
+			return __( 'Countries', 'jetpack-premium-analytics-pkg' );
+	}
+}
+
 /** Countries is already the full country list, so only the other sections take a country. */
 export function supportsLocationsCountryFilter( section: LocationsReportSection ): boolean {
 	return section !== 'countries';

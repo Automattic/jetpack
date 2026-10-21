@@ -39,6 +39,14 @@ beforeEach( () => {
 } );
 
 const setSiteEditor = ( siteEditor: unknown ) => {
+	window.myJetpackInitialState = {
+		deprecatedModules: [
+			'google-fonts',
+			...( ( siteEditor as { isBlockTheme?: boolean } ).isBlockTheme
+				? [ 'widgets', 'widget-visibility' ]
+				: [] ),
+		],
+	} as Window[ 'myJetpackInitialState' ];
 	window.JetpackScriptData = {
 		site: { admin_url: 'https://example.com/wp-admin/' },
 		myJetpack: { siteEditor },
@@ -274,6 +282,22 @@ describe( 'MoreFeatures', () => {
 
 		rerender( section( configured, { 'module:sharedaddy': true } ) );
 		expect( link() ).not.toBeInTheDocument();
+	} );
+
+	it( 'links to no settings for a module still waiting for an account', () => {
+		setSiteEditor( { isBlockTheme: false } );
+		const waiting = {
+			...sharing,
+			activated: true,
+			available: false,
+			requires_user_connection: true,
+			configure_url: 'https://example.com/settings',
+		};
+
+		render( <FeatureItem state={ getModuleFeatureState( waiting, {}, true ) } /> );
+
+		expect( screen.getByText( 'Needs user account' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^Configure / } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'links to no settings where the Site Editor block replaces the module', () => {

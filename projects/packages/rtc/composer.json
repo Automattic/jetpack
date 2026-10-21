@@ -46,7 +46,6 @@
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"extra": {
-		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "0.2.x-dev"
 		},

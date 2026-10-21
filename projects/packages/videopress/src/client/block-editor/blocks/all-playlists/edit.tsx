@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { EmptyStateControl } from '../../channel/editor-controls';
 import { blockStyleVars } from './block-style-vars';
 import { hydratePoster } from './hydrate-poster';
 import { MAX_COLUMNS, MAX_PER_PAGE, MIN_COLUMNS, MIN_PER_PAGE } from './types';
@@ -81,6 +82,7 @@ export default function AllPlaylistsEdit( {
 		showDescription,
 		showVideoCount,
 		pagination,
+		excludeCurrent,
 		showUpdated,
 	} = attributes;
 	const { status, html, summary } = useRenderedPreview( attributes );
@@ -182,6 +184,11 @@ export default function AllPlaylistsEdit( {
 					] }
 					onChange={ ( value: string ) => setAttributes( { orderBy: value as AllPlaylistsOrder } ) }
 				/>
+				<EmptyStateControl
+					kind="playlists"
+					value={ attributes.emptyState }
+					onChange={ emptyState => setAttributes( { emptyState } ) }
+				/>
 			</PanelBody>
 
 			<PanelBody title={ __( 'Show on each playlist', 'jetpack-videopress-pkg' ) }>
@@ -202,6 +209,16 @@ export default function AllPlaylistsEdit( {
 					label={ __( 'Last update and length', 'jetpack-videopress-pkg' ) }
 					checked={ !! showUpdated }
 					onChange={ ( value: boolean ) => setAttributes( { showUpdated: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Hide the playlist being viewed', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'For channel playlist pages, e.g. a “More playlists” row.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ !! excludeCurrent }
+					onChange={ ( value: boolean ) => setAttributes( { excludeCurrent: value } ) }
 				/>
 			</PanelBody>
 

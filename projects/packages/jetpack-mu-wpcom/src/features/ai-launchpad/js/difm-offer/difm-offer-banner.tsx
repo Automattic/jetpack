@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { close } from '@wordpress/icons';
+import { closeSmall } from '@wordpress/icons';
 import { IconButton, ButtonLink } from '@wordpress/ui';
 import { createEngagementTracker, selectionLength } from './engagement.ts';
 import {
@@ -102,6 +102,43 @@ function useEngagementTracking(
 }
 
 /**
+ * The banner copy for each experiment arm. The copy matches Calypso's `getDifmOfferCopy()`.
+ *
+ * @param variation - The ExPlat variation from the server.
+ * @return The title and description, or null for a variation with no copy.
+ */
+function getCopy( variation: string ): { title: string; description: string } | null {
+	switch ( variation ) {
+		case 'expert_help':
+			return {
+				title: __( 'Expert help to get you started', 'jetpack-mu-wpcom' ),
+				description: __(
+					'A human builds your site based on your needs — free with Business.',
+					'jetpack-mu-wpcom'
+				),
+			};
+		case 'no_time_to_build':
+			return {
+				title: __( 'No time to build your site?', 'jetpack-mu-wpcom' ),
+				description: __(
+					'Let us take that off your plate. Ready in 4 days and free with Business.',
+					'jetpack-mu-wpcom'
+				),
+			};
+		case 'skip_the_setup':
+			return {
+				title: __( 'Skip the setup', 'jetpack-mu-wpcom' ),
+				description: __(
+					'For a limited time, our experts will bring your vision to life. Free with Business.',
+					'jetpack-mu-wpcom'
+				),
+			};
+		default:
+			return null;
+	}
+}
+
+/**
  * The free DIFM offer banner under the task list. The server decides eligibility and the
  * experiment assignment, so this only renders the offer it is given.
  *
@@ -114,10 +151,15 @@ export function DifmOfferBanner( { offer, onDismiss }: Props ) {
 	const ref = useRef< HTMLDivElement >( null );
 	// The variation is fixed for a page load, so the props, and the effects keyed on them, stay put.
 	const tracksProps = useMemo( () => difmOfferTracksProps( offer.variation ), [ offer.variation ] );
+	const copy = getCopy( offer.variation );
+	const hasCopy = copy !== null;
 
 	useEffect( () => {
-		recordDifmOfferEvent( IMPRESSION_EVENT, tracksProps );
-	}, [ tracksProps ] );
+		// A banner with no copy renders nothing, so it records no impression.
+		if ( hasCopy ) {
+			recordDifmOfferEvent( IMPRESSION_EVENT, tracksProps );
+		}
+	}, [ tracksProps, hasCopy ] );
 
 	useEngagementTracking( ref, tracksProps );
 
@@ -128,19 +170,18 @@ export function DifmOfferBanner( { offer, onDismiss }: Props ) {
 		apiFetch( dismissalRequest( new Date() ) ).catch( () => {} );
 	};
 
+	if ( ! copy ) {
+		return null;
+	}
+
 	return (
 		<div className="ai-launchpad-difm-offer" ref={ ref }>
-			<img className="ai-launchpad-difm-offer__image" src={ offer.image_url } alt="" />
-			<div className="ai-launchpad-difm-offer__body">
-				<h2 className="ai-launchpad-difm-offer__title">
-					{ __( 'No time to build your site?', 'jetpack-mu-wpcom' ) }
-				</h2>
-				<p className="ai-launchpad-difm-offer__description">
-					{ __(
-						'Let us take that off your plate. Ready in 4 days and free with Business.',
-						'jetpack-mu-wpcom'
-					) }
-				</p>
+			<div className="ai-launchpad-difm-offer__content">
+				<img className="ai-launchpad-difm-offer__image" src={ offer.image_url } alt="" />
+				<div className="ai-launchpad-difm-offer__body">
+					<h2 className="ai-launchpad-difm-offer__title">{ copy.title }</h2>
+					<p className="ai-launchpad-difm-offer__description">{ copy.description }</p>
+				</div>
 				<ButtonLink
 					className="ai-launchpad-difm-offer__cta"
 					variant="outline"
@@ -161,7 +202,7 @@ export function DifmOfferBanner( { offer, onDismiss }: Props ) {
 				variant="minimal"
 				tone="neutral"
 				size="small"
-				icon={ close }
+				icon={ closeSmall }
 				label={ __( 'Dismiss', 'jetpack-mu-wpcom' ) }
 				onClick={ handleDismiss }
 			/>

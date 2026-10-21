@@ -125,15 +125,17 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 		}
 
-		// The Backup page serves both platforms: it offers the transfer on Simple
-		// and the plan upgrade on WoA, and steps aside once backups are live.
+		// The Backup and Protect pages serve both platforms: they offer the transfer on Simple
+		// and the plan upgrade on WoA, and step aside once the feature is live.
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Constants::is_true( 'IS_ATOMIC' ) ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_backup' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_scan' ) );
 		}
 
 		// At mu-plugin scope, because the Jetpack plugin resolves this filter at the earliest plugins_loaded priority.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			add_filter( 'jetpack_backup_dashboard_enabled', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_jetpack_backup_dashboard' ) );
+			add_filter( 'jetpack_my_jetpack_feature_upgrade', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_my_jetpack_feature_upgrade' ), 10, 3 );
 		}
 
 		// These features run only on atomic sites.
@@ -392,6 +394,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/code-editor/class-code-editor.php';
 		require_once __DIR__ . '/features/wpcom-blocks/code/class-code-block.php';
 		require_once __DIR__ . '/features/css-monkey-patches/index.php';
+		require_once __DIR__ . '/features/editor-welcome-guides/editor-welcome-guides.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
@@ -413,6 +416,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
 		require_once __DIR__ . '/features/wpcom-dashboard/class-wpcom-dashboard.php';
+		require_once __DIR__ . '/features/wpcom-dashboard-tracks/wpcom-dashboard-tracks.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
@@ -849,7 +853,7 @@ class Jetpack_Mu_Wpcom {
 				return;
 			}
 
-			if ( class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+			if ( \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
 				\Automattic\Jetpack\Comments\Comments::init();
 				return;
 			}
@@ -867,12 +871,8 @@ class Jetpack_Mu_Wpcom {
 	 * gate themselves on Comments::is_enabled(), as Posts_To_Podcast_Endpoint does.
 	 */
 	public static function load_jetpack_comments_routes() {
-		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
-			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
-		}
-		if ( class_exists( '\Automattic\Jetpack\Comments\Embeds' ) ) {
-			\Automattic\Jetpack\Comments\Embeds::init();
-		}
+		\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
+		\Automattic\Jetpack\Comments\Embeds::init();
 	}
 
 	/**
@@ -898,6 +898,15 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_backup() {
 		require_once __DIR__ . '/features/wpcom-backup/wpcom-backup.php';
+	}
+
+	/**
+	 * Load the Protect page, which offers Scan, on WordPress.com Simple and WoA sites.
+	 *
+	 * The file hooks its own `init`, where the plan lookup it gates on is ready.
+	 */
+	public static function load_wpcom_scan() {
+		require_once __DIR__ . '/features/wpcom-scan/wpcom-scan.php';
 	}
 
 	/**

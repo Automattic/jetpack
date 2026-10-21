@@ -82,6 +82,15 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
  */
 class Jetpack {
 	/**
+	 * Marks a Jetpack plugin whose Backup dashboard follows the site's plan, not the backup module.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var bool
+	 */
+	const BACKUP_FOLLOWS_PLAN = true;
+
+	/**
 	 * XMLRPC server instance.
 	 *
 	 * @var null|Jetpack_XMLRPC_Server XMLRPC server used by Jetpack.
@@ -663,6 +672,7 @@ class Jetpack {
 		 * a longer investigation to see if code is expecting the Gutenberg class to always be available.
 		 */
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
+		\Automattic\Jetpack\Plugin\Unavailable_Blocks::init();
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
 		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
@@ -841,21 +851,34 @@ class Jetpack {
 	}
 
 	/**
-	 * Enable the bundled Backup dashboard.
+	 * What switching a module off leaves unchanged, for interfaces that still offer it; empty when nothing.
 	 *
-	 * The standalone plugin initializes the package first, so with both active this is a no-op.
+	 * @since $$next-version$$
 	 *
-	 * @return void
+	 * @param string $module Module slug.
+	 * @return string
 	 */
-	public static function configure_backup_package() {
-		// Not offered on multisite, which the Backup package does not support, or without a
-		// connected owner, since buying and managing backups needs a linked account.
-		if ( is_multisite() || ! self::is_connection_ready() || ! self::connection()->has_connected_owner() ) {
-			return;
+	public static function get_module_deactivation_note( $module ) {
+		return 'backup' === $module
+			? __( 'Backups are controlled by your site’s plan.', 'jetpack' )
+			: '';
+	}
+
+	/**
+	 * Whether to offer the bundled Backup dashboard; Backup::offers_jetpack_dashboard() decides.
+	 *
+	 * @return bool
+	 */
+	private static function offers_backup_dashboard() {
+		$product = 'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup';
+
+		if ( method_exists( $product, 'offers_jetpack_dashboard' ) ) {
+			return $product::offers_jetpack_dashboard();
 		}
 
-		if ( ! self::is_module_active( 'backup' ) ) {
-			return;
+		// Another plugin may have loaded an older My Jetpack without it: the same gates, on the current plan only.
+		if ( is_multisite() || ! self::is_connection_ready() || ! self::connection()->has_connected_owner() || ! Jetpack_Plan::supports( 'backups' ) ) {
+			return false;
 		}
 
 		/**
@@ -867,7 +890,18 @@ class Jetpack {
 		 *
 		 * @param bool $enabled Whether to initialize the bundled Backup dashboard. Default true.
 		 */
-		if ( ! apply_filters( 'jetpack_backup_dashboard_enabled', true ) ) {
+		return (bool) apply_filters( 'jetpack_backup_dashboard_enabled', true );
+	}
+
+	/**
+	 * Enable the bundled Backup dashboard.
+	 *
+	 * The standalone plugin initializes the package first, so with both active this is a no-op.
+	 *
+	 * @return void
+	 */
+	public static function configure_backup_package() {
+		if ( ! self::offers_backup_dashboard() ) {
 			return;
 		}
 
@@ -1190,6 +1224,13 @@ class Jetpack {
 
 		if ( ( new Modules() )->is_active( 'podcast' ) ) {
 			Podcast::init();
+		} else {
+			add_action(
+				'jetpack_register_gutenberg_extensions',
+				static function () {
+					Jetpack_Gutenberg::set_extension_unavailable( 'podcast-episode', 'missing_module', array( 'module' => 'podcast' ) );
+				}
+			);
 		}
 
 		/*

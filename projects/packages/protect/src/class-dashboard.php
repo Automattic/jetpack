@@ -27,7 +27,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * Sidebar menu slug, shared with the Jetpack Protect plugin so the page address never changes.
@@ -50,6 +50,28 @@ class Dashboard {
 	 * @var string
 	 */
 	const RENDER_FUNCTION = 'jetpack_protect_jetpack_protect_dashboard_wp_admin_render_page';
+
+	/**
+	 * The settings section that owns each Jetpack security module, for links from other screens.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var array<string, string>
+	 */
+	const MODULE_SECTIONS = array(
+		'waf'                => 'firewall',
+		'protect'            => 'loginProtection',
+		'account-protection' => 'loginProtection',
+		'sso'                => 'loginProtection',
+		'monitor'            => 'monitor',
+	);
+
+	/**
+	 * The Jetpack filter that sets a module's Configure link, minus the module slug.
+	 *
+	 * @var string
+	 */
+	const CONFIGURATION_URL_FILTER = 'jetpack_module_configuration_url_';
 
 	/**
 	 * Extra Admin_Menu item options, such as the module that owns the item.
@@ -81,11 +103,18 @@ class Dashboard {
 	public static function init( array $menu_options = array() ) {
 		self::$menu_options = $menu_options;
 
+		add_action( 'admin_init', array( __CLASS__, 'maybe_redirect_threat_report' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		// Before Admin_Menu registers its items at 1000, and after the Protect plugin adds its own on `_admin_menu`.
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		Threat_Count::init();
+
+		foreach ( array_keys( self::MODULE_SECTIONS ) as $module ) {
+			add_filter( self::CONFIGURATION_URL_FILTER . $module, array( __CLASS__, 'filter_module_configuration_url' ) );
+			// Firewall and Account protection have no Configure link otherwise.
+			add_filter( 'jetpack_module_configurable_' . $module, '__return_true' );
+		}
 
 		self::load_sections( __DIR__ . '/sections' );
 
@@ -198,6 +227,49 @@ class Dashboard {
 	}
 
 	/**
+	 * The Settings tab's URL, scrolled to a section's card.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $section Section key, such as `firewall`; empty for the top of the tab.
+	 * @return string
+	 */
+	public static function get_settings_url( $section = '' ) {
+		$query = array( 'tab' => 'settings' );
+		if ( '' !== $section ) {
+			$query['section'] = $section;
+		}
+
+		return admin_url( 'admin.php?page=' . self::MENU_SLUG . '&p=' . rawurlencode( '/?' . http_build_query( $query ) ) );
+	}
+
+	/**
+	 * Each security module's card on the Settings tab, for screens that link here instead of offering the setting.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array<string, string> Settings URLs keyed by module slug.
+	 */
+	public static function get_module_settings_urls() {
+		return array_map( array( __CLASS__, 'get_settings_url' ), self::MODULE_SECTIONS );
+	}
+
+	/**
+	 * Point a security module's Configure link at its card on the Settings tab.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $url The URL Jetpack would use.
+	 * @return string
+	 */
+	public static function filter_module_configuration_url( $url ) {
+		$module = substr( current_filter(), strlen( self::CONFIGURATION_URL_FILTER ) );
+		$urls   = self::get_module_settings_urls();
+
+		return $urls[ $module ] ?? $url;
+	}
+
+	/**
 	 * Whether the site has a plan that includes Scan.
 	 *
 	 * @return bool
@@ -244,6 +316,48 @@ class Dashboard {
 	public static function is_dashboard_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
 		return isset( $_GET['page'] ) && self::MENU_SLUG === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+	}
+
+	/**
+	 * Send a `&threats=` link, such as a threat email's, to the route that reads it.
+	 *
+	 * @return void
+	 */
+	public static function maybe_redirect_threat_report() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only redirects; nothing is changed.
+		$redirect = self::is_dashboard_request() ? self::get_threat_report_redirect( wp_unslash( $_GET ) ) : null;
+		if ( $redirect ) {
+			wp_safe_redirect( $redirect );
+			exit( 0 );
+		}
+	}
+
+	/**
+	 * The threat report URL for a request whose top-level `threats` param lists threat ids.
+	 *
+	 * The wp-build router reads search params only from inside `p`, so links name the ids at the top level instead.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $query The request's query args.
+	 * @return string|null The URL, or null when the request needs no redirect.
+	 */
+	public static function get_threat_report_redirect( array $query ) {
+		if ( isset( $query['p'] ) || ! isset( $query['threats'] ) || ! is_string( $query['threats'] ) ) {
+			return null;
+		}
+		// Drop any id that isn't all digits, as the client does, rather than merging what's left of it.
+		$ids = array_filter( array_map( 'trim', explode( ',', $query['threats'] ) ), 'ctype_digit' );
+		if ( ! $ids ) {
+			return null;
+		}
+		return add_query_arg(
+			array(
+				'page' => self::MENU_SLUG,
+				'p'    => rawurlencode( '/?threats=' . implode( ',', $ids ) ),
+			),
+			admin_url( 'admin.php' )
+		);
 	}
 
 	/**

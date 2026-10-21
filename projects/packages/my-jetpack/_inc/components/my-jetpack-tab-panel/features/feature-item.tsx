@@ -5,12 +5,16 @@ import { Badge, Icon, Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
-import { getActivationStatusLabel } from '../utils';
+import { getProtectPageUrl } from '../../../utils/protect-page';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
-import { getModuleUnavailableNote } from './feature-state';
-import { getFeatureUnavailableReason } from './module-availability';
+import { getModuleUnavailableNote, offersConnect } from './feature-state';
+import {
+	getFeatureStatusLabel,
+	getFeatureUnavailableReason,
+	getModuleStatus,
+} from './module-availability';
 import styles from './styles.module.scss';
 import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
@@ -27,6 +31,11 @@ import type { ReactNode } from 'react';
 export function getModuleSettingsUrl( $module: MyJetpackModule ): string | undefined {
 	// Deprecated modules are offered only to be switched off; the widgets link opens no widgets panel on a block theme.
 	if ( $module.available === false || getDeprecatedModules().includes( $module.module ) ) {
+		return undefined;
+	}
+
+	// The Protect page link already stands in for the switch; a forced module gets neither, so it keeps this one.
+	if ( getProtectPageUrl( $module.module ) && getModuleStatus( $module ).isAvailable ) {
 		return undefined;
 	}
 
@@ -75,7 +84,8 @@ export function FeatureItem( {
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen?.( feature.slug ), [ feature.slug, onOpen ] );
 	const unavailable = getFeatureUnavailableReason( state );
-	const reason = unavailable || getModuleUnavailableNote( state );
+	// The badge already says an account is needed, so the card does not repeat it.
+	const reason = ( ! state.accountNeeded && unavailable ) || getModuleUnavailableNote( state );
 	const statusId = `feature-status-${ feature.slug }`;
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
@@ -87,7 +97,12 @@ export function FeatureItem( {
 	// A card with details keeps its manage link in the modal; the stretched title would cover one here.
 	// A migration notice says the legacy settings no longer apply, so it gets no link either.
 	const settingsUrl =
-		! onOpen && ! migration && isActive && ! state.isSwitching && state.control.kind === 'module'
+		! onOpen &&
+		! migration &&
+		isActive &&
+		! state.accountNeeded &&
+		! state.isSwitching &&
+		state.control.kind === 'module'
 			? getModuleSettingsUrl( state.control.module )
 			: undefined;
 
@@ -95,6 +110,7 @@ export function FeatureItem( {
 		<div
 			className={ clsx( styles[ 'feature-item' ], className, {
 				[ styles[ 'feature-item--static' ] ]: ! onOpen,
+				[ styles[ 'feature-item--connect' ] ]: ! state.pending && offersConnect( state ),
 			} ) }
 			data-feature={ feature.slug }
 		>
@@ -147,9 +163,7 @@ export function FeatureItem( {
 
 					{ ! isSettling && ! migration && (
 						<Badge id={ statusId } intent={ isActive && ! unavailable ? 'stable' : 'none' }>
-							{ unavailable
-								? __( 'Unavailable', 'jetpack-my-jetpack' )
-								: getActivationStatusLabel( isActive ) }
+							{ getFeatureStatusLabel( state ) }
 						</Badge>
 					) }
 

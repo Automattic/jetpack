@@ -18,8 +18,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { type MostCommentedAuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type MostCommentedAuthorsAttributes = Record< never, never >;
 
 type MostCommentedAuthorsRenderAttributes = MostCommentedAuthorsAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -53,7 +55,9 @@ function MostCommentedAuthorsInner() {
 
 	return (
 		<Leaderboard
+			chartTitle={ __( 'All-time most commented authors', 'jetpack-premium-analytics-pkg' ) }
 			rows={ leaderboardRows }
+			columns={ { label: __( 'Authors', 'jetpack-premium-analytics-pkg' ), metric: 'comments' } }
 			status={ { isLoading, isFetching, isError, refetch } }
 			error={ describeError( error, {
 				retryDescription: __(

@@ -5,6 +5,7 @@ import useMyJetpackConnection from '../hooks/use-my-jetpack-connection';
 
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '../hooks/use-my-jetpack-connection' );
+jest.mock( '../hooks/use-paid-menu-sync', () => ( { usePaidMenuSync: jest.fn() } ) );
 
 jest.mock( '../components/my-jetpack-screen', () => ( {
 	__esModule: true,
@@ -39,6 +40,16 @@ describe( 'App', () => {
 		render( <App /> );
 
 		expect( screen.getByTestId( 'my-jetpack-screen' ) ).toBeInTheDocument();
+	} );
+
+	it( 'gives the connection route its scoped scrolling layout', () => {
+		window.location.hash = '#/connection';
+
+		render( <App /> );
+
+		const connect = screen.getByRole( 'button', { name: 'Connect your user account' } );
+		// eslint-disable-next-line testing-library/no-node-access -- The scrolling layout belongs to the AdminPage root.
+		expect( connect.closest( '.jp-admin-page' ) ).toHaveClass( 'jp-my-jetpack-connection' );
 	} );
 
 	it( 'renders the partner coupon screen in place of the routes', () => {

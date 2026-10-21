@@ -24,7 +24,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.12.0';
+	const PACKAGE_VERSION = '0.13.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -374,9 +374,11 @@ class Analytics {
 		}
 		configure_purchase_success();
 
-		// The composition flag's answer, read by the dashboard policy; the file is
-		// already loaded by boot_shared_services().
-		configure_dashboard_policy();
+		// When the site first opened the dashboard, for notices that wait a while before showing.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_dashboard_first_visit' ) ) {
+			require_once __DIR__ . '/dashboard-first-visit.php';
+		}
+		configure_dashboard_first_visit();
 
 		// Temporary: carries a default layout move into layouts readers customized before it.
 		Stored_Layout_Move::register();
