@@ -8,7 +8,7 @@ export type SiteState = {
 	wordads: boolean;
 	timezone?: string;
 	tier?: 'free' | 'legacy-basic';
-	rememberedPreset?: string;
+	rememberedPreset?: 'last-30-days' | 'year-to-date';
 };
 
 export type HistoryWrites = { push: number; replace: number };

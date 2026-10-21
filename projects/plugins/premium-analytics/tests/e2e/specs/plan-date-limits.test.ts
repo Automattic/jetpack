@@ -30,12 +30,18 @@ async function expectTrafficLoaded( dashboard: Dashboard ) {
 }
 
 test.describe( 'Insights to Traffic with a remembered preset the plan locks', () => {
+	// A free site's lock follows its 7 days, which hold year-to-date in early January.
 	const cases = [
-		{ tier: 'free', preset: 'last-7-days', comparison: undefined },
-		{ tier: 'legacy-basic', preset: 'last-30-days', comparison: 'previous-period' },
+		{ tier: 'free', remembered: 'last-30-days', preset: 'last-7-days', comparison: undefined },
+		{
+			tier: 'legacy-basic',
+			remembered: 'year-to-date',
+			preset: 'last-30-days',
+			comparison: 'previous-period',
+		},
 	] as const;
 
-	for ( const { tier, preset, comparison } of cases ) {
+	for ( const { tier, remembered, preset, comparison } of cases ) {
 		test( `lands a ${ tier } site on ${ preset } in one navigation`, async ( {
 			dashboard,
 			testUtils,
@@ -45,7 +51,7 @@ test.describe( 'Insights to Traffic with a remembered preset the plan locks', ()
 				subscriptions: false,
 				wordads: false,
 				tier,
-				rememberedPreset: 'year-to-date',
+				rememberedPreset: remembered,
 			} );
 
 			await dashboard.open( '/?section=insights' );
@@ -83,7 +89,7 @@ test( 'a Traffic link to a period the plan locks opens on the last 7 days and sa
 		tier: 'free',
 	} );
 
-	await dashboard.open( '/?section=traffic&preset=year-to-date' );
+	await dashboard.open( '/?section=traffic&preset=last-30-days' );
 	await expectTrafficLoaded( dashboard );
 
 	const url = new URL( dashboard.page.url() );
