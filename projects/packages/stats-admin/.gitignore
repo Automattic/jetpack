@@ -2,3 +2,5 @@ vendor/
 node_modules/
 dist/
 wordpress/
+build/
+.cache/

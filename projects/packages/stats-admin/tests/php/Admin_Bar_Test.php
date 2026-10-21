@@ -47,6 +47,7 @@ class Admin_Bar_Test extends Stats_TestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'wp_die_handler' );
 		remove_all_filters( 'jetpack_stats_url' );
+		remove_all_filters( 'jetpack_stats_admin_bar_seven_day_chart' );
 		unset( $_GET['page'], $_GET['chart'], $_GET['noheader'], $_GET['proxy'], $_GET['height'] );
 		$GLOBALS['current_screen'] = null;
 		Constants::clear_constants();
@@ -135,6 +136,17 @@ class Admin_Bar_Test extends Stats_TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 
 		$this->assertSame( 'Stats', $this->render_chart_node()->meta['menu_title'] );
+	}
+
+	public function test_seven_day_chart_replaces_the_image_and_keeps_the_text_label() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		add_filter( 'jetpack_stats_admin_bar_seven_day_chart', '__return_true' );
+
+		$node = $this->render_chart_node();
+
+		$this->assertStringNotContainsString( '<img', $node->title );
+		$this->assertStringContainsString( 'id="jetpack-stats-admin-bar-panel"', $node->meta['html'] );
+		$this->assertSame( 'Stats', $node->meta['menu_title'] );
 	}
 
 	public function test_chart_hidden_when_admin_bar_setting_is_off() {

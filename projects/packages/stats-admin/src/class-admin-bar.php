@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
@@ -31,6 +32,13 @@ class Admin_Bar {
 	const CHART_ACTION = 'jetpack_stats_admin_bar_chart';
 
 	/**
+	 * The handle of the 7-day chart script and style.
+	 *
+	 * @var string
+	 */
+	const SCRIPT_HANDLE = 'jetpack-stats-admin-bar';
+
+	/**
 	 * Register the hooks.
 	 *
 	 * @return void
@@ -51,6 +59,22 @@ class Admin_Bar {
 	 */
 	private static function can_see_chart() {
 		return is_user_logged_in() && Stats_Options::get_option( 'admin_bar' ) && current_user_can( 'view_stats' );
+	}
+
+	/**
+	 * Whether the admin bar shows the 7-day chart instead of the 48-hour image.
+	 *
+	 * @return bool
+	 */
+	private static function use_seven_day_chart() {
+		/**
+		 * Filters whether the admin bar shows the 7-day views chart, with views and visitors on hover.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether to show the 7-day chart. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_stats_admin_bar_seven_day_chart', false );
 	}
 
 	/**
@@ -77,6 +101,11 @@ class Admin_Bar {
 			return;
 		}
 
+		if ( self::use_seven_day_chart() ) {
+			self::enqueue_seven_day_chart();
+			return;
+		}
+
 		wp_add_inline_style(
 			'admin-bar',
 			'#wpadminbar .quicklinks li#wp-admin-bar-stats { height: 32px; }
@@ -94,6 +123,22 @@ class Admin_Bar {
 	 * @return void
 	 */
 	public static function add_chart_node( $wp_admin_bar ) {
+		if ( self::use_seven_day_chart() ) {
+			$wp_admin_bar->add_menu(
+				array(
+					'id'    => 'stats',
+					'href'  => self::get_dashboard_url(),
+					'title' => '<span id="jetpack-stats-admin-bar-chart" class="jp-stats-admin-bar-chart" aria-hidden="true"></span><span class="screen-reader-text">' . esc_html__( 'Stats', 'jetpack-stats-admin' ) . '</span>',
+					'meta'  => array(
+						'menu_title' => __( 'Stats', 'jetpack-stats-admin' ),
+						'class'      => 'menupop',
+						'html'       => '<div class="ab-sub-wrapper"><div id="jetpack-stats-admin-bar-panel"></div></div>',
+					),
+				)
+			);
+			return;
+		}
+
 		$img_src    = esc_attr( self::get_chart_src( 'admin-bar-hours-scale' ) );
 		$img_src_2x = esc_attr( self::get_chart_src( 'admin-bar-hours-scale-2x' ) );
 		$alt        = esc_attr__( 'Stats', 'jetpack-stats-admin' );
@@ -107,6 +152,31 @@ class Admin_Bar {
 				// A client that reads the admin bar as data, like the omnibar, shows this instead of the image markup.
 				'meta'  => array( 'menu_title' => __( 'Stats', 'jetpack-stats-admin' ) ),
 			)
+		);
+	}
+
+	/**
+	 * Enqueue the script that draws the 7-day chart and fills the hover panel.
+	 *
+	 * @return void
+	 */
+	private static function enqueue_seven_day_chart() {
+		Assets::register_script(
+			self::SCRIPT_HANDLE,
+			'../build/admin-bar.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-stats-admin',
+				'css_path'   => '../build/admin-bar.css',
+				'enqueue'    => true,
+			)
+		);
+
+		wp_add_inline_script(
+			self::SCRIPT_HANDLE,
+			'window.jetpackStatsAdminBar = ' . wp_json_encode( array( 'blogId' => (int) \Jetpack_Options::get_option( 'id' ) ), JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+			'before'
 		);
 	}
 
