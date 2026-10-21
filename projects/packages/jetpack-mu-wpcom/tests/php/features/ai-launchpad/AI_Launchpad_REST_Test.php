@@ -322,6 +322,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( 'first_post_published' => true ), $data['checklist_statuses'] );
 		$this->assertFalse( $data['dismissed'] );
 		$this->assertTrue( $data['is_eligible'] );
+		$this->assertFalse( $data['ai_built'] );
 		$this->assertSame( home_url(), $data['site']['url'] );
 		$this->assertSame( get_bloginfo( 'name' ), $data['site']['title'] );
 		$this->assertSame( get_bloginfo( 'description' ), $data['site']['description'] );
@@ -676,6 +677,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame(
 			array(
 				'source'   => 'ai',
+				'ai_built' => false,
 				'inferred' => array(
 					'goal'  => 'write',
 					'niche' => 'hiking',
@@ -1453,6 +1455,120 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		return array(
 			'an AI list by default' => array( array(), 'ai' ),
 			'the fallback'          => array( array( 'source' => 'fallback' ), 'fallback' ),
+		);
+	}
+
+	/**
+	 * Records on the seeded list that it was tailored for an AI-built site.
+	 */
+	private function mark_list_ai_built() {
+		$envelope             = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$envelope['ai_built'] = true;
+		update_option( 'wpcom_ai_launchpad_ai_output', $envelope, false );
+	}
+
+	/**
+	 * A list tailored for an AI-built site never renders the builder's tasks, not even through the sell
+	 * goal's theme guarantee or the short-list backfill.
+	 *
+	 * @dataProvider provide_ai_built_lists
+	 *
+	 * @param string[] $seeded The seeded task ids.
+	 * @param string   $goal   The goal.
+	 */
+	#[DataProvider( 'provide_ai_built_lists' )]
+	public function test_get_hides_the_builders_tasks_on_an_ai_built_list( $seeded, $goal ) {
+		$this->seed_ai_output_with_tasks( $seeded, $goal );
+		$this->mark_list_ai_built();
+
+		$ids = $this->rendered_ids();
+
+		$this->assertSame( array(), array_values( array_intersect( $ids, AI_Launchpad_REST::AI_BUILT_EXCLUDED_TASK_IDS ) ) );
+		$this->assertSame( 'site_launched', end( $ids ) );
+	}
+
+	/**
+	 * Data provider for test_get_hides_the_builders_tasks_on_an_ai_built_list.
+	 *
+	 * @return array
+	 */
+	public static function provide_ai_built_lists() {
+		return array(
+			'a short write list'               => array(
+				array( 'complete_profile', 'site_launched' ),
+				'write',
+			),
+			'a sell list without a theme task' => array(
+				array( 'woo_products', 'site_launched' ),
+				'sell',
+			),
+		);
+	}
+
+	/**
+	 * Marking a site as AI-built after it was tailored leaves its list alone.
+	 */
+	public function test_marking_a_site_ai_built_keeps_its_existing_list() {
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_theme_selected', 'site_launched' ), 'write' );
+		update_option( 'wpcom_ai_launchpad_ai_built', '1' );
+
+		$ids = $this->rendered_ids();
+
+		$this->assertContains( 'first_post_published', $ids );
+		$this->assertContains( 'site_theme_selected', $ids );
+	}
+
+	/**
+	 * A saved list records whether the site was AI-built when it was tailored.
+	 *
+	 * @dataProvider provide_ai_built_flags
+	 *
+	 * @param bool $ai_built Whether the site is marked as AI-built.
+	 */
+	#[DataProvider( 'provide_ai_built_flags' )]
+	public function test_put_tailored_records_whether_the_site_is_ai_built( $ai_built ) {
+		update_option( 'wpcom_ai_launchpad_ai_built', $ai_built ? '1' : '' );
+		$payload          = self::valid_payload();
+		$payload['tasks'] = array(
+			array(
+				'id'       => 'complete_profile',
+				'subtitle' => 'Tell readers who you are.',
+			),
+			array(
+				'id'       => 'connect_social_media',
+				'subtitle' => 'Share every new post.',
+			),
+			array(
+				'id'       => 'add_site_icon',
+				'subtitle' => 'Add your logo.',
+			),
+			array(
+				'id'       => 'verify_email',
+				'subtitle' => 'Confirm your email.',
+			),
+			array(
+				'id'       => 'domain_upsell',
+				'subtitle' => 'Get your own domain.',
+			),
+			array(
+				'id'       => 'site_launched',
+				'subtitle' => 'Go live.',
+			),
+		);
+
+		$this->assertSame( 200, $this->call_api( 'PUT', '/tailored', $payload, array( 'source' => 'ai' ) )->get_status() );
+		$this->assertSame( $ai_built, get_option( 'wpcom_ai_launchpad_ai_output' )['ai_built'] );
+	}
+
+	/**
+	 * Data provider for test_put_tailored_records_whether_the_site_is_ai_built.
+	 *
+	 * @return array
+	 */
+	public static function provide_ai_built_flags() {
+		return array(
+			'an AI-built site' => array( true ),
+			'any other site'   => array( false ),
 		);
 	}
 

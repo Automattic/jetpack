@@ -384,11 +384,11 @@ if ( ! function_exists( 'wpcom_ai_launchpad_get_ai_task_ids' ) ) {
 
 		$task_ids = array_values( array_unique( $task_ids ) );
 
-		// Sell sites always render a Choose-a-theme task (see AI_Launchpad_REST::get_current_tasks), so the
-		// switch_theme listener and skip validation must count it even when the AI did not pick one — and
-		// even when a partial write left the payload with an inferred goal but no task list. Resolved
-		// through the shared helper so this mirror cannot disagree with the list it is mirroring.
-		if ( 'sell' === wpcom_ai_launchpad_resolve_goal( $payload ) && ! in_array( 'site_theme_selected', $task_ids, true ) ) {
+		// Sell sites render a Choose-a-theme task unless their list was tailored for an AI-built site (see
+		// AI_Launchpad_REST::get_current_tasks), so the switch_theme listener and skip validation must count it
+		// even when the AI did not pick one — and even when a partial write left the payload with an inferred
+		// goal but no task list. Resolved through the shared helpers so this mirror cannot disagree with the list.
+		if ( 'sell' === wpcom_ai_launchpad_resolve_goal( $payload ) && ! wpcom_ai_launchpad_is_list_ai_built() && ! in_array( 'site_theme_selected', $task_ids, true ) ) {
 			$task_ids[] = 'site_theme_selected';
 		}
 
@@ -499,5 +499,30 @@ if ( ! function_exists( 'wpcom_ai_launchpad_site_copy' ) ) {
 				);
 			}
 		);
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_is_ai_built' ) ) {
+	/**
+	 * Whether WordPress.com marked this site as built with AI, which hides the tasks the builder already did.
+	 *
+	 * @return bool
+	 */
+	function wpcom_ai_launchpad_is_ai_built() {
+		return (bool) get_option( 'wpcom_ai_launchpad_ai_built' );
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_is_list_ai_built' ) ) {
+	/**
+	 * Whether the saved list was tailored for an AI-built site.
+	 *
+	 * Read from the list, not the live option, so a site marked later keeps the list it already has.
+	 *
+	 * @return bool
+	 */
+	function wpcom_ai_launchpad_is_list_ai_built() {
+		$ai_output = get_option( 'wpcom_ai_launchpad_ai_output' );
+		return is_array( $ai_output ) && ! empty( $ai_output['ai_built'] );
 	}
 }

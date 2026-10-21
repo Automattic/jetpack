@@ -192,6 +192,28 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
+	 * Tasks the AI builder already did, never offered on an AI-built site: its content, its design, and its name.
+	 */
+	const AI_BUILT_EXCLUDED_TASK_IDS = array(
+		'first_post_published',
+		'add_about_page',
+		'update_about_page',
+		'add_new_page',
+		'edit_page',
+		'add_contact_page',
+		'add_events_page',
+		'add_video_page',
+		'add_gallery_page',
+		'add_portfolio_piece',
+		'site_theme_selected',
+		'design_edited',
+		'front_page_updated',
+		'pick_fonts_colors',
+		'site_title',
+		'setup_general',
+	);
+
+	/**
 	 * First-post tasks that can sit "in progress": the AI-created draft post exists but has not been published yet.
 	 *
 	 * Detected through the `_wpcom_ai_launchpad_first_post` marker meta (via AI_Launchpad_First_Post_Listener), so an
@@ -580,6 +602,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// Lets the page celebrate a list finished elsewhere, which this read latches.
 			'list_completed'     => (bool) get_option( self::OPTION_COMPLETED ),
 			'is_eligible'        => true,
+			// Whether the next tailoring is for an AI-built site, so the client fallback skips the builder's tasks.
+			'ai_built'           => wpcom_ai_launchpad_is_ai_built(),
 			// The language this request is translated into, which is the reader's own. Task subtitles
 			// follow it, since they are read here and never published.
 			'user_language'      => determine_locale(),
@@ -635,9 +659,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		$ai_tasks = isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ? $payload['tasks'] : array();
 
-		// A store needs a theme, so the sell list always offers "Choose a theme" — the AI is not required to pick
-		// one. Add it when absent so build_tasks enriches it like any catalog task (get_ai_task_ids mirrors this).
-		if ( 'sell' === $goal ) {
+		// A store needs a theme, so a sell list offers "Choose a theme" even when the AI did not pick one — unless it
+		// was tailored for an AI-built site, whose builder already chose the design (get_ai_task_ids mirrors this).
+		if ( 'sell' === $goal && ! wpcom_ai_launchpad_is_list_ai_built() ) {
 			$ai_tasks = $this->ensure_theme_task( $ai_tasks );
 		}
 
@@ -727,12 +751,18 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * @return array<string, string>
 	 */
 	private function backfill_pool() {
-		return array(
+		$pool = array(
 			'design_edited'        => __( 'Make the design your own.', 'jetpack-mu-wpcom' ),
 			'add_new_page'         => __( 'Add a page your visitors will want, like About or Contact.', 'jetpack-mu-wpcom' ),
 			'connect_social_media' => __( 'Connect your social accounts to reach more people.', 'jetpack-mu-wpcom' ),
 			'mobile_app_installed' => __( 'Manage your site from anywhere with the Jetpack app.', 'jetpack-mu-wpcom' ),
 		);
+
+		if ( wpcom_ai_launchpad_is_list_ai_built() ) {
+			$pool = array_diff_key( $pool, array_flip( self::AI_BUILT_EXCLUDED_TASK_IDS ) );
+		}
+
+		return $pool;
 	}
 
 	/**
@@ -942,6 +972,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'version'      => 1,
 			'source'       => $request['source'],
 			'generated_at' => time(),
+			'ai_built'     => wpcom_ai_launchpad_is_ai_built(),
 			'payload'      => $payload,
 		);
 
@@ -1041,6 +1072,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		$extra = array(
 			'source'   => $ai_output['source'],
+			'ai_built' => ! empty( $ai_output['ai_built'] ),
 			'inferred' => $inferred,
 			'selected' => $raw_task_ids,
 			'rendered' => $rendered,
@@ -1258,6 +1290,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * The two maps read in opposite directions, and an unknown or empty goal matches neither: every
 	 * GOAL_RESTRICTED_TASK_IDS entry is excluded (it never got the goal it requires), while every
 	 * GOAL_EXCLUDED_TASK_IDS entry is allowed (it never hit the goal that excludes it).
+	 * On an AI-built site it also excludes AI_BUILT_EXCLUDED_TASK_IDS, whatever the goal.
 	 *
 	 * @param string $goal The selected goal.
 	 * @return string[]
@@ -1275,6 +1308,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			if ( $goal === $excluded_goal ) {
 				$excluded[] = $task_id;
 			}
+		}
+
+		if ( wpcom_ai_launchpad_is_ai_built() ) {
+			$excluded = array_merge( $excluded, self::AI_BUILT_EXCLUDED_TASK_IDS );
 		}
 
 		return $excluded;
