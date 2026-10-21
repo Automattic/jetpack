@@ -139,7 +139,7 @@ describe( 'Backup detail for a backup with known threats', () => {
 		);
 		await user.unhover( restore );
 
-		const toggle = screen.getByRole( 'button', { name: 'Show threats (3)' } );
+		const toggle = screen.getByRole( 'button', { name: 'Show threats' } );
 		expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
 		// The clean-backup link sits below the threats toggle.
 		const restoreInstead = screen.getByRole( 'link', {
