@@ -38,12 +38,13 @@ class Initial_State {
 		$home_host       = wp_parse_url( get_site_url(), PHP_URL_HOST );
 		$site_suffix     = ( new Status() )->get_site_suffix();
 		$is_wpcom_simple = Jetpack_Activity_Log::is_wpcom_simple();
+		$has_access      = REST_Controller::has_activity_logs_access();
 		$upgrade         = array(
 			'slug'               => 'security',
 			'title'              => 'Jetpack Security',
 			'wpcom_product_slug' => 'jetpack_security_t1_yearly',
 		);
-		if ( ! $is_wpcom_simple && method_exists( My_Jetpack_Products::class, 'get_bundle_offer' ) ) {
+		if ( ! $has_access && ! $is_wpcom_simple && method_exists( My_Jetpack_Products::class, 'get_bundle_offer' ) ) {
 			$upgrade = My_Jetpack_Products::get_bundle_offer( 'security' );
 		}
 
@@ -74,7 +75,7 @@ class Initial_State {
 				// synchronous WPCOM request (~200–800ms typical, up to
 				// the 2s internal timeout) that blocks page rendering
 				// until it returns.
-				'hasActivityLogsAccess' => REST_Controller::has_activity_logs_access(),
+				'hasActivityLogsAccess' => $has_access,
 			),
 			'nonces'        => array(
 				// Consumed by `UpsellCallout` to build a `redirect_to`
