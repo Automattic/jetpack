@@ -184,6 +184,7 @@ class Jetpack_Backup {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
 		add_filter( 'jetpack_activity_log_restore_url_template', array( __CLASS__, 'activity_log_restore_url_template' ) );
+		add_filter( 'jetpack_activity_log_backup_url_template', array( __CLASS__, 'activity_log_backup_url_template' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
@@ -1324,6 +1325,22 @@ class Jetpack_Backup {
 		}
 
 		return admin_url( 'admin.php?page=' . self::JETPACK_BACKUP_SLUG . '&p=%2Frestore%2F{rewindId}' );
+	}
+
+	/**
+	 * Sends the Activity Log's links to a backup to this dashboard's Overview, with that backup selected, when it is on.
+	 *
+	 * The router reads search values as JSON, so the rewind id is quoted to stay a string.
+	 *
+	 * @param string $template Backup URL template, with `{rewindId}` as the placeholder.
+	 * @return string
+	 */
+	public static function activity_log_backup_url_template( $template ) {
+		if ( ! self::is_modernized() ) {
+			return $template;
+		}
+
+		return admin_url( 'admin.php?page=' . self::JETPACK_BACKUP_SLUG . '&p=%2F%3Fselected%3D%2522{rewindId}%2522' );
 	}
 
 	/**
