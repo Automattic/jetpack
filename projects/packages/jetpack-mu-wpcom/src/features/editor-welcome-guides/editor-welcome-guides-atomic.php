@@ -33,7 +33,7 @@ function wpcom_editor_welcome_guides_atomic_is_editor_page_load(): bool {
 }
 
 /**
- * The per-site copy of the user's record.
+ * The cached guides for the user, or an empty cache when nothing is stored yet.
  *
  * @param int $user_id User ID.
  * @return array{checked: int, dismissed: array}
@@ -48,10 +48,10 @@ function wpcom_editor_welcome_guides_atomic_get_cached( int $user_id ): array {
 }
 
 /**
- * Stores the per-site copy and marks it as checked now.
+ * Caches the dismissed guides for the user and records the time.
  *
  * @param int   $user_id   User ID.
- * @param array $dismissed Map of preferences scope to guide keys.
+ * @param array $dismissed Map of preferences scope to dismissed guide keys.
  * @return void
  */
 function wpcom_editor_welcome_guides_atomic_store( int $user_id, array $dismissed ): void {
@@ -70,7 +70,7 @@ function wpcom_editor_welcome_guides_atomic_store( int $user_id, array $dismisse
  *
  * @param string     $method HTTP method.
  * @param array|null $body   JSON body for a POST.
- * @return array|null The `dismissed` map from the response, or null when the call failed.
+ * @return array|null The dismissed guides from the response, or null when the call failed.
  */
 function wpcom_editor_welcome_guides_atomic_request( string $method, ?array $body = null ): ?array {
 	if ( ! class_exists( Client::class ) ) {
@@ -96,14 +96,13 @@ function wpcom_editor_welcome_guides_atomic_request( string $method, ?array $bod
 }
 
 /**
- * Answers the shared read hook from the per-site copy, refreshing it when an editor
- * screen loads for the current user and the copy is missing or stale.
- * A failed refresh keeps the copy and still stamps it, so later reads in this request
- * and the next page loads do not retry.
+ * Supplies the guides the user has dismissed, from the cache, fetching from WordPress.com
+ * first when an editor screen loads for the current user and the cache is missing or stale.
+ * A failed fetch keeps the cache and still records the time, so nothing retries until the TTL passes.
  *
- * @param array $dismissed Map another provider supplied.
+ * @param array $dismissed Guides another provider supplied, ignored here.
  * @param int   $user_id   User ID.
- * @return array Map of preferences scope to guide keys.
+ * @return array Map of preferences scope to dismissed guide keys.
  */
 function wpcom_editor_welcome_guides_atomic_get_dismissed( $dismissed, $user_id ): array {
 	$user_id = (int) $user_id;
@@ -124,11 +123,10 @@ function wpcom_editor_welcome_guides_atomic_get_dismissed( $dismissed, $user_id 
 add_filter( 'wpcom_editor_welcome_guides_dismissed', 'wpcom_editor_welcome_guides_atomic_get_dismissed', 10, 2 );
 
 /**
- * Reports to WordPress.com the guides the per-site copy does not know yet, and keeps the
- * record it returns as the new copy.
+ * Sends the guides the cache does not know yet to WordPress.com, and caches the full list it returns.
  *
  * @param int   $user_id   User ID.
- * @param array $dismissed Map of preferences scope to guide keys just turned off.
+ * @param array $dismissed Map of preferences scope to guide keys just dismissed.
  * @return void
  */
 function wpcom_editor_welcome_guides_atomic_record_dismissed( $user_id, $dismissed ): void {
