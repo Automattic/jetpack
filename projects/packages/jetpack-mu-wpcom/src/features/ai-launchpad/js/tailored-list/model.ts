@@ -1,6 +1,12 @@
 import { getLaunchSiteUrl } from '../../../../common/launch-site-url.ts';
 import type { DifmOffer } from '../difm-offer/difm-offer-banner.tsx';
-import type { AboutPageDraft, TailoredOutput, FirstPostDraft, SiteCopy } from '../lib/types.ts';
+import type {
+	AboutPageDraft,
+	TailoredOutput,
+	FirstPostDraft,
+	InferredInput,
+	SiteCopy,
+} from '../lib/types.ts';
 
 /**
  * A single enriched task: AI subtitle merged with the catalog's title,
@@ -49,7 +55,12 @@ export interface LaunchpadData {
 	tasks: EnrichedTask[];
 	ai_output: {
 		payload: TailoredOutput;
+		source?: string;
 	} | null;
+	// Served only to the one load that should tailor an AI-built site (`?auto_tailor=1`).
+	inferred_input?: InferredInput | null;
+	// Whether another load is already tailoring this site's list.
+	auto_tailoring?: boolean;
 	site?: SiteData;
 	// The persisted wizard input; seeds the Tracks goal before tailoring exists.
 	wizard?: { goal?: string } | null;

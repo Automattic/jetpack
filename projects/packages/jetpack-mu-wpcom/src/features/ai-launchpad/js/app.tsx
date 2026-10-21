@@ -1,8 +1,16 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
+import { buildAutoInput, releaseClaimOnLeave, waitForTailoring } from './lib/auto-tailor.ts';
+import { readOnce } from './lib/initial-read.ts';
 import { decideInitialView, isAllTasksMode, type View } from './lib/orchestration.ts';
-import { contextFromInferred, contextFromTaskIds, setTracksContext } from './lib/tracks.ts';
+import { tailor } from './lib/tailor.ts';
+import {
+	contextFromInferred,
+	contextFromTaskIds,
+	setTracksContext,
+	trackWizardBypassed,
+} from './lib/tracks.ts';
 import { TailoredList } from './tailored-list/tailored-list.tsx';
 import { Wizard } from './wizard/wizard.tsx';
 import type { GoalSlug, TailorResult } from './lib/types.ts';
@@ -10,7 +18,7 @@ import type { LaunchpadData } from './tailored-list/model.ts';
 
 /**
  * Orchestrates the AI Launchpad flow: new users see the wizard, returning users
- * land straight on the tailored list.
+ * land straight on the tailored list, and AI-built sites skip the wizard.
  *
  * @return The orchestrated AI Launchpad element.
  */
@@ -27,8 +35,10 @@ export function App() {
 		let cancelled = false;
 		// Testing aid: ?all_tasks=1 skips the wizard and renders the full catalog.
 		const allTasks = isAllTasksMode( window.location.search );
-		const path = allTasks ? '/wpcom/v2/ai-launchpad?all_tasks=1' : '/wpcom/v2/ai-launchpad';
-		apiFetch< LaunchpadData >( { path } ).then( data => {
+		const path = allTasks
+			? '/wpcom/v2/ai-launchpad?all_tasks=1'
+			: '/wpcom/v2/ai-launchpad?auto_tailor=1';
+		readOnce( path, () => apiFetch< LaunchpadData >( { path } ) ).then( data => {
 			if ( cancelled ) {
 				return;
 			}
@@ -43,8 +53,6 @@ export function App() {
 				};
 			}
 			setInitialData( data );
-			setView( allTasks ? 'list' : decideInitialView( data ) );
-
 			// Seed the shared Tracks context from the persisted state (all-null for
 			// brand-new sites) before the mounted view records its viewed event.
 			const inferred = data.ai_output?.payload?.inferred;
@@ -54,6 +62,25 @@ export function App() {
 			}
 			if ( data.tasks?.length ) {
 				setTracksContext( contextFromTaskIds( data.tasks.map( task => task.id ) ) );
+			}
+
+			const nextView = allTasks ? 'list' : decideInitialView( data );
+			const siteCopy = data.site?.copy;
+			const input = nextView === 'auto' ? buildAutoInput( data ) : null;
+			if ( input && siteCopy ) {
+				setTracksContext( { goal: input.goal } );
+				trackWizardBypassed( { reason: 'ai_builder' } );
+				setGoal( input.goal );
+				// Start it here, not in the updater, which React may call twice.
+				const tailoring = releaseClaimOnLeave( tailor( input, siteCopy, true ) );
+				setPendingTailor( () => tailoring );
+				setView( 'list' );
+			} else if ( nextView === 'waiting' && siteCopy ) {
+				const waiting = waitForTailoring( siteCopy );
+				setPendingTailor( () => waiting );
+				setView( 'list' );
+			} else {
+				setView( nextView );
 			}
 		} );
 		return () => {

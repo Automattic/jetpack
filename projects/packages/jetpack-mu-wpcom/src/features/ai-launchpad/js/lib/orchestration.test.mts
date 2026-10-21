@@ -19,8 +19,26 @@ describe( 'isAllTasksMode', () => {
 } );
 
 describe( 'decideInitialView', () => {
-	it( 'shows the wizard with no AI output (new user), the list with it (returning user)', () => {
-		assert.equal( decideInitialView( { ai_output: null } ), 'wizard' );
-		assert.equal( decideInitialView( { ai_output: { payload: PAYLOAD } } ), 'list' );
-	} );
+	const INFERRED = { goal: 'build', site_name: 'Acme', description: 'Tools' } as const;
+	const OUTPUT = { payload: PAYLOAD };
+
+	for ( const [ name, data, view ] of [
+		[ 'ai_output', { ai_output: OUTPUT }, 'list' ],
+		[ 'inferred_input', { ai_output: null, inferred_input: INFERRED }, 'auto' ],
+		[
+			'auto_tailoring',
+			{ ai_output: null, inferred_input: null, auto_tailoring: true },
+			'waiting',
+		],
+		[ 'nothing', { ai_output: null }, 'wizard' ],
+		[
+			'ai_output over the others',
+			{ ai_output: OUTPUT, inferred_input: INFERRED, auto_tailoring: true },
+			'list',
+		],
+	] as const ) {
+		it( `returns ${ view } for ${ name }`, () => {
+			assert.equal( decideInitialView( data ), view );
+		} );
+	}
 } );
