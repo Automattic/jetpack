@@ -104,6 +104,7 @@ const createSelectMethods = ( { isSearchBlocksEnabled = false } = {} ) => ( {
 
 beforeEach( () => {
 	mockCheckoutWorkflow.mockClear();
+	mockAdminPage.mockClear();
 	mockFetchSearchPlanInfo = jest.fn( () => Promise.resolve( {} ) );
 } );
 
