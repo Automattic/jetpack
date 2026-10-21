@@ -2,9 +2,9 @@ import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
 import { getHiddenFeatures } from '../../../data/utils/get-my-jetpack-window-state';
-import { getFeatureModuleSlug } from './feature-state';
+import { getFeatureModuleSlug, useFeaturesNeedsAccount, withAccountNeeded } from './feature-state';
 import { PRODUCT_MODULES } from './mappings';
-import { getFeatureUnavailableReason } from './module-availability';
+import { getFeatureUnavailableReason, getModuleAvailability } from './module-availability';
 import { compareModulesByName, hasSearch, moduleFields, rankBy, searchTerms } from './search';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { matchesFilter } from './use-feature-filter';
@@ -23,13 +23,15 @@ export type MoreFeaturesGroup = {
  * The synthesized feature carries no plan and is not essential, which is what those filters
  * should answer for a module.
  *
- * @param $module   - The module.
- * @param requested - Switch key to the value asked of it, for a switch still in flight.
+ * @param $module      - The module.
+ * @param requested    - Switch key to the value asked of it, for a switch still in flight.
+ * @param needsAccount - Whether the site has no connected owner and the current admin is not linked.
  * @return The module's state.
  */
 export function getModuleFeatureState(
 	$module: MyJetpackModule,
-	requested: Record< string, boolean >
+	requested: Record< string, boolean >,
+	needsAccount = false
 ): FeatureState {
 	const asked = requested[ moduleSwitchKey( $module.module ) ];
 
@@ -45,6 +47,15 @@ export function getModuleFeatureState(
 		isSwitching: asked !== undefined,
 		control: { kind: 'module', module: $module },
 	};
+	if (
+		needsAccount &&
+		$module.requires_user_connection &&
+		$module.override !== 'inactive' &&
+		! getModuleAvailability( $module ).isMultisiteBlocked
+	) {
+		// Keeps the value a switch in flight asked for.
+		return { ...withAccountNeeded( state, $module ), status: state.status };
+	}
 	return getFeatureUnavailableReason( state ) ? { ...state, status: 'inactive' } : state;
 }
 
@@ -69,6 +80,7 @@ function getStateModule( state: FeatureState ): MyJetpackModule | null {
  *                       its own card is still that card's, and must not surface here instead.
  * @param requested      - Switch key to the value asked of it.
  * @param hidden         - Modules that do not apply to the site, left out entirely.
+ * @param needsAccount   - Whether the site has no connected owner and the current admin is not linked.
  * @return Non-empty groups by label, each sorted by name, with eligible ungrouped modules under Other, last.
  */
 export function groupMoreFeatures(
@@ -77,7 +89,8 @@ export function groupMoreFeatures(
 	modules: Record< string, MyJetpackModule >,
 	productModules: Record< string, string >,
 	requested: Record< string, boolean >,
-	hidden: ReadonlySet< string > = new Set()
+	hidden: ReadonlySet< string > = new Set(),
+	needsAccount = false
 ): MoreFeaturesGroup[] {
 	const groupOf = new Map(
 		groups.flatMap( ( group, index ) => group.modules.map( slug => [ slug, index ] as const ) )
@@ -102,7 +115,7 @@ export function groupMoreFeatures(
 
 		const index = groupOf.get( $module.module );
 		( index === undefined ? other : grouped[ index ].states ).push(
-			getModuleFeatureState( $module, requested )
+			getModuleFeatureState( $module, requested, needsAccount )
 		);
 	}
 	// Sorted on the translated label, so the order holds in every locale.
@@ -196,6 +209,7 @@ export function getHiddenModules( modules: Record< string, MyJetpackModule > ): 
  */
 export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[] {
 	const { modules } = useAllJetpackModules();
+	const needsAccount = useFeaturesNeedsAccount();
 	// Read here rather than in each row, so a switch in flight is answered once per module.
 	const requested = useRequestedSwitches();
 
@@ -211,9 +225,10 @@ export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[]
 						new Set( [
 							...getHiddenModules( modules ),
 							...( state.hidden_modules ?? getHiddenFeatures() ),
-						] )
+						] ),
+						needsAccount
 					)
 				: [],
-		[ state, modules, requested ]
+		[ state, modules, requested, needsAccount ]
 	);
 }
