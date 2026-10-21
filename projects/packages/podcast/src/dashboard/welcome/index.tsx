@@ -229,47 +229,49 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 							</CardBody>
 						</Card>
 
-						<Card
-							className="podcast__welcome-plan podcast__welcome-plan--premium"
-							style={ { flex: '1 1 320px' } }
-						>
-							<CardBody>
-								<VStack spacing={ 4 }>
-									<VStack spacing={ 2 }>
-										<HStack justify="space-between" alignment="center">
-											<Text size="title" weight={ 500 }>
-												{ planName }
-											</Text>
-											<span className="podcast__welcome-plan-badge">
-												{ __( 'Popular', 'jetpack-podcast' ) }
-											</span>
-										</HStack>
-										<Text variant="muted">{ paidDescription }</Text>
-									</VStack>
-									<ButtonLink
-										variant="solid"
-										href={ upgradeCheckoutUrl }
-										onClick={ onUpgradeClick }
-									>
-										{ sprintf(
-											/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
-											__( 'Start your %s podcast', 'jetpack-podcast' ),
-											planName
-										) }
-									</ButtonLink>
-									<ul className="podcast__welcome-plan-features">
-										{ paidFeatures.map( feature => (
-											<li key={ feature } className="podcast__welcome-plan-feature">
-												<span aria-hidden="true">
-													<Icon icon={ check } size={ 20 } />
+						{ planName && (
+							<Card
+								className="podcast__welcome-plan podcast__welcome-plan--premium"
+								style={ { flex: '1 1 320px' } }
+							>
+								<CardBody>
+									<VStack spacing={ 4 }>
+										<VStack spacing={ 2 }>
+											<HStack justify="space-between" alignment="center">
+												<Text size="title" weight={ 500 }>
+													{ planName }
+												</Text>
+												<span className="podcast__welcome-plan-badge">
+													{ __( 'Popular', 'jetpack-podcast' ) }
 												</span>
-												<Text>{ feature }</Text>
-											</li>
-										) ) }
-									</ul>
-								</VStack>
-							</CardBody>
-						</Card>
+											</HStack>
+											<Text variant="muted">{ paidDescription }</Text>
+										</VStack>
+										<ButtonLink
+											variant="solid"
+											href={ upgradeCheckoutUrl }
+											onClick={ onUpgradeClick }
+										>
+											{ sprintf(
+												/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+												__( 'Start your %s podcast', 'jetpack-podcast' ),
+												planName
+											) }
+										</ButtonLink>
+										<ul className="podcast__welcome-plan-features">
+											{ paidFeatures.map( feature => (
+												<li key={ feature } className="podcast__welcome-plan-feature">
+													<span aria-hidden="true">
+														<Icon icon={ check } size={ 20 } />
+													</span>
+													<Text>{ feature }</Text>
+												</li>
+											) ) }
+										</ul>
+									</VStack>
+								</CardBody>
+							</Card>
+						) }
 					</HStack>
 				</section>
 			) }

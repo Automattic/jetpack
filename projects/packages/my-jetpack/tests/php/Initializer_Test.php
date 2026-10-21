@@ -1677,6 +1677,39 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Each flagged part of the page stays off unless its flag is turned on.
+	 *
+	 * @dataProvider page_feature_flags
+	 * @param string $key  The page's name for the flag.
+	 * @param string $flag The registered flag.
+	 */
+	#[DataProvider( 'page_feature_flags' )]
+	public function test_my_jetpack_flags_pass_each_flag_only_when_it_is_on( $key, $flag ) {
+		Initializer::register_feature_flags();
+		$this->assertFalse( Initializer::get_my_jetpack_flags()[ $key ] );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . $flag, '__return_true' );
+		try {
+			$this->assertTrue( Initializer::get_my_jetpack_flags()[ $key ] );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . $flag, '__return_true' );
+			Feature_Flags::reset();
+		}
+	}
+
+	/**
+	 * The flags the page reads, by the name it reads them under.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public static function page_feature_flags() {
+		return array(
+			'overview v1'     => array( 'overviewV1', Initializer::OVERVIEW_V1_FLAG ),
+			'account connect' => array( 'accountConnect', Initializer::ACCOUNT_CONNECT_FLAG ),
+		);
+	}
+
+	/**
 	 * No coupon, no coupon screen.
 	 */
 	public function test_partner_coupon_screen_is_null_without_a_coupon() {
