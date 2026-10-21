@@ -26,3 +26,11 @@ If your Docker site was already running before this mount existed, run `jp docke
 | Dashboard widget | wp-admin Dashboard, "Jetpack Newsletter" box | `/wpcom/v2/sites/{id}/subscribers/stats`, made server-side | Built in `newsletter-dev-mock.php`: 30 days rising from 10 to 45 subscribers, so the chart has a curve; it doesn't match the three-person Subscribers list | `projects/plugins/jetpack/modules/subscriptions/newsletter-widget/` |
 | Editor sidebar | Post editor, Jetpack Newsletter icon in the toolbar | Subscriber counts and the email preview, not mocked yet, so the audience counts show 0 | n/a | `projects/plugins/jetpack/extensions/blocks/subscriptions/` |
 | Subscribe pop-up | A published post, logged out, scrolled halfway down (or after the `jetpack_subscribe_modal_load_time` delay, 60 seconds by default) | None | n/a | `projects/plugins/jetpack/modules/subscriptions/subscribe-modal/` |
+
+## Writing testing instructions
+
+Reviewers and test agents follow a PR's Testing steps on this mock, so write them for it:
+
+- The add, remove and comp actions on Subscribers call WordPress.com and fail here. When a fix needs one, use the sample data that already has that state (`fixtures.json` has a subscriber with two comps), and give a second route for a connected site.
+- Name the test command, but don't say how many tests fail on trunk; later commits change the count.
+- The Docker site turns on `SCRIPT_DEBUG`, so wp-admin runs React's development build, which mounts each component twice. Render tests for effects that save settings or call an API inside `<StrictMode>`, as `routes/dashboard/tests/stage.test.tsx` does.
