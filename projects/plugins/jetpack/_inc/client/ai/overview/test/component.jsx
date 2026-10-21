@@ -354,7 +354,7 @@ describe( 'AiOverview', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'documentation: two guides as rows, the rest as links, all through the redirect service', async () => {
+	test( 'documentation: one card, a row per guide, through the redirect service', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -362,43 +362,40 @@ describe( 'AiOverview', () => {
 		// Settle the usage fetch so it cannot update state after the test body.
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 
-		// The first two are nav rows with their own description.
+		// Each guide is a nav row with its own description, opening in a new tab.
 		const rows = {
 			'MCP integration guide': [
 				'jetpack-ai-hub-overview-docs-mcp-guide',
 				'Connect an AI agent to your site.',
+			],
+			'AI features overview': [
+				'jetpack-ai-hub-overview-docs-features',
+				'Everything Jetpack AI can do on your site.',
+			],
+			'Billing & plans': [
+				'jetpack-ai-hub-overview-docs-billing',
+				'How requests, plans, and upgrades work.',
 			],
 			'Available capabilities': [
 				'jetpack-ai-hub-overview-docs-mcp-tools',
 				'What a connected agent can read and change.',
 			],
 		};
-		const rowLinks = [];
+		const links = [];
 		for ( const [ name, [ slug, description ] ] of Object.entries( rows ) ) {
 			const link = screen.getByRole( 'link', { name: new RegExp( name ) } );
 			expect( link ).toHaveAttribute( 'href', expect.stringMatching( `source=${ slug }(&|$)` ) );
 			expect( link ).toHaveAccessibleDescription( description );
 			expect( link ).toHaveAttribute( 'target', '_blank' );
-			rowLinks.push( link );
+			links.push( link );
 		}
+		// All four share one card.
 		/* eslint-disable testing-library/no-node-access -- the card is a plain
 		   container with no role, so its class is the only handle. */
-		const cards = new Set( rowLinks.map( link => link.closest( '.jetpack-ai-overview__docs' ) ) );
+		const cards = new Set( links.map( link => link.closest( '.jetpack-ai-overview__docs' ) ) );
+		/* eslint-enable testing-library/no-node-access */
 		expect( cards.size ).toBe( 1 );
 		expect( [ ...cards ][ 0 ] ).not.toBeNull();
-
-		// The other two follow the card as plain links, still in a new tab.
-		const more = {
-			'AI features overview': 'jetpack-ai-hub-overview-docs-features',
-			'Billing & plans': 'jetpack-ai-hub-overview-docs-billing',
-		};
-		for ( const [ name, slug ] of Object.entries( more ) ) {
-			const link = screen.getByRole( 'link', { name: new RegExp( name ) } );
-			expect( link ).toHaveAttribute( 'href', expect.stringMatching( `source=${ slug }(&|$)` ) );
-			expect( link ).toHaveAttribute( 'target', '_blank' );
-			expect( link.closest( '.jetpack-ai-overview__docs' ) ).toBeNull();
-		}
-		/* eslint-enable testing-library/no-node-access */
 	} );
 
 	test( 'tracks: a documentation row click records its slug', async () => {

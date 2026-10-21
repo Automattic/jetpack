@@ -12,16 +12,7 @@ import { ProgressBar } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { connection, list, payment, starEmpty, tool } from '@wordpress/icons';
-import {
-	Card,
-	ButtonLink,
-	Link,
-	Notice,
-	Skeleton,
-	Stack,
-	Text,
-	VisuallyHidden,
-} from '@wordpress/ui';
+import { Card, ButtonLink, Notice, Skeleton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import NavRow from '../components/nav-row';
 import McpConnectAgents from '../mcp/connect-agents';
@@ -34,11 +25,9 @@ import './style.scss';
 
 // Redirect-service sources for the documentation rows. All four are
 // registered and resolving.
-// The two an agent owner needs first are rows; the rest follow as links.
 const DOC_LINKS = [
 	{
 		slug: 'jetpack-ai-hub-overview-docs-mcp-guide',
-		primary: true,
 		title: __( 'MCP integration guide', 'jetpack' ),
 		description: __( 'Connect an AI agent to your site.', 'jetpack' ),
 		icon: connection,
@@ -57,7 +46,6 @@ const DOC_LINKS = [
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-docs-mcp-tools',
-		primary: true,
 		// The target lists agent capabilities, not an API reference (i4 thread).
 		title: __( 'Available capabilities', 'jetpack' ),
 		description: __( 'What a connected agent can read and change.', 'jetpack' ),
@@ -400,7 +388,7 @@ export default function AiOverview( {
 				{ /* One card, a row per guide, split by the weak stroke as the
 				     Discover list is. The rows pad themselves, as above. */ }
 				<Card.Root className="jetpack-ai-overview__row-card jetpack-ai-overview__docs">
-					{ DOC_LINKS.filter( doc => doc.primary ).map( ( { slug, title, description, icon } ) => (
+					{ DOC_LINKS.map( ( { slug, title, description, icon } ) => (
 						<NavRow
 							key={ slug }
 							icon={ icon }
@@ -413,19 +401,6 @@ export default function AiOverview( {
 						/>
 					) ) }
 				</Card.Root>
-				<Text render={ <p /> } variant="body-sm" className="jetpack-ai-overview__more-help">
-					<span className="jetpack-ai-overview__muted">{ __( 'More help:', 'jetpack' ) }</span>
-					{ DOC_LINKS.filter( doc => ! doc.primary ).map( ( { slug, title } ) => (
-						<Link
-							key={ slug }
-							href={ getRedirectUrl( slug ) }
-							onClick={ recordLinkClick( 'docs', slug ) }
-							openInNewTab
-						>
-							{ title }
-						</Link>
-					) ) }
-				</Text>
 			</Stack>
 		</Stack>
 	);

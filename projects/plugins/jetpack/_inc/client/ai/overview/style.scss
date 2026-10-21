@@ -282,14 +282,6 @@
 		margin-block-end: calc(var(--wpds-dimension-gap-md) - var(--wpds-dimension-gap-3xl));
 	}
 
-	// The guides that aren't rows, as a line of links under the card.
-	&__more-help#{&}__more-help {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--wpds-dimension-gap-xs) var(--wpds-dimension-gap-md);
-		margin: 0;
-	}
-
 	// Belongs to the cards above, so it sits closer than a section would.
 	&__browse {
 		display: flex;
