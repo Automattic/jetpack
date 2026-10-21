@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats\Abilities;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\Main;
 use Automattic\Jetpack\Stats\Options;
 use Automattic\Jetpack\Stats\Settings;
@@ -87,6 +88,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	 * {@inheritDoc}
 	 */
 	public function tear_down() {
+		Constants::clear_single_constant( 'IS_WPCOM' );
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
 		remove_all_filters( 'jetpack_stats_abilities_wpcom_stats' );
@@ -974,6 +976,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	public function test_get_top_content_downloads_uniform_shape(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
 		$this->filter_wpcom_stats(
 			array(
 				'get_file_downloads' => self::days_fixture(
@@ -1009,6 +1012,16 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( '/downloads/spec.zip', $result['items'][1]['label'] );
 		$this->assertSame( 7, $result['items'][1]['value'] );
 		$this->assertSame( '/downloads/spec.zip', $result['items'][1]['href'] );
+	}
+
+	public function test_get_top_content_downloads_is_refused_on_jetpack_sites_without_asking_wpcom(): void {
+		$requests = $this->filter_wpcom_stats( array( 'get_file_downloads' => array() ) );
+
+		$result = Stats_Abilities::get_top_content( array( 'type' => 'downloads' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_stats_invalid_type', $result->get_error_code() );
+		$this->assertArrayNotHasKey( 'get_file_downloads', $requests );
 	}
 
 	public function test_get_top_content_video_plays_uniform_shape(): void {

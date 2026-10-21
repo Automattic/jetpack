@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Stats\Abilities;
 
 use Automattic\Jetpack\Stats\Settings;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use WP_Error;
 
@@ -201,7 +202,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get top stats content', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Uniform shape: { type, period, date, num, max, items: [ { rank, label, value, href?, id? } ] } — agents MUST NOT see a different shape per type. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday. Precondition: site must be connected to WordPress.com.',
+				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Uniform shape: { type, period, date, num, max, items: [ { rank, label, value, href?, id? } ] } — agents MUST NOT see a different shape per type. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday. `downloads` only works on WordPress.com sites that do not use Jetpack; elsewhere it returns `jetpack_stats_invalid_type`. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -697,6 +698,14 @@ class Stats_Abilities extends Registrar {
 					__( 'A `type` is required. Valid values: %s.', 'jetpack-stats-pkg' ),
 					implode( ', ', self::TOP_CONTENT_TYPES )
 				)
+			);
+		}
+
+		// WordPress.com answers stats/file-downloads with a 404 for every Jetpack-connected site.
+		if ( 'downloads' === $input['type'] && ! ( new Host() )->is_wpcom_simple() ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'invalid_type',
+				__( 'WordPress.com does not keep file download stats for Jetpack-connected sites. Choose another type.', 'jetpack-stats-pkg' )
 			);
 		}
 
