@@ -1510,12 +1510,215 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_marking_a_site_ai_built_keeps_its_existing_list() {
 		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_theme_selected', 'site_launched' ), 'write' );
-		update_option( 'wpcom_ai_launchpad_ai_built', '1' );
+		update_option( 'big_sky_site_metadata', wp_json_encode( array( 'siteType' => 'business' ), JSON_UNESCAPED_SLASHES ) );
 
 		$ids = $this->rendered_ids();
 
 		$this->assertContains( 'first_post_published', $ids );
 		$this->assertContains( 'site_theme_selected', $ids );
+	}
+
+	/**
+	 * Seeds a builder spec so the site counts as AI-built, with a site title for the inferred input.
+	 */
+	private function seed_builder_spec() {
+		update_option( 'blogname', 'Sunrise Bakery' );
+		update_option(
+			'big_sky_site_metadata',
+			wp_json_encode(
+				array(
+					'siteType'        => 'business',
+					'siteDescription' => 'A bakery.',
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+	}
+
+	/**
+	 * The first load gets the builder's input to tailor with, claims the run and records the input as the wizard's.
+	 */
+	public function test_get_serves_the_builder_input_to_the_first_load_only() {
+		$this->seed_builder_spec();
+
+		$first = $this->call_api( 'GET', '', null, array( 'auto_tailor' => '1' ) )->get_data();
+
+		$this->assertSame(
+			array(
+				'goal'        => 'build',
+				'site_name'   => 'Sunrise Bakery',
+				'description' => 'A bakery.',
+			),
+			$first['inferred_input']
+		);
+		$this->assertFalse( $first['auto_tailoring'] );
+		$this->assertNotFalse( get_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM ) );
+		$this->assertSame( 'build', $first['wizard']['goal'] );
+		$this->assertSame( 'ai_builder', get_option( AI_Launchpad_REST::OPTION_WIZARD )['source'] );
+		$this->assertSame( 'Sunrise Bakery', get_option( 'blogname' ) );
+
+		$second = $this->call_api( 'GET', '', null, array( 'auto_tailor' => '1' ) )->get_data();
+
+		$this->assertNull( $second['inferred_input'] );
+		$this->assertTrue( $second['auto_tailoring'] );
+	}
+
+	/**
+	 * A claim blocks other loads only while it is fresh.
+	 *
+	 * @dataProvider provide_claim_ages
+	 *
+	 * @param int  $age    Seconds since the claim was made.
+	 * @param bool $served Whether this load gets the input.
+	 */
+	#[DataProvider( 'provide_claim_ages' )]
+	public function test_get_reclaims_only_a_stale_claim( $age, $served ) {
+		$this->seed_builder_spec();
+		update_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM, time() - $age, false );
+
+		$data = $this->call_api( 'GET', '', null, array( 'auto_tailor' => '1' ) )->get_data();
+
+		$this->assertSame( $served, null !== $data['inferred_input'] );
+		$this->assertSame( ! $served, $data['auto_tailoring'] );
+	}
+
+	/**
+	 * Data provider for test_get_reclaims_only_a_stale_claim.
+	 *
+	 * @return array
+	 */
+	public static function provide_claim_ages() {
+		return array(
+			'a fresh claim'            => array( 10, false ),
+			'just inside the lifetime' => array( AI_Launchpad_REST::AUTO_TAILOR_CLAIM_TTL - 5, false ),
+			'a stale claim'            => array( AI_Launchpad_REST::AUTO_TAILOR_CLAIM_TTL + 5, true ),
+		);
+	}
+
+	/**
+	 * A wizard the user already finished keeps its answers, and its goal is the one tailored for.
+	 */
+	public function test_get_keeps_a_finished_wizards_goal() {
+		$this->seed_builder_spec();
+		$wizard = array(
+			'version'     => 1,
+			'goal'        => 'sell',
+			'site_name'   => 'My Shop',
+			'description' => 'Shoes.',
+		);
+		update_option( AI_Launchpad_REST::OPTION_WIZARD, $wizard, false );
+
+		$data = $this->call_api( 'GET', '', null, array( 'auto_tailor' => '1' ) )->get_data();
+
+		$this->assertSame( 'sell', $data['inferred_input']['goal'] );
+		$this->assertSame( $wizard, get_option( AI_Launchpad_REST::OPTION_WIZARD ) );
+	}
+
+	/**
+	 * Only a site admin's auto-tailoring load without a list gets the input, and nothing is claimed otherwise.
+	 *
+	 * @dataProvider provide_loads_without_input
+	 *
+	 * @param string     $setup The setup to apply.
+	 * @param null|array $query Query params.
+	 */
+	#[DataProvider( 'provide_loads_without_input' )]
+	public function test_get_withholds_the_builder_input( $setup, $query = null ) {
+		$this->seed_builder_spec();
+		if ( 'editor' === $setup ) {
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'dummy_editor',
+						'user_pass'  => 'dummy_pass',
+						'role'       => 'editor',
+					)
+				)
+			);
+		} elseif ( 'tailored' === $setup ) {
+			$this->seed_tailored_site();
+		} elseif ( 'no_spec' === $setup ) {
+			delete_option( 'big_sky_site_metadata' );
+		}
+
+		$data = $this->call_api( 'GET', '', null, $query )->get_data();
+
+		$this->assertNull( $data['inferred_input'] );
+		$this->assertFalse( $data['auto_tailoring'] );
+		$this->assertFalse( get_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM ) );
+	}
+
+	/**
+	 * Data provider for test_get_withholds_the_builder_input.
+	 *
+	 * @return array
+	 */
+	public static function provide_loads_without_input() {
+		$auto = array( 'auto_tailor' => '1' );
+		return array(
+			'a read that did not ask'    => array( 'admin' ),
+			'an editor'                  => array( 'editor', $auto ),
+			'an existing list'           => array( 'tailored', $auto ),
+			'no builder spec'            => array( 'no_spec', $auto ),
+			'the all-tasks testing view' => array( 'admin', array_merge( $auto, array( 'all_tasks' => '1' ) ) ),
+		);
+	}
+
+	/**
+	 * Once a list is saved, no load tailors or waits, whatever the claim says.
+	 */
+	public function test_get_after_saving_the_list_serves_no_input() {
+		update_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM, time(), false );
+		$this->assertSame( 200, $this->call_api( 'PUT', '/tailored', self::valid_payload() )->get_status() );
+		$this->seed_builder_spec();
+
+		$data = $this->call_api( 'GET', '', null, array( 'auto_tailor' => '1' ) )->get_data();
+
+		$this->assertNull( $data['inferred_input'] );
+		$this->assertFalse( $data['auto_tailoring'] );
+	}
+
+	/**
+	 * Releasing frees the claim only while no list exists.
+	 *
+	 * @dataProvider provide_claim_releases
+	 *
+	 * @param bool $tailored Whether the site already has a list.
+	 */
+	#[DataProvider( 'provide_claim_releases' )]
+	public function test_release_frees_the_claim_only_without_a_list( $tailored ) {
+		if ( $tailored ) {
+			$this->seed_tailored_site();
+		}
+		update_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM, time(), false );
+
+		$data = $this->call_api( 'DELETE', '/auto-tailor-claim' )->get_data();
+
+		$this->assertSame( ! $tailored, $data['released'] );
+		$this->assertSame( $tailored, false !== get_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM ) );
+	}
+
+	/**
+	 * Data provider for test_release_frees_the_claim_only_without_a_list.
+	 *
+	 * @return array
+	 */
+	public static function provide_claim_releases() {
+		return array(
+			'no list yet'  => array( false ),
+			'a saved list' => array( true ),
+		);
+	}
+
+	/**
+	 * Dismissing ends the claim.
+	 */
+	public function test_dismissing_releases_the_claim() {
+		update_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM, time(), false );
+
+		$this->assertSame( 200, $this->call_api( 'DELETE' )->get_status() );
+
+		$this->assertFalse( get_option( AI_Launchpad_REST::OPTION_AUTO_TAILOR_CLAIM ) );
 	}
 
 	/**
@@ -1527,7 +1730,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[DataProvider( 'provide_ai_built_flags' )]
 	public function test_put_tailored_records_whether_the_site_is_ai_built( $ai_built ) {
-		update_option( 'wpcom_ai_launchpad_ai_built', $ai_built ? '1' : '' );
+		if ( $ai_built ) {
+			update_option( 'big_sky_site_metadata', wp_json_encode( array( 'siteType' => 'business' ), JSON_UNESCAPED_SLASHES ) );
+		} else {
+			delete_option( 'big_sky_site_metadata' );
+		}
 		$payload          = self::valid_payload();
 		$payload['tasks'] = array(
 			array(

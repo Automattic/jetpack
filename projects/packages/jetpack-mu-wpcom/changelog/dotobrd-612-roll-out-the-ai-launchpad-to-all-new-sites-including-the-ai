@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-AI Launchpad: Skip the setup tasks the AI builder already did on sites built with AI.
+AI Launchpad: On sites built with AI, skip the setup wizard and the tasks the AI builder already did.

@@ -502,14 +502,137 @@ if ( ! function_exists( 'wpcom_ai_launchpad_site_copy' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_ai_launchpad_builder_spec' ) ) {
+	/**
+	 * The site spec the user confirmed in the AI Website Builder chat, or null when there is none.
+	 *
+	 * The option holds a JSON string or an array; a spec without a siteType is just the builder's defaults.
+	 *
+	 * @return array|null
+	 */
+	function wpcom_ai_launchpad_builder_spec() {
+		// The option can grow large with editor state, and one request reads it several times.
+		static $cache = array(
+			'raw'  => null,
+			'spec' => null,
+		);
+
+		$raw = get_option( 'big_sky_site_metadata' );
+		if ( null !== $cache['raw'] && $raw === $cache['raw'] ) {
+			return $cache['spec'];
+		}
+
+		$spec = is_string( $raw ) ? json_decode( $raw, true ) : $raw;
+		if ( ! is_array( $spec ) || empty( $spec['siteType'] ) || ! is_string( $spec['siteType'] ) ) {
+			$spec = null;
+		}
+
+		$cache = array(
+			'raw'  => $raw,
+			'spec' => $spec,
+		);
+		return $spec;
+	}
+}
+
 if ( ! function_exists( 'wpcom_ai_launchpad_is_ai_built' ) ) {
 	/**
-	 * Whether WordPress.com marked this site as built with AI, which hides the tasks the builder already did.
+	 * Whether the user confirmed a site spec in the AI Website Builder chat, which hides the tasks the builder already did.
 	 *
 	 * @return bool
 	 */
 	function wpcom_ai_launchpad_is_ai_built() {
-		return (bool) get_option( 'wpcom_ai_launchpad_ai_built' );
+		return null !== wpcom_ai_launchpad_builder_spec();
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_goal_from_builder_spec' ) ) {
+	/**
+	 * Maps a builder spec to a wizard goal slug.
+	 *
+	 * @param array $spec The builder spec.
+	 * @return string One of sell, write, portfolio, educate or build.
+	 */
+	function wpcom_ai_launchpad_goal_from_builder_spec( $spec ) {
+		$type = isset( $spec['siteType'] ) && is_string( $spec['siteType'] ) ? $spec['siteType'] : '';
+
+		// Features arrive as a list of names or as a name => enabled map.
+		$features = array();
+		if ( isset( $spec['siteFeatures'] ) && is_array( $spec['siteFeatures'] ) ) {
+			foreach ( $spec['siteFeatures'] as $key => $value ) {
+				if ( is_int( $key ) && is_string( $value ) ) {
+					$features[] = $value;
+				} elseif ( is_string( $key ) && $value ) {
+					$features[] = $key;
+				}
+			}
+		}
+		$goals = isset( $spec['siteGoals'] ) && is_array( $spec['siteGoals'] ) ? $spec['siteGoals'] : array();
+
+		if (
+			'store' === $type
+			|| in_array( 'sell_physical_goods', $features, true )
+			|| in_array( 'sell_services', $features, true )
+			|| in_array( 'sell_services', $goals, true )
+		) {
+			return 'sell';
+		}
+		if ( in_array( $type, array( 'blog', 'news', 'personal' ), true ) ) {
+			return 'write';
+		}
+		if ( in_array( $type, array( 'portfolio', 'photography', 'art', 'music', 'fashion' ), true ) ) {
+			return 'portfolio';
+		}
+		if ( 'education' === $type ) {
+			return 'educate';
+		}
+		return 'build';
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_builder_input' ) ) {
+	/**
+	 * The wizard input inferred from the builder spec, or null when there is nothing to describe.
+	 *
+	 * @return array|null An array with goal, site_name and description.
+	 */
+	function wpcom_ai_launchpad_builder_input() {
+		$spec = wpcom_ai_launchpad_builder_spec();
+		if ( null === $spec ) {
+			return null;
+		}
+
+		$lines = array();
+		if ( ! empty( $spec['siteDescription'] ) && is_string( $spec['siteDescription'] ) ) {
+			$lines[] = $spec['siteDescription'];
+		}
+		if ( ! empty( $spec['topic'] ) && is_string( $spec['topic'] ) && 'General' !== $spec['topic'] ) {
+			$lines[] = 'Topic: ' . $spec['topic'];
+		}
+		if ( ! empty( $spec['siteGoals'] ) && is_array( $spec['siteGoals'] ) ) {
+			$goals = array_filter( $spec['siteGoals'], 'is_string' );
+			if ( $goals ) {
+				$lines[] = 'Goals: ' . implode( '; ', $goals );
+			}
+		}
+
+		$description = trim( implode( "\n", $lines ) );
+		$description = function_exists( 'mb_substr' ) ? mb_substr( $description, 0, 1000, 'UTF-8' ) : substr( $description, 0, 1000 );
+		if ( '' === $description ) {
+			return null;
+		}
+
+		$site_name = trim( wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES ) );
+		if ( '' === $site_name && isset( $spec['siteTitle'] ) && is_string( $spec['siteTitle'] ) ) {
+			$site_name = $spec['siteTitle'];
+		}
+		$site_name = function_exists( 'mb_substr' ) ? mb_substr( $site_name, 0, 200, 'UTF-8' ) : substr( $site_name, 0, 200 );
+
+		return array(
+			'goal'        => wpcom_ai_launchpad_goal_from_builder_spec( $spec ),
+			'site_name'   => $site_name,
+			'description' => $description,
+		);
 	}
 }
 

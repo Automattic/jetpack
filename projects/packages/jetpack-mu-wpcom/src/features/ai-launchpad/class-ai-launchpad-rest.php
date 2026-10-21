@@ -19,6 +19,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	// Set once; cleared only by an explicit reset (re-tailor, dismiss, reset).
 	const OPTION_COMPLETED = 'wpcom_ai_launchpad_completed';
 
+	const OPTION_AUTO_TAILOR_CLAIM = 'wpcom_ai_launchpad_auto_tailor_claim';
+
+	// The goals the wizard offers.
+	const GOALS = array( 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' );
+
+	// Long enough for one tailoring run; a load that left mid-run frees the site after it.
+	const AUTO_TAILOR_CLAIM_TTL = 180;
+
 	/**
 	 * Options whose writes can finish a task outside Site Setup: every listener records completion in the statuses
 	 * option, and the launch task reads `launch-status` live.
@@ -302,8 +310,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'can_read' ),
 					'args'                => array(
 						// Testing aid: render the full task catalog so every task can be exercised from one site.
-						'all_tasks' => array(
+						'all_tasks'   => array(
 							'description' => 'Return the full task catalog instead of the tailored list (testing aid).',
+							'type'        => 'boolean',
+							'default'     => false,
+						),
+						'auto_tailor' => array(
+							'description' => 'Whether this load may claim the automatic tailoring run of an AI-built site.',
 							'type'        => 'boolean',
 							'default'     => false,
 						),
@@ -312,6 +325,18 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'dismiss' ),
+					'permission_callback' => array( $this, 'can_write' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/auto-tailor-claim',
+			array(
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'release_auto_tailor_claim' ),
 					'permission_callback' => array( $this, 'can_write' ),
 				),
 			)
@@ -329,7 +354,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 						'goal'        => array(
 							'description' => 'The site goal picked in the wizard.',
 							'type'        => 'string',
-							'enum'        => array( 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' ),
+							'enum'        => self::GOALS,
 							'required'    => true,
 						),
 						'site_name'   => array(
@@ -593,6 +618,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		// again once the wizard finishes, and that read carries the offer.
 		$shows_wizard = ! is_array( $ai_output ) && ! $all_tasks;
 
+		$inferred_input = null;
+		$auto_tailoring = false;
+		$auto_tailor    = $request instanceof WP_REST_Request && $request->get_param( 'auto_tailor' );
+		if ( $shows_wizard && $auto_tailor && current_user_can( 'manage_options' ) ) {
+			$builder_input = wpcom_ai_launchpad_builder_input();
+			if ( null !== $builder_input ) {
+				if ( $this->claim_auto_tailoring() ) {
+					$inferred_input = $this->adopt_builder_input( $builder_input );
+					$wizard         = get_option( self::OPTION_WIZARD );
+				} else {
+					$auto_tailoring = true;
+				}
+			}
+		}
+
 		return array(
 			'wizard'             => is_array( $wizard ) ? $wizard : null,
 			'ai_output'          => is_array( $ai_output ) ? $ai_output : null,
@@ -604,6 +644,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'is_eligible'        => true,
 			// Whether the next tailoring is for an AI-built site, so the client fallback skips the builder's tasks.
 			'ai_built'           => wpcom_ai_launchpad_is_ai_built(),
+			// What the AI Website Builder learned, for a site that skips the wizard; served to one load at a time.
+			'inferred_input'     => $inferred_input,
+			// Another load is tailoring this site right now, so this one waits for its list.
+			'auto_tailoring'     => $auto_tailoring,
 			// The language this request is translated into, which is the reader's own. Task subtitles
 			// follow it, since they are read here and never published.
 			'user_language'      => determine_locale(),
@@ -747,22 +791,28 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * the wizard already did (e.g. no site-title task — the wizard captured the name). Excludes tasks whose completion
 	 * depends on the AI-task list (the theme/social listeners, the complete-on-click route), since a backfilled card is
 	 * not on that list. skip_task() reads the ids here to keep every backfilled card skippable, so the set lives here.
+	 * A list tailored for an AI-built site swaps the design and page fillers for ones the builder did not cover.
 	 *
 	 * @return array<string, string>
 	 */
 	private function backfill_pool() {
-		$pool = array(
-			'design_edited'        => __( 'Make the design your own.', 'jetpack-mu-wpcom' ),
-			'add_new_page'         => __( 'Add a page your visitors will want, like About or Contact.', 'jetpack-mu-wpcom' ),
+		if ( wpcom_ai_launchpad_is_list_ai_built() ) {
+			$pool = array(
+				'add_site_icon' => __( 'Add your logo or site icon.', 'jetpack-mu-wpcom' ),
+				'domain_upsell' => __( 'Give your site its own domain.', 'jetpack-mu-wpcom' ),
+			);
+		} else {
+			$pool = array(
+				'design_edited' => __( 'Make the design your own.', 'jetpack-mu-wpcom' ),
+				'add_new_page'  => __( 'Add a page your visitors will want, like About or Contact.', 'jetpack-mu-wpcom' ),
+			);
+		}
+
+		// Last, so the remote lookup in mobile_app_installed's completion check only runs when nothing else fits.
+		return $pool + array(
 			'connect_social_media' => __( 'Connect your social accounts to reach more people.', 'jetpack-mu-wpcom' ),
 			'mobile_app_installed' => __( 'Manage your site from anywhere with the Jetpack app.', 'jetpack-mu-wpcom' ),
 		);
-
-		if ( wpcom_ai_launchpad_is_list_ai_built() ) {
-			$pool = array_diff_key( $pool, array_flip( self::AI_BUILT_EXCLUDED_TASK_IDS ) );
-		}
-
-		return $pool;
 	}
 
 	/**
@@ -1189,6 +1239,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		delete_option( self::OPTION_AI_OUTPUT );
 		delete_option( self::OPTION_SKIPPED );
 		delete_option( self::OPTION_COMPLETED );
+		delete_option( self::OPTION_AUTO_TAILOR_CLAIM );
 		update_option( self::OPTION_DISMISSED, true, true );
 
 		return array( 'dismissed' => true );
@@ -1383,6 +1434,66 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'renderable' => array_values( array_diff( $renderable, $excluded ) ),
 			'actionable' => array_values( array_diff( $actionable, $excluded ) ),
 		);
+	}
+
+	/**
+	 * Frees the automatic tailoring run a leaving load had claimed, so the next load tailors without waiting.
+	 *
+	 * @return array
+	 */
+	public function release_auto_tailor_claim() {
+		$released = ! is_array( get_option( self::OPTION_AI_OUTPUT ) ) && delete_option( self::OPTION_AUTO_TAILOR_CLAIM );
+
+		return array( 'released' => $released );
+	}
+
+	/**
+	 * Records the builder's input as the wizard answers, unless the user already gave their own.
+	 *
+	 * Never touches blogname or blogdescription, which the builder already set.
+	 *
+	 * @param array $builder_input The builder's input.
+	 * @return array The input to tailor with.
+	 */
+	private function adopt_builder_input( $builder_input ) {
+		$wizard = get_option( self::OPTION_WIZARD );
+		if ( false === $wizard ) {
+			$wizard = array(
+				'version'      => 1,
+				'goal'         => $builder_input['goal'],
+				'site_name'    => $builder_input['site_name'],
+				'description'  => $builder_input['description'],
+				'locale'       => wpcom_ai_launchpad_site_locale(),
+				'ui_locale'    => determine_locale(),
+				'generated_at' => time(),
+				'source'       => 'ai_builder',
+			);
+			add_option( self::OPTION_WIZARD, $wizard, '', false );
+		}
+
+		// update_tailored() enforces the wizard's goal, so the prompt must use it too.
+		if ( is_array( $wizard ) && isset( $wizard['goal'] ) && in_array( $wizard['goal'], self::GOALS, true ) ) {
+			$builder_input['goal'] = $wizard['goal'];
+		}
+
+		return $builder_input;
+	}
+
+	/**
+	 * Claims the automatic tailoring run for this request, so a reload or a second tab waits instead of tailoring twice.
+	 *
+	 * @return bool Whether this request won the claim.
+	 */
+	private function claim_auto_tailoring() {
+		$now = time();
+		if ( add_option( self::OPTION_AUTO_TAILOR_CLAIM, $now, '', false ) ) {
+			return true;
+		}
+		if ( $now - (int) get_option( self::OPTION_AUTO_TAILOR_CLAIM ) < self::AUTO_TAILOR_CLAIM_TTL ) {
+			return false;
+		}
+		update_option( self::OPTION_AUTO_TAILOR_CLAIM, $now, false );
+		return true;
 	}
 
 	/**

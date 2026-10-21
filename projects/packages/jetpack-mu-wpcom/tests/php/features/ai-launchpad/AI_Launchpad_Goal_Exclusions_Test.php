@@ -52,7 +52,11 @@ class AI_Launchpad_Goal_Exclusions_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[DataProvider( 'provide_ai_built_exclusions' )]
 	public function test_ai_built_sites_exclude_the_builders_tasks( $ai_built, $task_id, $excluded ) {
-		update_option( 'wpcom_ai_launchpad_ai_built', $ai_built ? '1' : '' );
+		if ( $ai_built ) {
+			update_option( 'big_sky_site_metadata', wp_json_encode( array( 'siteType' => 'business' ), JSON_UNESCAPED_SLASHES ) );
+		} else {
+			delete_option( 'big_sky_site_metadata' );
+		}
 
 		$this->assertSame( $excluded, in_array( $task_id, AI_Launchpad_REST::excluded_task_ids_for_goal( 'build' ), true ) );
 	}
