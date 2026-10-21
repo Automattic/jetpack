@@ -143,7 +143,9 @@ describe( 'TemplatePlacements', () => {
 			expect( screen.queryByText( 'Edit the page template' )?.getAttribute( 'href' ) ).toBe(
 				url || undefined
 			);
-			expect( screen.getByText( /Templates you’ve saved in the Site Editor/ ) ).toBeInTheDocument();
+			expect(
+				screen.getByText( /Once you’ve saved a template in the Site Editor/ )
+			).toBeInTheDocument();
 			expect( screen.getByRole( 'group' ) ).toHaveAccessibleDescription(
 				'Pick one place: before or after the content.'
 			);

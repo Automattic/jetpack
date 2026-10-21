@@ -119,7 +119,7 @@ export function TemplatePlacements( {
 					) }
 					<Text render={ <p /> }>
 						{ __(
-							'Templates you’ve saved in the Site Editor keep the blocks you left in them, whatever you pick here.',
+							'Once you’ve saved a template in the Site Editor, move or remove its blocks there: picking a place here won’t move a block that template already has, or bring back one you removed.',
 							'jetpack-sharing-likes'
 						) }
 					</Text>
