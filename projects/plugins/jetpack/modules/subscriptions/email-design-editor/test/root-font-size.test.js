@@ -181,14 +181,16 @@ describe( 'withRootFontSize', () => {
 } );
 
 describe( 'watchRootFontSize', () => {
-	it( 'republishes the canvas rules when the creator changes the size', () => {
+	it( 'republishes the canvas rules on every change, stacking no second rule', () => {
 		const pick = watching( '16px' );
 
 		pick( sized( '22px' ) );
+		pick( sized( '30px' ) );
 
+		expect( mockSetEditorSettings ).toHaveBeenCalledTimes( 2 );
 		expect( published() ).toEqual( [
 			WPCOM_STYLESHEET,
-			{ css: '.is-root-container{--wpcom-email-root-font-size:22px; }' },
+			{ css: '.is-root-container{--wpcom-email-root-font-size:30px; }' },
 		] );
 	} );
 
@@ -215,6 +217,19 @@ describe( 'watchRootFontSize', () => {
 		pick( { styles: {} } );
 
 		expect( published() ).toEqual( [ WPCOM_STYLESHEET ] );
+	} );
+
+	it( 'waits for the design record to resolve rather than republishing the theme over it', () => {
+		// The record resolves a tick after the editor mounts, and the canvas was built from the
+		// copy the bundle carried, so reading the theme alone here would flash the wrong size.
+		mockSettings = { styles: [ WPCOM_STYLESHEET ], isFullScreenForced: true };
+		mockTheme = sized( '16px' );
+		mockDesign = null;
+
+		watchRootFontSize( '22px' );
+		mockListener();
+
+		expect( mockSetEditorSettings ).not.toHaveBeenCalled();
 	} );
 
 	it( 'waits for the editor to take the configuration rather than replacing it', () => {

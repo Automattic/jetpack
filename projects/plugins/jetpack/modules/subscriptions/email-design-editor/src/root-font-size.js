@@ -118,10 +118,15 @@ export function watchRootFontSize( initial = null ) {
 			return;
 		}
 
-		const current = rootFontSize(
-			select( EMAIL_EDITOR_STORE ).getTheme(),
-			select( EMAIL_EDITOR_STORE ).getGlobalEmailStylesPost()
-		);
+		const design = select( EMAIL_EDITOR_STORE ).getGlobalEmailStylesPost();
+
+		// The package answers null until the design record resolves, and the theme alone would
+		// republish a size the creator has already replaced. The canvas opened on the right one.
+		if ( ! design ) {
+			return;
+		}
+
+		const current = rootFontSize( select( EMAIL_EDITOR_STORE ).getTheme(), design );
 
 		if ( current === previous ) {
 			return;

@@ -552,9 +552,10 @@ describe( 'Email design editor entry point', () => {
 			expect( mountedEditorProps().config.editorSettings.styles ).toEqual( [ { css: 'body{}' } ] );
 		} );
 
-		it( 'sizes image captions from the design the bundle carries', async () => {
+		it( 'sizes image captions from the design the bundle carries, beside the other rules', async () => {
 			mockApiFetch.mockResolvedValue(
 				bootstrapBundle( {
+					shows_featured_image: false,
 					global_styles: {
 						...bootstrapBundle().global_styles,
 						record: {
@@ -568,10 +569,13 @@ describe( 'Email design editor entry point', () => {
 
 			await loadEntryPoint();
 
-			// Without it the caption cells inherit the `font-size: 0px` the image tables carry.
-			expect( mountedEditorProps().config.editorSettings.styles ).toContainEqual( {
-				css: '.is-root-container{--wpcom-email-root-font-size:22px; }',
-			} );
+			// Without the variable the caption cells inherit the `font-size: 0px` the image tables
+			// carry. Asserted whole, since every rule travels in this one array.
+			expect( mountedEditorProps().config.editorSettings.styles ).toEqual( [
+				{ css: 'body{}' },
+				{ css: '.is-root-container{--wpcom-email-root-font-size:22px; }' },
+				{ css: '.wp-block-post-featured-image { display: none; }' },
+			] );
 		} );
 
 		it( 'leaves captions to the fallback when neither half of the bundle sets a size', async () => {
@@ -580,8 +584,8 @@ describe( 'Email design editor entry point', () => {
 			await loadEntryPoint();
 
 			expect(
-				mountedEditorProps().config.editorSettings.styles.some( ( { css } ) =>
-					css.includes( '--wpcom-email-root-font-size' )
+				mountedEditorProps().config.editorSettings.styles.some( entry =>
+					entry.css?.includes( '--wpcom-email-root-font-size' )
 				)
 			).toBe( false );
 		} );
