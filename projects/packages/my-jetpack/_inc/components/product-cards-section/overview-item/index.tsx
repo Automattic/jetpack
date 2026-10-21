@@ -22,6 +22,7 @@ export type OverviewItemLink = {
 	label: string;
 	href?: string;
 	onClick?: () => void;
+	ariaLabel?: string;
 };
 
 export type OverviewItemProps = {
@@ -125,6 +126,7 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 				{ ...( action.href
 					? { href: action.href, onClick: action.onClick }
 					: { render: <Button variant="unstyled" onClick={ action.onClick } /> } ) }
+				aria-label={ action.ariaLabel }
 			>
 				{ action.label }
 			</Link>

@@ -1,3 +1,4 @@
+import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
@@ -41,10 +42,25 @@ const useStatusAction = ( slug: JetpackModuleWithCard, label: string ) => {
 	}, [ isRegistered, status, refetch ] );
 
 	const { label: actionLabel, href, onClick, disabled } = action;
+	const isConnectionError =
+		status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR ||
+		status === PRODUCT_STATUSES.USER_CONNECTION_ERROR;
 	const link: OverviewItemLink | undefined =
 		disabled || ! actionLabel
 			? undefined
-			: { label: actionLabel, href, onClick: onClick && ( () => onClick( undefined ) ) };
+			: {
+					label: actionLabel,
+					href,
+					onClick: onClick && ( () => onClick( undefined ) ),
+					// "Connect" alone is ambiguous when several sections offer it.
+					ariaLabel: isConnectionError
+						? sprintf(
+								/* translators: %s is a product name, such as Stats. */
+								__( 'Connect %s', 'jetpack-my-jetpack' ),
+								detail?.name
+							)
+						: undefined,
+				};
 
 	return { action: link, forcedOffReason };
 };
