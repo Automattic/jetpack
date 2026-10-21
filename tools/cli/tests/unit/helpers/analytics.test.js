@@ -19,9 +19,14 @@ const { checkAnalyticsEnabled } = await import( '../../../helpers/analytics.js' 
 
 describe( 'checkAnalyticsEnabled', () => {
 	const originalCi = process.env.CI;
-	const originalIsTty = Object.getOwnPropertyDescriptor( process.stdin, 'isTTY' );
-	const setStdinTty = value =>
-		Object.defineProperty( process.stdin, 'isTTY', { value, configurable: true } );
+	const originalTty = {
+		stdin: Object.getOwnPropertyDescriptor( process.stdin, 'isTTY' ),
+		stdout: Object.getOwnPropertyDescriptor( process.stdout, 'isTTY' ),
+	};
+	const setTty = ( stdin, stdout ) => {
+		Object.defineProperty( process.stdin, 'isTTY', { value: stdin, configurable: true } );
+		Object.defineProperty( process.stdout, 'isTTY', { value: stdout, configurable: true } );
+	};
 
 	beforeEach( () => {
 		delete process.env.CI;
@@ -36,24 +41,32 @@ describe( 'checkAnalyticsEnabled', () => {
 		} else {
 			process.env.CI = originalCi;
 		}
-		if ( originalIsTty ) {
-			Object.defineProperty( process.stdin, 'isTTY', originalIsTty );
-		} else {
-			delete process.stdin.isTTY;
+		for ( const name of [ 'stdin', 'stdout' ] ) {
+			if ( originalTty[ name ] ) {
+				Object.defineProperty( process[ name ], 'isTTY', originalTty[ name ] );
+			} else {
+				delete process[ name ].isTTY;
+			}
 		}
 		jest.restoreAllMocks();
 	} );
 
-	test( 'does not ask, or save an answer, when stdin is not a terminal', async () => {
-		setStdinTty( undefined );
+	test.each( [
+		[ 'stdin', undefined, true ],
+		[ 'stdout', true, undefined ],
+	] )(
+		'does not ask, or save an answer, when %s is not a terminal',
+		async ( _name, stdin, stdout ) => {
+			setTty( stdin, stdout );
 
-		await expect( checkAnalyticsEnabled() ).resolves.toBe( false );
-		expect( mockPrompt ).not.toHaveBeenCalled();
-		expect( store.size ).toBe( 0 );
-	} );
+			await expect( checkAnalyticsEnabled() ).resolves.toBe( false );
+			expect( mockPrompt ).not.toHaveBeenCalled();
+			expect( store.size ).toBe( 0 );
+		}
+	);
 
-	test( 'keeps a saved preference when stdin is not a terminal', async () => {
-		setStdinTty( undefined );
+	test( 'keeps a saved preference when there is no terminal', async () => {
+		setTty( undefined, undefined );
 		store.set( 'askedToEnableAnalytics', true );
 		store.set( 'analyticsEnabled', true );
 
@@ -61,8 +74,8 @@ describe( 'checkAnalyticsEnabled', () => {
 		expect( mockPrompt ).not.toHaveBeenCalled();
 	} );
 
-	test( 'asks once and saves the answer when stdin is a terminal', async () => {
-		setStdinTty( true );
+	test( 'asks once and saves the answer from a terminal', async () => {
+		setTty( true, true );
 		mockPrompt.mockResolvedValueOnce( { analyticsEnabled: false } );
 
 		await expect( checkAnalyticsEnabled() ).resolves.toBe( false );

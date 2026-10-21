@@ -25,9 +25,9 @@ export async function checkAnalyticsEnabled() {
 			return false;
 		}
 
-		// Nobody can answer without a terminal (a script, an agent, `jp` piping into Docker), and
-		// the prompt would hang or exit. Skip it unsaved, so the next interactive run still asks.
-		if ( ! process.stdin.isTTY ) {
+		// Without a terminal on both ends (a script, an agent, `jp` running Docker without -it, output
+		// sent to a file) nobody sees or answers it. Skip it unsaved, so a later terminal run asks.
+		if ( ! ( process.stdin.isTTY && process.stdout.isTTY ) ) {
 			return false;
 		}
 
