@@ -374,6 +374,12 @@ class Analytics {
 		}
 		configure_purchase_success();
 
+		// When the site first opened the dashboard, for notices that wait a while before showing.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_dashboard_first_visit' ) ) {
+			require_once __DIR__ . '/dashboard-first-visit.php';
+		}
+		configure_dashboard_first_visit();
+
 		// Temporary: carries a default layout move into layouts readers customized before it.
 		Stored_Layout_Move::register();
 	}

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.12.0] - 2026-10-20
+### Added
+- Add catalog-controlled Pro offers and preserve existing plan management. [#53421]
+- Recognize Jetpack Pro subscriptions and licenses. [#53424]
+
+### Changed
+- Features: Link the five security modules to their card on the Protect page, in place of their switches, while that page owns their settings. Point the Protect card's settings links there too. [#53744]
+- Line up notices with the cards below them, and drop the grey background behind the Features grid and list buttons. [#53759]
+- Plans: Refresh Pro availability while preserving existing offers. [#53425]
+
+### Fixed
+- Protect: Keep the Protect card active when Brute force protection is off on sites with the Protect page. [#53727]
+
 ## [6.11.0] - 2026-10-19
 ### Added
 - Add a feature flag for the shared header's global controls. [#53631]
@@ -3087,6 +3100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.11.0...6.12.0
 [6.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.10.0...6.11.0
 [6.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.9.1...6.10.0
 [6.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.9.0...6.9.1

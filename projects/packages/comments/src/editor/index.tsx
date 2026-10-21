@@ -142,7 +142,11 @@ const Editor = ( {
 	const [ { present }, dispatch ] = useReducer( history, null, () => {
 		const blocks = toBlocks( initialContent, placeholder );
 
-		return { past: [], present: { blocks, markup: serialize( blocks ) }, future: [] };
+		return {
+			past: [],
+			present: { blocks, markup: serialize( blocks ), selection: undefined },
+			future: [],
+		};
 	} );
 	const { blocks, markup, selection } = present;
 	// An image or embed still waiting for its URL saves nothing, so the server would post an empty comment.
