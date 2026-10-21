@@ -22,6 +22,8 @@
 import {
 	CONNECTION_STORE_ID,
 	DisconnectDialog,
+	getTracksIdentity,
+	initializeTracksIdentity,
 	ProtectedOwnerConfirmation,
 	ProtectedOwnerRelease,
 	TransferConnectionOwnership,
@@ -160,6 +162,7 @@ function useCardConnection() {
 			isInSafeMode: isRegistered && Boolean( connectionStatus.isInSafeMode ),
 			blogId,
 			currentUser,
+			tracksIdentity: getTracksIdentity( currentUser ),
 			viewer,
 			owner: owner
 				? {
@@ -1535,7 +1538,7 @@ function IDCPanel() {
  * @return {object} React element.
  */
 function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
-	const { viewer, owner, ownerIsViewer, isOfflineMode, currentUser, connectedPlugins } =
+	const { viewer, owner, ownerIsViewer, isOfflineMode, tracksIdentity, connectedPlugins } =
 		useCardConnection();
 	const { disconnectUserSuccess } = useDispatch( CONNECTION_STORE_ID );
 	const [ isUnlinking, setIsUnlinking ] = useState( false );
@@ -1550,15 +1553,6 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const confirmTriggerRef = useRef( null );
 	const disconnectSiteRef = useRef( null );
 	const disconnectAccountRef = useRef( null );
-
-	// Analytics identity must be the WordPress.com account, not the local one; unset when not connected.
-	const disconnectDialogUser = useMemo(
-		() =>
-			currentUser?.isConnected
-				? { ID: currentUser.wpcomUser?.ID, login: currentUser.wpcomUser?.login }
-				: {},
-		[ currentUser?.isConnected, currentUser?.wpcomUser?.ID, currentUser?.wpcomUser?.login ]
-	);
 
 	const executeUnlinkUser = async () => {
 		if ( isOfflineMode ) {
@@ -1800,7 +1794,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 					apiNonce,
 					connectedPlugins,
 					// No connectedSiteId: without it the dialog skips the disconnect survey.
-					connectedUser: disconnectDialogUser,
+					connectedUser: tracksIdentity,
 					context: 'connectors',
 					isOpen: true,
 					// The dialog disconnects on its first step; the reload waits for its closing steps.
@@ -1859,8 +1853,15 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		isFirstConnection,
 		isInSafeMode,
 		viewer,
+		currentUser,
+		tracksIdentity,
 	} = useCardConnection();
 	const [ isConnecting, setIsConnecting ] = useState( false );
+	// Identify the viewer once here, so every dialog the card opens records events under them.
+	useEffect( () => {
+		initializeTracksIdentity( currentUser );
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- re-identify only when the identity changes.
+	}, [ tracksIdentity.ID, tracksIdentity.login ] );
 	const [ connectError, setConnectError ] = useState( data.authError || null );
 	// Reset "Connecting…" state when the page is restored from bfcache
 	// (e.g. user hits Back after being redirected to the auth page).

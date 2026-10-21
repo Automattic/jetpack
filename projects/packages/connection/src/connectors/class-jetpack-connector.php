@@ -109,7 +109,7 @@ class Jetpack_Connector {
 	 *
 	 * @since 8.2.0
 	 * @since 9.11.0 Loads the webpack build from dist/, with its dependencies and version from the asset file.
-	 * @since $$next-version$$ Loads the Tracks scripts when tracking is allowed.
+	 * @since $$next-version$$ Loads the Tracks script when tracking is allowed.
 	 */
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
@@ -155,9 +155,10 @@ class Jetpack_Connector {
 			Assets::enqueue_script( $handle );
 		}
 
-		// The shared components the card renders record Tracks events; w.js sends them. Same gate as My Jetpack.
+		// The shared components the card renders push Tracks events to _tkq; only w.js is needed to send them. Same gate as My Jetpack.
 		if ( ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
-			Tracking::register_tracks_functions_scripts( true );
+			Tracking::register_tracks_functions_scripts();
+			wp_enqueue_script( 'jp-tracks' );
 		}
 
 		add_filter(

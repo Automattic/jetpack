@@ -629,11 +629,11 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the Tracks scripts load only when tracking is allowed.
+	 * Test that the Tracks script loads only when tracking is allowed.
 	 *
 	 * @param bool $tos_agreed Whether the site agreed to the terms of service.
 	 * @param bool $offline    Whether the site is in offline mode.
-	 * @param bool $expected   Whether the Tracks scripts should be enqueued.
+	 * @param bool $expected   Whether the Tracks script should be enqueued.
 	 * @dataProvider provide_tracking_states
 	 */
 	#[DataProvider( 'provide_tracking_states' )]
@@ -650,7 +650,8 @@ class Jetpack_Connector_Test extends TestCase {
 			$restore();
 		}
 
-		$this->assertSame( $expected, wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+		$this->assertSame( $expected, wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
 	}
 
 	/**
