@@ -40,7 +40,6 @@ const {
 	applyUpdateEnv,
 	shouldManageParallelEnv,
 	PARALLEL_ENV_KEYS,
-	isVersionAtLeast,
 	meetsBranchMinimums,
 } = await import( '../../../commands/docker.js' );
 
@@ -653,18 +652,6 @@ describe( 'pipeDbDump', () => {
 		await expect( pipeDbDump( 'src-wp-1', 'tgt-wp-1', '/var/www/html' ) ).rejects.toThrow(
 			/source.*exit 1.*target.*exit 3/is
 		);
-	} );
-} );
-
-describe( 'isVersionAtLeast', () => {
-	it.each( [
-		[ '8.2.0', '8.2', true ],
-		[ '8.3.12', '8.2', true ],
-		[ '8.1.30', '8.2', false ],
-		[ '7.4.33', '8.2', false ],
-		[ '8.10.0', '8.2', true ],
-	] )( '%s vs %s -> %s', ( version, minimum, expected ) => {
-		expect( isVersionAtLeast( version, minimum ) ).toBe( expected );
 	} );
 } );
 

@@ -2,6 +2,7 @@ import { spawn, spawnSync } from 'child_process';
 import fs from 'fs';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
+import semver from 'semver';
 import { dockerFolder, setConfig } from '../helpers/docker-config.js';
 
 /**
@@ -1071,25 +1072,6 @@ const execDockerCmdHandler = argv => {
 };
 
 /**
- * Checks whether a dotted version is at least a minimum version.
- *
- * @param {string} version - Version to check, e.g. "8.3.12".
- * @param {string} minimum - Minimum version, e.g. "8.2".
- * @return {boolean} True if version >= minimum.
- */
-export const isVersionAtLeast = ( version, minimum ) => {
-	const a = String( version ).split( '.' ).map( Number );
-	const b = String( minimum ).split( '.' ).map( Number );
-	for ( let i = 0; i < Math.max( a.length, b.length ); i++ ) {
-		const diff = ( a[ i ] || 0 ) - ( b[ i ] || 0 );
-		if ( diff !== 0 ) {
-			return diff > 0;
-		}
-	}
-	return true;
-};
-
-/**
  * Checks a version against space-separated per-branch minimums, e.g. "8.2.34 8.3.35".
  *
  * @param {string} version - Version to check.
@@ -1097,13 +1079,10 @@ export const isVersionAtLeast = ( version, minimum ) => {
  * @return {boolean} True if the version is allowed.
  */
 export const meetsBranchMinimums = ( version, minimums ) => {
-	const list = String( minimums ).split( /\s+/ ).filter( Boolean );
-	const branch = String( version ).split( '.' ).slice( 0, 2 ).join( '.' );
-	const same = list.find( m => m.split( '.' ).slice( 0, 2 ).join( '.' ) === branch );
-	if ( same ) {
-		return isVersionAtLeast( version, same );
-	}
-	return list.every( m => isVersionAtLeast( version, m ) );
+	const actual = semver.coerce( version );
+	const list = String( minimums ).split( /\s+/ ).filter( Boolean ).map( semver.coerce );
+	const same = list.find( m => m.major === actual.major && m.minor === actual.minor );
+	return same ? semver.gte( actual, same ) : list.every( m => semver.gte( actual, m ) );
 };
 
 /**
