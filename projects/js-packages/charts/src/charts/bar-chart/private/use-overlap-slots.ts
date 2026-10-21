@@ -115,19 +115,20 @@ function getStopPositions(
 
 	entries.forEach( ( { series } ) => {
 		( series.data as DataPointDate[] ).forEach( ( datum, dataPointIndex ) => {
+			const key = categoryKey( datum );
+			// A category with no reading still takes its place in the order, as it keeps its band.
+			const slots = categories.get( key ) ?? new Map< string, StopPosition >();
+			categories.set( key, slots );
 			if ( ! isBarRendered( datum ) ) {
 				return;
 			}
-			const key = categoryKey( datum );
-			const slots = categories.get( key ) ?? new Map< string, StopPosition >();
 			const slotKey = slotOf( series.label );
 			// Later entries are in front, so the last one at a category names its slot.
 			slots.set( slotKey, { slotKey, key: series.label, datum, dataPointIndex } );
-			categories.set( key, slots );
 		} );
 	} );
 
-	const ordered = [ ...categories.values() ];
+	const ordered = [ ...categories.values() ].filter( slots => slots.size > 0 );
 	const allDated = ordered.every( slots =>
 		[ ...slots.values() ].every( ( { datum } ) => datum.label == null && datum.date )
 	);
@@ -167,9 +168,11 @@ export function getSelectedSlot(
 		const datum = ( series.data as DataPointDate[] ).find( point =>
 			isSameCategory( point, category )
 		);
-		return datum && isBarRendered( datum ) ? [ { key: series.label, datum } ] : [];
+		return datum ? [ { key: series.label, datum } ] : [];
 	} );
-	const slotBars = members.filter( ( { key } ) => slots.slotOf( key ) === slotKey );
+	const slotBars = members.filter(
+		( { key, datum } ) => isBarRendered( datum ) && slots.slotOf( key ) === slotKey
+	);
 
 	return {
 		data: slotBars.map( ( { datum } ) => datum ),

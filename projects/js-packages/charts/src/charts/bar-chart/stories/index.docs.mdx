@@ -235,7 +235,7 @@ Set `layout="overlap"` to draw one metric inside another, as Jetpack Stats v1 dr
 - A slot keeps the colors it was given when its front-most series has an `options.stroke`, or when a color or the background is not a hex color.
 - The legend swatches take the bar colors. Without `legend.collapseGroups`, the legend lists the series in slot order: every primary, then every comparison. For a custom tooltip or legend, read them with `useBarColors()( series, { layout: 'overlap' } )`.
 - Hiding a series leaves the others in place: a comparison keeps its slot while its primary is hidden, and a group keeps its width while the group behind it is hidden.
-- The tooltip lists every bar at the hovered category. Pointer callbacks report the front-most bar of the slot under the pointer.
+- The tooltip lists every series at the hovered category, and a `null` reading as "No data". Pointer callbacks report the front-most bar of the slot under the pointer.
 - Arrow keys step one slot at a time. The selected slot is outlined as a whole, and the keyboard tooltip lists every bar at its category.
 - The theme's `barChart.barStyles.comparison` does not apply in this layout.
 

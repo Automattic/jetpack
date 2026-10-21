@@ -276,6 +276,40 @@ describe( 'BarChart overlap layout', () => {
 		] );
 	} );
 
+	it( 'steps the keyboard through categories in band order when the back series has no reading at one', async () => {
+		const user = userEvent.setup();
+		const onDatumActivate = jest.fn();
+		renderOverlap( {
+			onDatumActivate,
+			data: [
+				{
+					label: 'Views',
+					group: 'views',
+					data: [ day( 'Mon', 100 ), { label: 'Tue', value: null }, day( 'Wed', 120 ) ],
+				},
+				{
+					label: 'Previous views',
+					group: 'views',
+					options: { type: 'comparison' },
+					data: [ day( 'Mon', 80 ), day( 'Tue', 90 ), day( 'Wed', 70 ) ],
+				},
+			],
+		} );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}{Enter}'.repeat( 5 ) );
+
+		expect(
+			onDatumActivate.mock.calls.map( ( [ { key, datum } ] ) => `${ key } ${ datum.label }` )
+		).toEqual( [
+			'Views Mon',
+			'Previous views Mon',
+			'Previous views Tue',
+			'Views Wed',
+			'Previous views Wed',
+		] );
+	} );
+
 	it.each( [
 		[
 			'keyboard',
@@ -294,7 +328,7 @@ describe( 'BarChart overlap layout', () => {
 			},
 		],
 	] )(
-		'leaves a series with no reading at the category out of the %s tooltip',
+		'lists a series with no reading at the category as No data in the %s tooltip',
 		async ( _case, openTooltip ) => {
 			renderOverlap( {
 				data: DATA.map( series =>
@@ -306,7 +340,7 @@ describe( 'BarChart overlap layout', () => {
 
 			const tooltip = await openTooltip();
 			expect( tooltip ).toHaveTextContent( 'Views: 100' );
-			expect( tooltip ).not.toHaveTextContent( 'Visitors' );
+			expect( tooltip ).toHaveTextContent( 'Visitors: No data' );
 		}
 	);
 } );
