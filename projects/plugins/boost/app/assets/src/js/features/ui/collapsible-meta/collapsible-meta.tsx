@@ -10,6 +10,7 @@ import type { ReactNode } from 'react';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import type { TracksEventProperties } from '$lib/utils/analytics';
 
 type CollapsibleMetaProps = {
 	children: ReactNode;
@@ -21,6 +22,7 @@ type CollapsibleMetaProps = {
 	headerText?: string;
 	compactHeader?: boolean;
 	tracksEvent?: string;
+	tracksEventProps?: TracksEventProperties;
 	extraButtons?: ReactNode;
 	onToggleHandler?: ( isExpanded: boolean ) => void;
 };
@@ -36,6 +38,7 @@ const CollapsibleMeta = ( {
 	summary = null,
 	toggleText = '',
 	tracksEvent = '',
+	tracksEventProps = {},
 	extraButtons = null,
 	headerText = '',
 	compactHeader = false,
@@ -52,6 +55,7 @@ const CollapsibleMeta = ( {
 		if ( tracksEvent !== '' ) {
 			recordBoostEvent( tracksEvent, {
 				status: newIsExpanded ? 'open' : 'close',
+				...tracksEventProps,
 			} );
 		}
 	};

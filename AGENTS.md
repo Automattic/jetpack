@@ -2,7 +2,7 @@
 
 ## Confidentiality
 
-CRITICAL: This is a **public repository**. Never include private WordPress.com URLs (e.g., `*.wordpress.com` internal sites) in PR descriptions, commit messages, code comments, or any public-facing text. Use the p2 shorthand syntax instead (e.g., `peKye1-1Z1-p2`).
+CRITICAL: This is a **public repository**. Never put an internal link or hostname in a PR description, review comment, commit message, code comment, or any other public-facing text: no private WordPress.com URLs (e.g., `*.wordpress.com` internal sites and P2s), no Slack, Linear, HackerOne, private GitHub repository, or GitHub Enterprise URLs, and no other internal tool URLs. Use the shortlinks the PR template asks for instead: `peKye1-1Z1-p2` for a P2 post, `p<message>-slack-<channel>` for a Slack message (`p<message>/<thread>-slack-<channel>` for a reply in a thread), and the bare issue key (`JETPACK-123`) for Linear.
 
 ## Project Structure
 
@@ -156,6 +156,8 @@ jp test php <project>           # PHP tests
 jp test js <project>            # JS tests (skipped if not defined)
 jp phan <project>               # Static analysis
 ```
+
+Before adding a test, name the realistic bug it catches that no existing test does; no answer, no test. One test per behavior: add an `it.each` or data provider row instead of copying a test. A failing coverage check alone is not a reason to add one; say why in the PR and use the `Covered by non-unit tests` label. See `docs/automated-testing.md` § "What a test must earn", and the `test-value-audit` skill for auditing existing tests.
 
 ### PHP Testing
 

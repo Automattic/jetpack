@@ -45,11 +45,11 @@ describe( 'resolvePlayback', () => {
 		} );
 
 		it( 'ends with a clamping seek past the trim end', () => {
-			expect( resolvePlayback( 9500, session, true ) ).toEqual( { ended: true, seekTo: 9000 } );
+			expect( resolvePlayback( 9500, session, true ) ).toEqual( { ended: true, seekTo: 8999 } );
 		} );
 
-		it( 'ends without a seek exactly at the trim end', () => {
-			expect( resolvePlayback( 9000, session, true ) ).toEqual( { ended: true } );
+		it( 'stops before the exclusive trim end', () => {
+			expect( resolvePlayback( 9000, session, true ) ).toEqual( { ended: true, seekTo: 8999 } );
 		} );
 
 		it( 'ends at the master duration of an untrimmed session', () => {
@@ -88,7 +88,7 @@ describe( 'resolvePlayback', () => {
 
 		it( 'ends when a cut runs into the trim end', () => {
 			const tail = makeSession( 0, 30000, [ [ 25000, 30000 ] ] );
-			expect( resolvePlayback( 27000, tail, true ) ).toEqual( { ended: true, seekTo: 30000 } );
+			expect( resolvePlayback( 27000, tail, true ) ).toEqual( { ended: true, seekTo: 24999 } );
 		} );
 
 		it( 'chains through touching cuts', () => {
@@ -120,7 +120,7 @@ describe( 'resolvePlayback', () => {
 		} );
 
 		it( 'still enforces the trim end', () => {
-			expect( resolvePlayback( 9500, session, false ) ).toEqual( { ended: true, seekTo: 9000 } );
+			expect( resolvePlayback( 9500, session, false ) ).toEqual( { ended: true, seekTo: 8999 } );
 		} );
 	} );
 
@@ -141,14 +141,14 @@ describe( 'resolvePlayback', () => {
 			let session = createEditSession( 30000 );
 			session = editSessionReducer( session, { type: 'SET_TRIM_START', ms: 2000 } );
 			session = editSessionReducer( session, { type: 'SET_TRIM_END', ms: 28000 } );
-			session = editSessionReducer( session, { type: 'ADD_CUT', atMs: 10000, id: 'c1' } );
+			session = editSessionReducer( session, { type: 'ADD_CUT', atMs: 8000, id: 'c1' } );
 
 			expect( resolvePlayback( 500, session, true ) ).toEqual( { seekTo: 2000 } );
 			expect( resolvePlayback( 9000, session, true ) ).toEqual( { seekTo: 12000 } );
 			expect( resolvePlayback( 15000, session, true ) ).toEqual( {} );
 			expect( resolvePlayback( 29000, session, true ) ).toEqual( {
 				ended: true,
-				seekTo: 28000,
+				seekTo: 27999,
 			} );
 		} );
 	} );
@@ -162,4 +162,14 @@ it( 'skips a leading cut when starting before the trim window', () => {
 	};
 	expect( resolvePlayback( 0, session, true ) ).toEqual( { seekTo: 3000 } );
 	expect( resolvePlayback( 0, session, false ) ).toEqual( { seekTo: 1000 } );
+} );
+
+it.each( [ 25000, 27000, 30000, 31000 ] )( 'never seeks into a trailing cut from %i', currentMs => {
+	const session = makeSession( 0, 30000, [
+		[ 25000, 28000 ],
+		[ 28000, 30000 ],
+	] );
+	expect( resolvePlayback( currentMs, session, true ) ).toEqual( { ended: true, seekTo: 24999 } );
+	expect( resolvePlayback( 24999, session, true ) ).toEqual( { ended: true } );
+	expect( resolvePlayback( 24998, session, true ) ).toEqual( {} );
 } );

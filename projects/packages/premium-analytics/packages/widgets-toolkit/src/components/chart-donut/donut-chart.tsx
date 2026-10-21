@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import {
 	resolveSegmentStyles,
 	applyStylesToItems,
+	formatChartName,
 	isEmptyPieChartData,
 	type SegmentStyle,
 } from '../../helpers';
@@ -71,6 +72,15 @@ export type DonutChartProps = {
 
 	showLegend?: boolean;
 
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
+
+	/**
+	 * Show the center metric value.
+	 * @default true
+	 */
+	showMetric?: boolean;
+
 	/**
 	 * Thickness of the arc (0-1).
 	 * @default 0.3
@@ -121,6 +131,8 @@ export function DonutChart( {
 	},
 	legendData,
 	showLegend = true,
+	chartTitle,
+	showMetric = true,
 	thickness = DEFAULT_THICKNESS,
 	maxSize = MAX_SIZE,
 	emptyStateIcon,
@@ -195,6 +207,7 @@ export function DonutChart( {
 				<PieChart
 					data={ styledChartData }
 					className={ styles.pieChart }
+					ariaLabel={ formatChartName( chartTitle ) }
 					width={ chartSize }
 					height={ chartSize }
 					thickness={ thickness }
@@ -217,15 +230,18 @@ export function DonutChart( {
 						/>
 					) }
 					showLabels={ false }
-				/>
-				<MetricWithComparison
-					className={ styles.metricContainer }
-					value={ value }
-					dataFormat={ dataFormat }
-					previousValue={ hasComparison ? comparisonValue : null }
-					direction="column"
-					align="center"
-				/>
+				>
+					{ showMetric && (
+						<MetricWithComparison
+							className={ styles.metricContainer }
+							value={ value }
+							dataFormat={ dataFormat }
+							previousValue={ hasComparison ? comparisonValue : null }
+							direction="column"
+							align="center"
+						/>
+					) }
+				</PieChart>
 			</Stack>
 
 			{ hasLegend && styledLegendData && (

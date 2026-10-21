@@ -1,7 +1,9 @@
 /* No jest-dom in this project. */
 /* eslint-disable jest-dom/prefer-in-document, testing-library/prefer-user-event */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import Index from './index';
+import { StrictMode } from 'react';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 /* `Module` is replaced with a shell that exposes what each feature hands it. */
 jest.mock( '$features/module/module', () => ( props: ModuleShellProps ) => (
@@ -65,7 +67,46 @@ let mockModules: Record< string, { active: boolean; available: boolean } | undef
 describe( 'Index', () => {
 	beforeEach( () => {
 		mockRegenerate.mockClear();
+		jest.mocked( recordBoostEvent ).mockClear();
 		mockModules = {};
+	} );
+
+	it( 'records the real legacy Index once per visible route visit', () => {
+		const original = globalThis.IntersectionObserver;
+		let notify: IntersectionObserverCallback;
+		globalThis.IntersectionObserver = jest.fn( callback => {
+			notify = callback;
+			return { observe: jest.fn(), disconnect: jest.fn() };
+		} ) as unknown as typeof IntersectionObserver;
+		const expose = () =>
+			act( () =>
+				notify(
+					[ { isIntersecting: true, intersectionRatio: 1 } as IntersectionObserverEntry ],
+					{} as IntersectionObserver
+				)
+			);
+		try {
+			const view = render(
+				<StrictMode>
+					<Index />
+				</StrictMode>
+			);
+			expect( recordBoostEvent ).not.toHaveBeenCalled();
+			expose();
+			expose();
+			expect( recordBoostEvent ).toHaveBeenCalledTimes( 1 );
+			expect( recordBoostEvent ).toHaveBeenCalledWith( 'settings_view', {} );
+			view.unmount();
+			render(
+				<StrictMode>
+					<Index />
+				</StrictMode>
+			);
+			expose();
+			expect( recordBoostEvent ).toHaveBeenCalledTimes( 2 );
+		} finally {
+			globalThis.IntersectionObserver = original;
+		}
 	} );
 
 	it( 'renders the modules in the legacy order', () => {
@@ -100,7 +141,7 @@ describe( 'Index', () => {
 	} );
 
 	it( 'records the documentation link clicks', () => {
-		const { recordBoostEvent } = jest.requireMock( '$lib/utils/analytics' );
+		const track = jest.mocked( recordBoostEvent );
 		render( <Index /> );
 
 		for ( const link of screen.getAllByRole( 'link', { name: /Critical CSS/ } ) ) {
@@ -108,7 +149,7 @@ describe( 'Index', () => {
 		}
 		fireEvent.click( screen.getByRole( 'link', { name: /web\.dev/ } ) );
 
-		expect( recordBoostEvent.mock.calls.map( ( [ name ]: [ string ] ) => name ) ).toEqual( [
+		expect( track.mock.calls.map( ( [ name ]: [ string ] ) => name ) ).toEqual( [
 			'critical_css_link_clicked',
 			'critical_css_link_clicked',
 			'defer_js_link_clicked',

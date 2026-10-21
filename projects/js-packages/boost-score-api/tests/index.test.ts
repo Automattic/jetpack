@@ -5,6 +5,7 @@ import {
 	getScoreLetter,
 	didScoresChange,
 	getScoreMovementPercentage,
+	getScoreTier,
 } from '../src/index';
 
 const mockData = {
@@ -74,6 +75,40 @@ describe( 'requestSpeedScores', () => {
 			{ url: 'https://example.com' },
 			'nonce',
 		] );
+	} );
+
+	it( 'reports a pending measurement once before polling', async () => {
+		jest.useFakeTimers();
+		post.mockResolvedValueOnce( { status: 'pending' } ).mockResolvedValue( mockData );
+		const onPending = jest.fn();
+		const request = requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{ onPending }
+		);
+		await jest.advanceTimersByTimeAsync( 0 );
+		expect( onPending ).toHaveBeenCalledTimes( 1 );
+		expect( post ).toHaveBeenCalledTimes( 1 );
+		await jest.advanceTimersByTimeAsync( 5000 );
+		await expect( request ).resolves.toEqual( mockData.scores );
+		expect( onPending ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'does not report pending when scores are ready', async () => {
+		post.mockResolvedValue( mockData );
+		const onPending = jest.fn();
+		await requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{
+				onPending,
+			}
+		);
+		expect( onPending ).not.toHaveBeenCalled();
 	} );
 
 	it( 'does not request scores when already cancelled', async () => {
@@ -210,6 +245,11 @@ describe( 'getScoreLetter', () => {
 		expect( getScoreLetter( 45, 50 ) ).toBe( 'D' );
 		expect( getScoreLetter( 26, 30 ) ).toBe( 'E' );
 		expect( getScoreLetter( 0, 0 ) ).toBe( 'F' );
+		expect( getScoreLetter( 25, 25 ) ).toBe( 'F' );
+		expect( getScoreLetter( 35, 35 ) ).toBe( 'E' );
+		expect( getScoreLetter( 50, 50 ) ).toBe( 'D' );
+		expect( getScoreLetter( 90, 90 ) ).toBe( 'B' );
+		expect( getScoreLetter( 91, 91 ) ).toBe( 'A' );
 	} );
 } );
 
@@ -249,5 +289,18 @@ describe( 'getScoreMovementPercentage', () => {
 		changedMockData.scores.noBoost.mobile = 70;
 
 		expect( getScoreMovementPercentage( changedMockData.scores ) ).toBe( 13 );
+	} );
+} );
+
+describe( 'getScoreTier', () => {
+	it.each( [
+		[ 0, 'poor' ],
+		[ 50, 'poor' ],
+		[ 51, 'medium' ],
+		[ 70, 'medium' ],
+		[ 71, 'good' ],
+		[ 100, 'good' ],
+	] )( 'puts a score of %i in the %s tier', ( score, tier ) => {
+		expect( getScoreTier( Number( score ) ) ).toBe( tier );
 	} );
 } );

@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { EmptyState, Icon, Stack } from '@jetpack-premium-analytics/externals';
-import { search } from '@jetpack-premium-analytics/icons';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { PageEmptyState } from '../page-empty-state';
 import styles from './report-empty-state.module.scss';
 import { useReportHasPeriod } from './report-page-layout';
 
@@ -20,19 +20,14 @@ export function ReportEmptyState() {
 	const hasPeriod = useReportHasPeriod();
 
 	return (
-		<EmptyState.Root className={ styles.root }>
-			<EmptyState.Visual>
-				<Icon icon={ search } size={ 48 } />
-			</EmptyState.Visual>
-			<EmptyState.Title>
-				{ __( 'No data found', 'jetpack-premium-analytics-pkg' ) }
-			</EmptyState.Title>
-			<EmptyState.Description>
-				{ hasPeriod
+		<PageEmptyState
+			title={ __( 'No data found', 'jetpack-premium-analytics-pkg' ) }
+			description={
+				hasPeriod
 					? __( 'We couldn’t find results for this time period.', 'jetpack-premium-analytics-pkg' )
-					: __( 'We couldn’t find any results.', 'jetpack-premium-analytics-pkg' ) }
-			</EmptyState.Description>
-		</EmptyState.Root>
+					: __( 'We couldn’t find any results.', 'jetpack-premium-analytics-pkg' )
+			}
+		/>
 	);
 }
 
@@ -46,7 +41,7 @@ export function ReportEmptyState() {
 export function ReportTableEmptyState( { isLoading }: { isLoading: boolean } ) {
 	if ( isLoading ) {
 		return (
-			<Stack className={ styles.root } align="center" justify="center">
+			<Stack className={ styles.loading } align="center" justify="center">
 				<Spinner />
 			</Stack>
 		);

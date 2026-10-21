@@ -54,6 +54,11 @@ Storybook and tests hand widget types to the dashboard without going through
 | `jpa/toggle-group`   | `ToggleGroupField`   | `text`    |
 | `jpa/array-checkbox` | `ArrayCheckboxField` | `array`   |
 
+`jpa/toggle-group` renders its `elements` as icon segments when every one
+carries an `icon`: an element, or a `jpa/<name>` reference the control resolves
+through `@jetpack-premium-analytics/icons`, the form a `widget.json` can carry.
+A reference the collection lacks drops that icon and the row falls back to text.
+
 ## Adding a field
 
 Controls implement dataviews' `DataFormControlProps< Item >`. Add the control
@@ -75,3 +80,14 @@ presets on offer, as the WordAds chart does for "Last 24 hours"; an instance
 already saved on a window the widget stops offering is migrated to an offered
 one. `periods` is the bucket sizes its chart draws, so the interval menu never
 lists one the chart would clamp away.
+
+`chartIntervalField` saves a chart's own bucket size on the widget instance,
+and needs no factory: the buckets are its `elements`, a key dataviews keeps, so
+a widget lists the ones its chart draws:
+
+```ts
+attributes: [ { ...chartIntervalField, elements: chartIntervalElements( MY_PERIODS ) } ]
+```
+
+A saved bucket the range rules out shows as the nearest one it allows, and is
+kept for when the range allows it again.

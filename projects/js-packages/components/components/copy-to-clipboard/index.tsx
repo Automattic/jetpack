@@ -14,7 +14,7 @@ export const CopyToClipboard: FC< CopyToClipboardProps > = ( {
 } ) => {
 	const [ hasCopied, setHasCopied ] = useState( false );
 
-	const copyTimer = useRef< ReturnType< typeof setTimeout > | undefined >();
+	const copyTimer = useRef< ReturnType< typeof setTimeout > | undefined >( undefined );
 
 	const copyRef = useCopyToClipboard( textToCopy, () => {
 		if ( copyTimer.current ) {

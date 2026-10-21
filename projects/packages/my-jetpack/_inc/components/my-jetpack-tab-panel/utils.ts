@@ -1,56 +1,88 @@
-import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
+import {
+	currentUserCan,
+	getMyJetpackUrl,
+	getScriptData,
+	isSimpleSite,
+} from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
+import { MyJetpackRoutes } from '../../constants';
 import {
 	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
 	MY_JETPACK_SECTION_OVERVIEW,
-	MY_JETPACK_SECTION_PRODUCTS,
+	MY_JETPACK_SECTION_LEGACY_PRODUCTS,
 } from './constants';
 import type { TabPanel } from '@wordpress/components';
 import type { ComponentProps } from 'react';
 
 type TabPanelProps = ComponentProps< typeof TabPanel >;
 
+// Carried by a pricing page opened from a feature's details, so checkout can return there.
+const RETURN_FEATURE_PARAM = 'return_feature';
+
 /**
- * Get the name of the section that lists products: `features` when the flag swaps it in.
+ * Link to a pricing page that sends checkout back to a feature's details.
  *
- * @return The section name.
+ * @param path    - The pricing route, such as `/add-social`.
+ * @param feature - The feature's slug.
+ * @return The hash link.
  */
-export function getProductsSection() {
-	return getScriptData()?.myJetpack?.productsSection?.slug ?? MY_JETPACK_SECTION_PRODUCTS;
+export function getFeaturePricingHref( path: string, feature: string ) {
+	return `#${ path }?${ new URLSearchParams( { [ RETURN_FEATURE_PARAM ]: feature } ) }`;
 }
 
 /**
- * Get the title of the section that lists products.
+ * Where checkout returns to when the pricing page was opened from a feature's details.
  *
- * @return The section title.
+ * Read from the hash rather than the router, so the detail cards outside a route can use it.
+ *
+ * @param hash - The page's location hash.
+ * @return The admin URL of the feature's details, or an empty string.
  */
-export function getProductsSectionTitle() {
-	return (
-		getScriptData()?.myJetpack?.productsSection?.label ?? __( 'Products', 'jetpack-my-jetpack' )
-	);
+export function getFeatureCheckoutReturnUrl( hash = window.location.hash ) {
+	const feature = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' ).get( RETURN_FEATURE_PARAM );
+
+	return feature
+		? getMyJetpackUrl( `#${ MyJetpackRoutes.Features }?${ new URLSearchParams( { feature } ) }` )
+		: '';
+}
+
+// What an account connection started from Features brings back: the open feature, layout, search, tag
+// and filter. A status filter is left behind, since connecting can move the feature out of it.
+const CONNECT_RETURN_PARAMS = [ 'feature', 'view', 'search', 'module_tag', 'filter' ];
+const STATUS_FILTERS = [ 'available', 'active', 'inactive' ];
+
+/**
+ * Where an account connection started from Features returns to.
+ *
+ * Read from the hash rather than the router, so it still answers once an install has replaced the button that asked.
+ *
+ * @param hash - The page's location hash.
+ * @return The admin URL of the same Features view.
+ */
+export function getFeatureConnectReturnUrl( hash = window.location.hash ) {
+	const current = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' );
+	const kept = new URLSearchParams();
+	CONNECT_RETURN_PARAMS.forEach( key => {
+		const value = current.get( key );
+		if ( value && ! ( key === 'filter' && STATUS_FILTERS.includes( value ) ) ) {
+			kept.set( key, value );
+		}
+	} );
+	const query = kept.toString();
+
+	return getMyJetpackUrl( `#${ MyJetpackRoutes.Features }${ query ? `?${ query }` : '' }` );
 }
 
 /**
- * Get the router path of the section that lists products, for links and redirects.
+ * Where links to manage Jetpack modules go, as the server decided: the Features tab when the site can use it, else the classic Modules screen.
  *
- * @param search - Optional query string, including the leading `?`.
- * @return The path, e.g. `/features?filter=included`.
+ * @param classicUrl - Classic Modules screen URL, used when the page data has no URL (an older My Jetpack package, or a page that does not send one).
+ * @return The management URL.
  */
-export function getProductsSectionPath( search = '' ) {
-	return `/${ getProductsSection() }${ search }`;
-}
-
-/**
- * Get the admin path of the full list of Jetpack modules: the Features list view, or the
- * classic modules page when the Features tab is off.
- *
- * @return The path, relative to wp-admin.
- */
-export function getModulesListPath() {
-	return getProductsSection() === MY_JETPACK_SECTION_FEATURES
-		? `admin.php?page=my-jetpack#${ getProductsSectionPath( '?view=list' ) }`
-		: 'admin.php?page=jetpack_modules';
+export function getModulesManagementUrl( classicUrl: string ): string {
+	const data = getScriptData()?.myJetpack as { modulesManagementUrl?: string } | undefined;
+	return data?.modulesManagementUrl || classicUrl;
 }
 
 /**
@@ -59,15 +91,14 @@ export function getModulesListPath() {
  * @return The sections for the My Jetpack tab panel.
  */
 export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
-	const productsSection = getProductsSection();
 	const tabs = [
 		{
 			name: MY_JETPACK_SECTION_OVERVIEW,
 			title: __( 'Overview', 'jetpack-my-jetpack' ),
 		},
 		{
-			name: productsSection,
-			title: getProductsSectionTitle(),
+			name: MY_JETPACK_SECTION_FEATURES,
+			title: __( 'Features', 'jetpack-my-jetpack' ),
 		},
 		{
 			name: MY_JETPACK_SECTION_HELP,
@@ -75,32 +106,30 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
 		},
 	];
 
-	// WordPress.com Simple sites only get the Products section.
+	// WordPress.com Simple sites only get the Features section.
 	if ( isSimpleSite() ) {
-		return tabs.filter( tab => tab.name === productsSection );
+		return tabs.filter( tab => tab.name === MY_JETPACK_SECTION_FEATURES );
 	}
 
 	if ( currentUserCan( 'manage_options' ) ) {
 		return tabs;
 	}
 
-	// If the user is not an admin, remove the Products tab.
-	return tabs.filter( tab => tab.name !== productsSection );
+	// If the user is not an admin, remove the Features tab.
+	return tabs.filter( tab => tab.name !== MY_JETPACK_SECTION_FEATURES );
 }
 
 /**
  * Resolve a URL section to the section to render.
  *
- * `products` and `features` alias each other, so links saved under either flag state keep working.
+ * The retired `products` section resolves to Features, so saved links and older plugins still land.
  *
  * @param section - The section from the URL.
  * @return The resolved section, or the first available section when it is not valid.
  */
 export function resolveMyJetpackSection( section?: string ) {
 	const aliased =
-		section === MY_JETPACK_SECTION_PRODUCTS || section === MY_JETPACK_SECTION_FEATURES
-			? getProductsSection()
-			: section;
+		section === MY_JETPACK_SECTION_LEGACY_PRODUCTS ? MY_JETPACK_SECTION_FEATURES : section;
 	const sections = getMyJetpackSections();
 
 	return sections.some( item => item.name === aliased ) ? aliased : sections[ 0 ].name;

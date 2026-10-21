@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-10-19
+### Added
+- Admin: List the posts and pages using a payment button on its detail view, drafts included, with edit and view links. [#53665]
+
+### Changed
+- Call a PayPal payment a payment button everywhere, and payment links and buttons where both are meant, in the block, the admin page, notices and emails. [#53667]
+- Move the connection panel's actions into the menus, drop the unused connect Success step, and show Sandbox under Log out for sandbox accounts. [#53639]
+- Show the PayPal logo and a clearer connect message in the block's placeholder before PayPal is connected. [#53689]
+- Show the style controls under a saved payment link's details instead of in a Styles tab. [#53638]
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53806]
+
+### Fixed
+- Keep the fields of a payment link that the block does not edit when the block is saved. [#53776]
+
+## [0.12.2] - 2026-10-14
+### Changed
+- Gray the preview button in the Create new form until the link is created. [#53572]
+
+### Removed
+- Remove the product image field from the block editor form until PayPal payment links can carry an image; blocks that already hold one keep showing it. [#53405]
+
+### Fixed
+- Payment Buttons: Collect the shipping address without a shipping fee, from a new "Shipping address" toggle. Tax or shipping from PayPal settings now shows an error until the address is on. [#53500]
+
+## [0.12.1] - 2026-10-12
+### Security
+- Simple Payments: Improve permission checks for orders. [#53240]
+
+### Added
+- Add a feature flag that hides the PayPal sandbox option in the connection wizard; off, the wizard connects to production only. [#53403]
+
+## [0.12.0] - 2026-10-05
+### Added
+- Add additional analytics to Payment Buttons. [#52841]
+- Payment Buttons: Link sellers to their PayPal transactions and to PayPal's refund instructions from the block's account menu and the Payment Links admin page. [#53091]
+- PayPal Payment Buttons: Add a filter to override the partner attribution (BN) code while connected to the PayPal sandbox. [#52986]
+- Warn in the editor when the PayPal account cannot receive payments or lacks required permissions, and refuse connections without them. [#53113]
+
+### Changed
+- Keep the product image on the site instead of sending it to PayPal. [#53054]
+- Payment Buttons: Use PayPal's official logos, unmodified, and match the connect wizard to the design. [#53118]
+- Payment Buttons: Use PayPal's prescribed wording in the disconnect and log out confirmations. [#53089]
+- PayPal Payment Buttons: Onboard sellers as a third-party integration, so PayPal calls are made through WordPress.com and no credentials are stored on the site. [#52873] [#53103]
+- Send the partner attribution ID, as resolved for the site's environment, with every Connect with PayPal referral. [#53021]
+- Show PayPal's debug ID in API error messages and record it, so failed requests can be traced with PayPal support. [#53021]
+- Update package dependencies. [#52999]
+
+### Fixed
+- Payment Buttons: Keep keyboard focus on the PayPal onboarding overlay while it is open, return it to the Connect button on close, and hide Close once the seller has finished at PayPal. [#53151]
+- Payment Buttons: Spell "PayPal" with its own capitalization in the connect wizard headings and the wordmark's alt text. [#53090]
+- Payment Buttons: Stop collecting a shipping address once shipping is turned off, instead of keeping the hidden checkbox ticked. [#53092]
+- Payment Buttons: Tell the merchant when a payment link could not be loaded from PayPal, instead of silently showing stale details. [#53093]
+- Payment Buttons: Tell the merchant when the browser blocks PayPal's onboarding window, instead of failing silently, and let the next Connect click open it. [#53152]
+
 ## [0.11.1] - 2026-09-29
 ### Changed
 - Update dependencies. [#50841]
@@ -383,6 +438,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.13.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.12.2...v0.13.0
+[0.12.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.12.1...v0.12.2
+[0.12.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.11.1...v0.12.0
 [0.11.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.9.0...v0.10.0

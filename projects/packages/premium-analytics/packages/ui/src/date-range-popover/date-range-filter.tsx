@@ -45,6 +45,9 @@ type DateRangePopoverContentProps = {
 	 * Required for proper date/time handling.
 	 */
 	timeZone: string;
+
+	/** The earliest day a custom range may include; earlier days cannot be picked or typed. */
+	earliestDate?: Date;
 };
 
 function getDisplayedMonth( range: DateRange ): Date {
@@ -86,6 +89,7 @@ export function DateRangePopoverContent( {
 	canApply,
 	isWideScreen = false,
 	timeZone,
+	earliestDate,
 }: DateRangePopoverContentProps ) {
 	const [ displayedMonth, setDisplayedMonth ] = useState( getDisplayedMonth( range ) );
 
@@ -147,7 +151,12 @@ export function DateRangePopoverContent( {
 				gap="lg"
 				direction="column"
 			>
-				<DateRangeInput range={ range } onChange={ handleChange } timeZone={ timeZone } />
+				<DateRangeInput
+					range={ range }
+					onChange={ handleChange }
+					timeZone={ timeZone }
+					earliestDate={ earliestDate }
+				/>
 
 				<RangeCalendar
 					className={ clsx( 'date-range-calendar', {
@@ -159,6 +168,8 @@ export function DateRangePopoverContent( {
 					month={ displayedMonth }
 					onMonthChange={ setDisplayedMonth }
 					timeZone={ timeZone }
+					disabled={ earliestDate ? { before: earliestDate } : undefined }
+					startMonth={ earliestDate }
 				/>
 			</Stack>
 

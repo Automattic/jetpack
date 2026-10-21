@@ -3,21 +3,21 @@
  */
 import {
 	AnalyticsQueryClientProvider,
-	GlobalErrorProvider,
+	isPlanDateLimitedSection,
+	isStatsFeatureLocked,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import {
-	GlobalChartsProvider,
-	siteChartFormatting,
-	useChartTheme,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { ChartsProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useMemo } from '@wordpress/element';
 import { useParams } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { useDateWindowNotice } from '../date-window-notice';
+import { useStatsDateLimits } from '../use-stats-date-limits';
+import { LockedReportPage } from './locked-report-page';
 import { route } from './package.json';
 import { getReportDefinition } from './registry';
 import styles from './stage.module.scss';
@@ -50,13 +50,20 @@ function ReportDispatcher(): JSX.Element {
 	const { report } = useParams( { from: ROUTE_FROM } ) as { report?: string };
 
 	const definition = getReportDefinition( report );
+	const lockedFeature =
+		definition?.feature && isStatsFeatureLocked( definition.feature ) ? definition.feature : null;
 
 	// `React.lazy` memoizes by component identity, so a fresh `lazy()` per definition is what
 	// lets switching reports mount a different page; `key` below makes the remount explicit.
 	const LazyReport = useMemo(
-		() => ( definition ? lazy( definition.load ) : null ),
-		[ definition ]
+		() => ( definition && ! lockedFeature ? lazy( definition.load ) : null ),
+		[ definition, lockedFeature ]
 	);
+
+	// The report's page is never loaded, so neither are its requests.
+	if ( definition && lockedFeature ) {
+		return <LockedReportPage label={ definition.getLabel() } feature={ lockedFeature } />;
+	}
 
 	if ( ! LazyReport ) {
 		// Unreachable: beforeLoad guarantees a valid report before this renders.
@@ -79,19 +86,24 @@ function ReportDispatcher(): JSX.Element {
  * @return {JSX.Element} The wrapped report page.
  */
 function ReportProviders( { children }: { children: ReactNode } ): JSX.Element {
-	const chartTheme = useChartTheme();
+	const { report } = useParams( { from: ROUTE_FROM } ) as { report?: string };
+	const definition = getReportDefinition( report );
+	const { dateLimits } = useStatsDateLimits(
+		isPlanDateLimitedSection( definition?.dashboardSection )
+	);
+	useDateWindowNotice();
 
 	return (
 		<AnalyticsQueryClientProvider>
-			<GlobalErrorProvider>
-				<GlobalChartsProvider theme={ chartTheme } { ...siteChartFormatting() }>
-					{ /*
-					 * A report names no compared period, so nothing below may fetch or
-					 * draw one. The params stay on the URL for the dashboard.
-					 */ }
-					<ReportScopeProvider offersComparison={ false }>{ children }</ReportScopeProvider>
-				</GlobalChartsProvider>
-			</GlobalErrorProvider>
+			<ChartsProvider>
+				{ /*
+				 * A report names no compared period, so nothing below may fetch or
+				 * draw one. The params stay on the URL for the dashboard.
+				 */ }
+				<ReportScopeProvider offersComparison={ false } dateLimits={ dateLimits }>
+					{ children }
+				</ReportScopeProvider>
+			</ChartsProvider>
 		</AnalyticsQueryClientProvider>
 	);
 }

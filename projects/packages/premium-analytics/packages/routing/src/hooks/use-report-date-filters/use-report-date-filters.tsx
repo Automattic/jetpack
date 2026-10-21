@@ -2,16 +2,13 @@
  * External dependencies
  */
 import {
-	getAllowedIntervalsForPreset,
 	hasComparisonEnabled,
+	intervalMenuOptions,
 	resolveIntervalForRange,
+	useScopeLockedIntervals,
+	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
-import {
-	drillDateRange,
-	PRESET_CUSTOM,
-	reportingTimeZone,
-	toLocalTZ,
-} from '@jetpack-premium-analytics/datetime';
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -49,16 +46,13 @@ export type ReportDateFilters = {
 	interval: IntervalType;
 
 	/**
-	 * The applied chart interval, for surfaces describing what the widgets are
-	 * currently drawing rather than what the picker is holding.
-	 */
-	appliedInterval: IntervalType;
-
-	/**
 	 * The intervals the range being edited allows, finest first — what the
 	 * control lists.
 	 */
 	intervalOptions: IntervalType[];
+
+	/** The intervals the range would allow but the plan locks, for the control to show as locked. */
+	lockedIntervalOptions: LockableInterval[];
 
 	/**
 	 * Stage a primary range edit. `exactRange` stores the ends as given rather
@@ -72,13 +66,6 @@ export type ReportDateFilters = {
 	) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
-
-	/**
-	 * Open the chart bucket containing a date, narrowing to the next finer
-	 * interval. `interval` is the bucket size the chart drew; defaults to the
-	 * applied interval.
-	 */
-	drillDown: ( date: Date, interval?: IntervalType ) => void;
 
 	onApply: () => void;
 	onCancel: () => void;
@@ -96,10 +83,10 @@ export type ReportDateFilters = {
 /**
  * Parse search-param dates into a picker range, dropping unparseable values to
  * `undefined`. The picker reads these straight from the URL, so a malformed
- * `from`/`to` (e.g. a hand-edited or under-encoded deep link where the `+`
- * offset decoded to a space) must not become an invalid Date: the picker's
- * `formatToTimezoneNaiveString` throws on one and would white-screen the page,
- * and the trigger label would read "Invalid date".
+ * `from`/`to` (e.g. a hand-edited deep link with an offset that does not exist)
+ * must not become an invalid Date: the picker's `formatToTimezoneNaiveString`
+ * throws on one and would white-screen the page, and the trigger label would
+ * read "Invalid date".
  *
  * @param from     - The `from` search param.
  * @param to       - The `to` search param.
@@ -122,16 +109,23 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
  * everything `DateFiltersPanel` needs. Shared by every analytics page that
  * mounts the panel so the staged-search behavior stays identical across them.
  *
- * @param from - The route path the search params are bound to (e.g. `/`). Omit
- *             to bind to whichever route is matched, as a widget must: it
- *             renders on any page that hosts it.
+ * @param from                          - The route path the search params are bound to (e.g. `/`).
+ * @param filterOptions                 - Hook options.
+ * @param filterOptions.lockedIntervals - The buckets the plan locks; defaults to the report scope's.
  * @return Props for `DateFiltersPanel`.
  */
-export function useReportDateFilters< TFrom extends string >( from?: TFrom ): ReportDateFilters {
+export function useReportDateFilters< TFrom extends string >(
+	from: TFrom,
+	filterOptions: { lockedIntervals?: readonly LockableInterval[] } = {}
+): ReportDateFilters {
 	const { committed, effective, stage, commit, revert, isDirty } = useStagedSearch<
 		ReportQuerySearchParams,
 		TFrom
 	>( { from } );
+
+	// Report pages render inside their scope; the dashboard and detail stages sit above it and pass locks in.
+	const scopedLocks = useScopeLockedIntervals();
+	const lockedIntervals = filterOptions.lockedIntervals ?? scopedLocks;
 
 	const timeZone = reportingTimeZone();
 
@@ -159,13 +153,14 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 				exactRange: options?.exactRange,
 				resetIntervalOnPresetChange: true,
 				effective,
+				lockedIntervals,
 			} );
 
 			if ( patch ) {
 				stage( patch );
 			}
 		},
-		[ stage, effective ]
+		[ stage, effective, lockedIntervals ]
 	);
 
 	// Gated like the applied pair below: a link carrying `compare_preset` with no
@@ -202,9 +197,13 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 
 	// Listed and checked against the range being edited — see
 	// `getAllowedIntervalsForPreset` for why the draft and not the applied window.
-	const intervalOptions = useMemo(
-		() => getAllowedIntervalsForPreset( presetId, effective.from ?? '', effective.to ?? '' ),
-		[ presetId, effective.from, effective.to ]
+	const { options: intervalOptions, lockedOptions: lockedIntervalOptions } = useMemo(
+		() =>
+			intervalMenuOptions(
+				{ preset: presetId, from: effective.from, to: effective.to },
+				lockedIntervals
+			),
+		[ presetId, effective.from, effective.to, lockedIntervals ]
 	);
 
 	const interval = useMemo(
@@ -213,22 +212,10 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 				presetId,
 				effective.from ?? '',
 				effective.to ?? '',
-				effective.interval
+				effective.interval,
+				lockedIntervals
 			),
-		[ presetId, effective.from, effective.to, effective.interval ]
-	);
-
-	// What the widgets are drawing, for the surfaces that describe them rather
-	// than the picker — the chart the drill-down reads its buckets from.
-	const appliedInterval = useMemo(
-		() =>
-			resolveIntervalForRange(
-				appliedPresetId,
-				committed.from ?? '',
-				committed.to ?? '',
-				committed.interval
-			),
-		[ appliedPresetId, committed.from, committed.to, committed.interval ]
+		[ presetId, effective.from, effective.to, effective.interval, lockedIntervals ]
 	);
 
 	/**
@@ -258,64 +245,18 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	 */
 	const onIntervalChange = useCallback(
 		( nextInterval: IntervalType ) => {
+			// Re-picking the shown bucket would push an identical history entry.
+			if ( nextInterval === interval ) {
+				return;
+			}
+
 			stage( { interval: nextInterval } );
 
 			if ( ! hasPrimaryDraft ) {
 				commit();
 			}
 		},
-		[ stage, commit, hasPrimaryDraft ]
-	);
-
-	/*
-	 * Commits and pushes a history entry, so Back exits a drill-down. Reads the
-	 * applied range/interval, not the staged one: the chart draws what's
-	 * applied, so the click belongs to that window.
-	 */
-	const drillDown = useCallback(
-		( date: Date, bucketInterval: IntervalType = appliedInterval ) => {
-			/*
-			 * Re-anchored to the site zone first: `drillDateRange` closes a bucket
-			 * on the clock of the date passed in, and a plain instant would cut it
-			 * on the browser's clock instead.
-			 */
-			const drilled = drillDateRange(
-				toLocalTZ( date, timeZone ),
-				bucketInterval,
-				toLocalTZ( undefined, timeZone )
-			);
-
-			if ( ! drilled?.from || ! drilled.to ) {
-				return;
-			}
-
-			/*
-			 * Kept inside the applied window: a bucket at either edge of the chart
-			 * is usually a partial one, and opening it whole would widen the report
-			 * past the range the user asked for.
-			 */
-			const clampedFrom =
-				appliedRange.from && drilled.from < appliedRange.from ? appliedRange.from : drilled.from;
-			const clampedTo =
-				appliedRange.to && drilled.to > appliedRange.to ? appliedRange.to : drilled.to;
-
-			if ( clampedFrom.getTime() >= clampedTo.getTime() ) {
-				return;
-			}
-
-			const patch = buildRangePatch( {
-				nextRange: { from: clampedFrom, to: clampedTo },
-				nextPresetId: PRESET_CUSTOM,
-				exactRange: true,
-				effective,
-			} );
-
-			if ( patch ) {
-				stage( patch );
-				commit();
-			}
-		},
-		[ appliedInterval, appliedRange, commit, effective, stage, timeZone ]
+		[ interval, stage, commit, hasPrimaryDraft ]
 	);
 
 	const onApply = useCallback( () => commit(), [ commit ] );
@@ -327,14 +268,14 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	 */
 	const replaceRange = useCallback(
 		( nextRange: DateRange, nextPresetId: PrimaryPresetId ) => {
-			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
+			const patch = buildRangePatch( { nextRange, nextPresetId, effective, lockedIntervals } );
 
 			if ( patch ) {
 				stage( patch );
 				commit( { replace: true } );
 			}
 		},
-		[ stage, commit, effective ]
+		[ stage, commit, effective, lockedIntervals ]
 	);
 
 	return {
@@ -346,12 +287,11 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		appliedComparisonPresetId,
 		appliedComparisonRange,
 		interval,
-		appliedInterval,
 		intervalOptions,
+		lockedIntervalOptions,
 		onChange,
 		onComparisonChange,
 		onIntervalChange,
-		drillDown,
 		onApply,
 		onCancel,
 		canApply: isDirty,

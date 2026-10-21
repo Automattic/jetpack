@@ -59,11 +59,11 @@ jp build plugins/paypal-payment-buttons --deps
 jp docker up -d && jp docker install
 ```
 
-Credentials are encrypted with `AUTH_KEY`, so a `wp-config.php` still carrying the `put your unique phrase here` placeholder will refuse to store them — generate real salts first. Then connect with sandbox credentials from [developer.paypal.com](https://developer.paypal.com/dashboard/applications/sandbox); the admin screen is at **Jetpack → Payment Links**, or **Settings → Payment Links** when Jetpack is not active.
+Credentials are encrypted with `AUTH_KEY`, so a `wp-config.php` still carrying the `put your unique phrase here` placeholder will refuse to store them — generate real salts first. Then connect with sandbox credentials from [developer.paypal.com](https://developer.paypal.com/dashboard/applications/sandbox); the admin screen is at **Jetpack → Payment Buttons**, or **Settings → Payment Buttons** when Jetpack is not active.
 
 ### Turning on the API-managed buttons
 
-The API-managed flow — the connection wizard, the `wpcom/v2/paypal/*` REST routes, and the Payment Links admin page — ships behind the `paypal-payments-api-managed-buttons` feature flag, off by default. While it is off the block shows the paste-code editor, and a button created through the API keeps rendering but is read-only in the editor.
+The API-managed flow — the connection wizard, the `wpcom/v2/paypal/*` REST routes, and the Payment Buttons admin page — ships behind the `paypal-payments-api-managed-buttons` feature flag, off by default. While it is off the block shows the paste-code editor, and a button created through the API keeps rendering but is read-only in the editor.
 
 On Jurassic Ninja, the Companion plugin toggles it:
 
@@ -79,6 +79,18 @@ add_filter( 'jetpack_feature_flag_enabled_paypal-payments-api-managed-buttons', 
 ```
 
 On WordPress.com Simple and Atomic, Automatticians can flip it under **Tools → Feature Flags**.
+
+### Connecting the sandbox
+
+The connection wizard offers the PayPal sandbox only while the `paypal-payments-sandbox` flag is on, also off by default. Off, a disconnected site connects to production whatever its stored environment says; a site already connected to the sandbox stays connected. Turn it on the same way:
+
+```bash
+wp companion feature-flag enable paypal-payments-sandbox
+```
+
+```php
+add_filter( 'jetpack_feature_flag_enabled_paypal-payments-sandbox', '__return_true' );
+```
 
 ## Options and Transients
 

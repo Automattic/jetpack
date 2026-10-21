@@ -1,6 +1,6 @@
 import { Icon } from '@wordpress/ui';
-import { PRODUCT_ICONS } from '../products/mappings';
 import { getFeatureIcon } from './icons';
+import { PRODUCT_ICONS } from './mappings';
 import styles from './styles.module.scss';
 import type { JetpackProductWithCard } from '../../../types';
 

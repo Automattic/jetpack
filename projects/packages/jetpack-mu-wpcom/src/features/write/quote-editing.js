@@ -212,3 +212,27 @@ export function insertLeadingParagraph( content ) {
 	content.prepend( p );
 	return p;
 }
+
+/**
+ * Run a DOM change that moves the text holding the selection, then restore the selection.
+ *
+ * Moving a node collapses any selection inside it, which would drop a highlight.
+ *
+ * @param {Selection} selection - The document selection.
+ * @param {Function}  mutate    - Performs the change; returns the element to fall back to.
+ */
+export function keepSelectionAcross( selection, mutate ) {
+	const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
+	const order = () => anchorNode?.compareDocumentPosition( focusNode );
+	const orderBefore = order();
+	const fallback = mutate();
+	const isLiveText = node => node?.nodeType === TEXT_NODE && node.isConnected;
+	// Moving a citation can swap the ends, so the highlight would cover other text.
+	if ( isLiveText( anchorNode ) && isLiveText( focusNode ) && order() === orderBefore ) {
+		selection.setBaseAndExtent( anchorNode, anchorOffset, focusNode, focusOffset );
+	} else if ( isLiveText( anchorNode ) ) {
+		selection.collapse( anchorNode, anchorOffset );
+	} else if ( fallback ) {
+		selection.collapse( fallback, 0 );
+	}
+}

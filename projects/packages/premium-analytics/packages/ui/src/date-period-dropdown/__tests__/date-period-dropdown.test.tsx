@@ -11,7 +11,7 @@ jest.mock( '@automattic/charts', () => ( {} ) );
 jest.mock( '@wordpress/dataviews', () => ( {} ) );
 
 import { TZDate } from '@date-fns/tz';
-import { configure, render, screen, within } from '@testing-library/react';
+import { configure, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useMediaQuery } from '@wordpress/compose';
 import { DatePeriodDropdown } from '../date-period-dropdown';
@@ -114,6 +114,54 @@ describe( 'DatePeriodDropdown', () => {
 		expect( screen.getByRole( 'menuitemradio', { name: 'Today' } ) ).not.toBeChecked();
 	} );
 
+	describe( 'opening focus', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
+
+		it( 'opens on the applied period rather than the first', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown();
+			await openMenu( user, 'Last 30 days' );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toHaveFocus()
+			);
+		} );
+
+		it( 'opens on the first period when the applied one is not offered', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown( { appliedPresetId: 'last-90-days' } );
+			await openMenu( user, 'Last 90 days' );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'Today' } ) ).toHaveFocus()
+			);
+		} );
+
+		it( 'focuses the menu surface rather than an option on a touch open', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown();
+
+			await user.pointer( {
+				keys: '[TouchA]',
+				target: screen.getByRole( 'button', { name: 'Last 30 days' } ),
+			} );
+
+			await waitFor( () => expect( screen.getByRole( 'dialog' ) ).toHaveFocus() );
+		} );
+
+		it( 'opens on Custom range when the applied period is custom', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown( { appliedPresetId: 'custom' } );
+
+			await openMenu( user, 'July 2026' );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'Custom range' } ) ).toHaveFocus()
+			);
+		} );
+	} );
+
 	it( 'applies a period on click, with no Apply step', async () => {
 		const user = userEvent.setup();
 		const { onSelect } = renderDropdown();
@@ -141,28 +189,38 @@ describe( 'DatePeriodDropdown', () => {
 		] );
 	} );
 
-	it( 'describes the trigger with its exact dates', () => {
-		renderDropdown();
+	it.each( [
+		[ 'Last 30 days', {} ],
+		[ 'All time', { appliedPresetId: 'all-time' } ],
+	] as const )( 'describes the %s trigger with its exact dates', ( name, overrides ) => {
+		renderDropdown( overrides );
 
-		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toHaveAccessibleDescription(
+		expect( screen.getByRole( 'button', { name } ) ).toHaveAccessibleDescription(
 			/July 1.+31, 2026/
 		);
 	} );
 
-	it( 'spells the exact dates out in the trigger tooltip', async () => {
-		const user = userEvent.setup();
-		renderDropdown();
+	it( 'leaves an All time that WPCOM starts undated', () => {
+		renderDropdown( { appliedPresetId: 'all-time', allTimeStartsOnServer: true } );
 
-		await user.hover( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+		expect( screen.getByRole( 'button', { name: 'All time' } ) ).not.toHaveAccessibleDescription();
+	} );
 
-		// Skip the always-mounted description mirror; only the popup proves the hover.
-		await expect(
-			screen.findByText(
-				/July 1.+31, 2026/,
-				{ ignore: '[data-visually-hidden]' },
-				{ timeout: 3000 }
-			)
-		).resolves.toBeVisible();
+	describe( 'tooltip', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
+
+		it( 'spells the exact dates out in the trigger tooltip', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown();
+
+			await user.hover( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+
+			// Skip the always-mounted description mirror; only the popup proves the hover.
+			await expect(
+				screen.findByText( /July 1.+31, 2026/, { ignore: '[data-visually-hidden]' } )
+			).resolves.toBeVisible();
+		} );
 	} );
 
 	it( 'greys the trigger out while disabled and keeps the menu shut', async () => {
@@ -369,5 +427,37 @@ describe( 'DatePeriodDropdown attention', () => {
 		view.rerender( <DatePeriodDropdown { ...props } attentionId={ 1 } /> );
 
 		expect( screen.getByRole( 'menu', { name: 'Period' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows a locked preset that cannot be picked, explained by the lock notice', async () => {
+		const user = userEvent.setup();
+		const { onSelect } = renderDropdown( {
+			lockedPresetIds: [ 'last-30-days' ],
+			lockNotice: <p>Upgrade to see more.</p>,
+		} );
+		await openMenu( user, 'Last 30 days' );
+
+		const locked = screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } );
+		await user.click( locked );
+
+		expect( onSelect ).not.toHaveBeenCalled();
+		expect( locked ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( locked ).toHaveAccessibleDescription( 'Upgrade to see more.' );
+		expect(
+			screen.getByRole( 'menuitemradio', { name: 'Last 7 days' } )
+		).not.toHaveAccessibleDescription();
+		expect( screen.getByRole( 'menu', { name: 'Period' } ) ).not.toContainElement(
+			screen.getByText( 'Upgrade to see more.' )
+		);
+	} );
+
+	it( 'points a locked preset at no description when there is no lock notice', async () => {
+		const user = userEvent.setup();
+		renderDropdown( { lockedPresetIds: [ 'last-30-days' ] } );
+		await openMenu( user, 'Last 30 days' );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).not.toHaveAttribute(
+			'aria-describedby'
+		);
 	} );
 } );

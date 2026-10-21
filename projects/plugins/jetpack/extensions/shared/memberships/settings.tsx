@@ -24,6 +24,7 @@ import {
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
+import { getAccessDescription } from './newsletter-copy';
 import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 import type { ReactElement } from 'react';
 
@@ -55,51 +56,6 @@ export function getReachForAccessLevelKey( {
 	}
 }
 
-/**
- * Describe, in plain language, who can read the post and who receives it by email.
- *
- * Email reach is not always the same as read access: when the post contains a paywall
- * block, every subscriber is emailed the portion above the paywall, so a paid post
- * still goes out to the full list. See getAccessLabelForCopy in subscribers-affirmation.
- *
- * @param {string}  accessLevel         - Access level key, e.g. 'paid_subscribers'.
- * @param {boolean} postHasPaywallBlock - Whether the post contains a paywall block.
- * @return {string} Description of the current access level.
- */
-export function getAccessDescription( accessLevel: string, postHasPaywallBlock = false ): string {
-	// The unused third argument to __() keeps the two calls in each branch from being
-	// merged into a single __( cond ? a : b ) by the production minifier, which would
-	// leave a non-literal msgid and fail the i18n check.
-	switch ( accessLevel ) {
-		case accessOptions.subscribers.key:
-			return postHasPaywallBlock
-				? __(
-						'Only subscribers can read the content below the paywall. Subscribers receive it by email.',
-						'jetpack',
-						// @ts-expect-error -- Intentional extra argument; see the comment above.
-						0
-					)
-				: __(
-						'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.',
-						'jetpack'
-					);
-		case accessOptions.paid_subscribers.key:
-			return postHasPaywallBlock
-				? __(
-						'Only paid subscribers can read the content below the paywall. All subscribers receive it by email.',
-						'jetpack',
-						// @ts-expect-error -- Intentional extra argument; see the comment above.
-						0
-					)
-				: __(
-						'Only paid subscribers can read this post. Others see a preview and can subscribe. Only paid subscribers receive it by email.',
-						'jetpack'
-					);
-		default:
-			return __( 'Anyone can read this post. Subscribers receive it by email.', 'jetpack' );
-	}
-}
-
 export function useSetAccess(): ( value: string ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
@@ -113,7 +69,12 @@ export function useSetAccess(): ( value: string ) => void {
 	};
 }
 
-export function useSetTier(): ( value: number | string ) => void {
+/**
+ * Returns a setter for the post's newsletter tier. `null` clears it, sending to all paid subscribers.
+ *
+ * @return {Function} Tier setter.
+ */
+export function useSetTier(): ( value: number | string | null ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
@@ -131,10 +92,34 @@ interface NewsletterTierProduct {
 	interval: string;
 }
 
+const ALL_TIERS_VALUE = 'all';
+
+/**
+ * Appends a subscriber count to a label when one is available.
+ *
+ * @param {string} label - Option label.
+ * @param {number} count - Subscriber count, if known.
+ * @return {string} The label, with the count in parentheses when known.
+ */
+function withCount( label: string, count?: number | null ): string {
+	return typeof count === 'number' ? `${ label } (${ formatNumberCompact( count ) })` : label;
+}
+
 function TierSelector() {
 	// TODO: figure out how to handle different currencies
-	const tierProducts: NewsletterTierProduct[] = useSelect( select =>
-		select( membershipProductsStore ).getNewsletterTierProducts()
+	const { tierProducts, countsLoaded, paidSubscribers, paidSubscribersByTier } = useSelect(
+		select => {
+			const store = select( membershipProductsStore );
+			const counts = store.getSubscriberCounts();
+			return {
+				tierProducts: store.getNewsletterTierProducts() as NewsletterTierProduct[],
+				countsLoaded: counts.paidSubscribers != null,
+				paidSubscribers: ( counts.paidNewsletterSubscribers ?? counts.paidSubscribers ) as
+					number | null,
+				paidSubscribersByTier: counts.paidSubscribersByTier as Record< string, number > | null,
+			};
+		},
+		[]
 	);
 	const products = tierProducts
 		.filter( product => product.interval === '1 month' )
@@ -150,10 +135,37 @@ function TierSelector() {
 	);
 	const setTier = useSetTier();
 
-	// Tiers don't apply if less than 2 products (this is called here because
-	// the hooks have to run before any early returns)
-	if ( products.length < 2 ) {
+	// With no tiers there is nothing to narrow down to.
+	if ( products.length < 1 ) {
 		return null;
+	}
+
+	// Hide a lone tier that have same subscribers count as "All"; show it if counts differ.
+	if ( products.length === 1 && ! tierId ) {
+		const tierCount = paidSubscribersByTier?.[ String( products[ 0 ].id ) ];
+		if ( ! countsLoaded || tierCount === paidSubscribers ) {
+			return null;
+		}
+	}
+
+	const options = [
+		{
+			label: withCount( __( 'All paid subscribers', 'jetpack' ), paidSubscribers ),
+			value: ALL_TIERS_VALUE,
+		},
+		...products.map( product => ( {
+			label: withCount( product.title, paidSubscribersByTier?.[ String( product.id ) ] ),
+			value: String( product.id ),
+		} ) ),
+	];
+
+	// A post can still point at a tier that is no longer offered; keep it visible
+	// rather than showing "All", since emails are still limited to that tier.
+	if ( tierId && ! products.some( product => String( product.id ) === String( tierId ) ) ) {
+		options.push( {
+			label: __( 'Deleted tier', 'jetpack' ),
+			value: String( tierId ),
+		} );
 	}
 
 	return (
@@ -161,12 +173,9 @@ function TierSelector() {
 			<RadioControl
 				label={ __( 'Choose Newsletter Tier', 'jetpack' ) }
 				hideLabelFromVision={ true }
-				selected={ String( tierId ) }
-				options={ products.map( product => ( {
-					label: product.title,
-					value: String( product.id ),
-				} ) ) }
-				onChange={ value => setTier( Number( value ) ) }
+				selected={ tierId ? String( tierId ) : ALL_TIERS_VALUE }
+				options={ options }
+				onChange={ value => setTier( value === ALL_TIERS_VALUE ? null : Number( value ) ) }
 			/>
 		</div>
 	);
@@ -269,7 +278,7 @@ export function NewsletterAccessRadioButtons( {
 	explainPaywallConstraint = true,
 }: NewsletterAccessRadioButtonsProps ) {
 	const isStripeConnected = stripeConnectUrl === null;
-	const { totalSubscribers, paidSubscribers } = useSelect( select =>
+	const { totalSubscribers, paidSubscribers, paidNewsletterSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
 
@@ -303,17 +312,25 @@ export function NewsletterAccessRadioButtons( {
 	// is what distinguishes the options from one another. postHasPaywallBlock is
 	// deliberately not forwarded here: it would switch the paid count to the email
 	// reach, making both options report the same total on a post with a paywall block.
-	// Who receives the email is stated in getAccessDescription instead.
-	const subscribersReach = getReachForAccessLevelKey( {
-		accessLevel: accessOptions.subscribers.key,
-		subscribers: totalSubscribers,
-		paidSubscribers,
-	} );
-	const paidSubscribersReach = getReachForAccessLevelKey( {
-		accessLevel: accessOptions.paid_subscribers.key,
-		subscribers: totalSubscribers,
-		paidSubscribers,
-	} );
+	// Who receives the email is stated in the Newsletter overview instead.
+	// Counts are null until loaded; leave them off the labels rather than showing 0.
+	const subscribersReach =
+		totalSubscribers == null
+			? null
+			: getReachForAccessLevelKey( {
+					accessLevel: accessOptions.subscribers.key,
+					subscribers: totalSubscribers,
+					paidSubscribers,
+				} );
+	const paidCount = paidNewsletterSubscribers ?? paidSubscribers;
+	const paidSubscribersReach =
+		paidCount == null
+			? null
+			: getReachForAccessLevelKey( {
+					accessLevel: accessOptions.paid_subscribers.key,
+					subscribers: totalSubscribers,
+					paidSubscribers: paidCount,
+				} );
 
 	const instanceId = useInstanceId( NewsletterAccessRadioButtons, 'jetpack-newsletter-access' );
 	const groupName = `${ instanceId }-group`;
@@ -334,13 +351,11 @@ export function NewsletterAccessRadioButtons( {
 		},
 		{
 			value: accessOptions.subscribers.key,
-			label: `${ accessOptions.subscribers.label } (${ formatNumberCompact( subscribersReach ) })`,
+			label: withCount( accessOptions.subscribers.label, subscribersReach ),
 		},
 		{
 			value: accessOptions.paid_subscribers.key,
-			label: `${ accessOptions.paid_subscribers.label } (${ formatNumberCompact(
-				paidSubscribersReach
-			) })`,
+			label: withCount( accessOptions.paid_subscribers.label, paidSubscribersReach ),
 			disabled: showPaidAsDisabled,
 			describedBy: showPaidAsDisabled ? setupLinkId : undefined,
 		},
@@ -349,8 +364,6 @@ export function NewsletterAccessRadioButtons( {
 	return (
 		<div className="jetpack-newsletter-access-radio-buttons">
 			{ showPaywallNotice && (
-				// icon={ null } matches the mockup, which shows the notice without the
-				// intent icon @wordpress/ui would otherwise render for "info".
 				<Notice.Root intent="info" icon={ null } id={ paywallNoticeId }>
 					<Notice.Title>{ __( 'Paywall active', 'jetpack' ) }</Notice.Title>
 					<Notice.Description>
@@ -363,7 +376,7 @@ export function NewsletterAccessRadioButtons( {
 			) }
 			<fieldset role="radiogroup" className="components-radio-control">
 				<BaseControl.VisualLabel as="legend">
-					{ __( 'Who can read this post?', 'jetpack' ) }
+					{ __( 'Who can read this on your site?', 'jetpack' ) }
 				</BaseControl.VisualLabel>
 				<div className="components-radio-control__group-wrapper">
 					{ options.map( option => (
@@ -447,12 +460,32 @@ export function NewsletterAccessDocumentSettings( { accessLevel }: { accessLevel
 	);
 }
 
-export function NewsletterEmailDocumentSettings() {
-	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+/**
+ * Turn emailing the current post to subscribers on or off, saving the change right away.
+ *
+ * @return {Function} Setter taking whether the post should be emailed.
+ */
+export function useSetSendEmail(): ( sendEmail: boolean ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const { saveEditedEntityRecord } = useDispatch( coreDataStore );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const postId = useEntityId( 'postType', postType );
+
+	return sendEmail => {
+		setPostMeta( {
+			...postMeta,
+			// Meta value is negated, "don't send", but callers pass the truthy "send".
+			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! sendEmail,
+		} );
+		saveEditedEntityRecord( 'postType', postType, postId );
+	};
+}
+
+export function NewsletterEmailDocumentSettings() {
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const postId = useEntityId( 'postType', postType );
+	const setSendEmail = useSetSendEmail();
 
 	const postEmailSentState = useSelect(
 		select => {
@@ -463,16 +496,6 @@ export function NewsletterEmailDocumentSettings() {
 	);
 
 	const isAlreadySent = postEmailSentState?.email_sent_at != null;
-
-	const toggleSendEmail = ( checked: boolean ) => {
-		const postMetaUpdate = {
-			...postMeta,
-			// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! checked,
-		};
-		setPostMeta( postMetaUpdate );
-		saveEditedEntityRecord( 'postType', postType, postId );
-	};
 
 	const isSendEmailEnabled = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
@@ -492,7 +515,7 @@ export function NewsletterEmailDocumentSettings() {
 						checked={ isSendEmailEnabled }
 						disabled={ isPostPublished || ! canEdit }
 						label={ __( 'Send this post to subscribers', 'jetpack' ) }
-						onChange={ toggleSendEmail }
+						onChange={ setSendEmail }
 					/>
 				);
 			} }

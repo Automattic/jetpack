@@ -22,7 +22,7 @@ class Marketplace_Catalog {
 	 * Bumped whenever the shape of a cached card or description changes, so sites
 	 * do not keep serving data built by the previous version until it expires.
 	 */
-	const CACHE_VERSION = 8;
+	const CACHE_VERSION = 9;
 
 	/**
 	 * Transient holding the normalized product list.
@@ -396,6 +396,8 @@ class Marketplace_Catalog {
 			'download_link'      => '',
 			'requires'           => false,
 			'requires_php'       => false,
+			// Core names these in the card's dependency notice. WordPress.com installs them on purchase.
+			'requires_plugins'   => self::to_requires_plugins( $product['requirements'] ?? null, array( $slug, $product_slug ) ),
 			'tested'             => '',
 			'upgrade_notice'     => '',
 			// Suppresses core's "WordPress.org Plugin Page" link. These are not on .org.
@@ -420,10 +422,24 @@ class Marketplace_Catalog {
 	 * @return array<int, array> Keyed by product id.
 	 */
 	private static function fetch_store_products() {
+		/**
+		 * Filters the store catalog before it is requested from WordPress.com.
+		 *
+		 * Simple sites answer it from the store itself: their in-process API client cannot
+		 * reach the v1.1 products endpoint.
+		 *
+		 * @since 6.11.0
+		 *
+		 * @param array|null $response Products keyed by store slug, as /rest/v1.1/products returns them, or null to request them.
+		 */
+		$response = apply_filters( 'wpcom_marketplace_store_products', null );
+
 		// Site-scoped first, so prices come back in the site's own currency. Calypso
 		// reads the same two paths in the same order, for the same reason.
-		$blog_id  = self::blog_id();
-		$response = $blog_id > 0 ? self::request( '/sites/' . $blog_id . '/products', '1.1', 'rest' ) : null;
+		if ( ! is_array( $response ) ) {
+			$blog_id  = self::blog_id();
+			$response = $blog_id > 0 ? self::request( '/sites/' . $blog_id . '/products', '1.1', 'rest' ) : null;
+		}
 
 		if ( ! is_array( $response ) ) {
 			$response = self::request( '/products', '1.1', 'rest' );
@@ -573,6 +589,42 @@ class Marketplace_Catalog {
 		}
 
 		return '';
+	}
+
+	/**
+	 * The plugins a product needs, as the slugs core's dependency notice reads.
+	 *
+	 * @param mixed    $requirements Requirements as the marketplace endpoint returns them.
+	 * @param string[] $own          The product's own slugs, which some products list as a requirement.
+	 * @return string[]
+	 */
+	private static function to_requires_plugins( $requirements, array $own ) {
+		$plugins = is_array( $requirements ) && is_array( $requirements['plugins'] ?? null ) ? $requirements['plugins'] : array();
+		$slugs   = array();
+
+		foreach ( $plugins as $plugin ) {
+			if ( is_string( $plugin ) && '' !== $plugin && ! in_array( $plugin, $own, true ) ) {
+				$slugs[] = $plugin;
+			}
+		}
+
+		return array_values( array_unique( $slugs ) );
+	}
+
+	/**
+	 * Every plugin some product in the catalog needs.
+	 *
+	 * @return string[]
+	 */
+	public static function get_dependency_slugs() {
+		$slugs = array();
+		foreach ( self::get_products() as $card ) {
+			foreach ( $card['requires_plugins'] ?? array() as $slug ) {
+				$slugs[ $slug ] = true;
+			}
+		}
+
+		return array_keys( $slugs );
 	}
 
 	/**

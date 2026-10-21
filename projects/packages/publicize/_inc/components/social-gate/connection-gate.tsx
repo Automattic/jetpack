@@ -1,4 +1,5 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
+import { getRegistrationErrorSummary } from '@automattic/jetpack-connection/connection-error-message';
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -16,12 +17,17 @@ import './style.scss';
  * @return The connection gate.
  */
 export default function ConnectionGate(): JSX.Element {
-	const { handleRegisterSite, siteIsRegistering, userIsConnecting, registrationError } =
-		useConnection( {
-			from: 'jetpack-social',
-			// MUST stay relative — an absolute URL doubles server-side and 404s.
-			redirectUri: 'admin.php?page=jetpack-social',
-		} );
+	const {
+		handleRegisterSite,
+		siteIsRegistering,
+		userIsConnecting,
+		registrationError,
+		isOfflineMode,
+	} = useConnection( {
+		from: 'jetpack-social',
+		// MUST stay relative — an absolute URL doubles server-side and 404s.
+		redirectUri: 'admin.php?page=jetpack-social',
+	} );
 
 	const isLoading = siteIsRegistering || userIsConnecting;
 
@@ -50,7 +56,8 @@ export default function ConnectionGate(): JSX.Element {
 					</p>
 					{ registrationError && (
 						<p className="jetpack-social-gate__error" role="alert">
-							{ __( 'An error occurred. Please try again.', 'jetpack-publicize-pkg' ) }
+							{ getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
+								__( 'An error occurred. Please try again.', 'jetpack-publicize-pkg' ) }
 						</p>
 					) }
 					<Button

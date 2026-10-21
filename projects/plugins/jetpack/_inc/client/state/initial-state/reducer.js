@@ -580,6 +580,17 @@ export function isMultisite( state ) {
 }
 
 /**
+ * Whether the wp-admin Backup page exists, which the site's plan and host decide rather than the module.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if the Backup page was registered.
+ */
+export function hasBackupPage( state ) {
+	return state.jetpack.initialState.siteData?.hasBackupPage ?? false;
+}
+
+/**
  * Get the site's date format, in format accepted by DateTimeInterface::format().
  *
  * @param {object} state - Global state tree
@@ -766,6 +777,16 @@ export function isSharingBlockAvailable( state ) {
  */
 export function isLikeBlockAvailable( state ) {
 	return !! state.jetpack.initialState.siteData.isLikeBlockAvailable;
+}
+
+/**
+ * Check if the comment form can offer the block editor.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the comment form can offer the block editor.
+ */
+export function isCommentBlocksAvailable( state ) {
+	return !! state.jetpack.initialState.siteData?.isCommentBlocksAvailable;
 }
 
 /**

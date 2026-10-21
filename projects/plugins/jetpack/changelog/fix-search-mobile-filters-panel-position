@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Open the Instant Search filters panel below the results header on small screens, so the Filters toggle stays visible.

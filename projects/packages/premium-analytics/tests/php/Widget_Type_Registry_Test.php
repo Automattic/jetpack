@@ -390,7 +390,12 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 
 		$widget_type = $registry->get_registered( 'plugin/first' );
 		$this->assertInstanceOf( Widget_Type::class, $widget_type );
-		$this->assertSame( array( 'content' => 'Read <em>this</em> carefully.' ), $widget_type->help );
+		// Legacy wp_kses keeps `<script>` contents as text; the HTML API wp_kses drops them.
+		// @todo: Expect only 'Read <em>this</em> .' once the HTML API version is the only one we care about (WP 7.2+).
+		$help    = $widget_type->help ?? array();
+		$content = $help['content'] ?? null;
+		$this->assertContains( $content, array( 'Read <em>this</em> carefully.', 'Read <em>this</em> .' ) );
+		$this->assertSame( array( 'content' => $content ), $help );
 		$this->assertNull( $widget_type->icon );
 		$this->assertFalse( Widget_Type_Registry::get_instance()->is_registered( 'plugin/first' ) );
 	}
@@ -516,5 +521,50 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 		$this->assertSame( array( 'jpa/second' ), $registry->get_registered( 'plugin/second' )->former_names );
 		$this->assertSame( 'plugin/second', $registry->resolve_name( 'jpa/second' ) );
 		$this->assertSame( 'jpa/ignored', $registry->resolve_name( 'jpa/ignored' ) );
+	}
+
+	public function test_manifest_helper_stamps_the_plan_feature_onto_the_type() {
+		register_widget_types_from_manifest(
+			array(
+				array( 'name' => 'plugin/mapped' ),
+				array(
+					'name'         => 'plugin/declared',
+					'plan_feature' => 'videos',
+				),
+				array( 'name' => 'plugin/open' ),
+			),
+			array(
+				'plan_features' => array(
+					'plugin/mapped'   => 'devices',
+					'plugin/declared' => 'ignored',
+				),
+			)
+		);
+
+		$registry = Widget_Type_Registry::get_instance();
+		$this->assertSame( 'devices', $registry->get_registered( 'plugin/mapped' )->plan_feature );
+		$this->assertSame( 'videos', $registry->get_registered( 'plugin/declared' )->plan_feature );
+		$this->assertNull( $registry->get_registered( 'plugin/open' )->plan_feature );
+	}
+
+	/**
+	 * The plan gates key on it, so either registration path refuses one that is not a string.
+	 */
+	public function test_a_plan_feature_that_is_not_a_string_is_refused() {
+		Widget_Type_Registry::get_instance();
+		$this->capture_doing_it_wrong();
+
+		register_widget_types_from_manifest(
+			array(
+				array(
+					'name'         => 'plugin/manifest',
+					'plan_feature' => array( 'videos' ),
+				),
+			)
+		);
+		$this->assertFalse( register_widget_type( 'plugin/direct', array( 'plan_feature' => array( 'videos' ) ) ) );
+
+		$this->assertFalse( Widget_Type_Registry::get_instance()->is_registered( 'plugin/manifest' ) );
+		$this->assertSame( array_fill( 0, 2, Widget_Type_Registry::class . '::register' ), $this->doing_it_wrong );
 	}
 }

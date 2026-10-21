@@ -6,13 +6,13 @@ import {
 	type PostThumbnailUrls,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import {
 	createReportOriginSearch,
 	pickReportNavigationParams,
 } from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import {
+	ExternalLink,
 	MetricWithComparison,
 	PostTitleLink,
 	REPORT_TITLE_LINK_CLASS_NAMES,
@@ -41,9 +41,8 @@ type PostTitleProps = {
 
 /**
  * Render a post row's title. Rows with an ID drill into the internal post/page
- * detail page, carrying the report's current date window so the detail page
- * opens on the range being inspected; the public URL is the external fallback
- * for rows without one.
+ * detail page, carrying the report's current date window for its breadcrumbs
+ * to return to; the public URL is the external fallback for rows without one.
  *
  * The API sends no URL for homepage rows, so they fall back to the site home
  * resolved from core settings. They never take the detail page: the homepage
@@ -147,18 +146,13 @@ export function getArchivesFields( withComparison = false ): Field< ArchiveRow >
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
-				const label = item.isGroup ? <strong>{ item.label }</strong> : <>{ item.label }</>;
 				const href = safeHttpUrl( item.link );
 
 				if ( ! href ) {
-					return label;
+					return <>{ item.label }</>;
 				}
 
-				return (
-					<UiLink href={ href } variant="unstyled" openInNewTab rel="noopener noreferrer">
-						{ label }
-					</UiLink>
-				);
+				return <ExternalLink href={ href }>{ item.label }</ExternalLink>;
 			},
 		},
 		{

@@ -27,6 +27,22 @@ class XMLRPC_Test extends BaseTestCase {
 		Posts::init();
 	}
 
+	/** Allocation errors must not be treated as attachment IDs by the callback. */
+	public function test_create_media_item_reports_allocation_error() {
+		$result = XMLRPC::init()->create_media_item(
+			array(
+				array(
+					'url'                   => 'https://example.org/video.mp4',
+					'minimum_attachment_id' => -1,
+				),
+			)
+		);
+
+		$this->assertArrayHasKey( 'errors', $result );
+		$this->assertArrayHasKey( 'videopress_invalid_minimum_attachment_id', $result['errors'] );
+		$this->assertArrayNotHasKey( 'media', $result );
+	}
+
 	/**
 	 * The media item title, description and caption supplied by the uploader are applied to the
 	 * created attachment.
@@ -111,5 +127,41 @@ class XMLRPC_Test extends BaseTestCase {
 			XMLRPC::init()->xmlrpc_methods( array(), array(), new \WP_User( 0 ) );
 			wp_set_current_user( 0 );
 		}
+	}
+	/**
+	 * MP4 failure is terminal even when a delayed auxiliary completion arrives.
+	 */
+	public function test_terminal_error_callback_and_later_recovery() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+			)
+		);
+		$methods = XMLRPC::init()->xmlrpc_methods( array(), array(), new \WP_User( 0 ) );
+		$payload = array(
+			'post_id' => $post_id,
+			'format'  => 'mp4',
+			'status'  => 'ERROR',
+			'info'    => array(
+				'guid'     => 'failed01',
+				'original' => 'https://example.org/video.mp4',
+				'width'    => 0,
+				'height'   => 0,
+				'finished' => true,
+				'poster'   => '',
+			),
+		);
+		$this->assertTrue( call_user_func( $methods['jetpack.updateVideoPressMediaItemError'], $payload ) );
+		$this->assertSame( 'failed', get_post_meta( $post_id, 'videopress_status', true ) );
+		$this->assertEmpty( get_post_meta( $post_id, '_thumbnail_id', true ) );
+		$this->assertArrayNotHasKey( 0, wp_get_attachment_metadata( $post_id ) );
+		$payload['format'] = 'ogg';
+		$payload['status'] = 'DONE';
+		call_user_func( $methods['jetpack.updateVideoPressMediaItem'], $payload );
+		$this->assertSame( 'failed', get_post_meta( $post_id, 'videopress_status', true ) );
+		$payload['format'] = 'mp4';
+		call_user_func( $methods['jetpack.updateVideoPressMediaItem'], $payload );
+		$this->assertSame( 'complete', get_post_meta( $post_id, 'videopress_status', true ) );
 	}
 }

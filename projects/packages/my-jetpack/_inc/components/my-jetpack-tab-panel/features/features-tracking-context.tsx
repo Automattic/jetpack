@@ -1,15 +1,19 @@
 import { createContext, useCallback, useContext, useMemo } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
+import { isAccountConnectEnabled } from './mappings';
 import type { FeatureState } from './feature-state';
 import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
 import type { ReactNode } from 'react';
 
 export type FeatureActionType = 'install' | 'activate' | 'deactivate';
+/** What sent the visitor to connect an account: an install that finished, or Connect itself. */
+export type ConnectionStartAction = 'install' | 'connect';
 export type BulkActionType = 'activate' | 'deactivate';
 
 /** What emptied the grid, in the order the empty states are checked. */
-export type EmptyStateReason = 'no-catalog' | 'search' | 'active' | 'inactive' | 'none';
+export type EmptyStateReason =
+	'no-catalog' | 'search' | 'active' | 'inactive' | 'included' | 'none';
 
 /** The way out an empty state offers, whichever one it is showing. */
 export type EmptyStateAction = 'reload' | 'support_search' | 'explore_all';
@@ -50,6 +54,12 @@ type FeaturesTrackingContextType = {
 	trackModalView: ( state: FeatureState, trigger: ModalTrigger ) => void;
 	trackModalClose: ( state: FeatureState ) => void;
 	trackManageClick: ( state: FeatureState ) => void;
+	trackConnectionStart: (
+		state: FeatureState,
+		origin: FeatureActionOrigin,
+		action: ConnectionStartAction
+	) => void;
+	trackPlanClick: ( state: FeatureState, plan: string ) => void;
 	trackFeatureAction: ( params: FeatureActionParams ) => void;
 	trackBulkAction: ( params: BulkActionParams ) => void;
 	trackEmptyStateView: ( reason: EmptyStateReason ) => void;
@@ -77,6 +87,7 @@ function featureProps( state: FeatureState ) {
 		feature_status: state.status,
 		control_kind: state.control.kind,
 		is_essential: Boolean( feature.essential ),
+		...( isAccountConnectEnabled() && { account_needed: Boolean( state.accountNeeded ) } ),
 		...when( 'plugin', feature.plugin || '' ),
 		...when( 'plugin_status', feature.plugin_status || '' ),
 	};
@@ -196,6 +207,33 @@ export function FeaturesTrackingProvider( {
 		[ context, recordEvent ]
 	);
 
+	// Recorded as the page leaves to connect an account: it says a connection started, not that
+	// the feature is now on.
+	const trackConnectionStart = useCallback(
+		( state: FeatureState, origin: FeatureActionOrigin, action: ConnectionStartAction ) => {
+			recordEvent( 'jetpack_myjetpack_feature_connection_start', {
+				action,
+				origin,
+				...when( 'product', state.feature.product || '' ),
+				...featureProps( state ),
+				...context,
+			} );
+		},
+		[ context, recordEvent ]
+	);
+
+	// Leaves for a pricing page, so the event has to be away before it does.
+	const trackPlanClick = useCallback(
+		( state: FeatureState, plan: string ) => {
+			recordEvent( 'jetpack_myjetpack_features_plan_click', {
+				plan,
+				...featureProps( state ),
+				...context,
+			} );
+		},
+		[ context, recordEvent ]
+	);
+
 	// Recorded from the click, so an abandoned or failed switch still says what was asked
 	// for. The status it carries is the one the click was made against.
 	const trackFeatureAction = useCallback(
@@ -259,12 +297,15 @@ export function FeaturesTrackingProvider( {
 			trackModalView,
 			trackModalClose,
 			trackManageClick,
+			trackConnectionStart,
+			trackPlanClick,
 			trackFeatureAction,
 			trackBulkAction,
 			trackEmptyStateView,
 			trackEmptyStateClick,
 		} ),
 		[
+			trackConnectionStart,
 			trackBulkAction,
 			trackEmptyStateClick,
 			trackEmptyStateView,
@@ -273,6 +314,7 @@ export function FeaturesTrackingProvider( {
 			trackManageClick,
 			trackModalClose,
 			trackModalView,
+			trackPlanClick,
 			trackSearch,
 			trackViewChange,
 		]

@@ -4,6 +4,93 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 3.8 - 2026-10-20
+### Added
+- Add a Channel Details block to channel sites, with the channel's handle, subscribers, videos, playlists, views and start date. [#53506]
+- Add an Episode Navigation block. [#53509]
+- Add a page per playlist on channel sites, with All Playlists cards linking to it and a Video Playlist block option to show the playlist being viewed. [#53504]
+- Add a Playlist Details block. [#53508]
+- Add a Video Details block, and let the VideoPress Video block play the newest upload. [#53507]
+- Add trim and cut editing to the video block toolbar and clarify the editor tool icons. [#53100]
+- Connection: Add a Connected view to the Users page listing users with a linked WordPress.com account. [#53150]
+- Connection: Transfer connection ownership to another administrator without leaving your site. [#53359]
+- Connection: Transfer connection ownership to another connected administrator from the Connectors page. [#53581]
+- Let channel blocks show authors a call to action while a channel has no videos or playlists. [#53510]
+- Let the Latest Videos Playlist block sort, search, filter by length and paginate, and show view counts. [#53505]
+- Let the Video Playlist block show a playlist published on the site, and let the All Playlists block sort by last update and show each playlist's last update and length. [#53657]
+- My Jetpack: Add an Available filter to the Features list. [#53308]
+- My Jetpack: Add catalog-controlled Pro offers and preserve existing plan management. [#53421]
+- My Jetpack: Recognize Jetpack Pro subscriptions and licenses. [#53424]
+
+### Changed
+- Connection: Link the connection owner's name on the Connectors card to their profile, and update the card without reloading the page when a non-owner disconnects their account. [#53785]
+- My Jetpack: Line up notices with the cards below them, and drop the grey background behind the Features grid and list buttons. [#53759]
+- My Jetpack: Refresh Pro availability while preserving existing offers. [#53425]
+- My Jetpack: Show a connection error on the Overview connection card while your account is still to be connected, instead of only asking you to connect it. [#53409]
+- Open this site's video pages from a Video Playlist in the same tab, and mark the video being viewed. [#53502]
+- Settings: Match the card spacing and top margin of the other Jetpack settings screens. [#53607]
+- Update package dependencies. [#53004]
+
+### Fixed
+- Connection: Translate the Connectors card's text on sites that don't use English. [#53179]
+- Dashboard: Announce the views trend chart correctly to screen readers. [#53202]
+- My Jetpack: Hide other plugins' notices while the setup screen is open, and stop the full-screen layout breaking when another plugin adds an admin body class first. [#52765]
+- My Jetpack: Make the connection screen's Connect button and footer links reachable on shorter screens. [#53402]
+- My Jetpack: Show the highest-priority notice first when several are set at once. [#53400]
+- My Jetpack: Stop reporting an error when switching VideoPress off while the Jetpack plugin is inactive. [#53371]
+- Only open a channel video page for a video uploaded to this site. [#53501]
+- Prevent new uploads from reusing video attachment IDs after a site restore. [#53791]
+- Show failed conversions with delete and re-upload guidance, and retry locked resumable uploads. [#53614]
+
+## 3.7 - 2026-10-07
+### Security
+- Playback: Strengthen authorization for private videos. [#53240]
+
+### Added
+- Add an All Playlists block that lists every Video Playlist published on the site as a grid or a list. [#52724]
+- Add an optional trim and cut editor with preview, undo, and original video restoration. Keep the editor available during processing, reduce background status checks, refresh delayed timeline thumbnails, and allow retrying failed edits. [#52857]
+- Add a setting to turn off sharing for every video on the site. [#52991]
+- Add title and description settings to the Video Playlist block, recorded in a site-wide playlist index. [#52729]
+- Give every video its own page for themes that support it, and add a "Show the video being viewed" option to the video block. [#52666]
+- Library: Edit video details while uploads are in progress. [#53030]
+- Onboarding: Add an introductory video to the first-run welcome modal. [#53208]
+- Video Playlist and Latest Videos Playlist blocks: Add a setting to hide the player. Clicking a video then opens it on VideoPress in a new tab, or reveals the player and plays it. [#52808]
+- Video Playlist block: Show the playlist title as an editable heading above the playlist, with a setting to turn it off. [#52825]
+
+### Changed
+- Activity Log: Show the connection error notice only when a connection error has been recorded. [#52977]
+- My Jetpack: Show a Features tab in place of the Products tab. [#52785]
+- My Jetpack: Show product cards flat, without a drop shadow. [#52988]
+- Overview: Show the views chart tooltip on the WordPress design system tooltip surface. [#52850]
+- Pricing: Keep focus on information icons when their tooltips open, announce the content to screen readers, and show a focus ring after clicking them. [#52736]
+- Show the ad-free, customizable player as included in the free plan on the VideoPress plan comparison. [#53181]
+- Update package dependencies. [#52999]
+- Use core snackbar notice placement. [#52193]
+
+### Removed
+- Remove the legacy dashboard. Sites that turned off the modern dashboard no longer get a Jetpack > VideoPress menu. [#53068]
+
+### Fixed
+- Admin: Keep the Learn more support link up to date through the redirect service. [#52907]
+- Ask before deleting videos, and warn before leaving the page while an upload is running. [#52815]
+- Caption manager: Warn when a private video's preview may not play. [#53066]
+- Connection: Fix reconnecting your WordPress.com account so it no longer disconnects other users and clears the broken-connection notice on the first attempt. [#52851]
+- Connection: Let users without admin access reconnect their own broken account from the connection error notice. [#52718]
+- Connection: Stop Site Health from showing spurious connection failures — remove the redundant outbound HTTP/HTTPS checks, and no longer prompt a reconnect when the WordPress.com connection test is inconclusive. [#52916]
+- Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing. [#52880]
+- Dashboard: Fix a just-uploaded video briefly showing up a second time as a local video in the Library. [#52822]
+- Dashboard: Keep the views trend chart's comparison lines distinguishable, including for color-blind viewers. [#52680]
+- Keep the editing preview on retained footage when playback reaches a trim or trailing cut. [#53219]
+- Library: Show a loading state until the video library is loaded. [#52819]
+- My Jetpack: Fix the layout of the connection screen for right-to-left languages. [#52749]
+- My Jetpack: stretch the tab content background to the full height of the page. [#52633]
+- Scroll the timeline while dragging cuts beyond the visible area. [#53218]
+- Show an error and stop the Get VideoPress button from staying busy when checkout cannot start. [#53069]
+- Show Jetpack in-dashboard messages on the dashboard again. [#52641]
+- Start new cuts at the playhead, or end there when it is at the end of the video, and keep a gap from existing cuts. [#53216]
+- Upgrade: Send WordPress.com sites to the Business plan instead of an incompatible VideoPress product. [#52923]
+- Video block: Offer an upgrade action when uploads require a paid plan. [#52983]
+
 ## 3.6 - 2026-09-23
 ### Added
 - Add a Latest Videos Playlist block that plays the site's newest VideoPress videos, with the number of videos set in the block settings. [#52665]

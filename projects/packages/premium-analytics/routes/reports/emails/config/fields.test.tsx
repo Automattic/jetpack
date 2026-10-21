@@ -10,13 +10,6 @@ jest.mock( '@wordpress/route', () => {
 	return mockWordPressRoute;
 } );
 
-setMockRouteSearch( {
-	from: '2026-06-01',
-	to: '2026-06-16',
-	interval: 'day',
-	foreign: 'drop-me',
-} );
-
 const email: StatsEmailSummaryItem = {
 	id: 91,
 	label: 'Weekly update',
@@ -33,6 +26,15 @@ const email: StatsEmailSummaryItem = {
 };
 
 describe( 'emails fields', () => {
+	beforeEach( () => {
+		setMockRouteSearch( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			foreign: 'drop-me',
+		} );
+	} );
+
 	it( 'links an email to its detail tab with the date window and report origin', () => {
 		const field = getEmailsFields().find( candidate => candidate.id === 'label' );
 

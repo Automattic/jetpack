@@ -30,8 +30,21 @@ export function resolvePlayback(
 	const ms = Math.max( session.trimStartMs, Math.round( currentMs ) );
 	const { trimEndMs, cuts } = session;
 
-	if ( ms >= trimEndMs ) {
-		return ms > trimEndMs ? { ended: true, seekTo: trimEndMs } : { ended: true };
+	let playbackEndMs = trimEndMs;
+	if ( previewCutsEnabled ) {
+		for ( let i = cuts.length - 1; i >= 0; i-- ) {
+			if ( cuts[ i ].endMs >= playbackEndMs && cuts[ i ].startMs < playbackEndMs ) {
+				playbackEndMs = cuts[ i ].startMs;
+			}
+		}
+	}
+	// Trim and cut ends are exclusive: keep the stopped preview inside the retained footage.
+	const stopMs =
+		playbackEndMs < session.durationMs
+			? Math.max( session.trimStartMs, playbackEndMs - 1 )
+			: playbackEndMs;
+	if ( ms >= stopMs ) {
+		return ms === stopMs ? { ended: true } : { ended: true, seekTo: stopMs };
 	}
 	if ( ! previewCutsEnabled ) {
 		return Math.round( currentMs ) < session.trimStartMs ? { seekTo: ms } : {};
@@ -49,9 +62,6 @@ export function resolvePlayback(
 	}
 	if ( ! skipped ) {
 		return Math.round( currentMs ) < session.trimStartMs ? { seekTo: ms } : {};
-	}
-	if ( target >= trimEndMs ) {
-		return { ended: true, seekTo: trimEndMs };
 	}
 	return { seekTo: target };
 }

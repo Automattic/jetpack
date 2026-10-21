@@ -11,6 +11,11 @@ const ACCENT_ON_DARK = '#008dd1';
 const ACCENT_ON_DARKER = '#0098e0';
 const GRAY = '#333333';
 const GRAY_ON_DARK = '#858585';
+// A button's own background, and the text the fixture says each one calls for.
+const GRAY_BUTTON = '#dcdcdc';
+const ON_GRAY_BUTTON = '#262626';
+const BLUE_BUTTON = '#113af5';
+const ON_BLUE_BUTTON = '#e7ebfe';
 
 describe( 'nextElements', () => {
 	it( 'makes an inherited link readable on the new background', () => {
@@ -144,6 +149,88 @@ describe( 'nextElements', () => {
 		nextElements( styles, DARK, DARKER, { link: ACCENT } );
 
 		expect( styles.elements.link.color.text ).toBe( ACCENT_ON_DARK );
+	} );
+} );
+
+describe( 'nextElements, for the button', () => {
+	/**
+	 * Call `nextElements` for a button background change alone, leaving the email's alone.
+	 *
+	 * @param {object} styles    - The design's `styles`.
+	 * @param {object} inherited - The colors the site gives each element.
+	 * @param {*}      before    - The button background before the change.
+	 * @param {*}      after     - The button background after it.
+	 * @return {object|null} What `nextElements` answered.
+	 */
+	function pickButtonBackground( styles, inherited, before, after ) {
+		return nextElements( styles, LIGHT, LIGHT, inherited, { before, after } );
+	}
+
+	it( 'derives button text for a background the site gives it none for', () => {
+		expect( pickButtonBackground( {}, {}, undefined, GRAY_BUTTON ) ).toEqual( {
+			button: { color: { text: ON_GRAY_BUTTON } },
+		} );
+	} );
+
+	it( 'derives over an inherited button text the background fails', () => {
+		expect( pickButtonBackground( {}, { button: '#ffffff' }, undefined, GRAY_BUTTON ) ).toEqual( {
+			button: { color: { text: ON_GRAY_BUTTON } },
+		} );
+	} );
+
+	it( "writes the site's own button text out when it already passes", () => {
+		expect( pickButtonBackground( {}, { button: '#ffffff' }, undefined, BLUE_BUTTON ) ).toEqual( {
+			button: { color: { text: '#ffffff' } },
+		} );
+	} );
+
+	it( 're-derives its own button text when the button background changes again', () => {
+		const styles = { elements: { button: { color: { text: ON_GRAY_BUTTON } } } };
+
+		expect( pickButtonBackground( styles, {}, GRAY_BUTTON, BLUE_BUTTON ) ).toEqual( {
+			button: { color: { text: ON_BLUE_BUTTON } },
+		} );
+	} );
+
+	it( 'never touches button text the creator chose', () => {
+		const styles = { elements: { button: { color: { text: '#ff00ff' } } } };
+
+		expect( pickButtonBackground( styles, {}, GRAY_BUTTON, BLUE_BUTTON ) ).toBeNull();
+	} );
+
+	it( 'keeps the button background the creator picked', () => {
+		const styles = { elements: { button: { color: { background: BLUE_BUTTON } } } };
+
+		expect( pickButtonBackground( styles, {}, GRAY_BUTTON, BLUE_BUTTON ) ).toEqual( {
+			button: { color: { background: BLUE_BUTTON, text: ON_BLUE_BUTTON } },
+		} );
+	} );
+
+	it( 'changes nothing when the button background cannot be judged', () => {
+		expect(
+			pickButtonBackground(
+				{},
+				{ button: '#ffffff' },
+				GRAY_BUTTON,
+				'var(--wp--preset--color--accent)'
+			)
+		).toBeNull();
+	} );
+
+	// The same as the text color: a derived color that only existed for the old background has
+	// nothing to stand for once there is no background to derive from.
+	it( 'drops its own button text when the new background cannot be judged', () => {
+		const styles = { elements: { button: { color: { text: ON_GRAY_BUTTON } } } };
+
+		expect(
+			pickButtonBackground( styles, {}, GRAY_BUTTON, 'var(--wp--preset--color--accent)' )
+		).toEqual( {} );
+	} );
+
+	it( 'derives nothing for the button when no button background is given', () => {
+		expect( nextElements( {}, LIGHT, DARK, { link: ACCENT } ) ).toEqual( {
+			link: { color: { text: ACCENT_ON_DARK } },
+		} );
 	} );
 } );
 

@@ -3,18 +3,13 @@
  */
 import {
 	type ChartDisplayChartType,
-	chartTypeAttributeField,
 	reportParamsAttributeField,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 /**
- * WordPress dependencies
- */
-import { megaphone } from '@wordpress/icons';
-/**
  * Internal dependencies
  */
-import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { defaultReportParams } from './default-report-params';
 import { WORDADS_GRAIN } from './grain';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -35,18 +30,16 @@ export type WordAdsChartTabsAttributes = Partial< ReportParamsFieldAttributes > 
  * size follows the selected window, so the date field offers the window alone.
  */
 export default {
-	icon: megaphone,
 	attributes: [
 		reportParamsAttributeField< WordAdsChartTabsAttributes >( {
 			grain: WORDADS_GRAIN,
 			offersComparison: false,
 		} ),
-		chartTypeAttributeField(),
 	] as WidgetAttributeField< WordAdsChartTabsAttributes >[],
 	example: {
-		attributes: {
-			reportParams: DEFAULT_REPORT_PARAMS,
-			chartType: 'line',
+		// A getter: the host reads it on every render, and the default can change after load.
+		get attributes() {
+			return { reportParams: defaultReportParams(), chartType: 'line' };
 		},
 	},
 };

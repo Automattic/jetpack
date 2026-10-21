@@ -1,0 +1,30 @@
+.my-jetpack-info-popover {
+	max-inline-size: 320px;
+
+	// A plain trigger around the icon, as in the design system's Infotip pattern.
+	&__trigger {
+		display: inline-flex;
+		align-items: center;
+		gap: calc(var(--spacing-base) / 4);
+		padding: 0;
+		border: none;
+		border-radius: var(--wpds-border-radius-sm);
+		background: none;
+		color: var(--jp-gray-50);
+		cursor: var(--wpds-cursor-control);
+
+		&:hover {
+			color: var(--jp-gray-100);
+		}
+
+		&:focus-visible {
+			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+			outline-offset: 1px;
+		}
+
+		&--critical,
+		&--critical:hover {
+			color: var(--jp-red-50);
+		}
+	}
+}

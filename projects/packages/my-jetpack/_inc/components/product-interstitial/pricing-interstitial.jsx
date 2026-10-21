@@ -15,13 +15,14 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, LinkButton } from '@wordpress/ui';
+import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
+import useActivateSearchFreeProduct from '../../data/products/use-activate-search-free-product';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
@@ -29,7 +30,8 @@ import { useInterstitialsState } from '../../hooks/use-interstitials-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
-import { getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
+import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
+import ProductDetailCard from '../product-detail-card';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
@@ -45,11 +47,25 @@ import styles from './style.module.scss';
 export default function PricingInterstitial( { slug } ) {
 	const config = getProductConfigs()[ slug ];
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
-	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( config?.bundle );
+	const { detail: proDetail } = useProduct( 'pro' );
+	const { detail: legacyBundleDetail } = useProduct( config?.bundle );
+	const proIsOnSale = proDetail?.pricingForUi?.catalogAvailable === true;
+	const legacyIsRetired = legacyBundleDetail?.pricingForUi?.available === false;
+	const useNewBundleOffer = proIsOnSale || legacyIsRetired;
+	const preferredBundle =
+		proDetail?.pricingForUi?.available === true && ! proDetail?.hasPaidPlanForProduct
+			? 'pro'
+			: 'complete';
+	const fallbackBundle =
+		legacyIsRetired && ! legacyBundleDetail?.hasPaidPlanForProduct
+			? legacyBundleDetail?.purchaseReplacement?.slug
+			: config?.bundle;
+	const bundleSlug = proIsOnSale ? preferredBundle : fallbackBundle;
+	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( bundleSlug );
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: getProductsSectionPath() } );
+	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
-	const myJetpackCheckoutUri = getMyJetpackUrl();
+	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri: detail?.postActivationUrl || null,
@@ -58,9 +74,6 @@ export default function PricingInterstitial( { slug } ) {
 
 	// Track which button is currently loading ('free', 'paid', 'bundle', or null)
 	const [ loadingButton, setLoadingButton ] = useState( null );
-
-	// Disable all buttons when any action is in progress or data is loading
-	const buttonsDisabled = Boolean( loadingButton ) || isProductLoading;
 
 	// Setup checkout workflows like ProductDetailCard does
 	const { admin_url: adminUrl, suffix: siteSuffix } = getScriptData().site;
@@ -99,6 +112,26 @@ export default function PricingInterstitial( { slug } ) {
 		useBlogIdSuffix: true,
 	} );
 
+	const { run: runSearchFreeActivation, isPending: isActivatingSearchFree } =
+		useActivateSearchFreeProduct( { sendToCheckout: freeCheckoutRun } );
+
+	// Shaped like the checkout runs `clickHandler` invokes, so it can stand in for one.
+	const searchFreeActivationRun = useCallback(
+		( _event, postCheckoutUrl ) => {
+			const redirect = postCheckoutUrl || paidCheckoutRedirectUrl;
+			runSearchFreeActivation( {
+				checkoutRedirect: redirect,
+				onSuccess: () => {
+					window.location.href = redirect;
+				},
+			} );
+		},
+		[ paidCheckoutRedirectUrl, runSearchFreeActivation ]
+	);
+
+	// Disable all buttons when any action is in progress or data is loading.
+	const buttonsDisabled = Boolean( loadingButton ) || isProductLoading || isActivatingSearchFree;
+
 	// Handle tiered pricing like trunk does - check for tiers.upgraded first
 	const productPricing = useMemo( () => {
 		return detail?.pricingForUi?.tiers?.upgraded
@@ -121,10 +154,10 @@ export default function PricingInterstitial( { slug } ) {
 
 	// Reset loading button when activation completes or site registration completes
 	useEffect( () => {
-		if ( ! isActivating && ! siteIsRegistering ) {
+		if ( ! isActivating && ! siteIsRegistering && ! isActivatingSearchFree ) {
 			setLoadingButton( null );
 		}
-	}, [ isActivating, siteIsRegistering ] );
+	}, [ isActivating, siteIsRegistering, isActivatingSearchFree ] );
 
 	const getProductSlugForTrackEvent = useCallback(
 		( isFree = false ) => {
@@ -320,6 +353,19 @@ export default function PricingInterstitial( { slug } ) {
 		bundlePricing,
 	] );
 
+	const handleGetBundleOffer = useCallback(
+		( checkout, product ) => {
+			setLoadingButton( 'bundle' );
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: bundleSlug,
+				product_slug: product.pricingForUi.wpcomProductSlug,
+				tier_selected: 'bundle',
+			} );
+			clickHandler( { checkout, product, tier: 'bundle' } );
+		},
+		[ bundleSlug, recordEvent, clickHandler ]
+	);
+
 	const { update: updateInterstitialsState } = useInterstitialsState();
 
 	const handleFreeActivation = useCallback( () => {
@@ -336,7 +382,11 @@ export default function PricingInterstitial( { slug } ) {
 
 		// Products like Search have wpcomFreeProductSlug, so they need checkout even for free
 		const hasPurchasableFree = !! detail?.pricingForUi?.wpcomFreeProductSlug;
-		const checkout = hasPurchasableFree ? freeCheckoutRun : null;
+		let checkout = hasPurchasableFree ? freeCheckoutRun : null;
+		// Search grants its free product in place, and only falls back to that checkout.
+		if ( hasPurchasableFree && slug === 'search' ) {
+			checkout = searchFreeActivationRun;
+		}
 
 		updateInterstitialsState(
 			{ [ slug ]: true },
@@ -352,6 +402,7 @@ export default function PricingInterstitial( { slug } ) {
 		detail,
 		config?.tiers?.free,
 		freeCheckoutRun,
+		searchFreeActivationRun,
 		updateInterstitialsState,
 		slug,
 	] );
@@ -385,19 +436,19 @@ export default function PricingInterstitial( { slug } ) {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ handleGoBack }
-					to={ getProductsSectionPath() }
+					to={ MyJetpackRoutes.Features }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
 			actions={
-				<LinkButton
+				<ButtonLink
 					size="compact"
 					variant="outline"
 					href={ getMyJetpackUrl( '#/add-license' ) }
 					onClick={ handleLicenseActivationClick }
 				>
 					{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-				</LinkButton>
+				</ButtonLink>
 			}
 		>
 			<Container
@@ -477,40 +528,54 @@ export default function PricingInterstitial( { slug } ) {
 								/>
 							) ) }
 						</PricingTableColumn>
-						<PricingTableColumn className={ styles[ 'pricing-column' ] }>
-							<PricingTableHeader title={ config.tiers.bundle.name }>
-								{ bundlePricing ? (
-									<ProductPrice
-										price={ bundlePricing.fullPricePerMonth }
-										offPrice={ bundlePricing.discountPricePerMonth }
-										legend="/month, billed yearly"
-										currency={ currencyCode }
-										hidePriceFraction
-										variant="simple"
+						{ ! useNewBundleOffer && (
+							<PricingTableColumn className={ styles[ 'pricing-column' ] }>
+								<PricingTableHeader title={ config.tiers.bundle.name }>
+									{ bundlePricing ? (
+										<ProductPrice
+											price={ bundlePricing.fullPricePerMonth }
+											offPrice={ bundlePricing.discountPricePerMonth }
+											legend="/month, billed yearly"
+											currency={ currencyCode }
+											hidePriceFraction
+											variant="simple"
+										/>
+									) : (
+										<Spinner className={ styles.spinner } />
+									) }
+									<Button
+										className={ styles[ 'tier-cta' ] }
+										variant="outline"
+										onClick={ handleGetBundle }
+										loading={ loadingButton === 'bundle' }
+										disabled={ buttonsDisabled || isBundleLoading }
+									>
+										{ config.tiers.bundle.cta }
+									</Button>
+								</PricingTableHeader>
+								{ config.features.map( ( feature, index ) => (
+									<PricingTableItem
+										key={ index }
+										isIncluded={ feature.bundle.included }
+										label={ feature.bundle.label }
 									/>
-								) : (
-									<Spinner className={ styles.spinner } />
-								) }
-								<Button
-									className={ styles[ 'tier-cta' ] }
-									variant="outline"
-									onClick={ handleGetBundle }
-									loading={ loadingButton === 'bundle' }
-									disabled={ buttonsDisabled || isBundleLoading }
-								>
-									{ config.tiers.bundle.cta }
-								</Button>
-							</PricingTableHeader>
-							{ config.features.map( ( feature, index ) => (
-								<PricingTableItem
-									key={ index }
-									isIncluded={ feature.bundle.included }
-									label={ feature.bundle.label }
-								/>
-							) ) }
-						</PricingTableColumn>
+								) ) }
+							</PricingTableColumn>
+						) }
 					</PricingTable>
 				</Col>
+				{ useNewBundleOffer &&
+					( bundleDetail?.pricingForUi?.available === true ||
+						bundleDetail?.hasPaidPlanForProduct ) && (
+						<Col>
+							<ProductDetailCard
+								slug={ bundleSlug }
+								isUpsell
+								onClick={ handleGetBundleOffer }
+								isFetching={ buttonsDisabled }
+							/>
+						</Col>
+					) }
 			</Container>
 		</AdminPage>
 	);

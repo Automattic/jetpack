@@ -15,7 +15,7 @@ import type { ReactNode } from 'react';
  * My Jetpack Tab panel component.
  *
  * @param {object}    root0               - Component props.
- * @param {ReactNode} root0.beforeContent - Content to render between the tab separator and tab content.
+ * @param {ReactNode} root0.beforeContent - Notices passed through to TabContent.
  * @return The rendered component.
  */
 export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNode } ) {
@@ -38,7 +38,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 			// `jetpack_myjetpack_tab_click` and pushes a history entry. Gating on
 			// `currentTab` fires only on a genuine tab change and also covers
 			// invalid/stale hashes (e.g. `#/overview` on a Simple site that resolves to
-			// Products) without emitting a phantom event.
+			// Features) without emitting a phantom event.
 			if ( tabName !== currentTab ) {
 				// Mark this as an internal navigation (user clicked a tab)
 				lastNavigationSourceRef.current = 'internal';
@@ -68,8 +68,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 			return (
 				<>
 					<FullWidthSeparator />
-					{ beforeContent }
-					<TabContent name={ tab.name as MyJetpackSection } />
+					<TabContent name={ tab.name as MyJetpackSection } beforeContent={ beforeContent } />
 				</>
 			);
 		},
@@ -97,7 +96,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 	// the page settling on a concrete URL; without this the address bar keeps
 	// `#/:section` (previously masked by the mount-time navigation this component no
 	// longer fires). Rewrite with `replace` so it emits no `tab_click` and adds no
-	// history entry. The query is kept, so filters survive a products/features redirect.
+	// history entry. The query is kept, so filters survive the retired products redirect.
 	useEffect( () => {
 		if ( params.section !== currentTab ) {
 			navigate( `/${ currentTab }${ search }`, { replace: true } );
@@ -125,8 +124,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		return (
 			<div className={ clsx( styles[ 'single-tab-content' ], 'jetpack-my-jetpack-tab-panel' ) }>
 				<FullWidthSeparator />
-				{ beforeContent }
-				<TabContent name={ currentTab as MyJetpackSection } />
+				<TabContent name={ currentTab as MyJetpackSection } beforeContent={ beforeContent } />
 			</div>
 		);
 	}

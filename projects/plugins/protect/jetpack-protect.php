@@ -9,7 +9,7 @@
  * License: GPLv2 or later
  * Text Domain: jetpack-protect
  *
- * @package automattic/jetpack-protect
+ * @package automattic/jetpack-protect-plugin
  */
 
 /*

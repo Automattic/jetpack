@@ -17,6 +17,7 @@ const CornerstonePagesCard = () => {
 	const handleEditorToggle = ( open: boolean ) => {
 		recordBoostEvent( 'cornerstone_pages_panel_toggle', {
 			status: open ? 'open' : 'close',
+			panel_scope: 'editor',
 		} );
 	};
 

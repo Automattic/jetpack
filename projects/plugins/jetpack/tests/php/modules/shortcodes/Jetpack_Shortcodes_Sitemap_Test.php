@@ -16,14 +16,14 @@ class Jetpack_Shortcodes_Sitemap_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that calling do_shortcode with the shortcode doesn't return the same content and that its output is '' because we have no pages.
+	 * Verify that calling apply_shortcodes with the shortcode doesn't return the same content and that its output is '' because we have no pages.
 	 *
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_sitemap() {
 		$content = '[sitemap]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 		$this->assertSame( '', $shortcode_content );
@@ -54,7 +54,7 @@ class Jetpack_Shortcodes_Sitemap_Test extends WP_UnitTestCase {
 			)
 		);
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<ul class="jetpack-sitemap-shortcode"><li class="pagenav">', $shortcode_content );
 		$this->assertStringContainsString( '<ul><li class="page_item page-item-' . $page_1_id . ' page_item_has_children"><a href="http://example.org/?page_id=' . $page_1_id . '">Jetpack Parent</a>', $shortcode_content );

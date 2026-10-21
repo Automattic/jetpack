@@ -13,7 +13,8 @@ import {
 	pluginSwitchKey,
 	setRequestedSwitch,
 } from '../../../data/requested-switch-state';
-import { getModuleStatus } from '../../modules-list/utils';
+import { syncPageStateWithFeatures } from '../../../data/utils/page-state-products';
+import { getModuleStatus } from './module-availability';
 import { QUERY_KEY } from './use-main-features';
 import type { FeatureState } from './feature-state';
 
@@ -31,7 +32,8 @@ type BulkResponse = { state: MainFeaturesState; failed: BulkFailure[] };
  * @return Whether the feature can be switched in bulk.
  */
 export function isBulkSwitchable( state: FeatureState ): boolean {
-	if ( state.pending || state.isSwitching ) {
+	// A feature waiting for an account connects one from its own control, which a batch cannot do.
+	if ( state.pending || state.isSwitching || state.accountNeeded ) {
 		return false;
 	}
 
@@ -114,6 +116,7 @@ export function useBulkFeatureSwitch() {
 				);
 
 				queryClient.setQueryData( QUERY_KEY, state );
+				syncPageStateWithFeatures( state );
 				// Modules are read from their own store, which has to catch up before the rows
 				// let go of the asked-for value, or they flicker back to the old one first.
 				await fetchModules();

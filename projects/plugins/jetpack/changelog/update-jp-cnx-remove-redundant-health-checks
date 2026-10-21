@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Connection: Stop Site Health from showing spurious connection failures — remove the redundant outbound HTTP/HTTPS checks, and no longer prompt a reconnect when the WordPress.com connection test is inconclusive.

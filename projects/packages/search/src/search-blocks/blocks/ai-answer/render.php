@@ -15,6 +15,10 @@
 
 namespace Automattic\Jetpack\Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Paid-plan gate. AI Answer requires Jetpack Search's paid plan; on a free
 // or no-plan site the block contributes nothing to the page (no panel
 // scaffold, no `data-wp-interactive` div, no Interactivity hydration). The

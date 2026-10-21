@@ -7,7 +7,7 @@ export {
 	withHierarchyContext,
 } from './dataviews-drilldown-native';
 export { DateFiltersPanel, type DateFiltersPanelProps } from './date-filters-panel';
-export { DateIntervalDropdown } from './date-interval-dropdown';
+export { DateIntervalDropdown, getIntervalLabel } from './date-interval-dropdown';
 export { DatePeriodDropdown } from './date-period-dropdown';
 export type { DateControlTriggerProps } from './utils/date-control-trigger';
 export { PeriodChangeStatus } from './period-change-status';
@@ -16,6 +16,7 @@ export {
 	OnboardingWelcomeModal,
 	type OnboardingDismissReason,
 	type OnboardingWelcomeModalProps,
+	type OnboardingWelcomeVariant,
 } from './onboarding-welcome-modal';
 export { safeHttpUrl } from './utils/safe-http-url';
 export { tagRowGlyph } from './utils/tag-row-glyph';

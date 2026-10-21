@@ -174,9 +174,13 @@ type TopPostsLeaderboardProps = {
 	onDrillDown?: ( row: TopPostRow ) => void;
 	/**
 	 * Shared report-window parameters carried into the post-detail route, so
-	 * the detail page opens on the date range the widget is showing.
+	 * its breadcrumbs return to the date range the widget is showing.
 	 */
 	detailSearch?: Record< string, unknown >;
+	/**
+	 * What the rows are, named in the column header.
+	 */
+	rowsLabel: string;
 };
 
 /**
@@ -189,14 +193,17 @@ export const TopPostsLeaderboard = ( {
 	withComparison = false,
 	onDrillDown,
 	detailSearch = {},
+	rowsLabel,
 }: TopPostsLeaderboardProps ) => {
 	return (
 		<LeaderboardChart
+			chartTitle={ __( 'Top pages', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows, withComparison, detailSearch, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: rowsLabel, metric: 'views' } }
 		/>
 	);
 };
@@ -237,7 +244,7 @@ function TopPostsReport() {
 
 	// Row matching, capping, and comparison-overlap gating live in the data
 	// layer's merge helper (see AGENTS.md), which appends the homepage entry on top of `max`.
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsTopPosts( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
@@ -271,6 +278,7 @@ function TopPostsReport() {
 						rows={ rows }
 						withComparison={ withComparison }
 						detailSearch={ detailSearch }
+						rowsLabel={ __( 'Pages', 'jetpack-premium-analytics-pkg' ) }
 					/>
 				</WidgetState>
 			</div>
@@ -278,7 +286,7 @@ function TopPostsReport() {
 				<ReportLink report="posts" section="posts-pages" />
 				<ExporterCsvDownloadButton
 					exporter={ postsPagesCsvExporter }
-					status={ { isLoading, isFetching, isError } }
+					status={ { isLoading, isFetching, isError: primary.isError } }
 					rowCount={ rows.length }
 				/>
 			</WidgetFooter>
@@ -326,7 +334,7 @@ function ArchivesReport() {
 
 	// Row matching (per level, so same-named terms under different parents can't
 	// cross-match), capping, and comparison gating live in the merge helper (see AGENTS.md).
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsArchives( reportParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
@@ -421,6 +429,7 @@ function ArchivesReport() {
 						rows={ activeRows }
 						withComparison={ withComparison }
 						onDrillDown={ handleDrillDown }
+						rowsLabel={ __( 'Archives', 'jetpack-premium-analytics-pkg' ) }
 					/>
 				</WidgetState>
 			</div>
@@ -428,7 +437,7 @@ function ArchivesReport() {
 				<ReportLink report="posts" section="archives" />
 				<ExporterCsvDownloadButton
 					exporter={ archivesCsvExporter }
-					status={ { isLoading, isFetching, isError } }
+					status={ { isLoading, isFetching, isError: primary.isError } }
 					rowCount={ rows.length }
 				/>
 			</WidgetFooter>

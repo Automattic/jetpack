@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import useAnalytics from '../../../../hooks/use-analytics';
-import { reloadPage } from '../../products/reload-page';
+import { leavePageFor, reloadPage } from '../../../../utils/reload-page';
 import { FeaturesContent } from '../content';
 import { FeaturesEmptyState } from '../empty-state';
 import { FeatureAction } from '../feature-action';
@@ -15,12 +15,19 @@ import type { FeatureFilter } from '../use-feature-filter';
 import type { MoreFeaturesGroup } from '../use-more-features';
 import type { ReactNode } from 'react';
 
-const mockRun = jest.fn();
+const mockRun = jest.fn< Promise< boolean >, [ unknown ] >( () => Promise.resolve( true ) );
 const mockSetModuleActive = jest.fn();
 const recordEvent = jest.fn();
 
 jest.mock( '../../../../hooks/use-analytics' );
-jest.mock( '../../products/reload-page', () => ( { reloadPage: jest.fn() } ) );
+jest.mock( '../../../../utils/reload-page', () => ( {
+	reloadPage: jest.fn(),
+	leavePageFor: jest.fn(),
+} ) );
+
+jest.mock( '../use-all-jetpack-modules', () => ( {
+	useAllJetpackModules: () => ( { modules: {}, isLoading: false, hasLoaded: true } ),
+} ) );
 
 jest.mock( '../use-main-features', () => ( {
 	useMainFeatures: () => ( {
@@ -83,6 +90,9 @@ jest.mock( '../feature-state', () => ( {
 	} ),
 	// Nothing here is forced by a host, which is what leaves the switches on show.
 	getForcedReason: () => null,
+	isPlanExpired: () => false,
+	getFeatureManageUrl: ( state: FeatureState ) => state.feature.manage_url || '',
+	offersConnect: jest.requireActual( '../feature-state' ).offersConnect,
 } ) );
 
 // The card's own click target is covered elsewhere; here the handler is held onto.
@@ -107,23 +117,19 @@ jest.mock( '../use-more-features', () => ( {
 	...jest.requireActual( '../use-more-features' ),
 	useMoreFeatures: () => mockMoreFeatures,
 } ) );
-// The plan badges live inside the real modal; here the handler is held onto and called.
+// The real modal is not under test; its step handler is held onto and called.
 const mockModal: {
-	onFilterByPlan?: ( plan: string ) => void;
 	onStep?: ( slug: string ) => void;
 } = {};
 
 jest.mock( '../feature-modal', () => ( {
 	FeatureModal: ( {
 		onClose,
-		onFilterByPlan,
 		onStep,
 	}: {
 		onClose: () => void;
-		onFilterByPlan: ( plan: string ) => void;
 		onStep: ( slug: string ) => void;
 	} ) => {
-		mockModal.onFilterByPlan = onFilterByPlan;
 		mockModal.onStep = onStep;
 
 		// ds-allow: button -- stands in for the real modal, which is not under test.
@@ -191,15 +197,21 @@ const eventNames = () => recordEvent.mock.calls.map( ( [ name ] ) => name );
 const lastEvent = ( name: string ) =>
 	recordEvent.mock.calls.filter( ( [ event ] ) => event === name ).at( -1 )?.[ 1 ];
 
+const setAccountConnectFlag = ( accountConnect: boolean ) => {
+	window.myJetpackInitialState.myJetpackFlags = {
+		accountConnect,
+	} as typeof window.myJetpackInitialState.myJetpackFlags;
+};
+
 beforeEach( () => {
 	jest.clearAllMocks();
 	mockMoreFeatures = [];
 	mockPending = false;
 	mockModuleSwitch.onSwitch = undefined;
-	mockModal.onFilterByPlan = undefined;
 	mockModal.onStep = undefined;
 	mockGrid.onOpen = undefined;
 	mockUseAnalytics.mockReturnValue( { recordEvent } );
+	setAccountConnectFlag( false );
 } );
 
 describe( 'Features tab toolbar tracking', () => {
@@ -335,6 +347,42 @@ describe( 'Features tab modal tracking', () => {
 } );
 
 describe( 'Feature action tracking', () => {
+	beforeEach( () => setAccountConnectFlag( true ) );
+
+	it.each( [
+		[ 'an install from the card, then one connection start', 'card', 'install' ],
+		[ 'Connect as a connection start alone', 'more_features', 'connect' ],
+	] as const )( 'records %s, never an activation', async ( _, origin, action ) => {
+		const state = buildState(
+			action === 'connect'
+				? { kind: 'module', module: { module: 'monitor', activated: false } as never }
+				: { kind: 'install-plugin', plugin: 'jetpack-boost' },
+			{ accountNeeded: true }
+		);
+		state.feature.product = 'boost';
+		renderTracked( <FeatureAction state={ state } origin={ origin } /> );
+
+		await userEvent.click(
+			screen.getByRole( 'button', { name: action === 'connect' ? /^Connect account/ : 'Install' } )
+		);
+
+		await waitFor( () => expect( leavePageFor ).toHaveBeenCalledTimes( 1 ) );
+		expect( recordEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+			...( action === 'install' ? [ 'jetpack_myjetpack_feature_action' ] : [] ),
+			'jetpack_myjetpack_feature_connection_start',
+		] );
+		expect( lastEvent( 'jetpack_myjetpack_feature_connection_start' ) ).toMatchObject( {
+			action,
+			origin,
+			product: 'boost',
+			feature_slug: 'boost',
+			account_needed: true,
+			current_filter: 'all',
+			view: 'grid',
+			event_version: 1,
+		} );
+	} );
+
 	it( 'records an install from the card, and says it came from the card', async () => {
 		renderTracked(
 			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />
@@ -525,6 +573,20 @@ describe( 'The grid every event is measured against', () => {
 		} );
 	} );
 
+	it.each( [
+		[ 'sends', true, false ],
+		[ 'leaves out', false, undefined ],
+	] )( '%s account_needed as the account-connect flag says', async ( _, flagOn, sent ) => {
+		setAccountConnectFlag( flagOn );
+		renderTracked(
+			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Install' } ) );
+
+		expect( lastEvent( 'jetpack_myjetpack_feature_action' )?.account_needed ).toBe( sent );
+	} );
+
 	it( 'leaves out a search term there is none of, rather than sending it empty', async () => {
 		renderTracked(
 			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />
@@ -620,6 +682,16 @@ describe( 'What is not worth an event', () => {
 		expect( eventNames() ).not.toContain( 'jetpack_myjetpack_features_filter_change' );
 	} );
 
+	it( 'reports that same pick while a search is running, which the search was hiding', async () => {
+		renderAt( '/features?filter=active&search=boost' );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /^Active/ } ) );
+
+		expect( lastEvent( 'jetpack_myjetpack_features_filter_change' ) ).toMatchObject( {
+			filter: 'active',
+		} );
+	} );
+
 	it( 'says nothing when the layout already in play is picked again', async () => {
 		renderAt( '/features?view=list' );
 
@@ -669,26 +741,6 @@ describe( 'What is not worth an event', () => {
 } );
 
 describe( 'How many a filter would show', () => {
-	it( 'counts a plan the pills do not offer', async () => {
-		renderAt( '/features?feature=stats' );
-
-		await waitFor( () =>
-			expect( eventNames() ).toContain( 'jetpack_myjetpack_feature_modal_view' )
-		);
-		act( () => mockModal.onFilterByPlan?.( 'complete' ) );
-
-		// Both fixtures are on the Complete plan; `counts` never holds that filter unless it
-		// is already in play, which is what made this read as 0.
-		expect( lastEvent( 'jetpack_myjetpack_features_filter_change' ) ).toMatchObject( {
-			filter: 'complete',
-			count: 2,
-		} );
-		// The badge also steps out of the modal, which is a close.
-		expect( lastEvent( 'jetpack_myjetpack_feature_modal_close' ) ).toMatchObject( {
-			feature_slug: 'stats',
-		} );
-	} );
-
 	it( 'counts the More Features rows the pill counts, not the grid alone', async () => {
 		mockMoreFeatures = [ { label: 'Engagement', states: [ moduleRow( 'monitor', 'Monitor' ) ] } ];
 		renderAt( '/features' );

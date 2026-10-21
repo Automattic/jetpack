@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-premium-analytics": "@dev",
+		"automattic/jetpack-woocommerce-stats": "@dev",
 		"automattic/jetpack-cookie-consent": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev"
@@ -44,7 +45,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": false,
 		"autorelease": false,
 		"beta-plugin-slug": "jetpack-premium-analytics",
 		"changelogger": {

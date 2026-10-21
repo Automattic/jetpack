@@ -1,36 +1,53 @@
 import { __ } from '@wordpress/i18n';
+import { getFeatureModuleSlug } from './feature-state';
+import { PRODUCT_MODULES } from './mappings';
+import { getFeatureUnavailableReason, isFeatureAvailable } from './module-availability';
 import type { FeatureState } from './feature-state';
+import type { MyJetpackModule } from '../../../types';
 
 export type FeatureFilter =
-	'all' | 'active' | 'inactive' | 'essential' | 'security' | 'complete' | 'growth';
+	'all' | 'available' | 'active' | 'inactive' | 'included' | 'essential' | 'security' | 'growth';
 
-const PLANS = [ 'security', 'complete', 'growth' ];
+const PLANS = [ 'security', 'growth' ];
 
 export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
-	[ 'all', 'active', 'inactive', 'essential', ...PLANS ].includes( value );
+	[ 'all', 'available', 'active', 'inactive', 'included', 'essential', ...PLANS ].includes( value );
 
 /**
  * The filters offered as pills, in the order they are shown.
  *
- * Complete earns no pill of its own, but it is a valid filter a plan badge can select —
- * so it joins the list while it is the active one, or the narrow layout's select, built
- * from this list, would have nothing to show for what is filtering the grid.
+ * Included in plan earns no pill of its own, but a link can still select it — so it joins
+ * the list while it is the active one, or the narrow layout's select would have nothing to
+ * show. A visit that arrived on it is about what the site owns, so it swaps the category
+ * pills for that one.
  *
- * @param active - The filter in play, if any.
+ * @param active    - The filter in play, if any.
+ * @param ownedView - Whether the visit arrived on Included in plan.
  * @return One entry per filter, each with its label.
  */
 export const getFeatureFilters = (
-	active?: FeatureFilter
+	active?: FeatureFilter,
+	ownedView = false
 ): Array< { value: FeatureFilter; label: string } > => [
 	{ value: 'all', label: __( 'All', 'jetpack-my-jetpack' ) },
+	{ value: 'available', label: __( 'Available', 'jetpack-my-jetpack' ) },
 	{ value: 'active', label: __( 'Active', 'jetpack-my-jetpack' ) },
 	{ value: 'inactive', label: __( 'Inactive', 'jetpack-my-jetpack' ) },
-	{ value: 'essential', label: __( 'Essential', 'jetpack-my-jetpack' ) },
-	{ value: 'security', label: __( 'Security', 'jetpack-my-jetpack' ) },
-	{ value: 'growth', label: __( 'Growth', 'jetpack-my-jetpack' ) },
-	...( 'complete' === active
-		? [ { value: 'complete' as FeatureFilter, label: __( 'Complete', 'jetpack-my-jetpack' ) } ]
+	...( ownedView || 'included' === active
+		? [
+				{
+					value: 'included' as FeatureFilter,
+					label: __( 'Included in plan', 'jetpack-my-jetpack' ),
+				},
+			]
 		: [] ),
+	...( ownedView
+		? []
+		: [
+				{ value: 'essential' as FeatureFilter, label: __( 'Essential', 'jetpack-my-jetpack' ) },
+				{ value: 'security' as FeatureFilter, label: __( 'Security', 'jetpack-my-jetpack' ) },
+				{ value: 'growth' as FeatureFilter, label: __( 'Growth', 'jetpack-my-jetpack' ) },
+			] ),
 ];
 
 /**
@@ -45,12 +62,20 @@ export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boo
 		return true;
 	}
 
+	if ( filter === 'available' ) {
+		return isFeatureAvailable( state );
+	}
+
 	if ( filter === 'active' ) {
-		return state.status === 'active';
+		return state.status === 'active' && ! getFeatureUnavailableReason( state );
 	}
 
 	if ( filter === 'inactive' ) {
-		return state.status !== 'active';
+		return state.status !== 'active' || !! getFeatureUnavailableReason( state );
+	}
+
+	if ( filter === 'included' ) {
+		return Boolean( state.feature.included );
 	}
 
 	if ( PLANS.includes( filter ) ) {
@@ -58,4 +83,32 @@ export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boo
 	}
 
 	return state.feature.essential;
+}
+
+/**
+ * Whether a row has the module tag from a classic Modules screen link, such as "Jetpack Stats".
+ *
+ * @param state         - The feature or module row.
+ * @param tag           - The tag name; empty matches every row.
+ * @param modules       - Module data keyed by slug, used to find a product card's module.
+ * @param modulesLoaded - Whether the module request has finished, including a failure.
+ * @return True when the row's module has the tag, or while its data can still arrive.
+ */
+export function matchesModuleTag(
+	state: FeatureState,
+	tag: string,
+	modules: Record< string, MyJetpackModule >,
+	modulesLoaded: boolean
+): boolean {
+	if ( ! tag ) {
+		return true;
+	}
+	if ( state.pending ) {
+		return ! modulesLoaded;
+	}
+	const module =
+		state.control.kind === 'module'
+			? state.control.module
+			: modules[ getFeatureModuleSlug( state.feature, PRODUCT_MODULES ) ];
+	return module?.module_tags?.includes( tag ) ?? false;
 }

@@ -1,5 +1,6 @@
 {
 	"name": "jpa/most-commented-authors",
+	"icon": "jpa/post-author",
 	"title": "All-time most commented authors",
 	"description": "The people who comment the most on your site.",
 	"help": {

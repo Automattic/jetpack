@@ -59,6 +59,23 @@ $jp-admin-bar-height-mobile: 46px;
 $jp-breakpoint-auto-fold: 960px;
 $jp-breakpoint-mobile: 782px;
 
+// Include on admin-ui's <Page> node. Keeps the header the same height whatever
+// its actions slot holds, and centers the 20px JetpackLogo in its 24px slot.
+// admin-ui has no class hooks here: the header is the page's first child,
+// and its visual slot is a `<div aria-hidden="true">`.
+@mixin jetpack-admin-page-header {
+
+	> :first-child [aria-hidden="true"] {
+		place-items: center;
+	}
+
+	// admin-ui's own floor is 32px, so the row follows its tallest control.
+	> :first-child > div:has([aria-hidden="true"]) {
+		min-block-size: 40px;
+		align-items: center;
+	}
+}
+
 @mixin jetpack-admin-page-layout {
 	// ── wp-admin chrome resets ────────────────────────────────────────
 	#wpcontent {
@@ -216,6 +233,11 @@ $jp-breakpoint-mobile: 782px;
 		flex-shrink: 0;              // pinned at top of the flex column.
 	}
 
+	.jp-admin-page__page {
+
+		@include jetpack-admin-page-header;
+	}
+
 	// When the page hosts a tabs strip, drop the header's bottom border so the
 	// strip's own hairline is the only divider. Leave its padding: removing that
 	// spaced these pages differently from the rest. `.jp-admin-page-has-tabs` is
@@ -248,8 +270,9 @@ $jp-breakpoint-mobile: 782px;
 	// children stay content-sized (default `flex: 0 1 auto`) and any
 	// overflow still falls back to Container's `overflow: auto`.
 	// The JITM slot is chrome, not the middle: excluded so it is not made the
-	// scrollable area, which would force its card into a column.
-	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer):not(.jp-jitm-slot) {
+	// scrollable area, which would force its card into a column. Wrapped in
+	// `:where()` so it adds no specificity: consumer overrides of `> *` tie this.
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer):where(:not(.jp-jitm-slot)) {
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;

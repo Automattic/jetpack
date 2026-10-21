@@ -1,15 +1,36 @@
-import { needsReportDateParamsSeed, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	ensureCoreSettingsReady,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { limitStatsDateSearch } from '../stats-date-window';
+import { getReportDefinition } from './registry';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
+	getPolicyDefaultPreset: jest.fn( () => undefined ),
+	getSectionDatePolicy: ( section?: string ) => ( { lockedIntervals: [], section } ),
+	isStatsFeatureLocked: () => false,
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	// Carries incoming params through, as the real normalizer keeps the detail scopes.
 	normalizeReportParams: jest.fn( ( search: Record< string, string | undefined > ) => ( {
 		from: '2026-06-01T00:00:00',
 		to: '2026-06-16T23:59:59',
 		...search,
+	} ) ),
+	hasComparisonEnabled: ( params: {
+		comp?: unknown;
+		compare_from?: string;
+		compare_to?: string;
+	} ) => String( params.comp ) === '1' && !! params.compare_from && !! params.compare_to,
+	withDefaultComparison: jest.fn( ( params: Record< string, unknown > ) => ( {
+		...params,
+		comp: '1',
+		compare_from: '2026-05-16T00:00:00',
+		compare_to: '2026-05-31T23:59:59',
+		compare_preset: 'previous-period',
 	} ) ),
 } ) );
 
@@ -18,7 +39,20 @@ jest.mock( '../site-readiness', () => ( {
 } ) );
 
 jest.mock( './registry', () => ( {
-	getReportDefinition: jest.fn( ( report?: string ) => ( report === 'authors' ? {} : undefined ) ),
+	getReportDefinition: jest.fn( ( report?: string ) => {
+		const definitions: Record< string, object > = {
+			authors: {},
+			posts: { dashboardSection: 'traffic' },
+			earnings: { dashboardSection: 'ads' },
+		};
+		return report ? definitions[ report ] : undefined;
+	} ),
+} ) );
+
+jest.mock( '../stats-date-window', () => ( {
+	limitStatsDateSearch: jest.fn( () => undefined ),
+	dateWindowNotice: () => undefined,
+	withoutCarriedYearWindow: ( search: object ) => ( { ...search } ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -41,17 +75,51 @@ describe( 'report route.beforeLoad', () => {
 		} );
 	} );
 
-	it.each( [ undefined, 'unknown' ] )(
-		'redirects home for an unknown report (%p)',
-		async report => {
-			await expect( beforeLoad( { report } ) ).rejects.toMatchObject( { to: '/' } );
-		}
-	);
+	it( 'redirects home for an unknown report', async () => {
+		await expect( beforeLoad( { report: 'unknown' } ) ).rejects.toMatchObject( { to: '/' } );
+	} );
 
 	it( 'passes through a settled URL without redirecting', async () => {
 		await expect(
 			beforeLoad( { report: 'authors' }, { from: '2026-06-01', to: '2026-06-16' } )
 		).resolves.toBeUndefined();
+	} );
+
+	describe( 'on a report with sections', () => {
+		beforeEach( () => {
+			( getReportDefinition as jest.Mock ).mockReturnValueOnce( {
+				resolveSection: ( value?: string ) => ( value === 'b' ? 'b' : 'a' ),
+			} );
+		} );
+
+		it( 'replaces a section the report does not own with its default', async () => {
+			await expect(
+				beforeLoad( { report: 'authors' }, { section: 'bogus' } )
+			).rejects.toMatchObject( { search: { section: 'a' }, replace: true } );
+		} );
+
+		it( 'passes through a section the report owns', async () => {
+			await expect(
+				beforeLoad( { report: 'authors' }, { section: 'b' } )
+			).resolves.toBeUndefined();
+		} );
+	} );
+
+	it( 'seeds the previous-period comparison on a fresh load', async () => {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+
+		await expect( beforeLoad( { report: 'authors' }, {} ) ).rejects.toMatchObject( {
+			search: { comp: '1', compare_preset: 'previous-period' },
+		} );
+	} );
+
+	it( 'still seeds the URL when the site settings fail to load', async () => {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+		( ensureCoreSettingsReady as jest.Mock ).mockRejectedValueOnce( new Error( 'offline' ) );
+
+		await expect( beforeLoad( { report: 'authors' } ) ).rejects.toMatchObject( {
+			to: '/reports/$report',
+		} );
 	} );
 
 	it( 'drops the detail-page scopes that arrived on the URL while seeding', async () => {
@@ -79,4 +147,24 @@ describe( 'report route.beforeLoad', () => {
 			search: { ds: 'insights' },
 		} );
 	} );
+
+	const longPreset = { preset: 'last-90-days' };
+
+	it.each( [
+		[ 'posts', 'traffic' ],
+		[ 'earnings', 'ads' ],
+	] )(
+		'limits the seed of the %s report by the policy of its %s section',
+		async ( report, section ) => {
+			( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+
+			await expect( beforeLoad( { report }, longPreset ) ).rejects.toMatchObject( {
+				to: '/reports/$report',
+				viewTransition: false,
+			} );
+			expect( ( limitStatsDateSearch as jest.Mock ).mock.calls ).toEqual( [
+				[ expect.any( Object ), { lockedIntervals: [], section }, { requested: longPreset } ],
+			] );
+		}
+	);
 } );

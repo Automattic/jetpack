@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
 import type { ReactNode } from 'react';
@@ -64,13 +64,17 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		title_formats: {},
 		title_separator: '-',
 		title_formats_editable: true,
+		conflicting_seo_plugin: '',
 		verification_tools_active: true,
 		verification: { ...EMPTY_VERIFICATION },
 		search_engines_visible: false,
 		site_is_private: false,
 		sitemap_active: false,
+		sitemap_switchable: true,
 		sitemap_url: '',
 		canonical_active: false,
+		canonical_switchable: true,
+		canonical_conflicted: false,
 		schema: {} as SettingsResponse[ 'schema' ],
 		...overrides,
 	};
@@ -81,6 +85,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		setField: jest.fn(),
 		setSchemaSettings: jest.fn(),
 		setVerification: jest.fn(),
+		saveVerification: jest.fn(),
 		commit: jest.fn(),
 		commitFields: jest.fn(),
 		isDirty: () => false,
@@ -115,6 +120,42 @@ const statusFor = ( moduleTitle: string ): string | undefined => {
 	return undefined;
 };
 
+describe( 'Another SEO plugin owning the output', () => {
+	const openDescription = () => {
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Front-page description' } ) );
+		return screen.findByRole( 'textbox', { name: 'Home page description' } );
+	};
+
+	// A plugin can switch Jetpack's output off without naming itself; the lock can't depend on the name.
+	it.each( [
+		[ 'Yoast SEO', /^Yoast SEO is managing your SEO/ ],
+		[ '', /^Another SEO plugin is managing your SEO/ ],
+	] )(
+		'with "%s" in charge, locks the description and hides the previews',
+		async ( plugin, notice ) => {
+			render(
+				<SettingsScreen
+					form={ buildForm( { conflicting_seo_plugin: plugin, title_formats_editable: false } ) }
+				/>
+			);
+
+			expect( screen.getByText( notice ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'social previews' ) ).not.toBeInTheDocument();
+			await expect( openDescription() ).resolves.toBeDisabled();
+			expect( screen.getByText( /^Locked while another SEO plugin/ ) ).toBeInTheDocument();
+		}
+	);
+
+	it( 'leaves both alone while Jetpack owns the output', async () => {
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( screen.queryByText( /is managing your SEO/ ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'social previews' ) ).toBeInTheDocument();
+		await expect( openDescription() ).resolves.toBeEnabled();
+	} );
+} );
+
 describe( 'Indexing toggle on an unpublished site', () => {
 	const indexingToggle = () =>
 		screen.getByRole( 'checkbox', { name: /Allow search engines to index this site/i } );
@@ -128,6 +169,7 @@ describe( 'Indexing toggle on an unpublished site', () => {
 
 		expect( indexingToggle() ).toBeDisabled();
 		expect( screen.getByText( /Your site is private/i ) ).toBeInTheDocument();
+		expect( statusFor( 'Site visibility' ) ).toBeUndefined();
 	} );
 
 	it( 'is enabled with the usual help text on a public site', () => {
@@ -139,6 +181,43 @@ describe( 'Indexing toggle on an unpublished site', () => {
 } );
 
 describe( 'Settings module completion status', () => {
+	it( 'keeps platform-managed sitemap and canonical controls read-only', async () => {
+		render(
+			<SettingsScreen
+				form={ buildForm( {
+					search_engines_visible: true,
+					sitemap_active: true,
+					sitemap_switchable: false,
+					canonical_active: true,
+					canonical_switchable: false,
+				} ) }
+			/>
+		);
+		expect( screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } ) ).toBeDisabled();
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i } )
+		).resolves.toBeDisabled();
+		expect( screen.getAllByText( /managed by your hosting platform/i ) ).toHaveLength( 2 );
+	} );
+
+	it( 'locks the canonical switch while another SEO plugin controls canonical URLs', async () => {
+		render(
+			<SettingsScreen
+				form={ buildForm( { canonical_active: true, canonical_conflicted: true } ) }
+			/>
+		);
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
+		).resolves.toBeDisabled();
+		expect(
+			screen.getByText( /Jetpack won't add canonical URLs to avoid conflicts/i )
+		).toBeVisible();
+	} );
+
 	describe( 'Site visibility — counts its two toggles', () => {
 		it( 'reports not started when neither indexing nor the sitemap is on', () => {
 			render( <SettingsScreen form={ buildForm() } /> );
@@ -193,9 +272,6 @@ describe( 'Settings module completion status', () => {
 		} );
 	} );
 
-	// The count is purely informational — the field is deliberately uncapped,
-	// because the real limits differ per surface (search truncates for display,
-	// Jetpack's own og:description cuts at 197) and none is enforced on this save path.
 	describe( 'Front-page description character count', () => {
 		it( 'counts an empty description as zero, pluralized', () => {
 			render( <SettingsScreen form={ buildForm() } /> );
@@ -211,6 +287,21 @@ describe( 'Settings module completion status', () => {
 			const description = 'A summary of the site.';
 			render( <SettingsScreen form={ buildForm( { front_page_description: description } ) } /> );
 			expect( screen.getByText( `${ description.length } characters` ) ).toBeInTheDocument();
+		} );
+
+		it.each( [
+			{ name: '299 letters', description: 'x'.repeat( 299 ), count: 299, atMax: false },
+			{ name: '300 letters', description: 'x'.repeat( 300 ), count: 300, atMax: true },
+			{
+				name: '10 emoji and 280 letters',
+				description: '😀'.repeat( 10 ) + 'x'.repeat( 280 ),
+				count: 290,
+				atMax: true,
+			},
+		] )( 'says whether the maximum is reached with $name', ( { description, count, atMax } ) => {
+			render( <SettingsScreen form={ buildForm( { front_page_description: description } ) } /> );
+			const text = screen.getByText( new RegExp( `^${ count } characters` ) );
+			expect( text.textContent?.includes( 'Maximum characters reached.' ) ).toBe( atMax );
 		} );
 	} );
 
@@ -256,7 +347,7 @@ describe( 'Settings module title chips', () => {
 	);
 } );
 
-describe( 'Advanced module — WordPress.com Simple', () => {
+describe( 'WordPress.com Simple settings', () => {
 	/**
 	 * Flip the dashboard into WordPress.com Simple mode by seeding the global
 	 * `isSimpleSite()` reads, rather than mocking the module — that keeps
@@ -265,12 +356,79 @@ describe( 'Advanced module — WordPress.com Simple', () => {
 	const setSimpleSite = () => {
 		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
 			site: { host: 'wpcom' },
+			seo: { hosting_options_url: 'https://wordpress.com/support/activate-your-plan/' },
 		};
 	};
 
 	afterEach( () => {
 		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 	} );
+
+	it.each( [
+		[ 'wpcom', true ],
+		[ 'wpcom', false ],
+		[ 'woa', true ],
+		[ 'woa', false ],
+		[ 'unknown', true ],
+		[ 'unknown', false ],
+	] )( 'keeps the canonical switch functional on %s when active is %s', ( host, active ) => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { host },
+		};
+		const form = buildForm( { canonical_active: active } );
+
+		render( <SettingsScreen form={ form } /> );
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match this file's existing disclosure tests.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+
+		const toggle = screen.getByRole( 'checkbox', { name: /Add canonical URLs/i, checked: active } );
+		expect( toggle ).toBeEnabled();
+		// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the module-switch callback directly.
+		fireEvent.click( toggle );
+
+		expect( form.commit ).toHaveBeenCalledWith( { canonical_active: ! active } );
+	} );
+
+	it.each( [
+		[ 'wpcom', false ],
+		[ 'woa', true ],
+		[ 'unknown', true ],
+	] )(
+		'keeps verification codes editable and respects module availability on %s',
+		( host, switchable ) => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				site: { host },
+				seo: {
+					preload: {
+						'/jetpack/v4/seo/overview': { body: { verification_switchable: switchable } },
+					},
+				},
+			};
+			const form = buildForm();
+
+			render( <SettingsScreen form={ form } /> );
+			// eslint-disable-next-line testing-library/prefer-user-event -- Match this file's existing disclosure tests.
+			fireEvent.click( screen.getByRole( 'button', { name: 'Site verification' } ) );
+
+			const input = screen.getByRole( 'textbox', { name: /Bing/ } );
+			expect( input ).toBeEnabled();
+			// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the controlled field's change callback directly.
+			fireEvent.change( input, { target: { value: 'bing-code' } } );
+			fireEvent.blur( input );
+			expect( form.setVerification ).toHaveBeenCalledWith( 'bing', 'bing-code' );
+			expect( form.commitFields ).toHaveBeenCalledWith( [ 'verification' ] );
+
+			const toggle = screen.queryByRole( 'checkbox', { name: /Enable site verification/ } );
+			expect( toggle !== null ).toBe( switchable );
+			if ( toggle ) {
+				// eslint-disable-next-line testing-library/prefer-user-event -- Exercise only the module-switch callback.
+				fireEvent.click( toggle );
+			}
+			expect( jest.mocked( form.commit ).mock.calls ).toEqual(
+				switchable ? [ [ { verification_tools_active: false } ] ] : []
+			);
+		}
+	);
 
 	it( 'renders the module on a self-hosted site', () => {
 		render( <SettingsScreen form={ buildForm() } /> );
@@ -286,6 +444,57 @@ describe( 'Advanced module — WordPress.com Simple', () => {
 		render( <SettingsScreen form={ buildForm() } /> );
 
 		expect( screen.queryByText( 'advanced' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [ true, false ] )(
+		'keeps the sitemap control read-only without claiming publication when indexing is %s',
+		searchEnginesVisible => {
+			setSimpleSite();
+			const form = buildForm( {
+				search_engines_visible: searchEnginesVisible,
+				sitemap_active: true,
+				sitemap_switchable: true,
+				sitemap_url: 'https://example.com/sitemap.xml',
+			} );
+
+			render( <SettingsScreen form={ form } /> );
+
+			const toggle = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+			expect( toggle ).toBeDisabled();
+			expect( toggle ).not.toBeChecked();
+			expect( statusFor( 'Site visibility' ) ).toBe(
+				searchEnginesVisible ? 'Complete' : 'Not started'
+			);
+			expect(
+				screen.getByText(
+					'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
+				)
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: /Explore hosting options/ } ) ).toHaveAttribute(
+				'href',
+				'https://wordpress.com/support/activate-your-plan/'
+			);
+			expect( screen.queryByRole( 'link', { name: 'View sitemap' } ) ).not.toBeInTheDocument();
+			expect( form.commit ).not.toHaveBeenCalled();
+		}
+	);
+
+	it.each( [ 'woa', 'self-hosted' ] )( 'keeps the sitemap control available on %s', host => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { host },
+		};
+
+		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
+
+		expect( screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } ) ).toBeEnabled();
+		expect(
+			screen.queryByText(
+				'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
+			)
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: /Explore hosting options/ } )
+		).not.toBeInTheDocument();
 	} );
 } );
 

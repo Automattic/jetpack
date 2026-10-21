@@ -11,6 +11,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WP_Admin_Bar;
 
 require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
@@ -37,7 +38,15 @@ class Admin_Bar_Test extends Stats_TestCase {
 		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		remove_filter( 'show_admin_bar', '__return_true' );
 		remove_all_actions( 'admin_bar_menu' );
+		remove_all_actions( 'admin_bar_init' );
+		wp_styles()->add_data( 'admin-bar', 'after', array() );
+		remove_all_actions( 'wp_before_admin_bar_render' );
+		remove_all_actions( 'admin_init' );
+		remove_all_actions( 'admin_post_jetpack_stats_admin_bar_chart' );
+		remove_filter( 'pre_option_db_version', array( Admin_Bar::class, 'ignore_db_version' ) );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'wp_die_handler' );
+		remove_all_filters( 'jetpack_stats_url' );
 		unset( $_GET['page'], $_GET['chart'], $_GET['noheader'], $_GET['proxy'], $_GET['height'] );
 		$GLOBALS['current_screen'] = null;
 		Constants::clear_constants();
@@ -67,6 +76,16 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$this->assertSame( 'site-name', $node->parent );
 		$this->assertSame( 'Stats', $node->title );
 		$this->assertSame( admin_url( 'admin.php?page=stats' ), $node->href );
+	}
+
+	public function test_site_menu_link_follows_the_stats_url_filter() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$this->point_dashboard_view_at_new_stats();
+		$admin_bar = $this->make_admin_bar_with_dashboard();
+
+		Admin_Bar::add_site_menu_link();
+
+		$this->assertSame( 'https://example.org/new-stats', $admin_bar->get_node( 'jetpack-stats' )->href );
 	}
 
 	public function test_site_menu_link_hidden_from_user_who_cannot_view_stats() {
@@ -102,6 +121,22 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$this->assertNotNull( $this->render_chart_node() );
 	}
 
+	public function test_chart_link_follows_the_stats_url_filter() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$this->point_dashboard_view_at_new_stats();
+
+		$node = $this->render_chart_node();
+
+		$this->assertSame( 'https://example.org/new-stats', $node->href );
+		$this->assertStringContainsString( 'action=jetpack_stats_admin_bar_chart', $node->title, 'The chart image does not follow the Stats link.' );
+	}
+
+	public function test_chart_gives_a_text_label_to_clients_that_cannot_show_its_image() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$this->assertSame( 'Stats', $this->render_chart_node()->meta['menu_title'] );
+	}
+
 	public function test_chart_hidden_when_admin_bar_setting_is_off() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		Stats_Options::set_option( 'admin_bar', false );
@@ -111,6 +146,16 @@ class Admin_Bar_Test extends Stats_TestCase {
 
 	public function test_chart_hidden_from_user_who_cannot_view_stats() {
 		$this->assertNull( $this->render_chart_node() );
+	}
+
+	public function test_chart_styles_added_to_admin_bar_stylesheet_for_user_who_can_view_stats() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$this->assertStringContainsString( '#wp-admin-bar-stats', $this->admin_bar_inline_styles() );
+	}
+
+	public function test_chart_styles_not_added_for_user_who_cannot_view_stats() {
+		$this->assertStringNotContainsString( '#wp-admin-bar-stats', $this->admin_bar_inline_styles() );
 	}
 
 	public function test_chart_request_carries_what_wpcom_needs_to_accept_the_blog_token() {
@@ -207,6 +252,14 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$this->assertFalse( $this->serve_chart_and_report_fetch() );
 	}
 
+	public function test_chart_on_another_admin_page_is_not_fetched() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$_GET['page']  = 'jetpack';
+		$_GET['chart'] = 'admin-bar-hours-scale';
+
+		$this->assertFalse( $this->serve_chart_and_report_fetch() );
+	}
+
 	public function test_chart_not_fetched_for_user_who_cannot_view_stats() {
 		$_GET['page']  = 'stats';
 		$_GET['chart'] = 'admin-bar-hours-scale';
@@ -224,6 +277,57 @@ class Admin_Bar_Test extends Stats_TestCase {
 
 		$_GET['chart'] = 'visits';
 		$this->assertSame( 1, Admin_Bar::ignore_db_version( 1 ) );
+	}
+
+	public function test_chart_src_points_at_the_admin_post_action() {
+		$src = Admin_Bar::get_chart_src( 'admin-bar-hours-scale' );
+
+		$this->assertStringEndsWith( '/wp-admin/admin-post.php', (string) wp_parse_url( $src, PHP_URL_PATH ) );
+		wp_parse_str( (string) wp_parse_url( $src, PHP_URL_QUERY ), $query );
+		$this->assertSame(
+			array(
+				'action' => 'jetpack_stats_admin_bar_chart',
+				'chart'  => 'admin-bar-hours-scale',
+			),
+			$query
+		);
+	}
+
+	/**
+	 * @dataProvider admin_post_chart_request_provider
+	 *
+	 * @param bool        $can_view  Whether the user can view Stats.
+	 * @param bool        $admin_bar The Stats `admin_bar` setting.
+	 * @param string|null $chart     The requested chart, or null for none.
+	 * @param string      $expected  `fetched`, or `die:<status>`.
+	 */
+	#[DataProvider( 'admin_post_chart_request_provider' )]
+	public function test_admin_post_chart_request( $can_view, $admin_bar, $chart, $expected ) {
+		if ( $can_view ) {
+			add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		}
+		Stats_Options::set_option( 'admin_bar', $admin_bar );
+		if ( null !== $chart ) {
+			$_GET['chart'] = $chart;
+		}
+
+		$this->assertSame( $expected, $this->serve_admin_post_chart_and_report() );
+	}
+
+	/**
+	 * Requests to the admin-post chart action, and how each one ends.
+	 *
+	 * @return array
+	 */
+	public static function admin_post_chart_request_provider() {
+		return array(
+			'1x chart'               => array( true, true, 'admin-bar-hours-scale', 'fetched' ),
+			'2x chart'               => array( true, true, 'admin-bar-hours-scale-2x', 'fetched' ),
+			'user cannot view Stats' => array( false, true, 'admin-bar-hours-scale', 'die:403' ),
+			'admin bar setting off'  => array( true, false, 'admin-bar-hours-scale', 'die:403' ),
+			'unknown chart'          => array( true, true, 'visits', 'die:400' ),
+			'no chart'               => array( true, true, null, 'die:400' ),
+		);
 	}
 
 	/**
@@ -252,17 +356,76 @@ class Admin_Bar_Test extends Stats_TestCase {
 	}
 
 	/**
-	 * Run the head hook, then build the admin bar, and return the chart node.
+	 * Fire the admin-post chart action and report how it ended: `fetched`, `die:<status>`, or `returned`.
+	 *
+	 * @return string
+	 */
+	private function serve_admin_post_chart_and_report() {
+		add_filter(
+			'pre_http_request',
+			/** @return never */
+			function () {
+				throw new \RuntimeException( 'fetched' );
+			}
+		);
+		add_filter(
+			'wp_die_handler',
+			function () {
+				/** @return never */
+				return function ( $message, $title, $args ) {
+					list( , , $parsed ) = _wp_die_process_input( $message, $title, $args );
+					throw new \RuntimeException( 'die:' . $parsed['response'] );
+				};
+			}
+		);
+
+		Admin_Bar::init();
+		try {
+			do_action( 'admin_post_jetpack_stats_admin_bar_chart' );
+		} catch ( \RuntimeException $e ) {
+			return $e->getMessage();
+		}
+
+		return 'returned';
+	}
+
+	/**
+	 * Hook `jetpack_stats_url` the way a newer dashboard would, for the dashboard view only.
+	 *
+	 * @return void
+	 */
+	private function point_dashboard_view_at_new_stats() {
+		add_filter(
+			'jetpack_stats_url',
+			function ( $url, $args ) {
+				return 'dashboard' === $args['view'] ? 'https://example.org/new-stats' : $url;
+			},
+			10,
+			2
+		);
+	}
+
+	/**
+	 * Initialise the admin bar and return the inline styles attached to its stylesheet.
+	 *
+	 * @return string
+	 */
+	private function admin_bar_inline_styles() {
+		Admin_Bar::init();
+		do_action( 'admin_bar_init' );
+
+		return implode( "\n", (array) wp_styles()->get_data( 'admin-bar', 'after' ) );
+	}
+
+	/**
+	 * Build the admin bar without a page head, as the admin-bar REST endpoint does, and return the chart node.
 	 *
 	 * @return object|null
 	 */
 	private function render_chart_node() {
-		add_filter( 'show_admin_bar', '__return_true' );
 		$admin_bar = $this->make_admin_bar();
 
-		ob_start();
-		Admin_Bar::maybe_add_chart();
-		ob_end_clean();
+		Admin_Bar::init();
 		do_action( 'admin_bar_menu', $admin_bar );
 
 		return $admin_bar->get_node( 'stats' );

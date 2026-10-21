@@ -3,22 +3,21 @@
  */
 import { __, _n } from '@wordpress/i18n';
 import type { StatsPeriod } from '@jetpack-premium-analytics/data';
-import { trendingUp } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
 import {
-	chartTypeAttributeField,
-	type ChartDisplayChartType,
-	type CountLabel,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+	chartIntervalElements,
+	chartIntervalField,
+	type ChartIntervalFieldAttributes,
+} from '@jetpack-premium-analytics/fields';
+import type { ChartDisplayChartType, CountLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import { readStatsV1ChartType } from './stats-v1-chart-type';
 
 /**
- * The bucket sizes this chart draws. The bucket follows the dashboard's interval
- * control, clamped into this set.
+ * The bucket sizes this chart draws, offered by its own interval control.
  */
 export const TRAFFIC_PERIODS = [
 	'hour',
@@ -39,8 +38,8 @@ export function defaultChartType(): TrafficChartType {
 export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];
 
 /**
- * How the selected metric is drawn. The shared chart-display list keeps every
- * chart widget's dropdown identical and ties it to the toolkit's own union.
+ * How the selected metric is drawn. The alias ties the attribute to the
+ * toolkit's own union, which the chart reads.
  */
 export type TrafficChartType = ChartDisplayChartType;
 
@@ -97,23 +96,28 @@ export const TRAFFIC_CHART_METRICS = [
  * Configurable attributes for the Traffic chart widget; report params still
  * reach it through WidgetRoot or `attributes.reportParams` from a host.
  *
- * @property chartType - How to draw the selected metric. Defaults to the Stats v1 choice, else `bar`.
+ * @property chartType     - How to draw the selected metric. Defaults to the Stats v1 choice, else `bar`.
+ * @property chartInterval - The bucket size. Defaults to the one the date range suggests.
  */
-export type TrafficChartAttributes = {
+export type TrafficChartAttributes = ChartIntervalFieldAttributes< TrafficChartGranularity > & {
 	chartType?: TrafficChartType;
+};
+
+const chartIntervalAttribute = {
+	...chartIntervalField,
+	elements: chartIntervalElements( TRAFFIC_PERIODS ),
 };
 
 /**
  * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso. Date
- * range, comparison, and bucket size come from `reportParams`; the plotted
- * metric is the chart's own tab selection, not an attribute.
+ * range and comparison come from `reportParams`; the plotted metric is the
+ * chart's own tab selection, not an attribute.
  */
 export default {
-	icon: trendingUp,
 	attributes: [
+		chartIntervalAttribute,
 		{
-			...chartTypeAttributeField< TrafficChartAttributes >(),
-			// The switch must show what the chart draws, and the default depends on Stats v1.
+			id: 'chartType',
 			getValue: ( { item }: { item: TrafficChartAttributes } ) =>
 				item.chartType ?? defaultChartType(),
 		},

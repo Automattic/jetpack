@@ -13,19 +13,22 @@ import {
 	WidgetState,
 	describeError,
 	sharePercentage,
+	ExporterCsvDownloadButton,
+	commentsPostsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { commentContent } from '@wordpress/icons';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import { type MostCommentedPostsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type MostCommentedPostsAttributes = Record< never, never >;
 
 type MostCommentedPostsRenderAttributes = MostCommentedPostsAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -77,19 +80,23 @@ function MostCommentedPostsInner() {
 						onRetry: refetch,
 					} ) }
 					empty={ {
-						icon: commentContent,
 						description: __(
-							'None of your posts or pages have comments yet.',
+							'You don’t have comments recorded yet.',
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
+						chartTitle={ __( 'All-time most commented posts', 'jetpack-premium-analytics-pkg' ) }
 						data={ leaderboardData }
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ {
+							label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
+							metric: 'comments',
+						} }
 					/>
 				</WidgetState>
 			</div>
@@ -98,6 +105,11 @@ function MostCommentedPostsInner() {
 					report="comments"
 					section="posts"
 					ariaLabel={ __( 'See the commented posts report', 'jetpack-premium-analytics-pkg' ) }
+				/>
+				<ExporterCsvDownloadButton
+					exporter={ commentsPostsCsvExporter }
+					status={ { isLoading, isFetching, isError } }
+					rowCount={ rows.length }
 				/>
 			</WidgetFooter>
 		</Stack>

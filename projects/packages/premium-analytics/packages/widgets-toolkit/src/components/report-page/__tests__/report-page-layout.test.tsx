@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME, toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { render, screen } from '@testing-library/react';
 /**
@@ -40,8 +40,8 @@ function buildDateFilters(): ReportDateFilters {
 		comparisonPresetId: 'previous-month',
 		appliedComparisonPresetId: 'previous-period',
 		interval: 'week',
-		appliedInterval: 'day',
 		intervalOptions: [ 'day', 'week' ],
+		lockedIntervalOptions: [],
 		onChange: jest.fn(),
 		onComparisonChange: jest.fn(),
 		onIntervalChange: jest.fn(),
@@ -50,7 +50,6 @@ function buildDateFilters(): ReportDateFilters {
 		canApply: true,
 		timeZone: 'UTC',
 		replaceRange: jest.fn(),
-		drillDown: jest.fn(),
 	};
 }
 
@@ -75,43 +74,45 @@ describe( 'ReportPageLayout', () => {
 		);
 
 		expect( screen.getByTestId( 'date-filters-panel' ) ).toBeInTheDocument();
-		expect( dateFiltersPanelMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( dateFilters )
-		);
+		const panelProps = dateFiltersPanelMock.mock.calls[ 0 ][ 0 ];
+		expect( panelProps ).toMatchObject( dateFilters );
+		expect( panelProps.presetIds ).toBeUndefined();
+		// The interval control stays hidden; the staged interval still rides along for the dashboard.
+		expect( panelProps.withIntervalControl ).toBeUndefined();
 	} );
 
-	// Whether the panel draws the comparison control is the report route's scope; the
-	// layout only has to leave the comparison state alone on its way through.
-	it( 'passes the comparison state through without disturbing it', () => {
-		const dateFilters = buildDateFilters();
-
+	it( 'offers All time only to a report that opts in', () => {
 		render(
-			<ReportPageLayout title="Posts & Pages" dateFilters={ dateFilters }>
+			<ReportPageLayout title="Posts & Pages" dateFilters={ buildDateFilters() } withAllTime>
 				table
 			</ReportPageLayout>
 		);
 
-		const panelProps = dateFiltersPanelMock.mock.calls[ 0 ][ 0 ];
-
-		expect( panelProps.withIntervalControl ).toBeUndefined();
-
-		// Hidden, not cleared: both ride along for the dashboard.
-		expect( panelProps.comparisonPresetId ).toBe( 'previous-month' );
-		expect( panelProps.interval ).toBe( 'week' );
-		expect( dateFilters.onComparisonChange ).not.toHaveBeenCalled();
-		expect( dateFilters.onIntervalChange ).not.toHaveBeenCalled();
+		expect( dateFiltersPanelMock.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
+			presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+			allTimeStartsOnServer: true,
+		} );
 	} );
 
-	it( 'tells the empty state its report has a time period', () => {
+	it.each( [
+		[
+			'tells the empty state its report has a time period',
+			buildDateFilters(),
+			'We couldn’t find results for this time period.',
+		],
+		[
+			'tells the empty state its report has no time period',
+			undefined,
+			'We couldn’t find any results.',
+		],
+	] )( '%s', ( _title, dateFilters, copy ) => {
 		render(
-			<ReportPageLayout title="Posts & Pages" dateFilters={ buildDateFilters() }>
+			<ReportPageLayout title="Posts & Pages" dateFilters={ dateFilters }>
 				<ReportEmptyState />
 			</ReportPageLayout>
 		);
 
-		expect(
-			screen.getByText( 'We couldn’t find results for this time period.' )
-		).toBeInTheDocument();
+		expect( screen.getByText( copy ) ).toBeInTheDocument();
 	} );
 
 	it( 'mounts no date picker on a report with no date window', () => {

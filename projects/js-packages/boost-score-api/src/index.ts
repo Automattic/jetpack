@@ -68,15 +68,21 @@ type ParsedApiResponse = {
 	scores?: SpeedScoresSet;
 };
 
+type SpeedScoresRequestOptions = {
+	signal?: AbortSignal;
+	onPending?: () => void;
+};
+
 /**
  * Request speed scores for this site, polling until completion or cancellation.
  *
- * @param {boolean}     force          - Force regenerate speed scores.
- * @param {string}      rootUrl        - Root URL for the HTTP request.
- * @param {string}      siteUrl        - URL of the site.
- * @param {string}      nonce          - Nonce to use for authentication.
- * @param {object}      options        - Request options.
- * @param {AbortSignal} options.signal - Stop polling without aborting an in-flight HTTP request.
+ * @param {boolean}     force             - Force regenerate speed scores.
+ * @param {string}      rootUrl           - Root URL for the HTTP request.
+ * @param {string}      siteUrl           - URL of the site.
+ * @param {string}      nonce             - Nonce to use for authentication.
+ * @param {object}      options           - Request options.
+ * @param {AbortSignal} options.signal    - Stop polling without aborting an in-flight HTTP request.
+ * @param {Function}    options.onPending - Called once if the site is still measuring, before polling starts.
  * @return {SpeedScoresSet | undefined} Speed scores, or undefined when aborted.
  */
 export function requestSpeedScores(
@@ -91,14 +97,14 @@ export function requestSpeedScores(
 	rootUrl: string,
 	siteUrl: string,
 	nonce: string,
-	options?: { signal?: AbortSignal }
+	options?: SpeedScoresRequestOptions
 ): Promise< SpeedScoresSet | undefined >;
 export async function requestSpeedScores(
 	force = false,
 	rootUrl: string,
 	siteUrl: string,
 	nonce: string,
-	options?: { signal?: AbortSignal }
+	options?: SpeedScoresRequestOptions
 ): Promise< SpeedScoresSet | undefined > {
 	const signal = options?.signal;
 	if ( signal?.aborted ) {
@@ -119,6 +125,7 @@ export async function requestSpeedScores(
 		if ( response.scores ) {
 			return response.scores;
 		}
+		options?.onPending?.();
 		return await pollRequest( rootUrl, siteUrl, nonce, signal );
 	} catch ( error ) {
 		if ( ! signal?.aborted ) {
@@ -337,4 +344,22 @@ export function calculateDaysSince( timestamp: number ): number {
 	const differenceInDays = Math.floor( differenceInMilliseconds / millisecondsInADay );
 
 	return differenceInDays;
+}
+
+export type ScoreTier = 'good' | 'medium' | 'poor';
+
+/**
+ * The tier a speed score falls in.
+ *
+ * @param {number} score - Speed score, 0 to 100.
+ * @return {ScoreTier} The tier.
+ */
+export function getScoreTier( score: number ): ScoreTier {
+	if ( score > 70 ) {
+		return 'good';
+	}
+	if ( score > 50 ) {
+		return 'medium';
+	}
+	return 'poor';
 }

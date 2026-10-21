@@ -1,7 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { version as reactVersion } from 'react';
 import { FeatureModal } from '../feature-modal';
 import type { FeatureState } from '../feature-state';
+
+const isReact18 = reactVersion.startsWith( '18.' );
 
 let mockIsDesktop = true;
 jest.mock( '@wordpress/compose', () => ( {
@@ -36,7 +39,6 @@ const openModal = ( props: { previous?: typeof stats; next?: typeof stats } ) =>
 			total={ 3 }
 			onStep={ onStep }
 			onClose={ jest.fn() }
-			onFilterByPlan={ jest.fn() }
 			{ ...props }
 		/>
 	);
@@ -82,14 +84,13 @@ describe( 'FeatureModal stepping', () => {
 				total={ 2 }
 				onStep={ onStep }
 				onClose={ jest.fn() }
-				onFilterByPlan={ jest.fn() }
 			/>
 		);
 		const onStep = jest.fn();
 		const { rerender } = render( modal( withLinks( 'forms' ), onStep ) );
 		// Let the dialog place its own initial focus first, then move away from it.
 		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Close' } ) ).toHaveFocus() );
-		screen.getByRole( 'link', { name: /Feature page/ } ).focus();
+		screen.getByRole( 'link', { name: /Learn more/ } ).focus();
 
 		await userEvent.keyboard( '{ArrowRight}' );
 		rerender( modal( withLinks( 'podcast', { manage_url: '/podcast' } ), onStep ) );
@@ -114,7 +115,6 @@ describe( 'FeatureModal stepping', () => {
 				total={ 3 }
 				onStep={ jest.fn() }
 				onClose={ jest.fn() }
-				onFilterByPlan={ jest.fn() }
 			/>
 		);
 		const { rerender } = render( modal( withAction( 'forms' ), undefined, podcast ) );
@@ -130,6 +130,40 @@ describe( 'FeatureModal stepping', () => {
 
 		await userEvent.keyboard( '{ArrowLeft}' );
 		rerender( modal( withAction( 'podcast', '/podcast' ), forms, stats ) );
+
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveFocus();
+	} );
+
+	it( 'waits for the real action rather than focusing Upgrade, which renders before it', async () => {
+		const pending = {
+			...state,
+			status: 'inactive',
+			feature: {
+				...state.feature,
+				upgrade: { path: '/add-forms', name: 'Jetpack Forms' },
+			},
+		} as FeatureState;
+		const modal = ( current: FeatureState ) => (
+			<FeatureModal
+				state={ current }
+				position={ 1 }
+				total={ 1 }
+				onStep={ jest.fn() }
+				onClose={ jest.fn() }
+			/>
+		);
+		const { rerender } = render( modal( pending ) );
+
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Close' } ) ).toHaveFocus() );
+		expect( screen.getByRole( 'link', { name: /Upgrade/ } ) ).not.toHaveFocus();
+
+		rerender(
+			modal( {
+				...pending,
+				status: 'active',
+				feature: { ...pending.feature, manage_url: '/forms' },
+			} as FeatureState )
+		);
 
 		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveFocus();
 	} );
@@ -152,7 +186,6 @@ describe( 'FeatureModal stepping', () => {
 				total={ 2 }
 				onStep={ jest.fn() }
 				onClose={ jest.fn() }
-				onFilterByPlan={ jest.fn() }
 			/>
 		);
 		const { rerender } = render( modal( withScreenshot( 'forms', 'Forms' ) ) );
@@ -163,9 +196,12 @@ describe( 'FeatureModal stepping', () => {
 		rerender( modal( withScreenshot( 'podcast', 'Podcast' ) ) );
 
 		expect( screen.getByAltText( 'Podcast in use' ) ).toBeInTheDocument();
-		// React 18 warns about `fetchPriority`; the jest-console matcher types aren't visible to this package.
-		// @ts-expect-error -- toHaveErrored is registered globally by @wordpress/jest-console.
-		expect( console ).toHaveErrored();
+
+		// React 18 warns about `fetchPriority`.
+		if ( isReact18 ) {
+			// eslint-disable-next-line jest/no-conditional-expect
+			expect( console ).toHaveErrored();
+		}
 	} );
 
 	it( 'names the backdrop the way the view-transition rule expects', () => {

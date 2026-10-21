@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { buildMonthCalendarHeatmapData } from '../build-month-calendar-data';
@@ -85,34 +85,22 @@ describe( 'HeatmapChart', () => {
 		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
 	} );
 
-	test( 'draws the light tooltip box by default', async () => {
-		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
-		await userEvent.setup().hover( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] );
-		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
-		const box = screen.getByTestId( 'bounded-tooltip' );
-		expect( box ).not.toHaveClass( 'surface' );
-		expect( box ).toHaveStyle( { backgroundColor: 'rgb(255, 255, 255)' } );
-		expect( box ).toHaveStyle( { zIndex: 3 } );
-	} );
+	test.each( [ undefined, 'light', 'dark' ] as const )(
+		'draws the tooltip on the package surface for tooltipVariant %s',
+		async tooltipVariant => {
+			renderChart( { withTooltips: true, tooltipVariant, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+			await userEvent.setup().hover( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] );
+			await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+			const box = screen.getByTestId( 'bounded-tooltip' );
+			expect( box ).toHaveClass( 'surface' );
+			expect( box ).not.toHaveAttribute( 'style', expect.stringContaining( 'background' ) );
+			expect( box ).toHaveStyle( { zIndex: 3 } );
+		}
+	);
 
-	test( 'draws the dark variant on the package tooltip surface, not the visx box', async () => {
+	test( 'merges tooltipStyle over the box styles', async () => {
 		renderChart( {
 			withTooltips: true,
-			tooltipVariant: 'dark',
-			rowLabels: [ 'Mon', 'Tue', 'Wed' ],
-		} );
-		await userEvent.setup().hover( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] );
-		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
-		const box = screen.getByTestId( 'bounded-tooltip' );
-		expect( box ).toHaveClass( 'surface' );
-		expect( box ).not.toHaveStyle( { backgroundColor: 'rgb(255, 255, 255)' } );
-		expect( box ).not.toHaveStyle( { color: 'rgb(102, 102, 102)' } );
-	} );
-
-	test( 'merges tooltipStyle over the variant box styles', async () => {
-		renderChart( {
-			withTooltips: true,
-			tooltipVariant: 'dark',
 			tooltipStyle: { padding: '2px 4px' },
 			rowLabels: [ 'Mon', 'Tue', 'Wed' ],
 		} );
@@ -182,6 +170,49 @@ describe( 'HeatmapChart', () => {
 				'heatmap-legend-swatch'
 			)
 		).toHaveLength( 4 );
+	} );
+
+	test.each( [
+		[ 'with zeros painted empty', data, 1 ],
+		[ 'with negative values', [ { label: 'W1', data: [ { value: -2 }, { value: 0 } ] } ], 0 ],
+	] )( 'starts the legend scale with an empty-cell swatch %s', ( _case, rows, count ) => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ rows }>
+					<HeatmapChart.Legend variant="bar" />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+		const empty = screen.queryAllByTestId( 'heatmap-legend-empty-swatch' );
+		const scale = screen.getByTestId( 'heatmap-legend-scale' );
+
+		expect( empty ).toHaveLength( count );
+		expect( within( scale ).getAllByTestId( 'heatmap-legend-swatch' ) ).toHaveLength( 5 );
+		expect(
+			within( scale )
+				.getAllByTestId( /^heatmap-legend-(empty-)?swatch$/ )
+				.slice( 0, count )
+		).toEqual( empty );
+	} );
+
+	test( 'paints the legend on the same scale as the cells', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } primaryColor="#3858e9">
+					<HeatmapChart.Legend />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+
+		for ( const swatch of screen.getAllByTestId( 'heatmap-legend-swatch' ) ) {
+			for ( const end of [ 'primary', 'low', 'high' ] ) {
+				const property = `--a8c-charts-color-heatmap-${ end }`;
+				expect( swatch.style.getPropertyValue( property ) ).toBe(
+					grid.style.getPropertyValue( property )
+				);
+			}
+		}
 	} );
 
 	test( 'ArrowDown moves focus within a column, ArrowRight moves to next column', async () => {
@@ -421,6 +452,78 @@ describe( 'HeatmapChart', () => {
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#abcdef' );
 	} );
 
+	test( 'leaves the fill to the stylesheet when the primary color cannot resolve to hex', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } primaryColor="oklch(0.6 0.2 260)">
+					<HeatmapChart.Legend />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const swatches = screen.getAllByTestId( 'heatmap-legend-swatch' );
+
+		for ( const element of [ grid, ...swatches ] ) {
+			expect( element.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe(
+				'oklch(0.6 0.2 260)'
+			);
+			expect( element.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '' );
+			expect( element.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '' );
+		}
+		expect( screen.getByText( '4' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
+	} );
+
+	test( 'builds the scale for white on a see-through background, as the palette does', () => {
+		const scope = document.createElement( 'div' );
+		scope.style.setProperty( '--a8c-charts-color-background', 'transparent' );
+		document.body.appendChild( scope );
+
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } primaryColor="#3858e9" />
+			</GlobalChartsProvider>,
+			{ container: scope }
+		);
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '#7f93f1' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#3554df' );
+
+		document.body.removeChild( scope );
+	} );
+
+	test( 'reads the computed style once per re-render for the fill scale', () => {
+		const { rerender } = renderChart();
+		const spy = jest.spyOn( window, 'getComputedStyle' );
+
+		rerender(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } />
+			</GlobalChartsProvider>
+		);
+
+		expect( spy ).toHaveBeenCalledTimes( 1 );
+		spy.mockRestore();
+	} );
+
+	test( 'paints a zero as an empty cell, still announcing its value', () => {
+		renderChart();
+		const zero = screen.getByRole( 'gridcell', { name: 'W2: 0' } );
+
+		expect( zero ).not.toHaveClass( 'heatmap-chart__cell--filled' );
+		expect( zero.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) ).toBe( '' );
+		expect( screen.getByRole( 'gridcell', { name: 'W1: 1' } ) ).toHaveClass(
+			'heatmap-chart__cell--filled'
+		);
+	} );
+
+	test( 'puts the lowest non-zero value on the lowest step', () => {
+		renderChart();
+		const lowest = screen.getByRole( 'gridcell', { name: 'W1: 1' } );
+
+		expect( lowest.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) ).toBe( '0' );
+	} );
+
 	test( 'falls back to the first palette slot when no primaryColor prop is set', () => {
 		const scope = document.createElement( 'div' );
 		scope.style.setProperty( '--a8c-charts-color-series-1', '#0a0b0c' );
@@ -481,9 +584,9 @@ const mockRects = () =>
 	} );
 
 describe( 'HeatmapChart value text contrast', () => {
-	// Extent 0..100, so each value is its own intensity in hundredths.
+	// The low end, a mid-tone, and the high end of the scale.
 	const scale: HeatmapColumn[] = [
-		{ label: 'W1', data: [ { value: 0 }, { value: 85 }, { value: 100 } ] },
+		{ label: 'W1', data: [ { value: 1 }, { value: 60 }, { value: 100 } ] },
 	];
 
 	let injectedStyle: HTMLStyleElement | null = null;
@@ -509,14 +612,14 @@ describe( 'HeatmapChart value text contrast', () => {
 	test( 'picks the label role that reaches AA on light and dark cells', () => {
 		renderScale();
 
-		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
+		expect( screen.getByText( '1' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
 		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
 	} );
 
 	test( 'falls back to black on a mid-tone cell where neither role reaches AA', () => {
 		renderScale();
 
-		expect( screen.getByText( '85' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
+		expect( screen.getByText( '60' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
 	} );
 
 	test( 'reads the label roles once data arrives after an empty first render', () => {
@@ -554,7 +657,7 @@ describe( 'HeatmapChart value text contrast', () => {
 
 		renderScale( 'translucent-heatmap' );
 
-		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
+		expect( screen.getByText( '1' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
 		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
 	} );
 
@@ -577,7 +680,7 @@ describe( 'HeatmapChart value text contrast', () => {
 		);
 
 		expect( screen.getByText( '7' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
-		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
+		expect( screen.getByText( '1' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
 	} );
 
 	test( "keeps one color when both label roles are set to it on the chart's own class", () => {
@@ -588,7 +691,7 @@ describe( 'HeatmapChart value text contrast', () => {
 
 		renderScale( 'pinned-heatmap' );
 
-		[ '0', '85', '100' ].forEach( value =>
+		[ '1', '60', '100' ].forEach( value =>
 			expect( screen.getByText( value ) ).toHaveClass( 'heatmap-chart__cell-value', {
 				exact: true,
 			} )
@@ -863,6 +966,114 @@ describe( 'HeatmapChart column groups', () => {
 	} );
 } );
 
+describe( 'HeatmapChart fitCells', () => {
+	const threeMonths = Array.from( { length: 6 }, ( _, index ) => ( {
+		data: [ { value: index }, { value: index + 1 } ],
+	} ) );
+	const columnGroups = [
+		{ label: 'Jan', span: 2 },
+		{ label: 'Feb', span: 2 },
+		{ label: 'Mar', span: 2 },
+	];
+
+	let widthSpy: jest.SpyInstance;
+	let heightSpy: jest.SpyInstance;
+
+	beforeEach( () => {
+		widthSpy = jest.spyOn( Element.prototype, 'clientWidth', 'get' ).mockReturnValue( 400 );
+		heightSpy = jest.spyOn( Element.prototype, 'clientHeight', 'get' ).mockReturnValue( 400 );
+	} );
+
+	afterEach( () => {
+		widthSpy.mockRestore();
+		heightSpy.mockRestore();
+	} );
+
+	test( 'wraps the groups that fit better on a second band below the first, cells grown to match', () => {
+		renderChart( { data: threeMonths, columnGroups, compact: true, fitCells: true } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
+			'91px'
+		);
+		const [ , feb, mar ] = screen.getAllByTestId( 'heatmap-group-label' );
+		expect( feb ).toHaveStyle( { gridColumn: '5 / span 2', gridRow: '3' } );
+		// Band one takes rows 1-2, its labels 3 and the gap 4, so band two's labels sit on 7.
+		expect( mar ).toHaveStyle( { gridColumn: '2 / span 2', gridRow: '7' } );
+		const marchCell = screen
+			.getAllByTestId( 'heatmap-cell' )
+			.find( element => element.dataset.column === '4' && element.dataset.row === '0' );
+		expect( marchCell ).toHaveStyle( { gridColumn: '2', gridRow: '5' } );
+	} );
+
+	test( 'keeps the theme size, with a warning, when a column is a summary', () => {
+		renderChart( {
+			data: [
+				...threeMonths,
+				{ label: 'Total', summary: true, data: [ { value: 1 }, { value: 2 } ] },
+			],
+			columnGroups,
+			compact: true,
+			fitCells: true,
+		} );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
+			'11px'
+		);
+		expect( console ).toHaveWarned();
+	} );
+
+	test( 'leaves the grid the box less the content beside it', () => {
+		const offsetHeight = jest
+			.spyOn( HTMLElement.prototype, 'offsetHeight', 'get' )
+			.mockImplementation( function ( this: HTMLElement ) {
+				return this.dataset.testid === 'beside-grid' ? 100 : 0;
+			} );
+		try {
+			renderChart( {
+				data: threeMonths,
+				columnGroups,
+				compact: true,
+				fitCells: true,
+				children: <div data-testid="beside-grid" />,
+			} );
+			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+			expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
+				'66px'
+			);
+		} finally {
+			offsetHeight.mockRestore();
+		}
+	} );
+
+	test( 'refits within the resize delivery, before later observers read the grid', () => {
+		const observers: ResizeObserverCallback[] = [];
+		const original = window.ResizeObserver;
+		window.ResizeObserver = class {
+			constructor( private callback: ResizeObserverCallback ) {}
+			observe() {
+				observers.push( this.callback );
+			}
+			unobserve() {}
+			disconnect() {}
+		} as unknown as typeof ResizeObserver;
+		try {
+			renderChart( { data: threeMonths, columnGroups, compact: true, fitCells: true } );
+			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+			heightSpy.mockReturnValue( 100 );
+			let cellSize = '';
+			act( () => {
+				observers.forEach( callback => callback( [], {} as ResizeObserver ) );
+				cellSize = grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' );
+			} );
+			expect( cellSize ).toBe( '48px' );
+			const [ , , mar ] = screen.getAllByTestId( 'heatmap-group-label' );
+			expect( mar ).toHaveStyle( { gridRow: '3' } );
+		} finally {
+			window.ResizeObserver = original;
+		}
+	} );
+} );
+
 describe( 'HeatmapChart calendar navigation', () => {
 	const calendar = ( range: { start: string; end: string }, days: string[] ) =>
 		buildMonthCalendarHeatmapData(
@@ -1011,12 +1222,6 @@ describe( 'HeatmapChart calendar navigation', () => {
 } );
 
 describe( 'HeatmapChart naming and focus', () => {
-	test( 'names the grid from ariaLabel when given', () => {
-		renderChart( { ariaLabel: 'Monthly posting activity' } );
-		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'grid', { name: /heatmap chart/i } ) ).not.toBeInTheDocument();
-	} );
-
 	test( 'scrolls the keyboard-selected cell into view', async () => {
 		// jsdom has no scrollIntoView; the assertion is that the chart asks for it.
 		const scrollIntoView = jest.fn();

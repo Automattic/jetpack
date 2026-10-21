@@ -3,7 +3,7 @@ Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski,
 Tags: video, video-hosting, video-player, cdn, video-streaming
 Requires at least: 7.0
 Tested up to: 7.1
-Stable tag: 3.6
+Stable tag: 3.8
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,22 +83,41 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 3.6 - 2026-09-23
+### 3.8 - 2026-10-20
 #### Added
-- Add a Latest Videos Playlist block that plays the site's newest VideoPress videos, with the number of videos set in the block settings.
+- Add a Channel Details block to channel sites, with the channel's handle, subscribers, videos, playlists, views and start date.
+- Add an Episode Navigation block.
+- Add a page per playlist on channel sites, with All Playlists cards linking to it and a Video Playlist block option to show the playlist being viewed.
+- Add a Playlist Details block.
+- Add a Video Details block, and let the VideoPress Video block play the newest upload.
+- Add trim and cut editing to the video block toolbar and clarify the editor tool icons.
+- Connection: Add a Connected view to the Users page listing users with a linked WordPress.com account.
+- Connection: Transfer connection ownership to another administrator without leaving your site.
+- Connection: Transfer connection ownership to another connected administrator from the Connectors page.
+- Let channel blocks show authors a call to action while a channel has no videos or playlists.
+- Let the Latest Videos Playlist block sort, search, filter by length and paginate, and show view counts.
+- Let the Video Playlist block show a playlist published on the site, and let the All Playlists block sort by last update and show each playlist's last update and length.
+- My Jetpack: Add an Available filter to the Features list.
+- My Jetpack: Add catalog-controlled Pro offers and preserve existing plan management.
+- My Jetpack: Recognize Jetpack Pro subscriptions and licenses.
 
 #### Changed
-- My Jetpack: Answer module switch clicks immediately, and explain what happened when a change fails.
-- With the inline player setting on, draw the play button like the player's and show a loading spinner from the click until the player has loaded.
+- Connection: Link the connection owner's name on the Connectors card to their profile, and update the card without reloading the page when a non-owner disconnects their account.
+- My Jetpack: Line up notices with the cards below them, and drop the grey background behind the Features grid and list buttons.
+- My Jetpack: Refresh Pro availability while preserving existing offers.
+- My Jetpack: Show a connection error on the Overview connection card while your account is still to be connected, instead of only asking you to connect it.
+- Open this site's video pages from a Video Playlist in the same tab, and mark the video being viewed.
+- Settings: Match the card spacing and top margin of the other Jetpack settings screens.
+- Update package dependencies.
 
 #### Fixed
-- Chapters: Show specific validation messages for chapters entered in video descriptions.
-- Connection: Report a broken connection on My Jetpack's connection card instead of claiming everything looks good, and show a break only the connection owner can repair as a warning, not an error, to everyone else.
-- Fix private video playback on sites using WPML.
-- Footer: Hide Products and Help links when My Jetpack is unavailable.
-- My Jetpack: Point users who cannot connect the site at an administrator, instead of an onboarding screen they cannot complete.
-- My Jetpack: Show each notice once instead of twice.
-- Pricing: Open information tooltips with the keyboard and dismiss them with Escape.
-- Show each number on the views trends chart's value axis once when counts are small.
-- With the inline player setting on, show the poster of private videos, and of videos the server could not look up, before they are played instead of a black box.
+- Connection: Translate the Connectors card's text on sites that don't use English.
+- Dashboard: Announce the views trend chart correctly to screen readers.
+- My Jetpack: Hide other plugins' notices while the setup screen is open, and stop the full-screen layout breaking when another plugin adds an admin body class first.
+- My Jetpack: Make the connection screen's Connect button and footer links reachable on shorter screens.
+- My Jetpack: Show the highest-priority notice first when several are set at once.
+- My Jetpack: Stop reporting an error when switching VideoPress off while the Jetpack plugin is inactive.
+- Only open a channel video page for a video uploaded to this site.
+- Prevent new uploads from reusing video attachment IDs after a site restore.
+- Show failed conversions with delete and re-upload guidance, and retry locked resumable uploads.
 

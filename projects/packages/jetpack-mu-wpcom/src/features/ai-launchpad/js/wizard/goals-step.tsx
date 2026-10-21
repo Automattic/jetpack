@@ -1,7 +1,9 @@
+import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pencil, tool, store, envelope, people, gallery } from '@wordpress/icons';
 import { Dialog, Icon, Stack, Text } from '@wordpress/ui';
 import type { GoalSlug } from '../lib/types.ts';
+import type { Ref } from 'react';
 
 interface GoalOption {
 	key: GoalSlug;
@@ -62,6 +64,7 @@ function goalOptions(): GoalOption[] {
 interface Props {
 	value: GoalSlug | null;
 	onChange: ( value: GoalSlug ) => void;
+	titleRef?: Ref< HTMLHeadingElement >;
 }
 
 /**
@@ -69,30 +72,52 @@ interface Props {
  *
  * @param props          - Component props.
  * @param props.value    - The currently selected goal, or null.
- * @param props.onChange - Called with the goal the user clicks.
+ * @param props.onChange - Called with the goal the user picks.
+ * @param props.titleRef - Ref to the step title, the dialog's initial focus target.
  * @return The goals step.
  */
-export default function GoalsStep( { value, onChange }: Props ) {
+export default function GoalsStep( { value, onChange, titleRef }: Props ) {
+	const id = useId();
+	const titleId = `${ id }-title`;
+
 	return (
 		<Stack direction="column" gap="lg">
 			<Stack direction="column" gap="xs">
-				<Dialog.Title>{ __( "What's your main goal?", 'jetpack-mu-wpcom' ) }</Dialog.Title>
+				<Dialog.Title
+					ref={ titleRef }
+					id={ titleId }
+					tabIndex={ -1 }
+					className="ai-launchpad-wizard__title"
+				>
+					{ __( "What's your main goal?", 'jetpack-mu-wpcom' ) }
+				</Dialog.Title>
 				<Text render={ <p /> } className="ai-launchpad-wizard__step-subtitle">
 					{ __( "We'll tailor your next steps to help you launch.", 'jetpack-mu-wpcom' ) }
 				</Text>
 			</Stack>
-			<div className="ai-launchpad-wizard__cards" role="radiogroup">
+			<div className="ai-launchpad-wizard__cards" role="radiogroup" aria-labelledby={ titleId }>
 				{ goalOptions().map( option => {
 					const selected = value === option.key;
+					const inputId = `${ id }-${ option.key }`;
+					const optionTitleId = `${ id }-${ option.key }-title`;
+					const optionDescriptionId = `${ id }-${ option.key }-description`;
 					return (
-						<button
+						<label
 							key={ option.key }
-							type="button"
-							role="radio"
-							aria-checked={ selected }
+							htmlFor={ inputId }
 							className={ 'ai-launchpad-wizard__card' + ( selected ? ' is-selected' : '' ) }
-							onClick={ () => onChange( option.key ) }
 						>
+							<input
+								id={ inputId }
+								type="radio"
+								name={ `${ id }-goal` }
+								value={ option.key }
+								checked={ selected }
+								onChange={ () => onChange( option.key ) }
+								aria-labelledby={ optionTitleId }
+								aria-describedby={ optionDescriptionId }
+								className="ai-launchpad-wizard__card-input"
+							/>
 							<Icon icon={ option.icon } size={ 20 } />
 							<Stack
 								direction="column"
@@ -100,12 +125,18 @@ export default function GoalsStep( { value, onChange }: Props ) {
 								render={ <span /> }
 								className="ai-launchpad-wizard__card-text"
 							>
-								<Text variant="heading-md">{ option.title }</Text>
-								<Text variant="body-sm" className="ai-launchpad-wizard__card-description">
+								<Text variant="heading-md" id={ optionTitleId }>
+									{ option.title }
+								</Text>
+								<Text
+									variant="body-sm"
+									id={ optionDescriptionId }
+									className="ai-launchpad-wizard__card-description"
+								>
 									{ option.description }
 								</Text>
 							</Stack>
-						</button>
+						</label>
 					);
 				} ) }
 			</div>

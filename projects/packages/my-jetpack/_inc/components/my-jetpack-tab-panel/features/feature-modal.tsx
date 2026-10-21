@@ -3,7 +3,6 @@ import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { check, chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Dialog, IconButton, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getActivationStatusLabel } from '../utils';
 import { getArrowStep, getStepKey } from './arrow-navigation';
 import { getBandStyle } from './band-palette';
 import { FeatureBand } from './feature-band';
@@ -14,9 +13,9 @@ import { FeatureInstallNotice } from './feature-install-notice';
 import { FeatureLinks } from './feature-links';
 import { FeatureModalActions } from './feature-modal-actions';
 import { FeaturePaid } from './feature-paid';
+import { getFeatureStatusLabel, getFeatureUnavailableReason } from './module-availability';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
-import type { FeatureFilter } from './use-feature-filter';
 
 // Set by @wordpress/ui on the dialog's own close button.
 const CLOSE_ICON_ATTR = 'data-wp-ui-dialog-close-icon';
@@ -95,21 +94,33 @@ type FeatureModalProps = {
 	total: number;
 	onStep: ( slug: string ) => void;
 	onClose: () => void;
-	onFilterByPlan: ( plan: FeatureFilter ) => void;
 };
+
+/**
+ * The details window's status badge style, matching the card's for a feature waiting for an account.
+ *
+ * @param state    - Live state for the feature.
+ * @param isActive - Whether the feature is running.
+ * @return The badge intent.
+ */
+function getModalStatusIntent( state: FeatureState, isActive: boolean ) {
+	if ( state.accountNeeded ) {
+		return 'none';
+	}
+	return isActive ? 'stable' : 'draft';
+}
 
 /**
  * The feature's details, shown over the grid rather than on a page of its own.
  *
- * @param {FeatureModalProps} props                - The component props.
- * @param {FeatureState}      props.state          - Live state for the feature being shown.
- * @param {FeatureNeighbor}   props.previous       - The preceding shown feature, if any.
- * @param {FeatureNeighbor}   props.next           - The following shown feature, if any.
- * @param {number}            props.position       - This feature's 1-based place among those shown, 0 when hidden.
- * @param {number}            props.total          - How many features are shown.
- * @param {Function}          props.onStep         - Switches the modal to another feature.
- * @param {Function}          props.onClose        - Closes the modal.
- * @param {Function}          props.onFilterByPlan - Filters the grid to one plan.
+ * @param {FeatureModalProps} props          - The component props.
+ * @param {FeatureState}      props.state    - Live state for the feature being shown.
+ * @param {FeatureNeighbor}   props.previous - The preceding shown feature, if any.
+ * @param {FeatureNeighbor}   props.next     - The following shown feature, if any.
+ * @param {number}            props.position - This feature's 1-based place among those shown, 0 when hidden.
+ * @param {number}            props.total    - How many features are shown.
+ * @param {Function}          props.onStep   - Switches the modal to another feature.
+ * @param {Function}          props.onClose  - Closes the modal.
  * @return The rendered component.
  */
 export function FeatureModal( {
@@ -120,11 +131,12 @@ export function FeatureModal( {
 	total,
 	onStep,
 	onClose,
-	onFilterByPlan,
 }: FeatureModalProps ) {
 	const { feature, product } = state;
-	const isActive = state.status === 'active';
+	const unavailable = getFeatureUnavailableReason( state );
+	const isActive = ! unavailable && state.status === 'active';
 	const freeHighlights = feature.free_highlights ?? [];
+	const pricingNotes = feature.pricing_notes ?? [];
 
 	const onOpenChange = useCallback(
 		( open: boolean ) => {
@@ -147,13 +159,15 @@ export function FeatureModal( {
 	const steppedToRef = useRef< string | null >( null );
 
 	// The header's action, which is what the modal is open in order to reach — not the
-	// first link in the body.
+	// first link in the body, and not Upgrade, which renders before the switch arrives.
 	const findAction = useCallback( () => {
 		const actions = popupRef.current?.querySelector( '[data-feature-actions]' );
 
 		return Array.from( actions?.querySelectorAll< HTMLElement >( 'button, a[href]' ) ?? [] ).find(
 			element =>
-				! element.hasAttribute( 'disabled' ) && element.getAttribute( 'aria-disabled' ) !== 'true'
+				! element.hasAttribute( 'disabled' ) &&
+				element.getAttribute( 'aria-disabled' ) !== 'true' &&
+				! element.hasAttribute( 'data-feature-upgrade' )
 		);
 	}, [] );
 
@@ -225,7 +239,7 @@ export function FeatureModal( {
 			>
 				{ /* Close renders before the artwork so a keyboard user reaches it in one Tab. */ }
 				<div className={ styles[ 'modal-band' ] } style={ getBandStyle( feature.slug ) }>
-					<Dialog.CloseIcon className={ styles[ 'modal-band__close' ] } />
+					<Dialog.CloseIconButton className={ styles[ 'modal-band__close' ] } />
 					<div className={ styles[ 'modal-band__art' ] }>
 						<FeatureBand key={ feature.slug } feature={ feature } />
 					</div>
@@ -239,8 +253,8 @@ export function FeatureModal( {
 						<Stack direction="column" gap="xs" className={ styles[ 'modal-heading' ] }>
 							<Dialog.Title>{ feature.name }</Dialog.Title>
 							<Stack direction="row" align="center" gap="sm" wrap="wrap">
-								<Badge intent={ isActive ? 'stable' : 'draft' }>
-									{ getActivationStatusLabel( isActive ) }
+								<Badge intent={ getModalStatusIntent( state, isActive ) }>
+									{ getFeatureStatusLabel( state ) }
 								</Badge>
 								{ feature.essential ? (
 									<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>
@@ -290,7 +304,16 @@ export function FeatureModal( {
 							</section>
 						) }
 
-						<FeaturePaid state={ state } onFilterByPlan={ onFilterByPlan } />
+						<FeaturePaid state={ state } />
+
+						{ pricingNotes.length > 0 && (
+							<section className={ styles[ 'detail-section' ] }>
+								<Text variant="heading-sm" render={ <h3 /> }>
+									{ __( 'How you pay', 'jetpack-my-jetpack' ) }
+								</Text>
+								<FeatureHighlights items={ pricingNotes } icon={ check } />
+							</section>
+						) }
 					</div>
 
 					{ ! isDesktop && <FeatureLinks feature={ feature } /> }

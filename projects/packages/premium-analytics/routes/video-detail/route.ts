@@ -4,7 +4,6 @@
 import {
 	ensureCoreSettingsReady,
 	needsReportDateParamsSeed,
-	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
 	pickDashboardOriginParams,
@@ -14,6 +13,8 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { seedDetailDateParams } from '../detail-date-seed';
+import { redirectIfReportLocked } from '../reports/redirect-if-locked';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected, isVideoPressAvailable } from '../site-readiness';
 
@@ -57,6 +58,8 @@ export const route = {
 			throw redirect( { to: '/' } );
 		}
 
+		redirectIfReportLocked( 'videos', search );
+
 		const videoId = params?.videoId;
 		if ( ! isValidVideoId( videoId ) ) {
 			throw redirect( { to: '/' } );
@@ -80,9 +83,7 @@ export const route = {
 
 			// The report origin joins the allowlist below so the breadcrumb keeps
 			// its link back to the referring report across this seed.
-			const reportParams = normalizeReportParams(
-				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
-			);
+			const reportParams = seedDetailDateParams( currentSearch, videoId );
 			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {
 				...reportParams,
@@ -90,12 +91,6 @@ export const route = {
 				...pickDashboardOriginParams( currentSearch ),
 				post_id: videoId,
 			};
-
-			/*
-			 * Comparison params ride along untouched: this page renders no
-			 * comparison, but the dashboard link and "Back to Videos" carry the URL
-			 * state back out, so stripping them would lose the setting on a round trip.
-			 */
 
 			throw redirect( {
 				to: '/video/$videoId',

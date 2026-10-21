@@ -4,6 +4,7 @@
 import {
 	GoogleDataTableColumnRoleType,
 	type GeoData,
+	type GeoDisplayMode,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 } from '@jetpack-premium-analytics/externals';
@@ -36,13 +37,15 @@ export interface BuildLocationsGeoChartArgs {
 	focusCountry?: LocationsGeoFocusCountry;
 	/** Whether Google has a `provinces` map for the focused country. */
 	provinceMapSupported?: boolean;
+	/** What the figure is, as the tooltip names it. Defaults to Views. */
+	valueLabel?: string;
 }
 
 export interface LocationsGeoChartConfig {
 	data: GeoData;
 	region: string;
 	resolution: 'countries' | 'provinces';
-	displayMode: 'regions' | 'markers';
+	displayMode: GeoDisplayMode;
 }
 
 type CountrySummary = {
@@ -129,6 +132,7 @@ function summarizeByCountry( rows: LocationsGeoRow[] ): [ string, CountrySummary
  * @param args.mode                 - Granularity of the rows.
  * @param args.focusCountry         - The country the map is scoped to, if any.
  * @param args.provinceMapSupported - Whether Google has a provinces map for it.
+ * @param args.valueLabel           - What the figure is, as the tooltip names it.
  * @return The GeoChart `data`, `region`, `resolution`, and `displayMode`.
  */
 export function buildLocationsGeoChart( {
@@ -136,6 +140,7 @@ export function buildLocationsGeoChart( {
 	mode,
 	focusCountry: requestedFocusCountry,
 	provinceMapSupported = true,
+	valueLabel = __( 'Views', 'jetpack-premium-analytics-pkg' ),
 }: BuildLocationsGeoChartArgs ): LocationsGeoChartConfig {
 	// Country mode plots the countries themselves, so scoping the map to one of
 	// them would leave every other row with nowhere to sit.
@@ -147,9 +152,9 @@ export function buildLocationsGeoChart( {
 	const useCountrySummaryMap = mode === 'region' && ! focusCountry;
 	const scope = {
 		region: focusCountry && ! useCountryFallbackMap ? focusCountry.code.toUpperCase() : 'world',
-		resolution: ( useProvinceMap ? 'provinces' : 'countries' ) as 'countries' | 'provinces',
-		displayMode: ( mode === 'city' ? 'markers' : 'regions' ) as 'regions' | 'markers',
-	};
+		resolution: useProvinceMap ? 'provinces' : 'countries',
+		displayMode: mode === 'city' ? 'markers' : 'regions',
+	} satisfies Omit< LocationsGeoChartConfig, 'data' >;
 
 	if ( mode === 'city' ) {
 		return {
@@ -161,7 +166,7 @@ export function buildLocationsGeoChart( {
 					{ type: 'number', label: __( 'Latitude', 'jetpack-premium-analytics-pkg' ) },
 					{ type: 'number', label: __( 'Longitude', 'jetpack-premium-analytics-pkg' ) },
 					{ type: 'string', label: __( 'Location', 'jetpack-premium-analytics-pkg' ) },
-					{ type: 'number', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
+					{ type: 'number', label: valueLabel },
 				],
 				...rows.flatMap( ( row ): GoogleDataTableRow[] =>
 					row.coordinates
@@ -178,7 +183,7 @@ export function buildLocationsGeoChart( {
 		useProvinceMap
 			? __( 'Location', 'jetpack-premium-analytics-pkg' )
 			: __( 'Country', 'jetpack-premium-analytics-pkg' ),
-		__( 'Views', 'jetpack-premium-analytics-pkg' ),
+		valueLabel,
 	];
 
 	if ( useCountryFallbackMap && focusCountry ) {

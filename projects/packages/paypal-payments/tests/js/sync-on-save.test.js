@@ -22,7 +22,10 @@ import {
 	recordPaymentRead,
 	syncBlocksBeforeSave,
 } from '../../src/paypal-payment-buttons/utils/sync-on-save';
-import { REQUIRED_FIELD_ERROR } from '../../src/paypal-payment-buttons/utils/validation';
+import {
+	ADDRESS_REQUIRED_ERROR,
+	REQUIRED_FIELD_ERROR,
+} from '../../src/paypal-payment-buttons/utils/validation';
 const apiFetch = require( '@wordpress/api-fetch' );
 
 const product = {
@@ -163,10 +166,29 @@ describe( 'isReadyForPayPal', () => {
 		).toBe( false );
 	} );
 
-	it.each( [ 'PROFILE', 'FREE' ] )( 'sends %s shipping with no fee', shippingMode => {
+	// PROFILE needs the address on.
+	it.each( [
+		[ 'PROFILE', true ],
+		[ 'FREE', false ],
+	] )( 'sends %s shipping with no fee', ( shippingMode, collectShippingAddress ) => {
 		expect(
-			isReadyForPayPal( { ...product, shippingEnabled: true, shippingMode, shippingValue: '' } )
+			isReadyForPayPal( {
+				...product,
+				shippingEnabled: true,
+				shippingMode,
+				shippingValue: '',
+				collectShippingAddress,
+			} )
 		).toBe( true );
+	} );
+
+	it.each( [
+		[ 'PROFILE shipping', { shippingEnabled: true, shippingMode: 'PROFILE' } ],
+		[ 'a profile tax', { taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } ],
+	] )( 'does not send %s to PayPal with the address off', ( _label, overrides ) => {
+		expect( heldBackReason( { ...product, ...overrides, collectShippingAddress: false } ) ).toBe(
+			ADDRESS_REQUIRED_ERROR
+		);
 	} );
 
 	it( 'sends a shipping fee of zero', () => {
@@ -206,7 +228,13 @@ describe( 'isReadyForPayPal', () => {
 	// PREFERENCE takes its rate from the merchant's PayPal profile.
 	it( 'lets a profile tax through with no value', () => {
 		expect(
-			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } )
+			isReadyForPayPal( {
+				...product,
+				taxEnabled: true,
+				taxType: 'PREFERENCE',
+				taxValue: '',
+				collectShippingAddress: true,
+			} )
 		).toBe( true );
 	} );
 
@@ -757,7 +785,7 @@ describe( 'syncBlocksBeforeSave', () => {
 
 			/**
 			 * Answer a PUT the way the server does: the payment for a caller that asked
-			 * for the snippets, PayPal's empty echo for everyone else.
+			 * for the snippets, and no `attributes` for everyone else.
 			 *
 			 * @param {object} options - The request.
 			 * @return {Promise<object>} The response.
@@ -1149,8 +1177,8 @@ describe( 'syncBlocksBeforeSave', () => {
 
 		// The save created this payment, so the next save can update it straight away.
 		it( 'updates a payment the previous save created', async () => {
-			// PayPal echoes back what it was sent. Answering with the old price instead
-			// would hide a read-back that reverts the merchant's edit.
+			// Answer with the sent price, like a read-back after the PUT, so the block keeps the
+			// merchant's edit.
 			const deps = fakeDeps( options =>
 				Promise.resolve( {
 					id: 'PLB-NEW1',
@@ -1177,6 +1205,29 @@ describe( 'syncBlocksBeforeSave', () => {
 				expect.objectContaining( { price: expect.anything() } )
 			);
 		} );
+
+		// The image stays on the site, so the second save matches what the create sent.
+		it( 'sends only the create when the next save changes just the image', async () => {
+			const deps = fakeDeps();
+
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: product } ], deps );
+			await syncBlocksBeforeSave(
+				[
+					{
+						clientId: 'a',
+						attributes: {
+							...product,
+							resourceId: 'PLB-NEW1',
+							imageUrl: 'https://example.test/widget.png',
+						},
+					},
+				],
+				deps
+			);
+
+			expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST' ] );
+			expect( deps.reportHeldBack ).not.toHaveBeenCalled();
+		} );
 	} );
 } );
 
@@ -1184,7 +1235,6 @@ describe( 'syncBlocksBeforeSave', () => {
 describe( 'the card revision', () => {
 	const saved = { ...product, isApiManaged: true, resourceId: 'PLB-1' };
 	const echo = () => Promise.resolve( {} );
-	const image = { imageUrl: 'https://example.test/widget.png' };
 
 	/**
 	 * Save one block per change, each pointed at PLB-1.
@@ -1228,7 +1278,6 @@ describe( 'the card revision', () => {
 	it.each( [
 		[ 'the values are unchanged', {} ],
 		[ 'only the format changes', { format: 'LINK' } ],
-		[ 'only the image changes', image ],
 	] )( 'stays put when %s', async ( _label, change ) => {
 		const deps = await save( [ change ] );
 
@@ -1260,7 +1309,7 @@ describe( 'the card revision', () => {
 	// the next save counts any PUT as a change.
 	it( 'goes up for every PUT after a save has written the payment', async () => {
 		await save( [ { productName: 'Deluxe Widget' }, {} ] );
-		await save( [ { productName: 'Deluxe Widget' }, image ] );
+		await save( [ {}, {} ] );
 
 		expect( getCardRevision( 'PLB-1' ) ).toBe( 2 );
 	} );
@@ -1289,7 +1338,7 @@ describe( 'the card revision', () => {
 	} );
 
 	// The block takes the create response: variants without the editor keys, and the price
-	// as PayPal formats it.
+	// as PayPal formats it. A switch to stacked sends BUTTON, so the second save is a PUT.
 	it( 'stays put when the save after a create writes back the created values', async () => {
 		const variants = variantsWithPrices( priced );
 		const block = {
@@ -1305,7 +1354,10 @@ describe( 'the card revision', () => {
 			[ { clientId: 'a', attributes: { ...block, price: '30' } } ],
 			deps
 		);
-		await syncBlocksBeforeSave( [ { clientId: 'a', attributes: { ...taken, ...image } } ], deps );
+		await syncBlocksBeforeSave(
+			[ { clientId: 'a', attributes: { ...taken, format: 'STACKED' } } ],
+			deps
+		);
 
 		expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST', 'PUT' ] );
 		expect( getCardRevision( 'PLB-NEW1' ) ).toBe( 0 );
@@ -1339,10 +1391,9 @@ describe( 'reportSaved after a PUT', () => {
 		recordPaymentRead( 'block-1', 'PLB-1', product );
 	} );
 
-	// The first save after a reload PUTs every block. The image is sent but never compared.
+	// The first save after a reload PUTs every block, changed or not.
 	it.each( [
 		[ 'nothing changed', {} ],
-		[ 'only the image changed', { imageUrl: 'https://example.test/widget.png' } ],
 		[ 'only a format with the same mode changed', { format: 'QR' } ],
 	] )( 'skips reportSaved when %s', async ( _label, change ) => {
 		const deps = await save( [ change ] );
@@ -1362,33 +1413,6 @@ describe( 'reportSaved after a PUT', () => {
 		] );
 
 		expect( deps.requests.map( r => r.data.integration_mode ) ).toEqual( [ 'BUTTON', 'BUTTON' ] );
-		expect( deps.reportSaved ).not.toHaveBeenCalled();
-	} );
-
-	// The create records what PayPal made as the read to compare with.
-	it( 'skips reportSaved for an image-only PUT after a create', async () => {
-		const deps = fakeDeps( ( { method } ) =>
-			Promise.resolve( 'POST' === method ? { id: 'PLB-NEW1', attributes: product } : {} )
-		);
-		await syncBlocksBeforeSave( [ { clientId: 'c', attributes: product } ], deps );
-		deps.reportSaved.mockClear();
-
-		await syncBlocksBeforeSave(
-			[
-				{
-					clientId: 'c',
-					attributes: {
-						...product,
-						isApiManaged: true,
-						resourceId: 'PLB-NEW1',
-						imageUrl: 'https://example.test/widget.png',
-					},
-				},
-			],
-			deps
-		);
-
-		expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST', 'PUT' ] );
 		expect( deps.reportSaved ).not.toHaveBeenCalled();
 	} );
 

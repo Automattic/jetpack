@@ -1,12 +1,25 @@
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { leavePageFor } from '../../../../utils/reload-page';
 import { FeatureAction } from '../feature-action';
+import { FeatureDelivery } from '../feature-delivery';
 import { FeatureItem } from '../feature-item';
 import { FeatureModalActions } from '../feature-modal-actions';
+import { resolveFeatureState } from '../feature-state';
+import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureState } from '../feature-state';
 
-const mockRun = jest.fn();
+const mockRun = jest.fn< Promise< boolean >, [ unknown ] >( () => Promise.resolve( true ) );
+const mockSetModuleActive = jest.fn();
+
+jest.mock( '../../../../utils/reload-page', () => ( { leavePageFor: jest.fn() } ) );
+
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	...jest.requireActual( '@automattic/jetpack-connection' ),
+	getUserConnectionUrl: jest.fn( () => '/wp-admin/admin.php?connect_url_redirect=1' ),
+} ) );
 
 // What a click has asked of the module, when a test wants it to differ from the store.
 let mockAskedFor: boolean | null = null;
@@ -15,7 +28,8 @@ let mockInstallError: string | null = null;
 
 jest.mock( '../use-main-features', () => ( {
 	useFeaturePlugin: ( plugin: string, name: string ) => ( {
-		run: ( action: string ) => mockRun( { plugin, name, action } ),
+		run: ( action: string, options?: { leavesPage?: boolean } ) =>
+			mockRun( { plugin, name, action, ...( options?.leavesPage && { leavesPage: true } ) } ),
 		isBusy: mockBusy,
 	} ),
 	useInstallError: ( plugin: string ) => ( plugin ? mockInstallError : null ),
@@ -26,7 +40,7 @@ jest.mock( '../../../module-toggle', () => ( {
 	ModuleToggle: () => <input type="checkbox" aria-label="Module toggle" readOnly />,
 	// Mirrors the hook: `isActive` is the value the switch shows, asked-for or stored.
 	useModuleActivation: ( $module: { activated: boolean } ) => ( {
-		setModuleActive: jest.fn(),
+		setModuleActive: mockSetModuleActive,
 		isUpdating: false,
 		isActive: mockAskedFor ?? $module.activated,
 	} ),
@@ -55,6 +69,9 @@ const forcedModule = {
 
 beforeEach( () => {
 	mockRun.mockClear();
+	mockSetModuleActive.mockClear();
+	( leavePageFor as jest.Mock ).mockClear();
+	( getUserConnectionUrl as jest.Mock ).mockClear();
 	mockAskedFor = null;
 	mockBusy = false;
 	mockInstallError = null;
@@ -62,6 +79,39 @@ beforeEach( () => {
 
 const countControls = () =>
 	screen.queryAllByRole( 'checkbox' ).length + screen.queryAllByRole( 'button' ).length;
+
+it.each( [
+	[ 'details window', FeatureModalActions ],
+	[ 'card', FeatureAction ],
+] as const )( 'only opens registered admin pages offline from the %s', ( _, Component ) => {
+	const previousInitial = window.myJetpackInitialState;
+	const previousData = window.JetpackScriptData;
+	const registeredPages: string[] = [];
+	window.myJetpackInitialState = { isOfflineFeatures: true } as typeof previousInitial;
+	window.JetpackScriptData = {
+		myJetpack: { offlineFeatures: { mainFeatures: { available_admin_pages: registeredPages } } },
+	} as unknown as typeof previousData;
+	try {
+		const state = buildState(
+			{ kind: 'install-plugin', plugin: 'jetpack-backup', runsWithoutPlugin: true },
+			{
+				status: 'active',
+				feature: buildFeature( { manage_url: '/wp-admin/admin.php?page=stats' } ),
+			}
+		);
+		const { rerender } = render( <Component state={ state } /> );
+		expect( screen.queryByRole( 'link', { name: 'Open' } ) ).not.toBeInTheDocument();
+		registeredPages.push( 'stats' );
+		rerender( <Component state={ state } /> );
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveAttribute(
+			'href',
+			state.feature.manage_url
+		);
+	} finally {
+		window.myJetpackInitialState = previousInitial;
+		window.JetpackScriptData = previousData;
+	}
+} );
 
 describe( 'FeatureAction', () => {
 	it( 'offers Install, and no switch, for a feature whose plugin is missing', () => {
@@ -197,9 +247,14 @@ describe( 'FeatureAction', () => {
 		expect( countControls() ).toBe( 0 );
 	} );
 
-	it( 'leaves the switch slot empty for a module a host forced on', () => {
+	it( 'leaves the switch slot empty for a module a host forced on, even with a plan to sell', () => {
+		const feature = buildFeature( {
+			upgrade: { path: '/add-complete', name: 'Jetpack Complete' },
+		} );
 		const { container } = render(
-			<FeatureAction state={ buildState( { kind: 'module', module: forcedModule } ) } />
+			<FeatureAction
+				state={ buildState( { kind: 'module', module: forcedModule }, { feature } ) }
+			/>
 		);
 
 		expect( container ).toBeEmptyDOMElement();
@@ -218,6 +273,49 @@ describe( 'FeatureAction', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	it( 'offers Upgrade in place of a switch for Backup without its plan, and nothing with it', () => {
+		const feature = buildFeature( {
+			slug: 'backup',
+			upgrade: { path: '/add-backup', name: 'Jetpack VaultPress Backup' },
+		} );
+		const control = { kind: 'plan' } as const;
+
+		const { rerender } = render( <FeatureAction state={ buildState( control, { feature } ) } /> );
+
+		expect(
+			screen.getByRole( 'link', { name: 'Upgrade to Jetpack VaultPress Backup' } )
+		).toBeVisible();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+
+		rerender( <FeatureAction state={ buildState( control, { feature, status: 'active' } ) } /> );
+
+		expect( countControls() + screen.queryAllByRole( 'link' ).length ).toBe( 0 );
+	} );
+
+	it.each( [
+		[ 'Activate', true ],
+		[ 'Upgrade to Jetpack VaultPress Backup', false ],
+	] )(
+		'offers %s, not a switch, for Backup whose plugin is installed but off',
+		( name, included ) => {
+			const feature = buildFeature( {
+				slug: 'backup',
+				included,
+				upgrade: included
+					? { path: '', name: '' }
+					: { path: '/add-backup', name: 'Jetpack VaultPress Backup' },
+			} );
+			render(
+				<FeatureAction
+					state={ buildState( { kind: 'plan', activatePlugin: 'jetpack-backup' }, { feature } ) }
+				/>
+			);
+
+			expect( screen.getByRole( included ? 'button' : 'link', { name } ) ).toBeVisible();
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'renders nothing when this site cannot switch the feature', () => {
 		const { container } = render( <FeatureAction state={ buildState( { kind: 'none' } ) } /> );
 
@@ -226,6 +324,22 @@ describe( 'FeatureAction', () => {
 } );
 
 describe( 'FeatureModalActions', () => {
+	it( 'offers Upgrade in the header beside the switch', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState(
+					{ kind: 'module', module: { ...$module, activated: false } },
+					{ feature: buildFeature( { upgrade: { path: '/add-boost', name: 'Jetpack Boost' } } ) }
+				) }
+			/>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Upgrade to Jetpack Boost' } ) ).toHaveAttribute(
+			'href',
+			'#/add-boost?return_feature=boost'
+		);
+	} );
+
 	it( 'offers no Install to a user who cannot install plugins', () => {
 		render(
 			<FeatureModalActions
@@ -355,9 +469,105 @@ describe( 'FeatureModalActions', () => {
 		expect( screen.getByText( /by your host or site administrator/ ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [ true, false ] )(
+		'offers Activate for Backup\u2019s installed plugin only when the site pays for it: %s',
+		included => {
+			const feature = buildFeature( { slug: 'backup', included } );
+			render(
+				<FeatureModalActions
+					state={ buildState( { kind: 'plan', activatePlugin: 'jetpack-backup' }, { feature } ) }
+				/>
+			);
+
+			expect( screen.queryAllByRole( 'button', { name: 'Activate' } ) ).toHaveLength(
+				included ? 1 : 0
+			);
+		}
+	);
 } );
 
 describe( 'FeatureItem', () => {
+	it.each( [
+		[ 'active', 'Requires a connected WordPress.com account', 'Enabled', false ],
+		[ 'active', 'Unavailable in Offline mode', 'Enabled', false ],
+		[ 'active', 'Unavailable in Offline mode', 'Enabled', true ],
+		[ 'inactive', 'Unavailable in Offline mode', 'Disabled', false ],
+		[ 'inactive', 'Unavailable in Offline mode', 'Disabled', true ],
+	] as const )(
+		'shows the module limitation before the host line in details for override %s: %s (%s, gated: %s)',
+		( override, unavailable_reason, hostLabel, gated ) => {
+			let state = buildState(
+				{
+					kind: 'module',
+					module: { ...forcedModule, override, available: false, unavailable_reason },
+				},
+				{ status: 'active' }
+			);
+			if ( gated ) {
+				state = resolveFeatureState(
+					{ ...state.feature, product: 'jetpack-ai', module: '', plugin: '' },
+					'active',
+					undefined,
+					{ ai: { ...forcedModule, module: 'ai', override, available: false, unavailable_reason } },
+					{}
+				);
+			}
+			expect( state.control.kind ).toBe( gated ? 'none' : 'module' );
+			const { rerender } = render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+			expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
+			expect( screen.getByText( unavailable_reason ) ).toBeVisible();
+			expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			rerender( <FeatureModalActions state={ state } /> );
+			const moduleReason = screen.getByText( unavailable_reason );
+			const hostReason = screen.getByText( `${ hostLabel } by your host or site administrator` );
+			expect( moduleReason ).toBeVisible();
+			expect( hostReason ).toBeVisible();
+			expect( moduleReason.compareDocumentPosition( hostReason ) ).toBe(
+				Node.DOCUMENT_POSITION_FOLLOWING
+			);
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it.each( [
+		[ 'a switch', false, 'Manage Firewall in Protect' ],
+		[ 'nothing, for a module a host forced on,', 'active' as const, 'Configure Firewall' ],
+	] )( 'links to the Protect page in place of %s', ( _, override, linkName ) => {
+		const previousInitial = window.myJetpackInitialState;
+		window.myJetpackInitialState = {
+			protectPageModuleUrls: { waf: 'admin.php?page=jetpack-protect&p=firewall' },
+		} as unknown as typeof previousInitial;
+		const waf = {
+			module: 'waf',
+			available: true,
+			activated: true,
+			override,
+			configure_url: 'admin.php?page=jetpack-protect&p=firewall',
+		} as MyJetpackModule;
+
+		try {
+			render(
+				<FeatureItem
+					state={ buildState(
+						{ kind: 'module', module: waf },
+						{ status: 'active', feature: buildFeature( { slug: 'waf', name: 'Firewall' } ) }
+					) }
+				/>
+			);
+		} finally {
+			window.myJetpackInitialState = previousInitial;
+		}
+
+		expect( screen.getByRole( 'link', { name: linkName } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=jetpack-protect&p=firewall'
+		);
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'shows only the status for a module a host forced on: no switch, no note', () => {
 		const state = buildState(
 			{ kind: 'module', module: forcedModule },
@@ -442,5 +652,232 @@ describe( 'FeatureItem install notice', () => {
 
 		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /install plugins/ ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'features waiting for an account', () => {
+	const connectionUrl = '/wp-admin/admin.php?connect_url_redirect=1';
+	const accountModule = ( activated: boolean ) =>
+		resolveFeatureState(
+			buildFeature( {
+				slug: 'activity-log',
+				name: 'Activity Log',
+				module: 'activity-log',
+				in_jetpack: true,
+				plugin: '',
+			} ),
+			'active',
+			undefined,
+			{
+				'activity-log': {
+					module: 'activity-log',
+					name: 'Activity Log',
+					available: false,
+					unavailable_reason: 'Requires a connected WordPress.com account',
+					requires_user_connection: true,
+					activated,
+				} as MyJetpackModule,
+			},
+			{},
+			false,
+			true
+		);
+	const accountPlugin = ( plugin_status: MainFeaturePluginStatus ) =>
+		resolveFeatureState(
+			buildFeature( {
+				slug: 'backup',
+				name: 'Backup',
+				product: 'backup',
+				plugin: 'jetpack-backup',
+				plugin_name: 'Jetpack VaultPress Backup',
+				plugin_status,
+				needs_account: true,
+				setup_note: 'Backups start once you add a paid plan.',
+			} ),
+			'not-installed',
+			undefined,
+			{},
+			{},
+			false,
+			true
+		);
+	const accountPlan = () =>
+		resolveFeatureState(
+			buildFeature( {
+				slug: 'backup',
+				name: 'Backup',
+				product: 'backup',
+				plugin: 'jetpack-backup',
+				plugin_status: 'active',
+				plan_driven: true,
+				needs_account: true,
+			} ),
+			'not-installed',
+			{ slug: 'backup', status: 'needs_plan', hasPaidPlanForProduct: false } as ProductCamelCase,
+			{},
+			{},
+			false,
+			true
+		);
+	// Waits for the click's plugin request and whatever was chained on it.
+	const settle = async () => {
+		await Promise.all( mockRun.mock.results.map( result => result.value ) );
+	};
+
+	it.each( [
+		[ 'a module that is off', accountModule( false ), 'Connect account for Activity Log' ],
+		[ 'a module saved as on', accountModule( true ), 'Connect account for Activity Log' ],
+		[ 'a plugin that is off', accountPlugin( 'inactive' ), 'Connect account for Backup' ],
+		[ 'a plugin that is on', accountPlugin( 'active' ), 'Connect account for Backup' ],
+		[ 'a plan-driven feature', accountPlan(), 'Connect account for Backup' ],
+		[ 'a missing plugin', accountPlugin( 'not-installed' ), 'Install' ],
+	] as const )(
+		'offers only what is missing on the card for %s, with the account badge and no account sentence',
+		( _, state, name ) => {
+			render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+			expect( screen.getByRole( 'button', { name } ) ).toHaveAccessibleDescription(
+				name === 'Install' ? '' : 'Needs user account'
+			);
+			expect( screen.getByText( 'Needs user account' ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByText( /Requires a connected WordPress.com account/ )
+			).not.toBeInTheDocument();
+		}
+	);
+
+	it.each( [
+		[ 'card', 'a module', accountModule( false ) ],
+		[ 'details', 'a plugin that is on', accountPlugin( 'active' ) ],
+	] as const )(
+		'connects from the %s for %s and changes nothing on the feature',
+		async ( where, _, state ) => {
+			render(
+				where === 'card' ? (
+					<FeatureAction state={ state } />
+				) : (
+					<FeatureModalActions state={ state } />
+				)
+			);
+			await userEvent.click( screen.getByRole( 'button', { name: /^Connect account for / } ) );
+
+			expect( getUserConnectionUrl ).toHaveBeenCalledWith( {
+				redirect_url: expect.stringContaining( '#/features' ),
+			} );
+			expect( leavePageFor ).toHaveBeenCalledWith( connectionUrl );
+			expect( mockRun ).not.toHaveBeenCalled();
+			expect( mockSetModuleActive ).not.toHaveBeenCalled();
+		}
+	);
+
+	const accountJetpack = ( jetpack: MainFeaturePluginStatus ) =>
+		resolveFeatureState(
+			buildFeature( {
+				slug: 'activity-log',
+				name: 'Activity Log',
+				in_jetpack: true,
+				module: 'activity-log',
+				plugin: '',
+				needs_account: true,
+			} ),
+			jetpack,
+			undefined,
+			undefined,
+			{},
+			false,
+			true
+		);
+
+	it.each( [
+		[ 'Install', true, 'install', accountPlugin( 'not-installed' ), 1 ],
+		[ 'Install', false, 'install', accountPlugin( 'not-installed' ), 0 ],
+		[ 'Activate Jetpack', true, 'activate', accountJetpack( 'inactive' ), 1 ],
+	] as const )(
+		'connects after %s only once it succeeds (succeeds: %s), and asks Jetpack not to reload',
+		async ( name, succeeds, action, state, connections ) => {
+			mockRun.mockReturnValueOnce( Promise.resolve( succeeds ) );
+			render( <FeatureAction state={ state } /> );
+
+			await userEvent.click( screen.getByRole( 'button', { name } ) );
+			await settle();
+
+			expect( mockRun ).toHaveBeenCalledWith(
+				expect.objectContaining( { action, leavesPage: true } )
+			);
+			expect( leavePageFor ).toHaveBeenCalledTimes( connections );
+		}
+	);
+
+	it.each( [
+		[ 'a module saved as on', accountModule( true ), 'Deactivate Activity Log', [ false ] ],
+		[
+			'a plugin that is on',
+			accountPlugin( 'active' ),
+			'Deactivate Jetpack VaultPress Backup',
+			[ { plugin: 'jetpack-backup', name: 'Jetpack VaultPress Backup', action: 'deactivate' } ],
+		],
+	] )(
+		'keeps Deactivate beside Connect in the details of %s, without connecting',
+		async ( _, state, name, request ) => {
+			render( <FeatureModalActions state={ state } /> );
+			expect( screen.getByRole( 'button', { name: /^Connect account for / } ) ).toBeVisible();
+
+			await userEvent.click( screen.getByRole( 'button', { name } ) );
+
+			expect( [ ...mockSetModuleActive.mock.calls, ...mockRun.mock.calls ] ).toEqual( [ request ] );
+			expect( leavePageFor ).not.toHaveBeenCalled();
+		}
+	);
+
+	it( 'keeps Deactivate while its request runs, then hands focus to Connect', async () => {
+		const on = accountModule( true );
+		const { rerender } = render( <FeatureModalActions state={ on } /> );
+		const button = screen.getByRole( 'button', { name: 'Deactivate Activity Log' } );
+		await userEvent.click( button );
+
+		// While the request is out, the card shows the asked-for value.
+		mockAskedFor = false;
+		rerender( <FeatureModalActions state={ { ...on, status: 'inactive', isSwitching: true } } /> );
+		expect( button ).toBeInTheDocument();
+		expect( button ).toHaveFocus();
+
+		mockAskedFor = null;
+		rerender( <FeatureModalActions state={ accountModule( false ) } /> );
+		expect( button ).not.toBeInTheDocument();
+		expect(
+			screen.getByRole( 'button', { name: 'Connect account for Activity Log' } )
+		).toHaveFocus();
+	} );
+
+	it( 'offers no Activate in the details while the account is missing', () => {
+		render( <FeatureModalActions state={ accountPlugin( 'inactive' ) } /> );
+		expect( screen.queryByRole( 'button', { name: /^Activate / } ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'a module', accountModule( false ), /then turn it on here if it’s still off\./ ],
+		[
+			'a plugin',
+			accountPlugin( 'inactive' ),
+			/Connect your WordPress.com account, then turn it on here\./,
+		],
+		[
+			'a missing plugin',
+			accountPlugin( 'not-installed' ),
+			/then connects your WordPress.com account/,
+		],
+		[
+			'a plugin already on',
+			accountPlugin( 'active' ),
+			/^Backups start once you add a paid plan\.$/,
+		],
+		[
+			'a module waiting for Jetpack',
+			accountJetpack( 'not-installed' ),
+			/Once Jetpack is on you’ll connect your WordPress.com account/,
+		],
+	] as const )( 'says in the details what happens next for %s', ( _, state, note ) => {
+		render( <FeatureDelivery state={ state } /> );
+		expect( screen.getByText( note ) ).toBeInTheDocument();
 	} );
 } );

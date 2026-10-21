@@ -66,8 +66,10 @@ export interface MyJetpackScriptData {
 	};
 	/** Absolute URL of My Jetpack's built images directory, with a trailing slash. */
 	assetsUrl?: string;
-	/** The tab that replaces Products, or null while it is unchanged. */
+	/** Navigation data for released footers; current My Jetpack always points to Features. */
 	productsSection?: { slug: 'features'; label: string } | null;
+	/** Where Jetpack AI is managed: the Jetpack AI Hub, or My Jetpack's AI page while the Hub is not open to the site. */
+	aiManageUrl?: string;
 }
 
 export interface JetpackScriptData {

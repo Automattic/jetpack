@@ -12,6 +12,7 @@ import Card from 'components/card';
 import ReaderChatControl from 'components/reader-chat-control';
 import SearchSuggestionsControl from 'components/search-suggestions-control';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
+import useActivateSearchFree from 'hooks/use-activate-search-free';
 import { STORE_ID } from 'store';
 
 import '../../scss/rna-styles.scss';
@@ -86,6 +87,12 @@ export default function SearchModuleControl( {
 		`admin.php?page=jetpack-search`,
 		isUserConnected || isWpcom
 	);
+	const sendToCheckout = useCallback( () => {
+		window.location.href = upgradeUrl;
+	}, [ upgradeUrl ] );
+	const { run: activateFree, isActivating: isActivatingFree } = useActivateSearchFree( {
+		sendToCheckout,
+	} );
 	const showAIAgentAccessGuidelinesLink =
 		! isReaderChatAvailable ||
 		! supportsSearch ||
@@ -162,6 +169,8 @@ export default function SearchModuleControl( {
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 						toggleInstantSearch={ toggleInstantSearch }
 						upgradeUrl={ upgradeUrl }
+						activateFree={ activateFree }
+						isActivatingFree={ isActivatingFree }
 						isDisabledFromOverLimit={ isDisabledFromOverLimit }
 					/>
 
@@ -206,6 +215,8 @@ const InstantSearchToggle = ( {
 	supportsOnlyClassicSearch,
 	toggleInstantSearch,
 	upgradeUrl,
+	activateFree,
+	isActivatingFree,
 	isDisabledFromOverLimit,
 } ) => {
 	const isInstantSearchToggleChecked =
@@ -253,7 +264,12 @@ const InstantSearchToggle = ( {
 						</Fragment>
 					) }
 					{ ! supportsInstantSearch && isInstantSearchPromotionActive && (
-						<InstantSearchUpsellNudge href={ upgradeUrl } upgrade={ supportsOnlyClassicSearch } />
+						<InstantSearchUpsellNudge
+							href={ upgradeUrl }
+							onClick={ activateFree }
+							isBusy={ isActivatingFree }
+							upgrade={ supportsOnlyClassicSearch }
+						/>
 					) }
 				</div>
 			</div>

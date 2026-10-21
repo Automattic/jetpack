@@ -1,6 +1,6 @@
 import { TZDate } from '@date-fns/tz';
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
-import { DETAIL_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateFiltersPanel } from '../date-filters-panel';
@@ -94,7 +94,7 @@ describe( 'DateFiltersPanel', () => {
 	it( 'renders the detail surface: every period, plus all time and a custom range', async () => {
 		const user = userEvent.setup();
 		renderPanel( {
-			presetIds: DETAIL_SURFACE_PRESETS,
+			presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 			appliedPresetId: 'all-time',
 		} );
 
@@ -148,6 +148,130 @@ describe( 'DateFiltersPanel', () => {
 			},
 			'previous-period'
 		);
+	} );
+
+	describe( 'with Last 30 days spanning a whole month', () => {
+		const openPicker = async ( user: ReturnType< typeof userEvent.setup > ) => {
+			const last30Days = {
+				from: new TZDate( '2026-04-01T00:00:00.000Z', 'UTC' ),
+				to: new TZDate( '2026-04-30T23:59:59.999Z', 'UTC' ),
+			};
+			renderPanel( {
+				appliedPresetId: 'last-30-days',
+				range: last30Days,
+				appliedRange: last30Days,
+				comparisonPresetId: 'previous-period',
+			} );
+
+			await user.click( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+		};
+
+		it( 'keeps naming the applied comparison while the period picker opens', async () => {
+			const user = userEvent.setup();
+			await openPicker( user );
+
+			expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toBeInTheDocument();
+		} );
+
+		// The mocked `onChange` leaves the range as applied, so only the preset differs.
+		it( 'previews a custom draft of the same dates as a custom range', async () => {
+			const user = userEvent.setup();
+			await openPicker( user );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Custom range' } ) );
+
+			const days = within( screen.getByRole( 'grid' ) )
+				.getAllByRole( 'button' )
+				.filter( day => ! day.hasAttribute( 'disabled' ) );
+			await user.click( days[ 0 ] );
+			await user.click( days[ 4 ] );
+
+			expect(
+				screen.getByRole( 'button', { name: 'Previous month', expanded: false } )
+			).toBeInTheDocument();
+		} );
+	} );
+
+	it( 'locks the periods and days the scope withholds and wires the upsell', async () => {
+		const user = userEvent.setup();
+		const onUpgradeClick = jest.fn();
+		render(
+			<ReportScopeProvider
+				dateLimits={ {
+					lockedPresetIds: [ 'last-30-days' ],
+					earliestDate: new TZDate( '2026-07-10T00:00:00.000Z', 'UTC' ),
+					lockedIntervals: [],
+					upsell: {
+						description: 'Upgrade to see more.',
+						supportUrl: 'https://example.com/help',
+						upgradeUrl: 'https://example.com/plans',
+						onUpgradeClick,
+					},
+				} }
+			>
+				{ panel( { appliedPresetId: 'last-7-days' } ) }
+			</ReportScopeProvider>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Last 7 days' } ) );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByText( 'Upgrade to see more.' ) ).toBeInTheDocument();
+
+		const upgrade = screen.getByRole( 'link', { name: 'Upgrade' } );
+		// jsdom cannot navigate, and logs an error if the click tries.
+		upgrade.addEventListener( 'click', event => event.preventDefault() );
+		await user.click( upgrade );
+
+		expect( onUpgradeClick ).toHaveBeenCalledTimes( 1 );
+
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Custom range' } ) );
+		const day = ( name: string ) =>
+			within( screen.getByRole( 'grid' ) ).getByRole( 'button', { name: new RegExp( name ) } );
+
+		expect( day( 'July 9, 2026' ) ).toBeDisabled();
+		expect( day( 'July 10, 2026' ) ).toBeEnabled();
+	} );
+
+	it( 'locks the chart intervals the scope withholds and wires their own upsell', async () => {
+		const user = userEvent.setup();
+		const onUpgradeClick = jest.fn();
+		render(
+			<ReportScopeProvider
+				dateLimits={ {
+					lockedPresetIds: [],
+					lockedIntervals: [ 'week' ],
+					intervalUpsell: {
+						description: 'Group your charts by week.',
+						supportUrl: '',
+						upgradeUrl: 'https://example.com/plans',
+						onUpgradeClick,
+					},
+				} }
+			>
+				{ panel( {
+					withIntervalControl: true,
+					intervalOptions: [ 'day' ],
+					lockedIntervalOptions: [ 'week' ],
+					interval: 'day',
+					onIntervalChange: jest.fn(),
+				} ) }
+			</ReportScopeProvider>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toHaveAccessibleDescription(
+			'Group your charts by week.'
+		);
+
+		const upgrade = screen.getByRole( 'link', { name: 'Upgrade' } );
+		upgrade.addEventListener( 'click', event => event.preventDefault() );
+		await user.click( upgrade );
+
+		expect( onUpgradeClick ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'greys every control out while disabled', () => {

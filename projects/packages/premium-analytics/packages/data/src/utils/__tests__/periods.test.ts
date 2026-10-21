@@ -1,7 +1,12 @@
 /**
  * Internal dependencies
  */
-import { chartInterval, defaultPeriodForInterval, drawableIntervals } from '../periods';
+import {
+	chartInterval,
+	defaultPeriodForInterval,
+	drawableIntervals,
+	intervalMenuOptions,
+} from '../periods';
 
 // The period sets in use.
 const DAY_WEEK_MONTH = [ 'day', 'week', 'month' ] as const;
@@ -17,33 +22,14 @@ describe( 'defaultPeriodForInterval', () => {
 			[ 'year', 'month' ],
 			[ 'day', 'day' ],
 			[ 'hour', 'day' ],
-			[ undefined, 'day' ],
-			[ 'nonsense', 'day' ],
 		] )( 'maps %s to %s', ( interval, expected ) => {
 			expect( defaultPeriodForInterval( interval, DAY_WEEK_MONTH ) ).toBe( expected );
-		} );
-	} );
-
-	describe( 'day/week/month/year widgets (wordads chart tabs)', () => {
-		it.each( [
-			[ 'week', 'week' ],
-			[ 'month', 'month' ],
-			// Year is offered here, so it is kept rather than collapsed.
-			[ 'year', 'year' ],
-			[ 'day', 'day' ],
-			[ undefined, 'day' ],
-			[ 'nonsense', 'day' ],
-		] )( 'maps %s to %s', ( interval, expected ) => {
-			expect( defaultPeriodForInterval( interval, DAY_WEEK_MONTH_YEAR ) ).toBe( expected );
 		} );
 	} );
 
 	describe( 'hour/day/week/month widgets (traffic chart)', () => {
 		it.each( [
 			[ 'hour', 'hour' ],
-			[ 'day', 'day' ],
-			[ 'week', 'week' ],
-			[ 'year', 'month' ],
 			[ undefined, 'day' ],
 			[ 'nonsense', 'day' ],
 		] )( 'maps %s to %s', ( interval, expected ) => {
@@ -156,6 +142,18 @@ describe( 'chartInterval', () => {
 		expect( chartInterval( params, [ 'day', 'month' ] as const ) ).toBe( 'day' );
 	} );
 
+	it( 'keeps the chart off a bucket the plan locks', () => {
+		const params = {
+			preset: 'last-30-days',
+			from: '2026-09-16',
+			to: '2026-10-15',
+			interval: 'week',
+		} as const;
+
+		expect( chartInterval( params, DAY_WEEK_MONTH ) ).toBe( 'week' );
+		expect( chartInterval( params, DAY_WEEK_MONTH, [ 'week', 'month', 'year' ] ) ).toBe( 'day' );
+	} );
+
 	// A chart with no bucket control (WordAds) passes none: the window alone picks it.
 	it( 'draws the range default when no bucket is stored', () => {
 		const params = { from: 'a', to: 'b', interval: undefined };
@@ -167,5 +165,19 @@ describe( 'chartInterval', () => {
 		expect( chartInterval( { ...CUSTOM_3_DAYS, interval: undefined }, DAY_WEEK_MONTH ) ).toBe(
 			'day'
 		);
+	} );
+} );
+
+describe( 'intervalMenuOptions', () => {
+	const MULTI_YEAR = { preset: undefined, from: '2023-01-01', to: '2026-06-30' };
+	const LAST_30_DAYS = { preset: 'last-30-days' as const, from: '2026-09-16', to: '2026-10-15' };
+	const LOCKED = [ 'week', 'month', 'year' ] as const;
+
+	it.each( [
+		[ 'a chart that draws no years', MULTI_YEAR, HOUR_DAY_WEEK_MONTH, [ 'day' ], [ 'month' ] ],
+		[ 'a widget that declares no periods', MULTI_YEAR, undefined, [ 'day' ], [ 'month', 'year' ] ],
+		[ 'a chart without days', LAST_30_DAYS, [ 'week', 'month' ] as const, [ 'week' ], [] ],
+	] )( 'splits the buckets for %s', ( _, params, periods, options, lockedOptions ) => {
+		expect( intervalMenuOptions( params, LOCKED, periods ) ).toEqual( { options, lockedOptions } );
 	} );
 } );

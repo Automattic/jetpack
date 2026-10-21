@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	ensureCoreSettingsReady,
-	needsReportDateParamsSeed,
-	normalizeReportParams,
-} from '@jetpack-premium-analytics/data';
+import { getSectionDatePolicy } from '@jetpack-premium-analytics/data';
 import {
 	pickDashboardOriginParams,
 	pickReportOriginParams,
@@ -14,6 +10,8 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { dateWindowRedirect } from '../date-window-redirect';
+import { seedDetailDateParams } from '../detail-date-seed';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { resolveTabId } from './config';
@@ -65,42 +63,29 @@ export const route = {
 		const resolvedSection = currentSearch.section
 			? resolveTabId( currentSearch.section )
 			: undefined;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
+		const policy = getSectionDatePolicy( getReportDefinition( 'posts' )?.dashboardSection );
 		const needsPostSeed = currentSearch.post_id !== postId;
 		const needsSectionSeed = !! currentSearch.section && resolvedSection !== currentSearch.section;
 
-		if ( needsDateSeed || needsPostSeed || needsSectionSeed ) {
-			/*
-			 * Warm the core `site` record for `useSiteHomeUrl()`. A rejection
-			 * shouldn't error the whole page, and the seed's own dates don't
-			 * depend on it, so fall through.
-			 */
-			try {
-				await ensureCoreSettingsReady();
-			} catch {
-				// Proceed with the default seed below.
-			}
-
-			// Allowlist this page's own params instead of spreading `currentSearch`
-			// wholesale; the report origin stays so the breadcrumb survives.
-			const reportParams = normalizeReportParams(
-				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
-			);
-			delete reportParams.author_id;
-			const seeded: Record< string, unknown > = {
-				...reportParams,
-				...pickReportOriginParams( currentSearch ),
-				...pickDashboardOriginParams( currentSearch ),
-				...( resolvedSection ? { section: resolvedSection } : {} ),
-				post_id: postId,
-			};
-
-			/*
-			 * Comparison params ride along untouched: this page renders no
-			 * comparison, but the breadcrumb's dashboard link carries the URL state
-			 * back out, so stripping them would lose the setting on a round trip.
-			 */
-
+		const limited = await dateWindowRedirect( currentSearch, policy, {
+			seed: () => {
+				// Allowlist this page's own params instead of spreading `currentSearch`
+				// wholesale; the report origin stays so the breadcrumb survives.
+				const reportParams = seedDetailDateParams( currentSearch, postId );
+				delete reportParams.author_id;
+				return {
+					...reportParams,
+					...pickReportOriginParams( currentSearch ),
+					...pickDashboardOriginParams( currentSearch ),
+					...( resolvedSection ? { section: resolvedSection } : {} ),
+					post_id: postId,
+				};
+			},
+			needsSeed: needsPostSeed || needsSectionSeed,
+			// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
+			requested: needsPostSeed ? undefined : currentSearch,
+		} );
+		if ( limited ) {
 			throw redirect( {
 				to: '/post/$postId',
 				/*
@@ -110,7 +95,9 @@ export const route = {
 				 */
 				params: { postId } as unknown as never,
 				replace: true,
-				search: seeded as unknown as never,
+				viewTransition: false,
+				search: limited.search as unknown as never,
+				state: limited.state,
 			} );
 		}
 	},

@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __, _n } from '@wordpress/i18n';
-import { people } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -12,21 +11,17 @@ import {
 	reportParamsAttributeField,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/fields';
-import {
-	chartTypeAttributeField,
-	type ChartDisplayChartType,
-	type CountLabel,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ChartDisplayChartType, CountLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Internal dependencies
  */
-import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { defaultReportParams } from './default-report-params';
 import { SUBSCRIBERS_GRAIN } from './grain';
 
 /**
- * How the selected metric is drawn. The shared chart-display list keeps every
- * chart widget's dropdown identical and ties it to the toolkit's own union.
+ * How the selected metric is drawn. The alias ties the attribute to the
+ * toolkit's own union, which the chart reads.
  */
 export type SubscribersChartType = ChartDisplayChartType;
 
@@ -73,18 +68,16 @@ export type SubscribersChartAttributes = Partial< ReportParamsFieldAttributes > 
  * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
-	icon: people,
 	attributes: [
 		reportParamsAttributeField< SubscribersChartAttributes >( {
 			grain: SUBSCRIBERS_GRAIN,
 			offersComparison: false,
 		} ),
-		chartTypeAttributeField(),
 	] as WidgetAttributeField< SubscribersChartAttributes >[],
 	example: {
-		attributes: {
-			reportParams: DEFAULT_REPORT_PARAMS,
-			chartType: 'line',
+		// A getter: the host reads it on every render, and the default can change after load.
+		get attributes() {
+			return { reportParams: defaultReportParams(), chartType: 'line' };
 		},
 	},
 };

@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getUserConnectionUrl, useConnection } from '@automattic/jetpack-connection';
-import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import {
@@ -36,13 +36,25 @@ import {
 	people,
 	currencyDollar,
 	cautionFilled as warning,
+	styles,
 } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
+import { Link, VisuallyHidden } from '@wordpress/ui';
+import { addQueryArgs } from '@wordpress/url';
 import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { SendIcon } from './icons';
 import type { JSX } from 'react';
+
+/*
+ * The newsletter package declares the same key for its own bundle (`settings/declarations.d.ts`);
+ * this is the plugin-side copy, because that type is internal to the package. Keep them in step.
+ */
+declare module '@automattic/jetpack-script-data' {
+	interface JetpackScriptData {
+		newsletter?: { emailDesignUrl?: string | null };
+	}
+}
 
 interface PreviewErrorInfo {
 	code?: string;
@@ -244,7 +256,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEma
 								sendTestEmail();
 							} }
 						>
-							<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto;">
+							<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto">
 								<InputControl
 									type="email"
 									value={ recipientEmail }
@@ -257,12 +269,12 @@ export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEma
 								<Button
 									type="submit"
 									variant="primary"
+									icon={ SendIcon }
 									isBusy={ isEmailSending }
 									disabled={ shouldPromptForConnection }
 									__next40pxDefaultSize={ true }
 								>
 									{ __( 'Send', 'jetpack' ) }
-									<Icon icon={ SendIcon } />
 								</Button>
 							</Grid>
 						</form>
@@ -289,20 +301,32 @@ const previewDevices: PreviewDevice[] = [
 	{ name: 'mobile', icon: mobile, label: __( 'Mobile', 'jetpack' ), width: '360px', size: 'sm' },
 ];
 
+/**
+ * The devices the viewport has room to preview, widest first. Desktop is dropped in the
+ * 600–960px band, where its width is whatever room is left over anyway.
+ *
+ * @return The offered devices.
+ */
+const useAvailablePreviewDevices = (): PreviewDevice[] => {
+	// Both hooks must be called unconditionally (rules-of-hooks), so avoid &&-short-circuiting them.
+	const isAtLeastSmall = useViewportMatch( 'small' );
+	const isBelowLarge = useViewportMatch( 'large', '<' );
+	const isMedium = isAtLeastSmall && isBelowLarge;
+
+	return isMedium ? previewDevices.filter( device => device.size !== 'lg' ) : previewDevices;
+};
+
 interface PreviewDeviceSelectorProps {
+	devices: PreviewDevice[];
 	selectedDevice: PreviewDeviceName;
 	setSelectedDevice: ( device: PreviewDeviceName ) => void;
 }
 
 const PreviewDeviceSelector = ( {
+	devices,
 	selectedDevice,
 	setSelectedDevice,
 }: PreviewDeviceSelectorProps ) => {
-	// `md` in the old hook was the 600–959px band: at least small (>=600) AND below large (<960).
-	// Both hooks must be called unconditionally (rules-of-hooks), so avoid &&-short-circuiting them.
-	const isAtLeastSmall = useViewportMatch( 'small' );
-	const isBelowLarge = useViewportMatch( 'large', '<' );
-	const isMedium = isAtLeastSmall && isBelowLarge;
 	const isSmall = useViewportMatch( 'small', '<' );
 	const { tracks } = useAnalytics();
 
@@ -315,11 +339,11 @@ const PreviewDeviceSelector = ( {
 		return null;
 	}
 
-	const getAvailableDevices = () =>
-		isMedium ? previewDevices.filter( device => device.size !== 'lg' ) : previewDevices;
-
 	return (
+		// Remount when the options change: the highlight only re-measures when the selected
+		// option resizes, so a moved option would leave it on the old position.
 		<ToggleGroupControl
+			key={ devices.map( device => device.name ).join() }
 			__nextHasNoMarginBottom
 			label={ __( 'Preview device', 'jetpack' ) }
 			hideLabelFromVision
@@ -328,7 +352,7 @@ const PreviewDeviceSelector = ( {
 			isBlock
 			__next40pxDefaultSize={ true }
 		>
-			{ getAvailableDevices().map( device => (
+			{ devices.map( device => (
 				<ToggleGroupControlOptionIcon
 					key={ device.name }
 					icon={ device.icon }
@@ -407,19 +431,79 @@ const PreviewAccessSelector = ( {
 	);
 };
 
-interface PreviewControlsProps extends PreviewAccessSelectorProps, PreviewDeviceSelectorProps {}
+/**
+ * Link out to the email design screen, for the creator who looks at the preview and wants the
+ * email to look different. A new tab, because this one holds an unsaved post.
+ *
+ * No `return` arg, unlike the settings card: it would send the design editor's Back button to
+ * `post.php` in the new tab, leaving the same post open in two editors with no lock warning
+ * between them -- `wp_check_post_lock()` reports nothing when both are the same user.
+ *
+ * The post travels as `post_id` so the design screen's canvas previews the post the reader was
+ * just looking at rather than the sample one. The design being edited stays site-wide. NL-1051.
+ *
+ * @param props        - Component props.
+ * @param props.postId - The post being previewed, for the canvas and the Tracks event.
+ * @return The link, or null on a site with no design screen.
+ */
+const EmailDesignLink = ( { postId }: { postId: number } ) => {
+	const { tracks } = useAnalytics();
+	const isBelowLarge = useViewportMatch( 'large', '<' );
+	const emailDesignUrl = getScriptData()?.newsletter?.emailDesignUrl;
+
+	const handleClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_newsletter_preview_modal_email_design_click', {
+			post_id: postId,
+		} );
+	}, [ tracks, postId ] );
+
+	if ( ! emailDesignUrl ) {
+		return null;
+	}
+
+	const label = __( 'Edit email design', 'jetpack' );
+	const href = postId > 0 ? addQueryArgs( emailDesignUrl, { post_id: postId } ) : emailDesignUrl;
+
+	// The icon carries at every size so it becomes familiar; below `large` it carries alone,
+	// because a label there clips the modal title on a site that also shows the audience toggle.
+	return (
+		<Link
+			openInNewTab
+			href={ href }
+			onClick={ handleClick }
+			className="jetpack-newsletter-preview-modal__design-link"
+			title={ isBelowLarge ? label : undefined }
+		>
+			<Icon icon={ styles } size={ 24 } />
+			{ /* Hidden rather than an `aria-label`, which would override the contents and take
+			     `Link`'s own "(opens in a new tab)" notice out of the accessible name with it. */ }
+			{ isBelowLarge ? (
+				<VisuallyHidden>{ label }</VisuallyHidden>
+			) : (
+				<span className="jetpack-newsletter-preview-modal__design-link-label">{ label }</span>
+			) }
+		</Link>
+	);
+};
+
+interface PreviewControlsProps extends PreviewAccessSelectorProps, PreviewDeviceSelectorProps {
+	postId: number;
+}
 
 const PreviewControls = ( {
+	devices,
 	selectedAccess,
 	setSelectedAccess,
 	selectedDevice,
 	setSelectedDevice,
+	postId,
 }: PreviewControlsProps ) => {
 	const isSmall = useViewportMatch( 'small', '<' );
 
 	return (
-		<HStack alignment="center" spacing={ isSmall ? 1 : 6 }>
+		<HStack alignment="center" spacing={ isSmall ? 2 : 6 }>
 			<PreviewDeviceSelector
+				devices={ devices }
 				selectedDevice={ selectedDevice }
 				setSelectedDevice={ setSelectedDevice }
 			/>
@@ -427,6 +511,7 @@ const PreviewControls = ( {
 				selectedAccess={ selectedAccess }
 				setSelectedAccess={ setSelectedAccess }
 			/>
+			<EmailDesignLink postId={ postId } />
 		</HStack>
 	);
 };
@@ -448,6 +533,12 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 	);
 	const [ selectedDevice, setSelectedDevice ] = useState< PreviewDeviceName >( 'desktop' );
 	const { tracks } = useAnalytics();
+
+	// The viewport can withdraw the selected device mid-session, so the preview follows what is
+	// on offer. The stored pick is left alone, to be honoured again if the viewport widens.
+	const availableDevices = useAvailablePreviewDevices();
+	const effectiveDevice =
+		availableDevices.find( device => device.name === selectedDevice ) ?? availableDevices[ 0 ];
 
 	// To avoid duplicate fetches for the same access level, keep track of which access levels are currently being fetched. This is a ref so that it persists across renders without triggering re-renders.
 	const fetchingAccessLevelsRef = useRef< Set< AccessLevelKey > >( new Set() );
@@ -541,8 +632,6 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 		setPreviewCache( {} );
 	};
 
-	const deviceWidth = previewDevices.find( device => device.name === selectedDevice ).width;
-
 	return (
 		isOpen && (
 			<Modal
@@ -551,10 +640,12 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 				onRequestClose={ handleClose }
 				headerActions={
 					<PreviewControls
+						devices={ availableDevices }
 						selectedAccess={ selectedAccess }
 						setSelectedAccess={ setSelectedAccess }
-						selectedDevice={ selectedDevice }
+						selectedDevice={ effectiveDevice.name }
 						setSelectedDevice={ setSelectedDevice }
+						postId={ postId }
 					/>
 				}
 				className="jetpack-newsletter-preview-modal"
@@ -566,7 +657,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 						alignItems: 'center',
 						height: 'calc(100vh - 190px)',
 						backgroundColor: isError ? '#fff' : '#ddd',
-						paddingTop: selectedDevice !== 'desktop' ? '36px' : '0',
+						paddingTop: effectiveDevice.name !== 'desktop' ? '36px' : '0',
 						transition: 'padding 0.3s ease-in-out',
 					} }
 				>
@@ -623,7 +714,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 							sandbox=""
 							srcDoc={ previewCache?.[ selectedAccess ] }
 							style={ {
-								width: deviceWidth,
+								width: effectiveDevice.width,
 								maxWidth: '100%',
 								height: '100%',
 								border: 'none',

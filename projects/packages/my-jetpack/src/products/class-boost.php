@@ -56,13 +56,6 @@ class Boost extends Product {
 	public static $category = 'performance';
 
 	/**
-	 * Defines whether or not to show a product interstitial as tiered pricing or not
-	 *
-	 * @var bool
-	 */
-	public static $is_tiered_pricing = true;
-
-	/**
 	 * Boost has a standalone plugin
 	 *
 	 * @var bool
@@ -154,7 +147,9 @@ class Boost extends Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
-	 * @return array[] Protect features comparison
+	 * The Jetpack Boost plugin calls this for its own pricing table.
+	 *
+	 * @return array[] Boost features comparison
 	 */
 	public static function get_features_by_tier() {
 		return array(

@@ -15,15 +15,21 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { runInNewContext } from 'node:vm';
 import {
 	buildSummary,
 	captureNavigationMetrics,
+	initializeLoadObservers,
 	computeRunOutcome,
 	finalizeMeasurement,
 	findIncompleteSummaryFields,
 	resolveScenarioSet,
 } from './measure-lcp.js';
-import { tcEscape, reportSkippedScenarios } from './run-performance-tests.js';
+import {
+	checkWordPressInstances,
+	tcEscape,
+	reportSkippedScenarios,
+} from './run-performance-tests.js';
 import { SCENARIOS } from './scenarios.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
@@ -86,6 +92,91 @@ test( 'resolveScenarioSet matches exactly one scenario by cliName', () => {
 	const myJetpack = resolveScenarioSet( 'my-jetpack', SCENARIOS );
 	assert.equal( myJetpack.length, 1 );
 	assert.equal( myJetpack[ 0 ].key, 'myJetpack' );
+} );
+
+test( 'the targeted Dashboard control fails alone and skips alongside a measured Dashboard', () => {
+	const [ control ] = resolveScenarioSet( 'no-jetpack', SCENARIOS );
+	assert.equal( control.key, 'jetpackConnected-noJetpack' );
+	assert.equal( control.optional, true );
+	assert.equal( control.dockerService, 'wordpress-no-jetpack' );
+	assert.equal( control.wpPath, '/var/www/html/no-jetpack' );
+	assert.equal( control.path, undefined );
+	const measurements = { jetpackConnected: ok, [ control.key ]: failed };
+	const outcome = computeRunOutcome( measurements, SCENARIOS );
+	assert.equal( outcome.exitCode, 0 );
+	assert.deepEqual( outcome.optionalFailures, [ control.name ] );
+	assert.equal( computeRunOutcome( { [ control.key ]: failed }, [ control ] ).exitCode, 1 );
+} );
+
+test( 'instance readiness ignores optional controls but fails for an unready required instance', async t => {
+	const urls = [];
+	t.mock.method( console, 'log', () => {} );
+	t.mock.method( console, 'error', () => {} );
+	t.mock.method( globalThis, 'fetch', async url => {
+		urls.push( url );
+		return { ok: true, text: async () => 'user_login user_pass' };
+	} );
+	const required = { ...REQUIRED, defaultUrl: 'http://required.test' };
+	const control = { ...OPT_A, defaultUrl: 'http://control.test' };
+	assert.equal( await checkWordPressInstances( [ required, control ] ), true );
+	assert.deepEqual( urls, [ 'http://required.test/wp-login.php' ] );
+	t.mock.method( globalThis, 'fetch', async () => {
+		throw new Error( 'unready' );
+	} );
+	assert.equal( await checkWordPressInstances( [ required, control ] ), false );
+} );
+
+test( 'connection simulation skips the control regardless of latency environment', t => {
+	const php = spawnSync( 'php', [ '--version' ] );
+	if ( php.error?.code === 'ENOENT' ) {
+		t.skip( 'PHP CLI is needed to execute the simulator bootstrap' );
+		return;
+	}
+	const simulator = path.join( SCRIPTS_DIR, '../docker/mu-plugins/simulate-wpcom-connection.php' );
+	for ( const [ control, latency ] of [
+		[ false, undefined ],
+		[ false, '0' ],
+		[ false, '200' ],
+		[ true, undefined ],
+		[ true, '0' ],
+		[ true, '200' ],
+	] ) {
+		const env = { ...process.env };
+		delete env.WPCOM_SIMULATED_LATENCY_MS;
+		if ( latency !== undefined ) {
+			env.WPCOM_SIMULATED_LATENCY_MS = latency;
+		}
+		const result = spawnSync(
+			'php',
+			[
+				'-r',
+				`define( 'ABSPATH', '/' );
+				${ control ? "define( 'JETPACK_PERFORMANCE_NO_JETPACK_CONTROL', true );" : '' }
+				$hooks = array();
+				function add_filter( $name ) { $GLOBALS['hooks'][] = $name; }
+				function add_action( $name ) { $GLOBALS['hooks'][] = $name; }
+				require $argv[1];
+				echo json_encode( array( 'class' => class_exists( 'Jetpack_WPCom_Connection_Simulator' ), 'hooks' => $hooks ) );`,
+				simulator,
+			],
+			{ env, encoding: 'utf8' }
+		);
+		assert.equal( result.status, 0, result.stderr );
+		const actual = JSON.parse( result.stdout );
+		assert.equal( actual.class, ! control );
+		assert.deepEqual(
+			actual.hooks,
+			control
+				? []
+				: [
+						'jetpack_offline_mode',
+						'pre_option_jetpack_offline_mode',
+						'plugins_loaded',
+						'jetpack_modules_loaded',
+						'pre_http_request',
+					]
+		);
+	}
 } );
 
 test( 'resolveScenarioSet throws on an unknown filter, listing the valid values', () => {
@@ -160,6 +251,7 @@ test( 'findIncompleteSummaryFields returns [] for a complete summary', () => {
 		ttfb: { median: 200 },
 		fcp: { median: 500 },
 		decodedBytesKB: { median: 8229 },
+		tbt: { median: 0 },
 	};
 	assert.deepEqual( findIncompleteSummaryFields( forms, summary ), [] );
 } );
@@ -179,6 +271,7 @@ test( 'findIncompleteSummaryFields names a posted field whose block the summary 
 		lcp: { median: 300 },
 		fcp: { median: 500 },
 		decodedBytesKB: { median: 8229 },
+		tbt: { median: 0 },
 	};
 	assert.deepEqual( findIncompleteSummaryFields( forms, summary ), [ 'ttfb' ] );
 	// A block that exists but has no finite median is just as unusable as a missing block.
@@ -211,6 +304,7 @@ test( 'a majority-rule field drop in buildSummary is caught as incomplete', () =
 				ttfb: 200,
 				fcp: 500,
 				decodedBytesKB: 8229,
+				tbt: 0,
 			},
 		},
 		{
@@ -222,6 +316,7 @@ test( 'a majority-rule field drop in buildSummary is caught as incomplete', () =
 				ttfb: null,
 				fcp: 510,
 				decodedBytesKB: 8229,
+				tbt: 0,
 			},
 		},
 		{
@@ -233,6 +328,7 @@ test( 'a majority-rule field drop in buildSummary is caught as incomplete', () =
 				ttfb: null,
 				fcp: 505,
 				decodedBytesKB: 8229,
+				tbt: 0,
 			},
 		},
 	];
@@ -265,6 +361,7 @@ test( "buildSummary mirrors the lcp block flat on the summary root (the ['lcp'] 
 					ttfb: 200,
 					fcp: 500,
 					decodedBytesKB: 8229,
+					tbt: 0,
 				},
 			},
 			{
@@ -276,6 +373,7 @@ test( "buildSummary mirrors the lcp block flat on the summary root (the ['lcp'] 
 					ttfb: 210,
 					fcp: 510,
 					decodedBytesKB: 8229,
+					tbt: 0,
 				},
 			},
 		],
@@ -299,6 +397,7 @@ const healthyIteration = i => ( {
 		ttfb: 200,
 		fcp: 500,
 		decodedBytesKB: 8229,
+		tbt: 0,
 	},
 } );
 
@@ -380,6 +479,7 @@ test( 'backend capture failures preserve browser samples and use the per-field m
 						ttfb: 200,
 						fcp: 500,
 						decodedBytesKB: 8229,
+						tbt: 0,
 					} ) ),
 				};
 			} )
@@ -532,4 +632,209 @@ test( 'reportSkippedScenarios warns readably (no TeamCity message) on a missing/
 	const malformed = captureConsole( () => reportSkippedScenarios( badFile ) );
 	assert.deepEqual( malformed.log, [] );
 	assert.match( malformed.warn[ 0 ], /Could not read results/ );
+} );
+
+/** Execute the browser initializer with a controllable observer implementation. */
+function longTaskHarness( {
+	supported = true,
+	observeError = false,
+	drainError = false,
+	disconnectError = false,
+	synchronousEntries,
+} = {} ) {
+	const descriptors = Object.fromEntries(
+		[ 'window', 'performance', 'PerformanceObserver' ].map( key => [
+			key,
+			Object.getOwnPropertyDescriptor( globalThis, key ),
+		] )
+	);
+	const browserWindow = {};
+	let longTaskObserver;
+	class Observer {
+		static supportedEntryTypes = supported ? [ 'longtask' ] : [];
+		constructor( callback ) {
+			this.callback = callback;
+			this.pending = [];
+		}
+		observe( options ) {
+			if ( options.type === 'longtask' ) {
+				assert.equal( options.buffered, true );
+				longTaskObserver = this;
+				if ( observeError ) {
+					throw new Error( 'capture failed' );
+				}
+				if ( synchronousEntries ) {
+					this.callback( { getEntries: () => synchronousEntries } );
+				}
+			}
+		}
+		takeRecords() {
+			if ( drainError ) {
+				throw new Error( 'drain failed' );
+			}
+			return this.pending.splice( 0 );
+		}
+		disconnect() {
+			this.disconnected = true;
+			if ( disconnectError ) {
+				throw new Error( 'disconnect failed' );
+			}
+		}
+	}
+	try {
+		Object.defineProperties( globalThis, {
+			window: { value: browserWindow, configurable: true },
+			performance: { value: { setResourceTimingBufferSize() {} }, configurable: true },
+			PerformanceObserver: { value: Observer, configurable: true },
+		} );
+		initializeLoadObservers();
+	} finally {
+		for ( const [ key, descriptor ] of Object.entries( descriptors ) ) {
+			if ( descriptor ) {
+				Object.defineProperty( globalThis, key, descriptor );
+			} else {
+				delete globalThis[ key ];
+			}
+		}
+	}
+	return { finalize: browserWindow.__finalizeLongTasks, observer: longTaskObserver };
+}
+
+test( 'load TBT includes pre-paint tasks, drains pending records and excludes tasks beyond cutoff', () => {
+	const { finalize, observer } = longTaskHarness();
+	const early = { startTime: 0, duration: 120 };
+	observer.callback( { getEntries: () => [ early, { startTime: 130, duration: 40 } ] } );
+	observer.pending = [
+		{ startTime: 200, duration: 80 },
+		{ startTime: 200, duration: 100 },
+		{ startTime: 250, duration: 50 },
+		{ startTime: 280, duration: 60 },
+		{ startTime: 400, duration: 100 },
+	];
+	assert.deepEqual( finalize( 300 ), {
+		tbt: 150,
+		longTasks: [
+			early,
+			{ startTime: 130, duration: 40 },
+			{ startTime: 200, duration: 80 },
+			{ startTime: 200, duration: 100 },
+			{ startTime: 250, duration: 50 },
+		],
+	} );
+	assert.deepEqual( observer.pending, [] );
+	assert.equal( observer.disconnected, true );
+} );
+
+test( 'serialized load observers capture long tasks without module globals', () => {
+	const browserWindow = {};
+	class Observer {
+		static supportedEntryTypes = [ 'longtask' ];
+		observe() {}
+		takeRecords() {
+			return [
+				{ startTime: 0, duration: 120 },
+				{ startTime: 200, duration: 80 },
+				{ startTime: 280, duration: 60 },
+			];
+		}
+		disconnect() {}
+	}
+	runInNewContext( '(' + initializeLoadObservers.toString() + ')()', {
+		window: browserWindow,
+		performance: { setResourceTimingBufferSize() {} },
+		PerformanceObserver: Observer,
+	} );
+	const capture = browserWindow.__finalizeLongTasks( 300 );
+	assert.equal( capture.tbt, 100 );
+	assert.equal( capture.longTasks.length, 2 );
+} );
+
+test( 'working empty capture is zero; unsupported or failed capture is missing', () => {
+	assert.deepEqual( longTaskHarness().finalize( 300 ), { tbt: 0, longTasks: [] } );
+	for ( const [ options, longTaskError ] of [
+		[ { supported: false }, 'unsupported' ],
+		[ { observeError: true }, 'observe-threw' ],
+		[ { drainError: true }, 'finalizer-threw' ],
+	] ) {
+		assert.deepEqual( longTaskHarness( options ).finalize( 300 ), {
+			tbt: null,
+			longTasks: null,
+			longTaskError,
+		} );
+	}
+} );
+
+test( 'a throwing long-task callback remains missing after a later successful callback', () => {
+	const { finalize, observer } = longTaskHarness();
+	observer.callback( {
+		getEntries() {
+			throw new Error( 'callback failed' );
+		},
+	} );
+	observer.callback( { getEntries: () => [ { startTime: 0, duration: 120 } ] } );
+	assert.deepEqual( finalize( 300 ), {
+		tbt: null,
+		longTasks: null,
+		longTaskError: 'callback-threw',
+	} );
+	assert.equal( observer.disconnected, true );
+} );
+
+test( 'non-finite or negative long-task timings are missing data', () => {
+	for ( const entry of [
+		{ startTime: NaN, duration: 120 },
+		{ startTime: 0, duration: NaN },
+		{ startTime: -1, duration: 120 },
+		{ startTime: 0, duration: -1 },
+	] ) {
+		const { finalize, observer } = longTaskHarness();
+		observer.pending = [ entry ];
+		assert.deepEqual( finalize( 300 ), {
+			tbt: null,
+			longTasks: null,
+			longTaskError: 'invalid-entry',
+		} );
+	}
+} );
+
+test( 'a non-finite load-finalization cutoff is missing data', () => {
+	for ( const cutoff of [ undefined, NaN, Infinity ] ) {
+		const { finalize, observer } = longTaskHarness();
+		observer.pending = [ { startTime: 0, duration: 120 } ];
+		assert.deepEqual( finalize( cutoff ), {
+			tbt: null,
+			longTasks: null,
+			longTaskError: 'invalid-cutoff',
+		} );
+		assert.equal( observer.disconnected, true );
+	}
+} );
+
+test( 'long-task entries delivered synchronously during observe are preserved', () => {
+	const early = { startTime: 0, duration: 120 };
+	const { finalize } = longTaskHarness( { synchronousEntries: [ early ] } );
+	assert.deepEqual( finalize( 300 ), { tbt: 70, longTasks: [ early ] } );
+} );
+
+test( 'a disconnect failure does not discard the long-task capture', () => {
+	const { finalize, observer } = longTaskHarness( { disconnectError: true } );
+	const early = { startTime: 0, duration: 120 };
+	observer.pending = [ early ];
+	assert.deepEqual( finalize( 300 ), { tbt: 70, longTasks: [ early ] } );
+	assert.equal( observer.disconnected, true );
+} );
+
+test( 'TBT requires a majority for posted optional-page metrics and stays diagnostic on Dashboard', () => {
+	const forms = SCENARIOS.find( scenario => scenario.key === 'formsResponses' );
+	const results = [ 1, 2, 3 ].map( healthyIteration );
+	assert.equal( finalizeMeasurement( forms, results, 3, 'u' ).summary.tbt.median, 0 );
+	results[ 1 ].metrics.tbt = null;
+	results[ 2 ].metrics.tbt = null;
+	assert.equal( buildSummary( results, 3 ).tbt, undefined );
+	assert.throws(
+		() => finalizeMeasurement( forms, results, 3, 'u' ),
+		/missing posted field\(s\): tbt/
+	);
+	const dashboard = SCENARIOS.find( scenario => scenario.key === 'jetpackConnected' );
+	assert.equal( finalizeMeasurement( dashboard, results, 3, 'u' ).summary.tbt, undefined );
 } );

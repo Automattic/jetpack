@@ -6,9 +6,13 @@ import PricingTable, {
 	PricingTableItem,
 } from '@automattic/jetpack-components/pricing-table';
 import ProductPrice from '@automattic/jetpack-components/product-price';
+import { getRegistrationErrorSummary } from '@automattic/jetpack-connection/connection-error-message';
 import useConnection from '@automattic/jetpack-connection/use-connection';
+import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import { useState } from 'react';
+import { store as noticesStore } from '@wordpress/notices';
+import { Text } from '@wordpress/ui';
+import { useEffect, useState } from 'react';
 import useVideoPressCheckout from '../../../client/hooks/use-videopress-checkout';
 import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import PageSubTitle from '../page-subtitle';
@@ -40,18 +44,32 @@ export default function PricingUpsell() {
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
-	const { handleRegisterSite, userIsConnecting } = useConnection( {
-		from: 'jetpack-videopress',
-		redirectUri: redirectUrl,
-	} );
+	const { handleRegisterSite, userIsConnecting, registrationError, isOfflineMode } = useConnection(
+		{
+			from: 'jetpack-videopress',
+			redirectUri: redirectUrl,
+		}
+	);
 
-	const { run, hasCheckoutStarted } = useVideoPressCheckout( {
+	const { run, hasCheckoutStarted, checkoutError } = useVideoPressCheckout( {
 		productSlug: pricing?.yearly?.slug ?? '',
 		redirectUrl,
 		siteSuffix,
 		useBlogIdSuffix: true,
 		from: 'jetpack-videopress',
 	} );
+
+	const { createErrorNotice } = useDispatch( noticesStore );
+	useEffect( () => {
+		if ( checkoutError ) {
+			createErrorNotice(
+				__( 'Checkout could not start. Please try again.', 'jetpack-videopress-pkg' ),
+				{
+					type: 'snackbar',
+				}
+			);
+		}
+	}, [ checkoutError, createErrorNotice ] );
 
 	if ( ! pricing ) {
 		return null;
@@ -106,13 +124,19 @@ export default function PricingUpsell() {
 								variant="secondary"
 								onClick={ () => {
 									setIsConnecting( true );
-									handleRegisterSite();
+									handleRegisterSite().catch( () => setIsConnecting( false ) );
 								} }
 								isLoading={ userIsConnecting || isConnecting }
 								disabled={ userIsConnecting || isConnecting || hasCheckoutStarted }
 							>
 								{ __( 'Start for free', 'jetpack-videopress-pkg' ) }
 							</Button>
+							{ registrationError && (
+								<Text className="vp-connection-gate__error" role="alert">
+									{ getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
+										__( 'An error occurred. Please try again.', 'jetpack-videopress-pkg' ) }
+								</Text>
+							) }
 						</PricingTableHeader>
 						<PricingTableItem
 							isIncluded={ false }

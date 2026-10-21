@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Latest Videos Playlist block: list the site's videos on WordPress.com Simple pages, where the media REST endpoint is not available during a page render.
