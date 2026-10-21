@@ -199,6 +199,23 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Stats v2 takes the plain Stats name only once there is no classic Stats page to tell it apart from.
+	 */
+	public function test_menu_title_is_stats_once_the_classic_page_is_retired() {
+		$options = new ReflectionMethod( Jetpack::class, 'premium_analytics_options' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$options->setAccessible( true );
+		}
+
+		$this->assertSame( array(), $options->invoke( null ) );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Stats_Feature_Flags::CLASSIC_PAGE_RETIRED, '__return_true' );
+
+		$this->assertSame( 'Stats', ( $options->invoke( null )['menu_title'] )() );
+	}
+
+	/**
 	 * The answer is resolved once, so every caller in a request sees the same one.
 	 */
 	public function test_answer_is_resolved_once_per_request() {
