@@ -8,6 +8,8 @@
 		flex-direction: column;
 		gap: var(--wpds-dimension-gap-sm);
 		padding-block-start: var(--wpds-dimension-padding-xs);
+		// Sets the open list apart from the "Restore … instead" link below it.
+		padding-block-end: var(--wpds-dimension-gap-md);
 
 		p {
 			margin: 0;
