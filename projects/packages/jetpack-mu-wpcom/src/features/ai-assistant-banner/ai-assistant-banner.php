@@ -131,7 +131,7 @@ function wpcom_ai_assistant_banner_script_data( $screen_id ) {
 
 	// Dismiss for this user once both tools are on, so later loads skip the MCP check.
 	if ( true === $agent_and_mcp_enabled ) {
-		wpcom_ai_assistant_banner_record_dismissal();
+		wpcom_ai_assistant_banner_record_dismissal( true );
 	}
 
 	return array(
@@ -290,10 +290,12 @@ function wpcom_maybe_add_ai_assistant_banner() {
 add_action( 'current_screen', 'wpcom_maybe_add_ai_assistant_banner' );
 
 /**
- * Record when the current user dismissed the AI assistant banner.
+ * Record the current user's dismissal of the AI assistant banner.
+ *
+ * @param bool $automatic Whether both AI tools were enabled.
  */
-function wpcom_ai_assistant_banner_record_dismissal() {
-	update_user_meta( get_current_user_id(), 'wpcom_ai_assistant_banner_dismissed', time() );
+function wpcom_ai_assistant_banner_record_dismissal( $automatic = false ) {
+	update_user_meta( get_current_user_id(), 'wpcom_ai_assistant_banner_dismissed', $automatic ? time() : 1 );
 }
 
 /**

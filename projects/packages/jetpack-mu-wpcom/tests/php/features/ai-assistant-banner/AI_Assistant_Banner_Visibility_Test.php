@@ -150,4 +150,22 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 		update_option( 'big_sky_enable', '0' );
 		$this->assertFalse( wpcom_should_show_ai_assistant_banner() );
 	}
+
+	/**
+	 * Manual dismissal keeps the original user meta value.
+	 */
+	public function test_manual_dismissal_stores_one() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'ai_banner_manual_' . wp_rand(),
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		wpcom_ai_assistant_banner_record_dismissal();
+
+		$this->assertSame( 1, get_user_meta( $user_id, 'wpcom_ai_assistant_banner_dismissed', true ) );
+	}
 }
