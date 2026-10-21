@@ -125,6 +125,45 @@ describe( 'SettingsTab post category', () => {
 		expect( picker ).toHaveValue( '7' );
 	} );
 
+	it( 'keeps the confirmed value when a newer save fails before an older one succeeds', async () => {
+		const user = userEvent.setup();
+		const pending = [];
+		mockMutate.mockImplementation( ( _updates, callbacks ) => pending.push( callbacks ) );
+		render( <SettingsTab /> );
+		const picker = screen.getByRole( 'combobox', { name: 'Post category' } );
+
+		await user.selectOptions( picker, '7' );
+		await user.selectOptions( picker, '9' );
+
+		act( () => pending[ 1 ].onError( new Error( 'nope' ) ) );
+		act( () => pending[ 0 ].onSuccess( { ...mockSaved, podcasting_category_id: 7 } ) );
+
+		expect( picker ).toHaveValue( '7' );
+	} );
+
+	it( 'keeps a pick in another field that is still saving', async () => {
+		const user = userEvent.setup();
+		const pending = [];
+		mockMutate.mockImplementation( ( _updates, callbacks ) => pending.push( callbacks ) );
+		render( <SettingsTab /> );
+		const explicit = screen.getByRole( 'combobox', { name: 'Explicit content' } );
+
+		await user.selectOptions( screen.getByRole( 'combobox', { name: 'Post category' } ), '7' );
+		await user.selectOptions( explicit, 'yes' );
+
+		act( () => pending[ 0 ].onSuccess( { ...mockSaved, podcasting_category_id: 7 } ) );
+		expect( explicit ).toHaveValue( 'yes' );
+
+		act( () =>
+			pending[ 1 ].onSuccess( {
+				...mockSaved,
+				podcasting_category_id: 7,
+				podcasting_explicit: true,
+			} )
+		);
+		expect( explicit ).toHaveValue( 'yes' );
+	} );
+
 	it( 'goes back to the saved category when two quick changes both fail', async () => {
 		const user = userEvent.setup();
 		const pending = [];

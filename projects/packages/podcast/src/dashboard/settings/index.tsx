@@ -177,13 +177,37 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		}
 	}, [ isLocked ] );
 
+	// The last values the server confirmed. A failed choice rolls back to these,
+	// not to the draft, which may hold another choice that is still saving.
+	const savedSettings = useRef( settings );
+	useEffect( () => {
+		savedSettings.current = settings;
+	}, [ settings ] );
+
+	// Which save owns each key the user has picked but the server hasn't
+	// confirmed yet. Two saves can overlap before the controls lock, and a
+	// response must not overwrite a pick a later save is still carrying.
+	const pendingSaves = useRef( new Map< keyof PodcastSettings, number >() );
+	const lastSaveId = useRef( 0 );
+
+	// Take the server-merged record, but keep every pick that is still saving.
+	const acceptSaved = useCallback( ( record: PodcastSettings ) => {
+		savedSettings.current = record;
+		const pending = Array.from( pendingSaves.current.keys() );
+		setDraft( current =>
+			current
+				? { ...record, ...Object.fromEntries( pending.map( key => [ key, current[ key ] ] ) ) }
+				: record
+		);
+	}, [] );
+
 	// Save a partial update, then resync draft from the server-merged record so
 	// `isDirty` and reference checks fall back to false on the saved keys.
 	const commit = useCallback(
 		( updates: PodcastSettingsUpdate ) => {
-			saveSettings( updates, { onSuccess: setDraft } );
+			saveSettings( updates, { onSuccess: acceptSaved } );
 		},
-		[ saveSettings ]
+		[ saveSettings, acceptSaved ]
 	);
 
 	// Curry `commit` once per field key so the per-field editor only knows
@@ -235,45 +259,43 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		normalizeFeedLimit
 	);
 
-	// The last values the server confirmed. A failed choice rolls back to these,
-	// not to the draft, which may hold another choice that is still saving.
-	const savedSettings = useRef( settings );
-	useEffect( () => {
-		savedSettings.current = settings;
-	}, [ settings ] );
-
 	// Discrete choices show the new value right away instead of snapping back
 	// to the saved one until the request returns, and roll back if it fails.
 	const commitChoice = useCallback(
 		( updates: PodcastSettingsUpdate ) => {
 			const keys = Object.keys( updates ) as ( keyof PodcastSettings )[];
-			// Keys the user has picked again since this save started. Their own
-			// save decides what they end up as, so this one leaves them alone.
-			const newerPicks = ( current: PodcastSettings ) =>
-				Object.fromEntries(
-					keys
-						.filter( key => current[ key ] !== updates[ key ] )
-						.map( key => [ key, current[ key ] ] )
-				);
+			const saveId = ++lastSaveId.current;
+			keys.forEach( key => pendingSaves.current.set( key, saveId ) );
+
+			// Release the keys this save still owns and return them. A key a
+			// later save has taken over is that save's to settle.
+			const settle = () =>
+				keys.filter( key => {
+					if ( pendingSaves.current.get( key ) !== saveId ) {
+						return false;
+					}
+					pendingSaves.current.delete( key );
+					return true;
+				} );
 
 			setDraft( current => current && { ...current, ...updates } );
 			saveSettings( updates, {
 				onSuccess: record => {
-					savedSettings.current = record;
-					setDraft( current => ( current ? { ...record, ...newerPicks( current ) } : record ) );
+					settle();
+					acceptSaved( record );
 				},
-				onError: () =>
-					setDraft( current => {
-						const saved = savedSettings.current;
-						if ( ! current || ! saved ) {
-							return current;
-						}
-						const restored = Object.fromEntries( keys.map( key => [ key, saved[ key ] ] ) );
-						return { ...current, ...restored, ...newerPicks( current ) };
-					} ),
+				onError: () => {
+					const owned = settle();
+					const saved = savedSettings.current;
+					if ( ! saved || owned.length === 0 ) {
+						return;
+					}
+					const restored = Object.fromEntries( owned.map( key => [ key, saved[ key ] ] ) );
+					setDraft( current => current && { ...current, ...restored } );
+				},
 			} );
 		},
-		[ saveSettings ]
+		[ saveSettings, acceptSaved ]
 	);
 
 	// Discrete-action handlers — these controls "commit" on each user choice
