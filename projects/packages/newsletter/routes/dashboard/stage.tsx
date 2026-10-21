@@ -22,6 +22,9 @@ type StageSearch = Record< string, unknown > & {
 
 const NEWSLETTER_ADMIN_PAGE = 'admin.php?page=jetpack-newsletter';
 
+// Must stay relative: the authorize_url endpoint prepends admin_url(), so an absolute URL doubles and 404s.
+const CONNECT_REDIRECT_URI = `${ NEWSLETTER_ADMIN_PAGE }&p=${ encodeURIComponent( '/?tab=subscribers' ) }`;
+
 /**
  * After connecting, return the visitor to the Newsletter dashboard.
  *
@@ -73,7 +76,7 @@ const Stage = () => {
 		handleRegisterSite,
 	} = useConnection( {
 		from: 'jetpack-newsletter',
-		redirectUri: getRedirectUri(),
+		redirectUri: CONNECT_REDIRECT_URI,
 	} );
 
 	// Subscriber management proxies to WP.com signed as the current user, so a

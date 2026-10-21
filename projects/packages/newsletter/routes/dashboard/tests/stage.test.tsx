@@ -33,7 +33,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 
 jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
 	__esModule: true,
-	default: () => mockConnection(),
+	default: ( options: unknown ) => mockConnection( options ),
 } ) );
 
 jest.mock( '@automattic/jetpack-connection/get-user-connection-url', () => ( {
@@ -264,6 +264,17 @@ describe( 'Newsletter dashboard Stage connection gate', () => {
 
 		expect( screen.getByTestId( 'connection-gate' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'subscribers-body' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'returns to the Subscribers tab after connecting, with a relative address the server can prefix', () => {
+		mockSearch.mockReturnValue( { tab: 'subscribers' } );
+
+		render( <Stage /> );
+
+		expect( mockConnection ).toHaveBeenCalledWith( {
+			from: 'jetpack-newsletter',
+			redirectUri: 'admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsubscribers',
+		} );
 	} );
 
 	it( 'bypasses the gate on a Simple site even without a Jetpack connection', () => {

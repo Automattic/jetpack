@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers: After connecting from the Subscribers tab, return to it instead of a "Page not found" error.
