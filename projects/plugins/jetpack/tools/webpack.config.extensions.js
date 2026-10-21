@@ -196,7 +196,7 @@ const sharedWebpackConfig = {
 			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 			// Handle CSS.
-			jetpackWebpackConfig.CssRule( { sass: true, postcss: { colorTokens: true } } ),
+			jetpackWebpackConfig.CssRule( { sass: true } ),
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),

@@ -37,7 +37,7 @@ module.exports = [
 				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 				// Handle CSS.
-				jetpackWebpackConfig.CssRule( { sass: true, postcss: true } ),
+				jetpackWebpackConfig.CssRule( { sass: true } ),
 
 				// Handle images.
 				jetpackWebpackConfig.FileRule(),

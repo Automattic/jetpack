@@ -23,7 +23,7 @@ const SassLoader = options => ( {
 	options: { api: 'modern-compiler', ...options },
 } );
 
-const PostcssLoader = ( { colorTokens, postcssOptions = {}, ...options } = {} ) => ( {
+const PostcssLoader = ( { postcssOptions = {}, ...options } = {} ) => ( {
 	loader: require.resolve( 'postcss-loader' ),
 	options: {
 		...options,
@@ -31,16 +31,19 @@ const PostcssLoader = ( { colorTokens, postcssOptions = {}, ...options } = {} ) 
 		postcssOptions:
 			postcssOptions.config || postcssOptions.plugins
 				? postcssOptions
-				: { plugins: require( '../postcss-plugins' )( { colorTokens } ), ...postcssOptions },
+				: { plugins: require( '../postcss-plugins' )(), ...postcssOptions },
 	},
 } );
 
 const CssRule = ( options = {} ) => {
 	const exts = options.extensions || ( options.sass ? [ 'css', 'sass', 'scss' ] : [ 'css' ] );
+	const hasOwnPostcss = ( options.extraLoaders || [] ).some( l =>
+		/postcss-loader/.test( l.loader )
+	);
 	const extraLoaders = [
-		...( options.postcss
-			? [ PostcssLoader( options.postcss === true ? {} : options.postcss ) ]
-			: [] ),
+		...( options.postcss === false || hasOwnPostcss
+			? []
+			: [ PostcssLoader( options.postcss === true ? {} : options.postcss ) ] ),
 		...( options.sass ? [ SassLoader( options.sass === true ? {} : options.sass ) ] : [] ),
 		...( options.extraLoaders || [] ),
 	];
