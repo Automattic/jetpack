@@ -53,18 +53,7 @@ const sharedWebpackConfig = {
 			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 			// Handle CSS.
-			jetpackWebpackConfig.CssRule( {
-				extensions: [ 'css', 'sass', 'scss' ],
-				extraLoaders: [
-					{
-						loader: 'postcss-loader',
-						options: {
-							postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
-						},
-					},
-					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
-				],
-			} ),
+			jetpackWebpackConfig.CssRule( { sass: true, postcss: { colorTokens: true } } ),
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),

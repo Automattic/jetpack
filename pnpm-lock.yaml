@@ -1708,12 +1708,21 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../babel-plugin-replace-textdomain
+      '@automattic/calypso-color-schemes':
+        specifier: 4.0.0
+        version: 4.0.0
+      '@automattic/color-studio':
+        specifier: 4.1.0
+        version: 4.1.0
       '@automattic/i18n-check-webpack-plugin':
         specifier: workspace:*
         version: link:../i18n-check-webpack-plugin
       '@automattic/i18n-loader-webpack-plugin':
         specifier: workspace:*
         version: link:../i18n-loader-webpack-plugin
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../base-styles
       '@automattic/webpack-rtl-plugin':
         specifier: 6.0.0
         version: 6.0.0(webpack@5.111.1)

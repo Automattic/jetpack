@@ -23,7 +23,7 @@ const SassLoader = options => ( {
 	options: { api: 'modern-compiler', ...options },
 } );
 
-const PostcssLoader = ( { postcssOptions = {}, ...options } = {} ) => ( {
+const PostcssLoader = ( { colorTokens, postcssOptions = {}, ...options } = {} ) => ( {
 	loader: require.resolve( 'postcss-loader' ),
 	options: {
 		...options,
@@ -31,7 +31,7 @@ const PostcssLoader = ( { postcssOptions = {}, ...options } = {} ) => ( {
 		postcssOptions:
 			postcssOptions.config || postcssOptions.plugins
 				? postcssOptions
-				: { plugins: require( '../postcss-plugins' )(), ...postcssOptions },
+				: { plugins: require( '../postcss-plugins' )( { colorTokens } ), ...postcssOptions },
 	},
 } );
 

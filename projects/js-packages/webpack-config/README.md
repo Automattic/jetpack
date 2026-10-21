@@ -322,7 +322,7 @@ Options are:
 - `extensions`: Array of extensions to handle. Default is to only handle `css`.
   Defaults to `[ 'css', 'sass', 'scss' ]` when `sass` is set. You'll likely need to set this if you use `extraLoaders` to include some other preprocessor.
 - `sass`: Truthy to add `sass-loader` (with `api: 'modern-compiler'`). An object is merged into its options, e.g. `{ sassOptions: { style: 'expanded' } }`.
-- `postcss`: Truthy to add `postcss-loader` with the standard plugins (WPDS token fallbacks, then autoprefixer). An object is passed as the loader options; setting `postcssOptions.config` or `postcssOptions.plugins` replaces the standard plugins. The standard plugins are also available as `@automattic/jetpack-webpack-config/postcss`, usable as a `postcss.config.js` by tools outside webpack.
+- `postcss`: Truthy to add `postcss-loader` with the standard plugins (WPDS token fallbacks, then autoprefixer). An object is passed as the loader options, except `colorTokens: true`, which also adds fallbacks for `--color-*`, `--studio-*` and `--jp-*` tokens (an unknown `--color-*` or `--studio-*` token fails the build). Setting `postcssOptions.config` or `postcssOptions.plugins` replaces the standard plugins. The standard plugins are also available as `@automattic/jetpack-webpack-config/postcss`, usable as a `postcss.config.js` by tools outside webpack.
 - `MiniCssExtractLoader`: Options for `mini-css-extract-plugin`'s loader. The default options set `chunkFilename` to `[name].css?minify=false&ver=[contenthash]` as a cache buster.
 - `CssLoader`: Options for `css-loader`. Note its `importLoaders` option is handled automatically based on the length of `extraLoaders`.
 - `extraLoaders`: An array of additional loaders, to run before the provided loaders.

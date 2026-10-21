@@ -42,25 +42,8 @@ const sharedWebpackConfig = {
 		rules: [
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
-				extensions: [ 'css', 'sass', 'scss' ],
-				extraLoaders: [
-					{
-						loader: 'postcss-loader',
-						options: {
-							postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
-						},
-					},
-					{
-						loader: 'sass-loader',
-						options: {
-							api: 'modern-compiler',
-							sassOptions: {
-								// The minifier will minify if necessary.
-								style: 'expanded',
-							},
-						},
-					},
-				],
+				sass: { sassOptions: { style: 'expanded' } },
+				postcss: { colorTokens: true },
 			} ),
 
 			// Leave fonts and images in place.
