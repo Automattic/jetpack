@@ -70,6 +70,7 @@ const ConnectionForm = () => {
 
 			<TermsOfService
 				className={ styles.tos }
+				variant="body-md"
 				agreeButtonLabel={ __( 'Supercharge my site', 'jetpack-my-jetpack' ) }
 			/>
 		</div>
