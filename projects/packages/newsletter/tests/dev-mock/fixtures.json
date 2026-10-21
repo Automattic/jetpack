@@ -1,0 +1,131 @@
+{
+	"/sites/\\d+/subscribers$": {
+		"total": 3,
+		"total_unfiltered": 3,
+		"pages": 1,
+		"page": 1,
+		"per_page": 20,
+		"subscribers": [
+			{
+				"user_id": 1,
+				"wpcom_subscription_id": 1001,
+				"wpcom_date_subscribed": "2026-09-02 11:07:57",
+				"subscription_status": "Subscribed",
+				"email_address": "avery@example.com",
+				"display_name": "Avery Two Comps",
+				"email_subscription_id": 2001,
+				"email_date_subscribed": "2026-09-02 11:07:57",
+				"plans": [
+					{
+						"subscription_id": 4269,
+						"status": "active",
+						"renew_interval": "one-time",
+						"renewal_price": 0,
+						"currency": "USD",
+						"product_id": 4269,
+						"title": "Monthly Subscription",
+						"is_comp": true,
+						"comp_id": 4269,
+						"start_date": "2026-09-02T11:07:56+00:00",
+						"end_date": null,
+						"type": "comp"
+					},
+					{
+						"subscription_id": 4270,
+						"status": "active",
+						"renew_interval": "one-time",
+						"renewal_price": 0,
+						"currency": "USD",
+						"product_id": 4270,
+						"title": "Premium Plan",
+						"is_comp": true,
+						"comp_id": 4270,
+						"start_date": "2026-09-02T11:07:56+00:00",
+						"end_date": null,
+						"type": "comp"
+					}
+				]
+			},
+			{
+				"user_id": 2,
+				"wpcom_subscription_id": 1002,
+				"wpcom_date_subscribed": "2026-09-02 11:07:57",
+				"subscription_status": "Subscribed",
+				"email_address": "blake@example.com",
+				"display_name": "Blake Paid And Comp",
+				"email_subscription_id": 2002,
+				"email_date_subscribed": "2026-09-02 11:07:57",
+				"plans": [
+					{
+						"subscription_id": 77,
+						"status": "active",
+						"renew_interval": "1 month",
+						"renewal_price": 5,
+						"currency": "USD",
+						"product_id": 77,
+						"title": "Gold",
+						"is_comp": false,
+						"start_date": "2026-09-02T11:07:56+00:00",
+						"end_date": null,
+						"type": "paid"
+					},
+					{
+						"subscription_id": 4271,
+						"status": "active",
+						"renew_interval": "one-time",
+						"renewal_price": 0,
+						"currency": "USD",
+						"product_id": 4271,
+						"title": "Silver",
+						"is_comp": true,
+						"comp_id": 4271,
+						"start_date": "2026-09-02T11:07:56+00:00",
+						"end_date": null,
+						"type": "comp"
+					}
+				]
+			},
+			{
+				"user_id": 3,
+				"wpcom_subscription_id": 1003,
+				"wpcom_date_subscribed": "2026-09-02 11:07:57",
+				"subscription_status": "Subscribed",
+				"email_address": "casey@example.com",
+				"display_name": "Casey Free",
+				"email_subscription_id": 2003,
+				"email_date_subscribed": "2026-09-02 11:07:57",
+				"plans": []
+			}
+		]
+	},
+	"/sites/\\d+/subscribers/counts$": {
+		"counts": {
+			"email_subscribers": 3,
+			"paid_subscribers": 1,
+			"all_subscribers": 3,
+			"social_followers": 0
+		}
+	},
+	"/sites/\\d+/newsletter/task-lists/onboarding$": {
+		"id": "onboarding",
+		"complete": false,
+		"tasks": [
+			{
+				"id": "start",
+				"complete": true
+			},
+			{
+				"id": "subscribe_form",
+				"complete": true
+			},
+			{
+				"id": "subscribers",
+				"complete": false
+			},
+			{
+				"id": "send_newsletter",
+				"complete": false
+			}
+		]
+	}
+}

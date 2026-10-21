@@ -15,6 +15,9 @@ default:
 # Dev environment overrides. None by default.
 # Note all objects and arrays in the overrides are deep-merged.
 dev:
+  volumeMappings:
+    # Inactive until activated: fakes a WordPress.com connection so the newsletter screens render locally.
+    projects/packages/newsletter/tests/dev-mock/: /var/www/html/wp-content/plugins/newsletter-dev-mock/
   extras:
     services:
       phpmyadmin:
