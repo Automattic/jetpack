@@ -82,9 +82,9 @@ afterEach( () => {
 describe( 'TemplatePlacements', () => {
 	it.each( [
 		[ 'sharing', [ 'after_content' ], 'Before the content', [ 'before_content' ] ],
-		[ 'sharing', [ 'after_content' ], 'After the content', [] ],
+		[ 'likes', [ 'after_content' ], 'After the content', [] ],
 	] as [ Feature, TemplatePlacement[], string, TemplatePlacement[] ][] )(
-		'%s: from %j, clicking "%s" saves %j and ticks only that',
+		'%s: from %j, clicking "%s" saves and ticks %j',
 		async ( feature, stored, clicked, sent ) => {
 			const user = userEvent.setup();
 			mockApiFetch.mockImplementation( ( { data } ) =>
@@ -112,7 +112,6 @@ describe( 'TemplatePlacements', () => {
 		}
 	);
 
-	// The link opens the template, which only has the block once the save lands.
 	it( 'only links a ticked card once its save lands', async () => {
 		const user = userEvent.setup();
 		const save = deferred< Settings >();
@@ -125,6 +124,7 @@ describe( 'TemplatePlacements', () => {
 		await user.click( card( 'Before the content' ) );
 
 		expect( card( 'Before the content' ) ).toHaveAttribute( 'aria-checked', 'true' );
+		expect( card( 'After the content' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
 		expect( cardsWithPreview() ).toEqual( [] );
 		save.resolve( { ...baseSettings, sharing_buttons_auto_add: [ 'before_content' ] } );
 		await waitFor( () => expect( cardsWithPreview() ).toEqual( [ 'Before the content' ] ) );
