@@ -9,11 +9,31 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 /**
  * Sends links to Stats pages (the admin bar, the post list Views column, the newsletter action bar) to the matching
- * dashboard page instead.
+ * dashboard page instead, and opens the dashboard for `admin.php?page=stats` once no plugin registers that page.
  *
  * @since 0.12.0
  */
 class Stats_Links {
+
+	/**
+	 * Query arg that carries the old `#!/stats/…` route back to the server.
+	 */
+	const ROUTE_QUERY_ARG = 'stats_route';
+
+	/**
+	 * Views of the old `#!/stats/<view>` routes, and the dashboard section each one opens.
+	 */
+	const LEGACY_SECTIONS = array(
+		'day'         => 'traffic',
+		'week'        => 'traffic',
+		'month'       => 'traffic',
+		'year'        => 'traffic',
+		'insights'    => 'insights',
+		'subscribers' => 'subscribers',
+		'store'       => 'woocommerce',
+		'ads'         => 'ads',
+		'settings'    => 'settings',
+	);
 
 	/**
 	 * Claim the links. Idempotent, like the other register() calls.
@@ -39,6 +59,14 @@ class Stats_Links {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks where to send the reader.
+		if ( isset( $_GET[ self::ROUTE_QUERY_ARG ] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks where to send the reader.
+			$route = sanitize_text_field( wp_unslash( $_GET[ self::ROUTE_QUERY_ARG ] ) );
+			wp_safe_redirect( Analytics::dashboard_url( self::legacy_route_path( $route ) ) );
+			exit( 0 );
+		}
+
 		nocache_headers();
 		self::render_retired_stats_page();
 		exit( 0 );
@@ -59,26 +87,14 @@ class Stats_Links {
 	}
 
 	/**
-	 * Print a page that sends the reader to the dashboard route matching the old `#!/stats/…` link.
-	 *
-	 * Mapped in the browser because the fragment never reaches the server.
+	 * Print a page that hands the old `#!/stats/…` route back to the server, since the fragment never reaches it.
 	 *
 	 * @return void
 	 */
 	public static function render_retired_stats_page() {
 		$script = sprintf(
-			'( function () {
-				var sections = { insights: "insights", subscribers: "subscribers", store: "woocommerce" };
-				var route = /^#!\/stats\/([a-z]+)\/?(\d*)/.exec( window.location.hash ) || [];
-				var path = "/";
-				if ( "post" === route[ 1 ] && Number( route[ 2 ] ) > 0 ) {
-					path = "/post/" + route[ 2 ];
-				} else if ( Object.prototype.hasOwnProperty.call( sections, route[ 1 ] ) ) {
-					path = "/?section=" + sections[ route[ 1 ] ];
-				}
-				window.location.replace( %s + encodeURIComponent( path ) );
-			} )();',
-			wp_json_encode( Analytics::dashboard_url( '' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+			'window.location.replace( window.location.pathname + window.location.search + "&%s=" + encodeURIComponent( window.location.hash ) );',
+			self::ROUTE_QUERY_ARG
 		);
 
 		?>
@@ -92,6 +108,49 @@ class Stats_Links {
 <body></body>
 </html>
 		<?php
+	}
+
+	/**
+	 * The dashboard route for an old `#!/stats/…` route, or its root when it has no counterpart.
+	 *
+	 * @param string $route The old route, e.g. `#!/stats/post/123/9`.
+	 * @return string
+	 */
+	private static function legacy_route_path( $route ) {
+		if ( ! preg_match( '~^#!/stats/([^?]*)~', $route, $match ) ) {
+			return '/';
+		}
+
+		$segments = explode( '/', $match[1] );
+		$view     = $segments[0];
+
+		if ( 'post' === $view ) {
+			return self::post_path( $segments[1] ?? 0 );
+		}
+
+		// The email routes put the post ID after the metric and the period.
+		if ( 'email' === $view && in_array( $segments[1] ?? '', array( 'opens', 'clicks' ), true ) ) {
+			return self::post_path( $segments[3] ?? 0, 'email-' . $segments[1] );
+		}
+
+		return array_key_exists( $view, self::LEGACY_SECTIONS ) ? '/?section=' . self::LEGACY_SECTIONS[ $view ] : '/';
+	}
+
+	/**
+	 * A post detail route, or the dashboard root when there is no real post.
+	 *
+	 * @param mixed  $post_id The post.
+	 * @param string $section The post detail tab, or '' for its default.
+	 * @return string
+	 */
+	private static function post_path( $post_id, $section = '' ) {
+		$post_id = (int) $post_id;
+
+		if ( $post_id <= 0 ) {
+			return '/';
+		}
+
+		return '/post/' . $post_id . ( '' === $section ? '' : '?section=' . $section );
 	}
 
 	/**

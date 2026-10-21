@@ -44,7 +44,8 @@ class Stats_Links_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_all_filters( 'jetpack_stats_url' );
 		remove_all_actions( 'admin_page_access_denied' );
-		unset( $_GET['page'], $GLOBALS['_parent_pages']['stats'] );
+		remove_all_filters( 'wp_redirect' );
+		unset( $_GET['page'], $_GET[ Stats_Links::ROUTE_QUERY_ARG ], $GLOBALS['_parent_pages']['stats'] );
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
 
@@ -161,14 +162,62 @@ class Stats_Links_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The fragment is read in the browser, so the page has to carry the dashboard URL to append the route to.
+	 * The fragment never reaches the server, so the page hands it back under the query arg the redirect reads.
 	 */
-	public function test_retired_stats_page_sends_the_reader_to_the_dashboard() {
+	public function test_retired_stats_page_hands_the_route_back() {
 		ob_start();
 		Stats_Links::render_retired_stats_page();
 		$html = ob_get_clean();
 
-		$this->assertStringContainsString( 'window.location.replace( "http://example.org/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin\\u0026p=" + encodeURIComponent( path ) )', $html );
+		$this->assertStringContainsString( '"&' . Stats_Links::ROUTE_QUERY_ARG . '=" + encodeURIComponent( window.location.hash )', $html );
 		$this->assertStringContainsString( 'content="0;url=' . esc_url( self::DASHBOARD_URL ) . '"', $html );
+	}
+
+	/**
+	 * @param string $route The old `#!/stats/…` route.
+	 * @param string $p     The dashboard route it opens, as encoded in `p`.
+	 * @dataProvider provide_legacy_routes
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_legacy_routes' )]
+	public function test_retired_stats_page_opens_the_matching_route( $route, $p ) {
+		$this->login_as( 'administrator' );
+		$_GET['page']                         = 'stats';
+		$_GET[ Stats_Links::ROUTE_QUERY_ARG ] = $route;
+		// Stop at the redirect, before open_retired_stats_page() exits.
+		add_filter(
+			'wp_redirect',
+			/** @return never */
+			static function ( $location ) {
+				throw new \RuntimeException( $location );
+			}
+		);
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'http://example.org/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=' . $p );
+
+		Stats_Links::open_retired_stats_page();
+	}
+
+	/**
+	 * Data for test_retired_stats_page_opens_the_matching_route.
+	 *
+	 * @return array
+	 */
+	public static function provide_legacy_routes() {
+		return array(
+			'no route'             => array( '', '%2F' ),
+			'traffic period'       => array( '#!/stats/day/123', '%2F%3Fsection%3Dtraffic' ),
+			'insights'             => array( '#!/stats/insights/example.org', '%2F%3Fsection%3Dinsights' ),
+			'subscribers'          => array( '#!/stats/subscribers/example.org', '%2F%3Fsection%3Dsubscribers' ),
+			'store'                => array( '#!/stats/store/orders/day/example.org', '%2F%3Fsection%3Dwoocommerce' ),
+			'ads'                  => array( '#!/stats/ads/day/example.org', '%2F%3Fsection%3Dads' ),
+			'settings'             => array( '#!/stats/settings', '%2F%3Fsection%3Dsettings' ),
+			'post'                 => array( '#!/stats/post/29/123', '%2Fpost%2F29' ),
+			'post without an ID'   => array( '#!/stats/post/0/123', '%2F' ),
+			'email opens'          => array( '#!/stats/email/opens/day/29/123', '%2Fpost%2F29%3Fsection%3Demail-opens' ),
+			'email clicks'         => array( '#!/stats/email/clicks/day/29/123', '%2Fpost%2F29%3Fsection%3Demail-clicks' ),
+			'no dashboard page'    => array( '#!/stats/purchase/123?from=x', '%2F' ),
+			'not a Stats fragment' => array( '#/insights', '%2F' ),
+		);
 	}
 }

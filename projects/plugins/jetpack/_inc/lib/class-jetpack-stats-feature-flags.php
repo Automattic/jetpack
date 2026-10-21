@@ -37,7 +37,7 @@ class Jetpack_Stats_Feature_Flags {
 	}
 
 	/**
-	 * Whether the classic Stats page gives way to Stats v2.
+	 * Whether the flag asks the classic Stats page to give way to Stats v2; the page stays while Stats v2 is off.
 	 *
 	 * Read on `plugins_loaded`, so a filter forcing it has to be added before that.
 	 *
