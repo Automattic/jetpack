@@ -28,6 +28,7 @@ import {
 	DashboardSectionProvider,
 	PageOptionsMenu,
 	ResetLayoutAction,
+	useHostLinkSearch,
 	useTrackCustomize,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -479,7 +480,7 @@ function Dashboard(): JSX.Element {
 				dateLimits={ dateLimits }
 			>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
-				<DashboardWidgetHostProvider>
+				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
 							widgetTypes={ widgetTypes }
