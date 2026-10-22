@@ -1,3 +1,5 @@
+import restApi from '@automattic/jetpack-api';
+import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import AdminPage from '../index.tsx';
 
@@ -5,6 +7,10 @@ const pageAction = <button>Page action</button>;
 const globalControl = <button>Global control</button>;
 
 describe( 'AdminPage', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
 	it.each( [
 		[ 'page actions, a separator, then global controls', pageAction, globalControl, 1 ],
 		[ 'global controls alone, without a separator', null, globalControl, 0 ],
@@ -28,5 +34,29 @@ describe( 'AdminPage', () => {
 
 		expect( buttons.map( button => button.textContent ) ).toEqual( expected );
 		expect( screen.queryAllByRole( 'separator' ) ).toHaveLength( separators );
+	} );
+
+	it( 'leaves the shared REST client alone when no API root or nonce is passed', () => {
+		const setApiRoot = jest.spyOn( restApi, 'setApiRoot' );
+		const setApiNonce = jest.spyOn( restApi, 'setApiNonce' );
+
+		render( <AdminPage title="Test">content</AdminPage> );
+
+		expect( setApiRoot ).not.toHaveBeenCalled();
+		expect( setApiNonce ).not.toHaveBeenCalled();
+	} );
+
+	it( 'sets the API root and nonce it is given', () => {
+		const setApiRoot = jest.spyOn( restApi, 'setApiRoot' );
+		const setApiNonce = jest.spyOn( restApi, 'setApiNonce' );
+
+		render(
+			<AdminPage title="Test" apiRoot="https://example.com/wp-json/" apiNonce="nonce">
+				content
+			</AdminPage>
+		);
+
+		expect( setApiRoot ).toHaveBeenCalledWith( 'https://example.com/wp-json/' );
+		expect( setApiNonce ).toHaveBeenCalledWith( 'nonce' );
 	} );
 } );
