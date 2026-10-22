@@ -63,7 +63,6 @@ const unknownEntry: WpcomActivityEntry = {
 };
 
 describe( 'normalizeEntry', () => {
-	// WPCOM sends `notice` instead of `cloud` for a backup that finished with warnings.
 	test( 'maps a backup with warnings to a backup ActivityItem', () => {
 		expect( normalizeEntry( { ...backupEntry, gridicon: 'notice' } ) ).toMatchObject( {
 			kind: 'backup',
@@ -71,7 +70,6 @@ describe( 'normalizeEntry', () => {
 		} );
 	} );
 
-	// Storage-limit failures share the backup names, with `notice`, but can't be restored.
 	test( 'keeps a backup-named entry that cannot be restored as other', () => {
 		expect(
 			normalizeEntry( { ...backupEntry, gridicon: 'notice', is_rewindable: false } )

@@ -311,7 +311,6 @@ describe( 'A selection on a page nothing has loaded', () => {
 		} );
 	} );
 
-	// WPCOM sends `notice` instead of `cloud` for a backup that finished with warnings.
 	it.each( [ 'cloud', 'notice' ] )( 'opens a backup without paging to it (%s)', async gridicon => {
 		mockEndpoints( {
 			activity: page =>
