@@ -6,7 +6,7 @@ import useConnection from '@automattic/jetpack-connection/use-connection';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -88,57 +88,56 @@ export function usePlanChoice() {
 	// Nothing else identifies a site before it registers, and it ties these events to the checkout.
 	const siteSuffix = getScriptData()?.site?.suffix ?? '';
 
-	const track = ( name: string, plan: Plan, properties: Record< string, unknown > = {} ) =>
-		trackEvent( `jetpack_premium_analytics_pre_connection_${ name }`, {
-			site_suffix: siteSuffix,
-			plan,
-			...properties,
-		} );
-
-	const fail = ( plan: Plan ) => {
-		track( 'register_failed', plan );
-		setError(
-			__(
-				'Jetpack could not connect this site to WordPress.com. Please try again.',
-				'jetpack-premium-analytics-pkg'
-			)
-		);
-		setIsBusy( false );
-	};
-
 	// Leaves `isBusy` set on success: the browser is on its way to WordPress.com.
-	const choose = async ( plan: Plan ) => {
-		setError( null );
-		setIsBusy( true );
-		track( 'register_start', plan );
+	const choose = useCallback(
+		async ( plan: Plan ) => {
+			const track = ( name: string, properties: Record< string, unknown > = {} ) =>
+				trackEvent( `jetpack_premium_analytics_pre_connection_${ name }`, {
+					site_suffix: siteSuffix,
+					plan,
+					...properties,
+				} );
 
-		let blogId: number | null;
+			setError( null );
+			setIsBusy( true );
+			track( 'register_start' );
 
-		try {
-			const registration = await registerSite( {
-				redirectUri: DASHBOARD_PATH,
-				from: CONNECTION_FROM,
-			} );
-			blogId = readBlogId( registration?.authorizeUrl );
-		} catch {
-			fail( plan );
-			return;
-		}
+			let blogId: number | null;
 
-		// The one event carrying both keys, so it joins everything above to what the site does once it has an id.
-		track( 'register_success', plan, { blog_id: blogId } );
+			try {
+				const registration = await registerSite( {
+					redirectUri: DASHBOARD_PATH,
+					from: CONNECTION_FROM,
+				} );
+				blogId = readBlogId( registration?.authorizeUrl );
+			} catch {
+				track( 'register_failed' );
+				setError(
+					__(
+						'Jetpack could not connect this site to WordPress.com. Please try again.',
+						'jetpack-premium-analytics-pkg'
+					)
+				);
+				setIsBusy( false );
+				return;
+			}
 
-		if ( plan !== 'paid' ) {
-			connectUser( {
-				from: CONNECTION_FROM,
-				redirectUri: DASHBOARD_PATH,
-				redirectFunc: navigateOnceRecorded,
-			} );
-			return;
-		}
+			// The one event carrying both keys, so it joins everything above to what the site does once it has an id.
+			track( 'register_success', { blog_id: blogId } );
 
-		navigateOnceRecorded( UPGRADE_PATH );
-	};
+			if ( plan !== 'paid' ) {
+				connectUser( {
+					from: CONNECTION_FROM,
+					redirectUri: DASHBOARD_PATH,
+					redirectFunc: navigateOnceRecorded,
+				} );
+				return;
+			}
+
+			navigateOnceRecorded( UPGRADE_PATH );
+		},
+		[ trackEvent, siteSuffix, registerSite, connectUser ]
+	);
 
 	return {
 		choose,
