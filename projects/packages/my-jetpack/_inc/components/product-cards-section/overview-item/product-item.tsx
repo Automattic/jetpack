@@ -13,10 +13,17 @@ type ProductOverviewItemProps = {
 	admin: boolean;
 	actionLabel: string;
 	upgradeLabel?: string;
+	// The rest lets a product show what its card shows.
+	label?: string;
+	value?: string;
+	statusLabel?: string;
+	isLoading?: boolean;
+	loadTracks?: Record< Lowercase< string >, unknown >;
+	action?: OverviewItemLink | null;
 };
 
 /**
- * An Overview item for a product with no number to show: its status, its main link, and an upgrade link on a free plan.
+ * An Overview item for a product: its value or status, its main link, and an upgrade link on a free plan.
  *
  * @param {ProductOverviewItemProps} props - Component props.
  * @return {import('react').JSX.Element} The item.
@@ -25,17 +32,25 @@ const ProductOverviewItem: FC< ProductOverviewItemProps > = ( {
 	slug,
 	admin,
 	actionLabel,
-	upgradeLabel,
+	upgradeLabel = __( 'Upgrade', 'jetpack-my-jetpack' ),
+	label,
+	value,
+	statusLabel,
+	isLoading: isValueLoading = false,
+	loadTracks,
+	action: actionOverride,
 } ) => {
-	const { detail, isLoading } = useProduct( slug );
-	const { name = '', status, manageUrl } = detail || {};
+	const { detail, isLoading: isProductLoading } = useProduct( slug );
+	const { name = '', status, manageUrl, purchaseUrl } = detail || {};
+	const isLoading = isProductLoading || isValueLoading;
 	const { recordEvent } = useAnalytics();
 	const { action: statusAction, forcedOffReason } = useStatusAction(
 		slug,
 		/* translators: %s is a product name, such as Social. */
-		sprintf( __( 'Activate %s', 'jetpack-my-jetpack' ), name )
+		sprintf( __( 'Activate %s', 'jetpack-my-jetpack' ), name ),
+		null
 	);
-	useOverviewLoadEvent( slug, isLoading );
+	useOverviewLoadEvent( slug, isLoading, loadTracks );
 
 	let action: OverviewItemLink | undefined = statusAction;
 	let upgrade: OverviewItemLink | undefined;
@@ -48,24 +63,29 @@ const ProductOverviewItem: FC< ProductOverviewItemProps > = ( {
 						recordEvent( 'jetpack_myjetpack_product_card_manage_click', { product: slug } ),
 				}
 			: undefined;
-		if ( upgradeLabel && status === PRODUCT_STATUSES.CAN_UPGRADE ) {
+		if ( status === PRODUCT_STATUSES.CAN_UPGRADE ) {
 			upgrade = {
 				label: upgradeLabel,
-				href: `#/add-${ slug }`,
+				href: purchaseUrl || `#/add-${ slug }`,
 				onClick: () => recordEvent( 'jetpack_myjetpack_product_card_add_click', { product: slug } ),
 			};
 		}
+	}
+	if ( actionOverride !== undefined ) {
+		action = actionOverride ?? undefined;
 	}
 
 	return (
 		<OverviewItem
 			slug={ slug }
 			admin={ admin }
-			label={ name }
+			label={ label ?? name }
+			value={ value }
 			action={ action }
 			upgrade={ upgrade }
 			isLoading={ isLoading }
 			forcedOffReason={ forcedOffReason }
+			statusLabel={ statusLabel }
 		/>
 	);
 };

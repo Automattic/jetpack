@@ -23,7 +23,7 @@ $column: max(240px, calc((100% - 2 * #{$gap}) / 3));
 		border-inline-start: 0;
 	}
 
-	@container (max-width: 503px) {
+	@container (width < 504px) {
 
 		> * {
 			padding-inline-start: 0;
@@ -31,7 +31,7 @@ $column: max(240px, calc((100% - 2 * #{$gap}) / 3));
 		}
 	}
 
-	@container (min-width: 504px) and (max-width: 767px) {
+	@container (504px <= width < 768px) {
 
 		> :nth-child(2n + 1) {
 			padding-inline-start: 0;
@@ -39,7 +39,7 @@ $column: max(240px, calc((100% - 2 * #{$gap}) / 3));
 		}
 	}
 
-	@container (min-width: 768px) {
+	@container (width >= 768px) {
 
 		> :nth-child(3n + 1) {
 			padding-inline-start: 0;

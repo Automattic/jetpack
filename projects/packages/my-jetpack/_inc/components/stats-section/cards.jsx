@@ -117,7 +117,7 @@ const getDynamicTitle = metric => {
  * @param {Function} props.onDetailedStatsClick - Function to handle detailed stats click.
  * @param {boolean}  [props.hideTitle]          - Whether to leave out the linked title, when a container already has one.
  * @param {boolean}  [props.chartBelowCounts]   - Whether to show the chart after the counts instead of before them.
- * @param {boolean}  [props.flush]              - Whether to leave out the counts' side padding, when a container already has its own.
+ * @param {boolean}  [props.flush]              - Whether it sits in a container that pads it: no side padding on the counts, and fewer date labels on a narrow chart.
  *
  * @return {import('react').JSX.Element} StatsCards React component.
  */
@@ -183,6 +183,7 @@ const StatsCards = ( {
 			onClick={ onDetailedStatsClick }
 			selectedMetric={ selectedMetric }
 			metricIcon={ getMetricIcon( selectedMetric ) }
+			fitTicks={ flush }
 		/>
 	);
 

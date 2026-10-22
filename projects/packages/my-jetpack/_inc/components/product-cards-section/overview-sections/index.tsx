@@ -7,11 +7,13 @@ import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useFilteredProducts from '../../../hooks/use-filtered-products';
 import LoadingBlock from '../../loading-block';
+import BackupOverviewItem from '../backup-card/overview';
 import BoostOverviewItem from '../boost-card/overview';
 import ProductOverviewItem from '../overview-item/product-item';
 import OverviewSection from '../overview-section';
 import ProtectOverviewItem from '../protect-card/overview';
 import StatsOverviewItem from '../stats-card/overview';
+import VideoPressOverviewItem from '../videopress-card/overview';
 import styles from './style.module.scss';
 import type { FC } from 'react';
 
@@ -40,17 +42,9 @@ const OverviewSections: FC = () => {
 				slug={ PRODUCT_SLUGS.ANTI_SPAM }
 				admin={ admin }
 				actionLabel={ __( 'More insights', 'jetpack-my-jetpack' ) }
-				upgradeLabel={ __( 'Upgrade', 'jetpack-my-jetpack' ) }
 			/>
 		),
-		owns( PRODUCT_SLUGS.BACKUP ) && (
-			<ProductOverviewItem
-				key="backup"
-				slug={ PRODUCT_SLUGS.BACKUP }
-				admin={ admin }
-				actionLabel={ __( 'Generate backup', 'jetpack-my-jetpack' ) }
-			/>
-		),
+		owns( PRODUCT_SLUGS.BACKUP ) && <BackupOverviewItem key="backup" admin={ admin } />,
 		owns( PRODUCT_SLUGS.PROTECT ) && <ProtectOverviewItem key="protect" admin={ admin } />,
 	].filter( Boolean );
 	const statusItems = [
@@ -72,14 +66,7 @@ const OverviewSections: FC = () => {
 				actionLabel={ __( 'More about Search', 'jetpack-my-jetpack' ) }
 			/>
 		),
-		owns( PRODUCT_SLUGS.VIDEOPRESS ) && (
-			<ProductOverviewItem
-				key="videopress"
-				slug={ PRODUCT_SLUGS.VIDEOPRESS }
-				admin={ admin }
-				actionLabel={ __( 'Upload to VideoPress', 'jetpack-my-jetpack' ) }
-			/>
-		),
+		owns( PRODUCT_SLUGS.VIDEOPRESS ) && <VideoPressOverviewItem key="videopress" admin={ admin } />,
 		owns( PRODUCT_SLUGS.CRM ) && (
 			<ProductOverviewItem
 				key="crm"

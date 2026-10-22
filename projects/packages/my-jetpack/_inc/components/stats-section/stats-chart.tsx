@@ -29,6 +29,7 @@ interface StatsChartProps {
 	onClick: () => void;
 	selectedMetric: string;
 	metricIcon: ReactElement;
+	fitTicks?: boolean;
 }
 
 /**
@@ -39,23 +40,31 @@ interface StatsChartProps {
  * @param {string}   props.href       - Destination of the detailed stats link.
  * @param {Function} props.onClick    - Click handler.
  * @param {object}   props.metricIcon - The icon JSX element for the selected metric.
+ * @param {boolean}  [props.fitTicks] - Whether to show fewer date labels when the chart is narrow.
  * @return {object} StatsChart React component.
  */
 // Below this width, seven date labels run into each other.
 const NARROW_CHART_WIDTH = 300;
 
-const StatsChart: FC< StatsChartProps > = ( { data, isLoading, href, onClick, metricIcon } ) => {
+const StatsChart: FC< StatsChartProps > = ( {
+	data,
+	isLoading,
+	href,
+	onClick,
+	metricIcon,
+	fitTicks = false,
+} ) => {
 	const containerRef = useRef< HTMLAnchorElement >( null );
 	const [ width, setWidth ] = useState( 0 );
 	useEffect( () => {
 		const container = containerRef.current;
-		if ( ! container || typeof ResizeObserver === 'undefined' ) {
+		if ( ! fitTicks || ! container || typeof ResizeObserver === 'undefined' ) {
 			return;
 		}
 		const observer = new ResizeObserver( ( [ entry ] ) => setWidth( entry.contentRect.width ) );
 		observer.observe( container );
 		return () => observer.disconnect();
-	}, [] );
+	}, [ fitTicks ] );
 	const isNarrow = width > 0 && width < NARROW_CHART_WIDTH;
 
 	// Check if there's data for the selected metric specifically

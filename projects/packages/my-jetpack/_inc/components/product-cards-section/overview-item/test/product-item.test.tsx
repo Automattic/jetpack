@@ -19,22 +19,23 @@ jest.mock( '../use-status-action', () => () => ( {
 
 describe( 'ProductOverviewItem', () => {
 	it.each( [
-		[ 'active', [ 'More about AI' ] ],
-		[ 'can_upgrade', [ 'More about AI', 'Increase usage' ] ],
-		[ 'module_disabled', [ 'Activate AI' ] ],
-	] )( 'offers the right links when %s', ( status, links ) => {
+		[ 'active', 'Increase usage', [ 'More about AI' ] ],
+		[ 'can_upgrade', 'Increase usage', [ 'More about AI', 'Increase usage' ] ],
+		[ 'can_upgrade', undefined, [ 'More about AI', 'Upgrade' ] ],
+		[ 'module_disabled', 'Increase usage', [ 'Activate AI' ] ],
+	] )( 'offers the right links when %s with upgrade label %s', ( status, upgradeLabel, links ) => {
 		mockStatus = status;
 		render(
 			<ProductOverviewItem
 				slug="jetpack-ai"
 				admin
 				actionLabel="More about AI"
-				upgradeLabel="Increase usage"
+				upgradeLabel={ upgradeLabel }
 			/>
 		);
 
 		expect(
-			[ 'More about AI', 'Increase usage', 'Activate AI' ].filter( label =>
+			[ 'More about AI', 'Increase usage', 'Upgrade', 'Activate AI' ].filter( label =>
 				screen.queryByText( label )
 			)
 		).toEqual( links );

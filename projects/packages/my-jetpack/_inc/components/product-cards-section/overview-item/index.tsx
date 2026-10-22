@@ -40,6 +40,7 @@ export type OverviewItemProps = {
 	loadingLabel?: string;
 	error?: { reason: string; onRetry: () => void };
 	forcedOffReason?: string | null;
+	statusLabel?: string;
 };
 
 const TONE_INTENTS: Record< StatusTone, BadgeIntent > = {
@@ -113,11 +114,15 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	loadingLabel,
 	error,
 	forcedOffReason,
+	statusLabel,
 } ) => {
 	const { badge: ownStatusBadge, isHealthy } = useStatusBadge( slug );
-	const statusBadge: OverviewItemBadge = forcedOffReason
-		? { label: forcedOffReason, intent: 'medium' }
-		: ownStatusBadge;
+	let statusBadge = ownStatusBadge;
+	if ( forcedOffReason ) {
+		statusBadge = { label: forcedOffReason, intent: 'medium' };
+	} else if ( statusLabel ) {
+		statusBadge = { ...ownStatusBadge, label: statusLabel };
+	}
 	const showsStatus = ! isHealthy || !! forcedOffReason;
 
 	const productLinks: ReactNode[] = [];
