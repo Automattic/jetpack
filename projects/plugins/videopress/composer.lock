@@ -64,7 +64,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/activity-log",
-                "reference": "bded142811fa00a18ecbe8ffd4cce0f0d5ff3b5c"
+                "reference": "1e0964a9c7ae59d20402cdd5c6a70150946dbbd7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -78,6 +78,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -97,6 +98,11 @@
                 },
                 "branch-alias": {
                     "dev-trunk": "0.6.x-dev"
+                },
+                "dependencies": {
+                    "test-only": [
+                        "packages/my-jetpack"
+                    ]
                 }
             },
             "autoload": {
@@ -123,6 +129,12 @@
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ]
             },
             "license": [

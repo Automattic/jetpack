@@ -137,6 +137,7 @@ const mockUseStoredLayout = useStoredDetailLayout as jest.Mock;
 
 jest.mock( '@wordpress/widget-primitives', () => ( {
 	useWidgetTypes: () => [ [], false ],
+	WidgetHostProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 // The report registry is deliberately not mocked so the breadcrumb exercises

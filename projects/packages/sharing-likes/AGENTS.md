@@ -54,14 +54,24 @@ The React screen is the exception: behind `rsm_jetpack_ui_modernization_sharing_
 `routes/` and `packages/init/` sit at the root, where wp-build requires them); a
 later JS surface gets its own sibling directory. The screen takes Newsletter's
 Jetpack chrome on purpose. It reads `JetpackScriptData.sharing_likes` for its first
-render and saves through `src/rest/`.
+render and saves through `src/rest/`. Its data lives in one `@wordpress/data` store
+(`data/store.ts`), and every write goes through the queue in `data/writes.ts`, so
+requests reach the server one at a time, in order. Like Newsletter's settings, it
+uses neither TanStack Query nor `@wordpress/core-data`, which would load the block
+editor's scripts onto the page.
 
 Its services manager, under `src/settings-app/services/`, saves the enabled lists
-through `useSaveServices`, in the same write scope as every other save. Removing
+through `useSaveServices`, in the same write queue as every other save. Removing
 the last service on a block theme hands the section to the block with no way
 back, which is why that one removal asks first instead of offering Undo. Deleting
 a custom service leaves its ID in `sharing-services`, so `useCustomService` saves
 the lists again without it.
+
+In `BLOCK_CALL_TO_ACTION`, `TemplatePlacements` replaces the Site Editor link with
+two cards per section, saving the template placements (see "Template placements"
+below). Each save sends a one-item list, or an empty one, so ticking one card
+unticks the other. It falls back to the Site Editor link only where `settings` does
+not offer the key and no write is pending; while one is, the cards show disabled.
 
 ## Per-post switches
 

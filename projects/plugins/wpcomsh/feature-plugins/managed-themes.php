@@ -113,6 +113,13 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $skip_download_filter_result
 		}
 	}
 
+	/**
+	 * Fires after a WP.com theme has been installed by symlink.
+	 *
+	 * @param string $theme_slug Theme slug.
+	 */
+	do_action( 'wpcomsh_wpcom_theme_installed', $theme_slug );
+
 	return true;
 }
 add_filter( 'jetpack_wpcom_theme_skip_download', 'wpcomsh_jetpack_wpcom_theme_skip_download', 10, 2 );
