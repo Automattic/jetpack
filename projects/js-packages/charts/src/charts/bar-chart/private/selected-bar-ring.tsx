@@ -9,7 +9,7 @@ import type { FC } from 'react';
 
 /** The slot the keyboard has selected. */
 export type SelectedBar = {
-	/** The data of the bars the slot draws at the selected category, which the ring encloses. */
+	/** The data of the bars the slot draws at the selected category, which the ring encloses; only bars with a reading. */
 	data: DataPointDate[];
 	/** The selected slot. */
 	slotKey: string;
@@ -57,15 +57,13 @@ export const SelectedBarRing: FC< {
 	const bandPosition = Number(
 		bandScale( ( horizontal ? yAccessor : xAccessor )( category ) as never )
 	);
-	const valuePositions = selected.data
-		.map( datum =>
-			Number( valueScale( Number( ( horizontal ? xAccessor : yAccessor )( datum ) ) as never ) )
-		)
-		.filter( Number.isFinite );
-
-	if ( slotOffset == null || ! Number.isFinite( bandPosition ) || ! valuePositions.length ) {
+	if ( slotOffset == null || ! Number.isFinite( bandPosition ) ) {
 		return null;
 	}
+
+	const valuePositions = selected.data.map( datum =>
+		Number( valueScale( Number( ( horizontal ? xAccessor : yAccessor )( datum ) ) as never ) )
+	);
 
 	const rect = computeSlotRect( {
 		horizontal,
