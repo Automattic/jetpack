@@ -45,14 +45,12 @@ describe( 'ScanCard without Scan', () => {
 		renderCard( {} );
 
 		expect( screen.getByText( 'No known vulnerabilities found' ) ).toBeInTheDocument();
-		expect( screen.getByText( /Your files aren’t checked for malware/ ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Your site is safe right now' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /scanned automatically/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /No issues were found after scanning/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'View scan history' ) ).not.toBeInTheDocument();
-		expect(
-			screen.getByRole( 'link', { name: /Get Scan for daily malware scanning/ } )
-		).toBeInTheDocument();
+		expect( screen.getByText( 'Get the rest of your site’s protection' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute( 'href', '#' );
 	} );
 
 	it( 'shows the failure instead of an all clear when the report fails', () => {
@@ -62,6 +60,7 @@ describe( 'ScanCard without Scan', () => {
 			screen.getByText( 'We couldn’t check your site for vulnerabilities right now.' )
 		).toBeInTheDocument();
 		expect( screen.queryByText( 'No known vulnerabilities found' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -71,6 +70,7 @@ describe( 'ScanCard with Scan', () => {
 
 		expect( screen.getByText( 'Your site is safe right now' ) ).toBeInTheDocument();
 		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 } );
 

@@ -2,12 +2,13 @@ import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
-import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import { HISTORY_STATUS_PARAM } from '../history/store';
 import SafeState from './safe-state';
 import ScanButton from './scan-button';
+import ScanUpsell from './scan-upsell';
 import ScanningState from './scanning-state';
 import { SCAN_PATH, mergeScan, refreshScan, useScan } from './store';
 import { loadIgnored } from './threat-actions';
@@ -253,8 +254,15 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 				</CardRow>
 			) }
 			{ body }
-			<CardRow>
-				{ scan.hasPlan ? (
+			{ ! scan.hasPlan && ! scan.error && (
+				<ScanUpsell
+					variant={ scan.upsellVariant }
+					forced={ scan.upsellVariantForced }
+					url={ scan.url }
+				/>
+			) }
+			{ scan.hasPlan && (
+				<CardRow>
 					<Stack direction="row" gap="lg" wrap="wrap">
 						<TabLink tab="history" params={ FIXED_PARAMS } onOpen={ openTab }>
 							{ __( 'View scan history', 'jetpack-protect-pkg' ) }
@@ -274,15 +282,8 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 							</TabLink>
 						) }
 					</Stack>
-				) : (
-					<Link href={ scan.url }>
-						{ __(
-							'Get Scan for daily malware scanning and one-click fixes',
-							'jetpack-protect-pkg'
-						) }
-					</Link>
-				) }
-			</CardRow>
+				</CardRow>
+			) }
 		</ProtectCard>
 	);
 }
