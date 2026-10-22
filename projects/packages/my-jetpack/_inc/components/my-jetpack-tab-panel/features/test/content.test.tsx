@@ -36,12 +36,14 @@ let mockMainFeatures: Record< string, unknown > = {
 
 let mockModules: Record< string, MyJetpackModule > = {};
 let mockModulesLoaded = true;
+let mockModulesFailed = false;
 const mockRecordEvent = jest.fn();
 jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( {
 		modules: mockModules,
 		isLoading: false,
 		hasLoaded: mockModulesLoaded,
+		hasFailed: mockModulesFailed,
 	} ),
 } ) );
 
@@ -122,6 +124,7 @@ describe( 'FeaturesContent', () => {
 	beforeEach( () => {
 		mockModules = {};
 		mockModulesLoaded = true;
+		mockModulesFailed = false;
 		mockRecordEvent.mockClear();
 		mockStates = [ activeStats ];
 		mockIsLoading = false;
@@ -343,6 +346,16 @@ describe( 'FeaturesContent', () => {
 
 		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
 	} );
+
+	it.each( [ false, true ] )(
+		'says the list is incomplete only when the modules failed: %s',
+		failed => {
+			mockModulesFailed = failed;
+			renderAt( '/' );
+
+			expect( Boolean( screen.queryByText( /This list is incomplete/ ) ) ).toBe( failed );
+		}
+	);
 
 	it( 'waits for the read to settle before calling an empty catalog a failure', () => {
 		mockStates = [];

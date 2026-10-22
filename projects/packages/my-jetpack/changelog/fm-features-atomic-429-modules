@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Features: Show every feature when the modules request is briefly rate-limited, and say the list is incomplete when it keeps failing.
