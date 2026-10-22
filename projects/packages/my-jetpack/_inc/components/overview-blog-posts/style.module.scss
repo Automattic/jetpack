@@ -6,6 +6,7 @@
 
 .thumbnail {
 	flex-shrink: 0;
+	// Half the 112px crop REST_Blog_Posts asks Jetpack.com for.
 	inline-size: 56px;
 	block-size: 56px;
 	object-fit: cover;

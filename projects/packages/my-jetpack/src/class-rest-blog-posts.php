@@ -28,7 +28,7 @@ class REST_Blog_Posts {
 	const POST_COUNT = 3;
 
 	/**
-	 * Transient set while the feed is failing, so an outage costs one fetch an hour.
+	 * Site transient set while the feed is failing, so an outage costs one fetch an hour.
 	 *
 	 * @var string
 	 */
@@ -66,7 +66,8 @@ class REST_Blog_Posts {
 	 * @return WP_REST_Response
 	 */
 	public static function get_blog_posts() {
-		if ( get_transient( self::FAILED_TRANSIENT ) ) {
+		// Site transients, like core's feed cache, so a multisite network retries once, not per site.
+		if ( get_site_transient( self::FAILED_TRANSIENT ) ) {
 			return rest_ensure_response( array() );
 		}
 
@@ -74,7 +75,7 @@ class REST_Blog_Posts {
 		$feed = fetch_feed( self::FEED_URL );
 
 		if ( is_wp_error( $feed ) ) {
-			set_transient( self::FAILED_TRANSIENT, 1, HOUR_IN_SECONDS );
+			set_site_transient( self::FAILED_TRANSIENT, 1, HOUR_IN_SECONDS );
 			return rest_ensure_response( array() );
 		}
 
@@ -94,7 +95,7 @@ class REST_Blog_Posts {
 				'link'      => $link,
 				'date'      => $item->get_date( 'c' ),
 				'excerpt'   => wp_trim_words( html_entity_decode( (string) $item->get_description(), ENT_QUOTES, 'UTF-8' ), 20, '…' ),
-				// Jetpack.com crops on request; the full upload is megabytes for a 56px image.
+				// Jetpack.com crops on request: 2x the 56px thumbnail in overview-blog-posts/style.module.scss.
 				'thumbnail' => '' === $thumbnail ? null : add_query_arg( 'resize', '112,112', $thumbnail ),
 			);
 		}

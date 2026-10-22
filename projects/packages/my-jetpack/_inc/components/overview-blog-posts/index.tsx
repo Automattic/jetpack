@@ -25,6 +25,7 @@ const OverviewBlogPosts: FC = () => {
 	const { data: posts } = useSimpleQuery< BlogPost[] >( {
 		name: QUERY_BLOG_POSTS_KEY,
 		query: { path: REST_API_BLOG_POSTS_ENDPOINT },
+		options: { refetchOnMount: false },
 	} );
 
 	if ( ! posts?.length ) {
