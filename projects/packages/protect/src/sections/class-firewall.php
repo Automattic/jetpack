@@ -62,6 +62,7 @@ class Firewall implements Dashboard_Section {
 			self::get_blocks(),
 			array(
 				'hasScan'        => Dashboard::has_scan_plan(),
+				'upgradeUrl'     => Dashboard::get_scan_upgrade_url(),
 				'currentIp'      => self::get_current_ip(),
 				'ipRules'        => self::get_ip_rules(),
 				'rulesUpdatedAt' => self::get_rules_updated_at(),

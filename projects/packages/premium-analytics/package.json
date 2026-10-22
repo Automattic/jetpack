@@ -94,7 +94,7 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@storybook/react": "10.4.6",
+		"@storybook/react": "10.6.3",
 		"@tanstack/react-query-devtools": "5.102.8",
 		"@tanstack/react-router": "1.167.1",
 		"@testing-library/dom": "10.4.2",
@@ -107,7 +107,7 @@
 		"@wordpress/build": "0.25.0",
 		"browserslist": "4.28.9",
 		"jest": "30.5.2",
-		"storybook": "10.4.6",
+		"storybook": "10.6.3",
 		"typescript": "6.0.3"
 	}
 }
