@@ -82,6 +82,8 @@ const DisconnectUserDialog = ( {
 			context,
 		} );
 
+		// Separate statements, not a ternary: the minifier folds two `__()` calls in one
+		// expression into a single call with a non-literal argument, which i18n-check rejects.
 		let errorMessage: string = __(
 			'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please visit your plugins page and make sure all Jetpack plugins are updated.',
 			'jetpack-connection-js'
