@@ -40,6 +40,18 @@ describe( 'formatBucketTooltipDate', () => {
 			'month' as const,
 			'September 1, 2026',
 		],
+		[
+			'names a whole year by the year alone',
+			{ date: at( '2023-01-01T00:00:00' ), endDate: at( '2023-12-31T23:59:59' ) },
+			'year' as const,
+			'2023',
+		],
+		[
+			'names the days of a year the range cuts',
+			{ date: at( '2022-06-15T00:00:00' ), endDate: at( '2022-12-31T23:59:59' ) },
+			'year' as const,
+			`June 15${ SEP }December 31, 2022`,
+		],
 	] )( '%s', ( _name, datum, resolution, expected ) => {
 		expect( formatBucketTooltipDate( datum, resolution ) ).toBe( expected );
 	} );
