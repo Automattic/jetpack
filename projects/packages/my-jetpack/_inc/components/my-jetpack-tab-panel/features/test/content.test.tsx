@@ -810,6 +810,7 @@ describe( 'FeaturesContent after connecting the account', () => {
 	} );
 
 	it( 'finds a More Features row after loading and never replays the click', () => {
+		mockStates = [];
 		mockIsLoading = true;
 		mockGroups = [ { label: 'Other', states: [ monitor ] } ];
 		const id = rememberConnectIntent( 'monitor' );
