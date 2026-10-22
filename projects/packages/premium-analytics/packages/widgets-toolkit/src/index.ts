@@ -385,4 +385,4 @@ export {
  * once instead of once per widget.
  */
 export { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';
-export { PageFooterProvider, usePageFooter } from './components/page-footer';
+export { PageFooterProvider } from './components/page-footer';

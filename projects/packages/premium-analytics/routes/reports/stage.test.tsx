@@ -32,10 +32,17 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ChartsProvider: ( { children }: { children: ReactNode } ) => (
 		<div data-testid="charts-provider">{ children }</div>
 	),
-	PageFooterProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
+	PageFooterProvider: ( { value, children }: { value: ReactNode; children: ReactNode } ) => (
+		<>
+			{ children }
+			{ value }
+		</>
+	),
 } ) );
 
-jest.mock( '@automattic/jetpack-components/jetpack-footer', () => () => null );
+jest.mock( '@automattic/jetpack-components/jetpack-footer', () => () => (
+	<footer>Jetpack footer</footer>
+) );
 
 jest.mock( '../use-stats-date-limits', () => ( {
 	useStatsDateLimits: jest.fn( () => ( { offersComparison: true } ) ),
@@ -115,6 +122,12 @@ describe( 'Report stage report scope', () => {
 
 		await expect( screen.findByText( 'locked: utm' ) ).resolves.toBeInTheDocument();
 		expect( mockLoad ).not.toHaveBeenCalled();
+	} );
+
+	it( 'ends the page with the Jetpack footer', async () => {
+		render( <ReportStage /> );
+
+		await expect( screen.findByText( 'Jetpack footer' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders the report inside the charts provider, with no comparison', async () => {

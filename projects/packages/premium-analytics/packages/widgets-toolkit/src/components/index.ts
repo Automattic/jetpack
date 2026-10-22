@@ -213,4 +213,3 @@ export {
 	SkeletonRoot,
 	type SkeletonRootProps,
 } from './widget-skeleton';
-export { PageFooterProvider, usePageFooter } from './page-footer';

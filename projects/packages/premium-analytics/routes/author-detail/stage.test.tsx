@@ -123,6 +123,10 @@ jest.mock( '@wordpress/widget-primitives', () => ( {
 // The report registry is deliberately not mocked so the breadcrumb exercises
 // the real report-origin validation.
 
+jest.mock( '@automattic/jetpack-components/jetpack-footer', () => () => (
+	<footer>Jetpack footer</footer>
+) );
+
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: ( { items }: { items: Array< { label: string; to?: string } > } ) => (
 		<nav aria-label="Breadcrumbs">
@@ -239,6 +243,14 @@ describe( 'author detail stage', () => {
 	function getSummaryHeading( name: string ): HTMLElement {
 		return screen.getByRole( 'heading', { level: 2, name } );
 	}
+
+	it( 'ends the page with the Jetpack footer', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Jetpack footer' ) ).toBeInTheDocument();
+	} );
 
 	it( 'renders the Stats / All authors / name trail with date-preserving links', () => {
 		mockSummary();

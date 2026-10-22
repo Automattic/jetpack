@@ -143,6 +143,10 @@ jest.mock( '@wordpress/widget-primitives', () => ( {
 // The report registry is deliberately not mocked so the breadcrumb exercises
 // the real report-origin validation.
 
+jest.mock( '@automattic/jetpack-components/jetpack-footer', () => () => (
+	<footer>Jetpack footer</footer>
+) );
+
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: ( { items }: { items: Array< { label: string; to?: string } > } ) => (
 		<nav aria-label="Breadcrumbs">
@@ -240,6 +244,14 @@ describe( 'video detail stage', () => {
 
 	afterAll( () => {
 		delete window.JetpackScriptData;
+	} );
+
+	it( 'ends the page with the Jetpack footer', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Jetpack footer' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows a not-found state with a date-preserving link back to Videos', () => {

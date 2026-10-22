@@ -202,6 +202,10 @@ jest.mock( '../use-stats-date-limits', () => ( {
 	useStatsDateLimits: jest.fn( () => ( { offersComparison: true } ) ),
 } ) );
 
+jest.mock( '@automattic/jetpack-components/jetpack-footer', () => () => (
+	<footer>Jetpack footer</footer>
+) );
+
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
 		<div>
@@ -539,6 +543,18 @@ function mockSection( overrides: Record< string, unknown > = {} ) {
 
 beforeEach( () => {
 	jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
+} );
+
+describe( 'Dashboard page', () => {
+	it( 'ends the page with the Jetpack footer', () => {
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
+		mockActiveSectionSlug = 'insights';
+		mockSection();
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'Jetpack footer' ) ).toBeInTheDocument();
+	} );
 } );
 
 describe( 'Dashboard report scope', () => {
