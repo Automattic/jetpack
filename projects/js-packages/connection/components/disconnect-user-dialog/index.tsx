@@ -4,7 +4,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -64,7 +64,18 @@ const DisconnectUserDialog = ( {
 	const currentUser = userConnectionData?.currentUser;
 
 	const isAdmin = !! currentUser?.permissions?.manage_options;
-	const isOwner = !! currentUser?.isMaster;
+
+	// Which dialog the viewer gets is settled when they open it, not re-read as they use it:
+	// a successful owner disconnect clears isMaster, which would otherwise swap the cascade
+	// warning for the plain confirm under them while the host is still closing or reloading.
+	const [ prevIsOpen, setPrevIsOpen ] = useState( isOpen );
+	const [ isOwner, setIsOwner ] = useState( () => !! currentUser?.isMaster );
+	if ( isOpen !== prevIsOpen ) {
+		setPrevIsOpen( isOpen );
+		if ( isOpen ) {
+			setIsOwner( !! currentUser?.isMaster );
+		}
+	}
 
 	const handleDisconnect = useCallback( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_manage_connection_dialog_disconnect_user_click', {

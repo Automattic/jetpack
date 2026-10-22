@@ -105,5 +105,11 @@ describe( 'DisconnectUserDialog, for the connection owner', () => {
 				{ context: 'connectors' }
 			)
 		);
+
+		// Success clears isMaster in the store. The dialog the owner opened has to survive that
+		// until its host closes or reloads, rather than becoming the non-owner confirm.
+		expect(
+			screen.getByRole( 'dialog', { name: 'Disconnect Owner Account' } )
+		).toBeInTheDocument();
 	} );
 } );
