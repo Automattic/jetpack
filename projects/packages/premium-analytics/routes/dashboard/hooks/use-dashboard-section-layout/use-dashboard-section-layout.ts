@@ -1,5 +1,6 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
+import fastDeepEqual from 'fast-deep-equal/es6/index.js';
 import { useCallback, useMemo, useState } from 'react';
 import {
 	NO_WIDGET_TYPE_RENAMES,
@@ -17,6 +18,16 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 const EMPTY_SECTION_LAYOUTS: DashboardSectionLayouts = {};
 
+// A stored layout is positional, so a default's `order` would rank the widget ahead of its slot.
+const withoutOrder = ( widget: DashboardWidget ): DashboardWidget => {
+	if ( ! widget.placement ) {
+		return widget;
+	}
+	const placement = { ...widget.placement };
+	delete placement.order;
+	return { ...widget, placement };
+};
+
 type PreferencesActions = {
 	set: ( scope: string, key: string, value: DashboardSectionLayouts ) => Promise< void > | void;
 };
@@ -28,7 +39,8 @@ type PreferencesActions = {
  * section's `default_layout` from the `dashboardSection` record. Reset deletes
  * the section's entry instead of writing the default's contents: a stored
  * snapshot would shadow the entity default forever, pinning users who asked to
- * follow the default to whatever it happened to be at reset time.
+ * follow the default to whatever it happened to be at reset time. A reset that
+ * keeps some widgets writes them back only when they differ from the default's.
  *
  * A layout saved under a former widget type name renders the current type: the stored items are
  * renamed through `renames` on the way out, with no write-back, so the current name persists
@@ -38,7 +50,7 @@ type PreferencesActions = {
  * @param activeSectionId - Currently active section slug.
  * @param sections        - The available sections, carrying their defaults.
  * @param renames         - Former widget type names mapped to current ones, from the widget module records.
- * @return Active section layout, setter, and reset action, which leaves the widgets `keep` matches as stored.
+ * @return Active section layout, setter, and reset action; the reset leaves the widgets an optional `keep( widget )` accepts as stored.
  */
 export function useDashboardSectionLayout(
 	activeSectionId: DashboardSectionId,
@@ -95,15 +107,17 @@ export function useDashboardSectionLayout(
 			}
 
 			if ( keep ) {
-				// The default's other widgets take the slot of the first stored one they replace.
-				const firstReset = Math.max(
-					layout.findIndex( widget => ! keep( widget ) ),
-					0
-				);
 				const next = layout.filter( keep );
-				next.splice( firstReset, 0, ...sectionDefault.filter( widget => ! keep( widget ) ) );
-				setLayout( next );
-				return;
+				if ( ! fastDeepEqual( next, sectionDefault.filter( keep ) ) ) {
+					// The default's other widgets take the slot of the first stored one they replace.
+					next.splice(
+						layout.findIndex( widget => ! keep( widget ) ),
+						0,
+						...sectionDefault.filter( widget => ! keep( widget ) ).map( withoutOrder )
+					);
+					setLayout( next );
+					return;
+				}
 			}
 
 			const nextLayouts = { ...sectionLayouts };

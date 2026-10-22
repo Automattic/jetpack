@@ -88,15 +88,39 @@ describe( 'useDashboardSectionLayout', () => {
 		} );
 		const { result } = renderHook( () =>
 			useDashboardSectionLayout( 'traffic', [
-				section( 'traffic', [ defaultChart, widget( 'devices' ) ] ),
+				section( 'traffic', [
+					{ ...defaultChart, placement: { order: 0, width: 3 } },
+					widget( 'devices' ),
+				] ),
 			] )
 		);
 
 		act( () => result.current[ 2 ]( item => item.type !== 'jpa/chart' ) );
 
 		expect( storedLayouts() ).toEqual( {
-			traffic: [ widget( 'tags' ), defaultChart, widget( 'referrers' ) ],
+			traffic: [
+				widget( 'tags' ),
+				{ ...defaultChart, placement: { width: 3 } },
+				widget( 'referrers' ),
+			],
 		} );
+	} );
+
+	it( 'removes the entry on a reset that keeps only what the default already has', () => {
+		const storeCustom = [ widget( 'store-custom' ) ];
+		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, {
+			traffic: [ { ...widget( 'chart' ), placement: { width: 1 } }, widget( 'tags' ) ],
+			store: storeCustom,
+		} );
+		const { result } = renderHook( () =>
+			useDashboardSectionLayout( 'traffic', [
+				section( 'traffic', [ widget( 'chart' ), widget( 'tags' ) ] ),
+			] )
+		);
+
+		act( () => result.current[ 2 ]( item => item.type !== 'jpa/chart' ) );
+
+		expect( storedLayouts() ).toEqual( { store: storeCustom } );
 	} );
 
 	it( 'returns the entity default after a customize/reset round trip', () => {
