@@ -15,6 +15,7 @@ import DisconnectUserDialog from '../disconnect-user-dialog';
 import SharedHelpFooter from '../shared/help-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import TransferConnectionOwnership from '../transfer-connection-ownership';
+import type { ConnectionUserPermissions } from '../use-connection/types';
 import type { MouseEvent } from 'react';
 import './style.scss';
 
@@ -30,9 +31,7 @@ interface ManageConnectionUser {
 		/** Whether the user is the connection owner. */
 		isMaster?: boolean;
 		/** The user's capabilities. */
-		permissions?: {
-			manage_options?: boolean;
-		};
+		permissions?: ConnectionUserPermissions;
 	};
 }
 
