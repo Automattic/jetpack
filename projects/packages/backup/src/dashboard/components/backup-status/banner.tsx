@@ -7,6 +7,7 @@ import { Link, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import ErrorReference from '../error-reference';
 import {
+	backupReadyText,
 	completedWithWarningsText,
 	failedRunText,
 	noGoodBackupsText,
@@ -55,6 +56,29 @@ export default function BackupStatusBanner( { progress }: Props ) {
 				{ isStarting && <Spinner className="jpb-backup-status-banner__spinner" /> }
 			</Notice.Title>
 			<Notice.Description>{ readySoon }</Notice.Description>
+		</Notice.Root>
+	);
+}
+
+/**
+ * Notice shown once a watched backup has finished, until the reader dismisses it or another notice replaces it.
+ *
+ * @param props           - Component props.
+ * @param props.onDismiss - Closes the notice.
+ * @return The rendered banner.
+ */
+export function BackupCompleteBanner( { onDismiss }: { onDismiss: () => void } ) {
+	return (
+		<Notice.Root className="jpb-backup-status-banner" intent="success">
+			<Notice.Title className="jpb-backup-status-banner__title">
+				{ sprintf(
+					/* translators: %d: how much of the backup is complete, as a percentage. */
+					__( 'Backup complete (%d%% progress)', 'jetpack-backup-pkg' ),
+					100
+				) }
+			</Notice.Title>
+			<Notice.Description>{ backupReadyText() }</Notice.Description>
+			<Notice.CloseIconButton onClick={ onDismiss } />
 		</Notice.Root>
 	);
 }

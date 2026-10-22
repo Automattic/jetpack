@@ -355,3 +355,28 @@ describe( 'when the activity log lags a finished run', () => {
 		expect( invalidate ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
+
+describe( 'completedRun', () => {
+	const ran: Step[] = [ [ 'complete', false, 'a' ], 'in-progress', [ 'complete', false, 'b' ] ];
+
+	it( 'is set once a run makes a new backup, until it is dismissed', () => {
+		const { result } = walk( ran );
+		expect( result.current.completedRun ).toBe( true );
+		act( () => result.current.dismissCompletedRun() );
+		expect( result.current.completedRun ).toBe( false );
+	} );
+
+	it( 'is cleared when the next run starts', () => {
+		expect( walk( [ ...ran, 'in-progress' ] ).result.current.completedRun ).toBe( false );
+	} );
+
+	it( 'is not set by a run that made no backup', () => {
+		const failed = attempt( 'x', 'error' );
+		const { result } = walk( [
+			[ 'complete', false, 'a' ],
+			[ 'in-progress', false, 'a' ],
+			[ 'complete', false, 'a', failed ],
+		] );
+		expect( result.current.completedRun ).toBe( false );
+	} );
+} );
