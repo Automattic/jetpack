@@ -46,12 +46,14 @@ class WPCOM_Unified_Admin_Page_View_Test extends \WorDBless\BaseTestCase {
 	 * @param bool $is_wpcom         Whether the site is a WordPress.com site.
 	 * @param bool $is_automattician Whether the user is an Automattician.
 	 * @param bool $is_network_admin Whether the user is a network admin.
+	 * @param int  $wpcom_user_id    The connected WordPress.com user ID, or zero for local-only users.
 	 */
 	#[DataProvider( 'user_meta_provider' )]
 	public function test_all_users_page_view_event(
 		$is_wpcom,
 		$is_automattician,
-		$is_network_admin
+		$is_network_admin,
+		$wpcom_user_id
 	) {
 		define( 'IS_WPCOM', $is_wpcom );
 		define( 'WP_NETWORK_ADMIN', $is_network_admin );
@@ -73,6 +75,9 @@ class WPCOM_Unified_Admin_Page_View_Test extends \WorDBless\BaseTestCase {
 			$GLOBALS['current_blog'] = new \WP_Site( (object) array( 'blog_id' => '123' ) );
 			\Mockery::mock( 'alias:WPCOM_User' )->shouldReceive( 'get_types' )->once()->andReturn( array( 'Paid' ) );
 		} else {
+			if ( $wpcom_user_id > 0 ) {
+				update_user_meta( $user_id, 'wpcom_user_id', $wpcom_user_id );
+			}
 			Functions\stubs(
 				array(
 					'_wpcom_get_current_blog_id' => 123,
@@ -92,16 +97,22 @@ class WPCOM_Unified_Admin_Page_View_Test extends \WorDBless\BaseTestCase {
 		}
 
 		$this->assertStringContainsString( "[ 'recordEvent', 'wpcom_unified_admin_page_view', _admin_pv_props ]", $output );
-		$this->assertStringContainsString( "[ 'identifyUser', $user_id, \"tracking-test-user\" ]", $output );
+		$expected_user_id = $is_wpcom ? $user_id : $wpcom_user_id;
+		if ( $expected_user_id > 0 ) {
+			$this->assertStringContainsString( "[ 'identifyUser', $expected_user_id, \"tracking-test-user\" ]", $output );
+		} else {
+			$this->assertStringNotContainsString( 'identifyUser', $output );
+		}
 		$this->assertSame( 1, preg_match( '/var _admin_pv_props = (.+);/', $output, $matches ) );
 		$this->assertSame(
 			array(
-				'route'           => $is_network_admin ? 'dashboard-network' : 'dashboard',
-				'source'          => 'wp-admin',
-				'site_type'       => $is_wpcom ? 'simple' : 'atomic',
-				'is_block_editor' => false,
-				'blog_id'         => $is_wpcom ? '123' : 123,
-				'user_type'       => $is_wpcom ? 'Paid' : '',
+				'route'              => $is_network_admin ? 'dashboard-network' : 'dashboard',
+				'source'             => 'wp-admin',
+				'site_type'          => $is_wpcom ? 'simple' : 'atomic',
+				'is_block_editor'    => false,
+				'blog_id'            => $is_wpcom ? '123' : 123,
+				'user_type'          => $is_wpcom ? 'Paid' : '',
+				'is_local_only_user' => 0 === $expected_user_id,
 			),
 			json_decode( $matches[1], true, 512, JSON_THROW_ON_ERROR )
 		);
@@ -109,9 +120,10 @@ class WPCOM_Unified_Admin_Page_View_Test extends \WorDBless\BaseTestCase {
 
 	public static function user_meta_provider(): array {
 		return array(
-			'Simple Automattician' => array( true, true, false ),
-			'Simple network admin' => array( true, false, true ),
-			'Atomic user'          => array( false, false, false ),
+			'Simple Automattician'   => array( true, true, false, 0 ),
+			'Simple network admin'   => array( true, false, true, 0 ),
+			'Atomic connected user'  => array( false, false, false, 456 ),
+			'Atomic local-only user' => array( false, false, false, 0 ),
 		);
 	}
 }
