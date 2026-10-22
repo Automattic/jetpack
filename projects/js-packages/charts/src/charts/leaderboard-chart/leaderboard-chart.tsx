@@ -135,7 +135,7 @@ const Bar = ( {
 		></div>
 	);
 
-	// Each half of the track spans 100% of the share, so the zero line sits at its center.
+	// Each half of the track spans 100% of the share, so zero sits at its center.
 	return isDiverging ? <div className={ styles.barTrack }>{ bar }</div> : bar;
 };
 
@@ -192,7 +192,6 @@ const BarWithLabel = ( {
 		<div
 			className={ clsx( styles.barWithLabelContainer, {
 				[ styles[ 'is-overlay' ] ]: withOverlayLabel,
-				[ styles[ 'is-diverging' ] ]: isDiverging,
 			} ) }
 			data-testid={ isDiverging ? 'leaderboard-chart-diverging-row' : undefined }
 		>
@@ -213,7 +212,7 @@ const BarWithLabel = ( {
  * @param props.height           - Optional height of the chart container in pixels
  * @param props.withComparison   - Whether to show comparison data
  * @param props.withOverlayLabel - Whether to overlay the label on top of the bar
- * @param props.negativeValues   - How negative shares render: on a center zero line, or highlighted
+ * @param props.negativeValues   - How negative shares render: diverging from the center, or highlighted
  * @param props.primaryColor     - Primary color for current period bars
  * @param props.secondaryColor   - Secondary color for comparison period bars
  * @param props.valueFormatter   - Custom formatter for values
@@ -308,7 +307,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		return ! isPrimaryVisible;
 	}, [ isPrimaryVisible, isComparisonVisible, withComparison, withOverlayLabel ] );
 
-	// One negative share puts every row on a shared zero line, so the bars stay comparable.
+	// One negative share makes every row diverge from the center, so the bars stay comparable.
 	const isDiverging = useMemo(
 		() =>
 			negativeValues === 'diverging' &&
@@ -592,16 +591,6 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 									</div>
 								);
 							} ) }
-							{ isDiverging && (
-								<div
-									className={ clsx( styles.row, styles.zeroAxis ) }
-									data-leaderboard-axis
-									data-testid="leaderboard-chart-zero-axis"
-									aria-hidden="true"
-								>
-									<Text className={ styles.zeroAxisLabel }>{ valueFormatter( 0 ) }</Text>
-								</div>
-							) }
 						</Grid>
 					) }
 				</div>

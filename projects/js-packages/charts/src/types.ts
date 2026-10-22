@@ -215,7 +215,7 @@ type LeaderboardEntryFields = {
 
 	/**
 	 * Width of current bar, as % of the current value. A negative share extends the
-	 * bar from a center zero line toward the inline start, for every row.
+	 * bar from the center toward the inline start, for every row.
 	 */
 	currentShare: number;
 

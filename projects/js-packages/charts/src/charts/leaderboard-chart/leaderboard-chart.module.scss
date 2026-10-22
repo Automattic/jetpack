@@ -17,11 +17,6 @@
 		min-height: 0;
 		overflow: auto;
 
-		// Keeps the zero axis line's negative z-index inside the chart.
-		&:has(.zeroAxis) {
-			isolation: isolate;
-		}
-
 		// With fitRows the chart hides the rows that would not fit, so there is
 		// nothing left to scroll to — a scrollbar here would only ever reveal the
 		// hidden rows' reserved space.
@@ -79,7 +74,7 @@
 				var(--a8c-charts-motion-easing-entrance) both;
 		}
 
-		// Grows from the zero line, which sits on its inline-end edge.
+		// Grows from the center of the track, which is its inline-end edge.
 		&--negative {
 			transform-origin: right;
 		}
@@ -96,25 +91,6 @@
 		}
 	}
 
-	// The zero marker. Each row's segment reaches halfway into the row gap
-	// and padding on either side, so the segments join into one line. It is
-	// painted above the bars but below the label.
-	&.is-diverging {
-		position: relative;
-
-		&::after {
-			content: "";
-			position: absolute;
-			inset-block: calc(-1 * (var(--a8c-charts-dimension-leaderboard-row-gap) / 2 + var(--wpds-border-width-focus)));
-			inset-inline-start: 50%;
-			width: var(--wpds-border-width-sm);
-			margin-inline-start: calc(var(--wpds-border-width-sm) / -2);
-			background: var(--a8c-charts-color-baseline);
-			z-index: -1;
-			pointer-events: none;
-		}
-	}
-
 	.barTrack {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
@@ -128,41 +104,6 @@
 			grid-column: 1;
 			justify-self: end;
 		}
-	}
-}
-
-[data-leaderboard-grid] > :first-child .is-diverging::after {
-	inset-block-start: 0;
-}
-
-// Labels the zero marker below the last row. In fit mode it sticks to the
-// bottom edge, below the hidden rows, so trimming rows never hides it.
-.zeroAxis {
-
-	.leaderboardChart__content--fit & {
-		position: sticky;
-		inset-block-end: 0;
-	}
-}
-
-.zeroAxisLabel {
-	position: relative;
-	justify-self: center;
-	color: var(--a8c-charts-color-label-axis);
-	font-size: var(--wpds-typography-font-size-sm);
-	font-variant-numeric: tabular-nums;
-
-	// Carries the marker up to the rows, across any hidden rows above a stuck
-	// axis. Painted under the rows; the content's overflow clips it at the top.
-	&::before {
-		content: "";
-		position: absolute;
-		inset-block: -100vh 100%;
-		inset-inline-start: 50%;
-		width: var(--wpds-border-width-sm);
-		margin-inline-start: calc(var(--wpds-border-width-sm) / -2);
-		background: var(--a8c-charts-color-baseline);
-		z-index: -1;
 	}
 }
 

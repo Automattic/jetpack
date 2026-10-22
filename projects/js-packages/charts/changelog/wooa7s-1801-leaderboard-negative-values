@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Leaderboard Chart: Support negative values, shown on a center zero line or highlighted in red.
+Leaderboard Chart: Support negative values, shown as bars diverging from the center or highlighted in red.

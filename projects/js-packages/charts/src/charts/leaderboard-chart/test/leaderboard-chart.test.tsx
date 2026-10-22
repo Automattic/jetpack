@@ -158,21 +158,23 @@ describe( 'LeaderboardChart', () => {
 		[ 'only a hidden comparison share is negative', { previousShare: -40 }, false, 0, 'diverging' ],
 		[ 'every share is positive', {}, true, 0, 'diverging' ],
 		[ 'negatives are highlighted instead', { currentShare: -40 }, true, 0, 'highlight' ],
-	] )( 'puts the bars on a zero line when %s', ( _, override, withComparison, expected, mode ) => {
-		const data = [ { ...mockData[ 0 ], ...override }, mockData[ 1 ] ];
-		render(
-			<LeaderboardChart
-				data={ data }
-				withComparison={ withComparison }
-				negativeValues={ mode as 'diverging' | 'highlight' }
-			/>
-		);
+	] )(
+		'diverges the bars from the center when %s',
+		( _, override, withComparison, expected, mode ) => {
+			const data = [ { ...mockData[ 0 ], ...override }, mockData[ 1 ] ];
+			render(
+				<LeaderboardChart
+					data={ data }
+					withComparison={ withComparison }
+					negativeValues={ mode as 'diverging' | 'highlight' }
+				/>
+			);
 
-		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( expected );
-		expect( screen.queryAllByTestId( 'leaderboard-chart-zero-axis' ) ).toHaveLength(
-			expected ? 1 : 0
-		);
-	} );
+			expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength(
+				expected
+			);
+		}
+	);
 
 	it( 'shows custom label when provided', () => {
 		render(

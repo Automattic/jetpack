@@ -142,7 +142,6 @@ describe( 'chart scope catalog', () => {
 				'--a8c-charts-color-grid': 'graytext',
 				'--a8c-charts-color-axis-x': 'graytext',
 				'--a8c-charts-color-tick-x': 'graytext',
-				'--a8c-charts-color-baseline': 'canvastext',
 			} );
 		} finally {
 			style.remove();
