@@ -358,7 +358,7 @@ class Scan implements Dashboard_Section {
 		}
 
 		$history = self::get_history_threats();
-		if ( is_wp_error( $history ) ) {
+		if ( ! is_array( $history ) ) {
 			return null;
 		}
 		foreach ( $history as $threat ) {
