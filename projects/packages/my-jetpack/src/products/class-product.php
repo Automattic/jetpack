@@ -226,7 +226,7 @@ abstract class Product {
 	 */
 	public static function get_installed_plugin_filename( $plugin = 'product' ) {
 		$all_plugins = Plugins_Installer::get_plugins();
-		$filename    = 'jetpack' === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
+		$filename    = self::JETPACK_PLUGIN_SLUG === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
 		if ( ! is_array( $filename ) ) {
 			$filename = array( $filename );
 		}
