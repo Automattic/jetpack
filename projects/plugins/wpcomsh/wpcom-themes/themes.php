@@ -266,7 +266,14 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
 	}
 
 	$upgrader->skin->feedback( 'installing_package' );
-	$result = wpcomsh_jetpack_wpcom_theme_skip_download( false, $wpcom_theme->slug );
+	$result = WPCom_Themes_Tiers::PARTNER === ( $wpcom_theme->theme_tier ?? '' )
+		? wpcomsh_install_partner_theme( $wpcom_theme->slug )
+		: wpcomsh_jetpack_wpcom_theme_skip_download( false, $wpcom_theme->slug );
+
+	// False means nothing could install it, which must not be reported as an install.
+	if ( false === $result ) {
+		$result = new WP_Error( 'wpcom_theme_not_installable', __( 'This theme could not be installed.', 'wpcomsh' ) );
+	}
 
 	if ( is_wp_error( $result ) && $result->get_error_code() !== 'wpcom_theme_already_installed' ) {
 		$upgrader->skin->feedback( 'process_failed' );
@@ -292,6 +299,46 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
 	return new WP_Error( 'wpcomsh_theme_install_symlink' );
 }
 add_filter( 'upgrader_pre_download', 'wpcomsh_theme_install_by_symlink', 0, 4 );
+
+/**
+ * Installs a partner theme the site has bought.
+ *
+ * WordPress.com installs these after checkout and offers no install of a single one, so this asks it
+ * to reinstall the site's marketplace products, as Calypso does when activating one fails.
+ *
+ * @param string $slug Theme slug.
+ *
+ * @return true|WP_Error True once the theme is on the site.
+ */
+function wpcomsh_install_partner_theme( string $slug ) {
+	if ( wp_get_theme( $slug )->exists() ) {
+		return true;
+	}
+
+	// WordPress.com waits up to 40 seconds for its install job before answering.
+	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		sprintf( '/sites/%d/marketplace/products/reinstall', (int) Jetpack_Options::get_option( 'id' ) ),
+		'2',
+		array( 'timeout' => 60 ),
+		null,
+		'wpcom'
+	);
+	if ( is_wp_error( $response ) ) {
+		return $response;
+	}
+	// It answers 500 when the job fails or outlasts that wait.
+	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		return new WP_Error( 'wpcom_theme_install_failed', __( 'This theme could not be installed. Please try again in a few minutes.', 'wpcomsh' ) );
+	}
+
+	// The job installs only what the site owns, so a finished job without this theme means it isn't owned.
+	wp_clean_themes_cache();
+	if ( ! wp_get_theme( $slug )->exists() ) {
+		return new WP_Error( 'wpcom_theme_not_purchased', __( 'This theme needs a subscription before it can be installed.', 'wpcomsh' ) );
+	}
+
+	return true;
+}
 
 /**
  * Remove the symlink created for the WPCom theme when the theme is deleted.
