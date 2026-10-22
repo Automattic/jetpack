@@ -266,7 +266,38 @@ class Sync_Status_Tracker {
 		}
 
 		$started = (array) get_option( self::ANALYTICS_SYNC_STARTED_OPTION, array() );
-		return (int) ( $started[ $module_name ] ?? 0 ) > 0;
+		if ( (int) ( $started[ $module_name ] ?? 0 ) > 0 ) {
+			return true;
+		}
+
+		// A cached miss can predate another request's start, and a sync begun before start records existed never records one.
+		$started = (array) \Jetpack_Options::get_raw_option( self::ANALYTICS_SYNC_STARTED_OPTION, array() );
+		if ( (int) ( $started[ $module_name ] ?? 0 ) > 0 ) {
+			return true;
+		}
+
+		$full_status = self::get_full_sync_status();
+		if ( empty( $full_status['started'] ) || empty( $full_status['config'][ $module_name ] ) ) {
+			return false;
+		}
+
+		self::on_full_sync_start( $full_status['config'] );
+		return true;
+	}
+
+	/**
+	 * The stored full-sync status, read past the option cache.
+	 *
+	 * @return array
+	 */
+	private static function get_full_sync_status(): array {
+		$module = Modules::get_module( 'full-sync' );
+		if ( ! $module ) {
+			return array();
+		}
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $module';
+
+		return (array) $module->get_status();
 	}
 
 	/**

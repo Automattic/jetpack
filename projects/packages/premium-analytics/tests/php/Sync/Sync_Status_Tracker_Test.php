@@ -45,7 +45,8 @@ class Sync_Status_Tracker_Test extends TestCase {
 	 * @return array
 	 */
 	public function bypass_full_sync_status_raw_option( $options ) {
-		$options['jetpack_sync_full_status'] = true;
+		$options['jetpack_sync_full_status']                           = true;
+		$options[ Sync_Status_Tracker::ANALYTICS_SYNC_STARTED_OPTION ] = true;
 		return $options;
 	}
 
@@ -199,6 +200,34 @@ class Sync_Status_Tracker_Test extends TestCase {
 		do_action( 'jetpack_full_sync_start', $config, array() );
 
 		$this->assertSame( $expected, Sync_Status_Tracker::has_module_full_sync_started( 'first_analytics' ) );
+	}
+
+	public static function provide_running_full_syncs(): array {
+		return array(
+			'running analytics full sync'         => array( array( 'first_analytics' => 1 ), true ),
+			'running full sync without analytics' => array( array( 'posts' => 1 ), false ),
+		);
+	}
+
+	/**
+	 * A full sync that began before the update never fired the start hook under this code.
+	 *
+	 * @dataProvider provide_running_full_syncs
+	 * @param array $config   Config of the running full sync.
+	 * @param bool  $expected Whether the module counts as started.
+	 */
+	#[DataProvider( 'provide_running_full_syncs' )]
+	public function test_running_full_sync_counts_as_started( array $config, bool $expected ) {
+		update_option(
+			'jetpack_sync_full_status',
+			array(
+				'started' => 1730000000,
+				'config'  => $config,
+			)
+		);
+
+		$this->assertSame( $expected, Sync_Status_Tracker::has_module_full_sync_started( 'first_analytics' ) );
+		$this->assertSame( $expected, isset( get_option( Sync_Status_Tracker::ANALYTICS_SYNC_STARTED_OPTION, array() )['first_analytics'] ) );
 	}
 
 	public function test_later_full_sync_without_analytics_keeps_analytics_sync_started() {
