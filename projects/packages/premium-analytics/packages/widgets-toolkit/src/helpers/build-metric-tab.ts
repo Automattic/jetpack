@@ -97,6 +97,7 @@ function toPoint(
 	return point.pending && pendingLabel ? { ...datum, note: pendingLabel } : datum;
 }
 
+/** Map a field of a normalized report into chart points, oldest first; see `toPoint`. */
 function toPoints(
 	report: MetricReport | undefined,
 	field: string,

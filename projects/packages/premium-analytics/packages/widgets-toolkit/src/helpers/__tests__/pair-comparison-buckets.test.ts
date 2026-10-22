@@ -147,8 +147,11 @@ describe( 'pairComparisonBuckets', () => {
 
 	it( 'pairs by position when the bounds cannot be read', () => {
 		const pairs = pairComparisonBuckets(
-			[ { date_start: '2026-03' }, { date_start: '2026-04' } ],
-			[ { date_start: '2025-03' } ],
+			[
+				{ date_start: '2026-03-01T00:00:00', date_end: '' },
+				{ date_start: '2026-04-01T00:00:00', date_end: '' },
+			],
+			[ { date_start: '2025-03-01T00:00:00', date_end: '' } ],
 			{ current: '2026-03-01', comparison: '2025-03-01' }
 		);
 

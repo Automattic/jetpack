@@ -157,7 +157,8 @@ The component aligns previous-period series onto the axis dates for X-axis displ
 
 1. The first series (`series[0]`) sets the axis dates
 2. Only series marked `options.type: 'comparison'` are shifted onto those dates — a second
-   current-period metric keeps its own
+   current-period metric keeps its own, as does a comparison marked `aligned`, whose points
+   already sit on the dates they compare with
 3. The original date is preserved in `realDate` for tooltip display; a week, or a month or year the range
    cuts, is named by its span, and a whole year by the year alone
 

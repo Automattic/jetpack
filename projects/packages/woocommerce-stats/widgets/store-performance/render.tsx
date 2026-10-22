@@ -10,6 +10,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
+	type ReportResult,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -37,7 +38,7 @@ type MetricReportState = {
 	primary: unknown;
 	comparison: unknown;
 	hasComparison: boolean;
-	periodStarts?: { current: string; comparison: string };
+	periodStarts?: ReportResult< unknown >[ 'periodStarts' ];
 	timezone: string;
 	isLoading: boolean;
 	isFetching: boolean;

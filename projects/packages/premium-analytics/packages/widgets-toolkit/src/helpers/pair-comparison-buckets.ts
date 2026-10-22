@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { readSiteTimestamp } from '@jetpack-premium-analytics/datetime';
+
+/**
  * Where each period starts, as its report was queried: an ISO date or date-time,
  * read as the wall-clock time it names.
  */
@@ -12,19 +17,12 @@ type Bucket = { date_start: string; date_end?: string };
 type Span = { start: number; end: number };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const WALL_CLOCK = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?/;
 
 // Wall-clock time counted as if it were UTC, so a DST change moves no bucket.
 function wallClockMs( value: string | undefined ): number | undefined {
-	const match = value ? WALL_CLOCK.exec( value ) : null;
+	const timestamp = value ? readSiteTimestamp( value ) : null;
 
-	if ( ! match ) {
-		return undefined;
-	}
-
-	const [ , year, month, day, hour = '0', minute = '0', second = '0' ] = match;
-
-	return Date.UTC( +year, +month - 1, +day, +hour, +minute, +second );
+	return timestamp?.isValid ? Date.UTC( ...timestamp.parts ) : undefined;
 }
 
 // `date_end` names the bucket's last second.
@@ -92,10 +90,8 @@ function pairByStart( current: Span[], comparison: Span[], offsetMs: number ) {
  * Which comparison bucket each current bucket is compared with: the one covering
  * the same days once the comparison period is moved onto the current one.
  *
- * Buckets of a day or less pair by their moved start, so a missing hour stays
- * empty. Longer ones are cut by the calendar, so the two periods can open with
- * stubs of different lengths; they pair by the shift that overlaps them most.
- * Buckets without readable bounds pair by position.
+ * Calendar cuts can open the two periods with stubs of different lengths, so buckets
+ * longer than a day pair by the shift that overlaps them most.
  *
  * @param current      - The current period's buckets, oldest first.
  * @param comparison   - The comparison period's buckets, oldest first.

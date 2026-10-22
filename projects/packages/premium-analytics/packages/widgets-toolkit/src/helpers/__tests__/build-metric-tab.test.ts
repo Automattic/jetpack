@@ -151,6 +151,7 @@ describe( 'buildMetricTab', () => {
 		expect( tab.previousValue ).toBe( 12 );
 		expect( tab.previous ).toHaveLength( 1 );
 		expect( tab.previous?.[ 0 ].value ).toBe( 12 );
+		expect( tab.previousAligned ).toBeUndefined();
 	} );
 
 	it( 'draws each comparison point on the current bucket it pairs with by period', () => {
