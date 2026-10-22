@@ -1,4 +1,5 @@
 import { useCallback } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, _x } from '@wordpress/i18n';
 import { Button, Link, Stack, Text } from '@wordpress/ui';
 import { formatMetric, formatRate } from '../../../../_inc/subscribers/lib/format-metric';
@@ -58,7 +59,7 @@ function RecentPostLink( { post, position }: { post: RecentPost; position: numbe
 		<Link
 			className="jetpack-newsletter-recent-posts__link"
 			href={ post.url }
-			aria-label={ post.title }
+			aria-label={ decodeEntities( post.title ) }
 			variant="unstyled"
 			onClick={ recordClick }
 		>
@@ -82,7 +83,7 @@ function RecentPostLink( { post, position }: { post: RecentPost; position: numbe
 				render={ <span /> }
 				className="jetpack-newsletter-recent-posts__details"
 			>
-				<strong>{ post.title }</strong>
+				<strong>{ decodeEntities( post.title ) }</strong>
 				{ post.status === 'publish' ? <span>{ formatDate( post.date ) }</span> : null }
 			</Stack>
 		</Link>
