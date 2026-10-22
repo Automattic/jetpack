@@ -71,10 +71,9 @@ class SchemaSettingsControllerTest extends TestCase {
 		remove_all_filters( 'pre_option_blogdescription' );
 		delete_option( Schema_Settings::OPTION_NAME );
 		wp_set_current_user( 0 );
+		require_once ABSPATH . 'wp-admin/includes/user.php';
 		foreach ( $this->user_ids as $user_id ) {
-			if ( function_exists( 'wp_delete_user' ) ) {
-				wp_delete_user( $user_id );
-			}
+			wp_delete_user( $user_id );
 		}
 		parent::tearDown();
 	}

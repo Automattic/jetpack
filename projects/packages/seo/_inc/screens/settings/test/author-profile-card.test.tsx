@@ -73,7 +73,7 @@ describe( 'AuthorProfileCard', () => {
 	} );
 
 	it( 'posts the cleaned profile and shows what the server stored', async () => {
-		// The server drops the job title, as WordPress.com's user endpoint used to.
+		// The stored job title comes back unchanged, as if the server had dropped the edit.
 		mockApiFetch.mockImplementation( ( { method } ) =>
 			Promise.resolve( method === 'POST' ? { ...STORED_PROFILE } : STORED_PROFILE )
 		);

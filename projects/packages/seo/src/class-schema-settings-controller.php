@@ -19,7 +19,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 /**
- * Registers and serves the Schema settings REST route.
+ * Registers and serves the Schema settings and author profile REST routes.
  */
 class Schema_Settings_Controller {
 
