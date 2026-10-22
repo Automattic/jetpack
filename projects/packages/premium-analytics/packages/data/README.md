@@ -147,6 +147,19 @@ allowed.
 
 **Returns:** `IntervalType`
 
+### `intervalMenuOptions( params, locked, periods? )`
+
+Returns what an interval menu lists: the buckets it can pick, and the ones the range could draw but
+`locked` withholds, to list after them with a lock. A bucket never lands in both.
+
+**Parameters:**
+
+- `params`: `{ preset?: PrimaryPresetId; from?: string; to?: string }` - The range being edited
+- `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
+- `periods`: `readonly [ StatsPeriod, ...StatsPeriod[] ] | undefined` - The periods the chart draws; every bucket when omitted
+
+**Returns:** `{ options: IntervalType[]; lockedOptions: LockableInterval[] }` - Each in the range's order
+
 ### `needsReportDateParamsSeed( search?, lockedIntervals? )`
 
 Returns whether report date params are incomplete or the interval is invalid
@@ -158,6 +171,64 @@ for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
 - `lockedIntervals`: `readonly LockableInterval[] | undefined` - Buckets the site's plan locks, so a locked `interval` needs a seed. Defaults to none
 
 **Returns:** `boolean`
+
+### `getStatsDatePolicy()`
+
+Returns the `StatsDatePolicy` the site's plan sets, read from the Stats gates the server publishes
+(`recent-7-days`, `long-date-presets`, `intervals`) in the site's reporting timezone. A server that
+publishes no gates gets `OPEN_DATE_POLICY`.
+
+**Returns:** `StatsDatePolicy`
+
+### `getSectionDatePolicy( section )`
+
+Returns `getStatsDatePolicy()` for a dashboard section whose registration sets
+`follows_plan_date_limits` (Traffic, and the reports and ranges opened on it), and
+`OPEN_DATE_POLICY` for any other.
+`isPlanDateLimitedSection( section )` answers the same question as a boolean.
+
+**Returns:** `StatsDatePolicy`
+
+### `applyStatsDatePolicy( params, policy, landingPresetId? )`
+
+Moves a window the policy locks, or one that starts before its earliest day, to the policy's
+fallback preset, drops a comparison the policy does not offer, and keeps the interval off locked
+buckets.
+
+**Parameters:**
+
+- `params`: `ReportParams` - Normalized report params
+- `policy`: `StatsDatePolicy`
+- `landingPresetId`: `PresetType | undefined` - Where a replaced window lands instead of the fallback, when the policy allows it
+
+**Returns:** `{ params, isWindowAdjusted, isComparisonDropped }`
+
+### `getPolicyDefaultPreset( policy, defaultPreset? )`
+
+Returns the preset a page opens on when its URL names no dates: `defaultPreset` (the reader's
+own by default), or the policy's fallback when the policy locks it.
+
+**Returns:** `PresetType`
+
+### `isPresetLockedByPolicy( presetId, policy )`
+
+Returns whether the policy locks a preset. Either date limit locks every single-year preset.
+
+**Returns:** `boolean`
+
+### `isDateLimitedPolicy( policy )`
+
+Returns whether the policy sets any limit: a locked feature, or a locked bucket. `OPEN_DATE_POLICY`
+sets none.
+
+**Returns:** `boolean`
+
+### `ReportScopeProvider`'s `dateLimits`
+
+The date options the surface's plan locks, as `DateLimits`: the policy's `lockedPresetIds`,
+`earliestDate` and `lockedIntervals`, plus the `upsell` for locked periods and the
+`intervalUpsell` for locked chart intervals, each copy carrying its own `onUpgradeClick`.
+The date controls read it through `useReportScope()`; absent where the host applies no limits.
 
 ## Architecture
 
@@ -229,14 +300,30 @@ This package exports the following public API:
 - `getDefaultIntervalForPeriod` - Default interval for a preset / range
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
+- `intervalMenuOptions` - The open and the locked buckets an interval menu lists
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
+- `getStatsDatePolicy` - The date limits the site's plan sets
+- `getSectionDatePolicy` - The date limits a dashboard section follows
+- `isPlanDateLimitedSection` - Whether a dashboard section's dates follow the plan
+- `applyStatsDatePolicy` - Keep report params within a date policy
+- `getPolicyDefaultPreset` - The preset a page opens on within a date policy
+- `isPresetLockedByPolicy` - Whether a date policy locks a preset
+- `isDateLimitedPolicy` - Whether a date policy sets any limit
 - `downloadReport` - Download one report as a CSV file
 
 ### Core Settings
 
 - `ensureCoreSettingsReady` - Ensure core settings records are resolved
 
+### Constants
+
+- `OPEN_DATE_POLICY` - The date policy of a plan that sets no limits
+
 ### Types
 
 - `ReportParams` - The report params every hook takes
 - `LockableInterval` - A bucket a plan can lock (`week`, `month`, `year`)
+- `StatsDatePolicy` - The date limits a plan sets: open, the last 7 days, or no long presets
+- `DateLimitFeature` - The Stats gate a date limit comes from
+- `DateLimits` - The date limits a report scope declares to its controls
+- `DateLimitUpsellCopy` - The copy, links and upgrade callback of an upsell beside locked date options

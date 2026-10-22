@@ -1,16 +1,14 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { select } from '@wordpress/data';
 import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
-import { store as noticesStore } from '@wordpress/notices';
 import { ServicesManager } from '../services/services-manager';
 import {
 	apiCalls,
 	baseSettings,
 	baseStatus,
+	notices,
 	renderWithData,
-	resetNotices,
 	setScriptData,
 } from './helpers';
 import type { Services, Settings, Status } from '../types';
@@ -77,7 +75,7 @@ function respond( list: Services = services ) {
 /**
  * Render the manager once its services have loaded.
  *
- * @param data          - Cache contents.
+ * @param data          - Store contents.
  * @param data.status   - Status.
  * @param data.settings - Settings.
  * @return Render result.
@@ -122,7 +120,6 @@ async function runToolbarAction(
 
 beforeEach( () => {
 	mockApiFetch.mockReset();
-	resetNotices();
 	setScriptData();
 	respond();
 } );
@@ -190,9 +187,7 @@ describe( 'ServicesManager', () => {
 
 		await runToolbarAction( user, 'X', 'Remove' );
 		await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 1 ) );
-		const notice = select( noticesStore )
-			.getNotices()
-			.find( ( { content } ) => content === 'X removed.' );
+		const notice = notices().find( ( { content } ) => content === 'X removed.' );
 		await act( async () => notice?.actions?.[ 0 ]?.onClick?.() );
 
 		await waitFor( () =>

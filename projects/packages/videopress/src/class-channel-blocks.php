@@ -109,6 +109,85 @@ class Channel_Blocks {
 	}
 
 	/**
+	 * Empty state modes, the first being the default ( render nothing ).
+	 *
+	 * @var string[]
+	 */
+	const EMPTY_STATE_MODES = array( 'none', 'author', 'all' );
+
+	/**
+	 * A block's `emptyState` mode.
+	 *
+	 * @param mixed $attributes Block attributes.
+	 *
+	 * @return string One of EMPTY_STATE_MODES.
+	 */
+	public static function empty_state_mode( $attributes ) {
+		return is_array( $attributes ) && isset( $attributes['emptyState'] ) && in_array( $attributes['emptyState'], self::EMPTY_STATE_MODES, true )
+			? $attributes['emptyState']
+			: self::EMPTY_STATE_MODES[0];
+	}
+
+	/**
+	 * The empty state a block shows when the channel has no videos or no playlists:
+	 * a call to action for people who can add some, a short note for visitors in "all" mode.
+	 *
+	 * @param string $kind          "videos" or "playlists".
+	 * @param mixed  $attributes    Block attributes, for the `emptyState` mode.
+	 * @param string $wrapper_class Classes for the block wrapper, besides `is-empty`.
+	 *
+	 * @return string Markup, or an empty string when nothing should show.
+	 */
+	public static function render_empty_state( $kind, $attributes, $wrapper_class = '' ) {
+		$mode = self::empty_state_mode( $attributes );
+		if ( 'none' === $mode ) {
+			return '';
+		}
+		$is_videos = 'playlists' !== $kind;
+		$can_act   = current_user_can( $is_videos ? 'upload_files' : 'edit_posts' );
+		if ( ! $can_act && 'all' !== $mode ) {
+			return '';
+		}
+
+		$action = '';
+		if ( $can_act ) {
+			$copy   = $is_videos
+				? array(
+					__( 'Upload your first video', 'jetpack-videopress-pkg' ),
+					__( 'Videos you upload to the media library appear here, with their own page on your channel.', 'jetpack-videopress-pkg' ),
+				)
+				: array(
+					__( 'Create your first playlist', 'jetpack-videopress-pkg' ),
+					__( 'Add a Video Playlist block to a post or page and give it a title: it is listed here and gets its own page.', 'jetpack-videopress-pkg' ),
+				);
+			$action = sprintf(
+				'<a class="videopress-empty-state__action wp-element-button" href="%1$s">%2$s</a>',
+				esc_url( admin_url( $is_videos ? 'media-new.php' : 'post-new.php' ) ),
+				esc_html( $is_videos ? __( 'Upload a video', 'jetpack-videopress-pkg' ) : __( 'Write a post', 'jetpack-videopress-pkg' ) )
+			);
+		} else {
+			$copy = $is_videos
+				? array( __( 'No videos yet', 'jetpack-videopress-pkg' ), __( 'New videos will appear here.', 'jetpack-videopress-pkg' ) )
+				: array( __( 'No playlists yet', 'jetpack-videopress-pkg' ), __( 'Playlists will appear here.', 'jetpack-videopress-pkg' ) );
+		}
+
+		$markup = sprintf(
+			'<div class="videopress-empty-state is-%1$s is-for-%2$s"><p class="videopress-empty-state__title">%3$s</p><p class="videopress-empty-state__text">%4$s</p>%5$s</div>',
+			$is_videos ? 'videos' : 'playlists',
+			$can_act ? 'author' : 'visitor',
+			esc_html( $copy[0] ),
+			esc_html( $copy[1] ),
+			$action
+		);
+
+		return sprintf(
+			'<div %1$s>%2$s</div>',
+			get_block_wrapper_attributes( array( 'class' => trim( $wrapper_class . ' is-empty' ) ) ),
+			$markup
+		);
+	}
+
+	/**
 	 * A boolean attribute.
 	 *
 	 * @param array  $attributes    Block attributes.
@@ -273,7 +352,7 @@ class Channel_Blocks {
 		$is_latest  = isset( $attributes['source'] ) && 'latest' === $attributes['source'];
 		$guid       = $post instanceof WP_Post ? Channel::guid( $post ) : '';
 		if ( ! $post instanceof WP_Post || '' === $guid ) {
-			return '';
+			return $is_latest ? self::render_empty_state( 'videos', $attributes, 'videopress-video-details' ) : '';
 		}
 		$details  = Channel_Data::video_details( $guid, $post );
 		$record   = Channel_Data::record( $post );
@@ -359,7 +438,9 @@ class Channel_Blocks {
 		$source     = isset( $attributes['source'] ) && 'index' === $attributes['source'] ? 'index' : 'queried';
 		$playlist   = Channel::source_playlist( $source, isset( $attributes['sourcePlaylistId'] ) ? (string) $attributes['sourcePlaylistId'] : '' );
 		if ( ! $playlist ) {
-			return '';
+			return 'index' === $source && ! Channel::playlists()
+				? self::render_empty_state( 'playlists', $attributes, 'videopress-playlist-details is-source-index' )
+				: '';
 		}
 
 		$count    = count( $playlist['videos'] );

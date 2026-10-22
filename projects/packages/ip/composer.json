@@ -38,7 +38,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-ip",
 		"changelogger": {
 			"link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"

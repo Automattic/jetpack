@@ -36,8 +36,10 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
-import { type ClicksAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type ClicksAttributes = Record< never, never >;
 
 type ClicksRenderAttributes = ClicksAttributes & Partial< ReportParamsFieldAttributes >;
 type ClicksWidgetProps = WidgetRenderProps< ClicksRenderAttributes >;
