@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Activity Log: Show that the free plan lists the 20 most recent events, instead of a locked date range it does not apply.
+Activity Log: Show an empty date picker on the free plan, instead of a date range it does not apply.

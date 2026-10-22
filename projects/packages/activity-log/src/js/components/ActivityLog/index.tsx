@@ -486,7 +486,7 @@ export default function ActivityLog() {
 	// Mounting the picker as an admin-ui `actions` slot places it in the
 	// AdminPage header alongside the title/subtitle — matches MSD's
 	// layout for the logs pages. The free tier ignores dates server-side,
-	// so it gets a note on what it does show beside an empty, disabled picker.
+	// so it gets an empty, disabled picker rather than a range.
 	const headerActions = hasActivityLogsAccess ? (
 		<DateRangePicker
 			start={ dateRange.start }
@@ -497,18 +497,9 @@ export default function ActivityLog() {
 			locale={ locale }
 		/>
 	) : (
-		<div className="jp-activity-log__free-tier-range">
-			<span className="jp-activity-log__free-tier-range-note">
-				{ sprintf(
-					/* translators: %d: number of activity log events shown on the free plan. */
-					__( 'Showing your %d most recent events', 'jetpack-activity-log' ),
-					ACTIVITY_LOGS_DEFAULT_PAGE_SIZE
-				) }
-			</span>
-			<DateRangePickerPlaceholder
-				tooltipText={ __( 'Upgrade your plan to filter by date.', 'jetpack-activity-log' ) }
-			/>
-		</div>
+		<DateRangePickerPlaceholder
+			tooltipText={ __( 'Upgrade your plan to filter by date.', 'jetpack-activity-log' ) }
+		/>
 	);
 
 	return (
