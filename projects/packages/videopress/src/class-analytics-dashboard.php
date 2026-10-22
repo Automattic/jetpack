@@ -53,8 +53,7 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-videopress-pkg';
 
 	/**
-	 * Lowest widget contract the build works against: the widget names its icon in `widget.json`,
-	 * which the dashboard resolves from 1.6.0.
+	 * Lowest widget contract the build works against: 2.0.0, the start of the major it is built for.
 	 */
 	const MIN_WIDGET_API_VERSION = '2.0.0';
 

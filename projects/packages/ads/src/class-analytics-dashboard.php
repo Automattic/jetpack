@@ -47,8 +47,7 @@ class Analytics_Dashboard {
 	const REGISTER_WIDGET_TYPES_ACTION = 'jetpack_premium_analytics_register_widget_types';
 
 	/**
-	 * Lowest widget contract the build works against: the widgets name their icons in `widget.json`,
-	 * which the dashboard resolves from 1.6.0.
+	 * Lowest widget contract the build works against: 2.0.0, the start of the major it is built for.
 	 */
 	const MIN_WIDGET_API_VERSION = '2.0.0';
 
