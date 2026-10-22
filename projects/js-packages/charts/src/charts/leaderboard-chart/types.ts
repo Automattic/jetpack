@@ -31,7 +31,7 @@ export interface LeaderboardChartProps extends Pick<
 	withOverlayLabel?: boolean;
 
 	/**
-	 * How negative shares render. `diverging` grows bars out from the center of every row once
+	 * How negative shares render. `diverging` grows bars out from a shared zero point once
 	 * any share is negative; `highlight` keeps bars left-aligned and paints negative ones red.
 	 * @default 'diverging'
 	 */
