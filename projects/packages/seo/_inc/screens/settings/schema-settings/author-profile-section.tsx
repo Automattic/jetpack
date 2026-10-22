@@ -17,9 +17,9 @@ interface Props {
 
 /**
  * The form inside the Author profile card. Edits the signed-in user's Person
- * schema source: name, bio, and website write back to the WordPress profile
- * through core's users REST endpoint; job title and social profiles (`sameAs`)
- * are Jetpack SEO user meta.
+ * schema source: name, bio, and website from the WordPress profile, plus the
+ * Jetpack SEO job title and social profiles (`sameAs`). Where WordPress.com owns
+ * name, bio, and website, they're read-only with a link to edit them there.
  *
  * Presentational: the Author profile card owns the {@link useAuthorProfile}
  * controller (so the header status and this form share one state) and passes it
@@ -30,19 +30,41 @@ interface Props {
  * @return The Author profile form.
  */
 const AuthorProfileSection: FC< Props > = ( { form } ) => {
-	const { profile, avatarUrl, isLoading, hasLoadError, isSaving, isDirty, setProfileField, save } =
-		form;
+	const {
+		profile,
+		avatarUrl,
+		accountProfileUrl,
+		isLoading,
+		hasLoadError,
+		isSaving,
+		isDirty,
+		setProfileField,
+		save,
+	} = form;
 	const { name, description, url, jobTitle, sameAs } = profile;
 	const disabled = isLoading || isSaving || hasLoadError;
-	const hasNameError = ! isLoading && ! hasLoadError && '' === name.trim();
+	const accountOwned = '' !== accountProfileUrl;
+	const hasNameError = ! accountOwned && ! isLoading && ! hasLoadError && '' === name.trim();
 	const hasProfileErrors = hasProfileUrlErrors( sameAs );
 
 	return (
 		<Stack direction="column" gap="lg">
 			<Text variant="body-md" render={ <p /> }>
-				{ __(
-					'Adds Person schema to your articles and author archive. Name, bio, and website also update your WordPress profile.',
-					'jetpack-seo'
+				{ accountOwned ? (
+					<>
+						{ __(
+							'Adds Person schema to your articles and author archive. Name, bio, and website come from your WordPress.com profile.',
+							'jetpack-seo'
+						) }{ ' ' }
+						<Link href={ accountProfileUrl } openInNewTab rel="noopener noreferrer">
+							{ __( 'Edit on WordPress.com', 'jetpack-seo' ) }
+						</Link>
+					</>
+				) : (
+					__(
+						'Adds Person schema to your articles and author archive. Name, bio, and website also update your WordPress profile.',
+						'jetpack-seo'
+					)
 				) }
 			</Text>
 
@@ -51,6 +73,7 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 				value={ name }
 				onChange={ next => setProfileField( { name: next } ) }
 				disabled={ disabled }
+				readOnly={ accountOwned }
 				help={ hasNameError ? __( 'Name is required.', 'jetpack-seo' ) : undefined }
 				aria-invalid={ hasNameError }
 				__next40pxDefaultSize
@@ -63,6 +86,7 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 				onChange={ next => setProfileField( { description: next } ) }
 				rows={ 3 }
 				disabled={ disabled }
+				readOnly={ accountOwned }
 				__nextHasNoMarginBottom
 			/>
 
@@ -72,6 +96,7 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 				value={ url }
 				onChange={ next => setProfileField( { url: next } ) }
 				disabled={ disabled }
+				readOnly={ accountOwned }
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
 			/>
