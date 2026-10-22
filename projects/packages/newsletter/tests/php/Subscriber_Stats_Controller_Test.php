@@ -401,7 +401,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 
 	public function test_enriches_only_posts_present_in_email_summary() {
 		$matched_id   = $this->insert_post( 'Sent post', 'publish', gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ) );
-		$unmatched_id = $this->insert_post( '', 'draft', gmdate( 'Y-m-d H:i:s', time() - ( 2 * DAY_IN_SECONDS ) ) );
+		$unmatched_id = $this->insert_post( '', 'publish', gmdate( 'Y-m-d H:i:s', time() - ( 2 * DAY_IN_SECONDS ) ) );
 		$this->set_query_posts( array( $matched_id, $unmatched_id ) );
 		$this->set_email_summary_response(
 			array(
@@ -428,7 +428,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$this->assertNull( $by_id[ $unmatched_id ]['openRatePercent'] );
 		$this->assertNull( $by_id[ $unmatched_id ]['clickRatePercent'] );
 		$this->assertSame( get_permalink( $matched_id ), $by_id[ $matched_id ]['url'] );
-		$this->assertSame( get_preview_post_link( $unmatched_id ), $by_id[ $unmatched_id ]['url'] );
+		$this->assertSame( get_permalink( $unmatched_id ), $by_id[ $unmatched_id ]['url'] );
 		$this->assertSame( '(no title)', $by_id[ $unmatched_id ]['title'] );
 		$this->assertNull( $by_id[ $unmatched_id ]['image'] );
 		$this->assertSame(
