@@ -706,6 +706,62 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * @dataProvider protect_page_bulk_switches
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param bool $dashboard Whether the Protect page owns the security modules.
+	 * @param bool $active Whether to activate the modules.
+	 */
+	#[DataProvider( 'protect_page_bulk_switches' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_bulk_respects_protect_page_ownership( $dashboard, $active ) {
+		require_once __DIR__ . '/../../../protect/src/class-dashboard.php';
+		$security = array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' );
+		$modules  = array_merge( $security, array( 'stats' ) );
+		$offer    = fn( $available ) => array_values( array_unique( array_merge( $available, $modules ) ) );
+		add_filter( 'jetpack_get_available_standalone_modules', $offer );
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		Jetpack_Options::update_option( 'active_modules', $active ? array() : $modules );
+		if ( $dashboard ) {
+			do_action( 'jetpack_protect_dashboard_initialized' );
+		}
+
+		try {
+			$response = $this->send_bulk(
+				array(
+					'active'  => $active,
+					'modules' => $modules,
+				)
+			);
+			$this->assertSame( 200, $response->get_status() );
+			$failed = $response->get_data()['failed'];
+			$this->assertSame( $dashboard ? $security : array(), array_column( $failed, 'slug' ) );
+			foreach ( $failed as $failure ) {
+				$this->assertSame( 'module', $failure['type'] );
+				$this->assertSame( 'Manage this security feature in Protect.', $failure['message'] );
+			}
+			$saved = Jetpack_Options::get_option( 'active_modules', array() );
+			foreach ( $security as $slug ) {
+				$this->assertSame( $dashboard ? ! $active : $active, in_array( $slug, $saved, true ), $slug );
+			}
+			$this->assertSame( $active, in_array( 'stats', $saved, true ) );
+		} finally {
+			remove_filter( 'jetpack_get_available_standalone_modules', $offer );
+			unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		}
+	}
+
+	public static function protect_page_bulk_switches() {
+		return array(
+			'Protect page on, activate'    => array( true, true ),
+			'Protect page on, deactivate'  => array( true, false ),
+			'Protect page off, activate'   => array( false, true ),
+			'Protect page off, deactivate' => array( false, false ),
+		);
+	}
+
+	/**
 	 * A module a host forces on is reported as staying on, not switched off.
 	 */
 	public function test_bulk_reports_a_module_a_host_forced_on() {
