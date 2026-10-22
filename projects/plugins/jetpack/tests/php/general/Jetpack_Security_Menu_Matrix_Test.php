@@ -196,6 +196,8 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 
 		do_action( '_admin_menu' );
 		do_action( 'admin_menu' );
+		// Hidden items leave the submenu on admin_head, which this run does not fire.
+		Admin_Menu::remove_hidden_menu_items();
 
 		global $submenu;
 
