@@ -31,6 +31,13 @@ export interface LeaderboardChartProps extends Pick<
 	withOverlayLabel?: boolean;
 
 	/**
+	 * How negative shares render. `diverging` puts every row on a center zero line once
+	 * any share is negative; `highlight` keeps bars left-aligned and paints negative ones red.
+	 * @default 'diverging'
+	 */
+	negativeValues?: 'diverging' | 'highlight';
+
+	/**
 	 * Primary color for current period bars
 	 */
 	primaryColor?: string;

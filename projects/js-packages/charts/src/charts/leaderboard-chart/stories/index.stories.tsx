@@ -105,6 +105,15 @@ const meta: Meta< StoryArgs > = {
 				defaultValue: { summary: 'false' },
 			},
 		},
+		negativeValues: {
+			control: 'inline-radio',
+			options: [ 'diverging', 'highlight' ],
+			description:
+				'How negative shares render: on a center zero line (`diverging`), or as left-aligned bars painted red (`highlight`).',
+			table: {
+				defaultValue: { summary: 'diverging' },
+			},
+		},
 		legendLabels: {
 			control: 'object',
 			description: 'Custom labels for legend items',
@@ -632,6 +641,29 @@ export const NegativeValuesWidgetSize: Story = {
 			},
 		},
 	},
+};
+
+export const NegativeValuesHighlight: Story = {
+	args: {
+		...NegativeValues.args,
+		negativeValues: 'highlight',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'With `negativeValues="highlight"`, bars keep their usual left-aligned layout sized by the absolute share, and a negative bar and value are painted in the trend-down red.',
+			},
+		},
+	},
+};
+
+export const NegativeValuesHighlightWidgetSize: Story = {
+	args: {
+		...NegativeValuesWidgetSize.args,
+		negativeValues: 'highlight',
+	},
+	parameters: NegativeValuesWidgetSize.parameters,
 };
 
 export const CurrencyFormatting: Story = {

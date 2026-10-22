@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Leaderboard Chart: Render negative shares as bars extending left from a center zero line.
+Leaderboard Chart: Support negative values, shown on a center zero line or highlighted in red.
