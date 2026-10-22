@@ -210,8 +210,8 @@ Full control over component rendering with custom render functions:
 ### Available Render Props
 
 - **`renderMainMetric`**: Customize the main conversion rate display
-- **`renderStepLabel`**: Customize individual step labels
-- **`renderStepRate`**: Customize individual step rate displays
+- **`renderStepLabel`**: Customize individual step labels. Render plain text only: screen readers cannot reach it, and a link or button in it is never announced.
+- **`renderStepRate`**: Customize individual step rate displays. Render plain text only, as for `renderStepLabel`.
 - **`getTooltipContent`**: Set what each step's tooltip shows: a `value` beside the step's name and labeled `rows` below it. Screen readers read the tooltip as the selected step's description, without the name.
 - **`renderTooltip`**: Customize the tooltip's layout. Render the `content` it receives. Screen readers read the whole rendered tooltip as the selected step's description, including the step's name if it shows one. It sits inside the dark tooltip box, so let it inherit the box colors.
 - **`tooltipStyle`**: Restyle the tooltip box itself, such as its background, radius or padding. Set `color` with any background change.
