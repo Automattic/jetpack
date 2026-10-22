@@ -180,7 +180,6 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	 * Test_get_module_unavailable_reason
 	 */
 	public function test_get_module_unavailable_reason() {
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 		// Inalid input.
 		$this->assertFalse( Jetpack_Admin::get_module_unavailable_reason( array() ) );
 
@@ -269,7 +268,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	 * @param string       $expected Expected module information.
 	 */
 	#[DataProvider( 'get_module_info_list_and_selection_data' )]
-	public function test_info_argument_preserves_list_and_module_selection( $info, $expected ) {
+	public function test_info_argument_keeps_list_and_known_module_selection( $info, $expected ) {
 		$original_get = $_GET;
 		try {
 			$_GET['info'] = $info;
