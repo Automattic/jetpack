@@ -301,20 +301,32 @@ const previewDevices: PreviewDevice[] = [
 	{ name: 'mobile', icon: mobile, label: __( 'Mobile', 'jetpack' ), width: '360px', size: 'sm' },
 ];
 
+/**
+ * The devices the viewport has room to preview, widest first. Desktop is dropped in the
+ * 600–960px band, where its width is whatever room is left over anyway.
+ *
+ * @return The offered devices.
+ */
+const useAvailablePreviewDevices = (): PreviewDevice[] => {
+	// Both hooks must be called unconditionally (rules-of-hooks), so avoid &&-short-circuiting them.
+	const isAtLeastSmall = useViewportMatch( 'small' );
+	const isBelowLarge = useViewportMatch( 'large', '<' );
+	const isMedium = isAtLeastSmall && isBelowLarge;
+
+	return isMedium ? previewDevices.filter( device => device.size !== 'lg' ) : previewDevices;
+};
+
 interface PreviewDeviceSelectorProps {
+	devices: PreviewDevice[];
 	selectedDevice: PreviewDeviceName;
 	setSelectedDevice: ( device: PreviewDeviceName ) => void;
 }
 
 const PreviewDeviceSelector = ( {
+	devices,
 	selectedDevice,
 	setSelectedDevice,
 }: PreviewDeviceSelectorProps ) => {
-	// `md` in the old hook was the 600–959px band: at least small (>=600) AND below large (<960).
-	// Both hooks must be called unconditionally (rules-of-hooks), so avoid &&-short-circuiting them.
-	const isAtLeastSmall = useViewportMatch( 'small' );
-	const isBelowLarge = useViewportMatch( 'large', '<' );
-	const isMedium = isAtLeastSmall && isBelowLarge;
 	const isSmall = useViewportMatch( 'small', '<' );
 	const { tracks } = useAnalytics();
 
@@ -327,11 +339,11 @@ const PreviewDeviceSelector = ( {
 		return null;
 	}
 
-	const getAvailableDevices = () =>
-		isMedium ? previewDevices.filter( device => device.size !== 'lg' ) : previewDevices;
-
 	return (
+		// Remount when the options change: the highlight only re-measures when the selected
+		// option resizes, so a moved option would leave it on the old position.
 		<ToggleGroupControl
+			key={ devices.map( device => device.name ).join() }
 			__nextHasNoMarginBottom
 			label={ __( 'Preview device', 'jetpack' ) }
 			hideLabelFromVision
@@ -340,7 +352,7 @@ const PreviewDeviceSelector = ( {
 			isBlock
 			__next40pxDefaultSize={ true }
 		>
-			{ getAvailableDevices().map( device => (
+			{ devices.map( device => (
 				<ToggleGroupControlOptionIcon
 					key={ device.name }
 					icon={ device.icon }
@@ -479,6 +491,7 @@ interface PreviewControlsProps extends PreviewAccessSelectorProps, PreviewDevice
 }
 
 const PreviewControls = ( {
+	devices,
 	selectedAccess,
 	setSelectedAccess,
 	selectedDevice,
@@ -490,6 +503,7 @@ const PreviewControls = ( {
 	return (
 		<HStack alignment="center" spacing={ isSmall ? 2 : 6 }>
 			<PreviewDeviceSelector
+				devices={ devices }
 				selectedDevice={ selectedDevice }
 				setSelectedDevice={ setSelectedDevice }
 			/>
@@ -519,6 +533,12 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 	);
 	const [ selectedDevice, setSelectedDevice ] = useState< PreviewDeviceName >( 'desktop' );
 	const { tracks } = useAnalytics();
+
+	// The viewport can withdraw the selected device mid-session, so the preview follows what is
+	// on offer. The stored pick is left alone, to be honoured again if the viewport widens.
+	const availableDevices = useAvailablePreviewDevices();
+	const effectiveDevice =
+		availableDevices.find( device => device.name === selectedDevice ) ?? availableDevices[ 0 ];
 
 	// To avoid duplicate fetches for the same access level, keep track of which access levels are currently being fetched. This is a ref so that it persists across renders without triggering re-renders.
 	const fetchingAccessLevelsRef = useRef< Set< AccessLevelKey > >( new Set() );
@@ -612,8 +632,6 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 		setPreviewCache( {} );
 	};
 
-	const deviceWidth = previewDevices.find( device => device.name === selectedDevice ).width;
-
 	return (
 		isOpen && (
 			<Modal
@@ -622,9 +640,10 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 				onRequestClose={ handleClose }
 				headerActions={
 					<PreviewControls
+						devices={ availableDevices }
 						selectedAccess={ selectedAccess }
 						setSelectedAccess={ setSelectedAccess }
-						selectedDevice={ selectedDevice }
+						selectedDevice={ effectiveDevice.name }
 						setSelectedDevice={ setSelectedDevice }
 						postId={ postId }
 					/>
@@ -638,7 +657,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 						alignItems: 'center',
 						height: 'calc(100vh - 190px)',
 						backgroundColor: isError ? '#fff' : '#ddd',
-						paddingTop: selectedDevice !== 'desktop' ? '36px' : '0',
+						paddingTop: effectiveDevice.name !== 'desktop' ? '36px' : '0',
 						transition: 'padding 0.3s ease-in-out',
 					} }
 				>
@@ -695,7 +714,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 							sandbox=""
 							srcDoc={ previewCache?.[ selectedAccess ] }
 							style={ {
-								width: deviceWidth,
+								width: effectiveDevice.width,
 								maxWidth: '100%',
 								height: '100%',
 								border: 'none',

@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Keep the Modules fallback out of setup and behind its flag.

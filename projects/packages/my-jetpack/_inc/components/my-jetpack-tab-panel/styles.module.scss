@@ -25,6 +25,11 @@
 		padding-inline: 1.5rem;
 	}
 
+	// The wrapper pads the top already, so the JITM card drops its own.
+	> :global(.jp-jitm-slot) :global(.jitm-card) {
+		margin-block-start: 0;
+	}
+
 	h2 {
 
 		@include gb.heading-2x-large;

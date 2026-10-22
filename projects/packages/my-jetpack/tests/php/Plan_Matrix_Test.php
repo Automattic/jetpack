@@ -124,16 +124,16 @@ class Plan_Matrix_Test extends TestCase {
 			'direct/off'           => Products::STATUS_INACTIVE,
 			'direct/on'            => Products::STATUS_ACTIVE,
 		),
-		// Backup runs from the Jetpack plugin behind its module, so its standalone plugin's state never gates it.
+		// Backup follows the plan on the Jetpack plugin, so neither its module nor its standalone plugin gates it.
 		'backup'        => array(
 			'none/plugin_absent'   => Products::STATUS_NEEDS_PLAN,
 			'none/off'             => Products::STATUS_NEEDS_PLAN,
 			'none/on'              => Products::STATUS_NEEDS_PLAN,
-			'bundle/plugin_absent' => Products::STATUS_MODULE_DISABLED,
-			'bundle/off'           => Products::STATUS_MODULE_DISABLED,
+			'bundle/plugin_absent' => Products::STATUS_ACTIVE,
+			'bundle/off'           => Products::STATUS_ACTIVE,
 			'bundle/on'            => Products::STATUS_ACTIVE,
-			'direct/plugin_absent' => Products::STATUS_MODULE_DISABLED,
-			'direct/off'           => Products::STATUS_MODULE_DISABLED,
+			'direct/plugin_absent' => Products::STATUS_ACTIVE,
+			'direct/off'           => Products::STATUS_ACTIVE,
 			'direct/on'            => Products::STATUS_ACTIVE,
 		),
 		'boost'         => array(
@@ -340,8 +340,9 @@ class Plan_Matrix_Test extends TestCase {
 		$class = self::card_products()[ $slug ];
 		$this->apply_state( $class, $ownership, $activation );
 
-		$actual = $class::get_status();
-		$broken = self::KNOWN_BROKEN[ "$slug / $ownership / $activation" ] ?? null;
+		$actual           = $class::get_status();
+		$matrix_ownership = 'pro' === $ownership ? self::OWNERSHIP_BUNDLE : $ownership;
+		$broken           = self::KNOWN_BROKEN[ "$slug / $matrix_ownership / $activation" ] ?? null;
 
 		if ( null !== $broken ) {
 			$this->assertNotSame(
@@ -381,9 +382,13 @@ class Plan_Matrix_Test extends TestCase {
 	 */
 	public static function provide_matrix(): iterable {
 		foreach ( self::MATRIX as $slug => $cells ) {
+			$product_class = self::card_products()[ $slug ];
 			foreach ( $cells as $state => $expected ) {
 				list( $ownership, $activation ) = explode( '/', $state );
 				yield "$slug / $ownership / $activation" => array( $slug, $ownership, $activation, $expected );
+				if ( self::OWNERSHIP_BUNDLE === $ownership && ! $product_class::$feature_identifying_paid_plan ) {
+					yield "$slug / pro / $activation" => array( $slug, 'pro', $activation, $expected );
+				}
 			}
 		}
 	}
@@ -431,7 +436,7 @@ class Plan_Matrix_Test extends TestCase {
 		$this->set_site_features( array_filter( array( $class::$feature_identifying_paid_plan ) ) );
 
 		$direct_plans = $class::get_paid_plan_product_slugs();
-		$product_slug = self::OWNERSHIP_BUNDLE === $ownership ? 'jetpack_complete' : reset( $direct_plans );
+		$product_slug = 'pro' === $ownership ? 'jetpack_pro_yearly' : ( self::OWNERSHIP_BUNDLE === $ownership ? 'jetpack_complete' : reset( $direct_plans ) );
 
 		set_transient(
 			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,

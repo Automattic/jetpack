@@ -49,6 +49,7 @@ jest.mock( '../stats-date-window', () => ( {
 	dashboardSectionOf: ( section?: string ) => section,
 	limitStatsDateSearch: jest.fn( () => undefined ),
 	dateWindowNotice: () => undefined,
+	withoutCarriedYearWindow: ( search: object ) => ( { ...search } ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {

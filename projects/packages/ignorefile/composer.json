@@ -38,7 +38,6 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/ignorefile/compare/v${old}...v${new}"
 		},
-		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "4.0.x-dev"
 		}

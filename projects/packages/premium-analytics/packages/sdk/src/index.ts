@@ -8,7 +8,6 @@ export {
 	Columns,
 	Donut,
 	EarningsHistoryList,
-	ExporterCsvDownloadButton,
 	Funnel,
 	Leaderboard,
 	Locations,
@@ -16,14 +15,13 @@ export {
 	MetricTabsChartSkeleton,
 	MetricTileGrid,
 	MetricTileGridSkeleton,
-	ReportLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildMetricTab,
 	describeError,
 	flattenEarningsBreakdown,
 	getVideoPosterUrl,
+	useReportActions,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 export {

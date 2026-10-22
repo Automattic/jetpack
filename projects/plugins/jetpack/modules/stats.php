@@ -60,7 +60,10 @@ function stats_load() {
 	Stats_Admin_Bar::init();
 	Admin_Post_List_Column::register();
 
-	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
+	// Keep the classic page unless Stats v2 can take over; old links then open it via Stats_Links::open_retired_stats_page().
+	if ( ! Jetpack_Stats_Feature_Flags::is_classic_page_retired() || ! Jetpack::is_premium_analytics_enabled() ) {
+		add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
+	}
 
 	// Filter for adding the Jetpack plugin version to tracking stats.
 	add_filter( 'stats_array', 'filter_stats_array_add_jp_version' );
@@ -747,6 +750,11 @@ function stats_admin_bar_head() {
  */
 function stats_get_image_chart_src( $chart, $args = array() ) {
 	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::get_chart_src' );
+
+	// The admin bar chart handler takes no extra arguments, so `$args` is dropped for these charts.
+	if ( in_array( $chart, Stats_Admin_Bar::CHARTS, true ) ) {
+		return Stats_Admin_Bar::get_chart_src( $chart );
+	}
 
 	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) );
 

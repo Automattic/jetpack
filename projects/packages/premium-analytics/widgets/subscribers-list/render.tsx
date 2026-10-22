@@ -13,21 +13,22 @@ import {
 	SubscriberList,
 	SubscriberListSkeleton,
 	WIDGET_ROW_LIMIT,
-	WidgetFooter,
-	WidgetFooterLink,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
 	type SubscriberListItem,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { useWidgetActions } from '@wordpress/widget-primitives';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type SubscribersListAttributes = Record< never, never >;
 
 /** Base URL for the site's subscriber pages on WordPress.com or Jetpack Cloud. */
 function getSubscribersBaseUrl() {
@@ -160,19 +161,26 @@ type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListRenderAttrib
 export default function SubscribersList( { attributes = {} }: SubscribersListWidgetProps ) {
 	const manageSubscribersUrl = getScriptData()?.newsletter?.subscribersUrl;
 
+	// Off the dashboard, so the host mounts a plain anchor.
+	useWidgetActions(
+		manageSubscribersUrl
+			? [
+					{
+						id: 'manage-subscribers',
+						label: __( 'Manage subscribers', 'jetpack-premium-analytics-pkg' ),
+						relevance: 'high',
+						href: manageSubscribersUrl,
+					},
+				]
+			: []
+	);
+
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<div className={ styles.content }>
 					<SubscribersReport />
 				</div>
-				<WidgetFooter>
-					{ manageSubscribersUrl && (
-						<WidgetFooterLink href={ manageSubscribersUrl }>
-							{ __( 'Manage subscribers', 'jetpack-premium-analytics-pkg' ) }
-						</WidgetFooterLink>
-					) }
-				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

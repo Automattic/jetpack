@@ -92,9 +92,17 @@ describe( 'chartIntervalField', () => {
 		expect( onChange ).not.toHaveBeenCalled();
 	} );
 
-	it( 'shows a saved bucket the plan locks as the nearest open one', () => {
+	it( 'shows a saved bucket the plan locks as the nearest open one, and lists it locked', async () => {
+		const user = userEvent.setup();
+		const intervalUpsell = {
+			description: 'Group your charts by week.',
+			supportUrl: '',
+			upgradeUrl: 'https://example.com/plans',
+		};
 		render(
-			<ReportScopeProvider dateLimits={ { lockedPresetIds: [], lockedIntervals: [ 'week' ] } }>
+			<ReportScopeProvider
+				dateLimits={ { lockedPresetIds: [], lockedIntervals: [ 'week' ], intervalUpsell } }
+			>
 				<Control
 					data={ { chartInterval: 'week' } }
 					field={ { elements: DAILY_TO_MONTHLY } }
@@ -103,9 +111,11 @@ describe( 'chartIntervalField', () => {
 			</ReportScopeProvider>
 		);
 
-		expect( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
+		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'By days' } ) ).toBeChecked();
+		expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toHaveAccessibleDescription(
+			intervalUpsell.description
 		);
 	} );
 

@@ -29,17 +29,19 @@ export default function OfflineFeaturesScreen() {
 			<div className={ tabPanelStyles[ 'single-tab-content' ] }>
 				<div className={ tabPanelStyles[ 'my-jetpack-tab-panel-inner' ] }>
 					<div className={ tabPanelStyles[ 'tab-content-wrapper' ] }>
-						<Notice.Root intent="info">
-							<Notice.Title>
-								{ __( "You're working in Offline Mode", 'jetpack-my-jetpack' ) }
-							</Notice.Title>
-							<Notice.Description>
-								{ __(
-									'Features that need a connection to WordPress.com are paused. You can manage local features here.',
-									'jetpack-my-jetpack'
-								) }
-							</Notice.Description>
-						</Notice.Root>
+						<div className={ styles[ 'notice-gap' ] }>
+							<Notice.Root intent="info">
+								<Notice.Title>
+									{ __( "You're working in Offline Mode", 'jetpack-my-jetpack' ) }
+								</Notice.Title>
+								<Notice.Description>
+									{ __(
+										'Features that need a connection to WordPress.com are paused. You can manage local features here.',
+										'jetpack-my-jetpack'
+									) }
+								</Notice.Description>
+							</Notice.Root>
+						</div>
 						<FeaturesContent />
 					</div>
 				</div>
