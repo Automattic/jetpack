@@ -16,6 +16,7 @@ Main chart component for displaying ranked data with optional comparison values.
 | `ariaLabel` | `string` | `'Leaderboard chart'` | Accessible name of the list. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names). Not the same as `LeaderboardEntry.ariaLabel`, which names a clickable row. |
 | `withComparison` | `boolean` | `false` | Whether to show comparison data (previous period bars and delta values) |
 | `withOverlayLabel` | `boolean` | `false` | Whether to overlay the label on top of the bar |
+| `negativeValues` | `'diverging' \| 'highlight'` | `'diverging'` | How negative shares render: on a center zero line, or as left-aligned bars painted red |
 | `primaryColor` | `string` | first palette slot | Primary color for current period bars |
 | `secondaryColor` | `string` | second palette slot | Secondary color for comparison period bars |
 | `valueFormatter` | `(value: number) => ReactNode` | `defaultValueFormatter` | Custom formatter for values; may return an element, e.g. to attach a tooltip |
@@ -44,7 +45,7 @@ interface LeaderboardEntry {
 	label: string | ReactElement; // Display name or React component
 	currentValue: number;        // Current period value
 	previousValue?: number;      // Previous period value; omit when no comparison row exists
-	currentShare: number;        // Current bar width (0-100, or -100-100 to diverge from zero)
+	currentShare: number;        // Current bar width (0-100, or -100-100 for negative values)
 	previousShare?: number;      // Previous bar width (same range as currentShare)
 	delta?: number;              // Percentage change; omit when unavailable
 	imageColor?: string;         // Optional color for the entry's image/icon

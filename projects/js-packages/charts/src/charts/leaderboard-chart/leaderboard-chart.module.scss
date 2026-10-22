@@ -171,6 +171,10 @@
 	justify-content: flex-end;
 }
 
+.value--negative {
+	color: var(--a8c-charts-color-trend-down);
+}
+
 .deltaValue {
 	display: inline-block;
 	font-variant-numeric: tabular-nums;
