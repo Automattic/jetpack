@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { comparesYearAgo, getComparisonBucketShift, type BucketSpan } from '../year-ago-weeks';
+import { comparesYearAgo, getComparisonBucketShift, type BucketSpan } from '../comparison-buckets';
 
 const spans = ( ...ranges: Array< [ string, string ] > ): BucketSpan[] =>
 	ranges.map( ( [ from, to ] ) => ( {

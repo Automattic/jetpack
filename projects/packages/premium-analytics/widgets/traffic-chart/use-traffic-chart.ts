@@ -16,7 +16,7 @@ import { endOfDay, isEqual, startOfDay } from 'date-fns';
  * Internal dependencies
  */
 import { buildTrafficTooltipExtras } from './tooltip-extras';
-import { comparesYearAgo, withoutLeadingComparisonWeeks } from './year-ago-weeks';
+import { comparesYearAgo, withoutLeadingComparisonBuckets } from './comparison-buckets';
 import {
 	TRAFFIC_CHART_METRICS,
 	type TrafficChartGranularity,
@@ -121,20 +121,25 @@ export default function useTrafficChart(
 	const lcHasComparison = likesComments.hasComparison;
 	const lcZone = likesComments.timezone;
 
-	const alignsYearAgoWeeks = period === 'week' && comparesYearAgo( reportParams );
+	// Weeks of an arbitrary previous period seldom line up, and skipping one there would
+	// leave the current week without a comparison, so only year-ago weeks shift.
+	const alignsBuckets =
+		period === 'month' ||
+		period === 'year' ||
+		( period === 'week' && comparesYearAgo( reportParams ) );
 	const vvComparison = useMemo(
 		() =>
-			alignsYearAgoWeeks
-				? withoutLeadingComparisonWeeks( vvPrimary, vvComparisonReport, vvZone )
+			alignsBuckets
+				? withoutLeadingComparisonBuckets( vvPrimary, vvComparisonReport, vvZone )
 				: vvComparisonReport,
-		[ alignsYearAgoWeeks, vvPrimary, vvComparisonReport, vvZone ]
+		[ alignsBuckets, vvPrimary, vvComparisonReport, vvZone ]
 	);
 	const lcComparison = useMemo(
 		() =>
-			alignsYearAgoWeeks
-				? withoutLeadingComparisonWeeks( lcPrimary, lcComparisonReport, lcZone )
+			alignsBuckets
+				? withoutLeadingComparisonBuckets( lcPrimary, lcComparisonReport, lcZone )
 				: lcComparisonReport,
-		[ alignsYearAgoWeeks, lcPrimary, lcComparisonReport, lcZone ]
+		[ alignsBuckets, lcPrimary, lcComparisonReport, lcZone ]
 	);
 
 	// Gate the error per query so a failed one surfaces beside the other's populated

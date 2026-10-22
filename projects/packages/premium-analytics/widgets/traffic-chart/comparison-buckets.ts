@@ -27,8 +27,8 @@ function overlapMs( primary: BucketSpan, comparison: BucketSpan, offsetMs: numbe
 
 /**
  * How many leading comparison buckets to skip so the buckets, paired in order, overlap
- * most. A comparison starting on a Sunday opens with a one-day week that pairing by
- * index would put under the first current week.
+ * most. A comparison that crosses one more week, month or year boundary opens with a
+ * stub that pairing by index would put under the first current bucket.
  *
  * @param primary    - The current period's buckets, oldest first.
  * @param comparison - The comparison period's buckets, oldest first.
@@ -45,7 +45,7 @@ export function getComparisonBucketShift(
 		return 0;
 	}
 
-	// The two periods start on their range's first day, since edge weeks are clipped to it.
+	// The two periods start on their range's first day, since edge buckets are clipped to it.
 	const offsetMs = primaryStart.getTime() - comparisonStart.getTime();
 	let best = { shift: 0, overlap: -1 };
 
@@ -98,15 +98,15 @@ function spansOf( report: StatsVisitsResponse, zone: string ): BucketSpan[] {
 }
 
 /**
- * The comparison report without the leading weeks no current week overlaps, so its
- * weeks pair in order with the current ones. Its summary is left whole for the totals.
+ * The comparison report without the leading buckets no current bucket overlaps, so its
+ * buckets pair in order with the current ones. Its summary is left whole for the totals.
  *
- * @param primary    - The current period's weekly report.
- * @param comparison - The year-ago period's weekly report.
+ * @param primary    - The current period's report.
+ * @param comparison - The comparison period's report, at the same unit.
  * @param zone       - The reports' reporting timezone.
- * @return The comparison report, trimmed when it opens with such a week.
+ * @return The comparison report, trimmed when it opens with such a bucket.
  */
-export function withoutLeadingComparisonWeeks(
+export function withoutLeadingComparisonBuckets(
 	primary: StatsVisitsResponse | undefined,
 	comparison: StatsVisitsResponse | undefined,
 	zone: string

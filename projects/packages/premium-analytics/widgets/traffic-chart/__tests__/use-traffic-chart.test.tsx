@@ -191,6 +191,7 @@ describe( 'useTrafficChart', () => {
 	it.each( [
 		[
 			"skips a year-ago comparison's one-day opening week",
+			'week',
 			[ '2026-08-31', '2026-09-13' ],
 			[ '2025-08-31', '2025-09-13' ],
 			[
@@ -206,6 +207,7 @@ describe( 'useTrafficChart', () => {
 		],
 		[
 			"keeps a previous period's one-day opening week",
+			'week',
 			[ '2026-09-07', '2026-09-14' ],
 			[ '2026-08-30', '2026-09-06' ],
 			[
@@ -218,24 +220,57 @@ describe( 'useTrafficChart', () => {
 			],
 			[ 1, 132 ],
 		],
+		[
+			"skips a previous period's one-day opening month",
+			'month',
+			[ '2025-03-02', '2025-04-02' ],
+			[ '2025-01-29', '2025-03-01' ],
+			[
+				[ '2025-01-01', 1 ],
+				[ '2025-02-01', 132 ],
+				[ '2025-03-01', 326 ],
+			],
+			[
+				[ '2025-03-01', 2 ],
+				[ '2025-04-01', 4 ],
+			],
+			[ 132, 326 ],
+		],
+		[
+			"skips a previous period's one-day opening year",
+			'year',
+			[ '2025-01-02', '2026-01-04' ],
+			[ '2023-12-31', '2025-01-01' ],
+			[
+				[ '2023-01-01', 1 ],
+				[ '2024-01-01', 132 ],
+				[ '2025-01-01', 326 ],
+			],
+			[
+				[ '2025-01-01', 2 ],
+				[ '2026-01-01', 4 ],
+			],
+			[ 132, 326 ],
+		],
 	] as const )(
-		'%s when grouped by weeks',
+		'%s',
 		async (
 			_name,
+			unit,
 			[ from, to ],
 			[ compareFrom, compareTo ],
 			comparisonRows,
 			primaryRows,
 			expected
 		) => {
-			const weeks = ( rows: ReadonlyArray< readonly [ string, number ] > ) => ( {
-				unit: 'week',
+			const buckets = ( rows: ReadonlyArray< readonly [ string, number ] > ) => ( {
+				unit,
 				fields: [ 'period', 'views', 'visitors' ],
 				data: rows.map( ( [ period, views ] ) => [ period, views, 1 ] ),
 			} );
 			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
 				Promise.resolve(
-					weeks( path.includes( `date=${ compareTo }` ) ? comparisonRows : primaryRows )
+					buckets( path.includes( `date=${ compareTo }` ) ? comparisonRows : primaryRows )
 				)
 			);
 
@@ -245,12 +280,12 @@ describe( 'useTrafficChart', () => {
 						{
 							from,
 							to,
-							interval: 'week',
+							interval: unit,
 							comp: '1',
 							compare_from: compareFrom,
 							compare_to: compareTo,
 						},
-						'week'
+						unit
 					),
 				{ wrapper }
 			);
