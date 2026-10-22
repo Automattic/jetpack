@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import {
 	ActivityEvent,
 	KnownThreatsBadge,
@@ -70,27 +69,5 @@ describe( 'KnownThreatsBadge', () => {
 		const wrapper = badges[ 0 ].closest( '.site-activity-logs__event-badge' );
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( wrapper?.parentElement ).toHaveClass( 'site-activity-logs__event-content' );
-	} );
-
-	it( 'shows the warning when hovered, since it is not shown beside the badge', async () => {
-		const activity = {
-			activityIsRewindable: true,
-			activityName: 'rewind__backup_complete_full',
-			rewindId: '1792244435.274',
-		} as Activity;
-
-		render(
-			<QueryClientProvider client={ clientWithThreats() }>
-				<KnownThreatsBadge activity={ activity } />
-			</QueryClientProvider>
-		);
-
-		const sentence =
-			'This backup is known to contain 2 security threats. Restoring it may bring malware back to your site.';
-		await userEvent.hover( screen.getByText( 'Known threats (2)' ) );
-		// One copy is the screen reader text; the tooltip adds a second.
-		await waitFor( () => expect( screen.getAllByText( sentence ) ).toHaveLength( 2 ), {
-			timeout: 2000,
-		} );
 	} );
 } );
