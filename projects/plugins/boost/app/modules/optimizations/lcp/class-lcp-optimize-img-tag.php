@@ -108,7 +108,8 @@ class LCP_Optimize_Img_Tag {
 		}
 
 		// Check optimizations object for srcset.
-		// The cloud sets srcset to false when custom focal points are detected.
+		// The cloud sets srcset to false when custom focal points are detected
+		// (resize would use center-crop, losing the author's object-position).
 		$apply_srcset = LCP_Optimization_Util::should_apply_optimization( $this->lcp_data, 'srcset' );
 
 		// srcset uses CDN URLs internally (via Image_CDN_Core::cdn_url), so skip if CDN is disabled.
@@ -175,7 +176,7 @@ class LCP_Optimize_Img_Tag {
 	 * @since 4.1.0
 	 */
 	private function get_srcset( $original_url, $aspect_ratio = null ) {
-		$widths = array();
+		$dimensions = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
 			// The field is optional; the background-image sibling has always carried
 			// this guard, and without it an absent one is a foreach() TypeError on
@@ -199,41 +200,42 @@ class LCP_Optimize_Img_Tag {
 					continue;
 				}
 
-				$width = (int) $breakpoint_dimensions['width'];
+				$width  = (int) $breakpoint_dimensions['width'];
+				$height = (int) $breakpoint_dimensions['height'];
 
-				// The box can be shaped differently from the image (object-fit), so size the
-				// image to cover it: wide enough that its height fills the box too.
+				// Resize to the image's own proportions, covering the box: a box shaped differently
+				// (object-fit) would otherwise be cropped into the file, where CSS cannot undo it.
 				if ( $aspect_ratio ) {
-					$width = max( $width, (int) ceil( (int) $breakpoint_dimensions['height'] * $aspect_ratio ) );
+					$width  = max( $width, (int) ceil( $height * $aspect_ratio ) );
+					$height = (int) round( $width / $aspect_ratio );
 				}
 
-				$widths[] = $width;
+				$dimensions[ $width ] = $height;
 
 				// If it's a Moto G Power, include a 1.75 DPR for accurate lighthouse representation of the optimized image.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] === 412 ) {
-					$widths[] = (int) round( $width * 1.75 );
+					$dimensions[ (int) round( $width * 1.75 ) ] = round( $height * 1.75 );
 				}
 
 				// Include 2x DPR.
-				$widths[] = $width * 2;
+				$dimensions[ $width * 2 ] = $height * 2;
 
 				// If it's a mobile breakpoint, include 3x DPR.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] <= 480 ) {
-					$widths[] = $width * 3;
+					$dimensions[ $width * 3 ] = $height * 3;
 				}
 			}
 		}
 
 		// Remove unnecessary widths to save some bytes in the HTML.
-		$reduced_widths = $this->reduce_widths( array_unique( $widths ) );
+		$reduced_widths = $this->reduce_widths( array_keys( $dimensions ) );
 
 		$srcset = array();
 		foreach ( $reduced_widths as $width ) {
-			// Scale by width only: resize would crop to the box, and CSS cannot restore cropped pixels.
 			$srcset[] = Image_CDN_Core::cdn_url(
 				$original_url,
 				array(
-					'w' => $width,
+					'resize' => array( $width, $dimensions[ $width ] ),
 				)
 			) . " {$width}w";
 		}

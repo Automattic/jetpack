@@ -195,7 +195,8 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	/**
 	 * Test that srcset/sizes are skipped when disabled in the optimizations object.
 	 *
-	 * The cloud does this when custom focal points are detected.
+	 * This is the case when custom focal points are detected - resize would
+	 * use center-crop, losing the author's intended object-position.
 	 */
 	public function test_optimize_image_skips_srcset_when_disabled() {
 		$optimizations           = $this->get_default_optimizations();
@@ -370,7 +371,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	 * @dataProvider srcset_cases
 	 */
 	#[DataProvider( 'srcset_cases' )]
-	public function test_srcset_scales_the_image_without_cropping_it( $dimension_attributes, $expected_widths ) {
+	public function test_srcset_resizes_to_the_image_proportions_not_the_box( $dimension_attributes, $expected_resizes ) {
 		add_filter( 'jetpack_photon_development_mode', '__return_false' );
 
 		$buffer = '<img class="wp-post-image" id="test-img" ' . $dimension_attributes . ' src="https://example.com/image.jpg">';
@@ -379,17 +380,15 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 		$processor = new WP_HTML_Tag_Processor( $result );
 		$processor->next_tag( 'img' );
 
-		$candidates = array();
+		$resizes = array();
 		foreach ( explode( ', ', (string) $processor->get_attribute( 'srcset' ) ) as $candidate ) {
 			list( $url, $descriptor ) = explode( ' ', $candidate );
 			parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
 
-			$this->assertArrayNotHasKey( 'resize', $args, 'resize crops the image to the box, which CSS cannot undo.' );
-			$this->assertSame( $descriptor, ( $args['w'] ?? '' ) . 'w', 'Each descriptor must match the width it requests.' );
-			$candidates[] = (int) $args['w'];
+			$resizes[] = ( $args['resize'] ?? '' ) . ' ' . $descriptor;
 		}
 
-		$this->assertSame( $expected_widths, $candidates );
+		$this->assertSame( $expected_resizes, $resizes );
 	}
 
 	/**
@@ -399,8 +398,9 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	 */
 	public static function srcset_cases() {
 		return array(
-			'no dimensions: the box widths'                => array( '', array( 1536, 1440, 960, 768, 480 ) ),
-			'a wider 5:3 image: widened to cover each box' => array( 'width="1200" height="720"', array( 1668, 1602, 1068, 834, 534 ) ),
+			'no dimensions: the box' => array( '', array( '1536,1000 1536w', '1440,960 1440w', '960,640 960w', '768,500 768w', '480,320 480w' ) ),
+			'a 5:3 image: widened to cover the box, not cropped' => array( 'width="1200" height="720"', array( '1668,1000 1668w', '1602,960 1602w', '1068,640 1068w', '834,500 834w', '534,320 534w' ) ),
+			'a square thumbnail of any upload: still cropped to 1:1' => array( 'width="300" height="300"', array( '1536,1536 1536w', '1440,1440 1440w', '960,960 960w', '768,768 768w', '480,480 480w' ) ),
 		);
 	}
 
