@@ -21,6 +21,7 @@ import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { VIDEOPRESS_ADMIN_PAGE } from '../../src/dashboard/utils/constants';
 import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
 import { VideoUploader } from './components/video-uploader';
 import type { VideoMediaProps } from '../../src/client/lib/resumable-file-uploader/types';
@@ -182,7 +183,7 @@ function TopVideosReport() {
 							action: canUpload
 								? {
 										label: __( 'Manage videos', 'jetpack-videopress-pkg' ),
-										href: getAdminUrl( 'admin.php?page=jetpack-videopress' ),
+										href: getAdminUrl( VIDEOPRESS_ADMIN_PAGE ),
 									}
 								: undefined,
 						}

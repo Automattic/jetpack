@@ -14,6 +14,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import { VIDEOPRESS_ADMIN_PAGE } from '../../../../src/dashboard/utils/constants';
 import { useUploadedVideo } from './use-uploaded-video';
 import './uploaded-video.scss';
 import type { VideoMediaProps } from '../../../../src/client/lib/resumable-file-uploader/types';
@@ -40,8 +41,7 @@ export function UploadedVideo( { file, media }: UploadedVideoProps ) {
 	const video = useUploadedVideo( media.id );
 	const title = video?.title || file.name.replace( /\.[^.]+$/, '' );
 	const poster = getVideoPosterUrl( video?.thumbnailUrl, 320, 180 );
-	const detailsUrl = addQueryArgs( getAdminUrl( 'admin.php' ), {
-		page: 'jetpack-videopress',
+	const detailsUrl = addQueryArgs( getAdminUrl( VIDEOPRESS_ADMIN_PAGE ), {
 		p: `/video/${ media.id }`,
 	} );
 
