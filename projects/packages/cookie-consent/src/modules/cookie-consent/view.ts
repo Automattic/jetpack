@@ -157,21 +157,22 @@ async function lookUpGeoState( config: StoreConfig ): Promise< GeoState > {
 	}
 }
 
+// The banner flow owns the default consent state; a ccpa_page-only site leaves it to another CMP.
+function managesConsentDefaults(): boolean {
+	return isFeatureEnabled( 'banner' ) || isFeatureEnabled( 'footer_links' );
+}
+
 // Settle a GPC conflict before DOMContentLoaded, when consumers such as the Jetpack Stats
 // pixel read wp_has_consent(). Without a known region, init waits for the geo lookup.
 function applyGpcAtModuleLoad(): void {
-	if ( ! window.wp_set_consent || ! hasGpcConflictWithStoredConsent() ) {
-		return;
-	}
-
 	const config = getConfig( 'jetpack/cookie-consent' ) as unknown as StoreConfig | undefined;
 	if ( ! config?.geo ) {
 		return;
 	}
 
-	const geo = getGeoStateWithoutRequest( config );
-	if ( geo?.countryCode ) {
-		applyGpcToStoredConsent( geo.countryCode, geo.region || '', config );
+	geoState = getGeoStateWithoutRequest( config ) ?? geoState;
+	if ( window.wp_set_consent && managesConsentDefaults() && geoState.countryCode ) {
+		applyGpcToStoredConsent( geoState.countryCode, geoState.region || '', config );
 	}
 }
 
@@ -191,7 +192,7 @@ async function updateGpcNotice(
 	config: StoreConfig
 ): Promise< void > {
 	if ( ! geoState.initialized && hasOptedOutViaGlobalPrivacyControl() ) {
-		geoState = getGeoStateWithoutRequest( config ) ?? ( await lookUpGeoState( config ) );
+		await actions.initializeGeolocation();
 	}
 
 	context.gpcNotice = gpcNoticeApplies( geoState.initialized ? geoState : null, config );
@@ -584,15 +585,6 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// Initialize geolocation (will use cache if already done)
 			const geoData: GeoState = yield actions.initializeGeolocation();
 			if ( null === geoData.countryCode ) {
-				// Geo failed (showOnError off), so GPC cannot be resolved: a returning visitor
-				// (here only on a GPC conflict, see init) keeps the stored choice.
-				if (
-					'showBanner' in context &&
-					hasConsentSet() &&
-					hasAnalyticsConsent( readConsentChoices() )
-				) {
-					ensureTracksLoaded();
-				}
 				return;
 			}
 
@@ -603,25 +595,13 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// the flag down rather than skipping the whole call.
 			if ( 'showBanner' in context ) {
 				( context as CookieBannerContext ).gpcNotice = gpcNoticeApplies( geoData, config );
-				if ( hasConsentSet() ) {
-					// Returning visitor, here only on a GPC conflict (see init).
-					applyGpcToStoredConsent(
-						geoData.countryCode || UNKNOWN_COUNTRY_CODE,
-						geoData.region || '',
-						config
-					);
-					if ( hasAnalyticsConsent( readConsentChoices() ) ) {
-						ensureTracksLoaded();
-					}
-				} else {
-					handleConsentByRegion(
-						geoData.countryCode || UNKNOWN_COUNTRY_CODE,
-						geoData.region || '',
-						config,
-						context as CookieBannerContext,
-						isFeatureEnabled( 'banner' )
-					);
-				}
+				handleConsentByRegion(
+					geoData.countryCode || UNKNOWN_COUNTRY_CODE,
+					geoData.region || '',
+					config,
+					context as CookieBannerContext,
+					isFeatureEnabled( 'banner' )
+				);
 			}
 
 			// Update CCPA context if present
@@ -693,7 +673,10 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				// Force-preview, like the auto-show above, only applies when the banner
 				// feature is on (the markup may exist only to back the footer modal).
 				if ( config.forcePreview && isFeatureEnabled( 'banner' ) ) {
-					bannerContext.gpcNotice = gpcNoticeApplies( getGeoStateWithoutRequest( config ), config );
+					bannerContext.gpcNotice = gpcNoticeApplies(
+						geoState.initialized ? geoState : null,
+						config
+					);
 					if ( bannerContext.gpcNotice ) {
 						setContextCategories( bannerContext, getConsentChoices( false ) );
 					}
@@ -702,14 +685,19 @@ const { actions } = store( 'jetpack/cookie-consent', {
 					return;
 				}
 
-				if ( hasConsentSet() && ! hasGpcConflictWithStoredConsent() ) {
-					// User already made a choice, read from WP Consent API
+				if ( hasConsentSet() ) {
+					// Tracks waits for the region to settle a GPC conflict; a failed lookup keeps the choice.
+					if ( hasGpcConflictWithStoredConsent() ) {
+						const geo = ( await actions.initializeGeolocation() ) as GeoState;
+						if ( geo.countryCode ) {
+							applyGpcToStoredConsent( geo.countryCode, geo.region || '', config );
+						}
+					}
 					if ( hasAnalyticsConsent( readConsentChoices() ) ) {
 						ensureTracksLoaded();
 					}
 					return;
 				}
-				// A stored choice conflicting with GPC falls through to the region check below.
 			}
 
 			if ( 'isGdprManageLink' in context ) {

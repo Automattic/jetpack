@@ -145,10 +145,21 @@ beforeEach( async () => {
 	mockStore.mockImplementation( ( _namespace: string, config: StoreDefinition ) => {
 		storeActions = config.actions;
 		storeCallbacks = config.callbacks;
-		return config;
+		// Like the runtime, actions called from the view run their generators to completion.
+		const runtimeActions = Object.fromEntries(
+			Object.entries( config.actions ).map( ( [ name, action ] ) => [
+				name,
+				( ...args: unknown[] ) => {
+					const result = action( ...args );
+					return isGenerator( result ) ? runAction( result ) : result;
+				},
+			] )
+		);
+		return { ...config, actions: runtimeActions };
 	} );
 
 	// Re-import per test so the module-level geoState singleton starts uninitialized.
+	mockGetConfig.mockReset();
 	await importView();
 } );
 
@@ -323,18 +334,6 @@ describe( 'GPC for a returning visitor', () => {
 		}
 	} );
 
-	it( 'does not stop at the stored choice on init when it conflicts with GPC', async () => {
-		setGpc( true );
-		cookieJar = ALL_ALLOWED;
-		mockGetContext.mockReturnValue( { showBanner: false } );
-		mockGetConfig.mockReturnValue( makeConfig() );
-
-		await storeCallbacks.init();
-
-		// Tracks waits until the region decides whether GPC opts the visitor out.
-		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
-	} );
-
 	it( 'keeps the stored choice on init when it was made with GPC on', async () => {
 		setGpc( true );
 		cookieJar = `${ ALL_ALLOWED }; jetpack_cookie_consent_gpc=1`;
@@ -355,9 +354,7 @@ describe( 'GPC for a returning visitor', () => {
 		mockGetConfig.mockReturnValue( makeConfig() );
 		mockGdprGeoLookup();
 
-		await runAction(
-			storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
-		);
+		await storeCallbacks.init();
 
 		expect( wpSetConsentCalls() ).toContainEqual( [ 'marketing', 'deny' ] );
 		expect( wpSetConsentCalls() ).toContainEqual( [ 'statistics', 'deny' ] );
@@ -371,9 +368,7 @@ describe( 'GPC for a returning visitor', () => {
 		mockGetContext.mockReturnValue( { showBanner: false } );
 		mockGetConfig.mockReturnValue( { ...makeConfig(), geoEnabled: false } );
 
-		await runAction(
-			storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
-		);
+		await storeCallbacks.init();
 
 		expect( fetchMock ).not.toHaveBeenCalled();
 		expect( wpSetConsentCalls() ).toContainEqual( [ 'marketing', 'deny' ] );
@@ -386,9 +381,7 @@ describe( 'GPC for a returning visitor', () => {
 		mockGetConfig.mockReturnValue( makeConfig( { showOnError: false } ) );
 		fetchMock.mockRejectedValue( new Error( 'network down' ) );
 
-		await runAction(
-			storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
-		);
+		await storeCallbacks.init();
 
 		expect( wpSetConsentCalls() ).toHaveLength( 0 );
 		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
@@ -428,6 +421,20 @@ describe( 'GPC for a returning visitor', () => {
 		expect( wpSetConsentCalls() ).toHaveLength( 0 );
 	} );
 
+	it.each( [
+		[ 'opts out', { banner: false, footer_links: true }, true ],
+		[ 'leaves the choice to another CMP', { banner: false, footer_links: false }, false ],
+	] )( '%s at module load with only %o of the consent UI', async ( _, features, optedOut ) => {
+		setGpc( true );
+		setFeatures( { ...features, ccpa_page: true } );
+		cookieJar = `${ ALL_ALLOWED }; country_code=FR; region=Brittany`;
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await importView();
+
+		expect( wpSetConsentCalls().length > 0 ).toBe( optedOut );
+	} );
+
 	it( 'remembers a choice kept at module load in a region that ignores GPC', async () => {
 		setGpc( true );
 		cookieJar = `${ ALL_ALLOWED }; country_code=US; region=Texas`;
@@ -439,6 +446,26 @@ describe( 'GPC for a returning visitor', () => {
 		expect(
 			cookieWrites.some( write => write.startsWith( 'jetpack_cookie_consent_gpc=1;' ) )
 		).toBe( true );
+	} );
+
+	it( 'previews the banner with the GPC notice and optional categories off', async () => {
+		setGpc( true );
+		cookieJar = 'country_code=FR; region=Brittany';
+		mockGetConfig.mockReturnValue( { ...makeConfig(), forcePreview: true } );
+		await importView();
+		const context = {
+			showBanner: false,
+			gpcNotice: false,
+			categories: { required: true, analytics: true, advertising: false },
+		};
+		mockGetContext.mockReturnValue( context );
+
+		await storeCallbacks.init();
+
+		expect( fetchMock ).not.toHaveBeenCalled();
+		expect( context.showBanner ).toBe( true );
+		expect( context.gpcNotice ).toBe( true );
+		expect( context.categories.analytics ).toBe( false );
 	} );
 
 	describe( 'conflict notice', () => {
@@ -550,9 +577,7 @@ describe( 'GPC for a returning visitor', () => {
 			json: async () => ( { country_short: 'US', region: 'Texas' } ),
 		} as unknown as Response );
 
-		await runAction(
-			storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
-		);
+		await storeCallbacks.init();
 
 		expect( wpSetConsentCalls() ).toHaveLength( 0 );
 		expect( context.showBanner ).toBe( false );
@@ -628,6 +653,7 @@ describe( 'Tracks consent gating', () => {
 		mockWpSetConsent();
 		mockGetContext.mockReturnValue( {} );
 		mockGetConfig.mockReturnValue( makeConfig() );
+		mockGdprGeoLookup();
 
 		await storeCallbacks.init();
 		window.dispatchEvent(
@@ -650,6 +676,7 @@ describe( 'Tracks consent gating', () => {
 		mockWpSetConsent();
 		mockGetContext.mockReturnValue( {} );
 		mockGetConfig.mockReturnValue( makeConfig() );
+		mockGdprGeoLookup();
 
 		await storeCallbacks.init();
 		window.dispatchEvent(
