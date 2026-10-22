@@ -31,8 +31,8 @@ export function useDashboardPolicy( {
 					// `WidgetDashboard` opens Customize over an empty layout, which a locked one cannot fill.
 					return ! lockedLayout || lockedLayout.length > 0;
 				case 'insert':
-					// A locked section hides what is added. Locked types stay out of the inserter, but
-					// keep `edit`: the frame hides header controls without it.
+					// A locked section would hide anything added. Locked types stay out of the inserter,
+					// but keep `edit`: the frame hides header controls without it.
 					return (
 						! lockedLayout &&
 						insertableWidgetTypes.has( request.widgetType.name ) &&

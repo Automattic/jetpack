@@ -205,11 +205,8 @@ function Dashboard(): JSX.Element {
 		},
 		[ layout, setLayout, trackCustomize ]
 	);
-	const { lockedSection, visibleLayout, onVisibleLayoutChange } = useLockedSectionLayout(
-		widgetSection,
-		layout,
-		onLayoutChange
-	);
+	const { lockedSection, visibleLayout, onVisibleLayoutChange, isHiddenWidget } =
+		useLockedSectionLayout( widgetSection, layout, onLayoutChange );
 	const isSectionLocked = !! lockedSection;
 	const dashboardPolicy = useDashboardPolicy( {
 		insertableWidgetTypes,
@@ -223,7 +220,7 @@ function Dashboard(): JSX.Element {
 			onEditChange( false );
 		}
 	}, [ editMode, canCustomizeSection, onEditChange ] );
-	// Settings has no layout to customize, and `WidgetDashboard` opens Customize over an empty one.
+	// Settings has no layout to customize.
 	const canPerform = useMemo< typeof dashboardPolicy >(
 		() =>
 			isSettingsActive
@@ -234,13 +231,9 @@ function Dashboard(): JSX.Element {
 	const resetToDefault = useCallback( () => {
 		trackCustomize.reset();
 		// A locked section resets only what it shows, so an upgrade brings back the rest as arranged.
-		resetLayout(
-			lockedSection
-				? widget => ! lockedSection.open_widget_types.includes( widget.type )
-				: undefined
-		);
+		resetLayout( isHiddenWidget );
 		setEditMode( false );
-	}, [ lockedSection, resetLayout, trackCustomize ] );
+	}, [ isHiddenWidget, resetLayout, trackCustomize ] );
 
 	// Only the widgets this section renders need metadata at boot; the full registry
 	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.

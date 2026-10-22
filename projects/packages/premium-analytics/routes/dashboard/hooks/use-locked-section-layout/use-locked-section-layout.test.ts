@@ -96,6 +96,7 @@ describe( 'useLockedSectionLayout', () => {
 		);
 
 		expect( result.current.lockedSection ).toBeUndefined();
+		expect( result.current.isHiddenWidget ).toBeUndefined();
 		expect( result.current.visibleLayout ).toBe( trafficLayout );
 
 		result.current.onVisibleLayoutChange( next );

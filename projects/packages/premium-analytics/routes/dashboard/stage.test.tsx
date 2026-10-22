@@ -505,6 +505,7 @@ const passThroughLockedLayout: typeof useLockedSectionLayout = (
 	lockedSection: undefined,
 	visibleLayout: layout,
 	onVisibleLayoutChange: onLayoutChange,
+	isHiddenWidget: undefined,
 } );
 
 const closedOnboarding = {
@@ -1451,6 +1452,7 @@ describe( 'Dashboard Settings tab', () => {
 describe( 'Dashboard locked section', () => {
 	const visibleLayout = [ { uuid: 'chart', type: 'jpa/traffic-chart' as const } ];
 	const onVisibleLayoutChange = jest.fn();
+	const isHiddenWidget = jest.fn();
 
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -1464,6 +1466,7 @@ describe( 'Dashboard locked section', () => {
 						lockedSection: { title: 'Unlock site insights' } as LockedSectionGate,
 						visibleLayout: visibleLayout as typeof layout,
 						onVisibleLayoutChange,
+						isHiddenWidget,
 					}
 				: passThroughLockedLayout( section, layout, onLayoutChange )
 		);
@@ -1479,6 +1482,7 @@ describe( 'Dashboard locked section', () => {
 						lockedSection: { open_widget_types: [ 'jpa/traffic-chart' ] } as LockedSectionGate,
 						visibleLayout: shown,
 						onVisibleLayoutChange,
+						isHiddenWidget,
 					}
 				: passThroughLockedLayout( section, layout, onLayoutChange )
 		);
@@ -1574,9 +1578,7 @@ describe( 'Dashboard locked section', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
 
-		const [ keep ] = mockResetLayout.mock.lastCall ?? [];
-		expect( keep?.( { uuid: 'tags', type: 'jpa/tags' } ) ).toBe( true );
-		expect( keep?.( visibleLayout[ 0 ] ) ).toBe( false );
+		expect( mockResetLayout ).toHaveBeenLastCalledWith( isHiddenWidget );
 	} );
 
 	it( 'leaves an open section as it was', () => {
