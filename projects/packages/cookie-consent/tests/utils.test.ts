@@ -878,6 +878,17 @@ describe( 'GPC for a returning visitor', () => {
 		);
 	} );
 
+	it( 'remembers a kept choice only for the geo cookie lifetime', () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+
+		applyGpcToStoredConsent( 'US', 'texas', { ...config, geo: { cookieDuration: 3600 } } );
+
+		const mark = cookieWrites.find( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) );
+		const expires = Date.parse( /expires=([^;]+)/.exec( mark ?? '' )?.[ 1 ] ?? '' );
+		expect( Math.abs( expires - ( Date.now() + 3600 * 1000 ) ) ).toBeLessThan( 5000 );
+	} );
+
 	it( 'keeps a choice the visitor made with GPC on', () => {
 		setGpc( true );
 		cookieJar = `${ ALL_ALLOWED }; ${ GPC_CHOICE_COOKIE }=1`;

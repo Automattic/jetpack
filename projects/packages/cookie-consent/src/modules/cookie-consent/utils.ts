@@ -297,8 +297,9 @@ export function applyGpcToStoredConsent(
 		return false;
 	}
 
+	// Expires with the geo cookies, so a later visit from a region that honors GPC rechecks it.
 	if ( ! regionHonorsGpc( countryCode, region, config ) ) {
-		setCookie( GPC_CHOICE_COOKIE, '1', GPC_CHOICE_COOKIE_DURATION );
+		setCookie( GPC_CHOICE_COOKIE, '1', getGeoConfig( config ).cookieDuration );
 		return false;
 	}
 
