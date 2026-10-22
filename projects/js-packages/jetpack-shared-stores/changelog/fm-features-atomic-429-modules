@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Modules store: Retry the modules request when it is rate-limited, and record a final failure so screens can show it.

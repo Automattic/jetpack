@@ -3,6 +3,19 @@ import apiFetch from '@wordpress/api-fetch';
 export const FETCH_JETPACK_MODULES = 'FETCH_JETPACK_MODULES';
 export const UPDATE_JETPACK_MODULE_STATUS = 'UPDATE_JETPACK_MODULE_STATUS';
 
+// Milliseconds to wait before each retry of a rate-limited modules request.
+export const MODULES_RETRY_DELAYS = [ 1000, 2000 ];
+
+/**
+ * Whether the modules request was turned away for coming in too fast.
+ *
+ * Atomic sends its 429 without a JSON body, which apiFetch reports only as invalid JSON.
+ *
+ * @param {object} error - The error apiFetch rejected with.
+ * @return {boolean} Whether a retry may get through.
+ */
+const isRateLimited = error => error?.data?.status === 429 || error?.code === 'invalid_json';
+
 /**
  * fetchJetpackModules action
  *
@@ -30,11 +43,20 @@ export const updateJetpackModuleStatus = settings => {
 };
 
 export default {
-	[ FETCH_JETPACK_MODULES ]: function () {
-		return apiFetch( {
-			path: `/jetpack/v4/module/all`,
-			method: 'GET',
-		} );
+	[ FETCH_JETPACK_MODULES ]: async function () {
+		for ( let attempt = 0; ; attempt++ ) {
+			try {
+				return await apiFetch( {
+					path: `/jetpack/v4/module/all`,
+					method: 'GET',
+				} );
+			} catch ( error ) {
+				if ( attempt >= MODULES_RETRY_DELAYS.length || ! isRateLimited( error ) ) {
+					throw error;
+				}
+				await new Promise( resolve => setTimeout( resolve, MODULES_RETRY_DELAYS[ attempt ] ) );
+			}
+		}
 	},
 	[ UPDATE_JETPACK_MODULE_STATUS ]: function ( { settings } ) {
 		return apiFetch( {
