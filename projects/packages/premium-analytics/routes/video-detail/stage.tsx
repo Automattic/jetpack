@@ -16,7 +16,6 @@ import {
 	PageNotice,
 	DetailPageSection,
 	DetailPageShell,
-	PageFooterProvider,
 	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
@@ -221,6 +220,7 @@ function VideoDetail(): JSX.Element {
 								</DetailPageSection>
 							) : null }
 						</DetailPageLayout>
+						<JetpackFooter />
 					</DetailPageShell>
 				</WidgetDashboard>
 			</WidgetDashboard.Policy>
@@ -241,9 +241,7 @@ export function stage(): JSX.Element {
 			 * one, even when a hand-edited URL carries comparison params.
 			 */ }
 			<ReportScopeProvider offersComparison={ false }>
-				<PageFooterProvider value={ <JetpackFooter /> }>
-					<VideoDetail />
-				</PageFooterProvider>
+				<VideoDetail />
 			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
 	);

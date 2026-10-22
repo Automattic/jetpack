@@ -28,7 +28,6 @@ import {
 	PageNotice,
 	DetailPageSection,
 	DetailPageShell,
-	PageFooterProvider,
 	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
@@ -274,6 +273,7 @@ function AuthorDetail(): JSX.Element {
 										</DetailPageSection>
 									) : null }
 								</DetailPageLayout>
+								<JetpackFooter />
 							</DetailPageShell>
 						</WidgetDashboard>
 					</WidgetDashboard.Policy>
@@ -294,9 +294,7 @@ export function stage(): JSX.Element {
 			{ /* No compared period on this page; the params stay on the URL for the breadcrumb. */ }
 			<ReportScopeProvider offersComparison={ false }>
 				<PeriodChangeSignalProvider>
-					<PageFooterProvider value={ <JetpackFooter /> }>
-						<AuthorDetail />
-					</PageFooterProvider>
+					<AuthorDetail />
 				</PeriodChangeSignalProvider>
 			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>

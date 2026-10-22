@@ -5,7 +5,6 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { DetailPageShell } from '../../detail-page/detail-page-shell';
 import { ReportPageShell } from '../../report-page/report-page-shell';
 import { PageFooterProvider } from '../index';
 import type { ReactNode } from 'react';
@@ -14,16 +13,13 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 	Page: ( { children }: { children?: ReactNode } ) => <div data-testid="page">{ children }</div>,
 } ) );
 
-describe.each( [
-	[ 'DetailPageShell', DetailPageShell ],
-	[ 'ReportPageShell', ReportPageShell ],
-] )( '%s', ( _name, Shell ) => {
+describe( 'ReportPageShell', () => {
 	it( 'renders the footer the route provides after the page content', () => {
 		render(
 			<PageFooterProvider value={ <footer>Jetpack footer</footer> }>
-				<Shell>
+				<ReportPageShell>
 					<main>content</main>
-				</Shell>
+				</ReportPageShell>
 			</PageFooterProvider>
 		);
 
@@ -32,9 +28,9 @@ describe.each( [
 
 	it( 'renders no footer when the route provides none', () => {
 		render(
-			<Shell>
+			<ReportPageShell>
 				<main>content</main>
-			</Shell>
+			</ReportPageShell>
 		);
 
 		expect( screen.getByTestId( 'page' ) ).toHaveTextContent( /^content$/ );

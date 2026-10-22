@@ -28,7 +28,6 @@ import {
 	PageNotice,
 	DetailPageSection,
 	DetailPageShell,
-	PageFooterProvider,
 	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
@@ -325,6 +324,7 @@ function PostDetail(): JSX.Element {
 										) )
 									) }
 								</DetailPageLayout>
+								<JetpackFooter />
 							</DetailPageShell>
 						</WidgetDashboard>
 					</WidgetDashboard.Policy>
@@ -350,9 +350,7 @@ export function stage(): JSX.Element {
 			 */ }
 			<ReportScopeProvider offersComparison={ false }>
 				<PeriodChangeSignalProvider>
-					<PageFooterProvider value={ <JetpackFooter /> }>
-						<PostDetail />
-					</PageFooterProvider>
+					<PostDetail />
 				</PeriodChangeSignalProvider>
 			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>

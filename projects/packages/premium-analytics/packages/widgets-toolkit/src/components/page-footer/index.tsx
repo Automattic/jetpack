@@ -10,7 +10,7 @@ const PageFooterContext = createContext< ReactNode >( null );
 export const PageFooterProvider = PageFooterContext.Provider;
 
 /**
- * The footer the route asked the page shells to render last.
+ * The footer the route asked the report page shell to render last.
  *
  * @return The footer, or null when the route provides none.
  */

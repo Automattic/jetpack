@@ -6,7 +6,6 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import { usePageFooter } from '../page-footer';
 import styles from './detail-page-shell.module.scss';
 import type { ComponentProps } from 'react';
 
@@ -20,12 +19,9 @@ export type DetailPageShellProps = ComponentProps< typeof Page >;
  * @return The detail page shell.
  */
 export function DetailPageShell( { className, children, ...pageProps }: DetailPageShellProps ) {
-	const footer = usePageFooter();
-
 	return (
 		<Page { ...pageProps } className={ clsx( styles.page, className ) }>
 			{ children }
-			{ footer }
 		</Page>
 	);
 }
