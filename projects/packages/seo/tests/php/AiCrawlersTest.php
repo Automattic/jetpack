@@ -244,8 +244,8 @@ class AiCrawlersTest extends TestCase {
 	}
 
 	/**
-	 * Bare `Disallow` lines another filter appends first, as WordPress.com Simple does at
-	 * priority 11, stay in the `User-agent: *` group rather than the last AI crawler group.
+	 * Bare `Disallow` lines another filter appends first stay in the `User-agent: *` group
+	 * rather than the last AI crawler group.
 	 *
 	 * @return void
 	 */

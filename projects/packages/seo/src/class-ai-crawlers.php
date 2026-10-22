@@ -329,9 +329,8 @@ class Ai_Crawlers {
 	 * Append `Disallow: /` blocks for each blocked AI crawler to robots.txt.
 	 *
 	 * @param string $output The robots.txt content assembled so far.
-	 * @param bool   $public Whether the site is public (`blog_public`). When
-	 *                       false WordPress already disallows everything, but the
-	 *                       explicit per-bot blocks are still valid and harmless.
+	 * @param bool   $public Whether the site is public (`blog_public`). Unused: the
+	 *                       per-bot blocks apply either way.
 	 * @return string The robots.txt content with AI-crawler directives appended.
 	 */
 	public static function append_directives( $output, $public ) {
