@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
+import { reloadPage } from '../../../utils/reload-page';
 import { useModuleActivation } from '../../module-toggle';
 import { useAccountConnected } from './feature-state';
 import { isAccountConnectEnabled } from './mappings';
@@ -53,6 +54,33 @@ export function rememberConnectIntent( feature: string ): string | null {
 	} catch {
 		return null;
 	}
+}
+
+/**
+ * Whether Features turns a feature on after setting up its account or plugin.
+ *
+ * @return Whether it does.
+ */
+export function isSetupResumeEnabled(): boolean {
+	return isAccountConnectEnabled() && ! isOfflineFeatures();
+}
+
+/**
+ * Reload Features to turn a feature on, as the return from connecting the account would.
+ *
+ * @param feature - The feature's slug.
+ */
+export function reloadToTurnOn( feature: string ) {
+	const id = rememberConnectIntent( feature );
+	if ( id ) {
+		const url = new URL( window.location.href );
+		const [ route, query = '' ] = url.hash.split( '?' );
+		const params = new URLSearchParams( query );
+		params.set( CONNECT_INTENT_PARAM, id );
+		url.hash = `${ route }?${ params }`;
+		window.history.replaceState( window.history.state, '', url );
+	}
+	reloadPage();
 }
 
 type Click = Pick< ConnectIntent, 'feature' | 'at' >;
@@ -127,7 +155,7 @@ function canTurnOn( state: FeatureState ): boolean {
  * @return The feature to turn on, or null.
  */
 export function useConnectResume( states: FeatureState[], ready: boolean ): FeatureState | null {
-	const enabled = isAccountConnectEnabled() && ! isOfflineFeatures();
+	const enabled = isSetupResumeEnabled();
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const returnId = searchParams.get( CONNECT_INTENT_PARAM );
 	const connected = useAccountConnected();

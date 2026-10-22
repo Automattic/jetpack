@@ -1,7 +1,7 @@
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { leavePageFor } from '../../../../utils/reload-page';
+import { leavePageFor, reloadPage } from '../../../../utils/reload-page';
 import { FeatureAction } from '../feature-action';
 import { FeatureDelivery } from '../feature-delivery';
 import { FeatureItem } from '../feature-item';
@@ -14,7 +14,10 @@ import type { FeatureState } from '../feature-state';
 const mockRun = jest.fn< Promise< boolean >, [ unknown ] >( () => Promise.resolve( true ) );
 const mockSetModuleActive = jest.fn();
 
-jest.mock( '../../../../utils/reload-page', () => ( { leavePageFor: jest.fn() } ) );
+jest.mock( '../../../../utils/reload-page', () => ( {
+	leavePageFor: jest.fn(),
+	reloadPage: jest.fn(),
+} ) );
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	...jest.requireActual( '@automattic/jetpack-connection' ),
@@ -78,6 +81,7 @@ beforeEach( () => {
 	mockRun.mockClear();
 	mockSetModuleActive.mockClear();
 	( leavePageFor as jest.Mock ).mockClear();
+	( reloadPage as jest.Mock ).mockClear();
 	( getUserConnectionUrl as jest.Mock ).mockClear();
 	mockAskedFor = null;
 	mockBusy = false;
@@ -682,6 +686,7 @@ describe( 'features waiting for an account', () => {
 	beforeEach( () => {
 		setAccountConnect( true );
 		window.sessionStorage.clear();
+		window.location.hash = '';
 	} );
 
 	const connectionUrl = '/wp-admin/admin.php?connect_url_redirect=1';
@@ -884,6 +889,55 @@ describe( 'features waiting for an account', () => {
 			// Another plugin's Install has already turned it on; Jetpack still has the module to turn on.
 			const returnUrl = ( getUserConnectionUrl as jest.Mock ).mock.calls[ 0 ]?.[ 0 ].redirect_url;
 			expect( /connect_intent=[0-9a-f]{16}$/.test( returnUrl ) ).toBe( resumes );
+			expect( window.sessionStorage.getItem( 'myJetpackFeatureConnectIntent' ) !== null ).toBe(
+				resumes
+			);
+		}
+	);
+
+	it.each( [
+		[ 'reloads to turn the module on', true, true ],
+		[ 'turns nothing on after a failed activation', true, false ],
+		[ 'leaves the reload to Jetpack with the flag off', false, true ],
+	] as const )(
+		'%s after Activate Jetpack with the account connected',
+		async ( _, flag, succeeds ) => {
+			setAccountConnect( flag );
+			window.location.hash = '#/features?feature=activity-log';
+			mockRun.mockReturnValueOnce( Promise.resolve( succeeds ) );
+			render(
+				<FeatureAction
+					state={ resolveFeatureState(
+						accountJetpack( 'inactive' ).feature,
+						'inactive',
+						undefined,
+						undefined,
+						{}
+					) }
+				/>
+			);
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'Activate Jetpack' } ) );
+			await settle();
+
+			const resumes = flag && succeeds;
+			expect( mockRun.mock.calls ).toEqual( [
+				[
+					{
+						plugin: 'jetpack',
+						name: 'Jetpack',
+						action: 'activate',
+						...( flag && { leavesPage: true } ),
+					},
+				],
+			] );
+			expect( reloadPage ).toHaveBeenCalledTimes( resumes ? 1 : 0 );
+			expect( leavePageFor ).not.toHaveBeenCalled();
+			expect(
+				/^#\/features\?feature=activity-log&connect_intent=[0-9a-f]{16}$/.test(
+					window.location.hash
+				)
+			).toBe( resumes );
 			expect( window.sessionStorage.getItem( 'myJetpackFeatureConnectIntent' ) !== null ).toBe(
 				resumes
 			);

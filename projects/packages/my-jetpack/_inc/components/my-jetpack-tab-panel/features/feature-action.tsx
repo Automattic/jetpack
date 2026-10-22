@@ -8,7 +8,12 @@ import { getProtectPageUrl } from '../../../utils/protect-page';
 import { leavePageFor } from '../../../utils/reload-page';
 import { ModuleToggle } from '../../module-toggle';
 import { getFeatureConnectReturnUrl, getSwitchLabel } from '../utils';
-import { CONNECT_INTENT_PARAM, rememberConnectIntent } from './connect-resume';
+import {
+	CONNECT_INTENT_PARAM,
+	isSetupResumeEnabled,
+	rememberConnectIntent,
+	reloadToTurnOn,
+} from './connect-resume';
 import { UpgradeButton } from './feature-paid';
 import { getFeatureManageUrl, getForcedReason, offersConnect } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
@@ -122,9 +127,14 @@ export function InstallButton( {
 	const onClick = useCallback( () => {
 		tracking?.trackFeatureAction( { state, action, origin } );
 		const connectAfter = Boolean( state?.accountNeeded );
-		run( action, { leavesPage: connectAfter } ).then( done => {
+		// When no account connection follows, Jetpack's reload is the end of the module's setup.
+		const reloadsToTurnOn =
+			! connectAfter && state?.control.kind === 'install-jetpack' && isSetupResumeEnabled();
+		run( action, { leavesPage: connectAfter || reloadsToTurnOn } ).then( done => {
 			if ( done && connectAfter ) {
 				connectAccount( state, origin, 'install' );
+			} else if ( done && reloadsToTurnOn ) {
+				reloadToTurnOn( state.feature.slug );
 			}
 		} );
 	}, [ action, connectAccount, origin, run, state, tracking ] );
