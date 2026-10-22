@@ -396,6 +396,20 @@ describe( 'ConversionFunnelChart', () => {
 			expect( screen.getByRole( 'option', { name: 'Checkout' } ) ).toHaveFocus();
 		} );
 
+		it( 'selects the step on focus after a press that ended off the step', async () => {
+			const user = userEvent.setup();
+			renderBetweenButtons();
+
+			const cart = screen.getByRole( 'option', { name: 'Cart' } );
+			focus( cart );
+			await user.pointer( { keys: '[MouseLeft>]', target: cart } );
+			await user.pointer( { keys: '[/MouseLeft]', target: document.body } );
+			await user.click( screen.getByRole( 'button', { name: 'After' } ) );
+			await user.tab( { shift: true } );
+
+			expect( screen.getByRole( 'option', { name: 'Cart', selected: true } ) ).toHaveFocus();
+		} );
+
 		it( 'clears the selection when focus leaves the funnel', async () => {
 			const user = userEvent.setup();
 			renderBetweenButtons();
