@@ -501,6 +501,7 @@ export const Paginated: Story = {
 	args: {
 		...Default.args,
 		data: PAGINATED_ROWS,
+		initialView: { ...initialView, perPage: 10 },
 		hideLevelMarkers: true,
 	},
 	parameters: {

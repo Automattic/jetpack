@@ -157,7 +157,7 @@ const goToPage = async ( user: ReturnType< typeof userEvent.setup >, page: numbe
 };
 
 describe( 'ReportRecordsTable pagination', () => {
-	it( 'lists every row on one page unless the view sets a page size', () => {
+	it( 'lists every row on one page unless the view sets a page size', async () => {
 		render(
 			<ReportRecordsTable< NumberedRow >
 				data={ numberedRows( 25 ) }
@@ -168,6 +168,10 @@ describe( 'ReportRecordsTable pagination', () => {
 
 		expect( screen.getByText( 'Row 25' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /next page/i } ) ).not.toBeInTheDocument();
+
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'View options' } ) );
+		await expect( screen.findByText( 'Sort by' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Items per page' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'falls back to the last page when a refetch leaves the current one out of range', async () => {

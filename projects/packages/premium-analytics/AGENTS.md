@@ -681,7 +681,7 @@ the query factory — do not do it in the widget or the view hook.
 
 Stats list widgets request `WIDGET_ROW_LIMIT` from
 `@jetpack-premium-analytics/widgets-toolkit`. Do not add per-widget defaults or
-user-editable row counts; report pages handle larger result sets with pagination.
+user-editable row counts; report pages list the full result set.
 This rule covers Stats widgets only — the store widgets under
 `packages/widgets-toolkit/src/widgets/` predate it and set their own limits.
 

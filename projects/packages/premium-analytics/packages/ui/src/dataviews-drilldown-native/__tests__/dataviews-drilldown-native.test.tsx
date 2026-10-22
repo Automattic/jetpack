@@ -264,7 +264,7 @@ const flatTable = ( count: number ) => (
 );
 
 describe( 'DataViewsDrilldownNative pagination', () => {
-	it( 'lists every row on one page unless the view sets a page size', () => {
+	it( 'lists every row on one page unless the view sets a page size', async () => {
 		render(
 			<DataViewsDrilldownNative< Row >
 				data={ flatRows( 25 ) }
@@ -277,6 +277,10 @@ describe( 'DataViewsDrilldownNative pagination', () => {
 
 		expect( screen.getByText( 'Row 25' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Next page' } ) ).not.toBeInTheDocument();
+
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'View options' } ) );
+		await expect( screen.findByText( 'Sort by' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Items per page' ) ).not.toBeInTheDocument();
 	} );
 
 	// This table slices its own rows, so the reader's page survives a refetch the
