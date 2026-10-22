@@ -14,11 +14,11 @@ import { __ } from '@wordpress/i18n';
 import type { TrafficChartType } from './widget';
 
 /** The longest range, in days, whose every day this chart can draw; a leap year included. */
-export const DAILY_RANGE_MAX_DAYS = 366;
+const DAILY_RANGE_MAX_DAYS = 366;
 
 /**
- * Days on ranges too long for the shared rule to offer them: a line can draw a year of them,
- * while bars that thin stop being readable, so bars list them withheld.
+ * Days on ranges up to a year: a line can draw a year of them, while bars that thin stop being
+ * readable, so bars list them withheld. The shared rule drops any the range already offers.
  *
  * @param range     - The range the chart reads.
  * @param chartType - How the chart is drawn.
@@ -32,12 +32,8 @@ export function trafficIntervalExtension(
 	const to = range.to ?? '';
 	const allowed = getAllowedIntervalsForPreset( range.preset, from, to );
 
-	// A day or less is drawn in hours alone, by design, however many dates it spans.
-	if (
-		allowed.includes( 'hour' ) ||
-		allowed.includes( 'day' ) ||
-		getDaysBetweenInclusive( from, to ) > DAILY_RANGE_MAX_DAYS
-	) {
+	// Hours alone for a day or less, even one spanning two dates (Last 24 hours).
+	if ( allowed.includes( 'hour' ) || getDaysBetweenInclusive( from, to ) > DAILY_RANGE_MAX_DAYS ) {
 		return {};
 	}
 

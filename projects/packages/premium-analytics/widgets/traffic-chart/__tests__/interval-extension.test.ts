@@ -42,12 +42,6 @@ describe( 'trafficIntervalExtension', () => {
 			'line',
 			{},
 		],
-		[
-			'adds nothing to a range that already offers days',
-			{ preset: 'last-30-days', from: '2026-09-23', to: '2026-10-22' },
-			'line',
-			{},
-		],
 	] )( '%s', ( _, range, chartType, expected ) => {
 		expect( trafficIntervalExtension( range, chartType ) ).toEqual( expected );
 	} );

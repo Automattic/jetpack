@@ -42,7 +42,7 @@ export function chartIntervalElements( periods: readonly [ StatsPeriod, ...Stats
 /**
  * A widget's own change to the buckets its range allows, read from its saved attributes.
  */
-export type ExtendIntervals< T > = ( range: IntervalRange, item: T ) => IntervalExtension;
+type ExtendIntervals< T > = ( range: IntervalRange, item: T ) => IntervalExtension;
 
 function createChartIntervalControl< T extends ChartIntervalFieldAttributes >(
 	extendIntervals?: ExtendIntervals< T >
