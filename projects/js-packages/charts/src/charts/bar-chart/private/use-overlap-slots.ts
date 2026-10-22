@@ -58,17 +58,23 @@ export function useOverlapSlots(
 			return undefined;
 		}
 
-		const placements = getOverlapPlacements( seriesWithVisibility.map( ( { series } ) => series ) );
-		const entries = seriesWithVisibility
-			.filter( ( { isVisible } ) => isVisible )
-			.map( ( { series, index } ) => ( { series, index } ) )
-			.sort( ( a, b ) => placements[ a.index ].layer - placements[ b.index ].layer );
+		const visible = seriesWithVisibility.filter( ( { isVisible } ) => isVisible );
+		const placements = getOverlapPlacements( visible.map( ( { series } ) => series ) );
+		const placed = visible
+			.map( ( { series, index }, position ) => ( {
+				entry: { series, index },
+				placement: placements[ position ],
+			} ) )
+			.sort( ( a, b ) => a.placement.layer - b.placement.layer );
+		const entries = placed.map( ( { entry } ) => entry );
 		const placementByKey = new Map(
-			entries.map( ( { series, index } ) => [ series.label, placements[ index ] ] )
+			placed.map( ( { entry, placement } ) => [ entry.series.label, placement ] )
 		);
 		const slotOf = ( key: string ): string => placementByKey.get( key )?.slot ?? PRIMARY_SLOT;
 		const thicknessOf = ( key: string ): number => placementByKey.get( key )?.thickness ?? 1;
-		const hasPrimaries = placements.some( ( { slot } ) => slot === PRIMARY_SLOT );
+		const hasPrimaries = seriesWithVisibility.some(
+			( { series } ) => series.options?.type !== 'comparison'
+		);
 		const showsComparisons = entries.some(
 			( { series } ) => slotOf( series.label ) === COMPARISON_SLOT
 		);

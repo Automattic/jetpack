@@ -25,7 +25,7 @@ export type OverlapPlacement = {
 /**
  * Places each series of an overlap layout: primaries in one slot and comparisons in the other, with each `group` a layer, back to front in order of first appearance.
  *
- * @param series - Every series of the chart, hidden ones included, so a layer holds while another is hidden.
+ * @param series - The series to place.
  * @return Each series' placement, by index.
  */
 export function getOverlapPlacements( series: SeriesData[] ): OverlapPlacement[] {

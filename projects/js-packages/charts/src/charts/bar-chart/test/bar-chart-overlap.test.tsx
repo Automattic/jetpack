@@ -146,28 +146,30 @@ describe( 'BarChart overlap layout', () => {
 		).toEqual( order.map( index => [ DATA[ index ].label, colors[ index ] ] ) );
 	} );
 
-	it.each( [
-		[
-			'a comparison keeps its slot while its primary is hidden',
-			[ 'Views', 'Visitors' ],
-			'Previous views',
-		],
-		[
-			'a group keeps its layer while the group behind it is hidden',
-			[ 'Views', 'Previous views' ],
-			'Visitors',
-		],
-	] )( '%s', ( _case, hidden, label ) => {
+	it( 'keeps a comparison in its slot while its primary is hidden', () => {
 		const view = renderOverlap( { chartId: 'all-shown' } );
-		const { x, width } = barOf( label );
+		const { x, width } = barOf( 'Previous views' );
 		view.unmount();
 
-		renderOverlap( { chartId: 'some-hidden', defaultHiddenSeries: hidden } );
-		const visible = BAR_ORDER.filter( item => ! hidden.includes( item ) );
-		const bar = geometry( barRects()[ visible.indexOf( label ) * 2 ] );
+		renderOverlap( { chartId: 'some-hidden', defaultHiddenSeries: [ 'Views', 'Visitors' ] } );
+		const bar = geometry( barRects()[ 0 ] );
 
 		expect( bar.x ).toBeCloseTo( x );
 		expect( bar.width ).toBeCloseTo( width );
+	} );
+
+	it( 'widens a group to the full slot while the group behind it is hidden, in its own color', () => {
+		const view = renderOverlap( { chartId: 'all-shown' } );
+		const views = barOf( 'Views' );
+		const visitorsFill = barRects()[ 4 ].getAttribute( 'fill' );
+		view.unmount();
+
+		renderOverlap( { chartId: 'some-hidden', defaultHiddenSeries: [ 'Views', 'Previous views' ] } );
+		const visitors = barRects()[ 0 ];
+
+		expect( geometry( visitors ).x ).toBeCloseTo( views.x );
+		expect( geometry( visitors ).width ).toBeCloseTo( views.width );
+		expect( visitors ).toHaveAttribute( 'fill', visitorsFill );
 	} );
 
 	it( 'lists only the hovered category, and reports the front bar of the hovered slot', async () => {
