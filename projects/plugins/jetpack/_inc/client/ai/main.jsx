@@ -35,6 +35,7 @@ import McpSetup from './mcp/setup';
 import { recordMcpTracksEvent } from './mcp/tracks';
 import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
+import useSiteAbilities from './mcp/use-site-abilities';
 import { getSiteLevelEnabled } from './mcp/utils';
 import McpWrite from './mcp/write';
 import AiOverview from './overview';
@@ -209,6 +210,8 @@ export default function App() {
 		isOfflineMode = false,
 		showFeaturesView = false,
 		showA12sBadge = false,
+		isA11n = false,
+		isSelfHosted = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ route, setRoute ] = useState( getRouteFromHash );
 	const { view, anchor } = route;
@@ -227,6 +230,10 @@ export default function App() {
 	const showConnectNotice = !! blogId && userUnlinked;
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings( { skip: showConnectNotice || ! blogId } );
+	// Staff-only while remote abilities are not generally available.
+	const showRemoteAbilities = isA11n && isSelfHosted && ! showConnectNotice && !! blogId;
+	const publishedAbilities = useSiteAbilities( { enabled: showRemoteAbilities } );
+	const remoteAbilities = showRemoteAbilities ? publishedAbilities : null;
 	const {
 		isLoading: isAiSettingsLoading,
 		savingKeys: aiSavingKeys,
@@ -489,6 +496,7 @@ export default function App() {
 							<Stack direction="column" gap="lg">
 								{ view === 'mcp' && (
 									<McpHub
+										remoteAbilities={ remoteAbilities }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										activityLogUrl={ activityLogUrl }
@@ -504,6 +512,7 @@ export default function App() {
 								) }
 								{ view === 'mcp/read' && (
 									<McpRead
+										remoteAbilities={ remoteAbilities }
 										anchor={ anchor }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
@@ -513,6 +522,7 @@ export default function App() {
 								) }
 								{ view === 'mcp/write' && (
 									<McpWrite
+										remoteAbilities={ remoteAbilities }
 										anchor={ anchor }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
