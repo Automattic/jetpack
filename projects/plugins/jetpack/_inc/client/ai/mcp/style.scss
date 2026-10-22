@@ -94,6 +94,17 @@
 		font-weight: 600;
 	}
 
+	&__tool-row {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--wpds-dimension-gap-sm);
+		scroll-margin-block-start: 100px;
+
+		> :first-child {
+			flex: 1;
+		}
+	}
+
 	// Hashed class name on the description: match its stable suffix.
 	&__tool-switch [class*="__description"] {
 		margin-block-start: var(--wpds-dimension-gap-xs);
