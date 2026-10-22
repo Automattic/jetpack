@@ -126,15 +126,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return admin_url( 'post-new.php' );
 			},
 		),
-		'generate_content'                => array(
-			'get_title'            => function () {
-				return __( 'Customize content with AI', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/setup/readymade-template/generateContent?siteSlug=' . $data['site_slug_encoded'];
-			},
-		),
 		'plan_completed'                  => array(
 			'get_title'            => function () {
 				return __( 'Choose a plan', 'jetpack-mu-wpcom' );

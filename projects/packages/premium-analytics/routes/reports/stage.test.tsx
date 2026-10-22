@@ -1,11 +1,18 @@
 /**
  * External dependencies
  */
-import { ReportScopeProvider, useReportScope } from '@jetpack-premium-analytics/data';
+import {
+	isStatsFeatureLocked,
+	ReportScopeProvider,
+	useReportScope,
+	useScopeLockedIntervals,
+} from '@jetpack-premium-analytics/data';
 import { render, renderHook, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { useDateWindowNotice } from '../date-window-notice';
+import { useStatsDateLimits } from '../use-stats-date-limits';
 import { stage as ReportStage } from './stage';
 import { useReportParams } from './use-report-params';
 import type { ReactNode } from 'react';
@@ -13,6 +20,7 @@ import type { ReactNode } from 'react';
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
+	isStatsFeatureLocked: jest.fn( () => false ),
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/externals', () => ( {
@@ -20,9 +28,23 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	useTrackEvent: () => jest.fn(),
 	ChartsProvider: ( { children }: { children: ReactNode } ) => (
 		<div data-testid="charts-provider">{ children }</div>
 	),
+} ) );
+
+jest.mock( '../use-stats-date-limits', () => ( {
+	useStatsDateLimits: jest.fn( () => ( { offersComparison: true } ) ),
+} ) );
+
+jest.mock( '../date-window-notice', () => ( {
+	...jest.requireActual( '../date-window-notice' ),
+	useDateWindowNotice: jest.fn(),
+} ) );
+
+jest.mock( './locked-report-page', () => ( {
+	LockedReportPage: ( { feature }: { feature: string } ) => <span>{ `locked: ${ feature }` }</span>,
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
@@ -50,23 +72,79 @@ jest.mock( '@wordpress/route', () => ( {
  */
 function MockScopeProbe() {
 	const { offersComparison } = useReportScope();
+	const lockedIntervals = useScopeLockedIntervals();
 
-	return <span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>;
+	return (
+		<>
+			<span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>
+			<span>{ `locked: ${ lockedIntervals.join( ',' ) || 'none' }` }</span>
+		</>
+	);
 }
 
+const mockLoad = jest.fn( () => Promise.resolve( { default: MockScopeProbe } ) );
+const mockGetReportDefinition = jest.fn(
+	() => ( { load: mockLoad } ) as Record< string, unknown >
+);
+
 jest.mock( './registry', () => ( {
-	getReportDefinition: () => ( {
-		load: () => Promise.resolve( { default: MockScopeProbe } ),
-	} ),
+	getReportDefinition: () => mockGetReportDefinition(),
 } ) );
 
 describe( 'Report stage report scope', () => {
+	afterEach( () => {
+		jest.mocked( isStatsFeatureLocked ).mockReturnValue( false );
+		jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
+		mockGetReportDefinition.mockReturnValue( { load: mockLoad } );
+		mockLoad.mockClear();
+		delete window.JetpackScriptData;
+	} );
+
+	it( 'shows the locked page instead of loading a report the plan lacks', async () => {
+		jest.mocked( isStatsFeatureLocked ).mockReturnValue( true );
+		mockGetReportDefinition.mockReturnValue( {
+			load: mockLoad,
+			feature: 'utm',
+			getLabel: () => 'UTM',
+		} );
+
+		render( <ReportStage /> );
+
+		await expect( screen.findByText( 'locked: utm' ) ).resolves.toBeInTheDocument();
+		expect( mockLoad ).not.toHaveBeenCalled();
+	} );
+
 	it( 'renders the report inside the charts provider, with no comparison', async () => {
 		render( <ReportStage /> );
 
 		const provider = await screen.findByTestId( 'charts-provider' );
 
 		expect( provider ).toContainElement( await screen.findByText( 'no comparison' ) );
+	} );
+
+	it.each( [
+		[ 'traffic', true ],
+		[ 'ads', false ],
+	] )( 'follows the plan’s date limits on a %s report: %p', async ( section, isLimited ) => {
+		window.JetpackScriptData = {
+			premium_analytics: { plan_date_limited_sections: [ 'traffic' ] },
+		} as typeof window.JetpackScriptData;
+		mockGetReportDefinition.mockReturnValue( { load: mockLoad, dashboardSection: section } );
+		jest.mocked( useStatsDateLimits ).mockImplementation( limited =>
+			limited
+				? {
+						offersComparison: true,
+						dateLimits: { lockedPresetIds: [], lockedIntervals: [ 'week' ] },
+					}
+				: { offersComparison: true }
+		);
+
+		render( <ReportStage /> );
+
+		await expect(
+			screen.findByText( `locked: ${ isLimited ? 'week' : 'none' }` )
+		).resolves.toBeInTheDocument();
+		expect( useDateWindowNotice ).toHaveBeenCalled();
 	} );
 } );
 

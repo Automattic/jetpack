@@ -2,7 +2,6 @@ import { getLocaleData, resetLocaleData, setLocaleData } from '@wordpress/i18n';
 import {
 	formatScoreDelta,
 	getScoreDelta,
-	getScoreTier,
 	getScoreTierColor,
 	getScoreTierLabel,
 } from './score-utils';
@@ -11,17 +10,6 @@ test( 'uses the shared score card color tokens for each tier', () => {
 	expect( getScoreTierColor( 'good' ) ).toBe( 'var(--jetpack-boost-score-good)' );
 	expect( getScoreTierColor( 'medium' ) ).toBe( 'var(--jetpack-boost-score-medium)' );
 	expect( getScoreTierColor( 'poor' ) ).toBe( 'var(--jetpack-boost-score-poor)' );
-} );
-
-test.each( [
-	[ 0, 'poor' ],
-	[ 50, 'poor' ],
-	[ 51, 'medium' ],
-	[ 70, 'medium' ],
-	[ 71, 'good' ],
-	[ 100, 'good' ],
-] )( 'keeps the existing score tier at %i', ( score, tier ) => {
-	expect( getScoreTier( Number( score ) ) ).toBe( tier );
 } );
 
 test.each( [

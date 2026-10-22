@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.88.6] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53806]
+
+## [0.88.5] - 2026-10-14
+### Changed
+- Update dependencies. [#53618]
+
+### Fixed
+- Fix low-contrast placeholder chips in the share message help text and the available placeholders list. [#53615]
+
+## [0.88.4] - 2026-10-12
+### Changed
+- Internal updates.
+
 ## [0.88.3] - 2026-10-12
 ### Changed
 - Update dependencies.
@@ -1702,6 +1718,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.88.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.5...v0.88.6
+[0.88.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.4...v0.88.5
+[0.88.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.3...v0.88.4
 [0.88.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.2...v0.88.3
 [0.88.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.1...v0.88.2
 [0.88.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.0...v0.88.1

@@ -13,11 +13,7 @@ import {
 	chartIntervalField,
 	type ChartIntervalFieldAttributes,
 } from '@jetpack-premium-analytics/fields';
-import {
-	CHART_TYPE_ELEMENTS,
-	type ChartDisplayChartType,
-	type CountLabel,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ChartDisplayChartType, CountLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import { readStatsV1ChartType } from './stats-v1-chart-type';
 
 /**
@@ -42,8 +38,8 @@ export function defaultChartType(): TrafficChartType {
 export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];
 
 /**
- * How the selected metric is drawn. The shared chart-display list keeps every
- * chart widget's dropdown identical and ties it to the toolkit's own union.
+ * How the selected metric is drawn. The alias ties the attribute to the
+ * toolkit's own union, which the chart reads.
  */
 export type TrafficChartType = ChartDisplayChartType;
 
@@ -112,16 +108,6 @@ const chartIntervalAttribute = {
 	elements: chartIntervalElements( TRAFFIC_PERIODS ),
 };
 
-// The switch must show what the chart draws, and the default depends on Stats v1.
-const chartTypeAttribute = {
-	id: 'chartType',
-	label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
-	type: 'jpa/toggle-group',
-	elements: CHART_TYPE_ELEMENTS,
-	relevance: 'high',
-	getValue: ( { item }: { item: TrafficChartAttributes } ) => item.chartType ?? defaultChartType(),
-};
-
 /**
  * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso. Date
  * range and comparison come from `reportParams`; the plotted metric is the
@@ -130,7 +116,11 @@ const chartTypeAttribute = {
 export default {
 	attributes: [
 		chartIntervalAttribute,
-		chartTypeAttribute,
+		{
+			id: 'chartType',
+			getValue: ( { item }: { item: TrafficChartAttributes } ) =>
+				item.chartType ?? defaultChartType(),
+		},
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
 		attributes: {},

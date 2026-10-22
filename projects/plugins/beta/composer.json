@@ -34,13 +34,12 @@
 	"prefer-stable": true,
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ4_3_0",
+		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ4_3_1",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true
 		}
 	},
 	"extra": {
-		"autotagger": true,
 		"autorelease": {
 			"titlefmt": "Jetpack Beta %s"
 		},

@@ -73,7 +73,7 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 		medium: '',
 	} );
 	const [ copiedUrl, setCopiedUrl ] = useState< string | null >( null );
-	const copiedTimeout = useRef< ReturnType< typeof setTimeout > >();
+	const copiedTimeout = useRef< ReturnType< typeof setTimeout > >( undefined );
 	const destinationUrl = parseDestination( values.destination );
 	const isDestinationInvalid = values.destination.trim() !== '' && ! destinationUrl;
 	const destinationValidity = useMemo(
@@ -130,7 +130,7 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 			<Dialog.Popup size="large">
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Build URL', 'jetpack-premium-analytics-pkg' ) }</Dialog.Title>
-					<Dialog.CloseIcon />
+					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
 					<div className={ styles.layout }>

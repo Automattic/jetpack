@@ -13,8 +13,14 @@ import { __ } from '@wordpress/i18n';
  */
 import { ReportMetricChart } from '../../src/components/report-metric-chart';
 import { useReportOrders } from '../../src/reports';
-import type { NetSalesOverTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * @property chartType - How the series is drawn. Defaults to `line`.
+ */
+export type NetSalesOverTimeAttributes = {
+	chartType?: ChartDisplayChartType;
+};
 
 type NetSalesOverTimeRenderAttributes = NetSalesOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -33,10 +39,10 @@ function NetSalesOverTime( { chartType }: { chartType?: ChartDisplayChartType } 
 		<ReportMetricChart
 			report={ useReportOrders( reportParams ) }
 			chartType={ chartType }
+			chartTitle={ __( 'Net sales over time', 'jetpack-woocommerce-stats-pkg' ) }
 			field="orders_value_net"
 			label={ __( 'Net sales', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'currency' } }
-			emptyText={ __( 'No sales in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 			errorText={ __(
 				"We couldn't load net sales. Please try again in a moment.",
 				'jetpack-woocommerce-stats-pkg'

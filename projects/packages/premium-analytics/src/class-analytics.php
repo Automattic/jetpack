@@ -24,7 +24,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.11.0';
+	const PACKAGE_VERSION = '0.13.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -362,9 +362,26 @@ class Analytics {
 		}
 		configure_videopress_availability();
 
-		// The composition flag's answer, read by the dashboard policy; the file is
-		// already loaded by boot_shared_services().
-		configure_dashboard_policy();
+		// The plan's locked Stats features, for the client's locked states.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_stats_plan_gates' ) ) {
+			require_once __DIR__ . '/stats-plan-gates.php';
+		}
+		configure_stats_plan_gates();
+
+		// The purchase a Stats checkout returned with, for the thank-you notice.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_purchase_success' ) ) {
+			require_once __DIR__ . '/purchase-success.php';
+		}
+		configure_purchase_success();
+
+		// When the site first opened the dashboard, for notices that wait a while before showing.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_dashboard_first_visit' ) ) {
+			require_once __DIR__ . '/dashboard-first-visit.php';
+		}
+		configure_dashboard_first_visit();
+
+		// Temporary: carries a default layout move into layouts readers customized before it.
+		Stored_Layout_Move::register();
 	}
 
 	/**

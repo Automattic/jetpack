@@ -33,6 +33,7 @@ trait Section_Environment {
 	protected function set_up_site(): void {
 		register_theme_directory( __DIR__ . '/../fixtures/themes' );
 		$this->forget_single_template_editor_url();
+		$this->forget_page_template_editor_url();
 		Status_Cache::clear();
 	}
 
@@ -55,6 +56,7 @@ trait Section_Environment {
 		Jetpack_Options::delete_option( 'active_modules' );
 		Status_Cache::clear();
 		$this->forget_single_template_editor_url();
+		$this->forget_page_template_editor_url();
 	}
 
 	/**
@@ -104,7 +106,7 @@ trait Section_Environment {
 	 * @return string[]
 	 */
 	public function offer_modules(): array {
-		return array( 'sharedaddy', 'likes', 'comment-likes' );
+		return array( 'blocks', 'sharedaddy', 'likes', 'comment-likes' );
 	}
 
 	/**
@@ -140,7 +142,23 @@ trait Section_Environment {
 	 * case's answer into the rest.
 	 */
 	private function forget_single_template_editor_url(): void {
-		$property = new ReflectionProperty( Environment::class, 'single_template_editor_url' );
+		$this->forget_environment_memo( 'single_template_editor_url' );
+	}
+
+	/**
+	 * Clear `Environment::$page_template_editor_url`, for the same reason.
+	 */
+	private function forget_page_template_editor_url(): void {
+		$this->forget_environment_memo( 'page_template_editor_url' );
+	}
+
+	/**
+	 * Clear one of `Environment`'s memoised statics.
+	 *
+	 * @param string $property Property name.
+	 */
+	private function forget_environment_memo( string $property ): void {
+		$property = new ReflectionProperty( Environment::class, $property );
 		// setAccessible() is a no-op as of PHP 8.1 and deprecated in 8.5; only needed on older versions.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );

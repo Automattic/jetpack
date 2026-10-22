@@ -17,7 +17,8 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-test-environment": "@dev",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/phpunit-select-config": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -57,10 +58,9 @@
 	"prefer-stable": true,
 	"extra": {
 		"autorelease": true,
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-podcast",
 		"branch-alias": {
-			"dev-trunk": "2.1.x-dev"
+			"dev-trunk": "2.2.x-dev"
 		},
 		"textdomain": "jetpack-podcast",
 		"version-constants": {
@@ -68,6 +68,11 @@
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-podcast/compare/v${old}...v${new}"
+		},
+		"dependencies": {
+			"test-only": [
+				"packages/my-jetpack"
+			]
 		}
 	},
 	"config": {

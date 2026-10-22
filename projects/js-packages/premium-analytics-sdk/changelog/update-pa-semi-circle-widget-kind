@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add the `half-ring` variant of `Donut`, the breakdown drawn as a semi-circle, and its `withTotal` switch.

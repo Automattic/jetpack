@@ -159,10 +159,13 @@ abstract class Jetpack_Admin_Page {
 	 * @return bool
 	 */
 	public function is_rest_api_enabled() {
-		return /** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
-			apply_filters( 'rest_enabled', true ) &&
-			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
-			apply_filters( 'rest_authentication_errors', true );
+		/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+		if ( ! apply_filters( 'rest_enabled', true ) ) {
+			return false;
+		}
+		/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+		$auth = apply_filters( 'rest_authentication_errors', true );
+		return $auth && ! is_wp_error( $auth );
 	}
 
 	/**

@@ -20,8 +20,8 @@ const STEPS: FunnelStepInput[] = [
 
 const READY = { isLoading: false, isError: false };
 
-const withCard: Decorator = Story => (
-	<WidgetCard height="360px">
+const withCard: Decorator = ( Story, { parameters } ) => (
+	<WidgetCard height={ parameters.cardHeight ?? '360px' }>
 		<Story />
 	</WidgetCard>
 );
@@ -68,4 +68,11 @@ export const Empty: Story = {
 		steps: [],
 		empty: { icon: goal, description: 'No conversion data in this period.' },
 	},
+};
+
+/**
+ * A one-row dashboard tile: the funnel tightens its spacing so the bars keep their room.
+ */
+export const ShortTile: Story = {
+	parameters: { cardHeight: '160px' },
 };

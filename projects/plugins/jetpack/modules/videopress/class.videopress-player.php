@@ -417,12 +417,12 @@ class VideoPress_Player {
 	 * Validate legacy Flash parameters for backward compatibility.
 	 *
 	 * @since 1.2
-	 * @deprecated $$next-version$$ Flash playback is no longer supported.
+	 * @deprecated 16.4 Flash playback is no longer supported.
 	 * @param array $flash_params Flash parameters expressed in key-value form.
 	 * @return array Validated Flash parameters.
 	 */
 	public static function esc_flash_params( $flash_params ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.4' );
 
 		$allowed_params = array(
 			'swliveconnect'         => array( 'true', 'false' ),

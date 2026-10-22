@@ -31,7 +31,7 @@ class Store_Currency_Test extends TestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_script_data_adds_the_store_currency_beside_existing_keys() {
-		require_once __DIR__ . '/mocks/woocommerce-currency-mock.php';
+		require_once __DIR__ . '/mocks/woocommerce-mock.php';
 
 		$data = Store_Currency::add_script_data(
 			array( 'premium_analytics' => array( 'csv_exports_enabled' => true ) )

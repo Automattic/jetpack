@@ -2,10 +2,10 @@ import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import AiCrawlerCard from '../ai-crawler-card';
-import type { AiState } from '../../../data/ai-types';
+import type { GeoState } from '../../../data/geo-types';
 
-type Crawlers = NonNullable< AiState[ 'crawlers' ] >;
-type LlmsTxt = AiState[ 'llmsTxt' ];
+type Crawlers = NonNullable< GeoState[ 'crawlers' ] >;
+type LlmsTxt = GeoState[ 'llmsTxt' ];
 
 /**
  * Build a crawler payload where the per-crawler settings apply, so the card

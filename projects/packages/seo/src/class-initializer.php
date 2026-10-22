@@ -28,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.9.9';
+	const PACKAGE_VERSION = '0.10.0';
 
 	/**
 	 * WordPress.com site feature that enables the Jetpack SEO surface.
@@ -85,9 +85,12 @@ class Initializer {
 	 * Absent until seeded, in which case self-hosted defaults to hidden (the non-disruptive
 	 * default). See {@see Surface_Visibility::is_visible()}.
 	 *
+	 * Replaces `jetpack_seo_surface_visible`, which was seeded before the self-hosted rollout and
+	 * marked every install since as fresh; a new key makes every site re-seed once on upgrade.
+	 *
 	 * @var string
 	 */
-	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible';
+	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible_v2';
 
 	/**
 	 * Whether the package has been initialized.
@@ -278,7 +281,7 @@ class Initializer {
 	 * FREE plan's supports list, so `Current_Plan::supports( 'advanced-seo' )` returns
 	 * true on self-hosted (never gated) and hijacks to `wpcom_site_has_feature()` on
 	 * WordPress.com, where it's false below the Premium plan. Mirrors the AI SEO
-	 * Enhancer's plan check in {@see Dashboard_Data::get_ai_data()}.
+	 * Enhancer's plan check in {@see Dashboard_Data::get_geo_data()}.
 	 *
 	 * Public because {@see Admin_Page::inject_script_data()} reads it to build the
 	 * dashboard's gating payload, and {@see self::init()} uses it to decide whether the

@@ -6,81 +6,44 @@ import {
 	describeError,
 	useWidgetRootContext,
 	WidgetRoot,
+	Stack,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
-/* eslint-disable @wordpress/no-unsafe-wp-apis -- the dashboard draws its own toggles with this control. */
-import {
-	__experimentalToggleGroupControl as ToggleGroupControl,
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
-} from '@wordpress/components';
-/* eslint-enable @wordpress/no-unsafe-wp-apis */
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import { useVisitorsByLocation, type Region } from './use-visitors-by-location';
-import type { VisitorsByLocationAttributes } from './widget';
+import { useVisitorsByLocation } from './use-visitors-by-location';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { JSX } from 'react';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type VisitorsByLocationAttributes = Record< never, never >;
 
 type VisitorsByLocationRenderAttributes = VisitorsByLocationAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-const UNITED_STATES = { code: 'US', name: __( 'United States', 'jetpack-woocommerce-stats-pkg' ) };
-
 /**
- * Whether a toggle value names a region.
+ * Store visitors by location, countries listed beside the world map, read under the widget root
+ * for its report params.
  *
- * @param {unknown} value - The toggle value.
- * @return {boolean} Whether it is a region.
+ * @return {JSX.Element} The locations.
  */
-function isRegion( value: unknown ): value is Region {
-	return value === 'US' || value === 'world';
-}
-
-/**
- * Store visitors by location, US states or countries as the toggle says, listed beside the map,
- * read under the widget root for its report params.
- *
- * @return {JSX.Element} The toggle and the locations.
- */
-function VisitorsByLocation() {
+function VisitorsByLocation(): JSX.Element {
 	const { reportParams } = useWidgetRootContext();
-	const [ region, setRegion ] = useState< Region >( 'US' );
-	const selectRegion = useCallback( ( value: unknown ) => {
-		if ( isRegion( value ) ) {
-			setRegion( value );
-		}
-	}, [] );
 	const { rows, hasComparison, isLoading, isFetching, hasData, isError, error, refetch } =
-		useVisitorsByLocation( reportParams, region );
+		useVisitorsByLocation( reportParams );
 
 	return (
-		<div className={ styles.root }>
-			{ /* The toggle drives the query, so it stays a sibling of the kind's states. */ }
-			<div className={ styles.toggle }>
-				<ToggleGroupControl
-					__next40pxDefaultSize
-					isBlock
-					hideLabelFromVision
-					label={ __( 'Location', 'jetpack-woocommerce-stats-pkg' ) }
-					onChange={ selectRegion }
-					value={ region }
-				>
-					<ToggleGroupControlOption
-						value="US"
-						label={ __( 'United States', 'jetpack-woocommerce-stats-pkg' ) }
-					/>
-					<ToggleGroupControlOption
-						value="world"
-						label={ __( 'Worldwide', 'jetpack-woocommerce-stats-pkg' ) }
-					/>
-				</ToggleGroupControl>
-			</div>
+		<Stack className={ styles.root } direction="column">
 			<div className={ styles.locations }>
 				<Locations
 					valueLabel={ __( 'Store visitors', 'jetpack-woocommerce-stats-pkg' ) }
+					chartTitle={ __( 'Store visitors by location', 'jetpack-woocommerce-stats-pkg' ) }
 					rows={ rows }
 					status={ {
 						isLoading,
@@ -97,10 +60,9 @@ function VisitorsByLocation() {
 						),
 						onRetry: refetch,
 					} ) }
-					country={ region === 'US' ? UNITED_STATES : undefined }
 				/>
 			</div>
-		</div>
+		</Stack>
 	);
 }
 
@@ -112,7 +74,7 @@ function VisitorsByLocation() {
  */
 export default function VisitorsByLocationRender( {
 	attributes = {},
-}: WidgetRenderProps< VisitorsByLocationRenderAttributes > ) {
+}: WidgetRenderProps< VisitorsByLocationRenderAttributes > ): JSX.Element {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<VisitorsByLocation />

@@ -24,12 +24,15 @@ export { default as AutomatticForAgenciesLogo } from './components/automattic-fo
 export { default as JetpackFooter } from './components/jetpack-footer/index.tsx';
 export { default as Gravatar } from './components/gravatar/index.tsx';
 export type { GravatarProps } from './components/gravatar/index.tsx';
+export { default as CheckboxCard, CheckboxCardGrid } from './components/checkbox-card/index.tsx';
+export type { CheckboxCardProps, CheckboxCardGridProps } from './components/checkbox-card/types.ts';
 export { default as IconTooltip } from './components/icon-tooltip/index.tsx';
 export { default as ActionButton } from './components/action-button/index.tsx';
 export { default as PricingCard } from './components/pricing-card/index.tsx';
 export { default as AdminSection } from './components/admin-section/basic/index.tsx';
 export { default as AdminSectionHero } from './components/admin-section/hero/index.tsx';
 export { default as AdminPage } from './components/admin-page/index.tsx';
+export { default as PageActionButton } from './components/admin-page/page-action-button.tsx';
 export { default as DecorativeCard } from './components/decorative-card/index.tsx';
 export { default as Col } from './components/layout/col/index.tsx';
 export { default as Testimonials } from './components/testimonials/index.tsx';
@@ -60,7 +63,6 @@ export { default as RecordMeterBar } from './components/record-meter-bar/index.t
 export { default as Popover } from './components/popover/index.tsx';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar/index.tsx';
 export { default as ActionPopover } from './components/action-popover/index.tsx';
-export { default as ProgressBar } from './components/progress-bar/index.tsx';
 export { default as UpsellBanner } from './components/upsell-banner/index.tsx';
 export { getUserLocale, cleanLocale } from './lib/locale/index.ts';
 export { default as StatCard } from './components/stat-card/index.tsx';

@@ -1,3 +1,5 @@
+import { getLaunchSiteUrl } from '../../../../common/launch-site-url.ts';
+import type { DifmOffer } from '../difm-offer/difm-offer-banner.tsx';
 import type { AboutPageDraft, TailoredOutput, FirstPostDraft, SiteCopy } from '../lib/types.ts';
 
 /**
@@ -53,6 +55,10 @@ export interface LaunchpadData {
 	wizard?: { goal?: string } | null;
 	// The account language of the admin reading the page, which the AI writes task subtitles in.
 	user_language?: string;
+	// The free DIFM offer banner under the task list, or null when it must not show.
+	difm_offer?: DifmOffer | null;
+	// Whether the server has latched the list as done.
+	list_completed?: boolean;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */
@@ -167,9 +173,7 @@ export function launchSiteUrl( siteUrl: string ): string | null {
 		// so the CTA is hidden rather than throwing on click.
 		return null;
 	}
-	return `https://wordpress.com/start/launch-site?siteSlug=${ encodeURIComponent(
-		slug
-	) }&ref=wp-admin`;
+	return getLaunchSiteUrl( slug, globalThis.location?.href );
 }
 
 /**
