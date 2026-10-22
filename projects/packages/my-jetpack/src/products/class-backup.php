@@ -535,9 +535,8 @@ class Backup extends Hybrid_Product {
 			return false;
 		}
 
-		// A refresh another request made moments ago may predate the purchase, and the miss below lasts far longer.
-		delete_transient( Wpcom_Products::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY );
-		Wpcom_Products::get_site_current_plan( true );
+		// Refresh directly: the shared reload may already be spent on another product this request.
+		Current_Plan::refresh_from_wpcom();
 
 		if ( static::has_plan_on_record() ) {
 			return true;
