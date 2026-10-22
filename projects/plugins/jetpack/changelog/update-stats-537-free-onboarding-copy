@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Premium Analytics: Match the welcome dialog and tour to what a free plan offers, without promising widget arranging or period comparison.
+Premium Analytics: Stop the tour from offering period comparison on a free plan, which covers only the last 7 days.

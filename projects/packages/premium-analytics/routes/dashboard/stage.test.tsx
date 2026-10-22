@@ -138,16 +138,8 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 			<span>{ containerElement ? 'measuring header' : 'measuring body' }</span>
 		</>
 	),
-	OnboardingWelcomeModal: ( {
-		open,
-		withCustomize,
-	}: {
-		open: boolean;
-		withCustomize?: boolean;
-	} ) =>
-		open ? (
-			<div data-testid="onboarding-welcome-modal" data-with-customize={ String( withCustomize ) } />
-		) : null,
+	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
+		open ? <div data-testid="onboarding-welcome-modal" /> : null,
 	// Forwards the ref and marks the notice slot, since the stage relies on
 	// both: the ref feeds the year surface's measurement, and the notice's
 	// place in the slot is asserted below.
@@ -1006,33 +998,16 @@ describe( 'Dashboard onboarding', () => {
 		expect( screen.queryByTestId( 'onboarding-tour' ) ).not.toBeInTheDocument();
 	} );
 
-	it.each( [
-		{ plan: 'a paid', isLocked: false, offersComparison: true },
-		{ plan: 'a free', isLocked: true, offersComparison: false },
-	] )(
-		"matches the onboarding copy to what $plan site's section offers",
-		( { isLocked, offersComparison } ) => {
+	it.each( [ true, false ] )(
+		'tells the tour whether the plan offers a comparison (%s)',
+		offersComparison => {
 			jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison } );
-			if ( isLocked ) {
-				useLockedSectionLayoutMock.mockImplementation( ( section, layout, onLayoutChange ) => ( {
-					...passThroughLockedLayout( section, layout, onLayoutChange ),
-					lockedSection: { title: 'Unlock site growth analytics' } as LockedSectionGate,
-				} ) );
-			}
-			useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'modal' } );
 
 			render( <Dashboard /> );
 
-			expect( screen.getByTestId( 'onboarding-welcome-modal' ) ).toHaveAttribute(
-				'data-with-customize',
-				String( ! isLocked )
-			);
 			expect( jest.mocked( onboardingTourSteps ) ).toHaveBeenLastCalledWith(
 				expect.anything(),
-				expect.objectContaining( {
-					withCustomize: ! isLocked,
-					withComparison: offersComparison,
-				} )
+				expect.objectContaining( { withComparison: offersComparison } )
 			);
 		}
 	);

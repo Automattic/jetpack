@@ -36,23 +36,17 @@ type Slide = {
 /**
  * The slides a variant shows, in order.
  *
- * @param variant       - The journey the modal introduces.
- * @param withCustomize - Whether the reader can arrange the widgets.
+ * @param variant - The journey the modal introduces.
  * @return The slides.
  */
-function slidesFor( variant: OnboardingWelcomeVariant, withCustomize: boolean ): Slide[] {
+function slidesFor( variant: OnboardingWelcomeVariant ): Slide[] {
 	const stats: Slide = {
 		illustration: <WidgetGridAnimation />,
 		title: __( 'Welcome to the new Stats', 'jetpack-premium-analytics-pkg' ),
-		description: withCustomize
-			? __(
-					"It's built from widgets you can move and resize, so the page can match how you read your site. This is an early version and we'll keep adding new tabs and features in regular updates.",
-					'jetpack-premium-analytics-pkg'
-				)
-			: __(
-					"It brings your site's traffic into one clear page. This is an early version and we'll keep adding new tabs and features in regular updates.",
-					'jetpack-premium-analytics-pkg'
-				),
+		description: __(
+			"It's built from widgets you can move and resize, so the page can match how you read your site. This is an early version and we'll keep adding new tabs and features in regular updates.",
+			'jetpack-premium-analytics-pkg'
+		),
 	};
 
 	if ( variant === 'stats' ) {
@@ -92,9 +86,6 @@ export type OnboardingWelcomeModalProps = {
 	/** Which journey to introduce. Defaults to the new Stats alone. */
 	variant?: OnboardingWelcomeVariant;
 
-	/** Whether the reader can arrange the widgets; a plan-locked section offers no Customize. Defaults to true. */
-	withCustomize?: boolean;
-
 	/** The reader pressed the tour button on the last slide and wants the tour. */
 	onStart: () => void;
 
@@ -109,11 +100,10 @@ export type OnboardingWelcomeModalProps = {
 export function OnboardingWelcomeModal( {
 	open,
 	variant = 'stats',
-	withCustomize = true,
 	onStart,
 	onDismiss,
 }: OnboardingWelcomeModalProps ) {
-	const slides = useMemo( () => slidesFor( variant, withCustomize ), [ variant, withCustomize ] );
+	const slides = useMemo( () => slidesFor( variant ), [ variant ] );
 	const [ index, setIndex ] = useState( 0 );
 	const slide = slides[ Math.min( index, slides.length - 1 ) ];
 	const isLast = index >= slides.length - 1;
