@@ -30,7 +30,7 @@
 		"@wordpress/widget-primitives": "0.9.0",
 		"date-fns": "4.4.0",
 		"fast-deep-equal": "^3.1.3",
-		"react": "18.3.1"
+		"react": "19.3.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",

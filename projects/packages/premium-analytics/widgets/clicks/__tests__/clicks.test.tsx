@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import { captureCsvDownloads } from '../../test-utils';
 import ClicksWidget, { toClickRow } from '../render';
 import type { StatsClicksComparisonItem } from '@jetpack-premium-analytics/data';
@@ -80,13 +81,10 @@ describe( 'ClicksWidget', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'links to the Clicks report', () => {
-		render( <ClicksWidget attributes={ {} } /> );
+	it( 'declares View all to the Clicks report', () => {
+		const { declaredLink } = renderWithActionsHost( <ClicksWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/clicks' )
-		);
+		expect( declaredLink( 'view-all' )?.href ).toContain( '%2Freports%2Fclicks' );
 	} );
 
 	it( 'clears the stored drill-down when the selected link leaves the data', async () => {
@@ -244,7 +242,7 @@ describe( 'ClicksWidget CSV export', () => {
 	} );
 
 	it( 'downloads the whole Clicks report while drilled into one link', async () => {
-		render(
+		const { findDeclaredAction } = renderWithActionsHost(
 			<ClicksWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
 		);
 
@@ -255,8 +253,7 @@ describe( 'ClicksWidget CSV export', () => {
 		await expect(
 			screen.findByRole( 'button', { name: /view all clicks/i } )
 		).resolves.toBeInTheDocument();
-		await user.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
-		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 
 		const lines = await downloads.lines();
 		expect( lines[ 0 ] ).toBe( '"Link","Group","Clicks"' );

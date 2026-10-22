@@ -5,10 +5,8 @@ import {
 	LeaderboardChart,
 	LeaderboardRow,
 	LeaderboardSkeleton,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -18,10 +16,10 @@ import {
 	tagRowGlyph,
 	useWidgetDrillDown,
 	useWidgetRootContext,
-	ExporterCsvDownloadButton,
 	tagsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -131,6 +129,15 @@ function TagsInner() {
 		} );
 	}, [ data, selectGroup ] );
 
+	useReportActions( {
+		report: 'tags',
+		csv: {
+			exporter: tagsCsvExporter,
+			status: { isLoading, isFetching, isError },
+			rowCount: data.length,
+		},
+	} );
+
 	return (
 		<Stack className={ styles.root }>
 			<div className={ styles.content }>
@@ -194,14 +201,6 @@ function TagsInner() {
 					) }
 				</WidgetState>
 			</div>
-			<WidgetFooter>
-				<ReportLink report="tags" />
-				<ExporterCsvDownloadButton
-					exporter={ tagsCsvExporter }
-					status={ { isLoading, isFetching, isError } }
-					rowCount={ data.length }
-				/>
-			</WidgetFooter>
 		</Stack>
 	);
 }

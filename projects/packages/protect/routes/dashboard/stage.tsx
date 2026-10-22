@@ -9,10 +9,13 @@ import { recordPageView } from './data/page-views';
 import useProtectSettings from './data/use-protect-settings';
 import sections from './sections';
 import { CLOSED_INSPECTOR } from './sections/inspector-params';
+import { REPORT_PARAM, parseThreatIds } from './sections/scan/group-threats';
+import ThreatReport, { ThreatReportBreadcrumbs } from './sections/scan/threat-report';
 import './route.scss';
 
 /**
  * Boot stage for the Protect dashboard: Overview, any section tabs, then Settings; the active one in `?tab=`.
+ * With `?threats=` it shows just those threats instead, such as the ones in a threat email.
  *
  * `?section=` names the card the Settings tab scrolls to, which links from other screens use.
  *
@@ -32,6 +35,7 @@ const Stage = () => {
 					// Leaving a tab closes the inspector, whose threat belongs to the list on that tab.
 					...CLOSED_INSPECTOR,
 					section: undefined,
+					[ REPORT_PARAM ]: undefined,
 					...params,
 					tab: next === 'overview' ? undefined : next,
 				} ),
@@ -52,12 +56,28 @@ const Stage = () => {
 	const tabValues = [ 'overview', ...sectionTabs.map( tab => tab.value ), 'settings' ];
 	const activeTab = tabValues.includes( requestedTab ) ? requestedTab : 'overview';
 	const { load } = settings;
+	const reportIds = parseThreatIds( search[ REPORT_PARAM ] );
+	const showReport = reportIds.length > 0 && Boolean( state.scan );
 
 	useEffect( () => {
-		if ( activeTab === 'settings' ) {
+		if ( activeTab === 'settings' && ! showReport ) {
 			load();
 		}
-	}, [ activeTab, load ] );
+	}, [ activeTab, load, showReport ] );
+
+	if ( showReport ) {
+		return (
+			<AdminPage className="jp-protect-dashboard" breadcrumbs={ <ThreatReportBreadcrumbs /> }>
+				<div className="jp-protect-dashboard__body">
+					<ThreatReport
+						ids={ reportIds }
+						hasHistory={ sectionTabs.some( tab => tab.key === 'history' ) }
+						openTab={ openTab }
+					/>
+				</div>
+			</AdminPage>
+		);
+	}
 
 	// Only a real Settings card goes to Tracks; `?section=` is free text from the URL.
 	const pageViewSection =

@@ -4,14 +4,63 @@ import { Stack, Text } from '@wordpress/ui';
 import { getCheckedCounts } from './labels';
 import ScanButton, { getNextCheck, useHasPassed } from './scan-button';
 import type { ScanState } from './types';
+import type { CSSProperties } from 'react';
 
-const SafeShield = () => (
-	<svg width="80" height="98" viewBox="0 0 123 150" aria-hidden="true" focusable="false">
-		<path
-			d="M61.365 0L0 27.273v40.909C0 106.023 26.182 141.409 61.365 150c35.183-8.591 61.365-43.977 61.365-81.818v-40.91L61.365 0z"
-			fill="#069e08"
-		/>
-		<path d="M27.4 77.744l22.966 22.897 50.387-50.457" fill="none" stroke="#fff" strokeWidth="14" />
+const SHIELD_PATH =
+	'M61.365 0L0 27.273v40.909C0 106.023 26.182 141.409 61.365 150c35.183-8.591 61.365-43.977 61.365-81.818v-40.91L61.365 0z';
+
+// Twelve particles around the shield, alternating size, colour and reach so the ring looks uneven.
+const PARTICLES = Array.from( { length: 12 }, ( _, i ) => {
+	const angle = ( i / 12 ) * 2 * Math.PI - Math.PI / 2;
+	const reach = 130 + ( i % 3 ) * 20;
+	return {
+		r: i % 2 ? 9 : 6,
+		fill: i % 2 ? '#b8e6bf' : '#069e08',
+		style: {
+			'--jp-protect-dx': `${ Math.round( Math.cos( angle ) * reach ) }px`,
+			'--jp-protect-dy': `${ Math.round( Math.sin( angle ) * reach ) }px`,
+		} as CSSProperties,
+	};
+} );
+
+/**
+ * The green shield; right after a scan it pops in and bursts particles.
+ *
+ * @param props             - Component props.
+ * @param props.justScanned - Whether a scan finished while the page was open.
+ * @return The shield.
+ */
+export const SafeShield = ( { justScanned = false }: { justScanned?: boolean } ) => (
+	<svg
+		className={ `jp-protect-safe__shield${ justScanned ? ' is-bursting' : '' }` }
+		width="80"
+		height="98"
+		viewBox="0 0 123 150"
+		aria-hidden="true"
+		focusable="false"
+	>
+		{ justScanned &&
+			PARTICLES.map( ( { r, fill, style }, i ) => (
+				<circle
+					key={ i }
+					className="jp-protect-safe__particle"
+					cx="61.4"
+					cy="75"
+					r={ r }
+					fill={ fill }
+					style={ style }
+				/>
+			) ) }
+		<g className="jp-protect-safe__badge">
+			<path d={ SHIELD_PATH } fill="#069e08" />
+			<path
+				className="jp-protect-safe__check"
+				d="M27.4 77.744l22.966 22.897 50.387-50.457"
+				fill="none"
+				stroke="#fff"
+				strokeWidth="14"
+			/>
+		</g>
 	</svg>
 );
 
@@ -19,18 +68,20 @@ type Props = {
 	scan: ScanState;
 	isStarting: boolean;
 	onScan: () => void;
+	justScanned?: boolean;
 };
 
 /**
  * Shown in place of the vulnerability list when the last scan found nothing.
  *
- * @param props            - Component props.
- * @param props.scan       - The latest report.
- * @param props.isStarting - Whether a scan is being requested.
- * @param props.onScan     - Starts a scan.
+ * @param props             - Component props.
+ * @param props.scan        - The latest report.
+ * @param props.isStarting  - Whether a scan is being requested.
+ * @param props.onScan      - Starts a scan.
+ * @param props.justScanned - Whether a scan finished while the page was open.
  * @return The empty state.
  */
-export default function SafeState( { scan, isStarting, onScan }: Props ) {
+export default function SafeState( { scan, isStarting, onScan, justScanned = false }: Props ) {
 	const counts = getCheckedCounts( scan );
 	const nextCheck = getNextCheck( scan.lastChecked );
 	const nextScan = useHasPassed( nextCheck ) ? null : nextCheck;
@@ -59,10 +110,7 @@ export default function SafeState( { scan, isStarting, onScan }: Props ) {
 				title: __( 'No known vulnerabilities found', 'jetpack-protect-pkg' ),
 				details: sprintf(
 					/* translators: %1$s is a number of plugins, such as "23 plugins". %2$s is a number of themes, such as "5 themes". */
-					__(
-						'None of your %1$s or %2$s has a known vulnerability. Your files aren’t checked for malware.',
-						'jetpack-protect-pkg'
-					),
+					__( 'None of your %1$s or %2$s has a known vulnerability.', 'jetpack-protect-pkg' ),
 					counts.plugins,
 					counts.themes
 				),
@@ -77,8 +125,13 @@ export default function SafeState( { scan, isStarting, onScan }: Props ) {
 			};
 
 	return (
-		<Stack className="jp-protect-safe" direction="column" align="center" gap="md">
-			<SafeShield />
+		<Stack
+			className={ `jp-protect-safe${ justScanned ? ' is-celebrating' : '' }` }
+			direction="column"
+			align="center"
+			gap="md"
+		>
+			<SafeShield justScanned={ justScanned } />
 			<Text variant="heading-xl" render={ <h3 /> }>
 				{ copy.title }
 			</Text>

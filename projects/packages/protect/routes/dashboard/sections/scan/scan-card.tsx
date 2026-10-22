@@ -1,16 +1,17 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
-import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import { recordEvent } from '../../data/analytics';
 import { HISTORY_STATUS_PARAM } from '../history/store';
 import SafeState from './safe-state';
 import ScanButton from './scan-button';
+import ScanUpsell from './scan-upsell';
 import ScanningState from './scanning-state';
-import { SCAN_PATH, mergeScan, setScan, useScan } from './store';
+import { SCAN_PATH, mergeScan, refreshScan, useScan } from './store';
 import { loadIgnored } from './threat-actions';
 import threatsIcon from './threats-icon';
 import ThreatsList from './threats-list';
@@ -24,10 +25,6 @@ const pollInterval = ( polls: number ) => ( polls < 5 ? 5000 : 15000 );
 // Open Scan history on a given list, not whichever was open last.
 const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
 const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
-
-// `use_beacon` sends with a keepalive request, which outlives the navigation.
-const onGetScan = () =>
-	recordEvent( 'jetpack_protect_scan_card_get_scan_link_click', { use_beacon: true } );
 
 // About ten minutes of polling before asking the user to check again.
 const MAX_POLLS = 40;
@@ -90,6 +87,16 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	const isScanning =
 		! scan.error && ( !! scan.scanning || isRequestedScanNotStarted( scan, requestedAt ) );
 
+	// Scans finished while the page is open: picks the safe state's animation and replays it.
+	const [ finishedScans, setFinishedScans ] = useState( 0 );
+	const wasScanning = useRef( isScanning );
+	useEffect( () => {
+		if ( wasScanning.current && ! isScanning && ! scan.error ) {
+			setFinishedScans( count => count + 1 );
+		}
+		wasScanning.current = isScanning;
+	}, [ isScanning, scan.error ] );
+
 	// Ignored threats come from Scan history, which only a Scan plan has.
 	useEffect( () => {
 		if ( hasPlan ) {
@@ -97,19 +104,11 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 		}
 	}, [ hasPlan ] );
 
-	const fetchScan = useCallback(
-		() =>
-			apiFetch< ScanState >( { path: SCAN_PATH } )
-				.then( mergeScan )
-				.catch( () => setScan( current => ( { ...current, error: true, scanning: false } ) ) ),
-		[]
-	);
-
 	const refresh = useCallback( () => {
 		setIsFetching( true );
 		setPolls( 0 );
-		fetchScan().finally( () => setIsFetching( false ) );
-	}, [ fetchScan ] );
+		refreshScan().finally( () => setIsFetching( false ) );
+	}, [] );
 
 	const startScan = useCallback( () => {
 		recordEvent( 'jetpack_scan_scan_now', { has_plan: hasPlan } );
@@ -121,6 +120,10 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			.then( next => {
 				setPolls( 0 );
 				mergeScan( next );
+				// The free check never reports as scanning; its answer is already in.
+				if ( ! hasPlan ) {
+					setFinishedScans( count => count + 1 );
+				}
 			} )
 			.catch( ( e: { message?: string } ) => {
 				setRequestedAt( null );
@@ -135,11 +138,11 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			return;
 		}
 		const timer = setTimeout(
-			() => fetchScan().finally( () => setPolls( count => count + 1 ) ),
+			() => refreshScan().finally( () => setPolls( count => count + 1 ) ),
 			pollInterval( polls )
 		);
 		return () => clearTimeout( timer );
-	}, [ isScanning, isHidden, polls, fetchScan ] );
+	}, [ isScanning, isHidden, polls ] );
 
 	// The running scan gets the whole card, without the header and footer.
 	if ( isScanning ) {
@@ -160,6 +163,16 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 		);
 	}
 
+	const safeState = (
+		<SafeState
+			key={ finishedScans }
+			scan={ scan }
+			isStarting={ isStarting }
+			onScan={ startScan }
+			justScanned={ finishedScans > 0 }
+		/>
+	);
+
 	let body;
 	if ( scan.error ) {
 		body = (
@@ -178,11 +191,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			</CardRow>
 		);
 	} else if ( ! hasThreats ) {
-		body = (
-			<CardRow>
-				<SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } />
-			</CardRow>
-		);
+		body = <CardRow>{ safeState }</CardRow>;
 	} else {
 		body = (
 			<>
@@ -204,11 +213,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 					</CardRow>
 				) }
 				<CardRow className="jp-protect-card__threats">
-					<ThreatsList
-						threats={ threats }
-						canAct={ hasPlan }
-						empty={ <SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } /> }
-					/>
+					<ThreatsList threats={ threats } canAct={ hasPlan } empty={ safeState } />
 				</CardRow>
 			</>
 		);
@@ -251,8 +256,15 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 				</CardRow>
 			) }
 			{ body }
-			<CardRow>
-				{ scan.hasPlan ? (
+			{ ! scan.hasPlan && ! scan.error && (
+				<ScanUpsell
+					variant={ scan.upsellVariant }
+					forced={ scan.upsellVariantForced }
+					url={ scan.url }
+				/>
+			) }
+			{ scan.hasPlan && (
+				<CardRow>
 					<Stack direction="row" gap="lg" wrap="wrap">
 						<TabLink tab="history" params={ FIXED_PARAMS } onOpen={ openTab }>
 							{ __( 'View scan history', 'jetpack-protect-pkg' ) }
@@ -272,15 +284,8 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 							</TabLink>
 						) }
 					</Stack>
-				) : (
-					<Link href={ scan.url } onClick={ onGetScan }>
-						{ __(
-							'Get Scan for daily malware scanning and one-click fixes',
-							'jetpack-protect-pkg'
-						) }
-					</Link>
-				) }
-			</CardRow>
+				</CardRow>
+			) }
 		</ProtectCard>
 	);
 }

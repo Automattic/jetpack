@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { recordEvent } from '../data/analytics';
 import MonitorCard from '../sections/monitor/monitor-card';
-import ScanCard from '../sections/scan/scan-card';
 import ScanSettingsCard from '../sections/scan/settings-card';
 import { setScan } from '../sections/scan/store';
 import type { ProtectSettingsData } from '../data/use-protect-settings';
@@ -48,12 +47,6 @@ beforeEach( () => {
 afterAll( () => document.removeEventListener( 'click', preventNavigation ) );
 
 it.each( [
-	[
-		'the Overview Get Scan link',
-		() => <ScanCard openTab={ jest.fn() } />,
-		GET_SCAN,
-		[ [ 'jetpack_protect_scan_card_get_scan_link_click', beacon ] ],
-	],
 	[
 		'the Settings Get Scan link',
 		() => <ScanSettingsCard state={ report } settings={ settings } openTab={ jest.fn() } />,
