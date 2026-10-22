@@ -709,13 +709,13 @@ class Main_Features_Rest_Test extends TestCase {
 	 * @dataProvider protect_page_bulk_switches
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
-	 * @param bool $dashboard Whether the Protect page owns the security modules.
-	 * @param bool $active Whether to activate the modules.
-	 * @param bool $can_manage Whether the user can manage modules.
-	 * @param array $expected_failed Expected failed module slugs.
+	 * @param bool   $dashboard Whether the Protect page owns the security modules.
+	 * @param bool   $active Whether to activate the modules.
+	 * @param bool   $can_manage Whether the user can manage modules.
+	 * @param array  $expected_failed Expected failed module slugs.
 	 * @param string $expected_message Expected failure message.
-	 * @param bool $expected_security_active Expected security module state.
-	 * @param bool $expected_stats_active Expected stats module state.
+	 * @param bool   $expected_security_active Expected security module state.
+	 * @param bool   $expected_stats_active Expected stats module state.
 	 */
 	#[DataProvider( 'protect_page_bulk_switches' )]
 	#[RunInSeparateProcess]
