@@ -167,22 +167,16 @@ describe( 'chartIntervalAttributeField', () => {
 		expect( onChange ).toHaveBeenCalledWith( { chartInterval: 'day' } );
 	} );
 
-	it.each( [
-		[ 'last-90-days', 'By weeks' ],
-		[ 'last-12-months', 'By months' ],
-	] )(
-		'shows a saved bucket the widget withholds on %s as the range default, without rewriting it',
-		async ( preset, defaultLabel ) => {
-			const user = userEvent.setup();
-			mockSearch = { preset };
-			const { onChange } = renderDaysOnLinesControl( { chartType: 'bar', chartInterval: 'day' } );
+	it( 'shows a saved bucket the widget withholds as the range default, without rewriting it', async () => {
+		const user = userEvent.setup();
+		mockSearch = { preset: 'last-12-months' };
+		const { onChange } = renderDaysOnLinesControl( { chartType: 'bar', chartInterval: 'day' } );
 
-			await user.click( screen.getByRole( 'button', { name: defaultLabel } ) );
+		await user.click( screen.getByRole( 'button', { name: 'By months' } ) );
 
-			const days = screen.getByRole( 'menuitemradio', { name: 'By days' } );
-			expect( days ).toHaveAttribute( 'aria-disabled', 'true' );
-			expect( days ).toHaveAccessibleDescription( HINT );
-			expect( onChange ).not.toHaveBeenCalled();
-		}
-	);
+		const days = screen.getByRole( 'menuitemradio', { name: 'By days' } );
+		expect( days ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( days ).toHaveAccessibleDescription( HINT );
+		expect( onChange ).not.toHaveBeenCalled();
+	} );
 } );

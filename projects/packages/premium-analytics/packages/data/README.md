@@ -302,7 +302,7 @@ This package exports the following public API:
 - `getDefaultIntervalForPeriod` - Default interval for a preset / range
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
-- `intervalMenuOptions` - The open and the locked buckets an interval menu lists
+- `intervalMenuOptions` - The open, withheld and locked buckets an interval menu lists
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
 - `getStatsDatePolicy` - The date limits the site's plan sets
 - `getSectionDatePolicy` - The date limits a dashboard section follows

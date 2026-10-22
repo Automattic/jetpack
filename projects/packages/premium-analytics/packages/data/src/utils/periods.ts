@@ -93,32 +93,39 @@ export function drawableIntervals< P extends StatsPeriod >(
 /** A range as the interval helpers read it. */
 export type IntervalRange = { preset?: PrimaryPresetId; from?: string; to?: string };
 
+/** A bucket a widget may add or withhold: one no plan locks, so a widget cannot reopen a lock. */
+type ExtensionInterval = Exclude< IntervalType, LockableInterval >;
+
 /**
  * What one widget changes about the buckets its range allows: ones it adds after the range's
  * own, and ones it lists but cannot draw right now, with the reason.
  */
 export type IntervalExtension = {
-	extra?: readonly IntervalType[];
-	unavailable?: { intervals: readonly IntervalType[]; hint: string };
+	extra?: readonly ExtensionInterval[];
+	unavailable?: { intervals: readonly ExtensionInterval[]; hint: string };
 };
 
-function allowedWithExtension(
+function extendedIntervals(
 	range: IntervalRange,
 	locked: readonly LockableInterval[],
 	extension?: IntervalExtension
-): IntervalType[] {
-	const allowed = getAllowedIntervalsForPreset(
+): { allowed: IntervalType[]; withheld: IntervalType[] } {
+	const own = getAllowedIntervalsForPreset(
 		range.preset,
 		range.from ?? '',
 		range.to ?? '',
 		locked
 	);
-	const extra = ( extension?.extra ?? [] ).filter(
-		interval =>
-			! allowed.includes( interval ) && ! ( locked as readonly IntervalType[] ).includes( interval )
+	const allowed = [
+		...own,
+		...( extension?.extra ?? [] ).filter( interval => ! own.includes( interval ) ),
+	];
+	// An open bucket stays open, so the menu and the chart agree on it.
+	const withheld = ( extension?.unavailable?.intervals ?? [] ).filter(
+		interval => ! allowed.includes( interval )
 	);
 
-	return [ ...allowed, ...extra ];
+	return { allowed, withheld };
 }
 
 /**
@@ -139,15 +146,12 @@ export function chartInterval< P extends StatsPeriod >(
 	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS,
 	extension?: IntervalExtension
 ): P {
+	const { allowed, withheld } = extendedIntervals( params, locked, extension );
 	// A withheld bucket lands on the default, not the nearest: on a year-long range
 	// the nearest to days is weeks, while the default is months.
-	const isWithheld =
-		!! params.interval && !! extension?.unavailable?.intervals.includes( params.interval );
+	const isWithheld = !! params.interval && withheld.includes( params.interval );
 	// Both inputs are total, so the list is never empty.
-	const [ first, ...rest ] = drawableIntervals(
-		allowedWithExtension( params, locked, extension ),
-		periods
-	);
+	const [ first, ...rest ] = drawableIntervals( allowed, periods );
 
 	// No stored bucket means the range default, which leads the list without
 	// being its finest: a year-long range defaults to months over weeks.
@@ -161,7 +165,7 @@ export function chartInterval< P extends StatsPeriod >(
  * What an interval menu lists: the buckets it can pick, then the ones the widget withholds,
  * then the ones the plan locks.
  *
- * One call, so a bucket the chart falls back to is never also listed withheld or locked.
+ * One call, so a bucket the chart falls back to is never also listed locked.
  *
  * @param params    - The range the menu reads.
  * @param locked    - The buckets the plan locks.
@@ -182,18 +186,13 @@ export function intervalMenuOptions(
 } {
 	const from = params.from ?? '';
 	const to = params.to ?? '';
-	const allowed = allowedWithExtension( params, locked, extension );
+	const { allowed, withheld } = extendedIntervals( params, locked, extension );
 	const options: IntervalType[] = periods ? drawableIntervals( allowed, periods ) : allowed;
 	const drawn = ( interval: IntervalType ) => ! periods || periods.includes( interval );
 	const lockedOptions = getLockedIntervalsForPreset( params.preset, from, to, locked ).filter(
 		interval => drawn( interval ) && ! options.includes( interval )
 	);
-	const unavailableOptions = ( extension?.unavailable?.intervals ?? [] ).filter(
-		interval =>
-			drawn( interval ) &&
-			! options.includes( interval ) &&
-			! ( lockedOptions as IntervalType[] ).includes( interval )
-	);
+	const unavailableOptions = withheld.filter( drawn );
 
 	const hint = unavailableOptions.length ? extension?.unavailable?.hint : undefined;
 

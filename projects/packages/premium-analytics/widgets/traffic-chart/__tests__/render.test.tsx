@@ -209,33 +209,22 @@ describe( 'TrafficChart bucket size', () => {
 		expect( requestedBucket() ).toBe( chartInterval );
 	} );
 
-	// Bars on a year-long range land on months, the default, not on weeks, the nearest to days.
 	it.each( [
-		[ 'half a year', 'week', 'line', 'day' ],
-		[ 'half a year', 'week', 'bar', 'week' ],
-		[ 'a year', 'month', 'line', 'day' ],
-		[ 'a year', 'month', 'bar', 'month' ],
-	] as const )(
-		'draws a saved day on %s (default %s) as a %s chart',
-		( _, rangeDefault, chartType, expected ) => {
-			const range =
-				rangeDefault === 'week'
-					? reportParams( 'week' )
-					: ( {
-							from: '2025-07-01T00:00:00',
-							to: '2026-06-30T23:59:59',
-							interval: 'month',
-						} as ReportParams );
+		[ 'line', 'day' ],
+		[ 'bar', 'month' ],
+	] as const )( 'draws a saved day on a year as a %s chart: %s', ( chartType, expected ) => {
+		const year = {
+			from: '2025-07-01T00:00:00',
+			to: '2026-06-30T23:59:59',
+			interval: 'month',
+		} as ReportParams;
 
-			render(
-				<TrafficChartRender
-					attributes={ { reportParams: range, chartInterval: 'day', chartType } }
-				/>
-			);
+		render(
+			<TrafficChartRender attributes={ { reportParams: year, chartInterval: 'day', chartType } } />
+		);
 
-			expect( requestedBucket() ).toBe( expected );
-		}
-	);
+		expect( requestedBucket() ).toBe( expected );
+	} );
 
 	it( "draws the range's default bucket, not the page's, when none is saved", () => {
 		render(

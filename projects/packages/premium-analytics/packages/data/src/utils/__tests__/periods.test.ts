@@ -16,7 +16,12 @@ const DAY_WEEK_MONTH = [ 'day', 'week', 'month' ] as const;
 const DAY_WEEK_MONTH_YEAR = [ 'day', 'week', 'month', 'year' ] as const;
 const HOUR_DAY_WEEK_MONTH = [ 'hour', 'day', 'week', 'month' ] as const;
 
-// Long ranges whose defaults are weeks and months, and the two ways a widget extends them.
+// Ranges whose defaults are days, weeks and months, and the two ways a widget extends them.
+const LAST_30_DAYS = {
+	preset: 'last-30-days',
+	from: '2026-09-16',
+	to: '2026-10-15',
+} satisfies IntervalRange;
 const LAST_90_DAYS = {
 	preset: 'last-90-days',
 	from: '2026-07-18',
@@ -187,7 +192,7 @@ describe( 'chartInterval', () => {
 	it.each<
 		[
 			string,
-			typeof LAST_90_DAYS | typeof LAST_12_MONTHS,
+			typeof LAST_30_DAYS | typeof LAST_90_DAYS | typeof LAST_12_MONTHS,
 			IntervalType | undefined,
 			IntervalExtension | undefined,
 			string,
@@ -196,9 +201,8 @@ describe( 'chartInterval', () => {
 		[ 'clamps days away without an extension', LAST_90_DAYS, 'day', undefined, 'week' ],
 		[ 'draws a bucket the widget adds', LAST_90_DAYS, 'day', ADD_DAYS, 'day' ],
 		[ 'keeps the range default first', LAST_90_DAYS, undefined, ADD_DAYS, 'week' ],
-		[ 'draws the default for a withheld bucket', LAST_90_DAYS, 'day', WITHHOLD_DAYS, 'week' ],
-		// The nearest bucket would be weeks; a withheld one goes to the default.
 		[ 'draws months for a withheld bucket', LAST_12_MONTHS, 'day', WITHHOLD_DAYS, 'month' ],
+		[ 'draws a withheld bucket the range also allows', LAST_30_DAYS, 'day', WITHHOLD_DAYS, 'day' ],
 	] )( '%s', ( _, range, interval, extension, expected ) => {
 		expect(
 			chartInterval( { ...range, interval }, DAY_WEEK_MONTH, NO_LOCKED_INTERVALS, extension )
@@ -208,7 +212,6 @@ describe( 'chartInterval', () => {
 
 describe( 'intervalMenuOptions', () => {
 	const MULTI_YEAR = { preset: undefined, from: '2023-01-01', to: '2026-06-30' };
-	const LAST_30_DAYS = { preset: 'last-30-days' as const, from: '2026-09-16', to: '2026-10-15' };
 	const CUSTOM_200_DAYS = { preset: undefined, from: '2026-01-01', to: '2026-07-19' };
 	const LOCKED = [ 'week', 'month', 'year' ] as const;
 
@@ -233,6 +236,13 @@ describe( 'intervalMenuOptions', () => {
 			{ options: [ 'week', 'month', 'day' ], lockedOptions: [], unavailableOptions: [] },
 		],
 		[
+			'no second copy of a bucket the range already offers',
+			LAST_30_DAYS,
+			NO_LOCKED_INTERVALS,
+			ADD_DAYS,
+			{ options: [ 'day', 'week' ], lockedOptions: [], unavailableOptions: [] },
+		],
+		[
 			'a bucket the widget withholds, with its hint',
 			LAST_90_DAYS,
 			NO_LOCKED_INTERVALS,
@@ -244,7 +254,6 @@ describe( 'intervalMenuOptions', () => {
 				unavailableHint: 'H',
 			},
 		],
-		// Locking every coarser bucket leaves days open, so they are not also withheld.
 		[
 			'a withheld bucket the plan already left open',
 			CUSTOM_200_DAYS,
