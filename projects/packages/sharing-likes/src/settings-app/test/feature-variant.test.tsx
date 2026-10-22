@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { FeatureVariant } from '../components/feature-variant';
 import { SECTION_GAP } from '../components/section-card';
-import { apiCalls, baseStatus, renderWithData, resetNotices } from './helpers';
+import { apiCalls, baseStatus, renderWithData } from './helpers';
 import type { Feature, SectionState } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -12,7 +12,6 @@ const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockApiFetch.mockResolvedValue( baseStatus );
-	resetNotices();
 } );
 
 describe( 'FeatureVariant', () => {
@@ -50,7 +49,7 @@ describe( 'FeatureVariant', () => {
 		[ 'likes', 'block_call_to_action', [ 'Add the Like block to your theme’s template.' ], null ],
 		[ 'likes', 'off', [ 'Like buttons are turned off for this site.' ], 'Turn on Like buttons' ],
 	] as [ Feature, SectionState, string[], string | null ][] )(
-		'%s %s',
+		'%s %s, on a server that does not offer the placements',
 		( feature, state, texts, button ) => {
 			renderWithData(
 				<FeatureVariant feature={ feature } state={ state }>

@@ -245,6 +245,72 @@ describe( 'FeaturePaid', () => {
 		).toHaveAttribute( 'href', '#/add-akismet?return_feature=anti-spam' );
 	} );
 
+	it( 'sends the upgrade to a host\u2019s own plans, leaving out the Jetpack ones and the address', async () => {
+		const url = 'https://wordpress.com/plans/example.com?plan=business-bundle';
+		const state = {
+			...installedPlugin,
+			feature: {
+				...installedPlugin.feature,
+				upgrade: { path: '', name: 'WordPress.com Business', url },
+			},
+		} as FeatureState;
+		render(
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
+		);
+
+		const upgrade = screen.getByRole( 'link', { name: 'Upgrade to WordPress.com Business' } );
+		expect( upgrade ).toHaveAttribute( 'href', url );
+		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+
+		// jsdom cannot navigate to another document.
+		upgrade.addEventListener( 'click', event => event.preventDefault() );
+		await userEvent.click( upgrade );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_features_upgrade_click', {
+			feature: 'anti-spam',
+			target: 'host',
+		} );
+	} );
+
+	it( 'renews an expired plan on its purchase page, even where a host sells its own plans', async () => {
+		const purchase = 'https://wordpress.com/me/purchases/example.com/123';
+		const state = {
+			feature: {
+				...feature,
+				slug: 'backup',
+				name: 'Backup',
+				plans: [ { slug: 'security', name: 'Jetpack Security' } ],
+				upgrade: { path: '', name: 'WordPress.com Business', url: 'https://example.com/plans' },
+			},
+			product: { status: 'expired', managePaidPlanPurchaseUrl: purchase },
+			status: 'inactive',
+			control: { kind: 'plan' },
+		} as unknown as FeatureState;
+		render(
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
+		);
+
+		const renew = screen.getByRole( 'link', { name: 'Renew the plan for Backup' } );
+		expect( renew ).toHaveAttribute( 'href', purchase );
+		expect( renew ).toHaveTextContent( 'Renew' );
+		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+
+		// jsdom cannot navigate to another document.
+		renew.addEventListener( 'click', event => event.preventDefault() );
+		await userEvent.click( renew );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_features_upgrade_click', {
+			feature: 'backup',
+			target: 'renew',
+		} );
+	} );
+
 	it( 'drops the upgrade when the catalog has nothing to sell this site', () => {
 		const state = {
 			...installedPlugin,

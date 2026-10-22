@@ -19,6 +19,8 @@ export {
 	buildReportLink,
 } from './search/report-params';
 export { DASHBOARD_ORIGIN_PARAM, pickDashboardOriginParams } from './search/dashboard-origin';
+export { DASHBOARD_PAGE_SLUG } from './dashboard-href';
+export { DashboardWidgetHostProvider } from './widget-host';
 export {
 	REPORT_ORIGIN_PARAM_KEYS,
 	createReportOriginSearch,
