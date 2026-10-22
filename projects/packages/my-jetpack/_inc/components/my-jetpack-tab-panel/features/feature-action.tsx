@@ -8,6 +8,7 @@ import { getProtectPageUrl } from '../../../utils/protect-page';
 import { leavePageFor } from '../../../utils/reload-page';
 import { ModuleToggle } from '../../module-toggle';
 import { getFeatureConnectReturnUrl, getSwitchLabel } from '../utils';
+import { CONNECT_INTENT_PARAM, rememberConnectIntent } from './connect-resume';
 import { UpgradeButton } from './feature-paid';
 import { getFeatureManageUrl, getForcedReason, offersConnect } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
@@ -28,7 +29,12 @@ export function useAccountConnection() {
 	return useCallback(
 		( state: FeatureState, origin: FeatureActionOrigin, action: ConnectionStartAction ) => {
 			tracking?.trackConnectionStart( state, origin, action );
-			leavePageFor( getUserConnectionUrl( { redirect_url: getFeatureConnectReturnUrl() } ) );
+			const intent = action === 'connect' ? rememberConnectIntent( state.feature.slug ) : null;
+			const returnUrl = getFeatureConnectReturnUrl(
+				undefined,
+				intent ? { [ CONNECT_INTENT_PARAM ]: intent } : {}
+			);
+			leavePageFor( getUserConnectionUrl( { redirect_url: returnUrl } ) );
 		},
 		[ tracking ]
 	);
@@ -304,7 +310,7 @@ type ConnectButtonProps = {
 };
 
 /**
- * Start connecting the WordPress.com account a feature is waiting for, changing nothing else.
+ * Start connecting the WordPress.com account a feature is waiting for.
  *
  * @param {ConnectButtonProps} props           - The component props.
  * @param {FeatureState}       props.state     - Live state for the feature.

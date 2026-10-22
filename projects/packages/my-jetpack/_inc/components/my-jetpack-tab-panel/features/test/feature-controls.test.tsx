@@ -832,7 +832,7 @@ describe( 'features waiting for an account', () => {
 			await userEvent.click( screen.getByRole( 'button', { name: /^Connect account for / } ) );
 
 			expect( getUserConnectionUrl ).toHaveBeenCalledWith( {
-				redirect_url: expect.stringContaining( '#/features' ),
+				redirect_url: expect.stringMatching( /#\/features\?connect_intent=[0-9a-f]{16}$/ ),
 			} );
 			expect( leavePageFor ).toHaveBeenCalledWith( connectionUrl );
 			expect( mockRun ).not.toHaveBeenCalled();
@@ -875,6 +875,11 @@ describe( 'features waiting for an account', () => {
 				expect.objectContaining( { action, leavesPage: true } )
 			);
 			expect( leavePageFor ).toHaveBeenCalledTimes( connections );
+			// Install has already turned its plugin on, so the return has nothing to finish.
+			expect( getUserConnectionUrl ).toHaveBeenCalledTimes( connections );
+			expect( getUserConnectionUrl ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { redirect_url: expect.stringContaining( 'connect_intent' ) } )
+			);
 		}
 	);
 
@@ -925,11 +930,15 @@ describe( 'features waiting for an account', () => {
 	} );
 
 	it.each( [
-		[ 'a module', accountModule( false ), /then turn it on here if it’s still off\./ ],
+		[
+			'a module',
+			accountModule( false ),
+			/nothing to install\. After you connect your WordPress.com account, Activity Log turns on when you’re back here\./,
+		],
 		[
 			'a plugin',
 			accountPlugin( 'inactive' ),
-			/Connect your WordPress.com account, then turn it on here\./,
+			/already installed\. After you connect your WordPress.com account, Backup turns on when you’re back here\./,
 		],
 		[
 			'a missing plugin',

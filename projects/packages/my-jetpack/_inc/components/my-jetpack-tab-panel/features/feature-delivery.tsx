@@ -64,12 +64,13 @@ function getNote( state: FeatureState, pluginName: string ): string {
 				pluginName
 			);
 			const connectNote = sprintf(
-				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
+				/* translators: %1$s is a plugin name; keep the <plugin> tags around it. %2$s is a feature name, such as "Social". */
 				__(
-					'The <plugin>%s</plugin> plugin is already installed. Connect your WordPress.com account, then turn it on here.',
+					'The <plugin>%1$s</plugin> plugin is already installed. After you connect your WordPress.com account, %2$s turns on when you’re back here.',
 					'jetpack-my-jetpack'
 				),
-				pluginName
+				pluginName,
+				feature.name
 			);
 			return state.accountNeeded ? connectNote : activateNote;
 		}
@@ -79,9 +80,13 @@ function getNote( state: FeatureState, pluginName: string ): string {
 				'Built into Jetpack, so there is nothing to install. Activating turns it on.',
 				'jetpack-my-jetpack'
 			);
-			const connectFirstNote = __(
-				'Built into Jetpack, so there is nothing to install. Connect your WordPress.com account, then turn it on here if it’s still off.',
-				'jetpack-my-jetpack'
+			const connectFirstNote = sprintf(
+				/* translators: %s is a feature name, such as "Activity Log". */
+				__(
+					'Built into Jetpack, so there is nothing to install. After you connect your WordPress.com account, %s turns on when you’re back here.',
+					'jetpack-my-jetpack'
+				),
+				feature.name
 			);
 			return state.accountNeeded ? connectFirstNote : moduleNote;
 		}
