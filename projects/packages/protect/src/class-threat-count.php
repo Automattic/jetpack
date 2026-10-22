@@ -83,7 +83,7 @@ class Threat_Count {
 	 * @return void
 	 */
 	public static function register_menu_badge() {
-		if ( ! Dashboard::can_manage() ) {
+		if ( ! Dashboard::can_manage() || ! Status::should_notify_threats() ) {
 			return;
 		}
 
@@ -114,7 +114,7 @@ class Threat_Count {
 	 * @return void
 	 */
 	public static function maybe_enqueue_refresh() {
-		if ( ( ! is_admin() && ! is_admin_bar_showing() ) || ! Dashboard::can_manage() || ! self::needs_refresh() ) {
+		if ( ( ! is_admin() && ! is_admin_bar_showing() ) || ! Dashboard::can_manage() || ! Status::should_notify_threats() || ! self::needs_refresh() ) {
 			return;
 		}
 

@@ -87,8 +87,6 @@ class Admin_Bar_Notice_Test extends WP_UnitTestCase {
 			// The Protect report's count wins over Scan's transient, so the admin bar matches the Protect menu item.
 			$this->store_protect_report();
 			set_transient( 'jetpack_scan_state', (object) array( 'threats' => array() ) );
-		} elseif ( has_filter( 'transient_jetpack_scan_state', 'wpcomsh_hide_scan_threats_from_transients' ) ) {
-			$this->markTestSkipped( 'wpcomsh hides Scan threats on Atomic, so the notice never shows.' );
 		} else {
 			set_transient( 'jetpack_scan_state', (object) array( 'threats' => array( (object) array( 'id' => 1 ) ) ) );
 		}
@@ -120,6 +118,17 @@ class Admin_Bar_Notice_Test extends WP_UnitTestCase {
 		$this->assertTrue( wp_script_is( Admin_Bar_Notice::SCRIPT_NAME, 'enqueued' ) );
 		$data = (string) wp_scripts()->get_data( Admin_Bar_Notice::SCRIPT_NAME, 'data' );
 		$this->assertSame( $has_dashboard, str_contains( $data, '"count_event":"' . Threat_Count::EVENT . '"' ) );
+	}
+
+	public function test_no_notice_when_the_host_turns_threat_notifications_off() {
+		set_transient( 'jetpack_scan_state', (object) array( 'threats' => array( (object) array( 'id' => 1 ) ) ) );
+		add_filter( 'jetpack_protect_threat_notifications_enabled', '__return_false' );
+		$admin_bar = new WP_Admin_Bar();
+
+		( new Admin_Bar_Notice() )->add_threats_to_toolbar( $admin_bar );
+
+		remove_filter( 'jetpack_protect_threat_notifications_enabled', '__return_false' );
+		$this->assertNull( $admin_bar->get_node( 'jetpack-scan-notice' ) );
 	}
 
 	/**

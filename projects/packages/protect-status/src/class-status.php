@@ -182,6 +182,24 @@ class Status {
 	}
 
 	/**
+	 * Whether threats should be announced outside the Protect page, such as in menu badges and the admin bar.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function should_notify_threats() {
+		/**
+		 * Filters whether threats are announced outside the Protect page. Hosts that handle threats themselves can turn this off.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether to announce threats. Default true.
+		 */
+		return (bool) apply_filters( 'jetpack_protect_threat_notifications_enabled', true );
+	}
+
+	/**
 	 * Checks the current status to see if there are any threats found
 	 *
 	 * @return boolean
