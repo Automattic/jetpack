@@ -235,48 +235,6 @@ function Dashboard(): JSX.Element {
 		setEditMode( false );
 	}, [ resetLayout, trackCustomize ] );
 
-	// The tour's anchors, handed in by the elements below once they mount.
-	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
-	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
-	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
-	const [ tabListFrame, setTabListFrame ] = useState< HTMLDivElement | null >( null );
-	const tourAnchors = {
-		// Every tile is a section; the grid draws them in layout order.
-		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
-		dateControls: controlsAnchor,
-		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
-		sectionTabs: tabListFrame?.querySelector( '[role="tablist"]' ) ?? null,
-	};
-	// A step without its anchor is left out, so the counter counts what is on the page.
-	const tourStepsFor = ( flow: OnboardingFlow ) =>
-		onboardingTourSteps( tourAnchors, {
-			withFeedback: canSendFeedback(),
-			flow,
-			withCustomize: ! isSectionLocked,
-		} ).filter( step => step.anchor );
-	// Built every render rather than memoized: the anchors are looked up fresh, since the
-	// first widget mounts after its frame.
-	const tourStepsByFlow: Record< OnboardingFlow, OnboardingTourStep[] > = {
-		stats: tourStepsFor( 'stats' ),
-		store: tourStepsFor( 'store' ),
-		'stats-and-store': tourStepsFor( 'stats-and-store' ),
-	};
-
-	const defaultSection = resolveSectionId( undefined, sections );
-
-	// The journey introduces the default section at rest: not another tab, and
-	// not while the reader is already customizing.
-	const onboarding = useOnboarding( {
-		enabled: hasResolvedSections && ! editMode && activeSection === defaultSection,
-		hasStoreSection: hasStoreSection( sections ),
-		stepCounts: {
-			stats: tourStepsByFlow.stats.length,
-			store: tourStepsByFlow.store.length,
-			'stats-and-store': tourStepsByFlow[ 'stats-and-store' ].length,
-		},
-	} );
-	const tourSteps = tourStepsByFlow[ onboarding.flow ];
-
 	// Only the widgets this section renders need metadata at boot; the full registry
 	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
@@ -310,6 +268,49 @@ function Dashboard(): JSX.Element {
 	const offersComparison =
 		offersDateComparison( dateFilterSurface, activeSectionRecord?.date_filter_options ) &&
 		planOffersComparison;
+
+	// The tour's anchors, handed in by the elements below once they mount.
+	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
+	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
+	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
+	const [ tabListFrame, setTabListFrame ] = useState< HTMLDivElement | null >( null );
+	const tourAnchors = {
+		// Every tile is a section; the grid draws them in layout order.
+		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
+		dateControls: controlsAnchor,
+		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
+		sectionTabs: tabListFrame?.querySelector( '[role="tablist"]' ) ?? null,
+	};
+	// A step without its anchor is left out, so the counter counts what is on the page.
+	const tourStepsFor = ( flow: OnboardingFlow ) =>
+		onboardingTourSteps( tourAnchors, {
+			withFeedback: canSendFeedback(),
+			flow,
+			withCustomize: ! isSectionLocked,
+			withComparison: offersComparison,
+		} ).filter( step => step.anchor );
+	// Built every render rather than memoized: the anchors are looked up fresh, since the
+	// first widget mounts after its frame.
+	const tourStepsByFlow: Record< OnboardingFlow, OnboardingTourStep[] > = {
+		stats: tourStepsFor( 'stats' ),
+		store: tourStepsFor( 'store' ),
+		'stats-and-store': tourStepsFor( 'stats-and-store' ),
+	};
+
+	const defaultSection = resolveSectionId( undefined, sections );
+
+	// The journey introduces the default section at rest: not another tab, and
+	// not while the reader is already customizing.
+	const onboarding = useOnboarding( {
+		enabled: hasResolvedSections && ! editMode && activeSection === defaultSection,
+		hasStoreSection: hasStoreSection( sections ),
+		stepCounts: {
+			stats: tourStepsByFlow.stats.length,
+			store: tourStepsByFlow.store.length,
+			'stats-and-store': tourStepsByFlow[ 'stats-and-store' ].length,
+		},
+	} );
+	const tourSteps = tourStepsByFlow[ onboarding.flow ];
 
 	// Placement only: the date state is the same either way.
 	const showHeaderDateControl =

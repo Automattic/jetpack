@@ -1,0 +1,4 @@
+Significance: patch
+Type: deprecated
+
+Deprecate `Urls::maybe_add_origin_site_id()`; it now returns the URL unchanged.

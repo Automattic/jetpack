@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Admin bar: Stop adding the `origin_site_id` parameter to WordPress.com links, and remove the deprecated `maybe_add_origin_site_id_to_url()` function.

@@ -1,0 +1,18 @@
+.list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.thumbnail {
+	flex-shrink: 0;
+	// Half the 112px crop REST_Blog_Posts asks Jetpack.com for.
+	inline-size: 56px;
+	block-size: 56px;
+	object-fit: cover;
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.muted {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

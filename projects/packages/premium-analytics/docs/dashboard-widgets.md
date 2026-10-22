@@ -72,7 +72,7 @@ add_action(
 			return;
 		}
 		$version = \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION;
-		if ( version_compare( $version, '1.3.0', '<' ) || version_compare( $version, '2', '>=' ) ) {
+		if ( version_compare( $version, '2.0.0', '<' ) || version_compare( $version, '3', '>=' ) ) {
 			return;
 		}
 

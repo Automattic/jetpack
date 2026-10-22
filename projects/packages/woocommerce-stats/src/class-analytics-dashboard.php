@@ -83,8 +83,7 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-woocommerce-stats-pkg';
 
 	/**
-	 * Lowest widget contract the build works against: Visitors by location draws `Locations`,
-	 * which the dashboard ships from 1.11.0.
+	 * Lowest widget contract the build works against: 2.0.0, the start of the major it is built for.
 	 */
 	const MIN_WIDGET_API_VERSION = '2.0.0';
 
