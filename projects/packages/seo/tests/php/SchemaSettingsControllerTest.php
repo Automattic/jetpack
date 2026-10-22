@@ -371,25 +371,32 @@ class SchemaSettingsControllerTest extends TestCase {
 	}
 
 	/**
-	 * Hosts where WordPress.com owns a user's name, bio and website.
+	 * Hosts and users, with the account link and the name, bio and website a save leaves.
 	 *
-	 * @return array<string, array{string}>
+	 * @return array<string, array{bool, bool, bool, array<int, string>}>
 	 */
-	public static function provide_wpcom_profile_hosts() {
+	public static function provide_profile_hosts() {
+		$kept   = array( 'https://my.wordpress.com/me/account', 'Jane Doe', 'Original bio.', '' );
+		$edited = array( '', 'Someone Else', 'Rewritten bio.', 'https://example.com/someone/' );
 		return array(
-			'Simple'                     => array( 'simple' ),
-			'Atomic, WordPress.com user' => array( 'atomic' ),
+			'Simple'                          => array( true, false, false, $kept ),
+			'Atomic, WordPress.com user'      => array( false, true, true, $kept ),
+			'Atomic, local user'              => array( false, true, false, $edited ),
+			'Self-hosted, WordPress.com user' => array( false, false, true, $edited ),
 		);
 	}
 
 	/**
-	 * Where WordPress.com owns name, bio and website, only the SEO fields save.
+	 * Name, bio and website save only where WordPress.com doesn't own them; the SEO fields always save.
 	 *
-	 * @dataProvider provide_wpcom_profile_hosts
-	 * @param string $host Host to simulate.
+	 * @dataProvider provide_profile_hosts
+	 * @param bool               $simple    Whether to simulate WordPress.com Simple.
+	 * @param bool               $atomic    Whether to simulate WordPress.com on Atomic.
+	 * @param bool               $connected Whether the user is connected to WordPress.com.
+	 * @param array<int, string> $expected  Account link, then the name, bio and website after the save.
 	 */
-	#[DataProvider( 'provide_wpcom_profile_hosts' )]
-	public function test_author_profile_route_leaves_the_wpcom_profile_alone( $host ) {
+	#[DataProvider( 'provide_profile_hosts' )]
+	public function test_author_profile_route_saves_account_fields_only_where_the_site_owns_them( $simple, $atomic, $connected, $expected ) {
 		$admin = $this->make_user(
 			array(
 				'role'        => 'administrator',
@@ -397,12 +404,15 @@ class SchemaSettingsControllerTest extends TestCase {
 			)
 		);
 		wp_set_current_user( $admin->ID );
-		if ( 'simple' === $host ) {
+		if ( $simple ) {
 			Constants::set_constant( 'IS_WPCOM', true );
-		} else {
+		}
+		if ( $atomic ) {
 			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
 			Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
 			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
+		}
+		if ( $connected ) {
 			Jetpack_Options::update_option( 'user_tokens', array( $admin->ID => 'key.secret.' . $admin->ID ) );
 		}
 		Status_Cache::clear();
@@ -412,7 +422,7 @@ class SchemaSettingsControllerTest extends TestCase {
 				array(
 					'name'        => 'Someone Else',
 					'description' => 'Rewritten bio.',
-					'url'         => 'https://attacker.example/',
+					'url'         => 'https://example.com/someone/',
 					'jobTitle'    => 'Editor',
 				)
 			);
@@ -425,11 +435,11 @@ class SchemaSettingsControllerTest extends TestCase {
 		}
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( 'https://my.wordpress.com/me/account', $response->get_data()['accountProfileUrl'] );
 		$user = get_userdata( $admin->ID );
-		$this->assertSame( 'Jane Doe', $user->display_name );
-		$this->assertSame( 'Original bio.', $user->description );
-		$this->assertSame( '', $user->user_url );
+		$this->assertSame(
+			$expected,
+			array( $response->get_data()['accountProfileUrl'], $user->display_name, $user->description, $user->user_url )
+		);
 		$this->assertSame( 'Editor', get_user_meta( $admin->ID, Author_Schema_Node::META_JOB_TITLE, true ) );
 	}
 }

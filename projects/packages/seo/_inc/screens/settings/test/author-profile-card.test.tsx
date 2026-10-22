@@ -101,7 +101,7 @@ describe( 'AuthorProfileCard', () => {
 		expect( screen.getByRole( 'textbox', { name: /Job title/ } ) ).toHaveValue( 'Creator' );
 	} );
 
-	it( 'reports a failed load and keeps Save disabled', async () => {
+	it( 'reports a failed load and locks the form so empty values cannot be saved', async () => {
 		mockApiFetch.mockRejectedValue( new Error( 'rest_forbidden' ) );
 		renderCard();
 		expand();
@@ -112,10 +112,8 @@ describe( 'AuthorProfileCard', () => {
 				expect.anything()
 			)
 		);
-		expect( screen.getByRole( 'button', { name: /Save author profile/ } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
+		expect( screen.getByRole( 'textbox', { name: 'Name' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'textbox', { name: /Job title/ } ) ).toBeDisabled();
 	} );
 
 	it( 'shows WordPress.com-owned fields as text and saves only the SEO fields', async () => {
