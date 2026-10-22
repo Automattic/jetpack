@@ -125,8 +125,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  back to the site's first administrator). The only body rewrite this proxy
 	 *                  does; see `inject_user_email()`.
 	 *  - `forward_visitor_ip` (bool, optional) Send the visitor's IP as `X-Forwarded-For`, and cache
-	 *                  per IP. For endpoints that answer by the requester's location, such as prices,
-	 *                  which the site's server would otherwise stand in for.
+	 *                  per IP, when the request passes no `currency`. For endpoints that answer by the
+	 *                  requester's location, such as prices, which the site's server would otherwise stand in for.
 	 *  - `unauthenticated` (bool, optional) Forward reads WITHOUT signing (plain HTTP, like
 	 *                  stats-admin's Odyssey proxy does for post likes). For WPCOM endpoints
 	 *                  that reject blog-token auth but serve public data without credentials.
@@ -632,7 +632,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			&& ( $opts['cache'] ?? true )
 			&& null === $request->get_param( 'force_refresh' );
 
-		$visitor_ip = empty( $opts['forward_visitor_ip'] ) ? '' : ( new Visitor() )->get_ip( true );
+		// A passed currency sets the prices on its own, so requests in it share one cache entry.
+		$visitor_ip = '';
+		if ( ! empty( $opts['forward_visitor_ip'] ) && null === $request->get_param( 'currency' ) ) {
+			$visitor_ip = ( new Visitor() )->get_ip( true );
+		}
 		$key_params = $this->get_forwarded_params( $request );
 		if ( '' !== $visitor_ip ) {
 			$key_params['visitor_ip'] = $visitor_ip;

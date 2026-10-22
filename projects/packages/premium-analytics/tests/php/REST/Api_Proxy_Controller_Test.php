@@ -453,6 +453,12 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( array( '203.0.113.5', '198.51.100.7' ), $forwarded );
 	}
 
+	public function test_products_in_a_passed_currency_are_shared_across_visitors_without_their_ip() {
+		$forwarded = $this->forwarded_ips_for_reads( 'products', array( '203.0.113.5', '198.51.100.7' ), array( 'currency' => 'EUR' ) );
+
+		$this->assertSame( array( null ), $forwarded );
+	}
+
 	public function test_other_reads_do_not_send_the_visitor_ip() {
 		$this->assertSame( array( null ), $this->forwarded_ips_for_reads( 'stats/top-posts', array( '203.0.113.5' ) ) );
 	}
@@ -462,9 +468,10 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 *
 	 * @param string   $endpoint The proxied endpoint.
 	 * @param string[] $ips      The visitor IP of each read, in order.
+	 * @param array    $params   Query params of each read.
 	 * @return array<int, string|null> One entry per request sent; a cached read sends none.
 	 */
-	private function forwarded_ips_for_reads( string $endpoint, array $ips ): array {
+	private function forwarded_ips_for_reads( string $endpoint, array $ips, array $params = array() ): array {
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		\Jetpack_Options::update_option( 'id', 4242 );
 		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
@@ -490,7 +497,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		try {
 			foreach ( $ips as $ip ) {
 				$_SERVER['REMOTE_ADDR'] = $ip;
-				$this->controller->handle_data_request( $this->build_data_request( 'GET', $endpoint, array(), '1.1' ) );
+				$this->controller->handle_data_request( $this->build_data_request( 'GET', $endpoint, $params, '1.1' ) );
 			}
 		} finally {
 			remove_all_filters( 'pre_http_request' );
