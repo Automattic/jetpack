@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Newsletter: Decode HTML entities in recent post titles on the Overview page.
+Decode HTML entities in recent post titles on the Overview page.
