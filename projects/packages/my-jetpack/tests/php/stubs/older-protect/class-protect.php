@@ -10,17 +10,17 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 
 /**
- * Protect as an older standalone plugin's copy of My Jetpack exposes it, with that plugin active.
+ * Protect as an older standalone plugin's copy of My Jetpack exposes it.
  */
 class Protect extends Hybrid_Product {
 
+	public static $standalone_plugin_active = true;
+
 	/**
-	 * Reports the standalone plugin as active, so a fallback that ignores it shows in the assertions.
-	 *
 	 * @return bool
 	 */
 	public static function is_standalone_plugin_active() {
-		return true;
+		return self::$standalone_plugin_active;
 	}
 
 	/**

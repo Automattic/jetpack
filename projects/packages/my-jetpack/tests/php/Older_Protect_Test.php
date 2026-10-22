@@ -45,4 +45,12 @@ class Older_Protect_Test extends TestCase {
 
 		$this->assertStringContainsString( '"excludedAlerts":["protect_has_threats"]', (string) wp_scripts()->get_data( 'my-jetpack-notification-bubble', 'data' ) );
 	}
+
+	public function test_async_badge_keeps_threats_when_the_standalone_plugin_is_inactive() {
+		Protect::$standalone_plugin_active = false;
+
+		Initializer::enqueue_red_bubble_script();
+
+		$this->assertStringContainsString( '"excludedAlerts":[]', (string) wp_scripts()->get_data( 'my-jetpack-notification-bubble', 'data' ) );
+	}
 }
