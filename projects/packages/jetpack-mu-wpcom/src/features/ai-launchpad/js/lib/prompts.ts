@@ -452,9 +452,8 @@ function renderMenuEntry( task: TaskAnnotation ): string {
 /**
  * The rules whose violation the server actually rejects, stated to the model as a courtesy.
  *
- * Each one has a matching server-side check: ids the server cannot build are dropped and a list that
- * loses too many 422s, the schema pins `tasks` to exactly six, the launch task is checked explicitly,
- * and sanitize_subtitle() rejects markup.
+ * Each one has a matching server-side check: ids the server cannot build are dropped, the schema pins
+ * `tasks` to exactly six, the launch task is checked explicitly, and sanitize_subtitle() rejects markup.
  *
  * Note the first rule points the model at the menu but only promises what update_tailored() actually
  * checks, which is that the id resolves to something buildable — a task in the shared catalog or one
@@ -476,7 +475,7 @@ function renderMenuEntry( task: TaskAnnotation ): string {
  * a template literal would render into the prompt.
  */
 const HARD_RULES = `HARD RULES (do not break - the server rejects output that violates these):
-- Every "id" MUST be copied verbatim from the menu below. Never invent IDs: the server drops any id it cannot recognize, and rejects the whole list if too few tasks survive.
+- Every "id" MUST be copied verbatim from the menu below. Never invent IDs: the server drops any id it cannot recognize.
 - Return exactly 6 tasks.
 - The 6th and final task MUST be a launch task: "site_launched" (canonical) or "blog_launched".
 - Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].`;

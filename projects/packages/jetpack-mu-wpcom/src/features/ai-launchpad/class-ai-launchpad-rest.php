@@ -28,8 +28,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 */
 	const COMPLETION_TRIGGER_OPTIONS = array( 'launchpad_checklist_tasks_statuses', 'launch-status' );
 
-	const MIN_VALID_TASKS = 4;
-
 	/**
 	 * Caps on the client-reported `validation_errors` that reach the `tailored` Logstash record. The client applies
 	 * the same caps; these are the ones that hold for any caller.
@@ -980,14 +978,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			);
 		}
 
-		if ( count( $tasks ) < self::MIN_VALID_TASKS ) {
-			return new WP_Error(
-				'ai_launchpad_unknown_tasks',
-				__( 'Too few tasks matched the task catalog.', 'jetpack-mu-wpcom' ),
-				array( 'status' => 422 )
-			);
-		}
-
+		// However few tasks survive (the launch task always does), keep them: the read side backfills the list.
 		$payload['tasks'] = $tasks;
 
 		$ai_output = array(

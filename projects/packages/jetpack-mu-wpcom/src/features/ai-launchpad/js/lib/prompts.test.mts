@@ -82,7 +82,7 @@ describe( 'buildTailorPrompt', () => {
 		const bullets = block.split( '\n' ).filter( line => line.startsWith( '- ' ) );
 
 		assert.deepEqual( bullets, [
-			'- Every "id" MUST be copied verbatim from the menu below. Never invent IDs: the server drops any id it cannot recognize, and rejects the whole list if too few tasks survive.',
+			'- Every "id" MUST be copied verbatim from the menu below. Never invent IDs: the server drops any id it cannot recognize.',
 			'- Return exactly 6 tasks.',
 			'- The 6th and final task MUST be a launch task: "site_launched" (canonical) or "blog_launched".',
 			'- Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].',
