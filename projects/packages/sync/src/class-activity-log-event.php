@@ -251,6 +251,9 @@ class Activity_Log_Event {
 			return false;
 		}
 
+		// WP_REST_Server matches registered routes case-insensitively, but get_route() returns the raw request path.
+		$route = strtolower( $route );
+
 		$rest_base = self::REST_BASE;
 
 		if ( false === strpos( $route, $rest_base ) ) {
