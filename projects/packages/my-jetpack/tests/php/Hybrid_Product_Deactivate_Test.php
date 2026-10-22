@@ -244,6 +244,29 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	}
 
 	/**
+	 * Protect's active development copy must keep its saved module from being mistaken for the dashboard module.
+	 */
+	public function test_deactivate_protect_development_copy_clears_saved_module() {
+		$this->extra_available_modules = array( 'protect-dashboard' );
+		$plugins                       = static function ( $installed ) {
+			$installed['jetpack-protect/jetpack-protect.php']     = array( 'Name' => 'Protect' );
+			$installed['jetpack-protect-dev/jetpack-protect.php'] = array( 'Name' => 'Protect development' );
+			return $installed;
+		};
+		add_filter( 'all_plugins', $plugins );
+		update_option( 'active_plugins', array( 'jetpack-protect-dev/jetpack-protect.php' ) );
+		$this->set_module_active( 'protect' );
+		try {
+			$this->assertSame( 'protect', Protect::get_module_name() );
+			$this->assertTrue( Protect::deactivate() );
+			$this->assertFalse( is_plugin_active( 'jetpack-protect-dev/jetpack-protect.php' ) );
+			$this->assertFalse( ( new Modules() )->is_active( 'protect' ) );
+		} finally {
+			remove_filter( 'all_plugins', $plugins );
+		}
+	}
+
+	/**
 	 * When the Jetpack module is already inactive, ::deactivate() must
 	 * skip the module branch entirely — the saved-and-active gate is what
 	 * prevents a spurious jetpack_pre_deactivate_module action.

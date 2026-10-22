@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Fix product status and activation or deactivation when multiple copies of a plugin are installed.
