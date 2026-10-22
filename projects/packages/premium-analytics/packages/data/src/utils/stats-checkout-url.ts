@@ -1,3 +1,8 @@
+/**
+ * External dependencies
+ */
+import getCalypsoOrigin from '@automattic/jetpack-connection/get-calypso-origin';
+
 const STATS_COMMERCIAL_PRODUCT = 'jetpack_stats_yearly';
 
 type StatsCheckoutUrlOptions = {
@@ -50,5 +55,11 @@ export function getStatsCheckoutUrl( options: StatsCheckoutUrlOptions ): string 
 	params.set( 'redirect_to', redirectUrl.toString() );
 	params.set( 'checkoutBackUrl', new URL( backPath, adminUrl ).toString() );
 
-	return `https://wordpress.com/checkout/${ encodeURIComponent( checkoutSite ) }/${ STATS_COMMERCIAL_PRODUCT }:-q-${ quantity }?${ params }`;
+	const checkoutUrl = new URL(
+		`checkout/${ encodeURIComponent( checkoutSite ) }/${ STATS_COMMERCIAL_PRODUCT }:-q-${ quantity }`,
+		getCalypsoOrigin()
+	);
+	checkoutUrl.search = params.toString();
+
+	return checkoutUrl.toString();
 }

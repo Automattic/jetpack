@@ -10,6 +10,10 @@ const site = {
 };
 
 describe( 'getStatsCheckoutUrl', () => {
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
 	it.each( [
 		[ 'a first purchase by a connected user', true, false, '/checkout/123/', 'my-jetpack' ],
 		[ 'an upgrade by a connected user', true, true, '/checkout/example.com/', null ],
@@ -32,5 +36,17 @@ describe( 'getStatsCheckoutUrl', () => {
 
 		expect( redirect.searchParams.get( 'page' ) ).toBe( 'jetpack-premium-analytics-wp-admin' );
 		expect( redirect.searchParams.get( 'statsPurchaseSuccess' ) ).toBe( 'paid' );
+	} );
+
+	it( 'checks out on the Calypso the connection is set up for, so test environments can buy', () => {
+		window.JetpackScriptData = {
+			connection: { calypsoEnv: 'wpcalypso' },
+		} as unknown as typeof window.JetpackScriptData;
+
+		const url = new URL(
+			getStatsCheckoutUrl( { ...site, isUserConnected: true, isUpgrade: false } )
+		);
+
+		expect( url.origin ).toBe( 'https://wpcalypso.wordpress.com' );
 	} );
 } );
