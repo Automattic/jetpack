@@ -1610,6 +1610,10 @@ class Initializer {
 		Jetpack_Manage::register_rest_endpoints();
 		Red_Bubble_Notifications::register_rest_endpoints();
 
+		if ( self::is_overview_v1_enabled() ) {
+			REST_Blog_Posts::register_rest_endpoints();
+		}
+
 		register_rest_route(
 			'my-jetpack/v1',
 			'site',

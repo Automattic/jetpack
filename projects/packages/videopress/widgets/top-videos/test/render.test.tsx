@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { video as videoIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -10,7 +10,7 @@ import TopVideos from '../render';
 import type { ReactNode } from 'react';
 
 const mockLeaderboard = jest.fn();
-const mockDownloadButton = jest.fn();
+const mockReportActions = jest.fn();
 const mockWidgetRoot = jest.fn();
 const mockUseStatsVideoPlays = jest.fn();
 const mockDescribeError = jest.fn();
@@ -39,14 +39,13 @@ jest.mock( '@wordpress/data', () => ( {
 
 // The SDK has no implementation outside the dashboard, so the suite stands in for it.
 jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
-	Leaderboard: ( props: { footer?: ReactNode } ) => {
+	Leaderboard: ( props: Record< string, unknown > ) => {
 		mockLeaderboard( props );
-		return <div>{ props.footer }</div>;
+		return <div />;
 	},
-	ReportLink: ( { report }: { report: string } ) => <a href={ `#${ report }` }>View all</a>,
-	ExporterCsvDownloadButton: ( props: Record< string, unknown > ) => {
-		mockDownloadButton( props );
-		return <button>Download CSV</button>;
+	useReportActions: ( options: Record< string, unknown > ) => {
+		mockReportActions( options );
+		return true;
 	},
 	WidgetRoot: ( { children, ...props }: { children: ReactNode } ) => {
 		mockWidgetRoot( props );
@@ -198,20 +197,16 @@ describe( 'Top videos widget', () => {
 		expect( leaderboardProps().error ).toEqual( { description: 'Described.' } );
 	} );
 
-	it( 'links the footer to the Videos report', () => {
+	it( 'declares View all and the Videos report CSV, by report id, to the host', () => {
 		render( <TopVideos attributes={ {} } /> );
 
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute( 'href', '#videos' );
-	} );
-
-	it( 'offers the Videos report CSV from the footer, by report id', () => {
-		render( <TopVideos attributes={ {} } /> );
-
-		expect( screen.getByRole( 'button', { name: 'Download CSV' } ) ).toBeInTheDocument();
-		expect( mockDownloadButton ).toHaveBeenCalledWith( {
+		expect( mockReportActions ).toHaveBeenLastCalledWith( {
 			report: 'videos',
-			status: { isLoading: false, isFetching: false, isError: false },
-			rowCount: 2,
+			csv: {
+				report: 'videos',
+				status: { isLoading: false, isFetching: false, isError: false },
+				rowCount: 2,
+			},
 		} );
 	} );
 

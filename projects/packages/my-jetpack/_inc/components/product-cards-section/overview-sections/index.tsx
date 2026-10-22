@@ -16,7 +16,7 @@ import styles from './style.module.scss';
 import type { FC } from 'react';
 
 /**
- * The Overview heading and its sections.
+ * The Overview sections.
  *
  * @return {import('react').JSX.Element} The sections.
  */
@@ -104,9 +104,6 @@ const OverviewSections: FC = () => {
 
 	return (
 		<div className={ styles.sections }>
-			<Text variant="heading-xl" render={ <h2 /> } className={ styles.welcome }>
-				{ __( 'Welcome to Jetpack', 'jetpack-my-jetpack' ) }
-			</Text>
 			{ isLoading ? (
 				<>
 					<LoadingBlock width="100%" height="350px" />
