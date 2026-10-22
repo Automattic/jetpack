@@ -348,7 +348,7 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 		$query           = new WP_Query(
 			array(
 				'post_type'           => 'post',
-				'post_status'         => array( 'publish', 'draft' ),
+				'post_status'         => 'publish',
 				'posts_per_page'      => 10,
 				'orderby'             => 'date',
 				'order'               => 'DESC',

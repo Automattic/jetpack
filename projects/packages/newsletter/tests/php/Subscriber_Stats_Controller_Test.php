@@ -373,12 +373,12 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_returns_ten_newest_published_posts_and_drafts() {
+	public function test_returns_ten_newest_published_posts() {
 		$ids = array();
 		for ( $day = 1; $day <= 12; $day++ ) {
 			$ids[] = $this->insert_post(
 				'Post ' . $day,
-				0 === $day % 2 ? 'publish' : 'draft',
+				'publish',
 				gmdate( 'Y-m-d H:i:s', time() - ( ( 13 - $day ) * DAY_IN_SECONDS ) )
 			);
 		}
@@ -391,10 +391,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$this->assertCount( 10, $response['posts'] );
 		$this->assertSame( $expected_ids, array_column( $response['posts'], 'id' ) );
 		$this->assertSame( 'post', $this->query_vars['post_type'] );
-		$this->assertEqualsCanonicalizing(
-			array( 'publish', 'draft' ),
-			$this->query_vars['post_status']
-		);
+		$this->assertSame( 'publish', $this->query_vars['post_status'] );
 		$this->assertSame( 10, $this->query_vars['posts_per_page'] );
 		$this->assertSame( 'date', $this->query_vars['orderby'] );
 		$this->assertSame( 'DESC', $this->query_vars['order'] );
