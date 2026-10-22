@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
-import { Badge, Button, Icon, Link, Stack, Text } from '@wordpress/ui';
+import { Badge, Button, Icon, Link, Spinner, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
@@ -23,6 +23,8 @@ export type OverviewItemLink = {
 	href?: string;
 	onClick?: () => void;
 	ariaLabel?: string;
+	// Only an action without a link can be disabled, as the product card's button is while it's busy.
+	disabled?: boolean;
 };
 
 export type OverviewItemProps = {
@@ -120,16 +122,35 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 
 	const productLinks: ReactNode[] = [];
 	if ( admin && action && ! forcedOffReason ) {
-		productLinks.push(
+		const actionLink = (
 			<Link
 				key="action"
 				{ ...( action.href
 					? { href: action.href, onClick: action.onClick }
-					: { render: <Button variant="unstyled" onClick={ action.onClick } /> } ) }
+					: {
+							render: (
+								<Button
+									variant="unstyled"
+									onClick={ action.onClick }
+									disabled={ action.disabled }
+									loading={ action.disabled }
+								/>
+							),
+						} ) }
 				aria-label={ action.ariaLabel }
 			>
 				{ action.label }
 			</Link>
+		);
+		productLinks.push(
+			action.disabled ? (
+				<Stack key="action" direction="row" align="center" gap="sm">
+					{ actionLink }
+					<Spinner />
+				</Stack>
+			) : (
+				actionLink
+			)
 		);
 	}
 	if ( admin && upgrade ) {

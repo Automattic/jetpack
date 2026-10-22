@@ -76,4 +76,21 @@ describe( 'OverviewItem', () => {
 		expect( screen.getByText( 'Disabled by your host' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Activate Stats' ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'ignores clicks on a busy action', async () => {
+		const onClick = jest.fn();
+		render(
+			<OverviewItem
+				slug="stats"
+				admin
+				label="Views"
+				action={ { label: 'Activate Stats', onClick, disabled: true } }
+			/>
+		);
+
+		const button = screen.getByRole( 'button', { name: 'Activate Stats' } );
+		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
+		await userEvent.click( button );
+		expect( onClick ).not.toHaveBeenCalled();
+	} );
 } );
