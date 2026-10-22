@@ -31,10 +31,16 @@ export default function ScanSettingsCard( { state: scan }: ScanContext ) {
 		);
 		link = __( 'Add server credentials', 'jetpack-protect-pkg' );
 	} else {
-		description = __(
-			'Scan checks your site for malware every day. Auto-fix uses your server credentials to repair threats.',
-			'jetpack-protect-pkg'
-		);
+		// Null means no report to go by, so don't claim credentials are on file.
+		description = scan.hasCredentials
+			? __(
+					'Scan checks your site for malware every day. Auto-fix uses your server credentials to repair threats.',
+					'jetpack-protect-pkg'
+				)
+			: __(
+					'Scan checks your site for malware every day. Auto-fix uses server credentials to repair threats.',
+					'jetpack-protect-pkg'
+				);
 		link = __( 'Manage server credentials', 'jetpack-protect-pkg' );
 	}
 
