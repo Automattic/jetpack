@@ -679,7 +679,10 @@ describe( 'FeatureItem install notice', () => {
 } );
 
 describe( 'features waiting for an account', () => {
-	beforeEach( () => setAccountConnect( true ) );
+	beforeEach( () => {
+		setAccountConnect( true );
+		window.sessionStorage.clear();
+	} );
 
 	const connectionUrl = '/wp-admin/admin.php?connect_url_redirect=1';
 	const accountModule = ( activated: boolean ) =>
@@ -859,12 +862,14 @@ describe( 'features waiting for an account', () => {
 		);
 
 	it.each( [
-		[ 'Install', true, 'install', accountPlugin( 'not-installed' ), 1 ],
-		[ 'Install', false, 'install', accountPlugin( 'not-installed' ), 0 ],
-		[ 'Activate Jetpack', true, 'activate', accountJetpack( 'inactive' ), 1 ],
+		[ 'Install', true, 'install', accountPlugin( 'not-installed' ), 1, false ],
+		[ 'Install', false, 'install', accountPlugin( 'not-installed' ), 0, false ],
+		[ 'Install Jetpack', true, 'install', accountJetpack( 'not-installed' ), 1, true ],
+		[ 'Install Jetpack', false, 'install', accountJetpack( 'not-installed' ), 0, false ],
+		[ 'Activate Jetpack', true, 'activate', accountJetpack( 'inactive' ), 1, true ],
 	] as const )(
 		'connects after %s only once it succeeds (succeeds: %s), and asks Jetpack not to reload',
-		async ( name, succeeds, action, state, connections ) => {
+		async ( name, succeeds, action, state, connections, resumes ) => {
 			mockRun.mockReturnValueOnce( Promise.resolve( succeeds ) );
 			render( <FeatureAction state={ state } /> );
 
@@ -875,10 +880,12 @@ describe( 'features waiting for an account', () => {
 				expect.objectContaining( { action, leavesPage: true } )
 			);
 			expect( leavePageFor ).toHaveBeenCalledTimes( connections );
-			// Install has already turned its plugin on, so the return has nothing to finish.
 			expect( getUserConnectionUrl ).toHaveBeenCalledTimes( connections );
-			expect( getUserConnectionUrl ).not.toHaveBeenCalledWith(
-				expect.objectContaining( { redirect_url: expect.stringContaining( 'connect_intent' ) } )
+			// Another plugin's Install has already turned it on; Jetpack still has the module to turn on.
+			const returnUrl = ( getUserConnectionUrl as jest.Mock ).mock.calls[ 0 ]?.[ 0 ].redirect_url;
+			expect( /connect_intent=[0-9a-f]{16}$/.test( returnUrl ) ).toBe( resumes );
+			expect( window.sessionStorage.getItem( 'myJetpackFeatureConnectIntent' ) !== null ).toBe(
+				resumes
 			);
 		}
 	);

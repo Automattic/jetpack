@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Turn the chosen feature on after Install or Activate Jetpack, behind the default-off my-jetpack-account-connect flag. Not released yet.
+

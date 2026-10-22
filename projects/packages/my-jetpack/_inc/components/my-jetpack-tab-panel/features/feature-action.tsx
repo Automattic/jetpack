@@ -29,7 +29,10 @@ export function useAccountConnection() {
 	return useCallback(
 		( state: FeatureState, origin: FeatureActionOrigin, action: ConnectionStartAction ) => {
 			tracking?.trackConnectionStart( state, origin, action );
-			const intent = action === 'connect' ? rememberConnectIntent( state.feature.slug ) : null;
+			// Installing or activating Jetpack from a module's card is the first step of turning that
+			// module on, so the return finishes it. Another plugin's Install has already turned it on.
+			const remembers = action === 'connect' || state.control.kind === 'install-jetpack';
+			const intent = remembers ? rememberConnectIntent( state.feature.slug ) : null;
 			const returnUrl = getFeatureConnectReturnUrl(
 				undefined,
 				intent ? { [ CONNECT_INTENT_PARAM ]: intent } : {}
