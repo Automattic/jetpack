@@ -13,6 +13,6 @@
 	},
 	"devDependencies": {
 		"@jetpack-premium-analytics/externals": "workspace:*",
-		"@storybook/react": "10.4.6"
+		"@storybook/react": "10.6.3"
 	}
 }

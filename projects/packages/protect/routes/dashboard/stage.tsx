@@ -10,6 +10,9 @@ import useProtectSettings from './data/use-protect-settings';
 import sections from './sections';
 import { CLOSED_INSPECTOR } from './sections/inspector-params';
 import { REPORT_PARAM, parseThreatIds } from './sections/scan/group-threats';
+import HeaderScanButton from './sections/scan/header-scan-button';
+import ScanStartNotice from './sections/scan/scan-start-notice';
+import { useScanPolling } from './sections/scan/store';
 import ThreatReport, { ThreatReportBreadcrumbs } from './sections/scan/threat-report';
 import './route.scss';
 
@@ -45,6 +48,8 @@ const Stage = () => {
 	);
 	const goTo = useCallback( ( next: string ) => openTab( next ), [ openTab ] );
 	const settings = useProtectSettings();
+	// Above the report's early return, so every view follows a running scan.
+	useScanPolling();
 	const context = useMemo( () => ( { settings, openTab } ), [ settings, openTab ] );
 
 	const state = window.jetpackProtectDashboard ?? {};
@@ -99,6 +104,7 @@ const Stage = () => {
 				'Security tools that keep your site safe and sound, from posts to plugins.',
 				'jetpack-protect-pkg'
 			) }
+			actions={ state.scan ? <HeaderScanButton /> : undefined }
 		>
 			<Tabs.Root value={ activeTab } onValueChange={ goTo }>
 				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
@@ -113,6 +119,7 @@ const Stage = () => {
 					</Tabs.List>
 				</div>
 				<div className="jp-protect-dashboard__body">
+					<ScanStartNotice />
 					<Tabs.Panel value="overview">
 						{ activeTab === 'overview' && <Overview { ...context } /> }
 					</Tabs.Panel>

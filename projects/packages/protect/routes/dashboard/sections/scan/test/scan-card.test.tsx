@@ -41,6 +41,15 @@ beforeEach( () => {
 } );
 
 describe( 'ScanCard without Scan', () => {
+	it.each( [
+		[ checkedAgo( 2 * HOUR_IN_MS ), 'Last scanned 2 hours ago' ],
+		[ null, null ],
+	] )( 'shows when the site was last scanned, from %s', ( lastChecked, text ) => {
+		renderCard( { lastChecked } );
+
+		expect( screen.queryByText( /^Last scanned/ )?.textContent ?? null ).toBe( text );
+	} );
+
 	it( 'says what the free check covered without claiming the site is safe or scanned', () => {
 		renderCard( {} );
 

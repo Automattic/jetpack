@@ -1,8 +1,9 @@
 import { DataViews, filterSortAndPaginate, type View } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { published, unseen } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
-import { Tabs } from '@wordpress/ui';
+import { EmptyState, Tabs } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
 import { recordViewChange } from '../../data/threat-events';
 import { CLOSED_INSPECTOR } from '../inspector-params';
@@ -120,9 +121,33 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 			</div>
 			<DataViews
 				empty={
-					status === 'fixed'
-						? __( 'Threats Scan fixes will appear here.', 'jetpack-protect-pkg' )
-						: __( 'Threats you ignore will appear here.', 'jetpack-protect-pkg' )
+					status === 'fixed' ? (
+						<EmptyState.Root className="jp-protect-history-empty">
+							<EmptyState.Icon icon={ published } />
+							<EmptyState.Title>
+								{ __( 'No fixed threats yet', 'jetpack-protect-pkg' ) }
+							</EmptyState.Title>
+							<EmptyState.Description>
+								{ __(
+									'When Scan fixes a threat on your site, it will be listed here with the date it was fixed.',
+									'jetpack-protect-pkg'
+								) }
+							</EmptyState.Description>
+						</EmptyState.Root>
+					) : (
+						<EmptyState.Root className="jp-protect-history-empty">
+							<EmptyState.Icon icon={ unseen } />
+							<EmptyState.Title>
+								{ __( 'No ignored threats', 'jetpack-protect-pkg' ) }
+							</EmptyState.Title>
+							<EmptyState.Description>
+								{ __(
+									'Threats you ignore will be listed here, where you can unignore them at any time.',
+									'jetpack-protect-pkg'
+								) }
+							</EmptyState.Description>
+						</EmptyState.Root>
+					)
 				}
 				data={ data }
 				fields={ fields }

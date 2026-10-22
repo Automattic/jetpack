@@ -15,10 +15,13 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: jest.fn(),
 	useNavigate: () => mockNavigate,
 } ) );
-jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
-	__esModule: true,
-	default: ( { children } ) => children,
-} ) );
+jest.mock( '@automattic/jetpack-components/admin-page', () => {
+	const { createElement, Fragment } = jest.requireActual( 'react' );
+	return {
+		__esModule: true,
+		default: ( { actions, children } ) => createElement( Fragment, null, actions, children ),
+	};
+} );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const mockUseSearch = useSearch as unknown as jest.Mock;
@@ -259,6 +262,70 @@ describe( 'Protect dashboard stage', () => {
 			threat: undefined,
 			historyThreat: undefined,
 			tab: 'settings',
+		} );
+	} );
+
+	it( 'shows why a scan started from the header failed, on a tab without the Scan card', async () => {
+		window.jetpackProtectDashboard = {
+			scan: { hasPlan: true, url: '#', error: false, scanning: false, lastChecked, threats: [] },
+		};
+		mockUseSearch.mockReturnValue( { tab: 'settings' } );
+		respond( SCAN_PATH, new Error( 'Unable to find a valid site.' ) );
+		render( <Stage /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Scan now' } ) );
+
+		await expect(
+			screen.findByText( 'Unable to find a valid site.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	describe( 'with a scan running', () => {
+		const running = {
+			hasPlan: true,
+			url: '#',
+			error: false,
+			scanning: true,
+			lastChecked,
+			threats: [],
+		};
+
+		beforeEach( () => {
+			jest.useFakeTimers();
+			window.jetpackProtectDashboard = { scan: running };
+			mockUseSearch.mockReturnValue( { tab: 'settings' } );
+		} );
+
+		afterEach( () => {
+			jest.useRealTimers();
+		} );
+
+		it( 'follows it from a tab without the Scan card', async () => {
+			respond( SCAN_PATH, { ...running, scanning: false } );
+			render( <Stage /> );
+			expect( screen.getByRole( 'button', { name: 'Scanning…' } ) ).toBeInTheDocument();
+
+			await act( () => jest.advanceTimersByTimeAsync( 5000 ) );
+
+			expect( screen.getByRole( 'button', { name: 'Scan now' } ) ).toBeInTheDocument();
+			expect( requestsTo( SCAN_PATH ) ).toBe( 1 );
+		} );
+
+		it( 'offers Check again in the header once polling gives up', async () => {
+			respond( SCAN_PATH, ...Array( 41 ).fill( running ) );
+			render( <Stage /> );
+			for ( let poll = 0; poll < 40; poll++ ) {
+				await act( () => jest.advanceTimersByTimeAsync( 15000 ) );
+			}
+			expect( requestsTo( SCAN_PATH ) ).toBe( 40 );
+
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			await user.click( screen.getByRole( 'button', { name: 'Check again' } ) );
+
+			expect( requestsTo( SCAN_PATH ) ).toBe( 41 );
+			await expect(
+				screen.findByRole( 'button', { name: 'Scanning…' } )
+			).resolves.toBeInTheDocument();
 		} );
 	} );
 } );
