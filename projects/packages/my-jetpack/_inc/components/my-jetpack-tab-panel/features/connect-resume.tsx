@@ -17,7 +17,6 @@ const STORAGE_KEY = 'myJetpackFeatureConnectIntent';
 // Long enough to sign up for a WordPress.com account on the way.
 const MAX_AGE_MS = 60 * 60 * 1000;
 
-// Connect leaves to link the account; Install or Activate Jetpack with no account to link reloads in place.
 type SetupRoute = 'connect' | 'reload';
 
 type ConnectIntent = { id: string; feature: string; at: number; route?: SetupRoute };
