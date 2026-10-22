@@ -110,6 +110,21 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		);
 	}
 
+	public function test_activity_log_backup_url_keeps_the_given_template_when_not_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
+		$this->assertSame( '', Jetpack_Backup::activity_log_backup_url_template( '' ) );
+	}
+
+	public function test_activity_log_backup_url_selects_the_backup_on_the_overview_when_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-backup&p=%2F%3Fselected%3D%2522{rewindId}%2522' ),
+			Jetpack_Backup::activity_log_backup_url_template( '' )
+		);
+	}
+
 	public function test_is_modernized_follows_the_filter() {
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
 		$this->assertFalse( Jetpack_Backup::is_modernized() );
