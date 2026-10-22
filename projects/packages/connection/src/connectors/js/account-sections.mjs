@@ -7,38 +7,6 @@
  */
 
 /**
- * Whether a connection error notice offers to reconnect the connection owner's account.
- *
- * An owner error with action `none` is informational: ownership is locked for this viewer.
- *
- * @param {object|null} notice - A useConnectionErrorNotice() result.
- * @return {boolean} True when a displayed owner error carries a CTA.
- */
-export function offersOwnerReconnect( notice ) {
-	return Boolean(
-		notice?.displayableErrors?.some(
-			error => error.audience === 'owner' && error.error_data?.action !== 'none'
-		)
-	);
-}
-
-/**
- * Which connect prompt copy applies to a viewer whose account is not linked.
- *
- * @param {object|null} owner         - The card's connection owner, or null.
- * @param {boolean}     ownerIsViewer - Whether the viewer is the connection owner.
- * @return {string} `reconnect-owner`, `take-over`, `secondary`, or `first`.
- */
-export function getConnectPromptKind( owner, ownerIsViewer ) {
-	if ( owner?.isConnectionBroken ) {
-		// Authorizing while the owner's token is broken takes the vacant owner slot.
-		return ownerIsViewer ? 'reconnect-owner' : 'take-over';
-	}
-
-	return owner ? 'secondary' : 'first';
-}
-
-/**
  * Decide which account rows and prompts to render, so no viewer sees the same account twice.
  *
  * @param {object}      state                         - Card state.

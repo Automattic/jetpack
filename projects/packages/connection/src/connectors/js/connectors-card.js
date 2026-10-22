@@ -25,6 +25,8 @@ import {
 	ProtectedOwnerConfirmation,
 	ProtectedOwnerRelease,
 	TransferConnectionOwnership,
+	getUserConnectKind,
+	getUserConnectMessage,
 	useConnectionErrorNotice,
 } from '@automattic/jetpack-connection';
 import * as components from '@wordpress/components';
@@ -41,11 +43,7 @@ import {
 	useRef,
 } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import {
-	getAccountSections,
-	getConnectPromptKind,
-	offersOwnerReconnect,
-} from './account-sections.mjs';
+import { getAccountSections } from './account-sections.mjs';
 
 const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
@@ -169,6 +167,7 @@ function useCardConnection() {
 			isFirstConnection: ! isRegistered && ! blogId,
 			isInSafeMode: isRegistered && Boolean( connectionStatus.isInSafeMode ),
 			blogId,
+			currentUser,
 			viewer,
 			owner: owner
 				? {
@@ -897,25 +896,20 @@ function ProtectedOwnerSection() {
  * @return {object} React element.
  */
 function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
-	const { isOfflineMode, owner, ownerIsViewer } = useCardConnection();
-	const promptKind = getConnectPromptKind( owner, ownerIsViewer );
-	const isReconnectingOwner = 'reconnect-owner' === promptKind;
-
-	// When a connection owner is already linked, the viewing admin is
-	// connecting as a secondary user — the site-registration framing no
-	// longer applies, so use shorter copy focused on the user benefit.
+	const { isRegistered, isConnected, isOfflineMode, owner, currentUser } = useCardConnection();
+	let isReconnectingOwner = false;
 	let promptText;
-	if ( isReconnectingOwner ) {
-		promptText = __(
-			'Your WordPress.com account is no longer connected to this site. Reconnect it to restore full functionality.',
-			'jetpack-connection'
-		);
-	} else if ( 'take-over' === promptKind ) {
-		promptText = __(
-			"The connection owner's WordPress.com account is no longer connected. If you connect your account, you will become the new connection owner.",
-			'jetpack-connection'
-		);
-	} else if ( 'secondary' === promptKind ) {
+	if ( getUserConnectKind && getUserConnectMessage ) {
+		const promptKind = getUserConnectKind( {
+			isRegistered,
+			hasConnectedOwner: isConnected,
+			owner,
+			currentUserId: currentUser?.id,
+		} );
+		isReconnectingOwner = 'reconnect-owner' === promptKind;
+		promptText = getUserConnectMessage( promptKind );
+	} else if ( owner ) {
+		// Mid-update, an older shared jetpack-connection bundle lacks the helpers; keep the owner-only copy.
 		promptText = __(
 			'Connect your user account to unlock more features and sign in via WordPress.com (SSO).',
 			'jetpack-connection',
@@ -1692,7 +1686,8 @@ function ExpandedDetails( {
 		owner,
 		ownerIsViewer,
 		canConnect: Boolean( onConnect ),
-		isOwnerReconnectOffered: isErrorBannerShown && offersOwnerReconnect( connectionErrorNotice ),
+		isOwnerReconnectOffered:
+			isErrorBannerShown && Boolean( connectionErrorNotice.offersOwnerReconnect ),
 		isProtectedOwnerPending: protectedOwnerIsPending(),
 	} );
 

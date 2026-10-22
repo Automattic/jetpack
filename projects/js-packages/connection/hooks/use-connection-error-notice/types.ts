@@ -197,6 +197,11 @@ export interface UseConnectionErrorNoticeResult {
 	hasConnectionError: boolean;
 	/** How much of a problem it is for this viewer, or null when nothing is broken. */
 	severity: ConnectionErrorSeverity | null;
+	/**
+	 * Whether the notice offers to reconnect the connection owner's account, so a surface can skip
+	 * its own connect prompt. Optional; see `trackNoticeLinkClick`.
+	 */
+	offersOwnerReconnect?: boolean;
 	/** The effective error's message, if any. */
 	connectionErrorMessage: string | undefined;
 	/** The full effective error object (with `error_type`, `error_data`, etc.). */

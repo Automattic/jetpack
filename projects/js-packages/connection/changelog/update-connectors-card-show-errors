@@ -1,4 +1,4 @@
-Significance: patch
-Type: fixed
+Significance: minor
+Type: added
 
-Connection error notice: Add the missing gap between the spinner and the text while reconnecting from the Connectors screen.
+Connection error notice: Add a ConnectionErrorView component that renders an existing useConnectionErrorNotice() result, an `offersOwnerReconnect` flag on that result, and let the reconnect flow return to a chosen page via `reconnectRedirectUrl` and `reconnectFrom`. Add getUserConnectKind() and getUserConnectMessage() helpers that say what connecting their account means for the viewer.

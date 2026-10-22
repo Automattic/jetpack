@@ -1,11 +1,10 @@
 const assert = require( 'node:assert/strict' );
 const { before, describe, it } = require( 'node:test' );
 
-let getAccountSections, getConnectPromptKind, offersOwnerReconnect;
+let getAccountSections;
 
 before( async () => {
-	( { getAccountSections, getConnectPromptKind, offersOwnerReconnect } =
-		await import( '../../src/connectors/js/account-sections.mjs' ) );
+	( { getAccountSections } = await import( '../../src/connectors/js/account-sections.mjs' ) );
 } );
 
 const owner = { displayName: 'Owner' };
@@ -82,36 +81,6 @@ describe( 'getAccountSections', () => {
 				} ),
 				expected
 			);
-		} );
-	}
-} );
-
-describe( 'getConnectPromptKind', () => {
-	for ( const [ cardOwner, ownerIsViewer, expected ] of [
-		[ brokenOwner, true, 'reconnect-owner' ],
-		[ brokenOwner, false, 'take-over' ],
-		[ owner, false, 'secondary' ],
-		[ null, false, 'first' ],
-	] ) {
-		it( `returns ${ expected }`, () => {
-			assert.equal( getConnectPromptKind( cardOwner, ownerIsViewer ), expected );
-		} );
-	}
-} );
-
-describe( 'offersOwnerReconnect', () => {
-	for ( const [ name, notice, expected ] of [
-		[ 'an owner error with a CTA', { displayableErrors: [ { audience: 'owner' } ] }, true ],
-		[
-			'a locked owner error (action none)',
-			{ displayableErrors: [ { audience: 'owner', error_data: { action: 'none' } } ] },
-			false,
-		],
-		[ 'a site error', { displayableErrors: [ { audience: 'site' } ] }, false ],
-		[ 'no notice', null, false ],
-	] ) {
-		it( `is ${ expected } for ${ name }`, () => {
-			assert.equal( offersOwnerReconnect( notice ), expected );
 		} );
 	}
 } );

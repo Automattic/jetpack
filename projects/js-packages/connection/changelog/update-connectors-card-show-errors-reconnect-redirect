@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Connection error notice: Allow choosing where the reconnect flow returns after reauthorizing, via `reconnectRedirectUrl` and `reconnectFrom`.
