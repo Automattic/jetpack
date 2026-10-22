@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { Icon, key, shield } from '@wordpress/icons';
+import { Icon, key } from '@wordpress/icons';
+import shieldFlame from '../../sections/firewall/icon';
 import gauge from '../../sections/monitor/icon';
 import './features-art.scss';
 import type { CSSProperties, ReactElement } from 'react';
@@ -11,7 +12,7 @@ import type { CSSProperties, ReactElement } from 'react';
  */
 const getBundledFeatures = () => [
 	{ icon: gauge, name: __( 'Downtime monitoring', 'jetpack-protect-pkg' ) },
-	{ icon: shield, name: __( 'Firewall', 'jetpack-protect-pkg' ) },
+	{ icon: shieldFlame, name: __( 'Firewall', 'jetpack-protect-pkg' ) },
 	{ icon: key, name: __( 'Login protection', 'jetpack-protect-pkg' ) },
 ];
 
