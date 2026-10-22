@@ -102,7 +102,7 @@ export function VideoUploader( { footer, onUploaded }: VideoUploaderProps ) {
 			void startVideoUpload( file, {
 				onProgress: ( sent, total ) =>
 					setPhase( current =>
-						current.status === 'uploading' && current.file === file
+						current.status === 'uploading'
 							? { ...current, progress: total > 0 ? sent / total : 0 }
 							: current
 					),
