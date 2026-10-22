@@ -85,6 +85,7 @@ export {
 } from './utils';
 export {
 	getAllowedIntervalsForPreset,
+	getDaysBetweenInclusive,
 	getDefaultIntervalForPeriod,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
@@ -95,6 +96,8 @@ export {
 	defaultPeriodForInterval,
 	drawableIntervals,
 	intervalMenuOptions,
+	type IntervalExtension,
+	type IntervalRange,
 } from './utils/periods';
 export {
 	getLockedFeature,

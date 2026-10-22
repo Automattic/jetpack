@@ -90,57 +90,112 @@ export function drawableIntervals< P extends StatsPeriod >(
 		: [ ...new Set( intervals.map( interval => defaultPeriodForInterval( interval, allowed ) ) ) ];
 }
 
+/** A range as the interval helpers read it. */
+export type IntervalRange = { preset?: PrimaryPresetId; from?: string; to?: string };
+
+/**
+ * What one widget changes about the buckets its range allows: ones it adds after the range's
+ * own, and ones it lists but cannot draw right now, with the reason.
+ */
+export type IntervalExtension = {
+	extra?: readonly IntervalType[];
+	unavailable?: { intervals: readonly IntervalType[]; hint: string };
+};
+
+function allowedWithExtension(
+	range: IntervalRange,
+	locked: readonly LockableInterval[],
+	extension?: IntervalExtension
+): IntervalType[] {
+	const allowed = getAllowedIntervalsForPreset(
+		range.preset,
+		range.from ?? '',
+		range.to ?? '',
+		locked
+	);
+	const extra = ( extension?.extra ?? [] ).filter(
+		interval =>
+			! allowed.includes( interval ) && ! ( locked as readonly IntervalType[] ).includes( interval )
+	);
+
+	return [ ...allowed, ...extra ];
+}
+
 /**
  * The bucket a widget's chart draws for a set of report params.
  *
  * The control checks the item this returns and the chart draws it, both from
  * the same params, so a menu can never check a bucket the chart is not drawing.
  *
- * @param params  - The report params the chart reads.
- * @param periods - The periods this widget offers, in any order.
- * @param locked  - The buckets the plan locks; optional because SDK widgets cannot read the plan.
+ * @param params    - The report params the chart reads.
+ * @param periods   - The periods this widget offers, in any order.
+ * @param locked    - The buckets the plan locks; optional because SDK widgets cannot read the plan.
+ * @param extension - The widget's own changes to what the range allows.
  * @return The bucket the chart draws.
  */
 export function chartInterval< P extends StatsPeriod >(
 	params: Pick< ReportParams, 'preset' | 'from' | 'to' | 'interval' >,
 	periods: readonly [ P, ...P[] ],
-	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS
+	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS,
+	extension?: IntervalExtension
 ): P {
+	// A withheld bucket lands on the default, not the nearest: on a year-long range
+	// the nearest to days is weeks, while the default is months.
+	const isWithheld =
+		!! params.interval && !! extension?.unavailable?.intervals.includes( params.interval );
 	// Both inputs are total, so the list is never empty.
 	const [ first, ...rest ] = drawableIntervals(
-		getAllowedIntervalsForPreset( params.preset, params.from ?? '', params.to ?? '', locked ),
+		allowedWithExtension( params, locked, extension ),
 		periods
 	);
 
 	// No stored bucket means the range default, which leads the list without
 	// being its finest: a year-long range defaults to months over weeks.
-	return defaultPeriodForInterval( params.interval ?? first, [ first, ...rest ] );
+	return defaultPeriodForInterval( isWithheld ? first : ( params.interval ?? first ), [
+		first,
+		...rest,
+	] );
 }
 
-type MenuRange = { preset?: PrimaryPresetId; from?: string; to?: string };
-
 /**
- * What an interval menu lists: the buckets it can pick, and after them the ones the plan locks.
+ * What an interval menu lists: the buckets it can pick, then the ones the widget withholds,
+ * then the ones the plan locks.
  *
- * One call, so a bucket the chart falls back to is never also listed locked.
+ * One call, so a bucket the chart falls back to is never also listed withheld or locked.
  *
- * @param params  - The range the menu reads.
- * @param locked  - The buckets the plan locks.
- * @param periods - The periods the chart draws; every bucket when the widget declares none.
- * @return The open and the locked buckets, each in the range's order.
+ * @param params    - The range the menu reads.
+ * @param locked    - The buckets the plan locks.
+ * @param periods   - The periods the chart draws; every bucket when the widget declares none.
+ * @param extension - The widget's own changes to what the range allows.
+ * @return The open, withheld and locked buckets, each in the range's order, and why the withheld ones are.
  */
 export function intervalMenuOptions(
-	params: MenuRange,
+	params: IntervalRange,
 	locked: readonly LockableInterval[],
-	periods?: readonly [ StatsPeriod, ...StatsPeriod[] ]
-): { options: IntervalType[]; lockedOptions: LockableInterval[] } {
+	periods?: readonly [ StatsPeriod, ...StatsPeriod[] ],
+	extension?: IntervalExtension
+): {
+	options: IntervalType[];
+	lockedOptions: LockableInterval[];
+	unavailableOptions: IntervalType[];
+	unavailableHint?: string;
+} {
 	const from = params.from ?? '';
 	const to = params.to ?? '';
-	const allowed = getAllowedIntervalsForPreset( params.preset, from, to, locked );
+	const allowed = allowedWithExtension( params, locked, extension );
 	const options: IntervalType[] = periods ? drawableIntervals( allowed, periods ) : allowed;
+	const drawn = ( interval: IntervalType ) => ! periods || periods.includes( interval );
 	const lockedOptions = getLockedIntervalsForPreset( params.preset, from, to, locked ).filter(
-		interval => ( ! periods || periods.includes( interval ) ) && ! options.includes( interval )
+		interval => drawn( interval ) && ! options.includes( interval )
+	);
+	const unavailableOptions = ( extension?.unavailable?.intervals ?? [] ).filter(
+		interval =>
+			drawn( interval ) &&
+			! options.includes( interval ) &&
+			! ( lockedOptions as IntervalType[] ).includes( interval )
 	);
 
-	return { options, lockedOptions };
+	const hint = unavailableOptions.length ? extension?.unavailable?.hint : undefined;
+
+	return { options, lockedOptions, unavailableOptions, ...( hint && { unavailableHint: hint } ) };
 }

@@ -147,18 +147,20 @@ allowed.
 
 **Returns:** `IntervalType`
 
-### `intervalMenuOptions( params, locked, periods? )`
+### `intervalMenuOptions( params, locked, periods?, extension? )`
 
-Returns what an interval menu lists: the buckets it can pick, and the ones the range could draw but
-`locked` withholds, to list after them with a lock. A bucket never lands in both.
+Returns what an interval menu lists: the buckets it can pick, the ones the widget withholds for
+now, and the ones the range could draw but `locked` withholds, to list after them with a lock. A
+bucket lands in one list only.
 
 **Parameters:**
 
-- `params`: `{ preset?: PrimaryPresetId; from?: string; to?: string }` - The range being edited
+- `params`: `IntervalRange` (`{ preset?: PrimaryPresetId; from?: string; to?: string }`) - The range being edited
 - `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
 - `periods`: `readonly [ StatsPeriod, ...StatsPeriod[] ] | undefined` - The periods the chart draws; every bucket when omitted
+- `extension`: `IntervalExtension | undefined` - The widget's own changes: `extra` buckets added after the range's, and `unavailable` ones listed unpickable with a `hint`. Pass the same one to `chartInterval`
 
-**Returns:** `{ options: IntervalType[]; lockedOptions: LockableInterval[] }` - Each in the range's order
+**Returns:** `{ options: IntervalType[]; lockedOptions: LockableInterval[]; unavailableOptions: IntervalType[]; unavailableHint?: string }` - Each in the range's order
 
 ### `needsReportDateParamsSeed( search?, lockedIntervals? )`
 
