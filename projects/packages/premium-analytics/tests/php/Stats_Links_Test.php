@@ -128,36 +128,34 @@ class Stats_Links_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Only a request for the classic Stats page, with no plugin registering it, by a Stats reader is sent on.
+	 * Core fires the action for every denied admin page, so anything but the retired Stats page passes through.
 	 *
 	 * @param string $page       The requested `page`.
 	 * @param bool   $registered Whether a plugin registers `page=stats`.
 	 * @param string $role       The current user's role.
-	 * @param bool   $expected   Whether the request is sent to the dashboard.
-	 * @dataProvider provide_retired_stats_page_requests
+	 * @dataProvider provide_requests_left_alone
 	 */
-	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_retired_stats_page_requests' )]
-	public function test_retired_stats_page_request( $page, $registered, $role, $expected ) {
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_requests_left_alone' )]
+	public function test_other_denied_pages_are_left_alone( $page, $registered, $role ) {
 		$this->login_as( $role );
 		$_GET['page'] = $page;
 		if ( $registered ) {
 			$GLOBALS['_parent_pages']['stats'] = false;
 		}
 
-		$this->assertSame( $expected, Stats_Links::is_retired_stats_page_request() );
+		$this->assertNull( $this->redirect_from_retired_stats_page( '#!/stats/day/123' ) );
 	}
 
 	/**
-	 * Data for test_retired_stats_page_request.
+	 * Data for test_other_denied_pages_are_left_alone.
 	 *
 	 * @return array
 	 */
-	public static function provide_retired_stats_page_requests() {
+	public static function provide_requests_left_alone() {
 		return array(
-			'retired page'               => array( 'stats', false, 'administrator', true ),
-			'page still registered'      => array( 'stats', true, 'administrator', false ),
-			'another missing page'       => array( 'stats-other', false, 'administrator', false ),
-			'user who cannot read Stats' => array( 'stats', false, 'editor', false ),
+			'page still registered'      => array( 'stats', true, 'administrator' ),
+			'another missing page'       => array( 'stats-other', false, 'administrator' ),
+			'user who cannot read Stats' => array( 'stats', false, 'editor' ),
 		);
 	}
 
@@ -165,8 +163,13 @@ class Stats_Links_Test extends BaseTestCase {
 	 * The fragment never reaches the server, so the page hands it back under the query arg the redirect reads.
 	 */
 	public function test_retired_stats_page_hands_the_route_back() {
+		$render = new \ReflectionMethod( Stats_Links::class, 'render_retired_stats_page' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$render->setAccessible( true );
+		}
+
 		ob_start();
-		Stats_Links::render_retired_stats_page();
+		$render->invoke( null );
 		$html = ob_get_clean();
 
 		$this->assertStringContainsString( '"&' . Stats_Links::ROUTE_QUERY_ARG . '=" + encodeURIComponent( window.location.hash )', $html );
@@ -181,42 +184,12 @@ class Stats_Links_Test extends BaseTestCase {
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_legacy_routes' )]
 	public function test_retired_stats_page_opens_the_matching_route( $route, $p ) {
 		$this->login_as( 'administrator' );
-		$_GET['page']                         = 'stats';
-		$_GET[ Stats_Links::ROUTE_QUERY_ARG ] = $route;
-		// Stop at the redirect, before open_retired_stats_page() exits.
-		add_filter(
-			'wp_redirect',
-			/** @return never */
-			static function ( $location ) {
-				throw new \RuntimeException( $location );
-			}
+		$_GET['page'] = 'stats';
+
+		$this->assertSame(
+			'http://example.org/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=' . $p,
+			$this->redirect_from_retired_stats_page( $route )
 		);
-
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'http://example.org/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=' . $p );
-
-		Stats_Links::open_retired_stats_page();
-	}
-
-	/**
-	 * Core fires the action for every denied admin page, so anything but the retired Stats page passes through.
-	 */
-	public function test_other_denied_pages_are_left_alone() {
-		$this->login_as( 'administrator' );
-		$_GET['page']                         = 'stats';
-		$_GET[ Stats_Links::ROUTE_QUERY_ARG ] = '#!/stats/day/123';
-		$GLOBALS['_parent_pages']['stats']    = false;
-		add_filter(
-			'wp_redirect',
-			/** @return never */
-			static function ( $location ) {
-				throw new \RuntimeException( $location );
-			}
-		);
-
-		$this->expectNotToPerformAssertions();
-
-		Stats_Links::open_retired_stats_page();
 	}
 
 	/**
@@ -240,5 +213,31 @@ class Stats_Links_Test extends BaseTestCase {
 			'no dashboard page'    => array( '#!/stats/purchase/123?from=x', '%2F' ),
 			'not a Stats fragment' => array( '#/insights', '%2F' ),
 		);
+	}
+
+	/**
+	 * Where open_retired_stats_page() sends the old route, or null when it lets the request through.
+	 *
+	 * @param string $route The old `#!/stats/…` route.
+	 * @return string|null
+	 */
+	private function redirect_from_retired_stats_page( $route ) {
+		$_GET[ Stats_Links::ROUTE_QUERY_ARG ] = $route;
+		// Stop at the redirect, before open_retired_stats_page() exits.
+		add_filter(
+			'wp_redirect',
+			/** @return never */
+			static function ( $location ) {
+				throw new \RuntimeException( $location );
+			}
+		);
+
+		try {
+			Stats_Links::open_retired_stats_page();
+		} catch ( \RuntimeException $redirect ) {
+			return $redirect->getMessage();
+		}
+
+		return null;
 	}
 }

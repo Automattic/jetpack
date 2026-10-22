@@ -23,7 +23,7 @@ class Stats_Links {
 	/**
 	 * Views of the old `#!/stats/<view>` routes, and the dashboard section each one opens.
 	 */
-	const LEGACY_SECTIONS = array(
+	private const LEGACY_SECTIONS = array(
 		'day'         => 'traffic',
 		'week'        => 'traffic',
 		'month'       => 'traffic',
@@ -77,7 +77,7 @@ class Stats_Links {
 	 *
 	 * @return bool
 	 */
-	public static function is_retired_stats_page_request() {
+	private static function is_retired_stats_page_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks where to send the reader.
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 
@@ -91,7 +91,7 @@ class Stats_Links {
 	 *
 	 * @return void
 	 */
-	public static function render_retired_stats_page() {
+	private static function render_retired_stats_page() {
 		$script = sprintf(
 			'window.location.replace( window.location.pathname + window.location.search + "&%s=" + encodeURIComponent( window.location.hash ) );',
 			self::ROUTE_QUERY_ARG
