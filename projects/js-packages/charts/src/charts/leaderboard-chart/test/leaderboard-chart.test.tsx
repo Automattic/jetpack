@@ -153,20 +153,13 @@ describe( 'LeaderboardChart', () => {
 	} );
 
 	it.each( [
-		[ 'a current share is negative', { currentShare: -40 }, true, 2, 'diverging' ],
-		[ 'a comparison share is negative', { previousShare: -40 }, true, 2, 'diverging' ],
-		[ 'only a hidden comparison share is negative', { previousShare: -40 }, false, 0, 'diverging' ],
-		[ 'every share is positive', {}, true, 0, 'diverging' ],
-		[ 'negatives are highlighted instead', { currentShare: -40 }, true, 0, 'highlight' ],
-	] )( 'diverges the bars from zero when %s', ( _, override, withComparison, expected, mode ) => {
+		[ 'a current share is negative', { currentShare: -40 }, true, 2 ],
+		[ 'a comparison share is negative', { previousShare: -40 }, true, 2 ],
+		[ 'only a hidden comparison share is negative', { previousShare: -40 }, false, 0 ],
+		[ 'every share is positive', {}, true, 0 ],
+	] )( 'diverges the bars from zero when %s', ( _, override, withComparison, expected ) => {
 		const data = [ { ...mockData[ 0 ], ...override }, mockData[ 1 ] ];
-		render(
-			<LeaderboardChart
-				data={ data }
-				withComparison={ withComparison }
-				negativeValues={ mode as 'diverging' | 'highlight' }
-			/>
-		);
+		render( <LeaderboardChart data={ data } withComparison={ withComparison } /> );
 
 		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( expected );
 	} );

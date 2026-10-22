@@ -32,10 +32,6 @@ import type { LeaderboardEntry } from '../../types';
 const ROW_GAP = 'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)';
 const COLUMN_GAP = 'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)';
 
-// A negative value in `highlight` mode; the comparison bar is a lighter tint to stay distinct.
-const NEGATIVE_COLOR = 'var(--a8c-charts-color-trend-down)';
-const NEGATIVE_COMPARISON_COLOR = `color-mix(in srgb, ${ NEGATIVE_COLOR } 45%, transparent)`;
-
 /** Indexed by `Math.sign( delta ) + 1`, so [negative, neutral, positive]. */
 const DELTA_TREND_CLASS = [ 'deltaValue--down', 'deltaValue--neutral', 'deltaValue--up' ] as const;
 
@@ -168,7 +164,6 @@ const BarWithLabel = ( {
 	secondaryColor,
 	animation,
 	divergingScale,
-	isNegativeHighlighted = false,
 	isPrimaryVisible = true,
 	isComparisonVisible = true,
 }: {
@@ -178,13 +173,10 @@ const BarWithLabel = ( {
 	primaryColor: string;
 	secondaryColor: string;
 	divergingScale?: DivergingScale;
-	isNegativeHighlighted?: boolean;
 	isPrimaryVisible?: boolean;
 	isComparisonVisible?: boolean;
 	animation?: boolean;
 } ) => {
-	const getColor = ( share: number, color: string, negativeColor: string ) =>
-		isNegativeHighlighted && share < 0 ? negativeColor : color;
 	const showComparisonBar = withComparison && ! withOverlayLabel && isComparisonVisible;
 
 	const bars = (
@@ -192,7 +184,7 @@ const BarWithLabel = ( {
 			{ isPrimaryVisible && (
 				<Bar
 					share={ entry.currentShare }
-					color={ getColor( entry.currentShare, primaryColor, NEGATIVE_COLOR ) }
+					color={ primaryColor }
 					animation={ animation }
 					divergingScale={ divergingScale }
 				/>
@@ -201,7 +193,7 @@ const BarWithLabel = ( {
 			{ showComparisonBar && hasPreviousValue( entry ) && (
 				<Bar
 					share={ entry.previousShare }
-					color={ getColor( entry.previousShare, secondaryColor, NEGATIVE_COMPARISON_COLOR ) }
+					color={ secondaryColor }
 					animation={ animation }
 					divergingScale={ divergingScale }
 				/>
@@ -233,7 +225,6 @@ const BarWithLabel = ( {
  * @param props.height           - Optional height of the chart container in pixels
  * @param props.withComparison   - Whether to show comparison data
  * @param props.withOverlayLabel - Whether to overlay the label on top of the bar
- * @param props.negativeValues   - How negative shares render: diverging from zero, or highlighted
  * @param props.primaryColor     - Primary color for current period bars
  * @param props.secondaryColor   - Secondary color for comparison period bars
  * @param props.valueFormatter   - Custom formatter for values
@@ -258,7 +249,6 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	height: propHeight,
 	withComparison = false,
 	withOverlayLabel = false,
-	negativeValues = 'diverging',
 	primaryColor,
 	secondaryColor,
 	valueFormatter = defaultValueFormatter,
@@ -330,9 +320,6 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 	// One negative share puts every row on a shared zero point, so the bars stay comparable.
 	const divergingScale = useMemo( (): DivergingScale | undefined => {
-		if ( negativeValues !== 'diverging' ) {
-			return undefined;
-		}
 		const withComparisonBars = withComparison && ! withOverlayLabel;
 		const scale = { negative: 0, positive: 0 };
 		for ( const entry of data ?? [] ) {
@@ -346,7 +333,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 			}
 		}
 		return scale.negative > 0 ? scale : undefined;
-	}, [ data, negativeValues, withComparison, withOverlayLabel ] );
+	}, [ data, withComparison, withOverlayLabel ] );
 
 	// Validate data
 	const isDataValid = Boolean( data && data.length > 0 );
@@ -508,7 +495,6 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 												primaryColor={ resolvedPrimaryColor }
 												secondaryColor={ resolvedSecondaryColor }
 												divergingScale={ divergingScale }
-												isNegativeHighlighted={ negativeValues === 'highlight' }
 												isPrimaryVisible={ isPrimaryVisible }
 												isComparisonVisible={ isComparisonVisible }
 												animation={ animation && ! loading && ! prefersReducedMotion }
@@ -522,16 +508,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 												[ styles.overlayLabel ]: withOverlayLabel,
 											} ) }
 										>
-											{ isPrimaryVisible && (
-												<Text
-													className={ clsx( {
-														[ styles[ 'value--negative' ] ]:
-															negativeValues === 'highlight' && entry.currentValue < 0,
-													} ) }
-												>
-													{ valueFormatter( entry.currentValue ) }
-												</Text>
-											) }
+											{ isPrimaryVisible && <Text>{ valueFormatter( entry.currentValue ) }</Text> }
 
 											{ showComparisonValue && (
 												<Text className={ clsx( styles.deltaValue, deltaTrendClass ) }>
