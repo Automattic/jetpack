@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import {
 	AnalyticsQueryClientProvider,
 	isPlanDateLimitedSection,
 	isStatsFeatureLocked,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Stack } from '@jetpack-premium-analytics/externals';
+import { JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 import { ChartsProvider, PageFooterProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useMemo } from '@wordpress/element';

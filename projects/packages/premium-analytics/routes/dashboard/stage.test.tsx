@@ -96,7 +96,9 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		<div role={ role }>{ children }</div>
 	);
 
-	return { Stack, VisuallyHidden };
+	const JetpackFooter = () => <footer>Jetpack footer</footer>;
+
+	return { JetpackFooter, Stack, VisuallyHidden };
 } );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -201,10 +203,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 jest.mock( '../use-stats-date-limits', () => ( {
 	useStatsDateLimits: jest.fn( () => ( { offersComparison: true } ) ),
 } ) );
-
-jest.mock( '@automattic/jetpack-components/jetpack-footer', () => () => (
-	<footer>Jetpack footer</footer>
-) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (

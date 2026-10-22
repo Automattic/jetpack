@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import { AnalyticsQueryClientProvider, ReportScopeProvider } from '@jetpack-premium-analytics/data';
+import { JetpackFooter } from '@jetpack-premium-analytics/externals';
 import {
 	DashboardWidgetHostProvider,
 	pickReportNavigationParams,

@@ -1,4 +1,3 @@
-import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import {
 	AnalyticsQueryClientProvider,
 	isPlanDateLimitedSection,
@@ -6,7 +5,7 @@ import {
 	postSurface,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { ButtonLink } from '@jetpack-premium-analytics/externals';
+import { ButtonLink, JetpackFooter } from '@jetpack-premium-analytics/externals';
 import {
 	DashboardWidgetHostProvider,
 	usePeriodHost,

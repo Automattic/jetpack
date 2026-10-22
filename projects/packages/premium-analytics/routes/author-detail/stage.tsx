@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import {
 	AnalyticsQueryClientProvider,
 	PeriodChangeSignalProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+import { JetpackFooter } from '@jetpack-premium-analytics/externals';
 import {
 	buildReportLink,
 	DashboardWidgetHostProvider,

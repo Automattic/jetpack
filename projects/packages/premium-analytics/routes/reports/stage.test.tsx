@@ -24,6 +24,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/externals', () => ( {
+	JetpackFooter: () => <footer>Jetpack footer</footer>,
 	Stack: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 } ) );
 
@@ -39,10 +40,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		</>
 	),
 } ) );
-
-jest.mock( '@automattic/jetpack-components/jetpack-footer', () => () => (
-	<footer>Jetpack footer</footer>
-) );
 
 jest.mock( '../use-stats-date-limits', () => ( {
 	useStatsDateLimits: jest.fn( () => ( { offersComparison: true } ) ),

@@ -1,4 +1,3 @@
-import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import {
 	isPlanDateLimitedSection,
@@ -6,7 +5,7 @@ import {
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Stack } from '@jetpack-premium-analytics/externals';
+import { JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 import {
 	DashboardWidgetHostProvider,
 	usePeriodHost,

@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
-import { Stack } from '@jetpack-premium-analytics/externals';
+import { JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */

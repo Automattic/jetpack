@@ -195,9 +195,10 @@ jest.mock( '@wordpress/widget-primitives', () => ( {
 	WidgetHostProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
-jest.mock( '@automattic/jetpack-components/jetpack-footer', () => () => (
-	<footer>Jetpack footer</footer>
-) );
+jest.mock( '@jetpack-premium-analytics/externals', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/externals' ),
+	JetpackFooter: () => <footer>Jetpack footer</footer>,
+} ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: ( { items }: { items: Array< { label: string; to?: string } > } ) => (

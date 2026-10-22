@@ -6,7 +6,6 @@
 		"page": "jetpack-premium-analytics"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-premium-analytics/data": "workspace:*",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
