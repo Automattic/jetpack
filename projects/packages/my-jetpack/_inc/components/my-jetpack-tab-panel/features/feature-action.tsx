@@ -180,7 +180,7 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 	}
 
 	if ( offersConnect( state ) ) {
-		return <ConnectButton state={ state } origin={ origin } describedby={ describedby } />;
+		return <ConnectButton state={ state } origin={ origin } />;
 	}
 
 	switch ( control.kind ) {
@@ -300,21 +300,19 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 type ConnectButtonProps = {
 	state: FeatureState;
 	origin: FeatureActionOrigin;
-	describedby?: string;
 	buttonRef?: Ref< HTMLButtonElement >;
 };
 
 /**
  * Start connecting the WordPress.com account a feature is waiting for, changing nothing else.
  *
- * @param {ConnectButtonProps} props             - The component props.
- * @param {FeatureState}       props.state       - Live state for the feature.
- * @param {string}             props.origin      - Which control this is.
- * @param {string}             props.describedby - Id of the element stating why it is needed.
- * @param {Ref}                props.buttonRef   - Ref to the button, for a caller that moves focus to it.
+ * @param {ConnectButtonProps} props           - The component props.
+ * @param {FeatureState}       props.state     - Live state for the feature.
+ * @param {string}             props.origin    - Which control this is.
+ * @param {Ref}                props.buttonRef - Ref to the button, for a caller that moves focus to it.
  * @return The rendered component.
  */
-export function ConnectButton( { state, origin, describedby, buttonRef }: ConnectButtonProps ) {
+export function ConnectButton( { state, origin, buttonRef }: ConnectButtonProps ) {
 	const connectAccount = useAccountConnection();
 	const onClick = useCallback(
 		() => connectAccount( state, origin, 'connect' ),
@@ -327,7 +325,6 @@ export function ConnectButton( { state, origin, describedby, buttonRef }: Connec
 			variant="outline"
 			size="compact"
 			onClick={ onClick }
-			aria-describedby={ describedby }
 			aria-label={ sprintf(
 				/* translators: %s is the feature name. */
 				__( 'Connect account for %s', 'jetpack-my-jetpack' ),

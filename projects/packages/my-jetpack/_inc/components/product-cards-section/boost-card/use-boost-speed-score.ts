@@ -74,6 +74,7 @@ const useBoostSpeedScore = () => {
 			return;
 		}
 
+		setIsSpeedScoreError( false );
 		setIsLoading( true );
 		requestSpeedScores( true, apiRoot, siteUrl, apiNonce )
 			.then( scores => {
@@ -142,10 +143,12 @@ const useBoostSpeedScore = () => {
 
 	return {
 		isLoading,
+		isSiteConnected,
 		speedLetterGrade,
 		currentSpeedScore,
 		boostScoreIncrease,
 		isSpeedScoreError,
+		retry: getSpeedScores,
 	};
 };
 

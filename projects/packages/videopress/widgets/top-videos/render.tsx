@@ -2,15 +2,14 @@
  * External dependencies
  */
 import {
-	ExporterCsvDownloadButton,
 	Leaderboard,
-	ReportLink,
 	WidgetRoot,
 	describeError,
 	useStatsVideoPlays,
 	useWidgetRootContext,
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { currentUserCan, getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
@@ -133,21 +132,19 @@ function TopVideosReport() {
 	);
 	const { phase, upload } = useVideoUpload( onUploaded );
 
-	const footer = (
-		<>
-			<ReportLink report="videos" />
-			<ExporterCsvDownloadButton
-				report="videos"
-				status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
-				rowCount={ rows.length }
-			/>
-		</>
-	);
+	useReportActions( {
+		report: 'videos',
+		csv: {
+			report: 'videos',
+			status: { isLoading: isInitialLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
 
 	// Once an upload starts it stays on screen: a range change or a failed stats request
 	// must not swap it for the leaderboard, and a landed video must not give way to it.
 	if ( phase.status !== 'idle' || hasNoVideos ) {
-		return <VideoUploader phase={ phase } onUpload={ upload } footer={ footer } />;
+		return <VideoUploader phase={ phase } onUpload={ upload } footer={ null } />;
 	}
 
 	return (
@@ -187,7 +184,6 @@ function TopVideosReport() {
 						}
 					: undefined
 			}
-			footer={ footer }
 		/>
 	);
 }

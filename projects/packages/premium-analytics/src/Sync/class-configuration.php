@@ -109,6 +109,8 @@ class Configuration {
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
 
 		( new Config() )->ensure( 'sync', $this->get_jetpack_sync_config() );
+
+		( new Lookup_Data_Backfill() )->register();
 	}
 
 	/**

@@ -1415,7 +1415,7 @@ class Initializer {
 			self::ACCOUNT_CONNECT_FLAG,
 			array(
 				'default'     => false,
-				'description' => 'Show Needs user account on Features cards, and connect the account from their Install or Connect button.',
+				'description' => 'Connect the account from the Install or Connect button of Features cards that need one, and hide Active and Inactive where the control already shows the state.',
 				'owner'       => 'my-jetpack',
 			)
 		);
@@ -1501,6 +1501,10 @@ class Initializer {
 			'accountConnect'           => Feature_Flags::is_enabled( self::ACCOUNT_CONNECT_FLAG ),
 			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
+
+		if ( $flags['accountConnect'] ) {
+			$flags['showAiModuleToggleOnceConnected'] = Products\Jetpack_Ai::is_feature_ui_waiting_for_owner();
+		}
 
 		return $flags;
 	}

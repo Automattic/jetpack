@@ -24,6 +24,7 @@ export {
 	describeError,
 	flattenEarningsBreakdown,
 	getVideoPosterUrl,
+	useReportActions,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 export {
