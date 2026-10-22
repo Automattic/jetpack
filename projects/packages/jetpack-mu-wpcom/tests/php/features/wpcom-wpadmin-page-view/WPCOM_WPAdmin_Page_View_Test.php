@@ -36,13 +36,15 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 	#[DataProvider( 'tracking_identity_provider' )]
 	public function test_page_view_tracking_identity( $is_wpcom, $wpcom_user_id ) {
 		define( 'IS_WPCOM', $is_wpcom );
+		define( 'IS_ATOMIC', ! $is_wpcom );
 		define( 'WP_NETWORK_ADMIN', false );
+		update_option( 'jetpack_options', array( 'id' => 123 ) );
 		Functions\stubs(
 			array(
-				'is_automattician'           => false,
-				'_wpcom_get_current_blog_id' => 123,
-				'get_wpcom_blog_id'          => 123,
-				__NAMESPACE__ . '\\wpcom_atomic_get_user_types' => array(),
+				'is_automattician'                       => false,
+				'_wpcom_get_current_blog_id'             => 123,
+				'wpcomsh_get_wpcom_active_subscriptions' => array(),
+				'wpcom_site_has_feature'                 => false,
 			)
 		);
 		$user_id                 = wp_insert_user(
