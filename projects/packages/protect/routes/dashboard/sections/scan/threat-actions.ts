@@ -4,7 +4,7 @@ import { createElement, useSyncExternalStore } from '@wordpress/element';
 import { __, sprintf, type TransformedText } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { recordEvent } from '../../data/analytics';
+import { recordEvent } from '../../data/tracks';
 import { getThreatLabel } from './labels';
 import { SCAN_PATH, createStore, editScan, getScan, startRead, startReportRead } from './store';
 import type { ScanState, ScanThreat } from './types';

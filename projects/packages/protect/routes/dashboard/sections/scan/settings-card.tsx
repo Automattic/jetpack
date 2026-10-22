@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
 import { Link, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
-import { recordEvent } from '../../data/analytics';
+import { recordEvent } from '../../data/tracks';
 import type { ScanContext } from './types';
 
 const onGetScan = () =>

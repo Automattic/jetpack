@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { recordEvent } from '../data/analytics';
+import { recordEvent } from '../data/tracks';
 import MonitorCard from '../sections/monitor/monitor-card';
 import ScanSettingsCard from '../sections/scan/settings-card';
 import { setScan } from '../sections/scan/store';
@@ -9,7 +9,7 @@ import type { ProtectSettingsData } from '../data/use-protect-settings';
 import type { ScanState } from '../sections/scan/types';
 import type { ReactElement } from 'react';
 
-jest.mock( '../data/analytics', () => ( { recordEvent: jest.fn() } ) );
+jest.mock( '../data/tracks', () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),

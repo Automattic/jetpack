@@ -1,5 +1,5 @@
 import { getScan } from '../sections/scan/store';
-import { recordEvent } from './analytics';
+import { recordEvent } from './tracks';
 import type { ScanState } from '../sections/scan/types';
 
 /**

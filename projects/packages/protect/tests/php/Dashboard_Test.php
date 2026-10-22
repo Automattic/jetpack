@@ -44,8 +44,6 @@ class Dashboard_Test extends BaseTestCase {
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );
 		remove_all_filters( 'jetpack_offline_mode' );
-		wp_dequeue_script( 'jp-tracks-functions' );
-		wp_deregister_script( 'jp-tracks-functions' );
 		wp_dequeue_script( 'jp-tracks' );
 		wp_deregister_script( 'jp-tracks' );
 		\Jetpack_Options::delete_option( array( 'tos_agreed', 'blog_token', 'user_tokens' ) );
@@ -240,41 +238,6 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @dataProvider provide_tracking_consent
-	 *
-	 * @param bool $agreed   Whether the site accepted the terms of service.
-	 * @param bool $offline  Whether the site is in offline mode.
-	 * @param bool $expected Whether the Tracks client should load.
-	 */
-	#[DataProvider( 'provide_tracking_consent' )]
-	public function test_tracks_loads_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
-		\Jetpack_Options::update_option( 'tos_agreed', $agreed );
-		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
-
-		Dashboard::enqueue_tracks();
-		ob_start();
-		Dashboard::print_tracks_state();
-		$printed = ob_get_clean();
-
-		$this->assertSame( $expected, wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
-		$this->assertSame( $expected, false !== strpos( $printed, 'JP_CONNECTION_INITIAL_STATE' ) );
-		$this->assertSame( $expected, false !== strpos( $printed, 'window.jetpackProtectTracks = true;' ) );
-	}
-
-	/**
-	 * Terms of service and offline mode states.
-	 *
-	 * @return array[]
-	 */
-	public static function provide_tracking_consent() {
-		return array(
-			'agreed'         => array( true, false, true ),
-			'not agreed'     => array( false, false, false ),
-			'agreed offline' => array( true, true, false ),
-		);
-	}
-
-	/**
 	 * Build indexes that can't render the page.
 	 *
 	 * @return array[]
@@ -452,7 +415,7 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Whether the site agreed to the terms, whether it is offline, and whether the Tracks script loads.
+	 * Whether the site agreed to the terms, whether it is offline, and whether Tracks is allowed.
 	 *
 	 * @return array[]
 	 */
@@ -469,16 +432,20 @@ class Dashboard_Test extends BaseTestCase {
 	 *
 	 * @param bool $agreed   Whether the site agreed to the terms of service.
 	 * @param bool $offline  Whether Jetpack is in offline mode.
-	 * @param bool $expected Whether the Tracks script loads.
+	 * @param bool $expected Whether the Tracks script loads and the page may record.
 	 */
 	#[DataProvider( 'provide_tracking_states' )]
-	public function test_tracks_script_loads_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
+	public function test_tracks_loads_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
 		\Jetpack_Options::update_option( 'tos_agreed', $agreed );
 		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
 
 		Dashboard::enqueue_tracks_transport();
+		ob_start();
+		Dashboard::print_tracks_state();
+		$printed = ob_get_clean();
 
 		$this->assertSame( $expected, wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->assertSame( $expected, false !== strpos( $printed, 'window.jetpackProtectTracks = true;' ) );
 	}
 
 	/**

@@ -1,9 +1,9 @@
 import { setScan } from '../../sections/scan/store';
-import { recordEvent } from '../analytics';
 import { recordPageView } from '../page-views';
+import { recordEvent } from '../tracks';
 import type { ScanState } from '../../sections/scan/types';
 
-jest.mock( '../analytics', () => ( { recordEvent: jest.fn() } ) );
+jest.mock( '../tracks', () => ( { recordEvent: jest.fn() } ) );
 
 const scan: ScanState = { hasPlan: false, url: '#', error: false, lastChecked: null };
 

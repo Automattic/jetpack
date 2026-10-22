@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { recordEvent } from '../../../data/analytics';
+import { recordEvent } from '../../../data/tracks';
 import ScanCard from '../scan-card';
 import { setScan } from '../store';
 import type { ScanState } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
-jest.mock( '../../../data/analytics', () => ( { recordEvent: jest.fn() } ) );
+jest.mock( '../../../data/tracks', () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 	useNavigate: () => jest.fn(),

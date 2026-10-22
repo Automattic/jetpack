@@ -5,7 +5,7 @@ import { shield } from '@wordpress/icons';
 import { Button, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
-import { recordEvent } from '../../data/analytics';
+import { recordEvent } from '../../data/tracks';
 import { HISTORY_STATUS_PARAM } from '../history/store';
 import SafeState from './safe-state';
 import ScanButton from './scan-button';

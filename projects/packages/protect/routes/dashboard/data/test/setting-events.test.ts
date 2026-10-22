@@ -1,7 +1,7 @@
-import { recordEvent } from '../analytics';
 import { recordSettingEvents } from '../setting-events';
+import { recordEvent } from '../tracks';
 
-jest.mock( '../analytics', () => ( { recordEvent: jest.fn() } ) );
+jest.mock( '../tracks', () => ( { recordEvent: jest.fn() } ) );
 
 const mockRecordEvent = recordEvent as jest.Mock;
 

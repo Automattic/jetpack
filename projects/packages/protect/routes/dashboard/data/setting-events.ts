@@ -1,7 +1,7 @@
-import { recordEvent } from './analytics';
+import { recordEvent } from './tracks';
 import type { ProtectSettings } from './use-protect-settings';
 
-type TracksEvent = [ name: string, properties?: Record< string, unknown > ];
+type TracksEvent = [ name: string, properties?: Record< string, string > ];
 type EventFor = ( value: unknown ) => TracksEvent;
 
 const onOff =

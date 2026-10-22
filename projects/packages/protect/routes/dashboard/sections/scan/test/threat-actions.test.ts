@@ -2,12 +2,12 @@ import { act, renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
-import { recordEvent } from '../../../data/analytics';
+import { recordEvent } from '../../../data/tracks';
 import { setScan, useScan } from '../store';
 import { deleteSoftware, fixThreat, ignoreThreat, unignoreThreat } from '../threat-actions';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
-jest.mock( '../../../data/analytics', () => ( { recordEvent: jest.fn() } ) );
+jest.mock( '../../../data/tracks', () => ( { recordEvent: jest.fn() } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const threat = { id: 7, title: 'Malicious code found in file: a.php' };

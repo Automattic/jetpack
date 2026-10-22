@@ -1,6 +1,6 @@
 import { getThreatType, type Threat } from '@automattic/jetpack-scan';
 import { useEffect, useRef } from '@wordpress/element';
-import { recordEvent } from './analytics';
+import { recordEvent } from './tracks';
 import type { ScanThreat } from '../sections/scan/types';
 import type { View } from '@wordpress/dataviews';
 

@@ -6,8 +6,8 @@ import { Badge, Button, Link, Skeleton, Stack, Text, Tooltip, VisuallyHidden } f
 import { CardRow, ProtectCard, SettingsErrorRow, UnavailableCard } from '../../components/card';
 import formatNumber from '../../components/format-number';
 import TabLink from '../../components/tab-link';
-import { recordEvent } from '../../data/analytics';
 import isModuleActive from '../../data/is-module-active';
+import { recordEvent } from '../../data/tracks';
 import gauge from './icon';
 import MonitorToggle, { useMonitorToggleData } from './monitor-toggle';
 import type { MonitorContext, Uptime, UptimeDay } from './types';

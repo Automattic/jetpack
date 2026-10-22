@@ -1,10 +1,10 @@
 import { renderHook } from '@testing-library/react';
 import { createThreatView } from '../../sections/scan/threats-list';
-import { recordEvent } from '../analytics';
 import { recordViewChange, useRecordThreatOpen } from '../threat-events';
+import { recordEvent } from '../tracks';
 import type { ScanThreat } from '../../sections/scan/types';
 
-jest.mock( '../analytics', () => ( { recordEvent: jest.fn() } ) );
+jest.mock( '../tracks', () => ( { recordEvent: jest.fn() } ) );
 
 const mockRecordEvent = recordEvent as jest.Mock;
 const plugin = { id: 1, extension: { type: 'plugins', slug: 'a', name: 'A', version: '1' } };

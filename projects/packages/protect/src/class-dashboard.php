@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
@@ -335,8 +334,7 @@ class Dashboard {
 			return;
 		}
 
-		$tracking = new Tracking( 'jetpack', new Connection_Manager() );
-		if ( ! $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+		if ( ! self::can_use_analytics() ) {
 			return;
 		}
 
@@ -453,7 +451,6 @@ class Dashboard {
 		}
 
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks' ) );
 
 		// wp-build hooks module registration to wp_default_scripts, which has already fired by
 		// admin_menu — call it directly or the init module never reaches the import map.
@@ -524,22 +521,7 @@ class Dashboard {
 	}
 
 	/**
-	 * Enqueue the Tracks client, which the esbuild route bundles don't depend on.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return void
-	 */
-	public static function enqueue_tracks() {
-		if ( self::can_use_analytics() ) {
-			Tracking::register_tracks_functions_scripts( true );
-		}
-	}
-
-	/**
-	 * Print what the page's Tracks client needs, only when Tracks is allowed.
-	 *
-	 * Tracks reads the WordPress.com user and blog ID from the connection state; the flag gates recording.
+	 * Print the flag the page's Tracks client records under, only when Tracks is allowed.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -547,7 +529,7 @@ class Dashboard {
 	 */
 	public static function print_tracks_state() {
 		if ( self::can_use_analytics() ) {
-			wp_print_inline_script_tag( Connection_Initial_State::render() . 'window.jetpackProtectTracks = true;' );
+			wp_print_inline_script_tag( 'window.jetpackProtectTracks = true;' );
 		}
 	}
 
