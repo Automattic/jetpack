@@ -518,10 +518,23 @@ export function offersConnect( state: FeatureState ): boolean {
 }
 
 /**
+ * Whether a feature waits for an account with no control on its card, as Jetpack AI does while its
+ * switch is gated or an install the user can't make, so its card and details say so in words instead.
+ *
+ * @param state - Live state for the feature.
+ * @return Whether only a note can say the account is missing.
+ */
+export function needsAccountWithoutConnect( state: FeatureState ): boolean {
+	return Boolean(
+		state.accountNeeded && ( state.control.kind === 'none' || getInstallBlockReason( state ) )
+	);
+}
+
+/**
  * Mark a feature that waits for an account, which Available and bulk actions then leave out.
  *
- * Jetpack reports a module needing an account as unavailable on a site without one; the badge
- * says Needs user account instead, and one saved as on can still be switched off from its details.
+ * Jetpack reports a module needing an account as unavailable on a site without one; the card
+ * offers Connect instead, and one saved as on can still be switched off from its details.
  *
  * @param state         - The feature's resolved state.
  * @param accountModule - The module behind it, if Jetpack is active.

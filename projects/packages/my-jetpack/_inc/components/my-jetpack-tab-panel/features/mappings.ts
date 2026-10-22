@@ -59,7 +59,8 @@ export function getProductModules() {
 }
 
 /**
- * Whether the `my-jetpack-account-connect` flag is on, which shows features waiting for an account.
+ * Whether the `my-jetpack-account-connect` flag is on, which shows features waiting for an account
+ * and hides Active and Inactive where the feature's control already shows the state.
  *
  * @return Whether Features marks and connects the account a feature needs.
  */
