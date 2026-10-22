@@ -123,8 +123,9 @@ class Sync_Configuration_Test extends TestCase {
 	public function test_register_hooks_once_when_called_twice() {
 		require_once __DIR__ . '/mocks/woocommerce-active-mock.php';
 
-		Sync_Configuration::register();
-		Sync_Configuration::register();
+		for ( $i = 0; $i < 2; $i++ ) {
+			Sync_Configuration::register();
+		}
 		do_action( 'plugins_loaded' );
 
 		$this->assertSame( array( 'woocommerce_analytics' ), Sync_Status_Tracker::get_analytics_sync_modules() );
