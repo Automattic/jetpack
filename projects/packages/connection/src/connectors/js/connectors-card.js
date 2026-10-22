@@ -22,6 +22,10 @@
 import {
 	CONNECTION_STORE_ID,
 	ConnectionErrorView,
+	DisconnectDialog,
+	DisconnectUserDialog,
+	getTracksIdentity,
+	initializeTracksIdentity,
 	ProtectedOwnerConfirmation,
 	ProtectedOwnerRelease,
 	TransferConnectionOwnership,
@@ -33,7 +37,7 @@ import * as components from '@wordpress/components';
 // Namespace import: a missing named export would fail the whole module before the fallbacks run.
 // eslint-disable-next-line import/no-unresolved -- resolved via WP import map at runtime.
 import * as connectors from '@wordpress/connectors';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import {
 	createElement,
 	createInterpolateElement,
@@ -64,7 +68,6 @@ const apiNonce = data.apiNonce || '';
 const redirectUri = data.redirectUri || '';
 // Absolute form of redirectUri, for flows that redirect without resolving it against wp-admin.
 const connectorsUrl = data.connectorsUrl || undefined;
-const hasOtherConnectedUsers = Boolean( data.hasOtherConnectedUsers );
 const connectionOwnerEditUrl = data.connectionOwnerEditUrl || null;
 const connectedUsersUrl = data.connectedUsersUrl || '';
 const pluginLogos = data.pluginLogos || {};
@@ -95,15 +98,13 @@ function buildViewer( currentUser, isUserConnected ) {
 	}
 
 	const wpcomUser = currentUser.wpcomUser || {};
-	const isOwner = Boolean( currentUser.isMaster );
 
 	return {
 		displayName: wpcomUser.display_name || currentUser.displayName || currentUser.username || '',
 		login: wpcomUser.login || currentUser.username || '',
 		email: wpcomUser.email || currentUser.email || '',
 		avatar: currentUser.gravatar || '',
-		isOwner,
-		hasOtherConnectedUsers: isOwner && hasOtherConnectedUsers,
+		isOwner: Boolean( currentUser.isMaster ),
 	};
 }
 
@@ -168,6 +169,7 @@ function useCardConnection() {
 			isInSafeMode: isRegistered && Boolean( connectionStatus.isInSafeMode ),
 			blogId,
 			currentUser,
+			tracksIdentity: getTracksIdentity( currentUser ),
 			viewer,
 			owner: owner
 				? {
@@ -889,13 +891,12 @@ function ProtectedOwnerSection() {
 /**
  * Prompt shown to admins whose user account is not yet linked.
  *
- * @param {object}   props                 - Component props.
- * @param {Function} props.onConnect       - Callback to start the authorization flow.
- * @param {boolean}  props.isConnecting    - Whether a connection attempt is in progress.
- * @param {boolean}  props.isDisconnecting - Whether a disconnect is in progress (disables button).
+ * @param {object}   props              - Component props.
+ * @param {Function} props.onConnect    - Callback to start the authorization flow.
+ * @param {boolean}  props.isConnecting - Whether a connection attempt is in progress.
  * @return {object} React element.
  */
-function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
+function ConnectPrompt( { onConnect, isConnecting } ) {
 	const { isRegistered, isConnected, isOfflineMode, owner, currentUser } = useCardConnection();
 	let isReconnectingOwner = false;
 	let promptText;
@@ -950,7 +951,7 @@ function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
 				size: 'small',
 				onClick: onConnect,
 				isBusy: isConnecting,
-				disabled: isConnecting || isDisconnecting || isOfflineMode,
+				disabled: isConnecting || isOfflineMode,
 				className: 'jetpack-connector__inline-action',
 			},
 			buttonText
@@ -1572,13 +1573,19 @@ function ExpandedDetails( {
 	onConnect = null,
 	connectionErrorNotice = null,
 } ) {
-	const { viewer, owner, ownerIsViewer, isOwnerConnectionBroken, isOfflineMode } =
-		useCardConnection();
-	const { disconnectUserSuccess } = useDispatch( CONNECTION_STORE_ID );
-	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
-	const [ isUnlinking, setIsUnlinking ] = useState( false );
+	const {
+		viewer,
+		owner,
+		ownerIsViewer,
+		isOwnerConnectionBroken,
+		isOfflineMode,
+		tracksIdentity,
+		connectedPlugins,
+	} = useCardConnection();
+	const [ isDisconnectUserOpen, setIsDisconnectUserOpen ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
 	const [ isTransferOpen, setIsTransferOpen ] = useState( false );
+	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 	const [ actionError, setActionError ] = useState( null );
 	const detailsLinkRef = useRef( null );
@@ -1587,95 +1594,6 @@ function ExpandedDetails( {
 	const confirmTriggerRef = useRef( null );
 	const disconnectSiteRef = useRef( null );
 	const disconnectAccountRef = useRef( null );
-
-	const executeDisconnect = async () => {
-		if ( isOfflineMode ) {
-			return;
-		}
-		setPendingConfirm( null );
-		setIsDisconnecting( true );
-		setActionError( null );
-
-		try {
-			await disconnectSite(
-				__( 'Failed to disconnect the site. Please try again.', 'jetpack-connection' )
-			);
-			window.location.reload();
-		} catch ( err ) {
-			setActionError( err.message );
-		} finally {
-			setIsDisconnecting( false );
-		}
-	};
-
-	const handleDisconnect = () => {
-		confirmTriggerRef.current = disconnectSiteRef.current;
-		setPendingConfirm( {
-			title: __( 'Disconnect site', 'jetpack-connection' ),
-			message: __(
-				'Are you sure you want to disconnect from WordPress.com? This will affect all plugins using this connection.',
-				'jetpack-connection'
-			),
-			onConfirm: executeDisconnect,
-		} );
-	};
-
-	const executeUnlinkUser = async () => {
-		if ( isOfflineMode ) {
-			return;
-		}
-		setPendingConfirm( null );
-		setIsUnlinking( true );
-		setActionError( null );
-
-		try {
-			const body = { linked: false, force: true };
-			if ( viewer?.isOwner ) {
-				body[ 'disconnect-all-users' ] = true;
-			}
-
-			await apiRequest( 'jetpack/v4/connection/user', {
-				method: 'POST',
-				body,
-				fallbackError: __(
-					'Failed to disconnect the account. Please try again.',
-					'jetpack-connection'
-				),
-			} );
-
-			// A non-owner unlink only removes the viewer's token, which the store tracks. Otherwise
-			// card-only data such as protectedOwner changes too, so the page reloads.
-			if ( viewer?.isOwner || protectedOwner ) {
-				window.location.reload();
-				return;
-			}
-			disconnectUserSuccess();
-		} catch ( err ) {
-			setActionError( err.message );
-		} finally {
-			setIsUnlinking( false );
-		}
-	};
-
-	const handleUnlinkUser = () => {
-		confirmTriggerRef.current = disconnectAccountRef.current;
-		const message = viewer?.hasOtherConnectedUsers
-			? __(
-					'Your site will remain connected for essential services like likes and stats, but all user accounts will be disconnected.',
-					'jetpack-connection'
-				)
-			: __(
-					'Are you sure you want to disconnect your WordPress.com account?',
-					'jetpack-connection',
-					/* dummy arg to avoid bad minification */ 0
-				);
-
-		setPendingConfirm( {
-			title: __( 'Disconnect user account', 'jetpack-connection' ),
-			message,
-			onConfirm: executeUnlinkUser,
-		} );
-	};
 
 	// ConnectionErrorView is checked too: mid-update, an older shared bundle may lack it.
 	const isErrorBannerShown = Boolean(
@@ -1724,7 +1642,7 @@ function ExpandedDetails( {
 													ref: transferOwnershipRef,
 													variant: 'link',
 													className: 'jetpack-connector__inline-action',
-													disabled: isUnlinking || isDisconnecting || isOfflineMode,
+													disabled: isOfflineMode,
 													onClick: () => setIsTransferOpen( true ),
 												},
 												__( 'Transfer ownership', 'jetpack-connection' )
@@ -1736,33 +1654,24 @@ function ExpandedDetails( {
 											ref: disconnectAccountRef,
 											variant: 'link',
 											isDestructive: true,
-											disabled: isUnlinking || isDisconnecting || isOfflineMode,
-											onClick: handleUnlinkUser,
+											disabled: isOfflineMode,
+											onClick: () => setIsDisconnectUserOpen( true ),
 											className: 'jetpack-connector__inline-action',
 										},
-										isUnlinking
-											? __( 'Disconnecting…', 'jetpack-connection' )
-											: __(
-													'Disconnect account',
-													'jetpack-connection',
-													/* dummy arg to avoid bad minification */ 0
-												)
+										__( 'Disconnect account', 'jetpack-connection' )
 									)
 								),
 				} )
 			: null,
 
 		// Release link, directly under the confirmed owner's own account row.
-		canReleaseProtectedOwner( viewer )
-			? createElement( ReleaseOwnershipSection, { isBusy: isUnlinking || isDisconnecting } )
-			: null,
+		canReleaseProtectedOwner( viewer ) ? createElement( ReleaseOwnershipSection ) : null,
 
 		// Connect prompt (only when the viewing admin is NOT linked).
 		sections.connectPrompt
 			? createElement( ConnectPrompt, {
 					onConnect,
 					isConnecting,
-					isDisconnecting,
 				} )
 			: null,
 
@@ -1845,9 +1754,8 @@ function ExpandedDetails( {
 							variant: 'secondary',
 							isDestructive: true,
 							size: 'compact',
-							isBusy: isDisconnecting,
-							disabled: isDisconnecting || isUnlinking || isOfflineMode,
-							onClick: handleDisconnect,
+							disabled: isOfflineMode,
+							onClick: () => setIsDisconnectDialogOpen( true ),
 							className: 'jetpack-connector__disconnect-site',
 						},
 						__( 'Disconnect site', 'jetpack-connection' )
@@ -1871,6 +1779,49 @@ function ExpandedDetails( {
 					onCancel: () => {
 						setPendingConfirm( null );
 						focusWhenReady( confirmTriggerRef.current );
+					},
+				} )
+			: null,
+		// Mounted only while open, so a reopened dialog starts again at its first step.
+		isDisconnectDialogOpen
+			? createElement( DisconnectDialog, {
+					apiRoot,
+					apiNonce,
+					connectedPlugins,
+					// No connectedSiteId: without it the dialog skips the disconnect survey.
+					connectedUser: tracksIdentity,
+					context: 'connectors',
+					isOpen: true,
+					// The dialog disconnects on its first step; the reload waits for its closing steps.
+					onDisconnected: () => window.location.reload(),
+					onClose: () => {
+						setIsDisconnectDialogOpen( false );
+						focusWhenReady( disconnectSiteRef.current );
+					},
+				} )
+			: null,
+		isDisconnectUserOpen
+			? createElement( DisconnectUserDialog, {
+					isOpen: true,
+					apiRoot,
+					apiNonce,
+					context: 'connectors',
+					// The unlink already recorded itself in the store, which a non-owner's row reads
+					// from. Otherwise card-only data such as protectedOwner changed too, so reload.
+					onUnlinked: () => {
+						if ( viewer?.isOwner || protectedOwner ) {
+							window.location.reload();
+							return;
+						}
+						setIsDisconnectUserOpen( false );
+					},
+					onClose: () => {
+						setIsDisconnectUserOpen( false );
+						focusWhenReady( disconnectAccountRef.current );
+					},
+					onTransferOwnership: () => {
+						setIsDisconnectUserOpen( false );
+						setIsTransferOpen( true );
 					},
 				} )
 			: null,
@@ -1923,8 +1874,15 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		isInSafeMode,
 		isOwnerConnectionBroken,
 		viewer,
+		currentUser,
+		tracksIdentity,
 	} = useCardConnection();
 	const [ isConnecting, setIsConnecting ] = useState( false );
+	// Identify the viewer once here, so every dialog the card opens records events under them.
+	useEffect( () => {
+		initializeTracksIdentity( currentUser );
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- re-identify only when the identity changes.
+	}, [ tracksIdentity.ID, tracksIdentity.login ] );
 	const [ connectError, setConnectError ] = useState( data.authError || null );
 	const connectionErrorNotice = useConnectionErrorNotice( {
 		trackingContext: 'connectors',

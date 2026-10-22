@@ -88,21 +88,8 @@ class Jetpack_Admin {
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
 
 		if ( class_exists( 'Akismet_Admin' ) ) {
-			// If the site has Jetpack Anti-spam, change the Akismet menu label and logo accordingly.
-			$site_products         = array_column( Jetpack_Plan::get_products(), 'product_slug' );
-			$has_anti_spam_product = count( array_intersect( array( 'jetpack_anti_spam', 'jetpack_anti_spam_monthly' ), $site_products ) ) > 0;
-
-			if ( Jetpack_Plan::supports( 'akismet' ) || Jetpack_Plan::supports( 'antispam' ) || $has_anti_spam_product ) {
-				// Prevent Akismet from adding a menu item.
-				add_action(
-					'admin_menu',
-					function () {
-						remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
-					},
-					4
-				);
-
-				// Add an Anti-spam menu item for Jetpack. This is handled automatically by the Admin_Menu as long as it has been initialized.
+			// Network Admin never fires admin_menu, so starting Admin_Menu there would only add its upgrade item.
+			if ( ! is_network_admin() ) {
 				Admin_Menu::init();
 			}
 
@@ -283,6 +270,7 @@ class Jetpack_Admin {
 				$module_array['configure_url']      = Jetpack::module_configuration_url( $module );
 				$module_array['override']           = $overrides->get_module_override( $module );
 				$module_array['disabled']           = $is_available ? '' : 'disabled="disabled"';
+				$module_array['deactivation_note']  = Jetpack::get_module_deactivation_note( $module );
 
 				ob_start();
 				/**

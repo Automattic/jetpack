@@ -8,7 +8,6 @@ import {
 	baseSettings,
 	baseStatus,
 	renderWithData,
-	resetNotices,
 	setScriptData,
 	snackbarMessages,
 } from './helpers';
@@ -22,7 +21,6 @@ beforeEach( () => {
 	mockApiFetch.mockImplementation( ( { method } ) =>
 		Promise.resolve( method === 'PUT' ? baseSettings : baseStatus )
 	);
-	resetNotices();
 	setScriptData();
 } );
 

@@ -47,10 +47,10 @@ class Analytics_Dashboard {
 	const REGISTER_WIDGET_TYPES_ACTION = 'jetpack_premium_analytics_register_widget_types';
 
 	/**
-	 * Lowest widget contract the build works against: the widgets name their icons in `widget.json`,
-	 * which the dashboard resolves from 1.6.0.
+	 * Lowest widget contract the build works against: WordAds earnings declares its actions with
+	 * `useReportActions`, which the dashboard ships from 1.16.0.
 	 */
-	const MIN_WIDGET_API_VERSION = '1.6.0';
+	const MIN_WIDGET_API_VERSION = '1.16.0';
 
 	/**
 	 * Text domain of the widget metadata and of the built widget bundles.

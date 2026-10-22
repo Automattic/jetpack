@@ -191,6 +191,8 @@ Every record says where its bundles' catalogs live. `routes/widget-module-i18n.t
 
 `createWidgetModuleResolver()` caches the record's manifest by URL once (`loadI18nManifest()` in wp-build-polyfills) and loads the bundle's catalog under the record's `textdomain` before importing. The metadata bundles are preloaded the same way. A record without a text domain is treated as the package's own.
 
+The `widget.json` strings take the PHP lane instead: the registry translates them at hydration with the contexts in `src/widget-i18n.json`, and the `emit-widget-strings` build step of wp-build-polyfills (see its README) hands extraction one `_x()` per value. A package whose widgets register through this registry runs it against this package's schema.
+
 What the catalog load hashes is the bundle path relative to the plugin, the way WordPress names JS translation files. A package vendored inside a plugin therefore needs its text domain aliased in the plugin's `i18n-map.php`, as this package's is.
 
 ## From the registry to the client
@@ -262,6 +264,7 @@ The major changes when a widget built against the previous contract stops workin
 | 1.13.0 | `chartTitle` on `Columns`, `Donut`, `Funnel`, `Leaderboard`, `Locations` and `MetricTabsChart`: "Chart: <title>" for screen readers, "Map: <title>" for the `Locations` map. |
 | 1.14.0 | `attributes` on the record, which lead the module's by `id`.                                                                                                                 |
 | 1.15.0 | A `jpa/toggle-group` option names its `icon` by reference, the form a `widget.json` can carry.                                                                               |
+| 1.16.0 | `useReportActions`: a widget declares its View all link and CSV download, and the dashboard renders them in the card footer.                                                 |
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 
@@ -331,4 +334,3 @@ The widget folder, its default instance in Traffic, its entry in `VIDEOPRESS_WID
 - Stories for a plugin's widgets, and a jest harness that renders the real SDK: the Ads and VideoPress widgets left this package's Storybook with their move. The SDK module has no implementation outside the dashboard, so a consumer's suite stands in for it and asserts on what the widget hands over, as the Top videos suite does.
 - Precise types for the SDK: `projects/js-packages/premium-analytics-sdk` declares its exports loosely until a build step emits them from the facade.
 - A migration for a rename that also changes attributes, the `deprecated` equivalent of blocks, and the upstream ask: `@wordpress/widget-primitives` knows neither former names nor deprecations.
-- The metadata strings of `widget.json`, which reach no catalog in any package until the strings stub ships.

@@ -1,0 +1,10 @@
+.items {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	column-gap: calc(var(--spacing-base) * 3); // 24px
+
+	> * + * {
+		padding-inline-start: calc(var(--spacing-base) * 3);
+		border-inline-start: 1px solid var(--jp-gray-5);
+	}
+}

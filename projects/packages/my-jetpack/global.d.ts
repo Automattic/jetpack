@@ -519,6 +519,8 @@ type MainFeature = {
 	icon: string;
 	manage_url: string;
 	essential: boolean;
+	// Its plan, not a switch, decides whether it runs, whichever plugin delivers it.
+	plan_driven?: boolean;
 	in_jetpack: boolean;
 	plugin: string;
 	plugin_name: string;
@@ -530,7 +532,8 @@ type MainFeature = {
 	paid_highlights: string[];
 	pricing_notes?: string[];
 	// The My Jetpack route that sells the feature, such as `/add-akismet`, and the product it sells.
-	upgrade: { path: string; name: string };
+	// A host may send it elsewhere instead, with an absolute `url`.
+	upgrade: { path: string; name: string; url?: string };
 	// Whether the site already pays for the feature, directly or through a bundle.
 	included?: boolean;
 	// What to expect after turning it on, such as picking a plan.
@@ -588,7 +591,9 @@ interface Window {
 			accountConnect?: boolean;
 			headerControls?: boolean;
 			overviewV1: boolean;
+			premiumAnalyticsEnabled: boolean;
 			showAiModuleToggle: boolean;
+			showAiModuleToggleOnceConnected?: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};
@@ -651,6 +656,11 @@ interface Window {
 					post_checkout_url?: string;
 					manage_paid_plan_purchase_url?: string;
 					renew_paid_plan_purchase_url?: string;
+					purchase_replacement?: {
+						slug: string;
+						title: string;
+						wpcom_product_slug: string;
+					} | null;
 					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
 						available: boolean;

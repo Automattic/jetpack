@@ -16,6 +16,8 @@ use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Jetpack connector card handler.
@@ -107,6 +109,7 @@ class Jetpack_Connector {
 	 *
 	 * @since 8.2.0
 	 * @since 9.11.0 Loads the webpack build from dist/, with its dependencies and version from the asset file.
+	 * @since $$next-version$$ Loads the Tracks script when tracking is allowed.
 	 */
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
@@ -152,6 +155,12 @@ class Jetpack_Connector {
 			Assets::enqueue_script( $handle );
 		}
 
+		// The shared components the card renders push Tracks events to _tkq; only w.js is needed to send them. Same gate as My Jetpack.
+		if ( ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+			Tracking::register_tracks_functions_scripts();
+			wp_enqueue_script( 'jp-tracks' );
+		}
+
 		add_filter(
 			'script_module_data_' . static::MODULE_ID,
 			array( static::class, 'get_connector_data' )
@@ -194,7 +203,6 @@ class Jetpack_Connector {
 	public static function get_connector_data( $data ) {
 		$manager       = new Manager();
 		$is_registered = $manager->is_connected();
-		$is_connected  = $is_registered && $manager->has_connected_owner();
 
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
@@ -221,15 +229,11 @@ class Jetpack_Connector {
 			static::add_identity_crisis_data( $data );
 		}
 
-		// Not gated on $is_connected: has_connected_owner() is false when the owner's token breaks,
+		// Not gated on has_connected_owner(): it is false when the owner's token breaks,
 		// and the card still lists the owner of record and a healthy viewer's account then.
 		$has_account_rows = (int) \Jetpack_Options::get_option( 'master_user' ) > 0 || $manager->is_user_connected();
 		if ( $is_registered && $has_account_rows ) {
 			$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
-		}
-
-		if ( $is_connected && $manager->is_connection_owner() ) {
-			$data['hasOtherConnectedUsers'] = count( $manager->get_connected_users( 'any', 2 ) ) > 1;
 		}
 
 		$data['connectionOwnerEditUrl'] = static::get_connection_owner_edit_url( ( new Status() )->is_offline_mode() );
