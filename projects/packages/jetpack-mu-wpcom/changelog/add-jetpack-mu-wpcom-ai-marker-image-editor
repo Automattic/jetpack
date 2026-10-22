@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Media: keep the AI marker (the IPTC DigitalSourceType) through image edits on WordPress.com, by swapping core's GD image editor for one that copies the field into each saved file.
