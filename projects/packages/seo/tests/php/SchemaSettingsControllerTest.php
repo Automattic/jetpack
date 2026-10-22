@@ -375,7 +375,7 @@ class SchemaSettingsControllerTest extends TestCase {
 	 *
 	 * @return array<string, array{string}>
 	 */
-	public static function provide_account_profile_hosts() {
+	public static function provide_wpcom_profile_hosts() {
 		return array(
 			'Simple'                     => array( 'simple' ),
 			'Atomic, WordPress.com user' => array( 'atomic' ),
@@ -385,11 +385,11 @@ class SchemaSettingsControllerTest extends TestCase {
 	/**
 	 * Where WordPress.com owns name, bio and website, only the SEO fields save.
 	 *
-	 * @dataProvider provide_account_profile_hosts
+	 * @dataProvider provide_wpcom_profile_hosts
 	 * @param string $host Host to simulate.
 	 */
-	#[DataProvider( 'provide_account_profile_hosts' )]
-	public function test_author_profile_route_leaves_the_account_profile_alone( $host ) {
+	#[DataProvider( 'provide_wpcom_profile_hosts' )]
+	public function test_author_profile_route_leaves_the_wpcom_profile_alone( $host ) {
 		$admin = $this->make_user(
 			array(
 				'role'        => 'administrator',

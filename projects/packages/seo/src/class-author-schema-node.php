@@ -233,7 +233,7 @@ class Author_Schema_Node {
 			'jobTitle'          => (string) get_user_meta( $user_id, self::META_JOB_TITLE, true ),
 			'sameAs'            => self::sanitize_url_list( get_user_meta( $user_id, self::META_SAME_AS, true ) ),
 			'avatarUrl'         => (string) get_avatar_url( $user_id, array( 'size' => 96 ) ),
-			'accountProfileUrl' => self::is_account_profile( $user_id ) ? 'https://my.wordpress.com/me/account' : '',
+			'accountProfileUrl' => self::is_wpcom_profile( $user_id ) ? 'https://my.wordpress.com/me/account' : '',
 		);
 	}
 
@@ -246,7 +246,7 @@ class Author_Schema_Node {
 	 * @return array|WP_Error The stored profile, or the error that stopped the update.
 	 */
 	public static function update_profile( $user_id, array $fields ) {
-		if ( self::is_account_profile( $user_id ) ) {
+		if ( self::is_wpcom_profile( $user_id ) ) {
 			unset( $fields['name'], $fields['description'], $fields['url'] );
 		}
 
@@ -291,7 +291,7 @@ class Author_Schema_Node {
 	 * @param int $user_id User ID.
 	 * @return bool
 	 */
-	private static function is_account_profile( $user_id ) {
+	private static function is_wpcom_profile( $user_id ) {
 		$host = new Host();
 		return $host->is_wpcom_simple()
 			|| ( $host->is_woa_site() && ( new Connection_Manager() )->is_user_connected( $user_id ) );
