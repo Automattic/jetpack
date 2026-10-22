@@ -721,13 +721,24 @@ describe( 'MetricTabsChart', () => {
 		} );
 	} );
 
-	it( 'leaves a metric alone to the chart to tone, its previous period in the same gray as a pair', () => {
-		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
+	it.each( [
+		[ 'in the full accent in a chart without pairs', [ METRIC ], '#3858E9' ],
+		[
+			'to the chart to tone in a chart that pairs other metrics',
+			[ { ...METRIC, key: 'comments' }, VIEWS, VISITORS ],
+			undefined,
+		],
+	] )(
+		'draws a metric alone %s, its previous period in the solid gray',
+		( _case, metrics, stroke ) => {
+			setMockElementStyles( () => ( { color: '#3858E9' } ) );
+			render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } chartType="bar" /> );
 
-		expect(
-			recordedPropsFor( mockBarSpy, 'Views' ).series.map( series => series.options?.stroke )
-		).toEqual( [ undefined, 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)' ] );
-	} );
+			expect(
+				recordedPropsFor( mockBarSpy, 'Views' ).series.map( series => series.options?.stroke )
+			).toEqual( [ stroke, 'var(--wpds-color-stroke-surface-neutral-strong, #8d8d8d)' ] );
+		}
+	);
 
 	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
 	// alone, so drawing the pair there offers the legend a flat zero line.

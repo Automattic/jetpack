@@ -57,8 +57,9 @@ const CLICK_DRAG_TOLERANCE_PX = 6;
 
 const LINE_COUNTERPART_SHADE_BLEND = 0.5;
 
-/** The previous period's grays when bars overlap, the same on every tab. The back gray is under 3:1 against the background, so the previous period recedes. */
+/** The previous period's grays when bars overlap. Like the current period, a pair is light behind and darker in front, and a metric alone takes the solid gray. */
 const PREVIOUS_PERIOD_GRAYS = {
+	alone: 'var(--wpds-color-stroke-surface-neutral-strong, #8d8d8d)',
 	back: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)',
 	front: 'var(--wpds-color-foreground-content-neutral-weak, #707070)',
 };
@@ -345,12 +346,23 @@ function MetricChart( {
 
 	// Bars draw the smaller metric of a pair inside the larger one's bar, as Jetpack Stats v1 draws visitors inside views.
 	const isOverlap = chartType === 'bar';
+	// A chart that pairs metrics tints every tab alike; the others draw the full accent.
+	const pairsMetrics = metrics.some(
+		item =>
+			item.counterpartKey !== item.key &&
+			metrics.some( candidate => candidate.key === item.counterpartKey )
+	);
 
 	const { series, defaultHiddenSeries } = useMemo( () => {
-		// The current period is left unstroked, so charts tones it from the accent: the back metric, or a metric alone, takes the tint and a front metric the shade.
+		// An unstroked current period is toned by charts from the accent: the back metric, or a metric alone, takes the tint and a front metric the shade.
 		if ( isOverlap && ! counterpart ) {
 			return {
-				series: buildSeries( metric, chartType, undefined, PREVIOUS_PERIOD_GRAYS.back ),
+				series: buildSeries(
+					metric,
+					chartType,
+					pairsMetrics ? undefined : shades.accent,
+					PREVIOUS_PERIOD_GRAYS.alone
+				),
 				defaultHiddenSeries: undefined,
 			};
 		}
@@ -383,7 +395,7 @@ function MetricChart( {
 			series: [ ...active, ...paired ],
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
-	}, [ metric, counterpart, chartType, shades, isOverlap ] );
+	}, [ metric, counterpart, chartType, shades, isOverlap, pairsMetrics ] );
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
 
