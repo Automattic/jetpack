@@ -24,6 +24,8 @@ export type FirewallState = {
 	/** The last 10, newest first. */
 	recentBlocks: BlockedRequest[];
 	hasScan: boolean;
+	/** Where to buy Scan, for the automatic rules it adds. */
+	upgradeUrl: string;
 	currentIp: string;
 	/** The IP lists and their on/off state as of page load, keyed like Jetpack settings. */
 	ipRules: ProtectSettings;

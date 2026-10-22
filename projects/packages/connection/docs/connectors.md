@@ -48,7 +48,6 @@ The card reads connection state from the `jetpack-connection` store, which `Init
 
 Everything else is card-only and comes from `Jetpack_Connector::get_connector_data()` through the `script_module_data_@automattic/jetpack-connection-connectors` filter. Some of it stays there because the store has no equivalent:
 
-- `hasOtherConnectedUsers` — sent to the owner only, to warn that disconnecting them disconnects every user.
 - `connectionOwnerEditUrl` — the owner's profile URL, or null when the viewer may not open it (no `jetpack_connect` outside offline mode, or no `edit_user`, as for multisite site admins).
 - `pluginLogos` — logo URLs by plugin slug, which third parties add through the `jetpack_connection_plugin_logos` filter.
 - `apiRoot` / `apiNonce` — the store drops these from its initial state and has no selector for them.

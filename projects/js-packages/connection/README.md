@@ -174,6 +174,42 @@ const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnec
 </DisconnectDialog>
 ```
 
+## Component `DisconnectUserDialog`
+The `DisconnectUserDialog` component asks the viewer to confirm before disconnecting their own WordPress.com account, and decides which confirmation that is. It reads the viewer from the package store, so the host does not have to say whether they own the connection: an owner is warned that disconnecting them ends every user's connection and is offered the ownership transfer instead, and everyone else gets a plain confirm.
+
+The unlink itself runs through the store's `unlinkUser` action, which records the result, so surfaces reading connection state from the store reflect it without a page reload.
+
+### Properties
+- *apiRoot* - string (required), API root URL.
+- *apiNonce* - string (required), API Nonce.
+- *isOpen* - boolean, whether the dialog is open. Nothing renders when it is false.
+- *onClose* - callback (required), called when the dialog is dismissed without disconnecting.
+- *onUnlinked* - callback, called once the account has been disconnected. The dialog does not close itself, so the host decides what closes and whether to reload.
+- *onTransferOwnership* - callback, opens the host's ownership transfer flow. Omit it to hide that action from the owner's warning.
+- *context* - string, recorded with the dialog's analytics events. Leave it out only if the surface genuinely has no name: there is no default, so an omitted context is absent from the data rather than attributed to another surface.
+
+### Important Notes
+The dialog takes no props describing the viewer. It reads `isMaster` and the viewer's capabilities from the store, which `Initial_State` fills, so a host that renders it on a page without that script data will show the non-owner confirmation to everyone.
+
+`Disconnect` is disabled while the site is in offline mode, where WordPress.com cannot be reached to action it, and the dialog cannot be dismissed with ESC or a click outside while a request is in flight.
+
+### Basic Usage
+```jsx
+import { useState } from 'react';
+import { DisconnectUserDialog } from '@automattic/jetpack-connection';
+
+const [ isOpen, setIsOpen ] = useState( false );
+
+<DisconnectUserDialog
+	apiRoot={ APIRoot }
+	apiNonce={ APINonce }
+	isOpen={ isOpen }
+	context="my-surface"
+	onClose={ () => setIsOpen( false ) }
+	onUnlinked={ () => setIsOpen( false ) }
+/>
+```
+
 ## Component `TransferConnectionOwnership`
 The `TransferConnectionOwnership` component hands this site's WordPress.com connection to another connected administrator. It walks the user through choosing one, confirming what moves with ownership, and a success message.
 
