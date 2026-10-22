@@ -253,8 +253,8 @@ function wpcomsh_remove_symlink_wp_error( $code, $message, $data, WP_Error $erro
  * @return bool|mixed|WP_Error
  */
 function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
-	// Pre-requisites checks.
-	if ( ! $package || ! is_string( $package ) || ! $upgrader instanceof Theme_Upgrader ) {
+	// Pre-requisites checks. A WP.com theme's package is its slug; a URL or file path is some other theme.
+	if ( ! $package || ! is_string( $package ) || str_contains( $package, '/' ) || ! $upgrader instanceof Theme_Upgrader ) {
 		return $reply;
 	}
 
@@ -310,7 +310,7 @@ add_filter( 'upgrader_pre_download', 'wpcomsh_theme_install_by_symlink', 0, 4 );
  * @return mixed|string|WP_Error The downloaded package's path, or why there is none.
  */
 function wpcomsh_theme_install_by_download( $reply, $package, $upgrader ) {
-	if ( false !== $reply || ! $package || ! is_string( $package ) || ! $upgrader instanceof Theme_Upgrader ) {
+	if ( false !== $reply || ! $package || ! is_string( $package ) || str_contains( $package, '/' ) || ! $upgrader instanceof Theme_Upgrader ) {
 		return $reply;
 	}
 
