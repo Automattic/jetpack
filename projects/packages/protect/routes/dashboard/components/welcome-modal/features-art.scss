@@ -1,0 +1,103 @@
+$shadow: 0 8px 24px rgba(0, 48, 16, 0.12);
+$switch: 20px;
+
+// Plays once when the page opens; `--i` staggers the toggles.
+.jp-protect-features-art {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--wpds-color-foreground-content-neutral);
+
+	&__name {
+		flex: 1;
+		font-size: 13px;
+		font-weight: 500;
+		text-align: start;
+		white-space: nowrap;
+	}
+
+	&__card {
+		display: flex;
+		flex-direction: column;
+		inline-size: 280px;
+		padding-block: 6px;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: $shadow;
+	}
+
+	&__row {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 10px 16px;
+
+		& + & {
+			border-block-start:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral-weak);
+		}
+	}
+
+	// Drawn to match @wordpress/ui's Switch, which the dashboard's toggles use.
+	&__switch {
+		box-sizing: border-box;
+		display: inline-block;
+		flex-shrink: 0;
+		inline-size: $switch * 2;
+		block-size: $switch;
+		padding: 1px;
+		border: 1px solid transparent;
+		border-radius: 999px;
+		background-color: var(--wpds-color-background-interactive-brand-strong);
+		animation: jp-protect-features-track 0.3s ease calc(0.5s + var(--i) * 0.45s) 1 both;
+	}
+
+	&__thumb {
+		display: block;
+		block-size: $switch - 4px;
+		aspect-ratio: 1;
+		border-radius: 50%;
+		background-color: var(--wpds-color-foreground-interactive-brand-strong);
+		transform: translateX($switch);
+		animation: jp-protect-features-thumb 0.3s ease calc(0.5s + var(--i) * 0.45s) 1 both;
+
+		:dir(rtl) & {
+			transform: translateX(-$switch);
+			animation-name: jp-protect-features-thumb-rtl;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+
+		&__switch,
+		&__thumb {
+			animation: none;
+		}
+	}
+}
+
+@keyframes jp-protect-features-track {
+
+	from {
+		border-color: var(--wpds-color-stroke-interactive-neutral);
+		background-color: var(--wpds-color-background-interactive-neutral-weak);
+	}
+}
+
+@keyframes jp-protect-features-thumb {
+
+	from {
+		background-color: var(--wpds-color-foreground-interactive-neutral);
+		transform: translateX(0);
+	}
+}
+
+@keyframes jp-protect-features-thumb-rtl {
+
+	from {
+		background-color: var(--wpds-color-foreground-interactive-neutral);
+		transform: translateX(0);
+	}
+}

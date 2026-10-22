@@ -1,9 +1,8 @@
 import { Guide } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, key, shield } from '@wordpress/icons';
-import gauge from '../../sections/monitor/icon';
 import { SafeShield } from '../../sections/scan/safe-state';
+import FeaturesArt from './features-art';
 import ScanArt from './scan-art';
 import './style.scss';
 import type { ReactElement, ReactNode } from 'react';
@@ -38,19 +37,7 @@ type WelcomePage = {
 	art: ReactNode;
 	title: string;
 	body: string;
-	extra?: ReactNode;
 };
-
-/**
- * The tools that joined Scan in Protect, in the dashboard's card order.
- *
- * @return Icon and name for each.
- */
-const getBundledFeatures = () => [
-	{ icon: gauge, name: __( 'Downtime monitoring', 'jetpack-protect-pkg' ) },
-	{ icon: shield, name: __( 'Firewall', 'jetpack-protect-pkg' ) },
-	{ icon: key, name: __( 'Login protection', 'jetpack-protect-pkg' ) },
-];
 
 /**
  * The guide's pages: the new dashboard, Scan, then what's now bundled in.
@@ -79,29 +66,11 @@ const getPages = (): WelcomePage[] => [
 		),
 	},
 	{
-		art: (
-			<span className="jp-protect-welcome__art-trio">
-				{ getBundledFeatures().map( feature => (
-					<span key={ feature.name } className="jp-protect-welcome__art-badge is-small">
-						<Icon icon={ feature.icon } size={ 32 } />
-					</span>
-				) ) }
-			</span>
-		),
+		art: <FeaturesArt />,
 		title: __( 'More protection, now built in', 'jetpack-protect-pkg' ),
 		body: __(
-			'These tools now come with Protect. Turn them on and manage them right here.',
+			'Downtime monitoring, the firewall and login protection now come with Protect. Turn them on and manage them right here.',
 			'jetpack-protect-pkg'
-		),
-		extra: (
-			<ul className="jp-protect-welcome__features" role="list">
-				{ getBundledFeatures().map( feature => (
-					<li key={ feature.name }>
-						<Icon icon={ feature.icon } size={ 20 } />
-						{ feature.name }
-					</li>
-				) ) }
-			</ul>
 		),
 	},
 ];
@@ -145,7 +114,6 @@ export default function WelcomeModal(): ReactElement | null {
 					<>
 						<h1 className="jp-protect-welcome__heading">{ page.title }</h1>
 						<p className="jp-protect-welcome__text">{ page.body }</p>
-						{ page.extra }
 					</>
 				),
 			} ) ) }
