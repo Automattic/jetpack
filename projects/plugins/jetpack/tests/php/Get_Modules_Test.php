@@ -261,7 +261,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Keep the list usable and preserve module selection for info arguments.
+	 * Keep the list usable and select only a known module from the info argument.
 	 *
 	 * @dataProvider get_module_info_list_and_selection_data
 	 * @param string|array $info Requested module information.
