@@ -162,7 +162,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		$this->items           = $this->filter_displayed_table_items( $this->items );
 		$this->_column_headers = array( $this->get_columns(), array(), array(), 'name' );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce: This is a view, not a model or controller. InputNotSanitized: Sanitized below via `$this->module_info_check()`.
-		$modal_info = isset( $_GET['info'] ) ? wp_unslash( $_GET['info'] ) : false;
+		$modal_info = isset( $_GET['info'] ) && is_string( $_GET['info'] ) ? wp_unslash( $_GET['info'] ) : false;
 
 		// Adding in a hidden h1 heading for screen-readers.
 		?>

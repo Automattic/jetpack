@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Modules: Fix a fatal error when a module information link contains an array instead of a module name.

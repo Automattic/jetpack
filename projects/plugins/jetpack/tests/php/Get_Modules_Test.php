@@ -261,6 +261,35 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @dataProvider get_module_info_arguments
+	 * @param string|array $info Requested module information.
+	 * @param string       $expected Expected module information.
+	 */
+	#[DataProvider( 'get_module_info_arguments' )]
+	public function test_module_info_argument( $info, $expected ) {
+		$_GET['info'] = $info;
+		wp_deregister_script( 'jetpack-modules-list-table' );
+		$this->expectOutputRegex( '/Jetpack Modules List/' );
+		$table = new Jetpack_Modules_List_Table();
+		$data  = wp_scripts()->get_data( 'jetpack-modules-list-table', 'data' );
+		$this->assertNotEmpty( $table->items );
+		$this->assertSame( 1, preg_match( '/var jetpackModulesData = (.*);/', $data, $matches ) );
+		$data = json_decode( $matches[1], true );
+		$this->assertIsArray( $data );
+		$this->assertSame( $expected, $data['modalinfo'] );
+	}
+
+	/**
+	 * @return array Module information arguments and expected selections.
+	 */
+	public static function get_module_info_arguments() {
+		return array(
+			'valid module' => array( 'sso', 'sso' ),
+			'array'        => array( array( 'x' ), '' ),
+		);
+	}
+
+	/**
 	 * Ignore an array tag in the view selector.
 	 */
 	public function test_array_module_tag_selects_all_view() {
