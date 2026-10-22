@@ -50,7 +50,8 @@ class Stats_Links {
 	/**
 	 * Open the dashboard in place of `admin.php?page=stats` once no plugin registers that page.
 	 *
-	 * Core fires this just before its 403, so it never runs while classic Stats is still there.
+	 * Core fires this for every denied admin page, a registered one the user may not open included;
+	 * the capability check is what keeps that user on core's 403.
 	 *
 	 * @return void
 	 */
@@ -73,7 +74,7 @@ class Stats_Links {
 	}
 
 	/**
-	 * Whether this request is for the classic Stats page, which is gone, by a user who can read Stats here.
+	 * Whether this request is for `page=stats`, with no such page registered for this user, by a user who can read Stats here.
 	 *
 	 * @return bool
 	 */
@@ -99,9 +100,10 @@ class Stats_Links {
 
 		?>
 <!DOCTYPE html>
-<html>
+<html <?php language_attributes(); ?>>
 <head>
 <meta charset="<?php echo esc_attr( get_bloginfo( 'charset' ) ); ?>">
+<title><?php echo esc_html__( 'Stats', 'jetpack-premium-analytics-pkg' ); ?></title>
 <noscript><meta http-equiv="refresh" content="0;url=<?php echo esc_url( Analytics::dashboard_url( '/' ) ); ?>"></noscript>
 		<?php wp_print_inline_script_tag( $script ); ?>
 </head>
