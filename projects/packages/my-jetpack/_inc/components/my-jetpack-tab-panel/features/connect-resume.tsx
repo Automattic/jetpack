@@ -10,14 +10,17 @@ import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
 import type { MyJetpackModule } from '../../../types';
 
-// The return URL names the click it came back for, so only that tab's own return acts on it.
+// The URL the click returns or reloads to names that click, so only that tab's own page load acts on it.
 export const CONNECT_INTENT_PARAM = 'connect_intent';
 
 const STORAGE_KEY = 'myJetpackFeatureConnectIntent';
 // Long enough to sign up for a WordPress.com account on the way.
 const MAX_AGE_MS = 60 * 60 * 1000;
 
-type ConnectIntent = { id: string; feature: string; at: number };
+// Connect leaves to link the account; Install or Activate Jetpack with no account to link reloads in place.
+type SetupRoute = 'connect' | 'reload';
+
+type ConnectIntent = { id: string; feature: string; at: number; route?: SetupRoute };
 
 /**
  * Forget the click, so a later visit or connection cannot turn the feature on.
@@ -31,17 +34,22 @@ function forgetConnectIntent() {
 }
 
 /**
- * Remember, in this tab only, that Connect was clicked for a feature, so the return can turn it on.
+ * Remember, in this tab only, that Connect, Install Jetpack or Activate Jetpack was clicked for a
+ * feature, so the return from connecting, or Jetpack's reload, can turn it on.
  *
  * @param feature - The feature's slug.
- * @return The id the return URL carries, or null when the tab cannot keep it.
+ * @param route   - Whether the click leaves to connect the account or reloads in place.
+ * @return The id the return or reload URL carries, or null when the tab cannot keep it.
  */
-export function rememberConnectIntent( feature: string ): string | null {
+export function rememberConnectIntent(
+	feature: string,
+	route: SetupRoute = 'connect'
+): string | null {
 	try {
 		const id = Array.from( window.crypto.getRandomValues( new Uint8Array( 8 ) ), byte =>
 			byte.toString( 16 ).padStart( 2, '0' )
 		).join( '' );
-		const intent: ConnectIntent = { id, feature, at: Date.now() };
+		const intent: ConnectIntent = { id, feature, at: Date.now(), route };
 		window.sessionStorage.setItem( STORAGE_KEY, JSON.stringify( intent ) );
 		// Going Back from WordPress.com can show this page again without loading it: that is an
 		// abandoned connection, not a return.
@@ -71,7 +79,7 @@ export function isSetupResumeEnabled(): boolean {
  * @param feature - The feature's slug.
  */
 export function reloadToTurnOn( feature: string ) {
-	const id = rememberConnectIntent( feature );
+	const id = rememberConnectIntent( feature, 'reload' );
 	if ( id ) {
 		const url = new URL( window.location.href );
 		const [ route, query = '' ] = url.hash.split( '?' );
@@ -83,7 +91,7 @@ export function reloadToTurnOn( feature: string ) {
 	reloadPage();
 }
 
-type Click = Pick< ConnectIntent, 'feature' | 'at' >;
+type Click = Pick< ConnectIntent, 'feature' | 'at' | 'route' >;
 
 // Kept per page load rather than per mount: Features can mount several times while the page
 // loads, and a mount that goes away must not lose the click or turn the feature on twice.
@@ -122,7 +130,7 @@ function takeConnectIntent( returnId: string | null ) {
 
 	taken =
 		intent && returnId && intent.id === returnId && isFresh( intent )
-			? { feature: intent.feature, at: intent.at }
+			? { feature: intent.feature, at: intent.at, route: intent.route }
 			: null;
 }
 
@@ -145,9 +153,10 @@ function canTurnOn( state: FeatureState ): boolean {
 }
 
 /**
- * After a return from connecting the account, the feature whose Connect was clicked, if it should now be turned on.
+ * After a return from connecting the account, or Jetpack's reload after Install or Activate Jetpack,
+ * the feature whose button was clicked, if it should now be turned on.
  *
- * Forgets the click on the first Features load, connected or not. Waits for the feature's live
+ * Forgets the click on the first Features load, whatever happens next. Waits for the feature's live
  * state, since Jetpack may already have turned it on as one of its default modules.
  *
  * @param states - Every feature row on the tab, More Features included.
@@ -182,7 +191,9 @@ export function useConnectResume( states: FeatureState[], ready: boolean ): Feat
 		if ( state?.pending ) {
 			return;
 		}
-		if ( state && connected && isFresh( click ) && canTurnOn( state ) ) {
+		// A reload connected no account, so only a Connect return needs to find one now.
+		const accountReady = connected || click.route === 'reload';
+		if ( state && accountReady && isFresh( click ) && canTurnOn( state ) ) {
 			turnOn = click;
 			setDecided( true );
 		}
