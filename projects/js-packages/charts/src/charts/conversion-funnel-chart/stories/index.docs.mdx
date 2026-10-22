@@ -402,10 +402,10 @@ The steps form a single-select [listbox](https://www.w3.org/WAI/ARIA/apg/pattern
 
 - Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - **ARIA Roles**: The steps sit in a horizontal `role="listbox"` labeled "Funnel steps", and each step uses `role="option"`
-- **ARIA Labels**: Each step has `aria-label` with the step name
+- **ARIA Labels**: Each step has `aria-label` with the step name and rate, such as "Cart, 71.1%"
 - **Selection State**: The selected step has `aria-selected="true"`, the others `aria-selected="false"`
 - **Descriptions**: The selected step's `aria-describedby` points at its tooltip, leaving out the name line, so the default reads "7,110 items Conversion rate 71.1%". The tooltip itself is hidden from screen readers, so it is read only as the description.
-- **Visible Text**: The step labels and rates above the bars are hidden from screen readers, so the listbox holds only its options. Each option's name and description carry the same information
+- **Visible Text**: The step labels and rates above the bars are hidden from screen readers, so the listbox holds only its options. Each option's name carries the step's label and rate, and the selected option's description adds the tooltip's numbers
 - **Loading States**: Loading and empty states provide appropriate text content
 
 ### Interactive Behavior

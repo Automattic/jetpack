@@ -48,6 +48,8 @@ const renderWithoutTheme = ( component: React.ReactElement ) => {
 
 const focus = ( element: HTMLElement ) => act( () => element.focus() );
 
+const stepName = ( label: string ) => new RegExp( `^${ label }, ` );
+
 /**
  * Shows a step's position and id.
  *
@@ -189,9 +191,11 @@ describe( 'ConversionFunnelChart', () => {
 		it( 'selects a step and shows its tooltip when the step takes focus', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			focus( screen.getByRole( 'option', { name: 'Cart' } ) );
+			focus( screen.getByRole( 'option', { name: stepName( 'Cart' ) } ) );
 
-			expect( screen.getByRole( 'option', { name: 'Cart', selected: true } ) ).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'option', { name: stepName( 'Cart' ), selected: true } )
+			).toBeInTheDocument();
 			expect( screen.getByTestId( 'funnel-tooltip' ) ).toHaveTextContent( 'Cart' );
 		} );
 
@@ -199,10 +203,12 @@ describe( 'ConversionFunnelChart', () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			focus( screen.getByRole( 'option', { name: 'Cart' } ) );
+			focus( screen.getByRole( 'option', { name: stepName( 'Cart' ) } ) );
 			await user.keyboard( `{Escape}${ key }` );
 
-			expect( screen.getByRole( 'option', { name: 'Cart', selected: true } ) ).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'option', { name: stepName( 'Cart' ), selected: true } )
+			).toBeInTheDocument();
 			expect( screen.getByTestId( 'funnel-tooltip' ) ).toBeInTheDocument();
 		} );
 
@@ -269,19 +275,21 @@ describe( 'ConversionFunnelChart', () => {
 			await user.click( cartBar );
 			await user.click( cartBar );
 
-			expect( screen.getByRole( 'option', { name: 'Cart', selected: true } ) ).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'option', { name: stepName( 'Cart' ), selected: true } )
+			).toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'Accessibility', () => {
-		it( 'lists the steps as options of a horizontal listbox', () => {
+		it( 'lists the steps as options of a horizontal listbox, named with their rates', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
 			const listbox = screen.getByRole( 'listbox', { name: 'Funnel steps' } );
 			expect( listbox ).toHaveAttribute( 'aria-orientation', 'horizontal' );
 			expect(
 				screen.getAllByRole( 'option' ).map( option => option.getAttribute( 'aria-label' ) )
-			).toEqual( mockSteps.map( step => step.label ) );
+			).toEqual( [ 'Sessions, 100%', 'Cart, 71.1%', 'Checkout, 52.5%', 'Purchase, 10.3%' ] );
 		} );
 
 		it( 'hides the visible step labels and rates, so the listbox holds only its options', () => {
@@ -299,11 +307,11 @@ describe( 'ConversionFunnelChart', () => {
 				/>
 			);
 
-			const cart = screen.getByRole( 'option', { name: 'Cart' } );
+			const cart = screen.getByRole( 'option', { name: stepName( 'Cart' ) } );
 			focus( cart );
 			expect( cart ).toHaveAccessibleDescription( '7,110 items Conversion rate 71.1%' );
 
-			const none = screen.getByRole( 'option', { name: 'None' } );
+			const none = screen.getByRole( 'option', { name: stepName( 'None' ) } );
 			focus( none );
 			expect( none ).toHaveAccessibleDescription( 'Conversion rate 50%' );
 			expect( cart ).not.toHaveAttribute( 'aria-describedby' );
@@ -314,7 +322,7 @@ describe( 'ConversionFunnelChart', () => {
 				<ConversionFunnelChart { ...defaultProps } getTooltipContent={ getTooltipContent } />
 			);
 
-			const cart = screen.getByRole( 'option', { name: 'Cart' } );
+			const cart = screen.getByRole( 'option', { name: stepName( 'Cart' ) } );
 			focus( cart );
 
 			expect( cart ).toHaveAccessibleDescription( '#1 Id cart' );
@@ -326,7 +334,7 @@ describe( 'ConversionFunnelChart', () => {
 				<ConversionFunnelChart { ...defaultProps } getTooltipContent={ getEmptyTooltipContent } />
 			);
 
-			const cart = screen.getByRole( 'option', { name: 'Cart' } );
+			const cart = screen.getByRole( 'option', { name: stepName( 'Cart' ) } );
 			focus( cart );
 
 			expect( cart ).not.toHaveAttribute( 'aria-describedby' );
@@ -337,7 +345,7 @@ describe( 'ConversionFunnelChart', () => {
 				<ConversionFunnelChart { ...defaultProps } renderTooltip={ renderNamedTooltip } />
 			);
 
-			const cart = screen.getByRole( 'option', { name: 'Cart' } );
+			const cart = screen.getByRole( 'option', { name: stepName( 'Cart' ) } );
 			focus( cart );
 
 			expect( cart ).toHaveAccessibleDescription( 'Custom tooltip: Cart' );
@@ -346,7 +354,7 @@ describe( 'ConversionFunnelChart', () => {
 		it( 'hides the tooltip itself from screen readers', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			focus( screen.getByRole( 'option', { name: 'Cart' } ) );
+			focus( screen.getByRole( 'option', { name: stepName( 'Cart' ) } ) );
 
 			expect( screen.getByTestId( 'funnel-tooltip' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 		} );
@@ -355,9 +363,11 @@ describe( 'ConversionFunnelChart', () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			await user.click( screen.getByRole( 'option', { name: 'Cart' } ) );
+			await user.click( screen.getByRole( 'option', { name: stepName( 'Cart' ) } ) );
 
-			expect( screen.getByRole( 'option', { name: 'Cart', selected: true } ) ).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'option', { name: stepName( 'Cart' ), selected: true } )
+			).toBeInTheDocument();
 			expect( screen.getAllByRole( 'option', { selected: false } ) ).toHaveLength( 3 );
 		} );
 	} );
@@ -378,7 +388,7 @@ describe( 'ConversionFunnelChart', () => {
 
 			screen.getByRole( 'button', { name: 'Before' } ).focus();
 			await user.tab();
-			expect( screen.getByRole( 'option', { name: 'Sessions' } ) ).toHaveFocus();
+			expect( screen.getByRole( 'option', { name: stepName( 'Sessions' ) } ) ).toHaveFocus();
 
 			await user.tab();
 			expect( screen.getByRole( 'button', { name: 'After' } ) ).toHaveFocus();
@@ -388,33 +398,35 @@ describe( 'ConversionFunnelChart', () => {
 			const user = userEvent.setup();
 			renderBetweenButtons();
 
-			focus( screen.getByRole( 'option', { name: 'Sessions' } ) );
+			focus( screen.getByRole( 'option', { name: stepName( 'Sessions' ) } ) );
 			await user.keyboard( '{ArrowRight}{ArrowRight}' );
 			await user.tab();
 			await user.tab( { shift: true } );
 
-			expect( screen.getByRole( 'option', { name: 'Checkout' } ) ).toHaveFocus();
+			expect( screen.getByRole( 'option', { name: stepName( 'Checkout' ) } ) ).toHaveFocus();
 		} );
 
 		it( 'selects the step on focus after a press that ended off the step', async () => {
 			const user = userEvent.setup();
 			renderBetweenButtons();
 
-			const cart = screen.getByRole( 'option', { name: 'Cart' } );
+			const cart = screen.getByRole( 'option', { name: stepName( 'Cart' ) } );
 			focus( cart );
 			await user.pointer( { keys: '[MouseLeft>]', target: cart } );
 			await user.pointer( { keys: '[/MouseLeft]', target: document.body } );
 			await user.click( screen.getByRole( 'button', { name: 'After' } ) );
 			await user.tab( { shift: true } );
 
-			expect( screen.getByRole( 'option', { name: 'Cart', selected: true } ) ).toHaveFocus();
+			expect(
+				screen.getByRole( 'option', { name: stepName( 'Cart' ), selected: true } )
+			).toHaveFocus();
 		} );
 
 		it( 'clears the selection when focus leaves the funnel', async () => {
 			const user = userEvent.setup();
 			renderBetweenButtons();
 
-			focus( screen.getByRole( 'option', { name: 'Cart' } ) );
+			focus( screen.getByRole( 'option', { name: stepName( 'Cart' ) } ) );
 			await user.tab();
 
 			expect( screen.getAllByRole( 'option', { selected: false } ) ).toHaveLength( 4 );
@@ -425,10 +437,12 @@ describe( 'ConversionFunnelChart', () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			focus( screen.getByRole( 'option', { name: 'Cart' } ) );
+			focus( screen.getByRole( 'option', { name: stepName( 'Cart' ) } ) );
 			await user.keyboard( '{ArrowRight}' );
 
-			expect( screen.getByRole( 'option', { name: 'Checkout', selected: true } ) ).toHaveFocus();
+			expect(
+				screen.getByRole( 'option', { name: stepName( 'Checkout' ), selected: true } )
+			).toHaveFocus();
 			expect( screen.getByTestId( 'funnel-tooltip' ) ).toHaveTextContent( 'Checkout' );
 		} );
 
@@ -441,10 +455,10 @@ describe( 'ConversionFunnelChart', () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			focus( screen.getByRole( 'option', { name: from } ) );
+			focus( screen.getByRole( 'option', { name: stepName( from ) } ) );
 			await user.keyboard( keys );
 
-			expect( screen.getByRole( 'option', { name: to } ) ).toHaveFocus();
+			expect( screen.getByRole( 'option', { name: stepName( to ) } ) ).toHaveFocus();
 		} );
 
 		it( 'swaps Left and Right in a right-to-left layout', async () => {
@@ -453,17 +467,17 @@ describe( 'ConversionFunnelChart', () => {
 				<ConversionFunnelChart { ...defaultProps } style={ { direction: 'rtl' } } />
 			);
 
-			focus( screen.getByRole( 'option', { name: 'Sessions' } ) );
+			focus( screen.getByRole( 'option', { name: stepName( 'Sessions' ) } ) );
 			await user.keyboard( '{ArrowLeft}' );
 
-			expect( screen.getByRole( 'option', { name: 'Cart' } ) ).toHaveFocus();
+			expect( screen.getByRole( 'option', { name: stepName( 'Cart' ) } ) ).toHaveFocus();
 		} );
 
 		it( 'clears the selection on Escape and keeps focus on the step', async () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			const cart = screen.getByRole( 'option', { name: 'Cart' } );
+			const cart = screen.getByRole( 'option', { name: stepName( 'Cart' ) } );
 			focus( cart );
 			await user.keyboard( '{Escape}' );
 
@@ -477,7 +491,7 @@ describe( 'ConversionFunnelChart', () => {
 			document.addEventListener( 'keydown', isPrevented );
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			focus( screen.getByRole( 'option', { name: 'Cart' } ) );
+			focus( screen.getByRole( 'option', { name: stepName( 'Cart' ) } ) );
 			await user.keyboard( '{Escape}{Escape}' );
 			document.removeEventListener( 'keydown', isPrevented );
 
