@@ -31,7 +31,7 @@ function getComparisonPrimaries( series: SeriesData[] ): Map< number, number > {
 }
 
 /**
- * The colors a grouped bar chart fills its series with. A comparison takes the lightest tint of its primary's color that keeps 3:1 against the background, and the primary in front of it the shade that keeps 3:1 against that tint. A comparison with its own, different `stroke` keeps the pair's colors as given.
+ * The colors a grouped bar chart fills its series with. A comparison takes the lightest tint of its primary's color that keeps 3:1 against the background, and the primary in front of it the shade that keeps 3:1 against that tint. A primary with its own `stroke` keeps it, and a comparison with its own, different `stroke` keeps the pair's colors as given.
  *
  * @param series     - The chart's series.
  * @param colors     - Each series' resolved color.
@@ -58,7 +58,10 @@ export function getGroupedBarColors(
 
 		const tint = tintWithContrast( base, background );
 		barColors[ comparison ] = tint;
-		barColors[ primary ] = shadeWithContrast( base, tint, background );
+
+		if ( ! series[ primary ].options?.stroke ) {
+			barColors[ primary ] = shadeWithContrast( base, tint, background );
+		}
 	} );
 
 	return barColors;

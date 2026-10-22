@@ -1,5 +1,6 @@
 import { contrastRatio } from '../../../../providers/chart-context/private/perceptual-color';
 import { getGroupedBarColors } from '../grouped-bars';
+import { tintWithContrast } from '../overlap-bars';
 import type { SeriesData } from '../../../../types';
 
 const series = ( label: string, group?: string, options: SeriesData[ 'options' ] = {} ) => ( {
@@ -49,6 +50,22 @@ describe( 'getGroupedBarColors', () => {
 		expect( contrastRatio( primary, comparison ) ).toBeGreaterThanOrEqual( 3 );
 	} );
 
+	it( "keeps a primary's own stroke and tints its comparison from it", () => {
+		const [ primary, comparison ] = getGroupedBarColors(
+			[
+				series( 'Views', 'views', { stroke: '#ff0000' } ),
+				series( 'Previous', 'views', { type: 'comparison' } ),
+			],
+			[ '#ff0000', BLUE ],
+			'#ffffff'
+		);
+
+		expect( [ primary, comparison ] ).toEqual( [
+			'#ff0000',
+			tintWithContrast( '#ff0000', '#ffffff' ),
+		] );
+	} );
+
 	it.each( [
 		[
 			'a comparison stroked in a color of its own',
@@ -60,10 +77,7 @@ describe( 'getGroupedBarColors', () => {
 		],
 		[
 			'a primary color that is not hex',
-			[
-				series( 'Views', 'views', { stroke: 'currentColor' } ),
-				series( 'Previous', 'views', { type: 'comparison' } ),
-			],
+			[ series( 'Views', 'views' ), series( 'Previous', 'views', { type: 'comparison' } ) ],
 			[ 'currentColor', 'currentColor' ],
 		],
 		[ 'no comparison', [ series( 'Views' ), series( 'Visitors' ) ], [ BLUE, GREEN ] ],
