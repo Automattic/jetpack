@@ -49,7 +49,7 @@ second current-period series keeps its own dates.
 ## Date alignment and tooltips
 
 Comparison dates are aligned onto the primary series' dates so both land in the same band slot; the
-original date survives in `realDate` and is what the tooltip shows; a week, or a year the range
+original date survives in `realDate` and is what the tooltip shows; a week, or a month or year the range
 cuts, is named by its span, and a whole year by the year alone.
 
 The chart draws comparison series as a separate shadow layer rather than a registered series, so
