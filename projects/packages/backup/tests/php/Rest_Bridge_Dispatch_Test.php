@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -82,6 +84,12 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		add_action( 'rest_api_init', array( Rest_Controller::class, 'register_routes' ) );
 		do_action( 'rest_api_init' );
+
+		// A WoA site, so the known-threats route reaches WordPress.com.
+		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
 	}
 
 	/**
@@ -90,6 +98,8 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	public function tearDown(): void {
 		remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		$this->reset_wpcom_request_mock();
+		Constants::clear_constants();
+		Status_Cache::clear();
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -284,6 +294,55 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'rewind_id'  => '1748888135.123',
 					'error_code' => '',
 					'message'    => 'Restoring uploads',
+				),
+			),
+			'/jetpack/v4/rewind/backups/known-threats'    => array(
+				'GET',
+				'/jetpack/v4/rewind/backups/known-threats',
+				array(),
+				array( array( 'body' => '{"latest_without_known_threats":1748880000,"backups":[{"object":{"backup_period":"1748888000","known_threats":{"malware":1,"database":0,"vulnerable":0,"ignored":0,"flagged":1,"fixed":0}}}]}' ) ),
+				array(
+					'backups'                      => array(
+						array(
+							'period'        => 1748888000,
+							'known_threats' => array(
+								'malware'    => 1,
+								'database'   => 0,
+								'vulnerable' => 0,
+								'ignored'    => 0,
+								'flagged'    => 1,
+								'fixed'      => 0,
+							),
+						),
+					),
+					'latest_without_known_threats' => 1748880000,
+					'latest_without_known_threats_rewind_id' => null,
+				),
+			),
+			'/jetpack/v4/rewind/backups/(?P<rewind_id>[0-9.]+)/threats' => array(
+				'GET',
+				'/jetpack/v4/rewind/backups/1748888135.123/threats',
+				array(),
+				array( array( 'body' => '{"backup_id":"1748888135.123","summary":{"malware":1,"database":0,"vulnerable":0,"ignored":0,"flagged":1,"fixed":0},"threats":[{"id":3,"state":"open","kind":"malware"}],"count":1,"truncated":false}' ) ),
+				array(
+					'backup_id' => '1748888135.123',
+					'summary'   => array(
+						'malware'    => 1,
+						'database'   => 0,
+						'vulnerable' => 0,
+						'ignored'    => 0,
+						'flagged'    => 1,
+						'fixed'      => 0,
+					),
+					'threats'   => array(
+						array(
+							'id'    => 3,
+							'state' => 'open',
+							'kind'  => 'malware',
+						),
+					),
+					'count'     => 1,
+					'truncated' => false,
 				),
 			),
 			'/jetpack/v4/site/backup/schedule'            => array(

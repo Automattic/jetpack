@@ -8,13 +8,16 @@
 namespace Automattic\Jetpack\Activity_Log;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\TestCase;
 
 class Initial_State_Test extends TestCase {
 
 	protected function tearDown(): void {
-		Constants::clear_single_constant( 'IS_WPCOM' );
+		Constants::clear_constants();
+		Status_Cache::clear();
 		wp_set_current_user( 0 );
+		remove_all_filters( 'jetpack_activity_log_restore_url_template' );
 		parent::tearDown();
 	}
 
@@ -55,5 +58,32 @@ class Initial_State_Test extends TestCase {
 			),
 			$config['tracksUserData']
 		);
+	}
+
+	public function test_config_marks_known_threats_available_only_on_woa() {
+		$this->assertFalse( $this->get_rendered_state()['config']['knownThreatsAvailable'] );
+
+		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
+
+		$this->assertTrue( $this->get_rendered_state()['config']['knownThreatsAvailable'] );
+	}
+
+	public function test_restore_url_template_defaults_to_empty() {
+		$this->assertSame( '', $this->get_rendered_state()['jetpackStatus']['restoreUrlTemplate'] );
+	}
+
+	public function test_restore_url_template_comes_from_the_filter() {
+		$template = 'https://example.org/wp-admin/admin.php?page=jetpack-backup&p=%2Frestore%2F{rewindId}';
+		add_filter(
+			'jetpack_activity_log_restore_url_template',
+			function () use ( $template ) {
+				return $template;
+			}
+		);
+
+		$this->assertSame( $template, $this->get_rendered_state()['jetpackStatus']['restoreUrlTemplate'] );
 	}
 }
