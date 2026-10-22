@@ -9,6 +9,7 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php';
 
 /**
@@ -261,28 +262,41 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @dataProvider get_module_info_arguments
+	 * Keep the list usable and preserve module selection for info arguments.
+	 *
+	 * @dataProvider get_module_info_list_and_selection_data
 	 * @param string|array $info Requested module information.
 	 * @param string       $expected Expected module information.
 	 */
-	#[DataProvider( 'get_module_info_arguments' )]
-	public function test_module_info_argument( $info, $expected ) {
-		$_GET['info'] = $info;
-		wp_deregister_script( 'jetpack-modules-list-table' );
-		$this->expectOutputRegex( '/Jetpack Modules List/' );
-		$table = new Jetpack_Modules_List_Table();
-		$data  = wp_scripts()->get_data( 'jetpack-modules-list-table', 'data' );
-		$this->assertNotEmpty( $table->items );
-		$this->assertSame( 1, preg_match( '/var jetpackModulesData = (.*);/', $data, $matches ) );
-		$data = json_decode( $matches[1], true );
-		$this->assertIsArray( $data );
-		$this->assertSame( $expected, $data['modalinfo'] );
+	#[DataProvider( 'get_module_info_list_and_selection_data' )]
+	public function test_info_argument_preserves_list_and_module_selection( $info, $expected ) {
+		$original_get = $_GET;
+		try {
+			$_GET['info'] = $info;
+			wp_deregister_script( 'jetpack-modules-list-table' );
+			$this->expectOutputRegex( '/Jetpack Modules List/' );
+			$table = new Jetpack_Modules_List_Table();
+			$data  = wp_scripts()->get_data( 'jetpack-modules-list-table', 'data' );
+			$this->assertNotEmpty( $table->items );
+			$this->assertSame( 1, preg_match( '/var jetpackModulesData = (.*);/', $data, $matches ) );
+			$data = json_decode( $matches[1], true );
+			$this->assertIsArray( $data );
+			$this->assertSame( $expected, $data['modalinfo'] );
+		} finally {
+			$_GET = $original_get;
+			foreach ( array( 'models.jetpack-modules', 'views.jetpack-modules', 'jetpack-modules-list-table' ) as $handle ) {
+				wp_dequeue_script( $handle );
+				wp_deregister_script( $handle );
+			}
+		}
 	}
 
 	/**
+	 * Provide info arguments and their expected module selections.
+	 *
 	 * @return array Module information arguments and expected selections.
 	 */
-	public static function get_module_info_arguments() {
+	public static function get_module_info_list_and_selection_data() {
 		return array(
 			'valid module' => array( 'sso', 'sso' ),
 			'array'        => array( array( 'x' ), '' ),

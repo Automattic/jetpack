@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Modules: Fix a fatal error when a module information link contains an array instead of a module name.
+Modules: Fix a fatal error when the module information link in the address is not plain text.
