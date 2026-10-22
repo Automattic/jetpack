@@ -171,6 +171,8 @@ function wpcomsh_get_wpcom_theme_type( $theme_slug ) {
 		return WPCOMSH_PREMIUM_THEME_TYPE;
 	} elseif ( wpcomsh_is_wpcom_pub_theme( $theme_slug ) ) {
 		return WPCOMSH_PUB_THEME_TYPE;
+	} elseif ( file_exists( THEMES_PATH_BASE . "/$theme_slug/latest" ) ) {
+		return WPCOMSH_MANAGED_THEME_TYPE;
 	}
 
 	return false;

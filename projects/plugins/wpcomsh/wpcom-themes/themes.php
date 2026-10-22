@@ -266,9 +266,6 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
 	}
 
 	$theme_type = wpcomsh_get_wpcom_theme_type( $wpcom_theme->slug );
-	if ( ! $theme_type && file_exists( THEMES_PATH_BASE . "/{$wpcom_theme->slug}/latest" ) ) {
-		$theme_type = WPCOMSH_MANAGED_THEME_TYPE;
-	}
 
 	// WP Cloud doesn't host it, so wpcomsh_theme_install_by_download() gets it instead.
 	if ( ! $theme_type ) {

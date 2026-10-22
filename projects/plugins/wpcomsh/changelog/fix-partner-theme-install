@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Themes: Install partner themes the site has bought from the Marketplace tab, and report a failed theme install as a failure.
+Themes: Install partner themes the site has bought, from the Marketplace tab or the WordPress.com theme showcase, and show an error instead of reporting success when a theme can’t be installed.
