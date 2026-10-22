@@ -18,18 +18,20 @@ const BackupOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const { detail } = useProduct( PRODUCT_SLUGS.BACKUP );
 	const { status, doesModuleNeedAttention } = detail || {};
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
-	const { data, isLoading, isFetching, isError, error, refetch } = useSimpleQuery< {
+	// The history route needs `manage_options`, so only admins ask for it.
+	const showsHistory = admin && hasBackups;
+	const { data, isLoading, isFetching, isError, refetch } = useSimpleQuery< {
 		last_rewindable_event?: { published?: string };
 	} >( {
 		name: QUERY_BACKUP_HISTORY_KEY,
 		query: { path: REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT },
-		options: { enabled: hasBackups },
+		options: { enabled: showsHistory },
 	} );
 	const { reasonContent } = useGetReadableFailedBackupReason() || {};
-	const hasFailed = hasBackups && isError && error?.code !== 'not_connected';
+	const hasFailed = showsHistory && isError;
 	const { siteUrl = '' } = getMyJetpackWindowInitialState();
 
-	const lastBackup = hasBackups
+	const lastBackup = showsHistory
 		? getTimeSinceLastRenewableEvent( data?.last_rewindable_event?.published )
 		: undefined;
 	const attention = doesModuleNeedAttention ? doesModuleNeedAttention.data : undefined;
@@ -53,7 +55,7 @@ const BackupOverviewItem: ProductCardComponent = ( { admin } ) => {
 			label={ lastBackup ? __( 'Latest backup', 'jetpack-my-jetpack' ) : undefined }
 			value={ lastBackup || undefined }
 			statusLabel={ failureReason }
-			isLoading={ hasBackups && ( isLoading || ( isError && isFetching ) ) }
+			isLoading={ showsHistory && ( isLoading || ( isError && isFetching ) ) }
 			error={
 				hasFailed
 					? {

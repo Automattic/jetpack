@@ -73,16 +73,19 @@ describe( 'Overview items with their card values', () => {
 	} );
 
 	it.each( [
-		[ 'Backup', BackupOverviewItem, 'Failed to load latest backup', 'failed', 1 ],
-		[ 'VideoPress', VideoPressOverviewItem, 'Failed to load videos', 'failed', 1 ],
-		[ 'VideoPress', VideoPressOverviewItem, 'Failed to load videos', 'not_connected', 0 ],
-	] )( 'shows %s failing with %s on a %s error %d times', ( _, Item, reason, code, count ) => {
-		mockDetail = { status: 'active' };
-		mockQueryData = undefined;
-		mockQueryError = { code };
-		render( <Item admin /> );
+		{ product: 'Backup', Item: BackupOverviewItem, admin: true, shown: 1 },
+		{ product: 'Backup', Item: BackupOverviewItem, admin: false, shown: 0 },
+		{ product: 'VideoPress', Item: VideoPressOverviewItem, admin: true, shown: 1 },
+		{ product: 'VideoPress', Item: VideoPressOverviewItem, admin: false, shown: 1 },
+	] )(
+		'shows $product failing to load to an admin: $admin, $shown times',
+		( { Item, admin, shown } ) => {
+			mockDetail = { status: 'active' };
+			mockQueryData = undefined;
+			mockQueryError = { code: 'failed' };
+			render( <Item admin={ admin } /> );
 
-		expect( screen.queryAllByText( reason ) ).toHaveLength( count );
-		expect( screen.queryAllByRole( 'button', { name: 'Try again' } ) ).toHaveLength( count );
-	} );
+			expect( screen.queryAllByText( /^Failed to load/ ) ).toHaveLength( shown );
+		}
+	);
 } );

@@ -14,15 +14,11 @@ import type { ProductCardComponent } from '../types';
 
 const VideoPressOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const { detail } = useProduct( PRODUCT_SLUGS.VIDEOPRESS );
-	const { data, isLoading, isFetching, isError, error, refetch } = useSimpleQuery< VideopressData >(
-		{
-			name: QUERY_GET_VIDEOPRESS_DATA_KEY,
-			query: { path: REST_API_GET_VIDEOPRESS_DATA },
-		}
-	);
+	const { data, isLoading, isFetching, isError, refetch } = useSimpleQuery< VideopressData >( {
+		name: QUERY_GET_VIDEOPRESS_DATA_KEY,
+		query: { path: REST_API_GET_VIDEOPRESS_DATA },
+	} );
 	const { videoCount = 0, featuredStats } = data || {};
-	// A disconnected site answers "not_connected": VideoPress has no data there, not a failure.
-	const hasFailed = isError && error?.code !== 'not_connected';
 	const isPluginActive =
 		detail?.status === PRODUCT_STATUSES.ACTIVE || detail?.status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const loadTracks = useMemo(
@@ -55,7 +51,7 @@ const VideoPressOverviewItem: ProductCardComponent = ( { admin } ) => {
 			value={ value }
 			isLoading={ isLoading || ( isError && isFetching ) }
 			error={
-				hasFailed
+				isError
 					? { reason: __( 'Failed to load videos', 'jetpack-my-jetpack' ), onRetry: refetch }
 					: undefined
 			}
