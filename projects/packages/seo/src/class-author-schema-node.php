@@ -268,7 +268,8 @@ class Author_Schema_Node {
 			$userdata['user_url'] = esc_url_raw( trim( (string) $fields['url'] ) );
 		}
 		if ( count( $userdata ) > 1 ) {
-			$result = wp_update_user( $userdata );
+			// wp_update_user() and update_user_meta() unslash their input, so slash it as core's users route does.
+			$result = wp_update_user( wp_slash( $userdata ) );
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
@@ -309,7 +310,7 @@ class Author_Schema_Node {
 		if ( '' === $job_title ) {
 			delete_user_meta( $user_id, self::META_JOB_TITLE );
 		} else {
-			update_user_meta( $user_id, self::META_JOB_TITLE, $job_title );
+			update_user_meta( $user_id, self::META_JOB_TITLE, wp_slash( $job_title ) );
 		}
 	}
 
@@ -325,7 +326,7 @@ class Author_Schema_Node {
 		if ( empty( $same_as ) ) {
 			delete_user_meta( $user_id, self::META_SAME_AS );
 		} else {
-			update_user_meta( $user_id, self::META_SAME_AS, $same_as );
+			update_user_meta( $user_id, self::META_SAME_AS, wp_slash( $same_as ) );
 		}
 	}
 

@@ -308,8 +308,8 @@ class SchemaSettingsControllerTest extends TestCase {
 	}
 
 	/**
-	 * A save writes every field to the signed-in user, where the front-end Person schema
-	 * reads it, and never to a user named in the body.
+	 * A save writes every field, backslashes intact, to the signed-in user, where the front-end
+	 * Person schema reads it, and never to a user named in the body.
 	 */
 	public function test_author_profile_route_saves_the_current_users_profile() {
 		$admin = $this->make_user( array( 'role' => 'administrator' ) );
@@ -321,9 +321,9 @@ class SchemaSettingsControllerTest extends TestCase {
 			array(
 				'id'          => $other->ID,
 				'name'        => 'Jane Smith',
-				'description' => 'Writes about search.',
+				'description' => 'Writes about C:\\tools.',
 				'url'         => 'https://example.com/jane/',
-				'jobTitle'    => ' Lead <b>Creator</b> ',
+				'jobTitle'    => ' Lead <b>Creator</b> \\ SEO ',
 				'sameAs'      => array( 'https://x.com/jane', 'not a url' ),
 			)
 		);
@@ -331,9 +331,9 @@ class SchemaSettingsControllerTest extends TestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$expected = array(
 			'name'        => 'Jane Smith',
-			'description' => 'Writes about search.',
+			'description' => 'Writes about C:\\tools.',
 			'url'         => 'https://example.com/jane/',
-			'jobTitle'    => 'Lead Creator',
+			'jobTitle'    => 'Lead Creator \\ SEO',
 			'sameAs'      => array( 'https://x.com/jane' ),
 		);
 		$this->assertSame( $expected, array_intersect_key( $response->get_data(), $expected ) );
@@ -343,9 +343,9 @@ class SchemaSettingsControllerTest extends TestCase {
 		);
 		$person = Author_Schema_Node::build_person( $admin->ID );
 		$this->assertSame( 'Jane Smith', $person['name'] );
-		$this->assertSame( 'Writes about search.', $person['description'] );
+		$this->assertSame( 'Writes about C:\\tools.', $person['description'] );
 		$this->assertSame( 'https://example.com/jane/', $person['url'] );
-		$this->assertSame( 'Lead Creator', $person['jobTitle'] );
+		$this->assertSame( 'Lead Creator \\ SEO', $person['jobTitle'] );
 		$this->assertSame( array( 'https://x.com/jane' ), $person['sameAs'] );
 		$this->assertSame( 'Other Person', get_userdata( $other->ID )->display_name );
 	}
