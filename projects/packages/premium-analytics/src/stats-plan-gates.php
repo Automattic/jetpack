@@ -490,7 +490,7 @@ function get_stats_plan_gates() {
 	foreach ( $features as $feature ) {
 		$copy                        = get_stats_feature_copy( $feature );
 		$copy['support_url']         = localize_stats_support_url( $copy['support_url'] );
-		$locked_features[ $feature ] = $copy + array( 'upgrade_url' => get_stats_upgrade_url( $feature, $tier ) );
+		$locked_features[ $feature ] = $copy + array( 'upgrade_url' => get_stats_upgrade_url( $feature, $tier, 'jetpack-premium-analytics-locked-feature' ) );
 	}
 
 	$locked_widget_types = array();

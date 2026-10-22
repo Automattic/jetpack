@@ -692,22 +692,21 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The offer carries the server's purchase URL, credited to the banner, and whether the site has a Stats product for its title.
+	 * The offer carries the upgrade page URL, credited to the banner, and whether the site has a Stats product for its title.
 	 */
-	public function test_script_data_offers_the_free_site_upgrade_with_its_purchase_url() {
+	public function test_script_data_offers_the_free_site_upgrade_with_its_upgrade_url() {
 		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_JETPACK_FREE );
 		update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - 31 * DAY_IN_SECONDS );
 		update_option( 'jetpack_site_products', array( array( 'product_slug' => 'jetpack_stats_free_yearly' ) ) );
-		$GLOBALS['_parent_pages']['stats'] = false;
-		\Jetpack_Options::update_option( 'id', 1234 );
 		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
 		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
 
 		$data = inject_stats_plan_gates_script_data( array() );
 
-		$url = $data['premium_analytics']['plan_gates']['free_site_upgrade']['upgrade_url'];
-		$this->assertStringContainsString( 'page=stats#!/stats/purchase/1234?', $url );
-		$this->assertStringContainsString( 'from=jetpack-premium-analytics-free-site-upgrade-notice', $url );
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-premium-analytics-wp-admin&p=' . rawurlencode( '/upgrade?source=jetpack-premium-analytics-free-site-upgrade-notice' ) ),
+			$data['premium_analytics']['plan_gates']['free_site_upgrade']['upgrade_url']
+		);
 		$this->assertTrue( $data['premium_analytics']['plan_gates']['free_site_upgrade']['has_stats_product'] );
 	}
 
