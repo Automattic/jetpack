@@ -7,7 +7,6 @@ import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useFilteredProducts from '../../../hooks/use-filtered-products';
 import LoadingBlock from '../../loading-block';
-import OverviewBlogPosts from '../../overview-blog-posts';
 import BoostOverviewItem from '../boost-card/overview';
 import OverviewSection from '../overview-section';
 import ProtectOverviewItem from '../protect-card/overview';
@@ -81,7 +80,6 @@ const OverviewSections: FC = () => {
 							<BoostOverviewItem admin={ admin } />
 						</OverviewSection>
 					) }
-					<OverviewBlogPosts />
 				</>
 			) }
 		</div>

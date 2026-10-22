@@ -1,5 +1,7 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import { isOfflineFeatures } from '../../../data/utils/offline-features';
+import OverviewBlogPosts from '../../overview-blog-posts';
 import ProductCardsSection from '../../product-cards-section';
 import OverviewSections from '../../product-cards-section/overview-sections';
 import SeoOptInCard from '../../seo-opt-in-card';
@@ -20,6 +22,12 @@ export function OverviewContent() {
 		<div>
 			<div className={ styles.products }>
 				{ overviewV1 && <OverviewSections /> }
+				{ /* Offline mode never registers the blog posts route. */ }
+				{ overviewV1 && ! isOfflineFeatures() && (
+					<div className={ styles[ 'blog-posts' ] }>
+						<OverviewBlogPosts />
+					</div>
+				) }
 				<ProductCardsSection />
 			</div>
 
