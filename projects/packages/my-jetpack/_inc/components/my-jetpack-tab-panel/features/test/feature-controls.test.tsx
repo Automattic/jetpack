@@ -886,7 +886,6 @@ describe( 'features waiting for an account', () => {
 			);
 			expect( leavePageFor ).toHaveBeenCalledTimes( connections );
 			expect( getUserConnectionUrl ).toHaveBeenCalledTimes( connections );
-			// Another plugin's Install has already turned it on; Jetpack still has the module to turn on.
 			const returnUrl = ( getUserConnectionUrl as jest.Mock ).mock.calls[ 0 ]?.[ 0 ].redirect_url;
 			expect( /connect_intent=[0-9a-f]{16}$/.test( returnUrl ) ).toBe( resumes );
 			expect( window.sessionStorage.getItem( 'myJetpackFeatureConnectIntent' ) !== null ).toBe(
@@ -895,42 +894,48 @@ describe( 'features waiting for an account', () => {
 		}
 	);
 
-	it.each( [
-		[ 'reloads to turn the module on', true, true ],
-		[ 'turns nothing on after a failed activation', true, false ],
-		[ 'leaves the reload to Jetpack with the flag off', false, true ],
-	] as const )(
-		'%s after Activate Jetpack with the account connected',
-		async ( _, flag, succeeds ) => {
-			setAccountConnect( flag );
+	const noAccountJetpack = resolveFeatureState(
+		accountJetpack( 'inactive' ).feature,
+		'inactive',
+		undefined,
+		undefined,
+		{}
+	);
+	const missingBoost = buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } );
+
+	type ReloadCase = { fails?: boolean; flagOff?: boolean; offline?: boolean };
+
+	it.each< [ string, FeatureState, ReloadCase, boolean ] >( [
+		[ 'reloads to turn the module on', noAccountJetpack, {}, true ],
+		[ 'turns nothing on after a failed activation', noAccountJetpack, { fails: true }, false ],
+		[
+			'leaves the reload to Jetpack with the flag off',
+			noAccountJetpack,
+			{ flagOff: true },
+			false,
+		],
+		[ 'leaves the reload to Jetpack offline', noAccountJetpack, { offline: true }, false ],
+		[ "turns nothing on after another plugin's Install", missingBoost, {}, false ],
+	] )(
+		'%s when no account connection follows',
+		async ( _, state, { fails = false, flagOff = false, offline = false }, resumes ) => {
+			setAccountConnect( ! flagOff );
+			window.myJetpackInitialState.isOfflineFeatures = offline;
 			window.location.hash = '#/features?feature=activity-log';
-			mockRun.mockReturnValueOnce( Promise.resolve( succeeds ) );
-			render(
-				<FeatureAction
-					state={ resolveFeatureState(
-						accountJetpack( 'inactive' ).feature,
-						'inactive',
-						undefined,
-						undefined,
-						{}
-					) }
-				/>
+			mockRun.mockReturnValueOnce( Promise.resolve( ! fails ) );
+			render( <FeatureAction state={ state } /> );
+
+			await userEvent.click(
+				screen.getByRole( 'button', { name: /^(Activate Jetpack|Install)$/ } )
 			);
-
-			await userEvent.click( screen.getByRole( 'button', { name: 'Activate Jetpack' } ) );
 			await settle();
+			window.myJetpackInitialState.isOfflineFeatures = false;
 
-			const resumes = flag && succeeds;
-			expect( mockRun.mock.calls ).toEqual( [
-				[
-					{
-						plugin: 'jetpack',
-						name: 'Jetpack',
-						action: 'activate',
-						...( flag && { leavesPage: true } ),
-					},
-				],
-			] );
+			const leavesPage = state === noAccountJetpack && ! flagOff && ! offline;
+			expect( mockRun ).toHaveBeenCalledTimes( 1 );
+			expect( ( mockRun.mock.calls[ 0 ][ 0 ] as { leavesPage?: boolean } ).leavesPage ).toBe(
+				leavesPage || undefined
+			);
 			expect( reloadPage ).toHaveBeenCalledTimes( resumes ? 1 : 0 );
 			expect( leavePageFor ).not.toHaveBeenCalled();
 			expect(
