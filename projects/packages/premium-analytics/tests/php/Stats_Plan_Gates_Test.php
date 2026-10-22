@@ -782,6 +782,20 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertSame( STATS_TIER_UNKNOWN, get_stats_plan_tier() );
 	}
 
+	public function test_unconnected_visit_does_not_throttle_the_refresh_after_connecting() {
+		$this->open_dashboard_with_counted_plan_fetches();
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		( new Connection_Manager() )->reset_connection_status();
+		maybe_refresh_jetpack_plan();
+
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+		maybe_refresh_jetpack_plan();
+
+		$this->assertSame( STATS_TIER_JETPACK_FREE, get_stats_plan_tier() );
+	}
+
 	public function test_refreshed_plan_feeds_the_tier() {
 		$this->open_dashboard_with_counted_plan_fetches();
 
