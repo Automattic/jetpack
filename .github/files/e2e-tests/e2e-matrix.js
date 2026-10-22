@@ -31,6 +31,13 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
+		project: 'Jetpack comments',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/comments' ],
+		targets: [ 'plugins/jetpack', 'packages/comments' ],
+		buildGroup: 'jetpack-core',
+	},
+	{
 		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync' ],
@@ -189,6 +196,8 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 			} ).toString()
 		);
 
+		const dependencyCache = new Map();
+
 		for ( const project of projects ) {
 			if ( ! project.targets ) {
 				// If no targets are defined, run the tests
@@ -196,11 +205,11 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 				continue;
 			}
 
-			const targets = execSync(
-				`pnpm jetpack dependencies list --add-dependencies ${ project.targets.join( ' ' ) }`
-			)
-				.toString()
-				.split( '\n' );
+			const command = `pnpm jetpack dependencies list --add-dependencies ${ project.targets.join( ' ' ) }`;
+			if ( ! dependencyCache.has( command ) ) {
+				dependencyCache.set( command, execSync( command ).toString().split( '\n' ) );
+			}
+			const targets = dependencyCache.get( command );
 
 			if ( Object.keys( changedProjects ).some( target => targets.includes( target ) ) ) {
 				pushBothVersions( project );

@@ -20,8 +20,14 @@ import { Stack } from '@jetpack-premium-analytics/externals';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { MostPopularDayAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * The widget has no user-configurable attributes. The "most popular day"
+ * highlight is a site-wide summary that does not depend on the dashboard date
+ * range, so no report params are consumed either.
+ */
+export type MostPopularDayAttributes = Record< never, never >;
 
 // The highlight is site-wide and ignores report params, but the host may still
 // inject them via `attributes`, so the shape has to accept them.

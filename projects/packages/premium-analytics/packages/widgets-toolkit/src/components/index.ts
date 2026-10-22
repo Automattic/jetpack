@@ -46,6 +46,7 @@ export {
 	type LeaderboardChartData,
 	type LeaderboardSkeletonProps,
 	type LegendLabels,
+	type LeaderboardColumns,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
 	LeaderboardRow,
@@ -105,13 +106,6 @@ export {
 	type WidgetStateEmpty,
 } from './widget-state';
 export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
-export {
-	WidgetFooter,
-	type WidgetFooterProps,
-	WidgetFooterLink,
-	type WidgetFooterLinkProps,
-} from './widget-footer';
-export { ReportLink, type ReportLinkProps } from './report-link';
 export { ExternalLink, type ExternalLinkProps } from './external-link';
 export { InfoTip, type InfoTipProps } from './info-tip';
 export { InternalLink } from './internal-link';
@@ -194,7 +188,6 @@ export {
 } from './page-options-menu';
 export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
 export {
-	ExporterCsvDownloadButton,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 	useReportCsvExport,

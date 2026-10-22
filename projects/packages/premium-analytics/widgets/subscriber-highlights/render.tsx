@@ -19,8 +19,12 @@ import { envelope, payment, people, scheduled, share } from '@wordpress/icons';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { SubscriberHighlightsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes. A `metrics` subset persisted by an earlier version is ignored.
+ */
+export type SubscriberHighlightsAttributes = Record< never, never >;
 
 // Report params arrive from the host but change nothing here: the counts are all-time or fixed days back.
 type SubscriberHighlightsRenderAttributes = SubscriberHighlightsAttributes &
@@ -228,6 +232,9 @@ function SubscriberHighlightsReport() {
 	);
 }
 
+/**
+ * Ported from the Jetpack Stats Subscribers "All-time stats" card.
+ */
 export default function SubscriberHighlights( {
 	attributes = {},
 }: SubscriberHighlightsWidgetProps ) {

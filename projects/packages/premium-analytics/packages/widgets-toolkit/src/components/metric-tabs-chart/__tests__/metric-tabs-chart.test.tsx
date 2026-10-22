@@ -176,12 +176,68 @@ describe( 'MetricTabsChart', () => {
 
 		render( <MetricTabsChart metrics={ [ describedMetric ] } dataFormat={ DATA_FORMAT } /> );
 
-		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Views' ) ).not.toHaveClass( /visually-hidden/ );
 		expect( screen.getByText( describedMetric.description ) ).toBeInTheDocument();
 		expect( screen.queryByTitle( describedMetric.description ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'tab' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'visually hides an opted-in single metric label without un-naming its series', () => {
+		render(
+			<MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } hideSingleMetricLabel />
+		);
+
+		expect( screen.getByText( 'Views' ) ).toHaveClass( /visually-hidden/ );
+		expect( recordedSeries( mockLineSpy )[ 0 ].label ).toBe( 'Views' );
+	} );
+
+	it( 'keeps labels visible when the opt-in is passed to multiple metrics', () => {
+		render(
+			<MetricTabsChart
+				metrics={ [ VIEWS, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+				hideSingleMetricLabel
+			/>
+		);
+
+		expect( screen.getByText( 'Views' ) ).not.toHaveClass( /visually-hidden/ );
+		expect( screen.getByText( 'Visitors' ) ).not.toHaveClass( /visually-hidden/ );
+	} );
+
+	it.each( [
+		[ 'spreads six cards over two even rows', 999, '3' ],
+		[ 'keeps six cards on one row when they fit', 1000, '6' ],
+	] )( '%s', ( _case, width, columns ) => {
+		setMockChartWidth( width );
+		const metrics = [ 'a', 'b', 'c', 'd', 'e', 'f' ].map( key => ( {
+			...METRIC,
+			key,
+			label: key,
+		} ) );
+
+		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } /> );
+
+		expect(
+			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-metric-tabs-columns' )
+		).toBe( columns );
+	} );
+
+	it( 'spells the figure out in the dropdown, which has room for it', () => {
+		setMockChartWidth( 100 );
+		const compact = { type: 'number' as const, options: { useMultipliers: true } };
+
+		render(
+			<MetricTabsChart
+				metrics={ [ { ...VIEWS, value: 12345, dataFormat: compact }, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+
+		const trigger = screen.getByRole( 'combobox' );
+		expect( trigger ).toHaveTextContent( '12,345' );
+		expect( trigger ).not.toHaveTextContent( '12.3K' );
 	} );
 
 	it( 'draws a bar chart when chartType is bar', () => {
@@ -197,6 +253,34 @@ describe( 'MetricTabsChart', () => {
 		);
 		expect( mockLineSpy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { baseline: 'padded' } )
+		);
+	} );
+
+	it.each( [
+		[ 'single-metric', 'line', mockLineSpy, [ METRIC ] ],
+		[ 'single-metric', 'bar', mockBarSpy, [ METRIC ] ],
+		[ 'tabbed', 'line', mockLineSpy, [ METRIC, VISITORS ] ],
+		[ 'tabbed', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
+		[ 'dropdown', 'line', mockLineSpy, [ METRIC, VISITORS ] ],
+		[ 'dropdown', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
+	] as const )( 'passes chartTitle to the %s %s chart', ( layout, type, spy, metrics ) => {
+		if ( layout === 'dropdown' ) {
+			setMockChartWidth( 100 );
+		}
+
+		render(
+			<MetricTabsChart
+				metrics={ [ ...metrics ] }
+				dataFormat={ DATA_FORMAT }
+				chartType={ type }
+				chartTitle="Traffic summary"
+			/>
+		);
+
+		expect( screen.queryByRole( 'tablist' ) !== null ).toBe( layout === 'tabbed' );
+		expect( screen.queryByRole( 'combobox' ) !== null ).toBe( layout === 'dropdown' );
+		expect( spy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { chartTitle: 'Traffic summary' } )
 		);
 	} );
 
@@ -239,6 +323,26 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.getAllByText( reason ) ).toHaveLength( 2 );
 		// The headline stands down to a placeholder rather than reporting a total
 		// the endpoint never returned.
+		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'draws the previous period under a headline with no value', () => {
+		render(
+			<MetricTabsChart
+				metrics={ [
+					{
+						...METRIC,
+						value: null,
+						current: METRIC.current.map( point => ( { ...point, value: null } ) ),
+					},
+				] }
+				dataFormat={ DATA_FORMAT }
+				empty={ <p>Nothing in this window.</p> }
+			/>
+		);
+
+		expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No data' ) ).toBeInTheDocument();
 		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
 	} );
 

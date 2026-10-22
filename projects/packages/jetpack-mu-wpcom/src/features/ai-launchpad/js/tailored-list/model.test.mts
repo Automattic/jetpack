@@ -5,6 +5,7 @@ import {
 	nextIncompleteId,
 	isCompleteOnClickTask,
 	isTaskActionable,
+	recordsWizardCompleted,
 	resolveCtaUrl,
 	tasksFromFixture,
 	toNavigableUrl,
@@ -237,7 +238,7 @@ describe( 'resolveCtaUrl', () => {
 		[
 			'sends launch tasks to the wordpress.com launch flow built from the site URL',
 			{ id: 'site_launched' },
-			'https://wordpress.com/start/launch-site?siteSlug=example.wpcomstaging.com&ref=wp-admin',
+			'https://wordpress.com/setup/launch-site?siteSlug=example.wpcomstaging.com&ref=wp-admin',
 			'https://example.wpcomstaging.com',
 		],
 		[
@@ -364,5 +365,12 @@ describe( 'tasksFromFixture', () => {
 			disabled: false,
 			calypso_path: null,
 		} );
+	} );
+} );
+
+describe( 'recordsWizardCompleted', () => {
+	it( 'records only a run that came from the wizard', () => {
+		assert.equal( recordsWizardCompleted( true, true, 3 ), true );
+		assert.equal( recordsWizardCompleted( false, true, 3 ), false );
 	} );
 } );

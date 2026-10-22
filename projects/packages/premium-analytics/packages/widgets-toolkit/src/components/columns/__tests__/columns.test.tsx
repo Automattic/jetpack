@@ -16,8 +16,8 @@ import type { ReactNode } from 'react';
 
 // The chart is the library's; the kind's job is what it hands it.
 jest.mock( '../../chart-bar/bar-chart', () => ( {
-	BarChart: ( { chartData, dataFormat }: BarChartProps ) => (
-		<div data-testid="bar-chart" data-format={ dataFormat.type }>
+	BarChart: ( { chartData, dataFormat, chartTitle }: BarChartProps ) => (
+		<div data-testid="bar-chart" data-format={ dataFormat.type } data-chart-title={ chartTitle }>
 			{ chartData.map( series => (
 				<span key={ series.label }>{ series.label }</span>
 			) ) }
@@ -64,16 +64,21 @@ describe( 'Columns', () => {
 		expect( screen.getByText( collapse( labels.comparison ) ) ).toBeInTheDocument();
 	} );
 
-	it( 'hands the chart the format', () => {
+	it( 'hands the chart the format and the title', () => {
 		renderColumns(
 			<Columns
 				columns={ COLUMNS }
 				status={ READY }
 				format={ { type: 'currency', options: { useMultipliers: true } } }
+				chartTitle="Sales by device"
 			/>
 		);
 
 		expect( screen.getByTestId( 'bar-chart' ) ).toHaveAttribute( 'data-format', 'currency' );
+		expect( screen.getByTestId( 'bar-chart' ) ).toHaveAttribute(
+			'data-chart-title',
+			'Sales by device'
+		);
 	} );
 
 	it( 'renders the empty state when every figure of both periods is zero', () => {

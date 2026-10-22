@@ -9,6 +9,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import AuthorsWidget, { AuthorsLeaderboard } from '../render';
 import type { AuthorLeaderboardRow } from '../build-top-authors-data';
 
@@ -62,13 +63,10 @@ describe( 'AuthorsWidget', () => {
 		);
 	} );
 
-	it( 'links to the Authors report', () => {
-		render( <AuthorsWidget attributes={ {} } /> );
+	it( 'declares View all to the Authors report', () => {
+		const { declaredLink } = renderWithActionsHost( <AuthorsWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/authors' )
-		);
+		expect( declaredLink( 'view-all' )?.href ).toContain( '%2Freports%2Fauthors' );
 	} );
 
 	it( 'links the author’s name to their page and a drilled-down post to its detail page', async () => {
@@ -115,8 +113,11 @@ describe( 'AuthorsWidget', () => {
 			expect.stringContaining( '/author/102' )
 		);
 
+		expect( screen.getByText( 'Authors' ) ).toBeInTheDocument();
+
 		await user.click( screen.getByRole( 'button', { name: 'View posts by Jane Cooper' } ) );
 
+		expect( screen.getByText( 'Posts' ) ).toBeInTheDocument();
 		const link = screen.getByRole( 'link', { name: 'Quarterly update' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 

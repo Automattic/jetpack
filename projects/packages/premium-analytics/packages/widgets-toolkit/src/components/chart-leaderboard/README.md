@@ -25,10 +25,12 @@ return (
 		rows={ rows }
 		status={ { isLoading, isFetching, isError, hasComparison, refetch } }
 		error={ describeError( error, {
-			retryDescription: __( "We couldn't load video plays. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
+			retryDescription: __(
+				"We couldn't load video plays. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			),
 			onRetry: refetch,
 		} ) }
-		footer={ <ReportLink report="videos" /> }
 	/>
 );
 ```
@@ -242,20 +244,22 @@ inline padding.
 
 ## Props
 
-| Prop               | Type                   | Default                                                                | Description                                                        |
-| ------------------ | ---------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `data`             | `LeaderboardChartData` | required                                                               | Array of leaderboard items with label, values, shares, and deltas  |
-| `className`        | `string`               | -                                                                      | Additional CSS classes for container                               |
-| `loading`          | `boolean`              | `false`                                                                | Shows loading skeleton when true                                   |
-| `withComparison`   | `boolean`              | `false`                                                                | Enables comparison mode with previous period data                  |
-| `withOverlayLabel` | `boolean`              | `false`                                                                | Places labels on top of bars instead of beside them                |
-| `legendLabels`     | `LegendLabels`         | `{ primary: 'Current period', comparison: 'Previous period' }`         | Custom legend labels                                               |
-| `showLegend`       | `boolean`              | `true`                                                                 | Whether to show the legend                                         |
-| `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true } }` | Value formatting configuration                                     |
-| `emptyState`       | `ReactNode`            | -                                                                      | Custom empty state content (overrides default)                     |
-| `emptyStateIcon`   | `ReactNode`            | The `search` magnifier                                                 | Icon to display in default empty state                             |
-| `emptyStateText`   | `string`               | `'We couldn’t find results for this time period.'`                     | Text for default empty state                                       |
-| `fitRows`          | `boolean`              | `true`                                                                 | Show only the rows that fit the widget height instead of scrolling |
+| Prop               | Type                   | Default                                                        | Description                                                                                                                                                    |
+| ------------------ | ---------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data`             | `LeaderboardChartData` | required                                                       | Array of leaderboard items with label, values, shares, and deltas                                                                                              |
+| `className`        | `string`               | -                                                              | Additional CSS classes for container                                                                                                                           |
+| `loading`          | `boolean`              | `false`                                                        | Shows loading skeleton when true                                                                                                                               |
+| `withComparison`   | `boolean`              | `false`                                                        | Enables comparison mode with previous period data                                                                                                              |
+| `withOverlayLabel` | `boolean`              | `false`                                                        | Places labels on top of bars instead of beside them                                                                                                            |
+| `legendLabels`     | `LegendLabels`         | `{ primary: 'Current period', comparison: 'Previous period' }` | Custom legend labels                                                                                                                                           |
+| `showLegend`       | `boolean`              | `true`                                                         | Whether to show the legend                                                                                                                                     |
+| `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true } }`      | Value formatting configuration                                                                                                                                 |
+| `emptyState`       | `ReactNode`            | -                                                              | Custom empty state content (overrides default)                                                                                                                 |
+| `emptyStateIcon`   | `ReactNode`            | The `search` magnifier                                         | Icon to display in default empty state                                                                                                                         |
+| `emptyStateText`   | `string`               | `'We couldn’t find results for this time period.'`             | Text for default empty state                                                                                                                                   |
+| `fitRows`          | `boolean`              | `true`                                                         | Show only the rows that fit the widget height instead of scrolling                                                                                             |
+| `columns`          | `LeaderboardColumns`   | -                                                              | Names the rows (`label`) and the metric in a header, hidden on height-1 tiles; the metric also adds the unit to an abbreviated value's tooltip (`4,186 views`) |
+| `chartTitle`       | `string`               | -                                                              | What the chart shows; the chart is named "Chart: <title>"                                                                                                      |
 
 ### LeaderboardChartData Type
 

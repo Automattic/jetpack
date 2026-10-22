@@ -98,6 +98,7 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
 	appliedRange: { from: STORY_RANGE?.from, to: STORY_RANGE?.to },
 	interval: 'day',
 	intervalOptions: [ 'day' ],
+	lockedIntervalOptions: [],
 	onChange: () => {},
 	onComparisonChange: () => {},
 	onIntervalChange: () => {},

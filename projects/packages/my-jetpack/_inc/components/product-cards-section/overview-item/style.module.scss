@@ -1,0 +1,37 @@
+.item {
+	block-size: 100%;
+}
+
+.value {
+	display: flex;
+	align-items: center;
+	min-block-size: 40px;
+}
+
+.dot {
+	inline-size: 8px;
+	block-size: 8px;
+	border-radius: 50%;
+
+	&.is-good {
+		background: var(--jp-green-50);
+	}
+
+	&.is-warning {
+		background: var(--jp-yellow-30);
+	}
+
+	&.is-bad {
+		background: var(--jp-red-60);
+	}
+}
+
+.links {
+	margin-block-start: auto;
+	padding-block-start: var(--spacing-base);
+
+	> * + * {
+		padding-inline-start: var(--spacing-base);
+		border-inline-start: 1px solid var(--jp-gray-10);
+	}
+}

@@ -17,12 +17,22 @@ import { payment, receipt, tip } from '@wordpress/icons';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import {
-	WORDADS_EARNINGS_METRICS,
-	type WordAdsEarningsMetricId,
-	type WordAdsHighlightsAttributes,
-} from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** Earnings cards the widget shows, in display order. */
+const WORDADS_EARNINGS_METRICS = [
+	{ id: 'earnings', label: __( 'Earnings', 'jetpack-ads-pkg' ) },
+	{ id: 'paid', label: __( 'Paid', 'jetpack-ads-pkg' ) },
+	{ id: 'outstanding', label: __( 'Outstanding amount', 'jetpack-ads-pkg' ) },
+] as const satisfies readonly { id: string; label: string }[];
+
+type WordAdsEarningsMetricId = ( typeof WORDADS_EARNINGS_METRICS )[ number ][ 'id' ];
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields. A
+ * `metrics` subset persisted by an earlier version is ignored.
+ */
+export type WordAdsHighlightsAttributes = Record< never, never >;
 
 // The wordads/earnings endpoint is all-time and not period-scoped, so the widget
 // ignores the dashboard date range; report params still flow to WidgetRoot for the host contract.

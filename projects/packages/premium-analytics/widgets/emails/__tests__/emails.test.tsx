@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import Emails, { EmailsList, type EmailRow } from '../render';
 import type { EmailMetric } from '../widget';
 
@@ -79,17 +80,24 @@ describe( 'EmailsList', () => {
 	} );
 
 	it.each( [
-		[ 'opens', '420', '420 opens', '42%', '420 opens, 42% open rate' ],
-		[ 'clicks', '75', '75 clicks', '7%', '75 clicks, 7% click rate' ],
+		[ 'opens', '420', '42%', '420 opens, 42% open rate', 'Opens', 'Open rate' ],
+		[ 'clicks', '75', '7%', '75 clicks, 7% click rate', 'Clicks', 'Click rate' ],
 	] as const )(
-		'shows the %s count beside its rate',
-		( metric, count, label, rate, description ) => {
+		'shows the %s count beside its rate, under their headings',
+		( metric, count, rate, description, countHeading, rateHeading ) => {
 			renderEmailsList( metric );
 
 			expect( screen.getByText( count ) ).toBeInTheDocument();
-			expect( screen.getByText( label ) ).toBeInTheDocument();
 			expect( screen.getByText( rate ) ).toBeInTheDocument();
-			expect( screen.getByText( description ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Emails' ) ).toBeInTheDocument();
+			expect( screen.getByText( countHeading ) ).toBeInTheDocument();
+			expect( screen.getByText( rateHeading ) ).toBeInTheDocument();
+			// Screen readers hear one sentence per row, so it must stay out of the hidden figures.
+			expect(
+				screen.getByText( description, {
+					ignore: '[aria-hidden="true"], [aria-hidden="true"] *',
+				} )
+			).toBeInTheDocument();
 		}
 	);
 
@@ -198,7 +206,7 @@ describe( 'EmailsList', () => {
 			date: '2026-06-30',
 			posts: [ { id: 71, title: 'API newsletter', opens: 30, total_sends: 100 } ],
 		} );
-		render(
+		const { declaredAction } = renderWithActionsHost(
 			<Emails attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } } />
 		);
 		await expect(
@@ -211,6 +219,6 @@ describe( 'EmailsList', () => {
 		await act( () => new Promise( resolve => setTimeout( resolve, 0 ) ) );
 
 		expect( screen.getByRole( 'link', { name: 'API newsletter' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+		expect( declaredAction( 'download-csv' ) ).toBeDefined();
 	} );
 } );

@@ -7,13 +7,13 @@ import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 
 type ReportsOrdersByDateSummary = {
-	average_order_value: string;
-	avg_items: string;
+	average_order_value: string | null;
+	avg_items: string | null;
 	cogs_amount: string;
 	coupons: string;
 	date_end: string;
 	date_start: string;
-	orders_no: string;
+	orders_no: string | null;
 	orders_value_gross: string;
 	orders_value_net: string;
 	paid_orders_count: string;

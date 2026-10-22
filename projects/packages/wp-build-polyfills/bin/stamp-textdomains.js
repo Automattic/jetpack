@@ -15,33 +15,9 @@
  * See `stamp-textdomains-lib.js` for context and behaviour details.
  */
 
-const fs = require( 'fs' );
 const path = require( 'path' );
+const { resolveTextdomain } = require( './package-textdomain-lib.js' );
 const { stampDir, writeI18nManifest } = require( './stamp-textdomains-lib.js' );
-
-/**
- * Resolve the text domain to stamp: an explicit `--domain` wins, otherwise
- * `extra.textdomain` from composer.json in the current working directory.
- *
- * @param {string|undefined} argDomain - Value passed via `--domain`, if any.
- * @return {string} The resolved text domain.
- */
-function getDomain( argDomain ) {
-	if ( argDomain ) {
-		return argDomain;
-	}
-	const composerFile = path.resolve( 'composer.json' );
-	if ( fs.existsSync( composerFile ) ) {
-		const composer = JSON.parse( fs.readFileSync( composerFile, 'utf8' ) );
-		const domain = composer.extra && composer.extra.textdomain;
-		if ( typeof domain === 'string' && domain !== '' ) {
-			return domain;
-		}
-	}
-	throw new Error(
-		'stamp-textdomains: no text domain. Pass --domain or set extra.textdomain in composer.json.'
-	);
-}
 
 const args = process.argv.slice( 2 );
 const getFlag = name => {
@@ -49,7 +25,7 @@ const getFlag = name => {
 	return i >= 0 ? args[ i + 1 ] : undefined;
 };
 
-const domain = getDomain( getFlag( 'domain' ) );
+const domain = resolveTextdomain( getFlag( 'domain' ), 'stamp-textdomains' );
 const buildDir = path.resolve( getFlag( 'dir' ) || 'build' );
 // CI starts cold, and the e2e build artifact would otherwise ship the cache files.
 const cacheDir =

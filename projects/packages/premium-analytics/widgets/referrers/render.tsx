@@ -9,10 +9,8 @@ import {
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -22,8 +20,8 @@ import {
 	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
+	useReportActions,
 	useWidgetRootContext,
-	ExporterCsvDownloadButton,
 	referrersCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -35,8 +33,10 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
-import type { ReferrersAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type ReferrersAttributes = Record< never, never >;
 
 type ReferrersRenderAttributes = ReferrersAttributes & Partial< ReportParamsFieldAttributes >;
 
@@ -155,11 +155,13 @@ export function ReferrersLeaderboard( {
 }: ReferrersLeaderboardProps ) {
 	return (
 		<LeaderboardChart
+			chartTitle={ __( 'Top referrers', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Referrers', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
 		/>
 	);
 }
@@ -271,50 +273,51 @@ function ReferrersInner() {
 			)
 		: __( 'View all referrers', 'jetpack-premium-analytics-pkg' );
 
+	useReportActions( {
+		report: 'referrers',
+		csv: {
+			exporter: referrersCsvExporter,
+			status: { isLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<div className={ styles.content }>
-				{ trail.length > 0 && (
-					<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
-				) }
-				<WidgetState
-					isLoading={ emptyState.isLoading }
-					isFetching={ isFetching }
-					// `placeholderData` keeps the prior period's rows on screen while `isError`
-					// flips true, so a transient refetch failure should not replace them.
-					isError={ rows.length === 0 && isError }
-					isEmpty={ rows.length === 0 }
-					error={ {
-						description: __(
-							"We couldn't load referrers. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						actions: [
-							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-						],
-					} }
-					empty={ emptyState.empty }
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<ReferrersLeaderboard
-						rows={ activeRows }
-						withComparison={ withComparison }
-						onDrillDown={ drillInto }
-					/>
-				</WidgetState>
-			</div>
-			<WidgetFooter>
-				<ReportLink report="referrers" />
-				<ExporterCsvDownloadButton
-					exporter={ referrersCsvExporter }
-					status={ { isLoading, isFetching, isError: primary.isError } }
-					rowCount={ rows.length }
+		<div className={ styles.content }>
+			{ trail.length > 0 && (
+				<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
+			) }
+			<WidgetState
+				isLoading={ emptyState.isLoading }
+				isFetching={ isFetching }
+				// `placeholderData` keeps the prior period's rows on screen while `isError`
+				// flips true, so a transient refetch failure should not replace them.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ rows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load referrers. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				} }
+				empty={ emptyState.empty }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
+				<ReferrersLeaderboard
+					rows={ activeRows }
+					withComparison={ withComparison }
+					onDrillDown={ drillInto }
 				/>
-			</WidgetFooter>
-		</>
+			</WidgetState>
+		</div>
 	);
 }
 
+/**
+ * Shows the websites and search engines referring visitors for the selected
+ * dashboard date range via the PA proxy at `stats/referrers`.
+ */
 export default function ReferrersWidget( {
 	attributes = {},
 }: WidgetRenderProps< ReferrersRenderAttributes > ) {

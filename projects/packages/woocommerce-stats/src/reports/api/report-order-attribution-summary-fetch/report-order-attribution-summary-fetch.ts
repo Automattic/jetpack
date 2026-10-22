@@ -22,7 +22,8 @@ type OrderAttributionInterval = {
 };
 
 type OrderAttributionPeriod = {
-	value: string;
+	/** Null when the period has no figure for the item, such as a comparison that lacks it. */
+	value: string | null;
 	intervals: OrderAttributionInterval[];
 };
 

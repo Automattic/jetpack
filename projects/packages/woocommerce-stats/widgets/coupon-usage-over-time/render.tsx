@@ -16,8 +16,13 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { useReportCouponsByDate } from '../../src/reports';
-import type { CouponUsageOverTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type CouponUsageOverTimeAttributes = Record< never, never >;
 
 type CouponUsageOverTimeRenderAttributes = CouponUsageOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -67,6 +72,7 @@ function CouponUsageOverTime() {
 	return (
 		<Donut
 			segments={ segments }
+			chartTitle={ __( 'Coupon usage over time', 'jetpack-woocommerce-stats-pkg' ) }
 			status={ {
 				isLoading,
 				isFetching,

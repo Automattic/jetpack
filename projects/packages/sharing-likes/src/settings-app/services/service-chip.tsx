@@ -1,7 +1,7 @@
 import { useCallback } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, closeSmall, pencil, trash } from '@wordpress/icons';
-import { Button, IconButton, Popover, Stack } from '@wordpress/ui';
+import { Button, IconButton, Popover, Stack, VisuallyHidden } from '@wordpress/ui';
 import { ServiceIcon } from './service-icon';
 import type { ButtonStyle, Service, ServiceRow } from '../types';
 import type { Dispatch, JSX, SetStateAction } from 'react';
@@ -90,7 +90,7 @@ export function ServiceChip( {
 				{ showName && service.name }
 			</Popover.Trigger>
 			<Popover.Popup positioner={ <Popover.Positioner side="top" sideOffset={ 8 } /> }>
-				<Popover.Title className="screen-reader-text">{ service.name }</Popover.Title>
+				<VisuallyHidden render={ <Popover.Title /> }>{ service.name }</VisuallyHidden>
 				<Stack
 					direction="row"
 					align="center"

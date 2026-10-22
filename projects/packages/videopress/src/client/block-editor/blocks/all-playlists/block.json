@@ -37,6 +37,11 @@
 		}
 	},
 	"attributes": {
+		"emptyState": {
+			"type": "string",
+			"enum": [ "none", "author", "all" ],
+			"default": "none"
+		},
 		"layout": {
 			"type": "string",
 			"enum": [ "gallery", "list" ],
@@ -67,6 +72,10 @@
 			"type": "string",
 			"enum": [ "numbered", "load-more" ],
 			"default": "numbered"
+		},
+		"excludeCurrent": {
+			"type": "boolean",
+			"default": false
 		},
 		"showUpdated": {
 			"type": "boolean",

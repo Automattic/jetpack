@@ -28,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.9.10';
+	const PACKAGE_VERSION = '0.10.0';
 
 	/**
 	 * WordPress.com site feature that enables the Jetpack SEO surface.
@@ -85,9 +85,12 @@ class Initializer {
 	 * Absent until seeded, in which case self-hosted defaults to hidden (the non-disruptive
 	 * default). See {@see Surface_Visibility::is_visible()}.
 	 *
+	 * Replaces `jetpack_seo_surface_visible`, which was seeded before the self-hosted rollout and
+	 * marked every install since as fresh; a new key makes every site re-seed once on upgrade.
+	 *
 	 * @var string
 	 */
-	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible';
+	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible_v2';
 
 	/**
 	 * Whether the package has been initialized.

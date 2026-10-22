@@ -94,7 +94,11 @@ export const keys = {
 		[ 'backup', 'path-info', filePeriod, manifestPath ] as const,
 	downloadStatus: ( rewindId: string, downloadId: number ) =>
 		[ 'backup', 'download-status', rewindId, downloadId ] as const,
+	downloads: () => [ 'backup', 'downloads' ] as const,
 	restoreStatus: ( restoreId: number ) => [ 'backup', 'restore-status', restoreId ] as const,
 	// The site's recent restores, not one restore's status; see `useRecentRestores`.
 	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
+	knownThreats: ( rewindId: string ) => [ 'backup', 'known-threats', rewindId ] as const,
+	backupsKnownThreats: ( withCleanRewindId = false ) =>
+		[ 'backup', 'known-threats', 'backups', withCleanRewindId ] as const,
 };

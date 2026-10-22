@@ -22,6 +22,11 @@ class WPCom_Themes_Api {
 	const WP_COM_THEME_API_URL = 'https://public-api.wordpress.com/rest/v1.2/themes/%s?http_envelope=1';
 
 	/**
+	 * The URL listing the partner tier, which is the one tier that is sold per theme.
+	 */
+	const WP_COM_PARTNER_THEMES_API_URL = 'https://public-api.wordpress.com/rest/v1.2/themes?http_envelope=1&tier=partner&number=500';
+
+	/**
 	 * Cache handler.
 	 *
 	 * @var WPCom_Themes_Cache $cache
@@ -109,6 +114,36 @@ class WPCom_Themes_Api {
 		}
 
 		return $theme;
+	}
+
+	/**
+	 * Returns the store products each partner theme is sold as, by theme slug.
+	 *
+	 * The catalog endpoint does not carry `product_details`, so the one tier that is sold per
+	 * theme is read again from the endpoint that does. DOTCOM-18927.
+	 *
+	 * @return array<string, array<stdClass>> Product details, keyed by theme slug.
+	 */
+	public function fetch_partner_products(): array {
+		return $this->cache->run_cached(
+			'wpcom-themes-partner-products',
+			function () {
+				$body = $this->handle_request( self::WP_COM_PARTNER_THEMES_API_URL );
+
+				if ( ! isset( $body->themes ) || ! is_array( $body->themes ) ) {
+					return null;
+				}
+
+				$products = array();
+				foreach ( $body->themes as $theme ) {
+					if ( isset( $theme->id ) && is_string( $theme->id ) && ! empty( $theme->product_details ) ) {
+						$products[ $theme->id ] = (array) $theme->product_details;
+					}
+				}
+
+				return $products;
+			}
+		) ?? array();
 	}
 
 	/**

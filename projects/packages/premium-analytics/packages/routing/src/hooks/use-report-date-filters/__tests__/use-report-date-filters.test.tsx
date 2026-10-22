@@ -21,6 +21,7 @@ jest.mock( '@wordpress/route', () => ( {
 import { TZDate } from '@date-fns/tz';
 import {
 	PeriodChangeSignalProvider,
+	ReportScopeProvider,
 	useRaisePeriodChange,
 	useSettlePeriodChange,
 } from '@jetpack-premium-analytics/data';
@@ -38,6 +39,16 @@ setSettings( {
 	...getSettings(),
 	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
 } );
+
+const LOCKED_INTERVALS = [ 'week', 'month', 'year' ] as const;
+
+function scopeWithLocks( { children }: { children: ReactNode } ) {
+	return (
+		<ReportScopeProvider dateLimits={ { lockedPresetIds: [], lockedIntervals: LOCKED_INTERVALS } }>
+			{ children }
+		</ReportScopeProvider>
+	);
+}
 
 function renderDateFilters( search: Record< string, unknown > = {} ) {
 	mockSearch = search;
@@ -542,4 +553,29 @@ describe( 'useReportDateFilters', () => {
 
 		expect( mockUseSearch ).toHaveBeenLastCalledWith( { from: '/' } );
 	} );
+
+	it.each( [
+		[ 'passed in', { lockedIntervals: LOCKED_INTERVALS }, undefined ],
+		[ 'declared by the report scope', undefined, scopeWithLocks ],
+	] )(
+		'offers and stages only the buckets the plan leaves open, listing the rest locked, with locks %s',
+		( _name, options, wrapper ) => {
+			mockSearch = { preset: 'last-30-days' };
+			const { result } = renderHook( () => useReportDateFilters( '/', options ), { wrapper } );
+
+			expect( result.current.intervalOptions ).toEqual( [ 'day' ] );
+			expect( result.current.lockedIntervalOptions ).toEqual( [ 'week' ] );
+
+			act( () => {
+				result.current.onChange(
+					{ from: new TZDate( 2026, 0, 1, 'UTC' ), to: new TZDate( 2026, 5, 30, 'UTC' ) },
+					'custom'
+				);
+			} );
+			act( () => result.current.onApply() );
+
+			expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+			expect( mockSearch ).toMatchObject( { interval: 'day' } );
+		}
+	);
 } );

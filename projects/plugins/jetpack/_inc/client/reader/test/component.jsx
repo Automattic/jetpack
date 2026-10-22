@@ -11,7 +11,6 @@ describe( 'Reader', () => {
 	const defaultProps = {
 		active: true,
 		searchTerm: '',
-		blogID: 12345,
 	};
 
 	const initialState = {
@@ -98,11 +97,9 @@ describe( 'Reader', () => {
 	};
 
 	describe( 'When active', () => {
-		it( 'renders the section title', () => {
-			render( <Reader { ...defaultProps } />, { initialState } );
-			expect(
-				screen.getByText( 'Discover and follow your favorite sites with the WordPress.com Reader.' )
-			).toBeInTheDocument();
+		it( 'labels its group of search results', () => {
+			render( <Reader { ...defaultProps } searchTerm="reader" />, { initialState } );
+			expect( screen.getByRole( 'heading', { name: 'Reader', level: 2 } ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the screen reader heading', () => {
@@ -129,10 +126,7 @@ describe( 'Reader', () => {
 		it( 'renders the "Visit the Reader" link with correct href and target', () => {
 			render( <Reader { ...defaultProps } />, { initialState } );
 			const link = screen.getByRole( 'link', { name: /Visit the Reader/i } );
-			expect( link ).toHaveAttribute(
-				'href',
-				'https://wordpress.com/reader/?origin_site_id=12345'
-			);
+			expect( link ).toHaveAttribute( 'href', 'https://wordpress.com/reader/' );
 			expect( link ).toHaveAttribute( 'target', '_blank' );
 		} );
 	} );
