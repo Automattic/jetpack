@@ -111,32 +111,53 @@ const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
 );
 
+/** The largest negative and positive share magnitudes, which size each side of zero. */
+type DivergingScale = { negative: number; positive: number };
+
 const Bar = ( {
 	share,
 	color,
 	animation,
-	isDiverging,
+	divergingScale,
 }: {
 	share: number;
 	color: string;
 	animation?: boolean;
-	isDiverging?: boolean;
+	divergingScale?: DivergingScale;
 } ) => {
+	const isNegative = share < 0;
+	const sideMax = divergingScale?.[ isNegative ? 'negative' : 'positive' ];
+	// A diverging bar is measured against the largest share on its own side of zero.
+	const width = sideMax ? ( Math.abs( share ) / sideMax ) * 100 : Math.abs( share );
+
 	const bar = (
 		<div
 			className={ clsx( styles.bar, {
 				[ styles[ 'bar--animated' ] ]: animation,
-				[ styles[ 'bar--negative' ] ]: isDiverging && share < 0,
+				[ styles[ 'bar--negative' ] ]: divergingScale && isNegative,
 			} ) }
 			style={ {
-				width: getBarWidth( Math.abs( share ) ),
+				width: getBarWidth( width ),
 				backgroundColor: color,
 			} }
 		></div>
 	);
 
-	// Each half of the track spans 100% of the share, so zero sits at its center.
-	return isDiverging ? <div className={ styles.barTrack }>{ bar }</div> : bar;
+	if ( ! divergingScale ) {
+		return bar;
+	}
+
+	// Each side is as wide as its share of the full range, so zero sits where the range crosses it.
+	return (
+		<div
+			className={ styles.barTrack }
+			style={ {
+				gridTemplateColumns: `${ divergingScale.negative }fr ${ divergingScale.positive }fr`,
+			} }
+		>
+			{ bar }
+		</div>
+	);
 };
 
 const BarWithLabel = ( {
@@ -146,7 +167,7 @@ const BarWithLabel = ( {
 	primaryColor,
 	secondaryColor,
 	animation,
-	isDiverging = false,
+	divergingScale,
 	isNegativeHighlighted = false,
 	isPrimaryVisible = true,
 	isComparisonVisible = true,
@@ -156,7 +177,7 @@ const BarWithLabel = ( {
 	withOverlayLabel?: boolean;
 	primaryColor: string;
 	secondaryColor: string;
-	isDiverging?: boolean;
+	divergingScale?: DivergingScale;
 	isNegativeHighlighted?: boolean;
 	isPrimaryVisible?: boolean;
 	isComparisonVisible?: boolean;
@@ -173,7 +194,7 @@ const BarWithLabel = ( {
 					share={ entry.currentShare }
 					color={ getColor( entry.currentShare, primaryColor, NEGATIVE_COLOR ) }
 					animation={ animation }
-					isDiverging={ isDiverging }
+					divergingScale={ divergingScale }
 				/>
 			) }
 
@@ -182,7 +203,7 @@ const BarWithLabel = ( {
 					share={ entry.previousShare }
 					color={ getColor( entry.previousShare, secondaryColor, NEGATIVE_COMPARISON_COLOR ) }
 					animation={ animation }
-					isDiverging={ isDiverging }
+					divergingScale={ divergingScale }
 				/>
 			) }
 		</>
@@ -193,7 +214,7 @@ const BarWithLabel = ( {
 			className={ clsx( styles.barWithLabelContainer, {
 				[ styles[ 'is-overlay' ] ]: withOverlayLabel,
 			} ) }
-			data-testid={ isDiverging ? 'leaderboard-chart-diverging-row' : undefined }
+			data-testid={ divergingScale ? 'leaderboard-chart-diverging-row' : undefined }
 		>
 			<BarLabel label={ entry.label } />
 			{ bars }
@@ -212,7 +233,7 @@ const BarWithLabel = ( {
  * @param props.height           - Optional height of the chart container in pixels
  * @param props.withComparison   - Whether to show comparison data
  * @param props.withOverlayLabel - Whether to overlay the label on top of the bar
- * @param props.negativeValues   - How negative shares render: diverging from the center, or highlighted
+ * @param props.negativeValues   - How negative shares render: diverging from zero, or highlighted
  * @param props.primaryColor     - Primary color for current period bars
  * @param props.secondaryColor   - Secondary color for comparison period bars
  * @param props.valueFormatter   - Custom formatter for values
@@ -307,17 +328,25 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		return ! isPrimaryVisible;
 	}, [ isPrimaryVisible, isComparisonVisible, withComparison, withOverlayLabel ] );
 
-	// One negative share makes every row diverge from the center, so the bars stay comparable.
-	const isDiverging = useMemo(
-		() =>
-			negativeValues === 'diverging' &&
-			( data ?? [] ).some(
-				entry =>
-					entry.currentShare < 0 ||
-					( withComparison && ! withOverlayLabel && ( entry.previousShare ?? 0 ) < 0 )
-			),
-		[ data, negativeValues, withComparison, withOverlayLabel ]
-	);
+	// One negative share puts every row on a shared zero point, so the bars stay comparable.
+	const divergingScale = useMemo( (): DivergingScale | undefined => {
+		if ( negativeValues !== 'diverging' ) {
+			return undefined;
+		}
+		const withComparisonBars = withComparison && ! withOverlayLabel;
+		const scale = { negative: 0, positive: 0 };
+		for ( const entry of data ?? [] ) {
+			const shares = [ entry.currentShare ];
+			if ( withComparisonBars && entry.previousShare != null ) {
+				shares.push( entry.previousShare );
+			}
+			for ( const share of shares ) {
+				const side = share < 0 ? 'negative' : 'positive';
+				scale[ side ] = Math.max( scale[ side ], Math.abs( share ) );
+			}
+		}
+		return scale.negative > 0 ? scale : undefined;
+	}, [ data, negativeValues, withComparison, withOverlayLabel ] );
 
 	// Validate data
 	const isDataValid = Boolean( data && data.length > 0 );
@@ -478,7 +507,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 												withOverlayLabel={ withOverlayLabel }
 												primaryColor={ resolvedPrimaryColor }
 												secondaryColor={ resolvedSecondaryColor }
-												isDiverging={ isDiverging }
+												divergingScale={ divergingScale }
 												isNegativeHighlighted={ negativeValues === 'highlight' }
 												isPrimaryVisible={ isPrimaryVisible }
 												isComparisonVisible={ isComparisonVisible }

@@ -109,7 +109,7 @@ const meta: Meta< StoryArgs > = {
 			control: 'inline-radio',
 			options: [ 'diverging', 'highlight' ],
 			description:
-				'How negative shares render: diverging from the center (`diverging`), or as left-aligned bars painted red (`highlight`).',
+				'How negative shares render: diverging from zero (`diverging`), or as left-aligned bars painted red (`highlight`).',
 			table: {
 				defaultValue: { summary: 'diverging' },
 			},
@@ -618,7 +618,7 @@ export const NegativeValues: Story = {
 		docs: {
 			description: {
 				story:
-					'A negative `currentShare` or `previousShare` makes every row diverge from the center of the track: negative bars extend toward the inline start and positive bars toward the inline end.',
+					'A negative `currentShare` or `previousShare` puts every row on a shared zero point, placed in proportion to the range of shares: negative bars extend toward the inline start and positive bars toward the inline end.',
 			},
 		},
 	},

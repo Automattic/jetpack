@@ -74,7 +74,7 @@
 				var(--a8c-charts-motion-easing-entrance) both;
 		}
 
-		// Grows from the center of the track, which is its inline-end edge.
+		// Grows from zero, which is its inline-end edge.
 		&--negative {
 			transform-origin: right;
 		}
@@ -93,7 +93,6 @@
 
 	.barTrack {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
 
 		.bar {
 			grid-column: 2;
