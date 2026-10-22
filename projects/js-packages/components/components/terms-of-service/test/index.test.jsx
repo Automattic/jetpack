@@ -32,21 +32,21 @@ describe( 'TermsofService', () => {
 
 	it( 'links to the Terms of Service document (single button)', () => {
 		render( <TermsOfService agreeButtonLabel={ 'whatever' } /> );
-		expect( screen.getByText( 'Terms of Service', { selector: 'a' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /^Terms of Service/ } ) ).toBeInTheDocument();
 	} );
 
 	it( 'links to the Terms of Service document (multiple buttons)', () => {
 		render( <TermsOfService multipleButtons /> );
-		expect( screen.getByText( 'Terms of Service', { selector: 'a' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /^Terms of Service/ } ) ).toBeInTheDocument();
 	} );
 
 	it( 'links to the data sharing document (single button)', () => {
 		render( <TermsOfService agreeButtonLabel={ 'whatever' } /> );
-		expect( screen.getByText( 'sync your site‘s data', { selector: 'a' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /^sync your site‘s data/ } ) ).toBeInTheDocument();
 	} );
 
 	it( 'links to the data sharing document (multiple buttons)', () => {
 		render( <TermsOfService multipleButtons /> );
-		expect( screen.getByText( 'sync your site‘s data', { selector: 'a' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /^sync your site‘s data/ } ) ).toBeInTheDocument();
 	} );
 } );

@@ -184,7 +184,7 @@ describe( 'ReportRecordsTable pagination', () => {
 		rerender( numberedTable( 12 ) );
 
 		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveValue( '2' );
+		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveTextContent( '2' );
 	} );
 
 	it( 'reports the page it fell back to outwards', async () => {
