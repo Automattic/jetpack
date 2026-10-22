@@ -126,6 +126,9 @@ class UI {
 			/**
 			 * Use the filter to provide custom HTML elecontainer ID.
 			 *
+			 * The element may be added after the page loads, within 60 seconds of it;
+			 * the screen is rendered into it once.
+			 *
 			 * @since 0.10.0
 			 *
 			 * @param string|null $containerID The container ID.
