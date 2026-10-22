@@ -45,7 +45,7 @@ We guard your site so you can run your site or business. Jetpack Security provid
 * Secure WordPress.com powered login used by millions of sites with optional 2FA (two factor authentication) for extra protection.
 * Auto update individual plugins for easy site maintenance and management.
 
-You can purchase all of Jetpack’s security features in our [Security bundle](https://cloud.jetpack.com/pricing#jetpack_security_t1_yearly), or [VaultPress Backup](https://cloud.jetpack.com/pricing#jetpack_backup_t1_yearly), [Scan](https://cloud.jetpack.com/pricing#jetpack_scan), and [Akismet Anti-spam](https://cloud.jetpack.com/pricing#jetpack_anti_spam) can each be purchased individually.
+You can purchase all of Jetpack’s security features in [Jetpack Pro or Complete](https://jetpack.com/pricing/), or [VaultPress Backup](https://cloud.jetpack.com/pricing#jetpack_backup_t1_yearly), [Scan](https://cloud.jetpack.com/pricing#jetpack_scan), and [Akismet Anti-spam](https://cloud.jetpack.com/pricing#jetpack_anti_spam) can each be purchased individually.
 
 = PEAK SPEED AND PERFORMANCE =
 Get blazing fast site speed with Jetpack. Jetpack’s free CDN (content delivery network) auto optimizes your images. Watch your page load times decrease — we’ll optimize your images and serve them from our own powerful global network, and speed up your site on mobile devices to reduce bandwidth usage and save money!
@@ -125,7 +125,7 @@ Jetpack is updated monthly to ensure seamless integration with top WordPress plu
 If you like Jetpack, consider checking out our other products and bundles
 
 * [Jetpack Complete](https://jetpack.com/redirect?source=org-complete) - The Complete bundle with real‑time security, top performance, and everything you need to grow your business.
-* [Jetpack Security](https://jetpack.com/redirect?source=org-security) - Our Security bundle provides easy‑to‑use, comprehensive WordPress site security, including real‑time backups, a web application firewall, malware scanning, and spam protection.
+* [Jetpack Pro](https://jetpack.com/pricing/) - Get security, performance, and growth tools in one bundle, including real‑time backups, malware scanning, spam protection, and more.
 * [Jetpack Backup](https://jetpack.com/redirect?source=org-backup) - Save every change and get back online quickly with one‑click restores from Jetpack VaultPress Backup.
 * [Jetpack Scan](https://jetpack.com/redirect?source=org-scan) - Protect your site from bad actors around‑the‑clock ‑ with our web application firewall (WAF) and automated malware scanning with one‑click fixes.
 * [Jetpack Search](https://jetpack.com/redirect?source=org-search) - Instantly deliver the most relevant results to your visitors with Jetpack Search. No coding required, no ads, and no tracking.
