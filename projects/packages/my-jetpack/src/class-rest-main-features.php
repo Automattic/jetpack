@@ -234,11 +234,14 @@ class REST_Main_Features {
 			? null
 			: new WP_Error( 'not_allowed', __( 'You are not allowed to manage Jetpack modules on this site.', 'jetpack-my-jetpack' ) );
 		$protect_modules = Products\Protect::get_protect_page_module_urls();
+		$protect_refused = $protect_modules
+			? new WP_Error( 'managed_in_protect', __( 'Manage these security features in Protect.', 'jetpack-my-jetpack' ) )
+			: null;
 
 		foreach ( array_unique( (array) $request->get_param( 'modules' ) ) as $slug ) {
 			$result = $modules_refused;
 			if ( ! $result && isset( $protect_modules[ $slug ] ) ) {
-				$result = new WP_Error( 'managed_in_protect', __( 'Manage this security feature in Protect.', 'jetpack-my-jetpack' ) );
+				$result = $protect_refused;
 			}
 			$result = $result ? $result : self::switch_module( $slug, $active );
 
