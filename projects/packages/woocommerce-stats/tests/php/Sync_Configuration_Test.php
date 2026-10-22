@@ -113,6 +113,24 @@ class Sync_Configuration_Test extends TestCase {
 	}
 
 	/**
+	 * Jetpack and the Premium Analytics plugin both call register(); the hooks must land once.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_hooks_once_when_called_twice() {
+		require_once __DIR__ . '/mocks/woocommerce-active-mock.php';
+
+		Sync_Configuration::register();
+		Sync_Configuration::register();
+		do_action( 'plugins_loaded' );
+
+		$this->assertSame( array( 'woocommerce_analytics' ), Sync_Status_Tracker::get_analytics_sync_modules() );
+	}
+
+	/**
 	 * JETPACK_PREMIUM_ANALYTICS__VERSION must be whitelisted so syncing it triggers WPCom provisioning.
 	 */
 	public function test_sync_config_whitelists_premium_analytics_version() {
@@ -237,12 +255,13 @@ class Sync_Configuration_Test extends TestCase {
 
 	public static function provide_sync_states(): array {
 		return array(
-			'no full sync'               => array( null, false, false, false ),
-			'Woo full sync started'      => array( 'woocommerce_analytics', false, false, true ),
-			'another module started'     => array( 'other_analytics', false, false, false ),
-			'another module finished'    => array( 'other_analytics', true, false, false ),
-			'legacy Woo full sync ended' => array( null, false, true, true ),
-			'legacy Woo, another starts' => array( 'other_analytics', false, true, true ),
+			'no full sync'                     => array( null, false, false, false, false ),
+			'Woo full sync started'            => array( 'woocommerce_analytics', false, false, false, true ),
+			'another module started'           => array( 'other_analytics', false, false, false, false ),
+			'another module finished'          => array( 'other_analytics', true, false, false, false ),
+			'legacy Woo full sync ended'       => array( null, false, true, false, true ),
+			'legacy Woo, another starts'       => array( 'other_analytics', false, true, false, true ),
+			'standalone plugin full sync done' => array( null, false, false, true, true ),
 		);
 	}
 
@@ -254,12 +273,13 @@ class Sync_Configuration_Test extends TestCase {
 	 * @param string|null $module_name     Module whose full sync started.
 	 * @param bool        $finished        Whether that full sync finished.
 	 * @param bool        $legacy_finished Whether Woo's full sync finished before per-module tracking.
+	 * @param bool        $plugin_finished Whether the standalone plugin's full sync finished.
 	 * @param bool        $should_sync     Whether order actions should sync.
 	 */
 	#[DataProvider( 'provide_sync_states' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_order_actions_stay_blocked_until_woocommerce_full_sync_starts( ?string $module_name, bool $finished, bool $legacy_finished, bool $should_sync ) {
+	public function test_order_actions_stay_blocked_until_woocommerce_full_sync_starts( ?string $module_name, bool $finished, bool $legacy_finished, bool $plugin_finished, bool $should_sync ) {
 		require_once __DIR__ . '/mocks/woocommerce-active-mock.php';
 		add_filter(
 			'jetpack_premium_analytics_sync_modules',
@@ -270,6 +290,9 @@ class Sync_Configuration_Test extends TestCase {
 		);
 		if ( $legacy_finished ) {
 			update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
+		}
+		if ( $plugin_finished ) {
+			update_option( Lookup_Data_Backfill::PLUGIN_FULL_SYNC_OPTION, 1730000123 );
 		}
 
 		$configuration = new Sync_Configuration();

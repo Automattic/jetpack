@@ -63,7 +63,14 @@ class Sync_Configuration {
 	);
 
 	/**
-	 * Entry point called from Analytics_Dashboard::init(). Schedules the Sync hookups on
+	 * Whether register() already ran in this request.
+	 *
+	 * @var bool
+	 */
+	private static $registered = false;
+
+	/**
+	 * Entry point called from Analytics_Dashboard::init(), once per request however many plugins bundle the package. Schedules the Sync hookups on
 	 * plugins_loaded; the actual registration is a no-op unless WooCommerce is active
 	 * (see {@see configure_sync()}).
 	 *
@@ -73,7 +80,11 @@ class Sync_Configuration {
 	 * @return void
 	 */
 	public static function register(): void {
-		$instance = new self();
+		if ( self::$registered ) {
+			return;
+		}
+		self::$registered = true;
+		$instance         = new self();
 
 		// plugins_loaded priority 1: every plugin has loaded for the WooCommerce guard, and the
 		// Config constructed in configure_sync() still gets its priority 2 handler in this cycle.
@@ -111,13 +122,6 @@ class Sync_Configuration {
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $this, 'skip_reports_data_before_analytics_full_sync' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_delete_reports_data', array( $this, 'skip_reports_data_before_analytics_full_sync' ) );
 		add_filter( 'jetpack_premium_analytics_sync_modules', array( $this, 'register_analytics_sync_module' ) );
-
-		// The legacy completion milestone represented Woo's sync before per-module start records existed.
-		if ( method_exists( Sync_Status_Tracker::class, 'has_module_full_sync_started' )
-			&& false === get_option( Sync_Status_Tracker::ANALYTICS_SYNC_STARTED_OPTION )
-			&& (int) get_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 0 ) > 0 ) {
-			Sync_Status_Tracker::on_full_sync_start( array( 'woocommerce_analytics' => 1 ) );
-		}
 
 		( new Config() )->ensure( 'sync', $this->get_jetpack_sync_config() );
 
@@ -222,6 +226,11 @@ class Sync_Configuration {
 	public function skip_reports_data_before_analytics_full_sync( $args ) {
 		// An older copy of the dashboard package cannot tell, so order changes sync as they did before the gate.
 		if ( ! method_exists( Sync_Status_Tracker::class, 'has_module_full_sync_started' ) ) {
+			return $args;
+		}
+
+		// A store the standalone plugin fully synced holds its orders on WordPress.com already.
+		if ( (int) get_option( Lookup_Data_Backfill::PLUGIN_FULL_SYNC_OPTION, 0 ) > 0 ) {
 			return $args;
 		}
 

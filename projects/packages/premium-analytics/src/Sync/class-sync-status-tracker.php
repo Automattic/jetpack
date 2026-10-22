@@ -10,7 +10,8 @@ namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 use Automattic\Jetpack\Sync\Modules;
 
 /**
- * Listens for the end of the analytics full sync and persists a one-time milestone option.
+ * Listens for the end of the analytics full sync and persists a one-time milestone option, and
+ * records when each analytics module's first full sync starts.
  *
  * /jetpack/v4/sync/status reports current sync state but not whether the analytics full sync
  * has completed at least once — which is what tells the dashboard's store section its numbers are complete.
@@ -25,6 +26,8 @@ class Sync_Status_Tracker {
 
 	/**
 	 * First full-sync start timestamps, keyed by analytics module name.
+	 *
+	 * @since $$next-version$$
 	 */
 	const ANALYTICS_SYNC_STARTED_OPTION = 'jetpack_premium_analytics_analytics_sync_started';
 
@@ -50,7 +53,7 @@ class Sync_Status_Tracker {
 	const SYNC_STATUS_ROUTE = '/jetpack/v4/sync/status';
 
 	/**
-	 * Wire up the listener, the script-data filter, and the sync-status enricher.
+	 * Wire up the milestone listener, the full-sync start record, the script-data filter, and the sync-status enricher.
 	 *
 	 * Idempotent: safe to call more than once.
 	 *
@@ -224,6 +227,10 @@ class Sync_Status_Tracker {
 	/**
 	 * Record each analytics module's first full-sync start.
 	 *
+	 * A milestone set before start records existed counts as a start of every module registered then.
+	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array|mixed $config Sync configuration of the full sync that began.
 	 * @return void
 	 */
@@ -231,6 +238,9 @@ class Sync_Status_Tracker {
 		$config   = (array) $config;
 		$previous = (array) get_option( self::ANALYTICS_SYNC_STARTED_OPTION, array() );
 		$started  = $previous;
+		if ( self::is_legacy_start() ) {
+			$started = array_fill_keys( self::get_analytics_sync_modules(), self::milestone() );
+		}
 		foreach ( self::get_analytics_sync_modules() as $module_name ) {
 			if ( ! empty( $config[ $module_name ] ) && empty( $started[ $module_name ] ) ) {
 				$started[ $module_name ] = time();
@@ -251,8 +261,21 @@ class Sync_Status_Tracker {
 	 * @return bool
 	 */
 	public static function has_module_full_sync_started( string $module_name ): bool {
+		if ( self::is_legacy_start() ) {
+			return true;
+		}
+
 		$started = (array) get_option( self::ANALYTICS_SYNC_STARTED_OPTION, array() );
 		return (int) ( $started[ $module_name ] ?? 0 ) > 0;
+	}
+
+	/**
+	 * Whether the milestone predates the start records, so it stands in for them.
+	 *
+	 * @return bool
+	 */
+	private static function is_legacy_start(): bool {
+		return false === get_option( self::ANALYTICS_SYNC_STARTED_OPTION ) && self::milestone_reached();
 	}
 
 	/**
