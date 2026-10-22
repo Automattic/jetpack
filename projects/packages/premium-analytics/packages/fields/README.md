@@ -91,3 +91,10 @@ attributes: [ { ...chartIntervalField, elements: chartIntervalElements( MY_PERIO
 
 A saved bucket the range rules out shows as the nearest one it allows, and is
 kept for when the range allows it again.
+
+A widget whose chart can draw more or fewer buckets than its range allows builds
+the field with `chartIntervalAttributeField( extendIntervals )`. The callback reads
+the range and the widget's attributes and returns an `IntervalExtension`: `extra`
+buckets to add, and `unavailable` ones to list unpickable with a hint. A saved
+bucket it withholds shows as the range default. Pass the same extension to
+`chartInterval` in the widget's render, so the menu checks what the chart draws.

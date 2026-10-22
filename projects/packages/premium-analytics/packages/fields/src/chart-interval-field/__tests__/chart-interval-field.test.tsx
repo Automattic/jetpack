@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import {
+	chartIntervalAttributeField,
 	chartIntervalElements,
 	chartIntervalField,
 	type ChartIntervalFieldAttributes,
@@ -32,6 +33,31 @@ type ControlProps = {
 const Control = chartIntervalField.Edit as unknown as ComponentType< ControlProps >;
 
 const DAILY_TO_MONTHLY = chartIntervalElements( [ 'day', 'week', 'month' ] );
+
+const HINT = 'Switch to the line chart to see each day.';
+
+type LineOrBar = Attributes & { chartType?: 'line' | 'bar' };
+
+// Days on long ranges for lines only, as the Traffic summary asks.
+const DaysOnLinesControl = chartIntervalAttributeField< LineOrBar >( ( _range, item ) =>
+	item.chartType === 'line'
+		? { extra: [ 'day' ] }
+		: { unavailable: { intervals: [ 'day' ], hint: HINT } }
+).Edit as unknown as ComponentType< Omit< ControlProps, 'data' > & { data: LineOrBar } >;
+
+function renderDaysOnLinesControl( data: LineOrBar ) {
+	const onChange = jest.fn();
+
+	render(
+		<DaysOnLinesControl
+			data={ data }
+			field={ { elements: DAILY_TO_MONTHLY } }
+			onChange={ onChange }
+		/>
+	);
+
+	return { onChange };
+}
 
 function renderControl( data: Attributes = {} ) {
 	const onChange = jest.fn();
@@ -127,4 +153,36 @@ describe( 'chartIntervalField', () => {
 			'true'
 		);
 	} );
+} );
+
+describe( 'chartIntervalAttributeField', () => {
+	it( 'lets a widget add a bucket its range does not offer', async () => {
+		const user = userEvent.setup();
+		mockSearch = { preset: 'last-90-days' };
+		const { onChange } = renderDaysOnLinesControl( { chartType: 'line' } );
+
+		await user.click( screen.getByRole( 'button', { name: 'By weeks' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'By days' } ) );
+
+		expect( onChange ).toHaveBeenCalledWith( { chartInterval: 'day' } );
+	} );
+
+	it.each( [
+		[ 'last-90-days', 'By weeks' ],
+		[ 'last-12-months', 'By months' ],
+	] )(
+		'shows a saved bucket the widget withholds on %s as the range default, without rewriting it',
+		async ( preset, defaultLabel ) => {
+			const user = userEvent.setup();
+			mockSearch = { preset };
+			const { onChange } = renderDaysOnLinesControl( { chartType: 'bar', chartInterval: 'day' } );
+
+			await user.click( screen.getByRole( 'button', { name: defaultLabel } ) );
+
+			const days = screen.getByRole( 'menuitemradio', { name: 'By days' } );
+			expect( days ).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( days ).toHaveAccessibleDescription( HINT );
+			expect( onChange ).not.toHaveBeenCalled();
+		}
+	);
 } );
