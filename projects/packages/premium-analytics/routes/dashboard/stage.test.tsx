@@ -476,6 +476,7 @@ beforeEach( () => {
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
 	useLockedSectionLayoutMock.mockImplementation( passThroughLockedLayout );
+	useDashboardPolicyMock.mockImplementation( () => () => true );
 	useDashboardSectionLayoutMock.mockImplementation( () => [ [], jest.fn(), mockResetLayout ] );
 	mockDashboardProps = {};
 } );
@@ -1460,11 +1461,17 @@ describe( 'Dashboard locked section', () => {
 		useLockedSectionLayoutMock.mockImplementation( ( section, layout, onLayoutChange ) =>
 			section === 'insights'
 				? {
-						lockedSection: { title: 'Unlock site insights' } as LockedSectionGate,
+						lockedSection: {
+							title: 'Unlock site insights',
+							open_widget_types: [],
+						} as unknown as LockedSectionGate,
 						visibleLayout: visibleLayout as typeof layout,
 						onVisibleLayoutChange,
 					}
 				: passThroughLockedLayout( section, layout, onLayoutChange )
+		);
+		useDashboardPolicyMock.mockImplementation(
+			jest.requireActual( './hooks/use-dashboard-policy' ).useDashboardPolicy
 		);
 	} );
 
@@ -1531,7 +1538,7 @@ describe( 'Dashboard locked section', () => {
 		} );
 	} );
 
-	it( 'offers no Customize on a locked section', () => {
+	it( 'offers no Customize on a locked section with no open widget', () => {
 		render( <Dashboard /> );
 
 		expect(
@@ -1543,6 +1550,23 @@ describe( 'Dashboard locked section', () => {
 			'data-can-customize',
 			'false'
 		);
+	} );
+
+	it( 'offers Customize and its tour steps on a locked section that keeps a widget open', async () => {
+		useLockedSectionLayoutMock.mockReturnValue( {
+			lockedSection: { open_widget_types: [ 'jpa/traffic-chart' ] } as LockedSectionGate,
+			visibleLayout,
+			onVisibleLayoutChange,
+		} );
+
+		render( <Dashboard /> );
+
+		expect( jest.mocked( onboardingTourSteps ) ).toHaveBeenLastCalledWith(
+			expect.anything(),
+			expect.objectContaining( { withCustomize: true } )
+		);
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+		expect( screen.getByRole( 'button', { name: 'Done' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'leaves an open section as it was', () => {

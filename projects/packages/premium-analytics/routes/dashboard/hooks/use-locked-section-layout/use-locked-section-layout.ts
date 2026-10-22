@@ -33,8 +33,8 @@ export function useLockedSectionLayout(
 		[ lockedSection, layout ]
 	);
 
-	// A locked section never enters edit mode, so a save here is an inline attribute edit of the
-	// same widgets, which the stored layout takes over by uuid.
+	// The policy denies insert and remove on a locked section, so a save carries the same widgets,
+	// which the stored layout takes over by uuid.
 	const onVisibleLayoutChange = useCallback(
 		( next: DashboardWidget[] ) => {
 			if ( ! lockedSection ) {

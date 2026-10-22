@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { useDashboardPolicy } from './use-dashboard-policy';
+import type { LockedSectionGate } from '@jetpack-premium-analytics/data';
 import type { WidgetType } from '@wordpress/widget-primitives';
 
 const widgetType: WidgetType = {
@@ -53,6 +54,28 @@ describe( 'useDashboardPolicy', () => {
 		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( false );
 		expect( result.current( { operation: 'edit', widget, widgetType } ) ).toBe( true );
 		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( true );
+	} );
+
+	it( 'lets a locked section move and resize its open widgets, but not add or remove one', () => {
+		const lockedSection = { open_widget_types: [ widgetType.name ] } as LockedSectionGate;
+		const { result } = renderHook( () =>
+			useDashboardPolicy( { ...POLICY_INPUTS, lockedSection } )
+		);
+
+		expect( result.current( { operation: 'customize' } ) ).toBe( true );
+		expect( result.current( { operation: 'move', widget, widgetType } ) ).toBe( true );
+		expect( result.current( { operation: 'resize', widget, widgetType } ) ).toBe( true );
+		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( false );
+		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( false );
+	} );
+
+	it( 'offers no Customize on a locked section with no open widget', () => {
+		const lockedSection = { open_widget_types: [] as string[] } as LockedSectionGate;
+		const { result } = renderHook( () =>
+			useDashboardPolicy( { ...POLICY_INPUTS, lockedSection } )
+		);
+
+		expect( result.current( { operation: 'customize' } ) ).toBe( false );
 	} );
 
 	it( 'offers the insertable types, and no other', () => {
