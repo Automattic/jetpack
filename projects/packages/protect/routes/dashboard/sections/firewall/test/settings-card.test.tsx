@@ -81,7 +81,8 @@ describe( 'FirewallSettingsCard', () => {
 		expect( screen.queryByText( BOOTSTRAP_PATH, { exact: false } ) !== null ).toBe( showsPath );
 	} );
 
-	it( 'replaces the settings with the host’s firewall where the host provides one', () => {
+	it( 'shows the host’s firewall as active, with only the allow list left to set', async () => {
+		const save = jest.fn().mockResolvedValue( true );
 		render(
 			<FirewallSettingsCard
 				{ ...( {
@@ -89,7 +90,7 @@ describe( 'FirewallSettingsCard', () => {
 					settings: {
 						settings: {},
 						waf: { waf_supported: false },
-						save: jest.fn(),
+						save,
 						isSaving: () => false,
 					},
 				} as unknown as FirewallContext ) }
@@ -98,6 +99,11 @@ describe( 'FirewallSettingsCard', () => {
 
 		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
 		expect( screen.getByText( /Your host provides a firewall/ ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'switch', { name: 'Block these IP addresses' } )
+		).not.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'switch', { name: 'Always allowed IP addresses' } ) );
+		expect( save ).toHaveBeenCalledWith( { jetpack_waf_ip_allow_list_enabled: true } );
 	} );
 } );
