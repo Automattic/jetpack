@@ -3,16 +3,7 @@ import { Fragment, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
 import { Link as RouterLink } from '@wordpress/route';
-import {
-	Button,
-	CheckboxControl,
-	Collapsible,
-	Link,
-	Notice,
-	Text,
-	Tooltip,
-	VisuallyHidden,
-} from '@wordpress/ui';
+import { Button, CheckboxControl, Collapsible, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { announce, cancelAnnouncement } from '../../data/announce';
 import { parseRestoreWhen } from '../../data/api/restore';
 import { formatDate, formatDateTime } from '../../data/date-format';
@@ -273,18 +264,13 @@ export default function KnownThreatsWarning( {
 				{ showRestoreInstead && (
 					// A description rather than `Notice.Actions`, whose links don't wrap at phone width.
 					<Notice.Description render={ <div /> }>
-						{ /* The tooltip gives the link no accessible description, so the hidden text does. */ }
-						<Tooltip.Root>
-							<Tooltip.Trigger
+						<Stack direction="column" gap="xs" align="start">
+							<Link
+								tone="neutral"
+								aria-describedby={ restoreInsteadHintId }
 								render={
-									<Link
-										tone="neutral"
-										aria-describedby={ restoreInsteadHintId }
-										render={
-											<RouterLink
-												to={ `/restore/${ restoreInsteadRewindId ?? restoreInsteadPeriod }` }
-											/>
-										}
+									<RouterLink
+										to={ `/restore/${ restoreInsteadRewindId ?? restoreInsteadPeriod }` }
 									/>
 								}
 							>
@@ -298,12 +284,11 @@ export default function KnownThreatsWarning( {
 											'Restore the latest backup without known threats instead',
 											'jetpack-backup-pkg'
 										) }
-							</Tooltip.Trigger>
-							<Tooltip.Popup>{ restoreInsteadHint }</Tooltip.Popup>
-						</Tooltip.Root>
-						<VisuallyHidden id={ restoreInsteadHintId } render={ <span /> }>
-							{ restoreInsteadHint }
-						</VisuallyHidden>
+							</Link>
+							<Text variant="body-sm" id={ restoreInsteadHintId }>
+								{ restoreInsteadHint }
+							</Text>
+						</Stack>
 					</Notice.Description>
 				) }
 				{ onAcknowledge && (
