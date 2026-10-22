@@ -203,10 +203,13 @@ describe( 'useTrafficChart', () => {
 				[ '2026W08W31', 2 ],
 				[ '2026W09W07', 4 ],
 			],
-			[ 132, 326 ],
+			[
+				[ 0, 132 ],
+				[ 1, 326 ],
+			],
 		],
 		[
-			"keeps a previous period's one-day opening week",
+			"skips a previous period's one-day opening week",
 			'week',
 			[ '2026-09-07', '2026-09-14' ],
 			[ '2026-08-30', '2026-09-06' ],
@@ -218,7 +221,7 @@ describe( 'useTrafficChart', () => {
 				[ '2026W09W07', 2 ],
 				[ '2026W09W14', 4 ],
 			],
-			[ 1, 132 ],
+			[ [ 0, 132 ] ],
 		],
 		[
 			"skips a previous period's one-day opening month",
@@ -234,7 +237,38 @@ describe( 'useTrafficChart', () => {
 				[ '2025-03-01', 2 ],
 				[ '2025-04-01', 4 ],
 			],
-			[ 132, 326 ],
+			[
+				[ 0, 132 ],
+				[ 1, 326 ],
+			],
+		],
+		[
+			'leaves the stub month the current period opens with uncompared',
+			'month',
+			[ '2025-04-29', '2025-09-23' ],
+			[ '2024-12-02', '2025-04-28' ],
+			[
+				[ '2024-12-01', 1 ],
+				[ '2025-01-01', 132 ],
+				[ '2025-02-01', 326 ],
+				[ '2025-03-01', 5 ],
+				[ '2025-04-01', 7 ],
+			],
+			[
+				[ '2025-04-01', 2 ],
+				[ '2025-05-01', 4 ],
+				[ '2025-06-01', 6 ],
+				[ '2025-07-01', 8 ],
+				[ '2025-08-01', 10 ],
+				[ '2025-09-01', 12 ],
+			],
+			[
+				[ 1, 1 ],
+				[ 2, 132 ],
+				[ 3, 326 ],
+				[ 4, 5 ],
+				[ 5, 7 ],
+			],
 		],
 		[
 			"skips a previous period's one-day opening year",
@@ -250,7 +284,10 @@ describe( 'useTrafficChart', () => {
 				[ '2025-01-01', 2 ],
 				[ '2026-01-01', 4 ],
 			],
-			[ 132, 326 ],
+			[
+				[ 0, 132 ],
+				[ 1, 326 ],
+			],
 		],
 	] as const )(
 		'%s',
@@ -296,7 +333,12 @@ describe( 'useTrafficChart', () => {
 
 			for ( const key of [ 'views', 'likes' ] ) {
 				const metric = result.current.metrics.find( tab => tab.key === key );
-				expect( metric?.previous?.map( point => point.value ) ).toEqual( expected );
+				// Each comparison value as [ the current bucket it is drawn on, value ].
+				const placed = metric?.previous?.map( point => [
+					metric.current.findIndex( bucket => bucket.date.getTime() === point.date.getTime() ),
+					point.value,
+				] );
+				expect( placed ).toEqual( expected );
 				expect( metric?.previousValue ).toBe(
 					comparisonRows.reduce( ( total, [ , value ] ) => total + value, 0 )
 				);

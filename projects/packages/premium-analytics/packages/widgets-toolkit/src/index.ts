@@ -305,6 +305,8 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	pairComparisonBuckets,
+	type ComparisonPeriodStarts,
 	siteChartFormatting,
 	type ChartDisplayChartType,
 	CALENDAR_HEATMAP_CELL_GAP,

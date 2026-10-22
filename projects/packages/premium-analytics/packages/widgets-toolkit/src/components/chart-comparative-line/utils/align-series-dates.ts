@@ -27,7 +27,11 @@ export function alignSeriesDates(
 	const primarySeriesByGroup = resolvePrimarySeriesByGroup( series );
 
 	return series.map( comparisonSeries => {
-		if ( ! comparisonSeries.data.length || comparisonSeries.options?.type !== 'comparison' ) {
+		if (
+			! comparisonSeries.data.length ||
+			comparisonSeries.options?.type !== 'comparison' ||
+			comparisonSeries.aligned
+		) {
 			return comparisonSeries;
 		}
 

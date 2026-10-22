@@ -16,7 +16,6 @@ import { endOfDay, isEqual, startOfDay } from 'date-fns';
  * Internal dependencies
  */
 import { buildTrafficTooltipExtras } from './tooltip-extras';
-import { comparesYearAgo, withoutLeadingComparisonBuckets } from './comparison-buckets';
 import {
 	TRAFFIC_CHART_METRICS,
 	type TrafficChartGranularity,
@@ -113,33 +112,21 @@ export default function useTrafficChart(
 	} );
 
 	const vvPrimary = viewsVisitors.primary.data as StatsVisitsResponse | undefined;
-	const vvComparisonReport = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
+	const vvComparison = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
 	const vvHasComparison = viewsVisitors.hasComparison;
 	const vvZone = viewsVisitors.timezone;
 	const lcPrimary = likesComments.primary.data as StatsVisitsResponse | undefined;
-	const lcComparisonReport = likesComments.comparison.data as StatsVisitsResponse | undefined;
+	const lcComparison = likesComments.comparison.data as StatsVisitsResponse | undefined;
 	const lcHasComparison = likesComments.hasComparison;
 	const lcZone = likesComments.timezone;
 
-	// Shifting can leave the last current bucket uncompared. Months and years accept that to
-	// pair by period; a previous period's weeks seldom line up, so they keep pairing by index.
-	const alignsBuckets =
-		period === 'month' ||
-		period === 'year' ||
-		( period === 'week' && comparesYearAgo( reportParams ) );
-	const vvComparison = useMemo(
+	// Pairs each comparison bucket with the current one covering the same days.
+	const periodStarts = useMemo(
 		() =>
-			alignsBuckets
-				? withoutLeadingComparisonBuckets( vvPrimary, vvComparisonReport, vvZone )
-				: vvComparisonReport,
-		[ alignsBuckets, vvPrimary, vvComparisonReport, vvZone ]
-	);
-	const lcComparison = useMemo(
-		() =>
-			alignsBuckets
-				? withoutLeadingComparisonBuckets( lcPrimary, lcComparisonReport, lcZone )
-				: lcComparisonReport,
-		[ alignsBuckets, lcPrimary, lcComparisonReport, lcZone ]
+			reportParams.from && reportParams.compare_from
+				? { current: reportParams.from, comparison: reportParams.compare_from }
+				: undefined,
+		[ reportParams.from, reportParams.compare_from ]
 	);
 
 	// Gate the error per query so a failed one surfaces beside the other's populated
@@ -158,7 +145,8 @@ export default function useTrafficChart(
 				vvZone,
 				vvHasComparison
 					? { views: vvComparison, posts: lcHasComparison ? lcComparison : undefined }
-					: undefined
+					: undefined,
+				periodStarts
 			),
 		[
 			vvPrimary,
@@ -169,6 +157,7 @@ export default function useTrafficChart(
 			lcComparison,
 			lcHasComparison,
 			isHourly,
+			periodStarts,
 		]
 	);
 
@@ -188,6 +177,7 @@ export default function useTrafficChart(
 						label: metric.label,
 						countLabel: metric.countLabel,
 						zone: isFirst ? vvZone : lcZone,
+						periodStarts,
 					} ),
 					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,
 					counterpartHidden: 'counterpartHidden' in metric ? metric.counterpartHidden : undefined,
@@ -223,6 +213,7 @@ export default function useTrafficChart(
 			lcComparison,
 			lcHasComparison,
 			lcZone,
+			periodStarts,
 		]
 	);
 
