@@ -57,7 +57,7 @@ export type FailedRun = 'will-retry' | 'failed' | null;
  * @param latestBackupId         - The newest usable backup's id, or null when there is none.
  * @param newest                 - The newest attempt, usable or not, or null when there is none.
  * @param newestActivityBackupId - The activity log's newest backup row, or null when it has none.
- * @return Runs watched to the end, how the last one failed, and whether it made a backup the reader has not dismissed.
+ * @return Runs watched to the end, how the last one failed, whether it made a backup the reader has not dismissed, and whether the list still lacks it.
  */
 export function useRefreshActivityOnBackupComplete(
 	state: BackupsState,
@@ -69,6 +69,7 @@ export function useRefreshActivityOnBackupComplete(
 	finishedRuns: number;
 	failedRun: FailedRun;
 	completedRun: boolean;
+	isAwaitingRow: boolean;
 	dismissCompletedRun: () => void;
 } {
 	const queryClient = useQueryClient();
@@ -171,5 +172,11 @@ export function useRefreshActivityOnBackupComplete(
 
 	const dismissCompletedRun = useCallback( () => setCompletedRun( false ), [] );
 
-	return { finishedRuns, failedRun, completedRun, dismissCompletedRun };
+	return {
+		finishedRuns,
+		failedRun,
+		completedRun,
+		isAwaitingRow: awaitingRow !== null,
+		dismissCompletedRun,
+	};
 }

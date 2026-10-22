@@ -65,9 +65,16 @@ export default function BackupStatusBanner( { progress }: Props ) {
  *
  * @param props           - Component props.
  * @param props.onDismiss - Closes the notice.
+ * @param props.isListing - Whether the activity list still lacks the new backup, which keeps the spinner.
  * @return The rendered banner.
  */
-export function BackupCompleteBanner( { onDismiss }: { onDismiss: () => void } ) {
+export function BackupCompleteBanner( {
+	onDismiss,
+	isListing,
+}: {
+	onDismiss: () => void;
+	isListing: boolean;
+} ) {
 	return (
 		<Notice.Root className="jpb-backup-status-banner" intent="success">
 			<Notice.Title className="jpb-backup-status-banner__title">
@@ -76,6 +83,7 @@ export function BackupCompleteBanner( { onDismiss }: { onDismiss: () => void } )
 					__( 'Backup complete (%d%% progress)', 'jetpack-backup-pkg' ),
 					100
 				) }
+				{ isListing && <Spinner className="jpb-backup-status-banner__spinner" /> }
 			</Notice.Title>
 			<Notice.Description>{ backupReadyText() }</Notice.Description>
 			<Notice.CloseIconButton onClick={ onDismiss } />

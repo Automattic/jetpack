@@ -299,7 +299,7 @@ describe( 'when the activity log lags a finished run', () => {
 	function mountMidRun() {
 		const { client, wrapper } = makeWrapper();
 		const invalidate = jest.spyOn( client, 'invalidateQueries' );
-		const { rerender } = renderHook(
+		const { rerender, result } = renderHook(
 			( [ state, activityTopId ]: [ BackupsState, string | null ] ) =>
 				useRefreshActivityOnBackupComplete(
 					state,
@@ -310,13 +310,14 @@ describe( 'when the activity log lags a finished run', () => {
 				),
 			{ wrapper, initialProps: [ 'in-progress', 'old' ] as [ BackupsState, string | null ] }
 		);
-		return { invalidate, rerender };
+		return { invalidate, rerender, result };
 	}
 
 	it( 'asks again until the newest activity row changes', () => {
-		const { invalidate, rerender } = mountMidRun();
+		const { invalidate, rerender, result } = mountMidRun();
 		rerender( [ 'complete', 'old' ] );
 		expect( invalidate ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.isAwaitingRow ).toBe( true );
 
 		act( () => {
 			jest.advanceTimersByTime( 6000 );
@@ -324,6 +325,7 @@ describe( 'when the activity log lags a finished run', () => {
 		expect( invalidate.mock.calls.length ).toBeGreaterThan( 1 );
 
 		rerender( [ 'complete', 'new' ] );
+		expect( result.current.isAwaitingRow ).toBe( false );
 		const settled = invalidate.mock.calls.length;
 		act( () => {
 			jest.advanceTimersByTime( 30_000 );
@@ -332,12 +334,13 @@ describe( 'when the activity log lags a finished run', () => {
 	} );
 
 	it( 'gives up when the row never appears', () => {
-		const { invalidate, rerender } = mountMidRun();
+		const { invalidate, rerender, result } = mountMidRun();
 		rerender( [ 'complete', 'old' ] );
 
 		act( () => {
 			jest.advanceTimersByTime( 120_000 );
 		} );
+		expect( result.current.isAwaitingRow ).toBe( false );
 		const settled = invalidate.mock.calls.length;
 		act( () => {
 			jest.advanceTimersByTime( 120_000 );

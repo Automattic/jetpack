@@ -182,7 +182,7 @@ function OverviewBody() {
 	// through its own `useBackups`, so this screen has two observers of
 	// the state below — but the refresh must fire once per finished
 	// backup, not once per observer. See the hook's docblock.
-	const { finishedRuns, failedRun, completedRun, dismissCompletedRun } =
+	const { finishedRuns, failedRun, completedRun, isAwaitingRow, dismissCompletedRun } =
 		useRefreshActivityOnBackupComplete(
 			backupsState,
 			isBackupRequested,
@@ -324,7 +324,7 @@ function OverviewBody() {
 			) }
 			{ backupsState === 'complete' && hasWarnings && <BackupWarningsBanner /> }
 			{ backupsState === 'complete' && completedRun && ! hasWarnings && ! failedRun && (
-				<BackupCompleteBanner onDismiss={ dismissCompletedRun } />
+				<BackupCompleteBanner onDismiss={ dismissCompletedRun } isListing={ isAwaitingRow } />
 			) }
 			{ backupsState === 'complete' && failedRun && (
 				<BackupFailedRunBanner willRetry={ failedRun === 'will-retry' } />
