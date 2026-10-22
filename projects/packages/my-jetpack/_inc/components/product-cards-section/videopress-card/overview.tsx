@@ -30,10 +30,11 @@ const VideoPressOverviewItem: ProductCardComponent = ( { admin } ) => {
 	let label: string | undefined;
 	let value: string | undefined;
 	const views = featuredStats?.data?.views?.current;
+	const watchTime = featuredStats?.data?.watch_time?.current;
 	if ( videoCount && ! isPluginActive ) {
 		label = __( 'Existing videos', 'jetpack-my-jetpack' );
-		value = formatNumber( videoCount );
-	} else if ( videoCount && views !== undefined ) {
+		value = String( videoCount );
+	} else if ( videoCount && views !== undefined && watchTime !== undefined ) {
 		label =
 			featuredStats?.period === 'day'
 				? __( '30-Day views', 'jetpack-my-jetpack' )

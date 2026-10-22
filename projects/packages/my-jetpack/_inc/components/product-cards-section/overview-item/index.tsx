@@ -25,6 +25,9 @@ export type OverviewItemLink = {
 	ariaLabel?: string;
 	// Only an action without a link can be disabled, as the product card's button is while it's busy.
 	disabled?: boolean;
+	openInNewTab?: boolean;
+	// Shown to users who can't manage the product too.
+	forEveryone?: boolean;
 };
 
 export type OverviewItemProps = {
@@ -126,12 +129,12 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	const showsStatus = ! isHealthy || !! forcedOffReason;
 
 	const productLinks: ReactNode[] = [];
-	if ( admin && action && ! forcedOffReason ) {
+	if ( ( admin || action?.forEveryone ) && action && ! forcedOffReason ) {
 		const actionLink = (
 			<Link
 				key="action"
 				{ ...( action.href
-					? { href: action.href, onClick: action.onClick }
+					? { href: action.href, onClick: action.onClick, openInNewTab: action.openInNewTab }
 					: {
 							render: (
 								<Button

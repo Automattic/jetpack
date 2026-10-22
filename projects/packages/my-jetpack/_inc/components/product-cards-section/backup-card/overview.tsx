@@ -51,11 +51,13 @@ const BackupOverviewItem: ProductCardComponent = ( { admin } ) => {
 			value={ lastBackup || undefined }
 			statusLabel={ failureReason }
 			isLoading={ hasBackups && isLoading }
-			// Only support can turn Backup back on once it was turned off for the site.
+			// Only support can turn Backup back on once it was turned off, and anyone can ask them.
 			action={
 				isDeactivated
 					? {
 							label: __( 'Contact support to reactivate', 'jetpack-my-jetpack' ),
+							openInNewTab: true,
+							forEveryone: true,
 							href: getRedirectUrl( 'jetpack-backup-support-reactivate', {
 								site: siteUrl,
 								query: `subject=${ encodeURIComponent(

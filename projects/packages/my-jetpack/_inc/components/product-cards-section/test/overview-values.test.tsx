@@ -39,13 +39,13 @@ jest.mock(
 describe( 'Overview items with their card values', () => {
 	beforeEach( () => mockLoadEvent.mockClear() );
 
-	it( 'sends Backup turned off by support to support instead of activating it', () => {
+	it( 'sends anyone to support for Backup turned off by support, instead of activating it', () => {
 		mockDetail = {
 			status: 'inactive',
 			doesModuleNeedAttention: { data: { status: 'backups-deactivated' } },
 		};
 		mockQueryData = undefined;
-		render( <BackupOverviewItem admin /> );
+		render( <BackupOverviewItem admin={ false } /> );
 
 		expect( screen.getByText( 'Contact support to reactivate' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Activate Product' ) ).not.toBeInTheDocument();
