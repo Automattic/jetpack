@@ -2020,6 +2020,7 @@ describe( 'LineChart', () => {
 			} );
 
 			await waitFor( () => expect( screen.queryByText( 'Series A:' ) ).not.toBeInTheDocument() );
+			expect( screen.getByTestId( 'line-chart-tooltip-content' ) ).toHaveTextContent( 'Series B' );
 		} );
 
 		it( 'does not filter series when legendInteractive is false', () => {
