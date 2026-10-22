@@ -40,9 +40,14 @@ const AdminPage: FC< AdminPageProps > = ( {
 	showBottomBorder = true,
 	unwrapped = false,
 } ) => {
+	// Only set what was passed: the client is shared, so an empty default would wipe what the page set.
 	useEffect( () => {
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
+		if ( apiRoot ) {
+			restApi.setApiRoot( apiRoot );
+		}
+		if ( apiNonce ) {
+			restApi.setApiNonce( apiNonce );
+		}
 	}, [ apiRoot, apiNonce ] );
 
 	// `jp-admin-page` is a stable, non-hashed hook for global stylesheets and
@@ -146,3 +151,4 @@ const AdminPage: FC< AdminPageProps > = ( {
 };
 
 export default AdminPage;
+export { default as PageActionButton } from './page-action-button.tsx';

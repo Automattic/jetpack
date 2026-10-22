@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Protect dashboard: Show what Scan adds on the Scan and Firewall cards for sites without it, with an Upgrade button.

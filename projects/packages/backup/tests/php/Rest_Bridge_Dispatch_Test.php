@@ -109,7 +109,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	 * minimal — a fixture carrying only the keys that survive cannot tell a forwarded
 	 * value from a default.
 	 *
-	 * @return array<string, array{0: string, 1: string, 2: array<string, mixed>, 3: array<int, array{body?: string, status?: int|string}>, 4: array<string, mixed>}>
+	 * @return array<string, array{0: string, 1: string, 2: array<string, mixed>, 3: array<int, array{body?: string, status?: int|string}>, 4: array<int|string, mixed>}>
 	 */
 	public static function provide_bridge_dispatches() {
 		return array(
@@ -237,11 +237,29 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 				array( array( 'body' => '{"downloadId":42,"progress":55}' ) ),
 				array(
 					'id'          => 42,
+					'rewind_id'   => '',
 					'status'      => 'running',
 					'progress'    => 55,
 					'url'         => '',
 					'valid_until' => '',
 					'error'       => '',
+				),
+			),
+			'/jetpack/v4/backups/downloads'               => array(
+				'GET',
+				'/jetpack/v4/backups/downloads',
+				array(),
+				array( array( 'body' => '[{"downloadId":42,"rewindId":"1748888135.123","progress":55}]' ) ),
+				array(
+					array(
+						'id'          => 42,
+						'rewind_id'   => '1748888135.123',
+						'status'      => 'running',
+						'progress'    => 55,
+						'url'         => '',
+						'valid_until' => '',
+						'error'       => '',
+					),
 				),
 			),
 			'/jetpack/v4/rewind/to/(?P<rewind_id>[A-Za-z0-9.\-]+)' => array(
@@ -300,7 +318,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	 * @param string                                                $path     Route path to dispatch.
 	 * @param array<string, mixed>                                  $params   Request params.
 	 * @param array<int, array{body?: string, status?: int|string}> $answers WordPress.com's answers, in call order.
-	 * @param array<string, mixed>                                  $expected Payload the route should serve.
+	 * @param array<int|string, mixed>                              $expected Payload the route should serve.
 	 * @dataProvider provide_bridge_dispatches
 	 */
 	#[DataProvider( 'provide_bridge_dispatches' )]

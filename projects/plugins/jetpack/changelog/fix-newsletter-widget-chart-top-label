@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Label the top of the subscribers chart in the dashboard widget, so the line never runs past the last label.

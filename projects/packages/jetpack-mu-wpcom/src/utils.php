@@ -9,6 +9,22 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
+ * Whether the WordPress Agent is enabled on this site.
+ *
+ * Simple combines the platform state with the saved option; Atomic reads the option.
+ *
+ * @return bool
+ */
+function wpcom_is_wordpress_agent_enabled(): bool {
+	if ( function_exists( 'big_sky_is_enabled' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded above.
+		return (bool) get_option( 'big_sky_enable', '1' ) && (bool) big_sky_is_enabled();
+	}
+
+	return (bool) get_option( 'big_sky_enable', '0' );
+}
+
+/**
  * Whether the site is fully managed agency site.
  *
  * @return bool True if the site is fully managed agency site.
@@ -89,8 +105,6 @@ function wpcom_get_calypso_origin() {
 		'https://wordpress.com',
 		'http://my.localhost:3000',
 		'https://my.wordpress.com',
-		'http://my.woo.localhost:3000',
-		'https://my.woo.ai',
 	);
 	return in_array( $origin, $allowed, true ) ? $origin : 'https://wordpress.com';
 }
