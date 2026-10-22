@@ -44,7 +44,6 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 		<span className={ className }>{ children }</span>
 	),
 	VisuallyHidden: ( { children }: { children: ReactNode } ) => <span>{ children }</span>,
-	WidgetFooter: ( { children }: { children: ReactNode } ) => <footer>{ children }</footer>,
 	getVideoPosterUrl: ( poster?: string | null ) => poster ?? undefined,
 } ) );
 
@@ -93,19 +92,12 @@ const dropzoneLabel = 'Upload a video to start tracking its plays here.';
  * Wires the hook to the body, as the widget does.
  *
  * @param props            - Harness props.
- * @param props.footer     - Rendered under the body.
  * @param props.onUploaded - Called once the upload lands.
  * @return The uploader.
  */
-function Uploader( {
-	footer,
-	onUploaded,
-}: {
-	footer: ReactNode;
-	onUploaded: ( media: unknown ) => void;
-} ) {
+function Uploader( { onUploaded }: { onUploaded: ( media: unknown ) => void } ) {
 	const { phase, upload } = useVideoUpload( onUploaded );
-	return <VideoUploader phase={ phase } onUpload={ upload } footer={ footer } />;
+	return <VideoUploader phase={ phase } onUpload={ upload } />;
 }
 
 beforeEach( () => {
@@ -118,7 +110,7 @@ beforeEach( () => {
 describe( 'VideoUploader', () => {
 	it( 'uploads the first dropped file and tells the user about the rest', async () => {
 		mockDroppedFiles = [ videoFile( 'one.mp4' ), videoFile( 'two.mp4' ) ];
-		render( <Uploader footer={ <a href="#videos">View all</a> } onUploaded={ jest.fn() } /> );
+		render( <Uploader onUploaded={ jest.fn() } /> );
 
 		await userEvent.click( screen.getByRole( 'button', { name: dropzoneLabel } ) );
 
@@ -129,12 +121,11 @@ describe( 'VideoUploader', () => {
 			{ type: 'snackbar' }
 		);
 		expect( screen.getByText( 'one.mp4' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the upload progress, then the finishing step', async () => {
 		mockDroppedFiles = [ videoFile( 'one.mp4' ) ];
-		render( <Uploader footer={ null } onUploaded={ jest.fn() } /> );
+		render( <Uploader onUploaded={ jest.fn() } /> );
 		await userEvent.click( screen.getByRole( 'button', { name: dropzoneLabel } ) );
 
 		act( () => callbacks().onProgress( 50, 100 ) );
@@ -147,7 +138,7 @@ describe( 'VideoUploader', () => {
 
 	it( 'aborts the upload in flight when the widget unmounts', async () => {
 		mockDroppedFiles = [ videoFile( 'one.mp4' ) ];
-		const { unmount } = render( <Uploader footer={ null } onUploaded={ jest.fn() } /> );
+		const { unmount } = render( <Uploader onUploaded={ jest.fn() } /> );
 		await userEvent.click( screen.getByRole( 'button', { name: dropzoneLabel } ) );
 		const { signal } = mockStartVideoUpload.mock.lastCall?.[ 2 ] as { signal: AbortSignal };
 		expect( signal.aborted ).toBe( false );
@@ -159,7 +150,7 @@ describe( 'VideoUploader', () => {
 
 	it( 'offers a retry of the same file after a failure', async () => {
 		mockDroppedFiles = [ videoFile( 'one.mp4' ) ];
-		render( <Uploader footer={ null } onUploaded={ jest.fn() } /> );
+		render( <Uploader onUploaded={ jest.fn() } /> );
 		await userEvent.click( screen.getByRole( 'button', { name: dropzoneLabel } ) );
 
 		act( () => callbacks().onError( new Error( 'nope' ) ) );
@@ -175,7 +166,7 @@ describe( 'VideoUploader', () => {
 	it( 'hands the media to the parent and follows the video until it is ready', async () => {
 		mockDroppedFiles = [ videoFile( 'holiday.mp4' ) ];
 		const onUploaded = jest.fn();
-		const { rerender } = render( <Uploader footer={ null } onUploaded={ onUploaded } /> );
+		const { rerender } = render( <Uploader onUploaded={ onUploaded } /> );
 		await userEvent.click( screen.getByRole( 'button', { name: dropzoneLabel } ) );
 
 		const media = { id: 7, guid: 'abc', src: 'https://videopress.com/v/abc' };
@@ -196,7 +187,7 @@ describe( 'VideoUploader', () => {
 			isProcessing: false,
 			conversionFailed: false,
 		} );
-		rerender( <Uploader footer={ null } onUploaded={ onUploaded } /> );
+		rerender( <Uploader onUploaded={ onUploaded } /> );
 
 		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Your video is ready.' );
 		expect( screen.getByText( 'Holiday' ) ).toBeInTheDocument();
@@ -209,7 +200,7 @@ describe( 'VideoUploader', () => {
 	it( 'leaves View video out for users who cannot open the VideoPress dashboard', async () => {
 		mockDroppedFiles = [ videoFile( 'holiday.mp4' ) ];
 		mockCurrentUserCan.mockReturnValue( false );
-		render( <Uploader footer={ null } onUploaded={ jest.fn() } /> );
+		render( <Uploader onUploaded={ jest.fn() } /> );
 		await userEvent.click( screen.getByRole( 'button', { name: dropzoneLabel } ) );
 
 		act( () =>

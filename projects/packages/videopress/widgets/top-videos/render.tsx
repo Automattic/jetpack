@@ -144,7 +144,7 @@ function TopVideosReport() {
 	// Once an upload starts it stays on screen: a range change or a failed stats request
 	// must not swap it for the leaderboard, and a landed video must not give way to it.
 	if ( phase.status !== 'idle' || hasNoVideos ) {
-		return <VideoUploader phase={ phase } onUpload={ upload } footer={ null } />;
+		return <VideoUploader phase={ phase } onUpload={ upload } />;
 	}
 
 	return (

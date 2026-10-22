@@ -1,12 +1,7 @@
-// Sizing only; the stacks lay the column out. The body grows into the tile so
-// the footer rule stays at the bottom while no chart is on screen.
+// Sizing only; the stack centers the body, which scrolls once it outgrows
+// the tile.
 .vp-top-videos-uploader {
 	block-size: 100%;
 	min-block-size: 0;
-
-	&__body {
-		flex: 1 1 0;
-		min-block-size: 0;
-		overflow-y: auto;
-	}
+	overflow-y: auto;
 }

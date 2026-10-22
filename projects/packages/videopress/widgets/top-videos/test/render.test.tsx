@@ -71,9 +71,9 @@ jest.mock( '../../../src/dashboard/utils/start-video-upload', () => ( {
 jest.mock( '../components/video-uploader', () => ( {
 	useVideoUpload: jest.requireActual( '../components/video-uploader/use-video-upload' )
 		.useVideoUpload,
-	VideoUploader: ( props: { footer: ReactNode } ) => {
+	VideoUploader: ( props: Record< string, unknown > ) => {
 		mockVideoUploader( props );
-		return <div>Upload your first video{ props.footer }</div>;
+		return <div>Upload your first video</div>;
 	},
 } ) );
 

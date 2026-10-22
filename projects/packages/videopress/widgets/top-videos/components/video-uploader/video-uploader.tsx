@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { Stack, WidgetFooter } from '@automattic/jetpack-premium-analytics-sdk';
+import { Stack } from '@automattic/jetpack-premium-analytics-sdk';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { useCallback, type ReactNode } from 'react';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
@@ -76,11 +76,6 @@ export type VideoUploaderProps = {
 	 * Starts an upload of the file.
 	 */
 	onUpload: ( file: File ) => void;
-
-	/**
-	 * Rendered under the body, as the leaderboard renders its footer.
-	 */
-	footer: ReactNode;
 };
 
 /**
@@ -90,7 +85,7 @@ export type VideoUploaderProps = {
  * @param {VideoUploaderProps} props - Component props.
  * @return The widget body.
  */
-export function VideoUploader( { phase, onUpload, footer }: VideoUploaderProps ) {
+export function VideoUploader( { phase, onUpload }: VideoUploaderProps ) {
 	const { createInfoNotice } = useDispatch( noticesStore );
 
 	// The widget invites one video; a multi-file drop still says what happened to the rest.
@@ -111,12 +106,8 @@ export function VideoUploader( { phase, onUpload, footer }: VideoUploaderProps )
 	);
 
 	return (
-		<Stack direction="column" className="vp-top-videos-uploader">
-			<Stack direction="column" justify="safe center" className="vp-top-videos-uploader__body">
-				<UploaderBody phase={ phase } onFiles={ onFiles } onRetry={ onUpload } />
-			</Stack>
-
-			<WidgetFooter>{ footer }</WidgetFooter>
+		<Stack direction="column" justify="safe center" className="vp-top-videos-uploader">
+			<UploaderBody phase={ phase } onFiles={ onFiles } onRetry={ onUpload } />
 		</Stack>
 	);
 }
