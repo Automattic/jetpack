@@ -1,4 +1,4 @@
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { CONNECTION_STORE_ID, initConnectionStore } from '@automattic/jetpack-connection';
 import { render, renderHook, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import Admin from '../index';
@@ -15,6 +15,8 @@ describe( 'Admin', () => {
 	test( 'Renders the component', () => {
 		let storeSelect;
 
+		// The store registers lazily now; register it before stubbing it.
+		initConnectionStore();
 		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 		jest
 			.spyOn( storeSelect, 'getConnectionStatus' )

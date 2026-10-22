@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add setPluginSlug() so consumers can set the plugin slug used when registering the site at runtime, instead of only via the build-time jetpackConfig consumer_slug.

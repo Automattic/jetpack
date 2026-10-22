@@ -46,11 +46,24 @@ function JetpackRestApiClient( root, nonce ) {
 				'Content-type': 'application/json',
 			} ),
 		},
-		cacheBusterCallback = addCacheBuster;
+		cacheBusterCallback = addCacheBuster,
+		pluginSlug = null;
 
 	const methods = {
 		setApiRoot( newRoot ) {
 			apiRoot = newRoot;
+		},
+		/**
+		 * Set the plugin slug reported as `plugin_slug` when registering the site.
+		 *
+		 * Lets a consumer supply its slug at runtime instead of relying on the
+		 * build-time `jetpackConfig` consumer_slug, which a shared/externalized
+		 * bundle cannot know. Takes precedence over `jetpackConfig` when set.
+		 *
+		 * @param {string} newSlug - The plugin slug.
+		 */
+		setPluginSlug( newSlug ) {
+			pluginSlug = newSlug;
 		},
 		/**
 		 * Sets API root for search endpoints.
@@ -86,7 +99,9 @@ function JetpackRestApiClient( root, nonce ) {
 		registerSite: ( deprecated, redirectUri, from ) => {
 			const params = {};
 
-			if ( jetpackConfigHas( 'consumer_slug' ) ) {
+			if ( pluginSlug ) {
+				params.plugin_slug = pluginSlug;
+			} else if ( jetpackConfigHas( 'consumer_slug' ) ) {
 				params.plugin_slug = jetpackConfigGet( 'consumer_slug' );
 			}
 

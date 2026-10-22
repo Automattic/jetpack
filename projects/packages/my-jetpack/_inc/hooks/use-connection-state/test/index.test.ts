@@ -1,4 +1,4 @@
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { CONNECTION_STORE_ID, initConnectionStore } from '@automattic/jetpack-connection';
 import { renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
@@ -52,6 +52,9 @@ const setSite = ( {
 		user: { current_user: { capabilities: { manage_options: isAdmin } } },
 		site: { host: 'standard' },
 	} as typeof global.JetpackScriptData;
+
+	// The store registers lazily now; register it before stubbing it.
+	initConnectionStore();
 
 	let storeSelect: StoreSelect;
 	renderHook(
