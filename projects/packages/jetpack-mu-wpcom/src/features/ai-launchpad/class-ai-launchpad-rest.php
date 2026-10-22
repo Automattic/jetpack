@@ -770,6 +770,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			$pool = array(
 				'add_site_icon' => __( 'Add your logo or site icon.', 'jetpack-mu-wpcom' ),
 				'domain_upsell' => __( 'Give your site its own domain.', 'jetpack-mu-wpcom' ),
+				// domain_upsell's stand-in on a plan that includes a domain, where the upsell is hidden.
+				'domain_claim'  => __( 'Claim the free domain that comes with your plan.', 'jetpack-mu-wpcom' ),
 			);
 		} else {
 			$pool = array(
