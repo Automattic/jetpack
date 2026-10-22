@@ -199,6 +199,7 @@ class Search extends Hybrid_Product {
 				$pricing['currency_code']  = 'USD';
 				$pricing['full_price']     = self::FALLBACK_STARTING_PRICE_USD;
 				$pricing['discount_price'] = self::FALLBACK_STARTING_PRICE_USD;
+				$pricing['product_term']   = 'year';
 			}
 
 			return $pricing;
