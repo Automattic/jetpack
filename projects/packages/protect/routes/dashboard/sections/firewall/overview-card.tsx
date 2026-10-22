@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, caution, check, closeSmall, info, shield } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { Button, Stack } from '@wordpress/ui';
@@ -24,10 +24,12 @@ import {
 	runFirewallTest,
 } from './firewall-test';
 import FirewallToggle from './firewall-toggle';
+import FirewallUpsell from './firewall-upsell';
 import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
 import { AUTOMATIC_RULES, IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
 import TestDetails from './test-details';
+import UpgradeGap from './upgrade-gap';
 import type { TestOutcome, TestResult } from './firewall-test';
 import type { FirewallBlocks, FirewallContext, FirewallState } from './types';
 import type { JSX } from 'react';
@@ -41,6 +43,7 @@ const UNAVAILABLE: FirewallState = {
 	blockedLast30Days: null,
 	recentBlocks: [],
 	hasScan: false,
+	upgradeUrl: '',
 	currentIp: '',
 	ipRules: {},
 	rulesUpdatedAt: null,
@@ -363,6 +366,28 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 						currentIp={ firewall.currentIp }
 					/>
 				</CardRow>
+			) }
+			{ ! firewall.hasScan && rulesUpdatedAt === null && (
+				<FirewallUpsell url={ firewall.upgradeUrl } />
+			) }
+			{ ! firewall.hasScan && rulesUpdatedAt !== null && (
+				<UpgradeGap
+					title={ __(
+						'Your automatic firewall rules have stopped updating',
+						'jetpack-protect-pkg'
+					) }
+					description={ sprintf(
+						/* translators: %s is a date, such as "Mar 14, 2026". */
+						__(
+							'Your rules were last updated on %s. Attacks on WordPress plugins discovered since then can get through. Upgrade to get a new rule as soon as an attack is found.',
+							'jetpack-protect-pkg'
+						),
+						dateI18n( 'M j, Y', rulesUpdatedAt * 1000, undefined )
+					) }
+					url={ firewall.upgradeUrl }
+					event="jetpack_protect_dashboard_firewall_upsell"
+					eventProps={ { state: 'stopped' } }
+				/>
 			) }
 		</ProtectCard>
 	);
