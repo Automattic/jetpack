@@ -12,9 +12,11 @@ import type { ReactNode } from 'react';
 const mockStartVideoUpload = jest.fn();
 const mockUseUploadedVideo = jest.fn();
 const mockCreateInfoNotice = jest.fn();
+const mockCurrentUserCan = jest.fn();
 let mockDroppedFiles: File[] = [];
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
+	currentUserCan: ( capability: string ) => mockCurrentUserCan( capability ),
 	getAdminUrl: ( path: string ) => `https://example.com/blog/wp-admin/${ path }`,
 } ) );
 
@@ -90,6 +92,7 @@ beforeEach( () => {
 	jest.clearAllMocks();
 	mockDroppedFiles = [];
 	mockUseUploadedVideo.mockReturnValue( null );
+	mockCurrentUserCan.mockReturnValue( true );
 } );
 
 describe( 'VideoUploader', () => {
@@ -169,5 +172,20 @@ describe( 'VideoUploader', () => {
 			'src',
 			'https://videos.files.wordpress.com/abc/poster.jpg'
 		);
+	} );
+
+	it( 'leaves View video out for users who cannot open the VideoPress dashboard', async () => {
+		mockDroppedFiles = [ videoFile( 'holiday.mp4' ) ];
+		mockCurrentUserCan.mockReturnValue( false );
+		render( <VideoUploader footer={ null } onUploaded={ jest.fn() } /> );
+		await userEvent.click( screen.getByRole( 'button', { name: dropzoneLabel } ) );
+
+		act( () =>
+			callbacks().onSuccess( { id: 7, guid: 'abc', src: 'https://videopress.com/v/abc' } )
+		);
+
+		expect( mockCurrentUserCan ).toHaveBeenCalledWith( 'manage_options' );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'being processed' );
+		expect( screen.queryByRole( 'link', { name: 'View video' } ) ).not.toBeInTheDocument();
 	} );
 } );

@@ -12,7 +12,7 @@ import {
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
+import { currentUserCan, getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -180,12 +180,13 @@ function TopVideosReport() {
 					? {
 							icon: videoIcon,
 							description: __( 'No video plays in this period yet.', 'jetpack-videopress-pkg' ),
-							action: canUpload
-								? {
-										label: __( 'Manage videos', 'jetpack-videopress-pkg' ),
-										href: getAdminUrl( VIDEOPRESS_ADMIN_PAGE ),
-									}
-								: undefined,
+							action:
+								canUpload && currentUserCan( 'manage_options' )
+									? {
+											label: __( 'Manage videos', 'jetpack-videopress-pkg' ),
+											href: getAdminUrl( VIDEOPRESS_ADMIN_PAGE ),
+										}
+									: undefined,
 						}
 					: undefined
 			}

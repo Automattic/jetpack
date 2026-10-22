@@ -18,10 +18,12 @@ const mockUseEntityRecords = jest.fn();
 const mockCanUser = jest.fn();
 const mockHasFinishedResolution = jest.fn();
 const mockIsSimpleSite = jest.fn();
+const mockCurrentUserCan = jest.fn();
 const mockInvalidateResolution = jest.fn();
 const mockVideoUploader = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
+	currentUserCan: ( capability: string ) => mockCurrentUserCan( capability ),
 	getAdminUrl: ( path: string ) => `https://example.com/blog/wp-admin/${ path }`,
 	isSimpleSite: () => mockIsSimpleSite(),
 } ) );
@@ -115,6 +117,7 @@ describe( 'Top videos widget', () => {
 		mockCanUser.mockReturnValue( true );
 		mockHasFinishedResolution.mockReturnValue( true );
 		mockIsSimpleSite.mockReturnValue( false );
+		mockCurrentUserCan.mockReturnValue( true );
 	} );
 
 	it( 'requests its own number of videos for the dashboard window', () => {
@@ -336,6 +339,17 @@ describe( 'Top videos widget', () => {
 
 		expect( leaderboardProps().status.isLoading ).toBe( false );
 		expect( leaderboardProps().empty ).toEqual( noPlaysEmpty );
+	} );
+
+	it( 'leaves Manage videos out for users who cannot open the VideoPress dashboard', () => {
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
+		mockUseEntityRecords.mockReturnValue( { records: [ { id: 42 } ], hasResolved: true } );
+		mockCurrentUserCan.mockReturnValue( false );
+
+		render( <TopVideos attributes={ {} } /> );
+
+		expect( mockCurrentUserCan ).toHaveBeenCalledWith( 'manage_options' );
+		expect( leaderboardProps().empty ).toEqual( { ...noPlaysEmpty, action: undefined } );
 	} );
 
 	it.each( [

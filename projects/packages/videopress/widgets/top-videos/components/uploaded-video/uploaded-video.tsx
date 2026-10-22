@@ -7,7 +7,7 @@ import {
 	Text,
 	getVideoPosterUrl,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { currentUserCan, getAdminUrl } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Icon, video as videoIcon } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
@@ -85,9 +85,11 @@ export function UploadedVideo( { file, media }: UploadedVideoProps ) {
 				{ message }
 			</Text>
 
-			<ButtonLink variant="solid" href={ detailsUrl }>
-				{ __( 'View video', 'jetpack-videopress-pkg' ) }
-			</ButtonLink>
+			{ currentUserCan( 'manage_options' ) && (
+				<ButtonLink variant="solid" href={ detailsUrl }>
+					{ __( 'View video', 'jetpack-videopress-pkg' ) }
+				</ButtonLink>
+			) }
 		</Stack>
 	);
 }
