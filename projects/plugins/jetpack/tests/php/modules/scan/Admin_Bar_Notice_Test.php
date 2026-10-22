@@ -22,6 +22,8 @@ class Admin_Bar_Notice_Test extends WP_UnitTestCase {
 		parent::set_up();
 		require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
 		unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		// jetpack-mu-wpcom turns notifications off on Atomic, which the wpcomsh test run simulates.
+		remove_all_filters( 'jetpack_protect_threat_notifications_enabled' );
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 	}
 
@@ -127,7 +129,6 @@ class Admin_Bar_Notice_Test extends WP_UnitTestCase {
 
 		( new Admin_Bar_Notice() )->add_threats_to_toolbar( $admin_bar );
 
-		remove_filter( 'jetpack_protect_threat_notifications_enabled', '__return_false' );
 		$this->assertNull( $admin_bar->get_node( 'jetpack-scan-notice' ) );
 	}
 
