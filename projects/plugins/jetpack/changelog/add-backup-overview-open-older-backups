@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Backup: Link backup dates in the Activity Log to that backup in the Backup dashboard, which now opens any backup from a link, not only those on the activity page it shows.
+Backup: Link backups in the Activity Log to that backup in the Backup dashboard, which now opens any backup from a link, not only those on the activity page it shows. Backups that finished with warnings can now be opened and restored there too.
