@@ -235,6 +235,19 @@ describe( 'Protect dashboard stage', () => {
 		expect( search( { threats: '5' } ) ).toEqual( {} );
 	} );
 
+	it( 'leaving the threat report records the Overview view', () => {
+		window.jetpackProtectDashboard = { scan: { hasPlan: true, lastChecked } };
+		mockUseSearch.mockReturnValue( { threats: '5' } );
+		const { rerender } = render( <Stage /> );
+		expect( recordPageView ).not.toHaveBeenCalled();
+
+		mockUseSearch.mockReturnValue( {} );
+		rerender( <Stage /> );
+
+		expect( screen.getByRole( 'tab', { selected: true } ) ).toHaveTextContent( 'Overview' );
+		expect( ( recordPageView as jest.Mock ).mock.calls ).toEqual( [ [ 'overview', undefined ] ] );
+	} );
+
 	it( 'switching tabs closes the threat inspector', async () => {
 		mockUseSearch.mockReturnValue( { threat: '7' } );
 		render( <Stage /> );

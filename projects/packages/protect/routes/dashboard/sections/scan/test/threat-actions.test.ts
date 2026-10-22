@@ -105,6 +105,7 @@ describe( 'threat action Tracks events', () => {
 		[ 'an ignore', ignoreThreat, Promise.resolve( {} ), 'ignore_threat', 'success' ],
 		[ 'a failed ignore', ignoreThreat, Promise.reject( {} ), 'ignore_threat', 'failed' ],
 		[ 'an unignore', unignoreThreat, Promise.resolve( {} ), 'unignore_threat', 'success' ],
+		[ 'a failed unignore', unignoreThreat, Promise.reject( {} ), 'unignore_threat', 'failed' ],
 	] )( 'record the Scan page’s events for %s', async ( _name, action, response, event, result ) => {
 		( recordEvent as jest.Mock ).mockClear();
 		mockApiFetch.mockReturnValue( response );

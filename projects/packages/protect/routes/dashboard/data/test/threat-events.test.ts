@@ -40,6 +40,7 @@ describe( 'recordViewChange', () => {
 	it.each( [
 		[ 'a search', { search: 'wp' }, [ [ 'jetpack_scan_search', { has_query: true } ] ] ],
 		[ 'a page', { page: 2 }, [ [ 'jetpack_scan_page_change', { page: 2 } ] ] ],
+		[ 'a layout', { type: 'grid' }, [ [ 'jetpack_scan_layout_changed', { layout: 'grid' } ] ] ],
 		[
 			'a filter',
 			{ filters: [ { field: 'severity', operator: 'is', value: 5 } ] },
