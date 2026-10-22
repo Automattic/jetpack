@@ -185,7 +185,8 @@ function OverviewBody() {
 		backupsState,
 		isBackupRequested,
 		backups.find( isUsableBackup )?.id ?? null,
-		backups[ 0 ] ?? null
+		backups[ 0 ] ?? null,
+		defaultSelectedId
 	);
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.

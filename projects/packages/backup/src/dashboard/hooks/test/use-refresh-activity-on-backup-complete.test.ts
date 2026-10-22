@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
 import { announce } from '../../data/announce';
 import { useRefreshActivityOnBackupComplete } from '../use-refresh-activity-on-backup-complete';
@@ -284,4 +284,74 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 			expect( result.current.failedRun ).toBe( failedRun );
 		}
 	);
+} );
+
+// WPCOM lists the new activity row a moment after the backups read reports the run finished.
+describe( 'when the activity log lags a finished run', () => {
+	beforeEach( () => jest.useFakeTimers() );
+	afterEach( () => jest.useRealTimers() );
+
+	/**
+	 * Mount mid-run, with the activity log's newest backup row at 'old'.
+	 *
+	 * @return The invalidation spy and a way to render the next state.
+	 */
+	function mountMidRun() {
+		const { client, wrapper } = makeWrapper();
+		const invalidate = jest.spyOn( client, 'invalidateQueries' );
+		const { rerender } = renderHook(
+			( [ state, activityTopId ]: [ BackupsState, string | null ] ) =>
+				useRefreshActivityOnBackupComplete(
+					state,
+					false,
+					state === 'complete' ? 'b' : 'a',
+					null,
+					activityTopId
+				),
+			{ wrapper, initialProps: [ 'in-progress', 'old' ] as [ BackupsState, string | null ] }
+		);
+		return { invalidate, rerender };
+	}
+
+	it( 'asks again until the newest activity row changes', () => {
+		const { invalidate, rerender } = mountMidRun();
+		rerender( [ 'complete', 'old' ] );
+		expect( invalidate ).toHaveBeenCalledTimes( 1 );
+
+		act( () => {
+			jest.advanceTimersByTime( 6000 );
+		} );
+		expect( invalidate.mock.calls.length ).toBeGreaterThan( 1 );
+
+		rerender( [ 'complete', 'new' ] );
+		const settled = invalidate.mock.calls.length;
+		act( () => {
+			jest.advanceTimersByTime( 30_000 );
+		} );
+		expect( invalidate ).toHaveBeenCalledTimes( settled );
+	} );
+
+	it( 'gives up when the row never appears', () => {
+		const { invalidate, rerender } = mountMidRun();
+		rerender( [ 'complete', 'old' ] );
+
+		act( () => {
+			jest.advanceTimersByTime( 120_000 );
+		} );
+		const settled = invalidate.mock.calls.length;
+		act( () => {
+			jest.advanceTimersByTime( 120_000 );
+		} );
+		expect( invalidate ).toHaveBeenCalledTimes( settled );
+	} );
+
+	it( 'does not keep asking after a run that made no backup', () => {
+		const { invalidate, rerender } = mountMidRun();
+		rerender( [ 'no-good-backups', 'old' ] );
+
+		act( () => {
+			jest.advanceTimersByTime( 30_000 );
+		} );
+		expect( invalidate ).toHaveBeenCalledTimes( 1 );
+	} );
 } );

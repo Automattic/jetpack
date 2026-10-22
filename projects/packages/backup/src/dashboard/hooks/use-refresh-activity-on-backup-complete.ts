@@ -29,6 +29,10 @@ const RUN_ENDED_STATES: readonly BackupsState[] = [
 	'no-good-backups',
 ] as const;
 
+/** WPCOM lists a finished backup in the activity log a moment after the backups read reports it. */
+const ACTIVITY_RETRY_MS = 3000;
+const ACTIVITY_RETRY_CEILING_MS = 60_000;
+
 /** How a watched run failed on a site that kept older restore points, for the Overview's banner. */
 export type FailedRun = 'will-retry' | 'failed' | null;
 
@@ -48,17 +52,19 @@ export type FailedRun = 'will-retry' | 'failed' | null;
  * its response is discarded. Two observers therefore cost two WPCOM
  * round trips per finished backup per open tab, not one.
  *
- * @param state          - The derived backups state, from `useBackups`.
- * @param isRequested    - Whether a "Back up now" request is still pending.
- * @param latestBackupId - The newest usable backup's id, or null when there is none.
- * @param newest         - The newest attempt, usable or not, or null when there is none.
+ * @param state                  - The derived backups state, from `useBackups`.
+ * @param isRequested            - Whether a "Back up now" request is still pending.
+ * @param latestBackupId         - The newest usable backup's id, or null when there is none.
+ * @param newest                 - The newest attempt, usable or not, or null when there is none.
+ * @param newestActivityBackupId - The activity log's newest backup row, or null when it has none.
  * @return How many runs this screen has watched end, for the list's "new" marker, and how the last one failed.
  */
 export function useRefreshActivityOnBackupComplete(
 	state: BackupsState,
 	isRequested: boolean,
 	latestBackupId: string | null,
-	newest: Backup | null = null
+	newest: Backup | null = null,
+	newestActivityBackupId: string | null = null
 ): { finishedRuns: number; failedRun: FailedRun } {
 	const queryClient = useQueryClient();
 	// Latched rather than compared against the previous render's state:
@@ -74,6 +80,8 @@ export function useRefreshActivityOnBackupComplete(
 	const newestBeforeRun = useRef< string | null >( null );
 	const [ finishedRuns, setFinishedRuns ] = useState( 0 );
 	const [ failedRun, setFailedRun ] = useState< FailedRun >( null );
+	// Set when a run made a backup, until the activity log lists a newer one than `baseline`.
+	const [ awaitingRow, setAwaitingRow ] = useState< { baseline: string | null } | null >( null );
 	const newestId = newest?.id ?? null;
 	const newestHasWarnings = newest?.hasWarnings ?? false;
 	const newestFailed = newest !== null && ! isUsableBackup( newest );
@@ -100,6 +108,7 @@ export function useRefreshActivityOnBackupComplete(
 						: backupReadyText()
 				);
 				setFailedRun( null );
+				setAwaitingRow( { baseline: newestActivityBackupId } );
 			} else if ( newestFailed && newestId !== newestBeforeRun.current ) {
 				if ( state === 'no-good-backups' ) {
 					announce( noGoodBackupsText() );
@@ -127,8 +136,29 @@ export function useRefreshActivityOnBackupComplete(
 		newestHasWarnings,
 		newestFailed,
 		newestWillRetry,
+		newestActivityBackupId,
 		queryClient,
 	] );
+
+	// The refresh above can land before WPCOM lists the new row, so ask again until it shows.
+	useEffect( () => {
+		if ( ! awaitingRow ) {
+			return;
+		}
+		if ( newestActivityBackupId !== awaitingRow.baseline ) {
+			setAwaitingRow( null );
+			return;
+		}
+		const retry = setInterval(
+			() => queryClient.invalidateQueries( { queryKey: keys.activityLogRoot() } ),
+			ACTIVITY_RETRY_MS
+		);
+		const giveUp = setTimeout( () => setAwaitingRow( null ), ACTIVITY_RETRY_CEILING_MS );
+		return () => {
+			clearInterval( retry );
+			clearTimeout( giveUp );
+		};
+	}, [ awaitingRow, newestActivityBackupId, queryClient ] );
 
 	return { finishedRuns, failedRun };
 }
