@@ -63,34 +63,6 @@ $band-ground: #f0f7f0;
 		}
 	}
 
-	&__art-trio {
-		display: flex;
-		gap: 16px;
-	}
-
-	&__features {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-		margin-block: 0 24px;
-		margin-inline: 0;
-		padding-inline: 24px;
-		list-style: none;
-
-		li {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			margin: 0;
-			font-size: 13px;
-			font-weight: 500;
-		}
-
-		svg {
-			flex: 0 0 auto;
-		}
-	}
-
 	&__heading {
 		margin-block: 16px;
 		margin-inline: 0;
