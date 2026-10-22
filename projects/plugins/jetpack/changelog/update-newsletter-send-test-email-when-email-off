@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Send test emails even when emails are turned off for a post.
