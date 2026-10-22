@@ -38,7 +38,9 @@ const BackupOverviewItem: ProductCardComponent = ( { admin } ) => {
 		'status' in attention &&
 		attention.status === 'backups-deactivated';
 	const failureReason =
-		status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR && typeof reasonContent?.title === 'string'
+		status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR &&
+		!! doesModuleNeedAttention &&
+		typeof reasonContent?.title === 'string'
 			? reasonContent.title
 			: undefined;
 

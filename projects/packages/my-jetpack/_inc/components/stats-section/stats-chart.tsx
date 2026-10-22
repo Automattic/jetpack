@@ -32,6 +32,9 @@ interface StatsChartProps {
 	fitTicks?: boolean;
 }
 
+// Below this width, seven date labels run into each other.
+const NARROW_CHART_WIDTH = 300;
+
 /**
  * Stats chart component with bar chart visualization.
  * @param {object}   props            - Component props.
@@ -43,9 +46,6 @@ interface StatsChartProps {
  * @param {boolean}  [props.fitTicks] - Whether to show fewer date labels when the chart is narrow.
  * @return {object} StatsChart React component.
  */
-// Below this width, seven date labels run into each other.
-const NARROW_CHART_WIDTH = 300;
-
 const StatsChart: FC< StatsChartProps > = ( {
 	data,
 	isLoading,
