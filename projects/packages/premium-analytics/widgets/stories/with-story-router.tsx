@@ -52,9 +52,9 @@ const STORY_DOCUMENT_URL = `https://example.com/wp-admin/admin.php?page=${ DASHB
 
 /**
  * Provides the router context that widget links need in Storybook. The report
- * and post-detail routes let `ReportLink` and `PostTitleLink` build the same
- * real href shapes as the app, and the widget host mounts the router link for
- * an action href that targets one of them.
+ * and post-detail routes let the detail links build the same real href shapes
+ * as the app, and the widget host mounts the router link for an action href
+ * that targets one of them.
  */
 export function StoryRouterProvider( { children }: { children: ReactNode } ) {
 	return (
