@@ -566,6 +566,7 @@ class Jetpack_AI_Sidebar {
 	 */
 	private static function has_wordpress_agent_plan(): bool {
 		if ( function_exists( 'wpcom_site_has_wordpress_agent_plan' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by jetpack-mu-wpcom on WordPress.com; guarded above.
 			return wpcom_site_has_wordpress_agent_plan();
 		}
 
