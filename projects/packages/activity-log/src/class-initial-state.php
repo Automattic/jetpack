@@ -13,7 +13,9 @@ use Automattic\Jetpack\Status;
 use function add_query_arg;
 use function admin_url;
 use function esc_url_raw;
+use function function_exists;
 use function get_bloginfo;
+use function get_current_blog_id;
 use function get_locale;
 use function get_option;
 use function get_site_url;
@@ -58,6 +60,7 @@ class Initial_State {
 				'apiSource'       => $is_wpcom_simple ? 'wpcom' : 'jetpack',
 				'wpcomUpgradeUrl' => $is_wpcom_simple ? self::get_wpcom_upgrade_url( $site_suffix ) : '',
 				'tracksUserData'  => $is_wpcom_simple ? self::get_wpcom_tracks_user_data() : null,
+				'hiddenGroups'    => $is_wpcom_simple ? self::get_wpcom_hidden_groups() : array(),
 			),
 			'siteData'      => array(
 				'id'                    => Connection_Manager::get_site_id( true ),
@@ -103,6 +106,19 @@ class Initial_State {
 			),
 			'https://wordpress.com/setup/plan-upgrade/'
 		);
+	}
+
+	/**
+	 * Activity groups to hide on a Simple site without backups, such as events left over from an Atomic past.
+	 *
+	 * @return string[]
+	 */
+	private static function get_wpcom_hidden_groups() {
+		if ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'backups-self-serve', get_current_blog_id() ) ) {
+			return array();
+		}
+
+		return array( 'rewind', 'scan' );
 	}
 
 	/**

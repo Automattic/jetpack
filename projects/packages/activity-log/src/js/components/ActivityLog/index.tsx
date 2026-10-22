@@ -271,6 +271,9 @@ export default function ActivityLog() {
 			after: afterIso,
 			before: beforeIso,
 		};
+		if ( config.hiddenGroups.length ) {
+			params.not_group = config.hiddenGroups;
+		}
 		if ( searchTerm ) {
 			params.text_search = searchTerm;
 		}
@@ -319,6 +322,7 @@ export default function ActivityLog() {
 			number: 1000,
 			after: afterIso,
 			before: beforeIso,
+			...( config.hiddenGroups.length && { not_group: config.hiddenGroups } ),
 		} )
 	);
 
@@ -481,10 +485,9 @@ export default function ActivityLog() {
 
 	// Mounting the picker as an admin-ui `actions` slot places it in the
 	// AdminPage header alongside the title/subtitle — matches MSD's
-	// layout for the logs pages. On free tier the picker renders as a
-	// disabled upgrade affordance (no popover, hover tooltip), keeping
-	// the page surface visually consistent with the paid version.
-	const headerActions = (
+	// layout for the logs pages. The free tier ignores dates server-side,
+	// so it gets a label describing what it does show instead.
+	const headerActions = hasActivityLogsAccess ? (
 		<DateRangePicker
 			start={ dateRange.start }
 			end={ dateRange.end }
@@ -492,9 +495,15 @@ export default function ActivityLog() {
 			timezoneString={ timezoneString }
 			gmtOffset={ gmtOffset }
 			locale={ locale }
-			disabled={ ! hasActivityLogsAccess }
-			disabledTooltipText={ __( 'Upgrade your plan to use this feature.', 'jetpack-activity-log' ) }
 		/>
+	) : (
+		<span className="jp-activity-log__free-tier-range">
+			{ sprintf(
+				/* translators: %d: number of activity log events shown on the free plan. */
+				__( 'Showing your %d most recent events', 'jetpack-activity-log' ),
+				ACTIVITY_LOGS_DEFAULT_PAGE_SIZE
+			) }
+		</span>
 	);
 
 	return (

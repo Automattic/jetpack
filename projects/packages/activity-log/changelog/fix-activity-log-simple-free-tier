@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show that the free plan lists the 20 most recent events, instead of a locked date range it does not apply. Hide backup events on WordPress.com sites without backups.
