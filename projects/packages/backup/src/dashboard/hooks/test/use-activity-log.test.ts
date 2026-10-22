@@ -445,6 +445,34 @@ describe( 'useActivityById for an id no loaded page holds', () => {
 		}
 	);
 
+	it( 'gives up after three pages when the window is ignored', async () => {
+		mockedApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const args = new URLSearchParams( options.path?.split( '?' )[ 1 ] );
+			if ( ! args.has( 'after' ) ) {
+				return Promise.resolve( DESCENDING );
+			}
+			// The site's whole log, as WordPress.com returns it without the full activity log.
+			return Promise.resolve( {
+				current: {
+					orderedItems: Array.from( { length: 20 }, ( _, i ) => ( {
+						activity_id: `post-${ args.get( 'page' ) }-${ i }`,
+						gridicon: 'posts',
+						summary: 'Post published',
+						published: '2026-08-09T18:26:39Z',
+					} ) ),
+				},
+				totalPages: 50,
+			} );
+		} );
+		const { result } = renderHook(
+			() => useActivityById( UNLISTED_ID, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+			{ wrapper: wrapper() }
+		);
+		await waitFor( () => expect( result.current.hasAnswered ).toBe( true ) );
+		expect( result.current.item ).toBeFalsy();
+		expect( windowRequests().map( args => args.get( 'page' ) ) ).toEqual( [ '1', '2', '3' ] );
+	} );
+
 	/**
 	 * Requests for a time window rather than a page.
 	 *

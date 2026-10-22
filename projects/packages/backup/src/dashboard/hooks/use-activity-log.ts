@@ -290,11 +290,16 @@ export function useActivityById(
 	};
 }
 
+// The window is a few seconds wide, so a backup's row is on its first page or two. More pages
+// mean WordPress.com ignored the window (it only honours it with the full activity log), and
+// paging through the whole log one request at a time would never end well.
+const MAX_PAGES_AROUND_BACKUP = 3;
+
 /**
- * Search every page of the window before declaring a backup absent.
+ * Search the window's pages, up to `MAX_PAGES_AROUND_BACKUP`, before declaring a backup absent.
  *
  * @param rewindId - The backup to find.
- * @return The matching page, or the final page when no match exists.
+ * @return The matching page, or the last page searched when no match exists.
  */
 async function fetchActivityAroundBackup( rewindId: string ): Promise< WpcomActivityLogResponse > {
 	const args = aroundRewindId( rewindId );
@@ -306,7 +311,7 @@ async function fetchActivityAroundBackup( rewindId: string ): Promise< WpcomActi
 			return response;
 		}
 		page++;
-	} while ( page <= ( response.totalPages ?? 1 ) );
+	} while ( page <= Math.min( response.totalPages ?? 1, MAX_PAGES_AROUND_BACKUP ) );
 	return response;
 }
 
