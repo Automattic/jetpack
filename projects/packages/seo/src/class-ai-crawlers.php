@@ -162,7 +162,7 @@ class Ai_Crawlers {
 	/**
 	 * Whether WordPress.com's site-wide data-sharing opt-out is enabled.
 	 *
-	 * Its later `robots_txt` filter remains authoritative over per-bot settings.
+	 * Its `robots_txt` filter remains authoritative over per-bot settings.
 	 *
 	 * @return bool
 	 */
