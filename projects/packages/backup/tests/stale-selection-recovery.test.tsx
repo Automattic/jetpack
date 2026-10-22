@@ -311,7 +311,14 @@ describe( 'A selection on a page nothing has loaded', () => {
 		} );
 	} );
 
-	it( 'opens a backup without paging to it', async () => {
+	// WPCOM sends `notice` instead of `cloud` for a backup that finished with warnings.
+	it.each( [ 'cloud', 'notice' ] )( 'opens a backup without paging to it (%s)', async gridicon => {
+		mockEndpoints( {
+			activity: page =>
+				page === 2 ? [ { ...pageTwoEntry(), gridicon }, pageTwoPostEntry() ] : [ backupEntry() ],
+			backups: [],
+			totalPages: 2,
+		} );
 		mockSearch.mockReturnValue( { selected: PAGE_TWO_ID } );
 
 		render( <OverviewStage /> );
