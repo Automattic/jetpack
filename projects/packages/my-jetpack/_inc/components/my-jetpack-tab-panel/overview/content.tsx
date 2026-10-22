@@ -19,8 +19,7 @@ export function OverviewContent() {
 	return (
 		<div>
 			<div className={ styles.products }>
-				{ overviewV1 && <OverviewSections /> }
-				<ProductCardsSection />
+				{ overviewV1 ? <OverviewSections /> : <ProductCardsSection /> }
 			</div>
 
 			{ currentUserCan( 'manage_options' ) ? (

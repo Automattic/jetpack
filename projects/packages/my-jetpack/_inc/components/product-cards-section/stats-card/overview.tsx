@@ -58,6 +58,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 					onDetailedStatsClick={ onDetailedStatsClick }
 					hideTitle
 					chartBelowCounts
+					flush
 				/>
 				{ detailedStatsHref && (
 					<div>

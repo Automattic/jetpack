@@ -3,7 +3,7 @@ import '@automattic/charts/style.css';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
-import { Suspense, useCallback, useMemo } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import LoadingBlock from '../loading-block';
 import StatsChartTooltip from './stats-chart-tooltip';
 import styles from './stats-chart.module.scss';
@@ -41,7 +41,23 @@ interface StatsChartProps {
  * @param {object}   props.metricIcon - The icon JSX element for the selected metric.
  * @return {object} StatsChart React component.
  */
+// Below this width, seven date labels run into each other.
+const NARROW_CHART_WIDTH = 300;
+
 const StatsChart: FC< StatsChartProps > = ( { data, isLoading, href, onClick, metricIcon } ) => {
+	const containerRef = useRef< HTMLAnchorElement >( null );
+	const [ width, setWidth ] = useState( 0 );
+	useEffect( () => {
+		const container = containerRef.current;
+		if ( ! container || typeof ResizeObserver === 'undefined' ) {
+			return;
+		}
+		const observer = new ResizeObserver( ( [ entry ] ) => setWidth( entry.contentRect.width ) );
+		observer.observe( container );
+		return () => observer.disconnect();
+	}, [] );
+	const isNarrow = width > 0 && width < NARROW_CHART_WIDTH;
+
 	// Check if there's data for the selected metric specifically
 	const isEmpty = useMemo( () => {
 		return ! isLoading && data?.[ 0 ]?.data?.every( item => item.value === 0 );
@@ -78,6 +94,7 @@ const StatsChart: FC< StatsChartProps > = ( { data, isLoading, href, onClick, me
 
 	return (
 		<Link
+			ref={ containerRef }
 			variant="unstyled"
 			className={ styles[ 'chart-container' ] }
 			href={ href }
@@ -137,7 +154,7 @@ const StatsChart: FC< StatsChartProps > = ( { data, isLoading, href, onClick, me
 							axis: {
 								x: {
 									// hideZero: false,
-									numTicks: 7,
+									numTicks: isNarrow ? 4 : 7,
 									tickFormat: timestamp => {
 										const date = new Date( timestamp );
 

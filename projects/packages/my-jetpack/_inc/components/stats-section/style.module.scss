@@ -63,6 +63,11 @@ $min-card-width: 155px;
 	margin-top: $spacing-vertical;
 	margin-bottom: $spacing-vertical;
 
+	&.is-flush {
+		padding-left: 1px;
+		padding-right: 1px;
+	}
+
 	// Add horizontal scrolling, but without the scrollbar.
 	overflow-x: scroll;
 	scrollbar-width: none;

@@ -117,6 +117,7 @@ const getDynamicTitle = metric => {
  * @param {Function} props.onDetailedStatsClick - Function to handle detailed stats click.
  * @param {boolean}  [props.hideTitle]          - Whether to leave out the linked title, when a container already has one.
  * @param {boolean}  [props.chartBelowCounts]   - Whether to show the chart after the counts instead of before them.
+ * @param {boolean}  [props.flush]              - Whether to leave out the counts' side padding, when a container already has its own.
  *
  * @return {import('react').JSX.Element} StatsCards React component.
  */
@@ -130,6 +131,7 @@ const StatsCards = ( {
 	onDetailedStatsClick,
 	hideTitle = false,
 	chartBelowCounts = false,
+	flush = false,
 } ) => {
 	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
 
@@ -204,7 +206,11 @@ const StatsCards = ( {
 
 			{ ! chartBelowCounts && chart }
 
-			<ul className={ clsx( styles[ 'cards-list' ], styles[ 'my-jetpack-stats-cards' ] ) }>
+			<ul
+				className={ clsx( styles[ 'cards-list' ], styles[ 'my-jetpack-stats-cards' ], {
+					[ styles[ 'is-flush' ] ]: flush,
+				} ) }
+			>
 				<CountComparisonCard
 					heading={ __( 'Views', 'jetpack-my-jetpack' ) }
 					srText={ createStatSRText(
