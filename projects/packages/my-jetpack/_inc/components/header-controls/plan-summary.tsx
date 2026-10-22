@@ -20,8 +20,10 @@ const PlanSummary: FC< { purchases: Purchase[] | null; hasFailed?: boolean } > =
 	purchases,
 	hasFailed = false,
 } ) => {
-	const hasComplete =
-		!! getMyJetpackWindowInitialState( 'products' )?.items?.complete?.has_paid_plan_for_product;
+	// As `Complete::has_required_plan()`: the page state carries no plan flags, and Boost's dashboard no products.
+	const hasComplete = !! purchases?.some( ( { product_slug } ) =>
+		product_slug?.startsWith( 'jetpack_complete' )
+	);
 	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 
 	if ( ! purchases ) {
