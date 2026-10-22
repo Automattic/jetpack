@@ -54,8 +54,8 @@ describe( 'Funnel', () => {
 	} );
 
 	it.each( [
-		[ 'Sessions', 'Sessions1,250' ],
-		[ 'Cart', 'Cart310Conversion rate24.8%' ],
+		[ 'Sessions', /^Sessions1,250$/ ],
+		[ 'Cart', /^Cart310Conversion rate24\.8%$/ ],
 	] )( 'shows the %s step count and conversion rate in its tooltip', async ( label, text ) => {
 		renderFunnel( <Funnel steps={ STEPS } status={ READY } /> );
 
