@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
-import { Badge, Button, Icon, Link, Stack, Text } from '@wordpress/ui';
+import { Badge, Button, Icon, Link, Spinner, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
@@ -122,7 +122,7 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 
 	const productLinks: ReactNode[] = [];
 	if ( admin && action && ! forcedOffReason ) {
-		productLinks.push(
+		const actionLink = (
 			<Link
 				key="action"
 				{ ...( action.href
@@ -133,6 +133,7 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 									variant="unstyled"
 									onClick={ action.onClick }
 									disabled={ action.disabled }
+									loading={ action.disabled }
 								/>
 							),
 						} ) }
@@ -140,6 +141,16 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 			>
 				{ action.label }
 			</Link>
+		);
+		productLinks.push(
+			action.disabled ? (
+				<Stack key="action" direction="row" align="center" gap="sm">
+					{ actionLink }
+					<Spinner />
+				</Stack>
+			) : (
+				actionLink
+			)
 		);
 	}
 	if ( admin && upgrade ) {
