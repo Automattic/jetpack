@@ -61,7 +61,6 @@ const data = JSON.parse( dataEl?.textContent ?? '{}' );
 const apiRoot = data.apiRoot || '';
 const apiNonce = data.apiNonce || '';
 const redirectUri = data.redirectUri || '';
-const hasOtherConnectedUsers = Boolean( data.hasOtherConnectedUsers );
 const connectionOwnerEditUrl = data.connectionOwnerEditUrl || null;
 const connectedUsersUrl = data.connectedUsersUrl || '';
 const pluginLogos = data.pluginLogos || {};
@@ -92,15 +91,13 @@ function buildViewer( currentUser, isUserConnected ) {
 	}
 
 	const wpcomUser = currentUser.wpcomUser || {};
-	const isOwner = Boolean( currentUser.isMaster );
 
 	return {
 		displayName: wpcomUser.display_name || currentUser.displayName || currentUser.username || '',
 		login: wpcomUser.login || currentUser.username || '',
 		email: wpcomUser.email || currentUser.email || '',
 		avatar: currentUser.gravatar || '',
-		isOwner,
-		hasOtherConnectedUsers: isOwner && hasOtherConnectedUsers,
+		isOwner: Boolean( currentUser.isMaster ),
 	};
 }
 
