@@ -7,6 +7,7 @@ import {
 	Text,
 	VisuallyHidden,
 	mixHexColors,
+	useBarColors,
 	useGlobalChartsContext,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
@@ -57,7 +58,13 @@ const CLICK_DRAG_TOLERANCE_PX = 6;
 
 const LINE_COUNTERPART_SHADE_BLEND = 0.5;
 
-/** The previous period's grays when bars overlap. Like the current period, a chart that pairs metrics is light behind and darker in front on every tab, and any other chart takes the solid gray. */
+/** An empty pair whose front bar charts tones as it tones a front metric's. */
+const FRONT_TONE_PROBE = [
+	{ label: 'back', group: 'back', data: [] },
+	{ label: 'front', group: 'front', data: [] },
+];
+
+/** The previous period's grays when bars overlap. A chart that pairs metrics is light behind and darker in front, and any other chart takes the solid gray. */
 const PREVIOUS_PERIOD_GRAYS = {
 	alone: 'var(--wpds-color-stroke-surface-neutral-strong, #8d8d8d)',
 	// No WPDS gray sits between `#dbdbdb` and `#8d8d8d`; this is the darkest that keeps 3:1 against the front gray.
@@ -337,17 +344,19 @@ function MetricChart( {
 
 	// The first palette color is the admin accent.
 	const { getElementStyles } = useGlobalChartsContext();
+	const getBarColors = useBarColors();
 	const shades = useMemo( () => {
 		const accent = getElementStyles( { index: 0 } ).color;
 		return {
 			accent,
+			barFront: getBarColors( FRONT_TONE_PROBE, { layout: 'overlap' } )[ 1 ],
 			lineCounterpart: mixHexColors( accent, '#000000', LINE_COUNTERPART_SHADE_BLEND ),
 		};
-	}, [ getElementStyles ] );
+	}, [ getElementStyles, getBarColors ] );
 
 	// Bars draw the smaller metric of a pair inside the larger one's bar, as Jetpack Stats v1 draws visitors inside views.
 	const isOverlap = chartType === 'bar';
-	// A chart that pairs metrics tints every tab alike; the others draw the full accent.
+	// In a chart that pairs metrics, a metric alone takes the front metric's colors; the others draw the full accent.
 	const pairsMetrics = metrics.some(
 		item =>
 			item.counterpartKey !== item.key &&
@@ -355,14 +364,14 @@ function MetricChart( {
 	);
 
 	const { series, defaultHiddenSeries } = useMemo( () => {
-		// An unstroked current period is toned by charts from the accent: the back metric, or a metric alone, takes the tint and a front metric the shade.
+		// An unstroked current period is toned by charts from the accent: the back metric takes the tint and a front metric the shade.
 		if ( isOverlap && ! counterpart ) {
 			return {
 				series: buildSeries(
 					metric,
 					chartType,
-					pairsMetrics ? undefined : shades.accent,
-					pairsMetrics ? PREVIOUS_PERIOD_GRAYS.back : PREVIOUS_PERIOD_GRAYS.alone
+					pairsMetrics ? shades.barFront : shades.accent,
+					pairsMetrics ? PREVIOUS_PERIOD_GRAYS.front : PREVIOUS_PERIOD_GRAYS.alone
 				),
 				defaultHiddenSeries: undefined,
 			};

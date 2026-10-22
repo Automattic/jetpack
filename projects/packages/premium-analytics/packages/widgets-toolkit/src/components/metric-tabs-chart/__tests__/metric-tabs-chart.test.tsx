@@ -8,6 +8,7 @@ import { _n } from '@wordpress/i18n';
  * Internal dependencies
  */
 import {
+	mockOverlapBarColor,
 	resetMockCharts,
 	setMockChartWidth,
 	setMockElementStyles,
@@ -728,9 +729,9 @@ describe( 'MetricTabsChart', () => {
 			[ '#3858E9', 'var(--wpds-color-stroke-surface-neutral-strong, #8d8d8d)' ],
 		],
 		[
-			'in the tint and light gray of a pair in a chart that pairs other metrics',
+			'in the front metric shade and dark gray in a chart that pairs other metrics',
 			[ { ...METRIC, key: 'comments' }, VIEWS, VISITORS ],
-			[ undefined, '#cccccc' ],
+			[ mockOverlapBarColor( 1 ), 'var(--wpds-color-foreground-content-neutral-weak, #707070)' ],
 		],
 	] )( 'draws a metric alone %s', ( _case, metrics, strokes ) => {
 		setMockElementStyles( () => ( { color: '#3858E9' } ) );
