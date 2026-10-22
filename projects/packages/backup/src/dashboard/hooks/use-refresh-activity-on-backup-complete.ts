@@ -29,7 +29,7 @@ const RUN_ENDED_STATES: readonly BackupsState[] = [
 	'no-good-backups',
 ] as const;
 
-/** WPCOM lists a finished backup in the activity log a moment after the backups read reports it. */
+/** How often to ask for the activity log again, and how long to keep asking. */
 const ACTIVITY_RETRY_MS = 3000;
 const ACTIVITY_RETRY_CEILING_MS = 60_000;
 
@@ -150,7 +150,8 @@ export function useRefreshActivityOnBackupComplete(
 		queryClient,
 	] );
 
-	// The refresh above can land before WPCOM lists the new row, so ask again until it shows.
+	// WPCOM lists a finished backup a moment after the backups read reports it, so ask again until the row shows.
+	// `cancelRefetch: false`: a slow request must finish, not be cancelled by the next tick.
 	useEffect( () => {
 		if ( ! awaitingRow ) {
 			return;
@@ -160,7 +161,11 @@ export function useRefreshActivityOnBackupComplete(
 			return;
 		}
 		const retry = setInterval(
-			() => queryClient.invalidateQueries( { queryKey: keys.activityLogRoot() } ),
+			() =>
+				queryClient.invalidateQueries(
+					{ queryKey: keys.activityLogRoot() },
+					{ cancelRefetch: false }
+				),
 			ACTIVITY_RETRY_MS
 		);
 		const giveUp = setTimeout( () => setAwaitingRow( null ), ACTIVITY_RETRY_CEILING_MS );

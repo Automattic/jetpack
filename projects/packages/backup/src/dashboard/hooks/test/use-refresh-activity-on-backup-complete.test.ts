@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, QueryObserver } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
 import { announce } from '../../data/announce';
@@ -286,7 +286,6 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 	);
 } );
 
-// WPCOM lists the new activity row a moment after the backups read reports the run finished.
 describe( 'when the activity log lags a finished run', () => {
 	beforeEach( () => jest.useFakeTimers() );
 	afterEach( () => jest.useRealTimers() );
@@ -338,14 +337,47 @@ describe( 'when the activity log lags a finished run', () => {
 		rerender( [ 'complete', 'old' ] );
 
 		act( () => {
-			jest.advanceTimersByTime( 120_000 );
+			jest.advanceTimersByTime( 60_000 );
 		} );
 		expect( result.current.isAwaitingRow ).toBe( false );
 		const settled = invalidate.mock.calls.length;
 		act( () => {
-			jest.advanceTimersByTime( 120_000 );
+			jest.advanceTimersByTime( 60_000 );
 		} );
 		expect( invalidate ).toHaveBeenCalledTimes( settled );
+	} );
+
+	it( 'lets a slow request finish instead of cancelling it on the next tick', async () => {
+		const { client, wrapper } = makeWrapper();
+		let calls = 0;
+		const observer = new QueryObserver( client, {
+			queryKey: [ ...ACTIVITY_LOG_ROOT.queryKey, 'page-1' ],
+			// Slower than the retry interval.
+			queryFn: () => new Promise( resolve => setTimeout( () => resolve( ++calls ), 4000 ) ),
+		} );
+		observer.subscribe( () => {} );
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( 4000 );
+		} );
+		expect( observer.getCurrentResult().data ).toBe( 1 );
+
+		const { rerender } = renderHook(
+			( state: BackupsState ) =>
+				useRefreshActivityOnBackupComplete(
+					state,
+					false,
+					state === 'complete' ? 'b' : 'a',
+					null,
+					'old'
+				),
+			{ wrapper, initialProps: 'in-progress' as BackupsState }
+		);
+		rerender( 'complete' );
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( 10_000 );
+		} );
+		expect( observer.getCurrentResult().data ).toBeGreaterThan( 1 );
+		observer.destroy();
 	} );
 
 	it( 'does not keep asking after a run that made no backup', () => {

@@ -324,7 +324,11 @@ function OverviewBody() {
 			) }
 			{ backupsState === 'complete' && hasWarnings && <BackupWarningsBanner /> }
 			{ backupsState === 'complete' && completedRun && ! hasWarnings && ! failedRun && (
-				<BackupCompleteBanner onDismiss={ dismissCompletedRun } isListing={ isAwaitingRow } />
+				<BackupCompleteBanner
+					onDismiss={ dismissCompletedRun }
+					isListing={ isAwaitingRow }
+					returnFocusTo={ overviewRef }
+				/>
 			) }
 			{ backupsState === 'complete' && failedRun && (
 				<BackupFailedRunBanner willRetry={ failedRun === 'will-retry' } />
