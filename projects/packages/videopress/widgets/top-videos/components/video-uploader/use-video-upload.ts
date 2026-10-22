@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -23,23 +23,32 @@ export type UploadPhase =
  */
 export function useVideoUpload( onUploaded: ( media: VideoMediaProps ) => void ) {
 	const [ phase, setPhase ] = useState< UploadPhase >( { status: 'idle' } );
+	const attempt = useRef< AbortController | null >( null );
+
+	// Leaving the widget stops the upload; tus keeps it resumable for the same file.
+	useEffect( () => () => attempt.current?.abort(), [] );
 
 	const upload = useCallback(
 		( file: File ) => {
+			attempt.current = new AbortController();
 			setPhase( { status: 'uploading', file, progress: 0 } );
-			void startVideoUpload( file, {
-				onProgress: ( sent, total ) =>
-					setPhase( current =>
-						current.status === 'uploading'
-							? { ...current, progress: total > 0 ? sent / total : 0 }
-							: current
-					),
-				onSuccess: media => {
-					setPhase( { status: 'uploaded', file, media } );
-					onUploaded( media );
+			void startVideoUpload(
+				file,
+				{
+					onProgress: ( sent, total ) =>
+						setPhase( current =>
+							current.status === 'uploading'
+								? { ...current, progress: total > 0 ? sent / total : 0 }
+								: current
+						),
+					onSuccess: media => {
+						setPhase( { status: 'uploaded', file, media } );
+						onUploaded( media );
+					},
+					onError: () => setPhase( { status: 'failed', file } ),
 				},
-				onError: () => setPhase( { status: 'failed', file } ),
-			} );
+				{ signal: attempt.current.signal }
+			);
 		},
 		[ onUploaded ]
 	);

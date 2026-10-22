@@ -145,6 +145,18 @@ describe( 'VideoUploader', () => {
 		expect( screen.getByText( 'Finishing upload…' ) ).toBeInTheDocument();
 	} );
 
+	it( 'aborts the upload in flight when the widget unmounts', async () => {
+		mockDroppedFiles = [ videoFile( 'one.mp4' ) ];
+		const { unmount } = render( <Uploader footer={ null } onUploaded={ jest.fn() } /> );
+		await userEvent.click( screen.getByRole( 'button', { name: dropzoneLabel } ) );
+		const { signal } = mockStartVideoUpload.mock.lastCall?.[ 2 ] as { signal: AbortSignal };
+		expect( signal.aborted ).toBe( false );
+
+		unmount();
+
+		expect( signal.aborted ).toBe( true );
+	} );
+
 	it( 'offers a retry of the same file after a failure', async () => {
 		mockDroppedFiles = [ videoFile( 'one.mp4' ) ];
 		render( <Uploader footer={ null } onUploaded={ jest.fn() } /> );
