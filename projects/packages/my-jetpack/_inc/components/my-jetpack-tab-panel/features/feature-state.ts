@@ -13,7 +13,12 @@ import {
 } from '../../../data/requested-switch-state';
 import { getOfflineFeaturesSeed, isOfflineFeatures } from '../../../data/utils/offline-features';
 import { linksTo } from '../../../utils/admin-menu-sync';
-import { getProductModules, isAccountConnectEnabled, PRODUCT_MODULES } from './mappings';
+import {
+	getProductModules,
+	isAccountConnectEnabled,
+	isAiToggleWaitingForAccount,
+	PRODUCT_MODULES,
+} from './mappings';
 import {
 	getFeatureUnavailableReason,
 	getModuleAvailability,
@@ -271,7 +276,13 @@ export function resolveFeatureState(
 			$module?.requires_user_connection ||
 			gatedModule?.requires_user_connection
 		);
-	const resolved = resolveMechanism( feature, jetpack, product, $module, gatedModule );
+	// The AI pre-release gate hides its switch; when the account is all AI lacks, the card offers Connect past the gate.
+	const aiWaitsForAccount =
+		feature.product === 'jetpack-ai' && needsAccountHere && isAiToggleWaitingForAccount();
+	const resolved =
+		aiWaitsForAccount && gatedModule
+			? resolveMechanism( feature, jetpack, product, gatedModule, undefined )
+			: resolveMechanism( feature, jetpack, product, $module, gatedModule );
 
 	return needsAccountHere ? withAccountNeeded( resolved, accountModule ) : resolved;
 }

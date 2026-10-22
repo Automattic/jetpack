@@ -593,6 +593,7 @@ interface Window {
 			overviewV1: boolean;
 			premiumAnalyticsEnabled: boolean;
 			showAiModuleToggle: boolean;
+			showAiModuleToggleOnceConnected?: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};
