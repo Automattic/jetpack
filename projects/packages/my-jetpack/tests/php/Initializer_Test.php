@@ -339,6 +339,8 @@ class Initializer_Test extends BaseTestCase {
 			return false;
 		};
 		add_filter( 'rest_enabled', $probe );
+		Initializer::register_feature_flags();
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_false' );
 		try {
 			ob_start();
 			Initializer::print_modules_fallback();
@@ -346,6 +348,8 @@ class Initializer_Test extends BaseTestCase {
 			$this->assertSame( 0, $probes );
 		} finally {
 			remove_filter( 'rest_enabled', $probe );
+			remove_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_false' );
+			Feature_Flags::reset();
 			$_GET = array();
 		}
 	}

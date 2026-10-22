@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\Partner_Coupon;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
@@ -35,6 +36,7 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 			$this->assertSame( admin_url( 'admin.php?page=jetpack_modules' ), Initializer::get_modules_management_url() );
 		} finally {
 			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::MODULES_TO_FEATURES_FLAG, '__return_false' );
+			Feature_Flags::reset();
 		}
 	}
 
