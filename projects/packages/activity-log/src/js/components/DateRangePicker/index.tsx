@@ -127,6 +127,35 @@ export function DateRangePicker( {
 }
 
 /**
+ * A disabled stand-in for the picker on plans without date filtering. It has no
+ * range of its own, so the usable picker never needs an empty state.
+ *
+ * @param props             - Component props.
+ * @param props.tooltipText - Explains why the picker is unavailable.
+ */
+export function DateRangePickerPlaceholder( { tooltipText }: { tooltipText: string } ) {
+	return (
+		<Tooltip text={ tooltipText } placement="top">
+			<div className="daterange-input__toggle">
+				<Button
+					type="button"
+					variant="tertiary"
+					disabled
+					accessibleWhenDisabled
+					className="daterange-input__field daterange-input__field--placeholder"
+					icon={ calendar }
+					iconPosition="right"
+				>
+					<span className="daterange-input__text">
+						{ __( 'Select a date range', 'jetpack-activity-log' ) }
+					</span>
+				</Button>
+			</div>
+		</Tooltip>
+	);
+}
+
+/**
  *
  * @param root0
  * @param root0.isSmall
