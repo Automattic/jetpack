@@ -29,6 +29,9 @@ export type Plan = 'free' | 'paid' | 'existing';
 
 type Registration = { authorizeUrl?: string };
 
+/** What the Jetpack API client rejects with: the REST error's body on `response`, or a named network error. */
+type RegistrationError = { name?: string; response?: { code?: string; message?: string } };
+
 /**
  * The blog id WordPress.com just assigned, read off the authorization URL's `client_id`.
  *
@@ -64,11 +67,11 @@ function navigateOnceRecorded( url: string ) {
 /**
  * The plan choice a site makes before it is connected, and the registration each choice starts.
  *
- * @return The handlers, whether a choice is in flight, and the last error.
+ * @return The handler, the choice in flight, and the last error.
  */
 export function usePlanChoice() {
 	const trackEvent = useTrackEvent();
-	const [ isBusy, setIsBusy ] = useState( false );
+	const [ pendingPlan, setPendingPlan ] = useState< Plan | null >( null );
 	const [ error, setError ] = useState< string | null >( null );
 
 	// Also points the connection store's REST client at this site, which `registerSite` relies on.
@@ -88,7 +91,7 @@ export function usePlanChoice() {
 	// Nothing else identifies a site before it registers, and it ties these events to the checkout.
 	const siteSuffix = getScriptData()?.site?.suffix ?? '';
 
-	// Leaves `isBusy` set on success: the browser is on its way to WordPress.com.
+	// Leaves `pendingPlan` set on success: the browser is on its way to WordPress.com.
 	const choose = useCallback(
 		async ( plan: Plan ) => {
 			const track = ( name: string, properties: Record< string, unknown > = {} ) =>
@@ -99,7 +102,7 @@ export function usePlanChoice() {
 				} );
 
 			setError( null );
-			setIsBusy( true );
+			setPendingPlan( plan );
 			track( 'register_start' );
 
 			let blogId: number | null;
@@ -110,15 +113,19 @@ export function usePlanChoice() {
 					from: CONNECTION_FROM,
 				} );
 				blogId = readBlogId( registration?.authorizeUrl );
-			} catch {
-				track( 'register_failed' );
+			} catch ( e ) {
+				const failure = ( e ?? {} ) as RegistrationError;
+
+				// The code, not the message: the message arrives translated and can name the site.
+				track( 'register_failed', { error_code: failure.response?.code ?? failure.name } );
 				setError(
-					__(
-						'Jetpack could not connect this site to WordPress.com. Please try again.',
-						'jetpack-premium-analytics-pkg'
-					)
+					failure.response?.message ||
+						__(
+							'Jetpack could not connect this site to WordPress.com. Please try again.',
+							'jetpack-premium-analytics-pkg'
+						)
 				);
-				setIsBusy( false );
+				setPendingPlan( null );
 				return;
 			}
 
@@ -141,7 +148,7 @@ export function usePlanChoice() {
 
 	return {
 		choose,
-		isBusy,
+		pendingPlan,
 		error,
 		isOfflineMode,
 		siteSuffix,
