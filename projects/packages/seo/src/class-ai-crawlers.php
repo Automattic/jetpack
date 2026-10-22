@@ -38,12 +38,20 @@ class Ai_Crawlers {
 	const OPTION = 'jetpack_seo_ai_crawler_overrides';
 
 	/**
+	 * The `robots_txt` priority: after WordPress.com Simple appends bare `Disallow`
+	 * lines at 11, which would otherwise land in the last AI crawler group.
+	 *
+	 * @var int
+	 */
+	const ROBOTS_TXT_PRIORITY = 12;
+
+	/**
 	 * Wire the robots.txt filter.
 	 *
 	 * @return void
 	 */
 	public static function init() {
-		add_filter( 'robots_txt', array( __CLASS__, 'append_directives' ), 10, 2 );
+		add_filter( 'robots_txt', array( __CLASS__, 'append_directives' ), self::ROBOTS_TXT_PRIORITY, 2 );
 	}
 
 	/**
@@ -329,9 +337,8 @@ class Ai_Crawlers {
 	public static function append_directives( $output, $public ) {
 		unset( $public );
 
-		// WordPress.com's existing privacy filter owns the site-wide opt-out and
-		// runs later at priority 12. Defer to it instead of emitting duplicate
-		// directives from this per-bot filter.
+		// WordPress.com's existing privacy filter owns the site-wide opt-out. Defer
+		// to it instead of emitting duplicate directives from this per-bot filter.
 		if ( self::is_path_based_multisite() || self::has_data_sharing_opt_out() ) {
 			return $output;
 		}
