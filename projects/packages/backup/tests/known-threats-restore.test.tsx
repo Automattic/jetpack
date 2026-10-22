@@ -30,7 +30,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ANNOUNCE_WINDOW_MS, resetAnnouncerForTesting } from '../src/dashboard/data/announce';
 import { KNOWN_THREATS_TIMEOUT_MS } from '../src/dashboard/data/api/known-threats';
@@ -207,16 +207,10 @@ describe( 'known threats on the Restore screen', () => {
 		const confirm = view.getByRole( 'button', { name: CONFIRM } );
 		expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( confirm ).toHaveAccessibleDescription( /known threats/ );
-		// Shown as a tooltip, like the other restore buttons, not as text beside the button.
-		expect( view.getByText( /confirm that you understand/ ) ).toHaveClass( 'jpb-visually-hidden' );
-		await user.hover( confirm );
-		await waitFor(
-			() => expect( screen.getAllByText( /confirm that you understand/ ) ).toHaveLength( 2 ),
-			{
-				timeout: 2000,
-			}
+		// Shown beside the button, not only in its description.
+		expect( view.getByText( /confirm that you understand/ ) ).not.toHaveClass(
+			'jpb-visually-hidden'
 		);
-		await user.unhover( confirm );
 
 		const toggle = view.getByRole( 'button', { name: 'Show threats' } );
 		// The warning already says how many threats there are, so no badge repeats it.

@@ -9,16 +9,7 @@ import {
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, rotateLeft } from '@wordpress/icons';
 import { Link as RouterLink } from '@wordpress/route';
-import {
-	Button,
-	Card,
-	Link,
-	ButtonLink,
-	Stack,
-	Text,
-	Tooltip,
-	VisuallyHidden,
-} from '@wordpress/ui';
+import { Button, Card, Link, ButtonLink, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { announce } from '../../data/announce';
 import { ACKNOWLEDGED_STATE_KEY, containingBackup } from '../../data/api/known-threats';
 import { formatDateTime } from '../../data/date-format';
@@ -220,20 +211,13 @@ export default function BackupDetail( { item }: Props ) {
 						 */ }
 						{ restoreBlocked ? (
 							<>
-								{ /* The tooltip shows the hint on hover and focus; screen readers get it from the description. */ }
-								<Tooltip.Root>
-									<Tooltip.Trigger
-										render={
-											<Button variant="solid" disabled aria-describedby={ restoreHintId } />
-										}
-									>
-										<Button.Icon icon={ rotateLeft } />
-										<Text variant="body-md">
-											{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
-										</Text>
-									</Tooltip.Trigger>
-									<Tooltip.Popup>{ restoreHint }</Tooltip.Popup>
-								</Tooltip.Root>
+								{ /* The warning's checkbox below shows why; screen readers get it from the description. */ }
+								<Button variant="solid" disabled aria-describedby={ restoreHintId }>
+									<Button.Icon icon={ rotateLeft } />
+									<Text variant="body-md">
+										{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
+									</Text>
+								</Button>
 								<VisuallyHidden id={ restoreHintId }>{ restoreHint }</VisuallyHidden>
 							</>
 						) : (
