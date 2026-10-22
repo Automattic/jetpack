@@ -16,6 +16,10 @@ jest.mock(
 	() => jest.requireActual( '../../../tests/js/analytics-test-utils' ).mockJetpackAnalytics
 );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+const mockSpeak = jest.fn();
+jest.mock( '@wordpress/a11y', () => ( {
+	speak: ( ...args: unknown[] ) => mockSpeak( ...args ),
+} ) );
 const mockHandleConnectUser = jest.fn();
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	useConnection: () => ( { handleConnectUser: mockHandleConnectUser, userIsConnecting: false } ),
@@ -46,7 +50,7 @@ const PRICE_TIERS = [ 10000, 100000, 250000 ].map( ( maximum_units, index ) => (
 /**
  * Answers the page's requests: the tier prices, plan usage and purchases.
  *
- * @param purchases - The site's purchases.
+ * @param purchases - The site's purchases, active unless they say otherwise.
  * @param failing   - A path fragment whose request fails.
  * @param usage     - The plan usage reply.
  */
@@ -72,7 +76,9 @@ function mockEndpoints(
 			return Promise.resolve( usage );
 		}
 		if ( path.includes( 'upgrades' ) ) {
-			return Promise.resolve( purchases );
+			return Promise.resolve(
+				purchases.map( purchase => ( { subscription_status: 'active', ...purchase } ) )
+			);
 		}
 		return Promise.reject( new Error( `Unexpected request: ${ path }` ) );
 	} );
@@ -123,6 +129,9 @@ describe( 'UpgradePage', () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockHandleConnectUser.mockReset();
+		// The real flow leaves the page, so its promise does not settle.
+		mockHandleConnectUser.mockReturnValue( new Promise( () => {} ) );
+		mockSpeak.mockReset();
 		mockSearch.mockReturnValue( {} );
 	} );
 
@@ -184,26 +193,116 @@ describe( 'UpgradePage', () => {
 	} );
 
 	it.each( [
-		[ 'plan usage', 'jetpack-stats/usage' ],
-		[ 'purchases', 'upgrades' ],
+		[ 'plan usage', 'jetpack-stats/usage', /Unable to load plan tiers/ ],
+		[ 'purchases', 'upgrades', /Unable to load your current purchases/ ],
 	] )(
 		'offers no checkout when %s cannot load, since it would sell the wrong tier',
-		async ( _, path ) => {
+		async ( _, path, message ) => {
 			setScriptData( true );
 			mockEndpoints( [], path );
 			await renderPage();
 
-			expect(
-				within( screen.getByRole( 'main' ) ).getByText( /Unable to load plan tiers/ )
-			).toBeInTheDocument();
-			expect(
-				screen.getByText( /Unable to load plan tiers/, { selector: '#a11y-speak-polite' } )
-			).toBeInTheDocument();
+			expect( within( screen.getByRole( 'main' ) ).getByText( message ) ).toBeInTheDocument();
+			expect( mockSpeak ).toHaveBeenCalledWith( expect.stringMatching( message ), 'polite' );
 			expect(
 				screen.queryByRole( 'link', { name: 'Upgrade now and continue' } )
 			).not.toBeInTheDocument();
 		}
 	);
+
+	it( 'says no tiers are on sale, not that the network failed, when the price list has no Stats tiers', async () => {
+		setScriptData( true );
+		mockEndpoints();
+		const answer = mockApiFetch.getMockImplementation() as ( req: { path: string } ) => unknown;
+		mockApiFetch.mockImplementation( ( req: { path: string } ) =>
+			req.path.includes( '/products' ) ? Promise.resolve( {} ) : answer( req )
+		);
+		await renderPage();
+
+		const message = 'No Stats tiers are available to buy for this site right now.';
+		expect( screen.getByText( message ) ).toBeInTheDocument();
+		expect( mockSpeak ).toHaveBeenCalledWith( message, 'polite' );
+	} );
+
+	it( 'stops the connect button and says so when the account connection cannot start', async () => {
+		setScriptData( false );
+		mockEndpoints( [
+			{ product_slug: 'jetpack_stats_free_yearly', is_jetpack_stats_product: true },
+		] );
+		mockHandleConnectUser.mockRejectedValue( new Error( 'authorize_url failed' ) );
+		await renderPage();
+
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		await user.click( screen.getByRole( 'button', { name: 'Connect your account' } ) );
+		await act( () => jest.runAllTimersAsync() );
+
+		expect( screen.getByText( /Unable to start connecting your account/ ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Connect your account' } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	it.each( [
+		[ 'no purchases and a connected user', [], true, '/checkout/123/' ],
+		[ 'no purchases and no connected user', [], false, '/checkout/jetpack/' ],
+		[
+			'the free Stats plan',
+			[ { product_slug: 'jetpack_stats_free_yearly', is_jetpack_stats_product: true } ],
+			true,
+			'/checkout/example.com/',
+		],
+		[
+			'Jetpack Complete only',
+			[
+				{
+					product_slug: 'jetpack_complete',
+					product_name: 'Jetpack Complete',
+					is_jetpack_stats_product: true,
+				},
+			],
+			true,
+			'/checkout/example.com/',
+		],
+		[
+			'a removed yearly tier',
+			[
+				{
+					product_slug: 'jetpack_stats_yearly',
+					is_jetpack_stats_product: true,
+					subscription_status: 'inactive',
+				},
+			],
+			true,
+			'/checkout/123/',
+		],
+	] )(
+		'sends a site with %s to the matching checkout',
+		async ( _, purchases, isUserConnected, path ) => {
+			setScriptData( isUserConnected );
+			mockEndpoints( purchases );
+			await renderPage();
+
+			expect( getCheckoutUrl().pathname.startsWith( path ) ).toBe( true );
+		}
+	);
+
+	it.each( [
+		[ 'jetpack_stats_monthly', true ],
+		[ 'jetpack_stats_yearly', true ],
+		[ 'jetpack_stats_bi_yearly', true ],
+		[ 'jetpack_stats_free_yearly', false ],
+		[ 'jetpack_stats_pwyw_yearly', false ],
+	] )( 'treats %s as a paid tier to credit: %s', async ( slug, credited ) => {
+		setScriptData( true );
+		mockEndpoints( [ { product_slug: slug, is_jetpack_stats_product: true } ] );
+		await renderPage();
+
+		expect( screen.queryByText( /will be credited towards the upgrade/ ) !== null ).toBe(
+			credited
+		);
+		expect( screen.queryByText( 'Real-time data on visitors' ) === null ).toBe( credited );
+	} );
 
 	it( 'tells a site past the limit of its paid tier that the upgrade is credited, instead of pitching the benefits', async () => {
 		setScriptData( true );

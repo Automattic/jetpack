@@ -102,10 +102,16 @@ export function UpgradePage(): JSX.Element {
 	const { isCommercialOwned, hasAnyStatsPlan, bundledPlanName } = ownership;
 	const [ tierIndex, setTierIndex ] = useState( 0 );
 	const upgradePath = getUpgradePath( search );
-	const { handleConnectUser, userIsConnecting } = useConnection( {
+	const { handleConnectUser } = useConnection( {
 		from: 'jetpack-premium-analytics',
 		redirectUri: upgradePath,
 	} );
+	// The connection store never clears its own "connecting" flag when the flow fails to start.
+	const [ connectState, setConnectState ] = useState< 'idle' | 'connecting' | 'failed' >( 'idle' );
+	const connectUser = useCallback( () => {
+		setConnectState( 'connecting' );
+		handleConnectUser().catch( () => setConnectState( 'failed' ) );
+	}, [ handleConnectUser ] );
 
 	useEffect( () => {
 		trackEvent( 'jetpack_premium_analytics_upgrade_view', { from } );
@@ -137,17 +143,44 @@ export function UpgradePage(): JSX.Element {
 				} )
 			: undefined;
 
-	const loadError = __(
-		'Unable to load plan tiers. Please make sure you have an active network connection and try reloading the page.',
-		'jetpack-premium-analytics-pkg'
-	);
-	const showsLoadError = ! isPending && hasError;
+	let pickerError: string | undefined;
+	if ( isPending ) {
+		pickerError = undefined;
+	} else if ( isError ) {
+		pickerError = __(
+			'Unable to load plan tiers. Please make sure you have an active network connection and try reloading the page.',
+			'jetpack-premium-analytics-pkg'
+		);
+	} else if ( ownership.isError ) {
+		pickerError = __(
+			'Unable to load your current purchases. Please make sure you have an active network connection and try reloading the page.',
+			'jetpack-premium-analytics-pkg'
+		);
+	} else if ( ! currencyCode || ! tiers.length ) {
+		pickerError = __(
+			'No Stats tiers are available to buy for this site right now.',
+			'jetpack-premium-analytics-pkg'
+		);
+	}
+	const connectError =
+		connectState === 'failed'
+			? __(
+					'Unable to start connecting your account. Please try again.',
+					'jetpack-premium-analytics-pkg'
+				)
+			: undefined;
 
 	useEffect( () => {
-		if ( showsLoadError ) {
-			speak( loadError, 'polite' );
+		if ( pickerError ) {
+			speak( pickerError, 'polite' );
 		}
-	}, [ showsLoadError, loadError ] );
+	}, [ pickerError ] );
+
+	useEffect( () => {
+		if ( connectError ) {
+			speak( connectError, 'assertive' );
+		}
+	}, [ connectError ] );
 
 	const recordCheckout = useCallback( () => {
 		trackEvent( 'jetpack_premium_analytics_upgrade_checkout_click', {
@@ -165,10 +198,10 @@ export function UpgradePage(): JSX.Element {
 	let tierPicker: JSX.Element;
 	if ( isPending ) {
 		tierPicker = <Skeleton className={ styles.tierPlaceholder } />;
-	} else if ( showsLoadError || ! currencyCode || ! tiers.length ) {
+	} else if ( pickerError ) {
 		tierPicker = (
 			<Notice.Root intent="error">
-				<Notice.Description>{ loadError }</Notice.Description>
+				<Notice.Description>{ pickerError }</Notice.Description>
 			</Notice.Root>
 		);
 	} else {
@@ -229,7 +262,9 @@ export function UpgradePage(): JSX.Element {
 							</Notice.Description>
 						</Notice.Root>
 					) }
-					{ isCommercialOwned ? (
+					{ /* Ownership picks the pitch, so it waits for it rather than swapping under the reader. */ }
+					{ ownership.isLoading && <Skeleton className={ styles.pitchPlaceholder } /> }
+					{ ! ownership.isLoading && isCommercialOwned && (
 						<>
 							<Notice.Root intent="info">
 								<Notice.Description>
@@ -241,7 +276,8 @@ export function UpgradePage(): JSX.Element {
 							</Notice.Root>
 							<Text variant="body-md">{ upgradeLead( getPlanLimitStatus( usage )?.isOver ) }</Text>
 						</>
-					) : (
+					) }
+					{ ! ownership.isLoading && ! isCommercialOwned && (
 						<>
 							{ ! bundledPlanName && (
 								<Text variant="body-md">
@@ -265,9 +301,13 @@ export function UpgradePage(): JSX.Element {
 									'Please connect your user account to upgrade Stats.',
 									'jetpack-premium-analytics-pkg'
 								) }
+								{ connectError && <> { connectError }</> }
 							</Notice.Description>
 							<Notice.Actions>
-								<Notice.ActionButton onClick={ handleConnectUser } loading={ userIsConnecting }>
+								<Notice.ActionButton
+									onClick={ connectUser }
+									loading={ connectState === 'connecting' }
+								>
 									{ __( 'Connect your account', 'jetpack-premium-analytics-pkg' ) }
 								</Notice.ActionButton>
 							</Notice.Actions>

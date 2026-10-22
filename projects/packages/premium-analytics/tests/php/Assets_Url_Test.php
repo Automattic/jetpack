@@ -38,6 +38,8 @@ class Assets_Url_Test extends BaseTestCase {
 
 		$this->assertTrue( $data['premium_analytics']['has_videopress'] );
 		$this->assertStringEndsWith( '/build/images/', $data['premium_analytics']['assets_url'] );
+		// The build sits beside `src/`, not in it.
+		$this->assertStringNotContainsString( '/src/', $data['premium_analytics']['assets_url'] );
 	}
 
 	public function test_other_admin_pages_get_no_assets_url() {

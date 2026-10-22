@@ -15,7 +15,10 @@ const COMMERCIAL_PRODUCT = /^jetpack_stats_(?:monthly|yearly|bi_yearly)$/;
  */
 export function useStatsOwnership() {
 	const { data, isLoading, isError } = useStatsAppPurchases();
-	const purchases: StatsAppPurchase[] = Array.isArray( data ) ? data : [];
+	// As in Calypso: a subscription counts until it is removed, so through its post-expiry grace period too.
+	const purchases: StatsAppPurchase[] = Array.isArray( data )
+		? data.filter( purchase => purchase.subscription_status === 'active' )
+		: [];
 
 	// Name the highest plan when a site holds two mid-upgrade.
 	const bundledPlan = BUNDLED_PLAN_PREFIXES.map( prefix =>
