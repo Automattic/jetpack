@@ -6,6 +6,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { usePageFooter } from '../page-footer';
 import styles from './report-page-shell.module.scss';
 import type { ComponentProps } from 'react';
 
@@ -19,9 +20,12 @@ export type ReportPageShellProps = ComponentProps< typeof Page >;
  * @return The report page shell.
  */
 export function ReportPageShell( { className, children, ...pageProps }: ReportPageShellProps ) {
+	const footer = usePageFooter();
+
 	return (
 		<Page { ...pageProps } className={ clsx( styles.page, className ) }>
 			{ children }
+			{ footer }
 		</Page>
 	);
 }

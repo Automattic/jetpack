@@ -1,3 +1,4 @@
+import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import {
 	AnalyticsQueryClientProvider,
 	isPlanDateLimitedSection,
@@ -27,6 +28,7 @@ import {
 	PageNotice,
 	DetailPageSection,
 	DetailPageShell,
+	PageFooterProvider,
 	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
@@ -348,7 +350,9 @@ export function stage(): JSX.Element {
 			 */ }
 			<ReportScopeProvider offersComparison={ false }>
 				<PeriodChangeSignalProvider>
-					<PostDetail />
+					<PageFooterProvider value={ <JetpackFooter /> }>
+						<PostDetail />
+					</PageFooterProvider>
 				</PeriodChangeSignalProvider>
 			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>

@@ -32,7 +32,10 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ChartsProvider: ( { children }: { children: ReactNode } ) => (
 		<div data-testid="charts-provider">{ children }</div>
 	),
+	PageFooterProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
+
+jest.mock( '@automattic/jetpack-components/jetpack-footer', () => () => null );
 
 jest.mock( '../use-stats-date-limits', () => ( {
 	useStatsDateLimits: jest.fn( () => ( { offersComparison: true } ) ),

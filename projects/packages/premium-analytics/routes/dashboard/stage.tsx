@@ -1,3 +1,4 @@
+import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import {
 	isPlanDateLimitedSection,
@@ -591,6 +592,8 @@ function Dashboard(): JSX.Element {
 										</SectionTabPanel>
 									) }
 								</DashboardSections>
+
+								<JetpackFooter />
 
 								<WidgetDashboard.Commands />
 

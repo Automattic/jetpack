@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import { AnalyticsQueryClientProvider, ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import {
 	DashboardWidgetHostProvider,
@@ -15,6 +16,7 @@ import {
 	PageNotice,
 	DetailPageSection,
 	DetailPageShell,
+	PageFooterProvider,
 	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
@@ -239,7 +241,9 @@ export function stage(): JSX.Element {
 			 * one, even when a hand-edited URL carries comparison params.
 			 */ }
 			<ReportScopeProvider offersComparison={ false }>
-				<VideoDetail />
+				<PageFooterProvider value={ <JetpackFooter /> }>
+					<VideoDetail />
+				</PageFooterProvider>
 			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
 	);

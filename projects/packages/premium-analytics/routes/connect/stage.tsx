@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
@@ -19,8 +20,15 @@ import './style.scss';
  */
 export const stage = () => {
 	return (
-		<Stack align="center" justify="center" className="jetpack-premium-analytics-connect-stage">
-			<SiteNotConnected />
+		<Stack direction="column" className="jetpack-premium-analytics-connect-stage">
+			<Stack
+				align="center"
+				justify="center"
+				className="jetpack-premium-analytics-connect-stage__content"
+			>
+				<SiteNotConnected />
+			</Stack>
+			<JetpackFooter />
 		</Stack>
 	);
 };

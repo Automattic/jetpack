@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import {
 	AnalyticsQueryClientProvider,
 	isPlanDateLimitedSection,
@@ -8,7 +9,7 @@ import {
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { ChartsProvider } from '@jetpack-premium-analytics/widgets-toolkit';
+import { ChartsProvider, PageFooterProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useMemo } from '@wordpress/element';
 import { useParams } from '@wordpress/route';
@@ -101,7 +102,7 @@ function ReportProviders( { children }: { children: ReactNode } ): JSX.Element {
 				 * draw one. The params stay on the URL for the dashboard.
 				 */ }
 				<ReportScopeProvider offersComparison={ false } dateLimits={ dateLimits }>
-					{ children }
+					<PageFooterProvider value={ <JetpackFooter /> }>{ children }</PageFooterProvider>
 				</ReportScopeProvider>
 			</ChartsProvider>
 		</AnalyticsQueryClientProvider>

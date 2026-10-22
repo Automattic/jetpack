@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import {
 	AnalyticsQueryClientProvider,
 	PeriodChangeSignalProvider,
@@ -27,6 +28,7 @@ import {
 	PageNotice,
 	DetailPageSection,
 	DetailPageShell,
+	PageFooterProvider,
 	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
@@ -292,7 +294,9 @@ export function stage(): JSX.Element {
 			{ /* No compared period on this page; the params stay on the URL for the breadcrumb. */ }
 			<ReportScopeProvider offersComparison={ false }>
 				<PeriodChangeSignalProvider>
-					<AuthorDetail />
+					<PageFooterProvider value={ <JetpackFooter /> }>
+						<AuthorDetail />
+					</PageFooterProvider>
 				</PeriodChangeSignalProvider>
 			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
