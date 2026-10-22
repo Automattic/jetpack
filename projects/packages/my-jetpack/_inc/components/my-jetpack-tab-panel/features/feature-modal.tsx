@@ -97,20 +97,6 @@ type FeatureModalProps = {
 };
 
 /**
- * The details window's status badge style, matching the card's for a feature waiting for an account.
- *
- * @param state    - Live state for the feature.
- * @param isActive - Whether the feature is running.
- * @return The badge intent.
- */
-function getModalStatusIntent( state: FeatureState, isActive: boolean ) {
-	if ( state.accountNeeded ) {
-		return 'none';
-	}
-	return isActive ? 'stable' : 'draft';
-}
-
-/**
  * The feature's details, shown over the grid rather than on a page of its own.
  *
  * @param {FeatureModalProps} props          - The component props.
@@ -135,6 +121,7 @@ export function FeatureModal( {
 	const { feature, product } = state;
 	const unavailable = getFeatureUnavailableReason( state );
 	const isActive = ! unavailable && state.status === 'active';
+	const statusLabel = getFeatureStatusLabel( state );
 	const freeHighlights = feature.free_highlights ?? [];
 	const pricingNotes = feature.pricing_notes ?? [];
 
@@ -252,14 +239,18 @@ export function FeatureModal( {
 					<div className={ styles[ 'modal-header__main' ] }>
 						<Stack direction="column" gap="xs" className={ styles[ 'modal-heading' ] }>
 							<Dialog.Title>{ feature.name }</Dialog.Title>
-							<Stack direction="row" align="center" gap="sm" wrap="wrap">
-								<Badge intent={ getModalStatusIntent( state, isActive ) }>
-									{ getFeatureStatusLabel( state ) }
-								</Badge>
-								{ feature.essential ? (
-									<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>
-								) : null }
-							</Stack>
+							{ statusLabel || feature.essential ? (
+								<Stack direction="row" align="center" gap="sm" wrap="wrap">
+									{ statusLabel ? (
+										<Badge intent={ isActive ? 'stable' : 'draft' }>{ statusLabel }</Badge>
+									) : null }
+									{ feature.essential ? (
+										<Badge intent="informational">
+											{ __( 'Essential', 'jetpack-my-jetpack' ) }
+										</Badge>
+									) : null }
+								</Stack>
+							) : null }
 						</Stack>
 
 						<Stack

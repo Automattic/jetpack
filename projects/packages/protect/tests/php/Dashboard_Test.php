@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Status\Cache;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -42,6 +43,12 @@ class Dashboard_Test extends BaseTestCase {
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		wp_dequeue_script( 'jp-tracks' );
+		wp_deregister_script( 'jp-tracks' );
+		\Jetpack_Options::delete_option( array( 'tos_agreed', 'blog_token', 'user_tokens' ) );
+		wp_set_current_user( 0 );
+		Cache::clear();
 		foreach ( array_keys( Dashboard::MODULE_SECTIONS ) as $module ) {
 			remove_all_filters( Dashboard::CONFIGURATION_URL_FILTER . $module );
 			remove_all_filters( 'jetpack_module_configurable_' . $module );
@@ -405,5 +412,94 @@ class Dashboard_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( $expected, $output );
+	}
+
+	/**
+	 * Whether the site agreed to the terms, whether it is offline, and whether the Tracks script loads.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_tracking_states() {
+		return array(
+			'terms agreed'     => array( true, false, true ),
+			'offline'          => array( true, true, false ),
+			'terms not agreed' => array( false, false, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_tracking_states
+	 *
+	 * @param bool $agreed   Whether the site agreed to the terms of service.
+	 * @param bool $offline  Whether Jetpack is in offline mode.
+	 * @param bool $expected Whether the Tracks script loads.
+	 */
+	#[DataProvider( 'provide_tracking_states' )]
+	public function test_tracks_script_loads_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
+		\Jetpack_Options::update_option( 'tos_agreed', $agreed );
+		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
+
+		Dashboard::enqueue_tracks_transport();
+
+		$this->assertSame( $expected, wp_script_is( 'jp-tracks', 'enqueued' ) );
+	}
+
+	/**
+	 * Whether the current user is connected, the WordPress.com user already in the script data, and the result.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_tracks_identities() {
+		$set_by_another_package = array(
+			'ID'    => 5,
+			'login' => 'other',
+		);
+		return array(
+			'already set by another package' => array( true, $set_by_another_package, $set_by_another_package ),
+			'no connected user'              => array( false, array( 'avatar' => 'a.png' ), array( 'avatar' => 'a.png' ) ),
+			'connected user'                 => array(
+				true,
+				array( 'avatar' => 'a.png' ),
+				array(
+					'avatar' => 'a.png',
+					'ID'     => 7,
+					'login'  => 'wpcomuser',
+				),
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_tracks_identities
+	 *
+	 * @param bool  $connected Whether the current user is connected to WordPress.com.
+	 * @param array $wpcom     The WordPress.com user already in the script data.
+	 * @param array $expected  The WordPress.com user in the returned script data.
+	 */
+	#[DataProvider( 'provide_tracks_identities' )]
+	public function test_add_tracks_identity_fills_in_only_a_missing_user( $connected, $wpcom, $expected ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		if ( $connected ) {
+			\Jetpack_Options::update_option( 'blog_token', 'blog.secret' );
+			\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+			set_transient(
+				"jetpack_connected_user_data_$user_id",
+				array(
+					'ID'    => 7,
+					'login' => 'wpcomuser',
+				)
+			);
+		}
+
+		$data = Dashboard::add_tracks_identity( array( 'user' => array( 'current_user' => array( 'wpcom' => $wpcom ) ) ) );
+
+		$this->assertSame( $expected, $data['user']['current_user']['wpcom'] );
 	}
 }

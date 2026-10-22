@@ -272,22 +272,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'readymade-template'      => array(
-			'get_title'           => function () {
-				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
-			},
-			'task_ids'            => array(
-				'verify_domain_email',
-				'design_selected',
-				'setup_general',
-				'generate_content',
-				'plan_completed',
-				'site_theme_selected',
-				'domain_upsell',
-				'site_launched',
-			),
-			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
-		),
 		'ai-assembler'            => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
@@ -439,7 +423,7 @@ add_action( 'init', 'wpcom_register_default_launchpad_checklists', 11 );
  * @return string[] Retired site intents.
  */
 function wpcom_launchpad_get_retired_site_intents() {
-	return array( 'start-writing' );
+	return array( 'start-writing', 'readymade-template' );
 }
 
 /**
