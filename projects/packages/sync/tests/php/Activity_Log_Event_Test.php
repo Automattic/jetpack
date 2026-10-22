@@ -159,6 +159,28 @@ class Activity_Log_Event_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that the REST auth gate matches routes WP_REST_Server accepts with a trailing newline.
+	 */
+	public function test_activity_log_event_rest_auth_gate_matches_route_with_trailing_newline() {
+		$routes = array(
+			"/wp/v2/activity-log-events\n",
+			"/wp/v2/ACTIVITY-LOG-EVENTS\n",
+			"/wp/v2/sites/179267513/activity-log-events\n",
+		);
+
+		foreach ( $routes as $route ) {
+			$response = Activity_Log_Event::authorize_rest_request(
+				null,
+				array(),
+				new \WP_REST_Request( 'GET', $route )
+			);
+
+			$this->assertInstanceOf( \WP_Error::class, $response, $route );
+			$this->assertSame( 'invalid_user_permission_activity_log_event', $response->get_error_code(), $route );
+		}
+	}
+
+	/**
 	 * Tests that the REST auth gate ignores adjacent route names.
 	 */
 	public function test_activity_log_event_rest_auth_gate_ignores_adjacent_routes() {
