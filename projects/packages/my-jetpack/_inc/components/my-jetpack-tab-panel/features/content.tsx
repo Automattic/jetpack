@@ -382,7 +382,7 @@ function FeaturesTabContent() {
 	return (
 		<section ref={ contentRef } className={ styles.content }>
 			{ turnOn && <ConnectResume state={ turnOn } /> }
-			{ modulesFailed && (
+			{ modulesFailed && Object.keys( modules ).length === 0 && (
 				<Notice.Root intent="error" role="alert">
 					<Notice.Title>
 						{ __( 'Some features could not be loaded', 'jetpack-my-jetpack' ) }

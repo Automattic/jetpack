@@ -347,15 +347,34 @@ describe( 'FeaturesContent', () => {
 		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
 	} );
 
-	it.each( [ false, true ] )(
-		'says the list is incomplete only when the modules failed: %s',
-		failed => {
-			mockModulesFailed = failed;
-			renderAt( '/' );
+	it( 'says the list is incomplete when the modules failed and none arrived', () => {
+		mockModulesFailed = true;
+		renderAt( '/' );
 
-			expect( Boolean( screen.queryByText( /This list is incomplete/ ) ) ).toBe( failed );
-		}
-	);
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'This list is incomplete' );
+	} );
+
+	it.each( [
+		[ 'the modules loaded', false ],
+		[ 'a refresh failed over a full list', true ],
+	] )( 'shows no incomplete-list notice when %s', ( _, failed ) => {
+		mockModulesFailed = failed;
+		mockModules = { stats: { module: 'stats', activated: true } as MyJetpackModule };
+		renderAt( '/' );
+
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'drops the incomplete-list notice once another request refills the modules', () => {
+		mockModulesFailed = true;
+		const { rerenderAt } = renderAt( '/' );
+		expect( screen.getByRole( 'alert' ) ).toBeInTheDocument();
+
+		mockModules = { stats: { module: 'stats', activated: true } as MyJetpackModule };
+		rerenderAt();
+
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	} );
 
 	it( 'waits for the read to settle before calling an empty catalog a failure', () => {
 		mockStates = [];

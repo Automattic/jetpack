@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Modules store: Retry the modules request when it is rate-limited, and record a final failure so screens can show it.
+Modules store: Retry loading the module list after a rate-limited or unreadable response, so module lists load in full and a module switch no longer reverts when its refresh is rate-limited.

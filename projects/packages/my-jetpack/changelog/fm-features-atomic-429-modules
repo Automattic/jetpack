@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Features: Show every feature when the modules request is briefly rate-limited, and say the list is incomplete when it keeps failing.
+Features: Retry loading the feature list after a rate-limited or unreadable response, and say the list is incomplete when it cannot be loaded.

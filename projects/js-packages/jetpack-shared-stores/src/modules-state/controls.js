@@ -3,18 +3,19 @@ import apiFetch from '@wordpress/api-fetch';
 export const FETCH_JETPACK_MODULES = 'FETCH_JETPACK_MODULES';
 export const UPDATE_JETPACK_MODULE_STATUS = 'UPDATE_JETPACK_MODULE_STATUS';
 
-// Milliseconds to wait before each retry of a rate-limited modules request.
-export const MODULES_RETRY_DELAYS = [ 1000, 2000 ];
+const MODULES_RETRY_DELAYS = [ 1000, 2000 ];
 
 /**
- * Whether the modules request was turned away for coming in too fast.
+ * Whether a failed modules request was a 429 or a reply that is not JSON.
  *
- * Atomic sends its 429 without a JSON body, which apiFetch reports only as invalid JSON.
+ * Atomic sends its 429 without a JSON body, and apiFetch reports any such reply only as invalid JSON,
+ * with no status. So an HTML error page or a 503 is retried too; JSON errors such as a 403 are not.
  *
  * @param {object} error - The error apiFetch rejected with.
- * @return {boolean} Whether a retry may get through.
+ * @return {boolean} Whether to retry.
  */
-const isRateLimited = error => error?.data?.status === 429 || error?.code === 'invalid_json';
+const isRateLimitedOrUnreadable = error =>
+	error?.data?.status === 429 || error?.code === 'invalid_json';
 
 /**
  * fetchJetpackModules action
@@ -51,7 +52,7 @@ export default {
 					method: 'GET',
 				} );
 			} catch ( error ) {
-				if ( attempt >= MODULES_RETRY_DELAYS.length || ! isRateLimited( error ) ) {
+				if ( attempt >= MODULES_RETRY_DELAYS.length || ! isRateLimitedOrUnreadable( error ) ) {
 					throw error;
 				}
 				await new Promise( resolve => setTimeout( resolve, MODULES_RETRY_DELAYS[ attempt ] ) );
