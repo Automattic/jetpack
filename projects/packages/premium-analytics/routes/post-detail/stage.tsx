@@ -5,7 +5,7 @@ import {
 	postSurface,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { ButtonLink, JetpackFooter } from '@jetpack-premium-analytics/externals';
+import { ButtonLink } from '@jetpack-premium-analytics/externals';
 import {
 	DashboardWidgetHostProvider,
 	usePeriodHost,
@@ -323,7 +323,6 @@ function PostDetail(): JSX.Element {
 										) )
 									) }
 								</DetailPageLayout>
-								<JetpackFooter />
 							</DetailPageShell>
 						</WidgetDashboard>
 					</WidgetDashboard.Policy>

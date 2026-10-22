@@ -7,7 +7,6 @@ import {
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
-import { JetpackFooter } from '@jetpack-premium-analytics/externals';
 import {
 	buildReportLink,
 	DashboardWidgetHostProvider,
@@ -273,7 +272,6 @@ function AuthorDetail(): JSX.Element {
 										</DetailPageSection>
 									) : null }
 								</DetailPageLayout>
-								<JetpackFooter />
 							</DetailPageShell>
 						</WidgetDashboard>
 					</WidgetDashboard.Policy>

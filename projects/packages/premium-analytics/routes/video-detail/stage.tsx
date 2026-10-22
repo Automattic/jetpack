@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { AnalyticsQueryClientProvider, ReportScopeProvider } from '@jetpack-premium-analytics/data';
-import { JetpackFooter } from '@jetpack-premium-analytics/externals';
 import {
 	DashboardWidgetHostProvider,
 	pickReportNavigationParams,
@@ -220,7 +219,6 @@ function VideoDetail(): JSX.Element {
 								</DetailPageSection>
 							) : null }
 						</DetailPageLayout>
-						<JetpackFooter />
 					</DetailPageShell>
 				</WidgetDashboard>
 			</WidgetDashboard.Policy>

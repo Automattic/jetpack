@@ -195,11 +195,6 @@ jest.mock( '@wordpress/widget-primitives', () => ( {
 	WidgetHostProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
-jest.mock( '@jetpack-premium-analytics/externals', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/externals' ),
-	JetpackFooter: () => <footer>Jetpack footer</footer>,
-} ) );
-
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: ( { items }: { items: Array< { label: string; to?: string } > } ) => (
 		<nav aria-label="Breadcrumbs">
@@ -354,14 +349,6 @@ describe( 'post detail stage', () => {
 		mockActiveTab = 'traffic';
 		mockEmailNotSent = false;
 		mockEmailSendPending = false;
-	} );
-
-	it( 'ends the page with the Jetpack footer', () => {
-		mockSummary();
-
-		render( stage() );
-
-		expect( screen.getByText( 'Jetpack footer' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the date filter on the traffic tab', () => {
