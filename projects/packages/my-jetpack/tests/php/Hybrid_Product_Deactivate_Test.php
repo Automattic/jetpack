@@ -109,6 +109,7 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 		if ( null !== $this->protect_development_plugin_file ) {
 			unlink( $this->protect_development_plugin_file );
 			rmdir( dirname( $this->protect_development_plugin_file ) );
+			wp_cache_delete( 'plugins', 'plugins' );
 			$this->protect_development_plugin_file = null;
 		}
 		remove_filter( 'jetpack_get_available_modules', array( $this, 'add_available_modules' ) );
