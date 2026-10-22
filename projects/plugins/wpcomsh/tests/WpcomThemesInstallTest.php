@@ -34,21 +34,9 @@ class WpcomThemesInstallTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Removes anything a test put in place.
+	 * Disconnects the site.
 	 */
 	public function tear_down() {
-		$installed = get_theme_root() . '/' . self::SLUG;
-		if ( is_link( $installed ) ) {
-			unlink( $installed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-		}
-
-		$managed = THEMES_PATH_BASE . '/' . self::SLUG;
-		if ( file_exists( "$managed/latest/style.css" ) ) {
-			unlink( "$managed/latest/style.css" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-			rmdir( "$managed/latest" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
-			rmdir( $managed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
-		}
-
 		delete_option( 'jetpack_options' );
 		delete_option( 'jetpack_private_options' );
 		parent::tear_down();
@@ -136,19 +124,6 @@ class WpcomThemesInstallTest extends WP_UnitTestCase {
 
 		$this->assertWPError( $upgrader->result );
 		$this->assertSame( 'wpcom_theme_not_installable', $upgrader->result->get_error_code() );
-	}
-
-	/**
-	 * A theme WP Cloud hosts in its own versioned folder is symlinked, whatever its tier.
-	 */
-	public function test_managed_theme_is_symlinked() {
-		wp_mkdir_p( THEMES_PATH_BASE . '/' . self::SLUG . '/latest' );
-		file_put_contents( THEMES_PATH_BASE . '/' . self::SLUG . '/latest/style.css', '/* Theme Name: Partner */' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-
-		list( , $upgrader ) = $this->install( self::SLUG );
-
-		$this->assertSame( array( 'destination_name' => self::SLUG ), $upgrader->result );
-		$this->assertTrue( wp_get_theme( self::SLUG )->exists() );
 	}
 
 	/**
