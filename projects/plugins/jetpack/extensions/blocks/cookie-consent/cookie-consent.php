@@ -154,14 +154,17 @@ function render_cookie_consent_template() {
 		$parsed[0]['attrs']['render_from_template'] = true;
 
 		$custom_css_before = get_custom_css_rules();
-		echo render_block( $parsed[0] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		print_late_custom_css_rules( $custom_css_before );
+		$banner            = render_block( $parsed[0] );
+		if ( '' !== $banner ) {
+			print_late_custom_css_rules( $custom_css_before );
+			echo $banner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
 	}
 }
 add_action( 'wp_footer', __NAMESPACE__ . '\render_cookie_consent_template' );
 
 /**
- * Get the block Custom CSS rules queued so far (WordPress 7.0+).
+ * Get the block Custom CSS rules queued so far.
  *
  * @since $$next-version$$
  *
@@ -188,7 +191,11 @@ function print_late_custom_css_rules( $rules_before ) {
 
 	$new_rules = array_diff( get_custom_css_rules(), $rules_before );
 	if ( $new_rules ) {
-		echo '<style id="jetpack-cookie-consent-custom-css">' . str_ireplace( '</style', '', implode( '', $new_rules ) ) . '</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		$processor = new \WP_HTML_Tag_Processor( '<style></style>' );
+		$processor->next_tag();
+		$processor->set_attribute( 'id', 'jetpack-cookie-consent-custom-css' );
+		$processor->set_modifiable_text( implode( '', $new_rules ) );
+		echo $processor->get_updated_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
 
