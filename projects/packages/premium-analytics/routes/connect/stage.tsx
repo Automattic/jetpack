@@ -25,7 +25,7 @@ import './style.scss';
  */
 function PlanChoice() {
 	const trackEvent = useTrackEvent();
-	const { choose, isBusy, error, isOfflineMode, siteSuffix } = usePlanChoice();
+	const { choose, pendingPlan, error, isOfflineMode, siteSuffix } = usePlanChoice();
 	const { data: product, isPending } = useStatsYearlyProduct();
 
 	useEffect( () => {
@@ -64,7 +64,7 @@ function PlanChoice() {
 					yearlyPrice={ product?.cost }
 					// Prices nothing until the currency is known, so a visitor billed in another one never sees dollars first.
 					currencyCode={ product?.currency_code ?? ( isPending ? undefined : 'USD' ) }
-					isBusy={ isBusy }
+					pendingPlan={ pendingPlan }
 					onChoose={ choose }
 				/>
 			</>
@@ -77,7 +77,13 @@ function PlanChoice() {
 			breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 			actions={
 				isOfflineMode ? null : (
-					<Button variant="outline" size="compact" disabled={ isBusy } onClick={ chooseExisting }>
+					<Button
+						variant="outline"
+						size="compact"
+						disabled={ pendingPlan !== null }
+						loading={ pendingPlan === 'existing' }
+						onClick={ chooseExisting }
+					>
 						{ __( 'I already have a plan', 'jetpack-premium-analytics-pkg' ) }
 					</Button>
 				)

@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import CONNECTION_STORE_ID from '@automattic/jetpack-connection/state/store-id';
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { dispatch } from '@wordpress/data';
 /**
@@ -21,6 +22,8 @@ const setIsOfflineMode = ( isOfflineMode: boolean ) =>
 	(
 		dispatch( CONNECTION_STORE_ID ) as { setIsOfflineMode: ( value: boolean ) => void }
 	 ).setIsOfflineMode( isOfflineMode );
+
+const recordEvent = jest.mocked( analytics.tracks.recordEvent );
 
 const AUTHORIZE_URL = 'https://jetpack.wordpress.com/jetpack.authorize/1/?client_id=4242';
 
@@ -84,6 +87,7 @@ describe( 'Connect stage', () => {
 		queryClient.clear();
 		setIsOfflineMode( false );
 		registration = registered( AUTHORIZE_URL );
+		recordEvent.mockClear();
 		navigate.mockReset();
 		globalThis.fetch = jest.fn( respond ) as unknown as typeof fetch;
 	} );
@@ -99,6 +103,10 @@ describe( 'Connect stage', () => {
 
 		expect( navigate ).toHaveBeenCalledTimes( 1 );
 		expect( navigate ).toHaveBeenCalledWith( expect.stringContaining( 'p=%2Fupgrade' ) );
+		expect( recordEvent ).toHaveBeenCalledWith(
+			'jetpack_premium_analytics_pre_connection_register_success',
+			expect.objectContaining( { blog_id: 4242 } )
+		);
 	} );
 
 	it.each( [ 'Start for free', 'I already have a plan' ] )(
@@ -117,18 +125,56 @@ describe( 'Connect stage', () => {
 
 	it.each( [
 		[
-			'registration fails',
-			() => ( registration = () => Promise.reject( new Error( 'offline' ) ) ),
+			'the request never reaches the site',
+			() => Promise.reject( new Error( 'offline' ) ),
+			/could not connect this site/,
+			'FetchNetworkError',
 		],
-	] )( 'keeps a paid choice on the grid with an error when %s', async ( _case, arrange ) => {
-		arrange();
+		[
+			'the site rejects it',
+			() =>
+				Promise.resolve( {
+					ok: false,
+					status: 500,
+					json: async () => ( {
+						code: 'site_inaccessible',
+						message: 'WordPress.com cannot reach this site.',
+					} ),
+				} ),
+			/cannot reach this site/,
+			'site_inaccessible',
+		],
+	] )(
+		'keeps a paid choice on the grid with the reason when %s',
+		async ( _case, failure, message, errorCode ) => {
+			// No navigation delay to run out, and the API client's rejection settles on real promise ticks.
+			jest.useRealTimers();
+			registration = failure;
+			render( <Stage /> );
+
+			await userEvent.click( await screen.findByRole( 'button', { name: 'Get Paid Stats' } ) );
+
+			await expect( screen.findByText( message ) ).resolves.toBeInTheDocument();
+			expect( navigate ).not.toHaveBeenCalled();
+			expect( screen.getByRole( 'button', { name: 'Get Paid Stats' } ) ).toBeEnabled();
+			expect( recordEvent ).toHaveBeenCalledWith(
+				'jetpack_premium_analytics_pre_connection_register_failed',
+				expect.objectContaining( { error_code: errorCode } )
+			);
+		}
+	);
+
+	it( 'shows the paid choice as loading, and holds the others, while the site registers', async () => {
+		registration = () => new Promise( () => {} );
 		render( <Stage /> );
 
 		await choose( 'Get Paid Stats' );
 
-		expect( navigate ).not.toHaveBeenCalled();
-		expect( screen.getByText( /could not connect this site/ ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Get Paid Stats' } ) ).toBeEnabled();
+		const paid = screen.getByRole( 'button', { name: 'Get Paid Stats' } );
+		// Jetpack's Button marks loading with a decorative spinner alone; it sets no aria-busy.
+		expect( within( paid ).getByRole( 'presentation' ) ).toBeInTheDocument();
+		expect( paid ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Start for free' } ) ).toBeDisabled();
 	} );
 
 	it( 'shows the offline notice instead of the plans in offline mode', () => {

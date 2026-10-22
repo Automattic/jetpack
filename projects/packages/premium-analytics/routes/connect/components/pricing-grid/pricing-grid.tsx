@@ -35,7 +35,8 @@ type PricingGridProps = {
 	yearlyPrice?: number | null;
 	/** Both columns hold a placeholder until it is known. */
 	currencyCode?: string;
-	isBusy: boolean;
+	/** The choice whose registration is in flight; every button waits for it. */
+	pendingPlan: Plan | null;
 	onChoose: ( plan: Exclude< Plan, 'existing' > ) => void;
 };
 
@@ -125,11 +126,17 @@ function PricePlaceholder( { legend }: { legend: string } ) {
  * @param props              - Component props.
  * @param props.yearlyPrice  - Yearly price of the paid plan.
  * @param props.currencyCode - Currency of that price.
- * @param props.isBusy       - Whether a choice is in flight.
+ * @param props.pendingPlan  - The choice in flight, if any.
  * @param props.onChoose     - Called with the plan the visitor picks.
  * @return The pricing grid.
  */
-export function PricingGrid( { yearlyPrice, currencyCode, isBusy, onChoose }: PricingGridProps ) {
+export function PricingGrid( {
+	yearlyPrice,
+	currencyCode,
+	pendingPlan,
+	onChoose,
+}: PricingGridProps ) {
+	const isBusy = pendingPlan !== null;
 	const features = getFeatures();
 	const choosePaid = useCallback( () => onChoose( 'paid' ), [ onChoose ] );
 	const chooseFree = useCallback( () => onChoose( 'free' ), [ onChoose ] );
@@ -156,7 +163,12 @@ export function PricingGrid( { yearlyPrice, currencyCode, isBusy, onChoose }: Pr
 									legend={ paidLegend }
 								/>
 							) : null }
-							<Button fullWidth disabled={ isBusy } onClick={ choosePaid }>
+							<Button
+								fullWidth
+								disabled={ isBusy }
+								isLoading={ pendingPlan === 'paid' }
+								onClick={ choosePaid }
+							>
 								{ __( 'Get Paid Stats', 'jetpack-premium-analytics-pkg' ) }
 							</Button>
 						</PricingTableHeader>,
@@ -171,7 +183,13 @@ export function PricingGrid( { yearlyPrice, currencyCode, isBusy, onChoose }: Pr
 							) : (
 								<PricePlaceholder legend="" />
 							) }
-							<Button fullWidth variant="secondary" disabled={ isBusy } onClick={ chooseFree }>
+							<Button
+								fullWidth
+								variant="secondary"
+								disabled={ isBusy }
+								isLoading={ pendingPlan === 'free' }
+								onClick={ chooseFree }
+							>
 								{ __( 'Start for free', 'jetpack-premium-analytics-pkg' ) }
 							</Button>
 						</PricingTableHeader>,
