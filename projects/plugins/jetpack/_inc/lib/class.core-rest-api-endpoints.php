@@ -14,7 +14,6 @@ use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 use Automattic\Jetpack\Waf\Waf_Compatibility;
@@ -1281,9 +1280,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$scan_state = self::scan_state();
 
 		if ( ! is_wp_error( $scan_state ) ) {
-			if ( ( new Host() )->is_woa_site() && ! empty( $scan_state->threats ) ) {
-				$scan_state->threats = array();
-			}
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
