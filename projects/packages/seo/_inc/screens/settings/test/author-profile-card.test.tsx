@@ -118,18 +118,21 @@ describe( 'AuthorProfileCard', () => {
 		);
 	} );
 
-	it( 'keeps WordPress.com-owned fields read-only and saves only the SEO fields', async () => {
+	it( 'shows WordPress.com-owned fields as text and saves only the SEO fields', async () => {
 		mockApiFetch.mockResolvedValue( {
 			...STORED_PROFILE,
+			description: '',
 			accountProfileUrl: 'https://wordpress.com/me/account',
 		} );
 		renderCard();
 		expand();
 
-		const name = await screen.findByRole( 'textbox', { name: 'Name' } );
-		expect( name ).toHaveAttribute( 'readonly' );
-		expect( screen.getByRole( 'textbox', { name: 'Bio' } ) ).toHaveAttribute( 'readonly' );
-		expect( screen.getByRole( 'textbox', { name: 'Website' } ) ).toHaveAttribute( 'readonly' );
+		await expect( screen.findByText( 'Jane Doe' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'https://example.com/jane/' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Not set' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'textbox', { name: 'Name' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'textbox', { name: 'Bio' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'textbox', { name: 'Website' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Edit on WordPress.com/ } ) ).toHaveAttribute(
 			'href',
 			'https://wordpress.com/me/account'
