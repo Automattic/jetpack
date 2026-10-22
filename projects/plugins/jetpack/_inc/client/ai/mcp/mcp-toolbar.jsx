@@ -17,7 +17,7 @@ import { Card, Stack, SwitchControl, Text } from '@wordpress/ui';
  */
 export default function McpToolbar( { allEnabled, isDisabled, onEnableAll, children } ) {
 	return (
-		<Card.Root>
+		<Card.Root className="jetpack-ai-mcp__toolbar">
 			<Card.Content className="jetpack-ai-mcp__card-content">
 				<Stack direction="column" gap="md">
 					<Text render={ <p /> } className="jetpack-ai-mcp__muted">

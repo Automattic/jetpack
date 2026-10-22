@@ -80,6 +80,14 @@
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
+	// Pinned under the admin bar; opaque so tools do not show through.
+	&__toolbar {
+		position: sticky;
+		inset-block-start: var(--wp-admin--admin-bar--height, 0);
+		z-index: 2;
+		background-color: var(--wpds-color-background-surface-neutral-strong);
+	}
+
 	&__card-content {
 		padding-block: 16px;
 		padding-inline: 24px;
@@ -98,7 +106,8 @@
 		display: flex;
 		align-items: flex-start;
 		gap: var(--wpds-dimension-gap-sm);
-		scroll-margin-block-start: 100px;
+		// Clears the sticky toolbar and admin bar.
+		scroll-margin-block-start: 220px;
 
 		> :first-child {
 			flex: 1;
