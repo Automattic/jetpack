@@ -741,7 +741,7 @@ class Main_Features_Rest_Test extends TestCase {
 			$this->assertSame( $can_manage ? ( $dashboard ? $security : array() ) : $modules, array_column( $failed, 'slug' ) );
 			foreach ( $failed as $failure ) {
 				$this->assertSame( 'module', $failure['type'] );
-				$this->assertSame( $can_manage ? 'Manage these security features in Protect.' : 'You are not allowed to manage Jetpack modules on this site.', $failure['message'] );
+				$this->assertSame( $can_manage ? 'Managed in Protect.' : 'You are not allowed to manage Jetpack modules on this site.', $failure['message'] );
 			}
 			$saved = Jetpack_Options::get_option( 'active_modules', array() );
 			foreach ( $security as $slug ) {
