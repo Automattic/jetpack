@@ -43,6 +43,9 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 
 		// The Protect page is being built behind this flag, which is removed when it ships.
 		add_filter( 'jetpack_feature_flag_enabled_jetpack-protect-dashboard', '__return_true' );
+
+		// The wpcomsh run loads jetpack-mu-wpcom, which would hide the Protect page in every row; make_site_atomic() adds it back.
+		remove_filter( 'jetpack_admin_menu_visibility', array( 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan', 'filter_admin_menu_visibility' ) );
 	}
 
 	/**
