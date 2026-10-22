@@ -273,7 +273,7 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
 	}
 
 	$upgrader->skin->feedback( 'installing_package' );
-	$result = wpcomsh_symlink_wpcom_theme( $wpcom_theme->slug, $theme_type );
+	$result = wpcomsh_install_managed_theme( $wpcom_theme->slug, $theme_type );
 
 	if ( is_wp_error( $result ) && $result->get_error_code() !== 'wpcom_theme_already_installed' ) {
 		$upgrader->skin->feedback( 'process_failed' );

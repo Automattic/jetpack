@@ -77,7 +77,7 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $skip_download_filter_result
 		return false;
 	}
 
-	$was_theme_symlinked = wpcomsh_symlink_wpcom_theme( $theme_slug, $theme_type );
+	$was_theme_symlinked = wpcomsh_install_managed_theme( $theme_slug, $theme_type );
 
 	if ( true !== $was_theme_symlinked ) {
 		return $was_theme_symlinked;
@@ -96,51 +96,6 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $skip_download_filter_result
 	return true;
 }
 add_filter( 'jetpack_wpcom_theme_skip_download', 'wpcomsh_jetpack_wpcom_theme_skip_download', 10, 2 );
-
-/**
- * Symlinks a WP.com theme, and its parent if it is a child theme.
- *
- * @param string $theme_slug Theme slug.
- * @param string $theme_type Type of theme.
- *
- * @return true|\WP_Error
- */
-function wpcomsh_symlink_wpcom_theme( $theme_slug, $theme_type ) {
-	if ( wpcomsh_is_theme_symlinked( $theme_slug ) ) {
-		error_log( "WPComSH: WP.com theme with slug: {$theme_slug} is already installed/symlinked." ); //phpcs:ignore
-
-		return new WP_Error( 'wpcom_theme_already_installed', 'The WP.com theme is already installed/symlinked.' );
-	}
-
-	$was_theme_symlinked = wpcomsh_symlink_theme( $theme_slug, $theme_type );
-
-	if ( is_wp_error( $was_theme_symlinked ) ) {
-		return $was_theme_symlinked;
-	}
-
-	wpcomsh_delete_theme_cache( $theme_slug );
-
-	// If the installed WPCom theme is a child theme, we need to symlink its parent theme as well.
-	if (
-		wpcomsh_is_wpcom_child_theme( $theme_slug ) &&
-		! wpcomsh_is_theme_symlinked( wp_get_theme( $theme_slug )->get_template() )
-	) {
-		$was_parent_theme_symlinked = wpcomsh_symlink_parent_theme( $theme_slug );
-
-		if ( true !== $was_parent_theme_symlinked ) {
-			return new WP_Error( 'wpcom_theme_installation_failed', "Can't install specified WP.com theme. Check error log for more details." );
-		}
-	}
-
-	/**
-	 * Fires after a WP.com theme has been installed by symlink.
-	 *
-	 * @param string $theme_slug Theme slug.
-	 */
-	do_action( 'wpcomsh_wpcom_theme_installed', $theme_slug );
-
-	return true;
-}
 
 /**
  * Un-symlinks WP.com themes instead of deleting them.
