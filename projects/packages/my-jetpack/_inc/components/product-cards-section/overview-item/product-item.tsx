@@ -5,7 +5,7 @@ import useAnalytics from '../../../hooks/use-analytics';
 import useOverviewLoadEvent from './use-overview-load-event';
 import useStatusAction from './use-status-action';
 import OverviewItem, { isHealthyStatus } from '.';
-import type { OverviewItemLink } from '.';
+import type { OverviewItemLink, OverviewItemProps } from '.';
 import type { FC } from 'react';
 
 type ProductOverviewItemProps = {
@@ -20,6 +20,7 @@ type ProductOverviewItemProps = {
 	isLoading?: boolean;
 	loadTracks?: Record< Lowercase< string >, unknown >;
 	action?: OverviewItemLink | null;
+	error?: OverviewItemProps[ 'error' ];
 };
 
 /**
@@ -39,6 +40,7 @@ const ProductOverviewItem: FC< ProductOverviewItemProps > = ( {
 	isLoading: isValueLoading = false,
 	loadTracks,
 	action: actionOverride,
+	error,
 } ) => {
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
 	const { name = '', status, manageUrl, purchaseUrl } = detail || {};
@@ -86,6 +88,7 @@ const ProductOverviewItem: FC< ProductOverviewItemProps > = ( {
 			isLoading={ isLoading }
 			forcedOffReason={ forcedOffReason }
 			statusLabel={ statusLabel }
+			error={ error }
 		/>
 	);
 };

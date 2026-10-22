@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { isHeaderControlsEnabled } from '../header-controls/slot';
 import { FeaturesContent } from './features/content';
 import { FullWidthSeparator } from './full-width-separator';
@@ -42,9 +41,8 @@ const footerMap: Partial< Record< MyJetpackSection, ComponentType > > = {
  */
 export function TabContent( { name, beforeContent }: TabContentProps ) {
 	const ContentComponent = componentMap[ name ];
-	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
-	// Overview v1 drops the Plan and Connection band where the header's connection control shows both.
-	const dropsOverviewFooter = name === 'overview' && overviewV1 && isHeaderControlsEnabled();
+	// The header's connection control shows the plan and the connection, so the Overview's band would repeat them.
+	const dropsOverviewFooter = name === 'overview' && isHeaderControlsEnabled();
 	const FooterComponent = dropsOverviewFooter ? undefined : footerMap[ name ];
 
 	if ( ! ContentComponent ) {

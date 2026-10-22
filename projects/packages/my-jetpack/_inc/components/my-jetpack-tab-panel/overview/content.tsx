@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
 import useSitePurchases from '../../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import { isHeaderControlsEnabled } from '../../header-controls/slot';
 import OverviewBlogPosts from '../../overview-blog-posts';
 import ProductCardsSection from '../../product-cards-section';
 import OverviewSections from '../../product-cards-section/overview-sections';
@@ -19,7 +20,7 @@ import styles from './styles.module.scss';
 export function OverviewContent() {
 	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	// Loads the plans the header's plan summary shows, so they're ready when it opens.
-	useSitePurchases( { enabled: overviewV1 } );
+	useSitePurchases( { enabled: isHeaderControlsEnabled() } );
 
 	return (
 		<div>

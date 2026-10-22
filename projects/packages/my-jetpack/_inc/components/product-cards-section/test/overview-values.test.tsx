@@ -4,6 +4,7 @@ import VideoPressOverviewItem from '../videopress-card/overview';
 
 let mockDetail: Record< string, unknown > = {};
 let mockQueryData: unknown;
+let mockQueryError: { code: string } | null = null;
 const mockLoadEvent = jest.fn();
 
 jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
@@ -17,6 +18,10 @@ jest.mock( '../../../data/products/use-products-by-ownership', () => () => ( {
 jest.mock( '../../../data/use-simple-query', () => () => ( {
 	data: mockQueryData,
 	isLoading: false,
+	isFetching: false,
+	isError: !! mockQueryError,
+	error: mockQueryError,
+	refetch: jest.fn(),
 } ) );
 jest.mock(
 	'../../../hooks/use-notification-watcher/use-get-readable-failed-backup-reason',
@@ -37,7 +42,10 @@ jest.mock(
 );
 
 describe( 'Overview items with their card values', () => {
-	beforeEach( () => mockLoadEvent.mockClear() );
+	beforeEach( () => {
+		mockLoadEvent.mockClear();
+		mockQueryError = null;
+	} );
 
 	it( 'sends anyone to support for Backup turned off by support, instead of activating it', () => {
 		mockDetail = {
@@ -62,5 +70,19 @@ describe( 'Overview items with their card values', () => {
 			stats_period: 'day',
 			video_count: 12,
 		} );
+	} );
+
+	it.each( [
+		[ 'Backup', BackupOverviewItem, 'Failed to load latest backup', 'failed', 1 ],
+		[ 'VideoPress', VideoPressOverviewItem, 'Failed to load videos', 'failed', 1 ],
+		[ 'VideoPress', VideoPressOverviewItem, 'Failed to load videos', 'not_connected', 0 ],
+	] )( 'shows %s failing with %s on a %s error %d times', ( _, Item, reason, code, count ) => {
+		mockDetail = { status: 'active' };
+		mockQueryData = undefined;
+		mockQueryError = { code };
+		render( <Item admin /> );
+
+		expect( screen.queryAllByText( reason ) ).toHaveLength( count );
+		expect( screen.queryAllByRole( 'button', { name: 'Try again' } ) ).toHaveLength( count );
 	} );
 } );

@@ -18,7 +18,7 @@ const BackupOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const { detail } = useProduct( PRODUCT_SLUGS.BACKUP );
 	const { status, doesModuleNeedAttention } = detail || {};
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
-	const { data, isLoading } = useSimpleQuery< {
+	const { data, isLoading, isFetching, isError, error, refetch } = useSimpleQuery< {
 		last_rewindable_event?: { published?: string };
 	} >( {
 		name: QUERY_BACKUP_HISTORY_KEY,
@@ -26,6 +26,7 @@ const BackupOverviewItem: ProductCardComponent = ( { admin } ) => {
 		options: { enabled: hasBackups },
 	} );
 	const { reasonContent } = useGetReadableFailedBackupReason() || {};
+	const hasFailed = hasBackups && isError && error?.code !== 'not_connected';
 	const { siteUrl = '' } = getMyJetpackWindowInitialState();
 
 	const lastBackup = hasBackups
@@ -52,7 +53,15 @@ const BackupOverviewItem: ProductCardComponent = ( { admin } ) => {
 			label={ lastBackup ? __( 'Latest backup', 'jetpack-my-jetpack' ) : undefined }
 			value={ lastBackup || undefined }
 			statusLabel={ failureReason }
-			isLoading={ hasBackups && isLoading }
+			isLoading={ hasBackups && ( isLoading || ( isError && isFetching ) ) }
+			error={
+				hasFailed
+					? {
+							reason: __( 'Failed to load latest backup', 'jetpack-my-jetpack' ),
+							onRetry: refetch,
+						}
+					: undefined
+			}
 			// Only support can turn Backup back on once it was turned off, and anyone can ask them.
 			action={
 				isDeactivated

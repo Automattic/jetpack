@@ -1,13 +1,20 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
-import { MY_JETPACK_SECTION_FEATURES } from '../constants';
+import { MY_JETPACK_SECTION_FEATURES, MY_JETPACK_SECTION_OVERVIEW } from '../constants';
 import { TabContent } from '../tab-content';
 
 jest.mock( '../features/content', () => ( {
 	FeaturesContent: () => jest.requireActual( 'react' ).createElement( 'div', null, 'Features' ),
 } ) );
 jest.mock( '../overview/content', () => ( { OverviewContent: () => null } ) );
-jest.mock( '../overview/footer', () => ( { OverviewFooter: () => null } ) );
+jest.mock( '../overview/footer', () => ( {
+	OverviewFooter: () =>
+		jest.requireActual( 'react' ).createElement( 'div', null, 'Plan and Connection' ),
+} ) );
+let mockHeaderControls = false;
+jest.mock( '../../header-controls/slot', () => ( {
+	isHeaderControlsEnabled: () => mockHeaderControls,
+} ) );
 jest.mock( '../help/content', () => ( { HelpContent: () => null } ) );
 jest.mock( '../help/footer', () => ( { HelpFooter: () => null } ) );
 
@@ -23,4 +30,17 @@ describe( 'TabContent', () => {
 		expect( notice.parentElement ).toBe( section.parentElement );
 		expect( notice.compareDocumentPosition( section ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 	} );
+
+	it.each( [
+		[ false, 1 ],
+		[ true, 0 ],
+	] )(
+		'with the header controls on: %s, shows the Plan and Connection band %d times',
+		( headerControls, count ) => {
+			mockHeaderControls = headerControls;
+			render( <TabContent name={ MY_JETPACK_SECTION_OVERVIEW } /> );
+
+			expect( screen.queryAllByText( 'Plan and Connection' ) ).toHaveLength( count );
+		}
+	);
 } );
