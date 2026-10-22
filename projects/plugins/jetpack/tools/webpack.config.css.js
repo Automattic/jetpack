@@ -41,9 +41,7 @@ const sharedWebpackConfig = {
 		strictExportPresence: true,
 		rules: [
 			// Handle CSS.
-			jetpackWebpackConfig.CssRule( {
-				sass: { sassOptions: { style: 'expanded' } },
-			} ),
+			jetpackWebpackConfig.CssRule(),
 
 			// Leave fonts and images in place.
 			{

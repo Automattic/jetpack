@@ -26,7 +26,6 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@wordpress/browserslist-config": "6.57.0",
 		"sass-embedded": "1.97.3",
-		"sass-loader": "16.0.5",
 		"webpack": "5.111.1",
 		"webpack-cli": "7.2.1"
 	}

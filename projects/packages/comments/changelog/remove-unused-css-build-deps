@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Remove build dependencies now provided by the shared webpack config.

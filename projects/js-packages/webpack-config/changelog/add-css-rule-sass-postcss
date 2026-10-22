@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-CssRule: Add sass-loader and postcss-loader by default, with the standard Jetpack postcss plugins (WPDS and color token fallbacks, autoprefixer). Both can be disabled or configured with the `sass` and `postcss` options.
+CssRule: Add sass-loader (expanded output) and postcss-loader by default, with the standard Jetpack postcss plugins (WPDS and color token fallbacks, autoprefixer). Both can be disabled or configured with the `sass` and `postcss` options.

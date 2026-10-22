@@ -160,7 +160,6 @@
 		"@wordpress/notices": "5.57.0",
 		"@wordpress/preferences": "4.57.0",
 		"@wordpress/token-list": "3.57.0",
-		"autoprefixer": "10.4.20",
 		"babel-jest": "30.5.2",
 		"browserslist": "^4.24.0",
 		"concurrently": "10.0.5",
@@ -168,10 +167,7 @@
 		"glob": "13.0.6",
 		"jest": "30.5.2",
 		"jquery": "3.7.1",
-		"lodash": "4.18.1",
-		"postcss": "8.5.23",
-		"postcss-loader": "8.2.0",
-		"sass-loader": "16.0.5"
+		"lodash": "4.18.1"
 	},
 	"optionalDependencies": {
 		"react": "19.3.0",

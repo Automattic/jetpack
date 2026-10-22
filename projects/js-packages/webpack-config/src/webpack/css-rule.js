@@ -18,9 +18,14 @@ const CssLoader = options => ( {
 	},
 } );
 
-const SassLoader = options => ( {
+// CSS is minified in webpack's optimize step; expanded output keeps comments like `/* autoprefixer: off */` for PostCSS.
+const SassLoader = ( { sassOptions, ...options } = {} ) => ( {
 	loader: require.resolve( 'sass-loader' ),
-	options: { api: 'modern-compiler', ...options },
+	options: {
+		api: 'modern-compiler',
+		sassOptions: { style: 'expanded', ...sassOptions },
+		...options,
+	},
 } );
 
 const PostcssLoader = ( { postcssOptions = {}, ...options } = {} ) => ( {
