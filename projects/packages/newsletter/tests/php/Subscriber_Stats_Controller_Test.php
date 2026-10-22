@@ -490,6 +490,27 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$this->assertSame( 0.0, $response['posts'][0]['clickRatePercent'] );
 	}
 
+	public function test_nulls_rates_for_a_sent_post_with_missing_rate_data() {
+		$sent_id = $this->insert_post( 'Sent post with incomplete analytics', 'publish', gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ) );
+		$this->set_query_posts( array( $sent_id ) );
+		$this->set_email_summary_response(
+			array(
+				'posts' => array(
+					array(
+						'id'          => $sent_id,
+						'total_sends' => 5,
+					),
+				),
+			)
+		);
+
+		$response = $this->controller->get_recent_posts();
+
+		$this->assertSame( 5, $response['posts'][0]['recipients'] );
+		$this->assertNull( $response['posts'][0]['openRatePercent'] );
+		$this->assertNull( $response['posts'][0]['clickRatePercent'] );
+	}
+
 	public function test_returns_local_posts_when_email_summary_fails() {
 		$post_id = $this->insert_post( 'Local post', 'publish', gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ) );
 		$this->set_query_posts( array( $post_id ) );
