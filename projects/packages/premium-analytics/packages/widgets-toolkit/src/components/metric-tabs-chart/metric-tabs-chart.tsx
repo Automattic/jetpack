@@ -57,10 +57,11 @@ const CLICK_DRAG_TOLERANCE_PX = 6;
 
 const LINE_COUNTERPART_SHADE_BLEND = 0.5;
 
-/** The previous period's grays when bars overlap. Like the current period, a pair is light behind and darker in front, and a metric alone takes the solid gray. */
+/** The previous period's grays when bars overlap. Like the current period, a chart that pairs metrics is light behind and darker in front on every tab, and any other chart takes the solid gray. */
 const PREVIOUS_PERIOD_GRAYS = {
 	alone: 'var(--wpds-color-stroke-surface-neutral-strong, #8d8d8d)',
-	back: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)',
+	// No WPDS gray sits between `#dbdbdb` and `#8d8d8d`; this is the darkest that keeps 3:1 against the front gray.
+	back: '#cccccc',
 	front: 'var(--wpds-color-foreground-content-neutral-weak, #707070)',
 };
 
@@ -361,7 +362,7 @@ function MetricChart( {
 					metric,
 					chartType,
 					pairsMetrics ? undefined : shades.accent,
-					PREVIOUS_PERIOD_GRAYS.alone
+					pairsMetrics ? PREVIOUS_PERIOD_GRAYS.back : PREVIOUS_PERIOD_GRAYS.alone
 				),
 				defaultHiddenSeries: undefined,
 			};

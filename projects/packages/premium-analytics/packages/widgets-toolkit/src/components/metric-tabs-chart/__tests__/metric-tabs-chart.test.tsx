@@ -677,7 +677,7 @@ describe( 'MetricTabsChart', () => {
 			[ 'Views', 'Views' ],
 			[
 				undefined,
-				'var(--wpds-color-stroke-surface-neutral, #dbdbdb)',
+				'#cccccc',
 				undefined,
 				'var(--wpds-color-foreground-content-neutral-weak, #707070)',
 			],
@@ -722,23 +722,24 @@ describe( 'MetricTabsChart', () => {
 	} );
 
 	it.each( [
-		[ 'in the full accent in a chart without pairs', [ METRIC ], '#3858E9' ],
 		[
-			'to the chart to tone in a chart that pairs other metrics',
-			[ { ...METRIC, key: 'comments' }, VIEWS, VISITORS ],
-			undefined,
+			'in the full accent and the solid gray in a chart without pairs',
+			[ METRIC ],
+			[ '#3858E9', 'var(--wpds-color-stroke-surface-neutral-strong, #8d8d8d)' ],
 		],
-	] )(
-		'draws a metric alone %s, its previous period in the solid gray',
-		( _case, metrics, stroke ) => {
-			setMockElementStyles( () => ( { color: '#3858E9' } ) );
-			render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } chartType="bar" /> );
+		[
+			'in the tint and light gray of a pair in a chart that pairs other metrics',
+			[ { ...METRIC, key: 'comments' }, VIEWS, VISITORS ],
+			[ undefined, '#cccccc' ],
+		],
+	] )( 'draws a metric alone %s', ( _case, metrics, strokes ) => {
+		setMockElementStyles( () => ( { color: '#3858E9' } ) );
+		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } chartType="bar" /> );
 
-			expect(
-				recordedPropsFor( mockBarSpy, 'Views' ).series.map( series => series.options?.stroke )
-			).toEqual( [ stroke, 'var(--wpds-color-stroke-surface-neutral-strong, #8d8d8d)' ] );
-		}
-	);
+		expect(
+			recordedPropsFor( mockBarSpy, 'Views' ).series.map( series => series.options?.stroke )
+		).toEqual( strokes );
+	} );
 
 	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
 	// alone, so drawing the pair there offers the legend a flat zero line.
