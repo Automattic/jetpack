@@ -19,6 +19,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import fastDeepEqual from 'fast-deep-equal/es6';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { config } from '../../config';
 import {
 	activityLogQuery,
 	activityLogGroupCountsQuery,
@@ -511,7 +512,8 @@ export default function ActivityLog() {
 				ref={ wrapperRef }
 				className={
 					'jp-activity-log__dataviews-wrapper' +
-					( hasActivityLogsAccess ? '' : ' jp-activity-log__dataviews-wrapper--free-tier' )
+					( hasActivityLogsAccess ? '' : ' jp-activity-log__dataviews-wrapper--free-tier' ) +
+					( config.apiSource === 'wpcom' ? ' jp-activity-log__dataviews-wrapper--wpcom' : '' )
 				}
 			>
 				{ /*

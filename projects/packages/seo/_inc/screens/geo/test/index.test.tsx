@@ -14,7 +14,7 @@ import type { GeoForm } from '../../../data/use-geo';
  * @return A form controller for GeoScreen with the enhancer hidden.
  */
 const formWith = ( canServe: boolean ): GeoForm => ( {
-	enhancer: { available: false, enabled: false, aiSeoEnabled: true },
+	enhancer: { available: false, enabled: false, aiSeoEnabled: true, aiEnabled: true },
 	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe },
 	crawlers: null,
 	isSaving: false,
@@ -247,7 +247,7 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
  */
 const allModulesForm = (): GeoForm => ( {
 	...crawlerForm(),
-	enhancer: { available: true, enabled: false, aiSeoEnabled: true },
+	enhancer: { available: true, enabled: false, aiSeoEnabled: true, aiEnabled: true },
 	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
 } );
 
@@ -400,12 +400,15 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 describe( 'GeoScreen (GEO tab) — the AI SEO Enhancer card', () => {
 	// Same treatment the Traffic page gives it: disabled with an explanation
 	// rather than hidden, so the saved choice stays visible.
-	it( 'disables the toggle and explains why while the AI SEO control is off', () => {
+	it.each( [
+		[ 'the AI SEO control', true, /AI SEO is turned off for this site/ ],
+		[ 'Jetpack AI', false, /Jetpack AI is turned off for this site/ ],
+	] )( 'disables the toggle and explains why while %s is off', ( _, aiEnabled, message ) => {
 		render(
 			<GeoScreen
 				form={ {
 					...allModulesForm(),
-					enhancer: { available: true, enabled: true, aiSeoEnabled: false },
+					enhancer: { available: true, enabled: true, aiSeoEnabled: false, aiEnabled },
 				} }
 				searchEnginesVisible
 				onManageVisibility={ noop }
@@ -415,7 +418,7 @@ describe( 'GeoScreen (GEO tab) — the AI SEO Enhancer card', () => {
 		expect(
 			screen.getByRole( 'checkbox', { name: /Automatically generate SEO title/ } )
 		).toBeDisabled();
-		expect( screen.getByText( /AI SEO is turned off for this site/ ) ).toBeInTheDocument();
+		expect( screen.getByText( message ) ).toBeInTheDocument();
 	} );
 
 	it( 'leaves the toggle usable while the AI SEO control is on', () => {
@@ -423,7 +426,7 @@ describe( 'GeoScreen (GEO tab) — the AI SEO Enhancer card', () => {
 			<GeoScreen
 				form={ {
 					...allModulesForm(),
-					enhancer: { available: true, enabled: true, aiSeoEnabled: true },
+					enhancer: { available: true, enabled: true, aiSeoEnabled: true, aiEnabled: true },
 				} }
 				searchEnginesVisible
 				onManageVisibility={ noop }

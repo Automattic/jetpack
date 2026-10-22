@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Check the Boost E2E build list for unknown projects and unaccounted build-bearing direct dependencies.

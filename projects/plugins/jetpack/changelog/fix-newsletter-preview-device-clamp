@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Keep the email preview at a width the device selector still offers when the editor window narrows.

@@ -89,6 +89,28 @@ class SEO_Module_State_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The dashboard sees a conflicting SEO plugin while the canonical module is off.
+	 *
+	 * Separate process: Jetpack_Canonical_Urls_Test loads the module file, which hooks the check itself.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_reports_canonical_conflict_while_module_is_off() {
+		require_once JETPACK__PLUGIN_DIR . 'modules/module-extras.php';
+		Jetpack_Options::update_option( 'active_modules', array() );
+
+		$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_conflicted'] );
+
+		update_option( 'active_plugins', array( 'wordpress-seo/wp-seo.php' ) );
+
+		$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_active'] );
+		$this->assertTrue( Dashboard_Data::get_settings_data()['canonical_conflicted'] );
+	}
+
+	/**
 	 * Private-site filtering affects dashboard reads without changing stored activation.
 	 */
 	public function test_dashboard_honors_private_site_filtering() {
