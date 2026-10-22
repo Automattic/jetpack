@@ -47,7 +47,7 @@
 		"@automattic/jetpack-react-data-sync-client": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@jetpack-boost/init": "link:packages/init",
-		"@react-spring/web": "10.1.1",
+		"@react-spring/web": "10.1.2",
 		"@tanstack/react-query": "5.102.8",
 		"@types/react": "19.3.0",
 		"@wordpress/a11y": "4.57.0",

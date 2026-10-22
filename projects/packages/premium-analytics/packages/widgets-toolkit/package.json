@@ -43,7 +43,7 @@
 		"react": "19.3.0"
 	},
 	"devDependencies": {
-		"@storybook/react": "10.4.6",
+		"@storybook/react": "10.6.3",
 		"@testing-library/react": "16.3.3",
 		"@testing-library/user-event": "14.6.8",
 		"@wordpress/dataviews": "20.0.0",

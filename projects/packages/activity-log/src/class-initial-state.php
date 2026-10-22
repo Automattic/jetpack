@@ -12,6 +12,7 @@ use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
 use function add_query_arg;
 use function admin_url;
+use function apply_filters;
 use function esc_url_raw;
 use function function_exists;
 use function get_bloginfo;
@@ -53,14 +54,24 @@ class Initial_State {
 		return array(
 			'upgrade'       => $upgrade,
 			'jetpackStatus' => array(
-				'calypsoSlug' => $site_suffix,
+				'calypsoSlug'        => $site_suffix,
+				/**
+				 * Filters the in-admin address "Restore backup" opens, with `{rewindId}` as the placeholder.
+				 * Empty keeps the Jetpack Cloud restore flow.
+				 *
+				 * @since $$next-version$$
+				 *
+				 * @param string $template Restore URL template, or an empty string.
+				 */
+				'restoreUrlTemplate' => (string) apply_filters( 'jetpack_activity_log_restore_url_template', '' ),
 			),
 			'config'        => array(
 				// Simple sites have no Jetpack REST API to proxy through, so the app calls WordPress.com directly.
-				'apiSource'       => $is_wpcom_simple ? 'wpcom' : 'jetpack',
-				'wpcomUpgradeUrl' => $is_wpcom_simple ? self::get_wpcom_upgrade_url( $site_suffix ) : '',
-				'tracksUserData'  => $is_wpcom_simple ? self::get_wpcom_tracks_user_data() : null,
-				'hiddenGroups'    => $is_wpcom_simple ? self::get_wpcom_hidden_groups() : array(),
+				'apiSource'             => $is_wpcom_simple ? 'wpcom' : 'jetpack',
+				'wpcomUpgradeUrl'       => $is_wpcom_simple ? self::get_wpcom_upgrade_url( $site_suffix ) : '',
+				'tracksUserData'        => $is_wpcom_simple ? self::get_wpcom_tracks_user_data() : null,
+				'knownThreatsAvailable' => REST_Controller::known_threats_available(),
+				'hiddenGroups'          => $is_wpcom_simple ? self::get_wpcom_hidden_groups() : array(),
 			),
 			'siteData'      => array(
 				'id'                    => Connection_Manager::get_site_id( true ),
