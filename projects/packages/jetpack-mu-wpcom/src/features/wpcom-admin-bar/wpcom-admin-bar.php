@@ -7,7 +7,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Modules;
@@ -27,19 +26,6 @@ const WPCOM_ADMIN_ICON_COLORS = array(
 	'modern'    => '#f3f1f1',
 	'sunrise'   => '#f3f1f1',
 );
-
-/**
- * Adds the origin_site_id query parameter to a URL.
- *
- * @deprecated 6.10.0 Use Automattic\Jetpack\Connection\Urls::maybe_add_origin_site_id instead.
- *
- * @param string $url The URL to add the query param to.
- * @return string The URL with the origin_site_id query parameter maybe added.
- */
-function maybe_add_origin_site_id_to_url( $url ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-6.10.0', 'Automattic\Jetpack\Connection\Urls::maybe_add_origin_site_id' );
-	return Urls::maybe_add_origin_site_id( $url );
-}
 
 /**
  * Enqueue assets needed by the WordPress.com admin bar.
@@ -155,7 +141,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 						/* translators: Hidden accessibility text. */
 						'WordPress.com' .
 						'</span>',
-			'href'  => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/sites' ),
+			'href'  => 'https://my.wordpress.com/sites',
 			'meta'  => array(
 				'menu_title' => 'WordPress.com',
 			),
@@ -167,7 +153,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-sites',
 			'title'  => __( 'Sites', 'jetpack-mu-wpcom' ),
-			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/sites' ),
+			'href'   => 'https://my.wordpress.com/sites',
 		)
 	);
 
@@ -176,7 +162,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-domains',
 			'title'  => __( 'Domains', 'jetpack-mu-wpcom' ),
-			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/domains' ),
+			'href'   => 'https://my.wordpress.com/domains',
 		)
 	);
 
@@ -185,7 +171,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-emails',
 			'title'  => __( 'Emails', 'jetpack-mu-wpcom' ),
-			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/emails' ),
+			'href'   => 'https://my.wordpress.com/emails',
 		)
 	);
 
@@ -194,7 +180,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-plugins',
 			'title'  => __( 'Plugins', 'jetpack-mu-wpcom' ),
-			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/plugins' ),
+			'href'   => 'https://my.wordpress.com/plugins',
 		)
 	);
 
@@ -303,12 +289,12 @@ function wpcom_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
 
 	$edit_profile_node = $wp_admin_bar->get_node( 'user-info' );
 	if ( $edit_profile_node ) {
-		$edit_profile_node->href = Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/me/account' );
+		$edit_profile_node->href = 'https://my.wordpress.com/me/account';
 		$wp_admin_bar->add_node( (array) $edit_profile_node );
 	}
 	$my_account_node = $wp_admin_bar->get_node( 'my-account' );
 	if ( $my_account_node ) {
-		$my_account_node->href = Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/me/account' );
+		$my_account_node->href = 'https://my.wordpress.com/me/account';
 		$wp_admin_bar->add_node( (array) $my_account_node );
 	}
 }
@@ -339,7 +325,7 @@ function wpcom_add_my_wpcom_account_submenu( $wp_admin_bar ) {
 			'parent' => 'wpcom-account',
 			'id'     => 'my-wpcom-account',
 			'title'  => '<span class="button wpcom-button">' . $button_text . '</span>',
-			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/me/account' ),
+			'href'   => 'https://my.wordpress.com/me/account',
 		)
 	);
 }
