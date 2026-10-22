@@ -69,10 +69,11 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 				'wpcom_track_customizer_from_frontend' => 'wpcom_customize_loaded_from_frontend',
 			) as $callback => $event_name
 		) {
+			$output = '';
 			ob_start();
 			try {
 				call_user_func( __NAMESPACE__ . '\\' . $callback );
-				$output = ob_get_contents();
+				$output = (string) ob_get_contents();
 			} finally {
 				ob_end_clean();
 			}
