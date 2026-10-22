@@ -40,7 +40,10 @@ export function getUserConnectKind( {
 
 	// An unregistered site has no owner to reconnect, whatever `master_user` still says.
 	if ( owner && isRegistered ) {
-		return owner.id === currentUserId ? 'reconnect-owner' : 'take-over';
+		// JS callers pass the store's owner unchecked, so an unknown viewer must not match a partial owner.
+		return currentUserId !== undefined && owner.id === currentUserId
+			? 'reconnect-owner'
+			: 'take-over';
 	}
 
 	return 'first';
@@ -51,6 +54,7 @@ export function getUserConnectKind( {
  *
  * `take-over` names only what a plain account connection does. The connection-error notice's
  * reconnect is a full reconnect, which also disconnects every other user, so its copy says more.
+ * The Connectors card's ConnectPrompt keeps a copy of the `secondary` and `first` strings for older bundles.
  *
  * @param {UserConnectKind} kind - What connecting means for the viewer, from getUserConnectKind().
  * @return {string} The prompt text.
@@ -73,7 +77,7 @@ export function getUserConnectMessage( kind: UserConnectKind ): string {
 				'Connect your user account to unlock more features and sign in via WordPress.com (SSO).',
 				'jetpack-connection-js'
 			);
-		default:
+		case 'first':
 			return __(
 				'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
 				'jetpack-connection-js'

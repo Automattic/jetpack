@@ -14,7 +14,7 @@
  * @param {object|null} state.owner                   - The connection owner, or null.
  * @param {boolean}     state.ownerIsViewer           - Whether the viewer is the connection owner.
  * @param {boolean}     state.canConnect              - Whether the card offers a connect action.
- * @param {boolean}     state.isOwnerReconnectOffered - Whether the error banner offers to reconnect the owner.
+ * @param {boolean}     state.isErrorBannerShown      - Whether the connection error banner is showing.
  * @param {boolean}     state.isProtectedOwnerPending - Whether a protected owner is unconfirmed.
  * @return {{connectPrompt: boolean, unconfirmedOwnerRow: boolean, ownerRow: boolean}} Sections to render.
  */
@@ -23,7 +23,7 @@ export function getAccountSections( {
 	owner,
 	ownerIsViewer,
 	canConnect,
-	isOwnerReconnectOffered,
+	isErrorBannerShown,
 	isProtectedOwnerPending,
 } ) {
 	const isOwnerConnectionBroken = Boolean( owner?.isConnectionBroken );
@@ -34,9 +34,8 @@ export function getAccountSections( {
 	const isOwnerUnconfirmed = isProtectedOwnerPending && ! isOwnerConnectionBroken;
 
 	return {
-		// The owner banner already says who must reconnect and offers the CTA.
-		connectPrompt:
-			! viewer && canConnect && ! ( isOwnerConnectionBroken && isOwnerReconnectOffered ),
+		// Connecting would take a broken owner's slot, so the banner decides who acts, as in My Jetpack.
+		connectPrompt: ! viewer && canConnect && ! ( isOwnerConnectionBroken && isErrorBannerShown ),
 		unconfirmedOwnerRow: showsOwnerRow && isOwnerUnconfirmed,
 		ownerRow: showsOwnerRow && ! isOwnerUnconfirmed,
 	};

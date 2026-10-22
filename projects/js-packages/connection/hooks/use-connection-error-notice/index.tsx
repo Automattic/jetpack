@@ -3,7 +3,6 @@ import ConnectionErrorNotice from '../../components/connection-error-notice';
 import useConnection from '../../components/use-connection';
 import useRestoreConnection from '../../hooks/use-restore-connection';
 import { getConnectionErrorDetails, isConnectionErrorMap } from './error-details';
-import { offersOwnerReconnect } from './owner-reconnect';
 import { resolveConnectionErrorActions } from './resolve-actions';
 import { getConnectionErrorSeverity } from './severity';
 import { CONNECTION_ERROR_NOTICE_EVENTS, trackConnectionErrorNoticeEvent } from './tracking';
@@ -152,11 +151,6 @@ export default function useConnectionErrorNotice( {
 		[ displayableErrors, viewer ]
 	);
 
-	const isOwnerReconnectOffered = useMemo(
-		() => offersOwnerReconnect( displayableErrors ),
-		[ displayableErrors ]
-	);
-
 	const actions = useMemo(
 		() =>
 			actionError
@@ -227,7 +221,6 @@ export default function useConnectionErrorNotice( {
 	return {
 		hasConnectionError,
 		severity,
-		offersOwnerReconnect: isOwnerReconnectOffered,
 		connectionErrorMessage,
 		connectionError: actionError, // Full error object with error_type, etc.
 		connectionErrors: errorMap, // All errors for advanced use cases.

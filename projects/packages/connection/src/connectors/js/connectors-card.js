@@ -910,7 +910,7 @@ function ConnectPrompt( { onConnect, isConnecting } ) {
 		isReconnectingOwner = 'reconnect-owner' === promptKind;
 		promptText = getUserConnectMessage( promptKind );
 	} else if ( owner ) {
-		// Mid-update, an older shared jetpack-connection bundle lacks the helpers; keep the owner-only copy.
+		// An older shared jetpack-connection bundle may lack the helpers; copies of getUserConnectMessage()'s strings.
 		promptText = __(
 			'Connect your user account to unlock more features and sign in via WordPress.com (SSO).',
 			'jetpack-connection',
@@ -1565,7 +1565,7 @@ function IDCPanel() {
  * @param {object}   props                       - Component props.
  * @param {boolean}  props.isConnecting          - Whether a user connection is in progress.
  * @param {Function} props.onConnect             - Callback to start user authorization flow.
- * @param {object}   props.connectionErrorNotice - The card's useConnectionErrorNotice() result.
+ * @param {object}   props.connectionErrorNotice - The card's useConnectionErrorNotice() result, or null offline.
  * @return {object} React element.
  */
 function ExpandedDetails( {
@@ -1595,17 +1595,16 @@ function ExpandedDetails( {
 	const disconnectSiteRef = useRef( null );
 	const disconnectAccountRef = useRef( null );
 
-	// ConnectionErrorView is checked too: mid-update, an older shared bundle may lack it.
+	// ConnectionErrorView is checked too: an older shared bundle may lack it.
 	const isErrorBannerShown = Boolean(
-		! isOfflineMode && connectionErrorNotice?.hasConnectionError && ConnectionErrorView
+		connectionErrorNotice?.hasConnectionError && ConnectionErrorView
 	);
 	const sections = getAccountSections( {
 		viewer,
 		owner,
 		ownerIsViewer,
 		canConnect: Boolean( onConnect ),
-		isOwnerReconnectOffered:
-			isErrorBannerShown && Boolean( connectionErrorNotice.offersOwnerReconnect ),
+		isErrorBannerShown,
 		isProtectedOwnerPending: protectedOwnerIsPending(),
 	} );
 
@@ -1884,12 +1883,14 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- re-identify only when the identity changes.
 	}, [ tracksIdentity.ID, tracksIdentity.login ] );
 	const [ connectError, setConnectError ] = useState( data.authError || null );
-	const connectionErrorNotice = useConnectionErrorNotice( {
+	const errorNotice = useConnectionErrorNotice( {
 		trackingContext: 'connectors',
 		reconnectRedirectUrl: connectorsUrl,
 		reconnectFrom: 'jetpack-connector',
 	} );
-	const connectionErrorSeverity = ! isOfflineMode ? connectionErrorNotice.severity : null;
+	// Hidden in offline mode, where the card disables connection actions.
+	const connectionErrorNotice = isOfflineMode ? null : errorNotice;
+	const connectionErrorSeverity = connectionErrorNotice?.severity ?? null;
 	// Reset "Connecting…" state when the page is restored from bfcache
 	// (e.g. user hits Back after being redirected to the auth page).
 	useEffect( () => {

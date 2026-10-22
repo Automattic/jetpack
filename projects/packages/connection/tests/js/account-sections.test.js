@@ -17,13 +17,13 @@ describe( 'getAccountSections', () => {
 
 	for ( const [ name, state, expected ] of [
 		[
-			'broken owner with the owner banner: banner only',
-			{ owner: brokenOwner, ownerIsViewer: true, isOwnerReconnectOffered: true },
+			'broken owner with the banner: banner only',
+			{ owner: brokenOwner, ownerIsViewer: true, isErrorBannerShown: true },
 			none,
 		],
 		[
-			'broken owner without the owner banner: prompt, no row for themselves',
-			{ owner: brokenOwner, ownerIsViewer: true, isOwnerReconnectOffered: false },
+			'broken owner without the banner: prompt, no row for themselves',
+			{ owner: brokenOwner, ownerIsViewer: true, isErrorBannerShown: false },
 			{ ...none, connectPrompt: true },
 		],
 		[
@@ -32,13 +32,13 @@ describe( 'getAccountSections', () => {
 			{ ...none, connectPrompt: true },
 		],
 		[
-			'unlinked admin with the owner banner: owner row, no takeover prompt',
-			{ owner: brokenOwner, isOwnerReconnectOffered: true },
+			'unlinked admin beside a broken owner with the banner: owner row, no takeover prompt',
+			{ owner: brokenOwner, isErrorBannerShown: true },
 			{ ...none, ownerRow: true },
 		],
 		[
-			'unlinked admin offered no owner reconnect (no banner, or ownership locked): takeover prompt and owner row',
-			{ owner: brokenOwner, isOwnerReconnectOffered: false },
+			'unlinked admin beside a broken owner without the banner: takeover prompt and owner row',
+			{ owner: brokenOwner, isErrorBannerShown: false },
 			{ ...none, connectPrompt: true, ownerRow: true },
 		],
 		[
@@ -48,7 +48,7 @@ describe( 'getAccountSections', () => {
 		],
 		[
 			'linked admin beside a broken owner: owner row only',
-			{ viewer: secondAdmin, owner: brokenOwner, isOwnerReconnectOffered: true },
+			{ viewer: secondAdmin, owner: brokenOwner, isErrorBannerShown: true },
 			{ ...none, ownerRow: true },
 		],
 		[
@@ -59,6 +59,11 @@ describe( 'getAccountSections', () => {
 		[
 			'unlinked admin beside a healthy owner: prompt and owner row',
 			{ owner },
+			{ ...none, connectPrompt: true, ownerRow: true },
+		],
+		[
+			'unlinked admin beside a healthy owner with the banner: prompt stays, as connecting takes no ownership',
+			{ owner, isErrorBannerShown: true },
 			{ ...none, connectPrompt: true, ownerRow: true },
 		],
 		[
@@ -75,7 +80,7 @@ describe( 'getAccountSections', () => {
 					viewer: null,
 					ownerIsViewer: false,
 					canConnect: true,
-					isOwnerReconnectOffered: false,
+					isErrorBannerShown: false,
 					isProtectedOwnerPending: false,
 					...state,
 				} ),
