@@ -4,7 +4,7 @@
 import { isRepeatedHour, localTZDate } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { __, sprintf } from '@wordpress/i18n';
-import { endOfYear, isSameDay, startOfYear } from 'date-fns';
+import { endOfMonth, endOfYear, isSameDay, startOfMonth, startOfYear } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -13,14 +13,16 @@ import type { BucketInfo } from '@jetpack-premium-analytics/externals';
 
 type BucketDatum = { date: Date; realDate?: Date; endDate?: Date };
 
-function isWholeYear( from: Date, to: Date ): boolean {
-	return isSameDay( from, startOfYear( from ) ) && isSameDay( to, endOfYear( from ) );
+function isWholeBucket( resolution: 'month' | 'year', from: Date, to: Date ): boolean {
+	return resolution === 'month'
+		? isSameDay( from, startOfMonth( from ) ) && isSameDay( to, endOfMonth( from ) )
+		: isSameDay( from, startOfYear( from ) ) && isSameDay( to, endOfYear( from ) );
 }
 
 /**
  * The date a tooltip row names for a point: the days its own bucket covers when a
- * date-labelled bucket spans several (a week) or the range cuts a year, otherwise
- * the bucket's start.
+ * date-labelled bucket spans several (a week) or the range cuts a month or year,
+ * otherwise the bucket's start.
  *
  * @param datum             - The point; a comparison point's own dates are in `realDate`.
  * @param displayResolution - The resolution the chart labels its buckets at.
@@ -38,7 +40,8 @@ export function formatBucketTooltipDate(
 
 		if (
 			displayResolution === 'day' ||
-			( displayResolution === 'year' && ! isWholeYear( range.from, range.to ) )
+			( ( displayResolution === 'month' || displayResolution === 'year' ) &&
+				! isWholeBucket( displayResolution, range.from, range.to ) )
 		) {
 			return formatDateRange( range );
 		}

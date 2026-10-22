@@ -318,8 +318,8 @@ function toRangeBound( value: string | undefined, time: string ) {
 }
 
 // Units whose edge buckets the range cuts through are stamped with its edges, so
-// no bucket claims a day outside it (UNI-842, STATS-551).
-const CLIPPED_UNITS = new Set( [ 'week', 'year' ] );
+// no bucket claims a day outside it (UNI-842, STATS-551, STATS-554).
+const CLIPPED_UNITS = new Set( [ 'week', 'month', 'year' ] );
 
 function clipToRange(
 	range: StatsIntervalFields,
