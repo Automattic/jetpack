@@ -217,6 +217,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 
 	const handleStepsBlur = useCallback(
 		( event: React.FocusEvent< HTMLElement > ) => {
+			isPointerFocusRef.current = false;
 			if ( ! event.currentTarget.contains( event.relatedTarget ) ) {
 				clearSelection();
 			}
