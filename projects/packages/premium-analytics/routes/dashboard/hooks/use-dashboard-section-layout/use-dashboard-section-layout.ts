@@ -110,8 +110,9 @@ export function useDashboardSectionLayout(
 				const next = layout.filter( keep );
 				if ( ! fastDeepEqual( next, sectionDefault.filter( keep ) ) ) {
 					// The default's other widgets take the slot of the first stored one they replace.
+					const slot = layout.findIndex( widget => ! keep( widget ) );
 					next.splice(
-						layout.findIndex( widget => ! keep( widget ) ),
+						slot === -1 ? next.length : slot,
 						0,
 						...sectionDefault.filter( widget => ! keep( widget ) ).map( withoutOrder )
 					);

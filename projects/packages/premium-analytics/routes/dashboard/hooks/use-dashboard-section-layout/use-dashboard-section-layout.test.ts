@@ -106,6 +106,24 @@ describe( 'useDashboardSectionLayout', () => {
 		} );
 	} );
 
+	it( 'appends the default widgets a reset does not keep when none is stored', () => {
+		const defaultChart = widget( 'chart' );
+		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, {
+			traffic: [ widget( 'referrers' ), widget( 'tags' ) ],
+		} );
+		const { result } = renderHook( () =>
+			useDashboardSectionLayout( 'traffic', [
+				section( 'traffic', [ widget( 'tags' ), defaultChart, widget( 'referrers' ) ] ),
+			] )
+		);
+
+		act( () => result.current[ 2 ]( item => item.type !== 'jpa/chart' ) );
+
+		expect( storedLayouts() ).toEqual( {
+			traffic: [ widget( 'referrers' ), widget( 'tags' ), defaultChart ],
+		} );
+	} );
+
 	it( 'removes the entry on a reset that keeps only what the default already has', () => {
 		const storeCustom = [ widget( 'store-custom' ) ];
 		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, {
