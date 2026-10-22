@@ -207,6 +207,7 @@ export default function McpWrite( {
 					mcpAbilities={ mcpAbilities }
 					blogId={ blogId }
 					remoteAbilities={ remoteAbilities }
+					defaultEnabled={ pageAllEnabled }
 					query={ query }
 					anchor={ anchor }
 					savingToolIds={ savingToolIds }

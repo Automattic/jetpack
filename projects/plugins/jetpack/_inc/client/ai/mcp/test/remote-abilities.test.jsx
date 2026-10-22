@@ -97,7 +97,9 @@ describe( 'McpHub badges', () => {
 			<McpHub
 				mcpAbilities={ {
 					account: { some_tool: { title: 'Some tool', enabled: true, readonly: true } },
-					sites: [ { blog_id: 1, site_level_enabled: true, remote_groups: {} } ],
+					sites: [
+						{ blog_id: 1, site_level_enabled: true, remote_groups: { 'read:akismet': false } },
+					],
 				} }
 				blogId={ 1 }
 				activityLogUrl=""
@@ -108,6 +110,22 @@ describe( 'McpHub badges', () => {
 			/>
 		);
 		expect( screen.getByText( '1 of 2 enabled' ) ).toBeInTheDocument();
+	} );
+
+	test( 'unsaved remote abilities follow the enabled WordPress.com tools', () => {
+		render(
+			<RemoteAbilitiesSection
+				view="read"
+				mcpAbilities={ withSaved( {} ) }
+				blogId={ 1 }
+				remoteAbilities={ { abilities: CATALOG, isLoading: false, isError: false } }
+				defaultEnabled
+				query=""
+				savingToolIds={ new Set() }
+				onUpdate={ onUpdate }
+			/>
+		);
+		expect( screen.getByRole( 'switch', { name: 'Enable all' } ) ).toBeChecked();
 	} );
 } );
 

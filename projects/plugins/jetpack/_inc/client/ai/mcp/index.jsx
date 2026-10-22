@@ -231,11 +231,21 @@ export default function McpHub( {
 	// "All enabled" while a site group is off.
 	const savedRemoteGroups = getSiteRemoteGroups( mcpAbilities ?? {}, blogId );
 	const remoteTools = { read: [], write: [] };
+	const allEnabledIn = tools => tools.length > 0 && tools.every( ( [ , t ] ) => t.enabled );
+	const remoteDefaults = { read: allEnabledIn( readTools ), write: allEnabledIn( writeTools ) };
 	for ( const ability of remoteAbilities?.abilities ?? [] ) {
 		const annotations = ability.meta?.annotations;
-		remoteTools[ getRemoteAbilityCategory( ability.name, annotations ) ].push( [
+		const category = getRemoteAbilityCategory( ability.name, annotations );
+		remoteTools[ category ].push( [
 			ability.name,
-			{ enabled: isRemoteAbilityEnabled( savedRemoteGroups, ability.name, annotations ) },
+			{
+				enabled: isRemoteAbilityEnabled(
+					savedRemoteGroups,
+					ability.name,
+					annotations,
+					remoteDefaults[ category ]
+				),
+			},
 		] );
 	}
 	const readBadge =

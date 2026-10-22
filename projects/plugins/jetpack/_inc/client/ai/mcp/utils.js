@@ -109,17 +109,25 @@ export function getRemoteAbilityKey( name, annotations = {} ) {
 }
 
 /**
- * Whether a remote ability is enabled: the ability-level key when saved, else the group key.
+ * Whether a remote ability is enabled: the ability-level key when saved, else the group
+ * key, else the default.
  *
- * @param {Record<string, boolean>} savedGroups   - Saved allowlist.
- * @param {string}                  name          - Ability name.
- * @param {object}                  [annotations] - Published annotations.
+ * @param {Record<string, boolean>} savedGroups      - Saved allowlist.
+ * @param {string}                  name             - Ability name.
+ * @param {object}                  [annotations]    - Published annotations.
+ * @param {boolean}                 [defaultEnabled] - State when neither key is saved.
  * @return {boolean} True when enabled.
  */
-export function isRemoteAbilityEnabled( savedGroups, name, annotations = {} ) {
+export function isRemoteAbilityEnabled(
+	savedGroups,
+	name,
+	annotations = {},
+	defaultEnabled = false
+) {
 	return (
 		savedGroups[ getRemoteAbilityKey( name, annotations ) ] ??
-		savedGroups[ getRemoteAbilityGroupKey( name, annotations ) ] === true
+		savedGroups[ getRemoteAbilityGroupKey( name, annotations ) ] ??
+		defaultEnabled
 	);
 }
 

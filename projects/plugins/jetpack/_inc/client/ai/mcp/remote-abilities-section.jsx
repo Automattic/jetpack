@@ -84,6 +84,7 @@ export function collectNamespaces( abilities, savedGroups, view ) {
  * @param {object}         props.mcpAbilities    - Full mcp_abilities object from the API.
  * @param {number}         props.blogId          - Current site's blog ID.
  * @param {object}         props.remoteAbilities - Catalog state from useSiteAbilities.
+ * @param {boolean}        props.defaultEnabled  - State of abilities with no saved setting.
  * @param {string}         props.query           - Search text.
  * @param {string|null}    [props.anchor]        - Ability name from the URL hash, if any.
  * @param {Set}            props.savingToolIds   - Keys currently being saved.
@@ -95,6 +96,7 @@ export default function RemoteAbilitiesSection( {
 	mcpAbilities,
 	blogId,
 	remoteAbilities,
+	defaultEnabled,
 	query,
 	anchor = null,
 	savingToolIds,
@@ -177,7 +179,7 @@ export default function RemoteAbilitiesSection( {
 				</Text>
 				<Text variant="body-sm" className="jetpack-ai-mcp__muted">
 					{ __(
-						'Advanced: choose which abilities this site’s plugins publish to external AI agents. Off by default.',
+						'Advanced: choose which abilities this site’s plugins publish to external AI agents. Unset abilities follow your WordPress.com tools above.',
 						'jetpack'
 					) }
 				</Text>
@@ -209,9 +211,14 @@ export default function RemoteAbilitiesSection( {
 				const intentKeys = [ ...group.keys, ...group.abilityKeys ];
 				const allEnabled =
 					group.keys.length > 0 &&
-					[ ...group.keys, ...group.abilityKeys ].every( key => savedGroups[ key ] === true ) &&
+					intentKeys.every( key => ( savedGroups[ key ] ?? defaultEnabled ) === true ) &&
 					group.abilities.every( ability =>
-						isRemoteAbilityEnabled( savedGroups, ability.name, ability.meta?.annotations )
+						isRemoteAbilityEnabled(
+							savedGroups,
+							ability.name,
+							ability.meta?.annotations,
+							defaultEnabled
+						)
 					);
 
 				return (
@@ -239,7 +246,8 @@ export default function RemoteAbilitiesSection( {
 										enabled: isRemoteAbilityEnabled(
 											savedGroups,
 											ability.name,
-											ability.meta?.annotations
+											ability.meta?.annotations,
+											defaultEnabled
 										),
 									} }
 									view={ `mcp/${ view }` }
