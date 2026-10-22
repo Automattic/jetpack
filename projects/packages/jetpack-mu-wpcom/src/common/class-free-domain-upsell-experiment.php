@@ -119,22 +119,7 @@ class Free_Domain_Upsell_Experiment {
 			return 'control';
 		}
 
-		$cache_key = 'free-domain-upsell-variation-' . $user_id;
-		$cached    = get_transient( $cache_key );
-		if ( false !== $cached ) {
-			return (string) $cached;
-		}
-
-		$raw = self::fetch_variation();
-
-		if ( null === $raw ) {
-			return 'control';
-		}
-
-		$variation = self::normalize( $raw );
-		set_transient( $cache_key, $variation, HOUR_IN_SECONDS );
-
-		return $variation;
+		return self::normalize( self::fetch_variation() );
 	}
 
 	/**
