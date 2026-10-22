@@ -171,7 +171,7 @@ export function chartInterval< P extends StatsPeriod >(
  * @param locked    - The buckets the plan locks.
  * @param periods   - The periods the chart draws; every bucket when the widget declares none.
  * @param extension - The widget's own changes to what the range allows.
- * @return The open, withheld and locked buckets, each in the range's order, and why the withheld ones are.
+ * @return The open, withheld and locked buckets in the range's order, a widget's extras last, and the hint.
  */
 export function intervalMenuOptions(
 	params: IntervalRange,
@@ -188,13 +188,15 @@ export function intervalMenuOptions(
 	const to = params.to ?? '';
 	const { allowed, withheld } = extendedIntervals( params, locked, extension );
 	const options: IntervalType[] = periods ? drawableIntervals( allowed, periods ) : allowed;
-	const drawn = ( interval: IntervalType ) => ! periods || periods.includes( interval );
 	const lockedOptions = getLockedIntervalsForPreset( params.preset, from, to, locked ).filter(
-		interval => drawn( interval ) && ! options.includes( interval )
+		interval => ( ! periods || periods.includes( interval ) ) && ! options.includes( interval )
 	);
-	const unavailableOptions = withheld.filter( drawn );
+	const hint = withheld.length ? extension?.unavailable?.hint : undefined;
 
-	const hint = unavailableOptions.length ? extension?.unavailable?.hint : undefined;
-
-	return { options, lockedOptions, unavailableOptions, ...( hint && { unavailableHint: hint } ) };
+	return {
+		options,
+		lockedOptions,
+		unavailableOptions: withheld,
+		...( hint && { unavailableHint: hint } ),
+	};
 }

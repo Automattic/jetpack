@@ -264,15 +264,4 @@ describe( 'intervalMenuOptions', () => {
 			expected
 		);
 	} );
-
-	it( 'withholds nothing from a chart that does not draw the bucket', () => {
-		expect(
-			intervalMenuOptions(
-				LAST_90_DAYS,
-				NO_LOCKED_INTERVALS,
-				[ 'week', 'month' ] as const,
-				WITHHOLD_DAYS
-			).unavailableOptions
-		).toEqual( [] );
-	} );
 } );
