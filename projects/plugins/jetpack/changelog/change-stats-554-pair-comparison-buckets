@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Premium Analytics: Traffic summary: Compare each month or year with its matching one in the comparison period, instead of the one before it when that period crosses an extra month or year boundary.
+Premium Analytics: Compare each month or year in the Traffic summary with the matching one in the comparison period, instead of the one before it.

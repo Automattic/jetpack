@@ -121,8 +121,8 @@ export default function useTrafficChart(
 	const lcHasComparison = likesComments.hasComparison;
 	const lcZone = likesComments.timezone;
 
-	// Weeks of an arbitrary previous period seldom line up, and skipping one there would
-	// leave the current week without a comparison, so only year-ago weeks shift.
+	// Shifting can leave the last current bucket uncompared. Months and years accept that to
+	// pair by period; a previous period's weeks seldom line up, so they keep pairing by index.
 	const alignsBuckets =
 		period === 'month' ||
 		period === 'year' ||

@@ -263,14 +263,16 @@ describe( 'useTrafficChart', () => {
 			primaryRows,
 			expected
 		) => {
-			const buckets = ( rows: ReadonlyArray< readonly [ string, number ] > ) => ( {
+			const buckets = ( path: string, rows: ReadonlyArray< readonly [ string, number ] > ) => ( {
 				unit,
-				fields: [ 'period', 'views', 'visitors' ],
-				data: rows.map( ( [ period, views ] ) => [ period, views, 1 ] ),
+				fields: path.includes( 'views' )
+					? [ 'period', 'views', 'visitors' ]
+					: [ 'period', 'likes', 'comments' ],
+				data: rows.map( ( [ period, value ] ) => [ period, value, 1 ] ),
 			} );
 			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
 				Promise.resolve(
-					buckets( path.includes( `date=${ compareTo }` ) ? comparisonRows : primaryRows )
+					buckets( path, path.includes( `date=${ compareTo }` ) ? comparisonRows : primaryRows )
 				)
 			);
 
@@ -292,11 +294,13 @@ describe( 'useTrafficChart', () => {
 
 			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
-			const views = result.current.metrics[ 0 ];
-			expect( views.previous?.map( point => point.value ) ).toEqual( expected );
-			expect( views.previousValue ).toBe(
-				comparisonRows.reduce( ( total, [ , value ] ) => total + value, 0 )
-			);
+			for ( const key of [ 'views', 'likes' ] ) {
+				const metric = result.current.metrics.find( tab => tab.key === key );
+				expect( metric?.previous?.map( point => point.value ) ).toEqual( expected );
+				expect( metric?.previousValue ).toBe(
+					comparisonRows.reduce( ( total, [ , value ] ) => total + value, 0 )
+				);
+			}
 		}
 	);
 

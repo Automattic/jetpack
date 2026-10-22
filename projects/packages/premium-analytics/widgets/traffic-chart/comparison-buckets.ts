@@ -49,7 +49,7 @@ export function getComparisonBucketShift(
 	const offsetMs = primaryStart.getTime() - comparisonStart.getTime();
 	let best = { shift: 0, overlap: -1 };
 
-	// Shift even when the counts match: a one-day week at each end evens them.
+	// Shift even when the counts match: a stub at each end evens them.
 	for ( let shift = 0; shift < comparison.length; shift++ ) {
 		const overlap = primary.reduce(
 			( total, bucket, index ) =>
