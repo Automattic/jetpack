@@ -393,9 +393,11 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 
 		$posts = array();
 		foreach ( $query->posts as $post ) {
-			$metrics = $summary_by_id[ $post->ID ] ?? null;
-			$title   = get_the_title( $post );
-			$image   = get_the_post_thumbnail_url( $post, 'thumbnail' );
+			$metrics     = $summary_by_id[ $post->ID ] ?? null;
+			$title       = get_the_title( $post );
+			$image       = get_the_post_thumbnail_url( $post, 'thumbnail' );
+			$total_sends = is_array( $metrics ) && is_numeric( $metrics['total_sends'] ?? null ) ? (int) $metrics['total_sends'] : null;
+			$recipients  = $total_sends ? $total_sends : null;
 
 			$posts[] = array(
 				'id'               => (int) $post->ID,
@@ -404,9 +406,9 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 				'date'             => get_post_time( DATE_W3C, true, $post ),
 				'url'              => get_permalink( $post ),
 				'image'            => false !== $image ? $image : null,
-				'recipients'       => is_array( $metrics ) && is_numeric( $metrics['total_sends'] ?? null ) ? (int) $metrics['total_sends'] : null,
-				'openRatePercent'  => is_array( $metrics ) && is_numeric( $metrics['opens_rate'] ?? null ) ? (float) $metrics['opens_rate'] : null,
-				'clickRatePercent' => is_array( $metrics ) && is_numeric( $metrics['clicks_rate'] ?? null ) ? (float) $metrics['clicks_rate'] : null,
+				'recipients'       => $recipients,
+				'openRatePercent'  => $recipients && is_array( $metrics ) && is_numeric( $metrics['opens_rate'] ?? null ) ? (float) $metrics['opens_rate'] : null,
+				'clickRatePercent' => $recipients && is_array( $metrics ) && is_numeric( $metrics['clicks_rate'] ?? null ) ? (float) $metrics['clicks_rate'] : null,
 			);
 		}
 
