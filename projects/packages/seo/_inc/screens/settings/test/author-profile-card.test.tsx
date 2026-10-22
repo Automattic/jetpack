@@ -122,7 +122,7 @@ describe( 'AuthorProfileCard', () => {
 		mockApiFetch.mockResolvedValue( {
 			...STORED_PROFILE,
 			description: '',
-			accountProfileUrl: 'https://wordpress.com/me/account',
+			accountProfileUrl: 'https://my.wordpress.com/me/account',
 		} );
 		renderCard();
 		expand();
@@ -135,7 +135,7 @@ describe( 'AuthorProfileCard', () => {
 		expect( screen.queryByRole( 'textbox', { name: 'Website' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Edit on WordPress.com/ } ) ).toHaveAttribute(
 			'href',
-			'https://wordpress.com/me/account'
+			'https://my.wordpress.com/me/account'
 		);
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- single change; see note above.

@@ -233,7 +233,7 @@ class Author_Schema_Node {
 			'jobTitle'          => (string) get_user_meta( $user_id, self::META_JOB_TITLE, true ),
 			'sameAs'            => self::sanitize_url_list( get_user_meta( $user_id, self::META_SAME_AS, true ) ),
 			'avatarUrl'         => (string) get_avatar_url( $user_id, array( 'size' => 96 ) ),
-			'accountProfileUrl' => self::is_account_profile( $user_id ) ? 'https://wordpress.com/me/account' : '',
+			'accountProfileUrl' => self::is_account_profile( $user_id ) ? 'https://my.wordpress.com/me/account' : '',
 		);
 	}
 

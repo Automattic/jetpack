@@ -425,7 +425,7 @@ class SchemaSettingsControllerTest extends TestCase {
 		}
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( 'https://wordpress.com/me/account', $response->get_data()['accountProfileUrl'] );
+		$this->assertSame( 'https://my.wordpress.com/me/account', $response->get_data()['accountProfileUrl'] );
 		$user = get_userdata( $admin->ID );
 		$this->assertSame( 'Jane Doe', $user->display_name );
 		$this->assertSame( 'Original bio.', $user->description );
