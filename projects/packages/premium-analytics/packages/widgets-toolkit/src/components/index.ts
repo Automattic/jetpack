@@ -126,6 +126,7 @@ export {
 	type PostHighlightCardProps,
 } from './post-highlight-card';
 export { VideoTitleLink, type VideoTitleLinkProps } from './video-title-link';
+export { ViewLiveLink, type ViewLiveLinkProps } from './view-live-link';
 export {
 	SubscriberList,
 	SubscriberListSkeleton,

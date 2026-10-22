@@ -1,14 +1,17 @@
 /**
  * External dependencies
  */
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { toDetailId } from '../../helpers/detail-id';
 import { ExternalLink } from '../external-link';
 import { InternalLink, type InternalLinkProps } from '../internal-link';
 import { PostTitleLink } from '../post-title-link';
 import { VideoTitleLink } from '../video-title-link';
+import { ViewLiveLink } from '../view-live-link';
 import { LeaderboardLabel, type LeaderboardRowMedia } from './leaderboard-label';
 import styles from './leaderboard-label.module.scss';
 import type { LeaderboardVariant } from './leaderboard-variant';
@@ -23,7 +26,10 @@ export type LeaderboardRowAction =
 			kind: 'postLink';
 			/** Post or page ID. Rows carrying one link to the internal detail route. */
 			id?: number | string;
-			/** Public URL. It becomes the link itself when there is no post ID. */
+			/**
+			 * Public URL. Beside a post ID it is the row's "View" action; without
+			 * one it becomes the link itself.
+			 */
 			href?: string | null;
 			/**
 			 * Required, so a row cannot silently open the detail page on its own
@@ -36,7 +42,10 @@ export type LeaderboardRowAction =
 			kind: 'videoLink';
 			/** Video ID. Rows carrying one link to the internal detail route. */
 			id?: number | string;
-			/** Public URL. It becomes the link itself when there is no video ID. */
+			/**
+			 * Public URL. Beside a video ID it is the row's "View" action; without
+			 * one it becomes the link itself.
+			 */
 			href?: string | null;
 			/**
 			 * Required, so a row cannot silently open the detail page on its own
@@ -134,9 +143,37 @@ export function LeaderboardRow( {
 	const rowClassName = clsx( styles.row, variant === 'bars' && styles.bars );
 	const rowLinkClassName = clsx( styles.rowLink, variant === 'bars' && styles.bars );
 
-	// Title-link rows put the row chrome on the link itself.
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
+		const withMedia = action.kind === 'videoLink' && media.kind !== 'none';
+
+		// A row with a detail page and a public URL holds two links, so the row
+		// chrome goes on a wrapper: the title opens the detail page, and a
+		// trailing "View" action opens the live content.
+		if ( toDetailId( action.id ) !== undefined && safeHttpUrl( action.href ) ) {
+			const detailLinkProps = {
+				id: action.id,
+				label,
+				link: action.href,
+				search: action.search,
+				classNames: { internal: styles.labelLink, text: styles.label },
+			};
+
+			return (
+				<span className={ rowClassName } title={ label }>
+					{ withMedia ? (
+						<VideoTitleLink { ...detailLinkProps }>
+							<LeaderboardLabel label={ label } media={ media } decorativeMedia />
+						</VideoTitleLink>
+					) : (
+						<TitleLink { ...detailLinkProps } />
+					) }
+					<ViewLiveLink href={ action.href } label={ label } className={ styles.viewAction } />
+				</span>
+			);
+		}
+
+		// With one link, the row chrome goes on the link itself.
 		const titleLinkProps = {
 			id: action.id,
 			label,
@@ -151,7 +188,7 @@ export function LeaderboardRow( {
 			},
 		};
 
-		if ( action.kind === 'videoLink' && media.kind !== 'none' ) {
+		if ( withMedia ) {
 			return (
 				<VideoTitleLink { ...titleLinkProps }>
 					<LeaderboardLabel label={ label } media={ media } decorativeMedia />

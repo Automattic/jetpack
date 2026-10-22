@@ -13,6 +13,7 @@ import {
 	LeaderboardSkeleton,
 	MetricList,
 	PostTitleLink,
+	ViewLiveLink,
 	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	WidgetState,
@@ -176,6 +177,7 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 					title={ row.label }
 				/>
 			),
+			action: <ViewLiveLink href={ row.link } label={ row.label } />,
 			value: [
 				<span key="count" aria-hidden="true">
 					<AbbreviatedValue

@@ -252,6 +252,60 @@ describe( 'buildLeaderboardRow', () => {
 		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveAttribute( 'href', '/post/5' );
 	} );
 
+	it( 'adds a "View" action beside the title when a post row also has a public URL', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Hello',
+			media: { kind: 'none' },
+			action: { kind: 'postLink', id: 5, href: 'https://example.com/hello/', search: {} },
+		} );
+
+		render( row.label );
+
+		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveAttribute(
+			'href',
+			expect.stringMatching( /^\/post\/5/ )
+		);
+		const view = screen.getByRole( 'link', { name: 'View "Hello" in a new tab' } );
+		expect( view ).toHaveAttribute( 'href', 'https://example.com/hello/' );
+		expect( view ).toHaveAttribute( 'target', '_blank' );
+		// The row chrome moves to the wrapper, so the look still applies.
+		expect( screen.getByTitle( 'Hello' ) ).toHaveClass( 'row' );
+		expect( screen.getByTitle( 'Hello' ) ).toContainElement( view );
+	} );
+
+	it( 'keeps a video row thumbnail inside its detail link, next to the "View" action', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Launch',
+			media: { kind: 'thumbnail', url: 'https://example.com/p.jpg', alt: '' },
+			action: { kind: 'videoLink', id: 12, href: 'https://example.com/launch/', search: {} },
+			variant: 'bars',
+		} );
+
+		render( row.label );
+
+		expect( screen.getByRole( 'link', { name: 'Launch' } ) ).toContainElement(
+			screen.getByRole( 'presentation' )
+		);
+		expect( screen.getByRole( 'link', { name: 'View "Launch" in a new tab' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/launch/'
+		);
+		expect( screen.getByTitle( 'Launch' ) ).toHaveClass( 'bars' );
+	} );
+
+	it( 'offers no "View" action when the public URL has an unsupported scheme', () => {
+		render(
+			buildLeaderboardRow( {
+				label: 'Hello',
+				media: { kind: 'none' },
+				action: { kind: 'postLink', id: 5, href: 'javascript:alert(1)', search: {} },
+			} ).label
+		);
+
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
+		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveAttribute( 'href', '/post/5' );
+	} );
+
 	it( 'returns chart button props for a drill-down without nesting an action', () => {
 		const onClick = jest.fn();
 		const row = buildLeaderboardRow( {

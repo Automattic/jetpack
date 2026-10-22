@@ -5,6 +5,7 @@ import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 /**
  * Internal dependencies
  */
+import { toDetailId } from '../../helpers/detail-id';
 import { ExternalLink } from '../external-link';
 import { InternalLink } from '../internal-link';
 import type { JSX } from 'react';
@@ -79,13 +80,13 @@ export function PostTitleLink( {
 	classNames,
 	title,
 }: PostTitleLinkProps ): JSX.Element {
-	const postId = Number( id );
+	const postId = toDetailId( id );
 	const text = <span className={ classNames?.text }>{ label }</span>;
 	// Callers pass `link` straight from report data, so the scheme is guarded
 	// here at the sink rather than in each consuming widget or route.
 	const href = safeHttpUrl( link );
 
-	if ( Number.isInteger( postId ) && postId > 0 ) {
+	if ( postId !== undefined ) {
 		return (
 			<InternalLink
 				className={ classNames?.internal }

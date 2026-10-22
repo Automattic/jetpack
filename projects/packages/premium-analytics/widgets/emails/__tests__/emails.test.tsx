@@ -101,6 +101,14 @@ describe( 'EmailsList', () => {
 		}
 	);
 
+	it( 'offers the live email in a new tab beside the title', () => {
+		renderEmailsList( 'opens' );
+
+		expect(
+			screen.getByRole( 'link', { name: 'View "Monthly newsletter" in a new tab' } )
+		).toHaveAttribute( 'href', 'https://example.com/newsletter/' );
+	} );
+
 	it( 'keeps rows in the same order for either metric', () => {
 		const orderRows = [
 			row( { id: 1, label: 'Newer', opens: 5, clicks: 50 } ),

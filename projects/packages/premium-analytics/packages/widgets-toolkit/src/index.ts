@@ -114,6 +114,8 @@ export {
 	type PostHighlightCardProps,
 	VideoTitleLink,
 	type VideoTitleLinkProps,
+	ViewLiveLink,
+	type ViewLiveLinkProps,
 	SubscriberList,
 	SubscriberListSkeleton,
 	type SubscriberListItem,
