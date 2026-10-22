@@ -108,8 +108,7 @@ class LCP_Optimize_Img_Tag {
 		}
 
 		// Check optimizations object for srcset.
-		// The cloud sets srcset to false when custom focal points are detected
-		// (resize would use center-crop, losing the author's object-position).
+		// The cloud sets srcset to false when custom focal points are detected.
 		$apply_srcset = LCP_Optimization_Util::should_apply_optimization( $this->lcp_data, 'srcset' );
 
 		// srcset uses CDN URLs internally (via Image_CDN_Core::cdn_url), so skip if CDN is disabled.
@@ -136,7 +135,7 @@ class LCP_Optimize_Img_Tag {
 			return $element;
 		}
 
-		$srcset = $this->get_srcset( $image_url );
+		$srcset = $this->get_srcset( $image_url, $this->get_aspect_ratio( $element ) );
 		if ( ! empty( $srcset ) ) {
 			$element->set_attribute( 'srcset', $srcset );
 		}
@@ -150,15 +149,33 @@ class LCP_Optimize_Img_Tag {
 	}
 
 	/**
+	 * Get the image's aspect ratio from its width and height attributes.
+	 *
+	 * @param WP_HTML_Tag_Processor $element The image tag.
+	 * @return float|null Width divided by height, or null if either attribute is missing.
+	 */
+	private function get_aspect_ratio( $element ) {
+		$width  = $element->get_attribute( 'width' );
+		$height = $element->get_attribute( 'height' );
+
+		if ( ! is_numeric( $width ) || ! is_numeric( $height ) || (float) $width <= 0 || (float) $height <= 0 ) {
+			return null;
+		}
+
+		return (float) $width / (float) $height;
+	}
+
+	/**
 	 * Get the srcsets for an image.
 	 *
-	 * @param string $original_url The original image URL.
+	 * @param string     $original_url The original image URL.
+	 * @param float|null $aspect_ratio The image's width divided by its height, if known.
 	 * @return string The srcset for the image.
 	 *
 	 * @since 4.1.0
 	 */
-	private function get_srcset( $original_url ) {
-		$dimensions = array();
+	private function get_srcset( $original_url, $aspect_ratio = null ) {
+		$widths = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
 			// The field is optional; the background-image sibling has always carried
 			// this guard, and without it an absent one is a foreach() TypeError on
@@ -182,35 +199,41 @@ class LCP_Optimize_Img_Tag {
 					continue;
 				}
 
-				$width  = (int) $breakpoint_dimensions['width'];
-				$height = (int) $breakpoint_dimensions['height'];
+				$width = (int) $breakpoint_dimensions['width'];
 
-				$dimensions[ $width ] = $height;
+				// The box can be shaped differently from the image (object-fit), so size the
+				// image to cover it: wide enough that its height fills the box too.
+				if ( $aspect_ratio ) {
+					$width = max( $width, (int) ceil( (int) $breakpoint_dimensions['height'] * $aspect_ratio ) );
+				}
+
+				$widths[] = $width;
 
 				// If it's a Moto G Power, include a 1.75 DPR for accurate lighthouse representation of the optimized image.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] === 412 ) {
-					$dimensions[ (int) round( $width * 1.75 ) ] = round( $height * 1.75 );
+					$widths[] = (int) round( $width * 1.75 );
 				}
 
 				// Include 2x DPR.
-				$dimensions[ $width * 2 ] = $height * 2;
+				$widths[] = $width * 2;
 
 				// If it's a mobile breakpoint, include 3x DPR.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] <= 480 ) {
-					$dimensions[ $width * 3 ] = $height * 3;
+					$widths[] = $width * 3;
 				}
 			}
 		}
 
 		// Remove unnecessary widths to save some bytes in the HTML.
-		$reduced_widths = $this->reduce_widths( array_keys( $dimensions ) );
+		$reduced_widths = $this->reduce_widths( array_unique( $widths ) );
 
 		$srcset = array();
 		foreach ( $reduced_widths as $width ) {
+			// Scale by width only: resize would crop to the box, and CSS cannot restore cropped pixels.
 			$srcset[] = Image_CDN_Core::cdn_url(
 				$original_url,
 				array(
-					'resize' => array( $width, $dimensions[ $width ] ),
+					'w' => $width,
 				)
 			) . " {$width}w";
 		}
