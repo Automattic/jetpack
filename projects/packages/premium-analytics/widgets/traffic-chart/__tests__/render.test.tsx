@@ -201,6 +201,7 @@ describe( 'TrafficChart bucket size', () => {
 	it.each( [
 		[ 'week', 'day' ],
 		[ 'month', 'week' ],
+		[ 'year', 'year' ],
 	] as const )( 'draws the saved bucket: %s', ( chartInterval, range ) => {
 		render(
 			<TrafficChartRender attributes={ { reportParams: reportParams( range ), chartInterval } } />

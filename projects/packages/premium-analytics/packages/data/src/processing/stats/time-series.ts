@@ -248,9 +248,11 @@ function toRangeBound( value: string | undefined, time: string ) {
 	return datePart ? formatDatePartWithTime( datePart, time ) : '';
 }
 
-// A week the requested range cuts through is stamped with the range's edge, so
-// no bucket claims a day outside it (UNI-842).
-function clipWeekToRange(
+// Units whose edge buckets the range cuts through are stamped with its edges, so
+// no bucket claims a day outside it (UNI-842, STATS-551).
+const CLIPPED_UNITS = new Set( [ 'week', 'year' ] );
+
+function clipToRange(
 	range: StatsIntervalFields,
 	start: string,
 	end: string
@@ -290,7 +292,7 @@ export function sanitizeStatsTimeSeriesResponse(
 
 		return {
 			row,
-			range: unit === 'week' ? clipWeekToRange( range, rangeStart, rangeEnd ) : range,
+			range: CLIPPED_UNITS.has( unit ) ? clipToRange( range, rangeStart, rangeEnd ) : range,
 		};
 	} );
 	// Filter before the summary, so dropped buckets inflate neither the totals nor
