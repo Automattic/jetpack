@@ -30,11 +30,13 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 	 * Track page views with the WordPress.com identity, including local-only users' events.
 	 *
 	 * @dataProvider tracking_identity_provider
-	 * @param bool $is_wpcom      Whether this is a Simple site.
-	 * @param int  $wpcom_user_id The Atomic user's WordPress.com ID, or zero for a local-only user.
+	 * @param bool       $is_wpcom          Whether this is a Simple site.
+	 * @param int        $wpcom_user_id     The Atomic user's WordPress.com ID, or zero for a local-only user.
+	 * @param array|null $wpcom_user_data   Cached WordPress.com user data.
+	 * @param string     $expected_username The username sent to Tracks.
 	 */
 	#[DataProvider( 'tracking_identity_provider' )]
-	public function test_page_view_tracking_identity( $is_wpcom, $wpcom_user_id ) {
+	public function test_page_view_tracking_identity( $is_wpcom, $wpcom_user_id, $wpcom_user_data, $expected_username ) {
 		define( 'IS_WPCOM', $is_wpcom );
 		define( 'IS_ATOMIC', ! $is_wpcom );
 		define( 'WP_NETWORK_ADMIN', false );
@@ -57,6 +59,9 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 		set_current_screen( 'dashboard' );
 		if ( $wpcom_user_id ) {
 			update_user_meta( $user_id, 'wpcom_user_id', $wpcom_user_id );
+		}
+		if ( null !== $wpcom_user_data ) {
+			update_user_meta( $user_id, 'wpcom_user_data', (object) $wpcom_user_data );
 		}
 		if ( $is_wpcom ) {
 			require_once ABSPATH . WPINC . '/class-wp-site.php';
@@ -82,7 +87,7 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 			$this->assertStringContainsString( "[ 'recordEvent', '$event_name',", $output );
 			$this->assertStringContainsString( 'is_local_only_user: ' . ( 0 === $expected_user_id ? 'true' : 'false' ), $output );
 			if ( $expected_user_id > 0 ) {
-				$this->assertStringContainsString( "[ 'identifyUser', $expected_user_id, \"tracking-test-user\" ]", $output );
+				$this->assertStringContainsString( "[ 'identifyUser', $expected_user_id, \"$expected_username\" ]", $output );
 			} else {
 				$this->assertStringNotContainsString( 'identifyUser', $output );
 			}
@@ -93,10 +98,20 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 	 * @return array Tracking identities for Simple and Atomic users.
 	 */
 	public static function tracking_identity_provider() {
+		$wpcom_user_data = array(
+			'ID'    => 456,
+			'login' => 'wpcom-tracking-user',
+		);
+		$stale_user_data = array(
+			'ID'    => 789,
+			'login' => 'previous-wpcom-user',
+		);
 		return array(
-			'Simple user'            => array( true, 0 ),
-			'Atomic connected user'  => array( false, 456 ),
-			'Atomic local-only user' => array( false, 0 ),
+			'Simple user'                   => array( true, 0, null, 'tracking-test-user' ),
+			'Atomic connected user'         => array( false, 456, $wpcom_user_data, 'wpcom-tracking-user' ),
+			'Atomic without cached user'    => array( false, 456, null, 'tracking-test-user' ),
+			'Atomic with stale cached user' => array( false, 456, $stale_user_data, 'tracking-test-user' ),
+			'Atomic local-only user'        => array( false, 0, null, 'tracking-test-user' ),
 		);
 	}
 

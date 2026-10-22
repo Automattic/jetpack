@@ -43,17 +43,21 @@ class WPCOM_Unified_Admin_Page_View_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @dataProvider user_meta_provider
 	 *
-	 * @param bool $is_wpcom         Whether the site is a WordPress.com site.
-	 * @param bool $is_automattician Whether the user is an Automattician.
-	 * @param bool $is_network_admin Whether the user is a network admin.
-	 * @param int  $wpcom_user_id    The connected WordPress.com user ID, or zero for local-only users.
+	 * @param bool       $is_wpcom          Whether the site is a WordPress.com site.
+	 * @param bool       $is_automattician  Whether the user is an Automattician.
+	 * @param bool       $is_network_admin Whether the user is a network admin.
+	 * @param int        $wpcom_user_id    The connected WordPress.com user ID, or zero for local-only users.
+	 * @param array|null $wpcom_user_data  Cached WordPress.com user data.
+	 * @param string     $expected_username The username sent to Tracks.
 	 */
 	#[DataProvider( 'user_meta_provider' )]
 	public function test_all_users_page_view_event(
 		$is_wpcom,
 		$is_automattician,
 		$is_network_admin,
-		$wpcom_user_id
+		$wpcom_user_id,
+		$wpcom_user_data,
+		$expected_username
 	) {
 		define( 'IS_WPCOM', $is_wpcom );
 		define( 'WP_NETWORK_ADMIN', $is_network_admin );
@@ -69,6 +73,9 @@ class WPCOM_Unified_Admin_Page_View_Test extends \WorDBless\BaseTestCase {
 		$this->assertIsInt( $user_id );
 		$GLOBALS['current_user'] = get_userdata( $user_id );
 		set_current_screen( $is_network_admin ? 'dashboard-network' : 'dashboard' );
+		if ( null !== $wpcom_user_data ) {
+			update_user_meta( $user_id, 'wpcom_user_data', (object) $wpcom_user_data );
+		}
 
 		if ( $is_wpcom ) {
 			require_once ABSPATH . WPINC . '/class-wp-site.php';
@@ -91,7 +98,7 @@ class WPCOM_Unified_Admin_Page_View_Test extends \WorDBless\BaseTestCase {
 		ob_start();
 		try {
 			wpcom_unified_track_admin_page_views();
-			$output = ob_get_contents();
+			$output = (string) ob_get_contents();
 		} finally {
 			ob_end_clean();
 		}
@@ -99,7 +106,7 @@ class WPCOM_Unified_Admin_Page_View_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( "[ 'recordEvent', 'wpcom_unified_admin_page_view', _admin_pv_props ]", $output );
 		$expected_user_id = $is_wpcom ? $user_id : $wpcom_user_id;
 		if ( $expected_user_id > 0 ) {
-			$this->assertStringContainsString( "[ 'identifyUser', $expected_user_id, \"tracking-test-user\" ]", $output );
+			$this->assertStringContainsString( "[ 'identifyUser', $expected_user_id, \"$expected_username\" ]", $output );
 		} else {
 			$this->assertStringNotContainsString( 'identifyUser', $output );
 		}
@@ -119,11 +126,21 @@ class WPCOM_Unified_Admin_Page_View_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public static function user_meta_provider(): array {
+		$wpcom_user_data = array(
+			'ID'    => 456,
+			'login' => 'wpcom-tracking-user',
+		);
+		$stale_user_data = array(
+			'ID'    => 789,
+			'login' => 'previous-wpcom-user',
+		);
 		return array(
-			'Simple Automattician'   => array( true, true, false, 0 ),
-			'Simple network admin'   => array( true, false, true, 0 ),
-			'Atomic connected user'  => array( false, false, false, 456 ),
-			'Atomic local-only user' => array( false, false, false, 0 ),
+			'Simple Automattician'          => array( true, true, false, 0, null, 'tracking-test-user' ),
+			'Simple network admin'          => array( true, false, true, 0, null, 'tracking-test-user' ),
+			'Atomic connected user'         => array( false, false, false, 456, $wpcom_user_data, 'wpcom-tracking-user' ),
+			'Atomic without cached user'    => array( false, false, false, 456, null, 'tracking-test-user' ),
+			'Atomic with stale cached user' => array( false, false, false, 456, $stale_user_data, 'tracking-test-user' ),
+			'Atomic local-only user'        => array( false, false, false, 0, null, 'tracking-test-user' ),
 		);
 	}
 }

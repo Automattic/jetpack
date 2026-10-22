@@ -49,9 +49,13 @@ function wpcom_nosara_track_admin_page_views() {
 		$user_types = wpcom_atomic_get_user_types();
 	}
 
-	$wpcom_user_id = $is_simple_site
+	$wpcom_user_id   = $is_simple_site
 		? absint( $current_user->ID )
 		: (int) get_user_meta( absint( $current_user->ID ), 'wpcom_user_id', true );
+	$wpcom_user_data = $is_simple_site ? null : get_user_meta( absint( $current_user->ID ), 'wpcom_user_data', true );
+	$user_login      = (int) ( $wpcom_user_data->ID ?? 0 ) === $wpcom_user_id && ! empty( $wpcom_user_data->login )
+		? $wpcom_user_data->login
+		: $current_user->user_login;
 	?>
 	<script type="text/javascript">
 		var _admin_pv_props = {
@@ -64,7 +68,7 @@ function wpcom_nosara_track_admin_page_views() {
 		};
 		_tkq = window._tkq || [];
 		<?php if ( $wpcom_user_id > 0 ) : ?>
-		_tkq.push( [ 'identifyUser', <?php echo (int) $wpcom_user_id; ?>, <?php echo wp_json_encode( $current_user->user_login, JSON_HEX_TAG ); ?> ] );
+		_tkq.push( [ 'identifyUser', <?php echo (int) $wpcom_user_id; ?>, <?php echo wp_json_encode( $user_login, JSON_HEX_TAG ); ?> ] );
 		<?php endif; ?>
 		_tkq.push( [ 'recordEvent', 'wpcom_admin_page_view', _admin_pv_props ] );
 	</script>
@@ -102,15 +106,19 @@ function wpcom_track_customizer_from_frontend() {
 		return;
 	}
 
-	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-	$wpcom_user_id  = $is_simple_site
+	$is_simple_site  = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$wpcom_user_id   = $is_simple_site
 		? absint( $current_user->ID )
 		: (int) get_user_meta( absint( $current_user->ID ), 'wpcom_user_id', true );
+	$wpcom_user_data = $is_simple_site ? null : get_user_meta( absint( $current_user->ID ), 'wpcom_user_data', true );
+	$user_login      = (int) ( $wpcom_user_data->ID ?? 0 ) === $wpcom_user_id && ! empty( $wpcom_user_data->login )
+		? $wpcom_user_data->login
+		: $current_user->user_login;
 	?>
 	<script type="text/javascript">
 		_tkq = window._tkq || [];
 		<?php if ( $wpcom_user_id > 0 ) : ?>
-		_tkq.push( [ 'identifyUser', <?php echo (int) $wpcom_user_id; ?>, <?php echo wp_json_encode( $current_user->user_login, JSON_HEX_TAG ); ?> ] );
+		_tkq.push( [ 'identifyUser', <?php echo (int) $wpcom_user_id; ?>, <?php echo wp_json_encode( $user_login, JSON_HEX_TAG ); ?> ] );
 		<?php endif; ?>
 		_tkq.push( [ 'recordEvent', 'wpcom_customize_loaded_from_frontend', {
 			blog_id: '<?php echo (int) \get_wpcom_blog_id(); ?>',

@@ -7,7 +7,7 @@ export const wpcomTrackEvent = (
 	const currentUser = window.JP_CONNECTION_INITIAL_STATE?.userConnectionData?.currentUser ?? {};
 
 	const userId = eventUserId ?? currentUser.wpcomUser?.ID;
-	const username = eventUsername ?? currentUser.username;
+	const username = eventUsername ?? ( currentUser.wpcomUser?.login || currentUser.username );
 	const blogId = eventProperties.blogId ?? currentUser.blogId;
 
 	window._tkq = window._tkq || [];
