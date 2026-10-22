@@ -20,6 +20,7 @@ import { useCallback } from 'react';
  */
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { onboardingTourSteps } from './components';
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
 	useActiveSection,
@@ -403,12 +404,8 @@ jest.mock( './components', () => ( {
 		<div data-testid="locked-section">{ section }</div>
 	),
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
-	onboardingTourSteps: () => [],
-	PlanLimitNotice: () => <div data-testid="plan-limit-notice" />,
-	hasPurchaseSuccess: jest.requireActual(
-		'./components/purchase-success-notice/purchase-success-notice'
-	).hasPurchaseSuccess,
-	PurchaseSuccessNotice: () => <div data-testid="purchase-success-notice" />,
+	onboardingTourSteps: jest.fn( () => [] ),
+	DashboardNotices: () => <div data-testid="dashboard-notices" />,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
@@ -890,24 +887,13 @@ describe( 'Dashboard feedback banner', () => {
 		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'puts the plan limit notice away while the reader arranges the layout', async () => {
+	it( 'puts the Stats notices away while the reader arranges the layout', async () => {
 		render( <Dashboard /> );
-		expect( screen.getByTestId( 'plan-limit-notice' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'dashboard-notices' ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
-		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'thanks a reader back from checkout in place of the plan limit notice', () => {
-		window.JetpackScriptData = {
-			premium_analytics: { purchase_success: { type: 'paid' } },
-		} as typeof window.JetpackScriptData;
-
-		render( <Dashboard /> );
-
-		expect( screen.getByTestId( 'purchase-success-notice' ) ).toBeInTheDocument();
-		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'dashboard-notices' ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -1011,6 +997,20 @@ describe( 'Dashboard onboarding', () => {
 		expect( screen.getByTestId( 'onboarding-welcome-modal' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'onboarding-tour' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [ true, false ] )(
+		'tells the tour whether the plan offers a comparison (%s)',
+		offersComparison => {
+			jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison } );
+
+			render( <Dashboard /> );
+
+			expect( jest.mocked( onboardingTourSteps ) ).toHaveBeenLastCalledWith(
+				expect.anything(),
+				expect.objectContaining( { withComparison: offersComparison } )
+			);
+		}
+	);
 
 	it( 'runs the tour once the modal hands over', () => {
 		useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'tour' } );

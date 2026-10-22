@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import SearchTermsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -22,12 +22,9 @@ describe( 'SearchTermsWidget', () => {
 		mockApiFetch.mockResolvedValue( { date: '2026-06-22', days: {} } );
 	} );
 
-	it( 'links to the Search Terms report', () => {
-		render( <SearchTermsWidget attributes={ {} } /> );
+	it( 'declares View all to the Search Terms report', () => {
+		const { declaredLink } = renderWithActionsHost( <SearchTermsWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/search-terms' )
-		);
+		expect( declaredLink( 'view-all' )?.href ).toContain( '%2Freports%2Fsearch-terms' );
 	} );
 } );

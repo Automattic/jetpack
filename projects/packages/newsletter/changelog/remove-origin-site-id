@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Reader: Stop adding the `origin_site_id` parameter to Reader links.
