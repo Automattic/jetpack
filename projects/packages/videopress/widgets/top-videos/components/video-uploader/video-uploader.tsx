@@ -5,22 +5,15 @@ import { Stack, WidgetFooter } from '@automattic/jetpack-premium-analytics-sdk';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { useCallback, useState, type ReactNode } from 'react';
+import { useCallback, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
 import UploadDropzone from '../../../../src/dashboard/components/upload-dropzone';
-import { startVideoUpload } from '../../../../src/dashboard/utils/start-video-upload';
 import { UploadProgress } from '../upload-progress';
 import { UploadedVideo } from '../uploaded-video';
 import './video-uploader.scss';
-import type { VideoMediaProps } from '../../../../src/client/lib/resumable-file-uploader/types';
-
-type UploadPhase =
-	| { status: 'idle' }
-	| { status: 'uploading'; file: File; progress: number }
-	| { status: 'failed'; file: File }
-	| { status: 'uploaded'; file: File; media: VideoMediaProps };
+import type { UploadPhase } from './use-video-upload';
 
 type UploaderBodyProps = {
 	/**
@@ -75,14 +68,19 @@ function UploaderBody( { phase, onFiles, onRetry }: UploaderBodyProps ) {
 
 export type VideoUploaderProps = {
 	/**
+	 * The upload phase, held by the widget so it outlives a stats reload.
+	 */
+	phase: UploadPhase;
+
+	/**
+	 * Starts an upload of the file.
+	 */
+	onUpload: ( file: File ) => void;
+
+	/**
 	 * Rendered under the body, as the leaderboard renders its footer.
 	 */
 	footer: ReactNode;
-
-	/**
-	 * Called once the upload lands, with the media it created.
-	 */
-	onUploaded: ( media: VideoMediaProps ) => void;
 };
 
 /**
@@ -92,29 +90,8 @@ export type VideoUploaderProps = {
  * @param {VideoUploaderProps} props - Component props.
  * @return The widget body.
  */
-export function VideoUploader( { footer, onUploaded }: VideoUploaderProps ) {
-	const [ phase, setPhase ] = useState< UploadPhase >( { status: 'idle' } );
+export function VideoUploader( { phase, onUpload, footer }: VideoUploaderProps ) {
 	const { createInfoNotice } = useDispatch( noticesStore );
-
-	const upload = useCallback(
-		( file: File ) => {
-			setPhase( { status: 'uploading', file, progress: 0 } );
-			void startVideoUpload( file, {
-				onProgress: ( sent, total ) =>
-					setPhase( current =>
-						current.status === 'uploading'
-							? { ...current, progress: total > 0 ? sent / total : 0 }
-							: current
-					),
-				onSuccess: media => {
-					setPhase( { status: 'uploaded', file, media } );
-					onUploaded( media );
-				},
-				onError: () => setPhase( { status: 'failed', file } ),
-			} );
-		},
-		[ onUploaded ]
-	);
 
 	// The widget invites one video; a multi-file drop still says what happened to the rest.
 	const onFiles = useCallback(
@@ -128,15 +105,15 @@ export function VideoUploader( { footer, onUploaded }: VideoUploaderProps ) {
 					{ type: 'snackbar' }
 				);
 			}
-			upload( files[ 0 ] );
+			onUpload( files[ 0 ] );
 		},
-		[ createInfoNotice, upload ]
+		[ createInfoNotice, onUpload ]
 	);
 
 	return (
 		<Stack direction="column" className="vp-top-videos-uploader">
 			<Stack direction="column" justify="safe center" className="vp-top-videos-uploader__body">
-				<UploaderBody phase={ phase } onFiles={ onFiles } onRetry={ upload } />
+				<UploaderBody phase={ phase } onFiles={ onFiles } onRetry={ onUpload } />
 			</Stack>
 
 			<WidgetFooter>{ footer }</WidgetFooter>

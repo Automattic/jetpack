@@ -21,6 +21,7 @@ const mockIsSimpleSite = jest.fn();
 const mockCurrentUserCan = jest.fn();
 const mockInvalidateResolution = jest.fn();
 const mockVideoUploader = jest.fn();
+const mockStartVideoUpload = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	currentUserCan: ( capability: string ) => mockCurrentUserCan( capability ),
@@ -63,9 +64,15 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 	useWidgetRootContext: () => ( { reportParams: { from: '2026-06-01', to: '2026-06-16' } } ),
 } ) );
 
-// The uploader has its own suite; here it only needs to be told apart from the leaderboard.
+jest.mock( '../../../src/dashboard/utils/start-video-upload', () => ( {
+	startVideoUpload: ( ...args: unknown[] ) => mockStartVideoUpload( ...args ),
+} ) );
+
+// The uploader body has its own suite; the real hook keeps the phase, as in the widget.
 jest.mock( '../components/video-uploader', () => ( {
-	VideoUploader: ( props: { footer: ReactNode; onUploaded: ( media: unknown ) => void } ) => {
+	useVideoUpload: jest.requireActual( '../components/video-uploader/use-video-upload' )
+		.useVideoUpload,
+	VideoUploader: ( props: { footer: ReactNode } ) => {
 		mockVideoUploader( props );
 		return <div>Upload your first video{ props.footer }</div>;
 	},
@@ -106,6 +113,9 @@ const videoPlays = ( overrides: Record< string, unknown > = {} ) => ( {
 } );
 
 const leaderboardProps = () => mockLeaderboard.mock.lastCall?.[ 0 ];
+const uploaderProps = () => mockVideoUploader.mock.lastCall?.[ 0 ];
+const uploadCallbacks = () => mockStartVideoUpload.mock.lastCall?.[ 1 ];
+const videoFile = new File( [ 'x' ], 'holiday.mp4', { type: 'video/mp4' } );
 
 describe( 'Top videos widget', () => {
 	beforeEach( () => {
@@ -271,8 +281,9 @@ describe( 'Top videos widget', () => {
 		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: true } );
 		const { rerender } = render( <TopVideos attributes={ {} } /> );
 
+		act( () => uploaderProps().onUpload( videoFile ) );
 		const media = { id: 7, guid: 'abc', src: 'https://videopress.com/v/abc' };
-		act( () => mockVideoUploader.mock.lastCall?.[ 0 ].onUploaded( media ) );
+		act( () => uploadCallbacks().onSuccess( media ) );
 		// The refreshed check now finds the video; the upload body must not give way to the chart.
 		mockUseEntityRecords.mockReturnValue( { records: [ { id: 7 } ], hasResolved: true } );
 		rerender( <TopVideos attributes={ {} } /> );
@@ -283,7 +294,27 @@ describe( 'Top videos widget', () => {
 			{ per_page: 1, _fields: 'id', videopress_has_guid: 1 },
 		] );
 		expect( mockLeaderboard ).not.toHaveBeenCalled();
-		expect( screen.getByText( 'Upload your first video' ) ).toBeInTheDocument();
+		expect( uploaderProps().phase ).toEqual( { status: 'uploaded', file: videoFile, media } );
+	} );
+
+	it.each( [
+		[ 'reloads for a new range', { isLoading: true, comparisonRows: undefined } ],
+		[ 'fails', { isError: true, error: { status: 500 }, comparisonRows: { rows: [] } } ],
+	] )( 'keeps an upload in flight on screen while the stats request %s', ( _, stats ) => {
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
+		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: true } );
+		const { rerender } = render( <TopVideos attributes={ {} } /> );
+		act( () => uploaderProps().onUpload( videoFile ) );
+
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( stats ) );
+		rerender( <TopVideos attributes={ {} } /> );
+
+		expect( mockLeaderboard ).not.toHaveBeenCalled();
+		expect( uploaderProps().phase ).toEqual( {
+			status: 'uploading',
+			file: videoFile,
+			progress: 0,
+		} );
 	} );
 
 	it( 'keeps the widget loading while the empty library check is pending', () => {

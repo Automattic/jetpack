@@ -17,14 +17,13 @@ import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { video as videoIcon } from '@wordpress/icons';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { VIDEOPRESS_ADMIN_PAGE } from '../../src/dashboard/utils/constants';
 import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
-import { VideoUploader } from './components/video-uploader';
-import type { VideoMediaProps } from '../../src/client/lib/resumable-file-uploader/types';
+import { VideoUploader, useVideoUpload } from './components/video-uploader';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
@@ -126,17 +125,13 @@ function TopVideosReport() {
 	const isCheckingMedia = isCheckingPermission || ( canUpload && ! hasCheckedMedia );
 	const hasNoVideos = canUpload && videos?.length === 0;
 
-	// Keeps the upload on screen once it lands, whatever the media check answers next.
-	const [ uploadedMedia, setUploadedMedia ] = useState< VideoMediaProps | null >( null );
 	const { invalidateResolution } = useDispatch( coreStore );
+	// core-data caches the empty-library answer; drop it so the next mount sees the video.
 	const onUploaded = useCallback(
-		( media: VideoMediaProps ) => {
-			setUploadedMedia( media );
-			// core-data caches the empty-library answer; drop it so the next mount sees the video.
-			invalidateResolution( 'getEntityRecords', [ 'postType', 'attachment', mediaQuery ] );
-		},
+		() => invalidateResolution( 'getEntityRecords', [ 'postType', 'attachment', mediaQuery ] ),
 		[ invalidateResolution, mediaQuery ]
 	);
+	const { phase, upload } = useVideoUpload( onUploaded );
 
 	const footer = (
 		<>
@@ -149,8 +144,10 @@ function TopVideosReport() {
 		</>
 	);
 
-	if ( uploadedMedia || hasNoVideos ) {
-		return <VideoUploader footer={ footer } onUploaded={ onUploaded } />;
+	// Once an upload starts it stays on screen: a range change or a failed stats request
+	// must not swap it for the leaderboard, and a landed video must not give way to it.
+	if ( phase.status !== 'idle' || hasNoVideos ) {
+		return <VideoUploader phase={ phase } onUpload={ upload } footer={ footer } />;
 	}
 
 	return (
