@@ -1449,7 +1449,7 @@ describe( 'Dashboard Settings tab', () => {
 } );
 
 describe( 'Dashboard locked section', () => {
-	const visibleLayout = [ { uuid: 'chart', type: 'jpa/traffic-chart' } ];
+	const visibleLayout = [ { uuid: 'chart', type: 'jpa/traffic-chart' as const } ];
 	const onVisibleLayoutChange = jest.fn();
 
 	beforeEach( () => {
@@ -1461,10 +1461,7 @@ describe( 'Dashboard locked section', () => {
 		useLockedSectionLayoutMock.mockImplementation( ( section, layout, onLayoutChange ) =>
 			section === 'insights'
 				? {
-						lockedSection: {
-							title: 'Unlock site insights',
-							open_widget_types: [],
-						} as unknown as LockedSectionGate,
+						lockedSection: { title: 'Unlock site insights' } as LockedSectionGate,
 						visibleLayout: visibleLayout as typeof layout,
 						onVisibleLayoutChange,
 					}
@@ -1474,6 +1471,17 @@ describe( 'Dashboard locked section', () => {
 			jest.requireActual( './hooks/use-dashboard-policy' ).useDashboardPolicy
 		);
 	} );
+
+	const mockLockedLayout = ( shown: typeof visibleLayout | [] ) =>
+		useLockedSectionLayoutMock.mockImplementation( ( section, layout, onLayoutChange ) =>
+			section === 'insights'
+				? {
+						lockedSection: { open_widget_types: [ 'jpa/traffic-chart' ] } as LockedSectionGate,
+						visibleLayout: shown,
+						onVisibleLayoutChange,
+					}
+				: passThroughLockedLayout( section, layout, onLayoutChange )
+		);
 
 	it( 'shows the upgrade prompt after the open widgets, without the empty state', () => {
 		render( <Dashboard /> );
@@ -1514,6 +1522,7 @@ describe( 'Dashboard locked section', () => {
 	} );
 
 	it( 'leaves edit mode on arriving from a section being customized', async () => {
+		mockLockedLayout( [] );
 		mockSection( { slug: 'subscribers' } );
 		useActiveSectionMock.mockReturnValue( [ 'subscribers', jest.fn(), true ] );
 		mockActiveSectionSlug = 'subscribers';
@@ -1538,7 +1547,8 @@ describe( 'Dashboard locked section', () => {
 		} );
 	} );
 
-	it( 'offers no Customize on a locked section with no open widget', () => {
+	it( 'offers no Customize on a locked section that shows no widget', () => {
+		mockLockedLayout( [] );
 		render( <Dashboard /> );
 
 		expect(
@@ -1553,11 +1563,7 @@ describe( 'Dashboard locked section', () => {
 	} );
 
 	it( 'offers Customize and its tour steps on a locked section that keeps a widget open', async () => {
-		useLockedSectionLayoutMock.mockReturnValue( {
-			lockedSection: { open_widget_types: [ 'jpa/traffic-chart' ] } as LockedSectionGate,
-			visibleLayout,
-			onVisibleLayoutChange,
-		} );
+		mockLockedLayout( visibleLayout );
 
 		render( <Dashboard /> );
 

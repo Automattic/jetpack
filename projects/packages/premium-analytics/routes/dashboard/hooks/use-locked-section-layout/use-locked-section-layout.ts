@@ -34,15 +34,21 @@ export function useLockedSectionLayout(
 	);
 
 	// The policy denies insert and remove on a locked section, so a save carries the same widgets,
-	// which the stored layout takes over by uuid.
+	// which refill the open widgets' stored slots in their new order.
 	const onVisibleLayoutChange = useCallback(
 		( next: DashboardWidget[] ) => {
 			if ( ! lockedSection ) {
 				onLayoutChange( next );
 				return;
 			}
-			const saved = new Map( next.map( widget => [ widget.uuid, widget ] ) );
-			onLayoutChange( layout.map( widget => saved.get( widget.uuid ) ?? widget ) );
+			const saved = [ ...next ];
+			onLayoutChange(
+				layout.map( widget =>
+					lockedSection.open_widget_types.includes( widget.type )
+						? ( saved.shift() ?? widget )
+						: widget
+				)
+			);
 		},
 		[ lockedSection, layout, onLayoutChange ]
 	);

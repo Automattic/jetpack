@@ -1,12 +1,11 @@
 import { getLockedWidgetFeature } from '@jetpack-premium-analytics/data';
 import { useMemo } from 'react';
-import type { LockedSectionGate } from '@jetpack-premium-analytics/data';
-import type { CanPerformDashboardOperation } from '@wordpress/widget-dashboard';
+import type { CanPerformDashboardOperation, DashboardWidget } from '@wordpress/widget-dashboard';
 
 type UseDashboardPolicyParams = {
 	insertableWidgetTypes: Set< string >;
-	/** The active section's gate when the site's plan locks it. */
-	lockedSection?: LockedSectionGate;
+	/** The widgets a plan-locked section still shows; undefined when the section is open. */
+	lockedLayout?: DashboardWidget[];
 };
 
 /**
@@ -21,7 +20,7 @@ type UseDashboardPolicyParams = {
  */
 export function useDashboardPolicy( {
 	insertableWidgetTypes,
-	lockedSection,
+	lockedLayout,
 }: UseDashboardPolicyParams ): CanPerformDashboardOperation {
 	return useMemo< CanPerformDashboardOperation >(
 		() => request => {
@@ -29,23 +28,23 @@ export function useDashboardPolicy( {
 				case 'reset':
 					return false;
 				case 'customize':
-					// With no open widget, the layout is empty, which `WidgetDashboard` opens Customize over.
-					return ! lockedSection || lockedSection.open_widget_types.length > 0;
+					// `WidgetDashboard` opens Customize over an empty layout, which a locked one cannot fill.
+					return ! lockedLayout || lockedLayout.length > 0;
 				case 'insert':
 					// A locked section hides what is added. Locked types stay out of the inserter, but
 					// keep `edit`: the frame hides header controls without it.
 					return (
-						! lockedSection &&
+						! lockedLayout &&
 						insertableWidgetTypes.has( request.widgetType.name ) &&
 						! getLockedWidgetFeature( request.widgetType.name )
 					);
 				case 'remove':
-					// Removing the last open widget would leave an empty layout, stuck in Customize.
-					return ! lockedSection;
+					// Insert is denied too, so a removed open widget would only come back by a reset.
+					return ! lockedLayout;
 				default:
 					return true;
 			}
 		},
-		[ insertableWidgetTypes, lockedSection ]
+		[ insertableWidgetTypes, lockedLayout ]
 	);
 }

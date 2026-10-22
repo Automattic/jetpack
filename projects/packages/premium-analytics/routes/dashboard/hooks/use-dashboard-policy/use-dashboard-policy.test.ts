@@ -1,6 +1,5 @@
 import { renderHook } from '@testing-library/react';
 import { useDashboardPolicy } from './use-dashboard-policy';
-import type { LockedSectionGate } from '@jetpack-premium-analytics/data';
 import type { WidgetType } from '@wordpress/widget-primitives';
 
 const widgetType: WidgetType = {
@@ -57,9 +56,8 @@ describe( 'useDashboardPolicy', () => {
 	} );
 
 	it( 'lets a locked section move and resize its open widgets, but not add or remove one', () => {
-		const lockedSection = { open_widget_types: [ widgetType.name ] } as LockedSectionGate;
 		const { result } = renderHook( () =>
-			useDashboardPolicy( { ...POLICY_INPUTS, lockedSection } )
+			useDashboardPolicy( { ...POLICY_INPUTS, lockedLayout: [ widget ] } )
 		);
 
 		expect( result.current( { operation: 'customize' } ) ).toBe( true );
@@ -69,10 +67,9 @@ describe( 'useDashboardPolicy', () => {
 		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( false );
 	} );
 
-	it( 'offers no Customize on a locked section with no open widget', () => {
-		const lockedSection = { open_widget_types: [] as string[] } as LockedSectionGate;
+	it( 'offers no Customize on a locked section that shows no widget', () => {
 		const { result } = renderHook( () =>
-			useDashboardPolicy( { ...POLICY_INPUTS, lockedSection } )
+			useDashboardPolicy( { ...POLICY_INPUTS, lockedLayout: [] } )
 		);
 
 		expect( result.current( { operation: 'customize' } ) ).toBe( false );

@@ -211,7 +211,10 @@ function Dashboard(): JSX.Element {
 		onLayoutChange
 	);
 	const isSectionLocked = !! lockedSection;
-	const dashboardPolicy = useDashboardPolicy( { insertableWidgetTypes, lockedSection } );
+	const dashboardPolicy = useDashboardPolicy( {
+		insertableWidgetTypes,
+		lockedLayout: isSectionLocked ? visibleLayout : undefined,
+	} );
 	const canCustomizeSection = dashboardPolicy( { operation: 'customize' } );
 	// Edit mode survives a tab switch, so leave it on arriving at a section that cannot be arranged.
 	// The exit is recorded against the section arrived at, as Done after any tab switch is.
