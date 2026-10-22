@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Features: Enable account connection from features that need it by default.

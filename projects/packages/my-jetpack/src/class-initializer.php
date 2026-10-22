@@ -1414,7 +1414,7 @@ class Initializer {
 		Feature_Flags::register(
 			self::ACCOUNT_CONNECT_FLAG,
 			array(
-				'default'     => false,
+				'default'     => true,
 				'description' => 'Connect the account from the Install or Connect button of Features cards that need one, and hide Active and Inactive where the control already shows the state.',
 				'owner'       => 'my-jetpack',
 			)
