@@ -5,7 +5,7 @@ import { CardRow, ProtectCard } from '../../components/card';
 import type { ScanContext } from './types';
 
 /**
- * The Settings tab's Scan card: Scan has nothing to set here, so it explains and links out.
+ * The Settings tab's Scan card: links to the server credentials Auto-fix needs, or to Scan without a plan.
  *
  * @param props       - The dashboard context.
  * @param props.state - The Scan section's state.
@@ -16,28 +16,35 @@ export default function ScanSettingsCard( { state: scan }: ScanContext ) {
 		return null;
 	}
 
+	let description: string;
+	let link: string;
+	if ( ! scan.hasPlan ) {
+		description = __(
+			'Your site is checked every day for known vulnerabilities in WordPress, plugins and themes. There’s nothing to set up.',
+			'jetpack-protect-pkg'
+		);
+		link = __( 'Get Scan for daily malware scanning and one-click fixes', 'jetpack-protect-pkg' );
+	} else if ( scan.hasCredentials === false ) {
+		description = __(
+			'Scan checks your site for malware every day. Auto-fix needs your server credentials to repair threats.',
+			'jetpack-protect-pkg'
+		);
+		link = __( 'Add server credentials', 'jetpack-protect-pkg' );
+	} else {
+		description = __(
+			'Scan checks your site for malware every day. Auto-fix uses your server credentials to repair threats.',
+			'jetpack-protect-pkg'
+		);
+		link = __( 'Manage server credentials', 'jetpack-protect-pkg' );
+	}
+
 	return (
 		<ProtectCard icon={ shield } title={ __( 'Scan', 'jetpack-protect-pkg' ) }>
 			<CardRow>
 				<Stack direction="column" gap="sm">
-					<Text variant="body-md">
-						{ scan.hasPlan
-							? __(
-									'Scan checks your site for malware every day. Threat alerts and scan settings are managed on Jetpack.com.',
-									'jetpack-protect-pkg'
-								)
-							: __(
-									'Your site is checked every day for known vulnerabilities in WordPress, plugins and themes. There’s nothing to set up.',
-									'jetpack-protect-pkg'
-								) }
-					</Text>
+					<Text variant="body-md">{ description }</Text>
 					<Link href={ scan.url } openInNewTab={ scan.hasPlan }>
-						{ scan.hasPlan
-							? __( 'Manage Scan settings', 'jetpack-protect-pkg' )
-							: __(
-									'Get Scan for daily malware scanning and one-click fixes',
-									'jetpack-protect-pkg'
-								) }
+						{ link }
 					</Link>
 				</Stack>
 			</CardRow>
