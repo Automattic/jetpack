@@ -23,10 +23,6 @@
 		border-block-start:
 			var(--wpds-border-width-xs) solid
 			var(--wpds-color-stroke-surface-warning);
-
-		label {
-			font-weight: var(--wpds-typography-font-weight-emphasis);
-		}
 	}
 
 	// One threat per item, stacked, so long paths have the full width at any size.
