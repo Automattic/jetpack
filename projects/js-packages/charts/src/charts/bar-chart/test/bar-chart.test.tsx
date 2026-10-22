@@ -13,6 +13,7 @@ import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/u
 import { steadyTrafficData } from '../../../stories/sample-data';
 import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
+import { useBarColors } from '../use-bar-colors';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { DataPointDate, SeriesData } from '../../../types';
 
@@ -1644,7 +1645,7 @@ describe( 'BarChart', () => {
 			expect( screen.queryByTestId( 'bar-chart-patterns' ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'comparison shadow reuses the primary bar pattern when patterns are enabled', () => {
+		test( 'fills the comparison bar with its own pattern when patterns are enabled', () => {
 			renderWithTheme( {
 				withPatterns: true,
 				data: [
@@ -1670,9 +1671,7 @@ describe( 'BarChart', () => {
 
 			const shadow = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ )[ 0 ];
 			const shadowFill = shadow.getAttribute( 'fill' );
-			// Shadow is filled with a pattern, not a solid color, and it references the PRIMARY
-			// series' pattern (index 0) rather than the comparison series' own index.
-			expect( shadowFill ).toMatch( /^url\(#bar-pattern-.+-0\)$/ );
+			expect( shadowFill ).toMatch( /^url\(#bar-pattern-.+-1\)$/ );
 		} );
 	} );
 
@@ -2705,8 +2704,11 @@ describe( 'BarChart', () => {
 	} );
 
 	describe( 'Comparison Series', () => {
-		it( 'renders a translucent shadow behind the primary bar for a comparison series', () => {
-			const data = [
+		it.each( [
+			[ 'opaque, in the colors the charts context reports', undefined ],
+			[ 'translucent, in the series colors, under the deprecated theme opacity', 0.5 ],
+		] )( 'draws a comparison bar behind the primary bar, %s', ( _case, opacity ) => {
+			const data: SeriesData[] = [
 				{
 					label: 'This year',
 					group: 'views',
@@ -2725,18 +2727,56 @@ describe( 'BarChart', () => {
 					],
 				},
 			];
-			render( <BarChart data={ data } width={ 400 } height={ 300 } /> );
+			let barColors: string[] = [];
+			const CaptureBarColors = () => {
+				barColors = useBarColors()( data );
+				return null;
+			};
+			render(
+				<GlobalChartsProvider
+					theme={ opacity ? { barChart: { barStyles: { comparison: { opacity } } } } : undefined }
+				>
+					<CaptureBarColors />
+					<BarChart data={ data } width={ 400 } height={ 300 } />
+				</GlobalChartsProvider>
+			);
 
-			// two comparison shadow rects (one per data point)
-			// Match individual rect testids like bar-chart-comparison-1-0 (not the group wrapper)
+			const [ primaryColor, comparisonColor ] = barColors;
 			const shadows = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
 			expect( shadows ).toHaveLength( 2 );
-			expect( shadows[ 0 ] ).toHaveAttribute( 'opacity', '0.5' );
+			expect( shadows[ 0 ] ).toHaveAttribute( 'fill', comparisonColor );
+			expect( shadows[ 0 ].attributes.getNamedItem( 'opacity' )?.value ).toBe(
+				opacity ? String( opacity ) : undefined
+			);
+			expect( comparisonColor === primaryColor ).toBe( !! opacity );
 
-			// primary bars still render for the single primary series (visx .visx-bar)
 			// eslint-disable-next-line testing-library/no-node-access
 			const bars = document.querySelectorAll( '.visx-bar' );
 			expect( bars.length ).toBeGreaterThanOrEqual( 2 );
+			expect( bars[ 0 ] ).toHaveAttribute( 'fill', primaryColor );
+		} );
+
+		it( "fills a comparison bar in its datum's own color, as a primary bar does", () => {
+			render(
+				<BarChart
+					width={ 400 }
+					height={ 300 }
+					data={ [
+						{ label: 'This year', group: 'views', data: [ { label: 'Jan', value: 100 } ] },
+						{
+							label: 'Last year',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [ { label: 'Jan', value: 80, color: '#123456' } ],
+						},
+					] }
+				/>
+			);
+
+			expect( screen.getByTestId( 'bar-chart-comparison-1-0' ) ).toHaveAttribute(
+				'fill',
+				'#123456'
+			);
 		} );
 
 		it( 'hides the comparison shadow group from assistive technology', () => {
@@ -2787,7 +2827,6 @@ describe( 'BarChart', () => {
 
 			const shadows = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
 			expect( shadows ).toHaveLength( 2 );
-			expect( shadows[ 0 ] ).toHaveAttribute( 'opacity', '0.5' );
 		} );
 
 		it( 'expands value-axis domain to include comparison values exceeding the primary max', () => {
