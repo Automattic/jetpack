@@ -408,8 +408,8 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 				'url'              => 'draft' === $status ? get_preview_post_link( $post ) : get_permalink( $post ),
 				'image'            => false !== $image ? $image : null,
 				'recipients'       => $recipients,
-				'openRatePercent'  => $recipients && is_numeric( $metrics['opens_rate'] ?? null ) ? (float) $metrics['opens_rate'] : null,
-				'clickRatePercent' => $recipients && is_numeric( $metrics['clicks_rate'] ?? null ) ? (float) $metrics['clicks_rate'] : null,
+				'openRatePercent'  => $recipients && is_array( $metrics ) && is_numeric( $metrics['opens_rate'] ?? null ) ? (float) $metrics['opens_rate'] : null,
+				'clickRatePercent' => $recipients && is_array( $metrics ) && is_numeric( $metrics['clicks_rate'] ?? null ) ? (float) $metrics['clicks_rate'] : null,
 			);
 		}
 
