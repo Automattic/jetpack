@@ -3,7 +3,6 @@
  */
 import path from 'path';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
-import autoprefixer from 'autoprefixer';
 
 const __dirname = import.meta.dirname;
 
@@ -32,18 +31,7 @@ export default {
 		strictExportPresence: true,
 		rules: [
 			jetpackWebpackConfig.TranspileRule( { exclude: /node_modules\// } ),
-			jetpackWebpackConfig.CssRule( {
-				extraLoaders: [
-					{
-						loader: 'postcss-loader',
-						options: { postcssOptions: { plugins: [ autoprefixer ] } },
-					},
-					{
-						loader: 'sass-loader',
-						options: { api: 'modern-compiler', sassOptions: { style: 'expanded' } },
-					},
-				],
-			} ),
+			jetpackWebpackConfig.CssRule(),
 		],
 	},
 	plugins: [

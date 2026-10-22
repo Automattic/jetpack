@@ -106,19 +106,7 @@ module.exports = [
 				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 				// Handle CSS.
-				jetpackWebpackConfig.CssRule( {
-					extraLoaders: [
-						{
-							loader: 'postcss-loader',
-							options: {
-								postcssOptions: {
-									config: path.join( __dirname, 'postcss.config.js' ),
-								},
-							},
-						},
-						{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
-					],
-				} ),
+				jetpackWebpackConfig.CssRule(),
 
 				// Handle images.
 				jetpackWebpackConfig.FileRule(),

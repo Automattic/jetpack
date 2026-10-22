@@ -87,17 +87,7 @@ module.exports = {
 		rules: [
 			jetpackWebpackConfig.TranspileRule( { exclude: /node_modules\// } ),
 			jetpackWebpackConfig.TranspileRule( { includeNodeModules: [ '@automattic/jetpack-' ] } ),
-			jetpackWebpackConfig.CssRule( {
-				extraLoaders: [
-					{
-						loader: 'postcss-loader',
-						options: {
-							postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
-						},
-					},
-					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
-				],
-			} ),
+			jetpackWebpackConfig.CssRule(),
 			jetpackWebpackConfig.FileRule(),
 		],
 	},

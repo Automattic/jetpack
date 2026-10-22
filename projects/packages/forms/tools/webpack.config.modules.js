@@ -72,27 +72,7 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 					} ),
 
 					// Handle CSS.
-					jetpackWebpackConfig.CssRule( {
-						extraLoaders: [
-							{
-								loader: 'postcss-loader',
-								options: {
-									postcssOptions: {
-										config: path.join( __dirname, '..', 'postcss.config.js' ),
-									},
-								},
-							},
-							{
-								loader: 'sass-loader',
-								options: {
-									api: 'modern-compiler',
-									sassOptions: {
-										style: 'expanded',
-									},
-								},
-							},
-						],
-					} ),
+					jetpackWebpackConfig.CssRule(),
 
 					// Allow importing .svg files as raw HTML strings via `?raw` query.
 					{

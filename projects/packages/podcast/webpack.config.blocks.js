@@ -46,9 +46,7 @@ const sharedWebpackConfig = {
 			jetpackWebpackConfig.TranspileRule( {
 				includeNodeModules: [ '@automattic/' ],
 			} ),
-			jetpackWebpackConfig.CssRule( {
-				extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
-			} ),
+			jetpackWebpackConfig.CssRule(),
 			jetpackWebpackConfig.FileRule(),
 		],
 	},

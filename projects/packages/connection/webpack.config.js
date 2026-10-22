@@ -231,9 +231,7 @@ const sharedConfig = {
 			} ),
 
 			// Handle CSS.
-			jetpackWebpackConfig.CssRule( {
-				extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
-			} ),
+			jetpackWebpackConfig.CssRule(),
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),
 		],

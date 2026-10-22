@@ -54,15 +54,7 @@ module.exports = {
 			jetpackWebpackConfig.CssRule( {
 				// Boost copies only guide.css, so it cannot resolve a separate CSS source map.
 				CssLoader: { sourceMap: false },
-				extraLoaders: [
-					{
-						loader: require.resolve( 'sass-loader' ),
-						options: {
-							implementation: require( 'sass-embedded' ),
-							sourceMap: false,
-						},
-					},
-				],
+				sass: { sourceMap: false },
 			} ),
 		],
 	},

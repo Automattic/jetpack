@@ -96,19 +96,7 @@ export default {
 			} ),
 
 			// Handle CSS.
-			jetpackWebpackConfig.CssRule( {
-				extraLoaders: [
-					{
-						loader: 'postcss-loader',
-						options: {
-							postcssOptions: {
-								config: path.join( __dirname, 'postcss.config.js' ),
-							},
-						},
-					},
-					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
-				],
-			} ),
+			jetpackWebpackConfig.CssRule(),
 		],
 	},
 	plugins: [

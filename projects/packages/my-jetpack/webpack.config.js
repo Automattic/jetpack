@@ -1,8 +1,6 @@
 import path from 'path';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 
-const __dirname = import.meta.dirname;
-
 export default [
 	{
 		entry: {
@@ -41,19 +39,7 @@ export default [
 				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 				// Handle CSS.
-				jetpackWebpackConfig.CssRule( {
-					extraLoaders: [
-						{
-							loader: 'postcss-loader',
-							options: {
-								postcssOptions: {
-									config: path.join( __dirname, 'postcss.config.js' ),
-								},
-							},
-						},
-						{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
-					],
-				} ),
+				jetpackWebpackConfig.CssRule(),
 
 				// Handle images.
 				jetpackWebpackConfig.FileRule(),

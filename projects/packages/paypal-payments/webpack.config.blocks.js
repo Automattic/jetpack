@@ -61,22 +61,7 @@ const sharedWebpackConfig = {
 			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 			// Handle CSS.
-			jetpackWebpackConfig.CssRule( {
-				extraLoaders: [
-					{
-						loader: 'postcss-loader',
-						options: {
-							postcssOptions: {
-								plugins: [
-									require( '@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks' ).default,
-									require( 'autoprefixer' ),
-								],
-							},
-						},
-					},
-					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
-				],
-			} ),
+			jetpackWebpackConfig.CssRule(),
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),

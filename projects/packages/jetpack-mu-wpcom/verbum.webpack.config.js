@@ -87,19 +87,7 @@ module.exports = [
 				} ),
 
 				// Handle CSS.
-				jetpackConfig.CssRule( {
-					extraLoaders: [
-						{
-							loader: 'postcss-loader',
-							options: {
-								postcssOptions: {
-									config: path.join( __dirname, 'postcss.config.js' ),
-								},
-							},
-						},
-						{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
-					],
-				} ),
+				jetpackConfig.CssRule(),
 
 				// Handle images.
 				jetpackConfig.FileRule(),
