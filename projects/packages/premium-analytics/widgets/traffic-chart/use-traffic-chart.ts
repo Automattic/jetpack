@@ -120,14 +120,8 @@ export default function useTrafficChart(
 	const lcHasComparison = likesComments.hasComparison;
 	const lcZone = likesComments.timezone;
 
-	// Pairs each comparison bucket with the current one covering the same days.
-	const periodStarts = useMemo(
-		() =>
-			reportParams.from && reportParams.compare_from
-				? { current: reportParams.from, comparison: reportParams.compare_from }
-				: undefined,
-		[ reportParams.from, reportParams.compare_from ]
-	);
+	// Both requests cover the same periods.
+	const { periodStarts } = viewsVisitors;
 
 	// Gate the error per query so a failed one surfaces beside the other's populated
 	// tabs instead of rendering empty; placeholder data spares a query that still has rows.

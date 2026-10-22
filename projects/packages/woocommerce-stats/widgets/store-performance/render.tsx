@@ -37,6 +37,7 @@ type MetricReportState = {
 	primary: unknown;
 	comparison: unknown;
 	hasComparison: boolean;
+	periodStarts?: { current: string; comparison: string };
 	timezone: string;
 	isLoading: boolean;
 	isFetching: boolean;
@@ -62,7 +63,16 @@ type MetricReportProps = {
 function MetricReport( { metric, params, onChange }: MetricReportProps ) {
 	const { useReport } = metric;
 	const report = useReport( params );
-	const { hasComparison, timezone, isLoading, isFetching, isError, hasData, refetch } = report;
+	const {
+		hasComparison,
+		periodStarts,
+		timezone,
+		isLoading,
+		isFetching,
+		isError,
+		hasData,
+		refetch,
+	} = report;
 	const primary = report.primary.data;
 	const comparison = report.comparison.data;
 
@@ -71,6 +81,7 @@ function MetricReport( { metric, params, onChange }: MetricReportProps ) {
 			primary,
 			comparison,
 			hasComparison,
+			periodStarts,
 			timezone,
 			isLoading,
 			isFetching,
@@ -82,6 +93,7 @@ function MetricReport( { metric, params, onChange }: MetricReportProps ) {
 			primary,
 			comparison,
 			hasComparison,
+			periodStarts,
 			timezone,
 			isLoading,
 			isFetching,
@@ -165,6 +177,7 @@ function StorePerformance( { hiddenMetricIds }: StorePerformanceProps ) {
 							countLabel: metric.countLabel,
 							noDataLabel: metric.noDataLabel,
 							zone: report.timezone,
+							periodStarts: report.periodStarts,
 						} ),
 						key: metric.id,
 						description: metric.description,

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -53,6 +53,15 @@ export function useReport<
 				queryKey: options?.disabledComparisonKey ?? [ 'reports', '__comparison__', 'disabled' ],
 			};
 
+	// Where each period starts, so a chart can pair comparison buckets with current ones by period.
+	const periodStarts = useMemo(
+		() =>
+			comparisonEnabled && params.from && params.compare_from
+				? { current: params.from, comparison: params.compare_from }
+				: undefined,
+		[ comparisonEnabled, params.from, params.compare_from ]
+	);
+
 	const primaryEnabled = queryEnabled && ( primaryQueryOptions.enabled ?? true );
 	const comparisonQueryEnabled =
 		queryEnabled && comparisonEnabled && ( comparisonQueryOptions.enabled ?? true );
@@ -96,6 +105,7 @@ export function useReport<
 		primary,
 		comparison,
 		hasComparison: comparisonEnabled,
+		periodStarts,
 		// Store reports ignore `params.timezone`: Woo buckets server-side in the
 		// site zone, so only the Stats queries can be built under a named zone.
 		timezone: resolveReportTimeZone( params.timezone ),
