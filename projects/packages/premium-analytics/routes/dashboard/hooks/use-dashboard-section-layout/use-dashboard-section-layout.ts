@@ -38,13 +38,17 @@ type PreferencesActions = {
  * @param activeSectionId - Currently active section slug.
  * @param sections        - The available sections, carrying their defaults.
  * @param renames         - Former widget type names mapped to current ones, from the widget module records.
- * @return Active section layout, setter, and reset action.
+ * @return Active section layout, setter, and reset action, which leaves the widgets `keep` matches as stored.
  */
 export function useDashboardSectionLayout(
 	activeSectionId: DashboardSectionId,
 	sections: DashboardSection[],
 	renames: ReadonlyMap< string, WidgetTypeName > = NO_WIDGET_TYPE_RENAMES
-): [ DashboardWidget[], ( layout: DashboardWidget[] ) => void, () => void ] {
+): [
+	DashboardWidget[],
+	( layout: DashboardWidget[] ) => void,
+	( keep?: ( widget: DashboardWidget ) => boolean ) => void,
+] {
 	const sectionLayouts = useSelect( select => {
 		const value = (
 			select( preferencesStore ) as unknown as {
@@ -83,16 +87,31 @@ export function useDashboardSectionLayout(
 		[ activeSectionId, sectionLayouts, set ]
 	);
 
-	const resetLayout = useCallback( () => {
-		if ( ! Object.hasOwn( sectionLayouts, activeSectionId ) ) {
-			setResetCount( count => count + 1 );
-			return;
-		}
+	const resetLayout = useCallback(
+		( keep?: ( widget: DashboardWidget ) => boolean ) => {
+			if ( ! Object.hasOwn( sectionLayouts, activeSectionId ) ) {
+				setResetCount( count => count + 1 );
+				return;
+			}
 
-		const nextLayouts = { ...sectionLayouts };
-		delete nextLayouts[ activeSectionId ];
-		void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_SECTION_LAYOUTS_KEY, nextLayouts );
-	}, [ activeSectionId, sectionLayouts, set ] );
+			if ( keep ) {
+				// The default's other widgets take the slot of the first stored one they replace.
+				const firstReset = Math.max(
+					layout.findIndex( widget => ! keep( widget ) ),
+					0
+				);
+				const next = layout.filter( keep );
+				next.splice( firstReset, 0, ...sectionDefault.filter( widget => ! keep( widget ) ) );
+				setLayout( next );
+				return;
+			}
+
+			const nextLayouts = { ...sectionLayouts };
+			delete nextLayouts[ activeSectionId ];
+			void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_SECTION_LAYOUTS_KEY, nextLayouts );
+		},
+		[ activeSectionId, layout, sectionDefault, sectionLayouts, set, setLayout ]
+	);
 
 	return [ layout, setLayout, resetLayout ];
 }

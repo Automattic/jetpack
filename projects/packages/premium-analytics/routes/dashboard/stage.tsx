@@ -233,9 +233,14 @@ function Dashboard(): JSX.Element {
 	);
 	const resetToDefault = useCallback( () => {
 		trackCustomize.reset();
-		resetLayout();
+		// A locked section resets only what it shows, so an upgrade brings back the rest as arranged.
+		resetLayout(
+			lockedSection
+				? widget => ! lockedSection.open_widget_types.includes( widget.type )
+				: undefined
+		);
 		setEditMode( false );
-	}, [ resetLayout, trackCustomize ] );
+	}, [ lockedSection, resetLayout, trackCustomize ] );
 
 	// Only the widgets this section renders need metadata at boot; the full registry
 	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.

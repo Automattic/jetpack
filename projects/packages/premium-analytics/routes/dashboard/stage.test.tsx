@@ -1562,7 +1562,7 @@ describe( 'Dashboard locked section', () => {
 		);
 	} );
 
-	it( 'offers Customize and its tour steps on a locked section that keeps a widget open', async () => {
+	it( 'offers Customize and its tour steps on a locked section that shows a widget, resetting only that', async () => {
 		mockLockedLayout( visibleLayout );
 
 		render( <Dashboard /> );
@@ -1572,7 +1572,11 @@ describe( 'Dashboard locked section', () => {
 			expect.objectContaining( { withCustomize: true } )
 		);
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
-		expect( screen.getByRole( 'button', { name: 'Done' } ) ).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+
+		const [ keep ] = mockResetLayout.mock.lastCall ?? [];
+		expect( keep?.( { uuid: 'tags', type: 'jpa/tags' } ) ).toBe( true );
+		expect( keep?.( visibleLayout[ 0 ] ) ).toBe( false );
 	} );
 
 	it( 'leaves an open section as it was', () => {
