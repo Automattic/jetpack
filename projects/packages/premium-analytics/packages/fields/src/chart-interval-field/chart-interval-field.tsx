@@ -92,7 +92,9 @@ function createChartIntervalControl< T extends ChartIntervalFieldAttributes >(
 				value={ value }
 				withLabel
 				triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }
-				onChange={ next => onChange( { chartInterval: next as StatsPeriod } as Partial< T > ) }
+				onChange={ next =>
+					onChange( { chartInterval: next as StatsPeriod } as Parameters< typeof onChange >[ 0 ] )
+				}
 			/>
 		);
 	};

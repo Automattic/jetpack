@@ -17,16 +17,16 @@ const DAY_WEEK_MONTH_YEAR = [ 'day', 'week', 'month', 'year' ] as const;
 const HOUR_DAY_WEEK_MONTH = [ 'hour', 'day', 'week', 'month' ] as const;
 
 // Long ranges whose defaults are weeks and months, and the two ways a widget extends them.
-const LAST_90_DAYS: IntervalRange = {
+const LAST_90_DAYS = {
 	preset: 'last-90-days',
 	from: '2026-07-18',
 	to: '2026-10-15',
-};
-const LAST_12_MONTHS: IntervalRange = {
+} satisfies IntervalRange;
+const LAST_12_MONTHS = {
 	preset: 'last-12-months',
 	from: '2025-11-01',
 	to: '2026-10-31',
-};
+} satisfies IntervalRange;
 const ADD_DAYS: IntervalExtension = { extra: [ 'day' ] };
 const WITHHOLD_DAYS: IntervalExtension = { unavailable: { intervals: [ 'day' ], hint: 'H' } };
 
@@ -185,7 +185,13 @@ describe( 'chartInterval', () => {
 	} );
 
 	it.each<
-		[ string, IntervalRange, IntervalType | undefined, IntervalExtension | undefined, string ]
+		[
+			string,
+			typeof LAST_90_DAYS | typeof LAST_12_MONTHS,
+			IntervalType | undefined,
+			IntervalExtension | undefined,
+			string,
+		]
 	>( [
 		[ 'clamps days away without an extension', LAST_90_DAYS, 'day', undefined, 'week' ],
 		[ 'draws a bucket the widget adds', LAST_90_DAYS, 'day', ADD_DAYS, 'day' ],
