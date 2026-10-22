@@ -33,6 +33,7 @@ use WP_Error;
 use WP_REST_Server;
 use function add_action;
 use function add_filter;
+use function admin_url;
 use function did_action;
 use function do_action;
 use function esc_url_raw;
@@ -182,6 +183,7 @@ class Jetpack_Backup {
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
+		add_filter( 'jetpack_activity_log_restore_url_template', array( __CLASS__, 'activity_log_restore_url_template' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
@@ -1195,7 +1197,13 @@ class Jetpack_Backup {
 			. '</script>';
 
 		echo '<script id="jetpack-backup-dashboard-state">window.JPBACKUP_DASHBOARD_STATE='
-			. wp_json_encode( array( 'activityLogUrl' => self::get_activity_log_url() ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
+			. wp_json_encode(
+				array(
+					'activityLogUrl'        => self::get_activity_log_url(),
+					'knownThreatsAvailable' => \Automattic\Jetpack\Backup\V0005\REST\Restore_Bridge::known_threats_available(),
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
 			. ';</script>';
 	}
 
@@ -1302,6 +1310,20 @@ class Jetpack_Backup {
 
 		$screen->id                        = self::$wp_build_original_screen_id;
 		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Sends the Activity Log's "Restore backup" to this dashboard's restore screen when it is on.
+	 *
+	 * @param string $template Restore URL template, with `{rewindId}` as the placeholder.
+	 * @return string
+	 */
+	public static function activity_log_restore_url_template( $template ) {
+		if ( ! self::is_modernized() ) {
+			return $template;
+		}
+
+		return admin_url( 'admin.php?page=' . self::JETPACK_BACKUP_SLUG . '&p=%2Frestore%2F{rewindId}' );
 	}
 
 	/**

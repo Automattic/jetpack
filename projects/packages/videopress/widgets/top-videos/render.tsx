@@ -2,15 +2,14 @@
  * External dependencies
  */
 import {
-	ExporterCsvDownloadButton,
 	Leaderboard,
-	ReportLink,
 	WidgetRoot,
 	describeError,
 	useStatsVideoPlays,
 	useWidgetRootContext,
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
@@ -119,6 +118,15 @@ function TopVideosReport() {
 	const isCheckingMedia = isCheckingPermission || ( canUpload && ! hasCheckedMedia );
 	const hasNoVideos = canUpload && videos?.length === 0;
 
+	useReportActions( {
+		report: 'videos',
+		csv: {
+			report: 'videos',
+			status: { isLoading: isInitialLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
 		<Leaderboard
 			chartTitle={ __( 'Top videos', 'jetpack-videopress-pkg' ) }
@@ -150,16 +158,6 @@ function TopVideosReport() {
 							},
 						}
 					: undefined
-			}
-			footer={
-				<>
-					<ReportLink report="videos" />
-					<ExporterCsvDownloadButton
-						report="videos"
-						status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
-						rowCount={ rows.length }
-					/>
-				</>
 			}
 		/>
 	);

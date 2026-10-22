@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 // @codeCoverageIgnoreStart -- shadowed by the test stub in tests/lib/functions-wordpress.php.
 if ( ! function_exists( 'wpcom_themes_get_purchases' ) ) {
@@ -118,6 +119,8 @@ function wpcom_themes_tab_enqueue_script() {
 		array(),
 		(string) filemtime( __DIR__ . '/css/themes-tab.css' )
 	);
+
+	Common\wpcom_enqueue_tracking_scripts( jetpack_mu_wpcom_enqueue_assets( 'wpcom-themes-tab-tracks', array( 'js' ) ) );
 }
 add_action( 'load-theme-install.php', 'wpcom_themes_tab_enqueue_script' );
 
@@ -201,6 +204,8 @@ function wpcom_themes_tab_checkout_url( $products, string $slug ) {
  * @return stdClass The theme, carrying its badge and, when the plan excludes it, an upgrade.
  */
 function wpcom_themes_tab_add_plan( $theme ) {
+	$theme->wpcom_marketplace_tab = true;
+
 	$tier = isset( $theme->theme_tier ) ? (string) $theme->theme_tier : '';
 
 	// A partner theme is sold rather than granted, so its badge is a price and not a plan.
@@ -216,8 +221,9 @@ function wpcom_themes_tab_add_plan( $theme ) {
 		return $theme;
 	}
 
-	$theme->plan_badge  = WPCom_Themes_Tiers::plan_name_for( $tier );
-	$theme->upgrade_url = wpcom_themes_tab_checkout_url( $plan, (string) ( $theme->slug ?? '' ) );
+	$theme->plan_badge    = WPCom_Themes_Tiers::plan_name_for( $tier );
+	$theme->required_plan = $plan;
+	$theme->upgrade_url   = wpcom_themes_tab_checkout_url( $plan, (string) ( $theme->slug ?? '' ) );
 
 	return $theme;
 }
@@ -248,6 +254,7 @@ function wpcom_themes_tab_add_subscription( $theme ) {
 
 	$theme->price_product = $subscription['product'];
 	$theme->price_plan    = '' === $plan ? '' : WPCom_Themes_Tiers::plan_name_for( WPCom_Themes_Tiers::PARTNER );
+	$theme->required_plan = $plan;
 	// Checkout charges for the plan and the theme together, so one purchase is enough to install.
 	$theme->purchase_url = wpcom_themes_tab_checkout_url(
 		'' === $plan ? $subscription['product'] : array( $plan, $subscription['product'] ),

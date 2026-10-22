@@ -52,12 +52,9 @@ export const INITIAL_VIEW: View = {
 	titleField: 'title',
 	mediaField: 'icon',
 	descriptionField: 'description',
-	// In DataViews' list layout, the `titleField`, `mediaField` and
-	// `descriptionField` fields are rendered implicitly — anything else
-	// in `fields` would render a second time as a generic row. Leave
-	// `fields` empty so the title + media + description are the only
-	// things shown per row.
-	fields: [],
+	// The title, media and description fields render implicitly; only fields listed here
+	// describe the row's button to screen readers, so the known-threats badge goes here.
+	fields: [ 'knownThreats' ],
 };
 
 /**

@@ -1,5 +1,10 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
+import { __ } from '@wordpress/i18n';
+import { Text } from '@wordpress/ui';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import OverviewBlogPosts from '../../overview-blog-posts';
 import ProductCardsSection from '../../product-cards-section';
+import OverviewSections from '../../product-cards-section/overview-sections';
 import SeoOptInCard from '../../seo-opt-in-card';
 import { A4AUpsell } from './a4a-upsell';
 import styles from './styles.module.scss';
@@ -12,9 +17,24 @@ import styles from './styles.module.scss';
  * @return The rendered component.
  */
 export function OverviewContent() {
+	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+
 	return (
 		<div>
 			<div className={ styles.products }>
+				{ overviewV1 && (
+					<>
+						<div className={ styles.welcome }>
+							<Text variant="heading-xl" render={ <h2 /> }>
+								{ __( 'Welcome to Jetpack', 'jetpack-my-jetpack' ) }
+							</Text>
+						</div>
+						<OverviewSections />
+						<div className={ styles[ 'blog-posts' ] }>
+							<OverviewBlogPosts />
+						</div>
+					</>
+				) }
 				<ProductCardsSection />
 			</div>
 
