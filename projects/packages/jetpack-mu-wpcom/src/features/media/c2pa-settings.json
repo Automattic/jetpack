@@ -1,0 +1,5 @@
+{
+	"verify": { "remote_manifest_fetch": false },
+	"builder": { "thumbnail": { "enabled": false } },
+	"core": { "prefer_compress_manifests": true }
+}
