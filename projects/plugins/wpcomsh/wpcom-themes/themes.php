@@ -265,15 +265,22 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
 		return $reply;
 	}
 
-	$upgrader->skin->feedback( 'installing_package' );
-	$result = WPCom_Themes_Tiers::PARTNER === ( $wpcom_theme->theme_tier ?? '' )
-		? wpcomsh_install_partner_theme( $wpcom_theme->slug )
-		: wpcomsh_jetpack_wpcom_theme_skip_download( false, $wpcom_theme->slug );
-
-	// False means nothing could install it, which must not be reported as an install.
+	$result = wpcomsh_jetpack_wpcom_theme_skip_download( false, $wpcom_theme->slug );
 	if ( false === $result ) {
+		$result = wpcomsh_symlink_managed_theme( $wpcom_theme->slug );
+	}
+
+	// WP Cloud doesn't host it, so core installs it from the download, as it would any other theme.
+	if ( false === $result ) {
+		$download_link = wpcomsh_get_marketplace_theme_download_link( $wpcom_theme->slug );
+		if ( '' !== $download_link ) {
+			return download_url( $download_link );
+		}
+
 		$result = new WP_Error( 'wpcom_theme_not_installable', __( 'This theme could not be installed.', 'wpcomsh' ) );
 	}
+
+	$upgrader->skin->feedback( 'installing_package' );
 
 	if ( is_wp_error( $result ) && $result->get_error_code() !== 'wpcom_theme_already_installed' ) {
 		$upgrader->skin->feedback( 'process_failed' );
@@ -301,43 +308,51 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
 add_filter( 'upgrader_pre_download', 'wpcomsh_theme_install_by_symlink', 0, 4 );
 
 /**
- * Installs a partner theme the site has bought.
- *
- * WordPress.com installs these after checkout and offers no install of a single one, so this asks it
- * to reinstall the site's marketplace products, as Calypso does when activating one fails.
+ * Symlinks a theme WP Cloud hosts in its own versioned folder, as `wp atomic theme use-managed` does.
  *
  * @param string $slug Theme slug.
  *
- * @return true|WP_Error True once the theme is on the site.
+ * @return bool|WP_Error True once symlinked, false when WP Cloud doesn't host it.
  */
-function wpcomsh_install_partner_theme( string $slug ) {
-	if ( wp_get_theme( $slug )->exists() ) {
-		return true;
+function wpcomsh_symlink_managed_theme( string $slug ) {
+	if ( ! file_exists( THEMES_PATH_BASE . "/$slug/latest" ) ) {
+		return false;
 	}
 
-	// WordPress.com waits up to 40 seconds for its install job before answering.
-	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-		sprintf( '/sites/%d/marketplace/products/reinstall', (int) Jetpack_Options::get_option( 'id' ) ),
-		'2',
-		array( 'timeout' => 60 ),
-		null,
-		'wpcom'
-	);
-	if ( is_wp_error( $response ) ) {
-		return $response;
-	}
-	// It answers 500 when the job fails or outlasts that wait.
-	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		return new WP_Error( 'wpcom_theme_install_failed', __( 'This theme could not be installed. Please try again in a few minutes.', 'wpcomsh' ) );
+	if ( wpcomsh_is_theme_symlinked( $slug ) ) {
+		return new WP_Error( 'wpcom_theme_already_installed', 'The WP.com theme is already installed/symlinked.' );
 	}
 
-	// The job installs only what the site owns, so a finished job without this theme means it isn't owned.
-	wp_clean_themes_cache();
-	if ( ! wp_get_theme( $slug )->exists() ) {
-		return new WP_Error( 'wpcom_theme_not_purchased', __( 'This theme needs a subscription before it can be installed.', 'wpcomsh' ) );
+	if ( ! symlink( THEMES_SYMLINK_BASE . "/$slug/latest", get_theme_root() . "/$slug" ) ) {
+		return new WP_Error( 'error_symlinking_theme', __( 'This theme could not be installed.', 'wpcomsh' ) );
 	}
+
+	wpcomsh_delete_theme_cache( $slug );
 
 	return true;
+}
+
+/**
+ * Where to download a marketplace theme this site owns, which WordPress.com lists only for owned themes.
+ *
+ * @param string $slug Theme slug.
+ *
+ * @return string The download link, empty when WordPress.com offers none for this site.
+ */
+function wpcomsh_get_marketplace_theme_download_link( string $slug ): string {
+	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( '/marketplace/themes/updates', '2', array(), null, 'wpcom' );
+	if ( is_wp_error( $response ) ) {
+		return '';
+	}
+
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+	foreach ( $body['updates'] ?? array() as $update ) {
+		if ( is_array( $update ) && ( $update['slug'] ?? '' ) === $slug && ! empty( $update['download_link'] ) ) {
+			return (string) $update['download_link'];
+		}
+	}
+
+	return '';
 }
 
 /**
