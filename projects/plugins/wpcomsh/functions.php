@@ -129,14 +129,18 @@ function wpcomsh_install_managed_theme( $theme_slug, $theme_type ) {
 
 	wpcomsh_delete_theme_cache( $theme_slug );
 
-	// If the installed WPCom theme is a child theme, we need to symlink its parent theme as well.
+	// If the installed WPCom theme is a child theme, we need to symlink its parent theme as well, unless a working copy is already there.
 	if (
 		wpcomsh_is_wpcom_child_theme( $theme_slug ) &&
-		! wpcomsh_is_theme_symlinked( wp_get_theme( $theme_slug )->get_template() )
+		wp_get_theme( wp_get_theme( $theme_slug )->get_template() )->errors()
 	) {
 		$was_parent_theme_symlinked = wpcomsh_symlink_parent_theme( $theme_slug );
 
 		if ( true !== $was_parent_theme_symlinked ) {
+			// Without its parent the child is broken, and leaving it would make a retry report it as already installed.
+			wpcomsh_delete_symlinked_theme( $theme_slug );
+			wpcomsh_delete_theme_cache( $theme_slug );
+
 			return new WP_Error( 'wpcom_theme_installation_failed', "Can't install specified WP.com theme. Check error log for more details." );
 		}
 	}
