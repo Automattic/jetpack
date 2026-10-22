@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Protect dashboard: Add a "View file" action that shows the whole file a threat was found in, with the flagged lines highlighted.

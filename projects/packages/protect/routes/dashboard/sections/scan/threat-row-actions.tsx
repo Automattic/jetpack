@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
 import { getSoftwareActionLabels } from './labels';
 import { fixThreat, ignoreThreat, unignoreThreat } from './threat-actions';
+import { ThreatFileModal, getThreatFileTitle } from './threat-file';
 import type { ScanThreat } from './types';
 import type { Action } from '@wordpress/dataviews';
 
@@ -38,6 +39,15 @@ export function getThreatRowActions(
 			label: __( 'View', 'jetpack-protect-pkg' ),
 			isPrimary: true,
 			callback: ( [ item ] ) => item && open( item ),
+		},
+		{
+			id: 'view-file',
+			label: __( 'View file', 'jetpack-protect-pkg' ),
+			modalHeader: ( [ item ] ) => getThreatFileTitle( item ),
+			modalSize: 'large',
+			hideModalHeader: true,
+			isEligible: item => canAct && !! item.filename,
+			RenderModal: ThreatFileModal,
 		},
 		{
 			id: 'auto-fix',
