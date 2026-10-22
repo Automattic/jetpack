@@ -20,18 +20,26 @@ export type VideoUploadCallbacks = {
  * @param callbacks.onProgress - Receives the bytes sent so far and the total.
  * @param callbacks.onSuccess  - Receives the media the upload created.
  * @param callbacks.onError    - Receives the failure, a missing token included.
+ * @param options              - Upload options.
+ * @param options.signal       - Aborts the upload, one still waiting for its token included.
  */
 export async function startVideoUpload(
 	file: File,
-	{ onProgress, onSuccess, onError }: VideoUploadCallbacks
+	{ onProgress, onSuccess, onError }: VideoUploadCallbacks,
+	{ signal }: { signal?: AbortSignal } = {}
 ): Promise< void > {
 	try {
 		const tokenData = await getMediaToken( 'upload-jwt' );
+		if ( signal?.aborted ) {
+			return;
+		}
 		if ( ! tokenData?.token ) {
 			throw new UploadTokenError();
 		}
-		resumableFileUploader( { file, tokenData, onProgress, onSuccess, onError } );
+		resumableFileUploader( { file, tokenData, onProgress, onSuccess, onError, signal } );
 	} catch ( error ) {
-		onError( error );
+		if ( ! signal?.aborted ) {
+			onError( error );
+		}
 	}
 }
