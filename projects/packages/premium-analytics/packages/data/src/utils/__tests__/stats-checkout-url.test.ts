@@ -26,6 +26,13 @@ describe( 'getStatsCheckoutUrl', () => {
 		expect( url.searchParams.get( 'connect_after_checkout' ) ).toBe(
 			isUserConnected ? null : 'true'
 		);
+		// Siteless checkout attaches the license to the site these name once the account links.
+		expect( url.searchParams.get( 'from_site_slug' ) ).toBe(
+			isUserConnected ? null : 'example.com'
+		);
+		expect( url.searchParams.get( 'admin_url' ) ).toBe(
+			isUserConnected ? null : 'https://example.com/wp-admin/'
+		);
 	} );
 
 	it( 'returns to the dashboard flagged as a paid purchase', () => {
