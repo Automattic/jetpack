@@ -195,7 +195,7 @@ class Jetpack_Connector {
 	 *
 	 * @since 8.2.0
 	 * @since 9.13.0 Shared connection state moved to the jetpack-connection store.
-	 * @since $$next-version$$ Adds `connectorsUrl`, and sends `connectedUsersUrl` once the site is registered.
+	 * @since $$next-version$$ Adds `connectorsUrl`; sends `connectedUsersUrl` whenever there are account rows, including while the owner's token is broken.
 	 *
 	 * @param array $data Existing script module data.
 	 * @return array Filtered script module data.
