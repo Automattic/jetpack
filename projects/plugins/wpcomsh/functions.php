@@ -167,6 +167,11 @@ function wpcomsh_delete_symlinked_theme( $theme_slug ) {
  * @return false|string Theme type or false if not a wpcom theme.
  */
 function wpcomsh_get_wpcom_theme_type( $theme_slug ) {
+	// The slug becomes a path, so one that leaves its folder would match a WP Cloud directory that isn't a theme.
+	if ( ! is_string( $theme_slug ) || '' === $theme_slug || '.' === $theme_slug[0] || false !== strpos( $theme_slug, '/' ) ) {
+		return false;
+	}
+
 	if ( wpcomsh_is_wpcom_premium_theme( $theme_slug ) ) {
 		return WPCOMSH_PREMIUM_THEME_TYPE;
 	} elseif ( wpcomsh_is_wpcom_pub_theme( $theme_slug ) ) {

@@ -127,7 +127,7 @@ function wpcomsh_symlink_wpcom_theme( $theme_slug, $theme_type ) {
 	) {
 		$was_parent_theme_symlinked = wpcomsh_symlink_parent_theme( $theme_slug );
 
-		if ( ! $was_parent_theme_symlinked ) {
+		if ( true !== $was_parent_theme_symlinked ) {
 			return new WP_Error( 'wpcom_theme_installation_failed', "Can't install specified WP.com theme. Check error log for more details." );
 		}
 	}
