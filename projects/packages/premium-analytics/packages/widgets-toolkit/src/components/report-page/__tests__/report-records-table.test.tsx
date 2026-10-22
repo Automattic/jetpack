@@ -146,7 +146,7 @@ const numberedTable = ( count: number ) => (
 		data={ numberedRows( count ) }
 		fields={ NUMBERED_FIELDS }
 		getItemId={ item => item.id }
-		perPageSizes={ [ 10 ] }
+		initialView={ { perPage: 10 } }
 	/>
 );
 
@@ -157,6 +157,19 @@ const goToPage = async ( user: ReturnType< typeof userEvent.setup >, page: numbe
 };
 
 describe( 'ReportRecordsTable pagination', () => {
+	it( 'lists every row on one page unless the view sets a page size', () => {
+		render(
+			<ReportRecordsTable< NumberedRow >
+				data={ numberedRows( 25 ) }
+				fields={ NUMBERED_FIELDS }
+				getItemId={ item => item.id }
+			/>
+		);
+
+		expect( screen.getByText( 'Row 25' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /next page/i } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'falls back to the last page when a refetch leaves the current one out of range', async () => {
 		// The report page keys this table by tab, not by date range, so the
 		// reader's page survives a range change. A smaller result would otherwise
@@ -197,7 +210,7 @@ describe( 'ReportRecordsTable pagination', () => {
 				data={ numberedRows( count ) }
 				fields={ NUMBERED_FIELDS }
 				getItemId={ item => item.id }
-				perPageSizes={ [ 10 ] }
+				initialView={ { perPage: 10 } }
 				onChangeView={ reportedViews }
 			/>
 		);
@@ -217,7 +230,7 @@ describe( 'ReportRecordsTable pagination', () => {
 				data={ numberedRows( 25 ) }
 				fields={ NUMBERED_FIELDS }
 				getItemId={ item => item.id }
-				perPageSizes={ [ 10 ] }
+				initialView={ { perPage: 10 } }
 				onChangePageItems={ reportedItems }
 			/>
 		);

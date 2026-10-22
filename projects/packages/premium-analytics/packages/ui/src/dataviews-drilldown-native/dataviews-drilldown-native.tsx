@@ -29,6 +29,7 @@ type GetItemIdBaseProps< Item > = ViewBaseProps< Item >[ 'getItemId' ];
 type GetItemLevelBaseProps< Item > = ViewBaseProps< Item >[ 'getItemLevel' ];
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
+const NO_PER_PAGE_SIZES: number[] = [];
 const NO_IDS: ReadonlySet< string > = new Set();
 
 type CollapseContextValue = {
@@ -124,7 +125,7 @@ export interface DataViewsDrilldownNativeProps< Item > {
 	getItemId: GetItemIdBaseProps< Item >;
 	/** Returns the parent row id for child rows, undefined for parent rows. */
 	getItemParentId: ( item: Item ) => string | number | null | undefined;
-	/** Initial view overrides (default sort, visible fields, page size, ...). */
+	/** Initial view overrides (default sort, visible fields, ...). Setting `perPage` turns pagination on. */
 	initialView?: Partial< View >;
 	/** Row actions; each one's `isEligible` decides which rows offer it. */
 	actions?: Action< Item >[];
@@ -144,7 +145,7 @@ export interface DataViewsDrilldownNativeProps< Item > {
 	searchLabel?: string;
 	/** Custom empty state. */
 	empty?: ReactNode;
-	/** Page size choices. */
+	/** Page size choices while paginated. */
 	perPageSizes?: number[];
 }
 
@@ -174,7 +175,6 @@ export function DataViewsDrilldownNative< Item >( {
 
 		return {
 			page: 1,
-			perPage: perPageSizes[ 0 ] ?? 10,
 			search: '',
 			...viewRest,
 			type: 'table',
@@ -237,8 +237,9 @@ export function DataViewsDrilldownNative< Item >( {
 
 			// 5. Paginate the survivors, so folded children stop consuming pages. A
 			//    fold removes only rows after the control the reader just clicked, so
-			//    it can't strand them; a smaller refetch can, hence the clamp.
-			const perPage = view.perPage ?? 10;
+			//    it can't strand them; a smaller refetch can, hence the clamp. With no
+			//    `perPage`, every row is one page.
+			const perPage = view.perPage ?? Math.max( visibleData.length, 1 );
 			const totalPages = Math.max( 1, Math.ceil( visibleData.length / perPage ) );
 			const page = clampPage( view.page ?? 1, totalPages );
 			const start = ( page - 1 ) * perPage;
@@ -344,7 +345,7 @@ export function DataViewsDrilldownNative< Item >( {
 					defaultLayouts={ { table: {} } }
 					empty={ empty }
 					searchLabel={ searchLabel }
-					config={ { perPageSizes } }
+					config={ { perPageSizes: effectiveView.perPage ? perPageSizes : NO_PER_PAGE_SIZES } }
 				/>
 			</div>
 		</CollapseContext.Provider>

@@ -264,6 +264,21 @@ const flatTable = ( count: number ) => (
 );
 
 describe( 'DataViewsDrilldownNative pagination', () => {
+	it( 'lists every row on one page unless the view sets a page size', () => {
+		render(
+			<DataViewsDrilldownNative< Row >
+				data={ flatRows( 25 ) }
+				fields={ fields }
+				getItemId={ item => item.id }
+				getItemParentId={ item => item.parentId }
+				initialView={ { fields: [ 'referrer', 'views' ] } }
+			/>
+		);
+
+		expect( screen.getByText( 'Row 25' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Next page' } ) ).not.toBeInTheDocument();
+	} );
+
 	// This table slices its own rows, so the reader's page survives a refetch the
 	// same way the flat tables' does, and a smaller result strands them past the
 	// end with the pagination hidden.
