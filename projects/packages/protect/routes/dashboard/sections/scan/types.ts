@@ -17,6 +17,8 @@ export type ScanThreat = Omit< Threat, 'extension' > & {
 
 export type ScanState = {
 	hasPlan: boolean;
+	/** False when the host doesn't let the site ignore threats. */
+	canIgnore?: boolean;
 	url: string;
 	/** Which upsell copy this site sees, without Scan. */
 	upsellVariant?: number;

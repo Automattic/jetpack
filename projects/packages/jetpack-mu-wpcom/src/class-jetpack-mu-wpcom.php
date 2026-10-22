@@ -136,6 +136,8 @@ class Jetpack_Mu_Wpcom {
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			add_filter( 'jetpack_backup_dashboard_enabled', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_jetpack_backup_dashboard' ) );
 			add_filter( 'jetpack_my_jetpack_feature_upgrade', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_my_jetpack_feature_upgrade' ), 10, 3 );
+			// WordPress.com handles threats on WoA itself, so site owners don't ignore them; this matches its own dashboard.
+			add_filter( 'jetpack_protect_threat_ignoring_enabled', '__return_false' );
 		}
 
 		// These features run only on atomic sites.

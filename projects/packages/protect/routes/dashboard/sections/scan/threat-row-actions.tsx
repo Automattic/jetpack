@@ -10,13 +10,15 @@ type LinkKey = 'update' | 'deactivate' | 'details';
 /**
  * A row's DataViews actions: primary ones show on hover, and the ⋯ menu lists them all.
  *
- * @param open   - Opens a threat in the inspector.
- * @param canAct - Whether the site's plan can fix and ignore threats.
+ * @param open      - Opens a threat in the inspector.
+ * @param canAct    - Whether the site's plan can fix and ignore threats.
+ * @param canIgnore - Whether the host lets the site ignore threats.
  * @return The actions.
  */
 export function getThreatRowActions(
 	open: ( item: ScanThreat ) => void,
-	canAct: boolean
+	canAct: boolean,
+	canIgnore: boolean
 ): Action< ScanThreat >[] {
 	const link =
 		( key: LinkKey ) =>
@@ -51,7 +53,7 @@ export function getThreatRowActions(
 			id: 'unignore',
 			label: __( 'Unignore', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item => canAct && item.status === 'ignored',
+			isEligible: item => canAct && canIgnore && item.status === 'ignored',
 			callback: ( [ item ] ) => item && unignoreThreat( item, open ),
 		},
 		{
@@ -82,7 +84,8 @@ export function getThreatRowActions(
 		{
 			id: 'ignore',
 			label: __( 'Ignore', 'jetpack-protect-pkg' ),
-			isEligible: item => canAct && item.status !== 'ignored' && item.status !== 'fixed',
+			isEligible: item =>
+				canAct && canIgnore && item.status !== 'ignored' && item.status !== 'fixed',
 			callback: ( [ item ] ) => item && ignoreThreat( item, open ),
 		},
 	];

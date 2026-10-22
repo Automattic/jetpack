@@ -316,6 +316,15 @@ export function useScanPolling(): void {
 }
 
 /**
+ * Whether the host lets the site ignore and unignore threats.
+ *
+ * @return True unless the host turned ignoring off.
+ */
+export function useCanIgnore(): boolean {
+	return useScan()?.canIgnore !== false;
+}
+
+/**
  * A search param's value, such as the threat open in the inspector, and a way to set or clear it.
  *
  * @param param - The search param.
