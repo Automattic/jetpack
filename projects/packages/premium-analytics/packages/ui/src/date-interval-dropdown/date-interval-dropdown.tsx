@@ -35,6 +35,12 @@ type DateIntervalDropdownProps = {
 	/** Why the locked buckets are locked, shown under the menu; its description is read as each one's. */
 	lockUpsell?: DateLimitUpsellCopy;
 
+	/** Buckets listed after `options` that the chart cannot draw as it is set now, which cannot be picked. */
+	unavailableOptions?: readonly IntervalType[];
+
+	/** Why the unavailable buckets cannot be picked, shown under the menu and read as each one's description. */
+	unavailableHint?: string;
+
 	/**
 	 * The bucket the widgets are currently drawing.
 	 */
@@ -110,6 +116,8 @@ export function DateIntervalDropdown( {
 	options,
 	lockedOptions = [],
 	lockUpsell,
+	unavailableOptions = [],
+	unavailableHint,
 	value,
 	label,
 	withLabel = false,
@@ -124,6 +132,10 @@ export function DateIntervalDropdown( {
 		DateIntervalDropdown,
 		'date-interval-dropdown__lock-description'
 	);
+	const unavailableHintId = useInstanceId(
+		DateIntervalDropdown,
+		'date-interval-dropdown__unavailable-hint'
+	);
 
 	// The trigger's own Button, so the lone bucket sits where the menu's trigger would.
 	if (
@@ -131,7 +143,8 @@ export function DateIntervalDropdown( {
 		value &&
 		options.length === 1 &&
 		options[ 0 ] === value &&
-		! lockedOptions.length
+		! lockedOptions.length &&
+		! unavailableOptions.length
 	) {
 		return (
 			<Button
@@ -199,6 +212,17 @@ export function DateIntervalDropdown( {
 							</MenuItem>
 						);
 					} ) }
+					{ unavailableOptions.map( option => (
+						<MenuItem
+							key={ option }
+							role="menuitemradio"
+							isSelected={ false }
+							disabled
+							aria-describedby={ unavailableHint ? unavailableHintId : undefined }
+						>
+							{ getIntervalLabel( option ) }
+						</MenuItem>
+					) ) }
 					{ lockedOptions.map( option => (
 						<MenuItem
 							key={ option }
@@ -213,6 +237,12 @@ export function DateIntervalDropdown( {
 					) ) }
 				</MenuGroup>
 			</NavigableMenu>
+
+			{ unavailableOptions.length > 0 && unavailableHint && (
+				<p id={ unavailableHintId } className="date-interval-dropdown__unavailable-hint">
+					{ unavailableHint }
+				</p>
+			) }
 
 			{ lockedOptions.length > 0 && lockUpsell && (
 				<div className="date-interval-dropdown__lock-notice">
