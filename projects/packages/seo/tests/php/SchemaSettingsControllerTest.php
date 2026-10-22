@@ -18,8 +18,10 @@ use WP_REST_Response;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Schema_Settings_Controller
+ * @covers \Automattic\Jetpack\SEO\Author_Schema_Node
  */
 #[CoversClass( Schema_Settings_Controller::class )]
+#[CoversClass( Author_Schema_Node::class )]
 class SchemaSettingsControllerTest extends TestCase {
 
 	/**
