@@ -1,4 +1,5 @@
-import { useState } from '@wordpress/element';
+import { action } from 'storybook/actions';
+import { useArgs } from 'storybook/preview-api';
 import { StatsTierSlider } from '../stats-tier-slider';
 import type { StatsUpgradeTier } from '@jetpack-premium-analytics/data';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -22,16 +23,29 @@ const UPGRADE_FROM_100K: StatsUpgradeTier[] = [
 	{ views: 4000000, price: 145000, upgradePrice: 125000, perUnitFee: 25000 },
 ];
 
-function ControlledSlider( props: ComponentProps< typeof StatsTierSlider > ) {
-	const [ value, setValue ] = useState( props.value );
-	return <StatsTierSlider { ...props } value={ value } onChange={ setValue } />;
+const logChange = action( 'onChange' );
+
+/**
+ * Renders the slider with its `value` arg kept in step with the control and the slider.
+ *
+ * @param args - The story args.
+ * @return The slider.
+ */
+function ControlledTemplate( args: ComponentProps< typeof StatsTierSlider > ) {
+	// Storybook hooks only work in the story's own render function, not in a nested component.
+	const [ , updateArgs ] = useArgs();
+	const onChange = ( value: number ) => {
+		logChange( value );
+		updateArgs( { value } );
+	};
+	return <StatsTierSlider { ...args } onChange={ onChange } />;
 }
 
 const meta: Meta< typeof StatsTierSlider > = {
 	title: 'Packages/Premium Analytics/UI/StatsTierSlider',
 	component: StatsTierSlider,
 	tags: [ 'autodocs' ],
-	render: args => <ControlledSlider { ...args } />,
+	render: ControlledTemplate,
 	parameters: {
 		docs: {
 			description: {
@@ -42,7 +56,7 @@ const meta: Meta< typeof StatsTierSlider > = {
 			},
 		},
 	},
-	args: { currencyCode: 'USD', value: 0, onChange: () => {} },
+	args: { currencyCode: 'USD', value: 0 },
 	argTypes: { onChange: { control: false } },
 };
 export default meta;
