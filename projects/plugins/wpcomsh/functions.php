@@ -89,6 +89,9 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 	} elseif ( WPCOMSH_PREMIUM_THEME_TYPE === $theme_type ) {
 		$theme_read_path    = WPCOMSH_PREMIUM_THEMES_PATH . "/$theme_slug";
 		$theme_symlink_path = WPCOMSH_PREMIUM_THEMES_SYMLINK . "/$theme_slug";
+	} elseif ( WPCOMSH_MANAGED_THEME_TYPE === $theme_type ) {
+		$theme_read_path    = THEMES_PATH_BASE . "/$theme_slug/latest";
+		$theme_symlink_path = THEMES_SYMLINK_BASE . "/$theme_slug/latest";
 	}
 
 	if ( file_exists( $theme_read_path ) && symlink( $theme_symlink_path, $theme_link_to_path ) ) {

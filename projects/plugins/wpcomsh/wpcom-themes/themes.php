@@ -265,22 +265,18 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
 		return $reply;
 	}
 
-	$result = wpcomsh_jetpack_wpcom_theme_skip_download( false, $wpcom_theme->slug );
-	if ( false === $result ) {
-		$result = wpcomsh_symlink_managed_theme( $wpcom_theme->slug );
+	$theme_type = wpcomsh_get_wpcom_theme_type( $wpcom_theme->slug );
+	if ( ! $theme_type && file_exists( THEMES_PATH_BASE . "/{$wpcom_theme->slug}/latest" ) ) {
+		$theme_type = WPCOMSH_MANAGED_THEME_TYPE;
 	}
 
-	// WP Cloud doesn't host it, so core installs it from the download, as it would any other theme.
-	if ( false === $result ) {
-		$download_link = wpcomsh_get_marketplace_theme_download_link( $wpcom_theme->slug );
-		if ( '' !== $download_link ) {
-			return download_url( $download_link );
-		}
-
-		$result = new WP_Error( 'wpcom_theme_not_installable', __( 'This theme could not be installed.', 'wpcomsh' ) );
+	// WP Cloud doesn't host it, so wpcomsh_theme_install_by_download() gets it instead.
+	if ( ! $theme_type ) {
+		return $reply;
 	}
 
 	$upgrader->skin->feedback( 'installing_package' );
+	$result = wpcomsh_symlink_wpcom_theme( $wpcom_theme->slug, $theme_type );
 
 	if ( is_wp_error( $result ) && $result->get_error_code() !== 'wpcom_theme_already_installed' ) {
 		$upgrader->skin->feedback( 'process_failed' );
@@ -308,29 +304,32 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
 add_filter( 'upgrader_pre_download', 'wpcomsh_theme_install_by_symlink', 0, 4 );
 
 /**
- * Symlinks a theme WP Cloud hosts in its own versioned folder, as `wp atomic theme use-managed` does.
+ * Install WPCom themes WP Cloud doesn't host by handing core their download, which it unpacks and installs.
  *
- * @param string $slug Theme slug.
+ * @param mixed  $reply    The result object.
+ * @param string $package  The package to install.
+ * @param mixed  $upgrader The upgrader component.
  *
- * @return bool|WP_Error True once symlinked, false when WP Cloud doesn't host it.
+ * @return mixed|string|WP_Error The downloaded package's path, or why there is none.
  */
-function wpcomsh_symlink_managed_theme( string $slug ) {
-	if ( ! file_exists( THEMES_PATH_BASE . "/$slug/latest" ) ) {
-		return false;
+function wpcomsh_theme_install_by_download( $reply, $package, $upgrader ) {
+	if ( false !== $reply || ! $package || ! is_string( $package ) || ! $upgrader instanceof Theme_Upgrader ) {
+		return $reply;
 	}
 
-	if ( wpcomsh_is_theme_symlinked( $slug ) ) {
-		return new WP_Error( 'wpcom_theme_already_installed', 'The WP.com theme is already installed/symlinked.' );
+	$wpcom_theme = wpcomsh_get_wpcom_themes_service_instance()->get_theme( $package );
+	if ( ! $wpcom_theme ) {
+		return $reply;
 	}
 
-	if ( ! symlink( THEMES_SYMLINK_BASE . "/$slug/latest", get_theme_root() . "/$slug" ) ) {
-		return new WP_Error( 'error_symlinking_theme', __( 'This theme could not be installed.', 'wpcomsh' ) );
+	$download_link = wpcomsh_get_marketplace_theme_download_link( $wpcom_theme->slug );
+	if ( '' === $download_link ) {
+		return new WP_Error( 'wpcom_theme_not_installable', __( 'This theme could not be installed.', 'wpcomsh' ) );
 	}
 
-	wpcomsh_delete_theme_cache( $slug );
-
-	return true;
+	return download_url( $download_link );
 }
+add_filter( 'upgrader_pre_download', 'wpcomsh_theme_install_by_download', 1, 4 );
 
 /**
  * Where to download a marketplace theme this site owns, which WordPress.com lists only for owned themes.

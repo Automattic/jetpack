@@ -99,10 +99,10 @@ class WpcomThemesInstallTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Runs core's install of a theme through the filter.
+	 * Asks the install filters for a theme's package, as core does before downloading it.
 	 *
 	 * @param string $slug Theme slug.
-	 * @return array The filter's reply, and the upgrader it reported to.
+	 * @return mixed The filters' reply.
 	 */
 	private function install( $slug ) {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
@@ -110,20 +110,20 @@ class WpcomThemesInstallTest extends WP_UnitTestCase {
 
 		// Without WP Cloud's theme folders wpcomsh logs their absence, which would print here.
 		$error_log = ini_set( 'error_log', '/dev/null' ); // phpcs:ignore WordPress.PHP.IniSet.Risky
-		$reply     = wpcomsh_theme_install_by_symlink( false, $slug, $upgrader );
+		$reply     = apply_filters( 'upgrader_pre_download', false, $slug, $upgrader, array() );
 		ini_set( 'error_log', (string) $error_log ); // phpcs:ignore WordPress.PHP.IniSet.Risky
 
-		return array( $reply, $upgrader );
+		return $reply;
 	}
 
 	/**
 	 * A theme nothing can install fails, rather than reporting an install that never happened.
 	 */
 	public function test_theme_nothing_can_install_is_reported_as_failure() {
-		list( , $upgrader ) = $this->install( self::SLUG );
+		$reply = $this->install( self::SLUG );
 
-		$this->assertWPError( $upgrader->result );
-		$this->assertSame( 'wpcom_theme_not_installable', $upgrader->result->get_error_code() );
+		$this->assertWPError( $reply );
+		$this->assertSame( 'wpcom_theme_not_installable', $reply->get_error_code() );
 	}
 
 	/**
@@ -132,7 +132,7 @@ class WpcomThemesInstallTest extends WP_UnitTestCase {
 	public function test_theme_offered_as_download_is_downloaded() {
 		$this->offers_download = true;
 
-		list( $reply ) = $this->install( self::SLUG );
+		$reply = $this->install( self::SLUG );
 
 		$this->assertIsString( $reply );
 		$this->assertStringEqualsFile( $reply, 'zip' );

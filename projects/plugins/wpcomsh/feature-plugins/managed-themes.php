@@ -77,6 +77,35 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $skip_download_filter_result
 		return false;
 	}
 
+	$was_theme_symlinked = wpcomsh_symlink_wpcom_theme( $theme_slug, $theme_type );
+
+	if ( true !== $was_theme_symlinked ) {
+		return $was_theme_symlinked;
+	}
+
+	// Skip the theme installation as we've "installed" (symlinked) it manually above.
+	add_filter(
+		'jetpack_wpcom_theme_install',
+		function () use ( $was_theme_symlinked ) {
+			return $was_theme_symlinked;
+		},
+		10,
+		2
+	);
+
+	return true;
+}
+add_filter( 'jetpack_wpcom_theme_skip_download', 'wpcomsh_jetpack_wpcom_theme_skip_download', 10, 2 );
+
+/**
+ * Symlinks a WP.com theme, and its parent if it is a child theme.
+ *
+ * @param string $theme_slug Theme slug.
+ * @param string $theme_type Type of theme.
+ *
+ * @return true|\WP_Error
+ */
+function wpcomsh_symlink_wpcom_theme( $theme_slug, $theme_type ) {
 	if ( wpcomsh_is_theme_symlinked( $theme_slug ) ) {
 		error_log( "WPComSH: WP.com theme with slug: {$theme_slug} is already installed/symlinked." ); //phpcs:ignore
 
@@ -90,16 +119,6 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $skip_download_filter_result
 	}
 
 	wpcomsh_delete_theme_cache( $theme_slug );
-
-	// Skip the theme installation as we've "installed" (symlinked) it manually above.
-	add_filter(
-		'jetpack_wpcom_theme_install',
-		function () use ( $was_theme_symlinked ) {
-			return $was_theme_symlinked;
-		},
-		10,
-		2
-	);
 
 	// If the installed WPCom theme is a child theme, we need to symlink its parent theme as well.
 	if (
@@ -122,7 +141,6 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $skip_download_filter_result
 
 	return true;
 }
-add_filter( 'jetpack_wpcom_theme_skip_download', 'wpcomsh_jetpack_wpcom_theme_skip_download', 10, 2 );
 
 /**
  * Un-symlinks WP.com themes instead of deleting them.
