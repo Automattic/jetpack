@@ -2,14 +2,15 @@
 /**
  * One-time full sync that backfills the WooCommerce Analytics lookup data.
  *
- * @package automattic/jetpack-premium-analytics
+ * @package automattic/jetpack-woocommerce-stats
  */
 
-namespace Automattic\Jetpack\PremiumAnalytics\Sync;
+namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Analytics;
+use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Modules;
 use DateTimeImmutable;
@@ -26,6 +27,12 @@ defined( 'ABSPATH' ) || exit;
  * stats without the product, tax and coupon lookup rows.
  */
 class Lookup_Data_Backfill {
+
+	/**
+	 * Timestamp of the first full woocommerce_analytics sync that finished under Premium Analytics, which,
+	 * unlike the standalone plugin's, sends the lookup data. The backfill also sets it when nothing is missing.
+	 */
+	const SYNCED_OPTION = 'jetpack_premium_analytics_lookup_data_synced';
 
 	/**
 	 * Option holding the backfill state: `scheduled_at` and `started_at` timestamps. Delete it to run the backfill again.
@@ -77,6 +84,51 @@ class Lookup_Data_Backfill {
 		add_filter( 'rest_post_dispatch', array( $this, 'on_sync_status_response' ), 11, 3 );
 		add_action( 'current_screen', array( $this, 'on_dashboard_screen' ) );
 		add_action( self::START_HOOK, array( $this, 'start_backfill' ) );
+		add_action( 'jetpack_sync_processed_actions', array( $this, 'on_sync_processed_actions' ) );
+	}
+
+	/**
+	 * Whether a full woocommerce_analytics sync finished under Premium Analytics, or the backfill found nothing missing.
+	 *
+	 * @return bool
+	 */
+	public static function is_synced(): bool {
+		return (int) get_option( self::SYNCED_OPTION, 0 ) > 0;
+	}
+
+	/**
+	 * Mark the lookup data synced when a full sync of the whole woocommerce_analytics module ends.
+	 *
+	 * Runs even when the milestone exists, since on these stores it may come from the standalone plugin's sync.
+	 *
+	 * @param array $actions Processed sync actions.
+	 * @return void
+	 */
+	public function on_sync_processed_actions( array $actions ): void {
+		if ( self::is_synced() ) {
+			return;
+		}
+
+		$end_action = null;
+		foreach ( $actions as $action ) {
+			if ( isset( $action[0] ) && 'jetpack_full_sync_end' === $action[0] ) {
+				$end_action = $action;
+				break;
+			}
+		}
+		// The end action's own timestamp is the "finished at" value; the stored status is written after it fires.
+		$finished_at = isset( $end_action[3] ) ? (int) $end_action[3] : 0;
+		if ( $finished_at <= 0 ) {
+			return;
+		}
+
+		$config = (array) ( $this->get_full_sync_status()['config'] ?? array() );
+		// An array config is a date range, a partial sync that leaves the other orders without lookup data.
+		if ( empty( $config['woocommerce_analytics'] ) || is_array( $config['woocommerce_analytics'] ) ) {
+			return;
+		}
+
+		update_option( self::SYNCED_OPTION, $finished_at );
 	}
 
 	/**
@@ -115,7 +167,7 @@ class Lookup_Data_Backfill {
 	 * @return void
 	 */
 	public function maybe_schedule(): void {
-		if ( Sync_Status_Tracker::lookup_data_synced() ) {
+		if ( self::is_synced() ) {
 			return;
 		}
 
@@ -124,14 +176,14 @@ class Lookup_Data_Backfill {
 			return;
 		}
 
-		// Wait for the first analytics full sync; if it runs under Premium Analytics, the tracker marks the data synced.
+		// Wait for the first analytics full sync; if it runs under Premium Analytics, its end marks the data synced.
 		if ( (int) get_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 0 ) <= 0 ) {
 			return;
 		}
 
 		// Without the standalone plugin's full sync, Premium Analytics sent every order's lookup data itself.
 		if ( (int) get_option( self::PLUGIN_FULL_SYNC_OPTION, 0 ) <= 0 || ! $this->has_orders() || ! $this->has_lookup_rows() ) {
-			update_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, time() );
+			update_option( self::SYNCED_OPTION, time() );
 			return;
 		}
 
@@ -165,14 +217,14 @@ class Lookup_Data_Backfill {
 
 		$state = get_option( self::STATE_OPTION );
 		$state = is_array( $state ) ? $state : array( 'scheduled_at' => 0 );
-		if ( Sync_Status_Tracker::lookup_data_synced() || ! empty( $state['started_at'] ) ) {
+		if ( self::is_synced() || ! empty( $state['started_at'] ) ) {
 			return;
 		}
 
 		if ( $this->is_jetpack_connected() && $this->is_sync_allowed() && ! $this->is_full_sync_running() ) {
 			$has_history = $this->wpcom_has_order_history();
 			if ( true === $has_history ) {
-				update_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, time() );
+				update_option( self::SYNCED_OPTION, time() );
 				return;
 			}
 
@@ -197,7 +249,7 @@ class Lookup_Data_Backfill {
 	}
 
 	/**
-	 * Forget a run whose action is gone or whose full sync another one replaced, or settle one whose end the tracker missed.
+	 * Forget a run whose action is gone or whose full sync another one replaced, or settle one whose end went unnoticed.
 	 *
 	 * @param array|mixed $state Stored backfill state.
 	 * @return bool Whether the run was forgotten, so a new one can be scheduled.
@@ -222,11 +274,11 @@ class Lookup_Data_Backfill {
 				return false;
 			}
 			if ( true === ( $status['progress']['woocommerce_analytics']['finished'] ?? false ) ) {
-				update_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, (int) $status['finished'] );
+				update_option( self::SYNCED_OPTION, (int) $status['finished'] );
 				return false;
 			}
 		} elseif ( $this->is_full_sync_running() ) {
-			// The replacing full sync may include the module; the tracker marks the data synced if so.
+			// The replacing full sync may include the module; its end marks the data synced if so.
 			return false;
 		}
 

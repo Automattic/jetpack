@@ -2,12 +2,13 @@
 /**
  * Tests for Lookup_Data_Backfill.
  *
- * @package automattic/jetpack-premium-analytics
+ * @package automattic/jetpack-woocommerce-stats
  */
 
-namespace Automattic\Jetpack\PremiumAnalytics\Sync;
+namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\PremiumAnalytics\Analytics;
+use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Before;
@@ -17,7 +18,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Sync\Lookup_Data_Backfill
+ * @covers \Automattic\Jetpack\WooCommerceStats\Lookup_Data_Backfill
  */
 #[CoversClass( Lookup_Data_Backfill::class )]
 #[AllowMockObjectsWithoutExpectations /* Partial mocks stub the store, Jetpack and WordPress.com checks; getStubBuilder() doesn't exist until PHPUnit 12.5. */]
@@ -36,7 +37,8 @@ class Lookup_Data_Backfill_Test extends TestCase {
 		\WorDBless\Options::init()->clear_options();
 		// update_option() skips a value the object cache still holds from an earlier test.
 		wp_cache_flush();
-		$GLOBALS['jpa_test_scheduled_actions'] = array();
+		require_once __DIR__ . '/mocks/action-scheduler-mock.php';
+		$GLOBALS['woocommerce_stats_test_scheduled_actions'] = array();
 	}
 
 	/**
@@ -44,7 +46,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	 */
 	#[After]
 	public function tear_down() {
-		unset( $GLOBALS['jpa_test_scheduled_actions'], $GLOBALS['current_screen'], $_GET['page'] );
+		unset( $GLOBALS['woocommerce_stats_test_scheduled_actions'], $GLOBALS['current_screen'], $_GET['page'] );
 		\WorDBless\Options::init()->clear_options();
 	}
 
@@ -87,7 +89,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	}
 
 	private static function scheduled_hooks(): array {
-		return array_column( $GLOBALS['jpa_test_scheduled_actions'], 'hook' );
+		return array_column( $GLOBALS['woocommerce_stats_test_scheduled_actions'], 'hook' );
 	}
 
 	/**
@@ -160,7 +162,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 
 	public function test_does_not_schedule_when_already_backfilled() {
 		self::record_earlier_syncs();
-		update_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, 1730000456 );
+		update_option( Lookup_Data_Backfill::SYNCED_OPTION, 1730000456 );
 
 		$this->backfill()->maybe_schedule();
 
@@ -172,7 +174,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 		$this->backfill()->maybe_schedule();
 
 		$this->assertSame( array(), self::scheduled_hooks() );
-		$this->assertSame( 0, (int) get_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, 0 ), 'the first analytics full sync may still run under Premium Analytics' );
+		$this->assertSame( 0, (int) get_option( Lookup_Data_Backfill::SYNCED_OPTION, 0 ), 'the first analytics full sync may still run under Premium Analytics' );
 	}
 
 	/**
@@ -192,7 +194,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 		$backfill->maybe_schedule();
 
 		$this->assertSame( array(), self::scheduled_hooks() );
-		$this->assertGreaterThan( 0, (int) get_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, 0 ) );
+		$this->assertGreaterThan( 0, (int) get_option( Lookup_Data_Backfill::SYNCED_OPTION, 0 ) );
 	}
 
 	public static function provide_nothing_to_backfill() {
@@ -247,7 +249,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 
 		$backfill->start_backfill();
 
-		$this->assertSame( ! $start, Sync_Status_Tracker::lookup_data_synced() );
+		$this->assertSame( ! $start, Lookup_Data_Backfill::is_synced() );
 		$this->assertSame( array(), self::scheduled_hooks() );
 	}
 
@@ -289,7 +291,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	}
 
 	public function test_action_does_nothing_once_backfilled() {
-		update_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, 1730000456 );
+		update_option( Lookup_Data_Backfill::SYNCED_OPTION, 1730000456 );
 		$backfill = $this->backfill();
 		$backfill->expects( $this->never() )->method( 'fetch_wpcom_products' );
 		$backfill->expects( $this->never() )->method( 'do_full_sync' );
@@ -311,7 +313,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 		$this->backfill( $results )->start_backfill( $first_attempt );
 
 		$this->assertSame( array( Lookup_Data_Backfill::START_HOOK ), self::scheduled_hooks() );
-		$this->assertSame( array( $first_attempt ), $GLOBALS['jpa_test_scheduled_actions'][0]['args'] );
+		$this->assertSame( array( $first_attempt ), $GLOBALS['woocommerce_stats_test_scheduled_actions'][0]['args'] );
 		$this->assertSame( 0, get_option( Lookup_Data_Backfill::STATE_OPTION )['started_at'] );
 	}
 
@@ -429,7 +431,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 		)->maybe_schedule();
 
 		$this->assertSame( $schedule ? array( Lookup_Data_Backfill::START_HOOK ) : array(), self::scheduled_hooks() );
-		$this->assertSame( $synced, Sync_Status_Tracker::lookup_data_synced() );
+		$this->assertSame( $synced, Lookup_Data_Backfill::is_synced() );
 	}
 
 	public static function provide_started_run() {
@@ -453,6 +455,39 @@ class Lookup_Data_Backfill_Test extends TestCase {
 			'replaced by a running full sync'  => array( array( 'context' => null ), true, false, false ),
 			'still running'                    => array( array( 'context' => Lookup_Data_Backfill::FULL_SYNC_CONTEXT ), true, false, false ),
 			'finished, end missed'             => array( $ours, false, false, true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_full_sync_end_configs
+	 * @param array $config   Config of the full sync that ended.
+	 * @param int   $expected Expected lookup data marker.
+	 */
+	#[DataProvider( 'provide_full_sync_end_configs' )]
+	public function test_full_sync_end_marks_the_lookup_data_synced( array $config, int $expected ) {
+		// The milestone may come from the standalone plugin's sync, which sent no lookup data.
+		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000000 );
+
+		$this->backfill( array( 'get_full_sync_status' => array( 'config' => $config ) ) )->on_sync_processed_actions(
+			array( array( 'jetpack_full_sync_end', array(), 0, 1730000123 ) )
+		);
+
+		$this->assertSame( $expected, (int) get_option( Lookup_Data_Backfill::SYNCED_OPTION, 0 ) );
+	}
+
+	public static function provide_full_sync_end_configs() {
+		return array(
+			'full analytics sync'    => array( array( 'woocommerce_analytics' => true ), 1730000123 ),
+			'partial analytics sync' => array(
+				array(
+					'woocommerce_analytics' => array(
+						'start_date' => '2024-01-01',
+						'end_date'   => '2024-02-01',
+					),
+				),
+				0,
+			),
+			'no analytics module'    => array( array( 'posts' => true ), 0 ),
 		);
 	}
 }

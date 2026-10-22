@@ -24,12 +24,6 @@ class Sync_Status_Tracker {
 	const INITIAL_ANALYTICS_SYNC_OPTION = 'jetpack_premium_analytics_initial_analytics_sync_finished';
 
 	/**
-	 * Timestamp of the first full woocommerce_analytics sync that finished under Premium Analytics, which,
-	 * unlike the standalone plugin's, sends the lookup data. {@see Lookup_Data_Backfill} also sets it when nothing is missing.
-	 */
-	const LOOKUP_DATA_SYNCED_OPTION = 'jetpack_premium_analytics_lookup_data_synced';
-
-	/**
 	 * First full-sync start timestamps, keyed by analytics module name.
 	 */
 	const ANALYTICS_SYNC_STARTED_OPTION = 'jetpack_premium_analytics_analytics_sync_started';
@@ -107,8 +101,8 @@ class Sync_Status_Tracker {
 	 */
 	public static function on_sync_processed_actions( array $actions ): void {
 		// Bail before the per-batch full-sync lookup ($module->get_status() bypasses
-		// the status cache) once both markers are set.
-		if ( self::milestone_reached() && self::lookup_data_synced() ) {
+		// the status cache) once the milestone is set.
+		if ( self::milestone_reached() ) {
 			return;
 		}
 
@@ -136,7 +130,7 @@ class Sync_Status_Tracker {
 	}
 
 	/**
-	 * Set the milestone and the lookup data marker when the supplied full-sync status and actions represent the analytics sync ending.
+	 * Decide whether the supplied full-sync status and actions represent the analytics sync ending.
 	 *
 	 * Only a full sync whose config includes an analytics module counts — a generic sync can't mark
 	 * store data complete; split out so tests can exercise it without the sync module registry.
@@ -146,17 +140,11 @@ class Sync_Status_Tracker {
 	 * @return void
 	 */
 	public static function maybe_set_milestone( array $full_status, array $actions ): void {
-		$milestone_reached  = self::milestone_reached();
-		$lookup_data_synced = self::lookup_data_synced();
-		if ( $milestone_reached && $lookup_data_synced ) {
+		if ( self::milestone_reached() ) {
 			return;
 		}
 
-		$config = (array) ( $full_status['config'] ?? array() );
-		$active = self::includes_analytics_module( $config );
-		// An array config is a date range, a partial sync that leaves the other orders without lookup data.
-		$syncs_lookup_data = ! empty( $config['woocommerce_analytics'] ) && ! is_array( $config['woocommerce_analytics'] );
-		if ( ! $active && ! $syncs_lookup_data ) {
+		if ( ! self::includes_analytics_module( $full_status['config'] ?? array() ) ) {
 			return;
 		}
 
@@ -174,14 +162,8 @@ class Sync_Status_Tracker {
 			return;
 		}
 
-		if ( ! $lookup_data_synced && $syncs_lookup_data ) {
-			update_option( self::LOOKUP_DATA_SYNCED_OPTION, $finished_at );
-		}
-
-		if ( ! $milestone_reached && $active ) {
-			$full_status['finished'] = $finished_at;
-			self::set_milestone( $full_status );
-		}
+		$full_status['finished'] = $finished_at;
+		self::set_milestone( $full_status );
 	}
 
 	/**
@@ -320,15 +302,6 @@ class Sync_Status_Tracker {
 	 */
 	private static function milestone_reached(): bool {
 		return self::milestone() > 0;
-	}
-
-	/**
-	 * Whether a full woocommerce_analytics sync finished under Premium Analytics, or the backfill found nothing missing.
-	 *
-	 * @return bool
-	 */
-	public static function lookup_data_synced(): bool {
-		return (int) get_option( self::LOOKUP_DATA_SYNCED_OPTION, 0 ) > 0;
 	}
 
 	/**

@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\WooCommerceStats;
 
-use Automattic\Jetpack\PremiumAnalytics\Sync\Lookup_Data_Backfill;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\Sync\Data_Settings;
 use Automattic\Jetpack\Sync\Modules;
