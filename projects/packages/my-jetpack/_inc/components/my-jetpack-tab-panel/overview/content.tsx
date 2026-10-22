@@ -1,6 +1,7 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
+import { __ } from '@wordpress/i18n';
+import { Text } from '@wordpress/ui';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
-import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import OverviewBlogPosts from '../../overview-blog-posts';
 import ProductCardsSection from '../../product-cards-section';
 import OverviewSections from '../../product-cards-section/overview-sections';
@@ -21,12 +22,18 @@ export function OverviewContent() {
 	return (
 		<div>
 			<div className={ styles.products }>
-				{ overviewV1 && <OverviewSections /> }
-				{ /* Offline mode never registers the blog posts route. */ }
-				{ overviewV1 && ! isOfflineFeatures() && (
-					<div className={ styles[ 'blog-posts' ] }>
-						<OverviewBlogPosts />
-					</div>
+				{ overviewV1 && (
+					<>
+						<div className={ styles.welcome }>
+							<Text variant="heading-xl" render={ <h2 /> }>
+								{ __( 'Welcome to Jetpack', 'jetpack-my-jetpack' ) }
+							</Text>
+						</div>
+						<OverviewSections />
+						<div className={ styles[ 'blog-posts' ] }>
+							<OverviewBlogPosts />
+						</div>
+					</>
 				) }
 				<ProductCardsSection />
 			</div>
