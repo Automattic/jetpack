@@ -19,7 +19,7 @@ const OPEN_KINDS: Record< string, string > = {
  */
 export function useRecordThreatOpen( threat?: ScanThreat ): void {
 	const id = threat && String( threat.id );
-	const recorded = useRef< string >();
+	const recorded = useRef< string | undefined >( undefined );
 
 	useEffect( () => {
 		if ( ! threat || recorded.current === id ) {
