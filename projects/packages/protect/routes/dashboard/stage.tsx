@@ -65,6 +65,17 @@ const Stage = () => {
 		}
 	}, [ activeTab, load, showReport ] );
 
+	// Only a real Settings card goes to Tracks; `?section=` is free text from the URL.
+	const pageViewSection =
+		activeTab === 'settings' && sections.some( section => section.key === requestedSection )
+			? requestedSection
+			: undefined;
+	useEffect( () => {
+		if ( ! showReport ) {
+			recordPageView( activeTab, pageViewSection );
+		}
+	}, [ activeTab, pageViewSection, showReport ] );
+
 	if ( showReport ) {
 		return (
 			<AdminPage className="jp-protect-dashboard" breadcrumbs={ <ThreatReportBreadcrumbs /> }>
@@ -78,13 +89,6 @@ const Stage = () => {
 			</AdminPage>
 		);
 	}
-
-	// Only a real Settings card goes to Tracks; `?section=` is free text from the URL.
-	const pageViewSection =
-		activeTab === 'settings' && sections.some( section => section.key === requestedSection )
-			? requestedSection
-			: undefined;
-	useEffect( () => recordPageView( activeTab, pageViewSection ), [ activeTab, pageViewSection ] );
 
 	return (
 		<AdminPage
