@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { RegistryProvider } from '@wordpress/data';
 /**
  * Internal dependencies
@@ -11,7 +11,6 @@ import { createNoticesRegistry } from '../../../../../../tests/js/notice-test-ut
 import * as downloadReportCsvModule from '../../../report-exports/download-report-csv';
 import { WidgetRootContext } from '../../widget-root';
 import { useExporterCsvAction } from '../csv-download-action';
-import { ExporterCsvDownloadButton } from '../exporter-csv-download-button';
 import type { ReportCsvExporter } from '../../../report-exports/types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
@@ -133,47 +132,5 @@ describe( 'useExporterCsvAction', () => {
 
 		rerender( { status: { ...SETTLED, isError: true } } );
 		expect( result.current ).toBeNull();
-	} );
-} );
-
-describe( 'ExporterCsvDownloadButton', () => {
-	beforeEach( () => {
-		setUp();
-		jest.useFakeTimers();
-		mockDownloadReportCsv.mockResolvedValue( undefined );
-	} );
-
-	afterEach( () => {
-		jest.useRealTimers();
-		mockDownloadReportCsv.mockRestore();
-	} );
-
-	function renderButton( status = SETTLED, rowCount = 3 ) {
-		return render(
-			<ExporterCsvDownloadButton exporter={ exporter } status={ status } rowCount={ rowCount } />,
-			{ wrapper }
-		);
-	}
-
-	it( 'downloads the full report for the widget report window', async () => {
-		renderButton();
-
-		const button = screen.getByRole( 'button', { name: /Download CSV/ } );
-		// This package does not depend on @testing-library/user-event.
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( button );
-
-		expect( mockDownloadReportCsv ).toHaveBeenCalledWith( exporter, REPORT_PARAMS );
-		await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
-	} );
-
-	// The full readiness matrix lives with `isReportCsvReady`; these rows prove the button reads it.
-	it.each( [
-		[ 'no rows', SETTLED, 0 ],
-		[ 'fetching a new range', { ...SETTLED, isFetching: true }, 3 ],
-	] )( 'stays hidden while the widget has %s', ( _state, status, rowCount ) => {
-		renderButton( status, rowCount );
-
-		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 	} );
 } );

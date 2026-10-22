@@ -53,6 +53,15 @@ export type FeatureControl =
 	| { kind: 'install-jetpack'; installed: boolean; blocked?: InstallBlock }
 	| { kind: 'none'; override?: 'active' | 'inactive' };
 
+type ConnectionStore = {
+	getConnectionStatus?: () => {
+		isRegistered: boolean;
+		hasConnectedOwner: boolean;
+		isUserConnected?: boolean;
+	};
+	getIsOfflineMode?: () => boolean;
+};
+
 // Why the current user can't make an install the card would otherwise offer.
 export type InstallBlock = Exclude< MainFeatureInstallAccess, 'allowed' >;
 
@@ -491,14 +500,7 @@ export function useFeaturesNeedsAccount(): boolean {
 				return false;
 			}
 			// Read the connection store directly: useMyJetpackConnection needs page data that the offline Features page does not load.
-			const store = select( CONNECTION_STORE ) as unknown as {
-				getConnectionStatus?: () => {
-					isRegistered: boolean;
-					hasConnectedOwner: boolean;
-					isUserConnected?: boolean;
-				};
-				getIsOfflineMode?: () => boolean;
-			};
+			const store = select( CONNECTION_STORE ) as unknown as ConnectionStore;
 			const connection = store?.getConnectionStatus?.();
 			// A linked admin on a site whose owner left already has an account, so Connect would only loop.
 			return Boolean(
@@ -512,6 +514,20 @@ export function useFeaturesNeedsAccount(): boolean {
 	);
 
 	return waiting && ! hasConnectionError;
+}
+
+/**
+ * Whether the current admin's WordPress.com account is connected and the site has an owner.
+ *
+ * @return Whether features waiting for an account can now be turned on.
+ */
+export function useAccountConnected(): boolean {
+	return useSelect( select => {
+		const connection = (
+			select( CONNECTION_STORE ) as unknown as ConnectionStore
+		 )?.getConnectionStatus?.();
+		return Boolean( connection?.isUserConnected && connection.hasConnectedOwner );
+	}, [] );
 }
 
 /**

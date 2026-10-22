@@ -31,7 +31,6 @@ return (
 			),
 			onRetry: refetch,
 		} ) }
-		footer={ <ReportLink report="videos" /> }
 	/>
 );
 ```

@@ -72,7 +72,7 @@ add_action(
 			return;
 		}
 		$version = \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION;
-		if ( version_compare( $version, '1.3.0', '<' ) || version_compare( $version, '2', '>=' ) ) {
+		if ( version_compare( $version, '2.0.0', '<' ) || version_compare( $version, '3', '>=' ) ) {
 			return;
 		}
 
@@ -266,6 +266,8 @@ The major changes when a widget built against the previous contract stops workin
 | 1.15.0 | A `jpa/toggle-group` option names its `icon` by reference, the form a `widget.json` can carry.                                                                               |
 | 1.16.0 | `useReportActions`: a widget declares its View all link and CSV download, and the dashboard renders them in the card footer.                                                 |
 | 1.17.0 | `Button`, `ButtonLink`, `Progress`, `Text` and `VisuallyHidden`, the `@wordpress/ui` primitives a widget renders, shared so it bundles no copy of its own.                   |
+
+2.0.0 removes `WidgetFooter`, `ReportLink` and `ExporterCsvDownloadButton` from the SDK, and the `footer` prop from `Leaderboard`: a widget declares its footer with `useReportActions`.
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 
