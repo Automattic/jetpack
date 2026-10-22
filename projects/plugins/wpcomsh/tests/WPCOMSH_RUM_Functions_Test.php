@@ -5,6 +5,8 @@
  * @package wpcomsh
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Class Test_WPCOMSH_RUM_Functions
  */
@@ -88,5 +90,41 @@ class WPCOMSH_RUM_Functions_Test extends WP_UnitTestCase {
 		remove_filter( 'wpcomsh_bilmur_site_v', $callback );
 
 		$this->assertStringContainsString( 'data-site-v="custom-value"', $output );
+	}
+
+	/**
+	 * Test that bilmur waits for consent on the front end only when the WP Consent API is active.
+	 *
+	 * @dataProvider provide_consent_gate_actions
+	 *
+	 * @param string $action      The footer action being run.
+	 * @param bool   $expect_gate Whether the script load should be gated.
+	 */
+	#[DataProvider( 'provide_consent_gate_actions' )]
+	public function test_wpcomsh_footer_rum_js_consent_gate( $action, $expect_gate ) {
+		if ( ! function_exists( 'wp_has_consent' ) ) {
+			require __DIR__ . '/wp-consent-api-stub.php';
+		}
+
+		$GLOBALS['wp_current_filter'][] = $action;
+		ob_start();
+		wpcomsh_footer_rum_js();
+		$output = ob_get_clean();
+		array_pop( $GLOBALS['wp_current_filter'] );
+
+		$this->assertSame( ! $expect_gate, str_contains( $output, 'src="https://s0.wp.com/wp-content/js/bilmur.min.js' ) );
+		$this->assertSame( $expect_gate, str_contains( $output, 'wp_has_consent( "statistics-anonymous" )' ) );
+	}
+
+	/**
+	 * Data provider for test_wpcomsh_footer_rum_js_consent_gate.
+	 *
+	 * @return array
+	 */
+	public static function provide_consent_gate_actions() {
+		return array(
+			'front end' => array( 'wp_footer', true ),
+			'wp-admin'  => array( 'admin_footer', false ),
+		);
 	}
 }
