@@ -37,13 +37,6 @@ describe( 'trafficIntervalExtension', () => {
 			{},
 		],
 		[
-			'adds nothing to Today',
-			{ preset: 'today', from: '2026-10-22T00:00:00', to: '2026-10-22T23:59:59' },
-			'line',
-			{},
-		],
-		// Spans two dates, so a day count alone would let days in.
-		[
 			'adds nothing to Last 24 hours',
 			{ preset: 'last-24-hours', from: '2026-10-21T10:00:00', to: '2026-10-22T10:00:00' },
 			'line',

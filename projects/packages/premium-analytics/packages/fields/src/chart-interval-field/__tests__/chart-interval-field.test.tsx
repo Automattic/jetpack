@@ -38,7 +38,6 @@ const HINT = 'Switch to the line chart to see each day.';
 
 type LineOrBar = Attributes & { chartType?: 'line' | 'bar' };
 
-// Days on long ranges for lines only, as the Traffic summary asks.
 const DaysOnLinesControl = chartIntervalAttributeField< LineOrBar >( ( _range, item ) =>
 	item.chartType === 'line'
 		? { extra: [ 'day' ] }

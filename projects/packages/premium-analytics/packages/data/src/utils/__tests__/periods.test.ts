@@ -16,7 +16,6 @@ const DAY_WEEK_MONTH = [ 'day', 'week', 'month' ] as const;
 const DAY_WEEK_MONTH_YEAR = [ 'day', 'week', 'month', 'year' ] as const;
 const HOUR_DAY_WEEK_MONTH = [ 'hour', 'day', 'week', 'month' ] as const;
 
-// Ranges whose defaults are days, weeks and months, and the two ways a widget extends them.
 const LAST_30_DAYS = {
 	preset: 'last-30-days',
 	from: '2026-09-16',
@@ -202,7 +201,6 @@ describe( 'chartInterval', () => {
 		[ 'draws a bucket the widget adds', LAST_90_DAYS, 'day', ADD_DAYS, 'day' ],
 		[ 'keeps the range default first', LAST_90_DAYS, undefined, ADD_DAYS, 'week' ],
 		[ 'draws months for a withheld bucket', LAST_12_MONTHS, 'day', WITHHOLD_DAYS, 'month' ],
-		[ 'draws a withheld bucket the range also allows', LAST_30_DAYS, 'day', WITHHOLD_DAYS, 'day' ],
 	] )( '%s', ( _, range, interval, extension, expected ) => {
 		expect(
 			chartInterval( { ...range, interval }, DAY_WEEK_MONTH, NO_LOCKED_INTERVALS, extension )

@@ -10,8 +10,10 @@ import { getSettings, setSettings } from '@wordpress/date';
  */
 import TrafficChartRender from '../render';
 import useTrafficChart from '../use-traffic-chart';
-import widget from '../widget';
+import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
+import widget, { type TrafficChartAttributes } from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
+import type { ComponentType } from 'react';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
@@ -194,6 +196,29 @@ describe( 'Traffic chart type switch', () => {
 		window.localStorage.setItem( V1_KEY, 'line' );
 
 		expect( chartTypeSwitchValue( {} ) ).toBe( 'line' );
+	} );
+} );
+
+describe( 'Traffic chart interval menu', () => {
+	afterEach( () => setMockRouteSearch( {} ) );
+
+	it( 'follows the chart type over a saved day on a year', () => {
+		setMockRouteSearch( { preset: 'last-12-months' } );
+		const field = widget.attributes.find( attribute => attribute.id === 'chartInterval' );
+		const Menu = field?.Edit as unknown as ComponentType< {
+			data: TrafficChartAttributes;
+			field: typeof field;
+			onChange: () => void;
+		} >;
+		const props = { field, onChange: jest.fn() };
+
+		const { rerender } = render(
+			<Menu { ...props } data={ { chartInterval: 'day', chartType: 'line' } } />
+		);
+		expect( screen.getByRole( 'button', { name: 'By days' } ) ).toBeInTheDocument();
+
+		rerender( <Menu { ...props } data={ { chartInterval: 'day', chartType: 'bar' } } /> );
+		expect( screen.getByRole( 'button', { name: 'By months' } ) ).toBeInTheDocument();
 	} );
 } );
 
