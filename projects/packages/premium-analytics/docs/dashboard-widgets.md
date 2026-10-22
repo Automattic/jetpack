@@ -265,6 +265,7 @@ The major changes when a widget built against the previous contract stops workin
 | 1.14.0 | `attributes` on the record, which lead the module's by `id`.                                                                                                                 |
 | 1.15.0 | A `jpa/toggle-group` option names its `icon` by reference, the form a `widget.json` can carry.                                                                               |
 | 1.16.0 | `useReportActions`: a widget declares its View all link and CSV download, and the dashboard renders them in the card footer.                                                 |
+| 1.17.0 | `Button`, `ButtonLink`, `Progress`, `Text` and `VisuallyHidden`, the `@wordpress/ui` primitives a widget renders, shared so it bundles no copy of its own.                   |
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 
