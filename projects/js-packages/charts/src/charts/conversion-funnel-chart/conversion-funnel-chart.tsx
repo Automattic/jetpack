@@ -459,7 +459,12 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 									onFocus={ handlers?.onFocus }
 									role="option"
 									tabIndex={ getTabIndex( step.id ) }
-									aria-label={ step.label }
+									aria-label={ sprintf(
+										/* translators: 1: Funnel step name, such as "Cart". 2: Its rate, such as "71.1%". */
+										__( '%1$s, %2$s', 'jetpack-charts' ),
+										step.label,
+										formatPercentage( step.rate )
+									) }
 									aria-selected={ isSelected }
 									aria-describedby={ isDescribedByTooltip ? tooltipDescriptionIds : undefined }
 								>

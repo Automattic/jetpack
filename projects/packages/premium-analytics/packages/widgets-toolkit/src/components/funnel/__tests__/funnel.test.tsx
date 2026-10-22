@@ -59,7 +59,7 @@ describe( 'Funnel', () => {
 	] )( 'shows the %s step count and conversion rate in its tooltip', async ( label, text ) => {
 		renderFunnel( <Funnel steps={ STEPS } status={ READY } /> );
 
-		await userEvent.click( screen.getByRole( 'option', { name: label } ) );
+		await userEvent.click( screen.getByRole( 'option', { name: new RegExp( `^${ label }, ` ) } ) );
 
 		expect( screen.getByTestId( 'funnel-tooltip' ) ).toHaveTextContent( text );
 	} );
