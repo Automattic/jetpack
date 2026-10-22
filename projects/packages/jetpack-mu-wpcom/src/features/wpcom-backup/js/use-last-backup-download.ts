@@ -1,6 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
+import { useTracks } from '../../wpcom-hosting-feature-page/js/tracks.ts';
 import {
 	findResumableDownload,
 	hasSelectedItems,
@@ -8,7 +9,6 @@ import {
 	readCreatedDownload,
 	readDownload,
 } from './download.ts';
-import { recordTracksEvent } from './tracks.ts';
 import type { Download, DownloadItems, LastBackup } from './download.ts';
 
 // wpcom's apiFetch middleware sends `wpcom/*` paths to the WordPress.com API, adding the site.
@@ -75,6 +75,8 @@ export function useLastBackupDownload() {
 	const [ backup, setBackup ] = useState< LastBackup | null >();
 	const [ phase, setPhase ] = useState< DownloadPhase >( { name: 'idle' } );
 	const pollingId = phase.name === 'progress' ? phase.id : null;
+	// Stable for the page's life, so listing it never restarts a poll.
+	const { recordTracksEvent } = useTracks();
 
 	useEffect( () => {
 		let active = true;
@@ -165,7 +167,7 @@ export function useLastBackupDownload() {
 			active = false;
 			clearTimeout( timer );
 		};
-	}, [ pollingId ] );
+	}, [ pollingId, recordTracksEvent ] );
 
 	const submit = useCallback(
 		async ( items: DownloadItems ) => {
@@ -209,7 +211,7 @@ export function useLastBackupDownload() {
 				} );
 			}
 		},
-		[ backup ]
+		[ backup, recordTracksEvent ]
 	);
 
 	const reset = useCallback( () => setPhase( { name: 'idle' } ), [] );

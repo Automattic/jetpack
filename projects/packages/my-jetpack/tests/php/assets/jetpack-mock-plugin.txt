@@ -26,6 +26,8 @@ function jetpack_is_internal_testing_environment() {
 
 class Jetpack {
 
+	const BACKUP_FOLLOWS_PLAN = true;
+
 	static $active_modules = array();
 	static $available_modules = array( 'ai' );
 

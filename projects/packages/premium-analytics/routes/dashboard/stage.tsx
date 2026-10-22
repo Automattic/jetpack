@@ -6,7 +6,11 @@ import {
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { usePeriodHost, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import {
+	DashboardWidgetHostProvider,
+	usePeriodHost,
+	useReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
 import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import {
 	DateFiltersPanel,
@@ -475,135 +479,137 @@ function Dashboard(): JSX.Element {
 				dateLimits={ dateLimits }
 			>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
-				<WidgetDashboard.Policy canPerform={ canPerform }>
-					<WidgetDashboard
-						widgetTypes={ widgetTypes }
-						isResolvingWidgetTypes={ isResolvingWidgetTypes }
-						resolveWidgetModule={ resolveWidgetModule }
-						layout={ visibleLayout }
-						onLayoutChange={ onVisibleLayoutChange }
-						onLayoutReset={ resetLayout }
-						gridSettings={ gridSettings }
-						editMode={ editMode }
-						onEditChange={ onEditChange }
-					>
-						<Page
-							visual={ <StatsPageIcon /> }
-							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-							actions={
-								<Stack direction="row" gap="sm">
-									{ /* At rest these would add a second Customize beside the menu's. */ }
-									{ editMode && (
-										<>
-											<WidgetDashboard.Actions />
-											<ResetLayoutAction onReset={ resetToDefault } />
-										</>
-									) }
-									<Stack ref={ setOptionsMenuFrame } direction="row">
-										<PageOptionsMenu
-											onCustomize={
-												editMode || isSettingsActive || isSectionLocked
-													? undefined
-													: startCustomizing
-											}
-										/>
-									</Stack>
-								</Stack>
-							}
-							className={ styles.dashboard }
+				<DashboardWidgetHostProvider>
+					<WidgetDashboard.Policy canPerform={ canPerform }>
+						<WidgetDashboard
+							widgetTypes={ widgetTypes }
+							isResolvingWidgetTypes={ isResolvingWidgetTypes }
+							resolveWidgetModule={ resolveWidgetModule }
+							layout={ visibleLayout }
+							onLayoutChange={ onVisibleLayoutChange }
+							onLayoutReset={ resetLayout }
+							gridSettings={ gridSettings }
+							editMode={ editMode }
+							onEditChange={ onEditChange }
 						>
-							<DashboardSections
-								sections={ sections }
-								withSettingsTab={ hasSettingsTab }
-								isSettingsTabDisabled={ editMode }
-								value={ activeSection }
-								onChange={ setActiveSection }
-								tabListRef={ setTabListFrame }
+							<Page
+								visual={ <StatsPageIcon /> }
+								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
+								actions={
+									<Stack direction="row" gap="sm">
+										{ /* At rest these would add a second Customize beside the menu's. */ }
+										{ editMode && (
+											<>
+												<WidgetDashboard.Actions />
+												<ResetLayoutAction onReset={ resetToDefault } />
+											</>
+										) }
+										<Stack ref={ setOptionsMenuFrame } direction="row">
+											<PageOptionsMenu
+												onCustomize={
+													editMode || isSettingsActive || isSectionLocked
+														? undefined
+														: startCustomizing
+												}
+											/>
+										</Stack>
+									</Stack>
+								}
+								className={ styles.dashboard }
 							>
-								{ sections.map( section => (
-									<SectionTabPanel
-										key={ section.slug }
-										value={ section.slug }
-										className={ styles.content }
-									>
-										<SectionHeader
-											ref={ setHeaderRef }
-											title={ resolveSectionHeading( section ) }
-											pinned
-											notice={ <RefreshFailureNotice /> }
-											controlsRef={ setControlsAnchor }
+								<DashboardSections
+									sections={ sections }
+									withSettingsTab={ hasSettingsTab }
+									isSettingsTabDisabled={ editMode }
+									value={ activeSection }
+									onChange={ setActiveSection }
+									tabListRef={ setTabListFrame }
+								>
+									{ sections.map( section => (
+										<SectionTabPanel
+											key={ section.slug }
+											value={ section.slug }
+											className={ styles.content }
 										>
-											{ dateControls }
-										</SectionHeader>
+											<SectionHeader
+												ref={ setHeaderRef }
+												title={ resolveSectionHeading( section ) }
+												pinned
+												notice={ <RefreshFailureNotice /> }
+												controlsRef={ setControlsAnchor }
+											>
+												{ dateControls }
+											</SectionHeader>
 
-										{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
-										{ activeSection === section.slug && isSectionCommitted ? (
-											<div className={ styles.body }>
-												{ ! editMode && <DashboardNotices /> }
+											{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
+											{ activeSection === section.slug && isSectionCommitted ? (
+												<div className={ styles.body }>
+													{ ! editMode && <DashboardNotices /> }
 
-												{ /* Behind the onboarding journey: it introduces the tabs
-												     the banner asks about. */ }
-												<FeedbackBanner
-													enabled={
-														canSendFeedback() &&
-														! editMode &&
-														section.slug === defaultSection &&
-														onboarding.phase === 'closed'
-													}
-												/>
-
-												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
-													<SectionSyncNotice
-														canRunSync={ canRunSync }
-														percentage={ syncStatus?.percentage ?? 0 }
-														hasError={ !! syncError }
-														onRetry={ retrySync }
-														isRetrying={ isRetryingSync }
+													{ /* Behind the onboarding journey: it introduces the tabs
+													     the banner asks about. */ }
+													<FeedbackBanner
+														enabled={
+															canSendFeedback() &&
+															! editMode &&
+															section.slug === defaultSection &&
+															onboarding.phase === 'closed'
+														}
 													/>
-												) : (
-													section.notice && <SectionNotice message={ section.notice } />
-												) }
 
-												{ ! isSectionLocked && <WidgetDashboard.NoWidgetsState /> }
-												<div ref={ setWidgetsFrame }>
-													<DashboardSectionProvider section={ section.slug }>
-														<WidgetDashboard.Widgets className={ styles.widgets } />
-													</DashboardSectionProvider>
+													{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
+														<SectionSyncNotice
+															canRunSync={ canRunSync }
+															percentage={ syncStatus?.percentage ?? 0 }
+															hasError={ !! syncError }
+															onRetry={ retrySync }
+															isRetrying={ isRetryingSync }
+														/>
+													) : (
+														section.notice && <SectionNotice message={ section.notice } />
+													) }
+
+													{ ! isSectionLocked && <WidgetDashboard.NoWidgetsState /> }
+													<div ref={ setWidgetsFrame }>
+														<DashboardSectionProvider section={ section.slug }>
+															<WidgetDashboard.Widgets className={ styles.widgets } />
+														</DashboardSectionProvider>
+													</div>
+													{ isSectionLocked && <LockedSection section={ section.slug } /> }
 												</div>
-												{ isSectionLocked && <LockedSection section={ section.slug } /> }
+											) : null }
+										</SectionTabPanel>
+									) ) }
+
+									{ hasSettingsTab && (
+										<SectionTabPanel value={ SETTINGS_SECTION } className={ styles.content }>
+											<div className={ styles.body }>
+												<StatsSettingsPanel />
 											</div>
-										) : null }
-									</SectionTabPanel>
-								) ) }
+										</SectionTabPanel>
+									) }
+								</DashboardSections>
 
-								{ hasSettingsTab && (
-									<SectionTabPanel value={ SETTINGS_SECTION } className={ styles.content }>
-										<div className={ styles.body }>
-											<StatsSettingsPanel />
-										</div>
-									</SectionTabPanel>
-								) }
-							</DashboardSections>
+								<WidgetDashboard.Commands />
 
-							<WidgetDashboard.Commands />
-
-							<OnboardingWelcomeModal
-								open={ onboarding.phase === 'modal' }
-								variant={ onboarding.flow }
-								onStart={ onboarding.start }
-								onDismiss={ onboarding.dismiss }
-							/>
-							{ onboarding.phase === 'tour' && (
-								<OnboardingTour
-									steps={ tourSteps }
-									current={ onboarding.step }
-									onNext={ onboarding.next }
+								<OnboardingWelcomeModal
+									open={ onboarding.phase === 'modal' }
+									variant={ onboarding.flow }
+									onStart={ onboarding.start }
 									onDismiss={ onboarding.dismiss }
 								/>
-							) }
-						</Page>
-					</WidgetDashboard>
-				</WidgetDashboard.Policy>
+								{ onboarding.phase === 'tour' && (
+									<OnboardingTour
+										steps={ tourSteps }
+										current={ onboarding.step }
+										onNext={ onboarding.next }
+										onDismiss={ onboarding.dismiss }
+									/>
+								) }
+							</Page>
+						</WidgetDashboard>
+					</WidgetDashboard.Policy>
+				</DashboardWidgetHostProvider>
 			</ReportScopeProvider>
 		</>
 	);

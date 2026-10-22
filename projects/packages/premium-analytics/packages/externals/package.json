@@ -17,6 +17,6 @@
 		"@visx/scale": "4.0.0",
 		"@wordpress/dataviews": "20.0.0",
 		"@wordpress/ui": "0.24.0",
-		"react": "18.3.1"
+		"react": "19.3.0"
 	}
 }

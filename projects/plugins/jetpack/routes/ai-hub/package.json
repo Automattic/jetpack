@@ -7,7 +7,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
-		"@types/react": "18.3.31",
+		"@types/react": "19.3.0",
 		"@wordpress/a11y": "4.57.0",
 		"@wordpress/admin-ui": "2.12.0",
 		"@wordpress/api-fetch": "7.57.0",
@@ -24,7 +24,7 @@
 		"@wordpress/theme": "2.3.0",
 		"@wordpress/ui": "0.24.0",
 		"@wordpress/url": "4.57.0",
-		"markdown-it": "14.3.2"
+		"markdown-it": "14.3.3"
 	},
 	"route": {
 		"path": "/",
