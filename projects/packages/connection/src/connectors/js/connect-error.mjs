@@ -24,8 +24,10 @@ export function createRequestError( body, fallbackMessage ) {
 /**
  * What the connect notice shows for an error from the connect flow.
  *
- * The mapped message comes from the shared `jetpack-connection` script, which may be an older copy without
- * `getRegistrationErrorDisplay()`. Without it, or for a code it doesn't map, the error's own message is shown.
+ * The message comes from `getRegistrationErrorDisplay()` in the shared `jetpack-connection` script: the mapped
+ * message for a known code, else the site's message cleaned up (markup stripped, length capped), as on the other
+ * connect screens. An older copy of the script may lack the helper; then, or when the helper has nothing to show,
+ * the error's own message is shown.
  *
  * @param {Error}         error                       - The error the connect flow threw.
  * @param {Function|null} getRegistrationErrorDisplay - The helper from `@automattic/jetpack-connection`, if loaded.
