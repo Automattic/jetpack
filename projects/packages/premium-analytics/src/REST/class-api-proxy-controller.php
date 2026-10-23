@@ -125,7 +125,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  back to the site's first administrator). The only body rewrite this proxy
 	 *                  does; see `inject_user_email()`.
 	 *  - `forward_visitor_ip` (bool, optional) Send the visitor's IP as `X-Forwarded-For`, and cache
-	 *                  per IP, when the request passes no `currency`. For endpoints that answer by the
+	 *                  per IP, when the request has no `currency` query param. For endpoints that answer by the
 	 *                  requester's location, such as prices, which the site's server would otherwise stand in for.
 	 *  - `unauthenticated` (bool, optional) Forward reads WITHOUT signing (plain HTTP, like
 	 *                  stats-admin's Odyssey proxy does for post likes). For WPCOM endpoints
@@ -633,17 +633,16 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			&& null === $request->get_param( 'force_refresh' );
 
 		// A passed currency sets the prices on its own, so requests in it share one cache entry.
+		$forwarded  = $this->get_forwarded_params( $request, $wpcom_path );
 		$visitor_ip = '';
-		if ( ! empty( $opts['forward_visitor_ip'] ) && null === $request->get_param( 'currency' ) ) {
+		if ( ! empty( $opts['forward_visitor_ip'] ) && ! isset( $forwarded['currency'] ) ) {
 			$visitor_ip = ( new Visitor() )->get_ip( true );
 		}
-		$key_params = $this->get_forwarded_params( $request );
-		if ( '' !== $visitor_ip ) {
-			$key_params['visitor_ip'] = $visitor_ip;
-		}
+		// No query param or configured `path` can put a `#` in the path, so a caller cannot forge this key.
+		$key_path = '' !== $visitor_ip ? $wpcom_path . '#ip=' . $visitor_ip : $wpcom_path;
 
 		$cache_key = $cacheable
-			? $this->cache_key_for( $wpcom_path, $version, $base, $key_params, $opts['cache_scope'] ?? null )
+			? $this->cache_key_for( $key_path, $version, $base, $forwarded, $opts['cache_scope'] ?? null )
 			: null;
 		if ( null !== $cache_key ) {
 			$cached = get_transient( $cache_key );
@@ -876,7 +875,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @return string
 	 */
 	private function append_forwarded_params( WP_REST_Request $request, string $wpcom_path ): string {
-		$params = $this->get_forwarded_params( $request );
+		$params = $this->get_forwarded_params( $request, $wpcom_path );
 		if ( empty( $params ) ) {
 			return $wpcom_path;
 		}
@@ -889,19 +888,25 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	/**
 	 * Query params to forward to WPCOM, minus the WordPress routing params, the proxy's own
 	 * control params (`endpoint`, `version`, `force_refresh` — which a caller could also pass as
-	 * query params since `get_param()` prefers GET), and `site` (the proxy pins the site itself,
-	 * so a caller-supplied `site` must not reach the `upgrades` query string). Dropping the
-	 * control params also keeps them out of the cache key.
+	 * query params since `get_param()` prefers GET), and any arg the WPCOM path already sets (a
+	 * fixed `path` such as `products?type=jetpack` or `upgrades?site=<id>` owns its args, and a
+	 * repeated arg would override it). Dropping the control params also keeps them out of the cache key.
 	 *
-	 * @param WP_REST_Request $request Request object.
+	 * @param WP_REST_Request $request    Request object.
+	 * @param string          $wpcom_path WPCOM path that may already carry a query string.
 	 *
 	 * @return array
 	 */
-	private function get_forwarded_params( WP_REST_Request $request ): array {
+	private function get_forwarded_params( WP_REST_Request $request, string $wpcom_path ): array {
 		$params = $request->get_query_params();
-		unset( $params['rest_route'], $params['_locale'], $params['site'], $params['endpoint'], $params['version'], $params['force_refresh'] );
+		if ( ! is_array( $params ) ) {
+			return array();
+		}
+		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['version'], $params['force_refresh'] );
 
-		return is_array( $params ) ? $params : array();
+		parse_str( (string) wp_parse_url( $wpcom_path, PHP_URL_QUERY ), $fixed );
+
+		return array_diff_key( $params, $fixed );
 	}
 
 	/**
