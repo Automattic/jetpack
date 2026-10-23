@@ -249,7 +249,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 
 		$backfill->start_backfill();
 
-		$this->assertSame( ! $start, Lookup_Data_Backfill::is_synced() );
+		$this->assertSame( ! $start, (int) get_option( Lookup_Data_Backfill::SYNCED_OPTION, 0 ) > 0 );
 		$this->assertSame( array(), self::scheduled_hooks() );
 	}
 
@@ -431,7 +431,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 		)->maybe_schedule();
 
 		$this->assertSame( $schedule ? array( Lookup_Data_Backfill::START_HOOK ) : array(), self::scheduled_hooks() );
-		$this->assertSame( $synced, Lookup_Data_Backfill::is_synced() );
+		$this->assertSame( $synced, (int) get_option( Lookup_Data_Backfill::SYNCED_OPTION, 0 ) > 0 );
 	}
 
 	public static function provide_started_run() {

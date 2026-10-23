@@ -92,8 +92,22 @@ class Lookup_Data_Backfill {
 	 *
 	 * @return bool
 	 */
-	public static function is_synced(): bool {
+	private static function is_synced(): bool {
 		return (int) get_option( self::SYNCED_OPTION, 0 ) > 0;
+	}
+
+	/**
+	 * Whether the first analytics full sync has finished.
+	 *
+	 * @return bool
+	 */
+	private static function is_initial_sync_finished(): bool {
+		// An older copy of the dashboard package has no accessor; its milestone is this option.
+		if ( ! method_exists( Sync_Status_Tracker::class, 'has_initial_sync_finished' ) ) {
+			return (int) get_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 0 ) > 0;
+		}
+
+		return Sync_Status_Tracker::has_initial_sync_finished();
 	}
 
 	/**
@@ -177,7 +191,7 @@ class Lookup_Data_Backfill {
 		}
 
 		// Wait for the first analytics full sync; if it runs under Premium Analytics, its end marks the data synced.
-		if ( (int) get_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 0 ) <= 0 ) {
+		if ( ! self::is_initial_sync_finished() ) {
 			return;
 		}
 

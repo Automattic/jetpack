@@ -214,6 +214,11 @@ class Sync_Status_Tracker {
 	 * @return void
 	 */
 	private static function set_milestone( array $full_status ): void {
+		// Record the finishing sync's modules first, so a milestone set after the update never reads as a legacy one.
+		if ( false === get_option( self::ANALYTICS_SYNC_STARTED_OPTION ) ) {
+			self::on_full_sync_start( $full_status['config'] ?? array() );
+		}
+
 		update_option( self::INITIAL_ANALYTICS_SYNC_OPTION, (int) $full_status['finished'] );
 
 		/**
@@ -356,6 +361,17 @@ class Sync_Status_Tracker {
 	 */
 	private static function milestone_reached(): bool {
 		return self::milestone() > 0;
+	}
+
+	/**
+	 * Whether the first analytics full sync has finished.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function has_initial_sync_finished(): bool {
+		return self::milestone_reached();
 	}
 
 	/**

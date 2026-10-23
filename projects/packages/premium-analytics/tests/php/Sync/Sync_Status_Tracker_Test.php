@@ -230,6 +230,25 @@ class Sync_Status_Tracker_Test extends TestCase {
 		$this->assertSame( $expected, isset( get_option( Sync_Status_Tracker::ANALYTICS_SYNC_STARTED_OPTION, array() )['first_analytics'] ) );
 	}
 
+	public function test_milestone_from_a_sync_begun_before_the_update_does_not_start_other_modules() {
+		add_filter(
+			'jetpack_premium_analytics_sync_modules',
+			static function ( $modules ) {
+				$modules[] = 'second_analytics';
+				return $modules;
+			}
+		);
+
+		// Its start hook ran before the update, so only its end is seen.
+		Sync_Status_Tracker::maybe_set_milestone(
+			array( 'config' => array( 'second_analytics' => 1 ) ),
+			array( array( 'jetpack_full_sync_end', array(), 0, 1730000123 ) )
+		);
+
+		$this->assertTrue( Sync_Status_Tracker::has_module_full_sync_started( 'second_analytics' ) );
+		$this->assertFalse( Sync_Status_Tracker::has_module_full_sync_started( 'first_analytics' ) );
+	}
+
 	public function test_later_full_sync_without_analytics_keeps_analytics_sync_started() {
 		Sync_Status_Tracker::on_full_sync_start( array( 'first_analytics' => 1 ) );
 		Sync_Status_Tracker::on_full_sync_start( array( 'posts' => 1 ) );
