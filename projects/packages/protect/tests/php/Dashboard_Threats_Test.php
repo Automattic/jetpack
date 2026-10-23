@@ -320,40 +320,31 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Resolved and reported threat ids, and which stay open and which records are kept.
+	 * When Scan last scanned, relative to the delete, and which threats stay open and which records are kept.
 	 *
 	 * @return array[]
 	 */
 	public static function provider_without_resolved() {
 		return array(
-			'a resolved threat is hidden while Scan reports it' => array( array( '1' ), array( '1', '2' ), array( '2' ), array( '1' ) ),
-			'a record goes once Scan stops reporting it' => array( array( '1', '3' ), array( '1', '2' ), array( '2' ), array( '1' ) ),
-			'the option goes with its last record'       => array( array( '3' ), array( '2' ), array( '2' ), array() ),
+			'hidden until Scan scans again'          => array( -HOUR_IN_SECONDS, array( '2' ), array( '1' ) ),
+			'shown again when a later scan finds it' => array( HOUR_IN_SECONDS, array( '1', '2' ), array() ),
 		);
 	}
 
 	/**
-	 * Test that resolved threats are hidden until Scan stops reporting them.
+	 * Test that a resolved threat is hidden only until Scan's next scan.
 	 *
 	 * @dataProvider provider_without_resolved
-	 * @param string[] $resolved      Ids the site resolved.
-	 * @param string[] $reported      Ids Scan reports.
+	 * @param int      $scanned       Seconds from the delete to Scan's last scan.
 	 * @param string[] $expected_open Ids left open.
 	 * @param string[] $expected_kept Ids still recorded.
 	 */
 	#[DataProvider( 'provider_without_resolved' )]
-	public function test_without_resolved( $resolved, $reported, $expected_open, $expected_kept ) {
-		foreach ( $resolved as $id ) {
-			Dashboard_Threats::resolve( array( 'id' => $id ) );
-		}
-		$threats = array_map(
-			function ( $id ) {
-				return (object) array( 'id' => $id );
-			},
-			$reported
-		);
+	public function test_without_resolved( $scanned, $expected_open, $expected_kept ) {
+		Dashboard_Threats::resolve( array( 'id' => '1' ) );
+		$threats = array( (object) array( 'id' => '1' ), (object) array( 'id' => '2' ) );
 
-		$open = Dashboard_Threats::without_resolved( $threats );
+		$open = Dashboard_Threats::without_resolved( $threats, gmdate( 'c', time() + $scanned ) );
 
 		$this->assertSame( $expected_open, array_column( $open, 'id' ) );
 		$this->assertSame( $expected_kept, array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );

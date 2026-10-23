@@ -447,9 +447,11 @@ class Scan_Section_Test extends BaseTestCase {
 	 * @return array[]
 	 */
 	public static function provider_find_threat_row_refuses() {
+		global $wpdb;
 		return array(
-			'an id Scan did not report' => array( '2', 'wp_options' ),
+			'an id Scan did not report' => array( '2', $wpdb->options ),
 			'a table outside the site'  => array( '1', 'information_schema.tables' ),
+			'the shared users table'    => array( '1', $wpdb->users ),
 		);
 	}
 
@@ -496,9 +498,11 @@ class Scan_Section_Test extends BaseTestCase {
 			return array( 'option_name' => $name );
 		};
 		return array(
-			'a flagged option'         => array( $wpdb->options, 'option_id', $row( '_wpc_ak' ), '_wpc_ak' ),
-			'an option the site needs' => array( $wpdb->options, 'option_id', $row( 'active_plugins' ), null ),
-			'a row in another table'   => array( $wpdb->posts, 'ID', $row( '_wpc_ak' ), null ),
+			'a flagged option'                    => array( $wpdb->options, 'option_id', $row( '_wpc_ak' ), '_wpc_ak', '_wpc_ak' ),
+			'an option the site needs'            => array( $wpdb->options, 'option_id', $row( 'active_plugins' ), null, null ),
+			'a row in another table'              => array( $wpdb->posts, 'ID', $row( '_wpc_ak' ), null, null ),
+			'a name delete_option() would trim'   => array( $wpdb->options, 'option_id', $row( ' _wpc_ak' ), null, null ),
+			'a key that now holds another option' => array( $wpdb->options, 'option_id', $row( '_wpc_ak' ), '_wpc_uid', null ),
 		);
 	}
 
@@ -509,16 +513,64 @@ class Scan_Section_Test extends BaseTestCase {
 	 * @param string      $table     The row's table.
 	 * @param string      $pk_column The table's key column.
 	 * @param array       $row       The row.
+	 * @param string|null $flagged   The option name Scan reported, if any.
 	 * @param string|null $expected  The deletable option's name.
 	 */
 	#[DataProvider( 'provider_get_deletable_option' )]
-	public function test_get_deletable_option( $table, $pk_column, $row, $expected ) {
+	public function test_get_deletable_option( $table, $pk_column, $row, $flagged, $expected ) {
 		$found = array(
+			'threat'    => new Threat_Model( array( 'details' => (object) array( 'details' => (object) array( 'option_name' => $flagged ) ) ) ),
 			'table'     => $table,
 			'pk_column' => $pk_column,
 			'row'       => $row,
 		);
 
 		$this->assertSame( $expected, self::call( 'get_deletable_option', $found ) );
+	}
+
+	/**
+	 * Test that deleting a flagged option removes it and lists its threat as fixed in History.
+	 */
+	public function test_delete_threat_row_deletes_the_option_and_marks_the_threat_fixed() {
+		global $wpdb;
+		add_option( '_wpc_ak', 'malicious' );
+		set_transient( Scan::HISTORY_CACHE, array(), MINUTE_IN_SECONDS );
+		Scan_Status::$status = new Status_Model(
+			array(
+				'threats' => array(
+					new Threat_Model(
+						array(
+							'id'      => '7',
+							'details' => (object) array(
+								'table'     => $wpdb->options,
+								'pk_column' => 'option_id',
+								'pk_value'  => '315',
+								'details'   => (object) array( 'option_name' => '_wpc_ak' ),
+							),
+						)
+					),
+				),
+			)
+		);
+		// WorDBless has no tables, so answer the row lookup the way MySQL would.
+		$lookup = function ( $results, $query ) {
+			return false !== strpos( $query, '`option_id` = \'315\'' ) ? array(
+				(object) array(
+					'option_id'   => '315',
+					'option_name' => '_wpc_ak',
+				),
+			) : $results;
+		};
+		add_filter( 'wordbless_wpdb_query_results', $lookup, 10, 2 );
+
+		$request = new \WP_REST_Request( 'DELETE', '/jetpack/v4/protect-dashboard/scan/threats/7/row' );
+		$request->set_url_params( array( 'id' => '7' ) );
+		$response = Scan::delete_threat_row( $request );
+
+		remove_filter( 'wordbless_wpdb_query_results', $lookup, 10 );
+		$this->assertFalse( get_option( '_wpc_ak' ) );
+		$this->assertSame( 'fixed', $response['threat']['status'] );
+		$this->assertSame( array( 'fixed' ), array_column( Scan::get_history_threats(), 'status' ) );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 	}
 }

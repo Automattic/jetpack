@@ -88,10 +88,11 @@ function getLocation( threat: ScanThreat ): string {
 /**
  * How to resolve a threat: its fixer's description, the version that fixes it, or manual advice.
  *
- * @param threat - The threat.
+ * @param threat    - The threat.
+ * @param canDelete - Whether the threat's option can be deleted from the details.
  * @return The advice.
  */
-function getResolution( threat: ScanThreat ): string {
+function getResolution( threat: ScanThreat, canDelete: boolean ): string {
 	const fixer = threat.fixable && getFixerDescription( threat as Threat );
 	if ( fixer ) {
 		return sprintf(
@@ -108,6 +109,12 @@ function getResolution( threat: ScanThreat ): string {
 			/* translators: %s is a version number, such as "5.3.2". */
 			__( 'Update to version %s or later.', 'jetpack-protect-pkg' ),
 			threat.fixedIn
+		);
+	}
+	if ( threat.database && canDelete ) {
+		return __(
+			'Jetpack Scan can’t fix this itself, but you can delete the option above if you don’t recognize it. Deleting can’t be undone, so check first that no plugin you use needs it, or contact Jetpack support for help.',
+			'jetpack-protect-pkg'
 		);
 	}
 	if ( threat.database ) {
@@ -197,18 +204,16 @@ function DeleteOptionButton( { threat, name }: { threat: ScanThreat; name: strin
 }
 
 /**
- * The database row a threat was found in: Scan's key and columns, then the whole row once the site returns it.
+ * Read the database row a current database threat was found in, from the site.
  *
- * @param props        - Component props.
- * @param props.threat - A database threat.
- * @param props.canAct - Whether the site's plan can act on threats, which reading the row needs.
- * @return The row.
+ * @param threat - The threat.
+ * @param canAct - Whether the site's plan can act on threats, which reading the row needs.
+ * @return The row once read, and why it couldn't be.
  */
-function DatabaseRow( { threat, canAct }: { threat: ScanThreat; canAct: boolean } ) {
-	const database = threat.database as NonNullable< ScanThreat[ 'database' ] >;
+function useThreatRow( threat: ScanThreat, canAct: boolean ) {
 	const [ row, setRow ] = useState< ThreatRow | null >( null );
 	const [ rowError, setRowError ] = useState< string | null >( null );
-	const canRead = canAct && threat.status === 'current';
+	const canRead = canAct && threat.status === 'current' && !! threat.database;
 
 	useEffect( () => {
 		setRow( null );
@@ -227,6 +232,28 @@ function DatabaseRow( { threat, canAct }: { threat: ScanThreat; canAct: boolean 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ threat.id, canRead ] );
 
+	return { row, rowError };
+}
+
+/**
+ * The database row a threat was found in: Scan's key and columns, then the whole row once the site returns it.
+ *
+ * @param props          - Component props.
+ * @param props.threat   - A database threat.
+ * @param props.row      - The row, once read from the site.
+ * @param props.rowError - Why the row couldn't be read.
+ * @return The row.
+ */
+function DatabaseRow( {
+	threat,
+	row,
+	rowError,
+}: {
+	threat: ScanThreat;
+	row: ThreatRow | null;
+	rowError: string | null;
+} ) {
+	const database = threat.database as NonNullable< ScanThreat[ 'database' ] >;
 	const fields: [ string, unknown ][] = row
 		? Object.entries( row.columns )
 		: [
@@ -395,6 +422,7 @@ export default function ThreatDetails( {
 	const { kind, subject } = getThreatLabel( threat );
 	const vulnerabilities = threat.vulnerabilities ?? [];
 	const context = threat.context ?? [];
+	const { row, rowError } = useThreatRow( threat, canAct );
 
 	return (
 		<div className="jp-protect-threat-details">
@@ -469,7 +497,7 @@ export default function ThreatDetails( {
 			{ ( threat.filename || threat.extension || threat.database ) && (
 				<Section title={ __( 'The technical details', 'jetpack-protect-pkg' ) }>
 					{ threat.database && ! threat.filename && (
-						<DatabaseRow threat={ threat } canAct={ canAct } />
+						<DatabaseRow threat={ threat } row={ row } rowError={ rowError } />
 					) }
 					{ threat.filename && (
 						<>
@@ -510,7 +538,7 @@ export default function ThreatDetails( {
 
 			<Section title={ __( 'How to resolve or handle this detection?', 'jetpack-protect-pkg' ) }>
 				<Text variant="body-md" className="jp-protect-card__muted">
-					{ getResolution( threat ) }
+					{ getResolution( threat, !! row?.canDelete ) }
 				</Text>
 				<SoftwareActions threat={ threat } />
 			</Section>

@@ -377,8 +377,9 @@ class Scan implements Dashboard_Section {
 		}
 
 		// Threats the site resolved itself, until Scan's next scan lists them as fixed.
+		$status = class_exists( Status::class ) ? Status::get_cached_status() : null;
 		$listed = array_flip( array_map( 'strval', array_column( $threats, 'id' ) ) );
-		return array_merge( array_values( array_diff_key( Dashboard_Threats::get_resolved(), $listed ) ), $threats );
+		return array_merge( array_values( array_diff_key( Dashboard_Threats::get_resolved( $status ? $status->last_checked : null ), $listed ) ), $threats );
 	}
 
 	/**
@@ -517,11 +518,15 @@ class Scan implements Dashboard_Section {
 		$details = $threat->details ?? null;
 		$table   = $details->table ?? null;
 		$column  = $details->pk_column ?? null;
-		if ( ! is_string( $table ) || ! is_string( $column ) || ! isset( $details->pk_value ) || ! in_array( $table, $wpdb->tables( 'all' ), true ) ) {
+		// This site's own tables only: on multisite, the shared users tables hold other sites' password hashes.
+		if ( ! is_string( $table ) || ! is_string( $column ) || ! isset( $details->pk_value ) || ! in_array( $table, $wpdb->tables( 'blog' ), true ) ) {
 			return new WP_Error( 'threat_row_not_found', __( 'This threat isn’t in a database row Jetpack can read.', 'jetpack-protect-pkg' ), array( 'status' => 404 ) );
 		}
 
-		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE %i = %s', $table, $column, $details->pk_value ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// A key column the table lacks is a query error, which must not print into the REST response.
+		$suppressed = $wpdb->suppress_errors();
+		$row        = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE %i = %s', $table, $column, $details->pk_value ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$wpdb->suppress_errors( $suppressed );
 		if ( ! $row ) {
 			return new WP_Error( 'threat_row_gone', __( 'This row is no longer in the database. Run a scan to update the list.', 'jetpack-protect-pkg' ), array( 'status' => 404 ) );
 		}
@@ -537,7 +542,7 @@ class Scan implements Dashboard_Section {
 	 * The option a threat's row holds, when the dashboard may delete it.
 	 *
 	 * @param array $found From find_threat_row().
-	 * @return string|null The option name, or null for other tables and for WordPress core's and Jetpack's options.
+	 * @return string|null The option name, or null for other tables, for WordPress core's and Jetpack's options, and for a row that isn't the one Scan flagged.
 	 */
 	private static function get_deletable_option( $found ) {
 		global $wpdb;
@@ -546,7 +551,13 @@ class Scan implements Dashboard_Section {
 		if ( $wpdb->options !== $found['table'] || 'option_id' !== $found['pk_column'] || ! is_string( $name ) ) {
 			return null;
 		}
-		if ( Protected_Options::is_protected( $name ) ) {
+		// delete_option() trims the name, so " siteurl" would delete siteurl instead of the flagged row.
+		if ( trim( $name ) !== $name || Protected_Options::is_protected( $name ) ) {
+			return null;
+		}
+		// The key may now hold another option, as after a database import.
+		$flagged = $found['threat']->details->details->option_name ?? null;
+		if ( null !== $flagged && $flagged !== $name ) {
 			return null;
 		}
 		return $name;
@@ -790,7 +801,7 @@ class Scan implements Dashboard_Section {
 			'progress'       => isset( $status->current_progress ) ? (int) $status->current_progress : null,
 			'pluginsChecked' => count( get_plugins() ),
 			'themesChecked'  => count( wp_get_themes() ),
-			'threats'        => Dashboard_Threats::format_all( Dashboard_Threats::without_resolved( $status->threats ) ),
+			'threats'        => Dashboard_Threats::format_all( Dashboard_Threats::without_resolved( $status->threats, $status->last_checked ?? null ) ),
 		);
 	}
 }
