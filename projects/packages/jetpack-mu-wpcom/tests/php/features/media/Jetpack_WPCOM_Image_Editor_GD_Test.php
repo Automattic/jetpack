@@ -24,7 +24,7 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/media/ai-marker-image-edi
  * @requires function imagejpeg
  */
 #[RequiresFunction( 'imagejpeg' )]
-class Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
+class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 
 	const AI_MARKER = 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia';
 
@@ -99,10 +99,19 @@ class Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 
 	public function test_replaces_gd_with_the_wpcom_editor() {
 		$this->assertSame(
-			array( 'WP_Image_Editor_Imagick', Image_Editor_GD::class ),
+			array( 'WP_Image_Editor_Imagick', 'Jetpack_WPCOM_Image_Editor_GD' ),
 			jetpack_wpcom_ai_marker_image_editors( array( 'WP_Image_Editor_Imagick', 'WP_Image_Editor_GD' ) )
 		);
-		$this->assertInstanceOf( Image_Editor_GD::class, wp_get_image_editor( $this->jpeg() ) );
+		$this->assertInstanceOf( 'Jetpack_WPCOM_Image_Editor_GD', wp_get_image_editor( $this->jpeg() ) );
+	}
+
+	/**
+	 * Some hosts derive a subclass from each editor by name with eval(), so the name must be a plain identifier.
+	 */
+	public function test_the_editor_class_name_is_a_plain_identifier() {
+		$editors = jetpack_wpcom_ai_marker_image_editors( array( 'WP_Image_Editor_GD' ) );
+
+		$this->assertMatchesRegularExpression( '/^[A-Za-z_][A-Za-z0-9_]*$/', $editors[0] );
 	}
 
 	/**
