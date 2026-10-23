@@ -1,3 +1,5 @@
+@use "../../styles/hover-action" as *;
+
 /* Outranks DataViews' `.dataviews-title-field a { display: block }`, whose
  * overflow would clip the outbound marker along with the title. */
 :global(.dataviews-title-field) .link {
@@ -14,4 +16,26 @@
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
+}
+
+/* A row with a detail page holds the title link and a trailing "View" action,
+ * so the cell lays the two out and lets the title shrink and ellipsize. */
+.cell {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+	min-inline-size: 0;
+	max-inline-size: 100%;
+}
+
+/* Outranks DataViews' `.dataviews-title-field a { display: block }`, which
+ * would stack the action under the title. */
+:global(.dataviews-title-field) .viewAction {
+	display: inline-flex;
+	flex: none;
+}
+
+:global(.dataviews-view-table tbody tr) {
+
+	@include reveal-action-on-hover(".viewAction");
 }

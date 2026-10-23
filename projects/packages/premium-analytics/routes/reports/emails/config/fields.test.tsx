@@ -56,6 +56,25 @@ describe( 'emails fields', () => {
 		} );
 	} );
 
+	it( 'offers the live email in a new tab beside a title that opens its detail tab', () => {
+		const field = getEmailsFields().find( candidate => candidate.id === 'label' );
+
+		if ( ! field || ! field.render ) {
+			throw new Error( 'Emails title field render callback is unavailable' );
+		}
+
+		render(
+			createElement( field.render, {
+				item: { ...email, link: 'https://example.com/weekly-update/' },
+				field: field as never,
+			} )
+		);
+
+		expect(
+			screen.getByRole( 'link', { name: 'View "Weekly update" in a new tab' } )
+		).toHaveAttribute( 'href', 'https://example.com/weekly-update/' );
+	} );
+
 	it( 'sorts an unknown open rate after a real 0% in either direction', () => {
 		const field = getEmailsFields().find( candidate => candidate.id === 'opens_rate' );
 
