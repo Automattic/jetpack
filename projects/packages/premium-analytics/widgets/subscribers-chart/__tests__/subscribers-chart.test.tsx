@@ -49,7 +49,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 				.join( ',' ) }
 			data-values={ JSON.stringify( metrics[ 0 ]?.current.map( point => point.value ) ) }
 			data-headline={ metrics[ 0 ]?.value }
-			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
+			data-dates={ metrics[ 0 ]?.current.map( point => point.date.toISOString() ).join( ',' ) }
 		>
 			{ empty }
 		</div>
@@ -78,23 +78,25 @@ describe( 'SubscribersChartWidget', () => {
 		mockUseStatsSubscribersCounts.mockReturnValue( { data: undefined, isLoading: false } );
 	} );
 
-	// Passes under UTC either way; the `test-tz` pass west of UTC is what can fail it.
 	it( 'builds chart points on the bucket days the site names', async () => {
-		mockUseStatsSubscribersReport.mockReturnValue(
-			reportWith( [
+		mockUseStatsSubscribersReport.mockReturnValue( {
+			...reportWith( [
 				{ date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 },
 				{ date_start: '2026-07-05T00:00:00', subscribers: 6, subscribers_paid: 0 },
-			] )
-		);
+			] ),
+			timezone: 'America/Los_Angeles',
+		} );
 
 		render(
 			<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
 		);
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		// Reading these buckets in the runner's zone would report the previous
-		// day (3,4).
-		expect( chart ).toHaveAttribute( 'data-days', '4,5' );
+		// Los Angeles midnights: a bucket read in UTC, or in the runner's zone, lands elsewhere.
+		expect( chart ).toHaveAttribute(
+			'data-dates',
+			'2026-07-04T07:00:00.000Z,2026-07-05T07:00:00.000Z'
+		);
 		expect( chart ).toHaveAttribute( 'data-values', '[5,6]' );
 	} );
 
