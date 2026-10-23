@@ -19,6 +19,90 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Dashboard_Threats {
 
 	/**
+	 * Threats the site resolved itself, as fixed snapshots keyed by id, which count until Scan scans again.
+	 *
+	 * @var string
+	 */
+	const RESOLVED_OPTION = 'jetpack_protect_dashboard_resolved_threats';
+
+	/**
+	 * Record a threat as fixed on this site, since Scan has no way to be told.
+	 *
+	 * @param array $threat The threat, from format().
+	 * @return array The fixed snapshot.
+	 */
+	public static function resolve( $threat ) {
+		$fixed                              = array_merge(
+			$threat,
+			array(
+				'status'  => 'fixed',
+				'fixedOn' => gmdate( 'Y-m-d\TH:i:s.000\Z' ),
+			)
+		);
+		$resolved                           = self::get_resolved();
+		$resolved[ (string) $threat['id'] ] = $fixed;
+		update_option( self::RESOLVED_OPTION, $resolved, false );
+		return $fixed;
+	}
+
+	/**
+	 * The threats the site resolved since Scan last scanned.
+	 *
+	 * A later scan has Scan's own answer: fixed in its history, or still there because the threat came back.
+	 *
+	 * @param string|null $last_checked When Scan last finished a scan, or null when it hasn't.
+	 * @return array Fixed snapshots, keyed by threat id.
+	 */
+	public static function get_resolved( $last_checked = null ) {
+		$resolved = get_option( self::RESOLVED_OPTION, array() );
+		if ( ! is_array( $resolved ) ) {
+			return array();
+		}
+		$scanned_at = $last_checked ? strtotime( $last_checked ) : false;
+		if ( false === $scanned_at ) {
+			return $resolved;
+		}
+		return array_filter(
+			$resolved,
+			function ( $threat ) use ( $scanned_at ) {
+				return strtotime( $threat['fixedOn'] ?? '' ) > $scanned_at;
+			}
+		);
+	}
+
+	/**
+	 * Scan's current threats without the ones the site resolved since Scan last scanned.
+	 *
+	 * @param iterable    $threats      Scan's current threats.
+	 * @param string|null $last_checked When Scan last finished a scan.
+	 * @return array The threats still open.
+	 */
+	public static function without_resolved( $threats, $last_checked = null ) {
+		// Threat_Count runs on every admin page; with nothing reported there is nothing to hide.
+		if ( ! is_iterable( $threats ) || ( is_array( $threats ) && ! $threats ) ) {
+			return array();
+		}
+
+		$all     = self::get_resolved();
+		$pending = self::get_resolved( $last_checked );
+		if ( count( $pending ) !== count( $all ) ) {
+			if ( $pending ) {
+				update_option( self::RESOLVED_OPTION, $pending, false );
+			} else {
+				delete_option( self::RESOLVED_OPTION );
+			}
+		}
+
+		$open = array();
+		foreach ( $threats as $threat ) {
+			if ( ! isset( $pending[ (string) ( $threat->id ?? '' ) ] ) ) {
+				$open[] = $threat;
+			}
+		}
+		return $open;
+	}
+
+	/**
 	 * Shape one threat.
 	 *
 	 * @param object     $threat A Threat_Model, or a raw threat with the same properties.
@@ -50,6 +134,7 @@ class Dashboard_Threats {
 			'source'          => $threat->source ?? null,
 			'context'         => self::format_context( $threat->context ?? null ),
 			'vulnerabilities' => self::format_vulnerabilities( $threat->vulnerabilities ?? null ),
+			'database'        => self::format_database( $threat ),
 			'extension'       => $extension ? array(
 				'slug'    => $slug,
 				// Scan reports may name a plugin by its slug; the installed copy has its real name.
@@ -117,6 +202,28 @@ class Dashboard_Threats {
 			}
 		}
 		return $lines;
+	}
+
+	/**
+	 * The table and row a database threat was found in.
+	 *
+	 * @param object $threat A Threat_Model, or a raw threat from Scan history.
+	 * @return array|null Null when the threat isn't in the database.
+	 */
+	private static function format_database( $threat ) {
+		$table = $threat->table ?? null;
+		if ( ! is_string( $table ) || '' === $table ) {
+			return null;
+		}
+
+		// Threat_Model nests the row under `details`; Scan history sends it flat, with the key as `value`.
+		$row = isset( $threat->details->table ) ? $threat->details : $threat;
+		return array(
+			'table'    => $table,
+			'pkColumn' => $row->pk_column ?? null,
+			'pkValue'  => $row->pk_value ?? $row->value ?? null,
+			'details'  => is_array( $row->details ?? null ) || is_object( $row->details ?? null ) ? (object) $row->details : new \stdClass(),
+		);
 	}
 
 	/**
