@@ -15,6 +15,7 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\PremiumAnalytics\Analytics;
 use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
+use Automattic\Jetpack\PremiumAnalytics\Enablement;
 use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use Automattic\Jetpack\Stats_Admin\Admin_Bar as Stats_Admin_Bar;
 use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
@@ -80,26 +81,9 @@ class Jetpack_Stats_Plugin {
 		// Stats Admin package: the REST proxy to the WPCOM stats API used by the dashboard.
 		$config->ensure( 'stats_admin' );
 
-		if ( ! self::is_jetpack_plugin_active() && self::is_stats_v2_enabled() ) {
+		if ( ! self::is_jetpack_plugin_active() && Enablement::is_enabled() ) {
 			Analytics::init();
 		}
-	}
-
-	/**
-	 * Whether Stats v2 should boot, read like the Jetpack plugin reads it while that plugin is active.
-	 *
-	 * @return bool
-	 */
-	public static function is_stats_v2_enabled() {
-		if ( ! ( new Modules() )->is_active( 'stats' ) ) {
-			return false;
-		}
-
-		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
-		return (bool) apply_filters(
-			'jetpack_premium_analytics_enabled',
-			Classic_Stats::is_retired() || (bool) get_option( Enablement_Setting::ENABLED_OPTION )
-		);
 	}
 
 	/**

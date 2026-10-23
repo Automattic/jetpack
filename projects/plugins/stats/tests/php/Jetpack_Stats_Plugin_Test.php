@@ -387,22 +387,17 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Stats v2 boots behind the same gate the Jetpack plugin reads while it is active.
+	 * Stats v2 boots when the package's rule says so.
 	 *
 	 * @dataProvider provide_stats_v2_states
 	 *
-	 * @param bool $module_active Whether the Stats module is active.
-	 * @param bool $opted_in      Whether the site opted in to Stats v2.
-	 * @param bool $retired       Whether the classic Stats page is retired.
-	 * @param bool $expected      Whether Stats v2 boots.
+	 * @param bool $opted_in Whether the site opted in to Stats v2.
+	 * @param bool $expected Whether Stats v2 boots.
 	 */
 	#[DataProvider( 'provide_stats_v2_states' )]
-	public function test_stats_v2_boots_with_the_packages( $module_active, $opted_in, $retired, $expected ) {
-		if ( $module_active ) {
-			add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
-		}
+	public function test_stats_v2_boots_with_the_packages( $opted_in, $expected ) {
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
 		update_option( Enablement_Setting::ENABLED_OPTION, (int) $opted_in );
-		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
 
 		Jetpack_Stats_Plugin::configure_packages();
 
@@ -410,17 +405,14 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Stats v2 states, as module active, opted in, classic page retired, boots.
+	 * Stats v2 states, as opted in, boots.
 	 *
 	 * @return array
 	 */
 	public static function provide_stats_v2_states() {
 		return array(
-			'off by default'             => array( true, false, false, false ),
-			'opted in'                   => array( true, true, false, true ),
-			'classic page retired'       => array( true, false, true, true ),
-			'opted in, Stats module off' => array( false, true, false, false ),
-			'retired, Stats module off'  => array( false, false, true, false ),
+			'off by default' => array( false, false ),
+			'opted in'       => array( true, true ),
 		);
 	}
 
