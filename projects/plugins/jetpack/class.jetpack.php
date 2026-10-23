@@ -972,24 +972,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Options for booting Stats v2, which takes the plain Stats name and the pre-connection Stats page once classic Stats is retired.
-	 *
-	 * @return array
-	 */
-	private static function premium_analytics_options() {
-		if ( ! Jetpack_Stats_Feature_Flags::is_classic_page_retired() ) {
-			return array();
-		}
-
-		return array(
-			'menu_title'                         => static function () {
-				return __( 'Stats', 'jetpack' );
-			},
-			'replaces_pre_connection_stats_page' => true,
-		);
-	}
-
-	/**
 	 * Expose the setting that turns the Premium Analytics dashboard on and off.
 	 *
 	 * Deliberately not behind is_premium_analytics_enabled(): this is the setting that flips that
@@ -1119,7 +1101,7 @@ class Jetpack {
 		// Stats v2 (WOOA7S-1595). Unlike Stats above it cannot be deferred when enabled — see
 		// Analytics::init() for why.
 		if ( self::is_premium_analytics_enabled() ) {
-			\Automattic\Jetpack\PremiumAnalytics\Analytics::init( self::premium_analytics_options() );
+			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
 			if ( class_exists( 'Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard' ) ) {
 				\Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard::init();
 			}

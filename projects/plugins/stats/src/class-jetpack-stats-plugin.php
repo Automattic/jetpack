@@ -13,6 +13,9 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Paths;
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
+use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
+use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use Automattic\Jetpack\Stats_Admin\Admin_Bar as Stats_Admin_Bar;
 use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
@@ -34,6 +37,8 @@ class Jetpack_Stats_Plugin {
 	 * Register hooks to initialize the plugin.
 	 */
 	public static function bootstrap() {
+		Classic_Stats::register_feature_flag();
+
 		add_action( 'plugins_loaded', array( self::class, 'configure_packages' ), 1 );
 		add_action( 'plugins_loaded', array( self::class, 'initialize_other_packages' ) );
 		add_action( 'activated_plugin', array( self::class, 'handle_plugin_activation' ) );
@@ -75,6 +80,27 @@ class Jetpack_Stats_Plugin {
 		$config->ensure( 'stats' );
 		// Stats Admin package: the REST proxy to the WPCOM stats API used by the dashboard.
 		$config->ensure( 'stats_admin' );
+
+		if ( ! self::is_jetpack_plugin_active() && self::is_stats_v2_enabled() ) {
+			Analytics::init();
+		}
+	}
+
+	/**
+	 * Whether Stats v2 should boot, read like the Jetpack plugin reads it while that plugin is active.
+	 *
+	 * @return bool
+	 */
+	public static function is_stats_v2_enabled() {
+		if ( ! ( new Modules() )->is_active( 'stats' ) ) {
+			return false;
+		}
+
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
+		return (bool) apply_filters(
+			'jetpack_premium_analytics_enabled',
+			Classic_Stats::is_retired() || (bool) get_option( Enablement_Setting::ENABLED_OPTION )
+		);
 	}
 
 	/**
@@ -97,8 +123,14 @@ class Jetpack_Stats_Plugin {
 			return;
 		}
 
+		// Registered while Stats v2 is off too: it is the setting that turns it on.
+		add_action( 'rest_api_init', array( Enablement_Setting::class, 'register' ), 0 );
+
 		if ( ( new Connection_Manager() )->is_connected() ) {
-			Stats_Dashboard::init();
+			// Once Stats v2 takes over, old `page=stats` links open it instead.
+			if ( ! Classic_Stats::is_retired() || ! Analytics::is_initialized() ) {
+				Stats_Dashboard::init();
+			}
 			if ( ( new Modules() )->is_active( 'stats' ) ) {
 				Stats_Admin_Bar::init();
 				Admin_Post_List_Column::register();
@@ -123,7 +155,9 @@ class Jetpack_Stats_Plugin {
 	 * @return array
 	 */
 	public static function plugin_page_add_links( $links ) {
-		$stats_link = '<a href="' . esc_url( admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ) ) . '">' . esc_html__( 'Stats', 'jetpack-stats' ) . '</a>';
+		/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
+		$stats_url  = apply_filters( 'jetpack_stats_url', admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ), array( 'view' => 'dashboard' ) );
+		$stats_link = '<a href="' . esc_url( $stats_url ) . '">' . esc_html__( 'Stats', 'jetpack-stats' ) . '</a>';
 		array_unshift( $links, $stats_link );
 
 		return $links;

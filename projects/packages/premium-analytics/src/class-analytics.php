@@ -109,6 +109,17 @@ class Analytics {
 	}
 
 	/**
+	 * Whether Stats v2 booted in this request, whichever plugin or platform booted it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_initialized() {
+		return self::$initialized;
+	}
+
+	/**
 	 * Load the dashboard render surface, on the requests that can render it.
 	 *
 	 * With the rollout flag on, init() runs on every request — including every WPCOM public-api
@@ -644,9 +655,14 @@ class Analytics {
 
 		// A positive check rather than a null coalesce: a closure may return an empty string, or
 		// something that isn't a string at all, and either would reach esc_html() as a broken label.
-		self::$resolved_menu_title = is_string( $title ) && '' !== $title
-			? $title
-			: __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
+		if ( is_string( $title ) && '' !== $title ) {
+			self::$resolved_menu_title = $title;
+		} elseif ( Classic_Stats::is_retired() ) {
+			// No classic Stats menu is left to tell apart from.
+			self::$resolved_menu_title = __( 'Stats', 'jetpack-premium-analytics-pkg' );
+		} else {
+			self::$resolved_menu_title = __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
+		}
 
 		return self::$resolved_menu_title;
 	}

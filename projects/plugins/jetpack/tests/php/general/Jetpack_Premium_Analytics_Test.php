@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
@@ -39,7 +40,7 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'active_modules' );
 		self::reset_flag_cache();
 		remove_action( 'jetpack_admin_menu', 'stats_admin_menu' );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Jetpack_Stats_Feature_Flags::CLASSIC_PAGE_RETIRED );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
 		remove_all_filters( 'jetpack_premium_analytics_enabled' );
 		parent::tear_down();
 	}
@@ -195,28 +196,9 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	 */
 	public function test_retiring_the_classic_page_overrides_the_option() {
 		update_option( 'jetpack_premium_analytics_enabled', 0 );
-		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Stats_Feature_Flags::CLASSIC_PAGE_RETIRED, '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_true' );
 
 		$this->assertTrue( Jetpack::is_premium_analytics_enabled() );
-	}
-
-	/**
-	 * Stats v2 takes the plain Stats name and the pre-connection Stats page only once there is no classic Stats page to tell it apart from.
-	 */
-	public function test_stats_v2_takes_over_once_the_classic_page_is_retired() {
-		$options = new ReflectionMethod( Jetpack::class, 'premium_analytics_options' );
-		// @todo Remove this call once we no longer need to support PHP <8.1.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$options->setAccessible( true );
-		}
-
-		$this->assertSame( array(), $options->invoke( null ) );
-
-		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Stats_Feature_Flags::CLASSIC_PAGE_RETIRED, '__return_true' );
-
-		$retired = $options->invoke( null );
-		$this->assertSame( 'Stats', ( $retired['menu_title'] )() );
-		$this->assertTrue( $retired['replaces_pre_connection_stats_page'] );
 	}
 
 	/**
@@ -306,7 +288,7 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	 */
 	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_stats_admin_menu_cases' )]
 	public function test_stats_admin_menu( $retired, $v2_on, $kept ) {
-		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Stats_Feature_Flags::CLASSIC_PAGE_RETIRED, $retired ? '__return_true' : '__return_false' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
 		add_filter( 'jetpack_premium_analytics_enabled', $v2_on ? '__return_true' : '__return_false' );
 
 		stats_load();

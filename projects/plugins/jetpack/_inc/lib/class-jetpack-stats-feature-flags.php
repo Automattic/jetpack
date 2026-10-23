@@ -5,20 +5,18 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
 /**
- * Registers the flag that retires the classic Stats page in favor of Stats v2.
+ * Jetpack's entry to the flag that retires the classic Stats page, which the Premium Analytics package owns.
  *
  * @since 16.4
  */
 class Jetpack_Stats_Feature_Flags {
-
-	const CLASSIC_PAGE_RETIRED = 'jetpack-stats-classic-page-retired';
 
 	/**
 	 * Register the flag.
@@ -26,25 +24,21 @@ class Jetpack_Stats_Feature_Flags {
 	 * @return void
 	 */
 	public static function register() {
-		Feature_Flags::register(
-			self::CLASSIC_PAGE_RETIRED,
-			array(
-				'default'     => false,
-				'description' => 'Turn Stats v2 on for every site and stop registering the classic Stats page; old admin.php?page=stats links open Stats v2.',
-				'owner'       => 'jetpack-stats',
-			)
-		);
+		if ( class_exists( Classic_Stats::class ) ) {
+			Classic_Stats::register_feature_flag();
+		}
 	}
 
 	/**
 	 * Whether the flag asks the classic Stats page to give way to Stats v2; the page stays while Stats v2 is off.
 	 *
-	 * Read on `plugins_loaded`, so a filter forcing it has to be added before that.
+	 * A build without the package has no Stats v2 to give way to. Read on `plugins_loaded`, so a filter
+	 * forcing it has to be added before that.
 	 *
 	 * @return bool
 	 */
 	public static function is_classic_page_retired() {
-		return Feature_Flags::is_enabled( self::CLASSIC_PAGE_RETIRED );
+		return class_exists( Classic_Stats::class ) && Classic_Stats::is_retired();
 	}
 }
 
