@@ -231,8 +231,7 @@ class Jetpack_Connector {
 
 		// Not gated on has_connected_owner(): it is false when the owner's token breaks,
 		// and the card still lists the owner of record and a healthy viewer's account then.
-		$has_account_rows = (int) \Jetpack_Options::get_option( 'master_user' ) > 0 || $manager->is_user_connected();
-		if ( $is_registered && $has_account_rows ) {
+		if ( $is_registered && ( (int) \Jetpack_Options::get_option( 'master_user' ) > 0 || $manager->is_user_connected() ) ) {
 			$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
 		}
 
