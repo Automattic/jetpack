@@ -1,4 +1,4 @@
 Significance: major
 Type: removed
 
-Remove the NumberControl component.
+Remove the `NumberControl` component. Use `InputControl` from `@wordpress/ui` instead.
