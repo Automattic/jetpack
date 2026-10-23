@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Remove the NumberControl component.

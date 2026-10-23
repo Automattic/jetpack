@@ -1,7 +1,7 @@
-import { NumberControl } from '@automattic/jetpack-components';
 import { SelectControl, Button } from '@wordpress/components';
 import { useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { InputControl } from '@wordpress/ui';
 import {
 	GOOGLE_PHOTOS_CATEGORIES,
 	GOOGLE_PHOTOS_DATE_PRESETS,
@@ -66,12 +66,12 @@ function DateOption( { value, updateFilter } ) {
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }
 					/>
-					<NumberControl
-						className="components-base-control"
+					<InputControl
+						type="number"
 						label={ __( 'Year', 'jetpack-external-media' ) }
 						value={ year }
 						min={ 1970 }
-						onChange={ setYear }
+						onChange={ event => setYear( event.target.value ) }
 					/>
 					<Button
 						variant="secondary"
