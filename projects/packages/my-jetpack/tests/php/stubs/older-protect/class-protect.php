@@ -14,9 +14,16 @@ use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
  */
 class Protect extends Hybrid_Product {
 
+	/**
+	 * Whether the standalone Protect plugin is active.
+	 *
+	 * @var bool
+	 */
 	public static $standalone_plugin_active = true;
 
 	/**
+	 * Reports whether the standalone Protect plugin is active.
+	 *
 	 * @return bool
 	 */
 	public static function is_standalone_plugin_active() {

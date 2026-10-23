@@ -31,10 +31,12 @@ class Older_Protect_Test extends TestCase {
 		parent::setUp();
 
 		require_once __DIR__ . '/stubs/older-protect/class-protect.php';
+		Protect::$standalone_plugin_active = true;
 		$this->assertFalse( method_exists( Protect::class, 'has_protect_page' ) );
 	}
 
 	public function test_scan_manage_url_stays_on_jetpack_cloud() {
+		// An initialized dashboard must not change Scan's URL when the older Protect class is loaded.
 		do_action( 'jetpack_protect_dashboard_initialized' );
 
 		$this->assertSame( Redirect::get_url( 'my-jetpack-manage-scan' ), Scan::get_manage_url() );
