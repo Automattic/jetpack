@@ -35,9 +35,3 @@ export function isPremiumAnalyticsInitialSyncFinished(): boolean {
 export function isVideoPressAvailable(): boolean {
 	return getScriptData()?.premium_analytics?.has_videopress ?? false;
 }
-
-// Re-exported so the routes' `../site-readiness` mocks cover the section gate too.
-export {
-	isDashboardSectionAvailable,
-	type DashboardSectionSlug,
-} from '@jetpack-premium-analytics/data';

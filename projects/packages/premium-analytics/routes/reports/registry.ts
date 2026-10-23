@@ -2,12 +2,12 @@
  * External dependencies
  */
 import { isSimpleSite } from '@automattic/jetpack-script-data';
-import { POST_DETAIL_SECTION } from '@jetpack-premium-analytics/data';
+import { isDashboardSectionAvailable, POST_DETAIL_SECTION } from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { isDashboardSectionAvailable, isVideoPressAvailable } from '../site-readiness';
+import { isVideoPressAvailable } from '../site-readiness';
 // Import from `config/tabs` directly, not the `config` barrel — it re-exports JSX,
 // and `route.ts` imports this registry in `beforeLoad`, which must stay React-free.
 import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
@@ -15,8 +15,7 @@ import { resolveSection as resolveEarningsSection } from './earnings/config/tabs
 import { resolveSection as resolveLocationsSection } from './locations/config/tabs';
 import { resolveTabId } from './posts/config/tabs';
 import { resolveSection as resolveUtmSection } from './utm/config/tabs';
-import type { DashboardSectionSlug } from '../site-readiness';
-import type { StatsFeatureKey } from '@jetpack-premium-analytics/data';
+import type { DashboardSectionSlug, StatsFeatureKey } from '@jetpack-premium-analytics/data';
 import type { ComponentType } from 'react';
 
 /**
