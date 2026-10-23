@@ -243,6 +243,28 @@ describe( 'DateYearFilter', () => {
 			expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
 		} );
 
+		it( 'measures again when what shares the row grows', async () => {
+			const { resizeTo } = mockContainerResize();
+			let mateWidth = 20;
+			rectSpy.mockImplementation( function ( this: Element ) {
+				return { width: this.id === 'mate' ? mateWidth : PILL_WIDTH } as DOMRect;
+			} );
+
+			render(
+				<div>
+					<DateYearFilter timeZone="UTC" startYear={ CURRENT_YEAR - 2 } onSelect={ jest.fn() } />
+					<span id="mate">By weeks</span>
+				</div>
+			);
+			await resizeTo( 4 * PILL_WIDTH + 20 );
+			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
+
+			mateWidth = 40;
+			await resizeTo( 4 * PILL_WIDTH + 20 );
+
+			expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
+		} );
+
 		it( 'keeps the pills while they fit the container', async () => {
 			const { resizeTo } = mockContainerResize();
 			await renderFilter();
