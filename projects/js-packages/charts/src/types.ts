@@ -214,7 +214,8 @@ type LeaderboardEntryFields = {
 	previousValue?: number;
 
 	/**
-	 * Width of current bar, as % of the current value
+	 * Width of current bar, as % of the current value. A negative share extends the
+	 * bar from a shared zero point toward the inline start, for every row.
 	 */
 	currentShare: number;
 

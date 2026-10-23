@@ -74,6 +74,11 @@
 				var(--a8c-charts-motion-easing-entrance) both;
 		}
 
+		// Grows from zero, which is its inline-end edge.
+		&--negative {
+			transform-origin: right;
+		}
+
 		@keyframes stretch {
 
 			from {
@@ -83,6 +88,20 @@
 			to {
 				transform: scaleX(1);
 			}
+		}
+	}
+
+	.barTrack {
+		display: grid;
+
+		.bar {
+			grid-column: 2;
+			justify-self: start;
+		}
+
+		.bar--negative {
+			grid-column: 1;
+			justify-self: end;
 		}
 	}
 }

@@ -571,6 +571,68 @@ export const NegativeGrowth: Story = {
 	},
 };
 
+const NET_SALES_BY_SOURCE = [
+	{ id: 'google', label: 'Google', currentValue: 4200, previousValue: 3800 },
+	{ id: 'direct', label: 'Direct', currentValue: 2600, previousValue: 2900 },
+	{ id: 'paid-search', label: 'Paid search', currentValue: 1500, previousValue: 2200 },
+	{ id: 'facebook', label: 'Facebook', currentValue: 650, previousValue: -300 },
+	{ id: 'affiliate', label: 'Affiliate', currentValue: -900, previousValue: -400 },
+	{ id: 'newsletter', label: 'newsletter', currentValue: -1800, previousValue: 1200 },
+];
+
+const NET_SALES_MAX = Math.max(
+	...NET_SALES_BY_SOURCE.flatMap( ( { currentValue, previousValue } ) => [
+		Math.abs( currentValue ),
+		Math.abs( previousValue ),
+	] )
+);
+
+const netSalesData: LeaderboardEntry[] = NET_SALES_BY_SOURCE.map( entry => ( {
+	...entry,
+	currentShare: ( entry.currentValue / NET_SALES_MAX ) * 100,
+	previousShare: ( entry.previousValue / NET_SALES_MAX ) * 100,
+	delta: ( ( entry.currentValue - entry.previousValue ) / Math.abs( entry.previousValue ) ) * 100,
+} ) );
+
+export const NegativeValues: Story = {
+	args: {
+		data: netSalesData,
+		withComparison: true,
+		loading: false,
+		valueFormatter: ( value: number ) =>
+			formatMetricValue( value, 'currency', {
+				useMultipliers: false,
+				decimals: 0,
+			} ),
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'A negative `currentShare` or `previousShare` puts every row on a shared zero point, placed in proportion to the range of shares: negative bars extend toward the inline start and positive bars toward the inline end.',
+			},
+		},
+	},
+};
+
+export const NegativeValuesWidgetSize: Story = {
+	args: {
+		...NegativeValues.args,
+		containerWidth: '319px',
+		containerHeight: '420px',
+		showLegend: true,
+		fitRows: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Sized like a dashboard widget, with `fitRows` on. Drag the bottom-right corner of the container to resize it.',
+			},
+		},
+	},
+};
+
 export const CurrencyFormatting: Story = {
 	args: {
 		data: sampleData,
