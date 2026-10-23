@@ -19,7 +19,7 @@
 		"@wordpress/theme": "2.3.0",
 		"@wordpress/ui": "0.24.0",
 		"@wordpress/url": "4.57.0",
-		"zod": "3.25.76"
+		"zod": "4.6.6"
 	},
 	"route": {
 		"path": "/",
