@@ -4284,6 +4284,9 @@ importers:
         specifier: 19.3.0
         version: 19.3.0(react@19.3.0)
     devDependencies:
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
       '@automattic/jetpack-premium-analytics-sdk':
         specifier: workspace:*
         version: link:../../js-packages/premium-analytics-sdk
