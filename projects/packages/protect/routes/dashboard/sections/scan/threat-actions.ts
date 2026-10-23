@@ -378,6 +378,23 @@ export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Pr
 		);
 		return;
 	}
+	if ( ! fixed ) {
+		showNotice(
+			id,
+			sprintf(
+				/* translators: %d is a number of threats, two or more. */
+				_n(
+					'Jetpack couldn’t fix the %d threat. Fix them one at a time to see why.',
+					'Jetpack couldn’t fix the %d threats. Fix them one at a time to see why.',
+					total,
+					'jetpack-protect-pkg'
+				),
+				total
+			),
+			'error'
+		);
+		return;
+	}
 	showNotice(
 		id,
 		sprintf(
@@ -425,12 +442,10 @@ async function setManyIgnored(
 		idle.map( threat => setIgnored( threat, ignore, open, false ) )
 	);
 	const done = idle.filter( ( _, index ) => results[ index ] );
-	const undo: NoticeAction | undefined = done.length
-		? {
-				label: __( 'Undo', 'jetpack-protect-pkg' ),
-				onClick: () => setManyIgnored( done, ! ignore, open ),
-			}
-		: undefined;
+	const undo: NoticeAction = {
+		label: __( 'Undo', 'jetpack-protect-pkg' ),
+		onClick: () => setManyIgnored( done, ! ignore, open ),
+	};
 	if ( done.length === total ) {
 		const finished = ignore
 			? /* translators: %d is a number of threats, two or more. */
@@ -438,6 +453,25 @@ async function setManyIgnored(
 			: /* translators: %d is a number of threats, two or more. */
 				_n( 'Unignored %d threat.', 'Unignored %d threats.', total, 'jetpack-protect-pkg' );
 		showNotice( id, sprintf( finished, total ), 'success', undo );
+		return;
+	}
+	if ( ! done.length ) {
+		const failed = ignore
+			? /* translators: %d is a number of threats, two or more. */
+				_n(
+					'The %d threat couldn’t be ignored.',
+					'The %d threats couldn’t be ignored.',
+					total,
+					'jetpack-protect-pkg'
+				)
+			: /* translators: %d is a number of threats, two or more. */
+				_n(
+					'The %d threat couldn’t be unignored.',
+					'The %d threats couldn’t be unignored.',
+					total,
+					'jetpack-protect-pkg'
+				);
+		showNotice( id, sprintf( failed, total ), 'error' );
 		return;
 	}
 	const partial = ignore

@@ -138,23 +138,26 @@ describe( 'bulk actions', () => {
 		] );
 	} );
 
-	it( 'counts the fixes Scan finished in the batch’s snackbar', async () => {
-		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
-		mockApiFetch
-			.mockReset()
-			.mockImplementation( ( { path } ) =>
-				Promise.resolve( { status: path.includes( '/41/' ) ? 'fixed' : 'not_fixed' } )
+	it.each( [
+		[ [ 41 ], 'Fixed 1 of 2 threats. Fix the rest one at a time to see why they weren’t fixed.' ],
+		[ [], 'Jetpack couldn’t fix the 2 threats. Fix them one at a time to see why.' ],
+	] )(
+		'counts the fixes Scan finished (%p) in the batch’s snackbar',
+		async ( fixedIds, content ) => {
+			dispatch( noticesStore ).removeAllNotices( 'snackbar' );
+			mockApiFetch.mockReset().mockImplementation( ( { path } ) =>
+				Promise.resolve( {
+					status: fixedIds.some( id => path.includes( `/${ id }/` ) ) ? 'fixed' : 'not_fixed',
+				} )
 			);
 
-		await act( () => fixThreats( [ fileThreat( 41 ), fileThreat( 42 ) ] ) );
+			await act( () => fixThreats( [ fileThreat( 41 ), fileThreat( 42 ) ] ) );
 
-		expect( bulkNotices() ).toEqual( [
-			expect.objectContaining( {
-				status: 'error',
-				content: 'Fixed 1 of 2 threats. Fix the rest one at a time to see why they weren’t fixed.',
-			} ),
-		] );
-	} );
+			expect( bulkNotices() ).toEqual( [
+				expect.objectContaining( { status: 'error', content } ),
+			] );
+		}
+	);
 } );
 
 describe( 'deleteSoftware', () => {

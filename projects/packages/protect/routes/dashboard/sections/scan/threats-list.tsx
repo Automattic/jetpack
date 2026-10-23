@@ -113,6 +113,8 @@ export function getThreatFields(
 			label: __( 'Severity', 'jetpack-protect-pkg' ),
 			type: 'integer',
 			enableHiding: false,
+			// Sorting only: a list's filter offers severity levels instead of raw numbers.
+			filterBy: false,
 			getValue: ( { item } ) => item.severity ?? 0,
 			render: ( { item } ) => <ThreatSeverityBadge severity={ item.severity } />,
 		},
@@ -236,9 +238,11 @@ type ThreatsListProps = {
  * @return The list.
  */
 export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
+	// As the title field, the threat column also names each row's checkbox.
 	const [ view, setView ] = useState< View >( () => ( {
 		...createThreatView( 'severity' ),
-		fields: [ 'threat', 'date' ],
+		titleField: 'threat',
+		fields: [ 'date' ],
 	} ) );
 	const [ selection, setSelection ] = useState< string[] >( NO_SELECTION );
 	const clearSelection = useCallback( () => setSelection( NO_SELECTION ), [] );
@@ -306,7 +310,8 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 					</Stack>
 					<DataViews.FiltersToggled className="jp-protect-threats__filters" />
 					<DataViews.Layout />
-					<DataViews.Footer />
+					{ /* Only for bulk actions or more pages; otherwise it repeats the header's select all. */ }
+					{ ( selection.length > 0 || paginationInfo.totalPages > 1 ) && <DataViews.Footer /> }
 				</DataViews>
 			</Collapsible.Panel>
 		</Collapsible.Root>
