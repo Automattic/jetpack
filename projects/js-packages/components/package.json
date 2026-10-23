@@ -53,6 +53,15 @@
 			"types": "./build/components/jetpack-footer/index.d.ts",
 			"default": "./build/components/jetpack-footer/index.js"
 		},
+		"./jetpack-footer/style.scss": {
+			"jetpack:src": "./components/jetpack-footer/style.scss",
+			"default": "./build/components/jetpack-footer/style.scss"
+		},
+		"./jetpack-footer/unstyled": {
+			"jetpack:src": "./components/jetpack-footer/jetpack-footer.tsx",
+			"types": "./build/components/jetpack-footer/jetpack-footer.d.ts",
+			"default": "./build/components/jetpack-footer/jetpack-footer.js"
+		},
 		"./jetpack-logo": {
 			"jetpack:src": "./components/jetpack-logo/index.tsx",
 			"types": "./build/components/jetpack-logo/index.d.ts",
