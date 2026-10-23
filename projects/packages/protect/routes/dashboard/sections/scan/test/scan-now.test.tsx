@@ -117,4 +117,17 @@ describe( 'Scan now', () => {
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the burst is decorative and aria-hidden.
 		await waitFor( () => expect( container.querySelector( '.is-bursting' ) ).toBeInTheDocument() );
 	} );
+
+	it( 'says in the header when the next free check can run', () => {
+		const lastChecked = new Date( Date.now() - 3 * 60 * 60 * 1000 )
+			.toISOString()
+			.slice( 0, 19 )
+			.replace( 'T', ' ' );
+		setScan( () => ( { ...report, hasPlan: false, lastChecked } ) );
+		render( <HeaderScanButton /> );
+
+		expect( screen.getByRole( 'button', { name: 'Scan now' } ) ).toHaveAccessibleDescription(
+			'Next free check in 21 hours. Upgrade to Scan to check anytime.'
+		);
+	} );
 } );

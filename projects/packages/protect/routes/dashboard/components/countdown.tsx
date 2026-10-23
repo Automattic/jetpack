@@ -20,14 +20,20 @@ export default function Countdown( { to }: { to: Date } ) {
 	const minutes = Math.floor( total / 60 ) % 60;
 	const seconds = total % 60;
 	const parts = [
-		[ formatNumber( hours ), _x( 'h', 'hours, abbreviated', 'jetpack-protect-pkg' ) ],
+		[
+			formatNumber( hours ),
+			/* translators: %s is a number of hours, such as "23". */
+			_x( '%sh', 'hours, abbreviated', 'jetpack-protect-pkg' ),
+		],
 		[
 			formatNumber( minutes, TWO_DIGITS ),
-			_x( 'm', 'minutes, abbreviated', 'jetpack-protect-pkg' ),
+			/* translators: %s is a number of minutes, such as "59". */
+			_x( '%sm', 'minutes, abbreviated', 'jetpack-protect-pkg' ),
 		],
 		[
 			formatNumber( seconds, TWO_DIGITS ),
-			_x( 's', 'seconds, abbreviated', 'jetpack-protect-pkg' ),
+			/* translators: %s is a number of seconds, such as "21". */
+			_x( '%ss', 'seconds, abbreviated', 'jetpack-protect-pkg' ),
 		],
 	];
 
@@ -38,17 +44,21 @@ export default function Countdown( { to }: { to: Date } ) {
 			render={ <time dateTime={ to.toISOString() } title={ dateI18n( 'M j, Y g:i A', to ) } /> }
 		>
 			<span aria-hidden="true">
-				{ parts.map( ( [ digits, unit ] ) => (
-					<span key={ unit } className="jp-protect-countdown__part">
-						{ [ ...digits ].map( ( char, i ) => (
-							// Keyed by value, so only a digit that changed remounts and replays its tick.
-							<span key={ `${ i }-${ char }` } className="jp-protect-countdown__digit">
-								{ char }
-							</span>
-						) ) }
-						{ unit }
-					</span>
-				) ) }
+				{ parts.map( ( [ digits, template ], part ) => {
+					const [ before, after = '' ] = template.split( '%s' );
+					return (
+						<span key={ part } className="jp-protect-countdown__part">
+							{ before }
+							{ [ ...digits ].map( ( char, i ) => (
+								// Keyed by value, so only a digit that changed remounts and replays its tick.
+								<span key={ `${ i }-${ char }` } className="jp-protect-countdown__digit">
+									{ char }
+								</span>
+							) ) }
+							{ after }
+						</span>
+					);
+				} ) }
 			</span>
 			<VisuallyHidden>
 				{ sprintf(

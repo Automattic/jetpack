@@ -84,7 +84,8 @@ type Props = {
 export default function SafeState( { scan, isStarting, onScan, justScanned = false }: Props ) {
 	const counts = getCheckedCounts( scan );
 	const nextCheck = getNextCheck( scan.lastChecked );
-	const nextScan = useHasPassed( nextCheck ) ? null : nextCheck;
+	// No margin, so the countdown gives way as it reaches zero.
+	const nextScan = useHasPassed( nextCheck, 0 ) ? null : nextCheck;
 
 	// The free check only compares versions with known vulnerabilities, so it can't call the site safe.
 	const copy = scan.hasPlan
