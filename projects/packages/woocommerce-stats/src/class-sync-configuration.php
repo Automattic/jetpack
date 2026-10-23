@@ -1,13 +1,14 @@
 <?php
 /**
- * Premium Analytics glue for the shared WooCommerce Analytics sync module.
+ * Opt-in to the shared WooCommerce Analytics sync module.
  *
- * @package automattic/jetpack-premium-analytics
+ * @package automattic/jetpack-woocommerce-stats
  */
 
-namespace Automattic\Jetpack\PremiumAnalytics\Sync;
+namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Config;
+use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\Sync\Data_Settings;
 use Automattic\Jetpack\Sync\Modules\Meta as Meta_Module;
 use Automattic\Jetpack\Sync\Modules\Posts as Posts_Module;
@@ -18,10 +19,10 @@ use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics as WooCommerce_Analyti
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Opts in to the shared WooCommerce Analytics sync module and registers the
- * Premium Analytics-specific sync configuration.
+ * Opts in to the shared WooCommerce Analytics sync module and registers the sync configuration
+ * the WooCommerce section reads.
  */
-class Configuration {
+class Sync_Configuration {
 
 	/**
 	 * FQCN of the Analytics module shipped by the standalone WooCommerce Analytics plugin.
@@ -30,7 +31,7 @@ class Configuration {
 	 * name and every analytics event syncs twice. Moot once that plugin consumes the
 	 * shared module, since the class strings then match.
 	 *
-	 * @since 0.9.0
+	 * @since $$next-version$$
 	 * @var string
 	 */
 	const ANALYTICS_PLUGIN_MODULE_FQCN = 'Automattic\\WooCommerce\\Analytics\\Internal\\Jetpack\\Sync\\Modules\\Analytics';
@@ -62,7 +63,14 @@ class Configuration {
 	);
 
 	/**
-	 * Entry point called from Analytics::init(). Schedules the Sync hookups on
+	 * Whether register() already ran in this request.
+	 *
+	 * @var bool
+	 */
+	private static $registered = false;
+
+	/**
+	 * Entry point called from Analytics_Dashboard::init(), once per request however many plugins bundle the package. Schedules the Sync hookups on
 	 * plugins_loaded; the actual registration is a no-op unless WooCommerce is active
 	 * (see {@see configure_sync()}).
 	 *
@@ -72,7 +80,11 @@ class Configuration {
 	 * @return void
 	 */
 	public static function register(): void {
-		$instance = new self();
+		if ( self::$registered ) {
+			return;
+		}
+		self::$registered = true;
+		$instance         = new self();
 
 		// plugins_loaded priority 1: every plugin has loaded for the WooCommerce guard, and the
 		// Config constructed in configure_sync() still gets its priority 2 handler in this cycle.
@@ -107,10 +119,24 @@ class Configuration {
 		add_filter( 'jetpack_sync_modules', array( $this, 'remove_duplicate_woocommerce_analytics_module' ), PHP_INT_MAX );
 		add_filter( 'jetpack_full_sync_config', array( $this, 'expand_full_sync_config' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $this, 'skip_reports_data_before_analytics_full_sync' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_delete_reports_data', array( $this, 'skip_reports_data_before_analytics_full_sync' ) );
+		add_filter( 'jetpack_premium_analytics_sync_modules', array( $this, 'register_analytics_sync_module' ) );
 
 		( new Config() )->ensure( 'sync', $this->get_jetpack_sync_config() );
 
 		( new Lookup_Data_Backfill() )->register();
+	}
+
+	/**
+	 * Register Woo's module with the analytics sync tracker.
+	 *
+	 * @param string[] $modules Registered analytics module names.
+	 * @return string[]
+	 */
+	public function register_analytics_sync_module( array $modules ): array {
+		$modules[] = 'woocommerce_analytics';
+		return $modules;
 	}
 
 	/**
@@ -186,6 +212,29 @@ class Configuration {
 		}
 
 		return $config;
+	}
+
+	/**
+	 * Drop per-order analytics reports data until an analytics full sync has started.
+	 *
+	 * That full sync sends the reports data of every order and overwrites whatever was synced before
+	 * it. Gated on the start, not the end, so orders that change while it runs still sync.
+	 *
+	 * @param array|mixed $args Sync action arguments.
+	 * @return array|mixed|false The arguments, or false to drop the action.
+	 */
+	public function skip_reports_data_before_analytics_full_sync( $args ) {
+		// An older copy of the dashboard package cannot tell, so order changes sync as they did before the gate.
+		if ( ! method_exists( Sync_Status_Tracker::class, 'has_module_full_sync_started' ) ) {
+			return $args;
+		}
+
+		// A store the standalone plugin fully synced holds its orders on WordPress.com already.
+		if ( (int) get_option( Lookup_Data_Backfill::PLUGIN_FULL_SYNC_OPTION, 0 ) > 0 ) {
+			return $args;
+		}
+
+		return Sync_Status_Tracker::has_module_full_sync_started( 'woocommerce_analytics' ) ? $args : false;
 	}
 
 	/**

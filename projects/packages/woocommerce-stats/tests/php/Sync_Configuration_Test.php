@@ -1,12 +1,13 @@
 <?php
 /**
- * Tests for the Sync Configuration class.
+ * Tests for the Sync_Configuration class.
  *
- * @package automattic/jetpack-premium-analytics
+ * @package automattic/jetpack-woocommerce-stats
  */
 
-namespace Automattic\Jetpack\PremiumAnalytics\Sync;
+namespace Automattic\Jetpack\WooCommerceStats;
 
+use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\Sync\Data_Settings;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Meta;
@@ -15,30 +16,43 @@ use Automattic\Jetpack\Sync\Modules\Posts;
 use Automattic\Jetpack\Sync\Modules\Term_Relationships;
 use Automattic\Jetpack\Sync\Modules\Terms;
 use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics;
+use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Sync\Configuration
+ * @covers \Automattic\Jetpack\WooCommerceStats\Sync_Configuration
  */
-#[CoversClass( Configuration::class )]
-class Configuration_Test extends TestCase {
+#[CoversClass( Sync_Configuration::class )]
+class Sync_Configuration_Test extends TestCase {
 
 	/**
-	 * Invoke a private method on a Configuration instance.
+	 * @after
+	 */
+	#[After]
+	public function tear_down() {
+		delete_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION );
+		delete_option( Sync_Status_Tracker::ANALYTICS_SYNC_STARTED_OPTION );
+		remove_all_filters( 'jetpack_premium_analytics_sync_modules' );
+		\WorDBless\Options::init()->clear_options();
+	}
+
+	/**
+	 * Invoke a private method on a Sync_Configuration instance.
 	 *
 	 * @param string $method Method name.
 	 * @return mixed
 	 */
 	private function call_private( string $method ) {
-		$ref = new ReflectionMethod( Configuration::class, $method );
+		$ref = new ReflectionMethod( Sync_Configuration::class, $method );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$ref->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
 		}
-		return $ref->invoke( new Configuration() );
+		return $ref->invoke( new Sync_Configuration() );
 	}
 
 	/**
@@ -48,7 +62,7 @@ class Configuration_Test extends TestCase {
 		$this->assertFalse( class_exists( 'WooCommerce' ) );
 		$this->assertFalse( function_exists( 'WC' ) );
 
-		$configuration = new Configuration();
+		$configuration = new Sync_Configuration();
 		$configuration->configure_sync();
 
 		$this->assertFalse( has_filter( 'jetpack_sync_modules', array( $configuration, 'remove_duplicate_woocommerce_analytics_module' ) ) );
@@ -66,16 +80,19 @@ class Configuration_Test extends TestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_configure_sync_with_woocommerce_registers_sync_hooks() {
-		require_once __DIR__ . '/../mocks/woocommerce-active-mock.php';
+		require_once __DIR__ . '/mocks/woocommerce-active-mock.php';
 		$this->assertTrue( class_exists( 'WooCommerce' ) );
 
-		$configuration = new Configuration();
+		$configuration = new Sync_Configuration();
 		$configuration->configure_sync();
 
 		$this->assertSame( PHP_INT_MAX, has_filter( 'jetpack_sync_modules', array( $configuration, 'remove_duplicate_woocommerce_analytics_module' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
 		$this->assertTrue( has_action( Lookup_Data_Backfill::START_HOOK ) );
+		// No analytics full sync has started, so order changes are dropped.
+		$this->assertFalse( apply_filters( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( array( 'order_id' => 1 ) ) ) );
+		$this->assertFalse( apply_filters( 'jetpack_sync_before_enqueue_woocommerce_analytics_delete_reports_data', array( array( 'order_id' => 1 ) ) ) );
 
 		$data_settings = ( new Data_Settings() )->get_data_settings();
 		$this->assertContains( WooCommerce_Analytics::class, $data_settings['jetpack_sync_modules'] );
@@ -90,9 +107,28 @@ class Configuration_Test extends TestCase {
 		$modules = apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES );
 		$this->assertCount( 1, array_keys( $modules, WooCommerce_Analytics::class, true ) );
 
-		$modules = apply_filters( 'jetpack_sync_modules', array( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN ) );
-		$this->assertNotContains( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN, $modules );
+		$modules = apply_filters( 'jetpack_sync_modules', array( Sync_Configuration::ANALYTICS_PLUGIN_MODULE_FQCN ) );
+		$this->assertNotContains( Sync_Configuration::ANALYTICS_PLUGIN_MODULE_FQCN, $modules );
 		$this->assertContains( WooCommerce_Analytics::class, $modules );
+	}
+
+	/**
+	 * Jetpack and the Premium Analytics plugin both call register(); the hooks must land once.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_hooks_once_when_called_twice() {
+		require_once __DIR__ . '/mocks/woocommerce-active-mock.php';
+
+		for ( $i = 0; $i < 2; $i++ ) {
+			Sync_Configuration::register();
+		}
+		do_action( 'plugins_loaded' );
+
+		$this->assertSame( array( 'woocommerce_analytics' ), Sync_Status_Tracker::get_analytics_sync_modules() );
 	}
 
 	/**
@@ -148,14 +184,14 @@ class Configuration_Test extends TestCase {
 	public function test_remove_duplicate_woocommerce_analytics_module_leaves_the_list_alone() {
 		$modules = array( Posts::class, WooCommerce_Analytics::class );
 
-		$this->assertSame( $modules, ( new Configuration() )->remove_duplicate_woocommerce_analytics_module( $modules ) );
+		$this->assertSame( $modules, ( new Sync_Configuration() )->remove_duplicate_woocommerce_analytics_module( $modules ) );
 	}
 
 	/**
 	 * An emptied module list is a kill switch and stays empty.
 	 */
 	public function test_remove_duplicate_woocommerce_analytics_module_honors_an_emptied_list() {
-		$this->assertSame( array(), ( new Configuration() )->remove_duplicate_woocommerce_analytics_module( array() ) );
+		$this->assertSame( array(), ( new Sync_Configuration() )->remove_duplicate_woocommerce_analytics_module( array() ) );
 	}
 
 	/**
@@ -163,13 +199,13 @@ class Configuration_Test extends TestCase {
 	 */
 	public function test_remove_duplicate_woocommerce_analytics_module_drops_the_standalone_plugins_module() {
 		$modules = array(
-			Configuration::ANALYTICS_PLUGIN_MODULE_FQCN,
+			Sync_Configuration::ANALYTICS_PLUGIN_MODULE_FQCN,
 			WooCommerce_Analytics::class,
 		);
 
 		$this->assertSame(
 			array( WooCommerce_Analytics::class ),
-			( new Configuration() )->remove_duplicate_woocommerce_analytics_module( $modules )
+			( new Sync_Configuration() )->remove_duplicate_woocommerce_analytics_module( $modules )
 		);
 	}
 
@@ -179,8 +215,8 @@ class Configuration_Test extends TestCase {
 	public function test_remove_duplicate_woocommerce_analytics_module_drops_the_standalone_module_alone() {
 		$this->assertSame(
 			array( Posts::class ),
-			( new Configuration() )->remove_duplicate_woocommerce_analytics_module(
-				array( Posts::class, Configuration::ANALYTICS_PLUGIN_MODULE_FQCN )
+			( new Sync_Configuration() )->remove_duplicate_woocommerce_analytics_module(
+				array( Posts::class, Sync_Configuration::ANALYTICS_PLUGIN_MODULE_FQCN )
 			)
 		);
 	}
@@ -195,7 +231,7 @@ class Configuration_Test extends TestCase {
 				'terms'                 => 1,
 				'posts'                 => 1,
 			),
-			( new Configuration() )->expand_full_sync_config(
+			( new Sync_Configuration() )->expand_full_sync_config(
 				array(
 					'posts' => 1,
 					'terms' => 1,
@@ -215,14 +251,77 @@ class Configuration_Test extends TestCase {
 			'posts'                 => 1,
 		);
 
-		$this->assertSame( $config, ( new Configuration() )->expand_full_sync_config( $config ) );
+		$this->assertSame( $config, ( new Sync_Configuration() )->expand_full_sync_config( $config ) );
+	}
+
+	public static function provide_sync_states(): array {
+		return array(
+			'no full sync'                     => array( null, false, false, false, false ),
+			'Woo full sync started'            => array( 'woocommerce_analytics', false, false, false, true ),
+			'another module started'           => array( 'other_analytics', false, false, false, false ),
+			'another module finished'          => array( 'other_analytics', true, false, false, false ),
+			'legacy Woo full sync ended'       => array( null, false, true, false, true ),
+			'legacy Woo, another starts'       => array( 'other_analytics', false, true, false, true ),
+			'standalone plugin full sync done' => array( null, false, false, true, true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_sync_states
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param string|null $module_name     Module whose full sync started.
+	 * @param bool        $finished        Whether that full sync finished.
+	 * @param bool        $legacy_finished Whether Woo's full sync finished before per-module tracking.
+	 * @param bool        $plugin_finished Whether the standalone plugin's full sync finished.
+	 * @param bool        $should_sync     Whether order actions should sync.
+	 */
+	#[DataProvider( 'provide_sync_states' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_order_actions_stay_blocked_until_woocommerce_full_sync_starts( ?string $module_name, bool $finished, bool $legacy_finished, bool $plugin_finished, bool $should_sync ) {
+		require_once __DIR__ . '/mocks/woocommerce-active-mock.php';
+		add_filter(
+			'jetpack_premium_analytics_sync_modules',
+			static function ( $modules ) {
+				$modules[] = 'other_analytics';
+				return $modules;
+			}
+		);
+		if ( $legacy_finished ) {
+			update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
+		}
+		if ( $plugin_finished ) {
+			update_option( Lookup_Data_Backfill::PLUGIN_FULL_SYNC_OPTION, 1730000123 );
+		}
+
+		$configuration = new Sync_Configuration();
+		$configuration->configure_sync();
+		if ( null !== $module_name ) {
+			$config = array( $module_name => 1 );
+			Sync_Status_Tracker::configure();
+			do_action( 'jetpack_full_sync_start', $config );
+			if ( $finished ) {
+				Sync_Status_Tracker::maybe_set_milestone(
+					array( 'config' => $config ),
+					array( array( 'jetpack_full_sync_end', array(), 0, 1730000123 ) )
+				);
+			}
+			$configuration->configure_sync();
+		}
+
+		$args = array( array( 'order_id' => 1 ) );
+		foreach ( array( 'sync', 'delete' ) as $action ) {
+			$this->assertSame( $should_sync ? $args : false, apply_filters( "jetpack_sync_before_enqueue_woocommerce_analytics_{$action}_reports_data", $args ) );
+		}
 	}
 
 	/**
 	 * Bookings post meta is prepended to the whitelist without dropping existing keys.
 	 */
 	public function test_add_meta_to_sync_post_meta_whitelist_prepends_bookings_meta() {
-		$whitelist = ( new Configuration() )->add_meta_to_sync_post_meta_whitelist( array( '_existing' ) );
+		$whitelist = ( new Sync_Configuration() )->add_meta_to_sync_post_meta_whitelist( array( '_existing' ) );
 
 		$this->assertSame( '_existing', end( $whitelist ) );
 		foreach ( array( '_booking_start', '_booking_end', '_booking_cost', '_booking_order_id' ) as $key ) {
