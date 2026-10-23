@@ -6,12 +6,16 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
+use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
+use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use Automattic\Jetpack\Stats_Admin\Admin_Bar as Stats_Admin_Bar;
 use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget;
 use Automattic\Jetpack\Stats_Plugin\Jetpack_Stats_Plugin;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -28,6 +32,7 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	public function set_up() {
 		$this->reset_static( Stats_Dashboard::class, 'initialized', false );
 		$this->reset_static( Stats_Admin_Main::class, 'instance', null );
+		$this->reset_static( Analytics::class, 'initialized', false );
 	}
 
 	/**
@@ -37,6 +42,8 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	public function tear_down() {
 		( new Connection_Manager() )->reset_connection_status();
 		remove_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
+		delete_option( Enablement_Setting::ENABLED_OPTION );
 	}
 
 	/**
@@ -377,5 +384,78 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		// Odyssey reads `is_commercial` from this route to decide what to paywall, and the
 		// Subscribers and Store tabs from the same response.
 		$this->assertContains( '/jetpack/v4/site', $routes );
+	}
+
+	/**
+	 * Stats v2 boots behind the same gate the Jetpack plugin reads while it is active.
+	 *
+	 * @dataProvider provide_stats_v2_states
+	 *
+	 * @param bool $module_active Whether the Stats module is active.
+	 * @param bool $opted_in      Whether the site opted in to Stats v2.
+	 * @param bool $retired       Whether the classic Stats page is retired.
+	 * @param bool $expected      Whether Stats v2 boots.
+	 */
+	#[DataProvider( 'provide_stats_v2_states' )]
+	public function test_stats_v2_boots_with_the_packages( $module_active, $opted_in, $retired, $expected ) {
+		if ( $module_active ) {
+			add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		}
+		update_option( Enablement_Setting::ENABLED_OPTION, (int) $opted_in );
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+
+		Jetpack_Stats_Plugin::configure_packages();
+
+		$this->assertSame( $expected, Analytics::is_initialized() );
+	}
+
+	/**
+	 * Stats v2 states, as module active, opted in, classic page retired, boots.
+	 *
+	 * @return array
+	 */
+	public static function provide_stats_v2_states() {
+		return array(
+			'off by default'             => array( true, false, false, false ),
+			'opted in'                   => array( true, true, false, true ),
+			'classic page retired'       => array( true, false, true, true ),
+			'opted in, Stats module off' => array( false, true, false, false ),
+			'retired, Stats module off'  => array( false, false, true, false ),
+		);
+	}
+
+	/**
+	 * The classic Stats menu steps aside only once it is retired and Stats v2 is there to take over.
+	 *
+	 * @dataProvider provide_classic_menu_states
+	 *
+	 * @param bool $opted_in Whether the site opted in to Stats v2.
+	 * @param bool $retired  Whether the classic Stats page is retired.
+	 * @param bool $kept     Whether the classic Stats menu is registered.
+	 */
+	#[DataProvider( 'provide_classic_menu_states' )]
+	public function test_classic_menu_gives_way_to_stats_v2( $opted_in, $retired, $kept ) {
+		$this->fake_connection();
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		update_option( Enablement_Setting::ENABLED_OPTION, (int) $opted_in );
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+
+		Jetpack_Stats_Plugin::configure_packages();
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertSame( $kept, $this->dashboard_menu_is_registered() );
+	}
+
+	/**
+	 * Classic menu states, as opted in, classic page retired, menu kept.
+	 *
+	 * @return array
+	 */
+	public static function provide_classic_menu_states() {
+		return array(
+			'Stats v2 off'            => array( false, false, true ),
+			'Stats v2 beside classic' => array( true, false, true ),
+			'classic retired'         => array( false, true, false ),
+		);
 	}
 }
