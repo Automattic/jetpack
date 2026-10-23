@@ -11,6 +11,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -289,7 +290,48 @@ class Dashboard {
 	 * @return string
 	 */
 	public static function get_scan_upgrade_url() {
-		return admin_url( 'admin.php?page=my-jetpack#/add-scan' );
+		$url = self::filter_scan_links( false )['url'] ?? '';
+
+		return $url ? $url : admin_url( 'admin.php?page=my-jetpack#/add-scan' );
+	}
+
+	/**
+	 * Where a site with Scan manages it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public static function get_scan_manage_url() {
+		$url = self::filter_scan_links( true )['manage_url'] ?? '';
+
+		return $url ? $url : Redirect::get_url( 'my-jetpack-manage-scan' );
+	}
+
+	/**
+	 * A host's Scan links, as `url` and `manage_url`, each a web address or empty.
+	 *
+	 * @param bool $included Whether the site has Scan.
+	 * @return array{url: string, manage_url: string}
+	 */
+	private static function filter_scan_links( $included ) {
+		$upgrade = array(
+			'path'     => $included ? '' : '/add-scan',
+			'name'     => $included ? '' : 'Jetpack Scan', // Product name, do not translate.
+			'back_url' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
+		);
+
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade, 'protect-dashboard', $included );
+
+		if ( ! is_array( $filtered ) ) {
+			$filtered = array();
+		}
+
+		return array(
+			'url'        => esc_url_raw( (string) ( $filtered['url'] ?? '' ) ),
+			'manage_url' => esc_url_raw( (string) ( $filtered['manage_url'] ?? '' ) ),
+		);
 	}
 
 	/**
