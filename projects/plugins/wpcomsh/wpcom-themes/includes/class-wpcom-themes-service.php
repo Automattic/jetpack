@@ -92,7 +92,9 @@ class WPCom_Themes_Service {
 	 */
 	protected function without_wporg_themes( array $wpcom_themes ): array {
 		// The lookup ships in jetpack-mu-wpcom, which an older copy may be loaded from.
-		$wporg = method_exists( $this->api, 'fetch_wporg_slugs' ) ? $this->api->fetch_wporg_slugs() : null;
+		$wporg = method_exists( $this->api, 'fetch_wporg_slugs' )
+			? $this->api->fetch_wporg_slugs( array_column( $wpcom_themes, 'id' ) )
+			: null;
 
 		if ( null === $wporg ) {
 			return $wpcom_themes;

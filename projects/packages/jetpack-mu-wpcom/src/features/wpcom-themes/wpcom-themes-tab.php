@@ -428,14 +428,15 @@ function wpcom_themes_tab_search_partners( string $term ) {
 		return array();
 	}
 
-	$api   = wpcom_themes_tab_api();
-	$wporg = WPCom_Themes_Tiers::site_can_use( WPCom_Themes_Tiers::COMMUNITY )
-		? array_flip( $api->fetch_wporg_slugs() ?? array() )
+	$api     = wpcom_themes_tab_api();
+	$results = $api->search_themes( $term );
+	$wporg   = WPCom_Themes_Tiers::site_can_use( WPCom_Themes_Tiers::COMMUNITY )
+		? array_flip( $api->fetch_wporg_slugs( array_column( $results, 'id' ) ) ?? array() )
 		: array();
 
 	$in_name   = array();
 	$elsewhere = array();
-	foreach ( $api->search_themes( $term ) as $theme ) {
+	foreach ( $results as $theme ) {
 		$slug = $theme->id ?? null;
 
 		if (

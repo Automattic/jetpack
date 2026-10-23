@@ -157,42 +157,64 @@ class WPCom_Themes_Api {
 	}
 
 	/**
-	 * Returns the slugs of the WordPress.com themes that WordPress.org also lists.
+	 * Returns which of these WordPress.com themes WordPress.org also lists.
 	 *
-	 * Read for the whole catalog rather than per search, so every search shares one daily lookup.
+	 * Themes in the catalog share one daily lookup. Search also returns themes outside it, such as
+	 * older default themes, which are looked up together and cached as a set.
 	 *
-	 * @return string[]|null Slugs, or null when either directory could not be read.
+	 * @param string[] $slugs Theme slugs.
+	 * @return string[]|null The ones WordPress.org lists, or null when it could not be asked.
 	 */
-	public function fetch_wporg_slugs(): ?array {
-		return $this->cache->run_cached(
-			'wpcom-themes-wporg-slugs',
-			function () {
-				$slugs = array();
-				foreach ( $this->fetch_all_non_delisted_themes() as $theme ) {
-					if ( isset( $theme->id ) && is_string( $theme->id ) ) {
-						$slugs[] = $theme->id;
-					}
-				}
-
-				if ( array() === $slugs ) {
-					return null;
-				}
-
-				$listed = array();
-				foreach ( array_chunk( $slugs, self::WP_ORG_BATCH_SIZE ) as $batch ) {
-					$found = $this->fetch_wporg_batch( $batch );
-
-					// A partial answer would read as "not on WordPress.org" for the rest.
-					if ( null === $found ) {
-						return null;
-					}
-
-					$listed = array_merge( $listed, $found );
-				}
-
-				return $listed;
+	public function fetch_wporg_slugs( array $slugs ): ?array {
+		$catalog = array();
+		foreach ( $this->fetch_all_non_delisted_themes() as $theme ) {
+			if ( isset( $theme->id ) && is_string( $theme->id ) ) {
+				$catalog[] = $theme->id;
 			}
+		}
+
+		if ( array() === $catalog ) {
+			return null;
+		}
+
+		$listed = $this->cache->run_cached(
+			'wpcom-themes-wporg-slugs',
+			fn() => $this->fetch_wporg_listed( $catalog )
 		);
+
+		$outside = array_values( array_diff( array_filter( $slugs, 'is_string' ), $catalog ) );
+		if ( null !== $listed && array() !== $outside ) {
+			sort( $outside );
+			$also   = $this->cache->run_cached(
+				'wpcom-themes-wporg-slugs-' . md5( implode( ',', $outside ) ),
+				fn() => $this->fetch_wporg_listed( $outside )
+			);
+			$listed = null === $also ? null : array_merge( $listed, $also );
+		}
+
+		return null === $listed ? null : array_values( array_intersect( $slugs, $listed ) );
+	}
+
+	/**
+	 * Asks WordPress.org which of these themes it lists, in batches it accepts.
+	 *
+	 * @param string[] $slugs Theme slugs.
+	 * @return string[]|null The slugs it lists, or null when a batch could not be asked.
+	 */
+	protected function fetch_wporg_listed( array $slugs ): ?array {
+		$listed = array();
+		foreach ( array_chunk( $slugs, self::WP_ORG_BATCH_SIZE ) as $batch ) {
+			$found = $this->fetch_wporg_batch( $batch );
+
+			// A partial answer would read as "not on WordPress.org" for the rest.
+			if ( null === $found ) {
+				return null;
+			}
+
+			$listed = array_merge( $listed, $found );
+		}
+
+		return $listed;
 	}
 
 	/**

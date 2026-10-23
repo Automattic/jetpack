@@ -713,7 +713,21 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$listed = array( 'theme-2', 'theme-101' );
 		$count  = $this->answer_wporg( fn( $slug ) => in_array( $slug, $listed, true ) );
 
-		$this->assertSame( $listed, wpcom_themes_tab_api()->fetch_wporg_slugs() );
+		$this->assertSame( $listed, wpcom_themes_tab_api()->fetch_wporg_slugs( array_column( $themes, 'id' ) ) );
+		$this->assertSame( 2, $count->n );
+	}
+
+	/**
+	 * Search also returns themes outside the catalog, such as older default themes, which are asked about too.
+	 */
+	public function test_asks_wporg_about_searched_themes_outside_the_catalog() {
+		$this->answer_with_themes( array( self::THEME ) );
+		$count = $this->answer_wporg( '__return_true' );
+
+		$this->assertSame(
+			array( 'organic-stax', 'twentytwentyone' ),
+			wpcom_themes_tab_api()->fetch_wporg_slugs( array( 'organic-stax', 'twentytwentyone' ) )
+		);
 		$this->assertSame( 2, $count->n );
 	}
 
@@ -729,7 +743,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$count = $this->answer_wporg( '__return_true', 2 );
 
 		foreach ( array( 'first', 'second' ) as $call ) {
-			$this->assertNull( wpcom_themes_tab_api()->fetch_wporg_slugs(), "The $call call." );
+			$this->assertNull( wpcom_themes_tab_api()->fetch_wporg_slugs( array( 'theme-1' ) ), "The $call call." );
 		}
 		// Two for the first call; the second asks again, which a cached failure would not.
 		$this->assertSame( 3, $count->n );

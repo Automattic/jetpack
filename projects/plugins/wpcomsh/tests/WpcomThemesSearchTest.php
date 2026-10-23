@@ -75,10 +75,11 @@ class WpcomThemesSearchTest extends WP_UnitTestCase {
 			/**
 			 * The slugs WordPress.org lists.
 			 *
+			 * @param string[] $slugs Theme slugs.
 			 * @return string[]|null
 			 */
-			public function fetch_wporg_slugs(): ?array {
-				return $this->wporg_slugs;
+			public function fetch_wporg_slugs( array $slugs ): ?array {
+				return null === $this->wporg_slugs ? null : array_values( array_intersect( $slugs, $this->wporg_slugs ) );
 			}
 		};
 
