@@ -415,7 +415,7 @@ const WPCOM_THEMES_TAB_SEARCH_PARTNERS = 2;
  * Partner themes that match a search term, best matches first.
  *
  * A match in the name ranks above one WordPress.com found elsewhere in the theme. Only themes the
- * store sells are offered, and none whose WordPress.org copy the site's search shows instead.
+ * store sells are offered.
  *
  * @param string $term What was searched for.
  * @return array<stdClass> Themes in the WordPress.com shape.
@@ -428,21 +428,14 @@ function wpcom_themes_tab_search_partners( string $term ) {
 		return array();
 	}
 
-	$api     = wpcom_themes_tab_api();
-	$results = $api->search_themes( $term );
-	$wporg   = WPCom_Themes_Tiers::site_can_use( WPCom_Themes_Tiers::COMMUNITY )
-		? array_flip( $api->fetch_wporg_slugs( array_column( $results, 'id' ) ) ?? array() )
-		: array();
-
 	$in_name   = array();
 	$elsewhere = array();
-	foreach ( $results as $theme ) {
+	foreach ( wpcom_themes_tab_api()->search_themes( $term ) as $theme ) {
 		$slug = $theme->id ?? null;
 
 		if (
 			! is_string( $slug )
 			|| WPCom_Themes_Tiers::PARTNER !== ( $theme->theme_tier->slug ?? '' )
-			|| isset( $wporg[ $slug ] )
 			|| array() === wpcom_themes_tab_subscription( $slug )
 		) {
 			continue;
@@ -505,19 +498,11 @@ function wpcom_themes_tab_splice_search_partners( $result, $action, $args ) {
 		return $result;
 	}
 
-	$ours   = array_column( $partners, 'slug' );
-	$before = count( $result->themes );
-	$others = array_filter(
-		$result->themes,
-		static function ( $theme ) use ( $ours ) {
-			return ! in_array( $theme->slug ?? '', $ours, true );
-		}
-	);
-
-	$result->themes = array_merge( $partners, array_values( $others ) );
+	// A WordPress.org theme with a partner theme's slug is another author's theme, so both stay listed.
+	$result->themes = array_merge( $partners, $result->themes );
 
 	if ( isset( $result->info['results'] ) ) {
-		$result->info['results'] += count( $result->themes ) - $before;
+		$result->info['results'] += count( $partners );
 	}
 
 	return $result;

@@ -792,6 +792,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 							$partner( 'organic-stax', 'STAX' ),
 							// Not sold, so it cannot be bought or installed.
 							$partner( 'portfolio-unsold', 'Portfolio Unsold' ),
+							// WordPress.org lists another author's theme under this slug.
 							$partner( 'portfolio-twin', 'Portfolio Twin' ),
 							$partner( 'portfolio-pro', 'Portfolio Pro' ),
 							array_merge(
@@ -806,33 +807,30 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 				),
 			)
 		);
-		$this->answer_wporg( fn( $slug ) => 'portfolio-twin' === $slug );
 	}
 
 	/**
-	 * A search's first page leads with up to two sold partner themes, names matching first.
-	 *
-	 * @param bool     $lists_wporg Whether the site's plan shows WordPress.org's themes.
-	 * @param string[] $expected    Slugs of the partner themes offered.
-	 * @dataProvider provide_partner_slots
+	 * A search's first page leads with up to two sold partner themes, names matching first, above
+	 * WordPress.org's results as they were.
 	 */
-	#[DataProvider( 'provide_partner_slots' )]
-	public function test_a_search_leads_with_matching_partner_themes( bool $lists_wporg, array $expected ) {
+	public function test_a_search_leads_with_matching_partner_themes() {
 		$this->enable_tab();
-		$this->site_has_plan( $lists_wporg );
+		$this->site_has_plan( true );
 		$this->answer_portfolio_search();
 
-		$result = wpcom_themes_tab_splice_search_partners(
+		$from_wporg = array( (object) array( 'slug' => 'portfolio-twin' ), (object) array( 'slug' => 'from-wporg' ) );
+		$result     = wpcom_themes_tab_splice_search_partners(
 			(object) array(
-				'info'   => array( 'results' => 1 ),
-				'themes' => array( (object) array( 'slug' => 'from-wporg' ) ),
+				'info'   => array( 'results' => 2 ),
+				'themes' => $from_wporg,
 			),
 			'query_themes',
 			(object) array( 'search' => 'portfolio' )
 		);
 
-		$this->assertSame( array_merge( $expected, array( 'from-wporg' ) ), array_column( $result->themes, 'slug' ) );
-		$this->assertSame( 1 + count( $expected ), $result->info['results'] );
+		$this->assertSame( array( 'portfolio-twin', 'portfolio-pro', 'portfolio-twin', 'from-wporg' ), array_column( $result->themes, 'slug' ) );
+		$this->assertSame( $from_wporg, array_slice( $result->themes, 2 ) );
+		$this->assertSame( 4, $result->info['results'] );
 
 		$offered = $result->themes[0];
 		$this->assertTrue( $offered->wpcom_search_slot );
@@ -840,19 +838,6 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString(
 			'checkoutBackUrl=' . rawurlencode( admin_url( 'theme-install.php?search=portfolio' ) ),
 			$offered->purchase_url
-		);
-	}
-
-	/**
-	 * Plans, and the partner themes a search for "portfolio" offers on them.
-	 *
-	 * @return array<string, array{0: bool, 1: string[]}>
-	 */
-	public static function provide_partner_slots(): array {
-		return array(
-			// WordPress.org's copy of the twin shows wherever it ranks, so ours is not offered.
-			'a plan showing WordPress.org themes' => array( true, array( 'portfolio-pro', 'organic-stax' ) ),
-			'a plan showing only ours'            => array( false, array( 'portfolio-twin', 'portfolio-pro' ) ),
 		);
 	}
 
