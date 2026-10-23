@@ -70,8 +70,7 @@ const ProductPrice: FC< ProductPriceProps > = ( {
 							inline={ true }
 						/>
 						<div>
-							{ discount &&
-								discount > 0 &&
+							{ discount > 0 &&
 								discount + __( '% off the first year', 'jetpack-components' ) }
 						</div>
 					</div>
