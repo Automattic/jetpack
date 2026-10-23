@@ -42,7 +42,21 @@ if ( missing.length ) {
 	throw new Error( `tests/jest.tz.config.cjs lists missing suites: ${ missing.join( ', ' ) }` );
 }
 
-module.exports = {
-	...config,
+// Jest accepts `coverageReporters` only at the root, and warns for every project that carries it.
+const { coverageReporters, ...projectConfig } = config;
+
+const zoneProject = ( displayName, environment ) => ( {
+	...projectConfig,
+	displayName,
+	testEnvironment: path.join( __dirname, environment ),
 	testMatch: TZ_SUITES.map( suite => `<rootDir>/${ suite }` ),
+} );
+
+// One run for both zones, so their suites share the worker pool instead of queueing behind each other.
+module.exports = {
+	coverageReporters,
+	projects: [
+		zoneProject( 'America/Los_Angeles', 'environment-los-angeles.mjs' ),
+		zoneProject( 'Asia/Tokyo', 'environment-tokyo.mjs' ),
+	],
 };
