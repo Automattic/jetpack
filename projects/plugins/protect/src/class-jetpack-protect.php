@@ -155,7 +155,7 @@ class Jetpack_Protect {
 		// Only report the threat count to users who can actually reach the Protect
 		// menu (added below with the 'manage_options' cap). Otherwise the central
 		// menu-badges total would include threats the current user can't see.
-		if ( current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( 'manage_options' ) && self::should_notify_threats() ) {
 			\Automattic\Jetpack\Menu_Badges\Menu_Badges::init(); // idempotent; wires the renderer.
 			\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
 				'jetpack-protect',
@@ -329,13 +329,22 @@ class Jetpack_Protect {
 	}
 
 	/**
+	 * Whether the host lets threats be announced in the menu and the admin bar.
+	 *
+	 * @return bool
+	 */
+	private static function should_notify_threats() {
+		return ! method_exists( Status::class, 'should_notify_threats' ) || Status::should_notify_threats();
+	}
+
+	/**
 	 * Create a shortcut on Admin Bar to show the total of threats found.
 	 *
 	 * @param object $wp_admin_bar The Admin Bar object.
 	 * @return void
 	 */
 	public function admin_bar( $wp_admin_bar ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || ! self::should_notify_threats() ) {
 			return;
 		}
 

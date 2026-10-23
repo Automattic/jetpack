@@ -12,7 +12,6 @@ import {
 	switchUserPermission,
 	switchThreats,
 	switchRewindState,
-	switchScanState,
 } from 'state/dev-version';
 import {
 	isDevVersion as _isDevVersion,
@@ -21,7 +20,6 @@ import {
 	userCanEditPosts,
 } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
-import { getScanStatus } from 'state/scan';
 import { getSitePlan } from 'state/site';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
@@ -42,10 +40,6 @@ export class DevCard extends Component {
 
 	onRewindStatusChange = event => {
 		this.props.switchRewindState( event.target.value );
-	};
-
-	onScanStatusChange = event => {
-		this.props.switchScanState( event.target.value );
 	};
 
 	maybeShowStatsToggle = () => {
@@ -131,7 +125,6 @@ export class DevCard extends Component {
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const rewindState = this.props.rewindStatus?.state ?? false;
-		const scanState = this.props.scanStatus?.state ?? false;
 
 		return (
 			<Card compact className={ classes }>
@@ -483,61 +476,6 @@ export class DevCard extends Component {
 						</label>
 					</li>
 				</ul>
-				<ul>
-					<strong>Scan</strong>
-					<li>
-						<label htmlFor="scanUnavailable">
-							<input
-								type="radio"
-								id="scanUnavailable"
-								value="unavailable"
-								name="unavailable"
-								checked={ 'unavailable' === scanState }
-								onChange={ this.onScanStatusChange }
-							/>
-							Unavailable
-						</label>
-					</li>
-					<li>
-						<label htmlFor="scanProvisioning">
-							<input
-								type="radio"
-								id="scanProvisioning"
-								value="provisioning"
-								name="provisioning"
-								checked={ 'provisioning' === scanState }
-								onChange={ this.onScanStatusChange }
-							/>
-							Provisioning
-						</label>
-					</li>
-					<li>
-						<label htmlFor="scanIdle">
-							<input
-								type="radio"
-								id="scanIdle"
-								value="idle"
-								name="idle"
-								checked={ 'idle' === scanState }
-								onChange={ this.onScanStatusChange }
-							/>
-							Idle
-						</label>
-					</li>
-					<li>
-						<label htmlFor="scanScanning">
-							<input
-								type="radio"
-								id="scanScanning"
-								value="scanning"
-								name="scanning"
-								checked={ 'scanning' === scanState }
-								onChange={ this.onScanStatusChange }
-							/>
-							Scanning
-						</label>
-					</li>
-				</ul>
 				{ this.maybeShowStatsToggle() }
 				{ this.showIsLinkedToggle() }
 			</Card>
@@ -558,7 +496,6 @@ export default connect(
 			canEditPosts: userCanEditPosts( state ),
 			getVaultPressScanThreatCount: () => getVaultPressScanThreatCount( state ),
 			rewindStatus: getRewindStatus( state ),
-			scanStatus: getScanStatus( state ),
 		};
 	},
 	dispatch => {
@@ -578,7 +515,6 @@ export default connect(
 			switchRewindState: rewindState => {
 				return dispatch( switchRewindState( rewindState ) );
 			},
-			switchScanState: scanState => dispatch( switchScanState( scanState ) ),
 		};
 	}
 )( DevCard );

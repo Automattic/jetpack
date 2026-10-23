@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Scan;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Protect\Threat_Count;
+use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use WP_Admin_Bar;
@@ -91,6 +92,10 @@ class Admin_Bar_Notice {
 
 		// Jetpack Scan is currently not supported on multisite.
 		if ( is_multisite() ) {
+			return false;
+		}
+
+		if ( method_exists( Protect_Status::class, 'should_notify_threats' ) && ! Protect_Status::should_notify_threats() ) {
 			return false;
 		}
 
