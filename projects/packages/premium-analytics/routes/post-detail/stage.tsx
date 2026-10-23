@@ -45,7 +45,7 @@ import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { withWidgetTypeAliases } from '../widget-type-aliases';
-import { postHeaderSlots } from './components';
+import { getPostTypeCopy, postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
@@ -263,9 +263,7 @@ function PostDetail(): JSX.Element {
 												href={ publicUrl }
 												openInNewTab
 											>
-												{ summary.type === 'page'
-													? __( 'View page', 'jetpack-premium-analytics-pkg' )
-													: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
+												{ getPostTypeCopy( summary.type ).view }
 											</ButtonLink>
 										) : null }
 									</DetailPageActions>
