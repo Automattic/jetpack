@@ -12,6 +12,7 @@ export const hasJetpackCrumb = (): boolean => getScriptData()?.myJetpack?.isAvai
 
 /**
  * The page header's "Jetpack / Protect" trail, ending in the current view, and the page's heading.
+ * The trail needs an ancestor, so render it only when hasJetpackCrumb() or `current` is set.
  *
  * @param props         - Component props.
  * @param props.current - The view below the dashboard, such as the threat report.

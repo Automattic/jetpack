@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import PageBreadcrumbs from '../page-breadcrumbs';
 
 jest.mock( '@wordpress/route', () => ( {
@@ -42,5 +42,10 @@ describe( 'PageBreadcrumbs', () => {
 				.map( link => [ link.textContent, link.getAttribute( 'href' ) ] )
 		).toEqual( links );
 		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( heading );
+		expect(
+			within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) ).getByText( heading, {
+				selector: '[aria-current="page"]',
+			} )
+		).toBeInTheDocument();
 	} );
 } );
