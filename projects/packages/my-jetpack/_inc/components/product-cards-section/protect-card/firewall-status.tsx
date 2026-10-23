@@ -50,8 +50,8 @@ export const FirewallStatus: FC< FirewallStatusProps > = ( { data } ) => {
 		},
 	};
 	const { text, alt, icon } = display[ status ];
-	// Off on a disconnected site says nothing about the firewall, so it has nothing to explain.
-	const tooltip = isRunning ? firewallTooltips[ status ] : null;
+	// Disconnected, or the firewall's data failed to load: there is no state to explain.
+	const tooltip = isRunning && data?.wafConfig ? firewallTooltips[ status ] : null;
 
 	return (
 		<>

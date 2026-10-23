@@ -69,15 +69,23 @@ describe( 'FirewallStatus', () => {
 	} );
 
 	it.each( [
-		[ 'On', 'automatic rules run', true, true, { jetpack_waf_automatic_rules: '1' as const } ],
-		[ 'Off', 'the plugin is inactive', false, true, {} ],
-		[ 'Off', 'the site is disconnected', true, false, {} ],
+		[ 'On', 'automatic rules run', true, true, wafConfig( { jetpack_waf_automatic_rules: '1' } ) ],
+		[ 'Off', 'the plugin is inactive', false, true, wafConfig( {} ) ],
+		[ 'Off', 'the site is disconnected', true, false, wafConfig( {} ) ],
+		[
+			'Off',
+			'a host firewall site is disconnected',
+			true,
+			false,
+			wafConfig( { waf_supported: false, waf_enabled: false } ),
+		],
+		[ 'Inactive', 'the firewall data failed to load', true, true, undefined ],
 	] )(
 		'shows %s with nothing to explain when %s',
-		( status, _, isPluginActive, isSiteConnected, overrides ) => {
+		( status, _, isPluginActive, isSiteConnected, data ) => {
 			mockConnection.isSiteConnected = isSiteConnected;
 			mockUseProduct.mockReturnValue( { detail: { isPluginActive, hasPaidPlanForProduct: true } } );
-			render( <FirewallStatus data={ wafConfig( overrides ) } /> );
+			render( <FirewallStatus data={ data } /> );
 
 			expect( screen.getByText( status ) ).toBeInTheDocument();
 			expect(
