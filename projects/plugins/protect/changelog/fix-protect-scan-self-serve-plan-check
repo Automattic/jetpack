@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Scan: On WordPress.com sites, only show the paid Scan experience when the plan includes it.
+Scan: On WordPress.com, use scan-self-serve for Scan feature gating.
