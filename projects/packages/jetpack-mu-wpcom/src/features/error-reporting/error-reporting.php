@@ -70,13 +70,23 @@ function wpcom_enqueue_error_reporting_script() {
 	$asset_file          = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/error-reporting/error-reporting.asset.php';
 	$script_dependencies = $asset_file['dependencies'] ?? array();
 	$script_version      = $asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/error-reporting/error-reporting.js' );
+	$script_id           = 'wpcom-error-reporting-script';
 
 	wp_enqueue_script(
-		'wpcom-error-reporting-script',
+		$script_id,
 		plugins_url( 'build/error-reporting/error-reporting.js', Jetpack_Mu_Wpcom::BASE_FILE ),
 		$script_dependencies,
 		$script_version,
 		true
+	);
+
+	wp_localize_script(
+		$script_id,
+		'WPcom_Error_Reporting_Config',
+		array(
+			'blogId'   => get_wpcom_blog_id(),
+			'siteSlug' => wpcom_get_site_slug(),
+		)
 	);
 }
 
