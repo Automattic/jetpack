@@ -151,11 +151,11 @@ export function LeaderboardRow( {
 			},
 		};
 
-		if ( action.kind === 'videoLink' && media.kind !== 'none' ) {
+		if ( media.kind !== 'none' ) {
 			return (
-				<VideoTitleLink { ...titleLinkProps }>
+				<TitleLink { ...titleLinkProps }>
 					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
-				</VideoTitleLink>
+				</TitleLink>
 			);
 		}
 
