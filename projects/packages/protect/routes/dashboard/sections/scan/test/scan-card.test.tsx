@@ -81,6 +81,14 @@ describe( 'ScanCard with Scan', () => {
 		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'keeps the title and Scan history while a scan runs', async () => {
+		renderCard( { hasPlan: true, scanning: true } );
+
+		expect( screen.getByRole( 'heading', { name: 'Scanning…' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 2, name: 'Scan' } ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
+	} );
 } );
 
 describe( 'ScanCard empty state', () => {

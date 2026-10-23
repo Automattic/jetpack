@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Protect: Keep the Scan card on the Protect page the same height while a scan runs, after a clean scan, and when threats are found.

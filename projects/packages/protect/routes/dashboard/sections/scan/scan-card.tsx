@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
-import { Button, Card, Stack, Text } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import { HISTORY_STATUS_PARAM } from '../history/store';
@@ -68,25 +68,6 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 		checkScanAgain().finally( () => setIsFetching( false ) );
 	}, [] );
 
-	// The running scan gets the whole card, without the header and footer.
-	if ( isScanning ) {
-		return (
-			<Card.Root
-				render={ <section /> }
-				className="jp-protect-card"
-				aria-label={ __( 'Scan', 'jetpack-protect-pkg' ) }
-			>
-				<Card.Content>
-					<ScanningState
-						scan={ scan }
-						onCheckAgain={ hasStoppedPolling ? refresh : undefined }
-						isChecking={ isFetching }
-					/>
-				</Card.Content>
-			</Card.Root>
-		);
-	}
-
 	const safeState = (
 		<SafeState
 			key={ finishedScans }
@@ -98,9 +79,19 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	);
 
 	let body;
-	if ( scan.error ) {
+	if ( isScanning ) {
 		body = (
-			<CardRow>
+			<CardRow className="jp-protect-scan__state">
+				<ScanningState
+					scan={ scan }
+					onCheckAgain={ hasStoppedPolling ? refresh : undefined }
+					isChecking={ isFetching }
+				/>
+			</CardRow>
+		);
+	} else if ( scan.error ) {
+		body = (
+			<CardRow className="jp-protect-scan__state">
 				<Stack direction="column" gap="sm" align="start">
 					<Text variant="body-md">
 						{ __(
@@ -115,7 +106,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			</CardRow>
 		);
 	} else if ( ! hasThreats ) {
-		body = <CardRow>{ safeState }</CardRow>;
+		body = <CardRow className="jp-protect-scan__state">{ safeState }</CardRow>;
 	} else {
 		body = (
 			<>
