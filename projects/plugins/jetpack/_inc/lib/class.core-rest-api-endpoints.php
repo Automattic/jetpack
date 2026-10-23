@@ -121,7 +121,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_scan_state',
-				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				'permission_callback' => __CLASS__ . '::view_scan_state_permission_check',
 			)
 		);
 
@@ -1078,6 +1078,25 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return new WP_Error(
 			'invalid_user_permission_view_admin',
+			REST_Connector::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Verify that user can view the Scan state, the same users who see the Protect menu and the admin bar notice.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool|WP_Error Whether user has the capability 'manage_options'.
+	 */
+	public static function view_scan_state_permission_check() {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_view_scan_state',
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);

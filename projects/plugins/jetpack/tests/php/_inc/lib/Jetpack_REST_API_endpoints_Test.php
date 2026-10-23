@@ -302,6 +302,34 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Only administrators can read the Scan state.
+	 *
+	 * @dataProvider provider_scan_state_roles
+	 *
+	 * @param string $role     Role of the current user.
+	 * @param int    $expected Expected response status.
+	 */
+	#[DataProvider( 'provider_scan_state_roles' )]
+	public function test_scan_state_requires_manage_options( $role, $expected ) {
+		set_transient( 'jetpack_scan_state', (object) array( 'state' => 'idle' ) );
+		wp_set_current_user( $this->create_and_get_user( $role )->ID );
+
+		$this->assertResponseStatus( $expected, $this->create_and_get_request( 'scan' ) );
+	}
+
+	/**
+	 * Roles and the status they get from the Scan state endpoint.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_scan_state_roles() {
+		return array(
+			'editor'        => array( 'editor', 403 ),
+			'administrator' => array( 'administrator', 200 ),
+		);
+	}
+
+	/**
 	 * Test permission to connect Jetpack site or link user.
 	 *
 	 * @since 4.4.0

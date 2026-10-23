@@ -235,7 +235,7 @@ class Red_Bubble_Notifications {
 		if ( is_multisite() ) {
 			return $red_bubble_slugs;
 		}
-		if ( ! Protect_Status::should_notify_threats() ) {
+		if ( method_exists( Protect_Status::class, 'should_notify_threats' ) && ! Protect_Status::should_notify_threats() ) {
 			return $red_bubble_slugs;
 		}
 		// Make sure the Notice hasn't been dismissed.
