@@ -39,8 +39,9 @@ export function MetricNoteTooltip( { note, className, children }: MetricNoteTool
 				{ children }
 				<VisuallyHidden>{ note }</VisuallyHidden>
 			</Tooltip.Trigger>
-			{ /* Assistive tech reads the copy inside the trigger instead. */ }
-			<Tooltip.Popup aria-hidden="true" data-testid="metric-note-tooltip">
+			{ /* Assistive tech reads the copy in the trigger, so the popup is hidden, and
+			     drops the `tabIndex={-1}` Base UI gives it so nothing hidden can take focus. */ }
+			<Tooltip.Popup aria-hidden="true" tabIndex={ undefined } data-testid="metric-note-tooltip">
 				{ note }
 			</Tooltip.Popup>
 		</Tooltip.Root>
