@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Registers the flag that gates the `protect-dashboard` module.
+ * Registers the flag that gates the `protect-dashboard` module, and hides the module while the Jetpack Protect plugin is active.
  *
  * @since 16.4
  */
@@ -32,7 +32,7 @@ class Jetpack_Protect_Dashboard_Feature_Flags {
 	private static $ignore_protect_plugin = false;
 
 	/**
-	 * Register the flag, and hide the module while it is off.
+	 * Register the flag and the module filters.
 	 *
 	 * @return void
 	 */
