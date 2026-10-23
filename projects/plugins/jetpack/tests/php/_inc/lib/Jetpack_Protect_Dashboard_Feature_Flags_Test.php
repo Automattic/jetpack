@@ -34,9 +34,9 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 	 */
 	public static function provide_sites() {
 		return array(
-			'flag left at its default'      => array( null, array(), true ),
-			'flag turned off'               => array( false, array(), false ),
-			'flag on, WordPress.com Atomic' => array(
+			'flag left at its default'        => array( null, array(), true ),
+			'flag turned off'                 => array( false, array(), false ),
+			'flag on, WordPress.com Atomic'   => array(
 				null,
 				array(
 					'ATOMIC_SITE_ID'       => 1,
@@ -45,7 +45,8 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 				),
 				false,
 			),
-			'flag on, WordPress.com Simple' => array( null, array( 'IS_WPCOM' => true ), false ),
+			'flag on, WordPress.com Simple'   => array( null, array( 'IS_WPCOM' => true ), false ),
+			'flag on, Jetpack Protect active' => array( null, array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), false ),
 		);
 	}
 
@@ -53,11 +54,11 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 	 * @dataProvider provide_sites
 	 *
 	 * @param bool|null $flag      The flag filter's value, or null to leave the default.
-	 * @param array     $constants Host constants to set.
+	 * @param array     $constants Constants to set.
 	 * @param bool      $available Whether the module should be available.
 	 */
 	#[DataProvider( 'provide_sites' )]
-	public function test_module_is_available_only_with_the_flag_on_outside_wordpress_com( $flag, $constants, $available ) {
+	public function test_module_is_available_only_where_the_page_can_load( $flag, $constants, $available ) {
 		if ( null !== $flag ) {
 			add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Protect_Dashboard_Feature_Flags::DASHBOARD, $flag ? '__return_true' : '__return_false' );
 		}
@@ -79,13 +80,15 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 			'new connection'                   => array( false, array(), true ),
 			'upgrade from the last stable'     => array( '16.3.1', array(), true ),
 			'upgrade from an alpha without it' => array( '16.4-a.3', array(), true ),
-			'Jetpack Protect plugin active'    => array( false, array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), false ),
-			'upgrade with Jetpack Protect'     => array( '16.3.1', array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), false ),
+			'Jetpack Protect plugin active'    => array( false, array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), true ),
+			'upgrade with Jetpack Protect'     => array( '16.3.1', array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), true ),
+			'upgrade past it, Jetpack Protect' => array( '16.4-a.4', array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), false ),
 		);
 	}
 
 	/**
 	 * Jetpack turns on default modules when a site connects, and on upgrade the ones introduced since the old version.
+	 * With the Jetpack Protect plugin active the module is still recorded, though hidden, so the page appears once that plugin is gone.
 	 *
 	 * @dataProvider provide_activations
 	 *
@@ -94,7 +97,7 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 	 * @param bool         $activates Whether the module should be a default.
 	 */
 	#[DataProvider( 'provide_activations' )]
-	public function test_module_turns_on_by_default_without_the_protect_plugin( $from, $constants, $activates ) {
+	public function test_module_turns_on_by_default( $from, $constants, $activates ) {
 		foreach ( $constants as $name => $value ) {
 			Constants::set_constant( $name, $value );
 		}

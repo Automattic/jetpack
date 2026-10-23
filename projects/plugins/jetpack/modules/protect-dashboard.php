@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-if ( class_exists( \Automattic\Jetpack\Protect\Dashboard::class ) ) {
+// Activating the module loads this file even while the Jetpack Protect plugin hides it.
+if ( class_exists( \Automattic\Jetpack\Protect\Dashboard::class ) && ! Jetpack_Protect_Dashboard_Feature_Flags::is_protect_plugin_active() ) {
 	\Automattic\Jetpack\Protect\Dashboard::init( array( 'module' => Jetpack_Protect_Dashboard_Feature_Flags::MODULE ) );
 }
