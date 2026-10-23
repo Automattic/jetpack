@@ -46,6 +46,7 @@ describe( 'MetricNoteTooltip', () => {
 
 		expect( screen.getAllByText( NOTE ) ).toHaveLength( 2 );
 		expect( screen.getByTestId( 'metric-note-tooltip' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByTestId( 'metric-note-tooltip' ) ).not.toHaveAttribute( 'tabindex' );
 	} );
 
 	it( 'leaves a metric with no note out of the tab order', async () => {
