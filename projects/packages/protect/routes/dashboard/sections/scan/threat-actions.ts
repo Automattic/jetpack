@@ -288,10 +288,10 @@ export const unignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
 /** How a fix ended; `pending` while it may still be running, here or on WordPress.com. */
 export type FixResult = 'fixed' | 'failed' | 'pending';
 
-// A client error says the request itself is wrong, so checking again won't help.
+// A client error says the request itself is wrong, so checking again won't help; a timeout or rate limit might.
 const isClientError = ( e: unknown ) => {
 	const status = ( e as { data?: { status?: number } } )?.data?.status;
-	return !! status && status >= 400 && status < 500;
+	return !! status && status >= 400 && status < 500 && status !== 408 && status !== 429;
 };
 
 /**
@@ -299,13 +299,22 @@ const isClientError = ( e: unknown ) => {
  *
  * @param threat - The threat.
  * @param open   - Opens the threat in the inspector, from the notice while it runs.
- * @param batch  - Part of a bulk action, which marked the threat busy and reports for the batch.
  * @return Resolves to how the fix ended; `pending` for a threat already being acted on.
  */
-export async function fixThreat(
+export const fixThreat = ( threat: ScanThreat, open?: OpenThreat ) => runFix( threat, open, false );
+
+/**
+ * Fix a threat on its own or as part of a bulk action.
+ *
+ * @param threat - The threat.
+ * @param open   - Opens the threat in the inspector, from the notice while it runs.
+ * @param batch  - Part of a bulk action, which marked the threat busy and reports for the batch.
+ * @return Resolves to how the fix ended.
+ */
+async function runFix(
 	threat: ScanThreat,
-	open?: OpenThreat,
-	batch = false
+	open: OpenThreat | undefined,
+	batch: boolean
 ): Promise< FixResult > {
 	const { id } = threat;
 	const end = ( result: FixResult, e: unknown, template: Template ): FixResult => {
@@ -336,8 +345,10 @@ export async function fixThreat(
 		let apply = startReportRead();
 		let result = await send( { path: threatPath( id, 'fix' ), method: 'POST' } );
 		let missed = 0;
-		for ( let polls = 0; result.status !== 'fixed' && result.status !== 'not_fixed'; polls++ ) {
-			if ( polls >= MAX_FIX_POLLS ) {
+		// A deadline, not a poll count, so polls queued behind a bulk action don't stretch it.
+		const deadline = Date.now() + MAX_FIX_POLLS * FIX_POLL_INTERVAL;
+		while ( result.status !== 'fixed' && result.status !== 'not_fixed' ) {
+			if ( Date.now() >= deadline ) {
 				return end( 'pending', null, takingLonger );
 			}
 			await new Promise( resolve => setTimeout( resolve, FIX_POLL_INTERVAL ) );
@@ -419,7 +430,7 @@ export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Pr
 		'info'
 	);
 	idle.forEach( threat => setBusy( threat.id, 'fixing' ) );
-	const results = await Promise.all( idle.map( threat => fixThreat( threat, open, true ) ) );
+	const results = await Promise.all( idle.map( threat => runFix( threat, open, true ) ) );
 	const count = ( result: FixResult ) => results.filter( item => item === result ).length;
 	const [ fixed, pending, failed ] = [ count( 'fixed' ), count( 'pending' ), count( 'failed' ) ];
 	if ( fixed === total ) {
