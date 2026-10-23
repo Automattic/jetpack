@@ -100,8 +100,9 @@ class Plan {
 		if ( null === $has_scan || $force_refresh ) {
 			$products = array_column( Current_Plan::get_products(), 'product_slug' );
 
-			// Check for a plan or product that enables scan.
-			$plan_supports_scan = Current_Plan::supports( 'scan', $force_refresh );
+			// On WordPress.com, gate Scan on `scan-self-serve`.
+			$feature            = function_exists( 'wpcom_feature_exists' ) && wpcom_feature_exists( 'scan-self-serve' ) ? 'scan-self-serve' : 'scan';
+			$plan_supports_scan = Current_Plan::supports( $feature, $force_refresh );
 			$has_scan_product   = count( array_intersect( array( 'jetpack_scan', 'jetpack_scan_monthly' ), $products ) ) > 0;
 			$has_scan           = $plan_supports_scan || $has_scan_product;
 		}
