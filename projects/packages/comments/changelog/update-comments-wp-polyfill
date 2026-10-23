@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stop loading the `wp-polyfill` script with the comment form and on the Edit Comment screen.
