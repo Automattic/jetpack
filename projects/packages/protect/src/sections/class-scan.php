@@ -74,6 +74,20 @@ class Scan implements Dashboard_Section {
 	const HISTORY_CACHE = 'jetpack_protect_dashboard_scan_history';
 
 	/**
+	 * How many characters of each column a threat's database row shows.
+	 *
+	 * @var int
+	 */
+	const ROW_VALUE_LIMIT = 2000;
+
+	/**
+	 * Options the dashboard won't delete even when Scan flags them, because the site can't run without them.
+	 *
+	 * @var string[]
+	 */
+	const PROTECTED_OPTIONS = array( 'siteurl', 'home', 'active_plugins', 'template', 'stylesheet', 'cron', 'rewrite_rules' );
+
+	/**
 	 * The section key.
 	 *
 	 * @return string
@@ -218,6 +232,23 @@ class Scan implements Dashboard_Section {
 
 		register_rest_route(
 			'jetpack/v4',
+			'/protect-dashboard/scan/threats/(?P<id>\d+)/row',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( __CLASS__, 'get_threat_row' ),
+					'permission_callback' => array( __CLASS__, 'can_act_on_threats' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( __CLASS__, 'delete_threat_row' ),
+					'permission_callback' => array( __CLASS__, 'can_act_on_threats' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
 			'/protect-dashboard/scan/threats/(?P<id>\d+)/fix',
 			array(
 				array(
@@ -341,11 +372,27 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
-	 * Every threat Scan has fixed or ignored, cached for five minutes.
+	 * Every threat Scan has fixed or ignored, and those the site resolved itself.
 	 *
 	 * @return array|WP_Error
 	 */
 	public static function get_history_threats() {
+		$threats = self::get_scan_history();
+		if ( is_wp_error( $threats ) ) {
+			return $threats;
+		}
+
+		// Threats the site resolved itself, until Scan's next scan lists them as fixed.
+		$listed = array_flip( array_map( 'strval', array_column( $threats, 'id' ) ) );
+		return array_merge( array_values( array_diff_key( Dashboard_Threats::get_resolved(), $listed ) ), $threats );
+	}
+
+	/**
+	 * Scan's own history, cached for five minutes.
+	 *
+	 * @return array|WP_Error
+	 */
+	private static function get_scan_history() {
 		$cached = get_transient( self::HISTORY_CACHE );
 		if ( is_array( $cached ) ) {
 			return $cached;
@@ -407,6 +454,108 @@ class Scan implements Dashboard_Section {
 			Protect_Status::delete_option();
 		}
 		return array( 'ok' => true );
+	}
+
+	/**
+	 * The database row a current threat was found in, with long values cut short.
+	 *
+	 * @param WP_REST_Request $request The request, with the threat `id`.
+	 * @return array|WP_Error The row's `columns`, and whether `canDelete` it here.
+	 */
+	public static function get_threat_row( WP_REST_Request $request ) {
+		$found = self::find_threat_row( $request['id'] );
+		if ( is_wp_error( $found ) ) {
+			return $found;
+		}
+
+		$columns = array();
+		foreach ( $found['row'] as $column => $value ) {
+			$columns[ $column ] = is_string( $value ) && mb_strlen( $value ) > self::ROW_VALUE_LIMIT ? mb_substr( $value, 0, self::ROW_VALUE_LIMIT ) . '…' : $value;
+		}
+		return array(
+			'columns'   => (object) $columns,
+			'canDelete' => null !== self::get_deletable_option( $found ),
+		);
+	}
+
+	/**
+	 * Delete the option a current threat was found in, and mark the threat fixed. Nothing keeps a copy of the option.
+	 *
+	 * @param WP_REST_Request $request The request, with the threat `id`.
+	 * @return array|WP_Error The fixed `threat`.
+	 */
+	public static function delete_threat_row( WP_REST_Request $request ) {
+		$found = self::find_threat_row( $request['id'] );
+		if ( is_wp_error( $found ) ) {
+			return $found;
+		}
+
+		$name = self::get_deletable_option( $found );
+		if ( null === $name ) {
+			return new WP_Error( 'threat_row_not_deletable', __( 'This row can’t be deleted here. Remove it with a database tool, or contact Jetpack support for help.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
+		}
+		if ( ! delete_option( $name ) ) {
+			return new WP_Error( 'threat_row_not_deleted', __( 'WordPress couldn’t delete the option. Try again, or contact Jetpack support for help.', 'jetpack-protect-pkg' ), array( 'status' => 500 ) );
+		}
+
+		return array( 'threat' => Dashboard_Threats::resolve( Dashboard_Threats::format( $found['threat'] ) ) );
+	}
+
+	/**
+	 * Read a current threat's database row, found through the threat so only rows Scan flagged can be reached.
+	 *
+	 * @param int|string $id The threat id.
+	 * @return array|WP_Error The `threat`, and its row's `table`, `pk_column` and `row`.
+	 */
+	private static function find_threat_row( $id ) {
+		global $wpdb;
+
+		$threat = null;
+		if ( class_exists( Status::class ) ) {
+			foreach ( (array) ( Scan_Status::get_status()->threats ?? array() ) as $item ) {
+				if ( (string) ( $item->id ?? '' ) === (string) $id ) {
+					$threat = $item;
+					break;
+				}
+			}
+		}
+
+		$details = $threat->details ?? null;
+		$table   = $details->table ?? null;
+		$column  = $details->pk_column ?? null;
+		if ( ! is_string( $table ) || ! is_string( $column ) || ! isset( $details->pk_value ) || ! in_array( $table, $wpdb->tables( 'all' ), true ) ) {
+			return new WP_Error( 'threat_row_not_found', __( 'This threat isn’t in a database row Jetpack can read.', 'jetpack-protect-pkg' ), array( 'status' => 404 ) );
+		}
+
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE %i = %s', $table, $column, $details->pk_value ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		if ( ! $row ) {
+			return new WP_Error( 'threat_row_gone', __( 'This row is no longer in the database. Run a scan to update the list.', 'jetpack-protect-pkg' ), array( 'status' => 404 ) );
+		}
+		return array(
+			'threat'    => $threat,
+			'table'     => $table,
+			'pk_column' => $column,
+			'row'       => $row,
+		);
+	}
+
+	/**
+	 * The option a threat's row holds, when the dashboard may delete it.
+	 *
+	 * @param array $found From find_threat_row().
+	 * @return string|null The option name, or null for other tables and for options the site needs.
+	 */
+	private static function get_deletable_option( $found ) {
+		global $wpdb;
+
+		$name = $found['row']['option_name'] ?? null;
+		if ( $wpdb->options !== $found['table'] || 'option_id' !== $found['pk_column'] || ! is_string( $name ) ) {
+			return null;
+		}
+		if ( in_array( $name, self::PROTECTED_OPTIONS, true ) || $wpdb->get_blog_prefix() . 'user_roles' === $name ) {
+			return null;
+		}
+		return $name;
 	}
 
 	/**
@@ -647,7 +796,7 @@ class Scan implements Dashboard_Section {
 			'progress'       => isset( $status->current_progress ) ? (int) $status->current_progress : null,
 			'pluginsChecked' => count( get_plugins() ),
 			'themesChecked'  => count( wp_get_themes() ),
-			'threats'        => Dashboard_Threats::format_all( $status->threats ),
+			'threats'        => Dashboard_Threats::format_all( Dashboard_Threats::without_resolved( $status->threats ) ),
 		);
 	}
 }

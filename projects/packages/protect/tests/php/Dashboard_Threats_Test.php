@@ -46,6 +46,33 @@ class Dashboard_Threats_Test extends BaseTestCase {
 				array( 'extension' ),
 				null,
 			),
+			'no table is no database row'    => array(
+				array(),
+				array( 'database' ),
+				null,
+			),
+			'nested database row key'        => array(
+				array(
+					'table'   => 'wp_options',
+					'details' => (object) array(
+						'table'     => 'wp_options',
+						'pk_column' => 'option_id',
+						'pk_value'  => '472',
+					),
+				),
+				array( 'database', 'pkValue' ),
+				'472',
+			),
+			'flat database row key'          => array(
+				array(
+					'table'     => 'wp_options',
+					'pk_column' => 'option_id',
+					'value'     => '472',
+					'details'   => (object) array( 'option_name' => '_wpc_uinfo' ),
+				),
+				array( 'database', 'pkValue' ),
+				'472',
+			),
 			'empty fixable is false'         => array(
 				array( 'fixable' => array() ),
 				array( 'fixable' ),
@@ -290,5 +317,46 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	#[DataProvider( 'provider_format_all' )]
 	public function test_format_all( $threats, $expected ) {
 		$this->assertSame( $expected, array_column( Dashboard_Threats::format_all( $threats ), 'id' ) );
+	}
+
+	/**
+	 * Resolved and reported threat ids, and which stay open and which records are kept.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_without_resolved() {
+		return array(
+			'a resolved threat is hidden while Scan reports it' => array( array( '1' ), array( '1', '2' ), array( '2' ), array( '1' ) ),
+			'a record goes once Scan stops reporting it' => array( array( '1', '3' ), array( '1', '2' ), array( '2' ), array( '1' ) ),
+			'the option goes with its last record'       => array( array( '3' ), array( '2' ), array( '2' ), array() ),
+		);
+	}
+
+	/**
+	 * Test that resolved threats are hidden until Scan stops reporting them.
+	 *
+	 * @dataProvider provider_without_resolved
+	 * @param string[] $resolved      Ids the site resolved.
+	 * @param string[] $reported      Ids Scan reports.
+	 * @param string[] $expected_open Ids left open.
+	 * @param string[] $expected_kept Ids still recorded.
+	 */
+	#[DataProvider( 'provider_without_resolved' )]
+	public function test_without_resolved( $resolved, $reported, $expected_open, $expected_kept ) {
+		foreach ( $resolved as $id ) {
+			Dashboard_Threats::resolve( array( 'id' => $id ) );
+		}
+		$threats = array_map(
+			function ( $id ) {
+				return (object) array( 'id' => $id );
+			},
+			$reported
+		);
+
+		$open = Dashboard_Threats::without_resolved( $threats );
+
+		$this->assertSame( $expected_open, array_column( $open, 'id' ) );
+		$this->assertSame( $expected_kept, array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 	}
 }

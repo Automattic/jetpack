@@ -33,6 +33,7 @@ class Scan_Section_Test extends BaseTestCase {
 		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
 		\Jetpack_Options::delete_option( 'id' );
 		delete_option( \Automattic\Jetpack\Protect_Status\Scan_Status::OPTION_NAME );
+		\Automattic\Jetpack\Protect_Status\Scan_Status::$status = null;
 		parent::tear_down();
 	}
 
@@ -435,5 +436,83 @@ class Scan_Section_Test extends BaseTestCase {
 		}
 
 		$this->assertSame( $expected, self::call( 'has_credentials' ) );
+	}
+
+	/**
+	 * Threats whose row the dashboard must not read, by threat id and table.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_find_threat_row_refuses() {
+		return array(
+			'an id Scan did not report' => array( '2', 'wp_options' ),
+			'a table outside the site'  => array( '1', 'information_schema.tables' ),
+		);
+	}
+
+	/**
+	 * Test that only the rows of current threats, in the site's own tables, can be reached.
+	 *
+	 * @dataProvider provider_find_threat_row_refuses
+	 * @param string $id    The requested threat id.
+	 * @param string $table The table the reported threat names.
+	 */
+	#[DataProvider( 'provider_find_threat_row_refuses' )]
+	public function test_find_threat_row_refuses( $id, $table ) {
+		\Automattic\Jetpack\Protect_Status\Scan_Status::$status = (object) array(
+			'threats' => array(
+				(object) array(
+					'id'      => '1',
+					'details' => (object) array(
+						'table'     => $table,
+						'pk_column' => 'option_id',
+						'pk_value'  => '315',
+					),
+				),
+			),
+		);
+
+		$found = self::call( 'find_threat_row', $id );
+
+		$this->assertInstanceOf( \WP_Error::class, $found );
+		$this->assertSame( 'threat_row_not_found', $found->get_error_code() );
+	}
+
+	/**
+	 * Rows a threat was found in, and the option name the dashboard may delete.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_get_deletable_option() {
+		global $wpdb;
+		$row = static function ( $name ) {
+			return array( 'option_name' => $name );
+		};
+		return array(
+			'a flagged option'         => array( $wpdb->options, 'option_id', $row( '_wpc_ak' ), '_wpc_ak' ),
+			'an option the site needs' => array( $wpdb->options, 'option_id', $row( 'active_plugins' ), null ),
+			'the site\'s user roles'   => array( $wpdb->options, 'option_id', $row( $wpdb->get_blog_prefix() . 'user_roles' ), null ),
+			'a row in another table'   => array( $wpdb->posts, 'ID', $row( '_wpc_ak' ), null ),
+		);
+	}
+
+	/**
+	 * Test that only ordinary options can be deleted from the dashboard.
+	 *
+	 * @dataProvider provider_get_deletable_option
+	 * @param string      $table     The row's table.
+	 * @param string      $pk_column The table's key column.
+	 * @param array       $row       The row.
+	 * @param string|null $expected  The deletable option's name.
+	 */
+	#[DataProvider( 'provider_get_deletable_option' )]
+	public function test_get_deletable_option( $table, $pk_column, $row, $expected ) {
+		$found = array(
+			'table'     => $table,
+			'pk_column' => $pk_column,
+			'row'       => $row,
+		);
+
+		$this->assertSame( $expected, self::call( 'get_deletable_option', $found ) );
 	}
 }

@@ -5,6 +5,7 @@ import { __, _n, sprintf, type TransformedText } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { recordEvent } from '../../data/tracks';
+import { loadHistory } from '../history/store';
 import { getThreatLabel } from './labels';
 import { SCAN_PATH, createStore, editScan, getScan, startRead, startReportRead } from './store';
 import type { ScanState, ScanThreat } from './types';
@@ -676,4 +677,51 @@ export function deleteSoftware( threat: ScanThreat ): Promise< string | null > {
 				)
 		)
 		.finally( () => ids.forEach( id => setBusy( id ) ) );
+}
+
+/** The database row a threat was found in, read from the site. */
+export type ThreatRow = { columns: Record< string, unknown >; canDelete: boolean };
+
+/**
+ * Read the database row a current threat was found in.
+ *
+ * @param threat - A database threat.
+ * @return The row.
+ */
+export const getThreatRow = ( threat: ScanThreat ): Promise< ThreatRow > =>
+	apiFetch< ThreatRow >( { path: threatPath( threat.id, 'row' ) } );
+
+/**
+ * Delete the option a threat was found in; the site then lists the threat as fixed.
+ *
+ * @param threat - A database threat.
+ * @return Resolves to an error message, or null once deleted.
+ */
+export function deleteThreatRow( threat: ScanThreat ): Promise< string | null > {
+	if ( isBusy( threat.id ) ) {
+		return Promise.resolve(
+			__( 'This threat is busy. Try again once that finishes.', 'jetpack-protect-pkg' )
+		);
+	}
+	setBusy( threat.id, 'deleting' );
+
+	return apiFetch( { path: threatPath( threat.id, 'row' ), method: 'DELETE' } )
+		.then( () => {
+			editScan( current => ( {
+				...current,
+				threats: ( current.threats ?? [] ).filter( item => item.id !== threat.id ),
+			} ) );
+			show(
+				threat,
+				__( 'Deleted the option and marked the threat as fixed.', 'jetpack-protect-pkg' ),
+				'success'
+			);
+			loadHistory( true );
+			return null;
+		} )
+		.catch(
+			( e: { message?: string } ) =>
+				e?.message || __( 'The option couldn’t be deleted.', 'jetpack-protect-pkg' )
+		)
+		.finally( () => setBusy( threat.id ) );
 }
