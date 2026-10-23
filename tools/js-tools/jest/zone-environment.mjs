@@ -1,5 +1,4 @@
-/* global process */
-import BaseEnvironment from 'jetpack-js-tools/jest/fix-environment-jsdom.mjs';
+import BaseEnvironment from './fix-environment-jsdom.mjs';
 
 // Read at import time, before any instance has changed it.
 const PINNED_TZ = process.env.TZ;
