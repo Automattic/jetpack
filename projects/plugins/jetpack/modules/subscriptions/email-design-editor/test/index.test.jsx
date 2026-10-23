@@ -179,9 +179,48 @@ function mockRegisterPanelStores( { createReduxStore, register } ) {
 	);
 }
 
+// Where the editor registers its shortcuts from an effect on mount, which is the whole reason the
+// screen waits for `core/editor/toggle-list-view` instead of unregistering it before the render.
+const mockUnregisteredShortcuts = [];
+
+function mockRegisterShortcutsStore( { createReduxStore, register } ) {
+	register(
+		createReduxStore( 'core/keyboard-shortcuts', {
+			reducer: ( state = {}, action ) => {
+				if ( 'REGISTER_SHORTCUT' === action.type ) {
+					return { ...state, [ action.name ]: action.keyCombination };
+				}
+
+				if ( 'UNREGISTER_SHORTCUT' === action.type ) {
+					mockUnregisteredShortcuts.push( action.name );
+
+					const { [ action.name ]: removed, ...rest } = state;
+
+					return rest;
+				}
+
+				return 'RESET_SHORTCUTS' === action.type ? {} : state;
+			},
+			actions: {
+				registerShortcut: ( name, keyCombination = { modifier: 'access', character: 'o' } ) => ( {
+					type: 'REGISTER_SHORTCUT',
+					name,
+					keyCombination,
+				} ),
+				unregisterShortcut: name => ( { type: 'UNREGISTER_SHORTCUT', name } ),
+				resetShortcuts: () => ( { type: 'RESET_SHORTCUTS' } ),
+			},
+			selectors: {
+				getShortcutKeyCombination: ( state, name ) => state[ name ] ?? null,
+			},
+		} )
+	);
+}
+
 mockRegisterBlockEditorStore( jest.requireActual( '@wordpress/data' ) );
 mockRegisterInterfaceStore( jest.requireActual( '@wordpress/data' ) );
 mockRegisterPanelStores( jest.requireActual( '@wordpress/data' ) );
+mockRegisterShortcutsStore( jest.requireActual( '@wordpress/data' ) );
 
 jest.mock( '@wordpress/block-editor', () => ( { useBlockProps: () => ( {} ) } ) );
 
@@ -207,6 +246,9 @@ const { store: noticesStore } = jest.requireActual( '@wordpress/notices' );
 const { store: coreStore } = jest.requireActual( '@wordpress/core-data' );
 
 const ELEMENT_ID = 'jetpack-email-design-editor';
+
+// The name the editor registers for `access+O`, which the screen unregisters. NL-1086.
+const LIST_VIEW_SHORTCUT = 'core/editor/toggle-list-view';
 
 // The `@wordpress/data` module the last `loadEntryPoint()` gave the entry, so a test can dispatch
 // into the registry the mount is watching.
@@ -296,6 +338,7 @@ async function loadEntryPoint() {
 		mockRegisterBlockEditorStore( mockIsolatedData );
 		mockRegisterInterfaceStore( mockIsolatedData );
 		mockRegisterPanelStores( mockIsolatedData );
+		mockRegisterShortcutsStore( mockIsolatedData );
 		mockIsolatedI18n = require( '@wordpress/i18n' );
 		require( '../src/index' );
 	} );
@@ -352,6 +395,8 @@ describe( 'Email design editor entry point', () => {
 		dispatch( 'core/interface' ).setActiveComplementaryArea( undefined );
 		dispatch( 'core/preferences' ).resetPreferences();
 		dispatch( 'core/editor' ).resetPanels();
+		dispatch( 'core/keyboard-shortcuts' ).resetShortcuts();
+		mockUnregisteredShortcuts.length = 0;
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( bootstrapBundle() );
 		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
@@ -1148,6 +1193,61 @@ describe( 'Email design editor entry point', () => {
 			// A mode is a view setting. Unmarked, it lands as an undo step and the editor opens
 			// believing the creator has unsaved work.
 			expect( mockDispatchLog ).toEqual( [ 'MARK_NOT_PERSISTENT', 'SET_BLOCK_EDITING_MODE' ] );
+		} );
+	} );
+
+	// Hiding the toolbar toggle leaves `access+O` open, and List View lists nothing here. NL-1086.
+	describe( 'the List View shortcut the screen takes away', () => {
+		const { unregisterListViewShortcut } = jest.requireActual( '../src/index' );
+		const shortcuts = () => dispatch( 'core/keyboard-shortcuts' );
+
+		it( 'unregisters the shortcut the editor registered', () => {
+			shortcuts().registerShortcut( LIST_VIEW_SHORTCUT );
+
+			const stop = unregisterListViewShortcut();
+
+			expect( mockUnregisteredShortcuts ).toEqual( [ LIST_VIEW_SHORTCUT ] );
+			expect(
+				select( 'core/keyboard-shortcuts' ).getShortcutKeyCombination( LIST_VIEW_SHORTCUT )
+			).toBeNull();
+
+			stop();
+		} );
+
+		it( 'waits for it rather than unregistering a name nothing has registered yet', () => {
+			const stop = unregisterListViewShortcut();
+
+			// The editor's other shortcuts land first; ours is not in the store on this pass.
+			shortcuts().registerShortcut( 'core/editor/save' );
+
+			expect( mockUnregisteredShortcuts ).toEqual( [] );
+
+			shortcuts().registerShortcut( LIST_VIEW_SHORTCUT );
+
+			expect( mockUnregisteredShortcuts ).toEqual( [ LIST_VIEW_SHORTCUT ] );
+
+			stop();
+		} );
+
+		it( 'stops watching once it has unregistered, so a later re-register is left alone', () => {
+			const stop = unregisterListViewShortcut();
+
+			shortcuts().registerShortcut( LIST_VIEW_SHORTCUT );
+			shortcuts().registerShortcut( LIST_VIEW_SHORTCUT );
+
+			expect( mockUnregisteredShortcuts ).toEqual( [ LIST_VIEW_SHORTCUT ] );
+
+			stop();
+		} );
+
+		it( 'takes the shortcut away as part of mounting, not only when called directly', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			mockIsolatedData.dispatch( 'core/keyboard-shortcuts' ).registerShortcut( LIST_VIEW_SHORTCUT );
+
+			expect( mockUnregisteredShortcuts ).toEqual( [ LIST_VIEW_SHORTCUT ] );
 		} );
 	} );
 

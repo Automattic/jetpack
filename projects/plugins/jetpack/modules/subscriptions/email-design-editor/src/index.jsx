@@ -87,6 +87,10 @@ const STYLES_PANEL = `${ PLUGIN_NAME }/${ STYLES_PANEL_NAME }`;
 const PREFERENCE_SCOPE = 'jetpack/email-design';
 const EDITOR_STORE = 'core/editor';
 const PREFERENCES_STORE = 'core/preferences';
+const KEYBOARD_SHORTCUTS_STORE = 'core/keyboard-shortcuts';
+
+// The shortcut that opens List View, which on this screen can only ever list nothing.
+const LIST_VIEW_SHORTCUT = 'core/editor/toggle-list-view';
 
 // Where the package sends a test email, and where a newsletter blog has to send one instead.
 const TEST_SEND_PATH = '/woocommerce-email-editor/v1/send_preview_email';
@@ -507,6 +511,52 @@ export function lockCanvasEditing() {
 
 	blockEditor.__unstableMarkNextChangeAsNotPersistent();
 	blockEditor.setBlockEditingMode( '', 'disabled' );
+}
+
+/**
+ * Take the List View shortcut away, so the panel has no route left rather than a hidden button.
+ *
+ * `useShortcut` matches against the key combinations the store holds, so a name it no longer holds
+ * can never fire, and the Keyboard Shortcuts modal stops offering it. The editor registers it from
+ * an effect on mount, so this waits for it rather than running before the render the way
+ * `lockCanvasEditing()` does.
+ *
+ * @return {Function} Stops waiting.
+ */
+export function unregisterListViewShortcut() {
+	// `select()` answers null for a store the registry does not hold, as in `lockCanvasEditing()`.
+	const shortcuts = select( KEYBOARD_SHORTCUTS_STORE );
+
+	if ( ! shortcuts ) {
+		return () => {};
+	}
+
+	/**
+	 * @return {boolean} True once the shortcut was there to take away.
+	 */
+	function removeIfRegistered() {
+		if ( ! shortcuts.getShortcutKeyCombination( LIST_VIEW_SHORTCUT ) ) {
+			return false;
+		}
+
+		dispatch( KEYBOARD_SHORTCUTS_STORE ).unregisterShortcut( LIST_VIEW_SHORTCUT );
+
+		return true;
+	}
+
+	// `subscribe()` fires on the next change, not on the current state, so a shortcut already
+	// registered by the time this runs would otherwise be watched for forever and never removed.
+	if ( removeIfRegistered() ) {
+		return () => {};
+	}
+
+	const unsubscribe = subscribe( () => {
+		if ( removeIfRegistered() ) {
+			unsubscribe();
+		}
+	} );
+
+	return unsubscribe;
 }
 
 /**
@@ -1118,6 +1168,7 @@ export async function mountEmailDesignEditor() {
 	let stopWatchingSidebar = null;
 	let stopDerivingTextColor = null;
 	let stopWatchingRootFontSize = null;
+	let stopWatchingListViewShortcut = null;
 
 	try {
 		const bundle = await apiFetch( { path: bootstrapPath( data ) } );
@@ -1129,6 +1180,7 @@ export async function mountEmailDesignEditor() {
 		// unsupported-block errors, which looks identical to this never running.
 		registerEmailBlocks( bundle );
 		lockCanvasEditing();
+		stopWatchingListViewShortcut = unregisterListViewShortcut();
 		reportInactiveEmailDesign( bundle );
 
 		// Everything that leads to the Styles panel, only for a creator the package will give one.
@@ -1181,6 +1233,7 @@ export async function mountEmailDesignEditor() {
 		stopWatchingSidebar?.();
 		stopDerivingTextColor?.();
 		stopWatchingRootFontSize?.();
+		stopWatchingListViewShortcut?.();
 
 		// The notice deliberately does not name which half failed; this does.
 		// eslint-disable-next-line no-console
