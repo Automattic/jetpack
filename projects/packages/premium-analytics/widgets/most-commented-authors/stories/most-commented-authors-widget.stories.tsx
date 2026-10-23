@@ -13,7 +13,6 @@ import {
 	registerReportMocks,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import MostCommentedAuthorsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -102,7 +101,7 @@ function MostCommentedAuthorsDashboardStory( dashboardArgs: WidgetDashboardWithW
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ MOST_COMMENTED_AUTHORS_RENDER_MODULE }
 			renderComponent={
 				MostCommentedAuthorsRender as ComponentType< WidgetRenderProps< unknown > >

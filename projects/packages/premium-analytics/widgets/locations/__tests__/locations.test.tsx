@@ -13,6 +13,7 @@ import type { AnchorHTMLAttributes, ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import LocationsWidget from '../render';
 
 type MockRouteLinkProps = {
@@ -136,9 +137,11 @@ describe( 'LocationsWidget', () => {
 			hasData: true,
 		} );
 
-		render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+		const { declaredAction } = renderWithActionsHost(
+			<LocationsWidget attributes={ { geoGranularity: 'country' } } />
+		);
 
-		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );
 
 	it( 'offers no download when the period has no rows', () => {
@@ -148,9 +151,11 @@ describe( 'LocationsWidget', () => {
 			isFetching: false,
 		} );
 
-		render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+		const { declaredAction } = renderWithActionsHost(
+			<LocationsWidget attributes={ { geoGranularity: 'country' } } />
+		);
 
-		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );
 
 	it.each( [
@@ -159,11 +164,11 @@ describe( 'LocationsWidget', () => {
 		[ 'region', 'regions' ],
 		[ 'city', 'cities' ],
 	] as const )( 'opens the %s granularity on the %s report tab', ( geoGranularity, section ) => {
-		render(
+		const { declaredLink } = renderWithActionsHost(
 			<LocationsWidget attributes={ geoGranularity === 'default' ? {} : { geoGranularity } } />
 		);
 
-		const href = screen.getByRole( 'link', { name: 'View all' } ).getAttribute( 'href' );
+		const href = decodeURIComponent( declaredLink( 'view-all' )?.href ?? '' );
 		expect( href ).toContain( '/reports/locations' );
 		expect( href ).toContain( `section=${ section }` );
 	} );
@@ -171,14 +176,15 @@ describe( 'LocationsWidget', () => {
 	it.each( [ 'toString', 'cities' ] )(
 		'falls back to Countries for the stored granularity %s',
 		geoGranularity => {
-			render( <LocationsWidget attributes={ { geoGranularity } as never } /> );
+			const { declaredLink } = renderWithActionsHost(
+				<LocationsWidget attributes={ { geoGranularity } as never } />
+			);
 
 			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
 				expect.objectContaining( { geoMode: 'country' } )
 			);
-			expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-				'href',
-				expect.stringContaining( 'section=countries' )
+			expect( decodeURIComponent( declaredLink( 'view-all' )?.href ?? '' ) ).toContain(
+				'section=countries'
 			);
 		}
 	);
@@ -366,9 +372,11 @@ describe( 'LocationsWidget', () => {
 		} );
 
 		it( 'scopes the download to the place the widget is drilled into', async () => {
-			render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+			const { declaredAction } = renderWithActionsHost(
+				<LocationsWidget attributes={ { geoGranularity: 'country' } } />
+			);
 
-			expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+			expect( declaredAction( 'download-csv' ) ).toBeDefined();
 			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'countries', undefined );
 
 			await userEvent.click(

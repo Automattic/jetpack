@@ -10,10 +10,8 @@
  */
 
 import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps } from '@wordpress/block-editor';
-import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import PayPalButtonPreview from './components/paypal-button-preview';
+import ReadOnlyBlock from './components/read-only-block';
 import ApiManagedEdit from './edit-api-managed';
 import PasteCodeEdit from './edit-paste-code';
 
@@ -21,63 +19,6 @@ import PasteCodeEdit from './edit-paste-code';
  * Name of the flag registered by PayPal_Payment_Buttons::register_feature_flags().
  */
 export const API_MANAGED_BUTTONS_FLAG = 'paypal-payments-api-managed-buttons';
-
-/**
- * Read-only view of a button created through the API while the flag is off.
- *
- * The frontend keeps rendering the saved button; the editor just cannot
- * change it until the flag is back on, so say so instead of showing an
- * unrelated paste-code form.
- *
- * @param {object} props            - Block props.
- * @param {object} props.attributes - Block attributes.
- * @return {Element} Read-only preview.
- */
-function ApiManagedReadOnly( { attributes } ) {
-	const blockProps = useBlockProps();
-	const {
-		format,
-		productName,
-		price,
-		currencyCode,
-		productDescription,
-		paymentLink,
-		variantsEnabled,
-		variants,
-		imageUrl,
-		buttonText,
-		linkText,
-		qrShowCaption,
-		qrCaption,
-	} = attributes;
-
-	return (
-		<div { ...blockProps }>
-			<Notice status="info" isDismissible={ false }>
-				{ __(
-					'This button is managed through your PayPal account and cannot be edited right now.',
-					'jetpack-paypal-payments'
-				) }
-			</Notice>
-			<PayPalButtonPreview
-				format={ format }
-				productName={ productName }
-				price={ price }
-				currencyCode={ currencyCode }
-				productDescription={ productDescription }
-				paymentLink={ paymentLink }
-				variantsEnabled={ variantsEnabled }
-				variants={ variants }
-				imageUrl={ imageUrl }
-				buttonText={ buttonText }
-				linkText={ linkText }
-				qrShowCaption={ qrShowCaption }
-				qrCaption={ qrCaption }
-				attributes={ attributes }
-			/>
-		</div>
-	);
-}
 
 /**
  * PayPal Payment Buttons edit component.
@@ -91,8 +32,19 @@ export default function Edit( props ) {
 		return <ApiManagedEdit { ...props } />;
 	}
 
+	// The frontend keeps rendering a button created through the API; the editor
+	// just cannot change it until the flag is back on, so say so instead of
+	// showing an unrelated paste-code form.
 	if ( props.attributes.isApiManaged && props.attributes.resourceId ) {
-		return <ApiManagedReadOnly attributes={ props.attributes } />;
+		return (
+			<ReadOnlyBlock
+				attributes={ props.attributes }
+				message={ __(
+					'This button is managed through your PayPal account and cannot be edited right now.',
+					'jetpack-paypal-payments'
+				) }
+			/>
+		);
 	}
 
 	return <PasteCodeEdit { ...props } />;

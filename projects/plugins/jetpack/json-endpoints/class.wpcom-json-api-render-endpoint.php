@@ -162,14 +162,14 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Given a shortcode, process and return the result.
 	 *
-	 * @deprecated $$next-version$$ Use apply_shortcodes().
+	 * @deprecated 16.4 Use apply_shortcodes().
 	 *
 	 * @param string $shortcode - the shortcode.
 	 *
 	 * @return string
 	 */
 	public function do_shortcode( $shortcode ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'WPCOM_JSON_API_Render_Endpoint::apply_shortcodes' );
+		_deprecated_function( __METHOD__, 'jetpack-16.4', 'WPCOM_JSON_API_Render_Endpoint::apply_shortcodes' );
 		return $this->apply_shortcodes( $shortcode );
 	}
 

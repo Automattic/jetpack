@@ -8,7 +8,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { editorSourcePlaylist, PlaylistPicker } from '../../channel/editor-controls';
+import {
+	editorSourcePlaylist,
+	EmptyStateControl,
+	PlaylistPicker,
+} from '../../channel/editor-controls';
 import { VideoPressIcon } from '../video/components/icons';
 import { PlaylistSettingsPanels, PlaylistStylesControls } from './inspector-controls';
 import PlaylistPreview from './preview';
@@ -54,10 +58,17 @@ export function PlaylistSourcePanel( { attributes, setAttributes }: Props ) {
 					onChange={ value => setAttributes( { source: value as PlaylistSource } ) }
 				/>
 				{ 'index' === source && (
-					<PlaylistPicker
-						value={ attributes.sourcePlaylistId ?? '' }
-						onChange={ value => setAttributes( { sourcePlaylistId: value } ) }
-					/>
+					<>
+						<PlaylistPicker
+							value={ attributes.sourcePlaylistId ?? '' }
+							onChange={ value => setAttributes( { sourcePlaylistId: value } ) }
+						/>
+						<EmptyStateControl
+							kind="playlists"
+							value={ attributes.emptyState }
+							onChange={ emptyState => setAttributes( { emptyState } ) }
+						/>
+					</>
 				) }
 				{ 'own' !== source && (
 					<ToggleControl

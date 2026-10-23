@@ -111,7 +111,7 @@ export default function McpSetup() {
 	const showQuickSetup = quickSetupClients.includes( selectedClient );
 
 	return (
-		<Stack direction="column" gap="md">
+		<Stack direction="column" gap="lg">
 			<Card>
 				<CardBody>
 					<SelectControl

@@ -32,7 +32,7 @@ This page covers sections only. Widget types have their own page, [Dashboard wid
 | `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                       |
 | `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                 |
 | `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                 |
-| `routes/site-readiness.ts`                         | `isDashboardSectionAvailable()`, the report routes' gate, fed by the inline script data.                                                                                  |
+| `packages/data/src/utils/dashboard-sections.ts`   | `isDashboardSectionAvailable()`, the report routes' gate, fed by the inline script data, and `isPostDetailAvailable()`, which post links read before linking to `/post/:id`. |
 
 ## When the section files load
 
@@ -97,7 +97,7 @@ The mechanics behind it:
 - **Loading.** The files are required by hand on the paths above, not autoloaded. The action fires from the registry those files load, so a callback on it runs only once the API is there and needs no `function_exists()` guard.
 - **Validation in `register()`.** The dashboard name must match `get_dashboard_name_pattern()`, the id must be namespaced (`get_dashboard_section_id_pattern()`), the id must not be registered, and the slug must not be used by another id on the same dashboard. Each failure is a `_doing_it_wrong()` and a `false` return.
 - **Slugs.** Two ids may not share a slug on one dashboard: the client keys sections, `?section=` and stored layouts by slug, so `register()` refuses the second. The `settings` slug is reserved for the Settings tab the dashboard stage draws itself. A registrant that may run beside another owner of the same section, the way Ads has one owner per environment plus an older package during a deploy skew, checks `get_registered_by_slug()` first.
-- **Arguments.** `label`, `title`, `order`, `date_filter` (`range` or `year`), `date_filter_options` (`with_date_comparison`, `with_header_date_control`, `with_header_interval_control`), `requires_sync`, `notice` (a message or a callable returning one, shown above the widgets once the section is not waiting on the sync), `is_available` (a boolean or a callable receiving the section, `true` by default), `default_layout` (an array of instances or a callable returning one), and `insertable_widget_types` (a list of widget type names the inserter offers on top of the default layout). Unknown keys are ignored, and an unrecognized `date_filter` keeps the default. See `Dashboard_Section::set_props()`.
+- **Arguments.** `label`, `title`, `order`, `date_filter` (`range` or `year`), `date_filter_options` (`with_date_comparison`, `with_header_date_control`, `with_header_interval_control`), `requires_sync`, `follows_plan_date_limits` (whether the plan's Stats date limits apply to the section's window, `false` by default), `notice` (a message or a callable returning one, shown above the widgets once the section is not waiting on the sync), `is_available` (a boolean or a callable receiving the section, `true` by default), `default_layout` (an array of instances or a callable returning one), and `insertable_widget_types` (a list of widget type names the inserter offers on top of the default layout). Unknown keys are ignored, and an unrecognized `date_filter` keeps the default. See `Dashboard_Section::set_props()`.
 - **Hydration.** `Dashboard_Section_Registry` fires the action from `ensure_hydrated()`, which `get_registered()`, `get_registered_by_slug()` and `get_all_registered()` call on their first read after `init`. The latch is set before the action fires, so a callback that reads the registry does not re-enter it. `is_registered()` does not hydrate: `register()` relies on it, and a registrant may run before the action.
 - **Order.** The package's own sections register at priority 10; a plugin that wants to see them registered first, or that checks a slug before registering, hooks later, at priority 20.
 
@@ -119,11 +119,11 @@ The dashboard stage shows a spinner until then, because `WidgetDashboard` treats
 
 The stage then builds the navigation from `{ slug, label }`, resolves the active section from `?section=` through `useActiveSection()`, and hands each section's `default_layout` to `useDashboardSectionLayout()`. An unknown slug falls back to the first section and rewrites the URL.
 
-A second, smaller channel carries only the slugs. `inject_dashboard_sections_script_data()` puts `premium_analytics.sections` in `JetpackScriptData`, which `jetpack-assets` prints inline on the page.
+A second, smaller channel carries only slugs. `inject_dashboard_sections_script_data()` puts `premium_analytics.sections`, and `premium_analytics.plan_date_limited_sections` for the sections that set `follows_plan_date_limits`, in `JetpackScriptData`, which `jetpack-assets` prints inline on the page.
 
-`isDashboardSectionAvailable()` reads it, and `getReportDefinition()` treats a report behind a hidden section as unknown, so the report and detail routes can redirect in `beforeLoad`, before any request.
+`isDashboardSectionAvailable()` reads it, and `getReportDefinition()` treats a report behind a hidden section as unknown, so the report and detail routes can redirect in `beforeLoad`, before any request. `PostTitleLink` reads the same gate, so a reader who cannot open a post's details gets its public page instead. `getSectionDatePolicy()` reads the second list, so a route applies the plan's date limits there too.
 
-This channel exists because the report registry lives in the client today. Once reports register on the server, it goes away.
+The slug list exists because the report registry lives in the client today. Once reports register on the server, it goes away.
 
 ## Default layouts
 
@@ -169,6 +169,8 @@ The client stores customized layouts in the `dashboardSectionLayouts` preference
 Reset deletes the stored entry rather than copying the default into it, so a section that was reset follows later changes to the default.
 
 A section that declares no layout opens in customize mode on the empty state, since `WidgetDashboard` treats an empty layout as "no widgets". A section meant to be read declares one.
+
+A section the site's plan locks is the exception: it shows only its open widgets, enters customize mode only while it shows some, and renders the upgrade prompt below them (see [Locking a widget by plan](dashboard-widgets.md#locking-a-widget-by-plan)).
 
 ## Insertable widget types
 
@@ -257,7 +259,7 @@ The widget it seeds is the registrant's story, in [Dashboard widget types](dashb
 | The VideoPress package's layout seed, with and without the widget contract loaded, and its WordPress.com registrant | `projects/packages/videopress/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/videopress/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php`, `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Videopress_Widgets_Test.php` |
 | The REST entry point WordPress.com calls                                                                            | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                                                                                                                                            |
 | Navigation, active section, stored layouts, section heading                                                         | `routes/dashboard/**/*.test.ts(x)`                                                                                                                                                                                                                                       |
-| Reports behind a hidden section                                                                                     | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts`                                                                                                                                                                                                     |
+| Reports behind a hidden section                                                                                     | `routes/reports/registry.test.ts`, `packages/data/src/utils/__tests__/dashboard-sections.test.ts`                                                                                                                                                                        |
 
 ## Not covered here
 

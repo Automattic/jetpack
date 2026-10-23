@@ -49,7 +49,7 @@ class Jetpack_Monitor {
 	/**
 	 * Forgets every linked user's saved notification choice, while a site disconnect can still say who was linked.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @return void
 	 */
@@ -63,7 +63,7 @@ class Jetpack_Monitor {
 	/**
 	 * Forgets a user's saved notification choice, which belongs to the WordPress.com account they had linked.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param int $user_id User ID.
 	 *
@@ -76,7 +76,7 @@ class Jetpack_Monitor {
 	/**
 	 * Name of the option holding a user's local copy of their notification choice.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param int $user_id User ID.
 	 *
@@ -89,7 +89,7 @@ class Jetpack_Monitor {
 	/**
 	 * Saves the current user's notification choice where Jetpack_Core_Json_Api_Endpoints::get_remote_value reads it.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param bool $enabled Whether the current user receives notifications.
 	 *

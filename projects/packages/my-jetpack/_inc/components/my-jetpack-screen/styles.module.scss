@@ -30,6 +30,11 @@
 	margin-bottom: 0;
 }
 
+.notice-gap {
+	// The same space the JITM card leaves below it.
+	margin-block-end: var(--wpds-dimension-gap-xl);
+}
+
 .notice {
 
 	> div {
