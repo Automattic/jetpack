@@ -83,6 +83,16 @@ class Dashboard_Threats_Test extends BaseTestCase {
 				array( 'fixable' ),
 				$fixable,
 			),
+			'fixable extras are camelCased'  => array(
+				array(
+					'fixable' => (object) array(
+						'fixer'  => 'delete',
+						'extras' => (object) array( 'is_dotorg' => false ),
+					),
+				),
+				array( 'fixable', 'extras' ),
+				array( 'isDotorg' => false ),
+			),
 			'context drops the marks'        => array(
 				array(
 					'context' => (object) array(

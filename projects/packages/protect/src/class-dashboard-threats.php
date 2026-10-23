@@ -129,7 +129,7 @@ class Dashboard_Threats {
 			'firstDetected'   => $threat->first_detected ?? null,
 			'fixedIn'         => $threat->fixed_in ?? null,
 			'fixedOn'         => $threat->fixed_on ?? null,
-			'fixable'         => empty( $threat->fixable ) ? false : $threat->fixable,
+			'fixable'         => self::format_fixable( $threat->fixable ?? null ),
 			'filename'        => $threat->filename ?? null,
 			'source'          => $threat->source ?? null,
 			'context'         => self::format_context( $threat->context ?? null ),
@@ -179,6 +179,27 @@ class Dashboard_Threats {
 			'directory'      => $directory,
 			'theme_updates'  => (array) ( $theme_updates->response ?? array() ),
 		);
+	}
+
+	/**
+	 * Scan's fixer, with the keys of its `extras` in camelCase.
+	 *
+	 * @param mixed $fixable Scan's fixer, or a falsy value when the threat can't be fixed.
+	 * @return object|array|false
+	 */
+	private static function format_fixable( $fixable ) {
+		if ( empty( $fixable ) ) {
+			return false;
+		}
+		$extras = ( (array) $fixable )['extras'] ?? null;
+		if ( ! is_array( $extras ) && ! is_object( $extras ) ) {
+			return $fixable;
+		}
+		$camel = array();
+		foreach ( (array) $extras as $key => $value ) {
+			$camel[ lcfirst( str_replace( '_', '', ucwords( $key, '_' ) ) ) ] = $value;
+		}
+		return array_merge( (array) $fixable, array( 'extras' => $camel ) );
 	}
 
 	/**

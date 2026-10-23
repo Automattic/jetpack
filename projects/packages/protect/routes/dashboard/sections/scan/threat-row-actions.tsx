@@ -1,6 +1,7 @@
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
+import { FixDeleteModal, getDeleteFixTitle, isDeleteFix } from './fix-delete-confirmation';
 import { getSoftwareActionLabels } from './labels';
 import { useCanIgnore } from './store';
 import { fixThreats, ignoreThreats, unignoreThreat, useGetThreatBusy } from './threat-actions';
@@ -65,6 +66,8 @@ function getThreatRowActions(
 				setTimeout( () => refocusRow( item ) );
 			}
 		};
+	const canFix = ( item: ScanThreat ) =>
+		canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed';
 
 	const actions: Action< ScanThreat >[] = [
 		{
@@ -77,14 +80,21 @@ function getThreatRowActions(
 			id: 'auto-fix',
 			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item =>
-				canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed',
+			isEligible: item => canFix( item ) && ! isDeleteFix( item ),
 			supportsBulk: !! onBulk,
 			// Not awaited: a fix can take minutes, and its snackbar follows it.
 			callback: locking( ( items, from ) => {
 				onBulk?.( items );
 				fixThreats( items, from );
 			} ),
+		},
+		{
+			id: 'auto-fix-delete',
+			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
+			isPrimary: true,
+			isEligible: item => canFix( item ) && isDeleteFix( item ),
+			modalHeader: ( [ item ] ) => ( item ? getDeleteFixTitle( item ) : '' ),
+			RenderModal: FixDeleteModal,
 		},
 		{
 			id: 'unignore',
