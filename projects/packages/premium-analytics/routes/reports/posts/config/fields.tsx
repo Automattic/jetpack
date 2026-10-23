@@ -18,7 +18,7 @@ import {
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ReportThumbnail,
 	ReportTitleCell,
-	toDetailId,
+	toPostDetailId,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { page as pageIcon, post as postIcon } from '@wordpress/icons';
@@ -79,7 +79,7 @@ function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
 		/>
 	);
 
-	if ( isHomepage || toDetailId( item.id ) === undefined ) {
+	if ( isHomepage || toPostDetailId( item.id ) === undefined ) {
 		return titleLink;
 	}
 
