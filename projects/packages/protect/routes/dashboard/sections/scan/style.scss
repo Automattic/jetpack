@@ -14,14 +14,15 @@
 	}
 
 	// The stats row plus a one-threat list, so the card keeps its height
-	// as threats come and go.
+	// as scans run and threats come and go.
 	&__row.jp-protect-scan__state {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		min-block-size: 227px;
 
-		.jp-protect-safe {
+		.jp-protect-safe,
+		.jp-protect-scanning {
 			padding-block: 0;
 		}
 	}
