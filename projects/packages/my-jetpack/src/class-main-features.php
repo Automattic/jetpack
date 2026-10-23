@@ -49,6 +49,13 @@ class Main_Features {
 	const INSTALLS_NOT_PERMITTED = 'not_permitted';
 
 	/**
+	 * First My Jetpack release with the opt-in offline Features page.
+	 *
+	 * @since $$next-version$$
+	 */
+	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.10.0';
+
+	/**
 	 * Whether module metadata proves it can run without either connection.
 	 *
 	 * @since 6.10.0
@@ -859,17 +866,16 @@ class Main_Features {
 	}
 
 	/**
-	 * Whether this plugin is the only active one carrying My Jetpack.
+	 * Whether no other active plugin can take over this My Jetpack page.
 	 *
-	 * Several plugins bundle it and the autoloader picks one, so the plugin serving this
-	 * page is often not the only one that could. Switching that one off is only a problem
-	 * when nothing else is left to take over.
-	 *
-	 * @param string $slug The plugin's folder name.
-	 * @return bool True when no other active plugin carries My Jetpack.
+	 * @since $$next-version$$ Added the $excluded_folders parameter.
+	 * @param string   $slug             The plugin's folder name.
+	 * @param string[] $excluded_folders Other plugin folders being deactivated in the same request.
+	 * @return bool True when no other active plugin carries a suitable My Jetpack copy.
 	 */
-	public static function is_only_my_jetpack_provider( $slug ) {
-		$active = array_merge(
+	public static function is_only_my_jetpack_provider( $slug, $excluded_folders = array() ) {
+		$offline = Initializer::is_offline_features_enabled();
+		$active  = array_merge(
 			(array) get_option( 'active_plugins', array() ),
 			array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) )
 		);
@@ -877,11 +883,25 @@ class Main_Features {
 		foreach ( $active as $file ) {
 			$folder = dirname( (string) $file );
 
-			if ( '.' === $folder || $folder === $slug ) {
+			if ( '.' === $folder || $folder === $slug || in_array( $folder, $excluded_folders, true ) ) {
 				continue;
 			}
 
-			if ( is_dir( WP_PLUGIN_DIR . '/' . $folder . '/jetpack_vendor/automattic/jetpack-my-jetpack' ) ) {
+			$package = WP_PLUGIN_DIR . '/' . $folder . '/jetpack_vendor/automattic/jetpack-my-jetpack';
+			if ( ! is_dir( $package ) ) {
+				continue;
+			}
+
+			if ( ! $offline ) {
+				return false;
+			}
+
+			// Older copies cannot keep Features open offline. Read the bundled version without loading its classes.
+			$initializer = $package . '/src/class-initializer.php';
+			if ( is_file( $initializer ) && is_readable( $initializer )
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local bundled PHP metadata, not a remote URL.
+				&& preg_match( '/\bconst\s+PACKAGE_VERSION\s*=\s*[\'\"](\d+\.\d+\.\d+(?:[.\-+][\w.\-]+)?)[\'\"]\s*;/', file_get_contents( $initializer ), $version )
+				&& version_compare( $version[1], self::MINIMUM_OFFLINE_FEATURES_VERSION, '>=' ) ) {
 				return false;
 			}
 		}
