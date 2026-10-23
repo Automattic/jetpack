@@ -179,7 +179,6 @@ function YearDateControls( { containerElement }: { containerElement: HTMLElement
 			<DateIntervalDropdown
 				options={ intervalOptions }
 				value={ resolveStoryInterval( pickedInterval, intervalOptions ) }
-				withLabel
 				onChange={ setPickedInterval }
 			/>
 		</Stack>
