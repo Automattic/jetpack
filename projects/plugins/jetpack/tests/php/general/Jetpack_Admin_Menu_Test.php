@@ -76,6 +76,8 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-bar-notice.php';
 		require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
 
+		// See Admin_Bar_Notice_Test::set_up().
+		remove_all_filters( 'jetpack_protect_threat_notifications_enabled' );
 		add_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
 		update_option( 'jetpack_offline_mode', false );
 		StatusCache::clear();
