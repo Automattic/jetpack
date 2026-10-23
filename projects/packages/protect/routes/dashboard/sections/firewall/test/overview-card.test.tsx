@@ -16,25 +16,27 @@ jest.mock( '../firewall-test', () => ( {
 	runFirewallTest: jest.fn(),
 } ) );
 
-const props = {
-	state: {
-		available: true,
-		active: true,
-		blockedCount: 1,
-		blockedToday: 1,
-		blockedLast30Days: 1,
-		recentBlocks: [],
-		hasScan: false,
-		upgradeUrl: '#upgrade',
-		currentIp: '192.0.2.44',
-		ipRules: {
-			jetpack_waf_ip_block_list: '203.0.113.7\n203.0.113.8',
-			jetpack_waf_ip_block_list_enabled: true,
-			jetpack_waf_ip_allow_list: '',
-			jetpack_waf_ip_allow_list_enabled: false,
-		},
-		rulesUpdatedAt: null,
+const STATE = {
+	available: true,
+	active: true,
+	blockedCount: 1,
+	blockedToday: 1,
+	blockedLast30Days: 1,
+	recentBlocks: [],
+	hasScan: false,
+	upgradeUrl: '#upgrade',
+	currentIp: '192.0.2.44',
+	ipRules: {
+		jetpack_waf_ip_block_list: '203.0.113.7\n203.0.113.8',
+		jetpack_waf_ip_block_list_enabled: true,
+		jetpack_waf_ip_allow_list: '',
+		jetpack_waf_ip_allow_list_enabled: false,
 	},
+	rulesUpdatedAt: null,
+};
+
+const props = {
+	state: STATE,
 	settings: {
 		settings: null,
 		error: null,
@@ -61,6 +63,11 @@ const BLOCKED = {
 };
 
 describe( 'FirewallOverviewCard', () => {
+	// The card keeps refreshed counts per state object, so each test gets its own.
+	beforeEach( () => {
+		props.state = { ...STATE };
+	} );
+
 	it( 'reports the test in a snackbar whose Learn more opens the steps', async () => {
 		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
 		( apiFetch as unknown as jest.Mock ).mockResolvedValue(
@@ -123,8 +130,14 @@ describe( 'FirewallOverviewCard', () => {
 		);
 		expect( dialog ).toHaveTextContent( 'Already on this list' );
 	} );
-	it( 'turns the firewall on from the card while it is off', async () => {
-		render( <FirewallOverviewCard { ...props } state={ { ...props.state, active: false } } /> );
+	it( 'turns the firewall on from the card while it is off, even before anything is blocked', async () => {
+		render(
+			<FirewallOverviewCard
+				{ ...props }
+				state={ { ...props.state, active: false, blockedCount: 0, blockedLast30Days: 0 } }
+			/>
+		);
+		expect( screen.queryByText( 'No requests blocked yet' ) ).not.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'switch', { name: 'Enable firewall' } ) );
 
@@ -280,6 +293,39 @@ describe( 'FirewallOverviewCard', () => {
 
 		expect( screen.queryByText( 'No requests blocked yet' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Run test' } ) ).toHaveFocus();
+		expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days1' );
+	} );
+
+	it( 'leaves focus alone when it moved on before the test finished', async () => {
+		let finish: ( value: unknown ) => void = () => {};
+		( runFirewallTest as jest.Mock ).mockReturnValue(
+			new Promise( resolve => ( finish = resolve ) )
+		);
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue(
+			refreshed( 1, [ { id: 1, timestamp: '', ruleId: -2, reason: 'firewall test' } ] )
+		);
+		render( <FirewallOverviewCard { ...props } state={ { ...props.state, blockedCount: 0 } } /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
+		const editBlockList = screen.getByRole( 'button', { name: /^Edit block list/ } );
+		act( () => editBlockList.focus() );
+
+		await act( async () => finish( BLOCKED ) );
+
+		expect( screen.queryByText( 'No requests blocked yet' ) ).not.toBeInTheDocument();
+		expect( editBlockList ).toHaveFocus();
+	} );
+
+	it( 'keeps a test’s counts when the card comes back after a tab switch', async () => {
+		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( refreshed( 1 ) );
+		const state = { ...props.state, blockedCount: 0, blockedLast30Days: 0 };
+		const { unmount } = render( <FirewallOverviewCard { ...props } state={ state } /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
+
+		unmount();
+		render( <FirewallOverviewCard { ...props } state={ state } /> );
+
+		expect( screen.queryByText( 'No requests blocked yet' ) ).not.toBeInTheDocument();
 		expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days1' );
 	} );
 

@@ -53,6 +53,12 @@ const UNAVAILABLE: FirewallState = {
 // The only setting this card saves.
 const FIREWALL_KEYS = [ 'waf' ];
 
+// The card unmounts on a tab switch; this keeps a test's refreshed counts for when it comes back.
+const refreshedBlocks = new WeakMap< FirewallState, FirewallBlocks >();
+
+const hasAnyBlocks = ( { blockedCount, recentBlocks }: FirewallBlocks ) =>
+	( blockedCount ?? recentBlocks.length ) > 0;
+
 const formatCount = ( count?: number | null ) =>
 	typeof count === 'number' ? formatNumber( count ) : '—';
 
@@ -206,12 +212,15 @@ function notifyFailure( error: unknown ) {
 export default function FirewallOverviewCard( { state, settings, openTab }: FirewallContext ) {
 	const firewall = state ?? UNAVAILABLE;
 	const title = __( 'Firewall', 'jetpack-protect-pkg' );
-	const [ blocks, setBlocks ] = useState< FirewallBlocks >( {
-		blockedCount: firewall.blockedCount,
-		blockedToday: firewall.blockedToday,
-		blockedLast30Days: firewall.blockedLast30Days,
-		recentBlocks: firewall.recentBlocks,
-	} );
+	const [ blocks, setBlocks ] = useState< FirewallBlocks >(
+		() =>
+			refreshedBlocks.get( firewall ) ?? {
+				blockedCount: firewall.blockedCount,
+				blockedToday: firewall.blockedToday,
+				blockedLast30Days: firewall.blockedLast30Days,
+				recentBlocks: firewall.recentBlocks,
+			}
+	);
 	const [ isTesting, setIsTesting ] = useState( false );
 	const [ result, setResult ] = useState< TestResult | null >( null );
 	const [ recorded, setRecorded ] = useState< boolean | null >( null );
@@ -226,17 +235,21 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		[ settings, firewall.ipRules ]
 	);
 
-	const hasBlocks = ( blocks.blockedCount ?? blocks.recentBlocks.length ) > 0;
+	const hasBlocks = hasAnyBlocks( blocks );
 	const isEmpty = active && ! hasBlocks;
 
-	// A test from the empty state logs a block, which swaps its Run test for the header's.
+	// A test from the empty state that logs a block swaps its Run test for the header's; focus follows, unless it moved on.
 	const emptyState = useRef< HTMLDivElement >( null );
 	const headerTest = useRef< HTMLButtonElement >( null );
 	const focusHeaderTest = useRef( false );
 	useEffect( () => {
-		if ( ! isEmpty && focusHeaderTest.current ) {
+		const button = headerTest.current;
+		if ( ! isEmpty && focusHeaderTest.current && button ) {
 			focusHeaderTest.current = false;
-			headerTest.current?.focus();
+			const { activeElement, body } = button.ownerDocument;
+			if ( ! activeElement || activeElement === body ) {
+				button.focus();
+			}
 		}
 	}, [ isEmpty ] );
 
@@ -253,7 +266,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const runTest = useCallback( async () => {
 		setIsTesting( true );
 		const empty = emptyState.current;
-		focusHeaderTest.current = !! empty?.contains( empty.ownerDocument.activeElement );
+		const fromEmptyState = !! empty?.contains( empty.ownerDocument.activeElement );
 		notify( 'testing' );
 		const lastId = blocks.recentBlocks[ 0 ]?.id ?? 0;
 		let testResult: TestResult;
@@ -271,6 +284,8 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		let isRecorded: boolean | null = null;
 		try {
 			const fresh = await apiFetch< FirewallBlocks >( { path: `${ FIREWALL_PATH }/blocks` } );
+			refreshedBlocks.set( firewall, fresh );
+			focusHeaderTest.current = fromEmptyState && hasAnyBlocks( fresh );
 			setBlocks( fresh );
 			isRecorded = fresh.recentBlocks.some(
 				block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID
@@ -285,7 +300,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		setRecorded( isRecorded );
 		notify( testResult.outcome, { learnMore: () => setDetailsOpen( true ) } );
 		setIsTesting( false );
-	}, [ active, blocks.recentBlocks ] );
+	}, [ active, blocks.recentBlocks, firewall ] );
 
 	if ( ! firewall.available ) {
 		return <UnavailableCard icon={ shieldFlame } title={ title } />;
