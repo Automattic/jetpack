@@ -1,10 +1,10 @@
 import { dateI18n } from '@wordpress/date';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { Text, VisuallyHidden } from '@wordpress/ui';
+import formatNumber from './format-number';
 import useRerenderEvery from './use-rerender-every';
-import './countdown.scss';
 
-const pad = ( n: number ) => String( n ).padStart( 2, '0' );
+const TWO_DIGITS = { minimumIntegerDigits: 2 };
 
 /**
  * Time left until a moment, as a ticking "23h 59m 21s", with the exact time on hover.
@@ -20,16 +20,22 @@ export default function Countdown( { to }: { to: Date } ) {
 	const minutes = Math.floor( total / 60 ) % 60;
 	const seconds = total % 60;
 	const parts = [
-		[ String( hours ), _x( 'h', 'hours, abbreviated', 'jetpack-protect-pkg' ) ],
-		[ pad( minutes ), _x( 'm', 'minutes, abbreviated', 'jetpack-protect-pkg' ) ],
-		[ pad( seconds ), _x( 's', 'seconds, abbreviated', 'jetpack-protect-pkg' ) ],
+		[ formatNumber( hours ), _x( 'h', 'hours, abbreviated', 'jetpack-protect-pkg' ) ],
+		[
+			formatNumber( minutes, TWO_DIGITS ),
+			_x( 'm', 'minutes, abbreviated', 'jetpack-protect-pkg' ),
+		],
+		[
+			formatNumber( seconds, TWO_DIGITS ),
+			_x( 's', 'seconds, abbreviated', 'jetpack-protect-pkg' ),
+		],
 	];
 
 	return (
 		<Text
 			variant="body-xl"
 			className="jp-protect-countdown"
-			render={ <time dateTime={ to.toISOString() } title={ dateI18n( 'M j, g:i A', to ) } /> }
+			render={ <time dateTime={ to.toISOString() } title={ dateI18n( 'M j, Y g:i A', to ) } /> }
 		>
 			<span aria-hidden="true">
 				{ parts.map( ( [ digits, unit ] ) => (
