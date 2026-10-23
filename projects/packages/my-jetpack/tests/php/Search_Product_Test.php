@@ -234,6 +234,7 @@ class Search_Product_Test extends TestCase {
 		$this->assertSame( 'USD', $pricing['currency_code'] );
 		$this->assertSame( Search::FALLBACK_STARTING_PRICE_USD, $pricing['full_price'] );
 		$this->assertSame( Search::FALLBACK_STARTING_PRICE_USD, $pricing['discount_price'] );
+		$this->assertSame( 'year', $pricing['product_term'] );
 	}
 
 	/**
