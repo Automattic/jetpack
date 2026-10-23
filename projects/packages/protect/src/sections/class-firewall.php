@@ -146,9 +146,8 @@ class Firewall implements Dashboard_Section {
 				'recentBlocks'      => self::get_recent_blocks(),
 				'blockedCount'      => $all,
 				'blockedToday'      => isset( $counts['current_day'] ) ? (int) $counts['current_day'] : null,
-				// Summed from the chart's days, so the figure above it matches what it plots.
+				// Not `Waf_Stats`' `thirty_days`, which spans 31 dates.
 				'blockedLast30Days' => $daily ? array_sum( array_column( $daily, 'count' ) ) : null,
-				'dailyBlocks'       => $daily,
 			),
 			self::get_test_summary( (int) $all )
 		);

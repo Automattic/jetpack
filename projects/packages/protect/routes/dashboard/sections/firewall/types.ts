@@ -20,8 +20,6 @@ export type FirewallState = {
 	blockedLast30Days: number | null;
 	/** The last 10, newest first. */
 	recentBlocks: BlockedRequest[];
-	/** Blocks on each of the last 30 UTC days, oldest first; empty when the WAF package isn't loaded. */
-	dailyBlocks: { date: string; count: number }[];
 	/** Whether the firewall has blocked anything besides its own tests. */
 	hasBlocked: boolean;
 	/** When the firewall was last tested, ISO 8601 in UTC; null if it never was. */
@@ -43,7 +41,6 @@ export type FirewallBlocks = Pick<
 	| 'blockedToday'
 	| 'blockedLast30Days'
 	| 'recentBlocks'
-	| 'dailyBlocks'
 	| 'hasBlocked'
 	| 'lastTestAt'
 >;

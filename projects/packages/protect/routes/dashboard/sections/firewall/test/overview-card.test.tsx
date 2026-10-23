@@ -17,11 +17,6 @@ jest.mock( '../firewall-test', () => ( {
 	runFirewallTest: jest.fn(),
 } ) );
 
-const DAYS = Array.from( { length: 30 }, ( _, i ) => ( {
-	date: new Date( Date.now() - ( 29 - i ) * 86400000 ).toISOString().slice( 0, 10 ),
-	count: i === 29 ? 1 : 0,
-} ) );
-
 const props = {
 	state: {
 		available: true,
@@ -30,7 +25,6 @@ const props = {
 		blockedToday: 1,
 		blockedLast30Days: 1,
 		recentBlocks: [],
-		dailyBlocks: DAYS,
 		hasBlocked: true,
 		lastTestAt: null,
 		hasScan: false,
@@ -58,7 +52,6 @@ const refreshed = ( count: number, recentBlocks: unknown[] = [] ) => ( {
 	blockedToday: count,
 	blockedLast30Days: count,
 	recentBlocks,
-	dailyBlocks: DAYS,
 	hasBlocked: true,
 	lastTestAt: null,
 } );
@@ -230,7 +223,7 @@ describe( 'FirewallOverviewCard', () => {
 		);
 		document.documentElement.lang = '';
 
-		expect( screen.getByText( /^1.?234$/ ) ).toBeInTheDocument();
+		expect( screen.getByText( '1.2K' ) ).toHaveAttribute( 'title', '1,234' );
 	} );
 
 	it( 'shows each block count under its own label, and when the rules were updated', () => {
@@ -248,7 +241,9 @@ describe( 'FirewallOverviewCard', () => {
 		);
 
 		// Each label's text runs straight into its value's.
-		expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days453today678all time' );
+		expect( document.body ).toHaveTextContent(
+			'Last 30 days blocked requests45All-time blocked requests678'
+		);
 		expect( document.body ).toHaveTextContent( 'Rules updated Oct 9, 2025' );
 	} );
 
@@ -259,7 +254,6 @@ describe( 'FirewallOverviewCard', () => {
 			blockedToday: 4,
 			blockedLast30Days: 56,
 			recentBlocks: [],
-			dailyBlocks: DAYS,
 			hasBlocked: true,
 			lastTestAt: null,
 		} );
@@ -267,7 +261,9 @@ describe( 'FirewallOverviewCard', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
 
-		expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days564today90all time' );
+		expect( document.body ).toHaveTextContent(
+			'Last 30 days blocked requests56All-time blocked requests90'
+		);
 	} );
 
 	it( 'drops the rules date once the Settings tab turns the rules off', () => {
@@ -285,23 +281,25 @@ describe( 'FirewallOverviewCard', () => {
 		expect( screen.queryByText( /Rules updated/ ) ).not.toBeInTheDocument();
 	} );
 
-	it.each( [
-		[ 'never had automatic rules', null, 'Let your firewall keep up with new attacks', {} ],
-		[
-			'rules stopped updating',
-			1773446400,
-			'Your automatic firewall rules have stopped updating',
-			{ state: 'stopped' },
-		],
-	] )( 'sells automatic rules for a site that %s', ( _, rulesUpdatedAt, heading, eventProps ) => {
-		render( <FirewallOverviewCard { ...props } state={ { ...props.state, rulesUpdatedAt } } /> );
+	it( 'sells automatic rules to a site whose rules stopped updating', () => {
+		render(
+			<FirewallOverviewCard { ...props } state={ { ...props.state, rulesUpdatedAt: 1773446400 } } />
+		);
 
-		expect( screen.getByText( heading ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'Your automatic firewall rules have stopped updating' )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Upgrade/ } ) ).toHaveAttribute( 'href', '#upgrade' );
 		expect( recordViewOnce ).toHaveBeenLastCalledWith(
 			'jetpack_protect_dashboard_firewall_upsell_view',
-			eventProps
+			{ state: 'stopped' }
 		);
+	} );
+
+	it( 'sells nothing to a working free site that never had automatic rules', () => {
+		render( <FirewallOverviewCard { ...props } /> );
+
+		expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [ null, 1773446400 ] )(
@@ -391,10 +389,7 @@ describe( 'FirewallOverviewCard', () => {
 			render( <FirewallOverviewCard { ...props } state={ { ...props.state, ipRules } } /> );
 
 			expect( screen.getByText( title ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Blocked in the last 30 days' ) ).toBeInTheDocument();
-			expect(
-				screen.queryByText( 'Let your firewall keep up with new attacks' )
-			).not.toBeInTheDocument();
+			expect( screen.getByText( 'Last 30 days blocked requests' ) ).toBeInTheDocument();
 			await userEvent.click( screen.getByRole( 'button', { name: button } ) );
 			await expect(
 				screen.findByRole( 'dialog', { name: 'Blocked IP addresses' } )
@@ -428,9 +423,6 @@ describe( 'FirewallOverviewCard', () => {
 
 		expect( screen.getByRole( 'heading', { name: 'No IPs added to block list' } ) ).toBeVisible();
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute( 'href', '#upgrade' );
-		expect(
-			screen.queryByText( 'Let your firewall keep up with new attacks' )
-		).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Edit block list' } ) ).not.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Add IPs to list' } ) );

@@ -21,7 +21,6 @@ import {
 	runFirewallTest,
 } from './firewall-test';
 import FirewallToggle from './firewall-toggle';
-import FirewallUpsell from './firewall-upsell';
 import shieldFlame from './icon';
 import { IpListDialog } from './ip-list-dialog';
 import NothingToBlockNotice from './nothing-to-block-notice';
@@ -40,7 +39,6 @@ const UNAVAILABLE: FirewallState = {
 	blockedToday: null,
 	blockedLast30Days: null,
 	recentBlocks: [],
-	dailyBlocks: [],
 	hasBlocked: false,
 	lastTestAt: null,
 	hasScan: false,
@@ -208,7 +206,6 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		blockedToday: firewall.blockedToday,
 		blockedLast30Days: firewall.blockedLast30Days,
 		recentBlocks: firewall.recentBlocks,
-		dailyBlocks: firewall.dailyBlocks ?? [],
 		hasBlocked: firewall.hasBlocked,
 		lastTestAt: firewall.lastTestAt,
 	} );
@@ -283,9 +280,6 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const isFreeEmptyState = isEmpty && needsBlockList;
 	// Blocks so far came from a list since emptied; without rules either, nothing more can be blocked.
 	const hasNothingToBlock = active && hasBlocks && needsBlockList && rulesUpdatedAt === null;
-	// The empty states and that warning have their own Upgrade button; stale free rules still get theirs.
-	const showUpsell =
-		! firewall.hasScan && ! isEmpty && ! hasNothingToBlock && rulesUpdatedAt === null;
 	const showStaleRules = ! firewall.hasScan && ! isFreeEmptyState && rulesUpdatedAt !== null;
 	useRerenderEvery( 30000, !! lastTestAt );
 
@@ -359,11 +353,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					isListOff={ isBlockListOff }
 				/>
 			) }
-			{ active && hasBlocks && (
-				<CardRow>
-					<BlocksSummary blocks={ blocks } />
-				</CardRow>
-			) }
+			{ active && hasBlocks && <BlocksSummary blocks={ blocks } /> }
 			{ active && (
 				<FirewallFooter
 					data={ ipData }
@@ -395,7 +385,6 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					enableOnSave
 				/>
 			) }
-			{ showUpsell && <FirewallUpsell url={ firewall.upgradeUrl } /> }
 			{ showStaleRules && (
 				<UpgradeGap
 					title={ __(

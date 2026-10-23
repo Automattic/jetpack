@@ -4353,9 +4353,6 @@ importers:
 
   projects/packages/protect:
     dependencies:
-      '@automattic/charts':
-        specifier: workspace:*
-        version: link:../../js-packages/charts
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
