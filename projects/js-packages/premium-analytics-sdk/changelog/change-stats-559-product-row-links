@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Declare the `refreshNotice` option of `useReport`, so a query whose failure leaves the figures current raises no stale-data notice.

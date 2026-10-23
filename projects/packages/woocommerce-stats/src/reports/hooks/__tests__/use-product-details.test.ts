@@ -32,5 +32,6 @@ describe( 'useProductDetails', () => {
 		expect( factory( PERIOD, 'primary' ) ).toEqual( { queryKey: [ 'details', [ 7, 9 ] ] } );
 		expect( factory( PERIOD, 'comparison' ) ).toMatchObject( { enabled: false } );
 		expect( mockDetailsQuery ).toHaveBeenCalledTimes( 1 );
+		expect( mockUseReport.mock.calls.at( -1 )[ 2 ] ).toMatchObject( { refreshNotice: false } );
 	} );
 } );
