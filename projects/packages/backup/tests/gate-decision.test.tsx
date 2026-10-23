@@ -2,8 +2,7 @@
 // `<BackupNowButton>` re-derived the same walk because it renders above the gate.
 //
 // The two already agreed, so consolidating them is a pure refactor and this file is its
-// safety net: button and gate in one tree, pinning what both show in each of the seven
-// states. Written against the duplicated code and passing there first.
+// safety net: button and gate in one tree, pinning what both show in each state.
 
 const mockApiFetch = jest.fn();
 

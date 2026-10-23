@@ -506,7 +506,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	}
 
 	/**
-	 * The bridge dispatches, as their requests alone.
+	 * Each bridge dispatch above, reduced to its method, path and params.
 	 *
 	 * @return array<string, array{0: string, 1: string, 2: array<string, mixed>}>
 	 */

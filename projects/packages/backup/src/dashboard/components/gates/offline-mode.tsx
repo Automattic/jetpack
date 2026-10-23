@@ -5,7 +5,7 @@ import { Icon, offline } from '@wordpress/icons';
 import { Card, Link, Text } from '@wordpress/ui';
 
 /**
- * Fallback shown while Jetpack is in offline mode, where every Backup route refuses.
+ * Fallback shown while Jetpack is in offline mode.
  *
  * @return The rendered fallback.
  */

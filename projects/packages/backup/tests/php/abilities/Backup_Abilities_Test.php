@@ -13,6 +13,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionClass;
 use WorDBless\BaseTestCase;
+use WP_Error;
 
 /**
  * @covers \Automattic\Jetpack\Backup\V0005\Abilities\Backup_Abilities
@@ -735,12 +736,15 @@ class Backup_Abilities_Test extends BaseTestCase {
 	 * @dataProvider provider_permission_callbacks
 	 */
 	#[DataProvider( 'provider_permission_callbacks' )]
-	public function test_offline_mode_denies_an_admin( string $callback ): void {
+	public function test_offline_mode_denies_an_admin_with_its_reason( string $callback ): void {
 		wp_set_current_user( $this->admin_id );
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		Status_Cache::clear();
 
-		$this->assertFalse( Backup_Abilities::$callback() );
+		$result = Backup_Abilities::$callback();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'offline_mode', $result->get_error_code() );
 	}
 
 	/**

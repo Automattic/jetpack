@@ -562,7 +562,7 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * The error every Backup route answers with while Jetpack is in offline mode.
+	 * The error the dashboard's routes and abilities answer with while Jetpack is in offline mode.
 	 *
 	 * A local copy of a live site keeps its tokens, and offline mode drops the identity-crisis
 	 * check, so WordPress.com would act on the live site's backups.

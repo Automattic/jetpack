@@ -1,7 +1,6 @@
 type Result = {
 	isFullyConnected: boolean;
 	isSecondaryAdminNotConnected: boolean;
-	/** Jetpack's offline mode, under which every Backup route refuses. */
 	isOfflineMode: boolean;
 };
 
@@ -84,9 +83,9 @@ export function useSiteSuffix(): string | undefined {
  *
  * Every bridge route runs `Rest_Controller::permission_check()`, which
  * answers 403 in offline mode and without a user-level WPCOM connection.
- * Hooks can't be called conditionally, so
- * query hooks that may mount above `<Gates>` pass this as their
- * `enabled` flag instead of skipping the call.
+ * Hooks can't be called conditionally, so query hooks that may mount
+ * above `<Gates>` pass this as their `enabled` flag instead of skipping
+ * the call.
  *
  * @return True when the bridges can answer.
  */
