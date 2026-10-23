@@ -1,4 +1,4 @@
-import { toSvgId } from '../selected-segment-ring';
+import { toSvgId } from '../selected-ring';
 
 describe( 'toSvgId', () => {
 	it.each( [
