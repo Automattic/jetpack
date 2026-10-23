@@ -521,7 +521,7 @@ export function lockCanvasEditing() {
  * an effect on mount, so this waits for it rather than running before the render the way
  * `lockCanvasEditing()` does.
  *
- * @return {Function} Stops waiting.
+ * @return {Function} Stops watching.
  */
 export function unregisterListViewShortcut() {
 	// `select()` answers null for a store the registry does not hold, as in `lockCanvasEditing()`.
@@ -544,19 +544,13 @@ export function unregisterListViewShortcut() {
 		return true;
 	}
 
-	// `subscribe()` fires on the next change, not on the current state, so a shortcut already
-	// registered by the time this runs would otherwise be watched for forever and never removed.
-	if ( removeIfRegistered() ) {
-		return () => {};
-	}
+	// `subscribe()` fires on the next change, not on the current state, so one that is already
+	// registered would otherwise be waited for forever.
+	removeIfRegistered();
 
-	const unsubscribe = subscribe( () => {
-		if ( removeIfRegistered() ) {
-			unsubscribe();
-		}
-	} );
-
-	return unsubscribe;
+	// Kept watching rather than stopped at the first hit, for `openStylesSidebarOnLoad()`'s reason:
+	// the editor registers this from a mount effect, which runs again on a remount.
+	return subscribe( removeIfRegistered );
 }
 
 /**

@@ -1229,11 +1229,23 @@ describe( 'Email design editor entry point', () => {
 			stop();
 		} );
 
-		it( 'stops watching once it has unregistered, so a later re-register is left alone', () => {
+		// The editor registers it from a mount effect, which runs again on a remount and twice more
+		// under a development build of React. Stopping at the first hit would hand `access+O` back.
+		it( 'takes it away again when the editor registers it a second time', () => {
 			const stop = unregisterListViewShortcut();
 
 			shortcuts().registerShortcut( LIST_VIEW_SHORTCUT );
 			shortcuts().registerShortcut( LIST_VIEW_SHORTCUT );
+
+			expect( mockUnregisteredShortcuts ).toEqual( [ LIST_VIEW_SHORTCUT, LIST_VIEW_SHORTCUT ] );
+
+			stop();
+		} );
+
+		it( 'takes away a shortcut that was already registered before it started watching', () => {
+			shortcuts().registerShortcut( LIST_VIEW_SHORTCUT );
+
+			const stop = unregisterListViewShortcut();
 
 			expect( mockUnregisteredShortcuts ).toEqual( [ LIST_VIEW_SHORTCUT ] );
 
