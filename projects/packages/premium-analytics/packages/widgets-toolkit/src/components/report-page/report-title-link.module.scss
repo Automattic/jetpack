@@ -35,6 +35,14 @@
 	flex: none;
 }
 
+/* The table underlines its row links on hover; an icon-only link has no text to
+ * underline, so the marker would sit on a stray line. `:any-link` and the row
+ * outrank that rule. */
+:global(.dataviews-view-table tbody tr) a.viewAction:any-link:hover,
+:global(.dataviews-view-table tbody tr) a.viewAction:any-link:focus-visible {
+	text-decoration: none;
+}
+
 :global(.dataviews-view-table tbody tr) {
 
 	@include reveal-action-on-hover(".viewAction");
