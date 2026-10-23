@@ -92,6 +92,9 @@ let geoState: GeoState = {
 	region: null,
 };
 
+// init() and the footer link can both need the region before it resolves; share one request.
+let geoLookup: Promise< GeoState > | undefined;
+
 // Tracks whether the modal was opened from the footer "Manage Privacy Preferences" link
 // vs the banner's "Customize" button, so closeModal() knows whether to show the banner.
 let openedFromFooter = false;
@@ -564,7 +567,8 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				return geoState;
 			}
 
-			geoState = ( yield lookUpGeoState( config ) ) as GeoState;
+			geoLookup ??= lookUpGeoState( config );
+			geoState = ( yield geoLookup ) as GeoState;
 			return geoState;
 		},
 

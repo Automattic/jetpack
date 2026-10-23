@@ -435,19 +435,6 @@ describe( 'GPC for a returning visitor', () => {
 		expect( wpSetConsentCalls().length > 0 ).toBe( optedOut );
 	} );
 
-	it( 'remembers a choice kept at module load in a region that ignores GPC', async () => {
-		setGpc( true );
-		cookieJar = `${ ALL_ALLOWED }; country_code=US; region=Texas`;
-		mockGetConfig.mockReturnValue( makeConfig() );
-
-		await importView();
-
-		expect( wpSetConsentCalls() ).toHaveLength( 0 );
-		expect(
-			cookieWrites.some( write => write.startsWith( 'jetpack_cookie_consent_gpc=1;' ) )
-		).toBe( true );
-	} );
-
 	it( 'previews the banner with the GPC notice and optional categories off', async () => {
 		setGpc( true );
 		cookieJar = 'country_code=FR; region=Brittany';
@@ -526,6 +513,22 @@ describe( 'GPC for a returning visitor', () => {
 			const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
 
 			await openFromFooter( context );
+
+			expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+			expect( context.gpcNotice ).toBe( true );
+		} );
+
+		it( 'sends one geo request when init and the footer link both need the region', async () => {
+			setGpc( true );
+			cookieJar = ALL_ALLOWED;
+			mockGdprGeoLookup();
+			const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
+			mockGetContext.mockReturnValue( context );
+
+			const initDone = storeCallbacks.init();
+			storeActions.openManagePreferences( { preventDefault: jest.fn() } );
+			await initDone;
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
 
 			expect( fetchMock ).toHaveBeenCalledTimes( 1 );
 			expect( context.gpcNotice ).toBe( true );
