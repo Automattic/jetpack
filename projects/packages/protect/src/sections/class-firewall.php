@@ -132,7 +132,7 @@ class Firewall implements Dashboard_Section {
 	/**
 	 * The recent blocks and the block counts, refreshed after a test.
 	 *
-	 * Today and the last 30 days are UTC days, as the firewall records them.
+	 * The last 30 days are UTC days, as the firewall records them.
 	 *
 	 * @return array
 	 */
@@ -145,7 +145,6 @@ class Firewall implements Dashboard_Section {
 			array(
 				'recentBlocks'      => self::get_recent_blocks(),
 				'blockedCount'      => $all,
-				'blockedToday'      => isset( $counts['current_day'] ) ? (int) $counts['current_day'] : null,
 				// Not `Waf_Stats`' `thirty_days`, which spans 31 dates.
 				'blockedLast30Days' => $daily ? array_sum( array_column( $daily, 'count' ) ) : null,
 			),
@@ -271,6 +270,20 @@ class Firewall implements Dashboard_Section {
 			Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME => (string) get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '' ),
 			Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME => (bool) Waf_Rules_Manager::ip_allow_list_enabled(),
 		);
+	}
+
+	/**
+	 * Returns the blocks unchanged, since the card no longer reads the request log.
+	 *
+	 * @deprecated $$next-version$$
+	 *
+	 * @param array $blocks  Blocks from the blocklog table, newest first.
+	 * @param array $entries Decoded request log entries, oldest first.
+	 * @return array The blocks, unchanged.
+	 */
+	public static function add_request_details( array $blocks, array $entries ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Kept for callers.
+		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		return $blocks;
 	}
 
 	/**

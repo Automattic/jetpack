@@ -14,8 +14,6 @@ export type FirewallState = {
 	active: boolean;
 	/** All-time blocked requests, or null when the WAF package isn't loaded. */
 	blockedCount: number | null;
-	/** Blocked requests on the current UTC day, or null when the WAF package isn't loaded. */
-	blockedToday: number | null;
 	/** Blocked requests over the last 30 UTC days, or null when the WAF package isn't loaded. */
 	blockedLast30Days: number | null;
 	/** The last 10, newest first. */
@@ -37,12 +35,7 @@ export type FirewallState = {
 /** What `/firewall/blocks` returns, and the card keeps up to date after a test. */
 export type FirewallBlocks = Pick<
 	FirewallState,
-	| 'blockedCount'
-	| 'blockedToday'
-	| 'blockedLast30Days'
-	| 'recentBlocks'
-	| 'hasBlocked'
-	| 'lastTestAt'
+	'blockedCount' | 'blockedLast30Days' | 'recentBlocks' | 'hasBlocked' | 'lastTestAt'
 >;
 
 /** What `/firewall/test` returns: the one-time URL the firewall blocks. */

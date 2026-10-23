@@ -113,7 +113,6 @@ class Firewall_Section_Test extends BaseTestCase {
 		$blocks = Firewall::get_blocks();
 
 		remove_filter( 'wordbless_wpdb_query_results', $options, 10 );
-		$this->assertSame( 2, $blocks['blockedToday'], 'today' );
 		$this->assertSame( 7, $blocks['blockedLast30Days'], 'last 30 days, not 31' );
 		$this->assertSame( 40, $blocks['blockedCount'], 'all time' );
 	}

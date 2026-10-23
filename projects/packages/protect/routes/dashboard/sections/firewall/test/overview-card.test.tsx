@@ -22,7 +22,6 @@ const props = {
 		available: true,
 		active: true,
 		blockedCount: 1,
-		blockedToday: 1,
 		blockedLast30Days: 1,
 		recentBlocks: [],
 		hasBlocked: true,
@@ -49,7 +48,6 @@ const props = {
 
 const refreshed = ( count: number, recentBlocks: unknown[] = [] ) => ( {
 	blockedCount: count,
-	blockedToday: count,
 	blockedLast30Days: count,
 	recentBlocks,
 	hasBlocked: true,
@@ -232,7 +230,6 @@ describe( 'FirewallOverviewCard', () => {
 				{ ...props }
 				state={ {
 					...props.state,
-					blockedToday: 3,
 					blockedLast30Days: 45,
 					blockedCount: 678,
 					rulesUpdatedAt: 1760000000,
@@ -251,7 +248,6 @@ describe( 'FirewallOverviewCard', () => {
 		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
 		( apiFetch as unknown as jest.Mock ).mockResolvedValue( {
 			blockedCount: 90,
-			blockedToday: 4,
 			blockedLast30Days: 56,
 			recentBlocks: [],
 			hasBlocked: true,
@@ -320,7 +316,6 @@ describe( 'FirewallOverviewCard', () => {
 	const noBlocks = ( state = {} ) => ( {
 		...props.state,
 		blockedCount: 0,
-		blockedToday: 0,
 		blockedLast30Days: 0,
 		hasBlocked: false,
 		...state,

@@ -36,7 +36,6 @@ const UNAVAILABLE: FirewallState = {
 	available: false,
 	active: false,
 	blockedCount: null,
-	blockedToday: null,
 	blockedLast30Days: null,
 	recentBlocks: [],
 	hasBlocked: false,
@@ -203,7 +202,6 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const title = __( 'Firewall', 'jetpack-protect-pkg' );
 	const [ blocks, setBlocks ] = useState< FirewallBlocks >( {
 		blockedCount: firewall.blockedCount,
-		blockedToday: firewall.blockedToday,
 		blockedLast30Days: firewall.blockedLast30Days,
 		recentBlocks: firewall.recentBlocks,
 		hasBlocked: firewall.hasBlocked,
