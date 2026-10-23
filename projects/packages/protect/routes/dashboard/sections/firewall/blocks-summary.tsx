@@ -1,4 +1,4 @@
-import { BarChart } from '@automattic/charts';
+import { LineChart, parseAsLocalDate } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { gmdateI18n } from '@wordpress/date';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -8,8 +8,7 @@ import formatNumber from '../../components/format-number';
 import type { FirewallBlocks } from './types';
 import type { SeriesData } from '@automattic/charts';
 
-const BAR_COLOR = '#a7b5f2';
-const TODAY_COLOR = '#3858e9';
+const LINE_COLOR = '#3858e9';
 
 const formatCount = ( count?: number | null ) =>
 	typeof count === 'number' ? formatNumber( count ) : '—';
@@ -18,11 +17,11 @@ const formatCount = ( count?: number | null ) =>
 const formatDay = ( date: string, format = 'M j' ) => gmdateI18n( format, `${ date }T00:00:00Z` );
 
 type TooltipProps = {
-	tooltipData?: { nearestDatum?: { datum?: { label?: string; value?: number } } };
+	tooltipData?: { nearestDatum?: { datum?: { dateString?: string; value?: number } } };
 };
 
 /**
- * Blocked requests over the last 30 days, with today and all time beside a bar per day.
+ * Blocked requests over the last 30 days, with today and all time beside a line of the daily counts.
  *
  * @param props        - Component props.
  * @param props.blocks - The block counts.
@@ -33,36 +32,48 @@ export default function BlocksSummary( { blocks }: { blocks: FirewallBlocks } ) 
 	const days = useMemo( () => dailyBlocks ?? [], [ dailyBlocks ] );
 	const today = days[ days.length - 1 ]?.date;
 
+	// Each day is plotted at local midnight, so the axis keeps the calendar day the server sent.
+	const points = useMemo(
+		() =>
+			days.map( day => ( {
+				date: parseAsLocalDate( day.date ),
+				dateString: day.date,
+				value: day.count,
+			} ) ),
+		[ days ]
+	);
 	const data = useMemo< SeriesData[] >(
 		() => [
 			{
 				label: __( 'Blocked requests', 'jetpack-protect-pkg' ),
-				data: days.map( day => ( {
-					label: day.date,
-					value: day.count,
-					color: day.date === today ? TODAY_COLOR : BAR_COLOR,
-				} ) ),
-				options: { stroke: BAR_COLOR },
+				data: points,
+				options: { stroke: LINE_COLOR },
 			},
 		],
-		[ days, today ]
+		[ points ]
 	);
 
 	const tickFormat = useCallback(
-		( value: unknown ) =>
-			value === today ? __( 'Today', 'jetpack-protect-pkg' ) : formatDay( String( value ) ),
-		[ today ]
+		( value: unknown ) => {
+			const date = value instanceof Date ? value : new Date( Number( value ) );
+			const day = points.find( point => point.date.getTime() === date.getTime() )?.dateString;
+			if ( ! day ) {
+				return '';
+			}
+			return day === today ? __( 'Today', 'jetpack-protect-pkg' ) : formatDay( day );
+		},
+		[ points, today ]
 	);
 
 	const renderTooltip = useCallback( ( props: unknown ) => {
 		const datum = ( props as TooltipProps )?.tooltipData?.nearestDatum?.datum;
-		if ( ! datum?.label ) {
+		if ( ! datum?.dateString ) {
 			return null;
 		}
 		const count = datum.value ?? 0;
 		return (
 			<>
-				<strong>{ formatDay( datum.label, 'M j, Y' ) }</strong>
+				<strong>{ formatDay( datum.dateString, 'M j, Y' ) }</strong>
 				<div>
 					{ sprintf(
 						/* translators: %s is a number of blocked requests. */
@@ -102,20 +113,25 @@ export default function BlocksSummary( { blocks }: { blocks: FirewallBlocks } ) 
 			</Stack>
 			{ days.length > 0 && (
 				<div className="jp-protect-firewall-summary__chart">
-					<BarChart
+					<LineChart
 						data={ data }
 						height={ 140 }
 						ariaLabel={ __( 'Blocked requests per day, last 30 days', 'jetpack-protect-pkg' ) }
+						curveType="monotone"
+						withGradientFill
 						withTooltips
 						renderTooltip={ renderTooltip }
-						showZeroValues
 						gridVisibility="none"
-						margin={ { top: 8, right: 0, bottom: 24, left: 0 } }
+						margin={ { top: 8, right: 16, bottom: 24, left: 16 } }
 						options={ {
 							axis: {
-								x: { tickValues: [ days[ 0 ].date, today ], tickFormat },
+								x: {
+									tickValues: [ points[ 0 ].date, points[ points.length - 1 ].date ],
+									tickFormat,
+								},
 								y: { display: false },
 							},
+							yScale: { type: 'linear', zero: true },
 						} }
 					/>
 				</div>

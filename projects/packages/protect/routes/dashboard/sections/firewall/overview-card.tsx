@@ -23,7 +23,6 @@ import {
 import FirewallToggle from './firewall-toggle';
 import FirewallUpsell from './firewall-upsell';
 import shieldFlame from './icon';
-import RecentBlocks from './recent-blocks';
 import { AUTOMATIC_RULES, IP_BLOCK_LIST } from './settings-keys';
 import TestDetails from './test-details';
 import UpgradeGap from './upgrade-gap';
@@ -343,11 +342,6 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			{ active && hasBlocks && (
 				<CardRow>
 					<BlocksSummary blocks={ blocks } />
-				</CardRow>
-			) }
-			{ active && hasBlocks && blocks.recentBlocks.length > 0 && (
-				<CardRow>
-					<RecentBlocks blocks={ blocks.recentBlocks } />
 				</CardRow>
 			) }
 			{ active && (
