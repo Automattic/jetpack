@@ -16,6 +16,7 @@ jest.mock( '../a4a-upsell', () => ( { A4AUpsell: () => null } ) );
 describe( 'OverviewContent', () => {
 	it.each( [
 		[ 'Admin', 'Welcome to Jetpack, Admin!' ],
+		[ 'Tom &amp; Jerry', 'Welcome to Jetpack, Tom & Jerry!' ],
 		[ '', 'Welcome to Jetpack' ],
 	] )( 'with the display name "%s", reads "%s"', ( displayName, heading ) => {
 		window.JetpackScriptData = {

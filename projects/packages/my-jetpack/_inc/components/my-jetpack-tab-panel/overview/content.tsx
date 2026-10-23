@@ -1,4 +1,5 @@
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
 import useSitePurchases from '../../../data/use-site-purchases';
@@ -21,7 +22,8 @@ export function OverviewContent() {
 	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	// Loads the plans the header's plan summary shows, so they're ready when it opens.
 	useSitePurchases( { enabled: isHeaderControlsEnabled() } );
-	const displayName = getScriptData()?.user?.current_user?.display_name;
+	// WordPress stores display names HTML-escaped.
+	const displayName = decodeEntities( getScriptData()?.user?.current_user?.display_name ?? '' );
 
 	return (
 		<div>
