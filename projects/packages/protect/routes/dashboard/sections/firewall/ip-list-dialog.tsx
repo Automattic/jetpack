@@ -1,7 +1,6 @@
-import { ToggleControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { Badge, Button, Dialog, Stack, Text, TextareaControl, VisuallyHidden } from '@wordpress/ui';
+import { __, sprintf } from '@wordpress/i18n';
+import { Button, Dialog, Stack, Text, TextareaControl } from '@wordpress/ui';
 import { appendIp, getIpList, splitIps } from '../../components/settings/ip-list';
 import { enabledKey } from './settings-keys';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
@@ -18,12 +17,6 @@ type DialogProps = {
 	/** Also turn the list on when saving addresses, for entry points without its toggle. */
 	enableOnSave?: boolean;
 	children: ReactNode;
-};
-
-type Props = Omit< DialogProps, 'trigger' | 'enableOnSave' | 'children' > & {
-	label: string;
-	description: string;
-	editLabel: string;
 };
 
 /**
@@ -152,78 +145,5 @@ export function IpListDialog( {
 				</Dialog.Footer>
 			</Dialog.Popup>
 		</Dialog.Root>
-	);
-}
-
-/**
- * One of the firewall's IP lists: its on/off toggle, how many addresses it holds and a dialog to edit them.
- *
- * @param props             - Component props.
- * @param props.data        - The settings and their save function.
- * @param props.name        - The setting holding the list.
- * @param props.label       - The toggle's label.
- * @param props.description - What the list does.
- * @param props.editLabel   - The link that opens the dialog.
- * @param props.dialogTitle - The dialog's title.
- * @param props.currentIp   - When set, the dialog offers to add the visitor's own address.
- * @return The rule.
- */
-export default function IpRule( {
-	data,
-	name,
-	label,
-	description,
-	editLabel,
-	dialogTitle,
-	currentIp,
-}: Props ) {
-	const { save, isSaving } = data;
-	const enabledName = enabledKey( name );
-	const count = splitIps( getIpList( data.settings, name ) ).length;
-
-	const onToggle = useCallback(
-		( value: boolean ) => save( { [ enabledName ]: value } ),
-		[ save, enabledName ]
-	);
-
-	return (
-		<Stack direction="column" gap="sm" align="start">
-			<ToggleControl
-				__nextHasNoMarginBottom
-				label={
-					<Stack direction="row" gap="sm" align="center">
-						{ label }
-						<span aria-hidden="true">
-							<Badge intent="informational">{ String( count ) }</Badge>
-						</span>
-						<VisuallyHidden>
-							{ sprintf(
-								/* translators: %d is how many IP addresses are on a list. */
-								_n(
-									'%d address on the list',
-									'%d addresses on the list',
-									count,
-									'jetpack-protect-pkg'
-								),
-								count
-							) }
-						</VisuallyHidden>
-					</Stack>
-				}
-				help={ description }
-				checked={ Boolean( data.settings?.[ enabledName ] ) }
-				disabled={ isSaving( enabledName ) }
-				onChange={ onToggle }
-			/>
-			<IpListDialog
-				data={ data }
-				name={ name }
-				dialogTitle={ dialogTitle }
-				currentIp={ currentIp }
-				trigger={ <Button variant="unstyled" className="jp-protect-card__link-button" /> }
-			>
-				{ editLabel }
-			</IpListDialog>
-		</Stack>
 	);
 }

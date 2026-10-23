@@ -23,6 +23,8 @@ export type FirewallState = {
 	blockedLast30Days: number | null;
 	/** The last 10, newest first. */
 	recentBlocks: BlockedRequest[];
+	/** Blocks on each of the last 30 UTC days, oldest first; empty when the WAF package isn't loaded. */
+	dailyBlocks: { date: string; count: number }[];
 	hasScan: boolean;
 	/** Where to buy Scan, for the automatic rules it adds. */
 	upgradeUrl: string;
@@ -36,7 +38,7 @@ export type FirewallState = {
 /** What `/firewall/blocks` returns, and the card keeps up to date after a test. */
 export type FirewallBlocks = Pick<
 	FirewallState,
-	'blockedCount' | 'blockedToday' | 'blockedLast30Days' | 'recentBlocks'
+	'blockedCount' | 'blockedToday' | 'blockedLast30Days' | 'recentBlocks' | 'dailyBlocks'
 >;
 
 /** What `/firewall/test` returns: the one-time URL the firewall blocks. */

@@ -117,6 +117,17 @@ class Firewall_Section_Test extends BaseTestCase {
 		$this->assertSame( 2, $blocks['blockedToday'], 'today' );
 		$this->assertSame( 7, $blocks['blockedLast30Days'], 'last 30 days' );
 		$this->assertSame( 40, $blocks['blockedCount'], 'all time' );
+		$this->assertCount( 30, $blocks['dailyBlocks'], 'one entry per day' );
+		$this->assertSame(
+			array(
+				'date'  => gmdate( 'Y-m-d' ),
+				'count' => 2,
+			),
+			end( $blocks['dailyBlocks'] ),
+			'today last'
+		);
+		$this->assertSame( 5, $blocks['dailyBlocks'][26]['count'], 'three days ago' );
+		$this->assertSame( 0, $blocks['dailyBlocks'][0]['count'], 'a day without blocks' );
 	}
 
 	/**

@@ -141,7 +141,38 @@ class Firewall implements Dashboard_Section {
 			'blockedCount'      => isset( $counts['all_time'] ) ? (int) $counts['all_time'] : null,
 			'blockedToday'      => isset( $counts['current_day'] ) ? (int) $counts['current_day'] : null,
 			'blockedLast30Days' => isset( $counts['thirty_days'] ) ? (int) $counts['thirty_days'] : null,
+			'dailyBlocks'       => self::get_daily_blocks(),
 		);
+	}
+
+	/**
+	 * Blocked requests on each of the last 30 UTC days, oldest first, with 0 for a day without any.
+	 *
+	 * @return array<int, array{date: string, count: int}> Empty when the WAF package isn't loaded.
+	 */
+	public static function get_daily_blocks() {
+		global $wpdb;
+
+		if ( ! class_exists( Waf_Blocklog_Manager::class ) ) {
+			return array();
+		}
+
+		// The firewall writes this before the object cache loads, so a cached read can be stale.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$stored = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->base_prefix}options WHERE option_name = %s", Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY ) );
+		$counts = null === $stored ? array() : maybe_unserialize( $stored );
+		$counts = is_array( $counts ) ? $counts : array();
+
+		$days = array();
+		for ( $ago = 29; $ago >= 0; $ago-- ) {
+			$date   = gmdate( 'Y-m-d', strtotime( "-$ago days" ) );
+			$days[] = array(
+				'date'  => $date,
+				'count' => isset( $counts[ $date ] ) ? (int) $counts[ $date ] : 0,
+			);
+		}
+
+		return $days;
 	}
 
 	/**

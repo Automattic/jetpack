@@ -85,19 +85,10 @@ describe( 'FirewallOverviewCard', () => {
 		expect( dialog ).toHaveTextContent( 'Logged the block' );
 	} );
 
-	it( 'shows the IP lists from page load before settings are fetched', () => {
+	it( 'counts the IP lists from page load before settings are fetched', () => {
 		render( <FirewallOverviewCard { ...props } /> );
 
-		expect(
-			screen.getByRole( 'checkbox', {
-				name: /Block specific IP addresses\s*2 addresses on the list/,
-			} )
-		).toBeChecked();
-		expect(
-			screen.getByRole( 'checkbox', {
-				name: /Always allow specific IP addresses\s*0 addresses on the list/,
-			} )
-		).not.toBeChecked();
+		expect( document.body ).toHaveTextContent( 'Edit block list2Edit allow list0' );
 	} );
 
 	it( 'saves an edited block list from its dialog', async () => {
@@ -113,6 +104,7 @@ describe( 'FirewallOverviewCard', () => {
 
 		expect( props.settings.save ).toHaveBeenCalledWith( {
 			jetpack_waf_ip_block_list: '198.51.100.1',
+			jetpack_waf_ip_block_list_enabled: true,
 		} );
 	} );
 	it( 'offers the visitor’s own address in the allow list dialog', async () => {
@@ -244,10 +236,8 @@ describe( 'FirewallOverviewCard', () => {
 		);
 
 		// Each label's text runs straight into its value's.
-		expect( document.body ).toHaveTextContent(
-			'Blocked today3Blocked in the last 30 days45All-time blocked requests678'
-		);
-		expect( document.body ).toHaveTextContent( 'Rules last updatedOct 9, 2025' );
+		expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days453today678all time' );
+		expect( document.body ).toHaveTextContent( 'Rules updated Oct 9, 2025' );
 	} );
 
 	it( 'updates every count from the refresh after a test', async () => {
@@ -262,9 +252,7 @@ describe( 'FirewallOverviewCard', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
 
-		expect( document.body ).toHaveTextContent(
-			'Blocked today4Blocked in the last 30 days56All-time blocked requests90'
-		);
+		expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days564today90all time' );
 	} );
 
 	it( 'drops the rules date once the Settings tab turns the rules off', () => {
@@ -279,7 +267,7 @@ describe( 'FirewallOverviewCard', () => {
 			/>
 		);
 
-		expect( screen.queryByText( 'Rules last updated' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Rules updated/ ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [

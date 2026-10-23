@@ -5,20 +5,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, caution, check, closeSmall, info } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Badge, Button, Stack } from '@wordpress/ui';
-import {
-	CardRow,
-	ProtectCard,
-	SettingsErrorRow,
-	Stat,
-	UnavailableCard,
-} from '../../components/card';
-import formatNumber from '../../components/format-number';
+import { Badge, Button, Text } from '@wordpress/ui';
+import { CardRow, ProtectCard, SettingsErrorRow, UnavailableCard } from '../../components/card';
 import { getIpList, splitIps } from '../../components/settings/ip-list';
 import TabLink from '../../components/tab-link';
 import useRerenderEvery from '../../components/use-rerender-every';
 import isModuleActive from '../../data/is-module-active';
-import { EmptyStateFooter, NoBlockListState, NoBlocksState } from './empty-state';
+import BlocksSummary from './blocks-summary';
+import { FirewallFooter, NoBlockListState, NoBlocksState } from './empty-state';
 import {
 	CrossOriginError,
 	FIREWALL_PATH,
@@ -29,9 +23,8 @@ import {
 import FirewallToggle from './firewall-toggle';
 import FirewallUpsell from './firewall-upsell';
 import shieldFlame from './icon';
-import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
-import { AUTOMATIC_RULES, IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
+import { AUTOMATIC_RULES, IP_BLOCK_LIST } from './settings-keys';
 import TestDetails from './test-details';
 import UpgradeGap from './upgrade-gap';
 import type { TestOutcome, TestResult } from './firewall-test';
@@ -46,6 +39,7 @@ const UNAVAILABLE: FirewallState = {
 	blockedToday: null,
 	blockedLast30Days: null,
 	recentBlocks: [],
+	dailyBlocks: [],
 	hasScan: false,
 	upgradeUrl: '',
 	currentIp: '',
@@ -55,9 +49,6 @@ const UNAVAILABLE: FirewallState = {
 
 // The only setting this card saves.
 const FIREWALL_KEYS = [ 'waf' ];
-
-const formatCount = ( count?: number | null ) =>
-	typeof count === 'number' ? formatNumber( count ) : '—';
 
 // One id for the test's snackbars, so the result replaces "Testing the firewall…".
 const NOTICE_ID = 'jetpack-protect-firewall-test';
@@ -214,6 +205,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		blockedToday: firewall.blockedToday,
 		blockedLast30Days: firewall.blockedLast30Days,
 		recentBlocks: firewall.recentBlocks,
+		dailyBlocks: firewall.dailyBlocks ?? [],
 	} );
 	const [ isTesting, setIsTesting ] = useState( false );
 	const [ result, setResult ] = useState< TestResult | null >( null );
@@ -348,76 +340,35 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			{ isEmpty && ! needsBlockList && (
 				<NoBlocksState lastTest={ lastTest } isTesting={ isTesting } onTest={ runTest } />
 			) }
-			{ isEmpty && (
-				<EmptyStateFooter
-					data={ ipData }
-					currentIp={ firewall.currentIp }
-					showBlockList={ ! needsBlockList }
-					settingsLink={ settingsLink }
-				/>
-			) }
 			{ active && hasBlocks && (
 				<CardRow>
-					<Stack direction="column" gap="md" align="start">
-						<div className="jp-protect-firewall-overview__stats">
-							<Stat
-								label={ __( 'Blocked today', 'jetpack-protect-pkg' ) }
-								value={ formatCount( blocks.blockedToday ) }
-							/>
-							<Stat
-								label={ __( 'Blocked in the last 30 days', 'jetpack-protect-pkg' ) }
-								value={ formatCount( blocks.blockedLast30Days ) }
-							/>
-							<Stat
-								label={ __( 'All-time blocked requests', 'jetpack-protect-pkg' ) }
-								value={ formatCount( blocks.blockedCount ) }
-							/>
-						</div>
-						{ settingsLink }
-					</Stack>
+					<BlocksSummary blocks={ blocks } />
 				</CardRow>
 			) }
-			{ active && hasBlocks && (
-				<CardRow className="jp-protect-firewall-overview__columns">
+			{ active && hasBlocks && blocks.recentBlocks.length > 0 && (
+				<CardRow>
 					<RecentBlocks blocks={ blocks.recentBlocks } />
-					{ rulesUpdatedAt !== null && (
-						<Stat
-							label={ __( 'Rules last updated', 'jetpack-protect-pkg' ) }
-							value={
-								<time dateTime={ new Date( rulesUpdatedAt * 1000 ).toISOString() }>
-									{ dateI18n( 'M j, Y', rulesUpdatedAt * 1000, undefined ) }
-								</time>
-							}
-						/>
-					) }
 				</CardRow>
 			) }
-			{ active && hasBlocks && (
-				<CardRow className="jp-protect-firewall-overview__columns">
-					<IpRule
-						data={ ipData }
-						name={ IP_BLOCK_LIST }
-						label={ __( 'Block specific IP addresses', 'jetpack-protect-pkg' ) }
-						description={ __(
-							'Stop specific visitors from accessing your site by their IP address.',
-							'jetpack-protect-pkg'
-						) }
-						editLabel={ __( 'Edit block list', 'jetpack-protect-pkg' ) }
-						dialogTitle={ __( 'Blocked IP addresses', 'jetpack-protect-pkg' ) }
-					/>
-					<IpRule
-						data={ ipData }
-						name={ IP_ALLOW_LIST }
-						label={ __( 'Always allow specific IP addresses', 'jetpack-protect-pkg' ) }
-						description={ __(
-							'IP addresses added to this list are always allowed to access your site.',
-							'jetpack-protect-pkg'
-						) }
-						editLabel={ __( 'Edit allow list', 'jetpack-protect-pkg' ) }
-						dialogTitle={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
-						currentIp={ firewall.currentIp }
-					/>
-				</CardRow>
+			{ active && (
+				<FirewallFooter
+					data={ ipData }
+					currentIp={ firewall.currentIp }
+					showBlockList={ hasBlocks || ! needsBlockList }
+					settingsLink={ settingsLink }
+					aside={
+						hasBlocks &&
+						rulesUpdatedAt !== null && (
+							<Text variant="body-sm" className="jp-protect-card__muted">
+								{ sprintf(
+									/* translators: %s is a date, such as "Mar 14, 2026". */
+									__( 'Rules updated %s', 'jetpack-protect-pkg' ),
+									dateI18n( 'M j, Y', rulesUpdatedAt * 1000, undefined )
+								) }
+							</Text>
+						)
+					}
+				/>
 			) }
 			{ showUpsell && rulesUpdatedAt === null && <FirewallUpsell url={ firewall.upgradeUrl } /> }
 			{ showUpsell && rulesUpdatedAt !== null && (

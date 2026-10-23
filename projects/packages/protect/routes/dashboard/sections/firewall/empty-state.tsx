@@ -6,7 +6,7 @@ import { Badge, Button, ButtonLink, EmptyState, Stack } from '@wordpress/ui';
 import { CardRow } from '../../components/card';
 import { getIpList, splitIps } from '../../components/settings/ip-list';
 import { recordEvent, recordViewOnce } from '../../data/tracks';
-import { IpListDialog } from './ip-rule';
+import { IpListDialog } from './ip-list-dialog';
 import { IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
 import type { BlockedRequest } from './types';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
@@ -137,25 +137,28 @@ export function NoBlocksState( {
 }
 
 /**
- * The links under an empty state: each IP list with its count, then the firewall's settings.
+ * The links at the foot of the card: each IP list with its count, then the firewall's settings.
  *
  * @param props               - Component props.
  * @param props.data          - The settings, with the IP lists.
  * @param props.currentIp     - The visitor's address, offered for the allow list.
  * @param props.showBlockList - Whether to link the block list, which the free empty state already offers.
  * @param props.settingsLink  - The link to the firewall's settings.
+ * @param props.aside         - Optional text at the end, such as when the rules were updated.
  * @return The row.
  */
-export function EmptyStateFooter( {
+export function FirewallFooter( {
 	data,
 	currentIp,
 	showBlockList,
 	settingsLink,
+	aside,
 }: {
 	data: ProtectSettingsData;
 	currentIp: string;
 	showBlockList: boolean;
 	settingsLink: ReactNode;
+	aside?: ReactNode;
 } ) {
 	const lists = [
 		showBlockList && {
@@ -172,7 +175,7 @@ export function EmptyStateFooter( {
 	].filter( Boolean ) as { name: string; label: string; dialogTitle: string; currentIp?: string }[];
 
 	return (
-		<CardRow className="jp-protect-firewall-empty__footer">
+		<CardRow className="jp-protect-firewall-footer">
 			<Stack direction="row" gap="lg" align="center" wrap="wrap">
 				{ lists.map( list => (
 					<Stack key={ list.name } direction="row" gap="sm" align="center">
@@ -192,6 +195,7 @@ export function EmptyStateFooter( {
 					</Stack>
 				) ) }
 				{ settingsLink }
+				{ aside }
 			</Stack>
 		</CardRow>
 	);

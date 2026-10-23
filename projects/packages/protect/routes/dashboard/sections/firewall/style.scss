@@ -111,27 +111,6 @@
 	}
 }
 
-.jp-protect-firewall-overview__stats {
-	display: grid;
-	inline-size: 100%;
-	grid-template-columns: repeat(3, 1fr);
-	gap: 24px;
-
-	@media (max-width: 600px) {
-		grid-template-columns: 1fr;
-	}
-}
-
-.jp-protect-firewall-overview__columns {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 24px;
-
-	@media (max-width: 600px) {
-		grid-template-columns: 1fr;
-	}
-}
-
 .jp-protect-ip-rule__field {
 	inline-size: 100%;
 
@@ -174,17 +153,77 @@
 	display: flex;
 	justify-content: center;
 	padding-block: var(--wpds-dimension-padding-3xl);
+}
 
-	&__footer > * > :not(:last-child) {
+.jp-protect-firewall-footer {
+
+	> * > :not(:last-child) {
 		padding-inline-end: var(--wpds-dimension-padding-lg);
 		border-inline-end:
 			var(--wpds-border-width-xs) solid
 			var(--wpds-color-stroke-surface-neutral);
 	}
 
-	&__footer a,
-	&__footer .jp-protect-card__link-button {
+	a,
+	.jp-protect-card__link-button {
 		font-size: inherit;
 		text-decoration: none;
+	}
+}
+
+.jp-protect-firewall-summary {
+	display: grid;
+	grid-template-columns: minmax(180px, 1fr) 3fr;
+	gap: var(--wpds-dimension-gap-2xl);
+	align-items: center;
+
+	&__chart {
+		min-inline-size: 0;
+	}
+
+	@media (max-width: 600px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.jp-protect-recent-blocks {
+	inline-size: 100%;
+	margin: 0;
+	border-collapse: collapse;
+	font-size: 13px;
+
+	td {
+		padding-block: 10px;
+		padding-inline: 0 16px;
+		border-block-start:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+		vertical-align: middle;
+	}
+
+	&__when {
+		white-space: nowrap;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__reason {
+		white-space: nowrap;
+	}
+
+	// Takes the spare width; long URIs are cut, in full on hover.
+	&__request {
+		inline-size: 100%;
+		max-inline-size: 0;
+
+		code {
+			display: block;
+			overflow: hidden;
+			padding: 0;
+			background: none;
+			color: var(--wpds-color-foreground-content-neutral-weak);
+			font-size: 12px;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
 	}
 }

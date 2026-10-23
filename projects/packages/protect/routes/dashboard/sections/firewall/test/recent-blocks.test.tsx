@@ -45,10 +45,17 @@ describe( 'RecentBlocks', () => {
 		expect( dialog ).toHaveTextContent( 'Firefox · macOS' );
 	} );
 
-	it( 'has nothing to open before anything is blocked', () => {
-		render( <RecentBlocks blocks={ [] } /> );
+	it( 'lists only the newest three on the card', () => {
+		render(
+			<RecentBlocks
+				blocks={ [ 4, 3, 2, 1 ].map( id => ( { ...block, id, uri: `/page-${ id }` } ) ) }
+			/>
+		);
 
-		expect( screen.getByText( 'None yet' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		expect( screen.getAllByRole( 'row' ).map( row => row.textContent ) ).toEqual( [
+			expect.stringContaining( '/page-4' ),
+			expect.stringContaining( '/page-3' ),
+			expect.stringContaining( '/page-2' ),
+		] );
 	} );
 } );

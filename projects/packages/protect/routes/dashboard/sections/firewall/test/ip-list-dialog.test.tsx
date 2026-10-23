@@ -1,30 +1,31 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { Button } from '@wordpress/ui';
 import useProtectSettings from '../../../data/use-protect-settings';
-import IpRule from '../ip-rule';
+import { IpListDialog } from '../ip-list-dialog';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 
 const Rule = ( { error }: { error?: string } ) => {
 	const settings = useProtectSettings();
 	return (
-		<IpRule
+		<IpListDialog
 			data={ {
 				...settings,
 				error: error ?? settings.error,
 				settings: { jetpack_waf_ip_block_list: '203.0.113.7', ...settings.settings },
 			} }
 			name="jetpack_waf_ip_block_list"
-			label="Block specific IP addresses"
-			description="Stops them."
-			editLabel="Edit block list"
 			dialogTitle="Blocked IP addresses"
-		/>
+			trigger={ <Button /> }
+		>
+			Edit block list
+		</IpListDialog>
 	);
 };
 
-describe( 'IpRule', () => {
+describe( 'IpListDialog', () => {
 	it( 'keeps the edited list in the dialog when the save fails', async () => {
 		( apiFetch as unknown as jest.Mock ).mockRejectedValue( { message: 'Nope' } );
 		render( <Rule /> );
@@ -47,11 +48,5 @@ describe( 'IpRule', () => {
 		const dialog = await screen.findByRole( 'dialog', { name: 'Blocked IP addresses' } );
 
 		expect( within( dialog ).queryByRole( 'alert' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'names a list of one in the singular', () => {
-		render( <Rule /> );
-
-		expect( screen.getByRole( 'checkbox', { name: /1 address on the list/ } ) ).toBeInTheDocument();
 	} );
 } );

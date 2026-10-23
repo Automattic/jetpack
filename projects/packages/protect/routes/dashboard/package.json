@@ -2,6 +2,7 @@
 	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
+		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
