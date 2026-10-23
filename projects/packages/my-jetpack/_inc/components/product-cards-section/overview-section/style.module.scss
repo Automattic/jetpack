@@ -2,8 +2,7 @@
 	--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
 }
 
-// As tall as a compact control, so headings line up whether or not
-// a section has one at its end.
+// The design's 32px heading row: a compact control's height.
 .heading {
 	min-block-size: var(--wpds-dimension-size-md);
 }

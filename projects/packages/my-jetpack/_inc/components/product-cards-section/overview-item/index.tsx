@@ -213,7 +213,7 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 					gap="sm"
 					wrap="wrap"
 					className={ styles.links }
-					render={ <Text variant="heading-md" /> }
+					render={ <Text variant="heading-md" render={ <div /> } /> }
 				>
 					{ links }
 				</Stack>
