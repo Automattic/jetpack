@@ -130,17 +130,12 @@ export function useGeoForm(): GeoForm {
 			if ( ! crawlers ) {
 				return;
 			}
-			// The default policy for this bot: training crawlers blocked, answer-engine
-			// crawlers allowed. An override that matches the default is dropped so the
-			// stored map stays sparse (and new training bots stay covered).
-			const bot = crawlers.catalog.find( entry => entry.slug === slug );
-			const defaultBlocked = bot ? bot.type === 'training' : false;
-
+			// Only blocked crawlers are stored; allowing one removes its entry.
 			const nextOverrides = { ...crawlers.overrides };
-			if ( blocked === defaultBlocked ) {
-				delete nextOverrides[ slug ];
+			if ( blocked ) {
+				nextOverrides[ slug ] = true;
 			} else {
-				nextOverrides[ slug ] = blocked;
+				delete nextOverrides[ slug ];
 			}
 
 			const prevCrawlers = crawlers;
@@ -163,18 +158,15 @@ export function useGeoForm(): GeoForm {
 			if ( ! crawlers ) {
 				return;
 			}
-			// Every bot in a group shares one default policy (training → blocked,
-			// otherwise allowed), so an override matching that default is dropped to
-			// keep the stored map sparse — same rule as the single-crawler setter.
-			const defaultBlocked = type === 'training';
+			// Same rule as the single-crawler setter.
 			const nextOverrides = { ...crawlers.overrides };
 			crawlers.catalog
 				.filter( bot => bot.type === type )
 				.forEach( bot => {
-					if ( blocked === defaultBlocked ) {
-						delete nextOverrides[ bot.slug ];
+					if ( blocked ) {
+						nextOverrides[ bot.slug ] = true;
 					} else {
-						nextOverrides[ bot.slug ] = blocked;
+						delete nextOverrides[ bot.slug ];
 					}
 				} );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: SEO: Allow every AI crawler until the owner blocks it, so robots.txt doesn't change when the SEO page reaches a site. The new SEO page is still gated.
+
