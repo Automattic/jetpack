@@ -138,6 +138,7 @@ describe( 'FirewallOverviewCard', () => {
 			/>
 		);
 		expect( screen.queryByText( 'No requests blocked yet' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Run test' } ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'switch', { name: 'Enable firewall' } ) );
 
@@ -315,19 +316,29 @@ describe( 'FirewallOverviewCard', () => {
 		expect( editBlockList ).toHaveFocus();
 	} );
 
-	it( 'keeps a test’s counts when the card comes back after a tab switch', async () => {
-		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
-		( apiFetch as unknown as jest.Mock ).mockResolvedValue( refreshed( 1 ) );
-		const state = { ...props.state, blockedCount: 0, blockedLast30Days: 0 };
-		const { unmount } = render( <FirewallOverviewCard { ...props } state={ state } /> );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
+	it.each( [ 'after', 'before' ] )(
+		'keeps a test’s counts when the card comes back from a tab switch %s the test finishes',
+		async when => {
+			let finish: ( value: unknown ) => void = () => {};
+			( runFirewallTest as jest.Mock ).mockReturnValue(
+				new Promise( resolve => ( finish = resolve ) )
+			);
+			( apiFetch as unknown as jest.Mock ).mockResolvedValue( refreshed( 1 ) );
+			const state = { ...props.state, blockedCount: 0, blockedLast30Days: 0 };
+			const { unmount } = render( <FirewallOverviewCard { ...props } state={ state } /> );
+			await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
+			if ( when === 'after' ) {
+				await act( async () => finish( BLOCKED ) );
+			}
 
-		unmount();
-		render( <FirewallOverviewCard { ...props } state={ state } /> );
+			unmount();
+			render( <FirewallOverviewCard { ...props } state={ state } /> );
+			await act( async () => finish( BLOCKED ) );
 
-		expect( screen.queryByText( 'No requests blocked yet' ) ).not.toBeInTheDocument();
-		expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days1' );
-	} );
+			expect( screen.queryByText( 'No requests blocked yet' ) ).not.toBeInTheDocument();
+			expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days1' );
+		}
+	);
 
 	it.each( [
 		[ 'never had automatic rules', null, 'Let your firewall keep up with new attacks', {} ],
@@ -346,6 +357,24 @@ describe( 'FirewallOverviewCard', () => {
 			'jetpack_protect_dashboard_firewall_upsell_view',
 			eventProps
 		);
+	} );
+
+	it( 'sells automatic rules again once the Settings tab turns them off', () => {
+		render(
+			<FirewallOverviewCard
+				{ ...props }
+				state={ { ...props.state, rulesUpdatedAt: 1773446400 } }
+				settings={ {
+					...props.settings,
+					settings: { waf: true, jetpack_waf_automatic_rules: false },
+				} }
+			/>
+		);
+
+		expect( screen.getByText( 'Let your firewall keep up with new attacks' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Your automatic firewall rules have stopped updating' )
+		).not.toBeInTheDocument();
 	} );
 
 	it.each( [ null, 1773446400 ] )(

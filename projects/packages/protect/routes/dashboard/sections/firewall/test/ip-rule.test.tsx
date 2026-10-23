@@ -49,6 +49,7 @@ describe( 'IpRule', () => {
 		const dialog = await screen.findByRole( 'dialog', { name: 'Blocked IP addresses' } );
 
 		expect( within( dialog ).queryByRole( 'alert' ) ).not.toBeInTheDocument();
+		expect( dialog ).not.toHaveTextContent( /turned off/ );
 	} );
 
 	it( 'names a list of one in the singular', () => {

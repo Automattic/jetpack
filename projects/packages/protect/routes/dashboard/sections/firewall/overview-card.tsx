@@ -1,7 +1,14 @@
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	useSyncExternalStore,
+} from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, caution, check, closeSmall, info } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
@@ -53,8 +60,21 @@ const UNAVAILABLE: FirewallState = {
 // The only setting this card saves.
 const FIREWALL_KEYS = [ 'waf' ];
 
-// The card unmounts on a tab switch; this keeps a test's refreshed counts for when it comes back.
+// The card unmounts on a tab switch, so a test's refreshed counts live here, keyed by page-load state.
 const refreshedBlocks = new WeakMap< FirewallState, FirewallBlocks >();
+const blockListeners = new Set< () => void >();
+
+const subscribeToBlocks = ( listener: () => void ) => {
+	blockListeners.add( listener );
+	return () => {
+		blockListeners.delete( listener );
+	};
+};
+
+const saveBlocks = ( firewall: FirewallState, blocks: FirewallBlocks ) => {
+	refreshedBlocks.set( firewall, blocks );
+	blockListeners.forEach( listener => listener() );
+};
 
 const hasAnyBlocks = ( { blockedCount, recentBlocks }: FirewallBlocks ) =>
 	( blockedCount ?? recentBlocks.length ) > 0;
@@ -212,14 +232,18 @@ function notifyFailure( error: unknown ) {
 export default function FirewallOverviewCard( { state, settings, openTab }: FirewallContext ) {
 	const firewall = state ?? UNAVAILABLE;
 	const title = __( 'Firewall', 'jetpack-protect-pkg' );
-	const [ blocks, setBlocks ] = useState< FirewallBlocks >(
+	const refreshed = useSyncExternalStore( subscribeToBlocks, () =>
+		refreshedBlocks.get( firewall )
+	);
+	const blocks = useMemo< FirewallBlocks >(
 		() =>
-			refreshedBlocks.get( firewall ) ?? {
+			refreshed ?? {
 				blockedCount: firewall.blockedCount,
 				blockedToday: firewall.blockedToday,
 				blockedLast30Days: firewall.blockedLast30Days,
 				recentBlocks: firewall.recentBlocks,
-			}
+			},
+		[ refreshed, firewall ]
 	);
 	const [ isTesting, setIsTesting ] = useState( false );
 	const [ result, setResult ] = useState< TestResult | null >( null );
@@ -284,9 +308,8 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		let isRecorded: boolean | null = null;
 		try {
 			const fresh = await apiFetch< FirewallBlocks >( { path: `${ FIREWALL_PATH }/blocks` } );
-			refreshedBlocks.set( firewall, fresh );
 			focusHeaderTest.current = fromEmptyState && hasAnyBlocks( fresh );
-			setBlocks( fresh );
+			saveBlocks( firewall, fresh );
 			isRecorded = fresh.recentBlocks.some(
 				block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID
 			);
