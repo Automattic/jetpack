@@ -17,8 +17,7 @@ type OverviewStatsProps = {
 	onDetailedStatsClick: () => void;
 };
 
-// --wpds-color-stroke-interactive-brand, as a hex because SVG gradient stops can't read CSS variables.
-const CHART_COLOR = '#3858e9';
+const CHART_COLOR = 'var(--wpds-color-stroke-interactive-brand)';
 
 const getMetrics = (): { metric: Metric; label: string }[] => [
 	{ metric: 'views', label: __( 'Views', 'jetpack-my-jetpack' ) },

@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import formatNumber from '../../utils/format-number';
 import LoadingBlock from '../loading-block';
 import StatsChartTooltip from './stats-chart-tooltip';
 import styles from './stats-chart.module.scss';
@@ -41,6 +42,8 @@ const formatDateTick = ( timestamp: number ) =>
 
 // Only show labels for integer values to avoid duplicates.
 const formatValueTick = ( value: number ) => ( Number.isInteger( value ) ? value.toString() : '' );
+const formatCompactValueTick = ( value: number ) =>
+	Number.isInteger( value ) ? formatNumber( value ) : '';
 
 /**
  * Stats chart component with bar or area chart visualization.
@@ -163,13 +166,12 @@ const StatsChart: FC< StatsChartProps > = ( {
 							withTooltips
 							showLegend={ false }
 							gridVisibility="y"
-							margin={ { top: 10, right: 20, bottom: 20, left: 30 } }
 							renderTooltip={ renderTooltip }
 							options={ {
 								yScale: { type: 'linear', zero: true, domain: yDomain },
 								axis: {
 									x: { numTicks: isNarrow ? 4 : 7, tickFormat: formatDateTick },
-									y: { orientation: 'left', numTicks: 4, tickFormat: formatValueTick },
+									y: { tickFormat: formatCompactValueTick },
 								},
 							} }
 						/>
