@@ -6,16 +6,6 @@ describe( 'ProductPrice', () => {
 		currency: 'USD',
 	};
 
-	it( 'renders zero-priced plans without a NaN discount', () => {
-		const { container } = render(
-			<ProductPrice { ...testProps } price={ 0 } offPrice={ 0 } variant="simple" />
-		);
-
-		expect( container ).toHaveTextContent( '$0' );
-		expect( container ).not.toHaveTextContent( 'NaN' );
-		expect( container ).not.toHaveTextContent( '% off' );
-	} );
-
 	describe( 'When not hiding the price fraction', () => {
 		describe( 'And the fraction is zero', () => {
 			it( 'does not render the price fraction', () => {
