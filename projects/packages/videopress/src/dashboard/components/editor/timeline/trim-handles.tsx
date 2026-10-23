@@ -143,6 +143,7 @@ function StudioEditorTrimHandle( {
 			onPointerMove={ drag.onPointerMove }
 			onPointerUp={ drag.onPointerUp }
 			onPointerCancel={ drag.onPointerCancel }
+			onLostPointerCapture={ drag.onLostPointerCapture }
 		/>
 	);
 }
