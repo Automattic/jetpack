@@ -8,6 +8,9 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Protect\Sections\Scan;
+use Automattic\Jetpack\Protect_Models\Status_Model;
+use Automattic\Jetpack\Protect_Models\Threat_Model;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -27,7 +30,7 @@ class Scan_Section_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_protect_dashboard_scan_upsell_variant' );
 		\Jetpack_Options::delete_option( 'id' );
-		\Automattic\Jetpack\Protect_Status\Scan_Status::$status = null;
+		Scan_Status::$status = null;
 		parent::tear_down();
 	}
 
@@ -383,17 +386,21 @@ class Scan_Section_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provider_find_threat_row_refuses' )]
 	public function test_find_threat_row_refuses( $id, $table ) {
-		\Automattic\Jetpack\Protect_Status\Scan_Status::$status = (object) array(
-			'threats' => array(
-				(object) array(
-					'id'      => '1',
-					'details' => (object) array(
-						'table'     => $table,
-						'pk_column' => 'option_id',
-						'pk_value'  => '315',
+		Scan_Status::$status = new Status_Model(
+			array(
+				'threats' => array(
+					new Threat_Model(
+						array(
+							'id'      => '1',
+							'details' => (object) array(
+								'table'     => $table,
+								'pk_column' => 'option_id',
+								'pk_value'  => '315',
+							),
+						)
 					),
 				),
-			),
+			)
 		);
 
 		$found = self::call( 'find_threat_row', $id );
