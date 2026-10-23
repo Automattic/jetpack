@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Line up the lock icon and label of locked upgrade links in the Overview v1 sections, shown only while the Overview v1 feature flag is on.
+Overview: Line up the lock icon with the label on locked upgrade links.
