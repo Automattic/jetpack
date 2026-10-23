@@ -21,12 +21,7 @@ import { type JSX } from 'react';
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
-import {
-	getVideosFields,
-	isVideoRowClickable,
-	renderVideoRowLink,
-	useVideosReportRecords,
-} from './config';
+import { getVideosFields, useVideosReportRecords } from './config';
 
 const ROUTE_FROM = route.path;
 
@@ -111,8 +106,6 @@ function VideosReport(): JSX.Element {
 						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search videos', 'jetpack-premium-analytics-pkg' ) }
-						isItemClickable={ isVideoRowClickable }
-						renderItemLink={ renderVideoRowLink }
 					/>
 				</ReportErrorState>
 			</ReportPageLayout>

@@ -166,6 +166,8 @@ export {
 	ReportRecordsTable,
 	ReportThumbnail,
 	REPORT_TITLE_LINK_CLASS_NAMES,
+	ReportTitleCell,
+	type ReportTitleCellProps,
 	ReportErrorState,
 	type ReportChartSectionProps,
 	type ReportDrilldownTableProps,
@@ -329,6 +331,7 @@ export {
 	yearRange,
 	type PeriodBounds,
 	type FitWeekColumnsInput,
+	toDetailId,
 } from './helpers';
 
 /**

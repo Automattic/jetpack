@@ -183,6 +183,8 @@ describe( 'posts title field', () => {
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
+		// The title already opens the live site, so there is no second "View" link.
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
 	} );
 
 	it( 'renders plain text when the site home URL is unavailable', () => {
@@ -232,6 +234,20 @@ describe( 'posts title field', () => {
 		// link back to the tab the visitor came from.
 		expect( search.get( 'ref' ) ).toBe( 'posts' );
 		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
+	} );
+
+	it( 'offers the live post in a new tab beside a title that opens its stats', () => {
+		renderPostsField( 'title', {
+			id: 42,
+			label: 'Hello world',
+			views: 12,
+			link: 'https://example.com/hello-world/',
+			type: 'post',
+		} );
+
+		const view = screen.getByRole( 'link', { name: 'View "Hello world" in a new tab' } );
+		expect( view ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
+		expect( view ).toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'shows the archives views delta when comparison is enabled', () => {

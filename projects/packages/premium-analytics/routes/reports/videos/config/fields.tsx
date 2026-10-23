@@ -11,15 +11,16 @@ import {
 	MetricWithComparison,
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ReportThumbnail,
+	ReportTitleCell,
 	VideoTitleLink,
 	getVideoPosterUrl,
 	HOURS_DATA_FORMAT,
+	toDetailId,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { video as videoIcon } from '@wordpress/icons';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
-import type { ComponentProps } from 'react';
 
 const METRIC_DATA_FORMAT = {
 	type: 'number',
@@ -57,74 +58,68 @@ function getVideoDetailSearch( current: Record< string, unknown > ) {
 }
 
 /**
- * Resolve the attachment ID the video detail route takes.
+ * Render a video row's title. Rows with an ID drill into the video detail page,
+ * carrying the report's date window so the detail page and its "Stats"
+ * breadcrumb keep the range being inspected, beside a "View" action that opens
+ * the live video; the public URL is the external fallback for rows without one.
  *
- * @param video - The video report row.
- * @return The ID, or undefined when the row has no positive integer ID.
+ * @param props      - Component props.
+ * @param props.item - The video report row.
+ * @return The linked or plain video title.
  */
-function getVideoId( video: StatsVideoPlaysComparisonItem ) {
-	const id = Number( video.id );
-
-	return Number.isInteger( id ) && id > 0 ? id : undefined;
-}
-
-/**
- * Whether DataViews should link a row's poster and title to the video detail page.
- *
- * @param video - The video report row.
- * @return True when the row has a detail page.
- */
-export function isVideoRowClickable( video: StatsVideoPlaysComparisonItem ) {
-	return getVideoId( video ) !== undefined;
-}
-
-/**
- * Render the link DataViews wraps around a clickable row's poster and title. It carries the report's date window, so the detail page and its "Stats" breadcrumb keep the range being inspected.
- *
- * @param props - Link props from DataViews: the row, its cell class names, the poster link's accessible name and the cell content.
- * @return The detail page link.
- */
-export function renderVideoRowLink(
-	props: { item: StatsVideoPlaysComparisonItem } & ComponentProps< 'a' >
-) {
-	return (
-		<InternalLink
-			to="/video/$videoId"
-			params={ { videoId: String( props.item.id ) } }
+function VideoTitle( { item }: { item: StatsVideoPlaysComparisonItem } ) {
+	const title = getVideoTitle( item );
+	const titleLink = (
+		<VideoTitleLink
+			id={ item.id }
+			label={ title }
+			link={ item.link }
 			search={ getVideoDetailSearch }
-			className={ props.className }
-			ariaLabel={ props[ 'aria-label' ] }
-		>
-			{ props.children }
-		</InternalLink>
+			classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
+			title={ title }
+		/>
+	);
+
+	if ( toDetailId( item.id ) === undefined ) {
+		return titleLink;
+	}
+
+	return (
+		<ReportTitleCell liveUrl={ item.link } label={ title }>
+			{ titleLink }
+		</ReportTitleCell>
 	);
 }
 
 /**
- * Render a video row's title. DataViews links it on rows with a detail page; the public URL remains the external fallback for rows without an ID.
+ * Render a video row's poster, linked to the same detail page as its title.
  *
  * @param props      - Component props.
  * @param props.item - The video report row.
- * @return The video title, or its fallback link.
+ * @return The poster, linked when the row has a detail page.
  */
-function VideoTitle( { item }: { item: StatsVideoPlaysComparisonItem } ) {
-	const title = getVideoTitle( item );
+function VideoPoster( { item }: { item: StatsVideoPlaysComparisonItem } ) {
+	const thumbnail = (
+		<ReportThumbnail
+			thumbnailUrl={ getVideoPosterUrl( item.poster, 64, 64 ) }
+			fallbackIcon={ videoIcon }
+		/>
+	);
+	const videoId = toDetailId( item.id );
 
-	if ( isVideoRowClickable( item ) ) {
-		return (
-			<span className={ REPORT_TITLE_LINK_CLASS_NAMES.text } title={ title }>
-				{ title }
-			</span>
-		);
+	if ( videoId === undefined ) {
+		return thumbnail;
 	}
 
 	return (
-		<VideoTitleLink
-			label={ title }
-			link={ item.link }
-			classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
-			title={ title }
-		/>
+		<InternalLink
+			to="/video/$videoId"
+			params={ { videoId: String( videoId ) } }
+			search={ getVideoDetailSearch }
+			ariaLabel={ getVideoTitle( item ) }
+		>
+			{ thumbnail }
+		</InternalLink>
 	);
 }
 
@@ -151,12 +146,7 @@ export function getVideosFields(
 			type: 'media',
 			label: __( 'Poster', 'jetpack-premium-analytics-pkg' ),
 			enableHiding: false,
-			render: ( { item } ) => (
-				<ReportThumbnail
-					thumbnailUrl={ getVideoPosterUrl( item.poster, 64, 64 ) }
-					fallbackIcon={ videoIcon }
-				/>
-			),
+			render: ( { item } ) => <VideoPoster item={ item } />,
 		},
 		{
 			id: 'plays',
