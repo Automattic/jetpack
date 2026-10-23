@@ -728,8 +728,9 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->answer_with_themes( $themes );
 		$count = $this->answer_wporg( '__return_true', 2 );
 
-		$this->assertNull( wpcom_themes_tab_api()->fetch_wporg_slugs() );
-		$this->assertNull( wpcom_themes_tab_api()->fetch_wporg_slugs() );
+		foreach ( array( 'first', 'second' ) as $call ) {
+			$this->assertNull( wpcom_themes_tab_api()->fetch_wporg_slugs(), "The $call call." );
+		}
 		// Two for the first call; the second asks again, which a cached failure would not.
 		$this->assertSame( 3, $count->n );
 	}
