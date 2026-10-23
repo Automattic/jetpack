@@ -117,7 +117,7 @@ export function useConnectionState( {
 			id: 'offline',
 			label: __( 'Offline mode', 'jetpack-my-jetpack' ),
 			description: __(
-				'Jetpack is in offline mode, so features that need WordPress.com are paused.',
+				'Your site is in offline mode, so features that need WordPress.com are paused.',
 				'jetpack-my-jetpack'
 			),
 			status: 'neutral',
