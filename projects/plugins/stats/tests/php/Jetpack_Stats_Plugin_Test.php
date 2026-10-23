@@ -429,14 +429,17 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	 *
 	 * @dataProvider provide_classic_menu_states
 	 *
-	 * @param bool $opted_in Whether the site opted in to Stats v2.
-	 * @param bool $retired  Whether the classic Stats page is retired.
-	 * @param bool $kept     Whether the classic Stats menu is registered.
+	 * @param bool $module_active Whether the Stats module is active.
+	 * @param bool $opted_in      Whether the site opted in to Stats v2.
+	 * @param bool $retired       Whether the classic Stats page is retired.
+	 * @param bool $kept          Whether the classic Stats menu is registered.
 	 */
 	#[DataProvider( 'provide_classic_menu_states' )]
-	public function test_classic_menu_gives_way_to_stats_v2( $opted_in, $retired, $kept ) {
+	public function test_classic_menu_gives_way_to_stats_v2( $module_active, $opted_in, $retired, $kept ) {
 		$this->fake_connection();
-		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		if ( $module_active ) {
+			add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		}
 		update_option( Enablement_Setting::ENABLED_OPTION, (int) $opted_in );
 		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
 
@@ -447,15 +450,16 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Classic menu states, as opted in, classic page retired, menu kept.
+	 * Classic menu states, as module active, opted in, classic page retired, menu kept.
 	 *
 	 * @return array
 	 */
 	public static function provide_classic_menu_states() {
 		return array(
-			'Stats v2 off'            => array( false, false, true ),
-			'Stats v2 beside classic' => array( true, false, true ),
-			'classic retired'         => array( false, true, false ),
+			'Stats v2 off'                 => array( true, false, false, true ),
+			'Stats v2 beside classic'      => array( true, true, false, true ),
+			'classic retired'              => array( true, false, true, false ),
+			'retired, Stats v2 not booted' => array( false, false, true, true ),
 		);
 	}
 }
