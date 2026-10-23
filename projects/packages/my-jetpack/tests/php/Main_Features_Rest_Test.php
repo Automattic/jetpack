@@ -818,6 +818,7 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	public function test_bulk_forbids_users_who_cannot_manage_modules() {
+		$this->activate_jetpack();
 		wp_set_current_user(
 			wp_insert_user(
 				array(
@@ -874,9 +875,6 @@ class Main_Features_Rest_Test extends TestCase {
 		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
 	}
 
-	/**
-	 * Without Jetpack, nothing else lets these administrators switch a module, so neither may a batch.
-	 */
 	public function test_bulk_forbids_module_batches_from_administrators_who_cannot_activate_plugins_without_jetpack() {
 		$this->offer_stats_module();
 		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
