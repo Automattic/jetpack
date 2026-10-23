@@ -9,6 +9,7 @@ import FirewallToggle from './firewall-toggle';
 import shieldFlame from './icon';
 import { AUTOMATIC_RULES, IP_ALLOW_LIST, IP_BLOCK_LIST, enabledKey } from './settings-keys';
 import type { FirewallContext } from './types';
+import type { ProtectSettingsData } from '../../data/use-protect-settings';
 
 const SHARE_DATA = 'jetpack_waf_share_data';
 const SHARE_DEBUG_DATA = 'jetpack_waf_share_debug_data';
@@ -59,6 +60,50 @@ function StandaloneModeRow( {
 				<Text variant="body-md" render={ <p /> } className="jp-protect-firewall-standalone">
 					{ text }
 				</Text>
+			</Stack>
+		</CardRow>
+	);
+}
+
+/**
+ * The IP allow list, which login protection honors even where Jetpack's firewall doesn't run.
+ *
+ * @param props           - Component props.
+ * @param props.data      - The settings and their save function.
+ * @param props.enabled   - Whether the list can be changed.
+ * @param props.currentIp - The visitor's address, offered for adding to the list.
+ * @return The row.
+ */
+function AllowListRow( {
+	data,
+	enabled,
+	currentIp,
+}: {
+	data: ProtectSettingsData;
+	enabled: boolean;
+	currentIp?: string;
+} ) {
+	return (
+		<CardRow>
+			<Stack direction="column" gap="md">
+				<SettingToggle
+					data={ data }
+					name={ enabledKey( IP_ALLOW_LIST ) }
+					label={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
+					help={ __(
+						'Prevent Jetpack’s security features from blocking specific IP addresses.',
+						'jetpack-protect-pkg'
+					) }
+					disabled={ ! enabled }
+				/>
+				{ enabled && Boolean( data.settings?.[ enabledKey( IP_ALLOW_LIST ) ] ) && (
+					<IpListField
+						data={ data }
+						name={ IP_ALLOW_LIST }
+						label={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
+						currentIp={ currentIp }
+					/>
+				) }
 			</Stack>
 		</CardRow>
 	);
@@ -116,13 +161,32 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 	);
 
 	if ( waf?.waf_supported === false ) {
+		const providedByHost = Boolean( state?.providedByHost );
 		return (
-			<ProtectCard icon={ shieldFlame } title={ __( 'Firewall', 'jetpack-protect-pkg' ) }>
+			<ProtectCard
+				icon={ shieldFlame }
+				title={ __( 'Firewall', 'jetpack-protect-pkg' ) }
+				status={
+					providedByHost
+						? { label: __( 'Active', 'jetpack-protect-pkg' ), intent: 'stable' }
+						: undefined
+				}
+			>
 				<CardRow>
 					<Text variant="body-md">
-						{ __( 'The firewall isn’t available on your site’s hosting.', 'jetpack-protect-pkg' ) }
+						{ providedByHost
+							? __(
+									'Your host provides a firewall for your site, so you’re all set.',
+									'jetpack-protect-pkg'
+								)
+							: __(
+									'The firewall isn’t available on your site’s hosting.',
+									'jetpack-protect-pkg'
+								) }
 					</Text>
 				</CardRow>
+				{ /* The block list only runs inside Jetpack's firewall, so the allow list is all that applies. */ }
+				{ providedByHost && <AllowListRow data={ data } enabled currentIp={ state?.currentIp } /> }
 			</ProtectCard>
 		);
 	}
@@ -184,28 +248,7 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 					) }
 				</Stack>
 			</CardRow>
-			<CardRow>
-				<Stack direction="column" gap="md">
-					<SettingToggle
-						data={ data }
-						name={ enabledKey( IP_ALLOW_LIST ) }
-						label={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
-						help={ __(
-							'Prevent Jetpack’s security features from blocking specific IP addresses.',
-							'jetpack-protect-pkg'
-						) }
-						disabled={ ! wafOn }
-					/>
-					{ wafOn && Boolean( settings?.[ enabledKey( IP_ALLOW_LIST ) ] ) && (
-						<IpListField
-							data={ data }
-							name={ IP_ALLOW_LIST }
-							label={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
-							currentIp={ state?.currentIp }
-						/>
-					) }
-				</Stack>
-			</CardRow>
+			<AllowListRow data={ data } enabled={ wafOn } currentIp={ state?.currentIp } />
 			<CardRow>
 				<ToggleControl
 					__nextHasNoMarginBottom

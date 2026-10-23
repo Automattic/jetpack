@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, caution, check, closeSmall, info } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Button, Stack } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import {
 	CardRow,
 	ProtectCard,
@@ -48,6 +48,7 @@ const UNAVAILABLE: FirewallState = {
 	currentIp: '',
 	ipRules: {},
 	rulesUpdatedAt: null,
+	providedByHost: false,
 };
 
 // The only setting this card saves.
@@ -272,7 +273,24 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	}, [ active, blocks.recentBlocks ] );
 
 	if ( ! firewall.available ) {
-		return <UnavailableCard icon={ shieldFlame } title={ title } />;
+		return firewall.providedByHost ? (
+			<ProtectCard
+				icon={ shieldFlame }
+				title={ title }
+				status={ { label: __( 'Active', 'jetpack-protect-pkg' ), intent: 'stable' } }
+			>
+				<CardRow>
+					<Text variant="body-md">
+						{ __(
+							'Your host provides a firewall for your site, so you’re all set.',
+							'jetpack-protect-pkg'
+						) }
+					</Text>
+				</CardRow>
+			</ProtectCard>
+		) : (
+			<UnavailableCard icon={ shieldFlame } title={ title } />
+		);
 	}
 
 	return (

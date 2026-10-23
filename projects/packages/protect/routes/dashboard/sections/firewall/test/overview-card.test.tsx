@@ -61,6 +61,19 @@ const BLOCKED = {
 };
 
 describe( 'FirewallOverviewCard', () => {
+	it( 'reports a host-provided firewall as active, with nothing to test or configure', () => {
+		render(
+			<FirewallOverviewCard
+				{ ...props }
+				state={ { ...props.state!, available: false, active: false, providedByHost: true } }
+			/>
+		);
+
+		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
+		expect( screen.getByText( /Your host provides a firewall/ ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Test firewall' } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'reports the test in a snackbar whose Learn more opens the steps', async () => {
 		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
 		( apiFetch as unknown as jest.Mock ).mockResolvedValue(

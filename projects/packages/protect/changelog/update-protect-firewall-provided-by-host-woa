@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Firewall: Show the firewall as active where the host provides its own, which hosts declare through the new `jetpack_protect_firewall_provided_by_host` filter. The IP allow list stays available there, since login protection still uses it.
