@@ -193,7 +193,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/activity-log",
-                "reference": "335a72866ee04c03fb88c86d87e7554c407bfb18"
+                "reference": "1e0964a9c7ae59d20402cdd5c6a70150946dbbd7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -258,6 +258,12 @@
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ]
             },
             "license": [
@@ -4419,11 +4425,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-stats",
-                "reference": "fb6ab662bfd4635ef51099ab8180a989a7b71360"
+                "reference": "13611c463376081ca05f3967f0719deb1e0b3a2e"
             },
             "require": {
+                "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
+                "automattic/jetpack-sync": "@dev",
                 "php": ">=7.4"
             },
             "require-dev": {

@@ -21,6 +21,10 @@ body.toplevel_page_jetpack-protect {
 	padding: 24px;
 }
 
+.jp-protect-dashboard__notice {
+	margin-block-end: var(--wpds-dimension-gap-lg);
+}
+
 .jp-protect-dashboard__cards {
 	display: flex;
 	flex-direction: column;

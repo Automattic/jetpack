@@ -16,12 +16,19 @@ export const mockBarChartLegendSpy = jest.fn();
 export const mockLineChartSpy = jest.fn();
 export const mockLineChartLegendSpy = jest.fn();
 
-// Mirrors the real theme: a comparison series shares its primary's colour and is
-// set apart only by opacity.
+// Mirrors the real theme: a comparison series shares its primary's color.
 const defaultElementStyles = ( { data }: ElementStylesParams ): ElementStyles => ( {
 	color: '#3858E9',
-	barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5, opacity: 0.5 } : {},
+	barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5 } : {},
 } );
+
+/**
+ * The fill the charts context reports for the bar at an index in an overlap layout.
+ *
+ * @param index - The series' index.
+ * @return A color unique to that index.
+ */
+export const mockOverlapBarColor = ( index: number ) => `#bar${ index }`;
 
 /** The sparkline margin the charts context's theme hands out. */
 export const mockSparklineMargin = { top: 2, right: 2, bottom: 2, left: 2 };
@@ -118,13 +125,27 @@ export const mockChartExternals = () => ( {
 		<div data-testid="sparkline" data-points={ data.join( ',' ) } />
 	),
 	// One item per non-comparison series, as `collapseGroups` would produce.
-	useChartLegendItems: ( data: ChartSeries[] ) =>
-		data
-			.filter( series => series.options?.type !== 'comparison' )
-			.map( series => ( { label: series.label, color: '#3858E9' } ) ),
+	useBarLegendItems: ( data: ChartSeries[], options?: { layout?: string } ) =>
+		data.flatMap( ( series, index ) =>
+			series.options?.type === 'comparison'
+				? []
+				: [
+						{
+							label: series.label,
+							color: options?.layout === 'overlap' ? mockOverlapBarColor( index ) : '#3858E9',
+						},
+					]
+		),
+	useBarColors: () => ( series: ChartSeries[], options?: { layout?: string } ) =>
+		series.map( ( data, index ) =>
+			options?.layout === 'overlap'
+				? mockOverlapBarColor( index )
+				: elementStyles( { data, index } ).color
+		),
 	useGlobalChartsContext: () => ( {
 		getElementStyles: ( params: ElementStylesParams ) => elementStyles( params ),
 		getHiddenSeries: () => new Set( hiddenSeries ),
+		isSeriesVisible: ( _chartId: string, label: string ) => ! hiddenSeries.has( label ),
 		theme: { sparkline: { margin: mockSparklineMargin } },
 	} ),
 } );
