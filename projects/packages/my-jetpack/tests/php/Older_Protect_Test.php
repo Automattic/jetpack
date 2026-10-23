@@ -31,6 +31,7 @@ class Older_Protect_Test extends TestCase {
 		parent::setUp();
 
 		require_once __DIR__ . '/stubs/older-protect/class-protect.php';
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared by the stub, which Phan excludes.
 		Protect::$standalone_plugin_active = true;
 		$this->assertFalse( method_exists( Protect::class, 'has_protect_page' ) );
 	}
@@ -49,6 +50,7 @@ class Older_Protect_Test extends TestCase {
 	}
 
 	public function test_async_badge_keeps_threats_when_the_standalone_plugin_is_inactive() {
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared by the stub, which Phan excludes.
 		Protect::$standalone_plugin_active = false;
 
 		Initializer::enqueue_red_bubble_script();
