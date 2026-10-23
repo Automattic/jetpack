@@ -44,10 +44,9 @@ export function getStatsCheckoutUrl( options: StatsCheckoutUrlOptions ): string 
 	} else if ( isUpgrade ) {
 		checkoutSite = siteSlug;
 	} else {
-		// Keyed by id with `source=my-jetpack`, checkout falls back to siteless when the user is logged out.
 		checkoutSite = String( blogId );
 		params.set( 'site', siteSlug );
-		params.set( 'source', 'my-jetpack' );
+		params.set( 'source', 'jetpack_premium_analytics_upsell' );
 	}
 
 	const redirectUrl = new URL( redirectPath, adminUrl );

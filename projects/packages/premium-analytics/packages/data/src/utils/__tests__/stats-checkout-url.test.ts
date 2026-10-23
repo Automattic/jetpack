@@ -15,7 +15,13 @@ describe( 'getStatsCheckoutUrl', () => {
 	} );
 
 	it.each( [
-		[ 'a first purchase by a connected user', true, false, '/checkout/123/', 'my-jetpack' ],
+		[
+			'a first purchase by a connected user',
+			true,
+			false,
+			'/checkout/123/',
+			'jetpack_premium_analytics_upsell',
+		],
 		[ 'an upgrade by a connected user', true, true, '/checkout/example.com/', null ],
 		[ 'a purchase by an unconnected user', false, false, '/checkout/jetpack/', null ],
 	] )( 'sends %s to the right checkout', ( _, isUserConnected, isUpgrade, path, source ) => {
