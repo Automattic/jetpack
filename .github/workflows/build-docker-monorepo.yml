@@ -87,7 +87,7 @@ jobs:
         include:
           - runner: ubuntu-latest
             platform: amd64
-          - runner: ubuntu-24.04-arm
+          - runner: ubuntu-26.04-arm
             platform: arm64
 
     steps:
