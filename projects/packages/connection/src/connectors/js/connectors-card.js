@@ -21,6 +21,7 @@
 
 import {
 	CONNECTION_STORE_ID,
+	ConnectionErrorView,
 	DisconnectDialog,
 	DisconnectUserDialog,
 	getTracksIdentity,
@@ -28,6 +29,9 @@ import {
 	ProtectedOwnerConfirmation,
 	ProtectedOwnerRelease,
 	TransferConnectionOwnership,
+	getUserConnectKind,
+	getUserConnectMessage,
+	useConnectionErrorNotice,
 } from '@automattic/jetpack-connection';
 import * as components from '@wordpress/components';
 // Namespace import: a missing named export would fail the whole module before the fallbacks run.
@@ -43,6 +47,7 @@ import {
 	useRef,
 } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { getAccountSections } from './account-sections.mjs';
 
 const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
@@ -61,6 +66,8 @@ const data = JSON.parse( dataEl?.textContent ?? '{}' );
 const apiRoot = data.apiRoot || '';
 const apiNonce = data.apiNonce || '';
 const redirectUri = data.redirectUri || '';
+// Absolute form of redirectUri, for flows that redirect without resolving it against wp-admin.
+const connectorsUrl = data.connectorsUrl || undefined;
 const connectionOwnerEditUrl = data.connectionOwnerEditUrl || null;
 const connectedUsersUrl = data.connectedUsersUrl || '';
 const pluginLogos = data.pluginLogos || {};
@@ -130,15 +137,17 @@ function useCardConnection() {
 		const isRegistered = Boolean( connectionStatus.isRegistered );
 		const isConnected = isRegistered && Boolean( connectionStatus.hasConnectedOwner );
 		const currentUser = userConnectionData?.currentUser || null;
-		// Account rows need a connected owner. The store's owner comes from the master_user option, so
-		// without this gate it would also name an owner whose token is broken.
-		let owner = isConnected ? storeOwner : null;
+		// The store's owner comes from the master_user option, so it still names an owner whose token
+		// is broken; the card flags them so the rows and prompt can say who has to reconnect.
+		let owner = isRegistered ? storeOwner : null;
+		const isOwnerConnectionBroken = Boolean( owner ) && ! isConnected;
 		// Without jetpack_connect (offline mode, network-restricted site admins) the store withholds the
 		// owner object, but userConnectionData still names the connected owner.
 		if ( isConnected && ! owner && userConnectionData?.connectionOwner ) {
 			owner = { id: null, displayName: userConnectionData.connectionOwner };
 		}
-		const viewer = isConnected
+		// Not gated on isConnected, so a healthy viewer keeps their row when the owner's token breaks.
+		const viewer = isRegistered
 			? buildViewer( currentUser, Boolean( connectionStatus.isUserConnected ) )
 			: null;
 		// The initial state sends a WP_Error object when the plugin list can't be read.
@@ -170,6 +179,7 @@ function useCardConnection() {
 						editUrl: connectionOwnerEditUrl,
 					}
 				: null,
+			isOwnerConnectionBroken,
 			ownerIsViewer: owner?.id
 				? Boolean( currentUser && owner.id === currentUser.id )
 				: Boolean( owner && currentUser?.isMaster ),
@@ -883,24 +893,29 @@ function ProtectedOwnerSection() {
  * @param {object}   props              - Component props.
  * @param {Function} props.onConnect    - Callback to start the authorization flow.
  * @param {boolean}  props.isConnecting - Whether a connection attempt is in progress.
- * @param {object}   props.owner        - Connection owner data, or null when there is none.
  * @return {object} React element.
  */
-function ConnectPrompt( { onConnect, isConnecting, owner } ) {
-	const { isOfflineMode } = useCardConnection();
-	// When a connection owner is already linked, the viewing admin is
-	// connecting as a secondary user — the site-registration framing no
-	// longer applies, so use shorter copy focused on the user benefit.
-	const promptText = owner
-		? __(
-				'Connect your user account to unlock more features and sign in via WordPress.com (SSO).',
-				'jetpack-connection'
-			)
-		: __(
-				'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
-				'jetpack-connection',
-				/* dummy arg to avoid bad minification */ 0
-			);
+function ConnectPrompt( { onConnect, isConnecting } ) {
+	const { isRegistered, isConnected, isOfflineMode, owner, currentUser } = useCardConnection();
+	const promptKind = getUserConnectKind( {
+		isRegistered,
+		hasConnectedOwner: isConnected,
+		owner,
+		currentUserId: currentUser?.id,
+	} );
+	const isReconnectingOwner = 'reconnect-owner' === promptKind;
+	const promptText = getUserConnectMessage( promptKind );
+
+	let buttonText = __(
+		'Connect account',
+		'jetpack-connection',
+		/* dummy arg to avoid bad minification */ 0
+	);
+	if ( isConnecting ) {
+		buttonText = __( 'Connecting…', 'jetpack-connection' );
+	} else if ( isReconnectingOwner ) {
+		buttonText = __( 'Reconnect account', 'jetpack-connection' );
+	}
 
 	return createElement(
 		HStack,
@@ -920,9 +935,7 @@ function ConnectPrompt( { onConnect, isConnecting, owner } ) {
 				disabled: isConnecting || isOfflineMode,
 				className: 'jetpack-connector__inline-action',
 			},
-			isConnecting
-				? __( 'Connecting…', 'jetpack-connection' )
-				: __( 'Connect account', 'jetpack-connection', /* dummy arg to avoid bad minification */ 0 )
+			buttonText
 		)
 	);
 }
@@ -1530,14 +1543,26 @@ function IDCPanel() {
 /**
  * Expanded content shown when the user clicks "Details".
  *
- * @param {object}   props              - Component props.
- * @param {boolean}  props.isConnecting - Whether a user connection is in progress.
- * @param {Function} props.onConnect    - Callback to start user authorization flow.
+ * @param {object}   props                       - Component props.
+ * @param {boolean}  props.isConnecting          - Whether a user connection is in progress.
+ * @param {Function} props.onConnect             - Callback to start user authorization flow.
+ * @param {object}   props.connectionErrorNotice - The card's useConnectionErrorNotice() result, or null offline.
  * @return {object} React element.
  */
-function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
-	const { viewer, owner, ownerIsViewer, isOfflineMode, tracksIdentity, connectedPlugins } =
-		useCardConnection();
+function ExpandedDetails( {
+	isConnecting = false,
+	onConnect = null,
+	connectionErrorNotice = null,
+} ) {
+	const {
+		viewer,
+		owner,
+		ownerIsViewer,
+		isOwnerConnectionBroken,
+		isOfflineMode,
+		tracksIdentity,
+		connectedPlugins,
+	} = useCardConnection();
 	const [ isDisconnectUserOpen, setIsDisconnectUserOpen ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
 	const [ isTransferOpen, setIsTransferOpen ] = useState( false );
@@ -1551,12 +1576,27 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const disconnectSiteRef = useRef( null );
 	const disconnectAccountRef = useRef( null );
 
+	const isErrorBannerShown = Boolean( connectionErrorNotice?.hasConnectionError );
+	const sections = getAccountSections( {
+		viewer,
+		owner,
+		ownerIsViewer,
+		isOwnerConnectionBroken,
+		canConnect: Boolean( onConnect ),
+		isErrorBannerShown,
+		isProtectedOwnerPending: protectedOwnerIsPending(),
+	} );
+
 	return createElement(
 		VStack,
 		{ spacing: 5 },
 
 		// Offline mode notice (connecting/disconnecting disabled).
 		isOfflineMode ? createElement( OfflineNotice ) : null,
+
+		isErrorBannerShown
+			? createElement( ConnectionErrorView, { notice: connectionErrorNotice } )
+			: null,
 
 		// Current user info + unlink action (only when the viewing admin is linked).
 		viewer
@@ -1606,17 +1646,15 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 		canReleaseProtectedOwner( viewer ) ? createElement( ReleaseOwnershipSection ) : null,
 
 		// Connect prompt (only when the viewing admin is NOT linked).
-		! viewer && onConnect
+		sections.connectPrompt
 			? createElement( ConnectPrompt, {
 					onConnect,
 					isConnecting,
 				} )
 			: null,
 
-		// Unconfirmed owner row for a viewer who is not the master. It replaces the
-		// connection-owner row while a protected owner is pending, so the same account is
-		// not labeled twice.
-		protectedOwnerIsPending() && owner && ! ownerIsViewer
+		// Unconfirmed owner row, in place of the connection-owner row while a protected owner is pending.
+		sections.unconfirmedOwnerRow
 			? createElement( UserSection, {
 					title: __( 'Connection owner — unconfirmed', 'jetpack-connection' ),
 					user: owner,
@@ -1627,7 +1665,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 		protectedOwnerSlotKind() ? createElement( ProtectedOwnerSection ) : null,
 
 		// Connection owner, once a protected owner is established or was never requested.
-		owner && ! ownerIsViewer && ! protectedOwnerIsPending()
+		sections.ownerRow
 			? createElement( UserSection, {
 					title: __( 'Connection owner', 'jetpack-connection' ),
 					user: owner,
@@ -1809,6 +1847,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		isOfflineMode,
 		isFirstConnection,
 		isInSafeMode,
+		isOwnerConnectionBroken,
 		viewer,
 		currentUser,
 		tracksIdentity,
@@ -1820,6 +1859,14 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- re-identify only when the identity changes.
 	}, [ tracksIdentity.ID, tracksIdentity.login ] );
 	const [ connectError, setConnectError ] = useState( data.authError || null );
+	const errorNotice = useConnectionErrorNotice( {
+		trackingContext: 'connectors',
+		reconnectRedirectUrl: connectorsUrl,
+		reconnectFrom: 'jetpack-connector',
+	} );
+	// Hidden in offline mode, where the card disables connection actions.
+	const connectionErrorNotice = isOfflineMode ? null : errorNotice;
+	const connectionErrorSeverity = connectionErrorNotice?.severity ?? null;
 	// Reset "Connecting…" state when the page is restored from bfcache
 	// (e.g. user hits Back after being redirected to the auth page).
 	useEffect( () => {
@@ -1860,6 +1907,17 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			badgeProps = {
 				label: __( 'Safe Mode', 'jetpack-connection' ),
 				modifier: 'safe-mode',
+			};
+		} else if ( 'error' === connectionErrorSeverity ) {
+			badgeProps = {
+				label: __( 'Connection error', 'jetpack-connection' ),
+				modifier: 'error',
+			};
+		} else if ( 'warning' === connectionErrorSeverity || isOwnerConnectionBroken ) {
+			// 'warning' means only the owner can fix it. A broken owner can also have no verified error yet.
+			badgeProps = {
+				label: __( 'Needs attention', 'jetpack-connection' ),
+				modifier: 'warning',
 			};
 		} else if ( isConnected ) {
 			badgeProps = { label: __( 'Connected', 'jetpack-connection' ) };
@@ -1906,6 +1964,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 					: createElement( ExpandedDetails, {
 							isConnecting: needsUserConnection ? isConnecting : false,
 							onConnect: needsUserConnection ? handleConnect : null,
+							connectionErrorNotice,
 						} )
 			);
 		}

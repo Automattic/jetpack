@@ -114,9 +114,15 @@
 	background-color: #e9f0f5;
 }
 
-.jetpack-connector__status-badge--safe-mode {
+.jetpack-connector__status-badge--safe-mode,
+.jetpack-connector__status-badge--warning {
 	color: #4f3500;
 	background-color: #fcf0e5;
+}
+
+.jetpack-connector__status-badge--error {
+	color: #8a2424;
+	background-color: #fcf0f1;
 }
 
 .jetpack-connector__section {
