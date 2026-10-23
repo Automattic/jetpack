@@ -138,7 +138,7 @@ export default function SafeState( { scan, isStarting, onScan, justScanned = fal
 			align="center"
 			gap="md"
 		>
-			<SafeShield justScanned={ justScanned } width={ 46 } />
+			<SafeShield justScanned={ justScanned } width={ 39 } />
 			<Text variant="heading-lg" render={ <h3 /> }>
 				{ copy.title }
 			</Text>
