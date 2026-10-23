@@ -16,11 +16,18 @@ const forbidden = {
 };
 const fallback = 'Connection failed. Please try again.';
 
-// Stands in for the connection package's getRegistrationErrorDisplay(), which the card gets from the shared script.
-const mapForbidden = error =>
-	'site_inaccessible_403' === error.response?.code
-		? { message: 'Something blocked WordPress.com.', detail: undefined }
-		: { message: undefined, detail: undefined };
+// Stands in for the connection package's getRegistrationErrorDisplay(), which the card gets from the shared script:
+// mapped copy for a known code, else the site's message without markup, and nothing for a status-only message.
+const mapForbidden = error => {
+	if ( 'site_inaccessible_403' === error.response?.code ) {
+		return { message: 'Something blocked WordPress.com.', detail: undefined };
+	}
+	const text = ( error.response?.message ?? '' )
+		.replace( /<[^<>]*>/g, ' ' )
+		.replace( /\s+/g, ' ' )
+		.trim();
+	return { message: /^\d*$/.test( text ) ? undefined : text, detail: undefined };
+};
 
 describe( 'createRequestError', () => {
 	it( 'keeps the response body, so its code can be mapped', () => {
@@ -47,10 +54,16 @@ describe( 'getConnectErrorDisplay', () => {
 			{ message: 'Something blocked WordPress.com.', detail: null },
 		],
 		[
-			'the raw message for a code the helper does not map',
-			() => createRequestError( { code: 'made_up', message: 'Raw text.' }, 'x' ),
+			'the helper’s cleaned-up site message for a code it does not map',
+			() => createRequestError( { code: 'made_up', message: 'Check <b>your</b> firewall.' }, 'x' ),
 			mapForbidden,
-			{ message: 'Raw text.', detail: null },
+			{ message: 'Check your firewall.', detail: null },
+		],
+		[
+			'the error’s own message when the helper has nothing to show',
+			() => createRequestError( { code: 'made_up', message: '500' }, 'x' ),
+			mapForbidden,
+			{ message: '500', detail: null },
 		],
 		[
 			'the raw message when an older shared script has no helper',
