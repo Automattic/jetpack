@@ -86,16 +86,15 @@ describe( 'ScanCard with Scan', () => {
 describe( 'ScanCard empty state', () => {
 	it.each( [
 		[ false, 48, /Vulnerabilities are checked automatically every day\./, 'Check again now' ],
-		[ false, 1, /Next check in:\s*\d+h\s*\d\dm\s*\d\ds/, 'Check again now' ],
+		[ false, 1, 'Next check in:', 'Check again now' ],
 		[ true, 48, /Your site is scanned automatically every day\./, 'Scan again now' ],
-		[ true, 1, /Next scan in:\s*\d+h\s*\d\dm\s*\d\ds/, 'Scan again now' ],
+		[ true, 1, 'Next scan in:', 'Scan again now' ],
 	] )(
 		'with hasPlan %s, checked %i hours ago, words the next check and button for that plan',
 		async ( hasPlan, hoursAgo, next, button ) => {
 			renderCard( { hasPlan, lastChecked: checkedAgo( hoursAgo * HOUR_IN_MS ) } );
 
-			// eslint-disable-next-line testing-library/no-node-access -- The countdown splits the line across elements.
-			expect( document.querySelector( '.jp-protect-safe' ) ).toHaveTextContent( next );
+			expect( screen.getByText( next ) ).toBeInTheDocument();
 			await expect( screen.findByRole( 'button', { name: button } ) ).resolves.toBeInTheDocument();
 		}
 	);

@@ -9,7 +9,7 @@ import { parseLastChecked } from './store';
  *
  * @param props             - Component props.
  * @param props.lastChecked - The last scan, in UTC as `YYYY-MM-DD HH:MM:SS`.
- * @return The line, or nothing when the site hasn't been scanned.
+ * @return The badge, or nothing when the site hasn't been scanned.
  */
 export default function LastScanned( { lastChecked }: { lastChecked?: string | null } ) {
 	const date = parseLastChecked( lastChecked );

@@ -53,7 +53,7 @@ type Props = {
 };
 
 /**
- * Starts a scan when one can actually run, otherwise explains when it can.
+ * Starts a scan when one can actually run, otherwise offers the upgrade.
  *
  * @param props            - Component props.
  * @param props.scan       - The current report.
@@ -102,9 +102,7 @@ export default function ScanButton( {
 		<Tooltip.Provider delay={ 0 }>
 			<Tooltip.Root>
 				{ /* The wrapper catches hover and focus: a disabled `@wordpress/ui` Button stays focusable. */ }
-				<Tooltip.Trigger render={ <span className="jp-protect-scan-button" /> }>
-					{ button }
-				</Tooltip.Trigger>
+				<Tooltip.Trigger render={ <span /> }>{ button }</Tooltip.Trigger>
 				<Tooltip.Popup positioner={ <Tooltip.Positioner side="bottom" /> }>
 					{ description }
 				</Tooltip.Popup>

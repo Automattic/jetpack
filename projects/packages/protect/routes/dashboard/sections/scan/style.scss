@@ -82,21 +82,6 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
-	// Equal-width digits, so the line doesn't jiggle as the seconds tick.
-	&__countdown {
-		color: var(--wpds-color-foreground-content-neutral);
-		font-variant-numeric: tabular-nums;
-	}
-
-	&__countdown-part + &__countdown-part {
-		margin-inline-start: 0.3em;
-	}
-
-	&__digit {
-		display: inline-block;
-		animation: jp-protect-safe-tick var(--wpds-motion-duration-md) var(--wpds-motion-easing-expressive) both;
-	}
-
 	&__shield {
 		overflow: visible;
 	}
@@ -172,18 +157,6 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 		&__particle {
 			display: none;
 		}
-
-		&__digit {
-			animation-name: jp-protect-safe-fade;
-		}
-	}
-}
-
-@keyframes jp-protect-safe-tick {
-
-	from {
-		opacity: 0;
-		transform: translateY(-0.5em);
 	}
 }
 
