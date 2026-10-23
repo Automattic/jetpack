@@ -6,6 +6,13 @@ export type ScanThreat = Omit< Threat, 'extension' > & {
 	source?: string | null;
 	context?: { line: number; code: string }[];
 	vulnerabilities?: { id?: string; title?: string; source?: string }[];
+	/** The table and row a database threat was found in. */
+	database?: {
+		table: string;
+		pkColumn?: string | null;
+		pkValue?: string | number | null;
+		details?: Record< string, unknown >;
+	} | null;
 	extension?: Threat[ 'extension' ] & {
 		icon?: string | null;
 		/** Whether the installed plugin or theme is in use; `parent` is the active theme's parent. */
