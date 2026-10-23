@@ -14,6 +14,7 @@ const mockProducts: { current: Record< string, ProductCamelCase > } = { current:
 const mockGetJetpackModules = jest.fn( () => mockModules.current );
 const mockOfflineSeed: { current?: OfflineFeaturesSeed } = {};
 let mockResolved = true;
+let mockFailed = false;
 
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
@@ -23,12 +24,17 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
 
+jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => () => ( {
+	hasConnectionError: false,
+} ) );
+
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: ( selector: ( select: unknown ) => unknown ) =>
 		selector( () => ( {
 			getJetpackModules: mockGetJetpackModules,
 			areModulesLoading: () => false,
 			hasFinishedResolution: () => mockResolved,
+			hasResolutionFailed: () => mockFailed,
 		} ) ),
 } ) );
 
@@ -104,6 +110,7 @@ describe( 'withoutPluginForcedOverrides', () => {
 describe( 'useAllJetpackModules', () => {
 	beforeEach( () => {
 		mockResolved = true;
+		mockFailed = false;
 		window.myJetpackInitialState = { myJetpackFlags: {} } as typeof window.myJetpackInitialState;
 		jetpackIs( 'active' );
 		mockGetJetpackModules.mockClear();
@@ -113,6 +120,12 @@ describe( 'useAllJetpackModules', () => {
 		mockResolved = resolved;
 		const { result } = renderHook( () => useAllJetpackModules() );
 		expect( result.current.hasLoaded ).toBe( resolved );
+	} );
+
+	it.each( [ false, true ] )( 'reports whether the module request failed: %s', failed => {
+		mockFailed = failed;
+		const { result } = renderHook( () => useAllJetpackModules() );
+		expect( result.current.hasFailed ).toBe( failed );
 	} );
 
 	it( 'hands back the store modules without the override a standalone plugin causes', () => {
@@ -137,7 +150,12 @@ describe( 'useAllJetpackModules', () => {
 			const { result } = renderHook( () => useAllJetpackModules() );
 
 			expect( mockGetJetpackModules ).not.toHaveBeenCalled();
-			expect( result.current ).toEqual( { modules: {}, isLoading: false, hasLoaded: true } );
+			expect( result.current ).toEqual( {
+				modules: {},
+				isLoading: false,
+				hasLoaded: true,
+				hasFailed: false,
+			} );
 		}
 	);
 

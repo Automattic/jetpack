@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "34f17b5c6dbbb4efcc036df532c89058",
+    "content-hash": "7151e48f228d2dff47cbb9834a0b9ac4",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -193,7 +193,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/activity-log",
-                "reference": "9f27c706092cfd92a169b2c38870c3a7b344db4e"
+                "reference": "1e0964a9c7ae59d20402cdd5c6a70150946dbbd7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -207,6 +207,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -225,7 +226,12 @@
                     "link-template": "https://github.com/Automattic/jetpack-activity-log/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
+                },
+                "dependencies": {
+                    "test-only": [
+                        "packages/my-jetpack"
+                    ]
                 }
             },
             "autoload": {
@@ -252,6 +258,12 @@
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ]
             },
             "license": [
@@ -1304,7 +1316,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "8e8c6d4787dd5bd07e1bdedb424461a8bce3796b"
+                "reference": "ddd5c3301c872a7dd14dc09ba0df409046c1b20b"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1340,7 +1352,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.12.x-dev"
+                    "dev-trunk": "9.13.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2576,7 +2588,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "21619a044ba66dfca9417e941f507b6cbbeddf7b"
+                "reference": "dd868c8c959036b7b76893761e4fd3db2f7f7c19"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2617,7 +2629,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.11.x-dev"
+                    "dev-trunk": "6.12.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2904,7 +2916,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "727886d7a88689dbf04cd3a7a1367969ba0520f1"
+                "reference": "9788ebecf5ac37abea45fcbc9c46cb72a0c90e6b"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2927,7 +2939,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.14.x-dev"
+                    "dev-trunk": "0.15.x-dev"
                 }
             },
             "autoload": {
@@ -3021,7 +3033,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "cf92e4baa1affc5e4944fce239240a9ebd656a7a"
+                "reference": "7f60fbf10ad66e5eea9ba5e026767489a3dde91d"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -3035,6 +3047,7 @@
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -3055,6 +3068,11 @@
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-podcast/compare/v${old}...v${new}"
+                },
+                "dependencies": {
+                    "test-only": [
+                        "packages/my-jetpack"
+                    ]
                 }
             },
             "autoload": {
@@ -4310,7 +4328,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "41ac33639abeb22e8bed6ee1524d8949332fc943"
+                "reference": "f105228c79cea230ceb2e163348a4ee97960c151"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -4339,7 +4357,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.58.x-dev"
+                    "dev-trunk": "0.59.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"
@@ -4471,11 +4489,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-stats",
-                "reference": "fb6ab662bfd4635ef51099ab8180a989a7b71360"
+                "reference": "13611c463376081ca05f3967f0719deb1e0b3a2e"
             },
             "require": {
+                "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
+                "automattic/jetpack-sync": "@dev",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -4664,17 +4684,61 @@
             }
         },
         {
-            "name": "automattic/woocommerce-analytics",
-            "version": "0.18.0",
+            "name": "automattic/tracks-shared-utils",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Automattic/woocommerce-analytics.git",
-                "reference": "4ce84e0d4ebbaba1c1e346607c026e3afb652bf4"
+                "url": "https://github.com/Automattic/tracks-shared-utils.git",
+                "reference": "8a7740be2b017deacfd7fec320aeb56bdfdd077e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/4ce84e0d4ebbaba1c1e346607c026e3afb652bf4",
-                "reference": "4ce84e0d4ebbaba1c1e346607c026e3afb652bf4",
+                "url": "https://api.github.com/repos/Automattic/tracks-shared-utils/zipball/8a7740be2b017deacfd7fec320aeb56bdfdd077e",
+                "reference": "8a7740be2b017deacfd7fec320aeb56bdfdd077e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+                "phpcompatibility/php-compatibility": "^9.3",
+                "phpunit/phpunit": "^8.5 || ^9.6",
+                "squizlabs/php_codesniffer": "^3.7"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "php/src/functions.php"
+                ],
+                "psr-4": {
+                    "Automattic\\TracksSharedUtils\\": "php/src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Shared allowlist and sanitization for URLs sent to Tracks.",
+            "homepage": "https://github.com/Automattic/tracks-shared-utils",
+            "support": {
+                "issues": "https://github.com/Automattic/tracks-shared-utils/issues",
+                "source": "https://github.com/Automattic/tracks-shared-utils"
+            },
+            "time": "2026-10-09T13:53:29+00:00"
+        },
+        {
+            "name": "automattic/woocommerce-analytics",
+            "version": "0.18.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/woocommerce-analytics.git",
+                "reference": "a44c05a613964d8a43190147be94a11938815e6e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/a44c05a613964d8a43190147be94a11938815e6e",
+                "reference": "a44c05a613964d8a43190147be94a11938815e6e",
                 "shasum": ""
             },
             "require": {
@@ -4683,6 +4747,7 @@
                 "automattic/jetpack-connection": "^8.1 || ^9.0",
                 "automattic/jetpack-constants": "^3.0 || ^4.0",
                 "automattic/jetpack-device-detection": "^3.4 || ^4.0",
+                "automattic/tracks-shared-utils": "^1.1",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -4711,9 +4776,9 @@
             ],
             "description": "Enhanced analytics for WooCommerce users.",
             "support": {
-                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.18.0"
+                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.18.1"
             },
-            "time": "2026-09-24T10:11:58+00:00"
+            "time": "2026-10-21T06:12:56+00:00"
         },
         {
             "name": "wikimedia/aho-corasick",
@@ -4768,16 +4833,16 @@
         },
         {
             "name": "wp-php-toolkit/reprint-server",
-            "version": "v0.10.6",
+            "version": "v0.11.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wp-php-toolkit/reprint-server",
-                "reference": "9f72c3540425e73c9f6f2d70abbc7ebf0a181f82"
+                "url": "https://github.com/wp-php-toolkit/reprint-server.git",
+                "reference": "07e6a532fd505344ef06f1aa10fa0dddf767fa48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-server/zipball/9f72c3540425e73c9f6f2d70abbc7ebf0a181f82",
-                "reference": "9f72c3540425e73c9f6f2d70abbc7ebf0a181f82",
+                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-server/zipball/07e6a532fd505344ef06f1aa10fa0dddf767fa48",
+                "reference": "07e6a532fd505344ef06f1aa10fa0dddf767fa48",
                 "shasum": ""
             },
             "require": {
@@ -4787,6 +4852,7 @@
                 "wp-php-toolkit/reprint-exporter": "self.version"
             },
             "suggest": {
+                "ext-openssl": "Needed to verify public-key signatures; hosts without it accept HMAC connection tokens only.",
                 "ext-pdo": "Needed for the SQLite export path; recommended for MySQL exports (the wpdb fallback handles MySQL when absent).",
                 "ext-pdo_mysql": "Recommended for MySQL exports; falls back to wpdb when absent."
             },
@@ -4801,7 +4867,11 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Streaming export engine used by the Reprint Server WordPress plugin",
-            "time": "2026-08-31T07:14:16+00:00"
+            "support": {
+                "issues": "https://github.com/wp-php-toolkit/reprint-server/issues",
+                "source": "https://github.com/wp-php-toolkit/reprint-server/tree/v0.11.2"
+            },
+            "time": "2026-10-16T20:46:27+00:00"
         }
     ],
     "packages-dev": [

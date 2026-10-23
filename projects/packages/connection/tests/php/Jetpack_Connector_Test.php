@@ -197,7 +197,6 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertNull( $data['connectionOwnerEditUrl'] );
 		$this->assertArrayNotHasKey( 'siteDetails', $data );
 		$this->assertArrayNotHasKey( 'connectedUsersUrl', $data );
-		$this->assertArrayNotHasKey( 'hasOtherConnectedUsers', $data );
 		$this->assertArrayNotHasKey( 'protectedOwner', $data );
 		$this->assertArrayNotHasKey( 'ssoStatus', $data );
 	}
@@ -247,53 +246,31 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Only the owner is told whether other users would be disconnected with them.
-	 *
-	 * @param bool      $viewer_is_owner  Whether the viewer is the connection owner.
-	 * @param bool      $other_user_token Whether a second user is connected.
-	 * @param bool|null $expected         Expected hasOtherConnectedUsers, or null when it is omitted.
-	 * @dataProvider provide_has_other_connected_users
+	 * A site connection with no user tokens and no owner links to no connected users.
 	 */
-	#[DataProvider( 'provide_has_other_connected_users' )]
-	public function test_has_other_connected_users( $viewer_is_owner, $other_user_token, $expected ) {
-		$other_id = wp_insert_user(
-			array(
-				'user_login' => 'connector_other',
-				'user_pass'  => 'password',
-				'role'       => 'administrator',
-			)
-		);
-		$tokens   = array( $this->admin_id => 'ownerkey.private.' . $this->admin_id );
-		if ( $other_user_token ) {
-			$tokens[ $other_id ] = 'otherkey.private.' . $other_id;
-		}
-
+	public function test_get_connector_data_when_site_only() {
 		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
 		\Jetpack_Options::update_option( 'id', 12345 );
-		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
-		\Jetpack_Options::update_option( 'user_tokens', $tokens );
-		wp_set_current_user( $viewer_is_owner ? $this->admin_id : $other_id );
 
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		if ( null === $expected ) {
-			$this->assertArrayNotHasKey( 'hasOtherConnectedUsers', $data );
-		} else {
-			$this->assertSame( $expected, $data['hasOtherConnectedUsers'] );
-		}
+		$this->assertArrayHasKey( 'siteDetails', $data );
+		$this->assertArrayNotHasKey( 'connectedUsersUrl', $data );
 	}
 
 	/**
-	 * Data provider for test_has_other_connected_users.
-	 *
-	 * @return array
+	 * A broken owner token still links to the connected users, as the card still lists accounts.
 	 */
-	public static function provide_has_other_connected_users() {
-		return array(
-			'owner alone'             => array( true, false, false ),
-			'owner with others'       => array( true, true, true ),
-			'viewer is not the owner' => array( false, true, null ),
-		);
+	public function test_get_connector_data_when_the_owner_token_is_broken() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertArrayHasKey( 'connectedUsersUrl', $data );
+		$this->assertStringEndsWith( $data['redirectUri'], $data['connectorsUrl'] );
 	}
 
 	/**
@@ -626,6 +603,45 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$this->assertNull( wp_script_modules()->get_registered( Jetpack_Connector::MODULE_ID ) );
 		$this->assertFalse( wp_style_is( 'jetpack-connector-card', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that the Tracks script loads only when tracking is allowed.
+	 *
+	 * @param bool $tos_agreed Whether the site agreed to the terms of service.
+	 * @param bool $offline    Whether the site is in offline mode.
+	 * @param bool $expected   Whether the Tracks script should be enqueued.
+	 * @dataProvider provide_tracking_states
+	 */
+	#[DataProvider( 'provide_tracking_states' )]
+	public function test_enqueue_loads_tracks_only_when_tracking_is_allowed( $tos_agreed, $offline, $expected ) {
+		\Jetpack_Options::update_option( 'tos_agreed', $tos_agreed );
+		if ( $offline ) {
+			add_filter( 'jetpack_offline_mode', '__return_true' );
+		}
+		$restore = $this->stub_module_build( array( 'version' => 'test-card-version' ) );
+
+		try {
+			$this->enqueue_on_connectors_screen();
+		} finally {
+			$restore();
+		}
+
+		$this->assertSame( $expected, wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * Tracking states for the Tracks enqueue.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_tracking_states() {
+		return array(
+			'agreed'          => array( true, false, true ),
+			'not agreed'      => array( false, false, false ),
+			'agreed, offline' => array( true, true, false ),
+		);
 	}
 
 	/**

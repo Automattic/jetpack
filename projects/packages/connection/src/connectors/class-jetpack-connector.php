@@ -16,6 +16,8 @@ use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Jetpack connector card handler.
@@ -107,6 +109,7 @@ class Jetpack_Connector {
 	 *
 	 * @since 8.2.0
 	 * @since 9.11.0 Loads the webpack build from dist/, with its dependencies and version from the asset file.
+	 * @since $$next-version$$ Loads the Tracks script when tracking is allowed.
 	 */
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
@@ -152,6 +155,12 @@ class Jetpack_Connector {
 			Assets::enqueue_script( $handle );
 		}
 
+		// The shared components the card renders push Tracks events to _tkq; only w.js is needed to send them. Same gate as My Jetpack.
+		if ( ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+			Tracking::register_tracks_functions_scripts();
+			wp_enqueue_script( 'jp-tracks' );
+		}
+
 		add_filter(
 			'script_module_data_' . static::MODULE_ID,
 			array( static::class, 'get_connector_data' )
@@ -185,7 +194,8 @@ class Jetpack_Connector {
 	 * which Initial_State fills, so it is not repeated here.
 	 *
 	 * @since 8.2.0
-	 * @since $$next-version$$ Shared connection state moved to the jetpack-connection store.
+	 * @since 9.13.0 Shared connection state moved to the jetpack-connection store.
+	 * @since $$next-version$$ Adds `connectorsUrl`; sends `connectedUsersUrl` whenever there are account rows, including while the owner's token is broken.
 	 *
 	 * @param array $data Existing script module data.
 	 * @return array Filtered script module data.
@@ -193,11 +203,11 @@ class Jetpack_Connector {
 	public static function get_connector_data( $data ) {
 		$manager       = new Manager();
 		$is_registered = $manager->is_connected();
-		$is_connected  = $is_registered && $manager->has_connected_owner();
 
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']          = static::get_connectors_page_path();
+		$data['connectorsUrl']        = admin_url( $data['redirectUri'] );
 		$data['connectorName']        = 'Jetpack Connection';
 		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = static::get_connector_logo_url();
@@ -219,12 +229,10 @@ class Jetpack_Connector {
 			static::add_identity_crisis_data( $data );
 		}
 
-		if ( $is_connected ) {
+		// Not gated on has_connected_owner(): it is false when the owner's token breaks,
+		// and the card still lists the owner of record and a healthy viewer's account then.
+		if ( $is_registered && ( (int) \Jetpack_Options::get_option( 'master_user' ) > 0 || $manager->is_user_connected() ) ) {
 			$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
-
-			if ( $manager->is_connection_owner() ) {
-				$data['hasOtherConnectedUsers'] = count( $manager->get_connected_users( 'any', 2 ) ) > 1;
-			}
 		}
 
 		$data['connectionOwnerEditUrl'] = static::get_connection_owner_edit_url( ( new Status() )->is_offline_mode() );
@@ -255,7 +263,7 @@ class Jetpack_Connector {
 	 * \Automattic\Jetpack\IdentityCrisis\UI::get_initial_state_data().
 	 *
 	 * @since 8.7.0
-	 * @since $$next-version$$ No longer sends `isInSafeMode`; the card reads it from the store.
+	 * @since 9.13.0 No longer sends `isInSafeMode`; the card reads it from the store.
 	 *
 	 * @param array $data Script module data passed by reference.
 	 */
@@ -324,7 +332,7 @@ class Jetpack_Connector {
 	 * Needs `jetpack_connect` outside offline mode, so a restricted site admin sees the name as plain
 	 * text. get_edit_user_link() adds the `edit_user` check, since multisite site admins cannot edit other users.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.13.0
 	 *
 	 * @param bool $is_offline_mode Whether the site is in offline mode.
 	 * @return string|null
@@ -440,7 +448,7 @@ class Jetpack_Connector {
 	 * The plugin list itself comes from the jetpack-connection store; logos stay here because
 	 * third parties add them through a PHP filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.13.0
 	 *
 	 * @param string[] $slugs Connected plugin slugs.
 	 * @return array<string,string> Logo URL by slug, for slugs that have one.

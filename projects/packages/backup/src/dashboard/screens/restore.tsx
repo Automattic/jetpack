@@ -1,7 +1,7 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { speak } from '@wordpress/a11y';
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
@@ -28,10 +28,14 @@ import {
 import DashboardLayout from '../components/dashboard-layout';
 import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
+import KnownThreatsWarning from '../components/known-threats';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
+import { announce } from '../data/announce';
+import { ACKNOWLEDGED_STATE_KEY } from '../data/api/known-threats';
 import { formatDate, formatDateTime } from '../data/date-format';
 import { useSiteSuffix } from '../hooks/use-connection';
 import { useGateState } from '../hooks/use-gate-state';
+import { useBackupsKnownThreats, useKnownThreats } from '../hooks/use-known-threats';
 import { useRestore } from '../hooks/use-restore';
 import { useStepFocus } from '../hooks/use-step-focus';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
@@ -65,12 +69,73 @@ export default function RestoreScreen() {
 	const siteSuffix = useSiteSuffix();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 
-	const { state, submit, reset, adopted } = useRestore( rewindId, gate.status === 'ready' );
+	const { state, submit, reset, adopted, threatsRefused } = useRestore(
+		rewindId,
+		gate.status === 'ready'
+	);
+	// The only gate for a flagged backup, so Confirm waits for it. No Scan, an error or a timeout
+	// means no warning and a restore exactly as before.
+	const {
+		data: knownThreats = null,
+		refetch: refetchKnownThreats,
+		isLoading: checkingThreats,
+	} = useKnownThreats( rewindId, gate.status === 'ready' && isValidRewindId( rewindId ) );
+	// Ticked already when the backup details' own checkbox sent the reader here.
+	const [ acknowledged, setAcknowledged ] = useState(
+		() =>
+			( window.history.state as Record< string, unknown > | null )?.[ ACKNOWLEDGED_STATE_KEY ] ===
+			rewindId
+	);
+	const needsAcknowledgement = threatsRefused || ( knownThreats?.summary.flagged ?? 0 ) > 0;
+	const { data: backupsKnownThreats } = useBackupsKnownThreats( {
+		withCleanRewindId: true,
+		enabled: needsAcknowledgement,
+	} );
+	// A refusal means the screen's picture was stale: untick, and fetch the threats again.
+	useEffect( () => {
+		if ( threatsRefused ) {
+			setAcknowledged( false );
+			refetchKnownThreats();
+		}
+	}, [ threatsRefused, refetchKnownThreats ] );
 	const { ref: stepHeadingRef, arm: armStepFocus } = useStepFocus( state.phase );
 	const handleConfirm = useCallback( () => {
 		armStepFocus();
-		submit( items );
-	}, [ armStepFocus, submit, items ] );
+		submit( items, needsAcknowledgement && acknowledged );
+	}, [ armStepFocus, submit, items, needsAcknowledgement, acknowledged ] );
+	// A new backup, opened from "Restore … backup instead": its warning (and the link that was
+	// focused) may be gone, so put focus on the heading and drop the old acknowledgement.
+	const headingNode = useRef< HTMLElement | null >( null );
+	const focusedRewindId = useRef( rewindId );
+	useEffect( () => {
+		if ( focusedRewindId.current === rewindId ) {
+			return;
+		}
+		focusedRewindId.current = rewindId;
+		setAcknowledged( false );
+		headingNode.current?.focus();
+	}, [ rewindId ] );
+	// Said once when the check that held Confirm back answers that the backup is clean. An
+	// unavailable check is not a clean one, so it says nothing.
+	const wasChecking = useRef( false );
+	useEffect( () => {
+		if ( checkingThreats ) {
+			wasChecking.current = true;
+		} else if ( wasChecking.current ) {
+			wasChecking.current = false;
+			if ( knownThreats?.summary.flagged === 0 ) {
+				announce( __( 'No known threats found in this backup.', 'jetpack-backup-pkg' ) );
+			}
+		}
+	}, [ checkingThreats, knownThreats ] );
+
+	// Focus stays on the checkbox; say that the restore it was blocking is open.
+	const handleAcknowledge = useCallback( ( next: boolean ) => {
+		setAcknowledged( next );
+		if ( next ) {
+			announce( __( 'You can now restore this backup.', 'jetpack-backup-pkg' ) );
+		}
+	}, [] );
 	const handleRetry = useCallback( () => {
 		armStepFocus();
 		reset();
@@ -78,6 +143,18 @@ export default function RestoreScreen() {
 	// An empty checklist would restore *everything* rather than nothing —
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
 	const hasSelection = hasSelectedItems( items );
+	const awaitingAcknowledgement = needsAcknowledgement && ! acknowledged;
+	let confirmHint = '';
+	if ( ! hasSelection ) {
+		confirmHint = __( 'Select at least one item to restore.', 'jetpack-backup-pkg' );
+	} else if ( checkingThreats ) {
+		confirmHint = __( 'Checking this backup for known threats…', 'jetpack-backup-pkg' );
+	} else if ( awaitingAcknowledgement ) {
+		confirmHint = __(
+			'To restore this backup, confirm that you understand it contains known threats.',
+			'jetpack-backup-pkg'
+		);
+	}
 
 	const lostTrack = __(
 		"We've lost track of this restore. It may still be running — you'll get an email when it finishes.",
@@ -139,7 +216,12 @@ export default function RestoreScreen() {
 								<Text
 									variant="body-lg"
 									render={ <h2 /> }
-									ref={ isFormStep ? stepHeadingRef : undefined }
+									ref={ ( node: HTMLElement | null ) => {
+										headingNode.current = node;
+										if ( isFormStep ) {
+											stepHeadingRef( node );
+										}
+									} }
 									tabIndex={ -1 }
 								>
 									{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
@@ -185,6 +267,17 @@ export default function RestoreScreen() {
 									value={ items }
 									onChange={ setItems }
 								/>
+								{ needsAcknowledgement && (
+									<KnownThreatsWarning
+										threats={ knownThreats }
+										acknowledged={ acknowledged }
+										onAcknowledge={ handleAcknowledge }
+										restoreInsteadPeriod={ backupsKnownThreats?.latest_without_known_threats }
+										restoreInsteadRewindId={
+											backupsKnownThreats?.latest_without_known_threats_rewind_id
+										}
+									/>
+								) }
 								{ /*
 								 * The live region is mounted unconditionally and only its text
 								 * changes. A region that appears together with its first message
@@ -206,16 +299,19 @@ export default function RestoreScreen() {
 									id={ SELECTION_HINT_ID }
 									variant="body-sm"
 									role="status"
-									className={ hasSelection ? 'jpb-visually-hidden' : undefined }
+									className={ confirmHint ? undefined : 'jpb-visually-hidden' }
 								>
-									{ hasSelection
-										? ''
-										: __( 'Select at least one item to restore.', 'jetpack-backup-pkg' ) }
+									{ confirmHint }
 								</Text>
 								<Button
 									className="jpb-restore__confirm"
 									variant="solid"
-									disabled={ ! hasSelection || state.phase === 'submitting' }
+									disabled={
+										! hasSelection ||
+										checkingThreats ||
+										awaitingAcknowledgement ||
+										state.phase === 'submitting'
+									}
 									aria-describedby={ SELECTION_HINT_ID }
 									onClick={ handleConfirm }
 								>

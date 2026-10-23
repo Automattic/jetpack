@@ -20,6 +20,7 @@ import { useCallback } from 'react';
  */
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { onboardingTourSteps } from './components';
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
 	useActiveSection,
@@ -95,7 +96,9 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		<div role={ role }>{ children }</div>
 	);
 
-	return { Stack, VisuallyHidden };
+	const JetpackFooter = () => <footer>Jetpack footer</footer>;
+
+	return { JetpackFooter, Stack, VisuallyHidden };
 } );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -403,12 +406,8 @@ jest.mock( './components', () => ( {
 		<div data-testid="locked-section">{ section }</div>
 	),
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
-	onboardingTourSteps: () => [],
-	PlanLimitNotice: () => <div data-testid="plan-limit-notice" />,
-	hasPurchaseSuccess: jest.requireActual(
-		'./components/purchase-success-notice/purchase-success-notice'
-	).hasPurchaseSuccess,
-	PurchaseSuccessNotice: () => <div data-testid="purchase-success-notice" />,
+	onboardingTourSteps: jest.fn( () => [] ),
+	DashboardNotices: () => <div data-testid="dashboard-notices" />,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
@@ -479,6 +478,7 @@ beforeEach( () => {
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
 	useLockedSectionLayoutMock.mockImplementation( passThroughLockedLayout );
+	useDashboardPolicyMock.mockImplementation( () => () => true );
 	useDashboardSectionLayoutMock.mockImplementation( () => [ [], jest.fn(), mockResetLayout ] );
 	mockDashboardProps = {};
 } );
@@ -507,6 +507,7 @@ const passThroughLockedLayout: typeof useLockedSectionLayout = (
 	lockedSection: undefined,
 	visibleLayout: layout,
 	onVisibleLayoutChange: onLayoutChange,
+	isHiddenWidget: undefined,
 } );
 
 const closedOnboarding = {
@@ -540,6 +541,18 @@ function mockSection( overrides: Record< string, unknown > = {} ) {
 
 beforeEach( () => {
 	jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
+} );
+
+describe( 'Dashboard page', () => {
+	it( 'ends the page with the Jetpack footer', () => {
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
+		mockActiveSectionSlug = 'insights';
+		mockSection();
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'Jetpack footer' ) ).toBeInTheDocument();
+	} );
 } );
 
 describe( 'Dashboard report scope', () => {
@@ -890,24 +903,13 @@ describe( 'Dashboard feedback banner', () => {
 		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'puts the plan limit notice away while the reader arranges the layout', async () => {
+	it( 'puts the Stats notices away while the reader arranges the layout', async () => {
 		render( <Dashboard /> );
-		expect( screen.getByTestId( 'plan-limit-notice' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'dashboard-notices' ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
-		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'thanks a reader back from checkout in place of the plan limit notice', () => {
-		window.JetpackScriptData = {
-			premium_analytics: { purchase_success: { type: 'paid' } },
-		} as typeof window.JetpackScriptData;
-
-		render( <Dashboard /> );
-
-		expect( screen.getByTestId( 'purchase-success-notice' ) ).toBeInTheDocument();
-		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'dashboard-notices' ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -1011,6 +1013,20 @@ describe( 'Dashboard onboarding', () => {
 		expect( screen.getByTestId( 'onboarding-welcome-modal' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'onboarding-tour' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [ true, false ] )(
+		'tells the tour whether the plan offers a comparison (%s)',
+		offersComparison => {
+			jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison } );
+
+			render( <Dashboard /> );
+
+			expect( jest.mocked( onboardingTourSteps ) ).toHaveBeenLastCalledWith(
+				expect.anything(),
+				expect.objectContaining( { withComparison: offersComparison } )
+			);
+		}
+	);
 
 	it( 'runs the tour once the modal hands over', () => {
 		useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'tour' } );
@@ -1448,8 +1464,9 @@ describe( 'Dashboard Settings tab', () => {
 } );
 
 describe( 'Dashboard locked section', () => {
-	const visibleLayout = [ { uuid: 'chart', type: 'jpa/traffic-chart' } ];
+	const visibleLayout = [ { uuid: 'chart', type: 'jpa/traffic-chart' as const } ];
 	const onVisibleLayoutChange = jest.fn();
+	const isHiddenWidget = jest.fn();
 
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -1463,10 +1480,26 @@ describe( 'Dashboard locked section', () => {
 						lockedSection: { title: 'Unlock site insights' } as LockedSectionGate,
 						visibleLayout: visibleLayout as typeof layout,
 						onVisibleLayoutChange,
+						isHiddenWidget,
 					}
 				: passThroughLockedLayout( section, layout, onLayoutChange )
 		);
+		useDashboardPolicyMock.mockImplementation(
+			jest.requireActual( './hooks/use-dashboard-policy' ).useDashboardPolicy
+		);
 	} );
+
+	const mockLockedLayout = ( shown: typeof visibleLayout | [] ) =>
+		useLockedSectionLayoutMock.mockImplementation( ( section, layout, onLayoutChange ) =>
+			section === 'insights'
+				? {
+						lockedSection: { open_widget_types: [ 'jpa/traffic-chart' ] } as LockedSectionGate,
+						visibleLayout: shown,
+						onVisibleLayoutChange,
+						isHiddenWidget,
+					}
+				: passThroughLockedLayout( section, layout, onLayoutChange )
+		);
 
 	it( 'shows the upgrade prompt after the open widgets, without the empty state', () => {
 		render( <Dashboard /> );
@@ -1507,6 +1540,7 @@ describe( 'Dashboard locked section', () => {
 	} );
 
 	it( 'leaves edit mode on arriving from a section being customized', async () => {
+		mockLockedLayout( [] );
 		mockSection( { slug: 'subscribers' } );
 		useActiveSectionMock.mockReturnValue( [ 'subscribers', jest.fn(), true ] );
 		mockActiveSectionSlug = 'subscribers';
@@ -1531,7 +1565,8 @@ describe( 'Dashboard locked section', () => {
 		} );
 	} );
 
-	it( 'offers no Customize on a locked section', () => {
+	it( 'offers no Customize on a locked section that shows no widget', () => {
+		mockLockedLayout( [] );
 		render( <Dashboard /> );
 
 		expect(
@@ -1543,6 +1578,21 @@ describe( 'Dashboard locked section', () => {
 			'data-can-customize',
 			'false'
 		);
+	} );
+
+	it( 'offers Customize and its tour steps on a locked section that shows a widget, resetting only that', async () => {
+		mockLockedLayout( visibleLayout );
+
+		render( <Dashboard /> );
+
+		expect( jest.mocked( onboardingTourSteps ) ).toHaveBeenLastCalledWith(
+			expect.anything(),
+			expect.objectContaining( { withCustomize: true } )
+		);
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+
+		expect( mockResetLayout ).toHaveBeenLastCalledWith( isHiddenWidget );
 	} );
 
 	it( 'leaves an open section as it was', () => {

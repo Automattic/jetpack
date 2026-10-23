@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Import getScoreTier from the score API package; no visible change.
+

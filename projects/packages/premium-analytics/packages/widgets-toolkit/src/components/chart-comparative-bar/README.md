@@ -12,10 +12,10 @@ from the chart theme through `useGlobalChartsContext()`. It **must be rendered i
 its own.
 
 That is also why there is deliberately no `styles` prop. The comparison shadow's geometry comes
-from the theme's `barChart.barStyles.comparison.widthFactor`, and its distinctness from the current
-period comes from that entry's `opacity` — passing fills in here would decouple the shadow from the
-bar it shadows. Theme styles are read back only to tint the tooltip swatches, so they match what the
-chart drew.
+from the theme's `barChart.barStyles.comparison.widthFactor`, and charts tones the shadow and the
+bar in front of it so they stay distinct — passing fills in here would decouple the shadow from the
+bar it shadows. Bar colors are read back from `useBarColors` only to color the tooltip swatches, so
+they match what the chart drew.
 
 ## Usage
 
@@ -45,6 +45,12 @@ second current-period series keeps its own dates.
 | `defaultHiddenSeries` | `readonly string[]`           | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive`               |
 | `legendInteractive`   | `boolean`                     | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false`                               |
 | `comparisonLabel`     | `string`                      | No       | Names the comparison in each metric's previous-period legend item, e.g. "Prev. 30 days". Defaults to "Previous period"                    |
+| `layout`              | `'grouped' \| 'overlap'`      | No       | The bar chart's layout; see below. Defaults to `grouped`                                                                                  |
+| `primarySeries`       | `string`                      | No       | Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked                   |
+
+## Overlap layout
+
+With `layout="overlap"`, the chart draws each `group` inside the one before it, and the previous period in a slot beside the current one. The bars are opaque and charts tones them, so the tooltip and legend swatches read their colors from the charts `useBarColors` hook instead of the series colors. The series keep their `group`s: `group` still names the metric. The legend names the previous period with one item, in the color of the picked metric's previous bar, or else of its widest shown bar.
 
 ## Date alignment and tooltips
 
