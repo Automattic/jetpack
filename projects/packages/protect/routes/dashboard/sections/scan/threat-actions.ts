@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
-import { createElement, useSyncExternalStore } from '@wordpress/element';
+import { createElement, useCallback, useSyncExternalStore } from '@wordpress/element';
 import { __, sprintf, type TransformedText } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
@@ -32,7 +32,8 @@ const SUCCESS_ICON = createElement( Icon, {
 } ) as unknown as string;
 
 const EMPTY: ThreatActionState = {};
-const actionStore = createStore< Record< string, ThreatActionState > >( () => ( {} ) );
+const NO_ACTIONS: Record< string, ThreatActionState > = {};
+const actionStore = createStore( () => NO_ACTIONS );
 
 // Every action checks this first, so a second click can't send a duplicate request.
 const isBusy = ( id: string | number ) => !! actionStore.get()[ String( id ) ]?.busy;
@@ -292,6 +293,16 @@ export function useThreatAction( id: string | number ): ThreatActionState {
 		actionStore.subscribe,
 		() => actionStore.get()[ String( id ) ] ?? EMPTY
 	);
+}
+
+/**
+ * Looks up the action running on any threat, re-rendering when one starts or ends.
+ *
+ * @return Gets a threat's running action by id.
+ */
+export function useGetThreatBusy(): ( id: string | number ) => ThreatActionState[ 'busy' ] {
+	const states = useSyncExternalStore( actionStore.subscribe, actionStore.get );
+	return useCallback( id => states[ String( id ) ]?.busy, [ states ] );
 }
 
 /**

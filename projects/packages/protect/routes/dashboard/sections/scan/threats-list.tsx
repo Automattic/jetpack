@@ -3,12 +3,14 @@ import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpr
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Spinner } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
 import useOpenThreat from '../use-open-threat';
 import { getThreatLabel } from './labels';
 import { THREAT_PARAM, useSearchParam } from './store';
+import { useThreatAction, type ThreatActionState } from './threat-actions';
 import ThreatMedia from './threat-media';
-import { getThreatRowActions } from './threat-row-actions';
+import { useThreatRowActions } from './threat-row-actions';
 import type { ScanThreat } from './types';
 import type { ReactNode } from 'react';
 
@@ -46,7 +48,12 @@ function ThreatCell( { item, onOpen }: RowProps ) {
 	const { kind, subject } = getThreatLabel( item );
 	const onClick = useCallback( () => onOpen( item ), [ item, onOpen ] );
 	return (
-		<button type="button" className="jp-protect-threats__title" onClick={ onClick }>
+		<button
+			type="button"
+			className="jp-protect-threats__title"
+			data-threat-id={ item.id }
+			onClick={ onClick }
+		>
 			<ThreatMedia threat={ item } size={ 32 } />
 			<span className="jp-protect-threats__label">
 				{ kind ? <strong>{ kind }</strong> : subject }
@@ -54,6 +61,50 @@ function ThreatCell( { item, onOpen }: RowProps ) {
 			</span>
 		</button>
 	);
+}
+
+/**
+ * What a row says while an action runs on its threat.
+ *
+ * @param busy - The running action.
+ * @return The status, such as "Fixing…".
+ */
+function getBusyLabel( busy: NonNullable< ThreatActionState[ 'busy' ] > ): string {
+	switch ( busy ) {
+		case 'fixing':
+			return __( 'Fixing…', 'jetpack-protect-pkg' );
+		case 'ignoring':
+			return __( 'Ignoring…', 'jetpack-protect-pkg' );
+		case 'unignoring':
+			return __( 'Unignoring…', 'jetpack-protect-pkg' );
+		case 'deleting':
+			return __( 'Deleting…', 'jetpack-protect-pkg' );
+	}
+}
+
+/**
+ * The date column: the date, or what is happening to the threat while an action runs.
+ *
+ * @param props      - Component props.
+ * @param props.item - The threat.
+ * @param props.date - The ISO date.
+ * @return The cell.
+ */
+function DateCell( { item, date }: { item: ScanThreat; date: string } ) {
+	const { busy } = useThreatAction( item.id );
+	if ( busy ) {
+		return (
+			<span className="jp-protect-threats__busy jp-protect-threats__nowrap">
+				<Spinner />
+				{ getBusyLabel( busy ) }
+			</span>
+		);
+	}
+	return date ? (
+		<span className="jp-protect-card__muted jp-protect-threats__nowrap">
+			{ formatDetected( date ) }
+		</span>
+	) : null;
 }
 
 type ThreatFieldOptions = {
@@ -103,12 +154,7 @@ export function getThreatFields(
 			type: 'datetime',
 			enableHiding: false,
 			getValue: ( { item } ) => getDate( item ),
-			render: ( { item } ) =>
-				getDate( item ) ? (
-					<span className="jp-protect-card__muted jp-protect-threats__nowrap">
-						{ formatDetected( getDate( item ) ) }
-					</span>
-				) : null,
+			render: ( { item } ) => <DateCell item={ item } date={ getDate( item ) } />,
 		},
 	];
 }
@@ -171,7 +217,7 @@ export default function ThreatsList( { threats, empty, canAct }: ThreatsListProp
 			} ),
 		[ open ]
 	);
-	const actions = useMemo( () => getThreatRowActions( open, canAct ), [ open, canAct ] );
+	const actions = useThreatRowActions( open, canAct );
 
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( threats, view, fields ),
