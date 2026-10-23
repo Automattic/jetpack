@@ -5,8 +5,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\Image_Editor_GD;
-
 /**
  * Returns the exiftool path, or '' when the host has none.
  *
@@ -67,8 +65,8 @@ function jetpack_wpcom_ai_marker_image_editors( $editors ) {
 	// Other callers may apply this filter before core loads its editor classes.
 	require_once ABSPATH . WPINC . '/class-wp-image-editor.php';
 	require_once ABSPATH . WPINC . '/class-wp-image-editor-gd.php';
-	require_once __DIR__ . '/class-image-editor-gd.php';
-	$editors[ $index ] = Image_Editor_GD::class;
+	require_once __DIR__ . '/class-jetpack-wpcom-image-editor-gd.php';
+	$editors[ $index ] = 'Jetpack_WPCOM_Image_Editor_GD';
 
 	return $editors;
 }
