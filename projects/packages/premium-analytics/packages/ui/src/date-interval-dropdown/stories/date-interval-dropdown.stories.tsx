@@ -32,13 +32,16 @@ type Story = StoryObj< typeof DateIntervalDropdown >;
 function DateIntervalDropdownWithState( {
 	options,
 	initialValue,
+	...props
 }: {
 	options: readonly IntervalType[];
 	initialValue: IntervalType;
-} ) {
+} & Partial< Parameters< typeof DateIntervalDropdown >[ 0 ] > ) {
 	const [ value, setValue ] = useState< IntervalType >( initialValue );
 
-	return <DateIntervalDropdown options={ options } value={ value } onChange={ setValue } />;
+	return (
+		<DateIntervalDropdown { ...props } options={ options } value={ value } onChange={ setValue } />
+	);
 }
 
 /**
@@ -63,5 +66,37 @@ export const SingleOption: Story = {
 export const CoarseRange: Story = {
 	render: () => (
 		<DateIntervalDropdownWithState options={ [ 'month', 'year' ] } initialValue="month" />
+	),
+};
+
+/**
+ * A `Last 90 days` range on a plan that locks weekly and monthly charts: days stay open,
+ * and the buckets the range would draw are listed with a lock and an upgrade.
+ */
+export const LockedBuckets: Story = {
+	render: () => (
+		<DateIntervalDropdownWithState
+			options={ [ 'day' ] }
+			lockedOptions={ [ 'week', 'month' ] }
+			lockUpsell={ {
+				description: 'Group your charts by week, month or year.',
+				supportUrl: '',
+				upgradeUrl: 'https://wordpress.com/plans',
+			} }
+			initialValue="day"
+			withLabel
+		/>
+	),
+};
+
+export const UnavailableBuckets: Story = {
+	render: () => (
+		<DateIntervalDropdownWithState
+			options={ [ 'week', 'month' ] }
+			unavailableOptions={ [ 'day' ] }
+			unavailableHint="Switch to the line chart to see each day."
+			initialValue="week"
+			withLabel
+		/>
 	),
 };

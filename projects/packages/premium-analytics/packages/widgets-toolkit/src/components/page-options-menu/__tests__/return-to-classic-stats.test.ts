@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { getScriptData } from '@automattic/jetpack-script-data';
+/**
  * Internal dependencies
  */
 import { returnToClassicStats } from '../return-to-classic-stats';
@@ -25,5 +29,20 @@ describe( 'returnToClassicStats', () => {
 		returnToClassicStats( { assign } );
 
 		expect( assign ).toHaveBeenCalledWith( 'https://example.com/wp-admin/admin.php?page=stats' );
+	} );
+
+	it( 'lands wherever the server says the classic Stats page is', () => {
+		jest.mocked( getScriptData ).mockReturnValue( {
+			premium_analytics: {
+				classic_stats_url: 'https://example.com/wp-admin/admin.php?page=jetpack-stats',
+			},
+		} as ReturnType< typeof getScriptData > );
+		const assign = jest.fn();
+
+		returnToClassicStats( { assign } );
+
+		expect( assign ).toHaveBeenCalledWith(
+			'https://example.com/wp-admin/admin.php?page=jetpack-stats'
+		);
 	} );
 } );

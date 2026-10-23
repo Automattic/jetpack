@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connectors: Use the shared disconnect dialog for site disconnect on the card, and load the Tracks script so its events are recorded.

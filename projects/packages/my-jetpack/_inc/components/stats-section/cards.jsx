@@ -111,12 +111,15 @@ const getDynamicTitle = metric => {
  * @param {object}   props.counts               - Counts object for the current period.
  * @param {object}   props.previousCounts       - Counts object for the previous period.
  * @param {number}   props.headingLevel         - Heading level between 1 and 6.
- * @param {Array}    props.chartData            - Chart data for the bar chart visualization.
+ * @param {?object}  props.chartData            - Chart data for the bar chart visualization.
  * @param {boolean}  props.isLoading            - Whether the data is loading.
  * @param {string}   props.detailedStatsHref    - Destination of the detailed stats link.
  * @param {Function} props.onDetailedStatsClick - Function to handle detailed stats click.
+ * @param {boolean}  [props.hideTitle]          - Whether to leave out the linked title, when a container already has one.
+ * @param {boolean}  [props.chartBelowCounts]   - Whether to show the chart after the counts instead of before them.
+ * @param {boolean}  [props.flush]              - Whether it sits in a container that pads it: no side padding on the counts, and fewer date labels on a narrow chart.
  *
- * @return {object} StatsCards React component.
+ * @return {import('react').JSX.Element} StatsCards React component.
  */
 const StatsCards = ( {
 	counts,
@@ -126,6 +129,9 @@ const StatsCards = ( {
 	isLoading,
 	detailedStatsHref,
 	onDetailedStatsClick,
+	hideTitle = false,
+	chartBelowCounts = false,
+	flush = false,
 } ) => {
 	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
 
@@ -169,32 +175,43 @@ const StatsCards = ( {
 		return icons[ metric ] || icons.views;
 	}, [] );
 
+	const chart = (
+		<StatsChart
+			data={ transformedChartData }
+			isLoading={ isLoading }
+			href={ detailedStatsHref }
+			onClick={ onDetailedStatsClick }
+			selectedMetric={ selectedMetric }
+			metricIcon={ getMetricIcon( selectedMetric ) }
+			fitTicks={ flush }
+		/>
+	);
+
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
-			<Link
-				tone="neutral"
-				className={ styles[ 'section-title-container' ] }
-				href={ detailedStatsHref }
-				onClick={ detailedStatsHref ? onDetailedStatsClick : undefined }
+			{ ! hideTitle && (
+				<Link
+					tone="neutral"
+					className={ styles[ 'section-title-container' ] }
+					href={ detailedStatsHref }
+					onClick={ detailedStatsHref ? onDetailedStatsClick : undefined }
+				>
+					<Heading className={ styles[ 'section-title' ] }>
+						<span>{ getDynamicTitle( selectedMetric ) }</span>
+					</Heading>
+					<div>
+						<Icon icon={ chevronRight } />
+					</div>
+				</Link>
+			) }
+
+			{ ! chartBelowCounts && chart }
+
+			<ul
+				className={ clsx( styles[ 'cards-list' ], styles[ 'my-jetpack-stats-cards' ], {
+					[ styles[ 'is-flush' ] ]: flush,
+				} ) }
 			>
-				<Heading className={ styles[ 'section-title' ] }>
-					<span>{ getDynamicTitle( selectedMetric ) }</span>
-				</Heading>
-				<div>
-					<Icon icon={ chevronRight } />
-				</div>
-			</Link>
-
-			<StatsChart
-				data={ transformedChartData }
-				isLoading={ isLoading }
-				href={ detailedStatsHref }
-				onClick={ onDetailedStatsClick }
-				selectedMetric={ selectedMetric }
-				metricIcon={ getMetricIcon( selectedMetric ) }
-			/>
-
-			<ul className={ clsx( styles[ 'cards-list' ], styles[ 'my-jetpack-stats-cards' ] ) }>
 				<CountComparisonCard
 					heading={ __( 'Views', 'jetpack-my-jetpack' ) }
 					srText={ createStatSRText(
@@ -256,6 +273,7 @@ const StatsCards = ( {
 					onClick={ handleCommentsClick }
 				/>
 			</ul>
+			{ chartBelowCounts && chart }
 		</div>
 	);
 };

@@ -91,6 +91,15 @@ describe( 'FeatureDelivery', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	it.each( [
+		[ 'module', moduleState( false, 'active' ) ],
+		[ 'plugin', { ...installedPlugin, status: 'active' } as FeatureState ],
+	] )( 'says why an active %s waiting for an account offers Connect', ( _, state ) => {
+		render( <FeatureDelivery state={ { ...state, accountNeeded: true } } /> );
+
+		expect( screen.getByText( 'Requires a connected WordPress.com account' ) ).toBeVisible();
+	} );
+
 	it( 'explains how to turn on a module nobody forced', () => {
 		render( <FeatureDelivery state={ moduleState( false, 'inactive' ) } /> );
 
@@ -234,6 +243,72 @@ describe( 'FeaturePaid', () => {
 		expect(
 			screen.getByRole( 'link', { name: 'Upgrade to Jetpack Akismet Anti-spam' } )
 		).toHaveAttribute( 'href', '#/add-akismet?return_feature=anti-spam' );
+	} );
+
+	it( 'sends the upgrade to a host\u2019s own plans, leaving out the Jetpack ones and the address', async () => {
+		const url = 'https://wordpress.com/plans/example.com?plan=business-bundle';
+		const state = {
+			...installedPlugin,
+			feature: {
+				...installedPlugin.feature,
+				upgrade: { path: '', name: 'WordPress.com Business', url },
+			},
+		} as FeatureState;
+		render(
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
+		);
+
+		const upgrade = screen.getByRole( 'link', { name: 'Upgrade to WordPress.com Business' } );
+		expect( upgrade ).toHaveAttribute( 'href', url );
+		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+
+		// jsdom cannot navigate to another document.
+		upgrade.addEventListener( 'click', event => event.preventDefault() );
+		await userEvent.click( upgrade );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_features_upgrade_click', {
+			feature: 'anti-spam',
+			target: 'host',
+		} );
+	} );
+
+	it( 'renews an expired plan on its purchase page, even where a host sells its own plans', async () => {
+		const purchase = 'https://wordpress.com/me/purchases/example.com/123';
+		const state = {
+			feature: {
+				...feature,
+				slug: 'backup',
+				name: 'Backup',
+				plans: [ { slug: 'security', name: 'Jetpack Security' } ],
+				upgrade: { path: '', name: 'WordPress.com Business', url: 'https://example.com/plans' },
+			},
+			product: { status: 'expired', managePaidPlanPurchaseUrl: purchase },
+			status: 'inactive',
+			control: { kind: 'plan' },
+		} as unknown as FeatureState;
+		render(
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
+		);
+
+		const renew = screen.getByRole( 'link', { name: 'Renew the plan for Backup' } );
+		expect( renew ).toHaveAttribute( 'href', purchase );
+		expect( renew ).toHaveTextContent( 'Renew' );
+		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+
+		// jsdom cannot navigate to another document.
+		renew.addEventListener( 'click', event => event.preventDefault() );
+		await userEvent.click( renew );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_features_upgrade_click', {
+			feature: 'backup',
+			target: 'renew',
+		} );
 	} );
 
 	it( 'drops the upgrade when the catalog has nothing to sell this site', () => {
@@ -382,6 +457,79 @@ describe( 'FeatureModal Free column', () => {
 		expect( screen.getByRole( 'link', { name: 'Jetpack Complete' } ) ).toBeVisible();
 		expect( screen.getByText( 'Jetpack module: Requires a Search plan' ) ).toBeVisible();
 		expect( screen.getByText( 'Inactive' ) ).toBeVisible();
+	} );
+
+	it( 'leaves the header with only the title once the flag drops the status badge', () => {
+		window.myJetpackInitialState.myJetpackFlags = {
+			accountConnect: true,
+		} as typeof window.myJetpackInitialState.myJetpackFlags;
+		try {
+			render(
+				<QueryClientProvider client={ new QueryClient() }>
+					<FeatureModal
+						state={ moduleState( false, 'active' ) }
+						position={ 1 }
+						total={ 1 }
+						onStep={ jest.fn() }
+						onClose={ jest.fn() }
+					/>
+				</QueryClientProvider>
+			);
+			expect( screen.queryByText( /^(Active|Inactive)$/ ) ).not.toBeInTheDocument();
+		} finally {
+			window.myJetpackInitialState.myJetpackFlags = undefined;
+		}
+	} );
+
+	it( 'shows the account reason once, outside the actions row', () => {
+		window.myJetpackInitialState.myJetpackFlags = {
+			accountConnect: true,
+		} as typeof window.myJetpackInitialState.myJetpackFlags;
+		try {
+			const state = resolveFeatureState(
+				{
+					...feature,
+					slug: 'jetpack-ai',
+					name: 'Jetpack AI',
+					product: 'jetpack-ai',
+					needs_account: true,
+					upgrade: { path: '/add-ai', name: 'Jetpack AI' },
+				},
+				'active',
+				undefined,
+				{
+					ai: {
+						module: 'ai',
+						available: false,
+						unavailable_reason: 'Requires a connected WordPress.com account',
+						requires_user_connection: true,
+						activated: false,
+					} as never,
+				},
+				{},
+				false,
+				true
+			);
+			render(
+				<QueryClientProvider client={ new QueryClient() }>
+					<FeatureModal
+						state={ state }
+						position={ 1 }
+						total={ 1 }
+						onStep={ jest.fn() }
+						onClose={ jest.fn() }
+					/>
+				</QueryClientProvider>
+			);
+			const reason = screen.getByText( 'Requires a connected WordPress.com account' );
+			const upgrade = screen.getByRole( 'link', { name: 'Upgrade to Jetpack AI' } );
+			// eslint-disable-next-line testing-library/no-node-access -- the actions row has no role to query.
+			const actions = upgrade.closest( '[data-feature-actions]' );
+			expect( reason ).toBeVisible();
+			expect( actions ).not.toContainElement( reason );
+		} finally {
+			window.myJetpackInitialState.myJetpackFlags = undefined;
+		}
 	} );
 
 	it( 'agrees with the card status for an unavailable feature with no standalone route', () => {

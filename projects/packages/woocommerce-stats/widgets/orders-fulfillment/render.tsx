@@ -19,8 +19,13 @@ import {
 	UNFULFILLED_ORDERS_FILTER,
 	useReportOrders,
 } from '../../src/reports';
-import type { OrdersFulfillmentAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type OrdersFulfillmentAttributes = Record< never, never >;
 
 type OrdersFulfillmentRenderAttributes = OrdersFulfillmentAttributes &
 	Partial< ReportParamsFieldAttributes >;

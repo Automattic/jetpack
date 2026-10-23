@@ -3,8 +3,10 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\My_Jetpack\Products\Pro;
 use Automattic\Jetpack\My_Jetpack\Products\Stats;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -168,6 +170,24 @@ class Stats_Product_Test extends TestCase {
 		activate_plugin( self::STANDALONE_PLUGIN_FILE );
 
 		$this->assertTrue( Stats::is_standalone_plugin_active() );
+	}
+
+	/**
+	 * @dataProvider provide_pro_subscriptions
+	 * @param string $slug Pro subscription slug.
+	 */
+	#[DataProvider( 'provide_pro_subscriptions' )]
+	public function test_pro_owners_do_not_get_standalone_stats_upgrades( $slug ) {
+		Wpcom_Products::reset_purchases_cache();
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array( (object) array( 'product_slug' => $slug ) ), HOUR_IN_SECONDS );
+		$this->assertFalse( Stats::is_upgradable() );
+	}
+
+	/**
+	 * @return array Pro subscription terms.
+	 */
+	public static function provide_pro_subscriptions() {
+		return array_map( static fn( $slug ) => array( $slug ), Pro::get_paid_plan_product_slugs() );
 	}
 
 	/**

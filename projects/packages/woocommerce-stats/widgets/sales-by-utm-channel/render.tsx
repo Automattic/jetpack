@@ -10,8 +10,13 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { UtmLeaderboard } from '../../src/components/utm-leaderboard';
-import type { SalesByUtmChannelAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type SalesByUtmChannelAttributes = Record< never, never >;
 
 type SalesByUtmChannelRenderAttributes = SalesByUtmChannelAttributes &
 	Partial< ReportParamsFieldAttributes >;

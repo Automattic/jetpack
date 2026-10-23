@@ -103,6 +103,23 @@ describe( 'RecentPosts', () => {
 		);
 	} );
 
+	it( 'decodes HTML entities in the post title and its link label', () => {
+		render(
+			<RecentPosts
+				{ ...defaultProps }
+				posts={ [
+					{
+						...posts[ 0 ],
+						title: 'Tom &#038; Jerry&#8217;s &#8211; test',
+					},
+				] }
+			/>
+		);
+
+		expect( screen.getByText( 'Tom & Jerry’s – test' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Tom & Jerry’s – test' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders loading, empty, and error states with their actions', () => {
 		const { rerender } = render( <RecentPosts { ...defaultProps } posts={ [] } isLoading /> );
 		expect( screen.getByText( 'Loading recent posts…' ) ).toBeInTheDocument();

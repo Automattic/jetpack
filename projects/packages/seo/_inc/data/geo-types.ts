@@ -24,6 +24,8 @@ export interface GeoState {
 		enabled: boolean;
 		/** Whether the AI SEO control the Enhancer sits under is on. */
 		aiSeoEnabled: boolean;
+		/** Whether Jetpack AI is on site-wide; when off, AI SEO reads off too. */
+		aiEnabled: boolean;
 	};
 	llmsTxt: {
 		/** Whether llms.txt generation is switched on. */

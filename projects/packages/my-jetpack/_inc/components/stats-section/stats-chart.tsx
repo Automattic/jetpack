@@ -3,7 +3,7 @@ import '@automattic/charts/style.css';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
-import { Suspense, useCallback, useMemo } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import LoadingBlock from '../loading-block';
 import StatsChartTooltip from './stats-chart-tooltip';
 import styles from './stats-chart.module.scss';
@@ -29,7 +29,11 @@ interface StatsChartProps {
 	onClick: () => void;
 	selectedMetric: string;
 	metricIcon: ReactElement;
+	fitTicks?: boolean;
 }
+
+// Below this width, seven date labels run into each other.
+const NARROW_CHART_WIDTH = 300;
 
 /**
  * Stats chart component with bar chart visualization.
@@ -39,9 +43,30 @@ interface StatsChartProps {
  * @param {string}   props.href       - Destination of the detailed stats link.
  * @param {Function} props.onClick    - Click handler.
  * @param {object}   props.metricIcon - The icon JSX element for the selected metric.
+ * @param {boolean}  [props.fitTicks] - Whether to show fewer date labels when the chart is narrow.
  * @return {object} StatsChart React component.
  */
-const StatsChart: FC< StatsChartProps > = ( { data, isLoading, href, onClick, metricIcon } ) => {
+const StatsChart: FC< StatsChartProps > = ( {
+	data,
+	isLoading,
+	href,
+	onClick,
+	metricIcon,
+	fitTicks = false,
+} ) => {
+	const containerRef = useRef< HTMLAnchorElement >( null );
+	const [ width, setWidth ] = useState( 0 );
+	useEffect( () => {
+		const container = containerRef.current;
+		if ( ! fitTicks || ! container || typeof ResizeObserver === 'undefined' ) {
+			return;
+		}
+		const observer = new ResizeObserver( ( [ entry ] ) => setWidth( entry.contentRect.width ) );
+		observer.observe( container );
+		return () => observer.disconnect();
+	}, [ fitTicks ] );
+	const isNarrow = width > 0 && width < NARROW_CHART_WIDTH;
+
 	// Check if there's data for the selected metric specifically
 	const isEmpty = useMemo( () => {
 		return ! isLoading && data?.[ 0 ]?.data?.every( item => item.value === 0 );
@@ -78,6 +103,7 @@ const StatsChart: FC< StatsChartProps > = ( { data, isLoading, href, onClick, me
 
 	return (
 		<Link
+			ref={ containerRef }
 			variant="unstyled"
 			className={ styles[ 'chart-container' ] }
 			href={ href }
@@ -137,7 +163,7 @@ const StatsChart: FC< StatsChartProps > = ( { data, isLoading, href, onClick, me
 							axis: {
 								x: {
 									// hideZero: false,
-									numTicks: 7,
+									numTicks: isNarrow ? 4 : 7,
 									tickFormat: timestamp => {
 										const date = new Date( timestamp );
 

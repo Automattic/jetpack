@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useReportScope } from '@jetpack-premium-analytics/data';
+import { useReportScope, type LockableInterval } from '@jetpack-premium-analytics/data';
 import {
 	isComparisonPresetId,
 	isPrimaryPreset,
@@ -91,6 +91,9 @@ export type DateFiltersPanelProps = {
 	 */
 	intervalOptions?: readonly IntervalType[];
 
+	/** The buckets the range would allow but the plan locks, listed with a lock. */
+	lockedIntervalOptions?: readonly LockableInterval[];
+
 	onChange: DatePeriodDropdownProps[ 'onChange' ];
 
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
@@ -149,6 +152,7 @@ export function DateFiltersPanel( {
 	withIntervalControl = false,
 	interval,
 	intervalOptions,
+	lockedIntervalOptions,
 	onChange,
 	onComparisonChange,
 	onIntervalChange,
@@ -254,13 +258,25 @@ export function DateFiltersPanel( {
 			withIntervalControl && intervalOptions && onIntervalChange ? (
 				<DateIntervalDropdown
 					options={ intervalOptions }
+					lockedOptions={ lockedIntervalOptions }
+					lockUpsell={ dateLimits?.intervalUpsell }
 					value={ interval }
+					withLabel
 					disabled={ disabled }
 					triggerProps={ triggerProps }
 					onChange={ onIntervalChange }
 				/>
 			) : null,
-		[ withIntervalControl, interval, intervalOptions, disabled, triggerProps, onIntervalChange ]
+		[
+			withIntervalControl,
+			interval,
+			intervalOptions,
+			lockedIntervalOptions,
+			dateLimits?.intervalUpsell,
+			disabled,
+			triggerProps,
+			onIntervalChange,
+		]
 	);
 
 	return (
@@ -295,14 +311,7 @@ export function DateFiltersPanel( {
 						attentionId={ attentionId }
 						lockedPresetIds={ dateLimits?.lockedPresetIds }
 						earliestDate={ dateLimits?.earliestDate }
-						lockNotice={
-							dateLimits?.upsell && (
-								<DateLimitUpsell
-									upsell={ dateLimits.upsell }
-									onUpgradeClick={ dateLimits.onUpgradeClick }
-								/>
-							)
-						}
+						lockNotice={ dateLimits?.upsell && <DateLimitUpsell upsell={ dateLimits.upsell } /> }
 					/>
 				</BaseControl>
 

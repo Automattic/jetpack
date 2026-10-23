@@ -34,7 +34,7 @@ function is_dashboard_unlocked_for_a11n() {
  * Kept for older copies of the package, whose class-analytics.php calls it and whose client
  * offers adding and removing widgets only while the script data says so.
  *
- * @deprecated $$next-version$$ Adding and removing widgets is always offered.
+ * @deprecated 0.13.0 Adding and removing widgets is always offered.
  *
  * @return void
  */
@@ -45,7 +45,7 @@ function configure_dashboard_policy() {
 /**
  * Tells an older copy's client that adding and removing widgets is offered.
  *
- * @deprecated $$next-version$$ Adding and removing widgets is always offered.
+ * @deprecated 0.13.0 Adding and removing widgets is always offered.
  *
  * @param array $data The script data passed by the assets package.
  * @return array

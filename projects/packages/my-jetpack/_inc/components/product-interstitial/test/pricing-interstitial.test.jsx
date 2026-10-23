@@ -49,12 +49,12 @@ jest.mock( '../config', () => ( {
 		search: {
 			title: 'Search',
 			logo: null,
-			bundle: 'complete',
+			bundle: mockBundleSlug,
 			features: [],
 			tiers: {
 				free: { name: 'Free', cta: 'Start for free' },
 				paid: { name: 'Search', cta: 'Get Search' },
-				bundle: { name: 'Complete', cta: 'Get Complete' },
+				bundle: { name: mockBundleSlug, cta: `Get ${ mockBundleSlug }` },
 			},
 		},
 	} ),
@@ -83,6 +83,9 @@ jest.mock( '@wordpress/ui', () => ( {
 jest.mock( '@wordpress/components', () => ( { Spinner: () => <div /> } ) );
 jest.mock( '../product-interstitial', () => () => <div data-testid="legacy-interstitial" /> );
 jest.mock( '../../go-back-link', () => () => <div /> );
+jest.mock( '../../product-detail-card', () => ( { slug } ) => (
+	<div data-testid="bundle-offer">{ slug }</div>
+) );
 
 const POST_ACTIVATION_URL = 'https://example.org/wp-admin/admin.php?page=jetpack-search';
 
@@ -106,12 +109,14 @@ const searchDetail = {
 	},
 };
 
+let mockBundleSlug = 'complete';
 let activate;
 let runSearchFreeActivation;
 let freeCheckoutRun;
 let searchFreeIsPending;
 
 beforeEach( () => {
+	mockBundleSlug = 'complete';
 	jest.clearAllMocks();
 	searchFreeIsPending = false;
 
@@ -164,3 +169,48 @@ describe( 'PricingInterstitial free tier for Search', () => {
 		screen.getAllByRole( 'button' ).forEach( button => expect( button ).toBeDisabled() );
 	} );
 } );
+
+it.each( [ 'security', 'growth', 'complete' ] )(
+	'preserves %s offers until retirement, then uses the available replacement',
+	legacyBundle => {
+		mockBundleSlug = legacyBundle;
+		const pro = {
+			pricingForUi: { catalogAvailable: false, available: false },
+			hasPaidPlanForProduct: false,
+		};
+		const legacy = { pricingForUi: { available: true }, title: legacyBundle };
+		const products = {
+			complete: { pricingForUi: { available: true } },
+			[ legacyBundle ]: legacy,
+			pro,
+		};
+		useProduct.mockImplementation( slug => ( {
+			detail: products[ slug ] || searchDetail,
+			isLoading: false,
+		} ) );
+		const { rerender } = render( <PricingInterstitial slug="search" /> );
+		expect( screen.getByRole( 'button', { name: `Get ${ legacyBundle }` } ) ).toBeEnabled();
+		expect( screen.queryByTestId( 'bundle-offer' ) ).not.toBeInTheDocument();
+		pro.pricingForUi = { catalogAvailable: true, available: true };
+		rerender( <PricingInterstitial slug="search" /> );
+		expect( screen.getByTestId( 'bundle-offer' ) ).toHaveTextContent( 'pro' );
+		pro.pricingForUi.available = false;
+		rerender( <PricingInterstitial slug="search" /> );
+		expect( screen.getByTestId( 'bundle-offer' ) ).toHaveTextContent( 'complete' );
+		pro.pricingForUi.catalogAvailable = false;
+		rerender( <PricingInterstitial slug="search" /> );
+		expect( screen.getByRole( 'button', { name: `Get ${ legacyBundle }` } ) ).toBeEnabled();
+		legacy.pricingForUi.available = false;
+		legacy.purchaseReplacement = legacyBundle === 'complete' ? null : { slug: 'complete' };
+		rerender( <PricingInterstitial slug="search" /> );
+		expect(
+			screen.queryByRole( 'button', { name: `Get ${ legacyBundle }` } )
+		).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'bundle-offer' )?.textContent ?? null ).toBe(
+			legacyBundle === 'complete' ? null : 'complete'
+		);
+		legacy.hasPaidPlanForProduct = true;
+		rerender( <PricingInterstitial slug="search" /> );
+		expect( screen.getByTestId( 'bundle-offer' ) ).toHaveTextContent( legacyBundle );
+	}
+);

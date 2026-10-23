@@ -6,6 +6,11 @@ export { DashboardSectionProvider, useDashboardOriginSearch } from './use-dashbo
 export { useElementSize, type ElementSize } from './use-element-size';
 export { useLockedPrimaryLegendItems } from './use-locked-primary-legend-items';
 export { useNormalizedReportParams } from './use-normalized-report-params';
+export {
+	useReportActions,
+	type ReportActionsOptions,
+	type ReportCsvActionOptions,
+} from './use-report-actions';
 export { useWidgetNavigationSearch } from './use-widget-navigation-search';
 export { useSegmentStyles } from './use-segment-styles';
 export { useSeriesStyles } from './use-series-styles';
