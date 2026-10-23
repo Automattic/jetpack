@@ -1,6 +1,6 @@
 # Store performance
 
-Tabs over a comparison line chart, one per metric. The widget owns five metrics (`metrics.ts`); a plugin adds its own through a filter, and the user picks what shows from the Metrics menu in the widget header.
+Tabs over a comparison chart, one per metric. The widget owns five metrics (`metrics.ts`); a plugin adds its own through a filter, and the user picks what shows from the Metrics menu in the widget header. The Chart type toggle beside it draws them as lines or bars.
 
 ## Add a metric
 
@@ -56,5 +56,6 @@ A metric registered later shows on every widget until the user unticks it: the `
 
 - `metrics.ts`: the widget's metrics and `getStorePerformanceMetrics()`, which applies the filter, validates, drops repeats and sorts by `order`.
 - `use-store-performance-metrics.ts`: the list as a React external store, read again on filter changes.
+- `widget.json`: the header order, with `hiddenMetrics` named by id only so it leads, and the `chartType` attribute, a `jpa/toggle-group` of line and bar.
 - `widget.ts`: the `hiddenMetrics` attribute, a `jpa/array-checkbox` field whose options are the metrics on offer.
 - `render.tsx`: one `MetricReport` child per shown metric, which runs the metric's hook; the chart draws from their reports.

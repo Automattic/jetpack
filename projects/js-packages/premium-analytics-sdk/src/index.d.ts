@@ -68,11 +68,6 @@ export type ReportActionsOptions = {
 	};
 };
 
-// Footer chrome, until every widget declares its footer through `useReportActions`.
-export declare const WidgetFooter: AnyComponent;
-export declare const ReportLink: AnyComponent;
-export declare const ExporterCsvDownloadButton: AnyComponent;
-
 // Charts and metrics: parts of the metric tabs and metric tiles kinds, until those kinds exist.
 export declare const ChartEmptyState: AnyComponent;
 export declare const MetricTabsChart: AnyComponent;
@@ -270,6 +265,8 @@ export type UseReportOptions = {
 	enabled?: boolean;
 	// Where the comparison query parks while the params carry no comparison.
 	disabledComparisonKey?: string[];
+	// Defaults to true. False for a query whose failure leaves the figures on screen current, such as product details.
+	refreshNotice?: boolean;
 };
 
 export declare function useReport< TData, TParams extends ReportParams = ReportParams >(

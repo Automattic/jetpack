@@ -8,6 +8,7 @@ import { _n } from '@wordpress/i18n';
  * Internal dependencies
  */
 import {
+	mockOverlapBarColor,
 	resetMockCharts,
 	setMockChartWidth,
 	setMockElementStyles,
@@ -70,6 +71,7 @@ type ChartProps = {
 	legendInteractive?: boolean;
 	comparisonLabel?: string;
 	baseline?: 'zero' | 'padded';
+	layout?: string;
 	onPointerDown?: ( params: PointerParams ) => void;
 	onPointerUp?: ( params: PointerParams ) => void;
 	onDatumActivate?: ( params: { datum: unknown } ) => void;
@@ -662,14 +664,29 @@ describe( 'MetricTabsChart', () => {
 	} );
 
 	it.each( [
-		[ 'line', mockLineSpy ],
-		[ 'bar', mockBarSpy ],
+		[
+			'a line in the accent, its counterpart in a dark shade',
+			'line',
+			mockLineSpy,
+			[ 'Views', 'Visitors' ],
+			[ '#3858E9', '#3858E9', '#1c2c75', '#1c2c75' ],
+		],
+		[
+			'overlapping bars, the larger metric behind, both left to the chart to tone, the previous period in grays',
+			'bar',
+			mockBarSpy,
+			[ 'Views', 'Views' ],
+			[
+				undefined,
+				'#cccccc',
+				undefined,
+				'var(--wpds-color-foreground-content-neutral-weak, #707070)',
+			],
+		],
 	] as const )(
-		'draws the selected metric in the accent and its counterpart in a dark shade, previous periods included (%s)',
-		async ( chartType, spy ) => {
-			const accent = '#3858E9';
-			const darkShade = '#1c2c75';
-			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? accent : '#5AA61B' } ) );
+		'draws the selected metric and its counterpart as %s',
+		async ( _case, chartType, spy, [ viewsFirst, visitorsFirst ], expected ) => {
+			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? '#3858E9' : '#5AA61B' } ) );
 			const user = userEvent.setup();
 			render(
 				<MetricTabsChart
@@ -680,13 +697,50 @@ describe( 'MetricTabsChart', () => {
 			);
 			const strokes = ( label: string ) =>
 				recordedPropsFor( spy, label ).series.map( series => series.options?.stroke );
-			const expected = [ accent, accent, darkShade, darkShade ];
 
-			expect( strokes( 'Views' ) ).toEqual( expected );
+			expect( strokes( viewsFirst ) ).toEqual( expected );
 			await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
-			expect( strokes( 'Visitors' ) ).toEqual( expected );
+			expect( strokes( visitorsFirst ) ).toEqual( expected );
 		}
 	);
+
+	it( 'draws overlap bars that name the picked metric, its seeded-hidden counterpart still hidden', async () => {
+		const user = userEvent.setup();
+		render(
+			<MetricTabsChart
+				metrics={ [ VIEWS, { ...VISITORS, counterpartHidden: true } ] }
+				dataFormat={ DATA_FORMAT }
+				chartType="bar"
+			/>
+		);
+		await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
+
+		expect( recordedPropsFor( mockBarSpy, 'Views' ) ).toMatchObject( {
+			layout: 'overlap',
+			primarySeries: 'Visitors',
+			defaultHiddenSeries: [ 'Views', expect.stringContaining( 'Views' ) ],
+		} );
+	} );
+
+	it.each( [
+		[
+			'in the full accent and the solid gray in a chart without pairs',
+			[ METRIC ],
+			[ '#3858E9', 'var(--wpds-color-stroke-surface-neutral-strong, #8d8d8d)' ],
+		],
+		[
+			'in the front metric shade and dark gray in a chart that pairs other metrics',
+			[ { ...METRIC, key: 'comments' }, VIEWS, VISITORS ],
+			[ mockOverlapBarColor( 1 ), 'var(--wpds-color-foreground-content-neutral-weak, #707070)' ],
+		],
+	] )( 'draws a metric alone %s', ( _case, metrics, strokes ) => {
+		setMockElementStyles( () => ( { color: '#3858E9' } ) );
+		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } chartType="bar" /> );
+
+		expect(
+			recordedPropsFor( mockBarSpy, 'Views' ).series.map( series => series.options?.stroke )
+		).toEqual( strokes );
+	} );
 
 	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
 	// alone, so drawing the pair there offers the legend a flat zero line.

@@ -55,7 +55,7 @@ describe( 'DateFiltersPanel', () => {
 		} );
 
 		const comparison = screen.getByRole( 'button', { name: 'Compare' } );
-		const chartInterval = screen.getByRole( 'button', { name: 'Chart interval: By days' } );
+		const chartInterval = screen.getByRole( 'button', { name: 'By days' } );
 
 		expect( comparison.compareDocumentPosition( chartInterval ) ).toBe(
 			Node.DOCUMENT_POSITION_FOLLOWING
@@ -261,7 +261,7 @@ describe( 'DateFiltersPanel', () => {
 			</ReportScopeProvider>
 		);
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
 
 		expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toHaveAccessibleDescription(
 			'Group your charts by week.'

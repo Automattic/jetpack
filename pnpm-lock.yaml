@@ -342,8 +342,8 @@ importers:
         specifier: 1.5.0
         version: 1.5.0
       '@react-spring/web':
-        specifier: 10.1.1
-        version: 10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 10.1.2
+        version: 10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@visx/annotation':
         specifier: ^4.0.0
         version: 4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -391,7 +391,7 @@ importers:
         version: 4.0.0
       '@visx/xychart':
         specifier: ^4.0.0
-        version: 4.0.0(@react-spring/web@10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 4.0.0(@react-spring/web@10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/i18n':
         specifier: ^6.0.0
         version: 6.30.0
@@ -1880,12 +1880,21 @@ importers:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
       '@automattic/jetpack-wp-build-polyfills':
         specifier: workspace:*
         version: link:../wp-build-polyfills
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
+      '@testing-library/dom':
+        specifier: 10.4.2
+        version: 10.4.2
+      '@testing-library/react':
+        specifier: 16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
@@ -1901,9 +1910,15 @@ importers:
       '@wordpress/theme':
         specifier: 2.3.0
         version: 2.3.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      babel-jest:
+        specifier: 30.5.2
+        version: 30.5.2(@babel/core@7.29.7)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.9
+      jest:
+        specifier: 30.5.2
+        version: 30.5.2
 
   projects/packages/admin-ui:
     devDependencies:
@@ -4130,6 +4145,9 @@ importers:
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
@@ -4269,6 +4287,9 @@ importers:
         specifier: 19.3.0
         version: 19.3.0(react@19.3.0)
     devDependencies:
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
       '@automattic/jetpack-premium-analytics-sdk':
         specifier: workspace:*
         version: link:../../js-packages/premium-analytics-sdk
@@ -5937,8 +5958,8 @@ importers:
         specifier: link:packages/init
         version: link:packages/init
       '@react-spring/web':
-        specifier: 10.1.1
-        version: 10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 10.1.2
+        version: 10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tanstack/react-query':
         specifier: 5.102.8
         version: 5.102.8(react@19.3.0)
@@ -6184,8 +6205,8 @@ importers:
         specifier: 1.5.0
         version: 1.5.0
       '@react-spring/web':
-        specifier: 10.1.1
-        version: 10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 10.1.2
+        version: 10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@visx/curve':
         specifier: 4.0.0
         version: 4.0.0
@@ -6200,7 +6221,7 @@ importers:
         version: 4.0.0
       '@visx/xychart':
         specifier: 4.0.0
-        version: 4.0.0(@react-spring/web@10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 4.0.0(@react-spring/web@10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@woocommerce/email-editor':
         specifier: 2.5.0
         version: 2.5.0(@date-fns/tz@1.5.0)(@types/react@19.3.0)(postcss@8.5.23)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -10027,12 +10048,6 @@ packages:
 
   '@react-spring/types@10.1.2':
     resolution: {integrity: sha512-G4CWowmVPz+rDG1y9QRVq/prZNxiNwQaHC0kgT/MgY6jAGgdRgTV4VThpvJDwWvUitk3xZB4soP4d36fjeQ09g==}
-
-  '@react-spring/web@10.1.1':
-    resolution: {integrity: sha512-G8jVDH8YPAo9ALWio0YcpwvZjXIt6LFwSKZtS4XeTNWIMNUH+sTm2Uy8dxEobTqyzQ5kvKwnMfS3LsOpKrVOag==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   '@react-spring/web@10.1.2':
     resolution: {integrity: sha512-KxDB3zaDqy9qFsu7fdxjyraAxweHH4k5TW5WGT/OuMK6hKaxSDfhrQfRBzfFaSVvMBf+NghbJFanllV4ia6i7A==}
@@ -21609,16 +21624,6 @@ snapshots:
 
   '@react-spring/types@10.1.2': {}
 
-  '@react-spring/web@10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
-    dependencies:
-      '@react-spring/animated': 10.1.2(react@19.3.0)
-      '@react-spring/core': 10.1.2(react@19.3.0)
-      '@react-spring/shared': 10.1.2(react@19.3.0)
-      '@react-spring/types': 10.1.2
-      csstype: 3.2.3
-      react: 19.3.0
-      react-dom: 19.3.0(react@19.3.0)
-
   '@react-spring/web@10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@react-spring/animated': 10.1.2(react@19.3.0)
@@ -22753,9 +22758,9 @@ snapshots:
 
   '@visx/point@4.0.0': {}
 
-  '@visx/react-spring@4.0.0(@react-spring/web@10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react@19.3.0)':
+  '@visx/react-spring@4.0.0(@react-spring/web@10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react@19.3.0)':
     dependencies:
-      '@react-spring/web': 10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@react-spring/web': 10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@visx/axis': 4.0.0(@types/react@19.3.0)(react@19.3.0)
       '@visx/grid': 4.0.0(@types/react@19.3.0)(react@19.3.0)
       '@visx/scale': 4.0.0
@@ -22850,15 +22855,15 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  '@visx/xychart@4.0.0(@react-spring/web@10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@visx/xychart@4.0.0(@react-spring/web@10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@react-spring/web': 10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@react-spring/web': 10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@visx/annotation': 4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@visx/axis': 4.0.0(@types/react@19.3.0)(react@19.3.0)
       '@visx/event': 4.0.0(@types/react@19.3.0)(react@19.3.0)
       '@visx/glyph': 4.0.0(@types/react@19.3.0)(react@19.3.0)
       '@visx/grid': 4.0.0(@types/react@19.3.0)(react@19.3.0)
-      '@visx/react-spring': 4.0.0(@react-spring/web@10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react@19.3.0)
+      '@visx/react-spring': 4.0.0(@react-spring/web@10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react@19.3.0)
       '@visx/responsive': 4.0.0(@types/react@19.3.0)(react@19.3.0)
       '@visx/scale': 4.0.0
       '@visx/shape': 4.0.0(@types/react@19.3.0)(react@19.3.0)
@@ -22875,15 +22880,15 @@ snapshots:
       '@types/react': 19.3.0
       '@types/react-dom': 19.3.0(@types/react@19.3.0)
 
-  '@visx/xychart@4.0.0(@react-spring/web@10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@visx/xychart@4.0.0(@react-spring/web@10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@react-spring/web': 10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@react-spring/web': 10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@visx/annotation': 4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@visx/axis': 4.0.0(@types/react@19.3.0)(react@19.3.0)
       '@visx/event': 4.0.0(@types/react@19.3.0)(react@19.3.0)
       '@visx/glyph': 4.0.0(@types/react@19.3.0)(react@19.3.0)
       '@visx/grid': 4.0.0(@types/react@19.3.0)(react@19.3.0)
-      '@visx/react-spring': 4.0.0(@react-spring/web@10.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react@19.3.0)
+      '@visx/react-spring': 4.0.0(@react-spring/web@10.1.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react@19.3.0)
       '@visx/responsive': 4.0.0(@types/react@19.3.0)(react@19.3.0)
       '@visx/scale': 4.0.0
       '@visx/shape': 4.0.0(@types/react@19.3.0)(react@19.3.0)

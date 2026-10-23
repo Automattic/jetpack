@@ -42,6 +42,7 @@
 	"dependencies": {
 		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
@@ -90,6 +91,7 @@
 		"react-dom": "19.3.0"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-premium-analytics-sdk": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",

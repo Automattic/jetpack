@@ -9,17 +9,20 @@
 import {
 	Card,
 	CardBody,
+	SearchControl,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
+import { getGroupDomId } from './anchors';
 import { isWriteTool } from './categories';
 import { getOverridesToMatch } from './group-intents';
 import { groupToolsByGroup } from './groups';
 import McpGroupCard, { McpToolSections } from './mcp-group-card';
 import McpToolbar from './mcp-toolbar';
 import { recordMcpTracksEvent } from './tracks';
+import useToolSearch from './use-tool-search';
 import {
 	getAccountMcpAbilities,
 	getGroupDescriptors,
@@ -37,9 +40,10 @@ import {
  * @param {number}   props.blogId        - Current site's blog ID.
  * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
  * @param {Function} props.onUpdate      - Called with partial mcp_abilities update.
+ * @param {string}   [props.anchor]      - Tool id from the URL hash, if any.
  * @return {object} Component markup.
  */
-export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate } ) {
+export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate, anchor } ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
 	const siteAbilities = getSiteMcpAbilities( mcpAbilities ?? {}, blogId );
@@ -59,7 +63,12 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 	const readTools = allTools.filter( ( [ id, t ] ) => ! isWriteTool( id, t ) );
 
 	const groupDescriptors = getGroupDescriptors( mcpAbilities ?? {} );
+	const { query, setQuery, isSearching, isVisible } = useToolSearch();
 	const groups = groupToolsByGroup( readTools, groupDescriptors );
+
+	const visibleGroups = groups
+		.map( g => ( { ...g, visibleTools: g.tools.filter( isVisible ) } ) )
+		.filter( g => g.visibleTools.length > 0 );
 
 	const handleToolChange = useCallback(
 		( toolId, enabled ) => {
@@ -136,32 +145,49 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 				allEnabled={ pageAllEnabled }
 				isDisabled={ isSavingAny || readTools.length === 0 }
 				onEnableAll={ handlePageToggle }
-			/>
+			>
+				<SearchControl
+					size="compact"
+					label={ __( 'Search tools', 'jetpack' ) }
+					value={ query }
+					onChange={ setQuery }
+				/>
+			</McpToolbar>
 
-			{ groups.length > 0 ? (
+			{ visibleGroups.length > 0 ? (
 				<Stack direction="column" gap="md">
-					{ groups.map( ( { group: descriptor, label, tools: groupTools } ) => (
-						<McpGroupCard
-							key={ descriptor?.name ?? '__other__' }
-							label={ label }
-							description={ descriptor?.description }
-							allEnabled={ groupTools.every( ( [ , t ] ) => t.enabled ) }
-							isSaving={ groupTools.some( ( [ id ] ) => savingToolIds.has( id ) ) }
-							group={ { name: descriptor?.name ?? null, tools: groupTools } }
-							onEnableAll={ handleGroupEnableAll }
-						>
-							<McpToolSections
-								tools={ groupTools }
-								savingToolIds={ savingToolIds }
-								onToolChange={ handleToolChange }
-							/>
-						</McpGroupCard>
-					) ) }
+					{ visibleGroups.map(
+						( { group: descriptor, label, tools: groupTools, visibleTools } ) => (
+							<McpGroupCard
+								key={ descriptor?.name ?? '__other__' }
+								id={ getGroupDomId( descriptor?.name ) }
+								forceOpen={ isSearching }
+								anchorToolId={ groupTools.some( ( [ id ] ) => id === anchor ) ? anchor : null }
+								label={ label }
+								description={ descriptor?.description }
+								allEnabled={ groupTools.every( ( [ , t ] ) => t.enabled ) }
+								isSaving={ groupTools.some( ( [ id ] ) => savingToolIds.has( id ) ) }
+								group={ { name: descriptor?.name ?? null, tools: groupTools } }
+								onEnableAll={ handleGroupEnableAll }
+							>
+								<McpToolSections
+									tools={ visibleTools }
+									view="mcp/read"
+									savingToolIds={ savingToolIds }
+									onToolChange={ handleToolChange }
+								/>
+							</McpGroupCard>
+						)
+					) }
 				</Stack>
 			) : (
 				<Card>
 					<CardBody>
-						<Text variant="muted">{ __( 'No read tools available.', 'jetpack' ) }</Text>
+						<Text variant="muted">
+							{ isSearching
+								? __( 'No tools match your search.', 'jetpack' )
+								: __( 'No read tools available.', 'jetpack' ) }
+						</Text>
 					</CardBody>
 				</Card>
 			) }
