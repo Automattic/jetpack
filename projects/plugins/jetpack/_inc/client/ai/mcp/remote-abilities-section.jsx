@@ -179,7 +179,7 @@ export default function RemoteAbilitiesSection( {
 				</Text>
 				<Text variant="body-sm" className="jetpack-ai-mcp__muted">
 					{ __(
-						'Advanced: choose which abilities this site’s plugins publish to external AI agents. Unset abilities follow your WordPress.com tools above.',
+						'Choose which abilities this site’s plugins publish to external AI agents.',
 						'jetpack'
 					) }
 				</Text>
