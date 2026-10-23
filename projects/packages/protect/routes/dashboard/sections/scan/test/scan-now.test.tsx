@@ -94,7 +94,7 @@ describe( 'Scan now', () => {
 				<HeaderScanButton />
 				<ScanCard openTab={ jest.fn() } />
 			</>,
-			'Scan now'
+			'Scan site'
 		);
 
 		expect( screen.getByRole( 'heading', { name: 'Scanning…' } ) ).toBeInTheDocument();

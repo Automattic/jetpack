@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Protect Dashboard: Show a "Jetpack / Protect" breadcrumb and a Scan site button in the page header.
