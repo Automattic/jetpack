@@ -8,6 +8,23 @@ import type { Action } from '@wordpress/dataviews';
 
 type LinkKey = 'update' | 'deactivate' | 'details';
 
+type OpenThreat = ( item: ScanThreat ) => void;
+
+/**
+ * Focus a threat's row when focus was lost, as when the button that started its action goes away.
+ *
+ * @param item - The threat.
+ */
+function refocusRow( item: ScanThreat ) {
+	const title = Array.from( document.querySelectorAll< HTMLElement >( '[data-threat-id]' ) ).find(
+		element => element.dataset.threatId === String( item.id )
+	);
+	const { activeElement, body } = title?.ownerDocument ?? {};
+	if ( title && ( ! activeElement || activeElement === body ) ) {
+		title.focus();
+	}
+}
+
 /**
  * A row's DataViews actions: primary ones show on hover, and the ⋯ menu lists them all.
  *
@@ -17,7 +34,7 @@ type LinkKey = 'update' | 'deactivate' | 'details';
  * @return The actions.
  */
 function getThreatRowActions(
-	open: ( item: ScanThreat ) => void,
+	open: OpenThreat,
 	canAct: boolean,
 	getBusy: ReturnType< typeof useGetThreatBusy >
 ): Action< ScanThreat >[] {
@@ -34,6 +51,15 @@ function getThreatRowActions(
 		( [ item ]: ScanThreat[] ) =>
 			item ? getSoftwareActionLabels( item )[ key ] : '';
 	const hasLink = ( key: LinkKey ) => ( item: ScanThreat ) => !! item.extension?.actions?.[ key ];
+	// Starting these locks the row, removing the clicked button and maybe its ⋯ menu.
+	const locking =
+		( start: ( item: ScanThreat, open: OpenThreat ) => unknown ) =>
+		( [ item ]: ScanThreat[] ) => {
+			if ( item ) {
+				start( item, open );
+				setTimeout( () => refocusRow( item ) );
+			}
+		};
 
 	const actions: Action< ScanThreat >[] = [
 		{
@@ -48,14 +74,14 @@ function getThreatRowActions(
 			isPrimary: true,
 			isEligible: item =>
 				canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed',
-			callback: ( [ item ] ) => item && fixThreat( item, open ),
+			callback: locking( fixThreat ),
 		},
 		{
 			id: 'unignore',
 			label: __( 'Unignore', 'jetpack-protect-pkg' ),
 			isPrimary: true,
 			isEligible: item => canAct && item.status === 'ignored',
-			callback: ( [ item ] ) => item && unignoreThreat( item, open ),
+			callback: locking( unignoreThreat ),
 		},
 		{
 			id: 'update',
@@ -86,7 +112,7 @@ function getThreatRowActions(
 			id: 'ignore',
 			label: __( 'Ignore', 'jetpack-protect-pkg' ),
 			isEligible: item => canAct && item.status !== 'ignored' && item.status !== 'fixed',
-			callback: ( [ item ] ) => item && ignoreThreat( item, open ),
+			callback: locking( ignoreThreat ),
 		},
 	];
 
@@ -115,10 +141,7 @@ function getThreatRowActions(
  * @param canAct - Whether the site's plan can fix and ignore threats.
  * @return The actions.
  */
-export function useThreatRowActions(
-	open: ( item: ScanThreat ) => void,
-	canAct: boolean
-): Action< ScanThreat >[] {
+export function useThreatRowActions( open: OpenThreat, canAct: boolean ): Action< ScanThreat >[] {
 	const getBusy = useGetThreatBusy();
 	return useMemo( () => getThreatRowActions( open, canAct, getBusy ), [ open, canAct, getBusy ] );
 }

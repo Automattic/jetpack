@@ -48,7 +48,12 @@ function ThreatCell( { item, onOpen }: RowProps ) {
 	const { kind, subject } = getThreatLabel( item );
 	const onClick = useCallback( () => onOpen( item ), [ item, onOpen ] );
 	return (
-		<button type="button" className="jp-protect-threats__title" onClick={ onClick }>
+		<button
+			type="button"
+			className="jp-protect-threats__title"
+			data-threat-id={ item.id }
+			onClick={ onClick }
+		>
 			<ThreatMedia threat={ item } size={ 32 } />
 			<span className="jp-protect-threats__label">
 				{ kind ? <strong>{ kind }</strong> : subject }
