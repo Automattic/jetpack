@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Show the View, Auto-fix and Unignore buttons on every threat row instead of only on hover.

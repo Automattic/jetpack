@@ -347,6 +347,14 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 		min-inline-size: 0;
 	}
 
+	// DataViews shows primary actions only on hover; keep them visible.
+	.dataviews-view-table tr .dataviews-item-actions {
+
+		.components-button:not(.dataviews-all-actions-button) {
+			opacity: 1;
+		}
+	}
+
 	&__nowrap {
 		white-space: nowrap;
 	}
