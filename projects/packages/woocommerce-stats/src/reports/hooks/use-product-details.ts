@@ -2,24 +2,24 @@
  * Internal dependencies
  */
 import { useReport } from '@automattic/jetpack-premium-analytics-sdk';
-import { productImagesQuery } from '../queries/product-images-query';
+import { productDetailsQuery } from '../queries/product-details-query';
 import type { ReportParams } from '../utils/types';
 
-const DISABLED_COMPARISON_KEY = [ 'products', 'images', '__comparison__', 'disabled' ];
+const DISABLED_COMPARISON_KEY = [ 'products', 'details', '__comparison__', 'disabled' ];
 
 /**
- * The images of the products a report listed, through the dashboard's query client. Images belong
- * to products, not to a period, so the comparison slot stays parked.
+ * The image and public URL of the products a report listed, through the dashboard's query client.
+ * They belong to products, not to a period, so the comparison slot stays parked.
  *
  * @param productIds - The products of the selected period, as the report listed them.
  * @param params     - The widget's report params, which say whether a comparison runs.
- * @return The images by product id, under the dashboard's query flags.
+ * @return The details by product id, under the dashboard's query flags.
  */
-export function useProductImages( productIds: readonly number[], params: ReportParams ) {
+export function useProductDetails( productIds: readonly number[], params: ReportParams ) {
 	return useReport(
 		( _params, queryType ) =>
 			queryType === 'primary'
-				? productImagesQuery( productIds )
+				? productDetailsQuery( productIds )
 				: { queryKey: DISABLED_COMPARISON_KEY, enabled: false },
 		params,
 		{ disabledComparisonKey: DISABLED_COMPARISON_KEY }
