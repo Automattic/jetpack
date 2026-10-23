@@ -12,12 +12,21 @@ const mockNavigate = jest.fn();
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: jest.fn(),
 	useNavigate: () => mockNavigate,
+	useLinkProps: () => ( { href: '#/' } ),
 } ) );
 jest.mock( '@automattic/jetpack-components/admin-page', () => {
 	const { createElement, Fragment } = jest.requireActual( 'react' );
 	return {
 		__esModule: true,
-		default: ( { actions, children } ) => createElement( Fragment, null, actions, children ),
+		default: ( { title, breadcrumbs, actions, children } ) =>
+			createElement(
+				Fragment,
+				null,
+				title && createElement( 'h1', null, title ),
+				breadcrumbs,
+				actions,
+				children
+			),
 	};
 } );
 
@@ -68,6 +77,7 @@ describe( 'Protect dashboard stage', () => {
 
 	afterEach( () => {
 		delete window.jetpackProtectDashboard;
+		delete ( window as { JetpackScriptData?: object } ).JetpackScriptData;
 		resetScan();
 		resetHistory();
 	} );
@@ -81,6 +91,23 @@ describe( 'Protect dashboard stage', () => {
 
 		expect( screen.getByRole( 'tab', { selected: true } ) ).toHaveTextContent( selected );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( requests );
+	} );
+
+	it.each( [
+		[ 'starts the header trail at Jetpack', true, {}, 'Protect' ],
+		[ 'keeps a plain title without My Jetpack', false, {}, 'Protect' ],
+		[ 'names the threat report in the trail', true, { threats: '5' }, 'Threats from your alert' ],
+	] )( '%s', ( _name, isAvailable, search, heading ) => {
+		( window as { JetpackScriptData?: object } ).JetpackScriptData = {
+			site: { admin_url: '/wp-admin/' },
+			myJetpack: { isAvailable },
+		};
+		window.jetpackProtectDashboard = { scan: { hasPlan: true, lastChecked } };
+		mockUseSearch.mockReturnValue( search );
+		render( <Stage /> );
+
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( heading );
+		expect( screen.queryByRole( 'link', { name: 'Jetpack' } ) !== null ).toBe( isAvailable );
 	} );
 
 	it.each( [

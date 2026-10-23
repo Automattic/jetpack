@@ -71,12 +71,12 @@ const Stage = () => {
 	}, [ activeTab, load, showReport ] );
 
 	if ( showReport ) {
+		const reportTitle = __( 'Threats from your alert', 'jetpack-protect-pkg' );
 		return (
 			<AdminPage
 				className="jp-protect-dashboard"
-				breadcrumbs={
-					<PageBreadcrumbs current={ __( 'Threats from your alert', 'jetpack-protect-pkg' ) } />
-				}
+				breadcrumbs={ <PageBreadcrumbs current={ reportTitle } /> }
+				ariaLabel={ reportTitle }
 			>
 				<div className="jp-protect-dashboard__body">
 					<ThreatReport
@@ -89,12 +89,14 @@ const Stage = () => {
 		);
 	}
 
+	const showTrail = hasJetpackCrumb();
 	return (
 		<AdminPage
 			className="jp-protect-dashboard"
-			breadcrumbs={ hasJetpackCrumb() ? <PageBreadcrumbs /> : undefined }
+			breadcrumbs={ showTrail ? <PageBreadcrumbs /> : undefined }
 			// "Protect" is a product name and is not translated.
-			title={ hasJetpackCrumb() ? undefined : 'Protect' }
+			title={ showTrail ? undefined : 'Protect' }
+			ariaLabel="Protect"
 			actions={ state.scan ? <HeaderScanButton /> : undefined }
 		>
 			<Tabs.Root value={ activeTab } onValueChange={ goTo }>
