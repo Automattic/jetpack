@@ -35,8 +35,8 @@ export function getAccountSections( {
 	const isOwnerUnconfirmed = isProtectedOwnerPending && ! isOwnerConnectionBroken;
 
 	return {
-		// Connecting would take a broken owner's slot, so the banner decides who acts, as in My Jetpack.
-		connectPrompt: ! viewer && canConnect && ! ( isOwnerConnectionBroken && isErrorBannerShown ),
+		// The banner decides who acts, as in My Jetpack: connecting fails on a broken site connection and takes a broken owner's slot.
+		connectPrompt: ! viewer && canConnect && ! isErrorBannerShown,
 		unconfirmedOwnerRow: showsOwnerRow && isOwnerUnconfirmed,
 		ownerRow: showsOwnerRow && ! isOwnerUnconfirmed,
 	};

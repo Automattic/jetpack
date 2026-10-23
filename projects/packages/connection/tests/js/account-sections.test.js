@@ -62,9 +62,9 @@ describe( 'getAccountSections', () => {
 			{ ...none, connectPrompt: true, ownerRow: true },
 		],
 		[
-			'unlinked admin beside a healthy owner with the banner: prompt stays, as connecting takes no ownership',
+			'unlinked admin beside a healthy owner with the banner: owner row, no prompt',
 			{ owner, isErrorBannerShown: true },
-			{ ...none, connectPrompt: true, ownerRow: true },
+			{ ...none, ownerRow: true },
 		],
 		[
 			'protected owner pending: unconfirmed row replaces the owner row',
