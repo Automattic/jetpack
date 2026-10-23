@@ -10,7 +10,6 @@ import userEvent from '@testing-library/user-event';
 import {
 	chartIntervalAttributeField,
 	chartIntervalElements,
-	chartIntervalField,
 	type ChartIntervalFieldAttributes,
 } from '../chart-interval-field';
 import type { ReportParamsFieldAttributes } from '../../report-params-field/report-params-field';
@@ -30,7 +29,7 @@ type ControlProps = {
 	onChange: ( next: Attributes ) => void;
 };
 
-const Control = chartIntervalField.Edit as unknown as ComponentType< ControlProps >;
+const Control = chartIntervalAttributeField().Edit as unknown as ComponentType< ControlProps >;
 
 const DAILY_TO_MONTHLY = chartIntervalElements( [ 'day', 'week', 'month' ] );
 
@@ -72,7 +71,7 @@ beforeEach( () => {
 	mockSearch = { preset: 'last-30-days' };
 } );
 
-describe( 'chartIntervalField', () => {
+describe( 'chartIntervalAttributeField with no extension', () => {
 	it( "saves a pick on the widget's own attributes", async () => {
 		const user = userEvent.setup();
 		const { onChange } = renderControl();

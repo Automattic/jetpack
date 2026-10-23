@@ -120,8 +120,3 @@ export function chartIntervalAttributeField<
 		Edit: createChartIntervalControl( extendIntervals ) as WidgetAttributeField< T >[ 'Edit' ],
 	};
 }
-
-/**
- * The "Chart interval" attribute for a widget that draws what its range allows.
- */
-export const chartIntervalField = chartIntervalAttributeField();

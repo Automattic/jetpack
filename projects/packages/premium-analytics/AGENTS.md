@@ -331,7 +331,7 @@ Notes:
 - An attribute is declared in `widget.json` whenever its field is static: `type`, `label`,
   fixed `elements` (option icons as `jpa/<name>`), `relevance`. `widget.ts` carries only what
   JSON cannot express: `getElements`, `getValue`/`setValue`, a field a helper builds
-  (`reportParamsAttributeField()`, `chartIntervalField`), plus `example`, which the build does
+  (`reportParamsAttributeField()`, `chartIntervalAttributeField()`), plus `example`, which the build does
   not read from `widget.json` yet. Record and module entries merge by `id`, the record's first;
   a module-only control keeps its position by listing `{ "id" }` in `widget.json` (see
   `docs/dashboard-widgets.md`). A widget with none of that ships no `widget.ts`; its attribute

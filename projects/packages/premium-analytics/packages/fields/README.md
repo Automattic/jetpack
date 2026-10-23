@@ -81,12 +81,12 @@ already saved on a window the widget stops offering is migrated to an offered
 one. `periods` is the bucket sizes its chart draws, so the interval menu never
 lists one the chart would clamp away.
 
-`chartIntervalField` saves a chart's own bucket size on the widget instance,
-and needs no factory: the buckets are its `elements`, a key dataviews keeps, so
-a widget lists the ones its chart draws:
+`chartIntervalAttributeField()` saves a chart's own bucket size on the widget
+instance. The buckets are its `elements`, a key dataviews keeps, so a widget
+lists the ones its chart draws:
 
 ```ts
-attributes: [ { ...chartIntervalField, elements: chartIntervalElements( MY_PERIODS ) } ]
+attributes: [ { ...chartIntervalAttributeField(), elements: chartIntervalElements( MY_PERIODS ) } ]
 ```
 
 A saved bucket the range rules out shows as the nearest one it allows, and is

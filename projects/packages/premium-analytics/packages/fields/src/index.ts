@@ -6,7 +6,6 @@ export { registerFieldTypes, resolveFieldTypes } from './field-types';
 export {
 	chartIntervalAttributeField,
 	chartIntervalElements,
-	chartIntervalField,
 	type ChartIntervalFieldAttributes,
 } from './chart-interval-field/chart-interval-field';
 export {
