@@ -6,7 +6,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
 import useOpenThreat from '../use-open-threat';
 import { getThreatLabel } from './labels';
-import { THREAT_PARAM, useSearchParam } from './store';
+import { THREAT_PARAM, useCanIgnore, useSearchParam } from './store';
 import ThreatMedia from './threat-media';
 import { getThreatRowActions } from './threat-row-actions';
 import type { ScanThreat } from './types';
@@ -171,7 +171,11 @@ export default function ThreatsList( { threats, empty, canAct }: ThreatsListProp
 			} ),
 		[ open ]
 	);
-	const actions = useMemo( () => getThreatRowActions( open, canAct ), [ open, canAct ] );
+	const canIgnore = useCanIgnore();
+	const actions = useMemo(
+		() => getThreatRowActions( open, canAct, canIgnore ),
+		[ open, canAct, canIgnore ]
+	);
 
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( threats, view, fields ),

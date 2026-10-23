@@ -18,7 +18,7 @@ import { HISTORY_THREAT_PARAM, loadHistory, useHistory } from '../history/store'
 import useOpenThreat from '../use-open-threat';
 import { groupThreats } from './group-threats';
 import { SafeShield } from './safe-state';
-import { THREAT_PARAM, refreshScan, useScan, useSearchParam } from './store';
+import { THREAT_PARAM, refreshScan, useCanIgnore, useScan, useSearchParam } from './store';
 import { getThreatRowActions } from './threat-row-actions';
 import threatsIcon from './threats-icon';
 import { getThreatFields } from './threats-list';
@@ -106,7 +106,11 @@ function ThreatGroup( {
 		() => getThreatFields( open, { threatLabel: title, dateLabel, getDate } ),
 		[ open, title, dateLabel, getDate ]
 	);
-	const actions = useMemo( () => getThreatRowActions( open, canAct ), [ open, canAct ] );
+	const canIgnore = useCanIgnore();
+	const actions = useMemo(
+		() => getThreatRowActions( open, canAct, canIgnore ),
+		[ open, canAct, canIgnore ]
+	);
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( threats, view, fields ),
 		[ threats, view, fields ]

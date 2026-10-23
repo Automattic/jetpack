@@ -83,6 +83,25 @@ class Scan_Section_Test extends BaseTestCase {
 		$this->assertFalse( Scan::can_act_on_threats() );
 	}
 
+	public function test_threats_cannot_be_ignored_when_the_host_turns_ignoring_off() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'admin',
+					'user_pass'  => 'pass',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		add_filter( 'jetpack_protect_threat_ignoring_enabled', '__return_false' );
+
+		$result = Scan::can_ignore_threats();
+
+		remove_filter( 'jetpack_protect_threat_ignoring_enabled', '__return_false' );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'threat_ignoring_disabled', $result->get_error_code() );
+	}
+
 	/**
 	 * Test that a held request lock refuses a second scan, and a released one allows a retry.
 	 */

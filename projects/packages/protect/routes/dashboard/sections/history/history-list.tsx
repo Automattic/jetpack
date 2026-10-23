@@ -6,7 +6,7 @@ import { useNavigate } from '@wordpress/route';
 import { EmptyState, Tabs } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
 import { CLOSED_INSPECTOR } from '../inspector-params';
-import { THREAT_PARAM, useScan, useSearchParam } from '../scan/store';
+import { THREAT_PARAM, useCanIgnore, useScan, useSearchParam } from '../scan/store';
 import { getThreatRowActions } from '../scan/threat-row-actions';
 import { createThreatView, getThreatFields } from '../scan/threats-list';
 import useOpenThreat from '../use-open-threat';
@@ -80,8 +80,12 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 			} ),
 		[ open, status ]
 	);
-	// History only shows with a Scan plan, so ignored threats can always be unignored.
-	const actions = useMemo( () => getThreatRowActions( open, true ), [ open ] );
+	// History only shows with a Scan plan, so ignored threats can be unignored where the host allows it.
+	const canIgnore = useCanIgnore();
+	const actions = useMemo(
+		() => getThreatRowActions( open, true, canIgnore ),
+		[ open, canIgnore ]
+	);
 
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( status === 'fixed' ? fixed : ignored, view, fields ),
