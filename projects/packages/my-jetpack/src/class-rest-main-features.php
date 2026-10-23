@@ -123,12 +123,23 @@ class REST_Main_Features {
 	}
 
 	/**
-	 * Whoever may switch plugins, or modules, may send a batch; each row is then checked on its own.
+	 * Whoever may switch plugins, or modules while Jetpack is active, may send a batch; each row is then checked on its own.
+	 *
+	 * Without Jetpack, nothing else lets a module manager who cannot switch plugins switch a module.
 	 *
 	 * @return bool
 	 */
 	public static function bulk_permissions_callback() {
-		return self::permissions_callback() || current_user_can( 'jetpack_manage_modules' );
+		return self::permissions_callback() || ( self::is_jetpack_active() && current_user_can( 'jetpack_manage_modules' ) );
+	}
+
+	/**
+	 * Whether the Jetpack plugin is active here, network activation included.
+	 *
+	 * @return bool
+	 */
+	private static function is_jetpack_active() {
+		return Main_Features::PLUGIN_ACTIVE === Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG );
 	}
 
 	/**
@@ -225,7 +236,7 @@ class REST_Main_Features {
 		$plugins_refused = ! $active && Main_Features::PLUGIN_ACTIVE !== Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG )
 			? new WP_Error( 'not_allowed', __( 'Plugins can only be deactivated together while the Jetpack plugin is active. Deactivate them one at a time instead.', 'jetpack-my-jetpack' ) )
 			: null;
-		// Some administrators may switch modules but not plugins, for example when their host withholds plugin changes.
+		// Multisite site administrators, and administrators whose host withholds plugin changes, may switch modules but not plugins.
 		if ( ! self::permissions_callback() ) {
 			$plugins_refused = new WP_Error( 'not_allowed', __( 'Your account can’t activate or deactivate plugins on this site.', 'jetpack-my-jetpack' ) );
 		}
@@ -243,7 +254,7 @@ class REST_Main_Features {
 			}
 		}
 
-		$modules_refused = current_user_can( 'jetpack_manage_modules' )
+		$modules_refused = current_user_can( 'jetpack_manage_modules' ) && ( self::permissions_callback() || self::is_jetpack_active() )
 			? null
 			: new WP_Error( 'not_allowed', __( 'You are not allowed to manage Jetpack modules on this site.', 'jetpack-my-jetpack' ) );
 

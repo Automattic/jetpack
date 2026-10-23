@@ -817,7 +817,7 @@ class Main_Features_Rest_Test extends TestCase {
 		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
 	}
 
-	public function test_bulk_forbids_users_who_cannot_activate_plugins() {
+	public function test_bulk_forbids_users_who_cannot_manage_modules() {
 		wp_set_current_user(
 			wp_insert_user(
 				array(
@@ -856,6 +856,7 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	public function test_bulk_switches_modules_for_administrators_who_cannot_activate_plugins() {
+		$this->activate_jetpack();
 		$this->offer_stats_module();
 		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
 		add_filter( 'map_meta_cap', array( $this, 'map_module_caps' ), 10, 2 );
@@ -873,9 +874,10 @@ class Main_Features_Rest_Test extends TestCase {
 		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
 	}
 
-	public function test_bulk_refuses_plugin_rows_to_administrators_who_cannot_activate_plugins() {
-		$this->activate_jetpack();
-		$this->send( 'jetpack-boost', 'activate' );
+	/**
+	 * Without Jetpack, nothing else lets these administrators switch a module, so neither may a batch.
+	 */
+	public function test_bulk_forbids_module_batches_from_administrators_who_cannot_activate_plugins_without_jetpack() {
 		$this->offer_stats_module();
 		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
 		add_filter( 'map_meta_cap', array( $this, 'map_module_caps' ), 10, 2 );
@@ -884,6 +886,36 @@ class Main_Features_Rest_Test extends TestCase {
 		$response = $this->send_bulk(
 			array(
 				'active'  => false,
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * @dataProvider bulk_directions
+	 *
+	 * @param bool $active Whether the batch switches on.
+	 */
+	#[DataProvider( 'bulk_directions' )]
+	public function test_bulk_refuses_plugin_rows_to_administrators_who_cannot_activate_plugins( $active ) {
+		$this->activate_jetpack();
+		if ( ! $active ) {
+			$this->send( 'jetpack-boost', 'activate' );
+		}
+		$this->offer_stats_module();
+		$plan             = Current_Plan::get();
+		$plan['supports'] = array_merge( (array) ( $plan['supports'] ?? array() ), array( 'stats' ) );
+		$this->set_plan_cache( $plan );
+		Jetpack_Options::update_option( 'active_modules', $active ? array() : array( 'stats' ) );
+		add_filter( 'map_meta_cap', array( $this, 'map_module_caps' ), 10, 2 );
+		add_filter( 'user_has_cap', array( $this, 'deny_activate_plugins' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => $active,
 				'plugins' => array( 'jetpack-boost' ),
 				'modules' => array( 'stats' ),
 			)
@@ -899,8 +931,18 @@ class Main_Features_Rest_Test extends TestCase {
 			),
 			$response->get_data()['failed']
 		);
-		$this->assertSame( Main_Features::PLUGIN_ACTIVE, $this->boost_status( new \WP_REST_Response( $response->get_data()['state'] ) ) );
-		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+		$this->assertSame(
+			$active ? Main_Features::PLUGIN_INACTIVE : Main_Features::PLUGIN_ACTIVE,
+			$this->boost_status( new \WP_REST_Response( $response->get_data()['state'] ) )
+		);
+		$this->assertSame( $active, in_array( 'stats', Jetpack_Options::get_option( 'active_modules', array() ), true ) );
+	}
+
+	public static function bulk_directions() {
+		return array(
+			'activate'   => array( true ),
+			'deactivate' => array( false ),
+		);
 	}
 
 	/**
