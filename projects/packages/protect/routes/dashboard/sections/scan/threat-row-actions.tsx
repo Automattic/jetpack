@@ -1,7 +1,8 @@
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
 import { getSoftwareActionLabels } from './labels';
-import { fixThreat, ignoreThreat, unignoreThreat } from './threat-actions';
+import { fixThreat, ignoreThreat, unignoreThreat, useGetThreatBusy } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { Action } from '@wordpress/dataviews';
 
@@ -10,13 +11,15 @@ type LinkKey = 'update' | 'deactivate' | 'details';
 /**
  * A row's DataViews actions: primary ones show on hover, and the ⋯ menu lists them all.
  *
- * @param open   - Opens a threat in the inspector.
- * @param canAct - Whether the site's plan can fix and ignore threats.
+ * @param open    - Opens a threat in the inspector.
+ * @param canAct  - Whether the site's plan can fix and ignore threats.
+ * @param getBusy - Gets the action running on a threat.
  * @return The actions.
  */
-export function getThreatRowActions(
+function getThreatRowActions(
 	open: ( item: ScanThreat ) => void,
-	canAct: boolean
+	canAct: boolean,
+	getBusy: ReturnType< typeof useGetThreatBusy >
 ): Action< ScanThreat >[] {
 	const link =
 		( key: LinkKey ) =>
@@ -32,7 +35,7 @@ export function getThreatRowActions(
 			item ? getSoftwareActionLabels( item )[ key ] : '';
 	const hasLink = ( key: LinkKey ) => ( item: ScanThreat ) => !! item.extension?.actions?.[ key ];
 
-	return [
+	const actions: Action< ScanThreat >[] = [
 		{
 			id: 'view',
 			label: __( 'View', 'jetpack-protect-pkg' ),
@@ -86,4 +89,36 @@ export function getThreatRowActions(
 			callback: ( [ item ] ) => item && ignoreThreat( item, open ),
 		},
 	];
+
+	/*
+	 * DataViews can't disable an action for one row, so a busy row keeps only View. A deleting row
+	 * keeps them, since hiding Delete would close its open modal; deleteSoftware refuses a repeat.
+	 */
+	const isLocked = ( item: ScanThreat ) => {
+		const busy = getBusy( item.id );
+		return !! busy && busy !== 'deleting';
+	};
+	return actions.map( action =>
+		action.id === 'view'
+			? action
+			: {
+					...action,
+					isEligible: item => ! isLocked( item ) && ( action.isEligible?.( item ) ?? true ),
+				}
+	);
+}
+
+/**
+ * A threats table's row actions, updated as actions on its threats start and finish.
+ *
+ * @param open   - Opens a threat in the inspector.
+ * @param canAct - Whether the site's plan can fix and ignore threats.
+ * @return The actions.
+ */
+export function useThreatRowActions(
+	open: ( item: ScanThreat ) => void,
+	canAct: boolean
+): Action< ScanThreat >[] {
+	const getBusy = useGetThreatBusy();
+	return useMemo( () => getThreatRowActions( open, canAct, getBusy ), [ open, canAct, getBusy ] );
 }
