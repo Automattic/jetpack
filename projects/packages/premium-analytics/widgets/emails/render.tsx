@@ -15,6 +15,8 @@ import {
 	PostTitleLink,
 	ViewLiveLink,
 	WIDGET_ROW_LIMIT,
+	safeHttpUrl,
+	toPostDetailId,
 	WidgetRoot,
 	WidgetState,
 	useWidgetNavigationSearch,
@@ -177,7 +179,11 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 					title={ row.label }
 				/>
 			),
-			action: <ViewLiveLink href={ row.link } label={ row.label } />,
+			// Only beside a title that opens the email's stats: a title that links out is the one link.
+			action:
+				toPostDetailId( row.postId ) !== undefined && safeHttpUrl( row.link ) ? (
+					<ViewLiveLink href={ row.link } label={ row.label } />
+				) : undefined,
 			value: [
 				<span key="count" aria-hidden="true">
 					<AbbreviatedValue

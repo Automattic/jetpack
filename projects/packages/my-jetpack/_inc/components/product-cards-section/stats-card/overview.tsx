@@ -34,7 +34,8 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 	useOverviewLoadEvent( PRODUCT_SLUGS.STATS, isActive && isStatsLoading );
 	const { action: statusAction, forcedOffReason } = useStatusAction(
 		PRODUCT_SLUGS.STATS,
-		__( 'Activate Stats', 'jetpack-my-jetpack' )
+		__( 'Activate Stats', 'jetpack-my-jetpack' ),
+		null
 	);
 
 	const onDetailedStatsClick = useCallback( () => {
@@ -58,6 +59,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 					onDetailedStatsClick={ onDetailedStatsClick }
 					hideTitle
 					chartBelowCounts
+					flush
 				/>
 				{ detailedStatsHref && (
 					<div>

@@ -23,6 +23,8 @@ define( 'WPCOMSH_STOREFRONT_SYMLINK', THEMES_SYMLINK_BASE . '/storefront' );
 
 define( 'WPCOMSH_PUB_THEME_TYPE', 'wpcom_pub_theme_type' );
 define( 'WPCOMSH_PREMIUM_THEME_TYPE', 'wpcom_premium_theme_type' );
+// Managed themes outside pub and premium, which don't come from WordPress.com.
+define( 'WPCOMSH_MANAGED_THEME_TYPE', 'wpcom_managed_theme_type' );
 define( 'WPCOMSH_NON_WPCOM_THEME', 'non_wpcom_theme' );
 
 define( 'WPCOMSH__PLUGIN_DIR_PATH', WP_CONTENT_DIR . '/mu-plugins/wpcomsh' );

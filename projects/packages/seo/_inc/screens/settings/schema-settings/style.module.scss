@@ -44,6 +44,38 @@
 	align-items: start;
 }
 
+// Name, bio, website and avatar a WordPress.com account owns, set apart
+// from the editable fields below by the same hairline as `.entityGroup`.
+.accountProfile {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+	padding-block-end: var(--wpds-dimension-gap-lg);
+	border-block-end:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+}
+
+.accountProfileList {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+	margin: 0;
+
+	> div {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+		min-inline-size: 0;
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+		white-space: pre-line;
+	}
+}
+
 .avatar {
 
 	img {

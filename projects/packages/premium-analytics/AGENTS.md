@@ -45,7 +45,7 @@ src/widget-types.php                    # widget type API: registry helpers, met
 docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
-src/Sync/                               # PA glue for the shared woocommerce_analytics sync module
+src/Sync/                               # milestone tracker for the analytics full syncs
 packages/data/src/api/                  # frontend fetch helpers (apiFetch)
 packages/externals/                     # passthrough module for shared third-party libraries
 routes/                                 # lazy-loaded SPA pages; build/ is generated
@@ -184,7 +184,7 @@ opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
 Every section the site qualifies for is shown as a tab, whichever one says yes; see
-`docs/dashboard-sections.md`. The WooCommerce tab registers from the WooCommerce stats package.
+`docs/dashboard-sections.md`. The WooCommerce tab and its sync opt-in register from the WooCommerce stats package.
 
 The same list the tab bar gets over REST also reaches the client as
 `premium_analytics.sections` in the script data, which is what keeps `/reports/…` behind a hidden
@@ -237,9 +237,9 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 - A proxy 404 usually means the prefix isn't in `PREFIX_CONFIG`, not a missing WPCOM endpoint.
 - Reads are cached 5 min; add `force_refresh` if a screen looks stale.
 - `v2` vs `v1.x` changes the WPCOM base — a wrong version silently hits a different endpoint.
-- The `woocommerce_analytics` sync module lives in the jetpack-sync package
-  (`Sync\Configuration::register()` is the opt-in); `src/Sync/` holds only
-  PA-specific glue (Config bootstrap, bookings meta whitelist, milestone tracker).
+- The `woocommerce_analytics` sync module lives in the jetpack-sync package, and the
+  woocommerce-stats package opts in to it (`Sync_Configuration`) and backfills its lookup data
+  (`Lookup_Data_Backfill`); `src/Sync/` here holds only the milestone tracker both read.
 - Don't edit dashboard React in Calypso — it lives here now.
 - Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
   never `@automattic/jetpack-premium-analytics-*`.
@@ -331,7 +331,7 @@ Notes:
 - An attribute is declared in `widget.json` whenever its field is static: `type`, `label`,
   fixed `elements` (option icons as `jpa/<name>`), `relevance`. `widget.ts` carries only what
   JSON cannot express: `getElements`, `getValue`/`setValue`, a field a helper builds
-  (`reportParamsAttributeField()`, `chartIntervalField`), plus `example`, which the build does
+  (`reportParamsAttributeField()`, `chartIntervalAttributeField()`), plus `example`, which the build does
   not read from `widget.json` yet. Record and module entries merge by `id`, the record's first;
   a module-only control keeps its position by listing `{ "id" }` in `widget.json` (see
   `docs/dashboard-widgets.md`). A widget with none of that ships no `widget.ts`; its attribute
@@ -681,7 +681,7 @@ the query factory — do not do it in the widget or the view hook.
 
 Stats list widgets request `WIDGET_ROW_LIMIT` from
 `@jetpack-premium-analytics/widgets-toolkit`. Do not add per-widget defaults or
-user-editable row counts; report pages handle larger result sets with pagination.
+user-editable row counts; report pages list the full result set.
 This rule covers Stats widgets only — the store widgets under
 `packages/widgets-toolkit/src/widgets/` predate it and set their own limits.
 

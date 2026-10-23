@@ -9,7 +9,7 @@ import clsx from 'clsx';
 import { toDetailId } from '../../helpers/detail-id';
 import { ExternalLink } from '../external-link';
 import { InternalLink, type InternalLinkProps } from '../internal-link';
-import { PostTitleLink } from '../post-title-link';
+import { PostTitleLink, toPostDetailId } from '../post-title-link';
 import { VideoTitleLink } from '../video-title-link';
 import { ViewLiveLink } from '../view-live-link';
 import { LeaderboardLabel, type LeaderboardRowMedia } from './leaderboard-label';
@@ -24,12 +24,9 @@ export type LeaderboardRowAction =
 	| {
 			/** A post, page, or email with a detail page inside the dashboard. */
 			kind: 'postLink';
-			/** Post or page ID. Rows carrying one link to the internal detail route. */
+			/** Post or page ID. Links to the internal detail route when the reader can open it. */
 			id?: number | string;
-			/**
-			 * Public URL. Beside a post ID it is the row's "View" action; without
-			 * one it becomes the link itself.
-			 */
+			/** Public URL. The "View" action beside a title that opens the detail page; the link itself otherwise. */
 			href?: string | null;
 			/**
 			 * Required, so a row cannot silently open the detail page on its own
@@ -42,10 +39,7 @@ export type LeaderboardRowAction =
 			kind: 'videoLink';
 			/** Video ID. Rows carrying one link to the internal detail route. */
 			id?: number | string;
-			/**
-			 * Public URL. Beside a video ID it is the row's "View" action; without
-			 * one it becomes the link itself.
-			 */
+			/** Public URL. The "View" action beside a title that opens the detail page; the link itself otherwise. */
 			href?: string | null;
 			/**
 			 * Required, so a row cannot silently open the detail page on its own
@@ -145,58 +139,51 @@ export function LeaderboardRow( {
 
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
-		const withMedia = action.kind === 'videoLink' && media.kind !== 'none';
+		const detailId =
+			action.kind === 'postLink' ? toPostDetailId( action.id ) : toDetailId( action.id );
+		const content =
+			media.kind !== 'none' ? (
+				<LeaderboardLabel label={ label } media={ media } decorativeMedia />
+			) : undefined;
 
-		// A row with a detail page and a public URL holds two links, so the row
-		// chrome goes on a wrapper: the title opens the detail page, and a
-		// trailing "View" action opens the live content.
-		if ( toDetailId( action.id ) !== undefined && safeHttpUrl( action.href ) ) {
-			const detailLinkProps = {
-				id: action.id,
-				label,
-				link: action.href,
-				search: action.search,
-				classNames: { internal: styles.labelLink, text: styles.label },
-			};
-
+		// A row whose title opens a detail page and that has a public URL holds two
+		// links, so the row chrome goes on a wrapper and the title keeps the tooltip.
+		if ( detailId !== undefined && safeHttpUrl( action.href ) ) {
 			return (
-				<span className={ rowClassName } title={ label }>
-					{ withMedia ? (
-						<VideoTitleLink { ...detailLinkProps }>
-							<LeaderboardLabel label={ label } media={ media } decorativeMedia />
-						</VideoTitleLink>
-					) : (
-						<TitleLink { ...detailLinkProps } />
-					) }
+				<span className={ rowClassName }>
+					<TitleLink
+						id={ action.id }
+						label={ label }
+						link={ action.href }
+						search={ action.search }
+						title={ label }
+						classNames={ { internal: styles.labelLink, text: styles.label } }
+					>
+						{ content }
+					</TitleLink>
 					<ViewLiveLink href={ action.href } label={ label } className={ styles.viewAction } />
 				</span>
 			);
 		}
 
 		// With one link, the row chrome goes on the link itself.
-		const titleLinkProps = {
-			id: action.id,
-			label,
-			link: action.href,
-			search: action.search,
-			title: label,
-			classNames: {
-				internal: rowLinkClassName,
-				external: rowLinkClassName,
-				plain: rowClassName,
-				text: styles.label,
-			},
-		};
-
-		if ( withMedia ) {
-			return (
-				<VideoTitleLink { ...titleLinkProps }>
-					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
-				</VideoTitleLink>
-			);
-		}
-
-		return <TitleLink { ...titleLinkProps } />;
+		return (
+			<TitleLink
+				id={ action.id }
+				label={ label }
+				link={ action.href }
+				search={ action.search }
+				title={ label }
+				classNames={ {
+					internal: rowLinkClassName,
+					external: rowLinkClassName,
+					plain: rowClassName,
+					text: styles.label,
+				} }
+			>
+				{ content }
+			</TitleLink>
+		);
 	}
 
 	if ( ( action.kind === 'drillDown' || action.kind === 'static' ) && action.link ) {
