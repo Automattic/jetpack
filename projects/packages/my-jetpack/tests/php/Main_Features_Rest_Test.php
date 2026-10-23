@@ -706,6 +706,109 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * @dataProvider protect_page_bulk_switches
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param bool   $dashboard Whether the Protect page owns the security modules.
+	 * @param bool   $active Whether to activate the modules.
+	 * @param bool   $can_manage Whether the user can manage modules.
+	 * @param array  $expected_failed Expected failed module slugs.
+	 * @param string $expected_message Expected failure message.
+	 * @param bool   $expected_security_active Expected security module state.
+	 * @param bool   $expected_stats_active Expected stats module state.
+	 */
+	#[DataProvider( 'protect_page_bulk_switches' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_bulk_respects_protect_page_ownership( $dashboard, $active, $can_manage, $expected_failed, $expected_message, $expected_security_active, $expected_stats_active ) {
+		$security = array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' );
+		$modules  = array_merge( $security, array( 'stats' ) );
+		$offer    = fn( $available ) => array_values( array_unique( array_merge( $available, $modules ) ) );
+		add_filter( 'jetpack_get_available_standalone_modules', $offer );
+		if ( $can_manage ) {
+			add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		}
+		Jetpack_Options::update_option( 'active_modules', $active ? array() : $modules );
+		if ( $dashboard ) {
+			do_action( 'jetpack_protect_dashboard_initialized' );
+		}
+
+		try {
+			$response = $this->send_bulk(
+				array(
+					'active'  => $active,
+					'modules' => $modules,
+				)
+			);
+			$this->assertSame( 200, $response->get_status() );
+			$failed = $response->get_data()['failed'];
+			$this->assertSame( $expected_failed, array_column( $failed, 'slug' ) );
+			foreach ( $failed as $failure ) {
+				$this->assertSame( 'module', $failure['type'] );
+				$this->assertSame( $expected_message, $failure['message'] );
+			}
+			$saved = Jetpack_Options::get_option( 'active_modules', array() );
+			foreach ( $security as $slug ) {
+				$this->assertSame( $expected_security_active, in_array( $slug, $saved, true ), $slug );
+			}
+			$this->assertSame( $expected_stats_active, in_array( 'stats', $saved, true ) );
+		} finally {
+			remove_filter( 'jetpack_get_available_standalone_modules', $offer );
+			unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		}
+	}
+
+	public static function protect_page_bulk_switches() {
+		return array(
+			'Protect page on, activate'    => array(
+				true,
+				true,
+				true,
+				array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' ),
+				'Managed in Protect.',
+				false,
+				true,
+			),
+			'Protect page on, deactivate'  => array(
+				true,
+				false,
+				true,
+				array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' ),
+				'Managed in Protect.',
+				true,
+				false,
+			),
+			'Protect page off, activate'   => array(
+				false,
+				true,
+				true,
+				array(),
+				'',
+				true,
+				true,
+			),
+			'Protect page off, deactivate' => array(
+				false,
+				false,
+				true,
+				array(),
+				'',
+				false,
+				false,
+			),
+			'capability refusal wins'      => array(
+				true,
+				false,
+				false,
+				array( 'waf', 'protect', 'account-protection', 'sso', 'monitor', 'stats' ),
+				'You are not allowed to manage Jetpack modules on this site.',
+				true,
+				true,
+			),
+		);
+	}
+
+	/**
 	 * A module a host forces on is reported as staying on, not switched off.
 	 */
 	public function test_bulk_reports_a_module_a_host_forced_on() {
