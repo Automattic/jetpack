@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { isHeaderControlsEnabled } from '../header-controls/slot';
 import { FeaturesContent } from './features/content';
 import { FullWidthSeparator } from './full-width-separator';
 import { HelpContent } from './help/content';
@@ -40,7 +41,9 @@ const footerMap: Partial< Record< MyJetpackSection, ComponentType > > = {
  */
 export function TabContent( { name, beforeContent }: TabContentProps ) {
 	const ContentComponent = componentMap[ name ];
-	const FooterComponent = footerMap[ name ];
+	// The header's connection control shows the plan and the connection, so the Overview's band would repeat them.
+	const dropsOverviewFooter = name === 'overview' && isHeaderControlsEnabled();
+	const FooterComponent = dropsOverviewFooter ? undefined : footerMap[ name ];
 
 	if ( ! ContentComponent ) {
 		return null;

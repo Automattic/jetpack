@@ -197,7 +197,6 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertNull( $data['connectionOwnerEditUrl'] );
 		$this->assertArrayNotHasKey( 'siteDetails', $data );
 		$this->assertArrayNotHasKey( 'connectedUsersUrl', $data );
-		$this->assertArrayNotHasKey( 'hasOtherConnectedUsers', $data );
 		$this->assertArrayNotHasKey( 'protectedOwner', $data );
 		$this->assertArrayNotHasKey( 'ssoStatus', $data );
 	}
@@ -247,53 +246,31 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Only the owner is told whether other users would be disconnected with them.
-	 *
-	 * @param bool      $viewer_is_owner  Whether the viewer is the connection owner.
-	 * @param bool      $other_user_token Whether a second user is connected.
-	 * @param bool|null $expected         Expected hasOtherConnectedUsers, or null when it is omitted.
-	 * @dataProvider provide_has_other_connected_users
+	 * A site connection with no user tokens and no owner links to no connected users.
 	 */
-	#[DataProvider( 'provide_has_other_connected_users' )]
-	public function test_has_other_connected_users( $viewer_is_owner, $other_user_token, $expected ) {
-		$other_id = wp_insert_user(
-			array(
-				'user_login' => 'connector_other',
-				'user_pass'  => 'password',
-				'role'       => 'administrator',
-			)
-		);
-		$tokens   = array( $this->admin_id => 'ownerkey.private.' . $this->admin_id );
-		if ( $other_user_token ) {
-			$tokens[ $other_id ] = 'otherkey.private.' . $other_id;
-		}
-
+	public function test_get_connector_data_when_site_only() {
 		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
 		\Jetpack_Options::update_option( 'id', 12345 );
-		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
-		\Jetpack_Options::update_option( 'user_tokens', $tokens );
-		wp_set_current_user( $viewer_is_owner ? $this->admin_id : $other_id );
 
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		if ( null === $expected ) {
-			$this->assertArrayNotHasKey( 'hasOtherConnectedUsers', $data );
-		} else {
-			$this->assertSame( $expected, $data['hasOtherConnectedUsers'] );
-		}
+		$this->assertArrayHasKey( 'siteDetails', $data );
+		$this->assertArrayNotHasKey( 'connectedUsersUrl', $data );
 	}
 
 	/**
-	 * Data provider for test_has_other_connected_users.
-	 *
-	 * @return array
+	 * A broken owner token still links to the connected users, as the card still lists accounts.
 	 */
-	public static function provide_has_other_connected_users() {
-		return array(
-			'owner alone'             => array( true, false, false ),
-			'owner with others'       => array( true, true, true ),
-			'viewer is not the owner' => array( false, true, null ),
-		);
+	public function test_get_connector_data_when_the_owner_token_is_broken() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertArrayHasKey( 'connectedUsersUrl', $data );
+		$this->assertStringEndsWith( $data['redirectUri'], $data['connectorsUrl'] );
 	}
 
 	/**

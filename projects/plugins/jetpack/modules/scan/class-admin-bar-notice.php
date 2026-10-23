@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Protect\Threat_Count;
 use Automattic\Jetpack\Protect_Status\Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 use WP_Admin_Bar;
 
 /**
@@ -85,6 +86,10 @@ class Admin_Bar_Notice {
 	 * @return bool
 	 */
 	private function should_try_to_display_notice() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return false;
+		}
+
 		// Jetpack Scan is currently not supported on multisite.
 		if ( is_multisite() ) {
 			return false;

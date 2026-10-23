@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import Emails, { EmailsList, type EmailRow } from '../render';
 import type { EmailMetric } from '../widget';
 
@@ -205,7 +206,7 @@ describe( 'EmailsList', () => {
 			date: '2026-06-30',
 			posts: [ { id: 71, title: 'API newsletter', opens: 30, total_sends: 100 } ],
 		} );
-		render(
+		const { declaredAction } = renderWithActionsHost(
 			<Emails attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } } />
 		);
 		await expect(
@@ -218,6 +219,6 @@ describe( 'EmailsList', () => {
 		await act( () => new Promise( resolve => setTimeout( resolve, 0 ) ) );
 
 		expect( screen.getByRole( 'link', { name: 'API newsletter' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+		expect( declaredAction( 'download-csv' ) ).toBeDefined();
 	} );
 } );
