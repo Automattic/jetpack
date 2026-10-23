@@ -8,32 +8,31 @@ import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { ProtectInfoPopover } from './info-popover';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
+import type { FirewallState } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
 
 interface FirewallStatusProps {
 	data: ProtectData;
 }
 
-type Status = 'active' | 'inactive' | 'off';
-
 export const FirewallStatus: FC< FirewallStatusProps > = ( { data } ) => {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false, hasPaidPlanForProduct = false } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
-	const { firewallTooltip } = useProtectTooltipCopy( data );
+	const { firewallTooltips } = useProtectTooltipCopy( data );
 	const { waf_enabled: isWafEnabled, waf_supported: wafSupported } = data?.wafConfig || {};
 	const isRunning = isPluginActive && isSiteConnected;
 
 	// The firewall module decides On, as on the Protect page; automatic rules only add to it.
-	let status: Status = 'off';
+	let status: FirewallState = 'off';
 	if ( isRunning && ! wafSupported ) {
 		status = 'inactive';
 	} else if ( isRunning && isWafEnabled ) {
 		status = 'active';
 	}
 
-	const display: Record< Status, { text: string; alt: string; icon: string } > = {
+	const display: Record< FirewallState, { text: string; alt: string; icon: string } > = {
 		active: {
 			text: __( 'On', 'jetpack-my-jetpack' ),
 			alt: __( 'Shield icon - Firewall Status: On', 'jetpack-my-jetpack' ),
@@ -51,16 +50,18 @@ export const FirewallStatus: FC< FirewallStatusProps > = ( { data } ) => {
 		},
 	};
 	const { text, alt, icon } = display[ status ];
+	// Off on a disconnected site says nothing about the firewall, so it has nothing to explain.
+	const tooltip = isRunning ? firewallTooltips[ status ] : null;
 
 	return (
 		<>
 			<div className="value-section__heading">
 				{ __( 'Firewall', 'jetpack-my-jetpack' ) }
-				{ isRunning && firewallTooltip && (
+				{ tooltip && (
 					<ProtectInfoPopover
 						label={ __( 'Firewall', 'jetpack-my-jetpack' ) }
-						title={ firewallTooltip.title }
-						text={ firewallTooltip.text }
+						title={ tooltip.title }
+						text={ tooltip.text }
 						tracksEventProps={ {
 							location: 'auto-firewall',
 							status,

@@ -4,16 +4,17 @@ import userEvent from '@testing-library/user-event';
 import { FirewallStatus } from '../firewall-status';
 
 const mockUseProduct = jest.fn();
+const mockConnection = { isSiteConnected: true };
 
 jest.mock( '../../../../data/products/use-product', () => ( {
 	__esModule: true,
 	default: () => mockUseProduct(),
 } ) );
 
-jest.mock( '../../../../hooks/use-my-jetpack-connection', () => {
-	const result = { isSiteConnected: true };
-	return { __esModule: true, default: () => result };
-} );
+jest.mock( '../../../../hooks/use-my-jetpack-connection', () => ( {
+	__esModule: true,
+	default: () => mockConnection,
+} ) );
 
 jest.mock( '../../../../hooks/use-analytics', () => {
 	const result = { recordEvent: () => {} };
@@ -41,21 +42,19 @@ const wafConfig = ( overrides: Partial< ProtectData[ 'wafConfig' ] > ) =>
 	} ) as ProtectData;
 
 describe( 'FirewallStatus', () => {
+	beforeEach( () => {
+		mockConnection.isSiteConnected = true;
+	} );
+
 	it.each( [
 		[ 'On', 'a free site with the firewall on', false, { waf_enabled: true }, 'Upgrade' ],
-		[
-			'On',
-			'a paid site without automatic rules',
-			true,
-			{ waf_enabled: true },
-			'firewall settings',
-		],
-		[ 'Off', 'a site with the firewall off', false, { waf_enabled: false }, 'firewall settings' ],
+		[ 'On', 'a paid site without automatic rules', true, {}, 'Turn them on' ],
+		[ 'Off', 'a site with the firewall off', false, { waf_enabled: false }, 'Turn it on' ],
 		[
 			'Inactive',
 			'a host with its own firewall',
 			false,
-			{ waf_supported: false },
+			{ waf_supported: false, waf_enabled: false },
 			'hosting provider',
 		],
 	] )( 'shows %s for %s', async ( status, _, hasPaidPlanForProduct, overrides, explanation ) => {
@@ -64,18 +63,26 @@ describe( 'FirewallStatus', () => {
 
 		expect( screen.getByText( status ) ).toBeInTheDocument();
 		await userEvent.click( screen.getByRole( 'button', { name: 'More about Firewall' } ) );
-		await expect( screen.findByRole( 'dialog' ) ).resolves.toHaveTextContent( explanation );
+		const dialog = await screen.findByRole( 'dialog' );
+		expect( dialog ).toHaveTextContent( `Firewall: ${ status }` );
+		expect( dialog ).toHaveTextContent( explanation );
 	} );
 
-	it( 'shows On with nothing to explain while automatic rules run', () => {
-		mockUseProduct.mockReturnValue( {
-			detail: { isPluginActive: true, hasPaidPlanForProduct: true },
-		} );
-		render( <FirewallStatus data={ wafConfig( { jetpack_waf_automatic_rules: '1' } ) } /> );
+	it.each( [
+		[ 'On', 'automatic rules run', true, true, { jetpack_waf_automatic_rules: '1' as const } ],
+		[ 'Off', 'the plugin is inactive', false, true, {} ],
+		[ 'Off', 'the site is disconnected', true, false, {} ],
+	] )(
+		'shows %s with nothing to explain when %s',
+		( status, _, isPluginActive, isSiteConnected, overrides ) => {
+			mockConnection.isSiteConnected = isSiteConnected;
+			mockUseProduct.mockReturnValue( { detail: { isPluginActive, hasPaidPlanForProduct: true } } );
+			render( <FirewallStatus data={ wafConfig( overrides ) } /> );
 
-		expect( screen.getByText( 'On' ) ).toBeInTheDocument();
-		expect(
-			screen.queryByRole( 'button', { name: 'More about Firewall' } )
-		).not.toBeInTheDocument();
-	} );
+			expect( screen.getByText( status ) ).toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'More about Firewall' } )
+			).not.toBeInTheDocument();
+		}
+	);
 } );
