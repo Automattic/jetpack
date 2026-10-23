@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { createElement, useSyncExternalStore } from '@wordpress/element';
-import { __, sprintf, type TransformedText } from '@wordpress/i18n';
+import { __, _n, sprintf, type TransformedText } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { getThreatLabel } from './labels';
@@ -59,9 +59,21 @@ type Template = TransformedText< `${ string }%s${ string }` >;
  * @param action  - The snackbar's button, such as Undo.
  */
 function show( threat: ScanThreat, content: string, status: NoticeStatus, action?: NoticeAction ) {
+	showNotice( noticeId( threat ), content, status, action );
+}
+
+/**
+ * Show a snackbar in the page's notices area, replacing any with the same id.
+ *
+ * @param id      - The notice id.
+ * @param content - The finished message.
+ * @param status  - The notice's kind.
+ * @param action  - The snackbar's button, such as Undo.
+ */
+function showNotice( id: string, content: string, status: NoticeStatus, action?: NoticeAction ) {
 	dispatch( noticesStore ).createNotice( status, content, {
 		type: 'snackbar',
-		id: noticeId( threat ),
+		id,
 		// Progress and errors stay until dismissed, so they can't vanish before the action ends.
 		explicitDismiss: status !== 'success',
 		icon: status === 'success' ? SUCCESS_ICON : null,
@@ -147,16 +159,31 @@ export function loadIgnored(): Promise< void > {
 /**
  * Ignore or unignore a threat, moving it between the active and ignored lists, with Undo.
  *
- * @param threat - The threat.
- * @param ignore - True to ignore, false to unignore.
- * @param open   - Opens the threat in the inspector, from the notice while it runs.
- * @return Resolves once done, or once the error is shown.
+ * @param threat  - The threat.
+ * @param ignore  - True to ignore, false to unignore.
+ * @param open    - Opens the threat in the inspector, from the notice while it runs.
+ * @param notices - False when a bulk action reports for the whole batch instead.
+ * @return Resolves to whether it worked, once done or once the error is shown.
  */
-function setIgnored( threat: ScanThreat, ignore: boolean, open?: OpenThreat ): Promise< void > {
+function setIgnored(
+	threat: ScanThreat,
+	ignore: boolean,
+	open?: OpenThreat,
+	notices = true
+): Promise< boolean > {
 	if ( isBusy( threat.id ) ) {
-		return Promise.resolve();
+		return Promise.resolve( false );
 	}
 	setBusy( threat.id, ignore ? 'ignoring' : 'unignoring' );
+	if ( ! notices ) {
+		return request( threat, ignore ).then(
+			() => true,
+			() => {
+				setBusy( threat.id );
+				return false;
+			}
+		);
+	}
 	notifyStarted(
 		threat,
 		ignore
@@ -167,20 +194,8 @@ function setIgnored( threat: ScanThreat, ignore: boolean, open?: OpenThreat ): P
 		open
 	);
 
-	return apiFetch( {
-		path: threatPath( threat.id, ignore ? 'ignore' : 'unignore' ),
-		method: 'POST',
-	} )
+	return request( threat, ignore )
 		.then( () => {
-			const moved = { ...threat, status: ignore ? ( 'ignored' as const ) : ( 'current' as const ) };
-			editScan( current => {
-				const threats = ( current.threats ?? [] ).filter( otherThan( threat ) );
-				const ignored = ( current.ignored ?? [] ).filter( otherThan( threat ) );
-				return ignore
-					? { ...current, threats, ignored: [ moved, ...ignored ] }
-					: { ...current, threats: [ moved, ...threats ], ignored };
-			} );
-			setBusy( threat.id );
 			notify(
 				threat,
 				ignore
@@ -194,8 +209,9 @@ function setIgnored( threat: ScanThreat, ignore: boolean, open?: OpenThreat ): P
 					onClick: () => setIgnored( threat, ! ignore, open ),
 				}
 			);
+			return true;
 		} )
-		.catch( e =>
+		.catch( e => {
 			fail(
 				threat,
 				e,
@@ -204,8 +220,33 @@ function setIgnored( threat: ScanThreat, ignore: boolean, open?: OpenThreat ): P
 						__( 'The threat in %s couldn’t be ignored.', 'jetpack-protect-pkg' )
 					: /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 						__( 'The threat in %s couldn’t be unignored.', 'jetpack-protect-pkg' )
-			)
-		);
+			);
+			return false;
+		} );
+}
+
+/**
+ * Ignore or unignore a threat on WordPress.com, then move it between the active and ignored lists.
+ *
+ * @param threat - The threat, already marked busy.
+ * @param ignore - True to ignore, false to unignore.
+ * @return Resolves once moved and no longer busy; rejects with the request's error.
+ */
+function request( threat: ScanThreat, ignore: boolean ): Promise< void > {
+	return apiFetch( {
+		path: threatPath( threat.id, ignore ? 'ignore' : 'unignore' ),
+		method: 'POST',
+	} ).then( () => {
+		const moved = { ...threat, status: ignore ? ( 'ignored' as const ) : ( 'current' as const ) };
+		editScan( current => {
+			const threats = ( current.threats ?? [] ).filter( otherThan( threat ) );
+			const ignored = ( current.ignored ?? [] ).filter( otherThan( threat ) );
+			return ignore
+				? { ...current, threats, ignored: [ moved, ...ignored ] }
+				: { ...current, threats: [ moved, ...threats ], ignored };
+		} );
+		setBusy( threat.id );
+	} );
 }
 
 export const ignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
@@ -216,26 +257,40 @@ export const unignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
 /**
  * Ask Scan to fix a threat, then follow the fix until it finishes.
  *
- * @param threat - The threat.
- * @param open   - Opens the threat in the inspector, from the notice while it runs.
- * @return Resolves once the fix has finished or failed.
+ * @param threat  - The threat.
+ * @param open    - Opens the threat in the inspector, from the notice while it runs.
+ * @param notices - False when a bulk action reports for the whole batch instead.
+ * @return Resolves to whether Scan fixed it, once the fix has finished or failed.
  */
-export async function fixThreat( threat: ScanThreat, open?: OpenThreat ): Promise< void > {
+export async function fixThreat(
+	threat: ScanThreat,
+	open?: OpenThreat,
+	notices = true
+): Promise< boolean > {
 	const { id } = threat;
 	if ( isBusy( id ) ) {
-		return;
+		return false;
 	}
+	const failed = ( e: unknown, template: Template ) => {
+		if ( notices ) {
+			fail( threat, e, template );
+		} else {
+			setBusy( id );
+		}
+		return false;
+	};
 	setBusy( id, 'fixing' );
-	/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
-	notifyStarted( threat, __( 'Fixing the threat in %s…', 'jetpack-protect-pkg' ), open );
+	if ( notices ) {
+		/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+		notifyStarted( threat, __( 'Fixing the threat in %s…', 'jetpack-protect-pkg' ), open );
+	}
 
 	try {
 		let apply = startReportRead();
 		let result = await apiFetch< FixStatus >( { path: threatPath( id, 'fix' ), method: 'POST' } );
 		for ( let polls = 0; result.status !== 'fixed' && result.status !== 'not_fixed'; polls++ ) {
 			if ( polls >= MAX_FIX_POLLS ) {
-				return fail(
-					threat,
+				return failed(
 					null,
 					/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 					__(
@@ -259,11 +314,13 @@ export async function fixThreat( threat: ScanThreat, open?: OpenThreat ): Promis
 				threats: current.threats?.filter( otherThan( threat ) ),
 			} ) );
 			setBusy( id );
-			/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
-			return notify( threat, __( 'Fixed the threat in %s.', 'jetpack-protect-pkg' ) );
+			if ( notices ) {
+				/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+				notify( threat, __( 'Fixed the threat in %s.', 'jetpack-protect-pkg' ) );
+			}
+			return true;
 		}
-		fail(
-			threat,
+		return failed(
 			{ message: result.error },
 			/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 			__(
@@ -272,14 +329,137 @@ export async function fixThreat( threat: ScanThreat, open?: OpenThreat ): Promis
 			)
 		);
 	} catch ( e ) {
-		fail(
-			threat,
+		return failed(
 			e,
 			/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 			__( 'The fix for the threat in %s couldn’t be started.', 'jetpack-protect-pkg' )
 		);
 	}
 }
+
+// Each bulk action gets its own snackbar, so a second batch doesn't replace the first's result.
+let bulkRuns = 0;
+
+/**
+ * Fix several threats at once, with one snackbar for the batch.
+ *
+ * @param threats - The threats.
+ * @param open    - Opens a threat in the inspector, for a batch of one.
+ * @return Resolves once every fix has finished or failed.
+ */
+export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Promise< void > {
+	const idle = threats.filter( threat => ! isBusy( threat.id ) );
+	if ( idle.length < 2 ) {
+		await Promise.all( idle.map( threat => fixThreat( threat, open ) ) );
+		return;
+	}
+	const id = `jetpack-protect-threat-action-bulk-${ ++bulkRuns }`;
+	const total = idle.length;
+	showNotice(
+		id,
+		sprintf(
+			/* translators: %d is a number of threats, two or more. */
+			_n( 'Fixing %d threat…', 'Fixing %d threats…', total, 'jetpack-protect-pkg' ),
+			total
+		),
+		'info'
+	);
+	const results = await Promise.all( idle.map( threat => fixThreat( threat, open, false ) ) );
+	const fixed = results.filter( Boolean ).length;
+	if ( fixed === total ) {
+		showNotice(
+			id,
+			sprintf(
+				/* translators: %d is a number of threats, two or more. */
+				_n( 'Fixed %d threat.', 'Fixed %d threats.', total, 'jetpack-protect-pkg' ),
+				total
+			),
+			'success'
+		);
+		return;
+	}
+	showNotice(
+		id,
+		sprintf(
+			/* translators: 1: how many threats were fixed. 2: how many Jetpack tried to fix. */
+			_n(
+				'Fixed %1$d of %2$d threat. Fix the rest one at a time to see why they weren’t fixed.',
+				'Fixed %1$d of %2$d threats. Fix the rest one at a time to see why they weren’t fixed.',
+				total,
+				'jetpack-protect-pkg'
+			),
+			fixed,
+			total
+		),
+		'error'
+	);
+}
+
+/**
+ * Ignore or unignore several threats at once, with one snackbar for the batch and Undo.
+ *
+ * @param threats - The threats.
+ * @param ignore  - True to ignore, false to unignore.
+ * @param open    - Opens a threat in the inspector, for a batch of one.
+ * @return Resolves once every request has finished.
+ */
+async function setManyIgnored(
+	threats: ScanThreat[],
+	ignore: boolean,
+	open?: OpenThreat
+): Promise< void > {
+	const idle = threats.filter( threat => ! isBusy( threat.id ) );
+	if ( idle.length < 2 ) {
+		await Promise.all( idle.map( threat => setIgnored( threat, ignore, open ) ) );
+		return;
+	}
+	const id = `jetpack-protect-threat-action-bulk-${ ++bulkRuns }`;
+	const total = idle.length;
+	const started = ignore
+		? /* translators: %d is a number of threats, two or more. */
+			_n( 'Ignoring %d threat…', 'Ignoring %d threats…', total, 'jetpack-protect-pkg' )
+		: /* translators: %d is a number of threats, two or more. */
+			_n( 'Unignoring %d threat…', 'Unignoring %d threats…', total, 'jetpack-protect-pkg' );
+	showNotice( id, sprintf( started, total ), 'info' );
+	const results = await Promise.all(
+		idle.map( threat => setIgnored( threat, ignore, open, false ) )
+	);
+	const done = idle.filter( ( _, index ) => results[ index ] );
+	const undo: NoticeAction | undefined = done.length
+		? {
+				label: __( 'Undo', 'jetpack-protect-pkg' ),
+				onClick: () => setManyIgnored( done, ! ignore, open ),
+			}
+		: undefined;
+	if ( done.length === total ) {
+		const finished = ignore
+			? /* translators: %d is a number of threats, two or more. */
+				_n( 'Ignored %d threat.', 'Ignored %d threats.', total, 'jetpack-protect-pkg' )
+			: /* translators: %d is a number of threats, two or more. */
+				_n( 'Unignored %d threat.', 'Unignored %d threats.', total, 'jetpack-protect-pkg' );
+		showNotice( id, sprintf( finished, total ), 'success', undo );
+		return;
+	}
+	const partial = ignore
+		? /* translators: 1: how many threats were ignored. 2: how many Jetpack tried to ignore. */
+			_n(
+				'Ignored %1$d of %2$d threat. Try the others again.',
+				'Ignored %1$d of %2$d threats. Try the others again.',
+				total,
+				'jetpack-protect-pkg'
+			)
+		: /* translators: 1: how many threats were unignored. 2: how many Jetpack tried to unignore. */
+			_n(
+				'Unignored %1$d of %2$d threat. Try the others again.',
+				'Unignored %1$d of %2$d threats. Try the others again.',
+				total,
+				'jetpack-protect-pkg'
+			);
+	showNotice( id, sprintf( partial, done.length, total ), 'error', undo );
+}
+
+export const ignoreThreats = ( threats: ScanThreat[], open?: OpenThreat ) =>
+	setManyIgnored( threats, true, open );
 
 /**
  * What is happening to a threat, re-rendering when it changes.

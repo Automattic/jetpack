@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
 import { getSoftwareActionLabels } from './labels';
-import { fixThreat, ignoreThreat, unignoreThreat } from './threat-actions';
+import { fixThreats, ignoreThreats, unignoreThreat } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { Action } from '@wordpress/dataviews';
 
@@ -12,11 +12,13 @@ type LinkKey = 'update' | 'deactivate' | 'details';
  *
  * @param open   - Opens a threat in the inspector.
  * @param canAct - Whether the site's plan can fix and ignore threats.
+ * @param onBulk - Offers Auto-fix and Ignore on selected rows, and runs once either starts.
  * @return The actions.
  */
 export function getThreatRowActions(
 	open: ( item: ScanThreat ) => void,
-	canAct: boolean
+	canAct: boolean,
+	onBulk?: () => void
 ): Action< ScanThreat >[] {
 	const link =
 		( key: LinkKey ) =>
@@ -45,7 +47,12 @@ export function getThreatRowActions(
 			isPrimary: true,
 			isEligible: item =>
 				canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed',
-			callback: ( [ item ] ) => item && fixThreat( item, open ),
+			supportsBulk: !! onBulk,
+			// Not awaited: a fix can take minutes, and its snackbar follows it.
+			callback: items => {
+				onBulk?.();
+				fixThreats( items, open );
+			},
 		},
 		{
 			id: 'unignore',
@@ -83,7 +90,11 @@ export function getThreatRowActions(
 			id: 'ignore',
 			label: __( 'Ignore', 'jetpack-protect-pkg' ),
 			isEligible: item => canAct && item.status !== 'ignored' && item.status !== 'fixed',
-			callback: ( [ item ] ) => item && ignoreThreat( item, open ),
+			supportsBulk: !! onBulk,
+			callback: items => {
+				onBulk?.();
+				ignoreThreats( items, open );
+			},
 		},
 	];
 }

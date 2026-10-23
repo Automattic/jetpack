@@ -329,6 +329,73 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 		padding: 12px var(--wp-ui-card-padding, 24px);
 	}
 
+	&__heading {
+		margin: 0;
+	}
+
+	&__toggle {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--wpds-dimension-gap-sm);
+		inline-size: 100%;
+		padding: var(--wpds-dimension-padding-lg);
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		font-weight: 500;
+		text-align: start;
+		cursor: pointer;
+
+		svg {
+			transition: transform var(--wpds-motion-duration-sm) var(--wpds-motion-easing-balanced);
+		}
+
+		&[data-panel-open] svg {
+			transform: rotate(180deg);
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+
+			svg {
+				transition: none;
+			}
+		}
+	}
+
+	&__toolbar {
+		padding: 0 var(--wp-ui-card-padding, 24px) var(--wpds-dimension-padding-lg);
+	}
+
+	&__filters {
+		padding: 0 var(--wp-ui-card-padding, 24px) var(--wpds-dimension-padding-lg);
+	}
+
+	// One line per threat: the label truncates before the severity badge wraps.
+	&__row {
+		display: flex;
+		gap: var(--wpds-dimension-gap-sm);
+		align-items: center;
+		min-inline-size: 0;
+	}
+
+	&__title.is-inline {
+		gap: var(--wpds-dimension-gap-lg);
+		min-inline-size: 0;
+
+		.jp-protect-threats__label {
+			display: block;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		strong {
+			font-weight: 500;
+		}
+	}
+
 	&__title {
 		display: flex;
 		gap: 12px;

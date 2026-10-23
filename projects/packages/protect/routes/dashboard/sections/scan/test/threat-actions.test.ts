@@ -3,7 +3,13 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { setScan, useScan } from '../store';
-import { deleteSoftware, fixThreat, ignoreThreat } from '../threat-actions';
+import {
+	deleteSoftware,
+	fixThreat,
+	fixThreats,
+	ignoreThreat,
+	ignoreThreats,
+} from '../threat-actions';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 
@@ -84,6 +90,70 @@ describe( 'threat notices', () => {
 		).toEqual(
 			expect.arrayContaining( [ 'Ignored the threat in a.php.', 'Ignored the threat in b.php.' ] )
 		);
+	} );
+} );
+
+describe( 'bulk actions', () => {
+	const fileThreat = ( id: number ) => ( {
+		id,
+		title: `Malicious code found in file: ${ id }.php`,
+	} );
+	const bulkNotices = () =>
+		select( noticesStore )
+			.getNotices()
+			.filter( notice => notice.id.includes( 'bulk' ) );
+
+	it( 'reports a batch in one snackbar, and Undo unignores only the threats that were ignored', async () => {
+		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
+		const [ a, b, c ] = [ fileThreat( 31 ), fileThreat( 32 ), fileThreat( 33 ) ];
+		setScan( current => ( { ...current, threats: [ a, b, c ], ignored: [] } ) );
+		mockApiFetch
+			.mockReset()
+			.mockImplementation( ( { path } ) =>
+				path.includes( '/32/' ) ? Promise.reject( {} ) : Promise.resolve( {} )
+			);
+		const { result } = renderHook( () => useScan() );
+
+		await act( () => ignoreThreats( [ a, b, c ] ) );
+
+		expect( result.current?.threats?.map( item => item.id ) ).toEqual( [ 32 ] );
+		const [ notice ] = bulkNotices();
+		expect( bulkNotices() ).toHaveLength( 1 );
+		expect( notice ).toMatchObject( {
+			status: 'error',
+			content: 'Ignored 2 of 3 threats. Try the others again.',
+		} );
+		expect(
+			select( noticesStore )
+				.getNotices()
+				.filter( item => ! item.id.includes( 'bulk' ) )
+		).toEqual( [] );
+
+		mockApiFetch.mockClear();
+		await act( async () => notice.actions[ 0 ].onClick() );
+
+		expect( mockApiFetch.mock.calls.map( ( [ { path } ] ) => path ) ).toEqual( [
+			'/jetpack/v4/protect-dashboard/scan/threats/31/unignore',
+			'/jetpack/v4/protect-dashboard/scan/threats/33/unignore',
+		] );
+	} );
+
+	it( 'counts the fixes Scan finished in the batch’s snackbar', async () => {
+		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
+		mockApiFetch
+			.mockReset()
+			.mockImplementation( ( { path } ) =>
+				Promise.resolve( { status: path.includes( '/41/' ) ? 'fixed' : 'not_fixed' } )
+			);
+
+		await act( () => fixThreats( [ fileThreat( 41 ), fileThreat( 42 ) ] ) );
+
+		expect( bulkNotices() ).toEqual( [
+			expect.objectContaining( {
+				status: 'error',
+				content: 'Fixed 1 of 2 threats. Fix the rest one at a time to see why they weren’t fixed.',
+			} ),
+		] );
 	} );
 } );
 

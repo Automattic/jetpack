@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import ScanCard from '../scan-card';
 import { setScan } from '../store';
@@ -106,4 +107,50 @@ describe( 'ScanCard empty state', () => {
 			await expect( screen.findByRole( 'button', { name: button } ) ).resolves.toBeInTheDocument();
 		}
 	);
+} );
+
+describe( 'ScanCard threat list', () => {
+	const fixable = {
+		id: 5,
+		title: 'Malicious code found in file: index.php',
+		severity: 5,
+		status: 'current' as const,
+		fixable: { fixer: 'delete' },
+		firstDetected: checkedAgo( HOUR_IN_MS ),
+	};
+
+	it.each( [
+		[ true, 'offers', 1 ],
+		[ false, 'hides', 0 ],
+	] )(
+		'with hasPlan %s, %s row selection, since only Scan can act on several threats',
+		async ( hasPlan, _verb, count ) => {
+			renderCard( { hasPlan, threats: [ fixable ] } );
+
+			const table = await screen.findByRole( 'table' );
+			expect( within( table ).queryAllByRole( 'checkbox', { name: 'Select all' } ) ).toHaveLength(
+				count
+			);
+		}
+	);
+
+	it( 'shows each threat on one line, with its severity', () => {
+		renderCard( { threats: [ fixable ] } );
+
+		expect(
+			screen.getByRole( 'button', { name: /^Malicious code found in file: index\.php/ } )
+		).toBeInTheDocument();
+		expect( screen.getByText( 'Critical' ) ).toBeInTheDocument();
+	} );
+
+	it( 'collapses the list from its heading', async () => {
+		const user = userEvent.setup();
+		renderCard( { threats: [ fixable ] } );
+		const toggle = screen.getByRole( 'button', { name: 'Review and fix threats' } );
+
+		await user.click( toggle );
+
+		expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
+		expect( screen.queryByRole( 'table' ) ).not.toBeInTheDocument();
+	} );
 } );

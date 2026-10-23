@@ -1,8 +1,10 @@
-import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
+import { getThreatType, ThreatSeverityBadge, type Threat } from '@automattic/jetpack-scan';
 import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { chevronDown } from '@wordpress/icons';
+import { Collapsible, Icon, Stack } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
 import useOpenThreat from '../use-open-threat';
 import { getThreatLabel } from './labels';
@@ -10,7 +12,6 @@ import { THREAT_PARAM, useSearchParam } from './store';
 import ThreatMedia from './threat-media';
 import { getThreatRowActions } from './threat-row-actions';
 import type { ScanThreat } from './types';
-import type { ReactNode } from 'react';
 
 const DEFAULT_LAYOUTS = { table: {} };
 
@@ -32,19 +33,46 @@ function formatDetected( date: string ): string {
 	return dateI18n( 'M j, g:i A', date, undefined );
 }
 
-type RowProps = { item: ScanThreat; onOpen: ( item: ScanThreat ) => void };
+type RowProps = { item: ScanThreat; onOpen: ( item: ScanThreat ) => void; inline?: boolean };
 
 /**
- * The threat column: the icon, the kind of threat and what it's in on a second line, as one button that opens the details.
+ * The threat column: the icon and the threat, as one button that opens the details.
+ *
+ * Stacked, the kind of threat sits above what it's in; inline, they share a line with the severity.
  *
  * @param props        - Component props.
  * @param props.item   - The threat.
  * @param props.onOpen - Opens the threat in the inspector.
+ * @param props.inline - Whether to show the threat on one line, with its severity.
  * @return The cell.
  */
-function ThreatCell( { item, onOpen }: RowProps ) {
+function ThreatCell( { item, onOpen, inline = false }: RowProps ) {
 	const { kind, subject } = getThreatLabel( item );
 	const onClick = useCallback( () => onOpen( item ), [ item, onOpen ] );
+	if ( inline ) {
+		return (
+			<span className="jp-protect-threats__row">
+				<button type="button" className="jp-protect-threats__title is-inline" onClick={ onClick }>
+					<ThreatMedia threat={ item } size={ 32 } />
+					<span className="jp-protect-threats__label">
+						{ kind && (
+							<>
+								<strong>
+									{ sprintf(
+										/* translators: %s is a kind of threat, such as "Vulnerable plugin", before what it's in. */
+										__( '%s:', 'jetpack-protect-pkg' ),
+										kind
+									) }
+								</strong>{ ' ' }
+							</>
+						) }
+						{ subject }
+					</span>
+				</button>
+				<ThreatSeverityBadge severity={ item.severity } />
+			</span>
+		);
+	}
 	return (
 		<button type="button" className="jp-protect-threats__title" onClick={ onClick }>
 			<ThreatMedia threat={ item } size={ 32 } />
@@ -60,6 +88,8 @@ type ThreatFieldOptions = {
 	threatLabel: string;
 	dateLabel: string;
 	getDate: ( item: ScanThreat ) => string;
+	/** Show each threat on one line, with its severity, for a list without a Severity column. */
+	inline?: boolean;
 };
 
 /**
@@ -70,11 +100,12 @@ type ThreatFieldOptions = {
  * @param options.threatLabel - The threat column's heading.
  * @param options.dateLabel   - The date column's heading.
  * @param options.getDate     - The ISO date the date column shows.
+ * @param options.inline      - Whether each threat takes one line, with its severity.
  * @return The fields.
  */
 export function getThreatFields(
 	open: ( item: ScanThreat ) => void,
-	{ threatLabel, dateLabel, getDate }: ThreatFieldOptions
+	{ threatLabel, dateLabel, getDate, inline = false }: ThreatFieldOptions
 ): Field< ScanThreat >[] {
 	return [
 		{
@@ -95,7 +126,7 @@ export function getThreatFields(
 				const { kind, subject } = getThreatLabel( item );
 				return kind ? `${ kind }: ${ subject }` : subject;
 			},
-			render: ( { item } ) => <ThreatCell item={ item } onOpen={ open } />,
+			render: ( { item } ) => <ThreatCell item={ item } onOpen={ open } inline={ inline } />,
 		},
 		{
 			id: 'date',
@@ -137,41 +168,101 @@ export function createThreatView( sortField: 'severity' | 'date' ): View {
 	};
 }
 
+const LEVELS = [
+	{ value: 'critical', label: __( 'Critical', 'jetpack-protect-pkg' ) },
+	{ value: 'high', label: __( 'High', 'jetpack-protect-pkg' ) },
+	{ value: 'low', label: __( 'Low', 'jetpack-protect-pkg' ) },
+];
+
+const TYPES = [
+	{ value: 'plugins', label: __( 'Plugin', 'jetpack-protect-pkg' ) },
+	{ value: 'themes', label: __( 'Theme', 'jetpack-protect-pkg' ) },
+	{ value: 'core', label: __( 'WordPress', 'jetpack-protect-pkg' ) },
+	{ value: 'file', label: __( 'File', 'jetpack-protect-pkg' ) },
+];
+
+/**
+ * A threat's severity level, matching the badge: Critical from 5, High from 3, else Low.
+ *
+ * @param item - The threat.
+ * @return The level.
+ */
+function getLevel( item: ScanThreat ): string {
+	const severity = item.severity ?? 0;
+	if ( severity >= 5 ) {
+		return 'critical';
+	}
+	return severity >= 3 ? 'high' : 'low';
+}
+
+// Filters only; the row already shows both.
+const FILTER_FIELDS: Field< ScanThreat >[] = [
+	{
+		id: 'level',
+		label: __( 'Severity', 'jetpack-protect-pkg' ),
+		elements: LEVELS,
+		filterBy: { operators: [ 'isAny' ] },
+		enableHiding: false,
+		enableSorting: false,
+		getValue: ( { item } ) => getLevel( item ),
+	},
+	{
+		id: 'type',
+		label: __( 'Type', 'jetpack-protect-pkg' ),
+		elements: TYPES,
+		filterBy: { operators: [ 'isAny' ] },
+		enableHiding: false,
+		enableSorting: false,
+		getValue: ( { item } ) => getThreatType( item as Threat ) ?? '',
+	},
+];
+
+const NO_SELECTION: string[] = [];
+
 type ThreatsListProps = {
 	threats: ScanThreat[];
-	/** Shown when there are no active threats. */
-	empty?: ReactNode;
 	/** Whether the site's plan can fix and ignore threats. */
 	canAct: boolean;
 };
 
 /**
- * The threats a scan found; choosing one opens its details in the inspector.
+ * The threats a scan found, under a heading that collapses them, with search, filters and bulk actions.
+ *
+ * Choosing a threat opens its details in the inspector.
  *
  * @param props         - Component props.
  * @param props.threats - The active threats.
- * @param props.empty   - Shown when there are no active threats.
- * @param props.canAct  - Whether the site can fix threats.
- * @return The table.
+ * @param props.canAct  - Whether the site can fix threats, which is what selecting rows is for.
+ * @return The list.
  */
-export default function ThreatsList( { threats, empty, canAct }: ThreatsListProps ) {
-	const [ view, setView ] = useState< View >( () => createThreatView( 'severity' ) );
+export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
+	const [ view, setView ] = useState< View >( () => ( {
+		...createThreatView( 'severity' ),
+		fields: [ 'threat', 'date' ],
+	} ) );
+	const [ selection, setSelection ] = useState< string[] >( NO_SELECTION );
+	const clearSelection = useCallback( () => setSelection( NO_SELECTION ), [] );
 
 	const [ selected ] = useSearchParam( THREAT_PARAM );
-	const selection = useMemo( () => ( selected ? [ selected ] : [] ), [ selected ] );
 	const open = useOpenThreat();
 	const getItemId = useCallback( ( item: ScanThreat ) => String( item.id ), [] );
 
 	const fields = useMemo(
-		() =>
-			getThreatFields( open, {
-				threatLabel: __( 'Threats', 'jetpack-protect-pkg' ),
+		() => [
+			...getThreatFields( open, {
+				threatLabel: __( 'Vulnerabilities', 'jetpack-protect-pkg' ),
 				dateLabel: __( 'Detected on', 'jetpack-protect-pkg' ),
 				getDate: item => item.firstDetected ?? '',
+				inline: true,
 			} ),
+			...FILTER_FIELDS,
+		],
 		[ open ]
 	);
-	const actions = useMemo( () => getThreatRowActions( open, canAct ), [ open, canAct ] );
+	const actions = useMemo(
+		() => getThreatRowActions( open, canAct, clearSelection ),
+		[ open, canAct, clearSelection ]
+	);
 
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( threats, view, fields ),
@@ -180,22 +271,44 @@ export default function ThreatsList( { threats, empty, canAct }: ThreatsListProp
 	useArrowKeyNavigation( data, selected, getItemId, open );
 
 	return (
-		<div className="jp-protect-threats">
-			<DataViews
-				empty={ empty }
-				data={ data }
-				fields={ fields }
-				actions={ actions }
-				view={ view }
-				onChangeView={ setView }
-				paginationInfo={ paginationInfo }
-				defaultLayouts={ DEFAULT_LAYOUTS }
-				getItemId={ getItemId }
-				selection={ selection }
-			>
-				<DataViews.Layout />
-				<DataViews.Footer />
-			</DataViews>
-		</div>
+		<Collapsible.Root defaultOpen className="jp-protect-threats">
+			<h3 className="jp-protect-threats__heading">
+				<Collapsible.Trigger className="jp-protect-threats__toggle">
+					{ __( 'Review and fix threats', 'jetpack-protect-pkg' ) }
+					<Icon icon={ chevronDown } size={ 24 } />
+				</Collapsible.Trigger>
+			</h3>
+			<Collapsible.Panel>
+				<DataViews
+					data={ data }
+					fields={ fields }
+					actions={ actions }
+					view={ view }
+					onChangeView={ setView }
+					paginationInfo={ paginationInfo }
+					defaultLayouts={ DEFAULT_LAYOUTS }
+					getItemId={ getItemId }
+					selection={ selection }
+					onChangeSelection={ setSelection }
+				>
+					<Stack
+						direction="row"
+						align="center"
+						justify="space-between"
+						gap="xs"
+						className="jp-protect-threats__toolbar"
+					>
+						<Stack direction="row" align="center" gap="sm">
+							<DataViews.Search />
+							<DataViews.FiltersToggle />
+						</Stack>
+						<DataViews.ViewConfig />
+					</Stack>
+					<DataViews.FiltersToggled className="jp-protect-threats__filters" />
+					<DataViews.Layout />
+					<DataViews.Footer />
+				</DataViews>
+			</Collapsible.Panel>
+		</Collapsible.Root>
 	);
 }
