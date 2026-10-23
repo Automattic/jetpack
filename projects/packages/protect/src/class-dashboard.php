@@ -316,8 +316,9 @@ class Dashboard {
 	 */
 	private static function filter_scan_links( $included ) {
 		$upgrade = array(
-			'path' => $included ? '' : '/add-scan',
-			'name' => $included ? '' : 'Jetpack Scan', // Product name, do not translate.
+			'path'     => $included ? '' : '/add-scan',
+			'name'     => $included ? '' : 'Jetpack Scan', // Product name, do not translate.
+			'back_url' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
 		);
 
 		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */

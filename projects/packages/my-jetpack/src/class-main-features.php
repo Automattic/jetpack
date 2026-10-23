@@ -565,11 +565,12 @@ class Main_Features {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param array  $upgrade  `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is.
+		 * @param array  $upgrade  `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is,
+		 *                         and `back_url`, the admin page the link is on, for a host flow to return to.
 		 * @param string $slug     The My Jetpack feature slug.
 		 * @param bool   $included Whether the site already pays for the feature.
 		 */
-		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade, $slug, $included );
+		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade + array( 'back_url' => admin_url( 'admin.php?page=my-jetpack#/features' ) ), $slug, $included );
 
 		if ( ! is_array( $filtered ) ) {
 			return $upgrade;
