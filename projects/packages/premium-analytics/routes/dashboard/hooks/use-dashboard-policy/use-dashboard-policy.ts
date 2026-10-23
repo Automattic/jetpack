@@ -32,9 +32,11 @@ export function useDashboardPolicy( {
 					return ! lockedLayout || lockedLayout.length > 0;
 				case 'insert':
 					// A locked section would hide anything added. Locked types stay out of the inserter,
-					// but keep `edit`: the frame hides header controls without it.
+					// but keep `edit`: the frame hides header controls without it. A type without a
+					// render module is a page header, not a tile.
 					return (
 						! lockedLayout &&
+						!! request.widgetType.renderModule &&
 						insertableWidgetTypes.has( request.widgetType.name ) &&
 						! getLockedWidgetFeature( request.widgetType.name )
 					);

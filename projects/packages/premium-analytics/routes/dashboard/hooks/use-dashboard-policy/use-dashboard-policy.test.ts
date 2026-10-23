@@ -82,6 +82,13 @@ describe( 'useDashboardPolicy', () => {
 		expect( result.current( { operation: 'insert', widgetType: otherWidgetType } ) ).toBe( false );
 	} );
 
+	it( 'keeps a type without a render module, a page header, out of the inserter', () => {
+		const headerType: WidgetType = { ...widgetType, renderModule: '' };
+		const { result } = renderHook( () => useDashboardPolicy( POLICY_INPUTS ) );
+
+		expect( result.current( { operation: 'insert', widgetType: headerType } ) ).toBe( false );
+	} );
+
 	it( 'lets a placed widget of a type it does not offer be removed', () => {
 		const { result } = renderHook( () => useDashboardPolicy( POLICY_INPUTS ) );
 		const placed = { uuid: 'post-views', type: otherWidgetType.name };
