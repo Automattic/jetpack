@@ -14,12 +14,12 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
  *
  * @since $$next-version$$
  */
-class Classic_Stats {
+final class Classic_Stats {
 
 	const RETIRED_FLAG = 'jetpack-stats-classic-page-retired';
 
 	/**
-	 * Register the flag. Hosts call this on load, before anything reads it on `plugins_loaded`.
+	 * Register the flag, so feature-flag tooling lists it. An unregistered flag still reads its filters, with a `false` default.
 	 *
 	 * @return void
 	 */
