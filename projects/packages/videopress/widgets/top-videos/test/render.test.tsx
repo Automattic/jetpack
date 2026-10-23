@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { video as videoIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -18,8 +18,13 @@ const mockUseEntityRecords = jest.fn();
 const mockCanUser = jest.fn();
 const mockHasFinishedResolution = jest.fn();
 const mockIsSimpleSite = jest.fn();
+const mockCurrentUserCan = jest.fn();
+const mockInvalidateResolution = jest.fn();
+const mockVideoUploader = jest.fn();
+const mockStartVideoUpload = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
+	currentUserCan: ( capability: string ) => mockCurrentUserCan( capability ),
 	getAdminUrl: ( path: string ) => `https://example.com/blog/wp-admin/${ path }`,
 	isSimpleSite: () => mockIsSimpleSite(),
 } ) );
@@ -30,6 +35,7 @@ jest.mock( '@wordpress/core-data', () => ( {
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {
+	useDispatch: () => ( { invalidateResolution: mockInvalidateResolution } ),
 	useSelect: ( selector: ( select: () => Record< string, jest.Mock > ) => unknown ) =>
 		selector( () => ( {
 			canUser: mockCanUser,
@@ -57,7 +63,29 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 	useWidgetRootContext: () => ( { reportParams: { from: '2026-06-01', to: '2026-06-16' } } ),
 } ) );
 
+jest.mock( '../../../src/dashboard/utils/start-video-upload', () => ( {
+	startVideoUpload: ( ...args: unknown[] ) => mockStartVideoUpload( ...args ),
+} ) );
+
+// The uploader body has its own suite; the real hook keeps the phase, as in the widget.
+jest.mock( '../components/video-uploader', () => ( {
+	useVideoUpload: jest.requireActual( '../components/video-uploader/use-video-upload' )
+		.useVideoUpload,
+	VideoUploader: ( props: Record< string, unknown > ) => {
+		mockVideoUploader( props );
+		return <div>Upload your first video</div>;
+	},
+} ) );
+
 const refetch = jest.fn();
+const noPlaysEmpty = {
+	icon: videoIcon,
+	description: 'No video plays in this period yet.',
+	action: {
+		label: 'Manage videos',
+		href: 'https://example.com/blog/wp-admin/admin.php?page=jetpack-videopress',
+	},
+};
 
 const videoPlays = ( overrides: Record< string, unknown > = {} ) => ( {
 	primary: { isPending: false, isError: false },
@@ -84,6 +112,9 @@ const videoPlays = ( overrides: Record< string, unknown > = {} ) => ( {
 } );
 
 const leaderboardProps = () => mockLeaderboard.mock.lastCall?.[ 0 ];
+const uploaderProps = () => mockVideoUploader.mock.lastCall?.[ 0 ];
+const uploadCallbacks = () => mockStartVideoUpload.mock.lastCall?.[ 1 ];
+const videoFile = new File( [ 'x' ], 'holiday.mp4', { type: 'video/mp4' } );
 
 describe( 'Top videos widget', () => {
 	beforeEach( () => {
@@ -95,6 +126,7 @@ describe( 'Top videos widget', () => {
 		mockCanUser.mockReturnValue( true );
 		mockHasFinishedResolution.mockReturnValue( true );
 		mockIsSimpleSite.mockReturnValue( false );
+		mockCurrentUserCan.mockReturnValue( true );
 	} );
 
 	it( 'requests its own number of videos for the dashboard window', () => {
@@ -222,7 +254,7 @@ describe( 'Top videos widget', () => {
 		expect( mockCanUser ).not.toHaveBeenCalled();
 	} );
 
-	it( 'offers general media upload when no VideoPress media exists', () => {
+	it( 'offers the upload dropzone, with the report actions, when no VideoPress media exists', () => {
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
 		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: true } );
 
@@ -234,12 +266,51 @@ describe( 'Top videos widget', () => {
 			{ per_page: 1, _fields: 'id', videopress_has_guid: 1 },
 			{ enabled: true }
 		);
-		expect( leaderboardProps().empty ).toMatchObject( {
-			description: 'You don’t have videos uploaded yet.',
-			action: {
-				label: 'Upload video',
-				href: 'https://example.com/blog/wp-admin/media-new.php',
-			},
+		expect( mockLeaderboard ).not.toHaveBeenCalled();
+		expect( screen.getByText( 'Upload your first video' ) ).toBeInTheDocument();
+		expect( mockReportActions ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { report: 'videos' } )
+		);
+	} );
+
+	it( 'keeps the upload on screen and refreshes the media check once it lands', () => {
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
+		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: true } );
+		const { rerender } = render( <TopVideos attributes={ {} } /> );
+
+		act( () => uploaderProps().onUpload( videoFile ) );
+		const media = { id: 7, guid: 'abc', src: 'https://videopress.com/v/abc' };
+		act( () => uploadCallbacks().onSuccess( media ) );
+		// The refreshed check now finds the video; the upload body must not give way to the chart.
+		mockUseEntityRecords.mockReturnValue( { records: [ { id: 7 } ], hasResolved: true } );
+		rerender( <TopVideos attributes={ {} } /> );
+
+		expect( mockInvalidateResolution ).toHaveBeenCalledWith( 'getEntityRecords', [
+			'postType',
+			'attachment',
+			{ per_page: 1, _fields: 'id', videopress_has_guid: 1 },
+		] );
+		expect( mockLeaderboard ).not.toHaveBeenCalled();
+		expect( uploaderProps().phase ).toEqual( { status: 'uploaded', file: videoFile, media } );
+	} );
+
+	it.each( [
+		[ 'reloads for a new range', { isLoading: true, comparisonRows: undefined } ],
+		[ 'fails', { isError: true, error: { status: 500 }, comparisonRows: { rows: [] } } ],
+	] )( 'keeps an upload in flight on screen while the stats request %s', ( _, stats ) => {
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
+		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: true } );
+		const { rerender } = render( <TopVideos attributes={ {} } /> );
+		act( () => uploaderProps().onUpload( videoFile ) );
+
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( stats ) );
+		rerender( <TopVideos attributes={ {} } /> );
+
+		expect( mockLeaderboard ).not.toHaveBeenCalled();
+		expect( uploaderProps().phase ).toEqual( {
+			status: 'uploading',
+			file: videoFile,
+			progress: 0,
 		} );
 	} );
 
@@ -282,26 +353,37 @@ describe( 'Top videos widget', () => {
 			{ per_page: 1, _fields: 'id', videopress_has_guid: 1, videopress_only_videos: 1 },
 			{ enabled: true }
 		);
-		expect( leaderboardProps().empty.description ).toBe( 'You don’t have videos uploaded yet.' );
+		expect( screen.getByText( 'Upload your first video' ) ).toBeInTheDocument();
 	} );
 
 	it.each( [
 		[ 'an existing video', { records: [ { id: 42 } ], hasResolved: true } ],
 		[ 'a failed media query', { records: null, hasResolved: true } ],
-	] )( 'keeps the generic empty state for %s', ( _, media ) => {
+	] )( 'names the missing plays and links the videos for %s', ( _, media ) => {
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
 		mockUseEntityRecords.mockReturnValue( media );
 
 		render( <TopVideos attributes={ {} } /> );
 
 		expect( leaderboardProps().status.isLoading ).toBe( false );
-		expect( leaderboardProps().empty ).toBeUndefined();
+		expect( leaderboardProps().empty ).toEqual( noPlaysEmpty );
+	} );
+
+	it( 'leaves Manage videos out for users who cannot open the VideoPress dashboard', () => {
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
+		mockUseEntityRecords.mockReturnValue( { records: [ { id: 42 } ], hasResolved: true } );
+		mockCurrentUserCan.mockReturnValue( false );
+
+		render( <TopVideos attributes={ {} } /> );
+
+		expect( mockCurrentUserCan ).toHaveBeenCalledWith( 'manage_options' );
+		expect( leaderboardProps().empty ).toEqual( { ...noPlaysEmpty, action: undefined } );
 	} );
 
 	it.each( [
 		[ 'the user cannot upload', false ],
 		[ 'the permission request fails', undefined ],
-	] )( 'keeps the generic empty state without querying media when %s', ( _, canUser ) => {
+	] )( 'names the missing plays without an action or a media query when %s', ( _, canUser ) => {
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
 		mockCanUser.mockReturnValue( canUser );
 
@@ -315,6 +397,6 @@ describe( 'Top videos widget', () => {
 			{ per_page: 1, _fields: 'id', videopress_has_guid: 1 },
 			{ enabled: false }
 		);
-		expect( leaderboardProps().empty ).toBeUndefined();
+		expect( leaderboardProps().empty ).toEqual( { ...noPlaysEmpty, action: undefined } );
 	} );
 } );
