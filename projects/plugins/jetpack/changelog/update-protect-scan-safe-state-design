@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Protect: Shorten the Scan card's all-clear on the Protect page, and start scans from the page header instead of the card.

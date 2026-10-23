@@ -53,10 +53,9 @@ describe( 'ScanCard without Scan', () => {
 	it( 'says what the free check covered without claiming the site is safe or scanned', () => {
 		renderCard( {} );
 
-		expect( screen.getByText( 'No known vulnerabilities found' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Your site is safe right now' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( /scanned automatically/ ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( /No issues were found after scanning/ ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'No vulnerabilities found' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'No threats found' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /after scanning/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'View scan history' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Get the rest of your site’s protection' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute( 'href', '#' );
@@ -68,7 +67,7 @@ describe( 'ScanCard without Scan', () => {
 		expect(
 			screen.getByText( 'We couldn’t check your site for vulnerabilities right now.' )
 		).toBeInTheDocument();
-		expect( screen.queryByText( 'No known vulnerabilities found' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'No vulnerabilities found' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 } );
@@ -77,7 +76,7 @@ describe( 'ScanCard with Scan', () => {
 	it( 'shows the all clear and Scan history after a clean scan', async () => {
 		renderCard( { hasPlan: true } );
 
-		expect( screen.getByText( 'Your site is safe right now' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No threats found' ) ).toBeInTheDocument();
 		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
@@ -93,17 +92,19 @@ describe( 'ScanCard with Scan', () => {
 
 describe( 'ScanCard empty state', () => {
 	it.each( [
-		[ false, 48, /Vulnerabilities are checked automatically every day\./, 'Check again now' ],
-		[ false, 1, /Next check will happen automatically on /, 'Check again now' ],
-		[ true, 48, /Your site is scanned automatically every day\./, 'Scan again now' ],
-		[ true, 1, /Next scan will happen automatically on /, 'Scan again now' ],
+		[
+			false,
+			'No issues were found after checking 3 plugins and 1 theme for known vulnerabilities.',
+		],
+		[ true, 'No issues were found after scanning 3 plugins and 1 theme in the latest scan.' ],
 	] )(
-		'with hasPlan %s, checked %i hours ago, words the next check and button for that plan',
-		async ( hasPlan, hoursAgo, next, button ) => {
-			renderCard( { hasPlan, lastChecked: checkedAgo( hoursAgo * HOUR_IN_MS ) } );
+		'with hasPlan %s, says what was checked and leaves starting a scan to the page header',
+		async ( hasPlan, details ) => {
+			renderCard( { hasPlan } );
 
-			expect( screen.getByText( next ) ).toBeInTheDocument();
-			await expect( screen.findByRole( 'button', { name: button } ) ).resolves.toBeInTheDocument();
+			expect( screen.getByText( details ) ).toBeInTheDocument();
+			await expect( screen.findByRole( 'heading', { level: 3 } ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 		}
 	);
 } );

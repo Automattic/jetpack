@@ -9,7 +9,7 @@ import LastScanned from './last-scanned';
 import SafeState from './safe-state';
 import ScanUpsell from './scan-upsell';
 import ScanningState from './scanning-state';
-import { checkScanAgain, startScan, useIsScanning, useScan, useScanRequest } from './store';
+import { checkScanAgain, useIsScanning, useScan, useScanRequest } from './store';
 import { loadIgnored } from './threat-actions';
 import threatsIcon from './threats-icon';
 import ThreatsList from './threats-list';
@@ -69,13 +69,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	}, [] );
 
 	const safeState = (
-		<SafeState
-			key={ finishedScans }
-			scan={ scan }
-			isStarting={ isStarting }
-			onScan={ startScan }
-			justScanned={ finishedScans > 0 }
-		/>
+		<SafeState key={ finishedScans } scan={ scan } justScanned={ finishedScans > 0 } />
 	);
 
 	let body;
