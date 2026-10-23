@@ -3,7 +3,7 @@ import { dispatch } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, caution, check, closeSmall, info, shield } from '@wordpress/icons';
+import { Icon, caution, check, closeSmall, info } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { Button, Stack } from '@wordpress/ui';
 import {
@@ -25,6 +25,7 @@ import {
 } from './firewall-test';
 import FirewallToggle from './firewall-toggle';
 import FirewallUpsell from './firewall-upsell';
+import shieldFlame from './icon';
 import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
 import { AUTOMATIC_RULES, IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
@@ -271,12 +272,12 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	}, [ active, blocks.recentBlocks ] );
 
 	if ( ! firewall.available ) {
-		return <UnavailableCard icon={ shield } title={ title } />;
+		return <UnavailableCard icon={ shieldFlame } title={ title } />;
 	}
 
 	return (
 		<ProtectCard
-			icon={ shield }
+			icon={ shieldFlame }
 			title={ title }
 			description={ __(
 				'Blocks malicious requests before they reach your site.',

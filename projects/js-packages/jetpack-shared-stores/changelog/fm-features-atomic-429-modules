@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Modules store: Retry loading the module list after a rate-limited or unreadable response, so a module switch survives one or two rate-limited refreshes.

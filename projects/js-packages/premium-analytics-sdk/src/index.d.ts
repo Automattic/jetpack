@@ -265,6 +265,8 @@ export type UseReportOptions = {
 	enabled?: boolean;
 	// Where the comparison query parks while the params carry no comparison.
 	disabledComparisonKey?: string[];
+	// Defaults to true. False for a query whose failure leaves the figures on screen current, such as product details.
+	refreshNotice?: boolean;
 };
 
 export declare function useReport< TData, TParams extends ReportParams = ReportParams >(

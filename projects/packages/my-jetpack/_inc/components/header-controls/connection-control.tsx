@@ -63,7 +63,8 @@ const ConnectionControl: FC = () => {
 	const triggerRef = useRef< HTMLButtonElement >( null );
 	const returnFocusRef = useRef( false );
 	// Never stale, so opening reuses what the Overview or an earlier open loaded.
-	const { data: purchases = null } = useSitePurchases( {
+	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
+	const { data: purchases = null, isError: hasPurchasesError } = useSitePurchases( {
 		enabled: isOpen,
 		staleTime: Infinity,
 	} );
@@ -152,8 +153,10 @@ const ConnectionControl: FC = () => {
 								</Link>
 							) }
 						</Stack>
-						{ purchases && <hr className={ styles.divider } /> }
-						<PlanSummary purchases={ purchases } />
+						{ ( purchases || ( hasPurchasesError && isAdmin ) ) && (
+							<hr className={ styles.divider } />
+						) }
+						<PlanSummary purchases={ purchases } hasFailed={ hasPurchasesError } />
 					</Stack>
 				</Popover.Popup>
 			</Popover.Root>

@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { fetchRecentRestores, parseRestoreWhen } from '../restore';
+import { fetchRecentRestores, initiateRestore, parseRestoreWhen } from '../restore';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
@@ -123,5 +123,26 @@ describe( 'parseRestoreWhen', () => {
 
 	test.each( [ '', '   ', 'whenever' ] )( 'answers null for %p', stamp => {
 		expect( parseRestoreWhen( stamp ) ).toBeNull();
+	} );
+} );
+
+describe( 'initiateRestore', () => {
+	const ITEMS = {
+		themes: true,
+		plugins: false,
+		roots: false,
+		contents: false,
+		sqls: false,
+		uploads: false,
+	};
+
+	test.each( [
+		[ 'acknowledged', true, { types: { themes: true }, acknowledge_threats: true } ],
+		[ 'not acknowledged', false, { types: { themes: true } } ],
+		[ 'not asked', undefined, { types: { themes: true } } ],
+	] )( 'sends acknowledge_threats only when asked: %s', async ( _label, acknowledge, data ) => {
+		mockedApiFetch.mockResolvedValue( { id: 1, rewind_id: '1786512000.11' } );
+		await initiateRestore( '1786512000.11', ITEMS, acknowledge );
+		expect( mockedApiFetch ).toHaveBeenCalledWith( expect.objectContaining( { data } ) );
 	} );
 } );
