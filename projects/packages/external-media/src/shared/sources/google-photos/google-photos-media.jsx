@@ -33,7 +33,6 @@ function GooglePhotosMedia( props ) {
 		path,
 		setAuthenticated,
 		pickerSession,
-		pickerFeatureEnabled,
 		deletePickerSession,
 		createPickerSession,
 	} = props;
@@ -47,7 +46,7 @@ function GooglePhotosMedia( props ) {
 		number: 20,
 		path: path.ID,
 	};
-	if ( pickerFeatureEnabled && pickerSession ) {
+	if ( pickerSession ) {
 		params.session_id = pickerSession.id;
 	}
 
@@ -75,10 +74,10 @@ function GooglePhotosMedia( props ) {
 				items,
 				getExternalMediaApiUrl( 'copy', SOURCE_GOOGLE_PHOTOS ),
 				SOURCE_GOOGLE_PHOTOS,
-				pickerFeatureEnabled
+				true
 			);
 		},
-		[ copyMedia, pickerFeatureEnabled ]
+		[ copyMedia ]
 	);
 
 	const onChangeSelection = useCallback( () => {
@@ -101,7 +100,7 @@ function GooglePhotosMedia( props ) {
 	return (
 		<div className={ clsx( className, 'jetpack-external-media-wrapper__google' ) }>
 			<div className="jetpack-external-media-header__view">
-				{ pickerFeatureEnabled && ! isLoading && (
+				{ ! isLoading && (
 					<div className="jetpack-external-media-header__change-selection">
 						<Button
 							variant="primary"
@@ -133,7 +132,7 @@ function GooglePhotosMedia( props ) {
 				multiple={ multiple }
 				selectButtonText={ selectButtonText }
 				setPath={ setPath }
-				shouldProxyImg={ pickerFeatureEnabled }
+				shouldProxyImg={ true }
 			/>
 		</div>
 	);
