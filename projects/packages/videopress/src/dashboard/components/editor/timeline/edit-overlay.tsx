@@ -22,8 +22,6 @@ type Props = {
 	contentRef: RefObject< HTMLElement | null >;
 	/** Dispatch into the history-wrapped session reducer. */
 	dispatch: ( action: HistoryAction< EditSessionAction > ) => void;
-	/** Seek the preview player to a master-timeline ms. */
-	onSeek: ( ms: number ) => void;
 };
 
 /**
@@ -38,7 +36,6 @@ type Props = {
  * @param props.scrollerEl     - Timeline viewport for drag scrolling.
  * @param props.contentRef     - The timeline's scaled content element.
  * @param props.dispatch       - Dispatch into the history-wrapped reducer.
- * @param props.onSeek         - Seek the preview player.
  * @return The overlay element.
  */
 export default function StudioEditorEditOverlay( {
@@ -50,7 +47,6 @@ export default function StudioEditorEditOverlay( {
 	contentRef,
 	scrollerEl,
 	dispatch,
-	onSeek,
 }: Props ): ReactElement {
 	return (
 		<div
@@ -69,7 +65,6 @@ export default function StudioEditorEditOverlay( {
 				pxPerMs={ pxPerMs }
 				contentRef={ contentRef }
 				dispatch={ dispatch }
-				onSeek={ onSeek }
 			/>
 			{ session.cuts.map( cut => (
 				<StudioEditorCutSegment

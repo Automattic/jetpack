@@ -63,11 +63,10 @@ function sessionWithTwoCuts(): EditSession {
  *
  * @param session   - The session to render.
  * @param currentMs - Playhead position (snap target for cut edges).
- * @return The dispatch and onSeek spies, plus a session re-render helper.
+ * @return The dispatch spy and a session re-render helper.
  */
 function renderOverlay( session: EditSession, currentMs = 0 ) {
 	const dispatch = jest.fn();
-	const onSeek = jest.fn();
 	const contentRef = { current: document.createElement( 'div' ) };
 	const overlay = ( s: EditSession ) => (
 		<StudioEditorEditOverlay
@@ -76,11 +75,10 @@ function renderOverlay( session: EditSession, currentMs = 0 ) {
 			pxPerMs={ PX_PER_MS }
 			contentRef={ contentRef }
 			dispatch={ dispatch }
-			onSeek={ onSeek }
 		/>
 	);
 	const { rerender } = render( overlay( session ) );
-	return { dispatch, onSeek, rerenderSession: ( s: EditSession ) => rerender( overlay( s ) ) };
+	return { dispatch, rerenderSession: ( s: EditSession ) => rerender( overlay( s ) ) };
 }
 
 /**
@@ -107,8 +105,8 @@ function transientFromBase( action: EditSessionAction ) {
 }
 
 describe( 'StudioEditorTrimHandles', () => {
-	it( 'drags the trim start with transient moves, one commit, and preview seeks', () => {
-		const { dispatch, onSeek } = renderOverlay( createEditSession( 10000 ) );
+	it( 'drags the trim start with transient moves and one commit', () => {
+		const { dispatch } = renderOverlay( createEditSession( 10000 ) );
 		const handle = screen.getByTestId( 'studio-timeline-trim-start' );
 
 		fireEvent.pointerDown( handle, { button: 0, pointerId: 1, clientX: 0 } );
@@ -120,7 +118,6 @@ describe( 'StudioEditorTrimHandles', () => {
 			transient( { type: 'SET_TRIM_START', ms: 2000 } ),
 			{ type: 'COMMIT' },
 		] );
-		expect( onSeek.mock.calls.map( call => call[ 0 ] ) ).toEqual( [ 0, 2000 ] );
 	} );
 
 	it( 'preserves the grab offset instead of jumping the handle to the pointer', () => {
@@ -148,20 +145,6 @@ describe( 'StudioEditorTrimHandles', () => {
 		);
 	} );
 
-	it( 'seeks to the reducer-clamped time when a drag passes the minimum-output floor', () => {
-		const { dispatch, onSeek } = renderOverlay( createEditSession( 10000 ) );
-		const handle = screen.getByTestId( 'studio-timeline-trim-start' );
-
-		fireEvent.pointerDown( handle, { button: 0, pointerId: 1, clientX: 0 } );
-		// 9500ms would leave a 500ms output; the reducer clamps to 9000ms.
-		fireEvent.pointerMove( handle, { pointerId: 1, clientX: 950 } );
-
-		expect( dispatch ).toHaveBeenLastCalledWith(
-			transient( { type: 'SET_TRIM_START', ms: 9500 } )
-		);
-		expect( onSeek ).toHaveBeenLastCalledWith( 9000 );
-	} );
-
 	it( 'ignores non-primary buttons', () => {
 		const { dispatch } = renderOverlay( createEditSession( 10000 ) );
 		const handle = screen.getByTestId( 'studio-timeline-trim-start' );
@@ -170,8 +153,8 @@ describe( 'StudioEditorTrimHandles', () => {
 		expect( dispatch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'nudges with arrow keys as plain (undoable) actions and seeks', () => {
-		const { dispatch, onSeek } = renderOverlay( createEditSession( 10000 ) );
+	it( 'nudges with arrow keys as plain (undoable) actions', () => {
+		const { dispatch } = renderOverlay( createEditSession( 10000 ) );
 		const handle = screen.getByTestId( 'studio-timeline-trim-start' );
 
 		fireEvent.keyDown( handle, { key: 'ArrowRight' } );
@@ -181,7 +164,6 @@ describe( 'StudioEditorTrimHandles', () => {
 			{ type: 'SET_TRIM_START', ms: 100 },
 			{ type: 'SET_TRIM_START', ms: 1000 },
 		] );
-		expect( onSeek.mock.calls.map( call => call[ 0 ] ) ).toEqual( [ 100, 1000 ] );
 	} );
 
 	it( 'renders shrouds only outside the trim window', () => {
@@ -399,7 +381,6 @@ function StatefulOverlay( { session }: { session: EditSession } ) {
 				pxPerMs={ PX_PER_MS }
 				contentRef={ { current: document.createElement( 'div' ) } }
 				dispatch={ dispatch }
-				onSeek={ () => {} }
 			/>
 			<button onClick={ () => dispatch( { type: 'UNDO' } ) }>Undo</button>
 		</>
