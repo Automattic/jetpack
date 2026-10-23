@@ -41,13 +41,23 @@ beforeEach( () => {
 } );
 
 describe( 'ScanCard without Scan', () => {
+	const twoHoursAgo = checkedAgo( 2 * HOUR_IN_MS );
+
 	it.each( [
-		[ checkedAgo( 2 * HOUR_IN_MS ), 'Last scan 2 hours ago' ],
-		[ null, null ],
-	] )( 'shows when the site was last scanned, from %s', ( lastChecked, text ) => {
+		[
+			twoHoursAgo,
+			'Last scan 2 hours ago',
+			`${ twoHoursAgo.replace( ' ', 'T' ) }.000Z`,
+			expect.stringMatching( /^\w{3} \d{1,2}, \d{4} \d{1,2}:\d{2} [AP]M$/ ),
+		],
+		[ null, null, null, null ],
+	] )( 'shows when the site was last scanned, from %s', ( lastChecked, text, dateTime, title ) => {
 		renderCard( { lastChecked } );
 
-		expect( screen.queryByText( /^Last scan / )?.textContent ?? null ).toBe( text );
+		const badge = screen.queryByText( /^Last scan / );
+		expect( badge?.textContent ?? null ).toBe( text );
+		expect( badge?.getAttribute( 'datetime' ) ?? null ).toBe( dateTime );
+		expect( badge?.getAttribute( 'title' ) ?? null ).toEqual( title );
 	} );
 
 	it( 'says what the free check covered without claiming the site is safe or scanned', () => {
