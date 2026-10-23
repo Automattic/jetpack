@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { localTZDate } from '@jetpack-premium-analytics/datetime';
-import { formatDate, formatDateRange } from '@jetpack-premium-analytics/formatters';
+import { formatDate, formatDateRange, isWholePeriod } from '@jetpack-premium-analytics/formatters';
 /**
  * Internal dependencies
  */
@@ -13,7 +13,8 @@ type BucketDatum = { date: Date; realDate?: Date; endDate?: Date };
 
 /**
  * The date a tooltip row names for a point: the days its own bucket covers when a
- * date-labelled bucket spans several (a week), otherwise the bucket's start.
+ * date-labelled bucket spans several (a week) or the range cuts a month or year,
+ * otherwise the bucket's start.
  *
  * @param datum             - The point; a comparison point's own dates are in `realDate`.
  * @param displayResolution - The resolution the chart labels its buckets at.
@@ -26,8 +27,16 @@ export function formatBucketTooltipDate(
 	const start = datum.realDate ?? datum.date;
 	const { endDate } = datum;
 
-	if ( displayResolution === 'day' && endDate ) {
-		return formatDateRange( { from: localTZDate( start ), to: localTZDate( endDate ) } );
+	if ( endDate ) {
+		const range = { from: localTZDate( start ), to: localTZDate( endDate ) };
+
+		if (
+			displayResolution === 'day' ||
+			( ( displayResolution === 'month' || displayResolution === 'year' ) &&
+				! isWholePeriod( range, displayResolution ) )
+		) {
+			return formatDateRange( range );
+		}
 	}
 
 	return formatDate( start, dateFormatForResolution( displayResolution ) );

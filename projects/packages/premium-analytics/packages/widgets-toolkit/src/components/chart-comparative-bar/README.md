@@ -55,8 +55,8 @@ With `layout="overlap"`, the chart draws each `group` inside the one before it, 
 ## Date alignment and tooltips
 
 Comparison dates are aligned onto the primary series' dates so both land in the same band slot; the
-original date survives in `realDate` and is what the tooltip shows, as a span when the point's
-`endDate` falls on a later day.
+original date survives in `realDate` and is what the tooltip shows; a week, or a month or year the range
+cuts, is named by its span, and a whole year by the year alone.
 
 The chart draws comparison series as a separate shadow layer rather than a registered series, so
 their values never reach a custom `renderTooltip`. This component re-pairs them by date before
