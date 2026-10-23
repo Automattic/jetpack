@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
+import { FixDeleteModal, getDeleteFixTitle, isDeleteFix } from './fix-delete-confirmation';
 import { getSoftwareActionLabels } from './labels';
 import { fixThreat, ignoreThreat, unignoreThreat } from './threat-actions';
 import type { ScanThreat } from './types';
@@ -31,6 +32,8 @@ export function getThreatRowActions(
 		( [ item ]: ScanThreat[] ) =>
 			item ? getSoftwareActionLabels( item )[ key ] : '';
 	const hasLink = ( key: LinkKey ) => ( item: ScanThreat ) => !! item.extension?.actions?.[ key ];
+	const canFix = ( item: ScanThreat ) =>
+		canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed';
 
 	return [
 		{
@@ -43,9 +46,16 @@ export function getThreatRowActions(
 			id: 'auto-fix',
 			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item =>
-				canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed',
+			isEligible: item => canFix( item ) && ! isDeleteFix( item ),
 			callback: ( [ item ] ) => item && fixThreat( item, open ),
+		},
+		{
+			id: 'auto-fix-delete',
+			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
+			isPrimary: true,
+			isEligible: item => canFix( item ) && isDeleteFix( item ),
+			modalHeader: ( [ item ] ) => ( item ? getDeleteFixTitle( item ) : '' ),
+			RenderModal: FixDeleteModal,
 		},
 		{
 			id: 'unignore',
