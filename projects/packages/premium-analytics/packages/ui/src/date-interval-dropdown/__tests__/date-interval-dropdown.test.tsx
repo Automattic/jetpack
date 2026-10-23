@@ -208,6 +208,22 @@ describe( 'DateIntervalDropdown', () => {
 		expect( screen.getByRole( 'menu' ) ).not.toHaveAccessibleDescription();
 	} );
 
+	it( 'gives no hint on a plan that locks the buckets a longer range would add', async () => {
+		const user = userEvent.setup();
+		render(
+			<DateIntervalDropdown
+				options={ [ 'day' ] }
+				lockUpsell={ LOCK_UPSELL }
+				value="day"
+				onChange={ jest.fn() }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
+
+		expect( screen.getByRole( 'menu' ) ).not.toHaveAccessibleDescription();
+	} );
+
 	it.each( [
 		[ 'hour', 'By hours', 'Choose a longer date range to group by days.' ],
 		[ 'day', 'By days', 'Choose a longer date range to group by weeks or months.' ],

@@ -149,8 +149,9 @@ export function DateIntervalDropdown( {
 		'date-interval-dropdown__unavailable-hint'
 	);
 	const hintId = useInstanceId( DateIntervalDropdown, 'date-interval-dropdown__hint' );
+	// None on a plan that locks intervals: a longer range there offers its buckets only locked.
 	const hint =
-		options.length === 1 && ! lockedOptions.length && ! unavailableOptions.length
+		options.length === 1 && ! lockedOptions.length && ! unavailableOptions.length && ! lockUpsell
 			? getLoneBucketHint( options[ 0 ] )
 			: null;
 
