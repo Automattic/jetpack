@@ -1447,7 +1447,7 @@ class Initializer {
 		Feature_Flags::register(
 			self::MODULES_TO_FEATURES_FLAG,
 			array(
-				'default'     => false,
+				'default'     => true,
 				'description' => 'Open supported classic Modules links in Features.',
 				'owner'       => 'my-jetpack',
 			)
