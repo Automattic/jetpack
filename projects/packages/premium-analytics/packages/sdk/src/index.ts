@@ -18,11 +18,18 @@ export {
 	WidgetRoot,
 	WidgetState,
 	buildMetricTab,
+	buildSingleReportLink,
 	describeError,
 	flattenEarningsBreakdown,
+	formatPublishedDate,
 	getVideoPosterUrl,
+	performanceSentence,
 	useReportActions,
 	useWidgetRootContext,
+	type SingleReportHeader,
+	type SingleReportHeaderArgs,
+	type SingleReportHeaderStatus,
+	type UseSingleReportHeader,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 export {
 	ReportScopeProvider,

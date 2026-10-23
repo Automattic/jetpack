@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the single-report page header contract, the header sentence helpers and buildSingleReportLink.

@@ -268,6 +268,8 @@ The major changes when a widget built against the previous contract stops workin
 
 2.0.0 removes `WidgetFooter`, `ReportLink` and `ExporterCsvDownloadButton` from the SDK, and the `footer` prop from `Leaderboard`: a widget declares its footer with `useReportActions`.
 
+2.1.0 adds the single-report page header contract: `SingleReportHeader`, `SingleReportHeaderArgs`, `SingleReportHeaderStatus` and `UseSingleReportHeader`, the shape of the `useHeader()` a header widget module exports; `formatPublishedDate` and `performanceSentence`, the sentences every header composes; and `buildSingleReportLink`, the link to a page at `/report/{kind}/{id}`.
+
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 
 ## Two real consumers

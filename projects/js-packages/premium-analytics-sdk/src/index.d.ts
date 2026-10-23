@@ -302,3 +302,27 @@ export declare function flattenEarningsBreakdown( ...args: any[] ): any;
 // UI primitives the widgets share with the dashboard, so no widget bundles its own copy.
 export declare const Badge: AnyComponent;
 export declare const Stack: AnyComponent;
+
+// Single-report pages: the header a page's header widget type provides, as the named export `useHeader()`
+// of its widget module; the sentences every header composes; and the link to a page.
+export type SingleReportHeaderStatus = 'loading' | 'ready' | 'not-found' | 'error';
+export type SingleReportHeaderArgs = { entityId: number; reportParams?: any };
+export type SingleReportHeader = {
+	status: SingleReportHeaderStatus;
+	title?: string;
+	subTitle?: string;
+	image?: string;
+	publishedDate?: string;
+	error?: unknown;
+	refetch?: () => void;
+};
+export type UseSingleReportHeader = ( args: SingleReportHeaderArgs ) => SingleReportHeader;
+export declare function formatPublishedDate(
+	publishedDate: string | undefined
+): string | undefined;
+export declare function performanceSentence( range: any ): string | undefined;
+export declare function buildSingleReportLink(
+	kind: string,
+	id: string | number,
+	search: Record< string, unknown > | undefined
+): string;

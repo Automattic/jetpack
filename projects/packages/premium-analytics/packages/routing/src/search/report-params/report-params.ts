@@ -340,3 +340,19 @@ export function buildReportLink(
 		section ? { section } : undefined
 	);
 }
+
+/**
+ * Build the `to` link to a single-report page, preserving the shared report window.
+ *
+ * @param kind   - The page's path segment, e.g. `video`.
+ * @param id     - The entity id.
+ * @param search - The current route search params.
+ * @return A `/report/{kind}/{id}` path with the shared report-window querystring.
+ */
+export function buildSingleReportLink(
+	kind: string,
+	id: string | number,
+	search: Record< string, unknown > | undefined
+): string {
+	return buildReportWindowLink( `/report/${ kind }/${ id }`, search );
+}

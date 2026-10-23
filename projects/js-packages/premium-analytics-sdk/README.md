@@ -55,6 +55,8 @@ A name enters the SDK when it is a widget kind, such as `Leaderboard`, or a host
 
 Product data hooks are the exception, and a provisional one: `useStatsVideoPlays` and the WordAds hooks stay here only until their packages own the data behind them.
 
+A single-report page brings its header as a widget type without a render module; the SDK carries that contract (`SingleReportHeader`, the shape of the `useHeader()` the widget module exports), the two sentence helpers every header composes, and `buildSingleReportLink`.
+
 ## Stability
 
 `src/index.d.ts` groups the names by what will happen to them. The widget shell, the kinds, the attribute fields, the report scope, `useReport` and `toBucketStamp` are the contract. The footer chrome goes when widgets declare their footer as actions the host renders. The chart pieces go when their kinds exist. The product data hooks go with their owners. `Badge` and `Stack` follow `@wordpress/ui`.

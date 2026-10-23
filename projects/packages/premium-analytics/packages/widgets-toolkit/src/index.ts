@@ -385,3 +385,13 @@ export {
  * once instead of once per widget.
  */
 export { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';
+
+export { formatPublishedDate, performanceSentence } from './helpers/detail-header';
+export type {
+	SingleReportHeader,
+	SingleReportHeaderArgs,
+	SingleReportHeaderStatus,
+	UseSingleReportHeader,
+} from './components/detail-page/single-report-header';
+
+export { buildSingleReportLink } from '@jetpack-premium-analytics/routing';
