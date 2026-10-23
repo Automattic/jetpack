@@ -14,7 +14,7 @@ import { Composite } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -209,26 +209,44 @@ export function DateYearFilter( {
 	 * them. Keyed on the preset list, so a list that changes under mounted pills
 	 * is measured again.
 	 */
+	const matesObserver = useRef< ResizeObserver | null >( null );
+
 	const measureRow = useCallback(
 		( group: HTMLDivElement | null ) => {
+			matesObserver.current?.disconnect();
+			matesObserver.current = null;
+
 			if ( ! group ) {
 				return;
 			}
 
-			const pills = Array.from( group.children ).reduce(
-				( total, pill ) => total + pill.getBoundingClientRect().width,
-				0
-			);
+			const measure = () => {
+				const pills = Array.from( group.children ).reduce(
+					( total, pill ) => total + pill.getBoundingClientRect().width,
+					0
+				);
 
-			// Rounded like the `clientWidth` it is compared against: a sum of
-			// fractional rects is otherwise a hair wider than the same row read
-			// as an integer, and lands on the wrong side of its own boundary.
-			setMeasurement( {
-				presets,
-				width: Math.round(
-					pills + ( group.offsetWidth - group.clientWidth ) + getRowMatesWidth( group )
-				),
-			} );
+				// Rounded like the `clientWidth` it is compared against: a sum of
+				// fractional rects is otherwise a hair wider than the same row read
+				// as an integer, and lands on the wrong side of its own boundary.
+				setMeasurement( {
+					presets,
+					width: Math.round(
+						pills + ( group.offsetWidth - group.clientWidth ) + getRowMatesWidth( group )
+					),
+				} );
+			};
+
+			measure();
+
+			// A mate can change width under mounted pills, as the interval does when it names a new bucket.
+			if ( group.parentElement && typeof ResizeObserver !== 'undefined' ) {
+				const observer = new ResizeObserver( measure );
+				Array.from( group.parentElement.children )
+					.filter( mate => mate !== group )
+					.forEach( mate => observer.observe( mate ) );
+				matesObserver.current = observer;
+			}
 		},
 		[ presets ]
 	);
