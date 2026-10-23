@@ -1,6 +1,6 @@
-import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
+import Countdown from '../../components/countdown';
 import { getCheckedCounts } from './labels';
 import ScanButton, { getNextCheck, useHasPassed } from './scan-button';
 import type { ScanState } from './types';
@@ -84,8 +84,8 @@ type Props = {
 export default function SafeState( { scan, isStarting, onScan, justScanned = false }: Props ) {
 	const counts = getCheckedCounts( scan );
 	const nextCheck = getNextCheck( scan.lastChecked );
-	const nextScan = useHasPassed( nextCheck ) ? null : nextCheck;
-	const nextScanDate = nextScan && dateI18n( 'M j, gA', nextScan );
+	// No margin, so the countdown gives way as it reaches zero.
+	const nextScan = useHasPassed( nextCheck, 0 ) ? null : nextCheck;
 
 	// The free check only compares versions with known vulnerabilities, so it can't call the site safe.
 	const copy = scan.hasPlan
@@ -97,13 +97,8 @@ export default function SafeState( { scan, isStarting, onScan, justScanned = fal
 					counts.plugins,
 					counts.themes
 				),
-				next: nextScanDate
-					? sprintf(
-							/* translators: %s is a date and time, such as "Sep 30, 9AM". */
-							__( 'Next scan will happen automatically on %s.', 'jetpack-protect-pkg' ),
-							nextScanDate
-						)
-					: __( 'Your site is scanned automatically every day.', 'jetpack-protect-pkg' ),
+				nextLabel: __( 'Next scan in:', 'jetpack-protect-pkg' ),
+				next: __( 'Your site is scanned automatically every day.', 'jetpack-protect-pkg' ),
 				button: __( 'Scan again now', 'jetpack-protect-pkg' ),
 			}
 		: {
@@ -114,13 +109,8 @@ export default function SafeState( { scan, isStarting, onScan, justScanned = fal
 					counts.plugins,
 					counts.themes
 				),
-				next: nextScanDate
-					? sprintf(
-							/* translators: %s is a date and time, such as "Sep 30, 9AM". */
-							__( 'Next check will happen automatically on %s.', 'jetpack-protect-pkg' ),
-							nextScanDate
-						)
-					: __( 'Vulnerabilities are checked automatically every day.', 'jetpack-protect-pkg' ),
+				nextLabel: __( 'Next check in:', 'jetpack-protect-pkg' ),
+				next: __( 'Vulnerabilities are checked automatically every day.', 'jetpack-protect-pkg' ),
 				button: __( 'Check again now', 'jetpack-protect-pkg' ),
 			};
 
@@ -137,9 +127,21 @@ export default function SafeState( { scan, isStarting, onScan, justScanned = fal
 			</Text>
 			<Text variant="body-lg" className="jp-protect-safe__details">
 				{ copy.details }
-				<br />
-				{ copy.next }
+				{ ! nextScan && (
+					<>
+						<br />
+						{ copy.next }
+					</>
+				) }
 			</Text>
+			{ nextScan && (
+				<Stack direction="row" gap="sm" align="baseline">
+					<Text variant="body-lg" className="jp-protect-safe__details">
+						{ copy.nextLabel }
+					</Text>
+					<Countdown to={ nextScan } />
+				</Stack>
+			) }
 			<ScanButton scan={ scan } isStarting={ isStarting } onScan={ onScan } label={ copy.button } />
 		</Stack>
 	);

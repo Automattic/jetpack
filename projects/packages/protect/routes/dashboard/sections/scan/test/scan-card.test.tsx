@@ -42,12 +42,12 @@ beforeEach( () => {
 
 describe( 'ScanCard without Scan', () => {
 	it.each( [
-		[ checkedAgo( 2 * HOUR_IN_MS ), 'Last scanned 2 hours ago' ],
+		[ checkedAgo( 2 * HOUR_IN_MS ), 'Last scan 2 hours ago' ],
 		[ null, null ],
 	] )( 'shows when the site was last scanned, from %s', ( lastChecked, text ) => {
 		renderCard( { lastChecked } );
 
-		expect( screen.queryByText( /^Last scanned/ )?.textContent ?? null ).toBe( text );
+		expect( screen.queryByText( /^Last scan / )?.textContent ?? null ).toBe( text );
 	} );
 
 	it( 'says what the free check covered without claiming the site is safe or scanned', () => {
@@ -86,9 +86,9 @@ describe( 'ScanCard with Scan', () => {
 describe( 'ScanCard empty state', () => {
 	it.each( [
 		[ false, 48, /Vulnerabilities are checked automatically every day\./, 'Check again now' ],
-		[ false, 1, /Next check will happen automatically on /, 'Check again now' ],
+		[ false, 1, 'Next check in:', 'Check again now' ],
 		[ true, 48, /Your site is scanned automatically every day\./, 'Scan again now' ],
-		[ true, 1, /Next scan will happen automatically on /, 'Scan again now' ],
+		[ true, 1, 'Next scan in:', 'Scan again now' ],
 	] )(
 		'with hasPlan %s, checked %i hours ago, words the next check and button for that plan',
 		async ( hasPlan, hoursAgo, next, button ) => {

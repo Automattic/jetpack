@@ -42,6 +42,7 @@ export default function HeaderScanButton() {
 			disabled={ isScanning }
 			variant="outline"
 			size="compact"
+			withNextCheck
 		/>
 	);
 }

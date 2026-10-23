@@ -136,6 +136,10 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 		animation-delay: 280ms;
 	}
 
+	&.is-celebrating > :nth-child(5) {
+		animation-delay: 340ms;
+	}
+
 	// Reduced motion: a fade, without movement or particles.
 	@media (prefers-reduced-motion: reduce) {
 
@@ -210,10 +214,6 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 	to {
 		opacity: 0;
 	}
-}
-
-.jp-protect-scan-button__popover {
-	max-inline-size: 300px;
 }
 
 .jp-protect-threat-media {
