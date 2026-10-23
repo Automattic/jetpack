@@ -1,5 +1,3 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
-
 $grid-size: 8px;
 
 .jetpack-external-media-header__view {
@@ -39,7 +37,6 @@ $grid-size: 8px;
 	}
 }
 
-.jetpack-external-media-header__filter,
 .jetpack-external-media-header__view {
 
 	label {
@@ -49,20 +46,6 @@ $grid-size: 8px;
 	.components-base-control {
 		padding-right: $grid-size;
 		margin-bottom: 0;
-	}
-}
-
-.jetpack-external-media-header__filter {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	flex-grow: 1;
-	justify-content: flex-start;
-
-	@media only screen and ( min-width: 600px ) {
-		border-left: 1px solid gb.$gray-400;
-		margin-left: $grid-size * 2;
-		padding-left: $grid-size * 2;
 	}
 }
 
