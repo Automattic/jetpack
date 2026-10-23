@@ -6,7 +6,7 @@ import { check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { recordViewOnce } from '../../../data/tracks';
 import { runFirewallTest } from '../firewall-test';
-import FirewallOverviewCard from '../overview-card';
+import FirewallOverviewCard, { resetFirewallBlocks } from '../overview-card';
 import type { FirewallContext } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -16,27 +16,25 @@ jest.mock( '../firewall-test', () => ( {
 	runFirewallTest: jest.fn(),
 } ) );
 
-const STATE = {
-	available: true,
-	active: true,
-	blockedCount: 1,
-	blockedToday: 1,
-	blockedLast30Days: 1,
-	recentBlocks: [],
-	hasScan: false,
-	upgradeUrl: '#upgrade',
-	currentIp: '192.0.2.44',
-	ipRules: {
-		jetpack_waf_ip_block_list: '203.0.113.7\n203.0.113.8',
-		jetpack_waf_ip_block_list_enabled: true,
-		jetpack_waf_ip_allow_list: '',
-		jetpack_waf_ip_allow_list_enabled: false,
-	},
-	rulesUpdatedAt: null,
-};
-
 const props = {
-	state: STATE,
+	state: {
+		available: true,
+		active: true,
+		blockedCount: 1,
+		blockedToday: 1,
+		blockedLast30Days: 1,
+		recentBlocks: [],
+		hasScan: false,
+		upgradeUrl: '#upgrade',
+		currentIp: '192.0.2.44',
+		ipRules: {
+			jetpack_waf_ip_block_list: '203.0.113.7\n203.0.113.8',
+			jetpack_waf_ip_block_list_enabled: true,
+			jetpack_waf_ip_allow_list: '',
+			jetpack_waf_ip_allow_list_enabled: false,
+		},
+		rulesUpdatedAt: null,
+	},
 	settings: {
 		settings: null,
 		error: null,
@@ -63,10 +61,7 @@ const BLOCKED = {
 };
 
 describe( 'FirewallOverviewCard', () => {
-	// The card keeps refreshed counts per state object, so each test gets its own.
-	beforeEach( () => {
-		props.state = { ...STATE };
-	} );
+	beforeEach( resetFirewallBlocks );
 
 	it( 'reports the test in a snackbar whose Learn more opens the steps', async () => {
 		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );

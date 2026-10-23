@@ -23,6 +23,7 @@ import {
 import formatNumber from '../../components/format-number';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
+import { createStore } from '../scan/store';
 import {
 	CrossOriginError,
 	FIREWALL_PATH,
@@ -60,20 +61,12 @@ const UNAVAILABLE: FirewallState = {
 // The only setting this card saves.
 const FIREWALL_KEYS = [ 'waf' ];
 
-// The card unmounts on a tab switch, so a test's refreshed counts live here, keyed by page-load state.
-const refreshedBlocks = new WeakMap< FirewallState, FirewallBlocks >();
-const blockListeners = new Set< () => void >();
+// The card unmounts on a tab switch, so a test's refreshed counts live here.
+const blocksStore = createStore< FirewallBlocks | undefined >( () => undefined );
 
-const subscribeToBlocks = ( listener: () => void ) => {
-	blockListeners.add( listener );
-	return () => {
-		blockListeners.delete( listener );
-	};
-};
-
-const saveBlocks = ( firewall: FirewallState, blocks: FirewallBlocks ) => {
-	refreshedBlocks.set( firewall, blocks );
-	blockListeners.forEach( listener => listener() );
+/** Forget refreshed counts, so tests start from the page state. */
+export const resetFirewallBlocks = (): void => {
+	blocksStore.reset();
 };
 
 const hasAnyBlocks = ( { blockedCount, recentBlocks }: FirewallBlocks ) =>
@@ -232,9 +225,7 @@ function notifyFailure( error: unknown ) {
 export default function FirewallOverviewCard( { state, settings, openTab }: FirewallContext ) {
 	const firewall = state ?? UNAVAILABLE;
 	const title = __( 'Firewall', 'jetpack-protect-pkg' );
-	const refreshed = useSyncExternalStore( subscribeToBlocks, () =>
-		refreshedBlocks.get( firewall )
-	);
+	const refreshed = useSyncExternalStore( blocksStore.subscribe, blocksStore.get );
 	const blocks = useMemo< FirewallBlocks >(
 		() =>
 			refreshed ?? {
@@ -309,7 +300,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		try {
 			const fresh = await apiFetch< FirewallBlocks >( { path: `${ FIREWALL_PATH }/blocks` } );
 			focusHeaderTest.current = fromEmptyState && hasAnyBlocks( fresh );
-			saveBlocks( firewall, fresh );
+			blocksStore.set( () => fresh );
 			isRecorded = fresh.recentBlocks.some(
 				block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID
 			);
@@ -323,7 +314,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		setRecorded( isRecorded );
 		notify( testResult.outcome, { learnMore: () => setDetailsOpen( true ) } );
 		setIsTesting( false );
-	}, [ active, blocks.recentBlocks, firewall ] );
+	}, [ active, blocks.recentBlocks ] );
 
 	if ( ! firewall.available ) {
 		return <UnavailableCard icon={ shieldFlame } title={ title } />;
