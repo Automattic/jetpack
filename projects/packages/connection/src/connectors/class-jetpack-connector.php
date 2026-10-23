@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\IdentityCrisis\UI;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -156,9 +157,15 @@ class Jetpack_Connector {
 		}
 
 		// The shared components the card renders push Tracks events to _tkq; only w.js is needed to send them. Same gate as My Jetpack.
-		if ( ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+		if ( static::is_tracking_allowed() ) {
 			Tracking::register_tracks_functions_scripts();
 			wp_enqueue_script( 'jp-tracks' );
+			// The analytics package adds blog_id to every event from this global; same line as Initial_State::render(), which this screen doesn't print.
+			wp_add_inline_script(
+				'jp-tracks',
+				sprintf( 'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;', absint( \Jetpack_Options::get_option( 'id', 0 ) ) ),
+				'before'
+			);
 		}
 
 		add_filter(
@@ -284,7 +291,21 @@ class Jetpack_Connector {
 			'wpcomHomeUrl'                   => ( is_array( $idc_urls ) && array_key_exists( 'wpcom_url', $idc_urls ) ) ? $idc_urls['wpcom_url'] : '',
 			'isDevelopmentSite'              => (bool) Status::is_development_site(),
 			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
+			// Guarded: an older UI class (mid-update, or the abandoned jetpack-identity-crisis package another plugin bundles) has it private.
+			'platform'                       => is_callable( array( UI::class, 'get_platform' ) ) ? UI::get_platform() : null,
+			'bumpStats'                      => static::is_tracking_allowed(),
 		);
+	}
+
+	/**
+	 * Whether the site allows tracking, the same gate My Jetpack uses for Tracks.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function is_tracking_allowed() {
+		return ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() );
 	}
 
 	/**
