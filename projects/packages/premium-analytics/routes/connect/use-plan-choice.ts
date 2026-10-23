@@ -16,9 +16,9 @@ import { navigateTo } from './navigate';
 const DASHBOARD_PATH = 'admin.php?page=jetpack-premium-analytics-wp-admin';
 
 /**
- * The connection flow's sanctioned `from` for a new caller: an unknown one returns the visitor to the Jetpack plans page instead of `redirect_uri`.
+ * Names this entry point to WordPress.com, which picks the connection screen and attributes the connection by it.
  */
-const CONNECTION_FROM = 'jetpack-connector';
+const CONNECTION_FROM = 'jetpack_premium_analytics_onboarding';
 
 /**
  * Tracks only queues an event, and leaving the page in the same tick cancels the request that sends it.
