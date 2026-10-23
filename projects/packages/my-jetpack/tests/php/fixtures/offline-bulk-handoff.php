@@ -1,6 +1,8 @@
 <?php
 /**
  * Load the Features provider from a physical plugin for a bulk REST request.
+ * WP_PLUGIN_DIR must point at the temporary plugins before WordPress loads,
+ * which the shared bootstrap and #[RunInSeparateProcess] cannot do.
  *
  * @package automattic/my-jetpack
  */
