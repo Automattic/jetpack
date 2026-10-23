@@ -476,8 +476,8 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
-	 * The AI crawler override map keeps arbitrary catalog slugs (it's sparse and
-	 * keyed by bot, not a fixed property list) and normalizes values to booleans.
+	 * The AI crawler override map keeps arbitrary catalog slugs (it's keyed by bot,
+	 * not a fixed property list) and stores only the blocked ones.
 	 */
 	public function test_ai_crawler_overrides_round_trip() {
 		$this->act_as( 'administrator' );
@@ -487,6 +487,7 @@ class DashboardSettingsTest extends TestCase {
 				Ai_Crawlers::OPTION => array(
 					'gptbot'        => true,
 					'perplexitybot' => true,
+					'ccbot'         => false,
 				),
 			)
 		);

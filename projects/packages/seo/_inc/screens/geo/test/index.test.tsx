@@ -198,7 +198,9 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 		expect( boxes.every( box => box.hasAttribute( 'disabled' ) ) ).toBe( true );
 		// The allow/block status tags are hidden while the setting governs the group.
 		const trainingHeader = screen.getByRole( 'button', { name: /training crawlers/i } );
-		expect( within( trainingHeader ).queryByText( 'Blocked' ) ).not.toBeInTheDocument();
+		expect(
+			within( trainingHeader ).queryByText( /^(Allowed|Blocked|Partly blocked)$/ )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'hides per-site controls on path-based multisite', () => {

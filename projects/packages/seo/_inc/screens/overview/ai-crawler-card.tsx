@@ -69,7 +69,6 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 	const settingsApply =
 		canBeCrawled && ! data.staticRobotsTxt && ! data.dataSharingOptOut && ! data.pathBasedMultisite;
 
-	// Only crawlers the owner blocked are blocked — same resolution as the GEO tab.
 	const isBotBlocked = ( bot: AiCrawler ): boolean => data.overrides[ bot.slug ] === true;
 	const answerBots = data.catalog.filter( bot => bot.type === 'answer' );
 	const trainingBots = data.catalog.filter( bot => bot.type === 'training' );

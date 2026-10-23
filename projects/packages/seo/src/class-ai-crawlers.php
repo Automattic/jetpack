@@ -25,9 +25,8 @@ namespace Automattic\Jetpack\SEO;
 class Ai_Crawlers {
 
 	/**
-	 * Option holding the per-crawler map (`slug => bool`, true = blocked; a missing or
-	 * false entry means allowed). Registered with `show_in_rest` by
-	 * {@see Dashboard_Data::register_rest_settings()} so the GEO tab can save it.
+	 * Option holding `slug => true` for each crawler the owner blocked. Registered with
+	 * `show_in_rest` by {@see Dashboard_Data::register_rest_settings()} so the GEO tab can save it.
 	 *
 	 * @var string
 	 */
@@ -196,11 +195,6 @@ class Ai_Crawlers {
 	 * @return bool
 	 */
 	public static function is_blocked( $slug ) {
-		$catalog = self::get_catalog();
-		if ( ! isset( $catalog[ $slug ] ) ) {
-			return false;
-		}
-
 		return self::is_blocked_by_data_sharing_policy( $slug ) || isset( self::get_overrides()[ $slug ] );
 	}
 
