@@ -513,9 +513,19 @@ describe( 'Stats time-series normalizer', () => {
 			),
 			oneAmViews: 2,
 		},
+		{
+			name: 'half-hour zone',
+			zone: 'America/St_Johns',
+			query: { start_date: '2025-11-10T00:00:00.000-03:30', date: '2025-11-10T23:59:59.999-03:30' },
+			// WP.com truncates the request's -03:30 to whole hours.
+			utcOffset: '-03:00',
+			labels: fixedOffsetLabels( '2025-11-10T04:00:00Z', 24, -3 ),
+			expected: hoursOf( '2025-11-10', allHours ),
+			oneAmViews: 2,
+		},
 	] )(
 		'reads offset-requested hourly labels back into the site zone on a $name day',
-		( { query, utcOffset, labels, expected, oneAmViews } ) => {
+		( { zone = 'America/New_York', query, utcOffset, labels, expected, oneAmViews } ) => {
 			const result = sanitizeStatsTimeSeriesResponse(
 				{
 					unit: 'hour',
@@ -523,7 +533,7 @@ describe( 'Stats time-series normalizer', () => {
 					fields: [ 'period', 'views' ],
 					data: labels.map( ( label, i ) => [ label, i + 1 ] ),
 				},
-				{ ...query, timezone: 'America/New_York' }
+				{ ...query, timezone: zone }
 			);
 
 			expect( result.data.map( row => row.time_interval ) ).toEqual( expected );
