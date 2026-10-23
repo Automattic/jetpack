@@ -9,10 +9,10 @@ import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useStatsVisits from '../../../hooks/use-stats-visits';
 import { getDetailedStatsHref, processStatsData, VISITS_OPTIONS } from '../../stats-section';
-import StatsCards from '../../stats-section/cards';
 import OverviewItem from '../overview-item';
 import useOverviewLoadEvent from '../overview-item/use-overview-load-event';
 import useStatusAction from '../overview-item/use-status-action';
+import OverviewStats from './overview-stats';
 import type { ProductCardComponent } from '../types';
 
 const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
@@ -28,7 +28,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 		isSiteConnected && isActive,
 		VISITS_OPTIONS
 	);
-	const { counts, previousCounts, chartData } = useMemo( () => processStatsData( data ), [ data ] );
+	const { counts, chartData } = useMemo( () => processStatsData( data ), [ data ] );
 	const isRetrying = isError && isFetching;
 	const isStatsLoading = isLoading || isRetrying;
 	useOverviewLoadEvent( PRODUCT_SLUGS.STATS, isActive && isStatsLoading );
@@ -49,17 +49,11 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 	if ( isActive && ! isStatsLoading && ! isError ) {
 		return (
 			<Stack direction="column" gap="lg">
-				<StatsCards
+				<OverviewStats
 					counts={ counts }
-					previousCounts={ previousCounts }
 					chartData={ chartData }
-					headingLevel={ 4 }
-					isLoading={ false }
 					detailedStatsHref={ detailedStatsHref }
 					onDetailedStatsClick={ onDetailedStatsClick }
-					hideTitle
-					chartBelowCounts
-					flush
 				/>
 				{ detailedStatsHref && (
 					<div>
