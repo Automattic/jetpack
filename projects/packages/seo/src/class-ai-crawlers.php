@@ -6,12 +6,9 @@
  * answer-engine bots) by appending per-user-agent `Disallow` rules to the
  * WordPress-generated robots.txt.
  *
- * Persistence uses a STORE-INTENT model rather than a literal blocked list. The
- * durable option `jetpack_seo_ai_crawler_overrides` holds only *deviations* from
- * each bot's default policy (training crawlers blocked, answer-engine crawlers
- * allowed); a bot with no stored override falls back to its default.
- * This keeps the stored map sparse and means newly added training crawlers are
- * covered automatically without a migration.
+ * The option `jetpack_seo_ai_crawler_overrides` maps each crawler the owner blocked
+ * to `true`. Every other crawler is allowed, so robots.txt doesn't change when the
+ * SEO page reaches a site (JETPACK-3135).
  *
  * Caveat: the `robots_txt` filter only feeds WordPress's *virtual* robots.txt.
  * A detected static file in the WordPress installation is not modified — a
@@ -28,9 +25,8 @@ namespace Automattic\Jetpack\SEO;
 class Ai_Crawlers {
 
 	/**
-	 * Option holding the sparse map of per-crawler overrides
-	 * (`slug => bool`, true = blocked). Only entries that deviate from the bot's
-	 * default policy are stored. Registered with `show_in_rest` by
+	 * Option holding the per-crawler map (`slug => bool`, true = blocked; a missing or
+	 * false entry means allowed). Registered with `show_in_rest` by
 	 * {@see Dashboard_Data::register_rest_settings()} so the GEO tab can save it.
 	 *
 	 * @var string
@@ -61,8 +57,7 @@ class Ai_Crawlers {
 	 * tab; `user_agent` is the token written to the `User-agent:` robots line;
 	 * `label` is the human name shown in the UI; `type` is `answer` (fetches to
 	 * cite in live AI answers) or `training` (collects to train models; some, like
-	 * Google Gemini, also ground AI answers but are filed here). Training crawlers
-	 * are blocked by default; answer-engine crawlers are allowed.
+	 * Google Gemini, also ground AI answers but are filed here).
 	 *
 	 * @return array<string, array<string, string>>
 	 */
@@ -73,7 +68,7 @@ class Ai_Crawlers {
 		// ChatGPT's GPTBot vs OAI-SearchBot).
 		$catalog = array(
 			// Answer-engine crawlers fetch pages so AI assistants can cite them in
-			// live answers. Allowed by default — blocking them costs AI visibility.
+			// live answers. Blocking them costs AI visibility.
 			'oai-searchbot'      => array(
 				'label'      => __( 'ChatGPT Search (OAI-SearchBot)', 'jetpack-seo' ),
 				'user_agent' => 'OAI-SearchBot',
@@ -94,11 +89,8 @@ class Ai_Crawlers {
 				'user_agent' => 'Amzn-SearchBot',
 				'type'       => 'answer',
 			),
-			// Training crawlers collect content to train AI models. Blocked by
-			// default. Some (e.g. Google Gemini) are also used to ground live AI
-			// answers, so blocking them protects privacy but can cost that
-			// visibility — filed here as training and blocked by default so the
-			// owner actively opts in.
+			// Training crawlers collect content to train AI models. Some (e.g. Google
+			// Gemini) are also used to ground live AI answers.
 			'gptbot'             => array(
 				'label'      => __( 'ChatGPT (GPTBot)', 'jetpack-seo' ),
 				'user_agent' => 'GPTBot',
@@ -147,19 +139,6 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * Whether a catalog bot is blocked when the owner hasn't set an override for
-	 * it: training crawlers are blocked by default; answer-engine crawlers are
-	 * allowed.
-	 *
-	 * @param string $slug Catalog slug.
-	 * @return bool
-	 */
-	private static function is_blocked_by_default( $slug ) {
-		$catalog = self::get_catalog();
-		return isset( $catalog[ $slug ] ) && 'training' === $catalog[ $slug ]['type'];
-	}
-
-	/**
 	 * Whether WordPress.com's site-wide data-sharing opt-out is enabled.
 	 *
 	 * Its `robots_txt` filter remains authoritative over per-bot settings.
@@ -196,12 +175,8 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * The resolved, sparse override map: `slug => bool` (true = blocked).
-	 *
-	 * Reads the stored option, drops unknown slugs, casts values to bool, and
-	 * drops any entry that equals the bot's default policy — so the returned map
-	 * contains only real deviations. A bot absent from this map falls back to its
-	 * default in {@see self::is_blocked()}.
+	 * The crawlers the owner blocked, as `slug => true`. Unknown slugs and entries
+	 * that aren't blocked are dropped.
 	 *
 	 * @return array<string, bool>
 	 */
@@ -214,25 +189,16 @@ class Ai_Crawlers {
 		$catalog   = self::get_catalog();
 		$overrides = array();
 		foreach ( $stored as $slug => $blocked ) {
-			if ( ! isset( $catalog[ $slug ] ) ) {
-				continue;
+			if ( isset( $catalog[ $slug ] ) && $blocked ) {
+				$overrides[ $slug ] = true;
 			}
-			$blocked = (bool) $blocked;
-			// Only keep entries that actually deviate from the default policy
-			// (training blocked, answer-engine allowed) — resolved from the
-			// catalog we already hold rather than re-fetching it per slug.
-			if ( $blocked === ( 'training' === $catalog[ $slug ]['type'] ) ) {
-				continue;
-			}
-			$overrides[ $slug ] = $blocked;
 		}
 
 		return $overrides;
 	}
 
 	/**
-	 * Whether a given crawler is currently blocked, applying an override when one
-	 * exists and otherwise the bot's default policy. Unknown slugs return false.
+	 * Whether a given crawler is currently blocked. Unknown slugs return false.
 	 *
 	 * @param string $slug Catalog slug.
 	 * @return bool
@@ -242,33 +208,22 @@ class Ai_Crawlers {
 		if ( ! isset( $catalog[ $slug ] ) ) {
 			return false;
 		}
-		if ( self::is_blocked_by_data_sharing_policy( $slug ) ) {
-			return true;
-		}
 
-		$overrides = self::get_overrides();
-		return array_key_exists( $slug, $overrides )
-			? $overrides[ $slug ]
-			: self::is_blocked_by_default( $slug );
+		return self::is_blocked_by_data_sharing_policy( $slug ) || isset( self::get_overrides()[ $slug ] );
 	}
 
 	/**
-	 * The catalog slugs currently blocked (override or default).
+	 * The catalog slugs currently blocked.
 	 *
 	 * @return string[]
 	 */
 	public static function get_blocked_slugs() {
-		// Resolve the override map and catalog once, then fold in the per-type
-		// default — rather than calling is_blocked() per slug (which would re-read
-		// the option and rebuild the catalog on every robots.txt render).
+		// Read the option once rather than calling is_blocked() per slug, which would
+		// re-read it and rebuild the catalog on every robots.txt render.
 		$overrides = self::get_overrides();
 		$blocked   = array();
-		foreach ( self::get_catalog() as $slug => $info ) {
-			$is_blocked = self::is_blocked_by_data_sharing_policy( $slug )
-				|| ( array_key_exists( $slug, $overrides )
-					? $overrides[ $slug ]
-					: ( 'training' === $info['type'] ) );
-			if ( $is_blocked ) {
+		foreach ( array_keys( self::get_catalog() ) as $slug ) {
+			if ( self::is_blocked_by_data_sharing_policy( $slug ) || isset( $overrides[ $slug ] ) ) {
 				$blocked[] = $slug;
 			}
 		}

@@ -12,7 +12,7 @@ export interface AiCrawler {
 	label: string;
 	/** User-agent token written to the robots.txt `User-agent:` line. */
 	userAgent: string;
-	/** Training crawlers are blocked by default; answer-engine crawlers are allowed. */
+	/** Which group the crawler is listed under. */
 	type: 'answer' | 'training';
 }
 

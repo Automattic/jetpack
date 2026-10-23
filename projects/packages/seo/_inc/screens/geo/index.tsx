@@ -65,15 +65,14 @@ const CrawlerAccessCard: FC< { children: ReactNode } > = ( { children } ) => (
 );
 
 /**
- * Whether a crawler is currently blocked: an explicit override wins, otherwise
- * the per-type default (training crawlers blocked, other crawlers allowed).
+ * Whether the owner blocked a crawler. Every other crawler is allowed.
  *
  * @param crawler   - The crawler to resolve.
- * @param overrides - The sparse override map (`slug => blocked`).
+ * @param overrides - The override map (`slug => blocked`).
  * @return Whether the crawler is blocked.
  */
 const isCrawlerBlocked = ( crawler: AiCrawler, overrides: Record< string, boolean > ): boolean =>
-	overrides[ crawler.slug ] ?? crawler.type === 'training';
+	overrides[ crawler.slug ] === true;
 
 interface CrawlerToggleProps {
 	crawler: AiCrawler;

@@ -81,7 +81,7 @@ describe( 'AiCrawlerCard', () => {
 		renderCard();
 
 		expect( screen.getByText( 'Answer engines: 2 of 2 allowed' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Training crawlers: 1 of 1 blocked' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Training crawlers: 0 of 1 blocked' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'llms.txt published' ) ).toBeInTheDocument();
 	} );
 

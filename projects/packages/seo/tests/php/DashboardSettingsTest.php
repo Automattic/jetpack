@@ -485,7 +485,7 @@ class DashboardSettingsTest extends TestCase {
 		$this->save_settings(
 			array(
 				Ai_Crawlers::OPTION => array(
-					'gptbot'        => false,
+					'gptbot'        => true,
 					'perplexitybot' => true,
 				),
 			)
@@ -493,14 +493,14 @@ class DashboardSettingsTest extends TestCase {
 
 		$this->assertSame(
 			array(
-				'gptbot'        => false,
+				'gptbot'        => true,
 				'perplexitybot' => true,
 			),
 			get_option( Ai_Crawlers::OPTION )
 		);
 		$this->assertSame(
 			array(
-				'gptbot'        => false,
+				'gptbot'        => true,
 				'perplexitybot' => true,
 			),
 			Ai_Crawlers::get_overrides()
