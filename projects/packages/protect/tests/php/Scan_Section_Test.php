@@ -25,6 +25,8 @@ class Scan_Section_Test extends BaseTestCase {
 		delete_transient( Scan::REQUEST_LOCK );
 		delete_transient( Scan::HISTORY_CACHE );
 		wp_set_current_user( 0 );
+		remove_all_filters( 'jetpack_protect_dashboard_scan_upsell_variant' );
+		\Jetpack_Options::delete_option( 'id' );
 		parent::tear_down();
 	}
 
@@ -134,6 +136,43 @@ class Scan_Section_Test extends BaseTestCase {
 	#[DataProvider( 'provider_fix_status' )]
 	public function test_fix_status_is_read_from_the_response( $response, $expected ) {
 		$this->assertSame( $expected, self::call( 'get_threat_fix_status', json_decode( $response ), 7 ) );
+	}
+
+	/**
+	 * Enqueue responses from WordPress.com, and the error the dashboard reports, if any.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_enqueue_response() {
+		$response = function ( $code, $body ) {
+			return array(
+				'response' => array( 'code' => $code ),
+				'body'     => $body,
+			);
+		};
+		return array(
+			'enqueued'                    => array( $response( 200, '{"success":true}' ), null ),
+			'200 with success false'      => array(
+				$response( 200, '{"success":false,"error":{"errors":{"vp_api_error":["Unable to find a valid site."]}}}' ),
+				'The scan couldn’t be started: Unable to find a valid site.',
+			),
+			'error status with a message' => array( $response( 403, '{"message":"Forbidden."}' ), 'The scan couldn’t be started: Forbidden.' ),
+			'error status without a body' => array( $response( 500, '' ), 'The scan couldn’t be started. Try again in a few minutes.' ),
+			'request failed'              => array( new \WP_Error( 'http_request_failed' ), 'The scan couldn’t be started. Try again in a few minutes.' ),
+		);
+	}
+
+	/**
+	 * Test that a scan request only counts as started when WordPress.com says so, and keeps its reason when not.
+	 *
+	 * @dataProvider provider_enqueue_response
+	 * @param array|\WP_Error $response The enqueue response.
+	 * @param string|null     $expected The error message, or null when the scan started.
+	 */
+	#[DataProvider( 'provider_enqueue_response' )]
+	public function test_enqueue_failures_are_reported( $response, $expected ) {
+		$error = self::call( 'get_enqueue_error', $response );
+		$this->assertSame( $expected, $error ? $error->get_error_message() : null );
 	}
 
 	/**
@@ -283,5 +322,42 @@ class Scan_Section_Test extends BaseTestCase {
 		$request->set_param( 'type', $type );
 		$request->set_param( 'slug', $slug );
 		return Scan::delete_software( $request );
+	}
+
+	/**
+	 * Blog IDs, a filtered variant or null for none, and the variant the site starts on.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_upsell_variants() {
+		return array(
+			'no blog ID'             => array( 0, null, 1 ),
+			'blog ID 7'              => array( 7, null, 8 ),
+			'blog ID 8 wraps around' => array( 8, null, 1 ),
+			'forced by the filter'   => array( 7, 3, 3 ),
+			'filtered out of range'  => array( 7, 9, 1 ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_upsell_variants
+	 *
+	 * @param int      $blog_id  The site's WordPress.com blog ID.
+	 * @param int|null $filtered What the filter returns, or null for no filter.
+	 * @param int      $expected The variant the site starts on.
+	 */
+	#[DataProvider( 'provide_upsell_variants' )]
+	public function test_upsell_variant_spreads_sites_and_honors_the_filter( $blog_id, $filtered, $expected ) {
+		\Jetpack_Options::update_option( 'id', $blog_id );
+		if ( null !== $filtered ) {
+			add_filter(
+				'jetpack_protect_dashboard_scan_upsell_variant',
+				function () use ( $filtered ) {
+					return $filtered;
+				}
+			);
+		}
+
+		$this->assertSame( $expected, Scan::get_upsell_variant() );
 	}
 }

@@ -1,0 +1,49 @@
+$gap: 24px;
+$column: max(240px, calc((100% - 2 * #{$gap}) / 3));
+
+.content {
+	container-type: inline-size;
+}
+
+// At most three columns; a short row still shares the full width.
+.items {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax($column, 1fr));
+	gap: $gap;
+
+	> * {
+		padding-inline-start: $gap;
+		border-inline-start: 1px solid var(--jp-gray-5);
+	}
+
+	// Dividers go between items in a row only. The breakpoints are where
+	// the grid drops to two columns (504px) and to one.
+	> :first-child {
+		padding-inline-start: 0;
+		border-inline-start: 0;
+	}
+
+	@container (width < 504px) {
+
+		> * {
+			padding-inline-start: 0;
+			border-inline-start: 0;
+		}
+	}
+
+	@container (504px <= width < 768px) {
+
+		> :nth-child(2n + 1) {
+			padding-inline-start: 0;
+			border-inline-start: 0;
+		}
+	}
+
+	@container (width >= 768px) {
+
+		> :nth-child(3n + 1) {
+			padding-inline-start: 0;
+			border-inline-start: 0;
+		}
+	}
+}

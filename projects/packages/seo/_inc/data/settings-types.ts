@@ -25,6 +25,9 @@ export interface SettingsResponse {
 	// Server-owned conflict state. False keeps saved formats visible but read-only
 	// and prevents them from being included in a save payload.
 	title_formats_editable: boolean;
+	// Name of the SEO plugin Jetpack stepped aside for, or '' when none is active.
+	// Read-only, never sent back.
+	conflicting_seo_plugin: string;
 	verification_tools_active: boolean;
 	verification: {
 		google: string;
@@ -45,6 +48,8 @@ export interface SettingsResponse {
 	sitemap_url: string;
 	canonical_active: boolean;
 	canonical_switchable: boolean;
+	// Read-only: another SEO plugin owns canonical output, so the switch is locked.
+	canonical_conflicted: boolean;
 	// Read by the Settings bootstrap; saved through `/jetpack/v4/seo/schema-settings`.
 	schema: SchemaSettings;
 }

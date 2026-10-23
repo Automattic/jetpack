@@ -29,17 +29,21 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	// resolve, and `buildReportLink`/`pickReportDateParams` build real hrefs below.
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
-	useReportDateFilters: () => ( {
-		appliedRange: {
-			from: new Date( Date.UTC( 2026, 5, 1 ) ),
-			to: new Date( Date.UTC( 2026, 5, 16 ) ),
-		},
-		replaceRange: () => {},
-		timeZone: 'UTC',
-		interval: 'day',
-		intervalOptions: [ 'day', 'week' ],
-		...mockDateFilterOverrides,
-	} ),
+	useReportDateFilters: () => {
+		const filters: Record< string, unknown > = {
+			appliedRange: {
+				from: new Date( Date.UTC( 2026, 5, 1 ) ),
+				to: new Date( Date.UTC( 2026, 5, 16 ) ),
+			},
+			replaceRange: () => {},
+			timeZone: 'UTC',
+			interval: 'day',
+			intervalOptions: [ 'day', 'week' ],
+			...mockDateFilterOverrides,
+		};
+		// Nothing staged: the draft is what the URL applied.
+		return { presetId: filters.appliedPresetId, range: filters.appliedRange, ...filters };
+	},
 } ) );
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
@@ -113,6 +117,7 @@ const mockUseStoredLayout = useStoredDetailLayout as jest.Mock;
 
 jest.mock( '@wordpress/widget-primitives', () => ( {
 	useWidgetTypes: () => [ [], false ],
+	WidgetHostProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 // The report registry is deliberately not mocked so the breadcrumb exercises

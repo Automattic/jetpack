@@ -842,6 +842,18 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
+	 * Turning canonical output off through the filter alone doesn't lock the switch.
+	 */
+	public function test_canonical_conflict_ignores_the_disable_filter() {
+		add_filter( 'jetpack_disable_canonical_urls', '__return_true' );
+		try {
+			$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_conflicted'] );
+		} finally {
+			remove_filter( 'jetpack_disable_canonical_urls', '__return_true' );
+		}
+	}
+
+	/**
 	 * An available module remains switchable while it is inactive.
 	 */
 	public function test_available_modules_are_switchable() {

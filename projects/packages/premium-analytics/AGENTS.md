@@ -45,7 +45,7 @@ src/widget-types.php                    # widget type API: registry helpers, met
 docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
-src/Sync/                               # PA glue for the shared woocommerce_analytics sync module
+src/Sync/                               # milestone tracker for the analytics full syncs
 packages/data/src/api/                  # frontend fetch helpers (apiFetch)
 packages/externals/                     # passthrough module for shared third-party libraries
 routes/                                 # lazy-loaded SPA pages; build/ is generated
@@ -184,7 +184,7 @@ opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
 Every section the site qualifies for is shown as a tab, whichever one says yes; see
-`docs/dashboard-sections.md`. The WooCommerce tab registers from the WooCommerce stats package.
+`docs/dashboard-sections.md`. The WooCommerce tab and its sync opt-in register from the WooCommerce stats package.
 
 The same list the tab bar gets over REST also reaches the client as
 `premium_analytics.sections` in the script data, which is what keeps `/reports/…` behind a hidden
@@ -237,9 +237,9 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 - A proxy 404 usually means the prefix isn't in `PREFIX_CONFIG`, not a missing WPCOM endpoint.
 - Reads are cached 5 min; add `force_refresh` if a screen looks stale.
 - `v2` vs `v1.x` changes the WPCOM base — a wrong version silently hits a different endpoint.
-- The `woocommerce_analytics` sync module lives in the jetpack-sync package
-  (`Sync\Configuration::register()` is the opt-in); `src/Sync/` holds only
-  PA-specific glue (Config bootstrap, bookings meta whitelist, milestone tracker).
+- The `woocommerce_analytics` sync module lives in the jetpack-sync package, and the
+  woocommerce-stats package opts in to it (`Sync_Configuration`) and backfills its lookup data
+  (`Lookup_Data_Backfill`); `src/Sync/` here holds only the milestone tracker both read.
 - Don't edit dashboard React in Calypso — it lives here now.
 - Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
   never `@automattic/jetpack-premium-analytics-*`.
@@ -301,7 +301,8 @@ lazy-loaded by the dashboard at runtime.
 > module paths as provisional rather than a long-term API.
 
 These rules apply to registered dashboard widgets: folders with `package.json`,
-`widget.json`, `widget.ts`, and `render.tsx` that the dashboard can lazy-load.
+`widget.json`, and `render.tsx` that the dashboard can lazy-load, plus `widget.ts` when some of
+its metadata cannot live in JSON.
 Presentational-only component folders under `widgets/` are out of scope unless they
 are being converted into registered widgets.
 
@@ -312,8 +313,8 @@ Each new widget MUST ship as a self-contained folder with these files:
 ```text
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
-├── widget.json                             # declarative metadata (name, icon, title, description, help, category, presentation)
-├── widget.ts                               # runtime-only definition (attributes, example)
+├── widget.json                             # everything JSON can carry: name, icon, title, description, help, category, presentation, static attributes
+├── widget.ts                               # optional: only what JSON cannot (getElements/getValue/setValue, helper-built fields, example)
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx
 ```
@@ -326,8 +327,15 @@ Notes:
 - `icon` lives in `widget.json` too, as a `jpa/<name>` reference the dashboard resolves against
   the collection `packages/icons/src/resolve.ts` lists: `@wordpress/icons` glyphs by kebab-case
   name (`jpa/chart-bar`) plus the dashboard's own illustrations. A name outside that list
-  resolves to nothing, so add it to the map before naming it. A widget with nothing live keeps
-  `widget.ts` for its attribute type and exports `{}`.
+  resolves to nothing, so add it to the map before naming it.
+- An attribute is declared in `widget.json` whenever its field is static: `type`, `label`,
+  fixed `elements` (option icons as `jpa/<name>`), `relevance`. `widget.ts` carries only what
+  JSON cannot express: `getElements`, `getValue`/`setValue`, a field a helper builds
+  (`reportParamsAttributeField()`, `chartIntervalAttributeField()`), plus `example`, which the build does
+  not read from `widget.json` yet. Record and module entries merge by `id`, the record's first;
+  a module-only control keeps its position by listing `{ "id" }` in `widget.json` (see
+  `docs/dashboard-widgets.md`). A widget with none of that ships no `widget.ts`; its attribute
+  type lives in `render.tsx`.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
   `Leaderboard`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
@@ -348,7 +356,11 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { MyWidgetAttributes } from './widget';
+
+// A widget with a `widget.ts` imports this from './widget' instead.
+export type MyWidgetAttributes = {
+	view?: 'posts' | 'archives';
+};
 
 type MyWidgetRenderAttributes = MyWidgetAttributes & Partial< ReportParamsFieldAttributes >;
 
@@ -363,10 +375,11 @@ export default function MyWidget( {
 }
 ```
 
-The widget's own attribute shape is declared and exported once from `widget.ts`,
-alongside the `attributes`/`example` schema it describes. `render.tsx` imports that type;
-it may compose a render-only type with host fields like `Partial<ReportParamsFieldAttributes>`,
-but it must not re-declare the widget's own attributes. A widget with no own attributes
+The widget's own attribute shape is declared once: in `widget.ts` when the widget has one,
+alongside the `attributes`/`example` schema it describes, exported for `render.tsx` to import;
+otherwise in `render.tsx` itself. `render.tsx` may compose a
+render-only type with host fields like `Partial<ReportParamsFieldAttributes>`, but it must not
+re-declare the widget's own attributes. A widget with no own attributes
 must type its shape as `Record< never, never >`, not `Record< string, never >` — the
 latter's `[key: string]: never` index signature collapses composed host fields such as
 `reportParams` to `never`, while `Record< never, never >` composes cleanly.
@@ -519,6 +532,9 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 };
 ```
 
+A widget without `widget.ts` drops the `widgetDefinition` import and passes the manifest
+alone: `createStoryWidgetType( widgetManifest )`.
+
 **3. `WithComparison` — only when the widget's hook populates `comparisonRows`** (see the
 criterion above). Add a `withComparison` control, thread it through the render helper, and add
 the second close-up. It should show the period-over-period values the render path consumes:
@@ -606,14 +622,14 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   legacy widgets that haven't been migrated yet.
 - Using the legacy `withWidgetRoot()` decorator for new stories — new widgets render via the
   real `WidgetDashboard` through the shared story helper instead.
-- Declaring `name`, `title`, `help`, `description`, `category`, or `presentation` in
-  `widget.ts` — `widget.json` is the source of truth for all declarative metadata; the
-  `widget.ts` default export carries only `attributes` and `example`, and `icon` is a
-  `widget.json` reference. Stories read the declarative fields from `widget.json` via
-  `createStoryWidgetType()`, which resolves the icon the way the host does.
-- Re-declaring the attribute type in `render.tsx` — the shape is declared once in `widget.ts`
-  and imported in `render.tsx`; render-only types may compose that imported shape with host
-  fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate the shape.
+- Declaring in `widget.ts` what `widget.json` can carry — `name`, `title`, `help`,
+  `description`, `category`, `presentation`, `icon`, or an attribute whose field is static.
+  `widget.json` is the source of truth; the `widget.ts` default export carries only the
+  attribute behavior JSON cannot express, and `example`. Stories read the declarative fields
+  from `widget.json` via `createStoryWidgetType()`, which resolves the icon the way the host does.
+- Declaring the attribute type twice — a widget with a `widget.ts` declares the shape there and
+  `render.tsx` imports it; one without declares it in `render.tsx`. Render-only types may compose
+  that shape with host fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate it.
 - Typing a zero-attribute widget as `Record< string, never >` — its `[key: string]: never`
   index signature collapses composed host fields like `reportParams` to `never` and breaks the
   typecheck. Use `Record< never, never >` instead.
@@ -665,7 +681,7 @@ the query factory — do not do it in the widget or the view hook.
 
 Stats list widgets request `WIDGET_ROW_LIMIT` from
 `@jetpack-premium-analytics/widgets-toolkit`. Do not add per-widget defaults or
-user-editable row counts; report pages handle larger result sets with pagination.
+user-editable row counts; report pages list the full result set.
 This rule covers Stats widgets only — the store widgets under
 `packages/widgets-toolkit/src/widgets/` predate it and set their own limits.
 
