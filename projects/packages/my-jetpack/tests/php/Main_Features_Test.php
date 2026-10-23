@@ -670,6 +670,24 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * A host is told the link is on My Jetpack's Features tab, and that address stays out of the feature's data.
+	 */
+	public function test_upgrade_filter_gets_the_features_tab_as_back_url() {
+		$back_urls = array();
+		$record    = static function ( $upgrade ) use ( &$back_urls ) {
+			$back_urls[] = $upgrade['back_url'] ?? null;
+			return $upgrade;
+		};
+		add_filter( 'jetpack_feature_upgrade', $record );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+		remove_filter( 'jetpack_feature_upgrade', $record );
+
+		$this->assertSame( array( admin_url( 'admin.php?page=my-jetpack#/features' ) ), array_values( array_unique( $back_urls ) ) );
+		$this->assertArrayNotHasKey( 'back_url', $upgrades['backup'] );
+	}
+
+	/**
 	 * A filter that returns something other than an array leaves the upgrade as it was.
 	 */
 	public function test_non_array_upgrade_filter_keeps_the_upgrade() {
