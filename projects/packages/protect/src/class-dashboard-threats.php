@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Dashboard_Threats {
 
 	/**
-	 * Threats the site resolved itself, as fixed snapshots keyed by id, kept until Scan stops reporting them.
+	 * Threats the site resolved itself, as fixed snapshots keyed by id, which count until Scan scans again.
 	 *
 	 * @var string
 	 */
@@ -46,43 +46,58 @@ class Dashboard_Threats {
 	}
 
 	/**
-	 * The threats the site resolved itself.
+	 * The threats the site resolved since Scan last scanned.
 	 *
+	 * A later scan has Scan's own answer: fixed in its history, or still there because the threat came back.
+	 *
+	 * @param string|null $last_checked When Scan last finished a scan, or null when it hasn't.
 	 * @return array Fixed snapshots, keyed by threat id.
 	 */
-	public static function get_resolved() {
+	public static function get_resolved( $last_checked = null ) {
 		$resolved = get_option( self::RESOLVED_OPTION, array() );
-		return is_array( $resolved ) ? $resolved : array();
+		if ( ! is_array( $resolved ) ) {
+			return array();
+		}
+		$scanned_at = $last_checked ? strtotime( $last_checked ) : false;
+		if ( false === $scanned_at ) {
+			return $resolved;
+		}
+		return array_filter(
+			$resolved,
+			function ( $threat ) use ( $scanned_at ) {
+				return strtotime( $threat['fixedOn'] ?? '' ) > $scanned_at;
+			}
+		);
 	}
 
 	/**
-	 * Scan's current threats without the ones the site resolved, forgetting those Scan no longer reports.
+	 * Scan's current threats without the ones the site resolved since Scan last scanned.
 	 *
-	 * @param iterable $threats Scan's current threats.
+	 * @param iterable    $threats      Scan's current threats.
+	 * @param string|null $last_checked When Scan last finished a scan.
 	 * @return array The threats still open.
 	 */
-	public static function without_resolved( $threats ) {
-		$open     = array();
-		$reported = array();
+	public static function without_resolved( $threats, $last_checked = null ) {
 		// Threat_Count runs on every admin page; with nothing reported there is nothing to hide.
 		if ( ! is_iterable( $threats ) || ( is_array( $threats ) && ! $threats ) ) {
-			return $open;
+			return array();
 		}
-		$resolved = self::get_resolved();
-		foreach ( $threats as $threat ) {
-			$id              = (string) ( $threat->id ?? '' );
-			$reported[ $id ] = true;
-			if ( ! isset( $resolved[ $id ] ) ) {
-				$open[] = $threat;
+
+		$all     = self::get_resolved();
+		$pending = self::get_resolved( $last_checked );
+		if ( count( $pending ) !== count( $all ) ) {
+			if ( $pending ) {
+				update_option( self::RESOLVED_OPTION, $pending, false );
+			} else {
+				delete_option( self::RESOLVED_OPTION );
 			}
 		}
 
-		// Once Scan stops reporting a threat its own history lists it as fixed, so the snapshot can go.
-		$kept = array_intersect_key( $resolved, $reported );
-		if ( ! $kept && $resolved ) {
-			delete_option( self::RESOLVED_OPTION );
-		} elseif ( count( $kept ) !== count( $resolved ) ) {
-			update_option( self::RESOLVED_OPTION, $kept, false );
+		$open = array();
+		foreach ( $threats as $threat ) {
+			if ( ! isset( $pending[ (string) ( $threat->id ?? '' ) ] ) ) {
+				$open[] = $threat;
+			}
 		}
 		return $open;
 	}

@@ -15,7 +15,7 @@ namespace Automattic\Jetpack\Protect;
 class Protected_Options {
 
 	/**
-	 * Core's options: the defaults from populate_options() in wp-admin/includes/schema.php, then those core adds later.
+	 * Core's options: the defaults from populate_options() in wp-admin/includes/schema.php, then those core adds later, such as wp_salt()'s keys.
 	 *
 	 * @var string[]
 	 */
@@ -118,6 +118,8 @@ class Protected_Options {
 		'wp_notes_notify',
 		'wp_page_for_privacy_policy',
 		'adminhash',
+		'auth_key',
+		'auth_salt',
 		'auto_core_update_notified',
 		'auto_update_plugins',
 		'auto_update_themes',
@@ -132,13 +134,22 @@ class Protected_Options {
 		'fresh_site',
 		'https_detection_errors',
 		'initial_db_version',
+		'logged_in_key',
+		'logged_in_salt',
 		'nav_menu_options',
 		'new_admin_email',
+		'nonce_key',
+		'nonce_salt',
 		'recently_activated',
 		'recovery_keys',
 		'recovery_mode_email_last_sent',
+		'secret_key',
+		'secure_auth_key',
+		'secure_auth_salt',
 		'sidebars_widgets',
 		'site_logo',
+		'stylesheet_root',
+		'template_root',
 		'theme_switched',
 		'theme_switched_via_customizer',
 		'user_count',
@@ -201,8 +212,8 @@ class Protected_Options {
 	 * @return bool
 	 */
 	public static function is_protected( $name ) {
-		// MySQL matches option names case-insensitively, so "SiteURL" is the siteurl row.
-		$name = strtolower( $name );
+		// MySQL matches option names case-insensitively, and core trims them, so " SiteURL" is the siteurl row.
+		$name = strtolower( trim( $name ) );
 		if ( in_array( $name, array_map( 'strtolower', array_merge( self::CORE, self::JETPACK ) ), true ) ) {
 			return true;
 		}

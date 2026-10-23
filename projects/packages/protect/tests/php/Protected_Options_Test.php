@@ -27,6 +27,8 @@ class Protected_Options_Test extends BaseTestCase {
 			'a core default'                    => array( 'siteurl', true ),
 			'a core option in another case'     => array( 'SiteURL', true ),
 			'a core option added after install' => array( 'initial_db_version', true ),
+			'a core option core would trim'     => array( " siteurl\n", true ),
+			'a salt core stores'                => array( 'auth_salt', true ),
 			'another site\'s user roles'        => array( 'wp_2_user_roles', true ),
 			'a widget\'s settings'              => array( 'widget_text', true ),
 			'a Jetpack_Options option'          => array( 'jetpack_private_options', true ),
