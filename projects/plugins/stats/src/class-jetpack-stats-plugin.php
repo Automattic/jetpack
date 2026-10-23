@@ -55,11 +55,10 @@ class Jetpack_Stats_Plugin {
 	}
 
 	/**
-	 * Configure packages controlled by the `Config` class.
+	 * Configure packages controlled by the `Config` class, and boot Stats v2.
 	 *
-	 * Note: the function only configures the packages, but doesn't initialize them.
-	 * The actual initialization is done on 'plugins_loaded' priority 2, which is the
-	 * reason the function is hooked on priority 1.
+	 * `Config` initializes its packages on 'plugins_loaded' priority 2, hence priority 1 here.
+	 * Stats v2 is the exception and boots right away; see `Analytics::init()` for why.
 	 */
 	public static function configure_packages() {
 		$config = new Config();
@@ -179,8 +178,8 @@ class Jetpack_Stats_Plugin {
 		// connection this is a no-op.
 		self::activate_stats_module();
 
-		// The Stats page is registered in both connection states, so this redirect does not
-		// branch on one. Without a connection the dashboard offers a plan and drives the
+		// `page=stats` opens in both connection states, as the classic page or as Stats v2 once
+		// that retires it. Without a connection the dashboard offers a plan and drives the
 		// connection itself.
 		if ( ( new Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH ) ) {
 			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ) ) );
