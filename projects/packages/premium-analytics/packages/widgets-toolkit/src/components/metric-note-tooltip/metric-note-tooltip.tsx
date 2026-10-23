@@ -11,7 +11,7 @@ import type { ReactNode } from 'react';
 
 export type MetricNoteTooltipProps = {
 	/**
-	 * Caveat about how the metric is aggregated. Without one, the children render in a plain box.
+	 * Caveat about how the metric is aggregated. Without one, the children render in a plain `div`.
 	 */
 	note?: string;
 
