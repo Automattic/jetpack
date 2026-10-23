@@ -3,13 +3,13 @@
  */
 import {
 	DataViews,
+	filterSortAndPaginate,
 	type Action,
 	type Field,
 	type SupportedLayouts,
 	type View,
 } from '@jetpack-premium-analytics/externals';
-import { usePaginatedView } from '@jetpack-premium-analytics/ui';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -20,7 +20,6 @@ import './report-records-table.scss';
 import { useTableRevalidating } from './use-table-revalidating';
 import type { ComponentProps, ReactElement } from 'react';
 
-const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
 const NO_PER_PAGE_SIZES: number[] = [];
 
 /**
@@ -56,7 +55,7 @@ export interface ReportRecordsTableProps< Item > {
 	fields: Field< Item >[];
 	/** Stable id per record (post ID, country code, search term, …). */
 	getItemId: ( item: Item ) => string;
-	/** Initial view overrides (default sort, visible fields, …). Setting `perPage` turns pagination on. */
+	/** Initial view overrides (default sort, visible fields, …). */
 	initialView?: Partial< View >;
 	/** Whether rows for the current params are still loading. */
 	isLoading?: boolean;
@@ -66,8 +65,6 @@ export interface ReportRecordsTableProps< Item > {
 	searchLabel?: string;
 	/** Optional row actions. */
 	actions?: Action< Item >[];
-	/** Page size choices while paginated (defaults to 10/25/50/100). */
-	perPageSizes?: number[];
 	/**
 	 * Called after every view change, with the view the table just moved to.
 	 *
@@ -113,7 +110,6 @@ export function ReportRecordsTable< Item >( {
 	isFetching = false,
 	searchLabel,
 	actions,
-	perPageSizes = DEFAULT_PER_PAGE_SIZES,
 	onChangeView,
 	onChangePageItems,
 	isItemClickable,
@@ -152,11 +148,10 @@ export function ReportRecordsTable< Item >( {
 		[ onChangeView ]
 	);
 
-	const {
-		view: effectiveView,
-		data: pageItems,
-		paginationInfo,
-	} = usePaginatedView( data, view, fields, handleChangeView );
+	const { data: pageItems, paginationInfo } = useMemo(
+		() => filterSortAndPaginate( data, view, fields ),
+		[ data, view, fields ]
+	);
 
 	useEffect( () => {
 		onChangePageItems?.( pageItems );
@@ -172,7 +167,7 @@ export function ReportRecordsTable< Item >( {
 	return (
 		<ReportPageSection className={ styles.root }>
 			<GenericDataViews< Item >
-				view={ effectiveView }
+				view={ view }
 				onChangeView={ handleChangeView }
 				fields={ fields }
 				data={ pageItems }
@@ -182,7 +177,7 @@ export function ReportRecordsTable< Item >( {
 				defaultLayouts={ { table: {} } }
 				actions={ actions }
 				searchLabel={ searchLabel }
-				config={ { perPageSizes: effectiveView.perPage ? perPageSizes : NO_PER_PAGE_SIZES } }
+				config={ { perPageSizes: NO_PER_PAGE_SIZES } }
 				isItemClickable={ isItemClickable }
 				renderItemLink={ renderItemLink }
 			/>
