@@ -2,20 +2,11 @@ import { Button, SelectControl } from '@wordpress/components';
 import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import {
-	SOURCE_GOOGLE_PHOTOS,
-	PATH_RECENT,
-	PATH_ROOT,
-	PATH_OPTIONS,
-	DATE_RANGE_ANY,
-} from '../../constants';
+import { SOURCE_GOOGLE_PHOTOS, PATH_RECENT, PATH_ROOT, PATH_OPTIONS } from '../../constants';
 import MediaBrowser from '../../media-browser';
 import { MediaSource } from '../../media-service/types';
 import { getExternalMediaApiUrl } from '../api';
 import Breadcrumbs from './breadcrumbs';
-import GoogleFilterOption from './filter-option';
-import getFilterRequest from './filter-request';
-import GoogleFilterView from './filter-view';
 import GooglePhotosAccount from './google-photos-account';
 
 const isImageOnly = allowed => allowed && allowed.length === 1 && allowed[ 0 ] === 'image';
@@ -42,7 +33,6 @@ function GooglePhotosMedia( props ) {
 		pageHandle,
 		path,
 		setAuthenticated,
-		showAdditionalFilters = false,
 		pickerSession,
 		pickerFeatureEnabled,
 		deletePickerSession,
@@ -50,24 +40,14 @@ function GooglePhotosMedia( props ) {
 	} = props;
 
 	const imageOnly = isImageOnly( allowedTypes );
-	const [ filters, setFilters ] = useState(
-		imageOnly
-			? { mediaType: 'photo', date: { range: DATE_RANGE_ANY } }
-			: { date: { range: DATE_RANGE_ANY } }
-	);
 	const [ selectionChanged, setSelectionChanged ] = useState( false );
 
 	const lastQuery = useRef( '' );
 	const lastPath = useRef( '' );
-	const filterQuery = path.ID === PATH_RECENT ? getFilterRequest( filters ) : null;
 	const params = {
 		number: 20,
 		path: path.ID,
 	};
-	if ( ! pickerFeatureEnabled && filterQuery ) {
-		params.filter = filterQuery;
-	}
-
 	if ( pickerFeatureEnabled && pickerSession ) {
 		params.session_id = pickerSession.id;
 	}
@@ -137,24 +117,7 @@ function GooglePhotosMedia( props ) {
 							/>
 						}
 
-						{ showAdditionalFilters && path.ID === PATH_RECENT && (
-							<GoogleFilterView
-								filters={ filters }
-								isLoading={ isLoading }
-								setFilters={ setFilters }
-								canChangeMedia={ ! imageOnly }
-							/>
-						) }
-
 						<div className="jetpack-external-media-header__filter">
-							{ path.ID === PATH_RECENT && (
-								<GoogleFilterOption
-									filters={ filters }
-									isLoading={ isLoading }
-									setFilters={ setFilters }
-									canChangeMedia={ ! imageOnly }
-								/>
-							) }
 							{ path.ID !== PATH_RECENT && path.ID !== PATH_ROOT && (
 								<Breadcrumbs path={ path } setPath={ setPath } />
 							) }

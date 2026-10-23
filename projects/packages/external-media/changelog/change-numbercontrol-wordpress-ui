@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: removed
 
-Google Photos: Use the WordPress UI input for the year filter.
+Google Photos: Remove the unused filters for the legacy, non-picker view.
