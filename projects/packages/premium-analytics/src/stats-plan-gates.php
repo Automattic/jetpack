@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\Status;
@@ -623,6 +624,11 @@ function maybe_invalidate_stats_caches() {
  */
 function maybe_refresh_jetpack_plan() {
 	if ( ! Analytics::is_dashboard_request() || ( new Host() )->is_wpcom_platform() ) {
+		return;
+	}
+
+	// An unconnected visit cannot fetch the plan, so it must not start the throttle that would skip the first load after connecting.
+	if ( ! ( new Connection_Manager() )->is_connected() ) {
 		return;
 	}
 
