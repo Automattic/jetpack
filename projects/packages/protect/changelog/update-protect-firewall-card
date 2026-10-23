@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Protect Dashboard: Show what to do next on the Firewall card before it has blocked any requests, and when it was last tested.

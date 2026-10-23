@@ -68,7 +68,7 @@ describe( 'FirewallOverviewCard', () => {
 		);
 		render( <FirewallOverviewCard { ...props } /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
 
 		const [ notice ] = select( noticesStore ).getNotices();
 		expect( notice ).toMatchObject( {
@@ -146,7 +146,7 @@ describe( 'FirewallOverviewCard', () => {
 		( apiFetch as unknown as jest.Mock ).mockResolvedValue( refreshed( 1 ) );
 		render( <FirewallOverviewCard { ...props } /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
 
 		const notice = select( noticesStore )
 			.getNotices()
@@ -164,7 +164,7 @@ describe( 'FirewallOverviewCard', () => {
 		( apiFetch as unknown as jest.Mock ).mockRejectedValue( { code: 'fetch_error' } );
 		render( <FirewallOverviewCard { ...props } /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
 
 		const [ notice ] = select( noticesStore ).getNotices();
 		expect( notice.content ).toBe( 'The firewall blocked the test request. It’s working.' );
@@ -188,7 +188,7 @@ describe( 'FirewallOverviewCard', () => {
 		( runFirewallTest as jest.Mock ).mockRejectedValue( error );
 		render( <FirewallOverviewCard { ...props } /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
 
 		expect( select( noticesStore ).getNotices()[ 0 ].content ).toBe( expected );
 	} );
@@ -197,7 +197,7 @@ describe( 'FirewallOverviewCard', () => {
 		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
 		( apiFetch as unknown as jest.Mock ).mockResolvedValue( refreshed( 2 ) );
 		const { unmount } = render( <FirewallOverviewCard { ...props } /> );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
 
 		unmount();
 
@@ -211,7 +211,7 @@ describe( 'FirewallOverviewCard', () => {
 		);
 		( apiFetch as unknown as jest.Mock ).mockResolvedValue( refreshed( 2 ) );
 		const { unmount } = render( <FirewallOverviewCard { ...props } /> );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
 
 		unmount();
 		await act( async () => finish( BLOCKED ) );
@@ -260,7 +260,7 @@ describe( 'FirewallOverviewCard', () => {
 		} );
 		render( <FirewallOverviewCard { ...props } /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
 
 		expect( document.body ).toHaveTextContent(
 			'Blocked today4Blocked in the last 30 days56All-time blocked requests90'
@@ -312,6 +312,75 @@ describe( 'FirewallOverviewCard', () => {
 			);
 
 			expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
+		}
+	);
+
+	const TEST_BLOCK = {
+		id: 7,
+		timestamp: new Date( Date.now() - 3600000 ).toISOString(),
+		ruleId: -2,
+		reason: 'firewall test',
+	};
+	const noBlocks = ( state = {} ) => ( {
+		...props.state,
+		blockedCount: 0,
+		blockedToday: 0,
+		blockedLast30Days: 0,
+		...state,
+	} );
+
+	it( 'asks a free site with no blocked IPs to add some or upgrade', async () => {
+		render(
+			<FirewallOverviewCard
+				{ ...props }
+				state={ noBlocks( {
+					ipRules: { ...props.state.ipRules, jetpack_waf_ip_block_list: '' },
+				} ) }
+			/>
+		);
+
+		expect( screen.getByRole( 'heading', { name: 'No IPs added to block list' } ) ).toBeVisible();
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute( 'href', '#upgrade' );
+		expect(
+			screen.queryByText( 'Let your firewall keep up with new attacks' )
+		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Edit block list' } ) ).not.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Add IPs to list' } ) );
+		const dialog = await screen.findByRole( 'dialog', { name: 'Blocked IP addresses' } );
+		await userEvent.type( within( dialog ).getByRole( 'textbox' ), '198.51.100.1' );
+		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Save' } ) );
+
+		expect( props.settings.save ).toHaveBeenCalledWith( {
+			jetpack_waf_ip_block_list: '198.51.100.1',
+			jetpack_waf_ip_block_list_enabled: true,
+		} );
+	} );
+
+	it.each( [
+		[ 'before a test', [], 'Get started by testing your firewall', false ],
+		[
+			'after a test',
+			[ TEST_BLOCK ],
+			'No requests were blocked in the latest test ran an hour ago.',
+			true,
+		],
+	] )(
+		'offers a test in place of the counts when nothing was blocked, %s',
+		( _, recentBlocks, copy, tested ) => {
+			render(
+				<FirewallOverviewCard
+					{ ...props }
+					state={ noBlocks( { blockedCount: recentBlocks.length, recentBlocks } ) }
+				/>
+			);
+
+			expect( screen.getByRole( 'heading', { name: 'No requests blocked yet' } ) ).toBeVisible();
+			expect( document.body ).toHaveTextContent( copy );
+			expect( screen.getAllByRole( 'button', { name: 'Run test' } ) ).toHaveLength( 1 );
+			expect( screen.queryByText( 'Blocked today' ) ).not.toBeInTheDocument();
+			expect( !! screen.queryByText( 'Latest test ran an hour ago' ) ).toBe( tested );
+			expect( screen.getByRole( 'button', { name: 'Edit block list' } ) ).toBeVisible();
 		}
 	);
 

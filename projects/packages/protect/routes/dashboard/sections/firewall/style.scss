@@ -169,3 +169,22 @@
 		white-space: nowrap;
 	}
 }
+
+.jp-protect-firewall-empty {
+	display: flex;
+	justify-content: center;
+	padding-block: var(--wpds-dimension-padding-3xl);
+
+	&__footer > * > :not(:last-child) {
+		padding-inline-end: var(--wpds-dimension-padding-lg);
+		border-inline-end:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+	}
+
+	&__footer a,
+	&__footer .jp-protect-card__link-button {
+		font-size: inherit;
+		text-decoration: none;
+	}
+}

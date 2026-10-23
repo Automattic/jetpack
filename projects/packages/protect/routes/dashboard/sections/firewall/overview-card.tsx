@@ -1,11 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
-import { dateI18n } from '@wordpress/date';
+import { dateI18n, humanTimeDiff } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, caution, check, closeSmall, info } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Button, Stack } from '@wordpress/ui';
+import { Badge, Button, Stack } from '@wordpress/ui';
 import {
 	CardRow,
 	ProtectCard,
@@ -14,8 +14,11 @@ import {
 	UnavailableCard,
 } from '../../components/card';
 import formatNumber from '../../components/format-number';
+import { getIpList, splitIps } from '../../components/settings/ip-list';
 import TabLink from '../../components/tab-link';
+import useRerenderEvery from '../../components/use-rerender-every';
 import isModuleActive from '../../data/is-module-active';
+import { EmptyStateFooter, NoBlockListState, NoBlocksState } from './empty-state';
 import {
 	CrossOriginError,
 	FIREWALL_PATH,
@@ -271,22 +274,58 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		setIsTesting( false );
 	}, [ active, blocks.recentBlocks ] );
 
+	// The firewall's own tests are blocks too, but they don't count as having blocked anything.
+	const tests = blocks.recentBlocks.filter( block => block.ruleId === SELF_CHECK_RULE_ID );
+	const [ lastTest ] = tests;
+	const hasBlocks =
+		blocks.recentBlocks.length > tests.length || ( blocks.blockedCount ?? 0 ) > tests.length;
+	const isEmpty = active && ! hasBlocks;
+	const needsBlockList =
+		! firewall.hasScan && ! splitIps( getIpList( ipData.settings, IP_BLOCK_LIST ) ).length;
+	// The empty states replace the upsell; the free one has its own Upgrade button.
+	const showUpsell = ! firewall.hasScan && ! isEmpty;
+	useRerenderEvery( 30000, !! lastTest );
+
 	if ( ! firewall.available ) {
 		return <UnavailableCard icon={ shieldFlame } title={ title } />;
 	}
+
+	const settingsLink = (
+		<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
+			{ __( 'Configure Firewall', 'jetpack-protect-pkg' ) }
+		</TabLink>
+	);
 
 	return (
 		<ProtectCard
 			icon={ shieldFlame }
 			title={ title }
 			description={ __(
-				'Blocks malicious requests before they reach your site.',
+				'Malicious requests blocked before they reach your site.',
 				'jetpack-protect-pkg'
 			) }
+			titleAside={
+				lastTest && (
+					<time
+						dateTime={ lastTest.timestamp }
+						title={ dateI18n( 'M j, Y g:i A', lastTest.timestamp, undefined ) }
+					>
+						<Badge intent="draft">
+							{ sprintf(
+								/* translators: %s is how long ago, such as "1 hour ago". */
+								__( 'Latest test ran %s', 'jetpack-protect-pkg' ),
+								humanTimeDiff( lastTest.timestamp )
+							) }
+						</Badge>
+					</time>
+				)
+			}
 			actions={
-				<Button variant="outline" size="compact" onClick={ runTest } loading={ isTesting }>
-					{ __( 'Test firewall', 'jetpack-protect-pkg' ) }
-				</Button>
+				hasBlocks && (
+					<Button variant="outline" size="compact" onClick={ runTest } loading={ isTesting }>
+						{ __( 'Run test', 'jetpack-protect-pkg' ) }
+					</Button>
+				)
 			}
 		>
 			{ result && (
@@ -303,7 +342,21 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					<FirewallToggle data={ settings } />
 				</CardRow>
 			) }
-			{ active && (
+			{ isEmpty && needsBlockList && (
+				<NoBlockListState data={ ipData } upgradeUrl={ firewall.upgradeUrl } />
+			) }
+			{ isEmpty && ! needsBlockList && (
+				<NoBlocksState lastTest={ lastTest } isTesting={ isTesting } onTest={ runTest } />
+			) }
+			{ isEmpty && (
+				<EmptyStateFooter
+					data={ ipData }
+					currentIp={ firewall.currentIp }
+					showBlockList={ ! needsBlockList }
+					settingsLink={ settingsLink }
+				/>
+			) }
+			{ active && hasBlocks && (
 				<CardRow>
 					<Stack direction="column" gap="md" align="start">
 						<div className="jp-protect-firewall-overview__stats">
@@ -320,13 +373,11 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 								value={ formatCount( blocks.blockedCount ) }
 							/>
 						</div>
-						<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
-							{ __( 'Configure Firewall', 'jetpack-protect-pkg' ) }
-						</TabLink>
+						{ settingsLink }
 					</Stack>
 				</CardRow>
 			) }
-			{ active && (
+			{ active && hasBlocks && (
 				<CardRow className="jp-protect-firewall-overview__columns">
 					<RecentBlocks blocks={ blocks.recentBlocks } />
 					{ rulesUpdatedAt !== null && (
@@ -341,7 +392,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					) }
 				</CardRow>
 			) }
-			{ active && (
+			{ active && hasBlocks && (
 				<CardRow className="jp-protect-firewall-overview__columns">
 					<IpRule
 						data={ ipData }
@@ -368,10 +419,8 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					/>
 				</CardRow>
 			) }
-			{ ! firewall.hasScan && rulesUpdatedAt === null && (
-				<FirewallUpsell url={ firewall.upgradeUrl } />
-			) }
-			{ ! firewall.hasScan && rulesUpdatedAt !== null && (
+			{ showUpsell && rulesUpdatedAt === null && <FirewallUpsell url={ firewall.upgradeUrl } /> }
+			{ showUpsell && rulesUpdatedAt !== null && (
 				<UpgradeGap
 					title={ __(
 						'Your automatic firewall rules have stopped updating',
