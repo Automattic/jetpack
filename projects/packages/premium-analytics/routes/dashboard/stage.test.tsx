@@ -476,6 +476,7 @@ beforeEach( () => {
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
 	useLockedSectionLayoutMock.mockImplementation( passThroughLockedLayout );
+	useDashboardPolicyMock.mockImplementation( () => () => true );
 	useDashboardSectionLayoutMock.mockImplementation( () => [ [], jest.fn(), mockResetLayout ] );
 	mockDashboardProps = {};
 } );
@@ -504,6 +505,7 @@ const passThroughLockedLayout: typeof useLockedSectionLayout = (
 	lockedSection: undefined,
 	visibleLayout: layout,
 	onVisibleLayoutChange: onLayoutChange,
+	isHiddenWidget: undefined,
 } );
 
 const closedOnboarding = {
@@ -1448,8 +1450,9 @@ describe( 'Dashboard Settings tab', () => {
 } );
 
 describe( 'Dashboard locked section', () => {
-	const visibleLayout = [ { uuid: 'chart', type: 'jpa/traffic-chart' } ];
+	const visibleLayout = [ { uuid: 'chart', type: 'jpa/traffic-chart' as const } ];
 	const onVisibleLayoutChange = jest.fn();
+	const isHiddenWidget = jest.fn();
 
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -1463,10 +1466,26 @@ describe( 'Dashboard locked section', () => {
 						lockedSection: { title: 'Unlock site insights' } as LockedSectionGate,
 						visibleLayout: visibleLayout as typeof layout,
 						onVisibleLayoutChange,
+						isHiddenWidget,
 					}
 				: passThroughLockedLayout( section, layout, onLayoutChange )
 		);
+		useDashboardPolicyMock.mockImplementation(
+			jest.requireActual( './hooks/use-dashboard-policy' ).useDashboardPolicy
+		);
 	} );
+
+	const mockLockedLayout = ( shown: typeof visibleLayout | [] ) =>
+		useLockedSectionLayoutMock.mockImplementation( ( section, layout, onLayoutChange ) =>
+			section === 'insights'
+				? {
+						lockedSection: { open_widget_types: [ 'jpa/traffic-chart' ] } as LockedSectionGate,
+						visibleLayout: shown,
+						onVisibleLayoutChange,
+						isHiddenWidget,
+					}
+				: passThroughLockedLayout( section, layout, onLayoutChange )
+		);
 
 	it( 'shows the upgrade prompt after the open widgets, without the empty state', () => {
 		render( <Dashboard /> );
@@ -1507,6 +1526,7 @@ describe( 'Dashboard locked section', () => {
 	} );
 
 	it( 'leaves edit mode on arriving from a section being customized', async () => {
+		mockLockedLayout( [] );
 		mockSection( { slug: 'subscribers' } );
 		useActiveSectionMock.mockReturnValue( [ 'subscribers', jest.fn(), true ] );
 		mockActiveSectionSlug = 'subscribers';
@@ -1531,7 +1551,8 @@ describe( 'Dashboard locked section', () => {
 		} );
 	} );
 
-	it( 'offers no Customize on a locked section', () => {
+	it( 'offers no Customize on a locked section that shows no widget', () => {
+		mockLockedLayout( [] );
 		render( <Dashboard /> );
 
 		expect(
@@ -1543,6 +1564,21 @@ describe( 'Dashboard locked section', () => {
 			'data-can-customize',
 			'false'
 		);
+	} );
+
+	it( 'offers Customize and its tour steps on a locked section that shows a widget, resetting only that', async () => {
+		mockLockedLayout( visibleLayout );
+
+		render( <Dashboard /> );
+
+		expect( jest.mocked( onboardingTourSteps ) ).toHaveBeenLastCalledWith(
+			expect.anything(),
+			expect.objectContaining( { withCustomize: true } )
+		);
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+
+		expect( mockResetLayout ).toHaveBeenLastCalledWith( isHiddenWidget );
 	} );
 
 	it( 'leaves an open section as it was', () => {

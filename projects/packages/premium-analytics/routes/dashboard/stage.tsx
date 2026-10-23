@@ -146,7 +146,6 @@ function Dashboard(): JSX.Element {
 		() => getInsertableWidgetTypeNames( activeSectionRecord ? [ activeSectionRecord ] : [] ),
 		[ activeSectionRecord ]
 	);
-	const dashboardPolicy = useDashboardPolicy( { insertableWidgetTypes } );
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -206,33 +205,35 @@ function Dashboard(): JSX.Element {
 		},
 		[ layout, setLayout, trackCustomize ]
 	);
-	const { lockedSection, visibleLayout, onVisibleLayoutChange } = useLockedSectionLayout(
-		widgetSection,
-		layout,
-		onLayoutChange
-	);
+	const { lockedSection, visibleLayout, onVisibleLayoutChange, isHiddenWidget } =
+		useLockedSectionLayout( widgetSection, layout, onLayoutChange );
 	const isSectionLocked = !! lockedSection;
+	const dashboardPolicy = useDashboardPolicy( {
+		insertableWidgetTypes,
+		lockedLayout: isSectionLocked ? visibleLayout : undefined,
+	} );
+	const canCustomizeSection = dashboardPolicy( { operation: 'customize' } );
 	// Edit mode survives a tab switch, so leave it on arriving at a section that cannot be arranged.
 	// The exit is recorded against the section arrived at, as Done after any tab switch is.
 	useEffect( () => {
-		if ( editMode && isSectionLocked ) {
+		if ( editMode && ! canCustomizeSection ) {
 			onEditChange( false );
 		}
-	}, [ editMode, isSectionLocked, onEditChange ] );
-	// Settings has no layout to customize, and `WidgetDashboard` opens Customize over an empty one.
-	// A locked section has nothing to add, and its visible layout is often empty.
+	}, [ editMode, canCustomizeSection, onEditChange ] );
+	// Settings has no layout to customize.
 	const canPerform = useMemo< typeof dashboardPolicy >(
 		() =>
-			isSettingsActive || isSectionLocked
+			isSettingsActive
 				? request => request.operation !== 'customize' && dashboardPolicy( request )
 				: dashboardPolicy,
-		[ dashboardPolicy, isSettingsActive, isSectionLocked ]
+		[ dashboardPolicy, isSettingsActive ]
 	);
 	const resetToDefault = useCallback( () => {
 		trackCustomize.reset();
-		resetLayout();
+		// A locked section resets only what it shows, so an upgrade brings back the rest as arranged.
+		resetLayout( isHiddenWidget );
 		setEditMode( false );
-	}, [ resetLayout, trackCustomize ] );
+	}, [ isHiddenWidget, resetLayout, trackCustomize ] );
 
 	// Only the widgets this section renders need metadata at boot; the full registry
 	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
@@ -285,7 +286,7 @@ function Dashboard(): JSX.Element {
 		onboardingTourSteps( tourAnchors, {
 			withFeedback: canSendFeedback(),
 			flow,
-			withCustomize: ! isSectionLocked,
+			withCustomize: canCustomizeSection,
 			withComparison: offersComparison,
 		} ).filter( step => step.anchor );
 	// Built every render rather than memoized: the anchors are looked up fresh, since the
@@ -508,7 +509,7 @@ function Dashboard(): JSX.Element {
 										<Stack ref={ setOptionsMenuFrame } direction="row">
 											<PageOptionsMenu
 												onCustomize={
-													editMode || isSettingsActive || isSectionLocked
+													editMode || isSettingsActive || ! canCustomizeSection
 														? undefined
 														: startCustomizing
 												}
