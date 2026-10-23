@@ -58,7 +58,7 @@ const OverviewBlogPosts: FC = () => {
 									tone="neutral"
 									variant="unstyled"
 								>
-									<Text variant="body-md">{ post.title }</Text>
+									<Text variant="body-md">{ post.title }</Text>{ ' ' }
 									<VisuallyHidden render={ <span /> }>
 										{
 											/* translators: accessibility text appended to a link that opens in a new tab */

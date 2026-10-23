@@ -33,7 +33,7 @@ describe( 'OverviewBlogPosts', () => {
 
 		render( <OverviewBlogPosts /> );
 
-		const link = screen.getByRole( 'link', { name: /^Post\s*\(opens in a new tab\)$/ } );
+		const link = screen.getByRole( 'link', { name: /^Post \(opens in a new tab\)$/ } );
 		expect( link ).toHaveAttribute( 'href', post.link );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( within( link ).queryByRole( 'img' ) ).not.toBeInTheDocument();
