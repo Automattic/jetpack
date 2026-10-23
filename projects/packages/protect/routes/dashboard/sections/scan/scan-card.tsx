@@ -100,7 +100,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	let body;
 	if ( scan.error ) {
 		body = (
-			<CardRow>
+			<CardRow className="jp-protect-scan__state">
 				<Stack direction="column" gap="sm" align="start">
 					<Text variant="body-md">
 						{ __(
@@ -115,7 +115,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			</CardRow>
 		);
 	} else if ( ! hasThreats ) {
-		body = <CardRow>{ safeState }</CardRow>;
+		body = <CardRow className="jp-protect-scan__state">{ safeState }</CardRow>;
 	} else {
 		body = (
 			<>

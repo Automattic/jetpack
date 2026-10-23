@@ -28,13 +28,20 @@ const PARTICLES = Array.from( { length: 12 }, ( _, i ) => {
  *
  * @param props             - Component props.
  * @param props.justScanned - Whether a scan finished while the page was open.
+ * @param props.width       - The shield's width in pixels; its height follows.
  * @return The shield.
  */
-export const SafeShield = ( { justScanned = false }: { justScanned?: boolean } ) => (
+export const SafeShield = ( {
+	justScanned = false,
+	width = 80,
+}: {
+	justScanned?: boolean;
+	width?: number;
+} ) => (
 	<svg
 		className={ `jp-protect-safe__shield${ justScanned ? ' is-bursting' : '' }` }
-		width="80"
-		height="98"
+		width={ width }
+		height={ Math.round( ( width * 150 ) / 123 ) }
 		viewBox="0 0 123 150"
 		aria-hidden="true"
 		focusable="false"
@@ -131,11 +138,11 @@ export default function SafeState( { scan, isStarting, onScan, justScanned = fal
 			align="center"
 			gap="md"
 		>
-			<SafeShield justScanned={ justScanned } />
-			<Text variant="heading-xl" render={ <h3 /> }>
+			<SafeShield justScanned={ justScanned } width={ 46 } />
+			<Text variant="heading-lg" render={ <h3 /> }>
 				{ copy.title }
 			</Text>
-			<Text variant="body-lg" className="jp-protect-safe__details">
+			<Text variant="body-md" className="jp-protect-safe__details">
 				{ copy.details }
 				<br />
 				{ copy.next }
