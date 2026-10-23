@@ -27,7 +27,7 @@ Depending on connection state, the card surfaces:
 - **Safe Mode / Identity Crisis** — when the site is in Safe Mode, the status badge swaps to "Safe Mode" and the card renders the resolution options (migrate / start fresh / stay in safe mode).
 - **Hosting context** — `isWoaSite` and `isVipSite` flags.
 - **Auth errors** — any error captured from the last authorization attempt.
-- **Connection errors** — the shared connection error notice (`ConnectionErrorView`, fed by the card's own `useConnectionErrorNotice()` call) at the top of the expanded details, with an error or warning status badge. Hidden in offline mode. While it offers to reconnect the connection owner's account, the connect prompt is hidden. When ownership is locked the notice is informational only, so the prompt stays as the viewer's route to connect. Its reconnect CTA returns to the Connectors page (`connectorsUrl`) rather than My Jetpack.
+- **Connection errors** — the shared connection error notice (`ConnectionErrorView`, fed by the card's own `useConnectionErrorNotice()` call) at the top of the expanded details, with an error or warning status badge. Hidden in offline mode. While the connection owner's token is broken, the connect prompt is hidden for every viewer, including the owner, whose broken token leaves them unlinked. Connecting would take over the owner's slot, so the notice decides who acts: it offers the reconnect, or is informational only when ownership is locked, as in My Jetpack. Its reconnect CTA returns to the Connectors page (`connectorsUrl`) rather than My Jetpack.
 
 Connect and disconnect actions performed from the card go through the package's existing connection REST endpoints. Connecting and disconnecting are disabled while the site is in offline mode.
 

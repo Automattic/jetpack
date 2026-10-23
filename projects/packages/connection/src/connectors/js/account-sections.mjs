@@ -13,6 +13,7 @@
  * @param {object|null} state.viewer                  - The viewer's linked account, or null.
  * @param {object|null} state.owner                   - The connection owner, or null.
  * @param {boolean}     state.ownerIsViewer           - Whether the viewer is the connection owner.
+ * @param {boolean}     state.isOwnerConnectionBroken - Whether the connection owner's token is broken.
  * @param {boolean}     state.canConnect              - Whether the card offers a connect action.
  * @param {boolean}     state.isErrorBannerShown      - Whether the connection error banner is showing.
  * @param {boolean}     state.isProtectedOwnerPending - Whether a protected owner is unconfirmed.
@@ -22,11 +23,11 @@ export function getAccountSections( {
 	viewer,
 	owner,
 	ownerIsViewer,
+	isOwnerConnectionBroken,
 	canConnect,
 	isErrorBannerShown,
 	isProtectedOwnerPending,
 } ) {
-	const isOwnerConnectionBroken = Boolean( owner?.isConnectionBroken );
 	// A broken owner viewing the card is covered by the prompt or the banner, not by a row.
 	const showsOwnerRow = Boolean( owner ) && ! ownerIsViewer;
 

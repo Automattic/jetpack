@@ -8,7 +8,7 @@ before( async () => {
 } );
 
 const owner = { displayName: 'Owner' };
-const brokenOwner = { displayName: 'Owner', isConnectionBroken: true };
+const brokenOwner = { owner, isOwnerConnectionBroken: true };
 const secondAdmin = { displayName: 'Second', isOwner: false };
 const ownerViewing = { displayName: 'Owner', isOwner: true };
 
@@ -18,37 +18,37 @@ describe( 'getAccountSections', () => {
 	for ( const [ name, state, expected ] of [
 		[
 			'broken owner with the banner: banner only',
-			{ owner: brokenOwner, ownerIsViewer: true, isErrorBannerShown: true },
+			{ ...brokenOwner, ownerIsViewer: true, isErrorBannerShown: true },
 			none,
 		],
 		[
 			'broken owner without the banner: prompt, no row for themselves',
-			{ owner: brokenOwner, ownerIsViewer: true, isErrorBannerShown: false },
+			{ ...brokenOwner, ownerIsViewer: true, isErrorBannerShown: false },
 			{ ...none, connectPrompt: true },
 		],
 		[
 			'broken owner while a protected owner is pending: no unconfirmed row for themselves',
-			{ owner: brokenOwner, ownerIsViewer: true, isProtectedOwnerPending: true },
+			{ ...brokenOwner, ownerIsViewer: true, isProtectedOwnerPending: true },
 			{ ...none, connectPrompt: true },
 		],
 		[
 			'unlinked admin beside a broken owner with the banner: owner row, no takeover prompt',
-			{ owner: brokenOwner, isErrorBannerShown: true },
+			{ ...brokenOwner, isErrorBannerShown: true },
 			{ ...none, ownerRow: true },
 		],
 		[
 			'unlinked admin beside a broken owner without the banner: takeover prompt and owner row',
-			{ owner: brokenOwner, isErrorBannerShown: false },
+			{ ...brokenOwner, isErrorBannerShown: false },
 			{ ...none, connectPrompt: true, ownerRow: true },
 		],
 		[
 			'admin beside a broken owner while a protected owner is pending: owner row, not unconfirmed',
-			{ owner: brokenOwner, isProtectedOwnerPending: true },
+			{ ...brokenOwner, isProtectedOwnerPending: true },
 			{ ...none, connectPrompt: true, ownerRow: true },
 		],
 		[
 			'linked admin beside a broken owner: owner row only',
-			{ viewer: secondAdmin, owner: brokenOwner, isErrorBannerShown: true },
+			{ viewer: secondAdmin, ...brokenOwner, isErrorBannerShown: true },
 			{ ...none, ownerRow: true },
 		],
 		[
@@ -79,6 +79,7 @@ describe( 'getAccountSections', () => {
 				getAccountSections( {
 					viewer: null,
 					ownerIsViewer: false,
+					isOwnerConnectionBroken: false,
 					canConnect: true,
 					isErrorBannerShown: false,
 					isProtectedOwnerPending: false,

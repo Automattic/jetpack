@@ -54,7 +54,6 @@ export function getUserConnectKind( {
  *
  * `take-over` names only what a plain account connection does. The connection-error notice's
  * reconnect is a full reconnect, which also disconnects every other user, so its copy says more.
- * The Connectors card's ConnectPrompt keeps a copy of the `secondary` and `first` strings for older bundles.
  *
  * @param {UserConnectKind} kind - What connecting means for the viewer, from getUserConnectKind().
  * @return {string} The prompt text.

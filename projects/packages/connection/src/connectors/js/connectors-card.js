@@ -177,7 +177,6 @@ function useCardConnection() {
 						displayName: owner.displayName,
 						avatar: owner.avatar || '',
 						editUrl: connectionOwnerEditUrl,
-						isConnectionBroken: isOwnerConnectionBroken,
 					}
 				: null,
 			isOwnerConnectionBroken,
@@ -898,32 +897,14 @@ function ProtectedOwnerSection() {
  */
 function ConnectPrompt( { onConnect, isConnecting } ) {
 	const { isRegistered, isConnected, isOfflineMode, owner, currentUser } = useCardConnection();
-	let isReconnectingOwner = false;
-	let promptText;
-	if ( getUserConnectKind && getUserConnectMessage ) {
-		const promptKind = getUserConnectKind( {
-			isRegistered,
-			hasConnectedOwner: isConnected,
-			owner,
-			currentUserId: currentUser?.id,
-		} );
-		isReconnectingOwner = 'reconnect-owner' === promptKind;
-		promptText = getUserConnectMessage( promptKind );
-	} else if ( owner ) {
-		// An older shared jetpack-connection bundle may lack the helpers; copies of getUserConnectMessage()'s strings.
-		promptText = __(
-			'Connect your user account to unlock more features and sign in via WordPress.com (SSO).',
-			'jetpack-connection',
-			/* dummy arg to avoid bad minification */ 0
-		);
-	} else {
-		promptText = __(
-			'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
-			'jetpack-connection',
-			/* dummy args to avoid bad minification */ 0,
-			0
-		);
-	}
+	const promptKind = getUserConnectKind( {
+		isRegistered,
+		hasConnectedOwner: isConnected,
+		owner,
+		currentUserId: currentUser?.id,
+	} );
+	const isReconnectingOwner = 'reconnect-owner' === promptKind;
+	const promptText = getUserConnectMessage( promptKind );
 
 	let buttonText = __(
 		'Connect account',
@@ -1595,14 +1576,12 @@ function ExpandedDetails( {
 	const disconnectSiteRef = useRef( null );
 	const disconnectAccountRef = useRef( null );
 
-	// ConnectionErrorView is checked too: an older shared bundle may lack it.
-	const isErrorBannerShown = Boolean(
-		connectionErrorNotice?.hasConnectionError && ConnectionErrorView
-	);
+	const isErrorBannerShown = Boolean( connectionErrorNotice?.hasConnectionError );
 	const sections = getAccountSections( {
 		viewer,
 		owner,
 		ownerIsViewer,
+		isOwnerConnectionBroken,
 		canConnect: Boolean( onConnect ),
 		isErrorBannerShown,
 		isProtectedOwnerPending: protectedOwnerIsPending(),
@@ -1691,10 +1670,7 @@ function ExpandedDetails( {
 					title: __( 'Connection owner', 'jetpack-connection' ),
 					user: owner,
 					subtitle: false,
-					// An anchored owner whose token broke is still the confirmed owner.
-					showShield:
-						protectedOwnerIsEstablished() ||
-						( isOwnerConnectionBroken && Boolean( protectedOwnerState()?.anchored ) ),
+					showShield: protectedOwnerIsEstablished(),
 				} )
 			: null,
 
