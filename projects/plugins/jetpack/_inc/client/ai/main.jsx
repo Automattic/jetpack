@@ -210,8 +210,6 @@ export default function App() {
 		isOfflineMode = false,
 		showFeaturesView = false,
 		showA12sBadge = false,
-		isA11n = false,
-		isTest = false,
 		isSelfHosted = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ route, setRoute ] = useState( getRouteFromHash );
@@ -231,10 +229,7 @@ export default function App() {
 	const showConnectNotice = !! blogId && userUnlinked;
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings( { skip: showConnectNotice || ! blogId } );
-	// Staff-only while remote abilities are not generally available. isA11n reads
-	// the connected account's email, so internal test environments also qualify.
-	const showRemoteAbilities =
-		( isA11n || isTest ) && isSelfHosted && ! showConnectNotice && !! blogId;
+	const showRemoteAbilities = isSelfHosted && ! showConnectNotice && !! blogId;
 	const publishedAbilities = useSiteAbilities( { enabled: showRemoteAbilities } );
 	const remoteAbilities = showRemoteAbilities ? publishedAbilities : null;
 	const {
