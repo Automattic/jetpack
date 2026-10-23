@@ -103,7 +103,7 @@ export function UpgradePage(): JSX.Element {
 	const [ tierIndex, setTierIndex ] = useState( 0 );
 	const upgradePath = getUpgradePath( search );
 	const { handleConnectUser } = useConnection( {
-		from: 'jetpack-premium-analytics',
+		from: 'jetpack_premium_analytics_upsell',
 		redirectUri: upgradePath,
 	} );
 	// The connection store never clears its own "connecting" flag when the flow fails to start.
