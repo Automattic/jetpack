@@ -5,13 +5,11 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
-
 /**
  * GD drops all metadata on save. Like Photon, this keeps one field: the XMP
  * DigitalSourceType, which marks AI-generated images.
  */
-class Image_Editor_GD extends \WP_Image_Editor_GD {
+class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 
 	/**
 	 * The source's DigitalSourceType: '' when it has none, null until the first save.
