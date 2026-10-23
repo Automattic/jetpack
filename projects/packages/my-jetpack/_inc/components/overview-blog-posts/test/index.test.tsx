@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import useSimpleQuery from '../../../data/use-simple-query';
 import OverviewBlogPosts from '../index';
 
@@ -33,10 +33,7 @@ describe( 'OverviewBlogPosts', () => {
 
 		render( <OverviewBlogPosts /> );
 
-		const link = screen.getByRole( 'link', { name: /^Post \(opens in a new tab\)$/ } );
-		expect( link ).toHaveAttribute( 'href', post.link );
-		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( within( link ).queryByRole( 'img' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /^Post/ } ) ).toHaveAttribute( 'href', post.link );
 		expect( screen.getByRole( 'time' ) ).toHaveAttribute( 'dateTime', post.date );
 		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
 	} );

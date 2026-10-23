@@ -1,7 +1,7 @@
 import { humanTimeDiff } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { tip } from '@wordpress/icons';
-import { Link, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import { Link, Stack, Text } from '@wordpress/ui';
 import { QUERY_BLOG_POSTS_KEY, REST_API_BLOG_POSTS_ENDPOINT } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
 import OverviewSection from '../product-cards-section/overview-section';
@@ -51,20 +51,8 @@ const OverviewBlogPosts: FC = () => {
 										{ humanTimeDiff( post.date ) }
 									</Text>
 								) }
-								{ /* A target prop on Link adds its ↗ icon, which the design leaves off post titles. */ }
-								<Link
-									href={ post.link }
-									render={ <a target="_blank" /> }
-									tone="neutral"
-									variant="unstyled"
-								>
-									<Text variant="body-md">{ post.title }</Text>{ ' ' }
-									<VisuallyHidden render={ <span /> }>
-										{
-											/* translators: accessibility text appended to a link that opens in a new tab */
-											__( '(opens in a new tab)', 'jetpack-my-jetpack' )
-										}
-									</VisuallyHidden>
+								<Link href={ post.link } openInNewTab tone="neutral" variant="unstyled">
+									<Text variant="body-md">{ post.title }</Text>
 								</Link>
 								{ post.excerpt && (
 									<Text variant="body-sm" className={ styles.muted }>
