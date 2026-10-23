@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import Overview from './components/overview';
+import PageBreadcrumbs, { hasJetpackCrumb } from './components/page-breadcrumbs';
 import SettingsTab from './components/settings-tab';
 import useProtectSettings from './data/use-protect-settings';
 import sections from './sections';
@@ -12,7 +13,7 @@ import { REPORT_PARAM, parseThreatIds } from './sections/scan/group-threats';
 import HeaderScanButton from './sections/scan/header-scan-button';
 import ScanStartNotice from './sections/scan/scan-start-notice';
 import { useScanPolling } from './sections/scan/store';
-import ThreatReport, { ThreatReportBreadcrumbs } from './sections/scan/threat-report';
+import ThreatReport from './sections/scan/threat-report';
 import './route.scss';
 
 /**
@@ -71,7 +72,12 @@ const Stage = () => {
 
 	if ( showReport ) {
 		return (
-			<AdminPage className="jp-protect-dashboard" breadcrumbs={ <ThreatReportBreadcrumbs /> }>
+			<AdminPage
+				className="jp-protect-dashboard"
+				breadcrumbs={
+					<PageBreadcrumbs current={ __( 'Threats from your alert', 'jetpack-protect-pkg' ) } />
+				}
+			>
 				<div className="jp-protect-dashboard__body">
 					<ThreatReport
 						ids={ reportIds }
@@ -86,12 +92,9 @@ const Stage = () => {
 	return (
 		<AdminPage
 			className="jp-protect-dashboard"
+			breadcrumbs={ hasJetpackCrumb() ? <PageBreadcrumbs /> : undefined }
 			// "Protect" is a product name and is not translated.
-			title="Protect"
-			subTitle={ __(
-				'Security tools that keep your site safe and sound, from posts to plugins.',
-				'jetpack-protect-pkg'
-			) }
+			title={ hasJetpackCrumb() ? undefined : 'Protect' }
 			actions={ state.scan ? <HeaderScanButton /> : undefined }
 		>
 			<Tabs.Root value={ activeTab } onValueChange={ goTo }>

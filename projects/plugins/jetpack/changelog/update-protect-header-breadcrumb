@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Protect Dashboard: Show a "Jetpack / Protect" breadcrumb in the page header, and rename its Scan now button to Scan site.

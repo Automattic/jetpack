@@ -236,7 +236,7 @@ describe( 'Protect dashboard stage', () => {
 		respond( SCAN_PATH, new Error( 'Unable to find a valid site.' ) );
 		render( <Stage /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Scan now' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Scan site' } ) );
 
 		await expect(
 			screen.findByText( 'Unable to find a valid site.' )
@@ -270,7 +270,7 @@ describe( 'Protect dashboard stage', () => {
 
 			await act( () => jest.advanceTimersByTimeAsync( 5000 ) );
 
-			expect( screen.getByRole( 'button', { name: 'Scan now' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Scan site' } ) ).toBeInTheDocument();
 			expect( requestsTo( SCAN_PATH ) ).toBe( 1 );
 		} );
 
