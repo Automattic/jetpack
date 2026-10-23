@@ -386,7 +386,7 @@ function ErrorNotice( { message, onDismiss = null } ) {
 function OfflineNotice() {
 	const message = createInterpolateElement(
 		__(
-			'Your site is in <link>offline mode</link>, so connecting and disconnecting are disabled.',
+			'Your site is in <link>Offline Mode</link>, so connecting and disconnecting are disabled.',
 			'jetpack-connection'
 		),
 		{
