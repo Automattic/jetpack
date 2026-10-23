@@ -81,7 +81,6 @@ describe( 'productDetailsQuery', () => {
 		mockApiFetch.mockResolvedValue( [
 			{
 				id: 7,
-				name: 'Hat',
 				permalink: 'https://shop.test/hat/',
 				images: [ { src: 'hat.jpg', alt: '' } ],
 			},
@@ -94,7 +93,7 @@ describe( 'productDetailsQuery', () => {
 
 		expect( query.queryKey ).toEqual( [ 'products', 'details', [ 7, 9 ] ] );
 		await expect( queryFn() ).resolves.toEqual( {
-			7: { image: { url: 'hat.jpg', alt: 'Hat' }, permalink: 'https://shop.test/hat/' },
+			7: { image: { url: 'hat.jpg', alt: '' }, permalink: 'https://shop.test/hat/' },
 		} );
 		expect( ( mockApiFetch.mock.calls[ 0 ][ 0 ] as { path: string } ).path ).toContain(
 			'include=7%2C9'

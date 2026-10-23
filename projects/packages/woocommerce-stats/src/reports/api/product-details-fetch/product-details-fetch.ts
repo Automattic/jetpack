@@ -4,7 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 
-export type ProductImage = {
+type ProductImage = {
 	url: string;
 	alt: string;
 };
@@ -16,7 +16,6 @@ export type ProductDetails = {
 
 type ProductResponse = {
 	id: number;
-	name: string;
 	permalink?: string;
 	images?: { src: string; alt: string }[];
 };
@@ -48,7 +47,7 @@ export async function fetchProductDetails(
 			{
 				image: {
 					url: product.images?.[ 0 ]?.src ?? '',
-					alt: product.images?.[ 0 ]?.alt || product.name,
+					alt: product.images?.[ 0 ]?.alt ?? '',
 				},
 				permalink: product.permalink ?? '',
 			},

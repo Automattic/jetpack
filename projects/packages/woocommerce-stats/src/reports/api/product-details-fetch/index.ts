@@ -1,5 +1,1 @@
-export {
-	fetchProductDetails,
-	type ProductDetails,
-	type ProductImage,
-} from './product-details-fetch';
+export { fetchProductDetails, type ProductDetails } from './product-details-fetch';
