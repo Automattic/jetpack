@@ -25,6 +25,7 @@ import {
 	DisconnectDialog,
 	DisconnectUserDialog,
 	getProtectedOwnerConfirmationCopy,
+	getRegistrationErrorDisplay,
 	getTracksIdentity,
 	initializeTracksIdentity,
 	ProtectedOwnerConfirmation,
@@ -50,6 +51,7 @@ import {
 } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { getAccountSections } from './account-sections.mjs';
+import { createRequestError, getConnectErrorDisplay } from './connect-error.mjs';
 
 const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
@@ -211,6 +213,7 @@ function useCardConnection() {
  * Resolves with the parsed JSON body (or null if there is no body), and
  * throws an Error whose message is the server-provided message — falling
  * back to `fallbackError` — for both non-OK responses and network failures.
+ * For a non-OK response, the error's `response` is the parsed body.
  *
  * @param {string} endpoint                - REST path relative to apiRoot.
  * @param {object} [options]               - Request options.
@@ -237,7 +240,7 @@ async function apiRequest( endpoint, { method = 'GET', body = null, fallbackErro
 
 	if ( ! response.ok ) {
 		const errBody = await response.json().catch( () => null );
-		throw new Error( errBody?.message || errorMessage );
+		throw createRequestError( errBody, errorMessage );
 	}
 
 	// Some endpoints (e.g. disconnect) return an empty body on success; treat
@@ -370,11 +373,12 @@ function focusWhenReady( element ) {
  * Inline error notice with an optional dismiss button.
  *
  * @param {object}        props           - Component props.
- * @param {string}        props.message   - Error message text.
+ * @param {*}             props.message   - Error message.
+ * @param {*}             props.detail    - Optional second line, such as the underlying cURL error.
  * @param {Function|null} props.onDismiss - Callback to clear the error; omit for non-dismissible.
  * @return {object} React element.
  */
-function ErrorNotice( { message, onDismiss = null } ) {
+function ErrorNotice( { message, detail = null, onDismiss = null } ) {
 	return createElement(
 		Notice,
 		{
@@ -383,7 +387,8 @@ function ErrorNotice( { message, onDismiss = null } ) {
 			onRemove: onDismiss || undefined,
 			className: 'jetpack-connector__notice',
 		},
-		message
+		message,
+		detail ? createElement( 'p', { className: 'jetpack-connector__notice-detail' }, detail ) : null
 	);
 }
 
@@ -1829,7 +1834,9 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		initializeTracksIdentity( currentUser );
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- re-identify only when the identity changes.
 	}, [ tracksIdentity.ID, tracksIdentity.login ] );
-	const [ connectError, setConnectError ] = useState( data.authError || null );
+	const [ connectError, setConnectError ] = useState(
+		data.authError ? { message: data.authError, detail: null } : null
+	);
 	const errorNotice = useConnectionErrorNotice( {
 		trackingContext: 'connectors',
 		reconnectRedirectUrl: connectorsUrl,
@@ -1861,7 +1868,11 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			await startConnectionFlow( isSiteRegistered );
 		} catch ( err ) {
 			setConnectError(
-				err?.message || __( 'An error occurred. Please try again.', 'jetpack-connection' )
+				getConnectErrorDisplay(
+					err,
+					getRegistrationErrorDisplay,
+					__( 'An error occurred. Please try again.', 'jetpack-connection' )
+				)
 			);
 			setIsConnecting( false );
 		}
@@ -1979,7 +1990,8 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		expandedContent,
 		connectError
 			? createElement( ErrorNotice, {
-					message: connectError,
+					message: connectError.message,
+					detail: connectError.detail,
 					onDismiss: () => setConnectError( null ),
 				} )
 			: null,
