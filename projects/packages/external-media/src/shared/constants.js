@@ -1,5 +1,3 @@
-import { __ } from '@wordpress/i18n';
-
 export const SOURCE_WORDPRESS = 'wordpress';
 export const SOURCE_GOOGLE_PHOTOS = 'google_photos';
 export const SOURCE_OPENVERSE = 'openverse';
@@ -12,17 +10,6 @@ export const SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK =
 	'jetpack_ai_general_purpose_image_for_block';
 
 export const PATH_RECENT = 'recent';
-export const PATH_ROOT = '/';
-export const PATH_OPTIONS = [
-	{
-		value: PATH_RECENT,
-		label: __( 'Photos', 'jetpack-external-media' ),
-	},
-	{
-		value: PATH_ROOT,
-		label: __( 'Albums', 'jetpack-external-media' ),
-	},
-];
 export const GOOGLE_PHOTOS_PICKER_SESSION = 'google_photos_picker_session';
 export const PEXELS_EXAMPLE_QUERIES = [
 	'mountain',

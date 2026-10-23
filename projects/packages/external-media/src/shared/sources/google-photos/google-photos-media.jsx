@@ -1,12 +1,11 @@
-import { Button, SelectControl } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { SOURCE_GOOGLE_PHOTOS, PATH_RECENT, PATH_ROOT, PATH_OPTIONS } from '../../constants';
+import { SOURCE_GOOGLE_PHOTOS } from '../../constants';
 import MediaBrowser from '../../media-browser';
 import { MediaSource } from '../../media-service/types';
 import { getExternalMediaApiUrl } from '../api';
-import Breadcrumbs from './breadcrumbs';
 import GooglePhotosAccount from './google-photos-account';
 
 const isImageOnly = allowed => allowed && allowed.length === 1 && allowed[ 0 ] === 'image';
@@ -102,29 +101,6 @@ function GooglePhotosMedia( props ) {
 	return (
 		<div className={ clsx( className, 'jetpack-external-media-wrapper__google' ) }>
 			<div className="jetpack-external-media-header__view">
-				{ ! pickerFeatureEnabled && (
-					<>
-						{
-							<SelectControl
-								className="jetpack-external-media-header__select"
-								label={ __( 'View', 'jetpack-external-media' ) }
-								value={ path.ID !== PATH_RECENT ? PATH_ROOT : PATH_RECENT }
-								disabled={ isLoading || isCopying }
-								options={ PATH_OPTIONS }
-								onChange={ setPath }
-								__nextHasNoMarginBottom={ true }
-								__next40pxDefaultSize={ true }
-							/>
-						}
-
-						<div className="jetpack-external-media-header__filter">
-							{ path.ID !== PATH_RECENT && path.ID !== PATH_ROOT && (
-								<Breadcrumbs path={ path } setPath={ setPath } />
-							) }
-						</div>
-					</>
-				) }
-
 				{ pickerFeatureEnabled && ! isLoading && (
 					<div className="jetpack-external-media-header__change-selection">
 						<Button
