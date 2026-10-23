@@ -23,6 +23,33 @@ const MAX_FIX_POLLS = 100;
 const MAX_MISSED_POLLS = 3;
 // Requests a bulk action keeps in flight at once, so a large selection doesn't flood the site.
 const BULK_CONCURRENCY = 5;
+let bulkRequests = 0;
+const bulkQueue: Array< () => void > = [];
+
+/**
+ * Send one of a bulk action's requests once fewer than BULK_CONCURRENCY are in flight.
+ *
+ * @param send - Sends the request.
+ * @return The request's promise.
+ */
+async function throttled< T >( send: () => Promise< T > ): Promise< T > {
+	if ( bulkRequests < BULK_CONCURRENCY ) {
+		bulkRequests++;
+	} else {
+		// A finishing request hands its slot straight over, so the count never overshoots.
+		await new Promise< void >( resolve => bulkQueue.push( resolve ) );
+	}
+	try {
+		return await send();
+	} finally {
+		const next = bulkQueue.shift();
+		if ( next ) {
+			next();
+		} else {
+			bulkRequests--;
+		}
+	}
+}
 
 // One id per threat, so its snackbar replaces its last ("Ignoring…" with "ignored") but not another threat's.
 const noticeId = ( threat: ScanThreat ) => `jetpack-protect-threat-action-${ threat.id }`;
@@ -163,24 +190,20 @@ export function loadIgnored(): Promise< void > {
 /**
  * Ignore or unignore a threat, moving it between the active and ignored lists, with Undo.
  *
- * @param threat  - The threat.
- * @param ignore  - True to ignore, false to unignore.
- * @param open    - Opens the threat in the inspector, from the notice while it runs.
- * @param notices - False when a bulk action reports for the whole batch instead.
+ * @param threat - The threat.
+ * @param ignore - True to ignore, false to unignore.
+ * @param open   - Opens the threat in the inspector, from the notice while it runs.
+ * @param batch  - Part of a bulk action, which marked the threat busy and reports for the batch.
  * @return Resolves to whether it worked, once done or once the error is shown.
  */
 function setIgnored(
 	threat: ScanThreat,
 	ignore: boolean,
 	open?: OpenThreat,
-	notices = true
+	batch = false
 ): Promise< boolean > {
-	if ( isBusy( threat.id ) ) {
-		return Promise.resolve( false );
-	}
-	setBusy( threat.id, ignore ? 'ignoring' : 'unignoring' );
-	if ( ! notices ) {
-		return request( threat, ignore ).then(
+	if ( batch ) {
+		return throttled( () => request( threat, ignore ) ).then(
 			() => true,
 			() => {
 				setBusy( threat.id );
@@ -188,6 +211,10 @@ function setIgnored(
 			}
 		);
 	}
+	if ( isBusy( threat.id ) ) {
+		return Promise.resolve( false );
+	}
+	setBusy( threat.id, ignore ? 'ignoring' : 'unignoring' );
 	notifyStarted(
 		threat,
 		ignore
@@ -258,64 +285,73 @@ export const ignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
 export const unignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
 	setIgnored( threat, false, open );
 
-/** How a fix ended; `pending` when Jetpack stopped checking before Scan finished. */
+/** How a fix ended; `pending` while it may still be running, here or on WordPress.com. */
 export type FixResult = 'fixed' | 'failed' | 'pending';
+
+// A client error says the request itself is wrong, so checking again won't help.
+const isClientError = ( e: unknown ) => {
+	const status = ( e as { data?: { status?: number } } )?.data?.status;
+	return !! status && status >= 400 && status < 500;
+};
 
 /**
  * Ask Scan to fix a threat, then follow the fix until it finishes.
  *
- * @param threat  - The threat.
- * @param open    - Opens the threat in the inspector, from the notice while it runs.
- * @param notices - False when a bulk action reports for the whole batch instead.
- * @return Resolves to how the fix ended.
+ * @param threat - The threat.
+ * @param open   - Opens the threat in the inspector, from the notice while it runs.
+ * @param batch  - Part of a bulk action, which marked the threat busy and reports for the batch.
+ * @return Resolves to how the fix ended; `pending` for a threat already being acted on.
  */
 export async function fixThreat(
 	threat: ScanThreat,
 	open?: OpenThreat,
-	notices = true
+	batch = false
 ): Promise< FixResult > {
 	const { id } = threat;
-	if ( isBusy( id ) ) {
-		return 'pending';
-	}
 	const end = ( result: FixResult, e: unknown, template: Template ): FixResult => {
-		if ( notices ) {
-			fail( threat, e, template );
-		} else {
+		if ( batch ) {
 			setBusy( id );
+		} else {
+			fail( threat, e, template );
 		}
 		return result;
 	};
-	setBusy( id, 'fixing' );
-	if ( notices ) {
+	const send = ( options: { path: string; method?: string } ) =>
+		batch ? throttled( () => apiFetch< FixStatus >( options ) ) : apiFetch< FixStatus >( options );
+	if ( ! batch ) {
+		if ( isBusy( id ) ) {
+			return 'pending';
+		}
+		setBusy( id, 'fixing' );
 		/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 		notifyStarted( threat, __( 'Fixing the threat in %s…', 'jetpack-protect-pkg' ), open );
 	}
+	/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+	const takingLonger = __(
+		'The fix for the threat in %s is taking longer than expected. Check back in a few minutes.',
+		'jetpack-protect-pkg'
+	);
 
 	try {
 		let apply = startReportRead();
-		let result = await apiFetch< FixStatus >( { path: threatPath( id, 'fix' ), method: 'POST' } );
+		let result = await send( { path: threatPath( id, 'fix' ), method: 'POST' } );
 		let missed = 0;
 		for ( let polls = 0; result.status !== 'fixed' && result.status !== 'not_fixed'; polls++ ) {
 			if ( polls >= MAX_FIX_POLLS ) {
-				return end(
-					'pending',
-					null,
-					/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
-					__(
-						'The fix for the threat in %s is taking longer than expected. Check back in a few minutes.',
-						'jetpack-protect-pkg'
-					)
-				);
+				return end( 'pending', null, takingLonger );
 			}
 			await new Promise( resolve => setTimeout( resolve, FIX_POLL_INTERVAL ) );
 			apply = startReportRead();
 			try {
-				result = await apiFetch< FixStatus >( { path: threatPath( id, 'fix' ) } );
+				result = await send( { path: threatPath( id, 'fix' ) } );
 				missed = 0;
 			} catch ( e ) {
-				if ( ++missed >= MAX_MISSED_POLLS ) {
+				if ( isClientError( e ) ) {
 					throw e;
+				}
+				// The fix was started, so losing track of it doesn't mean it failed.
+				if ( ++missed >= MAX_MISSED_POLLS ) {
+					return end( 'pending', null, takingLonger );
 				}
 			}
 		}
@@ -330,7 +366,7 @@ export async function fixThreat(
 				threats: current.threats?.filter( otherThan( threat ) ),
 			} ) );
 			setBusy( id );
-			if ( notices ) {
+			if ( ! batch ) {
 				/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 				notify( threat, __( 'Fixed the threat in %s.', 'jetpack-protect-pkg' ) );
 			}
@@ -353,26 +389,6 @@ export async function fixThreat(
 			__( 'The fix for the threat in %s couldn’t be started.', 'jetpack-protect-pkg' )
 		);
 	}
-}
-
-/**
- * Run a bulk action on each item, a few at a time.
- *
- * @param items - The items.
- * @param run   - The action for one item.
- * @return Resolves to each item's result, in order.
- */
-async function runLimited< T, R >( items: T[], run: ( item: T ) => Promise< R > ): Promise< R[] > {
-	const results: R[] = [];
-	let next = 0;
-	const worker = async () => {
-		while ( next < items.length ) {
-			const index = next++;
-			results[ index ] = await run( items[ index ] );
-		}
-	};
-	await Promise.all( Array.from( { length: Math.min( BULK_CONCURRENCY, items.length ) }, worker ) );
-	return results;
 }
 
 // Each bulk action gets its own snackbar, so a second batch doesn't replace the first's result.
@@ -402,7 +418,8 @@ export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Pr
 		),
 		'info'
 	);
-	const results = await runLimited( idle, threat => fixThreat( threat, open, false ) );
+	idle.forEach( threat => setBusy( threat.id, 'fixing' ) );
+	const results = await Promise.all( idle.map( threat => fixThreat( threat, open, true ) ) );
 	const count = ( result: FixResult ) => results.filter( item => item === result ).length;
 	const [ fixed, pending, failed ] = [ count( 'fixed' ), count( 'pending' ), count( 'failed' ) ];
 	if ( fixed === total ) {
@@ -490,7 +507,10 @@ async function setManyIgnored(
 		: /* translators: %d is a number of threats, two or more. */
 			_n( 'Unignoring %d threat…', 'Unignoring %d threats…', total, 'jetpack-protect-pkg' );
 	showNotice( id, sprintf( started, total ), 'info' );
-	const results = await runLimited( idle, threat => setIgnored( threat, ignore, open, false ) );
+	idle.forEach( threat => setBusy( threat.id, ignore ? 'ignoring' : 'unignoring' ) );
+	const results = await Promise.all(
+		idle.map( threat => setIgnored( threat, ignore, open, true ) )
+	);
 	const done = idle.filter( ( _, index ) => results[ index ] );
 	const undo: NoticeAction = {
 		label: __( 'Undo', 'jetpack-protect-pkg' ),

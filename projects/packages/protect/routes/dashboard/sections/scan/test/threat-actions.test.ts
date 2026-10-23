@@ -103,6 +103,10 @@ describe( 'bulk actions', () => {
 			.getNotices()
 			.filter( notice => notice.id.includes( 'bulk' ) );
 
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'reports a batch in one snackbar, and Undo unignores only the threats that were ignored', async () => {
 		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
 		const [ a, b, c ] = [ fileThreat( 31 ), fileThreat( 32 ), fileThreat( 33 ) ];
@@ -141,10 +145,22 @@ describe( 'bulk actions', () => {
 		] );
 	} );
 
-	// Each threat's fix answers with these statuses in turn, repeating the last; `reject` fails that check.
+	// Each threat's fix answers with these statuses in turn, repeating the last; `reject` and `missing` fail it.
 	it.each( [
 		[ 'success', 'Fixed 2 threats.', [ 'fixed' ], [ 'fixed' ] ],
 		[ 'success', 'Fixed 2 threats.', [ 'in_progress', 'reject', 'fixed' ], [ 'fixed' ] ],
+		[
+			'info',
+			'Fixed 1 of 2 threats. 1 fix is taking longer than expected. Check back in a few minutes.',
+			[ 'in_progress', 'reject' ],
+			[ 'fixed' ],
+		],
+		[
+			'error',
+			'Fixed 1 of 2 threats. 1 threat couldn’t be fixed. Fix it on its own to see why.',
+			[ 'in_progress', 'missing' ],
+			[ 'fixed' ],
+		],
 		[
 			'error',
 			'Fixed 1 of 2 threats. 1 threat couldn’t be fixed. Fix it on its own to see why.',
@@ -170,15 +186,36 @@ describe( 'bulk actions', () => {
 		mockApiFetch.mockReset().mockImplementation( ( { path } ) => {
 			const queue = answers[ ids.findIndex( id => path.includes( `/${ id }/` ) ) ];
 			const answer = queue.length > 1 ? queue.shift() : queue[ 0 ];
-			return answer === 'reject' ? Promise.reject( {} ) : Promise.resolve( { status: answer } );
+			if ( answer === 'reject' || answer === 'missing' ) {
+				return Promise.reject( answer === 'missing' ? { data: { status: 404 } } : {} );
+			}
+			return Promise.resolve( { status: answer } );
 		} );
 
 		const done = fixThreats( ids.map( fileThreat ) );
 		await jest.runAllTimersAsync();
 		await done;
-		jest.useRealTimers();
 
 		expect( bulkNotices() ).toEqual( [ expect.objectContaining( { status, content } ) ] );
+	} );
+
+	it( 'keeps five requests in flight, and every queued threat busy until its turn', async () => {
+		const threats = [ 51, 52, 53, 54, 55, 56, 57 ].map( fileThreat );
+		setScan( current => ( { ...current, threats, ignored: [] } ) );
+		const pending: Array< () => void > = [];
+		mockApiFetch
+			.mockReset()
+			.mockImplementation( () => new Promise( resolve => pending.push( () => resolve( {} ) ) ) );
+
+		const done = ignoreThreats( threats );
+		await act( () => ignoreThreat( threats[ 6 ] ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 5 );
+		while ( pending.length ) {
+			await act( async () => pending.shift()?.() );
+		}
+		await act( () => done );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 7 );
 	} );
 } );
 

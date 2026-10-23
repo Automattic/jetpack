@@ -158,6 +158,20 @@ describe( 'ScanCard threat list', () => {
 		expect( screen.queryByText( /selected/ ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'keeps the other checked rows when one row is ignored from its menu', async () => {
+		const user = userEvent.setup();
+		const other = { ...fixable, id: 6, title: 'Malicious code found in file: other.php' };
+		renderCard( { hasPlan: true, threats: [ fixable, other ] } );
+		await user.click( await screen.findByRole( 'checkbox', { name: 'Select all' } ) );
+		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
+
+		const [ menu ] = screen.getAllByRole( 'button', { name: 'Actions' } );
+		await user.click( menu );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Ignore' } ) );
+
+		expect( screen.getByText( '1 Item selected' ) ).toBeInTheDocument();
+	} );
+
 	it( 'collapses the list from its heading', async () => {
 		const user = userEvent.setup();
 		renderCard( { threats: [ fixable ] } );
