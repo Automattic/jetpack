@@ -30,3 +30,9 @@
 	width: fit-content;
 	margin-block-start: 10px;
 }
+
+/* Between core's tabs and its Feature Filter button. */
+.wpcom-themes-tab__pricing {
+	margin-inline: 10px;
+	vertical-align: middle;
+}
