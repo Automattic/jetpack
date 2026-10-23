@@ -14,7 +14,6 @@ use Automattic\Jetpack\Protect\Dashboard_Threats;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
-use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -94,7 +93,7 @@ class Scan implements Dashboard_Section {
 			array(
 				'hasPlan' => $has_plan,
 				'url'     => $has_plan
-					? Redirect::get_url( 'my-jetpack-manage-scan' )
+					? Dashboard::get_scan_manage_url()
 					: Dashboard::get_scan_upgrade_url(),
 			),
 			$has_plan ? array() : array(

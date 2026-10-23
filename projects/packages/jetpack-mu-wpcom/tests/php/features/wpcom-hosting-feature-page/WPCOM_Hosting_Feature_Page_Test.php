@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Feature_Upgrades;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Hosting_Feature_Page;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
 use Brain\Monkey\Functions;
@@ -309,42 +310,44 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * My Jetpack's Backup upgrade on WoA goes to the WordPress.com plans, and nothing else's does.
+	 * A WordPress.com feature's upgrade goes to the plans and its manage link to WordPress.com; other features keep Jetpack's.
 	 *
-	 * @dataProvider provide_my_jetpack_upgrades
+	 * @dataProvider provide_feature_upgrades
 	 *
-	 * @param string $slug      The feature slug.
-	 * @param bool   $included  Whether the site already pays for it.
-	 * @param bool   $to_wpcom  Whether the upgrade should go to the WordPress.com plans.
+	 * @param string      $slug     The My Jetpack feature slug.
+	 * @param bool        $included Whether the site already has it.
+	 * @param string|null $expected How `manage_url` should end (`%host%` is the site's), `plans` for the plans page, or null for Jetpack's own.
 	 */
-	#[DataProvider( 'provide_my_jetpack_upgrades' )]
-	public function test_my_jetpack_backup_upgrade_goes_to_wpcom_plans( $slug, $included, $to_wpcom ) {
+	#[DataProvider( 'provide_feature_upgrades' )]
+	public function test_feature_upgrade_goes_to_wpcom( $slug, $included, $expected ) {
 		$jetpack = array(
-			'path' => '/add-backup',
-			'name' => 'Jetpack VaultPress Backup',
+			'path' => '/add-' . $slug,
+			'name' => 'Jetpack',
 		);
 
-		$upgrade = WPCOM_Backup::filter_my_jetpack_feature_upgrade( $jetpack, $slug, $included );
+		$upgrade = WPCOM_Feature_Upgrades::filter_feature_upgrade( $jetpack, $slug, $included );
 
-		if ( ! $to_wpcom ) {
+		if ( null === $expected ) {
 			$this->assertSame( $jetpack, $upgrade );
-			return;
+		} elseif ( $included ) {
+			$this->assertStringEndsWith( str_replace( '%host%', (string) wp_parse_url( home_url(), PHP_URL_HOST ), $expected ), $upgrade['manage_url'] );
+		} else {
+			$this->assertSame( WPCOM_Feature_Upgrades::get_plans_url( wpcom_get_site_slug() ), $upgrade['url'] );
 		}
-
-		$this->assertStringStartsWith( 'https://wordpress.com/plans/', $upgrade['url'] );
-		$this->assertStringContainsString( 'plan=business-bundle', $upgrade['url'] );
 	}
 
 	/**
-	 * Data provider for test_my_jetpack_backup_upgrade_goes_to_wpcom_plans.
+	 * Data provider for test_feature_upgrade_goes_to_wpcom.
 	 *
 	 * @return array
 	 */
-	public static function provide_my_jetpack_upgrades() {
+	public static function provide_feature_upgrades() {
 		return array(
-			'backup, no plan'  => array( 'backup', false, true ),
-			'backup, has plan' => array( 'backup', true, false ),
-			'another feature'  => array( 'boost', false, false ),
+			'backup, no plan'  => array( 'backup', false, 'plans' ),
+			'scan, no plan'    => array( 'protect-dashboard', false, 'plans' ),
+			'backup, has plan' => array( 'backup', true, '/wp-admin/admin.php?page=jetpack-backup' ),
+			'scan, has plan'   => array( 'protect-dashboard', true, 'https://wordpress.com/scan/%host%' ),
+			'another feature'  => array( 'boost', false, null ),
 		);
 	}
 
