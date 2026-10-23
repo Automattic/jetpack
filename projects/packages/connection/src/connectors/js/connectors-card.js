@@ -1928,7 +1928,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		isFirstConnection && ! isOfflineMode && ! isConnected && ! isSiteRegistered
 			? createElement( TermsOfService, {
 					agreeButtonLabel: connectLabel,
-					variant: 'body-extra-small',
+					variant: 'body-sm',
 					className: 'jetpack-connector__tos-notice',
 				} )
 			: null
