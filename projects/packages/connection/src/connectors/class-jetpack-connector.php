@@ -92,7 +92,7 @@ class Jetpack_Connector {
 			'wordpress_com',
 			array(
 				'name'           => 'Jetpack Connection',
-				'description'    => __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' ),
+				'description'    => __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com cloud services.', 'jetpack-connection' ),
 				'type'           => 'cloud_service',
 				'logo_url'       => static::get_connector_logo_url(),
 				'authentication' => array(
@@ -208,7 +208,7 @@ class Jetpack_Connector {
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']          = static::get_connectors_page_path();
 		$data['connectorName']        = 'Jetpack Connection';
-		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' );
+		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com cloud services.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = static::get_connector_logo_url();
 
 		$connected_plugins   = $manager->get_connected_plugins();

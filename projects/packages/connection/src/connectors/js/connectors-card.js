@@ -23,10 +23,12 @@ import {
 	CONNECTION_STORE_ID,
 	DisconnectDialog,
 	DisconnectUserDialog,
+	getProtectedOwnerConfirmationCopy,
 	getTracksIdentity,
 	initializeTracksIdentity,
 	ProtectedOwnerConfirmation,
 	ProtectedOwnerRelease,
+	TermsOfService,
 	TransferConnectionOwnership,
 } from '@automattic/jetpack-connection';
 import * as components from '@wordpress/components';
@@ -208,7 +210,8 @@ function useCardConnection() {
  * @return {Promise<object|string|null>} Parsed JSON response.
  */
 async function apiRequest( endpoint, { method = 'GET', body = null, fallbackError = '' } = {} ) {
-	const errorMessage = fallbackError || __( 'Something went wrong.', 'jetpack-connection' );
+	const errorMessage =
+		fallbackError || __( 'An error occurred. Please try again.', 'jetpack-connection' );
 	const options = { method, headers: { 'X-WP-Nonce': apiNonce } };
 	if ( body ) {
 		options.headers[ 'Content-Type' ] = 'application/json';
@@ -370,38 +373,6 @@ function ErrorNotice( { message, onDismiss = null } ) {
 			onRemove: onDismiss || undefined,
 			className: 'jetpack-connector__notice',
 		},
-		message
-	);
-}
-
-/**
- * Terms of Service and Privacy Policy notice for first-time connections.
- *
- * @return {object} React element.
- */
-function TosNotice() {
-	const message = createInterpolateElement(
-		__(
-			'By connecting, you agree to our <tos>Terms of Service</tos> and have read our <privacy>Privacy Policy</privacy>.',
-			'jetpack-connection'
-		),
-		{
-			tos: createElement( 'a', {
-				href: 'https://wordpress.com/tos/',
-				target: '_blank',
-				rel: 'noopener noreferrer',
-			} ),
-			privacy: createElement( 'a', {
-				href: 'https://automattic.com/privacy/',
-				target: '_blank',
-				rel: 'noopener noreferrer',
-			} ),
-		}
-	);
-
-	return createElement(
-		Text,
-		{ variant: 'muted', size: 12, className: 'jetpack-connector__tos-notice' },
 		message
 	);
 }
@@ -601,9 +572,9 @@ function SectionHeading( { title, showShield = false } ) {
  * @return {object} React element.
  */
 function ProtectedOwnerShield() {
-	const notice = protectedOwnerState()?.anchored
-		? __( 'Ownership is locked to the confirmed owner.', 'jetpack-connection' )
-		: __( 'Ownership will be locked once an owner is confirmed.', 'jetpack-connection' );
+	// Shared with the confirmation dialog, so the badge and the dialog describe one lock.
+	const { lockedNotice, pendingLockNotice } = getProtectedOwnerConfirmationCopy();
+	const notice = protectedOwnerState()?.anchored ? lockedNotice : pendingLockNotice;
 	const icon = createElement( 'span', {
 		className: 'dashicons dashicons-shield jetpack-connector__protected-owner-shield',
 		role: 'img',
@@ -1843,12 +1814,18 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			await startConnectionFlow( isSiteRegistered );
 		} catch ( err ) {
 			setConnectError(
-				err?.message || __( 'Connection failed. Please try again.', 'jetpack-connection' )
+				err?.message || __( 'An error occurred. Please try again.', 'jetpack-connection' )
 			);
 			setIsConnecting( false );
 		}
 	};
 
+	// Named once: the button uses it, and the consent notice below names the button.
+	const connectLabel = __(
+		'Connect',
+		'jetpack-connection',
+		/* dummy arg to avoid bad minification */ 0
+	);
 	let actionArea;
 	let expandedContent = null;
 
@@ -1920,9 +1897,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 				isBusy: isConnecting,
 				disabled: isConnecting || isOfflineMode,
 			},
-			isConnecting
-				? __( 'Connecting…', 'jetpack-connection' )
-				: __( 'Connect', 'jetpack-connection', /* dummy arg to avoid bad minification */ 0 )
+			isConnecting ? __( 'Connecting…', 'jetpack-connection' ) : connectLabel
 		);
 	}
 
@@ -1951,7 +1926,11 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			: null,
 		isOfflineMode && ! isConnected && ! isSiteRegistered ? createElement( OfflineNotice ) : null,
 		isFirstConnection && ! isOfflineMode && ! isConnected && ! isSiteRegistered
-			? createElement( TosNotice )
+			? createElement( TermsOfService, {
+					agreeButtonLabel: connectLabel,
+					variant: 'body-extra-small',
+					className: 'jetpack-connector__tos-notice',
+				} )
 			: null
 	);
 }
@@ -1962,7 +1941,7 @@ registerConnector( 'wordpress_com', {
 	description:
 		data.connectorDescription ??
 		__(
-			'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.',
+			'Enhanced functionality for Jetpack and WooCommerce with WordPress.com cloud services.',
 			'jetpack-connection'
 		),
 	logoUrl: data.connectorLogoUrl ?? '',
