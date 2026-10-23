@@ -14,12 +14,20 @@ use Automattic\Jetpack\Protect_Status\Scan_Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
+use WP_REST_Request;
 
 /**
  * @covers \Automattic\Jetpack\Protect\Sections\Scan
  */
 #[CoversClass( Scan::class )]
 class Scan_Section_Test extends BaseTestCase {
+
+	/**
+	 * The query filter flag_option_row() adds, removed after each test.
+	 *
+	 * @var callable|null
+	 */
+	private static $row_lookup;
 
 	/**
 	 * Release the scan request lock between tests.
@@ -37,6 +45,10 @@ class Scan_Section_Test extends BaseTestCase {
 		\Jetpack_Options::delete_option( 'id' );
 		delete_option( Scan_Status::OPTION_NAME );
 		Scan_Status::$status = null;
+		if ( self::$row_lookup ) {
+			remove_filter( 'wordbless_wpdb_query_results', self::$row_lookup );
+			self::$row_lookup = null;
+		}
 		parent::tear_down();
 	}
 
@@ -529,12 +541,13 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that deleting a flagged option removes it and lists its threat as fixed in History.
+	 * Report a threat in option row 315, `_wpc_ak`, and answer its lookup the way MySQL would, as WorDBless has no tables.
+	 *
+	 * @param string $value The option's value.
+	 * @return WP_REST_Request A request naming the threat.
 	 */
-	public function test_delete_threat_row_deletes_the_option_and_marks_the_threat_fixed() {
+	private static function flag_option_row( $value ) {
 		global $wpdb;
-		add_option( '_wpc_ak', 'malicious' );
-		set_transient( Scan::HISTORY_CACHE, array(), MINUTE_IN_SECONDS );
 		Scan_Status::$status = new Status_Model(
 			array(
 				'threats' => array(
@@ -552,22 +565,40 @@ class Scan_Section_Test extends BaseTestCase {
 				),
 			)
 		);
-		// WorDBless has no tables, so answer the row lookup the way MySQL would.
-		$lookup = function ( $results, $query ) {
-			return false !== strpos( $query, '`option_id` = \'315\'' ) ? array(
-				(object) array(
-					'option_id'   => '315',
-					'option_name' => '_wpc_ak',
-				),
-			) : $results;
+		self::$row_lookup    = function ( $results, $query ) use ( $value ) {
+				$row = array(
+					'option_id'    => '315',
+					'option_name'  => '_wpc_ak',
+					'option_value' => $value,
+				);
+				return false !== strpos( $query, '`option_id` = \'315\'' ) ? array( (object) $row ) : $results;
 		};
-		add_filter( 'wordbless_wpdb_query_results', $lookup, 10, 2 );
+		add_filter( 'wordbless_wpdb_query_results', self::$row_lookup, 10, 2 );
 
-		$request = new \WP_REST_Request( 'DELETE', '/jetpack/v4/protect-dashboard/scan/threats/7/row' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/protect-dashboard/scan/threats/7/row' );
 		$request->set_url_params( array( 'id' => '7' ) );
-		$response = Scan::delete_threat_row( $request );
+		return $request;
+	}
 
-		remove_filter( 'wordbless_wpdb_query_results', $lookup, 10 );
+	/**
+	 * Test that a long value is cut by characters, so a multibyte one stays valid UTF-8 for the JSON response.
+	 */
+	public function test_get_threat_row_cuts_long_values_by_characters() {
+		$response = Scan::get_threat_row( self::flag_option_row( str_repeat( 'é', Scan::ROW_VALUE_LIMIT + 1 ) ) );
+
+		$this->assertSame( str_repeat( 'é', Scan::ROW_VALUE_LIMIT ) . '…', $response['columns']->option_value );
+		$this->assertTrue( $response['canDelete'] );
+	}
+
+	/**
+	 * Test that deleting a flagged option removes it and lists its threat as fixed in History.
+	 */
+	public function test_delete_threat_row_deletes_the_option_and_marks_the_threat_fixed() {
+		add_option( '_wpc_ak', 'malicious' );
+		set_transient( Scan::HISTORY_CACHE, array(), MINUTE_IN_SECONDS );
+
+		$response = Scan::delete_threat_row( self::flag_option_row( 'malicious' ) );
+
 		$this->assertFalse( get_option( '_wpc_ak' ) );
 		$this->assertSame( 'fixed', $response['threat']['status'] );
 		$this->assertSame( array( 'fixed' ), array_column( Scan::get_history_threats(), 'status' ) );
