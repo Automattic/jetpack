@@ -93,15 +93,16 @@ describe( 'chartIntervalAttributeField with no extension', () => {
 		expect( onChange ).toHaveBeenCalledWith( { chartInterval: 'week' } );
 	} );
 
-	it( 'offers only the buckets its widget lists', () => {
+	it( 'offers only the buckets its widget lists', async () => {
+		const user = userEvent.setup();
 		mockSearch = MULTI_YEAR;
 
 		renderControl();
+		await user.click( screen.getByRole( 'button', { name: 'By months' } ) );
 
-		expect( screen.getByRole( 'button', { name: 'Chart interval: By months' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'By months',
+		] );
 	} );
 
 	it( 'shows a saved bucket the range rules out as the nearest one, without rewriting it', () => {
@@ -109,10 +110,7 @@ describe( 'chartIntervalAttributeField with no extension', () => {
 
 		const { onChange } = renderControl( { chartInterval: 'week' } );
 
-		expect( screen.getByRole( 'button', { name: 'Chart interval: By months' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
+		expect( screen.getByRole( 'button', { name: 'By months' } ) ).toBeInTheDocument();
 		expect( onChange ).not.toHaveBeenCalled();
 	} );
 
@@ -146,10 +144,7 @@ describe( 'chartIntervalAttributeField with no extension', () => {
 	it( "reads a widget's own range before the page's", () => {
 		renderControl( { reportParams: MULTI_YEAR } as Attributes );
 
-		expect( screen.getByRole( 'button', { name: 'Chart interval: By months' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
+		expect( screen.getByRole( 'button', { name: 'By months' } ) ).toBeInTheDocument();
 	} );
 } );
 
