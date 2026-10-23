@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
-use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -44,13 +43,11 @@ class Jetpack_Protect_Dashboard_Feature_Flags {
 	/**
 	 * Drop the module from the available list while the flag is off, which also keeps it from loading.
 	 *
-	 * WordPress.com sites keep their current security pages until JETPACK-3035, so it stays off there too.
-	 *
 	 * @param array $modules Available modules, keyed by slug.
 	 * @return array
 	 */
 	public static function filter_available_modules( $modules ) {
-		if ( ! Feature_Flags::is_enabled( self::DASHBOARD ) || ( new Host() )->is_wpcom_platform() ) {
+		if ( ! Feature_Flags::is_enabled( self::DASHBOARD ) ) {
 			unset( $modules[ self::MODULE ] );
 		}
 		return $modules;
