@@ -364,11 +364,18 @@ describe( 'StudioEditorCutSegment', () => {
 /**
  * Exercise gestures through real session and history reducers.
  *
- * @param props         - Initial editor state.
- * @param props.session - Session before the gesture.
+ * @param props              - Initial editor state.
+ * @param props.session      - Session before the gesture.
+ * @param props.onGestureEnd - Observe gesture completion.
  * @return A stateful overlay and undo control.
  */
-function StatefulOverlay( { session }: { session: EditSession } ) {
+function StatefulOverlay( {
+	session,
+	onGestureEnd,
+}: {
+	session: EditSession;
+	onGestureEnd?: () => void;
+} ) {
 	const [ history, dispatch ] = useReducer(
 		withHistory( editSessionReducer ),
 		createHistory( session )
@@ -381,6 +388,7 @@ function StatefulOverlay( { session }: { session: EditSession } ) {
 				pxPerMs={ PX_PER_MS }
 				contentRef={ { current: document.createElement( 'div' ) } }
 				dispatch={ dispatch }
+				onGestureEnd={ onGestureEnd }
 			/>
 			<button onClick={ () => dispatch( { type: 'UNDO' } ) }>Undo</button>
 		</>
@@ -438,3 +446,64 @@ it( 'focuses a grabbed cut so the document shortcuts can act on it', () => {
 	fireEvent.pointerDown( cut, { button: 0, pointerId: 1, clientX: 500 } );
 	expect( cut ).toHaveFocus();
 } );
+
+it.each( [
+	{
+		name: 'Trim start',
+		initialX: 5,
+		movedX: 205,
+		movedMs: 2000,
+		nextX: 210,
+		finalX: 310,
+		finalMs: 3000,
+		originalMs: 0,
+	},
+	{
+		name: 'Trim end',
+		initialX: 995,
+		movedX: 795,
+		movedMs: 8000,
+		nextX: 790,
+		finalX: 690,
+		finalMs: 7000,
+		originalMs: 10000,
+	},
+] )(
+	'ends $name on capture loss and starts a fresh drag when grabbed again',
+	( { name, initialX, movedX, movedMs, nextX, finalX, finalMs, originalMs } ) => {
+		const onGestureEnd = jest.fn();
+		render(
+			<StatefulOverlay session={ createEditSession( 10000 ) } onGestureEnd={ onGestureEnd } />
+		);
+		const handle = screen.getByRole( 'slider', { name } );
+		const undo = screen.getByRole( 'button', { name: 'Undo' } );
+
+		fireEvent.pointerDown( handle, {
+			button: 0,
+			buttons: 1,
+			pointerId: 1,
+			clientX: initialX,
+			clientY: 50,
+		} );
+		fireEvent.pointerMove( handle, { buttons: 1, pointerId: 1, clientX: movedX, clientY: -50 } );
+		expect( handle ).toHaveValue( movedMs );
+		fireEvent.lostPointerCapture( handle, { pointerId: 1 } );
+		fireEvent.pointerUp( undo, { pointerId: 1 } );
+		expect( onGestureEnd ).toHaveBeenCalledTimes( 1 );
+
+		fireEvent.pointerMove( handle, { pointerId: 1, clientX: nextX } );
+		expect( handle ).toHaveValue( movedMs );
+		fireEvent.pointerDown( handle, { button: 0, buttons: 1, pointerId: 1, clientX: nextX } );
+		expect( handle ).toHaveValue( movedMs );
+		fireEvent.pointerMove( handle, { buttons: 1, pointerId: 1, clientX: finalX } );
+		fireEvent.pointerUp( handle, { pointerId: 1 } );
+		fireEvent.lostPointerCapture( handle, { pointerId: 1 } );
+		expect( onGestureEnd ).toHaveBeenCalledTimes( 2 );
+		expect( handle ).toHaveValue( finalMs );
+
+		fireEvent.click( undo );
+		expect( handle ).toHaveValue( movedMs );
+		fireEvent.click( undo );
+		expect( handle ).toHaveValue( originalMs );
+	}
+);
