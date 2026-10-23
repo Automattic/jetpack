@@ -1,5 +1,6 @@
 /**
- * Covers the Search free tier, bundle offer rollout and the prices shown for each tier.
+ * Covers the Search free tier, which activates the product in place instead of going to the
+ * $0 checkout the other products still use.
  */
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { render, screen } from '@testing-library/react';
