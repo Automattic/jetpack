@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Only let administrators become the connection owner, even when the `jetpack_disconnect_cap` filter grants connection rights to other roles.
