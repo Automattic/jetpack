@@ -5,7 +5,7 @@ import {
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Stack } from '@jetpack-premium-analytics/externals';
+import { JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 import {
 	DashboardWidgetHostProvider,
 	usePeriodHost,
@@ -591,6 +591,8 @@ function Dashboard(): JSX.Element {
 										</SectionTabPanel>
 									) }
 								</DashboardSections>
+
+								<JetpackFooter />
 
 								<WidgetDashboard.Commands />
 

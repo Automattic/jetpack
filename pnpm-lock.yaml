@@ -4145,6 +4145,9 @@ importers:
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
