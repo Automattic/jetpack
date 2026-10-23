@@ -47,8 +47,7 @@ type DateIntervalDropdownProps = {
 
 	/**
 	 * The trigger's tooltip and the menu's name: "Chart interval", plus the active bucket if
-	 * any, by default. An openable trigger is named by its visible bucket; a lone bucket keeps
-	 * this as its accessible name.
+	 * any, by default. The trigger itself is named by its visible bucket.
 	 */
 	label?: string;
 
