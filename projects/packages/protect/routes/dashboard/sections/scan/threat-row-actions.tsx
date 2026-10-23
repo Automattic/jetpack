@@ -12,13 +12,13 @@ type LinkKey = 'update' | 'deactivate' | 'details';
  *
  * @param open   - Opens a threat in the inspector.
  * @param canAct - Whether the site's plan can fix and ignore threats.
- * @param onBulk - Offers Auto-fix and Ignore on selected rows, and runs once either starts.
+ * @param onBulk - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
  * @return The actions.
  */
 export function getThreatRowActions(
 	open: ( item: ScanThreat ) => void,
 	canAct: boolean,
-	onBulk?: () => void
+	onBulk?: ( items: ScanThreat[] ) => void
 ): Action< ScanThreat >[] {
 	const link =
 		( key: LinkKey ) =>
@@ -50,7 +50,7 @@ export function getThreatRowActions(
 			supportsBulk: !! onBulk,
 			// Not awaited: a fix can take minutes, and its snackbar follows it.
 			callback: items => {
-				onBulk?.();
+				onBulk?.( items );
 				fixThreats( items, open );
 			},
 		},
@@ -92,7 +92,7 @@ export function getThreatRowActions(
 			isEligible: item => canAct && item.status !== 'ignored' && item.status !== 'fixed',
 			supportsBulk: !! onBulk,
 			callback: items => {
-				onBulk?.();
+				onBulk?.( items );
 				ignoreThreats( items, open );
 			},
 		},

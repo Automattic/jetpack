@@ -1,8 +1,10 @@
-import { render, screen, within } from '@testing-library/react';
+import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import ScanCard from '../scan-card';
 import { setScan } from '../store';
+import { LEVELS, getLevel } from '../threats-list';
 import type { ScanState } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -143,6 +145,19 @@ describe( 'ScanCard threat list', () => {
 		expect( screen.getByText( 'Critical' ) ).toBeInTheDocument();
 	} );
 
+	it( 'drops threats that leave the list from the selection', async () => {
+		const user = userEvent.setup();
+		const other = { ...fixable, id: 6, title: 'Malicious code found in file: other.php' };
+		renderCard( { hasPlan: true, threats: [ fixable, other ] } );
+		await user.click( await screen.findByRole( 'checkbox', { name: 'Select all' } ) );
+
+		await act( async () => setScan( current => ( { ...current, threats: [ other ] } ) ) );
+		expect( screen.getByText( '1 Item selected' ) ).toBeInTheDocument();
+
+		await act( async () => setScan( current => ( { ...current, threats: [ fixable ] } ) ) );
+		expect( screen.queryByText( /selected/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'collapses the list from its heading', async () => {
 		const user = userEvent.setup();
 		renderCard( { threats: [ fixable ] } );
@@ -153,4 +168,16 @@ describe( 'ScanCard threat list', () => {
 		expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
 		expect( screen.queryByRole( 'table' ) ).not.toBeInTheDocument();
 	} );
+} );
+
+describe( 'Severity filter', () => {
+	it.each( [ undefined, 0, 2, 3, 4, 5, 9 ] )(
+		'puts severity %p in the same level as its badge',
+		severity => {
+			render( <ThreatSeverityBadge severity={ severity } /> );
+			const level = LEVELS.find( item => item.value === getLevel( { id: 1, severity } ) );
+
+			expect( screen.getByText( level?.label ?? '' ) ).toBeInTheDocument();
+		}
+	);
 } );

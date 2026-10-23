@@ -19,6 +19,10 @@ const threatPath = ( id: string | number, action: string ) =>
 // Like the Protect plugin: check a running fix every few seconds, for about five minutes.
 const FIX_POLL_INTERVAL = 3000;
 const MAX_FIX_POLLS = 100;
+// A fix keeps running on WordPress.com, so a few failed checks in a row don't end it.
+const MAX_MISSED_POLLS = 3;
+// Requests a bulk action keeps in flight at once, so a large selection doesn't flood the site.
+const BULK_CONCURRENCY = 5;
 
 // One id per threat, so its snackbar replaces its last ("Ignoring…" with "ignored") but not another threat's.
 const noticeId = ( threat: ScanThreat ) => `jetpack-protect-threat-action-${ threat.id }`;
@@ -254,30 +258,33 @@ export const ignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
 export const unignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
 	setIgnored( threat, false, open );
 
+/** How a fix ended; `pending` when Jetpack stopped checking before Scan finished. */
+export type FixResult = 'fixed' | 'failed' | 'pending';
+
 /**
  * Ask Scan to fix a threat, then follow the fix until it finishes.
  *
  * @param threat  - The threat.
  * @param open    - Opens the threat in the inspector, from the notice while it runs.
  * @param notices - False when a bulk action reports for the whole batch instead.
- * @return Resolves to whether Scan fixed it, once the fix has finished or failed.
+ * @return Resolves to how the fix ended.
  */
 export async function fixThreat(
 	threat: ScanThreat,
 	open?: OpenThreat,
 	notices = true
-): Promise< boolean > {
+): Promise< FixResult > {
 	const { id } = threat;
 	if ( isBusy( id ) ) {
-		return false;
+		return 'pending';
 	}
-	const failed = ( e: unknown, template: Template ) => {
+	const end = ( result: FixResult, e: unknown, template: Template ): FixResult => {
 		if ( notices ) {
 			fail( threat, e, template );
 		} else {
 			setBusy( id );
 		}
-		return false;
+		return result;
 	};
 	setBusy( id, 'fixing' );
 	if ( notices ) {
@@ -288,9 +295,11 @@ export async function fixThreat(
 	try {
 		let apply = startReportRead();
 		let result = await apiFetch< FixStatus >( { path: threatPath( id, 'fix' ), method: 'POST' } );
+		let missed = 0;
 		for ( let polls = 0; result.status !== 'fixed' && result.status !== 'not_fixed'; polls++ ) {
 			if ( polls >= MAX_FIX_POLLS ) {
-				return failed(
+				return end(
+					'pending',
 					null,
 					/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 					__(
@@ -301,7 +310,14 @@ export async function fixThreat(
 			}
 			await new Promise( resolve => setTimeout( resolve, FIX_POLL_INTERVAL ) );
 			apply = startReportRead();
-			result = await apiFetch< FixStatus >( { path: threatPath( id, 'fix' ) } );
+			try {
+				result = await apiFetch< FixStatus >( { path: threatPath( id, 'fix' ) } );
+				missed = 0;
+			} catch ( e ) {
+				if ( ++missed >= MAX_MISSED_POLLS ) {
+					throw e;
+				}
+			}
 		}
 
 		if ( result.scan ) {
@@ -318,9 +334,10 @@ export async function fixThreat(
 				/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 				notify( threat, __( 'Fixed the threat in %s.', 'jetpack-protect-pkg' ) );
 			}
-			return true;
+			return 'fixed';
 		}
-		return failed(
+		return end(
+			'failed',
 			{ message: result.error },
 			/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 			__(
@@ -329,12 +346,33 @@ export async function fixThreat(
 			)
 		);
 	} catch ( e ) {
-		return failed(
+		return end(
+			'failed',
 			e,
 			/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 			__( 'The fix for the threat in %s couldn’t be started.', 'jetpack-protect-pkg' )
 		);
 	}
+}
+
+/**
+ * Run a bulk action on each item, a few at a time.
+ *
+ * @param items - The items.
+ * @param run   - The action for one item.
+ * @return Resolves to each item's result, in order.
+ */
+async function runLimited< T, R >( items: T[], run: ( item: T ) => Promise< R > ): Promise< R[] > {
+	const results: R[] = [];
+	let next = 0;
+	const worker = async () => {
+		while ( next < items.length ) {
+			const index = next++;
+			results[ index ] = await run( items[ index ] );
+		}
+	};
+	await Promise.all( Array.from( { length: Math.min( BULK_CONCURRENCY, items.length ) }, worker ) );
+	return results;
 }
 
 // Each bulk action gets its own snackbar, so a second batch doesn't replace the first's result.
@@ -345,7 +383,7 @@ let bulkRuns = 0;
  *
  * @param threats - The threats.
  * @param open    - Opens a threat in the inspector, for a batch of one.
- * @return Resolves once every fix has finished or failed.
+ * @return Resolves once every fix has finished, failed, or run past the time Jetpack waits.
  */
 export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Promise< void > {
 	const idle = threats.filter( threat => ! isBusy( threat.id ) );
@@ -364,8 +402,9 @@ export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Pr
 		),
 		'info'
 	);
-	const results = await Promise.all( idle.map( threat => fixThreat( threat, open, false ) ) );
-	const fixed = results.filter( Boolean ).length;
+	const results = await runLimited( idle, threat => fixThreat( threat, open, false ) );
+	const count = ( result: FixResult ) => results.filter( item => item === result ).length;
+	const [ fixed, pending, failed ] = [ count( 'fixed' ), count( 'pending' ), count( 'failed' ) ];
 	if ( fixed === total ) {
 		showNotice(
 			id,
@@ -378,38 +417,51 @@ export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Pr
 		);
 		return;
 	}
-	if ( ! fixed ) {
-		showNotice(
-			id,
+	const sentences = [];
+	if ( fixed ) {
+		sentences.push(
 			sprintf(
-				/* translators: %d is a number of threats, two or more. */
+				/* translators: 1: how many threats were fixed. 2: how many Jetpack tried to fix. */
 				_n(
-					'Jetpack couldn’t fix the %d threat. Fix them one at a time to see why.',
-					'Jetpack couldn’t fix the %d threats. Fix them one at a time to see why.',
+					'Fixed %1$d of %2$d threat.',
+					'Fixed %1$d of %2$d threats.',
 					total,
 					'jetpack-protect-pkg'
 				),
+				fixed,
 				total
-			),
-			'error'
+			)
 		);
-		return;
 	}
-	showNotice(
-		id,
-		sprintf(
-			/* translators: 1: how many threats were fixed. 2: how many Jetpack tried to fix. */
-			_n(
-				'Fixed %1$d of %2$d threat. Fix the rest one at a time to see why they weren’t fixed.',
-				'Fixed %1$d of %2$d threats. Fix the rest one at a time to see why they weren’t fixed.',
-				total,
-				'jetpack-protect-pkg'
-			),
-			fixed,
-			total
-		),
-		'error'
-	);
+	if ( pending ) {
+		sentences.push(
+			sprintf(
+				/* translators: %d is a number of fixes. */
+				_n(
+					'%d fix is taking longer than expected. Check back in a few minutes.',
+					'%d fixes are taking longer than expected. Check back in a few minutes.',
+					pending,
+					'jetpack-protect-pkg'
+				),
+				pending
+			)
+		);
+	}
+	if ( failed ) {
+		sentences.push(
+			sprintf(
+				/* translators: %d is a number of threats. */
+				_n(
+					'%d threat couldn’t be fixed. Fix it on its own to see why.',
+					'%d threats couldn’t be fixed. Fix them one at a time to see why.',
+					failed,
+					'jetpack-protect-pkg'
+				),
+				failed
+			)
+		);
+	}
+	showNotice( id, sentences.join( ' ' ), failed ? 'error' : 'info' );
 }
 
 /**
@@ -438,9 +490,7 @@ async function setManyIgnored(
 		: /* translators: %d is a number of threats, two or more. */
 			_n( 'Unignoring %d threat…', 'Unignoring %d threats…', total, 'jetpack-protect-pkg' );
 	showNotice( id, sprintf( started, total ), 'info' );
-	const results = await Promise.all(
-		idle.map( threat => setIgnored( threat, ignore, open, false ) )
-	);
+	const results = await runLimited( idle, threat => setIgnored( threat, ignore, open, false ) );
 	const done = idle.filter( ( _, index ) => results[ index ] );
 	const undo: NoticeAction = {
 		label: __( 'Undo', 'jetpack-protect-pkg' ),

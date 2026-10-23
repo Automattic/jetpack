@@ -1,7 +1,7 @@
 import { getThreatType, ThreatSeverityBadge, type Threat } from '@automattic/jetpack-scan';
 import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
 import { Collapsible, Icon, Stack } from '@wordpress/ui';
@@ -170,7 +170,7 @@ export function createThreatView( sortField: 'severity' | 'date' ): View {
 	};
 }
 
-const LEVELS = [
+export const LEVELS = [
 	{ value: 'critical', label: __( 'Critical', 'jetpack-protect-pkg' ) },
 	{ value: 'high', label: __( 'High', 'jetpack-protect-pkg' ) },
 	{ value: 'low', label: __( 'Low', 'jetpack-protect-pkg' ) },
@@ -189,7 +189,7 @@ const TYPES = [
  * @param item - The threat.
  * @return The level.
  */
-function getLevel( item: ScanThreat ): string {
+export function getLevel( item: ScanThreat ): string {
 	const severity = item.severity ?? 0;
 	if ( severity >= 5 ) {
 		return 'critical';
@@ -244,12 +244,27 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 		titleField: 'threat',
 		fields: [ 'date' ],
 	} ) );
+	const [ isOpen, setIsOpen ] = useState( true );
 	const [ selection, setSelection ] = useState< string[] >( NO_SELECTION );
-	const clearSelection = useCallback( () => setSelection( NO_SELECTION ), [] );
 
 	const [ selected ] = useSearchParam( THREAT_PARAM );
 	const open = useOpenThreat();
 	const getItemId = useCallback( ( item: ScanThreat ) => String( item.id ), [] );
+
+	// Threats that leave the list leave the selection, so Undo doesn't bring them back checked.
+	useEffect( () => {
+		setSelection( current => {
+			const live = current.filter( id => threats.some( item => getItemId( item ) === id ) );
+			return live.length === current.length ? current : live;
+		} );
+	}, [ threats, getItemId ] );
+	const deselect = useCallback(
+		( items: ScanThreat[] ) =>
+			setSelection( current =>
+				current.filter( id => ! items.some( item => getItemId( item ) === id ) )
+			),
+		[ getItemId ]
+	);
 
 	const fields = useMemo(
 		() => [
@@ -264,18 +279,20 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 		[ open ]
 	);
 	const actions = useMemo(
-		() => getThreatRowActions( open, canAct, clearSelection ),
-		[ open, canAct, clearSelection ]
+		() => getThreatRowActions( open, canAct, deselect ),
+		[ open, canAct, deselect ]
 	);
 
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( threats, view, fields ),
 		[ threats, view, fields ]
 	);
-	useArrowKeyNavigation( data, selected, getItemId, open );
+	// Collapsed, the arrow keys would open threats the reader can't see.
+	useArrowKeyNavigation( data, isOpen ? selected : undefined, getItemId, open );
+	const hasSelectedRows = data.some( item => selection.includes( getItemId( item ) ) );
 
 	return (
-		<Collapsible.Root defaultOpen className="jp-protect-threats">
+		<Collapsible.Root open={ isOpen } onOpenChange={ setIsOpen } className="jp-protect-threats">
 			<h3 className="jp-protect-threats__heading">
 				<Collapsible.Trigger className="jp-protect-threats__toggle">
 					{ __( 'Review and fix threats', 'jetpack-protect-pkg' ) }
@@ -311,7 +328,7 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 					<DataViews.FiltersToggled className="jp-protect-threats__filters" />
 					<DataViews.Layout />
 					{ /* Only for bulk actions or more pages; otherwise it repeats the header's select all. */ }
-					{ ( selection.length > 0 || paginationInfo.totalPages > 1 ) && <DataViews.Footer /> }
+					{ ( hasSelectedRows || paginationInfo.totalPages > 1 ) && <DataViews.Footer /> }
 				</DataViews>
 			</Collapsible.Panel>
 		</Collapsible.Root>

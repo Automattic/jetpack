@@ -131,33 +131,55 @@ describe( 'bulk actions', () => {
 
 		mockApiFetch.mockClear();
 		await act( async () => notice.actions[ 0 ].onClick() );
+		// The failed threat isn't left busy, so it can be tried again.
+		await act( () => ignoreThreat( b ) );
 
 		expect( mockApiFetch.mock.calls.map( ( [ { path } ] ) => path ) ).toEqual( [
 			'/jetpack/v4/protect-dashboard/scan/threats/31/unignore',
 			'/jetpack/v4/protect-dashboard/scan/threats/33/unignore',
+			'/jetpack/v4/protect-dashboard/scan/threats/32/ignore',
 		] );
 	} );
 
+	// Each threat's fix answers with these statuses in turn, repeating the last; `reject` fails that check.
 	it.each( [
-		[ [ 41 ], 'Fixed 1 of 2 threats. Fix the rest one at a time to see why they weren’t fixed.' ],
-		[ [], 'Jetpack couldn’t fix the 2 threats. Fix them one at a time to see why.' ],
-	] )(
-		'counts the fixes Scan finished (%p) in the batch’s snackbar',
-		async ( fixedIds, content ) => {
-			dispatch( noticesStore ).removeAllNotices( 'snackbar' );
-			mockApiFetch.mockReset().mockImplementation( ( { path } ) =>
-				Promise.resolve( {
-					status: fixedIds.some( id => path.includes( `/${ id }/` ) ) ? 'fixed' : 'not_fixed',
-				} )
-			);
+		[ 'success', 'Fixed 2 threats.', [ 'fixed' ], [ 'fixed' ] ],
+		[ 'success', 'Fixed 2 threats.', [ 'in_progress', 'reject', 'fixed' ], [ 'fixed' ] ],
+		[
+			'error',
+			'Fixed 1 of 2 threats. 1 threat couldn’t be fixed. Fix it on its own to see why.',
+			[ 'fixed' ],
+			[ 'not_fixed' ],
+		],
+		[
+			'error',
+			'2 threats couldn’t be fixed. Fix them one at a time to see why.',
+			[ 'not_fixed' ],
+			[ 'not_fixed' ],
+		],
+		[
+			'info',
+			'Fixed 1 of 2 threats. 1 fix is taking longer than expected. Check back in a few minutes.',
+			[ 'fixed' ],
+			[ 'in_progress' ],
+		],
+	] )( 'reports a batch of fixes as %s: %s', async ( status, content, ...answers: string[][] ) => {
+		jest.useFakeTimers();
+		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
+		const ids = [ 41, 42 ];
+		mockApiFetch.mockReset().mockImplementation( ( { path } ) => {
+			const queue = answers[ ids.findIndex( id => path.includes( `/${ id }/` ) ) ];
+			const answer = queue.length > 1 ? queue.shift() : queue[ 0 ];
+			return answer === 'reject' ? Promise.reject( {} ) : Promise.resolve( { status: answer } );
+		} );
 
-			await act( () => fixThreats( [ fileThreat( 41 ), fileThreat( 42 ) ] ) );
+		const done = fixThreats( ids.map( fileThreat ) );
+		await jest.runAllTimersAsync();
+		await done;
+		jest.useRealTimers();
 
-			expect( bulkNotices() ).toEqual( [
-				expect.objectContaining( { status: 'error', content } ),
-			] );
-		}
-	);
+		expect( bulkNotices() ).toEqual( [ expect.objectContaining( { status, content } ) ] );
+	} );
 } );
 
 describe( 'deleteSoftware', () => {
