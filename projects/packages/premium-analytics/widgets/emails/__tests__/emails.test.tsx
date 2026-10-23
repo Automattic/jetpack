@@ -101,6 +101,28 @@ describe( 'EmailsList', () => {
 		}
 	);
 
+	it( 'offers the live email in a new tab beside the title', () => {
+		renderEmailsList( 'opens' );
+
+		expect(
+			screen.getByRole( 'link', { name: 'View "Monthly newsletter" in a new tab' } )
+		).toHaveAttribute( 'href', 'https://example.com/newsletter/' );
+	} );
+
+	it.each( [
+		[ 'no post ID', { link: 'https://example.com/digest/' }, 1 ],
+		[ 'no public URL', { postId: 7 }, 1 ],
+	] )( 'offers no "View" action for an email with %s', ( _case, overrides, links ) => {
+		render(
+			<WidgetRoot attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-30' } } }>
+				<EmailsList rows={ [ row( { id: 7, label: 'Digest', ...overrides } ) ] } metric="opens" />
+			</WidgetRoot>
+		);
+
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( links );
+		expect( screen.queryByRole( 'link', { name: /^View / } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'keeps rows in the same order for either metric', () => {
 		const orderRows = [
 			row( { id: 1, label: 'Newer', opens: 5, clicks: 50 } ),
