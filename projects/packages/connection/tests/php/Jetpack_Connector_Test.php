@@ -467,7 +467,39 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertArrayHasKey( 'wpcomHomeUrl', $data['idc'] );
 		$this->assertArrayHasKey( 'isDevelopmentSite', $data['idc'] );
 		$this->assertArrayHasKey( 'possibleDynamicSiteUrlDetected', $data['idc'] );
+		$this->assertSame( 'self-hosted', $data['idc']['platform'] );
 		$this->assertNotEmpty( $data['idc']['currentUrl'] );
+	}
+
+	/**
+	 * Test that the card bumps Safe Mode MC stats only when tracking is allowed.
+	 *
+	 * @param bool $tos_agreed Whether the site agreed to the terms of service.
+	 * @dataProvider provide_tos_states
+	 */
+	#[DataProvider( 'provide_tos_states' )]
+	public function test_idc_bump_stats_follows_tracking_consent( $tos_agreed ) {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'tos_agreed', $tos_agreed );
+		StatusCache::clear();
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertSame( $tos_agreed, $data['idc']['bumpStats'] );
+	}
+
+	/**
+	 * Terms of service states for the Safe Mode MC stats.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_tos_states() {
+		return array(
+			'agreed'     => array( true ),
+			'not agreed' => array( false ),
+		);
 	}
 
 	/**
@@ -606,7 +638,7 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the Tracks script loads only when tracking is allowed.
+	 * Test that the Tracks script, with the blog ID it adds to events, loads only when tracking is allowed.
 	 *
 	 * @param bool $tos_agreed Whether the site agreed to the terms of service.
 	 * @param bool $offline    Whether the site is in offline mode.
@@ -616,6 +648,7 @@ class Jetpack_Connector_Test extends TestCase {
 	#[DataProvider( 'provide_tracking_states' )]
 	public function test_enqueue_loads_tracks_only_when_tracking_is_allowed( $tos_agreed, $offline, $expected ) {
 		\Jetpack_Options::update_option( 'tos_agreed', $tos_agreed );
+		\Jetpack_Options::update_option( 'id', 12345 );
 		if ( $offline ) {
 			add_filter( 'jetpack_offline_mode', '__return_true' );
 		}
@@ -629,6 +662,12 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$this->assertSame( $expected, wp_script_is( 'jp-tracks', 'enqueued' ) );
 		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+		if ( $expected ) {
+			$this->assertStringContainsString(
+				'window.jpTracksContext.blog_id = 12345;',
+				implode( '', (array) wp_scripts()->get_data( 'jp-tracks', 'before' ) )
+			);
+		}
 	}
 
 	/**
