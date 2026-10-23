@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+On WordPress.com, require the plan feature that includes Scan's dashboard, not the one that only runs scans.
