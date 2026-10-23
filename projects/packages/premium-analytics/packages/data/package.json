@@ -9,6 +9,7 @@
 	"types": "src/index.ts",
 	"sideEffects": false,
 	"dependencies": {
+		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@date-fns/tz": "1.5.0",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
