@@ -7,9 +7,6 @@ export type BlockedRequest = {
 	timestamp: string;
 	ruleId: number;
 	reason: string;
-	/** From the firewall's request log, when it's kept and has the block. */
-	uri?: string;
-	userAgent?: string;
 };
 
 export type FirewallState = {
@@ -25,6 +22,10 @@ export type FirewallState = {
 	recentBlocks: BlockedRequest[];
 	/** Blocks on each of the last 30 UTC days, oldest first; empty when the WAF package isn't loaded. */
 	dailyBlocks: { date: string; count: number }[];
+	/** Whether the firewall has blocked anything besides its own tests. */
+	hasBlocked: boolean;
+	/** When the firewall was last tested, ISO 8601 in UTC; null if it never was. */
+	lastTestAt: string | null;
 	hasScan: boolean;
 	/** Where to buy Scan, for the automatic rules it adds. */
 	upgradeUrl: string;
@@ -38,7 +39,13 @@ export type FirewallState = {
 /** What `/firewall/blocks` returns, and the card keeps up to date after a test. */
 export type FirewallBlocks = Pick<
 	FirewallState,
-	'blockedCount' | 'blockedToday' | 'blockedLast30Days' | 'recentBlocks' | 'dailyBlocks'
+	| 'blockedCount'
+	| 'blockedToday'
+	| 'blockedLast30Days'
+	| 'recentBlocks'
+	| 'dailyBlocks'
+	| 'hasBlocked'
+	| 'lastTestAt'
 >;
 
 /** What `/firewall/test` returns: the one-time URL the firewall blocks. */

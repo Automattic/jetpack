@@ -5,6 +5,7 @@ import { select } from '@wordpress/data';
 import { check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { recordViewOnce } from '../../../data/tracks';
+import useProtectSettings from '../../../data/use-protect-settings';
 import { runFirewallTest } from '../firewall-test';
 import FirewallOverviewCard from '../overview-card';
 import type { FirewallContext } from '../types';
@@ -16,6 +17,11 @@ jest.mock( '../firewall-test', () => ( {
 	runFirewallTest: jest.fn(),
 } ) );
 
+const DAYS = Array.from( { length: 30 }, ( _, i ) => ( {
+	date: new Date( Date.now() - ( 29 - i ) * 86400000 ).toISOString().slice( 0, 10 ),
+	count: i === 29 ? 1 : 0,
+} ) );
+
 const props = {
 	state: {
 		available: true,
@@ -24,6 +30,9 @@ const props = {
 		blockedToday: 1,
 		blockedLast30Days: 1,
 		recentBlocks: [],
+		dailyBlocks: DAYS,
+		hasBlocked: true,
+		lastTestAt: null,
 		hasScan: false,
 		upgradeUrl: '#upgrade',
 		currentIp: '192.0.2.44',
@@ -49,6 +58,9 @@ const refreshed = ( count: number, recentBlocks: unknown[] = [] ) => ( {
 	blockedToday: count,
 	blockedLast30Days: count,
 	recentBlocks,
+	dailyBlocks: DAYS,
+	hasBlocked: true,
+	lastTestAt: null,
 } );
 
 const BLOCKED = {
@@ -88,7 +100,8 @@ describe( 'FirewallOverviewCard', () => {
 	it( 'counts the IP lists from page load before settings are fetched', () => {
 		render( <FirewallOverviewCard { ...props } /> );
 
-		expect( document.body ).toHaveTextContent( 'Edit block list2Edit allow list0' );
+		expect( screen.getByText( '2 addresses on the list' ) ).toBeInTheDocument();
+		expect( screen.getByText( '0 addresses on the list' ) ).toBeInTheDocument();
 	} );
 
 	it( 'saves an edited block list from its dialog', async () => {
@@ -104,7 +117,6 @@ describe( 'FirewallOverviewCard', () => {
 
 		expect( props.settings.save ).toHaveBeenCalledWith( {
 			jetpack_waf_ip_block_list: '198.51.100.1',
-			jetpack_waf_ip_block_list_enabled: true,
 		} );
 	} );
 	it( 'offers the visitor’s own address in the allow list dialog', async () => {
@@ -247,6 +259,9 @@ describe( 'FirewallOverviewCard', () => {
 			blockedToday: 4,
 			blockedLast30Days: 56,
 			recentBlocks: [],
+			dailyBlocks: DAYS,
+			hasBlocked: true,
+			lastTestAt: null,
 		} );
 		render( <FirewallOverviewCard { ...props } /> );
 
@@ -303,29 +318,78 @@ describe( 'FirewallOverviewCard', () => {
 		}
 	);
 
-	const TEST_BLOCK = {
-		id: 7,
-		timestamp: new Date( Date.now() - 3600000 ).toISOString(),
-		ruleId: -2,
-		reason: 'firewall test',
-	};
+	const HOUR_AGO = new Date( Date.now() - 3600000 ).toISOString();
 	const noBlocks = ( state = {} ) => ( {
 		...props.state,
 		blockedCount: 0,
 		blockedToday: 0,
 		blockedLast30Days: 0,
+		hasBlocked: false,
 		...state,
 	} );
+	const EMPTY_LIST = { ...props.state.ipRules, jetpack_waf_ip_block_list: '' };
 
-	it( 'asks a free site with no blocked IPs to add some or upgrade', async () => {
+	it( 'keeps the block list dialog open with its error when the save fails', async () => {
+		( apiFetch as unknown as jest.Mock ).mockImplementation( ( { method, path } ) => {
+			if ( method === 'POST' ) {
+				return Promise.reject( { message: 'Nope' } );
+			}
+			return Promise.resolve( path === '/jetpack/v4/settings' ? { waf: true, ...EMPTY_LIST } : {} );
+		} );
+		const Live = () => (
+			<FirewallOverviewCard
+				{ ...props }
+				state={ noBlocks( { ipRules: EMPTY_LIST } ) }
+				settings={ useProtectSettings() }
+			/>
+		);
+		render( <Live /> );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Add IPs to list' } ) );
+		const dialog = await screen.findByRole( 'dialog', { name: 'Blocked IP addresses' } );
+		await userEvent.type( within( dialog ).getByRole( 'textbox' ), '198.51.100.1' );
+		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Save' } ) );
+
+		await expect( within( dialog ).findByText( 'Nope' ) ).resolves.toBeInTheDocument();
+		expect( within( dialog ).getByRole( 'textbox' ) ).toHaveValue( '198.51.100.1' );
+	} );
+
+	it( 'offers to turn on a free site’s block list that has addresses but is off', async () => {
 		render(
 			<FirewallOverviewCard
 				{ ...props }
 				state={ noBlocks( {
-					ipRules: { ...props.state.ipRules, jetpack_waf_ip_block_list: '' },
+					ipRules: { ...props.state.ipRules, jetpack_waf_ip_block_list_enabled: false },
 				} ) }
 			/>
 		);
+
+		expect(
+			screen.getByRole( 'heading', { name: 'Your block list is turned off' } )
+		).toBeVisible();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Turn on and edit list' } ) );
+		const dialog = await screen.findByRole( 'dialog', { name: 'Blocked IP addresses' } );
+		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Save' } ) );
+
+		expect( props.settings.save ).toHaveBeenCalledWith( {
+			jetpack_waf_ip_block_list: '203.0.113.7\n203.0.113.8',
+			jetpack_waf_ip_block_list_enabled: true,
+		} );
+	} );
+
+	it( 'still warns a free site in an empty state that its rules stopped updating', () => {
+		render(
+			<FirewallOverviewCard { ...props } state={ noBlocks( { rulesUpdatedAt: 1773446400 } ) } />
+		);
+
+		expect( screen.getByRole( 'heading', { name: 'No requests blocked yet' } ) ).toBeVisible();
+		expect(
+			screen.getByText( 'Your automatic firewall rules have stopped updating' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'asks a free site with no blocked IPs to add some or upgrade', async () => {
+		render( <FirewallOverviewCard { ...props } state={ noBlocks( { ipRules: EMPTY_LIST } ) } /> );
 
 		expect( screen.getByRole( 'heading', { name: 'No IPs added to block list' } ) ).toBeVisible();
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute( 'href', '#upgrade' );
@@ -341,25 +405,24 @@ describe( 'FirewallOverviewCard', () => {
 
 		expect( props.settings.save ).toHaveBeenCalledWith( {
 			jetpack_waf_ip_block_list: '198.51.100.1',
-			jetpack_waf_ip_block_list_enabled: true,
 		} );
 	} );
 
 	it.each( [
-		[ 'before a test', [], 'Get started by testing your firewall', false ],
+		[ 'before a test', null, 'Get started by testing your firewall', false ],
 		[
 			'after a test',
-			[ TEST_BLOCK ],
-			'No requests were blocked in the latest test ran an hour ago.',
+			HOUR_AGO,
+			'The latest test ran an hour ago. No other requests have been blocked yet.',
 			true,
 		],
 	] )(
 		'offers a test in place of the counts when nothing was blocked, %s',
-		( _, recentBlocks, copy, tested ) => {
+		( _, lastTestAt, copy, tested ) => {
 			render(
 				<FirewallOverviewCard
 					{ ...props }
-					state={ noBlocks( { blockedCount: recentBlocks.length, recentBlocks } ) }
+					state={ noBlocks( { blockedCount: lastTestAt ? 12 : 0, lastTestAt } ) }
 				/>
 			);
 

@@ -23,7 +23,8 @@ import {
 import FirewallToggle from './firewall-toggle';
 import FirewallUpsell from './firewall-upsell';
 import shieldFlame from './icon';
-import { AUTOMATIC_RULES, IP_BLOCK_LIST } from './settings-keys';
+import { IpListDialog } from './ip-list-dialog';
+import { AUTOMATIC_RULES, IP_BLOCK_LIST, enabledKey } from './settings-keys';
 import TestDetails from './test-details';
 import UpgradeGap from './upgrade-gap';
 import type { TestOutcome, TestResult } from './firewall-test';
@@ -39,6 +40,8 @@ const UNAVAILABLE: FirewallState = {
 	blockedLast30Days: null,
 	recentBlocks: [],
 	dailyBlocks: [],
+	hasBlocked: false,
+	lastTestAt: null,
 	hasScan: false,
 	upgradeUrl: '',
 	currentIp: '',
@@ -205,7 +208,11 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		blockedLast30Days: firewall.blockedLast30Days,
 		recentBlocks: firewall.recentBlocks,
 		dailyBlocks: firewall.dailyBlocks ?? [],
+		hasBlocked: firewall.hasBlocked,
+		lastTestAt: firewall.lastTestAt,
 	} );
+	const [ blockListOpen, setBlockListOpen ] = useState( false );
+	const openBlockList = useCallback( () => setBlockListOpen( true ), [] );
 	const [ isTesting, setIsTesting ] = useState( false );
 	const [ result, setResult ] = useState< TestResult | null >( null );
 	const [ recorded, setRecorded ] = useState< boolean | null >( null );
@@ -265,17 +272,18 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		setIsTesting( false );
 	}, [ active, blocks.recentBlocks ] );
 
-	// The firewall's own tests are blocks too, but they don't count as having blocked anything.
-	const tests = blocks.recentBlocks.filter( block => block.ruleId === SELF_CHECK_RULE_ID );
-	const [ lastTest ] = tests;
-	const hasBlocks =
-		blocks.recentBlocks.length > tests.length || ( blocks.blockedCount ?? 0 ) > tests.length;
+	// The server leaves the firewall's own tests out of whether it has blocked anything.
+	const hasBlocks = Boolean( blocks.hasBlocked );
+	const { lastTestAt } = blocks;
 	const isEmpty = active && ! hasBlocks;
-	const needsBlockList =
-		! firewall.hasScan && ! splitIps( getIpList( ipData.settings, IP_BLOCK_LIST ) ).length;
-	// The empty states replace the upsell; the free one has its own Upgrade button.
-	const showUpsell = ! firewall.hasScan && ! isEmpty;
-	useRerenderEvery( 30000, !! lastTest );
+	const hasBlockListIps = splitIps( getIpList( ipData.settings, IP_BLOCK_LIST ) ).length > 0;
+	const isBlockListOff = hasBlockListIps && ! ipData.settings?.[ enabledKey( IP_BLOCK_LIST ) ];
+	const needsBlockList = ! firewall.hasScan && ( ! hasBlockListIps || isBlockListOff );
+	const isFreeEmptyState = isEmpty && needsBlockList;
+	// That empty state has its own Upgrade button; the others still say when free rules went stale.
+	const showUpsell = ! firewall.hasScan && ! isEmpty && rulesUpdatedAt === null;
+	const showStaleRules = ! firewall.hasScan && ! isFreeEmptyState && rulesUpdatedAt !== null;
+	useRerenderEvery( 30000, !! lastTestAt );
 
 	if ( ! firewall.available ) {
 		return <UnavailableCard icon={ shieldFlame } title={ title } />;
@@ -296,16 +304,13 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 				'jetpack-protect-pkg'
 			) }
 			titleAside={
-				lastTest && (
-					<time
-						dateTime={ lastTest.timestamp }
-						title={ dateI18n( 'M j, Y g:i A', lastTest.timestamp, undefined ) }
-					>
+				lastTestAt && (
+					<time dateTime={ lastTestAt } title={ dateI18n( 'M j, Y g:i A', lastTestAt, undefined ) }>
 						<Badge intent="draft">
 							{ sprintf(
 								/* translators: %s is how long ago, such as "1 hour ago". */
 								__( 'Latest test ran %s', 'jetpack-protect-pkg' ),
-								humanTimeDiff( lastTest.timestamp )
+								humanTimeDiff( lastTestAt )
 							) }
 						</Badge>
 					</time>
@@ -333,11 +338,15 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					<FirewallToggle data={ settings } />
 				</CardRow>
 			) }
-			{ isEmpty && needsBlockList && (
-				<NoBlockListState data={ ipData } upgradeUrl={ firewall.upgradeUrl } />
+			{ isFreeEmptyState && (
+				<NoBlockListState
+					upgradeUrl={ firewall.upgradeUrl }
+					onAddIps={ openBlockList }
+					isListOff={ isBlockListOff }
+				/>
 			) }
 			{ isEmpty && ! needsBlockList && (
-				<NoBlocksState lastTest={ lastTest } isTesting={ isTesting } onTest={ runTest } />
+				<NoBlocksState lastTestAt={ lastTestAt } isTesting={ isTesting } onTest={ runTest } />
 			) }
 			{ active && hasBlocks && (
 				<CardRow>
@@ -348,7 +357,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 				<FirewallFooter
 					data={ ipData }
 					currentIp={ firewall.currentIp }
-					showBlockList={ hasBlocks || ! needsBlockList }
+					onEditBlockList={ isFreeEmptyState ? undefined : openBlockList }
 					settingsLink={ settingsLink }
 					aside={
 						hasBlocks &&
@@ -364,8 +373,19 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					}
 				/>
 			) }
-			{ showUpsell && rulesUpdatedAt === null && <FirewallUpsell url={ firewall.upgradeUrl } /> }
-			{ showUpsell && rulesUpdatedAt !== null && (
+			{ active && (
+				// Kept outside the states that open it, so a save that changes the state can't unmount it.
+				<IpListDialog
+					data={ ipData }
+					name={ IP_BLOCK_LIST }
+					dialogTitle={ __( 'Blocked IP addresses', 'jetpack-protect-pkg' ) }
+					open={ blockListOpen }
+					onOpenChange={ setBlockListOpen }
+					enableOnSave
+				/>
+			) }
+			{ showUpsell && <FirewallUpsell url={ firewall.upgradeUrl } /> }
+			{ showStaleRules && (
 				<UpgradeGap
 					title={ __(
 						'Your automatic firewall rules have stopped updating',
