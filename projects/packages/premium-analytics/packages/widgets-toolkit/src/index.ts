@@ -97,6 +97,7 @@ export {
 	InternalLink,
 	PostTitleLink,
 	POST_URL_SEARCH_PARAM,
+	toPostDetailId,
 	type PostTitleLinkProps,
 	PostDetailLink,
 	type PostDetailLinkProps,

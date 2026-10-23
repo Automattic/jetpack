@@ -8,8 +8,8 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import {
+	chartIntervalAttributeField,
 	chartIntervalElements,
-	chartIntervalField,
 	type ChartIntervalFieldAttributes,
 } from '../chart-interval-field';
 import type { ReportParamsFieldAttributes } from '../../report-params-field/report-params-field';
@@ -29,9 +29,33 @@ type ControlProps = {
 	onChange: ( next: Attributes ) => void;
 };
 
-const Control = chartIntervalField.Edit as unknown as ComponentType< ControlProps >;
+const Control = chartIntervalAttributeField().Edit as unknown as ComponentType< ControlProps >;
 
 const DAILY_TO_MONTHLY = chartIntervalElements( [ 'day', 'week', 'month' ] );
+
+const HINT = 'Switch to the line chart to see each day.';
+
+type LineOrBar = Attributes & { chartType?: 'line' | 'bar' };
+
+const DaysOnLinesControl = chartIntervalAttributeField< LineOrBar >( ( _range, item ) =>
+	item.chartType === 'line'
+		? { extra: [ 'day' ] }
+		: { unavailable: { intervals: [ 'day' ], hint: HINT } }
+).Edit as unknown as ComponentType< Omit< ControlProps, 'data' > & { data: LineOrBar } >;
+
+function renderDaysOnLinesControl( data: LineOrBar ) {
+	const onChange = jest.fn();
+
+	render(
+		<DaysOnLinesControl
+			data={ data }
+			field={ { elements: DAILY_TO_MONTHLY } }
+			onChange={ onChange }
+		/>
+	);
+
+	return { onChange };
+}
 
 function renderControl( data: Attributes = {} ) {
 	const onChange = jest.fn();
@@ -47,7 +71,7 @@ beforeEach( () => {
 	mockSearch = { preset: 'last-30-days' };
 } );
 
-describe( 'chartIntervalField', () => {
+describe( 'chartIntervalAttributeField with no extension', () => {
 	it( "saves a pick on the widget's own attributes", async () => {
 		const user = userEvent.setup();
 		const { onChange } = renderControl();
@@ -126,5 +150,31 @@ describe( 'chartIntervalField', () => {
 			'aria-disabled',
 			'true'
 		);
+	} );
+} );
+
+describe( 'chartIntervalAttributeField', () => {
+	it( 'lets a widget add a bucket its range does not offer', async () => {
+		const user = userEvent.setup();
+		mockSearch = { preset: 'last-90-days' };
+		const { onChange } = renderDaysOnLinesControl( { chartType: 'line' } );
+
+		await user.click( screen.getByRole( 'button', { name: 'By weeks' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'By days' } ) );
+
+		expect( onChange ).toHaveBeenCalledWith( { chartInterval: 'day' } );
+	} );
+
+	it( 'shows a saved bucket the widget withholds as the range default, without rewriting it', async () => {
+		const user = userEvent.setup();
+		mockSearch = { preset: 'last-12-months' };
+		const { onChange } = renderDaysOnLinesControl( { chartType: 'bar', chartInterval: 'day' } );
+
+		await user.click( screen.getByRole( 'button', { name: 'By months' } ) );
+
+		const days = screen.getByRole( 'menuitemradio', { name: 'By days' } );
+		expect( days ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( days ).toHaveAccessibleDescription( HINT );
+		expect( onChange ).not.toHaveBeenCalled();
 	} );
 } );
