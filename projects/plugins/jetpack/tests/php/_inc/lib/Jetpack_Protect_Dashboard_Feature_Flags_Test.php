@@ -68,4 +68,39 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 
 		$this->assertSame( $available, in_array( Jetpack_Protect_Dashboard_Feature_Flags::MODULE, Jetpack::get_available_modules(), true ) );
 	}
+
+	/**
+	 * The version a site upgrades from (false for a new connection), the constants to set, and whether the module turns on.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_activations() {
+		return array(
+			'new connection'                   => array( false, array(), true ),
+			'upgrade from the last stable'     => array( '16.3.1', array(), true ),
+			'upgrade from an alpha without it' => array( '16.4-a.3', array(), true ),
+			'Jetpack Protect plugin active'    => array( false, array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), false ),
+			'upgrade with Jetpack Protect'     => array( '16.3.1', array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), false ),
+		);
+	}
+
+	/**
+	 * Jetpack turns on default modules when a site connects, and on upgrade the ones introduced since the old version.
+	 *
+	 * @dataProvider provide_activations
+	 *
+	 * @param string|false $from      The version upgraded from, or false for a new connection.
+	 * @param array        $constants Constants to set.
+	 * @param bool         $activates Whether the module should be a default.
+	 */
+	#[DataProvider( 'provide_activations' )]
+	public function test_module_turns_on_by_default_without_the_protect_plugin( $from, $constants, $activates ) {
+		foreach ( $constants as $name => $value ) {
+			Constants::set_constant( $name, $value );
+		}
+		$info = jetpack_get_module_info( Jetpack_Protect_Dashboard_Feature_Flags::MODULE );
+		$to   = $from ? $info['introduced'] : false;
+
+		$this->assertSame( $activates, in_array( Jetpack_Protect_Dashboard_Feature_Flags::MODULE, Jetpack::get_default_modules( $from, $to ), true ) );
+	}
 }

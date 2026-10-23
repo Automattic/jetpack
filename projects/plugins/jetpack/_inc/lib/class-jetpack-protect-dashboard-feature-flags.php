@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Status\Host;
 
@@ -39,6 +40,7 @@ class Jetpack_Protect_Dashboard_Feature_Flags {
 		);
 
 		add_filter( 'jetpack_get_available_modules', array( __CLASS__, 'filter_available_modules' ) );
+		add_filter( 'jetpack_get_default_modules', array( __CLASS__, 'filter_default_modules' ) );
 	}
 
 	/**
@@ -52,6 +54,21 @@ class Jetpack_Protect_Dashboard_Feature_Flags {
 	public static function filter_available_modules( $modules ) {
 		if ( ! Feature_Flags::is_enabled( self::DASHBOARD ) || ( new Host() )->is_wpcom_platform() ) {
 			unset( $modules[ self::MODULE ] );
+		}
+		return $modules;
+	}
+
+	/**
+	 * Don't turn the module on by default while the Jetpack Protect plugin is active, since the page would take over that plugin's own.
+	 *
+	 * See JETPACK-3062.
+	 *
+	 * @param array $modules Default module slugs.
+	 * @return array
+	 */
+	public static function filter_default_modules( $modules ) {
+		if ( Constants::is_defined( 'JETPACK_PROTECT_VERSION' ) ) {
+			$modules = array_values( array_diff( $modules, array( self::MODULE ) ) );
 		}
 		return $modules;
 	}
