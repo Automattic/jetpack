@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the Jetpack SEO Ai_Crawlers store-intent model.
+ * Tests for the Jetpack SEO Ai_Crawlers robots.txt controls.
  *
  * @package automattic/jetpack-seo
  */
@@ -116,7 +116,7 @@ class AiCrawlersTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function test_get_overrides_prunes_defaults_and_unknown_slugs() {
+	public function test_get_overrides_keeps_only_blocked_catalog_crawlers() {
 		update_option(
 			Ai_Crawlers::OPTION,
 			array(

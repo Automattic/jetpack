@@ -853,7 +853,7 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Normalize the AI crawler override map to `slug => bool`.
+	 * Normalize the AI crawler override map to `slug => true` for each blocked crawler.
 	 *
 	 * @param array $value Submitted overrides.
 	 * @return array
@@ -865,7 +865,9 @@ class Dashboard_Data {
 
 		$sanitized = array();
 		foreach ( $value as $slug => $blocked ) {
-			$sanitized[ sanitize_key( $slug ) ] = (bool) $blocked;
+			if ( $blocked ) {
+				$sanitized[ sanitize_key( $slug ) ] = true;
+			}
 		}
 
 		return $sanitized;

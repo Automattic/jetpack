@@ -42,11 +42,7 @@ export interface GeoState {
 	crawlers: {
 		/** The full AI crawler catalog. */
 		catalog: AiCrawler[];
-		/**
-		 * Sparse per-crawler overrides (`slug => blocked`). Only deviations from
-		 * each bot's default policy are present; absent slugs use the default
-		 * (training → blocked, answer → allowed).
-		 */
+		/** The crawlers the owner blocked (`slug => true`); every other crawler is allowed. */
 		overrides: Record< string, boolean >;
 		/** Whether search engines (and AI crawlers) may index the site. */
 		searchEnginesVisible: boolean;
