@@ -22,7 +22,6 @@ export function useProductDetails( productIds: readonly number[], params: Report
 				? productDetailsQuery( productIds )
 				: { queryKey: DISABLED_COMPARISON_KEY, enabled: false },
 		params,
-		// A failed refresh leaves the report figures current, so it raises no stale-data notice.
 		{ disabledComparisonKey: DISABLED_COMPARISON_KEY, refreshNotice: false }
 	);
 }

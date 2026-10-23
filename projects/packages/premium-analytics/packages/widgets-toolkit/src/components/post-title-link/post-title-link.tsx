@@ -64,8 +64,9 @@ export type PostTitleLinkProps = {
  * Render a post or page title as an internal detail link, an external fallback
  * link, or plain text.
  *
- * Rows with a post ID stay inside the app: they navigate to `/post/{postId}`
- * through the router, so the dashboard does not reload. They carry no outbound
+ * Rows with a post ID, read by someone who can open post details, stay inside
+ * the app: they navigate to `/post/{postId}` through the router, so the
+ * dashboard does not reload. They carry no outbound
  * marker — it marks a destination outside the app, and the detail page holds the
  * link out to the live post. Such a row still passes its public URL along in
  * `POST_URL_SEARCH_PARAM`, because the detail page cannot resolve a permalink

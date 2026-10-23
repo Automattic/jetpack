@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Declare the `refreshNotice` option of `useReport`, so a query whose failure leaves the figures current raises no stale-data notice.
+Add the `refreshNotice` option to the `useReport` types, to keep a failed refresh out of the stale-data notice.

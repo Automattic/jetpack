@@ -74,7 +74,7 @@ Runs a report's primary query, and its comparison query when `params` carry
 
 - `queryFactory`: builds the query definition from the params of each request
 - `params`: `ReportParams` with `from`, `to`, `interval`, and optional comparison params
-- `options`: optional, e.g. `enabled`
+- `options`: optional. `enabled` turns the queries off, `disabledComparisonKey` parks the comparison query, and `refreshNotice: false` keeps a failed refresh out of the stale-data notice (default `true`)
 
 **Returns:** `{ primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error, refetch }`
 
