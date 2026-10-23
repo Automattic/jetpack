@@ -113,7 +113,8 @@ function toPoints(
 
 /**
  * The comparison's points, each on the current bucket it pairs with by period and
- * carrying its own date in `realDate`. A bucket either period lacks has no point.
+ * carrying its own date in `realDate`. An unpaired bucket gets a null stand-in, since the
+ * keyboard tooltip reads every series at the same index; none at all when nothing pairs.
  *
  * @param primary           - The current period's report.
  * @param comparison        - The comparison period's report.
@@ -135,16 +136,22 @@ function toPairedPoints(
 	const comparisonRows = comparison?.data ?? [];
 	const pairs = pairComparisonBuckets( currentRows, comparisonRows, periodStarts );
 
-	return currentRows.flatMap( ( row, index ) => {
+	const points = currentRows.flatMap( ( row, index ): MetricTabDatum[] => {
 		const pairedIndex = pairs[ index ];
 		const date = resolveBucketStamp( row.date_start, zone );
+		if ( ! date ) {
+			return [];
+		}
+
 		const own =
 			pairedIndex === undefined
 				? undefined
 				: toPoint( comparisonRows[ pairedIndex ], field, zone, undefined, drawMissingAtZero );
 
-		return date && own ? [ { ...own, date, realDate: own.date } ] : [];
+		return [ own ? { ...own, date, realDate: own.date } : { date, value: null } ];
 	} );
+
+	return points.some( point => point.realDate ) ? points : [];
 }
 
 /**
@@ -185,7 +192,9 @@ export function buildMetricTab< TReport extends MetricReport >(
 	const value = total( primary, field );
 	const isMissing = value === null && !! noDataLabel;
 	// A comparison of real zeros draws nothing either (the chart's empty rule), so the reason shows.
-	const previousHasReading = !! previous?.some( point => ! point.missing && point.value !== 0 );
+	const previousHasReading = !! previous?.some(
+		point => ! point.missing && point.value != null && point.value !== 0
+	);
 
 	return {
 		key: field,

@@ -154,7 +154,7 @@ describe( 'buildMetricTab', () => {
 		expect( tab.previousAligned ).toBeUndefined();
 	} );
 
-	it( 'draws each comparison point on the current bucket it pairs with by period', () => {
+	it( 'draws each comparison point on the current bucket it pairs with, a null stand-in where none does', () => {
 		const tab = buildMetricTab( {
 			primary: {
 				summary: { views: 3 },
@@ -176,12 +176,37 @@ describe( 'buildMetricTab', () => {
 
 		expect( tab.previousAligned ).toBe( true );
 		expect( tab.previous ).toEqual( [
+			{ date: tab.current[ 0 ].date, value: null },
 			expect.objectContaining( {
 				date: tab.current[ 1 ].date,
 				realDate: new Date( '2024-12-02T00:00:00Z' ),
 				value: 9,
 			} ),
 		] );
+	} );
+
+	it( 'gives the no-data reason when a stand-in sits beside comparison zeros', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { aov: null },
+				data: [
+					{ date_start: '2025-04-29', date_end: '2025-04-30T23:59:59', aov: null },
+					{ date_start: '2025-05-01', date_end: '2025-05-31T23:59:59', aov: null },
+				],
+			},
+			comparison: {
+				summary: { aov: 0 },
+				data: [ { date_start: '2024-12-02', date_end: '2024-12-31T23:59:59', aov: 0 } ],
+			},
+			hasComparison: true,
+			field: 'aov',
+			label: 'Average order value',
+			zone: 'UTC',
+			noDataLabel: 'No orders in this period.',
+			periodStarts: { current: '2025-04-29', comparison: '2024-12-02' },
+		} );
+
+		expect( tab.unavailable ).toBe( 'No orders in this period.' );
 	} );
 
 	it( 'keeps the comparison total when no comparison bucket pairs with a current one', () => {

@@ -185,7 +185,7 @@ describe( 'useTrafficChart', () => {
 		expect( byKey.visitors.previousValue ).toBe( 400 );
 		expect( byKey.likes.previousValue ).toBe( 10 );
 		expect( byKey.comments.previousValue ).toBe( 4 );
-		expect( byKey.views.previous ).toHaveLength( 1 );
+		expect( byKey.views.previous?.filter( point => point.realDate ) ).toHaveLength( 1 );
 	} );
 
 	it.each( [
@@ -333,11 +333,13 @@ describe( 'useTrafficChart', () => {
 
 			for ( const key of [ 'views', 'likes' ] ) {
 				const metric = result.current.metrics.find( tab => tab.key === key );
-				// Each comparison value as [ the current bucket it is drawn on, value ].
-				const placed = metric?.previous?.map( point => [
-					metric.current.findIndex( bucket => bucket.date.getTime() === point.date.getTime() ),
-					point.value,
-				] );
+				// Each paired comparison value as [ the current bucket it is drawn on, value ].
+				const placed = metric?.previous
+					?.filter( point => point.realDate )
+					.map( point => [
+						metric.current.findIndex( bucket => bucket.date.getTime() === point.date.getTime() ),
+						point.value,
+					] );
 				expect( placed ).toEqual( expected );
 				expect( metric?.previousValue ).toBe(
 					comparisonRows.reduce( ( total, [ , value ] ) => total + value, 0 )
