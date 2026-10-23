@@ -26,6 +26,8 @@ To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license
 
 Where Features opens (sites registered with WordPress.com, and offline sites with the offline entry enabled), My Jetpack Features shows all eligible features by default, including unavailable modules and their reasons. Unavailable modules have no switch or bulk selection. Choose **Available** to exclude unavailable features, forced-off modules, and installed plugins forced inactive. Search spans all eligible features, and choosing a filter clears the search. Feature filters, search, layout, and an open feature remain in the URL across reloads.
 
+Features automatically retries loading modules after a rate-limited or unreadable response. If loading fails and no modules are available, a visible notice says the list is incomplete. The notice asks for a page reload. A failed refresh leaves previously loaded modules visible without this notice.
+
 Product status, Extras activation, and Hybrid activation and deactivation prefer an active copy when several declared copies are installed; with none active, they keep the first installed copy.
 
 When a standalone plugin provides an alternative, its card retains the install or activation action and explains the Jetpack module's limitation. Plan and connection restrictions retain applicable upgrade routes. Backup, Firewall, and Ads remain unavailable on multisite. Features hidden by the host stay hidden; forced and network-activated features retain their existing controls, with host reasons in the details window of main cards and, with the `my-jetpack-account-connect` flag on, also under the card's description; forced modules the site cannot run are listed as unavailable with their reasons.

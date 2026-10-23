@@ -4,6 +4,7 @@
 import {
 	buildMetricTab,
 	ChartEmptyState,
+	type ChartDisplayChartType,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	useWidgetRootContext,
@@ -103,16 +104,18 @@ function MetricReport( { metric, params, onChange }: MetricReportProps ) {
 type StorePerformanceProps = {
 	/** The metrics switched off, by id. */
 	hiddenMetricIds?: string[];
+	/** How the selected metric is drawn. */
+	chartType?: ChartDisplayChartType;
 };
 
 /**
- * The selected store metrics as tabs over a comparison line chart, read under the widget root
- * for its report params. Only the reports of the shown metrics are requested.
+ * The selected store metrics as tabs over a comparison chart, read under the widget root for its
+ * report params. Only the reports of the shown metrics are requested.
  *
  * @param {StorePerformanceProps} props - The component props.
  * @return {JSX.Element} The chart, or the loading or error state of its reports.
  */
-function StorePerformance( { hiddenMetricIds }: StorePerformanceProps ) {
+function StorePerformance( { hiddenMetricIds, chartType }: StorePerformanceProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const offered = useStorePerformanceMetrics();
 
@@ -220,6 +223,7 @@ function StorePerformance( { hiddenMetricIds }: StorePerformanceProps ) {
 			>
 				<MetricTabsChart
 					metrics={ tabs }
+					chartType={ chartType }
 					dataFormat={ DEFAULT_DATA_FORMAT }
 					groupLabel={ __( 'Store metric', 'jetpack-woocommerce-stats-pkg' ) }
 					chartTitle={ __( 'Store performance', 'jetpack-woocommerce-stats-pkg' ) }
@@ -241,7 +245,10 @@ export default function StorePerformanceRender( {
 }: WidgetRenderProps< StorePerformanceRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<StorePerformance hiddenMetricIds={ attributes.hiddenMetrics } />
+			<StorePerformance
+				hiddenMetricIds={ attributes.hiddenMetrics }
+				chartType={ attributes.chartType }
+			/>
 		</WidgetRoot>
 	);
 }
