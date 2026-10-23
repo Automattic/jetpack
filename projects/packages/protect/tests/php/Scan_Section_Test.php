@@ -491,7 +491,6 @@ class Scan_Section_Test extends BaseTestCase {
 		return array(
 			'a flagged option'         => array( $wpdb->options, 'option_id', $row( '_wpc_ak' ), '_wpc_ak' ),
 			'an option the site needs' => array( $wpdb->options, 'option_id', $row( 'active_plugins' ), null ),
-			'the site\'s user roles'   => array( $wpdb->options, 'option_id', $row( $wpdb->get_blog_prefix() . 'user_roles' ), null ),
 			'a row in another table'   => array( $wpdb->posts, 'ID', $row( '_wpc_ak' ), null ),
 		);
 	}

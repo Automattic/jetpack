@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Dashboard_Section;
 use Automattic\Jetpack\Protect\Dashboard_Threats;
+use Automattic\Jetpack\Protect\Protected_Options;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
@@ -79,13 +80,6 @@ class Scan implements Dashboard_Section {
 	 * @var int
 	 */
 	const ROW_VALUE_LIMIT = 2000;
-
-	/**
-	 * Options the dashboard won't delete even when Scan flags them, because the site can't run without them.
-	 *
-	 * @var string[]
-	 */
-	const PROTECTED_OPTIONS = array( 'siteurl', 'home', 'active_plugins', 'template', 'stylesheet', 'cron', 'rewrite_rules' );
 
 	/**
 	 * The section key.
@@ -543,7 +537,7 @@ class Scan implements Dashboard_Section {
 	 * The option a threat's row holds, when the dashboard may delete it.
 	 *
 	 * @param array $found From find_threat_row().
-	 * @return string|null The option name, or null for other tables and for options the site needs.
+	 * @return string|null The option name, or null for other tables and for WordPress core's and Jetpack's options.
 	 */
 	private static function get_deletable_option( $found ) {
 		global $wpdb;
@@ -552,7 +546,7 @@ class Scan implements Dashboard_Section {
 		if ( $wpdb->options !== $found['table'] || 'option_id' !== $found['pk_column'] || ! is_string( $name ) ) {
 			return null;
 		}
-		if ( in_array( $name, self::PROTECTED_OPTIONS, true ) || $wpdb->get_blog_prefix() . 'user_roles' === $name ) {
+		if ( Protected_Options::is_protected( $name ) ) {
 			return null;
 		}
 		return $name;
