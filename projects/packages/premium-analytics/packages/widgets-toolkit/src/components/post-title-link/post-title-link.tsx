@@ -22,15 +22,15 @@ export const POST_URL_SEARCH_PARAM = 'post_url';
 
 export type PostTitleLinkProps = {
 	/**
-	 * Post or page ID. Rows carrying one link to the internal detail route.
+	 * Post or page ID. Links to the internal detail route when the reader can open it.
 	 */
 	id?: number | string;
 
 	label: string;
 
 	/**
-	 * Public URL of the content. It becomes the link itself when there is no
-	 * post ID, and travels to the detail route as a fallback when there is one.
+	 * Public URL of the content. It becomes the link itself when there is no post
+	 * ID or no detail page to open, and travels to the detail route otherwise.
 	 */
 	link?: string | null;
 

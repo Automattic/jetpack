@@ -21,9 +21,9 @@ export type LeaderboardRowAction =
 	| {
 			/** A post, page, or email with a detail page inside the dashboard. */
 			kind: 'postLink';
-			/** Post or page ID. Rows carrying one link to the internal detail route. */
+			/** Post or page ID. Links to the internal detail route when the reader can open it. */
 			id?: number | string;
-			/** Public URL. It becomes the link itself when there is no post ID. */
+			/** Public URL. The link itself when there is no post ID or no detail page to open. */
 			href?: string | null;
 			/**
 			 * Required, so a row cannot silently open the detail page on its own
