@@ -8,13 +8,16 @@ import useAnalytics from '../../../hooks/use-analytics';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 import { getProtectPageUrl } from '../../../utils/protect-page';
 
-type TooltipType =
-	'pluginsThemesTooltip' | 'scanThreatsTooltip' | 'autoFirewallTooltip' | 'blockedLoginsTooltip';
+type TooltipType = 'pluginsThemesTooltip' | 'scanThreatsTooltip' | 'blockedLoginsTooltip';
+type Tooltip = {
+	title: ReactElement | string;
+	text: ReactElement | string;
+};
 export type TooltipContent = {
-	[ key in TooltipType ]: {
-		title: ReactElement | string;
-		text: ReactElement | string;
-	};
+	[ key in TooltipType ]: Tooltip;
+} & {
+	// Null when the firewall runs with automatic rules: nothing to explain.
+	firewallTooltip: Tooltip | null;
 };
 
 export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
@@ -176,6 +179,76 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 		trackLoginSettingsLinkClick,
 	] );
 
+	const firewallTooltip = useMemo( (): Tooltip | null => {
+		const withSettingsLink = ( text: string, withoutLink: string ) =>
+			firewallSettingsLink
+				? createInterpolateElement( text, {
+						a: createElement( 'a', {
+							href: firewallSettingsLink,
+							onClick: trackFirewallSettingsLinkClick,
+						} ),
+					} )
+				: withoutLink;
+
+		if ( ! wafSupported ) {
+			return {
+				title: __( 'Firewall: Inactive', 'jetpack-my-jetpack' ),
+				text: __(
+					'Jetpack’s firewall is off because your hosting provider already includes a built-in firewall with similar rules for your site.',
+					'jetpack-my-jetpack'
+				),
+			};
+		}
+
+		if ( ! isWafEnabled ) {
+			return {
+				title: __( 'Firewall: Off', 'jetpack-my-jetpack' ),
+				text: withSettingsLink(
+					__(
+						'The firewall isn’t blocking any requests. Turn it on in your <a>firewall settings</a>.',
+						'jetpack-my-jetpack'
+					),
+					__( 'The firewall isn’t blocking any requests.', 'jetpack-my-jetpack' )
+				),
+			};
+		}
+
+		if ( isAutoFirewallEnabled ) {
+			return null;
+		}
+
+		if ( hasProtectPaidPlan ) {
+			return {
+				title: __( 'Firewall: On', 'jetpack-my-jetpack' ),
+				text: withSettingsLink(
+					__(
+						'Automatic rules are off, so only the IP addresses you list are blocked. Turn them on in your <a>firewall settings</a>.',
+						'jetpack-my-jetpack'
+					),
+					__(
+						'Automatic rules are off, so only the IP addresses you list are blocked.',
+						'jetpack-my-jetpack'
+					)
+				),
+			};
+		}
+
+		return {
+			title: __( 'Firewall: On', 'jetpack-my-jetpack' ),
+			text: __(
+				'The firewall blocks the IP addresses you list. Upgrade for automatic rules that stop known attacks.',
+				'jetpack-my-jetpack'
+			),
+		};
+	}, [
+		wafSupported,
+		isWafEnabled,
+		isAutoFirewallEnabled,
+		hasProtectPaidPlan,
+		firewallSettingsLink,
+		trackFirewallSettingsLinkClick,
+	] );
+
 	return {
 		pluginsThemesTooltip: {
 			title: __( 'Improve site safety: secure plugins & themes', 'jetpack-my-jetpack' ),
@@ -253,35 +326,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 							'jetpack-my-jetpack'
 						),
 					},
-		autoFirewallTooltip:
-			( hasProtectPaidPlan && ( ! isAutoFirewallEnabled || ! isWafEnabled ) ) || ! wafSupported
-				? {
-						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
-						text: wafSupported
-							? createInterpolateElement(
-									__(
-										'You have Auto-Firewall disabled, visit your Protect <a>firewall settings</a> to activate.',
-										'jetpack-my-jetpack'
-									),
-									{
-										a: createElement( 'a', {
-											href: firewallSettingsLink,
-											onClick: trackFirewallSettingsLinkClick,
-										} ),
-									}
-								)
-							: __(
-									'Auto-Firewall is disabled as your hosting provider already includes a built-in firewall with similar rules for your site.',
-									'jetpack-my-jetpack'
-								),
-					}
-				: {
-						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
-						text: __(
-							'Upgrade required for activation. Manual rules available.',
-							'jetpack-my-jetpack'
-						),
-					},
+		firewallTooltip: firewallTooltip,
 		blockedLoginsTooltip: blockedLoginsTooltip,
 	};
 };
