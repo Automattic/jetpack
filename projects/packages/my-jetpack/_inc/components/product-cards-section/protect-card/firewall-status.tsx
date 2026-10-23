@@ -12,7 +12,8 @@ import type { FirewallState } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
 
 interface FirewallStatusProps {
-	data: ProtectData;
+	// Undefined when the Protect data request fails.
+	data?: ProtectData;
 }
 
 export const FirewallStatus: FC< FirewallStatusProps > = ( { data } ) => {
@@ -63,6 +64,7 @@ export const FirewallStatus: FC< FirewallStatusProps > = ( { data } ) => {
 						title={ tooltip.title }
 						text={ tooltip.text }
 						tracksEventProps={ {
+							// Kept from the old Auto-Firewall row so existing Tracks reports carry on.
 							location: 'auto-firewall',
 							status,
 							has_paid_plan: hasPaidPlanForProduct,

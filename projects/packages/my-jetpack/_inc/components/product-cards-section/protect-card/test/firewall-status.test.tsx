@@ -5,6 +5,7 @@ import { FirewallStatus } from '../firewall-status';
 
 const mockUseProduct = jest.fn();
 const mockConnection = { isSiteConnected: true };
+const mockRecordEvent = jest.fn();
 
 jest.mock( '../../../../data/products/use-product', () => ( {
 	__esModule: true,
@@ -17,7 +18,7 @@ jest.mock( '../../../../hooks/use-my-jetpack-connection', () => ( {
 } ) );
 
 jest.mock( '../../../../hooks/use-analytics', () => {
-	const result = { recordEvent: () => {} };
+	const result = { recordEvent: ( ...args ) => mockRecordEvent( ...args ) };
 	return { __esModule: true, default: () => result };
 } );
 
@@ -44,12 +45,20 @@ const wafConfig = ( overrides: Partial< ProtectData[ 'wafConfig' ] > ) =>
 describe( 'FirewallStatus', () => {
 	beforeEach( () => {
 		mockConnection.isSiteConnected = true;
+		mockRecordEvent.mockClear();
 	} );
 
 	it.each( [
 		[ 'On', 'a free site with the firewall on', false, { waf_enabled: true }, 'Upgrade' ],
 		[ 'On', 'a paid site without automatic rules', true, {}, 'Turn them on' ],
 		[ 'Off', 'a site with the firewall off', false, { waf_enabled: false }, 'Turn it on' ],
+		[
+			'Off',
+			'automatic rules left on with the firewall off',
+			true,
+			{ waf_enabled: false, jetpack_waf_automatic_rules: '1' as const },
+			'Turn it on',
+		],
 		[
 			'Inactive',
 			'a host with its own firewall',
@@ -66,6 +75,13 @@ describe( 'FirewallStatus', () => {
 		const dialog = await screen.findByRole( 'dialog' );
 		expect( dialog ).toHaveTextContent( `Firewall: ${ status }` );
 		expect( dialog ).toHaveTextContent( explanation );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_protect_card_tooltip_open', {
+			page: 'my-jetpack',
+			feature: 'jetpack-protect',
+			location: 'auto-firewall',
+			status: { On: 'active', Off: 'off', Inactive: 'inactive' }[ status ],
+			has_paid_plan: hasPaidPlanForProduct,
+		} );
 	} );
 
 	it.each( [
