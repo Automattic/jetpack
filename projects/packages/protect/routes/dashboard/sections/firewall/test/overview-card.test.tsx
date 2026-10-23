@@ -377,6 +377,41 @@ describe( 'FirewallOverviewCard', () => {
 		} );
 	} );
 
+	it.each( [
+		[ 'an empty block list', EMPTY_LIST, 'No IPs added to block list', 'Add IPs to block' ],
+		[
+			'a block list that is off',
+			{ ...props.state.ipRules, jetpack_waf_ip_block_list_enabled: false },
+			'Your block list is turned off',
+			'Turn on and edit list',
+		],
+	] )(
+		'warns a free site with blocks but nothing left to block with, given %s',
+		async ( _, ipRules, title, button ) => {
+			render( <FirewallOverviewCard { ...props } state={ { ...props.state, ipRules } } /> );
+
+			expect( screen.getByText( title ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Blocked in the last 30 days' ) ).toBeInTheDocument();
+			expect(
+				screen.queryByText( 'Let your firewall keep up with new attacks' )
+			).not.toBeInTheDocument();
+			await userEvent.click( screen.getByRole( 'button', { name: button } ) );
+			await expect(
+				screen.findByRole( 'dialog', { name: 'Blocked IP addresses' } )
+			).resolves.toBeInTheDocument();
+		}
+	);
+
+	it.each( [
+		[ 'with Scan', { hasScan: true } ],
+		[ 'whose automatic rules still block', { rulesUpdatedAt: 1773446400 } ],
+		[ 'with addresses on its block list', {} ],
+	] )( 'doesn’t warn a site %s that it has nothing to block', ( _, state ) => {
+		render( <FirewallOverviewCard { ...props } state={ { ...props.state, ...state } } /> );
+
+		expect( screen.queryByText( /Your firewall has nothing to block/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'still warns a free site in an empty state that its rules stopped updating', () => {
 		render(
 			<FirewallOverviewCard { ...props } state={ noBlocks( { rulesUpdatedAt: 1773446400 } ) } />

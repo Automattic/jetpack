@@ -24,6 +24,7 @@ import FirewallToggle from './firewall-toggle';
 import FirewallUpsell from './firewall-upsell';
 import shieldFlame from './icon';
 import { IpListDialog } from './ip-list-dialog';
+import NothingToBlockNotice from './nothing-to-block-notice';
 import { AUTOMATIC_RULES, IP_BLOCK_LIST, enabledKey } from './settings-keys';
 import TestDetails from './test-details';
 import UpgradeGap from './upgrade-gap';
@@ -280,8 +281,11 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const isBlockListOff = hasBlockListIps && ! ipData.settings?.[ enabledKey( IP_BLOCK_LIST ) ];
 	const needsBlockList = ! firewall.hasScan && ( ! hasBlockListIps || isBlockListOff );
 	const isFreeEmptyState = isEmpty && needsBlockList;
-	// That empty state has its own Upgrade button; the others still say when free rules went stale.
-	const showUpsell = ! firewall.hasScan && ! isEmpty && rulesUpdatedAt === null;
+	// Blocks so far came from a list since emptied; without rules either, nothing more can be blocked.
+	const hasNothingToBlock = active && hasBlocks && needsBlockList && rulesUpdatedAt === null;
+	// The empty states and that warning have their own Upgrade button; stale free rules still get theirs.
+	const showUpsell =
+		! firewall.hasScan && ! isEmpty && ! hasNothingToBlock && rulesUpdatedAt === null;
 	const showStaleRules = ! firewall.hasScan && ! isFreeEmptyState && rulesUpdatedAt !== null;
 	useRerenderEvery( 30000, !! lastTestAt );
 
@@ -347,6 +351,13 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			) }
 			{ isEmpty && ! needsBlockList && (
 				<NoBlocksState lastTestAt={ lastTestAt } isTesting={ isTesting } onTest={ runTest } />
+			) }
+			{ hasNothingToBlock && (
+				<NothingToBlockNotice
+					upgradeUrl={ firewall.upgradeUrl }
+					onAddIps={ openBlockList }
+					isListOff={ isBlockListOff }
+				/>
 			) }
 			{ active && hasBlocks && (
 				<CardRow>

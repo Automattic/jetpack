@@ -78,11 +78,11 @@ export function NoBlockListState( {
 			description={
 				isListOff
 					? __(
-							'Turn it on to block the IPs on it, or upgrade to get access to a recommended list of suspicious IPs.',
+							'Turn it on to block the IPs on it, or upgrade to get automatic rules that stop new attacks.',
 							'jetpack-protect-pkg'
 						)
 					: __(
-							'Add IPs manually to run tests or upgrade to get access to a recommended list of suspicious IPs.',
+							'Add IPs to block to run tests, or upgrade to get automatic rules that stop new attacks.',
 							'jetpack-protect-pkg'
 						)
 			}
