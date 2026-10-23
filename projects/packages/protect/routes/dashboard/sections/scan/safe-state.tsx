@@ -1,6 +1,7 @@
 import { dateI18n } from '@wordpress/date';
-import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import useRerenderEvery from '../../components/use-rerender-every';
 import { getCheckedCounts } from './labels';
 import ScanButton, { getNextCheck, useHasPassed } from './scan-button';
 import type { ScanState } from './types';
@@ -64,6 +65,62 @@ export const SafeShield = ( { justScanned = false }: { justScanned?: boolean } )
 	</svg>
 );
 
+const pad = ( n: number ) => String( n ).padStart( 2, '0' );
+
+/**
+ * Time left until a moment, as a ticking "23h 59m 21s", with the exact time on hover.
+ *
+ * @param props    - Component props.
+ * @param props.to - The moment counted down to.
+ * @return The countdown.
+ */
+function Countdown( { to }: { to: Date } ) {
+	useRerenderEvery( 1000, true );
+	const total = Math.max( 0, Math.ceil( ( to.getTime() - Date.now() ) / 1000 ) );
+	const hours = Math.floor( total / 3600 );
+	const minutes = Math.floor( total / 60 ) % 60;
+	const seconds = total % 60;
+	const parts = [
+		[ String( hours ), _x( 'h', 'hours, abbreviated', 'jetpack-protect-pkg' ) ],
+		[ pad( minutes ), _x( 'm', 'minutes, abbreviated', 'jetpack-protect-pkg' ) ],
+		[ pad( seconds ), _x( 's', 'seconds, abbreviated', 'jetpack-protect-pkg' ) ],
+	];
+
+	return (
+		<Text
+			variant="body-xl"
+			className="jp-protect-safe__countdown"
+			render={ <time dateTime={ to.toISOString() } title={ dateI18n( 'M j, g:i A', to ) } /> }
+		>
+			<span aria-hidden="true">
+				{ parts.map( ( [ digits, unit ], part ) => (
+					<span key={ unit } className="jp-protect-safe__countdown-part">
+						{ [ ...digits ].map( ( char, i ) => (
+							// Keyed by value, so only a digit that changed remounts and replays its tick.
+							<span key={ `${ part }-${ i }-${ char }` } className="jp-protect-safe__digit">
+								{ char }
+							</span>
+						) ) }
+						{ unit }
+					</span>
+				) ) }
+			</span>
+			<VisuallyHidden>
+				{ sprintf(
+					/* translators: %1$s is hours, %2$s minutes and %3$s seconds, such as "23 hours", "59 minutes", "21 seconds". */
+					__( '%1$s, %2$s, %3$s', 'jetpack-protect-pkg' ),
+					/* translators: %d is a number of hours. */
+					sprintf( _n( '%d hour', '%d hours', hours, 'jetpack-protect-pkg' ), hours ),
+					/* translators: %d is a number of minutes. */
+					sprintf( _n( '%d minute', '%d minutes', minutes, 'jetpack-protect-pkg' ), minutes ),
+					/* translators: %d is a number of seconds. */
+					sprintf( _n( '%d second', '%d seconds', seconds, 'jetpack-protect-pkg' ), seconds )
+				) }
+			</VisuallyHidden>
+		</Text>
+	);
+}
+
 type Props = {
 	scan: ScanState;
 	isStarting: boolean;
@@ -85,7 +142,6 @@ export default function SafeState( { scan, isStarting, onScan, justScanned = fal
 	const counts = getCheckedCounts( scan );
 	const nextCheck = getNextCheck( scan.lastChecked );
 	const nextScan = useHasPassed( nextCheck ) ? null : nextCheck;
-	const nextScanDate = nextScan && dateI18n( 'M j, gA', nextScan );
 
 	// The free check only compares versions with known vulnerabilities, so it can't call the site safe.
 	const copy = scan.hasPlan
@@ -97,13 +153,8 @@ export default function SafeState( { scan, isStarting, onScan, justScanned = fal
 					counts.plugins,
 					counts.themes
 				),
-				next: nextScanDate
-					? sprintf(
-							/* translators: %s is a date and time, such as "Sep 30, 9AM". */
-							__( 'Next scan will happen automatically on %s.', 'jetpack-protect-pkg' ),
-							nextScanDate
-						)
-					: __( 'Your site is scanned automatically every day.', 'jetpack-protect-pkg' ),
+				nextLabel: __( 'Next scan in:', 'jetpack-protect-pkg' ),
+				next: __( 'Your site is scanned automatically every day.', 'jetpack-protect-pkg' ),
 				button: __( 'Scan again now', 'jetpack-protect-pkg' ),
 			}
 		: {
@@ -114,13 +165,8 @@ export default function SafeState( { scan, isStarting, onScan, justScanned = fal
 					counts.plugins,
 					counts.themes
 				),
-				next: nextScanDate
-					? sprintf(
-							/* translators: %s is a date and time, such as "Sep 30, 9AM". */
-							__( 'Next check will happen automatically on %s.', 'jetpack-protect-pkg' ),
-							nextScanDate
-						)
-					: __( 'Vulnerabilities are checked automatically every day.', 'jetpack-protect-pkg' ),
+				nextLabel: __( 'Next check in:', 'jetpack-protect-pkg' ),
+				next: __( 'Vulnerabilities are checked automatically every day.', 'jetpack-protect-pkg' ),
 				button: __( 'Check again now', 'jetpack-protect-pkg' ),
 			};
 
@@ -137,9 +183,21 @@ export default function SafeState( { scan, isStarting, onScan, justScanned = fal
 			</Text>
 			<Text variant="body-lg" className="jp-protect-safe__details">
 				{ copy.details }
-				<br />
-				{ copy.next }
+				{ ! nextScan && (
+					<>
+						<br />
+						{ copy.next }
+					</>
+				) }
 			</Text>
+			{ nextScan && (
+				<Stack className="jp-protect-safe__next" direction="row" gap="sm" align="baseline">
+					<Text variant="body-lg" className="jp-protect-safe__details">
+						{ copy.nextLabel }
+					</Text>
+					<Countdown to={ nextScan } />
+				</Stack>
+			) }
 			<ScanButton scan={ scan } isStarting={ isStarting } onScan={ onScan } label={ copy.button } />
 		</Stack>
 	);
