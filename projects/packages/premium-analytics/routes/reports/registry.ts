@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { POST_DETAIL_SECTION } from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -147,7 +148,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	posts: {
 		id: 'posts',
 		feature: 'top-posts',
-		dashboardSection: 'traffic',
+		dashboardSection: POST_DETAIL_SECTION,
 		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveTabId,
 		load: () => import( './posts/page' ),

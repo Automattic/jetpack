@@ -97,6 +97,12 @@ export {
 	intervalMenuOptions,
 } from './utils/periods';
 export {
+	isDashboardSectionAvailable,
+	isPostDetailAvailable,
+	POST_DETAIL_SECTION,
+	type DashboardSectionSlug,
+} from './utils/dashboard-sections';
+export {
 	getLockedFeature,
 	getLockedSection,
 	getLockedWidgetFeature,
