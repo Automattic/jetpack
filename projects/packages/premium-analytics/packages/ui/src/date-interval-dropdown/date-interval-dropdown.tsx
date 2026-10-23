@@ -8,7 +8,6 @@ import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, chevronDown, lock } from '@wordpress/icons';
-import clsx from 'clsx';
 import { useState } from 'react';
 /**
  * Internal dependencies
@@ -100,11 +99,31 @@ function getTriggerLabel( value?: IntervalType ): string {
 }
 
 /**
+ * Say how to reach more buckets when the range allows only this one.
+ *
+ * @param interval - The lone bucket.
+ * @return The hint, or null where a longer range would not add weeks or days.
+ */
+function getLoneBucketHint( interval: IntervalType ): string | null {
+	switch ( interval ) {
+		case 'hour':
+			return __( 'Choose a longer date range to group by days.', 'jetpack-premium-analytics-pkg' );
+		case 'day':
+			return __(
+				'Choose a longer date range to group by weeks or months.',
+				'jetpack-premium-analytics-pkg'
+			);
+		default:
+			return null;
+	}
+}
+
+/**
  * The chart bucket-size control: a menu of what the active range allows, what the chart cannot
  * draw as it is set now, and what the plan locks.
  *
- * The trigger names the active bucket, not a glyph a widget's "Bar chart" toggle would echo, and
- * is disabled with one option and none unavailable or locked.
+ * The trigger names the active bucket, not a glyph a widget's "Bar chart" toggle would echo. It
+ * opens even with one option, so the row keeps one look and the menu can say how to get more.
  */
 export function DateIntervalDropdown( {
 	options,
@@ -129,28 +148,11 @@ export function DateIntervalDropdown( {
 		DateIntervalDropdown,
 		'date-interval-dropdown__unavailable-hint'
 	);
-
-	// The trigger's own Button, so the lone bucket sits where the menu's trigger would.
-	if (
-		value &&
-		options.length === 1 &&
-		options[ 0 ] === value &&
-		! lockedOptions.length &&
-		! unavailableOptions.length
-	) {
-		return (
-			<Button
-				variant="minimal"
-				tone="neutral"
-				size={ triggerProps?.size }
-				className={ clsx( 'date-interval-dropdown__lone', triggerProps?.className ) }
-				aria-label={ triggerLabel }
-				disabled
-			>
-				<span className="date-interval-dropdown__label">{ getIntervalLabel( value ) }</span>
-			</Button>
-		);
-	}
+	const hintId = useInstanceId( DateIntervalDropdown, 'date-interval-dropdown__hint' );
+	const hint =
+		options.length === 1 && ! lockedOptions.length && ! unavailableOptions.length
+			? getLoneBucketHint( options[ 0 ] )
+			: null;
 
 	return (
 		<DateControlPopover
@@ -173,7 +175,11 @@ export function DateIntervalDropdown( {
 				</Button>
 			}
 		>
-			<NavigableMenu role="menu" aria-label={ triggerLabel }>
+			<NavigableMenu
+				role="menu"
+				aria-label={ triggerLabel }
+				aria-describedby={ hint ? hintId : undefined }
+			>
 				<MenuGroup label={ __( 'Chart interval', 'jetpack-premium-analytics-pkg' ) }>
 					{ options.map( option => {
 						const isSelected = option === value;
@@ -222,6 +228,12 @@ export function DateIntervalDropdown( {
 			{ unavailableOptions.length > 0 && unavailableHint && (
 				<p id={ unavailableHintId } className="date-interval-dropdown__unavailable-hint">
 					{ unavailableHint }
+				</p>
+			) }
+
+			{ hint && (
+				<p id={ hintId } className="date-interval-dropdown__hint">
+					{ hint }
 				</p>
 			) }
 
