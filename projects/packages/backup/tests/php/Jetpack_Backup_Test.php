@@ -176,6 +176,41 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
+	 * Offline mode is reported only to someone who could otherwise use Backup.
+	 *
+	 * @param callable $check The permission check.
+	 * @dataProvider provide_permission_checks
+	 */
+	#[DataProvider( 'provide_permission_checks' )]
+	public function test_offline_mode_refuses_a_non_admin_without_a_reason( $check ) {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'backup_offline_subscriber_' . wp_generate_password( 6, false ),
+					'user_pass'  => 'pw',
+					'role'       => 'subscriber',
+				)
+			)
+		);
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
+
+		$this->assertFalse( call_user_func( $check ) );
+	}
+
+	/**
+	 * The legacy routes' check and the dashboard routes' check.
+	 *
+	 * @return array<string, array{callable}>
+	 */
+	public static function provide_permission_checks() {
+		return array(
+			'legacy routes'    => array( array( Jetpack_Backup::class, 'backups_permissions_callback' ) ),
+			'dashboard routes' => array( array( REST\Rest_Controller::class, 'permission_check' ) ),
+		);
+	}
+
+	/**
 	 * The callback reports the upstream status and reason, so the REST layer has
 	 * something to serve other than a generic 500, and the reader something to quote.
 	 *
