@@ -18,7 +18,7 @@ const threatPath = ( id: string | number, action: string ) =>
 
 // Like the Protect plugin: check a running fix every few seconds, for about five minutes.
 const FIX_POLL_INTERVAL = 3000;
-const MAX_FIX_POLLS = 100;
+const FIX_TIMEOUT = 5 * 60 * 1000;
 // A fix keeps running on WordPress.com, so a few failed checks in a row don't end it.
 const MAX_MISSED_POLLS = 3;
 // Requests a bulk action keeps in flight at once, so a large selection doesn't flood the site.
@@ -346,7 +346,7 @@ async function runFix(
 		let result = await send( { path: threatPath( id, 'fix' ), method: 'POST' } );
 		let missed = 0;
 		// A deadline, not a poll count, so polls queued behind a bulk action don't stretch it.
-		const deadline = Date.now() + MAX_FIX_POLLS * FIX_POLL_INTERVAL;
+		const deadline = Date.now() + FIX_TIMEOUT;
 		while ( result.status !== 'fixed' && result.status !== 'not_fixed' ) {
 			if ( Date.now() >= deadline ) {
 				return end( 'pending', null, takingLonger );
