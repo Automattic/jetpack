@@ -32,6 +32,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		empty,
+		tickResolution,
 	}: {
 		metrics: {
 			key: string;
@@ -40,9 +41,11 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			countLabel?: ( count: number ) => string;
 		}[];
 		empty?: ReactNode;
+		tickResolution?: string;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
+			data-tick-resolution={ tickResolution }
 			data-metric-keys={ metrics.map( metric => metric.key ).join( ',' ) }
 			data-count-labels={ metrics
 				.map( metric => `${ metric.countLabel?.( 1 ) }|${ metric.countLabel?.( 2 ) }` )
@@ -96,6 +99,32 @@ describe( 'SubscribersChartWidget', () => {
 		// day (3,4).
 		expect( chart ).toHaveAttribute( 'data-days', '4,5' );
 		expect( chart ).toHaveAttribute( 'data-values', '[5,6]' );
+	} );
+
+	it( 'declares its bucket size, which a month the range cuts would otherwise misread', async () => {
+		mockUseStatsSubscribersReport.mockReturnValue(
+			reportWith( [
+				{ date_start: '2025-04-11T00:00:00', subscribers: 5, subscribers_paid: 0 },
+				{ date_start: '2025-05-01T00:00:00', subscribers: 6, subscribers_paid: 0 },
+			] )
+		);
+
+		render(
+			<SubscribersChartWidget
+				attributes={ {
+					reportParams: {
+						from: '2025-04-11T00:00:00',
+						to: '2026-10-23T23:59:59',
+						interval: 'month',
+					},
+				} }
+			/>
+		);
+
+		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
+			'data-tick-resolution',
+			'month'
+		);
 	} );
 
 	it( 'charts a missing count as a gap and a real zero as zero', async () => {
