@@ -29,8 +29,8 @@ function render() {
 /**
  * Render the Safe Mode screen once a container that is added after page load appears.
  *
- * My Jetpack's dashboard adds its container shortly after page load. Stop watching after a minute,
- * well past a slow dashboard's start, so a page that never adds it does not check every page change.
+ * My Jetpack's dashboard adds its container shortly after page load.
+ * Stop after a minute, well past a slow dashboard's start, so a page that never adds the container is not watched for every change.
  *
  * @param {string} containerId - ID of the container element.
  */

@@ -19,7 +19,7 @@
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf dist",
 		"test": "node --test 'tests/js/**/*.test.js' && jest",
-		"test-coverage": "c8 --report-dir=\"$COVERAGE_DIR\" --temp-directory=\"$ARTIFACTS_DIR/v8\" pnpm run test",
+		"test-coverage": "c8 --report-dir=\"$COVERAGE_DIR\" --temp-directory=\"$ARTIFACTS_DIR/v8\" node --test 'tests/js/**/*.test.js' && COVERAGE_DIR=\"$COVERAGE_DIR/jest\" jest --coverage",
 		"validate": "pnpm exec validate-es dist/",
 		"validate-connectors-card": "node bin/validate-connectors-card.js",
 		"watch": "pnpm run build && pnpm webpack watch"
