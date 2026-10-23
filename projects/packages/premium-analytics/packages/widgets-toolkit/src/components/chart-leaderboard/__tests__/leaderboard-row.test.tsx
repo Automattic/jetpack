@@ -247,7 +247,7 @@ describe( 'buildLeaderboardRow', () => {
 		const row = buildLeaderboardRow( {
 			label: 'Hello',
 			media: { kind: 'thumbnail', url: 'https://example.com/p.jpg', alt: '' },
-			action: { kind: 'postLink', href: 'javascript:alert(1)', search: {} },
+			action: { kind: 'postLink', href: null, search: {} },
 		} );
 
 		render( row.label );
