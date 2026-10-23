@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Protect: Simplify the Protect page's Firewall card, with a Run test button, the requests blocked in the last 30 days, and links to edit the IP lists.

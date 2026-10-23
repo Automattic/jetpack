@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Protect dashboard: Simplify the Firewall card to a Run test button, the requests blocked in the last 30 days with a View log button, and one row of links to the IP lists and settings.

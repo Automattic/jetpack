@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, caution, check, closeSmall, info } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Button, Stack } from '@wordpress/ui';
+import { Button, EmptyState, Stack, Text } from '@wordpress/ui';
 import {
 	CardRow,
 	ProtectCard,
@@ -226,6 +226,20 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		[ settings, firewall.ipRules ]
 	);
 
+	const hasBlocks = ( blocks.blockedCount ?? blocks.recentBlocks.length ) > 0;
+	const isEmpty = active && ! hasBlocks;
+
+	// A test from the empty state logs a block, which swaps its Run test for the header's.
+	const emptyState = useRef< HTMLDivElement >( null );
+	const headerTest = useRef< HTMLButtonElement >( null );
+	const focusHeaderTest = useRef( false );
+	useEffect( () => {
+		if ( ! isEmpty && focusHeaderTest.current ) {
+			focusHeaderTest.current = false;
+			headerTest.current?.focus();
+		}
+	}, [ isEmpty ] );
+
 	// "Learn more" opens this card's dialog, so the snackbar can't outlive the card, nor can a test it started.
 	const isMounted = useRef( false );
 	useEffect( () => {
@@ -238,6 +252,8 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 
 	const runTest = useCallback( async () => {
 		setIsTesting( true );
+		const empty = emptyState.current;
+		focusHeaderTest.current = !! empty?.contains( empty.ownerDocument.activeElement );
 		notify( 'testing' );
 		const lastId = blocks.recentBlocks[ 0 ]?.id ?? 0;
 		let testResult: TestResult;
@@ -275,6 +291,8 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		return <UnavailableCard icon={ shieldFlame } title={ title } />;
 	}
 
+	const runTestLabel = __( 'Run test', 'jetpack-protect-pkg' );
+
 	return (
 		<ProtectCard
 			icon={ shieldFlame }
@@ -284,9 +302,11 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 				'jetpack-protect-pkg'
 			) }
 			actions={
-				<Button variant="outline" size="compact" onClick={ runTest } loading={ isTesting }>
-					{ __( 'Test firewall', 'jetpack-protect-pkg' ) }
-				</Button>
+				! isEmpty && (
+					<Button ref={ headerTest } size="compact" onClick={ runTest } loading={ isTesting }>
+						{ runTestLabel }
+					</Button>
+				)
 			}
 		>
 			{ result && (
@@ -303,69 +323,38 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					<FirewallToggle data={ settings } />
 				</CardRow>
 			) }
-			{ active && (
+			{ active && hasBlocks && (
 				<CardRow>
-					<Stack direction="column" gap="md" align="start">
-						<div className="jp-protect-firewall-overview__stats">
-							<Stat
-								label={ __( 'Blocked today', 'jetpack-protect-pkg' ) }
-								value={ formatCount( blocks.blockedToday ) }
-							/>
-							<Stat
-								label={ __( 'Blocked in the last 30 days', 'jetpack-protect-pkg' ) }
-								value={ formatCount( blocks.blockedLast30Days ) }
-							/>
-							<Stat
-								label={ __( 'All-time blocked requests', 'jetpack-protect-pkg' ) }
-								value={ formatCount( blocks.blockedCount ) }
-							/>
-						</div>
-						<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
-							{ __( 'Configure Firewall', 'jetpack-protect-pkg' ) }
-						</TabLink>
+					<Stack direction="column" gap="lg" align="start">
+						<Stat
+							label={ __( 'Blocked in the last 30 days', 'jetpack-protect-pkg' ) }
+							value={ formatCount( blocks.blockedLast30Days ) }
+						/>
+						<RecentBlocks blocks={ blocks.recentBlocks } />
 					</Stack>
 				</CardRow>
 			) }
-			{ active && (
-				<CardRow className="jp-protect-firewall-overview__columns">
-					<RecentBlocks blocks={ blocks.recentBlocks } />
-					{ rulesUpdatedAt !== null && (
-						<Stat
-							label={ __( 'Rules last updated', 'jetpack-protect-pkg' ) }
-							value={
-								<time dateTime={ new Date( rulesUpdatedAt * 1000 ).toISOString() }>
-									{ dateI18n( 'M j, Y', rulesUpdatedAt * 1000, undefined ) }
-								</time>
-							}
-						/>
-					) }
-				</CardRow>
-			) }
-			{ active && (
-				<CardRow className="jp-protect-firewall-overview__columns">
-					<IpRule
-						data={ ipData }
-						name={ IP_BLOCK_LIST }
-						label={ __( 'Block specific IP addresses', 'jetpack-protect-pkg' ) }
-						description={ __(
-							'Stop specific visitors from accessing your site by their IP address.',
-							'jetpack-protect-pkg'
-						) }
-						editLabel={ __( 'Edit block list', 'jetpack-protect-pkg' ) }
-						dialogTitle={ __( 'Blocked IP addresses', 'jetpack-protect-pkg' ) }
-					/>
-					<IpRule
-						data={ ipData }
-						name={ IP_ALLOW_LIST }
-						label={ __( 'Always allow specific IP addresses', 'jetpack-protect-pkg' ) }
-						description={ __(
-							'IP addresses added to this list are always allowed to access your site.',
-							'jetpack-protect-pkg'
-						) }
-						editLabel={ __( 'Edit allow list', 'jetpack-protect-pkg' ) }
-						dialogTitle={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
-						currentIp={ firewall.currentIp }
-					/>
+			{ isEmpty && (
+				<CardRow className="jp-protect-firewall-overview__empty">
+					<EmptyState.Root ref={ emptyState }>
+						<EmptyState.Visual>
+							<Icon icon={ check } size={ 48 } className="jp-protect-firewall-overview__check" />
+						</EmptyState.Visual>
+						<Text variant="heading-xl" render={ <h3 /> } className="jp-protect-card__title">
+							{ __( 'No requests blocked yet', 'jetpack-protect-pkg' ) }
+						</Text>
+						<EmptyState.Description>
+							{ __(
+								'Get started by testing your firewall and start blocking requests from suspicious IPs.',
+								'jetpack-protect-pkg'
+							) }
+						</EmptyState.Description>
+						<EmptyState.Actions>
+							<Button size="compact" onClick={ runTest } loading={ isTesting }>
+								{ runTestLabel }
+							</Button>
+						</EmptyState.Actions>
+					</EmptyState.Root>
 				</CardRow>
 			) }
 			{ ! firewall.hasScan && rulesUpdatedAt === null && (
@@ -389,6 +378,26 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					event="jetpack_protect_dashboard_firewall_upsell"
 					eventProps={ { state: 'stopped' } }
 				/>
+			) }
+			{ active && (
+				<CardRow className="jp-protect-firewall-overview__links">
+					<IpRule
+						data={ ipData }
+						name={ IP_BLOCK_LIST }
+						editLabel={ __( 'Edit block list', 'jetpack-protect-pkg' ) }
+						dialogTitle={ __( 'Blocked IP addresses', 'jetpack-protect-pkg' ) }
+					/>
+					<IpRule
+						data={ ipData }
+						name={ IP_ALLOW_LIST }
+						editLabel={ __( 'Edit allow list', 'jetpack-protect-pkg' ) }
+						dialogTitle={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
+						currentIp={ firewall.currentIp }
+					/>
+					<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
+						{ __( 'Configure Firewall', 'jetpack-protect-pkg' ) }
+					</TabLink>
+				</CardRow>
 			) }
 		</ProtectCard>
 	);
