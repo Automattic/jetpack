@@ -53,6 +53,7 @@ function activateLogstash() {
 			trace: error.stack,
 			url: document.location.href,
 			feature: 'wp-admin',
+			blog_id: window.WPcom_Error_Reporting_Config?.blogId,
 		};
 
 		// Send as direct `fetch` request with `x-www-form-urlencoded` content type and no extra
