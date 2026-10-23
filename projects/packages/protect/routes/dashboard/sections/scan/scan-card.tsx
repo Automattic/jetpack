@@ -126,7 +126,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 					/>
 				</CardRow>
 				<CardRow className="jp-protect-card__threats">
-					<ThreatsList threats={ threats } canAct={ hasPlan } empty={ safeState } />
+					<ThreatsList threats={ threats } canAct={ hasPlan } />
 				</CardRow>
 			</>
 		);
