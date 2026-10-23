@@ -1,5 +1,6 @@
-import { currentUserCan } from '@automattic/jetpack-script-data';
-import { __ } from '@wordpress/i18n';
+import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
+import { decodeEntities } from '@wordpress/html-entities';
+import { __, sprintf } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
 import useSitePurchases from '../../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
@@ -21,6 +22,8 @@ export function OverviewContent() {
 	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	// Loads the plans the header's plan summary shows, so they're ready when it opens.
 	useSitePurchases( { enabled: isHeaderControlsEnabled() } );
+	// WordPress stores display names HTML-escaped.
+	const displayName = decodeEntities( getScriptData()?.user?.current_user?.display_name ?? '' );
 
 	return (
 		<div>
@@ -29,7 +32,13 @@ export function OverviewContent() {
 					<>
 						<div className={ styles.welcome }>
 							<Text variant="heading-xl" render={ <h2 /> }>
-								{ __( 'Welcome to Jetpack', 'jetpack-my-jetpack' ) }
+								{ displayName
+									? sprintf(
+											/* translators: %s: The current user's display name. */
+											__( 'Welcome to Jetpack, %s!', 'jetpack-my-jetpack' ),
+											displayName
+										)
+									: __( 'Welcome to Jetpack', 'jetpack-my-jetpack' ) }
 							</Text>
 						</div>
 						<OverviewSections />
