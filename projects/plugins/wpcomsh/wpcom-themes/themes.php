@@ -253,8 +253,8 @@ function wpcomsh_remove_symlink_wp_error( $code, $message, $data, WP_Error $erro
  * @return bool|mixed|WP_Error
  */
 function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
-	// Pre-requisites checks.
-	if ( ! $package || ! is_string( $package ) || ! $upgrader instanceof Theme_Upgrader ) {
+	// Pre-requisites checks. A WP.com theme's package is its slug; a URL or file path is some other theme.
+	if ( ! $package || ! is_string( $package ) || str_contains( $package, '/' ) || ! $upgrader instanceof Theme_Upgrader ) {
 		return $reply;
 	}
 
@@ -265,8 +265,15 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
 		return $reply;
 	}
 
+	$theme_type = wpcomsh_get_wpcom_theme_type( $wpcom_theme->slug );
+
+	// WP Cloud doesn't host it, so wpcomsh_theme_install_by_download() gets it instead.
+	if ( ! $theme_type ) {
+		return $reply;
+	}
+
 	$upgrader->skin->feedback( 'installing_package' );
-	$result = wpcomsh_jetpack_wpcom_theme_skip_download( false, $wpcom_theme->slug );
+	$result = wpcomsh_install_managed_theme( $wpcom_theme->slug, $theme_type );
 
 	if ( is_wp_error( $result ) && $result->get_error_code() !== 'wpcom_theme_already_installed' ) {
 		$upgrader->skin->feedback( 'process_failed' );
@@ -292,6 +299,57 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
 	return new WP_Error( 'wpcomsh_theme_install_symlink' );
 }
 add_filter( 'upgrader_pre_download', 'wpcomsh_theme_install_by_symlink', 0, 4 );
+
+/**
+ * Install WPCom themes WP Cloud doesn't host by handing core their download, which it unpacks and installs.
+ *
+ * @param mixed  $reply    The result object.
+ * @param string $package  The package to install.
+ * @param mixed  $upgrader The upgrader component.
+ *
+ * @return mixed|string|WP_Error The downloaded package's path, or why there is none.
+ */
+function wpcomsh_theme_install_by_download( $reply, $package, $upgrader ) {
+	if ( false !== $reply || ! $package || ! is_string( $package ) || str_contains( $package, '/' ) || ! $upgrader instanceof Theme_Upgrader ) {
+		return $reply;
+	}
+
+	$wpcom_theme = wpcomsh_get_wpcom_themes_service_instance()->get_theme( $package );
+	if ( ! $wpcom_theme ) {
+		return $reply;
+	}
+
+	$download_link = wpcomsh_get_marketplace_theme_download_link( $wpcom_theme->slug );
+	if ( '' === $download_link ) {
+		return new WP_Error( 'wpcom_theme_not_installable', __( 'This theme could not be installed.', 'wpcomsh' ) );
+	}
+
+	return download_url( $download_link );
+}
+add_filter( 'upgrader_pre_download', 'wpcomsh_theme_install_by_download', 1, 4 );
+
+/**
+ * Where to download a marketplace theme this site owns, which WordPress.com lists only for owned themes.
+ *
+ * @param string $slug Theme slug.
+ *
+ * @return string The download link, empty when WordPress.com offers none for this site.
+ */
+function wpcomsh_get_marketplace_theme_download_link( string $slug ): string {
+	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( '/marketplace/themes/updates', '2', array(), null, 'wpcom' );
+	if ( is_wp_error( $response ) ) {
+		return '';
+	}
+
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+	foreach ( $body['updates'] ?? array() as $update ) {
+		if ( is_array( $update ) && ( $update['slug'] ?? '' ) === $slug && ! empty( $update['download_link'] ) ) {
+			return (string) $update['download_link'];
+		}
+	}
+
+	return '';
+}
 
 /**
  * Remove the symlink created for the WPCom theme when the theme is deleted.
