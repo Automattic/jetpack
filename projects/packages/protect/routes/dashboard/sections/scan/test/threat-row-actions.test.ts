@@ -33,6 +33,11 @@ const autoFix = ( actions: Actions ) => {
 };
 
 describe( 'useThreatRowActions', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+		document.body.innerHTML = '';
+	} );
+
 	it.each( [
 		[ 'a fix', 1, ( item: ScanThreat ) => fixThreat( item ), [ 'view' ] ],
 		[
@@ -65,20 +70,24 @@ describe( 'useThreatRowActions', () => {
 		expect( eligibleIds( result.current, item ) ).toContain( 'auto-fix' );
 	} );
 
-	it( 'moves focus to the threat’s row once starting the fix removes the clicked button', () => {
+	it.each( [
+		[ 'moves focus to the threat’s row once the clicked button is gone', true, 'Threat' ],
+		[ 'leaves focus alone while the clicked button stays', false, 'Auto-fix' ],
+	] )( '%s', ( _name, removeClicked, focused ) => {
 		jest.useFakeTimers();
 		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
-		const item = threatIn( 'plugins-contact-form-7/wp-contact-form-7.php-5.3.1' );
+		const item = threatIn( `plugins-contact-form-7/wp-contact-form-7.php-${ focused }` );
 		document.body.innerHTML = `<button data-threat-id="${ item.id }">Threat</button><button>Auto-fix</button>`;
 		const clicked = screen.getByRole( 'button', { name: 'Auto-fix' } );
 		clicked.focus();
 		const { result } = renderHook( () => useThreatRowActions( open, true ) );
 
 		act( () => autoFix( result.current )( [ item ], {} as never ) );
-		clicked.remove();
+		if ( removeClicked ) {
+			clicked.remove();
+		}
 		act( () => jest.runAllTimers() );
 
-		expect( screen.getByRole( 'button', { name: 'Threat' } ) ).toHaveFocus();
-		jest.useRealTimers();
+		expect( screen.getByRole( 'button', { name: focused } ) ).toHaveFocus();
 	} );
 } );
