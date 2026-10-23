@@ -392,16 +392,15 @@ class Backup_Abilities extends Registrar {
 	}
 
 	/**
-	 * Permission check for read abilities. Gates on `manage_options` to
-	 * match the existing REST controller (see
-	 * Jetpack_Backup::backups_permissions_callback). Kept separate from
+	 * Permission check for read abilities: the REST routes' own check,
+	 * Jetpack_Backup::backups_permissions_callback(). Kept separate from
 	 * `can_manage_backups()` so the read and write surfaces can diverge
 	 * later without touching every spec.
 	 *
 	 * @return bool
 	 */
 	public static function can_view_backups(): bool {
-		return current_user_can( 'manage_options' );
+		return true === Jetpack_Backup::backups_permissions_callback();
 	}
 
 	/**
@@ -410,7 +409,7 @@ class Backup_Abilities extends Registrar {
 	 * @return bool
 	 */
 	public static function can_manage_backups(): bool {
-		return current_user_can( 'manage_options' );
+		return true === Jetpack_Backup::backups_permissions_callback();
 	}
 
 	/**

@@ -546,15 +546,41 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * The backup calls should only occur from a signed in admin user
+	 * The backup calls should only occur from a signed in admin user, outside offline mode
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return true|WP_Error
+	 * @return bool|WP_Error
 	 */
 	public static function backups_permissions_callback() {
-		return current_user_can( 'manage_options' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		return self::get_offline_mode_error() ?? true;
+	}
+
+	/**
+	 * The error every Backup route answers with while Jetpack is in offline mode.
+	 *
+	 * A local copy of a live site keeps its tokens, and offline mode drops the identity-crisis
+	 * check, so WordPress.com would act on the live site's backups.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_Error|null Null outside offline mode.
+	 */
+	public static function get_offline_mode_error() {
+		if ( ! ( new Status() )->is_offline_mode() ) {
+			return null;
+		}
+
+		return new WP_Error(
+			'offline_mode',
+			__( 'Backup is unavailable in Offline Mode.', 'jetpack-backup-pkg' ),
+			array( 'status' => 403 )
+		);
 	}
 
 	/**

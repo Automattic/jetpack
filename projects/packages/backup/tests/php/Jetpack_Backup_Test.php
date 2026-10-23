@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Backup\V0005;
 
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
@@ -100,6 +101,8 @@ class Jetpack_Backup_Test extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_response_recording_timeout' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ) );
 		remove_filter( 'locale', array( $this, 'mock_locale' ) );
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
 		wp_set_current_user( 0 );
 
 		foreach ( array( 'en_US', $this->locale ) as $locale ) {
@@ -146,6 +149,30 @@ class Jetpack_Backup_Test extends TestCase {
 
 		$this->assertTrue( $response->is_error(), $route );
 		$this->assertSame( 503, $response->get_status(), $route );
+	}
+
+	/**
+	 * Offline mode refuses the route before it reaches WordPress.com.
+	 *
+	 * @param string $route       The registered REST route.
+	 * @param string $http_method The route's HTTP method.
+	 * @dataProvider provide_wpcom_backed_route_requests
+	 */
+	#[DataProvider( 'provide_wpcom_backed_route_requests' )]
+	public function test_route_refuses_in_offline_mode( $route, $http_method ) {
+		$this->sign_in_as_connected_admin();
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
+
+		rest_get_server();
+		Jetpack_Backup::register_rest_routes();
+
+		$response = rest_do_request( new WP_REST_Request( $http_method, $route ) );
+
+		$this->assertSame( 403, $response->get_status(), $route );
+		$this->assertSame( 'offline_mode', $response->get_data()['code'], $route );
+		$this->assertSame( 0, $this->http_requests, $route );
 	}
 
 	/**
