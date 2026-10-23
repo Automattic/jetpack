@@ -94,16 +94,19 @@ describe( 'ScanCard empty state', () => {
 	it.each( [
 		[
 			false,
+			'No vulnerabilities found',
 			'No issues were found after checking 3 plugins and 1 theme for known vulnerabilities.',
 		],
-		[ true, 'No issues were found after scanning 3 plugins and 1 theme in the latest scan.' ],
+		[ true, 'No threats found', 'No issues were found after scanning 3 plugins and 1 theme.' ],
 	] )(
-		'with hasPlan %s, says what was checked and leaves starting a scan to the page header',
-		async ( hasPlan, details ) => {
+		'with hasPlan %s, says %s and what was checked, leaving scans to the page header',
+		async ( hasPlan, title, details ) => {
 			renderCard( { hasPlan } );
 
+			await expect(
+				screen.findByRole( 'heading', { level: 3, name: title } )
+			).resolves.toBeInTheDocument();
 			expect( screen.getByText( details ) ).toBeInTheDocument();
-			await expect( screen.findByRole( 'heading', { level: 3 } ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 		}
 	);

@@ -91,10 +91,7 @@ export default function SafeState( { scan, justScanned = false }: Props ) {
 				title: __( 'No threats found', 'jetpack-protect-pkg' ),
 				details: sprintf(
 					/* translators: %1$s is a number of plugins, such as "23 plugins". %2$s is a number of themes, such as "5 themes". */
-					__(
-						'No issues were found after scanning %1$s and %2$s in the latest scan.',
-						'jetpack-protect-pkg'
-					),
+					__( 'No issues were found after scanning %1$s and %2$s.', 'jetpack-protect-pkg' ),
 					counts.plugins,
 					counts.themes
 				),

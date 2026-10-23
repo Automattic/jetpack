@@ -22,7 +22,7 @@ const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
 const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
 
 /**
- * The Scan card: start a scan, then review what it found or see that the site is safe.
+ * The Scan card: what the latest scan found, or that it found nothing; scans start from the page header.
  *
  * @param props         - Component props.
  * @param props.openTab - Switches dashboard tabs, for the link to Scan history.

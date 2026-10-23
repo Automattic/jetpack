@@ -119,4 +119,17 @@ describe( 'Scan now', () => {
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the burst is decorative and aria-hidden.
 		await waitFor( () => expect( container.querySelector( '.is-bursting' ) ).toBeInTheDocument() );
 	} );
+
+	it( 'keeps a free site from checking again within a day, and says when it can', () => {
+		const lastChecked = new Date( Date.now() - 60 * 60 * 1000 )
+			.toISOString()
+			.slice( 0, 19 )
+			.replace( 'T', ' ' );
+		setScan( () => ( { ...report, hasPlan: false, lastChecked } ) );
+		render( <HeaderScanButton /> );
+
+		const button = screen.getByRole( 'button', { name: 'Scan now' } );
+		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( button ).toHaveAccessibleDescription( /Free vulnerability checks run once a day/ );
+	} );
 } );
