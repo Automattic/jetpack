@@ -444,6 +444,7 @@ function Dashboard(): JSX.Element {
 							lockedOptions={ dateFilters.lockedIntervalOptions }
 							lockUpsell={ dateLimits?.intervalUpsell }
 							value={ dateFilters.interval }
+							withLabel
 							onChange={ dateFilters.onIntervalChange }
 						/>
 					) }
