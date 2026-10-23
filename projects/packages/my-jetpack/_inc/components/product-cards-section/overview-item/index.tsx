@@ -164,8 +164,10 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	if ( admin && upgrade ) {
 		productLinks.push(
 			<Link key="upgrade" href={ upgrade.href } onClick={ upgrade.onClick }>
-				<Icon icon={ lock } size={ 16 } />
-				{ upgrade.label }
+				<span className={ styles.locked }>
+					<Icon icon={ lock } size={ 16 } />
+					{ upgrade.label }
+				</span>
 			</Link>
 		);
 	}
