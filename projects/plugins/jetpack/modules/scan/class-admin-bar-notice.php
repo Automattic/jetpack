@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Scan;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Protect\Threat_Count;
-use Automattic\Jetpack\Protect_Status\Status;
+use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use WP_Admin_Bar;
@@ -95,7 +95,7 @@ class Admin_Bar_Notice {
 			return false;
 		}
 
-		if ( method_exists( Status::class, 'should_notify_threats' ) && ! Status::should_notify_threats() ) {
+		if ( method_exists( Protect_Status::class, 'should_notify_threats' ) && ! Protect_Status::should_notify_threats() ) {
 			return false;
 		}
 
