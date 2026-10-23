@@ -8,7 +8,7 @@ import type { Action } from '@wordpress/dataviews';
 type LinkKey = 'update' | 'deactivate' | 'details';
 
 /**
- * A row's DataViews actions: primary ones show on every row, and the ⋯ menu lists them all.
+ * A row's DataViews actions: primary ones show as buttons without hovering, and the ⋯ menu lists them all.
  *
  * @param open   - Opens a threat in the inspector.
  * @param canAct - Whether the site's plan can fix and ignore threats.

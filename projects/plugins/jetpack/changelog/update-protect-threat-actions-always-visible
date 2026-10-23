@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Protect: Show the View and Auto-fix buttons in the Protect page's threat lists without hovering, so it is easy to see which threats can be fixed automatically.
