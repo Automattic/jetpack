@@ -177,6 +177,42 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertTrue( apply_filters( 'jetpack_module_configurable_' . $module, false ) );
 	}
 
+	/**
+	 * The Scan link each key sets, the URL a host sends in it, and the link that results (null for the default).
+	 *
+	 * @return array[]
+	 */
+	public static function provide_host_scan_links() {
+		return array(
+			'upgrade to host plans'   => array( 'get_scan_upgrade_url', 'url', 'https://example.com/plans', 'https://example.com/plans' ),
+			'manage at host'          => array( 'get_scan_manage_url', 'manage_url', 'https://example.com/scan', 'https://example.com/scan' ),
+			'upgrade ignores manage'  => array( 'get_scan_upgrade_url', 'manage_url', 'https://example.com/scan', null ),
+			'javascript: URL dropped' => array( 'get_scan_upgrade_url', 'url', 'javascript:alert(1)', null ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_host_scan_links
+	 *
+	 * @param string      $method   The Dashboard method that returns the link.
+	 * @param string      $key      The key the host sets.
+	 * @param string      $url      The URL the host sends.
+	 * @param string|null $expected The resulting link, or null for the unfiltered one.
+	 */
+	#[DataProvider( 'provide_host_scan_links' )]
+	public function test_host_can_send_scan_links_elsewhere( $method, $key, $url, $expected ) {
+		$default      = Dashboard::$method();
+		$send_to_host = static function ( $upgrade, $slug ) use ( $key, $url ) {
+			return 'protect-dashboard' === $slug ? array_merge( $upgrade, array( $key => $url ) ) : $upgrade;
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
+
+		$link = Dashboard::$method();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
+
+		$this->assertSame( $expected ?? $default, $link );
+	}
+
 	public function test_init_announces_the_dashboard() {
 		$this->assertGreaterThan( 0, did_action( 'jetpack_protect_dashboard_initialized' ) );
 	}

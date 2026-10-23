@@ -84,36 +84,6 @@ class WPCOM_Backup extends WPCOM_Hosting_Feature_Page {
 	public static function filter_jetpack_backup_dashboard( $enabled ) {
 		return $enabled && self::has_feature();
 	}
-
-	/**
-	 * Send My Jetpack's Backup upgrade on a WoA site to the WordPress.com plans that include backups.
-	 *
-	 * @param array  $upgrade  Where the Upgrade button goes.
-	 * @param string $slug     The My Jetpack feature slug.
-	 * @param bool   $included Whether the site already pays for the feature.
-	 * @return array
-	 */
-	public static function filter_my_jetpack_feature_upgrade( $upgrade, $slug, $included ) {
-		if ( 'backup' !== $slug || $included ) {
-			return $upgrade;
-		}
-
-		return array(
-			'path' => '',
-			'name' => 'WordPress.com Business', // Product name, do not translate.
-			'url'  => self::get_plans_url( wpcom_get_site_slug() ),
-		);
-	}
-
-	/**
-	 * The WordPress.com plans page, with Business picked: the lowest plan that includes backups.
-	 *
-	 * @param string $site_slug The site's WordPress.com slug.
-	 * @return string
-	 */
-	public static function get_plans_url( $site_slug ) {
-		return 'https://wordpress.com/plans/' . $site_slug . '?plan=business-bundle';
-	}
 }
 
 add_action( 'init', array( WPCOM_Backup::class, 'init' ) );

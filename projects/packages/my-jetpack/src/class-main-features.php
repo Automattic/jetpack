@@ -557,18 +557,19 @@ class Main_Features {
 	 */
 	private static function filter_upgrade( array $upgrade, $slug, $included ) {
 		/**
-		 * Filters where a My Jetpack feature's Upgrade button goes.
+		 * Filters where a feature's upgrade and manage links go, so a host can send them to its own plans.
 		 *
 		 * Set `url` to an absolute address to replace the My Jetpack route, which also drops the
-		 * Jetpack plans the feature's details would otherwise link to. Ignored when `$included`.
+		 * Jetpack plans the feature's details would otherwise link to; it is ignored when `$included`.
+		 * Set `manage_url` to where a site that has the feature manages it, read only when `$included`.
 		 *
 		 * @since 6.13.0
 		 *
 		 * @param array  $upgrade  `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is.
-		 * @param string $slug     The feature slug.
+		 * @param string $slug     The My Jetpack feature slug.
 		 * @param bool   $included Whether the site already pays for the feature.
 		 */
-		$filtered = apply_filters( 'jetpack_my_jetpack_feature_upgrade', $upgrade, $slug, $included );
+		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade, $slug, $included );
 
 		if ( ! is_array( $filtered ) ) {
 			return $upgrade;

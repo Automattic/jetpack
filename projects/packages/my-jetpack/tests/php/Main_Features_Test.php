@@ -648,10 +648,10 @@ class Main_Features_Test extends TestCase {
 		$send_to_host = static function ( $upgrade ) use ( $url ) {
 			return array_merge( $upgrade, array( 'url' => $url ) );
 		};
-		add_filter( 'jetpack_my_jetpack_feature_upgrade', $send_to_host );
+		add_filter( 'jetpack_feature_upgrade', $send_to_host );
 
 		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
-		remove_filter( 'jetpack_my_jetpack_feature_upgrade', $send_to_host );
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host );
 
 		$this->assertSame( $expected, $upgrades['backup']['url'] ?? null );
 	}
@@ -674,10 +674,10 @@ class Main_Features_Test extends TestCase {
 	 */
 	public function test_non_array_upgrade_filter_keeps_the_upgrade() {
 		$before = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
-		add_filter( 'jetpack_my_jetpack_feature_upgrade', '__return_empty_string' );
+		add_filter( 'jetpack_feature_upgrade', '__return_empty_string' );
 
 		$after = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
-		remove_filter( 'jetpack_my_jetpack_feature_upgrade', '__return_empty_string' );
+		remove_filter( 'jetpack_feature_upgrade', '__return_empty_string' );
 
 		$this->assertSame( $before, $after );
 	}
