@@ -45,14 +45,7 @@ const mockUseProductDetails = useProductDetails as jest.Mock;
 
 const HOODIE = { image: { url: 'hoodie.jpg', alt: '' }, permalink: 'https://shop.test/hoodie/' };
 
-it.each( [
-	[
-		'answered without the deleted one',
-		{ data: { 20: HOODIE }, isError: false },
-		{ kind: 'postLink', id: 20, href: 'https://shop.test/hoodie/' },
-	],
-	[ 'failed', { data: undefined, isError: true }, undefined ],
-] )( 'links only the products the products request %s', ( _name, primary, firstAction ) => {
+const renderRows = ( primary: { data?: Record< number, typeof HOODIE >; isError: boolean } ) => {
 	mockUseProductDetails.mockReturnValue( { primary, isFetching: false } );
 
 	render(
@@ -63,8 +56,34 @@ it.each( [
 		/>
 	);
 
-	const { rows, status } = mockLeaderboard.mock.lastCall[ 0 ];
+	return mockLeaderboard.mock.lastCall[ 0 ];
+};
+
+it.each( [
+	[
+		'answered without the deleted one',
+		{ data: { 20: HOODIE }, isError: false },
+		{ kind: 'postLink', id: 20, href: 'https://shop.test/hoodie/' },
+	],
+	[ 'failed', { data: undefined, isError: true }, undefined ],
+] )( 'links only the products the products request %s', ( _name, primary, firstAction ) => {
+	const { rows } = renderRows( primary );
+
 	expect( rows[ 0 ].action ).toEqual( firstAction );
 	expect( rows[ 1 ].action ).toBeUndefined();
+} );
+
+it( 'shows each thumbnail it found, named after its product when the store gave no alt', () => {
+	const { rows } = renderRows( { data: { 20: HOODIE }, isError: false } );
+
+	expect( rows.map( ( row: { media: unknown } ) => row.media ) ).toEqual( [
+		{ kind: 'thumbnail', url: 'hoodie.jpg', alt: 'Hoodie' },
+		{ kind: 'thumbnail', url: undefined, alt: 'Gone' },
+	] );
+} );
+
+it( 'keeps the widget out of its error state when only the products request failed', () => {
+	const { status } = renderRows( { data: undefined, isError: true } );
+
 	expect( status.isError ).toBe( false );
 } );
