@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Scan: On WordPress.com, use scan-self-serve for Scan feature gating.
