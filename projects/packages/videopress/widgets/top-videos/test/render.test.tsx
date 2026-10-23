@@ -7,6 +7,7 @@ import { video as videoIcon } from '@wordpress/icons';
  * Internal dependencies
  */
 import TopVideos from '../render';
+import manifest from '../widget.json';
 import type { ReactNode } from 'react';
 
 const mockLeaderboard = jest.fn();
@@ -197,11 +198,21 @@ describe( 'Top videos widget', () => {
 		expect( leaderboardProps().error ).toEqual( { description: 'Described.' } );
 	} );
 
-	it( 'declares View all and the Videos report CSV, by report id, to the host', () => {
+	it( 'declares View all to the Videos report in its manifest', () => {
+		expect( manifest.actions ).toEqual( [
+			{
+				id: 'view-all',
+				label: 'View all',
+				relevance: 'high',
+				href: 'admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Fvideos',
+			},
+		] );
+	} );
+
+	it( 'declares the Videos report CSV, by report id, to the host', () => {
 		render( <TopVideos attributes={ {} } /> );
 
 		expect( mockReportActions ).toHaveBeenLastCalledWith( {
-			report: 'videos',
 			csv: {
 				report: 'videos',
 				status: { isLoading: false, isFetching: false, isError: false },

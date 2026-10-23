@@ -41,7 +41,6 @@ function WordAdsEarningsHistoryReport() {
 	// and the report is their only home now; most sites have none.
 	const adjustmentCount = Object.keys( data?.adjustment ?? {} ).length;
 
-	useReportActions( { report: 'earnings' } );
 	// Trailing, so View all keeps its place.
 	useReportActions(
 		adjustmentCount > 0

@@ -119,7 +119,6 @@ function TopVideosReport() {
 	const hasNoVideos = canUpload && videos?.length === 0;
 
 	useReportActions( {
-		report: 'videos',
 		csv: {
 			report: 'videos',
 			status: { isLoading: isInitialLoading, isFetching, isError: primary.isError },
