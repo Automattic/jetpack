@@ -872,21 +872,8 @@ describe( 'GPC for a returning visitor', () => {
 
 		expect( applyGpcToStoredConsent( 'US', 'texas', config ) ).toBe( false );
 		expect( consentCalls ).toHaveLength( 0 );
-		// Remembered, so later loads neither recheck nor look the region up again.
-		expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) ) ).toBe(
-			true
-		);
-	} );
-
-	it( 'remembers a kept choice only for the geo cookie lifetime', () => {
-		setGpc( true );
-		cookieJar = ALL_ALLOWED;
-
-		applyGpcToStoredConsent( 'US', 'texas', { ...config, geo: { cookieDuration: 3600 } } );
-
-		const mark = cookieWrites.find( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) );
-		const expires = Date.parse( /expires=([^;]+)/.exec( mark ?? '' )?.[ 1 ] ?? '' );
-		expect( Math.abs( expires - ( Date.now() + 3600 * 1000 ) ) ).toBeLessThan( 5000 );
+		// No mark, so a later load from a region that honors GPC still opts it out.
+		expect( cookieWrites ).toHaveLength( 0 );
 	} );
 
 	it( 'keeps a choice the visitor made with GPC on', () => {

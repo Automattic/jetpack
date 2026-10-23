@@ -8,8 +8,7 @@ import type { ConsentType, ConsentEventType, ConsentEventChoices, ConsentCategor
 
 export const UNKNOWN_COUNTRY_CODE = 'UNKNOWN';
 
-// Set when the visitor chose while sending GPC, or when a region ignoring GPC kept their stored
-// choice, so GPC does not override that choice or trigger a geo lookup on later loads.
+// Set when the visitor chose while sending GPC, so GPC does not override that choice on later loads.
 export const GPC_CHOICE_COOKIE = 'jetpack_cookie_consent_gpc';
 const GPC_CHOICE_COOKIE_DURATION = 365 * 24 * 60 * 60;
 const ACTIVE_CHOICE_EVENT_TYPES: ConsentEventType[] = [
@@ -293,13 +292,7 @@ export function applyGpcToStoredConsent(
 	region: string,
 	config: Config
 ): boolean {
-	if ( ! hasGpcConflictWithStoredConsent() ) {
-		return false;
-	}
-
-	// Expires with the geo cookies, so a later visit from a region that honors GPC rechecks it.
-	if ( ! regionHonorsGpc( countryCode, region, config ) ) {
-		setCookie( GPC_CHOICE_COOKIE, '1', getGeoConfig( config ).cookieDuration );
+	if ( ! hasGpcConflictWithStoredConsent() || ! regionHonorsGpc( countryCode, region, config ) ) {
 		return false;
 	}
 
