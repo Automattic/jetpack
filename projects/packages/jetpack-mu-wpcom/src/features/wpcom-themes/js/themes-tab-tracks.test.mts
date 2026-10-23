@@ -11,6 +11,7 @@ describe( 'clickEvent', () => {
 				themeTier: 'premium',
 				requiredPlan: 'value_bundle',
 				context: 'card',
+				source: 'tab',
 			} ),
 			[
 				'wpcom_marketplace_tab_theme_purchase_click',
@@ -20,12 +21,13 @@ describe( 'clickEvent', () => {
 					action: 'upgrade',
 					required_plan: 'value_bundle',
 					context: 'card',
+					source: 'tab',
 				},
 			]
 		);
 	} );
 
-	it( 'sends an empty plan for a subscribe link in the preview', () => {
+	it( 'sends an empty plan for a subscribe link in the preview of a search result', () => {
 		assert.deepEqual(
 			clickEvent( {
 				wpcomThemesTrack: 'subscribe',
@@ -33,6 +35,7 @@ describe( 'clickEvent', () => {
 				themeTier: 'partner',
 				requiredPlan: '',
 				context: 'preview',
+				source: 'search',
 			} ),
 			[
 				'wpcom_marketplace_tab_theme_purchase_click',
@@ -42,6 +45,7 @@ describe( 'clickEvent', () => {
 					action: 'subscribe',
 					required_plan: '',
 					context: 'preview',
+					source: 'search',
 				},
 			]
 		);

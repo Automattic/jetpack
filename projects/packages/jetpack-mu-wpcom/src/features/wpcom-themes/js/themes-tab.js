@@ -73,6 +73,7 @@
 		link.dataset.themeTier = theme.theme_tier;
 		link.dataset.requiredPlan = theme.required_plan;
 		link.dataset.context = context;
+		link.dataset.source = theme.wpcom_search_slot ? 'search' : 'tab';
 		link.textContent = purchase.text;
 		// Core labels its own buttons per theme, which a grid of them needs.
 		if ( purchase.label ) {
