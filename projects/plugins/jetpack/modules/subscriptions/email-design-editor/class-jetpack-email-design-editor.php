@@ -288,6 +288,12 @@ class Jetpack_Email_Design_Editor {
 				inset-block-end: 20px;
 				inset-inline-start: 20px;
 			}
+			/* The screen is styles-only: every block registers `inserter: false`, and core filters
+			   disabled blocks out of List View, so both open on nothing. Drop when blocks land. NL-1086. */
+			#' . self::HANDLE . ' .editor-document-tools__inserter-toggle,
+			#' . self::HANDLE . ' .editor-document-tools__document-overview-toggle {
+				display: none;
+			}
 		';
 	}
 
