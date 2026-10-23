@@ -94,6 +94,7 @@ class Jetpack_Protect_Dashboard_Feature_Flags {
 			return $modules;
 		}
 
+		$defaults                    = array();
 		self::$ignore_protect_plugin = true;
 		try {
 			$defaults = Jetpack::get_default_modules( $min_version, $max_version, $requires_connection, $requires_user_connection );
