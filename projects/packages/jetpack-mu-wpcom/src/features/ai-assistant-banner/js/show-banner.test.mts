@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { showBanner } from './show-banner.ts';
+import { bannerEventName, showBanner } from './show-banner.ts';
 
 const trackProps = { surface: 'dashboard' };
 
@@ -38,5 +38,27 @@ describe( 'showBanner', () => {
 
 		assert.equal( banner.hidden, true );
 		assert.deepEqual( events, [] );
+	} );
+
+	it( 'records a distinct impression for the free ChatGPT variant', () => {
+		const banner = { hidden: false };
+		const events: string[] = [];
+
+		showBanner( banner, { trackProps, variant: 'free', shouldShowBanner: '1' }, name =>
+			events.push( name )
+		);
+
+		assert.deepEqual( events, [ 'jetpack_ai_assistant_banner_free_impression' ] );
+	} );
+
+	it( 'keeps the free ChatGPT click separate from setup clicks', () => {
+		assert.equal(
+			bannerEventName( 'free', 'cta_click' ),
+			'jetpack_ai_assistant_banner_free_cta_click'
+		);
+		assert.equal(
+			bannerEventName( 'setup', 'cta_click' ),
+			'jetpack_ai_assistant_banner_cta_click'
+		);
 	} );
 } );

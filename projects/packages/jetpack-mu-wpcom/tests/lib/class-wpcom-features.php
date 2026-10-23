@@ -14,6 +14,7 @@ if ( class_exists( 'WPCOM_Features' ) ) {
  */
 class WPCOM_Features {
 	const ATOMIC                  = 'atomic';
+	const BIG_SKY                 = 'big-sky';
 	const BACKUPS_SELF_SERVE      = 'backups-self-serve';
 	const GLOBAL_STYLES           = 'global-styles';
 	const PRIORITY_SUPPORT        = 'priority_support';
