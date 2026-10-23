@@ -11,6 +11,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Status\Cache;
 use Brain\Monkey;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-themes/wpcom-themes-tab.php';
 
@@ -646,6 +647,245 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 				'name'       => 'STAX',
 				'theme_tier' => 'partner',
 			)
+		);
+	}
+
+	/**
+	 * Answers WordPress.org's batch lookup, listing the slugs given and failing from one request on.
+	 *
+	 * Registered after the WordPress.com answers, which reply to every URL, so this one wins.
+	 *
+	 * @param callable $listed    Whether WordPress.org lists a slug.
+	 * @param int      $fail_from The request, counting from 1, that fails along with every later one.
+	 * @return stdClass Counts the requests made, in `n`.
+	 */
+	private function answer_wporg( callable $listed, int $fail_from = 0 ) {
+		$count = (object) array( 'n' => 0 );
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $listed, $fail_from, $count ) {
+				if ( ! str_contains( $url, 'api.wordpress.org/themes/info' ) ) {
+					return $preempt;
+				}
+
+				++$count->n;
+				if ( $fail_from && $count->n >= $fail_from ) {
+					return array(
+						'response' => array(
+							'code'    => 500,
+							'message' => 'Error',
+						),
+						'body'     => '',
+					);
+				}
+
+				wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
+				$body = array();
+				foreach ( explode( ',', $query['request']['slugs'] ) as $slug ) {
+					$body[ $slug ] = $listed( $slug ) ? array( 'slug' => $slug ) : array( 'error' => 'Theme not found' );
+				}
+
+				return array(
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			20,
+			3
+		);
+
+		return $count;
+	}
+
+	/**
+	 * WordPress.org caps a lookup at 100 themes, so a bigger catalog is asked about in batches.
+	 */
+	public function test_asks_wporg_about_the_catalog_in_batches_it_accepts() {
+		$themes = array();
+		for ( $i = 1; $i <= WPCom_Themes_Api::WP_ORG_BATCH_SIZE + 1; $i++ ) {
+			$themes[] = array_merge( self::THEME, array( 'id' => 'theme-' . $i ) );
+		}
+		$this->answer_with_themes( $themes );
+		$listed = array( 'theme-2', 'theme-101' );
+		$count  = $this->answer_wporg( fn( $slug ) => in_array( $slug, $listed, true ) );
+
+		$this->assertSame( $listed, wpcom_themes_tab_api()->fetch_wporg_slugs() );
+		$this->assertSame( 2, $count->n );
+	}
+
+	/**
+	 * A failed batch would read as "not on WordPress.org" for its themes, so nothing is answered or kept.
+	 */
+	public function test_a_failed_wporg_batch_answers_nothing() {
+		$themes = array();
+		for ( $i = 1; $i <= WPCom_Themes_Api::WP_ORG_BATCH_SIZE + 1; $i++ ) {
+			$themes[] = array_merge( self::THEME, array( 'id' => 'theme-' . $i ) );
+		}
+		$this->answer_with_themes( $themes );
+		$count = $this->answer_wporg( '__return_true', 2 );
+
+		$this->assertNull( wpcom_themes_tab_api()->fetch_wporg_slugs() );
+		$this->assertNull( wpcom_themes_tab_api()->fetch_wporg_slugs() );
+		// Two for the first call; the second asks again, which a cached failure would not.
+		$this->assertSame( 3, $count->n );
+	}
+
+	/**
+	 * Answers a search for "portfolio" with partner themes that match it in different ways.
+	 *
+	 * @return void
+	 */
+	private function answer_portfolio_search() {
+		$partner = fn( $id, $name ) => array_merge(
+			self::THEME,
+			array(
+				'id'         => $id,
+				'name'       => $name,
+				'theme_tier' => array( 'slug' => 'partner' ),
+			)
+		);
+		$sold    = fn( $id ) => array(
+			'id'              => $id,
+			'product_details' => array( array( 'product_slug' => "theme_{$id}_yearly" ) ),
+		);
+		$product = fn( $id ) => array(
+			'product_type'         => 'marketplace_theme',
+			'product_term'         => 'year',
+			'billing_product_slug' => "theme-{$id}",
+		);
+
+		$this->answer_wpcom(
+			array(
+				'tier=partner'     => array(
+					'body' => array(
+						'themes' => array( $sold( 'organic-stax' ), $sold( 'portfolio-twin' ), $sold( 'portfolio-pro' ) ),
+					),
+				),
+				'/products'        => array(
+					'theme_organic-stax_yearly'   => $product( 'organic-stax' ),
+					'theme_portfolio-twin_yearly' => $product( 'portfolio-twin' ),
+					'theme_portfolio-pro_yearly'  => $product( 'portfolio-pro' ),
+				),
+				'/wpcom/v2/themes' => array(
+					'body' => array(
+						'themes' => array(
+							// Matched by WordPress.com somewhere other than the name, and listed first.
+							$partner( 'organic-stax', 'STAX' ),
+							// Not sold, so it cannot be bought or installed.
+							$partner( 'portfolio-unsold', 'Portfolio Unsold' ),
+							$partner( 'portfolio-twin', 'Portfolio Twin' ),
+							$partner( 'portfolio-pro', 'Portfolio Pro' ),
+							array_merge(
+								self::THEME,
+								array(
+									'id'   => 'portfolio-plain',
+									'name' => 'Portfolio Plain',
+								)
+							),
+						),
+					),
+				),
+			)
+		);
+		$this->answer_wporg( fn( $slug ) => 'portfolio-twin' === $slug );
+	}
+
+	/**
+	 * A search's first page leads with up to two sold partner themes, names matching first.
+	 *
+	 * @param bool     $lists_wporg Whether the site's plan shows WordPress.org's themes.
+	 * @param string[] $expected    Slugs of the partner themes offered.
+	 * @dataProvider provide_partner_slots
+	 */
+	#[DataProvider( 'provide_partner_slots' )]
+	public function test_a_search_leads_with_matching_partner_themes( bool $lists_wporg, array $expected ) {
+		$this->enable_tab();
+		$this->site_has_plan( $lists_wporg );
+		$this->answer_portfolio_search();
+
+		$result = wpcom_themes_tab_splice_search_partners(
+			(object) array(
+				'info'   => array( 'results' => 1 ),
+				'themes' => array( (object) array( 'slug' => 'from-wporg' ) ),
+			),
+			'query_themes',
+			(object) array( 'search' => 'portfolio' )
+		);
+
+		$this->assertSame( array_merge( $expected, array( 'from-wporg' ) ), array_column( $result->themes, 'slug' ) );
+		$this->assertSame( 1 + count( $expected ), $result->info['results'] );
+
+		$offered = $result->themes[0];
+		$this->assertTrue( $offered->wpcom_search_slot );
+		$this->assertFalse( $offered->wpcom_marketplace_tab );
+		$this->assertStringContainsString(
+			'checkoutBackUrl=' . rawurlencode( admin_url( 'theme-install.php?search=portfolio' ) ),
+			$offered->purchase_url
+		);
+	}
+
+	/**
+	 * Plans, and the partner themes a search for "portfolio" offers on them.
+	 *
+	 * @return array<string, array{0: bool, 1: string[]}>
+	 */
+	public static function provide_partner_slots(): array {
+		return array(
+			// WordPress.org's copy of the twin shows wherever it ranks, so ours is not offered.
+			'a plan showing WordPress.org themes' => array( true, array( 'portfolio-pro', 'organic-stax' ) ),
+			'a plan showing only ours'            => array( false, array( 'portfolio-twin', 'portfolio-pro' ) ),
+		);
+	}
+
+	/**
+	 * Only a keyword search's first page, with the tab on, gets partner themes.
+	 *
+	 * @param array $args        Themes API arguments.
+	 * @param bool  $tab_enabled Whether the Marketplace tab is on.
+	 * @dataProvider provide_results_left_alone
+	 */
+	#[DataProvider( 'provide_results_left_alone' )]
+	public function test_other_results_get_no_partner_themes( array $args, bool $tab_enabled ) {
+		if ( $tab_enabled ) {
+			$this->enable_tab();
+		}
+		$this->site_has_plan( true );
+		$this->answer_portfolio_search();
+
+		$result = wpcom_themes_tab_splice_search_partners(
+			(object) array(
+				'info'   => array( 'results' => 1 ),
+				'themes' => array( (object) array( 'slug' => 'from-wporg' ) ),
+			),
+			'query_themes',
+			(object) $args
+		);
+
+		$this->assertSame( array( 'from-wporg' ), array_column( $result->themes, 'slug' ) );
+		$this->assertSame( 1, $result->info['results'] );
+	}
+
+	/**
+	 * Requests that must come back as they went in.
+	 *
+	 * @return array<string, array{0: array, 1: bool}>
+	 */
+	public static function provide_results_left_alone(): array {
+		return array(
+			'a later page'         => array(
+				array(
+					'search' => 'portfolio',
+					'page'   => 2,
+				),
+				true,
+			),
+			'a term too short'     => array( array( 'search' => 'po' ), true ),
+			'a browse tab'         => array( array( 'browse' => 'popular' ), true ),
+			'the tab switched off' => array( array( 'search' => 'portfolio' ), false ),
 		);
 	}
 }

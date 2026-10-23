@@ -26,6 +26,11 @@ class WPCom_Themes_Tiers {
 	const PARTNER = 'partner';
 
 	/**
+	 * The tier of WordPress.org's themes, which wpcomsh shows only on plans that include it.
+	 */
+	const COMMUNITY = 'community';
+
+	/**
 	 * The plan each tier needs, by tier slug.
 	 *
 	 * These are the plans that grant the tier's capability, so buying one satisfies
