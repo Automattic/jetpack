@@ -117,6 +117,11 @@ class VideoPress_Video_Extension_Test extends WP_UnitTestCase {
 			\WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ),
 			'videopress/playlist must be registered when the VideoPress module is active.'
 		);
+		$this->assertSame(
+			10,
+			has_action( 'wp_after_insert_post', array( 'Automattic\Jetpack\VideoPress\Playlist_Index', 'index_post' ) ),
+			'The playlist index must follow saved posts, or the All Playlists block stays empty.'
+		);
 	}
 
 	/**
@@ -128,6 +133,10 @@ class VideoPress_Video_Extension_Test extends WP_UnitTestCase {
 		$this->assertFalse(
 			\WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ),
 			'videopress/playlist must not be registered when the VideoPress module is inactive.'
+		);
+		$this->assertFalse(
+			has_action( 'wp_after_insert_post', array( 'Automattic\Jetpack\VideoPress\Playlist_Index', 'index_post' ) ),
+			'Without the playlist block there is nothing to index.'
 		);
 	}
 
