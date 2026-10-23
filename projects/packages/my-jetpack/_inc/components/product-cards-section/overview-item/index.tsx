@@ -25,6 +25,9 @@ export type OverviewItemLink = {
 	ariaLabel?: string;
 	// Only an action without a link can be disabled, as the product card's button is while it's busy.
 	disabled?: boolean;
+	openInNewTab?: boolean;
+	// Shown to users who can't manage the product too.
+	forEveryone?: boolean;
 };
 
 export type OverviewItemProps = {
@@ -40,6 +43,7 @@ export type OverviewItemProps = {
 	loadingLabel?: string;
 	error?: { reason: string; onRetry: () => void };
 	forcedOffReason?: string | null;
+	statusLabel?: string;
 };
 
 const TONE_INTENTS: Record< StatusTone, BadgeIntent > = {
@@ -113,20 +117,24 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	loadingLabel,
 	error,
 	forcedOffReason,
+	statusLabel,
 } ) => {
 	const { badge: ownStatusBadge, isHealthy } = useStatusBadge( slug );
-	const statusBadge: OverviewItemBadge = forcedOffReason
-		? { label: forcedOffReason, intent: 'medium' }
-		: ownStatusBadge;
+	let statusBadge = ownStatusBadge;
+	if ( forcedOffReason ) {
+		statusBadge = { label: forcedOffReason, intent: 'medium' };
+	} else if ( statusLabel ) {
+		statusBadge = { ...ownStatusBadge, label: statusLabel };
+	}
 	const showsStatus = ! isHealthy || !! forcedOffReason;
 
 	const productLinks: ReactNode[] = [];
-	if ( admin && action && ! forcedOffReason ) {
+	if ( ( admin || action?.forEveryone ) && action && ! forcedOffReason ) {
 		const actionLink = (
 			<Link
 				key="action"
 				{ ...( action.href
-					? { href: action.href, onClick: action.onClick }
+					? { href: action.href, onClick: action.onClick, openInNewTab: action.openInNewTab }
 					: {
 							render: (
 								<Button
