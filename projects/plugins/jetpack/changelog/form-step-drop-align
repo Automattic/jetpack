@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: drop a multistep Step's alignment control, which had no effect on a step.

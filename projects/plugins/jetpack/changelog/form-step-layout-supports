@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: give a multistep form's step a working Justify control, and lay the step out with WordPress layout support.
