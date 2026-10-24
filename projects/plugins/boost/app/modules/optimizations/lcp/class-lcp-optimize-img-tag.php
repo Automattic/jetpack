@@ -136,7 +136,7 @@ class LCP_Optimize_Img_Tag {
 			return $element;
 		}
 
-		$srcset = $this->get_srcset( $image_url );
+		$srcset = $this->get_srcset( $image_url, $this->get_aspect_ratio( $element ) );
 		if ( ! empty( $srcset ) ) {
 			$element->set_attribute( 'srcset', $srcset );
 		}
@@ -150,14 +150,32 @@ class LCP_Optimize_Img_Tag {
 	}
 
 	/**
+	 * Get the image's aspect ratio from its width and height attributes.
+	 *
+	 * @param WP_HTML_Tag_Processor $element The image tag.
+	 * @return float|null Width divided by height, or null if either attribute is missing.
+	 */
+	private function get_aspect_ratio( $element ) {
+		$width  = $element->get_attribute( 'width' );
+		$height = $element->get_attribute( 'height' );
+
+		if ( ! is_numeric( $width ) || ! is_numeric( $height ) || (float) $width <= 0 || (float) $height <= 0 ) {
+			return null;
+		}
+
+		return (float) $width / (float) $height;
+	}
+
+	/**
 	 * Get the srcsets for an image.
 	 *
-	 * @param string $original_url The original image URL.
+	 * @param string     $original_url The original image URL.
+	 * @param float|null $aspect_ratio The image's width divided by its height, if known.
 	 * @return string The srcset for the image.
 	 *
 	 * @since 4.1.0
 	 */
-	private function get_srcset( $original_url ) {
+	private function get_srcset( $original_url, $aspect_ratio = null ) {
 		$dimensions = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
 			// The field is optional; the background-image sibling has always carried
@@ -184,6 +202,13 @@ class LCP_Optimize_Img_Tag {
 
 				$width  = (int) $breakpoint_dimensions['width'];
 				$height = (int) $breakpoint_dimensions['height'];
+
+				// Resize to the image's own proportions, covering the box: a box shaped differently
+				// (object-fit) would otherwise be cropped into the file, where CSS cannot undo it.
+				if ( $aspect_ratio ) {
+					$width  = max( $width, (int) ceil( $height * $aspect_ratio ) );
+					$height = (int) round( $width / $aspect_ratio );
+				}
 
 				$dimensions[ $width ] = $height;
 

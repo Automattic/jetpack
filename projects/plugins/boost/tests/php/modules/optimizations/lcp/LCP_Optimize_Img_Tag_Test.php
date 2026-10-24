@@ -9,7 +9,9 @@ namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Lcp;
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\Lcp;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_Optimize_Img_Tag;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
+use WP_HTML_Tag_Processor;
 
 /**
  * Class LCP_Optimize_Img_Tag_Test
@@ -47,6 +49,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 		parent::tear_down();
 		remove_all_filters( 'jetpack_photon_url' );
 		remove_all_filters( 'jetpack_boost_pre_should_skip_lcp_optimization' );
+		remove_all_filters( 'jetpack_photon_development_mode' );
 	}
 
 	/**
@@ -362,6 +365,43 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 				$label . ': a breakpoint with nothing to size from must be skipped rather than indexed.'
 			);
 		}
+	}
+
+	/**
+	 * @dataProvider srcset_cases
+	 */
+	#[DataProvider( 'srcset_cases' )]
+	public function test_srcset_resizes_to_the_image_proportions_not_the_box( $dimension_attributes, $expected_resizes ) {
+		add_filter( 'jetpack_photon_development_mode', '__return_false' );
+
+		$buffer = '<img class="wp-post-image" id="test-img" ' . $dimension_attributes . ' src="https://example.com/image.jpg">';
+		$result = ( new LCP_Optimize_Img_Tag( $this->create_lcp_data() ) )->optimize_buffer( $buffer );
+
+		$processor = new WP_HTML_Tag_Processor( $result );
+		$processor->next_tag( 'img' );
+
+		$resizes = array();
+		foreach ( explode( ', ', (string) $processor->get_attribute( 'srcset' ) ) as $candidate ) {
+			list( $url, $descriptor ) = explode( ' ', $candidate );
+			parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
+
+			$resizes[] = ( $args['resize'] ?? '' ) . ' ' . $descriptor;
+		}
+
+		$this->assertSame( $expected_resizes, $resizes );
+	}
+
+	/**
+	 * The fixture boxes are 768x500 and 480x320, each at its DPRs.
+	 *
+	 * @return array[]
+	 */
+	public static function srcset_cases() {
+		return array(
+			'no dimensions: the box' => array( '', array( '1536,1000 1536w', '1440,960 1440w', '960,640 960w', '768,500 768w', '480,320 480w' ) ),
+			'a 5:3 image: widened to cover the box, not cropped' => array( 'width="1200" height="720"', array( '1668,1000 1668w', '1602,960 1602w', '1068,640 1068w', '834,500 834w', '534,320 534w' ) ),
+			'a square thumbnail of any upload: still cropped to 1:1' => array( 'width="300" height="300"', array( '1536,1536 1536w', '1440,1440 1440w', '960,960 960w', '768,768 768w', '480,480 480w' ) ),
+		);
 	}
 
 	/**

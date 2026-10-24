@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+LCP: Stop cropping optimized images, so their CSS and block settings decide how they are displayed.
