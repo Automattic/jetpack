@@ -1,91 +1,55 @@
 /**
- * Overview view — usage meter, activity log, and documentation links.
- * Shown as the landing tab while the internal-testing gate is on.
- * Layout follows the i4 Overview frame (Free plan / Paid plan cards).
+ * Overview view — the opening column with the connect actions and two skills
+ * (with the Skills tab on, in place of the assistant banner and the connect
+ * card), usage meter, activity log, and documentation links. Shown as the landing tab
+ * while the internal-testing gate is on. The usage card follows the i4
+ * Overview frame (Free plan / Paid plan cards).
  */
 
 import { AiIcon, getRedirectUrl } from '@automattic/jetpack-components';
 import { speak } from '@wordpress/a11y';
-import { ExternalLink, ProgressBar, VisuallyHidden } from '@wordpress/components';
+import { ProgressBar } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import { list } from '@wordpress/icons';
-import { Card, ButtonLink, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
+import { connection, list, payment, starEmpty, tool } from '@wordpress/icons';
+import { Card, ButtonLink, Notice, Skeleton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
-import assetUrl from '../asset-url';
 import NavRow from '../components/nav-row';
+import McpConnectAgents from '../mcp/connect-agents';
 import { EVENTS, recordAiHubEvent } from '../tracks';
 import AssistantBanner from './assistant-banner';
-import { chatGptIcon, claudeIcon } from './connector-icons';
+import SkillsHero from './skills-hero';
 import { normalizeUsage, useAiUsage } from './use-ai-usage';
 
 import './style.scss';
 
-// Quick start cards from the i4 Overview frame: each is a nav row to the
-// connector's install page, through the redirect service.
-const QUICK_START = [
-	{
-		slug: 'jetpack-ai-hub-overview-quick-start-chatgpt',
-		selfHostedSlug: 'jetpack-ai-hub-overview-quick-start-chatgpt-self-hosted',
-		title: __( 'Connect ChatGPT', 'jetpack' ),
-		description: __( 'Give ChatGPT access to your site by installing the plugin.', 'jetpack' ),
-		icon: chatGptIcon,
-	},
-	{
-		slug: 'jetpack-ai-hub-overview-quick-start-claude',
-		selfHostedSlug: 'jetpack-ai-hub-overview-quick-start-claude-self-hosted',
-		title: __( 'Connect Claude', 'jetpack' ),
-		description: __( 'Give Claude access to your site by installing the connector.', 'jetpack' ),
-		icon: claudeIcon,
-	},
-];
-
-// Lessons from the "Use AI agents with WordPress.com" course; each card links
-// to its lesson page (no inline player). Durations are the live lesson
-// lengths — re-check them if the videos change.
-const WALKTHROUGH_VIDEOS = [
-	{
-		slug: 'jetpack-ai-hub-overview-video-connect-claude',
-		title: __( 'Connect your site to Claude', 'jetpack' ),
-		duration: '3:18',
-		thumbnail: 'connect-claude.webp',
-	},
-	{
-		slug: 'jetpack-ai-hub-overview-video-build-page',
-		title: __( 'Build a page from a single prompt', 'jetpack' ),
-		duration: '3:09',
-		thumbnail: 'build-page.webp',
-	},
-	{
-		slug: 'jetpack-ai-hub-overview-video-media-library',
-		title: __( 'Manage your Media Library with AI', 'jetpack' ),
-		duration: '3:14',
-		thumbnail: 'media-library.webp',
-	},
-	{
-		slug: 'jetpack-ai-hub-overview-video-optimize-site',
-		title: __( 'Optimize your site with AI', 'jetpack' ),
-		duration: '3:15',
-		thumbnail: 'optimize-site.webp',
-	},
-];
-
-// Redirect-service sources for the documentation links. All four are
-// registered and resolving (as are the four video sources above).
+// Redirect-service sources for the documentation rows. All four are
+// registered and resolving.
 const DOC_LINKS = [
 	{
 		slug: 'jetpack-ai-hub-overview-docs-mcp-guide',
 		title: __( 'MCP integration guide', 'jetpack' ),
+		description: __( 'Connect an AI agent to your site.', 'jetpack' ),
+		icon: connection,
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-docs-features',
 		title: __( 'AI features overview', 'jetpack' ),
+		description: __( 'Everything Jetpack AI can do on your site.', 'jetpack' ),
+		icon: starEmpty,
 	},
-	{ slug: 'jetpack-ai-hub-overview-docs-billing', title: __( 'Billing & plans', 'jetpack' ) },
+	{
+		slug: 'jetpack-ai-hub-overview-docs-billing',
+		title: __( 'Billing & plans', 'jetpack' ),
+		description: __( 'How requests, plans, and upgrades work.', 'jetpack' ),
+		icon: payment,
+	},
 	{
 		slug: 'jetpack-ai-hub-overview-docs-mcp-tools',
 		// The target lists agent capabilities, not an API reference (i4 thread).
 		title: __( 'Available capabilities', 'jetpack' ),
+		description: __( 'What a connected agent can read and change.', 'jetpack' ),
+		icon: tool,
 	},
 ];
 
@@ -163,7 +127,7 @@ function RequestsMeter( { usage } ) {
 			</Text>
 			{ /* Its own paragraph, padded with spaces — clipped text glues
 			     onto the neighboring heading in some screen readers. */ }
-			{ srSummary && <VisuallyHidden as="p">{ ` ${ srSummary } ` }</VisuallyHidden> }
+			{ srSummary && <VisuallyHidden render={ <p /> }>{ ` ${ srSummary } ` }</VisuallyHidden> }
 			<Stack
 				direction="row"
 				justify="space-between"
@@ -201,8 +165,8 @@ function RequestsMeter( { usage } ) {
  * the card renders as an upsell: icon and pitch on the left, the requests
  * readout with the Upgrade button on the right — with harder copy once
  * every request is used. Without one it falls back to the plain requests
- * readout over its meter (plan details are My Jetpack's job). Loading and
- * error states stay inside the card so the rest of the Overview renders
+ * readout over its meter (plan details are My Jetpack's job). Loading stays
+ * inside the card and errors replace it, so the rest of the Overview renders
  * immediately.
  *
  * @param {object} props            - Component props.
@@ -255,6 +219,15 @@ function UsageCard( { upgradeUrl, planName } ) {
 	if ( ! isLoading && ! error && ! usage.isFree ) {
 		return null;
 	}
+	// A notice already draws its own box, so it stands alone rather than
+	// nesting in the card's border.
+	if ( ! isLoading && error ) {
+		return (
+			<Notice.Root intent="error">
+				<Notice.Description>{ error }</Notice.Description>
+			</Notice.Root>
+		);
+	}
 
 	return (
 		// The upsell breathes more than the standard card; the modifier widens
@@ -270,31 +243,21 @@ function UsageCard( { upgradeUrl, planName } ) {
 			<Card.Content>
 				{ isLoading && <UpsellSkeleton /> }
 
-				{ ! isLoading && error && (
-					<Notice.Root intent="error">
-						<Notice.Description>{ error }</Notice.Description>
-					</Notice.Root>
-				) }
-
-				{ ! isLoading && ! error && showUpsell && (
+				{ ! isLoading && showUpsell && (
 					// Mirrors the standard card's two-cell grid (minus the divider):
 					// icon and pitch on the left, the same requests readout with the
 					// Upgrade button on the right.
 					<div className="jetpack-ai-overview__upsell jetpack-ai-overview__fade-in">
 						<div className="jetpack-ai-overview__upsell-content">
-							{ /* The wrapper carries the layout class: AiIcon accepts no
-						     className. currentColor tracks the heading, not JP green. */ }
+							{ /* The wrapper is the tile, as AiIcon accepts no className;
+							     currentColor takes the tile's light green. */ }
 							<div className="jetpack-ai-overview__upsell-icon">
-								<AiIcon size={ 28 } color="currentColor" />
+								<AiIcon size={ 20 } color="currentColor" />
 							</div>
 							<Text render={ <h2 /> } variant="heading-lg">
 								{ isDepleted
 									? __( 'You’ve used all your requests', 'jetpack' )
-									: __(
-											'Upgrade Jetpack AI Assistant',
-											'jetpack',
-											/* dummy arg to avoid bad minification */ 0
-										) }
+									: __( 'Upgrade Jetpack AI', 'jetpack' ) }
 							</Text>
 							<Text render={ <p /> } variant="body-md" className="jetpack-ai-overview__muted">
 								{ isDepleted
@@ -320,7 +283,7 @@ function UsageCard( { upgradeUrl, planName } ) {
 					</div>
 				) }
 
-				{ ! isLoading && ! error && ! showUpsell && (
+				{ ! isLoading && ! showUpsell && (
 					<div className="jetpack-ai-overview__usage jetpack-ai-overview__fade-in">
 						<div className="jetpack-ai-overview__usage-cell">
 							<RequestsMeter usage={ usage } />
@@ -335,14 +298,18 @@ function UsageCard( { upgradeUrl, planName } ) {
 /**
  * Overview view.
  *
- * @param {object}  props                       - Component props.
- * @param {string}  [props.activityLogUrl]      - URL for the site's activity log; row hidden without it.
- * @param {boolean} [props.activityLogFiltered] - Whether the activity-log link opens filtered to AI agent actions.
- * @param {string}  [props.upgradeUrl]          - Upgrade destination for the usage card.
- * @param {string}  [props.planName]            - Purchase name granting AI, from the page data.
- * @param {boolean} [props.showActivityLog]     - Whether the activity-log row applies; it needs MCP.
- * @param {boolean} [props.canLoadUsage]        - Whether the usage endpoint can answer for this
- *                                              site; when it cannot, usage is neither shown nor asked for.
+ * @param {object}   props                       - Component props.
+ * @param {string}   [props.activityLogUrl]      - URL for the site's activity log; row hidden without it.
+ * @param {boolean}  [props.activityLogFiltered] - Whether the activity-log link opens filtered to AI agent actions.
+ * @param {string}   [props.upgradeUrl]          - Upgrade destination for the usage card.
+ * @param {string}   [props.planName]            - Purchase name granting AI, from the page data.
+ * @param {boolean}  [props.showActivityLog]     - Whether the activity-log row applies; it needs MCP.
+ * @param {boolean}  [props.canLoadUsage]        - Whether the usage endpoint can answer for this
+ *                                               site; when it cannot, usage is neither shown nor asked for.
+ * @param {boolean}  [props.isMcpEnabled]        - Whether agents can reach the site yet; the
+ *                                               connect card points at Settings while they cannot.
+ * @param {boolean}  [props.showOtherAgents]     - Whether the connect card links the setup steps.
+ * @param {Function} [props.onMcpNavigate]       - Opens a Settings sub-view ('setup').
  * @return {object} Component markup.
  */
 export default function AiOverview( {
@@ -352,95 +319,51 @@ export default function AiOverview( {
 	planName,
 	showActivityLog,
 	canLoadUsage = true,
+	isMcpEnabled = true,
+	showOtherAgents = false,
+	onMcpNavigate,
 } ) {
 	const recordLinkClick = ( linkType, slug ) => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
-	const isSelfHosted = window?.jetpackAiSettings?.isSelfHosted === true;
+	// Every link in the hero lands on the Skills tab, so it shows only with it.
+	const showSkills = !! window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-discover' ];
+	const usageCard = canLoadUsage && <UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />;
+	// Without the Skills tab, the connect actions keep their card.
+	const connectCard = (
+		<McpConnectAgents
+			isMcpEnabled={ isMcpEnabled }
+			onNavigate={ onMcpNavigate }
+			showOtherAgents={ showOtherAgents }
+			onOverview
+		/>
+	);
 	return (
 		<Stack direction="column" gap="3xl">
-			{ /* The banner and the usage card share a tighter rhythm than the
-			     titled sections below. When neither renders, the stylesheet's
-			     :empty rule drops the wrapper so the outer 3xl gap doesn't double. */ }
-			<Stack direction="column" gap="xl" className="jetpack-ai-overview__intro">
-				<AssistantBanner />
-				{ /* Nothing to say about usage while the notice is saying why AI is
-				     unavailable — and no request that could only fail. */ }
-				{ canLoadUsage && <UsageCard upgradeUrl={ upgradeUrl } planName={ planName } /> }
-			</Stack>
-
-			<Stack direction="column" gap="lg">
-				<Text render={ <h2 /> } variant="heading-lg">
-					{ __( 'Quick start', 'jetpack' ) }
-				</Text>
-				<div className="jetpack-ai-overview__quick-start-grid">
-					{ QUICK_START.map( ( { slug: wpcomSlug, selfHostedSlug, title, description, icon } ) => {
-						const slug = isSelfHosted ? selfHostedSlug : wpcomSlug;
-						return (
-							<Card.Root key={ slug } className="jetpack-ai-overview__row-card">
-								<NavRow
-									icon={ icon }
-									iconSize={ 28 }
-									title={ title }
-									description={ description }
-									href={ getRedirectUrl( slug ) }
-									onClick={ recordLinkClick( 'quick_start', wpcomSlug ) }
-									tone="neutral"
-									external
-								/>
-							</Card.Root>
-						);
-					} ) }
-				</div>
-			</Stack>
-
-			<Stack direction="column" gap="lg">
-				<Text render={ <h2 /> } variant="heading-lg">
-					{ __( 'Walkthrough videos', 'jetpack' ) }
-				</Text>
-				<div className="jetpack-ai-overview__video-grid">
-					{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration, thumbnail } ) => {
-						const thumbnailUrl = assetUrl( thumbnail );
-
-						return (
-							<a
-								className="jetpack-ai-overview__video"
-								href={ getRedirectUrl( slug ) }
-								key={ slug }
-								target="_blank"
-								rel="noopener noreferrer"
-								onClick={ recordLinkClick( 'video', slug ) }
-							>
-								{ /* Decorative: the card's title carries the meaning. */ }
-								{ thumbnailUrl && (
-									<img
-										className="jetpack-ai-overview__video-thumb"
-										src={ thumbnailUrl }
-										alt=""
-										width="644"
-										height="348"
-										loading="lazy"
-									/>
-								) }
-								<span className="jetpack-ai-overview__video-meta">
-									<Text render={ <span /> } variant="heading-md">
-										{ title }
-									</Text>
-									<Text
-										render={ <span /> }
-										variant="body-md"
-										className="jetpack-ai-overview__muted"
-									>
-										{ duration }
-									</Text>
-								</span>
-								{ /* The design leaves the cards unmarked, so announce the
-								     new tab the way ExternalLink does, minus its arrow. */ }
-								<VisuallyHidden>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
-							</a>
-						);
-					} ) }
-				</div>
-			</Stack>
+			{ showSkills ? (
+				// The opening says what the hub is for and how to connect, with
+				// skills to start on.
+				// On a free plan the upgrade card comes before the skills, while
+				// the requests it meters are still the thing to act on.
+				<SkillsHero
+					isMcpEnabled={ isMcpEnabled }
+					showOtherAgents={ showOtherAgents }
+					onMcpNavigate={ onMcpNavigate }
+					beforeSkills={ usageCard }
+				/>
+			) : (
+				<>
+					{ /* The banner and the usage card share a tighter rhythm than the
+					     sections below. When neither renders, the stylesheet's :empty
+					     rule drops the wrapper so the outer 3xl gap doesn't double. */ }
+					<Stack direction="column" gap="xl" className="jetpack-ai-overview__intro">
+						<AssistantBanner />
+						{ /* Nothing to say about usage while the notice is saying why AI
+						     is unavailable — and no request that could only fail. */ }
+						{ usageCard }
+					</Stack>
+					{ connectCard }
+				</>
+			) }
 
 			{ showActivityLog && activityLogUrl && (
 				// The row pads itself, so it sits directly in the card —
@@ -457,17 +380,27 @@ export default function AiOverview( {
 				</Card.Root>
 			) }
 
-			<Stack direction="column" gap="lg">
-				<Text render={ <h2 /> } variant="heading-lg">
+			<Stack direction="column" gap="md">
+				{ /* The same small label as "Start with a skill" above. */ }
+				<Text render={ <h2 /> } variant="heading-sm" className="jetpack-ai-overview__section-label">
 					{ __( 'Documentation', 'jetpack' ) }
 				</Text>
-				<Stack direction="column" gap="sm" align="flex-start">
-					{ DOC_LINKS.map( ( { slug, title } ) => (
-						<ExternalLink key={ slug } href={ getRedirectUrl( slug ) }>
-							{ title }
-						</ExternalLink>
+				{ /* One card, a row per guide, split by the weak stroke as the
+				     Discover list is. The rows pad themselves, as above. */ }
+				<Card.Root className="jetpack-ai-overview__row-card jetpack-ai-overview__docs">
+					{ DOC_LINKS.map( ( { slug, title, description, icon } ) => (
+						<NavRow
+							key={ slug }
+							icon={ icon }
+							title={ title }
+							description={ description }
+							href={ getRedirectUrl( slug ) }
+							onClick={ recordLinkClick( 'docs', slug ) }
+							tone="neutral"
+							external
+						/>
 					) ) }
-				</Stack>
+				</Card.Root>
 			</Stack>
 		</Stack>
 	);

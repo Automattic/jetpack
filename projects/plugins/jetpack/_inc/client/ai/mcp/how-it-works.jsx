@@ -1,5 +1,6 @@
 /**
- * "How it works" explainer shown at the top of the MCP and Connectors tab.
+ * "How it works" explainer on the Settings tab, between the connect card and
+ * the access card it walks through.
  */
 
 import { useId } from '@wordpress/element';

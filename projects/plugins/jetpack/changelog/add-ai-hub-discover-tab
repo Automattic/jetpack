@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack AI: Add a Skills tab of agent skills to the AI Hub, behind the ai-hub-discover feature flag. With it on, the Overview opens with how to connect an agent, then two skills to start with.

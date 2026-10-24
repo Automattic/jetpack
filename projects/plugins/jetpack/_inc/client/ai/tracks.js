@@ -1,6 +1,6 @@
 /**
  * Tracks helpers for the Jetpack AI admin page (jetpack_ai_* events).
- * The MCP tab keeps its own wrapper in ./mcp/tracks.js.
+ * The Settings tab's MCP events keep their own wrapper in ./mcp/tracks.js.
  */
 
 import { getSiteType } from '@automattic/jetpack-script-data';
@@ -10,6 +10,9 @@ export const EVENTS = {
 	VIEWED: 'jetpack_ai_hub_viewed',
 	LINK_CLICK: 'jetpack_ai_hub_link_click',
 	FEATURE_TOGGLED: 'jetpack_ai_feature_toggled',
+	DISCOVER_FILTERED: 'jetpack_ai_hub_discover_filtered',
+	DISCOVER_SKILL_VIEWED: 'jetpack_ai_hub_discover_skill_viewed',
+	DISCOVER_SKILL_SENT: 'jetpack_ai_hub_discover_skill_sent',
 };
 
 /**

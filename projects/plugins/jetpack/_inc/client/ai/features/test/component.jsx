@@ -41,8 +41,8 @@ describe( 'AiFeatures rendering', () => {
 	} );
 
 	// Dividers separate the groups and never lead the card — the group headers
-	// are real h2s, one level below the page title "AI", and the card itself
-	// carries no heading or lead line.
+	// are real h3s, one level below the section's "AI features" h2, and the
+	// card itself carries no heading or lead line.
 	test.each( [
 		[ 'one section', { writing_assistant: { enabled: true } }, [ 'Content' ] ],
 		[ 'two sections', null, [ 'Content', 'Search' ] ],
@@ -56,13 +56,14 @@ describe( 'AiFeatures rendering', () => {
 			[ 'Content', 'Media', 'Search' ],
 		],
 	] )(
-		'%s: dividers between groups only, h2 group headers in order',
+		'%s: dividers between groups only, h3 group headers in order',
 		( _label, features, titles ) => {
 			renderFeatures( features ? { features } : {} );
 
 			expect( screen.queryAllByRole( 'separator' ) ).toHaveLength( titles.length - 1 );
-			const headings = screen.getAllByRole( 'heading', { level: 2 } );
+			const headings = screen.getAllByRole( 'heading', { level: 3 } );
 			expect( headings.map( heading => heading.textContent ) ).toEqual( titles );
+			expect( screen.queryByRole( 'heading', { level: 2 } ) ).not.toBeInTheDocument();
 		}
 	);
 
