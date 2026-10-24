@@ -11,7 +11,7 @@ Canonical reference for the base class: `projects/packages/wp-abilities/src/clas
 Do not re-implement any of this in the subclass:
 
 - **Top-level feature gate** — reads `apply_filters( 'jetpack_wp_abilities_enabled', false )`. Default false: abilities roll out gradually, not on every site the moment the package loads.
-- **Lifecycle hooks** — wires `wp_abilities_api_categories_init` and `wp_abilities_api_init`. Also handles the late-load case: if either action has already fired by the time `init()` is called, the corresponding registration runs synchronously rather than hooking.
+- **Lifecycle hooks** — wires `wp_abilities_api_categories_init` and `wp_abilities_api_init`. Call `init()` before WordPress fires them. Inside one of them, `init()` registers right away. WordPress rejects registrations made after them, so a later call registers nothing, and no notice says so.
 - **Per-category / per-ability allow-listing** — every registration passes through `apply_filters( 'jetpack_wp_abilities_should_register', true, $type, $slug )` so site owners can gate individual slugs.
 - **WP < 6.9 compatibility** — guards every call to `wp_register_ability_category()` and `wp_register_ability()` with `function_exists()`.
 - **Category auto-injection** — if a spec in `get_abilities()` omits the `category` key, the base class injects `get_category_slug()`. Don't set `category` manually.
@@ -360,7 +360,7 @@ If you see an older `require_once JETPACK__PLUGIN_DIR . 'src/abilities/class-<x>
 
 ## Anti-patterns to avoid
 
-- **Don't write your own `init()` method.** `Registrar::init()` owns the lifecycle. Overriding it loses the filter gate, the `did_action()` late-load path, and the per-ability allow-list filter.
+- **Don't write your own `init()` method.** `Registrar::init()` owns the lifecycle. Overriding it loses the filter gate, the lifecycle wiring, and the per-ability allow-list filter.
 - **Don't add a `CATEGORY_SLUG` class constant just to reuse it in each spec.** `get_category_slug()` is the single source; base class auto-injects.
 - **Don't set `'category' => self::CATEGORY_SLUG` on each ability spec.** Redundant with auto-injection.
 - **Don't copy `projects/plugins/jetpack/src/abilities/class-modules-abilities.php` or `projects/packages/forms/src/abilities/class-forms-abilities.php` as a starting point.** Both predate `Registrar` and use the manual `add_action`/`did_action` pattern. Extend `Registrar` instead.
