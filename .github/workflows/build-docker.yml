@@ -16,6 +16,9 @@ on:
       - '.github/versions.sh'
       - '.github/workflows/build-docker.yml'
   workflow_dispatch:
+  # Daily, so package updates such as PHP patch releases reach the images.
+  schedule:
+    - cron: '17 6 * * *'
 concurrency:
   group: build-docker-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -57,7 +60,7 @@ jobs:
           gh_set_output labels "$LABELS"
 
           # We're not git-tagging for the env. Just tag all trunk builds as latest.
-          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+          if [[ "$GITHUB_EVENT_NAME" == "push" || "$GITHUB_EVENT_NAME" == "schedule" ]]; then
             gh_set_output tags "type=raw,latest"
             gh_set_output images $'automattic/jetpack-wordpress-dev\nghcr.io/automattic/jetpack-wordpress-dev'
           elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
