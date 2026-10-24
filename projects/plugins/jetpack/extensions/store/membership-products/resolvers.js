@@ -1,4 +1,5 @@
 import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { isUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
@@ -227,6 +228,13 @@ export const getProducts =
 		shouldDisplayProductCreationNotice = true
 	) =>
 	async ( { dispatch, registry, select } ) => {
+		// These endpoints need the current user's own WordPress.com connection.
+		if ( ! isUserConnected() ) {
+			dispatch( setConnectUrl( null ) );
+			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
+			return;
+		}
+
 		await executionLock.blockExecution( EXECUTION_KEY );
 		if ( hydratedFromAPI ) {
 			setDefaultProductIfNeeded( selectedProductIds, setSelectedProductIds, select );
@@ -309,6 +317,11 @@ export const getTotalEmailsSentCount =
 export const getNewsletterCategories =
 	() =>
 	async ( { dispatch, registry } ) => {
+		if ( ! isUserConnected() ) {
+			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
+			return;
+		}
+
 		await executionLock.blockExecution( GET_NEWSLETTER_CATEGORIES_EXECUTION_KEY );
 
 		const lock = executionLock.acquire( GET_NEWSLETTER_CATEGORIES_EXECUTION_KEY );
@@ -332,7 +345,7 @@ export const getNewsletterCategories =
 export const getPostEmailSentState =
 	postId =>
 	async ( { dispatch, registry } ) => {
-		if ( ! postId ) {
+		if ( ! postId || ! isUserConnected() ) {
 			return;
 		}
 

@@ -1,12 +1,28 @@
+import { isUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import executionLock from '../../../shared/execution-lock';
-import { setPostEmailSentState, setTotalEmailsSentCount } from '../actions';
-import { getPostEmailSentState, getTotalEmailsSentCount } from '../resolvers';
+import {
+	setApiState,
+	setConnectUrl,
+	setPostEmailSentState,
+	setTotalEmailsSentCount,
+} from '../actions';
+import { API_STATE_NOTCONNECTED } from '../constants';
+import {
+	getNewsletterCategories,
+	getPostEmailSentState,
+	getProducts,
+	getTotalEmailsSentCount,
+} from '../resolvers';
 import * as utils from '../utils';
 
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: jest.fn( () => true ),
+} ) );
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+	...jest.requireActual( '@automattic/jetpack-shared-extension-utils' ),
+	isUserConnected: jest.fn( () => true ),
 } ) );
 
 describe( 'Membership Products Resolvers', () => {
@@ -134,6 +150,43 @@ describe( 'Membership Products Resolvers', () => {
 				'cURL error 28: Operation timed out'
 			);
 			warnSpy.mockRestore();
+		} );
+	} );
+
+	describe( 'current user not connected to WordPress.com', () => {
+		beforeEach( () => {
+			isUserConnected.mockReturnValue( false );
+		} );
+
+		afterEach( () => {
+			isUserConnected.mockReturnValue( true );
+		} );
+
+		test( 'getPostEmailSentState skips the request and shows no error', async () => {
+			const thunk = getPostEmailSentState( 5 );
+			await thunk( { dispatch: mockDispatch, registry: mockRegistry } );
+
+			expect( apiFetch ).not.toHaveBeenCalled();
+			expect( utils.onError ).not.toHaveBeenCalled();
+			expect( mockDispatch ).not.toHaveBeenCalled();
+		} );
+
+		test( 'getProducts skips the request and marks the API as not connected', async () => {
+			const thunk = getProducts();
+			await thunk( { dispatch: mockDispatch, registry: mockRegistry, select: {} } );
+
+			expect( apiFetch ).not.toHaveBeenCalled();
+			expect( utils.onError ).not.toHaveBeenCalled();
+			expect( mockDispatch ).toHaveBeenCalledWith( setConnectUrl( null ) );
+			expect( mockDispatch ).toHaveBeenCalledWith( setApiState( API_STATE_NOTCONNECTED ) );
+		} );
+
+		test( 'getNewsletterCategories skips the request and shows no error', async () => {
+			const thunk = getNewsletterCategories();
+			await thunk( { dispatch: mockDispatch, registry: mockRegistry } );
+
+			expect( apiFetch ).not.toHaveBeenCalled();
+			expect( utils.onError ).not.toHaveBeenCalled();
 		} );
 	} );
 } );
