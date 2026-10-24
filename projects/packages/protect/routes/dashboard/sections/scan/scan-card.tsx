@@ -22,7 +22,7 @@ const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
 const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
 
 /**
- * The Scan card: start a scan, then review what it found or see that the site is safe.
+ * The Scan results card: start a scan, then review what it found or see that the site is safe.
  *
  * @param props         - Component props.
  * @param props.openTab - Switches dashboard tabs, for the link to Scan history.
@@ -74,7 +74,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			<Card.Root
 				render={ <section /> }
 				className="jp-protect-card"
-				aria-label={ __( 'Scan', 'jetpack-protect-pkg' ) }
+				aria-label={ __( 'Scan results', 'jetpack-protect-pkg' ) }
 			>
 				<Card.Content>
 					<ScanningState
@@ -144,7 +144,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	return (
 		<ProtectCard
 			icon={ hasThreats ? threatsIcon : shield }
-			title={ __( 'Scan', 'jetpack-protect-pkg' ) }
+			title={ __( 'Scan results', 'jetpack-protect-pkg' ) }
 			description={
 				hasPlan
 					? __(
