@@ -44,7 +44,7 @@ class AutoloadProcessor {
 	 * @param bool  $scanPsrPackages Whether or not PSR packages should be converted to a classmap.
 	 *
 	 * @return array|null $processed
-	 * @phan-param array{classmap:?array{path:string,version:string}[],psr-4:?array<string,array{path:string,version:string}[]>,psr-0:?array<string,array{path:string,version:string}[]>} $autoloads
+	 * @phan-param array{classmap:?array{path:string,version:string}[],psr-4:?array<string,array{path:string,version:string}[]>,psr-0:?array<string,array{path:string,version:string}[]>,exclude-from-classmap:?string[]} $autoloads
 	 */
 	public function processClassmap( $autoloads, $scanPsrPackages ) {
 		// We can't scan PSR packages if we don't actually have any.
