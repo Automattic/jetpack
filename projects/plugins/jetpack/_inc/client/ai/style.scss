@@ -9,24 +9,21 @@ body.jetpack_page_jetpack-ai {
 
 	@include jetpack-admin-page-layout;
 
-	// The layout makes AdminPage's Col a flex item that may shrink to the
-	// scroller's height, so the hub's content overflows it. The sticky tab
-	// strip lives in that Col, and a sticky element can't leave its parent:
-	// once the page scrolled past one screen, the strip scrolled away and
-	// Discover's toolbar was left stuck under an empty gap. The hub has no
-	// inner scroll area to fill, so its Col grows with its content and the
-	// strip stays put for the whole page. Mirrors the layout's own selector,
-	// which this has to outrank.
-	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) > :has(> .jp-admin-page-tabs) {
-		flex-shrink: 0;
+	// The layout lets the Col wrapping the tab strip shrink to the viewport, so
+	// the sticky strip lifts once you scroll past it. Keep it content-height.
+	.jp-admin-page__page.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) > :has(> .jp-admin-page-tabs) {
+		flex: 0 0 auto;
+		min-height: auto;
 	}
 
 	// The off-white page surface under the header, as on My Jetpack's tab
 	// content and the VideoPress dashboard, so the hub's white cards read as
 	// cards. The tab strip keeps its own white surface. No wpds token has this
-	// value yet; those screens hardcode it too.
+	// value yet; those screens hardcode it too. Published as a property so
+	// pinned bars that mask content scrolling beneath them can match it.
 	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
-		background-color: #fcfcfc;
+		--jetpack-ai-page-surface: #fcfcfc;
+		background-color: var(--jetpack-ai-page-surface);
 	}
 }
 

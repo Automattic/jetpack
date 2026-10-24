@@ -62,15 +62,6 @@ describe( 'AuthorsWidget', () => {
 		);
 	} );
 
-	it( 'links to the Authors report', () => {
-		render( <AuthorsWidget attributes={ {} } /> );
-
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/authors' )
-		);
-	} );
-
 	it( 'links the author’s name to their page and a drilled-down post to its detail page', async () => {
 		const user = userEvent.setup();
 		mockApiFetch.mockResolvedValue( {

@@ -21,9 +21,12 @@ import McpHowItWorks from './how-it-works';
 import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
+	getRemoteAbilityCategory,
 	getSiteContextToolIds,
 	getSiteLevelEnabled,
 	getSiteMcpAbilities,
+	getSiteRemoteGroups,
+	isRemoteAbilityEnabled,
 	mergeSiteMcpAbilities,
 } from './utils';
 
@@ -133,6 +136,7 @@ function SummaryRow( { icon, title, badge, onClick } ) {
  * @param {Set}      props.savingToolIds         - Set of toolIds currently being saved.
  * @param {Function} props.onNavigate            - Called with 'read' | 'write' | 'setup'.
  * @param {Function} props.onUpdate              - Called with partial mcp_abilities update.
+ * @param {object}   [props.remoteAbilities]     - Published-abilities state; counted in the badges when set.
  * @param {boolean}  [props.showActivityLog]     - Whether this view owns the activity log row
  *                                               (false when the Overview tab renders it instead).
  * @param {boolean}  [props.showConnectCard]     - Whether to lead with the connect card (false
@@ -149,6 +153,7 @@ export default function McpHub( {
 	onUpdate,
 	showActivityLog = true,
 	showConnectCard = true,
+	remoteAbilities = null,
 } ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
@@ -171,12 +176,35 @@ export default function McpHub( {
 	const defaultBadge = defaultToolEnabled
 		? { text: __( 'All enabled', 'jetpack' ), intent: 'success' }
 		: { text: __( 'Disabled', 'jetpack' ) };
-	const readBadge = hasSiteAbilityOverrides
-		? computeBadge( readTools, defaultToolEnabled )
-		: defaultBadge;
-	const writeBadge = hasSiteAbilityOverrides
-		? computeBadge( writeTools, defaultToolEnabled )
-		: defaultBadge;
+	// Published abilities count toward the badges, so they do not say
+	// "All enabled" while a site group is off.
+	const savedRemoteGroups = getSiteRemoteGroups( mcpAbilities ?? {}, blogId );
+	const remoteTools = { read: [], write: [] };
+	const allEnabledIn = tools => tools.length > 0 && tools.every( ( [ , t ] ) => t.enabled );
+	const remoteDefaults = { read: allEnabledIn( readTools ), write: allEnabledIn( writeTools ) };
+	for ( const ability of remoteAbilities?.abilities ?? [] ) {
+		const annotations = ability.meta?.annotations;
+		const category = getRemoteAbilityCategory( ability.name, annotations );
+		remoteTools[ category ].push( [
+			ability.name,
+			{
+				enabled: isRemoteAbilityEnabled(
+					savedRemoteGroups,
+					ability.name,
+					annotations,
+					remoteDefaults[ category ]
+				),
+			},
+		] );
+	}
+	const readBadge =
+		hasSiteAbilityOverrides || remoteTools.read.length
+			? computeBadge( [ ...readTools, ...remoteTools.read ], defaultToolEnabled )
+			: defaultBadge;
+	const writeBadge =
+		hasSiteAbilityOverrides || remoteTools.write.length
+			? computeBadge( [ ...writeTools, ...remoteTools.write ], defaultToolEnabled )
+			: defaultBadge;
 
 	const handleMcpToggle = useCallback(
 		enabled => {

@@ -57,10 +57,14 @@ const STATUS_FILTERS = [ 'available', 'active', 'inactive' ];
  *
  * Read from the hash rather than the router, so it still answers once an install has replaced the button that asked.
  *
- * @param hash - The page's location hash.
+ * @param hash  - The page's location hash.
+ * @param extra - More query values for the return, such as the click it comes back for.
  * @return The admin URL of the same Features view.
  */
-export function getFeatureConnectReturnUrl( hash = window.location.hash ) {
+export function getFeatureConnectReturnUrl(
+	hash = window.location.hash,
+	extra: Record< string, string > = {}
+) {
 	const current = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' );
 	const kept = new URLSearchParams();
 	CONNECT_RETURN_PARAMS.forEach( key => {
@@ -69,6 +73,7 @@ export function getFeatureConnectReturnUrl( hash = window.location.hash ) {
 			kept.set( key, value );
 		}
 	} );
+	Object.entries( extra ).forEach( ( [ key, value ] ) => kept.set( key, value ) );
 	const query = kept.toString();
 
 	return getMyJetpackUrl( `#${ MyJetpackRoutes.Features }${ query ? `?${ query }` : '' }` );

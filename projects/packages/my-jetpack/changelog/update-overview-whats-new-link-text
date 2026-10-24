@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Overview: Rename the "What's new in Jetpack?" closing link to "Read more", behind the Overview v1 feature flag.

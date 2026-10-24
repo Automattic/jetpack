@@ -54,6 +54,7 @@ import {
 import { getStickyHeight } from './discover/use-toolbar-offset';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
+import { splitViewAnchor } from './mcp/anchors';
 import McpConnectAgents from './mcp/connect-agents';
 import McpConnectCallout from './mcp/connect-callout';
 import McpHub from './mcp/index';
@@ -62,6 +63,7 @@ import McpSetup from './mcp/setup';
 import { recordMcpTracksEvent } from './mcp/tracks';
 import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
+import useSiteAbilities from './mcp/use-site-abilities';
 import { getSiteLevelEnabled } from './mcp/utils';
 import McpWrite from './mcp/write';
 import AiOverview from './overview';
@@ -78,6 +80,7 @@ const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 // Sub-views are nested under their owning tab's path segment, so the active
 // tab is always the first segment of the view key.
 const MCP_SUB_VIEWS = [ 'mcp/read', 'mcp/write', 'mcp/setup' ];
+const ANCHOR_VIEWS = [ 'mcp/read', 'mcp/write' ];
 
 // Skills had pages of their own at discover/<slug> before they opened in the
 // side panel; an old link lands on Discover with that skill's panel open.
@@ -138,18 +141,20 @@ const getTabViews = () => {
 
 // The default is Overview when visible (matching the design), otherwise the
 // Settings hub — never Discover, even when it leads the tab bar. A hash pointing
-// at a hidden view falls back too.
-const getViewFromHash = () => {
+// at a hidden view falls back too. The MCP Read and Write views also take a
+// trailing tool anchor (`#/mcp/read/<anchor>`).
+const getRouteFromHash = () => {
 	const raw = getRawHash();
-	const hash = LEGACY_VIEW_ALIASES[ raw ] ?? raw;
 	if ( getLegacySkill( raw ) ) {
-		return 'discover';
+		return { view: 'discover', anchor: null };
 	}
 	const tabViews = getTabViews();
-	if ( [ ...tabViews, ...MCP_SUB_VIEWS ].includes( hash ) ) {
-		return hash;
-	}
-	return tabViews.includes( 'overview' ) ? 'overview' : 'mcp';
+	const { view, anchor } = splitViewAnchor(
+		LEGACY_VIEW_ALIASES[ raw ] ?? raw,
+		[ ...tabViews, ...MCP_SUB_VIEWS ],
+		ANCHOR_VIEWS
+	);
+	return { view: view ?? ( tabViews.includes( 'overview' ) ? 'overview' : 'mcp' ), anchor };
 };
 
 const VIEW_TITLES = {
@@ -353,8 +358,10 @@ export default function App() {
 		isOfflineMode = false,
 		showFeaturesView = false,
 		showA12sBadge = false,
+		isSelfHosted = false,
 	} = window?.jetpackAiSettings ?? {};
-	const [ view, setView ] = useState( getViewFromHash );
+	const [ route, setRoute ] = useState( getRouteFromHash );
+	const { view, anchor } = route;
 	// The view on screen, for the hash listeners, which are bound once.
 	const viewRef = useRef( view );
 	viewRef.current = view;
@@ -384,6 +391,9 @@ export default function App() {
 	const showConnectNotice = !! blogId && userUnlinked;
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings( { skip: showConnectNotice || ! blogId } );
+	const showRemoteAbilities = isSelfHosted && ! showConnectNotice && !! blogId;
+	const publishedAbilities = useSiteAbilities( { enabled: showRemoteAbilities } );
+	const remoteAbilities = showRemoteAbilities ? publishedAbilities : null;
 	const {
 		isLoading: isAiSettingsLoading,
 		savingKeys: aiSavingKeys,
@@ -421,14 +431,17 @@ export default function App() {
 		syncSkillPanelUrl();
 		const syncViewFromHash = () => {
 			syncSkillPanelUrl( { isNavigation: true } );
-			const nextView = getViewFromHash();
+			const nextRoute = getRouteFromHash();
 			// Back from a skill's panel to another tab unmounts the panel with
 			// Discover, and the focus in it with them. The view's tab takes it.
 			const { activeElement } = document;
-			if ( nextView !== viewRef.current && activeElement?.closest?.( SKILL_PANEL_SELECTOR ) ) {
+			if (
+				nextRoute.view !== viewRef.current &&
+				activeElement?.closest?.( SKILL_PANEL_SELECTOR )
+			) {
 				restoreFocusRef.current = true;
 			}
-			setView( nextView );
+			setRoute( nextRoute );
 			setScrollToFeatures( isFeaturesHash() );
 		};
 		window.addEventListener( 'popstate', syncViewFromHash );
@@ -562,7 +575,7 @@ export default function App() {
 	// Every in-app move lands on a view with no skill panel open.
 	const navigateToView = useCallback( newView => {
 		window.history.pushState( { [ IN_APP_HISTORY_KEY ]: true }, '', getViewHref( newView ) );
-		setView( newView );
+		setRoute( { view: newView, anchor: null } );
 		// In-app navigation never means the old #/features section.
 		setScrollToFeatures( false );
 	}, [] );
@@ -794,6 +807,7 @@ export default function App() {
 							<Stack direction="column" gap="lg">
 								{ view === 'mcp' && (
 									<McpHub
+										remoteAbilities={ remoteAbilities }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										activityLogUrl={ activityLogUrl }
@@ -811,6 +825,8 @@ export default function App() {
 								) }
 								{ view === 'mcp/read' && (
 									<McpRead
+										remoteAbilities={ remoteAbilities }
+										anchor={ anchor }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										savingToolIds={ savingToolIds }
@@ -819,6 +835,8 @@ export default function App() {
 								) }
 								{ view === 'mcp/write' && (
 									<McpWrite
+										remoteAbilities={ remoteAbilities }
+										anchor={ anchor }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										savingToolIds={ savingToolIds }

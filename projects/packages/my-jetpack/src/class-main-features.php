@@ -772,36 +772,18 @@ class Main_Features {
 	/**
 	 * The installed file for a plugin, by the names its product declares where there is one.
 	 *
-	 * Prefer an active copy when several declared folders are installed, including -dev checkouts.
-	 *
 	 * @param string      $slug          WordPress.org plugin slug.
 	 * @param string|null $product_class The product behind the plugin, when it has one.
 	 * @return string|false The plugin file, or false when it is not installed.
 	 */
 	public static function get_plugin_file( $slug, $product_class = null ) {
 		if ( Product::JETPACK_PLUGIN_SLUG === $slug ) {
-			$filenames = Product::JETPACK_PLUGIN_FILENAME;
+			return Product::get_installed_plugin_filename( Product::JETPACK_PLUGIN_SLUG ) ?? false;
 		} elseif ( $product_class && $product_class::$has_standalone_plugin ) {
-			$filenames = $product_class::get_plugin_filename();
-		} else {
-			return Plugins_Installer::get_plugin_id_by_slug( $slug );
+			return $product_class::get_installed_plugin_filename() ?? false;
 		}
 
-		$plugins   = Plugins_Installer::get_plugins();
-		$installed = false;
-		foreach ( (array) $filenames as $file ) {
-			if ( ! isset( $plugins[ $file ] ) ) {
-				continue;
-			}
-			if ( $plugins[ $file ]['active'] ) {
-				return $file;
-			}
-			if ( false === $installed ) {
-				$installed = $file;
-			}
-		}
-
-		return $installed;
+		return Plugins_Installer::get_plugin_id_by_slug( $slug );
 	}
 
 	/**

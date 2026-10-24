@@ -336,6 +336,15 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			} ) );
 		}, [ dataSorted, hiddenSeries ] );
 
+		const visibleSeries = useMemo(
+			() => dataSorted.filter( series => isSeriesVisible( series.label ) ),
+			[ dataSorted, isSeriesVisible ]
+		);
+		const visibleSeriesKey = useMemo(
+			() => JSON.stringify( visibleSeries.map( series => series.label ) ),
+			[ visibleSeries ]
+		);
+
 		// Check if all series are hidden
 		const allSeriesHidden = useMemo( () => {
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
@@ -378,18 +387,17 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return min < max ? [ min, max ] : undefined;
 		}, [ rescaleYOnVisibilityChange, dataSorted, isSeriesVisible, options?.yScale ] );
 
-		// Keyboard navigation steps through x positions, and the grouped tooltip
-		// reads every series at that position; the first series names the point.
+		// Keyboard navigation steps through x positions, and the grouped tooltip reads every
+		// visible series at that position; the first visible series with a point there names it.
 		const activateSelectedPoint = useCallback(
 			( index: number ) => {
-				const series = dataSorted[ 0 ];
-				const datum = series?.data[ index ];
+				const series = visibleSeries.find( candidate => candidate.data[ index ] );
 
-				if ( series && datum ) {
-					onDatumActivate?.( { datum, index, key: series.label } );
+				if ( series ) {
+					onDatumActivate?.( { datum: series.data[ index ], index, key: series.label } );
 				}
 			},
-			[ dataSorted, onDatumActivate ]
+			[ visibleSeries, onDatumActivate ]
 		);
 
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -398,7 +406,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints: dataSorted[ 0 ]?.data.length || 0,
+			totalPoints: Math.max( 0, ...visibleSeries.map( series => series.data.length ) ),
+			visibleSeriesKey,
 			onActivate: activateSelectedPoint,
 			preventTooltipScroll: tooltipPlacement === 'below-axis',
 		} );
@@ -424,8 +433,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		}, [ dataSorted, isSeriesVisible ] );
 
 		const hasWholeNumberValues = useMemo(
-			() => hasOnlyWholeNumbers( dataSorted.filter( series => isSeriesVisible( series.label ) ) ),
-			[ dataSorted, isSeriesVisible ]
+			() => hasOnlyWholeNumbers( visibleSeries ),
+			[ visibleSeries ]
 		);
 
 		const chartOptions = useMemo( () => {
@@ -482,12 +491,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		// Classified from the rendered series, like the axis above: a hidden
 		// hourly line must not leave the tooltip naming an hour the axis dropped.
 		const bucketInfo = useMemo(
-			() =>
-				getBucketInfo(
-					dataSorted.filter( series => isSeriesVisible( series.label ) ),
-					options?.axis?.x?.tickResolution
-				),
-			[ dataSorted, isSeriesVisible, options?.axis?.x?.tickResolution ]
+			() => getBucketInfo( visibleSeries, options?.axis?.x?.tickResolution ),
+			[ visibleSeries, options?.axis?.x?.tickResolution ]
 		);
 
 		const tooltipRenderGlyph = useMemo( () => {
@@ -809,7 +814,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													keyboardFocusedClassName={
 														styles[ 'line-chart__tooltip--keyboard-focused' ]
 													}
-													series={ dataSorted }
+													series={ visibleSeries }
 												/>
 											) }
 

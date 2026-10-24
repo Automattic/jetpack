@@ -9,6 +9,8 @@ use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Status\Cache;
+use Brain\Monkey;
+use Brain\Monkey\Functions;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-themes/wpcom-themes-tab.php';
 
@@ -23,6 +25,13 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 * @var string
 	 */
 	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . WPCOM_THEMES_TAB_FLAG;
+
+	/**
+	 * Whether a test has mocked the site's plan, which tear_down has to undo.
+	 *
+	 * @var bool
+	 */
+	private $mocking = false;
 
 	/**
 	 * A theme as `/wpcom/v2/themes` returns it, trimmed to the fields we read.
@@ -121,6 +130,9 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		wp_cache_flush();
 
 		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
+		if ( $this->mocking ) {
+			Monkey\tearDown();
+		}
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -289,6 +301,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( self::THEME['screenshot'], $theme->screenshot_url );
 		// The demo site renders as a preview, without its own promos, given these args.
 		$this->assertSame( self::THEME['demo_uri'] . '?demo=true&iframe=true&theme_preview=true', $theme->preview_url );
+		$this->assertTrue( $theme->wpcom_marketplace_tab );
 	}
 
 	/**
@@ -389,6 +402,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertCount( 1, $result->themes );
 		$this->assertSame( 'organic-stax', $result->themes[0]->slug );
 		$this->assertSame( self::THEME['demo_uri'] . '?demo=true&iframe=true&theme_preview=true', $result->themes[0]->preview_url );
+		$this->assertTrue( $result->themes[0]->wpcom_marketplace_tab );
 		// One request by slug, rather than paging through the whole catalog to find it.
 		$this->assertCount( 1, $this->requests );
 		$this->assertStringContainsString( '/rest/v1.2/themes/organic-stax', $this->requests[0] );
@@ -495,6 +509,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 * Both are query values rather than paths, so both are encoded.
 	 */
 	public function test_checkout_returns_to_the_theme_it_was_bought_for() {
+		$this->site_has_plan( false );
 		$url = wpcom_themes_tab_checkout_url( 'example-bundle', 'example' );
 
 		$this->assertStringContainsString( 'https://wordpress.com/checkout/example.org/example-bundle', $url );
@@ -503,6 +518,14 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 			'redirect_to=' . rawurlencode( admin_url( 'theme-install.php?theme=example' ) ),
 			$url
 		);
+
+		$theme = wpcom_themes_tab_add_plan(
+			(object) array(
+				'slug'       => 'example',
+				'theme_tier' => 'woocommerce',
+			)
+		);
+		$this->assertSame( WPCom_Themes_Tiers::plan_for( 'woocommerce' ), $theme->required_plan );
 	}
 
 	/**
@@ -518,18 +541,22 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 'Included with plan', $theme->plan_badge );
 		$this->assertFalse( isset( $theme->upgrade_url ) );
+		$this->assertFalse( isset( $theme->required_plan ) );
 	}
 
 	/**
 	 * A partner theme names the product to price it by, and sells itself rather than a plan.
 	 */
 	public function test_a_partner_theme_is_priced_and_sold() {
+		// The site already has a paid plan, so only the theme is sold.
+		$this->site_has_plan( true );
 		$this->answer_with_partner_prices();
 
 		$theme = $this->add_plan_to_partner_theme();
 
 		// The theme lists its monthly product first, and the one to quote is still the yearly one.
 		$this->assertSame( 'theme_stax_yearly', $theme->price_product );
+		$this->assertSame( '', $theme->required_plan );
 		$this->assertStringContainsString( 'theme_stax_yearly', $theme->purchase_url );
 		$this->assertStringContainsString(
 			'redirect_to=' . rawurlencode( admin_url( 'theme-install.php?theme=organic-stax' ) ),
@@ -544,6 +571,13 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$url = wpcom_themes_tab_checkout_url( array( 'personal-bundle', 'theme_stax_yearly' ), 'organic-stax' );
 
 		$this->assertStringContainsString( '/checkout/example.org/personal-bundle,theme_stax_yearly?', $url );
+
+		$this->site_has_plan( false );
+		$this->answer_with_partner_prices();
+		$theme = $this->add_plan_to_partner_theme();
+
+		$this->assertSame( 'personal-bundle', $theme->required_plan );
+		$this->assertStringContainsString( '/personal-bundle,theme_stax_yearly?', $theme->purchase_url );
 	}
 
 	/**
@@ -584,6 +618,20 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertFalse( isset( $theme->price_product ) );
 		$this->assertFalse( isset( $theme->purchase_url ) );
+	}
+
+	/**
+	 * Say whether the site's plan grants every tier.
+	 *
+	 * @param bool $has Whether it does.
+	 * @return void
+	 */
+	private function site_has_plan( bool $has ) {
+		// Other suites leave their own expectation behind, which would refuse this stub.
+		Monkey\tearDown();
+		Monkey\setUp();
+		$this->mocking = true;
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( $has );
 	}
 
 	/**

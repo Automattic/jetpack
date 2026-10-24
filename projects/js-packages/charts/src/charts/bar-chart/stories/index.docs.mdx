@@ -74,6 +74,7 @@ The simplest bar chart requires only a `data` prop with categorical data:
 - **`barClassName`**: A callback returning an additional CSS class for each primary bar's datum, on top of `visx-bar`. Use it to style empty or zero-value marks independently of their fill color.
 - **`tooltipStyle`**: Inline style overrides for the tooltip box
 - **`orientation`**: Bar orientation (`'vertical'` or `'horizontal'`, defaults to `'vertical'`)
+- **`layout`**: How series share a category (`'grouped'` or `'overlap'`, defaults to `'grouped'`). See [Overlap Layout](#overlap-layout)
 - **`withPatterns`**: Use pattern fills instead of solid colors (`false` by default)
 - **`gridVisibility`**: Grid line visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
 
@@ -168,7 +169,7 @@ The component handles large numbers of series gracefully with automatic color cy
 
 ## Comparison Mode
 
-Add a comparison series — for example "this period vs. previous period" — by giving a series `options.type: 'comparison'`. It renders as a translucent "shadow" bar centered **behind** the primary series that shares its `group`. The shadow is wider than the primary bar (the primary is narrowed) so it peeks on each side and above, while a small gap is kept between series and a larger gap between ticks.
+Add a comparison series — for example "this period vs. previous period" — by giving a series `options.type: 'comparison'`. It renders as an opaque bar centered **behind** the primary series that shares its `group`. The comparison bar is wider than the primary bar (the primary is narrowed) so it peeks on each side and above, while a small gap is kept between series and a larger gap between ticks. The comparison takes the lightest tint of its primary's color that keeps 3:1 contrast against the chart background, and the primary the shade of its color that keeps 3:1 against that tint. A primary with its own `options.stroke` keeps it, and the comparison takes the tint of that color. A comparison with its own `options.stroke` keeps the pair's colors as given.
 
 <Canvas of={ BarChartStories.ComparisonSingle } />
 
@@ -192,7 +193,7 @@ Add a comparison series — for example "this period vs. previous period" — by
 	/>` }
 />
 
-It composes with grouped bars: pair each primary series with its own `type: 'comparison'` series of the same `group`, and the groups render side by side, each with its own shadow.
+It composes with grouped bars: pair each primary series with its own `type: 'comparison'` series of the same `group`, and the groups render side by side, each with its own comparison bar.
 
 <Canvas of={ BarChartStories.ComparisonMulti } />
 
@@ -200,12 +201,43 @@ It composes with grouped bars: pair each primary series with its own `type: 'com
 
 - A comparison series pairs with the primary series that shares its `group` (when there is a single primary series, `group` can be omitted on both).
 - Comparison values are included in the value-axis domain, so a previous period taller than the current one is never clipped.
-- Comparison series must reuse the primary series' category keys (the `label`/`date` of each point) so each shadow lines up with its primary bar.
-- The comparison shadow isn't a separate hover/keyboard target (the primary bar drives interaction), but the tooltip shows both the current and previous period values for the hovered category.
-- Each series gets its own legend item by default. Set `legend.collapseGroups` to render one item per group, labeled by its primary series; combined with `legend.interactive`, clicking that item toggles the primary and its previous-period series together. Pair it with `legend.comparisonItem` to append a static item explaining the comparison shadow once `collapseGroups` folds it away. Use `legend.comparisonSeriesItems` instead to give each metric's comparison its own static item, labeled from the metric's label and left out while that metric is hidden. When every series is hidden, the axes are dropped and only the empty state is shown.
+- Comparison series must reuse the primary series' category keys (the `label`/`date` of each point) so each comparison bar lines up with its primary bar.
+- The comparison bar isn't a separate hover/keyboard target (the primary bar drives interaction), but the tooltip shows both the current and previous period values for the hovered category.
+- Each series gets its own legend item by default. Set `legend.collapseGroups` to render one item per group, labeled by its primary series; combined with `legend.interactive`, clicking that item toggles the primary and its previous-period series together. Its swatch takes the comparison bar's tint, the wider bar that frames the group. Pair it with `legend.comparisonItem` to append a static item explaining the comparison bars once `collapseGroups` folds it away. Use `legend.comparisonSeriesItems` instead to give each metric's comparison its own static item, labeled from the metric's label and left out while that metric is hidden. When every series is hidden, the axes are dropped and only the empty state is shown.
 - Collapsing the legend requires the primary and its comparison series to share a `group`. This is stricter than the bars themselves: rendering pairs a comparison with the sole primary even when `group` is omitted, but the legend has no single-primary fallback, so without a shared `group` the pair keeps separate legend items.
-- With pattern fills enabled (`withPatterns`), the comparison shadow reuses its primary bar's pattern at the same reduced opacity, so the pair reads as one series.
-- Styling comes from the theme at `barChart.barStyles.comparison`. `widthFactor` (default `1.5`) controls how much wider the comparison bar is than the primary — the primary is narrowed to `1 / widthFactor` of the slot — and `opacity` (default `0.5`) sets the shadow translucency.
+- With pattern fills enabled (`withPatterns`), the comparison bar takes a pattern of its own, in its tint.
+- Styling comes from the theme at `barChart.barStyles.comparison`. `widthFactor` (default `1.5`) controls how much wider the comparison bar is than the primary — the primary is narrowed to `1 / widthFactor` of the slot. `opacity` is deprecated: set, it keeps the older translucent comparison bar in its primary's color.
+
+## Overlap Layout
+
+Set `layout="overlap"` to draw one metric inside another, as Jetpack Stats v1 draws visitors inside views. Each category has up to two slots: every primary series sits in the first, and every `type: 'comparison'` series in a second beside it while any comparison is shown. Within a slot, the `group`s overlap: the first group in `data` is the back bar at the full slot width, and each later group is narrower and drawn in front (with two groups, the front bar is half as wide). Series without a `group` share one layer.
+
+<Canvas of={ BarChartStories.ComparisonMultiOverlap } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		layout="overlap"
+		data={[
+			{ label: 'Views', group: 'views', data: views },
+			{ label: 'Previous views', group: 'views', options: { type: 'comparison' }, data: previousViews },
+			{ label: 'Visitors', group: 'visitors', data: visitors },
+			{ label: 'Previous visitors', group: 'visitors', options: { type: 'comparison' }, data: previousVisitors },
+		]}
+		withTooltips
+		showLegend
+	/>` }
+/>
+
+**Notes:**
+
+- Bars are opaque. Each slot is toned from a base color: the back series' `options.stroke` if it has one, otherwise the palette color of the slot (the first palette color for the primaries, the second for the comparisons). The back bar takes the lightest tint of the base that keeps 3:1 contrast against the chart background, and each bar in front the shade of the base that keeps 3:1 against the bar behind it. A bar alone in its slot is a back bar, so it takes the tint too.
+- A slot keeps the colors it was given when its front-most series has an `options.stroke`, or when a color or the background is not a hex color.
+- The legend swatches take the bar colors. Without `legend.collapseGroups`, the legend lists the series in slot order: every primary, then every comparison. For a custom tooltip or legend, read them with `useBarColors()( series, { layout: 'overlap' } )`.
+- Hiding a series keeps the slots and colors: a comparison keeps its slot while its primary is hidden. The widths follow the groups shown, so a group widens to the full slot while the group behind it is hidden.
+- The tooltip lists every series at the hovered category, and a `null` reading as "No data". Pointer callbacks report the front-most bar of the slot under the pointer.
+- Arrow keys step one slot at a time. The selected slot is outlined as a whole, and the keyboard tooltip lists every bar at its category.
+- The theme's `barChart.barStyles.comparison` does not apply in this layout.
 
 ## Visual Features
 
