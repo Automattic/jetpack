@@ -20,6 +20,8 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => {
 		default: ( { actions, children } ) => createElement( Fragment, null, actions, children ),
 	};
 } );
+// The first-visit guide is modal, so it would hide the tabs from every query.
+jest.mock( '../components/welcome-modal', () => ( { __esModule: true, default: () => null } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const mockUseSearch = useSearch as unknown as jest.Mock;

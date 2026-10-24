@@ -5,6 +5,7 @@ import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import Overview from './components/overview';
 import SettingsTab from './components/settings-tab';
+import WelcomeModal from './components/welcome-modal';
 import useProtectSettings from './data/use-protect-settings';
 import sections from './sections';
 import { CLOSED_INSPECTOR } from './sections/inspector-params';
@@ -123,6 +124,7 @@ const Stage = () => {
 					</Tabs.Panel>
 				</div>
 			</Tabs.Root>
+			<WelcomeModal />
 		</AdminPage>
 	);
 };

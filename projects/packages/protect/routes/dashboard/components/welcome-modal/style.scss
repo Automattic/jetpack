@@ -1,0 +1,83 @@
+$band-ground: #f0f7f0;
+
+// Guide has no intrinsic width; this sets one that fits phones too.
+.jp-protect-welcome {
+	inline-size: min(420px, calc(100vw - 32px));
+
+	// The tallest page's height on every page, so the footer never moves.
+	// A minimum, not a fixed height, so longer translations aren't clipped.
+	@media (min-width: 600px) {
+
+		.components-guide__container {
+			min-block-size: 480px;
+		}
+	}
+
+	&__art {
+		--jp-protect-glow-a: 20% 30%;
+		--jp-protect-glow-b: 82% 75%;
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		block-size: 240px;
+		margin-block-end: 16px;
+		overflow: hidden;
+		background:
+			radial-gradient(40% 80% at var(--jp-protect-glow-a), rgba(6, 158, 8, 0.28), transparent 72%),
+			radial-gradient(36% 70% at var(--jp-protect-glow-b), rgba(184, 230, 191, 0.9), transparent 72%),
+			$band-ground;
+
+		// Each page shifts the glows, so paging through feels like moving.
+		&--2 {
+			--jp-protect-glow-a: 75% 25%;
+			--jp-protect-glow-b: 20% 80%;
+		}
+
+		&--3 {
+			--jp-protect-glow-a: 50% 85%;
+			--jp-protect-glow-b: 85% 20%;
+		}
+	}
+
+	&__art-badge {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 120px;
+		block-size: 120px;
+		border-radius: 50%;
+		background: #fff;
+		box-shadow: 0 8px 24px rgba(0, 48, 16, 0.12);
+		color: var(--wpds-color-foreground-content-neutral);
+
+		&.is-small {
+			inline-size: 72px;
+			block-size: 72px;
+		}
+
+		.jp-protect-safe__shield {
+			overflow: visible;
+			inline-size: 64px;
+			block-size: auto;
+		}
+	}
+
+	&__heading {
+		margin-block: 16px;
+		margin-inline: 0;
+		padding-inline: 24px;
+		font-size: 22px;
+		font-weight: 600;
+		line-height: 1.4;
+	}
+
+	&__text {
+		margin-block: 0 24px;
+		margin-inline: 0;
+		padding-inline: 24px;
+		font-size: 13px;
+		line-height: 1.5;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+}
