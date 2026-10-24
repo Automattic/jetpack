@@ -793,7 +793,6 @@ function wpcom_add_tools_menu() {
 		'tools.php',
 		array(
 			'tools.php',
-			'advertising-moved',
 			'monetize',
 			'import',
 			'export.php',
