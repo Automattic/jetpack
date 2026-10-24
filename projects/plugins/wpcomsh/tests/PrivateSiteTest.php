@@ -109,4 +109,220 @@ class PrivateSiteTest extends WP_UnitTestCase {
 
 		$this->assertFalse( \Private_Site\is_private_blog_user() );
 	}
+
+	/**
+	 * The REST index is readable so unauthenticated clients can discover how to authenticate.
+	 */
+	public function test_rest_dispatch_request_allows_reading_the_index() {
+		wp_set_current_user( 0 );
+
+		$result = \Private_Site\rest_dispatch_request( null, new WP_REST_Request( 'GET', '/' ), '/' );
+
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * Only reads of the index are allowed; writes to it are still denied.
+	 */
+	public function test_rest_dispatch_request_denies_writing_the_index() {
+		wp_set_current_user( 0 );
+
+		$result = \Private_Site\rest_dispatch_request( null, new WP_REST_Request( 'POST', '/' ), '/' );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'private_site', $result->get_error_code() );
+	}
+
+	/**
+	 * Content endpoints remain denied for unauthenticated visitors.
+	 */
+	public function test_rest_dispatch_request_denies_content_endpoints() {
+		wp_set_current_user( 0 );
+
+		$result = \Private_Site\rest_dispatch_request( null, new WP_REST_Request( 'GET', '/wp/v2/posts' ), '/wp/v2/posts' );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'private_site', $result->get_error_code() );
+	}
+
+	/**
+	 * The batch endpoint is not the index and stays denied.
+	 */
+	public function test_rest_dispatch_request_denies_the_batch_endpoint() {
+		wp_set_current_user( 0 );
+
+		$result = \Private_Site\rest_dispatch_request( null, new WP_REST_Request( 'GET', '/batch/v1' ), '/batch/v1' );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'private_site', $result->get_error_code() );
+	}
+
+	/**
+	 * A dispatch result from another plugin is left untouched.
+	 */
+	public function test_rest_dispatch_request_preserves_a_prior_dispatch_result() {
+		wp_set_current_user( 0 );
+
+		$prior  = new WP_REST_Response( 'handled elsewhere' );
+		$result = \Private_Site\rest_dispatch_request( $prior, new WP_REST_Request( 'GET', '/wp/v2/posts' ), '/wp/v2/posts' );
+
+		$this->assertSame( $prior, $result );
+	}
+
+	/**
+	 * The trimmed index exposes only the allowlisted keys; everything else is withheld.
+	 */
+	public function test_rest_index_returns_only_allowlisted_keys() {
+		wp_set_current_user( 0 );
+
+		$result = \Private_Site\rest_index( $this->full_rest_index_response() );
+		$data   = $result->get_data();
+
+		$this->assertSame(
+			array( 'name', 'description', 'url', 'home', 'gmt_offset', 'namespaces', 'authentication', 'routes' ),
+			array_keys( $data )
+		);
+		$this->assertSame( '', $data['description'] );
+		$this->assertSame( 0, $data['gmt_offset'] );
+		$this->assertSame( array(), $data['namespaces'] );
+		$this->assertEquals( new \stdClass(), $data['routes'], 'routes is a map: empty must be {} (an object), not []' );
+		// The raw site name and _links (help, active-theme) must not survive the trim.
+		$this->assertNotSame( 'Secret Site Name', $data['name'] );
+		$this->assertSame( array(), $result->get_links() );
+	}
+
+	/**
+	 * The authentication block is the payload clients need, so it is copied through verbatim.
+	 */
+	public function test_rest_index_preserves_the_authentication_block() {
+		wp_set_current_user( 0 );
+
+		$response = $this->full_rest_index_response();
+		$expected = $response->get_data()['authentication'];
+
+		$data = \Private_Site\rest_index( $response )->get_data();
+
+		$this->assertSame( $expected, $data['authentication'] );
+		$this->assertArrayHasKey( 'application-passwords', $data['authentication'] );
+	}
+
+	/**
+	 * `authentication` is a map, so an empty one (no SSL, no auth plugins) must still serialize as an
+	 * object, not `[]` -- core seeds it as an empty array, which would otherwise encode as `[]`.
+	 */
+	public function test_rest_index_serializes_empty_authentication_as_an_object() {
+		wp_set_current_user( 0 );
+		$response = new WP_REST_Response( array( 'authentication' => array() ) );
+
+		$auth = \Private_Site\rest_index( $response )->get_data()['authentication'];
+
+		$this->assertEquals( new \stdClass(), $auth, 'empty authentication must be {} (an object), not []' );
+	}
+
+	/**
+	 * End-to-end: the Application Passwords authorization URL — the whole point of exposing the
+	 * index — survives the trim. This only holds because the filter runs after core populates
+	 * `authentication` (both hook `rest_index`, ours at PHP_INT_MAX); a lower priority would drop it.
+	 */
+	public function test_rest_index_keeps_the_application_passwords_authorization_url() {
+		wp_set_current_user( 0 );
+		// Atomic sites have SSL, so core advertises Application Passwords; force that in the test env.
+		add_filter( 'wp_is_application_passwords_available', '__return_true' );
+		// Core hooks this on rest_api_init; re-add it explicitly since the suite's hook backup +
+		// the REST-server singleton can leave it detached by the time this test runs.
+		add_filter( 'rest_index', 'rest_add_application_passwords_to_index' );
+		// Register the filter exactly as init() does on a live private site.
+		add_filter( 'rest_index', '\Private_Site\rest_index', PHP_INT_MAX );
+
+		$data = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/' ) )->get_data();
+
+		remove_filter( 'rest_index', '\Private_Site\rest_index', PHP_INT_MAX );
+		remove_filter( 'rest_index', 'rest_add_application_passwords_to_index' );
+		remove_filter( 'wp_is_application_passwords_available', '__return_true' );
+
+		$this->assertArrayHasKey( 'application-passwords', $data['authentication'] );
+		$this->assertStringContainsString(
+			'authorize-application.php',
+			$data['authentication']['application-passwords']['endpoints']['authorization']
+		);
+		$this->assertEquals( new \stdClass(), $data['routes'], 'the index is still stripped for unauthenticated visitors' );
+	}
+
+	/**
+	 * Running last (PHP_INT_MAX) means we snapshot every provider's contribution, so a third-party
+	 * auth plugin that follows core's convention -- adding its method under `authentication` -- is
+	 * kept alongside core's Application Passwords rather than clobbered.
+	 */
+	public function test_rest_index_preserves_other_plugins_authentication_methods() {
+		wp_set_current_user( 0 );
+		add_filter( 'wp_is_application_passwords_available', '__return_true' );
+		add_filter( 'rest_index', 'rest_add_application_passwords_to_index' );
+		// A third-party auth plugin registering at a normal priority, i.e. before ours.
+		$acme = function ( $response ) {
+			$response->data['authentication']['acme-oauth'] = array(
+				'endpoints' => array( 'authorization' => 'https://example.com/acme/authorize' ),
+			);
+			return $response;
+		};
+		add_filter( 'rest_index', $acme, 20 );
+		add_filter( 'rest_index', '\Private_Site\rest_index', PHP_INT_MAX );
+
+		$auth = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/' ) )->get_data()['authentication'];
+
+		remove_filter( 'rest_index', '\Private_Site\rest_index', PHP_INT_MAX );
+		remove_filter( 'rest_index', $acme, 20 );
+		remove_filter( 'rest_index', 'rest_add_application_passwords_to_index' );
+		remove_filter( 'wp_is_application_passwords_available', '__return_true' );
+
+		$this->assertArrayHasKey( 'application-passwords', $auth );
+		$this->assertArrayHasKey( 'acme-oauth', $auth );
+	}
+
+	/**
+	 * The index name is routed through the site-name mask rather than the raw option.
+	 */
+	public function test_rest_index_masks_the_site_name() {
+		wp_set_current_user( 0 );
+		update_option( 'blogname', 'Secret Site Name' );
+		add_filter( 'bloginfo', '\Private_Site\mask_site_name', 3, 2 );
+
+		$data = \Private_Site\rest_index( $this->full_rest_index_response() )->get_data();
+
+		$this->assertSame( 'Private Site', $data['name'] );
+
+		remove_filter( 'bloginfo', '\Private_Site\mask_site_name', 3 );
+	}
+
+	/**
+	 * Builds a response shaped like core's full REST index, including fields a private site must not leak.
+	 *
+	 * @return WP_REST_Response
+	 */
+	private function full_rest_index_response() {
+		$response = new WP_REST_Response(
+			array(
+				'name'            => 'Secret Site Name',
+				'description'     => 'Secret tagline',
+				'url'             => 'https://example.com',
+				'home'            => 'https://example.com',
+				'gmt_offset'      => '5',
+				'timezone_string' => 'America/New_York',
+				'namespaces'      => array( 'wp/v2', 'secret-plugin/v1' ),
+				'authentication'  => array(
+					'application-passwords' => array(
+						'endpoints' => array(
+							'authorization' => 'https://example.com/wp-admin/authorize-application.php',
+						),
+					),
+				),
+				'site_icon'       => 42,
+				'routes'          => array(
+					'/secret-plugin/v1/secrets' => array( 'namespace' => 'secret-plugin/v1' ),
+				),
+			)
+		);
+		$response->add_link( 'help', 'https://developer.wordpress.org/rest-api/' );
+
+		return $response;
+	}
 }

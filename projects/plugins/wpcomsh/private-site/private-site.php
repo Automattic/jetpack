@@ -12,6 +12,8 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
 use Jetpack;
 use WP_Error;
 use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
 use function esc_html_e;
 use function get_current_blog_id;
 use function get_option;
@@ -101,6 +103,9 @@ function init() {
 
 	// Scrutinize REST API requests.
 	add_filter( 'rest_dispatch_request', '\Private_Site\rest_dispatch_request', 10, 3 );
+
+	// Reduce the REST index to the minimum an unauthenticated client needs to authenticate.
+	add_filter( 'rest_index', '\Private_Site\rest_index', PHP_INT_MAX );
 
 	// Prevent Pinterest pinning.
 	add_action( 'wp_head', '\Private_Site\private_no_pinning' );
@@ -431,8 +436,32 @@ function send_access_denied_error_response() {
 		);
 	}
 
+	/*
+	 * Advertise the REST API root so clients can discover how to authenticate. We set only the
+	 * `https://api.w.org/` link, not core's `rest_output_link_header()`, which also emits an
+	 * `alternate` link exposing the requested resource's REST route.
+	 */
+	if ( ! headers_sent() ) {
+		$api_root = get_rest_url();
+		if ( ! empty( $api_root ) ) {
+			header( sprintf( 'Link: <%s>; rel="https://api.w.org/"', sanitize_url( $api_root ) ), false );
+		}
+	}
+
 	require access_denied_template_path();
 	exit( 0 );
+}
+
+/**
+ * Print the WordPress REST API discovery `<link>` tag for the access-denied templates — the
+ * HTML `<head>` counterpart to the `Link:` header in `send_access_denied_error_response()`,
+ * which explains why we emit only the `https://api.w.org/` link.
+ */
+function print_rest_api_discovery_link() {
+	$api_root = get_rest_url();
+	if ( ! empty( $api_root ) ) {
+		printf( '<link rel="https://api.w.org/" href="%s" />', esc_url( $api_root ) );
+	}
 }
 
 /**
@@ -540,11 +569,57 @@ function rest_dispatch_request( $dispatch_result, $request, $route ) {
 		return null;
 	}
 
+	/*
+	 * Allow a read of the REST index so clients can discover how to authenticate.
+	 * `\Private_Site\rest_index()` strips the payload down to just that.
+	 */
+	if ( '/' === $route && WP_REST_Server::READABLE === $request->get_method() ) {
+		return null;
+	}
+
 	if ( should_prevent_site_access() ) {
 		return new WP_Error( 'private_site', __( 'This site is private.', 'wpcomsh' ), array( 'status' => 403 ) );
 	}
 
 	return null;
+}
+
+/**
+ * Reduce the REST index to the minimum an unauthenticated visitor needs to discover
+ * how to authenticate.
+ *
+ * Built from an allowlist rather than by unsetting fields, so anything core or a plugin
+ * adds to the index later stays hidden until allowlisted here. Runs at `PHP_INT_MAX` so
+ * core has already populated `authentication` (hooked at the default priority) first.
+ *
+ * @param WP_REST_Response $response REST index response.
+ * @return WP_REST_Response
+ */
+function rest_index( $response ) {
+	if ( ! should_prevent_site_access() ) {
+		return $response;
+	}
+
+	$data = $response->get_data();
+
+	// `authentication` and `routes` are maps: an empty PHP array would serialize as [], so coerce
+	// each to an object so clients that read them as objects (or validate a schema) don't break. A
+	// populated `authentication` stays an array -- non-empty string-keyed arrays already encode as {}.
+	$authentication = empty( $data['authentication'] ) ? (object) array() : $data['authentication'];
+
+	// Allowlist. Anything not named here is intentionally withheld.
+	return new WP_REST_Response(
+		array(
+			'name'           => get_bloginfo( 'name', 'display' ), // 'display' routes through `mask_site_name`; a raw read would leak the real name.
+			'description'    => '',
+			'url'            => get_option( 'siteurl' ),
+			'home'           => home_url(),
+			'gmt_offset'     => 0,
+			'namespaces'     => array(),
+			'authentication' => $authentication,
+			'routes'         => (object) array(),
+		)
+	);
 }
 
 /**
