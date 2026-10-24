@@ -143,6 +143,9 @@ export function TailoredList( {
 	const [ difmOffer, setDifmOffer ] = useState< DifmOffer | null >(
 		() => initialData?.difm_offer ?? null
 	);
+	const [ usePublishCopy, setUsePublishCopy ] = useState(
+		() => initialData?.use_publish_copy ?? false
+	);
 	// Set once the server latches the list as done (here or elsewhere): celebrate, then hand off to the Dashboard.
 	const [ allDone, setAllDone ] = useState( false );
 
@@ -159,6 +162,7 @@ export function TailoredList( {
 			setAllDone( !! initialData.list_completed );
 			setOutput( initialData.ai_output?.payload ?? null );
 			setDifmOffer( initialData.difm_offer ?? null );
+			setUsePublishCopy( initialData.use_publish_copy ?? false );
 			if ( initialData.site ) {
 				setSiteUrl( initialData.site.url ?? null );
 				setSiteTitle( initialData.site.title ?? null );
@@ -198,6 +202,7 @@ export function TailoredList( {
 				setSiteEditUrl( data.site.edit_url ?? null );
 			}
 			setDifmOffer( data?.difm_offer ?? null );
+			setUsePublishCopy( data?.use_publish_copy ?? false );
 
 			let nextOutput: TailoredOutput | null = null;
 			let nextTasks: EnrichedTask[] = [];
@@ -483,6 +488,7 @@ export function TailoredList( {
 						<TaskCard
 							key={ task.id }
 							task={ task }
+							usePublishCopy={ usePublishCopy }
 							busyAction={ busy?.id === task.id ? busy.action : null }
 							isLocked={ busy !== null }
 							canStart={ isTaskActionable( task, output, siteUrl ) }

@@ -244,4 +244,31 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 			$this->assertArrayHasKey( 'get_title', $tasks[ $task_id ], 'Task definition for ' . $task_id . ' is missing get_title function' );
 		}
 	}
+
+	/**
+	 * The launch tasks say "Launch" in the control and "Publish" in the treatment of the copy experiment.
+	 */
+	public function test_launch_task_titles_follow_the_publish_copy_experiment() {
+		remove_all_filters( 'wpcom_launchpad_extended_task_definitions' );
+
+		$titles = function () {
+			$tasks = wpcom_launchpad_get_task_definitions();
+			return array_map(
+				function ( $task_id ) use ( $tasks ) {
+					return call_user_func( $tasks[ $task_id ]['get_title'] ?? '__return_empty_string' );
+				},
+				array( 'site_launched', 'link_in_bio_launched', 'videopress_launched', 'blog_launched', 'woo_launch_site' )
+			);
+		};
+
+		add_filter( 'wpcom_site_launch_publish_copy_override_is_treatment', '__return_false' );
+		$this->assertSame( array( 'Launch your site', 'Launch your site', 'Launch site', 'Launch your blog', 'Launch your store' ), $titles() );
+
+		remove_all_filters( 'wpcom_site_launch_publish_copy_override_is_treatment' );
+		add_filter( 'wpcom_site_launch_publish_copy_override_is_treatment', '__return_true' );
+		// The store task opens WooCommerce's own "Launch your store" screen, so it keeps its title.
+		$this->assertSame( array( 'Publish your site', 'Publish your site', 'Publish site', 'Publish your blog', 'Launch your store' ), $titles() );
+
+		remove_all_filters( 'wpcom_site_launch_publish_copy_override_is_treatment' );
+	}
 }
