@@ -33,21 +33,60 @@ function wpcomInitializeFiverrCta() {
 }
 
 /**
+ * Build and append the "Make {domain} your site address" button, shown instead of
+ * "Add custom address" when the site owns a domain that isn't its address yet.
+ * @param previousSibling - The Site Address (URL) input.
+ * @param candidates      - Custom domains that could become the site address.
+ */
+function _wpcomBuildMakePrimaryAddressButton( previousSibling: HTMLElement, candidates: string[] ) {
+	const makePrimaryButton = document.createElement( 'button' );
+	makePrimaryButton.type = 'button';
+	makePrimaryButton.className = 'button wpcom-add-custom-address-button';
+	makePrimaryButton.textContent =
+		candidates.length === 1
+			? sprintf(
+					// translators: %s is a domain name, e.g. example.com.
+					__( 'Make %s your site address', 'jetpack-mu-wpcom' ),
+					candidates[ 0 ]
+				)
+			: __( 'Choose your site address', 'jetpack-mu-wpcom' );
+
+	makePrimaryButton.addEventListener( 'click', e => {
+		e.preventDefault();
+
+		wpcomTrackEvent( 'wpcom_admin_upgrade_nudge_cta_click', {
+			cta_name: 'settings_site_address_make_primary',
+		} );
+
+		window.open( `https://my.wordpress.com/sites/${ window.wpcomSiteUrl.siteSlug }/domains` );
+	} );
+
+	previousSibling.parentElement?.appendChild( makePrimaryButton );
+}
+
+/**
  * Build and append the "Add custom address" button.
  * @param fragment - The document fragment for options general.
  */
 function _wpcomBuildAddCustomAddressButton( fragment: DocumentFragment ) {
-	const addButton = document.createElement( 'button' );
-	addButton.type = 'button';
-	addButton.className = 'button wpcom-add-custom-address-button';
-	addButton.innerHTML = `&plus; ${ __( 'Add custom address', 'jetpack-mu-wpcom' ) }`;
-
 	// Fragment == simple, document == Atomic
 	const previousSibling =
 		( fragment.getElementById( 'home' ) as HTMLInputElement ) || document.getElementById( 'home' );
 	if ( ! previousSibling ) {
 		return;
 	}
+
+	// A domain the site already owns (e.g. bought during setup) beats buying another one.
+	const candidates = window.wpcomSiteUrl?.primaryDomainCandidates ?? [];
+	if ( candidates.length > 0 ) {
+		_wpcomBuildMakePrimaryAddressButton( previousSibling, candidates );
+		return;
+	}
+
+	const addButton = document.createElement( 'button' );
+	addButton.type = 'button';
+	addButton.className = 'button wpcom-add-custom-address-button';
+	addButton.innerHTML = `&plus; ${ __( 'Add custom address', 'jetpack-mu-wpcom' ) }`;
 
 	addButton.addEventListener( 'click', e => {
 		e.preventDefault();
