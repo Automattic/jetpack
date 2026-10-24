@@ -7,6 +7,7 @@ import useOpenThreat from '../use-open-threat';
 import { DeleteSoftwareButton } from './delete-software';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import { fixThreat, ignoreThreat, unignoreThreat, useThreatAction } from './threat-actions';
+import { ThreatFileLink } from './threat-file';
 import type { ScanThreat } from './types';
 import type { ComponentProps, ReactNode } from 'react';
 
@@ -311,9 +312,12 @@ export default function ThreatDetails( {
 				<Section title={ __( 'The technical details', 'jetpack-protect-pkg' ) }>
 					{ threat.filename ? (
 						<>
-							<Text variant="body-md" className="jp-protect-card__muted">
-								{ __( 'Threat found in file:', 'jetpack-protect-pkg' ) }
-							</Text>
+							<Stack direction="row" gap="sm" justify="space-between" align="baseline">
+								<Text variant="body-md" className="jp-protect-card__muted">
+									{ __( 'Threat found in file:', 'jetpack-protect-pkg' ) }
+								</Text>
+								{ canAct && <ThreatFileLink threat={ threat } /> }
+							</Stack>
 							<pre className="jp-protect-threat-details__code">{ threat.filename }</pre>
 							{ context.length > 0 && (
 								<pre className="jp-protect-threat-details__code">

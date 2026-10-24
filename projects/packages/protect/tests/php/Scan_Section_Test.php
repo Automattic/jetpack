@@ -360,4 +360,36 @@ class Scan_Section_Test extends BaseTestCase {
 
 		$this->assertSame( $expected, Scan::get_upsell_variant() );
 	}
+
+	/**
+	 * Scan paths, which start from Scan's own root, and whether each resolves to the test file.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_threat_files() {
+		return array(
+			'Scan root differs from ours'        => array( '/htdocs/wp-content/uploads/protect-threat-file.php', true ),
+			'deleted plugin file, same basename' => array( '/htdocs/wp-content/plugins/gone/protect-threat-file.php', false ),
+			'traversal out of the site'          => array( '/htdocs/wp-content/../../../../../../../etc/passwd', false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_threat_files
+	 *
+	 * @param string $filename The path as Scan reports it.
+	 * @param bool   $is_found Whether it resolves to the uploaded test file.
+	 */
+	#[DataProvider( 'provide_threat_files' )]
+	public function test_threat_files_are_found_only_inside_the_site( $filename, $is_found ) {
+		$dir = WP_CONTENT_DIR . '/uploads';
+		if ( ! is_dir( $dir ) ) {
+			mkdir( $dir, 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		}
+		file_put_contents( "$dir/protect-threat-file.php", '<?php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$path = self::call( 'locate_threat_file', $filename );
+		wp_delete_file( "$dir/protect-threat-file.php" );
+
+		$this->assertSame( $is_found ? realpath( $dir ) . '/protect-threat-file.php' : null, $path );
+	}
 }
