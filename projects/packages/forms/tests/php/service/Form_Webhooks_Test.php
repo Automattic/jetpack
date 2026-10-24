@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\Service;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field;
 use Automattic\Jetpack\Forms\ContactForm\Feedback;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
@@ -1978,6 +1979,121 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$this->assertIsArray( $response_data, 'The logged webhook response should decode to an array' );
 
 		return $response_data;
+	}
+
+	public function test_send_webhooks_adds_file_links_next_to_the_file_field_text() {
+		$download_url = static function ( $url, $file_id ) {
+			return 'https://example.org/download/' . $file_id;
+		};
+		add_filter( 'jetpack_unauth_file_download_url', $download_url, 10, 2 );
+
+		$form     = new Contact_Form(
+			array( 'webhooks' => array( $this->enabled_json_webhook() ) ),
+			"[contact-field label='Name' type='name' id='name'/][contact-field label='Upload' type='file' id='upload' maxfiles='3'/]"
+		);
+		$post_id  = Feedback::from_submission(
+			array(
+				'name'   => 'Multi File Tester',
+				'upload' => array(
+					wp_json_encode(
+						array(
+							'file_id' => 137062,
+							'name'    => 'multi-image.png',
+							'size'    => 6590,
+							'type'    => 'image/png',
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+					wp_json_encode(
+						array(
+							'file_id' => 137061,
+							'name'    => 'multi-doc.pdf',
+							'size'    => 9096,
+							'type'    => 'application/pdf',
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				),
+			),
+			$form
+		)->save();
+		$post_id  = is_int( $post_id ) ? $post_id : $post_id->ID;
+		$captured = $this->capture_webhook_body( $post_id, $form );
+
+		$this->assertSame( 'multi-image.png (6 KB), multi-doc.pdf (9 KB)', $captured['upload'] );
+		$this->assertSame(
+			array(
+				array(
+					'name' => 'multi-image.png',
+					'size' => 6590,
+					'type' => 'image/png',
+					'url'  => Response_File_Links::get_url( $post_id, 137062 ),
+				),
+				array(
+					'name' => 'multi-doc.pdf',
+					'size' => 9096,
+					'type' => 'application/pdf',
+					'url'  => Response_File_Links::get_url( $post_id, 137061 ),
+				),
+			),
+			$captured['upload_files']
+		);
+		$this->assertSame( Dashboard::get_single_response_admin_url( $post_id ), $captured['response_url'] );
+
+		remove_filter( 'jetpack_unauth_file_download_url', $download_url );
+	}
+
+	public function test_send_webhooks_does_not_overwrite_fields_with_the_link_keys() {
+		$form     = new Contact_Form(
+			array( 'webhooks' => array( $this->enabled_json_webhook() ) ),
+			"[contact-field label='Response URL' type='text' id='response_url'/]"
+		);
+		$post_id  = Feedback::from_submission( array( 'response_url' => 'typed by the visitor' ), $form )->save();
+		$post_id  = is_int( $post_id ) ? $post_id : $post_id->ID;
+		$captured = $this->capture_webhook_body( $post_id, $form );
+
+		$this->assertSame( 'typed by the visitor', $captured['response_url'] );
+	}
+
+	/**
+	 * An enabled JSON webhook configuration.
+	 *
+	 * @return array
+	 */
+	private function enabled_json_webhook() {
+		return array(
+			'webhook_id' => 'test-webhook',
+			'url'        => 'https://example.com/webhook',
+			'format'     => 'json',
+			'method'     => 'POST',
+			'enabled'    => true,
+		);
+	}
+
+	/**
+	 * Send the webhooks for a saved response and return the decoded JSON body.
+	 *
+	 * @param int          $post_id The feedback post ID.
+	 * @param Contact_Form $form    The form, whose fields carry the webhook configuration.
+	 * @return array The decoded request body.
+	 */
+	private function capture_webhook_body( $post_id, $form ) {
+		$body    = null;
+		$capture = static function ( $preempt, $args ) use ( &$body ) {
+			$body = $args['body'];
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '{}',
+			);
+		};
+		add_filter( 'pre_http_request', $capture, 10, 2 );
+
+		Form_Webhooks::init()->send_webhooks( $post_id, $form->fields, false, array() );
+
+		remove_filter( 'pre_http_request', $capture );
+		$this->assertIsString( $body, 'The webhook request should be sent' );
+
+		return json_decode( $body, true );
 	}
 
 	/**
