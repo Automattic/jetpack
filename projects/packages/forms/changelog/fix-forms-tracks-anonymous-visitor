@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contact Form: record Tracks events for submissions from logged-out visitors, which were previously dropped.
