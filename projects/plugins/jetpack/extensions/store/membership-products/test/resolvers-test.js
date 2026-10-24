@@ -1,4 +1,4 @@
-import { isUserConnected } from '@automattic/jetpack-shared-extension-utils';
+import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import executionLock from '../../../shared/execution-lock';
 import {
@@ -22,7 +22,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 } ) );
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	...jest.requireActual( '@automattic/jetpack-shared-extension-utils' ),
-	isUserConnected: jest.fn( () => true ),
+	isCurrentUserConnected: jest.fn( () => true ),
 } ) );
 
 describe( 'Membership Products Resolvers', () => {
@@ -155,11 +155,11 @@ describe( 'Membership Products Resolvers', () => {
 
 	describe( 'current user not connected to WordPress.com', () => {
 		beforeEach( () => {
-			isUserConnected.mockReturnValue( false );
+			isCurrentUserConnected.mockReturnValue( false );
 		} );
 
 		afterEach( () => {
-			isUserConnected.mockReturnValue( true );
+			isCurrentUserConnected.mockReturnValue( true );
 		} );
 
 		test( 'getPostEmailSentState skips the request and shows no error', async () => {
@@ -181,12 +181,13 @@ describe( 'Membership Products Resolvers', () => {
 			expect( mockDispatch ).toHaveBeenCalledWith( setApiState( API_STATE_NOTCONNECTED ) );
 		} );
 
-		test( 'getNewsletterCategories skips the request and shows no error', async () => {
+		test( 'getNewsletterCategories skips the request and marks the API as not connected', async () => {
 			const thunk = getNewsletterCategories();
 			await thunk( { dispatch: mockDispatch, registry: mockRegistry } );
 
 			expect( apiFetch ).not.toHaveBeenCalled();
 			expect( utils.onError ).not.toHaveBeenCalled();
+			expect( mockDispatch ).toHaveBeenCalledWith( setApiState( API_STATE_NOTCONNECTED ) );
 		} );
 	} );
 } );
