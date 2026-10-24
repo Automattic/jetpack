@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Docker: Refuse `--name` and `--type` on `up`, `stop`, `down` and `clean` with an explanation, instead of naming one instance and then failing inside `docker compose`. These run on the host and read the instance from `tools/docker/.env`.

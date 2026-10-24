@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Docker: Make `clean` remove the contents of `tools/docker/wordpress-develop`, which it listed in its plan but left on disk.
