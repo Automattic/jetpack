@@ -41,8 +41,9 @@ class PayPal_Payment_Buttons_Test extends BaseTestCase {
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
+		wp_deregister_script( 'jp-paypal-payments-ncps-blocks' );
 
-		unset( $_SERVER['REQUEST_METHOD'] );
+		unset( $_SERVER['REQUEST_METHOD'], $GLOBALS['current_screen'] );
 		$_GET = array();
 	}
 
@@ -77,5 +78,21 @@ class PayPal_Payment_Buttons_Test extends BaseTestCase {
 	public function test_plugin_construction() {
 		$plugin = PayPal_Payment_Buttons::instance();
 		$this->assertInstanceOf( 'PayPal_Payment_Buttons', $plugin );
+	}
+
+	/**
+	 * Verify that Jest exercises the script emitted by WordPress.
+	 */
+	public function test_block_availability_data_matches_the_executable_fixture() {
+		$handle = 'jp-paypal-payments-ncps-blocks';
+		set_current_screen( 'post' );
+		get_current_screen()->is_block_editor( true );
+		wp_register_script( $handle, 'https://example.org/editor.js', array(), '1.0', true );
+
+		$this->paypal_plugin->enqueue_block_availability_data();
+
+		$before = implode( "\n", array_filter( (array) wp_scripts()->get_data( $handle, 'before' ) ) );
+		$this->assertEmpty( wp_scripts()->get_data( $handle, 'data' ) );
+		$this->assertSame( trim( file_get_contents( __DIR__ . '/../fixtures/editor-initial-state.js.txt' ) ), $before );
 	}
 }
