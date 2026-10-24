@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add transactional email delivery through MailChannels, with domain setup, an email log, and fallback to default mail.
