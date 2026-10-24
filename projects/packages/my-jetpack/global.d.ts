@@ -557,6 +557,8 @@ interface Window {
 		onboardingWizard?: OnboardingWizardState;
 		// Optional: a plugin carrying an older copy of this package sends none.
 		header?: {
+			activeModules: string[];
+			activatedProducts?: string[];
 			connectorsUrl: string | null;
 		};
 		siteSuffix: string;
