@@ -83,26 +83,41 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
-	 * The plan, where to manage or buy Scan, and the latest report.
+	 * The plan, where to set Scan's server credentials or buy Scan, and the latest report.
 	 *
 	 * @return array
 	 */
 	public function get_state() {
 		$has_plan = Dashboard::has_scan_plan();
+		// Fetched first: has_credentials() reads the report this caches.
+		$report = self::get_scan_report( $has_plan );
 
 		return array_merge(
 			array(
 				'hasPlan' => $has_plan,
 				'url'     => $has_plan
-					? Redirect::get_url( 'my-jetpack-manage-scan' )
+					? Redirect::get_url( 'jetpack-settings-security-credentials' )
 					: Dashboard::get_scan_upgrade_url(),
 			),
-			$has_plan ? array() : array(
+			$has_plan ? array( 'hasCredentials' => self::has_credentials() ) : array(
 				'upsellVariant'       => self::get_upsell_variant(),
 				'upsellVariantForced' => (bool) has_filter( 'jetpack_protect_dashboard_scan_upsell_variant' ),
 			),
-			self::get_scan_report( $has_plan )
+			$report
 		);
+	}
+
+	/**
+	 * Whether Scan has the server credentials it needs to auto-fix threats, from the cached Scan report.
+	 *
+	 * @return bool|null Null when there's no report to say.
+	 */
+	private static function has_credentials() {
+		$report = class_exists( Scan_Status::class ) ? Scan_Status::get_from_options() : null;
+		if ( ! is_object( $report ) || ! isset( $report->credentials ) || ! is_array( $report->credentials ) ) {
+			return null;
+		}
+		return ! empty( $report->credentials );
 	}
 
 	/**
