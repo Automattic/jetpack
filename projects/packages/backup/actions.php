@@ -34,12 +34,12 @@ $add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\Backup\\Package_V
 // Register Jetpack Backup abilities with the WordPress Abilities API at autoload
 // time so the surface is available in any consumer that loads this package
 // (both the standalone Jetpack Backup plugin and the Jetpack plugin). The
-// `jetpack_wp_abilities_enabled` filter (default false) gates registration,
-// so this is a no-op until a site opts in.
+// `jetpack_wp_abilities_enabled` filter (default true) gates registration.
 $add_action(
 	'plugins_loaded',
 	static function () {
-		if ( ! apply_filters( 'jetpack_wp_abilities_enabled', false ) ) {
+		/** This filter is documented in projects/packages/wp-abilities/src/class-registrar.php */
+		if ( ! apply_filters( 'jetpack_wp_abilities_enabled', true ) ) {
 			return;
 		}
 		if ( ! class_exists( \Automattic\Jetpack\Backup\V0005\Abilities\Backup_Abilities::class ) ) {
