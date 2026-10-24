@@ -101,6 +101,7 @@ class Jetpack_Subscribe_Modal {
 					'modalLoadTime'        => $load_time,
 					'modalScrollThreshold' => $scroll_threshold,
 					'modalInterval'        => ( $modal_interval * HOUR_IN_SECONDS * 1000 ),
+					'modalLabel'           => __( 'Subscribe', 'jetpack' ),
 				)
 			);
 		}
