@@ -1,0 +1,296 @@
+@use "sass:meta";
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@include meta.load-css( "@wordpress/dataviews/build-style/style.css" );
+
+// Admin_Menu may register the page top-level or under Jetpack.
+body.jetpack_page_jetpack-send,
+body.toplevel_page_jetpack-send {
+
+	@include jetpack-admin-page-layout-wp-build;
+
+	// Dialogs portal into <body>, under the admin menu (z-index 9990)
+	// unless lifted.
+	--wp-ui-dialog-z-index: 100000;
+}
+
+// Content renders inside Tabs.Root so the sticky tab strip spans the page.
+.jetpack-send-tabs {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+}
+
+// Centered column like Social and Podcast.
+.jetpack-send-page__content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+	box-sizing: border-box;
+	inline-size: 100%;
+	max-inline-size: var(--wpds-dimension-surface-width-xl);
+	margin-inline: auto;
+	padding: var(--wpds-dimension-padding-2xl);
+}
+
+// Setup and the dashboard share the wide column, so Finish keeps the width.
+// It's 960 of content, with the padding outside it.
+.jetpack-send-page__content--wide {
+	max-inline-size: calc(var(--wpds-dimension-surface-width-2xl) + 2 * var(--wpds-dimension-padding-2xl));
+}
+
+// DataViews tabs fill the page and own their spacing, like SEO and Forms.
+.jetpack-send-tabs:has(.jetpack-send-page__content--flush) {
+	flex: 1 1 auto;
+	min-block-size: 0;
+}
+
+.jetpack-send-page__content--flush,
+.jetpack-send-log,
+.jetpack-send-log .dataviews-wrapper {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-block-size: 0;
+}
+
+.jetpack-send-page__content--flush {
+	gap: 0;
+	max-inline-size: none;
+	margin-inline: 0;
+	padding: 0;
+}
+
+.jetpack-send-log__notice {
+	padding-block-start: var(--wpds-dimension-padding-2xl);
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+// Shared card pieces. Element + class beats wp-admin's paragraph margins.
+.jetpack-send-page__content p.jetpack-send-card__text {
+	margin: 0;
+}
+
+.jetpack-send-muted {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.jetpack-send-technical {
+	padding-block-start: var(--wpds-dimension-padding-md);
+}
+
+.jetpack-send-usage {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+// Overrides wp-admin's `code` styles; long keys wrap inside the box.
+.jetpack-send-code {
+	flex: 1;
+	min-inline-size: 0;
+	margin: 0;
+	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
+	border-radius: var(--wpds-border-radius-sm);
+	background: var(--wpds-color-background-surface-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral);
+	font-family: var(--wpds-typography-font-family-mono);
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
+	overflow-wrap: anywhere;
+}
+
+// Keeps Copy at its compact height beside multi-line values.
+.jetpack-send-copy {
+	flex-shrink: 0;
+}
+
+.jetpack-send-saved {
+	color: var(--wpds-color-foreground-content-success-weak);
+}
+
+// A heading a link lands on fits its text, so the focus ring it gets hugs the
+// words, clear of the letters, as the side panel's title does.
+.jetpack-send-landing-heading {
+	align-self: flex-start;
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: var(--wpds-border-width-focus);
+	}
+}
+
+// Settings › Sender: avatar, name over address, Change at the end. The text
+// takes what's left and wraps by word, so nothing squeezes it at phone width.
+.jetpack-send-sender {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+.jetpack-send-sender__text {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-inline-size: 0;
+	overflow-wrap: break-word;
+}
+
+.jetpack-send-sender__change {
+	flex: none;
+}
+
+// Label and value pairs in Settings.
+.jetpack-send-details {
+	display: grid;
+	grid-template-columns: max-content minmax(0, 1fr);
+	align-items: start;
+	gap: var(--wpds-dimension-gap-md) var(--wpds-dimension-gap-2xl);
+	margin: 0;
+
+	dt {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+}
+
+// The Domain card's summary and its technical details share one set of
+// columns (subgrids all the way down), so their labels and values line up.
+.jetpack-send-details-grid {
+	display: grid;
+	grid-template-columns: max-content minmax(0, 1fr);
+	gap: var(--wpds-dimension-gap-lg) var(--wpds-dimension-gap-2xl);
+
+	> *,
+	> .jetpack-send-technical-toggle > *,
+	.jetpack-send-technical:not([hidden]) > *,
+	.jetpack-send-technical:not([hidden]) > * > * {
+		grid-column: 1 / -1;
+	}
+
+	> .jetpack-send-details,
+	> .jetpack-send-technical-toggle,
+	.jetpack-send-technical:not([hidden]),
+	.jetpack-send-technical:not([hidden]) > *,
+	.jetpack-send-technical .jetpack-send-details {
+		display: grid;
+		grid-template-columns: subgrid;
+	}
+
+	// Only the label and value cells sit in the two columns.
+	.jetpack-send-details > * {
+		grid-column: auto;
+	}
+
+	// Unseen copies of the technical labels stack under the first label, so
+	// the label column is as wide with the details closed as open.
+	.jetpack-send-details__sized {
+		display: grid;
+
+		> * {
+			grid-area: 1 / 1;
+		}
+	}
+
+	.jetpack-send-details__sizer {
+		visibility: hidden;
+	}
+
+	> .jetpack-send-technical-toggle > button {
+		justify-self: start;
+	}
+}
+
+.jetpack-send-details__copy {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+.jetpack-send-technical__records {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+		margin: 0;
+	}
+}
+
+// What starting over does on the start, the button on the end; the button
+// drops under the text when there's no room beside it.
+.jetpack-send-danger {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-md) var(--wpds-dimension-gap-xl);
+	padding-block-start: var(--wpds-dimension-padding-xl);
+	border-block-start:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+}
+
+.jetpack-send-danger__text {
+	flex: 1 1 var(--wpds-dimension-surface-width-xs);
+	min-inline-size: 0;
+}
+
+// A bare button so the tooltip trigger shows only the badge.
+.jetpack-send-status-trigger {
+	display: inline-flex;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: help;
+
+	&:focus-visible {
+		border-radius: var(--wpds-border-radius-sm);
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: var(--wpds-border-width-xs);
+	}
+}
+
+.jetpack-send-email__frame {
+	display: block;
+	inline-size: 100%;
+	block-size: 60vh;
+	border: 0;
+	background: var(--wpds-color-background-surface-neutral-strong);
+}
+
+.jetpack-send-email__text {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.jetpack-send-email__empty {
+	margin: 0;
+}
+
+.jetpack-send-email__attachments {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-sm);
+	margin: var(--wpds-dimension-gap-lg) 0 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		margin: 0;
+		padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-md);
+		font-size: var(--wpds-typography-font-size-md);
+		line-height: var(--wpds-typography-line-height-sm);
+	}
+}
