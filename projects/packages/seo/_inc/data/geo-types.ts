@@ -12,7 +12,7 @@ export interface AiCrawler {
 	label: string;
 	/** User-agent token written to the robots.txt `User-agent:` line. */
 	userAgent: string;
-	/** Training crawlers are blocked by default; answer-engine crawlers are allowed. */
+	/** Which group the crawler is listed under. */
 	type: 'answer' | 'training';
 }
 
@@ -42,11 +42,7 @@ export interface GeoState {
 	crawlers: {
 		/** The full AI crawler catalog. */
 		catalog: AiCrawler[];
-		/**
-		 * Sparse per-crawler overrides (`slug => blocked`). Only deviations from
-		 * each bot's default policy are present; absent slugs use the default
-		 * (training → blocked, answer → allowed).
-		 */
+		/** The crawlers the owner blocked (`slug => true`); every other crawler is allowed. */
 		overrides: Record< string, boolean >;
 		/** Whether search engines (and AI crawlers) may index the site. */
 		searchEnginesVisible: boolean;

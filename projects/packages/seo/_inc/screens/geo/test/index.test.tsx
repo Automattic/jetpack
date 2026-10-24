@@ -139,8 +139,13 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 	} );
 
 	it( 'tags each group header with its allow/block status', () => {
-		// Defaults: answer engines allowed, training crawlers blocked.
-		render( <GeoScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
+		render(
+			<GeoScreen
+				form={ crawlerForm( { overrides: { gptbot: true, 'google-extended': true } } ) }
+				searchEnginesVisible
+				onManageVisibility={ noop }
+			/>
+		);
 		const answerHeader = screen.getByRole( 'button', { name: /answer engines/i } );
 		const trainingHeader = screen.getByRole( 'button', { name: /training crawlers/i } );
 		expect( within( answerHeader ).getByText( 'Allowed' ) ).toBeInTheDocument();
@@ -148,10 +153,10 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 	} );
 
 	it( 'tags a mixed group as partly blocked', () => {
-		// Allow one of the two training bots so the group is neither all-allowed nor all-blocked.
+		// Block one of the two training bots so the group is neither all-allowed nor all-blocked.
 		render(
 			<GeoScreen
-				form={ crawlerForm( { overrides: { gptbot: false } } ) }
+				form={ crawlerForm( { overrides: { 'google-extended': true } } ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
 			/>
@@ -193,7 +198,9 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 		expect( boxes.every( box => box.hasAttribute( 'disabled' ) ) ).toBe( true );
 		// The allow/block status tags are hidden while the setting governs the group.
 		const trainingHeader = screen.getByRole( 'button', { name: /training crawlers/i } );
-		expect( within( trainingHeader ).queryByText( 'Blocked' ) ).not.toBeInTheDocument();
+		expect(
+			within( trainingHeader ).queryByText( /^(Allowed|Blocked|Partly blocked)$/ )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'hides per-site controls on path-based multisite', () => {
@@ -246,7 +253,8 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
  * @return A form controller with crawlers, llms.txt and the enhancer all present.
  */
 const allModulesForm = (): GeoForm => ( {
-	...crawlerForm(),
+	// Training crawlers blocked, so the two crawler groups show different badges.
+	...crawlerForm( { overrides: { gptbot: true, 'google-extended': true } } ),
 	enhancer: { available: true, enabled: false, aiSeoEnabled: true, aiEnabled: true },
 	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
 } );
@@ -336,10 +344,10 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 	// is simply switched off, which made it the one state you couldn't read from the
 	// header. Amber is what separates them, so the intent is worth pinning down.
 	it( 'marks a partly-blocked group amber, distinct from allowed and blocked', () => {
-		// `gptbot` allowed, `google-extended` left at the training default of blocked.
+		// `gptbot` allowed, `google-extended` blocked.
 		render(
 			<GeoScreen
-				form={ crawlerForm( { overrides: { gptbot: false } } ) }
+				form={ crawlerForm( { overrides: { 'google-extended': true } } ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
 			/>
