@@ -77,4 +77,33 @@ describe( 'getMediaToken', () => {
 
 		expect( result ).toEqual( { token: null } );
 	} );
+	it( 'requests an attachment-bound token once and retains the attachment on a transient failure', async () => {
+		window.videopressUpload = {
+			url: 'https://example.com/uploads/',
+			nonce: 'upload-nonce',
+			attachmentFirst: true,
+		};
+		global.fetch.mockResolvedValueOnce( {
+			ok: false,
+			json: async () => ( { success: false, data: { attachment_id: 42 } } ),
+		} as Response );
+		global.fetch.mockResolvedValueOnce(
+			mockResponse( { upload_token: 'token', post_id: 42, guid: 'abcd1234' } )
+		);
+		try {
+			const first = await getMediaToken( 'upload-jwt', { filename: 'clip.mp4' } );
+			expect( first ).toEqual( { token: null, attachmentId: 42 } );
+			const second = await getMediaToken( 'upload-jwt', {
+				filename: 'clip.mp4',
+				attachmentId: first.attachmentId,
+			} );
+			expect( second ).toMatchObject( { token: 'token', attachmentId: 42, guid: 'abcd1234' } );
+			expect( global.fetch ).toHaveBeenCalledTimes( 2 );
+			const body = global.fetch.mock.calls[ 1 ][ 1 ].body as URLSearchParams;
+			expect( body.get( 'attachment_id' ) ).toBe( '42' );
+			expect( body.get( 'nonce' ) ).toBe( 'upload-nonce' );
+		} finally {
+			delete window.videopressUpload;
+		}
+	} );
 } );

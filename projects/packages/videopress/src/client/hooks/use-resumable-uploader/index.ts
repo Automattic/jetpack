@@ -6,17 +6,16 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import getMediaToken from '../../lib/get-media-token';
 import resumableFileUploader from '../../lib/resumable-file-uploader';
+import { UPLOAD_TOKEN_ERROR_CODE } from '../../lib/resumable-file-uploader/token-error';
+export {
+	UPLOAD_TOKEN_ERROR_CODE,
+	UploadTokenError,
+} from '../../lib/resumable-file-uploader/token-error';
 import { VideoMediaProps } from '../../lib/resumable-file-uploader/types';
 import type { ChangeEvent } from 'react';
 
 const debug = debugFactory( 'videopress:use-resumable-uploader' );
-
-/**
- * `code` carried by the error raised when the upload JWT can't be obtained.
- */
-export const UPLOAD_TOKEN_ERROR_CODE = 'videopress_no_upload_token';
 
 /**
  * A failure as it reaches `onError` and the returned `error`.
@@ -30,24 +29,6 @@ export type ResumableUploadError = Error & {
 	code?: string;
 	originalResponse?: { getBody?: () => string };
 };
-
-/**
- * The error raised when the upload JWT can't be obtained.
- */
-export class UploadTokenError extends Error {
-	public readonly code = UPLOAD_TOKEN_ERROR_CODE;
-
-	/**
-	 * Build the error.
-	 *
-	 * The message is unchanged from the string this replaced: it is developer
-	 * text, and the dashboard describes the failure in its own words.
-	 */
-	constructor() {
-		super( 'No token provided' );
-		this.name = 'UploadTokenError';
-	}
-}
 
 /**
  * Whether a failed upload may be blamed on the Jetpack connection.
@@ -120,11 +101,6 @@ const useResumableUploader = ( {
 	 * @return {*} ???
 	 */
 	async function uploadHandler( file: File ) {
-		const tokenData = await getMediaToken( 'upload-jwt' );
-		if ( ! tokenData.token ) {
-			return onError( new UploadTokenError() );
-		}
-
 		// The file starts to upload automatically, so we need to set the status to uploading
 		if ( uploadingData.status === 'idle' ) {
 			setUploadingData( prev => {
@@ -135,7 +111,6 @@ const useResumableUploader = ( {
 		let isDone = false;
 		const resumableHandler = resumableFileUploader( {
 			file,
-			tokenData,
 			onProgress: ( bytesSent: number, bytesTotal: number ) => {
 				// If the upload is done, don't update the progress
 				if ( isDone ) {

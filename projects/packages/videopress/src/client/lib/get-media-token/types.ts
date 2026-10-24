@@ -21,6 +21,7 @@ export type GetMediaTokenArgsProps = {
 	subscriptionPlanId?: number;
 	adminAjaxAPI?: string;
 	filename?: string;
+	attachmentId?: number;
 	flushToken?: boolean;
 };
 
@@ -30,6 +31,9 @@ export type MediaTokenScopeAdminAjaxResponseBodyProps = {
 	success: boolean;
 	data: {
 		upload_token: string;
+		post_id?: number;
+		attachment_id?: number;
+		guid?: string;
 		upload_blog_id: string;
 		// Omitted by the upload-token handler on WordPress.com Simple, where
 		// the URL helper isn't loaded and only legacy (non-Simple) UIs read it.
@@ -41,10 +45,13 @@ export type MediaTokenScopeAdminAjaxResponseBodyProps = {
 export type MediaTokenProps = {
 	token: string;
 	blogId?: string;
+	attachmentId?: number;
+	guid?: string;
 	url?: string;
 };
 declare global {
 	interface Window {
+		videopressUpload?: { url: string; nonce: string; attachmentFirst: boolean };
 		videopressAjax: {
 			context?: 'main' | 'sandbox';
 			ajaxUrl: string;

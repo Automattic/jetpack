@@ -58,6 +58,8 @@ const requestMediaToken = function (
 			subscription_plan_id?: number;
 			post_id?: string;
 			filename?: string;
+			attachment_id?: number;
+			nonce?: string;
 		} = { action: 'videopress-get-playback-jwt' };
 
 		switch ( scope ) {
@@ -70,6 +72,11 @@ const requestMediaToken = function (
 
 			case 'upload-jwt':
 				fetchData.action = 'videopress-get-upload-jwt';
+				if ( filename && window.videopressUpload?.attachmentFirst ) {
+					fetchData.filename = filename;
+					fetchData.attachment_id = args.attachmentId;
+					fetchData.nonce = window.videopressUpload.nonce;
+				}
 				break;
 
 			case 'playback':
@@ -109,15 +116,17 @@ const requestMediaToken = function (
 			: fetch( adminAjaxAPI, fetchOptions );
 
 		fetchPromise
-			.then( response => {
-				if ( ! response.ok ) {
-					throw new Error( 'Network response was not ok' );
-				}
-				return response.json();
+			.then( async response => {
+				const payload = await response.json();
+				return { ...payload, success: response.ok && payload.success };
 			} )
 			.then( ( response: MediaTokenScopeAdminAjaxResponseBodyProps ) => {
 				if ( ! response.success ) {
-					throw new Error( 'Token is not achievable' );
+					resolve( {
+						token: null,
+						attachmentId: response.data?.attachment_id || args.attachmentId,
+					} );
+					return;
 				}
 
 				switch ( scope ) {
@@ -127,6 +136,8 @@ const requestMediaToken = function (
 							token: response.data.upload_token,
 							blogId: response.data.upload_blog_id,
 							url: response.data.upload_action_url,
+							attachmentId: response.data.post_id,
+							guid: response.data.guid,
 						} );
 						break;
 
@@ -137,7 +148,7 @@ const requestMediaToken = function (
 			} )
 			.catch( error => {
 				debug( 'Token request failed: %o', error );
-				resolve( { token: null } );
+				resolve( { token: null, attachmentId: args.attachmentId } );
 			} );
 	} );
 };
@@ -155,6 +166,9 @@ async function getMediaToken(
 	scope: MediaTokenScopeProps,
 	args: GetMediaTokenArgsProps = {}
 ): Promise< MediaTokenProps > {
+	if ( 'upload-jwt' === scope ) {
+		return requestMediaToken( scope, args );
+	}
 	const { id = 0, guid = 0, flushToken } = args;
 	const key = `vpc-${ scope }-${ id }-${ guid }`;
 

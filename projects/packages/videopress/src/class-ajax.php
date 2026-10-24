@@ -26,6 +26,7 @@ class AJAX {
 	 */
 	private function __construct() {
 		add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
+		add_action( 'wp_ajax_videopress-complete-upload', array( $this, 'wp_ajax_complete_upload' ) );
 		add_action( 'wp_ajax_videopress-get-upload-jwt', array( $this, 'wp_ajax_videopress_get_upload_jwt' ) );
 		add_action( 'wp_ajax_nopriv_videopress-get-playback-jwt', array( $this, 'wp_ajax_videopress_get_playback_jwt' ) );
 		add_action( 'wp_ajax_videopress-get-playback-jwt', array( $this, 'wp_ajax_videopress_get_playback_jwt' ) );
@@ -174,6 +175,30 @@ class AJAX {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to upload files.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
 		}
 
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && isset( $_POST['filename'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified before allocation below.
+			check_ajax_referer( 'videopress-upload', 'nonce' );
+			$post_id = isset( $_POST['attachment_id'] ) && is_scalar( $_POST['attachment_id'] ) ? absint( $_POST['attachment_id'] ) : 0;
+			if ( $post_id && ! current_user_can( 'edit_post', $post_id ) ) {
+				wp_send_json_error( array( 'message' => __( 'You cannot edit this attachment.', 'jetpack-videopress-pkg' ) ), 403, JSON_UNESCAPED_SLASHES );
+			}
+			$response = $post_id ? Upload_Session::token( $post_id ) : Upload_Session::start( sanitize_text_field( wp_unslash( is_string( $_POST['filename'] ) ? $_POST['filename'] : '' ) ) );
+			if ( is_wp_error( $response ) ) {
+				$data = $response->get_error_data();
+				$data = is_array( $data ) ? $data : array();
+				wp_send_json_error(
+					array(
+						'message'       => $response->get_error_message(),
+						'code'          => $response->get_error_code(),
+						'attachment_id' => $data['attachment_id'] ?? 0,
+					),
+					503,
+					JSON_UNESCAPED_SLASHES
+				);
+			}
+			$response['upload_action_url'] = videopress_make_resumable_upload_path( (int) VideoPressToken::blog_id() );
+			wp_send_json_success( $response, 200, JSON_UNESCAPED_SLASHES );
+		}
+
 		$video_blog_id = $this->get_videopress_blog_id();
 		$args          = array(
 			'method' => 'POST',
@@ -197,6 +222,24 @@ class AJAX {
 
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 		wp_send_json_success( $response, null, JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
+	 * Finalize only an editable attachment whose server-side reservation completed.
+	 *
+	 * @return never
+	 */
+	public function wp_ajax_complete_upload() {
+		check_ajax_referer( 'videopress-upload', 'nonce' );
+		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+		if ( ! current_user_can( 'upload_files' ) || ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'You cannot edit this attachment.', 'jetpack-videopress-pkg' ) ), 403, JSON_UNESCAPED_SLASHES );
+		}
+		$result = Upload_Session::get( $post_id ) ? Upload_Session::complete( $post_id ) : true;
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ), (int) ( $result->get_error_data()['status'] ?? 503 ), JSON_UNESCAPED_SLASHES );
+		}
+		wp_send_json_success( true, 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**

@@ -215,6 +215,13 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			$this->namespace,
 			$this->rest_base . '/upload-jwt',
 			array(
+				'args'                => array(
+					'filename'      => array( 'type' => 'string' ),
+					'attachment_id' => array(
+						'type'    => 'integer',
+						'minimum' => 1,
+					),
+				),
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'videopress_upload_jwt' ),
 				'permission_callback' => function () {
@@ -856,9 +863,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	/**
 	 * Endpoint for getting the VideoPress Upload JWT
 	 *
-	 * @return WP_Rest_Response - The response object.
+	 * @param WP_REST_Request|null $request Request.
+	 * @return WP_REST_Response|WP_Error The response object.
 	 */
-	public static function videopress_upload_jwt() {
+	public static function videopress_upload_jwt( $request = null ) {
 		$has_connected_owner = Data::has_connected_owner();
 		if ( ! $has_connected_owner ) {
 			return rest_ensure_response(
@@ -878,6 +886,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			return rest_ensure_response(
 				new WP_Error( 'site_not_registered', 'Site not registered.', 503 )
 			);
+		}
+
+		if ( $request && $request->has_param( 'filename' ) && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+			$post_id = absint( $request->get_param( 'attachment_id' ) );
+			if ( $post_id && ! current_user_can( 'edit_post', $post_id ) ) {
+				return new WP_Error( 'videopress_attachment_forbidden', __( 'You cannot edit this attachment.', 'jetpack-videopress-pkg' ), array( 'status' => 403 ) );
+			}
+			$response = $post_id ? Upload_Session::token( $post_id ) : Upload_Session::start( sanitize_text_field( $request->get_param( 'filename' ) ) );
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+			$response['upload_url'] = videopress_make_resumable_upload_path( $blog_id );
+			return rest_ensure_response( $response );
 		}
 
 		try {
@@ -905,7 +926,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 * Endpoint for generating a VideoPress Playback JWT
 	 *
 	 * @param WP_REST_Request $request the request object.
-	 * @return WP_Rest_Response - The response object.
+	 * @return WP_REST_Response|WP_Error The response object.
 	 */
 	public static function videopress_playback_jwt( $request ) {
 		$has_connected_owner = Data::has_connected_owner();
