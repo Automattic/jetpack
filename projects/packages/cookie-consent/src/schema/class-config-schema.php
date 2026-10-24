@@ -376,6 +376,7 @@ final class Config_Schema {
 			'modal_title'                      => __( 'Customize preferences', 'jetpack-cookie-consent' ),
 			'modal_close_label'                => __( 'Close modal', 'jetpack-cookie-consent' ),
 			'modal_description'                => __( 'Your privacy is important to us. We and our partners use, store, and process your personal data to improve our website, such as by improving security or conducting analytics, marketing activities to help deliver relevant marketing or content, and your user experience, such as by remembering your account name or language settings where applicable. You can customize your cookie settings below.', 'jetpack-cookie-consent' ),
+			'gpc_notice'                       => __( 'Your browser is sending a Global Privacy Control (GPC) signal, which turns optional cookies off. Saving with a category turned on overrides that signal on this site.', 'jetpack-cookie-consent' ),
 			'privacy_policy_link'              => __( 'Privacy Policy', 'jetpack-cookie-consent' ),
 			'modal_links_lead'                 => __( 'Learn more in our', 'jetpack-cookie-consent' ),
 			'modal_links_conjunction'          => __( 'and', 'jetpack-cookie-consent' ),
