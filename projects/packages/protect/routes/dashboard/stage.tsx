@@ -5,6 +5,7 @@ import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import Overview from './components/overview';
 import SettingsTab from './components/settings-tab';
+import { recordPageView } from './data/page-views';
 import useProtectSettings from './data/use-protect-settings';
 import sections from './sections';
 import { CLOSED_INSPECTOR } from './sections/inspector-params';
@@ -68,6 +69,17 @@ const Stage = () => {
 			load();
 		}
 	}, [ activeTab, load, showReport ] );
+
+	// Only a real Settings card goes to Tracks; `?section=` is free text from the URL.
+	const pageViewSection =
+		activeTab === 'settings' && sections.some( section => section.key === requestedSection )
+			? requestedSection
+			: undefined;
+	useEffect( () => {
+		if ( ! showReport ) {
+			recordPageView( activeTab, pageViewSection );
+		}
+	}, [ activeTab, pageViewSection, showReport ] );
 
 	if ( showReport ) {
 		return (

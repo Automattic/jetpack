@@ -2,12 +2,14 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { useSearch } from '@wordpress/route';
+import { recordPageView } from '../data/page-views';
 import { resetHistory } from '../sections/history/store';
 import { SCAN_PATH, resetScan, setScan } from '../sections/scan/store';
 import { stage as Stage } from '../stage';
 import type { ScanState } from '../sections/scan/types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../data/page-views', () => ( { recordPageView: jest.fn() } ) );
 const mockNavigate = jest.fn();
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: jest.fn(),
@@ -56,6 +58,7 @@ const requestsTo = ( path: string ) =>
 
 describe( 'Protect dashboard stage', () => {
 	beforeEach( () => {
+		( recordPageView as jest.Mock ).mockClear();
 		responses.clear();
 		mockApiFetch.mockReset().mockImplementation( ( { path } ) => {
 			const next = responses.get( path )?.shift();
@@ -73,14 +76,35 @@ describe( 'Protect dashboard stage', () => {
 	} );
 
 	it.each( [
-		[ 'an unknown tab falls back to Overview', { tab: 'bogus' }, 'Overview', 0 ],
-		[ 'Settings loads the settings', { tab: 'settings' }, 'Settings', 2 ],
-	] )( '%s', ( _name, search, selected, requests ) => {
+		[
+			'an unknown tab falls back to Overview',
+			{ tab: 'bogus', section: 'monitor' },
+			'Overview',
+			0,
+			[ 'overview', undefined ],
+		],
+		[
+			'Settings loads the settings',
+			{ tab: 'settings', section: 'monitor' },
+			'Settings',
+			2,
+			[ 'settings', 'monitor' ],
+		],
+		[
+			'Settings ignores an unknown section',
+			{ tab: 'settings', section: '<x>' },
+			'Settings',
+			2,
+			[ 'settings', undefined ],
+		],
+	] )( '%s', ( _name, search, selected, requests, pageView ) => {
 		mockUseSearch.mockReturnValue( search );
-		render( <Stage /> );
+		const { rerender } = render( <Stage /> );
+		rerender( <Stage /> );
 
 		expect( screen.getByRole( 'tab', { selected: true } ) ).toHaveTextContent( selected );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( requests );
+		expect( ( recordPageView as jest.Mock ).mock.calls ).toEqual( [ pageView ] );
 	} );
 
 	it.each( [
@@ -212,6 +236,19 @@ describe( 'Protect dashboard stage', () => {
 
 		const { search } = mockNavigate.mock.lastCall[ 0 ];
 		expect( search( { threats: '5' } ) ).toEqual( {} );
+	} );
+
+	it( 'leaving the threat report records the Overview view', () => {
+		window.jetpackProtectDashboard = { scan: { hasPlan: true, lastChecked } };
+		mockUseSearch.mockReturnValue( { threats: '5' } );
+		const { rerender } = render( <Stage /> );
+		expect( recordPageView ).not.toHaveBeenCalled();
+
+		mockUseSearch.mockReturnValue( {} );
+		rerender( <Stage /> );
+
+		expect( screen.getByRole( 'tab', { selected: true } ) ).toHaveTextContent( 'Overview' );
+		expect( ( recordPageView as jest.Mock ).mock.calls ).toEqual( [ [ 'overview', undefined ] ] );
 	} );
 
 	it( 'switching tabs closes the threat inspector', async () => {

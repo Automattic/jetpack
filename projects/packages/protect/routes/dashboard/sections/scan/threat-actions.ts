@@ -4,6 +4,7 @@ import { createElement, useSyncExternalStore } from '@wordpress/element';
 import { __, sprintf, type TransformedText } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordEvent } from '../../data/tracks';
 import { getThreatLabel } from './labels';
 import { SCAN_PATH, createStore, editScan, getScan, startRead, startReportRead } from './store';
 import type { ScanState, ScanThreat } from './types';
@@ -157,6 +158,8 @@ function setIgnored( threat: ScanThreat, ignore: boolean, open?: OpenThreat ): P
 		return Promise.resolve();
 	}
 	setBusy( threat.id, ignore ? 'ignoring' : 'unignoring' );
+	// The Scan page's names, so its dashboards count these too.
+	recordEvent( ignore ? 'jetpack_scan_ignore_threat_click' : 'jetpack_scan_unignore_threat_click' );
 	notifyStarted(
 		threat,
 		ignore
@@ -181,6 +184,9 @@ function setIgnored( threat: ScanThreat, ignore: boolean, open?: OpenThreat ): P
 					: { ...current, threats: [ moved, ...threats ], ignored };
 			} );
 			setBusy( threat.id );
+			recordEvent(
+				ignore ? 'jetpack_scan_ignore_threat_success' : 'jetpack_scan_unignore_threat_success'
+			);
 			notify(
 				threat,
 				ignore
@@ -195,7 +201,10 @@ function setIgnored( threat: ScanThreat, ignore: boolean, open?: OpenThreat ): P
 				}
 			);
 		} )
-		.catch( e =>
+		.catch( e => {
+			recordEvent(
+				ignore ? 'jetpack_scan_ignore_threat_failed' : 'jetpack_scan_unignore_threat_failed'
+			);
 			fail(
 				threat,
 				e,
@@ -204,8 +213,8 @@ function setIgnored( threat: ScanThreat, ignore: boolean, open?: OpenThreat ): P
 						__( 'The threat in %s couldn’t be ignored.', 'jetpack-protect-pkg' )
 					: /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 						__( 'The threat in %s couldn’t be unignored.', 'jetpack-protect-pkg' )
-			)
-		);
+			);
+		} );
 }
 
 export const ignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
@@ -226,6 +235,7 @@ export async function fixThreat( threat: ScanThreat, open?: OpenThreat ): Promis
 		return;
 	}
 	setBusy( id, 'fixing' );
+	recordEvent( 'jetpack_scan_fix_threat_click' );
 	/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 	notifyStarted( threat, __( 'Fixing the threat in %s…', 'jetpack-protect-pkg' ), open );
 
@@ -234,6 +244,7 @@ export async function fixThreat( threat: ScanThreat, open?: OpenThreat ): Promis
 		let result = await apiFetch< FixStatus >( { path: threatPath( id, 'fix' ), method: 'POST' } );
 		for ( let polls = 0; result.status !== 'fixed' && result.status !== 'not_fixed'; polls++ ) {
 			if ( polls >= MAX_FIX_POLLS ) {
+				recordEvent( 'jetpack_scan_fix_threat_failed' );
 				return fail(
 					threat,
 					null,
@@ -259,9 +270,11 @@ export async function fixThreat( threat: ScanThreat, open?: OpenThreat ): Promis
 				threats: current.threats?.filter( otherThan( threat ) ),
 			} ) );
 			setBusy( id );
+			recordEvent( 'jetpack_scan_fix_threat_success' );
 			/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 			return notify( threat, __( 'Fixed the threat in %s.', 'jetpack-protect-pkg' ) );
 		}
+		recordEvent( 'jetpack_scan_fix_threat_failed' );
 		fail(
 			threat,
 			{ message: result.error },
@@ -272,6 +285,7 @@ export async function fixThreat( threat: ScanThreat, open?: OpenThreat ): Promis
 			)
 		);
 	} catch ( e ) {
+		recordEvent( 'jetpack_scan_fix_threat_failed' );
 		fail(
 			threat,
 			e,
