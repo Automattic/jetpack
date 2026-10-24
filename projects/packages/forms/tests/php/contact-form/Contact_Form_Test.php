@@ -3110,6 +3110,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$expected_attributes['confirmationType']       = 'text';
 		$expected_attributes['hostingerReach']         = '';
 		$expected_attributes['ref']                    = '';
+		$expected_attributes['integrations']           = array();
 		$expected_attributes['formTitle']              = 'Test Form';
 		$form = new Contact_Form(
 			$attributes,
@@ -4590,18 +4591,36 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test reconcile_content_destinations drops a Salesforce-only configuration for an
-	 * unauthorized author, confirming the early return does not skip salesforce-only forms.
+	 * Forms configuring only one destination, which the early return must not skip.
+	 *
+	 * @return array
 	 */
-	public function test_reconcile_content_destinations_drops_salesforce_only_for_unauthorized_author() {
+	public static function single_destination_provider() {
+		return array(
+			'Salesforce only'   => array( 'salesforceData', array( 'organizationId' => '12345' ), null ),
+			'integrations only' => array( 'integrations', array( 'jetpack/slack' => array( 'enabled' => true ) ), array() ),
+		);
+	}
+
+	/**
+	 * Test reconcile_content_destinations drops a form's only destination for an unauthorized author.
+	 *
+	 * @dataProvider single_destination_provider
+	 *
+	 * @param string     $attribute The attribute holding the destination.
+	 * @param array      $value     The configured destination.
+	 * @param array|null $dropped   The value the attribute is reset to.
+	 */
+	#[DataProvider( 'single_destination_provider' )]
+	public function test_reconcile_content_destinations_drops_a_single_destination_for_unauthorized_author( $attribute, $value, $dropped ) {
 		$form = $this->make_form_with_source(
-			array( 'salesforceData' => array( 'organizationId' => '12345' ) ),
+			array( $attribute => $value ),
 			$this->create_post_for_role( 'author' )
 		);
 
 		$this->invoke_reconcile_content_destinations( $form );
 
-		$this->assertNull( $form->attributes['salesforceData'], 'salesforceData should be dropped for a Salesforce-only form.' );
+		$this->assertSame( $dropped, $form->attributes[ $attribute ], "$attribute should be dropped when it is the only destination." );
 	}
 
 	/**
@@ -4625,6 +4644,7 @@ class Contact_Form_Test extends BaseTestCase {
 					'enabled' => true,
 				),
 				'salesforceData' => array( 'organizationId' => '12345' ),
+				'integrations'   => array( 'jetpack/slack' => array( 'enabled' => true ) ),
 			),
 			$this->create_post_for_role( 'administrator' )
 		);
@@ -4642,6 +4662,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// postToUrl is migrated into the webhooks collection, so both entries survive.
 		$this->assertCount( 2, $form->attributes['webhooks'], 'Configured webhook and migrated postToUrl should remain.' );
 		$this->assertSame( array( 'organizationId' => '12345' ), $form->attributes['salesforceData'], 'salesforceData should be preserved.' );
+		$this->assertSame( array( 'jetpack/slack' => array( 'enabled' => true ) ), $form->attributes['integrations'], 'integrations should be preserved.' );
 	}
 
 	/**
