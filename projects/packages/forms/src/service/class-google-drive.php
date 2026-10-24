@@ -27,6 +27,48 @@ class Google_Drive {
 	}
 
 	/**
+	 * Extracts a spreadsheet ID from a Google Sheets reference.
+	 *
+	 * Accepts a full document URL or a bare ID, since users paste both. Returns
+	 * null when the input is neither, so callers can reject it with a message
+	 * rather than sending nonsense to Google.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $reference A Google Sheets URL, or a bare spreadsheet ID.
+	 * @return string|null The spreadsheet ID, or null when the input is not one.
+	 */
+	public static function extract_sheet_id( $reference ) {
+		$reference = trim( (string) $reference );
+
+		if ( '' === $reference ) {
+			return null;
+		}
+
+		// Publish-to-web links are /spreadsheets/d/e/2PACX-.../pubhtml, where the
+		// document ID follows the /e/ segment. Matched first, because the plain
+		// pattern below would otherwise capture the literal "e".
+		$matches = array();
+		if ( preg_match( '#/spreadsheets(?:/u/\d+)?/d/e/([a-zA-Z0-9_-]+)#', $reference, $matches ) ) {
+			return $matches[1];
+		}
+
+		// The /u/N/ segment appears for anyone signed in to more than one Google
+		// account, which is how a great many people will copy the link.
+		if ( preg_match( '#/spreadsheets(?:/u/\d+)?/d/([a-zA-Z0-9_-]+)#', $reference, $matches ) ) {
+			return $matches[1];
+		}
+
+		// A bare ID. Google uses a URL-safe alphabet and IDs are comfortably long,
+		// so the length floor keeps stray words from being mistaken for one.
+		if ( preg_match( '#^[a-zA-Z0-9_-]{10,}$#', $reference ) ) {
+			return $reference;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Creates a Google Spreadsheet and returns some of its meta
 	 *
 	 * @param int    $user_id The user ID.
@@ -87,6 +129,76 @@ class Google_Drive {
 				array( 'status' => $response_code )
 			);
 		}
+		return json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+	}
+
+	/**
+	 * Fetches a spreadsheet's metadata and its header row.
+	 *
+	 * Used when a form is pointed at a spreadsheet the user already owns, so we
+	 * can confirm it exists and reconcile our columns against the headers that
+	 * are already there.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int    $user_id  The user whose Google connection to use.
+	 * @param string $sheet_id The spreadsheet ID.
+	 * @return array|WP_Error Array with sheet_id, sheet_link, title and headers.
+	 */
+	public static function get_sheet( $user_id, $sheet_id ) {
+		$site_id = Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return $site_id;
+		}
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// Check for gdrive helper class, call synchronously on .com.
+			require_lib( 'google-sheets-helper' );
+			$helper = \WPCOM_Google_Sheets_helper::create_for_user( $user_id );
+
+			if ( is_wp_error( $helper ) ) {
+				return $helper;
+			}
+
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Added to wpcom's stub-defs.php alongside the helper method itself; remove once the regenerated wpcom stubs land in trunk.
+			return $helper->get_spreadsheet_summary( $sheet_id );
+		}
+
+		$request_path  = sprintf( '/sites/%d/google-drive/sheets/%s', $site_id, rawurlencode( $sheet_id ) );
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			$request_path,
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'content-type'    => 'application/json',
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			)
+		);
+
+		// A transport-level failure has no response code at all -
+		// wp_remote_retrieve_response_code() returns '' - so checking the code
+		// first collapses a missing or expired token, the case this most needs to
+		// report well, into a generic message with an empty status.
+		if ( is_wp_error( $wpcom_request ) ) {
+			/** This action is documented already in this package. */
+			do_action( 'jetpack_forms_log', 'google_sheets_request_failed', $wpcom_request->get_error_code() );
+			return $wpcom_request;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 !== $response_code ) {
+			/** This action is documented already in this package. */
+			do_action( 'jetpack_forms_log', 'google_sheets_request_failed', $response_code );
+
+			return new \WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack-forms' ),
+				array( 'status' => $response_code )
+			);
+		}
+
 		return json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
 	}
 }
