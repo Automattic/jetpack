@@ -26,6 +26,7 @@ body.jetpack-subscribe-modal-open {
 	overflow: hidden;
 	top: 100%;
 	background-color: #fefefe;
+	color: #1e1e1e; /* Pair with the background so inherited theme text stays readable. */
 	margin: 15% auto;
 	width: 100%;
 	max-width: 600px;

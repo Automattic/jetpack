@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Subscriptions: Match the subscribe pop-up background to the site's background color.
+Subscriptions: Keep the subscribe pop-up text readable on themes with light text colors.

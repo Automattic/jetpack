@@ -28,41 +28,6 @@ domReady( () => {
 		return;
 	}
 
-	// Use the site background when the inherited text reads at least as well on it as on the default.
-	const modalContent = modal.querySelector( '.jetpack-subscribe-modal__modal-content' );
-	if ( modalContent ) {
-		const parseColor = value => {
-			const match = /^rgba?\(([\d.]+), ([\d.]+), ([\d.]+)(?:, ([\d.]+))?\)$/.exec( value );
-			return match && { rgb: match.slice( 1, 4 ).map( Number ), alpha: Number( match[ 4 ] ?? 1 ) };
-		};
-		const luminance = ( { rgb } ) => {
-			const [ r, g, b ] = rgb.map( channel => {
-				const c = channel / 255;
-				return c <= 0.03928 ? c / 12.92 : ( ( c + 0.055 ) / 1.055 ) ** 2.4;
-			} );
-			return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-		};
-		const contrast = ( a, b ) => {
-			const [ high, low ] = [ luminance( a ), luminance( b ) ].sort( ( x, y ) => y - x );
-			return ( high + 0.05 ) / ( low + 0.05 );
-		};
-
-		const modalStyle = getComputedStyle( modalContent );
-		const text = parseColor( modalStyle.color );
-		const fallback = parseColor( modalStyle.backgroundColor );
-		const siteBackground = [ document.body, document.documentElement ]
-			.map( element => parseColor( getComputedStyle( element ).backgroundColor ) )
-			.find( color => color && color.alpha === 1 );
-		if (
-			text &&
-			fallback &&
-			siteBackground &&
-			contrast( text, siteBackground ) >= contrast( text, fallback )
-		) {
-			modalContent.style.backgroundColor = `rgb(${ siteBackground.rgb.join( ', ' ) })`;
-		}
-	}
-
 	const modalLoadTimeout = setTimeout( openModal, Jetpack_Subscriptions.modalLoadTime );
 
 	const targetElement = (
