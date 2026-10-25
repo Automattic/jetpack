@@ -19,8 +19,6 @@ describe( 'Subscribe modal', () => {
 		style = document.createElement( 'style' );
 		style.textContent = readFileSync( path.join( __dirname, '../subscribe-modal.css' ), 'utf8' );
 		document.head.appendChild( style );
-		document.body.style.backgroundColor = '#121212';
-		document.body.style.color = '#ffffff';
 		document.body.innerHTML = `
 			<div class="jetpack-subscribe-modal">
 				<div class="jetpack-subscribe-modal__modal-content">
@@ -39,15 +37,32 @@ describe( 'Subscribe modal', () => {
 		delete window.Jetpack_Subscriptions;
 		style.remove();
 		document.body.removeAttribute( 'style' );
+		document.documentElement.removeAttribute( 'style' );
 		document.body.innerHTML = '';
 		localStorage.removeItem( dismissedKey );
 	} );
 
-	it( 'opens the subscribe modal with the site background color', () => {
-		require( '../subscribe-modal.js' );
-		jest.advanceTimersByTime( loadTime );
+	it.each( [
+		[ 'light text on a dark body', '#121212', '', '#ffffff', 'rgb(18, 18, 18)' ],
+		[ 'dark text on a dark body', '#121212', '', '#121212', 'rgb(254, 254, 254)' ],
+		[
+			'a transparent body over a dark root',
+			'rgba(255, 255, 255, 0)',
+			'#121212',
+			'#ffffff',
+			'rgb(18, 18, 18)',
+		],
+	] )(
+		'opens the subscribe modal with the site background color: %s',
+		( _, body, root, text, expected ) => {
+			document.body.style.backgroundColor = body;
+			document.body.style.color = text;
+			document.documentElement.style.backgroundColor = root;
+			require( '../subscribe-modal.js' );
+			jest.advanceTimersByTime( loadTime );
 
-		const content = document.querySelector( '.jetpack-subscribe-modal__modal-content' );
-		expect( getComputedStyle( content ).backgroundColor ).toBe( 'rgb(18, 18, 18)' );
-	} );
+			const content = document.querySelector( '.jetpack-subscribe-modal__modal-content' );
+			expect( getComputedStyle( content ).backgroundColor ).toBe( expected );
+		}
+	);
 } );
