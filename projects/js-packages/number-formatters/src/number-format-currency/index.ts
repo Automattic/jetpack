@@ -413,6 +413,8 @@ const getCurrencyObject = ( {
 	const parts = formatter.formatToParts( numberAsFloat );
 
 	let sign = '' as CurrencyObject[ 'sign' ];
+	let localizedSign = '';
+	let pendingPrefix = '';
 	let symbol = '$';
 	let symbolPosition = 'before' as CurrencyObject[ 'symbolPosition' ];
 	let hasAmountBeenSet = false;
@@ -427,30 +429,50 @@ const getCurrencyObject = ( {
 				if ( hasAmountBeenSet ) {
 					symbolPosition = 'after';
 				}
+				pendingPrefix = '';
 				return;
 			case 'group':
 				integer += part.value;
 				hasAmountBeenSet = true;
+				pendingPrefix = '';
 				return;
 			case 'decimal':
 				fraction += part.value;
 				hasAmountBeenSet = true;
 				hasDecimalBeenSet = true;
+				pendingPrefix = '';
 				return;
 			case 'integer':
 				integer += part.value;
 				hasAmountBeenSet = true;
+				pendingPrefix = '';
 				return;
 			case 'fraction':
 				fraction += part.value;
 				hasAmountBeenSet = true;
 				hasDecimalBeenSet = true;
+				pendingPrefix = '';
+				return;
+			case 'literal':
+				if ( ! sign ) {
+					pendingPrefix += part.value;
+				} else if (
+					! localizedSign.includes( part.value ) &&
+					( part.value === '\u200E' || part.value === '\u200F' || part.value === '\u061C' )
+				) {
+					localizedSign += part.value;
+				}
 				return;
 			case 'minusSign':
 				sign = '-' as CurrencyObject[ 'sign' ];
+				localizedSign = pendingPrefix + part.value;
+				pendingPrefix = '';
 				return;
 			case 'plusSign':
 				sign = '+' as CurrencyObject[ 'sign' ];
+				localizedSign = pendingPrefix + part.value;
+				pendingPrefix = '';
+				return;
 		}
 	} );
 
@@ -458,6 +480,7 @@ const getCurrencyObject = ( {
 
 	return {
 		sign,
+		localizedSign,
 		symbol,
 		symbolPosition,
 		integer,

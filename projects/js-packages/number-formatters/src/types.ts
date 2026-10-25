@@ -110,6 +110,17 @@ export interface CurrencyObject {
 	sign: '-' | '+' | '';
 
 	/**
+	 * The localized sign for the price, if it is negative, or the positive sign
+	 * if signForPositive is set.
+	 *
+	 * Unlike sign, this property preserves any Unicode Bidirectional control
+	 * marks emitted by the locale formatter (such as RLM or LRM in RTL locales
+	 * like Hebrew or Arabic) to ensure the sign stays on the correct visual side
+	 * when rendered in HTML or text.
+	 */
+	localizedSign: string;
+
+	/**
 	 * The currency symbol for the formatted price.
 	 *
 	 * Note that the symbol's position depends on the `symbolPosition` property,

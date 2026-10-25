@@ -27,6 +27,7 @@ describe( 'getCurrencyObject() default export', () => {
 			integer: '1,234',
 			fraction: '.57',
 			sign: '-',
+			localizedSign: '-',
 			hasNonZeroFraction: true,
 			floatValue: -1234.57,
 		} );
@@ -447,6 +448,7 @@ describe( 'getCurrencyObject()', () => {
 			integer: '0',
 			fraction: '.00',
 			sign: '',
+			localizedSign: '',
 			hasNonZeroFraction: false,
 			floatValue: 0,
 		} );
@@ -464,6 +466,7 @@ describe( 'getCurrencyObject()', () => {
 			integer: '1,234',
 			fraction: '.57',
 			sign: '-',
+			localizedSign: '-',
 			hasNonZeroFraction: true,
 			floatValue: -1234.57,
 		} );
@@ -481,6 +484,7 @@ describe( 'getCurrencyObject()', () => {
 			integer: '10',
 			fraction: '.00',
 			sign: '',
+			localizedSign: '',
 			hasNonZeroFraction: false,
 			floatValue: 10,
 		} );
@@ -498,6 +502,7 @@ describe( 'getCurrencyObject()', () => {
 			integer: '9',
 			fraction: '.99',
 			sign: '',
+			localizedSign: '',
 			hasNonZeroFraction: true,
 			floatValue: 9.99,
 		} );
@@ -516,6 +521,7 @@ describe( 'getCurrencyObject()', () => {
 			integer: '99',
 			fraction: '.32',
 			sign: '',
+			localizedSign: '',
 			hasNonZeroFraction: true,
 			floatValue: 99.32,
 		} );
@@ -534,6 +540,7 @@ describe( 'getCurrencyObject()', () => {
 			integer: '240.000',
 			fraction: '',
 			sign: '',
+			localizedSign: '',
 			hasNonZeroFraction: false,
 			floatValue: 240000,
 		} );
@@ -552,6 +559,7 @@ describe( 'getCurrencyObject()', () => {
 			integer: '9,932',
 			fraction: '',
 			sign: '',
+			localizedSign: '',
 			hasNonZeroFraction: false,
 			floatValue: 9932,
 		} );
@@ -570,6 +578,7 @@ describe( 'getCurrencyObject()', () => {
 			integer: '99',
 			fraction: '.32',
 			sign: '',
+			localizedSign: '',
 			hasNonZeroFraction: true,
 			floatValue: 99.32,
 		} );
@@ -588,6 +597,7 @@ describe( 'getCurrencyObject()', () => {
 				integer: '9,800,900',
 				fraction: '.32',
 				sign: '',
+				localizedSign: '',
 				hasNonZeroFraction: true,
 				floatValue: 9800900.32,
 			} );
@@ -606,6 +616,7 @@ describe( 'getCurrencyObject()', () => {
 				integer: '9,800,900',
 				fraction: '.32',
 				sign: '+',
+				localizedSign: '+',
 				hasNonZeroFraction: true,
 				floatValue: 9800900.32,
 			} );
@@ -624,6 +635,7 @@ describe( 'getCurrencyObject()', () => {
 				integer: '9,800,900',
 				fraction: '.32',
 				sign: '-',
+				localizedSign: '-',
 				hasNonZeroFraction: true,
 				floatValue: -9800900.32,
 			} );
@@ -641,6 +653,7 @@ describe( 'getCurrencyObject()', () => {
 				integer: '9,800,900',
 				fraction: '.32',
 				sign: '',
+				localizedSign: '',
 				hasNonZeroFraction: true,
 				floatValue: 9800900.32,
 			} );
@@ -658,6 +671,7 @@ describe( 'getCurrencyObject()', () => {
 				integer: '9,800,900',
 				fraction: '.32',
 				sign: '',
+				localizedSign: '',
 				hasNonZeroFraction: true,
 				floatValue: 9800900.32,
 			} );
@@ -675,6 +689,7 @@ describe( 'getCurrencyObject()', () => {
 				integer: '9,800,900',
 				fraction: '.32',
 				sign: '',
+				localizedSign: '',
 				hasNonZeroFraction: true,
 				floatValue: 9800900.32,
 			} );
@@ -692,6 +707,7 @@ describe( 'getCurrencyObject()', () => {
 				integer: '9.800.900',
 				fraction: ',32',
 				sign: '',
+				localizedSign: '',
 				hasNonZeroFraction: true,
 				floatValue: 9800900.32,
 			} );
@@ -709,6 +725,7 @@ describe( 'getCurrencyObject()', () => {
 				integer: '9,800,900',
 				fraction: '.32',
 				sign: '',
+				localizedSign: '',
 				hasNonZeroFraction: true,
 				floatValue: 9800900.32,
 			} );
@@ -726,6 +743,7 @@ describe( 'getCurrencyObject()', () => {
 				integer: '9,800,900',
 				fraction: '',
 				sign: '',
+				localizedSign: '',
 				hasNonZeroFraction: false,
 				floatValue: 9800900,
 			} );
@@ -743,8 +761,72 @@ describe( 'getCurrencyObject()', () => {
 				integer: '9.800.900',
 				fraction: ',32',
 				sign: '',
+				localizedSign: '',
 				hasNonZeroFraction: true,
 				floatValue: 9800900.32,
+			} );
+		} );
+
+		describe( 'localizedSign in RTL locales', () => {
+			it( 'preserves Bidi marks in Hebrew (he)', () => {
+				const money = getCurrencyObject( {
+					number: -1234.56,
+					currency: 'ILS',
+					browserSafeLocale: 'he',
+				} );
+				expect( money.sign ).toBe( '-' );
+				expect( money.localizedSign ).toBe( '\u200F\u200E-' );
+			} );
+
+			it( 'preserves Bidi marks in Arabic (ar)', () => {
+				const money = getCurrencyObject( {
+					number: -140.5,
+					currency: 'USD',
+					browserSafeLocale: 'ar',
+				} );
+				expect( money.sign ).toBe( '-' );
+				expect( money.localizedSign ).toBe( '\u200F\u200E-' );
+			} );
+
+			it( 'preserves Bidi marks in Farsi (fa)', () => {
+				const money = getCurrencyObject( {
+					number: -140.5,
+					currency: 'USD',
+					browserSafeLocale: 'fa',
+				} );
+				expect( money.sign ).toBe( '-' );
+				expect( money.localizedSign ).toContain( '\u200E' );
+			} );
+
+			it( 'preserves Bidi marks in Urdu (ur)', () => {
+				const money = getCurrencyObject( {
+					number: -140.5,
+					currency: 'USD',
+					browserSafeLocale: 'ur',
+				} );
+				expect( money.sign ).toBe( '-' );
+				expect( money.localizedSign ).toBe( '\u200E-' );
+			} );
+
+			it( 'returns localizedSign with Bidi marks for positive number when signForPositive is true in Hebrew', () => {
+				const money = getCurrencyObject( {
+					number: 1234.56,
+					currency: 'ILS',
+					browserSafeLocale: 'he',
+					signForPositive: true,
+				} );
+				expect( money.sign ).toBe( '+' );
+				expect( money.localizedSign ).toBe( '\u200F\u200E+' );
+			} );
+
+			it( 'returns empty localizedSign for positive number without signForPositive in RTL', () => {
+				const money = getCurrencyObject( {
+					number: 1234.56,
+					currency: 'ILS',
+					browserSafeLocale: 'he',
+				} );
+				expect( money.sign ).toBe( '' );
+				expect( money.localizedSign ).toBe( '' );
 			} );
 		} );
 	} );

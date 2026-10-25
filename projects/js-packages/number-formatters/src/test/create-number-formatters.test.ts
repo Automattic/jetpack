@@ -180,6 +180,7 @@ describe( 'createNumberFormatters()', () => {
 				integer: '9.800.900',
 				fraction: ',32',
 				sign: '',
+				localizedSign: '',
 				hasNonZeroFraction: true,
 				floatValue: 9800900.32,
 			} );
@@ -197,6 +198,7 @@ describe( 'createNumberFormatters()', () => {
 					integer: '9,800,900',
 					fraction: '.32',
 					sign: '',
+					localizedSign: '',
 					hasNonZeroFraction: true,
 					floatValue: 9800900.32,
 				} );
@@ -213,6 +215,7 @@ describe( 'createNumberFormatters()', () => {
 					integer: '9,800,900',
 					fraction: '.32',
 					sign: '',
+					localizedSign: '',
 					hasNonZeroFraction: true,
 					floatValue: 9800900.32,
 				} );
