@@ -118,8 +118,14 @@ class Jetpack_Subscribe_Modal {
 	 * @return string CSS, or an empty string to keep the stylesheet's colors.
 	 */
 	public static function get_global_styles_color_css() {
-		$colors = wp_get_global_styles( array( 'color' ) );
-		$pair   = array();
+		// Read the whole tree: for a missing path, wp_get_global_styles() returns every style instead of null.
+		$styles = wp_get_global_styles();
+		$colors = $styles['color'] ?? array();
+		// A page gradient or image covers the solid color, so it would not match what the page shows.
+		if ( ! empty( $colors['gradient'] ) || ! empty( $styles['background']['backgroundImage'] ) ) {
+			return '';
+		}
+		$pair = array();
 		foreach ( array( 'background', 'text' ) as $key ) {
 			$value = $colors[ $key ] ?? '';
 			if ( ! is_string( $value ) ) {

@@ -71,6 +71,16 @@ class Jetpack_Subscribe_Modal_Test extends WP_UnitTestCase {
 				),
 				'.jetpack-subscribe-modal__modal-content { background-image: linear-gradient( #ffffff, #ffffff ); color: var(--wp--preset--color--base); }',
 			),
+			'owner adds a page gradient'               => array(
+				self::BLOCK_THEME_STYLES,
+				array( 'styles' => array( 'color' => array( 'gradient' => 'linear-gradient( #ffffff, #eeeeee )' ) ) ),
+				'',
+			),
+			'owner adds a page background image'       => array(
+				self::BLOCK_THEME_STYLES,
+				array( 'styles' => array( 'background' => array( 'backgroundImage' => array( 'url' => 'https://example.com/paper.jpg' ) ) ) ),
+				'',
+			),
 			'classic theme without theme.json'         => array( array(), array(), '' ),
 		);
 	}
