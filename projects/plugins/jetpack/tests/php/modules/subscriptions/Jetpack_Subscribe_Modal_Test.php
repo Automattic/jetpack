@@ -57,7 +57,7 @@ class Jetpack_Subscribe_Modal_Test extends WP_UnitTestCase {
 			'block theme style'                        => array(
 				self::BLOCK_THEME_STYLES,
 				array(),
-				'.jetpack-subscribe-modal__modal-content { background-image: linear-gradient( var(--wp--preset--color--base), var(--wp--preset--color--base) ); color: var(--wp--preset--color--contrast); }',
+				'.jetpack-subscribe-modal__modal-content { background: linear-gradient( var(--wp--preset--color--base), var(--wp--preset--color--base) ); background-color: #fefefe; color: var(--wp--preset--color--contrast); }',
 			),
 			'owner picks a light page on a dark style' => array(
 				self::BLOCK_THEME_STYLES,
@@ -69,12 +69,12 @@ class Jetpack_Subscribe_Modal_Test extends WP_UnitTestCase {
 						),
 					),
 				),
-				'.jetpack-subscribe-modal__modal-content { background-image: linear-gradient( #ffffff, #ffffff ); color: var(--wp--preset--color--base); }',
+				'.jetpack-subscribe-modal__modal-content { background: linear-gradient( #ffffff, #ffffff ); background-color: #fefefe; color: var(--wp--preset--color--base); }',
 			),
-			'owner adds a page gradient'               => array(
+			'style with a page gradient'               => array(
 				self::BLOCK_THEME_STYLES,
-				array( 'styles' => array( 'color' => array( 'gradient' => 'linear-gradient( #ffffff, #eeeeee )' ) ) ),
-				'',
+				array( 'styles' => array( 'color' => array( 'gradient' => 'var(--wp--preset--gradient--base-secondary-base) no-repeat' ) ) ),
+				'.jetpack-subscribe-modal__modal-content { background: var(--wp--preset--gradient--base-secondary-base) no-repeat, linear-gradient( var(--wp--preset--color--base), var(--wp--preset--color--base) ); background-color: #fefefe; color: var(--wp--preset--color--contrast); }',
 			),
 			'owner adds a page background image'       => array(
 				self::BLOCK_THEME_STYLES,

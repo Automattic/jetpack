@@ -121,13 +121,16 @@ class Jetpack_Subscribe_Modal {
 		// Read the whole tree: for a missing path, wp_get_global_styles() returns every style instead of null.
 		$styles = wp_get_global_styles();
 		$colors = $styles['color'] ?? array();
-		// A page gradient or image covers the solid color, so it would not match what the page shows.
-		if ( ! empty( $colors['gradient'] ) || ! empty( $styles['background']['backgroundImage'] ) ) {
+		// A page image covers the solid color, and the server cannot tell what it shows.
+		if ( ! empty( $styles['background']['backgroundImage'] ) ) {
 			return '';
 		}
 		$pair = array();
-		foreach ( array( 'background', 'text' ) as $key ) {
+		foreach ( array( 'background', 'text', 'gradient' ) as $key ) {
 			$value = $colors[ $key ] ?? '';
+			if ( 'gradient' === $key && '' === $value ) {
+				continue;
+			}
 			if ( ! is_string( $value ) ) {
 				return '';
 			}
@@ -145,9 +148,11 @@ class Jetpack_Subscribe_Modal {
 			return '';
 		}
 
-		// Layer the page color over the stylesheet's opaque background, so a transparent one leaves it showing.
+		// Stack the page's gradient and color as core paints the page. The separate background-color keeps
+		// trunk's opaque base even when a missing preset variable voids the whole shorthand.
 		return sprintf(
-			'.jetpack-subscribe-modal__modal-content { background-image: linear-gradient( %1$s, %1$s ); color: %2$s; }',
+			'.jetpack-subscribe-modal__modal-content { background: %1$slinear-gradient( %2$s, %2$s ); background-color: #fefefe; color: %3$s; }',
+			isset( $pair['gradient'] ) ? $pair['gradient'] . ', ' : '',
 			$pair['background'],
 			$pair['text']
 		);
