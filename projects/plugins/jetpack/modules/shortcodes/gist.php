@@ -39,7 +39,12 @@ add_shortcode( 'gist', 'github_gist_shortcode' );
  * @return string The embed HTML.
  */
 function github_gist_embed_handler( $matches, $attr, $url, $rawattr ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	if ( doing_filter( 'the_content' ) ) {
+	$shortcode_priority = has_filter( 'the_content', 'do_shortcode' );
+	if (
+		doing_filter( 'the_content' )
+		&& false !== $shortcode_priority
+		&& $shortcode_priority > $GLOBALS['wp_filter']['the_content']->current_priority()
+	) {
 		// Render after wpautop to preserve the gist markup.
 		return sprintf( '[gist %s]', esc_url_raw( $url ) );
 	}

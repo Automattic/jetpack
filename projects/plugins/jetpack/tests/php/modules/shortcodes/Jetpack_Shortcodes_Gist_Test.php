@@ -14,8 +14,10 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 /**
  * Gist shortcode tests.
  *
+ * @covers ::github_gist_embed_handler
  * @covers ::github_gist_shortcode
  */
+#[CoversFunction( 'github_gist_embed_handler' )]
 #[CoversFunction( 'github_gist_shortcode' )]
 class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -55,7 +57,7 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	 * Preserve multiline gist markup when embedding a URL through content filters.
 	 */
 	public function test_gist_url_preserves_shortcode_markup_through_content_filters() {
-		global $post;
+		global $post, $wp_embed;
 
 		$url      = 'https://gist.github.com/6cad326836d38bd3a7ae';
 		$template = <<<'HTML'
@@ -103,10 +105,21 @@ HTML;
 			);
 		};
 		add_filter( 'pre_http_request', $http_response, 10, 3 );
+		add_shortcode(
+			'jetpack_gist_test_autoembed',
+			function ( $atts, $content ) use ( $wp_embed ) {
+				return $wp_embed->autoembed( $content );
+			}
+		);
 
+		$embeds  = array(
+			$url,
+			sprintf( '[gist %s]', $url ),
+			sprintf( '[jetpack_gist_test_autoembed]%s[/jetpack_gist_test_autoembed]', $url ),
+		);
 		$outputs = array();
 		try {
-			foreach ( array( $url, sprintf( '[gist %s]', $url ) ) as $embed ) {
+			foreach ( $embeds as $embed ) {
 				$content = "Before.\n\n$embed\n\nAfter.";
 				$post    = self::factory()->post->create_and_get( array( 'post_content' => $content ) );
 				setup_postdata( $post );
@@ -114,12 +127,14 @@ HTML;
 			}
 		} finally {
 			remove_filter( 'pre_http_request', $http_response, 10 );
+			remove_shortcode( 'jetpack_gist_test_autoembed' );
 		}
 
 		foreach ( $outputs as $output ) {
 			$this->assertStringContainsString( $code, $output );
 		}
 		$this->assertSame( trim( $outputs[1] ), trim( $outputs[0] ) );
+		$this->assertSame( trim( $outputs[1] ), trim( $outputs[2] ) );
 		foreach ( $outputs as $output ) {
 			$this->assertStringContainsString( $template, $output );
 			$this->assertStringContainsString( $footer, $output );
