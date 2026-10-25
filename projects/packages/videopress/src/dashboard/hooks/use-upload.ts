@@ -4,8 +4,6 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { useCallback, useSyncExternalStore } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
-import { UploadTokenError } from '../../client/hooks/use-resumable-uploader';
-import getMediaToken from '../../client/lib/get-media-token';
 import resumableFileUploader from '../../client/lib/resumable-file-uploader';
 import { syncChapters } from '../../client/utils/video-chapters/sync-chapters';
 import { LIBRARY_QUERY_KEY, toLibraryItem } from './use-library';
@@ -24,6 +22,7 @@ export type UploadItem = {
 	status: UploadStatus;
 	error?: string;
 	errorCode?: string;
+	attachmentId?: number;
 	mediaId?: string;
 	media?: VideoMediaProps;
 	/** The metadata accepted by Save, excluding any subsequent form edits. */
@@ -172,6 +171,7 @@ async function startNextPending( client: QueryClient ): Promise< void > {
 		}
 		updateItem( id, {
 			status: 'failed',
+			attachmentId: ( error as { attachmentId?: number } )?.attachmentId ?? next.attachmentId,
 			error: error instanceof Error ? error.message : String( error ),
 			errorCode:
 				typeof ( error as { code?: unknown } )?.code === 'string'
@@ -181,13 +181,11 @@ async function startNextPending( client: QueryClient ): Promise< void > {
 		settle();
 	};
 	try {
-		const tokenData = await getMediaToken( 'upload-jwt' );
-		if ( ! tokenData?.token ) {
-			throw new UploadTokenError();
-		}
 		resumableFileUploader( {
 			file,
-			tokenData,
+			tokenData: next.attachmentId
+				? { token: null, url: window.videopressUpload?.url, attachmentId: next.attachmentId }
+				: undefined,
 			onProgress: ( sent, total ) => {
 				if ( ! settled && store.activeId === id ) {
 					updateItem( id, { progress: total > 0 ? sent / total : 0, status: 'uploading' } );

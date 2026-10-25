@@ -185,22 +185,27 @@ it( 'retains edits after transport failure, continues the queue, and serializes 
 	);
 } );
 
-it.each( [ 'missing', 'rejected' ] )(
-	'handles a %s token without stranding the queue',
-	async kind => {
-		if ( kind === 'missing' ) {
-			mockToken.mockResolvedValueOnce( {} as never );
-		} else {
-			mockToken.mockRejectedValueOnce( new Error( 'Offline' ) );
-		}
-		const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
-		const id = await start( result );
-		expect( result.current.uploadQueue[ 0 ].status ).toBe( 'failed' );
-		await act( async () => result.current.retryUpload( id ) );
-		expect( mockUploader ).toHaveBeenCalledTimes( 1 );
-		expect( result.current.uploadQueue[ 0 ].error ).toBeUndefined();
-	}
-);
+it( 'retains the reserved attachment when manually retrying a failed token request', async () => {
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
+	const id = await start( result );
+	await act( async () =>
+		callbacks().onError(
+			Object.assign( new Error( 'Offline' ), {
+				attachmentId: 42,
+				code: 'videopress_no_upload_token',
+			} )
+		)
+	);
+	expect( result.current.uploadQueue[ 0 ] ).toMatchObject( {
+		status: 'failed',
+		attachmentId: 42,
+		errorCode: 'videopress_no_upload_token',
+	} );
+	await act( async () => result.current.retryUpload( id ) );
+	expect( mockUploader ).toHaveBeenCalledTimes( 2 );
+	expect( callbacks( 1 ).tokenData ).toMatchObject( { attachmentId: 42 } );
+	expect( result.current.uploadQueue[ 0 ].error ).toBeUndefined();
+} );
 
 it( 'synchronizes chapters only after the description is saved', async () => {
 	mockFetch.mockResolvedValue( {

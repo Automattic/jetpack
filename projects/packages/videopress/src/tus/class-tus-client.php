@@ -461,6 +461,10 @@ class Tus_Client {
 			$offset    = $partial_offset;
 		}
 
+		if ( $offset === $this->get_file_size() && $this->uploaded_video_details ) {
+			return $offset;
+		}
+
 		// Verify that upload is not yet expired.
 		if ( $this->is_expired() ) {
 			throw new Tus_Exception( 'Upload expired.' );
@@ -633,10 +637,18 @@ class Tus_Client {
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 
-		if ( WP_Http::OK !== $response_code ) {
+		if ( in_array( $response_code, array( 404, 410 ), true ) ) {
 			return false;
 		}
-
+		if ( WP_Http::OK !== $response_code ) {
+			return new WP_Error( 'videopress_resume_failed', 'The existing upload could not be checked.', array( 'status' => $response_code ) );
+		}
+		$guid     = wp_remote_retrieve_header( $response, 'x-videopress-upload-guid' );
+		$media_id = wp_remote_retrieve_header( $response, 'x-videopress-upload-media-id' );
+		$src      = wp_remote_retrieve_header( $response, 'x-videopress-upload-src-url' );
+		if ( $guid && $media_id && $src ) {
+			$this->set_uploaded_video_details( $guid, $media_id, $src );
+		}
 		return (int) wp_remote_retrieve_header( $response, 'upload-offset' );
 	}
 

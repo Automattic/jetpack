@@ -42,8 +42,8 @@ describe( 'useResumableUploader', () => {
 			status: 'idle',
 		} );
 		await act( async () => result.current.uploadHandler( file ) );
-		expect( mockToken ).toHaveBeenCalledWith( 'upload-jwt' );
-		expect( mockUploader ).toHaveBeenCalledWith( expect.objectContaining( { file, tokenData } ) );
+		expect( mockToken ).not.toHaveBeenCalled();
+		expect( mockUploader ).toHaveBeenCalledWith( expect.objectContaining( { file } ) );
 		expect( result.current.uploadingData.status ).toBe( 'uploading' );
 
 		const callbacks = mockUploader.mock.calls[ 0 ][ 0 ];
@@ -87,12 +87,12 @@ describe( 'useResumableUploader', () => {
 		expect( handlers.onError ).toHaveBeenCalledWith( error );
 	} );
 
-	it( 'reports a missing token without starting the transport', async () => {
-		mockToken.mockResolvedValueOnce( { token: null } );
+	it( 'forwards a missing-token failure from the lazy transport', async () => {
 		const { result } = renderHook( () => useResumableUploader( handlers ) );
 		await act( async () => result.current.uploadHandler( file ) );
+		act( () => mockUploader.mock.calls[ 0 ][ 0 ].onError( new UploadTokenError() ) );
 		expect( handlers.onError ).toHaveBeenCalledWith( expect.any( UploadTokenError ) );
-		expect( mockUploader ).not.toHaveBeenCalled();
+		expect( result.current.uploadingData.status ).toBe( 'error' );
 	} );
 
 	it( 'uploads the selected file and ignores a cancelled file picker', async () => {

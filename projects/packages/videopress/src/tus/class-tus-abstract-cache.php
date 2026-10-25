@@ -122,7 +122,7 @@ abstract class Tus_Abstract_Cache {
 		$key = $this->build_key( $key );
 
 		$contents_str = $this->cache_get( $key );
-		$contents     = json_decode( $contents_str, true );
+		$contents     = json_decode( $contents_str ?? '', true );
 
 		if ( ! $contents ) {
 			return null;

@@ -86,6 +86,15 @@ class Jwt_Token_Bridge {
 				'post_id'   => $post_id,
 			)
 		);
+		wp_localize_script(
+			self::SCRIPT_HANDLE,
+			'videopressUpload',
+			array(
+				'url'             => sprintf( 'https://public-api.wordpress.com/rest/v1.1/video-uploads/%d/', VideoPressToken::blog_id() ),
+				'nonce'           => current_user_can( 'upload_files' ) ? wp_create_nonce( 'videopress-upload' ) : '',
+				'attachmentFirst' => ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ),
+			)
+		);
 	}
 
 	/**
