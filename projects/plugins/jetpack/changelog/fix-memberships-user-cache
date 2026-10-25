@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Memberships: Fix stale subscriber access after clearing an individual user's cache.
