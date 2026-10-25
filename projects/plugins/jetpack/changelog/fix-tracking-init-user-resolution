@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tracking: Defer tracking initialization until `init` to avoid resolving the current user too early on application-password requests.
