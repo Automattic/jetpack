@@ -81,6 +81,23 @@ class Jetpack_Subscribe_Modal_Test extends WP_UnitTestCase {
 				array( 'styles' => array( 'background' => array( 'backgroundImage' => array( 'url' => 'https://example.com/paper.jpg' ) ) ) ),
 				'',
 			),
+			'theme stores the text color as a ref'     => array(
+				array(
+					'styles' => array(
+						'color' => array(
+							'background' => '#000000',
+							'text'       => array( 'ref' => 'styles.elements.link.color.text' ),
+						),
+					),
+				),
+				array(),
+				'',
+			),
+			'stored color tries to close the CSS rule' => array(
+				self::BLOCK_THEME_STYLES,
+				array( 'styles' => array( 'color' => array( 'background' => '#000000; } body { display: none' ) ) ),
+				'',
+			),
 			'classic theme without theme.json'         => array( array(), array(), '' ),
 		);
 	}
