@@ -148,10 +148,16 @@ class Jetpack_Subscribe_Modal {
 			return '';
 		}
 
+		// A saved template that sets its own text or background colors was styled for trunk's light panel.
+		$template = get_block_template( self::get_block_template_part_id(), 'wp_template_part' );
+		if ( $template && preg_match( '/"(?:textColor|backgroundColor|gradient)"|"color":\{/', $template->content ) ) {
+			return '';
+		}
+
 		// Stack the page's gradient and color as core paints the page. The separate background-color keeps
-		// trunk's opaque base even when a missing preset variable voids the whole shorthand.
+		// the stylesheet's opaque base even when a missing preset variable voids the whole shorthand.
 		return sprintf(
-			'.jetpack-subscribe-modal__modal-content { background: %1$slinear-gradient( %2$s, %2$s ); background-color: #fefefe; color: %3$s; }',
+			'.jetpack-subscribe-modal__modal-content { background: %1$slinear-gradient( %2$s, %2$s ); background-color: var(--jetpack-subscribe-modal--background-color); color: %3$s; }',
 			isset( $pair['gradient'] ) ? $pair['gradient'] . ', ' : '',
 			$pair['background'],
 			$pair['text']
