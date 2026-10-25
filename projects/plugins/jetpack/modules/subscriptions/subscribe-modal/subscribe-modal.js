@@ -28,6 +28,17 @@ domReady( () => {
 		return;
 	}
 
+	// Match the site background so theme text colors stay readable on the modal.
+	const modalContent = modal.querySelector( '.jetpack-subscribe-modal__modal-content' );
+	if ( modalContent ) {
+		const siteBackground = [ document.body, document.documentElement ]
+			.map( element => getComputedStyle( element ).backgroundColor )
+			.find( color => color && color !== 'transparent' && color !== 'rgba(0, 0, 0, 0)' );
+		if ( siteBackground ) {
+			modalContent.style.backgroundColor = siteBackground;
+		}
+	}
+
 	const modalLoadTimeout = setTimeout( openModal, Jetpack_Subscriptions.modalLoadTime );
 
 	const targetElement = (
