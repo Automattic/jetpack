@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Subscriptions: Keep the subscribe pop-up text readable on themes with light text colors.
+Subscriptions: Use the theme's background and text colors for the subscribe pop-up so it stays readable on dark styles.
