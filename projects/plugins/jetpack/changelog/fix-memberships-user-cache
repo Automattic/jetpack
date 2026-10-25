@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Memberships: Fix subscribers being incorrectly denied access to paywalled content.
+Memberships: Fix clearing the cached paywall checks for a single user.
