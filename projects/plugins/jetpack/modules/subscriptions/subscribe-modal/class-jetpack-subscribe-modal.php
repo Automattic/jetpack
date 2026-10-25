@@ -148,9 +148,9 @@ class Jetpack_Subscribe_Modal {
 			return '';
 		}
 
-		// A saved template that sets its own text or background colors was styled for trunk's light panel.
+		// A saved or theme-supplied template was styled against trunk's light panel, so only the plugin's default changes.
 		$template = get_block_template( self::get_block_template_part_id(), 'wp_template_part' );
-		if ( $template && preg_match( '/"(?:textColor|backgroundColor|gradient)"|"color":\{/', $template->content ) ) {
+		if ( $template && 'plugin' !== $template->source ) {
 			return '';
 		}
 

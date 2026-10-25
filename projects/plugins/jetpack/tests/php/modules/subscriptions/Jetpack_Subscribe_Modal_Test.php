@@ -59,14 +59,14 @@ class Jetpack_Subscribe_Modal_Test extends WP_UnitTestCase {
 		$this->assertSame( $expected, Jetpack_Subscribe_Modal::get_global_styles_color_css() );
 	}
 
-	public function test_modal_keeps_its_colors_when_the_saved_template_sets_text_colors() {
+	public function test_modal_keeps_its_colors_when_the_template_is_customized() {
 		$this->replace_theme_json( self::BLOCK_THEME_STYLES );
 		$template_id = self::factory()->post->create(
 			array(
 				'post_type'    => 'wp_template_part',
 				'post_name'    => Jetpack_Subscribe_Modal::BLOCK_TEMPLATE_PART_SLUG,
 				'post_status'  => 'publish',
-				'post_content' => '<!-- wp:paragraph {"textColor":"base"} --><p class="has-base-color has-text-color">Discover more</p><!-- /wp:paragraph -->',
+				'post_content' => '<!-- wp:paragraph --><p>Discover <mark style="background-color:rgba(0, 0, 0, 0);color:#000000" class="has-inline-color">more</mark></p><!-- /wp:paragraph -->',
 			)
 		);
 		wp_set_post_terms( $template_id, get_stylesheet(), 'wp_theme' );
