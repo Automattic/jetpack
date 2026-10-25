@@ -67,6 +67,8 @@ function render_block( $attr, $content, $block ) {
 		$service_name,
 		$post_id
 	);
+	// data-shared stays per post for sharing.js; the label id must be unique per instance.
+	$label_id = wp_unique_id( $data_shared . '-' );
 
 	$service      = new $services[ $service_name ]( $service_name, array() );
 	$link_props   = $service->get_link(
@@ -127,18 +129,19 @@ function render_block( $attr, $content, $block ) {
 
 	$component  = '<li class="' . esc_attr( $block_class_name ) . '">';
 	$component .= sprintf(
-		'<a href="%1$s" target="_blank" rel="nofollow noopener noreferrer" class="%2$s" style="%3$s" data-service="%4$s" data-shared="%5$s" aria-labelledby="%5$s">',
+		'<a href="%1$s" target="_blank" rel="nofollow noopener noreferrer" class="%2$s" style="%3$s" data-service="%4$s" data-shared="%5$s" aria-labelledby="%6$s">',
 		esc_url( $link_url ),
 		esc_attr( $link_classes ),
 		esc_attr( $link_styles ),
 		esc_attr( $service_name ),
-		esc_attr( $data_shared )
+		esc_attr( $data_shared ),
+		esc_attr( $label_id )
 	);
 
 	// Add hidden span with accessible name
 	$component .= sprintf(
 		'<span id="%s" hidden>%s</span>',
-		esc_attr( $data_shared ),
+		esc_attr( $label_id ),
 		esc_html( $accessible_name )
 	);
 

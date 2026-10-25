@@ -18,7 +18,8 @@ type SanitizedConversionRateByDateItem = Override<
 		with_cart_addition: number;
 		reached_checkout: number;
 		completed_checkout: number;
-		conversion_rate: number; // calculated field
+		/** Calculated; null for a period with no sessions, which has no rate. */
+		conversion_rate: number | null;
 	}
 >;
 
@@ -32,9 +33,8 @@ function sanitizeConversionRateItem(
 	const reachedCheckoutNum = safeParseInt( item.reached_checkout );
 	const completedCheckoutNum = safeParseInt( item.completed_checkout );
 
-	// Calculate conversion rate as decimal (e.g., 0.035 for 3.5%)
-	// This format works with formatMetricValue 'percentage' type
-	const conversionRate = activeSessionsNum > 0 ? completedCheckoutNum / activeSessionsNum : 0;
+	// A decimal (0.035 for 3.5%), the shape formatMetricValue's 'percentage' type reads.
+	const conversionRate = activeSessionsNum > 0 ? completedCheckoutNum / activeSessionsNum : null;
 
 	return {
 		...withBucketStamps( item, zone ),

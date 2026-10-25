@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.13.2] - 2026-10-20
+### Changed
+- Add `isInSafeMode` to the connection status type and the local `displayName` and `email` to the current user type. [#53785]
+
+## [2.13.1] - 2026-10-19
+### Changed
+- Update package dependencies. [#53806]
+
 ## [2.13.0] - 2026-10-15
 ### Added
 - Transfer connection ownership to another connected administrator from the Connectors page. [#53581]
@@ -1558,6 +1566,8 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.13.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.13.1...v2.13.2
+[2.13.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.13.0...v2.13.1
 [2.13.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.12.1...v2.13.0
 [2.12.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.12.0...v2.12.1
 [2.12.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.11.1...v2.12.0

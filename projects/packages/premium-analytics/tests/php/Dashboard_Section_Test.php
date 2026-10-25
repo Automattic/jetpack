@@ -17,6 +17,7 @@ use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
 
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once __DIR__ . '/../../src/dashboard-sections.php';
 require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
@@ -94,7 +95,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER );
 		delete_option( Enablement_Setting::ENABLED_OPTION );
@@ -1295,21 +1295,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * On the site's own opt-in, the Store tab stays hidden until its feature flag is on.
-	 */
-	public function test_store_section_is_hidden_on_the_site_opt_in_while_its_flag_is_off() {
-		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-
-		register_default_dashboard_sections();
-
-		$this->assertSame(
-			array( 'analytics/traffic', 'analytics/insights', 'analytics/subscribers' ),
-			$this->available_section_ids()
-		);
-	}
-
-	/**
 	 * The site's own opt-in no longer limits the dashboard to a fixed list of tabs.
 	 */
 	public function test_site_opt_in_exposes_every_available_section() {
@@ -1330,28 +1315,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array( 'traffic', 'insights', 'subscribers', 'extra' ),
 			get_available_dashboard_section_slugs()
 		);
-	}
-
-	/**
-	 * Nothing else waits on the analytics sync, so the sync stays idle until the Store tab is exposed.
-	 */
-	public function test_no_section_awaits_sync_while_the_store_section_is_hidden() {
-		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-
-		register_default_dashboard_sections();
-
-		$requires_sync = array_column(
-			array_map(
-				static function ( Dashboard_Section $section ) {
-					return $section->to_array();
-				},
-				get_available_dashboard_sections( DASHBOARD_NAME )
-			),
-			'requires_sync'
-		);
-
-		$this->assertSame( array( false, false, false ), $requires_sync );
 	}
 
 	public function test_available_section_slugs_list_every_available_tab() {
@@ -1385,6 +1348,29 @@ class Dashboard_Section_Test extends BaseTestCase {
 		register_default_dashboard_sections();
 
 		$this->assertNotContains( 'subscribers', get_available_dashboard_section_slugs() );
+	}
+
+	/**
+	 * Only an available section that opts in follows the plan's date limits.
+	 */
+	public function test_plan_date_limited_section_slugs_list_available_opted_in_tabs() {
+		$this->enable_every_section();
+
+		register_default_dashboard_sections();
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'other/closed',
+			array(
+				'label'                    => 'Closed',
+				'is_available'             => false,
+				'follows_plan_date_limits' => true,
+			)
+		);
+
+		$this->assertSame(
+			array( 'traffic' ),
+			inject_dashboard_sections_script_data( array() )['premium_analytics']['plan_date_limited_sections']
+		);
 	}
 
 	/**
@@ -1453,12 +1439,33 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'has_videopress' => true,
-				'can_view_stats' => true,
-				'sections'       => array( 'traffic', 'insights', 'subscribers' ),
+				'has_videopress'             => true,
+				'can_view_stats'             => true,
+				'classic_stats_url'          => null,
+				'sections'                   => array( 'traffic', 'insights', 'subscribers' ),
+				'plan_date_limited_sections' => array( 'traffic' ),
 			),
 			$data['premium_analytics']
 		);
+	}
+
+	/**
+	 * Switching the dashboard off lands on classic Stats, so the client is told where that page
+	 * is, also when the Jetpack plugin registers it under its own menu rather than top-level.
+	 */
+	public function test_section_script_data_carries_the_classic_stats_page_url() {
+		$this->assertNull( inject_dashboard_sections_script_data( array() )['premium_analytics']['classic_stats_url'] );
+
+		$GLOBALS['_parent_pages']['jetpack'] = false;
+		$GLOBALS['_parent_pages']['stats']   = 'jetpack';
+		try {
+			$this->assertSame(
+				admin_url( 'admin.php?page=stats' ),
+				inject_dashboard_sections_script_data( array() )['premium_analytics']['classic_stats_url']
+			);
+		} finally {
+			unset( $GLOBALS['_parent_pages']['jetpack'], $GLOBALS['_parent_pages']['stats'] );
+		}
 	}
 
 	/**

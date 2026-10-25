@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Activity_Log;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -22,6 +23,8 @@ class Jetpack_Activity_Log_Test extends TestCase {
 	}
 
 	protected function tearDown(): void {
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		unset( $GLOBALS['submenu']['jetpack'] );
 		$this->reset_bootstrap();
 		$this->leave_activity_log_admin_request();
 		Jetpack_Options::delete_option( array( 'active_modules', Jetpack_Activity_Log::DEFAULT_ACTIVATED_OPTION, 'user_tokens' ) );
@@ -255,5 +258,39 @@ class Jetpack_Activity_Log_Test extends TestCase {
 		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, $page_suffix ) );
 		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
 		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', false, 'jetpack_page_jetpack-social' ) );
+	}
+
+	/**
+	 * Simple has no module system, so the standalone default would write an option to every blog.
+	 */
+	public function test_initialize_is_inert_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Jetpack_Activity_Log::initialize();
+
+		$this->assertFalse( $this->is_bootstrapped() );
+		$this->assertFalse( has_filter( 'jetpack_get_available_standalone_modules', array( Jetpack_Activity_Log::class, 'add_standalone_module' ) ) );
+		$this->assertFalse( (bool) Jetpack_Options::get_option( Jetpack_Activity_Log::DEFAULT_ACTIVATED_OPTION ) );
+	}
+
+	/**
+	 * On Simple, jetpack-mu-wpcom calls this after Admin_Menu has flushed its queue, for an admin with no Jetpack user token.
+	 */
+	public function test_add_wp_admin_submenu_registers_under_jetpack_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'activity_log_simple_admin',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		$page_suffix = Jetpack_Activity_Log::add_wp_admin_submenu();
+
+		$this->assertIsString( $page_suffix );
+		$this->assertContains( Jetpack_Activity_Log::PAGE_SLUG, array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 ) );
 	}
 }

@@ -2,15 +2,14 @@
  * External dependencies
  */
 import {
-	ExporterCsvDownloadButton,
 	Leaderboard,
-	ReportLink,
 	WidgetRoot,
 	describeError,
 	useStatsVideoPlays,
 	useWidgetRootContext,
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
@@ -22,9 +21,11 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
-import type { TopVideosAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type TopVideosAttributes = Record< never, never >;
 
 // Videos the widget asks for. The leaderboard applies the dashboard's own cap to what it shows.
 const TOP_VIDEOS_LIMIT = 10;
@@ -117,8 +118,17 @@ function TopVideosReport() {
 	const isCheckingMedia = isCheckingPermission || ( canUpload && ! hasCheckedMedia );
 	const hasNoVideos = canUpload && videos?.length === 0;
 
+	useReportActions( {
+		csv: {
+			report: 'videos',
+			status: { isLoading: isInitialLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
 		<Leaderboard
+			chartTitle={ __( 'Top videos', 'jetpack-videopress-pkg' ) }
 			rows={ rows }
 			columns={ { label: __( 'Videos', 'jetpack-videopress-pkg' ), metric: 'views' } }
 			status={ {
@@ -147,16 +157,6 @@ function TopVideosReport() {
 							},
 						}
 					: undefined
-			}
-			footer={
-				<>
-					<ReportLink report="videos" />
-					<ExporterCsvDownloadButton
-						report="videos"
-						status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
-						rowCount={ rows.length }
-					/>
-				</>
 			}
 		/>
 	);

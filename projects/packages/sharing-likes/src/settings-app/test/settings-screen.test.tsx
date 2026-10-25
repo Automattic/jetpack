@@ -4,7 +4,7 @@ import { LIKES_ANCHOR } from '../anchors';
 import { useFeatureAction } from '../data/use-feature-action';
 import { useSaveSetting } from '../data/use-save-setting';
 import { SettingsScreen } from '../settings-screen';
-import { baseStatus, renderWithData, resetNotices, setScriptData } from './helpers';
+import { baseSettings, baseStatus, renderWithData, setScriptData } from './helpers';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -35,7 +35,6 @@ function leavingPrompts(): boolean {
 beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockApiFetch.mockImplementation( () => new Promise( () => {} ) );
-	resetNotices();
 	setScriptData();
 	window.location.hash = '';
 	scrollIntoView.mockReset();
@@ -86,9 +85,23 @@ describe( 'SettingsScreen', () => {
 	);
 
 	it.each( [
-		[ 'a save', ( write: Writes ) => write.save( 'likes_enabled', false ) ],
-		[ 'a feature action', ( write: Writes ) => write.action( 'sharing', 'switch-to-block' ) ],
-	] )( 'warns before leaving while %s is in flight', async ( _, start ) => {
+		[ 'a save', ( write: Writes ) => write.save( 'likes_enabled', false ), baseSettings ],
+		[
+			'a feature action',
+			( write: Writes ) => write.action( 'sharing', 'switch-to-block' ),
+			baseStatus,
+		],
+	] )( 'warns before leaving only while %s is in flight', async ( _, start, response ) => {
+		let finish!: ( value: unknown ) => void;
+		mockApiFetch.mockImplementation( ( { method, path } ) => {
+			if ( method ) {
+				return new Promise( resolve => ( finish = resolve ) );
+			}
+			if ( path?.endsWith( '/services' ) ) {
+				return Promise.resolve( { visible: [], hidden: [], services: [] } );
+			}
+			return Promise.resolve( path?.endsWith( '/status' ) ? baseStatus : baseSettings );
+		} );
 		let writes: Writes | undefined;
 		/**
 		 * Renders the screen and exposes its writes to the test.
@@ -107,5 +120,8 @@ describe( 'SettingsScreen', () => {
 		} );
 
 		await waitFor( () => expect( leavingPrompts() ).toBe( true ) );
+
+		act( () => finish( response ) );
+		await waitFor( () => expect( leavingPrompts() ).toBe( false ) );
 	} );
 } );

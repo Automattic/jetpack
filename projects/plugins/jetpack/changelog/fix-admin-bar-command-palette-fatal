@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Admin Bar: Fix a fatal error in the admin bar endpoint when a plugin adds a menu page outside the admin_menu hook.

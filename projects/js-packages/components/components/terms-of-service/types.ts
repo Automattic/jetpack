@@ -1,4 +1,5 @@
-import { TextProps } from '../text/types.ts';
+import type { Text } from '@wordpress/ui';
+import type { ComponentProps } from 'react';
 
 type MultipleButtonsProps = {
 	/**
@@ -37,24 +38,14 @@ type OnlyTextProps = {
 	agreeButtonLabel?: undefined;
 };
 
-export type TermsOfServiceProps = Pick<
-	TextProps,
-	| 'variant'
-	| 'm'
-	| 'mt'
-	| 'mr'
-	| 'mb'
-	| 'ml'
-	| 'mx'
-	| 'my'
-	| 'p'
-	| 'pt'
-	| 'pr'
-	| 'pb'
-	| 'pl'
-	| 'px'
-	| 'py'
-	| 'className'
-	| 'component'
-> &
-	( MultipleButtonsProps | SingleButtonProps | OnlyTextProps );
+export type TermsOfServiceProps = {
+	/**
+	 * HTML class.
+	 */
+	className?: string;
+
+	/**
+	 * The `@wordpress/ui` Text variant. Defaults to `body-lg`.
+	 */
+	variant?: ComponentProps< typeof Text >[ 'variant' ];
+} & ( MultipleButtonsProps | SingleButtonProps | OnlyTextProps );

@@ -28,10 +28,10 @@ const posts: RecentPost[] = [
 	},
 	{
 		id: 2,
-		title: 'Upcoming newsletter',
-		status: 'draft',
+		title: 'Post without sends yet',
+		status: 'publish',
 		date: '2026-07-24T12:00:00+00:00',
-		url: 'https://example.com/?p=2&preview=true',
+		url: 'https://example.com/post-without-sends-yet/',
 		image: null,
 		recipients: null,
 		openRatePercent: null,
@@ -54,7 +54,7 @@ describe( 'RecentPosts', () => {
 		mockRecordEvent.mockReset();
 	} );
 
-	it( 'renders published and draft posts with metrics only when available', () => {
+	it( 'renders published posts with metrics only when available', () => {
 		render( <RecentPosts { ...defaultProps } /> );
 
 		expect( screen.getAllByRole( 'columnheader' ).map( cell => cell.textContent ) ).toEqual( [
@@ -68,12 +68,11 @@ describe( 'RecentPosts', () => {
 			'href',
 			'https://example.com/sent-newsletter/'
 		);
-		expect( screen.getByRole( 'link', { name: 'Upcoming newsletter' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'Post without sends yet' } ) ).toHaveAttribute(
 			'href',
-			'https://example.com/?p=2&preview=true'
+			'https://example.com/post-without-sends-yet/'
 		);
-		expect( screen.getByText( 'Published' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Draft' ) ).toBeInTheDocument();
+		expect( screen.getAllByText( 'Published' ) ).toHaveLength( 2 );
 		expect( screen.getByText( '122' ) ).toBeInTheDocument();
 		expect( screen.getByText( '58%' ) ).toBeInTheDocument();
 		expect( screen.getByText( '21%' ) ).toBeInTheDocument();
@@ -91,16 +90,33 @@ describe( 'RecentPosts', () => {
 			)
 		).toBeInTheDocument();
 		expect(
-			screen.queryByText(
+			screen.getByText(
 				new Intl.DateTimeFormat( undefined, { dateStyle: 'medium' } ).format(
 					new Date( posts[ 1 ].date )
 				)
 			)
-		).not.toBeInTheDocument();
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			defaultProps.viewAllUrl
 		);
+	} );
+
+	it( 'decodes HTML entities in the post title and its link label', () => {
+		render(
+			<RecentPosts
+				{ ...defaultProps }
+				posts={ [
+					{
+						...posts[ 0 ],
+						title: 'Tom &#038; Jerry&#8217;s &#8211; test',
+					},
+				] }
+			/>
+		);
+
+		expect( screen.getByText( 'Tom & Jerry’s – test' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Tom & Jerry’s – test' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders loading, empty, and error states with their actions', () => {
@@ -149,13 +165,13 @@ describe( 'RecentPosts', () => {
 
 		// This direct callback test does not need user-event's pointer simulation.
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'link', { name: 'Upcoming newsletter' } ) );
+		fireEvent.click( screen.getByRole( 'link', { name: 'Post without sends yet' } ) );
 
 		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_post_click', {
 			site_type: 'jetpack',
 			post_id: 2,
-			post_status: 'draft',
+			post_status: 'publish',
 			position: 2,
 		} );
 	} );

@@ -23,17 +23,19 @@ const CURRENCY_FORMAT: DataFormat = { type: 'currency', options: { useMultiplier
 type UtmLeaderboardProps = {
 	/** The order attribution dimension the sales split by. */
 	view: OrderAttributionView;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle: string;
 };
 
 /**
  * Sales of the period split by a UTM dimension, read under the widget root for its report params.
  * The attribution summary reports both periods for every row, so a value with no sales in the
- * comparison period is a real 0.
+ * comparison period is a real 0; only a null means the comparison has no figure for the row.
  *
  * @param {UtmLeaderboardProps} props - The component props.
  * @return {JSX.Element} The leaderboard, or the loading, error or empty state of its report.
  */
-export function UtmLeaderboard( { view }: UtmLeaderboardProps ) {
+export function UtmLeaderboard( { view, chartTitle }: UtmLeaderboardProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const params = useMemo( () => ( { ...reportParams, view } ), [ reportParams, view ] );
 	const { primary, hasComparison, isLoading, isFetching, hasData, isError, error, refetch } =
@@ -44,14 +46,15 @@ export function UtmLeaderboard( { view }: UtmLeaderboardProps ) {
 			( primary.data?.data ?? [] ).slice( 0, UTM_ROW_LIMIT ).map( ( item, index ) => ( {
 				id: item.item || String( index ),
 				label: item.item || __( 'Unassigned', 'jetpack-woocommerce-stats-pkg' ),
-				value: item.current_period.value || 0,
-				previousValue: item.previous_period.value || 0,
+				value: item.current_period.value ?? 0,
+				previousValue: item.previous_period.value ?? undefined,
 			} ) ),
 		[ primary.data ]
 	);
 
 	return (
 		<Leaderboard
+			chartTitle={ chartTitle }
 			rows={ rows }
 			status={ {
 				isLoading,

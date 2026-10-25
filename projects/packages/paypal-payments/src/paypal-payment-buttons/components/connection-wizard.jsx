@@ -270,7 +270,7 @@ export default function ConnectionWizard( {
 					<div className="jetpack-paypal-wizard__logo">{ PayPalIcon }</div>
 					<p>
 						{ __(
-							'Create a link or button directly in the editor - no code required.',
+							'Create payment links and buttons directly in the editor - no code required.',
 							'jetpack-paypal-payments'
 						) }
 					</p>

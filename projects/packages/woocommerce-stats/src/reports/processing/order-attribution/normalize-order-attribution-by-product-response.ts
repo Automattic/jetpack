@@ -11,6 +11,9 @@ import type { OrderAttributionSummaryResponse } from '../../api/report-order-att
  * The new API has a flatter structure without current_period/previous_period nesting,
  * so we need to transform it to match the expected format for widgets.
  */
+/** The by-product endpoint lists at most this many items per period. */
+const BY_PRODUCT_ITEM_LIMIT = 5;
+
 export function normalizeOrderAttributionByProductResponse(
 	currentResponse: OrderAttributionByProductResponse,
 	previousResponse?: OrderAttributionByProductResponse
@@ -25,10 +28,20 @@ export function normalizeOrderAttributionByProductResponse(
 	const normalizedData = currentResponse.data.map( currentItem => {
 		const previousItem = previousDataMap.get( currentItem.item );
 
-		// If no previous response provided (no comparison), use current data for both periods
-		// This matches the behavior of the existing API when compare_from/to equal from/to
-		const previousValue = previousItem?.value || currentItem.value;
-		const previousIntervals = previousItem?.intervals || currentItem.intervals;
+		// Without a comparison both periods read the current one, as the regular API does when
+		// compare_from/to equal from/to.
+		let previousValue = currentItem.value;
+		let previousIntervals = currentItem.intervals;
+		if ( previousResponse ) {
+			// An item missing from a full list may sit just below its cut; from a shorter one, it had no sales.
+			const isCut = previousResponse.data.length >= BY_PRODUCT_ITEM_LIMIT;
+			previousValue = previousItem?.value ?? ( isCut ? null : '0' );
+			previousIntervals =
+				previousItem?.intervals ??
+				( isCut
+					? []
+					: currentItem.intervals.map( interval => ( { ...interval, net_sales: '0' } ) ) );
+		}
 
 		return {
 			item: currentItem.item,

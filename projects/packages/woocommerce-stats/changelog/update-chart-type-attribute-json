@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Chart widgets declare their chart type attribute in widget.json instead of a module. No user-facing change.

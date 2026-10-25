@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Backup: Show the Backup menu only on sites whose plan includes Backup, or did before it expired, and show in My Jetpack whether the plan runs backups, offering an upgrade when it does not.

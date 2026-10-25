@@ -81,6 +81,26 @@ function get_available_dashboard_section_slugs() {
 }
 
 /**
+ * Slugs of the available tabs whose window follows the plan's Stats date limits.
+ *
+ * @since $$next-version$$
+ *
+ * @return string[]
+ */
+function get_plan_date_limited_section_slugs() {
+	$slugs = array();
+
+	foreach ( Dashboard_Section_Registry::get_instance()->get_available_sections( DASHBOARD_NAME ) as $section ) {
+		// An older copy of the class has no such property.
+		if ( ! empty( $section->follows_plan_date_limits ) ) {
+			$slugs[] = $section->slug;
+		}
+	}
+
+	return $slugs;
+}
+
+/**
  * Configures the section script data.
  *
  * @since 0.6.0
@@ -120,7 +140,7 @@ function configure_dashboard_preview_scope() {
 }
 
 /**
- * Injects the available section slugs, and whether the reader may see Stats, into JetpackScriptData.
+ * Injects the available section slugs, those the plan's date limits apply to, and whether the reader may see Stats, into JetpackScriptData.
  *
  * The same list travels over REST for the tab bar, but a report route reads no REST before
  * choosing its redirect, so it reads the slugs from boot data instead.
@@ -138,13 +158,33 @@ function inject_dashboard_sections_script_data( array $data ): array {
 	// Surfaces outside any section, such as feedback, post to Stats endpoints.
 	$data['premium_analytics']['can_view_stats'] = Capabilities::current_user_can_view_stats();
 
+	// Switching the dashboard off sends the reader to classic Stats, so the client is told where that is.
+	$data['premium_analytics']['classic_stats_url'] = get_classic_stats_url();
+
 	$sections = get_available_dashboard_section_slugs();
 
 	if ( null !== $sections ) {
-		$data['premium_analytics']['sections'] = $sections;
+		$data['premium_analytics']['sections']                   = $sections;
+		$data['premium_analytics']['plan_date_limited_sections'] = get_plan_date_limited_section_slugs();
 	}
 
 	return $data;
+}
+
+/**
+ * The URL of the classic Stats page, or null while no plugin registers a `stats` menu page.
+ *
+ * Read from the menu rather than `$admin_page_hooks`, which keys top-level pages only: with
+ * Odyssey Stats off, the Jetpack plugin registers the page under its own menu.
+ *
+ * @since $$next-version$$
+ *
+ * @return string|null
+ */
+function get_classic_stats_url(): ?string {
+	$url = function_exists( 'menu_page_url' ) ? menu_page_url( 'stats', false ) : '';
+
+	return '' === $url ? null : $url;
 }
 
 /**

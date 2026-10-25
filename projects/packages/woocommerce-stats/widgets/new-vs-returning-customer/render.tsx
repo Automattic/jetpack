@@ -15,8 +15,13 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { useReportCustomersByDate } from '../../src/reports';
-import type { NewVsReturningCustomerAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type NewVsReturningCustomerAttributes = Record< never, never >;
 
 type NewVsReturningCustomerRenderAttributes = NewVsReturningCustomerAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -66,6 +71,7 @@ function NewVsReturningCustomer() {
 	return (
 		<Donut
 			segments={ segments }
+			chartTitle={ __( 'New vs returning customer', 'jetpack-woocommerce-stats-pkg' ) }
 			status={ {
 				isLoading,
 				isFetching,

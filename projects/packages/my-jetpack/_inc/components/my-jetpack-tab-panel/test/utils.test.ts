@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
+import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
@@ -10,12 +10,15 @@ import {
 } from '../constants';
 import {
 	getFeatureCheckoutReturnUrl,
+	getFeatureConnectReturnUrl,
 	getFeaturePricingHref,
 	getMyJetpackSections,
+	getModulesManagementUrl,
 	resolveMyJetpackSection,
 } from '../utils';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getScriptData: jest.fn(),
 	getMyJetpackUrl: ( section = '' ) => `admin.php?page=my-jetpack${ section }`,
 	currentUserCan: jest.fn(),
 	isSimpleSite: jest.fn(),
@@ -116,4 +119,38 @@ describe( 'checkout return', () => {
 	it( 'leaves the return to the caller when the pricing page was not opened from a feature', () => {
 		expect( getFeatureCheckoutReturnUrl( '#/add-social' ) ).toBe( '' );
 	} );
+} );
+
+it.each( [
+	[
+		'#/features?filter=inactive&feature=newsletter&view=list&search=mail&module_tag=Writing',
+		'admin.php?page=my-jetpack#/features?feature=newsletter&view=list&search=mail&module_tag=Writing',
+	],
+	[ '#/features?filter=available', 'admin.php?page=my-jetpack#/features' ],
+	[ '#/features?filter=active', 'admin.php?page=my-jetpack#/features' ],
+	[
+		'#/features?filter=essential&view=list',
+		'admin.php?page=my-jetpack#/features?view=list&filter=essential',
+	],
+	[ '#/features', 'admin.php?page=my-jetpack#/features' ],
+] )(
+	'returns from connecting an account to the same Features view, without a status filter: %s',
+	( hash, url ) => {
+		expect( getFeatureConnectReturnUrl( hash ) ).toBe( url );
+	}
+);
+
+it.each( [ undefined, {}, { myJetpack: {} } ] )(
+	'retains the classic destination with older package data %p',
+	data => {
+		( getScriptData as jest.Mock ).mockReturnValue( data );
+		expect( getModulesManagementUrl( 'classic' ) ).toBe( 'classic' );
+	}
+);
+
+it( 'uses the eligible destination seeded by PHP', () => {
+	( getScriptData as jest.Mock ).mockReturnValue( {
+		myJetpack: { modulesManagementUrl: 'features' },
+	} );
+	expect( getModulesManagementUrl( 'classic' ) ).toBe( 'features' );
 } );

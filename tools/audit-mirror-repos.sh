@@ -90,7 +90,7 @@ else
 fi
 
 # Index mirror repos by the workflows they use so we can verify they have the secrets those workflows require.
-AUTOTAGGER_REPOS=$( jq -r 'select( .extra.autotagger ) | .extra["mirror-repo"] // empty' projects/*/*/composer.json )
+AUTOTAGGER_REPOS=$( jq -r '.extra["mirror-repo"] // empty' projects/*/*/composer.json )
 WPSVN_REPOS=$( jq -r 'select( .extra["wp-svn-autopublish"] ) | .extra["mirror-repo"] // empty' projects/*/*/composer.json )
 E2E_REPOS=$( for f in projects/*/*/composer.json; do
 	[[ -d "${f%composer.json}tests/e2e" ]] && jq -r '.extra["mirror-repo"] // empty' "$f"

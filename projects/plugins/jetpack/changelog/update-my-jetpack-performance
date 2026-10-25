@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+My Jetpack: Speed up page load by removing duplicate product and plan requests.

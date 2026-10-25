@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Declare the static View all links in widget.json; the host link carries the report window.
+

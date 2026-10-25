@@ -59,6 +59,12 @@ export type DonutProps = {
 	 * Defaults to on.
 	 */
 	withTotal?: boolean;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
+	/** The total the report states, for segments that need not add up to it. Omit to sum them. */
+	total?: number;
+	/** The comparison period's stated total, read like `total`. */
+	previousTotal?: number;
 };
 
 const DEFAULT_FORMAT: DataFormat = {
@@ -85,6 +91,9 @@ export function Donut( {
 	format = DEFAULT_FORMAT,
 	variant = 'ring',
 	withTotal = true,
+	chartTitle,
+	total: statedTotal,
+	previousTotal: statedPreviousTotal,
 }: DonutProps ): JSX.Element {
 	const { isLoading, isFetching, isError, refetch } = status;
 	const hasComparison = !! status.hasComparison;
@@ -94,7 +103,12 @@ export function Donut( {
 	);
 	const segmentStyles = useSegmentStyles( segments );
 
-	const { chartData, legendData, total, previousTotal } = useMemo(
+	const {
+		chartData,
+		legendData,
+		total: segmentTotal,
+		previousTotal: segmentPreviousTotal,
+	} = useMemo(
 		() =>
 			buildDonutChartData( segments, {
 				hasComparison,
@@ -104,6 +118,8 @@ export function Donut( {
 			} ),
 		[ segments, hasComparison, format, segmentStyles, mutedColor ]
 	);
+	const total = statedTotal ?? segmentTotal;
+	const previousTotal = hasComparison ? ( statedPreviousTotal ?? segmentPreviousTotal ) : null;
 	const errorState = useMemo( () => resolveWidgetStateError( error, refetch ), [ error, refetch ] );
 
 	return (
@@ -132,6 +148,7 @@ export function Donut( {
 							comparisonValue={ previousTotal }
 							dataFormat={ format }
 							legendData={ legendData }
+							chartTitle={ chartTitle }
 							withTooltips
 						/>
 					</div>
@@ -143,6 +160,7 @@ export function Donut( {
 						comparisonValue={ previousTotal }
 						dataFormat={ format }
 						legendData={ legendData }
+						chartTitle={ chartTitle }
 						maxSize={ null }
 						withTooltips
 					/>

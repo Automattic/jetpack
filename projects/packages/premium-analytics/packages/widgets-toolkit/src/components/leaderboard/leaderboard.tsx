@@ -3,7 +3,7 @@
  */
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
-import { useCallback, useEffect, useMemo, type JSX, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, type JSX } from 'react';
 /**
  * Internal dependencies
  */
@@ -18,7 +18,6 @@ import {
 } from '../chart-leaderboard/leaderboard-chart';
 import { LeaderboardSkeleton } from '../chart-leaderboard/leaderboard-skeleton';
 import { WidgetBackLink } from '../widget-back-link';
-import { WidgetFooter } from '../widget-footer';
 import { useWidgetRootContext } from '../widget-root';
 import {
 	WidgetState,
@@ -109,10 +108,8 @@ export type LeaderboardProps = {
 	 * Destination tab and origin report for the detail links, see `useWidgetNavigationSearch()`.
 	 */
 	navigation?: Parameters< typeof useWidgetNavigationSearch >[ 0 ];
-	/**
-	 * Rendered in the widget footer, typically a `ReportLink`.
-	 */
-	footer?: ReactNode;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 };
 
 const DEFAULT_FORMAT: DataFormat = {
@@ -141,7 +138,7 @@ export function Leaderboard( {
 	columns,
 	drillDown,
 	navigation,
-	footer,
+	chartTitle,
 }: LeaderboardProps ): JSX.Element {
 	const { reportParams } = useWidgetRootContext();
 	const detailSearch = useWidgetNavigationSearch( navigation );
@@ -249,10 +246,10 @@ export function Leaderboard( {
 						legendLabels={ legendLabels }
 						dataFormat={ format }
 						columns={ columns }
+						chartTitle={ chartTitle }
 					/>
 				</WidgetState>
 			</Stack>
-			{ footer && <WidgetFooter>{ footer }</WidgetFooter> }
 		</Stack>
 	);
 }
