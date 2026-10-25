@@ -52,6 +52,83 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Preserve multiline gist markup when embedding a URL through content filters.
+	 */
+	public function test_gist_url_preserves_shortcode_markup_through_content_filters() {
+		global $post;
+
+		$url      = 'https://gist.github.com/6cad326836d38bd3a7ae';
+		$template = <<<'HTML'
+<template class="gist-warning-template">
+  <div class="gist-warning">Warning: hidden characters.</div>
+</template>
+HTML;
+		$footer   = <<<'HTML'
+<div class="gist-meta">
+  <a href="https://gist.github.com/octocat/6cad326836d38bd3a7ae/raw/example.php">view raw</a>
+  example.php
+  hosted with GitHub
+</div>
+HTML;
+		$code     = '    echo &quot;Hello, gist!&quot;;';
+		$html     = <<<HTML
+<div id="gist123" class="gist">
+  <div class="gist-file">
+    <div class="gist-data">
+$template
+      <table><tbody>
+        <tr><td class="blob-code">&lt;?php</td></tr>
+        <tr><td class="blob-code">$code</td></tr>
+      </tbody></table>
+    </div>
+$footer
+  </div>
+</div>
+HTML;
+
+		$http_response = function ( $preempt, $args, $request_url ) use ( $url, $html ) {
+			if ( $url . '.json' !== $request_url ) {
+				return $preempt;
+			}
+
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode(
+					array(
+						'div'        => $html,
+						'stylesheet' => 'https://github.githubassets.com/assets/gist-embed.css',
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			);
+		};
+		add_filter( 'pre_http_request', $http_response, 10, 3 );
+
+		$outputs = array();
+		try {
+			foreach ( array( $url, sprintf( '[gist %s]', $url ) ) as $embed ) {
+				$content = "Before.\n\n$embed\n\nAfter.";
+				$post    = self::factory()->post->create_and_get( array( 'post_content' => $content ) );
+				setup_postdata( $post );
+				$outputs[] = apply_filters( 'the_content', $post->post_content );
+			}
+		} finally {
+			remove_filter( 'pre_http_request', $http_response, 10 );
+		}
+
+		foreach ( $outputs as $output ) {
+			$this->assertStringContainsString( $code, $output );
+		}
+		$this->assertSame( trim( $outputs[1] ), trim( $outputs[0] ) );
+		foreach ( $outputs as $output ) {
+			$this->assertStringContainsString( $template, $output );
+			$this->assertStringContainsString( $footer, $output );
+			$this->assertStringContainsString( '<p>Before.</p>', $output );
+			$this->assertStringContainsString( '<p>After.</p>', $output );
+		}
+	}
+
+	/**
 	 * Test gist embeds (links in content transformed into embeds).
 	 *
 	 * @dataProvider gist_embed_data
@@ -81,8 +158,8 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 		the_content();
 		$actual = ob_get_clean();
 		$this->assertEquals(
-			wpautop( $expected_amp ),
-			$actual
+			trim( $expected_amp ),
+			trim( $actual )
 		);
 	}
 

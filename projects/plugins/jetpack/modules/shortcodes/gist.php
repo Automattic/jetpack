@@ -39,6 +39,11 @@ add_shortcode( 'gist', 'github_gist_shortcode' );
  * @return string The embed HTML.
  */
 function github_gist_embed_handler( $matches, $attr, $url, $rawattr ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	if ( doing_filter( 'the_content' ) ) {
+		// Render after wpautop to preserve the gist markup.
+		return sprintf( '[gist %s]', esc_url_raw( $url ) );
+	}
+
 	// Let the shortcode callback do all the work.
 	return github_gist_shortcode( $matches, $url );
 }
