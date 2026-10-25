@@ -25,10 +25,7 @@ body.jetpack-subscribe-modal-open {
 	visibility: hidden;
 	overflow: hidden;
 	top: 100%;
-
-	/* The theme's page colors, which its headings and links are made for. */
-	background-color: var(--wp--preset--color--base, var(--wp--preset--color--background, #fefefe));
-	color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1e1e1e));
+	background-color: #fefefe;
 	margin: 15% auto;
 	width: 100%;
 	max-width: 600px;

@@ -61,6 +61,10 @@ class Jetpack_Subscribe_Modal {
 	public function enqueue_assets() {
 		if ( $this->should_user_see_modal() ) {
 			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
+			$color_css = self::get_global_styles_color_css();
+			if ( $color_css ) {
+				wp_add_inline_style( 'subscribe-modal-css', $color_css );
+			}
 			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
 
 			/**
@@ -104,6 +108,42 @@ class Jetpack_Subscribe_Modal {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Gives the modal the site's Global Styles page background and text, the pair its heading and link colors are chosen for.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string CSS, or an empty string to keep the stylesheet's colors.
+	 */
+	public static function get_global_styles_color_css() {
+		$colors = wp_get_global_styles( array( 'color' ) );
+		$pair   = array();
+		foreach ( array( 'background', 'text' ) as $key ) {
+			$value = $colors[ $key ] ?? '';
+			if ( ! is_string( $value ) ) {
+				return '';
+			}
+			// Preset references are stored as var:preset|color|slug.
+			if ( str_starts_with( $value, 'var:' ) ) {
+				$value = 'var(--wp--' . str_replace( '|', '--', substr( $value, 4 ) ) . ')';
+			}
+			if ( ! preg_match( '/^[\w#(),.%\s-]+$/', $value ) ) {
+				return '';
+			}
+			$pair[ $key ] = $value;
+		}
+
+		if ( $pair['background'] === $pair['text'] ) {
+			return '';
+		}
+
+		return sprintf(
+			'.jetpack-subscribe-modal__modal-content { background-color: %s; color: %s; }',
+			$pair['background'],
+			$pair['text']
+		);
 	}
 
 	/**
