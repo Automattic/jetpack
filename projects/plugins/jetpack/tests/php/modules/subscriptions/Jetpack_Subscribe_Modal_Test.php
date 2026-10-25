@@ -33,6 +33,7 @@ class Jetpack_Subscribe_Modal_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_sites' )]
 	public function test_modal_uses_the_global_styles_page_colors( $theme, $styles, $expected ) {
+		$this->assertTrue( wp_get_theme( $theme )->exists(), "$theme must be installed for this row to test anything." );
 		switch_theme( $theme );
 		add_filter(
 			'wp_theme_json_data_user',
@@ -53,7 +54,7 @@ class Jetpack_Subscribe_Modal_Test extends WP_UnitTestCase {
 			'block theme style'                        => array(
 				'twentytwentyfour',
 				array(),
-				'.jetpack-subscribe-modal__modal-content { background-color: var(--wp--preset--color--base); color: var(--wp--preset--color--contrast); }',
+				'.jetpack-subscribe-modal__modal-content { background-image: linear-gradient( var(--wp--preset--color--base), var(--wp--preset--color--base) ); color: var(--wp--preset--color--contrast); }',
 			),
 			'owner picks a light page on a dark style' => array(
 				'twentytwentyfour',
@@ -65,7 +66,7 @@ class Jetpack_Subscribe_Modal_Test extends WP_UnitTestCase {
 						),
 					),
 				),
-				'.jetpack-subscribe-modal__modal-content { background-color: #ffffff; color: var(--wp--preset--color--base); }',
+				'.jetpack-subscribe-modal__modal-content { background-image: linear-gradient( #ffffff, #ffffff ); color: var(--wp--preset--color--base); }',
 			),
 			'classic theme without theme.json'         => array( 'twentytwentyone', array(), '' ),
 		);

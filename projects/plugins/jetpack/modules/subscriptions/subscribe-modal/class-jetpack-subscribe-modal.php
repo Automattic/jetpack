@@ -139,8 +139,9 @@ class Jetpack_Subscribe_Modal {
 			return '';
 		}
 
+		// Layer the page color over the stylesheet's opaque background, so a transparent one leaves it showing.
 		return sprintf(
-			'.jetpack-subscribe-modal__modal-content { background-color: %s; color: %s; }',
+			'.jetpack-subscribe-modal__modal-content { background-image: linear-gradient( %1$s, %1$s ); color: %2$s; }',
 			$pair['background'],
 			$pair['text']
 		);
