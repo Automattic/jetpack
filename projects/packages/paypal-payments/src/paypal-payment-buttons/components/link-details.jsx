@@ -4,6 +4,7 @@
  * @package
  */
 
+import { formatNumber } from '@automattic/number-formatters';
 import { DropdownMenu } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -46,9 +47,9 @@ export default function LinkDetails( {
 	let usedOn = unknown;
 	if ( typeof resource?.embeds === 'number' ) {
 		usedOn = sprintf(
-			/* translators: %d: number of published posts embedding the payment button */
-			_n( '%d published post', '%d published posts', resource.embeds, 'jetpack-paypal-payments' ),
-			resource.embeds
+			/* translators: %s: formatted number of published posts embedding the payment button */
+			_n( '%s published post', '%s published posts', resource.embeds, 'jetpack-paypal-payments' ),
+			formatNumber( resource.embeds )
 		);
 	}
 

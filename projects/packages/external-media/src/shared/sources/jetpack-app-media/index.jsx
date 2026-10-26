@@ -1,6 +1,7 @@
 import { QRCode } from '@automattic/jetpack-components';
 import { useRefInterval } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackAppIcon } from '@automattic/jetpack-shared-extension-utils/icons';
+import { formatNumber } from '@automattic/number-formatters';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
@@ -88,9 +89,9 @@ function JetpackAppMedia( props ) {
 
 		return selectedImages
 			? sprintf(
-					/* translators: %1$d is the number of images that were selected. */
-					_n( 'Add %1$d image', 'Add %1$d images', selectedImages, 'jetpack-external-media' ),
-					selectedImages
+					/* translators: %1$s is the formatted number of images that were selected. */
+					_n( 'Add %1$s image', 'Add %1$s images', selectedImages, 'jetpack-external-media' ),
+					formatNumber( selectedImages )
 				)
 			: __( 'Add images', 'jetpack-external-media' );
 	};

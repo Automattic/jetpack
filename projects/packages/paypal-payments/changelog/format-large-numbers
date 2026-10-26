@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Format button and post counts with locale-aware number separators.

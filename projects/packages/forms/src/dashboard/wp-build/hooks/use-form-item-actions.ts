@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { formatNumber } from '@automattic/number-formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
@@ -151,19 +152,19 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 					const message =
 						nextStatus === 'publish'
 							? sprintf(
-									/* translators: %d: number of forms */
-									_n( '%d form published.', '%d forms published.', updatedCount, 'jetpack-forms' ),
-									updatedCount
+									/* translators: %s: formatted number of forms */
+									_n( '%s form published.', '%s forms published.', updatedCount, 'jetpack-forms' ),
+									formatNumber( updatedCount )
 								)
 							: sprintf(
-									/* translators: %d: number of forms */
+									/* translators: %s: formatted number of forms */
 									_n(
-										'%d form set to draft.',
-										'%d forms set to draft.',
+										'%s form set to draft.',
+										'%s forms set to draft.',
 										updatedCount,
 										'jetpack-forms'
 									),
-									updatedCount
+									formatNumber( updatedCount )
 								);
 					const fallbackStatus = nextStatus === 'publish' ? 'draft' : 'publish';
 					createSuccessNotice( message, {
@@ -216,24 +217,24 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 					const errorMessage =
 						nextStatus === 'publish'
 							? sprintf(
-									/* translators: %d: number of forms */
+									/* translators: %s: formatted number of forms */
 									_n(
-										'Could not publish %d form.',
-										'Could not publish %d forms.',
+										'Could not publish %s form.',
+										'Could not publish %s forms.',
 										failedCount,
 										'jetpack-forms'
 									),
-									failedCount
+									formatNumber( failedCount )
 								)
 							: sprintf(
-									/* translators: %d: number of forms */
+									/* translators: %s: formatted number of forms */
 									_n(
-										'Could not set %d form to draft.',
-										'Could not set %d forms to draft.',
+										'Could not set %s form to draft.',
+										'Could not set %s forms to draft.',
 										failedCount,
 										'jetpack-forms'
 									),
-									failedCount
+									formatNumber( failedCount )
 								);
 					createErrorNotice( errorMessage, {
 						type: 'snackbar',

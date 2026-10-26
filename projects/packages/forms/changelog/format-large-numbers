@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Format file, recipient, and form counts with locale-aware number separators.

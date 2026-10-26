@@ -249,14 +249,14 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 					'jetpack-my-jetpack'
 				),
 				sprintf(
-					/* translators: %d is the number of plugins installed on the site. */
-					_n( '%d plugin', '%d plugins', pluginsCount, 'jetpack-my-jetpack' ),
-					pluginsCount
+					/* translators: %s is the formatted number of plugins installed on the site. */
+					_n( '%s plugin', '%s plugins', pluginsCount, 'jetpack-my-jetpack' ),
+					formatNumber( pluginsCount )
 				),
 				sprintf(
-					/* translators: %d is the number of themes installed on the site. */
-					_n( '%d theme', '%d themes', themesCount, 'jetpack-my-jetpack' ),
-					themesCount
+					/* translators: %s is the formatted number of themes installed on the site. */
+					_n( '%s theme', '%s themes', themesCount, 'jetpack-my-jetpack' ),
+					formatNumber( themesCount )
 				)
 			),
 		},
