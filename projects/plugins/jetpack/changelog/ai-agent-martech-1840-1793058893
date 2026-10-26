@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: Add rel="noopener noreferrer" to the image download link to prevent reverse tabnapping.
