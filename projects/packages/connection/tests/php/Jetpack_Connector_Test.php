@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Status\Cache as StatusCache;
+use Automattic\Jetpack\Tracking;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -638,7 +639,7 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the Tracks script, with the blog ID it adds to events, loads only when tracking is allowed.
+	 * Test that the Tracks script loads only when tracking is allowed, while the blog ID it adds to events always loads.
 	 *
 	 * @param bool $tos_agreed Whether the site agreed to the terms of service.
 	 * @param bool $offline    Whether the site is in offline mode.
@@ -652,22 +653,33 @@ class Jetpack_Connector_Test extends TestCase {
 		if ( $offline ) {
 			add_filter( 'jetpack_offline_mode', '__return_true' );
 		}
-		$restore = $this->stub_module_build( array( 'version' => 'test-card-version' ) );
 
-		try {
-			$this->enqueue_on_connectors_screen();
-		} finally {
-			$restore();
-		}
+		$this->enqueue_with_connection_script();
 
 		$this->assertSame( $expected, wp_script_is( 'jp-tracks', 'enqueued' ) );
 		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
-		if ( $expected ) {
-			$this->assertStringContainsString(
-				'window.jpTracksContext.blog_id = 12345;',
-				implode( '', (array) wp_scripts()->get_data( 'jp-tracks', 'before' ) )
-			);
-		}
+		$this->assertStringContainsString(
+			'window.jpTracksContext.blog_id = 12345;',
+			implode( '', (array) wp_scripts()->get_data( 'jetpack-connection', 'before' ) )
+		);
+	}
+
+	/**
+	 * Test that an identity crisis, which loads Tracks without consent, still gets the blog ID on its events.
+	 */
+	public function test_enqueue_sets_blog_id_when_identity_crisis_loads_tracks_without_consent() {
+		\Jetpack_Options::update_option( 'tos_agreed', false );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// What Identity_Crisis\UI::init() does, with no consent check.
+		Tracking::register_tracks_functions_scripts( true );
+		$this->enqueue_with_connection_script();
+
+		$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->assertStringContainsString(
+			'window.jpTracksContext.blog_id = 12345;',
+			implode( '', (array) wp_scripts()->get_data( 'jetpack-connection', 'before' ) )
+		);
 	}
 
 	/**
@@ -1069,6 +1081,25 @@ class Jetpack_Connector_Test extends TestCase {
 	private function enqueue_on_connectors_screen() {
 		set_current_screen( 'options-connectors' );
 		Jetpack_Connector::enqueue_script_module();
+	}
+
+	/**
+	 * Enqueue the card with a build that depends on the shared connection script, as the real one does.
+	 */
+	private function enqueue_with_connection_script() {
+		$restore = $this->stub_module_build(
+			array(
+				'version'      => 'test-card-version',
+				'dependencies' => array( 'jetpack-connection' ),
+			)
+		);
+
+		try {
+			wp_register_script( 'jetpack-connection', 'https://example.org/jetpack-connection.js', array(), 'test', true );
+			$this->enqueue_on_connectors_screen();
+		} finally {
+			$restore();
+		}
 	}
 
 	/**

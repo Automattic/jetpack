@@ -156,16 +156,17 @@ class Jetpack_Connector {
 			Assets::enqueue_script( $handle );
 		}
 
+		// The analytics package adds blog_id to every event from this global. Ungated, as an identity crisis loads Tracks without consent; same line as Initial_State::render().
+		wp_add_inline_script(
+			'jetpack-connection',
+			sprintf( 'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %d;', \Jetpack_Options::get_option( 'id', 0 ) ),
+			'before'
+		);
+
 		// The shared components the card renders push Tracks events to _tkq; only w.js is needed to send them. Same gate as My Jetpack.
 		if ( static::is_tracking_allowed() ) {
 			Tracking::register_tracks_functions_scripts();
 			wp_enqueue_script( 'jp-tracks' );
-			// The analytics package adds blog_id to every event from this global; same line as Initial_State::render(), which this screen doesn't print.
-			wp_add_inline_script(
-				'jp-tracks',
-				sprintf( 'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;', absint( \Jetpack_Options::get_option( 'id', 0 ) ) ),
-				'before'
-			);
 		}
 
 		add_filter(
