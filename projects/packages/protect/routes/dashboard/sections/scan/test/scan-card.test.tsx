@@ -98,7 +98,7 @@ describe( 'ScanCard with Scan', () => {
 		renderCard( { hasPlan: true, scanning: true } );
 
 		expect( screen.getByRole( 'heading', { name: 'Scanning…' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { level: 2, name: 'Scan' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 2, name: 'Scan results' } ) ).toBeInTheDocument();
 		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
 	} );
 } );
