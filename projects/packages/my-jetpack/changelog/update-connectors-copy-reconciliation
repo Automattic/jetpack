@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Say "Your site is in offline mode" where the connection status is explained, matching the Connectors screen.
+Say "Your site is in Offline Mode" in the connection status, and name Offline Mode consistently with the Connectors screen.
