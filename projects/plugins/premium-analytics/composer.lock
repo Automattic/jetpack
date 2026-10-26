@@ -616,7 +616,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/cookie-consent",
-                "reference": "25279d94799729444c5c66433de551d00442633f"
+                "reference": "aaf01888bd0431decdd3d06f9d91d901669b1b16"
             },
             "require": {
                 "automattic/jetpack-ip": "@dev",
@@ -631,11 +631,14 @@
             "extra": {
                 "mirror-repo": "Automattic/jetpack-cookie-consent",
                 "textdomain": "jetpack-cookie-consent",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-cookie-consent.php"
+                },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-cookie-consent/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 }
             },
             "autoload": {
