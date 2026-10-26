@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { OverviewContent } from '../content';
 
 jest.mock( '../../../../data/use-site-purchases', () => jest.fn() );
@@ -69,11 +69,19 @@ describe( 'OverviewContent', () => {
 			expect( screen.getByRole( 'heading', { level: 2, name: heading } ) ).toBeInTheDocument();
 		} );
 
-		it( 'plays once per page load, not on returning to the tab', () => {
-			render( <Content /> ).unmount();
+		it.each( [
+			[ 'does not replay on returning to the tab', true, false ],
+			[ 'still plays when the Overview remounts before it has played', false, true ],
+		] )( '%s', ( _, played, animates ) => {
+			const { unmount } = render( <Content /> );
+			if ( played ) {
+				// jsdom has no AnimationEvent, so React listens for the prefixed name.
+				fireEvent( screen.getByText( '!' ), new Event( 'webkitAnimationEnd', { bubbles: true } ) );
+			}
+			unmount();
 			render( <Content /> );
 
-			expect( typedText() ).not.toBeInTheDocument();
+			expect( Boolean( typedText() ) ).toBe( animates );
 		} );
 	} );
 } );

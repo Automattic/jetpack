@@ -26,7 +26,7 @@ export function OverviewContent() {
 	useSitePurchases( { enabled: isHeaderControlsEnabled() } );
 	// WordPress stores display names HTML-escaped.
 	const displayName = decodeEntities( getScriptData()?.user?.current_user?.display_name ?? '' );
-	const animate = useOverviewLoadAnimation();
+	const { animate, onPlayed } = useOverviewLoadAnimation();
 	const welcome = displayName
 		? sprintf(
 				/* translators: %s: The current user's display name. */
@@ -42,7 +42,7 @@ export function OverviewContent() {
 					<>
 						<div className={ styles.welcome }>
 							<Text variant="heading-xl" render={ <h2 /> }>
-								{ animate ? <TypedText text={ welcome } /> : welcome }
+								{ animate ? <TypedText text={ welcome } onTyped={ onPlayed } /> : welcome }
 							</Text>
 						</div>
 						<OverviewSections className={ animate ? loadAnimationStyles.sections : undefined } />

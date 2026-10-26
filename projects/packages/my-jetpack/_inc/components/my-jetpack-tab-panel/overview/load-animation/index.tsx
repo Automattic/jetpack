@@ -1,24 +1,25 @@
 import { VisuallyHidden } from '@wordpress/ui';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import styles from './style.module.scss';
 import type { CSSProperties, FC } from 'react';
 
 let hasPlayed = false;
 
 /**
- * Whether the Overview's load animation plays: on its first mount in a page
- * load, unless the user prefers reduced motion.
+ * Whether the Overview's load animation plays: until it has played once in a
+ * page load, unless the user prefers reduced motion.
  *
- * @return Whether to animate.
+ * @return Whether to animate, and the callback that marks the animation played.
  */
-export function useOverviewLoadAnimation(): boolean {
+export function useOverviewLoadAnimation(): { animate: boolean; onPlayed: () => void } {
 	const [ animate ] = useState(
 		() => ! hasPlayed && ! window.matchMedia?.( '(prefers-reduced-motion: reduce)' ).matches
 	);
-	useEffect( () => {
+	// Marked once played, not on mount, so a mount that is replaced at once doesn't use it up.
+	const onPlayed = useCallback( () => {
 		hasPlayed = true;
 	}, [] );
-	return animate;
+	return { animate, onPlayed };
 }
 
 /**
@@ -37,11 +38,12 @@ function splitCharacters( text: string ): string[] {
 /**
  * Text that types itself out with a caret; assistive tech reads it whole.
  *
- * @param props      - Component props.
- * @param props.text - The text to type.
+ * @param props         - Component props.
+ * @param props.text    - The text to type.
+ * @param props.onTyped - Called when the last character finishes animating.
  * @return The rendered text.
  */
-export const TypedText: FC< { text: string } > = ( { text } ) => {
+export const TypedText: FC< { text: string; onTyped?: () => void } > = ( { text, onTyped } ) => {
 	const characters = splitCharacters( text );
 	return (
 		<>
@@ -52,7 +54,11 @@ export const TypedText: FC< { text: string } > = ( { text } ) => {
 				style={ { '--typed-count': characters.length } as CSSProperties }
 			>
 				{ characters.map( ( character, index ) => (
-					<span key={ index } style={ { '--typed-index': index } as CSSProperties }>
+					<span
+						key={ index }
+						style={ { '--typed-index': index } as CSSProperties }
+						onAnimationEnd={ index === characters.length - 1 ? onTyped : undefined }
+					>
 						{ character }
 					</span>
 				) ) }
