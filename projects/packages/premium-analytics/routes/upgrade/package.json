@@ -1,0 +1,8 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-premium-analytics-upgrade-route",
+	"route": {
+		"path": "/upgrade",
+		"page": "jetpack-premium-analytics"
+	}
+}

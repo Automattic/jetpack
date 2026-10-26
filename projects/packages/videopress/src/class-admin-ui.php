@@ -811,12 +811,12 @@ class Admin_UI {
 	 */
 	public static function is_trim_cut_enabled() {
 		/**
-		 * Enable trim and cut after the video editing service is available for this site.
+		 * Whether the trim and cut editor is available for this site.
 		 *
 		 * @since 0.53.0
-		 * @param bool $enabled Whether trim and cut is enabled. Default false.
+		 * @param bool $enabled Whether trim and cut is enabled. Default true.
 		 */
-		return (bool) apply_filters( 'jetpack_videopress_trim_cut', false );
+		return (bool) apply_filters( 'jetpack_videopress_trim_cut', true );
 	}
 
 	/**

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Provide the dashboard router's link to the widget actions the chrome renders; no widget declares one yet.
-

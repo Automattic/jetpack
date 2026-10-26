@@ -1637,6 +1637,22 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The blog posts route exists only with Overview v1's flag on.
+	 */
+	public function test_blog_posts_route_registers_only_when_overview_v1_is_on() {
+		Initializer::register_feature_flags();
+		$this->assertArrayNotHasKey( '/my-jetpack/v1/blog-posts', $this->capture_rest_routes() );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
+		try {
+			$this->assertArrayHasKey( '/my-jetpack/v1/blog-posts', $this->capture_rest_routes() );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
+			Feature_Flags::reset();
+		}
+	}
+
+	/**
 	 * The header's controls show only with the flag on, My Jetpack running, and offline Features off.
 	 */
 	public function test_my_jetpack_flags_show_header_controls_only_when_the_flag_is_on() {

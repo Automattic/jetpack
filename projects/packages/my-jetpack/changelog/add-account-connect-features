@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Features: Add the default-off `my-jetpack-account-connect` flag, which shows Needs user account on features that need a WordPress.com account and starts the account connection from their Install or Connect button.
