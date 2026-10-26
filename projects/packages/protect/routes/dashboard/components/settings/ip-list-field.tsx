@@ -31,6 +31,8 @@ export default function IpListField( { data, name, label, description, currentIp
 
 	const lastSaved = useRef( saved );
 	const submitted = useRef< string | null >( null );
+	// `data.error` is keyed by setting, and another field can edit the same one.
+	const [ saveFailed, setSaveFailed ] = useState( false );
 	const saving = data.isSaving( name );
 
 	// Follow `saved` unless the draft has edits, or `saved` moved because this field's own save failed.
@@ -49,9 +51,12 @@ export default function IpListField( { data, name, label, description, currentIp
 		[]
 	);
 	const { save } = data;
-	const onSave = useCallback( () => {
+	const onSave = useCallback( async () => {
 		submitted.current = draft;
-		return save( { [ name ]: draft } );
+		setSaveFailed( false );
+		const isSaved = await save( { [ name ]: draft } );
+		setSaveFailed( ! isSaved );
+		return isSaved;
 	}, [ save, name, draft ] );
 	const onAddIp = useCallback(
 		() => setDraft( current => appendIp( current, currentIp ?? '' ) ),
@@ -81,7 +86,7 @@ export default function IpListField( { data, name, label, description, currentIp
 					'12.12.12.1, 12.12.12.0/24, 12.12.12.1-12.12.12.100'
 				) }
 			/>
-			{ data.error && data.errorKeys.includes( name ) && (
+			{ saveFailed && data.error && data.errorKeys.includes( name ) && (
 				<Text variant="body-sm" className="jp-protect-card__error" role="alert">
 					{ data.error }
 				</Text>

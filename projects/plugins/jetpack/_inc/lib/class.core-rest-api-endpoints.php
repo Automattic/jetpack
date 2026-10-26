@@ -3177,7 +3177,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return $is_string;
 		}
 
-		return Protect_Firewall::validate_ip_block_list( $value );
+		// Check the list as the sanitize_callback will store it, since the firewall reads the stored copy.
+		return Protect_Firewall::validate_ip_block_list( esc_textarea( $value ) );
 	}
 
 	/**
