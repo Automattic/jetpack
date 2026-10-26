@@ -21,11 +21,11 @@ class WPCOM_Feature_Upgrades {
 	const FEATURES = array(
 		'backup'            => array(
 			'page'         => WPCOM_Backup::class,
-			'plan_feature' => 'site-backups-and-restore',
+			'plan_feature' => 'backups-self-serve',
 		),
 		'protect-dashboard' => array(
 			'page'         => WPCOM_Scan::class,
-			'plan_feature' => 'real-time-security-scans',
+			'plan_feature' => 'scan-self-serve',
 		),
 	);
 

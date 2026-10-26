@@ -348,8 +348,8 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_feature_upgrades() {
 		return array(
-			'backup, no plan'  => array( 'backup', false, 'site-backups-and-restore' ),
-			'scan, no plan'    => array( 'protect-dashboard', false, 'real-time-security-scans' ),
+			'backup, no plan'  => array( 'backup', false, 'backups-self-serve' ),
+			'scan, no plan'    => array( 'protect-dashboard', false, 'scan-self-serve' ),
 			'backup, has plan' => array( 'backup', true, '/wp-admin/admin.php?page=jetpack-backup' ),
 			'scan, has plan'   => array( 'protect-dashboard', true, 'https://wordpress.com/scan/%host%' ),
 			'another feature'  => array( 'boost', false, null ),
