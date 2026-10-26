@@ -1,7 +1,7 @@
 import { GooglePhotosMediaIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import { __ } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { external } from '@wordpress/icons';
+import { Button, Icon, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import GooglePhotosAccount from './google-photos-account';
 
