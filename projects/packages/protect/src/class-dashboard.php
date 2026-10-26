@@ -334,8 +334,7 @@ class Dashboard {
 			return;
 		}
 
-		$tracking = new Tracking( 'jetpack', new Connection_Manager() );
-		if ( ! $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+		if ( ! self::can_use_analytics() ) {
 			return;
 		}
 
@@ -509,6 +508,32 @@ class Dashboard {
 	}
 
 	/**
+	 * Whether the site and user allow Tracks, as on Jetpack's other admin pages.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function can_use_analytics() {
+		$tracking = new Tracking( 'jetpack', new Connection_Manager( 'jetpack' ) );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() );
+	}
+
+	/**
+	 * Print the flag the page's Tracks client records under, only when Tracks is allowed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function print_tracks_state() {
+		if ( self::can_use_analytics() ) {
+			wp_print_inline_script_tag( 'window.jetpackProtectTracks = true;' );
+		}
+	}
+
+	/**
 	 * Add the "Protect" item to the Jetpack sidebar, in place of the Jetpack Protect plugin's.
 	 *
 	 * @return void
@@ -545,6 +570,7 @@ class Dashboard {
 		$render_fn = self::RENDER_FUNCTION;
 		if ( function_exists( $render_fn ) ) {
 			self::print_initial_state();
+			self::print_tracks_state();
 			// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Checked with function_exists(); defined in the generated build/, which Phan excludes.
 			$render_fn();
 			return;

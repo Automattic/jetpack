@@ -1699,7 +1699,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/external-media",
-                "reference": "cac41040ffbfe6d47fab6eccdc2cd750bef4f5f0"
+                "reference": "3bd86fea9a086e23c76e9457d55faad3504ebdf0"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1741,6 +1741,10 @@
                 ],
                 "build-production": [
                     "pnpm run build-production-js"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
