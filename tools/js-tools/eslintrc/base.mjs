@@ -127,7 +127,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 						'import/no-extraneous-dependencies': [
 							'error',
 							{
-								packageDir: path.join( 'projects', m.groups.slug ),
+								packageDir: path.join( rootdir, 'projects', m.groups.slug ),
 								peerDependencies: true,
 							},
 						],

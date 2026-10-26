@@ -73,7 +73,7 @@ for ( const dir of ( await glob( 'projects/*/*/composer.json', { cwd } ) )
 			rules: {
 				'import/no-extraneous-dependencies': [
 					'error',
-					{ packageDir: dir, peerDependencies: true },
+					{ packageDir: path.join( cwd, dir ), peerDependencies: true },
 				],
 			},
 		};
