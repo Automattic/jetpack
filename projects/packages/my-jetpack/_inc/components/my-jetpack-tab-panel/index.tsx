@@ -113,7 +113,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 			) }
 		>
 			<div className={ styles[ 'tab-list' ] }>
-				<Tabs.List>
+				<Tabs.List activateOnFocus>
 					{ tabs.map( tab => (
 						<Tabs.Tab key={ tab.name } value={ tab.name }>
 							{ tab.title }
