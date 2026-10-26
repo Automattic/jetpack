@@ -129,7 +129,12 @@ describe( 'MyJetpackTabPanel', () => {
 	it( 'records one tab click, with the resolved previous tab, on a genuine switch', async () => {
 		mockSection = MY_JETPACK_SECTION_OVERVIEW;
 
-		render( <MyJetpackTabPanel /> );
+		const { rerender } = render( <MyJetpackTabPanel /> );
+		// Like the router, navigating re-renders the panel on the new section before the click lands.
+		mockNavigate.mockImplementationOnce( ( path: string ) => {
+			mockSection = path.slice( 1 );
+			rerender( <MyJetpackTabPanel /> );
+		} );
 		await userEvent.click( screen.getByRole( 'tab', { name: 'Help' } ) );
 
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 1 );
@@ -141,6 +146,16 @@ describe( 'MyJetpackTabPanel', () => {
 			} )
 		);
 		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_HELP }` );
+	} );
+
+	it( 'switches tabs with the arrow keys', async () => {
+		mockSection = MY_JETPACK_SECTION_OVERVIEW;
+
+		render( <MyJetpackTabPanel /> );
+		await userEvent.click( screen.getByRole( 'tab', { name: 'Overview' } ) );
+		await userEvent.keyboard( '{ArrowRight}' );
+
+		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_FEATURES }` );
 	} );
 
 	it( 'redirects the retired Products hash to Features, keeping its query', async () => {
