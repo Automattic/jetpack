@@ -170,19 +170,9 @@ export {
 } from './report-page';
 export {
 	DetailPageActions,
-	DetailPageBreadcrumbs,
-	DETAIL_HEADER_GLYPH_SIZE,
-	DetailPageLayout,
-	DetailPageSection,
-	DetailPageShell,
 	useDetailPageCustomize,
 	type DetailPageActionsProps,
-	type DetailPageBreadcrumbsProps,
 	type DetailPageCustomize,
-	type DetailPageHeaderSlots,
-	type DetailPageLayoutProps,
-	type DetailPageSectionProps,
-	type DetailPageShellProps,
 } from './detail-page';
 export { PageEmptyState, type PageEmptyStateProps } from './page-empty-state';
 export { LockedPage, LockedWidget } from './locked-widget';

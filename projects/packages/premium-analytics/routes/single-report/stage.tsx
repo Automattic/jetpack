@@ -7,6 +7,7 @@ import {
 	ReportScopeProvider,
 	isPlanDateLimitedSection,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_ALL_TIME, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { Badge, Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack, lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import {
@@ -46,14 +47,12 @@ import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboa
 import { useDateWindowNotice } from '../date-window-notice';
 import { DETAIL_GRID } from '../grid';
 import { getReportDefinition } from '../reports/registry';
-import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
-import { useDetailDateControls } from '../use-detail-date-controls';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { SinglePageLayout } from './components';
 import { buildControlFields, type ControlsItem } from './controls';
-import { useActiveSection } from './hooks';
+import { useActiveSection, useDetailBreadcrumbs, useDetailDateControls } from './hooks';
 import { route } from './package.json';
 import {
 	getSingleReportAdapter,
@@ -69,7 +68,6 @@ import {
 	type SingleReportPageSection,
 } from './registry';
 import styles from './stage.module.scss';
-import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
@@ -279,12 +277,18 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		sectionLayout
 	);
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
-	// A URL-scoped section waits for All time to anchor; a pinned one for its window.
+	// A URL-scoped section waits for All time to anchor, a start carried over from another
+	// entity included; a pinned one waits for its window.
+	const holdForAnchor =
+		isAnchoringAllTime ||
+		( dateFilters.appliedPresetId === PRESET_ALL_TIME &&
+			! summary.allTimeStart &&
+			( summary.isLoading || summary.isError ) );
 	const showWidgets =
 		canRenderWidgets &&
 		! emptyState &&
 		pinnedScope !== 'pending' &&
-		( isPinned || ! isAnchoringAllTime );
+		( isPinned || ! holdForAnchor );
 
 	// Each section is its own layout, so leaving it leaves customize mode too.
 	const {

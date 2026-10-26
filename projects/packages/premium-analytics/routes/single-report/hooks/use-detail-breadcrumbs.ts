@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { useSearch } from '@wordpress/route';
 import { buildReportLink, readReportOriginSearch } from '@jetpack-premium-analytics/routing';
+import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { getReportDefinition, resolveReportOrigin } from './reports/registry';
+import { getReportDefinition, resolveReportOrigin } from '../../reports/registry';
 
 type BreadcrumbItem = { label: string; to?: string };
 

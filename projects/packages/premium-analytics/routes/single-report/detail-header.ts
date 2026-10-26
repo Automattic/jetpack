@@ -1,9 +1,14 @@
 /**
  * External dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
 import { parseSiteDateTime, type DateRange } from '@jetpack-premium-analytics/datetime';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
+import { __, sprintf } from '@wordpress/i18n';
+
+/**
+ * Glyph size of the header's visual slot when the entity has no image to show there.
+ */
+export const DETAIL_HEADER_GLYPH_SIZE = 28;
 
 /**
  * Formats a resource's publish date for the header, in the site timezone —

@@ -18,6 +18,7 @@ require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 /**
  * The video page registers through the API like any plugin's page, gated on VideoPress and Stats access.
  *
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_author_single_report_page_default_layout
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_email_clicks_single_report_section_default_layout
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_email_opens_single_report_section_default_layout
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_post_traffic_single_report_section_default_layout
@@ -31,6 +32,7 @@ require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_post_traffic_single_report_section_default_layout' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_email_opens_single_report_section_default_layout' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_email_clicks_single_report_section_default_layout' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_author_single_report_page_default_layout' )]
 class Default_Single_Report_Pages_Test extends BaseTestCase {
 	use Analytics_Capabilities_Trait;
 
@@ -87,7 +89,23 @@ class Default_Single_Report_Pages_Test extends BaseTestCase {
 			array( 'jpa/video-detail-views-performance', 'jpa/video-detail-embeds' ),
 			array_column( $record['default_layout'], 'type' )
 		);
-		$this->assertSame( array( 'analytics/post', 'analytics/video' ), array_column( get_available_single_report_page_records(), 'id' ) );
+		$this->assertSame( array( 'analytics/author', 'analytics/post', 'analytics/video' ), array_column( get_available_single_report_page_records(), 'id' ) );
+	}
+
+	public function test_registers_the_author_page_scoped_by_author_id() {
+		$this->login_as( 'administrator' );
+
+		$record = get_registered_single_report_page( DASHBOARD_NAME, 'analytics/author' )->to_array();
+
+		$this->assertSame( 'author', $record['path'] );
+		$this->assertSame( 'author_id', $record['scope_param'] );
+		$this->assertSame( 'authors', $record['feature'] );
+		$this->assertSame( 'authors', $record['reports_page'] );
+		$this->assertSame( 'jetpack-premium-analytics/author-detail', $record['preferences_scope'] );
+		$this->assertSame(
+			array( 'jpa/author-performance', 'jpa/popular-post--author', 'jpa/latest-post--author', 'jpa/author-top-posts', 'jpa/views-over-years--author' ),
+			array_column( $record['default_layout'], 'type' )
+		);
 	}
 
 	public function test_registers_the_post_page_with_its_three_sections() {
@@ -125,7 +143,7 @@ class Default_Single_Report_Pages_Test extends BaseTestCase {
 	public function test_the_video_page_needs_videopress_and_stats_access() {
 		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_false' );
 		$this->login_as( 'administrator' );
-		$this->assertSame( array( 'analytics/post' ), array_column( get_available_single_report_page_records(), 'id' ) );
+		$this->assertSame( array( 'analytics/author', 'analytics/post' ), array_column( get_available_single_report_page_records(), 'id' ) );
 
 		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );

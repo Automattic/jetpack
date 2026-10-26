@@ -4,23 +4,17 @@
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import {
-	DETAIL_HEADER_GLYPH_SIZE,
-	type DetailPageHeaderSlots,
-} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { postAuthor } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import placeholders from '../../../detail-header.module.scss';
-import { authorDisplayName, type AuthorSummary } from '../../hooks';
+import { DETAIL_HEADER_GLYPH_SIZE } from '../../detail-header';
+import placeholders from '../../detail-header.module.scss';
 import styles from './author-header-slots.module.scss';
-
-type AuthorHeaderSlotsArgs = {
-	summary: AuthorSummary;
-};
+import { authorDisplayName, type AuthorSummary } from './use-author-summary';
+import type { SingleReportHeaderSlots } from '../adapter';
 
 /**
  * The author's avatar. Gravatar URLs can 404 for a deleted account, so a
@@ -83,11 +77,10 @@ export function authorSubtitle(
  * The author identity for the page header. Every summary state names the page,
  * so the header keeps its `h1` and its box while the author loads or fails.
  *
- * @param args         - The slot inputs.
- * @param args.summary - The author summary, in any state.
- * @return The `SectionHeader` slots for this author.
+ * @param summary - The author summary, in any state.
+ * @return The header slots for this author.
  */
-export function authorHeaderSlots( { summary }: AuthorHeaderSlotsArgs ): DetailPageHeaderSlots {
+export function authorHeaderSlots( summary: AuthorSummary ): SingleReportHeaderSlots {
 	const glyph = <Icon icon={ postAuthor } size={ DETAIL_HEADER_GLYPH_SIZE } />;
 
 	if ( summary.isLoading ) {
@@ -117,7 +110,7 @@ export function authorHeaderSlots( { summary }: AuthorHeaderSlotsArgs ): DetailP
 
 	// The post count resolves on its own; the writing-since month stands without it.
 	const postCount = summary.isPostsLoading || summary.isPostsError ? undefined : summary.postCount;
-	let subTitle: DetailPageHeaderSlots[ 'subTitle' ] = authorSubtitle(
+	let subTitle: SingleReportHeaderSlots[ 'subTitle' ] = authorSubtitle(
 		postCount,
 		summary.firstPublishedDate
 	);

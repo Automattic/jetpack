@@ -1,9 +1,9 @@
-import { renderHook } from '@testing-library/react';
-import { useSearch } from '@wordpress/route';
 import {
 	createReportOriginSearch,
 	toReportOriginWindowParams,
 } from '@jetpack-premium-analytics/routing';
+import { renderHook } from '@testing-library/react';
+import { useSearch } from '@wordpress/route';
 import { useDetailBreadcrumbs } from './use-detail-breadcrumbs';
 
 jest.mock( '@wordpress/route', () => ( {
