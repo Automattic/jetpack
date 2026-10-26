@@ -34,5 +34,17 @@
 /* Between core's tabs and its Feature Filter button. */
 .wpcom-themes-tab__pricing {
 	margin-inline: 10px;
-	vertical-align: middle;
+}
+
+/* Sized like core's own selects in this bar, to match its search box. */
+.wp-filter .wpcom-themes-tab__pricing select {
+	min-height: 32px;
+	line-height: 2.14286;
+}
+
+@media screen and (max-width: 782px) {
+
+	.wp-filter .wpcom-themes-tab__pricing select {
+		min-height: 40px;
+	}
 }
