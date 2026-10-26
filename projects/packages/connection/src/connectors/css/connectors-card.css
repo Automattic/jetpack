@@ -260,6 +260,7 @@
 
 .jetpack-connector__tos-notice {
 	margin-block-start: 8px;
+	color: var(--jp-gray-50, #646970);
 }
 
 .jetpack-connector__tos-notice a {
