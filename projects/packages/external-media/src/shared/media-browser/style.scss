@@ -125,8 +125,8 @@
 
 	.jetpack-external-media-browser__loading {
 		flex: 1;
-		width: 100%;
-		margin: 24px 0;
+		inline-size: 100%;
+		margin-block: var(--wpds-dimension-gap-xl);
 	}
 }
 
