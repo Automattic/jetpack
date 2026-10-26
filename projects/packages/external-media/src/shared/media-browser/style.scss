@@ -1,9 +1,6 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .jetpack-external-media-browser {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
 	flex: 1;
 	position: relative;
 	padding-bottom: 76px;
@@ -24,12 +21,12 @@
 		margin: 0;
 		display: inline-flex;
 		position: relative;
-		cursor: pointer;
+		cursor: var(--wpds-cursor-control);
 
 		// Unset button appearance.
 		border: 0;
 		border-radius: 4px;
-		background-color: gb.$gray-400;
+		background-color: var(--wpds-color-background-surface-neutral-strong);
 
 		img {
 			display: block;
@@ -109,8 +106,6 @@
 		font-size: 12px;
 		font-weight: 700;
 		width: 100%;
-		display: flex;
-		justify-content: space-between;
 		padding: 3px;
 	}
 
@@ -131,16 +126,10 @@
 		height: 76px;
 		padding: 0 32px;
 		background: #fff;
-		display: flex;
-		align-items: center;
-		justify-content: flex-end;
 	}
 
 	.jetpack-external-media-browser__loading {
 		flex: 1;
-		display: flex;
-		justify-content: center;
-		align-items: center;
 		width: 100%;
 		margin: 24px 0;
 	}
