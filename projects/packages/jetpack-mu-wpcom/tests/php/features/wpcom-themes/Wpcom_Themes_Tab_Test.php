@@ -622,6 +622,69 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The pricing filter keeps what the site can install with nothing to buy, before paging.
+	 *
+	 * @param bool          $has_plan  Whether the site's plan grants every tier.
+	 * @param array<object> $purchases The site's purchases.
+	 * @param string[]      $listed    Slugs the filter keeps.
+	 * @dataProvider provide_included_themes
+	 */
+	#[DataProvider( 'provide_included_themes' )]
+	public function test_the_pricing_filter_lists_only_what_the_plan_includes( bool $has_plan, array $purchases, array $listed ) {
+		$this->enable_tab();
+		$this->site_has_plan( $has_plan );
+		$GLOBALS['wpcom_get_site_purchases_test_value'] = $purchases;
+		$this->answer_wpcom(
+			array(
+				'tier=partner'     => array( 'body' => self::PARTNER_THEMES ),
+				'/products'        => self::STORE_PRODUCTS,
+				'/wpcom/v2/themes' => array(
+					'body' => array(
+						'themes' => array(
+							array_merge(
+								self::THEME,
+								array(
+									'id'         => 'free-theme',
+									'theme_tier' => array( 'slug' => 'free' ),
+								)
+							),
+							array_merge( self::THEME, array( 'id' => 'personal-theme' ) ),
+							array_merge( self::THEME, array( 'theme_tier' => array( 'slug' => 'partner' ) ) ),
+						),
+					),
+				),
+			)
+		);
+
+		$result = $this->query(
+			array(
+				'browse'        => WPCOM_THEMES_TAB,
+				'wpcom_pricing' => WPCOM_THEMES_TAB_INCLUDED,
+			)
+		);
+
+		$this->assertSame( $listed, array_column( $result->themes, 'slug' ) );
+		$this->assertSame( count( $listed ), $result->info['results'] );
+	}
+
+	/**
+	 * Plans and purchases, and the themes each leaves the filter listing.
+	 *
+	 * @return array<string, array{0: bool, 1: array<object>, 2: string[]}>
+	 */
+	public static function provide_included_themes(): array {
+		return array(
+			'no plan'                    => array( false, array(), array( 'free-theme' ) ),
+			'a plan'                     => array( true, array(), array( 'free-theme', 'personal-theme' ) ),
+			'a plan and a partner theme' => array(
+				true,
+				array( (object) array( 'billing_product_slug' => 'theme-stax' ) ),
+				array( 'free-theme', 'personal-theme', 'organic-stax' ),
+			),
+		);
+	}
+
+	/**
 	 * Say whether the site's plan grants every tier.
 	 *
 	 * @param bool $has Whether it does.

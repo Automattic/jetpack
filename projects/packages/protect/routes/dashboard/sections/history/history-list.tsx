@@ -5,9 +5,10 @@ import { published, unseen } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
 import { EmptyState, Tabs } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
+import { recordViewChange } from '../../data/threat-events';
 import { CLOSED_INSPECTOR } from '../inspector-params';
 import { THREAT_PARAM, useScan, useSearchParam } from '../scan/store';
-import { getThreatRowActions } from '../scan/threat-row-actions';
+import { useThreatRowActions } from '../scan/threat-row-actions';
 import { createThreatView, getThreatFields } from '../scan/threats-list';
 import useOpenThreat from '../use-open-threat';
 import { HISTORY_STATUS_PARAM, HISTORY_THREAT_PARAM } from './store';
@@ -81,11 +82,19 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 		[ open, status ]
 	);
 	// History only shows with a Scan plan, so ignored threats can always be unignored.
-	const actions = useMemo( () => getThreatRowActions( open, true ), [ open ] );
+	const actions = useThreatRowActions( open, true );
 
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( status === 'fixed' ? fixed : ignored, view, fields ),
 		[ status, fixed, ignored, view, fields ]
+	);
+	const { totalPages } = paginationInfo;
+	const onChangeView = useCallback(
+		( next: View ) => {
+			recordViewChange( view, next, totalPages );
+			setView( next );
+		},
+		[ view, totalPages ]
 	);
 	useArrowKeyNavigation( data, selected, getItemId, open );
 
@@ -145,7 +154,7 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 				fields={ fields }
 				actions={ actions }
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ onChangeView }
 				paginationInfo={ paginationInfo }
 				defaultLayouts={ DEFAULT_LAYOUTS }
 				getItemId={ getItemId }
