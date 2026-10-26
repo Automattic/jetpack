@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { HashRouter, Link, Route, Routes, useLocation } from 'react-router';
+import { HashRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router';
 import { MyJetpackTabPanel } from '../../../components/my-jetpack-tab-panel';
 import { MyJetpackRoutes } from '../../../constants';
 import ValueStoreContextProvider from '../../../context/value-store/valueStoreContext';
@@ -60,6 +60,7 @@ const renderApp = ( initialEntry: string ) => {
 			<HashRouter>
 				<Routes>
 					<Route path="/add-videopress" element={ <UpgradeScreen /> } />
+					<Route path="/add-old-slug" element={ <Navigate replace to="/add-videopress" /> } />
 					{ /* Stands in for a page outside My Jetpack, such as Boost's dashboard. */ }
 					<Route path="/outside" element={ <UpgradeLinks /> } />
 					<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackTabPanel /> } />
@@ -70,52 +71,60 @@ const renderApp = ( initialEntry: string ) => {
 	);
 };
 
-const allowedReferrer = 'http://localhost/wp-admin/';
-
-const openUpgradeScreen = async ( start: string, upgradeLink: string, referrer: string ) => {
+const openUpgradeScreen = async ( start: string, upgradeLink: string | null, referrer: string ) => {
 	Object.defineProperty( document, 'referrer', { value: referrer, configurable: true } );
 	const user = userEvent.setup();
 	renderApp( start );
-	await user.click( await screen.findByRole( 'link', { name: upgradeLink } ) );
+	if ( upgradeLink ) {
+		await user.click( await screen.findByRole( 'link', { name: upgradeLink } ) );
+	}
 	return { user, backLink: await screen.findByRole( 'link', { name: 'My Jetpack' } ) };
 };
 
+const allowedReferrer = 'http://localhost/wp-admin/';
+const foreignReferrer = 'https://example.com/';
+
 describe( 'useGoBack', () => {
+	// Going back pops the upgrade screen (no added entry); falling back to Features pushes one.
 	it.each( [
-		[ 'a tab, inside the app', '/features?view=list', 'Upgrade', '', '/features?view=list' ],
 		[
 			'a tab, by hash link',
 			'/features?view=list',
 			'Upgrade (hash link)',
 			'',
 			'/features?view=list',
+			0,
 		],
-		[ 'outside, allowed referrer', '/outside', 'Upgrade (hash link)', allowedReferrer, '/outside' ],
-		[ 'outside, no referrer', '/outside', 'Upgrade (hash link)', '', '/features' ],
+		[ 'a tab, inside the app', '/overview', 'Upgrade', '', '/overview', 0 ],
+		[ 'a redirected route, loaded directly', '/add-old-slug', null, '', '/features', 1 ],
+		[
+			'outside, allowed referrer',
+			'/outside',
+			'Upgrade (hash link)',
+			allowedReferrer,
+			'/outside',
+			0,
+		],
 		[
 			'outside, foreign referrer',
 			'/outside',
 			'Upgrade (hash link)',
-			'https://example.com/',
+			foreignReferrer,
 			'/features',
+			1,
 		],
-	] )( 'goes back correctly from %s', async ( _from, start, upgradeLink, referrer, expected ) => {
-		const { user, backLink } = await openUpgradeScreen( start, upgradeLink, referrer );
+	] )(
+		'goes back correctly from %s',
+		async ( _from, start, upgradeLink, referrer, expected, addedHistoryEntries ) => {
+			const { user, backLink } = await openUpgradeScreen( start, upgradeLink, referrer );
+			const historyLength = window.history.length;
 
-		await user.click( backLink );
+			await user.click( backLink );
 
-		await waitFor( () => expect( screen.getByTestId( 'location' ) ).toHaveTextContent( expected ) );
-	} );
-
-	it( 'pops the upgrade screen off history when going back inside the app', async () => {
-		const { user, backLink } = await openUpgradeScreen( '/overview', 'Upgrade', '' );
-		const historyLength = window.history.length;
-
-		await user.click( backLink );
-
-		await waitFor( () =>
-			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/overview' )
-		);
-		expect( window.history ).toHaveLength( historyLength );
-	} );
+			await waitFor( () =>
+				expect( screen.getByTestId( 'location' ) ).toHaveTextContent( expected )
+			);
+			expect( window.history ).toHaveLength( historyLength + addedHistoryEntries );
+		}
+	);
 } );

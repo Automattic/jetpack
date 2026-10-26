@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { MyJetpackRoutes } from '../../constants';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../use-analytics';
@@ -8,8 +8,8 @@ import type { MouseEvent } from 'react';
 /**
  * Custom React hook to handle back link click with analytics.
  *
- * Goes back in history when this screen was reached inside My Jetpack or from an allowed
- * site; otherwise goes to the last My Jetpack tab shown, else to `fallback`.
+ * Goes back in history when a My Jetpack tab was shown earlier on this page visit or the
+ * page came from an allowed site; otherwise goes to `fallback`.
  *
  * @param options          - Options.
  * @param options.slug     - Product slug, recorded with the analytics event.
@@ -25,7 +25,6 @@ export function useGoBack( {
 } ) {
 	const { recordEvent } = useAnalytics();
 	const navigate = useNavigate();
-	const { key } = useLocation();
 	const [ lastTabPath ] = useValueStore( 'lastTabPath', null );
 	const backTo = lastTabPath ?? fallback;
 
@@ -37,8 +36,8 @@ export function useGoBack( {
 
 			event.preventDefault();
 
-			// A router navigation got us here (a page load or plain hash link leaves key 'default').
-			if ( key !== 'default' ) {
+			// A tab shown earlier on this page visit is still behind us in history.
+			if ( lastTabPath ) {
 				navigate( -1 );
 				return;
 			}
@@ -64,7 +63,7 @@ export function useGoBack( {
 				navigate( backTo );
 			}
 		},
-		[ slug, recordEvent, navigate, key, backTo ]
+		[ slug, recordEvent, navigate, lastTabPath, backTo ]
 	);
 
 	return { onClickGoBack, backTo };
