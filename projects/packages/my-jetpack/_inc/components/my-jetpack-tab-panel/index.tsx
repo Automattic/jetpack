@@ -139,8 +139,8 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 			className={ clsx(
 				styles[ 'tab-panel' ],
 				styles[ 'my-jetpack-tab-panel--full-width' ],
-				pinsTabs && styles[ 'my-jetpack-tab-panel--pinned-tabs' ],
-				'jetpack-my-jetpack-tab-panel'
+				'jetpack-my-jetpack-tab-panel',
+				{ [ styles[ 'my-jetpack-tab-panel--pinned-tabs' ] ]: pinsTabs }
 			) }
 			initialTabName={ currentTab }
 			onSelect={ onTabSelect }
