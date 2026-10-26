@@ -1,3 +1,5 @@
+import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
+import { Page } from '@wordpress/admin-ui';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
@@ -16,6 +18,24 @@ type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 /**
  *
  */
+function FlowPage( { children }: { children: React.ReactNode } ) {
+	return (
+		<div className="jp-admin-page">
+			<Page
+				className="jp-admin-page__page"
+				title={ __( 'Flow', 'jetpack-flow-pkg' ) }
+				subTitle={ __(
+					'Connect Jetpack, MailPoet, CRM and WooCommerce: when this happens, do that.',
+					'jetpack-flow-pkg'
+				) }
+			>
+				{ children }
+				<JetpackFooter />
+			</Page>
+		</div>
+	);
+}
+
 function FlowStage() {
 	const [ catalog, setCatalog ] = useState< Catalog | null >( null );
 	const [ flows, setFlows ] = useState< Flow[] >( [] );
@@ -88,15 +108,17 @@ function FlowStage() {
 
 	if ( ! catalog ) {
 		return (
-			<div className="jetpack-flow">
-				{ error ? (
-					<Notice.Root intent="error">
-						<Notice.Description>{ error }</Notice.Description>
-					</Notice.Root>
-				) : (
-					<Text>{ __( 'Loading…', 'jetpack-flow-pkg' ) }</Text>
-				) }
-			</div>
+			<FlowPage>
+				<div className="jetpack-flow">
+					{ error ? (
+						<Notice.Root intent="error">
+							<Notice.Description>{ error }</Notice.Description>
+						</Notice.Root>
+					) : (
+						<Text>{ __( 'Loading…', 'jetpack-flow-pkg' ) }</Text>
+					) }
+				</div>
+			</FlowPage>
 		);
 	}
 
@@ -126,93 +148,89 @@ function FlowStage() {
 	const actions = catalog.actions;
 
 	return (
-		<div className="jetpack-flow">
-			<Stack direction="column" gap="xl">
-				<Stack direction="column" gap="xs">
-					<Text variant="heading-2xl" render={ <h1 /> }>
-						{ __( 'Flow', 'jetpack-flow-pkg' ) }
-					</Text>
-					<Text variant="body-lg">
-						{ __(
-							'Connect Jetpack, MailPoet, CRM and WooCommerce: when this happens, do that.',
-							'jetpack-flow-pkg'
-						) }
-					</Text>
-				</Stack>
-
-				{ error && (
-					<Notice.Root intent="error">
-						<Notice.Description>{ error }</Notice.Description>
-					</Notice.Root>
-				) }
-				{ notice && (
-					<Notice.Root intent="info">
-						<Notice.Description>{ notice }</Notice.Description>
-					</Notice.Root>
-				) }
-
-				<PromptBox value={ prompt } busy={ planning } onChange={ setPrompt } onSubmit={ build } />
-
-				<div className="jetpack-flow-palettes" role="list">
-					<Palette
-						title={ __( 'Triggers', 'jetpack-flow-pkg' ) }
-						kind="trigger"
-						items={ triggers }
-					/>
-					<Palette title={ __( 'Actions', 'jetpack-flow-pkg' ) } kind="action" items={ actions } />
-				</div>
-
-				<div
-					className={ `jetpack-flow-canvas${ dropHover ? ' is-over' : '' }` }
-					onDragOver={ event => {
-						if ( hasFlowDrag( event ) ) {
-							event.preventDefault();
-							setDropHover( true );
-						}
-					} }
-					onDragLeave={ () => setDropHover( false ) }
-					onDrop={ onCanvasDrop }
-				>
-					{ flows.length === 0 ? (
-						<Text variant="body-md" className="jetpack-flow-empty">
-							{ __(
-								'Describe a connection above, or drop a card here to start.',
-								'jetpack-flow-pkg'
-							) }
-						</Text>
-					) : (
-						<Stack direction="column" gap="lg">
-							{ flows.map( ( flow, index ) => (
-								<FlowCard
-									key={ flow.id }
-									flow={ flow }
-									catalog={ catalog }
-									order={ Math.max( 0, index - revealFrom ) }
-									onChange={ next =>
-										setFlows( current => current.map( f => ( f.id === flow.id ? next : f ) ) )
-									}
-									onDelete={ () => setFlows( current => current.filter( f => f.id !== flow.id ) ) }
-								/>
-							) ) }
-						</Stack>
+		<FlowPage>
+			<div className="jetpack-flow">
+				<Stack direction="column" gap="xl">
+					{ error && (
+						<Notice.Root intent="error">
+							<Notice.Description>{ error }</Notice.Description>
+						</Notice.Root>
 					) }
-				</div>
+					{ notice && (
+						<Notice.Root intent="info">
+							<Notice.Description>{ notice }</Notice.Description>
+						</Notice.Root>
+					) }
 
-				<Stack align="center" justify="space-between" wrap="wrap" gap="md">
-					<Text variant="body-sm" aria-live="polite">
-						{ saveState === 'saving' && __( 'Saving…', 'jetpack-flow-pkg' ) }
-						{ saveState === 'saved' && __( 'All changes saved', 'jetpack-flow-pkg' ) }
-						{ saveState === 'error' && __( 'Could not save changes', 'jetpack-flow-pkg' ) }
-					</Text>
-					<Button
-						variant="minimal"
-						onClick={ () => navigator.clipboard?.writeText( catalog.inbound_url ) }
+					<PromptBox value={ prompt } busy={ planning } onChange={ setPrompt } onSubmit={ build } />
+
+					<div className="jetpack-flow-palettes" role="list">
+						<Palette
+							title={ __( 'Triggers', 'jetpack-flow-pkg' ) }
+							kind="trigger"
+							items={ triggers }
+						/>
+						<Palette
+							title={ __( 'Actions', 'jetpack-flow-pkg' ) }
+							kind="action"
+							items={ actions }
+						/>
+					</div>
+
+					<div
+						className={ `jetpack-flow-canvas${ dropHover ? ' is-over' : '' }` }
+						onDragOver={ event => {
+							if ( hasFlowDrag( event ) ) {
+								event.preventDefault();
+								setDropHover( true );
+							}
+						} }
+						onDragLeave={ () => setDropHover( false ) }
+						onDrop={ onCanvasDrop }
 					>
-						{ __( 'Copy inbound events URL', 'jetpack-flow-pkg' ) }
-					</Button>
+						{ flows.length === 0 ? (
+							<Text variant="body-md" className="jetpack-flow-empty">
+								{ __(
+									'Describe a connection above, or drop a card here to start.',
+									'jetpack-flow-pkg'
+								) }
+							</Text>
+						) : (
+							<Stack direction="column" gap="lg">
+								{ flows.map( ( flow, index ) => (
+									<FlowCard
+										key={ flow.id }
+										flow={ flow }
+										catalog={ catalog }
+										order={ Math.max( 0, index - revealFrom ) }
+										onChange={ next =>
+											setFlows( current => current.map( f => ( f.id === flow.id ? next : f ) ) )
+										}
+										onDelete={ () =>
+											setFlows( current => current.filter( f => f.id !== flow.id ) )
+										}
+									/>
+								) ) }
+							</Stack>
+						) }
+					</div>
+
+					<Stack align="center" justify="space-between" wrap="wrap" gap="md">
+						<Text variant="body-sm" aria-live="polite">
+							{ saveState === 'saving' && __( 'Saving…', 'jetpack-flow-pkg' ) }
+							{ saveState === 'saved' && __( 'All changes saved', 'jetpack-flow-pkg' ) }
+							{ saveState === 'error' && __( 'Could not save changes', 'jetpack-flow-pkg' ) }
+						</Text>
+						<Button
+							variant="minimal"
+							onClick={ () => navigator.clipboard?.writeText( catalog.inbound_url ) }
+						>
+							{ __( 'Copy inbound events URL', 'jetpack-flow-pkg' ) }
+						</Button>
+					</Stack>
 				</Stack>
-			</Stack>
-		</div>
+			</div>
+		</FlowPage>
 	);
 }
 

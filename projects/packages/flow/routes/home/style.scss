@@ -1,3 +1,11 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+body.toplevel_page_jetpack-flow-wp-admin,
+body.jetpack-flow {
+
+	@include jetpack-admin-page-layout-wp-build;
+}
+
 .jetpack-flow {
 	max-inline-size: var(--wpds-dimension-surface-width-2xl);
 	margin-inline: auto;
