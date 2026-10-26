@@ -103,8 +103,6 @@
 	"projects/packages/my-jetpack/_inc/components/my-jetpack-tab-panel/features/bulk-bar.tsx",
 	"projects/packages/my-jetpack/_inc/components/my-jetpack-tab-panel/features/feature-action.tsx",
 	"projects/packages/my-jetpack/_inc/components/my-jetpack-tab-panel/features/feature-list.tsx",
-	"projects/packages/my-jetpack/_inc/components/my-jetpack-tab-panel/index.tsx",
-	"projects/packages/my-jetpack/_inc/components/my-jetpack-tab-panel/utils.ts",
 	"projects/packages/my-jetpack/_inc/components/onboarding-screen/connection-form/connection-form.tsx",
 	"projects/packages/my-jetpack/_inc/components/onboarding-screen/wizard/wizard.tsx",
 	"projects/packages/my-jetpack/_inc/components/product-interstitial/jetpack-ai/product-page.jsx",
