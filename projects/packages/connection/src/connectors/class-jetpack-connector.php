@@ -92,7 +92,7 @@ class Jetpack_Connector {
 			'wordpress_com',
 			array(
 				'name'           => 'Jetpack Connection',
-				'description'    => __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' ),
+				'description'    => __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com cloud services.', 'jetpack-connection' ),
 				'type'           => 'cloud_service',
 				'logo_url'       => static::get_connector_logo_url(),
 				'authentication' => array(
@@ -195,6 +195,7 @@ class Jetpack_Connector {
 	 *
 	 * @since 8.2.0
 	 * @since 9.13.0 Shared connection state moved to the jetpack-connection store.
+	 * @since $$next-version$$ Adds `connectorsUrl`; sends `connectedUsersUrl` whenever there are account rows, including while the owner's token is broken.
 	 *
 	 * @param array $data Existing script module data.
 	 * @return array Filtered script module data.
@@ -202,13 +203,13 @@ class Jetpack_Connector {
 	public static function get_connector_data( $data ) {
 		$manager       = new Manager();
 		$is_registered = $manager->is_connected();
-		$is_connected  = $is_registered && $manager->has_connected_owner();
 
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']          = static::get_connectors_page_path();
+		$data['connectorsUrl']        = admin_url( $data['redirectUri'] );
 		$data['connectorName']        = 'Jetpack Connection';
-		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' );
+		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com cloud services.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = static::get_connector_logo_url();
 
 		$connected_plugins   = $manager->get_connected_plugins();
@@ -228,7 +229,9 @@ class Jetpack_Connector {
 			static::add_identity_crisis_data( $data );
 		}
 
-		if ( $is_connected ) {
+		// Not gated on has_connected_owner(): it is false when the owner's token breaks,
+		// and the card still lists the owner of record and a healthy viewer's account then.
+		if ( $is_registered && ( (int) \Jetpack_Options::get_option( 'master_user' ) > 0 || $manager->is_user_connected() ) ) {
 			$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
 		}
 

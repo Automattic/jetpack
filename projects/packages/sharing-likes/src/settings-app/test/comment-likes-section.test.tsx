@@ -47,7 +47,7 @@ describe( 'CommentLikesSection', () => {
 
 		expect(
 			screen.getByText(
-				'Comment Likes need a connection to WordPress.com, which is unavailable while your site is in offline mode.'
+				'Comment Likes need a connection to WordPress.com, which is unavailable while your site is in Offline Mode.'
 			)
 		).toBeInTheDocument();
 		expect(

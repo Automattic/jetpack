@@ -84,7 +84,6 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 	];
 
 	useReportActions( {
-		report: 'annual-insights',
 		csv: {
 			exporter: annualInsightsCsvExporter,
 			// Same gate as the error state: a failed refetch keeps the cached years.

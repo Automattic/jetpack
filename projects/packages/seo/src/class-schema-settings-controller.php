@@ -7,6 +7,9 @@
  * container. GET returns the editing payload; the write method sanitizes,
  * persists, and returns the new payload. Gated on `manage_options`.
  *
+ * Also serves the signed-in user's author profile on `jetpack/v4/seo/author-profile`.
+ * Simple's loader registers only the controllers it names, so that route lives here.
+ *
  * @package automattic/jetpack-seo-package
  */
 
@@ -16,7 +19,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 /**
- * Registers and serves the Schema settings REST route.
+ * Registers and serves the Schema settings and author profile REST routes.
  */
 class Schema_Settings_Controller {
 
@@ -35,7 +38,14 @@ class Schema_Settings_Controller {
 	const REST_BASE = '/seo/schema-settings';
 
 	/**
-	 * Register the GET (read) and write (sanitize + persist) route.
+	 * Author profile route, relative to the namespace.
+	 *
+	 * @var string
+	 */
+	const AUTHOR_PROFILE_BASE = '/seo/author-profile';
+
+	/**
+	 * Register the GET (read) and write (sanitize + persist) routes.
 	 *
 	 * @return void
 	 */
@@ -56,10 +66,37 @@ class Schema_Settings_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::AUTHOR_PROFILE_BASE,
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( __CLASS__, 'get_author_profile' ),
+					'permission_callback' => array( __CLASS__, 'permissions_check' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( __CLASS__, 'update_author_profile' ),
+					'permission_callback' => array( __CLASS__, 'permissions_check' ),
+					'args'                => array(
+						'name'        => array( 'type' => 'string' ),
+						'description' => array( 'type' => 'string' ),
+						'url'         => array( 'type' => 'string' ),
+						'jobTitle'    => array( 'type' => 'string' ),
+						'sameAs'      => array(
+							'type'  => 'array',
+							'items' => array( 'type' => 'string' ),
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
-	 * Only administrators can read or change the site's schema settings.
+	 * Only administrators, the SEO page's audience, can use these routes.
 	 *
 	 * @return bool
 	 */
@@ -90,5 +127,29 @@ class Schema_Settings_Controller {
 		}
 
 		return rest_ensure_response( Schema_Settings::update( $params ) );
+	}
+
+	/**
+	 * GET: the signed-in user's author profile.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function get_author_profile() {
+		return rest_ensure_response( Author_Schema_Node::get_profile( get_current_user_id() ) );
+	}
+
+	/**
+	 * POST/PUT: update the signed-in user's author profile and return it as stored.
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function update_author_profile( WP_REST_Request $request ) {
+		$fields = array_intersect_key(
+			$request->get_params(),
+			array_flip( array( 'name', 'description', 'url', 'jobTitle', 'sameAs' ) )
+		);
+
+		return rest_ensure_response( Author_Schema_Node::update_profile( get_current_user_id(), $fields ) );
 	}
 }

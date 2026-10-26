@@ -21,6 +21,9 @@ jest.mock(
 	() => jest.requireActual( '../../../../tests/js/analytics-test-utils' ).mockJetpackAnalytics
 );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/route', () => ( {
+	Link: jest.requireActual( '../../../../tests/js/route-test-utils' ).mockWordPressRoute.Link,
+} ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const recordEvent = jest.mocked( analytics.tracks.recordEvent );
@@ -32,6 +35,7 @@ type Site = {
 	upgradeUrl?: string;
 	hasStatsProduct?: boolean;
 	purchaseSuccess?: 'paid' | 'free';
+	isWpcom?: boolean;
 };
 
 let notices = createNoticesRegistry();
@@ -44,17 +48,20 @@ let notices = createNoticesRegistry();
  * @param site.upgradeUrl      - Where the server sends the upgrade, empty when there is nowhere to buy it.
  * @param site.hasStatsProduct - Whether the site has a Jetpack Stats product.
  * @param site.purchaseSuccess - The checkout this load returned from, if any.
+ * @param site.isWpcom         - Whether the site runs on WordPress.com.
  */
 function setSite( {
 	offered = true,
 	upgradeUrl = UPGRADE_URL,
 	hasStatsProduct = false,
 	purchaseSuccess,
+	isWpcom = false,
 }: Site = {} ) {
 	window.JetpackScriptData = {
 		site: {
 			admin_url: 'https://example.com/wp-admin/',
 			host: 'jetpack',
+			is_wpcom_platform: isWpcom,
 			wpcom: { blog_id: 123456789 },
 		},
 		premium_analytics: {
@@ -137,12 +144,26 @@ describe( 'FreeSiteUpgradeNotice', () => {
 		expect( container ).toHaveTextContent( 'Unlock more Stats with a paid plan' );
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute(
 			'href',
+			expect.stringContaining(
+				'/upgrade?source=jetpack-premium-analytics-free-site-upgrade-notice'
+			)
+		);
+	} );
+
+	it( "sends a WordPress.com site to the server's purchase URL, since it upgrades its plan instead", async () => {
+		setSite( { isWpcom: true } );
+		mockEndpoints();
+
+		await renderNotices();
+
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute(
+			'href',
 			UPGRADE_URL
 		);
 	} );
 
-	it( 'keeps only Learn more when the server has nowhere to sell the plan', async () => {
-		setSite( { upgradeUrl: '' } );
+	it( 'keeps only Learn more when a WordPress.com site has nowhere to buy the plan', async () => {
+		setSite( { upgradeUrl: '', isWpcom: true } );
 		mockEndpoints();
 
 		await renderNotices();

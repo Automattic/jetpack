@@ -13,7 +13,6 @@
 	"projects/js-packages/components/components/navigator-modal/footer.tsx",
 	"projects/js-packages/components/components/navigator-modal/screen.tsx",
 	"projects/js-packages/components/components/navigator-modal/stories/index.stories.tsx",
-	"projects/js-packages/components/components/number-control/index.tsx",
 	"projects/js-packages/components/components/stat-card/index.tsx",
 	"projects/js-packages/components/components/upsell-banner/index.tsx",
 	"projects/js-packages/connection/components/protected-owner-confirmation/index.tsx",
