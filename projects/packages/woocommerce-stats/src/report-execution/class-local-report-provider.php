@@ -68,6 +68,11 @@ class Local_Report_Provider implements Report_Provider {
 	const PER_PAGE = 100;
 
 	/**
+	 * Most intervals one request may ask for: every core page reruns the totals queries.
+	 */
+	const MAX_INTERVALS = 500;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function get_name() {
@@ -168,6 +173,11 @@ class Local_Report_Provider implements Report_Provider {
 			$query['date_type'] = self::DATE_TYPES[ $params['date_type'] ];
 		}
 
+		$count = self::count_intervals( $query['after'], $query['before'], $query['interval'] );
+		if ( $count > self::MAX_INTERVALS ) {
+			return self::too_many_intervals( $count );
+		}
+
 		$totals    = null;
 		$intervals = array();
 		$page      = 1;
@@ -180,6 +190,10 @@ class Local_Report_Provider implements Report_Provider {
 			$totals    = $totals ?? $body['totals'];
 			$intervals = array_merge( $intervals, $body['intervals'] ?? array() );
 			$pages     = (int) ( $response->get_headers()['X-WP-TotalPages'] ?? 1 );
+			// Core counts its own buckets; refuse rather than return a partial series.
+			if ( $pages > (int) ceil( self::MAX_INTERVALS / self::PER_PAGE ) ) {
+				return self::too_many_intervals( (int) ( $response->get_headers()['X-WP-Total'] ?? $pages * self::PER_PAGE ) );
+			}
 		} while ( ++$page <= $pages );
 
 		$summary               = self::map_orders_row( $totals );
@@ -233,6 +247,58 @@ class Local_Report_Provider implements Report_Provider {
 			'orders_value_net'    => (float) $row['net_revenue'],
 			'total_sales'         => (float) $row['total_sales'],
 			'average_order_value' => $orders > 0 ? (float) $row['avg_order_value'] : null,
+		);
+	}
+
+	/**
+	 * How many buckets core returns for the range: partial first and last buckets count, and weeks
+	 * start on the site's `start_of_week`, as in core's TimeInterval.
+	 *
+	 * @param string $after    Start bound, `Y-m-d\TH:i:s`.
+	 * @param string $before   End bound, `Y-m-d\TH:i:s`.
+	 * @param string $interval One of `INTERVALS`.
+	 * @return int
+	 */
+	private static function count_intervals( $after, $before, $interval ) {
+		$start = new \DateTimeImmutable( $after );
+		$end   = new \DateTimeImmutable( $before );
+		if ( $end < $start ) {
+			return 0;
+		}
+
+		$days = (int) $start->setTime( 0, 0 )->diff( $end->setTime( 0, 0 ) )->days;
+		$year = (int) $end->format( 'Y' ) - (int) $start->format( 'Y' );
+
+		switch ( $interval ) {
+			case 'hour':
+				return intdiv( $end->getTimestamp() - $start->getTimestamp(), HOUR_IN_SECONDS ) + 1;
+			case 'day':
+				return $days + 1;
+			case 'week':
+				$offset = ( (int) $start->format( 'w' ) - (int) get_option( 'start_of_week', 0 ) + 7 ) % 7;
+				return intdiv( $days + $offset, 7 ) + 1;
+			case 'month':
+				return $year * 12 + (int) $end->format( 'n' ) - (int) $start->format( 'n' ) + 1;
+			case 'quarter':
+				return $year * 4 + intdiv( (int) $end->format( 'n' ) - 1, 3 ) - intdiv( (int) $start->format( 'n' ) - 1, 3 ) + 1;
+			default:
+				return $year + 1;
+		}
+	}
+
+	/**
+	 * The error for a range with more buckets than one request may fetch.
+	 *
+	 * @param int $count Buckets the range needs.
+	 * @return WP_Error
+	 */
+	private static function too_many_intervals( $count ) {
+		return Report_Executor::error(
+			'too_many_intervals',
+			422,
+			'too_many_intervals:' . $count,
+			/* translators: 1: number of chart buckets requested, 2: the most allowed. */
+			sprintf( __( 'This range needs %1$d intervals; the local provider serves at most %2$d. Pick a shorter range or a larger interval.', 'jetpack-woocommerce-stats-pkg' ), $count, self::MAX_INTERVALS )
 		);
 	}
 

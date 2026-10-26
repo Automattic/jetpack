@@ -315,6 +315,31 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'auto without a connection'            => array( 'orders/by-date', array( 'execution' => 'auto' ), false, 503, 'needs_connection' ),
 			'no override without a connection'     => array( 'orders/by-date', array(), false, 403, 'no_connection' ),
 			'an execution value nobody serves'     => array( 'orders/by-date', array( 'execution' => 'both' ), true, 400, 'rest_invalid_param' ),
+			'local over the interval cap'          => array(
+				'orders/by-date',
+				array(
+					'execution' => 'local',
+					'from'      => '2026-09-27',
+					'to'        => '2026-10-26',
+					'interval'  => 'hour',
+				),
+				true,
+				422,
+				'too_many_intervals',
+			),
+			// Under the cap it reaches core, which WorDBless lacks.
+			'local just under the interval cap'    => array(
+				'orders/by-date',
+				array(
+					'execution' => 'local',
+					'from'      => '2026-10-07',
+					'to'        => '2026-10-26',
+					'interval'  => 'hour',
+				),
+				true,
+				503,
+				'feature_missing',
+			),
 		);
 	}
 
