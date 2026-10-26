@@ -46,8 +46,7 @@ export function TabContent( { name, beforeContent }: TabContentProps ) {
 	const dropsOverviewFooter = name === 'overview' && isHeaderControlsEnabled();
 	const FooterComponent = dropsOverviewFooter ? undefined : footerMap[ name ];
 	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
-	// Overview v1 shows the notices below its Welcome heading.
-	const contentPlacesNotices = name === 'overview' && overviewV1;
+	const noticesBelowWelcome = name === 'overview' && overviewV1;
 
 	if ( ! ContentComponent ) {
 		return null;
@@ -57,8 +56,8 @@ export function TabContent( { name, beforeContent }: TabContentProps ) {
 		<>
 			<div className={ styles[ 'my-jetpack-tab-panel-inner' ] }>
 				<div className={ clsx( styles[ 'tab-content-wrapper' ] ) }>
-					{ ! contentPlacesNotices && beforeContent }
-					<ContentComponent beforeContent={ contentPlacesNotices ? beforeContent : undefined } />
+					{ ! noticesBelowWelcome && beforeContent }
+					<ContentComponent beforeContent={ noticesBelowWelcome ? beforeContent : undefined } />
 				</div>
 			</div>
 			{ FooterComponent && (
