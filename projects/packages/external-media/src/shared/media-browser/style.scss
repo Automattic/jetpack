@@ -98,17 +98,19 @@
 	}
 
 	.jetpack-external-media-browser__media__info {
-		font-size: 12px;
-		font-weight: 700;
 		width: 100%;
-		padding: 3px;
+		padding: var(--wpds-dimension-padding-xs);
+	}
+
+	.jetpack-external-media-browser__media__name,
+	.jetpack-external-media-browser__media__count {
+		font-weight: var(--wpds-typography-font-weight-emphasis);
 	}
 
 	.jetpack-external-media-browser__media__count {
-		background-color: #dcdcde;
-		padding: 3px 4px;
-		border-radius: 8px;
-		margin-bottom: auto;
+		background-color: var(--wpds-color-background-surface-neutral);
+		padding: var(--wpds-dimension-padding-xs);
+		border-radius: var(--wpds-border-radius-md);
 	}
 
 	// Toolbar for "insert" and pagination button.

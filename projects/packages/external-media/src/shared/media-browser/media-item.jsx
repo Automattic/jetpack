@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Composite } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Checkbox, Stack } from '@wordpress/ui';
+import { Checkbox, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 
 /**
@@ -115,10 +115,15 @@ function MediaItem( { item, imageOnly, isSelected, isCopying = false, shouldProx
 				<Stack
 					direction="row"
 					justify="space-between"
+					align="start"
 					className="jetpack-external-media-browser__media__info"
 				>
-					<div className="jetpack-external-media-browser__media__name">{ name }</div>
-					<div className="jetpack-external-media-browser__media__count">{ children }</div>
+					<Text variant="body-sm" className="jetpack-external-media-browser__media__name">
+						{ name }
+					</Text>
+					<Text variant="body-sm" className="jetpack-external-media-browser__media__count">
+						{ children }
+					</Text>
 				</Stack>
 			) }
 			<Checkbox
