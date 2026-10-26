@@ -27,9 +27,15 @@ function toErrorMessage( error: unknown ): string {
  * Restore connection hook.
  * It will initiate an API request attempting to restore the connection, or reconnect if it cannot be restored.
  *
+ * @param {object} [options]             - Hook options.
+ * @param {string} [options.redirectUrl] - Where to return after reauthorizing the user. Defaults to My Jetpack.
+ * @param {string} [options.from]        - The `from` reported to WordPress.com. Defaults to 'my-jetpack'.
  * @return {object} - The hook data.
  */
-export default function useRestoreConnection() {
+export default function useRestoreConnection( {
+	redirectUrl,
+	from,
+}: { redirectUrl?: string; from?: string } = {} ) {
 	const [ isRestoringConnection, setIsRestoringConnection ] = useState( false );
 	const [ restoreConnectionError, setRestoreConnectionError ] = useState< string | null >( null );
 
@@ -37,7 +43,7 @@ export default function useRestoreConnection() {
 		STORE_ID
 	) as ConnectionStoreDispatch;
 
-	const USER_CONNECTION_URL = getUserConnectionUrl();
+	const USER_CONNECTION_URL = getUserConnectionUrl( { redirect_url: redirectUrl, from } );
 
 	/**
 	 * Initiate connection restore.

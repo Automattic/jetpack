@@ -195,8 +195,8 @@ function fixPeerDeps( pkg ) {
 			}
 
 			if (
-				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^18|18\.x)/ ) &&
-				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^19|19\.x)/ )
+				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^18|18(?:\.\d+)?\.x)/ ) &&
+				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^19|19(?:\.\d+)?\.x)/ )
 			) {
 				pkg.peerDependencies[ p ] += ' || ^19';
 			}

@@ -4,24 +4,5 @@
 	"route": {
 		"path": "/author/$authorId",
 		"page": "jetpack-premium-analytics"
-	},
-	"dependencies": {
-		"@jetpack-premium-analytics/data": "workspace:*",
-		"@jetpack-premium-analytics/datetime": "workspace:*",
-		"@jetpack-premium-analytics/externals": "workspace:*",
-		"@jetpack-premium-analytics/formatters": "workspace:*",
-		"@jetpack-premium-analytics/routing": "workspace:*",
-		"@jetpack-premium-analytics/ui": "workspace:*",
-		"@jetpack-premium-analytics/widgets-toolkit": "workspace:*",
-		"@wordpress/element": "10.0.0",
-		"@wordpress/i18n": "^7.0.0",
-		"@wordpress/icons": "^19.0.0",
-		"@wordpress/route": "0.24.0",
-		"@wordpress/widget-dashboard": "0.10.0"
-	},
-	"devDependencies": {
-		"@testing-library/react": "16.3.3",
-		"@testing-library/user-event": "14.6.8",
-		"@wordpress/date": "6.0.0"
 	}
 }

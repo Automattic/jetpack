@@ -8,6 +8,8 @@ const LOCK_UPSELL = {
 	upgradeUrl: 'https://example.com/plans',
 };
 
+const UNAVAILABLE_HINT = 'Switch to the line chart to see each day.';
+
 describe( 'DateIntervalDropdown', () => {
 	it( 'lists the buckets it was given and reports the pick', async () => {
 		const onChange = jest.fn();
@@ -109,6 +111,36 @@ describe( 'DateIntervalDropdown', () => {
 		expect( onChange ).not.toHaveBeenCalled();
 	} );
 
+	it( 'lists the buckets the chart cannot draw now after the open ones, unpickable and explained', async () => {
+		const onChange = jest.fn();
+		const user = userEvent.setup();
+
+		render(
+			<DateIntervalDropdown
+				options={ [ 'week', 'month' ] }
+				unavailableOptions={ [ 'day' ] }
+				unavailableHint={ UNAVAILABLE_HINT }
+				value="week"
+				onChange={ onChange }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By weeks' } ) );
+
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'By weeks',
+			'By months',
+			'By days',
+		] );
+		const unavailable = screen.getByRole( 'menuitemradio', { name: 'By days' } );
+		expect( unavailable ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( unavailable ).toHaveAccessibleDescription( UNAVAILABLE_HINT );
+		expect( screen.getByText( UNAVAILABLE_HINT ) ).toBeVisible();
+
+		await user.click( unavailable );
+		expect( onChange ).not.toHaveBeenCalled();
+	} );
+
 	it( 'shows no upsell when the range has nothing the plan locks', async () => {
 		const user = userEvent.setup();
 
@@ -190,12 +222,15 @@ describe( 'DateIntervalDropdown', () => {
 			expect( onChange ).toHaveBeenCalledWith( 'week' );
 		} );
 
-		it( 'opens a menu on a lone open bucket when the plan locks others', async () => {
+		it.each( [
+			[ 'the plan locks others', { lockedOptions: [ 'week' ] as const } ],
+			[ 'the chart cannot draw others now', { unavailableOptions: [ 'week' ] as const } ],
+		] )( 'opens a menu on a lone open bucket when %s', async ( _, others ) => {
 			const user = userEvent.setup();
 			render(
 				<DateIntervalDropdown
 					options={ [ 'day' ] }
-					lockedOptions={ [ 'week' ] }
+					{ ...others }
 					value="day"
 					withLabel
 					onChange={ jest.fn() }
