@@ -182,7 +182,7 @@ class Status {
 	}
 
 	/**
-	 * Whether threats may be announced in menu badges and the admin bar.
+	 * Whether threats may be announced outside the Protect page.
 	 *
 	 * @since $$next-version$$
 	 *

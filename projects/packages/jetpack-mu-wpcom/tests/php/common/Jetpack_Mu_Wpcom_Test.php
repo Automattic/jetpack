@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests that Jetpack threat notifications are turned off on Atomic.
+ * Tests for the Jetpack_Mu_Wpcom bootstrap.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -12,9 +12,9 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Test class for the threat notifications filter wiring.
+ * Test class for Jetpack_Mu_Wpcom::init().
  */
-class Threat_Notifications_Test extends TestCase {
+class Jetpack_Mu_Wpcom_Test extends TestCase {
 
 	/**
 	 * The bootstrap's init() leaves notifications on off Atomic, and init() on Atomic turns them off.
