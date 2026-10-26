@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -15,6 +17,7 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
 /**
@@ -28,6 +31,7 @@ require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 #[CoversClass( Analytics::class )]
 #[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\ensure_widget_registry_ready' )]
 class Analytics_Test extends TestCase {
+	use Analytics_Capabilities_Trait;
 	use Widget_Manifest_Fixture_Trait;
 
 	const MENU_SLUG     = 'jetpack-premium-analytics-wp-admin';
@@ -84,6 +88,7 @@ class Analytics_Test extends TestCase {
 		remove_all_actions( 'plugins_loaded' );
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'admin_menu' );
+		remove_all_actions( 'admin_page_access_denied' );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( 'jetpack_stats_url' );
 		remove_all_filters( 'rest_post_dispatch' );
@@ -92,6 +97,11 @@ class Analytics_Test extends TestCase {
 		$this->reset_tracks_identity_state();
 		Capabilities::unregister();
 		$this->reset_analytics_init_state();
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		( new Connection_Manager() )->reset_connection_status();
+		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'wp_redirect' );
+		Status_Cache::clear();
 		parent::tearDown();
 	}
 
@@ -497,6 +507,91 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * Before the site is connected the page only offers to connect it, so like Stats it is for
+	 * whoever can connect, or for administrators in offline mode, where nobody can.
+	 *
+	 * @dataProvider provide_disconnected_menu_capabilities
+	 *
+	 * @param bool   $is_offline Whether the site is in offline mode.
+	 * @param string $capability The capability the menu should require.
+	 */
+	#[DataProvider( 'provide_disconnected_menu_capabilities' )]
+	public function test_register_admin_menu_needs_more_than_stats_access_before_the_site_is_connected( $is_offline, $capability ) {
+		add_filter( 'jetpack_offline_mode', $is_offline ? '__return_true' : '__return_false' );
+		add_filter( 'user_has_cap', array( $this, 'grant_jetpack_connect' ) );
+
+		$menu_item = $this->register_admin_menu_without_build( 'use_fixture_widget_manifest', false );
+
+		remove_filter( 'user_has_cap', array( $this, 'grant_jetpack_connect' ) );
+		$this->assertSame( $capability, $menu_item[1] ?? null );
+	}
+
+	/**
+	 * Disconnected sites, online and offline.
+	 *
+	 * @return array<string, array{bool, string}>
+	 */
+	public static function provide_disconnected_menu_capabilities() {
+		return array(
+			'online'  => array( false, 'jetpack_connect' ),
+			'offline' => array( true, 'manage_options' ),
+		);
+	}
+
+	/**
+	 * A reader who refreshes the page after losing access, for example to a disconnection, lands
+	 * on the wp-admin Dashboard rather than the "not allowed" screen. Other pages are left alone.
+	 *
+	 * @dataProvider provide_denied_pages
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param string      $page     The requested admin page.
+	 * @param string|null $location Where the denied request should be sent, or null for nowhere.
+	 */
+	#[DataProvider( 'provide_denied_pages' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_denied_request_redirects_only_from_the_dashboard( $page, $location ) {
+		set_current_screen( 'toplevel_page_' . $page );
+		$_GET['page'] = $page;
+		Analytics::init();
+		add_filter(
+			'wp_redirect',
+			/**
+			 * Stops the redirect at its location, before the callback exits.
+			 *
+			 * @param string $location Redirect target.
+			 * @return never
+			 */
+			static function ( $location ) {
+				throw new \RuntimeException( $location );
+			}
+		);
+
+		$redirected_to = null;
+		try {
+			do_action( 'admin_page_access_denied' );
+		} catch ( \RuntimeException $e ) {
+			$redirected_to = $e->getMessage();
+		}
+
+		$this->assertSame( $location, $redirected_to );
+	}
+
+	/**
+	 * The dashboard, and another plugin's page.
+	 *
+	 * @return array<string, array{string, string|null}>
+	 */
+	public static function provide_denied_pages() {
+		return array(
+			'dashboard'          => array( self::MENU_SLUG, 'http://example.org/wp-admin/' ),
+			'another admin page' => array( 'some-other-plugin', null ),
+		);
+	}
+
+	/**
 	 * The `analytics` key's presence is what tells every Jetpack surface outside
 	 * this package that this dashboard — not the legacy Stats page — is where
 	 * analytics links should go.
@@ -541,12 +636,27 @@ class Analytics_Test extends TestCase {
 	 */
 	public function test_add_script_data_reports_can_view_for_a_capable_user() {
 		Capabilities::register();
+		$this->connect_site();
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
 		$data = Analytics::add_script_data( array() );
 
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		$this->assertTrue( $data['analytics']['can_view'] );
+	}
+
+	/**
+	 * Before the site is connected the Stats page is only for whoever can connect it, so a Stats
+	 * reader who cannot gets no links to it.
+	 */
+	public function test_add_script_data_reports_can_view_false_before_the_site_is_connected_for_a_reader_who_cannot_connect() {
+		Capabilities::register();
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$data = Analytics::add_script_data( array() );
+
+		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$this->assertFalse( $data['analytics']['can_view'] );
 	}
 
 	public function test_add_script_data_reports_can_view_false_without_the_capability() {
@@ -807,6 +917,7 @@ class Analytics_Test extends TestCase {
 
 		$GLOBALS['menu'] = array();
 		Capabilities::register();
+		$this->connect_site();
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
@@ -838,6 +949,7 @@ class Analytics_Test extends TestCase {
 
 		$GLOBALS['menu'] = array();
 		Capabilities::register();
+		$this->connect_site();
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
@@ -938,8 +1050,14 @@ class Analytics_Test extends TestCase {
 		$this->assertArrayHasKey( self::MENU_HOOKNAME, $_registered_pages );
 	}
 
-	private function register_admin_menu_without_build( $manifest_filter = 'use_fixture_widget_manifest' ) {
+	private function register_admin_menu_without_build( $manifest_filter = 'use_fixture_widget_manifest', $is_connected = true ) {
 		$GLOBALS['menu'] = array();
+
+		if ( $is_connected ) {
+			$this->connect_site();
+		} else {
+			( new Connection_Manager() )->reset_connection_status();
+		}
 
 		// Hooked by boot_shared_services() in production; add_menu_page() resolves the
 		// dashboard capability, and an unmapped one would skip the page's render hook.
@@ -984,6 +1102,30 @@ class Analytics_Test extends TestCase {
 			10,
 			2
 		);
+	}
+
+	/**
+	 * Give the test user `view_stats`, as a site that lets a role see Stats does.
+	 *
+	 * @param array $caps Capabilities.
+	 * @return array
+	 */
+	public function grant_view_stats( $caps ) {
+		$caps['view_stats'] = true;
+
+		return $caps;
+	}
+
+	/**
+	 * Give the test user `jetpack_connect`, which the connection package maps outside these tests.
+	 *
+	 * @param array $caps Capabilities.
+	 * @return array
+	 */
+	public function grant_jetpack_connect( $caps ) {
+		$caps['jetpack_connect'] = true;
+
+		return $caps;
 	}
 
 	/**
