@@ -184,6 +184,7 @@ class Jetpack_Backup {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
 		add_filter( 'jetpack_activity_log_restore_url_template', array( __CLASS__, 'activity_log_restore_url_template' ) );
+		add_filter( 'jetpack_activity_log_backup_url_template', array( __CLASS__, 'activity_log_backup_url_template' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
@@ -545,15 +546,41 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * The backup calls should only occur from a signed in admin user
+	 * The backup calls should only occur from a signed in admin user, outside offline mode
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return true|WP_Error
+	 * @return bool|WP_Error
 	 */
 	public static function backups_permissions_callback() {
-		return current_user_can( 'manage_options' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		return self::get_offline_mode_error() ?? true;
+	}
+
+	/**
+	 * The error the dashboard's routes and abilities answer with while Jetpack is in offline mode.
+	 *
+	 * A local copy of a live site keeps its tokens, and offline mode drops the identity-crisis
+	 * check, so WordPress.com would act on the live site's backups.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_Error|null Null outside offline mode.
+	 */
+	public static function get_offline_mode_error() {
+		if ( ! ( new Status() )->is_offline_mode() ) {
+			return null;
+		}
+
+		return new WP_Error(
+			'offline_mode',
+			__( 'Backup is unavailable in Offline Mode.', 'jetpack-backup-pkg' ),
+			array( 'status' => 403 )
+		);
 	}
 
 	/**
@@ -1324,6 +1351,22 @@ class Jetpack_Backup {
 		}
 
 		return admin_url( 'admin.php?page=' . self::JETPACK_BACKUP_SLUG . '&p=%2Frestore%2F{rewindId}' );
+	}
+
+	/**
+	 * Sends the Activity Log's links to a backup to this dashboard's Overview, with that backup selected, when it is on.
+	 *
+	 * The router reads search values as JSON, so the rewind id is quoted to stay a string.
+	 *
+	 * @param string $template Backup URL template, with `{rewindId}` as the placeholder.
+	 * @return string
+	 */
+	public static function activity_log_backup_url_template( $template ) {
+		if ( ! self::is_modernized() ) {
+			return $template;
+		}
+
+		return admin_url( 'admin.php?page=' . self::JETPACK_BACKUP_SLUG . '&p=%2F%3Fselected%3D%2522{rewindId}%2522' );
 	}
 
 	/**

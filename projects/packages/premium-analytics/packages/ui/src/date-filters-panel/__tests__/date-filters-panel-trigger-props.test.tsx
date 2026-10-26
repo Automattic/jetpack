@@ -26,7 +26,7 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 	};
 } );
 
-const TRIGGER_NAMES = [ 'Last 30 days', 'Compare', 'Chart interval: By days' ];
+const TRIGGER_NAMES = [ 'Last 30 days', 'Compare', 'By days' ];
 
 function renderPanel( props: Partial< DateFiltersPanelProps > = {} ) {
 	return render(
