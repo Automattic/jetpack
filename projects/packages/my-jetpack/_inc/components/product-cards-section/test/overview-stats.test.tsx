@@ -39,4 +39,17 @@ describe( 'OverviewStats', () => {
 		);
 		expect( screen.getByTestId( 'chart' ) ).toHaveTextContent( 'Visitors' );
 	} );
+
+	it( 'shows no zero counts while loading', () => {
+		render(
+			<OverviewStats
+				isLoading
+				counts={ {} }
+				chartData={ null }
+				onDetailedStatsClick={ jest.fn() }
+			/>
+		);
+
+		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
+	} );
 } );

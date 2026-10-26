@@ -46,10 +46,11 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 
 	const detailedStatsHref = getDetailedStatsHref( manageUrl, premiumAnalyticsEnabled );
 
-	if ( isActive && ! isStatsLoading && ! isError ) {
+	if ( isActive && ( isStatsLoading || ! isError ) ) {
 		return (
 			<Stack direction="column" gap="lg">
 				<OverviewStats
+					isLoading={ isStatsLoading }
 					counts={ counts }
 					chartData={ chartData }
 					detailedStatsHref={ detailedStatsHref }
@@ -66,14 +67,12 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 		);
 	}
 
-	// The item stands in for the chart until there is data, as the chart's counts read 0 before it.
 	return (
 		<OverviewItem
 			slug={ PRODUCT_SLUGS.STATS }
 			admin={ admin }
 			label={ __( 'Views in the last 7 days', 'jetpack-my-jetpack' ) }
 			action={ isActive ? undefined : statusAction }
-			isLoading={ isActive && isStatsLoading }
 			error={
 				isActive && isError
 					? {

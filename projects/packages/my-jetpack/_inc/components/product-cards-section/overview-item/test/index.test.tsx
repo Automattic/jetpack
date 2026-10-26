@@ -77,20 +77,26 @@ describe( 'OverviewItem', () => {
 		expect( screen.queryByText( 'Activate Stats' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'ignores clicks on a busy action', async () => {
+	it( 'shows a busy action as a skeleton until the user clicks it, then ignores clicks', async () => {
 		const onClick = jest.fn();
-		render(
+		const item = ( disabled: boolean ) => (
 			<OverviewItem
 				slug="stats"
 				admin
 				label="Views"
-				action={ { label: 'Activate Stats', onClick, disabled: true } }
+				action={ { label: 'Activate Stats', onClick, disabled } }
 			/>
 		);
+		const { rerender } = render( item( true ) );
+		expect( screen.queryByRole( 'button', { name: 'Activate Stats' } ) ).not.toBeInTheDocument();
+
+		rerender( item( false ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Activate Stats' } ) );
+		rerender( item( true ) );
 
 		const button = screen.getByRole( 'button', { name: 'Activate Stats' } );
 		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
 		await userEvent.click( button );
-		expect( onClick ).not.toHaveBeenCalled();
+		expect( onClick ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

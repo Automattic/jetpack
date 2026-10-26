@@ -3,6 +3,7 @@ import { Button, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
 import formatNumber from '../../../utils/format-number';
+import LoadingBlock from '../../loading-block';
 import { transformStatsDataForChart } from '../../stats-section/cards';
 import StatsChart from '../../stats-section/stats-chart';
 import styles from './overview-stats.module.scss';
@@ -11,6 +12,7 @@ import type { FC } from 'react';
 type Metric = 'views' | 'visitors' | 'likes' | 'comments';
 
 type OverviewStatsProps = {
+	isLoading?: boolean;
 	counts: Partial< Record< Metric, number > >;
 	chartData: object | null;
 	detailedStatsHref?: string;
@@ -30,11 +32,12 @@ type TabProps = {
 	metric: Metric;
 	label: string;
 	count?: number;
+	isLoading: boolean;
 	isSelected: boolean;
 	onSelect: ( metric: Metric ) => void;
 };
 
-const Tab: FC< TabProps > = ( { metric, label, count, isSelected, onSelect } ) => {
+const Tab: FC< TabProps > = ( { metric, label, count, isLoading, isSelected, onSelect } ) => {
 	const handleClick = useCallback( () => onSelect( metric ), [ metric, onSelect ] );
 
 	return (
@@ -45,9 +48,16 @@ const Tab: FC< TabProps > = ( { metric, label, count, isSelected, onSelect } ) =
 			onClick={ handleClick }
 		>
 			<Text variant="body-md">{ label }</Text>
-			<Text variant="heading-2xl" title={ Number.isFinite( count ) ? String( count ) : undefined }>
-				{ formatNumber( count ?? 0 ) }
-			</Text>
+			{ isLoading ? (
+				<LoadingBlock width="64px" height="40px" />
+			) : (
+				<Text
+					variant="heading-2xl"
+					title={ Number.isFinite( count ) ? String( count ) : undefined }
+				>
+					{ formatNumber( count ?? 0 ) }
+				</Text>
+			) }
 		</Button>
 	);
 };
@@ -59,6 +69,7 @@ const Tab: FC< TabProps > = ( { metric, label, count, isSelected, onSelect } ) =
  * @return {import('react').JSX.Element} The stats.
  */
 const OverviewStats: FC< OverviewStatsProps > = ( {
+	isLoading = false,
 	counts,
 	chartData,
 	detailedStatsHref,
@@ -72,13 +83,14 @@ const OverviewStats: FC< OverviewStatsProps > = ( {
 
 	return (
 		<Stack direction="column" gap="lg">
-			<div className={ styles.tabs }>
+			<div className={ styles.tabs } aria-busy={ isLoading }>
 				{ getMetrics().map( ( { metric, label } ) => (
 					<Tab
 						key={ metric }
 						metric={ metric }
 						label={ label }
 						count={ counts?.[ metric ] }
+						isLoading={ isLoading }
 						isSelected={ selectedMetric === metric }
 						onSelect={ setSelectedMetric }
 					/>
@@ -86,7 +98,7 @@ const OverviewStats: FC< OverviewStatsProps > = ( {
 			</div>
 			<StatsChart
 				data={ series }
-				isLoading={ false }
+				isLoading={ isLoading }
 				href={ detailedStatsHref }
 				onClick={ onDetailedStatsClick }
 				selectedMetric={ selectedMetric }

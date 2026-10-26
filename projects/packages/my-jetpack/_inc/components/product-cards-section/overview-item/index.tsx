@@ -1,11 +1,13 @@
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
-import { Badge, Button, Icon, Link, Spinner, Stack, Text } from '@wordpress/ui';
+import { Badge, Button, Icon, Link, Spinner, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
+import { useCallback, useState } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useProductsByOwnership from '../../../data/products/use-products-by-ownership';
+import LoadingBlock from '../../loading-block';
 import { getStatusLabel, getStatusTone } from '../../product-card/status';
 import styles from './style.module.scss';
 import type { StatusTone } from '../../product-card/status';
@@ -127,6 +129,13 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 		statusBadge = { ...ownStatusBadge, label: statusLabel };
 	}
 	const showsStatus = ! isHealthy || !! forcedOffReason;
+	// A busy action the user hasn't clicked is still loading, so it gets a skeleton rather than a spinner.
+	const [ wasActionClicked, setWasActionClicked ] = useState( false );
+	const actionOnClick = action?.onClick;
+	const onActionClick = useCallback( () => {
+		setWasActionClicked( true );
+		actionOnClick?.();
+	}, [ actionOnClick ] );
 
 	const productLinks: ReactNode[] = [];
 	if ( ( admin || action?.forEveryone ) && action && ! forcedOffReason ) {
@@ -139,7 +148,7 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 							render: (
 								<Button
 									variant="unstyled"
-									onClick={ action.onClick }
+									onClick={ onActionClick }
 									disabled={ action.disabled }
 									loading={ action.disabled }
 								/>
@@ -150,16 +159,18 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 				{ action.label }
 			</Link>
 		);
-		productLinks.push(
-			action.disabled ? (
+		let shownAction: ReactNode = actionLink;
+		if ( action.disabled && ! wasActionClicked ) {
+			shownAction = <LoadingBlock key="action" width="96px" height="20px" />;
+		} else if ( action.disabled ) {
+			shownAction = (
 				<Stack key="action" direction="row" align="center" gap="sm">
 					{ actionLink }
 					<Spinner />
 				</Stack>
-			) : (
-				actionLink
-			)
-		);
+			);
+		}
+		productLinks.push( shownAction );
 	}
 	if ( admin && upgrade ) {
 		productLinks.push(
@@ -176,7 +187,10 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	let links = productLinks;
 	if ( isLoading ) {
 		content = (
-			<Badge intent="none">{ loadingLabel ?? __( 'Loading…', 'jetpack-my-jetpack' ) }</Badge>
+			<>
+				<LoadingBlock width="80px" height="40px" />
+				<VisuallyHidden>{ loadingLabel ?? __( 'Loading…', 'jetpack-my-jetpack' ) }</VisuallyHidden>
+			</>
 		);
 	} else if ( error ) {
 		content = <Badge intent="high">{ error.reason }</Badge>;
