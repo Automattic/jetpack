@@ -116,13 +116,11 @@
 	// Toolbar for "insert" and pagination button.
 	.jetpack-external-media-browser__media__toolbar {
 		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		width: 100%;
+		inset-block-end: 0;
+		inset-inline: 0;
 		height: 76px;
-		padding: 0 32px;
-		background: #fff;
+		padding-inline: var(--wpds-dimension-padding-3xl);
+		background: var(--wpds-color-background-surface-neutral);
 	}
 
 	.jetpack-external-media-browser__loading {
