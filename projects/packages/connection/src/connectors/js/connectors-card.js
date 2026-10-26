@@ -158,10 +158,10 @@ function useCardConnection() {
 		const viewer = isRegistered
 			? buildViewer( currentUser, Boolean( connectionStatus.isUserConnected ) )
 			: null;
-		// Tracks `audience`: `site` whenever the viewer's own account isn't connected, owner or not.
-		let audience = 'site';
+		// Tracks `viewer_connection_type`: `site_only` whenever the viewer's own account isn't connected, owner or not.
+		let viewerConnectionType = 'site_only';
 		if ( viewer ) {
-			audience = ownerIsViewer || viewer.isOwner ? 'owner' : 'user';
+			viewerConnectionType = ownerIsViewer || viewer.isOwner ? 'owner' : 'user';
 		}
 		// The initial state sends a WP_Error object when the plugin list can't be read.
 		const connectedPlugins = ( Array.isArray( plugins ) ? plugins : [] ).map( plugin => ( {
@@ -194,7 +194,7 @@ function useCardConnection() {
 				: null,
 			isOwnerConnectionBroken,
 			ownerIsViewer,
-			audience,
+			viewerConnectionType,
 			connectedPlugins,
 			// Stats and Backups are Jetpack-plugin features, so only cite them as examples
 			// of paused features when a Jetpack-family plugin is actually connected.
@@ -219,24 +219,27 @@ const TRACKING_CONTEXT = 'connectors';
 /**
  * Tracks recording for the card, silent in offline mode where every action is disabled.
  *
- * Every event carries the viewer's `audience` from useCardConnection(). `track` is a no-op when an
+ * Every event carries the viewer's `viewer_connection_type` from useCardConnection(). `track` is a no-op when an
  * older shared bundle lacks the helper.
  *
- * @param {object}  connection               - Values from the caller's useCardConnection().
- * @param {boolean} connection.isOfflineMode - Whether the site is in offline mode.
- * @param {string}  connection.audience      - The viewer's role: owner, user or site.
+ * @param {object}  connection                      - Values from the caller's useCardConnection().
+ * @param {boolean} connection.isOfflineMode        - Whether the site is in offline mode.
+ * @param {string}  connection.viewerConnectionType - The viewer's connection: owner, user or site_only.
  * @return {{trackingContext: (string|undefined), track: Function}} Context for the shared dialogs, and a recorder.
  */
-function useTracking( { isOfflineMode, audience } ) {
+function useTracking( { isOfflineMode, viewerConnectionType } ) {
 	return useMemo( () => {
 		const trackingContext = isOfflineMode ? undefined : TRACKING_CONTEXT;
 		const track = ( event, props ) => {
 			if ( trackingContext && event && typeof trackConnectionEvent === 'function' ) {
-				trackConnectionEvent( event, trackingContext, { ...props, audience } );
+				trackConnectionEvent( event, trackingContext, {
+					...props,
+					viewer_connection_type: viewerConnectionType,
+				} );
 			}
 		};
 		return { trackingContext, track };
-	}, [ isOfflineMode, audience ] );
+	}, [ isOfflineMode, viewerConnectionType ] );
 }
 
 /**
@@ -774,8 +777,8 @@ function canReleaseProtectedOwner( viewer ) {
  */
 function ReleaseOwnershipSection( { isBusy = false } ) {
 	const [ isReleaseOpen, setIsReleaseOpen ] = useState( false );
-	const { isOfflineMode, subjectNoun, audience } = useCardConnection();
-	const { trackingContext, track } = useTracking( { isOfflineMode, audience } );
+	const { isOfflineMode, subjectNoun, viewerConnectionType } = useCardConnection();
+	const { trackingContext, track } = useTracking( { isOfflineMode, viewerConnectionType } );
 
 	return createElement(
 		VStack,
@@ -814,8 +817,8 @@ function ReleaseOwnershipSection( { isBusy = false } ) {
  */
 function ProtectedOwnerSection() {
 	const [ isConfirmOpen, setIsConfirmOpen ] = useState( false );
-	const { subjectNoun, isOfflineMode, audience } = useCardConnection();
-	const { trackingContext, track } = useTracking( { isOfflineMode, audience } );
+	const { subjectNoun, isOfflineMode, viewerConnectionType } = useCardConnection();
+	const { trackingContext, track } = useTracking( { isOfflineMode, viewerConnectionType } );
 	const kind = protectedOwnerSlotKind();
 	let title;
 	let body;
@@ -1201,8 +1204,9 @@ function IDCPanel() {
 	const [ error, setError ] = useState( null );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 	const [ showWhy, setShowWhy ] = useState( false );
-	const { hasJetpackPlugin, subjectNoun, isOfflineMode, audience } = useCardConnection();
-	const { track, trackingContext } = useTracking( { isOfflineMode, audience } );
+	const { hasJetpackPlugin, subjectNoun, isOfflineMode, viewerConnectionType } =
+		useCardConnection();
+	const { track, trackingContext } = useTracking( { isOfflineMode, viewerConnectionType } );
 	// Also bumps the `jetpack-idc` MC stat the Identity Crisis screen bumps, when the site allows tracking.
 	const trackIdc = ( event, stat ) => {
 		track( event, idcTrackingProps );
@@ -1624,7 +1628,7 @@ function ExpandedDetails( {
 		isOfflineMode,
 		tracksIdentity,
 		connectedPlugins,
-		audience,
+		viewerConnectionType,
 	} = useCardConnection();
 	const [ isDisconnectUserOpen, setIsDisconnectUserOpen ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
@@ -1632,7 +1636,7 @@ function ExpandedDetails( {
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 	const [ actionError, setActionError ] = useState( null );
-	const { track } = useTracking( { isOfflineMode, audience } );
+	const { track } = useTracking( { isOfflineMode, viewerConnectionType } );
 	const detailsLinkRef = useRef( null );
 	const transferOwnershipRef = useRef( null );
 	const transferredRef = useRef( false );
@@ -1931,9 +1935,9 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		viewer,
 		currentUser,
 		tracksIdentity,
-		audience,
+		viewerConnectionType,
 	} = useCardConnection();
-	const { track } = useTracking( { isOfflineMode, audience } );
+	const { track } = useTracking( { isOfflineMode, viewerConnectionType } );
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	// Identify the viewer once here, so every dialog the card opens records events under them.
 	useEffect( () => {

@@ -59,7 +59,7 @@ Actions that change only store data update the card in place, such as a non-owne
 
 ## Tracking
 
-Every card event carries `context: 'connectors'` and `audience`, the viewer's role: `owner` (connection owner), `user` (connected, not the owner) or `site` (the viewer's own account isn't connected, including an owner whose token is missing). Events are skipped in offline mode, where the card's actions are disabled. The card cannot bundle `@automattic/jetpack-analytics`, so it records through `trackConnectionEvent()` from the shared `jetpack-connection` script and does nothing when an older bundle lacks it.
+Every card event carries `context: 'connectors'` and `viewer_connection_type`: `owner` (connection owner), `user` (connected, not the owner) or `site_only` (the viewer's own account isn't connected, including an owner whose token is missing). Events are skipped in offline mode, where the card's actions are disabled. The card cannot bundle `@automattic/jetpack-analytics`, so it records through `trackConnectionEvent()` from the shared `jetpack-connection` script and does nothing when an older bundle lacks it.
 
 | Event | Fired when | Extra properties |
 | --- | --- | --- |
@@ -68,7 +68,7 @@ Every card event carries `context: 'connectors'` and `audience`, the viewer's ro
 | `jetpack_idc_migrate`, `jetpack_idc_start_fresh`, `jetpack_idc_confirm_safe_mode` | A Safe Mode resolution is clicked. Names shared with the standard Identity Crisis screen, so split by `context`. Like that screen, also bumps the `jetpack-idc` MC stat (`migrate`, `start-fresh`, `confirm-safe-mode`), but only when the site allows tracking (`idc.bumpStats`). | `platform`: `woa`, `vip`, `newspack` or `self-hosted`, as on the Identity Crisis screen |
 | `jetpack_idc_disconnect_site` | The Safe Mode panel's disconnect is confirmed, after its `safe_mode_disconnect_site` click. | `platform` |
 
-The shared dialogs track by default, with the `context` their host passes (`trackingContext`, or `context` for the disconnect dialogs) and `null` when it passes none. They send no `audience`:
+The shared dialogs track by default, with the `context` their host passes (`trackingContext`, or `context` for the disconnect dialogs) and `null` when it passes none. They send no `viewer_connection_type`:
 
 | Event | Fired when | Extra properties |
 | --- | --- | --- |
