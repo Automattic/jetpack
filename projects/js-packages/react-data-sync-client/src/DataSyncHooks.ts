@@ -12,6 +12,7 @@ import { createElement, useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 import { DataSyncError } from './DataSyncError';
+import type { AnySchema } from './types';
 import type { ReactNode } from 'react';
 
 /**
@@ -38,14 +39,14 @@ export function DataSyncProvider( props: { children: ReactNode } ) {
  */
 type DataSyncMutation< Value > = Omit< UseMutationOptions< Value >, 'mutationKey' >;
 type DataSyncQuery< Value > = Omit< UseQueryOptions< Value >, 'queryKey' >;
-type DataSyncConfig< Schema extends z.ZodSchema, Value extends z.infer< Schema > > = {
+type DataSyncConfig< Schema extends AnySchema, Value extends z.infer< Schema > > = {
 	query?: DataSyncQuery< Value >;
 	mutation?: DataSyncMutation< Value >;
 };
 /**
  * This is what `useDataSync` returns
  */
-type DataSyncHook< Schema extends z.ZodSchema, Value extends z.infer< Schema > > = [
+type DataSyncHook< Schema extends AnySchema, Value extends z.infer< Schema > > = [
 	UseQueryResult< Value >,
 	UseMutationResult< Value, DataSyncError | Error, Value >,
 ];
@@ -77,7 +78,7 @@ function buildQueryKey( key: string, params: Record< string, string | number > )
  * @see https://tanstack.com/query/v5/docs/react/reference/useMutation
  */
 export function useDataSync<
-	Schema extends z.ZodSchema,
+	Schema extends AnySchema,
 	Value extends z.infer< Schema >,
 	Key extends string,
 >(
@@ -205,10 +206,10 @@ export function useDataSync<
  * Use React Query mutations to dispatch custom DataSync Actions.
  */
 export type DataSyncActionConfig<
-	ActionRequestSchema extends z.ZodSchema,
+	ActionRequestSchema extends AnySchema,
 	ActionRequestData extends z.infer< ActionRequestSchema >,
-	StateSchema extends z.ZodSchema,
-	ActionSchema extends z.ZodSchema,
+	StateSchema extends AnySchema,
+	ActionSchema extends AnySchema,
 	ActionResult extends z.infer< ActionSchema >,
 	CurrentState extends z.infer< StateSchema >,
 > = {
@@ -274,9 +275,9 @@ export type DataSyncActionConfig<
 	params?: Record< string, string | number >;
 };
 export function useDataSyncAction<
-	StateSchema extends z.ZodSchema,
-	ActionSchema extends z.ZodSchema,
-	ActionRequestSchema extends z.ZodSchema,
+	StateSchema extends AnySchema,
+	ActionSchema extends AnySchema,
+	ActionRequestSchema extends AnySchema,
 	ActionRequestData extends z.infer< ActionRequestSchema >,
 	ActionResult extends z.infer< ActionSchema >,
 	CurrentState extends z.infer< StateSchema >,
@@ -368,7 +369,7 @@ type SubsetMutation< T > = {
 };
 
 export function useDataSyncSubset<
-	Schema extends z.ZodSchema,
+	Schema extends AnySchema,
 	Value extends z.infer< Schema >,
 	K extends keyof Value,
 >( hook: DataSyncHook< Schema, Value >, key: K ): [ Value[ K ], SubsetMutation< Value[ K ] > ] {
