@@ -73,7 +73,7 @@ describe( 'FirewallOverviewCard', () => {
 
 		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
 		expect( screen.getByText( /Your host provides a firewall/ ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Test firewall' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Run test' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'reports the test in a snackbar whose Learn more opens the steps', async () => {
