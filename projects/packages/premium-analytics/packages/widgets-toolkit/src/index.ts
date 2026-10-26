@@ -95,6 +95,7 @@ export {
 	InfoTip,
 	type InfoTipProps,
 	InternalLink,
+	useStatsUpgradeLinkProps,
 	PostTitleLink,
 	POST_URL_SEARCH_PARAM,
 	type PostTitleLinkProps,

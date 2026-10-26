@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Dashboard: Show requests blocked today and in the last 30 days, and when the automatic firewall rules were last updated, on the Firewall card.

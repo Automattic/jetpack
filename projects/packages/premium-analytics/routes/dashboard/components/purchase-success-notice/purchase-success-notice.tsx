@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getPlanUpgradeUrl } from '../stats-settings/plan-usage';
+import { usePlanUpgradeLinkProps } from '../stats-settings/plan-usage';
 import styles from './purchase-success-notice.module.scss';
 import type { JSX } from 'react';
 
@@ -60,6 +60,7 @@ function ConnectedNotice(): JSX.Element | null {
 	const [ isDismissed, setIsDismissed ] = useState( isDismissedThisLoad );
 	const { data: isCommercial, isPending } = useSiteIsCommercial( { enabled: isPaid } );
 	const trackEvent = useTrackEvent();
+	const upgradeLink = usePlanUpgradeLinkProps( 'jetpack-free-stats-purchase-success-notice' );
 
 	useEffect( removePurchaseSuccessParam, [] );
 
@@ -100,14 +101,13 @@ function ConnectedNotice(): JSX.Element | null {
 					'jetpack-premium-analytics-pkg'
 				);
 	} else {
-		const upgradeHref = getPlanUpgradeUrl( 'jetpack-free-stats-purchase-success-notice' );
 		description = createInterpolateElement(
 			__(
 				'We appreciate your continued support. If you want to access upcoming features, <link>please consider upgrading</link>.',
 				'jetpack-premium-analytics-pkg'
 			),
 			{
-				link: upgradeHref ? <Link href={ upgradeHref } onClick={ recordUpgradeClick } /> : <span />,
+				link: upgradeLink ? <Link { ...upgradeLink } onClick={ recordUpgradeClick } /> : <span />,
 			}
 		);
 	}

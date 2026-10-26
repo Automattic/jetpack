@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Onboarding: Explain why connecting failed, with the underlying cause underneath when it helps.

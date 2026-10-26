@@ -59,6 +59,7 @@ export {
 	type StatsAppNoticesParams,
 	type StatsAppNoticeStatus,
 } from './use-stats-app-notices';
+export { useStatsUpgradeTiers, type StatsUpgradeTier } from './use-stats-upgrade-tiers';
 export {
 	useStatsAppPurchases,
 	type StatsAppPurchase,

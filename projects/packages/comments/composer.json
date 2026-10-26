@@ -41,7 +41,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"branch-alias": {
-			"dev-trunk": "0.7.x-dev"
+			"dev-trunk": "0.8.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
