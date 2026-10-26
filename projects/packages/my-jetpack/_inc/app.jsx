@@ -50,6 +50,14 @@ function ScrollToTop() {
 		window.scrollTo( 0, 0 );
 	}, [ location ] );
 
+	// The admin page layout scrolls its middle, not the window. Keyed on the path so that
+	// query changes, like the Features filters, keep their place.
+	useEffect( () => {
+		document.querySelectorAll( '.jp-admin-page__page > *' ).forEach( el => {
+			el.scrollTop = 0;
+		} );
+	}, [ location.pathname ] );
+
 	return null;
 }
 
