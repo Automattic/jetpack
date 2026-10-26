@@ -89,71 +89,74 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	);
 	useArrowKeyNavigation( data, selected, getItemId, open );
 
+	const table = (
+		<DataViews
+			empty={
+				status === 'fixed' ? (
+					<EmptyState.Root className="jp-protect-history-empty">
+						<EmptyState.Icon icon={ published } />
+						<EmptyState.Title>
+							{ __( 'No fixed threats yet', 'jetpack-protect-pkg' ) }
+						</EmptyState.Title>
+						<EmptyState.Description>
+							{ __(
+								'When Scan fixes a threat on your site, it will be listed here with the date it was fixed.',
+								'jetpack-protect-pkg'
+							) }
+						</EmptyState.Description>
+					</EmptyState.Root>
+				) : (
+					<EmptyState.Root className="jp-protect-history-empty">
+						<EmptyState.Icon icon={ unseen } />
+						<EmptyState.Title>
+							{ __( 'No ignored threats', 'jetpack-protect-pkg' ) }
+						</EmptyState.Title>
+						<EmptyState.Description>
+							{ __(
+								'Threats you ignore will be listed here, where you can unignore them at any time.',
+								'jetpack-protect-pkg'
+							) }
+						</EmptyState.Description>
+					</EmptyState.Root>
+				)
+			}
+			data={ data }
+			fields={ fields }
+			actions={ actions }
+			view={ view }
+			onChangeView={ setView }
+			paginationInfo={ paginationInfo }
+			defaultLayouts={ DEFAULT_LAYOUTS }
+			getItemId={ getItemId }
+			selection={ selection }
+		>
+			<DataViews.Layout />
+			<DataViews.Footer />
+		</DataViews>
+	);
+
 	return (
-		<div className="jp-protect-threats">
+		<Tabs.Root className="jp-protect-threats" value={ status } onValueChange={ onStatusChange }>
 			<div className="jp-protect-threats__filter">
-				<Tabs.Root value={ status } onValueChange={ onStatusChange }>
-					<Tabs.List variant="minimal">
-						<Tabs.Tab value="fixed">
-							{ sprintf(
-								/* translators: %d is a number of threats. */
-								__( 'Fixed (%d)', 'jetpack-protect-pkg' ),
-								fixed.length
-							) }
-						</Tabs.Tab>
-						<Tabs.Tab value="ignored">
-							{ sprintf(
-								/* translators: %d is a number of threats. */
-								__( 'Ignored (%d)', 'jetpack-protect-pkg' ),
-								ignored.length
-							) }
-						</Tabs.Tab>
-					</Tabs.List>
-				</Tabs.Root>
+				<Tabs.List variant="minimal">
+					<Tabs.Tab value="fixed">
+						{ sprintf(
+							/* translators: %d is a number of threats. */
+							__( 'Fixed (%d)', 'jetpack-protect-pkg' ),
+							fixed.length
+						) }
+					</Tabs.Tab>
+					<Tabs.Tab value="ignored">
+						{ sprintf(
+							/* translators: %d is a number of threats. */
+							__( 'Ignored (%d)', 'jetpack-protect-pkg' ),
+							ignored.length
+						) }
+					</Tabs.Tab>
+				</Tabs.List>
 			</div>
-			<DataViews
-				empty={
-					status === 'fixed' ? (
-						<EmptyState.Root className="jp-protect-history-empty">
-							<EmptyState.Icon icon={ published } />
-							<EmptyState.Title>
-								{ __( 'No fixed threats yet', 'jetpack-protect-pkg' ) }
-							</EmptyState.Title>
-							<EmptyState.Description>
-								{ __(
-									'When Scan fixes a threat on your site, it will be listed here with the date it was fixed.',
-									'jetpack-protect-pkg'
-								) }
-							</EmptyState.Description>
-						</EmptyState.Root>
-					) : (
-						<EmptyState.Root className="jp-protect-history-empty">
-							<EmptyState.Icon icon={ unseen } />
-							<EmptyState.Title>
-								{ __( 'No ignored threats', 'jetpack-protect-pkg' ) }
-							</EmptyState.Title>
-							<EmptyState.Description>
-								{ __(
-									'Threats you ignore will be listed here, where you can unignore them at any time.',
-									'jetpack-protect-pkg'
-								) }
-							</EmptyState.Description>
-						</EmptyState.Root>
-					)
-				}
-				data={ data }
-				fields={ fields }
-				actions={ actions }
-				view={ view }
-				onChangeView={ setView }
-				paginationInfo={ paginationInfo }
-				defaultLayouts={ DEFAULT_LAYOUTS }
-				getItemId={ getItemId }
-				selection={ selection }
-			>
-				<DataViews.Layout />
-				<DataViews.Footer />
-			</DataViews>
-		</div>
+			<Tabs.Panel value="fixed">{ status === 'fixed' && table }</Tabs.Panel>
+			<Tabs.Panel value="ignored">{ status === 'ignored' && table }</Tabs.Panel>
+		</Tabs.Root>
 	);
 }
