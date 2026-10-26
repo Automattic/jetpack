@@ -22,7 +22,7 @@ const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
 const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
 
 /**
- * The Scan card: what the latest scan found, or that it found nothing; scans start from the page header.
+ * The Scan results card: what the latest scan found, or that it found nothing; scans start from the page header.
  *
  * @param props         - Component props.
  * @param props.openTab - Switches dashboard tabs, for the link to Scan history.
@@ -129,7 +129,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	return (
 		<ProtectCard
 			icon={ hasThreats ? threatsIcon : shield }
-			title={ __( 'Scan', 'jetpack-protect-pkg' ) }
+			title={ __( 'Scan results', 'jetpack-protect-pkg' ) }
 			description={
 				hasPlan
 					? __(
