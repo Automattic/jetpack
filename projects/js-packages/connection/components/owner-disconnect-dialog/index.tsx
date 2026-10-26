@@ -101,7 +101,7 @@ const OwnerDisconnectDialog = ( {
 		isOpen && (
 			<Modal
 				title=""
-				contentLabel={ __( 'Disconnect Owner Account', 'jetpack-connection-js' ) }
+				contentLabel={ __( 'Disconnect owner account', 'jetpack-connection-js' ) }
 				aria={ {
 					labelledby: 'jp-connection__owner-disconnect-dialog__heading',
 				} }
@@ -112,7 +112,7 @@ const OwnerDisconnectDialog = ( {
 			>
 				<div className="jp-connection__disconnect-dialog__content">
 					<h1 id="jp-connection__owner-disconnect-dialog__heading">
-						{ __( 'Disconnect Owner Account', 'jetpack-connection-js' ) }
+						{ __( 'Disconnect owner account', 'jetpack-connection-js' ) }
 					</h1>
 					<p className="jp-connection__disconnect-dialog__large-text">
 						{ __(
