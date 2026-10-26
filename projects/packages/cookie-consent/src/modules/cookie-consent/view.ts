@@ -201,10 +201,11 @@ async function updateGpcNotice(
 	context.gpcNotice = gpcNoticeApplies( geoState.initialized ? geoState : null, config );
 }
 
+// Outside GDPR the link only serves a GPC visitor, who needs the modal to override the signal.
 function shouldShowManagePreferencesLink( config: StoreConfig ): boolean {
 	return (
 		geoState.countryCode !== null &&
-		isGdprCountry( geoState.countryCode, config ) &&
+		( isGdprCountry( geoState.countryCode, config ) || gpcNoticeApplies( geoState, config ) ) &&
 		hasConsentSet()
 	);
 }

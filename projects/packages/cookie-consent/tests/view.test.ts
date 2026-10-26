@@ -492,6 +492,28 @@ describe( 'GPC for a returning visitor', () => {
 			expect( context.gpcNotice ).toBe( shown );
 		} );
 
+		it.each( [
+			[ 'shows', true, 'California', true ],
+			[ 'hides', false, 'California', false ],
+			[ 'hides', true, 'Texas', false ],
+		] )(
+			'%s the footer link to a US visitor with GPC %s in %s, which opens the notice',
+			async ( _, gpc, region, shown ) => {
+				setGpc( gpc );
+				cookieJar = `${ GPC_OPTED_OUT }; country_code=US; region=${ region }`;
+				const link = { isGdprManageLink: false };
+				mockGetContext.mockReturnValue( link );
+				await storeCallbacks.init();
+
+				expect( link.isGdprManageLink ).toBe( shown );
+
+				const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
+				await openFromFooter( context );
+
+				expect( context.gpcNotice ).toBe( shown );
+			}
+		);
+
 		it( 'is not shown with the banner to a GDPR visitor without GPC', async () => {
 			setGpc( false );
 			const context = { showBanner: false, gpcNotice: false };
