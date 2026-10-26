@@ -54,6 +54,18 @@ describe( 'buildTailorPrompt', () => {
 		assert.deepEqual( offered.sort(), [ ...available ].sort() );
 	} );
 
+	it( 'names no task outside the offered menu', () => {
+		const available = [ 'add_site_icon', 'domain_claim', 'site_launched' ];
+		const prompt = buildTailorPrompt( INPUT, available );
+		const named = [ ...prompt.matchAll( /\b[a-z]+(?:_[a-z0-9]+)+\b/g ) ].map( match => match[ 0 ] );
+
+		// The launch rule names both launch tasks.
+		assert.deepEqual(
+			[ ...new Set( named.filter( id => TASK_MENU.includes( id ) ) ) ].sort(),
+			[ ...available, 'blog_launched' ].sort()
+		);
+	} );
+
 	it( 'falls back to the full menu when availability is unknown', () => {
 		const prompt = buildTailorPrompt( INPUT, [] );
 
@@ -82,7 +94,7 @@ describe( 'buildTailorPrompt', () => {
 		const bullets = block.split( '\n' ).filter( line => line.startsWith( '- ' ) );
 
 		assert.deepEqual( bullets, [
-			'- Every "id" MUST be copied verbatim from the menu below. Never invent IDs: the server drops any id it cannot recognize, and rejects the whole list if too few tasks survive.',
+			'- Every "id" MUST be copied verbatim from the menu below. Never invent IDs, and never pick an id that is not on the menu: the server drops any id it cannot use.',
 			'- Return exactly 6 tasks.',
 			'- The 6th and final task MUST be a launch task: "site_launched" (canonical) or "blog_launched".',
 			'- Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].',

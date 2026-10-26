@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the playhead in place when adjusting trim handles.

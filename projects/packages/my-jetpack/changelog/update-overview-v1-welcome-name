@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Greet the current user by name in the Overview heading, shown only while the Overview v1 feature flag is on.

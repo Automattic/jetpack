@@ -246,6 +246,34 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
+	 * A site connection with no user tokens and no owner links to no connected users.
+	 */
+	public function test_get_connector_data_when_site_only() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertArrayHasKey( 'siteDetails', $data );
+		$this->assertArrayNotHasKey( 'connectedUsersUrl', $data );
+	}
+
+	/**
+	 * A broken owner token still links to the connected users, as the card still lists accounts.
+	 */
+	public function test_get_connector_data_when_the_owner_token_is_broken() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertArrayHasKey( 'connectedUsersUrl', $data );
+		$this->assertStringEndsWith( $data['redirectUri'], $data['connectorsUrl'] );
+	}
+
+	/**
 	 * The owner's name links to their profile only for a viewer who may edit them.
 	 *
 	 * @param bool $map_caps      Whether the connection capabilities are mapped.
