@@ -435,4 +435,18 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 	&__nowrap {
 		white-space: nowrap;
 	}
+
+	&__busy {
+		display: inline-flex;
+		gap: 8px;
+		align-items: center;
+	}
+
+	// DataViews has no row class, so the busy status mutes the rest of its row.
+	.dataviews-view-table__row:has(.jp-protect-threats__busy) > td {
+
+		&:not(.dataviews-view-table__actions-column, :has(.jp-protect-threats__busy)) {
+			opacity: 0.5;
+		}
+	}
 }

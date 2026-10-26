@@ -18,7 +18,7 @@ import useOpenThreat from '../use-open-threat';
 import { groupThreats } from './group-threats';
 import { SafeShield } from './safe-state';
 import { THREAT_PARAM, refreshScan, useScan, useSearchParam } from './store';
-import { getThreatRowActions } from './threat-row-actions';
+import { useThreatRowActions } from './threat-row-actions';
 import threatsIcon from './threats-icon';
 import { getThreatFields } from './threats-list';
 import type { ScanThreat } from './types';
@@ -88,7 +88,7 @@ function ThreatGroup( {
 		() => getThreatFields( open, { threatLabel: title, dateLabel, getDate } ),
 		[ open, title, dateLabel, getDate ]
 	);
-	const actions = useMemo( () => getThreatRowActions( open, canAct ), [ open, canAct ] );
+	const actions = useThreatRowActions( open, canAct );
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( threats, view, fields ),
 		[ threats, view, fields ]
