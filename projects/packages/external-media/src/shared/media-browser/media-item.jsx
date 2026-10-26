@@ -1,7 +1,8 @@
 import apiFetch from '@wordpress/api-fetch';
-import { CheckboxControl, Composite } from '@wordpress/components';
+import { Composite } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Checkbox } from '@wordpress/ui';
 import clsx from 'clsx';
 
 /**
@@ -105,13 +106,12 @@ function MediaItem( { item, imageOnly, isSelected, isCopying = false, shouldProx
 					<div className="jetpack-external-media-browser__media__count">{ children }</div>
 				</div>
 			) }
-			<CheckboxControl
+			<Checkbox
 				className="jetpack-external-media-browser__media__checkbox"
-				__nextHasNoMarginBottom
 				aria-label={ selectionLabel }
 				aria-disabled={ !! isCopying }
-				checked={ isSelected }
-				onChange={ () => handleClick() }
+				checked={ !! isSelected }
+				onCheckedChange={ () => handleClick() }
 			/>
 		</Composite.Item>
 	);
