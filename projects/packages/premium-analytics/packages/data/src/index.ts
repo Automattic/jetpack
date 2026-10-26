@@ -113,6 +113,7 @@ export {
 	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export { getStatsCheckoutUrl } from './utils/stats-checkout-url';
 export {
 	applyStatsDatePolicy,
 	getPolicyDefaultPreset,

@@ -31,7 +31,7 @@
 	},
 	"dependencies": {
 		"@wordpress/i18n": "6.30.0",
-		"zod": "3.25.76"
+		"zod": "4.6.6"
 	},
 	"devDependencies": {
 		"@jest/globals": "30.5.2",

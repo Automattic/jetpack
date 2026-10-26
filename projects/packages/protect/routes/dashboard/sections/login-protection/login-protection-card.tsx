@@ -16,7 +16,7 @@ const SETTINGS_PARAMS = { section: 'loginProtection' };
 const LOGIN_KEYS = [ 'protect', 'account-protection', 'sso' ];
 
 /**
- * Blocked logins while brute force protection is on, else a toggle to turn it on.
+ * Blocked logins while login protection is on, else a toggle to turn it on.
  *
  * @param props         - Component props.
  * @param props.data    - The settings, with page-load state filled in.
@@ -60,7 +60,7 @@ function BruteForceRow( {
 							value={ login.blockedCount }
 						/>
 						<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
-							{ __( 'Configure brute force protection', 'jetpack-protect-pkg' ) }
+							{ __( 'Configure login protection', 'jetpack-protect-pkg' ) }
 						</TabLink>
 					</Stack>
 				) : (
@@ -68,14 +68,11 @@ function BruteForceRow( {
 						data={ data }
 						name="protect"
 						disabled={ ! login.bruteForce.available }
-						label={ __( 'Enable brute force protection', 'jetpack-protect-pkg' ) }
+						label={ __( 'Enable login protection', 'jetpack-protect-pkg' ) }
 						help={
 							login.bruteForce.available
 								? __( 'Block IP addresses that keep failing to log in.', 'jetpack-protect-pkg' )
-								: __(
-										'Brute force protection isn’t available on this site.',
-										'jetpack-protect-pkg'
-									)
+								: __( 'Login protection isn’t available on this site.', 'jetpack-protect-pkg' )
 						}
 					/>
 				) }

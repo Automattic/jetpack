@@ -144,6 +144,7 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 | `jetpack-stats-dashboard`                        | `view_stats`               | whole prefix (busts read cache) |
 | `commercial-classification`                      | `view_stats`               | exact path                      |
 | `upgrades` (not under `/sites/`)                 | `view_stats`               | —                               |
+| `products` (fixed: `products?type=jetpack`)      | `view_stats`               | —                               |
 | `posts` (pattern-constrained: only `<id>/likes`) | `view_stats`               | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
@@ -166,7 +167,7 @@ gets its own route outside `proxy/`, like this.
 ### Adding a proxied endpoint
 
 To add a transparent forward, add a key to `PREFIX_CONFIG` (at least `capability`; add
-`writes` / `cache_bust` / `invalidates` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
+`writes` / `cache_bust` / `invalidates` / `inject_user_email` / `forward_visitor_ip` as needed) and cover it in `data_endpoint_matrix()`.
 
 ### Migrating from Stats / Woo Analytics
 
@@ -313,7 +314,7 @@ Each new widget MUST ship as a self-contained folder with these files:
 ```text
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
-├── widget.json                             # everything JSON can carry: name, icon, title, description, help, category, presentation, static attributes
+├── widget.json                             # everything JSON can carry: name, icon, title, description, help, category, presentation, static attributes, the View all action
 ├── widget.ts                               # optional: only what JSON cannot (getElements/getValue/setValue, helper-built fields, example)
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx

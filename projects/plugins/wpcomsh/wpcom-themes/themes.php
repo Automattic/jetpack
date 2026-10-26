@@ -175,9 +175,23 @@ function wpcomsh_search_wpcom_themes_api_result( $res, string $action, $args ) {
 	$wpcom_themes_service = wpcomsh_get_wpcom_themes_service_instance();
 
 	// Add results to the resulting array.
-	return $wpcom_themes_service->filter_themes_api_result_search( $res, $search );
+	return $wpcom_themes_service->filter_themes_api_result_search( $res, $search, wpcomsh_search_prefers_wporg() );
 }
 add_filter( 'themes_api_result', 'wpcomsh_search_wpcom_themes_api_result', 1, 3 );
+
+/**
+ * Whether search shows WordPress.org's copy of a theme both directories list, rather than ours.
+ *
+ * Only behind the Marketplace tab's flag, and only where the plan shows WordPress.org's themes:
+ * elsewhere ours is the only copy the search can show.
+ *
+ * @return bool
+ */
+function wpcomsh_search_prefers_wporg(): bool {
+	return function_exists( 'wpcom_themes_tab_enabled' )
+		&& wpcom_themes_tab_enabled()
+		&& wpcom_site_has_feature( WPCOM_Features::COMMUNITY_THEMES );
+}
 
 /**
  * Process the themes API result and add WPCom themes when using the filter feature.
