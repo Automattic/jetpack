@@ -16,6 +16,8 @@
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
 use function Automattic\Jetpack\Extensions\Subscriptions\register_block as register_subscription_block;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
@@ -25,8 +27,10 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscription
 
 /**
  * @covers Jetpack_Memberships
+ * @covers ::Automattic\Jetpack\Extensions\Subscriptions\reject_unknown_access_level
  */
 #[CoversClass( Jetpack_Memberships::class )]
+#[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\reject_unknown_access_level' )]
 class Jetpack_Subscriptions_Access_Level_Meta_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -189,5 +193,134 @@ class Jetpack_Subscriptions_Access_Level_Meta_Test extends WP_UnitTestCase {
 			Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS,
 			get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true )
 		);
+	}
+
+	/**
+	 * @dataProvider provide_rest_access_levels
+	 *
+	 * @param mixed $access_level Value sent in the request.
+	 * @param bool  $is_allowed   Whether the request should succeed.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_rest_access_levels' )]
+	public function test_rest_create_rejects_unknown_access_level( $access_level, $is_allowed ) {
+		$this->set_up_rest_author();
+
+		$response = $this->save_over_rest(
+			'/wp/v2/posts',
+			array(
+				'title'  => 'Paid only',
+				'status' => 'publish',
+				'meta'   => array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS => $access_level ),
+			)
+		);
+
+		if ( $is_allowed ) {
+			$this->assertSame( 201, $response->get_status() );
+			$this->assertSame( $access_level, get_post_meta( $response->get_data()['id'], META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
+		} else {
+			$this->assertSame( 400, $response->get_status() );
+			$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+			$this->assertEmpty(
+				get_posts(
+					array(
+						'title'       => 'Paid only',
+						'post_status' => 'any',
+					)
+				),
+				'A rejected request must not create the post.'
+			);
+		}
+	}
+
+	/**
+	 * @dataProvider provide_rest_access_levels
+	 *
+	 * @param mixed $access_level Value sent in the request.
+	 * @param bool  $is_allowed   Whether the request should succeed.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_rest_access_levels' )]
+	public function test_rest_update_rejects_unknown_access_level( $access_level, $is_allowed ) {
+		$this->set_up_rest_author();
+		$post_id = self::factory()->post->create( array( 'post_title' => 'Before' ) );
+		update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS );
+
+		$response = $this->save_over_rest(
+			'/wp/v2/posts/' . $post_id,
+			array(
+				'title' => 'After',
+				'meta'  => array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS => $access_level ),
+			)
+		);
+
+		if ( $is_allowed ) {
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertSame( $access_level, get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
+		} else {
+			$this->assertSame( 400, $response->get_status() );
+			$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+			$this->assertSame( 'Before', get_post( $post_id )->post_title, 'A rejected request must not update the post.' );
+			$this->assertSame( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS, get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
+		}
+	}
+
+	/**
+	 * @return void
+	 */
+	public function test_rest_update_allows_unchanged_unknown_access_level() {
+		$this->set_up_rest_author();
+		$post_id = self::factory()->post->create( array( 'post_title' => 'Before' ) );
+		update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, 'paid' );
+
+		$response = $this->save_over_rest(
+			'/wp/v2/posts/' . $post_id,
+			array(
+				'title' => 'After',
+				'meta'  => array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS => 'paid' ),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'After', get_post( $post_id )->post_title );
+	}
+
+	/**
+	 * Data provider for the REST access level tests.
+	 *
+	 * @return array
+	 */
+	public static function provide_rest_access_levels() {
+		return array(
+			'paid subscribers' => array( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS, true ),
+			'empty'            => array( '', true ),
+			'typo'             => array( 'paid', false ),
+			'all tiers'        => array( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS, false ),
+			'not a string'     => array( 1, false ),
+		);
+	}
+
+	/**
+	 * Registers the meta and logs in a user who can edit posts.
+	 *
+	 * @return void
+	 */
+	private function set_up_rest_author() {
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		register_subscription_block();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+	}
+
+	/**
+	 * Sends a POST request to a posts route.
+	 *
+	 * @param string $route  REST route.
+	 * @param array  $params Body params.
+	 * @return WP_REST_Response
+	 */
+	private function save_over_rest( $route, $params ) {
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_body_params( $params );
+		return rest_get_server()->dispatch( $request );
 	}
 }
