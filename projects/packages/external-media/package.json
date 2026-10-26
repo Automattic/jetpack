@@ -53,8 +53,6 @@
 		"@types/react": "19.3.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/theme": "2.3.0",
-		"postcss": "8.5.23",
-		"postcss-loader": "8.2.0",
 		"sass-embedded": "1.97.3",
 		"webpack": "5.111.1",
 		"webpack-cli": "7.2.1"

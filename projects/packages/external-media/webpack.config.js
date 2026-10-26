@@ -43,6 +43,9 @@ module.exports = [
 					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
 
+				// Add the text domain to bundled @wordpress/ui strings.
+				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule(),
 
