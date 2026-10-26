@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getPlanLimitStatus } from '../../../plan-limit-status';
-import { getPlanUpgradeUrl } from '../stats-settings/plan-usage';
+import { usePlanUpgradeLinkProps } from '../stats-settings/plan-usage';
 import styles from './plan-limit-notice.module.scss';
 import type { JSX } from 'react';
 
@@ -59,6 +59,7 @@ function ConnectedNotice(): JSX.Element | null {
 			),
 	} );
 	const trackEvent = useTrackEvent();
+	const upgradeLink = usePlanUpgradeLinkProps( 'jetpack-premium-analytics-plan-limit-notice' );
 
 	const isHeld = isNear && ( ! notices || notices.tier_upgrade === false );
 	const statusName = status?.isOver ? 'over' : 'near';
@@ -87,8 +88,6 @@ function ConnectedNotice(): JSX.Element | null {
 		return null;
 	}
 
-	const upgradeHref = getPlanUpgradeUrl( 'jetpack-premium-analytics-plan-limit-notice' );
-
 	const { isOver } = status;
 	const title = isOver
 		? __( 'You have reached your views limit', 'jetpack-premium-analytics-pkg' )
@@ -108,9 +107,9 @@ function ConnectedNotice(): JSX.Element | null {
 			<Notice.Title>{ title }</Notice.Title>
 			<Notice.Description>{ description }</Notice.Description>
 
-			{ upgradeHref && (
+			{ upgradeLink && (
 				<Notice.Actions>
-					<Notice.ActionLink href={ upgradeHref } onClick={ recordUpgradeClick }>
+					<Notice.ActionLink { ...upgradeLink } onClick={ recordUpgradeClick }>
 						{ __( 'Upgrade now', 'jetpack-premium-analytics-pkg' ) }
 					</Notice.ActionLink>
 				</Notice.Actions>
