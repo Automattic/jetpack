@@ -97,6 +97,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		$this->reset_wpcom_request_mock();
 		Constants::clear_constants();
 		Status_Cache::clear();
@@ -476,6 +477,46 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 
 		$this->assertSame( 403, $response->get_status() );
 		$this->assertSame( 'user_not_connected', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Offline mode refuses every bridge route before it reaches WordPress.com.
+	 *
+	 * @param string               $method Request method.
+	 * @param string               $path   Route path to dispatch.
+	 * @param array<string, mixed> $params Request params.
+	 * @dataProvider provide_bridge_requests
+	 */
+	#[DataProvider( 'provide_bridge_requests' )]
+	public function test_offline_mode_refuses_the_route( $method, $path, array $params ) {
+		$this->arrange_wpcom_answers( array() );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
+
+		$request = new WP_REST_Request( $method, $path );
+		foreach ( $params as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'offline_mode', $response->get_data()['code'] );
+		$this->assertSame( array(), $this->captured_urls );
+	}
+
+	/**
+	 * Each bridge dispatch above, reduced to its method, path and params.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: array<string, mixed>}>
+	 */
+	public static function provide_bridge_requests() {
+		return array_map(
+			static function ( array $dispatch ) {
+				return array_slice( $dispatch, 0, 3 );
+			},
+			self::provide_bridge_dispatches()
+		);
 	}
 
 	/**
