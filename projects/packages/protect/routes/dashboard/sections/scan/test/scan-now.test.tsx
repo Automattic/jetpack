@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { recordEvent } from '../../../data/tracks';
 import HeaderScanButton from '../header-scan-button';
 import ScanCard from '../scan-card';
 import ScanStartNotice from '../scan-start-notice';
@@ -8,6 +9,7 @@ import { resetScan, setScan } from '../store';
 import type { ScanState } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../../../data/tracks' );
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 	useNavigate: () => jest.fn(),
@@ -69,6 +71,18 @@ describe( 'Scan now', () => {
 
 		await expect( screen.findByText( 'No threats found' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Scanning…' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'the card', <ScanCard key="card" openTab={ jest.fn() } />, 'Scan again now' ],
+		[ 'the page header', <HeaderScanButton key="header" />, 'Scan now' ],
+	] )( 'records jetpack_scan_scan_now from %s', async ( _, ui, button ) => {
+		( recordEvent as jest.Mock ).mockClear();
+		await renderAndScan( () => new Promise( () => {} ), ui, button );
+
+		expect( ( recordEvent as jest.Mock ).mock.calls ).toEqual( [
+			[ 'jetpack_scan_scan_now', { has_plan: true } ],
+		] );
 	} );
 
 	it( 'shows why the scan didn’t start until dismissed, and stops showing it as running', async () => {

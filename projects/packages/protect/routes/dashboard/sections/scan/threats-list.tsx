@@ -6,6 +6,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
 import { Collapsible, Icon, Spinner, Stack } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
+import { recordViewChange } from '../../data/threat-events';
 import useOpenThreat from '../use-open-threat';
 import { getThreatLabel } from './labels';
 import { THREAT_PARAM, useSearchParam } from './store';
@@ -329,6 +330,14 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 		() => filterSortAndPaginate( threats, view, fields ),
 		[ threats, view, fields ]
 	);
+	const { totalPages } = paginationInfo;
+	const onChangeView = useCallback(
+		( next: View ) => {
+			recordViewChange( view, next, totalPages );
+			setView( next );
+		},
+		[ view, totalPages ]
+	);
 	// Collapsed, the arrow keys would open threats the reader can't see.
 	useArrowKeyNavigation( data, isOpen ? selected : undefined, getItemId, open );
 	const hasSelectedRows = data.some( item => selection.includes( getItemId( item ) ) );
@@ -347,7 +356,7 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 					fields={ fields }
 					actions={ actions }
 					view={ view }
-					onChangeView={ setView }
+					onChangeView={ onChangeView }
 					paginationInfo={ paginationInfo }
 					defaultLayouts={ DEFAULT_LAYOUTS }
 					getItemId={ getItemId }

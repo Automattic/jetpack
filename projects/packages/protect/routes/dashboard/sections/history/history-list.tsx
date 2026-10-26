@@ -5,6 +5,7 @@ import { published, unseen } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
 import { EmptyState, Tabs } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
+import { recordViewChange } from '../../data/threat-events';
 import { CLOSED_INSPECTOR } from '../inspector-params';
 import { THREAT_PARAM, useScan, useSearchParam } from '../scan/store';
 import { useThreatRowActions } from '../scan/threat-row-actions';
@@ -87,6 +88,14 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 		() => filterSortAndPaginate( status === 'fixed' ? fixed : ignored, view, fields ),
 		[ status, fixed, ignored, view, fields ]
 	);
+	const { totalPages } = paginationInfo;
+	const onChangeView = useCallback(
+		( next: View ) => {
+			recordViewChange( view, next, totalPages );
+			setView( next );
+		},
+		[ view, totalPages ]
+	);
 	useArrowKeyNavigation( data, selected, getItemId, open );
 
 	return (
@@ -145,7 +154,7 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 				fields={ fields }
 				actions={ actions }
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ onChangeView }
 				paginationInfo={ paginationInfo }
 				defaultLayouts={ DEFAULT_LAYOUTS }
 				getItemId={ getItemId }

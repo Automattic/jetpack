@@ -4,6 +4,7 @@ import { createElement, useCallback, useSyncExternalStore } from '@wordpress/ele
 import { __, _n, sprintf, type TransformedText } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordEvent } from '../../data/tracks';
 import { getThreatLabel } from './labels';
 import { SCAN_PATH, createStore, editScan, getScan, startRead, startReportRead } from './store';
 import type { ScanState, ScanThreat } from './types';
@@ -265,20 +266,33 @@ function setIgnored(
  * @return Resolves once moved and no longer busy; rejects with the request's error.
  */
 function request( threat: ScanThreat, ignore: boolean ): Promise< void > {
+	// The Scan page's names, so its dashboards count these too.
+	recordEvent( ignore ? 'jetpack_scan_ignore_threat_click' : 'jetpack_scan_unignore_threat_click' );
 	return apiFetch( {
 		path: threatPath( threat.id, ignore ? 'ignore' : 'unignore' ),
 		method: 'POST',
-	} ).then( () => {
-		const moved = { ...threat, status: ignore ? ( 'ignored' as const ) : ( 'current' as const ) };
-		editScan( current => {
-			const threats = ( current.threats ?? [] ).filter( otherThan( threat ) );
-			const ignored = ( current.ignored ?? [] ).filter( otherThan( threat ) );
-			return ignore
-				? { ...current, threats, ignored: [ moved, ...ignored ] }
-				: { ...current, threats: [ moved, ...threats ], ignored };
-		} );
-		setBusy( threat.id );
-	} );
+	} ).then(
+		() => {
+			const moved = { ...threat, status: ignore ? ( 'ignored' as const ) : ( 'current' as const ) };
+			editScan( current => {
+				const threats = ( current.threats ?? [] ).filter( otherThan( threat ) );
+				const ignored = ( current.ignored ?? [] ).filter( otherThan( threat ) );
+				return ignore
+					? { ...current, threats, ignored: [ moved, ...ignored ] }
+					: { ...current, threats: [ moved, ...threats ], ignored };
+			} );
+			setBusy( threat.id );
+			recordEvent(
+				ignore ? 'jetpack_scan_ignore_threat_success' : 'jetpack_scan_unignore_threat_success'
+			);
+		},
+		e => {
+			recordEvent(
+				ignore ? 'jetpack_scan_ignore_threat_failed' : 'jetpack_scan_unignore_threat_failed'
+			);
+			throw e;
+		}
+	);
 }
 
 export const ignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
@@ -319,6 +333,7 @@ async function runFix(
 ): Promise< FixResult > {
 	const { id } = threat;
 	const end = ( result: FixResult, e: unknown, template: Template ): FixResult => {
+		recordEvent( 'jetpack_scan_fix_threat_failed' );
 		if ( batch ) {
 			setBusy( id );
 		} else {
@@ -336,6 +351,7 @@ async function runFix(
 		/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 		notifyStarted( threat, __( 'Fixing the threat in %s…', 'jetpack-protect-pkg' ), open );
 	}
+	recordEvent( 'jetpack_scan_fix_threat_click' );
 	/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 	const takingLonger = __(
 		'The fix for the threat in %s is taking longer than expected. Check back in a few minutes.',
@@ -378,6 +394,7 @@ async function runFix(
 				threats: current.threats?.filter( otherThan( threat ) ),
 			} ) );
 			setBusy( id );
+			recordEvent( 'jetpack_scan_fix_threat_success' );
 			if ( ! batch ) {
 				/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 				notify( threat, __( 'Fixed the threat in %s.', 'jetpack-protect-pkg' ) );

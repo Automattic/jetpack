@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordEvent } from '../../../data/tracks';
 import { setScan, useScan } from '../store';
 import {
 	deleteSoftware,
@@ -9,9 +10,11 @@ import {
 	fixThreats,
 	ignoreThreat,
 	ignoreThreats,
+	unignoreThreat,
 } from '../threat-actions';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../../../data/tracks', () => ( { recordEvent: jest.fn() } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const threat = { id: 7, title: 'Malicious code found in file: a.php' };
@@ -243,6 +246,58 @@ describe( 'bulk actions', () => {
 			} );
 		}
 	);
+} );
+
+describe( 'threat action Tracks events', () => {
+	const scan = { hasPlan: true, url: '#', error: false, threats: [] };
+
+	// Runs the fix's polling out on fake timers, past the point where the dashboard gives up.
+	const fixTimingOut = async ( item: Parameters< typeof fixThreat >[ 0 ] ) => {
+		jest.useFakeTimers();
+		mockApiFetch.mockClear();
+		try {
+			const fixing = fixThreat( item );
+			await jest.runAllTimersAsync();
+			await fixing;
+		} finally {
+			jest.useRealTimers();
+		}
+		// One start and 100 polls: the polling cap ended the fix, not an error.
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 101 );
+	};
+
+	it.each( [
+		[ 'a fix', fixThreat, Promise.resolve( { status: 'fixed', scan } ), 'fix_threat', 'success' ],
+		[
+			'a fix Scan gave up on',
+			fixThreat,
+			Promise.resolve( { status: 'not_fixed', scan } ),
+			'fix_threat',
+			'failed',
+		],
+		[ 'a fix that didn’t start', fixThreat, Promise.reject( {} ), 'fix_threat', 'failed' ],
+		[
+			'a fix that never finishes',
+			fixTimingOut,
+			Promise.resolve( { status: 'in_progress' } ),
+			'fix_threat',
+			'failed',
+		],
+		[ 'an ignore', ignoreThreat, Promise.resolve( {} ), 'ignore_threat', 'success' ],
+		[ 'a failed ignore', ignoreThreat, Promise.reject( {} ), 'ignore_threat', 'failed' ],
+		[ 'an unignore', unignoreThreat, Promise.resolve( {} ), 'unignore_threat', 'success' ],
+		[ 'a failed unignore', unignoreThreat, Promise.reject( {} ), 'unignore_threat', 'failed' ],
+	] )( 'record the Scan page’s events for %s', async ( _name, action, response, event, result ) => {
+		( recordEvent as jest.Mock ).mockClear();
+		mockApiFetch.mockReturnValue( response );
+
+		await act( () => action( { ...threat, id: `tracks-${ _name }` } ) );
+
+		expect( ( recordEvent as jest.Mock ).mock.calls ).toEqual( [
+			[ `jetpack_scan_${ event }_click` ],
+			[ `jetpack_scan_${ event }_${ result }` ],
+		] );
+	} );
 } );
 
 describe( 'deleteSoftware', () => {
