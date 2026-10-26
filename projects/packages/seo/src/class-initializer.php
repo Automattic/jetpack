@@ -162,6 +162,12 @@ class Initializer {
 			return;
 		}
 
+		// Each SEO module's configure URL defaults to Jetpack › Settings filtered to the
+		// module. Once the surface is visible that view only points here, so link here.
+		foreach ( array( 'seo-tools', 'verification-tools', 'sitemaps' ) as $module ) {
+			add_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
+		}
+
 		// The admin menu and app shell register whenever the surface is visible, even
 		// when the `seo-tools` module is inactive, so SEO stays discoverable and can be
 		// turned on from within the page itself (JETPACK-1700). When the module is off,
