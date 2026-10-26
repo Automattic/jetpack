@@ -14,12 +14,12 @@ describe( 'useStatsPeriod', () => {
 		window.JP_CONNECTION_INITIAL_STATE.userConnectionData.currentUser.id = 1;
 	} );
 
-	it.each( [ 7, 30 ] as const )( 'asks for two %d-day windows ending on the shown one', days => {
+	it.each( [ 7, 30 ] as const )( 'asks for the %d-day window it shows', days => {
 		const { result } = renderHook( () => useStatsPeriod() );
 		act( () => result.current.setDays( days ) );
 
 		expect( getStatsPeriodVisitsOptions( result.current ) ).toMatchObject( {
-			quantity: days * 2,
+			quantity: days,
 			date: VISITS_OPTIONS.date,
 		} );
 
