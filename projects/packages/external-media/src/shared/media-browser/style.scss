@@ -64,11 +64,11 @@
 		&__selected {
 
 			img {
-				border-color: var(--wp-admin-theme-color);
+				border-color: var(--wpds-color-stroke-interactive-brand);
 			}
 
 			&::after {
-				background: var(--wp-admin-theme-color);
+				background: var(--wpds-color-background-interactive-brand-strong);
 				opacity: 0.2;
 			}
 		}
