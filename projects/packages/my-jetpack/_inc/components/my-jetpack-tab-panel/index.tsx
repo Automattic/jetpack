@@ -27,6 +27,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 	const isNewUser = useIsJetpackUserNew();
 	const tabStartTimeRef = useRef< number >( Date.now() );
 	const lastNavigationSourceRef = useRef< 'internal' | 'external' >( 'external' );
+	const tabListRef = useRef< HTMLDivElement >( null );
 
 	// If the tab is not valid, use the default one.
 	const currentTab = useMemo( () => resolveMyJetpackSection( params.section ), [ params.section ] );
@@ -67,6 +68,13 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 
 		// Reset timer when tab changes
 		tabStartTimeRef.current = Date.now();
+
+		// The admin page scrolls the content between its header and footer, not the window,
+		// and that container outlives a tab switch.
+		const scroller = tabListRef.current?.closest( '.jp-admin-page__page > *' );
+		if ( scroller ) {
+			scroller.scrollTop = 0;
+		}
 	}, [ currentTab ] );
 
 	// Canonicalize a stale or invalid section hash. `currentTab` already resolves
@@ -118,6 +126,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 			) }
 		>
 			<div
+				ref={ tabListRef }
 				className={ clsx( {
 					'jp-admin-page-tabs': pinsTabs,
 					[ styles[ 'tab-list' ] ]: ! pinsTabs,
