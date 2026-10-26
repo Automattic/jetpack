@@ -121,10 +121,7 @@
 - Settings: Stop adding the `origin_site_id` parameter to the Reader link. [#53920]
 - Stats: Add a feature flag that retires the classic Stats page in favor of Stats v2. [#53914]
 - Stats: Load the admin bar views chart independently of the Stats page. [#53831]
-- Update package dependencies. [#53867]
-- Update package dependencies. [#53909]
-- Update package dependencies. [#53913]
-- Update package dependencies. [#54001]
+- Update package dependencies. [#53867] [#53909] [#53913] [#54001]
 
 ## 16.4-a.3 - 2026-10-19
 ### Enhancements

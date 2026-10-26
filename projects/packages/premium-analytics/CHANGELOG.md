@@ -29,8 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stop the tour from offering period comparison on a free plan, which covers only the last 7 days. [#53832]
 - Sync: Move the store analytics sync opt-in and the lookup data backfill to the WooCommerce Stats package, and record the first full-sync start separately for each analytics module. [#53282]
 - Traffic summary: Draw visitors inside the views bar in bar charts, as Jetpack Stats v1 does, with the previous period in gray beside them. [#53836]
-- Update package dependencies. [#53951]
-- Update package dependencies. [#54003]
+- Update package dependencies. [#53951] [#54003]
 - Widgets: Show the View all link and the CSV download in the card footer. [#53881]
 
 ### Removed

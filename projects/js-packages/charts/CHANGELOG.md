@@ -12,8 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bar chart: Draw comparison bars opaque, in a tint of their primary's color that keeps 3:1 contrast, and deprecate the theme's `barChart.barStyles.comparison.opacity`. [#53836]
 - Bar chart: Mark the keyboard-selected bar with a two-tone focus ring in the design system's focus color, so it shows on any bar color. [#53830]
-- Update package dependencies. [#53951]
-- Update package dependencies. [#54001]
+- Update package dependencies. [#53951] [#54001]
 
 ### Fixed
 - Line chart: Leave hidden series out of the keyboard tooltip. [#53910]
