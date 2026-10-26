@@ -8,6 +8,11 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev"
 	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
 	"repositories": [
 		{
 			"type": "path",
