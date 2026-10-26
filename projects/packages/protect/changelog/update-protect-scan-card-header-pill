@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect dashboard: Title the Scan card "Scan results" and show when the site was last scanned in a badge beside the title.

@@ -1,4 +1,3 @@
-import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DataViews, filterSortAndPaginate, type View } from '@wordpress/dataviews';
 import {
 	useCallback,
@@ -19,7 +18,7 @@ import useOpenThreat from '../use-open-threat';
 import { groupThreats } from './group-threats';
 import { SafeShield } from './safe-state';
 import { THREAT_PARAM, refreshScan, useScan, useSearchParam } from './store';
-import { getThreatRowActions } from './threat-row-actions';
+import { useThreatRowActions } from './threat-row-actions';
 import threatsIcon from './threats-icon';
 import { getThreatFields } from './threats-list';
 import type { ScanThreat } from './types';
@@ -44,23 +43,6 @@ const VIEW: View = {
 };
 
 const getId = ( item: ScanThreat ) => String( item.id );
-
-/**
- * The trail above the report, whose first crumb goes back to the Overview.
- *
- * @return The breadcrumbs.
- */
-export function ThreatReportBreadcrumbs() {
-	return (
-		<Breadcrumbs
-			items={ [
-				// "Protect" is a product name and is not translated.
-				{ label: 'Protect', to: '/' },
-				{ label: __( 'Threats from your alert', 'jetpack-protect-pkg' ) },
-			] }
-		/>
-	);
-}
 
 type GroupProps = {
 	icon: ReactElement;
@@ -106,7 +88,7 @@ function ThreatGroup( {
 		() => getThreatFields( open, { threatLabel: title, dateLabel, getDate } ),
 		[ open, title, dateLabel, getDate ]
 	);
-	const actions = useMemo( () => getThreatRowActions( open, canAct ), [ open, canAct ] );
+	const actions = useThreatRowActions( open, canAct );
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( threats, view, fields ),
 		[ threats, view, fields ]
