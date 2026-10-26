@@ -73,6 +73,7 @@
 		"@wordpress/dataviews": "20.0.0",
 		"@wordpress/date": "5.57.0",
 		"@wordpress/element": "9.0.0",
+		"@wordpress/html-entities": "4.57.0",
 		"@wordpress/i18n": "6.30.0",
 		"@wordpress/icons": "18.0.0",
 		"@wordpress/notices": "5.57.0",

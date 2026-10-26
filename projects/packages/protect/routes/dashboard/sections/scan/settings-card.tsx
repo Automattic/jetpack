@@ -2,7 +2,11 @@ import { __ } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
 import { Link, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
+import { recordEvent } from '../../data/tracks';
 import type { ScanContext } from './types';
+
+const onGetScan = () =>
+	recordEvent( 'jetpack_protect_scan_settings_get_scan_link_click', { use_beacon: true } );
 
 /**
  * The Settings tab's Scan card: links to the server credentials Auto-fix needs, or to Scan without a plan.
@@ -49,7 +53,11 @@ export default function ScanSettingsCard( { state: scan }: ScanContext ) {
 			<CardRow>
 				<Stack direction="column" gap="sm">
 					<Text variant="body-md">{ description }</Text>
-					<Link href={ scan.url } openInNewTab={ scan.hasPlan }>
+					<Link
+						href={ scan.url }
+						openInNewTab={ scan.hasPlan }
+						onClick={ scan.hasPlan ? undefined : onGetScan }
+					>
 						{ link }
 					</Link>
 				</Stack>

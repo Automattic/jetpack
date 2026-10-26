@@ -21,6 +21,9 @@
 		"./targets": "./src/targets.js",
 		"./webpack": "./src/webpack.js"
 	},
+	"scripts": {
+		"update-wp-polyfill-modules": "node tools/update-wp-polyfill-modules.mjs"
+	},
 	"dependencies": {
 		"@automattic/babel-plugin-preserve-i18n": "1.0.0",
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",

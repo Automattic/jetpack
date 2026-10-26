@@ -6,7 +6,7 @@ import {
 import { dispatch, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
@@ -217,14 +217,24 @@ export default function NewsletterOverview( {
 				</p>
 			) ) }
 			{ newsletterOverview.isEmailOff ? (
-				<Button
-					variant="primary"
-					onClick={ () => setSendEmail( true ) }
-					className="jetpack-newsletter-overview__full-width"
-					__next40pxDefaultSize
-				>
-					{ __( 'Turn on email sending', 'jetpack' ) }
-				</Button>
+				<>
+					<Button
+						variant="primary"
+						onClick={ () => setSendEmail( true ) }
+						className="jetpack-newsletter-overview__full-width"
+						__next40pxDefaultSize
+					>
+						{ __( 'Turn on email sending', 'jetpack' ) }
+					</Button>
+					<Stack direction="row" gap="md">
+						<Button variant="link" onClick={ openPreviewModal }>
+							{ __( 'Preview email', 'jetpack' ) }
+						</Button>
+						<Button variant="link" onClick={ openTestEmailModal }>
+							{ __( 'Send test email', 'jetpack' ) }
+						</Button>
+					</Stack>
+				</>
 			) : (
 				<>
 					<VStack spacing={ 3 }>

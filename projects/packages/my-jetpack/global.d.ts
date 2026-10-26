@@ -776,6 +776,7 @@ interface Window {
 		sandboxedDomain: string;
 		isDevVersion: boolean;
 		userIsAdmin: string;
+		userFirstName: string;
 		isWelcomeTourActive: boolean;
 		seoOptIn: {
 			showCard: boolean;

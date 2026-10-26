@@ -29,16 +29,6 @@ export const isBarRendered = ( point: DataPoint | DataPointDate | EnhancedDataPo
 	Number.isFinite( getBarValue( point ) );
 
 /**
- * How many bars visx renders for a list of points.
- *
- * @param points - Data points handed to visx.
- * @return The number of points that get a bar.
- */
-export const countRenderedBars = (
-	points: ReadonlyArray< DataPoint | DataPointDate | EnhancedDataPoint >
-): number => points.filter( isBarRendered ).length;
-
-/**
  * An explicit domain for the value scale, or null to let visx fit one to the data.
  *
  * Zero goes into the domain here rather than through the scale's `zero` flag: visx applies

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Google Photos: Use @wordpress/ui components for the connection, picker and album views.
