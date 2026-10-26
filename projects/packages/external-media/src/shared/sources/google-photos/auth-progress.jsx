@@ -9,9 +9,7 @@ import { Text } from '@wordpress/ui';
  */
 function AuthProgress() {
 	return (
-		<Text variant="body-lg" render={ <p /> }>
-			{ __( 'Awaiting authorization', 'jetpack-external-media' ) }
-		</Text>
+		<Text variant="body-lg">{ __( 'Awaiting authorization', 'jetpack-external-media' ) }</Text>
 	);
 }
 
