@@ -115,11 +115,13 @@ describe( 'usePostSummary', () => {
 			type: 'post',
 			// The GMT date wins over the local one when both are present.
 			publishedDate: '2026-06-22 10:00:00',
+			allTimeStart: '2026-06-22 10:00:00',
 			imageUrl: 'https://example.com/thumb.jpg',
 			url: 'https://example.com/hello-world/',
 			isLoading: false,
 			isError: false,
 			error: null,
+			isNotFound: false,
 			refetch: expect.any( Function ),
 		} );
 		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( POST_ID, 'post' );

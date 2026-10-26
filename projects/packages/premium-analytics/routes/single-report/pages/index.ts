@@ -1,11 +1,13 @@
 /**
  * Internal dependencies
  */
+import { postAdapter } from './post';
 import { videoAdapter } from './video';
 import type { SingleReportAdapter } from './adapter';
 
 // The adapters by record `path`; a record without one renders from the record alone.
 const ADAPTERS: Record< string, SingleReportAdapter > = {
+	post: postAdapter,
 	video: videoAdapter,
 };
 
@@ -22,6 +24,9 @@ export function getSingleReportAdapter( path: string ): SingleReportAdapter | un
 export type {
 	EntitySummary,
 	HeaderContext,
+	SectionScope,
+	SectionState,
+	SectionsContext,
 	SingleReportAdapter,
 	SingleReportHeaderSlots,
 } from './adapter';

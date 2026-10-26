@@ -85,10 +85,7 @@ function SinglePageLayoutStory( {
 		<ReportScopeProvider offersComparison={ false }>
 			<div className={ styles.frame }>
 				<SinglePageLayout
-					visual={ header.visual }
-					title={ header.title }
-					subTitle={ header.subTitle }
-					busy={ header.busy }
+					header={ header }
 					controls={ controls as never }
 					data={ data }
 					onChange={ onChange }

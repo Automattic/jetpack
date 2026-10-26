@@ -2,7 +2,7 @@ import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { SectionHeader } from '@jetpack-premium-analytics/ui';
 import { render, screen } from '@testing-library/react';
 import { postHeaderSlots } from './post-header-slots';
-import type { PostSummary } from '../../hooks';
+import type { PostSummary } from './use-post-summary';
 
 const SUMMARY: PostSummary = {
 	title: 'Hello world',
@@ -13,7 +13,19 @@ const SUMMARY: PostSummary = {
 	isLoading: false,
 	isError: false,
 	error: null,
+	isNotFound: false,
 	refetch: () => {},
+};
+
+const EMAIL_SECTION = {
+	section: {
+		section: {
+			slug: 'email-opens',
+			label: 'Email opens',
+			default_layout: [],
+			controls: false as const,
+		},
+	},
 };
 
 // UTC-anchored: the sentence renders in the site zone, so a browser-local
@@ -26,16 +38,22 @@ const PERFORMANCE_RANGE = {
 /**
  * Renders the slots where they are consumed, since only the header places them.
  *
- * @param args - The slot inputs under test.
+ * @param summary - The summary under test.
+ * @param context - The section and the window, if any.
  * @return The render result.
  */
-function renderHeader( args: Parameters< typeof postHeaderSlots >[ 0 ] ) {
-	return render( <SectionHeader { ...postHeaderSlots( args ) } /> );
+function renderHeader(
+	summary: PostSummary,
+	context: Partial< Parameters< typeof postHeaderSlots >[ 1 ] > = {}
+) {
+	return render(
+		<SectionHeader { ...postHeaderSlots( summary, { label: 'Post', ...context } ) } />
+	);
 }
 
 describe( 'postHeaderSlots', () => {
 	it( 'shows the post identity by default: thumbnail and publish wording', () => {
-		renderHeader( { summary: SUMMARY } );
+		renderHeader( SUMMARY );
 
 		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Hello world' );
 		expect( screen.getByText( /Post published on Jan 10, 2026\./ ) ).toBeInTheDocument();
@@ -44,10 +62,7 @@ describe( 'postHeaderSlots', () => {
 	} );
 
 	it( 'states the window the widgets below report over', () => {
-		renderHeader( {
-			summary: SUMMARY,
-			performanceRange: PERFORMANCE_RANGE,
-		} );
+		renderHeader( SUMMARY, { performanceRange: PERFORMANCE_RANGE } );
 
 		expect(
 			screen.getByText( /Performance from Jul 9, 2026 to Jul 15, 2026/ )
@@ -55,7 +70,7 @@ describe( 'postHeaderSlots', () => {
 	} );
 
 	it( 'shows the email identity on the email variant: envelope tile and sent wording', () => {
-		renderHeader( { summary: SUMMARY, variant: 'email' } );
+		renderHeader( SUMMARY, EMAIL_SECTION );
 
 		expect( screen.getByText( /Email sent on Jan 10, 2026\./ ) ).toBeInTheDocument();
 		// The envelope tile replaces the featured image even when one exists.
@@ -64,7 +79,7 @@ describe( 'postHeaderSlots', () => {
 	} );
 
 	it( 'holds the title and subtitle lines while the summary resolves', () => {
-		renderHeader( { summary: { ...SUMMARY, title: undefined, isLoading: true } } );
+		renderHeader( { ...SUMMARY, title: undefined, isLoading: true } );
 
 		expect( screen.getByText( 'Loading…' ) ).toBeInTheDocument();
 		expect( screen.queryByText( /Post published on/ ) ).not.toBeInTheDocument();
@@ -74,7 +89,7 @@ describe( 'postHeaderSlots', () => {
 		[ 'page', 'Page' ],
 		[ 'product', 'Product' ],
 	] )( 'names a %s in the publish wording', ( type, label ) => {
-		renderHeader( { summary: { ...SUMMARY, type } } );
+		renderHeader( { ...SUMMARY, type } );
 
 		expect(
 			screen.getByText( new RegExp( `^${ label } published on Jan 10, 2026\\.` ) )
@@ -86,7 +101,7 @@ describe( 'postHeaderSlots', () => {
 		[ 'page', 'Untitled page' ],
 		[ 'product', 'Untitled product' ],
 	] )( 'names an untitled %s so the page keeps its heading', ( type, heading ) => {
-		renderHeader( { summary: { ...SUMMARY, type, title: '' } } );
+		renderHeader( { ...SUMMARY, type, title: '' } );
 
 		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( heading );
 	} );
@@ -96,19 +111,17 @@ describe( 'postHeaderSlots', () => {
 		[ 'page', 'Page unavailable' ],
 		[ 'product', 'Product unavailable' ],
 	] )( 'states neither a title nor a window for a %s that failed to load', ( type, heading ) => {
-		renderHeader( {
-			summary: { ...SUMMARY, type, title: undefined, isError: true },
-			performanceRange: PERFORMANCE_RANGE,
-		} );
+		renderHeader(
+			{ ...SUMMARY, type, title: undefined, isError: true },
+			{ performanceRange: PERFORMANCE_RANGE }
+		);
 
 		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( heading );
 		expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'marks the text cell busy only while the summary resolves', () => {
-		const { rerender } = renderHeader( {
-			summary: { ...SUMMARY, title: undefined, isLoading: true },
-		} );
+		const { rerender } = renderHeader( { ...SUMMARY, title: undefined, isLoading: true } );
 
 		// eslint-disable-next-line testing-library/no-node-access -- The text cell the slot fills has no accessible query target.
 		expect( screen.getByRole( 'heading', { level: 2 } ).parentElement ).toHaveAttribute(
@@ -116,7 +129,7 @@ describe( 'postHeaderSlots', () => {
 			'true'
 		);
 
-		rerender( <SectionHeader { ...postHeaderSlots( { summary: SUMMARY } ) } /> );
+		rerender( <SectionHeader { ...postHeaderSlots( SUMMARY, { label: 'Post' } ) } /> );
 
 		// eslint-disable-next-line testing-library/no-node-access -- The text cell the slot fills has no accessible query target.
 		expect( screen.getByRole( 'heading', { level: 2 } ).parentElement ).not.toHaveAttribute(
@@ -127,10 +140,7 @@ describe( 'postHeaderSlots', () => {
 	// The state an email-tab deep link opens on: the tab fixes the identity, so
 	// the envelope tile is already right while the title is still loading.
 	it( 'keeps the email identity while the summary resolves', () => {
-		renderHeader( {
-			summary: { ...SUMMARY, title: undefined, isLoading: true },
-			variant: 'email',
-		} );
+		renderHeader( { ...SUMMARY, title: undefined, isLoading: true }, EMAIL_SECTION );
 
 		expect( screen.getByTestId( 'post-summary-email-tile' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Loading…' ) ).toBeInTheDocument();
