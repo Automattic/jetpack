@@ -41,6 +41,7 @@ class Flow {
 		}
 		self::$initialized = true;
 
+		Flow_Post_Type::init();
 		Engine::init();
 		REST_Controller::init();
 
@@ -95,7 +96,7 @@ class Flow {
 
 		// Polyfills replace core handles on WP < 7.0, so scope them to this page.
 		WP_Build_Polyfills::register(
-			'jetpack-flow-pkg',
+			'jetpack-flow',
 			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
 		);
 	}
@@ -112,12 +113,18 @@ class Flow {
 
 		$title = __( 'Flow', 'jetpack-flow-pkg' );
 
+		// Under the Jetpack menu when the Jetpack plugin is running, in the main menu when standalone.
+		if ( defined( 'JETPACK__VERSION' ) && method_exists( Admin_Menu::class, 'add_menu' ) ) {
+			Admin_Menu::add_menu( $title, $title, 'manage_options', self::MENU_PAGE_SLUG, $callback, null, array( 'key' => 'jetpack-flow' ) );
+			return;
+		}
+
 		if ( ! method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
 			add_menu_page( $title, $title, 'manage_options', self::MENU_PAGE_SLUG, $callback, 'dashicons-randomize', 3 );
 			return;
 		}
 
-		Admin_Menu::add_top_level_menu( $title, $title, 'manage_options', self::MENU_PAGE_SLUG, $callback, 'dashicons-randomize', 3, array( 'key' => 'jetpack-flow-pkg' ) );
+		Admin_Menu::add_top_level_menu( $title, $title, 'manage_options', self::MENU_PAGE_SLUG, $callback, 'dashicons-randomize', 3, array( 'key' => 'jetpack-flow' ) );
 	}
 
 	/**

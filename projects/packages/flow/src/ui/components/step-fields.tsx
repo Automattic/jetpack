@@ -55,7 +55,7 @@ export function StepFields( { item, config, catalog, tokens, onChange }: Props )
 			return (
 				<Textarea
 					rows={ 4 }
-					value={ value( field.name ) }
+					value={ value( field.name, field.default ) }
 					onValueChange={ next => set( field.name, next ) }
 				/>
 			);
@@ -63,7 +63,7 @@ export function StepFields( { item, config, catalog, tokens, onChange }: Props )
 		return (
 			<Input
 				type={ field.type === 'url' ? 'url' : 'text' }
-				value={ value( field.name ) }
+				value={ value( field.name, field.default ) }
 				onValueChange={ next => set( field.name, next ) }
 			/>
 		);

@@ -8,3 +8,4 @@
 /build/**/*.map   production-exclude
 routes/**         production-exclude
 packages/**       production-exclude
+src/ui/**        production-exclude

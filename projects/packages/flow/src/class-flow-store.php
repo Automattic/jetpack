@@ -12,114 +12,203 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Reads, validates and saves the list of flows.
+ * Reads, validates and saves flows as `jetpack_flow` posts.
  *
  * A flow is `{ id, name, enabled, trigger: { type, config }, steps: [ { id, type, config } ] }`.
  */
 class Flow_Store {
 
-	const OPTION = 'jetpack_flow_flows';
-
 	/**
-	 * All saved flows.
+	 * All flows, newest first.
 	 *
 	 * @return array[]
 	 */
 	public static function all() {
-		$flows = get_option( self::OPTION, array() );
-		return is_array( $flows ) ? array_values( $flows ) : array();
+		$posts = get_posts(
+			array(
+				'post_type'        => Flow_Post_Type::POST_TYPE,
+				'post_status'      => array( 'publish', 'draft' ),
+				'posts_per_page'   => 100,
+				'orderby'          => 'date',
+				'order'            => 'DESC',
+				'suppress_filters' => true,
+			)
+		);
+		return array_values( array_filter( array_map( array( __CLASS__, 'from_post' ), $posts ) ) );
 	}
 
 	/**
-	 * Flows that are enabled and start with the given trigger.
+	 * One flow by ID.
+	 *
+	 * @param int $id Post ID.
+	 * @return array|null
+	 */
+	public static function get( $id ) {
+		$post = get_post( (int) $id );
+		return $post && Flow_Post_Type::POST_TYPE === $post->post_type ? self::from_post( $post ) : null;
+	}
+
+	/**
+	 * Enabled flows that start with the given trigger.
 	 *
 	 * @param string $trigger_id Trigger ID.
 	 * @return array[]
 	 */
 	public static function enabled_for( $trigger_id ) {
-		return array_values(
-			array_filter(
-				self::all(),
-				static function ( $flow ) use ( $trigger_id ) {
-					return ! empty( $flow['enabled'] ) && ( $flow['trigger']['type'] ?? '' ) === $trigger_id;
-				}
+		$posts = get_posts(
+			array(
+				'post_type'        => Flow_Post_Type::POST_TYPE,
+				'post_status'      => 'publish',
+				'posts_per_page'   => 100,
+				'meta_key'         => Flow_Post_Type::META_TRIGGER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'       => $trigger_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'suppress_filters' => true,
 			)
 		);
+		return array_values( array_filter( array_map( array( __CLASS__, 'from_post' ), $posts ) ) );
 	}
 
 	/**
-	 * Replace all flows with a sanitized copy of the input.
+	 * Create or update a flow from user input.
 	 *
-	 * @param mixed $flows Raw flows.
-	 * @return array[] The saved flows.
+	 * @param array    $input Raw flow.
+	 * @param int|null $id    Existing flow ID, or null to create.
+	 * @return array|\WP_Error The saved flow.
 	 */
-	public static function save( $flows ) {
-		$clean = self::sanitize( $flows );
-		update_option( self::OPTION, $clean, false );
-		return $clean;
+	public static function save( $input, $id = null ) {
+		$clean = self::sanitize_one( $input );
+		if ( ! $clean ) {
+			return new \WP_Error( 'invalid_flow', __( 'A flow needs a known trigger.', 'jetpack-flow-pkg' ), array( 'status' => 400 ) );
+		}
+
+		$post = array(
+			'post_type'   => Flow_Post_Type::POST_TYPE,
+			'post_title'  => '' === $clean['name'] ? Catalog::triggers()[ $clean['trigger']['type'] ]['label'] : $clean['name'],
+			'post_status' => $clean['enabled'] ? 'publish' : 'draft',
+		);
+		if ( $id ) {
+			if ( ! self::get( $id ) ) {
+				return new \WP_Error( 'not_found', __( 'Flow not found.', 'jetpack-flow-pkg' ), array( 'status' => 404 ) );
+			}
+			$post['ID'] = (int) $id;
+		}
+
+		$saved = wp_insert_post( wp_slash( $post ), true );
+		if ( is_wp_error( $saved ) ) {
+			return $saved;
+		}
+
+		update_post_meta(
+			$saved,
+			Flow_Post_Type::META_DEFINITION,
+			wp_slash(
+				wp_json_encode(
+					array(
+						'trigger' => $clean['trigger'],
+						'steps'   => $clean['steps'],
+					),
+					JSON_UNESCAPED_SLASHES
+				)
+			)
+		);
+		update_post_meta( $saved, Flow_Post_Type::META_TRIGGER, $clean['trigger']['type'] );
+
+		return self::get( $saved );
+	}
+
+	/**
+	 * Turn a flow on or off.
+	 *
+	 * @param int  $id      Post ID.
+	 * @param bool $enabled Whether it should run.
+	 * @return array|\WP_Error
+	 */
+	public static function set_enabled( $id, $enabled ) {
+		if ( ! self::get( $id ) ) {
+			return new \WP_Error( 'not_found', __( 'Flow not found.', 'jetpack-flow-pkg' ), array( 'status' => 404 ) );
+		}
+		wp_update_post(
+			array(
+				'ID'          => (int) $id,
+				'post_status' => $enabled ? 'publish' : 'draft',
+			)
+		);
+		return self::get( $id );
+	}
+
+	/**
+	 * Permanently delete a flow.
+	 *
+	 * @param int $id Post ID.
+	 * @return bool
+	 */
+	public static function delete( $id ) {
+		return self::get( $id ) && (bool) wp_delete_post( (int) $id, true );
+	}
+
+	/**
+	 * Convert a post to the flow shape.
+	 *
+	 * @param \WP_Post $post Flow post.
+	 * @return array|null
+	 */
+	private static function from_post( $post ) {
+		$definition = json_decode( (string) get_post_meta( $post->ID, Flow_Post_Type::META_DEFINITION, true ), true );
+		if ( ! is_array( $definition ) || empty( $definition['trigger']['type'] ) ) {
+			return null;
+		}
+
+		return array(
+			'id'       => $post->ID,
+			'name'     => $post->post_title,
+			'enabled'  => 'publish' === $post->post_status,
+			'modified' => get_post_modified_time( 'c', true, $post ),
+			'trigger'  => $definition['trigger'],
+			'steps'    => (array) ( $definition['steps'] ?? array() ),
+		);
 	}
 
 	/**
 	 * Drop anything that does not match the catalog.
 	 *
-	 * @param mixed $flows Raw flows.
-	 * @return array[]
+	 * @param mixed $flow Raw flow.
+	 * @return array|null Null when the trigger is unknown.
 	 */
-	public static function sanitize( $flows ) {
-		if ( ! is_array( $flows ) ) {
-			return array();
+	public static function sanitize_one( $flow ) {
+		if ( ! is_array( $flow ) ) {
+			return null;
 		}
 
-		$triggers = Catalog::triggers();
-		$actions  = Catalog::actions();
-		$clean    = array();
+		$triggers     = Catalog::triggers();
+		$actions      = Catalog::actions();
+		$trigger_type = sanitize_key( $flow['trigger']['type'] ?? '' );
+		if ( ! isset( $triggers[ $trigger_type ] ) ) {
+			return null;
+		}
 
-		foreach ( $flows as $flow ) {
-			if ( ! is_array( $flow ) ) {
+		$steps = array();
+		foreach ( (array) ( $flow['steps'] ?? array() ) as $step ) {
+			$type = sanitize_key( $step['type'] ?? '' );
+			if ( ! isset( $actions[ $type ] ) ) {
 				continue;
 			}
-			$trigger_type = sanitize_key( $flow['trigger']['type'] ?? '' );
-			if ( ! isset( $triggers[ $trigger_type ] ) ) {
-				continue;
-			}
-
-			$steps = array();
-			foreach ( (array) ( $flow['steps'] ?? array() ) as $step ) {
-				$type = sanitize_key( $step['type'] ?? '' );
-				if ( ! isset( $actions[ $type ] ) ) {
-					continue;
-				}
-				$steps[] = array(
-					'id'     => self::id_or_new( $step['id'] ?? '' ),
-					'type'   => $type,
-					'config' => self::sanitize_config( $step['config'] ?? array(), $actions[ $type ]['fields'] ?? array() ),
-				);
-			}
-
-			$clean[] = array(
-				'id'      => self::id_or_new( $flow['id'] ?? '' ),
-				'name'    => sanitize_text_field( $flow['name'] ?? '' ),
-				'enabled' => ! empty( $flow['enabled'] ),
-				'trigger' => array(
-					'type'   => $trigger_type,
-					'config' => array(),
-				),
-				'steps'   => $steps,
+			$step_id = sanitize_key( (string) ( $step['id'] ?? '' ) );
+			$steps[] = array(
+				'id'     => '' === $step_id ? wp_generate_uuid4() : $step_id,
+				'type'   => $type,
+				'config' => self::sanitize_config( $step['config'] ?? array(), $actions[ $type ]['fields'] ?? array() ),
 			);
 		}
 
-		return $clean;
-	}
-
-	/**
-	 * Sanitize an ID, minting one when empty.
-	 *
-	 * @param mixed $id Raw ID.
-	 * @return string
-	 */
-	private static function id_or_new( $id ) {
-		$id = sanitize_key( (string) $id );
-		return '' === $id ? wp_generate_uuid4() : $id;
+		return array(
+			'name'    => sanitize_text_field( $flow['name'] ?? '' ),
+			'enabled' => ! empty( $flow['enabled'] ),
+			'trigger' => array(
+				'type'   => $trigger_type,
+				'config' => array(),
+			),
+			'steps'   => $steps,
+		);
 	}
 
 	/**

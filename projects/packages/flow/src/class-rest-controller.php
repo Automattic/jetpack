@@ -46,6 +46,8 @@ class REST_Controller {
 			)
 		);
 
+		$can = array( Flow::class, 'current_user_can_manage' );
+
 		register_rest_route(
 			self::NAMESPACE,
 			'/flows',
@@ -53,13 +55,45 @@ class REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => static fn() => rest_ensure_response( Flow_Store::all() ),
-					'permission_callback' => array( Flow::class, 'current_user_can_manage' ),
+					'permission_callback' => $can,
+				),
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => static fn( $request ) => self::respond( Flow_Store::save( (array) $request->get_json_params() ) ),
+					'permission_callback' => $can,
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/flows/(?P<id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => static fn( $request ) => self::respond( Flow_Store::get( (int) $request['id'] ) ?? self::not_found() ),
+					'permission_callback' => $can,
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( __CLASS__, 'save_flows' ),
-					'permission_callback' => array( Flow::class, 'current_user_can_manage' ),
+					'callback'            => static fn( $request ) => self::respond( Flow_Store::save( (array) $request->get_json_params(), (int) $request['id'] ) ),
+					'permission_callback' => $can,
 				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => static fn( $request ) => self::respond( Flow_Store::delete( (int) $request['id'] ) ? array( 'deleted' => true ) : self::not_found() ),
+					'permission_callback' => $can,
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/flows/(?P<id>\d+)/enabled',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => static fn( $request ) => self::respond( Flow_Store::set_enabled( (int) $request['id'], (bool) $request->get_param( 'enabled' ) ) ),
+				'permission_callback' => $can,
 			)
 		);
 
@@ -130,13 +164,22 @@ class REST_Controller {
 	}
 
 	/**
-	 * Save the full list of flows.
+	 * Wrap a result for REST.
 	 *
-	 * @param WP_REST_Request $request Request.
-	 * @return \WP_REST_Response
+	 * @param mixed $result Data or WP_Error.
+	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public static function save_flows( $request ) {
-		return rest_ensure_response( Flow_Store::save( $request->get_param( 'flows' ) ) );
+	private static function respond( $result ) {
+		return is_wp_error( $result ) ? $result : rest_ensure_response( $result );
+	}
+
+	/**
+	 * Standard 404.
+	 *
+	 * @return \WP_Error
+	 */
+	private static function not_found() {
+		return new \WP_Error( 'not_found', __( 'Flow not found.', 'jetpack-flow-pkg' ), array( 'status' => 404 ) );
 	}
 
 	/**

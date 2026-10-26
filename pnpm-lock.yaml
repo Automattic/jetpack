@@ -2795,12 +2795,18 @@ importers:
       '@wordpress/boot':
         specifier: 0.24.0
         version: 0.24.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/dataviews':
+        specifier: 20.0.0
+        version: 20.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/element':
         specifier: 9.0.0
         version: 9.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/i18n':
         specifier: 6.30.0
         version: 6.30.0
+      '@wordpress/icons':
+        specifier: 18.0.0
+        version: 18.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/route':
         specifier: 0.23.0
         version: 0.23.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

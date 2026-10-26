@@ -1,17 +1,11 @@
-import { __ } from '@wordpress/i18n';
-import { Badge, Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import { startDrag } from '../drag';
+import { ProductIcon } from './product-icon';
 import type { CatalogItem } from '../types';
 
 type Props = { title: string; kind: 'trigger' | 'action'; items: CatalogItem[] };
 
-/**
- *
- * @param root0
- * @param root0.title
- * @param root0.kind
- * @param root0.items
- */
+/** A cloud of draggable cards. */
 export function Palette( { title, kind, items }: Props ) {
 	return (
 		<Stack direction="column" gap="sm" className="jetpack-flow-palette">
@@ -22,18 +16,12 @@ export function Palette( { title, kind, items }: Props ) {
 						key={ item.id }
 						role="listitem"
 						className={ `jetpack-flow-chip jetpack-flow-chip--${ kind }` }
-						draggable={ item.available }
+						draggable
 						title={ item.description }
 						onDragStart={ event => startDrag( event, { kind, id: item.id } ) }
 					>
+						<ProductIcon product={ item.product } />
 						<Text variant="body-sm">{ item.label }</Text>
-						{ ! item.available && (
-							<Badge intent="draft">
-								{ item.requires
-									? /* translators: %s: plugin name. */ __( 'Needs plugin', 'jetpack-flow-pkg' )
-									: __( 'Unavailable', 'jetpack-flow-pkg' ) }
-							</Badge>
-						) }
 					</div>
 				) ) }
 			</Stack>

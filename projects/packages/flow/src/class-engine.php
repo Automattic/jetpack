@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Flow;
 
 use Automattic\Jetpack\Flow\Integrations\Form_Webhooks;
 use Automattic\Jetpack\Flow\Integrations\Google_Drive;
-use Automattic\Jetpack\Flow\Integrations\Hostinger_Reach_Integration;
 use Automattic\Jetpack\Flow\Integrations\MailPoet_Integration;
 use Automattic\Jetpack\Flow\Integrations\Post_To_Url;
 
@@ -40,10 +39,13 @@ class Engine {
 						self::fire( $id, $payload );
 					}
 				},
-				10,
+				(int) ( $trigger['priority'] ?? 10 ),
 				(int) ( $trigger['args'] ?? 1 )
 			);
 		}
+
+		add_filter( 'set_site_transient_update_plugins', array( __CLASS__, 'detect_plugin_updates' ) );
+		add_filter( 'set_site_transient_update_core', array( __CLASS__, 'detect_core_update' ) );
 
 		add_action( 'jetpack_flow_event', array( __CLASS__, 'fire' ), 10, 2 );
 
@@ -54,6 +56,60 @@ class Engine {
 				self::fire( 'schedule_daily', array( 'date' => wp_date( get_option( 'date_format' ) ) ) );
 			}
 		);
+	}
+
+	/**
+	 * Fire once for each plugin update WordPress has not told us about yet.
+	 *
+	 * @param mixed $value The update_plugins transient value being saved.
+	 * @return mixed Unchanged.
+	 */
+	public static function detect_plugin_updates( $value ) {
+		if ( ! is_object( $value ) || empty( $value->response ) ) {
+			return $value;
+		}
+
+		$seen  = (array) get_option( 'jetpack_flow_seen_plugin_updates', array() );
+		$fresh = array();
+		foreach ( $value->response as $file => $update ) {
+			$version = (string) ( $update->new_version ?? '' );
+			if ( ( $seen[ $file ] ?? '' ) !== $version ) {
+				$fresh[ $file ] = $version;
+			}
+		}
+		if ( $fresh ) {
+			update_option( 'jetpack_flow_seen_plugin_updates', array_merge( $seen, $fresh ), false );
+			foreach ( $fresh as $file => $version ) {
+				self::fire(
+					'plugin_update_available',
+					array(
+						'plugin'  => $file,
+						'version' => $version,
+					)
+				);
+			}
+		}
+		return $value;
+	}
+
+	/**
+	 * Fire once per new WordPress version.
+	 *
+	 * @param mixed $value The update_core transient value being saved.
+	 * @return mixed Unchanged.
+	 */
+	public static function detect_core_update( $value ) {
+		$offer = is_object( $value ) && ! empty( $value->updates[0] ) ? $value->updates[0] : null;
+		if ( ! $offer || 'upgrade' !== ( $offer->response ?? '' ) ) {
+			return $value;
+		}
+
+		$version = (string) ( $offer->current ?? '' );
+		if ( '' !== $version && get_option( 'jetpack_flow_seen_core_update' ) !== $version ) {
+			update_option( 'jetpack_flow_seen_core_update', $version, false );
+			self::fire( 'wp_update_available', array( 'version' => $version ) );
+		}
+		return $value;
 	}
 
 	/**
@@ -158,10 +214,44 @@ class Engine {
 					? true
 					: new \WP_Error( 'mailpoet_failed', __( 'Could not add the subscriber to MailPoet.', 'jetpack-flow-pkg' ) );
 
-			case 'hostinger_reach_subscribe':
-				return Hostinger_Reach_Integration::subscribe( $c['email'] ?? '', $c['first_name'] ?? '', '', $c['group'] ?? 'Jetpack Flow' )
-					? true
-					: new \WP_Error( 'reach_failed', __( 'Could not add the contact to Hostinger Reach.', 'jetpack-flow-pkg' ) );
+			case 'newsletter_subscribe':
+				if ( ! class_exists( 'Jetpack_Subscriptions' ) ) {
+					return new \WP_Error( 'jetpack_missing', __( 'Jetpack Subscriptions is not available.', 'jetpack-flow-pkg' ) );
+				}
+				$result = \Jetpack_Subscriptions::subscribe( $c['email'] ?? '', 0, false, array( 'source' => 'jetpack-flow' ) );
+				return is_wp_error( $result ) ? $result : true;
+
+			case 'social_share':
+				$request = new \WP_REST_Request( 'POST', '/wpcom/v2/publicize/share-post/' . (int) ( $c['post_id'] ?? 0 ) );
+				$request->set_body_params( array( 'message' => $c['message'] ?? '' ) );
+				$response = rest_do_request( $request );
+				return $response->is_error() ? $response->as_error() : true;
+
+			case 'podcast_create_episode':
+				$category = class_exists( '\Automattic\Jetpack\Podcast\Feed\Customize_Feed' ) ? \Automattic\Jetpack\Podcast\Feed\Customize_Feed::resolve_category_id() : 0;
+				$content  = $c['description'] ?? '';
+				if ( ! empty( $c['audio_url'] ) ) {
+					$content .= "\n\n<!-- wp:audio -->\n<figure class=\"wp-block-audio\"><audio controls src=\"" . esc_url( $c['audio_url'] ) . "\"></audio></figure>\n<!-- /wp:audio -->";
+				}
+				$id = wp_insert_post(
+					array(
+						'post_title'    => $c['title'] ?? '',
+						'post_content'  => $content,
+						'post_status'   => 'publish' === ( $c['status'] ?? '' ) ? 'publish' : 'draft',
+						'post_category' => $category > 0 ? array( $category ) : array(),
+					),
+					true
+				);
+				return is_wp_error( $id ) ? $id : true;
+
+			case 'run_ability':
+				$ability = function_exists( 'wp_get_ability' ) ? wp_get_ability( $c['ability'] ?? '' ) : null;
+				if ( ! $ability ) {
+					return new \WP_Error( 'unknown_ability', __( 'That ability is not available.', 'jetpack-flow-pkg' ) );
+				}
+				$input  = '' === trim( $c['input'] ?? '' ) ? null : json_decode( $c['input'], true );
+				$result = $ability->execute( $input );
+				return is_wp_error( $result ) ? $result : true;
 
 			case 'google_sheet':
 				$rows = array( array_keys( $payload ), array_map( 'strval', array_map( static fn( $v ) => is_scalar( $v ) ? $v : '', array_values( $payload ) ) ) );
@@ -295,8 +385,9 @@ class Engine {
 	public static function payload( $id, $args ) {
 		switch ( $id ) {
 			case 'form_submitted':
+			case 'form_spam_caught':
 				list( $post_id, , $is_spam ) = array_pad( $args, 3, null );
-				if ( $is_spam || ! class_exists( '\Automattic\Jetpack\Forms\ContactForm\Feedback' ) ) {
+				if ( ( 'form_spam_caught' === $id ) !== (bool) $is_spam || ! class_exists( '\Automattic\Jetpack\Forms\ContactForm\Feedback' ) ) {
 					return null;
 				}
 				$feedback = \Automattic\Jetpack\Forms\ContactForm\Feedback::get( $post_id );
@@ -343,9 +434,20 @@ class Engine {
 				);
 
 			case 'post_published':
+			case 'page_published':
+			case 'podcast_episode_published':
 				list( $new, $old, $post ) = array_pad( $args, 3, null );
-				if ( 'publish' !== $new || 'publish' === $old || ! $post || 'post' !== $post->post_type ) {
+				if ( 'publish' !== $new || 'publish' === $old || ! $post ) {
 					return null;
+				}
+				if ( 'page_published' === $id ? 'page' !== $post->post_type : 'post' !== $post->post_type ) {
+					return null;
+				}
+				if ( 'podcast_episode_published' === $id ) {
+					$category = class_exists( '\Automattic\Jetpack\Podcast\Feed\Customize_Feed' ) ? \Automattic\Jetpack\Podcast\Feed\Customize_Feed::resolve_category_id() : 0;
+					if ( $category <= 0 || ! has_category( $category, $post ) ) {
+						return null;
+					}
 				}
 				$author = get_userdata( $post->post_author );
 				return array(
@@ -357,8 +459,17 @@ class Engine {
 				);
 
 			case 'comment_posted':
+			case 'comment_held_for_spam':
+			case 'comment_spam_caught':
 				$comment = get_comment( $args[0] ?? 0 );
 				if ( ! $comment ) {
+					return null;
+				}
+				$is_spam = 'spam' === ( $args[1] ?? '' );
+				if ( ( 'comment_posted' === $id ) === $is_spam ) {
+					return null;
+				}
+				if ( 'comment_spam_caught' === $id && 'true' !== get_comment_meta( $comment->comment_ID, 'akismet_result', true ) ) {
 					return null;
 				}
 				return array(

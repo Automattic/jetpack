@@ -2,39 +2,38 @@ import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import { hasFlowDrag, readDrag, startDrag } from '../drag';
+import { ProductIcon } from './product-icon';
 import { StepFields } from './step-fields';
 import type { Catalog, Flow, Step } from '../types';
 
 type Props = {
 	flow: Flow;
 	catalog: Catalog;
-	/** Position in the reveal sequence, drives the staggered entrance. */
-	order: number;
+	/** Bumped when the AI fills the card, so the nodes fly in again. */
+	arrival: number;
 	onChange: ( flow: Flow ) => void;
-	onDelete: () => void;
 };
 
-const newStep = ( type: string ): Step => ( {
+const newStep = ( type: string, catalog: Catalog ): Step => ( {
 	id: `step-${ Math.random().toString( 36 ).slice( 2, 10 ) }`,
 	type,
-	config: {},
+	config: Object.fromEntries(
+		( catalog.actions.find( a => a.id === type )?.fields ?? [] )
+			.filter( field => field.default )
+			.map( field => [ field.name, field.default as string ] )
+	),
 } );
 
-/**
- *
- * @param root0
- * @param root0.flow
- * @param root0.catalog
- * @param root0.order
- * @param root0.onChange
- * @param root0.onDelete
- */
-export function FlowCard( { flow, catalog, order, onChange, onDelete }: Props ) {
+const delay = ( index: number ) =>
+	( { '--jetpack-flow-delay': `${ index * 160 }ms` } ) as React.CSSProperties;
+
+export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
 	const [ hover, setHover ] = useState< string | null >( null );
 	const [ open, setOpen ] = useState< string | null >( null );
 
 	const trigger = catalog.triggers.find( t => t.id === flow.trigger.type );
 	const actionOf = ( type: string ) => catalog.actions.find( a => a.id === type );
+	const arriving = arrival > 0 ? 'is-arriving' : '';
 
 	const dropOn = ( event: React.DragEvent, index: number | 'trigger' ) => {
 		event.preventDefault();
@@ -50,16 +49,15 @@ export function FlowCard( { flow, catalog, order, onChange, onDelete }: Props ) 
 			}
 			return;
 		}
+		const steps = [ ...flow.steps ];
 		if ( payload.kind === 'action' ) {
-			const steps = [ ...flow.steps ];
-			steps.splice( index, 0, newStep( payload.id ) );
+			steps.splice( index, 0, newStep( payload.id, catalog ) );
 			onChange( { ...flow, steps } );
-		} else if ( payload.kind === 'step' && payload.flowId === flow.id ) {
-			const from = flow.steps.findIndex( s => s.id === payload.stepId );
+		} else if ( payload.kind === 'step' ) {
+			const from = steps.findIndex( s => s.id === payload.stepId );
 			if ( from < 0 ) {
 				return;
 			}
-			const steps = [ ...flow.steps ];
 			const [ moved ] = steps.splice( from, 1 );
 			steps.splice( index > from ? index - 1 : index, 0, moved );
 			onChange( { ...flow, steps } );
@@ -77,19 +75,8 @@ export function FlowCard( { flow, catalog, order, onChange, onDelete }: Props ) 
 		onDrop: ( event: React.DragEvent ) => dropOn( event, index ),
 	} );
 
-	const dropSlot = ( key: string, index: number ) => (
-		<div
-			key={ key }
-			className={ `jetpack-flow-slot${ hover === key ? ' is-over' : '' }` }
-			{ ...zone( key, index ) }
-		/>
-	);
-
 	return (
-		<Card.Root
-			className="jetpack-flow-card"
-			style={ { '--jetpack-flow-delay': `${ order * 140 }ms` } as React.CSSProperties }
-		>
+		<Card.Root className="jetpack-flow-card">
 			<Card.Header>
 				<Stack align="center" justify="space-between" gap="md">
 					<input
@@ -99,55 +86,60 @@ export function FlowCard( { flow, catalog, order, onChange, onDelete }: Props ) 
 						placeholder={ __( 'Untitled flow', 'jetpack-flow-pkg' ) }
 						onChange={ event => onChange( { ...flow, name: event.target.value } ) }
 					/>
-					<Stack gap="sm">
-						<Button
-							variant="outline"
-							aria-pressed={ flow.enabled }
-							onClick={ () => onChange( { ...flow, enabled: ! flow.enabled } ) }
-						>
-							{ flow.enabled ? __( 'On', 'jetpack-flow-pkg' ) : __( 'Off', 'jetpack-flow-pkg' ) }
-						</Button>
-						<Button variant="minimal" onClick={ onDelete }>
-							{ __( 'Delete', 'jetpack-flow-pkg' ) }
-						</Button>
-					</Stack>
+					<Button
+						variant="outline"
+						aria-pressed={ flow.enabled }
+						onClick={ () => onChange( { ...flow, enabled: ! flow.enabled } ) }
+					>
+						{ flow.enabled ? __( 'On', 'jetpack-flow-pkg' ) : __( 'Off', 'jetpack-flow-pkg' ) }
+					</Button>
 				</Stack>
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="sm">
 					<div
-						className={ `jetpack-flow-node jetpack-flow-node--trigger${
+						key={ `trigger-${ arrival }` }
+						className={ `jetpack-flow-node jetpack-flow-node--trigger ${ arriving }${
 							hover === 'trigger' ? ' is-over' : ''
 						}` }
+						style={ delay( 0 ) }
 						{ ...zone( 'trigger', 'trigger' ) }
 					>
-						<Text variant="body-sm">{ __( 'When', 'jetpack-flow-pkg' ) }</Text>
-						<Text variant="heading-sm">
-							{ trigger?.label ?? __( 'Drop a trigger here', 'jetpack-flow-pkg' ) }
-						</Text>
+						{ trigger && <ProductIcon product={ trigger.product } size={ 28 } /> }
+						<Stack direction="column">
+							<Text variant="body-sm">{ __( 'When…', 'jetpack-flow-pkg' ) }</Text>
+							<Text variant="heading-sm">
+								{ trigger?.label ?? __( 'Drop a trigger here', 'jetpack-flow-pkg' ) }
+							</Text>
+						</Stack>
 					</div>
 
 					{ flow.steps.map( ( step, index ) => {
 						const action = actionOf( step.type );
 						const isOpen = open === step.id;
 						return (
-							<div key={ step.id } className="jetpack-flow-step">
-								{ dropSlot( `slot-${ index }`, index ) }
+							<div key={ `${ step.id }-${ arrival }` } className="jetpack-flow-step">
 								<div
-									className="jetpack-flow-node jetpack-flow-node--action"
+									className={ `jetpack-flow-slot${ hover === `slot-${ index }` ? ' is-over' : '' }` }
+									{ ...zone( `slot-${ index }`, index ) }
+								/>
+								<div
+									className={ `jetpack-flow-node jetpack-flow-node--action ${ arriving }` }
+									style={ delay( index + 1 ) }
 									draggable
-									onDragStart={ event =>
-										startDrag( event, { kind: 'step', flowId: flow.id, stepId: step.id } )
-									}
+									onDragStart={ event => startDrag( event, { kind: 'step', stepId: step.id } ) }
 								>
 									<Stack align="center" justify="space-between" gap="md">
-										<Stack direction="column">
-											<Text variant="body-sm">
-												{ index === 0
-													? __( 'Then', 'jetpack-flow-pkg' )
-													: __( 'And', 'jetpack-flow-pkg' ) }
-											</Text>
-											<Text variant="heading-sm">{ action?.label ?? step.type }</Text>
+										<Stack align="center" gap="md">
+											{ action && <ProductIcon product={ action.product } size={ 28 } /> }
+											<Stack direction="column">
+												<Text variant="body-sm">
+													{ index === 0
+														? __( 'Then', 'jetpack-flow-pkg' )
+														: __( 'And', 'jetpack-flow-pkg' ) }
+												</Text>
+												<Text variant="heading-sm">{ action?.label ?? step.type }</Text>
+											</Stack>
 										</Stack>
 										<Stack gap="sm">
 											<Button
@@ -189,9 +181,7 @@ export function FlowCard( { flow, catalog, order, onChange, onDelete }: Props ) 
 					} ) }
 
 					<div
-						className={ `jetpack-flow-slot jetpack-flow-slot--end${
-							hover === 'end' ? ' is-over' : ''
-						}` }
+						className={ `jetpack-flow-slot jetpack-flow-slot--end${ hover === 'end' ? ' is-over' : '' }` }
 						{ ...zone( 'end', flow.steps.length ) }
 					>
 						<Text variant="body-sm">{ __( 'Drop an action here', 'jetpack-flow-pkg' ) }</Text>

@@ -1,12 +1,14 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 
 body.toplevel_page_jetpack-flow-wp-admin,
+body.jetpack_page_jetpack-flow-wp-admin,
 body.jetpack-flow {
 
 	@include jetpack-admin-page-layout-wp-build;
 }
 
-.jetpack-flow {
+.jetpack-flow,
+.jetpack-flow-list {
 	max-inline-size: var(--wpds-dimension-surface-width-2xl);
 	margin-inline: auto;
 	padding: var(--wpds-dimension-padding-2xl);
@@ -14,10 +16,33 @@ body.jetpack-flow {
 	font-family: var(--wpds-typography-font-family-body);
 }
 
+.jetpack-flow-tabs {
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+// The one call to action of the editor.
+.jetpack-flow-save {
+	min-inline-size: 120px;
+	min-block-size: var(--wpds-dimension-size-lg);
+	font-size: var(--wpds-typography-font-size-md);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+.jetpack-flow-brands {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.jetpack-flow-disc {
+	display: inline-grid;
+	flex: none;
+	place-items: center;
+	border-radius: 50%;
+}
+
 .jetpack-flow-palettes {
 	display: grid;
 	gap: var(--wpds-dimension-gap-xl);
-	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 .jetpack-flow-chip {
@@ -26,58 +51,73 @@ body.jetpack-flow {
 	gap: var(--wpds-dimension-gap-sm);
 	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-md);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-sm);
-	background: var(--wpds-color-background-surface-neutral);
+	border-radius: var(--wpds-border-radius-lg);
 	cursor: grab;
 	transition:
 		border-color var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle),
-		background var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
+		box-shadow var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
 
-	&:hover {
-		border-color: var(--wpds-color-stroke-interactive-brand);
-		background: var(--wpds-color-background-interactive-brand-weak);
-	}
-
-	&[aria-disabled="true"] {
-		cursor: not-allowed;
-		opacity: 0.6;
-	}
-
+	// Kind is told apart by a soft tint of the whole card, not by an edge.
 	&--trigger {
-		border-inline-start-width: var(--wpds-border-width-lg);
-		border-inline-start-color: var(--wpds-color-stroke-surface-brand-strong);
+		background: var(--wpds-color-background-surface-brand);
+		border-color: var(--wpds-color-stroke-surface-brand);
 	}
 
 	&--action {
-		border-inline-start-width: var(--wpds-border-width-lg);
-		border-inline-start-color: var(--wpds-color-stroke-surface-success-strong);
+		background: var(--wpds-color-background-surface-success-weak);
+		border-color: var(--wpds-color-stroke-surface-success);
 	}
-}
 
-.jetpack-flow-canvas {
-	min-block-size: 200px;
-	padding: var(--wpds-dimension-padding-lg);
-	border: var(--wpds-border-width-sm) dashed var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-lg);
-	transition: border-color var(--wpds-motion-duration-md) var(--wpds-motion-easing-balanced);
-
-	&.is-over {
+	&:hover {
 		border-color: var(--wpds-color-stroke-interactive-brand);
-		background: var(--wpds-color-background-surface-brand);
+	}
+
+	&:active {
+		cursor: grabbing;
 	}
 }
 
-.jetpack-flow-empty {
-	display: block;
-	padding-block: var(--wpds-dimension-padding-3xl);
-	text-align: center;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
+.jetpack-flow-node {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-md);
+	flex-wrap: wrap;
+	padding: var(--wpds-dimension-padding-md);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+	background: var(--wpds-color-background-surface-neutral-weak);
 
-// Cards fly in from the prompt box one after another.
-.jetpack-flow-card {
-	animation: jetpack-flow-arrive var(--wpds-motion-duration-xl) var(--wpds-motion-easing-expressive) both;
-	animation-delay: var(--jetpack-flow-delay, 0ms);
+	> * {
+		flex: 1;
+	}
+
+	> .jetpack-flow-disc,
+	> svg {
+		flex: none;
+	}
+
+	&--trigger {
+		background: var(--wpds-color-background-surface-brand);
+		border-color: var(--wpds-color-stroke-surface-brand);
+
+		&.is-over {
+			border-color: var(--wpds-color-stroke-interactive-brand);
+		}
+	}
+
+	&--action {
+		background: var(--wpds-color-background-surface-success-weak);
+		border-color: var(--wpds-color-stroke-surface-success);
+		cursor: grab;
+	}
+
+	// The AI fills the card: nodes fly in one after another.
+	&.is-arriving {
+		animation:
+			jetpack-flow-arrive var(--wpds-motion-duration-xl)
+			var(--wpds-motion-easing-expressive) both;
+		animation-delay: var(--jetpack-flow-delay, 0ms);
+	}
 }
 
 @keyframes jetpack-flow-arrive {
@@ -104,24 +144,9 @@ body.jetpack-flow {
 	color: inherit;
 }
 
-.jetpack-flow-node {
-	padding: var(--wpds-dimension-padding-md);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-md);
-	background: var(--wpds-color-background-surface-neutral-weak);
-
-	&--trigger {
-		border-inline-start: var(--wpds-border-width-lg) solid var(--wpds-color-stroke-surface-brand-strong);
-
-		&.is-over {
-			background: var(--wpds-color-background-interactive-brand-weak);
-		}
-	}
-
-	&--action {
-		border-inline-start: var(--wpds-border-width-lg) solid var(--wpds-color-stroke-surface-success-strong);
-		cursor: grab;
-	}
+.jetpack-flow-step {
+	display: grid;
+	gap: 0;
 }
 
 .jetpack-flow-slot {
@@ -145,6 +170,7 @@ body.jetpack-flow {
 
 .jetpack-flow-fields {
 	display: grid;
+	flex-basis: 100%;
 	gap: var(--wpds-dimension-gap-md);
 	margin-block-start: var(--wpds-dimension-gap-md);
 }
@@ -160,9 +186,9 @@ body.jetpack-flow {
 	overflow-wrap: anywhere;
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media ( prefers-reduced-motion: reduce ) {
 
-	.jetpack-flow-card {
+	.jetpack-flow-node.is-arriving {
 		animation: none;
 	}
 }

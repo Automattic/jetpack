@@ -69,7 +69,7 @@ class Planner {
 
 		return 'You design automations for a WordPress site in the form "when X happens, do Y". '
 			. 'Use ONLY the trigger and action IDs in this catalog: ' . wp_json_encode( $catalog, JSON_UNESCAPED_SLASHES ) . '. '
-			. 'Reply with JSON only, no prose: {"flows":[{"name":"short title","trigger":"trigger_id","steps":[{"type":"action_id","config":{"field":"value"}}]}]}. '
+			. 'Reply with JSON only, no prose, with exactly ONE flow: {"flows":[{"name":"short title","trigger":"trigger_id","steps":[{"type":"action_id","config":{"field":"value"}}]}]}. '
 			. 'In config text you may use {{token}} placeholders from the chosen trigger\'s tokens. '
 			. 'Leave user_id empty and write sensible subject and message text.';
 	}
@@ -148,16 +148,21 @@ class Planner {
 			return array();
 		}
 
-		$raw = array();
-		foreach ( $data['flows'] as $flow ) {
-			$raw[] = array(
+		// One flow at a time: the dashboard edits a single flow.
+		$flow = $data['flows'][0] ?? null;
+		if ( ! is_array( $flow ) ) {
+			return array();
+		}
+
+		$clean = Flow_Store::sanitize_one(
+			array(
 				'name'    => $flow['name'] ?? '',
 				'enabled' => false,
 				'trigger' => array( 'type' => $flow['trigger'] ?? '' ),
 				'steps'   => $flow['steps'] ?? array(),
-			);
-		}
-		return Flow_Store::sanitize( $raw );
+			)
+		);
+		return $clean ? array( $clean ) : array();
 	}
 
 	/**
@@ -170,16 +175,23 @@ class Planner {
 		$p = strtolower( $prompt );
 
 		$trigger_words = array(
-			'site_down'             => array( 'down', 'outage', 'offline', 'monitor' ),
-			'stats_spike'           => array( 'spike', 'traffic', 'stats', 'viral' ),
-			'newsletter_subscribed' => array( 'subscri', 'newsletter' ),
-			'woo_product_purchased' => array( 'purchase', 'bought', 'product', 'order' ),
-			'payment_received'      => array( 'payment', 'paid' ),
-			'post_published'        => array( 'new post', 'publish' ),
-			'comment_posted'        => array( 'comment' ),
-			'user_registered'       => array( 'register', 'sign up', 'signup', 'new user' ),
-			'form_submitted'        => array( 'form', 'contact' ),
-			'schedule_daily'        => array( 'every day', 'daily' ),
+			'form_spam_caught'          => array( 'form spam' ),
+			'comment_spam_caught'       => array( 'akismet', 'comment spam' ),
+			'comment_held_for_spam'     => array( 'held for spam' ),
+			'podcast_episode_published' => array( 'podcast', 'episode' ),
+			'plugin_update_available'   => array( 'plugin update' ),
+			'wp_update_available'       => array( 'wordpress update', 'core update' ),
+			'page_published'            => array( 'new page' ),
+			'site_down'                 => array( 'down', 'outage', 'offline', 'monitor' ),
+			'stats_spike'               => array( 'spike', 'traffic', 'stats', 'viral' ),
+			'newsletter_subscribed'     => array( 'subscri', 'newsletter' ),
+			'woo_product_purchased'     => array( 'purchase', 'bought', 'product', 'order' ),
+			'payment_received'          => array( 'payment', 'paid' ),
+			'post_published'            => array( 'new post', 'publish' ),
+			'comment_posted'            => array( 'comment' ),
+			'user_registered'           => array( 'register', 'sign up', 'signup', 'new user' ),
+			'form_submitted'            => array( 'form', 'contact' ),
+			'schedule_daily'            => array( 'every day', 'daily' ),
 		);
 		$trigger       = '';
 		foreach ( $trigger_words as $id => $words ) {
@@ -222,15 +234,14 @@ class Planner {
 			);
 		}
 
-		return Flow_Store::sanitize(
+		$clean = Flow_Store::sanitize_one(
 			array(
-				array(
-					'name'    => Catalog::triggers()[ $trigger ]['label'],
-					'enabled' => false,
-					'trigger' => array( 'type' => $trigger ),
-					'steps'   => $steps,
-				),
+				'name'    => Catalog::triggers()[ $trigger ]['label'],
+				'enabled' => false,
+				'trigger' => array( 'type' => $trigger ),
+				'steps'   => $steps,
 			)
 		);
+		return $clean ? array( $clean ) : array();
 	}
 }

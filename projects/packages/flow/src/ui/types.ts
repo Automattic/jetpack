@@ -10,11 +10,13 @@ export type FieldDef = {
 	showIf?: Record< string, string >;
 };
 
+export type Product = 'wordpress' | 'jetpack' | 'woocommerce' | 'mailpoet' | 'akismet' | 'crm';
+
 export type CatalogItem = {
 	id: string;
 	label: string;
 	description: string;
-	group: string;
+	product: Product;
 	available: boolean;
 	requires: string;
 	fields: FieldDef[];
@@ -22,9 +24,17 @@ export type CatalogItem = {
 	inbound?: boolean;
 };
 
+export type PluginInfo = {
+	slug: string;
+	name: string;
+	file: string;
+	status: 'active' | 'inactive' | 'missing';
+};
+
 export type Catalog = {
 	triggers: CatalogItem[];
 	actions: CatalogItem[];
+	plugins: Record< string, PluginInfo >;
 	users: Option[];
 	roles: Option[];
 	inbound_url: string;
@@ -33,9 +43,11 @@ export type Catalog = {
 export type Step = { id: string; type: string; config: Record< string, string > };
 
 export type Flow = {
-	id: string;
+	/** Null until the flow has been saved. */
+	id: number | null;
 	name: string;
 	enabled: boolean;
+	modified?: string;
 	trigger: { type: string; config: Record< string, string > };
 	steps: Step[];
 };
@@ -43,4 +55,4 @@ export type Flow = {
 export type DragPayload =
 	| { kind: 'trigger'; id: string }
 	| { kind: 'action'; id: string }
-	| { kind: 'step'; flowId: string; stepId: string };
+	| { kind: 'step'; stepId: string };
