@@ -10,6 +10,7 @@ import type { LocationRowInput, ReportParams } from '@automattic/jetpack-premium
 
 type LocationItem = {
 	country_code: string;
+	country_full?: string | false;
 	label: string;
 	visitors: number;
 };
@@ -17,7 +18,7 @@ type LocationItem = {
 const toEntries = ( items: readonly LocationItem[] ) =>
 	items.map( item => ( {
 		id: item.country_code.toLowerCase(),
-		label: item.label,
+		label: item.country_full || item.label,
 		value: item.visitors,
 	} ) );
 
