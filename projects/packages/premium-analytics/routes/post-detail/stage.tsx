@@ -29,6 +29,7 @@ import {
 	DetailPageShell,
 	describeError,
 	useDetailPageCustomize,
+	useHostLinkSearch,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -228,7 +229,7 @@ function PostDetail(): JSX.Element {
 				appliedRange={ dateFilters.appliedRange }
 			/>
 			<ReportScopeProvider openPeriod={ openPeriod } dateLimits={ dateLimits }>
-				<DashboardWidgetHostProvider>
+				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
 							widgetTypes={ pageWidgetTypes }

@@ -980,6 +980,8 @@ class Initializer {
 				'assetsUrl'              => self::get_assets_url(),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
+				// wp_localize_script() decodes the HTML entities WordPress stores names with.
+				'userFirstName'          => (string) wp_get_current_user()->first_name,
 				'lifecycleStats'         => array(
 					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
 					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),

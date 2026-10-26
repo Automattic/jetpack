@@ -2,8 +2,7 @@
 // `<BackupNowButton>` re-derived the same walk because it renders above the gate.
 //
 // The two already agreed, so consolidating them is a pure refactor and this file is its
-// safety net: button and gate in one tree, pinning what both show in each of the six
-// states. Written against the duplicated code and passing there first.
+// safety net: button and gate in one tree, pinning what both show in each state.
 
 const mockApiFetch = jest.fn();
 
@@ -27,6 +26,7 @@ const CAPABILITIES_PATH = '/jetpack/v4/site/capabilities';
 
 // One marker per branch of the gate's decision tree, so a test that
 // expects one screen cannot be satisfied by another.
+const OFFLINE = 'Backup is unavailable in Offline Mode';
 const NOT_CONNECTED = 'Connect Jetpack to get started';
 const SECONDARY_ADMIN_SCREEN = 'Link your WordPress.com account';
 const NO_PLAN = 'Add a Jetpack Backup plan';
@@ -179,6 +179,7 @@ beforeEach( () => {
 	answerWith( () => Promise.resolve( { hasBackupPlan: true, hasScan: false } ) );
 	window.JP_CONNECTION_INITIAL_STATE = {
 		...window.JP_CONNECTION_INITIAL_STATE,
+		isOfflineMode: false,
 		connectionStatus: CONNECTED,
 	} as typeof window.JP_CONNECTION_INITIAL_STATE;
 } );
@@ -190,6 +191,27 @@ afterEach( () => {
 } );
 
 describe( 'Gate decision — what the gate and the header button each show', () => {
+	it.each( [
+		[ 'connected', CONNECTED ],
+		[ 'not connected', DISCONNECTED ],
+	] )(
+		'shows the offline screen, no button and no request in offline mode when %s',
+		( _, status ) => {
+			window.JP_CONNECTION_INITIAL_STATE = {
+				...window.JP_CONNECTION_INITIAL_STATE,
+				isOfflineMode: true,
+				connectionStatus: status,
+			} as typeof window.JP_CONNECTION_INITIAL_STATE;
+
+			const view = within( renderShell() );
+
+			expect( view.getByText( OFFLINE ) ).toBeInTheDocument();
+			expect( view.queryByText( BODY ) ).not.toBeInTheDocument();
+			expect( headerSlot() ).toBeEmptyDOMElement();
+			expect( mockApiFetch ).not.toHaveBeenCalled();
+		}
+	);
+
 	it( 'shows the connect screen and no button when the site is not connected', () => {
 		window.JP_CONNECTION_INITIAL_STATE = {
 			...window.JP_CONNECTION_INITIAL_STATE,

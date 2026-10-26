@@ -2,11 +2,12 @@
  * The edit-overlay layer: an absolutely-positioned sheet spanning all timeline tracks that
  * renders the trim shrouds/handles and the cut segments on top of them.
  */
+import { useRef } from 'react';
 import StudioEditorCutSegment from './cut-segment';
 import StudioEditorTrimHandles from './trim-handles';
 import type { HistoryAction } from '../../../../client/components/chapters-editor/state/history';
 import type { EditSession, EditSessionAction } from '../state/edit-session';
-import type { ReactElement, RefObject } from 'react';
+import type { PointerEvent as ReactPointerEvent, ReactElement, RefObject } from 'react';
 
 type Props = {
 	scrollerEl?: HTMLElement | null;
@@ -48,17 +49,27 @@ export default function StudioEditorEditOverlay( {
 	scrollerEl,
 	dispatch,
 }: Props ): ReactElement {
+	const activePointerRef = useRef< number | null >( null );
+	const endGesture = ( event: ReactPointerEvent< HTMLElement > ) => {
+		if ( activePointerRef.current === event.pointerId ) {
+			activePointerRef.current = null;
+			onGestureEnd?.();
+		}
+	};
+
 	return (
 		<div
 			className="vp-studio-timeline__overlay"
 			data-testid="studio-timeline-overlay"
 			onPointerDownCapture={ event => {
-				if ( event.button === 0 ) {
+				if ( event.button === 0 && activePointerRef.current === null ) {
+					activePointerRef.current = event.pointerId;
 					onGestureStart?.();
 				}
 			} }
-			onPointerUpCapture={ onGestureEnd }
-			onPointerCancelCapture={ onGestureEnd }
+			onPointerUpCapture={ endGesture }
+			onPointerCancelCapture={ endGesture }
+			onLostPointerCaptureCapture={ endGesture }
 		>
 			<StudioEditorTrimHandles
 				session={ session }

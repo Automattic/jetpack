@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Fix the All Playlists block showing its empty state on WordPress.com sites that have playlists.
