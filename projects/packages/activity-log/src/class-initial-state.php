@@ -59,7 +59,7 @@ class Initial_State {
 				 * Filters the in-admin address "Restore backup" opens, with `{rewindId}` as the placeholder.
 				 * Empty keeps the Jetpack Cloud restore flow.
 				 *
-				 * @since $$next-version$$
+				 * @since 0.7.0
 				 *
 				 * @param string $template Restore URL template, or an empty string.
 				 */
@@ -68,7 +68,7 @@ class Initial_State {
 				 * Filters the in-admin address a link to a backup opens, with `{rewindId}` as the placeholder.
 				 * Empty leaves such links as plain text.
 				 *
-				 * @since $$next-version$$
+				 * @since 0.7.0
 				 *
 				 * @param string $template Backup URL template, or an empty string.
 				 */

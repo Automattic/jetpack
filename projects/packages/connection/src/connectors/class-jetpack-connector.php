@@ -109,7 +109,7 @@ class Jetpack_Connector {
 	 *
 	 * @since 8.2.0
 	 * @since 9.11.0 Loads the webpack build from dist/, with its dependencies and version from the asset file.
-	 * @since $$next-version$$ Loads the Tracks script when tracking is allowed.
+	 * @since 9.14.0 Loads the Tracks script when tracking is allowed.
 	 */
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
@@ -195,7 +195,7 @@ class Jetpack_Connector {
 	 *
 	 * @since 8.2.0
 	 * @since 9.13.0 Shared connection state moved to the jetpack-connection store.
-	 * @since $$next-version$$ Adds `connectorsUrl`; sends `connectedUsersUrl` whenever there are account rows, including while the owner's token is broken.
+	 * @since 9.14.0 Adds `connectorsUrl`; sends `connectedUsersUrl` whenever there are account rows, including while the owner's token is broken.
 	 *
 	 * @param array $data Existing script module data.
 	 * @return array Filtered script module data.
