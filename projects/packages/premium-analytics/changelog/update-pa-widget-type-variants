@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Register the post and author detail page widget variants as widget types instead of client-side aliases.

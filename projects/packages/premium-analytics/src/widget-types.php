@@ -534,9 +534,131 @@ function register_widget_types( $registry = null ) {
 		),
 		$registry
 	);
+
+	register_widget_type_variants( $registry );
 }
 
 add_action( Widget_Type_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_widget_types' );
+
+/**
+ * The detail pages' variants of the package's own widget types: a base type under another name,
+ * title, help and icon, so a fixed composition places one type twice or under the page's own title.
+ *
+ * @since $$next-version$$
+ *
+ * @return array<string, array{base: string, title: string, help?: string, icon?: string}> Variants keyed by name.
+ */
+function get_widget_type_variants() {
+	return array(
+		'jpa/email-time-series--total-opens'    => array(
+			'base'  => 'jpa/email-time-series',
+			'title' => __( 'Opens, first 30 days', 'jetpack-premium-analytics-pkg' ),
+			'help'  => __( 'Daily opens for the 30 days after this email was sent. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
+			'icon'  => 'jpa/seen',
+		),
+		'jpa/email-time-series--total-clicks'   => array(
+			'base'  => 'jpa/email-time-series',
+			'title' => __( 'Clicks, first 30 days', 'jetpack-premium-analytics-pkg' ),
+			'help'  => __( 'Daily clicks for the 30 days after this email was sent. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
+			'icon'  => 'jpa/link',
+		),
+		'jpa/email-breakdown--location-opens'   => array(
+			'base'  => 'jpa/email-breakdown',
+			'title' => __( 'Locations', 'jetpack-premium-analytics-pkg' ),
+			'icon'  => 'jpa/map-marker',
+		),
+		'jpa/email-breakdown--platforms-opens'  => array(
+			'base'  => 'jpa/email-breakdown',
+			'title' => __( 'Platforms', 'jetpack-premium-analytics-pkg' ),
+			'icon'  => 'jpa/desktop',
+		),
+		'jpa/email-breakdown--clients-opens'    => array(
+			'base'  => 'jpa/email-breakdown',
+			'title' => __( 'Clients', 'jetpack-premium-analytics-pkg' ),
+		),
+		'jpa/email-breakdown--location-clicks'  => array(
+			'base'  => 'jpa/email-breakdown',
+			'title' => __( 'Locations', 'jetpack-premium-analytics-pkg' ),
+			'icon'  => 'jpa/map-marker',
+		),
+		'jpa/email-breakdown--platforms-clicks' => array(
+			'base'  => 'jpa/email-breakdown',
+			'title' => __( 'Platforms', 'jetpack-premium-analytics-pkg' ),
+			'icon'  => 'jpa/desktop',
+		),
+		'jpa/email-breakdown--clients-clicks'   => array(
+			'base'  => 'jpa/email-breakdown',
+			'title' => __( 'Clients', 'jetpack-premium-analytics-pkg' ),
+		),
+		'jpa/email-breakdown--top-links'        => array(
+			'base'  => 'jpa/email-breakdown',
+			'title' => __( 'Top links', 'jetpack-premium-analytics-pkg' ),
+			'icon'  => 'jpa/link',
+		),
+		'jpa/utm-insights--utm'                 => array(
+			'base'  => 'jpa/utm-insights',
+			'title' => __( 'UTM', 'jetpack-premium-analytics-pkg' ),
+			'icon'  => 'jpa/megaphone',
+		),
+		'jpa/popular-post--author'              => array(
+			'base'  => 'jpa/popular-post',
+			'title' => __( 'Popular post', 'jetpack-premium-analytics-pkg' ),
+			'help'  => __( 'This author’s most-viewed post, with its headline views, likes and comments.', 'jetpack-premium-analytics-pkg' ),
+		),
+		'jpa/latest-post--author'               => array(
+			'base'  => 'jpa/latest-post',
+			'title' => __( 'Latest post', 'jetpack-premium-analytics-pkg' ),
+			'help'  => __( 'This author’s most recently published post, with its headline views, likes and comments.', 'jetpack-premium-analytics-pkg' ),
+		),
+		'jpa/views-over-years--author'          => array(
+			'base'  => 'jpa/views-over-years',
+			'title' => __( 'All-time traffic', 'jetpack-premium-analytics-pkg' ),
+			'help'  => __( 'Every month of this author’s views since their first post, page or product, with each year’s total beside it. Always the full history: the period above doesn’t narrow it. Pick a month to read the rest of the page over it.', 'jetpack-premium-analytics-pkg' ),
+		),
+	);
+}
+
+/**
+ * Registers the variants whose base type is registered: the base's modules, attributes and plan
+ * feature under the variant's name, title, help and icon.
+ *
+ * @since $$next-version$$
+ *
+ * @param Widget_Type_Registry|null $registry Optional. The registry being hydrated. Defaults to the main instance.
+ * @return void
+ */
+function register_widget_type_variants( $registry = null ) {
+	if ( ! $registry instanceof Widget_Type_Registry ) {
+		$registry = Widget_Type_Registry::get_instance();
+	}
+
+	foreach ( get_widget_type_variants() as $name => $variant ) {
+		$base = $registry->get_registered( $variant['base'] );
+		if ( ! $base instanceof Widget_Type || $registry->is_registered( $name ) ) {
+			continue;
+		}
+
+		$registry->register(
+			$name,
+			array(
+				'render_module' => $base->render_module,
+				'widget_module' => $base->widget_module,
+				'presentation'  => $base->presentation,
+				'category'      => $base->category,
+				'title'         => $variant['title'],
+				'description'   => $base->description,
+				'help'          => isset( $variant['help'] ) ? array( 'content' => $variant['help'] ) : $base->help,
+				'icon'          => $variant['icon'] ?? $base->icon,
+				'actions'       => $base->actions,
+				'attributes'    => $base->attributes,
+				'keywords'      => $base->keywords,
+				'textdomain'    => $base->textdomain,
+				'i18n_manifest' => $base->i18n_manifest,
+				'plan_feature'  => $base->plan_feature,
+			)
+		);
+	}
+}
 
 /**
  * Registers a single widget type.
