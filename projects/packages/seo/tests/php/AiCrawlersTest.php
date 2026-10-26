@@ -33,7 +33,7 @@ class AiCrawlersTest extends TestCase {
 		$this->blog_public = get_option( 'blog_public', null );
 		delete_option( Ai_Crawlers::OPTION );
 		delete_option( 'wpcom_data_sharing_opt_out' );
-		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), 10 );
+		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), Ai_Crawlers::ROBOTS_TXT_PRIORITY );
 		remove_filter(
 			'robots_txt',
 			'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\Blog_Privacy\\robots_txt',
@@ -49,7 +49,7 @@ class AiCrawlersTest extends TestCase {
 	protected function tearDown(): void {
 		delete_option( Ai_Crawlers::OPTION );
 		delete_option( 'wpcom_data_sharing_opt_out' );
-		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), 10 );
+		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), Ai_Crawlers::ROBOTS_TXT_PRIORITY );
 		remove_filter(
 			'robots_txt',
 			'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\Blog_Privacy\\robots_txt',
@@ -244,6 +244,31 @@ class AiCrawlersTest extends TestCase {
 	}
 
 	/**
+	 * Bare `Disallow` lines another filter appends first stay in the `User-agent: *` group
+	 * rather than the last AI crawler group.
+	 *
+	 * @return void
+	 */
+	public function test_bare_lines_appended_before_ours_stay_in_the_wildcard_group() {
+		$append_bare_line = static function ( $output ) {
+			return $output . "Disallow: /wp-login.php\n";
+		};
+		Ai_Crawlers::init();
+		add_filter( 'robots_txt', $append_bare_line, 11 );
+		update_option( 'blog_public', 1 );
+
+		try {
+			$output = apply_filters( 'robots_txt', "User-agent: *\nDisallow: /wp-admin/\n", true );
+		} finally {
+			remove_filter( 'robots_txt', $append_bare_line, 11 );
+		}
+
+		$before_ai_groups = strstr( $output, '# AI crawlers blocked via Jetpack SEO.', true );
+		$this->assertIsString( $before_ai_groups );
+		$this->assertStringContainsString( 'Disallow: /wp-login.php', $before_ai_groups );
+	}
+
+	/**
 	 * The SEO and WordPress.com privacy filters agree when both run.
 	 *
 	 * @return void
@@ -271,7 +296,7 @@ class AiCrawlersTest extends TestCase {
 
 		$output = apply_filters( 'robots_txt', 'TEST', true );
 
-		$this->assertSame( 10, has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) ) );
+		$this->assertSame( Ai_Crawlers::ROBOTS_TXT_PRIORITY, has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) ) );
 		$this->assertSame(
 			12,
 			has_filter(
