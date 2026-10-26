@@ -23,7 +23,9 @@ export function OverviewContent() {
 	// Loads the plans the header's plan summary shows, so they're ready when it opens.
 	useSitePurchases( { enabled: isHeaderControlsEnabled() } );
 	// WordPress stores display names HTML-escaped.
-	const displayName = decodeEntities( getScriptData()?.user?.current_user?.display_name ?? '' );
+	const name =
+		getMyJetpackWindowInitialState()?.userFirstName ||
+		decodeEntities( getScriptData()?.user?.current_user?.display_name ?? '' );
 
 	return (
 		<div>
@@ -32,11 +34,11 @@ export function OverviewContent() {
 					<>
 						<div className={ styles.welcome }>
 							<Text variant="heading-xl" render={ <h2 /> }>
-								{ displayName
+								{ name
 									? sprintf(
-											/* translators: %s: The current user's display name. */
+											/* translators: %s: The current user's first name, or their display name. */
 											__( 'Welcome to Jetpack, %s!', 'jetpack-my-jetpack' ),
-											displayName
+											name
 										)
 									: __( 'Welcome to Jetpack', 'jetpack-my-jetpack' ) }
 							</Text>
