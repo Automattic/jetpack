@@ -207,11 +207,11 @@ describe( 'MyJetpackTabPanel', () => {
 	} );
 
 	it.each( [
-		[ true, 0 ],
-		[ false, 400 ],
+		[ 'pinned', true, 0 ],
+		[ 'unpinned', false, 400 ],
 	] )(
-		'with the flag on (%s), a tab switch leaves the page scrolled to %d',
-		async ( on, scrollTop ) => {
+		'with %s tabs, a tab switch leaves the page scrolled to %d',
+		async ( _label, on, scrollTop ) => {
 			setPinnedTabs( on );
 			mockSection = MY_JETPACK_SECTION_OVERVIEW;
 			const scroller = document.body.appendChild( document.createElement( 'div' ) );

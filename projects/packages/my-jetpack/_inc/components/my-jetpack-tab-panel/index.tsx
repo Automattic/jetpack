@@ -59,7 +59,6 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		[ navigate, currentTab, recordEvent, isNewUser ]
 	);
 
-	// Pinned tabs draw the divider themselves, so the content must not repeat it.
 	const pinsTabs = isHeaderControlsEnabled();
 
 	useEffect( () => {
@@ -142,6 +141,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 			</div>
 			{ tabs.map( tab => (
 				<Tabs.Panel key={ tab.name } value={ tab.name } className={ styles[ 'tab-content' ] }>
+					{ /* The pinned strip draws the divider itself. */ }
 					{ ! pinsTabs && <FullWidthSeparator /> }
 					<TabContent name={ tab.name } beforeContent={ beforeContent } />
 				</Tabs.Panel>
