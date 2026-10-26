@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Stack, TextareaControl } from '@wordpress/ui';
+import { Button, Stack, Text, TextareaControl } from '@wordpress/ui';
 import { appendIp, getIpList, splitIps } from './ip-list';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
 import type { ChangeEvent } from 'react';
@@ -81,6 +81,11 @@ export default function IpListField( { data, name, label, description, currentIp
 					'12.12.12.1, 12.12.12.0/24, 12.12.12.1-12.12.12.100'
 				) }
 			/>
+			{ data.error && data.errorKeys.includes( name ) && (
+				<Text variant="body-sm" className="jp-protect-card__error" role="alert">
+					{ data.error }
+				</Text>
+			) }
 			<Stack direction="row" gap="sm" align="center">
 				<Button
 					variant="outline"

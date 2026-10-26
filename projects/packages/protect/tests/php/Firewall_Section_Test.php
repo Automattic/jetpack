@@ -91,6 +91,51 @@ class Firewall_Section_Test extends BaseTestCase {
 		);
 	}
 
+	/**
+	 * A wrong guess at the visitor's address must not stop a save.
+	 *
+	 * @dataProvider provide_block_lists
+	 *
+	 * @param array  $server  The request's `$_SERVER` entries.
+	 * @param string $list    The block list being saved.
+	 * @param bool   $refused Whether the save is refused.
+	 */
+	#[DataProvider( 'provide_block_lists' )]
+	public function test_block_list_is_refused_only_when_it_covers_the_known_visitor( $server, $list, $refused ) {
+		$original = $_SERVER;
+		$_SERVER  = array_merge( $_SERVER, $server );
+
+		$result = Firewall::validate_ip_block_list( $list );
+
+		$_SERVER = $original;
+		$this->assertSame( $refused, is_wp_error( $result ) );
+	}
+
+	/**
+	 * Data provider for test_block_list_is_refused_only_when_it_covers_the_known_visitor.
+	 *
+	 * @return array
+	 */
+	public static function provide_block_lists() {
+		$visitor = array( 'REMOTE_ADDR' => '203.0.113.7' );
+
+		return array(
+			'the address itself'                   => array( $visitor, "198.51.100.1\n203.0.113.7", true ),
+			'a range that includes it'             => array( $visitor, '203.0.113.1-203.0.113.100', true ),
+			'a CIDR block that includes it'        => array( $visitor, '203.0.113.0/24', true ),
+			'only other addresses'                 => array( $visitor, '203.0.113.70, 203.0.113.8-203.0.113.9, 203.0.114.0/24', false ),
+			'its IPv6 address written longer'      => array( array( 'REMOTE_ADDR' => '2606:4700:4700::1111' ), '2606:4700:4700:0000:0000:0000:0000:1111', true ),
+			'an address behind an untrusted proxy' => array(
+				array(
+					'REMOTE_ADDR'          => '198.51.100.2',
+					'HTTP_X_FORWARDED_FOR' => '203.0.113.7',
+				),
+				'198.51.100.2',
+				false,
+			),
+		);
+	}
+
 	public function test_each_block_count_comes_from_its_own_stored_period() {
 		$stored  = array(
 			Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY        => serialize(

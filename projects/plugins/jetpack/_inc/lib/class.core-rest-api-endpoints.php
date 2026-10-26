@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Sections\Firewall as Protect_Firewall;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
@@ -1785,7 +1786,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => esc_html__( 'Blocked IP addresses', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
-				'validate_callback' => __CLASS__ . '::validate_string',
+				'validate_callback' => __CLASS__ . '::validate_waf_ip_block_list',
 				'sanitize_callback' => 'esc_textarea',
 				'jp_group'          => 'waf',
 			),
@@ -3156,6 +3157,27 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 		return true;
+	}
+
+	/**
+	 * Validates the firewall's IP block list, refusing one that would block the user saving it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string          $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_waf_ip_block_list( $value, $request, $param ) {
+		$is_string = self::validate_string( $value, $request, $param );
+		// Another plugin can load an older Protect package without the check.
+		if ( true !== $is_string || ! method_exists( Protect_Firewall::class, 'validate_ip_block_list' ) ) {
+			return $is_string;
+		}
+
+		return Protect_Firewall::validate_ip_block_list( $value );
 	}
 
 	/**
