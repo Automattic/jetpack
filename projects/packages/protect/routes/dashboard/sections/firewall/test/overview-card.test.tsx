@@ -7,7 +7,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { recordViewOnce } from '../../../data/tracks';
 import useProtectSettings from '../../../data/use-protect-settings';
 import { runFirewallTest } from '../firewall-test';
-import FirewallOverviewCard from '../overview-card';
+import FirewallOverviewCard, { resetFirewallBlocks } from '../overview-card';
 import type { FirewallContext } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -64,6 +64,8 @@ const BLOCKED = {
 };
 
 describe( 'FirewallOverviewCard', () => {
+	beforeEach( resetFirewallBlocks );
+
 	it( 'reports the test in a snackbar whose Learn more opens the steps', async () => {
 		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
 		( apiFetch as unknown as jest.Mock ).mockResolvedValue(
@@ -261,6 +263,28 @@ describe( 'FirewallOverviewCard', () => {
 			'Last 30 days blocked requests56All-time blocked requests90'
 		);
 	} );
+
+	it.each( [ 'after', 'before' ] )(
+		'keeps a test’s counts when the card comes back from a tab switch %s the test finishes',
+		async when => {
+			let finish: ( value: unknown ) => void = () => {};
+			( runFirewallTest as jest.Mock ).mockReturnValue(
+				new Promise( resolve => ( finish = resolve ) )
+			);
+			( apiFetch as unknown as jest.Mock ).mockResolvedValue( refreshed( 56 ) );
+			const { unmount } = render( <FirewallOverviewCard { ...props } /> );
+			await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
+			if ( when === 'after' ) {
+				await act( async () => finish( BLOCKED ) );
+			}
+
+			unmount();
+			render( <FirewallOverviewCard { ...props } /> );
+			await act( async () => finish( BLOCKED ) );
+
+			expect( document.body ).toHaveTextContent( 'Last 30 days blocked requests56' );
+		}
+	);
 
 	it( 'drops the rules date once the Settings tab turns the rules off', () => {
 		render(
