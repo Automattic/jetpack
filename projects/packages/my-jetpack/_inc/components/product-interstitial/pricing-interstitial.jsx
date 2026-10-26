@@ -413,14 +413,17 @@ export default function PricingInterstitial( { slug } ) {
 		} );
 	}, [ recordEvent, slug ] );
 
-	const handleGoBack = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_interstitial_go_back', {
-			product_slug: slug,
-		} );
+	const handleGoBack = useCallback(
+		event => {
+			recordEvent( 'jetpack_myjetpack_interstitial_go_back', {
+				product_slug: slug,
+			} );
 
-		// Call the original go back functionality
-		onClickGoBack();
-	}, [ recordEvent, slug, onClickGoBack ] );
+			// Call the original go back functionality
+			onClickGoBack( event );
+		},
+		[ recordEvent, slug, onClickGoBack ]
+	);
 
 	// If no config exists, fallback to old ProductInterstitial
 	if ( ! config ) {

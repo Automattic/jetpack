@@ -47,38 +47,53 @@ const UpgradeScreen = () => {
 	);
 };
 
+// Stands in for a page outside My Jetpack, such as Boost's dashboard.
+const OutsidePage = () => (
+	<div>
+		<p data-testid="tab">outside</p>
+		<Link to="/add-videopress">Upgrade</Link>
+	</div>
+);
+
 const renderApp = ( initialEntry: string ) =>
 	render(
 		<ValueStoreContextProvider>
 			<MemoryRouter initialEntries={ [ initialEntry ] }>
 				<Routes>
 					<Route path="/add-videopress" element={ <UpgradeScreen /> } />
+					<Route path="/outside" element={ <OutsidePage /> } />
 					<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackTabPanel /> } />
 				</Routes>
 			</MemoryRouter>
 		</ValueStoreContextProvider>
 	);
 
+const allowedReferrer = 'http://localhost/wp-admin/';
+
+beforeEach( () => {
+	Object.defineProperty( window.history, 'length', { value: 2, configurable: true } );
+} );
+
 describe( 'useGoBack', () => {
-	it.each( [ 'overview', 'features' ] )(
-		'returns to the %s tab that opened the upgrade screen',
-		async tab => {
-			const user = userEvent.setup();
-			renderApp( `/${ tab }` );
-
-			await user.click( await screen.findByRole( 'link', { name: 'Upgrade' } ) );
-			await user.click( screen.getByRole( 'link', { name: 'My Jetpack' } ) );
-
-			await expect( screen.findByTestId( 'tab' ) ).resolves.toHaveTextContent( tab );
-		}
-	);
-
-	it( 'falls back to Features when the upgrade screen was opened directly', async () => {
+	it.each( [
+		[ 'the Overview tab', '/overview', allowedReferrer, 'overview' ],
+		[ 'the Features tab', '/features', allowedReferrer, 'features' ],
+		[ 'outside My Jetpack with an allowed referrer', '/outside', allowedReferrer, 'outside' ],
+		[ 'outside My Jetpack with no referrer', '/outside', '', 'features' ],
+		[
+			'outside My Jetpack with a foreign referrer',
+			'/outside',
+			'https://example.com/',
+			'features',
+		],
+	] )( 'goes back correctly when opened from %s', async ( _from, start, referrer, expected ) => {
+		Object.defineProperty( document, 'referrer', { value: referrer, configurable: true } );
 		const user = userEvent.setup();
-		renderApp( '/add-videopress' );
+		renderApp( start );
 
+		await user.click( await screen.findByRole( 'link', { name: 'Upgrade' } ) );
 		await user.click( screen.getByRole( 'link', { name: 'My Jetpack' } ) );
 
-		await expect( screen.findByTestId( 'tab' ) ).resolves.toHaveTextContent( 'features' );
+		await expect( screen.findByTestId( 'tab' ) ).resolves.toHaveTextContent( expected );
 	} );
 } );
