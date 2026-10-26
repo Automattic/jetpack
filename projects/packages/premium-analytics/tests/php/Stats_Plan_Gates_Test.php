@@ -255,6 +255,8 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'stats PWYW is not'        => array( self::FREE_PLAN, $products( 'jetpack_stats_pwyw_yearly' ), STATS_TIER_JETPACK_FREE ),
 			'complete plan'            => array( $plan( 'jetpack_complete_monthly' ), array(), STATS_TIER_COMMERCIAL ),
 			'growth plan'              => array( $plan( 'jetpack_growth_yearly' ), array(), STATS_TIER_COMMERCIAL ),
+			'pro plan'                 => array( $plan( 'jetpack_pro_yearly' ), array(), STATS_TIER_COMMERCIAL ),
+			'pro bi-yearly plan'       => array( $plan( 'jetpack_pro_bi_yearly' ), array(), STATS_TIER_COMMERCIAL ),
 			'security plan is not'     => array( $plan( 'jetpack_security_t1_yearly' ), array(), STATS_TIER_JETPACK_FREE ),
 			'stats-commercial feature' => array( array( 'features' => array( 'active' => array( 'stats-commercial' ) ) ), array(), STATS_TIER_COMMERCIAL ),
 		);
