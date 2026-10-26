@@ -14,6 +14,7 @@ import { REFRESH_NOTICE_META } from './refresh-failure-scope';
 type UseReportOptions = {
 	enabled?: boolean;
 	disabledComparisonKey?: string[];
+	refreshNotice?: boolean;
 };
 
 type QueryFactory< TData > = (
@@ -53,6 +54,7 @@ export function useReport<
 				queryKey: options?.disabledComparisonKey ?? [ 'reports', '__comparison__', 'disabled' ],
 			};
 
+	const refreshNoticeMeta = options?.refreshNotice === false ? {} : REFRESH_NOTICE_META;
 	const primaryEnabled = queryEnabled && ( primaryQueryOptions.enabled ?? true );
 	const comparisonQueryEnabled =
 		queryEnabled && comparisonEnabled && ( comparisonQueryOptions.enabled ?? true );
@@ -60,13 +62,13 @@ export function useReport<
 	const primary = useQuery( {
 		...primaryQueryOptions,
 		enabled: primaryEnabled,
-		meta: { ...primaryQueryOptions.meta, ...REFRESH_NOTICE_META },
+		meta: { ...primaryQueryOptions.meta, ...refreshNoticeMeta },
 	} );
 
 	const comparison = useQuery( {
 		...comparisonQueryOptions,
 		enabled: comparisonQueryEnabled,
-		meta: { ...comparisonQueryOptions.meta, ...REFRESH_NOTICE_META },
+		meta: { ...comparisonQueryOptions.meta, ...refreshNoticeMeta },
 	} );
 
 	// Widened past React Query's `isLoading` — see `isAwaitingData`. Its own

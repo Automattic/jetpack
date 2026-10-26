@@ -8,12 +8,13 @@ import { Stack, SwitchControl } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import { PlaylistPicker } from '../../channel/editor-controls';
+import { EmptyStateControl, PlaylistPicker } from '../../channel/editor-controls';
 import ServerPreview from '../../channel/server-preview';
 import { HEADING_LEVEL_OPTIONS } from '../video-details/edit';
 /**
  * Types
  */
+import type { EmptyStateMode } from '../../channel/editor-controls';
 import type { BlockEditProps } from '@wordpress/blocks';
 
 export type PlaylistDetailsAttributes = {
@@ -26,6 +27,8 @@ export type PlaylistDetailsAttributes = {
 	showMeta: boolean;
 	showDescription: boolean;
 	showActions: boolean;
+	// What an indexed playlist shows while the channel has no playlists.
+	emptyState?: EmptyStateMode;
 };
 
 /**
@@ -75,10 +78,17 @@ export default function PlaylistDetailsEdit( {
 							}
 						/>
 						{ 'index' === source && (
-							<PlaylistPicker
-								value={ sourcePlaylistId }
-								onChange={ value => setAttributes( { sourcePlaylistId: value } ) }
-							/>
+							<>
+								<PlaylistPicker
+									value={ sourcePlaylistId }
+									onChange={ value => setAttributes( { sourcePlaylistId: value } ) }
+								/>
+								<EmptyStateControl
+									kind="playlists"
+									value={ attributes.emptyState }
+									onChange={ emptyState => setAttributes( { emptyState } ) }
+								/>
+							</>
 						) }
 						<SelectControl
 							__next40pxDefaultSize

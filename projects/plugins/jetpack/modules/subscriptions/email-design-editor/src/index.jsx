@@ -37,6 +37,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { registerPlugin } from '@wordpress/plugins';
 import { addQueryArgs } from '@wordpress/url';
 import { watchDerivedTextColor } from './derived-text-color';
+import { bundleRootFontSize, watchRootFontSize, withRootFontSize } from './root-font-size';
 
 // Declared by the Jetpack plugin on every platform, answered by WordPress.com, so
 // the browser calls one local URL everywhere.
@@ -191,28 +192,30 @@ export function buildEditorConfig( bundle, data ) {
  * Appended to `styles` rather than replacing it: WordPress.com ships the email's own stylesheet
  * through that same array, and the package reads the whole of it.
  *
- * The one rule so far hides the featured image. `core/post-featured-image` is a core block, so
- * WordPress.com deliberately leaves it out of `blocks` — sending core definitions would replace
- * this site's working implementations with placeholders — and no `preview_html` can reach it.
- * Only WordPress.com knows whether a send carries the image, so the bundle reports that instead.
+ * One hides the featured image. `core/post-featured-image` is a core block, so WordPress.com
+ * deliberately leaves it out of `blocks` — sending core definitions would replace this site's
+ * working implementations with placeholders — and no `preview_html` can reach it. Only
+ * WordPress.com knows whether a send carries the image, so the bundle reports that instead.
+ *
+ * The other publishes the root font size image captions are sized from, which `watchRootFontSize`
+ * then keeps current.
  *
  * @param {object} settings - The editor settings assembled so far.
  * @param {object} bundle   - The response from the bootstrap route.
  * @return {object} The settings, with any extra canvas rules appended.
  */
 function withCanvasStyles( settings, bundle ) {
+	const styles = withRootFontSize( settings.styles, bundleRootFontSize( bundle ) );
+
 	// Strictly false. A bundle from before WordPress.com reported this omits the key, and hiding
 	// the image on that reading would be a regression on every blog that does send one.
-	if ( false !== bundle?.shows_featured_image ) {
-		return settings;
+	if ( false === bundle?.shows_featured_image ) {
+		styles.push( { css: '.wp-block-post-featured-image { display: none; }' } );
 	}
 
 	return {
 		...settings,
-		styles: [
-			...( Array.isArray( settings.styles ) ? settings.styles : [] ),
-			{ css: '.wp-block-post-featured-image { display: none; }' },
-		],
+		styles,
 	};
 }
 
@@ -1114,6 +1117,7 @@ export async function mountEmailDesignEditor() {
 	const root = createRoot( container );
 	let stopWatchingSidebar = null;
 	let stopDerivingTextColor = null;
+	let stopWatchingRootFontSize = null;
 
 	try {
 		const bundle = await apiFetch( { path: bootstrapPath( data ) } );
@@ -1158,6 +1162,10 @@ export async function mountEmailDesignEditor() {
 				config.globalStylesPostId,
 				inheritedColors( bundle )
 			);
+
+			// Only a creator with the panel can change the size, and the canvas was built with the
+			// one the screen opened on.
+			stopWatchingRootFontSize = watchRootFontSize( bundleRootFontSize( bundle ) );
 		}
 
 		root.render(
@@ -1172,6 +1180,7 @@ export async function mountEmailDesignEditor() {
 	} catch ( error ) {
 		stopWatchingSidebar?.();
 		stopDerivingTextColor?.();
+		stopWatchingRootFontSize?.();
 
 		// The notice deliberately does not name which half failed; this does.
 		// eslint-disable-next-line no-console

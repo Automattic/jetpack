@@ -265,7 +265,7 @@ final class Environment {
 	/**
 	 * Site Editor URL for the active theme's page template, empty when it has none.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.0
 	 */
 	public static function page_template_editor_url(): string {
 		if ( null === self::$page_template_editor_url ) {

@@ -143,6 +143,25 @@ $band-ground: #f8f8f8;
 	}
 }
 
+// Connect is wider than a switch, so on phones it moves under the text
+// rather than squeezing it.
+@media (max-width: #{gb.$break-small - 1px}) {
+
+	.feature-item--connect {
+		flex-wrap: wrap;
+
+		&.feature-item--static:not(.feature-row) .feature-item__text {
+			flex-basis: 100%;
+		}
+
+		.feature-action-slot {
+			flex-basis: 100%;
+			justify-content: flex-start;
+			order: 1;
+		}
+	}
+}
+
 // The interactive card's title is a button, which resets the font; WPDS would
 // give a heading element a font its own defense rule protects instead.
 .feature-item__static-title {
@@ -453,20 +472,6 @@ $band-ground: #f8f8f8;
 	margin-inline-start: auto;
 	max-inline-size: 16rem;
 	min-inline-size: 8rem;
-}
-
-// A segmented control: one soft track, the active layout a tile inside it. The
-// padding takes the compact (32px) buttons to the search box's 40px height.
-$view-group-padding: 4px;
-
-.view-group {
-	// The groove color, not the button's own hover fill: those are the same
-	// value, so hovering an unpressed button would show no change at all.
-	background: var(--wpds-color-background-track-neutral);
-	// The buttons' radius plus the track's padding, so the corners nest.
-	border-radius: calc(var(--wpds-border-radius-md) + #{$view-group-padding});
-	gap: 2px;
-	padding: $view-group-padding;
 }
 
 // Rounded like the feature icons beside them.

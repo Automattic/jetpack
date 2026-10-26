@@ -209,9 +209,9 @@ export function Toolbar( {
 				<Stack
 					direction="row"
 					align="center"
+					gap="xs"
 					role="group"
 					aria-label={ __( 'Layout', 'jetpack-my-jetpack' ) }
-					className={ styles[ 'view-group' ] }
 				>
 					<ViewButton value="grid" current={ view } onSelect={ onViewChange } />
 					<ViewButton value="list" current={ view } onSelect={ onViewChange } />

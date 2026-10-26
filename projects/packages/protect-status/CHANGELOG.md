@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [0.9.0] - 2026-10-19
+### Added
+- Add Status::get_cached_status() and Status::is_cached_status_expired(), to read the stored status without contacting WordPress.com. [#53566]
+
 ## [0.8.1] - 2026-10-05
 ### Changed
 - Update dependencies. [#44736]
@@ -196,6 +204,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#37894]
 
+[0.9.1]: https://github.com/Automattic/jetpack-protect-status/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/jetpack-protect-status/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/Automattic/jetpack-protect-status/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.14...v0.8.0
 [0.7.14]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.13...v0.7.14

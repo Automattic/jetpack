@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import FileDownloadsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -22,12 +22,9 @@ describe( 'FileDownloadsWidget', () => {
 		mockApiFetch.mockResolvedValue( { date: '2026-06-22', days: {} } );
 	} );
 
-	it( 'links to the Downloads report', () => {
-		render( <FileDownloadsWidget attributes={ {} } /> );
+	it( 'declares View all to the Downloads report', () => {
+		const { declaredLink } = renderWithActionsHost( <FileDownloadsWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/downloads' )
-		);
+		expect( declaredLink( 'view-all' )?.href ).toContain( '%2Freports%2Fdownloads' );
 	} );
 } );

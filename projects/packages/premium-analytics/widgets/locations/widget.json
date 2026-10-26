@@ -13,5 +13,27 @@
 		]
 	},
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "geoGranularity",
+			"type": "jpa/select",
+			"label": "View by",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "country",
+					"label": "Countries"
+				},
+				{
+					"value": "region",
+					"label": "Regions"
+				},
+				{
+					"value": "city",
+					"label": "Cities"
+				}
+			]
+		}
+	]
 }

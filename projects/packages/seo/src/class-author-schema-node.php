@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
+use WP_Error;
 use WP_User;
 
 /**
@@ -202,23 +205,128 @@ class Author_Schema_Node {
 			return;
 		}
 
-		$job_title = isset( $_POST[ self::META_JOB_TITLE ] )
-			? self::text( sanitize_text_field( wp_unslash( $_POST[ self::META_JOB_TITLE ] ) ) )
-			: '';
+		self::save_job_title(
+			$user_id,
+			isset( $_POST[ self::META_JOB_TITLE ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::META_JOB_TITLE ] ) ) : ''
+		);
+		self::save_same_as(
+			$user_id,
+			isset( $_POST[ self::META_SAME_AS ] )
+				? preg_split( '/\r\n|\r|\n/', sanitize_textarea_field( wp_unslash( $_POST[ self::META_SAME_AS ] ) ) )
+				: array()
+		);
+	}
+
+	/**
+	 * The author profile of a user, as the Settings Author profile card edits it.
+	 * `accountProfileUrl` is where name, bio and website are edited when WordPress.com owns them.
+	 *
+	 * @param int $user_id User ID.
+	 * @return array{name: string, description: string, url: string, jobTitle: string, sameAs: array<int, string>, avatarUrl: string, accountProfileUrl: string}
+	 */
+	public static function get_profile( $user_id ) {
+		$user = get_userdata( $user_id );
+		return array(
+			'name'              => $user ? (string) $user->display_name : '',
+			'description'       => $user ? (string) $user->description : '',
+			'url'               => $user ? (string) $user->user_url : '',
+			'jobTitle'          => (string) get_user_meta( $user_id, self::META_JOB_TITLE, true ),
+			'sameAs'            => self::sanitize_url_list( get_user_meta( $user_id, self::META_SAME_AS, true ) ),
+			'avatarUrl'         => (string) get_avatar_url( $user_id, array( 'size' => 96 ) ),
+			'accountProfileUrl' => self::is_wpcom_profile( $user_id ) ? 'https://my.wordpress.com/me/account' : '',
+		);
+	}
+
+	/**
+	 * Update a user's author profile. Omitted fields keep their stored values, and
+	 * name, bio and website are left alone where WordPress.com owns them.
+	 *
+	 * @param int   $user_id User ID.
+	 * @param array $fields  Any of `name`, `description`, `url`, `jobTitle` and `sameAs`.
+	 * @return array|WP_Error The stored profile, or the error that stopped the update.
+	 */
+	public static function update_profile( $user_id, array $fields ) {
+		if ( self::is_wpcom_profile( $user_id ) ) {
+			unset( $fields['name'], $fields['description'], $fields['url'] );
+		}
+
+		$userdata = array( 'ID' => $user_id );
+		if ( isset( $fields['name'] ) ) {
+			$userdata['display_name'] = sanitize_text_field( (string) $fields['name'] );
+			if ( '' === $userdata['display_name'] ) {
+				return new WP_Error(
+					'jetpack_seo_author_name_empty',
+					__( 'Author name cannot be empty.', 'jetpack-seo' ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+		if ( isset( $fields['description'] ) ) {
+			$userdata['description'] = (string) $fields['description'];
+		}
+		if ( isset( $fields['url'] ) ) {
+			$userdata['user_url'] = esc_url_raw( trim( (string) $fields['url'] ) );
+		}
+		if ( count( $userdata ) > 1 ) {
+			// wp_update_user() and update_user_meta() unslash their input, so slash it as core's users route does.
+			$result = wp_update_user( wp_slash( $userdata ) );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		}
+
+		if ( isset( $fields['jobTitle'] ) ) {
+			self::save_job_title( $user_id, $fields['jobTitle'] );
+		}
+		if ( isset( $fields['sameAs'] ) ) {
+			self::save_same_as( $user_id, $fields['sameAs'] );
+		}
+
+		return self::get_profile( $user_id );
+	}
+
+	/**
+	 * Whether name, bio and website belong to the user's WordPress.com account: on Simple
+	 * they're shared by all the user's sites, and on Atomic WordPress.com pushes them over local edits.
+	 *
+	 * @param int $user_id User ID.
+	 * @return bool
+	 */
+	private static function is_wpcom_profile( $user_id ) {
+		$host = new Host();
+		return $host->is_wpcom_simple()
+			|| ( $host->is_woa_site() && ( new Connection_Manager() )->is_user_connected( $user_id ) );
+	}
+
+	/**
+	 * Store a user's job title, deleting the meta when it's empty.
+	 *
+	 * @param int   $user_id User ID.
+	 * @param mixed $value   Raw job title.
+	 * @return void
+	 */
+	private static function save_job_title( $user_id, $value ) {
+		$job_title = self::text( is_scalar( $value ) ? sanitize_text_field( (string) $value ) : '' );
 		if ( '' === $job_title ) {
 			delete_user_meta( $user_id, self::META_JOB_TITLE );
 		} else {
-			update_user_meta( $user_id, self::META_JOB_TITLE, $job_title );
+			update_user_meta( $user_id, self::META_JOB_TITLE, wp_slash( $job_title ) );
 		}
+	}
 
-		$same_as = isset( $_POST[ self::META_SAME_AS ] )
-			? preg_split( '/\r\n|\r|\n/', sanitize_textarea_field( wp_unslash( $_POST[ self::META_SAME_AS ] ) ) )
-			: array();
-		$same_as = self::sanitize_url_list( $same_as );
+	/**
+	 * Store a user's profile links, deleting the meta when none are valid.
+	 *
+	 * @param int   $user_id User ID.
+	 * @param mixed $value   Raw list of URLs.
+	 * @return void
+	 */
+	private static function save_same_as( $user_id, $value ) {
+		$same_as = self::sanitize_url_list( $value );
 		if ( empty( $same_as ) ) {
 			delete_user_meta( $user_id, self::META_SAME_AS );
 		} else {
-			update_user_meta( $user_id, self::META_SAME_AS, $same_as );
+			update_user_meta( $user_id, self::META_SAME_AS, wp_slash( $same_as ) );
 		}
 	}
 

@@ -10,8 +10,13 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { SalesByDevice } from '../../src/components/sales-by-device';
-import type { SalesByDeviceAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type SalesByDeviceAttributes = Record< never, never >;
 
 type SalesByDeviceRenderAttributes = SalesByDeviceAttributes &
 	Partial< ReportParamsFieldAttributes >;
