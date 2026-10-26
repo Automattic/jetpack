@@ -41,16 +41,13 @@ function wpcom_site_has_wordpress_agent_plan(): bool {
  * @return bool
  */
 function wpcom_is_wordpress_agent_enabled(): bool {
-	if ( ! wpcom_site_has_wordpress_agent_plan() ) {
-		return false;
-	}
-
+	// The plan check is the costly one, so it goes last.
 	if ( function_exists( 'big_sky_is_enabled' ) ) {
 		// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded above.
-		return (bool) get_option( 'big_sky_enable', '1' ) && (bool) big_sky_is_enabled();
+		return (bool) get_option( 'big_sky_enable', '1' ) && (bool) big_sky_is_enabled() && wpcom_site_has_wordpress_agent_plan();
 	}
 
-	return (bool) get_option( 'big_sky_enable', '0' );
+	return (bool) get_option( 'big_sky_enable', '0' ) && wpcom_site_has_wordpress_agent_plan();
 }
 
 /**

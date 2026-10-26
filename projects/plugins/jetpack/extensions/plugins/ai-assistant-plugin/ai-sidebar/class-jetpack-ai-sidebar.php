@@ -342,9 +342,10 @@ class Jetpack_AI_Sidebar {
 		$host = new Host();
 
 		$enabled = false;
-		if ( $host->is_wpcom_platform() && class_exists( 'Big_Sky' ) && self::has_wordpress_agent_plan() ) {
+		if ( $host->is_wpcom_platform() && class_exists( 'Big_Sky' ) ) {
 			$default = $host->is_wpcom_simple() ? '1' : '0';
-			$enabled = (bool) get_option( 'big_sky_enable', $default );
+			// The plan check is the costly one, so it goes after the option.
+			$enabled = (bool) get_option( 'big_sky_enable', $default ) && self::has_wordpress_agent_plan();
 		}
 
 		/**
