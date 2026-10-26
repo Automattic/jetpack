@@ -93,7 +93,7 @@ Hosts shape the sidebar with one of two filters:
 
 Every state governs the sidebar entry only. An item that is hidden, or whose gate is unsatisfied, still registers its page, so `admin.php?page=…` keeps working for My Jetpack's Manage buttons, bookmarks, and support links.
 
-The filter runs on `admin_menu` at priority 1000, and can run twice in one request (once for the Jetpack menu, once for top level pages), so add it earlier (from an mu-plugin or a plugin) and keep the callback free of side effects. `Admin_Menu::VISIBILITY_VISIBLE` and `Admin_Menu::VISIBILITY_HIDDEN` hold the same strings as the examples.
+The filter runs on `admin_menu` (and `network_admin_menu`) at priority 1000, and can run twice in one request (once for the Jetpack menu, once for top level pages), so add it earlier (from an mu-plugin or a plugin) and keep the callback free of side effects. `Admin_Menu::VISIBILITY_VISIBLE` and `Admin_Menu::VISIBILITY_HIDDEN` hold the same strings as the examples.
 
 #### Keep an entry point for a product the site hasn't turned on
 
@@ -168,7 +168,7 @@ Items that declare no key go by their menu slug instead, such as `my-jetpack` an
 #### What it isn't for
 
 * **Access control.** `visible` cannot expose a page to someone who lacks the capability for it, because an item is only registered for users who have it. `hidden` doesn't stop anyone opening the page by its URL.
-* **Turning a feature off.** A hidden Backup entry leaves Backup running. Use the policy's `activation` for that.
+* **Turning a feature off.** A hidden entry leaves its feature running. Use the policy's `activation` to switch off a module, such as Podcast. It can't switch off Backup, which the site's plan decides, or a standalone plugin.
 * **Working around a wrong gate.** If an item is missing because Jetpack thinks its product is off when it's on, fix the product's activation check. Forcing the item visible hides the bug from every other place that reads that check.
 
 Only items registered through `Admin_Menu::add_menu()` or `Admin_Menu::add_top_level_menu()` are in the map. Anything added with a bare `add_submenu_page()` or `add_menu_page()` is out of this filter's reach.
