@@ -26,4 +26,54 @@ describe( 'OverviewContent', () => {
 
 		expect( screen.getByRole( 'heading', { level: 2, name: heading } ) ).toBeInTheDocument();
 	} );
+
+	describe( 'load animation', () => {
+		const heading = 'Welcome to Jetpack, Admin!';
+		let Content: typeof OverviewContent;
+		const setReducedMotion = ( matches: boolean ) =>
+			Object.defineProperty( window, 'matchMedia', {
+				configurable: true,
+				value: () => ( { matches } ),
+			} );
+
+		beforeEach( async () => {
+			window.JetpackScriptData = {
+				user: { current_user: { display_name: 'Admin', capabilities: {} } },
+			} as typeof window.JetpackScriptData;
+			setReducedMotion( false );
+			// A fresh module registry resets the once-per-page-load flag; React must stay shared.
+			const react = jest.requireActual( 'react' );
+			await jest.isolateModulesAsync( async () => {
+				jest.doMock( 'react', () => react );
+				( { OverviewContent: Content } = await import( '../content' ) );
+			} );
+		} );
+
+		const typedText = () =>
+			screen.queryByText( ( _, element ) => element?.textContent === heading, {
+				selector: 'h2 [aria-hidden="true"]',
+			} );
+
+		it( 'types the heading for sighted users only, giving assistive tech the whole of it', () => {
+			render( <Content /> );
+
+			expect( screen.getByRole( 'heading', { level: 2, name: heading } ) ).toBeInTheDocument();
+			expect( typedText() ).toBeInTheDocument();
+		} );
+
+		it( 'shows the heading at once with reduced motion', () => {
+			setReducedMotion( true );
+			render( <Content /> );
+
+			expect( typedText() ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'heading', { level: 2, name: heading } ) ).toBeInTheDocument();
+		} );
+
+		it( 'plays once per page load, not on returning to the tab', () => {
+			render( <Content /> ).unmount();
+			render( <Content /> );
+
+			expect( typedText() ).not.toBeInTheDocument();
+		} );
+	} );
 } );

@@ -10,6 +10,8 @@ import ProductCardsSection from '../../product-cards-section';
 import OverviewSections from '../../product-cards-section/overview-sections';
 import SeoOptInCard from '../../seo-opt-in-card';
 import { A4AUpsell } from './a4a-upsell';
+import { TypedText, useOverviewLoadAnimation } from './load-animation';
+import loadAnimationStyles from './load-animation/style.module.scss';
 import styles from './styles.module.scss';
 
 /**
@@ -24,6 +26,14 @@ export function OverviewContent() {
 	useSitePurchases( { enabled: isHeaderControlsEnabled() } );
 	// WordPress stores display names HTML-escaped.
 	const displayName = decodeEntities( getScriptData()?.user?.current_user?.display_name ?? '' );
+	const animate = useOverviewLoadAnimation();
+	const welcome = displayName
+		? sprintf(
+				/* translators: %s: The current user's display name. */
+				__( 'Welcome to Jetpack, %s!', 'jetpack-my-jetpack' ),
+				displayName
+			)
+		: __( 'Welcome to Jetpack', 'jetpack-my-jetpack' );
 
 	return (
 		<div>
@@ -32,16 +42,10 @@ export function OverviewContent() {
 					<>
 						<div className={ styles.welcome }>
 							<Text variant="heading-xl" render={ <h2 /> }>
-								{ displayName
-									? sprintf(
-											/* translators: %s: The current user's display name. */
-											__( 'Welcome to Jetpack, %s!', 'jetpack-my-jetpack' ),
-											displayName
-										)
-									: __( 'Welcome to Jetpack', 'jetpack-my-jetpack' ) }
+								{ animate ? <TypedText text={ welcome } /> : welcome }
 							</Text>
 						</div>
-						<OverviewSections />
+						<OverviewSections className={ animate ? loadAnimationStyles.sections : undefined } />
 						<OverviewBlogPosts />
 					</>
 				) : (
