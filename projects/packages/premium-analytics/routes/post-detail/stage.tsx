@@ -33,7 +33,7 @@ import {
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
@@ -45,9 +45,8 @@ import { useDetailDateControls } from '../use-detail-date-controls';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { withWidgetTypeAliases } from '../widget-type-aliases';
 import { getPostTypeCopy, postHeaderSlots } from './components';
-import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
+import { EMAIL_TAB_IDS } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import type { JSX } from 'react';
@@ -174,11 +173,6 @@ function PostDetail(): JSX.Element {
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	const pageWidgetTypes = useMemo(
-		() => withWidgetTypeAliases( widgetTypes, POST_DETAIL_WIDGET_TYPE_ALIASES ),
-		[ widgetTypes ]
-	);
-
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
 
 	// A card on this page can set the period (the All-time traffic card opens a
@@ -232,7 +226,7 @@ function PostDetail(): JSX.Element {
 				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
-							widgetTypes={ pageWidgetTypes }
+							widgetTypes={ widgetTypes }
 							isResolvingWidgetTypes={ isResolvingWidgetTypes }
 							resolveWidgetModule={ resolveWidgetModule }
 							layout={ layout }
