@@ -1,6 +1,6 @@
 import { act, renderHook, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { resetScan, setScan } from '../store';
+import { resetScan } from '../store';
 import * as threatActions from '../threat-actions';
 import { deleteSoftware, fixThreat } from '../threat-actions';
 import { useThreatRowActions } from '../threat-row-actions';
@@ -132,7 +132,10 @@ describe( 'useThreatRowActions with bulk actions', () => {
 } );
 
 describe( 'useThreatRowActions where the host decides about ignoring', () => {
-	afterEach( resetScan );
+	afterEach( () => {
+		delete window.jetpackProtectDashboard;
+		resetScan();
+	} );
 
 	it.each( [
 		[ 'ignore', 'current' ],
@@ -140,7 +143,8 @@ describe( 'useThreatRowActions where the host decides about ignoring', () => {
 	] as const )( 'offers %s only where the host lets the site ignore threats', ( id, status ) => {
 		const threat = { ...threatIn( 20 ), status };
 		const isEligible = ( canIgnore: boolean ) => {
-			setScan( current => ( { ...current, canIgnore } ) );
+			window.jetpackProtectDashboard = { scan: { hasPlan: true, url: '', canIgnore } };
+			resetScan();
 			return renderHook( () => useThreatRowActions( open, true ) )
 				.result.current.find( action => action.id === id )
 				?.isEligible?.( threat );
