@@ -2696,6 +2696,9 @@ importers:
       '@wordpress/keycodes':
         specifier: 4.57.0
         version: 4.57.0(@types/react@19.3.0)
+      '@wordpress/ui':
+        specifier: 0.24.0
+        version: 0.24.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/url':
         specifier: 4.57.0
         version: 4.57.0

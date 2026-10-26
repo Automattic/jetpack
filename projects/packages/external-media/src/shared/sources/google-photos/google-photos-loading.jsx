@@ -1,11 +1,15 @@
-import { Spinner } from '@wordpress/components';
+import { Spinner, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 
 const GooglePhotosLoading = ( { className } ) => {
 	return (
-		<div className={ clsx( className, 'jetpack-external-media__google-photos-loading' ) }>
+		<Stack
+			align="center"
+			justify="center"
+			className={ clsx( className, 'jetpack-external-media__google-photos-loading' ) }
+		>
 			<Spinner />
-		</div>
+		</Stack>
 	);
 };
 
