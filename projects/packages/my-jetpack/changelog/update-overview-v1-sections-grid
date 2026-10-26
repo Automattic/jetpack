@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Overview: Draw the sections as a compact bordered grid with a divider under each heading, shown only while the Overview v1 feature flag is on.
