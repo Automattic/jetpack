@@ -116,8 +116,8 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 
 	const [ , setLastTabPath ] = useValueStore( 'lastTabPath', null );
 	useEffect( () => {
-		setLastTabPath( `/${ currentTab }` );
-	}, [ currentTab, setLastTabPath ] );
+		setLastTabPath( `/${ currentTab }${ search }` );
+	}, [ currentTab, search, setLastTabPath ] );
 
 	const tabs = useMemo( () => getMyJetpackSections(), [] );
 

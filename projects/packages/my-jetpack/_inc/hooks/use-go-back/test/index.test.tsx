@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Link, MemoryRouter, Route, Routes } from 'react-router';
+import { HashRouter, Link, Route, Routes, useLocation } from 'react-router';
 import { MyJetpackTabPanel } from '../../../components/my-jetpack-tab-panel';
 import { MyJetpackRoutes } from '../../../constants';
 import ValueStoreContextProvider from '../../../context/value-store/valueStoreContext';
@@ -22,18 +22,19 @@ jest.mock( '../../use-is-jetpack-user-new', () => ( {
 	default: () => false,
 } ) );
 
+// "Upgrade" is a router navigation; "Upgrade (hash link)" mimics a plain `#/add-…` href,
+// whose location keeps the 'default' key.
+const UpgradeLinks = () => (
+	<>
+		<Link to="/add-videopress">Upgrade</Link>
+		<a href="#/add-videopress">Upgrade (hash link)</a>
+	</>
+);
+
 jest.mock( '../../../components/my-jetpack-tab-panel/tab-content', () => ( {
-	TabContent: ( { name }: { name: string } ) => {
-		const { createElement } = jest.requireActual( 'react' );
-		const { Link: RouterLink } = jest.requireActual( 'react-router' );
-		return createElement(
-			'div',
-			null,
-			createElement( 'p', { 'data-testid': 'tab' }, name ),
-			createElement( RouterLink, { to: '/add-videopress' }, 'Upgrade' )
-		);
-	},
+	TabContent: () => mockUpgradeLinks(),
 } ) );
+const mockUpgradeLinks = UpgradeLinks;
 
 const UpgradeScreen = () => {
 	const { onClickGoBack, backTo } = useGoBack( {
@@ -47,53 +48,74 @@ const UpgradeScreen = () => {
 	);
 };
 
-// Stands in for a page outside My Jetpack, such as Boost's dashboard.
-const OutsidePage = () => (
-	<div>
-		<p data-testid="tab">outside</p>
-		<Link to="/add-videopress">Upgrade</Link>
-	</div>
-);
+const Location = () => {
+	const { pathname, search } = useLocation();
+	return <p data-testid="location">{ pathname + search }</p>;
+};
 
-const renderApp = ( initialEntry: string ) =>
-	render(
+const renderApp = ( initialEntry: string ) => {
+	window.location.hash = `#${ initialEntry }`;
+	return render(
 		<ValueStoreContextProvider>
-			<MemoryRouter initialEntries={ [ initialEntry ] }>
+			<HashRouter>
 				<Routes>
 					<Route path="/add-videopress" element={ <UpgradeScreen /> } />
-					<Route path="/outside" element={ <OutsidePage /> } />
+					{ /* Stands in for a page outside My Jetpack, such as Boost's dashboard. */ }
+					<Route path="/outside" element={ <UpgradeLinks /> } />
 					<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackTabPanel /> } />
 				</Routes>
-			</MemoryRouter>
+				<Location />
+			</HashRouter>
 		</ValueStoreContextProvider>
 	);
+};
 
 const allowedReferrer = 'http://localhost/wp-admin/';
 
-beforeEach( () => {
-	Object.defineProperty( window.history, 'length', { value: 2, configurable: true } );
-} );
+const openUpgradeScreen = async ( start: string, upgradeLink: string, referrer: string ) => {
+	Object.defineProperty( document, 'referrer', { value: referrer, configurable: true } );
+	const user = userEvent.setup();
+	renderApp( start );
+	await user.click( await screen.findByRole( 'link', { name: upgradeLink } ) );
+	return { user, backLink: await screen.findByRole( 'link', { name: 'My Jetpack' } ) };
+};
 
 describe( 'useGoBack', () => {
 	it.each( [
-		[ 'the Overview tab', '/overview', allowedReferrer, 'overview' ],
-		[ 'the Features tab', '/features', allowedReferrer, 'features' ],
-		[ 'outside My Jetpack with an allowed referrer', '/outside', allowedReferrer, 'outside' ],
-		[ 'outside My Jetpack with no referrer', '/outside', '', 'features' ],
+		[ 'a tab, inside the app', '/features?view=list', 'Upgrade', '', '/features?view=list' ],
 		[
-			'outside My Jetpack with a foreign referrer',
-			'/outside',
-			'https://example.com/',
-			'features',
+			'a tab, by hash link',
+			'/features?view=list',
+			'Upgrade (hash link)',
+			'',
+			'/features?view=list',
 		],
-	] )( 'goes back correctly when opened from %s', async ( _from, start, referrer, expected ) => {
-		Object.defineProperty( document, 'referrer', { value: referrer, configurable: true } );
-		const user = userEvent.setup();
-		renderApp( start );
+		[ 'outside, allowed referrer', '/outside', 'Upgrade (hash link)', allowedReferrer, '/outside' ],
+		[ 'outside, no referrer', '/outside', 'Upgrade (hash link)', '', '/features' ],
+		[
+			'outside, foreign referrer',
+			'/outside',
+			'Upgrade (hash link)',
+			'https://example.com/',
+			'/features',
+		],
+	] )( 'goes back correctly from %s', async ( _from, start, upgradeLink, referrer, expected ) => {
+		const { user, backLink } = await openUpgradeScreen( start, upgradeLink, referrer );
 
-		await user.click( await screen.findByRole( 'link', { name: 'Upgrade' } ) );
-		await user.click( screen.getByRole( 'link', { name: 'My Jetpack' } ) );
+		await user.click( backLink );
 
-		await expect( screen.findByTestId( 'tab' ) ).resolves.toHaveTextContent( expected );
+		await waitFor( () => expect( screen.getByTestId( 'location' ) ).toHaveTextContent( expected ) );
+	} );
+
+	it( 'pops the upgrade screen off history when going back inside the app', async () => {
+		const { user, backLink } = await openUpgradeScreen( '/overview', 'Upgrade', '' );
+		const historyLength = window.history.length;
+
+		await user.click( backLink );
+
+		await waitFor( () =>
+			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/overview' )
+		);
+		expect( window.history ).toHaveLength( historyLength );
 	} );
 } );

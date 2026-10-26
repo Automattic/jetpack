@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { MyJetpackRoutes } from '../../constants';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../use-analytics';
@@ -8,12 +8,12 @@ import type { MouseEvent } from 'react';
 /**
  * Custom React hook to handle back link click with analytics.
  *
- * Goes back to the My Jetpack tab shown before this screen, else to the previous page
- * when it came from an allowed site, else to `fallback`.
+ * Goes back in history when this screen was reached inside My Jetpack or from an allowed
+ * site; otherwise goes to the last My Jetpack tab shown, else to `fallback`.
  *
  * @param options          - Options.
  * @param options.slug     - Product slug, recorded with the analytics event.
- * @param options.fallback - Route to go back to when neither applies. Defaults to the My Jetpack home (`/`).
+ * @param options.fallback - Route used when no tab was shown. Defaults to the My Jetpack home (`/`).
  * @return Object with the back link destination and its click handler with analytics.
  */
 export function useGoBack( {
@@ -25,7 +25,9 @@ export function useGoBack( {
 } ) {
 	const { recordEvent } = useAnalytics();
 	const navigate = useNavigate();
+	const { key } = useLocation();
 	const [ lastTabPath ] = useValueStore( 'lastTabPath', null );
+	const backTo = lastTabPath ?? fallback;
 
 	const onClickGoBack = useCallback(
 		( event: MouseEvent ) => {
@@ -35,8 +37,9 @@ export function useGoBack( {
 
 			event.preventDefault();
 
-			if ( lastTabPath ) {
-				navigate( lastTabPath );
+			// A router navigation got us here (a page load or plain hash link leaves key 'default').
+			if ( key !== 'default' ) {
+				navigate( -1 );
 				return;
 			}
 
@@ -58,11 +61,11 @@ export function useGoBack( {
 			if ( isFromAllowedSite && window.history.length > 1 ) {
 				navigate( -1 );
 			} else {
-				navigate( fallback );
+				navigate( backTo );
 			}
 		},
-		[ slug, recordEvent, navigate, lastTabPath, fallback ]
+		[ slug, recordEvent, navigate, key, backTo ]
 	);
 
-	return { onClickGoBack, backTo: lastTabPath ?? fallback };
+	return { onClickGoBack, backTo };
 }
