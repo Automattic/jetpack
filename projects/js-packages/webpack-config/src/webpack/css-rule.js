@@ -40,32 +40,47 @@ const PostcssLoader = ( { postcssOptions = {}, ...options } = {} ) => ( {
 	},
 } );
 
+const extensionsTest = exts =>
+	new RegExp(
+		'\\.(?:' + exts.map( ext => ext.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) ).join( '|' ) + ')$',
+		'i'
+	);
+
 const CssRule = ( options = {} ) => {
 	const exts = options.extensions || [ 'css', 'sass', 'scss' ];
 	const hasLoader = name => ( options.extraLoaders || [] ).some( l => l.loader?.includes( name ) );
 	const withDefault = ( Loader, opt, name ) =>
 		opt === false || hasLoader( name ) ? [] : [ Loader( opt === true ? {} : opt ) ];
-	const extraLoaders = [
-		...withDefault( PostcssLoader, options.postcss, 'postcss-loader' ),
-		...withDefault( SassLoader, options.sass, 'sass-loader' ),
-		...( options.extraLoaders || [] ),
-	];
+	const postcssLoaders = withDefault( PostcssLoader, options.postcss, 'postcss-loader' );
+	const sassLoaders = withDefault( SassLoader, options.sass, 'sass-loader' );
+
+	const useFor = loaders => {
+		const afterCss = [ ...loaders, ...( options.extraLoaders || [] ) ];
+		return [
+			MiniCssExtractLoader( options.MiniCssExtractLoader ),
+			CssLoader( { importLoaders: afterCss.length, ...options.CssLoader } ),
+			...afterCss,
+		];
+	};
+
+	// CSS imports are always side effects (they inject styles into the DOM),
+	// so override any package.json "sideEffects: false" declarations.
+	const base = { test: extensionsTest( exts ), sideEffects: true };
+
+	// Plain `.css` skips sass-loader, which only the other extensions need.
+	const sassExts = exts.filter( ext => ext.toLowerCase() !== 'css' );
+	if ( ! sassLoaders.length || ! sassExts.length ) {
+		return { ...base, use: useFor( postcssLoaders ) };
+	}
+	if ( sassExts.length === exts.length ) {
+		return { ...base, use: useFor( [ ...postcssLoaders, ...sassLoaders ] ) };
+	}
 
 	return {
-		test: new RegExp(
-			'\\.(?:' + exts.map( ext => ext.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) ).join( '|' ) + ')$',
-			'i'
-		),
-		// CSS imports are always side effects (they inject styles into the DOM),
-		// so override any package.json "sideEffects: false" declarations.
-		sideEffects: true,
-		use: [
-			MiniCssExtractLoader( options.MiniCssExtractLoader ),
-			CssLoader( {
-				importLoaders: extraLoaders.length,
-				...options.CssLoader,
-			} ),
-			...extraLoaders,
+		...base,
+		rules: [
+			{ test: extensionsTest( [ 'css' ] ), use: useFor( postcssLoaders ) },
+			{ test: extensionsTest( sassExts ), use: useFor( [ ...postcssLoaders, ...sassLoaders ] ) },
 		],
 	};
 };
