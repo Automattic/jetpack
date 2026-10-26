@@ -32,7 +32,7 @@ window.jetpackProtectDashboard = { scan: report };
  * Render a clean report and answer the scan request.
  *
  * @param answer - Resolves or rejects the POST.
- * @param ui     - What to render, with the header's Scan now button.
+ * @param ui     - What to render, with the header's Scan site button.
  * @return Resolves once the button is clicked.
  */
 function renderAndScan(
@@ -51,7 +51,7 @@ function renderAndScan(
 		);
 	setScan( () => report );
 	render( ui );
-	return userEvent.click( screen.getByRole( 'button', { name: 'Scan now' } ) );
+	return userEvent.click( screen.getByRole( 'button', { name: 'Scan site' } ) );
 }
 
 describe( 'Scan now', () => {
@@ -84,7 +84,7 @@ describe( 'Scan now', () => {
 
 		await expect( screen.findByText( message ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Scanning…' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Scan now' } ) ).toBeEnabled();
+		expect( screen.getByRole( 'button', { name: 'Scan site' } ) ).toBeEnabled();
 
 		await userEvent.click( screen.getByRole( 'button', { name: /dismiss|close/i } ) );
 
@@ -114,7 +114,7 @@ describe( 'Scan now', () => {
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the burst is decorative and aria-hidden.
 		expect( container.querySelector( '.is-bursting' ) ).not.toBeInTheDocument();
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Scan now' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Scan site' } ) );
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the burst is decorative and aria-hidden.
 		await waitFor( () => expect( container.querySelector( '.is-bursting' ) ).toBeInTheDocument() );
@@ -133,7 +133,7 @@ describe( 'Scan now', () => {
 			setScan( () => ( { ...report, hasPlan, lastChecked } ) );
 			render( <HeaderScanButton /> );
 
-			const button = screen.getByRole( 'button', { name: 'Scan now' } );
+			const button = screen.getByRole( 'button', { name: 'Scan site' } );
 			expect( button ).toHaveAttribute( 'aria-disabled', disabled );
 			expect( button ).toHaveAccessibleDescription( description );
 		}
