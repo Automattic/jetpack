@@ -14,9 +14,11 @@
 }
 
 .jetpack-external-media-auth {
+	position: absolute;
+	inset: 0;
 	max-inline-size: 480px;
 	margin-inline: auto;
-	padding-block-end: var(--wpds-dimension-padding-3xl);
+	overflow: auto;
 	text-align: center;
 }
 

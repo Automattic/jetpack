@@ -43,7 +43,13 @@ function GooglePhotosAuth( props ) {
 	}, [ setAuthenticated ] );
 
 	return (
-		<Stack direction="column" align="center" gap="lg" className="jetpack-external-media-auth">
+		<Stack
+			direction="column"
+			align="center"
+			justify="center"
+			gap="lg"
+			className="jetpack-external-media-auth"
+		>
 			{ isAuthing ? <AuthProgress /> : <AuthInstructions /> }
 
 			<Button loading={ isAuthing } onClick={ onAuthorize }>

@@ -12,7 +12,13 @@ export default function GooglePhotosAuthUpgrade( props ) {
 	const { setAuthenticated, onRetry } = props;
 
 	return (
-		<Stack direction="column" align="center" gap="lg" className="jetpack-external-media-auth">
+		<Stack
+			direction="column"
+			align="center"
+			justify="center"
+			gap="lg"
+			className="jetpack-external-media-auth"
+		>
 			<GooglePhotosLogo />
 
 			<Text variant="body-lg" render={ <p /> }>
