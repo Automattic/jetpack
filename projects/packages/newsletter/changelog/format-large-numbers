@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers: Format the number of subscribers to add with locale-aware number separators.

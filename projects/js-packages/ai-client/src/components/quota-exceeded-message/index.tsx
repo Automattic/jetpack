@@ -4,6 +4,7 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { useAnalytics, canUserPurchasePlan } from '@automattic/jetpack-shared-extension-utils';
 import { Nudge as StandardNudge } from '@automattic/jetpack-shared-extension-utils/components';
+import { formatNumber } from '@automattic/number-formatters';
 import { Notice } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -182,9 +183,9 @@ const DefaultUpgradePrompt = ( {
 		return (
 			<Nudge
 				buttonText={ sprintf(
-					/* Translators: %d: the number of requests */
-					__( 'Upgrade to %d requests', 'jetpack-ai-client' ),
-					nextTier.limit
+					/* Translators: %s: the formatted number of requests */
+					__( 'Upgrade to %s requests', 'jetpack-ai-client' ),
+					formatNumber( nextTier.limit )
 				) }
 				checkoutUrl={ checkoutUrl }
 				className={ 'jetpack-ai-upgrade-banner' }

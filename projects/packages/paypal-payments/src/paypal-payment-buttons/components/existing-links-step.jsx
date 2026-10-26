@@ -6,6 +6,7 @@
  * @package
  */
 
+import { formatNumber } from '@automattic/number-formatters';
 import {
 	Button,
 	DropdownMenu,
@@ -49,8 +50,8 @@ export function filterLinks( links, search ) {
 
 // The comments sit on the calls, where the minifier keeps them with the string.
 const titleReuse =
-	/* translators: %d: number of payment buttons the account already has */
-	__( 'Or reuse an existing button (%d)', 'jetpack-paypal-payments' );
+	/* translators: %s: formatted number of payment buttons the account already has */
+	__( 'Or reuse an existing button (%s)', 'jetpack-paypal-payments' );
 const titleSwitch = __( 'Choose a button to change', 'jetpack-paypal-payments' );
 const helpSwitch = __(
 	'The block will take the name, price and details of the payment button you pick.',
@@ -129,7 +130,7 @@ export default function ExistingLinksStep( {
 			{ /* The section's divider separates the list from Create new, so it goes with it. */ }
 			<div className={ isSwitch ? undefined : 'jetpack-paypal-payment-buttons__links-section' }>
 				<h3 className="jetpack-paypal-payment-buttons__links-title">
-					{ isSwitch ? titleSwitch : sprintf( titleReuse, links.length ) }
+					{ isSwitch ? titleSwitch : sprintf( titleReuse, formatNumber( links.length ) ) }
 				</h3>
 				{ isSwitch && (
 					<p className="jetpack-paypal-payment-buttons__links-intro">{ helpSwitch }</p>

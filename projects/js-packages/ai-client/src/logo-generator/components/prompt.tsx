@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { formatNumber } from '@automattic/number-formatters';
 import { Button, Tooltip, SelectControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
@@ -293,9 +294,9 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 					<div className="jetpack-ai-logo-generator__prompt-requests">
 						<div>
 							{ sprintf(
-								// translators: %d is the number of requests
-								__( '%d requests remaining.', 'jetpack-ai-client' ),
-								requestsRemaining
+								// translators: %s is the formatted number of requests
+								__( '%s requests remaining.', 'jetpack-ai-client' ),
+								formatNumber( requestsRemaining )
 							) }
 						</div>
 						{ hasNextTier && (

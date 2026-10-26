@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { speak } from '@wordpress/a11y';
 import { DropZone, FormTokenField, TextareaControl, ToggleControl } from '@wordpress/components';
 import {
@@ -372,9 +373,9 @@ function SubmitButton( { count, isPending, disabled, onClick }: SubmitButtonProp
 	const label =
 		count > 0
 			? sprintf(
-					// translators: %d: number of subscribers to add.
-					_n( 'Add %d subscriber', 'Add %d subscribers', count, 'jetpack-newsletter' ),
-					count
+					// translators: %s: formatted number of subscribers to add.
+					_n( 'Add %s subscriber', 'Add %s subscribers', count, 'jetpack-newsletter' ),
+					formatNumber( count )
 				)
 			: __( 'Add subscribers', 'jetpack-newsletter' );
 	return (

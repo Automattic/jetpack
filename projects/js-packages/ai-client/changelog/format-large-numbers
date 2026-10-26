@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Format request counts with locale-aware number separators.
