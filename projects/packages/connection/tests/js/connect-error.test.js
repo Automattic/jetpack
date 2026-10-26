@@ -14,7 +14,7 @@ const forbidden = {
 	message: 'Error setting up your site. HTTP 403.',
 	data: { status: 400 },
 };
-const fallback = 'Connection failed. Please try again.';
+const fallback = 'An error occurred. Please try again.';
 
 // Stands in for the connection package's getRegistrationErrorDisplay(), which the card gets from the shared script:
 // mapped copy for a known code, else the site's message without markup, and nothing for a status-only or markup-only one.
