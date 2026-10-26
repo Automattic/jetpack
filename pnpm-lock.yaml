@@ -143,8 +143,8 @@ importers:
         specifier: 0.23.1
         version: 0.23.1
       undici:
-        specifier: 7.29.1
-        version: 7.29.1
+        specifier: 8.12.2
+        version: 8.12.2
 
   projects/js-packages/ai-client:
     dependencies:
@@ -317,8 +317,8 @@ importers:
         specifier: 6.30.0
         version: 6.30.0
       zod:
-        specifier: 3.25.76
-        version: 3.25.76
+        specifier: 4.6.6
+        version: 4.6.6
     devDependencies:
       '@jest/globals':
         specifier: 30.5.2
@@ -1278,8 +1278,8 @@ importers:
         specifier: ^19.3.0
         version: 19.3.0(react@19.3.0)
       zod:
-        specifier: 3.25.76
-        version: 3.25.76
+        specifier: 4.6.6
+        version: 4.6.6
 
   projects/js-packages/remove-asset-webpack-plugin:
     dependencies:
@@ -2681,9 +2681,6 @@ importers:
       '@wordpress/data':
         specifier: 10.57.0
         version: 10.57.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/date':
-        specifier: 5.57.0
-        version: 5.57.0
       '@wordpress/element':
         specifier: 9.0.0
         version: 9.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -2708,9 +2705,6 @@ importers:
       lodash:
         specifier: 4.18.1
         version: 4.18.1
-      moment:
-        specifier: 2.31.0
-        version: 2.31.0
       react:
         specifier: 19.3.0
         version: 19.3.0
@@ -6018,8 +6012,8 @@ importers:
         specifier: 10.0.0
         version: 10.0.0(react@19.3.0)
       zod:
-        specifier: 3.25.76
-        version: 3.25.76
+        specifier: 4.6.6
+        version: 4.6.6
     devDependencies:
       '@automattic/jetpack-analytics':
         specifier: workspace:*
@@ -17926,16 +17920,12 @@ packages:
   undici-types@8.12.1:
     resolution: {integrity: sha512-nCiEcIx87oMw9u3Yzj2DuRBzv6p0e7akhy4HUPtpBiVWmAY3o6Phznst8QhmY1oLMttLgJ2tlAvsKuzCgBSoAw==}
 
-  undici@6.29.0:
-    resolution: {integrity: sha512-R+RODBqp6i2pPflGdq+xIOUkl+RNfGgHwoinecKu/JCuf2uO06cOKoDbI2P7Dn6KcswdKwrczbU6IYJ6K8X+wg==}
+  undici@6.29.1:
+    resolution: {integrity: sha512-EvRlUt/QqAEvXdQeRMYUfwOQsfzpDztykrG2owGEE/rBOBoYv9uF39ZzsNDh4lTFHhTr2XOZjKkYgueD12ZmGA==}
     engines: {node: '>=18.17'}
 
-  undici@7.29.1:
-    resolution: {integrity: sha512-RYONW2MeafgYlkVOKYKkA/Ag7BmXqgIWCa8t1m0JcxrQg9pI9lEqRhAOruOBCbAohOa/gkCF+iPi9hrgvTzu6Q==}
-    engines: {node: '>=20.18.1'}
-
-  undici@8.12.1:
-    resolution: {integrity: sha512-usz3OVQBeh1LxNn0DzU0voLXMgn5CU/WUdpBsY6Ti5afNao+vTkmn4H/NxoXolc10cOqe2+YIG0Hspq2rsl64w==}
+  undici@8.12.2:
+    resolution: {integrity: sha512-XtuDWVdqTLr3NAxm2ly9/hU6kUsJOgGh1RASzMBbsw6aWCOaQzHdW+QQDfdERjfJ2V5vL5pRPa4RetO9UfivDg==}
     engines: {node: '>=22.19.0'}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
@@ -18516,8 +18506,8 @@ packages:
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+  zod@4.6.6:
+    resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -18556,17 +18546,17 @@ snapshots:
       '@octokit/plugin-rest-endpoint-methods': 17.0.0(@octokit/core@7.0.8)
       '@octokit/request': 10.0.16
       '@octokit/request-error': 7.1.2
-      undici: 6.29.0
+      undici: 6.29.1
 
   '@actions/http-client@3.0.2':
     dependencies:
       tunnel: 0.0.6
-      undici: 6.29.0
+      undici: 6.29.1
 
   '@actions/http-client@4.0.1':
     dependencies:
       tunnel: 0.0.6
-      undici: 6.29.0
+      undici: 6.29.1
 
   '@actions/io@3.0.2': {}
 
@@ -32400,8 +32390,8 @@ snapshots:
       '@babel/parser': 7.29.9
       eslint: 10.13.0
       hermes-parser: 0.25.1
-      zod: 3.25.76
-      zod-validation-error: 4.0.2(zod@3.25.76)
+      zod: 4.6.6
+      zod-validation-error: 4.0.2(zod@4.6.6)
     transitivePeerDependencies:
       - supports-color
 
@@ -33835,7 +33825,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.2
-      undici: 8.12.1
+      undici: 8.12.2
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -37135,11 +37125,9 @@ snapshots:
 
   undici-types@8.12.1: {}
 
-  undici@6.29.0: {}
+  undici@6.29.1: {}
 
-  undici@7.29.1: {}
-
-  undici@8.12.1: {}
+  undici@8.12.2: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
@@ -37897,10 +37885,10 @@ snapshots:
       '@yuku-toolchain/types': 0.19.0
       yuku-core: 0.19.0
 
-  zod-validation-error@4.0.2(zod@3.25.76):
+  zod-validation-error@4.0.2(zod@4.6.6):
     dependencies:
-      zod: 3.25.76
+      zod: 4.6.6
 
-  zod@3.25.76: {}
+  zod@4.6.6: {}
 
   zwitch@2.0.4: {}
