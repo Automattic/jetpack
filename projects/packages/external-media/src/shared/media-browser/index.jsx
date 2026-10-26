@@ -1,7 +1,8 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Spinner, Composite } from '@wordpress/components';
+import { Composite } from '@wordpress/components';
 import { useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Spinner } from '@wordpress/ui';
 import clsx from 'clsx';
 import MediaBrowserSelectButton from './media-browser-select-button';
 import MediaItem from './media-item';
