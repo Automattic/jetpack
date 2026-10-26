@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a prototype report executor that serves a report from WooCommerce on the site or from WordPress.com, with four prototype widgets.

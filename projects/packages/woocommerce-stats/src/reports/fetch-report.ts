@@ -17,6 +17,9 @@ type ReportParamValue =
 
 export type ReportRequestParams = Record< string, ReportParamValue >;
 
+/** Which provider serves the report; omitted, the server picks as it always has. */
+export type ReportExecution = 'auto' | 'local' | 'remote';
+
 function cleanQueryParams( params?: ReportRequestParams ) {
 	if ( ! params ) {
 		return undefined;
@@ -117,16 +120,19 @@ async function fetchPreservingStatus< TResponse >( path: string ): Promise< TRes
 /**
  * Fetch a WooCommerce report through the package's proxy.
  *
- * @param endpoint - Report endpoint below `analytics/reports`, e.g. `orders/by-date`.
- * @param params   - Query params of the report request.
+ * @param endpoint          - Report endpoint below `analytics/reports`, e.g. `orders/by-date`.
+ * @param params            - Query params of the report request.
+ * @param options           - Request options.
+ * @param options.execution - The provider to force, or `auto`.
  * @return The report response.
  */
 export async function fetchReport< TResponse = unknown >(
 	endpoint: string,
-	params?: ReportRequestParams
+	params?: ReportRequestParams,
+	options?: { execution?: ReportExecution }
 ): Promise< TResponse > {
 	const path = `${ REPORTS_PATH }/${ endpoint.replace( /^\/+/, '' ) }`;
-	const query = cleanQueryParams( params );
+	const query = cleanQueryParams( { ...params, execution: options?.execution } );
 
 	return fetchPreservingStatus< TResponse >( query ? addQueryArgs( path, query ) : path );
 }

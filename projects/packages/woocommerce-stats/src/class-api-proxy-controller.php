@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Local_Report_Provider;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Remote_Report_Provider;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -31,6 +35,11 @@ class Api_Proxy_Controller {
 	 * REST namespace of the route.
 	 */
 	const REST_NAMESPACE = 'jetpack/v4/woocommerce-stats';
+
+	/**
+	 * Path prefix of the report routes, before the report route itself.
+	 */
+	private const REPORTS_PREFIX = 'analytics/reports/';
 
 	/**
 	 * Transient key prefix of the cached responses.
@@ -105,10 +114,14 @@ class Api_Proxy_Controller {
 				'callback'            => array( $this, 'handle_request' ),
 				'permission_callback' => array( $this, 'check_permission' ),
 				'args'                => array(
-					'endpoint' => array(
+					'endpoint'  => array(
 						'type'              => 'string',
 						'required'          => true,
 						'validate_callback' => array( $this, 'validate_endpoint' ),
+					),
+					'execution' => array(
+						'type' => 'string',
+						'enum' => Report_Executor::EXECUTION_VALUES,
 					),
 				),
 			)
@@ -139,20 +152,50 @@ class Api_Proxy_Controller {
 	}
 
 	/**
-	 * Answer a report from the cache, or from WordPress.com.
+	 * Answer a report from the provider the executor picks.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response|WP_Error The response of WordPress.com with its status, or an error:
-	 *                                   `no_connection` (403), the client's own with a 500, `api_error` (502).
+	 * @return WP_REST_Response|WP_Error The provider's response with its status, or an error: the
+	 *                                   executor's (404, 422, 503, or `no_connection` 403), the client's own with a 500, `api_error` (502).
 	 */
 	public function handle_request( WP_REST_Request $request ) {
-		$path      = sprintf( '/sites/%d/%s', (int) Jetpack_Options::get_option( 'id' ), $request->get_param( 'endpoint' ) );
-		$params    = $this->get_forwarded_params( $request );
-		$cache_key = null === $request->get_param( 'force_refresh' ) ? $this->get_cache_key( $path, $params ) : null;
+		$route         = rtrim( substr( (string) $request->get_param( 'endpoint' ), strlen( self::REPORTS_PREFIX ) ), '/' );
+		$force_refresh = null !== $request->get_param( 'force_refresh' );
+		$registry      = new Report_Registry(
+			array(
+				new Local_Report_Provider(),
+				new Remote_Report_Provider(
+					function ( $route, $params ) use ( $force_refresh ) {
+						return $this->fetch_remote( $route, $params, $force_refresh );
+					}
+				),
+			)
+		);
+
+		$payload = ( new Report_Executor( $registry ) )->execute( $route, $this->get_forwarded_params( $request ), $request->get_param( 'execution' ) );
+
+		return is_wp_error( $payload ) ? $payload : $this->build_response( $payload );
+	}
+
+	/**
+	 * Read a report from the cache, or from WordPress.com. The remote provider's transport.
+	 *
+	 * @param string $route         Report route below `analytics/reports/`.
+	 * @param array  $params        Report query params.
+	 * @param bool   $force_refresh Whether to skip the cache.
+	 * @return array|WP_Error The payload, or `no_connection` (403), the client's own error with a 500, `api_error` (502).
+	 */
+	public function fetch_remote( $route, array $params, $force_refresh = false ) {
+		if ( ! isset( $params['date_type'] ) ) {
+			$params['date_type'] = $this->get_store_date_type();
+		}
+
+		$path      = sprintf( '/sites/%d/%s%s', (int) Jetpack_Options::get_option( 'id' ), self::REPORTS_PREFIX, $route );
+		$cache_key = $force_refresh ? null : $this->get_cache_key( 'remote', $path, $params );
 
 		$cached = null === $cache_key ? false : get_transient( $cache_key );
 		if ( false !== $cached ) {
-			return $this->build_response( $cached );
+			return $cached;
 		}
 
 		if ( ! ( new Manager() )->is_connected() ) {
@@ -190,15 +233,16 @@ class Api_Proxy_Controller {
 		}
 
 		$payload = array(
-			'data'    => $data,
-			'status'  => $status,
-			'headers' => $this->get_forwarded_headers( wp_remote_retrieve_headers( $response ) ),
+			'data'         => $data,
+			'status'       => $status,
+			'headers'      => $this->get_forwarded_headers( wp_remote_retrieve_headers( $response ) ),
+			'generated_at' => time(),
 		);
 		if ( null !== $cache_key && 200 === $status ) {
 			set_transient( $cache_key, $payload, self::CACHE_TTL );
 		}
 
-		return $this->build_response( $payload );
+		return $payload;
 	}
 
 	/**
@@ -215,27 +259,23 @@ class Api_Proxy_Controller {
 	}
 
 	/**
-	 * The query params to forward: all but WordPress routing and the proxy's own, with the store's
-	 * date type when the caller names none.
-	 *
-	 * WordPress.com would fall back to the synced option, but only once Jetpack Sync delivers a change.
+	 * The report's query params: all but WordPress routing and the proxy's own.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return array
 	 */
 	private function get_forwarded_params( WP_REST_Request $request ) {
 		$params = $request->get_query_params();
-		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['force_refresh'] );
-
-		if ( ! isset( $params['date_type'] ) ) {
-			$params['date_type'] = $this->get_store_date_type();
-		}
+		// `jp_wt` is the monorepo Docker worktree switcher's, added to every request.
+		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['force_refresh'], $params['execution'], $params['jp_wt'] );
 
 		return $params;
 	}
 
 	/**
 	 * The report API's name for the `woocommerce_date_type` option, defaulting to `paid` as WooCommerce does.
+	 *
+	 * WordPress.com would fall back to the synced option, but only once Jetpack Sync delivers a change.
 	 *
 	 * @return string One of `created`, `paid`, or `completed`.
 	 */
@@ -272,17 +312,18 @@ class Api_Proxy_Controller {
 	}
 
 	/**
-	 * Transient key of a path and its params, whatever their order, in the current cache generation.
+	 * Transient key of a provider, path and params, whatever their order, in the current cache generation.
 	 *
+	 * @param string $provider Provider that served the payload.
 	 * @param string $path   WordPress.com path, without the query string.
 	 * @param array  $params Forwarded query params.
 	 * @return string
 	 */
-	private function get_cache_key( $path, array $params ) {
+	private function get_cache_key( $provider, $path, array $params ) {
 		ksort( $params );
 
 		$generation = (int) get_option( self::CACHE_GENERATION_OPTION, 0 );
 
-		return self::CACHE_PREFIX . md5( $generation . '|' . $path . '|' . wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
+		return self::CACHE_PREFIX . md5( $generation . '|' . $provider . '|' . $path . '|' . wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
 	}
 }

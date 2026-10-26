@@ -108,6 +108,11 @@ class Analytics_Dashboard {
 		self::GROSS_SALES_OVER_TIME_TYPE,
 		self::ORDERS_OVER_TIME_TYPE,
 		self::VISITORS_OVER_TIME_TYPE,
+		// Report execution prototype.
+		'woocommerce-analytics/prototype-orders-local',
+		'woocommerce-analytics/prototype-orders-remote',
+		'woocommerce-analytics/prototype-sessions-remote',
+		'woocommerce-analytics/prototype-stock-local',
 	);
 
 	/**

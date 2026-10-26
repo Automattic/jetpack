@@ -1,0 +1,12 @@
+{
+	"name": "woocommerce-analytics/prototype-orders-local",
+	"icon": "jpa/chart-bar",
+	"title": "Orders (local)",
+	"description": "Orders, net and total sales from WooCommerce Analytics on this site. Report execution prototype.",
+	"help": {
+		"content": "Orders, net and total sales from WooCommerce Analytics on this site. Report execution prototype."
+	},
+	"category": "prototype",
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

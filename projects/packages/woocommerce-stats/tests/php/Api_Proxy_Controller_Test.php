@@ -276,7 +276,52 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertSame( array( 'x-wp-total' => '42' ), $this->get_report()->get_headers() );
+		$headers = $this->get_report()->get_headers();
+
+		$this->assertSame( '42', $headers['x-wp-total'] );
+		$this->assertArrayNotHasKey( 'x-other', $headers );
+		$this->assertSame( 'remote', $headers['X-Jetpack-Report-Provider'] );
+	}
+
+	/**
+	 * @dataProvider data_executions
+	 */
+	#[DataProvider( 'data_executions' )]
+	public function test_resolves_the_provider_without_falling_back( $report, array $params, $connected, $status, $code ) {
+		require_once __DIR__ . '/mocks/woocommerce-revenue-stats-controller-mock.php';
+		if ( ! $connected ) {
+			\Jetpack_Options::delete_option( 'blog_token' );
+			( new Connection_Manager() )->reset_connection_status();
+		}
+
+		$response = $this->get_report( $report, $params );
+
+		$this->assertSame( $status, $response->get_status() );
+		$this->assertSame( $code, $response->get_data()['code'] );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	/**
+	 * The local provider is ready for `orders/by-date` only, through the controller stub.
+	 *
+	 * @return array<string, array{0: string, 1: array, 2: bool, 3: int, 4: string}>
+	 */
+	public static function data_executions() {
+		return array(
+			'a route nobody declares'              => array( 'orders/by-week', array( 'execution' => 'auto' ), true, 404, 'unknown_report' ),
+			'local forced on a remote-only report' => array( 'sessions/by-device', array( 'execution' => 'local' ), true, 422, 'unsupported_provider' ),
+			'remote forced on a local-only report' => array( 'stock/summary', array( 'execution' => 'remote' ), true, 422, 'unsupported_provider' ),
+			'auto on a local-only report'          => array( 'stock/summary', array( 'execution' => 'auto' ), true, 503, 'feature_missing' ),
+			'auto without a connection'            => array( 'orders/by-date', array( 'execution' => 'auto' ), false, 503, 'needs_connection' ),
+			'no override without a connection'     => array( 'orders/by-date', array(), false, 403, 'no_connection' ),
+			'an execution value nobody serves'     => array( 'orders/by-date', array( 'execution' => 'both' ), true, 400, 'rest_invalid_param' ),
+		);
+	}
+
+	public function test_forwards_no_execution_override_to_wordpress_com() {
+		$this->get_report( 'orders/by-date', array( 'execution' => 'remote' ) );
+
+		$this->assertStringNotContainsString( 'execution', $this->requests[0]['url'] );
 	}
 
 	/**
