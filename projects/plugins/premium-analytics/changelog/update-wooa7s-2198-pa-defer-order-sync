@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Delay order analytics sync until the store's analytics full sync starts.

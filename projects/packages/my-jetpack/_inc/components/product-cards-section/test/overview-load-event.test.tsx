@@ -25,7 +25,7 @@ jest.mock( '../../../data/utils/get-my-jetpack-window-state', () => ( {
 } ) );
 jest.mock( '../../../hooks/use-stats-visits', () => () => mockStatsVisits );
 jest.mock( '../overview-item/use-status-action', () => () => ( { isPending: false } ) );
-jest.mock( '../../stats-section/cards', () => () => null );
+jest.mock( '../stats-card/overview-stats', () => () => null );
 jest.mock( '../../../data/use-simple-query', () => () => ( {
 	data: { scanData: { num_threats: 0 }, wafConfig: {} },
 	isLoading: false,

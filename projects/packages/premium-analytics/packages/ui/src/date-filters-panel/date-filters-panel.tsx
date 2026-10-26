@@ -261,6 +261,7 @@ export function DateFiltersPanel( {
 					lockedOptions={ lockedIntervalOptions }
 					lockUpsell={ dateLimits?.intervalUpsell }
 					value={ interval }
+					withLabel
 					disabled={ disabled }
 					triggerProps={ triggerProps }
 					onChange={ onIntervalChange }

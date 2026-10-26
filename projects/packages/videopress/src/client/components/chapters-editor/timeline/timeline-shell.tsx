@@ -189,13 +189,8 @@ export default function TimelineShell( {
 	} = geometry;
 	const ticks = useRulerTicks( durationMs, pxPerMs );
 
-	// True between any pointer-down and pointer-up/cancel on the strip. Set
-	// in the capture phase so it also covers overlay children (chapter
-	// markers) that stopPropagation their bubbling pointer-downs; with
-	// pointer capture their up/cancel events still retarget through this
-	// ancestor's capture phase, so the flag always clears. A plain ref, not
-	// state: the auto-follow effect only reads it when `currentMs` next
-	// changes, and re-rendering mid-gesture would buy nothing.
+	// Capture-phase tracking includes overlay handles that stop propagation,
+	// so playback auto-follow stays suspended throughout their gestures.
 	const gestureRef = useRef( false );
 
 	const seekClamped = useCallback(
@@ -306,10 +301,14 @@ export default function TimelineShell( {
 					onPointerCancelCapture={ () => {
 						gestureRef.current = false;
 					} }
+					onLostPointerCaptureCapture={ () => {
+						gestureRef.current = false;
+					} }
 					onPointerDown={ scrub.onPointerDown }
 					onPointerMove={ scrub.onPointerMove }
 					onPointerUp={ scrub.onPointerUp }
 					onPointerCancel={ scrub.onPointerCancel }
+					onLostPointerCapture={ scrub.onLostPointerCapture }
 				>
 					{ tracks( context ).map( track => (
 						<div

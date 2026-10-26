@@ -1,8 +1,8 @@
 import { dateI18n, humanTimeDiff } from '@wordpress/date';
-import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Button, Dialog, Stack } from '@wordpress/ui';
 import { Stat } from '../../components/card';
+import useRerenderEvery from '../../components/use-rerender-every';
 import { SELF_CHECK_RULE_ID, getBlockLabel } from './firewall-test';
 import { summarizeUserAgent } from './user-agent';
 import type { BlockedRequest } from './types';
@@ -25,17 +25,7 @@ const formatTime = ( block: BlockedRequest ) => (
  */
 export default function RecentBlocks( { blocks }: { blocks: BlockedRequest[] } ) {
 	const [ latest ] = blocks;
-	const [ , setTick ] = useState( 0 );
-
-	// "A few seconds ago" goes stale; re-render so it keeps up.
-	const hasLatest = !! latest;
-	useEffect( () => {
-		if ( ! hasLatest ) {
-			return;
-		}
-		const timer = setInterval( () => setTick( tick => tick + 1 ), 30000 );
-		return () => clearInterval( timer );
-	}, [ hasLatest ] );
+	useRerenderEvery( 30000, !! latest );
 	const hasDetails = blocks.some( block => block.uri || block.userAgent );
 
 	return (

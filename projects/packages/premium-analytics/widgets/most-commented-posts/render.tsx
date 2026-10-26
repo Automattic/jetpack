@@ -63,8 +63,6 @@ function MostCommentedPostsInner() {
 	}, [ rows ] );
 
 	useReportActions( {
-		report: 'comments',
-		section: 'posts',
 		csv: {
 			exporter: commentsPostsCsvExporter,
 			status: { isLoading, isFetching, isError },

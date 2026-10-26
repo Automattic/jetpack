@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop logging a "jetpackConfig is missing" console error on the Activity Log page.
