@@ -40,10 +40,14 @@ jest.mock( '../../../hooks/use-is-jetpack-user-new', () => ( {
 } ) );
 
 // The real `TabContent` pulls in the full features/overview/help trees; a stub
-// that echoes its notices and section name is enough to assert what rendered.
+// that echoes its notices and section name, and logs each mount, is enough.
+const mockMounts: string[] = [];
 jest.mock( '../tab-content', () => ( {
 	TabContent: ( { name, beforeContent }: { name: string; beforeContent?: unknown } ) => {
 		const react = jest.requireActual( 'react' );
+		react.useEffect( () => {
+			mockMounts.push( name );
+		}, [] );
 		return react.createElement( 'div', { 'data-testid': 'tab-content' }, beforeContent, name );
 	},
 } ) );
@@ -60,6 +64,7 @@ beforeEach( () => {
 	mockIsSimpleSite.mockReturnValue( false );
 	mockSection = undefined;
 	mockSearch = '';
+	mockMounts.length = 0;
 } );
 
 describe( 'MyJetpackTabPanel', () => {
@@ -83,18 +88,29 @@ describe( 'MyJetpackTabPanel', () => {
 		);
 	} );
 
-	it( 'does not record a tab click when the multi-section panel mounts', async () => {
+	it( 'mounts the section once on load, and remounts on an external section change', async () => {
 		mockSection = MY_JETPACK_SECTION_OVERVIEW;
 
-		render( <MyJetpackTabPanel /> );
+		const { rerender } = render( <MyJetpackTabPanel /> );
 		// Awaiting the query lets TabPanel's async post-mount selection settle in act().
-		await expect( screen.findByRole( 'tablist' ) ).resolves.toBeInTheDocument();
+		const tablist = await screen.findByRole( 'tablist' );
 
 		expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 3 );
-		// Mount and the keyed remount both settle on the current tab: no phantom click.
+		expect( mockMounts ).toEqual( [ MY_JETPACK_SECTION_OVERVIEW ] );
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 		expect( mockNavigate ).not.toHaveBeenCalled();
 		expect( callsFor( 'jetpack_myjetpack_tab_view' ) ).toHaveLength( 1 );
+
+		// Back/forward or a typed hash changes the section without a tab click.
+		mockSection = MY_JETPACK_SECTION_HELP;
+		rerender( <MyJetpackTabPanel /> );
+
+		await expect( screen.findByRole( 'tab', { selected: true } ) ).resolves.toHaveTextContent(
+			'Help'
+		);
+		expect( screen.getByRole( 'tablist' ) ).not.toBe( tablist );
+		expect( mockMounts ).toEqual( [ MY_JETPACK_SECTION_OVERVIEW, MY_JETPACK_SECTION_HELP ] );
+		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 	} );
 
 	it.each( [

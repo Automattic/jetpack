@@ -27,6 +27,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 	const tabStartTimeRef = useRef< number >( Date.now() );
 	const [ tabKey, setTabKey ] = useState( 0 );
 	const lastNavigationSourceRef = useRef< 'internal' | 'external' >( 'external' );
+	const hasMountedRef = useRef( false );
 
 	// If the tab is not valid, use the default one.
 	const currentTab = useMemo( () => resolveMyJetpackSection( params.section ), [ params.section ] );
@@ -77,11 +78,13 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 
 	// Handle external navigation (URL changes not from tab clicks)
 	useEffect( () => {
-		// If this was an external navigation (browser back/forward, direct URL access)
-		if ( lastNavigationSourceRef.current === 'external' ) {
+		// If this was an external navigation (browser back/forward, direct URL access).
+		// Skip the first run: TabPanel mounts on `currentTab`, so it is already in sync.
+		if ( hasMountedRef.current && lastNavigationSourceRef.current === 'external' ) {
 			// Force remount to sync with URL
 			setTabKey( prev => prev + 1 );
 		}
+		hasMountedRef.current = true;
 		// Reset navigation source for next change
 		lastNavigationSourceRef.current = 'external';
 

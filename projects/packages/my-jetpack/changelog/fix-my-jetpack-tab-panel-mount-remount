@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tab panel: Avoid mounting the current section twice on page load.
