@@ -46,6 +46,15 @@ const renderWithoutTheme = ( component: React.ReactElement ) => {
 	return render( component );
 };
 
+// jsdom's window never has focus, so without this the funnel never sees focus leave it.
+beforeEach( () => {
+	jest.spyOn( document, 'hasFocus' ).mockReturnValue( true );
+} );
+
+afterEach( () => {
+	jest.restoreAllMocks();
+} );
+
 const focus = ( element: HTMLElement ) => act( () => element.focus() );
 
 const stepName = ( label: string ) => new RegExp( `^${ label }, ` );
@@ -422,6 +431,21 @@ describe( 'ConversionFunnelChart', () => {
 			).toHaveFocus();
 		} );
 
+		it( 'waits for the click to select a step pressed from another step', async () => {
+			const user = userEvent.setup();
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			await user.click( screen.getByRole( 'option', { name: stepName( 'Sessions' ) } ) );
+			await user.pointer( {
+				keys: '[MouseLeft>]',
+				target: screen.getByRole( 'option', { name: stepName( 'Cart' ) } ),
+			} );
+
+			expect(
+				screen.getByRole( 'option', { name: stepName( 'Sessions' ), selected: true } )
+			).toBeInTheDocument();
+		} );
+
 		it( 'clears the selection when focus leaves the funnel', async () => {
 			const user = userEvent.setup();
 			renderBetweenButtons();
@@ -715,10 +739,6 @@ const mockRects = () =>
 	} );
 
 describe( 'ConversionFunnelChart tooltip position', () => {
-	afterEach( () => {
-		jest.restoreAllMocks();
-	} );
-
 	it( 'places the box relative to the chart root, at the click plus the offsets', async () => {
 		mockRects();
 		const user = userEvent.setup();
@@ -735,6 +755,27 @@ describe( 'ConversionFunnelChart tooltip position', () => {
 		const box = screen.getByTestId( 'bounded-tooltip' );
 		expect( screen.getByTestId( 'conversion-funnel-chart' ) ).toContainElement( box );
 		expect( box ).toHaveStyle( {
+			transform: 'translate(90px, 90px)',
+		} );
+	} );
+
+	it( 'keeps the selection and its place when the window loses focus and gets it back', async () => {
+		mockRects();
+		const user = userEvent.setup();
+		renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+		const bar = screen.getAllByRole( 'option' )[ 0 ];
+		await user.pointer( [
+			{ target: bar, coords: { clientX: 180, clientY: 140 } },
+			{ keys: '[MouseLeft]', target: bar, coords: { clientX: 180, clientY: 140 } },
+		] );
+		const hasFocus = jest.spyOn( document, 'hasFocus' ).mockReturnValue( false );
+		act( () => bar.blur() );
+		hasFocus.mockReturnValue( true );
+		focus( bar );
+
+		expect( bar ).toHaveAttribute( 'aria-selected', 'true' );
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
 			transform: 'translate(90px, 90px)',
 		} );
 	} );

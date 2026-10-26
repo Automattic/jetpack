@@ -178,7 +178,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				handleStepFocus( step.id );
 				if ( isPointerFocusRef.current ) {
 					isPointerFocusRef.current = false;
-				} else {
+				} else if ( step.id !== selectedStepId ) {
 					selectStepAtElement( step, event.currentTarget );
 				}
 			};
@@ -217,8 +217,10 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 
 	const handleStepsBlur = useCallback(
 		( event: React.FocusEvent< HTMLElement > ) => {
-			isPointerFocusRef.current = false;
-			if ( ! event.currentTarget.contains( event.relatedTarget ) ) {
+			const leavesFunnel =
+				! event.currentTarget.contains( event.relatedTarget ) && document.hasFocus();
+			if ( leavesFunnel ) {
+				isPointerFocusRef.current = false;
 				clearSelection();
 			}
 		},
