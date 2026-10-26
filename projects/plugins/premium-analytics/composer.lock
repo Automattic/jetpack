@@ -470,7 +470,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "ddd5c3301c872a7dd14dc09ba0df409046c1b20b"
+                "reference": "25afa43714789e3adf80dea68b9eea169fa8a507"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -506,7 +506,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.13.x-dev"
+                    "dev-trunk": "9.14.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -956,7 +956,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "d3aeac5d6f2bfa693fd3ab480c9365b21edc08b1"
+                "reference": "91d91765af5e745274eee855ce7a82cbf8d33e94"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -988,7 +988,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.13.x-dev"
+                    "dev-trunk": "0.14.x-dev"
                 }
             },
             "autoload": {
@@ -1345,7 +1345,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-stats",
-                "reference": "13611c463376081ca05f3967f0719deb1e0b3a2e"
+                "reference": "05eea86bf700db2a757c6ccbae6bd957a2e11460"
             },
             "require": {
                 "automattic/jetpack-config": "@dev",
@@ -1367,7 +1367,7 @@
                 "autorelease": true,
                 "mirror-repo": "Automattic/jetpack-woocommerce-stats",
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "textdomain": "jetpack-woocommerce-stats-pkg",
                 "version-constants": {
@@ -1480,7 +1480,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "625fd3a0317500ce53c8c7e88c0c49beefb54765"
+                "reference": "3792c3ad0773b3ff71ddba14ad508da01d600857"
             },
             "require": {
                 "php": ">=7.4"
@@ -1498,7 +1498,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 }
             },
             "autoload": {

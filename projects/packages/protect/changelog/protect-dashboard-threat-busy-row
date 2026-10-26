@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Protect dashboard: Show that a threat is being fixed in its row of the threats list, and hide the row's other actions until the fix finishes.

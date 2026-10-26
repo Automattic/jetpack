@@ -178,7 +178,7 @@ function has_jetpack_stats_commercial_purchase() {
 /**
  * Whether a self-hosted site's cached plan or products include any Jetpack Stats product, free or PWYW included.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @return bool
  */
@@ -210,7 +210,7 @@ const STATS_UPGRADE_BANNER_TIERS = array( STATS_TIER_JETPACK_FREE, STATS_TIER_LE
 /**
  * Whether the dashboard offers a paid Stats plan: the tier gets the upgrade banner, the site has no Stats PWYW, and the site first opened the dashboard at least 30 days ago.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @param string $tier One of the STATS_TIER_* values.
  * @return bool
@@ -272,7 +272,7 @@ function get_locked_stats_features( $tier ) {
 /**
  * The dashboard sections a tier replaces with one upgrade prompt, as classic Stats replaces its Insights and Traffic pages.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @param string $tier One of the STATS_TIER_* values.
  * @return string[] Section slugs.
@@ -284,7 +284,7 @@ function get_locked_stats_sections( $tier ) {
 /**
  * What a locked section's upgrade prompt says: classic Stats' upsell, without its price.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @param string $section Section slug.
  * @return array{title:string, description:string, features:string[], upgrade_label:string, expand_label:string, support_url:string} The copy.

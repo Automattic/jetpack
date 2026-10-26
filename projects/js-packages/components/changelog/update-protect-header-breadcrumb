@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-AdminPage: Add an ariaLabel prop that names the page region when the header shows breadcrumbs instead of a title.

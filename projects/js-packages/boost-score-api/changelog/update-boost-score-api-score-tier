@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add getScoreTier, which groups a speed score into good, medium or poor.
