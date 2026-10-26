@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
 	MY_JETPACK_SECTION_FEATURES,
@@ -60,7 +60,14 @@ beforeEach( () => {
 	mockIsSimpleSite.mockReturnValue( false );
 	mockSection = undefined;
 	mockSearch = '';
+	setPinnedTabs( false );
 } );
+
+const setPinnedTabs = ( on: boolean ) => {
+	window.myJetpackInitialState = {
+		myJetpackFlags: { headerControls: on },
+	} as unknown as Window[ 'myJetpackInitialState' ];
+};
 
 describe( 'MyJetpackTabPanel', () => {
 	it( 'renders the single Features section directly, with no tab bar, on Simple sites', () => {
@@ -173,4 +180,52 @@ describe( 'MyJetpackTabPanel', () => {
 		);
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 	} );
+
+	it( 'with the flag on, pins the shared tab strip and leaves out the panel separator', () => {
+		setPinnedTabs( true );
+		mockSection = MY_JETPACK_SECTION_OVERVIEW;
+
+		render( <MyJetpackTabPanel /> );
+
+		// eslint-disable-next-line testing-library/no-node-access -- The strip wrapper has no role to query by.
+		expect( screen.getByRole( 'tablist' ).parentElement ).toHaveClass( 'jp-admin-page-tabs' );
+		const content = within( screen.getByRole( 'tabpanel' ) ).getByTestId( 'tab-content' );
+		// eslint-disable-next-line testing-library/no-node-access -- The separator has no role to query by.
+		expect( content.previousElementSibling ).toBeNull();
+	} );
+
+	it( 'with the flag off, keeps the tab list unpinned and the panel separator', () => {
+		mockSection = MY_JETPACK_SECTION_OVERVIEW;
+
+		render( <MyJetpackTabPanel /> );
+
+		// eslint-disable-next-line testing-library/no-node-access -- The strip wrapper has no role to query by.
+		expect( screen.getByRole( 'tablist' ).parentElement ).not.toHaveClass( 'jp-admin-page-tabs' );
+		const content = within( screen.getByRole( 'tabpanel' ) ).getByTestId( 'tab-content' );
+		// eslint-disable-next-line testing-library/no-node-access -- The separator has no role to query by.
+		expect( content.previousElementSibling ).not.toBeNull();
+	} );
+
+	it.each( [
+		[ true, 0 ],
+		[ false, 400 ],
+	] )(
+		'with the flag on (%s), a tab switch leaves the page scrolled to %d',
+		async ( on, scrollTop ) => {
+			setPinnedTabs( on );
+			mockSection = MY_JETPACK_SECTION_OVERVIEW;
+			const scroller = document.body.appendChild( document.createElement( 'div' ) );
+			scroller.className = 'jp-admin-page__content';
+
+			const { rerender } = render( <MyJetpackTabPanel />, { container: scroller } );
+			mockNavigate.mockImplementationOnce( ( path: string ) => {
+				mockSection = path.slice( 1 );
+				rerender( <MyJetpackTabPanel /> );
+			} );
+			scroller.scrollTop = 400;
+			await userEvent.click( screen.getByRole( 'tab', { name: 'Help' } ) );
+
+			expect( scroller.scrollTop ).toBe( scrollTop );
+		}
+	);
 } );

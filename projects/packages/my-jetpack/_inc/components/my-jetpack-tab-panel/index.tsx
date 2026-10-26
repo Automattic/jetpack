@@ -69,13 +69,13 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		// Reset timer when tab changes
 		tabStartTimeRef.current = Date.now();
 
-		// The admin page scrolls the content between its header and footer, not the window,
-		// and that container outlives a tab switch.
-		const scroller = tabListRef.current?.closest( '.jp-admin-page__content' );
+		// Pinned tabs stay in view, so start the new tab at the top. The admin page scrolls the
+		// content between its header and footer, not the window, and that outlives a tab switch.
+		const scroller = pinsTabs && tabListRef.current?.closest( '.jp-admin-page__content' );
 		if ( scroller ) {
 			scroller.scrollTop = 0;
 		}
-	}, [ currentTab ] );
+	}, [ currentTab, pinsTabs ] );
 
 	// Canonicalize a stale or invalid section hash. `currentTab` already resolves
 	// such a hash to a real section for rendering, but `onTabSelect` only reacts to

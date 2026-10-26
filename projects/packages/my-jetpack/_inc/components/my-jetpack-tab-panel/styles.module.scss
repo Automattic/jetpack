@@ -102,6 +102,6 @@ $pinned-tabs-block-size: calc(#{gb.$grid-unit-60} + var(--wpds-border-width-xs))
 }
 
 // Focus moving up through the content would otherwise scroll it under the tabs.
-:global(.jp-admin-page__page) > :has(.my-jetpack-tab-panel--pinned-tabs) {
+:global(.jp-admin-page__content):has(.my-jetpack-tab-panel--pinned-tabs) {
 	scroll-padding-block-start: $pinned-tabs-block-size;
 }
