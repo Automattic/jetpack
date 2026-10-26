@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { useEffect, useMemo } from '@wordpress/element';
 import {
 	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 	PRESET_ALL_TIME,
@@ -10,6 +9,7 @@ import {
 	type DateRange,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { useEffect, useMemo } from '@wordpress/element';
 
 type DetailDateControls = {
 	presetIds: typeof MENU_SURFACE_PRESETS_WITH_ALL_TIME;
