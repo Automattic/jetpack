@@ -13,6 +13,12 @@
 			"src/"
 		]
 	},
+	"scripts": {
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm --dir ../../packages/flow run watch"
+		]
+	},
 	"repositories": [
 		{
 			"type": "path",
