@@ -279,9 +279,13 @@ describe( 'Top videos widget', () => {
 		);
 		expect( mockLeaderboard ).not.toHaveBeenCalled();
 		expect( screen.getByText( 'Upload your first video' ) ).toBeInTheDocument();
-		expect( mockReportActions ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { report: 'videos' } )
-		);
+		expect( mockReportActions ).toHaveBeenLastCalledWith( {
+			csv: {
+				report: 'videos',
+				status: { isLoading: false, isFetching: false, isError: false },
+				rowCount: 0,
+			},
+		} );
 	} );
 
 	it( 'keeps the upload on screen and refreshes the media check once it lands', () => {
