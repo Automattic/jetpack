@@ -13,12 +13,17 @@ import { createRef } from 'react';
 /**
  * Internal dependencies
  */
+import { getMockRouteLinkUrl } from '../../../../../tests/js/route-test-utils';
 import { DASHBOARD_PAGE_SLUG } from '../../dashboard-href';
 import { DashboardWidgetHostProvider } from '../dashboard-widget-host-provider';
 import { toRouteTarget } from '../to-route-target';
 
 const BASE = `https://example.com/wp-admin/admin.php?page=${ DASHBOARD_PAGE_SLUG }`;
 const REFERRERS_HREF = `admin.php?page=${ DASHBOARD_PAGE_SLUG }&p=%2Freports%2Freferrers`;
+
+function useDashboardLinkSearch() {
+	return { from: '2026-03-01', to: '2026-03-10', ds: 'traffic' };
+}
 
 describe( 'DashboardWidgetHostProvider', () => {
 	it( 'mounts the router link for an action href that targets a dashboard route', () => {
@@ -81,6 +86,27 @@ describe( 'DashboardWidgetHostProvider', () => {
 		} finally {
 			window.history.replaceState( null, '', previous );
 		}
+	} );
+
+	it( 'carries the search the host hook returns, the href winning on a shared key', () => {
+		render(
+			<DashboardWidgetHostProvider base={ BASE } useLinkSearch={ useDashboardLinkSearch }>
+				<HostLink
+					href={ `admin.php?page=${ DASHBOARD_PAGE_SLUG }&p=%2Freports%2Fcomments%3Fsection%3Dposts%26to%3D2026-03-05` }
+				>
+					View all
+				</HostLink>
+			</DashboardWidgetHostProvider>
+		);
+
+		const url = getMockRouteLinkUrl( screen.getByRole( 'link', { name: 'View all' } ) );
+		expect( url.pathname ).toBe( '/reports/comments' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-03-01',
+			to: '2026-03-05',
+			ds: 'traffic',
+			section: 'posts',
+		} );
 	} );
 } );
 

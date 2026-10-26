@@ -51,6 +51,22 @@ describe( 'useLockedSectionLayout', () => {
 		expect( saved.slice( 1 ) ).toEqual( trafficLayout.slice( 1 ) );
 	} );
 
+	it( 'keeps a move between open widgets, around the hidden ones', () => {
+		const layout = [ widget( 'a', OPEN_TYPE ), widget( 'hidden' ), widget( 'b', OPEN_TYPE ) ];
+		const onLayoutChange = jest.fn();
+		const { result } = renderHook( () =>
+			useLockedSectionLayout( 'traffic', layout, onLayoutChange )
+		);
+
+		result.current.onVisibleLayoutChange( [ layout[ 2 ], layout[ 0 ] ] );
+
+		expect( onLayoutChange.mock.calls[ 0 ][ 0 ].map( item => item.uuid ) ).toEqual( [
+			'b',
+			'hidden',
+			'a',
+		] );
+	} );
+
 	it( 'hides a type the section does not keep open, such as one no longer registered', () => {
 		const layout = [ widget( 'chart', OPEN_TYPE ), widget( 'ghost', 'jpa/videopress' ) ];
 
@@ -80,6 +96,7 @@ describe( 'useLockedSectionLayout', () => {
 		);
 
 		expect( result.current.lockedSection ).toBeUndefined();
+		expect( result.current.isHiddenWidget ).toBeUndefined();
 		expect( result.current.visibleLayout ).toBe( trafficLayout );
 
 		result.current.onVisibleLayoutChange( next );
