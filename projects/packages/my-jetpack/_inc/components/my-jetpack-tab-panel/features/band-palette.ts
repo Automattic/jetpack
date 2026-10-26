@@ -18,6 +18,7 @@ const PALETTES: Record< string, Palette > = {
 	boost: [ SKY, MINT, YELLOW, 28, 20, 70, 34, 60, 90 ],
 	'jetpack-forms': [ MINT, PERIWINKLE, YELLOW, 26, 30, 64, 20, 74, 94 ],
 	'jetpack-ai': [ LILAC, PERIWINKLE, PEACH, 30, 18, 70, 30, 66, 92 ],
+	flow: [ SKY, LILAC, PEACH, 26, 24, 68, 28, 64, 92 ],
 	crm: [ PEACH, MINT, SKY, 24, 26, 66, 24, 72, 90 ],
 	newsletter: [ SKY, LILAC, MINT, 30, 24, 72, 32, 60, 94 ],
 	podcast: [ PEACH, YELLOW, PERIWINKLE, 22, 22, 64, 26, 76, 90 ],

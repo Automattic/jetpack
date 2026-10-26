@@ -140,14 +140,14 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * A feature switched by neither a product nor a module has nothing to toggle and can
-	 * only be linked to. Every feature now carries one, Activity Log included.
+	 * A feature switched by none of a product, a module or its own plugin has nothing to
+	 * toggle and can only be linked to. Every feature now carries one, Activity Log included.
 	 */
 	public function test_every_feature_has_a_product_or_a_module() {
 		$unswitchable = array_keys(
 			array_filter(
 				Main_Features::get_feature_definitions(),
-				fn( $feature ) => empty( $feature['product'] ) && empty( $feature['module'] )
+				fn( $feature ) => empty( $feature['product'] ) && empty( $feature['module'] ) && empty( $feature['delivery']['plugin'] )
 			)
 		);
 
@@ -287,6 +287,7 @@ class Main_Features_Test extends TestCase {
 				'blaze'             => 'https://wordpress.org/plugins/blaze-ads/',
 				'boost'             => 'https://wordpress.org/plugins/jetpack-boost/',
 				'crm'               => 'https://wordpress.org/plugins/zero-bs-crm/',
+				'flow'              => 'https://wordpress.org/plugins/jetpack-flow/',
 				'protect-dashboard' => 'https://wordpress.org/plugins/jetpack-protect/',
 				'search'            => 'https://wordpress.org/plugins/jetpack-search/',
 				'social'            => 'https://wordpress.org/plugins/jetpack-social/',
