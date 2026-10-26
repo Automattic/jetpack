@@ -16,8 +16,8 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { dateWindowRedirect } from '../date-window-redirect';
-import { seedDetailDateParams } from '../detail-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { seedDetailDateParams } from './detail-date-seed';
 import { getSingleReportPage, isValidEntityId, resolveSingleReportSection } from './registry';
 
 type SingleReportParams = {
