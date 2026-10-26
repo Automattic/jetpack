@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Fix breadcrumb structured data repeating the current post, or adding an unrelated post, on sites with a static front page and no Posts page.
