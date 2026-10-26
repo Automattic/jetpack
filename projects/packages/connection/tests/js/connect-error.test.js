@@ -17,7 +17,7 @@ const forbidden = {
 const fallback = 'Connection failed. Please try again.';
 
 // Stands in for the connection package's getRegistrationErrorDisplay(), which the card gets from the shared script:
-// mapped copy for a known code, else the site's message without markup, and nothing for a status-only message.
+// mapped copy for a known code, else the site's message without markup, and nothing for a status-only or markup-only one.
 const mapForbidden = error => {
 	if ( 'site_inaccessible_403' === error.response?.code ) {
 		return { message: 'Something blocked WordPress.com.', detail: undefined };
@@ -60,10 +60,22 @@ describe( 'getConnectErrorDisplay', () => {
 			{ message: 'Check your firewall.', detail: null },
 		],
 		[
-			'the error’s own message when the helper has nothing to show',
+			'the fallback for a status-only message the helper drops',
 			() => createRequestError( { code: 'made_up', message: '500' }, 'x' ),
 			mapForbidden,
-			{ message: '500', detail: null },
+			{ message: fallback, detail: null },
+		],
+		[
+			'the fallback for a markup-only message the helper drops',
+			() => createRequestError( { code: 'made_up', message: '<br /><b></b>' }, 'x' ),
+			mapForbidden,
+			{ message: fallback, detail: null },
+		],
+		[
+			'the error’s own message when the request got no response body',
+			() => new Error( 'Site registration failed.' ),
+			mapForbidden,
+			{ message: 'Site registration failed.', detail: null },
 		],
 		[
 			'the raw message when an older shared script has no helper',

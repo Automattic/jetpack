@@ -24,25 +24,18 @@ export function createRequestError( body, fallbackMessage ) {
 /**
  * What the connect notice shows for an error from the connect flow.
  *
- * The message comes from `getRegistrationErrorDisplay()` in the shared `jetpack-connection` script: the mapped
- * message for a known code, else the site's message cleaned up (markup stripped, length capped), as on the other
- * connect screens. An older copy of the script may lack the helper; then, or when the helper has nothing to show,
- * the error's own message is shown.
+ * Falls back to the error's own message when the request had no response body or the shared script predates
+ * `getRegistrationErrorDisplay()`.
  *
  * @param {Error}         error                       - The error the connect flow threw.
  * @param {Function|null} getRegistrationErrorDisplay - The helper from `@automattic/jetpack-connection`, if loaded.
- * @param {string}        fallbackMessage             - Message used when the error has none.
+ * @param {string}        fallbackMessage             - Message used when there's nothing better to show.
  * @return {{message: *, detail: *}} The message, and a second line or null.
  */
 export function getConnectErrorDisplay( error, getRegistrationErrorDisplay, fallbackMessage ) {
-	const mapped =
-		error?.response && typeof getRegistrationErrorDisplay === 'function'
-			? getRegistrationErrorDisplay( error )
-			: null;
-
-	if ( mapped?.message ) {
-		return { message: mapped.message, detail: mapped.detail ?? null };
+	if ( error?.response && typeof getRegistrationErrorDisplay === 'function' ) {
+		const { message, detail } = getRegistrationErrorDisplay( error ) ?? {};
+		return { message: message || fallbackMessage, detail: detail ?? null };
 	}
-
 	return { message: error?.message || fallbackMessage, detail: null };
 }
