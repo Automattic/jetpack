@@ -80,7 +80,7 @@
 			}
 
 			&::after {
-				background: #fff;
+				background: var(--wpds-color-background-surface-neutral);
 				opacity: 0.8;
 			}
 		}
