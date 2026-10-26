@@ -1,0 +1,160 @@
+.jetpack-flow {
+	max-inline-size: var(--wpds-dimension-surface-width-2xl);
+	margin-inline: auto;
+	padding: var(--wpds-dimension-padding-2xl);
+	color: var(--wpds-color-foreground-content-neutral);
+	font-family: var(--wpds-typography-font-family-body);
+}
+
+.jetpack-flow-palettes {
+	display: grid;
+	gap: var(--wpds-dimension-gap-xl);
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.jetpack-flow-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-md);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-sm);
+	background: var(--wpds-color-background-surface-neutral);
+	cursor: grab;
+	transition:
+		border-color var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle),
+		background var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
+
+	&:hover {
+		border-color: var(--wpds-color-stroke-interactive-brand);
+		background: var(--wpds-color-background-interactive-brand-weak);
+	}
+
+	&[aria-disabled="true"] {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	&--trigger {
+		border-inline-start-width: var(--wpds-border-width-lg);
+		border-inline-start-color: var(--wpds-color-stroke-surface-brand-strong);
+	}
+
+	&--action {
+		border-inline-start-width: var(--wpds-border-width-lg);
+		border-inline-start-color: var(--wpds-color-stroke-surface-success-strong);
+	}
+}
+
+.jetpack-flow-canvas {
+	min-block-size: 200px;
+	padding: var(--wpds-dimension-padding-lg);
+	border: var(--wpds-border-width-sm) dashed var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-lg);
+	transition: border-color var(--wpds-motion-duration-md) var(--wpds-motion-easing-balanced);
+
+	&.is-over {
+		border-color: var(--wpds-color-stroke-interactive-brand);
+		background: var(--wpds-color-background-surface-brand);
+	}
+}
+
+.jetpack-flow-empty {
+	display: block;
+	padding-block: var(--wpds-dimension-padding-3xl);
+	text-align: center;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+// Cards fly in from the prompt box one after another.
+.jetpack-flow-card {
+	animation: jetpack-flow-arrive var(--wpds-motion-duration-xl) var(--wpds-motion-easing-expressive) both;
+	animation-delay: var(--jetpack-flow-delay, 0ms);
+}
+
+@keyframes jetpack-flow-arrive {
+
+	from {
+		opacity: 0;
+		transform: translateY(-48px) scale(0.96);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.jetpack-flow-name {
+	flex: 1;
+	min-inline-size: 0;
+	border: 0;
+	background: transparent;
+	font: inherit;
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+	font-size: var(--wpds-typography-font-size-lg);
+	color: inherit;
+}
+
+.jetpack-flow-node {
+	padding: var(--wpds-dimension-padding-md);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+	background: var(--wpds-color-background-surface-neutral-weak);
+
+	&--trigger {
+		border-inline-start: var(--wpds-border-width-lg) solid var(--wpds-color-stroke-surface-brand-strong);
+
+		&.is-over {
+			background: var(--wpds-color-background-interactive-brand-weak);
+		}
+	}
+
+	&--action {
+		border-inline-start: var(--wpds-border-width-lg) solid var(--wpds-color-stroke-surface-success-strong);
+		cursor: grab;
+	}
+}
+
+.jetpack-flow-slot {
+	min-block-size: var(--wpds-dimension-gap-md);
+	border-radius: var(--wpds-border-radius-sm);
+	transition: min-block-size var(--wpds-motion-duration-sm) var(--wpds-motion-easing-balanced);
+
+	&.is-over {
+		min-block-size: var(--wpds-dimension-size-md);
+		background: var(--wpds-color-background-interactive-brand-weak);
+	}
+
+	&--end {
+		display: grid;
+		place-items: center;
+		min-block-size: var(--wpds-dimension-size-lg);
+		border: var(--wpds-border-width-xs) dashed var(--wpds-color-stroke-surface-neutral);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+}
+
+.jetpack-flow-fields {
+	display: grid;
+	gap: var(--wpds-dimension-gap-md);
+	margin-block-start: var(--wpds-dimension-gap-md);
+}
+
+.jetpack-flow-select {
+	inline-size: 100%;
+	min-block-size: var(--wpds-dimension-size-lg);
+}
+
+.jetpack-flow-tokens {
+	font-family: var(--wpds-typography-font-family-mono);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.jetpack-flow-card {
+		animation: none;
+	}
+}

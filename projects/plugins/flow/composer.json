@@ -1,0 +1,40 @@
+{
+	"name": "automattic/jetpack-flow-plugin",
+	"description": "Connect Jetpack, MailPoet, CRM and WooCommerce with if-this-then-that flows.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-flow": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autorelease": false,
+		"beta-plugin-slug": "jetpack-flow",
+		"changelogger": {
+			"versioning": "semver"
+		},
+		"version-constants": {
+			"JETPACK_FLOW__VERSION": "jetpack-flow.php"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		},
+		"autoloader-suffix": "6c1a7b0f5d4e4c58b2a9e3f7d1c08a42_flowⓥ0_1_0_alpha"
+	}
+}

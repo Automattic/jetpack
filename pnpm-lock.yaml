@@ -2775,6 +2775,61 @@ importers:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.112.2)
 
+  projects/packages/flow:
+    dependencies:
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
+      '@jetpack-flow/init':
+        specifier: link:packages/init
+        version: link:packages/init
+      '@wordpress/api-fetch':
+        specifier: 7.57.0
+        version: 7.57.0
+      '@wordpress/boot':
+        specifier: 0.24.0
+        version: 0.24.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/element':
+        specifier: 9.0.0
+        version: 9.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/i18n':
+        specifier: 6.30.0
+        version: 6.30.0
+      '@wordpress/route':
+        specifier: 0.23.0
+        version: 0.23.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/theme':
+        specifier: 2.3.0
+        version: 2.3.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/ui':
+        specifier: 0.24.0
+        version: 0.24.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: 19.3.0
+        version: 19.3.0(react@19.3.0)
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+      '@wordpress/browserslist-config':
+        specifier: 6.57.0
+        version: 6.57.0
+      '@wordpress/build':
+        specifier: 0.25.0
+        version: 0.25.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@wordpress/theme@2.3.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+
   projects/packages/forms:
     dependencies:
       '@automattic/babel-plugin-replace-textdomain':
