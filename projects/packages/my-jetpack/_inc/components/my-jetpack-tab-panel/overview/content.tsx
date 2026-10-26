@@ -11,14 +11,17 @@ import OverviewSections from '../../product-cards-section/overview-sections';
 import SeoOptInCard from '../../seo-opt-in-card';
 import { A4AUpsell } from './a4a-upsell';
 import styles from './styles.module.scss';
+import type { ReactNode } from 'react';
 
 /**
  * The Overview content component. The full-width footer band (Plans +
  * Connection), when shown, lives in `OverviewFooter`, rendered by `TabContent`.
  *
+ * @param {object}    props               - Component props.
+ * @param {ReactNode} props.beforeContent - Notices, shown below the Welcome heading.
  * @return The rendered component.
  */
-export function OverviewContent() {
+export function OverviewContent( { beforeContent }: { beforeContent?: ReactNode } ) {
 	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	// Loads the plans the header's plan summary shows, so they're ready when it opens.
 	useSitePurchases( { enabled: isHeaderControlsEnabled() } );
@@ -43,6 +46,7 @@ export function OverviewContent() {
 									: __( 'Welcome to Jetpack', 'jetpack-my-jetpack' ) }
 							</Text>
 						</div>
+						{ beforeContent }
 						<OverviewSections />
 						<OverviewBlogPosts />
 					</>

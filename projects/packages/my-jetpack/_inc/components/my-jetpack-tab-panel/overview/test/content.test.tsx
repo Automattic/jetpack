@@ -33,4 +33,14 @@ describe( 'OverviewContent', () => {
 			expect( screen.getByRole( 'heading', { level: 2, name: heading } ) ).toBeInTheDocument();
 		}
 	);
+
+	it( 'shows the notices below the Welcome heading', () => {
+		render( <OverviewContent beforeContent={ <div>Notice</div> } /> );
+
+		expect(
+			screen
+				.getByRole( 'heading', { level: 2 } )
+				.compareDocumentPosition( screen.getByText( 'Notice' ) )
+		).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+	} );
 } );
