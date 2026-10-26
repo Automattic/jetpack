@@ -103,3 +103,28 @@
 		flex: 1;
 	}
 }
+
+// The page's middle is the scroll container, so sticking to its top pins the
+// tabs straight under the header.
+.my-jetpack-tab-panel--pinned-tabs {
+	--my-jetpack-pinned-tabs-block-size: #{gb.$grid-unit-60};
+
+	:global(.components-tab-panel__tabs) {
+		position: sticky;
+		inset-block-start: 0;
+		margin-block-end: 0;
+		background-color: var(--jp-white);
+		// The divider: an inset shadow, so the active tab's indicator covers it.
+		box-shadow: inset 0 -1px 0 var(--jp-gray);
+	}
+
+	// Keeps content z-indexes, like the Features toolbar's, under the tabs.
+	:global(.components-tab-panel__tab-content) {
+		isolation: isolate;
+	}
+}
+
+// Focus moving up through the content would otherwise scroll it under the tabs.
+:global(.jp-admin-page__page) > :has(.my-jetpack-tab-panel--pinned-tabs) {
+	scroll-padding-block-start: gb.$grid-unit-60;
+}

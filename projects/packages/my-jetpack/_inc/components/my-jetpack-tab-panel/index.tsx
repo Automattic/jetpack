@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
+import { isHeaderControlsEnabled } from '../header-controls/slot';
 import { FullWidthSeparator } from './full-width-separator';
 import styles from './styles.module.scss';
 import { TabContent } from './tab-content';
@@ -63,16 +64,19 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		[ navigate, currentTab, recordEvent, isNewUser ]
 	);
 
+	// Pinned tabs draw the divider themselves, so the content must not repeat it.
+	const pinsTabs = isHeaderControlsEnabled();
+
 	const tabRenderer = useCallback(
 		( tab: { name: string } ) => {
 			return (
 				<>
-					<FullWidthSeparator />
+					{ ! pinsTabs && <FullWidthSeparator /> }
 					<TabContent name={ tab.name as MyJetpackSection } beforeContent={ beforeContent } />
 				</>
 			);
 		},
-		[ beforeContent ]
+		[ beforeContent, pinsTabs ]
 	);
 
 	// Handle external navigation (URL changes not from tab clicks)
@@ -135,6 +139,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 			className={ clsx(
 				styles[ 'tab-panel' ],
 				styles[ 'my-jetpack-tab-panel--full-width' ],
+				pinsTabs && styles[ 'my-jetpack-tab-panel--pinned-tabs' ],
 				'jetpack-my-jetpack-tab-panel'
 			) }
 			initialTabName={ currentTab }
