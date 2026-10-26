@@ -393,3 +393,8 @@ export {
  * once instead of once per widget.
  */
 export { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';
+
+/**
+ * Routing passthrough: the link to a single-report page, so a widget never writes the path.
+ */
+export { buildSingleReportLink } from '@jetpack-premium-analytics/routing';

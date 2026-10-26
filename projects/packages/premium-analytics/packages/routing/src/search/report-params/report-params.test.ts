@@ -3,6 +3,7 @@ import { deriveComparisonRange } from '../comparison';
 import {
 	buildDashboardLink,
 	buildReportLink,
+	buildSingleReportLink,
 	hasPrimaryDateDraft,
 	omitComparisonReportParams,
 	pickReportDateParams,
@@ -266,6 +267,24 @@ describe( 'buildDashboardLink', () => {
 			} ),
 			'/',
 			{ from: '2026-01-01', section: 'insights' }
+		);
+	} );
+} );
+
+describe( 'buildSingleReportLink', () => {
+	it( 'serializes the shared report window into the querystring of the page path', () => {
+		expect.assertions( 2 );
+		expectLink(
+			buildSingleReportLink( 'video', 8, {
+				from: '2026-01-01',
+				to: '2026-01-31',
+				ref: 'videos',
+			} ),
+			'/report/video/8',
+			{
+				from: '2026-01-01',
+				to: '2026-01-31',
+			}
 		);
 	} );
 } );

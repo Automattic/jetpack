@@ -18,6 +18,7 @@ export {
 	WidgetRoot,
 	WidgetState,
 	buildMetricTab,
+	buildSingleReportLink,
 	describeError,
 	flattenEarningsBreakdown,
 	getVideoPosterUrl,

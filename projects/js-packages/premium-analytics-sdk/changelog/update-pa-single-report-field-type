@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the `jpa/report-params` field type and `buildSingleReportLink()`, the link to a single-report page.

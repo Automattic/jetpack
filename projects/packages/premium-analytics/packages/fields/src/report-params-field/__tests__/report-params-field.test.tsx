@@ -2,6 +2,10 @@
  * External dependencies
  */
 import { ReportScopeProvider, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+	PRESET_ALL_TIME,
+} from '@jetpack-premium-analytics/datetime';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -9,6 +13,7 @@ import { useState } from 'react';
  * Internal dependencies
  */
 import {
+	ReportParamsField,
 	reportParamsAttributeField,
 	type ReportGrain,
 	type ReportParamsFieldAttributes,
@@ -150,6 +155,42 @@ describe( 'reportParamsAttributeField', () => {
 	} );
 } );
 
+describe( 'ReportParamsField', () => {
+	it( 'offers the presets the attribute lists as elements, and anchors All time on the item', async () => {
+		const user = userEvent.setup();
+		const saved: Partial< ReportParamsFieldAttributes >[] = [];
+		const field = {
+			id: 'reportParams',
+			label: 'Date range',
+			elements: [
+				{ value: 'last-7-days', label: 'Last 7 days' },
+				{ value: 'all-time', label: 'All time' },
+			],
+		} as unknown as DataFormControlProps< Partial< ReportParamsFieldAttributes > >[ 'field' ];
+
+		render(
+			<ReportParamsField
+				data={ { reportParams: { preset: 'last-7-days' }, allTimeStart: '2026-01-10T08:00:00' } }
+				field={ field }
+				onChange={ edits => saved.push( edits ) }
+			/>
+		);
+
+		await openPeriods( user, /^Last 7 days$/ );
+		expect(
+			screen.queryByRole( 'menuitemradio', { name: 'Last 30 days' } )
+		).not.toBeInTheDocument();
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'All time' } ) );
+
+		expect( saved.at( -1 )?.reportParams ).toEqual(
+			expect.objectContaining( {
+				preset: PRESET_ALL_TIME,
+				from: expect.stringMatching( /^2026-01-10/ ),
+			} )
+		);
+	} );
+} );
+
 // A menu trigger is named by its visible bucket, a lone bucket by its "Chart interval: …" label.
 const BUCKET_TRIGGER = /^(Chart interval: )?By \w+$/;
 
@@ -271,6 +312,24 @@ describe( 'report params field', () => {
 		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Last 7 days' } ) );
 
 		expect( latest() ).toEqual( expect.objectContaining( { preset: 'last-7-days' } ) );
+	} );
+
+	it( 'anchors All time on the start the host passes with the item', async () => {
+		const user = userEvent.setup();
+		const { latest } = renderField(
+			false,
+			{ presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME },
+			{ ...ATTRIBUTES, allTimeStart: '2026-01-10T08:00:00' }
+		);
+
+		await pickPeriod( user, 'All time' );
+
+		expect( latest() ).toEqual(
+			expect.objectContaining( {
+				preset: PRESET_ALL_TIME,
+				from: expect.stringMatching( /^2026-01-10/ ),
+			} )
+		);
 	} );
 
 	it( 'reshapes the bucket menu once the preset applies', async () => {

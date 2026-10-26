@@ -29,6 +29,7 @@ The dashboard registers field types for widget attributes under `jpa/`, the name
 | `jpa/select`         | `text`  | A dropdown over `elements`.                                                                |
 | `jpa/toggle-group`   | `text`  | The `elements` as segments of one row; icon segments when every element carries an `icon`. |
 | `jpa/array-checkbox` | `array` | One checkbox per element, writing the checked values as an array.                          |
+| `jpa/report-params`  | `text`  | A date range over the presets in `elements`; a single-report page anchors All time on the item's `allTimeStart`. |
 
 The chart type of a time series widget, as the dashboard's own widgets declare it:
 
@@ -54,6 +55,8 @@ const CHART_TYPES = [
 A name enters the SDK when it is a widget kind, such as `Leaderboard`, or a host capability, such as `WidgetRoot`, `describeError`, `useReport` or the attribute fields. The parts a kind is built from stay inside the dashboard, and so does every dashboard policy value: `Leaderboard` caps the rows it shows, and a widget sizes its own request.
 
 Product data hooks are the exception, and a provisional one: `useStatsVideoPlays` and the WordAds hooks stay here only until their packages own the data behind them.
+
+`buildSingleReportLink( kind, id, search )` builds the link to a single-report page, `/report/{kind}/{id}`, keeping the shared report window, so a consumer never writes the path.
 
 ## Stability
 

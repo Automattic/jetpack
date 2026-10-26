@@ -15,8 +15,10 @@ import {
 import {
 	type ComparisonPresetId,
 	type IntervalType,
+	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 	QUICK_SURFACE_PRESETS,
 	type QuickSurfacePresetId,
+	parseSiteDateTime,
 	reportingTimeZone,
 	type DateRange,
 	type PrimaryPresetId,
@@ -52,6 +54,12 @@ type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ]
 
 export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
+	/**
+	 * Where the All time preset starts, as the report returns the entity's publication
+	 * date. A host rendering the field as page chrome passes it in the item; a widget
+	 * instance never persists it.
+	 */
+	allTimeStart?: string;
 };
 
 /**
@@ -166,6 +174,40 @@ export function reportParamsAttributeField<
 	};
 }
 
+// The presets a `jpa/report-params` attribute may list as `elements`.
+const DECLARABLE_PRESET_IDS: readonly string[] = MENU_SURFACE_PRESETS_WITH_ALL_TIME;
+
+/**
+ * The `jpa/report-params` control: a date range over the presets the attribute's `elements`
+ * list, with All time anchored on the item's `allTimeStart` when it carries one. No bucket
+ * control; whether a comparison is offered is the host scope's call.
+ *
+ * @param {DataFormControlProps< Partial< ReportParamsFieldAttributes > >} props - The DataForm control props.
+ * @return The control.
+ */
+export function ReportParamsField(
+	props: DataFormControlProps< Partial< ReportParamsFieldAttributes > >
+) {
+	const { elements } = props.field;
+	const presetIds = useMemo( () => {
+		const ids = ( elements ?? [] )
+			.map( element => element.value )
+			.filter( ( value ): value is QuickSurfacePresetId =>
+				DECLARABLE_PRESET_IDS.includes( value )
+			);
+
+		return ids.length ? ids : undefined;
+	}, [ elements ] );
+
+	return (
+		<ReportParamsControl
+			{ ...props }
+			grain={ presetIds ? { presetIds } : undefined }
+			withIntervalControl={ false }
+		/>
+	);
+}
+
 function ReportParamsControl( {
 	data: attributes,
 	onChange,
@@ -174,6 +216,10 @@ function ReportParamsControl( {
 }: DataFormControlProps< Partial< ReportParamsFieldAttributes > > & ReportParamsFieldOptions ) {
 	const { presetIds, periods } = grain ?? {};
 	const committed = attributes?.reportParams ?? NO_REPORT_PARAMS;
+	const allTimeStart = useMemo(
+		() => parseSiteDateTime( attributes?.allTimeStart ),
+		[ attributes?.allTimeStart ]
+	);
 
 	const saveReportParams = useCallback(
 		( next: ReportParams ) => onChange( { reportParams: next } ),
@@ -344,6 +390,7 @@ function ReportParamsControl( {
 			timeZone={ reportingTimeZone() }
 			triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }
 			presetIds={ presetIds }
+			allTimeStart={ allTimeStart }
 			withIntervalControl={ withIntervalControl }
 			interval={ interval }
 			intervalOptions={ intervalOptions }

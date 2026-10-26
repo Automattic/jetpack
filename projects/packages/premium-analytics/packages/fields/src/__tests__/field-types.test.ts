@@ -1,8 +1,9 @@
 /**
  * Internal dependencies
  */
+import { registerFieldType } from '@wordpress/widget-primitives';
 import { SelectField } from '../field-select';
-import { FIELD_TYPES, resolveFieldTypes } from '../field-types';
+import { FIELD_TYPES, registerFieldTypes, resolveFieldTypes } from '../field-types';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 type Attributes = { contentView?: 'posts' | 'archives' };
@@ -19,30 +20,20 @@ const contentView: WidgetAttributeField< Attributes > = {
 };
 
 describe( 'registerFieldTypes', () => {
-	it( 'gives every field type a name upstream accepts', async () => {
-		await jest.isolateModulesAsync( async () => {
-			const { registerFieldType } = await import( '@wordpress/widget-primitives' );
-			const { FIELD_TYPES: fieldTypes } = await import( '../field-types' );
-
-			// A first registration returns the definition; an invalid name returns `undefined`.
-			for ( const fieldType of fieldTypes ) {
-				expect( registerFieldType( fieldType ) ).toBe( fieldType );
-			}
-		} );
+	it( 'gives every field type a name upstream accepts', () => {
+		// A first registration returns the definition; an invalid name returns `undefined`.
+		for ( const fieldType of FIELD_TYPES ) {
+			expect( registerFieldType( fieldType ) ).toBe( fieldType );
+		}
 	} );
 
-	it( 'claims every name', async () => {
-		await jest.isolateModulesAsync( async () => {
-			const { registerFieldType } = await import( '@wordpress/widget-primitives' );
-			const { FIELD_TYPES: fieldTypes, registerFieldTypes } = await import( '../field-types' );
+	it( 'claims every name', () => {
+		registerFieldTypes();
 
-			registerFieldTypes();
-
-			// The names are valid (above), so `undefined` here means the name is taken.
-			for ( const fieldType of fieldTypes ) {
-				expect( registerFieldType( { ...fieldType } ) ).toBeUndefined();
-			}
-		} );
+		// The names are valid (above), so `undefined` here means the name is taken.
+		for ( const fieldType of FIELD_TYPES ) {
+			expect( registerFieldType( { ...fieldType } ) ).toBeUndefined();
+		}
 	} );
 
 	it( 'gives every field type a base type DataViews knows', () => {
@@ -50,6 +41,7 @@ describe( 'registerFieldTypes', () => {
 			[ 'jpa/select', 'text' ],
 			[ 'jpa/toggle-group', 'text' ],
 			[ 'jpa/array-checkbox', 'array' ],
+			[ 'jpa/report-params', 'text' ],
 		] );
 	} );
 } );
