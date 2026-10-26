@@ -1,4 +1,5 @@
-Significance: minor
-Type: enhancement
+Significance: patch
+Type: other
+Comment: Protect page change; the combined Protect page entry in CHANGELOG.md covers it.
 
-Protect: Add search, filters, and bulk Auto-fix and Ignore to the Scan card's threat list on the Protect page.
+

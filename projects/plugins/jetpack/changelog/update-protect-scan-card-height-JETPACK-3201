@@ -1,4 +1,5 @@
 Significance: patch
-Type: enhancement
+Type: other
+Comment: Protect page change; the combined Protect page entry in CHANGELOG.md covers it.
 
-Protect: Keep the Scan card on the Protect page the same height while a scan runs, after a clean scan, and when threats are found.
+

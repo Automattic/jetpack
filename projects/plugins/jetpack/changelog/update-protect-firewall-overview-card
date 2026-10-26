@@ -1,4 +1,5 @@
-Significance: minor
-Type: enhancement
+Significance: patch
+Type: other
+Comment: Protect page change; the combined Protect page entry in CHANGELOG.md covers it.
 
-Protect: Simplify the Protect page's Firewall card, with a Run test button, the requests blocked in the last 30 days, and links to edit the IP lists.
+
