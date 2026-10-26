@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { isHeaderControlsEnabled } from '../header-controls/slot';
 import { FeaturesContent } from './features/content';
 import { FullWidthSeparator } from './full-width-separator';
@@ -15,7 +16,7 @@ export type TabContentProps = {
 	beforeContent?: ReactNode;
 };
 
-const componentMap: Record< MyJetpackSection, ComponentType > = {
+const componentMap: Record< MyJetpackSection, ComponentType< { beforeContent?: ReactNode } > > = {
 	overview: OverviewContent,
 	features: FeaturesContent,
 	help: HelpContent,
@@ -44,6 +45,9 @@ export function TabContent( { name, beforeContent }: TabContentProps ) {
 	// The header's connection control shows the plan and the connection, so the Overview's band would repeat them.
 	const dropsOverviewFooter = name === 'overview' && isHeaderControlsEnabled();
 	const FooterComponent = dropsOverviewFooter ? undefined : footerMap[ name ];
+	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+	// Overview v1 shows the notices below its Welcome heading.
+	const contentPlacesNotices = name === 'overview' && overviewV1;
 
 	if ( ! ContentComponent ) {
 		return null;
@@ -53,8 +57,8 @@ export function TabContent( { name, beforeContent }: TabContentProps ) {
 		<>
 			<div className={ styles[ 'my-jetpack-tab-panel-inner' ] }>
 				<div className={ clsx( styles[ 'tab-content-wrapper' ] ) }>
-					{ beforeContent }
-					<ContentComponent />
+					{ ! contentPlacesNotices && beforeContent }
+					<ContentComponent beforeContent={ contentPlacesNotices ? beforeContent : undefined } />
 				</div>
 			</div>
 			{ FooterComponent && (
