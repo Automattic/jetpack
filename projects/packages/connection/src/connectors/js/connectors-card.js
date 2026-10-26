@@ -24,10 +24,13 @@ import {
 	ConnectionErrorView,
 	DisconnectDialog,
 	DisconnectUserDialog,
+	getProtectedOwnerConfirmationCopy,
+	getRegistrationErrorDisplay,
 	getTracksIdentity,
 	initializeTracksIdentity,
 	ProtectedOwnerConfirmation,
 	ProtectedOwnerRelease,
+	TermsOfService,
 	TransferConnectionOwnership,
 	getUserConnectKind,
 	getUserConnectMessage,
@@ -48,6 +51,7 @@ import {
 } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { getAccountSections } from './account-sections.mjs';
+import { createRequestError, getConnectErrorDisplay } from './connect-error.mjs';
 
 const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
@@ -209,6 +213,7 @@ function useCardConnection() {
  * Resolves with the parsed JSON body (or null if there is no body), and
  * throws an Error whose message is the server-provided message — falling
  * back to `fallbackError` — for both non-OK responses and network failures.
+ * For a non-OK response, the error's `response` is the parsed body.
  *
  * @param {string} endpoint                - REST path relative to apiRoot.
  * @param {object} [options]               - Request options.
@@ -218,7 +223,8 @@ function useCardConnection() {
  * @return {Promise<object|string|null>} Parsed JSON response.
  */
 async function apiRequest( endpoint, { method = 'GET', body = null, fallbackError = '' } = {} ) {
-	const errorMessage = fallbackError || __( 'Something went wrong.', 'jetpack-connection' );
+	const errorMessage =
+		fallbackError || __( 'An error occurred. Please try again.', 'jetpack-connection' );
 	const options = { method, headers: { 'X-WP-Nonce': apiNonce } };
 	if ( body ) {
 		options.headers[ 'Content-Type' ] = 'application/json';
@@ -234,7 +240,7 @@ async function apiRequest( endpoint, { method = 'GET', body = null, fallbackErro
 
 	if ( ! response.ok ) {
 		const errBody = await response.json().catch( () => null );
-		throw new Error( errBody?.message || errorMessage );
+		throw createRequestError( errBody, errorMessage );
 	}
 
 	// Some endpoints (e.g. disconnect) return an empty body on success; treat
@@ -367,11 +373,12 @@ function focusWhenReady( element ) {
  * Inline error notice with an optional dismiss button.
  *
  * @param {object}        props           - Component props.
- * @param {string}        props.message   - Error message text.
+ * @param {*}             props.message   - Error message.
+ * @param {*}             props.detail    - Optional second line, such as the underlying cURL error.
  * @param {Function|null} props.onDismiss - Callback to clear the error; omit for non-dismissible.
  * @return {object} React element.
  */
-function ErrorNotice( { message, onDismiss = null } ) {
+function ErrorNotice( { message, detail = null, onDismiss = null } ) {
 	return createElement(
 		Notice,
 		{
@@ -380,39 +387,8 @@ function ErrorNotice( { message, onDismiss = null } ) {
 			onRemove: onDismiss || undefined,
 			className: 'jetpack-connector__notice',
 		},
-		message
-	);
-}
-
-/**
- * Terms of Service and Privacy Policy notice for first-time connections.
- *
- * @return {object} React element.
- */
-function TosNotice() {
-	const message = createInterpolateElement(
-		__(
-			'By connecting, you agree to our <tos>Terms of Service</tos> and have read our <privacy>Privacy Policy</privacy>.',
-			'jetpack-connection'
-		),
-		{
-			tos: createElement( 'a', {
-				href: 'https://wordpress.com/tos/',
-				target: '_blank',
-				rel: 'noopener noreferrer',
-			} ),
-			privacy: createElement( 'a', {
-				href: 'https://automattic.com/privacy/',
-				target: '_blank',
-				rel: 'noopener noreferrer',
-			} ),
-		}
-	);
-
-	return createElement(
-		Text,
-		{ variant: 'muted', size: 12, className: 'jetpack-connector__tos-notice' },
-		message
+		message,
+		detail ? createElement( 'p', { className: 'jetpack-connector__notice-detail' }, detail ) : null
 	);
 }
 
@@ -425,7 +401,7 @@ function TosNotice() {
 function OfflineNotice() {
 	const message = createInterpolateElement(
 		__(
-			'Your site is in <link>offline mode</link>, so connecting and disconnecting are disabled.',
+			'Your site is in <link>Offline Mode</link>, so connecting and disconnecting are disabled.',
 			'jetpack-connection'
 		),
 		{
@@ -611,9 +587,9 @@ function SectionHeading( { title, showShield = false } ) {
  * @return {object} React element.
  */
 function ProtectedOwnerShield() {
-	const notice = protectedOwnerState()?.anchored
-		? __( 'Ownership is locked to the confirmed owner.', 'jetpack-connection' )
-		: __( 'Ownership will be locked once an owner is confirmed.', 'jetpack-connection' );
+	// Shared with the confirmation dialog, so the badge and the dialog describe one lock.
+	const { lockedNotice, pendingLockNotice } = getProtectedOwnerConfirmationCopy();
+	const notice = protectedOwnerState()?.anchored ? lockedNotice : pendingLockNotice;
 	const icon = createElement( 'span', {
 		className: 'dashicons dashicons-shield jetpack-connector__protected-owner-shield',
 		role: 'img',
@@ -1858,7 +1834,9 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		initializeTracksIdentity( currentUser );
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- re-identify only when the identity changes.
 	}, [ tracksIdentity.ID, tracksIdentity.login ] );
-	const [ connectError, setConnectError ] = useState( data.authError || null );
+	const [ connectError, setConnectError ] = useState(
+		data.authError ? { message: data.authError, detail: null } : null
+	);
 	const errorNotice = useConnectionErrorNotice( {
 		trackingContext: 'connectors',
 		reconnectRedirectUrl: connectorsUrl,
@@ -1890,12 +1868,22 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			await startConnectionFlow( isSiteRegistered );
 		} catch ( err ) {
 			setConnectError(
-				err?.message || __( 'Connection failed. Please try again.', 'jetpack-connection' )
+				getConnectErrorDisplay(
+					err,
+					getRegistrationErrorDisplay,
+					__( 'An error occurred. Please try again.', 'jetpack-connection' )
+				)
 			);
 			setIsConnecting( false );
 		}
 	};
 
+	// Named once: the button uses it, and the consent notice below names the button.
+	const connectLabel = __(
+		'Connect',
+		'jetpack-connection',
+		/* dummy arg to avoid bad minification */ 0
+	);
 	let actionArea;
 	let expandedContent = null;
 
@@ -1979,9 +1967,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 				isBusy: isConnecting,
 				disabled: isConnecting || isOfflineMode,
 			},
-			isConnecting
-				? __( 'Connecting…', 'jetpack-connection' )
-				: __( 'Connect', 'jetpack-connection', /* dummy arg to avoid bad minification */ 0 )
+			isConnecting ? __( 'Connecting…', 'jetpack-connection' ) : connectLabel
 		);
 	}
 
@@ -2004,13 +1990,18 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		expandedContent,
 		connectError
 			? createElement( ErrorNotice, {
-					message: connectError,
+					message: connectError.message,
+					detail: connectError.detail,
 					onDismiss: () => setConnectError( null ),
 				} )
 			: null,
 		isOfflineMode && ! isConnected && ! isSiteRegistered ? createElement( OfflineNotice ) : null,
 		isFirstConnection && ! isOfflineMode && ! isConnected && ! isSiteRegistered
-			? createElement( TosNotice )
+			? createElement( TermsOfService, {
+					agreeButtonLabel: connectLabel,
+					variant: 'body-sm',
+					className: 'jetpack-connector__tos-notice',
+				} )
 			: null
 	);
 }
@@ -2021,7 +2012,7 @@ registerConnector( 'wordpress_com', {
 	description:
 		data.connectorDescription ??
 		__(
-			'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.',
+			'Enhanced functionality for Jetpack and WooCommerce with WordPress.com cloud services.',
 			'jetpack-connection'
 		),
 	logoUrl: data.connectorLogoUrl ?? '',
