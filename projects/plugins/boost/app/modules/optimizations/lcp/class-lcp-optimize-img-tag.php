@@ -205,24 +205,32 @@ class LCP_Optimize_Img_Tag {
 
 				// Resize to the image's own proportions, covering the box: a box shaped differently
 				// (object-fit) would otherwise be cropped into the file, where CSS cannot undo it.
+				$file_width  = $width;
+				$file_height = $height;
 				if ( $aspect_ratio ) {
-					$width  = max( $width, (int) ceil( $height * $aspect_ratio ) );
-					$height = (int) round( $width / $aspect_ratio );
+					$file_width  = max( $width, (int) ceil( $height * $aspect_ratio ) );
+					$file_height = (int) round( $file_width / $aspect_ratio );
 				}
 
-				$dimensions[ $width ] = $height;
+				// Keyed by the box width, not the file's: the w descriptors must match `sizes`,
+				// or object-fit: cover draws the widened file at a lower density than the DPR.
+				$add = function ( $dpr ) use ( &$dimensions, $width, $file_width, $file_height ) {
+					$dimensions[ (int) round( $width * $dpr ) ] = array( (int) round( $file_width * $dpr ), (int) round( $file_height * $dpr ) );
+				};
+
+				$add( 1 );
 
 				// If it's a Moto G Power, include a 1.75 DPR for accurate lighthouse representation of the optimized image.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] === 412 ) {
-					$dimensions[ (int) round( $width * 1.75 ) ] = round( $height * 1.75 );
+					$add( 1.75 );
 				}
 
 				// Include 2x DPR.
-				$dimensions[ $width * 2 ] = $height * 2;
+				$add( 2 );
 
 				// If it's a mobile breakpoint, include 3x DPR.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] <= 480 ) {
-					$dimensions[ $width * 3 ] = $height * 3;
+					$add( 3 );
 				}
 			}
 		}
@@ -235,7 +243,7 @@ class LCP_Optimize_Img_Tag {
 			$srcset[] = Image_CDN_Core::cdn_url(
 				$original_url,
 				array(
-					'resize' => array( $width, $dimensions[ $width ] ),
+					'resize' => $dimensions[ $width ],
 				)
 			) . " {$width}w";
 		}

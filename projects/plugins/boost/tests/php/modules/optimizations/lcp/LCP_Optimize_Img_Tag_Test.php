@@ -371,36 +371,52 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	 * @dataProvider srcset_cases
 	 */
 	#[DataProvider( 'srcset_cases' )]
-	public function test_srcset_resizes_to_the_image_proportions_not_the_box( $dimension_attributes, $expected_resizes ) {
+	public function test_srcset_keeps_the_image_proportions_at_the_box_density( $dimension_attributes, $expected_candidates ) {
 		add_filter( 'jetpack_photon_development_mode', '__return_false' );
 
+		$data                = $this->create_lcp_data();
+		$data['breakpoints'] = array(
+			array(
+				'maxWidth'        => 412,
+				'widthValue'      => '412px',
+				'imageDimensions' => array(
+					array(
+						'width'  => 412,
+						'height' => 700,
+					),
+				),
+			),
+		);
+
 		$buffer = '<img class="wp-post-image" id="test-img" ' . $dimension_attributes . ' src="https://example.com/image.jpg">';
-		$result = ( new LCP_Optimize_Img_Tag( $this->create_lcp_data() ) )->optimize_buffer( $buffer );
+		$result = ( new LCP_Optimize_Img_Tag( $data ) )->optimize_buffer( $buffer );
 
 		$processor = new WP_HTML_Tag_Processor( $result );
 		$processor->next_tag( 'img' );
 
-		$resizes = array();
+		$candidates = array();
 		foreach ( explode( ', ', (string) $processor->get_attribute( 'srcset' ) ) as $candidate ) {
 			list( $url, $descriptor ) = explode( ' ', $candidate );
 			parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
 
-			$resizes[] = ( $args['resize'] ?? '' ) . ' ' . $descriptor;
+			$candidates[] = ( $args['resize'] ?? '' ) . ' ' . $descriptor;
 		}
 
-		$this->assertSame( $expected_resizes, $resizes );
+		// Each descriptor is the 412px slot times a DPR, whatever size the file is.
+		$this->assertSame( '412px', $processor->get_attribute( 'sizes' ) );
+		$this->assertSame( $expected_candidates, $candidates );
 	}
 
 	/**
-	 * The fixture boxes are 768x500 and 480x320, each at its DPRs.
+	 * A 412x700 box at 1x, 1.75x, 2x and 3x, described as resize and descriptor.
 	 *
 	 * @return array[]
 	 */
 	public static function srcset_cases() {
 		return array(
-			'no dimensions: the box' => array( '', array( '1536,1000 1536w', '1440,960 1440w', '960,640 960w', '768,500 768w', '480,320 480w' ) ),
-			'a 5:3 image: widened to cover the box, not cropped' => array( 'width="1200" height="720"', array( '1668,1000 1668w', '1602,960 1602w', '1068,640 1068w', '834,500 834w', '534,320 534w' ) ),
-			'a square thumbnail of any upload: still cropped to 1:1' => array( 'width="300" height="300"', array( '1536,1536 1536w', '1440,1440 1440w', '960,960 960w', '768,768 768w', '480,480 480w' ) ),
+			'no dimensions: the box'                      => array( '', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
+			'object-fit: cover of a 3:2 image: widened, not cropped' => array( 'width="1200" height="800"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ) ),
+			'a square thumbnail of any upload: still 1:1' => array( 'width="300" height="300"', array( '2100,2100 1236w', '1400,1400 824w', '1225,1225 721w', '700,700 412w' ) ),
 		);
 	}
 
