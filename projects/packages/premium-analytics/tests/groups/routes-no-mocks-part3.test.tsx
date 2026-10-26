@@ -1,7 +1,6 @@
 // See README.md before adding a suite to this group.
 
 import '../../routes/author-detail/config/layout.test';
-import '../../routes/author-detail/config/widget-variants.test';
 import '../../routes/single-report/pages/video/video-header-slots.test';
 import '../../routes/dashboard/components/onboarding-tour/onboarding-tour.test';
 import '../../routes/dashboard/components/onboarding-tour/steps.test';
