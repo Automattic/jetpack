@@ -1,4 +1,3 @@
-import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo, createElement, type ReactElement } from 'react';
@@ -273,9 +272,9 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 											'jetpack-my-jetpack'
 										),
 										sprintf(
-											/* translators: %s is the formatted number of detected scan threats on the site. */
-											_n( '%s threat', '%s threats', numThreats, 'jetpack-my-jetpack' ),
-											formatNumber( numThreats )
+											/* translators: %d is the number of detected scan threats on the site. */
+											_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
+											numThreats
 										),
 										criticalThreatCount,
 										isStandaloneActive ? 'Protect' : 'Scan'
@@ -295,9 +294,9 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 											'jetpack-my-jetpack'
 										),
 										sprintf(
-											/* translators: %s is the formatted number of detected scan threats on the site. */
-											_n( '%s threat', '%s threats', numThreats, 'jetpack-my-jetpack' ),
-											formatNumber( numThreats )
+											/* translators: %d is the number of detected scan threats on the site. */
+											_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
+											numThreats
 										),
 										isStandaloneActive ? 'Protect' : 'Scan'
 									),
