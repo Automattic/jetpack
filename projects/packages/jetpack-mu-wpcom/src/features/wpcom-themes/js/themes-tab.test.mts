@@ -118,6 +118,7 @@ it( "offers the plan a theme needs in place of core's install button", () => {
 		themeTier: 'personal',
 		requiredPlan: 'personal-bundle',
 		context: 'card',
+		source: 'tab',
 	} );
 } );
 
@@ -203,7 +204,7 @@ it( 'badges a theme the plan includes without taking its install away', () => {
  * @param fetch - Stands in for the browser's own, which the script prices the theme with.
  * @return The badge's element and the buttons the card ended up with.
  */
-async function priceCard( theme: Record< string, string >, fetch: () => Promise< unknown > ) {
+async function priceCard( theme: Record< string, unknown >, fetch: () => Promise< unknown > ) {
 	const install = node( 'a' );
 	install.className = 'button button-primary button-compact theme-install';
 	const screenshot = node( 'div' );
@@ -267,7 +268,22 @@ it( "prices a partner theme in the reader's own currency, and sells it", async (
 		themeTier: 'partner',
 		requiredPlan: 'personal-bundle',
 		context: 'card',
+		source: 'tab',
 	} );
+} );
+
+it( 'credits a purchase offered at the top of a search to the search', async () => {
+	const { install } = await priceCard(
+		{
+			name: 'STAX',
+			price_product: 'theme_stax_yearly',
+			purchase_url: 'https://wordpress.com/checkout/example.org/theme_stax_yearly',
+			wpcom_search_slot: true,
+		},
+		() => Promise.resolve( STORE )
+	);
+
+	assert.equal( install.children[ 0 ].dataset.source, 'search' );
 } );
 
 it( 'adds the plan a site still needs, so the price is not read as the whole cost', async () => {

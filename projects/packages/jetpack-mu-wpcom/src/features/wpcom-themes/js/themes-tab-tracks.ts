@@ -17,6 +17,7 @@ export function clickEvent( dataset: DOMStringMap ):
 				action: 'upgrade' | 'subscribe';
 				required_plan: string;
 				context: 'card' | 'preview';
+				source: 'tab' | 'search';
 			},
 	  ]
 	| null {
@@ -34,6 +35,7 @@ export function clickEvent( dataset: DOMStringMap ):
 			action,
 			required_plan: dataset.requiredPlan ?? '',
 			context: dataset.context === 'preview' ? 'preview' : 'card',
+			source: dataset.source === 'search' ? 'search' : 'tab',
 		},
 	];
 }
