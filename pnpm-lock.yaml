@@ -2674,7 +2674,7 @@ importers:
         version: 18.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/components':
         specifier: 42.0.0
-        version: 42.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 42.0.0(@types/react@19.3.0)(postcss@8.5.23)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/compose':
         specifier: 8.10.0
         version: 8.10.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -2698,7 +2698,7 @@ importers:
         version: 4.57.0(@types/react@19.3.0)
       '@wordpress/ui':
         specifier: 0.24.0
-        version: 0.24.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 0.24.0(@types/react@19.3.0)(postcss@8.5.23)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/url':
         specifier: 4.57.0
         version: 4.57.0
@@ -2727,6 +2727,15 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
+      '@wordpress/theme':
+        specifier: 2.3.0
+        version: 2.3.0(@types/react@19.3.0)(postcss@8.5.23)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      postcss:
+        specifier: 8.5.23
+        version: 8.5.23
+      postcss-loader:
+        specifier: 8.2.0
+        version: 8.2.0(postcss@8.5.23)(webpack@5.111.1)
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -2735,7 +2744,7 @@ importers:
         version: 16.0.5(sass-embedded@1.97.3)(webpack@5.111.1)
       webpack:
         specifier: 5.111.1
-        version: 5.111.1(webpack-cli@7.2.1)
+        version: 5.111.1(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.111.1)
