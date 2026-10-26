@@ -3,8 +3,10 @@ import { render, screen } from '@testing-library/react';
 import { OverviewContent } from '../content';
 
 jest.mock( '../../../../data/use-site-purchases', () => jest.fn() );
+let mockFirstName = '';
 jest.mock( '../../../../data/utils/get-my-jetpack-window-state', () => ( {
-	getMyJetpackWindowInitialState: () => ( { overviewV1: true } ),
+	getMyJetpackWindowInitialState: ( key?: string ) =>
+		key ? { overviewV1: true } : { userFirstName: mockFirstName },
 } ) );
 jest.mock( '../../../header-controls/slot', () => ( { isHeaderControlsEnabled: () => false } ) );
 jest.mock( '../../../overview-blog-posts', () => () => null );
@@ -15,17 +17,22 @@ jest.mock( '../a4a-upsell', () => ( { A4AUpsell: () => null } ) );
 
 describe( 'OverviewContent', () => {
 	it.each( [
-		[ 'Admin', 'Welcome to Jetpack, Admin!' ],
-		[ 'Tom &amp; Jerry', 'Welcome to Jetpack, Tom & Jerry!' ],
-		[ '', 'Welcome to Jetpack' ],
-	] )( 'with the display name "%s", reads "%s"', ( displayName, heading ) => {
-		window.JetpackScriptData = {
-			user: { current_user: { display_name: displayName, capabilities: {} } },
-		} as typeof window.JetpackScriptData;
-		render( <OverviewContent /> );
+		[ 'Ada', 'Admin', 'Welcome to Jetpack, Ada!' ],
+		[ '', 'Admin', 'Welcome to Jetpack, Admin!' ],
+		[ '', 'Tom &amp; Jerry', 'Welcome to Jetpack, Tom & Jerry!' ],
+		[ '', '', 'Welcome to Jetpack' ],
+	] )(
+		'with first name "%s" and display name "%s", reads "%s"',
+		( firstName, displayName, heading ) => {
+			mockFirstName = firstName;
+			window.JetpackScriptData = {
+				user: { current_user: { display_name: displayName, capabilities: {} } },
+			} as typeof window.JetpackScriptData;
+			render( <OverviewContent /> );
 
-		expect( screen.getByRole( 'heading', { level: 2, name: heading } ) ).toBeInTheDocument();
-	} );
+			expect( screen.getByRole( 'heading', { level: 2, name: heading } ) ).toBeInTheDocument();
+		}
+	);
 
 	it( 'shows the notices below the Welcome heading', () => {
 		render( <OverviewContent beforeContent={ <div>Notice</div> } /> );
