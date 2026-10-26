@@ -2,11 +2,12 @@ import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { SectionHeader } from '@jetpack-premium-analytics/ui';
 import { render, screen } from '@testing-library/react';
 import { videoHeaderSlots } from './video-header-slots';
-import type { VideoSummary } from '../../hooks';
+import type { VideoSummary } from './use-video-summary';
 
 const SUMMARY: VideoSummary = {
 	title: 'Launch recap',
 	publishedDate: '2026-01-10T08:00:00',
+	allTimeStart: '2026-01-10T08:00:00',
 	posterUrl: 'https://example.com/poster.jpg',
 	isLoading: false,
 	isError: false,
@@ -25,19 +26,19 @@ const PERFORMANCE_RANGE = {
 /**
  * Renders the slots where they are consumed, since only the header places them.
  *
- * @param args - The slot inputs under test.
+ * @param summary          - The summary under test.
+ * @param performanceRange - The committed report date range.
  * @return The render result.
  */
-function renderHeader( args: Parameters< typeof videoHeaderSlots >[ 0 ] ) {
-	return render( <SectionHeader { ...videoHeaderSlots( args ) } /> );
+function renderHeader( summary: VideoSummary, performanceRange?: typeof PERFORMANCE_RANGE ) {
+	return render(
+		<SectionHeader { ...videoHeaderSlots( summary, { label: 'Video', performanceRange } ) } />
+	);
 }
 
 describe( 'videoHeaderSlots', () => {
 	it( 'states the upload date and the window the widgets below report over', () => {
-		renderHeader( {
-			summary: SUMMARY,
-			performanceRange: PERFORMANCE_RANGE,
-		} );
+		renderHeader( SUMMARY, PERFORMANCE_RANGE );
 
 		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Launch recap' );
 		expect(
@@ -48,13 +49,13 @@ describe( 'videoHeaderSlots', () => {
 	} );
 
 	it( 'drops the upload line when the video carries no date', () => {
-		renderHeader( { summary: { ...SUMMARY, publishedDate: undefined } } );
+		renderHeader( { ...SUMMARY, publishedDate: undefined } );
 
 		expect( screen.queryByText( /Video uploaded on/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'names an untitled video rather than leaving the page without a heading', () => {
-		renderHeader( { summary: { ...SUMMARY, title: '   ' } } );
+		renderHeader( { ...SUMMARY, title: '   ' } );
 
 		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Untitled video' );
 	} );
@@ -63,17 +64,14 @@ describe( 'videoHeaderSlots', () => {
 		[ 'isError' as const, 'Video unavailable' ],
 		[ 'isNotFound' as const, 'Video not found' ],
 	] )( 'names the page from %s and states no window', ( flag, heading ) => {
-		renderHeader( {
-			summary: { ...SUMMARY, [ flag ]: true },
-			performanceRange: PERFORMANCE_RANGE,
-		} );
+		renderHeader( { ...SUMMARY, [ flag ]: true }, PERFORMANCE_RANGE );
 
 		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( heading );
 		expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'holds the title and subtitle lines while the summary resolves', () => {
-		renderHeader( { summary: { ...SUMMARY, title: undefined, isLoading: true } } );
+		renderHeader( { ...SUMMARY, title: undefined, isLoading: true } );
 
 		expect( screen.getByText( 'Loading…' ) ).toBeInTheDocument();
 		expect( screen.queryByText( /Video uploaded on/ ) ).not.toBeInTheDocument();

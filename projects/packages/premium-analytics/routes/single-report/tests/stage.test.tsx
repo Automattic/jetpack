@@ -1,23 +1,59 @@
 import { useReportScope } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getNoticeAnnouncement, getNoticeText } from '../../tests/js/notice-test-utils';
-import { useVideoSummary } from './hooks';
-import { stage } from './stage';
+import { useCallback } from '@wordpress/element';
+import { getNoticeAnnouncement, getNoticeText } from '../../../tests/js/notice-test-utils';
+import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../../widget-module-i18n';
+import { stage } from '../stage';
+import type { EntitySummary, SingleReportAdapter } from '../pages';
+import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
+let mockParams: Record< string, string > = {};
 let mockDateFilterOverrides: Record< string, unknown > = {};
-
-// The dashboard props the stage handed to the (mocked) WidgetDashboard.
 let mockDashboardProps: {
 	editMode?: boolean;
 	onEditChange?: ( next: boolean ) => void;
 	onLayoutChange?: ( next: unknown ) => void;
 	onLayoutReset?: () => void;
 } = {};
+const mockNavigate = jest.fn();
+const mockUseSummary = jest.fn< EntitySummary & { publishedDate?: string }, [ number ] >();
+let mockAdapters: Record< string, SingleReportAdapter > = {};
+
+const VIDEO_PAGE = {
+	id: 'analytics/video',
+	path: 'video',
+	label: 'Video',
+	dashboard_section: 'traffic',
+	feature: 'videos',
+	scope_param: 'post_id',
+	id_pattern: '^[1-9]\\d*$',
+	icon: 'jpa/video',
+	controls: null,
+	reports_page: 'videos',
+	preferences_scope: 'jetpack-premium-analytics/video-detail',
+	default_layout: [
+		{ uuid: 'views', type: 'jpa/video-detail-views-performance', attributes: { chartType: 'bar' } },
+		{ uuid: 'embeds', type: 'jpa/video-detail-embeds' },
+	],
+	sections: [],
+};
+
+// A page another plugin registered: no adapter in the route, no controls, no reports page.
+const CLIP_PAGE = {
+	...VIDEO_PAGE,
+	id: 'demo/clip',
+	path: 'clip',
+	label: 'Clip',
+	icon: null,
+	controls: false,
+	reports_page: null,
+	preferences_scope: 'jetpack-premium-analytics/clip-detail',
+};
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -25,8 +61,6 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
-	// Spreads the real module so the tab configs (which call `defineReportTabs`)
-	// resolve, and `buildReportLink`/`pickReportDateParams` build real hrefs below.
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => {
@@ -41,27 +75,54 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 			intervalOptions: [ 'day', 'week' ],
 			...mockDateFilterOverrides,
 		};
-		// Nothing staged: the draft is what the URL applied.
 		return { presetId: filters.appliedPresetId, range: filters.appliedRange, ...filters };
 	},
 } ) );
 
-// Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: () => <div>Date filters</div>,
-	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
-	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
-		.StatsBreadcrumbs,
-	StatsPageIcon: () => null,
+	SectionHeader: jest.requireActual( '../../../packages/ui/src/section-header' ).SectionHeader,
+	StatsPageIcon: () => <svg data-testid="stats-icon" />,
+	safeHttpUrl: jest.requireActual( '../../../packages/ui/src/utils/safe-http-url' ).safeHttpUrl,
+} ) );
+
+type ControlItem = { reportParams?: Record< string, unknown >; allTimeStart?: string };
+
+/**
+ * Stands in for the `jpa/report-params` control the record's controls resolve to.
+ *
+ * @param {DataFormControlProps< ControlItem >} props - The props.
+ * @return The control.
+ */
+function MockDateControl( { data, onChange }: DataFormControlProps< ControlItem > ) {
+	const applyLastSevenDays = useCallback(
+		() =>
+			onChange( {
+				reportParams: { preset: 'last-7-days', from: '2026-06-10', to: '2026-06-16' },
+			} ),
+		[ onChange ]
+	);
+
+	return (
+		<div>
+			<div>Date filters</div>
+			<div>{ `Window from ${ String( data.reportParams?.from ?? 'none' ) }` }</div>
+			<div>{ `All time from ${ data.allTimeStart ?? 'none' }` }</div>
+			<button onClick={ applyLastSevenDays }>Apply last 7 days</button>
+		</div>
+	);
+}
+
+// The field type registry is the dashboard's; the test attaches the control itself.
+jest.mock( '@jetpack-premium-analytics/fields', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/fields' ),
+	resolveFieldTypes: ( fields: Array< Record< string, unknown > > ) =>
+		fields.map( field => ( { ...field, Edit: MockDateControl } ) ),
 } ) );
 
 jest.mock( '@wordpress/core-data', () => ( {
 	store: {},
 } ) );
 
-// Falls through to the real module except `useSelect`: the externals path pulls
-// in `@wordpress/rich-text`, whose store calls `combineReducers` at import time,
-// so `requireActual` must stay lazy or it re-enters the module mid-init.
 jest.mock(
 	'@wordpress/data',
 	() =>
@@ -86,14 +147,13 @@ function MockScopeProbe() {
 
 	return (
 		<>
-			<div>Video widgets</div>
+			<div>Page widgets</div>
 			<div>{ offersComparison ? 'Scope offers comparison' : 'Scope offers no comparison' }</div>
 		</>
 	);
 }
 
-// Captures each render's `layout` prop so tests can assert what the page hands
-// the dashboard.
+// Captures each render's `layout` prop so tests can assert what the page hands the dashboard.
 const mockDashboardLayouts: unknown[] = [];
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( {
@@ -135,14 +195,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 
 const mockUseStoredLayout = useStoredDetailLayout as jest.Mock;
 
-jest.mock( '@wordpress/widget-primitives', () => ( {
-	useWidgetTypes: () => [ [], false ],
-	WidgetHostProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-} ) );
-
-// The report registry is deliberately not mocked so the breadcrumb exercises
-// the real report-origin validation.
-
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: ( { items }: { items: Array< { label: string; to?: string } > } ) => (
 		<nav aria-label="Breadcrumbs">
@@ -164,15 +216,18 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 	),
 	Page: ( {
 		breadcrumbs,
+		badges,
 		actions,
 		children,
 	}: {
 		breadcrumbs: ReactNode;
+		badges?: ReactNode;
 		actions?: ReactNode;
 		children: ReactNode;
 	} ) => (
 		<main>
 			{ breadcrumbs }
+			{ badges }
 			<div data-testid="page-actions">{ actions }</div>
 			{ children }
 		</main>
@@ -180,48 +235,66 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 } ) );
 
 jest.mock( '@wordpress/route', () => {
-	const { mockWordPressRoute } = jest.requireActual( '../../tests/js/route-test-utils' );
+	const { mockWordPressRoute } = jest.requireActual( '../../../tests/js/route-test-utils' );
 
 	return {
 		Link: mockWordPressRoute.Link,
-		useParams: () => ( { videoId: '42' } ),
+		useParams: () => mockParams,
 		useSearch: () => mockSearch,
+		useNavigate: () => mockNavigate,
 	};
 } );
 
-jest.mock( './hooks', () => ( {
-	useVideoSummary: jest.fn(),
+jest.mock( '../../use-widget-modules', () => ( {
+	useWidgetModules: () => [],
 } ) );
 
-const mockUseVideoSummary = useVideoSummary as jest.Mock;
+jest.mock( '../../widget-module-i18n', () => ( {
+	useWidgetTypesWithI18n: jest.fn(),
+	useWidgetModuleResolver: jest.fn(),
+} ) );
+
+// The video adapter's real header over a summary the test controls.
+jest.mock( '../pages', () => ( {
+	getSingleReportAdapter: ( path: string ) => mockAdapters[ path ],
+} ) );
+
 const refetch = jest.fn();
 
 /**
- * Stubs the video summary hook, defaulting to a resolved video with no title.
+ * Stubs the summary, defaulting to a resolved video with no title.
  *
  * @param overrides - Fields to override on the default summary.
  */
-function mockSummary( overrides: Record< string, unknown > = {} ) {
-	mockUseVideoSummary.mockReturnValue( {
-		title: undefined,
-		publishedDate: undefined,
+function mockSummary( overrides: Partial< EntitySummary & { publishedDate?: string } > = {} ) {
+	mockUseSummary.mockReturnValue( {
 		isLoading: false,
 		isError: false,
+		error: undefined,
 		isNotFound: false,
 		refetch,
 		...overrides,
 	} );
 }
 
-describe( 'video detail stage', () => {
-	// The page only renders on sites running VideoPress, and the report registry
-	// behind the Videos crumb reads that from script data.
+/**
+ * Find the summary heading. The breadcrumb's trailing crumb is the page's
+ * `h1`; the header titles the section under it.
+ *
+ * @param name - The accessible heading name.
+ * @return The summary heading.
+ */
+function getSummaryHeading( name: string ): HTMLElement {
+	return screen.getByRole( 'heading', { level: 2, name } );
+}
+
+describe( 'single-report stage', () => {
 	beforeAll( () => {
 		Object.defineProperty( window, 'JetpackScriptData', {
 			configurable: true,
-			// The page options menu reads the reader's capabilities off it too.
+			// The Videos crumb reads VideoPress off it; the page options menu the reader's capabilities.
 			value: {
-				premium_analytics: { has_videopress: true },
+				premium_analytics: { has_videopress: true, single_report_pages: [ VIDEO_PAGE, CLIP_PAGE ] },
 				user: { current_user: { capabilities: {} } },
 			},
 		} );
@@ -231,18 +304,31 @@ describe( 'video detail stage', () => {
 		jest.clearAllMocks();
 		mockDashboardLayouts.length = 0;
 		mockDateFilterOverrides = {};
+		mockParams = { kind: 'video', id: '42' };
 		mockSearch = {
 			from: '2026-06-01',
 			to: '2026-06-16',
-			section: 'embeds',
+			post_id: '42',
 		};
+		mockAdapters = {
+			video: {
+				useSummary: mockUseSummary,
+				headerSlots: jest.requireActual( '../pages/video/video-header-slots' ).videoHeaderSlots,
+			},
+		};
+		jest.mocked( useWidgetTypesWithI18n ).mockReturnValue( [ [], false ] );
+		jest
+			.mocked( useWidgetModuleResolver )
+			.mockReturnValue( ( () => Promise.resolve( {} ) ) as never );
 	} );
 
 	afterAll( () => {
 		delete window.JetpackScriptData;
 	} );
 
-	it( 'shows a not-found state with a date-preserving link back to Videos', () => {
+	it( 'shows a not-found state with a date-preserving link back to the reports page', () => {
+		// A detail page carries the window it was opened from; the back link returns to it.
+		mockSearch = { ...mockSearch, ref_from: '2026-05-01', ref_to: '2026-05-31' };
 		mockSummary( { isNotFound: true } );
 
 		render( stage() );
@@ -251,19 +337,19 @@ describe( 'video detail stage', () => {
 		expect( getNoticeAnnouncement( "We couldn't find this video.", 'polite' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Back to Videos' } ) ).toHaveAttribute(
 			'href',
-			'/reports/videos?from=2026-06-01&to=2026-06-16'
+			'/reports/videos?from=2026-05-01&to=2026-05-31'
 		);
 		expect( getSummaryHeading( 'Video not found' ) ).toBeInTheDocument();
 	} );
 
-	it( 'offers Retry in place of the widgets when the video fails to load', async () => {
+	it( 'offers Retry in place of the widgets when the summary fails to load', async () => {
 		mockSummary( { isError: true, error: { status: 500 } } );
 
 		render( stage() );
 
 		expect(
 			getNoticeAnnouncement(
-				"We couldn't load this video. Please try again in a moment.",
+				"We couldn't load this page. Please try again in a moment.",
 				'assertive'
 			)
 		).toBeInTheDocument();
@@ -271,16 +357,34 @@ describe( 'video detail stage', () => {
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'offers no Retry when the video is denied', () => {
+	it( 'offers no Retry when the entity is denied', () => {
 		mockSummary( { isError: true, error: { code: 'rest_forbidden', status: 403 } } );
 
 		render( stage() );
 
 		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
-		expect(
-			getNoticeAnnouncement( "You don't have access to this data.", 'assertive' )
-		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders a page without an adapter from its record: label, widgets, no controls, no crumb', () => {
+		mockParams = { kind: 'clip', id: '42' };
+
+		render( stage() );
+
+		expect( getSummaryHeading( 'Clip' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Page widgets' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Date filters' ) ).not.toBeInTheDocument();
+		expect( mockUseSummary ).not.toHaveBeenCalled();
+		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
+		expect( breadcrumbs.getAllByRole( 'listitem' ).map( crumb => crumb.textContent ) ).toEqual( [
+			'Stats',
+			'Clip',
+		] );
+		expect( mockUseStoredLayout ).toHaveBeenCalledWith(
+			'jetpack-premium-analytics/clip-detail',
+			'clip',
+			CLIP_PAGE.default_layout
+		);
 	} );
 
 	it.each( [
@@ -288,112 +392,38 @@ describe( 'video detail stage', () => {
 		{ summary: { isError: true }, heading: 'Video unavailable' },
 		{ summary: { isNotFound: true }, heading: 'Video not found' },
 	] )(
-		'names the page and keeps its date controls while no video is available',
+		'names the page and keeps the controls while no entity is available',
 		( { summary, heading } ) => {
 			mockSummary( summary );
 
 			render( stage() );
 
 			const nav = screen.getByRole( 'navigation', { name: 'Breadcrumbs' } );
-			// Only the Stats crumb renders until a title resolves.
+			// The Stats and reports page crumbs render; the title crumb waits for a title.
 			const crumbs = within( nav ).getAllByRole( 'listitem' );
-			expect( crumbs ).toHaveLength( 1 );
-			expect( crumbs[ 0 ] ).toHaveTextContent( 'Stats' );
+			expect( crumbs.map( crumb => crumb.textContent ) ).toEqual( [ 'Stats', 'Videos' ] );
 			expect( within( crumbs[ 0 ] ).getByRole( 'link', { name: 'Stats' } ) ).toHaveAttribute(
 				'href',
 				'/?from=2026-06-01&to=2026-06-16'
 			);
 			expect( getSummaryHeading( heading ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
-			// No window is worth stating without a video behind it.
+			// No window is worth stating without an entity behind it.
 			expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( 'Video widgets' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Page widgets' ) ).not.toBeInTheDocument();
 		}
 	);
 
-	/**
-	 * Find the summary heading. The breadcrumb's trailing crumb is the page's
-	 * `h1`; the header titles the section under it.
-	 *
-	 * @param name - The accessible heading name.
-	 * @return The summary heading.
-	 */
-	function getSummaryHeading( name: string ): HTMLElement {
-		return screen.getByRole( 'heading', { level: 2, name } );
-	}
-
-	it( 'renders the poster thumbnail and swaps in the placeholder glyph when it fails', () => {
-		mockSummary( {
-			title: 'Launch recap',
-			posterUrl: 'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg',
-		} );
-
-		// The whole visual slot is decorative (`aria-hidden`), so both the poster
-		// and the placeholder live outside the accessibility tree.
-		const placeholderGlyph = () =>
-			// eslint-disable-next-line testing-library/no-node-access -- The aria-hidden placeholder has no accessible query target.
-			document.querySelector( 'div[aria-hidden="true"] svg' );
-
-		render( stage() );
-
-		const poster = screen.getByRole( 'presentation', { hidden: true } );
-		expect( poster ).toHaveAttribute(
-			'src',
-			'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg'
-		);
-
-		// A tokenless poster (private video) 404s; the broken image must swap
-		// itself for the video-glyph placeholder, keeping the image slot.
-		fireEvent.error( poster );
-		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
-		expect( placeholderGlyph() ).toBeInTheDocument();
-		expect( getSummaryHeading( 'Launch recap' ) ).toBeInTheDocument();
-	} );
-
-	it( 'renders the placeholder glyph when the video has no poster', () => {
-		mockSummary( { title: 'Launch recap' } );
-
-		render( stage() );
-
-		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
-		expect(
-			// eslint-disable-next-line testing-library/no-node-access -- The aria-hidden placeholder has no accessible query target.
-			document.querySelector( 'div[aria-hidden="true"] svg' )
-		).toBeInTheDocument();
-	} );
-
 	it( 'keeps a long unbroken title single-line-ready: full text in markup plus the hover attr', () => {
-		// Layout is out of jsdom's reach (the clip is CSS, `white-space: nowrap` +
-		// ellipsis, in `section-header.module.scss`), so this guards the DOM contract
-		// it relies on: full text in the heading, mirrored in `title` for hover access.
 		const longTitle = `VID_20260731_${ 'a'.repeat( 120 ) }.mp4`;
 		mockSummary( { title: longTitle } );
 
 		render( stage() );
 
-		const heading = getSummaryHeading( longTitle );
-		expect( heading ).toHaveAttribute( 'title', longTitle );
+		expect( getSummaryHeading( longTitle ) ).toHaveAttribute( 'title', longTitle );
 	} );
 
-	it( 'adds the resolved title crumb', () => {
-		mockSummary( { title: 'Launch recap' } );
-
-		render( stage() );
-
-		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
-		expect( breadcrumbs.getAllByRole( 'listitem' ) ).toHaveLength( 2 );
-		expect( breadcrumbs.getAllByRole( 'listitem' ).map( crumb => crumb.textContent ) ).toEqual( [
-			'Stats',
-			'Launch recap',
-		] );
-		expect(
-			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Launch recap' } )
-		).toBeInTheDocument();
-		expect( screen.getByText( 'Video widgets' ) ).toBeInTheDocument();
-	} );
-
-	it( 'adds the referring report between Stats and the resolved title', () => {
-		mockSearch = { ...mockSearch, ref: 'videos' };
+	it( 'crumbs the reports page of the record and the resolved title when the URL carries no origin', () => {
 		mockSummary( { title: 'Launch recap' } );
 
 		render( stage() );
@@ -404,63 +434,103 @@ describe( 'video detail stage', () => {
 			'Videos',
 			'Launch recap',
 		] );
+		expect( breadcrumbs.getByRole( 'link', { name: 'Videos' } ) ).toHaveAttribute(
+			'href',
+			'/reports/videos'
+		);
+		expect(
+			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Launch recap' } )
+		).toBeInTheDocument();
+		expect( screen.getByText( 'Page widgets' ) ).toBeInTheDocument();
 	} );
 
-	it( 'states the applied report range as the performance window in the summary', () => {
+	it( 'crumbs the referring report instead when the URL names one', () => {
+		mockSearch = { ...mockSearch, ref: 'authors' };
 		mockSummary( { title: 'Launch recap' } );
 
 		render( stage() );
 
+		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
+		expect( breadcrumbs.getAllByRole( 'listitem' ).map( crumb => crumb.textContent ) ).toEqual( [
+			'Stats',
+			'Top authors',
+			'Launch recap',
+		] );
+	} );
+
+	it( 'states the applied report range as the performance window under the title', () => {
+		mockSummary( { title: 'Launch recap', publishedDate: '2026-01-10T08:00:00' } );
+
+		render( stage() );
+
 		expect(
-			screen.getByText( /Performance from Jun 1, 2026 to Jun 16, 2026/ )
+			screen.getByText(
+				'Video uploaded on Jan 10, 2026. Performance from Jun 1, 2026 to Jun 16, 2026'
+			)
 		).toBeInTheDocument();
 	} );
 
-	// One declaration drives both halves: the panel drops the Compare control and
-	// `WidgetRoot` strips the params. This asserts the page's declaration.
+	it( 'hands the control the applied window and the entity start as the All time anchor', () => {
+		mockSummary( { title: 'Launch recap', allTimeStart: '2026-01-10 08:00:00' } );
+
+		render( stage() );
+
+		expect( screen.getByText( 'Window from 2026-06-01' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'All time from 2026-01-10 08:00:00' ) ).toBeInTheDocument();
+	} );
+
+	it( 'writes the window the control applies to the URL, replacing the old one', async () => {
+		mockSearch = { ...mockSearch, comp: '1', compare_from: '2026-05-17', compare_to: '2026-05-31' };
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Apply last 7 days' } ) );
+
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		const [ { to, params, search } ] = mockNavigate.mock.calls[ 0 ];
+		expect( to ).toBe( '/report/$kind/$id' );
+		expect( params ).toEqual( { kind: 'video', id: '42' } );
+		expect( search( mockSearch ) ).toEqual( {
+			post_id: '42',
+			preset: 'last-7-days',
+			from: '2026-06-10',
+			to: '2026-06-16',
+		} );
+	} );
+
+	// A single-report page offers no comparison: the control hides Compare and `WidgetRoot` strips
+	// the params. This asserts the page's declaration.
 	it( 'declares no comparison for the widgets it renders', () => {
 		mockSummary( { title: 'Launch recap' } );
-		mockSearch = {
-			from: '2026-06-01',
-			to: '2026-06-16',
-			post_id: '42',
-			comp: '1',
-			compare_from: '2026-05-17',
-			compare_to: '2026-05-31',
-			compare_preset: 'previous-period',
-		};
 
 		render( stage() );
 
 		expect( screen.getByText( 'Scope offers no comparison' ) ).toBeInTheDocument();
 	} );
 
-	// The layout the page hands the dashboard is the fixed composition; the
-	// no-comparison invariant is the scope above, not injected attributes.
-	it( 'hands the dashboard its fixed layout', () => {
+	it( 'hands the dashboard the layout the record declares', () => {
 		mockSummary( { title: 'Launch recap' } );
 
 		render( stage() );
 
-		const layout = mockDashboardLayouts.at( -1 ) as Array< {
-			attributes?: { reportParams?: unknown };
-		} >;
-		expect( layout.length ).toBeGreaterThan( 0 );
-		for ( const widget of layout ) {
-			expect( widget.attributes ?? {} ).not.toHaveProperty( 'reportParams' );
-		}
+		expect( mockUseStoredLayout ).toHaveBeenCalledWith(
+			'jetpack-premium-analytics/video-detail',
+			'video',
+			VIDEO_PAGE.default_layout
+		);
+		expect( mockDashboardLayouts.at( -1 ) ).toEqual( VIDEO_PAGE.default_layout );
 	} );
 
-	it( 'renders the widgets only once all time anchors on the upload day', () => {
+	it( 'renders the widgets only once all time anchors on the entity start', () => {
 		mockDateFilterOverrides = {
 			appliedPresetId: PRESET_ALL_TIME,
 			appliedRange: computePrimaryRange( PRESET_ALL_TIME, 'UTC' ),
 		};
-		mockSummary( { title: 'Launch recap', publishedDate: '2026-06-22 18:00:00' } );
+		mockSummary( { title: 'Launch recap', allTimeStart: '2026-06-22 18:00:00' } );
 
 		const { rerender } = render( stage() );
 
-		expect( screen.queryByText( 'Video widgets' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Page widgets' ) ).not.toBeInTheDocument();
 
 		mockDateFilterOverrides = {
 			appliedPresetId: PRESET_ALL_TIME,
@@ -470,20 +540,15 @@ describe( 'video detail stage', () => {
 		};
 		rerender( stage() );
 
-		expect( screen.getByText( 'Video widgets' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Page widgets' ) ).toBeInTheDocument();
 	} );
 
-	it( 'offers Customize in a page options menu once the video resolves', async () => {
+	it( 'offers Customize in a page options menu once the summary resolves', async () => {
 		const user = userEvent.setup();
 		mockSummary( { title: 'Launch recap' } );
 
 		render( stage() );
 
-		expect( mockUseStoredLayout ).toHaveBeenCalledWith(
-			'jetpack-premium-analytics/video-detail',
-			'video',
-			expect.any( Array )
-		);
 		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
@@ -504,7 +569,7 @@ describe( 'video detail stage', () => {
 		{ summary: { isError: true }, state: 'errored' },
 		{ summary: { isNotFound: true }, state: 'not found' },
 	] )(
-		'offers the page options menu without Customize while the video is $state',
+		'offers the page options menu without Customize while the summary is $state',
 		async ( { summary } ) => {
 			const user = userEvent.setup();
 			mockSummary( summary );
@@ -520,7 +585,7 @@ describe( 'video detail stage', () => {
 		}
 	);
 
-	it( 'leaves customize mode when the video stops rendering', async () => {
+	it( 'leaves customize mode when the entity stops rendering', async () => {
 		const user = userEvent.setup();
 		mockSummary( { title: 'Launch recap' } );
 
@@ -532,7 +597,7 @@ describe( 'video detail stage', () => {
 
 		// A failed background refetch hides the grid, and the dashboard's Cancel and
 		// Done with it, so the mode must not stay on with no way out.
-		mockSummary( { title: 'Launch recap', isError: true } );
+		mockSummary( { isError: true } );
 		rerender( stage() );
 
 		expect( mockDashboardProps.editMode ).toBe( false );

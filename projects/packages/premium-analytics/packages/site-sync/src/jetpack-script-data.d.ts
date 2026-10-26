@@ -13,6 +13,27 @@ declare module '@automattic/jetpack-script-data' {
 			csv_exports_enabled?: boolean;
 			// Whether the site runs VideoPress, which gates the video surfaces.
 			has_videopress?: boolean;
+			// The single-report pages the reader may open, as `routes/single-report/registry.ts` reads them. Absent until the page registry is hydrated.
+			single_report_pages?: Array< {
+				id: string;
+				path: string;
+				label: string;
+				dashboard_section: string | null;
+				feature: string | null;
+				scope_param: string;
+				id_pattern: string;
+				icon: string | null;
+				controls: { presets: string[] } | false | null;
+				reports_page: string | null;
+				preferences_scope: string;
+				default_layout: Array< Record< string, unknown > >;
+				sections: Array< {
+					slug: string;
+					label: string;
+					default_layout: Array< Record< string, unknown > >;
+					controls: { presets: string[] } | false | null;
+				} >;
+			} >;
 			// Whether the reader may see Stats reports; a shop manager may see only the store's.
 			can_view_stats?: boolean;
 			// Where switching the dashboard off lands: the classic Stats page, or null while no plugin registers one.

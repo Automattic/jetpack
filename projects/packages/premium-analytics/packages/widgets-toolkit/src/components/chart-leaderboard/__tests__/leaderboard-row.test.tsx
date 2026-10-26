@@ -303,7 +303,7 @@ describe( 'buildLeaderboardRow', () => {
 	} );
 
 	it.each( [
-		[ 'a video detail link', { kind: 'videoLink', id: 12, search: {} }, '/video/12' ],
+		[ 'a video detail link', { kind: 'videoLink', id: 12, search: {} }, '/report/video/12' ],
 		[ 'a post detail link', { kind: 'postLink', id: 5, search: {} }, '/post/5' ],
 		[
 			'a public page link',
