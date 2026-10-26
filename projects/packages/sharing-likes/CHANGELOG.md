@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-10-26
+### Added
+- Add cards to the React version of Settings > Sharing that place the Sharing Buttons and Like blocks before or after the content of posts and pages. [#53838]
+
+### Changed
+- Name Offline Mode as it is named across the rest of Jetpack. [#54034]
+- Settings: Keep the React Sharing screen's data in a WordPress data store instead of TanStack Query. [#53853]
+
 ## [0.4.0] - 2026-10-19
 ### Added
 - Add the Sharing Buttons and Like blocks before or after the post content in block themes' single post and page templates, when the legacy buttons are off and a site option asks for them. The `jetpack_sharing_likes_template_placement_post_types` filter adds other post types. [#53413]
@@ -46,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings: Add the wp-admin Settings > Sharing screen, covering sharing buttons, Like buttons, and where they appear. [#52407] [#52727] [#52756] [#52758]
 - Settings: Give Comment Likes their own section on every platform, and offer the Like block to Jetpack and Atomic sites running Comment Likes. [#52796]
 
+[0.5.0]: https://github.com/Automattic/jetpack-sharing-likes/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-sharing-likes/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Automattic/jetpack-sharing-likes/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Automattic/jetpack-sharing-likes/compare/v0.1.1...v0.2.0

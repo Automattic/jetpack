@@ -658,7 +658,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "4fb2487b4e355ac9199274846ba1abf67faa2648"
+                "reference": "a0f3cd7226e013bd3827b26bd270bad854549544"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -674,7 +674,7 @@
             "type": "jetpack-library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "0.7.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
@@ -881,7 +881,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "081ccac180faac861f58bae732f67d216d46b4ea"
+                "reference": "3ef5ed6a050e37f57aab0e4926d5a881b41545f9"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -917,7 +917,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.13.x-dev"
+                    "dev-trunk": "9.14.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1576,7 +1576,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "d4fe8d816ffb6645702f9b4289cfcc2fb89e5119"
+                "reference": "502156bd36931f060f89334cc1cc07dd7c6c7725"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1603,7 +1603,7 @@
             "type": "jetpack-library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "0.29.x-dev"
+                    "dev-trunk": "0.30.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -2508,7 +2508,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "b82105123f55da6d61ca411645d3147a5de983da"
+                "reference": "d18b1292be8e342d99027d21251dcaaf52272285"
             },
             "require": {
                 "php": ">=7.4"
@@ -2526,7 +2526,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 }
             },
             "autoload": {
