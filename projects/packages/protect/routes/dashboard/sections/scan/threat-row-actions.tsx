@@ -55,8 +55,7 @@ function getThreatRowActions(
 	const hasLink = ( key: LinkKey ) => ( item: ScanThreat ) => !! item.extension?.actions?.[ key ];
 	// Starting these locks the row, removing the clicked button and maybe its ⋯ menu.
 	const locking =
-		( start: ( items: ScanThreat[], open: OpenThreat ) => unknown ) =>
-		( items: ScanThreat[] ) => {
+		( start: ( items: ScanThreat[], open: OpenThreat ) => unknown ) => ( items: ScanThreat[] ) => {
 			const [ item ] = items;
 			if ( item ) {
 				start( items, open );
