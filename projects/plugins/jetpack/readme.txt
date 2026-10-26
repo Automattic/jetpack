@@ -31,7 +31,7 @@ We have a global team of Happiness Engineers ready to provide incredible support
 WordPress security, performance, marketing, and design tools — Jetpack is made by WordPress experts to make WP sites safer and faster, and help you grow your traffic.
 
 = 24/7 AUTO SITE SECURITY =
-We guard your site so you can run your site or business. Jetpack Security provides easy-to-use, comprehensive WordPress site security including auto real-time backups and easy restores, malware scans, and spam protection. Essential features like brute force protection and basic downtime / uptime monitoring are free.
+We guard your site so you can run your site or business. Jetpack Pro and Complete provide easy-to-use, comprehensive WordPress site security including auto real-time backups and easy restores, malware scans, and spam protection. Essential features like brute force protection and basic downtime / uptime monitoring are free.
 
 * Back up your site automatically in real time and restore to any point with one click. Cloud storage starts at 10GB, which is more than enough for most sites, with additional storage options available if needed. Great for eCommerce stores especially Woo.
 * Manage migration to a new host, migrate theme files and plugins to a new database, easily duplicate websites, create full database backups, clone websites, repair broken websites by restoring older backups or easily set up a test site by creating a duplicate of your existing WP website.
@@ -316,7 +316,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 == Screenshots ==
 
-1. Jetpack Security provides easy-to-use, comprehensive WordPress site security including backups, malware scanning, and spam protection.
+1. Jetpack Pro and Complete provide easy-to-use, comprehensive WordPress site security including backups, malware scanning, and spam protection.
 2. Save every change with real-time backups and get back online quickly with one-click restores.
 3. Automated malware scanning and one-click fixes keep your site one step ahead of security threats.
 4. Promote your newest posts, pages, and products across your social media channels.
