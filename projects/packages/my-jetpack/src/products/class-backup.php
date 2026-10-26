@@ -452,7 +452,7 @@ class Backup extends Hybrid_Product {
 	 *
 	 * An older Jetpack plugin still opens its dashboard only while the module is on.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.0
 	 *
 	 * @return bool
 	 */
@@ -486,7 +486,7 @@ class Backup extends Hybrid_Product {
 	/**
 	 * Whether the Jetpack plugin offers its bundled Backup dashboard, which Jetpack::configure_backup_package() asks.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.0
 	 *
 	 * @return bool
 	 */
@@ -573,7 +573,7 @@ class Backup extends Hybrid_Product {
 	/**
 	 * Whether the site's stored plan or products include Backup, current or expired, without asking WordPress.com.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.0
 	 *
 	 * @return bool
 	 */

@@ -23,7 +23,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.13.0';
+	const PACKAGE_VERSION = '0.14.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -375,6 +375,11 @@ class Analytics {
 			require_once __DIR__ . '/dashboard-first-visit.php';
 		}
 		configure_dashboard_first_visit();
+
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_assets_url' ) ) {
+			require_once __DIR__ . '/assets-url.php';
+		}
+		configure_assets_url();
 
 		// Temporary: carries a default layout move into layouts readers customized before it.
 		Stored_Layout_Move::register();

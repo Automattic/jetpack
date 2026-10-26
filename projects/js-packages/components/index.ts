@@ -42,7 +42,6 @@ export { default as JitmSlot } from './components/jitm-slot/index.tsx';
 export * from './components/icons/index.tsx';
 export { default as ThemeProvider } from './components/theme-provider/index.tsx';
 export { default as Text, H2, H3, Title } from './components/text/index.tsx';
-export { default as NumberControl } from './components/number-control/index.tsx';
 export { default as QRCode } from './components/qr-code/index.tsx';
 export { default as Button } from './components/button/index.tsx';
 export type { ButtonProps } from './components/button/types.ts';

@@ -1,4 +1,5 @@
 import { Button } from '@wordpress/components';
+import { Stack } from '@wordpress/ui';
 
 /**
  * MediaBrowserSelectButton component
@@ -12,11 +13,15 @@ import { Button } from '@wordpress/components';
  */
 const MediaBrowserSelectButton = ( { label, isLoading, disabled, onClick } ) => {
 	return (
-		<div className="jetpack-external-media-browser__media__toolbar">
+		<Stack
+			align="center"
+			justify="flex-end"
+			className="jetpack-external-media-browser__media__toolbar"
+		>
 			<Button variant="primary" isBusy={ isLoading } disabled={ disabled } onClick={ onClick }>
 				{ label }
 			</Button>
-		</div>
+		</Stack>
 	);
 };
 
