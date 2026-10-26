@@ -71,7 +71,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 
 		// The admin page scrolls the content between its header and footer, not the window,
 		// and that container outlives a tab switch.
-		const scroller = tabListRef.current?.closest( '.jp-admin-page__page > *' );
+		const scroller = tabListRef.current?.closest( '.jp-admin-page__content' );
 		if ( scroller ) {
 			scroller.scrollTop = 0;
 		}
