@@ -291,7 +291,9 @@ describe( 'threat action Tracks events', () => {
 		( recordEvent as jest.Mock ).mockClear();
 		mockApiFetch.mockReturnValue( response );
 
-		await act( () => action( { ...threat, id: `tracks-${ _name }` } ) );
+		await act( async () => {
+			await action( { ...threat, id: `tracks-${ _name }` } );
+		} );
 
 		expect( ( recordEvent as jest.Mock ).mock.calls ).toEqual( [
 			[ `jetpack_scan_${ event }_click` ],

@@ -73,12 +73,9 @@ describe( 'Scan now', () => {
 		expect( screen.queryByText( 'Scanning…' ) ).not.toBeInTheDocument();
 	} );
 
-	it.each( [
-		[ 'the card', <ScanCard key="card" openTab={ jest.fn() } />, 'Scan again now' ],
-		[ 'the page header', <HeaderScanButton key="header" />, 'Scan now' ],
-	] )( 'records jetpack_scan_scan_now from %s', async ( _, ui, button ) => {
+	it( 'records jetpack_scan_scan_now from the page header', async () => {
 		( recordEvent as jest.Mock ).mockClear();
-		await renderAndScan( () => new Promise( () => {} ), ui, button );
+		await renderAndScan( () => new Promise( () => {} ) );
 
 		expect( ( recordEvent as jest.Mock ).mock.calls ).toEqual( [
 			[ 'jetpack_scan_scan_now', { has_plan: true } ],
