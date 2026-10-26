@@ -33,7 +33,7 @@ export function createRequestError( body, fallbackMessage ) {
  * @return {{message: *, detail: *}} The message, and a second line or null.
  */
 export function getConnectErrorDisplay( error, getRegistrationErrorDisplay, fallbackMessage ) {
-	if ( error?.response && typeof getRegistrationErrorDisplay === 'function' ) {
+	if ( error?.response && getRegistrationErrorDisplay ) {
 		const { message, detail } = getRegistrationErrorDisplay( error ) ?? {};
 		return { message: message || fallbackMessage, detail: detail ?? null };
 	}
