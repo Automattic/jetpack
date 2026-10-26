@@ -1,6 +1,6 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
-Tags: Security, backup, malware, scan, performance
+Tags: Security, backup, malware, AI, MCP
 Stable tag: 16.4-a.5
 Requires at least: 7.0
 Requires PHP: 7.4
@@ -8,7 +8,7 @@ Tested up to: 7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Improve your WP security with powerful one-click tools like backup, WAF, and malware scan. Includes free tools like stats, CDN and social sharing.
+Backup, WAF, and malware scan for WordPress. Connect ChatGPT, Claude, or another AI agent to manage your site. Free stats, CDN, and social sharing.
 
 == Description ==
 
@@ -16,7 +16,7 @@ Improve your WP security with powerful one-click tools like backup, WAF, and mal
 
 https://videopress.com/v/bEKlywPj
 
-Jetpack is a WordPress plugin that helps you create better content, grow your subscribers, earn money from your website and keep it safe, fast, and secure. You can grow and keep track of your website traffic with Jetpack stats, and create better content with Jetpack AI. You can start a newsletter and grow your audience, turning fans into paying subscribers. Create beautiful content with Jetpack Creator and keep your site fast with Jetpack Boost.
+Jetpack is a WordPress plugin that helps you create better content, grow your subscribers, earn money from your website and keep it safe, fast, and secure. You can grow and keep track of your website traffic with Jetpack stats, and create better content with Jetpack AI, or connect AI agents like ChatGPT and Claude to manage your site right from the chat. You can start a newsletter and grow your audience, turning fans into paying subscribers. Create beautiful content with Jetpack Creator and keep your site fast with Jetpack Boost.
 
 = HOW TO GET STARTED WITH JETPACK =
 Installation is free, quick, and easy. [Set up Jetpack](https://jetpack.com/install?from=wporg) in minutes. Take advantage of more robust features like WordPress site security and design and growth tools by [upgrading to a paid plan](http://jetpack.com/pricing).
@@ -90,6 +90,18 @@ Simply provide a prompt, and watch as Jetpack AI Assistant crafts compelling blo
 * Unlock high-quality, tailored content at your command.
 * Maintain professional standards with ease.
 * AI-powered translations across numerous languages at your fingertips, breaking down language barriers.
+
+= CONNECT CHATGPT, CLAUDE, AND OTHER AI AGENTS =
+Manage your site from the AI tools you already use. Connect ChatGPT or Claude to your WordPress site in a few clicks, with no MCP server to set up or keep running. Then ask for what you need in plain language.
+
+Your agent can work with more than your posts and pages. Jetpack gives it access to your stats, backups, security scans, and newsletter as well, so one conversation covers your whole site.
+
+* Use the AI tools you prefer. Jetpack works with ChatGPT, Codex, Claude, Claude Code, Cursor, VS Code, Continue, and any other MCP client, and most of them connect in a few clicks.
+* There's no extra server or hosting to manage. The connection runs through Jetpack and WordPress.com.
+* Ask which posts got the most views, check your backups and activity log, run a security scan, change newsletter settings, or turn on downtime monitoring.
+* Draft posts, build a page from a single prompt, organize your Media Library, and optimize your site.
+* Choose what your agent can read and what it can change, and turn individual tools on or off whenever you like.
+* Your agent acts on your behalf through your WordPress.com account connection.
 
 = PROMOTE YOUR CONTENT EASILY WITH JETPACK BLAZE =
 Find new fans by promoting your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.
@@ -195,6 +207,10 @@ A WordPress.com account is different from the account you use to log into your s
 = How do I view my stats? =
 
 Once you’ve installed Jetpack, your stats will be available on your Jetpack dashboard and through the [official WordPress mobile app](https://apps.wordpress.com/mobile/).
+
+= Can I connect ChatGPT, Claude, or another AI agent to my site? =
+
+Yes, and there's nothing extra to install or host. Once you've connected your WordPress.com account, go to Jetpack AI in your Jetpack menu, enable MCP access, and choose your agent. Jetpack works with ChatGPT, Claude, Cursor, VS Code, and other MCP clients, and most of them connect in a few clicks. Your agent can then work with your content and with Jetpack features like Stats, Backup, Scan, and Newsletter. You choose which tools it can use to read or change your site.
 
 = How do I contribute to Jetpack? =
 
