@@ -1,4 +1,3 @@
-import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DataViews, filterSortAndPaginate, type View } from '@wordpress/dataviews';
 import {
 	useCallback,
@@ -44,23 +43,6 @@ const VIEW: View = {
 };
 
 const getId = ( item: ScanThreat ) => String( item.id );
-
-/**
- * The trail above the report, whose first crumb goes back to the Overview.
- *
- * @return The breadcrumbs.
- */
-export function ThreatReportBreadcrumbs() {
-	return (
-		<Breadcrumbs
-			items={ [
-				// "Protect" is a product name and is not translated.
-				{ label: 'Protect', to: '/' },
-				{ label: __( 'Threats from your alert', 'jetpack-protect-pkg' ) },
-			] }
-		/>
-	);
-}
 
 type GroupProps = {
 	icon: ReactElement;
