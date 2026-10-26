@@ -15,7 +15,7 @@ use Automattic\Jetpack\Sharing_Likes\Block_Names;
  * A `jetpack/sharing-buttons` block with its buttons, carried over from the
  * site's legacy sharing services where the block offers them.
  *
- * @since $$next-version$$
+ * @since 0.4.0
  */
 final class Sharing_Buttons_Markup {
 

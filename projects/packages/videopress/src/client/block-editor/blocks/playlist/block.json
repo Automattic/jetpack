@@ -21,6 +21,11 @@
 		}
 	},
 	"attributes": {
+		"emptyState": {
+			"type": "string",
+			"enum": [ "none", "author", "all" ],
+			"default": "none"
+		},
 		"playlistId": {
 			"type": "string",
 			"default": ""
@@ -110,6 +115,10 @@
 		"sourcePlaylistId": {
 			"type": "string",
 			"default": ""
+		},
+		"showMeta": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"editorScript": "file:./index.js",

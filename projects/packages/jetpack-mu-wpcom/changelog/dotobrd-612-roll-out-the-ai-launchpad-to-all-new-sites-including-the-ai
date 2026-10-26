@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+AI Launchpad: On sites built with AI, skip the setup wizard and the tasks the AI builder already did.

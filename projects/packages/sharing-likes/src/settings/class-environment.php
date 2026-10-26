@@ -29,6 +29,13 @@ final class Environment {
 	private static $single_template_editor_url = null;
 
 	/**
+	 * Memoised Site Editor URL for the page template, for the same reason.
+	 *
+	 * @var string|null
+	 */
+	private static $page_template_editor_url = null;
+
+	/**
 	 * Whether the active theme is a block theme.
 	 */
 	public static function is_block_theme(): bool {
@@ -248,25 +255,41 @@ final class Environment {
 	 * block theme shipping only `index.html` is the case that hits this.
 	 */
 	public static function single_template_editor_url(): string {
-		if ( null !== self::$single_template_editor_url ) {
-			return self::$single_template_editor_url;
+		if ( null === self::$single_template_editor_url ) {
+			self::$single_template_editor_url = self::template_editor_url( 'single' );
 		}
 
+		return self::$single_template_editor_url;
+	}
+
+	/**
+	 * Site Editor URL for the active theme's page template, empty when it has none.
+	 *
+	 * @since 0.4.0
+	 */
+	public static function page_template_editor_url(): string {
+		if ( null === self::$page_template_editor_url ) {
+			self::$page_template_editor_url = self::template_editor_url( 'page' );
+		}
+
+		return self::$page_template_editor_url;
+	}
+
+	/**
+	 * Site Editor URL for one of the active theme's templates, empty when it has none.
+	 *
+	 * @param string $slug Template slug.
+	 */
+	private static function template_editor_url( string $slug ): string {
 		$stylesheet = get_stylesheet();
-		$template   = $stylesheet ? $stylesheet . '//single' : '';
+		$template   = $stylesheet ? $stylesheet . '//' . $slug : '';
 
 		if ( ! $template || ! get_block_template( $template ) ) {
-			self::$single_template_editor_url = '';
-
-			return self::$single_template_editor_url;
+			return '';
 		}
 
 		// `add_query_arg()` does not encode, and the Site Editor router wants `p` percent-encoded.
-		self::$single_template_editor_url = admin_url(
-			'site-editor.php?p=' . rawurlencode( '/wp_template/' . $template ) . '&canvas=edit'
-		);
-
-		return self::$single_template_editor_url;
+		return admin_url( 'site-editor.php?p=' . rawurlencode( '/wp_template/' . $template ) . '&canvas=edit' );
 	}
 
 	/**

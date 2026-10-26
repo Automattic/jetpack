@@ -2,13 +2,17 @@
  * WordPress dependencies
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, Placeholder, SelectControl } from '@wordpress/components';
+import { PanelBody, Placeholder, SelectControl, ToggleControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { editorSourcePlaylist, PlaylistPicker } from '../../channel/editor-controls';
+import {
+	editorSourcePlaylist,
+	EmptyStateControl,
+	PlaylistPicker,
+} from '../../channel/editor-controls';
 import { VideoPressIcon } from '../video/components/icons';
 import { PlaylistSettingsPanels, PlaylistStylesControls } from './inspector-controls';
 import PlaylistPreview from './preview';
@@ -54,9 +58,24 @@ export function PlaylistSourcePanel( { attributes, setAttributes }: Props ) {
 					onChange={ value => setAttributes( { source: value as PlaylistSource } ) }
 				/>
 				{ 'index' === source && (
-					<PlaylistPicker
-						value={ attributes.sourcePlaylistId ?? '' }
-						onChange={ value => setAttributes( { sourcePlaylistId: value } ) }
+					<>
+						<PlaylistPicker
+							value={ attributes.sourcePlaylistId ?? '' }
+							onChange={ value => setAttributes( { sourcePlaylistId: value } ) }
+						/>
+						<EmptyStateControl
+							kind="playlists"
+							value={ attributes.emptyState }
+							onChange={ emptyState => setAttributes( { emptyState } ) }
+						/>
+					</>
+				) }
+				{ 'own' !== source && (
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Views and upload date', 'jetpack-videopress-pkg' ) }
+						checked={ !! attributes.showMeta }
+						onChange={ ( value: boolean ) => setAttributes( { showMeta: value } ) }
 					/>
 				) }
 			</PanelBody>

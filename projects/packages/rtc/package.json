@@ -35,23 +35,23 @@
 		"@wordpress/plugins": "7.57.0",
 		"clsx": "2.1.1",
 		"lib0": "0.2.99",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"react": "19.3.0",
+		"react-dom": "19.3.0",
 		"y-protocols": "^1.0.7",
 		"yjs": "13.6.29"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@jest/globals": "30.5.1",
+		"@jest/globals": "30.5.2",
 		"@types/jest": "30.0.0",
-		"@types/react": "18.3.31",
+		"@types/react": "19.3.0",
 		"@wordpress/base-styles": "13.3.0",
 		"@wordpress/browserslist-config": "6.57.0",
-		"jest": "30.5.1",
+		"jest": "30.5.2",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"webpack": "5.111.1",
+		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
 	}
 }

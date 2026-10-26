@@ -1,4 +1,5 @@
 import { wpcomTrackEvent } from '../../../common/tracks';
+import { showBanner } from './show-banner';
 
 document.addEventListener( 'DOMContentLoaded', () => {
 	const banner = document.getElementById( 'wpcom-ai-assistant-banner' );
@@ -7,11 +8,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
-	// Shared context props, computed server-side. Defensive fallback so the
-	// events still fire prop-less if the global is ever absent.
+	// Shared context props, computed server-side, with a fallback if the global is ever absent.
 	const trackProps = window.wpcomAiAssistantBanner?.trackProps || {};
 
-	wpcomTrackEvent( 'jetpack_ai_assistant_banner_impression', trackProps );
+	showBanner( banner, window.wpcomAiAssistantBanner, wpcomTrackEvent );
 
 	const ctaBtn = banner.querySelector( '.button-secondary' );
 	ctaBtn?.addEventListener( 'click', () => {

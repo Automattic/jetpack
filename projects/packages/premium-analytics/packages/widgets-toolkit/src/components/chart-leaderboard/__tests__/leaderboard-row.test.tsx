@@ -221,35 +221,39 @@ describe( 'buildLeaderboardRow', () => {
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );
 
-	it( 'puts a video row thumbnail inside its detail link', () => {
-		const row = buildLeaderboardRow( {
-			label: 'Launch',
-			media: {
-				kind: 'thumbnail',
-				url: 'https://example.com/p.jpg',
-				alt: '',
-			},
-			action: { kind: 'videoLink', id: 12, search: {} },
-		} );
-
-		render( row.label );
-
-		expect( screen.getByRole( 'link', { name: 'Launch' } ) ).toContainElement(
-			screen.getByRole( 'presentation' )
-		);
-	} );
-
-	it( 'keeps post rows as a bare post title link, even with a thumbnail', () => {
+	it.each( [
+		[ 'a video detail link', { kind: 'videoLink', id: 12, search: {} }, '/video/12' ],
+		[ 'a post detail link', { kind: 'postLink', id: 5, search: {} }, '/post/5' ],
+		[
+			'a public page link',
+			{ kind: 'postLink', href: 'https://example.com/hello/', search: {} },
+			'https://example.com/hello/',
+		],
+	] as const )( 'puts the thumbnail inside %s', ( _name, action, href ) => {
 		const row = buildLeaderboardRow( {
 			label: 'Hello',
-			media: { kind: 'thumbnail', url: 'https://example.com/hello.jpg', alt: '' },
-			action: { kind: 'postLink', id: 5, search: {} },
+			media: { kind: 'thumbnail', url: 'https://example.com/p.jpg', alt: '' },
+			action: action as LeaderboardRowAction,
 		} );
 
 		render( row.label );
 
-		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveAttribute( 'href', '/post/5' );
+		const link = screen.getByRole( 'link', { name: /^Hello/ } );
+		expect( link ).toHaveAttribute( 'href', href );
+		expect( link ).toContainElement( screen.getByRole( 'presentation' ) );
+	} );
+
+	it( 'keeps the thumbnail on a post row that links nowhere', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Hello',
+			media: { kind: 'thumbnail', url: 'https://example.com/p.jpg', alt: '' },
+			action: { kind: 'postLink', href: null, search: {} },
+		} );
+
+		render( row.label );
+
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		expect( screen.getByTitle( 'Hello' ) ).toContainElement( screen.getByRole( 'presentation' ) );
 	} );
 
 	it( 'returns chart button props for a drill-down without nesting an action', () => {

@@ -19,6 +19,7 @@ dev:
     services:
       phpmyadmin:
         image: phpmyadmin:latest
+        pull_policy: weekly
         links:
           - db:mysql
         ports:
@@ -31,6 +32,7 @@ dev:
       ## https://mailpit.axllent.org/
       mailpit:
         image: axllent/mailpit
+        pull_policy: weekly
         ports:
           - '${PORT_INBOX:-1080}:8025'
           - '${PORT_SMTP:-25}:1025'
@@ -41,6 +43,7 @@ dev:
       ## SFTP server running at localhost:1022 by default
       sftp:
         image: jmcombs/sftp:alpine
+        pull_policy: weekly
         volumes:
           ## WordPress and its plugins and themes should be defined in volumeMappings in jetpack-docker-config-default.yml or jetpack-docker-config.yml, not here!
           ## That avoids having to define them both here and in the "wordpress" service.

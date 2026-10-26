@@ -39,6 +39,13 @@ class Scan implements Dashboard_Section {
 	const SCANNING_STATUSES = array( 'provisioning', 'scheduled', 'scanning' );
 
 	/**
+	 * How many copy variants the free-plan upsell tests.
+	 *
+	 * @var int
+	 */
+	const UPSELL_VARIANTS = 8;
+
+	/**
 	 * Statuses that mean the first scan has not run yet when there is no report date.
 	 *
 	 * @var string[]
@@ -88,10 +95,35 @@ class Scan implements Dashboard_Section {
 				'hasPlan' => $has_plan,
 				'url'     => $has_plan
 					? Redirect::get_url( 'my-jetpack-manage-scan' )
-					: admin_url( 'admin.php?page=my-jetpack#/add-scan' ),
+					: Dashboard::get_scan_upgrade_url(),
+			),
+			$has_plan ? array() : array(
+				'upsellVariant'       => self::get_upsell_variant(),
+				'upsellVariantForced' => (bool) has_filter( 'jetpack_protect_dashboard_scan_upsell_variant' ),
 			),
 			self::get_scan_report( $has_plan )
 		);
+	}
+
+	/**
+	 * Where this site's upsell copy rotation starts, spread across sites by blog ID.
+	 *
+	 * @return int From 1 to UPSELL_VARIANTS.
+	 */
+	public static function get_upsell_variant() {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		$variant = $blog_id > 0 ? ( $blog_id % self::UPSELL_VARIANTS ) + 1 : 1;
+
+		/**
+		 * Filters which free-plan Scan upsell copy the Protect dashboard shows; a filtered one isn't rotated.
+		 *
+		 * @since 0.3.0
+		 *
+		 * @param int $variant From 1 to 8.
+		 */
+		$variant = (int) apply_filters( 'jetpack_protect_dashboard_scan_upsell_variant', $variant );
+
+		return $variant >= 1 && $variant <= self::UPSELL_VARIANTS ? $variant : 1;
 	}
 
 	/**
@@ -459,9 +491,10 @@ class Scan implements Dashboard_Section {
 			$response = is_wp_error( $api_url )
 				? $api_url
 				: Client::wpcom_json_api_request_as_blog( $api_url . '/enqueue', '2', array( 'method' => 'POST' ), null, 'wpcom' );
-			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			$error    = self::get_enqueue_error( $response );
+			if ( $error ) {
 				self::release_request_lock();
-				return new WP_Error( 'scan_not_started', __( 'The scan couldn’t be started. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
+				return $error;
 			}
 			Scan_Status::delete_option();
 			delete_transient( self::HISTORY_CACHE );
@@ -475,6 +508,29 @@ class Scan implements Dashboard_Section {
 		}
 
 		return self::get_scan_report( $has_plan, true );
+	}
+
+	/**
+	 * Why WordPress.com didn't enqueue a scan, including a `success: false` it answers with a 200.
+	 *
+	 * @param array|WP_Error $response The enqueue response.
+	 * @return WP_Error|null The error, with WordPress.com's reason when it gives one, or null once enqueued.
+	 */
+	private static function get_enqueue_error( $response ) {
+		$body = is_wp_error( $response ) ? null : json_decode( wp_remote_retrieve_body( $response ) );
+		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) && false !== ( $body->success ?? null ) ) {
+			return null;
+		}
+
+		$reasons = (array) ( $body->error->errors ?? array() );
+		$reason  = $reasons ? (array) reset( $reasons ) : array();
+		$reason  = $reason[0] ?? $body->message ?? null;
+		$message = is_string( $reason ) && '' !== $reason
+			/* translators: %s is the reason WordPress.com gave, such as "Unable to find a valid site." */
+			? sprintf( __( 'The scan couldn’t be started: %s', 'jetpack-protect-pkg' ), $reason )
+			: __( 'The scan couldn’t be started. Try again in a few minutes.', 'jetpack-protect-pkg' );
+
+		return new WP_Error( 'scan_not_started', $message, array( 'status' => 502 ) );
 	}
 
 	/**

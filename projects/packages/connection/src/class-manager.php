@@ -2700,6 +2700,17 @@ class Manager {
 	}
 
 	/**
+	 * Whether PHP's XML extension, which the XML-RPC connection needs, is available.
+	 *
+	 * @since 9.14.0
+	 *
+	 * @return bool
+	 */
+	protected function is_xml_extension_available() {
+		return function_exists( 'xml_parser_create' );
+	}
+
+	/**
 	 * Takes the response from the Jetpack register new site endpoint and
 	 * verifies it worked properly.
 	 *
@@ -2732,20 +2743,18 @@ class Manager {
 		} elseif ( 408 === $code ) {
 			return new \WP_Error( 'wpcom_408', $code );
 		} elseif ( ! empty( $registration_response->error ) ) {
-			if (
-				'xml_rpc-32700' === $registration_response->error
-				&& ! function_exists( 'xml_parser_create' )
-			) {
-				$error_description = __( "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension.", 'jetpack-connection' );
-			} else {
-				$error_description = isset( $registration_response->error_description )
-					? (string) $registration_response->error_description
-					: '';
+			// WordPress.com can't parse the site's XML-RPC reply without PHP's XML extension; name that cause.
+			if ( 'xml_rpc-32700' === $registration_response->error && ! $this->is_xml_extension_available() ) {
+				return new \WP_Error(
+					'xml_extension_missing',
+					__( "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension.", 'jetpack-connection' ),
+					$code
+				);
 			}
 
 			return new \WP_Error(
 				(string) $registration_response->error,
-				$error_description,
+				isset( $registration_response->error_description ) ? (string) $registration_response->error_description : '',
 				$code
 			);
 		} elseif ( 200 !== $code ) {

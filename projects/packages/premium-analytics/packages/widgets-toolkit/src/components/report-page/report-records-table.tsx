@@ -3,13 +3,13 @@
  */
 import {
 	DataViews,
+	filterSortAndPaginate,
 	type Action,
 	type Field,
 	type SupportedLayouts,
 	type View,
 } from '@jetpack-premium-analytics/externals';
-import { usePaginatedView } from '@jetpack-premium-analytics/ui';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -20,7 +20,7 @@ import './report-records-table.scss';
 import { useTableRevalidating } from './use-table-revalidating';
 import type { ComponentProps, ReactElement } from 'react';
 
-const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
+const NO_PER_PAGE_SIZES: number[] = [];
 
 /**
  * `DataViews`' own `getItemId` prop is conditionally optional on `Item` having
@@ -55,7 +55,7 @@ export interface ReportRecordsTableProps< Item > {
 	fields: Field< Item >[];
 	/** Stable id per record (post ID, country code, search term, …). */
 	getItemId: ( item: Item ) => string;
-	/** Initial view overrides (default sort, visible fields, page size, …). */
+	/** Initial view overrides (default sort, visible fields, …). */
 	initialView?: Partial< View >;
 	/** Whether rows for the current params are still loading. */
 	isLoading?: boolean;
@@ -65,8 +65,6 @@ export interface ReportRecordsTableProps< Item > {
 	searchLabel?: string;
 	/** Optional row actions. */
 	actions?: Action< Item >[];
-	/** Page size choices (defaults to 10/25/50/100). */
-	perPageSizes?: number[];
 	/**
 	 * Called after every view change, with the view the table just moved to.
 	 *
@@ -77,7 +75,7 @@ export interface ReportRecordsTableProps< Item > {
 	 * request stays scoped by a filter the table no longer shows.
 	 */
 	onChangeView?: ( view: View ) => void;
-	/** Called with the rows on the current page after client-side view processing. */
+	/** Called with the rows the table shows after client-side view processing. */
 	onChangePageItems?: ( items: Item[] ) => void;
 	/** Whether a record's primary field should render as an interactive link. */
 	isItemClickable?: ( item: Item ) => boolean;
@@ -91,8 +89,8 @@ export interface ReportRecordsTableProps< Item > {
 
 /**
  * The report page's records table: a Core DataViews table (search, sortable +
- * configurable columns, pagination) over the module's normalized report rows.
- * Filtering, sorting, and pagination run client-side via
+ * configurable columns) listing every one of the module's normalized report rows,
+ * as Calypso's "View all" pages do. Filtering and sorting run client-side via
  * `filterSortAndPaginate` — report modules return the full summarized list for
  * the selected range, so no server round-trip is needed.
  *
@@ -112,7 +110,6 @@ export function ReportRecordsTable< Item >( {
 	isFetching = false,
 	searchLabel,
 	actions,
-	perPageSizes = DEFAULT_PER_PAGE_SIZES,
 	onChangeView,
 	onChangePageItems,
 	isItemClickable,
@@ -123,7 +120,6 @@ export function ReportRecordsTable< Item >( {
 			( {
 				type: 'table',
 				page: 1,
-				perPage: perPageSizes[ 0 ] ?? 10,
 				search: '',
 				// DataViews renders only the columns listed in `view.fields` —
 				// there is no "all fields" default — so seed it with every
@@ -152,11 +148,10 @@ export function ReportRecordsTable< Item >( {
 		[ onChangeView ]
 	);
 
-	const {
-		view: effectiveView,
-		data: pageItems,
-		paginationInfo,
-	} = usePaginatedView( data, view, fields, handleChangeView );
+	const { data: pageItems, paginationInfo } = useMemo(
+		() => filterSortAndPaginate( data, view, fields ),
+		[ data, view, fields ]
+	);
 
 	useEffect( () => {
 		onChangePageItems?.( pageItems );
@@ -172,7 +167,7 @@ export function ReportRecordsTable< Item >( {
 	return (
 		<ReportPageSection className={ styles.root }>
 			<GenericDataViews< Item >
-				view={ effectiveView }
+				view={ view }
 				onChangeView={ handleChangeView }
 				fields={ fields }
 				data={ pageItems }
@@ -182,7 +177,7 @@ export function ReportRecordsTable< Item >( {
 				defaultLayouts={ { table: {} } }
 				actions={ actions }
 				searchLabel={ searchLabel }
-				config={ { perPageSizes } }
+				config={ { perPageSizes: NO_PER_PAGE_SIZES } }
 				isItemClickable={ isItemClickable }
 				renderItemLink={ renderItemLink }
 			/>
