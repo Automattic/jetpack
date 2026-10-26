@@ -14,9 +14,10 @@ jest.unstable_mockModule( '@wordpress/data', () => ( {
 	register: jest.fn(),
 } ) );
 
+const getUserConnectionUrl = jest.fn( () => '#authorize' );
 jest.unstable_mockModule( '../../../helpers/get-user-connection-url', () => ( {
 	__esModule: true,
-	getUserConnectionUrl: () => '#authorize',
+	getUserConnectionUrl,
 } ) );
 
 jest.unstable_mockModule( '../../../state/store', () => ( {
@@ -37,5 +38,16 @@ describe( 'restoreConnection', () => {
 
 		expect( result.current.restoreConnectionError ).toBe( 'Ask an administrator (Status 403)' );
 		expect( result.current.isRestoringConnection ).toBe( false );
+	} );
+
+	it( 'returns the user reconnection to the caller’s page', () => {
+		renderHook( () =>
+			useRestoreConnection( { redirectUrl: 'https://example.com/wp-admin/x.php', from: 'here' } )
+		);
+
+		expect( getUserConnectionUrl ).toHaveBeenCalledWith( {
+			redirect_url: 'https://example.com/wp-admin/x.php',
+			from: 'here',
+		} );
 	} );
 } );

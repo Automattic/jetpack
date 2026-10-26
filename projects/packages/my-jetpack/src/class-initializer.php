@@ -251,6 +251,15 @@ class Initializer {
 	 */
 	public static function use_local_module_options( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress REST filter signature.
 		if ( '/jetpack/v4/module/all' === $request->get_route() ) {
+			// Keep module activation editable when the standalone plugin is not running;
+			// a stale autoloaded VideoPress class can still attach its forcing filter.
+			if ( ! Jetpack_Constants::is_defined( 'JETPACK_VIDEOPRESS_ROOT_FILE' )
+				&& ! Products\Videopress::is_standalone_plugin_active()
+				&& remove_filter( 'jetpack_active_modules', array( \Automattic\Jetpack\VideoPress\Module_Control::class, 'add_videopress_to_array' ) )
+				&& class_exists( 'Jetpack_Modules_Overrides', false )
+			) {
+				\Jetpack_Modules_Overrides::instance()->clear_cache();
+			}
 			add_filter( 'default_option_monitor_receive_notifications', '__return_false' );
 			add_filter( 'default_option_post_by_email_address' . get_current_user_id(), '__return_false' );
 		}
@@ -971,6 +980,8 @@ class Initializer {
 				'assetsUrl'              => self::get_assets_url(),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
+				// wp_localize_script() decodes the HTML entities WordPress stores names with.
+				'userFirstName'          => (string) wp_get_current_user()->first_name,
 				'lifecycleStats'         => array(
 					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
 					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),

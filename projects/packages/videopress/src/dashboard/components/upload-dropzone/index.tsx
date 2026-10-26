@@ -5,8 +5,10 @@ import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { EmptyState, Text } from '@wordpress/ui';
-import { useVideoPressUpgrade } from '../../hooks/use-videopress-upgrade';
-import { FREE_TIER_AT_LIMIT_MESSAGE, FREE_TIER_AT_LIMIT_NOTICE_ID } from '../free-tier-notice';
+import {
+	FREE_TIER_AT_LIMIT_MESSAGE,
+	FREE_TIER_AT_LIMIT_NOTICE_ID,
+} from '../free-tier-notice/constants';
 import {
 	describeRefusal,
 	filterVideoFiles,
@@ -27,7 +29,8 @@ import type { MouseEvent } from 'react';
  * its button as refusing, while the caller keeps the FreeTierNotice and the
  * slicing of a multi-file drop down to the plan — `dataTransfer` can carry
  * several files regardless of `allowMultiple`, so `onFiles` must always expect
- * an array.
+ * an array. The caller also owns the upgrade route (`onUpgrade`), so the surface
+ * renders where the checkout workflow is not wired, such as the Top videos widget.
  *
  * REFUSING is this component's job, though, not the caller's. A drop the plan
  * or the file type can't accept used to be dropped on the floor here — the
@@ -51,6 +54,8 @@ import type { MouseEvent } from 'react';
  *                            marketing shape; Home's emptied-library state
  *                            passes the quieter "it will show up here"
  *                            promise instead.
+ * @param props.onUpgrade     - Starts the upgrade the at-limit notice offers.
+ *                            Without it the notice carries no action.
  * @return The dropzone element.
  */
 const UploadDropzone = ( {
@@ -59,17 +64,18 @@ const UploadDropzone = ( {
 	allowMultiple = false,
 	copyVariant,
 	subCopy,
+	onUpgrade,
 }: {
 	onFiles: ( files: File[] ) => void;
 	disabled?: boolean;
 	allowMultiple?: boolean;
 	copyVariant?: 'single' | 'multiple';
 	subCopy?: string;
+	onUpgrade?: () => void;
 } ) => {
 	const inputRef = useRef< HTMLInputElement >( null );
 	const [ dragging, setDragging ] = useState( false );
 	const { createErrorNotice } = useDispatch( noticesStore );
-	const runUpgrade = useVideoPressUpgrade();
 	const plural = ( copyVariant ?? ( allowMultiple ? 'multiple' : 'single' ) ) === 'multiple';
 	const dropzoneClassName = `vp-upload-dropzone${ dragging ? ' is-dragging' : '' }${
 		disabled ? ' is-disabled' : ''
@@ -82,10 +88,12 @@ const UploadDropzone = ( {
 	const rejectAtLimit = useCallback( () => {
 		createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
 			id: FREE_TIER_AT_LIMIT_NOTICE_ID,
-			actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
+			actions: onUpgrade
+				? [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: onUpgrade } ]
+				: [],
 			type: 'snackbar',
 		} );
-	}, [ createErrorNotice, runUpgrade ] );
+	}, [ createErrorNotice, onUpgrade ] );
 
 	// Everything that arrives as files — a drop, or the picker's change —
 	// lands here so the type filter and the limit are enforced once. Rejecting

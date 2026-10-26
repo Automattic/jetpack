@@ -88,3 +88,15 @@ export const LockedBuckets: Story = {
 		/>
 	),
 };
+
+export const UnavailableBuckets: Story = {
+	render: () => (
+		<DateIntervalDropdownWithState
+			options={ [ 'week', 'month' ] }
+			unavailableOptions={ [ 'day' ] }
+			unavailableHint="Switch to the line chart to see each day."
+			initialValue="week"
+			withLabel
+		/>
+	),
+};

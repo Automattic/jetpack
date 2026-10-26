@@ -55,9 +55,14 @@ const getMetricLabel = metric => {
  *
  * @param {object} apiData        - Data from WordPress.com stats API with fields and data arrays
  * @param {string} selectedMetric - The metric to display (views, visitors, likes, comments)
+ * @param {string} stroke         - The series color.
  * @return {Array} SeriesData array formatted for BarChart component
  */
-const transformStatsDataForChart = ( apiData, selectedMetric = 'views' ) => {
+export const transformStatsDataForChart = (
+	apiData,
+	selectedMetric = 'views',
+	stroke = '#008710' // Jetpack green (--jp-green-50)
+) => {
 	if ( ! apiData || ! apiData.fields || ! apiData.data || ! Array.isArray( apiData.data ) ) {
 		return [];
 	}
@@ -81,9 +86,7 @@ const transformStatsDataForChart = ( apiData, selectedMetric = 'views' ) => {
 				date: new Date( dataPoint[ periodIndex ] + 'T00:00:00' ), // This ensures the date represents midnight in the local timezone rather than UTC midnight converted to local time.
 				value: dataPoint[ metricIndex ] || 0,
 			} ) ),
-			options: {
-				stroke: '#008710', // Jetpack green (--jp-green-50) #008710
-			},
+			options: { stroke },
 		},
 	];
 };
@@ -115,8 +118,6 @@ const getDynamicTitle = metric => {
  * @param {boolean}  props.isLoading            - Whether the data is loading.
  * @param {string}   props.detailedStatsHref    - Destination of the detailed stats link.
  * @param {Function} props.onDetailedStatsClick - Function to handle detailed stats click.
- * @param {boolean}  [props.hideTitle]          - Whether to leave out the linked title, when a container already has one.
- * @param {boolean}  [props.chartBelowCounts]   - Whether to show the chart after the counts instead of before them.
  *
  * @return {import('react').JSX.Element} StatsCards React component.
  */
@@ -128,8 +129,6 @@ const StatsCards = ( {
 	isLoading,
 	detailedStatsHref,
 	onDetailedStatsClick,
-	hideTitle = false,
-	chartBelowCounts = false,
 } ) => {
 	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
 
@@ -173,36 +172,30 @@ const StatsCards = ( {
 		return icons[ metric ] || icons.views;
 	}, [] );
 
-	const chart = (
-		<StatsChart
-			data={ transformedChartData }
-			isLoading={ isLoading }
-			href={ detailedStatsHref }
-			onClick={ onDetailedStatsClick }
-			selectedMetric={ selectedMetric }
-			metricIcon={ getMetricIcon( selectedMetric ) }
-		/>
-	);
-
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
-			{ ! hideTitle && (
-				<Link
-					tone="neutral"
-					className={ styles[ 'section-title-container' ] }
-					href={ detailedStatsHref }
-					onClick={ detailedStatsHref ? onDetailedStatsClick : undefined }
-				>
-					<Heading className={ styles[ 'section-title' ] }>
-						<span>{ getDynamicTitle( selectedMetric ) }</span>
-					</Heading>
-					<div>
-						<Icon icon={ chevronRight } />
-					</div>
-				</Link>
-			) }
+			<Link
+				tone="neutral"
+				className={ styles[ 'section-title-container' ] }
+				href={ detailedStatsHref }
+				onClick={ detailedStatsHref ? onDetailedStatsClick : undefined }
+			>
+				<Heading className={ styles[ 'section-title' ] }>
+					<span>{ getDynamicTitle( selectedMetric ) }</span>
+				</Heading>
+				<div>
+					<Icon icon={ chevronRight } />
+				</div>
+			</Link>
 
-			{ ! chartBelowCounts && chart }
+			<StatsChart
+				data={ transformedChartData }
+				isLoading={ isLoading }
+				href={ detailedStatsHref }
+				onClick={ onDetailedStatsClick }
+				selectedMetric={ selectedMetric }
+				metricIcon={ getMetricIcon( selectedMetric ) }
+			/>
 
 			<ul className={ clsx( styles[ 'cards-list' ], styles[ 'my-jetpack-stats-cards' ] ) }>
 				<CountComparisonCard
@@ -266,7 +259,6 @@ const StatsCards = ( {
 					onClick={ handleCommentsClick }
 				/>
 			</ul>
-			{ chartBelowCounts && chart }
 		</div>
 	);
 };
