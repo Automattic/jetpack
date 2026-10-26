@@ -9,7 +9,7 @@ import LastScanned from './last-scanned';
 import SafeState from './safe-state';
 import ScanUpsell from './scan-upsell';
 import ScanningState from './scanning-state';
-import { checkScanAgain, startScan, useIsScanning, useScan, useScanRequest } from './store';
+import { checkScanAgain, useIsScanning, useScan, useScanRequest } from './store';
 import { loadIgnored } from './threat-actions';
 import threatsIcon from './threats-icon';
 import ThreatsList from './threats-list';
@@ -22,7 +22,7 @@ const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
 const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
 
 /**
- * The Scan card: start a scan, then review what it found or see that the site is safe.
+ * The Scan card: what the latest scan found, or that it found nothing; scans start from the page header.
  *
  * @param props         - Component props.
  * @param props.openTab - Switches dashboard tabs, for the link to Scan history.
@@ -69,13 +69,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	}, [] );
 
 	const safeState = (
-		<SafeState
-			key={ finishedScans }
-			scan={ scan }
-			isStarting={ isStarting }
-			onScan={ startScan }
-			justScanned={ finishedScans > 0 }
-		/>
+		<SafeState key={ finishedScans } scan={ scan } justScanned={ finishedScans > 0 } />
 	);
 
 	let body;
