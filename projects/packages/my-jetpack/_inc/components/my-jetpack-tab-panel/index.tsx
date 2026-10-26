@@ -2,6 +2,7 @@ import { TabPanel } from '@wordpress/components';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
+import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import { FullWidthSeparator } from './full-width-separator';
@@ -112,6 +113,11 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] ); // track this only on page load
+
+	const [ , setLastTabPath ] = useValueStore( 'lastTabPath', null );
+	useEffect( () => {
+		setLastTabPath( `/${ currentTab }` );
+	}, [ currentTab, setLastTabPath ] );
 
 	const tabs = useMemo( () => getMyJetpackSections(), [] );
 

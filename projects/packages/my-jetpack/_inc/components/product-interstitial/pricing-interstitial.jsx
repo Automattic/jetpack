@@ -63,7 +63,7 @@ export default function PricingInterstitial( { slug } ) {
 	const bundleSlug = proIsOnSale ? preferredBundle : fallbackBundle;
 	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( bundleSlug );
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
+	const { onClickGoBack, backTo } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
@@ -436,7 +436,7 @@ export default function PricingInterstitial( { slug } ) {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ handleGoBack }
-					to={ MyJetpackRoutes.Features }
+					to={ backTo }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
