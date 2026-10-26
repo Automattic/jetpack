@@ -95,6 +95,7 @@ describe( 'threat action Tracks events', () => {
 	// Runs the fix's polling out on fake timers, past the point where the dashboard gives up.
 	const fixTimingOut = async ( item: Parameters< typeof fixThreat >[ 0 ] ) => {
 		jest.useFakeTimers();
+		mockApiFetch.mockClear();
 		try {
 			const fixing = fixThreat( item );
 			await jest.runAllTimersAsync();
@@ -102,6 +103,8 @@ describe( 'threat action Tracks events', () => {
 		} finally {
 			jest.useRealTimers();
 		}
+		// One start and 100 polls: the polling cap ended the fix, not an error.
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 101 );
 	};
 
 	it.each( [
