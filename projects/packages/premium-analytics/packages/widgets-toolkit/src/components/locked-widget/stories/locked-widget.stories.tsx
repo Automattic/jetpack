@@ -1,3 +1,4 @@
+import { withStoryRouter } from '../../../../../../widgets/stories/with-story-router';
 import { LockedPage, LockedWidget } from '../locked-widget';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { ReactNode } from 'react';
@@ -33,6 +34,8 @@ const meta: Meta< typeof LockedWidget > = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/LockedWidget',
 	component: LockedWidget,
 	tags: [ 'autodocs' ],
+	// On Jetpack sites the upgrade button is a router link.
+	decorators: [ withStoryRouter ],
 	parameters: {
 		layout: 'centered',
 		docs: {

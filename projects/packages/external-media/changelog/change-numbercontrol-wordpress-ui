@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Google Photos: Remove the unused filters for the legacy, non-picker view.
