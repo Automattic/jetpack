@@ -10,11 +10,17 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\REST;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
+use Automattic\Jetpack\Sharing_Likes\Hooked_Blocks\Template_Placements;
+use Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_Environment;
+use Automattic\Jetpack\Sharing_Likes\Settings\Section_State;
 use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Resources;
+use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section;
 use Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../lib/class-sharing-service.php';
@@ -48,7 +54,7 @@ class Settings_Controller_Test extends BaseTestCase {
 	public function tear_down() {
 		unset( $GLOBALS['sharing_likes_test_global_options'] );
 
-		foreach ( array( 'sharing-options', 'sharing-services', 'disabled_likes', 'disabled_reblogs', 'jetpack_comment_likes_enabled', Twitter_Site_Tag::OPTION, Sharing_Resources::OPTION ) as $option ) {
+		foreach ( array_merge( array( 'sharing-options', 'sharing-services', 'disabled_likes', 'disabled_reblogs', 'jetpack_comment_likes_enabled', Twitter_Site_Tag::OPTION, Sharing_Resources::OPTION ), Template_Placements::OPTIONS ) as $option ) {
 			delete_option( $option );
 		}
 
@@ -65,6 +71,34 @@ class Settings_Controller_Test extends BaseTestCase {
 	private function given_both_features_running(): void {
 		$this->given_connection( true );
 		$this->given_modules( array( 'sharedaddy', 'likes' ) );
+	}
+
+	/**
+	 * Put one feature's section in a variant, on a connected site where the other feature is off.
+	 *
+	 * @param string $feature `sharing` or `likes`.
+	 * @param string $state   One of the `Section_State` constants.
+	 */
+	private function given_section( string $feature, string $state ): void {
+		$this->given_connection( true );
+
+		if ( in_array( $state, array( Section_State::BLOCK_CALL_TO_ACTION, Section_State::CONFIGURE_WITH_BLOCK_NUDGE ), true ) ) {
+			$this->given_block_theme();
+			$this->given_block( 'likes' === $feature ? Block_Names::LIKE : Block_Names::SHARING_BUTTONS );
+		}
+
+		$running = in_array( $state, array( Section_State::CONFIGURE, Section_State::CONFIGURE_WITH_BLOCK_NUDGE ), true );
+		$this->given_modules( $running ? array( 'likes' === $feature ? 'likes' : 'sharedaddy' ) : array() );
+	}
+
+	/**
+	 * Both sections in `BLOCK_CALL_TO_ACTION`, so both placement settings are offered.
+	 */
+	private function given_both_block_routes(): void {
+		$this->given_connection( true );
+		$this->given_block_theme();
+		$this->given_block( Block_Names::SHARING_BUTTONS );
+		$this->given_block( Block_Names::LIKE );
 	}
 
 	/**
@@ -338,7 +372,7 @@ class Settings_Controller_Test extends BaseTestCase {
 	public function test_rejects_turning_likes_back_on_after_simple_switched_to_the_block(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
+		$this->given_block( Block_Names::LIKE );
 		update_option( 'disabled_likes', 1 );
 		update_option( 'disabled_reblogs', 1 );
 
@@ -447,8 +481,8 @@ class Settings_Controller_Test extends BaseTestCase {
 	public function test_leaves_out_likes_settings_for_comment_likes_on_simple_after_the_switch(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
-		$this->given_block( 'jetpack/sharing-buttons' );
+		$this->given_block( Block_Names::LIKE );
+		$this->given_block( Block_Names::SHARING_BUTTONS );
 		update_option( 'disabled_likes', 1 );
 		update_option( 'disabled_reblogs', 1 );
 		update_option(
@@ -475,5 +509,157 @@ class Settings_Controller_Test extends BaseTestCase {
 
 		$this->assertSame( 400, $response->get_status() );
 		$this->assertArrayNotHasKey( 'sharing_likes_test_global_options', $GLOBALS );
+	}
+
+	/**
+	 * Saved anywhere else, a placement would lie idle until the legacy feature goes off and then switch on unasked, or target a site that cannot render the block.
+	 *
+	 * @dataProvider provide_placement_variants
+	 *
+	 * @param string $setting Placement setting.
+	 * @param string $feature `sharing` or `likes`.
+	 * @param string $state   Variant the feature's section renders.
+	 * @param bool   $offline Whether the site is in offline mode.
+	 * @param bool   $offered Whether the setting is offered.
+	 */
+	#[DataProvider( 'provide_placement_variants' )]
+	public function test_offers_each_placement_only_where_its_section_invites_the_block( string $setting, string $feature, string $state, bool $offline, bool $offered ): void {
+		$this->given_section( $feature, $state );
+		if ( $offline ) {
+			$this->given_offline_mode();
+		}
+		$this->assertSame( $state, 'likes' === $feature ? Likes_Section::state() : Sharing_Section::state(), 'The site is not in the intended variant.' );
+
+		$read     = $this->request( 'GET', 'settings' )->get_data();
+		$response = $this->request(
+			'POST',
+			'settings',
+			array(
+				$setting           => array( Template_Placements::AFTER_CONTENT ),
+				'twitter_site_tag' => 'jetpack',
+			)
+		);
+
+		$this->assertSame( $offered, array_key_exists( $setting, $read ) );
+		if ( $offered ) {
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertSame( array( Template_Placements::AFTER_CONTENT ), Template_Placements::get( $feature ) );
+			$this->assertSame( 'jetpack', get_option( Twitter_Site_Tag::OPTION ) );
+		} else {
+			$this->assertSame( 'rest_sharing_likes_setting_unavailable', $response->get_data()['code'] );
+			$this->assertFalse( get_option( Template_Placements::OPTIONS[ $feature ] ) );
+			$this->assertFalse( get_option( Twitter_Site_Tag::OPTION ), 'A refused save wrote the rest of the request.' );
+		}
+	}
+
+	/**
+	 * Every section variant, for each placement setting.
+	 *
+	 * @return array<string, array{string, string, string, bool, bool}>
+	 */
+	public static function provide_placement_variants(): array {
+		$rows = array();
+
+		foreach ( array(
+			'sharing_buttons_auto_add' => 'sharing',
+			'likes_auto_add'           => 'likes',
+		) as $setting => $feature ) {
+			foreach ( array( Section_State::BLOCK_CALL_TO_ACTION, Section_State::CONFIGURE_WITH_BLOCK_NUDGE, Section_State::CONFIGURE, Section_State::OFF ) as $state ) {
+				$rows[ "$feature, $state" ] = array( $setting, $feature, $state, false, Section_State::BLOCK_CALL_TO_ACTION === $state );
+			}
+		}
+
+		$rows['likes, block_call_to_action in offline mode'] = array( 'likes_auto_add', 'likes', Section_State::BLOCK_CALL_TO_ACTION, true, false );
+
+		return $rows;
+	}
+
+	/**
+	 * A request the writer would trim must fail validation, or the screen would show a save that did not happen.
+	 *
+	 * @dataProvider provide_invalid_placements
+	 *
+	 * @param string $setting Placement setting.
+	 * @param mixed  $value   What the request sends.
+	 */
+	#[DataProvider( 'provide_invalid_placements' )]
+	public function test_refuses_placements_the_writer_would_change( string $setting, $value ): void {
+		$this->given_both_block_routes();
+		Template_Placements::update( Template_Placements::FEATURE_SHARING, array( Template_Placements::BEFORE_CONTENT ) );
+		Template_Placements::update( Template_Placements::FEATURE_LIKES, array( Template_Placements::BEFORE_CONTENT ) );
+
+		$response = $this->request(
+			'POST',
+			'settings',
+			array(
+				$setting           => $value,
+				'twitter_site_tag' => 'jetpack',
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+		$this->assertSame( array( Template_Placements::BEFORE_CONTENT ), Template_Placements::get( Template_Placements::FEATURE_SHARING ) );
+		$this->assertSame( array( Template_Placements::BEFORE_CONTENT ), Template_Placements::get( Template_Placements::FEATURE_LIKES ) );
+		$this->assertFalse( get_option( Twitter_Site_Tag::OPTION ) );
+	}
+
+	/**
+	 * Values the schema refuses.
+	 *
+	 * @return array<string, array{string, mixed}>
+	 */
+	public static function provide_invalid_placements(): array {
+		return array(
+			'both sides'                      => array( 'sharing_buttons_auto_add', array( 'before_content', 'after_content' ) ),
+			'the same side twice'             => array( 'likes_auto_add', array( 'after_content', 'after_content' ) ),
+			'a placement that does not exist' => array( 'sharing_buttons_auto_add', array( 'post_lists' ) ),
+		);
+	}
+
+	/**
+	 * `update_option()` returns false when nothing changes, so a save checking it would fail the second identical save.
+	 *
+	 * @dataProvider provide_placement_settings
+	 *
+	 * @param string $setting Placement setting.
+	 */
+	#[DataProvider( 'provide_placement_settings' )]
+	public function test_placements_round_trip( string $setting ): void {
+		$this->given_both_block_routes();
+		$before = array( Template_Placements::BEFORE_CONTENT );
+
+		$first  = $this->request( 'POST', 'settings', array( $setting => $before ) );
+		$second = $this->request( 'POST', 'settings', array( $setting => $before ) );
+
+		$this->assertSame( $before, $first->get_data()[ $setting ] );
+		$this->assertSame( 200, $second->get_status() );
+		$this->assertSame( $before, $this->request( 'GET', 'settings' )->get_data()[ $setting ] );
+
+		$this->request( 'POST', 'settings', array( $setting => array() ) );
+
+		$this->assertSame( array(), $this->request( 'GET', 'settings' )->get_data()[ $setting ] );
+	}
+
+	/**
+	 * Both placement settings.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function provide_placement_settings(): array {
+		return array(
+			'sharing buttons' => array( 'sharing_buttons_auto_add' ),
+			'likes'           => array( 'likes_auto_add' ),
+		);
+	}
+
+	/**
+	 * The old auto-add code stored a boolean; read raw, the screen would get a scalar where it expects a list.
+	 */
+	public function test_reads_the_legacy_sharing_placement_as_after_the_content(): void {
+		$this->given_both_block_routes();
+		update_option( Template_Placements::OPTIONS[ Template_Placements::FEATURE_SHARING ], '1' );
+
+		$this->assertSame( array( Template_Placements::AFTER_CONTENT ), $this->request( 'GET', 'settings' )->get_data()['sharing_buttons_auto_add'] );
 	}
 }

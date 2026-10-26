@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Backup: Open the Backup page in wp-admin from the Jetpack menu, instead of on WordPress.com. Return false from the `rsm_jetpack_ui_modernization_backup` filter to keep the WordPress.com link.

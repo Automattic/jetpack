@@ -97,8 +97,8 @@ class Backup_Abilities extends Registrar {
 	 * Is the Jetpack Backup product actually loaded on this site?
 	 *
 	 * True when a plugin that ships Backup is active and the site has a Backup plan. Deliberately
-	 * not `My_Jetpack\Products\Backup::is_active()`: that also follows the backup module, which only
-	 * switches the wp-admin dashboard, while backups keep running on WordPress.com. The plan lookup
+	 * not `My_Jetpack\Products\Backup::is_active()`: next to an older Jetpack plugin that still
+	 * follows the backup module, while backups keep running on WordPress.com. The plan lookup
 	 * is cached in `MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY`.
 	 *
 	 * The `jetpack_backup_abilities_should_load` filter lets consumers and
@@ -392,25 +392,24 @@ class Backup_Abilities extends Registrar {
 	}
 
 	/**
-	 * Permission check for read abilities. Gates on `manage_options` to
-	 * match the existing REST controller (see
-	 * Jetpack_Backup::backups_permissions_callback). Kept separate from
-	 * `can_manage_backups()` so the read and write surfaces can diverge
-	 * later without touching every spec.
+	 * Permission check for read abilities: the REST routes' own check,
+	 * Jetpack_Backup::backups_permissions_callback(), whose error names the reason.
+	 * Kept separate from `can_manage_backups()` so the read and write surfaces
+	 * can diverge later without touching every spec.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
-	public static function can_view_backups(): bool {
-		return current_user_can( 'manage_options' );
+	public static function can_view_backups() {
+		return Jetpack_Backup::backups_permissions_callback();
 	}
 
 	/**
 	 * Permission check for write abilities. See `can_view_backups()`.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
-	public static function can_manage_backups(): bool {
-		return current_user_can( 'manage_options' );
+	public static function can_manage_backups() {
+		return Jetpack_Backup::backups_permissions_callback();
 	}
 
 	/**

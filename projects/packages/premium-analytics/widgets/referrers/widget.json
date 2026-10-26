@@ -4,7 +4,7 @@
 	"title": "Top referrers",
 	"description": "Websites and search engines referring visitors to your site.",
 	"help": {
-		"content": "The sources that sent the most visitors to your site, sorted by clicks.",
+		"content": "The sources that sent the most visitors to your site, sorted by views.",
 		"links": [
 			{
 				"label": "Learn more",
@@ -13,5 +13,13 @@
 		]
 	},
 	"category": "traffic",
-	"presentation": "framed"
+	"presentation": "framed",
+	"actions": [
+		{
+			"id": "view-all",
+			"label": "View all",
+			"relevance": "high",
+			"href": "admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Freferrers"
+		}
+	]
 }

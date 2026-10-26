@@ -50,4 +50,11 @@
 	[class*="__widget-header"][class*="__overlay"] {
 		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
 	}
+
+	// The same pin as routes/dashboard/stage.module.scss, which explains it.
+	// TODO: remove once WordPress/gutenberg#85231 lands.
+	[class*="__widget-footer"] {
+		block-size: 44px;
+		padding-block: 0;
+	}
 }

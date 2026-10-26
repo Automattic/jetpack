@@ -4,22 +4,23 @@
 import { useStatsCommentsRows } from '@jetpack-premium-analytics/data';
 import {
 	Leaderboard,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	describeError,
-	ExporterCsvDownloadButton,
 	commentsAuthorsCsvExporter,
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { type MostCommentedAuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type MostCommentedAuthorsAttributes = Record< never, never >;
 
 type MostCommentedAuthorsRenderAttributes = MostCommentedAuthorsAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -51,9 +52,19 @@ function MostCommentedAuthorsInner() {
 		[ rows ]
 	);
 
+	useReportActions( {
+		csv: {
+			exporter: commentsAuthorsCsvExporter,
+			status: { isLoading, isFetching, isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
 		<Leaderboard
+			chartTitle={ __( 'All-time most commented authors', 'jetpack-premium-analytics-pkg' ) }
 			rows={ leaderboardRows }
+			columns={ { label: __( 'Authors', 'jetpack-premium-analytics-pkg' ), metric: 'comments' } }
 			status={ { isLoading, isFetching, isError, refetch } }
 			error={ describeError( error, {
 				retryDescription: __(
@@ -65,20 +76,6 @@ function MostCommentedAuthorsInner() {
 			empty={ {
 				description: __( 'You don’t have comments recorded yet.', 'jetpack-premium-analytics-pkg' ),
 			} }
-			footer={
-				<>
-					<ReportLink
-						report="comments"
-						section="authors"
-						ariaLabel={ __( 'See the comment authors report', 'jetpack-premium-analytics-pkg' ) }
-					/>
-					<ExporterCsvDownloadButton
-						exporter={ commentsAuthorsCsvExporter }
-						status={ { isLoading, isFetching, isError } }
-						rowCount={ rows.length }
-					/>
-				</>
-			}
 		/>
 	);
 }

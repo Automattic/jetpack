@@ -19,6 +19,11 @@
 		}
 	},
 	"attributes": {
+		"emptyState": {
+			"type": "string",
+			"enum": [ "none", "author", "all" ],
+			"default": "none"
+		},
 		"count": {
 			"type": "integer",
 			"default": 5
@@ -80,6 +85,28 @@
 		"entryTitleFontFamily": {
 			"type": "string",
 			"default": ""
+		},
+		"orderBy": {
+			"type": "string",
+			"enum": [ "newest", "oldest", "popular" ],
+			"default": "newest"
+		},
+		"showBrowseControls": {
+			"type": "boolean",
+			"default": false
+		},
+		"pagination": {
+			"type": "string",
+			"enum": [ "none", "numbered" ],
+			"default": "none"
+		},
+		"excludeCurrent": {
+			"type": "boolean",
+			"default": false
+		},
+		"showMeta": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"editorScript": "file:./index.js",

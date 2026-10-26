@@ -2,11 +2,5 @@
 	"name": "@automattic/jetpack-woocommerce-stats-widget-sales-by-device",
 	"version": "0.1.0-alpha",
 	"private": true,
-	"type": "module",
-	"dependencies": {
-		"@automattic/jetpack-premium-analytics-sdk": "workspace:*",
-		"@wordpress/i18n": "^6.9.0",
-		"@wordpress/widget-primitives": "0.9.0",
-		"react": "18.3.1"
-	}
+	"type": "module"
 }

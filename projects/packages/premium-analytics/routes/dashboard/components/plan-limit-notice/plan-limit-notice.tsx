@@ -7,7 +7,6 @@ import {
 	useStatsAppNoticeMutation,
 	useStatsAppNotices,
 	useStatsAppPlanUsage,
-	type StatsAppPlanUsage,
 } from '@jetpack-premium-analytics/data';
 import { Notice } from '@jetpack-premium-analytics/externals';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -17,19 +16,13 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getPlanUpgradeUrl } from '../stats-settings/plan-usage';
+import { getPlanLimitStatus } from '../../../plan-limit-status';
+import { usePlanUpgradeLinkProps } from '../stats-settings/plan-usage';
 import styles from './plan-limit-notice.module.scss';
 import type { JSX } from 'react';
 
-// The share of the limit at which Stats starts warning, matching Calypso.
-const NEAR_LIMIT_USAGE_RATIO = 0.9;
-
 // Stats postpones this notice for a week, and the state is shared with it.
 const POSTPONE_SECONDS = 7 * 24 * 60 * 60;
-
-type PlanLimitStatus = {
-	isOver: boolean;
-};
 
 // Once per page load, not per mount: every section tab mounts its own copy.
 const viewedThisLoad = new Set< string >();
@@ -39,27 +32,6 @@ const viewedThisLoad = new Set< string >();
  */
 export function resetPlanLimitNoticeForTesting() {
 	viewedThisLoad.clear();
-}
-
-/**
- * Where this cycle's views stand against the plan's limit. A missing or zero
- * limit means there is nothing to meter against.
- *
- * @param usage - The plan usage report.
- * @return The status once usage reaches 90% of the limit, otherwise `null`.
- */
-function getPlanLimitStatus( usage?: StatsAppPlanUsage ): PlanLimitStatus | null {
-	const limit = usage?.views_limit;
-	if ( ! limit ) {
-		return null;
-	}
-
-	const used = usage.current_usage?.views_count ?? 0;
-	if ( used < limit * NEAR_LIMIT_USAGE_RATIO ) {
-		return null;
-	}
-
-	return { isOver: used >= limit };
 }
 
 /**
@@ -87,6 +59,7 @@ function ConnectedNotice(): JSX.Element | null {
 			),
 	} );
 	const trackEvent = useTrackEvent();
+	const upgradeLink = usePlanUpgradeLinkProps( 'jetpack-premium-analytics-plan-limit-notice' );
 
 	const isHeld = isNear && ( ! notices || notices.tier_upgrade === false );
 	const statusName = status?.isOver ? 'over' : 'near';
@@ -115,8 +88,6 @@ function ConnectedNotice(): JSX.Element | null {
 		return null;
 	}
 
-	const upgradeHref = getPlanUpgradeUrl( 'jetpack-premium-analytics-plan-limit-notice' );
-
 	const { isOver } = status;
 	const title = isOver
 		? __( 'You have reached your views limit', 'jetpack-premium-analytics-pkg' )
@@ -136,9 +107,9 @@ function ConnectedNotice(): JSX.Element | null {
 			<Notice.Title>{ title }</Notice.Title>
 			<Notice.Description>{ description }</Notice.Description>
 
-			{ upgradeHref && (
+			{ upgradeLink && (
 				<Notice.Actions>
-					<Notice.ActionLink href={ upgradeHref } onClick={ recordUpgradeClick }>
+					<Notice.ActionLink { ...upgradeLink } onClick={ recordUpgradeClick }>
 						{ __( 'Upgrade now', 'jetpack-premium-analytics-pkg' ) }
 					</Notice.ActionLink>
 				</Notice.Actions>

@@ -7,5 +7,6 @@ export const mockJetpackScriptData = {
 	getScriptData: jest.fn(),
 	getAdminUrl: jest.fn( ( path: string ) => `https://example.com/wp-admin/${ path }` ),
 	isSimpleSite: jest.fn( () => false ),
+	isWpcomPlatformSite: jest.fn( () => false ),
 	currentUserCan: jest.fn(),
 };

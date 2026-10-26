@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\REST;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Controller;
@@ -65,6 +66,13 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	private const CACHE_GENERATIONS_OPTION = 'jetpack_premium_analytics_proxy_cache_generations';
 
 	/**
+	 * The generations entry that every cached read is keyed under, whatever its scope.
+	 *
+	 * @var string
+	 */
+	private const ALL_SCOPES = '*';
+
+	/**
 	 * Timeout for the outbound WPCOM request, in seconds.
 	 *
 	 * @var int
@@ -116,6 +124,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  attributes a submission to a person cannot resolve one on its own (it falls
 	 *                  back to the site's first administrator). The only body rewrite this proxy
 	 *                  does; see `inject_user_email()`.
+	 *  - `forward_visitor_ip` (bool, optional) Send the visitor's IP as `X-Forwarded-For`, and cache
+	 *                  per IP, when the request has no `currency` query param. For endpoints that answer by the
+	 *                  requester's location, such as prices, which the site's server would otherwise stand in for.
 	 *  - `unauthenticated` (bool, optional) Forward reads WITHOUT signing (plain HTTP, like
 	 *                  stats-admin's Odyssey proxy does for post likes). For WPCOM endpoints
 	 *                  that reject blog-token auth but serve public data without credentials.
@@ -165,6 +176,12 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		'upgrades'                      => array(
 			'capability' => 'view_stats',
 			'path'       => '/upgrades?site=%d',
+		),
+		// Stats tier prices: in the `currency` the caller passes, else for the visitor's location.
+		'products'                      => array(
+			'capability'         => 'view_stats',
+			'path'               => '/sites/%d/products?type=jetpack',
+			'forward_visitor_ip' => true,
 		),
 		'posts'                         => array(
 			'capability'      => 'view_stats',
@@ -397,13 +414,14 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			$request,
 			$this->build_data_path( $endpoint ),
 			array(
-				'version'           => $version,
-				'base'              => $this->base_for_version( $version ),
-				'bust_on_write'     => $this->busts_cache( $endpoint ),
-				'invalidates'       => $config['invalidates'] ?? array(),
-				'cache_scope'       => $this->cache_scope_for( $endpoint ),
-				'unauthenticated'   => ! empty( $config['unauthenticated'] ),
-				'inject_user_email' => ! empty( $config['inject_user_email'] ),
+				'version'            => $version,
+				'base'               => $this->base_for_version( $version ),
+				'bust_on_write'      => $this->busts_cache( $endpoint ),
+				'invalidates'        => $config['invalidates'] ?? array(),
+				'cache_scope'        => $this->cache_scope_for( $endpoint ),
+				'unauthenticated'    => ! empty( $config['unauthenticated'] ),
+				'inject_user_email'  => ! empty( $config['inject_user_email'] ),
+				'forward_visitor_ip' => ! empty( $config['forward_visitor_ip'] ),
 			)
 		);
 	}
@@ -538,20 +556,47 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * The current generation of a cache scope, or '' for an unscoped read.
+	 * Make every cached read stale, as when a purchase changes what WPCOM returns.
+	 *
+	 * @since 0.13.0
+	 *
+	 * @return void
+	 */
+	public static function invalidate_cache(): void {
+		self::bump_cache_generation( self::ALL_SCOPES );
+	}
+
+	/**
+	 * The stored generation of each cache scope, keyed by scope.
+	 *
+	 * @return array<string, int>
+	 */
+	private static function cache_generations(): array {
+		$generations = get_option( self::CACHE_GENERATIONS_OPTION, array() );
+
+		return is_array( $generations ) ? $generations : array();
+	}
+
+	/**
+	 * The cache-key suffix: the all-scopes generation once bumped, then the read's scope generation, or '' when neither applies.
 	 *
 	 * @param string|null $scope The `invalidates` entry covering the read.
 	 *
 	 * @return string
 	 */
 	private function cache_generation( ?string $scope ): string {
-		if ( null === $scope ) {
-			return '';
+		$generations = self::cache_generations();
+
+		$parts = array();
+		// Left out until first bumped, so keys cached before it existed stay valid.
+		if ( ! empty( $generations[ self::ALL_SCOPES ] ) ) {
+			$parts[] = self::ALL_SCOPES . ':' . (int) $generations[ self::ALL_SCOPES ];
+		}
+		if ( null !== $scope ) {
+			$parts[] = $scope . ':' . (int) ( $generations[ $scope ] ?? 0 );
 		}
 
-		$generations = get_option( self::CACHE_GENERATIONS_OPTION, array() );
-
-		return $scope . ':' . (int) ( is_array( $generations ) ? ( $generations[ $scope ] ?? 0 ) : 0 );
+		return implode( '|', $parts );
 	}
 
 	/**
@@ -561,10 +606,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *
 	 * @return void
 	 */
-	private function bump_cache_generation( string $scope ): void {
+	private static function bump_cache_generation( string $scope ): void {
 		$scope       = strtolower( $scope );
-		$generations = get_option( self::CACHE_GENERATIONS_OPTION, array() );
-		$generations = is_array( $generations ) ? $generations : array();
+		$generations = self::cache_generations();
 
 		$generations[ $scope ] = (int) ( $generations[ $scope ] ?? 0 ) + 1;
 		update_option( self::CACHE_GENERATIONS_OPTION, $generations, false );
@@ -575,7 +619,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request      $request    Request object.
 	 * @param string               $wpcom_path WPCOM path without the forwarded query string.
-	 * @param array<string, mixed> $opts       version | base | bust_on_write | invalidates | cache_scope | cache overrides.
+	 * @param array<string, mixed> $opts       version | base | bust_on_write | invalidates | cache_scope | forward_visitor_ip | cache overrides.
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -588,8 +632,17 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			&& ( $opts['cache'] ?? true )
 			&& null === $request->get_param( 'force_refresh' );
 
+		// A passed currency sets the prices on its own, so requests in it share one cache entry.
+		$forwarded  = $this->get_forwarded_params( $request, $wpcom_path );
+		$visitor_ip = '';
+		if ( ! empty( $opts['forward_visitor_ip'] ) && ! isset( $forwarded['currency'] ) ) {
+			$visitor_ip = ( new Visitor() )->get_ip( true );
+		}
+		// No query param or configured `path` can put a `#` in the path, so a caller cannot forge this key.
+		$key_path = '' !== $visitor_ip ? $wpcom_path . '#ip=' . $visitor_ip : $wpcom_path;
+
 		$cache_key = $cacheable
-			? $this->cache_key_for( $wpcom_path, $version, $base, $this->get_forwarded_params( $request ), $this->cache_generation( $opts['cache_scope'] ?? null ) )
+			? $this->cache_key_for( $key_path, $version, $base, $forwarded, $opts['cache_scope'] ?? null )
 			: null;
 		if ( null !== $cache_key ) {
 			$cached = get_transient( $cache_key );
@@ -625,6 +678,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( ! $is_read ) {
 			$body            = $this->inject_user_email( (string) $request->get_body(), $opts );
 			$args['headers'] = array( 'Content-Type' => 'application/json' );
+		}
+		if ( '' !== $visitor_ip ) {
+			$args['headers']['X-Forwarded-For'] = $visitor_ip;
 		}
 
 		// The signer hashes '' like any body, then refuses to sign a hash on an empty one.
@@ -734,7 +790,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		}
 
 		foreach ( $opts['invalidates'] ?? array() as $scope ) {
-			$this->bump_cache_generation( $scope );
+			self::bump_cache_generation( $scope );
 		}
 	}
 
@@ -819,7 +875,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @return string
 	 */
 	private function append_forwarded_params( WP_REST_Request $request, string $wpcom_path ): string {
-		$params = $this->get_forwarded_params( $request );
+		$params = $this->get_forwarded_params( $request, $wpcom_path );
 		if ( empty( $params ) ) {
 			return $wpcom_path;
 		}
@@ -832,36 +888,43 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	/**
 	 * Query params to forward to WPCOM, minus the WordPress routing params, the proxy's own
 	 * control params (`endpoint`, `version`, `force_refresh` — which a caller could also pass as
-	 * query params since `get_param()` prefers GET), and `site` (the proxy pins the site itself,
-	 * so a caller-supplied `site` must not reach the `upgrades` query string). Dropping the
-	 * control params also keeps them out of the cache key.
+	 * query params since `get_param()` prefers GET), and any arg the WPCOM path already sets (a
+	 * fixed `path` such as `products?type=jetpack` or `upgrades?site=<id>` owns its args, and a
+	 * repeated arg would override it). Dropping the control params also keeps them out of the cache key.
 	 *
-	 * @param WP_REST_Request $request Request object.
+	 * @param WP_REST_Request $request    Request object.
+	 * @param string          $wpcom_path WPCOM path that may already carry a query string.
 	 *
 	 * @return array
 	 */
-	private function get_forwarded_params( WP_REST_Request $request ): array {
+	private function get_forwarded_params( WP_REST_Request $request, string $wpcom_path ): array {
 		$params = $request->get_query_params();
-		unset( $params['rest_route'], $params['_locale'], $params['site'], $params['endpoint'], $params['version'], $params['force_refresh'] );
+		if ( ! is_array( $params ) ) {
+			return array();
+		}
+		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['version'], $params['force_refresh'] );
 
-		return is_array( $params ) ? $params : array();
+		parse_str( (string) wp_parse_url( $wpcom_path, PHP_URL_QUERY ), $fixed );
+
+		return array_diff_key( $params, $fixed );
 	}
 
 	/**
-	 * Transient key for a target path + API version/base + forwarded params (order-independent).
+	 * Transient key for a target path + API version/base + forwarded params (order-independent) + cache generations.
 	 * Version and base are part of the key so the same path at different versions doesn't collide.
 	 *
-	 * @param string $wpcom_path WPCOM path without the forwarded query string.
-	 * @param string $version    WPCOM API version.
-	 * @param string $base       WPCOM API base.
-	 * @param array  $params     Forwarded query params.
-	 * @param string $generation The read's cache-scope generation; '' for an unscoped read.
+	 * @param string      $wpcom_path WPCOM path without the forwarded query string.
+	 * @param string      $version    WPCOM API version.
+	 * @param string      $base       WPCOM API base.
+	 * @param array       $params     Forwarded query params.
+	 * @param string|null $scope      The `invalidates` entry covering the read, if any.
 	 *
 	 * @return string
 	 */
-	private function cache_key_for( string $wpcom_path, string $version, string $base, array $params, string $generation = '' ): string {
+	private function cache_key_for( string $wpcom_path, string $version, string $base, array $params, ?string $scope = null ): string {
 		ksort( $params );
-		$parts = array( $wpcom_path, $version, $base, (string) wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
+		$generation = $this->cache_generation( $scope );
+		$parts      = array( $wpcom_path, $version, $base, (string) wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
 		if ( '' !== $generation ) {
 			$parts[] = $generation;
 		}

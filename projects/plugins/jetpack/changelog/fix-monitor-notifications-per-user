@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Monitor: Show each user their own downtime email setting instead of the one another admin saved last.

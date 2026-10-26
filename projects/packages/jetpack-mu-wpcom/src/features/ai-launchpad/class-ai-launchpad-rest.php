@@ -19,13 +19,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	// Set once; cleared only by an explicit reset (re-tailor, dismiss, reset).
 	const OPTION_COMPLETED = 'wpcom_ai_launchpad_completed';
 
+	// The goals the wizard offers.
+	const GOALS = array( 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' );
+
 	/**
 	 * Options whose writes can finish a task outside Site Setup: every listener records completion in the statuses
 	 * option, and the launch task reads `launch-status` live.
 	 */
 	const COMPLETION_TRIGGER_OPTIONS = array( 'launchpad_checklist_tasks_statuses', 'launch-status' );
-
-	const MIN_VALID_TASKS = 4;
 
 	/**
 	 * Caps on the client-reported `validation_errors` that reach the `tailored` Logstash record. The client applies
@@ -192,6 +193,30 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
+	 * Tasks the AI builder already did, never offered on an AI-built site: its content, its design (store design
+	 * included), and its name. AI_Launchpad_Task_Menu_Test checks the JS AI-built fallback lists against it.
+	 */
+	const AI_BUILT_EXCLUDED_TASK_IDS = array(
+		'first_post_published',
+		'add_about_page',
+		'update_about_page',
+		'add_new_page',
+		'edit_page',
+		'add_contact_page',
+		'add_events_page',
+		'add_video_page',
+		'add_gallery_page',
+		'add_portfolio_piece',
+		'site_theme_selected',
+		'design_edited',
+		'front_page_updated',
+		'pick_fonts_colors',
+		'woo_customize_store',
+		'site_title',
+		'setup_general',
+	);
+
+	/**
 	 * First-post tasks that can sit "in progress": the AI-created draft post exists but has not been published yet.
 	 *
 	 * Detected through the `_wpcom_ai_launchpad_first_post` marker meta (via AI_Launchpad_First_Post_Listener), so an
@@ -307,7 +332,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 						'goal'        => array(
 							'description' => 'The site goal picked in the wizard.',
 							'type'        => 'string',
-							'enum'        => array( 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' ),
+							'enum'        => self::GOALS,
 							'required'    => true,
 						),
 						'site_name'   => array(
@@ -571,6 +596,15 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		// again once the wizard finishes, and that read carries the offer.
 		$shows_wizard = ! is_array( $ai_output ) && ! $all_tasks;
 
+		$inferred_input = null;
+		if ( $shows_wizard && current_user_can( 'manage_options' ) ) {
+			$builder_input = wpcom_ai_launchpad_builder_input();
+			if ( null !== $builder_input ) {
+				$inferred_input = $this->adopt_builder_input( $builder_input );
+				$wizard         = get_option( self::OPTION_WIZARD );
+			}
+		}
+
 		return array(
 			'wizard'             => is_array( $wizard ) ? $wizard : null,
 			'ai_output'          => is_array( $ai_output ) ? $ai_output : null,
@@ -580,6 +614,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// Lets the page celebrate a list finished elsewhere, which this read latches.
 			'list_completed'     => (bool) get_option( self::OPTION_COMPLETED ),
 			'is_eligible'        => true,
+			// Whether the next tailoring is for an AI-built site, so the client fallback skips the builder's tasks.
+			'ai_built'           => wpcom_ai_launchpad_is_ai_built(),
+			// What the AI Website Builder learned, so an AI-built site skips the wizard and tailors with it.
+			'inferred_input'     => $inferred_input,
 			// The language this request is translated into, which is the reader's own. Task subtitles
 			// follow it, since they are read here and never published.
 			'user_language'      => determine_locale(),
@@ -635,9 +673,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		$ai_tasks = isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ? $payload['tasks'] : array();
 
-		// A store needs a theme, so the sell list always offers "Choose a theme" — the AI is not required to pick
-		// one. Add it when absent so build_tasks enriches it like any catalog task (get_ai_task_ids mirrors this).
-		if ( 'sell' === $goal ) {
+		// A store needs a theme, so a sell list offers "Choose a theme" even when the AI did not pick one — unless it
+		// was tailored for an AI-built site, whose builder already chose the design (get_ai_task_ids mirrors this).
+		if ( 'sell' === $goal && ! wpcom_ai_launchpad_is_list_ai_built() ) {
 			$ai_tasks = $this->ensure_theme_task( $ai_tasks );
 		}
 
@@ -723,13 +761,27 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * the wizard already did (e.g. no site-title task — the wizard captured the name). Excludes tasks whose completion
 	 * depends on the AI-task list (the theme/social listeners, the complete-on-click route), since a backfilled card is
 	 * not on that list. skip_task() reads the ids here to keep every backfilled card skippable, so the set lives here.
+	 * A list tailored for an AI-built site swaps the design and page fillers for ones the builder did not cover.
 	 *
 	 * @return array<string, string>
 	 */
 	private function backfill_pool() {
-		return array(
-			'design_edited'        => __( 'Make the design your own.', 'jetpack-mu-wpcom' ),
-			'add_new_page'         => __( 'Add a page your visitors will want, like About or Contact.', 'jetpack-mu-wpcom' ),
+		if ( wpcom_ai_launchpad_is_list_ai_built() ) {
+			$pool = array(
+				'add_site_icon' => __( 'Add your logo or site icon.', 'jetpack-mu-wpcom' ),
+				'domain_upsell' => __( 'Give your site its own domain.', 'jetpack-mu-wpcom' ),
+				// domain_upsell's stand-in on a plan that includes a domain, where the upsell is hidden.
+				'domain_claim'  => __( 'Claim the free domain that comes with your plan.', 'jetpack-mu-wpcom' ),
+			);
+		} else {
+			$pool = array(
+				'design_edited' => __( 'Make the design your own.', 'jetpack-mu-wpcom' ),
+				'add_new_page'  => __( 'Add a page your visitors will want, like About or Contact.', 'jetpack-mu-wpcom' ),
+			);
+		}
+
+		// Last, so the remote lookup in mobile_app_installed's completion check only runs when nothing else fits.
+		return $pool + array(
 			'connect_social_media' => __( 'Connect your social accounts to reach more people.', 'jetpack-mu-wpcom' ),
 			'mobile_app_installed' => __( 'Manage your site from anywhere with the Jetpack app.', 'jetpack-mu-wpcom' ),
 		);
@@ -928,20 +980,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			);
 		}
 
-		if ( count( $tasks ) < self::MIN_VALID_TASKS ) {
-			return new WP_Error(
-				'ai_launchpad_unknown_tasks',
-				__( 'Too few tasks matched the task catalog.', 'jetpack-mu-wpcom' ),
-				array( 'status' => 422 )
-			);
-		}
-
+		// However few tasks survive (the launch task always does), keep them: the read side backfills the list.
 		$payload['tasks'] = $tasks;
 
 		$ai_output = array(
 			'version'      => 1,
 			'source'       => $request['source'],
 			'generated_at' => time(),
+			'ai_built'     => wpcom_ai_launchpad_is_ai_built(),
 			'payload'      => $payload,
 		);
 
@@ -1041,6 +1087,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		$extra = array(
 			'source'   => $ai_output['source'],
+			'ai_built' => ! empty( $ai_output['ai_built'] ),
 			'inferred' => $inferred,
 			'selected' => $raw_task_ids,
 			'rendered' => $rendered,
@@ -1258,6 +1305,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * The two maps read in opposite directions, and an unknown or empty goal matches neither: every
 	 * GOAL_RESTRICTED_TASK_IDS entry is excluded (it never got the goal it requires), while every
 	 * GOAL_EXCLUDED_TASK_IDS entry is allowed (it never hit the goal that excludes it).
+	 * On an AI-built site it also excludes AI_BUILT_EXCLUDED_TASK_IDS, whatever the goal.
 	 *
 	 * @param string $goal The selected goal.
 	 * @return string[]
@@ -1275,6 +1323,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			if ( $goal === $excluded_goal ) {
 				$excluded[] = $task_id;
 			}
+		}
+
+		// Tailoring follows the live spec; a saved list follows its own flag (is_list_ai_built).
+		if ( wpcom_ai_launchpad_is_ai_built() ) {
+			$excluded = array_merge( $excluded, self::AI_BUILT_EXCLUDED_TASK_IDS );
 		}
 
 		return $excluded;
@@ -1346,6 +1399,38 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'renderable' => array_values( array_diff( $renderable, $excluded ) ),
 			'actionable' => array_values( array_diff( $actionable, $excluded ) ),
 		);
+	}
+
+	/**
+	 * Records the builder's input as the wizard answers, or reuses an existing answer's goal.
+	 *
+	 * The builder's name and description are always used; blogname and blogdescription are never touched.
+	 *
+	 * @param array $builder_input The builder's input.
+	 * @return array The input to tailor with.
+	 */
+	private function adopt_builder_input( $builder_input ) {
+		$wizard = get_option( self::OPTION_WIZARD );
+		if ( false === $wizard ) {
+			$wizard = array(
+				'version'      => 1,
+				'goal'         => $builder_input['goal'],
+				'site_name'    => $builder_input['site_name'],
+				'description'  => $builder_input['description'],
+				'locale'       => wpcom_ai_launchpad_site_locale(),
+				'ui_locale'    => determine_locale(),
+				'generated_at' => time(),
+				'source'       => 'ai_builder',
+			);
+			add_option( self::OPTION_WIZARD, $wizard, '', false );
+		}
+
+		// update_tailored() enforces the wizard's goal, so the prompt must use it too.
+		if ( is_array( $wizard ) && isset( $wizard['goal'] ) && in_array( $wizard['goal'], self::GOALS, true ) ) {
+			$builder_input['goal'] = $wizard['goal'];
+		}
+
+		return $builder_input;
 	}
 
 	/**

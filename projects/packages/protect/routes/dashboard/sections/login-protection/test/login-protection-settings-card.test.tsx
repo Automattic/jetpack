@@ -52,7 +52,7 @@ describe( 'LoginProtectionSettingsCard', () => {
 		const user = userEvent.setup();
 		renderCard( { save } );
 
-		await user.click( screen.getByLabelText( SSO ) );
+		await user.click( screen.getByRole( 'switch', { name: SSO } ) );
 
 		expect( save ).not.toHaveBeenCalled();
 
@@ -65,7 +65,7 @@ describe( 'LoginProtectionSettingsCard', () => {
 		const save = jest.fn();
 		renderCard( { save, settings: { sso: false } } );
 
-		await userEvent.setup().click( screen.getByLabelText( SSO ) );
+		await userEvent.setup().click( screen.getByRole( 'switch', { name: SSO } ) );
 
 		expect( save ).toHaveBeenCalledWith( { sso: true } );
 	} );
@@ -81,7 +81,7 @@ describe( 'LoginProtectionSettingsCard', () => {
 			renderCard( { state, settings } );
 
 			const enabled = ( label: string ) =>
-				! screen.getByLabelText( label ).hasAttribute( 'disabled' );
+				screen.getByRole( 'switch', { name: label } ).getAttribute( 'aria-disabled' ) !== 'true';
 			expect( enabled( SSO ) ).toBe( canToggle );
 			expect( enabled( MATCH_BY_EMAIL ) ).toBe( canSetOptions );
 			expect( enabled( TWO_STEP ) ).toBe( canSetOptions );
@@ -97,7 +97,7 @@ describe( 'LoginProtectionSettingsCard', () => {
 		[
 			'the site is in offline mode',
 			{ ssoUsable: false, isOffline: true },
-			'WordPress.com login isn’t available in offline mode.',
+			'WordPress.com login isn’t available in Offline Mode.',
 		],
 		[
 			'the module is unavailable',
@@ -116,7 +116,10 @@ describe( 'LoginProtectionSettingsCard', () => {
 	] )( 'locks "%s" when its module is unavailable', ( label, key ) => {
 		renderCard( { state: { [ key ]: { available: false, active: false } } } );
 
-		expect( screen.getByLabelText( label ) ).toBeDisabled();
+		expect( screen.getByRole( 'switch', { name: label } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'locks a forced option to the value WordPress.com login applies', () => {
@@ -128,12 +131,18 @@ describe( 'LoginProtectionSettingsCard', () => {
 			settings: { jetpack_sso_require_two_step: false },
 		} );
 
-		expect( screen.getByLabelText( TWO_STEP ) ).toBeDisabled();
-		expect( screen.getByLabelText( TWO_STEP ) ).toBeChecked();
+		expect( screen.getByRole( 'switch', { name: TWO_STEP } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'switch', { name: TWO_STEP } ) ).toBeChecked();
 		expect(
 			screen.getByText( 'Two-Step Authentication is enforced by your site’s configuration.' )
 		).toBeInTheDocument();
-		expect( screen.getByLabelText( MATCH_BY_EMAIL ) ).toBeEnabled();
+		expect( screen.getByRole( 'switch', { name: MATCH_BY_EMAIL } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it.each( [

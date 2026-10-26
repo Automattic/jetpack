@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup, Protect: Stop logging a "jetpackConfig is missing" console error on the upgrade pages.
