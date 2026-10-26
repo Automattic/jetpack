@@ -117,7 +117,12 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 				{ [ styles[ 'my-jetpack-tab-panel--pinned-tabs' ] ]: pinsTabs }
 			) }
 		>
-			<div className={ pinsTabs ? 'jp-admin-page-tabs' : styles[ 'tab-list' ] }>
+			<div
+				className={ clsx( {
+					'jp-admin-page-tabs': pinsTabs,
+					[ styles[ 'tab-list' ] ]: ! pinsTabs,
+				} ) }
+			>
 				<Tabs.List activateOnFocus>
 					{ tabs.map( tab => (
 						<Tabs.Tab key={ tab.name } value={ tab.name }>
