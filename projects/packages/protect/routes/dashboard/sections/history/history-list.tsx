@@ -43,13 +43,6 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	const status = statusParam === 'ignored' ? 'ignored' : 'fixed';
 
 	const [ view, setView ] = useState< View >( () => createThreatView( 'date' ) );
-	const onChangeView = useCallback(
-		( next: View ) => {
-			recordViewChange( view, next );
-			setView( next );
-		},
-		[ view ]
-	);
 	const navigate = useNavigate();
 
 	// Switching lists closes the inspector, whose threat is in the list being left.
@@ -94,6 +87,14 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( status === 'fixed' ? fixed : ignored, view, fields ),
 		[ status, fixed, ignored, view, fields ]
+	);
+	const { totalPages } = paginationInfo;
+	const onChangeView = useCallback(
+		( next: View ) => {
+			recordViewChange( view, next, totalPages );
+			setView( next );
+		},
+		[ view, totalPages ]
 	);
 	useArrowKeyNavigation( data, selected, getItemId, open );
 

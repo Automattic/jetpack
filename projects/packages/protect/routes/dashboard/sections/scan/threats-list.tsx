@@ -157,13 +157,6 @@ type ThreatsListProps = {
  */
 export default function ThreatsList( { threats, empty, canAct }: ThreatsListProps ) {
 	const [ view, setView ] = useState< View >( () => createThreatView( 'severity' ) );
-	const onChangeView = useCallback(
-		( next: View ) => {
-			recordViewChange( view, next );
-			setView( next );
-		},
-		[ view ]
-	);
 
 	const [ selected ] = useSearchParam( THREAT_PARAM );
 	const selection = useMemo( () => ( selected ? [ selected ] : [] ), [ selected ] );
@@ -184,6 +177,14 @@ export default function ThreatsList( { threats, empty, canAct }: ThreatsListProp
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( threats, view, fields ),
 		[ threats, view, fields ]
+	);
+	const { totalPages } = paginationInfo;
+	const onChangeView = useCallback(
+		( next: View ) => {
+			recordViewChange( view, next, totalPages );
+			setView( next );
+		},
+		[ view, totalPages ]
 	);
 	useArrowKeyNavigation( data, selected, getItemId, open );
 

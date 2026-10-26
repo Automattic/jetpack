@@ -36,10 +36,19 @@ export function useRecordThreatOpen( threat?: ScanThreat ): void {
 /**
  * Record what changed in a threats table's view, named like the Scan page's threats table.
  *
- * @param previous - The view before the change.
- * @param next     - The view after it.
+ * @param previous   - The view before the change.
+ * @param next       - The view after it.
+ * @param totalPages - The table's page count now, to tell DataViews' page clamp from a click.
  */
-export function recordViewChange( previous: View, next: View ): void {
+export function recordViewChange( previous: View, next: View, totalPages: number ): void {
+	// DataViews moves back to the last page itself when the list shrinks; nobody clicked that.
+	const lastPage = Math.max( totalPages, 1 );
+	if (
+		( previous.page ?? 1 ) > lastPage &&
+		JSON.stringify( { ...previous, page: lastPage } ) === JSON.stringify( next )
+	) {
+		return;
+	}
 	if ( previous.search !== next.search ) {
 		recordEvent( 'jetpack_scan_search', { has_query: !! next.search } );
 	}

@@ -37,19 +37,46 @@ describe( 'recordViewChange', () => {
 
 	const view = createThreatView( 'severity' );
 
+	const viewChange = [ 'jetpack_scan_view_change' ];
+
 	it.each( [
-		[ 'a search', { search: 'wp' }, [ [ 'jetpack_scan_search', { has_query: true } ] ] ],
-		[ 'a page', { page: 2 }, [ [ 'jetpack_scan_page_change', { page: 2 } ] ] ],
-		[ 'a layout', { type: 'grid' }, [ [ 'jetpack_scan_layout_changed', { layout: 'grid' } ] ] ],
+		[
+			'a search',
+			{},
+			{ search: 'wp' },
+			[ [ 'jetpack_scan_search', { has_query: true } ], viewChange ],
+		],
+		[ 'a page', {}, { page: 2 }, [ [ 'jetpack_scan_page_change', { page: 2 } ], viewChange ] ],
+		[
+			'a page back',
+			{ page: 3 },
+			{ page: 2 },
+			[ [ 'jetpack_scan_page_change', { page: 2 } ], viewChange ],
+		],
+		[
+			'a layout',
+			{},
+			{ type: 'grid' },
+			[ [ 'jetpack_scan_layout_changed', { layout: 'grid' } ], viewChange ],
+		],
 		[
 			'a filter',
+			{},
 			{ filters: [ { field: 'severity', operator: 'is', value: 5 } ] },
-			[ [ 'jetpack_scan_filter_change' ] ],
+			[ [ 'jetpack_scan_filter_change' ], viewChange ],
 		],
-		[ 'only the view change for a sort', { sort: { field: 'date', direction: 'asc' } }, [] ],
-	] )( 'records %s', ( _, change, expected ) => {
-		recordViewChange( view, { ...view, ...change } as typeof view );
+		[
+			'only the view change for a sort',
+			{},
+			{ sort: { field: 'date', direction: 'asc' } },
+			[ viewChange ],
+		],
+		[ 'nothing for DataViews’ own move back to the last page', { page: 5 }, { page: 3 }, [] ],
+	] )( 'records %s', ( _, before, change, expected ) => {
+		const previous = { ...view, ...before } as typeof view;
 
-		expect( mockRecordEvent.mock.calls ).toEqual( [ ...expected, [ 'jetpack_scan_view_change' ] ] );
+		recordViewChange( previous, { ...previous, ...change } as typeof view, 3 );
+
+		expect( mockRecordEvent.mock.calls ).toEqual( expected );
 	} );
 } );

@@ -92,6 +92,18 @@ describe( 'threat notices', () => {
 describe( 'threat action Tracks events', () => {
 	const scan = { hasPlan: true, url: '#', error: false, threats: [] };
 
+	// Runs the fix's polling out on fake timers, past the point where the dashboard gives up.
+	const fixTimingOut = async ( item: Parameters< typeof fixThreat >[ 0 ] ) => {
+		jest.useFakeTimers();
+		try {
+			const fixing = fixThreat( item );
+			await jest.runAllTimersAsync();
+			await fixing;
+		} finally {
+			jest.useRealTimers();
+		}
+	};
+
 	it.each( [
 		[ 'a fix', fixThreat, Promise.resolve( { status: 'fixed', scan } ), 'fix_threat', 'success' ],
 		[
@@ -102,6 +114,13 @@ describe( 'threat action Tracks events', () => {
 			'failed',
 		],
 		[ 'a fix that didn’t start', fixThreat, Promise.reject( {} ), 'fix_threat', 'failed' ],
+		[
+			'a fix that never finishes',
+			fixTimingOut,
+			Promise.resolve( { status: 'in_progress' } ),
+			'fix_threat',
+			'failed',
+		],
 		[ 'an ignore', ignoreThreat, Promise.resolve( {} ), 'ignore_threat', 'success' ],
 		[ 'a failed ignore', ignoreThreat, Promise.reject( {} ), 'ignore_threat', 'failed' ],
 		[ 'an unignore', unignoreThreat, Promise.resolve( {} ), 'unignore_threat', 'success' ],
