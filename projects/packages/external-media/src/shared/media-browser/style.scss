@@ -9,7 +9,7 @@
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
 		grid-auto-rows: 1fr;
-		gap: 16px;
+		gap: var(--wpds-dimension-gap-lg);
 		width: 100%;
 	}
 
