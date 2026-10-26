@@ -136,7 +136,10 @@ class LCP_Optimize_Img_Tag {
 			return $element;
 		}
 
-		$srcset = $this->get_srcset( $image_url, $this->get_aspect_ratio( $element ) );
+		// Under cover, a file cropped to the box shows the same picture and is smaller.
+		$aspect_ratio = $this->is_marked_cover( $element ) ? null : $this->get_aspect_ratio( $element );
+
+		$srcset = $this->get_srcset( $image_url, $aspect_ratio );
 		if ( ! empty( $srcset ) ) {
 			$element->set_attribute( 'srcset', $srcset );
 		}
@@ -147,6 +150,23 @@ class LCP_Optimize_Img_Tag {
 		}
 
 		return $element;
+	}
+
+	/**
+	 * Check whether the markup sets object-fit: cover, as core's Featured Image (inline style)
+	 * and Cover (data-object-fit) blocks do. Cover set by a stylesheet is not seen here.
+	 *
+	 * @param WP_HTML_Tag_Processor $element The image tag.
+	 * @return bool True if the image is marked as cover.
+	 */
+	private function is_marked_cover( $element ) {
+		if ( 'cover' === $element->get_attribute( 'data-object-fit' ) ) {
+			return true;
+		}
+
+		$style = $element->get_attribute( 'style' );
+
+		return is_string( $style ) && (bool) preg_match( '/(?:^|;)\s*object-fit\s*:\s*cover\s*(?:!important\s*)?(?:;|$)/i', $style );
 	}
 
 	/**
