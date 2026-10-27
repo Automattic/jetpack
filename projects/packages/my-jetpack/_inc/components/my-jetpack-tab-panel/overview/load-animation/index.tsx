@@ -47,7 +47,9 @@ export const TypedText: FC< { text: string; onTyped?: () => void } > = ( { text,
 	const characters = splitCharacters( text );
 	return (
 		<>
-			<VisuallyHidden render={ <span /> }>{ text }</VisuallyHidden>
+			<span className={ styles[ 'typed-label' ] }>
+				<VisuallyHidden render={ <span /> }>{ text }</VisuallyHidden>
+			</span>
 			<span
 				aria-hidden="true"
 				className={ styles.typed }

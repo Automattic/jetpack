@@ -1,3 +1,8 @@
+// Copying takes the visible letters, not this copy as well.
+.typed-label {
+	user-select: none;
+}
+
 // Letters are laid out from the start and only revealed, so nothing shifts.
 .typed {
 	--typed-step: calc(1s / var(--typed-count));
@@ -56,7 +61,7 @@
 	animation: section-rise 300ms ease-out backwards;
 	animation-delay: calc(var(--section-index, 0) * 70ms);
 
-	@for $i from 2 through 6 {
+	@for $i from 2 through 3 {
 		&:nth-child(#{$i}) {
 			--section-index: #{$i - 1};
 		}

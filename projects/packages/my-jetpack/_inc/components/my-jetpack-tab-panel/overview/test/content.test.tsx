@@ -52,6 +52,7 @@ describe( 'OverviewContent', () => {
 				configurable: true,
 				value: () => ( { matches } ),
 			} );
+		const originalMatchMedia = Object.getOwnPropertyDescriptor( window, 'matchMedia' );
 
 		beforeEach( async () => {
 			window.JetpackScriptData = {
@@ -64,6 +65,14 @@ describe( 'OverviewContent', () => {
 				jest.doMock( 'react', () => react );
 				( { OverviewContent: Content } = await import( '../content' ) );
 			} );
+		} );
+
+		afterEach( () => {
+			if ( originalMatchMedia ) {
+				Object.defineProperty( window, 'matchMedia', originalMatchMedia );
+			} else {
+				delete window.matchMedia;
+			}
 		} );
 
 		const typedText = () =>
