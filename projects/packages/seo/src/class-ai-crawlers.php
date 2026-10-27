@@ -35,6 +35,15 @@ class Ai_Crawlers {
 	const OPTION = 'jetpack_seo_blocked_crawlers';
 
 	/**
+	 * Option the GEO tab saved before {@see self::OPTION}: `slug => bool`, holding only changes
+	 * from the old defaults (training crawlers blocked, answer engines allowed). Read once by
+	 * {@see self::maybe_migrate_legacy_overrides()} and left in the database.
+	 *
+	 * @var string
+	 */
+	const LEGACY_OPTION = 'jetpack_seo_ai_crawler_overrides';
+
+	/**
 	 * The crawler groups, matching each catalog entry's `type`.
 	 *
 	 * @var string[]
@@ -220,6 +229,43 @@ class Ai_Crawlers {
 		}
 
 		return $blocked;
+	}
+
+	/**
+	 * Once per site: copies the choices saved in {@see self::LEGACY_OPTION} into {@see self::OPTION}.
+	 *
+	 * A training crawler saved as allowed means the owner worked on that group, so its unsaved
+	 * siblings stay blocked. Always writing the new option marks this done; an existing one wins.
+	 *
+	 * @return void
+	 */
+	public static function maybe_migrate_legacy_overrides() {
+		// An explicit default, so a registered setting default can't stand in for the stored value.
+		if ( false !== get_option( self::OPTION, false ) ) {
+			return;
+		}
+
+		$legacy  = get_option( self::LEGACY_OPTION );
+		$legacy  = is_array( $legacy ) ? $legacy : array();
+		$catalog = self::get_catalog();
+
+		$answer_blocked   = array();
+		$training_allowed = array();
+		foreach ( $legacy as $slug => $value ) {
+			$type = $catalog[ $slug ]['type'] ?? null;
+			if ( 'answer' === $type && $value ) {
+				$answer_blocked[] = $slug;
+			} elseif ( 'training' === $type && ! $value ) {
+				$training_allowed[] = $slug;
+			}
+		}
+
+		$training = array_keys( wp_list_filter( $catalog, array( 'type' => 'training' ) ) );
+		$blocked  = array(
+			'answer'   => $answer_blocked,
+			'training' => $training_allowed ? array_diff( $training, $training_allowed ) : array(),
+		);
+		update_option( self::OPTION, self::sanitize_blocked( $blocked, $catalog ), true );
 	}
 
 	/**

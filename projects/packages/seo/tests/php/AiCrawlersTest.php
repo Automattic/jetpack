@@ -33,6 +33,7 @@ class AiCrawlersTest extends TestCase {
 		parent::setUp();
 		$this->blog_public = get_option( 'blog_public', null );
 		delete_option( Ai_Crawlers::OPTION );
+		delete_option( Ai_Crawlers::LEGACY_OPTION );
 		delete_option( 'wpcom_data_sharing_opt_out' );
 		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), Ai_Crawlers::ROBOTS_TXT_PRIORITY );
 		remove_filter(
@@ -49,6 +50,7 @@ class AiCrawlersTest extends TestCase {
 	 */
 	protected function tearDown(): void {
 		delete_option( Ai_Crawlers::OPTION );
+		delete_option( Ai_Crawlers::LEGACY_OPTION );
 		delete_option( 'wpcom_data_sharing_opt_out' );
 		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), Ai_Crawlers::ROBOTS_TXT_PRIORITY );
 		remove_filter(
@@ -163,6 +165,99 @@ class AiCrawlersTest extends TestCase {
 	#[DataProvider( 'provide_blocked_values' )]
 	public function test_sanitize_blocked( $value, $expected ) {
 		$this->assertSame( $expected, Ai_Crawlers::sanitize_blocked( $value ) );
+	}
+
+	/**
+	 * Old maps with no allowed training crawler.
+	 *
+	 * @return array<string, array{mixed, array}>
+	 */
+	public static function provide_legacy_maps() {
+		return array(
+			'nothing saved'          => array(
+				false,
+				array(
+					'answer'   => array(),
+					'training' => array(),
+				),
+			),
+			'answer engines blocked' => array(
+				array(
+					'perplexitybot' => true,
+					'oai-searchbot' => true,
+					'not-a-bot'     => true,
+				),
+				array(
+					'answer'   => array( 'oai-searchbot', 'perplexitybot' ),
+					'training' => array(),
+				),
+			),
+			'answer engine allowed'  => array(
+				array( 'perplexitybot' => false ),
+				array(
+					'answer'   => array(),
+					'training' => array(),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Only answer-engine blocks carry over, and the new option is written even when empty.
+	 *
+	 * @dataProvider provide_legacy_maps
+	 * @param mixed $legacy   The old option, or false when absent.
+	 * @param array $expected The new option.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_legacy_maps' )]
+	public function test_migration_carries_answer_blocks( $legacy, $expected ) {
+		if ( false !== $legacy ) {
+			update_option( Ai_Crawlers::LEGACY_OPTION, $legacy );
+		}
+		Ai_Crawlers::maybe_migrate_legacy_overrides();
+		$this->assertSame( $expected, get_option( Ai_Crawlers::OPTION ) );
+	}
+
+	/**
+	 * The old option stays in place.
+	 *
+	 * @return void
+	 */
+	public function test_migration_keeps_unsaved_training_crawlers_blocked() {
+		$legacy = array(
+			'gptbot'        => false,
+			'perplexitybot' => true,
+		);
+		update_option( Ai_Crawlers::LEGACY_OPTION, $legacy );
+		Ai_Crawlers::maybe_migrate_legacy_overrides();
+
+		$training = array_keys( wp_list_filter( Ai_Crawlers::get_catalog(), array( 'type' => 'training' ) ) );
+		$this->assertSame(
+			array(
+				'answer'   => array( 'perplexitybot' ),
+				'training' => array_values( array_diff( $training, array( 'gptbot' ) ) ),
+			),
+			get_option( Ai_Crawlers::OPTION )
+		);
+		$this->assertSame( $legacy, get_option( Ai_Crawlers::LEGACY_OPTION ) );
+	}
+
+	/**
+	 * Leaves an existing new option alone.
+	 *
+	 * @return void
+	 */
+	public function test_migration_skips_an_existing_new_option() {
+		$current = array(
+			'answer'   => 'all',
+			'training' => array(),
+		);
+		update_option( Ai_Crawlers::OPTION, $current );
+		update_option( Ai_Crawlers::LEGACY_OPTION, array( 'gptbot' => false ) );
+
+		Ai_Crawlers::maybe_migrate_legacy_overrides();
+		$this->assertSame( $current, get_option( Ai_Crawlers::OPTION ) );
 	}
 
 	/**
