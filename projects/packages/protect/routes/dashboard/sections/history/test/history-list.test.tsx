@@ -44,3 +44,14 @@ it.each( [
 	expect( within( panel ).getByText( file ) ).toBeInTheDocument();
 	expect( panel ).toHaveAttribute( 'tabindex', '-1' );
 } );
+
+it( 'keeps an empty list’s panel as a tab stop', async () => {
+	mockSearch = { status: 'fixed' };
+	render( <HistoryList threats={ [] } /> );
+	await act( () => new Promise( resolve => setTimeout( resolve, 0 ) ) );
+
+	expect( screen.getByRole( 'tabpanel', { name: 'Fixed (0)' } ) ).toHaveAttribute(
+		'tabindex',
+		'0'
+	);
+} );

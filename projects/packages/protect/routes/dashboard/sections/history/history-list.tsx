@@ -144,7 +144,7 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 		</DataViews>
 	);
 
-	const panelTabIndex = data.length ? -1 : undefined;
+	const panelTabIndex = data.length ? -1 : 0;
 
 	return (
 		<Tabs.Root className="jp-protect-threats" value={ status } onValueChange={ onStatusChange }>
@@ -166,7 +166,7 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 					</Tabs.Tab>
 				</Tabs.List>
 			</div>
-			{ /* Rows are focusable, so the panel itself shouldn't be an extra tab stop. */ }
+			{ /* Row controls take focus, so a panel with rows shouldn't be an extra tab stop. */ }
 			<Tabs.Panel value="fixed" tabIndex={ panelTabIndex }>
 				{ status === 'fixed' && table }
 			</Tabs.Panel>
