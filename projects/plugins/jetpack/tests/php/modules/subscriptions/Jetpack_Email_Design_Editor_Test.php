@@ -1047,6 +1047,37 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Jetpack's recorder refuses on Simple, for the same reason the gate does, so the arrival went
+	 * unrecorded there until it was routed through the one WordPress.com answers.
+	 *
+	 * The name carries the prefix here that `record_user_event()` would otherwise add, which is the
+	 * part a platform split is most likely to get wrong.
+	 */
+	public function test_a_simple_site_records_the_arrival_through_wordpress_com() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		\Automattic\Jetpack\Status\Cache::clear();
+		$_GET['source'] = 'preview_modal';
+
+		$GLOBALS['jetpack_test_wpcom_tracks_events'] = array();
+		require_once __DIR__ . '/../../files/mock-wpcom-record-tracks-event.php';
+
+		Jetpack_Email_Design_Editor::record_screen_view();
+
+		$this->assertSame(
+			array(
+				array(
+					'jetpack_newsletter_email_design_view',
+					array(
+						'source'    => 'preview_modal',
+						'site_type' => 'simple',
+					),
+				),
+			),
+			$GLOBALS['jetpack_test_wpcom_tracks_events']
+		);
+	}
+
+	/**
 	 * The pixel is a blocking request with a one-second timeout, so recorded on the load hook it
 	 * would sit in front of the screen's first paint.
 	 */
@@ -1091,6 +1122,35 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		Jetpack_Email_Design_Editor::enqueue_assets();
 
 		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+	}
+
+	/**
+	 * Simple answers Jetpack's gate with no -- it asks about the terms of service and the user's
+	 * connection, which a Simple site has neither of -- so gating on it recorded nothing at all on
+	 * the platform the screen ships to first.
+	 */
+	public function test_a_simple_site_records_although_jetpack_would_not_let_it() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertTrue( $data['tracks']['canSend'] );
+		$this->assertSame( get_current_blog_id(), $data['tracks']['blogId'] );
+	}
+
+	/**
+	 * WordPress.com loads the sender on Simple and identifies the user with it, so an identity of
+	 * ours would replace the one already on the page.
+	 */
+	public function test_a_simple_site_supplies_no_identity_of_its_own() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		\Automattic\Jetpack\Status\Cache::clear();
+		$this->connect_a_user();
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertNull( $data['tracks']['userData'] );
 	}
 
 	public function test_the_screen_data_says_a_site_that_may_not_record_should_not() {

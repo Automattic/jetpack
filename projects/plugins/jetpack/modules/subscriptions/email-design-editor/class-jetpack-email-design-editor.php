@@ -215,6 +215,17 @@ class Jetpack_Email_Design_Editor {
 	 * loaded, which the bundle's own events cannot. See NL-1088.
 	 */
 	public static function record_screen_view() {
+		// Jetpack's recorder refuses on Simple: it asks the terms of service and the user's
+		// connection, and a Simple site has neither to answer with. WordPress.com records its own
+		// events there instead, and does not prefix the name, so this passes the whole one.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			if ( function_exists( 'wpcom_record_tracks_event' ) ) {
+				wpcom_record_tracks_event( 'jetpack_' . self::VIEW_EVENT, self::screen_view_properties() );
+			}
+
+			return;
+		}
+
 		$connection = new Connection_Manager( 'jetpack' );
 
 		( new Tracking( 'jetpack', $connection ) )->record_user_event(
@@ -478,6 +489,13 @@ class Jetpack_Email_Design_Editor {
 	 * @return bool
 	 */
 	private static function can_send_tracks() {
+		// The gate below asks about the terms of service and the user's connection, which are both
+		// things a Simple site has none of, so it answers no there for a site that records
+		// everything else it does. WordPress.com loads the sender and identifies the user itself.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
+
 		$tracking = new Tracking( 'jetpack', new Connection_Manager( 'jetpack' ) );
 
 		return $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() );
@@ -502,20 +520,58 @@ class Jetpack_Email_Design_Editor {
 			);
 		}
 
-		$identity = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
-
 		return array(
 			'canSend'  => true,
-			'userData' => $identity
-				? array(
-					'userid'   => $identity['userid'],
-					'username' => $identity['username'],
-				)
-				: null,
-
-			// Read the same way the identity above reads it, so both name one blog.
-			'blogId'   => (int) Jetpack_Options::get_option( 'id', 0 ),
+			'userData' => self::tracks_identity(),
+			'blogId'   => self::tracks_blog_id(),
 		);
+	}
+
+	/**
+	 * Who the bundle records against, or nobody.
+	 *
+	 * Narrowed to the two fields the analytics package takes, so the email address and locale that
+	 * `get_connected_user_tracks_identity()` also returns stay out of the page's HTML.
+	 *
+	 * Nobody on Simple: WordPress.com has already identified the logged-in user to the sender it
+	 * loaded, and ours would replace that with an identity derived from a connection Simple does
+	 * not have. Elsewhere a site can still record with no connected user, anonymously, which is
+	 * why `canSend` is asked separately from this.
+	 *
+	 * @return array|null
+	 */
+	private static function tracks_identity() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return null;
+		}
+
+		$identity = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+
+		if ( ! $identity ) {
+			return null;
+		}
+
+		return array(
+			'userid'   => $identity['userid'],
+			'username' => $identity['username'],
+		);
+	}
+
+	/**
+	 * The WordPress.com blog the events name.
+	 *
+	 * Read the way the connected user's identity reads it, so both name one blog -- except on
+	 * Simple, where the blog is a WordPress.com blog already and the Jetpack option that names it
+	 * everywhere else is not what identifies it.
+	 *
+	 * @return int
+	 */
+	private static function tracks_blog_id() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return get_current_blog_id();
+		}
+
+		return (int) Jetpack_Options::get_option( 'id', 0 );
 	}
 
 	/**
