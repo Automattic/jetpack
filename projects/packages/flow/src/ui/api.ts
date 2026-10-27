@@ -33,6 +33,10 @@ export const planFlow = ( prompt: string ) =>
 		data: { prompt },
 	} );
 
+/** Ask the server for a short name for a flow. */
+export const suggestName = ( flow: Flow ) =>
+	apiFetch< { name: string } >( { path: `${ BASE }/name`, method: 'POST', data: { flow } } );
+
 /** Install a missing plugin from WordPress.org, or activate an installed one. */
 export async function installAndActivate( slug: string, file: string, status: string ) {
 	if ( status === 'missing' ) {

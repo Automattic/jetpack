@@ -1,8 +1,7 @@
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Stack, Text } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import { hasFlowDrag, readDrag, startDrag } from '../drag';
-import { noAutofill } from '../no-autofill';
 import { ProductIcon } from './product-icon';
 import { StepFields } from './step-fields';
 import type { Catalog, Flow, Step } from '../types';
@@ -10,12 +9,14 @@ import type { Catalog, Flow, Step } from '../types';
 type Props = {
 	flow: Flow;
 	catalog: Catalog;
+	/** Which half of the flow this renders. */
+	part: 'triggers' | 'steps';
 	/** Bumped when the AI fills the card, so the nodes fly in again. */
 	arrival: number;
 	onChange: ( flow: Flow ) => void;
 };
 
-const newStep = ( type: string, catalog: Catalog ): Step => ( {
+export const newStep = ( type: string, catalog: Catalog ): Step => ( {
 	id: `step-${ Math.random().toString( 36 ).slice( 2, 10 ) }`,
 	type,
 	config: Object.fromEntries(
@@ -28,7 +29,7 @@ const newStep = ( type: string, catalog: Catalog ): Step => ( {
 const delay = ( index: number ) =>
 	( { '--jetpack-flow-delay': `${ index * 160 }ms` } ) as React.CSSProperties;
 
-export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
+export function FlowCard( { flow, catalog, part, arrival, onChange }: Props ) {
 	const [ hover, setHover ] = useState< string | null >( null );
 	const [ open, setOpen ] = useState< string | null >( null );
 
@@ -87,21 +88,9 @@ export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
 	} );
 
 	return (
-		<Card.Root className="jetpack-flow-card">
-			<Card.Header>
-				<Stack align="center" justify="space-between" gap="md">
-					<input
-						{ ...noAutofill }
-						className="jetpack-flow-name"
-						aria-label={ __( 'Flow name', 'jetpack-flow-pkg' ) }
-						value={ flow.name }
-						placeholder={ __( 'Untitled flow', 'jetpack-flow-pkg' ) }
-						onChange={ event => onChange( { ...flow, name: event.target.value } ) }
-					/>
-				</Stack>
-			</Card.Header>
-			<Card.Content>
-				<Stack direction="column" gap="sm">
+		<Stack direction="column" gap="sm">
+			{ part === 'triggers' && (
+				<>
 					{ flow.triggers.map( ( id, index ) => {
 						const trigger = catalog.triggers.find( t => t.id === id );
 						return (
@@ -149,7 +138,10 @@ export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
 								: __( 'Drop another trigger here to start on either', 'jetpack-flow-pkg' ) }
 						</Text>
 					</div>
-
+				</>
+			) }
+			{ part === 'steps' && (
+				<>
 					{ flow.steps.map( ( step, index ) => {
 						const action = actionOf( step.type );
 						const isOpen = open === step.id;
@@ -230,8 +222,8 @@ export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
 					>
 						<Text variant="body-sm">{ __( 'Drop an action here', 'jetpack-flow-pkg' ) }</Text>
 					</div>
-				</Stack>
-			</Card.Content>
-		</Card.Root>
+				</>
+			) }
+		</Stack>
 	);
 }

@@ -115,6 +115,16 @@ class REST_Controller {
 
 		register_rest_route(
 			self::NAMESPACE,
+			'/name',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'suggest_name' ),
+				'permission_callback' => array( Flow::class, 'current_user_can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
 			'/events/(?P<trigger>[a-z_]+)',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -224,6 +234,24 @@ class REST_Controller {
 	 */
 	public static function plan( $request ) {
 		return rest_ensure_response( Planner::plan( (string) $request->get_param( 'prompt' ) ) );
+	}
+
+	/**
+	 * Suggest a short name for a flow: AI when available, else the first trigger's label.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public static function suggest_name( $request ) {
+		$flow = Flow_Store::sanitize_one( $request->get_param( 'flow' ) );
+		$name = '';
+		if ( $flow && $flow['steps'] ) {
+			$name = Planner::suggest_name( $flow );
+			if ( '' === $name ) {
+				$name = Catalog::triggers()[ $flow['triggers'][0] ]['label'];
+			}
+		}
+		return rest_ensure_response( array( 'name' => $name ) );
 	}
 
 	/**
