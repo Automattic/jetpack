@@ -39,13 +39,15 @@ describe( 'DashboardNav', () => {
 		expect( navigate ).toHaveBeenCalledWith( { href: '/geo' } );
 	} );
 
-	it( 'shows all four tabs when the dashboard is not gated', () => {
+	it( 'shows all four tabs, Settings last, when the dashboard is not gated', () => {
 		render( <DashboardNav active="overview">content</DashboardNav> );
 
-		expect( screen.getByRole( 'tab', { name: 'Overview' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'tab', { name: 'Settings' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'tab', { name: 'Content' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'tab', { name: 'GEO' } ) ).toBeInTheDocument();
+		expect( screen.getAllByRole( 'tab' ).map( tab => tab.textContent ) ).toEqual( [
+			'Overview',
+			'Content',
+			'GEO',
+			'Settings',
+		] );
 	} );
 
 	it( 'hides the Content and GEO tabs when the dashboard is gated', () => {
@@ -54,10 +56,10 @@ describe( 'DashboardNav', () => {
 		render( <DashboardNav active="overview">content</DashboardNav> );
 
 		// The two free tabs remain; the paid Content and GEO tabs are gone.
-		expect( screen.getByRole( 'tab', { name: 'Overview' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'tab', { name: 'Settings' } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'tab', { name: 'Content' } ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'tab', { name: 'GEO' } ) ).not.toBeInTheDocument();
+		expect( screen.getAllByRole( 'tab' ).map( tab => tab.textContent ) ).toEqual( [
+			'Overview',
+			'Settings',
+		] );
 	} );
 
 	describe( 'the GEO infotip', () => {
@@ -90,14 +92,30 @@ describe( 'DashboardNav', () => {
 			expect( screen.getByRole( 'tab', { name: 'GEO' } ) ).not.toContainElement( trigger );
 		} );
 
-		// The trigger sits after `Tabs.List`, which only reads as belonging to GEO while
-		// GEO is the last tab. If one is ever appended after it, this fails and points at
-		// the docblock in `dashboard-nav.tsx` that says the infotip needs moving.
-		it( 'keeps GEO last, which is what makes the placement read correctly', () => {
+		// The trigger sits after `Tabs.List`, but Settings follows GEO, so it is moved to
+		// the GEO tab's end. jsdom has no layout, so the two boxes are stubbed.
+		it( 'is placed at the end of the GEO tab, not after the last tab', () => {
+			const rect = ( left: number, right: number ) =>
+				( { left, right, top: 0, bottom: 40, width: right - left, height: 40 } ) as DOMRect;
+			const spy = jest
+				.spyOn( HTMLElement.prototype, 'getBoundingClientRect' )
+				.mockImplementation( function ( this: HTMLElement ) {
+					if ( this.classList.contains( 'jetpack-seo-tabs-strip' ) ) {
+						return rect( 100, 900 );
+					}
+					if ( this.classList.contains( 'jetpack-seo-tabs-strip__geo-tab' ) ) {
+						return rect( 300, 340 );
+					}
+					return rect( 0, 0 );
+				} );
+
 			render( <DashboardNav active="overview">content</DashboardNav> );
 
-			const labels = screen.getAllByRole( 'tab' ).map( tab => tab.textContent );
-			expect( labels[ labels.length - 1 ] ).toBe( 'GEO' );
+			// 340 (GEO tab's end) - 100 (strip's start).
+			expect( screen.getByRole( 'button', { name: 'What is GEO?' } ) ).toHaveStyle( {
+				insetInlineStart: '240px',
+			} );
+			spy.mockRestore();
 		} );
 
 		it( 'is hidden along with the tab it explains on gated sites', () => {

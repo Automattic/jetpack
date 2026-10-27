@@ -1,10 +1,10 @@
-import { useCallback } from '@wordpress/element';
+import { useCallback, useLayoutEffect, useRef, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
 import { Icon, Popover, Tabs, VisuallyHidden } from '@wordpress/ui';
 import { isGated } from '../data/is-gated';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
 export type SeoTab = 'overview' | 'settings' | 'content' | 'geo';
 
@@ -34,13 +34,15 @@ const geoInfotipLabel = __( 'What is GEO?', 'jetpack-seo' );
  * It renders *after* `Tabs.List` rather than inside it. `Tabs.Tab` is a
  * `<button>`, so nesting the trigger in the GEO tab would put a button inside a
  * button — invalid, and it would break the list's arrow-key navigation. A
- * non-tab child of the `tablist` has the same problem. Sitting outside the list
- * still reads as belonging to the GEO tab because **GEO is the last tab**; a tab
- * added after it would need this moved (or promoted to a per-tab affordance).
+ * non-tab child of the `tablist` has the same problem. Settings comes after GEO,
+ * so the trigger is positioned over a gap the GEO tab leaves after itself (see
+ * `useInfotipOffset`) to keep it visually beside the tab it explains.
  *
+ * @param props        - Component props.
+ * @param props.offset - Where the trigger starts, in px from the strip's inline-start edge.
  * @return The GEO infotip.
  */
-const GeoInfotip = () => (
+const GeoInfotip = ( { offset }: { offset?: number } ) => (
 	<Popover.Root>
 		<Popover.Trigger
 			openOnHover
@@ -48,6 +50,7 @@ const GeoInfotip = () => (
 			closeDelay={ 200 }
 			aria-label={ geoInfotipLabel }
 			className="jetpack-seo-tabs-strip__infotip"
+			style={ { insetInlineStart: offset } }
 		>
 			<Icon icon={ info } size={ 20 } />
 		</Popover.Trigger>
@@ -63,6 +66,56 @@ const GeoInfotip = () => (
 		</Popover.Popup>
 	</Popover.Root>
 );
+
+/**
+ * Where the GEO infotip starts, in px from the tab strip's inline-start edge:
+ * the GEO tab's inline-end edge. Measured rather than laid out because the
+ * infotip can't sit inside the tab list (see `GeoInfotip`), and the tab's
+ * position depends on the translated labels before it.
+ *
+ * Re-measured when the strip, the list or the GEO tab resizes (viewport, fonts
+ * loading) and when the list scrolls, which it does when the tabs overflow.
+ *
+ * @param stripRef  - The tab strip, which is the infotip's containing block.
+ * @param geoTabRef - The GEO tab.
+ * @param enabled   - Whether the GEO tab is shown at all.
+ * @return The offset, or `undefined` before the first measurement.
+ */
+function useInfotipOffset(
+	stripRef: RefObject< HTMLDivElement | null >,
+	geoTabRef: RefObject< HTMLButtonElement | null >,
+	enabled: boolean
+): number | undefined {
+	const [ offset, setOffset ] = useState< number >();
+
+	useLayoutEffect( () => {
+		const strip = stripRef.current;
+		const geoTab = geoTabRef.current;
+		if ( ! enabled || ! strip || ! geoTab ) {
+			return;
+		}
+		const list = geoTab.closest( '[role="tablist"]' );
+
+		const measure = () => {
+			const stripRect = strip.getBoundingClientRect();
+			const tabRect = geoTab.getBoundingClientRect();
+			const isRtl = window.getComputedStyle( strip ).direction === 'rtl';
+			setOffset( isRtl ? stripRect.right - tabRect.left : tabRect.right - stripRect.left );
+		};
+
+		measure();
+		list?.addEventListener( 'scroll', measure, { passive: true } );
+		const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver( measure );
+		[ strip, list, geoTab ].forEach( element => element && observer?.observe( element ) );
+
+		return () => {
+			list?.removeEventListener( 'scroll', measure );
+			observer?.disconnect();
+		};
+	}, [ stripRef, geoTabRef, enabled ] );
+
+	return offset;
+}
 
 /**
  * The SEO dashboard's top navigation — a `@wordpress/ui` tab bar that drives
@@ -89,6 +142,10 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 	// Overview if reached directly (see the route stages).
 	const gated = isGated();
 
+	const stripRef = useRef< HTMLDivElement >( null );
+	const geoTabRef = useRef< HTMLButtonElement >( null );
+	const infotipOffset = useInfotipOffset( stripRef, geoTabRef, ! gated );
+
 	const onTabChange = useCallback(
 		( next: string | null ) => {
 			if ( isSeoTab( next ) ) {
@@ -100,13 +157,15 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 
 	return (
 		<Tabs.Root className="jetpack-seo-tabs" value={ active } onValueChange={ onTabChange }>
-			<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal jetpack-seo-tabs-strip">
+			<div
+				ref={ stripRef }
+				className="jp-admin-page-tabs jp-admin-page-tabs--minimal jetpack-seo-tabs-strip"
+			>
 				<Tabs.List variant="minimal">
 					<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
-					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
 					{ ! gated && <Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab> }
 					{ ! gated && (
-						<Tabs.Tab value="geo">
+						<Tabs.Tab ref={ geoTabRef } value="geo" className="jetpack-seo-tabs-strip__geo-tab">
 							{ _x(
 								'GEO',
 								'Generative Engine Optimization; the SEO dashboard tab label',
@@ -114,9 +173,10 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 							) }
 						</Tabs.Tab>
 					) }
+					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
 				</Tabs.List>
 				{ /* Same gate as the tab it explains — no orphaned icon on gated sites. */ }
-				{ ! gated && <GeoInfotip /> }
+				{ ! gated && <GeoInfotip offset={ infotipOffset } /> }
 			</div>
 			{ children }
 		</Tabs.Root>

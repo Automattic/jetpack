@@ -46,21 +46,32 @@ body.toplevel_page_jetpack-seo {
 	flex-direction: column;
 }
 
-// The tabs strip carries one non-tab affordance — the GEO infotip — so it has
-// to lay its children out in a row. The shared `.jp-admin-page-tabs` wrapper is
-// a block (it only ever held `Tabs.List`, which is `width: fit-content`), so
-// without this the icon drops to its own line under the tabs. Scoped to this
-// package rather than added to the shared mixin, which no one else needs.
+// The tabs strip carries one non-tab affordance — the GEO infotip — which is
+// positioned against it (see `.jetpack-seo-tabs-strip__infotip`). Scoped to
+// this package rather than added to the shared mixin, which no one else needs.
 .jetpack-seo-tabs-strip {
 	display: flex;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-xs);
+}
+
+// Room after the GEO tab for its infotip: the 20px glyph plus an `xs` gap. The
+// infotip itself lives outside the tab list (see `GeoInfotip`), so the tab
+// reserves the space and the trigger is moved into it.
+.jetpack-seo-tabs-strip__geo-tab {
+	margin-inline-end: calc(20px + var(--wpds-dimension-gap-xs));
 }
 
 // Reset the trigger's button chrome so it reads as an icon beside the tab label
-// rather than a control of its own. Sized to the 20px glyph; the tab row's own
-// height keeps it vertically centered.
+// rather than a control of its own. Sized to the 20px glyph.
+// Positioned into the space the GEO tab reserves: `inset-inline-start` is set
+// inline from the GEO tab's measured end (`useInfotipOffset`), against the
+// strip, which the layout mixin makes `position: sticky` and so the trigger's
+// containing block.
 .jetpack-seo-tabs-strip__infotip {
+	position: absolute;
+	inset-block-start: 50%;
+	translate: 0 -50%;
+	margin-inline-start: var(--wpds-dimension-gap-xs);
 	display: inline-flex;
 	align-items: center;
 	padding: 0;
