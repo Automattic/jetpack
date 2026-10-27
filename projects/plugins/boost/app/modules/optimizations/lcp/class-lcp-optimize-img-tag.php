@@ -171,10 +171,12 @@ class LCP_Optimize_Img_Tag {
 	 * @return string|null 'cover', 'contain', or null if the markup sets neither.
 	 */
 	private function get_marked_object_fit( $element ) {
-		// Inline style first, and its last declaration, as CSS applies them.
+		// Inline style first: its last !important declaration, else its last, as CSS applies them.
 		$style = $element->get_attribute( 'style' );
-		if ( is_string( $style ) && preg_match_all( '/(?:^|;)\s*object-fit\s*:\s*([a-z-]+)\s*(?:!important\s*)?(?=;|$)/i', $style, $matches ) ) {
-			$fit = strtolower( end( $matches[1] ) );
+		if ( is_string( $style ) && preg_match_all( '/(?:^|;)\s*object-fit\s*:\s*([a-z-]+)\s*(!important\s*)?(?=;|$)/i', $style, $matches ) ) {
+			$important = array_filter( $matches[2] );
+			$fits      = $important ? array_intersect_key( $matches[1], $important ) : $matches[1];
+			$fit       = strtolower( end( $fits ) );
 
 			return in_array( $fit, array( 'cover', 'contain' ), true ) ? $fit : null;
 		}
