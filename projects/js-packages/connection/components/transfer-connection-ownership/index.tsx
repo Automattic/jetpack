@@ -28,6 +28,8 @@ export interface TransferConnectionOwnershipProps {
 	onTransferred?: ( newOwnerId: number ) => void;
 	/** Called while a transfer is in flight, so a host can hold its own exits shut. */
 	onBusyChange?: ( isBusy: boolean ) => void;
+	/** Surface to report Tracks events as, e.g. 'connectors'. Sent as null when omitted. */
+	trackingContext?: string;
 }
 
 /**
@@ -43,6 +45,7 @@ const TransferConnectionOwnership = ( {
 	apiNonce,
 	onTransferred,
 	onBusyChange,
+	trackingContext,
 }: TransferConnectionOwnershipProps ) => {
 	const {
 		candidates,
@@ -55,7 +58,7 @@ const TransferConnectionOwnership = ( {
 		transfer,
 		isTransferring,
 		error,
-	} = useOwnershipTransfer( { apiRoot, apiNonce, onTransferred } );
+	} = useOwnershipTransfer( { apiRoot, apiNonce, onTransferred, trackingContext } );
 
 	// Null only while the request is in flight: a failure resolves to an empty list.
 	const isLoading = null === candidates;

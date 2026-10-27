@@ -11,6 +11,13 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 const recordEvent = analytics.tracks.recordEvent as jest.Mock;
 
 describe( 'ScanUpsell', () => {
+	beforeAll( () => {
+		window.jetpackProtectTracks = true;
+	} );
+	afterAll( () => {
+		delete window.jetpackProtectTracks;
+	} );
+
 	it.each( [
 		[ 3, 3 ],
 		[ 99, 1 ],
