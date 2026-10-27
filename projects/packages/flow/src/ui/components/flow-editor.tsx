@@ -89,7 +89,8 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 				);
 				return;
 			}
-			setFlow( current => ( { ...planned, id: current.id, enabled: current.enabled } ) );
+			setFlow( { ...planned, id: null, enabled: true } );
+			setPrompt( '' );
 			setNameTouched( !! planned.name );
 			if ( result.source === 'keywords' ) {
 				setNotice(
