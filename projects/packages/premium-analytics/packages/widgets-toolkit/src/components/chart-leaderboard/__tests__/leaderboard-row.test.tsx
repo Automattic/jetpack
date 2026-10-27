@@ -145,6 +145,16 @@ describe( 'resolveLeaderboardRowAction', () => {
 			{ kind: 'link', href: 'https://a.test' },
 		],
 		[
+			'offers the href as a "View" action when asked',
+			{ hasChildren: false, href: 'https://a.test', hrefAs: 'viewLink' as const },
+			{ kind: 'viewLink', href: 'https://a.test' },
+		],
+		[
+			'drills down over an href however the href would be offered',
+			{ hasChildren: true, href: 'https://a.test', hrefAs: 'viewLink' as const, drillDown },
+			{ kind: 'drillDown', ariaLabel: 'Drill' },
+		],
+		[
 			'stays static when a row has children but no handler, ignoring href',
 			{ hasChildren: true, href: 'https://a.test' },
 			{ kind: 'static' },
@@ -190,6 +200,26 @@ describe( 'buildLeaderboardRow', () => {
 		);
 
 		expect( screen.getByTitle( 'Pricing' ) ).toHaveClass( 'bars' );
+	} );
+
+	it( 'keeps the label plain beside a "View" action that opens the URL', () => {
+		const row = buildLeaderboardRow( {
+			label: 'example.com',
+			media: { kind: 'favicon', url: 'https://example.com/favicon.ico' },
+			action: { kind: 'viewLink', href: 'https://example.com/' },
+		} );
+
+		render( row.label );
+
+		expect( screen.queryByRole( 'link', { name: /example\.com$/ } ) ).not.toBeInTheDocument();
+		const view = screen.getByRole( 'link', { name: 'View "example.com" in a new tab' } );
+		expect( view ).toHaveAttribute( 'href', 'https://example.com/' );
+		expect( view ).toHaveAttribute( 'target', '_blank' );
+		// The tooltip stays on the label, so hovering the action shows only its own.
+		expect( screen.getByTitle( 'example.com' ) ).not.toContainElement( view );
+		// eslint-disable-next-line testing-library/no-node-access -- The wrapper has no accessible query target.
+		expect( view.parentElement ).toHaveClass( 'row' );
+		expect( row ).not.toHaveProperty( 'onClick' );
 	} );
 
 	it( 'keeps the list chrome by default', () => {
