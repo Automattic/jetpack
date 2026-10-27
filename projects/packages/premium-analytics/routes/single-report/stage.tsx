@@ -370,7 +370,11 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 				appliedPresetId={ dateFilters.appliedPresetId }
 				appliedRange={ dateFilters.appliedRange }
 			/>
-			<ReportScopeProvider openPeriod={ openPeriod } dateLimits={ dateLimits }>
+			<ReportScopeProvider
+				openPeriod={ openPeriod }
+				attentionId={ attentionId }
+				dateLimits={ dateLimits }
+			>
 				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard

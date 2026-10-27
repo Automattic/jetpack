@@ -14,6 +14,7 @@ import type { ReactNode } from 'react';
 let mockSearch: Record< string, unknown > = {};
 let mockParams: Record< string, string > = {};
 let mockDateFilterOverrides: Record< string, unknown > = {};
+let mockPeriodHost: { openPeriod: () => void; attentionId?: number } | undefined;
 let mockDashboardProps: {
 	editMode?: boolean;
 	onEditChange?: ( next: boolean ) => void;
@@ -111,6 +112,9 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
+	usePeriodHost: ( ...args: unknown[] ) =>
+		mockPeriodHost ??
+		jest.requireActual( '@jetpack-premium-analytics/routing' ).usePeriodHost( ...args ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => {
 		const filters: Record< string, unknown > = {
@@ -150,6 +154,7 @@ type ControlItem = { reportParams?: Record< string, unknown >; allTimeStart?: st
  * @return The control.
  */
 function MockDateControl( { data, onChange }: DataFormControlProps< ControlItem > ) {
+	const { attentionId } = useReportScope();
 	const applyLastSevenDays = useCallback(
 		() =>
 			onChange( {
@@ -163,6 +168,7 @@ function MockDateControl( { data, onChange }: DataFormControlProps< ControlItem 
 			<div>Date filters</div>
 			<div>{ `Window from ${ String( data.reportParams?.from ?? 'none' ) }` }</div>
 			<div>{ `All time from ${ data.allTimeStart ?? 'none' }` }</div>
+			<div>{ attentionId === undefined ? 'No attention' : `Attention ${ attentionId }` }</div>
 			<button onClick={ applyLastSevenDays }>Apply last 7 days</button>
 		</div>
 	);
@@ -363,6 +369,7 @@ describe( 'single-report stage', () => {
 		jest.clearAllMocks();
 		mockDashboardLayouts.length = 0;
 		mockDateFilterOverrides = {};
+		mockPeriodHost = undefined;
 		mockParams = { kind: 'video', id: '42' };
 		mockSearch = {
 			from: '2026-06-01',
@@ -583,6 +590,16 @@ describe( 'single-report stage', () => {
 		render( stage() );
 
 		expect( screen.getByText( 'Scope offers no comparison' ) ).toBeInTheDocument();
+	} );
+
+	// The control is a DataForm field, so the host's attention reaches it through the scope.
+	it( 'hands the control the attention the period host raises', () => {
+		mockPeriodHost = { openPeriod: jest.fn(), attentionId: 7 };
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		expect( screen.getByText( 'Attention 7' ) ).toBeInTheDocument();
 	} );
 
 	it( 'hands the dashboard the layout the record declares', () => {
