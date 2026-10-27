@@ -563,7 +563,7 @@ class Main_Features {
 		 * Jetpack plans the feature's details would otherwise link to; it is ignored when `$site_has_feature`.
 		 * Set `manage_url` to where a site that has the feature manages it, read only when `$site_has_feature`.
 		 *
-		 * @since 6.13.0
+		 * @since $$next-version$$
 		 *
 		 * @param array  $upgrade          `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is,
 		 *                                 and `back_url`, the admin page the link is on, for a host flow to return to.
