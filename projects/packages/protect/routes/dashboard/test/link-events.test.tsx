@@ -54,7 +54,7 @@ it.each( [
 		[ [ 'jetpack_protect_scan_settings_get_scan_link_click', beacon ] ],
 	],
 	[
-		'nothing for Manage Scan settings',
+		'nothing for the server credentials link',
 		() => (
 			<ScanSettingsCard
 				state={ { ...report, hasPlan: true } }
@@ -62,7 +62,7 @@ it.each( [
 				openTab={ jest.fn() }
 			/>
 		),
-		'Manage Scan settings',
+		'Manage server credentials',
 		[],
 	],
 	[
