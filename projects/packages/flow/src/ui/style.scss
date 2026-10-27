@@ -22,6 +22,13 @@ body.jetpack-flow {
 	flex-direction: column;
 }
 
+.jetpack-flow-loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-block-size: 50vh;
+}
+
 // The one call to action of the editor.
 .jetpack-flow-save {
 	min-inline-size: 120px;

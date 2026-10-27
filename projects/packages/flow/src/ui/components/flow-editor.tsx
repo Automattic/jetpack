@@ -1,7 +1,7 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Button, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { fetchCatalog, fetchFlow, planFlow, saveFlow } from '../api';
 import { FlowCard } from './flow-card';
 import { FlowPage } from './flow-page';
@@ -101,7 +101,9 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 		>
 			<div className="jetpack-flow">
 				{ ! catalog ? (
-					<Text>{ error ?? __( 'Loading…', 'jetpack-flow-pkg' ) }</Text>
+					<div className="jetpack-flow-loading">
+						{ error ? <Text>{ error }</Text> : <Spinner /> }
+					</div>
 				) : (
 					<Stack direction="column" gap="xl">
 						{ error && (
