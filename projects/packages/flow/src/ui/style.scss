@@ -147,7 +147,7 @@ body.jetpack-flow {
 	&__line {
 		block-size: var(--wpds-dimension-size-md);
 		border-inline-start:
-			var(--wpds-border-width-sm) dotted
+			var(--wpds-border-width-sm) solid
 			var(--wpds-color-stroke-surface-neutral-strong);
 	}
 }
@@ -164,5 +164,71 @@ body.jetpack-flow {
 		content: "";
 		flex: 1;
 		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	}
+}
+
+.jetpack-flow-settings {
+	inline-size: min(100%, 680px);
+	margin-inline: auto;
+}
+
+.jetpack-flow-canvas__then {
+	display: grid;
+	justify-items: center;
+	inline-size: 100%;
+	animation: jetpack-flow-reveal var(--wpds-motion-duration-lg) var(--wpds-motion-easing-expressive) both;
+}
+
+@keyframes jetpack-flow-reveal {
+
+	from {
+		opacity: 0;
+		transform: translateY(calc(-1 * var(--wpds-dimension-gap-xl)));
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.jetpack-flow-prompt__field {
+	inline-size: 66.667%;
+	min-inline-size: min(100%, 320px);
+
+	textarea {
+		font-size: var(--wpds-typography-font-size-lg);
+	}
+}
+
+// While building, a green-to-blue gradient rotates around the field.
+@property --jetpack-flow-angle {
+	syntax: "<angle>";
+	initial-value: 0deg;
+	inherits: false;
+}
+
+.jetpack-flow-prompt__border {
+	padding: 3px;
+	border-radius: var(--wpds-border-radius-lg);
+
+	&.is-busy {
+		background: conic-gradient(from var(--jetpack-flow-angle), #069e08, #3858e9, #7be07d, #9fb0ff, #069e08);
+		animation: jetpack-flow-spin calc(var(--wpds-motion-duration-xl) * 10) linear infinite;
+	}
+}
+
+@keyframes jetpack-flow-spin {
+
+	to {
+		--jetpack-flow-angle: 360deg;
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.jetpack-flow-canvas__then,
+	.jetpack-flow-prompt__border.is-busy {
+		animation: none;
 	}
 }

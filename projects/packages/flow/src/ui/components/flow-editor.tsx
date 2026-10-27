@@ -179,7 +179,7 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 						<FlowCanvas flow={ flow } catalog={ catalog } onChange={ setFlow } />
 
 						{ flow.steps.length > 0 && (
-							<Card.Root>
+							<Card.Root className="jetpack-flow-settings">
 								<Card.Content>
 									<Stack direction="column" gap="lg">
 										<Field.Root>

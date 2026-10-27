@@ -73,11 +73,9 @@ function TriggerCard( { flow, catalog, onChange }: Props ) {
 
 	return (
 		<Card.Root className="jetpack-flow-card">
-			{ flow.triggers.length === 0 && (
-				<Card.Header>
-					<Card.Title>{ __( 'When…', 'jetpack-flow-pkg' ) }</Card.Title>
-				</Card.Header>
-			) }
+			<Card.Header>
+				<Card.Title>{ __( 'When…', 'jetpack-flow-pkg' ) }</Card.Title>
+			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="md">
 					{ flow.triggers.map( ( id, index ) => (
@@ -88,12 +86,7 @@ function TriggerCard( { flow, catalog, onChange }: Props ) {
 									{ chosen[ index ] && (
 										<ProductIcon product={ chosen[ index ].product } size={ 28 } />
 									) }
-									<Stack direction="column">
-										{ index === 0 && (
-											<Text variant="body-sm">{ __( 'When…', 'jetpack-flow-pkg' ) }</Text>
-										) }
-										<Text variant="heading-sm">{ chosen[ index ]?.label ?? id }</Text>
-									</Stack>
+									<Text variant="heading-sm">{ chosen[ index ]?.label ?? id }</Text>
 								</Stack>
 								<Button
 									variant="minimal"
@@ -218,69 +211,78 @@ export function FlowCanvas( { flow, catalog, onChange }: Props ) {
 				</Card.Root>
 			</>
 		) : (
-			<Wire onAdd={ flow.triggers.length > 0 ? () => setPendingAt( index ) : undefined } />
+			<Wire onAdd={ () => setPendingAt( index ) } />
 		);
 
 	return (
 		<div className="jetpack-flow-canvas">
 			<TriggerCard flow={ flow } catalog={ catalog } onChange={ onChange } />
-			{ flow.steps.map( ( step, index ) => {
-				const action = catalog.actions.find( a => a.id === step.type );
-				return (
-					<div className="jetpack-flow-canvas__item" key={ step.id }>
-						{ slot( index ) }
-						<CollapsibleCard.Root
-							className="jetpack-flow-card"
-							open={ openId === step.id }
-							onOpenChange={ open => setOpenId( open ? step.id : null ) }
-						>
-							<CollapsibleCard.Header>
-								<Stack align="center" gap="md">
-									{ action && <ProductIcon product={ action.product } size={ 28 } /> }
-									<Card.Title>{ action?.label ?? step.type }</Card.Title>
-								</Stack>
-							</CollapsibleCard.Header>
-							<CollapsibleCard.Content>
-								<Stack direction="column" gap="md">
-									{ action && (
-										<StepFields
-											item={ action }
-											config={ step.config }
-											catalog={ catalog }
-											tokens={ [
-												...sharedTokens,
-												...flow.steps
-													.slice( 0, index )
-													.flatMap(
-														previous =>
-															catalog.actions.find( a => a.id === previous.type )?.outputs ?? []
-													),
-											] }
-											onChange={ config =>
-												onChange( {
-													...flow,
-													steps: flow.steps.map( s => ( s.id === step.id ? { ...s, config } : s ) ),
-												} )
-											}
-										/>
-									) }
-									<Stack justify="flex-end">
-										<Button
-											variant="minimal"
-											onClick={ () =>
-												onChange( { ...flow, steps: flow.steps.filter( s => s.id !== step.id ) } )
-											}
-										>
-											{ __( 'Remove action', 'jetpack-flow-pkg' ) }
-										</Button>
-									</Stack>
-								</Stack>
-							</CollapsibleCard.Content>
-						</CollapsibleCard.Root>
-					</div>
-				);
-			} ) }
-			{ slot( flow.steps.length ) }
+			{ flow.triggers.length > 0 && (
+				<div className="jetpack-flow-canvas__then">
+					{ flow.steps.map( ( step, index ) => {
+						const action = catalog.actions.find( a => a.id === step.type );
+						return (
+							<div className="jetpack-flow-canvas__item" key={ step.id }>
+								{ slot( index ) }
+								<CollapsibleCard.Root
+									className="jetpack-flow-card"
+									open={ openId === step.id }
+									onOpenChange={ open => setOpenId( open ? step.id : null ) }
+								>
+									<CollapsibleCard.Header>
+										<Stack align="center" gap="md">
+											{ action && <ProductIcon product={ action.product } size={ 28 } /> }
+											<Card.Title>{ action?.label ?? step.type }</Card.Title>
+										</Stack>
+									</CollapsibleCard.Header>
+									<CollapsibleCard.Content>
+										<Stack direction="column" gap="md">
+											{ action && (
+												<StepFields
+													item={ action }
+													config={ step.config }
+													catalog={ catalog }
+													tokens={ [
+														...sharedTokens,
+														...flow.steps
+															.slice( 0, index )
+															.flatMap(
+																previous =>
+																	catalog.actions.find( a => a.id === previous.type )?.outputs ?? []
+															),
+													] }
+													onChange={ config =>
+														onChange( {
+															...flow,
+															steps: flow.steps.map( s =>
+																s.id === step.id ? { ...s, config } : s
+															),
+														} )
+													}
+												/>
+											) }
+											<Stack justify="flex-end">
+												<Button
+													variant="minimal"
+													onClick={ () =>
+														onChange( {
+															...flow,
+															steps: flow.steps.filter( s => s.id !== step.id ),
+														} )
+													}
+												>
+													{ __( 'Remove action', 'jetpack-flow-pkg' ) }
+												</Button>
+											</Stack>
+										</Stack>
+									</CollapsibleCard.Content>
+								</CollapsibleCard.Root>
+							</div>
+						);
+					} ) }
+					{ slot( flow.steps.length ) }
+				</div>
+			) }
 		</div>
 	);
 }
