@@ -696,7 +696,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A locked section carries the Personal plan's yearly price, or null when WordPress.com gives none.
+	 * A locked section carries the Personal plan's yearly price, or null when WordPress.com gives none, and a reload reuses either answer.
 	 *
 	 * @dataProvider provide_personal_plan_prices
 	 *
@@ -708,12 +708,12 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->answer_plan_list_with( $personal );
 		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE );
 
-		// The second load reads back what the first one cached.
 		for ( $load = 1; $load <= 2; $load++ ) {
 			foreach ( get_stats_plan_gates()['locked_sections'] as $section ) {
 				$this->assertSame( $expected, $section['plan_price'], "Load $load" );
 			}
 		}
+		$this->assertSame( 1, $this->plan_list_requests );
 	}
 
 	/**
@@ -734,7 +734,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 				),
 			),
 			'missing plan'  => array( null, null ),
-			'no price'      => array( array( 'currency_code' => 'USD' ), null ),
+			'no currency'   => array( array( 'raw_price_integer' => 4800 ), null ),
 			'zero price'    => array(
 				array(
 					'raw_price_integer' => 0,
@@ -747,9 +747,9 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Off Simple the price costs a WordPress.com request, so a reload reuses it, and a tier without locked sections never asks.
+	 * A tier without locked sections never asks WordPress.com for the price.
 	 */
-	public function test_the_personal_plan_price_is_fetched_once_and_only_for_locked_sections() {
+	public function test_a_tier_without_locked_sections_never_asks_for_the_price() {
 		$this->answer_plan_list_with(
 			array(
 				'raw_price_integer' => 4800,
@@ -759,12 +759,6 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_PAID );
 		get_stats_plan_gates();
 		$this->assertSame( 0, $this->plan_list_requests );
-
-		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE, 11 );
-		get_stats_plan_gates();
-		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- The second load is the cache under test.
-		get_stats_plan_gates();
-		$this->assertSame( 1, $this->plan_list_requests );
 	}
 
 	/**
