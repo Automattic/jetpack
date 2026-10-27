@@ -86,6 +86,7 @@ class Analytics_Test extends TestCase {
 		remove_all_actions( 'admin_menu' );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( 'jetpack_stats_url' );
+		remove_all_filters( 'jetpack_stats_admin_pre_connection_dashboard' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
 		Constants::clear_constants();
@@ -115,6 +116,7 @@ class Analytics_Test extends TestCase {
 		$this->set_analytics_property( 'initialized', false );
 		$this->set_analytics_property( 'menu_title', null );
 		$this->set_analytics_property( 'resolved_menu_title', null );
+		$this->set_analytics_property( 'replaces_pre_connection_stats_page', false );
 		$this->set_analytics_property( 'build_entry', null );
 	}
 
@@ -192,6 +194,46 @@ class Analytics_Test extends TestCase {
 		$this->assertNotFalse(
 			has_filter( 'jetpack_stats_url', array( Stats_Links::class, 'filter_url' ) )
 		);
+	}
+
+	/**
+	 * The stats-admin pre-connection Stats page stays unless the host asks this dashboard to replace it.
+	 *
+	 * @param array $options Options passed to init().
+	 * @param bool  $kept    Whether stats-admin still registers its page.
+	 * @dataProvider provide_pre_connection_stats_page_cases
+	 */
+	#[DataProvider( 'provide_pre_connection_stats_page_cases' )]
+	public function test_init_replaces_the_pre_connection_stats_page_on_request( $options, $kept ) {
+		$this->reset_analytics_init_state();
+
+		Analytics::init( $options );
+
+		$this->assertSame( $kept, apply_filters( 'jetpack_stats_admin_pre_connection_dashboard', true ) );
+	}
+
+	/**
+	 * Data for test_init_replaces_the_pre_connection_stats_page_on_request.
+	 *
+	 * @return array
+	 */
+	public static function provide_pre_connection_stats_page_cases() {
+		return array(
+			'kept by default'     => array( array(), true ),
+			'replaced on request' => array( array( 'replaces_pre_connection_stats_page' => true ), false ),
+		);
+	}
+
+	/**
+	 * The standalone plugin initializes first with no options, so the Jetpack plugin's later call must still apply its own.
+	 */
+	public function test_a_later_init_call_still_applies_its_options() {
+		$this->reset_analytics_init_state();
+
+		Analytics::init();
+		Analytics::init( array( 'replaces_pre_connection_stats_page' => true ) );
+
+		$this->assertFalse( apply_filters( 'jetpack_stats_admin_pre_connection_dashboard', true ) );
 	}
 
 	/**

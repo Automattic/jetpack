@@ -256,7 +256,7 @@ class Jetpack_AI_Helper {
 		if ( ( new Status() )->is_offline_mode() ) {
 			return new WP_Error(
 				'dev_mode',
-				__( 'Jetpack AI is not available in offline mode.', 'jetpack' )
+				__( 'Jetpack AI is not available in Offline Mode.', 'jetpack' )
 			);
 		}
 
@@ -362,7 +362,7 @@ class Jetpack_AI_Helper {
 		if ( ( new Status() )->is_offline_mode() ) {
 			return new WP_Error(
 				'dev_mode',
-				__( 'Jetpack AI is not available in offline mode.', 'jetpack' )
+				__( 'Jetpack AI is not available in Offline Mode.', 'jetpack' )
 			);
 		}
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-mountEditor() returns a function that unmounts the editor, so a host can clean up a comment form that closes.

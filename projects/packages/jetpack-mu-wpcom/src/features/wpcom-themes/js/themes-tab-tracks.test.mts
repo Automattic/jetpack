@@ -81,4 +81,26 @@ describe( 'trackThemesTab', () => {
 		assert.equal( events.length, 2 );
 		assert.equal( ( events[ 1 ] as unknown[] )[ 0 ], 'wpcom_marketplace_tab_theme_purchase_click' );
 	} );
+
+	it( "records a change of the pricing filter, and not of core's own filters", () => {
+		type OnChange = ( event: { target: unknown } ) => void;
+
+		const events: unknown[] = [];
+		let onChange: OnChange = () => {};
+		const doc = {
+			addEventListener: ( type: string, handler: OnChange ) => {
+				if ( type === 'change' ) {
+					onChange = handler;
+				}
+			},
+		} as unknown as Document;
+
+		trackThemesTab( doc, ( ...event ) => events.push( event ) );
+		onChange( { target: { dataset: { wpcomThemesPricing: '' }, value: 'included' } } );
+		onChange( { target: { dataset: {}, value: 'blog' } } );
+
+		assert.deepEqual( events, [
+			[ 'wpcom_marketplace_tab_theme_pricing_filter', { pricing: 'included' } ],
+		] );
+	} );
 } );

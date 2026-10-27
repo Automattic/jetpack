@@ -3,13 +3,13 @@
  */
 import { ConversionFunnelChart } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { __, sprintf } from '@wordpress/i18n';
-import { useMemo, type JSX } from 'react';
+import { __ } from '@wordpress/i18n';
+import { useCallback, useMemo, type JSX } from 'react';
 /**
  * Internal dependencies
  */
 import { formatChartName } from '../../helpers/format-chart-name';
-import { TooltipRow } from '../chart-tooltip/tooltip-row';
+import { exactFormatOf } from '../chart-tooltip/utils';
 import { MetricWithComparison } from '../metric-with-comparison';
 import {
 	WidgetState,
@@ -77,13 +77,35 @@ export function Funnel( {
 }: FunnelProps ): JSX.Element {
 	const { isLoading, isFetching, isError, refetch } = status;
 	const hasComparison = !! status.hasComparison;
-	const firstLabel = steps[ 0 ]?.label ?? '';
 
 	const { chartSteps, rate, previousRate } = useMemo(
 		() => buildFunnelChartData( steps, { hasComparison } ),
 		[ steps, hasComparison ]
 	);
 	const errorState = useMemo( () => resolveWidgetStateError( error, refetch ), [ error, refetch ] );
+
+	const getTooltipContent = useCallback(
+		( step: { count?: number; rate: number }, index: number ) => {
+			const countFormat = exactFormatOf( format );
+			const rateFormat = exactFormatOf( RATE_FORMAT );
+			return {
+				value:
+					step.count === undefined
+						? __( 'No data', 'jetpack-premium-analytics-pkg' )
+						: formatMetricValue( step.count, countFormat.type, countFormat.options ),
+				rows:
+					index === 0
+						? []
+						: [
+								{
+									label: __( 'Conversion rate', 'jetpack-premium-analytics-pkg' ),
+									value: formatMetricValue( step.rate / 100, rateFormat.type, rateFormat.options ),
+								},
+							],
+			};
+		},
+		[ format ]
+	);
 
 	return (
 		<WidgetState
@@ -99,6 +121,7 @@ export function Funnel( {
 				ariaLabel={ formatChartName( chartTitle ) }
 				steps={ chartSteps }
 				mainRate={ rate * 100 }
+				getTooltipContent={ getTooltipContent }
 				renderMainMetric={ () => (
 					<MetricWithComparison
 						value={ rate }
@@ -110,28 +133,6 @@ export function Funnel( {
 					<span className={ className }>
 						{ formatMetricValue( step.rate / 100, RATE_FORMAT.type, RATE_FORMAT.options ) }
 					</span>
-				) }
-				renderTooltip={ ( { step, index } ) => (
-					<>
-						<TooltipRow
-							indicator={ null }
-							label={ step.label }
-							value={ step.count ?? null }
-							dataFormat={ format }
-						/>
-						{ index > 0 && (
-							<TooltipRow
-								indicator={ null }
-								label={ sprintf(
-									/* translators: %s is the label of the funnel's first step, e.g. "Sessions". */
-									__( 'of %s', 'jetpack-premium-analytics-pkg' ),
-									firstLabel
-								) }
-								value={ step.rate / 100 }
-								dataFormat={ RATE_FORMAT }
-							/>
-						) }
-					</>
 				) }
 			/>
 		</WidgetState>

@@ -23,7 +23,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.13.0';
+	const PACKAGE_VERSION = '0.14.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -48,6 +48,13 @@ class Analytics {
 	 * @var string|null
 	 */
 	private static $resolved_menu_title = null;
+
+	/**
+	 * Whether the host has this dashboard replace stats-admin's pre-connection Stats page.
+	 *
+	 * @var bool
+	 */
+	private static $replaces_pre_connection_stats_page = false;
 
 	/**
 	 * Path to the wp-build entry point. Null uses the generated build.
@@ -75,20 +82,26 @@ class Analytics {
 	 *                         the package's own translated label. Pass a closure to supply
 	 *                         a translated label of your own: it runs on admin_menu, where
 	 *                         a textdomain can load, unlike init time.
+	 *                       - replaces_pre_connection_stats_page (bool): Stop stats-admin from
+	 *                         registering its own Stats page while the site is not connected, so
+	 *                         this dashboard is the only Stats entry. Defaults to false.
+	 *                       A later call still applies its options, so a host that calls this after
+	 *                       another plugin did keeps its configuration.
 	 * @return void
 	 */
 	public static function init( $options = array() ) {
+		self::apply_options( $options );
 		if ( self::$initialized ) {
 			return;
 		}
 		self::$initialized = true;
-		self::apply_options( $options );
 
 		self::register_sync_bootstrap();
 		self::register_local_api();
 
 		// Piggybacks on the Jetpack Stats module; checks Jetpack connection state.
 		Jetpack_Stats_Tracker::configure();
+		self::register_pre_connection_stats_page_replacement();
 
 		self::boot_shared_services();
 		self::register_dashboard_support_routes();
@@ -146,11 +159,11 @@ class Analytics {
 	 * @return void
 	 */
 	public static function init_wpcom_simple( $options = array() ) {
+		self::apply_options( $options );
 		if ( self::$initialized ) {
 			return;
 		}
 		self::$initialized = true;
-		self::apply_options( $options );
 
 		self::boot_shared_services();
 		self::load_dashboard_surface();
@@ -167,6 +180,26 @@ class Analytics {
 			self::$menu_title          = $options['menu_title'];
 			self::$resolved_menu_title = null;
 		}
+		if ( ! empty( $options['replaces_pre_connection_stats_page'] ) ) {
+			self::$replaces_pre_connection_stats_page = true;
+		}
+	}
+
+	/**
+	 * Let a host replace stats-admin's pre-connection Stats page with this dashboard.
+	 *
+	 * The callback reads the option when stats-admin initializes on `plugins_loaded`, so a host whose
+	 * init() call comes after another plugin's still takes effect.
+	 *
+	 * @return void
+	 */
+	private static function register_pre_connection_stats_page_replacement() {
+		add_filter(
+			'jetpack_stats_admin_pre_connection_dashboard',
+			static function ( $register ) {
+				return self::$replaces_pre_connection_stats_page ? false : $register;
+			}
+		);
 	}
 
 	/**
