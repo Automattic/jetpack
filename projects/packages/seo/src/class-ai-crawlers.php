@@ -390,11 +390,11 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * URL of the settings screen holding "Prevent third-party sharing", linked from
-	 * the GEO tab when that setting is governing crawler access.
+	 * URL of the site visibility settings (private, Coming Soon, "Prevent third-party
+	 * sharing"), linked from the dashboard wherever one of them governs a toggle.
 	 *
-	 * Points at wp-admin → Settings → Reading, which is the same-origin home of the
-	 * option on the sites where it exists (WordPress.com). Left as a package method
+	 * Points at wp-admin → Settings → Reading, which is the same-origin home of those
+	 * options on the sites where they exist (WordPress.com). Left as a package method
 	 * so a Calypso deep link can replace it without touching the client.
 	 *
 	 * @return string
