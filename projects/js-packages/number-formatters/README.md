@@ -83,7 +83,7 @@ For currencies that include decimals, this will always return the amount with de
 
 Since rounding errors are common in floating point math, sometimes a price is provided as an integer in the smallest unit of a currency (eg: cents in USD or yen in JPY). Set the `isSmallestUnit` to change the function to operate on integer numbers instead. If this option is not set or false, the function will format the amount `1025` in `USD` as `$1,025.00`, but when the option is true, it will return `$10.25` instead.
 
-To show a fixed number of decimals instead of the currency's own (eg: a store's price decimals setting), pass `decimals`: `formatCurrency( 92, 'USD', { decimals: 0 } )` returns `$92`, and `formatCurrency( 92, 'JPY', { decimals: 2 } )` returns `¥92.00`. It does not change how `isSmallestUnit` divides the amount. `getCurrencyObject()` takes the same option.
+To show a fixed number of decimals instead of the currency's own (eg: a store's price decimals setting), pass `decimals`: `formatCurrency( 92, 'USD', { decimals: 0 } )` returns `$92`, and `formatCurrency( 92, 'JPY', { decimals: 2 } )` returns `¥92.00`. It takes an integer from 0 to 20 and ignores anything else, and it does not change how `isSmallestUnit` divides the amount. `getCurrencyObject()` takes the same option.
 
 #### Notes
 

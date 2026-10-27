@@ -75,7 +75,8 @@ export interface NumberFormatCurrencyParams {
 
 	/**
 	 * Number of decimal places to show in place of the currency's own (eg: a store's price
-	 * decimals setting). It does not change the `isSmallestUnit` divisor.
+	 * decimals setting): an integer from 0 to 20, else ignored. It does not change the
+	 * `isSmallestUnit` divisor.
 	 */
 	decimals?: number;
 

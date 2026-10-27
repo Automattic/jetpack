@@ -168,6 +168,25 @@ function getSmallestUnitExponent(
 }
 
 /**
+ * Returns `decimals` if every Intl engine accepts it as fraction digits, so a bad value falls
+ * back to the currency's own precision instead of throwing.
+ * @param  decimals - The requested number of decimal places.
+ * @return {number | undefined} The decimals, or `undefined` to use the currency's own.
+ */
+function getValidDecimals( decimals?: number ): number | undefined {
+	if (
+		decimals === undefined ||
+		( Number.isInteger( decimals ) && decimals >= 0 && decimals <= 20 )
+	) {
+		return decimals;
+	}
+	debug(
+		`formatCurrency was called with invalid decimals "${ decimals }"; using the currency's own`
+	);
+	return undefined;
+}
+
+/**
  * Returns the precision for a given locale and currency.
  * @param  browserSafeLocale - The browser safe locale.
  * @param  currency          - The currency to get the precision for.
@@ -298,6 +317,7 @@ const numberFormatCurrency = ( {
 }: NumberFormatCurrencyParams ) => {
 	const validCurrency = getValidCurrency( currency, geoLocation, currencyOverrides );
 	const currencyOverride = getCurrencyOverride( validCurrency, geoLocation, currencyOverrides );
+	const validDecimals = getValidDecimals( decimals );
 	const currencyPrecision = getPrecisionForLocaleAndCurrency(
 		browserSafeLocale,
 		validCurrency,
@@ -316,7 +336,7 @@ const numberFormatCurrency = ( {
 		validCurrency,
 		isSmallestUnit,
 		currencyOverrides,
-		decimals ?? currencyPrecision ?? 0
+		validDecimals ?? currencyPrecision ?? 0
 	);
 	const formatter = getCurrencyFormatter( {
 		number: numberAsFloat,
@@ -324,7 +344,7 @@ const numberFormatCurrency = ( {
 		browserSafeLocale,
 		forceLatin,
 		stripZeros,
-		decimals,
+		decimals: validDecimals,
 		signForPositive,
 	} );
 	const parts = formatter.formatToParts( numberAsFloat );
@@ -404,6 +424,7 @@ const getCurrencyObject = ( {
 }: NumberFormatCurrencyParams ): CurrencyObject => {
 	const validCurrency = getValidCurrency( currency, geoLocation, currencyOverrides );
 	const currencyOverride = getCurrencyOverride( validCurrency, geoLocation, currencyOverrides );
+	const validDecimals = getValidDecimals( decimals );
 	const currencyPrecision = getPrecisionForLocaleAndCurrency(
 		browserSafeLocale,
 		validCurrency,
@@ -415,7 +436,7 @@ const getCurrencyObject = ( {
 		validCurrency,
 		isSmallestUnit,
 		currencyOverrides,
-		decimals ?? currencyPrecision ?? 0
+		validDecimals ?? currencyPrecision ?? 0
 	);
 	const formatter = getCurrencyFormatter( {
 		number: numberAsFloat,
@@ -423,7 +444,7 @@ const getCurrencyObject = ( {
 		browserSafeLocale,
 		forceLatin,
 		stripZeros,
-		decimals,
+		decimals: validDecimals,
 		signForPositive,
 	} );
 	const parts = formatter.formatToParts( numberAsFloat );
