@@ -132,9 +132,10 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_scan' ) );
 		}
 
-		// At mu-plugin scope, because the Jetpack plugin resolves this filter at the earliest plugins_loaded priority.
+		// At mu-plugin scope, because the Jetpack plugin can resolve these filters before plugins_loaded loads the pages.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			add_filter( 'jetpack_backup_dashboard_enabled', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_jetpack_backup_dashboard' ) );
+			add_filter( 'jetpack_get_available_modules', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan::class, 'filter_available_modules' ) );
 			add_filter( 'jetpack_my_jetpack_feature_upgrade', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_my_jetpack_feature_upgrade' ), 10, 3 );
 		}
 

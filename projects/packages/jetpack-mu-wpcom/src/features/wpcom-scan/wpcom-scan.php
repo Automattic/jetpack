@@ -61,6 +61,20 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	}
 
 	/**
+	 * Keep the Jetpack plugin's Protect dashboard off a WoA site whose plan lacks Scan, so this page's upgrade prompt keeps the slug.
+	 *
+	 * @param array $modules Available modules, keyed by slug.
+	 * @return array
+	 */
+	public static function filter_available_modules( $modules ) {
+		if ( ! self::has_feature() ) {
+			unset( $modules[ self::DASHBOARD_MODULE ] );
+		}
+
+		return $modules;
+	}
+
+	/**
 	 * Keep the Jetpack plugin's Protect page out of the sidebar while Calypso's Scan owns the nav.
 	 *
 	 * Matched on the item's module: the standalone Protect plugin shares the slug and keeps its entry.

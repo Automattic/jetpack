@@ -309,6 +309,35 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The Protect dashboard module is offered only to a plan with Scan's UI.
+	 *
+	 * @param string $granted  The feature the plan includes.
+	 * @param bool   $expected Whether the module stays available.
+	 *
+	 * @dataProvider provide_protect_dashboard_plans
+	 */
+	#[DataProvider( 'provide_protect_dashboard_plans' )]
+	public function test_protect_dashboard_module_needs_self_serve_scan( $granted, $expected ) {
+		$this->grant_feature( $granted );
+
+		$modules = WPCOM_Scan::filter_available_modules( array( 'protect-dashboard' => '16.4' ) );
+
+		$this->assertSame( $expected, isset( $modules['protect-dashboard'] ) );
+	}
+
+	/**
+	 * Data provider for test_protect_dashboard_module_needs_self_serve_scan.
+	 *
+	 * @return array
+	 */
+	public static function provide_protect_dashboard_plans() {
+		return array(
+			'self-serve Scan' => array( \WPCOM_Features::SCAN_SELF_SERVE, true ),
+			'SCAN alone'      => array( \WPCOM_Features::SCAN, false ),
+		);
+	}
+
+	/**
 	 * My Jetpack's Backup upgrade on WoA goes to the WordPress.com plans, and nothing else's does.
 	 *
 	 * @dataProvider provide_my_jetpack_upgrades
