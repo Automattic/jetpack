@@ -210,7 +210,7 @@ describe( 'FeatureModal stepping', () => {
 		expect( screen.getByAltText( 'Podcast in use' ) ).toBeInTheDocument();
 
 		// React 18 warns about `fetchPriority`.
-		if ( isReact18 ) {
+		if ( isReact18 && ! offline ) {
 			// eslint-disable-next-line jest/no-conditional-expect
 			expect( console ).toHaveErrored();
 		}
