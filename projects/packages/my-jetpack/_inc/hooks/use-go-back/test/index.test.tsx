@@ -24,11 +24,12 @@ jest.mock( '../../use-is-jetpack-user-new', () => ( {
 } ) );
 
 // "Upgrade" is a router navigation; "Upgrade (hash link)" mimics a plain `#/add-…` href,
-// whose location keeps the 'default' key.
+// whose location keeps the 'default' key. "Details" stands in for the Protect details page.
 const UpgradeLinks = () => (
 	<>
 		<Link to="/add-videopress">Upgrade</Link>
 		<a href="#/add-videopress">Upgrade (hash link)</a>
+		<Link to="/details">Details</Link>
 	</>
 );
 
@@ -43,9 +44,12 @@ const UpgradeScreen = () => {
 		fallback: MyJetpackRoutes.Features,
 	} );
 	return (
-		<Link onClick={ onClickGoBack } to={ backTo }>
-			My Jetpack
-		</Link>
+		<>
+			<Link onClick={ onClickGoBack } to={ backTo }>
+				My Jetpack
+			</Link>
+			<Link to="/details">Details</Link>
+		</>
 	);
 };
 
@@ -70,6 +74,7 @@ const renderApp = ( initialEntry: string ) => {
 					<Route path="/add-old-slug" element={ <Navigate replace to="/add-videopress" /> } />
 					{ /* Stands in for a page outside My Jetpack, such as Boost's dashboard. */ }
 					<Route path="/outside" element={ <UpgradeLinks /> } />
+					<Route path="/details" element={ <UpgradeLinks /> } />
 					<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackTabPanel /> } />
 				</Routes>
 				<Location />
@@ -78,12 +83,12 @@ const renderApp = ( initialEntry: string ) => {
 	);
 };
 
-const openUpgradeScreen = async ( start: string, upgradeLink: string | null, referrer: string ) => {
+const openUpgradeScreen = async ( start: string, links: string[], referrer: string ) => {
 	Object.defineProperty( document, 'referrer', { value: referrer, configurable: true } );
 	const user = userEvent.setup();
 	renderApp( start );
-	if ( upgradeLink ) {
-		await user.click( await screen.findByRole( 'link', { name: upgradeLink } ) );
+	for ( const link of links ) {
+		await user.click( await screen.findByRole( 'link', { name: link } ) );
 	}
 	return { user, backLink: await screen.findByRole( 'link', { name: 'My Jetpack' } ) };
 };
@@ -97,17 +102,18 @@ describe( 'useGoBack', () => {
 		[
 			'a tab, by hash link',
 			'/features?view=list',
-			'Upgrade (hash link)',
+			[ 'Upgrade (hash link)' ],
 			'',
 			'/features?view=list',
 			0,
 		],
-		[ 'a tab, inside the app', '/overview', 'Upgrade', '', '/overview', 0 ],
-		[ 'a redirected route, loaded directly', '/add-old-slug', null, '', '/features', 1 ],
+		[ 'a tab, inside the app', '/overview', [ 'Upgrade' ], '', '/overview', 0 ],
+		[ 'a tab, through a details page', '/features', [ 'Details', 'Upgrade' ], '', '/features', 0 ],
+		[ 'a redirected route, loaded directly', '/add-old-slug', [], '', '/features', 1 ],
 		[
 			'outside, allowed referrer',
 			'/outside',
-			'Upgrade (hash link)',
+			[ 'Upgrade (hash link)' ],
 			allowedReferrer,
 			'/outside',
 			0,
@@ -115,15 +121,15 @@ describe( 'useGoBack', () => {
 		[
 			'outside, foreign referrer',
 			'/outside',
-			'Upgrade (hash link)',
+			[ 'Upgrade (hash link)' ],
 			foreignReferrer,
 			'/features',
 			1,
 		],
 	] )(
 		'goes back correctly from %s',
-		async ( _from, start, upgradeLink, referrer, expected, addedHistoryEntries ) => {
-			const { user, backLink } = await openUpgradeScreen( start, upgradeLink, referrer );
+		async ( _from, start, links, referrer, expected, addedHistoryEntries ) => {
+			const { user, backLink } = await openUpgradeScreen( start, links, referrer );
 			const historyLength = window.history.length;
 
 			await user.click( backLink );
@@ -137,7 +143,7 @@ describe( 'useGoBack', () => {
 
 	it( 'goes to the fallback when the tab is ahead in history', async () => {
 		window.location.hash = '#/outside';
-		const { user, backLink } = await openUpgradeScreen( '/add-videopress', null, '' );
+		const { user, backLink } = await openUpgradeScreen( '/add-videopress', [], '' );
 		await user.click( backLink );
 		await waitFor( () =>
 			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/features' )
@@ -152,5 +158,23 @@ describe( 'useGoBack', () => {
 			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/features' )
 		);
 		expect( window.history ).toHaveLength( historyLength );
+	} );
+
+	it( 'goes to the fallback when a new entry has replaced the tab', async () => {
+		window.location.hash = '#/outside';
+		const { user, backLink } = await openUpgradeScreen( '/add-videopress', [], '' );
+		await user.click( backLink );
+		await waitFor( () =>
+			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/features' )
+		);
+
+		window.history.back();
+		await user.click( await screen.findByRole( 'link', { name: 'Details' } ) );
+		await user.click( await screen.findByRole( 'link', { name: 'Upgrade' } ) );
+		await user.click( await screen.findByRole( 'link', { name: 'My Jetpack' } ) );
+
+		await waitFor( () =>
+			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/features' )
+		);
 	} );
 } );

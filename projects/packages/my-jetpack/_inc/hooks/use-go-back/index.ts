@@ -9,12 +9,12 @@ import type { MouseEvent } from 'react';
 /**
  * Custom React hook to handle back link click with analytics.
  *
- * Goes back in history when the My Jetpack tab last shown is behind this screen or the page
- * came from an allowed site; otherwise goes to `fallback`.
+ * Goes back in history to the My Jetpack tab last shown when it is behind this screen, or one
+ * entry when the page came from an allowed site; otherwise goes to `fallback`.
  *
  * @param options          - Options.
  * @param options.slug     - Product slug, recorded with the analytics event.
- * @param options.fallback - Route used when no tab was shown. Defaults to the My Jetpack home (`/`).
+ * @param options.fallback - Route used when no tab is behind this screen in history. Defaults to the My Jetpack home (`/`).
  * @return Object with the back link destination and its click handler with analytics.
  */
 export function useGoBack( {
@@ -37,11 +37,11 @@ export function useGoBack( {
 
 			event.preventDefault();
 
-			// When the tab is behind this screen in history, pop back to it instead of pushing `backTo`,
+			// When the tab is behind this screen in history, go back to it instead of pushing `backTo`,
 			// which would leave the screen showing this back link under the browser's Back button.
 			const index = getHistoryIndex();
 			if ( lastTab?.index != null && index !== null && lastTab.index < index ) {
-				navigate( -1 );
+				navigate( lastTab.index - index );
 				return;
 			}
 
