@@ -20,7 +20,6 @@ use Automattic\Jetpack\My_Jetpack\Products\Search;
 use Automattic\Jetpack\My_Jetpack\Products\Social;
 use Automattic\Jetpack\My_Jetpack\Products\Stats;
 use Automattic\Jetpack\My_Jetpack\Products\Videopress;
-use Automattic\Jetpack\Protect_Status\Plan;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -459,33 +458,21 @@ class Plan_Matrix_Test extends TestCase {
 	}
 
 	/**
-	 * Seed the plan and products Jetpack syncs from wpcom, which Protect Status reads, and drop both memoized answers.
+	 * Seed the plan and products Jetpack syncs from wpcom, which Protect Status reads.
 	 *
 	 * @param string[] $features Feature slugs the plan grants.
 	 * @param string[] $products Product slugs the site owns.
 	 */
 	private function set_synced_plan( array $features, array $products ) {
-		update_option(
-			'jetpack_active_plan',
+		Current_Plan::update_from_site_record(
 			array(
-				'product_slug' => 'jetpack_free',
-				'features'     => array( 'active' => $features ),
+				'plan'     => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => $features ),
+				),
+				'products' => array_map( fn( $slug ) => array( 'product_slug' => $slug ), $products ),
 			)
 		);
-		update_option( 'jetpack_site_products', array_map( fn( $slug ) => array( 'product_slug' => $slug ), $products ) );
-
-		$cache = new \ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
-		// @todo Remove this call once we no longer need to support PHP <8.1.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$cache->setAccessible( true );
-		}
-		$cache->setValue( null, null );
-
-		// The site is connected, so the refresh would otherwise fetch the plan from wpcom.
-		$offline = static fn() => new \WP_Error( 'offline' );
-		add_filter( 'pre_http_request', $offline );
-		Plan::has_required_plan( true );
-		remove_filter( 'pre_http_request', $offline );
 	}
 
 	/**

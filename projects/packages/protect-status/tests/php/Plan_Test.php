@@ -7,13 +7,14 @@
 
 namespace Automattic\Jetpack\Protect_Status;
 
+use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use WorDBless\BaseTestCase;
 
 /**
- * Each row runs in its own process: has_required_plan() caches its answer in a static.
+ * Each row runs in its own process: a stubbed WordPress.com feature function stays defined for the rest of the run.
  *
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
@@ -67,5 +68,23 @@ class Plan_Test extends BaseTestCase {
 		update_option( 'jetpack_site_products', array_map( fn( $slug ) => array( 'product_slug' => $slug ), $products ) );
 
 		$this->assertSame( $expected, Plan::has_required_plan() );
+	}
+
+	/**
+	 * A plan refreshed mid-request, as My Jetpack's page render does, is read at once.
+	 */
+	public function test_has_required_plan_follows_a_refreshed_plan() {
+		$this->assertFalse( Plan::has_required_plan() );
+
+		Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => array( 'scan' ) ),
+				),
+			)
+		);
+
+		$this->assertTrue( Plan::has_required_plan() );
 	}
 }

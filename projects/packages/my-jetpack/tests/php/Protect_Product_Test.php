@@ -4,7 +4,6 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
-use Automattic\Jetpack\Protect_Status\Plan;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -208,21 +207,14 @@ class Protect_Product_Test extends TestCase {
 	#[DataProvider( 'provide_scan_plans' )]
 	public function test_paid_plan_follows_protect_status( $plan_features, $expected ) {
 		set_transient( Protect::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array( 'scan' ) ) );
-		update_option(
-			'jetpack_active_plan',
+		Current_Plan::update_from_site_record(
 			array(
-				'product_slug' => 'jetpack_free',
-				'features'     => array( 'active' => $plan_features ),
+				'plan' => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => $plan_features ),
+				),
 			)
 		);
-		// Drop both memoized answers; an unconnected site skips the refresh's fetch.
-		$cache = new \ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
-		// @todo Remove this call once we no longer need to support PHP <8.1.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$cache->setAccessible( true );
-		}
-		$cache->setValue( null, null );
-		Plan::has_required_plan( true );
 
 		$this->assertSame( $expected, Protect::has_paid_plan_for_product() );
 	}
