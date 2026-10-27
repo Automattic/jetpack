@@ -9,7 +9,8 @@ import { resolvePrimarySeriesByGroup } from '../../../helpers/resolve-series-nam
 import type { ComparativeDatePointDate, ComparativeLineChartSeries } from '../types';
 import type { TZDate } from '@jetpack-premium-analytics/datetime';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
 // Read in the zone a bucket was stamped in, which a `TZDate` carries, so two days' hours
 // compare as numbers whatever their offsets.
@@ -40,7 +41,10 @@ function alignByClockTime(
 	comparison: ComparativeDatePointDate[]
 ): ComparativeDatePointDate[] {
 	const primaryByClock = new Map( primary.map( point => [ clockTime( point.date ), point ] ) );
-	const shift = clockTime( primary[ 0 ].date ) - clockTime( comparison[ 0 ].date );
+	const firstShift = clockTime( primary[ 0 ].date ) - clockTime( comparison[ 0 ].date );
+	const days = Math.round( firstShift / DAY_MS ) * DAY_MS;
+	// A window shifted back in real hours starts an hour off the clock when a switch falls between.
+	const shift = days !== 0 && Math.abs( firstShift - days ) <= HOUR_MS ? days : firstShift;
 
 	return comparison.flatMap( point => {
 		const slot = primaryByClock.get( clockTime( point.date ) + shift );

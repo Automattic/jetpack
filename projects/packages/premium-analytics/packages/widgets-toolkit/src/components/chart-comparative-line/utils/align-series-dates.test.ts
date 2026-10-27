@@ -358,5 +358,17 @@ describe( 'alignSeriesDates', () => {
 			expect( pairOf( result, '2025-11-01T06:00:00.000Z' ) ).toBe( '2025-11-02T07:00:00.000Z' );
 			expect( pairOf( result, '2025-11-01T15:00:00.000Z' ) ).toBeUndefined();
 		} );
+
+		it( 'pairs by clock time when the switch falls in the comparison window', () => {
+			// Last 24 hours on Mar 9 at 10 AM: the comparison, 24 real hours back, starts at 10 AM EST.
+			const primary = createSeries( 'Last 24 hours', hours( '2026-03-08T15:00:00Z', 24 ) );
+			const comparison = createComparison( 'Previous', hours( '2026-03-07T15:00:00Z', 24 ) );
+
+			const result = alignSeriesDates( [ primary, comparison ] );
+
+			expect( pairOf( result, '2026-03-08T07:00:00.000Z' ) ).toBe( '2026-03-09T07:00:00.000Z' );
+			expect( pairOf( result, '2026-03-08T14:00:00.000Z' ) ).toBe( '2026-03-09T14:00:00.000Z' );
+			expect( pairOf( result, '2026-03-07T15:00:00.000Z' ) ).toBeUndefined();
+		} );
 	} );
 } );
