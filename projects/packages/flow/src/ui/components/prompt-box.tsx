@@ -27,8 +27,9 @@ const speechApi = (): ( new () => Recognition ) | undefined => {
 	return w.SpeechRecognition ?? w.webkitSpeechRecognition;
 };
 
-const MicIcon = () => (
-	<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+// The ui Icon reads the props of this element, so it must be a plain svg, not a component.
+const micIcon = (
+	<svg viewBox="0 0 24 24">
 		<path
 			fill="currentColor"
 			d="M12 14.5a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5.5a3 3 0 0 0 3 3Zm5-3a.75.75 0 0 1 1.5 0 6.5 6.5 0 0 1-5.75 6.46v2.04a.75.75 0 0 1-1.5 0v-2.04A6.5 6.5 0 0 1 5.5 11.5a.75.75 0 0 1 1.5 0 5 5 0 0 0 10 0Z"
@@ -119,7 +120,7 @@ export function PromptBox( { value, busy, onChange, onSubmit }: Props ) {
 										? __( 'Stop dictating', 'jetpack-flow-pkg' )
 										: __( 'Dictate with your voice', 'jetpack-flow-pkg' )
 								}
-								icon={ <MicIcon /> }
+								icon={ micIcon }
 								className={ listening ? 'is-listening' : undefined }
 								disabled={ busy }
 								onClick={ dictate }
