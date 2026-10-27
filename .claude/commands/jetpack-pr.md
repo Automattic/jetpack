@@ -17,7 +17,7 @@ Instructions:
    - Fixes #: Link to issue if applicable, or leave blank / "N/A" if none
    - Proposed changes: Bullet points of functional changes
    - Why are these changes being made?: The problem this solves and for whom, plus the key decisions made and the alternatives ruled out. Write it from the conversation that led to the change, the issue, or the commit messages, not from the diff; if none of those explain it, ask the user rather than guessing. This repo is public: don't quote or paraphrase P2, Slack or Linear discussions (link their shorthand under "Related product discussion/links" instead), don't name customers, sites or users, and for a security fix leave out the vulnerability and how it could be exploited.
-   - Testing instructions: Start with what you already checked (commands run, site types such as Jurassic Ninja, browsers used; never internal `*.wordpress.com` site URLs) and what you did not, then step-by-step how to test the changes
+   - Testing instructions: Start with what you already checked by hand (site types such as Jurassic Ninja, browsers used, flows tried; never internal `*.wordpress.com` site URLs) and what you did not, then step-by-step how to test the changes. Manual steps only: don't tell reviewers to run unit, e2e or lint commands, or list them as checks you did, since CI runs them.
    - Include all sections from the template, filling in what's relevant and leaving defaults for the rest
 6. Create the PR using `gh pr create`:
    - IMPORTANT: To avoid bash escaping issues, ALWAYS use `--body-file` instead of `--body`

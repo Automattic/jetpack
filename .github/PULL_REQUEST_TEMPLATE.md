@@ -19,8 +19,9 @@ Fixes #
 
 ## Testing instructions
 <!-- If you were reviewing this PR, how would you like the instructions to be presented? -->
-<!-- Please include detailed testing steps, explaining how to test your change. -->
-<!-- Start with what you already checked yourself (commands, sites, browsers) and what you did not, so reviewers know where to focus. -->
+<!-- Please include detailed testing steps, explaining how to test your change by hand. -->
+<!-- No need to explain how to run automated tests (unit, e2e, linting): CI runs them. -->
+<!-- Start with what you already checked yourself (sites, browsers, flows you tried) and what you did not, so reviewers know where to focus. -->
 <!-- Bear in mind that context you are working on is not obvious for everyone.  -->
 <!-- Adding relevant configuration steps will help reviewers to get to your PR as quickly as possible. -->
 <!-- "Before"/"After" screenshots can be helpful when the change is visual. -->
