@@ -16,7 +16,7 @@ import {
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
-import { datumAtX, getXPositions } from '../../components/tooltip/private/x-positions';
+import { getKeyboardStops } from '../../components/tooltip/private/x-positions';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -388,22 +388,18 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return min < max ? [ min, max ] : undefined;
 		}, [ rescaleYOnVisibilityChange, dataSorted, isSeriesVisible, options?.yScale ] );
 
-		const xPositions = useMemo( () => getXPositions( visibleSeries ), [ visibleSeries ] );
+		const stops = useMemo( () => getKeyboardStops( visibleSeries ), [ visibleSeries ] );
 
-		// Keyboard stops are x positions, and the grouped tooltip reads every visible series at
-		// that position; the first visible series with a point there names it.
+		// The grouped tooltip reads every visible series at a stop; the first visible series with a point there names it.
 		const activateSelectedPoint = useCallback(
 			( stop: number ) => {
-				for ( const series of visibleSeries ) {
-					const match = datumAtX( series, xPositions[ stop ] );
+				const match = stops.membersAt( stop )[ 0 ];
 
-					if ( match ) {
-						onDatumActivate?.( { datum: match.datum, index: match.index, key: series.label } );
-						return;
-					}
+				if ( match ) {
+					onDatumActivate?.( { datum: match.datum, index: match.index, key: match.series.label } );
 				}
 			},
-			[ visibleSeries, xPositions, onDatumActivate ]
+			[ stops, onDatumActivate ]
 		);
 
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -412,7 +408,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints: xPositions.length,
+			totalPoints: stops.count,
 			visibleSeriesKey,
 			onActivate: activateSelectedPoint,
 			preventTooltipScroll: tooltipPlacement === 'below-axis',

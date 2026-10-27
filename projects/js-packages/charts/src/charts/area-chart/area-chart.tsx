@@ -13,7 +13,7 @@ import {
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
-import { getXPositions } from '../../components/tooltip/private/x-positions';
+import { getKeyboardStops } from '../../components/tooltip/private/x-positions';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -154,7 +154,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			[ dataSorted, isSeriesVisible, stacked, stackOffset ]
 		);
 
-		const xPositions = useMemo( () => getXPositions( dataSorted ), [ dataSorted ] );
+		const stops = useMemo( () => getKeyboardStops( dataSorted ), [ dataSorted ] );
 
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 			selectedIndex,
@@ -162,7 +162,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints: xPositions.length,
+			totalPoints: stops.count,
 		} );
 
 		// Computed from the full data set (ignoring legend visibility) so the y-axis stays

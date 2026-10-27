@@ -64,7 +64,7 @@ const renderKeys = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => 
 	<div data-testid="keys">{ Object.keys( tooltipData?.datumByKey ?? {} ).join( ',' ) }</div>
 );
 
-const IndividualHarness = () => {
+const IndividualHarness = ( { mode = 'individual' }: { mode?: 'individual' | 'group' } ) => {
 	const [ selectedIndex, setSelectedIndex ] = useState( 0 );
 	const selectSecond = useCallback( () => setSelectedIndex( 1 ), [] );
 	return (
@@ -81,7 +81,7 @@ const IndividualHarness = () => {
 					/>
 				) ) }
 				<XYChartTooltip
-					mode="individual"
+					mode={ mode }
 					series={ individualItems }
 					selectedIndex={ selectedIndex }
 					renderTooltip={ renderKeys }
@@ -182,6 +182,12 @@ describe( 'XYChartTooltip', () => {
 		await user.click( screen.getByRole( 'button', { name: 'next' } ) );
 
 		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^Second$/ );
+	} );
+
+	it( 'lists every series at the selected array index in group mode when no point has a date', async () => {
+		render( <IndividualHarness mode="group" /> );
+
+		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^First,Second$/ );
 	} );
 } );
 

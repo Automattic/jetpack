@@ -1,9 +1,17 @@
 import type { DataPointDate, SeriesData } from '../../../types';
 
+/** A series' point at a keyboard stop. */
+export type StopMember = { series: SeriesData; datum: DataPointDate; index: number };
+
+export type KeyboardStops = {
+	count: number;
+	membersAt: ( stop: number ) => StopMember[];
+};
+
 const timeOf = ( point: unknown ): number | undefined =>
 	( point as DataPointDate | undefined )?.date?.getTime();
 
-export const getXPositions = ( series: SeriesData[] ): number[] => {
+const getXPositions = ( series: SeriesData[] ): number[] => {
 	const positions = new Set< number >();
 
 	for ( const { data } of series ) {
@@ -18,11 +26,35 @@ export const getXPositions = ( series: SeriesData[] ): number[] => {
 	return [ ...positions ].sort( ( a, b ) => a - b );
 };
 
-export const datumAtX = (
-	series: SeriesData,
-	x: number
-): { datum: DataPointDate; index: number } | undefined => {
-	const index = series.data.findIndex( point => timeOf( point ) === x );
+/**
+ * Keyboard stops over the series: the sorted union of their dates, or array indexes when no point has a date.
+ *
+ * @param series - The series to step through.
+ * @return The stop count, and each series' point at a stop.
+ */
+export const getKeyboardStops = ( series: SeriesData[] ): KeyboardStops => {
+	const positions = getXPositions( series );
 
-	return index === -1 ? undefined : { datum: series.data[ index ] as DataPointDate, index };
+	if ( positions.length === 0 ) {
+		return {
+			count: Math.max( 0, ...series.map( ( { data } ) => data.length ) ),
+			membersAt: stop =>
+				series.flatMap( s =>
+					stop < s.data.length
+						? [ { series: s, datum: s.data[ stop ] as DataPointDate, index: stop } ]
+						: []
+				),
+		};
+	}
+
+	return {
+		count: positions.length,
+		membersAt: stop =>
+			series.flatMap( s => {
+				const index = s.data.findIndex( point => timeOf( point ) === positions[ stop ] );
+				return index === -1
+					? []
+					: [ { series: s, datum: s.data[ index ] as DataPointDate, index } ];
+			} ),
+	};
 };
