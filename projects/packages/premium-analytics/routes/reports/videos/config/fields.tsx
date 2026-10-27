@@ -69,24 +69,17 @@ function getVideoDetailSearch( current: Record< string, unknown > ) {
  */
 function VideoTitle( { item }: { item: StatsVideoPlaysComparisonItem } ) {
 	const title = getVideoTitle( item );
-	const titleLink = (
-		<VideoTitleLink
-			id={ item.id }
-			label={ title }
-			link={ item.link }
-			search={ getVideoDetailSearch }
-			classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
-			title={ title }
-		/>
-	);
-
-	if ( toDetailId( item.id ) === undefined ) {
-		return titleLink;
-	}
 
 	return (
-		<ReportTitleCell liveUrl={ item.link } label={ title }>
-			{ titleLink }
+		<ReportTitleCell content="video" id={ item.id } link={ item.link } label={ title }>
+			<VideoTitleLink
+				id={ item.id }
+				label={ title }
+				link={ item.link }
+				search={ getVideoDetailSearch }
+				classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
+				title={ title }
+			/>
 		</ReportTitleCell>
 	);
 }

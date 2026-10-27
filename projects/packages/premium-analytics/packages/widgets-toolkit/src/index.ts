@@ -169,7 +169,6 @@ export {
 	ReportThumbnail,
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ReportTitleCell,
-	type ReportTitleCellProps,
 	ReportErrorState,
 	type ReportChartSectionProps,
 	type ReportDrilldownTableProps,

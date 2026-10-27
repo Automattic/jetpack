@@ -1,31 +1,45 @@
 /**
  * Internal dependencies
  */
-import { ViewLiveLink } from '../view-live-link';
+import { ViewLiveLink, toViewLiveUrl, type ViewLiveContent } from '../view-live-link';
 import styles from './report-title-link.module.scss';
 import type { JSX, ReactNode } from 'react';
 
 export type ReportTitleCellProps = {
-	/** The title link, which opens the row's detail page. */
+	/** The title link, which opens the row's detail page when the row has one. */
 	children: ReactNode;
-	/**
-	 * The row's public URL, straight from report data, for the trailing "View"
-	 * action. A row with no public URL gets no action.
-	 */
-	liveUrl?: string | null;
+	/** Whether the row's detail page is a post or a video one. */
+	content: ViewLiveContent;
+	/** The row's post, page or video ID. */
+	id?: number | string | null;
+	/** The row's public URL, straight from report data. */
+	link?: string | null;
 	/** The row's title, which names the action for assistive technology. */
 	label: string;
 };
 
 /**
- * A records table's title cell for a row that opens a detail page: the title
- * link, then the "View" action that opens the live content in a new tab. The
- * table row reveals the action on hover or focus, as the widget rows do.
+ * A records table's title cell: the title link, then the "View" action that
+ * opens the live content in a new tab on a row whose title opens a detail
+ * page. The table row reveals the action on hover or focus, as the widget rows
+ * do. A row that gets no action renders the title alone.
  *
  * @param {ReportTitleCellProps} props - The component props.
  * @return The title cell.
  */
-export function ReportTitleCell( { children, liveUrl, label }: ReportTitleCellProps ): JSX.Element {
+export function ReportTitleCell( {
+	children,
+	content,
+	id,
+	link,
+	label,
+}: ReportTitleCellProps ): JSX.Element {
+	const liveUrl = toViewLiveUrl( content, id, link );
+
+	if ( liveUrl === undefined ) {
+		return <>{ children }</>;
+	}
+
 	return (
 		<span className={ styles.cell }>
 			{ children }

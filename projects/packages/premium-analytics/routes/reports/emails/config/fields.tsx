@@ -73,7 +73,12 @@ function EmailTitle( { item }: { item: StatsEmailSummaryItem } ) {
 	}
 
 	return (
-		<ReportTitleCell liveUrl={ typeof item.link === 'string' ? item.link : null } label={ title }>
+		<ReportTitleCell
+			content="post"
+			id={ item.id }
+			link={ typeof item.link === 'string' ? item.link : null }
+			label={ title }
+		>
 			<PostDetailLink
 				postId={ item.id }
 				report="emails"

@@ -18,7 +18,6 @@ import {
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ReportThumbnail,
 	ReportTitleCell,
-	toPostDetailId,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { page as pageIcon, post as postIcon } from '@wordpress/icons';
@@ -68,24 +67,19 @@ function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
 	const isHomepage = item.type === 'homepage';
 	const title = String( item.label ?? '' );
 
-	const titleLink = (
-		<PostTitleLink
-			id={ isHomepage ? undefined : item.id }
-			label={ title }
-			link={ isHomepage ? homeUrl : item.link }
-			search={ detailSearch }
-			classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
-			title={ title }
-		/>
-	);
-
-	if ( isHomepage || toPostDetailId( item.id ) === undefined ) {
-		return titleLink;
-	}
+	// The homepage row has no post of its own, so its title is the outbound link.
+	const id = isHomepage ? undefined : item.id;
 
 	return (
-		<ReportTitleCell liveUrl={ item.link } label={ title }>
-			{ titleLink }
+		<ReportTitleCell content="post" id={ id } link={ item.link } label={ title }>
+			<PostTitleLink
+				id={ id }
+				label={ title }
+				link={ isHomepage ? homeUrl : item.link }
+				search={ detailSearch }
+				classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
+				title={ title }
+			/>
 		</ReportTitleCell>
 	);
 }
