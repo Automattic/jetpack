@@ -35,7 +35,7 @@ const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) =>
 		() => getStatsPeriodVisitsOptions( { days, end } ),
 		[ days, end ]
 	);
-	const { data, isLoading, isFetching, isError, isPlaceholderData, refetch } = useStatsVisits(
+	const { data, isLoading, isFetching, isError, refetch } = useStatsVisits(
 		blogID,
 		isSiteConnected && isActive,
 		visitsOptions
@@ -63,7 +63,7 @@ const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) =>
 		return (
 			<Stack direction="column" gap="lg">
 				<OverviewStats
-					isLoading={ isProductLoading || isStatsLoading || isPlaceholderData }
+					isLoading={ isProductLoading || isStatsLoading }
 					counts={ counts }
 					chartData={ chartData }
 					detailedStatsHref={ detailedStatsHref }
