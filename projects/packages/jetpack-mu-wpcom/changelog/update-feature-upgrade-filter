@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Backup, Protect: On WoA, send the Backup and Scan upgrades to WordPress.com's plan upgrade flow, showing only plans that include them, and Scan's manage link to WordPress.com.
+Backup, Protect: On WoA, send the Backup and Scan upgrades to WordPress.com's plan upgrade flow, showing only plans that include them, and point My Jetpack's Backup and Scan manage links at the Backup page in wp-admin and Scan on WordPress.com.

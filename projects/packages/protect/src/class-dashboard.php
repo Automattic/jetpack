@@ -11,7 +11,6 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -290,48 +289,21 @@ class Dashboard {
 	 * @return string
 	 */
 	public static function get_scan_upgrade_url() {
-		$url = self::filter_scan_links( false )['url'] ?? '';
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '/add-scan',
+				'name'     => 'Jetpack Scan', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
+			),
+			'protect-dashboard',
+			false
+		);
+
+		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
 
 		return $url ? $url : admin_url( 'admin.php?page=my-jetpack#/add-scan' );
-	}
-
-	/**
-	 * Where a site with Scan manages it.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string
-	 */
-	public static function get_scan_manage_url() {
-		$url = self::filter_scan_links( true )['manage_url'] ?? '';
-
-		return $url ? $url : Redirect::get_url( 'my-jetpack-manage-scan' );
-	}
-
-	/**
-	 * A host's Scan links, as `url` and `manage_url`, each a web address or empty.
-	 *
-	 * @param bool $site_has_feature Whether the site has Scan.
-	 * @return array{url: string, manage_url: string}
-	 */
-	private static function filter_scan_links( $site_has_feature ) {
-		$upgrade = array(
-			'path'     => $site_has_feature ? '' : '/add-scan',
-			'name'     => $site_has_feature ? '' : 'Jetpack Scan', // Product name, do not translate.
-			'back_url' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
-		);
-
-		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
-		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade, 'protect-dashboard', $site_has_feature );
-
-		if ( ! is_array( $filtered ) ) {
-			$filtered = array();
-		}
-
-		return array(
-			'url'        => esc_url_raw( (string) ( $filtered['url'] ?? '' ) ),
-			'manage_url' => esc_url_raw( (string) ( $filtered['manage_url'] ?? '' ) ),
-		);
 	}
 
 	/**

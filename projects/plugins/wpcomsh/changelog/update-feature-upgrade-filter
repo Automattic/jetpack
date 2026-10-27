@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Backup, Protect: Send the Backup and Scan upgrades to the plan upgrade flow, showing only plans that include them, and Scan's manage link to WordPress.com.
+Backup, Protect: Send the Backup and Scan upgrades to the plan upgrade flow, showing only plans that include them, and point My Jetpack's Backup and Scan manage links at the Backup page in wp-admin and Scan on WordPress.com.

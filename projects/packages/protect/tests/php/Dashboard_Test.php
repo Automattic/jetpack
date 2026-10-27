@@ -178,54 +178,39 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Scan link each key sets, the URL a host sends in it, and the link that results (null for the default).
+	 * The URL a host sends and the upgrade link that results (null for the default).
 	 *
 	 * @return array[]
 	 */
-	public static function provide_host_scan_links() {
+	public static function provide_host_upgrade_urls() {
 		return array(
-			'upgrade to host plans'   => array( 'get_scan_upgrade_url', 'url', 'https://example.com/plans', 'https://example.com/plans' ),
-			'manage at host'          => array( 'get_scan_manage_url', 'manage_url', 'https://example.com/scan', 'https://example.com/scan' ),
-			'upgrade ignores manage'  => array( 'get_scan_upgrade_url', 'manage_url', 'https://example.com/scan', null ),
-			'manage ignores upgrade'  => array( 'get_scan_manage_url', 'url', 'https://example.com/plans', null ),
-			'javascript: URL dropped' => array( 'get_scan_upgrade_url', 'url', 'javascript:alert(1)', null ),
-			'javascript: manage URL'  => array( 'get_scan_manage_url', 'manage_url', 'javascript:alert(1)', null ),
+			'host plans'      => array( 'https://example.com/plans', 'https://example.com/plans' ),
+			'javascript: URL' => array( 'javascript:alert(1)', null ),
+			'not an array'    => array( null, null ),
 		);
 	}
 
 	/**
-	 * @dataProvider provide_host_scan_links
+	 * @dataProvider provide_host_upgrade_urls
 	 *
-	 * @param string      $method   The Dashboard method that returns the link.
-	 * @param string      $key      The key the host sets.
-	 * @param string      $url      The URL the host sends.
+	 * @param string|null $url      The URL the host sends, or null to return a non-array.
 	 * @param string|null $expected The resulting link, or null for the unfiltered one.
 	 */
-	#[DataProvider( 'provide_host_scan_links' )]
-	public function test_host_can_send_scan_links_elsewhere( $method, $key, $url, $expected ) {
-		$default      = Dashboard::$method();
-		$send_to_host = static function ( $upgrade, $slug ) use ( $key, $url ) {
-			return 'protect-dashboard' === $slug ? array_merge( $upgrade, array( $key => $url ) ) : $upgrade;
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_host_can_send_scan_upgrade_elsewhere( $url, $expected ) {
+		$default      = Dashboard::get_scan_upgrade_url();
+		$send_to_host = static function ( $upgrade, $slug ) use ( $url ) {
+			if ( null === $url ) {
+				return '';
+			}
+			return 'protect-dashboard' === $slug ? array_merge( $upgrade, array( 'url' => $url ) ) : $upgrade;
 		};
 		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
 
-		$link = Dashboard::$method();
+		$link = Dashboard::get_scan_upgrade_url();
 		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
 
 		$this->assertSame( $expected ?? $default, $link );
-	}
-
-	/**
-	 * A filter that returns something other than an array leaves both Scan links as they were.
-	 */
-	public function test_non_array_scan_link_filter_keeps_the_defaults() {
-		$defaults = array( Dashboard::get_scan_upgrade_url(), Dashboard::get_scan_manage_url() );
-		add_filter( 'jetpack_feature_upgrade', '__return_empty_string' );
-
-		$links = array( Dashboard::get_scan_upgrade_url(), Dashboard::get_scan_manage_url() );
-		remove_filter( 'jetpack_feature_upgrade', '__return_empty_string' );
-
-		$this->assertSame( $defaults, $links );
 	}
 
 	public function test_init_announces_the_dashboard() {

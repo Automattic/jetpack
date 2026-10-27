@@ -557,6 +557,23 @@ class Main_Features {
 	 */
 	private static function filter_upgrade( array $upgrade, $slug, $site_has_feature ) {
 		/**
+		 * Filters where a My Jetpack feature's Upgrade button goes.
+		 *
+		 * Remove once Jetpack 16.4 has shipped.
+		 *
+		 * @since 6.13.0
+		 * @deprecated $$next-version$$ Use jetpack_feature_upgrade.
+		 *
+		 * @param array  $upgrade          `path` (a My Jetpack route) and `name` (the product sold).
+		 * @param string $slug             The feature slug.
+		 * @param bool   $site_has_feature Whether the site already pays for the feature.
+		 */
+		$legacy = apply_filters_deprecated( 'jetpack_my_jetpack_feature_upgrade', array( $upgrade, $slug, $site_has_feature ), 'jetpack-my-jetpack-$$next-version$$', 'jetpack_feature_upgrade' );
+		if ( ! is_array( $legacy ) ) {
+			return $upgrade;
+		}
+
+		/**
 		 * Filters where a feature's upgrade and manage links go, so a host can send them to its own plans.
 		 *
 		 * Set `url` to an absolute address to replace the My Jetpack route, which also drops the
@@ -570,7 +587,7 @@ class Main_Features {
 		 * @param string $slug             The My Jetpack feature slug.
 		 * @param bool   $site_has_feature Whether the site already has the feature.
 		 */
-		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade + array( 'back_url' => admin_url( 'admin.php?page=my-jetpack#/features' ) ), $slug, $site_has_feature );
+		$filtered = apply_filters( 'jetpack_feature_upgrade', $legacy + array( 'back_url' => admin_url( 'admin.php?page=my-jetpack#/features' ) ), $slug, $site_has_feature );
 
 		if ( ! is_array( $filtered ) ) {
 			return $upgrade;

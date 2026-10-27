@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Deprecate the `jetpack_my_jetpack_feature_upgrade` filter in favor of `jetpack_feature_upgrade`, which can also change a feature's manage link.
