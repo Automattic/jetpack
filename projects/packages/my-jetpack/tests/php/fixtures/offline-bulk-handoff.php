@@ -55,9 +55,7 @@ try {
 	Initializer::init();
 	do_action( 'rest_api_init' );
 	$plugins = array( 'jetpack-videopress', 'jetpack-boost' );
-	if ( 'host-last' === $argv[1] ) {
-		$plugins = array_reverse( $plugins );
-	} elseif ( 'jetpack-and-host' === $argv[1] ) {
+	if ( 'jetpack-and-host' === $argv[1] ) {
 		$plugins = array( 'jetpack', 'jetpack-videopress' );
 	}
 	$request = new WP_REST_Request( 'POST', '/wpcom/v2/my-jetpack/site/features/bulk' );
