@@ -1,5 +1,5 @@
-/* An icon-only link: the design system's outbound marker is its whole content,
-   drawn quiet beside the title and sized to a comfortable target. */
+/* An icon-only link, drawn quiet beside the title and sized to a comfortable
+   target. */
 .link {
 	display: inline-flex;
 	flex: none;
@@ -16,8 +16,9 @@
 	color: var(--wpds-color-foreground-interactive-brand);
 }
 
-/* The marker is spaced from the link text it normally follows; there is
-   none here. */
+/* The design system appends its new-tab marker to the icon; the link's own
+   label already says it opens a new tab, and the marker reads as the arrow a
+   linked-out title shows. */
 .link > span {
-	margin-inline-start: 0;
+	display: none;
 }
