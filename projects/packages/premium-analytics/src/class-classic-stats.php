@@ -19,7 +19,7 @@ final class Classic_Stats {
 	const RETIRED_FLAG = 'jetpack-stats-classic-page-retired';
 
 	/**
-	 * Register the flag, so feature-flag tooling lists it. An unregistered flag still reads its filters, with a `false` default.
+	 * Register the flag, so feature-flag tooling lists it.
 	 *
 	 * @return void
 	 */
@@ -35,7 +35,7 @@ final class Classic_Stats {
 	}
 
 	/**
-	 * Whether the classic Stats page should give way to Stats v2; the page stays while Stats v2 is off.
+	 * Whether the retirement flag is on. Drop the classic page only once Stats v2 also booted, or the site has none.
 	 *
 	 * @return bool
 	 */

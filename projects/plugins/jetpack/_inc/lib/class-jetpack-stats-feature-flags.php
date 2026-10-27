@@ -30,7 +30,7 @@ class Jetpack_Stats_Feature_Flags {
 	}
 
 	/**
-	 * Whether the flag asks the classic Stats page to give way to Stats v2; the page stays while Stats v2 is off.
+	 * Whether the retirement flag is on. Drop the classic page only once Stats v2 is enabled too.
 	 *
 	 * A build without the package has no Stats v2 to give way to. Read on `plugins_loaded`, so a filter
 	 * forcing it has to be added before that.
