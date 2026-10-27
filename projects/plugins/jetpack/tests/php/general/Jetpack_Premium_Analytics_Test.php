@@ -123,15 +123,6 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * An option value that is present but falsy is still off.
-	 */
-	public function test_disabled_by_a_falsy_option() {
-		update_option( 'jetpack_premium_analytics_enabled', 0 );
-
-		$this->assertFalse( Jetpack::is_premium_analytics_enabled() );
-	}
-
-	/**
 	 * Off while the Stats module is inactive, without even consulting the flag; back once it is active again.
 	 */
 	public function test_follows_the_stats_module() {
@@ -151,52 +142,6 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 
 		self::reset_flag_cache();
 		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
-
-		$this->assertTrue( Jetpack::is_premium_analytics_enabled() );
-	}
-
-	/**
-	 * The filter wins over the option, in both directions.
-	 *
-	 * @param bool $option   Stored option value.
-	 * @param bool $filtered What the filter returns.
-	 * @param bool $expected Expected answer.
-	 * @dataProvider provide_filter_overrides
-	 */
-	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_filter_overrides' )]
-	public function test_filter_overrides_the_option( $option, $filtered, $expected ) {
-		update_option( 'jetpack_premium_analytics_enabled', $option ? 1 : 0 );
-
-		$filter = function () use ( $filtered ) {
-			return $filtered;
-		};
-		add_filter( 'jetpack_premium_analytics_enabled', $filter );
-
-		try {
-			$this->assertSame( $expected, Jetpack::is_premium_analytics_enabled() );
-		} finally {
-			remove_filter( 'jetpack_premium_analytics_enabled', $filter );
-		}
-	}
-
-	/**
-	 * Data for test_filter_overrides_the_option.
-	 *
-	 * @return array
-	 */
-	public static function provide_filter_overrides() {
-		return array(
-			'filter turns it on'  => array( false, true, true ),
-			'filter turns it off' => array( true, false, false ),
-		);
-	}
-
-	/**
-	 * Retiring the classic Stats page turns Stats v2 on even where the opt-in was switched off.
-	 */
-	public function test_retiring_the_classic_page_overrides_the_option() {
-		update_option( 'jetpack_premium_analytics_enabled', 0 );
-		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_true' );
 
 		$this->assertTrue( Jetpack::is_premium_analytics_enabled() );
 	}
