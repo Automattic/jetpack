@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: Delay order analytics sync until the store's analytics full sync starts.

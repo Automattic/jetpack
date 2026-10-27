@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CSV export: Name countries in the Store visitors by location export when WooCommerce has no name for them.
