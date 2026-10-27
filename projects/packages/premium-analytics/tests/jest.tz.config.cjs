@@ -45,9 +45,11 @@ if ( missing.length ) {
 // Jest accepts `coverageReporters` only at the root, and warns for every project that carries it.
 const { coverageReporters, ...projectConfig } = config;
 
-const zoneProject = ( displayName, environment ) => ( {
+const zoneProject = ( timeZone, environment ) => ( {
 	...projectConfig,
-	displayName,
+	displayName: timeZone,
+	globals: { ...projectConfig.globals, __EXPECTED_TIME_ZONE__: timeZone },
+	setupFiles: [ ...projectConfig.setupFiles, path.join( __dirname, 'assert-time-zone.cjs' ) ],
 	testEnvironment: path.join( __dirname, environment ),
 	testMatch: TZ_SUITES.map( suite => `<rootDir>/${ suite }` ),
 } );
