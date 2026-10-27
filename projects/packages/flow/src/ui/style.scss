@@ -17,12 +17,18 @@ body.jetpack-flow {
 
 .jetpack-flow-tabs {
 	flex: 0 0 auto;
+
+	// The tab strip keeps its natural height; the list below takes the rest.
+	> .jp-admin-page-tabs {
+		flex: 0 0 auto;
+	}
 }
 
 // Fill the viewport so the pagination footer pins to the bottom.
 .jetpack-flow-list {
 	flex: 1 1 auto;
 	min-block-size: 0;
+	overflow-y: auto;
 }
 
 .jp-admin-page:has(.dataviews-wrapper) {
