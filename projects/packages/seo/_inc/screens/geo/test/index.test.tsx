@@ -81,9 +81,8 @@ const crawlerForm = (
 const noop = () => {};
 
 describe( 'GeoScreen (GEO tab) — intro', () => {
-	// Moved here from an infotip beside the GEO tab once Settings followed GEO.
 	it( 'spells out the acronym at the top of the tab', () => {
-		render(
+		const { container } = render(
 			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
 		);
 
@@ -91,9 +90,9 @@ describe( 'GeoScreen (GEO tab) — intro', () => {
 			'GEO stands for generative engine optimization. These settings control how AI sees and uses your site.'
 		);
 		expect( intro.tagName ).toBe( 'P' );
-		// First in the tab, above every module.
-		// eslint-disable-next-line testing-library/no-node-access -- asserting its position in the tab.
-		expect( intro.parentElement?.firstElementChild ).toBe( intro );
+		// The tab's own first child, so it sits above every module.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- asserting its position in the tab.
+		expect( container.querySelector( '.jetpack-seo-geo' )?.firstElementChild ).toBe( intro );
 	} );
 } );
 

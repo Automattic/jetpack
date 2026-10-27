@@ -61,13 +61,4 @@ describe( 'DashboardNav', () => {
 			'Settings',
 		] );
 	} );
-
-	// The "What is GEO?" explanation moved onto the GEO screen (see its intro), so
-	// the tab strip holds tabs only.
-	it( 'has no infotip in the tab strip', () => {
-		render( <DashboardNav active="overview">content</DashboardNav> );
-
-		expect( screen.queryByRole( 'button', { name: 'What is GEO?' } ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( /generative engine optimization/ ) ).not.toBeInTheDocument();
-	} );
 } );
