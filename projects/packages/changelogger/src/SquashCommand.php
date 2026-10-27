@@ -98,11 +98,13 @@ EOF
 		$output->writeln( 'Deduplicating changes...', OutputInterface::VERBOSITY_DEBUG );
 		$seen = array();
 		foreach ( $changes as $k => $change ) {
-			if ( isset( $seen[ $change->getContent() ] ) ) {
+			$key = self::chopPrSuffix( $change->getContent() );
+			if ( isset( $seen[ $key ] ) ) {
 				$output->writeln( "Found duplicate change '{$change->getContent()}'.", OutputInterface::VERBOSITY_DEBUG );
+				$seen[ $key ]->setContent( $seen[ $key ]->getContent() . substr( $change->getContent(), strlen( $key ) ) );
 				unset( $changes[ $k ] );
 			} else {
-				$seen[ $change->getContent() ] = true;
+				$seen[ $key ] = $change;
 			}
 		}
 		return self::OK_EXIT;
@@ -247,6 +249,9 @@ EOF
 		$ret = $this->deduplicateChanges2( $input, $output, $changes );
 		if ( self::OK_EXIT !== $ret ) {
 			return $ret; // @codeCoverageIgnore
+		}
+		foreach ( $changes as $change ) {
+			self::cleanPrSuffix( $change );
 		}
 
 		// Determine next version.
