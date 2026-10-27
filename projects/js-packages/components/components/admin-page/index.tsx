@@ -111,7 +111,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 					{ unwrapped ? (
 						children
 					) : (
-						<Container fluid horizontalSpacing={ 0 }>
+						<Container className="jp-admin-page__content" fluid horizontalSpacing={ 0 }>
 							<Col>{ children }</Col>
 						</Container>
 					) }
