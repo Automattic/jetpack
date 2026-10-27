@@ -43,7 +43,7 @@ const JETPACK_STATS_COMMERCIAL_PRODUCTS = array( 'jetpack_stats_monthly', 'jetpa
 /**
  * Jetpack plan families that bundle commercial Stats.
  */
-const JETPACK_STATS_COMMERCIAL_PLAN_PREFIXES = array( 'jetpack_business', 'jetpack_complete', 'jetpack_growth' );
+const JETPACK_STATS_COMMERCIAL_PLAN_PREFIXES = array( 'jetpack_business', 'jetpack_complete', 'jetpack_growth', 'jetpack_pro' );
 
 /**
  * The Stats plan tier the dashboard is gated by.
