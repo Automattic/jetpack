@@ -334,7 +334,10 @@ describe( 'buildLeaderboardRow', () => {
 		);
 
 		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
-		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveAttribute( 'href', '/post/5' );
+		const title = screen.getByRole( 'link', { name: 'Hello' } );
+		expect( title ).toHaveAttribute( 'href', '/post/5' );
+		// The lone link carries the row chrome itself; a two-link wrapper would take it instead.
+		expect( title ).toHaveClass( 'rowLink' );
 	} );
 
 	it( 'returns chart button props for a drill-down without nesting an action', () => {
