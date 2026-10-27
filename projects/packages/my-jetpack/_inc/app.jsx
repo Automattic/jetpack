@@ -35,6 +35,7 @@ import RedeemTokenScreen from './components/redeem-token-screen';
 import { MyJetpackRoutes } from './constants';
 import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
 import { isOfflineFeatures } from './data/utils/offline-features';
+import { useHistoryIndex } from './hooks/use-history-index';
 import { usePaidMenuSync } from './hooks/use-paid-menu-sync';
 import Providers from './providers';
 import './style.module.scss';
@@ -79,6 +80,16 @@ function PaidMenuSync() {
 }
 
 /**
+ * Number every history entry, so the back link can tell whether a tab is behind it.
+ *
+ * @return {null} Renders nothing.
+ */
+function HistoryIndex() {
+	useHistoryIndex();
+	return null;
+}
+
+/**
  * The My Jetpack app tree, rendered by the wp-build stage.
  *
  * @return {import('react').ReactElement} The App component.
@@ -101,6 +112,7 @@ export default function App() {
 		<Providers>
 			<HashRouter>
 				<ScrollToTop />
+				<HistoryIndex />
 				<PaidMenuSync />
 				<PartnerCouponGate>
 					<Routes>

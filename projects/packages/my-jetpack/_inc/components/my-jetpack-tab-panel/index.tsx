@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../../hooks/use-analytics';
+import { getHistoryIndex } from '../../hooks/use-history-index';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import { FullWidthSeparator } from './full-width-separator';
 import styles from './styles.module.scss';
@@ -22,7 +23,8 @@ import type { ReactNode } from 'react';
 export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNode } ) {
 	const params = useParams();
 	const navigate = useNavigate();
-	const { search } = useLocation();
+	const location = useLocation();
+	const { search } = location;
 	const { recordEvent } = useAnalytics();
 	const isNewUser = useIsJetpackUserNew();
 	const tabStartTimeRef = useRef< number >( Date.now() );
@@ -114,10 +116,10 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] ); // track this only on page load
 
-	const [ , setLastTabPath ] = useValueStore( 'lastTabPath', null );
+	const [ , setLastTab ] = useValueStore( 'lastTab', null );
 	useEffect( () => {
-		setLastTabPath( `/${ currentTab }${ search }` );
-	}, [ currentTab, search, setLastTabPath ] );
+		setLastTab( { path: `/${ currentTab }${ search }`, index: getHistoryIndex() } );
+	}, [ currentTab, search, location, setLastTab ] );
 
 	const tabs = useMemo( () => getMyJetpackSections(), [] );
 

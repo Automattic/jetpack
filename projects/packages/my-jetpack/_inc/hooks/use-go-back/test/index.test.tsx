@@ -5,6 +5,7 @@ import { HashRouter, Link, Navigate, Route, Routes, useLocation } from 'react-ro
 import { MyJetpackTabPanel } from '../../../components/my-jetpack-tab-panel';
 import { MyJetpackRoutes } from '../../../constants';
 import ValueStoreContextProvider from '../../../context/value-store/valueStoreContext';
+import { useHistoryIndex } from '../../use-history-index';
 import { useGoBack } from '../index';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -53,11 +54,17 @@ const Location = () => {
 	return <p data-testid="location">{ pathname + search }</p>;
 };
 
+const HistoryIndex = () => {
+	useHistoryIndex();
+	return null;
+};
+
 const renderApp = ( initialEntry: string ) => {
 	window.location.hash = `#${ initialEntry }`;
 	return render(
 		<ValueStoreContextProvider>
 			<HashRouter>
+				<HistoryIndex />
 				<Routes>
 					<Route path="/add-videopress" element={ <UpgradeScreen /> } />
 					<Route path="/add-old-slug" element={ <Navigate replace to="/add-videopress" /> } />
@@ -127,4 +134,23 @@ describe( 'useGoBack', () => {
 			expect( window.history ).toHaveLength( historyLength + addedHistoryEntries );
 		}
 	);
+
+	it( 'goes to the fallback when the tab is ahead in history', async () => {
+		window.location.hash = '#/outside';
+		const { user, backLink } = await openUpgradeScreen( '/add-videopress', null, '' );
+		await user.click( backLink );
+		await waitFor( () =>
+			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/features' )
+		);
+
+		window.history.back();
+		const backLinkAgain = await screen.findByRole( 'link', { name: 'My Jetpack' } );
+		const historyLength = window.history.length;
+		await user.click( backLinkAgain );
+
+		await waitFor( () =>
+			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/features' )
+		);
+		expect( window.history ).toHaveLength( historyLength );
+	} );
 } );
