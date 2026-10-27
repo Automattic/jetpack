@@ -55,7 +55,7 @@
 		"react-dom": "19.3.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"webpack": "5.111.1",
+		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
 	}
 }

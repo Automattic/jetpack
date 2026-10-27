@@ -9,6 +9,7 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php';
 
 /**
@@ -179,7 +180,6 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	 * Test_get_module_unavailable_reason
 	 */
 	public function test_get_module_unavailable_reason() {
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 		// Inalid input.
 		$this->assertFalse( Jetpack_Admin::get_module_unavailable_reason( array() ) );
 
@@ -217,7 +217,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 
 		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		$this->assertSame( 'Unavailable in Offline mode', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
+		$this->assertSame( 'Unavailable in Offline Mode', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		StatusCache::clear();
 
@@ -258,6 +258,48 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	 */
 	public function test_get_module_module_no_info() {
 		$this->assertFalse( Jetpack::get_module( 'module-extras' ) );
+	}
+
+	/**
+	 * Keep the list usable and select only a known module from the info argument.
+	 *
+	 * @dataProvider get_module_info_list_and_selection_data
+	 * @param string|array $info Requested module information.
+	 * @param string       $expected Expected module information.
+	 */
+	#[DataProvider( 'get_module_info_list_and_selection_data' )]
+	public function test_info_argument_keeps_list_and_known_module_selection( $info, $expected ) {
+		$original_get = $_GET;
+		try {
+			$_GET['info'] = $info;
+			wp_deregister_script( 'jetpack-modules-list-table' );
+			$this->expectOutputRegex( '/Jetpack Modules List/' );
+			$table = new Jetpack_Modules_List_Table();
+			$data  = wp_scripts()->get_data( 'jetpack-modules-list-table', 'data' );
+			$this->assertNotEmpty( $table->items );
+			$this->assertSame( 1, preg_match( '/var jetpackModulesData = (.*);/', $data, $matches ) );
+			$data = json_decode( $matches[1], true );
+			$this->assertIsArray( $data );
+			$this->assertSame( $expected, $data['modalinfo'] );
+		} finally {
+			$_GET = $original_get;
+			foreach ( array( 'models.jetpack-modules', 'views.jetpack-modules', 'jetpack-modules-list-table' ) as $handle ) {
+				wp_dequeue_script( $handle );
+				wp_deregister_script( $handle );
+			}
+		}
+	}
+
+	/**
+	 * Provide info arguments and their expected module selections.
+	 *
+	 * @return array Module information arguments and expected selections.
+	 */
+	public static function get_module_info_list_and_selection_data() {
+		return array(
+			'valid module' => array( 'sso', 'sso' ),
+			'array'        => array( array( 'x' ), '' ),
+		);
 	}
 
 	/**

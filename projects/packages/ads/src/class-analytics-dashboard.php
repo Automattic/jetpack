@@ -26,7 +26,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.1.4';
+	const PACKAGE_VERSION = '0.1.5';
 
 	/**
 	 * Namespaced section identifier. Its slug, `ads`, keys the section's URL and stored layouts.
@@ -47,10 +47,9 @@ class Analytics_Dashboard {
 	const REGISTER_WIDGET_TYPES_ACTION = 'jetpack_premium_analytics_register_widget_types';
 
 	/**
-	 * Lowest widget contract the build works against: the widgets name their icons in `widget.json`,
-	 * which the dashboard resolves from 1.6.0.
+	 * Lowest widget contract the build works against: 2.0.0, the start of the major it is built for.
 	 */
-	const MIN_WIDGET_API_VERSION = '1.6.0';
+	const MIN_WIDGET_API_VERSION = '2.0.0';
 
 	/**
 	 * Text domain of the widget metadata and of the built widget bundles.
@@ -158,7 +157,7 @@ class Analytics_Dashboard {
 
 		$version = \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION;
 
-		return version_compare( $version, self::MIN_WIDGET_API_VERSION, '>=' ) && version_compare( $version, '2', '<' );
+		return version_compare( $version, self::MIN_WIDGET_API_VERSION, '>=' ) && version_compare( $version, '3', '<' );
 	}
 
 	/**
@@ -171,7 +170,7 @@ class Analytics_Dashboard {
 	 */
 	private static function widget_contract_moved_on() {
 		return defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' )
-			&& version_compare( \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION, '2', '>=' );
+			&& version_compare( \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION, '3', '>=' );
 	}
 
 	/**
