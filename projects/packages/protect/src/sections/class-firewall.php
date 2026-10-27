@@ -205,6 +205,44 @@ class Firewall implements Dashboard_Section {
 			return true;
 		}
 
+		if ( ! self::ip_list_covers( $list, $ip ) ) {
+			return true;
+		}
+
+		// The firewall checks the allow list first, so this address would never actually be blocked.
+		if (
+			class_exists( Waf_Rules_Manager::class )
+			&& Waf_Rules_Manager::ip_allow_list_enabled()
+			&& self::ip_list_covers( (string) get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '' ), $ip )
+		) {
+			return new WP_Error(
+				'ip_block_list_includes_allowed_ip',
+				sprintf(
+					/* translators: %s is the visitor's IP address. */
+					__( 'Your IP address (%s) is on your allow list, so it can\'t be added to the block list. Remove it, or the range that includes it, from the block list and try again.', 'jetpack-protect-pkg' ),
+					$ip
+				)
+			);
+		}
+
+		return new WP_Error(
+			'ip_block_list_includes_current_ip',
+			sprintf(
+				/* translators: %s is the visitor's IP address. */
+				__( 'Your IP address (%s) is on the block list, so saving it would block you from your own site. Remove it, or the range that includes it, and try again.', 'jetpack-protect-pkg' ),
+				$ip
+			)
+		);
+	}
+
+	/**
+	 * Whether an IP list includes an address, through the address itself, a range or a CIDR block.
+	 *
+	 * @param string $list Addresses, ranges or CIDR blocks.
+	 * @param string $ip   The address to look for.
+	 * @return bool
+	 */
+	private static function ip_list_covers( $list, $ip ) {
 		foreach ( IP_Utils::get_ip_addresses_from_string( $list ) as $entry ) {
 			// Split as the firewall does: a CIDR block, a hyphenated range or a single address.
 			$range    = strpos( $entry, '/' ) !== false ? array( $entry, null ) : explode( '-', $entry );
@@ -213,18 +251,11 @@ class Firewall implements Dashboard_Section {
 				: inet_pton( $entry ) === inet_pton( $ip );
 
 			if ( $is_match ) {
-				return new WP_Error(
-					'ip_block_list_includes_current_ip',
-					sprintf(
-						/* translators: %s is the visitor's IP address. */
-						__( 'Your IP address (%s) is on the block list, so saving it would block you from your own site. Remove it, or the range that includes it, and try again.', 'jetpack-protect-pkg' ),
-						$ip
-					)
-				);
+				return true;
 			}
 		}
 
-		return true;
+		return false;
 	}
 
 	/**

@@ -136,6 +136,39 @@ class Firewall_Section_Test extends BaseTestCase {
 		);
 	}
 
+	/**
+	 * An address the allow list exempts gets its own reason, since blocking it would never lock anyone out.
+	 *
+	 * @dataProvider provide_allow_list_states
+	 *
+	 * @param bool   $allow_list_enabled Whether the allow list is on.
+	 * @param string $code               The expected error code.
+	 */
+	#[DataProvider( 'provide_allow_list_states' )]
+	public function test_block_list_refusal_names_the_allow_list_only_when_it_applies( $allow_list_enabled, $code ) {
+		$original               = $_SERVER;
+		$_SERVER['REMOTE_ADDR'] = '203.0.113.7';
+		update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '203.0.113.0/24' );
+		update_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, $allow_list_enabled );
+
+		$result = Firewall::validate_ip_block_list( '203.0.113.7' );
+
+		$_SERVER = $original;
+		$this->assertSame( $code, $result->get_error_code() );
+	}
+
+	/**
+	 * Data provider for test_block_list_refusal_names_the_allow_list_only_when_it_applies.
+	 *
+	 * @return array
+	 */
+	public static function provide_allow_list_states() {
+		return array(
+			'allow list on'  => array( true, 'ip_block_list_includes_allowed_ip' ),
+			'allow list off' => array( false, 'ip_block_list_includes_current_ip' ),
+		);
+	}
+
 	public function test_each_block_count_comes_from_its_own_stored_period() {
 		$stored  = array(
 			Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY        => serialize(
