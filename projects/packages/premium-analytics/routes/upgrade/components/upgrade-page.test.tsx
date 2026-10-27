@@ -353,6 +353,25 @@ describe( 'UpgradePage', () => {
 		).toBeInTheDocument();
 	} );
 
+	it.each( [ 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly' ] )(
+		'tells a %s site how many views its plan already includes',
+		async productSlug => {
+			setScriptData( true );
+			mockEndpoints( [ { product_slug: productSlug, product_name: 'Jetpack Pro' } ], undefined, {
+				views_limit: 50000,
+				billable_monthly_views: 60000,
+				current_usage: { views_count: 60000 },
+			} );
+			await renderPage();
+
+			expect(
+				screen.getByText(
+					'Your Jetpack Pro plan already includes 50K views per month for Stats. Views from this purchase will stack on top, so you keep what you already have.'
+				)
+			).toBeInTheDocument();
+		}
+	);
+
 	it( 'returns from checkout to the upgrade page with the report window and tab it was opened with', async () => {
 		mockSearch.mockReturnValue( {
 			from: '2026-10-01',

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Backup: Explain why connecting the site failed instead of showing a generic error.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Connection: Show a clear message when connecting the site to WordPress.com from the Connectors card fails, instead of WordPress.com's raw error text.
