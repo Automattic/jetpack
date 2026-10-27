@@ -258,9 +258,9 @@ class Analytics {
 
 	/**
 	 * Runs on nearly every admin page load, so the payload stays to two strings,
-	 * a bool, and one capability check.
+	 * a bool, and one access check.
 	 *
-	 * `can_view` is Stats access: every link other surfaces build from it opens a Stats view.
+	 * `can_view` is whether this user can open a Stats view: every link other surfaces build from it opens one.
 	 *
 	 * @param array $data The script data.
 	 * @return array The script data with the analytics key added.
@@ -269,7 +269,7 @@ class Analytics {
 		$data['analytics'] = array(
 			'enabled'   => true,
 			'page_slug' => self::MENU_PAGE_SLUG,
-			'can_view'  => Capabilities::current_user_can_view_stats(),
+			'can_view'  => Capabilities::current_user_can_open_stats(),
 			'timezone'  => self::site_timezone(),
 		);
 
@@ -509,9 +509,21 @@ class Analytics {
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_tracks_transport' ) );
 			add_filter( 'jetpack_admin_js_script_data', array( static::class, 'add_tracks_identity_script_data' ), 20 );
+			add_action( 'admin_page_access_denied', array( static::class, 'redirect_denied_dashboard_request' ) );
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
+	}
+
+	/**
+	 * Sends a reader who lost access, for example because the site was disconnected, to the
+	 * wp-admin Dashboard instead of the "not allowed" screen.
+	 *
+	 * @return never
+	 */
+	public static function redirect_denied_dashboard_request() {
+		wp_safe_redirect( admin_url() );
+		exit;
 	}
 
 	/**
@@ -583,16 +595,17 @@ class Analytics {
 		$menu_title = self::menu_title();
 
 		$menu_title = esc_html( $menu_title );
+		$capability = Capabilities::dashboard_page_capability();
 
 		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
 		if ( ! method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
-			add_menu_page( $menu_title, $menu_title, Capabilities::VIEW_ANALYTICS, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2 );
+			add_menu_page( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2 );
 			return;
 		}
 
 		// A fixed key rather than the slug, which carries a build-specific suffix. No gate:
 		// the dashboard has no My Jetpack product class and no module to name.
-		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, Capabilities::VIEW_ANALYTICS, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-premium-analytics' ) );
+		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-premium-analytics' ) );
 	}
 
 	/**

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
@@ -15,6 +16,7 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
 /**
@@ -28,6 +30,7 @@ require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 #[CoversClass( Analytics::class )]
 #[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\ensure_widget_registry_ready' )]
 class Analytics_Test extends TestCase {
+	use Analytics_Capabilities_Trait;
 	use Widget_Manifest_Fixture_Trait;
 
 	const MENU_SLUG     = 'jetpack-premium-analytics-wp-admin';
@@ -84,6 +87,7 @@ class Analytics_Test extends TestCase {
 		remove_all_actions( 'plugins_loaded' );
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'admin_menu' );
+		remove_all_actions( 'admin_page_access_denied' );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( 'jetpack_stats_url' );
 		remove_all_filters( 'jetpack_stats_admin_pre_connection_dashboard' );
@@ -93,6 +97,9 @@ class Analytics_Test extends TestCase {
 		$this->reset_tracks_identity_state();
 		Capabilities::unregister();
 		$this->reset_analytics_init_state();
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		( new Connection_Manager() )->reset_connection_status();
+		remove_all_filters( 'wp_redirect' );
 		parent::tearDown();
 	}
 
@@ -539,6 +546,59 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * A reader who refreshes the page after losing access, for example to a disconnection, lands
+	 * on the wp-admin Dashboard rather than the "not allowed" screen. Other pages are left alone.
+	 *
+	 * @dataProvider provide_denied_pages
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param string      $page     The requested admin page.
+	 * @param string|null $location Where the denied request should be sent, or null for nowhere.
+	 */
+	#[DataProvider( 'provide_denied_pages' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_denied_request_redirects_only_from_the_dashboard( $page, $location ) {
+		set_current_screen( 'toplevel_page_' . $page );
+		$_GET['page'] = $page;
+		Analytics::init();
+		add_filter(
+			'wp_redirect',
+			/**
+			 * Stops the redirect at its location, before the callback exits.
+			 *
+			 * @param string $location Redirect target.
+			 * @return never
+			 */
+			static function ( $location ) {
+				throw new \RuntimeException( $location );
+			}
+		);
+
+		$redirected_to = null;
+		try {
+			do_action( 'admin_page_access_denied' );
+		} catch ( \RuntimeException $e ) {
+			$redirected_to = $e->getMessage();
+		}
+
+		$this->assertSame( $location, $redirected_to );
+	}
+
+	/**
+	 * The dashboard, and another plugin's page.
+	 *
+	 * @return array<string, array{string, string|null}>
+	 */
+	public static function provide_denied_pages() {
+		return array(
+			'dashboard'          => array( self::MENU_SLUG, 'http://example.org/wp-admin/' ),
+			'another admin page' => array( 'some-other-plugin', null ),
+		);
+	}
+
+	/**
 	 * The `analytics` key's presence is what tells every Jetpack surface outside
 	 * this package that this dashboard — not the legacy Stats page — is where
 	 * analytics links should go.
@@ -583,6 +643,7 @@ class Analytics_Test extends TestCase {
 	 */
 	public function test_add_script_data_reports_can_view_for_a_capable_user() {
 		Capabilities::register();
+		$this->connect_site();
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
 		$data = Analytics::add_script_data( array() );
@@ -849,6 +910,7 @@ class Analytics_Test extends TestCase {
 
 		$GLOBALS['menu'] = array();
 		Capabilities::register();
+		$this->connect_site();
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
@@ -880,6 +942,7 @@ class Analytics_Test extends TestCase {
 
 		$GLOBALS['menu'] = array();
 		Capabilities::register();
+		$this->connect_site();
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
@@ -982,6 +1045,8 @@ class Analytics_Test extends TestCase {
 
 	private function register_admin_menu_without_build( $manifest_filter = 'use_fixture_widget_manifest' ) {
 		$GLOBALS['menu'] = array();
+
+		$this->connect_site();
 
 		// Hooked by boot_shared_services() in production; add_menu_page() resolves the
 		// dashboard capability, and an unmapped one would skip the page's render hook.
