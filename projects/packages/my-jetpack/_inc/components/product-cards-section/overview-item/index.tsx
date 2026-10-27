@@ -201,13 +201,22 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	}
 
 	return (
-		<Stack direction="column" gap="sm" className={ styles.item }>
-			<Text variant="body-md">{ label }</Text>
-			<div className={ styles.value } aria-busy={ isLoading }>
-				{ content }
-			</div>
+		<Stack direction="column" gap="lg">
+			<Stack direction="column" gap="xs">
+				<Text variant="body-md">{ label }</Text>
+				<div className={ styles.value } aria-busy={ isLoading }>
+					{ content }
+				</div>
+			</Stack>
 			{ links.length > 0 && (
-				<Stack direction="row" align="center" gap="sm" wrap="wrap" className={ styles.links }>
+				<Stack
+					direction="row"
+					align="center"
+					gap="sm"
+					wrap="wrap"
+					className={ styles.links }
+					render={ <Text variant="heading-md" render={ <div /> } /> }
+				>
 					{ links }
 				</Stack>
 			) }

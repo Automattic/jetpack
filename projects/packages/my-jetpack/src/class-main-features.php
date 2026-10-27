@@ -562,7 +562,7 @@ class Main_Features {
 		 * Set `url` to an absolute address to replace the My Jetpack route, which also drops the
 		 * Jetpack plans the feature's details would otherwise link to. Ignored when `$included`.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.13.0
 		 *
 		 * @param array  $upgrade  `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is.
 		 * @param string $slug     The feature slug.

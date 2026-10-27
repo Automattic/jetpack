@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -138,12 +137,11 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		remove_action( 'admin_init', __NAMESPACE__ . '\\maybe_invalidate_stats_caches' );
 		delete_transient( Notices::NOTICES_CACHE_KEY );
 		remove_all_filters( 'pre_http_request' );
-		unset( $_GET['statsPurchaseSuccess'], $_GET['page'], $GLOBALS['current_screen'], $GLOBALS['_parent_pages']['stats'] );
+		unset( $_GET['statsPurchaseSuccess'], $_GET['page'], $GLOBALS['current_screen'] );
 		delete_transient( EMPTY_PLAN_REFRESH_TRANSIENT );
 		delete_transient( PURCHASE_PLAN_REFRESH_TRANSIENT );
 		delete_transient( PURCHASE_CACHE_INVALIDATION_TRANSIENT );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
-		Stats_Options::set_option( 'enable_odyssey_stats', true );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		remove_action( Widget_Type_Registry::REGISTER_ACTION, array( $this, 'register_plugin_widget_type' ), 20 );
 		unset( $GLOBALS['jpa_test_widget_manifest'] );
@@ -529,30 +527,13 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertStringContainsString( '/personal?', get_stats_upgrade_url( 'referrers', STATS_TIER_FREE ) );
 	}
 
-	public function test_jetpack_upgrade_url_returns_to_the_dashboard() {
-		$GLOBALS['_parent_pages']['stats'] = false;
-		\Jetpack_Options::update_option( 'id', 1234 );
-		$url = get_stats_upgrade_url( 'utm', STATS_TIER_JETPACK_FREE );
-
-		$this->assertStringContainsString( 'page=stats#!/stats/purchase/1234?', $url );
-		$this->assertStringContainsString( 'productType=commercial', $url );
-		$this->assertStringContainsString( 'redirect_uri=' . rawurlencode( 'admin.php?page=' . Analytics::MENU_PAGE_SLUG ), $url );
-	}
-
-	public function test_jetpack_upgrade_url_is_empty_with_odyssey_stats_off() {
-		$GLOBALS['_parent_pages']['stats'] = false;
-		Stats_Options::set_option( 'enable_odyssey_stats', false );
-
-		$this->assertSame( '', get_stats_upgrade_url( 'utm', STATS_TIER_JETPACK_FREE ) );
-	}
-
-	/**
-	 * Without the classic Stats page the feature stays locked, with nowhere to send the reader.
-	 */
-	public function test_jetpack_upgrade_url_is_empty_without_the_stats_page() {
+	public function test_jetpack_upgrade_url_opens_the_dashboard_upgrade_page() {
 		update_option( 'jetpack_active_plan', self::FREE_PLAN );
 
-		$this->assertSame( '', get_stats_plan_gates()['locked_features']['utm']['upgrade_url'] );
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-premium-analytics-wp-admin&p=' . rawurlencode( '/upgrade?source=jetpack-premium-analytics-locked-feature' ) ),
+			get_stats_plan_gates()['locked_features']['utm']['upgrade_url']
+		);
 	}
 
 	/**
@@ -711,22 +692,21 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The offer carries the server's purchase URL, credited to the banner, and whether the site has a Stats product for its title.
+	 * The offer carries the upgrade page URL, credited to the banner, and whether the site has a Stats product for its title.
 	 */
-	public function test_script_data_offers_the_free_site_upgrade_with_its_purchase_url() {
+	public function test_script_data_offers_the_free_site_upgrade_with_its_upgrade_url() {
 		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_JETPACK_FREE );
 		update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - 31 * DAY_IN_SECONDS );
 		update_option( 'jetpack_site_products', array( array( 'product_slug' => 'jetpack_stats_free_yearly' ) ) );
-		$GLOBALS['_parent_pages']['stats'] = false;
-		\Jetpack_Options::update_option( 'id', 1234 );
 		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
 		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
 
 		$data = inject_stats_plan_gates_script_data( array() );
 
-		$url = $data['premium_analytics']['plan_gates']['free_site_upgrade']['upgrade_url'];
-		$this->assertStringContainsString( 'page=stats#!/stats/purchase/1234?', $url );
-		$this->assertStringContainsString( 'from=jetpack-premium-analytics-free-site-upgrade-notice', $url );
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-premium-analytics-wp-admin&p=' . rawurlencode( '/upgrade?source=jetpack-premium-analytics-free-site-upgrade-notice' ) ),
+			$data['premium_analytics']['plan_gates']['free_site_upgrade']['upgrade_url']
+		);
 		$this->assertTrue( $data['premium_analytics']['plan_gates']['free_site_upgrade']['has_stats_product'] );
 	}
 
@@ -800,6 +780,20 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 
 		$this->assertSame( 1, $this->plan_requests );
 		$this->assertSame( STATS_TIER_UNKNOWN, get_stats_plan_tier() );
+	}
+
+	public function test_unconnected_visit_does_not_throttle_the_refresh_after_connecting() {
+		$this->open_dashboard_with_counted_plan_fetches();
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		( new Connection_Manager() )->reset_connection_status();
+		maybe_refresh_jetpack_plan();
+
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+		maybe_refresh_jetpack_plan();
+
+		$this->assertSame( STATS_TIER_JETPACK_FREE, get_stats_plan_tier() );
 	}
 
 	public function test_refreshed_plan_feeds_the_tier() {

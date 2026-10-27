@@ -29,6 +29,10 @@ export interface ProtectedOwnerConfirmationCopy {
 	contactSupport: string;
 	/** Fallback when the claim fails and the server sends no message. */
 	confirmError: string;
+	/** What the lock means once an owner is confirmed. For a badge or tooltip. */
+	lockedNotice: string;
+	/** What the lock will mean, while confirmation is still outstanding. */
+	pendingLockNotice: string;
 	/** Destination for `contactSupport`. */
 	supportUrl: string;
 }

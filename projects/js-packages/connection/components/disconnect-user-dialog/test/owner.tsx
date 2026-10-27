@@ -43,7 +43,7 @@ describe( 'DisconnectUserDialog, for the connection owner', () => {
 		render( <DisconnectUserDialog { ...testProps } /> );
 
 		expect(
-			screen.getByRole( 'dialog', { name: 'Disconnect Owner Account' } )
+			screen.getByRole( 'dialog', { name: 'Disconnect owner account' } )
 		).toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'dialog', { name: 'Disconnect your user account' } )
@@ -134,7 +134,7 @@ describe( 'DisconnectUserDialog, for the connection owner', () => {
 		// Success clears isMaster in the store. The dialog the owner opened has to survive that
 		// until its host closes or reloads, rather than becoming the non-owner confirm.
 		expect(
-			screen.getByRole( 'dialog', { name: 'Disconnect Owner Account' } )
+			screen.getByRole( 'dialog', { name: 'Disconnect owner account' } )
 		).toBeInTheDocument();
 	} );
 } );

@@ -28,6 +28,7 @@ import {
 	DashboardSectionProvider,
 	PageOptionsMenu,
 	ResetLayoutAction,
+	useHostLinkSearch,
 	useTrackCustomize,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -481,7 +482,7 @@ function Dashboard(): JSX.Element {
 				dateLimits={ dateLimits }
 			>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
-				<DashboardWidgetHostProvider>
+				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
 							widgetTypes={ widgetTypes }
@@ -545,49 +546,52 @@ function Dashboard(): JSX.Element {
 
 											{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
 											{ activeSection === section.slug && isSectionCommitted ? (
-												<div className={ styles.body }>
-													{ ! editMode && <DashboardNotices /> }
+												<DashboardSectionProvider section={ section.slug }>
+													<div className={ styles.body }>
+														{ ! editMode && <DashboardNotices /> }
 
-													{ /* Behind the onboarding journey: it introduces the tabs
-													     the banner asks about. */ }
-													<FeedbackBanner
-														enabled={
-															canSendFeedback() &&
-															! editMode &&
-															section.slug === defaultSection &&
-															onboarding.phase === 'closed'
-														}
-													/>
-
-													{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
-														<SectionSyncNotice
-															canRunSync={ canRunSync }
-															percentage={ syncStatus?.percentage ?? 0 }
-															hasError={ !! syncError }
-															onRetry={ retrySync }
-															isRetrying={ isRetryingSync }
+														{ /* Behind the onboarding journey: it introduces the tabs
+														     the banner asks about. */ }
+														<FeedbackBanner
+															enabled={
+																canSendFeedback() &&
+																! editMode &&
+																section.slug === defaultSection &&
+																onboarding.phase === 'closed'
+															}
 														/>
-													) : (
-														section.notice && <SectionNotice message={ section.notice } />
-													) }
 
-													{ ! isSectionLocked && <WidgetDashboard.NoWidgetsState /> }
-													<div ref={ setWidgetsFrame }>
-														<DashboardSectionProvider section={ section.slug }>
+														{ isSectionAwaitingSync( section, isSyncFinished ) &&
+														! isSyncComplete ? (
+															<SectionSyncNotice
+																canRunSync={ canRunSync }
+																percentage={ syncStatus?.percentage ?? 0 }
+																hasError={ !! syncError }
+																onRetry={ retrySync }
+																isRetrying={ isRetryingSync }
+															/>
+														) : (
+															section.notice && <SectionNotice message={ section.notice } />
+														) }
+
+														{ ! isSectionLocked && <WidgetDashboard.NoWidgetsState /> }
+														<div ref={ setWidgetsFrame }>
 															<WidgetDashboard.Widgets className={ styles.widgets } />
-														</DashboardSectionProvider>
+														</div>
+														{ isSectionLocked && <LockedSection section={ section.slug } /> }
 													</div>
-													{ isSectionLocked && <LockedSection section={ section.slug } /> }
-												</div>
+												</DashboardSectionProvider>
 											) : null }
 										</SectionTabPanel>
 									) ) }
 
 									{ hasSettingsTab && (
 										<SectionTabPanel value={ SETTINGS_SECTION } className={ styles.content }>
-											<div className={ styles.body }>
-												<StatsSettingsPanel />
-											</div>
+											<DashboardSectionProvider section={ SETTINGS_SECTION }>
+												<div className={ styles.body }>
+													<StatsSettingsPanel />
+												</div>
+											</DashboardSectionProvider>
 										</SectionTabPanel>
 									) }
 								</DashboardSections>

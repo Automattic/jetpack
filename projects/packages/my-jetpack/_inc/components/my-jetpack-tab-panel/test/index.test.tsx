@@ -18,7 +18,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 } ) );
 
 // The router boundary is the only thing mocked out of the panel itself: the
-// `onTabSelect` gate and the keyed-remount effect run for real against it.
+// `onTabSelect` gate runs for real against it.
 const mockNavigate = jest.fn();
 let mockSection: string | undefined;
 let mockSearch = '';
@@ -70,7 +70,6 @@ describe( 'MyJetpackTabPanel', () => {
 		render( <MyJetpackTabPanel /> );
 
 		expect( screen.getByTestId( 'tab-content' ) ).toHaveTextContent( MY_JETPACK_SECTION_FEATURES );
-		// The direct-render path renders no TabPanel, so there is no tab bar.
 		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
 		// The canonical Features hash needs no rewrite.
 		expect( mockNavigate ).not.toHaveBeenCalled();
@@ -87,11 +86,10 @@ describe( 'MyJetpackTabPanel', () => {
 		mockSection = MY_JETPACK_SECTION_OVERVIEW;
 
 		render( <MyJetpackTabPanel /> );
-		// Awaiting the query lets TabPanel's async post-mount selection settle in act().
 		await expect( screen.findByRole( 'tablist' ) ).resolves.toBeInTheDocument();
 
 		expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 3 );
-		// Mount and the keyed remount both settle on the current tab: no phantom click.
+		// Mounting on the current tab records no click.
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 		expect( mockNavigate ).not.toHaveBeenCalled();
 		expect( callsFor( 'jetpack_myjetpack_tab_view' ) ).toHaveLength( 1 );
@@ -131,7 +129,12 @@ describe( 'MyJetpackTabPanel', () => {
 	it( 'records one tab click, with the resolved previous tab, on a genuine switch', async () => {
 		mockSection = MY_JETPACK_SECTION_OVERVIEW;
 
-		render( <MyJetpackTabPanel /> );
+		const { rerender } = render( <MyJetpackTabPanel /> );
+		// Like the router, navigating re-renders the panel on the new section before the click lands.
+		mockNavigate.mockImplementationOnce( ( path: string ) => {
+			mockSection = path.slice( 1 );
+			rerender( <MyJetpackTabPanel /> );
+		} );
 		await userEvent.click( screen.getByRole( 'tab', { name: 'Help' } ) );
 
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 1 );
@@ -143,6 +146,16 @@ describe( 'MyJetpackTabPanel', () => {
 			} )
 		);
 		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_HELP }` );
+	} );
+
+	it( 'switches tabs with the arrow keys', async () => {
+		mockSection = MY_JETPACK_SECTION_OVERVIEW;
+
+		render( <MyJetpackTabPanel /> );
+		await userEvent.click( screen.getByRole( 'tab', { name: 'Overview' } ) );
+		await userEvent.keyboard( '{ArrowRight}' );
+
+		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_FEATURES }` );
 	} );
 
 	it( 'redirects the retired Products hash to Features, keeping its query', async () => {

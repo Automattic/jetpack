@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Nine widgets declare their static attributes in widget.json instead of a module. No user-facing change.
-
-

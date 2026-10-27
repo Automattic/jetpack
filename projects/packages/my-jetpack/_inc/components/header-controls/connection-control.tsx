@@ -114,13 +114,17 @@ const ConnectionControl: FC = () => {
 					/>
 					<span className={ clsx( styles.dot, styles[ state.status ] ) } />
 				</Popover.Trigger>
-				<Popover.Popup>
-					<Stack direction="column" gap="md" className={ styles.content }>
+				<Popover.Popup positioner={ <Popover.Positioner align="end" collisionPadding={ 16 } /> }>
+					<Stack direction="column" gap="lg" className={ styles.content }>
 						<Stack direction="column" gap="sm" align="start">
 							<Text variant="heading-md" render={ <Popover.Title /> }>
 								{ __( 'Connection', 'jetpack-my-jetpack' ) }
 							</Text>
-							<ConnectionStatus status={ state.status } showAvatar={ showAvatar } />
+							<ConnectionStatus
+								status={ state.status }
+								showAvatar={ showAvatar }
+								className={ styles.illustration }
+							/>
 							<Badge intent={ STATUS_INTENTS[ state.status ] }>{ getBadgeLabel( state ) }</Badge>
 							<ConnectionOwnerInfo />
 							{ state.isDiagnosis && restoreConnectionError && (

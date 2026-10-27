@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add an editor loader script that lets other hosts, such as the WordPress.com Reader, load the comment block editor.

@@ -1,7 +1,3 @@
-.item {
-	block-size: 100%;
-}
-
 .value {
 	display: flex;
 	align-items: center;
@@ -28,7 +24,6 @@
 
 .links {
 	margin-block-start: auto;
-	padding-block-start: var(--spacing-base);
 
 	> * + * {
 		padding-inline-start: var(--spacing-base);

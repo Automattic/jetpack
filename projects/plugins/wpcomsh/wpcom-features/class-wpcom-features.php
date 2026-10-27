@@ -1740,6 +1740,11 @@ class WPCOM_Features {
 				'before_feature_gating_2026' => true,
 				self::WPCOM_PREMIUM_PLANS,
 			),
+			// Provisioned VideoPress channels keep VideoPress on current Premium plans.
+			array(
+				'required_sticker' => 'videopress-channel',
+				self::WPCOM_PREMIUM_PLANS,
+			),
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_VIDEOPRESS,
