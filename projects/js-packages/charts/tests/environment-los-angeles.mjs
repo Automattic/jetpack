@@ -1,3 +1,3 @@
-import { zonedEnvironment } from './zone-environment.mjs';
+import { zonedEnvironment } from 'jetpack-js-tools/jest/timezone-environment.mjs';
 
 export default zonedEnvironment( 'America/Los_Angeles' );

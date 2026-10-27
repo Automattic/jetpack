@@ -5,6 +5,7 @@ import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
+import { pairComparisonBuckets, type ComparisonPeriodStarts } from './pair-comparison-buckets';
 import type { MetricTab, MetricTabDatum } from '../components';
 import type { CountLabel, DataFormat } from '../types';
 
@@ -44,6 +45,11 @@ export type BuildMetricTabOptions< TReport extends MetricReport > = {
 	 * and draws a null bucket at 0 that its tooltip reads as no value.
 	 */
 	noDataLabel?: string;
+	/**
+	 * Where each period starts. With it, each comparison point is drawn on the current
+	 * bucket covering the same days; without it, on the current bucket in its position.
+	 */
+	periodStarts?: ComparisonPeriodStarts;
 };
 
 /**
@@ -59,16 +65,39 @@ function total( report: MetricReport | undefined, field: string ): number | null
 	return value === null ? null : Number( value ?? 0 );
 }
 
+type ReportRow = NonNullable< MetricReport[ 'data' ] >[ number ];
+
 /**
- * Map a field of a normalized report into chart points.
+ * Map one bucket of a normalized report to a chart point.
  *
- * @param report            - The normalized report, or undefined while loading.
- * @param field             - The metric field to read from each period.
+ * @param point             - The report's bucket.
+ * @param field             - The metric field to read.
  * @param zone              - The report's reporting timezone.
  * @param pendingLabel      - Carried as the note of a point the report flags `pending`.
  * @param drawMissingAtZero - Draw a null reading at 0, flagged `missing`, instead of as a gap.
- * @return One point per period, oldest first.
+ * @return The point, or undefined when the bucket has no readable date.
  */
+function toPoint(
+	point: ReportRow,
+	field: string,
+	zone: string,
+	pendingLabel?: string,
+	drawMissingAtZero = false
+): MetricTabDatum | undefined {
+	const date = resolveBucketStamp( point.date_start, zone );
+	if ( ! date ) {
+		return undefined;
+	}
+
+	const endDate = resolveBucketStamp( point.date_end, zone );
+	const raw = ( point as Record< string, unknown > )[ field ];
+	const value = raw === null ? null : Number( raw ?? 0 );
+	const reading = value === null && drawMissingAtZero ? { value: 0, missing: true } : { value };
+	const datum: MetricTabDatum = endDate ? { date, endDate, ...reading } : { date, ...reading };
+	return point.pending && pendingLabel ? { ...datum, note: pendingLabel } : datum;
+}
+
+/** Map a field of a normalized report into chart points, oldest first; see `toPoint`. */
 function toPoints(
 	report: MetricReport | undefined,
 	field: string,
@@ -77,18 +106,52 @@ function toPoints(
 	drawMissingAtZero = false
 ): MetricTabDatum[] {
 	return ( report?.data ?? [] ).flatMap( point => {
-		const date = resolveBucketStamp( point.date_start, zone );
+		const datum = toPoint( point, field, zone, pendingLabel, drawMissingAtZero );
+		return datum ? [ datum ] : [];
+	} );
+}
+
+/**
+ * The comparison's points, each on the current bucket it pairs with by period and
+ * carrying its own date in `realDate`. An unpaired bucket gets a null stand-in, since the
+ * keyboard tooltip reads every series at the same index; none at all when nothing pairs.
+ *
+ * @param primary           - The current period's report.
+ * @param comparison        - The comparison period's report.
+ * @param field             - The metric field to read.
+ * @param zone              - The reports' reporting timezone.
+ * @param periodStarts      - Where each period starts.
+ * @param drawMissingAtZero - Draw a null reading at 0, flagged `missing`, instead of as a gap.
+ * @return The placed points, oldest first.
+ */
+function toPairedPoints(
+	primary: MetricReport | undefined,
+	comparison: MetricReport | undefined,
+	field: string,
+	zone: string,
+	periodStarts: ComparisonPeriodStarts,
+	drawMissingAtZero: boolean
+): MetricTabDatum[] {
+	const currentRows = primary?.data ?? [];
+	const comparisonRows = comparison?.data ?? [];
+	const pairs = pairComparisonBuckets( currentRows, comparisonRows, periodStarts );
+
+	const points = currentRows.flatMap( ( row, index ): MetricTabDatum[] => {
+		const pairedIndex = pairs[ index ];
+		const date = resolveBucketStamp( row.date_start, zone );
 		if ( ! date ) {
 			return [];
 		}
 
-		const endDate = resolveBucketStamp( point.date_end, zone );
-		const raw = ( point as Record< string, unknown > )[ field ];
-		const value = raw === null ? null : Number( raw ?? 0 );
-		const reading = value === null && drawMissingAtZero ? { value: 0, missing: true } : { value };
-		const datum: MetricTabDatum = endDate ? { date, endDate, ...reading } : { date, ...reading };
-		return [ point.pending && pendingLabel ? { ...datum, note: pendingLabel } : datum ];
+		const own =
+			pairedIndex === undefined
+				? undefined
+				: toPoint( comparisonRows[ pairedIndex ], field, zone, undefined, drawMissingAtZero );
+
+		return [ own ? { ...own, date, realDate: own.date } : { date, value: null } ];
 	} );
+
+	return points.some( point => point.realDate ) ? points : [];
 }
 
 /**
@@ -113,25 +176,34 @@ export function buildMetricTab< TReport extends MetricReport >(
 		zone,
 		pendingLabel,
 		noDataLabel,
+		periodStarts,
 	} = options;
 	// The comparison period ends before today, so it has no uncounted day.
 	const drawMissingAtZero = !! noDataLabel;
-	const previous = hasComparison
-		? toPoints( comparison, field, zone, undefined, drawMissingAtZero )
-		: undefined;
+	let previous: MetricTabDatum[] | undefined;
+	if ( hasComparison ) {
+		previous = periodStarts
+			? toPairedPoints( primary, comparison, field, zone, periodStarts, drawMissingAtZero )
+			: toPoints( comparison, field, zone, undefined, drawMissingAtZero );
+	}
+	// The total stands for the whole comparison, even when no bucket of it is drawn.
+	const hasComparisonRows = hasComparison && !! comparison?.data?.length;
 	const hasPrevious = !! previous?.length;
 	const value = total( primary, field );
 	const isMissing = value === null && !! noDataLabel;
 	// A comparison of real zeros draws nothing either (the chart's empty rule), so the reason shows.
-	const previousHasReading = !! previous?.some( point => ! point.missing && point.value !== 0 );
+	const previousHasReading = !! previous?.some(
+		point => ! point.missing && point.value != null && point.value !== 0
+	);
 
 	return {
 		key: field,
 		label,
 		value: isMissing ? null : ( value ?? 0 ),
-		previousValue: hasPrevious ? total( comparison, field ) : undefined,
+		previousValue: hasComparisonRows ? total( comparison, field ) : undefined,
 		current: toPoints( primary, field, zone, pendingLabel, drawMissingAtZero ),
 		previous: hasPrevious ? previous : undefined,
+		...( hasPrevious && periodStarts ? { previousAligned: true } : {} ),
 		dataFormat,
 		countLabel,
 		...( isMissing && ! previousHasReading ? { unavailable: noDataLabel } : {} ),
