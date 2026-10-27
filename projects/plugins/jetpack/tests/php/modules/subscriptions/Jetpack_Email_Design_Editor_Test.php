@@ -990,6 +990,63 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * These two property names and the event name are the contract with whoever reads the funnel,
+	 * and nothing downstream would report a renamed one -- the series would just stop.
+	 */
+	public function test_the_arrival_event_carries_the_route_and_the_platform() {
+		$_GET['source'] = 'preview_modal';
+
+		$this->assertSame(
+			array(
+				'source'    => 'preview_modal',
+				'site_type' => 'jetpack',
+			),
+			$this->call_private( 'screen_view_properties' )
+		);
+	}
+
+	/**
+	 * `record_user_event()` adds the `jetpack_` prefix, so the constant carries the rest of a name
+	 * that is read by dashboards rather than by any code here.
+	 */
+	public function test_the_arrival_event_reaches_tracks_under_the_name_dashboards_read() {
+		$this->assertSame(
+			'jetpack_newsletter_email_design_view',
+			'jetpack_' . Jetpack_Email_Design_Editor::VIEW_EVENT
+		);
+	}
+
+	/**
+	 * Tracks declines to record for a test user, so this asserts only that the call is wired up and
+	 * reaches that refusal rather than an error -- the properties are covered above.
+	 */
+	public function test_the_arrival_is_recorded_without_raising() {
+		$_GET['source'] = 'newsletter_settings';
+
+		$sent = array();
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$sent ) {
+				$sent[] = $url;
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '',
+				);
+			},
+			10,
+			3
+		);
+
+		Jetpack_Email_Design_Editor::record_screen_view();
+
+		// Nothing left the site: the refusal happens before the pixel is built. If this ever starts
+		// failing, Tracks has become testable and the properties above can be asserted on the wire.
+		$this->assertSame( array(), $sent );
+	}
+
+	/**
 	 * The pixel is a blocking request with a one-second timeout, so recorded on the load hook it
 	 * would sit in front of the screen's first paint.
 	 */

@@ -54,6 +54,12 @@ class Jetpack_Email_Design_Editor {
 	const JSON_FLAGS = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;
 
 	/**
+	 * The event the screen's arrival is recorded under, which reaches Tracks as
+	 * `jetpack_newsletter_email_design_view` -- `record_user_event()` adds the prefix itself.
+	 */
+	const VIEW_EVENT = 'newsletter_email_design_view';
+
+	/**
 	 * The hook suffix `add_theme_page()` returned, or null when the page is not registered.
 	 *
 	 * @var string|null
@@ -212,11 +218,24 @@ class Jetpack_Email_Design_Editor {
 		$connection = new Connection_Manager( 'jetpack' );
 
 		( new Tracking( 'jetpack', $connection ) )->record_user_event(
-			'newsletter_email_design_view',
-			array(
-				'source'    => self::read_source(),
-				'site_type' => self::site_type(),
-			)
+			self::VIEW_EVENT,
+			self::screen_view_properties()
+		);
+	}
+
+	/**
+	 * What the arrival event carries.
+	 *
+	 * Separate from the call above because that one cannot be asserted: Tracks refuses to record
+	 * for a test user, before the event is built, so these are the only part of the contract with
+	 * whoever reads the funnel that a test can see.
+	 *
+	 * @return array
+	 */
+	private static function screen_view_properties() {
+		return array(
+			'source'    => self::read_source(),
+			'site_type' => self::site_type(),
 		);
 	}
 
