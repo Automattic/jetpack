@@ -254,7 +254,7 @@ class REST_Main_Features {
 			}
 		}
 
-		$modules_refused = current_user_can( 'jetpack_manage_modules' ) && ( self::permissions_callback() || self::is_jetpack_active() )
+		$modules_refused = current_user_can( 'jetpack_manage_modules' )
 			? null
 			: new WP_Error( 'not_allowed', __( 'You are not allowed to manage Jetpack modules on this site.', 'jetpack-my-jetpack' ) );
 
