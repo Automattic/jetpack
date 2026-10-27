@@ -279,3 +279,5 @@ export default withSelect( select => {
 	}
 } )( SampleComponent );
 ```
+
+The status in the store comes from the page's initial state. Before an action that depends on the current state, such as registering the site, dispatch `refreshConnectionStatus()`: it reads the status from the server, records it in the store and resolves with it.
