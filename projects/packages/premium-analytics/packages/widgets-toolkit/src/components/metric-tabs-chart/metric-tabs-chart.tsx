@@ -84,6 +84,8 @@ type ChartActivateParams = Parameters<
 
 export interface MetricTabDatum {
 	date: Date;
+	/** A comparison point's own bucket start, when `date` places it on the current bucket it pairs with. */
+	realDate?: Date;
 	/** The last instant of the bucket, for a tooltip that names a week's days. */
 	endDate?: Date;
 	/** Null for a bucket with no reading, which the chart draws as a gap. */
@@ -113,6 +115,8 @@ export interface MetricTab {
 	current: MetricTabDatum[];
 	/** Previous-period chart points; rendered as a same-colour dashed overlay when present. */
 	previous?: MetricTabDatum[];
+	/** Set when `previous` already sits on the current points it pairs with, so the chart keeps its dates. */
+	previousAligned?: boolean;
 	/** Per-metric format override (e.g. percentage); falls back to the chart-level `dataFormat`. */
 	dataFormat?: DataFormat;
 	countLabel?: CountLabel;
@@ -263,6 +267,7 @@ function buildSeries(
 			label: formatComparisonSeriesLabel( metric.label ),
 			group: metric.key,
 			data: metric.previous,
+			...( metric.previousAligned ? { aligned: true } : {} ),
 			options:
 				chartType === 'bar'
 					? { type: 'comparison', stroke: previousStroke }

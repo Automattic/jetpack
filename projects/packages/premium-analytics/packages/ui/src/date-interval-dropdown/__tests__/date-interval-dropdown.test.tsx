@@ -19,10 +19,8 @@ describe( 'DateIntervalDropdown', () => {
 			<DateIntervalDropdown options={ [ 'day', 'week' ] } value="day" onChange={ onChange } />
 		);
 
-		// The tooltip is where the active bucket is readable: the trigger
-		// carries no text of its own.
-		const trigger = screen.getByRole( 'button', { name: 'Chart interval: By days' } );
-		expect( trigger ).toHaveTextContent( '' );
+		const trigger = screen.getByRole( 'button', { name: 'By days' } );
+		expect( trigger ).toHaveAccessibleDescription( 'Chart interval: By days' );
 
 		await user.click( trigger );
 		expect( screen.getByRole( 'menuitemradio', { name: 'By days' } ) ).toBeChecked();
@@ -46,24 +44,12 @@ describe( 'DateIntervalDropdown', () => {
 				<DateIntervalDropdown options={ [ 'day', 'week' ] } value="week" onChange={ jest.fn() } />
 			);
 
-			await user.click( screen.getByRole( 'button', { name: 'Chart interval: By weeks' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'By weeks' } ) );
 
 			await waitFor( () =>
 				expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toHaveFocus()
 			);
 		} );
-	} );
-
-	it( 'still opens a menu when the range allows one bucket', async () => {
-		const user = userEvent.setup();
-
-		render( <DateIntervalDropdown options={ [ 'hour' ] } value="hour" onChange={ jest.fn() } /> );
-
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By hours' } ) );
-
-		// Visible and checked rather than hidden or disabled, so the interval
-		// stays inspectable on a range with nothing to choose between.
-		expect( screen.getByRole( 'menuitemradio', { name: 'By hours' } ) ).toBeChecked();
 	} );
 
 	it( 'checks nothing when the active bucket is not among the options', async () => {
@@ -75,7 +61,7 @@ describe( 'DateIntervalDropdown', () => {
 			<DateIntervalDropdown options={ [ 'month', 'year' ] } value="day" onChange={ jest.fn() } />
 		);
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
 
 		expect( screen.getAllByRole( 'menuitemradio' ) ).toHaveLength( 2 );
 		expect( screen.getByRole( 'menuitemradio', { name: 'By months' } ) ).not.toBeChecked();
@@ -96,7 +82,7 @@ describe( 'DateIntervalDropdown', () => {
 			/>
 		);
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
 
 		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
 			'By days',
@@ -125,7 +111,7 @@ describe( 'DateIntervalDropdown', () => {
 			/>
 		);
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By weeks' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'By weeks' } ) );
 
 		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
 			'By weeks',
@@ -154,7 +140,7 @@ describe( 'DateIntervalDropdown', () => {
 			/>
 		);
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
 
 		expect( screen.queryByText( LOCK_UPSELL.description ) ).not.toBeInTheDocument();
 	} );
@@ -177,7 +163,7 @@ describe( 'DateIntervalDropdown', () => {
 			/>
 		);
 
-		const trigger = screen.getByRole( 'button', { name: 'Chart interval: By days' } );
+		const trigger = screen.getByRole( 'button', { name: 'By days' } );
 		expect( trigger ).toHaveAttribute( 'aria-disabled', 'true' );
 
 		await user.click( trigger );
@@ -196,68 +182,39 @@ describe( 'DateIntervalDropdown', () => {
 			<DateIntervalDropdown options={ [ 'day', 'week' ] } value="day" onChange={ jest.fn() } />
 		);
 
-		act( () => screen.getByRole( 'button', { name: 'Chart interval: By days' } ).focus() );
+		act( () => screen.getByRole( 'button', { name: 'By days' } ).focus() );
 		await user.keyboard( '{ArrowDown}' );
 
 		expect( screen.getByRole( 'menuitemradio', { name: 'By days' } ) ).toBeChecked();
 	} );
 
-	describe( 'with a label', () => {
-		it( 'names the active bucket on the trigger and reports the pick', async () => {
-			const onChange = jest.fn();
-			const user = userEvent.setup();
+	it.each( [
+		[ 'the plan locks others', { lockedOptions: [ 'week' ] as const } ],
+		[ 'the chart cannot draw others now', { unavailableOptions: [ 'week' ] as const } ],
+	] )( 'opens a menu on a lone open bucket when %s', async ( _, others ) => {
+		const user = userEvent.setup();
+		render(
+			<DateIntervalDropdown
+				options={ [ 'day' ] }
+				{ ...others }
+				value="day"
+				onChange={ jest.fn() }
+			/>
+		);
 
-			render(
-				<DateIntervalDropdown
-					options={ [ 'day', 'week' ] }
-					value="day"
-					withLabel
-					onChange={ onChange }
-				/>
-			);
+		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
 
-			await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
-			await user.click( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) );
+		expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toBeVisible();
+	} );
 
-			expect( onChange ).toHaveBeenCalledWith( 'week' );
-		} );
+	it( 'shows a lone bucket without a menu, still in the tab order', async () => {
+		const user = userEvent.setup();
+		render( <DateIntervalDropdown options={ [ 'hour' ] } value="hour" onChange={ jest.fn() } /> );
 
-		it.each( [
-			[ 'the plan locks others', { lockedOptions: [ 'week' ] as const } ],
-			[ 'the chart cannot draw others now', { unavailableOptions: [ 'week' ] as const } ],
-		] )( 'opens a menu on a lone open bucket when %s', async ( _, others ) => {
-			const user = userEvent.setup();
-			render(
-				<DateIntervalDropdown
-					options={ [ 'day' ] }
-					{ ...others }
-					value="day"
-					withLabel
-					onChange={ jest.fn() }
-				/>
-			);
+		await user.tab();
 
-			await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
-
-			expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toBeVisible();
-		} );
-
-		it( 'shows a lone bucket without a menu, still in the tab order', async () => {
-			const user = userEvent.setup();
-			render(
-				<DateIntervalDropdown
-					options={ [ 'hour' ] }
-					value="hour"
-					withLabel
-					onChange={ jest.fn() }
-				/>
-			);
-
-			await user.tab();
-
-			const trigger = screen.getByRole( 'button', { name: 'Chart interval: By hours' } );
-			expect( trigger ).toHaveFocus();
-			expect( trigger ).toHaveAttribute( 'aria-disabled', 'true' );
-		} );
+		const trigger = screen.getByRole( 'button', { name: 'Chart interval: By hours' } );
+		expect( trigger ).toHaveFocus();
+		expect( trigger ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 } );
