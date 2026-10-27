@@ -109,7 +109,7 @@ export function formatMetricValue(
 			const store = storeCurrencyFormatters();
 			const { formatCurrency, getCurrencyObject } = store;
 			const code = currencyCode ?? store.code;
-			// Not by matching codes: WordAds pays in USD, even on a USD store with its own decimals.
+			// An explicit code keeps its own decimals even when it is the store's: WordAds pays in USD.
 			const storeDecimals = currencyCode === undefined ? store.decimals : undefined;
 
 			if ( compact ) {

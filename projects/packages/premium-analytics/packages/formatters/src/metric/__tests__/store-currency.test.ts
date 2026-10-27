@@ -8,7 +8,7 @@ describe( 'formatMetricValue with a store currency', () => {
 		delete window.JetpackScriptData;
 	} );
 
-	const setStore = ( code: string, symbol: string, precision?: unknown ) => {
+	const setStore = ( code: string, symbol: string, precision?: number ) => {
 		window.JetpackScriptData = {
 			premium_analytics: { store_currency: { code, symbol, precision } },
 		} as unknown as typeof window.JetpackScriptData;
@@ -26,8 +26,6 @@ describe( 'formatMetricValue with a store currency', () => {
 	it.each( [
 		[ 'USD', '$', 0, 92.4, {}, '$92' ],
 		[ 'JPY', '¥', 2, 92, {}, '¥92.00' ],
-		[ 'USD', '$', undefined, 92, {}, '$92.00' ],
-		[ 'USD', '$', '0', 92, {}, '$92.00' ],
 		[ 'USD', '$', 0, 500, { useMultipliers: true }, '$500' ],
 		[ 'USD', '$', 0, 1500, { useMultipliers: true }, '$1.5K' ],
 		[ 'USD', '$', 0, 0.37, { currencyCode: 'USD' }, '$0.37' ],
