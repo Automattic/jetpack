@@ -33,8 +33,11 @@ jest.mock( '../use-utm-insights', () => ( {
 } ) );
 
 beforeEach( () => {
+	jest.useFakeTimers();
 	mockRows = [];
 } );
+
+const setupUser = () => userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
 afterEach( () => {
 	jest.useRealTimers();
@@ -42,7 +45,7 @@ afterEach( () => {
 
 describe( 'UtmInsightsWidget', () => {
 	it( 'offers Build URL in the empty state', async () => {
-		const user = userEvent.setup();
+		const user = setupUser();
 		render( <UtmInsightsWidget attributes={ {} } /> );
 
 		await user.click( screen.getByRole( 'button', { name: 'Build URL' } ) );
@@ -54,14 +57,11 @@ describe( 'UtmInsightsWidget', () => {
 		[ 'UTM visits', [ { label: 'newsletter / email', value: 18 } ] ],
 	] )( 'declares Build URL beside View all with %s', async ( _, rows ) => {
 		mockRows = rows;
-		const { declaredActions, runDeclaredAction } = await renderInWidgetRender(
-			UtmInsightsWidget,
-			{}
-		);
+		const { runDeclaredAction } = await renderInWidgetRender( UtmInsightsWidget, {}, [
+			'view-all',
+			'build-url',
+		] );
 
-		expect( declaredActions().map( action => action.id ) ).toEqual(
-			expect.arrayContaining( [ 'view-all', 'build-url' ] )
-		);
 		await runDeclaredAction( 'build-url' );
 		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
 	} );
@@ -70,7 +70,9 @@ describe( 'UtmInsightsWidget', () => {
 		[ 'source-medium', {} ],
 		[ 'campaign-source-medium', { utmDimension: 'utm_campaign,utm_source,utm_medium' } ],
 	] as const )( 'declares View all to the %s report tab', async ( section, attributes ) => {
-		const { declaredLink } = await renderInWidgetRender( UtmInsightsWidget, attributes );
+		const { declaredLink } = await renderInWidgetRender( UtmInsightsWidget, attributes, [
+			'view-all',
+		] );
 
 		const href = decodeURIComponent( declaredLink( 'view-all' )?.href ?? '' );
 		expect( href ).toContain( '/reports/utm' );
@@ -79,22 +81,27 @@ describe( 'UtmInsightsWidget', () => {
 
 	it( 'keeps only Build URL when the host composition opts out of the report actions', async () => {
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		const { declaredActions } = await renderInWidgetRender( UtmInsightsWidget, {
-			showReportLink: false,
-		} );
+		const { declaredActions } = await renderInWidgetRender(
+			UtmInsightsWidget,
+			{ showReportLink: false },
+			[ 'build-url' ]
+		);
 
 		expect( declaredActions().map( action => action.id ) ).toEqual( [ 'build-url' ] );
 	} );
 
 	it( 'downloads the full report for the active UTM dimension', async () => {
-		jest.useFakeTimers();
 		const downloads = captureCsvDownloads();
 		mockApiFetch.mockResolvedValue( {} );
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		const { findDeclaredAction } = await renderInWidgetRender( UtmInsightsWidget, {
-			utmDimension: 'utm_campaign,utm_source,utm_medium',
-			reportParams: { from: '2026-06-01', to: '2026-06-30' },
-		} );
+		const { findDeclaredAction } = await renderInWidgetRender(
+			UtmInsightsWidget,
+			{
+				utmDimension: 'utm_campaign,utm_source,utm_medium',
+				reportParams: { from: '2026-06-01', to: '2026-06-30' },
+			},
+			[ 'download-csv' ]
+		);
 
 		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 		const [ saved ] = downloads.files;
@@ -104,7 +111,7 @@ describe( 'UtmInsightsWidget', () => {
 	} );
 
 	it( 'links a drilled-in post to its detail page and carries the report window', async () => {
-		const user = userEvent.setup();
+		const user = setupUser();
 		mockRows = [
 			{
 				label: 'jetpack-forms / email',
@@ -142,7 +149,7 @@ describe( 'UtmInsightsWidget', () => {
 	} );
 
 	it( 'names the active UTM dimension as the origin section', async () => {
-		const user = userEvent.setup();
+		const user = setupUser();
 		mockRows = [
 			{
 				label: 'spring-sale',

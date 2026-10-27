@@ -86,6 +86,7 @@ export function renderWithActionsHost(
 type WidgetModule = Awaited< ReturnType< ResolveWidgetModule > >;
 
 const testWidgetModules = new Map< string, WidgetModule >();
+let testWidgetModuleCount = 0;
 
 /**
  * Resolve a render module registered by `renderInWidgetRender`.
@@ -100,16 +101,18 @@ async function resolveTestWidgetModule( renderModule: string ) {
 /**
  * Render a widget through `WidgetRender`, which joins the actions of every `useWidgetActions` call the way the dashboard does. `renderWithActionsHost` keeps only the last call's list.
  *
- * @param component  - The widget's render component.
- * @param attributes - The widget's attributes.
- * @return The render result plus the host's action readers, once the widget has declared its actions.
+ * @param component         - The widget's render component.
+ * @param attributes        - The widget's attributes.
+ * @param expectedActionIds - The actions to wait for.
+ * @return The render result plus the host's action readers, once every expected action is declared.
  */
 export async function renderInWidgetRender< Item >(
 	component: ComponentType< WidgetRenderProps< Item > >,
-	attributes: Item
+	attributes: Item,
+	expectedActionIds: string[]
 ) {
 	const host = createWidgetActionsHost();
-	const renderModule = `test/${ component.name }`;
+	const renderModule = `test/widget-${ ++testWidgetModuleCount }`;
 	testWidgetModules.set( renderModule, { default: component } as WidgetModule );
 	const view = render(
 		<Suspense fallback={ null }>
@@ -121,7 +124,11 @@ export async function renderInWidgetRender< Item >(
 		</Suspense>,
 		{ wrapper: host.WidgetActionsHost }
 	);
-	await waitFor( () => expect( host.declaredActions() ).not.toHaveLength( 0 ) );
+	await waitFor( () =>
+		expect( host.declaredActions().map( action => action.id ) ).toEqual(
+			expect.arrayContaining( expectedActionIds )
+		)
+	);
 
 	return { ...view, ...host };
 }
