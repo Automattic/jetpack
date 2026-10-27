@@ -34,6 +34,12 @@ class Protect_Product_Test extends TestCase {
 		remove_filter( 'jetpack_get_available_modules', array( $this, 'offer_jetpack_modules' ), PHP_INT_MAX );
 		\Jetpack_Options::delete_option( 'active_modules' );
 		delete_option( 'active_plugins' );
+		Current_Plan::update_from_site_record(
+			array(
+				'plan'     => array( 'product_slug' => 'jetpack_free' ),
+				'products' => array(),
+			)
+		);
 		delete_option( 'jetpack_active_plan' );
 		delete_transient( Protect::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
 	}

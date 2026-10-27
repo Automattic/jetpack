@@ -320,6 +320,13 @@ class Plan_Matrix_Test extends TestCase {
 		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 		delete_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY );
 
+		// Storing a different plan clears Current_Plan's cached copy, which outlives the option.
+		Current_Plan::update_from_site_record(
+			array(
+				'plan'     => array( 'product_slug' => 'jetpack_free' ),
+				'products' => array(),
+			)
+		);
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 
