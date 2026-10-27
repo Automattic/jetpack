@@ -18,13 +18,12 @@ use WP_REST_Request;
 class Local_Report_Provider implements Report_Provider {
 
 	/**
-	 * Each route's core route and controller, the params it accepts, and the wpcom fields core cannot produce.
+	 * Each route's core route and controller, and the wpcom fields core cannot produce.
 	 */
 	const ROUTES = array(
 		'orders/by-date' => array(
 			'core_route'         => '/wc-analytics/reports/revenue/stats',
 			'core_controller'    => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Revenue\\Stats\\Controller',
-			'params'             => array( 'from', 'to', 'interval', 'date_type' ),
 			'unsupported_fields' => array(
 				'avg_items',
 				'cogs_amount',
@@ -43,7 +42,6 @@ class Local_Report_Provider implements Report_Provider {
 		'stock/summary'  => array(
 			'core_route'         => '/wc-analytics/reports/stock/stats',
 			'core_controller'    => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Stock\\Stats\\Controller',
-			'params'             => array(),
 			'unsupported_fields' => array(),
 		),
 	);
@@ -122,18 +120,12 @@ class Local_Report_Provider implements Report_Provider {
 	public function run( $route, array $params ) {
 		$definition = self::ROUTES[ $route ];
 
-		$unknown = array_diff( array_keys( $params ), $definition['params'] );
-		if ( $unknown ) {
-			return Report_Executor::error(
-				'unsupported_parameter',
-				422,
-				'unsupported_parameter:' . implode( ',', $unknown ),
-				/* translators: %s: comma-separated query param names. */
-				sprintf( __( 'The local provider cannot apply: %s.', 'jetpack-woocommerce-stats-pkg' ), implode( ', ', $unknown ) )
-			);
+		$query = self::to_core_query( self::param_map( $route ), $params );
+		if ( is_wp_error( $query ) ) {
+			return $query;
 		}
 
-		$data = 'orders/by-date' === $route ? $this->run_orders( $definition['core_route'], $params ) : $this->run_stock( $definition['core_route'] );
+		$data = 'orders/by-date' === $route ? $this->run_orders( $definition['core_route'], $query ) : $this->run_stock( $definition['core_route'], $query );
 		if ( is_wp_error( $data ) ) {
 			return $data;
 		}
@@ -147,31 +139,88 @@ class Local_Report_Provider implements Report_Provider {
 	}
 
 	/**
+	 * Each wpcom param a route accepts: the core param it becomes, the value converter (null when the
+	 * value is invalid), and whether it is required.
+	 *
+	 * @param string $route Report route.
+	 * @return array<string, array{0: string, 1: callable, 2: bool}>
+	 */
+	private static function param_map( $route ) {
+		$maps = array(
+			'orders/by-date' => array(
+				'from'      => array( 'after', fn( $value ) => self::to_core_date( $value, 'T00:00:00' ), true ),
+				'to'        => array( 'before', fn( $value ) => self::to_core_date( $value, 'T23:59:59' ), true ),
+				'interval'  => array( 'interval', fn( $value ) => in_array( $value, self::INTERVALS, true ) ? $value : null, true ),
+				'date_type' => array( 'date_type', fn( $value ) => self::DATE_TYPES[ $value ] ?? null, false ),
+			),
+			'stock/summary'  => array(),
+		);
+
+		return $maps[ $route ];
+	}
+
+	/**
+	 * The report params as core's query: a param outside the map, or one whose value does not
+	 * convert, is refused rather than dropped.
+	 *
+	 * @param array $map    The route's param map.
+	 * @param array $params Report query params.
+	 * @return array|WP_Error Core query params, or an error with the offending param in its reason.
+	 */
+	private static function to_core_query( array $map, array $params ) {
+		$query = array();
+		foreach ( $params as $name => $value ) {
+			if ( ! isset( $map[ $name ] ) ) {
+				return Report_Executor::error(
+					'unsupported_parameter',
+					422,
+					'unsupported_parameter:' . $name,
+					/* translators: %s: query param name. */
+					sprintf( __( 'The local provider cannot apply %s.', 'jetpack-woocommerce-stats-pkg' ), $name )
+				);
+			}
+
+			list( $core_name, $convert ) = $map[ $name ];
+			$query[ $core_name ]         = is_string( $value ) ? $convert( $value ) : null;
+			if ( null === $query[ $core_name ] ) {
+				return Report_Executor::error(
+					'invalid_parameter',
+					422,
+					'invalid_parameter:' . $name,
+					/* translators: %s: query param name. */
+					sprintf( __( 'The local provider cannot apply this value of %s.', 'jetpack-woocommerce-stats-pkg' ), $name )
+				);
+			}
+		}
+
+		foreach ( $map as $name => list( , , $required ) ) {
+			if ( $required && ! isset( $params[ $name ] ) ) {
+				return Report_Executor::error(
+					'missing_parameter',
+					400,
+					'missing_parameter:' . $name,
+					/* translators: %s: query param name. */
+					sprintf( __( 'The report needs %s.', 'jetpack-woocommerce-stats-pkg' ), $name )
+				);
+			}
+		}
+
+		return $query;
+	}
+
+	/**
 	 * The orders report from core's revenue stats, every page of intervals, oldest first.
 	 *
 	 * @param string $core_route Core route.
-	 * @param array  $params     Report query params.
+	 * @param array  $query      Core query params, from the param map.
 	 * @return array|WP_Error
 	 */
-	private function run_orders( $core_route, array $params ) {
-		if ( empty( $params['from'] ) || empty( $params['to'] ) || ! in_array( $params['interval'] ?? '', self::INTERVALS, true ) ) {
-			return Report_Executor::error( 'invalid_params', 400, 'missing_range_or_interval', __( 'The report needs a from, to and interval.', 'jetpack-woocommerce-stats-pkg' ) );
-		}
-		if ( isset( $params['date_type'] ) && ! isset( self::DATE_TYPES[ $params['date_type'] ] ) ) {
-			return Report_Executor::error( 'unsupported_parameter', 422, 'unsupported_parameter:date_type', __( 'The local provider cannot apply this date type.', 'jetpack-woocommerce-stats-pkg' ) );
-		}
-
-		$query = array(
-			'after'    => self::to_core_date( $params['from'], 'T00:00:00' ),
-			'before'   => self::to_core_date( $params['to'], 'T23:59:59' ),
-			'interval' => $params['interval'],
+	private function run_orders( $core_route, array $query ) {
+		$query += array(
 			'orderby'  => 'date',
 			'order'    => 'asc',
 			'per_page' => self::PER_PAGE,
 		);
-		if ( isset( $params['date_type'] ) ) {
-			$query['date_type'] = self::DATE_TYPES[ $params['date_type'] ];
-		}
 
 		$count = self::count_intervals( $query['after'], $query['before'], $query['interval'] );
 		if ( $count > self::MAX_INTERVALS ) {
@@ -219,10 +268,11 @@ class Local_Report_Provider implements Report_Provider {
 	 * Stock counts by status, from core's stock stats.
 	 *
 	 * @param string $core_route Core route.
+	 * @param array  $query      Core query params, from the param map.
 	 * @return array|WP_Error
 	 */
-	private function run_stock( $core_route ) {
-		$response = $this->core_request( $core_route, array() );
+	private function run_stock( $core_route, array $query ) {
+		$response = $this->core_request( $core_route, $query );
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
