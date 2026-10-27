@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { formatCurrency } from '@automattic/number-formatters';
 import { getLockedSection } from '@jetpack-premium-analytics/data';
 import { Button, ButtonLink, Icon, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { formatMonthlyPrice } from '@jetpack-premium-analytics/formatters';
 import { WidgetGridAnimation } from '@jetpack-premium-analytics/ui';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { createInterpolateElement } from '@wordpress/element';
@@ -76,10 +76,7 @@ export function LockedSection( { section }: { section: string } ) {
 				// eslint-disable-next-line @wordpress/valid-sprintf -- The server translates the format, typed to hold a `%s`.
 				sprintf(
 					locked.description_with_price,
-					formatCurrency( locked.plan_price.yearly / 12, locked.plan_price.currency, {
-						isSmallestUnit: true,
-						stripZeros: true,
-					} )
+					formatMonthlyPrice( locked.plan_price.yearly, locked.plan_price.currency )
 				),
 				{ strong: <strong /> }
 			)

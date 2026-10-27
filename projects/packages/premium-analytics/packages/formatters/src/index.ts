@@ -14,3 +14,4 @@ export {
 	type DateFormatName,
 } from './date';
 export { formatMetricValue } from './metric';
+export { formatMonthlyPrice } from './price';
