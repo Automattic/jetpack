@@ -117,7 +117,7 @@ function TriggerCard( { flow, catalog, onChange }: Props ) {
 
 					{ flow.triggers.includes( 'inbound_event' ) && (
 						<Field.Root>
-							<Field.Label>{ __( 'Inbound event URL', 'jetpack-flow-pkg' ) }</Field.Label>
+							<Field.Label>{ __( 'Webhook URL', 'jetpack-flow-pkg' ) }</Field.Label>
 							<Stack align="center" gap="sm">
 								<Input
 									{ ...noAutofill }

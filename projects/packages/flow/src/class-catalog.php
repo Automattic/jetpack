@@ -126,7 +126,7 @@ class Catalog {
 				'available'   => true,
 			),
 			'inbound_event'             => array(
-				'label'       => __( 'Inbound event', 'jetpack-flow-pkg' ),
+				'label'       => __( 'Webhook', 'jetpack-flow-pkg' ),
 				'description' => __( 'Starts when another program sends a GET or POST request to a secret URL. Fields you send become {{tokens}}.', 'jetpack-flow-pkg' ),
 				'product'     => 'wordpress',
 				'tokens'      => array( 'method' ),
