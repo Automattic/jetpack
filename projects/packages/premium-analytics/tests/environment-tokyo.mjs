@@ -1,3 +1,3 @@
-import { zonedEnvironment } from 'jetpack-js-tools/jest/zone-environment.mjs';
+import { zonedEnvironment } from 'jetpack-js-tools/jest/timezone-environment.mjs';
 
 export default zonedEnvironment( 'Asia/Tokyo' );
