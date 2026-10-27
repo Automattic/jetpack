@@ -93,6 +93,10 @@ body.toplevel_page_jetpack-protect {
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
+	&__error {
+		color: var(--wpds-color-foreground-content-error);
+	}
+
 	&__title {
 		margin: 0;
 	}
