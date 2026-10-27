@@ -7,7 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { renderInWidgetRender } from '../../../tests/js/widget-host-test-utils';
 import { captureCsvDownloads } from '../../test-utils';
 import UtmInsightsWidget from '../render';
 import type { UtmInsightsRow } from '../use-utm-insights';
@@ -41,42 +41,49 @@ afterEach( () => {
 } );
 
 describe( 'UtmInsightsWidget', () => {
-	it( 'offers Build URL for an empty selection and keeps View all declared', async () => {
+	it( 'offers Build URL in the empty state', async () => {
 		const user = userEvent.setup();
-		const { rerender, declaredAction } = renderWithActionsHost(
-			<UtmInsightsWidget attributes={ {} } />
-		);
+		render( <UtmInsightsWidget attributes={ {} } /> );
 
-		expect( declaredAction( 'view-all' ) ).toBeDefined();
 		await user.click( screen.getByRole( 'button', { name: 'Build URL' } ) );
 		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
+	} );
 
-		await user.keyboard( '{Escape}' );
-		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		rerender( <UtmInsightsWidget attributes={ {} } /> );
-		expect( screen.queryByRole( 'button', { name: 'Build URL' } ) ).not.toBeInTheDocument();
+	it.each( [
+		[ 'no UTM visits', [] ],
+		[ 'UTM visits', [ { label: 'newsletter / email', value: 18 } ] ],
+	] )( 'declares Build URL beside View all with %s', async ( _, rows ) => {
+		mockRows = rows;
+		const { declaredActions, runDeclaredAction } = await renderInWidgetRender(
+			UtmInsightsWidget,
+			{}
+		);
+
+		expect( declaredActions().map( action => action.id ) ).toEqual(
+			expect.arrayContaining( [ 'view-all', 'build-url' ] )
+		);
+		await runDeclaredAction( 'build-url' );
+		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
 	} );
 
 	it.each( [
 		[ 'source-medium', {} ],
 		[ 'campaign-source-medium', { utmDimension: 'utm_campaign,utm_source,utm_medium' } ],
-	] as const )( 'declares View all to the %s report tab', ( section, attributes ) => {
-		const { declaredLink } = renderWithActionsHost(
-			<UtmInsightsWidget attributes={ attributes } />
-		);
+	] as const )( 'declares View all to the %s report tab', async ( section, attributes ) => {
+		const { declaredLink } = await renderInWidgetRender( UtmInsightsWidget, attributes );
 
 		const href = decodeURIComponent( declaredLink( 'view-all' )?.href ?? '' );
 		expect( href ).toContain( '/reports/utm' );
 		expect( href ).toContain( `section=${ section }` );
 	} );
 
-	it( 'declares neither the report link nor the download when the host composition opts out', () => {
+	it( 'keeps only Build URL when the host composition opts out of the report actions', async () => {
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		const { declaredActions } = renderWithActionsHost(
-			<UtmInsightsWidget attributes={ { showReportLink: false } } />
-		);
+		const { declaredActions } = await renderInWidgetRender( UtmInsightsWidget, {
+			showReportLink: false,
+		} );
 
-		expect( declaredActions() ).toEqual( [] );
+		expect( declaredActions().map( action => action.id ) ).toEqual( [ 'build-url' ] );
 	} );
 
 	it( 'downloads the full report for the active UTM dimension', async () => {
@@ -84,14 +91,10 @@ describe( 'UtmInsightsWidget', () => {
 		const downloads = captureCsvDownloads();
 		mockApiFetch.mockResolvedValue( {} );
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		const { findDeclaredAction } = renderWithActionsHost(
-			<UtmInsightsWidget
-				attributes={ {
-					utmDimension: 'utm_campaign,utm_source,utm_medium',
-					reportParams: { from: '2026-06-01', to: '2026-06-30' },
-				} }
-			/>
-		);
+		const { findDeclaredAction } = await renderInWidgetRender( UtmInsightsWidget, {
+			utmDimension: 'utm_campaign,utm_source,utm_medium',
+			reportParams: { from: '2026-06-01', to: '2026-06-30' },
+		} );
 
 		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 		const [ saved ] = downloads.files;

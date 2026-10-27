@@ -4,6 +4,7 @@
 import { search } from '@jetpack-premium-analytics/icons';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { useWidgetActions } from '@wordpress/widget-primitives';
 import {
 	WIDGET_ROW_LIMIT,
 	calculateDelta,
@@ -61,6 +62,7 @@ type UtmInsightsInnerProps = {
 function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ isBuilderOpen, setBuilderOpen ] = useState( false );
+	const openBuilder = useCallback( () => setBuilderOpen( true ), [] );
 	const closeBuilder = useCallback( () => setBuilderOpen( false ), [] );
 	const reportSection = getUtmReportSection( utmDimension );
 	const {
@@ -179,6 +181,14 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 				}
 			: {}
 	);
+	useWidgetActions( [
+		{
+			id: 'build-url',
+			label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
+			relevance: 'high',
+			callback: openBuilder,
+		},
+	] );
 
 	return (
 		<>
@@ -197,7 +207,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						),
 						action: {
 							label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
-							onClick: () => setBuilderOpen( true ),
+							onClick: openBuilder,
 						},
 					} }
 					error={ describeError( error, {

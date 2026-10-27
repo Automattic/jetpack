@@ -2,9 +2,16 @@
  * External dependencies
  */
 import { act, render, waitFor, type RenderOptions } from '@testing-library/react';
-import { WidgetHostProvider } from '@wordpress/widget-primitives';
-import type { WidgetAction, WidgetRuntimeAction } from '@wordpress/widget-primitives';
-import type { ReactElement, ReactNode } from 'react';
+import { WidgetHostProvider, WidgetRender } from '@wordpress/widget-primitives';
+import { Suspense } from 'react';
+import type {
+	ResolveWidgetModule,
+	WidgetAction,
+	WidgetRenderProps,
+	WidgetRuntimeAction,
+	WidgetType,
+} from '@wordpress/widget-primitives';
+import type { ComponentType, ReactElement, ReactNode } from 'react';
 
 /**
  * A widget host that records the actions a widget declares, as the dashboard would place them.
@@ -74,4 +81,47 @@ export function renderWithActionsHost(
 	const host = createWidgetActionsHost();
 
 	return { ...render( ui, { ...options, wrapper: host.WidgetActionsHost } ), ...host };
+}
+
+type WidgetModule = Awaited< ReturnType< ResolveWidgetModule > >;
+
+const testWidgetModules = new Map< string, WidgetModule >();
+
+/**
+ * Resolve a render module registered by `renderInWidgetRender`.
+ *
+ * @param renderModule - The render module id.
+ * @return The widget module.
+ */
+async function resolveTestWidgetModule( renderModule: string ) {
+	return testWidgetModules.get( renderModule ) as WidgetModule;
+}
+
+/**
+ * Render a widget through `WidgetRender`, which joins the actions of every `useWidgetActions` call the way the dashboard does. `renderWithActionsHost` keeps only the last call's list.
+ *
+ * @param component  - The widget's render component.
+ * @param attributes - The widget's attributes.
+ * @return The render result plus the host's action readers, once the widget has declared its actions.
+ */
+export async function renderInWidgetRender< Item >(
+	component: ComponentType< WidgetRenderProps< Item > >,
+	attributes: Item
+) {
+	const host = createWidgetActionsHost();
+	const renderModule = `test/${ component.name }`;
+	testWidgetModules.set( renderModule, { default: component } as WidgetModule );
+	const view = render(
+		<Suspense fallback={ null }>
+			<WidgetRender
+				widgetType={ { renderModule } as WidgetType< Item > }
+				attributes={ attributes }
+				resolveWidgetModule={ resolveTestWidgetModule }
+			/>
+		</Suspense>,
+		{ wrapper: host.WidgetActionsHost }
+	);
+	await waitFor( () => expect( host.declaredActions() ).not.toHaveLength( 0 ) );
+
+	return { ...view, ...host };
 }
