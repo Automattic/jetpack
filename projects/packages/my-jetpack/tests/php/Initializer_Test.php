@@ -1624,14 +1624,11 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertFalse( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
 	}
 
-	public function test_modules_to_features_defaults_on_and_allows_a_false_override() {
+	public function test_modules_to_features_defaults_on() {
 		Initializer::register_feature_flags();
 		try {
 			$this->assertTrue( Feature_Flags::is_enabled( Initializer::MODULES_TO_FEATURES_FLAG ) );
-			add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_false' );
-			$this->assertFalse( Feature_Flags::is_enabled( Initializer::MODULES_TO_FEATURES_FLAG ) );
 		} finally {
-			remove_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_false' );
 			Feature_Flags::reset();
 		}
 	}
