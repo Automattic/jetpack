@@ -1,7 +1,7 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Button, Notice, Spinner, Stack, Text } from '@wordpress/ui';
+import { Button, Notice, Spinner, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { fetchCatalog, fetchFlow, planFlow, saveFlow } from '../api';
 import { BrandStrip } from './brand-strip';
 import { FlowCard } from './flow-card';
@@ -173,20 +173,17 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 							</Button>
 						</Stack>
 
-						<label className="jetpack-flow-toggle" htmlFor="jetpack-flow-enabled">
-							<input
-								id="jetpack-flow-enabled"
-								type="checkbox"
-								role="switch"
+						<Stack justify="center">
+							<SwitchControl
+								label={
+									flow.enabled
+										? __( 'Flow enabled', 'jetpack-flow-pkg' )
+										: __( 'Flow disabled', 'jetpack-flow-pkg' )
+								}
 								checked={ flow.enabled }
-								onChange={ event => setFlow( { ...flow, enabled: event.target.checked } ) }
+								onCheckedChange={ ( enabled: boolean ) => setFlow( { ...flow, enabled } ) }
 							/>
-							<Text>
-								{ flow.enabled
-									? __( 'Flow enabled', 'jetpack-flow-pkg' )
-									: __( 'Flow disabled', 'jetpack-flow-pkg' ) }
-							</Text>
-						</label>
+						</Stack>
 
 						<BrandStrip />
 					</Stack>
