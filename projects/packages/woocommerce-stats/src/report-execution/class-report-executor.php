@@ -1,6 +1,6 @@
 <?php
 /**
- * Picks the provider of a report request and runs it.
+ * Picks the handler of a report request and runs it.
  *
  * @package automattic/jetpack-woocommerce-stats
  */
@@ -10,8 +10,8 @@ namespace Automattic\Jetpack\WooCommerceStats\Report_Execution;
 use WP_Error;
 
 /**
- * Builds the effective request, picks a provider that can serve all of it, checks readiness without
- * falling back, runs it and validates the answer against the report's contract.
+ * Normalizes the request into a `Report_Query`, picks a handler that can serve all of it, checks
+ * readiness without falling back, runs it and validates the answer against the report's contract.
  *
  * @since $$next-version$$
  */
@@ -33,7 +33,7 @@ class Report_Executor {
 	const DEFAULT_SOURCE = 'remote';
 
 	/**
-	 * The report definitions and their providers.
+	 * Reports, handlers and providers.
 	 *
 	 * @var Report_Registry
 	 */
@@ -42,100 +42,65 @@ class Report_Executor {
 	/**
 	 * Constructor.
 	 *
-	 * @param Report_Registry $registry The report definitions.
+	 * @param Report_Registry $registry Reports, handlers and providers.
 	 */
 	public function __construct( Report_Registry $registry ) {
 		$this->registry = $registry;
 	}
 
 	/**
-	 * Serve a report from the provider the request resolves to.
+	 * Serve a report from the handler the request resolves to.
 	 *
-	 * @param string      $route     Report route below `analytics/reports/`.
-	 * @param array       $params    Report query params, without `execution` and `fields`.
-	 * @param string|null $execution The validated override, or null when the request names none.
-	 * @param string|null $fields    Comma-separated fields the caller reads, or null for the whole report.
-	 * @return array|WP_Error The provider's payload with its provenance, or an error with a `reason`.
+	 * @param string      $route         Report route below `analytics/reports/`, or a report id.
+	 * @param array       $params        Report query params, without `execution`, `fields` and `force_refresh`.
+	 * @param string|null $execution     The validated override, or null when the request names none.
+	 * @param string|null $fields        Comma-separated fields the caller reads, or null for the whole report.
+	 * @param bool        $force_refresh Whether to skip caches.
+	 * @return array|WP_Error The handler's payload with its provenance, or an error with a `reason`.
 	 */
-	public function execute( $route, array $params, $execution = null, $fields = null ) {
-		$definition = $this->registry->get_definition( $route );
+	public function execute( $route, array $params, $execution = null, $fields = null, $force_refresh = false ) {
+		$definition = $this->registry->get_definition_for_route( $route );
 		if ( null === $definition ) {
 			return self::error( 'unknown_report', 404, 'no_definition', __( 'No report is defined for this route.', 'jetpack-woocommerce-stats-pkg' ) );
 		}
 
-		$fields = self::parse_fields( $definition, $fields );
-		if ( is_wp_error( $fields ) ) {
-			return $fields;
+		$query = Report_Query::from_request( $definition, $route, $params, $fields, $force_refresh );
+		if ( is_wp_error( $query ) ) {
+			return $query;
 		}
 
-		$request = array(
-			'report' => $definition,
-			'route'  => $route,
-			'params' => $params,
-			'fields' => $fields,
-		);
-
-		$provider = $this->resolve_provider( $request, $execution );
-		if ( is_wp_error( $provider ) ) {
-			return $this->legacy_error( $provider, $execution );
+		$choice = $this->choose( $query, $execution );
+		if ( is_wp_error( $choice ) ) {
+			return $this->legacy_error( $choice, $execution );
 		}
+		list( $provider, $handler ) = $choice;
 
-		$payload = $provider->run( $request );
+		$payload = $handler->run( $query );
 		if ( is_wp_error( $payload ) ) {
 			return $payload;
 		}
 
-		$invalid = self::validate_response( $payload, $request );
+		$invalid = self::validate_response( $payload, $query );
 		if ( is_wp_error( $invalid ) ) {
 			return $invalid;
 		}
 
-		return $this->with_provenance( $payload, $provider->get_name(), $request );
+		return self::with_provenance( $payload, $provider, $handler, $query );
 	}
 
 	/**
-	 * The requested fields, checked against the report's contract.
+	 * The handler to run: the forced provider's, or for `auto` the first that serves the whole
+	 * request, the preferred provider's first. Readiness is checked after the choice, never fallen back from.
 	 *
-	 * @param array       $definition The report definition.
-	 * @param string|null $fields     Comma-separated field names, or null.
-	 * @return string[]|null|WP_Error The field names, null for the whole report, or a 422.
+	 * @param Report_Query $query     The request.
+	 * @param string|null  $execution The override.
+	 * @return array|WP_Error [ provider name, handler ].
 	 */
-	private static function parse_fields( array $definition, $fields ) {
-		if ( null === $fields ) {
-			return null;
-		}
-		if ( null === $definition['fields'] ) {
-			return self::error( 'fields_not_described', 422, 'fields_not_described:' . $definition['id'], __( 'This report has no field contract yet; request it whole.', 'jetpack-woocommerce-stats-pkg' ) );
-		}
-
-		$names   = array_values( array_unique( array_filter( array_map( 'trim', explode( ',', $fields ) ) ) ) );
-		$unknown = array_diff( $names, array_keys( $definition['fields'] ) );
-		if ( ! $names || $unknown ) {
-			return self::error(
-				'unknown_field',
-				422,
-				'unknown_field:' . implode( ',', $unknown ),
-				/* translators: %s: comma-separated field names. */
-				sprintf( __( 'This report has no such field: %s.', 'jetpack-woocommerce-stats-pkg' ), implode( ', ', $unknown ) )
-			);
-		}
-
-		return $names;
-	}
-
-	/**
-	 * The provider to run: the forced one, or for `auto` the first provider that can serve the
-	 * whole request, the site default first. Readiness is checked after the choice, never fallen back from.
-	 *
-	 * @param array       $request   The effective request.
-	 * @param string|null $execution The override.
-	 * @return Report_Provider|WP_Error
-	 */
-	private function resolve_provider( array $request, $execution ) {
-		$capabilities = $request['report']['capabilities'];
+	private function choose( Report_Query $query, $execution ) {
+		$handlers = $this->registry->get_handlers( $query->definition->id );
 
 		if ( null !== $execution && 'auto' !== $execution ) {
-			if ( ! isset( $capabilities[ $execution ] ) ) {
+			if ( ! isset( $handlers[ $execution ] ) ) {
 				return self::error(
 					'unsupported_provider',
 					422,
@@ -145,43 +110,45 @@ class Report_Executor {
 				);
 			}
 
-			$ineligible = self::check_capability( $capabilities[ $execution ], $request );
+			$unsupported = self::check_support( $handlers[ $execution ], $query );
 
-			return is_wp_error( $ineligible ) ? $ineligible : $this->ready_provider( $request, $execution );
+			return is_wp_error( $unsupported ) ? $unsupported : $this->ready( $query, $execution, $handlers[ $execution ] );
 		}
 
 		// A request without `execution` comes from a widget that parses only the wpcom shape, with its semantics, so the filter never moves it.
-		$preferred = null === $execution ? self::DEFAULT_SOURCE : $this->get_default_source( $request['report']['id'] );
-		$names     = array_keys( $capabilities );
-		usort(
-			$names,
+		$preferred = null === $execution ? self::DEFAULT_SOURCE : $this->get_default_source( $query->definition->id );
+		uksort(
+			$handlers,
 			static function ( $a, $b ) use ( $preferred ) {
 				return (int) ( $b === $preferred ) - (int) ( $a === $preferred );
 			}
 		);
 
 		$first_error = null;
-		foreach ( $names as $name ) {
-			$ineligible = self::check_capability( $capabilities[ $name ], $request );
-			if ( ! is_wp_error( $ineligible ) ) {
-				return $this->ready_provider( $request, $name );
+		foreach ( $handlers as $name => $handler ) {
+			$unsupported = self::check_support( $handler, $query );
+			if ( ! is_wp_error( $unsupported ) ) {
+				return $this->ready( $query, $name, $handler );
 			}
-			$first_error = $first_error ?? $ineligible;
+			$first_error ??= $unsupported;
 		}
 
-		return $first_error;
+		return $first_error ?? self::error( 'unsupported_provider', 422, 'no_handler', __( 'No provider serves this report.', 'jetpack-woocommerce-stats-pkg' ) );
 	}
 
 	/**
-	 * Whether a capability covers the request's params and fields; no fields means every field of the contract.
+	 * Whether a handler covers the request: its declared params and fields first, then its own
+	 * per-request answer. No fields means every field of the contract.
 	 *
-	 * @param array $capability The provider's capability for the report.
-	 * @param array $request    The effective request.
+	 * @param Report_Handler $handler The handler.
+	 * @param Report_Query   $query   The request.
 	 * @return true|WP_Error
 	 */
-	private static function check_capability( array $capability, array $request ) {
+	private static function check_support( Report_Handler $handler, Report_Query $query ) {
+		$capability = $handler->get_capability();
+
 		if ( '*' !== $capability['params'] ) {
-			$unsupported = array_diff( array_keys( $request['params'] ), $capability['params'] );
+			$unsupported = array_diff( $query->param_names(), $capability['params'] );
 			if ( $unsupported ) {
 				return self::error(
 					'unsupported_parameter',
@@ -193,7 +160,7 @@ class Report_Executor {
 			}
 		}
 
-		$wanted = $request['fields'] ?? ( null === $request['report']['fields'] ? array() : array_keys( $request['report']['fields'] ) );
+		$wanted = $query->fields ?? ( null === $query->definition->fields ? array() : array_keys( $query->definition->fields ) );
 		if ( '*' !== $capability['fields'] ) {
 			$unsupported = array_values( array_diff( $wanted, $capability['fields'] ) );
 			if ( $unsupported ) {
@@ -207,21 +174,24 @@ class Report_Executor {
 			}
 		}
 
-		return true;
+		return $handler->supports( $query );
 	}
 
 	/**
-	 * The named provider when its prerequisites hold.
+	 * The chosen handler when its provider and it are both ready.
 	 *
-	 * @param array  $request The effective request.
-	 * @param string $name    Provider name.
-	 * @return Report_Provider|WP_Error
+	 * @param Report_Query   $query   The request.
+	 * @param string         $name    Provider name.
+	 * @param Report_Handler $handler The handler.
+	 * @return array|WP_Error [ provider name, handler ].
 	 */
-	private function ready_provider( array $request, $name ) {
-		$provider = $this->registry->get_provider( $name );
-		$ready    = $provider->check_ready( $request );
+	private function ready( Report_Query $query, $name, Report_Handler $handler ) {
+		$ready = $this->registry->get_provider( $name )->check_ready( $query );
+		if ( true === $ready ) {
+			$ready = $handler->check_ready( $query );
+		}
 
-		return true === $ready ? $provider : $ready;
+		return true === $ready ? array( $name, $handler ) : $ready;
 	}
 
 	/**
@@ -234,8 +204,8 @@ class Report_Executor {
 		/**
 		 * Filters the provider a store report prefers when the request asks for `execution=auto`.
 		 *
-		 * The preferred provider is used only when it can serve every requested field and param. A
-		 * request without `execution` always goes to the default provider.
+		 * The preferred provider is used only when its handler serves every requested field and
+		 * param. A request without `execution` always goes to the default provider.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -266,18 +236,18 @@ class Report_Executor {
 	/**
 	 * Refuse a successful answer that lacks a requested field, rather than let the caller read it as zero.
 	 *
-	 * @param array $payload The provider's payload.
-	 * @param array $request The effective request.
+	 * @param array        $payload The handler's payload.
+	 * @param Report_Query $query   The request.
 	 * @return true|WP_Error
 	 */
-	private static function validate_response( array $payload, array $request ) {
-		if ( null === $request['fields'] || 200 !== (int) $payload['status'] ) {
+	private static function validate_response( array $payload, Report_Query $query ) {
+		if ( null === $query->fields || 200 !== (int) $payload['status'] ) {
 			return true;
 		}
 
 		$data    = (array) $payload['data'];
 		$summary = isset( $data['summary'] ) ? (array) $data['summary'] : null;
-		$missing = null === $summary ? $request['fields'] : array_values( array_diff( $request['fields'], array_keys( $summary ) ) );
+		$missing = null === $summary ? $query->fields : array_values( array_diff( $query->fields, array_keys( $summary ) ) );
 		if ( ! $missing ) {
 			return true;
 		}
@@ -294,22 +264,23 @@ class Report_Executor {
 	/**
 	 * Add the provenance to the payload: a `provenance` key on an object body, and headers either way.
 	 *
-	 * @param array  $payload  The provider's payload.
-	 * @param string $provider Provider name.
-	 * @param array  $request  The effective request.
+	 * @param array          $payload  The handler's payload.
+	 * @param string         $provider Provider name.
+	 * @param Report_Handler $handler  The handler that served it.
+	 * @param Report_Query   $query    The request.
 	 * @return array
 	 */
-	private function with_provenance( array $payload, $provider, array $request ) {
-		$report     = $request['report'];
-		$capability = $report['capabilities'][ $provider ];
+	private static function with_provenance( array $payload, $provider, Report_Handler $handler, Report_Query $query ) {
+		$definition = $query->definition;
+		$capability = $handler->get_capability();
 		$provenance = array(
 			'provider'           => $provider,
-			'contract'           => $report['id'] . '@' . $report['version'],
+			'contract'           => $definition->id . '@' . $definition->version,
 			'generated_at'       => gmdate( 'c', (int) ( $payload['generated_at'] ?? time() ) ),
-			'fields'             => $request['fields'],
-			'unsupported_fields' => null === $report['fields'] || '*' === $capability['fields'] ? array() : array_values( array_diff( array_keys( $report['fields'] ), $capability['fields'] ) ),
+			'fields'             => $query->fields,
+			'unsupported_fields' => null === $definition->fields || '*' === $capability['fields'] ? array() : array_values( array_diff( array_keys( $definition->fields ), $capability['fields'] ) ),
 			'deviations'         => (object) $capability['deviations'],
-			'datasets'           => $report['datasets'],
+			'datasets'           => $definition->datasets,
 		);
 
 		if ( is_object( $payload['data'] ) ) {

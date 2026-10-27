@@ -9,6 +9,11 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Handler;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Query;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -47,6 +52,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$wp_rest_server = new WP_REST_Server();
 		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		do_action( 'rest_api_init' );
+		add_action( Report_Registry::REGISTER_ACTION, array( Default_Reports::class, 'register' ) );
 
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		\Jetpack_Options::update_option( 'id', 4242 );
@@ -66,6 +72,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'answer_as_wordpress_com' ) );
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
+		remove_all_actions( Report_Registry::REGISTER_ACTION );
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -310,8 +317,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		return array(
 			'a route nobody declares'               => array( 'orders/by-week', array( 'execution' => 'auto' ), true, 404, 'unknown_report' ),
 			'local forced on a remote-only report'  => array( 'sessions/by-device', array( 'execution' => 'local' ), true, 422, 'unsupported_provider' ),
-			'remote forced on a local-only report'  => array( 'stock/summary', array( 'execution' => 'remote' ), true, 422, 'unsupported_provider' ),
-			'auto on a local-only report'           => array( 'stock/summary', array( 'execution' => 'auto' ), true, 503, 'feature_missing' ),
+			'remote forced on a local-only report'  => array( 'stock.summary', array( 'execution' => 'remote' ), true, 422, 'unsupported_provider' ),
+			'auto on a local-only report'           => array( 'stock.summary', array( 'execution' => 'auto' ), true, 503, 'feature_missing' ),
 			'auto without a connection'             => array( 'orders/by-date', array( 'execution' => 'auto' ), false, 503, 'needs_connection' ),
 			'no override without a connection'      => array( 'orders/by-date', array(), false, 403, 'no_connection' ),
 			'an execution value nobody serves'      => array( 'orders/by-date', array( 'execution' => 'both' ), true, 400, 'rest_invalid_param' ),
@@ -459,6 +466,110 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 		$this->assertSame( 'orders.by_date@1', $response->get_headers()['X-Jetpack-Report-Contract'] );
 		$this->assertSame( 'sunday', $response->get_data()->provenance['deviations']->week_start );
+	}
+
+	public function test_serves_a_report_another_owner_registers_through_the_hook() {
+		$handler  = new class() implements Report_Handler {
+			// phpcs:disable Squiz.Commenting.FunctionComment.Missing, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			public function get_capability() {
+				return array(
+					'fields'     => '*',
+					'params'     => array( 'from', 'to' ),
+					'deviations' => array(),
+				);
+			}
+			public function supports( Report_Query $query ) {
+				return true;
+			}
+			public function check_ready( Report_Query $query ) {
+				return true;
+			}
+			public function run( Report_Query $query ) {
+				return array(
+					'data'    => array( 'summary' => array( 'signups' => 7 ) ),
+					'status'  => 200,
+					'headers' => array(),
+				);
+			}
+			// phpcs:enable
+		};
+		$register = static function ( Report_Registry $registry ) use ( $handler ) {
+			$registry->register_report( new Report_Definition( 'stock.notifications', 1, array(), array( 'signups' => 'int' ), array( 'products' ) ) );
+			$registry->register_handler( 'stock.notifications', 'local', $handler );
+		};
+		add_action( Report_Registry::REGISTER_ACTION, $register, 20 );
+
+		$response = $this->get_report( 'stock.notifications', array( 'fields' => 'signups' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 7, $response->get_data()['summary']['signups'] );
+		$this->assertSame( 'stock.notifications@1', $response->get_headers()['X-Jetpack-Report-Contract'] );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	public function test_counts_orders_by_status_with_its_own_sql() {
+		global $wpdb;
+		$real_wpdb = $wpdb;
+		update_option( 'woocommerce_excluded_report_order_statuses', array( 'failed' ) );
+		// WorDBless has no database: this stand-in prepares as WordPress does and answers with fixed rows.
+		$wpdb = new class( $real_wpdb ) {
+			// phpcs:disable Squiz.Commenting.FunctionComment.Missing, Squiz.Commenting.VariableComment.Missing, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			public $prefix;
+			public $last_error = '';
+			public $queries    = array();
+			private $real;
+			public function __construct( $real ) {
+				$this->real   = $real;
+				$this->prefix = $real->prefix;
+			}
+			public function prepare( $query, ...$args ) {
+				return $this->real->prepare( $query, ...$args );
+			}
+			public function get_var( $sql ) {
+				return $this->prefix . 'wc_order_stats';
+			}
+			public function get_results( $sql ) {
+				$this->queries[] = $sql;
+				return array(
+					array(
+						'status'    => 'wc-completed',
+						'orders_no' => '3',
+						'net_total' => '120.5',
+					),
+					array(
+						'status'    => 'wc-processing',
+						'orders_no' => '1',
+						'net_total' => '24',
+					),
+				);
+			}
+			// phpcs:enable
+		};
+
+		$response = $this->get_report(
+			'orders.by_status',
+			array(
+				'from'   => '2026-10-01',
+				'to'     => '2026-10-26',
+				'fields' => 'orders_no,net_total',
+			)
+		);
+		$sql      = $wpdb->queries[0] ?? '';
+		$wpdb     = $real_wpdb; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restores the test's own stand-in.
+		delete_option( 'woocommerce_excluded_report_order_statuses' );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				'orders_no' => 4,
+				'net_total' => 144.5,
+			),
+			$response->get_data()['summary']
+		);
+		$this->assertSame( 'completed', $response->get_data()['data'][0]['status'] );
+		$this->assertStringContainsString( "date_created >= '2026-10-01 00:00:00' AND date_created <= '2026-10-26 23:59:59'", $sql );
+		$this->assertStringContainsString( "status NOT IN ( 'wc-auto-draft', 'wc-trash', 'wc-failed', 'wc-checkout-draft' )", $sql );
+		$this->assertStringContainsString( "<> '0000-00-00 00:00:00'", $sql );
 	}
 
 	public function test_forwards_no_execution_override_to_wordpress_com() {

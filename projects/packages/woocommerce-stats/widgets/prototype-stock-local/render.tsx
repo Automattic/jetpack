@@ -26,7 +26,7 @@ type PrototypeStockLocalRenderAttributes = PrototypeStockLocalAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
 /**
- * `stock/summary` with the `execution` attribute, read under the widget root for its report params.
+ * `stock.summary` with the `execution` attribute, read under the widget root for its report params.
  *
  * @param {object}          props             - The component props.
  * @param {ReportExecution} [props.execution] - The provider to force.
@@ -35,7 +35,7 @@ type PrototypeStockLocalRenderAttributes = PrototypeStockLocalAttributes &
 function PrototypeStockLocal( { execution = 'auto' }: { execution?: ReportExecution } ) {
 	const { reportParams } = useWidgetRootContext();
 	const report = useExecutedReport( reportParams, {
-		route: 'stock/summary',
+		route: 'stock.summary',
 		execution,
 		send: [],
 		fields: [ 'products', 'instock', 'lowstock', 'outofstock', 'onbackorder' ],

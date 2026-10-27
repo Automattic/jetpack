@@ -9,8 +9,6 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\WooCommerceStats\Report_Execution\Local_Report_Provider;
-use Automattic\Jetpack\WooCommerceStats\Report_Execution\Remote_Report_Provider;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry;
 use Jetpack_Options;
@@ -155,33 +153,27 @@ class Api_Proxy_Controller {
 	}
 
 	/**
-	 * Answer a report from the provider the executor picks.
+	 * Answer a report from the handler the executor picks among those registered.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error The provider's response with its status, or an error: the
 	 *                                   executor's (404, 422, 503, or `no_connection` 403), the client's own with a 500, `api_error` (502).
 	 */
 	public function handle_request( WP_REST_Request $request ) {
-		$route         = rtrim( substr( (string) $request->get_param( 'endpoint' ), strlen( self::REPORTS_PREFIX ) ), '/' );
-		$force_refresh = null !== $request->get_param( 'force_refresh' );
-		$registry      = new Report_Registry(
-			array(
-				new Local_Report_Provider(),
-				new Remote_Report_Provider(
-					function ( $route, $params ) use ( $force_refresh ) {
-						return $this->fetch_remote( $route, $params, $force_refresh );
-					}
-				),
-			)
+		$route   = rtrim( substr( (string) $request->get_param( 'endpoint' ), strlen( self::REPORTS_PREFIX ) ), '/' );
+		$payload = ( new Report_Executor( Report_Registry::create() ) )->execute(
+			$route,
+			$this->get_forwarded_params( $request ),
+			$request->get_param( 'execution' ),
+			$request->get_param( 'fields' ),
+			null !== $request->get_param( 'force_refresh' )
 		);
-
-		$payload = ( new Report_Executor( $registry ) )->execute( $route, $this->get_forwarded_params( $request ), $request->get_param( 'execution' ), $request->get_param( 'fields' ) );
 
 		return is_wp_error( $payload ) ? $payload : $this->build_response( $payload );
 	}
 
 	/**
-	 * Read a report from the cache, or from WordPress.com. The remote provider's transport.
+	 * Read a report from the cache, or from WordPress.com. The transport of the WordPress.com forward handler.
 	 *
 	 * @param string $route         Report route below `analytics/reports/`.
 	 * @param array  $params        Report query params.
@@ -210,7 +202,7 @@ class Api_Proxy_Controller {
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
-			$params ? $path . '?' . http_build_query( $params ) : $path,
+			$path . '?' . http_build_query( $params ),
 			'2',
 			array(
 				'method'  => 'GET',
