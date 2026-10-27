@@ -6,9 +6,9 @@
  * answer-engine bots) by appending per-user-agent `Disallow` rules to the
  * WordPress-generated robots.txt.
  *
- * The option `jetpack_seo_ai_crawler_overrides` maps each crawler the owner blocked
- * to `true`. Every other crawler is allowed, so robots.txt doesn't change when the
- * SEO page reaches a site (JETPACK-3135).
+ * The option `jetpack_seo_blocked_crawlers` holds the crawlers the owner blocked, per
+ * group. Every other crawler is allowed, so robots.txt doesn't change when the SEO page
+ * reaches a site (JETPACK-3135).
  *
  * Caveat: the `robots_txt` filter only feeds WordPress's *virtual* robots.txt.
  * A detected static file in the WordPress installation is not modified — a
@@ -25,12 +25,21 @@ namespace Automattic\Jetpack\SEO;
 class Ai_Crawlers {
 
 	/**
-	 * Option holding `slug => true` for each crawler the owner blocked. Registered with
+	 * Option holding the blocked crawlers as `array( 'answer' => …, 'training' => … )`, each
+	 * `'all'` (every crawler in the group, including ones added to the catalog later) or a
+	 * list of slugs. A missing group or an empty list blocks nothing. Registered with
 	 * `show_in_rest` by {@see Dashboard_Data::register_rest_settings()} so the GEO tab can save it.
 	 *
 	 * @var string
 	 */
-	const OPTION = 'jetpack_seo_ai_crawler_overrides';
+	const OPTION = 'jetpack_seo_blocked_crawlers';
+
+	/**
+	 * The crawler groups, matching each catalog entry's `type`.
+	 *
+	 * @var string[]
+	 */
+	const GROUPS = array( 'answer', 'training' );
 
 	/**
 	 * The `robots_txt` priority: after WordPress.com Simple appends bare `Disallow`
@@ -52,7 +61,7 @@ class Ai_Crawlers {
 	/**
 	 * The known AI crawler catalog: slug => [ label, user_agent, type ].
 	 *
-	 * `slug` is the stable key persisted in the override map and sent by the AI
+	 * `slug` is the stable key persisted in {@see self::OPTION} and sent by the GEO
 	 * tab; `user_agent` is the token written to the `User-agent:` robots line;
 	 * `label` is the human name shown in the UI; `type` is `answer` (fetches to
 	 * cite in live AI answers) or `training` (collects to train models).
@@ -170,26 +179,47 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * The crawlers the owner blocked, as `slug => true`. Unknown slugs and entries
-	 * that aren't blocked are dropped.
+	 * The crawlers the owner blocked, per group.
 	 *
-	 * @return array<string, bool>
+	 * @return array<string, string|string[]> `'all'` or a list of slugs for each group.
 	 */
-	public static function get_overrides() {
-		$stored = get_option( self::OPTION, array() );
-		if ( ! is_array( $stored ) ) {
-			return array();
-		}
+	public static function get_blocked() {
+		return self::sanitize_blocked( get_option( self::OPTION, array() ) );
+	}
 
-		$catalog   = self::get_catalog();
-		$overrides = array();
-		foreach ( $stored as $slug => $blocked ) {
-			if ( isset( $catalog[ $slug ] ) && $blocked ) {
-				$overrides[ $slug ] = true;
+	/**
+	 * Normalizes a stored or submitted {@see self::OPTION} value: both groups present, each
+	 * `'all'` or a list of slugs. Drops unknown slugs and slugs from the other group, and
+	 * saves a list naming every crawler in its group as `'all'`.
+	 *
+	 * @param mixed      $value   The value to normalize.
+	 * @param array|null $catalog Optional {@see self::get_catalog()} result, to avoid building it again.
+	 * @return array<string, string|string[]>
+	 */
+	public static function sanitize_blocked( $value, $catalog = null ) {
+		$value   = is_array( $value ) ? $value : array();
+		$catalog = is_array( $catalog ) ? $catalog : self::get_catalog();
+		$groups  = array_fill_keys( self::GROUPS, array() );
+		foreach ( $catalog as $slug => $info ) {
+			if ( isset( $groups[ $info['type'] ] ) ) {
+				$groups[ $info['type'] ][] = $slug;
 			}
 		}
 
-		return $overrides;
+		$blocked = array();
+		foreach ( $groups as $type => $slugs ) {
+			$group = $value[ $type ] ?? array();
+			if ( 'all' === $group ) {
+				$blocked[ $type ] = 'all';
+				continue;
+			}
+			$list             = is_array( $group )
+				? array_values( array_intersect( $slugs, array_filter( $group, 'is_string' ) ) )
+				: array();
+			$blocked[ $type ] = ( $slugs && count( $list ) === count( $slugs ) ) ? 'all' : $list;
+		}
+
+		return $blocked;
 	}
 
 	/**
@@ -212,8 +242,17 @@ class Ai_Crawlers {
 		if ( self::has_data_sharing_opt_out() ) {
 			return self::get_data_sharing_blocked_slugs();
 		}
-		// Catalog order, so robots.txt lists blocked crawlers the same way every time.
-		return array_keys( array_intersect_key( self::get_catalog(), self::get_overrides() ) );
+
+		$catalog = self::get_catalog();
+		$blocked = self::sanitize_blocked( get_option( self::OPTION, array() ), $catalog );
+		$slugs   = array();
+		foreach ( $catalog as $slug => $info ) {
+			$group = $blocked[ $info['type'] ] ?? array();
+			if ( 'all' === $group || in_array( $slug, $group, true ) ) {
+				$slugs[] = $slug;
+			}
+		}
+		return $slugs;
 	}
 
 	/**
@@ -319,7 +358,7 @@ class Ai_Crawlers {
 
 		return array(
 			'catalog'              => $catalog,
-			'overrides'            => (object) self::get_overrides(),
+			'blocked'              => self::get_blocked(),
 			'searchEnginesVisible' => self::search_engines_allowed(),
 			'restrictedSubdomain'  => self::is_crawl_restricted_subdomain(),
 			'staticRobotsTxt'      => self::has_static_robots_txt(),

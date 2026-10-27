@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { commentContent, details, key, page } from '@wordpress/icons';
 import { Badge, Card, CollapsibleCard, Link, Notice, Stack, Tooltip } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import { isCrawlerBlocked } from '../../data/blocked-crawlers';
 import './style.scss';
 import type { AiCrawler } from '../../data/geo-types';
 import type { GeoForm } from '../../data/use-geo';
@@ -423,7 +424,9 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 		const managedByPrivacySetting = crawlers.dataSharingOptOut;
 		const blockedSlugs = managedByPrivacySetting
 			? crawlers.dataSharingBlocked
-			: Object.keys( crawlers.overrides );
+			: crawlers.catalog
+					.filter( crawler => isCrawlerBlocked( crawlers.blocked, crawler ) )
+					.map( crawler => crawler.slug );
 		const lockedReason = managedByPrivacySetting ? managedByPrivacyTooltip : undefined;
 		const privacyNotice = managedByPrivacySetting ? (
 			<Notice.Root intent="info" className="jetpack-seo-geo__crawler-notice">
