@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
@@ -19,9 +20,31 @@ require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 /**
  * @covers \Automattic\Jetpack\PremiumAnalytics\Single_Report_Page
  * @covers \Automattic\Jetpack\PremiumAnalytics\Single_Report_Page_Registry
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\register_single_report_page
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_registered_single_report_page
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_available_single_report_pages
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_available_single_report_page_records
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_single_report_pages_script_data
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_single_report_pages_script_data
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\check_single_report_pages_permission
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_single_report_page_controls_schema
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_single_report_page_schema
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_single_report_pages_response
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\register_single_report_pages_rest_routes
  */
 #[CoversClass( Single_Report_Page::class )]
 #[CoversClass( Single_Report_Page_Registry::class )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_single_report_page' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_registered_single_report_page' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_available_single_report_pages' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_available_single_report_page_records' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_single_report_pages_script_data' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_single_report_pages_script_data' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\check_single_report_pages_permission' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_single_report_page_controls_schema' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_single_report_page_schema' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_single_report_pages_response' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_single_report_pages_rest_routes' )]
 class Single_Report_Page_Test extends BaseTestCase {
 	use Analytics_Capabilities_Trait;
 
