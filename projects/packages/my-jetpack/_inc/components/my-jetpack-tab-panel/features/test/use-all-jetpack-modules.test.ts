@@ -392,40 +392,48 @@ describe( 'plugin switch refresh ordering', () => {
 						? result.current.plugin.run( 'deactivate' )
 						: result.current.bulk.run( result.current.states, false );
 			} );
+			const postRequest = expect.objectContaining( { method: 'POST' } );
 			await waitFor( () =>
 				expect( apiFetch ).toHaveBeenCalledWith(
-					success
-						? expect.objectContaining( { method: 'POST' } )
-						: { path: '/wpcom/v2/my-jetpack/site/features' }
+					success ? postRequest : { path: '/wpcom/v2/my-jetpack/site/features' }
 				)
 			);
 			rerender();
 			await act( async () => {
 				settleFeatures( inactive );
 			} );
-			if ( jetpack === 'active' ) {
-				await waitFor( () => expect( readWith ).toEqual( [ 'inactive' ] ) );
-				rerender();
-				if ( mode === 'single' ) {
-					expect( result.current.plugin.isBusy ).toBe( true );
-				}
-			}
+			const expectedReads = jetpack === 'active' ? [ 'inactive' ] : [];
+			await waitFor( () => expect( readWith ).toEqual( expectedReads ) );
+			rerender();
+			const expectedPendingPlugin =
+				jetpack === 'active' && mode === 'single' ? { isBusy: true } : {};
+			expect( result.current.plugin ).toMatchObject( expectedPendingPlugin );
 			await act( async () => {
 				settleModules();
 				await request;
 			} );
 			rerender();
 			expect( result.current.plugin.isBusy ).toBe( false );
-			if ( jetpack === 'active' ) {
-				expect( result.current.states[ 0 ].control.kind ).toBe( 'module' );
-				expect( getForcedReason( result.current.states[ 0 ] ) ).toBe(
-					'Enabled by your host or site administrator'
-				);
-				expect( readWith ).toEqual( [ 'inactive' ] );
-			} else {
-				expect( mockFetchModules ).not.toHaveBeenCalled();
-				expect( client.getQueryData( QUERY_KEY ) ).toEqual( inactive );
-			}
+			const outcome =
+				jetpack === 'active'
+					? {
+							control: result.current.states[ 0 ].control.kind,
+							reason: getForcedReason( result.current.states[ 0 ] ),
+							readWith,
+						}
+					: {
+							moduleRequests: mockFetchModules.mock.calls.length,
+							features: client.getQueryData( QUERY_KEY ),
+						};
+			expect( outcome ).toEqual(
+				jetpack === 'active'
+					? {
+							control: 'module',
+							reason: 'Enabled by your host or site administrator',
+							readWith: expectedReads,
+						}
+					: { moduleRequests: 0, features: inactive }
+			);
 			unmount();
 			client.clear();
 		}
