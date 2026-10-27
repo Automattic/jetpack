@@ -143,14 +143,15 @@ class Monitor_Test extends BaseTestCase {
 	}
 
 	/**
-	 * WordPress.com's answer to the subscription, and the local copy after activation.
+	 * WordPress.com's answer to the subscription, the local copy before activation, and after it.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_activation() {
 		return array(
-			'accepted' => array( self::WPCOM_OK, 1 ),
-			'rejected' => array( self::WPCOM_FAULT, 'not saved' ),
+			'accepted'               => array( self::WPCOM_OK, null, 1 ),
+			'rejected'               => array( self::WPCOM_FAULT, null, 'not saved' ),
+			'rejected with old copy' => array( self::WPCOM_FAULT, 0, 'not saved' ),
 		);
 	}
 
@@ -158,11 +159,15 @@ class Monitor_Test extends BaseTestCase {
 	 * @dataProvider provide_activation
 	 *
 	 * @param string     $wpcom_body WordPress.com's XML-RPC answer.
+	 * @param int|null   $previous   The local copy before activation, or null for none.
 	 * @param int|string $saved      The local copy afterwards.
 	 */
 	#[DataProvider( 'provide_activation' )]
-	public function test_activation_subscribes_the_user_without_failing_on_rejection( $wpcom_body, $saved ) {
+	public function test_activation_subscribes_the_user_without_failing_on_rejection( $wpcom_body, $previous, $saved ) {
 		$user_id = $this->connect_user_answered_by( $wpcom_body );
+		if ( null !== $previous ) {
+			update_option( Monitor::notifications_copy_option_name( $user_id ), $previous );
+		}
 		Monitor::init();
 
 		do_action( 'jetpack_activate_module_monitor' );

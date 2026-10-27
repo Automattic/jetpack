@@ -67,8 +67,10 @@ class Monitor {
 	 */
 	public static function activate_module() {
 		if ( ( new Connection_Manager() )->is_user_connected() ) {
-			// A failure doesn't block activation: with no local copy saved, the next settings read asks WordPress.com.
-			self::set_notifications( true );
+			// A failure doesn't block activation: dropping any stale copy makes the next settings read ask WordPress.com.
+			if ( is_wp_error( self::set_notifications( true ) ) ) {
+				self::delete_notifications_copy( get_current_user_id() );
+			}
 		}
 	}
 
