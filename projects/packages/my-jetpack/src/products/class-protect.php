@@ -560,6 +560,33 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
+	 * Where the card's upgrade goes: a host's plans when it sends them, else the Protect interstitial.
+	 *
+	 * @return ?string
+	 */
+	public static function get_purchase_url() {
+		if ( static::has_paid_plan_for_product() ) {
+			return parent::get_purchase_url();
+		}
+
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '/add-protect',
+				'name'     => 'Jetpack Scan', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=my-jetpack' ),
+			),
+			'protect-dashboard',
+			false
+		);
+
+		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
+
+		return $url ? $url : parent::get_purchase_url();
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
