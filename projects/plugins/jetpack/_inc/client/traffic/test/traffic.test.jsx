@@ -21,4 +21,17 @@ describe( 'Traffic settings', () => {
 
 		expect( screen.getByText( 'SEO opt-in banner' ) ).toBeInTheDocument();
 	} );
+
+	it( 'renders nothing when a search finds only sections that moved to the SEO dashboard', () => {
+		window.JetpackScriptData = { seo: { surface_visible: true } };
+		try {
+			const { container } = render(
+				<Traffic searchTerm="sitemap" isModuleFound={ findsOnlySitemaps } />
+			);
+
+			expect( container ).toBeEmptyDOMElement();
+		} finally {
+			delete window.JetpackScriptData;
+		}
+	} );
 } );
