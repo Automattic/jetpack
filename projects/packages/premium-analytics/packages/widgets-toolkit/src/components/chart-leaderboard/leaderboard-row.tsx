@@ -146,6 +146,13 @@ export function LeaderboardRow( {
 			media.kind !== 'none' ? (
 				<LeaderboardLabel label={ label } media={ media } decorativeMedia />
 			) : undefined;
+		const titleLinkProps = {
+			id: action.id,
+			label,
+			link: action.href,
+			search: action.search,
+			title: label,
+		};
 
 		// A row with a "View" action holds two links, so the row chrome goes on a
 		// wrapper and the title keeps the tooltip.
@@ -153,11 +160,7 @@ export function LeaderboardRow( {
 			return (
 				<span className={ rowClassName }>
 					<TitleLink
-						id={ action.id }
-						label={ label }
-						link={ action.href }
-						search={ action.search }
-						title={ label }
+						{ ...titleLinkProps }
 						classNames={ {
 							internal: clsx( styles.labelLink, styles.titleLink ),
 							text: styles.label,
@@ -173,11 +176,7 @@ export function LeaderboardRow( {
 		// With one link, the row chrome goes on the link itself.
 		return (
 			<TitleLink
-				id={ action.id }
-				label={ label }
-				link={ action.href }
-				search={ action.search }
-				title={ label }
+				{ ...titleLinkProps }
 				classNames={ {
 					internal: rowLinkClassName,
 					external: rowLinkClassName,

@@ -278,7 +278,7 @@ describe( 'buildLeaderboardRow', () => {
 		const wrapper = view.parentElement;
 		expect( wrapper ).toHaveClass( 'row' );
 		expect( wrapper ).toContainElement( title );
-		// The title stretches to the action, so the click target stays the row.
+		// The title stretches over the row, so the click target stays the row.
 		expect( title ).toHaveClass( 'titleLink' );
 	} );
 

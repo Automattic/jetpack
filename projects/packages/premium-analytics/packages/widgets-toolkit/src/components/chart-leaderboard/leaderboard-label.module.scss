@@ -132,10 +132,22 @@
 	text-decoration: underline;
 }
 
-/* Beside a "View" action nothing sits behind the title, so it takes the row
- * up to the action and the click target stays the row. */
-.titleLink {
-	flex: 1 1 auto;
+/* Beside a "View" action the title keeps its own width so the arrow follows it,
+ * and stretches over the row so the click target stays the row. */
+.row {
+	position: relative;
+}
+
+.titleLink::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+/* The action sits above the stretched title so its own click wins. */
+.viewAction {
+	position: relative;
+	z-index: 1;
 }
 
 /* DataViews picker cells stretch media images to 100%. Widget previews render
