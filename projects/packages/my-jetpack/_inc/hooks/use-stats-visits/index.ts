@@ -1,3 +1,4 @@
+import { keepPreviousData as keepPreviousQueryData } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import { QUERY_STATS_VISITS_KEY, getStatsVisitsEndpoint } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
@@ -14,6 +15,8 @@ interface StatsVisitsOptions {
 	quantity?: number;
 	enabled?: boolean;
 	date?: Date;
+	/** Keep showing the last data while another period loads. */
+	keepPreviousData?: boolean;
 }
 
 /**
@@ -26,7 +29,7 @@ interface StatsVisitsOptions {
  * @return {object} Query result containing stats visits data and loading state
  */
 const useStatsVisits = ( blogID: string, isEnabled: boolean, options: StatsVisitsOptions = {} ) => {
-	const { period = 'day', quantity = 7, date } = options;
+	const { period = 'day', quantity = 7, date, keepPreviousData = false } = options;
 
 	// Build query parameters like Odyssey Stats does
 	const queryParams = useMemo( () => {
@@ -66,14 +69,15 @@ const useStatsVisits = ( blogID: string, isEnabled: boolean, options: StatsVisit
 		return `${ baseEndpoint }?${ queryParams }`;
 	}, [ blogID, queryParams ] );
 
-	const { data, isLoading, isFetching, isError, error, refetch } =
+	const { data, isLoading, isFetching, isError, isPlaceholderData, error, refetch } =
 		useSimpleQuery< StatsVisitsData >( {
 			name: QUERY_STATS_VISITS_KEY,
 			query: { path: endpoint() },
 			options: {
 				enabled: isEnabled,
-				gcTime: 5000,
-				refetchOnMount: 'always',
+				gcTime: 60_000,
+				staleTime: 60_000,
+				placeholderData: keepPreviousData ? keepPreviousQueryData : undefined,
 			},
 		} );
 
@@ -82,6 +86,7 @@ const useStatsVisits = ( blogID: string, isEnabled: boolean, options: StatsVisit
 		isLoading,
 		isFetching,
 		isError,
+		isPlaceholderData,
 		error,
 		refetch,
 	};
