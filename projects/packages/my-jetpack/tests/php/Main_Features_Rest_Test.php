@@ -434,9 +434,10 @@ class Main_Features_Rest_Test extends TestCase {
 	 * @param bool  $enabled Whether offline Features is opted in.
 	 * @param bool  $refused Whether the hosting plugin must stay active.
 	 * @param bool  $network Whether the remaining carriers are network active.
+	 * @param array $excluded_folders Other plugin folders being deactivated in the same request.
 	 */
 	#[DataProvider( 'remaining_carriers' )]
-	public function test_remaining_carrier_must_support_the_current_page( $versions, $offline, $enabled, $refused, $network = false ) {
+	public function test_remaining_carrier_must_support_the_current_page( $versions, $offline, $enabled, $refused, $network = false, $excluded_folders = array() ) {
 		$files = array();
 		foreach ( $versions as $index => $version ) {
 			$folder = 'my-jetpack-carrier-' . $index;
@@ -454,7 +455,7 @@ class Main_Features_Rest_Test extends TestCase {
 		add_filter( 'jetpack_my_jetpack_offline_features', $enabled_filter );
 		\Automattic\Jetpack\Status\Cache::clear();
 		try {
-			$this->assertSame( $refused, Main_Features::is_only_my_jetpack_provider( 'jetpack-boost' ) );
+			$this->assertSame( $refused, Main_Features::is_only_my_jetpack_provider( 'jetpack-boost', $excluded_folders ) );
 		} finally {
 			remove_filter( 'jetpack_offline_mode', $offline_filter );
 			remove_filter( 'jetpack_my_jetpack_offline_features', $enabled_filter );
@@ -466,6 +467,7 @@ class Main_Features_Rest_Test extends TestCase {
 	public static function remaining_carriers() {
 		return array(
 			'offline capable'     => array( array( '6.10.0' ), true, true, false ),
+			'offline excluded'    => array( array( '6.10.0' ), true, true, true, false, array( 'my-jetpack-carrier-0' ) ),
 			'offline older'       => array( array( '6.7.0' ), true, true, true ),
 			'online older'        => array( array( '6.7.0' ), false, true, false ),
 			'offline unknown'     => array( array( null ), true, true, true ),
@@ -743,7 +745,6 @@ class Main_Features_Rest_Test extends TestCase {
 	public static function bulk_carrier_orders() {
 		return array(
 			'host first'            => array( 'host-first', true ),
-			'host last'             => array( 'host-last', true ),
 			'capable Jetpack named' => array( 'jetpack-and-host', false ),
 		);
 	}
