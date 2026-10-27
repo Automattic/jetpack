@@ -226,7 +226,11 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 	const permalink = ( editedRecord as { link?: string } | undefined )?.link ?? '';
 
 	return (
-		<Stack direction="column" aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }>
+		<Stack
+			direction="column"
+			className={ styles.inspector }
+			aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }
+		>
 			<Stack direction="column" gap="lg" className={ styles.inspectorBody }>
 				<Stack direction="row" align="center" justify="space-between" gap="sm">
 					<Text variant="heading-lg" render={ <h2 /> }>

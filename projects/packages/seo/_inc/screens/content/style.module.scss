@@ -4,20 +4,28 @@
 	inline-size: 100%;
 }
 
-// The per-post SEO editor, rendered in the route's native inspector sidebar.
-// The framework owns the sidebar panel (and its scrolling); this lays out the
-// editor's contents: header, fields + live preview, then the actions footer.
+// The per-post SEO editor in the route's inspector sidebar, which scrolls it.
+// The frame fills the sidebar so the actions footer can sit at its bottom.
+.inspectorFrame {
+	display: flex;
+	flex-direction: column;
+	min-block-size: 100%;
+}
+
+.inspector {
+	flex: 1;
+}
+
 .inspectorBody {
 	padding: var(--wpds-dimension-padding-md);
 }
 
-// Cancel / Save, pinned to the bottom of the sidebar's scroll area so they stay
-// visible while the fields scroll under them. The same treatment as Jetpack
-// Protect's threat details footer: sticky, a top divider, and the panel's
-// background so the fields don't show through.
+// Cancel / Save: at the bottom of the sidebar on short forms, and stuck to it
+// while longer ones scroll under them.
 .inspectorFooter {
 	position: sticky;
 	inset-block-end: 0;
+	margin-block-start: auto;
 	padding: var(--wpds-dimension-padding-md);
 	border-block-start:
 		var(--wpds-border-width-xs) solid

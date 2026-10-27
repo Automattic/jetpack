@@ -1,7 +1,8 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
 import SeoInspector from '../../_inc/screens/content/seo-inspector';
+import styles from '../../_inc/screens/content/style.module.scss';
 import type { ContentPostType } from '../../_inc/data/content-types';
 
 type InspectorSearch = Record< string, unknown > & { postId?: string; postType?: string };
@@ -19,6 +20,9 @@ function Inspector() {
 		strict: false,
 	} ) as InspectorSearch;
 	const navigate = useNavigate();
+	// ThemeProvider's own wrapper has no height, so it themes this frame instead,
+	// which fills the sidebar and lets the editor's footer sit at the bottom.
+	const [ frame, setFrame ] = useState< HTMLDivElement | null >( null );
 
 	const onClose = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
 
@@ -29,11 +33,20 @@ function Inspector() {
 	const postType = ( search.postType || 'post' ) as ContentPostType;
 
 	return (
-		<ThemeProvider>
-			{ /* Keyed by post so switching rows remounts with that post's state
-			     instead of reseeding over another post's unsaved edits. */ }
-			<SeoInspector key={ postId } postId={ postId } postType={ postType } onClose={ onClose } />
-		</ThemeProvider>
+		<div ref={ setFrame } className={ styles.inspectorFrame }>
+			{ frame && (
+				<ThemeProvider targetDom={ frame }>
+					{ /* Keyed by post so switching rows remounts with that post's state
+					     instead of reseeding over another post's unsaved edits. */ }
+					<SeoInspector
+						key={ postId }
+						postId={ postId }
+						postType={ postType }
+						onClose={ onClose }
+					/>
+				</ThemeProvider>
+			) }
+		</div>
 	);
 }
 
