@@ -124,6 +124,11 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 		Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
 
+		// The platforms a test may have stood this site up as.
+		foreach ( array( 'IS_WPCOM', 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' ) as $name ) {
+			Constants::clear_single_constant( $name );
+		}
+
 		// Held for the request, so a test that turned offline mode off would otherwise answer for
 		// the next one. {@see self::allow_tracking()}
 		\Automattic\Jetpack\Status\Cache::clear();
@@ -942,6 +947,46 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		unset( $_GET['source'] );
 
 		$this->assertSame( 'admin_menu', $this->call_private( 'read_source' ) );
+	}
+
+	/**
+	 * The screen's own event carries this from here and the bundle's events carry it from
+	 * `getSiteType()`, so a platform spelled differently in one of them cannot be joined to the
+	 * other half of the funnel.
+	 *
+	 * @param array  $constants What the platform defines.
+	 * @param string $expected  The spelling `getSiteType()` uses.
+	 *
+	 * @dataProvider provide_platforms
+	 */
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_platforms' )]
+	public function test_the_platform_is_spelled_the_way_the_bundle_spells_it( $constants, $expected ) {
+		foreach ( $constants as $name => $value ) {
+			Constants::set_constant( $name, $value );
+		}
+
+		// Read once per request and memoised, so a default answered before this is still standing.
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		$this->assertSame( $expected, $this->call_private( 'site_type' ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_platforms() {
+		return array(
+			'self-hosted' => array( array(), 'jetpack' ),
+			'Simple'      => array( array( 'IS_WPCOM' => true ), 'simple' ),
+			'WoA'         => array(
+				array(
+					'ATOMIC_SITE_ID'       => 123,
+					'ATOMIC_CLIENT_ID'     => 456,
+					'WPCOMSH__PLUGIN_FILE' => '/wpcomsh.php',
+				),
+				'woa',
+			),
+		);
 	}
 
 	/**
