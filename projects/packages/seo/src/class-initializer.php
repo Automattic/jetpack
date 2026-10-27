@@ -117,6 +117,9 @@ class Initializer {
 			return;
 		}
 
+		// Before anything can read the AI crawler choices.
+		Ai_Crawlers::register_legacy_migration();
+
 		// The opt-in endpoint must be reachable even before the surface is visible, so
 		// existing self-hosted installs can switch to the new experience from the legacy
 		// Traffic page or My Jetpack (JETPACK-1700). Registered ahead of the cohort gate.
