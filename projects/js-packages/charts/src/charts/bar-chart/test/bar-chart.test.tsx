@@ -3555,9 +3555,17 @@ describe( 'BarChart', () => {
 			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 		} );
 
+		const labelledViews = [
+			{ label: 'Apr', value: 29 },
+			{ label: 'May', value: 19 },
+		];
+		const april = new Date( '2025-04-01T00:00:00Z' );
+		const may = new Date( '2025-05-01T00:00:00Z' );
+
 		it.each( [
 			{
 				name: 'aligned series',
+				views: labelledViews,
 				visitors: [
 					{ label: 'Apr', value: 112 },
 					{ label: 'May', value: 80 },
@@ -3568,14 +3576,29 @@ describe( 'BarChart', () => {
 			},
 			{
 				name: 'ragged series',
+				views: labelledViews,
 				visitors: [ { label: 'May', value: 80 } ],
 				presses: 2,
 				rows: [ 'Views=19@1', 'Visitors=80@0' ],
 				nearest: 'Visitors',
 			},
+			{
+				name: 'dated points with empty labels',
+				views: [
+					{ date: april, label: '', value: 29 },
+					{ date: may, label: '', value: 19 },
+				],
+				visitors: [
+					{ date: april, label: '', value: 112 },
+					{ date: may, label: '', value: 80 },
+				],
+				presses: 3,
+				rows: [ 'Views=19@1', 'Visitors=80@1' ],
+				nearest: 'Views',
+			},
 		] )(
 			'gives the keyboard tooltip only the bars at the selected category: $name',
-			async ( { visitors, presses, rows, nearest } ) => {
+			async ( { views, visitors, presses, rows, nearest } ) => {
 				const user = userEvent.setup();
 				const renderTooltip = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
 					<div>
@@ -3595,14 +3618,7 @@ describe( 'BarChart', () => {
 					withTooltips: true,
 					renderTooltip,
 					data: [
-						{
-							label: 'Views',
-							data: [
-								{ label: 'Apr', value: 29 },
-								{ label: 'May', value: 19 },
-							],
-							options: {},
-						},
+						{ label: 'Views', data: views, options: {} },
 						{ label: 'Visitors', data: visitors, options: {} },
 					],
 				} );

@@ -37,7 +37,8 @@ export type SelectedSlot = SelectedBar & { members: SlotMember[] };
  * @return Whether `point` is at `category`.
  */
 export function isSameCategory( point: DataPointDate, category: DataPointDate ): boolean {
-	return category.label != null
+	// An empty label falls back to the date, as the band axis's accessor does.
+	return category.label
 		? point.label === category.label
 		: !! category.date && !! point.date && point.date.getTime() === category.date.getTime();
 }
@@ -101,7 +102,7 @@ export function useOverlapSlots(
  * @return The category key.
  */
 function categoryKey( point: DataPointDate ): string {
-	return point.label != null ? `label:${ point.label }` : `date:${ point.date?.getTime() }`;
+	return point.label ? `label:${ point.label }` : `date:${ point.date?.getTime() }`;
 }
 
 /**
