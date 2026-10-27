@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
-import { getVideosFields } from './fields';
+import { getVideosFields, isVideoRowClickable, renderVideoRowLink } from './fields';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 
 // The router is built dynamically, so a field-level test has no router to mount; render `Link`
@@ -91,8 +91,22 @@ describe( 'videos fields', () => {
 		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
 	} );
 
-	it( 'links a row with an ID to its detail page, carrying the date window', () => {
+	it( 'renders the title as text on a row DataViews links', () => {
 		renderVideosField( 'label', video );
+
+		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'links a row with an ID to its detail page, carrying the date window', () => {
+		render(
+			renderVideoRowLink( {
+				item: video,
+				className: 'dataviews-column-primary__media',
+				'aria-label': 'Launch video',
+				children: <span>poster</span>,
+			} )
+		);
 
 		const link = screen.getByRole( 'link', { name: 'Launch video' } );
 		// Only the shared report-window params travel; page-owned params
@@ -105,49 +119,26 @@ describe( 'videos fields', () => {
 			interval: 'day',
 			ref: 'videos',
 		} );
+		expect( link ).toHaveClass( 'dataviews-column-primary__media' );
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 
-	it( 'offers the live video in a new tab beside a title that opens its detail page', () => {
-		renderVideosField( 'label', video );
-
-		expect(
-			screen.getByRole( 'link', { name: 'View "Launch video" in a new tab' } )
-		).toHaveAttribute( 'href', 'https://example.com/video/' );
+	it.each( [
+		[ 12, true ],
+		[ undefined, false ],
+		[ 0, false ],
+		[ -3, false ],
+		[ 1.5, false ],
+		[ 'abc', false ],
+	] )( 'treats a row with ID %p as clickable: %p', ( id, expected ) => {
+		expect( isVideoRowClickable( { ...video, id: id as never } ) ).toBe( expected );
 	} );
 
-	it( 'links the poster to the same detail page as the title', () => {
-		renderVideosField( 'poster', video );
+	it( 'keeps the external page link as the fallback for a row without an ID', () => {
+		renderVideosField( 'label', { ...video, id: undefined } );
 
-		const link = screen.getByRole( 'link', { name: 'Launch video' } );
-		const url = getMockRouteLinkUrl( link );
-		expect( url.pathname ).toBe( '/video/12' );
-		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
-			from: '2026-06-01',
-			to: '2026-06-16',
-			interval: 'day',
-			ref: 'videos',
-		} );
-	} );
-
-	it.each( [ undefined, 0, -3, 1.5, 'abc' ] )(
-		'keeps the external page link as the fallback for a row with ID %p',
-		id => {
-			renderVideosField( 'label', { ...video, id: id as never } );
-
-			// The design system's outbound marker joins the accessible name.
-			const link = screen.getByRole( 'link', { name: 'Launch video(opens in a new tab)' } );
-			expect( link ).toHaveAttribute( 'href', 'https://example.com/video/' );
-			expect( link ).toHaveAttribute( 'target', '_blank' );
-			// The title already opens the live video, so there is no second "View" link.
-			expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
-		}
-	);
-
-	it( 'links the poster to the live video, like the title, on a row without a detail page', () => {
-		renderVideosField( 'poster', { ...video, id: undefined } );
-
-		const link = screen.getByRole( 'link', { name: 'Launch video (opens in a new tab)' } );
+		// The design system's outbound marker joins the accessible name.
+		const link = screen.getByRole( 'link', { name: 'Launch video(opens in a new tab)' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/video/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );

@@ -12,6 +12,7 @@ import { act, render } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { VIEW_LIVE_ACTION_ID } from '../view-live-action';
 import { usePostsReportRecords } from './config';
 import PostsReportPage from './page';
 import type { ReactNode } from 'react';
@@ -35,6 +36,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
+	safeHttpUrl: jest.requireActual( '@jetpack-premium-analytics/ui' ).safeHttpUrl,
 	StatsBreadcrumbs: () => null,
 	StatsPageIcon: () => null,
 } ) );
@@ -45,6 +47,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		return {
 			archivesCsvExporter: actual.archivesCsvExporter,
 			postsPagesCsvExporter: actual.postsPagesCsvExporter,
+			toViewLiveUrl: actual.toViewLiveUrl,
 		};
 	} )(),
 	formatLegendLabels: () => [],
@@ -134,6 +137,26 @@ describe( 'PostsReportPage', () => {
 		jest.clearAllMocks();
 		usePostThumbnailsMock.mockReturnValue( {} );
 		useSectionTabMock.mockReturnValue( [ 'posts-pages', jest.fn() ] );
+	} );
+
+	it( 'offers the live post from rows that open a detail page, not from the homepage row', () => {
+		const records = buildRecords();
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+
+		const action = reportRecordsTableMock.mock.calls[ 0 ][ 0 ].actions?.[ 0 ];
+		expect( action?.id ).toBe( VIEW_LIVE_ACTION_ID );
+		expect( action?.isEligible?.( records.posts.rows[ 0 ] ) ).toBe( true );
+		expect(
+			action?.isEligible?.( {
+				id: 0,
+				label: 'Home page',
+				views: 3,
+				link: 'https://example.com/',
+				type: 'homepage',
+			} )
+		).toBe( false );
 	} );
 
 	it( 'gives the Posts & pages export the posts request status', () => {

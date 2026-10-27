@@ -9,6 +9,7 @@ import {
 	ReportPageShell,
 	ReportRecordsTable,
 	emailsCsvExporter,
+	toViewLiveUrl,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -17,6 +18,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
+import { createViewLiveAction } from '../view-live-action';
 import { getEmailsFields, useEmailsReportRecords } from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
@@ -60,6 +62,15 @@ function EmailsReport(): JSX.Element {
 	const records = useEmailsReportRecords();
 	const reportParams = useReportParams();
 	const fields = useMemo( () => getEmailsFields(), [] );
+	const actions = useMemo(
+		() => [
+			// The summary leaves `link` untyped; the URL gate only wants a string.
+			createViewLiveAction< StatsEmailSummaryItem >( email =>
+				toViewLiveUrl( 'post', email.id, typeof email.link === 'string' ? email.link : null )
+			),
+		],
+		[]
+	);
 
 	const { getLabel } = REPORTS.emails;
 
@@ -92,6 +103,7 @@ function EmailsReport(): JSX.Element {
 						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search emails', 'jetpack-premium-analytics-pkg' ) }
+						actions={ actions }
 					/>
 				</ReportErrorState>
 			</ReportPageLayout>

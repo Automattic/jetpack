@@ -10,13 +10,21 @@ import { render } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { getVideosFields, useVideosReportRecords } from './config';
+import { VIEW_LIVE_ACTION_ID } from '../view-live-action';
+import {
+	getVideosFields,
+	isVideoRowClickable,
+	renderVideoRowLink,
+	useVideosReportRecords,
+} from './config';
 import VideosReportPage from './page';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
 	getVideosFields: jest.fn( () => [] ),
+	isVideoRowClickable: jest.requireActual( './config' ).isVideoRowClickable,
+	renderVideoRowLink: jest.requireActual( './config' ).renderVideoRowLink,
 	useVideosReportRecords: jest.fn(),
 } ) );
 
@@ -28,6 +36,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
+	safeHttpUrl: jest.requireActual( '@jetpack-premium-analytics/ui' ).safeHttpUrl,
 	StatsBreadcrumbs: () => null,
 	StatsPageIcon: () => null,
 } ) );
@@ -44,6 +53,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	),
 	ReportRecordsTable: jest.fn( () => null ),
 	ExporterCsvAction: jest.fn( () => <button>Download</button> ),
+	toViewLiveUrl: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).toViewLiveUrl,
 	videosCsvExporter: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.videosCsvExporter,
 } ) );
@@ -99,7 +109,22 @@ describe( 'VideosReportPage', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'draws each video poster beside its title', () => {
+	it( 'offers the live video from rows that open the detail page', () => {
+		useRecordsMock.mockReturnValue( buildRecords() );
+
+		render( <VideosReportPage /> );
+
+		const action = reportRecordsTableMock.mock.calls[ 0 ][ 0 ].actions?.[ 0 ];
+		expect( action?.id ).toBe( VIEW_LIVE_ACTION_ID );
+		expect( action?.isEligible?.( { ...videoRow, link: 'https://example.com/clip/' } ) ).toBe(
+			true
+		);
+		expect(
+			action?.isEligible?.( { ...videoRow, id: undefined, link: 'https://example.com/clip/' } )
+		).toBe( false );
+	} );
+
+	it( 'draws each video poster beside its title, linked to the detail page', () => {
 		getVideosFieldsMock.mockImplementationOnce(
 			jest.requireActual< typeof import( './config' ) >( './config' ).getVideosFields
 		);
@@ -107,8 +132,11 @@ describe( 'VideosReportPage', () => {
 
 		render( <VideosReportPage /> );
 
-		const { initialView } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
+		const { initialView, isItemClickable, renderItemLink } =
+			reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
 		expect( initialView ).toMatchObject( { titleField: 'label', mediaField: 'poster' } );
+		expect( isItemClickable ).toBe( isVideoRowClickable );
+		expect( renderItemLink ).toBe( renderVideoRowLink );
 	} );
 
 	it( 'exports the report rows for the selected range', () => {

@@ -151,7 +151,6 @@ export {
 	ReportPageTabs,
 	ReportRecordsTable,
 	ReportThumbnail,
-	ReportTitleCell,
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ExporterCsvAction,
 	ReportCsvAction,
@@ -166,7 +165,6 @@ export {
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
 	type ReportRecordsTableProps,
-	type ReportTitleCellProps,
 	type ReportCsvActionProps,
 } from './report-page';
 export {

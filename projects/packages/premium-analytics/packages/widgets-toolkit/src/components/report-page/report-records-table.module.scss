@@ -37,22 +37,6 @@
 	border-radius: var(--wpds-border-radius-md);
 }
 
-/* DataViews draws the media border on an overlay above the cell, which would
- * swallow clicks on a link the media field renders inside the wrapper. */
-.root :global(.dataviews-column-primary__media)::after {
-	pointer-events: none;
-}
-
-/* The wrapper clips overflow, so that link fills it and draws its focus ring
- * inside, as the design system does in its own clipped containers. */
-.root :global(.dataviews-column-primary__media) > a {
-	display: block;
-}
-
-.root :global(.dataviews-column-primary__media) > a:focus-visible {
-	outline-offset: calc(var(--wpds-border-width-focus) * -1);
-}
-
 .root :global(.dataviews-view-table tbody a:any-link:hover),
 .root :global(.dataviews-view-table tbody a:any-link:focus-visible) {
 	color: var(--wpds-color-foreground-interactive-brand);

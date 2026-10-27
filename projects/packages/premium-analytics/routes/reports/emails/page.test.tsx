@@ -51,6 +51,7 @@ const email: StatsEmailSummaryItem = {
 	clicks: 14,
 	opens_rate: 38.1,
 	clicks_rate: 3.81,
+	link: 'https://example.com/hello-world/',
 	unique_opens: 98,
 	unique_clicks: 11,
 	total_sends: 250,
@@ -79,5 +80,13 @@ describe( 'EmailsReportPage', () => {
 
 		expect( screen.getByText( 'Hello world' ) ).toBeInTheDocument();
 		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers the live email from its row', () => {
+		mockEmailSummary();
+
+		render( <EmailsReportPage /> );
+
+		expect( screen.getByRole( 'button', { name: 'View in new tab' } ) ).toBeInTheDocument();
 	} );
 } );

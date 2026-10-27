@@ -17,7 +17,6 @@ import {
 	PostTitleLink,
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ReportThumbnail,
-	ReportTitleCell,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { page as pageIcon, post as postIcon } from '@wordpress/icons';
@@ -43,8 +42,7 @@ type PostTitleProps = {
 /**
  * Render a post row's title. Rows with an ID drill into the internal post/page
  * detail page, carrying the report's current date window for its breadcrumbs
- * to return to, beside a "View" action that opens the live post; the public
- * URL is the external fallback for rows without one.
+ * to return to; the public URL is the external fallback for rows without one.
  *
  * The API sends no URL for homepage rows, so they fall back to the site home
  * resolved from core settings. They never take the detail page: the homepage
@@ -65,22 +63,17 @@ function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
 	const homeUrl = useSiteHomeUrl();
 
 	const isHomepage = item.type === 'homepage';
-	const title = String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics-pkg' );
-
-	// The homepage row has no post of its own, so its title is the outbound link.
-	const id = isHomepage ? undefined : item.id;
+	const title = String( item.label ?? '' );
 
 	return (
-		<ReportTitleCell content="post" id={ id } link={ item.link } label={ title }>
-			<PostTitleLink
-				id={ id }
-				label={ title }
-				link={ isHomepage ? homeUrl : item.link }
-				search={ detailSearch }
-				classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
-				title={ title }
-			/>
-		</ReportTitleCell>
+		<PostTitleLink
+			id={ isHomepage ? undefined : item.id }
+			label={ title }
+			link={ isHomepage ? homeUrl : item.link }
+			search={ detailSearch }
+			classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
+			title={ title }
+		/>
 	);
 }
 

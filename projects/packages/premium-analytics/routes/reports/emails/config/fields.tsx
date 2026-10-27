@@ -10,7 +10,6 @@ import {
 	getKnownEmailRate,
 	getOpensRateSignals,
 	PostDetailLink,
-	ReportTitleCell,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
@@ -73,22 +72,15 @@ function EmailTitle( { item }: { item: StatsEmailSummaryItem } ) {
 	}
 
 	return (
-		<ReportTitleCell
-			content="post"
-			id={ item.id }
-			link={ typeof item.link === 'string' ? item.link : null }
-			label={ title }
+		<PostDetailLink
+			postId={ item.id }
+			report="emails"
+			extraParams={ { section: 'email-opens' } }
+			title={ title }
+			className={ styles.title }
 		>
-			<PostDetailLink
-				postId={ item.id }
-				report="emails"
-				extraParams={ { section: 'email-opens' } }
-				title={ title }
-				className={ styles.title }
-			>
-				{ title }
-			</PostDetailLink>
-		</ReportTitleCell>
+			{ title }
+		</PostDetailLink>
 	);
 }
 

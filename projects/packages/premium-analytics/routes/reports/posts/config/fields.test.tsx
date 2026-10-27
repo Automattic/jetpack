@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-	isPostDetailAvailable,
 	useSiteHomeUrl,
 	type PostThumbnailUrls,
 	type StatsTopPostsComparisonItem,
@@ -17,7 +16,7 @@ import { getArchivesFields, getPostsFields } from './fields';
 import type { ArchiveRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
-	isPostDetailAvailable: jest.fn( () => true ),
+	isPostDetailAvailable: () => true,
 	useSiteHomeUrl: jest.fn(),
 } ) );
 
@@ -42,7 +41,6 @@ function glyphPath( root: Element ) {
 }
 
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
-const mockIsPostDetailAvailable = jest.mocked( isPostDetailAvailable );
 
 const homepage: StatsTopPostsComparisonItem = {
 	id: 0,
@@ -139,7 +137,6 @@ function renderArchiveViewsField( item: ArchiveRow, withComparison = false ) {
 describe( 'posts title field', () => {
 	beforeEach( () => {
 		mockUseSiteHomeUrl.mockReset();
-		mockIsPostDetailAvailable.mockReturnValue( true );
 		setMockRouteSearch( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } );
 	} );
 
@@ -186,8 +183,6 @@ describe( 'posts title field', () => {
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		// The title already opens the live site, so there is no second "View" link.
-		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
 	} );
 
 	it( 'renders plain text when the site home URL is unavailable', () => {
@@ -237,54 +232,6 @@ describe( 'posts title field', () => {
 		// link back to the tab the visitor came from.
 		expect( search.get( 'ref' ) ).toBe( 'posts' );
 		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
-	} );
-
-	it( 'offers the live post in a new tab beside a title that opens its stats', () => {
-		renderPostsField( 'title', {
-			id: 42,
-			label: 'Hello world',
-			views: 12,
-			link: 'https://example.com/hello-world/',
-			type: 'post',
-		} );
-
-		const view = screen.getByRole( 'link', { name: 'View "Hello world" in a new tab' } );
-		expect( view ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
-		expect( view ).toHaveAttribute( 'target', '_blank' );
-	} );
-
-	it( 'names an untitled post Untitled in the title and its "View" action', () => {
-		renderPostsField( 'title', {
-			id: 42,
-			label: '',
-			views: 12,
-			link: 'https://example.com/hello-world/',
-			type: 'post',
-		} );
-
-		expect( screen.getByRole( 'link', { name: 'Untitled' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'View "Untitled" in a new tab' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/hello-world/'
-		);
-	} );
-
-	it( 'links the title out, with no "View" action, when the reader cannot open post details', () => {
-		mockIsPostDetailAvailable.mockReturnValue( false );
-
-		renderPostsField( 'title', {
-			id: 42,
-			label: 'Hello world',
-			views: 12,
-			link: 'https://example.com/hello-world/',
-			type: 'post',
-		} );
-
-		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
-		expect( screen.getByRole( 'link', { name: /^Hello world/ } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/hello-world/'
-		);
 	} );
 
 	it( 'shows the archives views delta when comparison is enabled', () => {

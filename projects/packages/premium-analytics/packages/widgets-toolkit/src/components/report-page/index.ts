@@ -13,7 +13,6 @@ export { ReportDrilldownTable, type ReportDrilldownTableProps } from './report-d
 export { ReportRecordsTable, type ReportRecordsTableProps } from './report-records-table';
 export { ReportThumbnail } from './report-thumbnail';
 export { REPORT_TITLE_LINK_CLASS_NAMES } from './report-title-link';
-export { ReportTitleCell, type ReportTitleCellProps } from './report-title-cell';
 export { ReportErrorState } from './report-error-state';
 export {
 	ReportPageTabPanel,
