@@ -83,8 +83,10 @@ describe( 'EmailDesignSection', () => {
 
 		expect( href.href.startsWith( DESIGN_URL ) ).toBe( true );
 		expect( href.searchParams.get( 'return' ) ).toBe( window.location.href );
-		// Nothing else may ride along: the design screen reads `page`, and `return` is ours.
-		expect( [ ...href.searchParams.keys() ] ).toEqual( [ 'page', 'return' ] );
+		// So the screen's view event can tell this route from its other two. NL-1088.
+		expect( href.searchParams.get( 'source' ) ).toBe( 'newsletter_settings' );
+		// Nothing else may ride along: the design screen reads `page`, and the other two are ours.
+		expect( [ ...href.searchParams.keys() ] ).toEqual( [ 'page', 'return', 'source' ] );
 	} );
 
 	it( 'offers a disabled button rather than a live link while the newsletter is off', () => {

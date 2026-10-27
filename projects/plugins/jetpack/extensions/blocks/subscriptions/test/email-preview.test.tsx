@@ -529,7 +529,9 @@ describe( 'Newsletter preview: email design link', () => {
 		// The post travels so the design canvas previews it rather than the sample post. NL-1051.
 		expect( link ).toHaveAttribute(
 			'href',
-			`${ DESIGN_URL }&post_id=123&return=${ encodeURIComponent( window.location.href ) }`
+			`${ DESIGN_URL }&post_id=123&return=${ encodeURIComponent(
+				window.location.href
+			) }&source=preview_modal`
 		);
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
@@ -543,7 +545,7 @@ describe( 'Newsletter preview: email design link', () => {
 		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
 
-		expect( link ).toHaveAttribute( 'href', `${ DESIGN_URL }&post_id=123` );
+		expect( link ).toHaveAttribute( 'href', `${ DESIGN_URL }&post_id=123&source=preview_modal` );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
@@ -555,8 +557,22 @@ describe( 'Newsletter preview: email design link', () => {
 
 		expect( link ).toHaveAttribute(
 			'href',
-			`${ DESIGN_URL }&return=${ encodeURIComponent( window.location.href ) }`
+			`${ DESIGN_URL }&return=${ encodeURIComponent( window.location.href ) }&source=preview_modal`
 		);
+	} );
+
+	/**
+	 * Both of the other args drop out here, so without the route this link is indistinguishable
+	 * from someone opening the screen from the Appearance menu. NL-1088.
+	 */
+	it( 'still names the route when it has neither a post nor a way back to send', async () => {
+		mockEmailDesignUrl = DESIGN_URL;
+		mockIsPostDirty = true;
+
+		render( <NewsletterPreviewModal isOpen postId={ 0 } onClose={ jest.fn() } /> );
+		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
+
+		expect( link ).toHaveAttribute( 'href', `${ DESIGN_URL }&source=preview_modal` );
 	} );
 
 	it( 'drops to an icon where the header runs out of room', async () => {

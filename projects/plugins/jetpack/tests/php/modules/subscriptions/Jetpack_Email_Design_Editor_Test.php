@@ -124,6 +124,13 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 		Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
 
+		// Held for the request, so a test that turned offline mode off would otherwise answer for
+		// the next one. {@see self::allow_tracking()}
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		// Memoised past the database rollback. {@see self::connect_a_user()}
+		Jetpack_Options::delete_option( 'user_tokens' );
+
 		list( $GLOBALS['menu'], $GLOBALS['submenu'], $GLOBALS['_parent_pages'] ) = $this->menu_snapshot;
 		list( $GLOBALS['wp_scripts'], $GLOBALS['wp_styles'] )                    = $this->asset_registries;
 
@@ -439,7 +446,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		$data = $this->call_private( 'get_screen_data' );
 
 		$this->assertSame(
-			array( 'elementId', 'editorSettings', 'urls', 'userEmail', 'postId' ),
+			array( 'elementId', 'editorSettings', 'urls', 'userEmail', 'postId', 'tracks' ),
 			array_keys( $data )
 		);
 	}
@@ -883,5 +890,163 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( 'wp.blocks.setCategories(', $after );
 		$this->assertStringContainsString( 'wp.blocks.unstable__bootstrapServerSideBlockDefinitions(', $after );
+	}
+
+	/**
+	 * Let the site record, which it will not do by default.
+	 *
+	 * Offline mode as well as the terms: it answers both `should_enable_tracking()` and
+	 * `has_agreed()` on its own, and the suite's bootstrap pins it on for every test -- at priority
+	 * 100, hence this one. The status cache holds the first answer for the request, so it is
+	 * dropped here and again in tear-down.
+	 */
+	private function allow_tracking() {
+		add_filter( 'jetpack_offline_mode', '__return_false', 101 );
+		\Automattic\Jetpack\Status\Cache::clear();
+		Jetpack_Options::update_option( 'tos_agreed', true );
+	}
+
+	/**
+	 * The arg is as hand-editable as `return` and `post_id`, and it ends up in a Tracks property.
+	 *
+	 * @param string $source   What the URL carried.
+	 * @param string $expected What should be recorded.
+	 *
+	 * @dataProvider provide_sources
+	 */
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_sources' )]
+	public function test_the_route_is_read_from_an_allowlist( $source, $expected ) {
+		$_GET['source'] = $source;
+
+		$this->assertSame( $expected, $this->call_private( 'read_source' ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_sources() {
+		return array(
+			'the newsletter settings card' => array( 'newsletter_settings', 'newsletter_settings' ),
+			'the previewer'                => array( 'preview_modal', 'preview_modal' ),
+			'something invented'           => array( 'made-up', 'unknown' ),
+			'a script tag'                 => array( '<script>x</script>', 'unknown' ),
+			'an empty one'                 => array( '', 'admin_menu' ),
+		);
+	}
+
+	/**
+	 * The previewer links bare when the post is unsaved and has no id, so the menu route cannot be
+	 * inferred from the absence of the other args -- only from the absence of this one.
+	 */
+	public function test_arriving_with_no_route_at_all_is_the_admin_menu() {
+		unset( $_GET['source'] );
+
+		$this->assertSame( 'admin_menu', $this->call_private( 'read_source' ) );
+	}
+
+	/**
+	 * The pixel is a blocking request with a one-second timeout, so recorded on the load hook it
+	 * would sit in front of the screen's first paint.
+	 */
+	public function test_the_arrival_is_recorded_after_the_response() {
+		Jetpack_Email_Design_Editor::on_load();
+
+		$this->assertNotFalse(
+			has_action( 'shutdown', array( 'Jetpack_Email_Design_Editor', 'record_screen_view' ) )
+		);
+		$this->assertFalse(
+			has_action( 'admin_enqueue_scripts', array( 'Jetpack_Email_Design_Editor', 'record_screen_view' ) )
+		);
+	}
+
+	/**
+	 * `Jetpack_Gutenberg` enqueues the sender for block-editor screens and dequeues it for every
+	 * other one, which this is -- so without this the queue the bundle pushes onto is never
+	 * drained and every event the screen records is silently lost.
+	 */
+	public function test_the_tracks_sender_is_enqueued_for_a_site_that_may_record() {
+		$this->allow_tracking();
+		$this->set_build(
+			array(
+				'dependencies' => array(),
+				'version'      => 'test-version',
+			)
+		);
+
+		Jetpack_Email_Design_Editor::enqueue_assets();
+
+		$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
+	}
+
+	public function test_the_tracks_sender_is_left_off_a_site_that_may_not() {
+		$this->set_build(
+			array(
+				'dependencies' => array(),
+				'version'      => 'test-version',
+			)
+		);
+
+		Jetpack_Email_Design_Editor::enqueue_assets();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+	}
+
+	public function test_the_screen_data_says_a_site_that_may_not_record_should_not() {
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertFalse( $data['tracks']['canSend'] );
+		$this->assertNull( $data['tracks']['userData'] );
+	}
+
+	/**
+	 * Connect the current user, so there is an identity to narrow.
+	 *
+	 * @return int The local user id.
+	 */
+	private function connect_a_user() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+
+		wp_set_current_user( $user_id );
+		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "dummy.usertoken.$user_id" ) );
+		set_transient(
+			"jetpack_connected_user_data_$user_id",
+			array(
+				'ID'          => 777,
+				'login'       => 'wpcomuser',
+				'email'       => 'wpcomuser@example.com',
+				'user_locale' => 'en',
+			)
+		);
+
+		return $user_id;
+	}
+
+	public function test_the_screen_data_names_the_connected_user_it_records_against() {
+		$this->allow_tracking();
+		$this->connect_a_user();
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertTrue( $data['tracks']['canSend'] );
+		$this->assertSame( 777, $data['tracks']['userData']['userid'] );
+		$this->assertSame( 'wpcomuser', $data['tracks']['userData']['username'] );
+	}
+
+	/**
+	 * `get_connected_user_tracks_identity()` also returns the creator's email address and locale,
+	 * and this blob is printed into the page's HTML.
+	 */
+	public function test_the_screen_data_carries_no_identity_beyond_what_records_an_event() {
+		$this->allow_tracking();
+		$this->connect_a_user();
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertSame( array( 'canSend', 'userData', 'blogId' ), array_keys( $data['tracks'] ) );
+		$this->assertSame( array( 'userid', 'username' ), array_keys( $data['tracks']['userData'] ) );
+		$this->assertStringNotContainsString(
+			'wpcomuser@example.com',
+			wp_json_encode( $data, Jetpack_Email_Design_Editor::JSON_FLAGS )
+		);
 	}
 }
