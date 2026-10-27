@@ -1701,9 +1701,9 @@ class Initializer {
 		 * Enable local Features data and entry in offline mode.
 		 *
 		 * @since 6.10.0
-		 * @param bool $enabled Whether to enable offline Features. Default false.
+		 * @param bool $enabled Whether to enable offline Features. Default true.
 		 */
-		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', false );
+		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', true );
 	}
 
 	/**

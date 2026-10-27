@@ -433,7 +433,7 @@ class Main_Features_Rest_Test extends TestCase {
 	 * @dataProvider remaining_carriers
 	 * @param array $versions Bundled versions or fixture types, in active plugin order.
 	 * @param bool  $offline Whether the site is offline.
-	 * @param bool  $enabled Whether offline Features is opted in.
+	 * @param bool  $enabled Whether offline Features is enabled.
 	 * @param bool  $refused Whether the hosting plugin must stay active.
 	 * @param bool  $network Whether the remaining carriers are network active.
 	 * @param array $excluded_folders Other plugin folders being deactivated in the same request.
@@ -468,18 +468,21 @@ class Main_Features_Rest_Test extends TestCase {
 	/** @return array Remaining carrier cases. */
 	public static function remaining_carriers() {
 		return array(
-			'offline capable'     => array( array( '6.10.0' ), true, true, false ),
-			'offline excluded'    => array( array( '6.10.0' ), true, true, true, false, array( 'my-jetpack-carrier-0' ) ),
-			'offline older'       => array( array( '6.7.0' ), true, true, true ),
-			'online older'        => array( array( '6.7.0' ), false, true, false ),
-			'offline unknown'     => array( array( null ), true, true, true ),
-			'offline opt out'     => array( array( '6.7.0' ), true, false, false ),
-			'last older release'  => array( array( '6.9.1' ), true, true, true ),
-			'older before newer'  => array( array( '6.7.0', '6.10.0' ), true, true, false ),
-			'prerelease suffix'   => array( array( '6.13.0-alpha' ), true, true, false ),
-			'network active'      => array( array( '6.10.0' ), true, true, false, true ),
-			'package initializer' => array( array( 'package' ), true, true, false ),
-			'directory'           => array( array( 'directory' ), true, true, true ),
+			'offline capable'      => array( array( '6.14.0' ), true, true, false ),
+			'offline excluded'     => array( array( '6.14.0' ), true, true, true, false, array( 'my-jetpack-carrier-0' ) ),
+			'offline older'        => array( array( '6.7.0' ), true, true, true ),
+			'first opt-in release' => array( array( '6.10.0' ), true, true, true ),
+			'later opt-in release' => array( array( '6.12.0' ), true, true, true ),
+			'online older'         => array( array( '6.7.0' ), false, true, false ),
+			'offline unknown'      => array( array( null ), true, true, true ),
+			'offline opt out'      => array( array( '6.7.0' ), true, false, false ),
+			'last older release'   => array( array( '6.13.0' ), true, true, true ),
+			'older before newer'   => array( array( '6.7.0', '6.14.0' ), true, true, false ),
+			'prerelease boundary'  => array( array( '6.14.0-alpha' ), true, true, true ),
+			'prerelease suffix'    => array( array( '6.15.0-alpha' ), true, true, false ),
+			'network active'       => array( array( '6.14.0' ), true, true, false, true ),
+			'package initializer'  => array( array( 'package' ), true, true, version_compare( Initializer::PACKAGE_VERSION, '6.14.0', '<' ) ),
+			'directory'            => array( array( 'directory' ), true, true, true ),
 		);
 	}
 

@@ -16,7 +16,7 @@ use WorDBless\BaseTestCase;
  */
 class Script_Data_Test extends BaseTestCase {
 
-	public function test_offline_features_seed_is_opt_in() {
+	public function test_offline_features_seed_defaults_on_and_allows_rollback() {
 		wp_set_current_user(
 			wp_insert_user(
 				array(
@@ -29,9 +29,7 @@ class Script_Data_Test extends BaseTestCase {
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		try {
-			$this->assertFalse( Initializer::should_initialize() );
-			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
-			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+			$this->assertTrue( Initializer::should_initialize() );
 			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
 			$_GET['page'] = 'my-jetpack';
 			$site         = array(
@@ -59,6 +57,9 @@ class Script_Data_Test extends BaseTestCase {
 			$this->assertArrayNotHasKey( 'apiRoot', $data['myJetpack']['offlineFeatures'] );
 			$this->assertArrayNotHasKey( 'apiNonce', $data['myJetpack']['offlineFeatures'] );
 			$this->assertSame( 1, wp_verify_nonce( $data['site']['rest_nonce'], 'wp_rest' ) );
+			add_filter( 'jetpack_my_jetpack_offline_features', '__return_false' );
+			$this->assertFalse( Initializer::should_initialize() );
+			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
 		} finally {
 			remove_all_filters( 'jetpack_offline_mode' );
 			\Automattic\Jetpack\Status\Cache::clear();
@@ -121,7 +122,7 @@ class Script_Data_Test extends BaseTestCase {
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		try {
 			$before = Initializer::add_admin_script_data( array() );
-			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+			add_filter( 'jetpack_my_jetpack_offline_features', '__return_false' );
 			$this->assertSame( $before, Initializer::add_admin_script_data( array() ) );
 			$this->assertSame( Main_Features::get_state(), REST_Main_Features::get_state()->get_data() );
 			$this->assertTrue( Initializer::should_initialize() );

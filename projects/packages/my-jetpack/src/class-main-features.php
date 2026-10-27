@@ -49,11 +49,11 @@ class Main_Features {
 	const INSTALLS_NOT_PERMITTED = 'not_permitted';
 
 	/**
-	 * First My Jetpack release with the opt-in offline Features page.
+	 * First My Jetpack release with offline Features enabled by default.
 	 *
 	 * @since $$next-version$$
 	 */
-	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.10.0';
+	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.14.0';
 
 	/**
 	 * Whether module metadata proves it can run without either connection.

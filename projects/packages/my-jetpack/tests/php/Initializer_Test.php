@@ -354,7 +354,7 @@ class Initializer_Test extends BaseTestCase {
 		}
 	}
 
-	public function test_offline_feature_list_respects_opt_in_and_host_hidden_modules() {
+	public function test_offline_feature_list_defaults_on_and_respects_rollback_and_host_hidden_modules() {
 		global $_registered_pages;
 		$original_pages    = $_registered_pages;
 		$_registered_pages = array_fill_keys( array( 'jetpack_page_jetpack-forms', 'toplevel_page_jetpack-boost', 'admin_page_theme-editor', 'appearance_page_theme-editor', 'admin_page_plugin-editor', 'plugins_page_plugin-editor', 'admin_page_edit?post_type=feedback' ), true );
@@ -380,8 +380,7 @@ class Initializer_Test extends BaseTestCase {
 		};
 		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
 		try {
-			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
-			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+			$this->assertArrayHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
 			$state = Initializer::add_admin_script_data( array() )['myJetpack']['offlineFeatures']['mainFeatures'];
 			$slugs = array_column( $state['features'], 'slug' );
 			$this->assertSame( array( 'jetpack-forms', 'jetpack-boost', 'theme-editor', 'plugin-editor' ), $state['available_admin_pages'] );
@@ -391,8 +390,11 @@ class Initializer_Test extends BaseTestCase {
 			$this->assertContains( 'stats', $state['hidden_modules'] );
 			$this->assertContains( 'publicize', $state['hidden_modules'] );
 			$this->assertContains( 'monitor', $state['hidden_modules'] );
+			add_filter( 'jetpack_my_jetpack_offline_features', '__return_false' );
+			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
 		} finally {
 			$_registered_pages = $original_pages;
+			remove_filter( 'jetpack_my_jetpack_offline_features', '__return_false' );
 			remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
 		}
 	}
