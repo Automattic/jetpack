@@ -1,43 +1,8 @@
-import { Dropdown, MenuGroup, MenuItem } from '@wordpress/components';
 import { __, isRTL } from '@wordpress/i18n';
 import { calendar, chevronLeft, chevronRight } from '@wordpress/icons';
-import { Button, IconButton, Stack } from '@wordpress/ui';
-import { useCallback } from 'react';
-import type { PeriodPreset, PeriodSelectorProps } from './types.ts';
+import { Button, IconButton, Menu, Stack } from '@wordpress/ui';
+import type { PeriodSelectorProps } from './types.ts';
 import type { JSX } from 'react';
-
-type PresetItemProps< Value extends string > = {
-	preset: PeriodPreset< Value >;
-	isSelected: boolean;
-	onSelect: ( value: Value ) => void;
-	onClose: () => void;
-};
-
-/**
- * One preset in the menu.
- *
- * @param {PresetItemProps} props - Component props.
- * @return {JSX.Element} The menu item.
- */
-function PresetItem< Value extends string >( {
-	preset,
-	isSelected,
-	onSelect,
-	onClose,
-}: PresetItemProps< Value > ): JSX.Element {
-	const handleClick = useCallback( () => {
-		onSelect( preset.value );
-		onClose();
-	}, [ onSelect, onClose, preset.value ] );
-
-	return (
-		<MenuItem role="menuitemradio" isSelected={ isSelected } onClick={ handleClick }>
-			{ preset.label }
-		</MenuItem>
-	);
-}
-
-const POPOVER_PROPS = { placement: 'bottom-end' } as const;
 
 /**
  * A dropdown of period presets, with optional buttons to step to the previous or next period.
@@ -60,46 +25,23 @@ export default function PeriodSelector< Value extends string >( {
 		? [ chevronRight, chevronLeft ]
 		: [ chevronLeft, chevronRight ];
 
-	const renderToggle = useCallback(
-		( { isOpen, onToggle }: { isOpen: boolean; onToggle: () => void } ) => (
-			<Button
-				variant="outline"
-				tone="neutral"
-				size="compact"
-				onClick={ onToggle }
-				aria-expanded={ isOpen }
-				aria-haspopup="menu"
-			>
-				<Button.Icon icon={ calendar } />
-				{ selected?.label }
-			</Button>
-		),
-		[ selected?.label ]
-	);
-	const renderContent = useCallback(
-		( { onClose }: { onClose: () => void } ) => (
-			<MenuGroup>
-				{ presets.map( preset => (
-					<PresetItem
-						key={ preset.value }
-						preset={ preset }
-						isSelected={ preset.value === value }
-						onSelect={ onChange }
-						onClose={ onClose }
-					/>
-				) ) }
-			</MenuGroup>
-		),
-		[ presets, value, onChange ]
-	);
-
 	return (
 		<Stack direction="row" align="center" gap="xs" className={ className }>
-			<Dropdown
-				popoverProps={ POPOVER_PROPS }
-				renderToggle={ renderToggle }
-				renderContent={ renderContent }
-			/>
+			<Menu.Root>
+				<Menu.Trigger render={ <Button variant="outline" tone="neutral" size="compact" /> }>
+					<Button.Icon icon={ calendar } />
+					{ selected?.label ?? __( 'Select period', 'jetpack-components' ) }
+				</Menu.Trigger>
+				<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
+					<Menu.RadioGroup value={ value } onValueChange={ onChange }>
+						{ presets.map( preset => (
+							<Menu.RadioItem key={ preset.value } value={ preset.value } closeOnClick>
+								<Menu.ItemLabel>{ preset.label }</Menu.ItemLabel>
+							</Menu.RadioItem>
+						) ) }
+					</Menu.RadioGroup>
+				</Menu.Popup>
+			</Menu.Root>
 			{ onPrevious && (
 				<IconButton
 					variant="outline"
