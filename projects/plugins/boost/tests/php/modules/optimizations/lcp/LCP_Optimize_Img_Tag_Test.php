@@ -399,6 +399,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 		}
 
 		$buffer = '<img class="wp-post-image" id="test-img" ' . $attributes . ' src="' . $src . '">';
+		$result = '';
 		try {
 			$result = ( new LCP_Optimize_Img_Tag( $data ) )->optimize_buffer( $buffer );
 		} finally {

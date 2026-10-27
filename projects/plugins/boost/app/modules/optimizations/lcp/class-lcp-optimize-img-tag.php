@@ -91,8 +91,8 @@ class LCP_Optimize_Img_Tag {
 		// We need the original image URL, as we'll be generating
 		// the necessary sizes based on it.
 		if ( ! Image_CDN_Core::is_cdn_url( $image_url ) ) {
-			$original_src = $image_url;
-			$image_url    = Image_CDN::strip_image_dimensions_maybe( $image_url );
+			$original_src = (string) $image_url;
+			$image_url    = Image_CDN::strip_image_dimensions_maybe( $original_src );
 
 			// Its -WxH suffix names a WordPress size only if stripping found the original.
 			if ( $image_url !== $original_src ) {
