@@ -9,6 +9,9 @@
 @include backup-status-card("jpb-restore");
 
 .jpb-restore {
+	// Top-aligned, unlike Download: the known-threats warning arrives
+	// after the first paint, and would move a centred card's heading.
+	justify-content: flex-start;
 
 	&__label {
 		margin-block: 8px 4px;

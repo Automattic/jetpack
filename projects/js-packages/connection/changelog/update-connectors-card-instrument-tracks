@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Tracking: Add trackConnectionEvent() and bumpConnectionStat() helpers, and record Tracks events from the ownership transfer, owner disconnect and protected owner dialogs.

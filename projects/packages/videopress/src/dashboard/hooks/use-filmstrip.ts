@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useRef } from 'react';
-import { nextProcessingPoll, PROCESSING_POLL_SLOW_INTERVAL_MS } from './use-library';
-import type { ProcessingPollAnchor } from './use-library';
+import { nextProcessingPoll, PROCESSING_POLL_SLOW_INTERVAL_MS } from '../utils/processing-poll';
 import type { Storyboard } from '../types/edits';
+import type { ProcessingPollAnchor } from '../utils/processing-poll';
 
 export const FILMSTRIP_QUERY_KEY = 'vp-filmstrip';
 export type FilmstripState =

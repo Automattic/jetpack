@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.88.7] - 2026-10-26
+### Changed
+- Update package dependencies. [#53951]
+
+### Fixed
+- Social: Explain why connecting the site failed instead of always showing a generic error. [#53289]
+
 ## [0.88.6] - 2026-10-19
 ### Changed
 - Update package dependencies. [#53004]
@@ -1718,6 +1725,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.88.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.6...v0.88.7
 [0.88.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.5...v0.88.6
 [0.88.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.4...v0.88.5
 [0.88.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.3...v0.88.4

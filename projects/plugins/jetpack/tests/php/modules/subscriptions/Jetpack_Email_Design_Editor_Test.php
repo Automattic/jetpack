@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -120,6 +121,8 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 			unregister_block_type( $name );
 		}
 		$this->registered_blocks = array();
+
+		Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
 
 		list( $GLOBALS['menu'], $GLOBALS['submenu'], $GLOBALS['_parent_pages'] ) = $this->menu_snapshot;
 		list( $GLOBALS['wp_scripts'], $GLOBALS['wp_styles'] )                    = $this->asset_registries;
@@ -256,7 +259,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 			PHP_INT_MAX,
 			has_filter(
 				'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG,
-				array( 'Jetpack_Email_Design_Editor', 'filter_flag_from_sticker' )
+				array( 'Jetpack_Email_Design_Editor', 'filter_flag_for_atomic' )
 			)
 		);
 	}
@@ -279,6 +282,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 	/**
 	 * Removing the sticker is the rollback, so it has to beat a flag someone turned on by hand.
+	 * This process is not proxied, which is the other half of the a12 rollout's condition.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -287,6 +291,8 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_removing_the_sticker_closes_the_screen_even_with_the_flag_forced_on() {
 		$this->stub_site_stickers( array() );
+
+		$this->assertFalse( Constants::is_true( 'AT_PROXIED_REQUEST' ), 'This process is proxied, so the rollback below is not what is being asserted.' );
 
 		Jetpack_Email_Design_Editor::init();
 		add_filter( 'jetpack_feature_flag_enabled', '__return_true' );
@@ -312,6 +318,40 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
 
 		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
+	}
+
+	/**
+	 * The a12 rollout: on Atomic the proxy opens the screen for an Automattician on a blog that
+	 * carries no sticker yet, and wpcom's bootstrap endpoint still decides whether it is in. NL-41.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a_proxied_automattician_gets_the_screen_on_atomic_without_the_sticker() {
+		$this->stub_site_stickers( array() );
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		Jetpack_Email_Design_Editor::init();
+
+		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
+	}
+
+	/**
+	 * The proxy is read only once the platform check has passed, so it cannot open the screen on
+	 * Simple or a self-hosted site, where there is no sticker to roll the a12 group back with.
+	 */
+	public function test_the_proxy_does_not_decide_the_flag_off_atomic() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'This process runs as Atomic, which is what this test is about not being.' );
+		}
+
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		Jetpack_Email_Design_Editor::init();
+
+		$this->assertFalse( Jetpack_Email_Design_Editor::is_enabled() );
 	}
 
 	/**

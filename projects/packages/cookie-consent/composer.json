@@ -49,7 +49,7 @@
 		"mirror-repo": "Automattic/jetpack-cookie-consent",
 		"textdomain": "jetpack-cookie-consent",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-cookie-consent/compare/${old}...${new}"
+			"link-template": "https://github.com/Automattic/jetpack-cookie-consent/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
