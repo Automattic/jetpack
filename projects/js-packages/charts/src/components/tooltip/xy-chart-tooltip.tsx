@@ -6,7 +6,7 @@ import { useGlobalChartsContext } from '../../providers/chart-context/hooks/use-
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { useChartScopeElement, useStandaloneScopeClass } from '../../providers/chart-scope';
 import { resolveCssVariable } from '../../utils';
-import { getKeyboardStops } from './private/x-positions';
+import { getKeyboardStops } from './private/keyboard-stops';
 import { XyChartTooltipOverlay } from './private/xy-chart-tooltip-overlay';
 import type { SeriesData, DataPointDate } from '../../types';
 import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';

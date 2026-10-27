@@ -13,7 +13,7 @@ import {
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
-import { getKeyboardStops } from '../../components/tooltip/private/x-positions';
+import { getKeyboardStops } from '../../components/tooltip/private/keyboard-stops';
 import {
 	useXYChartTheme,
 	useChartDataTransform,

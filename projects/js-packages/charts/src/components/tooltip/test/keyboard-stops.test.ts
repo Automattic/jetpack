@@ -1,4 +1,4 @@
-import { getKeyboardStops } from '../private/x-positions';
+import { getKeyboardStops } from '../private/keyboard-stops';
 
 describe( 'getKeyboardStops', () => {
 	it( 'gives a stop past the last date no members, even for undated points', () => {
