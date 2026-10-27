@@ -142,7 +142,7 @@ class Jetpack_Mu_Wpcom {
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
-			// WordPress.com handles threats on WoA itself, so this matches its own dashboard.
+			// Match WPCOM site dashboard functionality for WordPress.com sites.
 			add_filter( 'jetpack_protect_threat_ignoring_enabled', '__return_false' );
 		}
 
