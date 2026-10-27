@@ -1116,20 +1116,18 @@ class Jetpack_Memberships {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string $format            Subscriber count format ('short', 'rounded', 'raw', or 'full'). Default 'short'.
+		 * @param string $format            Subscriber count format: 'short', 'rounded', or 'raw'. Default 'short'.
 		 * @param int    $subscribers_total Total number of subscribers.
 		 */
 		$format = apply_filters( 'jetpack_memberships_subscriber_count_format', 'short', $subscribers_total );
 
 		switch ( strtolower( (string) $format ) ) {
 			case 'raw':
-			case 'full':
 				/* translators: %s: number of folks following the blog */
 				$text = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
 				break;
 
 			case 'rounded':
-			case 'rounded_long':
 				if ( $subscribers_total >= 1000000 ) {
 					$rounded_total = (int) round( round( $subscribers_total / 1000000, 1 ) * 1000000 );
 				} elseif ( $subscribers_total >= 10000 ) {
@@ -1157,16 +1155,7 @@ class Jetpack_Memberships {
 				break;
 		}
 
-		/**
-		 * Filter the final "join others" text displayed for subscriber counts.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param string $text              The formatted join others text.
-		 * @param int    $subscribers_total Total number of subscribers.
-		 * @param string $format            The count format used.
-		 */
-		return apply_filters( 'jetpack_memberships_join_others_text', $text, $subscribers_total, $format );
+		return $text;
 	}
 
 	/**

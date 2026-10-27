@@ -22,9 +22,7 @@ class Jetpack_Memberships_Get_Join_Others_Text_Test extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function tear_down() {
-		remove_all_filters( 'jetpack_subscriber_count_format' );
 		remove_all_filters( 'jetpack_memberships_subscriber_count_format' );
-		remove_all_filters( 'jetpack_memberships_join_others_text' );
 
 		parent::tear_down();
 	}
@@ -45,7 +43,7 @@ class Jetpack_Memberships_Get_Join_Others_Text_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests raw/full count format via filter.
+	 * Tests raw count format via filter.
 	 *
 	 * @return void
 	 */
@@ -60,22 +58,6 @@ class Jetpack_Memberships_Get_Join_Others_Text_Test extends WP_UnitTestCase {
 		$this->assertSame( 'Join 1 other subscriber', Jetpack_Memberships::get_join_others_text( 1 ) );
 		$this->assertSame( 'Join 45,806 other subscribers', Jetpack_Memberships::get_join_others_text( 45806 ) );
 		$this->assertSame( 'Join 1,234,567 other subscribers', Jetpack_Memberships::get_join_others_text( 1234567 ) );
-	}
-
-	/**
-	 * Tests full alias format via jetpack_memberships_subscriber_count_format filter.
-	 *
-	 * @return void
-	 */
-	public function test_full_format_alias() {
-		add_filter(
-			'jetpack_memberships_subscriber_count_format',
-			function () {
-				return 'full';
-			}
-		);
-
-		$this->assertSame( 'Join 45,806 other subscribers', Jetpack_Memberships::get_join_others_text( 45806 ) );
 	}
 
 	/**
@@ -113,26 +95,5 @@ class Jetpack_Memberships_Get_Join_Others_Text_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( 'Join 45.8K other subscribers', Jetpack_Memberships::get_join_others_text( 45806 ) );
-	}
-
-	/**
-	 * Tests filtering the final join others text string.
-	 *
-	 * @return void
-	 */
-	public function test_jetpack_memberships_join_others_text_filter() {
-		add_filter(
-			'jetpack_memberships_join_others_text',
-			function ( $text, $subscribers_total, $format ) {
-				return sprintf( 'Over %d readers are subscribed (%s)', $subscribers_total, $format );
-			},
-			10,
-			3
-		);
-
-		$this->assertSame(
-			'Over 45806 readers are subscribed (short)',
-			Jetpack_Memberships::get_join_others_text( 45806 )
-		);
 	}
 }
