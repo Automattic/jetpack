@@ -17,6 +17,7 @@ import { useBarChartOptions } from '../private';
 import { useBarColors } from '../use-bar-colors';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { DataPointDate, SeriesData } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -3553,6 +3554,66 @@ describe( 'BarChart', () => {
 			expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
 			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 		} );
+
+		it.each( [
+			{
+				name: 'aligned series',
+				visitors: [
+					{ label: 'Apr', value: 112 },
+					{ label: 'May', value: 80 },
+				],
+				presses: 3,
+				rows: [ 'Views=19', 'Visitors=80' ],
+				nearest: 'Views',
+			},
+			{
+				name: 'ragged series',
+				visitors: [ { label: 'May', value: 80 } ],
+				presses: 2,
+				rows: [ 'Views=19', 'Visitors=80' ],
+				nearest: 'Visitors',
+			},
+		] )(
+			'gives the keyboard tooltip only the bars at the selected category: $name',
+			async ( { visitors, presses, rows, nearest } ) => {
+				const user = userEvent.setup();
+				const renderTooltip = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+					<div>
+						<span data-testid="nearest">{ tooltipData?.nearestDatum?.key }</span>
+						{ Object.entries( tooltipData?.datumByKey ?? {} ).map( ( [ key, { datum } ] ) => (
+							<span key={ key } data-testid="row">{ `${ key }=${ datum.value }` }</span>
+						) ) }
+					</div>
+				);
+
+				renderWithTheme( {
+					withTooltips: true,
+					renderTooltip,
+					data: [
+						{
+							label: 'Views',
+							data: [
+								{ label: 'Apr', value: 29 },
+								{ label: 'May', value: 19 },
+							],
+							options: {},
+						},
+						{ label: 'Visitors', data: visitors, options: {} },
+					],
+				} );
+
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
+				for ( let i = 0; i < presses; i++ ) {
+					await user.keyboard( '{ArrowRight}' );
+				}
+
+				expect( screen.getAllByTestId( 'row' ).map( row => row.textContent ) ).toEqual(
+					expect.arrayContaining( rows )
+				);
+				expect( screen.getAllByTestId( 'row' ) ).toHaveLength( rows.length );
+				expect( screen.getByTestId( 'nearest' ) ).toHaveTextContent( nearest );
+			}
+		);
 
 		it( 'stops at the last visible slot on a standard chart', async () => {
 			const user = userEvent.setup();

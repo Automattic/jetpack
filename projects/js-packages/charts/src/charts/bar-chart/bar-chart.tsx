@@ -47,6 +47,7 @@ import {
 	useBarStops,
 	useOverlapSlots,
 	getSelectedSlot,
+	isSameCategory,
 } from './private';
 import { useBarColors } from './use-bar-colors';
 import { useBarLegendItems } from './use-bar-legend-items';
@@ -536,6 +537,28 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ overlapSlots, selectedIndex ]
 	);
 
+	const selectedGroup = useMemo( () => {
+		const stop = overlapSlots || selectedIndex === undefined ? undefined : barAt( selectedIndex );
+		if ( ! stop ) {
+			return undefined;
+		}
+		const members = primaryEntries.flatMap( ( { series } ) => {
+			const datum = ( series.data as DataPointDate[] ).find( point =>
+				isSameCategory( point, stop.datum )
+			);
+			return datum ? [ { key: series.label, datum } ] : [];
+		} );
+		return {
+			index: stop.index,
+			members: [
+				...members.filter( ( { key } ) => key !== stop.key ),
+				...members.filter( ( { key } ) => key === stop.key ),
+			],
+		};
+	}, [ overlapSlots, selectedIndex, barAt, primaryEntries ] );
+
+	const selectedMembers = selectedSlot ?? selectedGroup;
+
 	const selectedBar = useMemo( (): SelectedBar | undefined => {
 		if ( overlapSlots ) {
 			return selectedSlot;
@@ -783,12 +806,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</WholeNumberTicks>
 										) }
 
-										{ withTooltips && selectedSlot && (
-											<SlotTooltipMembers
-												members={ selectedSlot.members }
-												index={ selectedSlot.index }
-											/>
-										) }
 										{ withTooltips && (
 											<XYChartTooltip
 												tooltipPlacement={ tooltipPlacement }
@@ -806,8 +823,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												keyboardFocusedClassName={
 													styles[ 'bar-chart__tooltip--keyboard-focused' ]
 												}
-												series={ stops.series }
 												mode="individual"
+											/>
+										) }
+										{ withTooltips && selectedMembers && (
+											<SlotTooltipMembers
+												members={ selectedMembers.members }
+												index={ selectedMembers.index }
 											/>
 										) }
 									</XYChart>
