@@ -1,5 +1,5 @@
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
-import { Icon, people, wordpress } from '@wordpress/icons';
+import { Icon, wordpress } from '@wordpress/icons';
 import type { Product } from '../types';
 
 const SIZE = 20;
@@ -83,9 +83,17 @@ export function ProductIcon( { product, size = SIZE }: { product: Product; size?
 			);
 		case 'crm':
 			return (
-				<Disc color="#1e1e1e" size={ size }>
-					<Icon icon={ people } size={ Math.round( size * 0.7 ) } fill="#fff" />
-				</Disc>
+				<svg
+					width={ size }
+					height={ size }
+					viewBox="0 0 24 24"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<circle cx="12" cy="12" r="12" fill="#069e08" />
+					<circle cx="12" cy="9.2" r="3.2" fill="#fff" />
+					<path fill="#fff" d="M5.8 18.4c0-3.2 2.8-5.2 6.2-5.2s6.2 2 6.2 5.2z" />
+				</svg>
 			);
 		default:
 			return (
