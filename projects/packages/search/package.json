@@ -120,7 +120,7 @@
 		"sass-loader": "16.0.5",
 		"size-limit": "12.1.0",
 		"storybook": "10.6.3",
-		"webpack": "5.111.1",
+		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
 	},
 	"wpPlugin": {

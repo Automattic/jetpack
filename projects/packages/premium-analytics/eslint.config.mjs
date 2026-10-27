@@ -50,10 +50,6 @@ export default defineConfig(
 			'jsdoc/require-returns': 'off',
 			'jsdoc/check-indentation': 'off',
 			'@typescript-eslint/no-explicit-any': 'off',
-			// TODO: this masks any genuinely-undeclared dep, not just the `react`
-			// false-positive. Re-enable (or scope to the offending files) once the
-			// leaf manifest becomes load-bearing in the first-consumer PR.
-			'import/no-extraneous-dependencies': 'off',
 		},
 	},
 	{
@@ -93,7 +89,6 @@ export default defineConfig(
 			'jsdoc/require-param': 'off',
 			'jsdoc/require-returns': 'off',
 			'jsdoc/check-indentation': 'off',
-			'import/no-extraneous-dependencies': 'off',
 		},
 	},
 	{
@@ -137,7 +132,6 @@ export default defineConfig(
 			'jsdoc/require-returns': 'off',
 			'jsdoc/check-indentation': 'off',
 			'jsdoc/escape-inline-tags': 'off',
-			'import/no-extraneous-dependencies': 'off',
 		},
 	},
 	{

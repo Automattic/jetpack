@@ -49,6 +49,12 @@ export { getProtectedOwnerReleaseCopy } from './components/protected-owner-relea
 export * from './components/protected-owner-release/types.ts';
 
 /**
+ * Re-exported so consumers restricted to this package's global — the Connectors card — can
+ * render the same consent notice as every other connection surface.
+ */
+export { TermsOfService } from '@automattic/jetpack-components';
+
+/**
  * Helpers.
  */
 export { default as thirdPartyCookiesFallbackHelper } from './helpers/third-party-cookies-fallback';
@@ -57,6 +63,11 @@ export * from './helpers/get-user-connection-url.ts';
 export * from './helpers/get-user-connect-kind.ts';
 export { getReconnectErrorMessage } from './helpers/get-reconnect-error-message.ts';
 export { getTracksIdentity, initializeTracksIdentity } from './helpers/tracks-identity.ts';
+export {
+	CONNECTION_EVENTS,
+	bumpConnectionStat,
+	trackConnectionEvent,
+} from './helpers/connection-tracking.ts';
 export {
 	getConnectScreenErrorMessage,
 	getRegistrationErrorCode,

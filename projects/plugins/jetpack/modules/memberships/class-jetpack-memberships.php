@@ -1099,24 +1099,63 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Transforms a number into it's short human-readable version.
+	 * Transforms a number into a human-readable join text string.
 	 *
-	 * @param int $subscribers_total The extrapolated excerpt string.
+	 * Supports short form (e.g. 45.8K), longer rounded format (e.g. 45,800), and raw count (e.g. 45,806)
+	 * via the `jetpack_memberships_subscriber_count_format` filter.
 	 *
-	 * @return string Human-readable version of the number. ie. 1.9 M.
+	 * @param int $subscribers_total Total number of subscribers.
+	 *
+	 * @return string Human-readable version of the number in context.
 	 */
 	public static function get_join_others_text( $subscribers_total ) {
-		if ( $subscribers_total >= 1000000 ) {
-			/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000000, 1 ) ) );
-		}
-		if ( $subscribers_total >= 10000 ) {
-			/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000, 1 ) ) );
+		$subscribers_total = absint( $subscribers_total );
+
+		/**
+		 * Filter the format used for the subscriber count in the join others text.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $format            Subscriber count format: 'short', 'rounded', or 'raw'. Default 'short'.
+		 * @param int    $subscribers_total Total number of subscribers.
+		 */
+		$format = apply_filters( 'jetpack_memberships_subscriber_count_format', 'short', $subscribers_total );
+
+		switch ( strtolower( (string) $format ) ) {
+			case 'raw':
+				/* translators: %s: number of folks following the blog */
+				$text = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+				break;
+
+			case 'rounded':
+				if ( $subscribers_total >= 1000000 ) {
+					$rounded_total = (int) round( round( $subscribers_total / 1000000, 1 ) * 1000000 );
+				} elseif ( $subscribers_total >= 10000 ) {
+					$rounded_total = (int) round( round( $subscribers_total / 1000, 1 ) * 1000 );
+				} else {
+					$rounded_total = $subscribers_total;
+				}
+
+				/* translators: %s: number of folks following the blog */
+				$text = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $rounded_total, 'jetpack' ), number_format_i18n( $rounded_total ) );
+				break;
+
+			case 'short':
+			default:
+				if ( $subscribers_total >= 1000000 ) {
+					/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
+					$text = sprintf( __( 'Join %sM other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000000, 1 ) ) );
+				} elseif ( $subscribers_total >= 10000 ) {
+					/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
+					$text = sprintf( __( 'Join %sK other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000, 1 ) ) );
+				} else {
+					/* translators: %s: number of folks following the blog */
+					$text = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+				}
+				break;
 		}
 
-		/* translators: %s: number of folks following the blog */
-		return sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+		return $text;
 	}
 
 	/**
