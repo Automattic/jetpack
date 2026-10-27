@@ -25,7 +25,7 @@ import type { FC } from 'react';
  * @param {string} props.className - Added once the sections have loaded.
  * @return {import('react').JSX.Element} The sections.
  */
-const OverviewSections: FC< { className?: string } > = ( { className } ) => {
+const OverviewSections: FC< { className?: string } > = ( { className = '' } ) => {
 	const { filteredOwnedProducts: slugs, isLoading } = useFilteredProducts();
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { userIsAdmin = false, canUserViewStats = false } = getMyJetpackWindowInitialState();
@@ -93,7 +93,7 @@ const OverviewSections: FC< { className?: string } > = ( { className } ) => {
 	}
 
 	return (
-		<div className={ clsx( styles.sections, ! isLoading && className ) }>
+		<div className={ clsx( styles.sections, { [ className ]: ! isLoading } ) }>
 			{ isLoading ? (
 				<>
 					<LoadingBlock width="100%" height="350px" />

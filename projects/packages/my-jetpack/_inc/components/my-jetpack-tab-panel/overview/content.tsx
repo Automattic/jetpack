@@ -2,6 +2,7 @@ import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import useSitePurchases from '../../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { isHeaderControlsEnabled } from '../../header-controls/slot';
@@ -51,7 +52,7 @@ export function OverviewContent( { beforeContent }: { beforeContent?: ReactNode 
 							</Text>
 						</div>
 						{ beforeContent }
-						<OverviewSections className={ animate ? loadAnimationStyles.sections : undefined } />
+						<OverviewSections className={ clsx( { [ loadAnimationStyles.sections ]: animate } ) } />
 						<OverviewBlogPosts />
 					</>
 				) : (
