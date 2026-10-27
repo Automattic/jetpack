@@ -65,6 +65,8 @@ export { default as ActionPopover } from './components/action-popover/index.tsx'
 export { default as UpsellBanner } from './components/upsell-banner/index.tsx';
 export { getUserLocale, cleanLocale } from './lib/locale/index.ts';
 export { default as StatCard } from './components/stat-card/index.tsx';
+export { default as PeriodSelector } from './components/period-selector/index.tsx';
+export type { PeriodPreset, PeriodSelectorProps } from './components/period-selector/types.ts';
 export { default as DiffViewer } from './components/diff-viewer/index.tsx';
 export { default as MarkedLines } from './components/marked-lines/index.tsx';
 export { default as DetailsViewer } from './components/details-viewer/index.tsx';
