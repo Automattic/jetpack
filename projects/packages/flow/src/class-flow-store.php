@@ -81,9 +81,17 @@ class Flow_Store {
 			return new \WP_Error( 'invalid_flow', __( 'A flow needs a known trigger.', 'jetpack-flow-pkg' ), array( 'status' => 400 ) );
 		}
 
+		$name = $clean['name'];
+		if ( '' === $name && ! $id ) {
+			$name = Planner::suggest_name( $clean );
+		}
+		if ( '' === $name ) {
+			$name = Catalog::triggers()[ $clean['trigger']['type'] ]['label'];
+		}
+
 		$post = array(
 			'post_type'   => Flow_Post_Type::POST_TYPE,
-			'post_title'  => '' === $clean['name'] ? Catalog::triggers()[ $clean['trigger']['type'] ]['label'] : $clean['name'],
+			'post_title'  => $name,
 			'post_status' => $clean['enabled'] ? 'publish' : 'draft',
 		);
 		if ( $id ) {

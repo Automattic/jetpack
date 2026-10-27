@@ -75,6 +75,41 @@ class Planner {
 	}
 
 	/**
+	 * Ask core's AI client for a short name for a flow.
+	 *
+	 * @param array $flow Sanitized flow: trigger and steps.
+	 * @return string The name, or an empty string when AI is unavailable or fails.
+	 */
+	public static function suggest_name( $flow ) {
+		if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
+			return '';
+		}
+
+		$triggers = Catalog::triggers();
+		$actions  = Catalog::actions();
+		$parts    = array( 'When: ' . ( $triggers[ $flow['trigger']['type'] ]['label'] ?? '' ) );
+		foreach ( $flow['steps'] as $step ) {
+			$parts[] = 'Then: ' . ( $actions[ $step['type'] ]['label'] ?? '' );
+		}
+
+		try {
+			$builder = wp_ai_client_prompt( implode( "\n", $parts ) );
+			if ( method_exists( $builder, 'using_system_instruction' ) ) {
+				$builder = $builder->using_system_instruction( 'Name this automation in two to five words, in title case. Reply with the name only: no quotes, no trailing punctuation.' );
+			}
+			$text = $builder->generate_text();
+		} catch ( \Throwable $e ) {
+			return '';
+		}
+
+		if ( ! is_string( $text ) ) {
+			return '';
+		}
+		$name = trim( sanitize_text_field( $text ), " \t\n\r\0\x0B\"'.“”" );
+		return mb_substr( $name, 0, 60 );
+	}
+
+	/**
 	 * Call core's AI client, then Jetpack AI.
 	 *
 	 * @param string $prompt User request.
