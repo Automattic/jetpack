@@ -211,31 +211,32 @@ function FlowsStage() {
 	return (
 		<FlowPage tab="flows">
 			<div className="jetpack-flow-list">
-				{ flows && flows.length === 0 ? (
-					<EmptyState.Root>
-						<EmptyState.Title>{ __( 'No flows yet', 'jetpack-flow-pkg' ) }</EmptyState.Title>
-						<EmptyState.Description>
-							{ __( 'Build your first flow in the New tab.', 'jetpack-flow-pkg' ) }
-						</EmptyState.Description>
-						<EmptyState.Actions>
-							<Button onClick={ () => navigate( { href: '/' } ) }>
-								{ __( 'New flow', 'jetpack-flow-pkg' ) }
-							</Button>
-						</EmptyState.Actions>
-					</EmptyState.Root>
-				) : (
-					<DataViews
-						data={ data }
-						fields={ fields }
-						view={ view }
-						onChangeView={ setView }
-						actions={ actions }
-						paginationInfo={ paginationInfo }
-						getItemId={ ( item: Flow ) => String( item.id ) }
-						isLoading={ flows === null }
-						defaultLayouts={ { table: {} } }
-					/>
-				) }
+				<DataViews
+					data={ data }
+					fields={ fields }
+					view={ view }
+					onChangeView={ setView }
+					actions={ actions }
+					paginationInfo={ paginationInfo }
+					getItemId={ ( item: Flow ) => String( item.id ) }
+					isLoading={ flows === null }
+					defaultLayouts={ { table: {} } }
+					search
+					searchLabel={ __( 'Search flows…', 'jetpack-flow-pkg' ) }
+					empty={
+						<EmptyState.Root>
+							<EmptyState.Title>{ __( 'No flows yet', 'jetpack-flow-pkg' ) }</EmptyState.Title>
+							<EmptyState.Description>
+								{ __( 'Build your first flow in the New tab.', 'jetpack-flow-pkg' ) }
+							</EmptyState.Description>
+							<EmptyState.Actions>
+								<Button onClick={ () => navigate( { href: '/' } ) }>
+									{ __( 'New flow', 'jetpack-flow-pkg' ) }
+								</Button>
+							</EmptyState.Actions>
+						</EmptyState.Root>
+					}
+				/>
 			</div>
 		</FlowPage>
 	);

@@ -42,7 +42,7 @@ export function FlowPage( { tab, actions, children }: Props ) {
 					</div>
 					{ children }
 				</Tabs.Root>
-				<JetpackFooter />
+				{ tab === 'new' && <JetpackFooter /> }
 			</Page>
 		</div>
 	);
