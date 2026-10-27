@@ -80,7 +80,7 @@ Declaring a gate is a commitment that the page renders something sensible when t
 
 Hosts shape the sidebar with one of two filters:
 
-* **`jetpack_feature_policy`**, from the `status` package, covers the sidebar, the My Jetpack Features page, and module activation together. It matches a sidebar item by its key or by the product or module it declares. Most hosts want this one. It runs last, so it overrides the filter below.
+* **`jetpack_feature_policy`**, from the `status` package, covers the sidebar, the My Jetpack Features page, and module activation together. It matches a sidebar item by its key or by the product or module it declares. Most hosts want this one. It runs after the filter below and overrides it, provided its callback is added before the admin menu is built.
 * **`jetpack_admin_menu_visibility`** governs the sidebar alone. Use it when nothing but the sidebar should change.
 
 `jetpack_admin_menu_visibility` filters a map of item key to state, and passes the registered items for context. Absent keys stay `default`.
@@ -93,7 +93,7 @@ Hosts shape the sidebar with one of two filters:
 
 Every state governs the sidebar entry only. An item that is hidden, or whose gate is unsatisfied, still registers its page, so `admin.php?page=…` keeps working for My Jetpack's Manage buttons, bookmarks, and support links.
 
-The filter runs on `admin_menu` (and `network_admin_menu`) at priority 1000, and can run twice in one request (once for the Jetpack menu, once for top level pages), so add it earlier (from an mu-plugin or a plugin) and keep the callback free of side effects. `Admin_Menu::VISIBILITY_VISIBLE` and `Admin_Menu::VISIBILITY_HIDDEN` hold the same strings as the examples.
+The filter runs on `admin_menu` at priority 1000, and can run twice in one request (once for the Jetpack menu, once for top level pages), so add it earlier (from an mu-plugin or a plugin) and keep the callback free of side effects. In network admin it runs once, on `network_admin_menu`, for the Jetpack menu only, so top level keys have no effect there. `Admin_Menu::VISIBILITY_VISIBLE` and `Admin_Menu::VISIBILITY_HIDDEN` hold the same strings as the examples.
 
 #### Keep an entry point for a product the site hasn't turned on
 
@@ -150,7 +150,7 @@ Keys are fixed strings, so they survive a page's slug changing.
 | `jetpack-forms` | Forms |
 | `jetpack-manage` | Jetpack Manage ↗ |
 | `jetpack-newsletter` | Newsletter |
-| `jetpack-podcast` | Podcast |
+| `jetpack-podcast` | Podcast, except on WordPress.com Simple and Atomic sites |
 | `jetpack-premium-analytics` | Premium Analytics (top level) |
 | `jetpack-protect` | Protect, from the Jetpack plugin or the Protect plugin |
 | `jetpack-scan` | Scan |
@@ -163,7 +163,7 @@ Keys are fixed strings, so they survive a page's slug changing.
 | `jetpack-subscribers` | Subscribers ↗ |
 | `jetpack-videopress` | VideoPress |
 
-Items that declare no key go by their menu slug instead, such as `my-jetpack` and `jetpack-activity-log`.
+Items that declare no key go by their menu slug instead, such as `my-jetpack` and `jetpack-activity-log`. Activity Log can't be filtered on WordPress.com Simple sites.
 
 #### What it isn't for
 
