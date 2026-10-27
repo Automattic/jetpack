@@ -16,8 +16,8 @@ Instructions:
    - Title (for `--title`, NOT included in the body file): Clear summary of changes
    - Fixes #: Link to issue if applicable, or leave blank / "N/A" if none
    - Proposed changes: Bullet points of functional changes
-   - Why are these changes being made?: The problem this solves and for whom, plus the key decisions made and the alternatives ruled out. Write it from the conversation that led to the change, not from the diff.
-   - Testing instructions: Start with what you already checked (commands run, sites and browsers used) and what you did not, then step-by-step how to test the changes
+   - Why are these changes being made?: The problem this solves and for whom, plus the key decisions made and the alternatives ruled out. Write it from the conversation that led to the change, the issue, or the commit messages, not from the diff; if none of those explain it, ask the user rather than guessing. This repo is public: don't quote or paraphrase P2, Slack or Linear discussions (link their shorthand under "Related product discussion/links" instead), don't name customers, sites or users, and for a security fix leave out the vulnerability and how it could be exploited.
+   - Testing instructions: Start with what you already checked (commands run, site types such as Jurassic Ninja, browsers used; never internal `*.wordpress.com` site URLs) and what you did not, then step-by-step how to test the changes
    - Include all sections from the template, filling in what's relevant and leaving defaults for the rest
 6. Create the PR using `gh pr create`:
    - IMPORTANT: To avoid bash escaping issues, ALWAYS use `--body-file` instead of `--body`
@@ -32,4 +32,4 @@ Instructions:
 7. Add required labels:
    - `[Status] *` - use `[Status] In Progress` by default, or `[Status] Needs Review` if ready for review
 
-Deduce all information from git history and code changes - do not ask the user for input.
+Deduce all information from git history and code changes - do not ask the user for input, except for the "Why are these changes being made?" section as described above.
