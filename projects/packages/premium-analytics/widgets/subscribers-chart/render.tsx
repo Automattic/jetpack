@@ -158,6 +158,7 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
+					tickResolution={ period }
 					groupLabel={ groupLabel }
 					baseline="padded"
 					chartTitle={ __( 'Subscriber summary', 'jetpack-premium-analytics-pkg' ) }

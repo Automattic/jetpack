@@ -1,6 +1,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { Button, Modal, Notice } from '@wordpress/components';
 import { useCallback, useEffect, useState } from 'react';
+import { CONNECTION_EVENTS, trackConnectionEvent } from '../../helpers/connection-tracking.ts';
 import { getProtectedOwnerConfirmationCopy } from './copy.ts';
 import type { ProtectedOwnerConfirmError, ProtectedOwnerConfirmationProps } from './types.ts';
 import './style.scss';
@@ -42,6 +43,7 @@ export default function ProtectedOwnerConfirmation( {
 	subject,
 	apiRoot,
 	apiNonce,
+	trackingContext,
 }: ProtectedOwnerConfirmationProps ) {
 	const [ isConfirming, setIsConfirming ] = useState( false );
 	const [ error, setError ] = useState< ProtectedOwnerConfirmError | null >( null );
@@ -60,6 +62,7 @@ export default function ProtectedOwnerConfirmation( {
 	}, [ isConfirming, onClose ] );
 
 	const confirm = useCallback( async () => {
+		trackConnectionEvent( CONNECTION_EVENTS.protectedOwnerConfirm, trackingContext );
 		setIsConfirming( true );
 		setError( null );
 
@@ -94,7 +97,7 @@ export default function ProtectedOwnerConfirmation( {
 
 		onConfirmed?.();
 		onClose();
-	}, [ apiNonce, apiRoot, onClose, onConfirmed ] );
+	}, [ apiNonce, apiRoot, onClose, onConfirmed, trackingContext ] );
 
 	if ( ! isOpen ) {
 		return null;

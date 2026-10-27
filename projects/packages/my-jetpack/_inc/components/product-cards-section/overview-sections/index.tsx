@@ -7,10 +7,13 @@ import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useFilteredProducts from '../../../hooks/use-filtered-products';
 import LoadingBlock from '../../loading-block';
+import BackupOverviewItem from '../backup-card/overview';
 import BoostOverviewItem from '../boost-card/overview';
+import ProductOverviewItem from '../overview-item/product-item';
 import OverviewSection from '../overview-section';
 import ProtectOverviewItem from '../protect-card/overview';
 import StatsOverviewItem from '../stats-card/overview';
+import VideoPressOverviewItem from '../videopress-card/overview';
 import styles from './style.module.scss';
 import type { FC } from 'react';
 
@@ -31,10 +34,58 @@ const OverviewSections: FC = () => {
 	const isStatsActive =
 		statsDetail?.status === PRODUCT_STATUSES.ACTIVE ||
 		statsDetail?.status === PRODUCT_STATUSES.CAN_UPGRADE;
-	const showProtect = slugs.includes( PRODUCT_SLUGS.PROTECT );
-	const showBoost = slugs.includes( PRODUCT_SLUGS.BOOST );
+	const owns = ( slug: JetpackModule ) => slugs.includes( slug );
+	const protectedItems = [
+		owns( PRODUCT_SLUGS.ANTI_SPAM ) && (
+			<ProductOverviewItem
+				key="anti-spam"
+				slug={ PRODUCT_SLUGS.ANTI_SPAM }
+				admin={ admin }
+				actionLabel={ __( 'More insights', 'jetpack-my-jetpack' ) }
+			/>
+		),
+		owns( PRODUCT_SLUGS.BACKUP ) && <BackupOverviewItem key="backup" admin={ admin } />,
+		owns( PRODUCT_SLUGS.PROTECT ) && <ProtectOverviewItem key="protect" admin={ admin } />,
+	].filter( Boolean );
+	const statusItems = [
+		owns( PRODUCT_SLUGS.BOOST ) && <BoostOverviewItem key="boost" admin={ admin } />,
+		owns( PRODUCT_SLUGS.JETPACK_AI ) && (
+			<ProductOverviewItem
+				key="jetpack-ai"
+				slug={ PRODUCT_SLUGS.JETPACK_AI }
+				admin={ admin }
+				actionLabel={ __( 'More about AI', 'jetpack-my-jetpack' ) }
+				upgradeLabel={ __( 'Increase usage', 'jetpack-my-jetpack' ) }
+			/>
+		),
+		owns( PRODUCT_SLUGS.SEARCH ) && (
+			<ProductOverviewItem
+				key="search"
+				slug={ PRODUCT_SLUGS.SEARCH }
+				admin={ admin }
+				actionLabel={ __( 'More about Search', 'jetpack-my-jetpack' ) }
+			/>
+		),
+		owns( PRODUCT_SLUGS.VIDEOPRESS ) && <VideoPressOverviewItem key="videopress" admin={ admin } />,
+		owns( PRODUCT_SLUGS.CRM ) && (
+			<ProductOverviewItem
+				key="crm"
+				slug={ PRODUCT_SLUGS.CRM }
+				admin={ admin }
+				actionLabel={ __( 'Manage CRM', 'jetpack-my-jetpack' ) }
+			/>
+		),
+		owns( PRODUCT_SLUGS.SOCIAL ) && (
+			<ProductOverviewItem
+				key="social"
+				slug={ PRODUCT_SLUGS.SOCIAL }
+				admin={ admin }
+				actionLabel={ __( 'Manage Social', 'jetpack-my-jetpack' ) }
+			/>
+		),
+	].filter( Boolean );
 
-	if ( ! isLoading && ! showStats && ! showProtect && ! showBoost ) {
+	if ( ! isLoading && ! showStats && ! protectedItems.length && ! statusItems.length ) {
 		return null;
 	}
 
@@ -61,20 +112,20 @@ const OverviewSections: FC = () => {
 							<StatsOverviewItem admin={ admin } />
 						</OverviewSection>
 					) }
-					{ showProtect && (
+					{ protectedItems.length > 0 && (
 						<OverviewSection
 							icon={ shield }
 							title={ __( 'How well is my site protected?', 'jetpack-my-jetpack' ) }
 						>
-							<ProtectOverviewItem admin={ admin } />
+							{ protectedItems }
 						</OverviewSection>
 					) }
-					{ showBoost && (
+					{ statusItems.length > 0 && (
 						<OverviewSection
 							icon={ dashboard }
 							title={ __( 'What is my site status?', 'jetpack-my-jetpack' ) }
 						>
-							<BoostOverviewItem admin={ admin } />
+							{ statusItems }
 						</OverviewSection>
 					) }
 				</>
