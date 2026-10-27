@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { dashboard, shield, trendingUp } from '@wordpress/icons';
+import clsx from 'clsx';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
@@ -21,9 +22,11 @@ import type { FC } from 'react';
 /**
  * The Overview sections.
  *
+ * @param {object} props           - Component props.
+ * @param {string} props.className - Added once the sections have loaded.
  * @return {import('react').JSX.Element} The sections.
  */
-const OverviewSections: FC = () => {
+const OverviewSections: FC< { className?: string } > = ( { className = '' } ) => {
 	const { filteredOwnedProducts: slugs, isLoading } = useFilteredProducts();
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { userIsAdmin = false, canUserViewStats = false } = getMyJetpackWindowInitialState();
@@ -92,7 +95,7 @@ const OverviewSections: FC = () => {
 	}
 
 	return (
-		<div className={ styles.sections }>
+		<div className={ clsx( styles.sections, { [ className ]: ! isLoading } ) }>
 			{ isLoading ? (
 				<>
 					<LoadingBlock width="100%" height="350px" />

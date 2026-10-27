@@ -1,4 +1,4 @@
-type DimensionUnit = 'px' | '%' | 'vw' | 'vh' | 'dvw' | 'dvh' | 'rem' | 'em' | 'lh';
+type DimensionUnit = 'px' | '%' | 'vw' | 'vh' | 'dvw' | 'dvh' | 'rem' | 'em';
 
 type CSSLength = `${ number }${ DimensionUnit }` | 'auto';
 

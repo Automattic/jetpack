@@ -24,7 +24,7 @@ type StatsOverviewItemProps = {
 
 const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) => {
 	const { blogID, isSiteConnected } = useMyJetpackConnection();
-	const { detail } = useProduct( PRODUCT_SLUGS.STATS );
+	const { detail, isLoading: isProductLoading } = useProduct( PRODUCT_SLUGS.STATS );
 	const { status, manageUrl } = detail || {};
 	const { premiumAnalyticsEnabled = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { recordEvent } = useAnalytics();
@@ -58,13 +58,14 @@ const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) =>
 
 	const detailedStatsHref = getDetailedStatsHref( manageUrl, premiumAnalyticsEnabled );
 
-	if ( isActive && ! isStatsLoading && ! isError ) {
+	// The status arrives with the products request, so the card shows its skeleton until then too.
+	if ( isProductLoading || ( isActive && ( isStatsLoading || ! isError ) ) ) {
 		return (
 			<Stack direction="column" gap="lg">
 				<OverviewStats
+					isLoading={ isProductLoading || isStatsLoading || isPlaceholderData }
 					counts={ counts }
 					chartData={ chartData }
-					isLoading={ isPlaceholderData }
 					detailedStatsHref={ detailedStatsHref }
 					onDetailedStatsClick={ onDetailedStatsClick }
 				/>
@@ -79,7 +80,6 @@ const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) =>
 		);
 	}
 
-	// The item stands in for the chart until there is data, as the chart's counts read 0 before it.
 	return (
 		<OverviewItem
 			slug={ PRODUCT_SLUGS.STATS }
@@ -90,7 +90,6 @@ const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) =>
 				days
 			) }
 			action={ isActive ? undefined : statusAction }
-			isLoading={ isActive && isStatsLoading }
 			error={
 				isActive && isError
 					? {
