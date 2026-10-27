@@ -8,7 +8,7 @@ import type { ReactElement } from 'react';
 
 export type LeaderboardPostLabelProps = {
 	/**
-	 * Post or page ID. Rows carrying one link to the internal detail route.
+	 * Post or page ID, forwarded to the row's `postLink` action.
 	 */
 	id?: number | string;
 
@@ -18,7 +18,7 @@ export type LeaderboardPostLabelProps = {
 	label: string;
 
 	/**
-	 * Public URL of the content. Used when there is no post ID or no detail page to open.
+	 * Public URL of the content, forwarded to the row's `postLink` action.
 	 */
 	link?: string | null;
 

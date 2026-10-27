@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Registration: Report a missing PHP XML extension with its own error code, so the connect screens can name the cause.

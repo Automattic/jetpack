@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Activity Log: Match the Activity Log events REST route case-insensitively.

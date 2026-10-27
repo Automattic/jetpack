@@ -20,7 +20,7 @@
 	text-align: start;
 	cursor: var(--wpds-cursor-control);
 
-	&:hover {
+	&:not([aria-disabled="true"]):hover {
 		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
 	}
 

@@ -174,6 +174,24 @@ function isWholeYear( from: CalendarDate, to: CalendarDate ): boolean {
 }
 
 /**
+ * Whether a range covers exactly one calendar month or year, in the site's timezone.
+ *
+ * @param range - The range to check.
+ * @param unit  - The period it should cover.
+ * @return Whether it covers that whole period.
+ */
+export function isWholePeriod( range: DateRange, unit: 'month' | 'year' ): boolean {
+	if ( ! range.from || ! range.to ) {
+		return false;
+	}
+
+	const start = toCalendarDate( range.from );
+	const end = toCalendarDate( range.to );
+
+	return unit === 'month' ? isWholeMonth( start, end ) : isWholeYear( start, end );
+}
+
+/**
  * Format a date range as the period it names, where it names one.
  *
  * A range covering exactly one calendar month or year reads as that month or

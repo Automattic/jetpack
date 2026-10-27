@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: Leave hidden series out of a line chart's tooltip when you move through the chart with the arrow keys.

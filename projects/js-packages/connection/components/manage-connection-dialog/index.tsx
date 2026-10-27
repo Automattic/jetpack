@@ -222,6 +222,7 @@ const ManageConnectionDialog = ( {
 									apiNonce={ apiNonce }
 									onTransferred={ recordNewOwner }
 									onBusyChange={ setIsTransferring }
+									trackingContext={ context }
 								/>
 							) }
 							{ ! transferView &&
