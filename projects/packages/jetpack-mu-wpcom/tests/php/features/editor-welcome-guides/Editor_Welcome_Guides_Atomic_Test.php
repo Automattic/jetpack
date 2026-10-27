@@ -11,13 +11,18 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/edito
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers ::wpcom_editor_welcome_guides_atomic_get_dismissed
  * @covers ::wpcom_editor_welcome_guides_atomic_record_dismissed
+ * @covers ::wpcom_editor_welcome_guides_atomic_is_welcome_tour_dismissed
+ * @covers ::wpcom_editor_welcome_guides_atomic_record_welcome_tour_dismissed
  */
 #[CoversFunction( 'wpcom_editor_welcome_guides_atomic_get_dismissed' )]
 #[CoversFunction( 'wpcom_editor_welcome_guides_atomic_record_dismissed' )]
+#[CoversFunction( 'wpcom_editor_welcome_guides_atomic_is_welcome_tour_dismissed' )]
+#[CoversFunction( 'wpcom_editor_welcome_guides_atomic_record_welcome_tour_dismissed' )]
 class Editor_Welcome_Guides_Atomic_Test extends \WorDBless\BaseTestCase {
 
 	private const ENDPOINT = '/wpcom/v2/me/editor-welcome-guides';
@@ -97,10 +102,19 @@ class Editor_Welcome_Guides_Atomic_Test extends \WorDBless\BaseTestCase {
 		$GLOBALS['pagenow'] = $pagenow; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	}
 
-	private function wpcom_answers( array $dismissed ) {
+	/**
+	 * @param array     $dismissed              Map of preferences scope to guide keys.
+	 * @param bool|null $welcome_tour_dismissed Null leaves the key out, as WordPress.com did before it knew the tour.
+	 */
+	private function wpcom_answers( array $dismissed, ?bool $welcome_tour_dismissed = null ) {
+		$body = array( 'dismissed' => (object) $dismissed );
+		if ( null !== $welcome_tour_dismissed ) {
+			$body['welcome_tour_dismissed'] = $welcome_tour_dismissed;
+		}
+
 		$this->response = array(
 			'response' => array( 'code' => 200 ),
-			'body'     => wp_json_encode( array( 'dismissed' => (object) $dismissed ), JSON_UNESCAPED_SLASHES ),
+			'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 		);
 	}
 
@@ -121,6 +135,10 @@ class Editor_Welcome_Guides_Atomic_Test extends \WorDBless\BaseTestCase {
 
 	private function read() {
 		return apply_filters( 'wpcom_editor_welcome_guides_dismissed', array(), $this->user_id );
+	}
+
+	private function read_welcome_tour() {
+		return apply_filters( 'wpcom_editor_welcome_tour_dismissed', false, $this->user_id );
 	}
 
 	public function test_editor_page_load_fetches_and_keeps_the_record() {
@@ -180,6 +198,42 @@ class Editor_Welcome_Guides_Atomic_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( $record, $this->stored_copy()['dismissed'] );
 
 		do_action( 'wpcom_editor_welcome_guides_dismiss', $this->user_id, $record );
+		$this->assertCount( 1, $this->requests );
+	}
+
+	public static function provide_welcome_tour_answers() {
+		return array(
+			'dismissed'                 => array( true, true ),
+			'not dismissed'             => array( false, false ),
+			'from before wpcom knew it' => array( null, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_welcome_tour_answers
+	 */
+	#[DataProvider( 'provide_welcome_tour_answers' )]
+	public function test_editor_page_load_fetches_the_welcome_tour( ?bool $answer, bool $expected ) {
+		$this->wpcom_answers( array(), $answer );
+
+		$this->assertSame( $expected, $this->read_welcome_tour() );
+		$this->assertSame( $expected, $this->stored_copy()['welcome_tour_dismissed'] );
+		$this->assertCount( 1, $this->requests );
+	}
+
+	public function test_welcome_tour_dismiss_posts_once_for_the_current_user() {
+		$this->copy( array(), time() );
+		$this->wpcom_answers( array( 'core/edit-post' => array( 'welcomeGuide' ) ), true );
+
+		do_action( 'wpcom_editor_welcome_tour_dismiss', $this->user_id + 1 );
+		$this->assertSame( array(), $this->requests );
+
+		do_action( 'wpcom_editor_welcome_tour_dismiss', $this->user_id );
+		$this->assertSame( array( array( 'POST', self::ENDPOINT, array( 'welcome_tour_dismissed' => true ) ) ), $this->requests );
+		$this->assertTrue( $this->stored_copy()['welcome_tour_dismissed'] );
+		$this->assertSame( array( 'core/edit-post' => array( 'welcomeGuide' ) ), $this->stored_copy()['dismissed'] );
+
+		do_action( 'wpcom_editor_welcome_tour_dismiss', $this->user_id );
 		$this->assertCount( 1, $this->requests );
 	}
 }

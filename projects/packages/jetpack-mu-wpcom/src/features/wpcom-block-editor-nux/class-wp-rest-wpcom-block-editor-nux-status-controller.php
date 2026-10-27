@@ -61,6 +61,16 @@ class WP_REST_WPCOM_Block_Editor_NUX_Status_Controller extends \WP_REST_Controll
 	}
 
 	/**
+	 * Whether the status lives in this site's user meta rather than in WordPress.com's global user
+	 * attribute, which Simple sites read and write through the `wpcom_block_editor_nux_*` hooks.
+	 *
+	 * @return bool
+	 */
+	private function is_status_stored_locally() {
+		return ! has_filter( 'wpcom_block_editor_nux_get_status' );
+	}
+
+	/**
 	 * Return the WPCOM NUX status
 	 *
 	 * This is only called for sites where the user hasn't already dismissed the tour.
@@ -90,12 +100,26 @@ class WP_REST_WPCOM_Block_Editor_NUX_Status_Controller extends \WP_REST_Controll
 			// disable welcome tour for authoring P2s.
 			// see: https://github.com/Automattic/wp-calypso/issues/62973.
 			$nux_status = 'disabled';
-		} elseif ( has_filter( 'wpcom_block_editor_nux_get_status' ) ) {
+		} elseif ( ! $this->is_status_stored_locally() ) {
 			$nux_status = apply_filters( 'wpcom_block_editor_nux_get_status', false );
-		} elseif ( ! metadata_exists( 'user', get_current_user_id(), 'wpcom_block_editor_nux_status' ) ) {
-			$nux_status = 'enabled';
 		} else {
-			$nux_status = get_user_meta( get_current_user_id(), 'wpcom_block_editor_nux_status', true );
+			$user_id    = get_current_user_id();
+			$nux_status = metadata_exists( 'user', $user_id, 'wpcom_block_editor_nux_status' )
+				? get_user_meta( $user_id, 'wpcom_block_editor_nux_status', true )
+				: 'enabled';
+
+			// Only ever hides the tour: re-opening it from the editor menu does not read this.
+			if ( 'enabled' === $nux_status && wpcom_editor_welcome_guides_is_enabled() ) {
+				/**
+				 * Filters whether the user has dismissed the Welcome Tour on any of their sites.
+				 *
+				 * @param bool $dismissed Whether the tour is dismissed.
+				 * @param int  $user_id   User ID.
+				 */
+				if ( apply_filters( 'wpcom_editor_welcome_tour_dismissed', false, $user_id ) ) {
+					$nux_status = 'dismissed';
+				}
+			}
 		}
 
 		$show_welcome_guide = $this->show_wpcom_welcome_guide( $nux_status );
@@ -121,6 +145,17 @@ class WP_REST_WPCOM_Block_Editor_NUX_Status_Controller extends \WP_REST_Controll
 			do_action( 'wpcom_block_editor_nux_update_status', $nux_status );
 		}
 		update_user_meta( get_current_user_id(), 'wpcom_block_editor_nux_status', $nux_status );
+
+		// Re-enabling stays local to this site.
+		if ( 'dismissed' === $nux_status && $this->is_status_stored_locally() && wpcom_editor_welcome_guides_is_enabled() ) {
+			/**
+			 * Fires when the user dismisses the Welcome Tour on a site whose tour status is stored locally.
+			 *
+			 * @param int $user_id User ID.
+			 */
+			do_action( 'wpcom_editor_welcome_tour_dismiss', get_current_user_id() );
+		}
+
 		return rest_ensure_response( array( 'show_welcome_guide' => $this->show_wpcom_welcome_guide( $nux_status ) ) );
 	}
 }
