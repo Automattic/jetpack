@@ -13,7 +13,6 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
@@ -237,7 +236,7 @@ class Analytics {
 		$data['analytics'] = array(
 			'enabled'   => true,
 			'page_slug' => self::MENU_PAGE_SLUG,
-			'can_view'  => self::current_user_can_open_stats(),
+			'can_view'  => Capabilities::current_user_can_open_stats(),
 			'timezone'  => self::site_timezone(),
 		);
 
@@ -563,7 +562,7 @@ class Analytics {
 		$menu_title = self::menu_title();
 
 		$menu_title = esc_html( $menu_title );
-		$capability = self::menu_capability();
+		$capability = Capabilities::dashboard_page_capability();
 
 		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
 		if ( ! method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
@@ -574,44 +573,6 @@ class Analytics {
 		// A fixed key rather than the slug, which carries a build-specific suffix. No gate:
 		// the dashboard has no My Jetpack product class and no module to name.
 		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-premium-analytics' ) );
-	}
-
-	/**
-	 * Capability the menu and page need.
-	 *
-	 * @return string
-	 */
-	private static function menu_capability() {
-		return self::is_site_connected() ? Capabilities::VIEW_ANALYTICS : self::pre_connection_capability();
-	}
-
-	/**
-	 * Whether the current user can open the dashboard's Stats views, which links to them are gated on.
-	 *
-	 * @return bool
-	 */
-	public static function current_user_can_open_stats() {
-		return Capabilities::current_user_can_view_stats()
-			&& ( self::is_site_connected() || current_user_can( self::pre_connection_capability() ) );
-	}
-
-	/**
-	 * Whether the site is connected to WordPress.com, as WordPress.com Simple always is.
-	 *
-	 * @return bool
-	 */
-	private static function is_site_connected() {
-		return ( new Host() )->is_wpcom_simple() || ( new Connection_Manager() )->is_connected();
-	}
-
-	/**
-	 * Until the site is connected the dashboard only offers to connect it, so like Stats it is for
-	 * whoever can (`jetpack_connect`), or for administrators in offline mode, where nobody can.
-	 *
-	 * @return string
-	 */
-	private static function pre_connection_capability() {
-		return ( new Status() )->is_offline_mode() ? 'manage_options' : 'jetpack_connect';
 	}
 
 	/**

@@ -84,7 +84,7 @@ class Stats_Links {
 
 		return 'stats' === $page
 			&& '' === menu_page_url( 'stats', false )
-			&& Analytics::current_user_can_open_stats();
+			&& Capabilities::current_user_can_open_stats();
 	}
 
 	/**
@@ -205,7 +205,7 @@ class Stats_Links {
 	 * @return string
 	 */
 	private static function route_url( $url, $path ) {
-		if ( ! Analytics::current_user_can_open_stats() ) {
+		if ( ! Capabilities::current_user_can_open_stats() ) {
 			return $url;
 		}
 
