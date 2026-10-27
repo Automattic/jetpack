@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Slideshow and Story blocks: Keep every file when uploading several at once with client-side media processing enabled. Slideshow and Tiled Gallery blocks: Hide the upload button from users who cannot upload.
