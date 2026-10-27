@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { Link, Tooltip } from '@jetpack-premium-analytics/externals';
-import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
@@ -12,11 +11,8 @@ import styles from './view-live-link.module.scss';
 import type { JSX } from 'react';
 
 export type ViewLiveLinkProps = {
-	/**
-	 * Public URL of the content, straight from report data. The scheme is
-	 * checked here, at the sink.
-	 */
-	href?: string | null;
+	/** The URL `toViewLiveUrl()` returned for the row, which has checked its scheme. */
+	href: string;
 	/** The content's title, which names the link for assistive technology. */
 	label: string;
 	className?: string;
@@ -27,25 +23,16 @@ export type ViewLiveLinkProps = {
  * dashboard: an outbound marker that opens the live post, page, video or email
  * in a new tab, as every row in classic Stats offered.
  *
- * Private, draft and deleted content has no public URL, and then there is no
- * action rather than a dead link.
- *
- * @return The link, or null when the row has no public URL.
+ * @return The link.
  */
-export function ViewLiveLink( { href, label, className }: ViewLiveLinkProps ): JSX.Element | null {
-	const url = safeHttpUrl( href );
-
-	if ( ! url ) {
-		return null;
-	}
-
+export function ViewLiveLink( { href, label, className }: ViewLiveLinkProps ): JSX.Element {
 	return (
 		<Tooltip.Root>
 			<Tooltip.Trigger
 				render={
 					<Link
 						className={ clsx( styles.link, className ) }
-						href={ url }
+						href={ href }
 						variant="unstyled"
 						openInNewTab
 						aria-label={ sprintf(
