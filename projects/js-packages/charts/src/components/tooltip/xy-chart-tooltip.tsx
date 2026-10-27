@@ -173,6 +173,7 @@ export const XYChartTooltip: React.FC< XYChartTooltipProps > = ( {
 			if ( selectedIndex < tooltipData.length ) {
 				const tooltipItem = tooltipData[ selectedIndex ];
 
+				tooltipContext?.updateTooltip( state => ( { ...state, tooltipData: undefined } ) );
 				tooltipContext?.showTooltip( {
 					datum: tooltipItem.datum,
 					key: tooltipItem.seriesLabel,

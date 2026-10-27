@@ -806,6 +806,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</WholeNumberTicks>
 										) }
 
+										{ withTooltips && selectedMembers && (
+											<SlotTooltipMembers
+												members={ selectedMembers.members }
+												index={ selectedMembers.index }
+											/>
+										) }
 										{ withTooltips && (
 											<XYChartTooltip
 												tooltipPlacement={ tooltipPlacement }
@@ -824,12 +830,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 													styles[ 'bar-chart__tooltip--keyboard-focused' ]
 												}
 												mode="individual"
-											/>
-										) }
-										{ withTooltips && selectedMembers && (
-											<SlotTooltipMembers
-												members={ selectedMembers.members }
-												index={ selectedMembers.index }
 											/>
 										) }
 									</XYChart>

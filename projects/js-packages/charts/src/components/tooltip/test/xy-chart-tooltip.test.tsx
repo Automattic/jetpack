@@ -1,10 +1,13 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { BarSeries, XYChart } from '@visx/xychart';
 import { useCallback, useRef, useState } from 'react';
 import { LineChartUnresponsive } from '../../../charts/line-chart/line-chart';
 import { GlobalChartsProvider } from '../../../providers';
 import { ChartScopeContext } from '../../../providers/chart-scope';
 import { AccessibleTooltip, XYChartTooltip, useKeyboardNavigation } from '../xy-chart-tooltip';
+import type { DataPointDate } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { ReactNode } from 'react';
 
 // A real chart is the harness rather than the subject: the crosshairs render only once visx has a data context and an open tooltip. The unresponsive export is what lets the test own the scope element — `withResponsive` otherwise provides its own wrapper as the scope.
@@ -46,6 +49,46 @@ const openTooltip = async () => {
 	await user.keyboard( '{ArrowRight}' );
 
 	return screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
+};
+
+const individualItems = [ 'First', 'Second' ].map( label => ( {
+	label,
+	data: [ { label: 'Jan', value: 10 } ],
+	options: {},
+} ) );
+const xAccessor = ( d: DataPointDate ) => d.label;
+const yAccessor = ( d: DataPointDate ) => d.value;
+const xScale = { type: 'band' } as const;
+const yScale = { type: 'linear' } as const;
+const renderKeys = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+	<div data-testid="keys">{ Object.keys( tooltipData?.datumByKey ?? {} ).join( ',' ) }</div>
+);
+
+const IndividualHarness = () => {
+	const [ selectedIndex, setSelectedIndex ] = useState( 0 );
+	const selectSecond = useCallback( () => setSelectedIndex( 1 ), [] );
+	return (
+		<GlobalChartsProvider>
+			<button onClick={ selectSecond }>next</button>
+			<XYChart width={ 300 } height={ 200 } xScale={ xScale } yScale={ yScale }>
+				{ individualItems.map( item => (
+					<BarSeries
+						key={ item.label }
+						dataKey={ item.label }
+						data={ item.data }
+						xAccessor={ xAccessor }
+						yAccessor={ yAccessor }
+					/>
+				) ) }
+				<XYChartTooltip
+					mode="individual"
+					series={ individualItems }
+					selectedIndex={ selectedIndex }
+					renderTooltip={ renderKeys }
+				/>
+			</XYChart>
+		</GlobalChartsProvider>
+	);
 };
 
 describe( 'XYChartTooltip', () => {
@@ -128,6 +171,17 @@ describe( 'XYChartTooltip', () => {
 		renderChart();
 
 		await expect( openTooltip() ).resolves.toHaveAttribute( 'stroke', '#dbdbdb' );
+	} );
+
+	it( 'lists only the selected item in individual mode as the selection moves', async () => {
+		const user = userEvent.setup();
+
+		render( <IndividualHarness /> );
+		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^First$/ );
+
+		await user.click( screen.getByRole( 'button', { name: 'next' } ) );
+
+		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^Second$/ );
 	} );
 } );
 
