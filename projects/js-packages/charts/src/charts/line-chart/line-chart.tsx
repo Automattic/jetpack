@@ -16,6 +16,7 @@ import {
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { datumAtX, getXPositions } from '../../components/tooltip/private/x-positions';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -387,17 +388,22 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return min < max ? [ min, max ] : undefined;
 		}, [ rescaleYOnVisibilityChange, dataSorted, isSeriesVisible, options?.yScale ] );
 
-		// Keyboard navigation steps through x positions, and the grouped tooltip reads every
-		// visible series at that position; the first visible series with a point there names it.
-		const activateSelectedPoint = useCallback(
-			( index: number ) => {
-				const series = visibleSeries.find( candidate => candidate.data[ index ] );
+		const xPositions = useMemo( () => getXPositions( visibleSeries ), [ visibleSeries ] );
 
-				if ( series ) {
-					onDatumActivate?.( { datum: series.data[ index ], index, key: series.label } );
+		// Keyboard stops are x positions, and the grouped tooltip reads every visible series at
+		// that position; the first visible series with a point there names it.
+		const activateSelectedPoint = useCallback(
+			( stop: number ) => {
+				for ( const series of visibleSeries ) {
+					const match = datumAtX( series, xPositions[ stop ] );
+
+					if ( match ) {
+						onDatumActivate?.( { datum: match.datum, index: match.index, key: series.label } );
+						return;
+					}
 				}
 			},
-			[ visibleSeries, onDatumActivate ]
+			[ visibleSeries, xPositions, onDatumActivate ]
 		);
 
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -406,7 +412,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints: Math.max( 0, ...visibleSeries.map( series => series.data.length ) ),
+			totalPoints: xPositions.length,
 			visibleSeriesKey,
 			onActivate: activateSelectedPoint,
 			preventTooltipScroll: tooltipPlacement === 'below-axis',

@@ -879,12 +879,6 @@ describe( 'AreaChart', () => {
 		} );
 
 		test( 'renders glyphs only for series with a datum at the hovered x (mismatched x-domains)', async () => {
-			// Each series' data[0] is a different date. Keyboard nav fires
-			// showTooltip for every series at its own data[selectedIndex];
-			// the LAST one wins as the nearestDatum, so the resolved hover
-			// date is Series B's. HoverGlyphs should:
-			//   - Skip Series A (no datum at Series B's date) — cumulative += 0
-			//   - Render a glyph for Series B
 			renderWithProvider( {
 				data: [
 					{
@@ -901,9 +895,8 @@ describe( 'AreaChart', () => {
 
 			const glyphs = screen.getAllByTestId( /^area-chart-hover-glyph-/ );
 			expect( glyphs ).toHaveLength( 1 );
-			// Only Series B (index 1) has a datum at the hovered date.
-			expect( screen.getByTestId( 'area-chart-hover-glyph-1' ) ).toBeInTheDocument();
-			expect( screen.queryByTestId( 'area-chart-hover-glyph-0' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'area-chart-hover-glyph-0' ) ).toBeInTheDocument();
+			expect( screen.queryByTestId( 'area-chart-hover-glyph-1' ) ).not.toBeInTheDocument();
 		} );
 	} );
 

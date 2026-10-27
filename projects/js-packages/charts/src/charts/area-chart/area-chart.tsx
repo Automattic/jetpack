@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { getXPositions } from '../../components/tooltip/private/x-positions';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -153,13 +154,15 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			[ dataSorted, isSeriesVisible, stacked, stackOffset ]
 		);
 
+		const xPositions = useMemo( () => getXPositions( dataSorted ), [ dataSorted ] );
+
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 			selectedIndex,
 			setSelectedIndex,
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints: dataSorted[ 0 ]?.data.length || 0,
+			totalPoints: xPositions.length,
 		} );
 
 		// Computed from the full data set (ignoring legend visibility) so the y-axis stays

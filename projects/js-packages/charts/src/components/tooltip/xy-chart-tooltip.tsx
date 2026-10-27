@@ -6,6 +6,7 @@ import { useGlobalChartsContext } from '../../providers/chart-context/hooks/use-
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { useChartScopeElement, useStandaloneScopeClass } from '../../providers/chart-scope';
 import { resolveCssVariable } from '../../utils';
+import { datumAtX, getXPositions } from './private/x-positions';
 import { XyChartTooltipOverlay } from './private/xy-chart-tooltip-overlay';
 import type { SeriesData, DataPointDate } from '../../types';
 import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
@@ -99,6 +100,8 @@ export const XYChartTooltip: React.FC< XYChartTooltipProps > = ( {
 		return flattened;
 	}, [ series, mode ] );
 
+	const xPositions = useMemo( () => getXPositions( series ), [ series ] );
+
 	// Tracks whether this effect opened a tooltip, so it only closes its own.
 	const hasKeyboardSelection = useRef( false );
 
@@ -154,14 +157,14 @@ export const XYChartTooltip: React.FC< XYChartTooltipProps > = ( {
 		if ( mode === 'group' ) {
 			// visx merges each shown datum into the previous tooltip data, so start empty or a series dropped from `series` keeps its row.
 			closeTooltipNow();
-			series.forEach( ( s, index ) => {
-				if ( selectedIndex < s.data.length ) {
-					const datum = s.data[ selectedIndex ];
-
+			const x = xPositions[ selectedIndex ];
+			series.forEach( s => {
+				const match = x === undefined ? undefined : datumAtX( s, x );
+				if ( match ) {
 					tooltipContext?.showTooltip( {
-						datum,
+						datum: match.datum,
 						key: s.label,
-						index,
+						index: match.index,
 					} );
 				}
 			} );
@@ -180,7 +183,7 @@ export const XYChartTooltip: React.FC< XYChartTooltipProps > = ( {
 
 		// Don't include tooltipContext in the dependency array to avoid loop.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ selectedIndex, tooltipData, series ] );
+	}, [ selectedIndex, tooltipData, series, xPositions ] );
 
 	// Create a focusable renderTooltip that includes accessibility features
 	const focusableRenderTooltip = useMemo( () => {
