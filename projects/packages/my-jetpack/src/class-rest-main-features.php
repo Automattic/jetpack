@@ -235,7 +235,7 @@ class REST_Main_Features {
 			: new WP_Error( 'not_allowed', __( 'You are not allowed to manage Jetpack modules on this site.', 'jetpack-my-jetpack' ) );
 		$protect_modules = Products\Protect::get_protect_page_module_urls();
 		$protect_refused = $protect_modules
-			? new WP_Error( 'managed_in_protect', __( 'Managed in Protect.', 'jetpack-my-jetpack' ) )
+			? new WP_Error( 'managed_in_protect', __( 'Managed in Protect. Change these settings on the Protect page.', 'jetpack-my-jetpack' ) )
 			: null;
 
 		foreach ( array_unique( (array) $request->get_param( 'modules' ) ) as $slug ) {
