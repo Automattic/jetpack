@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add the `refreshNotice` option to the `useReport` types, to keep a failed refresh out of the stale-data notice.

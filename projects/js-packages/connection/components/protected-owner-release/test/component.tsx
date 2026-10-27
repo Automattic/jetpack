@@ -1,9 +1,11 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { jest } from '@jest/globals';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProtectedOwnerRelease, { PROTECTED_OWNER_NOT_OWNER } from '../index';
 
 const mockFetch = jest.fn< typeof fetch >();
+const mockRecordEvent = jest.spyOn( jetpackAnalytics.tracks, 'recordEvent' );
 const originalFetch = globalThis.fetch;
 
 /**
@@ -33,6 +35,7 @@ describe( 'ProtectedOwnerRelease', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockRecordEvent.mockImplementation( () => {} );
 		globalThis.fetch = mockFetch;
 	} );
 
@@ -172,5 +175,21 @@ describe( 'ProtectedOwnerRelease', () => {
 			within( dialog ).getByText( 'Could not release the protected owner.' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Contact support' } ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'reports the click with the tracking context', 'connectors', 'connectors' ],
+		[ 'reports a null context when none is passed', undefined, null ],
+	] )( '%s', async ( _name, trackingContext, expectedContext ) => {
+		mockFetch.mockResolvedValue( jsonResponse( false, {} ) );
+		const user = userEvent.setup();
+		render( <ProtectedOwnerRelease { ...props } trackingContext={ trackingContext } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Release ownership' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_connection_protected_owner_release', {
+			context: expectedContext,
+		} );
 	} );
 } );
