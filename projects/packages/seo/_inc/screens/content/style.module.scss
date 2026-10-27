@@ -5,10 +5,24 @@
 }
 
 // The per-post SEO editor, rendered in the route's native inspector sidebar.
-// The framework owns the sidebar panel; this just lays out the editor's
-// contents (header, fields + live preview, actions).
-.inspector {
+// The framework owns the sidebar panel (and its scrolling); this lays out the
+// editor's contents: header, fields + live preview, then the actions footer.
+.inspectorBody {
 	padding: var(--wpds-dimension-padding-md);
+}
+
+// Cancel / Save, pinned to the bottom of the sidebar's scroll area so they stay
+// visible while the fields scroll under them. The same treatment as Jetpack
+// Protect's threat details footer: sticky, a top divider, and the panel's
+// background so the fields don't show through.
+.inspectorFooter {
+	position: sticky;
+	inset-block-end: 0;
+	padding: var(--wpds-dimension-padding-md);
+	border-block-start:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral);
+	background: var(--wpds-color-background-surface-neutral);
 }
 
 // Google-style search-result snippet shown live in the inspector.
