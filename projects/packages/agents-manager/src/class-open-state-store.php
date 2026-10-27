@@ -42,8 +42,6 @@ class Open_State_Store {
 		'agents_manager_docked'            => false,
 		'agents_manager_minimized'         => false,
 		'agents_manager_floating_position' => 'right',
-		'agents_manager_router_history'    => null,
-		'agents_manager_last_activity'     => null,
 	);
 
 	/**
@@ -161,8 +159,6 @@ class Open_State_Store {
 			'agents_manager_docked'            => (bool) ( $response['agents_manager_docked'] ?? self::DEFAULTS['agents_manager_docked'] ),
 			'agents_manager_minimized'         => (bool) ( $response['agents_manager_minimized'] ?? self::DEFAULTS['agents_manager_minimized'] ),
 			'agents_manager_floating_position' => $response['agents_manager_floating_position'] ?? self::DEFAULTS['agents_manager_floating_position'],
-			'agents_manager_router_history'    => $response['agents_manager_router_history'] ?? self::DEFAULTS['agents_manager_router_history'],
-			'agents_manager_last_activity'     => $response['agents_manager_last_activity'] ?? self::DEFAULTS['agents_manager_last_activity'],
 		);
 	}
 
