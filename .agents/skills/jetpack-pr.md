@@ -19,6 +19,7 @@ Instructions:
      - Remove the line when there is no issue.
    - Related product discussion/links: only shorthands for the P2 posts and Slack threads where the change was discussed, such as `peKye1-1Z1-p2`. The issue ID lives on the first line alone, even though the template's comment mentions Linear here. Write `None.` when there are no discussions.
    - Proposed changes: Bullet points of functional changes
+   - Why are these changes being made?: The problem this solves and for whom, plus the key decisions made and the alternatives ruled out. Write it from the conversation that led to the change, not from the diff.
    - Testing instructions: Step-by-step how to test the changes
    - In the testing instructions, also state what you tested and what you did NOT test, so reviewers know where to focus. If you have a test site where the bug can be reproduced (e.g. a Jurassic Ninja site), include its URL — but never include private `*.wordpress.com` internal site URLs in the PR body; use the p2 shorthand (e.g. `peKye1-1Z1-p2`) instead.
 5. If the diff touches UI (admin pages, blocks, components, CSS/SCSS, or JS/TSX under `projects/plugins/*` or `projects/js-packages/*`), suggest capturing real-screen before/after screenshots on a Jurassic Ninja site via the `jetpack-screenshot` skill and including them in the PR body. Skip the suggestion when the PR is purely backend/docs/tooling.

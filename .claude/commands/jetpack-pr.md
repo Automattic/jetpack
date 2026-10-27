@@ -16,7 +16,8 @@ Instructions:
    - Title (for `--title`, NOT included in the body file): Clear summary of changes
    - Fixes #: Link to issue if applicable, or leave blank / "N/A" if none
    - Proposed changes: Bullet points of functional changes
-   - Testing instructions: Step-by-step how to test the changes
+   - Why are these changes being made?: The problem this solves and for whom, plus the key decisions made and the alternatives ruled out. Write it from the conversation that led to the change, not from the diff.
+   - Testing instructions: Start with what you already checked (commands run, sites and browsers used) and what you did not, then step-by-step how to test the changes
    - Include all sections from the template, filling in what's relevant and leaving defaults for the rest
 6. Create the PR using `gh pr create`:
    - IMPORTANT: To avoid bash escaping issues, ALWAYS use `--body-file` instead of `--body`

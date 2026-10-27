@@ -4,6 +4,11 @@ Fixes #
 <!--- Explain what functional changes your PR includes -->
 * 
 
+## Why are these changes being made?
+<!-- What problem does this solve, and for whom? -->
+<!-- What key decisions did you make along the way, and which alternatives did you rule out? -->
+* 
+
 ## Related product discussion/links
 <!-- If you're an Automattician, include a shortlink to the P2, Slack, and/or Linear discussions here. -->
 * 
@@ -15,6 +20,7 @@ Fixes #
 ## Testing instructions
 <!-- If you were reviewing this PR, how would you like the instructions to be presented? -->
 <!-- Please include detailed testing steps, explaining how to test your change. -->
+<!-- Start with what you already checked yourself (commands, sites, browsers) and what you did not, so reviewers know where to focus. -->
 <!-- Bear in mind that context you are working on is not obvious for everyone.  -->
 <!-- Adding relevant configuration steps will help reviewers to get to your PR as quickly as possible. -->
 <!-- "Before"/"After" screenshots can be helpful when the change is visual. -->
