@@ -455,7 +455,7 @@ class Jetpack_Admin {
 		 */
 		if ( ( new Status() )->is_offline_mode() ) {
 			if ( $module['requires_connection'] || $module['requires_user_connection'] ) {
-				return __( 'Unavailable in Offline mode', 'jetpack' );
+				return __( 'Unavailable in Offline Mode', 'jetpack' );
 			}
 		}
 
@@ -486,7 +486,7 @@ class Jetpack_Admin {
 	/**
 	 * Where each security module's settings live while the Protect page owns them, keyed by module slug.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @return array<string, string> Empty while the Protect page is off.
 	 */

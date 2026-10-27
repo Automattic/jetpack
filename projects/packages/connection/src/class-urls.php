@@ -194,13 +194,13 @@ class Urls {
 	 * Formerly added the origin_site_id query parameter to a URL. WordPress.com no longer reads it.
 	 *
 	 * @since 7.1.0
-	 * @deprecated $$next-version$$
+	 * @deprecated 9.14.0
 	 *
 	 * @param string $url The URL.
 	 * @return string The URL, unchanged.
 	 */
 	public static function maybe_add_origin_site_id( $url ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-9.14.0' );
 		return $url;
 	}
 }
