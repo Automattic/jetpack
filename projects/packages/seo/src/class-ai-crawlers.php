@@ -36,12 +36,19 @@ class Ai_Crawlers {
 
 	/**
 	 * Option the GEO tab saved before {@see self::OPTION}: `slug => bool`, holding only changes
-	 * from the old defaults (training crawlers blocked, answer engines allowed). Read once by
-	 * {@see self::maybe_migrate_legacy_overrides()} and left in the database.
+	 * from the old defaults (training crawlers blocked, answer engines allowed). Deleted once
+	 * {@see self::migrate_legacy_overrides()} has copied it.
 	 *
 	 * @var string
 	 */
 	const LEGACY_OPTION = 'jetpack_seo_ai_crawler_overrides';
+
+	/**
+	 * Priority of {@see self::migrate_legacy_overrides()} on the `default_option_` filter.
+	 *
+	 * @var int
+	 */
+	const MIGRATION_PRIORITY = 20;
 
 	/**
 	 * The crawler groups, matching each catalog entry's `type`.
@@ -232,23 +239,36 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * Once per site: copies the choices saved in {@see self::LEGACY_OPTION} into {@see self::OPTION}.
-	 *
-	 * A training crawler saved as allowed means the owner worked on that group, so its unsaved
-	 * siblings stay blocked. Always writing the new option marks this done; an existing one wins.
+	 * Run {@see self::migrate_legacy_overrides()} the first time {@see self::OPTION} is read while missing.
 	 *
 	 * @return void
 	 */
-	public static function maybe_migrate_legacy_overrides() {
-		// An explicit default, so a registered setting default can't stand in for the stored value.
-		if ( false !== get_option( self::OPTION, false ) ) {
-			return;
+	public static function register_legacy_migration() {
+		// After register_setting()'s default (priority 10), which would replace the migrated value.
+		add_filter( 'default_option_' . self::OPTION, array( __CLASS__, 'migrate_legacy_overrides' ), self::MIGRATION_PRIORITY );
+	}
+
+	/**
+	 * `default_option_` callback: copies {@see self::LEGACY_OPTION} into {@see self::OPTION}, then deletes it.
+	 *
+	 * A training crawler saved as allowed means the owner worked on that group, so its unsaved
+	 * siblings stay blocked. With no old option there is nothing to write.
+	 *
+	 * @param mixed $default_value The value `get_option()` would return for the missing option.
+	 * @return mixed The migrated value, or `$default_value` when there is nothing to migrate.
+	 */
+	public static function migrate_legacy_overrides( $default_value ) {
+		// The catalog loads translations, which must wait for `init`.
+		if ( ! did_action( 'init' ) ) {
+			return $default_value;
 		}
 
-		$legacy  = get_option( self::LEGACY_OPTION );
-		$legacy  = is_array( $legacy ) ? $legacy : array();
-		$catalog = self::get_catalog();
+		$legacy = get_option( self::LEGACY_OPTION );
+		if ( ! is_array( $legacy ) ) {
+			return $default_value;
+		}
 
+		$catalog          = self::get_catalog();
 		$answer_blocked   = array();
 		$training_allowed = array();
 		foreach ( $legacy as $slug => $value ) {
@@ -261,11 +281,22 @@ class Ai_Crawlers {
 		}
 
 		$training = array_keys( wp_list_filter( $catalog, array( 'type' => 'training' ) ) );
-		$blocked  = array(
-			'answer'   => $answer_blocked,
-			'training' => $training_allowed ? array_diff( $training, $training_allowed ) : array(),
+		$blocked  = self::sanitize_blocked(
+			array(
+				'answer'   => $answer_blocked,
+				'training' => $training_allowed ? array_diff( $training, $training_allowed ) : array(),
+			),
+			$catalog
 		);
-		update_option( self::OPTION, self::sanitize_blocked( $blocked, $catalog ), true );
+		// add_option() applies this filter again. Re-armed after, for other sites read in this request.
+		remove_filter( 'default_option_' . self::OPTION, array( __CLASS__, 'migrate_legacy_overrides' ), self::MIGRATION_PRIORITY );
+		$added = add_option( self::OPTION, $blocked, '', true );
+		self::register_legacy_migration();
+		if ( $added ) {
+			delete_option( self::LEGACY_OPTION );
+		}
+
+		return $blocked;
 	}
 
 	/**

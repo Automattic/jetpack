@@ -117,13 +117,8 @@ class Initializer {
 			return;
 		}
 
-		// Runs before anything reads the AI crawler choices, and not before `init` because the
-		// crawler catalog loads translations.
-		if ( did_action( 'init' ) ) {
-			Ai_Crawlers::maybe_migrate_legacy_overrides();
-		} else {
-			add_action( 'init', array( Ai_Crawlers::class, 'maybe_migrate_legacy_overrides' ), 1 );
-		}
+		// Before anything can read the AI crawler choices.
+		Ai_Crawlers::register_legacy_migration();
 
 		// The opt-in endpoint must be reachable even before the surface is visible, so
 		// existing self-hosted installs can switch to the new experience from the legacy
