@@ -44,6 +44,7 @@ module.exports = async () => {
 					'./src/features/paragraph-block-placeholder/paragraph-block-placeholder.js',
 				'tags-education': './src/features/tags-education/tags-education.jsx',
 				'wpcom-admin-bar': './src/features/wpcom-admin-bar/wpcom-admin-bar.js',
+				'wpcom-admin-notice': './src/features/wpcom-admin-notice/wpcom-admin-notice.js',
 				'wpcom-blocks-code-block-definition':
 					'./src/features/wpcom-blocks/code/block-definition/block-definition.tsx',
 				'wpcom-blocks-code-editor-style': './src/features/wpcom-blocks/code/editor.css',

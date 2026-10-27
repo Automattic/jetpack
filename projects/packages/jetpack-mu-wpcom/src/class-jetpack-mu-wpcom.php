@@ -506,6 +506,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
+		require_once __DIR__ . '/features/wpcom-admin-notice/wpcom-admin-notice.php';
 		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';

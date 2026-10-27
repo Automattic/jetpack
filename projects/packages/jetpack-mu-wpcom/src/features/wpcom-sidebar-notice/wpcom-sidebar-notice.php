@@ -29,6 +29,28 @@ function wpcom_suppress_upsell_nudge_for_free_domain_experiment( $nudge ) {
 }
 add_filter( 'jetpack_masterbar_upsell_nudge', 'wpcom_suppress_upsell_nudge_for_free_domain_experiment' );
 
+/**
+ * Handle AJAX requests to dismiss a sidebar notice or the admin notice.
+ *
+ * Registered before the interface check below because the admin notice shows in both interfaces.
+ */
+function wpcom_dismiss_sidebar_notice() {
+	check_ajax_referer( 'wpcom_dismiss_sidebar_notice' );
+	if ( isset( $_REQUEST['id'] ) && isset( $_REQUEST['feature_class'] ) ) {
+		$id            = sanitize_text_field( wp_unslash( $_REQUEST['id'] ) );
+		$feature_class = sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_lib( 'jetpack-jitm/jitm-engine' );
+			\JITM\Engine::dismiss( $id, $feature_class );
+		} else {
+			$jitm = \Automattic\Jetpack\JITMS\JITM::get_instance();
+			$jitm->dismiss( $id, $feature_class );
+		}
+	}
+	wp_die();
+}
+add_action( 'wp_ajax_wpcom_dismiss_sidebar_notice', 'wpcom_dismiss_sidebar_notice' );
+
 remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
 $is_wp_admin = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
@@ -192,23 +214,3 @@ function wpcom_add_sidebar_notice_menu_page() {
 	echo '<script>(function(el){el.parentNode.prepend(el)})(document.getElementById( "toplevel_page_site-notices" ))</script>';
 }
 add_action( 'adminmenu', 'wpcom_add_sidebar_notice_menu_page' );
-
-/**
- * Handle AJAX requests to dismiss a sidebar notice.
- */
-function wpcom_dismiss_sidebar_notice() {
-	check_ajax_referer( 'wpcom_dismiss_sidebar_notice' );
-	if ( isset( $_REQUEST['id'] ) && isset( $_REQUEST['feature_class'] ) ) {
-		$id            = sanitize_text_field( wp_unslash( $_REQUEST['id'] ) );
-		$feature_class = sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) );
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			require_lib( 'jetpack-jitm/jitm-engine' );
-			\JITM\Engine::dismiss( $id, $feature_class );
-		} else {
-			$jitm = \Automattic\Jetpack\JITMS\JITM::get_instance();
-			$jitm->dismiss( $id, $feature_class );
-		}
-	}
-	wp_die();
-}
-add_action( 'wp_ajax_wpcom_dismiss_sidebar_notice', 'wpcom_dismiss_sidebar_notice' );
