@@ -106,7 +106,7 @@ describe( 'FirewallStatus', () => {
 			'a host firewall site is disconnected',
 			true,
 			false,
-			wafConfig( { waf_supported: false, waf_enabled: false } ),
+			wafConfig( { waf_supported: false, waf_enabled: false, waf_provided_by_host: true } ),
 		],
 		[ 'Inactive', 'the firewall data failed to load', true, true, undefined ],
 	] )(
