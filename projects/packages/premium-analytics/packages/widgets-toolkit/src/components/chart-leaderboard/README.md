@@ -172,7 +172,8 @@ action: {
 
 For a post, page, or email with a detail page inside the dashboard, use the `postLink` action.
 `PostTitleLink` chooses the destination: the internal detail route when the row carries a post
-ID, the public URL when it does not, and plain text when neither is usable.
+ID and the reader can open post details, the public URL otherwise, and plain text when neither is
+usable.
 
 ```tsx
 const row = {
@@ -192,10 +193,10 @@ const row = {
 };
 ```
 
-A `postLink` row carries no media, and never becomes a chart button: a chart row that is a
-button cannot nest an anchor.
+A `postLink` row renders its media inside the link, and never becomes a chart button: a chart row
+that is a button cannot nest an anchor.
 
-Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Unlike `postLink`, a `videoLink` row renders its media inside the detail link. It is never a chart button.
+Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Like `postLink`, a `videoLink` row renders its media inside the detail link. It is never a chart button.
 
 ```tsx
 action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },

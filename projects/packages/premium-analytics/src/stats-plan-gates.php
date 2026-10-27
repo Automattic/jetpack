@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
-use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -43,7 +43,7 @@ const JETPACK_STATS_COMMERCIAL_PRODUCTS = array( 'jetpack_stats_monthly', 'jetpa
 /**
  * Jetpack plan families that bundle commercial Stats.
  */
-const JETPACK_STATS_COMMERCIAL_PLAN_PREFIXES = array( 'jetpack_business', 'jetpack_complete', 'jetpack_growth' );
+const JETPACK_STATS_COMMERCIAL_PLAN_PREFIXES = array( 'jetpack_business', 'jetpack_complete', 'jetpack_growth', 'jetpack_pro' );
 
 /**
  * The Stats plan tier the dashboard is gated by.
@@ -179,7 +179,7 @@ function has_jetpack_stats_commercial_purchase() {
 /**
  * Whether a self-hosted site's cached plan or products include any Jetpack Stats product, free or PWYW included.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @return bool
  */
@@ -211,7 +211,7 @@ const STATS_UPGRADE_BANNER_TIERS = array( STATS_TIER_JETPACK_FREE, STATS_TIER_LE
 /**
  * Whether the dashboard offers a paid Stats plan: the tier gets the upgrade banner, the site has no Stats PWYW, and the site first opened the dashboard at least 30 days ago.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @param string $tier One of the STATS_TIER_* values.
  * @return bool
@@ -273,7 +273,7 @@ function get_locked_stats_features( $tier ) {
 /**
  * The dashboard sections a tier replaces with one upgrade prompt, as classic Stats replaces its Insights and Traffic pages.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @param string $tier One of the STATS_TIER_* values.
  * @return string[] Section slugs.
@@ -285,7 +285,7 @@ function get_locked_stats_sections( $tier ) {
 /**
  * What a locked section's upgrade prompt says: classic Stats' upsell, without its price.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @param string $section Section slug.
  * @return array{title:string, description:string, features:string[], upgrade_label:string, expand_label:string, support_url:string} The copy.
@@ -455,41 +455,23 @@ function localize_stats_support_url( $url ) {
 }
 
 /**
- * Where to buy a locked feature: classic Stats' purchase destinations.
+ * Where to buy a locked feature: the dashboard's upgrade page on a Jetpack site, a WordPress.com plan elsewhere.
  *
  * @since 0.13.0
  *
  * @param string $feature Feature key, or the slug of a locked section, which no commercial feature shares.
  * @param string $tier    One of the STATS_TIER_* values.
- * @param string $from    Where the purchase started, for the Odyssey purchase flow.
- * @return string The URL, or an empty string when there is nowhere to buy it.
+ * @param string $from    Where the upgrade starts, reported as the upgrade page's source.
+ * @return string The URL.
  */
 function get_stats_upgrade_url( $feature, $tier, $from = 'jetpack-premium-analytics' ) {
-	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG;
-
 	if ( STATS_TIER_JETPACK_FREE === $tier ) {
-		// The purchase flow lives in Odyssey Stats; with it off, `page=stats` shows only an opt-in notice.
-		$stats_page = function_exists( 'menu_page_url' ) ? menu_page_url( 'stats', false ) : '';
-		if ( ! $stats_page || ! Stats_Options::get_option( 'enable_odyssey_stats' ) ) {
-			return '';
-		}
-
-		$query = http_build_query(
-			array(
-				'from'         => $from,
-				'productType'  => 'commercial',
-				'redirect_uri' => $return_path,
-			),
-			'',
-			'&',
-			PHP_QUERY_RFC3986
-		);
-
-		return $stats_page . '#!/stats/purchase/' . (int) \Jetpack_Options::get_option( 'id' ) . '?' . $query;
+		return Analytics::dashboard_url( '/upgrade?source=' . rawurlencode( $from ) );
 	}
 
-	$plan      = in_array( $feature, STATS_COMMERCIAL_FEATURES, true ) ? 'premium' : 'personal';
-	$site_slug = ( new Status() )->get_site_suffix();
+	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG;
+	$plan        = in_array( $feature, STATS_COMMERCIAL_FEATURES, true ) ? 'premium' : 'personal';
+	$site_slug   = ( new Status() )->get_site_suffix();
 
 	return 'https://wordpress.com/checkout/' . rawurlencode( $site_slug ) . '/' . $plan . '?redirect_to=' . rawurlencode( admin_url( $return_path ) );
 }
@@ -509,7 +491,7 @@ function get_stats_plan_gates() {
 	foreach ( $features as $feature ) {
 		$copy                        = get_stats_feature_copy( $feature );
 		$copy['support_url']         = localize_stats_support_url( $copy['support_url'] );
-		$locked_features[ $feature ] = $copy + array( 'upgrade_url' => get_stats_upgrade_url( $feature, $tier ) );
+		$locked_features[ $feature ] = $copy + array( 'upgrade_url' => get_stats_upgrade_url( $feature, $tier, 'jetpack-premium-analytics-locked-feature' ) );
 	}
 
 	$locked_widget_types = array();
@@ -642,6 +624,11 @@ function maybe_invalidate_stats_caches() {
  */
 function maybe_refresh_jetpack_plan() {
 	if ( ! Analytics::is_dashboard_request() || ( new Host() )->is_wpcom_platform() ) {
+		return;
+	}
+
+	// An unconnected visit cannot fetch the plan, so it must not start the throttle that would skip the first load after connecting.
+	if ( ! ( new Connection_Manager() )->is_connected() ) {
 		return;
 	}
 

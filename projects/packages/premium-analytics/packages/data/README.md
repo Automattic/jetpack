@@ -74,7 +74,7 @@ Runs a report's primary query, and its comparison query when `params` carry
 
 - `queryFactory`: builds the query definition from the params of each request
 - `params`: `ReportParams` with `from`, `to`, `interval`, and optional comparison params
-- `options`: optional, e.g. `enabled`
+- `options`: optional. `enabled` turns the queries off, `disabledComparisonKey` parks the comparison query, and `refreshNotice: false` keeps a failed refresh out of the stale-data notice (default `true`)
 
 **Returns:** `{ primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error, refetch }`
 
@@ -147,18 +147,20 @@ allowed.
 
 **Returns:** `IntervalType`
 
-### `intervalMenuOptions( params, locked, periods? )`
+### `intervalMenuOptions( params, locked, periods?, extension? )`
 
-Returns what an interval menu lists: the buckets it can pick, and the ones the range could draw but
-`locked` withholds, to list after them with a lock. A bucket never lands in both.
+Returns what an interval menu lists: the buckets it can pick, the ones the widget withholds for
+now, and the ones the range could draw but `locked` withholds, to list after them with a lock. A
+bucket lands in one list only.
 
 **Parameters:**
 
-- `params`: `{ preset?: PrimaryPresetId; from?: string; to?: string }` - The range being edited
+- `params`: `IntervalRange` (`{ preset?: PrimaryPresetId; from?: string; to?: string }`) - The range being edited
 - `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
 - `periods`: `readonly [ StatsPeriod, ...StatsPeriod[] ] | undefined` - The periods the chart draws; every bucket when omitted
+- `extension`: `IntervalExtension | undefined` - The widget's own changes: `extra` buckets added after the range's, and `unavailable` ones listed unpickable with a `hint`. Pass the same one to `chartInterval`
 
-**Returns:** `{ options: IntervalType[]; lockedOptions: LockableInterval[] }` - Each in the range's order
+**Returns:** `{ options: IntervalType[]; lockedOptions: LockableInterval[]; unavailableOptions: IntervalType[]; unavailableHint?: string }` - Each in the range's order, a widget's `extra` buckets last
 
 ### `needsReportDateParamsSeed( search?, lockedIntervals? )`
 
@@ -300,7 +302,8 @@ This package exports the following public API:
 - `getDefaultIntervalForPeriod` - Default interval for a preset / range
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
-- `intervalMenuOptions` - The open and the locked buckets an interval menu lists
+- `intervalMenuOptions` - The open, withheld and locked buckets an interval menu lists
+- `getDaysBetweenInclusive` - The calendar days a range spans, both ends counted
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
 - `getStatsDatePolicy` - The date limits the site's plan sets
 - `getSectionDatePolicy` - The date limits a dashboard section follows
@@ -323,6 +326,8 @@ This package exports the following public API:
 
 - `ReportParams` - The report params every hook takes
 - `LockableInterval` - A bucket a plan can lock (`week`, `month`, `year`)
+- `IntervalRange` - A range as the interval helpers read it (`preset`, `from`, `to`)
+- `IntervalExtension` - The buckets a widget adds to its range (`extra`) or lists unpickable with a hint (`unavailable`)
 - `StatsDatePolicy` - The date limits a plan sets: open, the last 7 days, or no long presets
 - `DateLimitFeature` - The Stats gate a date limit comes from
 - `DateLimits` - The date limits a report scope declares to its controls

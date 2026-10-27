@@ -85,6 +85,7 @@ export {
 } from './utils';
 export {
 	getAllowedIntervalsForPreset,
+	getDaysBetweenInclusive,
 	getDefaultIntervalForPeriod,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
@@ -95,7 +96,15 @@ export {
 	defaultPeriodForInterval,
 	drawableIntervals,
 	intervalMenuOptions,
+	type IntervalExtension,
+	type IntervalRange,
 } from './utils/periods';
+export {
+	isDashboardSectionAvailable,
+	isPostDetailAvailable,
+	POST_DETAIL_SECTION,
+	type DashboardSectionSlug,
+} from './utils/dashboard-sections';
 export {
 	getLockedFeature,
 	getLockedSection,
@@ -104,6 +113,7 @@ export {
 	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export { getStatsCheckoutUrl } from './utils/stats-checkout-url';
 export {
 	applyStatsDatePolicy,
 	getPolicyDefaultPreset,

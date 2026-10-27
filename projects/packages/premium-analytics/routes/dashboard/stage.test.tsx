@@ -96,7 +96,9 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		<div role={ role }>{ children }</div>
 	);
 
-	return { Stack, VisuallyHidden };
+	const JetpackFooter = () => <footer>Jetpack footer</footer>;
+
+	return { JetpackFooter, Stack, VisuallyHidden };
 } );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -539,6 +541,18 @@ function mockSection( overrides: Record< string, unknown > = {} ) {
 
 beforeEach( () => {
 	jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
+} );
+
+describe( 'Dashboard page', () => {
+	it( 'ends the page with the Jetpack footer', () => {
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
+		mockActiveSectionSlug = 'insights';
+		mockSection();
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'Jetpack footer' ) ).toBeInTheDocument();
+	} );
 } );
 
 describe( 'Dashboard report scope', () => {

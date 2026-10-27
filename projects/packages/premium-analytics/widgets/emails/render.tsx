@@ -245,7 +245,6 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 	const rows = useMemo( () => toEmailRows( data, WIDGET_ROW_LIMIT ), [ data ] );
 
 	useReportActions( {
-		report: 'emails',
 		csv: {
 			exporter: emailsCsvExporter,
 			status: { isLoading, isFetching, isError: rows.length === 0 && isError },

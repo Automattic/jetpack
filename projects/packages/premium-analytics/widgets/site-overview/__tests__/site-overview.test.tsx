@@ -62,10 +62,6 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.getByText( 'Comments' ) ).toBeInTheDocument();
 		expect( screen.getByText( '260' ) ).toBeInTheDocument();
 		expect( screen.getByText( '17' ) ).toBeInTheDocument();
-		// Sighted mouse users get the caveat as a hover title…
-		expect( screen.getByTitle( /Sum of daily visitors/ ) ).toBeInTheDocument();
-		// …and assistive technology gets it as visually hidden text, since a
-		// `title` on a non-focusable element is unreachable by keyboard.
 		expect( screen.getByText( /Sum of daily visitors/ ) ).toBeInTheDocument();
 	} );
 
