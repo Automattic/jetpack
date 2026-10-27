@@ -1,6 +1,6 @@
-import { Button } from '@wordpress/components';
 import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { SOURCE_GOOGLE_PHOTOS } from '../../constants';
 import MediaBrowser from '../../media-browser';
@@ -99,24 +99,24 @@ function GooglePhotosMedia( props ) {
 
 	return (
 		<div className={ clsx( className, 'jetpack-external-media-wrapper__google' ) }>
-			<div className="jetpack-external-media-header__view">
+			<Stack
+				direction="row"
+				align="center"
+				justify="space-between"
+				gap="lg"
+				wrap="wrap"
+				className="jetpack-external-media-header__view"
+			>
 				{ ! isLoading && (
-					<div className="jetpack-external-media-header__change-selection">
-						<Button
-							variant="primary"
-							isBusy={ selectionChanged }
-							disabled={ selectionChanged }
-							onClick={ onChangeSelection }
-						>
-							{ __( 'Change selection', 'jetpack-external-media' ) }
-						</Button>
-					</div>
+					<Button loading={ selectionChanged } onClick={ onChangeSelection }>
+						{ __( 'Change selection', 'jetpack-external-media' ) }
+					</Button>
 				) }
 
 				{ ( ! isLoading || media.length > 0 ) && (
 					<GooglePhotosAccount account={ account } setAuthenticated={ setAuthenticated } />
 				) }
-			</div>
+			</Stack>
 
 			<MediaBrowser
 				className="jetpack-external-media-browser__google"

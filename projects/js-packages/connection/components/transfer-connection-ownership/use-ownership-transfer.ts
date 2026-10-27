@@ -5,6 +5,7 @@ import restApi from '@automattic/jetpack-api';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { CONNECTION_EVENTS, trackConnectionEvent } from '../../helpers/connection-tracking.ts';
 import useRestApiInit from '../../hooks/use-rest-api-init';
 import { STORE_ID } from '../../state/store';
 import type { ConnectionOwnerCandidate } from './types';
@@ -13,6 +14,46 @@ import type { ConnectionOwnerCandidate } from './types';
 interface ApiError {
 	message?: string;
 	response?: { code?: string; message?: string };
+}
+
+/** The refusals the transfer endpoint documents; `transferErrorMessage` has copy for each. */
+const KNOWN_REFUSALS = [
+	'ownership_locked',
+	'new_owner_not_admin',
+	'new_owner_not_connected',
+	'new_owner_is_existing_owner',
+] as const;
+
+type KnownRefusal = ( typeof KNOWN_REFUSALS )[ number ];
+
+/**
+ * Whether a REST error code is one of the documented transfer refusals.
+ *
+ * @param {string} code - The REST error code.
+ * @return {boolean} True for a known refusal.
+ */
+function isKnownRefusal( code: string ): code is KnownRefusal {
+	return ( KNOWN_REFUSALS as readonly string[] ).includes( code );
+}
+
+/**
+ * Read a rejection from the API client as an ApiError, or an empty one when it is not an object.
+ *
+ * @param {unknown} err - The rejection from the API client.
+ * @return {ApiError} The error, safe to read optional fields from.
+ */
+function toApiError( err: unknown ): ApiError {
+	return err && typeof err === 'object' ? ( err as ApiError ) : {};
+}
+
+/**
+ * The refusal code on a failed transfer, or '' when there is none.
+ *
+ * @param {unknown} err - The rejection from the API client.
+ * @return {string} The REST error code.
+ */
+function getRefusalCode( err: unknown ): string {
+	return toApiError( err ).response?.code ?? '';
 }
 
 /**
@@ -24,14 +65,16 @@ interface ApiError {
  * The refusal code is on the thrown Error's `response`, not the Error itself: the API
  * client puts the REST body there and keeps `message` for its own "… (Status 400)" text.
  *
- * @param {ApiError} err - The rejection from the API client.
+ * @param {unknown} err - The rejection from the API client.
  * @return {string} Message to show.
  */
-function transferErrorMessage( err: ApiError ): string {
-	const code = err?.response?.code ?? '';
-	const message = err?.response?.message ?? err?.message ?? '';
+function transferErrorMessage( err: unknown ): string {
+	const apiError = toApiError( err );
+	const code = getRefusalCode( apiError );
+	const message = apiError.response?.message ?? apiError.message ?? '';
 
-	switch ( code ) {
+	// Keep the cases in step with KNOWN_REFUSALS, which Tracks reports by the same codes.
+	switch ( isKnownRefusal( code ) ? code : null ) {
 		case 'ownership_locked':
 			return __(
 				'Ownership of this connection is locked and cannot be transferred.',
@@ -70,6 +113,8 @@ export interface UseOwnershipTransferArgs {
 	apiNonce: string;
 	/** Called as soon as WordPress.com accepts the new owner. */
 	onTransferred?: ( newOwnerId: number ) => void;
+	/** Surface to report Tracks events as. Sent as null when omitted. */
+	trackingContext?: string;
 }
 
 export type { ConnectionOwnerCandidate };
@@ -84,6 +129,7 @@ export default function useOwnershipTransfer( {
 	apiRoot,
 	apiNonce,
 	onTransferred,
+	trackingContext,
 }: UseOwnershipTransferArgs ) {
 	const [ candidates, setCandidates ] = useState< ConnectionOwnerCandidate[] | null >( null );
 	const [ selectedId, setSelectedId ] = useState< number | null >( null );
@@ -124,6 +170,9 @@ export default function useOwnershipTransfer( {
 			} )
 			.catch( () => {
 				if ( ! ignore ) {
+					trackConnectionEvent( CONNECTION_EVENTS.ownerTransferError, trackingContext, {
+						reason: 'candidates_load_failed',
+					} );
 					setCandidates( [] );
 					setError(
 						__(
@@ -138,6 +187,8 @@ export default function useOwnershipTransfer( {
 		return () => {
 			ignore = true;
 		};
+		// Fetch once on mount; the tracking context is not a reason to refetch.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	const confirm = useCallback( () => {
@@ -161,6 +212,7 @@ export default function useOwnershipTransfer( {
 
 		setIsTransferring( true );
 		setError( '' );
+		trackConnectionEvent( CONNECTION_EVENTS.ownerTransferAttempt, trackingContext );
 
 		restApi
 			.setConnectionOwner( id )
@@ -168,6 +220,7 @@ export default function useOwnershipTransfer( {
 				// Tell the store who owns the connection now, so every surface reading it
 				// stops describing an owner the user no longer is.
 				setConnectionOwner( { id, displayName } );
+				trackConnectionEvent( CONNECTION_EVENTS.ownerTransferSuccess, trackingContext );
 
 				if ( ! isMounted.current ) {
 					return;
@@ -178,14 +231,19 @@ export default function useOwnershipTransfer( {
 				onTransferred?.( id );
 			} )
 			.catch( ( err: unknown ) => {
+				const code = getRefusalCode( err );
+				trackConnectionEvent( CONNECTION_EVENTS.ownerTransferError, trackingContext, {
+					reason: isKnownRefusal( code ) ? code : 'unknown',
+				} );
+
 				if ( ! isMounted.current ) {
 					return;
 				}
 
-				setError( transferErrorMessage( err as ApiError ) );
+				setError( transferErrorMessage( err ) );
 				setIsTransferring( false );
 			} );
-	}, [ selectedCandidate, onTransferred, setConnectionOwner ] );
+	}, [ selectedCandidate, onTransferred, setConnectionOwner, trackingContext ] );
 
 	return {
 		candidates,

@@ -59,5 +59,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial version.
 
-[0.2.0]: https://github.com/Automattic/jetpack-cookie-consent/compare/0.1.0...0.2.0
-[0.1.0]: https://github.com/Automattic/jetpack-cookie-consent/compare/0.1.0-alpha...0.1.0
+[0.2.0]: https://github.com/Automattic/jetpack-cookie-consent/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/Automattic/jetpack-cookie-consent/compare/v0.1.0-alpha...v0.1.0

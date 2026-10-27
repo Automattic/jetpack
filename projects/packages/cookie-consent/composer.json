@@ -52,7 +52,7 @@
 			"::PACKAGE_VERSION": "src/class-cookie-consent.php"
 		},
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-cookie-consent/compare/${old}...${new}"
+			"link-template": "https://github.com/Automattic/jetpack-cookie-consent/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
 			"dev-trunk": "0.2.x-dev"

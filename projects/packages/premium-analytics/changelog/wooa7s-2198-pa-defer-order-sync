@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Sync: Move the store analytics sync opt-in and the lookup data backfill to the WooCommerce Stats package, and record the first full-sync start separately for each analytics module.
