@@ -46,54 +46,6 @@ body.toplevel_page_jetpack-seo {
 	flex-direction: column;
 }
 
-// The tabs strip carries one non-tab affordance — the GEO infotip — which is
-// positioned against it (see `.jetpack-seo-tabs-strip__infotip`). Scoped to
-// this package rather than added to the shared mixin, which no one else needs.
-.jetpack-seo-tabs-strip {
-	display: flex;
-	align-items: center;
-}
-
-// Room after the GEO tab for its infotip: the 20px glyph plus an `xs` gap. The
-// infotip itself lives outside the tab list (see `GeoInfotip`), so the tab
-// reserves the space and the trigger is moved into it.
-.jetpack-seo-tabs-strip__geo-tab {
-	margin-inline-end: calc(20px + var(--wpds-dimension-gap-xs));
-}
-
-// Reset the trigger's button chrome so it reads as an icon beside the tab label
-// rather than a control of its own. Sized to the 20px glyph.
-// Positioned into the space the GEO tab reserves: `inset-inline-start` is set
-// inline from the GEO tab's measured end (`useInfotipOffset`), against the
-// strip, which the layout mixin makes `position: sticky` and so the trigger's
-// containing block.
-.jetpack-seo-tabs-strip__infotip {
-	position: absolute;
-	inset-block-start: 50%;
-	translate: 0 -50%;
-	margin-inline-start: var(--wpds-dimension-gap-xs);
-	display: inline-flex;
-	align-items: center;
-	padding: 0;
-	border: 0;
-	border-radius: var(--wpds-border-radius-sm);
-	background: none;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	cursor: var(--wpds-cursor-control);
-
-	&:hover {
-		color: var(--wpds-color-foreground-content-neutral);
-	}
-}
-
-// `Popover.Popup` sizes to its content, so a single sentence lays out as one
-// ~600px line — wider than the space left of the trigger, which put the start
-// of the sentence off the content area and clipped it. Cap it so the text
-// wraps into a compact block the positioner can keep on screen.
-.jetpack-seo-tabs-strip__infotip-popup {
-	max-inline-size: 20rem;
-}
-
 // The full-bleed Content (DataViews) tab opts out of the `0 0 auto` sizing:
 // it used to be a direct flex child of the page column and so inherited the
 // layout mixin's fill treatment (`flex: 1 1 auto; min-height: 0; display:

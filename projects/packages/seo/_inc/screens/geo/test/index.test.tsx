@@ -80,6 +80,23 @@ const crawlerForm = (
 
 const noop = () => {};
 
+describe( 'GeoScreen (GEO tab) — intro', () => {
+	// Moved here from an infotip beside the GEO tab once Settings followed GEO.
+	it( 'spells out the acronym at the top of the tab', () => {
+		render(
+			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
+		);
+
+		const intro = screen.getByText(
+			'GEO stands for generative engine optimization. These settings control how AI sees and uses your site.'
+		);
+		expect( intro.tagName ).toBe( 'P' );
+		// First in the tab, above every module.
+		// eslint-disable-next-line testing-library/no-node-access -- asserting its position in the tab.
+		expect( intro.parentElement?.firstElementChild ).toBe( intro );
+	} );
+} );
+
 describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 	it( 'shows the view link and no warning when llms.txt can be served', () => {
 		render(

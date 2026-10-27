@@ -62,68 +62,12 @@ describe( 'DashboardNav', () => {
 		] );
 	} );
 
-	describe( 'the GEO infotip', () => {
-		// Queried by role and name throughout: a `Tooltip` would satisfy neither half of
-		// that, since its popup isn't exposed to assistive technologies and it's disabled
-		// on touch devices. The affordance being a real button in the accessibility tree
-		// is the whole reason for using `Popover`, so every test below leans on it.
-		it( 'reveals the definition of the acronym on click', () => {
-			render( <DashboardNav active="overview">content</DashboardNav> );
+	// The "What is GEO?" explanation moved onto the GEO screen (see its intro), so
+	// the tab strip holds tabs only.
+	it( 'has no infotip in the tab strip', () => {
+		render( <DashboardNav active="overview">content</DashboardNav> );
 
-			// Asserting it is absent first is what makes the assertion below meaningful:
-			// a popover that rendered its content eagerly would pass either way.
-			expect( screen.queryByText( /generative engine optimization/ ) ).not.toBeInTheDocument();
-
-			// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn), matching the sibling tests.
-			fireEvent.click( screen.getByRole( 'button', { name: 'What is GEO?' } ) );
-
-			expect( screen.getByText( /generative engine optimization/ ) ).toBeInTheDocument();
-		} );
-
-		it( 'stays out of the tablist, so it cannot disturb tab navigation', () => {
-			render( <DashboardNav active="overview">content</DashboardNav> );
-
-			const trigger = screen.getByRole( 'button', { name: 'What is GEO?' } );
-
-			// `Tabs.Tab` renders a `<button>`, so nesting the trigger inside the GEO tab
-			// would be a button within a button; a non-tab child of the `tablist` would
-			// break its arrow-key navigation. Both are ruled out by construction here.
-			expect( screen.getByRole( 'tablist' ) ).not.toContainElement( trigger );
-			expect( screen.getByRole( 'tab', { name: 'GEO' } ) ).not.toContainElement( trigger );
-		} );
-
-		// The trigger sits after `Tabs.List`, but Settings follows GEO, so it is moved to
-		// the GEO tab's end. jsdom has no layout, so the two boxes are stubbed.
-		it( 'is placed at the end of the GEO tab, not after the last tab', () => {
-			const rect = ( left: number, right: number ) =>
-				( { left, right, top: 0, bottom: 40, width: right - left, height: 40 } ) as DOMRect;
-			const spy = jest
-				.spyOn( HTMLElement.prototype, 'getBoundingClientRect' )
-				.mockImplementation( function ( this: HTMLElement ) {
-					if ( this.classList.contains( 'jetpack-seo-tabs-strip' ) ) {
-						return rect( 100, 900 );
-					}
-					if ( this.classList.contains( 'jetpack-seo-tabs-strip__geo-tab' ) ) {
-						return rect( 300, 340 );
-					}
-					return rect( 0, 0 );
-				} );
-
-			render( <DashboardNav active="overview">content</DashboardNav> );
-
-			// 340 (GEO tab's end) - 100 (strip's start).
-			expect( screen.getByRole( 'button', { name: 'What is GEO?' } ) ).toHaveStyle( {
-				insetInlineStart: '240px',
-			} );
-			spy.mockRestore();
-		} );
-
-		it( 'is hidden along with the tab it explains on gated sites', () => {
-			isGated.mockReturnValue( true );
-
-			render( <DashboardNav active="overview">content</DashboardNav> );
-
-			expect( screen.queryByRole( 'button', { name: 'What is GEO?' } ) ).not.toBeInTheDocument();
-		} );
+		expect( screen.queryByRole( 'button', { name: 'What is GEO?' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /generative engine optimization/ ) ).not.toBeInTheDocument();
 	} );
 } );

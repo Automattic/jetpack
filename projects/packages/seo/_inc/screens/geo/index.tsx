@@ -2,7 +2,7 @@ import { Button, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { commentContent, details, key, page } from '@wordpress/icons';
-import { Badge, Card, CollapsibleCard, Link, Notice, Stack, Tooltip } from '@wordpress/ui';
+import { Badge, Card, CollapsibleCard, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import { isCrawlerBlocked } from '../../data/blocked-crawlers';
 import './style.scss';
@@ -499,6 +499,15 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 
 	return (
 		<div className="jetpack-seo-geo">
+			{ /* Spells out the acronym the tab is named after. It used to be an infotip
+			   beside the GEO tab, but Settings now follows GEO in the tab bar and the
+			   infotip couldn't sit inside the tab list. */ }
+			<Text variant="body-md" render={ <p /> } className="jetpack-seo-geo__intro">
+				{ __(
+					'GEO stands for generative engine optimization. These settings control how AI sees and uses your site.',
+					'jetpack-seo'
+				) }
+			</Text>
 			{ llmsTxt && (
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>
