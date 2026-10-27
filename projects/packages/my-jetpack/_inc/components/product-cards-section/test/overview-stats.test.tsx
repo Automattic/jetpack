@@ -53,4 +53,24 @@ describe( 'OverviewStats', () => {
 		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { pressed: true } ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'keeps Views selected when a tab is clicked while loading', async () => {
+		const stats = ( isLoading: boolean ) => (
+			<OverviewStats
+				isLoading={ isLoading }
+				counts={ { views: 10, visitors: 5, likes: 2, comments: 1 } }
+				chartData={ chartData }
+				onDetailedStatsClick={ jest.fn() }
+			/>
+		);
+		const { rerender } = render( stats( true ) );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /Visitors/ } ) );
+		rerender( stats( false ) );
+
+		expect( screen.getByRole( 'button', { name: /Views/ } ) ).toHaveAttribute(
+			'aria-pressed',
+			'true'
+		);
+	} );
 } );

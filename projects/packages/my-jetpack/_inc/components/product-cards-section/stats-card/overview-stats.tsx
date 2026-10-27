@@ -45,6 +45,7 @@ const Tab: FC< TabProps > = ( { metric, label, count, isLoading, isSelected, onS
 			variant="unstyled"
 			className={ clsx( styles.tab, { [ styles[ 'is-selected' ] ]: isSelected } ) }
 			aria-pressed={ isSelected }
+			disabled={ isLoading }
 			onClick={ handleClick }
 		>
 			<Text variant="body-md">{ label }</Text>
