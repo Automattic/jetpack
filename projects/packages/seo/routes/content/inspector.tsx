@@ -20,8 +20,7 @@ function Inspector() {
 		strict: false,
 	} ) as InspectorSearch;
 	const navigate = useNavigate();
-	// ThemeProvider's own wrapper has no height, so it themes this frame instead,
-	// which fills the sidebar and lets the editor's footer sit at the bottom.
+	// ThemeProvider themes this frame instead of adding its own wrapper div, which has no height.
 	const [ frame, setFrame ] = useState< HTMLDivElement | null >( null );
 
 	const onClose = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
