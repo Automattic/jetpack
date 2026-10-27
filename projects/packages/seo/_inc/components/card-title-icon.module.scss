@@ -1,16 +1,26 @@
 // A card title led by a plain icon in the card's text color. Shared by the
 // Overview cards and the Settings and GEO modules so they read as one family.
+
+// A block-level `flex`, not `inline-flex`: as an inline box the row sat on the
+// title's text baseline, which added a few pixels of line height under the icon
+// and pushed the title (and the status beside it) below the collapsible cards'
+// chevron. As a block the row is exactly as tall as its tallest line.
 .cardTitle {
-	display: inline-flex;
+	display: flex;
 	align-items: center;
 	// `sm` (8px) matches the icon-to-label spacing used elsewhere in these cards,
 	// rather than the tighter `xs`.
 	gap: var(--wpds-dimension-gap-sm);
 }
 
-// The 24px icon itself, with no background. The `@wordpress/icons` glyphs
-// draw in `currentColor`, so it takes the title's dark text color.
-// `flex: none` keeps a long title from squeezing it.
+// The 24px icon itself (sized in `card-title-icon.tsx`), with no background.
+// The `@wordpress/icons` glyphs draw in `currentColor`, so it takes the
+// title's dark text color. `flex: none` keeps a long title from squeezing it.
 .titleIcon {
 	flex: none;
+	// Overhang the title's 20px line by 2px on each side instead of making the
+	// row 24px tall. `CollapsibleCard` centers its chevron on that 20px line
+	// (half of `line-height-sm` from the top of the header), so this keeps the
+	// icon, title and status on the chevron's center.
+	margin-block: calc((var(--wpds-typography-line-height-sm) - 24px) / 2);
 }
