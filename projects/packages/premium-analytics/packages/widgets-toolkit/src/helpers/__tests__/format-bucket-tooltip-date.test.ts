@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { getSettings, setSettings } from '@wordpress/date';
+/**
  * Internal dependencies
  */
 import { formatBucketTooltipDate } from '../format-bucket-tooltip-date';
@@ -38,5 +42,25 @@ describe( 'formatBucketTooltipDate', () => {
 		],
 	] )( '%s', ( _name, datum, resolution, expected ) => {
 		expect( formatBucketTooltipDate( datum, resolution ) ).toBe( expected );
+	} );
+
+	it( 'marks the hour a fall-back day repeats', () => {
+		const defaults = getSettings();
+
+		setSettings( {
+			...defaults,
+			timezone: { offset: -4, offsetFormatted: '-4', string: 'America/New_York', abbr: '' },
+		} );
+
+		try {
+			expect( formatBucketTooltipDate( { date: at( '2026-11-01T05:00:00' ) }, 'hour' ) ).toMatch(
+				/ \(repeated hour\)$/
+			);
+			expect(
+				formatBucketTooltipDate( { date: at( '2026-11-01T04:00:00' ) }, 'hour' )
+			).not.toMatch( /repeated/ );
+		} finally {
+			setSettings( defaults );
+		}
 	} );
 } );
