@@ -10,7 +10,7 @@ import './style.scss';
 export type RecentPost = {
 	id: number;
 	title: string;
-	status: 'publish' | 'draft';
+	status: 'publish';
 	date: string;
 	url: string;
 	image: string | null;
@@ -84,7 +84,7 @@ function RecentPostLink( { post, position }: { post: RecentPost; position: numbe
 				className="jetpack-newsletter-recent-posts__details"
 			>
 				<strong>{ decodeEntities( post.title ) }</strong>
-				{ post.status === 'publish' ? <span>{ formatDate( post.date ) }</span> : null }
+				<span>{ formatDate( post.date ) }</span>
 			</Stack>
 		</Link>
 	);
@@ -188,9 +188,7 @@ function getRecentPostsContent( {
 							</td>
 							<td>
 								<span className="jetpack-newsletter-recent-posts__status">
-									{ post.status === 'publish'
-										? __( 'Published', 'jetpack-newsletter' )
-										: __( 'Draft', 'jetpack-newsletter' ) }
+									{ __( 'Published', 'jetpack-newsletter' ) }
 								</span>
 							</td>
 							<td className="jetpack-newsletter-recent-posts__metric">

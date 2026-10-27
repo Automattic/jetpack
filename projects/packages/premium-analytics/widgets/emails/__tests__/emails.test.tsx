@@ -121,6 +121,11 @@ describe( 'EmailsList', () => {
 
 		expect( screen.getAllByRole( 'link' ) ).toHaveLength( links );
 		expect( screen.queryByRole( 'link', { name: /^View / } ) ).not.toBeInTheDocument();
+		// An empty action slot beside the label would still space it; the label holds the title alone.
+		// eslint-disable-next-line testing-library/no-node-access -- An empty slot has no accessible query target.
+		const label = screen.getByText( 'Digest' ).closest( 'li' )?.firstElementChild;
+		// eslint-disable-next-line testing-library/no-node-access -- Its child count is the check.
+		expect( label?.childElementCount ).toBe( 1 );
 	} );
 
 	it( 'keeps rows in the same order for either metric', () => {

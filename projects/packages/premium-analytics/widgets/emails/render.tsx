@@ -15,8 +15,7 @@ import {
 	PostTitleLink,
 	ViewLiveLink,
 	WIDGET_ROW_LIMIT,
-	safeHttpUrl,
-	toPostDetailId,
+	toViewLiveUrl,
 	WidgetRoot,
 	WidgetState,
 	useWidgetNavigationSearch,
@@ -167,6 +166,7 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 
 	const items: MetricListItem[] = rows.map( row => {
 		const { count, rate, formatRestored, description } = metricValues( row, metric );
+		const liveUrl = toViewLiveUrl( 'post', row.postId, row.link );
 
 		return {
 			id: row.id,
@@ -179,11 +179,8 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 					title={ row.label }
 				/>
 			),
-			// Only beside a title that opens the email's stats: a title that links out is the one link.
 			action:
-				toPostDetailId( row.postId ) !== undefined && safeHttpUrl( row.link ) ? (
-					<ViewLiveLink href={ row.link } label={ row.label } />
-				) : undefined,
+				liveUrl === undefined ? undefined : <ViewLiveLink href={ liveUrl } label={ row.label } />,
 			value: [
 				<span key="count" aria-hidden="true">
 					<AbbreviatedValue
@@ -253,7 +250,6 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 	const rows = useMemo( () => toEmailRows( data, WIDGET_ROW_LIMIT ), [ data ] );
 
 	useReportActions( {
-		report: 'emails',
 		csv: {
 			exporter: emailsCsvExporter,
 			status: { isLoading, isFetching, isError: rows.length === 0 && isError },

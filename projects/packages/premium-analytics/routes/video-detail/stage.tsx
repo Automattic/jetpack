@@ -17,6 +17,7 @@ import {
 	DetailPageShell,
 	describeError,
 	useDetailPageCustomize,
+	useHostLinkSearch,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
 	type PageNoticeProps,
@@ -163,7 +164,7 @@ function VideoDetail(): JSX.Element {
 	}
 
 	return (
-		<DashboardWidgetHostProvider>
+		<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 			<WidgetDashboard.Policy canPerform={ canPerform }>
 				<WidgetDashboard
 					widgetTypes={ widgetTypes }

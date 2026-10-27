@@ -84,7 +84,7 @@ class Jetpack {
 	/**
 	 * Marks a Jetpack plugin whose Backup dashboard follows the site's plan, not the backup module.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @var bool
 	 */
@@ -853,7 +853,7 @@ class Jetpack {
 	/**
 	 * What switching a module off leaves unchanged, for interfaces that still offer it; empty when nothing.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param string $module Module slug.
 	 * @return string

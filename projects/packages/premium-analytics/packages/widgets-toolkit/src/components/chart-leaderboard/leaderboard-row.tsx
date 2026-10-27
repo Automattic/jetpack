@@ -1,17 +1,15 @@
 /**
  * External dependencies
  */
-import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import { toDetailId } from '../../helpers/detail-id';
 import { ExternalLink } from '../external-link';
 import { InternalLink, type InternalLinkProps } from '../internal-link';
-import { PostTitleLink, toPostDetailId } from '../post-title-link';
+import { PostTitleLink } from '../post-title-link';
 import { VideoTitleLink } from '../video-title-link';
-import { ViewLiveLink } from '../view-live-link';
+import { ViewLiveLink, toViewLiveUrl } from '../view-live-link';
 import { LeaderboardLabel, type LeaderboardRowMedia } from './leaderboard-label';
 import styles from './leaderboard-label.module.scss';
 import type { LeaderboardVariant } from './leaderboard-variant';
@@ -139,16 +137,19 @@ export function LeaderboardRow( {
 
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
-		const detailId =
-			action.kind === 'postLink' ? toPostDetailId( action.id ) : toDetailId( action.id );
+		const liveUrl = toViewLiveUrl(
+			action.kind === 'postLink' ? 'post' : 'video',
+			action.id,
+			action.href
+		);
 		const content =
 			media.kind !== 'none' ? (
 				<LeaderboardLabel label={ label } media={ media } decorativeMedia />
 			) : undefined;
 
-		// A row whose title opens a detail page and that has a public URL holds two
-		// links, so the row chrome goes on a wrapper and the title keeps the tooltip.
-		if ( detailId !== undefined && safeHttpUrl( action.href ) ) {
+		// A row with a "View" action holds two links, so the row chrome goes on a
+		// wrapper and the title keeps the tooltip.
+		if ( liveUrl !== undefined ) {
 			return (
 				<span className={ rowClassName }>
 					<TitleLink
@@ -161,7 +162,7 @@ export function LeaderboardRow( {
 					>
 						{ content }
 					</TitleLink>
-					<ViewLiveLink href={ action.href } label={ label } className={ styles.viewAction } />
+					<ViewLiveLink href={ liveUrl } label={ label } className={ styles.viewAction } />
 				</span>
 			);
 		}

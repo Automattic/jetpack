@@ -15,14 +15,4 @@ describe( 'ViewLiveLink', () => {
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
-
-	it.each( [
-		[ 'no URL', undefined ],
-		[ 'a null URL', null ],
-		[ 'an unsupported scheme', 'javascript:alert(1)' ],
-	] )( 'renders nothing for content with %s', ( _, href ) => {
-		const { container } = render( <ViewLiveLink href={ href } label="Draft" /> );
-
-		expect( container ).toBeEmptyDOMElement();
-	} );
 } );

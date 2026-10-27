@@ -129,7 +129,7 @@ final class Dashboard_Section {
 	/**
 	 * Whether the plan's Stats date limits apply to the section's window.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.14.0
 	 * @var bool
 	 */
 	public $follows_plan_date_limits = false;
