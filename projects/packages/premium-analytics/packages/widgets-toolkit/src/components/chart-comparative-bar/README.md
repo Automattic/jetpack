@@ -27,7 +27,8 @@ import { ComparativeBarChart } from '@jetpack-premium-analytics/widgets-toolkit'
 
 A series marked `options.type: 'comparison'` renders as the previous-period shadow behind its
 same-`group` primary series, and is the only kind `alignSeriesDates` moves: it re-dates such a
-series onto the dates of the first series in the array. A chart may draw more than one metric — a
+series onto the dates of the first series in the array, unless it is marked `aligned` because its
+points already sit on the dates they compare with. A chart may draw more than one metric — a
 second current-period series keeps its own dates.
 
 ## Props
