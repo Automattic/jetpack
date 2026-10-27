@@ -57,10 +57,6 @@ body.jetpack-flow {
 	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
 
-.jetpack-flow-brands {
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-
 .jetpack-flow-disc {
 	display: inline-grid;
 	flex: none;
@@ -127,8 +123,6 @@ body.jetpack-flow {
 	grid-template-columns: minmax(0, 1fr);
 	justify-items: center;
 	padding: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-lg);
-	border-radius: var(--wpds-border-radius-lg);
-	background: var(--wpds-color-background-surface-neutral-weak);
 
 	&__item {
 		display: grid;
@@ -199,12 +193,63 @@ body.jetpack-flow {
 	}
 }
 
+// Pinned to the bottom of the scrolling page, just above the footer.
+.jetpack-flow-prompt {
+	position: sticky;
+	inset-block-end: 0;
+	z-index: 5;
+	padding-block: var(--wpds-dimension-padding-lg);
+	margin-block-start: var(--wpds-dimension-padding-2xl);
+	background: var(--wpds-color-background-surface-neutral-strong);
+
+	// Content fades out as it scrolls under the bar.
+	&::before {
+		content: "";
+		position: absolute;
+		inset-inline: 0;
+		inset-block-end: 100%;
+		block-size: 25px;
+		background: linear-gradient(transparent, var(--wpds-color-background-surface-neutral-strong));
+		pointer-events: none;
+	}
+}
+
 .jetpack-flow-prompt__field {
+	display: grid;
+	gap: var(--wpds-dimension-gap-sm);
 	inline-size: 66.667%;
 	min-inline-size: min(100%, 320px);
+}
 
-	textarea {
-		font-size: var(--wpds-typography-font-size-lg);
+.jetpack-flow-prompt__input {
+	display: block;
+	box-sizing: border-box;
+	inline-size: 100%;
+	max-block-size: 33vh;
+	margin: 0;
+	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-strong);
+	border-radius: var(--wpds-border-radius-xl);
+	background: var(--wpds-color-background-surface-neutral);
+	color: var(--wpds-color-foreground-content-neutral);
+	font: inherit;
+	font-size: var(--wpds-typography-font-size-lg);
+	line-height: var(--wpds-typography-line-height-md);
+	resize: none;
+	overflow-y: auto;
+
+	&::placeholder {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&:focus {
+		border-color: var(--wpds-color-stroke-interactive-brand);
+		outline: var(--wpds-border-width-sm) solid var(--wpds-color-stroke-interactive-brand);
+		outline-offset: -1px;
+	}
+
+	&:disabled {
+		opacity: 0.7;
 	}
 }
 
@@ -221,7 +266,7 @@ $jetpack-flow-rainbow: conic-gradient(from var(--jetpack-flow-angle), #069e08, #
 	position: relative;
 	isolation: isolate;
 	padding: 3px;
-	border-radius: var(--wpds-border-radius-lg);
+	border-radius: calc(var(--wpds-border-radius-xl) + 3px);
 
 	// The ring and a soft glow of the same colours fade in while building.
 	&::before,
