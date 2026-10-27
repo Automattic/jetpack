@@ -24,6 +24,7 @@ import {
 	getUtmDimensionLabel,
 	getUtmReportSection,
 	utmCsvExporters,
+	UtmUrlBuilderDialog,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -32,7 +33,6 @@ import {
  */
 import styles from './style.module.css';
 import useUtmInsights from './use-utm-insights';
-import { UtmUrlBuilderDialog } from './utm-url-builder-dialog';
 import { type UtmInsightsAttributes } from './widget';
 /**
  * Types
