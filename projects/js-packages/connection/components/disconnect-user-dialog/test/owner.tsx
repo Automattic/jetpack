@@ -61,6 +61,31 @@ describe( 'DisconnectUserDialog, for the connection owner', () => {
 		expect( mockUnlinkUser ).not.toHaveBeenCalled();
 	} );
 
+	it.each( [
+		[ 'reports the transfer click with the host context', 'connectors', 'connectors' ],
+		[ 'reports a null context when the host passes none', undefined, null ],
+	] )( '%s', async ( _name, context, expectedContext ) => {
+		const user = userEvent.setup();
+		render(
+			<DisconnectUserDialog
+				{ ...testProps }
+				context={ context }
+				onTransferOwnership={ jest.fn() }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } ) );
+
+		const trackedClicks = mockRecordEvent.mock.calls.filter(
+			( [ event ] ) => event === 'jetpack_connection_owner_transfer_click'
+		);
+		expect( trackedClicks ).toHaveLength( 1 );
+		expect( trackedClicks[ 0 ][ 1 ] ).toEqual( {
+			location: 'owner_disconnect_dialog',
+			context: expectedContext,
+		} );
+	} );
+
 	// The transfer flow is the way out of this warning, so it is the exit most likely to be
 	// taken mid-request — and taking it would leave the unlink running behind a dialog the
 	// host closes when it lands.
