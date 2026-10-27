@@ -158,7 +158,10 @@ export function LeaderboardRow( {
 						link={ action.href }
 						search={ action.search }
 						title={ label }
-						classNames={ { internal: styles.labelLink, text: styles.label } }
+						classNames={ {
+							internal: clsx( styles.labelLink, styles.titleLink ),
+							text: styles.label,
+						} }
 					>
 						{ content }
 					</TitleLink>
