@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import { Link, Tooltip } from '@jetpack-premium-analytics/externals';
+import { Icon, Link, Tooltip } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
+import { external } from '@wordpress/icons';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -20,8 +21,9 @@ export type ViewLiveLinkProps = {
 
 /**
  * The "View" action of a row whose title opens a detail page inside the
- * dashboard: an outbound marker that opens the live post, page, video or email
- * in a new tab, as every row in classic Stats offered.
+ * dashboard: an icon-only link that opens the live post, page, video or email
+ * in a new tab, as every row in classic Stats offered. It carries the same
+ * boxed icon classic used, not the new-tab marker a linked-out title shows.
  *
  * @return The link.
  */
@@ -40,10 +42,12 @@ export function ViewLiveLink( { href, label, className }: ViewLiveLinkProps ): J
 							__( 'View "%s" in a new tab', 'jetpack-premium-analytics-pkg' ),
 							label
 						) }
-					/>
+					>
+						<Icon icon={ external } size={ 16 } />
+					</Link>
 				}
 			/>
-			<Tooltip.Popup>{ __( 'View', 'jetpack-premium-analytics-pkg' ) }</Tooltip.Popup>
+			<Tooltip.Popup>{ __( 'View in new tab', 'jetpack-premium-analytics-pkg' ) }</Tooltip.Popup>
 		</Tooltip.Root>
 	);
 }

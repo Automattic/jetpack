@@ -278,6 +278,8 @@ describe( 'buildLeaderboardRow', () => {
 		const wrapper = view.parentElement;
 		expect( wrapper ).toHaveClass( 'row' );
 		expect( wrapper ).toContainElement( title );
+		// The title stretches over the row, so the click target stays the row.
+		expect( title ).toHaveClass( 'titleLink' );
 	} );
 
 	it( 'links the title out, with no "View" action, when the reader cannot open post details', () => {

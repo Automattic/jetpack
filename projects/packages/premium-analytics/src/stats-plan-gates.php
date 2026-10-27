@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\Status;
@@ -42,7 +43,7 @@ const JETPACK_STATS_COMMERCIAL_PRODUCTS = array( 'jetpack_stats_monthly', 'jetpa
 /**
  * Jetpack plan families that bundle commercial Stats.
  */
-const JETPACK_STATS_COMMERCIAL_PLAN_PREFIXES = array( 'jetpack_business', 'jetpack_complete', 'jetpack_growth' );
+const JETPACK_STATS_COMMERCIAL_PLAN_PREFIXES = array( 'jetpack_business', 'jetpack_complete', 'jetpack_growth', 'jetpack_pro' );
 
 /**
  * The Stats plan tier the dashboard is gated by.
@@ -623,6 +624,11 @@ function maybe_invalidate_stats_caches() {
  */
 function maybe_refresh_jetpack_plan() {
 	if ( ! Analytics::is_dashboard_request() || ( new Host() )->is_wpcom_platform() ) {
+		return;
+	}
+
+	// An unconnected visit cannot fetch the plan, so it must not start the throttle that would skip the first load after connecting.
+	if ( ! ( new Connection_Manager() )->is_connected() ) {
 		return;
 	}
 

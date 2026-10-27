@@ -88,3 +88,20 @@
 		flex: 1;
 	}
 }
+
+// The shared `.jp-admin-page-tabs` strip: a 48px row plus its divider.
+$pinned-tabs-block-size: calc(#{gb.$grid-unit-60} + var(--wpds-border-width-xs));
+
+.my-jetpack-tab-panel--pinned-tabs {
+	--my-jetpack-pinned-tabs-block-size: #{$pinned-tabs-block-size};
+
+	// Keeps content z-indexes, like the Features toolbar's, under the tabs.
+	.tab-content {
+		isolation: isolate;
+	}
+}
+
+// Focus moving up through the content would otherwise scroll it under the tabs.
+:global(.jp-admin-page__content):has(.my-jetpack-tab-panel--pinned-tabs) {
+	scroll-padding-block-start: $pinned-tabs-block-size;
+}

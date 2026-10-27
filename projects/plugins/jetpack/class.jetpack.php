@@ -972,7 +972,7 @@ class Jetpack {
 	}
 
 	/**
-	 * Options for booting Stats v2, which takes the plain Stats name once classic Stats is retired.
+	 * Options for booting Stats v2, which takes the plain Stats name and the pre-connection Stats page once classic Stats is retired.
 	 *
 	 * @return array
 	 */
@@ -982,9 +982,10 @@ class Jetpack {
 		}
 
 		return array(
-			'menu_title' => static function () {
+			'menu_title'                         => static function () {
 				return __( 'Stats', 'jetpack' );
 			},
+			'replaces_pre_connection_stats_page' => true,
 		);
 	}
 
