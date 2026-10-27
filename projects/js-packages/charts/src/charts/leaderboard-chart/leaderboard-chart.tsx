@@ -324,7 +324,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		const scale = { negative: 0, positive: 0 };
 		for ( const entry of data ?? [] ) {
 			const shares = [ entry.currentShare ];
-			if ( withComparisonBars && entry.previousShare != null ) {
+			if ( withComparisonBars && hasPreviousValue( entry ) ) {
 				shares.push( entry.previousShare );
 			}
 			for ( const share of shares ) {

@@ -156,6 +156,12 @@ describe( 'LeaderboardChart', () => {
 		[ 'a current share is negative', { currentShare: -40 }, true, 2 ],
 		[ 'a comparison share is negative', { previousShare: -40 }, true, 2 ],
 		[ 'only a hidden comparison share is negative', { previousShare: -40 }, false, 0 ],
+		[
+			'only a share without a comparison value is negative',
+			{ previousShare: -40, previousValue: undefined },
+			true,
+			0,
+		],
 		[ 'every share is positive', {}, true, 0 ],
 	] )( 'diverges the bars from zero when %s', ( _, override, withComparison, expected ) => {
 		const data = [ { ...mockData[ 0 ], ...override }, mockData[ 1 ] ];
