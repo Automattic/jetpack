@@ -91,7 +91,7 @@ const OverviewStats: FC< OverviewStatsProps > = ( {
 						label={ label }
 						count={ counts?.[ metric ] }
 						isLoading={ isLoading }
-						isSelected={ selectedMetric === metric }
+						isSelected={ ! isLoading && selectedMetric === metric }
 						onSelect={ setSelectedMetric }
 					/>
 				) ) }

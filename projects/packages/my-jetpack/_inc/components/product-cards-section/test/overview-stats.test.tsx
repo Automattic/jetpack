@@ -40,7 +40,7 @@ describe( 'OverviewStats', () => {
 		expect( screen.getByTestId( 'chart' ) ).toHaveTextContent( 'Visitors' );
 	} );
 
-	it( 'shows no zero counts while loading', () => {
+	it( 'shows no zero counts and no selected tab while loading', () => {
 		render(
 			<OverviewStats
 				isLoading
@@ -51,5 +51,6 @@ describe( 'OverviewStats', () => {
 		);
 
 		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { pressed: true } ) ).not.toBeInTheDocument();
 	} );
 } );
