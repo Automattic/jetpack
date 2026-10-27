@@ -17,7 +17,7 @@ import type { ProductCardComponent } from '../types';
 
 const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const { blogID, isSiteConnected } = useMyJetpackConnection();
-	const { detail } = useProduct( PRODUCT_SLUGS.STATS );
+	const { detail, isLoading: isProductLoading } = useProduct( PRODUCT_SLUGS.STATS );
 	const { status, manageUrl } = detail || {};
 	const { premiumAnalyticsEnabled = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { recordEvent } = useAnalytics();
@@ -46,11 +46,12 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 
 	const detailedStatsHref = getDetailedStatsHref( manageUrl, premiumAnalyticsEnabled );
 
-	if ( isActive && ( isStatsLoading || ! isError ) ) {
+	// The status arrives with the products request, so the card shows its skeleton until then too.
+	if ( isProductLoading || ( isActive && ( isStatsLoading || ! isError ) ) ) {
 		return (
 			<Stack direction="column" gap="lg">
 				<OverviewStats
-					isLoading={ isStatsLoading }
+					isLoading={ isProductLoading || isStatsLoading }
 					counts={ counts }
 					chartData={ chartData }
 					detailedStatsHref={ detailedStatsHref }
