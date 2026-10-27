@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products\Anti_Spam;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\My_Jetpack\Products\Boost;
@@ -19,6 +20,7 @@ use Automattic\Jetpack\My_Jetpack\Products\Search;
 use Automattic\Jetpack\My_Jetpack\Products\Social;
 use Automattic\Jetpack\My_Jetpack\Products\Stats;
 use Automattic\Jetpack\My_Jetpack\Products\Videopress;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -426,6 +428,7 @@ class Plan_Matrix_Test extends TestCase {
 	private function apply_ownership( string $class, string $ownership ) {
 		if ( self::OWNERSHIP_NONE === $ownership ) {
 			$this->set_site_features( array() );
+			$this->set_synced_plan( array(), array() );
 			return;
 		}
 
@@ -437,6 +440,10 @@ class Plan_Matrix_Test extends TestCase {
 
 		$direct_plans = $class::get_paid_plan_product_slugs();
 		$product_slug = 'pro' === $ownership ? 'jetpack_pro_yearly' : ( self::OWNERSHIP_BUNDLE === $ownership ? 'jetpack_complete' : reset( $direct_plans ) );
+		$this->set_synced_plan(
+			array_filter( array( $class::$feature_identifying_paid_plan ) ),
+			self::OWNERSHIP_DIRECT === $ownership ? array( $product_slug ) : array()
+		);
 
 		set_transient(
 			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
@@ -449,6 +456,36 @@ class Plan_Matrix_Test extends TestCase {
 			),
 			HOUR_IN_SECONDS
 		);
+	}
+
+	/**
+	 * Seed the plan and products Jetpack syncs from wpcom, which Protect Status reads, and drop both memoized answers.
+	 *
+	 * @param string[] $features Feature slugs the plan grants.
+	 * @param string[] $products Product slugs the site owns.
+	 */
+	private function set_synced_plan( array $features, array $products ) {
+		update_option(
+			'jetpack_active_plan',
+			array(
+				'product_slug' => 'jetpack_free',
+				'features'     => array( 'active' => $features ),
+			)
+		);
+		update_option( 'jetpack_site_products', array_map( fn( $slug ) => array( 'product_slug' => $slug ), $products ) );
+
+		$cache = new \ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$cache->setAccessible( true );
+		}
+		$cache->setValue( null, null );
+
+		// The site is connected, so the refresh would otherwise fetch the plan from wpcom.
+		$offline = static fn() => new \WP_Error( 'offline' );
+		add_filter( 'pre_http_request', $offline );
+		Plan::has_required_plan( true );
+		remove_filter( 'pre_http_request', $offline );
 	}
 
 	/**

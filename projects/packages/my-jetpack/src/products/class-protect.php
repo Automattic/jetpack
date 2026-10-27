@@ -13,7 +13,6 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use WP_Error;
 use WP_REST_Response;
@@ -467,16 +466,12 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
-	 * Whether the site pays for Scan, which on WordPress.com is Protect Status's call, as the Protect page's.
+	 * Whether the site pays for Scan, by the same check as the Protect page.
 	 *
 	 * @return bool
 	 */
 	public static function has_paid_plan_for_product() {
-		if ( ( new Host() )->is_wpcom_platform() ) {
-			return Plan::has_required_plan();
-		}
-
-		return parent::has_paid_plan_for_product();
+		return Plan::has_required_plan();
 	}
 
 	/**

@@ -104,8 +104,9 @@ class Plan {
 			// so gate on `scan-self-serve` there, as Jetpack::show_scan_ui() does.
 			$feature            = function_exists( 'wpcom_feature_exists' ) && wpcom_feature_exists( 'scan-self-serve' ) ? 'scan-self-serve' : 'scan';
 			$plan_supports_scan = Current_Plan::supports( $feature, $force_refresh );
-			$has_scan_product   = count( array_intersect( array( 'jetpack_scan', 'jetpack_scan_monthly' ), $products ) ) > 0;
-			$has_scan           = $plan_supports_scan || $has_scan_product;
+			// Every Scan product's slug starts with this: monthly, bi-yearly and the legacy real-time ones.
+			$has_scan_product = array() !== array_filter( $products, fn( $slug ) => 0 === strpos( (string) $slug, 'jetpack_scan' ) );
+			$has_scan         = $plan_supports_scan || $has_scan_product;
 		}
 
 		return $has_scan;

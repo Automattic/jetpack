@@ -33,6 +33,9 @@ class Plan_Test extends BaseTestCase {
 			'WordPress.com, scan only'              => array( array( 'scan', 'scan-self-serve' ), array( 'scan' ), array(), false ),
 			'WordPress.com, scan-self-serve'        => array( array( 'scan', 'scan-self-serve' ), array( 'scan', 'scan-self-serve' ), array(), true ),
 			'WordPress.com, Scan product'           => array( array( 'scan', 'scan-self-serve' ), array( 'scan' ), array( 'jetpack_scan' ), true ),
+			'WordPress.com, bi-yearly Scan'         => array( array( 'scan', 'scan-self-serve' ), array( 'scan' ), array( 'jetpack_scan_bi_yearly' ), true ),
+			'WordPress.com, real-time Scan'         => array( array( 'scan', 'scan-self-serve' ), array( 'scan' ), array( 'jetpack_scan_realtime_monthly' ), true ),
+			'WordPress.com, another product'        => array( array( 'scan', 'scan-self-serve' ), array( 'scan' ), array( 'jetpack_backup_t1_yearly' ), false ),
 			'WordPress.com, no scan-self-serve yet' => array( array( 'scan' ), array( 'scan' ), array(), true ),
 		);
 	}

@@ -2,10 +2,9 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
 use Automattic\Jetpack\Protect_Status\Plan;
-use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -38,8 +37,6 @@ class Protect_Product_Test extends TestCase {
 		delete_option( 'active_plugins' );
 		delete_option( 'jetpack_active_plan' );
 		delete_transient( Protect::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
-		Constants::clear_constants();
-		StatusCache::clear();
 	}
 
 	/**
@@ -201,44 +198,44 @@ class Protect_Product_Test extends TestCase {
 	}
 
 	/**
-	 * On WordPress.com a plan's `scan` alone is not Scan, so the card still offers the upgrade; self-hosted keeps reading the feature.
+	 * The card asks Protect Status, as the Protect page does, not the site features My Jetpack fetches itself.
 	 *
-	 * @dataProvider provide_scan_feature_hosts
+	 * @dataProvider provide_scan_plans
 	 *
-	 * @param bool $woa      Whether the site is on WoA.
-	 * @param bool $expected Whether the site counts as paying for Scan.
+	 * @param string[] $plan_features The plan's active features.
+	 * @param bool     $expected      Whether the site counts as paying for Scan.
 	 */
-	#[DataProvider( 'provide_scan_feature_hosts' )]
-	public function test_paid_plan_follows_protect_status_on_wordpress_com( $woa, $expected ) {
-		if ( $woa ) {
-			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
-			Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
-			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
-			StatusCache::clear();
-		}
+	#[DataProvider( 'provide_scan_plans' )]
+	public function test_paid_plan_follows_protect_status( $plan_features, $expected ) {
 		set_transient( Protect::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array( 'scan' ) ) );
 		update_option(
 			'jetpack_active_plan',
 			array(
 				'product_slug' => 'jetpack_free',
-				'features'     => array( 'active' => array() ),
+				'features'     => array( 'active' => $plan_features ),
 			)
 		);
-		// Recompute Protect Status's memoized answer from this plan; an unconnected site skips the fetch.
+		// Drop both memoized answers; an unconnected site skips the refresh's fetch.
+		$cache = new \ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$cache->setAccessible( true );
+		}
+		$cache->setValue( null, null );
 		Plan::has_required_plan( true );
 
 		$this->assertSame( $expected, Protect::has_paid_plan_for_product() );
 	}
 
 	/**
-	 * Data provider for test_paid_plan_follows_protect_status_on_wordpress_com.
+	 * Data provider for test_paid_plan_follows_protect_status.
 	 *
 	 * @return array[]
 	 */
-	public static function provide_scan_feature_hosts() {
+	public static function provide_scan_plans() {
 		return array(
-			'self-hosted' => array( false, true ),
-			'WoA'         => array( true, false ),
+			'plan with Scan'    => array( array( 'scan' ), true ),
+			'plan without Scan' => array( array(), false ),
 		);
 	}
 }
