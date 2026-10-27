@@ -223,6 +223,35 @@ describe( 'HeaderControls', () => {
 			location: 'header',
 		} );
 	} );
+
+	it.each( [
+		[ 'jetpack_search', 1 ],
+		[ 'jetpack_complete', 0 ],
+	] )( 'offers to purchase a plan to a site with %s: %d link', async ( productSlug, links ) => {
+		window.myJetpackInitialState = {
+			userIsAdmin: true,
+			myJetpackFlags: {},
+			lifecycleStats: { isSiteConnected: true, isUserConnected: true },
+		} as unknown as typeof window.myJetpackInitialState;
+		mockApiFetch.mockResolvedValue( [
+			{
+				ID: 1,
+				product_name: 'A plan',
+				product_slug: productSlug,
+				expiry_date: null,
+				expiry_status: 'active',
+				subscribed_date: '2025-11-05T00:00:00+00:00',
+				domain: 'example.com',
+			},
+		] );
+		render( <HeaderControls /> );
+
+		await openControl();
+		await expect(
+			screen.findByRole( 'link', { name: /Manage your plan/ } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryAllByRole( 'link', { name: /Purchase a plan/ } ) ).toHaveLength( links );
+	} );
 } );
 
 describe( 'header controls script', () => {

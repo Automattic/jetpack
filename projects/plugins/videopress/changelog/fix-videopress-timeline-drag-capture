@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Editor: Prevent timeline handles from jumping after releasing a drag outside the timeline.
