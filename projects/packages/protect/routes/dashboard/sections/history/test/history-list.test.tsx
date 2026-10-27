@@ -42,4 +42,5 @@ it.each( [
 	const panel = screen.getByRole( 'tabpanel', { name: tab } );
 	expect( screen.getAllByRole( 'tabpanel' ) ).toEqual( [ panel ] );
 	expect( within( panel ).getByText( file ) ).toBeInTheDocument();
+	expect( panel ).toHaveAttribute( 'tabindex', '-1' );
 } );
