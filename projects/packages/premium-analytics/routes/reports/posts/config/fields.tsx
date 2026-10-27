@@ -65,7 +65,7 @@ function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
 	const homeUrl = useSiteHomeUrl();
 
 	const isHomepage = item.type === 'homepage';
-	const title = String( item.label ?? '' );
+	const title = String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics-pkg' );
 
 	// The homepage row has no post of its own, so its title is the outbound link.
 	const id = isHomepage ? undefined : item.id;

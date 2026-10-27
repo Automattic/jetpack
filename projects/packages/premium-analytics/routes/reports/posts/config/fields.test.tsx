@@ -253,6 +253,22 @@ describe( 'posts title field', () => {
 		expect( view ).toHaveAttribute( 'target', '_blank' );
 	} );
 
+	it( 'names an untitled post Untitled in the title and its "View" action', () => {
+		renderPostsField( 'title', {
+			id: 42,
+			label: '',
+			views: 12,
+			link: 'https://example.com/hello-world/',
+			type: 'post',
+		} );
+
+		expect( screen.getByRole( 'link', { name: 'Untitled' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'View "Untitled" in a new tab' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/hello-world/'
+		);
+	} );
+
 	it( 'links the title out, with no "View" action, when the reader cannot open post details', () => {
 		mockIsPostDetailAvailable.mockReturnValue( false );
 

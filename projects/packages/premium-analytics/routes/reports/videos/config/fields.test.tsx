@@ -120,7 +120,14 @@ describe( 'videos fields', () => {
 		renderVideosField( 'poster', video );
 
 		const link = screen.getByRole( 'link', { name: 'Launch video' } );
-		expect( getMockRouteLinkUrl( link ).pathname ).toBe( '/video/12' );
+		const url = getMockRouteLinkUrl( link );
+		expect( url.pathname ).toBe( '/video/12' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			ref: 'videos',
+		} );
 	} );
 
 	it.each( [ undefined, 0, -3, 1.5, 'abc' ] )(
