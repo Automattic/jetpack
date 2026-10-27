@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add `getTracksIdentity()` and `initializeTracksIdentity()` helpers that identify the viewer to Tracks by their WordPress.com account.

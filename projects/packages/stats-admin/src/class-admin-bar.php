@@ -179,7 +179,7 @@ class Admin_Bar {
 	/**
 	 * Serve the chart an admin-post.php request asks for, or end it with an error status.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.39.1
 	 *
 	 * @return void
 	 */

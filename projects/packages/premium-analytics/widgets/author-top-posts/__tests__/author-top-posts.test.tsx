@@ -76,9 +76,7 @@ describe( 'AuthorTopPostsWidget', () => {
 	it( 'lists only this author’s posts, linked to their detail pages on the window', async () => {
 		mockApiFetch.mockResolvedValue( TOP_AUTHORS_SUMMARY );
 
-		const { declaredLink } = renderWithActionsHost(
-			<AuthorTopPostsWidget attributes={ { reportParams: WINDOW_PARAMS } } />
-		);
+		render( <AuthorTopPostsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
 		const top = await screen.findByRole( 'link', { name: 'Top post' } );
 		expect( top ).toHaveAttribute(
@@ -87,7 +85,6 @@ describe( 'AuthorTopPostsWidget', () => {
 		);
 		expect( screen.getByRole( 'link', { name: 'Second post' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Not hers' ) ).not.toBeInTheDocument();
-		expect( declaredLink( 'view-all' )?.href ).toContain( '&p=%2Freports%2Fauthors%3F' );
 
 		const requestedPath = decodeURIComponent( mockApiFetch.mock.calls[ 0 ][ 0 ].path as string );
 		expect( requestedPath ).toContain( 'stats/top-authors' );

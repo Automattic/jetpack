@@ -36,6 +36,16 @@ describe( 'AdminPage', () => {
 		expect( screen.queryAllByRole( 'separator' ) ).toHaveLength( separators );
 	} );
 
+	it( 'names the page region from the aria label when breadcrumbs replace the title', () => {
+		render(
+			<AdminPage breadcrumbs={ <nav /> } ariaLabel="Protect" showFooter={ false }>
+				Content
+			</AdminPage>
+		);
+
+		expect( screen.getByRole( 'region', { name: 'Protect' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'leaves the shared REST client alone when no API root or nonce is passed', () => {
 		const setApiRoot = jest.spyOn( restApi, 'setApiRoot' );
 		const setApiNonce = jest.spyOn( restApi, 'setApiNonce' );
