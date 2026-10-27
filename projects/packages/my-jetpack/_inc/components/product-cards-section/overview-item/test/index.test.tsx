@@ -77,21 +77,16 @@ describe( 'OverviewItem', () => {
 		expect( screen.queryByText( 'Activate Stats' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows a busy action as a skeleton until its link first shows, then as a disabled link', async () => {
+	it( 'ignores clicks on a busy action', async () => {
 		const onClick = jest.fn();
-		const item = ( disabled: boolean ) => (
+		render(
 			<OverviewItem
 				slug="stats"
 				admin
 				label="Views"
-				action={ { label: 'Activate Stats', onClick, disabled } }
+				action={ { label: 'Activate Stats', onClick, disabled: true } }
 			/>
 		);
-		const { rerender } = render( item( true ) );
-		expect( screen.queryByRole( 'button', { name: 'Activate Stats' } ) ).not.toBeInTheDocument();
-
-		rerender( item( false ) );
-		rerender( item( true ) );
 
 		const button = screen.getByRole( 'button', { name: 'Activate Stats' } );
 		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
