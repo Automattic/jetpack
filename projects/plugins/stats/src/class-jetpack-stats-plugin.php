@@ -21,6 +21,7 @@ use Automattic\Jetpack\Stats_Admin\Admin_Bar as Stats_Admin_Bar;
 use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget;
+use Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard;
 
 /**
  * Class to bootstrap the Jetpack Stats plugin.
@@ -83,6 +84,7 @@ class Jetpack_Stats_Plugin {
 
 		if ( ! self::is_jetpack_plugin_active() && Enablement::is_enabled() ) {
 			Analytics::init();
+			Analytics_Dashboard::init();
 		}
 	}
 

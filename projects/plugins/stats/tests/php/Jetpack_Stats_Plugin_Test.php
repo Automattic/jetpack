@@ -15,6 +15,7 @@ use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget;
 use Automattic\Jetpack\Stats_Plugin\Jetpack_Stats_Plugin;
+use Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
@@ -402,6 +403,11 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		Jetpack_Stats_Plugin::configure_packages();
 
 		$this->assertSame( $expected, Analytics::is_initialized() );
+		$this->assertSame(
+			$expected,
+			false !== has_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ) ),
+			'The WooCommerce section boots with Stats v2.'
+		);
 	}
 
 	/**
