@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -22,6 +23,17 @@ class WPCOM_Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		delete_option( 'big_sky_enable' );
+		delete_option( 'jetpack_active_plan' );
+		$reset_plan_cache = Closure::bind(
+			/** @phan-closure-scope \Automattic\Jetpack\Current_Plan */
+			static function () {
+				// An empty array is a cache miss for Current_Plan::get().
+				self::$active_plan_cache = array();
+			},
+			null,
+			Current_Plan::class
+		);
+		$reset_plan_cache();
 		parent::tear_down();
 	}
 
@@ -55,6 +67,14 @@ class WPCOM_Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enabled_by_the_option_off_simple() {
 		update_option( 'big_sky_enable', '1' );
+		Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_personal',
+					'features'     => array( 'active' => array( 'big-sky' ) ),
+				),
+			)
+		);
 
 		$this->assertTrue( wpcom_agents_manager_enable_in_block_editor( false ) );
 	}
@@ -72,7 +92,7 @@ class WPCOM_Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_enabled_when_the_platform_reports_big_sky_enabled() {
-		eval( 'function big_sky_is_enabled() { return true; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+		eval( 'function big_sky_is_enabled() { return true; } function big_sky_is_available_for_site() { return true; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
 		$this->assertTrue( wpcom_agents_manager_enable_in_block_editor( false ) );
 	}
@@ -86,7 +106,7 @@ class WPCOM_Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_stays_false_when_the_platform_reports_big_sky_disabled() {
-		eval( 'function big_sky_is_enabled() { return false; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+		eval( 'function big_sky_is_enabled() { return false; } function big_sky_is_available_for_site() { return true; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
 		$this->assertFalse( wpcom_agents_manager_enable_in_block_editor( false ) );
 	}
@@ -100,10 +120,89 @@ class WPCOM_Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_big_sky_enable_option_switches_it_off_on_simple() {
-		eval( 'function big_sky_is_enabled() { return true; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+		eval( 'function big_sky_is_enabled() { return true; } function big_sky_is_available_for_site() { return true; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
 		update_option( 'big_sky_enable', '0' );
 
 		$this->assertFalse( wpcom_agents_manager_enable_in_block_editor( false ) );
+	}
+
+	/**
+	 * On Simple, a site downgraded to Free keeps the Big Sky sticker but has no plan, so the Agent is off.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_stays_false_on_simple_without_a_plan() {
+		eval( 'function big_sky_is_enabled() { return true; } function big_sky_is_available_for_site() { return false; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+
+		$this->assertFalse( wpcom_agents_manager_enable_in_block_editor( false ) );
+	}
+
+	/**
+	 * On Simple, a plan that grants Big Sky keeps the Agent on.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enabled_on_simple_with_a_plan() {
+		eval( 'function big_sky_is_enabled() { return true; } function big_sky_is_available_for_site() { return true; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+
+		$this->assertTrue( wpcom_agents_manager_enable_in_block_editor( false ) );
+	}
+
+	/**
+	 * On Simple, a legacy Big Sky free-trial site has no plan but keeps the Agent.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enabled_on_simple_for_a_free_trial_site() {
+		eval( 'function big_sky_is_enabled() { return true; } function big_sky_is_available_for_site() { return false; } function has_blog_sticker( $sticker ) { return "big-sky-free-trial" === $sticker; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+
+		$this->assertTrue( wpcom_agents_manager_enable_in_block_editor( false ) );
+	}
+
+	/**
+	 * Off Simple, the option alone is not enough: the site's plan must grant Big Sky.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_stays_false_off_simple_without_a_plan() {
+		update_option( 'big_sky_enable', '1' );
+
+		$this->assertFalse( wpcom_agents_manager_enable_in_block_editor( false ) );
+	}
+
+	/**
+	 * Off Simple, the option plus a plan that grants Big Sky keeps the Agent on.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enabled_off_simple_with_a_plan() {
+		Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_personal',
+					'features'     => array( 'active' => array( 'big-sky' ) ),
+				),
+			)
+		);
+
+		update_option( 'big_sky_enable', '1' );
+
+		$this->assertTrue( wpcom_agents_manager_enable_in_block_editor( false ) );
 	}
 }

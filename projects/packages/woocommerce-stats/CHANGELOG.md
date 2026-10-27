@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-10-26
+### Added
+- Store performance: Switch between a line and a bar chart in the widget header. [#54018]
+- Top performing products and bookings: Link each row to its product. [#54017]
+
+### Changed
+- Require widget contract 2.0.0 of the Premium Analytics dashboard. [#53885]
+- Sync no order changes until the WooCommerce analytics module's first full sync starts. [#53282]
+
+### Fixed
+- Widget titles, descriptions, help notes and chart type labels declared in widget.json reach the translation catalog. [#53850]
+
 ## [0.2.0] - 2026-10-19
 ### Added
 - Add the columns widgets: revenue by customer type, sales by device, total returns and sales by coupon, with the bookings variants of the first two; the store ones are placed on the WooCommerce tab by default. [#53477]
@@ -62,5 +74,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial version.
 
+[0.3.0]: https://github.com/Automattic/jetpack-woocommerce-stats/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Automattic/jetpack-woocommerce-stats/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Automattic/jetpack-woocommerce-stats/compare/v0.1.0-alpha...v0.1.0

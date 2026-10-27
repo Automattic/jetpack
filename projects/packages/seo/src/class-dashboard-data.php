@@ -307,8 +307,8 @@ class Dashboard_Data {
 	/**
 	 * The SEO options exposed to `/wp/v2/settings`, keyed by option name.
 	 *
-	 * Types, defaults and sanitizers mirror what `/jetpack/v4/settings` enforced for
-	 * the same keys, so a save behaves the same as before wherever that route exists.
+	 * Types, defaults and sanitizers mirror what `/jetpack/v4/settings` enforces for
+	 * the keys it also exposes, so a save behaves the same through either route.
 	 *
 	 * @return array<string, array>
 	 */
@@ -327,14 +327,27 @@ class Dashboard_Data {
 			Ai_Crawlers::OPTION                   => array(
 				'type'              => 'object',
 				'default'           => array(),
-				'sanitize_callback' => array( __CLASS__, 'sanitize_ai_crawler_overrides' ),
+				'sanitize_callback' => array( Ai_Crawlers::class, 'sanitize_blocked' ),
 				'show_in_rest'      => array(
 					'schema' => array(
-						'type'                 => 'object',
-						// A sparse `crawler slug => blocked` map, so the keys are the
-						// catalog's, not a fixed property list. Ai_Crawlers::get_overrides()
-						// drops slugs it doesn't know on read.
-						'additionalProperties' => array( 'type' => 'boolean' ),
+						'type'       => 'object',
+						'properties' => array_fill_keys(
+							Ai_Crawlers::GROUPS,
+							array(
+								// Core needs `type` here as well as in `anyOf` (rest_default_additional_properties_to_false()).
+								'type'  => array( 'string', 'array' ),
+								'anyOf' => array(
+									array(
+										'type' => 'string',
+										'enum' => array( 'all' ),
+									),
+									array(
+										'type'  => 'array',
+										'items' => array( 'type' => 'string' ),
+									),
+								),
+							)
+						),
 					),
 				),
 			),
@@ -579,7 +592,7 @@ class Dashboard_Data {
 		 * Names the SEO plugin that owns the site's SEO output, so the SEO dashboard can say
 		 * so. Only read while `jetpack_disable_seo_tools` is true.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.10.1
 		 *
 		 * @param string $name The plugin's display name, or '' when no plugin owns the output.
 		 */
@@ -850,25 +863,6 @@ class Dashboard_Data {
 		}
 
 		return $stored;
-	}
-
-	/**
-	 * Normalize the AI crawler override map to `slug => bool`.
-	 *
-	 * @param array $value Submitted overrides.
-	 * @return array
-	 */
-	public static function sanitize_ai_crawler_overrides( $value ) {
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-
-		$sanitized = array();
-		foreach ( $value as $slug => $blocked ) {
-			$sanitized[ sanitize_key( $slug ) ] = (bool) $blocked;
-		}
-
-		return $sanitized;
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Header: Keep the tabs and the divider under them in view while scrolling, behind the `my-jetpack-header-controls` flag.

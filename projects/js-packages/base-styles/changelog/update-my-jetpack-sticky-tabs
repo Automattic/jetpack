@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Document the `jp-admin-page__content` selector hook.
+
+

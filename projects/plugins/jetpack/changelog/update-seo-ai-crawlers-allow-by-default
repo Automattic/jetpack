@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: SEO: Allow every AI crawler until the owner blocks it, make the crawler toggles mean "block" when on, and show the forced state while "Prevent third-party sharing" is on. Drop the unused `jetpack_seo_ai_crawler_overrides` setting from `/jetpack/v4/settings`. The new SEO page is still gated.
+

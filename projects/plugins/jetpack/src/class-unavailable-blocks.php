@@ -50,7 +50,7 @@ class Unavailable_Blocks {
 	/**
 	 * Hook into the block editor.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 */
 	public static function init() {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_site_wide_notice' ) );
@@ -61,7 +61,7 @@ class Unavailable_Blocks {
 	 *
 	 * Otherwise Jetpack's own editor bundle is on the page and carries the same notice.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 */
 	public static function enqueue_site_wide_notice() {
 		if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
@@ -92,7 +92,7 @@ class Unavailable_Blocks {
 	/**
 	 * Get what the standalone notice needs when no Jetpack block from the Blocks module is registered.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @return array|null Null when there is nothing site-wide to explain.
 	 */
@@ -133,7 +133,7 @@ class Unavailable_Blocks {
 	/**
 	 * Get the reason no Jetpack block from the Blocks module is registered, if there is one.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @return string|null `not_connected`, `blocks_module`, `disabled`, or null.
 	 */
@@ -158,7 +158,7 @@ class Unavailable_Blocks {
 	/**
 	 * Add each inactive module's name and forced state to blocks that reported one when they bailed out.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param array $availability Block availability, as from Jetpack_Gutenberg::get_availability().
 	 * @return array The same availability, with module details filled in or dropped.
@@ -176,7 +176,7 @@ class Unavailable_Blocks {
 	/**
 	 * Describe an inactive module for the editor's explanation of a block that needs it.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param string $module Module slug.
 	 * @return array Module slug, name, and whether it is forced off; empty when the editor should not name it.
@@ -209,7 +209,7 @@ class Unavailable_Blocks {
 	/**
 	 * Get the top-level blocks this site would register with nothing turned off.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @return string[] Block names.
 	 */

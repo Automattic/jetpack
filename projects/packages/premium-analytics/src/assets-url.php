@@ -12,7 +12,7 @@ use Automattic\Jetpack\Assets;
 /**
  * Configures the assets URL script data.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @return void
  */
@@ -23,7 +23,7 @@ function configure_assets_url() {
 /**
  * Injects the URL of the copied `build/images/` directory into JetpackScriptData.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @param array $data The script data passed by the assets package.
  * @return array

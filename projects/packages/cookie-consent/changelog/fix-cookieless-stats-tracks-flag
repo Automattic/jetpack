@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stop sending the cookieless banner usage stats to pixel.wp.com when `features.tracks` is off.

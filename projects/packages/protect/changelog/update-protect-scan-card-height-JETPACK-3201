@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Dashboard: Keep the Scan card the same height while a scan runs, after a clean scan, and when threats are found, with a smaller shield.

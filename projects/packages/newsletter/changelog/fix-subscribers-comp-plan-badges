@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers: Show a badge for every active comped plan, including comps held alongside a paid plan, and none for expired plans.
