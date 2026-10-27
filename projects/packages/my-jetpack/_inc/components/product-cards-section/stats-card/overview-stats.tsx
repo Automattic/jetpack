@@ -64,7 +64,7 @@ const Tab: FC< TabProps > = ( { metric, label, count, isLoading, isSelected, onS
 };
 
 /**
- * The Overview's Stats: a tab per metric with its 7-day total, above an area chart of the selected one.
+ * The Overview's Stats: a tab per metric with its total for the period, above an area chart of the selected one.
  *
  * @param {OverviewStatsProps} props - Component props.
  * @return {import('react').JSX.Element} The stats.
