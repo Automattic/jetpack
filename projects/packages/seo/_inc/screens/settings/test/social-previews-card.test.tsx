@@ -73,16 +73,17 @@ describe( 'SocialPreviewsCard', () => {
 		expect( screen.queryByText( 'Example tagline' ) ).not.toBeInTheDocument();
 	} );
 
-	describe( 'the Google title', () => {
-		it( 'is the default front-page title when the format is untouched: site name, separator, tagline', () => {
+	describe( 'the titles', () => {
+		it( 'use the default titles when the format is untouched', () => {
 			renderOpen();
 
+			// Google: the title WordPress composes (site name, separator, tagline).
 			expect( screen.getByText( 'Example site – Example tagline' ) ).toBeInTheDocument();
-			// Facebook and X keep the Open Graph title, the site name.
+			// Facebook and X: the Open Graph title, the site name.
 			expect( screen.getAllByText( 'Example site' ) ).toHaveLength( 2 );
 		} );
 
-		it( 'drops the separator when the site has no tagline, as WordPress does', () => {
+		it( 'drop the separator when the site has no tagline, as WordPress does', () => {
 			getSite.mockReturnValue( { ...site, tagline: '' } );
 
 			renderOpen();
@@ -91,7 +92,7 @@ describe( 'SocialPreviewsCard', () => {
 			expect( screen.getAllByText( 'Example site' ) ).toHaveLength( 3 );
 		} );
 
-		it( 'follows a custom Front page format', () => {
+		it( 'follow a custom Front page format on Google, Facebook and X', () => {
 			renderOpen( {
 				frontPageTitleFormat: [
 					{ type: 'token', value: 'tagline' },
@@ -100,10 +101,20 @@ describe( 'SocialPreviewsCard', () => {
 				],
 			} );
 
-			expect( screen.getByText( 'Example tagline | Example site' ) ).toBeInTheDocument();
+			// Jetpack copies the custom title into og:title, which Facebook and X read.
+			expect( screen.getAllByText( 'Example tagline | Example site' ) ).toHaveLength( 3 );
 		} );
 
-		it( 'updates when the format changes, without a save', () => {
+		it( 'fall back to the defaults when the format comes out empty', () => {
+			// WordPress ignores an empty custom title, and Jetpack leaves og:title alone.
+			getSite.mockReturnValue( { ...site, tagline: '' } );
+
+			renderOpen( { frontPageTitleFormat: [ { type: 'token', value: 'tagline' } ] } );
+
+			expect( screen.getAllByText( 'Example site' ) ).toHaveLength( 3 );
+		} );
+
+		it( 'update when the format changes, without a save', () => {
 			const { rerender } = renderOpen();
 
 			rerender(
@@ -117,7 +128,7 @@ describe( 'SocialPreviewsCard', () => {
 				/>
 			);
 
-			expect( screen.getByText( 'Welcome to Example site' ) ).toBeInTheDocument();
+			expect( screen.getAllByText( 'Welcome to Example site' ) ).toHaveLength( 3 );
 			expect( screen.queryByText( 'Example site – Example tagline' ) ).not.toBeInTheDocument();
 		} );
 	} );

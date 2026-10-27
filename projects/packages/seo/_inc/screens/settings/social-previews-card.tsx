@@ -13,6 +13,7 @@ import type { FC } from 'react';
 
 interface PreviewProps {
 	site: SiteData;
+	title: string;
 	description: string;
 }
 
@@ -62,21 +63,31 @@ const XIcon: FC = () => (
 );
 
 /**
- * The home page's document title, which is what Google shows as the result's
- * title: the Front page format from Title structure, or the title WordPress
- * composes when that format is untouched (site name, separator, tagline). The
- * front page only allows the site name and tagline, so both are filled with the
- * site's real values and the preview never shows sample text.
+ * The home page's titles. When the Front page format from Title structure
+ * produces any text, it is both the document title, which Google shows, and the
+ * Open Graph title, which Facebook and X show: Jetpack returns it from
+ * `pre_get_document_title` and copies it into `og:title`. When the format is
+ * untouched or comes out empty, each falls back. The document title becomes the
+ * one WordPress composes (site name, separator, tagline) and the Open Graph title
+ * becomes the site name. The front page only allows the site name and tagline, so
+ * both are filled with the site's real values and the preview never shows sample
+ * text.
  */
-function frontPageTitle( site: SiteData, format: TitleFormatToken[], separator: string ): string {
+function frontPageTitles(
+	site: SiteData,
+	format: TitleFormatToken[],
+	separator: string
+): { search: string; social: string } {
 	const values = { site_name: site.title, tagline: site.tagline };
-	return format.length > 0
-		? buildPreview( format, values )
-		: buildDefaultPreview( 'front_page', separator, values );
+	const custom = format.length > 0 ? buildPreview( format, values ) : '';
+	return {
+		search: custom || buildDefaultPreview( 'front_page', separator, values ),
+		social: custom || site.title,
+	};
 }
 
 /** How the home page appears as a Google search result. */
-const GooglePreview: FC< PreviewProps & { title: string } > = ( { site, title, description } ) => (
+const GooglePreview: FC< PreviewProps > = ( { site, title, description } ) => (
 	<Stack direction="column" gap="xs" className={ `${ styles.preview } ${ styles.google }` }>
 		<Stack direction="row" align="center" gap="sm">
 			{ site.icon && <img className={ styles.favicon } src={ site.icon } alt="" /> }
@@ -100,7 +111,7 @@ const GooglePreview: FC< PreviewProps & { title: string } > = ( { site, title, d
  * cards with the same parts (image, domain, title, description), so they share
  * one component.
  */
-const LinkCardPreview: FC< PreviewProps > = ( { site, description } ) => (
+const LinkCardPreview: FC< PreviewProps > = ( { site, title, description } ) => (
 	<div className={ `${ styles.preview } ${ styles.card }` }>
 		{ site.image && (
 			<div className={ styles.image } style={ { backgroundImage: `url(${ site.image })` } } />
@@ -109,7 +120,7 @@ const LinkCardPreview: FC< PreviewProps > = ( { site, description } ) => (
 			<Text variant="body-sm" className={ styles.cardDomain }>
 				{ hostname( site.url ) }
 			</Text>
-			<Text variant="heading-md">{ site.title }</Text>
+			<Text variant="heading-md">{ title }</Text>
 			{ description && (
 				<Text variant="body-md" className={ styles.muted }>
 					{ description }
@@ -138,8 +149,8 @@ interface Props {
  * from the Settings form, so the preview tracks edits without a save. Renders
  * nothing if site data is missing.
  *
- * Only the Google title follows the title format: it is the page's document
- * title. Facebook and X show the Open Graph title, which is the site name.
+ * A Front page format sets the title on all three previews. Without one, Google
+ * shows WordPress's default title and Facebook and X show the site name.
  *
  * The cards are simple in-house markup rather than the `@automattic/social-previews`
  * library: that library is built for the editor/webpack and misbehaves in this
@@ -163,7 +174,7 @@ const SocialPreviewsCard: FC< Props > = ( {
 		return null;
 	}
 	const previewDescription = description || site.tagline;
-	const googleTitle = frontPageTitle( site, frontPageTitleFormat, titleSeparator );
+	const titles = frontPageTitles( site, frontPageTitleFormat, titleSeparator );
 
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
@@ -195,7 +206,7 @@ const SocialPreviewsCard: FC< Props > = ( {
 							</Text>
 							<GooglePreview
 								site={ site }
-								title={ googleTitle }
+								title={ titles.search }
 								description={ previewDescription }
 							/>
 						</Stack>
@@ -206,7 +217,11 @@ const SocialPreviewsCard: FC< Props > = ( {
 									{ __( 'Facebook', 'jetpack-seo' ) }
 								</Stack>
 							</Text>
-							<LinkCardPreview site={ site } description={ previewDescription } />
+							<LinkCardPreview
+								site={ site }
+								title={ titles.social }
+								description={ previewDescription }
+							/>
 						</Stack>
 						<Stack direction="column" gap="md">
 							<Text variant="heading-lg" render={ <h3 /> }>
@@ -215,7 +230,11 @@ const SocialPreviewsCard: FC< Props > = ( {
 									{ __( 'X (Twitter)', 'jetpack-seo' ) }
 								</Stack>
 							</Text>
-							<LinkCardPreview site={ site } description={ previewDescription } />
+							<LinkCardPreview
+								site={ site }
+								title={ titles.social }
+								description={ previewDescription }
+							/>
 						</Stack>
 					</Stack>
 				</Stack>
