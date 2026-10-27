@@ -1048,4 +1048,44 @@ describe( 'AreaChart', () => {
 			expect( screen.getAllByRole( 'button' )[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
 		} );
 	} );
+
+	it( 'gives no keyboard stop to a date only a hidden series has', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<GlobalChartsProvider>
+				<AreaChartUnresponsive
+					width={ 500 }
+					height={ 300 }
+					stacked={ false }
+					defaultHiddenSeries={ [ 'Series B' ] }
+					chartId="test-hidden-only-date-area"
+					data={ [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 5, label: 'Jan 1' },
+								{ date: new Date( '2024-01-03' ), value: 15, label: 'Jan 3' },
+							],
+						},
+					] }
+				/>
+			</GlobalChartsProvider>
+		);
+
+		screen.getByRole( 'application', { name: /area chart/i } ).focus();
+		await user.keyboard( '{ArrowRight}{ArrowRight}{ArrowRight}' );
+
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveAttribute(
+			'data-testid',
+			'chart-tooltip-1'
+		);
+	} );
 } );

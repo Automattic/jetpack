@@ -154,7 +154,15 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			[ dataSorted, isSeriesVisible, stacked, stackOffset ]
 		);
 
-		const stops = useMemo( () => getKeyboardStops( dataSorted ), [ dataSorted ] );
+		const visibleDataSeries = useMemo(
+			() => dataSorted.filter( series => isSeriesVisible( series.label ) ),
+			[ dataSorted, isSeriesVisible ]
+		);
+		const visibleSeriesKey = useMemo(
+			() => JSON.stringify( visibleDataSeries.map( series => series.label ) ),
+			[ visibleDataSeries ]
+		);
+		const stops = useMemo( () => getKeyboardStops( visibleDataSeries ), [ visibleDataSeries ] );
 
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 			selectedIndex,
@@ -163,6 +171,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			setIsNavigating,
 			chartRef,
 			totalPoints: stops.count,
+			visibleSeriesKey,
 		} );
 
 		// Computed from the full data set (ignoring legend visibility) so the y-axis stays
@@ -529,7 +538,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 														keyboardFocusedClassName={
 															styles[ 'area-chart__tooltip--keyboard-focused' ]
 														}
-														series={ dataSorted }
+														series={ visibleDataSeries }
 													/>
 													<HoverGlyphs
 														visibleSeries={ visibleSeries }
