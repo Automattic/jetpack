@@ -45,7 +45,7 @@ src/widget-types.php                    # widget type API: registry helpers, met
 docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
-src/Sync/                               # PA glue for the shared woocommerce_analytics sync module
+src/Sync/                               # milestone tracker for the analytics full syncs
 packages/data/src/api/                  # frontend fetch helpers (apiFetch)
 packages/externals/                     # passthrough module for shared third-party libraries
 routes/                                 # lazy-loaded SPA pages; build/ is generated
@@ -144,6 +144,7 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 | `jetpack-stats-dashboard`                        | `view_stats`               | whole prefix (busts read cache) |
 | `commercial-classification`                      | `view_stats`               | exact path                      |
 | `upgrades` (not under `/sites/`)                 | `view_stats`               | —                               |
+| `products` (fixed: `products?type=jetpack`)      | `view_stats`               | —                               |
 | `posts` (pattern-constrained: only `<id>/likes`) | `view_stats`               | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
@@ -166,7 +167,7 @@ gets its own route outside `proxy/`, like this.
 ### Adding a proxied endpoint
 
 To add a transparent forward, add a key to `PREFIX_CONFIG` (at least `capability`; add
-`writes` / `cache_bust` / `invalidates` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
+`writes` / `cache_bust` / `invalidates` / `inject_user_email` / `forward_visitor_ip` as needed) and cover it in `data_endpoint_matrix()`.
 
 ### Migrating from Stats / Woo Analytics
 
@@ -184,7 +185,7 @@ opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
 Every section the site qualifies for is shown as a tab, whichever one says yes; see
-`docs/dashboard-sections.md`. The WooCommerce tab registers from the WooCommerce stats package.
+`docs/dashboard-sections.md`. The WooCommerce tab and its sync opt-in register from the WooCommerce stats package.
 
 The same list the tab bar gets over REST also reaches the client as
 `premium_analytics.sections` in the script data, which is what keeps `/reports/…` behind a hidden
@@ -237,9 +238,9 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 - A proxy 404 usually means the prefix isn't in `PREFIX_CONFIG`, not a missing WPCOM endpoint.
 - Reads are cached 5 min; add `force_refresh` if a screen looks stale.
 - `v2` vs `v1.x` changes the WPCOM base — a wrong version silently hits a different endpoint.
-- The `woocommerce_analytics` sync module lives in the jetpack-sync package
-  (`Sync\Configuration::register()` is the opt-in); `src/Sync/` holds only
-  PA-specific glue (Config bootstrap, bookings meta whitelist, milestone tracker).
+- The `woocommerce_analytics` sync module lives in the jetpack-sync package, and the
+  woocommerce-stats package opts in to it (`Sync_Configuration`) and backfills its lookup data
+  (`Lookup_Data_Backfill`); `src/Sync/` here holds only the milestone tracker both read.
 - Don't edit dashboard React in Calypso — it lives here now.
 - Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
   never `@automattic/jetpack-premium-analytics-*`.
@@ -313,7 +314,7 @@ Each new widget MUST ship as a self-contained folder with these files:
 ```text
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
-├── widget.json                             # everything JSON can carry: name, icon, title, description, help, category, presentation, static attributes
+├── widget.json                             # everything JSON can carry: name, icon, title, description, help, category, presentation, static attributes, the View all action
 ├── widget.ts                               # optional: only what JSON cannot (getElements/getValue/setValue, helper-built fields, example)
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx

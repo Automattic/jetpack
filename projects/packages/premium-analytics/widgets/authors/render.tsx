@@ -229,7 +229,6 @@ function AuthorsReport() {
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	useReportActions( {
-		report: 'authors',
 		csv: {
 			exporter: authorsCsvExporter,
 			status: { isLoading: isInitialLoading, isFetching, isError: primary.isError },

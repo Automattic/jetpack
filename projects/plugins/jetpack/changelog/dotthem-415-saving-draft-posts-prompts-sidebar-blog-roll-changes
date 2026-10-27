@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Blogroll block: Stop asking to save Blogroll Recommendations when nothing in the block changed.

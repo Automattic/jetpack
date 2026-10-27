@@ -1,6 +1,6 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Link, Stack } from '@wordpress/ui';
+import { Link, Notice, Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
@@ -96,7 +96,7 @@ export function FeaturesContent() {
 function FeaturesTabContent() {
 	const contentRef = useRef< HTMLElement >( null );
 	const mainFeatures = useMainFeatures();
-	const { modules, hasLoaded: modulesLoaded } = useAllJetpackModules();
+	const { modules, hasLoaded: modulesLoaded, hasFailed: modulesFailed } = useAllJetpackModules();
 	const { states, isLoading } = useFeatureStates( mainFeatures );
 	const { pointer, dismissPointer } = useSidebarSync( mainFeatures.features );
 	const moreFeatures = useMoreFeatures( mainFeatures );
@@ -382,6 +382,16 @@ function FeaturesTabContent() {
 	return (
 		<section ref={ contentRef } className={ styles.content }>
 			{ turnOn && <ConnectResume state={ turnOn } /> }
+			{ modulesFailed && Object.keys( modules ).length === 0 && (
+				<Notice.Root intent="error" role="alert">
+					<Notice.Title>
+						{ __( 'Some features could not be loaded', 'jetpack-my-jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __( 'This list is incomplete. Reload the page to try again.', 'jetpack-my-jetpack' ) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
 			{ ! isOfflineFeatures() && <FeaturesBanner /> }
 
 			<Toolbar

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -14,6 +14,7 @@ import { REFRESH_NOTICE_META } from './refresh-failure-scope';
 type UseReportOptions = {
 	enabled?: boolean;
 	disabledComparisonKey?: string[];
+	refreshNotice?: boolean;
 };
 
 type QueryFactory< TData > = (
@@ -53,6 +54,17 @@ export function useReport<
 				queryKey: options?.disabledComparisonKey ?? [ 'reports', '__comparison__', 'disabled' ],
 			};
 
+	const refreshNoticeMeta = options?.refreshNotice === false ? {} : REFRESH_NOTICE_META;
+
+	// Where each period starts, so a chart can pair comparison buckets with current ones by period.
+	const periodStarts = useMemo(
+		() =>
+			comparisonEnabled && params.from && params.compare_from
+				? { current: params.from, comparison: params.compare_from }
+				: undefined,
+		[ comparisonEnabled, params.from, params.compare_from ]
+	);
+
 	const primaryEnabled = queryEnabled && ( primaryQueryOptions.enabled ?? true );
 	const comparisonQueryEnabled =
 		queryEnabled && comparisonEnabled && ( comparisonQueryOptions.enabled ?? true );
@@ -60,13 +72,13 @@ export function useReport<
 	const primary = useQuery( {
 		...primaryQueryOptions,
 		enabled: primaryEnabled,
-		meta: { ...primaryQueryOptions.meta, ...REFRESH_NOTICE_META },
+		meta: { ...primaryQueryOptions.meta, ...refreshNoticeMeta },
 	} );
 
 	const comparison = useQuery( {
 		...comparisonQueryOptions,
 		enabled: comparisonQueryEnabled,
-		meta: { ...comparisonQueryOptions.meta, ...REFRESH_NOTICE_META },
+		meta: { ...comparisonQueryOptions.meta, ...refreshNoticeMeta },
 	} );
 
 	// Widened past React Query's `isLoading` — see `isAwaitingData`. Its own
@@ -96,6 +108,7 @@ export function useReport<
 		primary,
 		comparison,
 		hasComparison: comparisonEnabled,
+		periodStarts,
 		// Store reports ignore `params.timezone`: Woo buckets server-side in the
 		// site zone, so only the Stats queries can be built under a named zone.
 		timezone: resolveReportTimeZone( params.timezone ),

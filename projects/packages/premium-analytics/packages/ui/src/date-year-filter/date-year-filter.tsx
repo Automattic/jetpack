@@ -78,27 +78,41 @@ type RowMeasurement = {
 	width: number;
 };
 
+// The filter's own root, pills or select, so neither is counted as a mate.
+const OWN_ROOT = '.date-year-filter__group, .date-year-filter__select';
+
 /**
- * Width the group's row-mates take, the gap before each one included.
+ * What shares the filter's row and takes room in it: a positioned helper, such as a
+ * tooltip's visually hidden description, is a child of the row but takes none.
+ *
+ * @param row - The flex row the filter is a direct child of.
+ * @return The row's other occupants.
+ */
+function getRowMates( row: HTMLElement ): Element[] {
+	return Array.from( row.children ).filter(
+		child =>
+			! child.matches( OWN_ROOT ) &&
+			! [ 'absolute', 'fixed' ].includes( getComputedStyle( child ).position )
+	);
+}
+
+/**
+ * Width the row-mates take, the gap before each one included.
  *
  * The pills are one occupant of their row, not the whole of it. Measuring them
  * alone leaves the row short by whatever the rest takes, which is how they came
  * to run past its end.
  *
- * @param group - The pills' own group. Direct child of the flex row it shares.
+ * @param row - The flex row the filter is a direct child of.
  * @return The width to count against the container alongside the pills.
  */
-function getRowMatesWidth( group: HTMLElement ): number {
-	const row = group.parentElement;
-
-	if ( ! row ) {
-		return 0;
-	}
-
-	const mates = Array.from( row.children ).filter( child => child !== group );
+function getRowMatesWidth( row: HTMLElement ): number {
 	const gap = parseFloat( getComputedStyle( row ).columnGap ) || 0;
 
-	return mates.reduce( ( total, mate ) => total + mate.getBoundingClientRect().width + gap, 0 );
+	return getRowMates( row ).reduce(
+		( total, mate ) => total + mate.getBoundingClientRect().width + gap,
+		0
+	);
 }
 
 /**
@@ -201,15 +215,16 @@ export function DateYearFilter( {
 
 	/*
 	 * The group wraps when it runs out of room, so its own box reports the width
-	 * it was given rather than the width it needs: sum the pills instead, and
-	 * add what shares their row.
+	 * it was given rather than the width it needs: sum the pills instead.
 	 *
 	 * Measured from a ref rather than an effect, because the moment to measure is
 	 * when the pills attach, which is also the moment the select gives way to
 	 * them. Keyed on the preset list, so a list that changes under mounted pills
 	 * is measured again.
 	 */
-	const measureRow = useCallback(
+	const [ row, setRow ] = useState< HTMLElement | null >( null );
+
+	const measurePills = useCallback(
 		( group: HTMLDivElement | null ) => {
 			if ( ! group ) {
 				return;
@@ -220,18 +235,49 @@ export function DateYearFilter( {
 				0
 			);
 
-			// Rounded like the `clientWidth` it is compared against: a sum of
-			// fractional rects is otherwise a hair wider than the same row read
-			// as an integer, and lands on the wrong side of its own boundary.
-			setMeasurement( {
-				presets,
-				width: Math.round(
-					pills + ( group.offsetWidth - group.clientWidth ) + getRowMatesWidth( group )
-				),
-			} );
+			setMeasurement( { presets, width: pills + ( group.offsetWidth - group.clientWidth ) } );
+			setRow( group.parentElement );
 		},
 		[ presets ]
 	);
+
+	/*
+	 * The rest of the row is watched in both modes, unlike the pills: a mate can
+	 * change width or be swapped for another node at any time, as the interval
+	 * does when it names a new bucket, and the pills must come back once it shrinks.
+	 */
+	const [ matesWidth, setMatesWidth ] = useState( 0 );
+
+	useLayoutEffect( () => {
+		if ( ! row ) {
+			return;
+		}
+
+		const measure = () => setMatesWidth( getRowMatesWidth( row ) );
+		measure();
+
+		if ( typeof ResizeObserver === 'undefined' ) {
+			return;
+		}
+
+		const resizes = new ResizeObserver( measure );
+		const observeMates = () => {
+			resizes.disconnect();
+			getRowMates( row ).forEach( mate => resizes.observe( mate ) );
+		};
+		const swaps = new MutationObserver( () => {
+			observeMates();
+			measure();
+		} );
+
+		observeMates();
+		swaps.observe( row, { childList: true } );
+
+		return () => {
+			resizes.disconnect();
+			swaps.disconnect();
+		};
+	}, [ row ] );
 
 	/*
 	 * A measurement answers for the list it was taken from. It survives the
@@ -240,7 +286,11 @@ export function DateYearFilter( {
 	 * is dropped when the list itself changes, so a shorter list is never judged
 	 * by a longer one's width.
 	 */
-	const rowWidth = measurement?.presets === presets ? measurement.width : null;
+	// Rounded like the `clientWidth` it is compared against: a sum of fractional
+	// rects is otherwise a hair wider than the same row read as an integer, and
+	// lands on the wrong side of its own boundary.
+	const rowWidth =
+		measurement?.presets === presets ? Math.round( measurement.width + matesWidth ) : null;
 
 	// Until both measurements land, assume the pills fit: they are the layout
 	// this surface is designed around, and the first paint shouldn't flash a
@@ -272,7 +322,7 @@ export function DateYearFilter( {
 	 */
 	return (
 		<Composite
-			ref={ measureRow }
+			ref={ measurePills }
 			className={ clsx( 'date-year-filter__group', { 'is-disabled': disabled } ) }
 			role="toolbar"
 			aria-label={ __( 'Time period', 'jetpack-premium-analytics-pkg' ) }
