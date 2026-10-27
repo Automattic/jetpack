@@ -181,7 +181,7 @@ class Scan implements Dashboard_Section {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( __CLASS__, 'unignore_threat' ),
-				'permission_callback' => array( __CLASS__, 'can_ignore_threats' ),
+				'permission_callback' => array( __CLASS__, 'can_act_on_threats' ),
 			)
 		);
 
@@ -235,7 +235,7 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
-	 * Whether the host lets site owners ignore and unignore threats.
+	 * Whether the host lets site owners ignore threats.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -243,7 +243,7 @@ class Scan implements Dashboard_Section {
 	 */
 	public static function allows_ignoring() {
 		/**
-		 * Filters whether site owners can ignore and unignore threats. Hosts that fix threats themselves can turn this off.
+		 * Filters whether site owners can ignore threats; they can still unignore them. Hosts that fix threats themselves can turn this off.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -258,10 +258,11 @@ class Scan implements Dashboard_Section {
 	 * @return bool|WP_Error
 	 */
 	public static function can_ignore_threats() {
-		if ( Dashboard::can_manage() && ! self::allows_ignoring() ) {
-			return new WP_Error( 'threat_ignoring_disabled', __( 'Threats can’t be ignored on this site.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
+		$allowed = self::can_act_on_threats();
+		if ( true !== $allowed || self::allows_ignoring() ) {
+			return $allowed;
 		}
-		return self::can_act_on_threats();
+		return new WP_Error( 'threat_ignoring_disabled', __( 'Threats can’t be ignored on this site.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 	}
 
 	/**

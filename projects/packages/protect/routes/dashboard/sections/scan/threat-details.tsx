@@ -126,7 +126,7 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 	const onUnignore = useCallback( () => unignoreThreat( threat, open ), [ threat, open ] );
 	const onFix = useCallback( () => fixThreat( threat, open ), [ threat, open ] );
 
-	if ( ! canIgnore && ( isIgnored || ! threat.fixable ) ) {
+	if ( ! canIgnore && ! isIgnored && ! threat.fixable ) {
 		return null;
 	}
 
@@ -235,7 +235,6 @@ export default function ThreatDetails( {
 	canAct: boolean;
 } ) {
 	const { kind, subject } = getThreatLabel( threat );
-	const canIgnore = useCanIgnore();
 	const vulnerabilities = threat.vulnerabilities ?? [];
 	const context = threat.context ?? [];
 	const file = threat.filename?.split( '/' ).pop();
@@ -281,15 +280,10 @@ export default function ThreatDetails( {
 				) }
 				{ threat.status === 'ignored' && (
 					<Text variant="body-sm" className="jp-protect-card__muted">
-						{ canIgnore
-							? __(
-									'You ignored this threat, so Scan no longer reports it. Unignore it to have Scan check it again.',
-									'jetpack-protect-pkg'
-								)
-							: __(
-									'This threat was ignored, so Scan no longer reports it.',
-									'jetpack-protect-pkg'
-								) }
+						{ __(
+							'You ignored this threat, so Scan no longer reports it. Unignore it to have Scan check it again.',
+							'jetpack-protect-pkg'
+						) }
 					</Text>
 				) }
 			</Stack>

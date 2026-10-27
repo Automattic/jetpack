@@ -90,7 +90,7 @@ function getThreatRowActions(
 			id: 'unignore',
 			label: __( 'Unignore', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item => canAct && canIgnore && item.status === 'ignored',
+			isEligible: item => canAct && item.status === 'ignored',
 			callback: locking( ( [ item ], from ) => unignoreThreat( item, from ) ),
 		},
 		{

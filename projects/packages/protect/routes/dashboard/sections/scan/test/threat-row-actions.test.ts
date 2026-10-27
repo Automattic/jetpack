@@ -138,19 +138,22 @@ describe( 'useThreatRowActions where the host decides about ignoring', () => {
 	} );
 
 	it.each( [
-		[ 'ignore', 'current' ],
-		[ 'unignore', 'ignored' ],
-	] as const )( 'offers %s only where the host lets the site ignore threats', ( id, status ) => {
-		const threat = { ...threatIn( 20 ), status };
-		const isEligible = ( canIgnore: boolean ) => {
-			window.jetpackProtectDashboard = { scan: { hasPlan: true, url: '', canIgnore } };
-			resetScan();
-			return renderHook( () => useThreatRowActions( open, true ) )
-				.result.current.find( action => action.id === id )
-				?.isEligible?.( threat );
-		};
+		[ 'ignore', 'current', false ],
+		[ 'unignore', 'ignored', true ],
+	] as const )(
+		'with ignoring turned off, %s on a %s threat is offered: %s',
+		( id, status, offered ) => {
+			const threat = { ...threatIn( 20 ), status };
+			const isEligible = ( canIgnore: boolean ) => {
+				window.jetpackProtectDashboard = { scan: { hasPlan: true, url: '', canIgnore } };
+				resetScan();
+				return renderHook( () => useThreatRowActions( open, true ) )
+					.result.current.find( action => action.id === id )
+					?.isEligible?.( threat );
+			};
 
-		expect( isEligible( true ) ).toBe( true );
-		expect( isEligible( false ) ).toBe( false );
-	} );
+			expect( isEligible( true ) ).toBe( true );
+			expect( isEligible( false ) ).toBe( offered );
+		}
+	);
 } );

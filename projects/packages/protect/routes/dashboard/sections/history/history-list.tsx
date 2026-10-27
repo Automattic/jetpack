@@ -81,7 +81,7 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 			} ),
 		[ open, status ]
 	);
-	// History only shows with a Scan plan, so ignored threats can be unignored where the host allows it.
+	// History only shows with a Scan plan, so ignored threats can always be unignored.
 	const actions = useThreatRowActions( open, true );
 
 	const { data, paginationInfo } = useMemo(

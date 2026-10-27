@@ -318,7 +318,7 @@ export function useScanPolling(): void {
 }
 
 /**
- * Whether the host lets the site ignore and unignore threats.
+ * Whether the host lets the site ignore threats.
  *
  * @return True unless the host turned ignoring off.
  */
