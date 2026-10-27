@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Button, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { fetchCatalog, fetchFlow, planFlow, saveFlow } from '../api';
+import { BrandStrip } from './brand-strip';
 import { FlowCard } from './flow-card';
 import { FlowPage } from './flow-page';
 import { Palette } from './palette';
@@ -186,6 +187,8 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 									: __( 'Flow disabled', 'jetpack-flow-pkg' ) }
 							</Text>
 						</label>
+
+						<BrandStrip />
 					</Stack>
 				) }
 			</div>

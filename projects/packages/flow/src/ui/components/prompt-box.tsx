@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import { Button, Field, Stack, Text, Textarea } from '@wordpress/ui';
-import { BrandStrip } from './brand-strip';
 
 type Props = {
 	value: string;
@@ -20,7 +19,6 @@ type Props = {
 export function PromptBox( { value, busy, onChange, onSubmit }: Props ) {
 	return (
 		<Stack direction="column" gap="md" className="jetpack-flow-prompt">
-			<BrandStrip />
 			<Field.Root>
 				<Field.Label>
 					<Text variant="heading-md">{ __( 'What should happen?', 'jetpack-flow-pkg' ) }</Text>
