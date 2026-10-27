@@ -146,9 +146,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	SectionHeader: jest
 		.requireActual< typeof import( 'react' ) >( 'react' )
 		.forwardRef( ( { children }: { children: ReactNode }, ref: ForwardedRef< HTMLDivElement > ) => (
-			<div ref={ ref } data-testid="section-header">
-				{ children }
-			</div>
+			<div ref={ ref }>{ children }</div>
 		) ),
 	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
 		( mockMountedSectionSlugs ?? [ mockActiveSectionSlug ] ).includes( value ) ? (
@@ -829,7 +827,10 @@ describe( 'Dashboard refresh-failure notice', () => {
 		expect( notices ).toHaveLength( 1 );
 
 		// The page's notice, not the header's: it scrolls with the widgets.
-		expect( screen.getByTestId( 'section-header' ) ).not.toContainElement( notices[ 0 ] );
+		// eslint-disable-next-line testing-library/no-node-access -- The section body has no accessible query target.
+		expect( screen.getByTestId( 'dashboard-notices' ).parentElement ).toContainElement(
+			notices[ 0 ]
+		);
 	} );
 } );
 
