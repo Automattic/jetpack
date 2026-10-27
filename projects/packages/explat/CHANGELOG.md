@@ -15,13 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.4] - 2026-10-19
 ### Changed
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 
 ## [0.6.3] - 2026-09-18
 ### Changed
-- Update package dependencies. [#49934]
-- Update package dependencies. [#52187]
+- Update package dependencies. [#49934] [#52187]
 
 ## [0.6.2] - 2026-09-15
 ### Changed
@@ -84,8 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.26] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [0.4.25] - 2026-05-19
 ### Changed

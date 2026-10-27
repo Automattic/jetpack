@@ -16,8 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.5] - 2026-08-14
 ### Changed
 - Update dependencies. [#50235]
-- Update package dependencies. [#50510]
-- Update package dependencies. [#50751]
+- Update package dependencies. [#50510] [#50751]
 
 ## [2.0.4] - 2026-06-26
 ### Changed
@@ -25,9 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.3] - 2026-06-24
 ### Changed
-- Update package dependencies. [#49631]
-- Update package dependencies. [#49757]
-- Update package dependencies. [#49831]
+- Update package dependencies. [#49631] [#49757] [#49831]
 
 ## [2.0.2] - 2026-06-10
 ### Changed
@@ -37,17 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
 - Update dependencies. [#48210]
-- Update package dependencies. [#49012]
-- Update package dependencies. [#49133]
-- Update package dependencies. [#49218]
+- Update package dependencies. [#49012] [#49133] [#49218]
 
 ## [2.0.0] - 2026-04-13
 ### Changed
 - Bump minimum Node version to 20.11. [#47770]
 - Update dependencies. [#47600]
-- Update package dependencies. [#47799]
-- Update package dependencies. [#47842]
-- Update package dependencies. [#47998]
+- Update package dependencies. [#47799] [#47842] [#47998]
 
 ## [1.0.27] - 2026-03-09
 ### Changed
@@ -86,8 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.19] - 2025-09-17
 ### Changed
-- Update package dependencies. [#45097]
-- Update package dependencies. [#45200]
+- Update package dependencies. [#45097] [#45200]
 
 ## [1.0.18] - 2025-08-21
 ### Added

@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove unneeded development and documentation files from the published plugin. [#49014]
 - Tested up to WordPress 7.1. [#48114] [#51370]
 - Update composer.lock files. [#49415]
-- Updated package dependencies. [#48735] [#48064] [#48106] [#48405] [#48683] [#49012] [#49218] [#49273] [#49448] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183] [#50436] [#50510] [#50529] [#50751] [#51399] [#51701] [#51802] [#52028] [#52187] [#52297] [#52999]
+- Updated package dependencies. [#48064] [#48106] [#48405] [#48683] [#48735] [#49012] [#49218] [#49273] [#49448] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183] [#50436] [#50510] [#50529] [#50751] [#51399] [#51701] [#51802] [#52028] [#52187] [#52297] [#52999]
 
 ### Removed
 - Updated PHP version requirements to PHP 7.4 or newer. [#51515]
@@ -104,7 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
 - My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
 - My Jetpack: Update the onboarding UI, changing it to a single button. [#43203]
-- Update package dependencies. [#43085] [#43071] [#43320] [#43326] [#43398] [#43400] [#43425] [#43578] [#43734]
+- Update package dependencies. [#43071] [#43085] [#43320] [#43326] [#43398] [#43400] [#43425] [#43578] [#43734]
 
 ### Removed
 - General: Update minimum WordPress version to 6.7. [#43192]
@@ -151,7 +151,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Social | Changed My Jetpack CTA for Social from "Learn more" to "Activate" [#40359]
 - Update composer lock file [#38942]
 - Updated dependencies. [#40286]
-- Updated package dependencies. [#35591] [#35608] [#36095] [#36097] [#36142] [#36309] [#36325] [#36585] [#36760] [#36775] [#36788] [#37147] [#37348] [#37379] [#37380] [#37382] [#37669] [#37767] [#37776] [#37796] [#38132] [#38228] [#38235] [#38662] [#38822] [#39004] [#39111] [#39176] [#39278] [#39288] [#39302] [#39332] [#39594] [#39653] [#39707] [#39999] [#40060] [#40116] [#40258] [#40288] [#40363]
+- Updated package dependencies. [#35591] [#35608] [#36095] [#36097] [#36142] [#36309] [#36325] [#36585] [#36760] [#36775] [#36788] [#37147] [#37348] [#37379] [#37380] [#37382] [#37669] [#37767] [#37776] [#37796] [#38132] [#38228] [#38235] [#38464] [#38662] [#38822] [#39004] [#39111] [#39176] [#39278] [#39288] [#39302] [#39332] [#39594] [#39653] [#39707] [#39999] [#40060] [#40116] [#40258] [#40288] [#40363]
 - Update package lock [#35672]
 
 ### Removed
@@ -163,7 +163,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - My Jetpack: visual update to the GlobalNotice component look better on mobile. [#39537]
-- Updated package dependencies. [#38464]
 
 ## 0.4.0 - 2024-02-07
 ### Changed
