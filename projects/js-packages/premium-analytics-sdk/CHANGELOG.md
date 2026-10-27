@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.6.0 - 2026-10-26
+### Added
+- Add the `refreshNotice` option to the `useReport` types, to keep a failed refresh out of the stale-data notice. [#54017]
+- Add useReportActions: a widget declares its View all link and CSV download, and the dashboard renders them in the card footer. [#53881]
+- Declare the Button, ButtonLink, Progress, Text and VisuallyHidden primitives a widget renders. [#53887]
+- Support React 19. [#53882]
+
+### Removed
+- Remove WidgetFooter, ReportLink and ExporterCsvDownloadButton; a widget declares its footer with useReportActions. Widget contract 2.0.0. [#53885]
+
 ## 0.5.0 - 2026-10-19
 ### Added
 - Add stated totals to the Donut props. [#53707]
