@@ -72,8 +72,8 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 	const isBotBlocked = ( bot: AiCrawler ): boolean => data.overrides[ bot.slug ] === true;
 	const answerBots = data.catalog.filter( bot => bot.type === 'answer' );
 	const trainingBots = data.catalog.filter( bot => bot.type === 'training' );
-	const answerAllowed = answerBots.filter( bot => ! isBotBlocked( bot ) ).length;
-	const trainingBlocked = trainingBots.filter( bot => isBotBlocked( bot ) ).length;
+	const answerBlocked = answerBots.filter( isBotBlocked ).length;
+	const trainingBlocked = trainingBots.filter( isBotBlocked ).length;
 
 	// The card reports the state of optimization, not who owns it. An llms.txt that
 	// exists reads as published whoever wrote it — `canServe` is false precisely
@@ -106,11 +106,12 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 				{ settingsApply ? (
 					<Stack direction="column" gap="xs">
 						<StatusDot
-							status={ answerAllowed > 0 ? 'ok' : 'warn' }
+							// Blocking every answer engine keeps the site out of AI answers.
+							status={ answerBlocked < answerBots.length ? 'ok' : 'warn' }
 							label={ sprintf(
-								/* translators: %1$d is the number of allowed answer engines, %2$d the total. */
-								__( 'Answer engines: %1$d of %2$d allowed', 'jetpack-seo' ),
-								answerAllowed,
+								/* translators: %1$d is the number of blocked answer engines, %2$d the total. */
+								__( 'Answer engines: %1$d of %2$d blocked', 'jetpack-seo' ),
+								answerBlocked,
 								answerBots.length
 							) }
 						/>

@@ -72,6 +72,7 @@ export const SEEDED_GEO: GeoState = {
 		restrictedSubdomain: false,
 		staticRobotsTxt: false,
 		dataSharingOptOut: false,
+		dataSharingBlocked: [],
 		pathBasedMultisite: false,
 		privacySettingsUrl: 'http://example.com/wp-admin/options-reading.php',
 		robotsTxtUrl: 'http://example.com/robots.txt',

@@ -29,7 +29,7 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-// The group-level "Allow all" master toggle, divided from the per-crawler
+// The group-level "Block all" master toggle, divided from the per-crawler
 // rows below so it reads as a control over the whole group.
 .jetpack-seo-geo__crawler-bulk {
 	padding-block-end: var(--wpds-dimension-gap-md);
