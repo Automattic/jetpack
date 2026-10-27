@@ -49,6 +49,11 @@ export async function init(): Promise< void > {
 	// synchronous setup in parallel while they're in flight.
 	const catalogs = loadI18nCatalogs( 'jetpack-premium-analytics-pkg', import.meta.url );
 
+	// wp-build has no `jetpackConfig` external, so @automattic/jetpack-config reads this global.
+	( globalThis as typeof globalThis & { jetpackConfig?: object } ).jetpackConfig = {
+		consumer_slug: 'jetpack-premium-analytics',
+	};
+
 	setupApiFetch();
 
 	// Before any widget type resolves:

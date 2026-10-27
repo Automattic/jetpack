@@ -1,10 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useRef } from 'react';
+import { LIBRARY_POLL_INTERVAL_MS, nextProcessingPoll } from '../utils/processing-poll';
 import { FILMSTRIP_QUERY_KEY } from './use-filmstrip';
-import { LIBRARY_QUERY_KEY, nextProcessingPoll, LIBRARY_POLL_INTERVAL_MS } from './use-library';
-import type { ProcessingPollAnchor } from './use-library';
+import { LIBRARY_QUERY_KEY } from './use-library';
 import type { VideoEdits } from '../types/edits';
+import type { ProcessingPollAnchor } from '../utils/processing-poll';
 
 export const EDITS_QUERY_KEY = 'videopress-edits';
 export const EDITS_POLL_INTERVAL_MS = LIBRARY_POLL_INTERVAL_MS;

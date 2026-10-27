@@ -6,6 +6,7 @@ const { GROUPS_DIR, groupedMemberFiles } = require( './group-members.cjs' );
 const { singleCopyModuleMapper } = require( './single-copy-modules.cjs' );
 
 const rootDir = path.join( __dirname, '..' );
+const JS_TRANSFORM = '\\.m?[jt]sx?$';
 
 const escapeRegExp = value => value.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
 
@@ -40,6 +41,15 @@ module.exports = {
 	// A jsdom suite rendering real components runs tens of times slower on a CI runner sharing its
 	// cores with every other project's workers, which took two suites past Jest's 5s default.
 	testTimeout: 20_000,
+	// Jest keeps a transform cache per `id`, so the timezone passes must share this one to reuse it.
+	id: 'premium-analytics',
+	transform: {
+		...baseConfig.transform,
+		[ JS_TRANSFORM ]: [
+			path.join( __dirname, 'shared-transform-cache.cjs' ),
+			baseConfig.transform[ JS_TRANSFORM ][ 1 ],
+		],
+	},
 	testPathIgnorePatterns: [ ...baseConfig.testPathIgnorePatterns, ...groupingIgnorePatterns ],
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,

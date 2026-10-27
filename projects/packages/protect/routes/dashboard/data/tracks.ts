@@ -1,7 +1,14 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
 
-type Props = Record< string, string | number >;
+declare global {
+	interface Window {
+		/** Set by PHP when the site and user allow Tracks. */
+		jetpackProtectTracks?: boolean;
+	}
+}
+
+type Props = Record< string, string | number | boolean >;
 
 const viewed = new Set< string >();
 
@@ -33,6 +40,20 @@ function withSite( props: Props ): Props {
 }
 
 /**
+ * Record an event, unless PHP disallowed Tracks: another plugin's w.js would still send it.
+ *
+ * @param event - Event name.
+ * @param props - Event properties.
+ */
+export function recordEvent( event: string, props: Props = {} ) {
+	if ( ! window.jetpackProtectTracks ) {
+		return;
+	}
+	identify();
+	analytics.tracks.recordEvent( event, withSite( props ) );
+}
+
+/**
  * Record a view once per page load, so returning to a tab doesn't count it again.
  *
  * @param event - Event name.
@@ -44,17 +65,5 @@ export function recordViewOnce( event: string, props: Props = {} ) {
 		return;
 	}
 	viewed.add( key );
-	identify();
-	analytics.tracks.recordEvent( event, withSite( props ) );
-}
-
-/**
- * Record an event.
- *
- * @param event - Event name.
- * @param props - Event properties.
- */
-export function recordEvent( event: string, props: Props = {} ) {
-	identify();
-	analytics.tracks.recordEvent( event, withSite( props ) );
+	recordEvent( event, props );
 }
