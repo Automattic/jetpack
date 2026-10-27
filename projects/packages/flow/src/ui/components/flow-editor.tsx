@@ -150,66 +150,61 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 						{ error ? <Text>{ error }</Text> : <Spinner /> }
 					</Stack>
 				) : (
-					<>
-						<Stack direction="column" gap="xl">
-							{ error && (
-								<Notice.Root intent="error">
-									<Notice.Description>{ error }</Notice.Description>
-								</Notice.Root>
-							) }
-							{ notice && (
-								<Notice.Root intent="info">
-									<Notice.Description>{ notice }</Notice.Description>
-								</Notice.Root>
-							) }
+					<Stack direction="column" gap="xl">
+						{ error && (
+							<Notice.Root intent="error">
+								<Notice.Description>{ error }</Notice.Description>
+							</Notice.Root>
+						) }
+						{ notice && (
+							<Notice.Root intent="info">
+								<Notice.Description>{ notice }</Notice.Description>
+							</Notice.Root>
+						) }
 
-							<RequirementsNotice
-								flow={ flow }
-								catalog={ catalog }
-								onInstalled={ () => fetchCatalog().then( setCatalog ) }
-							/>
-
-							<FlowCanvas flow={ flow } catalog={ catalog } onChange={ setFlow } />
-
-							{ flow.steps.length > 0 && (
-								<Card.Root className="jetpack-flow-settings">
-									<Card.Content>
-										<Stack direction="column" gap="lg">
-											<Field.Root>
-												<Field.Label>{ __( 'Description', 'jetpack-flow-pkg' ) }</Field.Label>
-												<Input
-													{ ...noAutofill }
-													value={ flow.name }
-													placeholder={ __( 'Describe this flow', 'jetpack-flow-pkg' ) }
-													onValueChange={ name => {
-														setNameTouched( true );
-														setFlow( { ...flow, name } );
-													} }
-												/>
-											</Field.Root>
-											<SwitchControl
-												label={
-													flow.enabled
-														? __( 'Flow enabled', 'jetpack-flow-pkg' )
-														: __( 'Flow disabled', 'jetpack-flow-pkg' )
-												}
-												checked={ flow.enabled }
-												onCheckedChange={ ( enabled: boolean ) => setFlow( { ...flow, enabled } ) }
-											/>
-										</Stack>
-									</Card.Content>
-								</Card.Root>
-							) }
-						</Stack>
-						<PromptBox
-							value={ prompt }
-							busy={ planning }
-							onChange={ setPrompt }
-							onSubmit={ build }
+						<RequirementsNotice
+							flow={ flow }
+							catalog={ catalog }
+							onInstalled={ () => fetchCatalog().then( setCatalog ) }
 						/>
-					</>
+
+						<FlowCanvas flow={ flow } catalog={ catalog } onChange={ setFlow } />
+
+						{ flow.steps.length > 0 && (
+							<Card.Root className="jetpack-flow-settings">
+								<Card.Content>
+									<Stack direction="column" gap="lg">
+										<Field.Root>
+											<Field.Label>{ __( 'Description', 'jetpack-flow-pkg' ) }</Field.Label>
+											<Input
+												{ ...noAutofill }
+												value={ flow.name }
+												placeholder={ __( 'Describe this flow', 'jetpack-flow-pkg' ) }
+												onValueChange={ name => {
+													setNameTouched( true );
+													setFlow( { ...flow, name } );
+												} }
+											/>
+										</Field.Root>
+										<SwitchControl
+											label={
+												flow.enabled
+													? __( 'Flow enabled', 'jetpack-flow-pkg' )
+													: __( 'Flow disabled', 'jetpack-flow-pkg' )
+											}
+											checked={ flow.enabled }
+											onCheckedChange={ ( enabled: boolean ) => setFlow( { ...flow, enabled } ) }
+										/>
+									</Stack>
+								</Card.Content>
+							</Card.Root>
+						) }
+					</Stack>
 				) }
 			</div>
+			{ catalog && (
+				<PromptBox value={ prompt } busy={ planning } onChange={ setPrompt } onSubmit={ build } />
+			) }
 		</FlowPage>
 	);
 }

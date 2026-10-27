@@ -16,6 +16,21 @@ body.jetpack-flow {
 	font-family: var(--wpds-typography-font-family-body);
 }
 
+// The page layout shrinks every child of the scroller. Keep the height of
+// the editor and prompt so the prompt can stick to the bottom.
+body.toplevel_page_jetpack-flow-wp-admin,
+body.jetpack_page_jetpack-flow-wp-admin,
+body.jetpack-flow {
+
+	.jp-admin-page__page .jetpack-flow:not(:first-child):not(.jetpack-footer) {
+		flex: 1 0 auto;
+	}
+
+	.jp-admin-page__page .jetpack-flow-prompt:not(:first-child):not(.jetpack-footer) {
+		flex: 0 0 auto;
+	}
+}
+
 .jetpack-flow-tabs {
 	flex: 0 0 auto;
 
@@ -198,8 +213,10 @@ body.jetpack-flow {
 	position: sticky;
 	inset-block-end: 0;
 	z-index: 5;
-	padding-block: var(--wpds-dimension-padding-lg);
-	margin-block-start: var(--wpds-dimension-padding-2xl);
+	flex: 0 0 auto;
+	box-sizing: border-box;
+	inline-size: 100%;
+	padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
 	background: var(--wpds-color-background-surface-neutral-strong);
 
 	// Content fades out as it scrolls under the bar.
@@ -214,42 +231,60 @@ body.jetpack-flow {
 	}
 }
 
-.jetpack-flow-prompt__field {
-	display: grid;
+.jetpack-flow-prompt__box {
+	display: flex;
+	align-items: flex-end;
 	gap: var(--wpds-dimension-gap-sm);
-	inline-size: 66.667%;
-	min-inline-size: min(100%, 320px);
-}
-
-.jetpack-flow-prompt__input {
-	display: block;
-	box-sizing: border-box;
-	inline-size: 100%;
-	max-block-size: 33vh;
-	margin: 0;
-	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+	padding: var(--wpds-dimension-padding-sm);
+	padding-inline-start: var(--wpds-dimension-padding-lg);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-strong);
 	border-radius: var(--wpds-border-radius-xl);
 	background: var(--wpds-color-background-surface-neutral);
+
+	&:focus-within {
+		border-color: var(--wpds-color-stroke-interactive-brand);
+	}
+}
+
+.jetpack-flow-prompt__input {
+	flex: 1;
+	box-sizing: border-box;
+	min-inline-size: 0;
+	max-block-size: 33vh;
+	margin: 0;
+	padding: var(--wpds-dimension-padding-sm) 0;
+	border: 0;
+	background: transparent;
 	color: var(--wpds-color-foreground-content-neutral);
 	font: inherit;
 	font-size: var(--wpds-typography-font-size-lg);
 	line-height: var(--wpds-typography-line-height-md);
 	resize: none;
 	overflow-y: auto;
+	box-shadow: none;
 
 	&::placeholder {
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	&:focus {
-		border-color: var(--wpds-color-stroke-interactive-brand);
-		outline: var(--wpds-border-width-sm) solid var(--wpds-color-stroke-interactive-brand);
-		outline-offset: -1px;
+		outline: none;
+		box-shadow: none;
 	}
 
 	&:disabled {
 		opacity: 0.7;
+	}
+}
+
+.jetpack-flow-prompt__actions {
+	display: flex;
+	flex: none;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+
+	.is-listening {
+		color: var(--wpds-color-foreground-content-error);
 	}
 }
 
@@ -264,6 +299,9 @@ $jetpack-flow-rainbow: conic-gradient(from var(--jetpack-flow-angle), #069e08, #
 
 .jetpack-flow-prompt__border {
 	position: relative;
+	inline-size: 66.667%;
+	min-inline-size: min(100%, 320px);
+	margin-inline: auto;
 	isolation: isolate;
 	padding: 3px;
 	border-radius: calc(var(--wpds-border-radius-xl) + 3px);
