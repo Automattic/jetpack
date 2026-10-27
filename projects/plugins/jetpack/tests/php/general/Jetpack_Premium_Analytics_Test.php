@@ -201,9 +201,9 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Stats v2 takes the plain Stats name only once there is no classic Stats page to tell it apart from.
+	 * Stats v2 takes the plain Stats name and the pre-connection Stats page only once there is no classic Stats page to tell it apart from.
 	 */
-	public function test_menu_title_is_stats_once_the_classic_page_is_retired() {
+	public function test_stats_v2_takes_over_once_the_classic_page_is_retired() {
 		$options = new ReflectionMethod( Jetpack::class, 'premium_analytics_options' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
@@ -214,7 +214,9 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 
 		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Stats_Feature_Flags::CLASSIC_PAGE_RETIRED, '__return_true' );
 
-		$this->assertSame( 'Stats', ( $options->invoke( null )['menu_title'] )() );
+		$retired = $options->invoke( null );
+		$this->assertSame( 'Stats', ( $retired['menu_title'] )() );
+		$this->assertTrue( $retired['replaces_pre_connection_stats_page'] );
 	}
 
 	/**

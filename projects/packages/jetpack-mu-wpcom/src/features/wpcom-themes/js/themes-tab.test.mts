@@ -19,6 +19,9 @@ type FakeNode = {
 	querySelector: ( selector: string ) => FakeNode | null;
 	setAttribute: ( name: string, value: string ) => void;
 	attributes: Record< string, string >;
+	value?: string;
+	listeners: Record< string, () => void >;
+	addEventListener: ( type: string, handler: () => void ) => void;
 };
 
 /**
@@ -40,6 +43,8 @@ function node( tagName?: string ): FakeNode {
 		querySelector: () => null,
 		attributes: {},
 		setAttribute: ( name, value ) => void ( el.attributes[ name ] = value ),
+		listeners: {},
+		addEventListener: ( type, handler ) => void ( el.listeners[ type ] = handler ),
 	};
 	return el;
 }
@@ -118,6 +123,7 @@ it( "offers the plan a theme needs in place of core's install button", () => {
 		themeTier: 'personal',
 		requiredPlan: 'personal-bundle',
 		context: 'card',
+		source: 'tab',
 	} );
 } );
 
@@ -203,7 +209,7 @@ it( 'badges a theme the plan includes without taking its install away', () => {
  * @param fetch - Stands in for the browser's own, which the script prices the theme with.
  * @return The badge's element and the buttons the card ended up with.
  */
-async function priceCard( theme: Record< string, string >, fetch: () => Promise< unknown > ) {
+async function priceCard( theme: Record< string, unknown >, fetch: () => Promise< unknown > ) {
 	const install = node( 'a' );
 	install.className = 'button button-primary button-compact theme-install';
 	const screenshot = node( 'div' );
@@ -267,7 +273,22 @@ it( "prices a partner theme in the reader's own currency, and sells it", async (
 		themeTier: 'partner',
 		requiredPlan: 'personal-bundle',
 		context: 'card',
+		source: 'tab',
 	} );
+} );
+
+it( 'credits a purchase offered at the top of a search to the search', async () => {
+	const { install } = await priceCard(
+		{
+			name: 'STAX',
+			price_product: 'theme_stax_yearly',
+			purchase_url: 'https://wordpress.com/checkout/example.org/theme_stax_yearly',
+			wpcom_search_slot: true,
+		},
+		() => Promise.resolve( STORE )
+	);
+
+	assert.equal( install.children[ 0 ].dataset.source, 'search' );
 } );
 
 it( 'adds the plan a site still needs, so the price is not read as the whole cost', async () => {
@@ -413,4 +434,76 @@ it( 'stops marking a theme once it renders outside the tab', () => {
 		'action=install-theme&slug=organic-stax'
 	);
 	assert.equal( page.activate( 'click', 'organic-stax' ), null );
+} );
+
+/**
+ * Loads the script on a page with core's filter bar and theme collection.
+ *
+ * @return The pricing filter, and what core's collection and installer were asked for.
+ */
+function pricingPage() {
+	const list = node( 'ul' );
+	const requests: unknown[] = [];
+	const browsed: string[] = [];
+	const Collection = {
+		prototype: { query: ( request: unknown ) => void requests.push( request ) },
+	};
+	const config = { sort: 'wpcom', label: 'Marketplace', included: 'included' };
+	const context = {
+		document: { querySelector: () => list, createElement: node, addEventListener: () => {} },
+		window: {
+			wpcomThemesTab: config,
+			wp: {
+				themes: {
+					view: { Theme: { prototype: { render: () => undefined } } },
+					Collection,
+					RunInstaller: { view: { browse: ( section: string ) => void browsed.push( section ) } },
+				},
+			},
+		},
+		wpcomThemesTab: config,
+	};
+	const file = new URL( './themes-tab.js', import.meta.url ).pathname;
+	vm.createContext( context );
+	new vm.Script( readFileSync( file, 'utf8' ), { filename: file } ).runInContext( context );
+
+	const pricing = list.children.find( child => child.className === 'wpcom-themes-tab__pricing' );
+	assert.ok( pricing );
+
+	return {
+		pricing,
+		select: pricing.children[ 1 ],
+		query: ( request: Record< string, unknown > ) => Collection.prototype.query.call( {}, request ),
+		// The script builds some requests in the vm's realm, which a strict deepEqual tells apart.
+		requests: () => JSON.parse( JSON.stringify( requests ) ),
+		browsed,
+	};
+}
+
+it( "narrows the tab's query and its later pages, and nothing else, to what the plan includes", () => {
+	const page = pricingPage();
+	page.query( { browse: 'wpcom' } );
+	assert.equal( page.pricing.hidden, false );
+
+	page.select.value = 'included';
+	page.query( { browse: 'wpcom' } );
+	page.query( { browse: 'wpcom', wpcom_pricing: 'included', page: 2 } );
+	page.query( { browse: 'popular' } );
+	assert.equal( page.pricing.hidden, true );
+	page.query( { search: 'blog' } );
+
+	assert.deepEqual( page.requests(), [
+		{ browse: 'wpcom' },
+		{ browse: 'wpcom', wpcom_pricing: 'included' },
+		{ browse: 'wpcom', wpcom_pricing: 'included', page: 2 },
+		{ browse: 'popular' },
+		{ search: 'blog' },
+	] );
+} );
+
+it( 'lists the tab again when the filter changes', () => {
+	const page = pricingPage();
+	page.select.listeners.change();
+
+	assert.deepEqual( page.browsed, [ 'wpcom' ] );
 } );

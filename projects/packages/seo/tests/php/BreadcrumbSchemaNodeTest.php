@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -128,6 +129,7 @@ class BreadcrumbSchemaNodeTest extends TestCase {
 			remove_all_filters( $hook );
 		}
 		$this->set_query( array() );
+		unset( $GLOBALS['post'] );
 
 		parent::tearDown();
 	}
@@ -240,6 +242,83 @@ class BreadcrumbSchemaNodeTest extends TestCase {
 			array( 'Home', 'Journal', 'A post' ),
 			array( home_url( '/' ), get_permalink( $posts_page ) ),
 			Breadcrumb_Schema_Node::build()
+		);
+	}
+
+	/**
+	 * A static front page with no posts page must not turn the request's global post into a crumb.
+	 *
+	 * @dataProvider provide_requests_without_a_posts_page
+	 *
+	 * @param string[]   $flags       WP_Query flags.
+	 * @param string     $object_kind Queried object: post, author, or none.
+	 * @param array      $query_vars  Query variables.
+	 * @param string[]   $names       Expected crumb names.
+	 * @param callable[] $urls        Expected ancestor URL builders.
+	 */
+	#[DataProvider( 'provide_requests_without_a_posts_page' )]
+	public function test_ignores_the_global_post_when_no_posts_page_is_set( array $flags, $object_kind, array $query_vars, array $names, array $urls ) {
+		$this->front_page_id = $this->insert_post(
+			array(
+				'post_type'  => 'page',
+				'post_title' => 'Welcome',
+			)
+		)->ID;
+		$post                = $this->insert_post( array( 'post_title' => 'Current post' ) );
+		$objects             = array(
+			'post'   => $post,
+			'author' => $this->insert_user( 'Jane Doe' ),
+			'none'   => null,
+		);
+
+		// WP::register_globals() sets $GLOBALS['post'] to the main query's first post.
+		$GLOBALS['post'] = $post;
+		$this->set_query( $flags, $objects[ $object_kind ], $query_vars );
+
+		$this->assert_trail( $names, array_map( 'call_user_func', $urls ), Breadcrumb_Schema_Node::build() );
+	}
+
+	/**
+	 * Requests that ask for the posts page as an ancestor, with none configured.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_requests_without_a_posts_page() {
+		$home  = static function () {
+			return home_url( '/' );
+		};
+		$year  = static function () {
+			return get_year_link( 2026 );
+		};
+		$month = static function () {
+			return get_month_link( 2026, 7 );
+		};
+
+		return array(
+			'single post'   => array( array( 'is_singular' ), 'post', array(), array( 'Home', 'Current post' ), array( $home ) ),
+			'author'        => array( array( 'is_archive', 'is_author' ), 'author', array(), array( 'Home', 'Jane Doe' ), array( $home ) ),
+			'year archive'  => array( array( 'is_archive', 'is_date', 'is_year' ), 'none', array( 'year' => 2026 ), array( 'Home', '2026' ), array( $home ) ),
+			'month archive' => array(
+				array( 'is_archive', 'is_date', 'is_month' ),
+				'none',
+				array(
+					'year'     => 2026,
+					'monthnum' => 7,
+				),
+				array( 'Home', '2026', 'July' ),
+				array( $home, $year ),
+			),
+			'day archive'   => array(
+				array( 'is_archive', 'is_date', 'is_day' ),
+				'none',
+				array(
+					'year'     => 2026,
+					'monthnum' => 7,
+					'day'      => 13,
+				),
+				array( 'Home', '2026', 'July', '13' ),
+				array( $home, $year, $month ),
+			),
 		);
 	}
 

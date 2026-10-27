@@ -11,8 +11,7 @@
 
 The Pay with PayPal block lets you accept payments directly on your WordPress site. Create PayPal-branded Buy Now buttons and shareable payment links without leaving the block editor.
 
-<!-- [VERIFY] Current plan requirement. Existing page says Growth, Security, or Complete plan. Confirm whether this is still accurate for v0.8.0. -->
-**Requires:** Jetpack Growth, Security, or Complete plan
+**Plan:** No paid Jetpack plan is required on self-hosted sites. On WordPress.com, Premium or higher is required; sites with legacy feature access can use it on any plan.
 
 ### How It Works
 

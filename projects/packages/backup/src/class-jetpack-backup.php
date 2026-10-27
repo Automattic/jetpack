@@ -546,15 +546,41 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * The backup calls should only occur from a signed in admin user
+	 * The backup calls should only occur from a signed in admin user, outside offline mode
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return true|WP_Error
+	 * @return bool|WP_Error
 	 */
 	public static function backups_permissions_callback() {
-		return current_user_can( 'manage_options' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		return self::get_offline_mode_error() ?? true;
+	}
+
+	/**
+	 * The error the dashboard's routes and abilities answer with while Jetpack is in offline mode.
+	 *
+	 * A local copy of a live site keeps its tokens, and offline mode drops the identity-crisis
+	 * check, so WordPress.com would act on the live site's backups.
+	 *
+	 * @since 5.2.0
+	 *
+	 * @return WP_Error|null Null outside offline mode.
+	 */
+	public static function get_offline_mode_error() {
+		if ( ! ( new Status() )->is_offline_mode() ) {
+			return null;
+		}
+
+		return new WP_Error(
+			'offline_mode',
+			__( 'Backup is unavailable in Offline Mode.', 'jetpack-backup-pkg' ),
+			array( 'status' => 403 )
+		);
 	}
 
 	/**
@@ -1347,7 +1373,7 @@ class Jetpack_Backup {
 	 * Returns the modernization filter's value, which defaults to true unless the site has the legacy dashboard sticker.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
-	 * @since $$next-version$$ Defaults to true.
+	 * @since 5.2.0 Defaults to true.
 	 *
 	 * @return bool
 	 */

@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Babel preset: Only add a dependency on `wp-polyfill` for polyfills that the supported WordPress releases include in it. This replaces the previously hardcoded default `autoWpPolyfill.exclude` list, which is now empty.
