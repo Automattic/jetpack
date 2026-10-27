@@ -36,7 +36,7 @@ export const newStep = ( type: string, catalog: Catalog ): Step => ( {
 /** A dotted line, with a plus button to insert an action at this point. */
 function Wire( { onAdd }: { onAdd?: () => void } ) {
 	return (
-		<div className="jetpack-flow-wire">
+		<div className="jetpack-flow-wire jetpack-flow-enter">
 			<span className="jetpack-flow-wire__line" />
 			{ onAdd && (
 				<IconButton
@@ -53,7 +53,7 @@ function Wire( { onAdd }: { onAdd?: () => void } ) {
 
 function Or() {
 	return (
-		<div className="jetpack-flow-or">
+		<div className="jetpack-flow-or jetpack-flow-enter">
 			<Text variant="body-sm">{ __( 'or', 'jetpack-flow-pkg' ) }</Text>
 		</div>
 	);
@@ -79,7 +79,7 @@ function TriggerCard( { flow, catalog, onChange }: Props ) {
 			<Card.Content>
 				<Stack direction="column" gap="md">
 					{ flow.triggers.map( ( id, index ) => (
-						<Stack direction="column" gap="md" key={ id }>
+						<Stack direction="column" gap="md" className="jetpack-flow-enter" key={ id }>
 							{ index > 0 && <Or /> }
 							<Stack align="center" justify="space-between" gap="md">
 								<Stack align="center" gap="md">
@@ -102,7 +102,7 @@ function TriggerCard( { flow, catalog, onChange }: Props ) {
 
 					{ flow.triggers.length > 0 && remaining.length > 0 && <Or /> }
 					{ flow.triggers.length > 0 && remaining.length > 0 && ! picking && (
-						<Stack justify="center">
+						<Stack justify="center" className="jetpack-flow-enter">
 							<IconButton
 								variant="outline"
 								label={ __( 'Add another trigger', 'jetpack-flow-pkg' ) }
@@ -116,7 +116,7 @@ function TriggerCard( { flow, catalog, onChange }: Props ) {
 					) }
 
 					{ flow.triggers.includes( 'inbound_event' ) && (
-						<Field.Root>
+						<Field.Root className="jetpack-flow-enter">
 							<Field.Label>{ __( 'Webhook URL', 'jetpack-flow-pkg' ) }</Field.Label>
 							<Stack align="center" gap="sm">
 								<Input
@@ -190,7 +190,7 @@ export function FlowCanvas( { flow, catalog, onChange }: Props ) {
 		pickingAt === index ? (
 			<>
 				<Wire />
-				<Card.Root className="jetpack-flow-card">
+				<Card.Root className="jetpack-flow-card jetpack-flow-enter">
 					<Card.Header>
 						<Stack align="center" justify="space-between" gap="md">
 							<Card.Title>{ __( 'Then…', 'jetpack-flow-pkg' ) }</Card.Title>
@@ -222,7 +222,7 @@ export function FlowCanvas( { flow, catalog, onChange }: Props ) {
 					{ flow.steps.map( ( step, index ) => {
 						const action = catalog.actions.find( a => a.id === step.type );
 						return (
-							<div className="jetpack-flow-canvas__item" key={ step.id }>
+							<div className="jetpack-flow-canvas__item jetpack-flow-enter" key={ step.id }>
 								{ slot( index ) }
 								<CollapsibleCard.Root
 									className="jetpack-flow-card"

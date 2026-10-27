@@ -8,6 +8,7 @@ body.jetpack-flow {
 }
 
 .jetpack-flow {
+	inline-size: 100%;
 	max-inline-size: var(--wpds-dimension-surface-width-2xl);
 	margin-inline: auto;
 	padding: var(--wpds-dimension-padding-2xl);
@@ -123,6 +124,7 @@ body.jetpack-flow {
 
 .jetpack-flow-canvas {
 	display: grid;
+	grid-template-columns: minmax(0, 1fr);
 	justify-items: center;
 	padding: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-lg);
 	border-radius: var(--wpds-border-radius-lg);
@@ -172,11 +174,16 @@ body.jetpack-flow {
 	margin-inline: auto;
 }
 
+// Everything that gets added to the flow eases in.
+.jetpack-flow-enter,
+.jetpack-flow-canvas__then {
+	animation: jetpack-flow-reveal var(--wpds-motion-duration-lg) var(--wpds-motion-easing-expressive) both;
+}
+
 .jetpack-flow-canvas__then {
 	display: grid;
 	justify-items: center;
 	inline-size: 100%;
-	animation: jetpack-flow-reveal var(--wpds-motion-duration-lg) var(--wpds-motion-easing-expressive) both;
 }
 
 @keyframes jetpack-flow-reveal {
@@ -227,6 +234,7 @@ body.jetpack-flow {
 
 @media ( prefers-reduced-motion: reduce ) {
 
+	.jetpack-flow-enter,
 	.jetpack-flow-canvas__then,
 	.jetpack-flow-prompt__border.is-busy {
 		animation: none;

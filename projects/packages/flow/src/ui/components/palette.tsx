@@ -11,7 +11,7 @@ type Props = {
 /** A cloud of clickable chips. */
 export function Palette( { kind, items, onPick }: Props ) {
 	return (
-		<Stack wrap="wrap" gap="sm" className="jetpack-flow-palette">
+		<Stack wrap="wrap" gap="sm" className="jetpack-flow-palette jetpack-flow-enter">
 			{ items.map( item => (
 				<button
 					type="button"
