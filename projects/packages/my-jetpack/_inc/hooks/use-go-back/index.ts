@@ -3,8 +3,31 @@ import { useNavigate } from 'react-router';
 import { MyJetpackRoutes } from '../../constants';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../use-analytics';
-import { getHistoryIndex } from '../use-history-index';
 import type { MouseEvent } from 'react';
+
+/**
+ * The key of the current browser history entry.
+ *
+ * @return The entry's key, or null without the Navigation API.
+ */
+export function getHistoryEntryKey(): string | null {
+	return window.navigation?.currentEntry?.key ?? null;
+}
+
+/**
+ * How far back the history entry with `key` is from the current one.
+ *
+ * @param key - The entry's key.
+ * @return A negative delta, or null when the entry is gone or not behind the current one.
+ */
+function getDeltaBackTo( key: string ): number | null {
+	const current = window.navigation?.currentEntry;
+	const entry = window.navigation?.entries().find( ( { key: entryKey } ) => entryKey === key );
+	if ( ! current || ! entry || entry.index >= current.index ) {
+		return null;
+	}
+	return entry.index - current.index;
+}
 
 /**
  * Custom React hook to handle back link click with analytics.
@@ -39,9 +62,9 @@ export function useGoBack( {
 
 			// When the tab is behind this screen in history, go back to it instead of pushing `backTo`,
 			// which would leave the screen showing this back link under the browser's Back button.
-			const index = getHistoryIndex();
-			if ( lastTab?.index != null && index !== null && lastTab.index < index ) {
-				navigate( lastTab.index - index );
+			const delta = lastTab?.key ? getDeltaBackTo( lastTab.key ) : null;
+			if ( delta !== null ) {
+				navigate( delta );
 				return;
 			}
 

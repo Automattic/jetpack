@@ -153,11 +153,7 @@ export default function MyJetpackScreen() {
 
 	if ( window.location.hash.includes( '?reload=true' ) ) {
 		// Clears the query string and reloads the page.
-		window.history.replaceState(
-			window.history.state,
-			'',
-			window.location.href.replace( '?reload=true', '' )
-		);
+		window.history.replaceState( null, '', window.location.href.replace( '?reload=true', '' ) );
 		window.location.reload();
 
 		setReloading( true );

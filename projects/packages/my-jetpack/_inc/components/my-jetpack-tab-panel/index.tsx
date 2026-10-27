@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../../hooks/use-analytics';
-import { getHistoryIndex } from '../../hooks/use-history-index';
+import { getHistoryEntryKey } from '../../hooks/use-go-back';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import { isHeaderControlsEnabled } from '../header-controls/slot';
 import { FullWidthSeparator } from './full-width-separator';
@@ -105,7 +105,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 
 	const [ , setLastTab ] = useValueStore( 'lastTab', null );
 	useEffect( () => {
-		setLastTab( { path: `/${ currentTab }${ search }`, index: getHistoryIndex() } );
+		setLastTab( { path: `/${ currentTab }${ search }`, key: getHistoryEntryKey() } );
 	}, [ currentTab, search, location, setLastTab ] );
 
 	const tabs = useMemo( () => getMyJetpackSections(), [] );

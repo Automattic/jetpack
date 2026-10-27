@@ -5,8 +5,45 @@ import { HashRouter, Link, Navigate, Route, Routes, useLocation } from 'react-ro
 import { MyJetpackTabPanel } from '../../../components/my-jetpack-tab-panel';
 import { MyJetpackRoutes } from '../../../constants';
 import ValueStoreContextProvider from '../../../context/value-store/valueStoreContext';
-import { useHistoryIndex } from '../../use-history-index';
 import { useGoBack } from '../index';
+
+// jsdom has no Navigation API, so mirror its history entries for `window.navigation`.
+// Installed before any router, so its popstate listener runs first.
+let entries = [ { key: '0', index: 0 } ];
+let currentEntry = 0;
+let pendingDelta: number | null = null;
+const historyApi = window.history;
+const { pushState, go } = historyApi;
+const pushEntry = () => {
+	entries = entries.slice( 0, currentEntry + 1 );
+	currentEntry = entries.length;
+	entries.push( { key: `${ Math.random() }`, index: currentEntry } );
+};
+historyApi.pushState = ( ...args ) => {
+	pushEntry();
+	pushState.apply( historyApi, args );
+};
+historyApi.go = ( delta = 0 ) => {
+	pendingDelta = delta;
+	go.call( historyApi, delta );
+};
+historyApi.back = () => historyApi.go( -1 );
+historyApi.forward = () => historyApi.go( 1 );
+window.addEventListener( 'popstate', () => {
+	if ( pendingDelta === null ) {
+		pushEntry();
+	} else {
+		currentEntry += pendingDelta;
+		pendingDelta = null;
+	}
+} );
+const fakeNavigation = {
+	get currentEntry() {
+		return entries[ currentEntry ];
+	},
+	entries: () => entries,
+};
+Object.defineProperty( window, 'navigation', { value: fakeNavigation, configurable: true } );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	currentUserCan: () => true,
@@ -30,6 +67,7 @@ const UpgradeLinks = () => (
 		<Link to="/add-videopress">Upgrade</Link>
 		<a href="#/add-videopress">Upgrade (hash link)</a>
 		<Link to="/details">Details</Link>
+		<Link to="/features">Features</Link>
 	</>
 );
 
@@ -58,17 +96,13 @@ const Location = () => {
 	return <p data-testid="location">{ pathname + search }</p>;
 };
 
-const HistoryIndex = () => {
-	useHistoryIndex();
-	return null;
-};
-
 const renderApp = ( initialEntry: string ) => {
-	window.location.hash = `#${ initialEntry }`;
+	if ( window.location.hash !== `#${ initialEntry }` ) {
+		window.history.pushState( null, '', `#${ initialEntry }` );
+	}
 	return render(
 		<ValueStoreContextProvider>
 			<HashRouter>
-				<HistoryIndex />
 				<Routes>
 					<Route path="/add-videopress" element={ <UpgradeScreen /> } />
 					<Route path="/add-old-slug" element={ <Navigate replace to="/add-videopress" /> } />
@@ -86,11 +120,11 @@ const renderApp = ( initialEntry: string ) => {
 const openUpgradeScreen = async ( start: string, links: string[], referrer: string ) => {
 	Object.defineProperty( document, 'referrer', { value: referrer, configurable: true } );
 	const user = userEvent.setup();
-	renderApp( start );
+	const { unmount } = renderApp( start );
 	for ( const link of links ) {
 		await user.click( await screen.findByRole( 'link', { name: link } ) );
 	}
-	return { user, backLink: await screen.findByRole( 'link', { name: 'My Jetpack' } ) };
+	return { user, unmount, backLink: await screen.findByRole( 'link', { name: 'My Jetpack' } ) };
 };
 
 const allowedReferrer = 'http://localhost/wp-admin/';
@@ -142,7 +176,7 @@ describe( 'useGoBack', () => {
 	);
 
 	it( 'goes to the fallback when the tab is ahead in history', async () => {
-		window.location.hash = '#/outside';
+		window.history.pushState( null, '', '#/outside' );
 		const { user, backLink } = await openUpgradeScreen( '/add-videopress', [], '' );
 		await user.click( backLink );
 		await waitFor( () =>
@@ -161,7 +195,7 @@ describe( 'useGoBack', () => {
 	} );
 
 	it( 'goes to the fallback when a new entry has replaced the tab', async () => {
-		window.location.hash = '#/outside';
+		window.history.pushState( null, '', '#/outside' );
 		const { user, backLink } = await openUpgradeScreen( '/add-videopress', [], '' );
 		await user.click( backLink );
 		await waitFor( () =>
@@ -178,14 +212,17 @@ describe( 'useGoBack', () => {
 		);
 	} );
 
-	it( 'goes back to the tab after a script resets the history state', async () => {
-		Object.defineProperty( document, 'referrer', { value: '', configurable: true } );
-		const user = userEvent.setup();
+	it( 'goes back to the tab shown after a reload', async () => {
+		const { user, unmount } = await openUpgradeScreen( '/overview', [ 'Features', 'Upgrade' ], '' );
+		window.history.back();
+		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toBeInTheDocument();
+
+		// A reload remounts the app, and WordPress core's canonical-URL script clears the state.
+		unmount();
+		window.history.replaceState( null, '' );
 		renderApp( '/features' );
-		const details = await screen.findByRole( 'link', { name: 'Details' } );
-		window.history.replaceState( {}, '' );
-		await user.click( details );
-		await user.click( await screen.findByRole( 'link', { name: 'Upgrade' } ) );
+		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toBeInTheDocument();
+		window.history.forward();
 		const historyLength = window.history.length;
 		await user.click( await screen.findByRole( 'link', { name: 'My Jetpack' } ) );
 
@@ -193,5 +230,18 @@ describe( 'useGoBack', () => {
 			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/features' )
 		);
 		expect( window.history ).toHaveLength( historyLength );
+	} );
+
+	it( 'falls back to Features without the Navigation API', async () => {
+		Object.defineProperty( window, 'navigation', { value: undefined, configurable: true } );
+		try {
+			const { user, backLink } = await openUpgradeScreen( '/overview', [ 'Upgrade' ], '' );
+			await user.click( backLink );
+			await waitFor( () =>
+				expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/features' )
+			);
+		} finally {
+			Object.defineProperty( window, 'navigation', { value: fakeNavigation, configurable: true } );
+		}
 	} );
 } );

@@ -17,7 +17,7 @@ const TourImage4x2 = assetUrl( 'components/onboarding-tour/images/jp_onboarding_
 const removeQueryParam = ( paramName: string ) => {
 	const url = new URL( window.location.href );
 	url.searchParams.delete( paramName );
-	window.history.replaceState( window.history.state, '', url );
+	window.history.replaceState( {}, '', url );
 };
 
 const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {

@@ -10,8 +10,8 @@ type ValueStoreType = {
 	recommendedModules: JetpackModule[] | null;
 	recommendedModulesVisible: boolean;
 	isFirstRun: boolean;
-	// The My Jetpack tab last shown and its history index, where the upgrade screens' back link returns.
-	lastTab: { path: string; index: number | null } | null;
+	// The My Jetpack tab last shown and its history entry key, where the upgrade screens' back link returns.
+	lastTab: { path: string; key: string | null } | null;
 	productsOwnership: {
 		ownedProducts: JetpackModule[];
 		unownedProducts: JetpackModule[];
