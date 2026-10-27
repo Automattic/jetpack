@@ -81,7 +81,8 @@ export function useAllJetpackModules(): {
 
 	return useMemo( () => {
 		// Keep the plugin switch usable after deactivation: the cached list still carries its forced override.
-		const source = localFeatures ? ( offlineModuleSnapshots.get( modules ) ?? modules ) : modules;
+		const source =
+			localFeatures && modules ? ( offlineModuleSnapshots.get( modules ) ?? modules ) : modules;
 		const normalized = withoutPluginForcedOverrides(
 			source,
 			localFeatures
@@ -99,7 +100,7 @@ export function useAllJetpackModules(): {
 					)
 				: products
 		);
-		if ( localFeatures ) {
+		if ( localFeatures && modules ) {
 			offlineModuleSnapshots.set( modules, normalized );
 		}
 

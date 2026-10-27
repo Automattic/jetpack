@@ -10,7 +10,7 @@ import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 import type { ReactNode } from 'react';
 
-const mockModules: { current: Record< string, MyJetpackModule > } = { current: {} };
+const mockModules: { current: Record< string, MyJetpackModule > | null } = { current: {} };
 const mockProducts: { current: Record< string, ProductCamelCase > } = { current: {} };
 const mockGetJetpackModules = jest.fn( () => mockModules.current );
 const mockOfflineSeed: { current?: OfflineFeaturesSeed } = {};
@@ -139,6 +139,17 @@ describe( 'useAllJetpackModules', () => {
 		mockFailed = failed;
 		const { result } = renderHook( () => useAllJetpackModules() );
 		expect( result.current.hasFailed ).toBe( failed );
+	} );
+
+	it( 'returns a null module list offline without throwing', () => {
+		window.myJetpackInitialState = {
+			isOfflineFeatures: true,
+		} as typeof window.myJetpackInitialState;
+		mockModules.current = null;
+
+		const { result } = renderHook( () => useAllJetpackModules() );
+
+		expect( result.current.modules ).toBeNull();
 	} );
 
 	it( 'hands back the store modules without the override a standalone plugin causes', () => {
