@@ -6,10 +6,10 @@ import { STATS_PERIOD_DAYS } from './use-stats-period';
 import type { StatsPeriod, StatsPeriodDays } from './use-stats-period';
 import type { FC } from 'react';
 
-const getLabel = ( days: StatsPeriodDays ) =>
-	days === 7
-		? __( 'Last 7 days', 'jetpack-my-jetpack' )
-		: __( 'Last 30 days', 'jetpack-my-jetpack' );
+const getLabels = (): Record< StatsPeriodDays, string > => ( {
+	7: __( 'Last 7 days', 'jetpack-my-jetpack' ),
+	30: __( 'Last 30 days', 'jetpack-my-jetpack' ),
+} );
 
 /**
  * The Overview's Stats period dropdown, with the window's dates.
@@ -20,27 +20,29 @@ const getLabel = ( days: StatsPeriodDays ) =>
  */
 const StatsPeriodControl: FC< { period: StatsPeriod } > = ( { period } ) => {
 	const { days, offset, start, end, setDays, goToPrevious, goToNext } = period;
-	const presets = useMemo(
-		() =>
-			STATS_PERIOD_DAYS.map( value => ( { value: String( value ), label: getLabel( value ) } ) ),
-		[]
-	);
+	const presets = useMemo( () => {
+		const labels = getLabels();
+		return STATS_PERIOD_DAYS.map( value => ( { value: String( value ), label: labels[ value ] } ) );
+	}, [] );
 	const onChange = useCallback(
 		( value: string ) => setDays( Number( value ) as StatsPeriodDays ),
 		[ setDays ]
 	);
 	const dates = useMemo(
 		() =>
-			new Intl.DateTimeFormat( getUserLocale(), { month: 'short', day: 'numeric' } ).formatRange(
-				start,
-				end
-			),
+			new Intl.DateTimeFormat( getUserLocale(), {
+				month: 'short',
+				day: 'numeric',
+				year: start.getFullYear() < new Date().getFullYear() ? 'numeric' : undefined,
+			} ).formatRange( start, end ),
 		[ start, end ]
 	);
 
 	return (
 		<Stack direction="row" align="center" gap="sm" wrap="wrap">
-			<Text variant="body-md">{ dates }</Text>
+			<Text variant="body-md" aria-live="polite">
+				{ dates }
+			</Text>
 			<PeriodSelector
 				presets={ presets }
 				value={ String( days ) }
