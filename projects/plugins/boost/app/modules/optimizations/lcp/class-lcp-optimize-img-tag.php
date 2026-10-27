@@ -85,13 +85,19 @@ class LCP_Optimize_Img_Tag {
 			return $buffer_processor->get_updated_html();
 		}
 
-		$original_src = $image_url;
+		$resized_src = '';
 
 		// If the image isn't photonized, it might be resized by WP.
 		// We need the original image URL, as we'll be generating
 		// the necessary sizes based on it.
 		if ( ! Image_CDN_Core::is_cdn_url( $image_url ) ) {
-			$image_url = Image_CDN::strip_image_dimensions_maybe( $image_url );
+			$original_src = $image_url;
+			$image_url    = Image_CDN::strip_image_dimensions_maybe( $image_url );
+
+			// Its -WxH suffix names a WordPress size only if stripping found the original.
+			if ( $image_url !== $original_src ) {
+				$resized_src = $original_src;
+			}
 		} else {
 			// In case it's Photonized, we need to remove any size change arguments.
 			$image_url = remove_query_arg( array( 'w', 'h' ), $image_url );
@@ -116,7 +122,7 @@ class LCP_Optimize_Img_Tag {
 
 		// srcset uses CDN URLs internally (via Image_CDN_Core::cdn_url), so skip if CDN is disabled.
 		if ( $apply_srcset && $apply_cdn ) {
-			$this->add_responsive_image_attributes( $buffer_processor, $image_url, $original_src );
+			$this->add_responsive_image_attributes( $buffer_processor, $image_url, $resized_src );
 		}
 
 		return $buffer_processor->get_updated_html();
@@ -127,12 +133,12 @@ class LCP_Optimize_Img_Tag {
 	 *
 	 * @param WP_HTML_Tag_Processor $element The original image tag.
 	 * @param string                $image_url The image URL.
-	 * @param string                $original_src The image's src before Boost changed it.
+	 * @param string                $resized_src The WordPress-resized src swapped for the original, if any.
 	 * @return WP_HTML_Tag_Processor The optimized image tag.
 	 *
 	 * @since 4.0.0
 	 */
-	private function add_responsive_image_attributes( $element, $image_url, $original_src = '' ) {
+	private function add_responsive_image_attributes( $element, $image_url, $resized_src = '' ) {
 		// is_array() as well as empty(): empty( 'not-an-array' ) is false, so a string
 		// breakpoints field would reach the foreach in get_srcset() and get_sizes().
 		if ( empty( $this->lcp_data['breakpoints'] ) || ! is_array( $this->lcp_data['breakpoints'] ) ) {
@@ -142,7 +148,7 @@ class LCP_Optimize_Img_Tag {
 		$object_fit = $this->get_marked_object_fit( $element );
 
 		// Under cover, a file cropped to the box shows the same picture and is smaller.
-		$aspect_ratio = 'cover' === $object_fit ? null : $this->get_aspect_ratio( $element, $original_src );
+		$aspect_ratio = 'cover' === $object_fit ? null : $this->get_aspect_ratio( $element, $resized_src );
 
 		$srcset = $this->get_srcset( $image_url, $aspect_ratio, 'contain' === $object_fit );
 		if ( ! empty( $srcset ) ) {
@@ -165,13 +171,16 @@ class LCP_Optimize_Img_Tag {
 	 * @return string|null 'cover', 'contain', or null if the markup sets neither.
 	 */
 	private function get_marked_object_fit( $element ) {
-		if ( 'cover' === $element->get_attribute( 'data-object-fit' ) ) {
-			return 'cover';
+		// Inline style first, and its last declaration, as CSS applies them.
+		$style = $element->get_attribute( 'style' );
+		if ( is_string( $style ) && preg_match_all( '/(?:^|;)\s*object-fit\s*:\s*([a-z-]+)\s*(?:!important\s*)?(?=;|$)/i', $style, $matches ) ) {
+			$fit = strtolower( end( $matches[1] ) );
+
+			return in_array( $fit, array( 'cover', 'contain' ), true ) ? $fit : null;
 		}
 
-		$style = $element->get_attribute( 'style' );
-		if ( is_string( $style ) && preg_match( '/(?:^|;)\s*object-fit\s*:\s*(cover|contain)\s*(?:!important\s*)?(?:;|$)/i', $style, $matches ) ) {
-			return strtolower( $matches[1] );
+		if ( 'cover' === $element->get_attribute( 'data-object-fit' ) ) {
+			return 'cover';
 		}
 
 		return null;
@@ -180,13 +189,13 @@ class LCP_Optimize_Img_Tag {
 	/**
 	 * Get the aspect ratio of the file the page asked for.
 	 *
-	 * @param WP_HTML_Tag_Processor $element The image tag.
-	 * @param string                $src     The image's original src.
+	 * @param WP_HTML_Tag_Processor $element     The image tag.
+	 * @param string                $resized_src The WordPress-resized src swapped for the original, if any.
 	 * @return float|null Width divided by height, or null if neither source gives both.
 	 */
-	private function get_aspect_ratio( $element, $src ) {
-		// The file's -WxH suffix first: the attributes can describe a different size than the file.
-		list( $width, $height ) = Image_CDN::parse_dimensions_from_filename( (string) $src );
+	private function get_aspect_ratio( $element, $resized_src ) {
+		// The size's -WxH suffix first: the attributes can describe a different size than the file.
+		list( $width, $height ) = Image_CDN::parse_dimensions_from_filename( (string) $resized_src );
 		if ( ! $width || ! $height ) {
 			$width  = $element->get_attribute( 'width' );
 			$height = $element->get_attribute( 'height' );

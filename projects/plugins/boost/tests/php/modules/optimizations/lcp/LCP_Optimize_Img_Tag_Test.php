@@ -388,8 +388,24 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 			),
 		);
 
+		// Boost swaps a WordPress size for its original only if the original is on disk.
+		$original = null;
+		if ( str_contains( $src, '{uploads}' ) ) {
+			$uploads = wp_get_upload_dir();
+			wp_mkdir_p( $uploads['basedir'] );
+			$original = $uploads['basedir'] . '/image.jpg';
+			file_put_contents( $original, '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			$src = str_replace( '{uploads}', $uploads['baseurl'], $src );
+		}
+
 		$buffer = '<img class="wp-post-image" id="test-img" ' . $attributes . ' src="' . $src . '">';
-		$result = ( new LCP_Optimize_Img_Tag( $data ) )->optimize_buffer( $buffer );
+		try {
+			$result = ( new LCP_Optimize_Img_Tag( $data ) )->optimize_buffer( $buffer );
+		} finally {
+			if ( $original ) {
+				wp_delete_file( $original );
+			}
+		}
 
 		$processor = new WP_HTML_Tag_Processor( $result );
 		$processor->next_tag( 'img' );
@@ -417,7 +433,9 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 			'no dimensions: the box'                      => array( '', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
 			'a 3:2 image with no fit in the markup: widened, not cropped' => array( 'width="1200" height="800"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ) ),
 			'object-fit: contain (Featured Image Scale): fits inside the box' => array( 'width="1200" height="800" style="aspect-ratio:3/5;object-fit:contain;"', array( '1236,825 1236w', '824,550 824w', '721,481 721w', '412,275 412w' ) ),
-			'a -600x400 file with 300x300 attributes: the file wins' => array( 'width="300" height="300"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), 'https://example.com/image-600x400.jpg' ),
+			'a -600x400 size with 300x300 attributes: the size wins' => array( 'width="300" height="300"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), '{uploads}/image-600x400.jpg' ),
+			'a -2x1 name with no original to swap in: the attributes' => array( 'width="1200" height="800"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), '{uploads}/banner-2x1.jpg' ),
+			'object-fit: contain then cover: the last wins' => array( 'width="1200" height="800" style="object-fit:contain;object-fit:cover"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
 			'width="1e300": not a pixel size, the box'    => array( 'width="1e300" height="800"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
 			'object-fit: cover (Featured Image Scale): the box' => array( 'width="1200" height="800" style="aspect-ratio:3/5;object-fit:cover;"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
 			'data-object-fit="cover" (Cover block): the box' => array( 'width="1200" height="800" data-object-fit="cover"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
