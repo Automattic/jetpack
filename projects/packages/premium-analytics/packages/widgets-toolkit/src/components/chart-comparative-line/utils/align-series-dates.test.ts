@@ -320,7 +320,7 @@ describe( 'alignSeriesDates', () => {
 	} );
 
 	describe( 'hourly series across a daylight saving switch', () => {
-		// New York bucket starts from `start`, as the charts get them, skipping the instants in `skip`.
+		// Hourly New York buckets from `start`, as the charts get them, minus the instants in `skip`.
 		const hours = ( start: string, count: number, skip: string[] = [] ) =>
 			Array.from( { length: count }, ( _, i ) =>
 				toLocalTZ( new Date( start ).getTime() + i * 3600000, 'America/New_York' )
@@ -369,6 +369,22 @@ describe( 'alignSeriesDates', () => {
 			expect( pairOf( result, '2026-03-08T07:00:00.000Z' ) ).toBe( '2026-03-09T07:00:00.000Z' );
 			expect( pairOf( result, '2026-03-08T14:00:00.000Z' ) ).toBe( '2026-03-09T14:00:00.000Z' );
 			expect( pairOf( result, '2026-03-07T15:00:00.000Z' ) ).toBeUndefined();
+		} );
+
+		// Keyboard navigation reads every series at the same index.
+		it( 'keeps the comparison on the current indexes, with an empty point for a missing hour', () => {
+			const primary = createSeries( 'Last 24 hours', hours( '2026-03-08T15:00:00Z', 24 ) );
+			const comparison = createComparison( 'Previous', hours( '2026-03-07T15:00:00Z', 24 ) );
+
+			const result = alignSeriesDates( [ primary, comparison ] );
+
+			const isoDates = ( s: ComparativeLineChartSeries ) =>
+				s.data.map( point => point.date.toISOString() );
+			expect( isoDates( result[ 1 ] ) ).toEqual( isoDates( primary ) );
+			// Mar 8 has no 2 AM to sit on Mar 9 2 AM EDT.
+			expect(
+				result[ 1 ].data.find( point => point.date.toISOString() === '2026-03-09T06:00:00.000Z' )
+			).toEqual( { date: primary.data[ 15 ].date, value: null } );
 		} );
 	} );
 } );

@@ -40,22 +40,27 @@ function alignByClockTime(
 	primary: ComparativeDatePointDate[],
 	comparison: ComparativeDatePointDate[]
 ): ComparativeDatePointDate[] {
-	const primaryByClock = new Map( primary.map( point => [ clockTime( point.date ), point ] ) );
+	const comparisonByClock = new Map(
+		comparison.map( point => [ clockTime( point.date ), point ] )
+	);
 	const firstShift = clockTime( primary[ 0 ].date ) - clockTime( comparison[ 0 ].date );
 	const days = Math.round( firstShift / DAY_MS ) * DAY_MS;
 	// A window shifted back in real hours starts an hour off the clock when a switch falls between.
 	const shift = days !== 0 && Math.abs( firstShift - days ) <= HOUR_MS ? days : firstShift;
 
-	return comparison.flatMap( point => {
-		const slot = primaryByClock.get( clockTime( point.date ) + shift );
+	// One point per current hour, as keyboard navigation reads every series at the same index.
+	return primary.map( slot => {
+		const point = comparisonByClock.get( clockTime( slot.date ) - shift );
 
-		return slot ? [ { ...point, date: slot.date, realDate: point.date } ] : [];
+		return point
+			? { ...point, date: slot.date, realDate: point.date }
+			: { date: slot.date, value: null };
 	} );
 }
 
 /**
  * Aligns comparison points onto the primary series, keeping their real dates in
- * `realDate` for tooltips: hourly points by clock time, coarser ones by position. A grouped
+ * `realDate` for tooltips: sub-daily points by clock time, coarser ones by position. A grouped
  * comparison aligns to its group's current period, an ungrouped one to series[0], and one
  * marked `aligned` stays where its producer put it.
  */
