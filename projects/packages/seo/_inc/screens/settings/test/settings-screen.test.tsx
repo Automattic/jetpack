@@ -562,8 +562,14 @@ describe( 'Settings module text hierarchy', () => {
 } );
 
 describe( 'Search & social previews', () => {
-	// The Google preview shows the home page's document title, so it is fed the
-	// Front page format being edited in Title structure, not only the saved one.
+	// Earlier tests render the card too. Clear their calls so each assertion reads
+	// this test's render, and fails if the card isn't rendered at all.
+	beforeEach( () => {
+		SocialPreviewsCard.mockClear();
+	} );
+
+	// The previews show the home page's title, so they are fed the Front page
+	// format being edited in Title structure, not only the saved one.
 	it( 'passes the Front page title format and the separator to the previews', () => {
 		const frontPage = [
 			{ type: 'token', value: 'site_name' },
