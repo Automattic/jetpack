@@ -838,6 +838,19 @@ export function registerEditorPlugin( globalStylesPostId = null ) {
 }
 
 /**
+ * The path a request addresses, without its query.
+ *
+ * Empty for a request made by `url` rather than by `path`, which the middlewares below do not
+ * claim.
+ *
+ * @param {object} options - The `apiFetch` options the middleware was handed.
+ * @return {string} The path, or an empty string.
+ */
+function requestPath( options ) {
+	return 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+}
+
+/**
  * Catch the Styles panel's save and send it to WordPress.com instead.
  *
  * The editor writes a core-data `globalStyles` entity, but the design is stored in a WordPress.com
@@ -855,7 +868,7 @@ export function createDesignSaveMiddleware( id ) {
 	const target = `${ GLOBAL_STYLES_PATH }${ id }`;
 
 	return async ( options, next ) => {
-		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+		const path = requestPath( options );
 		const method = ( options.method || 'GET' ).toUpperCase();
 
 		if ( target !== path || ! WRITE_METHODS.includes( method ) ) {
@@ -922,8 +935,7 @@ export function createDesignSaveMiddleware( id ) {
  * Denying the capability is the lever: core renders no read-only version of that sidebar, and the
  * canvas is unaffected, since without it core reads the same record at view context.
  *
- * Rewritten rather than preloaded: the site's record is not ours to supply a body for, and both
- * its `GET` and its `OPTIONS` set the permission — see `globalStylesPreloads()`.
+ * Rewritten rather than preloaded: both answers set the permission, see `globalStylesPreloads()`.
  *
  * @param {number|null} id - The global-styles id the bundle named, null when it sent none.
  * @return {Function} An `apiFetch` middleware.
@@ -932,7 +944,7 @@ export function createSiteStylesReadOnlyMiddleware( id ) {
 	const ours = id ? `${ GLOBAL_STYLES_PATH }${ id }` : null;
 
 	return async ( options, next ) => {
-		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+		const path = requestPath( options );
 
 		// Only an unparsed response carries headers, and only a header sets a permission.
 		if ( false !== options.parse || ! path.startsWith( GLOBAL_STYLES_PATH ) || path === ours ) {
@@ -954,12 +966,12 @@ export function createSiteStylesReadOnlyMiddleware( id ) {
  */
 function readOnlyResponse( response ) {
 	return {
-		ok: response?.ok,
-		status: response?.status,
-		statusText: response?.statusText,
+		ok: response.ok,
+		status: response.status,
+		statusText: response.statusText,
 		headers: {
 			get: name =>
-				'allow' === String( name ).toLowerCase() ? 'GET' : response?.headers?.get?.( name ),
+				'allow' === String( name ).toLowerCase() ? 'GET' : response.headers.get( name ),
 		},
 		json: () => response.json(),
 		text: () => response.text(),
@@ -1041,7 +1053,7 @@ async function newestPublishedPostId() {
  */
 export function createTestSendMiddleware( globalStylesPostId, previewPostId = null ) {
 	return async ( options, next ) => {
-		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+		const path = requestPath( options );
 		const method = ( options.method || 'GET' ).toUpperCase();
 
 		if ( TEST_SEND_PATH !== path || 'POST' !== method ) {
