@@ -107,8 +107,9 @@ function FlowsStage() {
 			{
 				id: 'trigger',
 				label: __( 'When…', 'jetpack-flow-pkg' ),
-				getValue: ( { item } ) =>
-					catalog?.triggers.find( t => t.id === item.trigger.type )?.label ?? item.trigger.type,
+				getValue: ( { item } ) => item.trigger.type,
+				elements: ( catalog?.triggers ?? [] ).map( t => ( { value: t.id, label: t.label } ) ),
+				filterBy: { operators: [ 'isAny', 'isNone' ] },
 				render: ( { item } ) => {
 					const trigger = catalog?.triggers.find( t => t.id === item.trigger.type );
 					return (
@@ -123,10 +124,10 @@ function FlowsStage() {
 			{
 				id: 'steps',
 				label: __( 'Then…', 'jetpack-flow-pkg' ),
-				getValue: ( { item } ) =>
-					item.steps
-						.map( s => catalog?.actions.find( a => a.id === s.type )?.label ?? s.type )
-						.join( ', ' ),
+				type: 'array',
+				getValue: ( { item } ) => item.steps.map( step => step.type ),
+				elements: ( catalog?.actions ?? [] ).map( a => ( { value: a.id, label: a.label } ) ),
+				filterBy: { operators: [ 'isAny', 'isAll' ] },
 				render: ( { item } ) => <StepsList flow={ item } catalog={ catalog } />,
 			},
 			{
