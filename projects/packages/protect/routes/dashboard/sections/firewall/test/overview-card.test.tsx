@@ -63,18 +63,24 @@ const BLOCKED = {
 describe( 'FirewallOverviewCard', () => {
 	beforeEach( resetFirewallBlocks );
 
-	it( 'reports a host-provided firewall as active, with nothing to test or configure', () => {
-		render(
-			<FirewallOverviewCard
-				{ ...props }
-				state={ { ...props.state!, available: false, active: false, providedByHost: true } }
-			/>
-		);
+	it.each( [
+		[ 'Active', true, /Your host provides a firewall/ ],
+		[ 'Unavailable', false, /isn’t available on your site/ ],
+	] )(
+		'shows %s, with nothing to test, where Jetpack’s firewall can’t run (host firewall: %s)',
+		( badge, providedByHost, message ) => {
+			render(
+				<FirewallOverviewCard
+					{ ...props }
+					state={ { ...props.state!, available: false, active: false, providedByHost } }
+				/>
+			);
 
-		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
-		expect( screen.getByText( /Your host provides a firewall/ ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Run test' } ) ).not.toBeInTheDocument();
-	} );
+			expect( screen.getByText( badge ) ).toBeInTheDocument();
+			expect( screen.getByText( message ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Run test' } ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it( 'reports the test in a snackbar whose Learn more opens the steps', async () => {
 		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );

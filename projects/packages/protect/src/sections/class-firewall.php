@@ -67,27 +67,9 @@ class Firewall implements Dashboard_Section {
 				'currentIp'      => self::get_current_ip(),
 				'ipRules'        => self::get_ip_rules(),
 				'rulesUpdatedAt' => self::get_rules_updated_at(),
-				'providedByHost' => self::is_provided_by_host(),
+				'providedByHost' => method_exists( Waf_Runner::class, 'is_provided_by_host' ) && Waf_Runner::is_provided_by_host(),
 			)
 		);
-	}
-
-	/**
-	 * Whether the host runs its own firewall in place of Jetpack's.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	public static function is_provided_by_host() {
-		/**
-		 * Filters whether the site's host runs its own firewall, which the Protect page then reports as active.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $provided Whether the host provides the firewall. Default false.
-		 */
-		return (bool) apply_filters( 'jetpack_protect_firewall_provided_by_host', false );
 	}
 
 	/**

@@ -9,6 +9,8 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Cache;
 use Automattic\Jetpack\Waf\Waf_Initializer;
+use Automattic\Jetpack\Waf\Waf_Runner;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Integration tests for unsupported environments.
@@ -108,5 +110,41 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 
 		$this->assertNotContains( 'waf', $available_modules );
 		$this->assertContains( 'protect', $available_modules );
+	}
+
+	/**
+	 * Test that a host can only claim the firewall where Jetpack's can't run.
+	 *
+	 * @dataProvider provide_host_firewall_cases
+	 *
+	 * @param bool $atomic   Whether the site is on the Atomic platform.
+	 * @param bool $filtered Whether the host filter returns true.
+	 * @param bool $expected Whether the firewall is reported as provided by the host.
+	 */
+	#[DataProvider( 'provide_host_firewall_cases' )]
+	public function testIsProvidedByHost( $atomic, $filtered, $expected ) {
+		if ( $atomic ) {
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 999 );
+			Constants::set_constant( 'ATOMIC_SITE_ID', 999 );
+		}
+		add_filter( 'jetpack_protect_firewall_provided_by_host', $filtered ? '__return_true' : '__return_false' );
+
+		$provided = Waf_Runner::is_provided_by_host();
+		remove_all_filters( 'jetpack_protect_firewall_provided_by_host' );
+
+		$this->assertSame( $expected, $provided );
+	}
+
+	/**
+	 * Data provider for testIsProvidedByHost.
+	 *
+	 * @return array
+	 */
+	public static function provide_host_firewall_cases() {
+		return array(
+			'unsupported host with the filter'    => array( true, true, true ),
+			'unsupported host without the filter' => array( true, false, false ),
+			'supported host with the filter'      => array( false, true, false ),
+		);
 	}
 }

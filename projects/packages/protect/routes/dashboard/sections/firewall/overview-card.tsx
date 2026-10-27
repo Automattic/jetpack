@@ -33,6 +33,7 @@ import {
 } from './firewall-test';
 import FirewallToggle from './firewall-toggle';
 import FirewallUpsell from './firewall-upsell';
+import HostFirewallCard from './host-firewall-card';
 import shieldFlame from './icon';
 import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
@@ -317,25 +318,12 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		setIsTesting( false );
 	}, [ active, blocks.recentBlocks ] );
 
+	if ( firewall.providedByHost ) {
+		return <HostFirewallCard />;
+	}
+
 	if ( ! firewall.available ) {
-		return firewall.providedByHost ? (
-			<ProtectCard
-				icon={ shieldFlame }
-				title={ title }
-				status={ { label: __( 'Active', 'jetpack-protect-pkg' ), intent: 'stable' } }
-			>
-				<CardRow>
-					<Text variant="body-md">
-						{ __(
-							'Your host provides a firewall for your site, so you’re all set.',
-							'jetpack-protect-pkg'
-						) }
-					</Text>
-				</CardRow>
-			</ProtectCard>
-		) : (
-			<UnavailableCard icon={ shieldFlame } title={ title } />
-		);
+		return <UnavailableCard icon={ shieldFlame } title={ title } />;
 	}
 
 	const runTestLabel = __( 'Run test', 'jetpack-protect-pkg' );

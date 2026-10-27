@@ -81,29 +81,28 @@ describe( 'FirewallSettingsCard', () => {
 		expect( screen.queryByText( BOOTSTRAP_PATH, { exact: false } ) !== null ).toBe( showsPath );
 	} );
 
-	it( 'shows the host’s firewall as active, with only the allow list left to set', async () => {
-		const save = jest.fn().mockResolvedValue( true );
-		render(
-			<FirewallSettingsCard
-				{ ...( {
-					state: { providedByHost: true },
-					settings: {
-						settings: {},
-						waf: { waf_supported: false },
-						save,
-						isSaving: () => false,
-					},
-				} as unknown as FirewallContext ) }
-			/>
-		);
+	it.each( [
+		[ true, /Your host provides a firewall/ ],
+		[ false, /isn’t available on your site’s hosting/ ],
+	] )(
+		'offers no settings where Jetpack’s firewall can’t run (host firewall: %s)',
+		( providedByHost, message ) => {
+			render(
+				<FirewallSettingsCard
+					{ ...( {
+						state: { providedByHost },
+						settings: {
+							settings: {},
+							waf: { waf_supported: false },
+							save: jest.fn(),
+							isSaving: () => false,
+						},
+					} as unknown as FirewallContext ) }
+				/>
+			);
 
-		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
-		expect( screen.getByText( /Your host provides a firewall/ ) ).toBeInTheDocument();
-		expect(
-			screen.queryByRole( 'switch', { name: 'Block these IP addresses' } )
-		).not.toBeInTheDocument();
-
-		await userEvent.click( screen.getByRole( 'switch', { name: 'Always allowed IP addresses' } ) );
-		expect( save ).toHaveBeenCalledWith( { jetpack_waf_ip_allow_list_enabled: true } );
-	} );
+			expect( screen.getByText( message ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
+		}
+	);
 } );

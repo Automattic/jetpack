@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: enhancement
 
-Protect: Show the firewall as active on WordPress.com sites with Atomic hosting, where the host provides it.
+Protect: Show the firewall as on for WordPress.com-hosted sites, where the host provides it.
