@@ -150,7 +150,7 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 		onSuccess: async ( state, { action, leavesPage } ) => {
 			// A product switches its Jetpack module along with its plugin, so the modules
 			// store More Features reads from is now behind.
-			if ( state.jetpack === 'active' ) {
+			if ( state.jetpack === 'active' && plugin !== 'jetpack' && ! leavesPage ) {
 				await fetchModules();
 			}
 

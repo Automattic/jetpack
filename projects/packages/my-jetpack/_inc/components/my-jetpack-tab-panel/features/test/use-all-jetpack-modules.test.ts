@@ -317,6 +317,7 @@ describe( 'plugin switch refresh ordering', () => {
 		[ 'bulk', false, 'active' ],
 		[ 'single', true, 'active' ],
 		[ 'single', true, 'inactive' ],
+		[ 'single', false, 'inactive' ],
 	] as const )(
 		'%s reads features before refreshing module overrides (success: %s, Jetpack: %s)',
 		async ( mode, success, jetpack ) => {

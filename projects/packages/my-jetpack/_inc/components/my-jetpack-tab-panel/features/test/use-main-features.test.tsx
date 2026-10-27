@@ -15,6 +15,7 @@ jest.mock( '@wordpress/api-fetch' );
 jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
 
 const mockCreateErrorNotice = jest.fn();
+const mockFetchModules = jest.fn().mockResolvedValue( true );
 
 jest.mock( '@automattic/jetpack-components', () => ( {
 	useGlobalNotices: () => ( {
@@ -33,7 +34,7 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
 		invalidateResolution: jest.fn(),
-		fetchModules: jest.fn().mockResolvedValue( true ),
+		fetchModules: mockFetchModules,
 	} ),
 	useSelect: () => undefined,
 	createReduxStore: jest.fn(),
@@ -100,6 +101,7 @@ const renderTab = () => {
 beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockCreateErrorNotice.mockClear();
+	mockFetchModules.mockClear();
 	window.myJetpackInitialState = { mainFeatures: pageState } as Window[ 'myJetpackInitialState' ];
 } );
 
@@ -286,15 +288,16 @@ describe( 'useFeaturePlugin', () => {
 	);
 
 	it.each( [
-		[ 'reloads the page', false, 1 ],
-		[ 'leaves the page to a caller that navigates away', true, 0 ],
-	] )( '%s once Jetpack is on', async ( _, leavesPage, reloads ) => {
+		[ 'reloads the page', 'jetpack', false, 1 ],
+		[ 'leaves the page to a caller that navigates away', 'jetpack', true, 0 ],
+		[ 'leaves the page to connect a standalone plugin', 'jetpack-videopress', true, 0 ],
+	] )( '%s without refreshing modules', async ( _, plugin, leavesPage, reloads ) => {
 		( reloadPage as jest.Mock ).mockClear();
 		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
 			method === 'POST' ? Promise.resolve( pageState ) : new Promise( () => undefined )
 		);
 		const client = new QueryClient( { defaultOptions: { mutations: { retry: false } } } );
-		const { result } = renderHook( () => useFeaturePlugin( 'jetpack', 'Jetpack' ), {
+		const { result } = renderHook( () => useFeaturePlugin( plugin, plugin ), {
 			wrapper: wrapper( client ),
 		} );
 
@@ -305,6 +308,7 @@ describe( 'useFeaturePlugin', () => {
 
 		expect( done ).toBe( true );
 		expect( reloadPage ).toHaveBeenCalledTimes( reloads );
+		expect( mockFetchModules ).not.toHaveBeenCalled();
 	} );
 
 	it( 'looks busy while another caller, such as a bulk switch, has asked for the plugin', () => {
