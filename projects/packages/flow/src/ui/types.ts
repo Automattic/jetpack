@@ -10,7 +10,16 @@ export type FieldDef = {
 	showIf?: Record< string, string >;
 };
 
-export type Product = 'wordpress' | 'jetpack' | 'woocommerce' | 'mailpoet' | 'akismet' | 'crm';
+export type Product =
+	| 'wordpress'
+	| 'jetpack'
+	| 'woocommerce'
+	| 'mailpoet'
+	| 'akismet'
+	| 'crm'
+	| 'claude'
+	| 'google-ai'
+	| 'openai';
 
 export type CatalogItem = {
 	id: string;

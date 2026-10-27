@@ -3,7 +3,9 @@ import { Stack, Text } from '@wordpress/ui';
 import { ProductIcon } from './product-icon';
 import type { Product } from '../types';
 
-const BRANDS: Array< { product: Product; name: string } > = [
+type Brand = { product: Product; name: string };
+
+const BRANDS: Brand[] = [
 	{ product: 'woocommerce', name: 'WooCommerce' },
 	{ product: 'mailpoet', name: 'MailPoet' },
 	{ product: 'jetpack', name: 'Jetpack' },
@@ -11,16 +13,31 @@ const BRANDS: Array< { product: Product; name: string } > = [
 	{ product: 'akismet', name: 'Akismet' },
 ];
 
+const AI_BRANDS: Brand[] = [
+	{ product: 'claude', name: 'Claude' },
+	{ product: 'google-ai', name: 'Google AI' },
+	{ product: 'openai', name: 'OpenAI' },
+];
+
+const BrandRow = ( { brands }: { brands: Brand[] } ) => (
+	<Stack align="center" justify="center" gap="lg" wrap="wrap">
+		{ brands.map( ( { product, name } ) => (
+			<Stack key={ product } align="center" gap="xs">
+				<ProductIcon product={ product } size={ 24 } />
+				<Text variant="body-sm">{ name }</Text>
+			</Stack>
+		) ) }
+	</Stack>
+);
+
+/** Closing section of the page: the products Flow connects, centered. */
 export function BrandStrip() {
 	return (
-		<Stack align="center" gap="lg" wrap="wrap" className="jetpack-flow-brands">
+		<Stack direction="column" align="center" gap="md" className="jetpack-flow-brands">
 			<Text variant="body-sm">{ __( 'Connects', 'jetpack-flow-pkg' ) }</Text>
-			{ BRANDS.map( ( { product, name } ) => (
-				<Stack key={ product } align="center" gap="xs">
-					<ProductIcon product={ product } size={ 24 } />
-					<Text variant="body-sm">{ name }</Text>
-				</Stack>
-			) ) }
+			<BrandRow brands={ BRANDS } />
+			<Text variant="body-sm">{ __( 'Any AI tool', 'jetpack-flow-pkg' ) }</Text>
+			<BrandRow brands={ AI_BRANDS } />
 		</Stack>
 	);
 }

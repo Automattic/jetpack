@@ -95,6 +95,59 @@ export function ProductIcon( { product, size = SIZE }: { product: Product; size?
 					<path fill="#fff" d="M5.8 18.4c0-3.2 2.8-5.2 6.2-5.2s6.2 2 6.2 5.2z" />
 				</svg>
 			);
+		case 'claude':
+			return (
+				<svg
+					width={ size }
+					height={ size }
+					viewBox="0 0 24 24"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<circle cx="12" cy="12" r="12" fill="#d97757" />
+					<path
+						stroke="#fff"
+						strokeWidth="2"
+						strokeLinecap="round"
+						d="M12 4.5v15M4.5 12h15M6.7 6.7l10.6 10.6M17.3 6.7L6.7 17.3"
+					/>
+				</svg>
+			);
+		case 'google-ai':
+			return (
+				<svg
+					width={ size }
+					height={ size }
+					viewBox="0 0 24 24"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<circle cx="12" cy="12" r="12" fill="#4285f4" />
+					<path
+						fill="#fff"
+						d="M12 3.5c.5 4.6 3.9 8 8.5 8.5-4.6.5-8 3.9-8.5 8.5-.5-4.6-3.9-8-8.5-8.5C8.1 11.5 11.5 8.1 12 3.5z"
+					/>
+				</svg>
+			);
+		case 'openai':
+			return (
+				<svg
+					width={ size }
+					height={ size }
+					viewBox="0 0 24 24"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<circle cx="12" cy="12" r="12" fill="#1e1e1e" />
+					<path
+						fill="none"
+						stroke="#fff"
+						strokeWidth="1.6"
+						strokeLinejoin="round"
+						d="M12 4.8l6.2 3.6v7.2L12 19.2l-6.2-3.6V8.4zM12 4.8v7.2m0 0l6.2 3.6M12 12l-6.2 3.6"
+					/>
+				</svg>
+			);
 		default:
 			return (
 				<Disc color="#2c3338" size={ size }>
