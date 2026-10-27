@@ -131,7 +131,7 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 								items={ catalog.triggers }
 							/>
 							<Palette
-								title={ __( 'Then', 'jetpack-flow-pkg' ) }
+								title={ __( 'Then…', 'jetpack-flow-pkg' ) }
 								kind="action"
 								items={ catalog.actions }
 							/>

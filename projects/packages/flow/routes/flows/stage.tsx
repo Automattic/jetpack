@@ -37,7 +37,7 @@ function FlowSummary( { flow, catalog }: { flow: Flow; catalog: Catalog } ) {
 					<Stack key={ step.id } align="center" gap="sm">
 						{ action && <ProductIcon product={ action.product } size={ 24 } /> }
 						<Text variant="body-md">
-							{ index === 0 ? __( 'Then', 'jetpack-flow-pkg' ) : __( 'And', 'jetpack-flow-pkg' ) }{ ' ' }
+							{ index === 0 ? __( 'Then…', 'jetpack-flow-pkg' ) : __( 'And', 'jetpack-flow-pkg' ) }{ ' ' }
 							<strong>{ action?.label ?? step.type }</strong>
 						</Text>
 					</Stack>
@@ -87,7 +87,7 @@ function FlowsStage() {
 			},
 			{
 				id: 'steps',
-				label: __( 'Then', 'jetpack-flow-pkg' ),
+				label: __( 'Then…', 'jetpack-flow-pkg' ),
 				getValue: ( { item } ) =>
 					item.steps
 						.map( s => catalog?.actions.find( a => a.id === s.type )?.label ?? s.type )

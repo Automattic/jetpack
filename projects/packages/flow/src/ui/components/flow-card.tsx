@@ -128,7 +128,7 @@ export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
 											<Stack direction="column">
 												<Text variant="body-sm">
 													{ index === 0
-														? __( 'Then', 'jetpack-flow-pkg' )
+														? __( 'Then…', 'jetpack-flow-pkg' )
 														: __( 'And', 'jetpack-flow-pkg' ) }
 												</Text>
 												<Text variant="heading-sm">{ action?.label ?? step.type }</Text>
