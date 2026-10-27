@@ -508,11 +508,15 @@ class Local_Report_Provider implements Report_Provider {
 	 *
 	 * @param string $date   `Y-m-d`, `Y-m-d H:i:s`, or ISO 8601 such as `2026-10-01T00:00:00.000+00:00`.
 	 * @param string $suffix Time to add to a bare date.
-	 * @return string
+	 * @return string|null The bound, or null when the date does not parse, so the param map refuses it.
 	 */
 	private static function to_core_date( $date, $suffix ) {
-		$date = str_replace( ' ', 'T', (string) $date );
+		$date  = str_replace( ' ', 'T', (string) $date );
+		$bound = 10 === strlen( $date ) ? $date . $suffix : substr( $date, 0, 19 );
 
-		return 10 === strlen( $date ) ? $date . $suffix : substr( $date, 0, 19 );
+		// The round trip also rejects dates PHP would roll over, such as February 30th.
+		$parsed = \DateTimeImmutable::createFromFormat( '!Y-m-d\TH:i:s', $bound );
+
+		return $parsed && $parsed->format( 'Y-m-d\TH:i:s' ) === $bound ? $bound : null;
 	}
 }

@@ -97,7 +97,8 @@ class Report_Executor {
 			return $this->ready_provider( $definition['route'], $execution );
 		}
 
-		$preferred = $this->get_default_source( $definition['route'] );
+		// A request without `execution` comes from a widget that parses only the wpcom shape in full, so the filter never moves it.
+		$preferred = null === $execution ? self::DEFAULT_SOURCE : $this->get_default_source( $definition['route'] );
 		$name      = in_array( $preferred, $definition['providers'], true ) ? $preferred : $definition['providers'][0];
 
 		return $this->ready_provider( $definition['route'], $name );
@@ -125,7 +126,9 @@ class Report_Executor {
 	 */
 	private function get_default_source( $route ) {
 		/**
-		 * Filters the provider a store report prefers when the request does not force one.
+		 * Filters the provider a store report prefers when the request asks for `execution=auto`.
+		 *
+		 * A request without `execution` always goes to the default provider: its widget parses only the wpcom shape in full.
 		 *
 		 * @since $$next-version$$
 		 *

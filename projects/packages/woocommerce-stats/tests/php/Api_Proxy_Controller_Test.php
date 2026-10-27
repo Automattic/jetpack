@@ -308,14 +308,14 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 */
 	public static function data_executions() {
 		return array(
-			'a route nobody declares'              => array( 'orders/by-week', array( 'execution' => 'auto' ), true, 404, 'unknown_report' ),
-			'local forced on a remote-only report' => array( 'sessions/by-device', array( 'execution' => 'local' ), true, 422, 'unsupported_provider' ),
-			'remote forced on a local-only report' => array( 'stock/summary', array( 'execution' => 'remote' ), true, 422, 'unsupported_provider' ),
-			'auto on a local-only report'          => array( 'stock/summary', array( 'execution' => 'auto' ), true, 503, 'feature_missing' ),
-			'auto without a connection'            => array( 'orders/by-date', array( 'execution' => 'auto' ), false, 503, 'needs_connection' ),
-			'no override without a connection'     => array( 'orders/by-date', array(), false, 403, 'no_connection' ),
-			'an execution value nobody serves'     => array( 'orders/by-date', array( 'execution' => 'both' ), true, 400, 'rest_invalid_param' ),
-			'local over the interval cap'          => array(
+			'a route nobody declares'               => array( 'orders/by-week', array( 'execution' => 'auto' ), true, 404, 'unknown_report' ),
+			'local forced on a remote-only report'  => array( 'sessions/by-device', array( 'execution' => 'local' ), true, 422, 'unsupported_provider' ),
+			'remote forced on a local-only report'  => array( 'stock/summary', array( 'execution' => 'remote' ), true, 422, 'unsupported_provider' ),
+			'auto on a local-only report'           => array( 'stock/summary', array( 'execution' => 'auto' ), true, 503, 'feature_missing' ),
+			'auto without a connection'             => array( 'orders/by-date', array( 'execution' => 'auto' ), false, 503, 'needs_connection' ),
+			'no override without a connection'      => array( 'orders/by-date', array(), false, 403, 'no_connection' ),
+			'an execution value nobody serves'      => array( 'orders/by-date', array( 'execution' => 'both' ), true, 400, 'rest_invalid_param' ),
+			'local over the interval cap'           => array(
 				'orders/by-date',
 				array(
 					'execution' => 'local',
@@ -328,7 +328,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 				'too_many_intervals',
 			),
 			// Under the cap it reaches core, which WorDBless lacks.
-			'local just under the interval cap'    => array(
+			'local just under the interval cap'     => array(
 				'orders/by-date',
 				array(
 					'execution' => 'local',
@@ -340,6 +340,64 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 				503,
 				'feature_missing',
 			),
+			'local with a date that does not parse' => array(
+				'orders/by-date',
+				array(
+					'execution' => 'local',
+					'from'      => 'not-a-date',
+					'to'        => '2026-10-26',
+					'interval'  => 'day',
+				),
+				true,
+				422,
+				'invalid_parameter',
+			),
+			'local with a date that rolls over'     => array(
+				'orders/by-date',
+				array(
+					'execution' => 'local',
+					'from'      => '2026-02-30',
+					'to'        => '2026-03-26',
+					'interval'  => 'day',
+				),
+				true,
+				422,
+				'invalid_parameter',
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider data_source_filter
+	 */
+	#[DataProvider( 'data_source_filter' )]
+	public function test_the_source_filter_moves_only_requests_that_ask_for_auto( array $params, $forwarded ) {
+		require_once __DIR__ . '/mocks/woocommerce-revenue-stats-controller-mock.php';
+		$prefer_local = static function () {
+			return 'local';
+		};
+		add_filter( 'jetpack_analytics_dataset_source', $prefer_local );
+
+		$this->get_report(
+			'orders/by-date',
+			$params + array(
+				'from'     => '2026-10-01',
+				'to'       => '2026-10-26',
+				'interval' => 'day',
+			)
+		);
+		remove_filter( 'jetpack_analytics_dataset_source', $prefer_local );
+
+		$this->assertCount( $forwarded ? 1 : 0, $this->requests );
+	}
+
+	/**
+	 * @return array<string, array{0: array, 1: bool}>
+	 */
+	public static function data_source_filter() {
+		return array(
+			'no override stays remote' => array( array(), true ),
+			'auto follows the filter'  => array( array( 'execution' => 'auto' ), false ),
 		);
 	}
 
