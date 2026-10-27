@@ -17,6 +17,8 @@ use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget;
 use Automattic\Jetpack\Stats_Plugin\Jetpack_Stats_Plugin;
 use Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -246,6 +248,22 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Stats v2 answers `jetpack_stats_url`, so the link follows it there once it is on.
+	 */
+	public function test_plugin_action_link_follows_the_stats_url_filter() {
+		add_filter(
+			'jetpack_stats_url',
+			static function () {
+				return 'https://example.org/wp-admin/admin.php?page=stats-v2';
+			}
+		);
+
+		$links = Jetpack_Stats_Plugin::plugin_page_add_links( array() );
+
+		$this->assertStringContainsString( 'href="https://example.org/wp-admin/admin.php?page=stats-v2"', $links[0] );
+	}
+
+	/**
 	 * The dashboard registration is skipped while the Jetpack plugin is active, because
 	 * Jetpack registers the same `stats` menu slug itself.
 	 */
@@ -420,6 +438,33 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 			'off by default' => array( false, false ),
 			'opted in'       => array( true, true ),
 		);
+	}
+
+	/**
+	 * Booting here too would leave the menu title and the WooCommerce section to whichever plugin loads first.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_stats_v2_is_left_to_the_jetpack_plugin() {
+		require_once __DIR__ . '/stubs/class-jetpack.php';
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		Jetpack_Stats_Plugin::configure_packages();
+
+		$this->assertFalse( Analytics::is_initialized() );
+	}
+
+	/**
+	 * The setting is what turns Stats v2 on, so it has to be there while Stats v2 is off.
+	 */
+	public function test_stats_v2_setting_is_registered_while_it_is_off() {
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertSame( 0, has_action( 'rest_api_init', array( Enablement_Setting::class, 'register' ) ) );
 	}
 
 	/**
