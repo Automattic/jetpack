@@ -17,7 +17,9 @@ body.jetpack-flow {
 }
 
 .jetpack-flow-tabs {
-	padding-inline: var(--wpds-dimension-padding-2xl);
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
 }
 
 // The one call to action of the editor.

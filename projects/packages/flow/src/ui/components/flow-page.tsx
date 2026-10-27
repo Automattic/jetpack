@@ -29,17 +29,19 @@ export function FlowPage( { tab, actions, children }: Props ) {
 			>
 				<Tabs.Root
 					value={ tab }
-					onValueChange={ ( next: string ) =>
+					onValueChange={ ( next: string | null ) =>
 						navigate( { href: next === 'flows' ? '/flows' : '/' } )
 					}
 					className="jetpack-flow-tabs"
 				>
-					<Tabs.List>
-						<Tabs.Tab value="new">{ __( 'New', 'jetpack-flow-pkg' ) }</Tabs.Tab>
-						<Tabs.Tab value="flows">{ __( 'Flows', 'jetpack-flow-pkg' ) }</Tabs.Tab>
-					</Tabs.List>
+					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
+						<Tabs.List variant="minimal">
+							<Tabs.Tab value="new">{ __( 'New', 'jetpack-flow-pkg' ) }</Tabs.Tab>
+							<Tabs.Tab value="flows">{ __( 'Flows', 'jetpack-flow-pkg' ) }</Tabs.Tab>
+						</Tabs.List>
+					</div>
+					{ children }
 				</Tabs.Root>
-				{ children }
 				<JetpackFooter />
 			</Page>
 		</div>
