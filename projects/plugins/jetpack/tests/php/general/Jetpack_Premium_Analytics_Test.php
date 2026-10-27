@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
 
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
@@ -15,10 +16,10 @@ require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
  * Tests for Jetpack::is_premium_analytics_enabled().
  *
  * @covers \Jetpack
- * @covers \Jetpack_Stats_Feature_Flags
+ * @covers ::stats_load
  */
 #[CoversClass( Jetpack::class )]
-#[CoversClass( Jetpack_Stats_Feature_Flags::class )]
+#[CoversFunction( 'stats_load' )]
 class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
