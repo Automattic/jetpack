@@ -311,18 +311,18 @@ class Dashboard {
 	/**
 	 * A host's Scan links, as `url` and `manage_url`, each a web address or empty.
 	 *
-	 * @param bool $included Whether the site has Scan.
+	 * @param bool $site_has_feature Whether the site has Scan.
 	 * @return array{url: string, manage_url: string}
 	 */
-	private static function filter_scan_links( $included ) {
+	private static function filter_scan_links( $site_has_feature ) {
 		$upgrade = array(
-			'path'     => $included ? '' : '/add-scan',
-			'name'     => $included ? '' : 'Jetpack Scan', // Product name, do not translate.
+			'path'     => $site_has_feature ? '' : '/add-scan',
+			'name'     => $site_has_feature ? '' : 'Jetpack Scan', // Product name, do not translate.
 			'back_url' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
 		);
 
 		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
-		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade, 'protect-dashboard', $included );
+		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade, 'protect-dashboard', $site_has_feature );
 
 		if ( ! is_array( $filtered ) ) {
 			$filtered = array();

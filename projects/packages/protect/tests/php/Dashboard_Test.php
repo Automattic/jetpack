@@ -187,7 +187,9 @@ class Dashboard_Test extends BaseTestCase {
 			'upgrade to host plans'   => array( 'get_scan_upgrade_url', 'url', 'https://example.com/plans', 'https://example.com/plans' ),
 			'manage at host'          => array( 'get_scan_manage_url', 'manage_url', 'https://example.com/scan', 'https://example.com/scan' ),
 			'upgrade ignores manage'  => array( 'get_scan_upgrade_url', 'manage_url', 'https://example.com/scan', null ),
+			'manage ignores upgrade'  => array( 'get_scan_manage_url', 'url', 'https://example.com/plans', null ),
 			'javascript: URL dropped' => array( 'get_scan_upgrade_url', 'url', 'javascript:alert(1)', null ),
+			'javascript: manage URL'  => array( 'get_scan_manage_url', 'manage_url', 'javascript:alert(1)', null ),
 		);
 	}
 
@@ -211,6 +213,19 @@ class Dashboard_Test extends BaseTestCase {
 		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
 
 		$this->assertSame( $expected ?? $default, $link );
+	}
+
+	/**
+	 * A filter that returns something other than an array leaves both Scan links as they were.
+	 */
+	public function test_non_array_scan_link_filter_keeps_the_defaults() {
+		$defaults = array( Dashboard::get_scan_upgrade_url(), Dashboard::get_scan_manage_url() );
+		add_filter( 'jetpack_feature_upgrade', '__return_empty_string' );
+
+		$links = array( Dashboard::get_scan_upgrade_url(), Dashboard::get_scan_manage_url() );
+		remove_filter( 'jetpack_feature_upgrade', '__return_empty_string' );
+
+		$this->assertSame( $defaults, $links );
 	}
 
 	public function test_init_announces_the_dashboard() {

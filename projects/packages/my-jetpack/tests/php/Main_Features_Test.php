@@ -670,6 +670,44 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * A host's manage URL replaces the feature's only for a site that has it, and only as a web address.
+	 *
+	 * @dataProvider provide_host_manage_urls
+	 *
+	 * @param string[] $owned   The products the site pays for.
+	 * @param string   $url     The URL the host sends.
+	 * @param bool     $to_host Whether the feature's manage link becomes the host's.
+	 */
+	#[DataProvider( 'provide_host_manage_urls' )]
+	public function test_host_manage_url( $owned, $url, $to_host ) {
+		$this->own( $owned );
+		$default      = array_column( Main_Features::get_features(), 'manage_url', 'slug' )['backup'];
+		$send_to_host = static function ( $upgrade ) use ( $url ) {
+			return array_merge( $upgrade, array( 'manage_url' => $url ) );
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host );
+
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host );
+
+		$this->assertSame( $to_host ? $url : $default, $features['backup']['manage_url'] );
+		$this->assertArrayNotHasKey( 'manage_url', $features['backup']['upgrade'] );
+	}
+
+	/**
+	 * Data provider for test_host_manage_url.
+	 *
+	 * @return array
+	 */
+	public static function provide_host_manage_urls() {
+		return array(
+			'owns Complete'   => array( array( 'jetpack_complete' ), 'https://example.com/backup', true ),
+			'no plan'         => array( array(), 'https://example.com/backup', false ),
+			'javascript: URL' => array( array( 'jetpack_complete' ), 'javascript:alert(1)', false ),
+		);
+	}
+
+	/**
 	 * A host is told the link is on My Jetpack's Features tab, and that address stays out of the feature's data.
 	 */
 	public function test_upgrade_filter_gets_the_features_tab_as_back_url() {

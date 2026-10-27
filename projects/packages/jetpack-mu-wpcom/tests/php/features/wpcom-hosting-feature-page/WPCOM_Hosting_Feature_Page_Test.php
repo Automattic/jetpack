@@ -314,31 +314,39 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @dataProvider provide_feature_upgrades
 	 *
-	 * @param string      $slug     The My Jetpack feature slug.
-	 * @param bool        $included Whether the site already has it.
-	 * @param string|null $expected How `manage_url` should end (`%host%` is the site's), the plan feature the upgrade filters on, or null for Jetpack's own.
+	 * @param string      $slug             The My Jetpack feature slug.
+	 * @param bool        $site_has_feature Whether the site already has it.
+	 * @param string|null $plan_feature     The plan feature the upgrade filters on, or null when there is no upgrade.
+	 * @param string|null $live             How the link to the live feature should end (`%host%` is the site's), or null for Jetpack's own links.
 	 */
 	#[DataProvider( 'provide_feature_upgrades' )]
-	public function test_feature_upgrade_goes_to_wpcom( $slug, $included, $expected ) {
+	public function test_feature_upgrade_goes_to_wpcom( $slug, $site_has_feature, $plan_feature, $live ) {
 		$jetpack = array(
 			'path' => '/add-' . $slug,
 			'name' => 'Jetpack',
 		);
 
-		$upgrade = WPCOM_Feature_Upgrades::filter_feature_upgrade( $jetpack, $slug, $included );
+		$upgrade = WPCOM_Feature_Upgrades::filter_feature_upgrade( $jetpack, $slug, $site_has_feature );
 
-		if ( null === $expected ) {
+		if ( null === $live ) {
 			$this->assertSame( $jetpack, $upgrade );
-		} elseif ( $included ) {
-			$this->assertStringEndsWith( str_replace( '%host%', (string) wp_parse_url( home_url(), PHP_URL_HOST ), $expected ), $upgrade['manage_url'] );
-		} else {
-			parse_str( (string) wp_parse_url( $upgrade['url'], PHP_URL_QUERY ), $query );
-
-			$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade?', $upgrade['url'] );
-			$this->assertSame( $expected, $query['feature'] );
-			// The flow only honors a Back link on the site's own host, which it reads from siteSlug.
-			$this->assertSame( explode( '::', $query['siteSlug'] )[0], wp_parse_url( $query['back_to'], PHP_URL_HOST ) );
+			return;
 		}
+
+		$live = str_replace( '%host%', (string) wp_parse_url( home_url(), PHP_URL_HOST ), $live );
+
+		if ( $site_has_feature ) {
+			$this->assertStringEndsWith( $live, $upgrade['manage_url'] );
+			return;
+		}
+
+		parse_str( (string) wp_parse_url( $upgrade['url'], PHP_URL_QUERY ), $query );
+
+		$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade?', $upgrade['url'] );
+		$this->assertSame( $plan_feature, $query['feature'] );
+		$this->assertStringEndsWith( $live, $query['redirect_to'] );
+		// The flow only honors a Back link on the site's own host, which it reads from siteSlug.
+		$this->assertSame( explode( '::', $query['siteSlug'] )[0], wp_parse_url( $query['back_to'], PHP_URL_HOST ) );
 	}
 
 	/**
@@ -348,11 +356,11 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_feature_upgrades() {
 		return array(
-			'backup, no plan'  => array( 'backup', false, 'backups-self-serve' ),
-			'scan, no plan'    => array( 'protect-dashboard', false, 'scan-self-serve' ),
-			'backup, has plan' => array( 'backup', true, '/wp-admin/admin.php?page=jetpack-backup' ),
-			'scan, has plan'   => array( 'protect-dashboard', true, 'https://wordpress.com/scan/%host%' ),
-			'another feature'  => array( 'boost', false, null ),
+			'backup, no plan'  => array( 'backup', false, 'backups-self-serve', '/wp-admin/admin.php?page=jetpack-backup' ),
+			'scan, no plan'    => array( 'protect-dashboard', false, 'scan-self-serve', 'https://wordpress.com/scan/%host%' ),
+			'backup, has plan' => array( 'backup', true, null, '/wp-admin/admin.php?page=jetpack-backup' ),
+			'scan, has plan'   => array( 'protect-dashboard', true, null, 'https://wordpress.com/scan/%host%' ),
+			'another feature'  => array( 'boost', false, null, null ),
 		);
 	}
 
@@ -370,7 +378,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 			$back_url = admin_url( substr( $back_url, 6 ) );
 		}
 
-		parse_str( (string) wp_parse_url( WPCOM_Feature_Upgrades::get_plan_upgrade_url( 'protect-dashboard', $back_url ), PHP_URL_QUERY ), $query );
+		parse_str( (string) wp_parse_url( WPCOM_Scan::get_plan_upgrade_url( $back_url ), PHP_URL_QUERY ), $query );
 
 		$this->assertStringEndsWith( $expected, $query['back_to'] );
 	}
@@ -438,6 +446,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 			? $page::get_page_url()
 			: str_replace( '%host%', (string) wp_parse_url( home_url(), PHP_URL_HOST ), $expected );
 
+		$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade?', $page::get_upgrade_url( 'example.org' ) );
 		$this->assertSame( $expected, rawurldecode( $args['redirect_to'] ) );
 	}
 
