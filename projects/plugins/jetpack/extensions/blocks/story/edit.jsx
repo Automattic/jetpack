@@ -77,7 +77,16 @@ export default withNotices( function StoryEdit( {
 				allowedTypes: ALLOWED_MEDIA_TYPES,
 				getItems: () => getBlockAttributes( clientId )?.mediaFiles || [],
 				setItems: setMediaFiles,
-				toItem: pickRelevantMediaFiles,
+				// Core's upload previews carry only a URL: keep the file's type so a video renders as one.
+				toPlaceholder: ( file, url ) => ( {
+					url,
+					type: file.type.split( '/' )[ 0 ],
+					mime: file.type,
+				} ),
+				toItem: ( media, { type, mime } ) => {
+					const item = pickRelevantMediaFiles( media );
+					return { ...item, type: item.type || type, mime: item.mime || mime };
+				},
 				onError: noticeOperations.createErrorNotice,
 			} );
 			return;

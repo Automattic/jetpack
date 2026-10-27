@@ -11,6 +11,9 @@ import {
 } from '../../../shared/test/upload-files';
 import Edit from '../edit';
 
+// jsdom implements no media loading, which the player starts for a video slide.
+window.HTMLMediaElement.prototype.load = () => {};
+
 const uploadToStory = ( mediaFiles, files ) =>
 	uploadFiles( { Edit, name: 'jetpack/story', attributes: { mediaFiles }, files } );
 
@@ -34,4 +37,17 @@ test( 'releases the save lock when the block is removed mid-upload', async () =>
 		dispatch( blockEditorStore ).removeBlock( clientId );
 	} );
 	expect( isSavingLocked() ).toBe( false );
+} );
+
+test( "keeps an uploading video typed as a video through core's untyped preview", async () => {
+	const [ upload ] = await uploadToStory(
+		[],
+		[ new File( [ 'v' ], 'v.mp4', { type: 'video/mp4' } ) ]
+	);
+	act( () => upload.onFileChange( [ { url: 'blob:preview' } ] ) );
+
+	expect( getBlockAttributes().mediaFiles[ 0 ] ).toMatchObject( {
+		type: 'video',
+		mime: 'video/mp4',
+	} );
 } );

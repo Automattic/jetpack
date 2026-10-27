@@ -17,14 +17,15 @@ export const isFileSelection = selection =>
  * client-side media processing reports one file per callback. Each result replaces its item, found by
  * URL, and a failure removes it.
  *
- * @param {object}          options              - Options.
- * @param {FileList|File[]} options.files        - The files to upload.
- * @param {Function}        options.mediaUpload  - The block editor's `mediaUpload` setting.
- * @param {string[]}        options.allowedTypes - The media types the block accepts.
- * @param {Function}        options.getItems     - Returns the block's current items, each with a `url`.
- * @param {Function}        options.setItems     - Saves the block's items.
- * @param {Function}        options.toItem       - Turns an attachment, and the item it replaces, into an item.
- * @param {Function}        options.onError      - Reports an upload's error message.
+ * @param {object}          options                 - Options.
+ * @param {FileList|File[]} options.files           - The files to upload.
+ * @param {Function}        options.mediaUpload     - The block editor's `mediaUpload` setting.
+ * @param {string[]}        options.allowedTypes    - The media types the block accepts.
+ * @param {Function}        options.getItems        - Returns the block's current items, each with a `url`.
+ * @param {Function}        options.setItems        - Saves the block's items.
+ * @param {Function}        options.toItem          - Turns an attachment, and the item it replaces, into an item.
+ * @param {Function}        [options.toPlaceholder] - Turns a file and its blob URL into its placeholder item.
+ * @param {Function}        options.onError         - Reports an upload's error message.
  */
 export default function uploadFilesIndividually( {
 	files,
@@ -33,6 +34,7 @@ export default function uploadFilesIndividually( {
 	getItems,
 	setItems,
 	toItem,
+	toPlaceholder = ( file, url ) => ( { url } ),
 	onError,
 } ) {
 	if ( ! mediaUpload ) {
@@ -44,7 +46,7 @@ export default function uploadFilesIndividually( {
 	} ) );
 	setItems( [
 		...getItems(),
-		...uploads.map( ( { placeholderUrl } ) => ( { url: placeholderUrl } ) ),
+		...uploads.map( ( { file, placeholderUrl } ) => toPlaceholder( file, placeholderUrl ) ),
 	] );
 
 	uploads.forEach( ( { file, placeholderUrl } ) => {
