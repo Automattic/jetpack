@@ -73,13 +73,12 @@ export const useStatsPeriod = (): StatsPeriod => {
 /**
  * Query options for a window.
  *
- * @param {StatsPeriod} period - The window.
- * @return {object} Options for useStatsVisits.
+ * @param {Pick<StatsPeriod, 'days'|'end'>} period - The window's length and last day.
+ * @return {{period: 'day', quantity: number, date: Date}} Options for useStatsVisits.
  */
 export const getStatsPeriodVisitsOptions = ( { days, end }: Pick< StatsPeriod, 'days' | 'end' > ) =>
 	( {
 		period: 'day',
 		quantity: days,
 		date: end,
-		keepPreviousData: true,
 	} ) as const;
