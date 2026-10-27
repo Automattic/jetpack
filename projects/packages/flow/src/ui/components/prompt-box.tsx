@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Button, Field, Stack, Text, Textarea } from '@wordpress/ui';
+import { noAutofill } from '../no-autofill';
 
 type Props = {
 	value: string;
@@ -24,6 +25,7 @@ export function PromptBox( { value, busy, onChange, onSubmit }: Props ) {
 					<Text variant="heading-md">{ __( 'What should happen?', 'jetpack-flow-pkg' ) }</Text>
 				</Field.Label>
 				<Textarea
+					{ ...noAutofill }
 					rows={ 3 }
 					value={ value }
 					disabled={ busy }

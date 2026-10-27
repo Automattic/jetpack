@@ -29,6 +29,11 @@ class Flow_Post_Type {
 	const META_TRIGGER = '_jetpack_flow_trigger';
 
 	/**
+	 * Meta key holding the secret token of a flow's inbound event URL.
+	 */
+	const META_TOKEN = '_jetpack_flow_inbound_token';
+
+	/**
 	 * Hook registration.
 	 *
 	 * @return void

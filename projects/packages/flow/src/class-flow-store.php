@@ -125,7 +125,41 @@ class Flow_Store {
 			add_post_meta( $saved, Flow_Post_Type::META_TRIGGER, $trigger_id );
 		}
 
+		if ( in_array( 'inbound_event', $clean['triggers'], true ) ) {
+			if ( ! get_post_meta( $saved, Flow_Post_Type::META_TOKEN, true ) ) {
+				update_post_meta( $saved, Flow_Post_Type::META_TOKEN, bin2hex( random_bytes( 24 ) ) );
+			}
+		} else {
+			delete_post_meta( $saved, Flow_Post_Type::META_TOKEN );
+		}
+
 		return self::get( $saved );
+	}
+
+	/**
+	 * The enabled flow behind an inbound event token.
+	 *
+	 * @param string $token Secret from the inbound URL.
+	 * @return array|null
+	 */
+	public static function find_by_token( $token ) {
+		if ( strlen( $token ) < 32 ) {
+			return null;
+		}
+		$posts = get_posts(
+			array(
+				'post_type'        => Flow_Post_Type::POST_TYPE,
+				'post_status'      => 'publish',
+				'posts_per_page'   => 1,
+				'meta_key'         => Flow_Post_Type::META_TOKEN, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'       => $token, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'suppress_filters' => true,
+			)
+		);
+		if ( ! $posts || ! hash_equals( (string) get_post_meta( $posts[0]->ID, Flow_Post_Type::META_TOKEN, true ), $token ) ) {
+			return null;
+		}
+		return self::from_post( $posts[0] );
 	}
 
 	/**
@@ -171,13 +205,16 @@ class Flow_Store {
 			return null;
 		}
 
+		$token = (string) get_post_meta( $post->ID, Flow_Post_Type::META_TOKEN, true );
+
 		return array(
-			'id'       => $post->ID,
-			'name'     => $post->post_title,
-			'enabled'  => 'publish' === $post->post_status,
-			'modified' => get_post_modified_time( 'c', true, $post ),
-			'triggers' => array_values( $trigger_ids ),
-			'steps'    => (array) ( $definition['steps'] ?? array() ),
+			'inbound_url' => $token ? rest_url( REST_Controller::NAMESPACE . '/hooks/' . $token ) : '',
+			'id'          => $post->ID,
+			'name'        => $post->post_title,
+			'enabled'     => 'publish' === $post->post_status,
+			'modified'    => get_post_modified_time( 'c', true, $post ),
+			'triggers'    => array_values( $trigger_ids ),
+			'steps'       => (array) ( $definition['steps'] ?? array() ),
 		);
 	}
 

@@ -152,23 +152,40 @@ class Engine {
 		);
 
 		foreach ( $flows as $flow ) {
-			$run_payload = $payload;
-			foreach ( $flow['steps'] as $step ) {
-				self::$outputs = array();
-				$result        = self::run_action( $step['type'], $step['config'], $run_payload );
-				$run_payload   = array_merge( $run_payload, self::$outputs );
-				if ( is_wp_error( $result ) ) {
-					/**
-					 * Fires when a Flow action fails.
-					 *
-					 * @since $$next-version$$
-					 *
-					 * @param \WP_Error $result  The error.
-					 * @param array     $flow    The flow.
-					 * @param array     $step    The failing step.
-					 */
-					do_action( 'jetpack_flow_action_failed', $result, $flow, $step );
-				}
+			self::run_flow( $flow, $payload );
+		}
+	}
+
+	/**
+	 * Run the steps of one flow.
+	 *
+	 * @param array $flow    The flow.
+	 * @param array $payload Values available to {{tokens}}.
+	 * @return void
+	 */
+	public static function run_flow( $flow, $payload ) {
+		$run_payload = array_merge(
+			array(
+				'site_name' => get_bloginfo( 'name' ),
+				'site_url'  => home_url(),
+			),
+			$payload
+		);
+		foreach ( $flow['steps'] as $step ) {
+			self::$outputs = array();
+			$result        = self::run_action( $step['type'], $step['config'], $run_payload );
+			$run_payload   = array_merge( $run_payload, self::$outputs );
+			if ( is_wp_error( $result ) ) {
+				/**
+				 * Fires when a Flow action fails.
+				 *
+				 * @since $$next-version$$
+				 *
+				 * @param \WP_Error $result  The error.
+				 * @param array     $flow    The flow.
+				 * @param array     $step    The failing step.
+				 */
+				do_action( 'jetpack_flow_action_failed', $result, $flow, $step );
 			}
 		}
 	}

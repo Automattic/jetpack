@@ -125,6 +125,13 @@ class Catalog {
 				'tokens'      => array( 'name', 'email', 'message', 'post_title', 'post_url' ),
 				'available'   => true,
 			),
+			'inbound_event'             => array(
+				'label'       => __( 'Inbound event', 'jetpack-flow-pkg' ),
+				'description' => __( 'Starts when another program sends a GET or POST request to a secret URL. Fields you send become {{tokens}}.', 'jetpack-flow-pkg' ),
+				'product'     => 'wordpress',
+				'tokens'      => array( 'method' ),
+				'available'   => true,
+			),
 			'schedule_daily'            => array(
 				'label'       => __( 'Every day', 'jetpack-flow-pkg' ),
 				'description' => __( 'Runs once a day.', 'jetpack-flow-pkg' ),

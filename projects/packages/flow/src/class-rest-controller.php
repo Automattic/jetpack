@@ -122,6 +122,40 @@ class REST_Controller {
 				'permission_callback' => array( __CLASS__, 'check_inbound_token' ),
 			)
 		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/hooks/(?P<token>[A-Za-z0-9]{32,})',
+			array(
+				'methods'             => WP_REST_Server::READABLE . ', ' . WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'receive_hook' ),
+				'permission_callback' => '__return_true', // The long secret in the URL is the credential.
+			)
+		);
+	}
+
+	/**
+	 * Run the flow behind a secret inbound URL.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function receive_hook( $request ) {
+		$flow = Flow_Store::find_by_token( (string) $request['token'] );
+		if ( ! $flow ) {
+			return new \WP_Error( 'not_found', __( 'Not found.', 'jetpack-flow-pkg' ), array( 'status' => 404 ) );
+		}
+
+		$fields = array_merge( (array) $request->get_query_params(), (array) $request->get_body_params(), (array) $request->get_json_params() );
+		$data   = array( 'method' => $request->get_method() );
+		foreach ( array_slice( $fields, 0, 50, true ) as $key => $value ) {
+			if ( is_scalar( $value ) && 'token' !== $key ) {
+				$data[ sanitize_key( (string) $key ) ] = mb_substr( sanitize_text_field( (string) $value ), 0, 2000 );
+			}
+		}
+
+		Engine::run_flow( $flow, $data );
+		return rest_ensure_response( array( 'received' => true ) );
 	}
 
 	/**

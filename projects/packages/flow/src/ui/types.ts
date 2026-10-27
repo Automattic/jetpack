@@ -61,6 +61,8 @@ export type Flow = {
 	enabled: boolean;
 	modified?: string;
 	triggers: string[];
+	/** Secret URL of the inbound event trigger, once the flow is saved. */
+	inbound_url?: string;
 	steps: Step[];
 };
 

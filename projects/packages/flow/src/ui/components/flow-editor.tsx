@@ -1,8 +1,9 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Button, Notice, Spinner, Stack, SwitchControl, Text } from '@wordpress/ui';
+import { Button, Field, Input, Notice, Spinner, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { fetchCatalog, fetchFlow, planFlow, saveFlow } from '../api';
+import { noAutofill } from '../no-autofill';
 import { BrandStrip } from './brand-strip';
 import { FlowCard } from './flow-card';
 import { FlowPage } from './flow-page';
@@ -163,6 +164,35 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 						/>
 
 						<FlowCard flow={ flow } catalog={ catalog } arrival={ arrival } onChange={ edit } />
+
+						{ flow.triggers.includes( 'inbound_event' ) && (
+							<Field.Root>
+								<Field.Label>{ __( 'Inbound event URL', 'jetpack-flow-pkg' ) }</Field.Label>
+								<Stack align="center" gap="sm">
+									<Input
+										{ ...noAutofill }
+										readOnly
+										value={
+											flow.inbound_url ||
+											__( 'The secret URL appears after you save.', 'jetpack-flow-pkg' )
+										}
+									/>
+									<Button
+										variant="outline"
+										disabled={ ! flow.inbound_url }
+										onClick={ () => navigator.clipboard?.writeText( flow.inbound_url ?? '' ) }
+									>
+										{ __( 'Copy', 'jetpack-flow-pkg' ) }
+									</Button>
+								</Stack>
+								<Field.Description>
+									{ __(
+										'Send a GET or POST request here from any program. Treat the URL like a password.',
+										'jetpack-flow-pkg'
+									) }
+								</Field.Description>
+							</Field.Root>
+						) }
 
 						<Stack justify="flex-end">
 							<Button

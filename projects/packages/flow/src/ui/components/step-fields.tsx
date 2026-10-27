@@ -1,4 +1,5 @@
 import { Field, Input, Text, Textarea } from '@wordpress/ui';
+import { noAutofill } from '../no-autofill';
 import type { Catalog, CatalogItem, FieldDef } from '../types';
 
 type Props = {
@@ -36,6 +37,7 @@ export function StepFields( { item, config, catalog, tokens, onChange }: Props )
 				<Field.Control
 					render={
 						<select
+							{ ...noAutofill }
 							className="jetpack-flow-select"
 							value={ value( field.name, field.default ) }
 							onChange={ event => set( field.name, event.target.value ) }
@@ -54,6 +56,7 @@ export function StepFields( { item, config, catalog, tokens, onChange }: Props )
 		if ( field.type === 'textarea' ) {
 			return (
 				<Textarea
+					{ ...noAutofill }
 					rows={ 4 }
 					value={ value( field.name, field.default ) }
 					onValueChange={ next => set( field.name, next ) }
@@ -62,6 +65,7 @@ export function StepFields( { item, config, catalog, tokens, onChange }: Props )
 		}
 		return (
 			<Input
+				{ ...noAutofill }
 				type={ field.type === 'url' ? 'url' : 'text' }
 				value={ value( field.name, field.default ) }
 				onValueChange={ next => set( field.name, next ) }

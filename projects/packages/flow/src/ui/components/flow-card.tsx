@@ -2,6 +2,7 @@ import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import { hasFlowDrag, readDrag, startDrag } from '../drag';
+import { noAutofill } from '../no-autofill';
 import { ProductIcon } from './product-icon';
 import { StepFields } from './step-fields';
 import type { Catalog, Flow, Step } from '../types';
@@ -90,6 +91,7 @@ export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
 			<Card.Header>
 				<Stack align="center" justify="space-between" gap="md">
 					<input
+						{ ...noAutofill }
 						className="jetpack-flow-name"
 						aria-label={ __( 'Flow name', 'jetpack-flow-pkg' ) }
 						value={ flow.name }
