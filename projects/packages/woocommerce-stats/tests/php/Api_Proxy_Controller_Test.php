@@ -319,6 +319,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 				'orders/by-date',
 				array(
 					'execution' => 'local',
+					'fields'    => 'orders_no',
 					'from'      => '2026-09-27',
 					'to'        => '2026-10-26',
 					'interval'  => 'hour',
@@ -332,6 +333,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 				'orders/by-date',
 				array(
 					'execution' => 'local',
+					'fields'    => 'orders_no',
 					'from'      => '2026-10-07',
 					'to'        => '2026-10-26',
 					'interval'  => 'hour',
@@ -344,6 +346,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 				'orders/by-date',
 				array(
 					'execution' => 'local',
+					'fields'    => 'orders_no',
 					'from'      => 'not-a-date',
 					'to'        => '2026-10-26',
 					'interval'  => 'day',
@@ -356,6 +359,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 				'orders/by-date',
 				array(
 					'execution' => 'local',
+					'fields'    => 'orders_no',
 					'from'      => '2026-02-30',
 					'to'        => '2026-03-26',
 					'interval'  => 'day',
@@ -364,6 +368,19 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 				422,
 				'invalid_parameter',
 			),
+			'local forced for the whole report'     => array( 'orders/by-date', array( 'execution' => 'local' ), true, 422, 'unsupported_fields' ),
+			'local forced for a field it lacks'     => array(
+				'orders/by-date',
+				array(
+					'execution' => 'local',
+					'fields'    => 'profit_margin',
+				),
+				true,
+				422,
+				'unsupported_fields',
+			),
+			'a field the contract lacks'            => array( 'orders/by-date', array( 'fields' => 'orders_no,mood' ), true, 422, 'unknown_field' ),
+			'fields on a report without a contract' => array( 'sessions/by-date', array( 'fields' => 'visitors' ), true, 422, 'fields_not_described' ),
 		);
 	}
 
@@ -371,13 +388,14 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 * @dataProvider data_source_filter
 	 */
 	#[DataProvider( 'data_source_filter' )]
-	public function test_the_source_filter_moves_only_requests_that_ask_for_auto( array $params, $forwarded ) {
+	public function test_the_source_filter_moves_only_auto_requests_local_can_serve( array $params, $forwarded ) {
 		require_once __DIR__ . '/mocks/woocommerce-revenue-stats-controller-mock.php';
 		$prefer_local = static function () {
 			return 'local';
 		};
 		add_filter( 'jetpack_analytics_dataset_source', $prefer_local );
 
+		$this->upstream = $this->upstream_response( 200, '{"summary":{"orders_no":"3","profit_margin":"0"}}' );
 		$this->get_report(
 			'orders/by-date',
 			$params + array(
@@ -396,9 +414,51 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 */
 	public static function data_source_filter() {
 		return array(
-			'no override stays remote' => array( array(), true ),
-			'auto follows the filter'  => array( array( 'execution' => 'auto' ), false ),
+			'no override stays remote'                  => array( array( 'fields' => 'orders_no' ), true ),
+			'auto for fields local serves goes local'   => array(
+				array(
+					'execution' => 'auto',
+					'fields'    => 'orders_no',
+				),
+				false,
+			),
+			'auto for a field local lacks stays remote' => array(
+				array(
+					'execution' => 'auto',
+					'fields'    => 'profit_margin',
+				),
+				true,
+			),
+			'auto for the whole report stays remote'    => array( array( 'execution' => 'auto' ), true ),
 		);
+	}
+
+	public function test_refuses_an_answer_without_a_requested_field() {
+		$response = $this->get_report(
+			'orders/by-date',
+			array(
+				'execution' => 'remote',
+				'fields'    => 'orders_no',
+			)
+		);
+
+		$this->assertSame( 502, $response->get_status() );
+		$this->assertSame( 'contract_violation', $response->get_data()['code'] );
+	}
+
+	public function test_names_the_contract_and_its_deviations_in_the_provenance() {
+		$this->upstream = $this->upstream_response( 200, '{"summary":{"orders_no":"3"}}' );
+
+		$response = $this->get_report(
+			'orders/by-date',
+			array(
+				'execution' => 'remote',
+				'fields'    => 'orders_no',
+			)
+		);
+
+		$this->assertSame( 'orders.by_date@1', $response->get_headers()['X-Jetpack-Report-Contract'] );
+		$this->assertSame( 'sunday', $response->get_data()->provenance['deviations']->week_start );
 	}
 
 	public function test_forwards_no_execution_override_to_wordpress_com() {

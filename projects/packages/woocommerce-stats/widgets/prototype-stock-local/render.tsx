@@ -38,6 +38,7 @@ function PrototypeStockLocal( { execution = 'auto' }: { execution?: ReportExecut
 		route: 'stock/summary',
 		execution,
 		send: [],
+		fields: [ 'products', 'instock', 'lowstock', 'outofstock', 'onbackorder' ],
 	} );
 
 	return (

@@ -30,6 +30,7 @@ function PrototypeOrdersLocal() {
 		route: 'orders/by-date',
 		execution: 'local',
 		send: [ 'from', 'to', 'interval' ],
+		fields: [ 'orders_no', 'orders_value_net', 'total_sales', 'average_order_value' ],
 	} );
 
 	return (

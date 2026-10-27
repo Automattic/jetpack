@@ -1,6 +1,6 @@
 <?php
 /**
- * Report definitions, collected from what each provider declares.
+ * Report definitions with the providers that can serve them.
  *
  * @package automattic/jetpack-woocommerce-stats
  */
@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\WooCommerceStats\Report_Execution;
 
 /**
- * Maps a report route to the providers that declare it.
+ * Resolves a route to its report definition and each provider's capability for it.
  *
  * @since $$next-version$$
  */
@@ -24,7 +24,7 @@ class Report_Registry {
 	/**
 	 * Constructor.
 	 *
-	 * @param Report_Provider[] $providers The providers to collect declarations from.
+	 * @param Report_Provider[] $providers The providers to ask for capabilities.
 	 */
 	public function __construct( array $providers ) {
 		foreach ( $providers as $provider ) {
@@ -33,23 +33,26 @@ class Report_Registry {
 	}
 
 	/**
-	 * The definition of a route.
+	 * The definition a route resolves to, with the capability of each provider that serves it.
 	 *
 	 * @param string $route Report route.
-	 * @return array|null `route` and `providers` (names), or null when no provider declares it.
+	 * @return array|null The definition plus `capabilities` (by provider name), or null for an unknown route.
 	 */
 	public function get_definition( $route ) {
-		$names = array();
+		$definition = Report_Definitions::for_route( $route );
+		if ( null === $definition ) {
+			return null;
+		}
+
+		$definition['capabilities'] = array();
 		foreach ( $this->providers as $name => $provider ) {
-			if ( $provider->supports( $route ) ) {
-				$names[] = $name;
+			$capability = $provider->get_capability( $definition['id'] );
+			if ( null !== $capability ) {
+				$definition['capabilities'][ $name ] = $capability;
 			}
 		}
 
-		return $names ? array(
-			'route'     => $route,
-			'providers' => $names,
-		) : null;
+		return $definition;
 	}
 
 	/**

@@ -124,15 +124,20 @@ async function fetchPreservingStatus< TResponse >( path: string ): Promise< TRes
  * @param params            - Query params of the report request.
  * @param options           - Request options.
  * @param options.execution - The provider to force, or `auto`.
+ * @param options.fields    - The report fields the caller reads; omitted, the whole report.
  * @return The report response.
  */
 export async function fetchReport< TResponse = unknown >(
 	endpoint: string,
 	params?: ReportRequestParams,
-	options?: { execution?: ReportExecution }
+	options?: { execution?: ReportExecution; fields?: string[] }
 ): Promise< TResponse > {
 	const path = `${ REPORTS_PATH }/${ endpoint.replace( /^\/+/, '' ) }`;
-	const query = cleanQueryParams( { ...params, execution: options?.execution } );
+	const query = cleanQueryParams( {
+		...params,
+		execution: options?.execution,
+		fields: options?.fields?.join( ',' ),
+	} );
 
 	return fetchPreservingStatus< TResponse >( query ? addQueryArgs( path, query ) : path );
 }

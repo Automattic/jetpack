@@ -38,6 +38,7 @@ function PrototypeSessionsRemote( { execution = 'auto' }: { execution?: ReportEx
 		route: 'sessions/by-device',
 		execution,
 		send: [ 'from', 'to' ],
+		fields: [ 'active_sessions', 'total_orders' ],
 	} );
 
 	return (

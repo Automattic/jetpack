@@ -123,6 +123,9 @@ class Api_Proxy_Controller {
 						'type' => 'string',
 						'enum' => Report_Executor::EXECUTION_VALUES,
 					),
+					'fields'    => array(
+						'type' => 'string',
+					),
 				),
 			)
 		);
@@ -172,7 +175,7 @@ class Api_Proxy_Controller {
 			)
 		);
 
-		$payload = ( new Report_Executor( $registry ) )->execute( $route, $this->get_forwarded_params( $request ), $request->get_param( 'execution' ) );
+		$payload = ( new Report_Executor( $registry ) )->execute( $route, $this->get_forwarded_params( $request ), $request->get_param( 'execution' ), $request->get_param( 'fields' ) );
 
 		return is_wp_error( $payload ) ? $payload : $this->build_response( $payload );
 	}
@@ -267,7 +270,7 @@ class Api_Proxy_Controller {
 	private function get_forwarded_params( WP_REST_Request $request ) {
 		$params = $request->get_query_params();
 		// `jp_wt` is the monorepo Docker worktree switcher's, added to every request.
-		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['force_refresh'], $params['execution'], $params['jp_wt'] );
+		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['force_refresh'], $params['execution'], $params['fields'], $params['jp_wt'] );
 
 		return $params;
 	}

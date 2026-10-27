@@ -11,7 +11,7 @@ use WP_Error;
 use WP_REST_Request;
 
 /**
- * The reports core `wc-analytics` routes can answer, through one adapter per response shape.
+ * The reports core `wc-analytics` routes can answer: one binding per report id, served through one adapter per response shape.
  *
  * @since $$next-version$$
  */
@@ -47,72 +47,56 @@ class Local_Report_Provider implements Report_Provider {
 	const STOCK_TYPES = array( 'all', 'lowstock', 'instock', 'outofstock', 'onbackorder' );
 
 	/**
-	 * The reports this provider declares, by route.
+	 * How this provider serves each report it declares, by report id. Its capability follows from the binding.
 	 *
 	 * - `shape`: the adapter. `stats` is totals plus paged intervals, `totals` is totals only, `list` is paged rows.
 	 * - `params`: wpcom param => [ core param, value converter returning null when invalid, required ].
 	 * - `fields`: wpcom field => core field, or [ core field, count field ] for an average that is null
-	 *   over no items; null passes core's fields through, for a report with no wpcom counterpart.
-	 * - `unsupported_fields`: the wpcom fields core cannot produce.
+	 *   over no items; null passes core's fields through and serves every field of the contract.
 	 *
 	 * @return array<string, array>
 	 */
-	private static function definitions() {
-		static $definitions = null;
-		if ( null !== $definitions ) {
-			return $definitions;
+	private static function bindings() {
+		static $bindings = null;
+		if ( null !== $bindings ) {
+			return $bindings;
 		}
 
-		$definitions = array(
-			'orders/by-date' => array(
-				'shape'              => 'stats',
-				'core_route'         => '/wc-analytics/reports/revenue/stats',
-				'core_controller'    => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Revenue\\Stats\\Controller',
-				'params'             => self::range_params() + array(
+		$bindings = array(
+			'orders.by_date' => array(
+				'shape'           => 'stats',
+				'core_route'      => '/wc-analytics/reports/revenue/stats',
+				'core_controller' => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Revenue\\Stats\\Controller',
+				'params'          => self::range_params() + array(
 					'date_type' => array( 'date_type', fn( $value ) => self::DATE_TYPES[ $value ] ?? null, false ),
 				),
-				'fields'             => array(
+				'fields'          => array(
 					'orders_no'           => 'orders_count',
 					'orders_value_net'    => 'net_revenue',
 					'total_sales'         => 'total_sales',
 					'average_order_value' => array( 'avg_order_value', 'orders_count' ),
 				),
-				'unsupported_fields' => array(
-					'avg_items',
-					'cogs_amount',
-					'coupons',
-					'orders_value_gross',
-					'paid_net_sales',
-					'paid_orders_count',
-					'product_net_revenue',
-					'profit_margin',
-					'refunds',
-					'unpaid_net_sales',
-					'unpaid_orders_count',
-				),
 			),
 			// These two stand in for the Stock notifications reports, which WooCommerce does not ship yet.
-			'stock/summary'  => array(
-				'shape'              => 'totals',
-				'core_route'         => '/wc-analytics/reports/stock/stats',
-				'core_controller'    => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Stock\\Stats\\Controller',
-				'params'             => array(),
-				'fields'             => null,
-				'unsupported_fields' => array(),
+			'stock.summary'  => array(
+				'shape'           => 'totals',
+				'core_route'      => '/wc-analytics/reports/stock/stats',
+				'core_controller' => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Stock\\Stats\\Controller',
+				'params'          => array(),
+				'fields'          => null,
 			),
-			'stock/products' => array(
-				'shape'              => 'list',
-				'core_route'         => '/wc-analytics/reports/stock',
-				'core_controller'    => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Stock\\Controller',
-				'params'             => self::list_params() + array(
+			'stock.products' => array(
+				'shape'           => 'list',
+				'core_route'      => '/wc-analytics/reports/stock',
+				'core_controller' => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Stock\\Controller',
+				'params'          => self::list_params() + array(
 					'type' => array( 'type', fn( $value ) => in_array( $value, self::STOCK_TYPES, true ) ? $value : null, false ),
 				),
-				'fields'             => null,
-				'unsupported_fields' => array(),
+				'fields'          => null,
 			),
 		);
 
-		return $definitions;
+		return $bindings;
 	}
 
 	/**
@@ -152,20 +136,29 @@ class Local_Report_Provider implements Report_Provider {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param string $route Report route.
+	 * @param string $report_id Report id.
 	 */
-	public function supports( $route ) {
-		return isset( self::definitions()[ $route ] );
+	public function get_capability( $report_id ) {
+		$binding = self::bindings()[ $report_id ] ?? null;
+		if ( null === $binding ) {
+			return null;
+		}
+
+		return array(
+			'fields'     => null === $binding['fields'] ? '*' : array_keys( $binding['fields'] ),
+			'params'     => array_keys( $binding['params'] ),
+			'deviations' => array(),
+		);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param string $route Report route.
+	 * @param array $request The effective request.
 	 */
-	public function check_ready( $route ) {
+	public function check_ready( array $request ) {
 		// WooCommerce registers `wc-analytics` routes only once a request dispatches into the namespace.
-		return class_exists( self::definitions()[ $route ]['core_controller'] ) ? true : self::feature_missing( 'core_controller_missing' );
+		return class_exists( self::bindings()[ $request['report']['id'] ]['core_controller'] ) ? true : self::feature_missing( 'core_controller_missing' );
 	}
 
 	/**
@@ -186,13 +179,12 @@ class Local_Report_Provider implements Report_Provider {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param string $route  Report route.
-	 * @param array  $params Report query params.
+	 * @param array $request The effective request.
 	 */
-	public function run( $route, array $params ) {
-		$definition = self::definitions()[ $route ];
+	public function run( array $request ) {
+		$definition = self::bindings()[ $request['report']['id'] ];
 
-		$query = self::to_core_query( $definition['params'], $params );
+		$query = self::to_core_query( $definition['params'], $request['params'] );
 		if ( is_wp_error( $query ) ) {
 			return $query;
 		}
@@ -212,10 +204,9 @@ class Local_Report_Provider implements Report_Provider {
 		}
 
 		return array(
-			'data'               => $result['body'],
-			'status'             => 200,
-			'headers'            => $result['headers'],
-			'unsupported_fields' => $definition['unsupported_fields'],
+			'data'    => $result['body'],
+			'status'  => 200,
+			'headers' => $result['headers'],
 		);
 	}
 

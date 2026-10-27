@@ -30,6 +30,14 @@ function PrototypeOrdersRemote() {
 		route: 'orders/by-date',
 		execution: 'remote',
 		send: [ 'from', 'to', 'interval' ],
+		fields: [
+			'orders_no',
+			'orders_value_net',
+			'total_sales',
+			'average_order_value',
+			'paid_orders_count',
+			'profit_margin',
+		],
 	} );
 
 	return (

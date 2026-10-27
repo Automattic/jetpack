@@ -17,23 +17,31 @@ use Automattic\Jetpack\Connection\Manager;
 class Remote_Report_Provider implements Report_Provider {
 
 	/**
-	 * Routes WordPress.com serves, as patterns over the route below `analytics/reports/`.
+	 * Reports WordPress.com serves.
 	 */
-	const ROUTE_PATTERNS = array(
-		'bookings/by-date',
+	const REPORTS = array(
+		'bookings.by_date',
 		'coupons',
-		'coupons/by-date',
-		'customers/by-date',
-		'customers/new-returning',
-		'order-attribution/[\w-]+/summary',
-		'order-attribution-by-product/[\w-]+/summary',
-		'orders/by-date',
-		'orders-by-product-type/by-date',
+		'coupons.by_date',
+		'customers.by_date',
+		'customers.new_returning',
+		'order_attribution.summary',
+		'order_attribution_by_product.summary',
+		'orders.by_date',
+		'orders_by_product_type.by_date',
 		'products',
-		'sessions/by-conversion-rate',
-		'sessions/by-date',
-		'sessions/by-device',
-		'sessions/by-location',
+		'sessions.by_conversion_rate',
+		'sessions.by_date',
+		'sessions.by_device',
+		'sessions.by_location',
+	);
+
+	/**
+	 * Where WordPress.com's order reports differ from the definitions' semantics, as measured on a test store.
+	 */
+	const ORDER_DEVIATIONS = array(
+		'population' => 'includes_checkout_draft',
+		'week_start' => 'sunday',
 	);
 
 	/**
@@ -62,24 +70,26 @@ class Remote_Report_Provider implements Report_Provider {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param string $route Report route.
+	 * @param string $report_id Report id.
 	 */
-	public function supports( $route ) {
-		foreach ( self::ROUTE_PATTERNS as $pattern ) {
-			if ( preg_match( '#^' . $pattern . '$#', $route ) ) {
-				return true;
-			}
+	public function get_capability( $report_id ) {
+		if ( ! in_array( $report_id, self::REPORTS, true ) ) {
+			return null;
 		}
 
-		return false;
+		return array(
+			'fields'     => '*',
+			'params'     => '*',
+			'deviations' => 'orders.by_date' === $report_id ? self::ORDER_DEVIATIONS : array(),
+		);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param string $route Report route.
+	 * @param array $request The effective request.
 	 */
-	public function check_ready( $route ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Readiness is the same for every remote route.
+	public function check_ready( array $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Readiness is the same for every remote report.
 		if ( ( new Manager() )->is_connected() ) {
 			return true;
 		}
@@ -95,10 +105,9 @@ class Remote_Report_Provider implements Report_Provider {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param string $route  Report route.
-	 * @param array  $params Report query params.
+	 * @param array $request The effective request.
 	 */
-	public function run( $route, array $params ) {
-		return call_user_func( $this->transport, $route, $params );
+	public function run( array $request ) {
+		return call_user_func( $this->transport, $request['route'], $request['params'] );
 	}
 }
