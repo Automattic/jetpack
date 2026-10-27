@@ -85,6 +85,8 @@ class LCP_Optimize_Img_Tag {
 			return $buffer_processor->get_updated_html();
 		}
 
+		$original_src = $image_url;
+
 		// If the image isn't photonized, it might be resized by WP.
 		// We need the original image URL, as we'll be generating
 		// the necessary sizes based on it.
@@ -114,7 +116,7 @@ class LCP_Optimize_Img_Tag {
 
 		// srcset uses CDN URLs internally (via Image_CDN_Core::cdn_url), so skip if CDN is disabled.
 		if ( $apply_srcset && $apply_cdn ) {
-			$this->add_responsive_image_attributes( $buffer_processor, $image_url );
+			$this->add_responsive_image_attributes( $buffer_processor, $image_url, $original_src );
 		}
 
 		return $buffer_processor->get_updated_html();
@@ -125,21 +127,24 @@ class LCP_Optimize_Img_Tag {
 	 *
 	 * @param WP_HTML_Tag_Processor $element The original image tag.
 	 * @param string                $image_url The image URL.
+	 * @param string                $original_src The image's src before Boost changed it.
 	 * @return WP_HTML_Tag_Processor The optimized image tag.
 	 *
 	 * @since 4.0.0
 	 */
-	private function add_responsive_image_attributes( $element, $image_url ) {
+	private function add_responsive_image_attributes( $element, $image_url, $original_src = '' ) {
 		// is_array() as well as empty(): empty( 'not-an-array' ) is false, so a string
 		// breakpoints field would reach the foreach in get_srcset() and get_sizes().
 		if ( empty( $this->lcp_data['breakpoints'] ) || ! is_array( $this->lcp_data['breakpoints'] ) ) {
 			return $element;
 		}
 
-		// Under cover, a file cropped to the box shows the same picture and is smaller.
-		$aspect_ratio = $this->is_marked_cover( $element ) ? null : $this->get_aspect_ratio( $element );
+		$object_fit = $this->get_marked_object_fit( $element );
 
-		$srcset = $this->get_srcset( $image_url, $aspect_ratio );
+		// Under cover, a file cropped to the box shows the same picture and is smaller.
+		$aspect_ratio = 'cover' === $object_fit ? null : $this->get_aspect_ratio( $element, $original_src );
+
+		$srcset = $this->get_srcset( $image_url, $aspect_ratio, 'contain' === $object_fit );
 		if ( ! empty( $srcset ) ) {
 			$element->set_attribute( 'srcset', $srcset );
 		}
@@ -153,37 +158,63 @@ class LCP_Optimize_Img_Tag {
 	}
 
 	/**
-	 * Check whether the markup sets object-fit: cover, as core's Featured Image (inline style)
-	 * and Cover (data-object-fit) blocks do. Cover set by a stylesheet is not seen here.
+	 * Get the object-fit the markup sets, as core's Featured Image (inline style) and Cover
+	 * (data-object-fit) blocks do. A fit set by a stylesheet is not seen here.
 	 *
 	 * @param WP_HTML_Tag_Processor $element The image tag.
-	 * @return bool True if the image is marked as cover.
+	 * @return string|null 'cover', 'contain', or null if the markup sets neither.
 	 */
-	private function is_marked_cover( $element ) {
+	private function get_marked_object_fit( $element ) {
 		if ( 'cover' === $element->get_attribute( 'data-object-fit' ) ) {
-			return true;
+			return 'cover';
 		}
 
 		$style = $element->get_attribute( 'style' );
+		if ( is_string( $style ) && preg_match( '/(?:^|;)\s*object-fit\s*:\s*(cover|contain)\s*(?:!important\s*)?(?:;|$)/i', $style, $matches ) ) {
+			return strtolower( $matches[1] );
+		}
 
-		return is_string( $style ) && (bool) preg_match( '/(?:^|;)\s*object-fit\s*:\s*cover\s*(?:!important\s*)?(?:;|$)/i', $style );
+		return null;
 	}
 
 	/**
-	 * Get the image's aspect ratio from its width and height attributes.
+	 * Get the aspect ratio of the file the page asked for.
 	 *
 	 * @param WP_HTML_Tag_Processor $element The image tag.
-	 * @return float|null Width divided by height, or null if either attribute is missing.
+	 * @param string                $src     The image's original src.
+	 * @return float|null Width divided by height, or null if neither source gives both.
 	 */
-	private function get_aspect_ratio( $element ) {
-		$width  = $element->get_attribute( 'width' );
-		$height = $element->get_attribute( 'height' );
+	private function get_aspect_ratio( $element, $src ) {
+		// The file's -WxH suffix first: the attributes can describe a different size than the file.
+		list( $width, $height ) = Image_CDN::parse_dimensions_from_filename( (string) $src );
+		if ( ! $width || ! $height ) {
+			$width  = $element->get_attribute( 'width' );
+			$height = $element->get_attribute( 'height' );
+		}
 
-		if ( ! is_numeric( $width ) || ! is_numeric( $height ) || (float) $width <= 0 || (float) $height <= 0 ) {
+		$width  = $this->to_dimension( $width );
+		$height = $this->to_dimension( $height );
+
+		return $width && $height ? $width / $height : null;
+	}
+
+	/**
+	 * Read a pixel size, as digits only like Image CDN does.
+	 *
+	 * @param mixed $value An attribute or filename value.
+	 * @return int|null The size, or null if it is not a whole number from 1 to 65535.
+	 */
+	private function to_dimension( $value ) {
+		if ( is_int( $value ) ) {
+			$value = (string) $value;
+		}
+
+		// The cap keeps the widened sizes below in int range.
+		if ( ! is_string( $value ) || ! ctype_digit( $value ) || (int) $value < 1 || (int) $value > 65535 ) {
 			return null;
 		}
 
-		return (float) $width / (float) $height;
+		return (int) $value;
 	}
 
 	/**
@@ -191,11 +222,12 @@ class LCP_Optimize_Img_Tag {
 	 *
 	 * @param string     $original_url The original image URL.
 	 * @param float|null $aspect_ratio The image's width divided by its height, if known.
+	 * @param bool       $fit_inside   Whether the image is drawn inside the box (object-fit: contain).
 	 * @return string The srcset for the image.
 	 *
 	 * @since 4.1.0
 	 */
-	private function get_srcset( $original_url, $aspect_ratio = null ) {
+	private function get_srcset( $original_url, $aspect_ratio = null, $fit_inside = false ) {
 		$dimensions = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
 			// The field is optional; the background-image sibling has always carried
@@ -223,12 +255,14 @@ class LCP_Optimize_Img_Tag {
 				$width  = (int) $breakpoint_dimensions['width'];
 				$height = (int) $breakpoint_dimensions['height'];
 
-				// Resize to the image's own proportions, covering the box: a box shaped differently
-				// (object-fit) would otherwise be cropped into the file, where CSS cannot undo it.
+				// Resize to the image's own proportions, covering the box or fitting inside it: a box
+				// shaped differently would otherwise be cropped into the file, where CSS cannot undo it.
 				$file_width  = $width;
 				$file_height = $height;
 				if ( $aspect_ratio ) {
-					$file_width  = max( $width, (int) ceil( $height * $aspect_ratio ) );
+					$width_at_box_height = (int) ceil( $height * $aspect_ratio );
+
+					$file_width  = $fit_inside ? min( $width, $width_at_box_height ) : max( $width, $width_at_box_height );
 					$file_height = (int) round( $file_width / $aspect_ratio );
 				}
 
