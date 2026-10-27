@@ -14,7 +14,9 @@ use function add_query_arg;
 use function admin_url;
 use function apply_filters;
 use function esc_url_raw;
+use function function_exists;
 use function get_bloginfo;
+use function get_current_blog_id;
 use function get_locale;
 use function get_option;
 use function get_site_url;
@@ -57,7 +59,7 @@ class Initial_State {
 				 * Filters the in-admin address "Restore backup" opens, with `{rewindId}` as the placeholder.
 				 * Empty keeps the Jetpack Cloud restore flow.
 				 *
-				 * @since $$next-version$$
+				 * @since 0.7.0
 				 *
 				 * @param string $template Restore URL template, or an empty string.
 				 */
@@ -66,7 +68,7 @@ class Initial_State {
 				 * Filters the in-admin address a link to a backup opens, with `{rewindId}` as the placeholder.
 				 * Empty leaves such links as plain text.
 				 *
-				 * @since $$next-version$$
+				 * @since 0.7.0
 				 *
 				 * @param string $template Backup URL template, or an empty string.
 				 */
@@ -78,6 +80,7 @@ class Initial_State {
 				'wpcomUpgradeUrl'       => $is_wpcom_simple ? self::get_wpcom_upgrade_url( $site_suffix ) : '',
 				'tracksUserData'        => $is_wpcom_simple ? self::get_wpcom_tracks_user_data() : null,
 				'knownThreatsAvailable' => REST_Controller::known_threats_available(),
+				'hiddenGroups'          => $is_wpcom_simple ? self::get_wpcom_hidden_groups() : array(),
 			),
 			'siteData'      => array(
 				'id'                    => Connection_Manager::get_site_id( true ),
@@ -123,6 +126,19 @@ class Initial_State {
 			),
 			'https://wordpress.com/setup/plan-upgrade/'
 		);
+	}
+
+	/**
+	 * Activity groups to hide on a Simple site without backups, such as events left over from an Atomic past.
+	 *
+	 * @return string[]
+	 */
+	private static function get_wpcom_hidden_groups() {
+		if ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'backups-self-serve', get_current_blog_id() ) ) {
+			return array();
+		}
+
+		return array( 'rewind', 'scan' );
 	}
 
 	/**

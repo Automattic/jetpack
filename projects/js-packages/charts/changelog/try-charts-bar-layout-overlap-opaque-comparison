@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Bar chart: Draw comparison bars opaque, in a tint of their primary's color that keeps 3:1 contrast, and deprecate the theme's `barChart.barStyles.comparison.opacity`.

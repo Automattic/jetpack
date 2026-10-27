@@ -109,6 +109,7 @@ export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
 export { ExternalLink, type ExternalLinkProps } from './external-link';
 export { InfoTip, type InfoTipProps } from './info-tip';
 export { InternalLink } from './internal-link';
+export { useStatsUpgradeLinkProps, type StatsUpgradeLinkProps } from './stats-upgrade-link';
 export {
 	PostTitleLink,
 	POST_URL_SEARCH_PARAM,
