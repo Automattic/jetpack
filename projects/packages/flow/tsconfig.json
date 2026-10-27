@@ -1,4 +1,5 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
-	"include": [ "routes/**/*", "packages/**/*", "src/ui/**/*" ]
+	"include": [ "routes/**/*", "packages/**/*", "src/ui/**/*" ],
+	"exclude": [ "src/ui/mailpoet-flow" ]
 }

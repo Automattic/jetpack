@@ -1,0 +1,25 @@
+.mailpoet-automation-editor-add-step-button {
+  appearance: none;
+  background: #dcdcde;
+  border: none;
+  border-radius: 2px;
+  box-shadow: 0 0 0 4px #fbfbfb;
+  cursor: pointer;
+  fill: #2b3337;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  width: 16px;
+
+  &:focus {
+    box-shadow:
+      // space
+      0 0 0 1px #fbfbfb,
+      // focus ring
+      0 0 0 calc(var(--wp-admin-border-width-focus) + 1px)
+        var(--wp-admin-theme-color),
+      // separator space
+      0 0 0 4px #fbfbfb;
+  }
+}

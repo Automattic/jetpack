@@ -1,0 +1,83 @@
+$separator-width: 1px;
+
+.mailpoet-automation-editor-separator {
+  align-items: center;
+  background: #c3c4c7;
+  display: grid;
+  height: 64px;
+  justify-content: center;
+  margin: auto;
+  white-space: nowrap;
+  width: $separator-width;
+}
+
+.mailpoet-automation-editor-separator-curve-root {
+  display: flex;
+}
+
+.mailpoet-automation-editor-separator-curve-root-left,
+.mailpoet-automation-editor-separator-curve-root-right {
+  border-bottom: $separator-width solid #c3c4c7;
+  border-bottom-right-radius: 70px 30px;
+  border-right: $separator-width solid #c3c4c7;
+  height: 20px;
+  justify-self: end;
+  width: 100%;
+
+  &.mailpoet-automation-editor-separator-curve-root-left {
+    margin-right: calc(-1 * $separator-width / 2);
+    transform: scaleX(1);
+  }
+
+  &.mailpoet-automation-editor-separator-curve-root-right {
+    margin-left: calc(-1 * $separator-width / 2);
+    transform: scaleX(-1);
+  }
+}
+
+.mailpoet-automation-editor-separator-curve-leaf-left,
+.mailpoet-automation-editor-separator-curve-leaf-right {
+  $width: 70px;
+
+  &.mailpoet-automation-editor-separator-curve-leaf-left {
+    transform: scaleX(1);
+  }
+
+  &.mailpoet-automation-editor-separator-curve-leaf-right {
+    transform: scaleX(-1);
+  }
+
+  // cover rest of full-width line coming from curve root
+  &:before {
+    background: #fbfbfb;
+    content: '';
+    display: block;
+    height: 20px;
+    position: absolute;
+    right: calc(50% - $width);
+    top: 0;
+    width: calc(100% - $width);
+    z-index: -1;
+  }
+
+  // add curve leaf ending rounded to the bottom
+  &:after {
+    $offset: 0.5px; // vertical offset to prevent artifacts with scale/zoom
+    border-left: $separator-width solid #c3c4c7;
+    border-top: $separator-width solid #c3c4c7;
+    border-top-left-radius: 35px 20px;
+    content: '';
+    display: block;
+    height: 16px + $offset;
+    margin: calc(-1 * ($separator-width + $offset)) auto 0
+      calc(50% - $separator-width / 2);
+    transform-origin: left;
+    width: calc($width + $separator-width / 2);
+  }
+}
+
+.mailpoet-automation-editor-branch-badge {
+  height: 32px;
+  margin: 4px auto;
+  width: 32px;
+}

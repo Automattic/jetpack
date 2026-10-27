@@ -1,0 +1,22 @@
+.mailpoet-automation-add-trigger {
+  align-items: center;
+  border: 1px dashed #c3c4c7;
+  border-radius: 4px;
+  color: #757575;
+  cursor: pointer;
+  display: flex;
+  fill: #757575;
+  height: 73px;
+  justify-content: center;
+  margin: 4px auto;
+  padding: 20px 32px;
+
+  &:focus {
+    box-shadow:
+      // space
+      0 0 0 1px #fbfbfb,
+      // focus ring
+      0 0 0 calc(var(--wp-admin-border-width-focus) + 1px)
+        var(--wp-admin-theme-color);
+  }
+}

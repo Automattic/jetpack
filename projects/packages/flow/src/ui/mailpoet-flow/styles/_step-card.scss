@@ -1,0 +1,33 @@
+// See: https://github.com/WordPress/gutenberg/blob/af7da80dd54d7fe52772890e2cc1b65073db9655/packages/block-editor/src/components/block-card/style.scss
+
+.block-editor-block-card {
+  align-items: flex-start;
+  display: flex;
+  padding: 16px;
+}
+
+.block-editor-block-card__content {
+  flex-grow: 1;
+  margin-bottom: 4px;
+}
+
+.block-editor-block-card__title {
+  font-weight: 500;
+
+  &.block-editor-block-card__title {
+    line-height: 24px;
+    margin: 0 0 4px;
+  }
+}
+
+.block-editor-block-card__description {
+  font-size: 13px;
+}
+
+.block-editor-block-card .block-editor-block-icon {
+  flex: 0 0 24px;
+  height: 24px;
+  margin-left: 0;
+  margin-right: 12px;
+  width: 24px;
+}

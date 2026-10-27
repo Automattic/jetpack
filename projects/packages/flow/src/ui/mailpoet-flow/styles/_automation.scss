@@ -1,0 +1,56 @@
+.mailpoet-automation-editor-automation {
+  background: #fbfbfb;
+  display: grid;
+  flex-grow: 1;
+  grid-template-rows: auto 1fr;
+  overflow: auto;
+  width: 100%;
+}
+
+.mailpoet-automation-editor-automation-wrapper {
+  padding: 0 20px 50px;
+
+  // Fix for action selector popup on small devices
+  .components-popover__content {
+    min-width: 280px;
+  }
+}
+
+.mailpoet-automation-editor-automation-flow {
+  margin: auto;
+  width: max-content;
+}
+
+.mailpoet-automation-editor-automation-row {
+  display: grid;
+  grid-auto-flow: column;
+}
+
+.mailpoet-automation-editor-automation-end {
+  background: #8c8f94;
+  border-radius: 999999px;
+  display: block;
+  fill: white;
+  height: 18px;
+  margin: 4px auto;
+  padding: 3px;
+  width: 18px;
+}
+
+.mailpoet-automation-editor-stats {
+  margin: 50px auto 32px;
+  max-width: 480px;
+  width: 100%;
+
+  .mailpoet-automation-stats-item {
+    line-height: 22px;
+  }
+
+  .mailpoet-automation-stats-label {
+    color: #787c82;
+  }
+
+  .mailpoet-automation-stats-value {
+    font-size: 14px;
+  }
+}

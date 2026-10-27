@@ -43,7 +43,7 @@ export function PromptBox( { value, busy, onChange, onSubmit }: Props ) {
 				/>
 				<Field.Description>
 					{ __(
-						'Describe it in your own words, or drag cards from below. Press Cmd/Ctrl + Enter to build.',
+						'Describe it in your own words, or pick cards below. Press Cmd/Ctrl + Enter to build.',
 						'jetpack-flow-pkg'
 					) }
 				</Field.Description>
