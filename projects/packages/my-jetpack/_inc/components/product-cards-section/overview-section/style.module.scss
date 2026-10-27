@@ -1,49 +1,25 @@
-$gap: 24px;
-$column: max(240px, calc((100% - 2 * #{$gap}) / 3));
+.section {
+	--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+}
 
-.content {
-	container-type: inline-size;
+// The design's 32px heading row: a compact control's height.
+.heading {
+	min-block-size: var(--wpds-dimension-size-md);
 }
 
 // At most three columns; a short row still shares the full width.
 .items {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax($column, 1fr));
-	gap: $gap;
+	grid-template-columns: repeat(auto-fit, minmax(max(240px, calc(100% / 3)), 1fr));
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	// Pushes the outer cells' end borders under the card's clipped edge,
+	// leaving only the inner lines.
+	margin-block-end: -1px;
+	margin-inline-end: -1px;
 
 	> * {
-		padding-inline-start: $gap;
-		border-inline-start: 1px solid var(--jp-gray-5);
-	}
-
-	// Dividers go between items in a row only. The breakpoints are where
-	// the grid drops to two columns (504px) and to one.
-	> :first-child {
-		padding-inline-start: 0;
-		border-inline-start: 0;
-	}
-
-	@container (width < 504px) {
-
-		> * {
-			padding-inline-start: 0;
-			border-inline-start: 0;
-		}
-	}
-
-	@container (504px <= width < 768px) {
-
-		> :nth-child(2n + 1) {
-			padding-inline-start: 0;
-			border-inline-start: 0;
-		}
-	}
-
-	@container (width >= 768px) {
-
-		> :nth-child(3n + 1) {
-			padding-inline-start: 0;
-			border-inline-start: 0;
-		}
+		padding: var(--wpds-dimension-padding-lg);
+		border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		border-inline-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 	}
 }

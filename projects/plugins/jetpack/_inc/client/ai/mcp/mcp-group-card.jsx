@@ -25,7 +25,7 @@ const LABEL_HIDE_OPERATIONS = __( 'Hide operations', 'jetpack' );
  * @param {Function} props.onToggle      - Called with (toolId, enabled).
  * @return {object} Component markup.
  */
-function ToolToggle( { toolId, tool, view, savingToolIds, onToggle } ) {
+export function ToolToggle( { toolId, tool, view, savingToolIds, onToggle } ) {
 	const handleChange = useCallback( checked => onToggle( toolId, checked ), [ toolId, onToggle ] );
 	return (
 		<div id={ getToolDomId( toolId ) } className="jetpack-ai-mcp__tool-row">
