@@ -101,9 +101,9 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 		>
 			<div className="jetpack-flow">
 				{ ! catalog ? (
-					<div className="jetpack-flow-loading">
+					<Stack align="center" justify="center" className="jetpack-flow-loading">
 						{ error ? <Text>{ error }</Text> : <Spinner /> }
-					</div>
+					</Stack>
 				) : (
 					<Stack direction="column" gap="xl">
 						{ error && (

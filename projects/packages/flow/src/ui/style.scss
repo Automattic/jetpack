@@ -16,16 +16,12 @@ body.jetpack-flow {
 }
 
 .jetpack-flow-tabs {
-	display: flex;
 	flex: 0 0 auto;
-	flex-direction: column;
 }
 
 // Fill the viewport so the pagination footer pins to the bottom.
 .jetpack-flow-list {
-	display: flex;
 	flex: 1 1 auto;
-	flex-direction: column;
 	min-block-size: 0;
 }
 
@@ -43,9 +39,6 @@ body.jetpack-flow {
 }
 
 .jetpack-flow-loading {
-	display: flex;
-	align-items: center;
-	justify-content: center;
 	min-block-size: 50vh;
 }
 

@@ -210,7 +210,7 @@ function FlowsStage() {
 
 	return (
 		<FlowPage tab="flows">
-			<div className="jetpack-flow-list">
+			<Stack direction="column" className="jetpack-flow-list">
 				<DataViews
 					data={ data }
 					fields={ fields }
@@ -237,7 +237,7 @@ function FlowsStage() {
 						</EmptyState.Root>
 					}
 				/>
-			</div>
+			</Stack>
 		</FlowPage>
 	);
 }

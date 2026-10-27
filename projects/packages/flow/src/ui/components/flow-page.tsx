@@ -3,7 +3,7 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Page } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Tabs } from '@wordpress/ui';
+import { Stack, Tabs } from '@wordpress/ui';
 import type { ReactNode } from 'react';
 
 type Props = {
@@ -33,6 +33,7 @@ export function FlowPage( { tab, actions, children }: Props ) {
 						navigate( { href: next === 'flows' ? '/flows' : '/' } )
 					}
 					className="jetpack-flow-tabs"
+					render={ <Stack direction="column" /> }
 				>
 					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 						<Tabs.List variant="minimal">
