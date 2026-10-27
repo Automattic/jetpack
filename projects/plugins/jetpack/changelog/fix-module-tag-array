@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Modules: Fix a fatal error on the Modules screen when the tag filter in the address is not plain text.

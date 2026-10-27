@@ -1,6 +1,6 @@
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
-import styles from '../bar-chart.module.scss';
+import { SelectedRing } from '../../private/selected-ring/selected-ring';
 import { createGroupScale } from './band-scale';
 import { computeSlotRect, getValueScaleBaseline } from './comparison-bars-geometry';
 import type { BandScale } from './band-scale';
@@ -9,7 +9,7 @@ import type { FC } from 'react';
 
 /** The slot the keyboard has selected. */
 export type SelectedBar = {
-	/** The data of the bars the slot draws at the selected category, which the ring encloses. */
+	/** The data of the bars the slot draws at the selected category, which the ring encloses; only bars the chart draws (a finite value). */
 	data: DataPointDate[];
 	/** The selected slot. */
 	slotKey: string;
@@ -21,9 +21,10 @@ type AnyScale = ( ( input: unknown ) => number ) &
 	Partial< Pick< BandScale, 'bandwidth' > > & { range: () => unknown[] };
 
 /**
- * Outlines every bar in the keyboard-selected slot.
+ * Marks the keyboard-selected slot with a two-tone ring outside its edge, so the ring reads against any bar color.
  *
  * @param props              - Component props.
+ * @param props.chartId      - The chart's id, which keeps the clip path unique on a page with several charts.
  * @param props.selected     - The selected slot.
  * @param props.slotKeys     - The slots, in the order the band lays them out.
  * @param props.groupPadding - The padding between slots.
@@ -33,13 +34,14 @@ type AnyScale = ( ( input: unknown ) => number ) &
  * @return The ring, or nothing when the slot has no position.
  */
 export const SelectedBarRing: FC< {
+	chartId: string;
 	selected: SelectedBar;
 	slotKeys: string[];
 	groupPadding: number;
 	horizontal: boolean;
 	xAccessor: ( d: DataPointDate ) => string | number | Date | undefined;
 	yAccessor: ( d: DataPointDate ) => number | undefined;
-} > = ( { selected, slotKeys, groupPadding, horizontal, xAccessor, yAccessor } ) => {
+} > = ( { chartId, selected, slotKeys, groupPadding, horizontal, xAccessor, yAccessor } ) => {
 	const context = useContext( DataContext );
 	const bandScale = ( horizontal ? context?.yScale : context?.xScale ) as AnyScale | undefined;
 	const valueScale = ( horizontal ? context?.xScale : context?.yScale ) as AnyScale | undefined;
@@ -55,15 +57,13 @@ export const SelectedBarRing: FC< {
 	const bandPosition = Number(
 		bandScale( ( horizontal ? yAccessor : xAccessor )( category ) as never )
 	);
-	const valuePositions = selected.data
-		.map( datum =>
-			Number( valueScale( Number( ( horizontal ? xAccessor : yAccessor )( datum ) ) as never ) )
-		)
-		.filter( Number.isFinite );
-
-	if ( slotOffset == null || ! Number.isFinite( bandPosition ) || ! valuePositions.length ) {
+	if ( slotOffset == null || ! Number.isFinite( bandPosition ) ) {
 		return null;
 	}
+
+	const valuePositions = selected.data.map( datum =>
+		Number( valueScale( Number( ( horizontal ? xAccessor : yAccessor )( datum ) ) as never ) )
+	);
 
 	const rect = computeSlotRect( {
 		horizontal,
@@ -74,12 +74,11 @@ export const SelectedBarRing: FC< {
 		widthFactor: selected.thickness,
 	} );
 	return (
-		<rect
-			{ ...rect }
-			pointerEvents="none"
-			aria-hidden="true"
-			className={ styles[ 'selected-ring' ] }
-			data-testid="bar-chart-selected-ring"
+		<SelectedRing
+			chartId={ chartId }
+			d={ `M${ rect.x } ${ rect.y }h${ rect.width }v${ rect.height }h${ -rect.width }Z` }
+			side="outside"
+			testId="bar-chart-selected-ring"
 		/>
 	);
 };

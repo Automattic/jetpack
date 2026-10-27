@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
 	MY_JETPACK_SECTION_FEATURES,
@@ -18,7 +18,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 } ) );
 
 // The router boundary is the only thing mocked out of the panel itself: the
-// `onTabSelect` gate and the keyed-remount effect run for real against it.
+// `onTabSelect` gate runs for real against it.
 const mockNavigate = jest.fn();
 let mockSection: string | undefined;
 let mockSearch = '';
@@ -60,7 +60,14 @@ beforeEach( () => {
 	mockIsSimpleSite.mockReturnValue( false );
 	mockSection = undefined;
 	mockSearch = '';
+	setPinnedTabs( false );
 } );
+
+const setPinnedTabs = ( on: boolean ) => {
+	window.myJetpackInitialState = {
+		myJetpackFlags: { headerControls: on },
+	} as unknown as Window[ 'myJetpackInitialState' ];
+};
 
 describe( 'MyJetpackTabPanel', () => {
 	it( 'renders the single Features section directly, with no tab bar, on Simple sites', () => {
@@ -70,7 +77,6 @@ describe( 'MyJetpackTabPanel', () => {
 		render( <MyJetpackTabPanel /> );
 
 		expect( screen.getByTestId( 'tab-content' ) ).toHaveTextContent( MY_JETPACK_SECTION_FEATURES );
-		// The direct-render path renders no TabPanel, so there is no tab bar.
 		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
 		// The canonical Features hash needs no rewrite.
 		expect( mockNavigate ).not.toHaveBeenCalled();
@@ -87,11 +93,10 @@ describe( 'MyJetpackTabPanel', () => {
 		mockSection = MY_JETPACK_SECTION_OVERVIEW;
 
 		render( <MyJetpackTabPanel /> );
-		// Awaiting the query lets TabPanel's async post-mount selection settle in act().
 		await expect( screen.findByRole( 'tablist' ) ).resolves.toBeInTheDocument();
 
 		expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 3 );
-		// Mount and the keyed remount both settle on the current tab: no phantom click.
+		// Mounting on the current tab records no click.
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 		expect( mockNavigate ).not.toHaveBeenCalled();
 		expect( callsFor( 'jetpack_myjetpack_tab_view' ) ).toHaveLength( 1 );
@@ -131,7 +136,12 @@ describe( 'MyJetpackTabPanel', () => {
 	it( 'records one tab click, with the resolved previous tab, on a genuine switch', async () => {
 		mockSection = MY_JETPACK_SECTION_OVERVIEW;
 
-		render( <MyJetpackTabPanel /> );
+		const { rerender } = render( <MyJetpackTabPanel /> );
+		// Like the router, navigating re-renders the panel on the new section before the click lands.
+		mockNavigate.mockImplementationOnce( ( path: string ) => {
+			mockSection = path.slice( 1 );
+			rerender( <MyJetpackTabPanel /> );
+		} );
 		await userEvent.click( screen.getByRole( 'tab', { name: 'Help' } ) );
 
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 1 );
@@ -143,6 +153,16 @@ describe( 'MyJetpackTabPanel', () => {
 			} )
 		);
 		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_HELP }` );
+	} );
+
+	it( 'switches tabs with the arrow keys', async () => {
+		mockSection = MY_JETPACK_SECTION_OVERVIEW;
+
+		render( <MyJetpackTabPanel /> );
+		await userEvent.click( screen.getByRole( 'tab', { name: 'Overview' } ) );
+		await userEvent.keyboard( '{ArrowRight}' );
+
+		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_FEATURES }` );
 	} );
 
 	it( 'redirects the retired Products hash to Features, keeping its query', async () => {
@@ -160,4 +180,52 @@ describe( 'MyJetpackTabPanel', () => {
 		);
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 	} );
+
+	it( 'with the flag on, pins the shared tab strip and leaves out the panel separator', () => {
+		setPinnedTabs( true );
+		mockSection = MY_JETPACK_SECTION_OVERVIEW;
+
+		render( <MyJetpackTabPanel /> );
+
+		// eslint-disable-next-line testing-library/no-node-access -- The strip wrapper has no role to query by.
+		expect( screen.getByRole( 'tablist' ).parentElement ).toHaveClass( 'jp-admin-page-tabs' );
+		const content = within( screen.getByRole( 'tabpanel' ) ).getByTestId( 'tab-content' );
+		// eslint-disable-next-line testing-library/no-node-access -- The separator has no role to query by.
+		expect( content.previousElementSibling ).toBeNull();
+	} );
+
+	it( 'with the flag off, keeps the tab list unpinned and the panel separator', () => {
+		mockSection = MY_JETPACK_SECTION_OVERVIEW;
+
+		render( <MyJetpackTabPanel /> );
+
+		// eslint-disable-next-line testing-library/no-node-access -- The strip wrapper has no role to query by.
+		expect( screen.getByRole( 'tablist' ).parentElement ).not.toHaveClass( 'jp-admin-page-tabs' );
+		const content = within( screen.getByRole( 'tabpanel' ) ).getByTestId( 'tab-content' );
+		// eslint-disable-next-line testing-library/no-node-access -- The separator has no role to query by.
+		expect( content.previousElementSibling ).not.toBeNull();
+	} );
+
+	it.each( [
+		[ 'pinned', true, 0 ],
+		[ 'unpinned', false, 400 ],
+	] )(
+		'with %s tabs, a tab switch leaves the page scrolled to %d',
+		async ( _label, on, scrollTop ) => {
+			setPinnedTabs( on );
+			mockSection = MY_JETPACK_SECTION_OVERVIEW;
+			const scroller = document.body.appendChild( document.createElement( 'div' ) );
+			scroller.className = 'jp-admin-page__content';
+
+			const { rerender } = render( <MyJetpackTabPanel />, { container: scroller } );
+			mockNavigate.mockImplementationOnce( ( path: string ) => {
+				mockSection = path.slice( 1 );
+				rerender( <MyJetpackTabPanel /> );
+			} );
+			scroller.scrollTop = 400;
+			await userEvent.click( screen.getByRole( 'tab', { name: 'Help' } ) );
+
+			expect( scroller.scrollTop ).toBe( scrollTop );
+		}
+	);
 } );

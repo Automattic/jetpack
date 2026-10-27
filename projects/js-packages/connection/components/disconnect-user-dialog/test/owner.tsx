@@ -43,7 +43,7 @@ describe( 'DisconnectUserDialog, for the connection owner', () => {
 		render( <DisconnectUserDialog { ...testProps } /> );
 
 		expect(
-			screen.getByRole( 'dialog', { name: 'Disconnect Owner Account' } )
+			screen.getByRole( 'dialog', { name: 'Disconnect owner account' } )
 		).toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'dialog', { name: 'Disconnect your user account' } )
@@ -59,6 +59,31 @@ describe( 'DisconnectUserDialog, for the connection owner', () => {
 
 		expect( onTransferOwnership ).toHaveBeenCalledTimes( 1 );
 		expect( mockUnlinkUser ).not.toHaveBeenCalled();
+	} );
+
+	it.each( [
+		[ 'reports the transfer click with the host context', 'connectors', 'connectors' ],
+		[ 'reports a null context when the host passes none', undefined, null ],
+	] )( '%s', async ( _name, context, expectedContext ) => {
+		const user = userEvent.setup();
+		render(
+			<DisconnectUserDialog
+				{ ...testProps }
+				context={ context }
+				onTransferOwnership={ jest.fn() }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } ) );
+
+		const trackedClicks = mockRecordEvent.mock.calls.filter(
+			( [ event ] ) => event === 'jetpack_connection_owner_transfer_click'
+		);
+		expect( trackedClicks ).toHaveLength( 1 );
+		expect( trackedClicks[ 0 ][ 1 ] ).toEqual( {
+			location: 'owner_disconnect_dialog',
+			context: expectedContext,
+		} );
 	} );
 
 	// The transfer flow is the way out of this warning, so it is the exit most likely to be
@@ -109,7 +134,7 @@ describe( 'DisconnectUserDialog, for the connection owner', () => {
 		// Success clears isMaster in the store. The dialog the owner opened has to survive that
 		// until its host closes or reloads, rather than becoming the non-owner confirm.
 		expect(
-			screen.getByRole( 'dialog', { name: 'Disconnect Owner Account' } )
+			screen.getByRole( 'dialog', { name: 'Disconnect owner account' } )
 		).toBeInTheDocument();
 	} );
 } );

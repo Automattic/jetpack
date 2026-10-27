@@ -274,7 +274,6 @@ function ReferrersInner() {
 		: __( 'View all referrers', 'jetpack-premium-analytics-pkg' );
 
 	useReportActions( {
-		report: 'referrers',
 		csv: {
 			exporter: referrersCsvExporter,
 			status: { isLoading, isFetching, isError: primary.isError },
