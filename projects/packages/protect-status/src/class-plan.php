@@ -100,7 +100,8 @@ class Plan {
 		if ( null === $has_scan || $force_refresh ) {
 			$products = array_column( Current_Plan::get_products(), 'product_slug' );
 
-			// On WordPress.com, gate Scan on `scan-self-serve`.
+			// WordPress.com's Personal and Premium include `scan` without Scan's UI,
+			// so gate on `scan-self-serve` there, as Jetpack::show_scan_ui() does.
 			$feature            = function_exists( 'wpcom_feature_exists' ) && wpcom_feature_exists( 'scan-self-serve' ) ? 'scan-self-serve' : 'scan';
 			$plan_supports_scan = Current_Plan::supports( $feature, $force_refresh );
 			$has_scan_product   = count( array_intersect( array( 'jetpack_scan', 'jetpack_scan_monthly' ), $products ) ) > 0;

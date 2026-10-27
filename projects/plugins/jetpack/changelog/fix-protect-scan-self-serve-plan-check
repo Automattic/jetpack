@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Jetpack: On WordPress.com, base the Protect card on the vulnerability report for Personal and Premium sites, since their plans don't include Scan.

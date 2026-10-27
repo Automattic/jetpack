@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-On WordPress.com, use scan-self-serve for Scan feature gating.
+Plan: On WordPress.com, count only plans that include Scan's UI as having Scan.
