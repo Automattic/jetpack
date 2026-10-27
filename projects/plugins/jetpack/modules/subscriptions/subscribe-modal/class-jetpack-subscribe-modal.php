@@ -61,9 +61,9 @@ class Jetpack_Subscribe_Modal {
 	public function enqueue_assets() {
 		if ( $this->should_user_see_modal() ) {
 			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
-			$color_css = self::get_global_styles_color_css();
-			if ( $color_css ) {
-				wp_add_inline_style( 'subscribe-modal-css', $color_css );
+			$background_css = self::get_global_styles_background_css();
+			if ( $background_css ) {
+				wp_add_inline_style( 'subscribe-modal-css', $background_css );
 			}
 			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
 
@@ -111,57 +111,61 @@ class Jetpack_Subscribe_Modal {
 	}
 
 	/**
-	 * Gives the modal the site's Global Styles page background and text, the pair its heading and link colors are chosen for.
+	 * Gives the modal the site's Global Styles page background, so the text it inherits from the page stays readable.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string CSS, or an empty string to keep the stylesheet's colors.
+	 * @return string CSS, or an empty string to keep the stylesheet's background.
 	 */
-	public static function get_global_styles_color_css() {
+	public static function get_global_styles_background_css() {
 		// Read the whole tree: for a missing path, wp_get_global_styles() returns every style instead of null.
 		$styles = wp_get_global_styles();
-		$colors = $styles['color'] ?? array();
-		// A page image covers the solid color, and the server cannot tell what it shows.
-		if ( ! empty( $styles['background']['backgroundImage'] ) ) {
-			return '';
-		}
-		$pair = array();
-		foreach ( array( 'background', 'text', 'gradient' ) as $key ) {
-			$value = $colors[ $key ] ?? '';
-			if ( 'gradient' === $key && '' === $value ) {
-				continue;
-			}
-			if ( ! is_string( $value ) ) {
-				return '';
-			}
-			// Preset references are stored as var:preset|color|slug.
-			if ( str_starts_with( $value, 'var:' ) ) {
-				$value = 'var(--wp--' . str_replace( '|', '--', substr( $value, 4 ) ) . ')';
-			}
-			if ( ! preg_match( '/^[\w#(),.%\s-]+$/', $value ) ) {
-				return '';
-			}
-			$pair[ $key ] = $value;
-		}
-
-		if ( $pair['background'] === $pair['text'] ) {
+		// The server cannot tell what a page image shows. Removing a theme's image stores 'none'.
+		$image = $styles['background']['backgroundImage'] ?? null;
+		if ( ! empty( $image ) && 'none' !== $image ) {
 			return '';
 		}
 
-		// A saved or theme-supplied template was styled against trunk's light panel, so only the plugin's default changes.
+		$declarations = wp_style_engine_get_styles(
+			array(
+				'color'      => array(
+					'background' => $styles['color']['background'] ?? null,
+					'gradient'   => $styles['color']['gradient'] ?? null,
+				),
+				'background' => array( 'gradient' => $styles['background']['gradient'] ?? null ),
+			)
+		)['declarations'] ?? array();
+		foreach ( $declarations as $property => $value ) {
+			// The style engine returns values unfiltered, so only accept those core's CSS filter leaves intact.
+			$declaration = $property . ': ' . $value;
+			if ( esc_html( $declaration ) !== $declaration || safecss_filter_attr( $declaration ) !== $declaration ) {
+				return '';
+			}
+		}
+
+		$css = array();
+		if ( isset( $declarations['background-color'] ) ) {
+			$css[] = '--jetpack-subscribe-modal--page-background: ' . $declarations['background-color'] . ';';
+		}
+		// A color.gradient value is a `background` shorthand, which resets the color the stylesheet sets.
+		if ( isset( $declarations['background'] ) ) {
+			$css[] = 'background: ' . $declarations['background'] . ';';
+			$css[] = 'background-color: var(--jetpack-subscribe-modal--page-background, #fefefe);';
+		}
+		if ( isset( $declarations['background-image'] ) ) {
+			$css[] = 'background-image: ' . $declarations['background-image'] . ';';
+		}
+		if ( ! $css ) {
+			return '';
+		}
+
+		// A saved template whose blocks set their own colors was styled against the light panel.
 		$template = get_block_template( self::get_block_template_part_id(), 'wp_template_part' );
-		if ( $template && 'plugin' !== $template->source ) {
+		if ( $template && 'plugin' !== $template->source && preg_match( '/\bhas-(?:text-color|link-color|inline-color|background)(?![\w-])/', $template->content ) ) {
 			return '';
 		}
 
-		// Stack the page's gradient and color as core paints the page. The separate background-color keeps
-		// the stylesheet's opaque base even when a missing preset variable voids the whole shorthand.
-		return sprintf(
-			'.jetpack-subscribe-modal__modal-content { background: %1$slinear-gradient( %2$s, %2$s ); background-color: var(--jetpack-subscribe-modal--background-color); color: %3$s; }',
-			isset( $pair['gradient'] ) ? $pair['gradient'] . ', ' : '',
-			$pair['background'],
-			$pair['text']
-		);
+		return '.jetpack-subscribe-modal__modal-content { ' . implode( ' ', $css ) . ' }';
 	}
 
 	/**
