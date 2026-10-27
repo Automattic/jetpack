@@ -52,7 +52,7 @@ const Tab: FC< TabProps > = ( { metric, label, count, isLoading, isSelected, onS
 				variant="heading-2xl"
 				title={ ! isLoading && Number.isFinite( count ) ? String( count ) : undefined }
 			>
-				{ isLoading ? <LoadingBlock width="2em" height="1em" /> : formatNumber( count ?? 0 ) }
+				{ isLoading ? <LoadingBlock width="2em" height="1lh" /> : formatNumber( count ?? 0 ) }
 			</Text>
 		</Button>
 	);
