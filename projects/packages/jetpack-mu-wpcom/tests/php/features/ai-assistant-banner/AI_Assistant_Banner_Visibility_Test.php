@@ -46,6 +46,16 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 		Constants::clear_constants();
 		delete_option( 'big_sky_enable' );
 		delete_option( 'jetpack_active_plan' );
+		$reset_plan_cache = Closure::bind(
+			/** @phan-closure-scope \Automattic\Jetpack\Current_Plan */
+			static function () {
+				// An empty array is a cache miss for Current_Plan::get().
+				self::$active_plan_cache = array();
+			},
+			null,
+			Current_Plan::class
+		);
+		$reset_plan_cache();
 		parent::tear_down();
 	}
 
