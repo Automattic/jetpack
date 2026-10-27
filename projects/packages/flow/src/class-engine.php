@@ -280,6 +280,27 @@ class Engine {
 					true
 				);
 				return is_wp_error( $id ) ? $id : true;
+
+			case 'create_draft_page':
+				$id = wp_insert_post(
+					array(
+						'post_type'    => 'page',
+						'post_title'   => $c['title'] ?? '',
+						'post_content' => $c['content'] ?? '',
+						'post_status'  => 'draft',
+					),
+					true
+				);
+				return is_wp_error( $id ) ? $id : true;
+
+			case 'create_user':
+				return self::create_user( $c );
+
+			case 'add_media':
+				return self::add_media( $c );
+
+			case 'akismet_check':
+				return self::akismet_check( $c, $payload );
 		}
 
 		/**
@@ -292,6 +313,139 @@ class Engine {
 		 * @param array          $payload Trigger payload.
 		 */
 		return apply_filters( "jetpack_flow_run_action_{$type}", new \WP_Error( 'unknown_action', __( 'Unknown action.', 'jetpack-flow-pkg' ) ), $c, $payload );
+	}
+
+	/**
+	 * Create a user and send them the new-account email.
+	 *
+	 * @param array $c Config with tokens replaced.
+	 * @return true|\WP_Error
+	 */
+	private static function create_user( $c ) {
+		$email = sanitize_email( $c['email'] ?? '' );
+		if ( ! is_email( $email ) ) {
+			return new \WP_Error( 'invalid_email', __( 'Invalid email address.', 'jetpack-flow-pkg' ) );
+		}
+
+		$username = sanitize_user( $c['username'] ?? '', true );
+		if ( '' === $username ) {
+			$username = sanitize_user( strstr( $email, '@', true ), true );
+		}
+
+		$role = sanitize_key( $c['role'] ?? '' );
+		$id   = wp_insert_user(
+			array(
+				'user_login' => $username,
+				'user_email' => $email,
+				'first_name' => sanitize_text_field( $c['first_name'] ?? '' ),
+				'user_pass'  => wp_generate_password( 24 ),
+				'role'       => get_role( $role ) ? $role : get_option( 'default_role' ),
+			)
+		);
+		if ( is_wp_error( $id ) ) {
+			return $id;
+		}
+
+		wp_new_user_notification( $id, null, 'user' );
+		return true;
+	}
+
+	/**
+	 * Download a file into the media library.
+	 *
+	 * @param array $c Config with tokens replaced.
+	 * @return true|\WP_Error
+	 */
+	private static function add_media( $c ) {
+		$url = $c['url'] ?? '';
+		if ( ! wp_http_validate_url( $url ) ) {
+			return new \WP_Error( 'invalid_url', __( 'Invalid URL.', 'jetpack-flow-pkg' ) );
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$tmp = download_url( $url );
+		if ( is_wp_error( $tmp ) ) {
+			return $tmp;
+		}
+
+		$name = basename( (string) wp_parse_url( $url, PHP_URL_PATH ) );
+		$id   = media_handle_sideload(
+			array(
+				'name'     => '' === $name ? 'flow-media' : $name,
+				'tmp_name' => $tmp,
+			),
+			0,
+			'' === ( $c['title'] ?? '' ) ? null : $c['title']
+		);
+		if ( is_wp_error( $id ) ) {
+			wp_delete_file( $tmp );
+			return $id;
+		}
+		return true;
+	}
+
+	/**
+	 * Ask Akismet whether some content is spam, and optionally email the verdict.
+	 *
+	 * @param array $c       Config with tokens replaced.
+	 * @param array $payload Trigger payload.
+	 * @return true|\WP_Error
+	 */
+	private static function akismet_check( $c, $payload ) {
+		if ( ! class_exists( 'Akismet' ) || ! method_exists( 'Akismet', 'http_post' ) ) {
+			return new \WP_Error( 'akismet_missing', __( 'Akismet is not active.', 'jetpack-flow-pkg' ) );
+		}
+
+		$fields = array(
+			'blog'                 => home_url(),
+			'blog_lang'            => get_locale(),
+			'blog_charset'         => get_option( 'blog_charset' ),
+			'comment_type'         => 'contact-form',
+			'comment_author'       => $c['name'] ?? '',
+			'comment_author_email' => $c['email'] ?? '',
+			'comment_content'      => $c['content'] ?? '',
+		);
+		if ( ! empty( $payload['entry_url'] ) ) {
+			$fields['permalink'] = $payload['entry_url'];
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Provided by Akismet.
+		$response = \Akismet::http_post( http_build_query( $fields, '', '&' ), 'comment-check' );
+		if ( ! is_array( $response ) || empty( $response[1] ) ) {
+			return new \WP_Error( 'akismet_failed', __( 'Akismet could not check the content.', 'jetpack-flow-pkg' ) );
+		}
+
+		$is_spam = 'true' === trim( (string) $response[1] );
+
+		/**
+		 * Fires after Flow asks Akismet about some content.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool  $is_spam Whether Akismet considers the content spam.
+		 * @param array $fields  The content that was checked.
+		 */
+		do_action( 'jetpack_flow_akismet_checked', $is_spam, $fields );
+
+		$notify = sanitize_email( $c['notify_email'] ?? '' );
+		if ( $is_spam && is_email( $notify ) ) {
+			wp_mail(
+				$notify,
+				/* translators: %s: site name. */
+				sprintf( __( '[%s] Akismet flagged content as spam', 'jetpack-flow-pkg' ), wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ) ),
+				sprintf(
+					/* translators: 1: author name, 2: author email, 3: content. */
+					__( "Author: %1\$s\nEmail: %2\$s\n\n%3\$s", 'jetpack-flow-pkg' ),
+					$fields['comment_author'],
+					$fields['comment_author_email'],
+					$fields['comment_content']
+				)
+			);
+		}
+		return true;
 	}
 
 	/**
@@ -459,7 +613,6 @@ class Engine {
 				);
 
 			case 'comment_posted':
-			case 'comment_held_for_spam':
 			case 'comment_spam_caught':
 				$comment = get_comment( $args[0] ?? 0 );
 				if ( ! $comment ) {

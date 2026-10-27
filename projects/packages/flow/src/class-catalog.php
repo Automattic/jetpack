@@ -118,15 +118,6 @@ class Catalog {
 				'tokens'      => array( 'name', 'email', 'message', 'post_title', 'post_url' ),
 				'available'   => true,
 			),
-			'comment_held_for_spam'     => array(
-				'label'       => __( 'Comment held for spam', 'jetpack-flow-pkg' ),
-				'description' => __( 'A comment is marked as spam when it arrives.', 'jetpack-flow-pkg' ),
-				'product'     => 'wordpress',
-				'hook'        => 'comment_post',
-				'args'        => 2,
-				'tokens'      => array( 'name', 'email', 'message', 'post_title', 'post_url' ),
-				'available'   => true,
-			),
 			'schedule_daily'            => array(
 				'label'       => __( 'Every day', 'jetpack-flow-pkg' ),
 				'description' => __( 'Runs once a day.', 'jetpack-flow-pkg' ),
@@ -189,8 +180,8 @@ class Catalog {
 				'inbound'     => true,
 			),
 			'form_spam_caught'          => array(
-				'label'       => __( 'Akismet catches form spam', 'jetpack-flow-pkg' ),
-				'description' => __( 'A Jetpack Form submission is flagged as spam.', 'jetpack-flow-pkg' ),
+				'label'       => __( 'Form submission held for spam', 'jetpack-flow-pkg' ),
+				'description' => __( 'Akismet flags a Jetpack Form submission as spam.', 'jetpack-flow-pkg' ),
 				'product'     => 'akismet',
 				'hook'        => 'grunion_after_feedback_post_inserted',
 				'args'        => 4,
@@ -199,8 +190,8 @@ class Catalog {
 				'requires'    => $akismet ? 'jetpack' : 'akismet',
 			),
 			'comment_spam_caught'       => array(
-				'label'       => __( 'Akismet catches comment spam', 'jetpack-flow-pkg' ),
-				'description' => __( 'Akismet marks a comment as spam.', 'jetpack-flow-pkg' ),
+				'label'       => __( 'Comment held for spam', 'jetpack-flow-pkg' ),
+				'description' => __( 'Akismet flags a comment as spam.', 'jetpack-flow-pkg' ),
 				'product'     => 'akismet',
 				'hook'        => 'comment_post',
 				'args'        => 2,
@@ -353,6 +344,38 @@ class Catalog {
 				),
 				'available'   => true,
 			),
+			'create_draft_page'      => array(
+				'label'       => __( 'Create a draft page', 'jetpack-flow-pkg' ),
+				'description' => __( 'Save a draft page with the trigger data.', 'jetpack-flow-pkg' ),
+				'product'     => 'wordpress',
+				'fields'      => array(
+					$text( 'title', __( 'Title', 'jetpack-flow-pkg' ), true ),
+					$text( 'content', __( 'Content', 'jetpack-flow-pkg' ), false, 'textarea' ),
+				),
+				'available'   => true,
+			),
+			'create_user'            => array(
+				'label'       => __( 'Create a new user', 'jetpack-flow-pkg' ),
+				'description' => __( 'Add a user account and email them a link to set their password.', 'jetpack-flow-pkg' ),
+				'product'     => 'wordpress',
+				'fields'      => array(
+					$text( 'email', __( 'Email', 'jetpack-flow-pkg' ), true, 'text', array( 'default' => '{{email}}' ) ),
+					$text( 'username', __( 'Username', 'jetpack-flow-pkg' ) ),
+					$text( 'first_name', __( 'First name', 'jetpack-flow-pkg' ) ),
+					$text( 'role', __( 'Role', 'jetpack-flow-pkg' ), false, 'role', array( 'default' => 'subscriber' ) ),
+				),
+				'available'   => true,
+			),
+			'add_media'              => array(
+				'label'       => __( 'Add new media', 'jetpack-flow-pkg' ),
+				'description' => __( 'Download a file from a URL into the media library.', 'jetpack-flow-pkg' ),
+				'product'     => 'wordpress',
+				'fields'      => array(
+					$text( 'url', __( 'File URL', 'jetpack-flow-pkg' ), true, 'url' ),
+					$text( 'title', __( 'Title', 'jetpack-flow-pkg' ) ),
+				),
+				'available'   => true,
+			),
 			'webhook'                => array(
 				'label'       => __( 'Send a webhook', 'jetpack-flow-pkg' ),
 				'description' => __( 'Send the trigger data to any HTTPS URL.', 'jetpack-flow-pkg' ),
@@ -481,6 +504,19 @@ class Catalog {
 				),
 				'available'   => (bool) $abilities,
 				'requires'    => 'jetpack',
+			),
+			'akismet_check'          => array(
+				'label'       => __( 'Check content with Akismet', 'jetpack-flow-pkg' ),
+				'description' => __( 'Ask Akismet whether a piece of content is spam, and email a warning if it is.', 'jetpack-flow-pkg' ),
+				'product'     => 'akismet',
+				'fields'      => array(
+					$text( 'content', __( 'Content to check', 'jetpack-flow-pkg' ), true, 'textarea', array( 'default' => '{{message}}' ) ),
+					$text( 'email', __( 'Author email', 'jetpack-flow-pkg' ), false, 'text', array( 'default' => '{{email}}' ) ),
+					$text( 'name', __( 'Author name', 'jetpack-flow-pkg' ), false, 'text', array( 'default' => '{{name}}' ) ),
+					$text( 'notify_email', __( 'Email me if it is spam', 'jetpack-flow-pkg' ), false, 'email' ),
+				),
+				'available'   => class_exists( 'Akismet' ),
+				'requires'    => 'akismet',
 			),
 			'mailpoet_subscribe'     => array(
 				'label'       => __( 'Add to MailPoet list', 'jetpack-flow-pkg' ),
