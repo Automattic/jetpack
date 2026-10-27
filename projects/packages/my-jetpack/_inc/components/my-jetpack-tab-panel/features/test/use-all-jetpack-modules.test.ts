@@ -1,10 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement } from 'react';
 import { getForcedReason, useFeatureStates } from '../feature-state';
 import { useAllJetpackModules, withoutPluginForcedOverrides } from '../use-all-jetpack-modules';
-import { useMainFeatures } from '../use-main-features';
+import { useBulkFeatureSwitch } from '../use-bulk-feature-switch';
+import { QUERY_KEY, useFeaturePlugin, useMainFeatures } from '../use-main-features';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 import type { ReactNode } from 'react';
@@ -13,10 +14,15 @@ const mockModules: { current: Record< string, MyJetpackModule > } = { current: {
 const mockProducts: { current: Record< string, ProductCamelCase > } = { current: {} };
 const mockGetJetpackModules = jest.fn( () => mockModules.current );
 const mockOfflineSeed: { current?: OfflineFeaturesSeed } = {};
+const mockInvalidateResolution = jest.fn();
+const mockFetchModules = jest.fn();
 let mockResolved = true;
 let mockFailed = false;
 
 jest.mock( '@wordpress/api-fetch' );
+jest.mock( '@automattic/jetpack-components', () => ( {
+	useGlobalNotices: () => ( { createSuccessNotice: jest.fn(), createErrorNotice: jest.fn() } ),
+} ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: () => ( { myJetpack: { offlineFeatures: mockOfflineSeed.current } } ),
@@ -29,6 +35,10 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {
+	useDispatch: () => ( {
+		invalidateResolution: mockInvalidateResolution,
+		fetchModules: mockFetchModules,
+	} ),
 	useSelect: ( selector: ( select: unknown ) => unknown ) =>
 		selector( () => ( {
 			getJetpackModules: mockGetJetpackModules,
@@ -42,7 +52,10 @@ jest.mock( '../../../../data/products/use-all-products', () => ( {
 	useAllProducts: () => ( { data: mockProducts.current } ),
 } ) );
 
-jest.mock( '../use-main-features', () => ( { useMainFeatures: jest.fn() } ) );
+jest.mock( '../use-main-features', () => ( {
+	...jest.requireActual( '../use-main-features' ),
+	useMainFeatures: jest.fn(),
+} ) );
 
 const jetpackIs = ( jetpack: MainFeaturesState[ 'jetpack' ] ) =>
 	jest
@@ -159,7 +172,10 @@ describe( 'useAllJetpackModules', () => {
 		}
 	);
 
-	it.each( [ true, false ] )( 'keeps cached plugin controls: %s', offline => {
+	it.each( [
+		[ 'offline keeps the plugin switch until fresh modules arrive', true ],
+		[ 'online records trunk’s host label while modules refresh', false ],
+	] as const )( '%s', ( _scenario, offline ) => {
 		window.myJetpackInitialState = {
 			isOfflineFeatures: offline,
 			myJetpackFlags: {},
@@ -184,9 +200,10 @@ describe( 'useAllJetpackModules', () => {
 			plugins: {},
 		};
 		jest.mocked( useMainFeatures ).mockReturnValue( { ...state, isPlaceholderData: false } );
-		const { result, rerender } = renderHook( current => useFeatureStates( current ), {
+		const view = renderHook( current => useFeatureStates( current ), {
 			initialProps: state,
 		} );
+		let { result, rerender } = view;
 
 		expect( result.current.states[ 0 ].status ).toBe( 'inactive' );
 		expect( result.current.states[ 0 ].control.kind ).toBe( 'plugin' );
@@ -215,6 +232,12 @@ describe( 'useAllJetpackModules', () => {
 		expect( getForcedReason( result.current.states[ 0 ] ) ).toBe(
 			offline ? null : 'Enabled by your host or site administrator'
 		);
+
+		view.unmount();
+		( { result, rerender } = renderHook( current => useFeatureStates( current ), {
+			initialProps: state,
+		} ) );
+		expect( result.current.states[ 0 ].control.kind ).toBe( offline ? 'plugin' : 'module' );
 
 		mockModules.current = {
 			videopress: { ...mod( 'videopress', false ), available: false, activated: false },
@@ -275,4 +298,91 @@ describe( 'the shared module request gate', () => {
 		unmount();
 		client.clear();
 	} );
+} );
+
+describe( 'recovering a failed plugin switch', () => {
+	it.each( [ 'single', 'bulk' ] )(
+		'%s reads features before refreshing module overrides',
+		async mode => {
+			window.myJetpackInitialState = {
+				isOfflineFeatures: true,
+			} as typeof window.myJetpackInitialState;
+			const feature = {
+				slug: 'videopress',
+				product: 'videopress',
+				plugin: 'jetpack-videopress',
+				plugin_status: 'active',
+				in_jetpack: true,
+			} as MainFeature;
+			const active: MainFeaturesState = { jetpack: 'active', features: [ feature ] };
+			const inactive: MainFeaturesState = {
+				...active,
+				features: [ { ...feature, plugin_status: 'inactive' } ],
+			};
+			const client = new QueryClient( {
+				defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+			} );
+			client.setQueryData( QUERY_KEY, active );
+			jest
+				.mocked( useMainFeatures )
+				.mockImplementation( jest.requireActual( '../use-main-features' ).useMainFeatures );
+			mockModules.current = { videopress: { ...mod( 'videopress', 'active' ), available: false } };
+			let settleFeatures: ( state: MainFeaturesState ) => void = () => {};
+			jest.mocked( apiFetch ).mockImplementation( ( { method } ) =>
+				method === 'POST'
+					? Promise.reject( new Error( 'Switch failed after deactivation' ) )
+					: new Promise( resolve => {
+							settleFeatures = resolve;
+						} )
+			);
+			const readWith: MainFeaturePluginStatus[] = [];
+			const deliverHostOverride = () => {
+				readWith.push(
+					client.getQueryData< MainFeaturesState >( QUERY_KEY )!.features[ 0 ].plugin_status
+				);
+				mockModules.current = {
+					videopress: { ...mod( 'videopress', 'active' ), available: false },
+				};
+			};
+			mockInvalidateResolution.mockReset().mockImplementation( deliverHostOverride );
+			mockFetchModules.mockReset().mockImplementation( async () => {
+				deliverHostOverride();
+				return true;
+			} );
+			const { result, rerender, unmount } = renderHook(
+				() => ( {
+					states: useFeatureStates( useMainFeatures() ).states,
+					plugin: useFeaturePlugin( 'jetpack-videopress', 'VideoPress' ),
+					bulk: useBulkFeatureSwitch(),
+				} ),
+				{
+					wrapper: ( { children }: { children: ReactNode } ) =>
+						createElement( QueryClientProvider, { client }, children ),
+				}
+			);
+			let request: Promise< unknown >;
+			act( () => {
+				request =
+					mode === 'single'
+						? result.current.plugin.run( 'deactivate' )
+						: result.current.bulk.run( result.current.states, false );
+			} );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( { path: '/wpcom/v2/my-jetpack/site/features' } )
+			);
+			rerender();
+			await act( async () => {
+				settleFeatures( inactive );
+				await request;
+			} );
+			rerender();
+			expect( result.current.states[ 0 ].control.kind ).toBe( 'module' );
+			expect( getForcedReason( result.current.states[ 0 ] ) ).toBe(
+				'Enabled by your host or site administrator'
+			);
+			expect( readWith ).toEqual( [ 'inactive' ] );
+			unmount();
+			client.clear();
+		}
+	);
 } );

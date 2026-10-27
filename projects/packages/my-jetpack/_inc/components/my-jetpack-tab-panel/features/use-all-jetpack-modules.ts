@@ -1,6 +1,6 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useSelect } from '@wordpress/data';
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { useAllProducts } from '../../../data/products/use-all-products';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { MyJetpackModule, JetpackModuleSlug } from '../../../types';
@@ -8,6 +8,10 @@ import { getProductModules } from './mappings';
 import { useMainFeatures } from './use-main-features';
 
 const NO_MODULES: Record< string, MyJetpackModule > = {};
+const offlineModuleSnapshots = new WeakMap<
+	Record< string, MyJetpackModule >,
+	Record< string, MyJetpackModule >
+>();
 
 /**
  * Drop the forced-on override that a product's own standalone plugin causes.
@@ -74,14 +78,10 @@ export function useAllJetpackModules(): {
 	);
 	const { data: products } = useAllProducts();
 	const localFeatures = isOfflineFeatures() ? state.features : null;
-	const cachedModules = useRef( { source: modules, normalized: modules } );
 
 	return useMemo( () => {
-		// Keep a plugin's cleared override on the cached module list until its replacement arrives.
-		const source =
-			localFeatures && cachedModules.current.source === modules
-				? cachedModules.current.normalized
-				: modules;
+		// Keep the plugin switch usable after deactivation: the cached list still carries its forced override.
+		const source = localFeatures ? ( offlineModuleSnapshots.get( modules ) ?? modules ) : modules;
 		const normalized = withoutPluginForcedOverrides(
 			source,
 			localFeatures
@@ -99,7 +99,9 @@ export function useAllJetpackModules(): {
 					)
 				: products
 		);
-		cachedModules.current = { source: modules, normalized };
+		if ( localFeatures ) {
+			offlineModuleSnapshots.set( modules, normalized );
+		}
 
 		return {
 			modules: normalized as Record< JetpackModuleSlug, MyJetpackModule >,

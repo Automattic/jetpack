@@ -168,7 +168,7 @@ export function useBulkFeatureSwitch() {
 			} catch ( error ) {
 				// The request as a whole failed, so the site may have switched some, all or none.
 				failedSlugs = targets.map( state => state.feature.slug );
-				queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
+				await queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 				await fetchModules();
 				createErrorNotice(
 					( error as { message?: string } )?.message ||

@@ -176,9 +176,9 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 
 			createSuccessNotice( message );
 		},
-		onError: ( error: { message?: string }, { action } ) => {
+		onError: async ( error: { message?: string }, { action } ) => {
 			// Read the site again: the plugin may well have been switched before whatever failed.
-			queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
+			await queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 			invalidateResolution( 'getJetpackModules', [] );
 
 			// Shown on the feature itself instead (see useInstallError).
