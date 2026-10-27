@@ -62,8 +62,8 @@ function PlanChoice() {
 				) }
 				<PricingGrid
 					yearlyPrice={ product?.cost }
-					// Prices nothing until the currency is known, so a visitor billed in another one never sees dollars first.
-					currencyCode={ product?.currency_code ?? ( isPending ? undefined : 'USD' ) }
+					currencyCode={ product?.currency_code }
+					isPriceLoading={ isPending }
 					pendingPlan={ pendingPlan }
 					onChoose={ choose }
 				/>

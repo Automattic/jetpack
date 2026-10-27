@@ -33,8 +33,10 @@ type Feature = {
 type PricingGridProps = {
 	/** Yearly price of the paid plan; the paid column shows no price without it. */
 	yearlyPrice?: number | null;
-	/** Both columns hold a placeholder until it is known. */
+	/** Both columns show no price without it, so nobody sees a currency they are not billed in. */
 	currencyCode?: string;
+	/** Whether the price is still on its way; the empty price slots pulse meanwhile. */
+	isPriceLoading: boolean;
 	/** The choice whose registration is in flight; every button waits for it. */
 	pendingPlan: Plan | null;
 	onChoose: ( plan: Exclude< Plan, 'existing' > ) => void;
@@ -103,19 +105,23 @@ function renderItems( features: Feature[], plan: 'paid' | 'free' ) {
 }
 
 /**
- * Holds the space of the price it stands in for, so the buttons below do not move when the price arrives.
+ * Holds the space of the price it stands in for, so both columns' buttons stay in line whether or not a price arrives.
  *
- * @param props        - Component props.
- * @param props.legend - The legend the price will show, which sets how many lines it takes.
+ * @param props           - Component props.
+ * @param props.legend    - The legend the price would show, which sets how many lines it takes.
+ * @param props.isLoading - Whether the price is still on its way.
  * @return The placeholder.
  */
-function PricePlaceholder( { legend }: { legend: string } ) {
+function PricePlaceholder( { legend, isLoading }: { legend: string; isLoading: boolean } ) {
 	return (
-		<div className="jetpack-premium-analytics-pricing-grid__price-placeholder" aria-busy="true">
+		<div
+			className="jetpack-premium-analytics-pricing-grid__price-placeholder"
+			aria-busy={ isLoading || undefined }
+		>
 			<div aria-hidden="true" className="jetpack-premium-analytics-pricing-grid__price-reserve">
 				<ProductPrice price={ 0 } currency="USD" legend={ legend } />
 			</div>
-			<Skeleton className="jetpack-premium-analytics-pricing-grid__price-pulse" />
+			{ isLoading && <Skeleton className="jetpack-premium-analytics-pricing-grid__price-pulse" /> }
 		</div>
 	);
 }
@@ -123,16 +129,18 @@ function PricePlaceholder( { legend }: { legend: string } ) {
 /**
  * The Stats plan choice a site sees before it is connected to WordPress.com, on the pricing table the other Jetpack products use.
  *
- * @param props              - Component props.
- * @param props.yearlyPrice  - Yearly price of the paid plan.
- * @param props.currencyCode - Currency of that price.
- * @param props.pendingPlan  - The choice in flight, if any.
- * @param props.onChoose     - Called with the plan the visitor picks.
+ * @param props                - Component props.
+ * @param props.yearlyPrice    - Yearly price of the paid plan.
+ * @param props.currencyCode   - Currency of that price.
+ * @param props.isPriceLoading - Whether the price is still on its way.
+ * @param props.pendingPlan    - The choice in flight, if any.
+ * @param props.onChoose       - Called with the plan the visitor picks.
  * @return The pricing grid.
  */
 export function PricingGrid( {
 	yearlyPrice,
 	currencyCode,
+	isPriceLoading,
 	pendingPlan,
 	onChoose,
 }: PricingGridProps ) {
@@ -155,14 +163,15 @@ export function PricingGrid( {
 				<PricingTableColumn primary>
 					{ [
 						<PricingTableHeader key="header">
-							{ ! currencyCode && <PricePlaceholder legend={ paidLegend } /> }
 							{ yearlyPrice && currencyCode ? (
 								<ProductPrice
 									price={ yearlyPrice / 12 }
 									currency={ currencyCode }
 									legend={ paidLegend }
 								/>
-							) : null }
+							) : (
+								<PricePlaceholder legend={ paidLegend } isLoading={ isPriceLoading } />
+							) }
 							<Button
 								fullWidth
 								disabled={ isBusy }
@@ -181,7 +190,7 @@ export function PricingGrid( {
 							{ currencyCode ? (
 								<ProductPrice price={ 0 } legend="" currency={ currencyCode } hidePriceFraction />
 							) : (
-								<PricePlaceholder legend="" />
+								<PricePlaceholder legend="" isLoading={ isPriceLoading } />
 							) }
 							<Button
 								fullWidth

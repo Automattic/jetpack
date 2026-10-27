@@ -29,6 +29,8 @@ export type Plan = 'free' | 'paid' | 'existing';
 
 type Registration = { authorizeUrl?: string };
 
+type ConnectionStatus = { isRegistered?: boolean };
+
 /** What the Jetpack API client rejects with: the REST error's body on `response`, or a named network error. */
 type RegistrationError = { name?: string; response?: { code?: string; message?: string } };
 
@@ -79,13 +81,9 @@ export function usePlanChoice() {
 		from: CONNECTION_FROM,
 		redirectUri: DASHBOARD_PATH,
 	} );
-	const { registerSite, connectUser } = useDispatch( CONNECTION_STORE_ID ) as {
+	const { registerSite, refreshConnectionStatus } = useDispatch( CONNECTION_STORE_ID ) as {
 		registerSite: ( args: { redirectUri: string; from: string } ) => Promise< Registration >;
-		connectUser: ( args: {
-			from: string;
-			redirectUri: string;
-			redirectFunc: ( url: string ) => void;
-		} ) => Promise< unknown >;
+		refreshConnectionStatus: () => Promise< ConnectionStatus >;
 	};
 
 	// Nothing else identifies a site before it registers, and it ties these events to the checkout.
@@ -101,49 +99,63 @@ export function usePlanChoice() {
 					...properties,
 				} );
 
-			setError( null );
-			setPendingPlan( plan );
-			track( 'register_start' );
-
-			let blogId: number | null;
-
-			try {
-				const registration = await registerSite( {
-					redirectUri: DASHBOARD_PATH,
-					from: CONNECTION_FROM,
-				} );
-				blogId = readBlogId( registration?.authorizeUrl );
-			} catch ( e ) {
-				const failure = ( e ?? {} ) as RegistrationError;
-
+			const fail = ( errorCode: string | undefined, message?: string ) => {
 				// The code, not the message: the message arrives translated and can name the site.
-				track( 'register_failed', { error_code: failure.response?.code ?? failure.name } );
+				track( 'register_failed', { error_code: errorCode } );
 				setError(
-					failure.response?.message ||
+					message ||
 						__(
 							'Jetpack could not connect this site to WordPress.com. Please try again.',
 							'jetpack-premium-analytics-pkg'
 						)
 				);
 				setPendingPlan( null );
+			};
+
+			setError( null );
+			setPendingPlan( plan );
+			track( 'register_start' );
+
+			// The page's connection state is from its load; registering a site connected since then deletes that connection's tokens.
+			let status: ConnectionStatus;
+			try {
+				status = await refreshConnectionStatus();
+			} catch ( e ) {
+				const failure = ( e ?? {} ) as RegistrationError;
+				fail( failure.response?.code ?? failure.name );
+				return;
+			}
+
+			if ( status?.isRegistered ) {
+				navigateTo( plan === 'paid' ? UPGRADE_PATH : DASHBOARD_PATH );
+				return;
+			}
+
+			let authorizeUrl: string | undefined;
+
+			try {
+				const registration = await registerSite( {
+					redirectUri: DASHBOARD_PATH,
+					from: CONNECTION_FROM,
+				} );
+				authorizeUrl = registration?.authorizeUrl;
+			} catch ( e ) {
+				const failure = ( e ?? {} ) as RegistrationError;
+				fail( failure.response?.code ?? failure.name, failure.response?.message );
+				return;
+			}
+
+			if ( ! authorizeUrl ) {
+				fail( 'missing_authorize_url' );
 				return;
 			}
 
 			// The one event carrying both keys, so it joins everything above to what the site does once it has an id.
-			track( 'register_success', { blog_id: blogId } );
+			track( 'register_success', { blog_id: readBlogId( authorizeUrl ) } );
 
-			if ( plan !== 'paid' ) {
-				connectUser( {
-					from: CONNECTION_FROM,
-					redirectUri: DASHBOARD_PATH,
-					redirectFunc: navigateOnceRecorded,
-				} );
-				return;
-			}
-
-			navigateOnceRecorded( UPGRADE_PATH );
+			navigateOnceRecorded( plan === 'paid' ? UPGRADE_PATH : authorizeUrl );
 		},
-		[ trackEvent, siteSuffix, registerSite, connectUser ]
+		[ trackEvent, siteSuffix, registerSite, refreshConnectionStatus ]
 	);
 
 	return {

@@ -45,6 +45,10 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 const navigate = jest.mocked( navigateTo );
 
 let registration: () => Promise< unknown >;
+let connectionStatus: () => Promise< unknown >;
+
+const json = ( body: unknown ) => () =>
+	Promise.resolve( { ok: true, status: 200, headers: new Headers(), json: async () => body } );
 
 /**
  * Answers the connection REST API and the WordPress.com products list.
@@ -57,6 +61,10 @@ function respond( url: string ) {
 		return registration();
 	}
 
+	if ( /jetpack\/v4\/connection(\?|$)/.test( url ) ) {
+		return connectionStatus();
+	}
+
 	return Promise.resolve( {
 		ok: true,
 		status: 200,
@@ -64,8 +72,10 @@ function respond( url: string ) {
 	} );
 }
 
-const registered = ( authorizeUrl: string ) => () =>
-	Promise.resolve( { ok: true, status: 200, json: async () => ( { authorizeUrl } ) } );
+const registered = ( authorizeUrl: string ) => json( { authorizeUrl } );
+
+const requested = ( pattern: RegExp ) =>
+	jest.mocked( globalThis.fetch ).mock.calls.some( ( [ url ] ) => pattern.test( String( url ) ) );
 
 /**
  * Click a plan's button and let the navigation delay run out.
@@ -76,9 +86,7 @@ async function choose( name: string ) {
 	const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
 	await user.click( await screen.findByRole( 'button', { name } ) );
-	await act( async () => {
-		jest.runAllTimers();
-	} );
+	await act( () => jest.runAllTimersAsync() );
 }
 
 describe( 'Connect stage', () => {
@@ -87,6 +95,7 @@ describe( 'Connect stage', () => {
 		queryClient.clear();
 		setIsOfflineMode( false );
 		registration = registered( AUTHORIZE_URL );
+		connectionStatus = json( { isRegistered: false } );
 		recordEvent.mockClear();
 		navigate.mockReset();
 		globalThis.fetch = jest.fn( respond ) as unknown as typeof fetch;
@@ -124,32 +133,68 @@ describe( 'Connect stage', () => {
 	);
 
 	it.each( [
+		[ 'Get Paid Stats', expect.stringContaining( 'p=%2Fupgrade' ) ],
+		[ 'Start for free', 'admin.php?page=jetpack-premium-analytics-wp-admin' ],
+	] )(
+		'does not register "%s" again on a site connected since the page loaded',
+		async ( name, destination ) => {
+			connectionStatus = json( { isRegistered: true } );
+			render( <Stage /> );
+
+			await choose( name );
+
+			expect( requested( /connection\/register/ ) ).toBe( false );
+			expect( navigate ).toHaveBeenCalledWith( destination );
+		}
+	);
+
+	it.each( [
 		[
 			'the request never reaches the site',
-			() => Promise.reject( new Error( 'offline' ) ),
+			() => {
+				registration = () => Promise.reject( new Error( 'offline' ) );
+			},
 			/could not connect this site/,
 			'FetchNetworkError',
 		],
 		[
 			'the site rejects it',
-			() =>
-				Promise.resolve( {
-					ok: false,
-					status: 500,
-					json: async () => ( {
-						code: 'site_inaccessible',
-						message: 'WordPress.com cannot reach this site.',
-					} ),
-				} ),
+			() => {
+				registration = () =>
+					Promise.resolve( {
+						ok: false,
+						status: 500,
+						json: async () => ( {
+							code: 'site_inaccessible',
+							message: 'WordPress.com cannot reach this site.',
+						} ),
+					} );
+			},
 			/cannot reach this site/,
 			'site_inaccessible',
 		],
+		[
+			'the site returns no authorization URL',
+			() => {
+				registration = registered( '' );
+			},
+			/could not connect this site/,
+			'missing_authorize_url',
+		],
+		[
+			'the site cannot say whether it is connected',
+			() => {
+				connectionStatus = () => Promise.reject( new Error( 'offline' ) );
+			},
+			/could not connect this site/,
+			'Error',
+		],
 	] )(
 		'keeps a paid choice on the grid with the reason when %s',
-		async ( _case, failure, message, errorCode ) => {
+		async ( _case, setUp, message, errorCode ) => {
 			// No navigation delay to run out, and the API client's rejection settles on real promise ticks.
 			jest.useRealTimers();
-			registration = failure;
+			setUp();
 			render( <Stage /> );
 
 			await userEvent.click( await screen.findByRole( 'button', { name: 'Get Paid Stats' } ) );
@@ -191,15 +236,22 @@ describe( 'Connect stage', () => {
 		await expect( screen.findByText( '10' ) ).resolves.toBeInTheDocument();
 	} );
 
-	it( 'shows no price, not even the free one, until it knows the currency', async () => {
-		globalThis.fetch = jest.fn( () => new Promise( () => {} ) ) as unknown as typeof fetch;
-		render( <Stage /> );
+	it.each( [
+		[ 'while the price loads', () => new Promise( () => {} ) ],
+		[ 'when the price fails to load', () => Promise.reject( new Error( 'offline' ) ) ],
+	] )(
+		'shows no price, not even the free one, and keeps both price slots %s',
+		async ( _case, products ) => {
+			globalThis.fetch = jest.fn( products ) as unknown as typeof fetch;
+			render( <Stage /> );
 
-		await expect(
-			screen.findByRole( 'button', { name: 'Start for free' } )
-		).resolves.toBeInTheDocument();
-		expect(
-			screen.queryByText( '0', { ignore: '[aria-hidden="true"] *' } )
-		).not.toBeInTheDocument();
-	} );
+			await act( () => jest.runAllTimersAsync() );
+
+			expect(
+				screen.queryByText( '0', { ignore: '[aria-hidden="true"] *' } )
+			).not.toBeInTheDocument();
+			// Each empty slot reserves its height with a hidden price.
+			expect( screen.getAllByText( '0' ) ).toHaveLength( 2 );
+		}
+	);
 } );
