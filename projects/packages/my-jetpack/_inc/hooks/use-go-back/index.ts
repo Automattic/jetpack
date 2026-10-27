@@ -36,7 +36,8 @@ export function useGoBack( {
 
 			event.preventDefault();
 
-			// A tab shown earlier on this page visit is still behind us in history.
+			// A tab shown on this page load is in history; pop back to it instead of pushing `backTo`,
+			// which would leave the screen showing this back link under the browser's Back button.
 			if ( lastTabPath ) {
 				navigate( -1 );
 				return;
