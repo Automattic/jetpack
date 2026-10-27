@@ -99,6 +99,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertTrue( $card['completed'] );
 		$this->assertFalse( $card['in_progress'] );
+		$this->assertFalse( $card['has_draft'] );
 		$this->assertSame( 'Create your first gallery', $card['title'] );
 		$this->assertNull( $card['calypso_path'] );
 	}
@@ -120,6 +121,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		$card = $this->build_card( $task_id, 'Whatever the AI wrote.' );
 
 		$this->assertTrue( $card['in_progress'] );
+		$this->assertTrue( $card['has_draft'] );
 		$this->assertSame( $continue_title, $card['title'] );
 		$this->assertSame( 'Whatever the AI wrote.', $card['subtitle'] );
 		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $card['calypso_path'] );

@@ -53,23 +53,22 @@ const CTA_KIND_LABELS: Record< CtaKind, () => string > = {
  * Resolve the action-specific label for a task's primary CTA, keyed first by task
  * id then by {@link ctaKind}.
  *
- * @param taskId     - The catalog task id.
- * @param inProgress - Whether the task has a saved-but-unpublished draft.
+ * @param task - The task.
  * @return The translated CTA label.
  */
-function getCtaLabel( taskId: string, inProgress: boolean ): string {
+function getCtaLabel( task: EnrichedTask ): string {
 	// The install task's in-progress state means "installed but inactive", so its CTA activates the plugin rather
 	// than resuming a draft.
-	if ( inProgress && taskId === 'install_woocommerce' ) {
+	if ( task.in_progress && task.id === 'install_woocommerce' ) {
 		return __( 'Activate WooCommerce', 'jetpack-mu-wpcom' );
 	}
 
-	// An in-progress task reopens its existing draft, so the CTA invites the user to pick up where they left off.
-	if ( inProgress ) {
+	// A task with a draft reopens it, so the CTA invites the user to pick up where they left off.
+	if ( task.has_draft ) {
 		return __( 'Continue', 'jetpack-mu-wpcom' );
 	}
 
-	switch ( taskId ) {
+	switch ( task.id ) {
 		case 'site_theme_selected':
 			return __( 'Browse themes', 'jetpack-mu-wpcom' );
 		// `add_gallery_page` is not listed here: it is the only id of its kind, so the
@@ -95,7 +94,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 			return __( 'Add subscribers', 'jetpack-mu-wpcom' );
 	}
 
-	return CTA_KIND_LABELS[ ctaKind( taskId ) ]();
+	return CTA_KIND_LABELS[ ctaKind( task.id ) ]();
 }
 
 /**
@@ -220,7 +219,7 @@ export function TaskCard( {
 							loading={ busyAction === 'primary' }
 							disabled={ isLocked }
 						>
-							{ getCtaLabel( task.id, task.in_progress ) }
+							{ getCtaLabel( task ) }
 						</Button>
 					) }
 					{ ! canStart && canMarkComplete && (

@@ -39,6 +39,7 @@ function task( overrides: Partial< EnrichedTask > = {} ): EnrichedTask {
 		title: 'Choose a design',
 		completed: false,
 		in_progress: false,
+		has_draft: false,
 		disabled: false,
 		calypso_path: '/themes/example.com',
 		...overrides,
@@ -90,13 +91,24 @@ describe( 'isTaskActionable', () => {
 		[ 'a launch task with a malformed site URL', { id: 'site_launched' }, 'not-a-url', false ],
 		[
 			'an in-progress task with a draft to reopen',
-			{ id: 'add_about_page', in_progress: true, calypso_path: '/wp-admin/post.php?post=9' },
+			{
+				id: 'add_about_page',
+				in_progress: true,
+				has_draft: true,
+				calypso_path: '/wp-admin/post.php?post=9',
+			},
 			null,
 			true,
 		],
 		[
 			'an in-progress task with no draft path',
-			{ id: 'add_about_page', in_progress: true },
+			{ id: 'add_about_page', in_progress: true, has_draft: true },
+			null,
+			false,
+		],
+		[
+			'a started task without a draft, which still has nothing to create',
+			{ id: 'add_about_page', in_progress: true, calypso_path: null },
 			null,
 			false,
 		],
@@ -232,8 +244,18 @@ describe( 'resolveCtaUrl', () => {
 		],
 		[
 			'reopens the existing draft instead of creating a new one',
-			{ id: 'first_post_published', in_progress: true, calypso_path: '/wp-admin/post.php?post=7' },
+			{
+				id: 'first_post_published',
+				in_progress: true,
+				has_draft: true,
+				calypso_path: '/wp-admin/post.php?post=7',
+			},
 			'/wp-admin/post.php?post=7',
+		],
+		[
+			'creates the draft for a task started elsewhere that has none yet',
+			{ id: 'first_post_published', in_progress: true, calypso_path: '/wp-admin/post-new.php' },
+			'/wp-admin/post.php?post=1',
 		],
 		[
 			'sends launch tasks to the wordpress.com launch flow built from the site URL',
@@ -362,6 +384,7 @@ describe( 'tasksFromFixture', () => {
 			title: 'Woo Products',
 			completed: false,
 			in_progress: false,
+			has_draft: false,
 			disabled: false,
 			calypso_path: null,
 		} );

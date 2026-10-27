@@ -393,6 +393,13 @@ export function TailoredList( {
 					method: 'POST',
 					data: { task_id: task.id },
 				} ).catch( () => {} );
+			} else if ( ! task.in_progress ) {
+				// Every other task is recorded as started, so the Agent chat shows it in progress too.
+				await apiFetch( {
+					path: '/wpcom/v2/ai-launchpad/start-task',
+					method: 'POST',
+					data: { task_id: task.id },
+				} ).catch( () => {} );
 			}
 			if ( url ) {
 				// Keep the button busy through the page unload; clearing it here would flash

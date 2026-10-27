@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+AI Launchpad: Record which tasks were started and add a start-task endpoint, so the task list and the WordPress Agent chat show the same in-progress status.
