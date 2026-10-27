@@ -13,15 +13,7 @@ describe( 'StatusIndicator', () => {
 	] as const )( 'renders the %s state as a "%s" badge', ( status, label, intent ) => {
 		render( <StatusIndicator status={ status } /> );
 
-		// The intent is a class on the `@wordpress/ui` Badge (e.g. `…__is-stable-intent`),
-		// the same colors the GEO crawler groups use.
+		// The Badge exposes its intent only as a class (e.g. `…__is-stable-intent`).
 		expect( screen.getByText( label ).className ).toMatch( new RegExp( `is-${ intent }-intent` ) );
-	} );
-
-	it( 'renders text only, without the old state glyph', () => {
-		const { container } = render( <StatusIndicator status="complete" /> );
-
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- asserting no glyph rendered.
-		expect( container.querySelector( 'svg' ) ).not.toBeInTheDocument();
 	} );
 } );

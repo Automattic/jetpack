@@ -8,11 +8,8 @@ import type { ComponentProps, FC } from 'react';
  */
 export type SettingStatus = 'not-started' | 'in-progress' | 'complete';
 
-// Label and badge intent per state. Pre-resolved at module load (not per render)
-// so the production minifier can't fold the labels into one `__()` call. Intents
-// follow the GEO crawler-group badges: green (`stable`) for done, amber (`medium`)
-// for partly done. "Not started" is neutral (`draft`) rather than the red the GEO
-// tab uses for "Blocked": an untouched module isn't a problem to fix.
+// Label and badge intent per state, resolved at module load so the production
+// minifier can't fold the labels into one `__()` call.
 const STATES: Record<
 	SettingStatus,
 	{ label: string; intent: ComponentProps< typeof Badge >[ 'intent' ] }
