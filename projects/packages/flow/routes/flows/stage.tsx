@@ -47,6 +47,41 @@ function FlowSummary( { flow, catalog }: { flow: Flow; catalog: Catalog } ) {
 	);
 }
 
+const VISIBLE_STEPS = 3;
+
+function StepsList( { flow, catalog }: { flow: Flow; catalog: Catalog | null } ) {
+	const [ expanded, setExpanded ] = useState( false );
+	const hidden = flow.steps.length - VISIBLE_STEPS;
+	const steps = expanded || hidden <= 0 ? flow.steps : flow.steps.slice( 0, VISIBLE_STEPS );
+
+	return (
+		<Stack direction="column" gap="xs" align="flex-start">
+			{ steps.map( step => {
+				const action = catalog?.actions.find( a => a.id === step.type );
+				return (
+					<Stack key={ step.id } align="center" gap="xs">
+						{ action && <ProductIcon product={ action.product } /> }
+						<span>{ action?.label ?? step.type }</span>
+					</Stack>
+				);
+			} ) }
+			{ ! expanded && hidden > 0 && (
+				<Button
+					variant="unstyled"
+					className="jetpack-flow-link"
+					onClick={ () => setExpanded( true ) }
+				>
+					{ sprintf(
+						/* translators: %d: number of actions not shown yet. */
+						_n( '%d more…', '%d more…', hidden, 'jetpack-flow-pkg' ),
+						hidden
+					) }
+				</Button>
+			) }
+		</Stack>
+	);
+}
+
 function FlowsStage() {
 	const navigate = useNavigate();
 	const [ catalog, setCatalog ] = useState< Catalog | null >( null );
@@ -92,21 +127,7 @@ function FlowsStage() {
 					item.steps
 						.map( s => catalog?.actions.find( a => a.id === s.type )?.label ?? s.type )
 						.join( ', ' ),
-				render: ( { item } ) => (
-					<Stack align="center" gap="xs">
-						{ item.steps.slice( 0, 3 ).map( step => {
-							const action = catalog?.actions.find( a => a.id === step.type );
-							return action ? <ProductIcon key={ step.id } product={ action.product } /> : null;
-						} ) }
-						<span>
-							{ sprintf(
-								/* translators: %d: number of actions in a flow. */
-								_n( '%d action', '%d actions', item.steps.length, 'jetpack-flow-pkg' ),
-								item.steps.length
-							) }
-						</span>
-					</Stack>
-				),
+				render: ( { item } ) => <StepsList flow={ item } catalog={ catalog } />,
 			},
 			{
 				id: 'status',

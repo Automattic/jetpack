@@ -220,3 +220,9 @@ body.jetpack-flow {
 		animation: none;
 	}
 }
+
+.jetpack-flow-link {
+	color: var(--wp-admin-theme-color);
+	text-decoration: underline;
+	cursor: pointer;
+}
