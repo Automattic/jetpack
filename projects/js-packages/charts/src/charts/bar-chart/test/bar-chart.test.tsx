@@ -3563,14 +3563,14 @@ describe( 'BarChart', () => {
 					{ label: 'May', value: 80 },
 				],
 				presses: 3,
-				rows: [ 'Views=19', 'Visitors=80' ],
+				rows: [ 'Views=19@1', 'Visitors=80@1' ],
 				nearest: 'Views',
 			},
 			{
 				name: 'ragged series',
 				visitors: [ { label: 'May', value: 80 } ],
 				presses: 2,
-				rows: [ 'Views=19', 'Visitors=80' ],
+				rows: [ 'Views=19@1', 'Visitors=80@0' ],
 				nearest: 'Visitors',
 			},
 		] )(
@@ -3580,9 +3580,14 @@ describe( 'BarChart', () => {
 				const renderTooltip = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
 					<div>
 						<span data-testid="nearest">{ tooltipData?.nearestDatum?.key }</span>
-						{ Object.entries( tooltipData?.datumByKey ?? {} ).map( ( [ key, { datum } ] ) => (
-							<span key={ key } data-testid="row">{ `${ key }=${ datum.value }` }</span>
-						) ) }
+						{ Object.entries( tooltipData?.datumByKey ?? {} ).map(
+							( [ key, { datum, index } ] ) => (
+								<span
+									key={ key }
+									data-testid="row"
+								>{ `${ key }=${ datum.value }@${ index }` }</span>
+							)
+						) }
 					</div>
 				);
 

@@ -47,7 +47,7 @@ import {
 	useBarStops,
 	useOverlapSlots,
 	getSelectedSlot,
-	isSameCategory,
+	membersAt,
 } from './private';
 import { useBarColors } from './use-bar-colors';
 import { useBarLegendItems } from './use-bar-legend-items';
@@ -542,22 +542,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		if ( ! stop ) {
 			return undefined;
 		}
-		const members = primaryEntries.flatMap( ( { series } ) => {
-			const datum = ( series.data as DataPointDate[] ).find( point =>
-				isSameCategory( point, stop.datum )
-			);
-			return datum ? [ { key: series.label, datum } ] : [];
-		} );
-		return {
-			index: stop.index,
-			members: [
-				...members.filter( ( { key } ) => key !== stop.key ),
-				...members.filter( ( { key } ) => key === stop.key ),
-			],
-		};
+		return membersAt( primaryEntries, stop.datum, stop.key );
 	}, [ overlapSlots, selectedIndex, barAt, primaryEntries ] );
 
-	const selectedMembers = selectedSlot ?? selectedGroup;
+	const selectedMembers = selectedSlot?.members ?? selectedGroup;
 
 	const selectedBar = useMemo( (): SelectedBar | undefined => {
 		if ( overlapSlots ) {
@@ -807,10 +795,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										) }
 
 										{ withTooltips && selectedMembers && (
-											<SlotTooltipMembers
-												members={ selectedMembers.members }
-												index={ selectedMembers.index }
-											/>
+											<SlotTooltipMembers members={ selectedMembers } />
 										) }
 										{ withTooltips && (
 											<XYChartTooltip
