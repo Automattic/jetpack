@@ -253,6 +253,39 @@ class Catalog {
 	}
 
 	/**
+	 * AI providers connected on the Connectors page, keyed by provider ID.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function ai_providers() {
+		$providers = array();
+
+		if ( function_exists( 'wp_get_connectors' ) ) {
+			foreach ( (array) wp_get_connectors() as $id => $connector ) {
+				if ( 'ai_provider' === ( $connector['type'] ?? '' ) ) {
+					$providers[ (string) $id ] = (string) ( $connector['name'] ?? $id );
+				}
+			}
+		}
+
+		// Keep only providers that have credentials, when the AI client can tell.
+		if ( $providers && class_exists( '\WordPress\AiClient\AiClient' ) ) {
+			try {
+				$registry = \WordPress\AiClient\AiClient::defaultRegistry();
+				foreach ( array_keys( $providers ) as $id ) {
+					if ( $registry->hasProvider( $id ) && ! $registry->isProviderConfigured( $id ) ) {
+						unset( $providers[ $id ] );
+					}
+				}
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+				// Show every connector if the registry cannot be queried.
+			}
+		}
+
+		return $providers;
+	}
+
+	/**
 	 * Action definitions keyed by ID.
 	 *
 	 * @return array<string,array>
@@ -293,6 +326,19 @@ class Catalog {
 				$abilities[ $ability->get_name() ] = $ability->get_label() ? $ability->get_label() : $ability->get_name();
 			}
 		}
+
+		$ai_providers = self::ai_providers();
+		$ai_ready     = function_exists( 'wp_ai_client_prompt' ) && ( $ai_providers || ! function_exists( 'wp_get_connectors' ) );
+		$provider     = $text(
+			'provider',
+			__( 'AI provider', 'jetpack-flow-pkg' ),
+			false,
+			'select',
+			array(
+				'default' => '',
+				'options' => $opts( array( '' => __( 'Automatic', 'jetpack-flow-pkg' ) ) + $ai_providers ),
+			)
+		);
 
 		$actions = array(
 			'email_user'             => array(
@@ -504,6 +550,55 @@ class Catalog {
 				),
 				'available'   => (bool) $abilities,
 				'requires'    => 'jetpack',
+			),
+			'ai_summarize'           => array(
+				'label'       => __( 'Summarize with AI', 'jetpack-flow-pkg' ),
+				'description' => __( 'Summarize some text. Use {{ai_text}} in the next step.', 'jetpack-flow-pkg' ),
+				'product'     => 'wordpress',
+				'fields'      => array(
+					$provider,
+					$text( 'content', __( 'Text to summarize', 'jetpack-flow-pkg' ), true, 'textarea', array( 'default' => '{{message}}' ) ),
+					$text(
+						'style',
+						__( 'Summary style', 'jetpack-flow-pkg' ),
+						false,
+						'select',
+						array(
+							'default' => 'sentence',
+							'options' => $opts(
+								array(
+									'sentence'  => __( 'One sentence', 'jetpack-flow-pkg' ),
+									'paragraph' => __( 'Short paragraph', 'jetpack-flow-pkg' ),
+									'bullets'   => __( 'Bullet points', 'jetpack-flow-pkg' ),
+								)
+							),
+						)
+					),
+				),
+				'outputs'     => array( 'ai_text' ),
+				'available'   => $ai_ready,
+			),
+			'ai_generate_text'       => array(
+				'label'       => __( 'Write text with AI', 'jetpack-flow-pkg' ),
+				'description' => __( 'Generate text from a prompt. Use {{ai_text}} in the next step.', 'jetpack-flow-pkg' ),
+				'product'     => 'wordpress',
+				'fields'      => array(
+					$provider,
+					$text( 'prompt', __( 'Prompt', 'jetpack-flow-pkg' ), true, 'textarea' ),
+				),
+				'outputs'     => array( 'ai_text' ),
+				'available'   => $ai_ready,
+			),
+			'ai_generate_image'      => array(
+				'label'       => __( 'Generate an image with AI', 'jetpack-flow-pkg' ),
+				'description' => __( 'Generate an image and add it to the media library. Use {{ai_image_url}} in the next step.', 'jetpack-flow-pkg' ),
+				'product'     => 'wordpress',
+				'fields'      => array(
+					$provider,
+					$text( 'prompt', __( 'Image prompt', 'jetpack-flow-pkg' ), true, 'textarea' ),
+				),
+				'outputs'     => array( 'ai_image_url', 'ai_image_id' ),
+				'available'   => $ai_ready,
 			),
 			'akismet_check'          => array(
 				'label'       => __( 'Check content with Akismet', 'jetpack-flow-pkg' ),

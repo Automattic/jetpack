@@ -21,6 +21,8 @@ export type CatalogItem = {
 	requires: string;
 	fields: FieldDef[];
 	tokens: string[];
+	/** Tokens an action adds for the steps after it. */
+	outputs?: string[];
 	inbound?: boolean;
 };
 

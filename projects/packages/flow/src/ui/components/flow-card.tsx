@@ -159,7 +159,15 @@ export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
 											item={ action }
 											config={ step.config }
 											catalog={ catalog }
-											tokens={ trigger?.tokens ?? [] }
+											tokens={ [
+												...( trigger?.tokens ?? [] ),
+												...flow.steps
+													.slice( 0, index )
+													.flatMap(
+														previous =>
+															catalog.actions.find( a => a.id === previous.type )?.outputs ?? []
+													),
+											] }
 											onChange={ config =>
 												onChange( {
 													...flow,
