@@ -1,12 +1,14 @@
 import { DataViews, filterSortAndPaginate, type View } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { published, unseen } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
-import { Tabs } from '@wordpress/ui';
+import { EmptyState, Tabs } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
+import { recordViewChange } from '../../data/threat-events';
 import { CLOSED_INSPECTOR } from '../inspector-params';
 import { THREAT_PARAM, useScan, useSearchParam } from '../scan/store';
-import { getThreatRowActions } from '../scan/threat-row-actions';
+import { useThreatRowActions } from '../scan/threat-row-actions';
 import { createThreatView, getThreatFields } from '../scan/threats-list';
 import useOpenThreat from '../use-open-threat';
 import { HISTORY_STATUS_PARAM, HISTORY_THREAT_PARAM } from './store';
@@ -80,11 +82,19 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 		[ open, status ]
 	);
 	// History only shows with a Scan plan, so ignored threats can always be unignored.
-	const actions = useMemo( () => getThreatRowActions( open, true ), [ open ] );
+	const actions = useThreatRowActions( open, true );
 
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( status === 'fixed' ? fixed : ignored, view, fields ),
 		[ status, fixed, ignored, view, fields ]
+	);
+	const { totalPages } = paginationInfo;
+	const onChangeView = useCallback(
+		( next: View ) => {
+			recordViewChange( view, next, totalPages );
+			setView( next );
+		},
+		[ view, totalPages ]
 	);
 	useArrowKeyNavigation( data, selected, getItemId, open );
 
@@ -112,15 +122,39 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 			</div>
 			<DataViews
 				empty={
-					status === 'fixed'
-						? __( 'Threats Scan fixes will appear here.', 'jetpack-protect-pkg' )
-						: __( 'Threats you ignore will appear here.', 'jetpack-protect-pkg' )
+					status === 'fixed' ? (
+						<EmptyState.Root className="jp-protect-history-empty">
+							<EmptyState.Icon icon={ published } />
+							<EmptyState.Title>
+								{ __( 'No fixed threats yet', 'jetpack-protect-pkg' ) }
+							</EmptyState.Title>
+							<EmptyState.Description>
+								{ __(
+									'When Scan fixes a threat on your site, it will be listed here with the date it was fixed.',
+									'jetpack-protect-pkg'
+								) }
+							</EmptyState.Description>
+						</EmptyState.Root>
+					) : (
+						<EmptyState.Root className="jp-protect-history-empty">
+							<EmptyState.Icon icon={ unseen } />
+							<EmptyState.Title>
+								{ __( 'No ignored threats', 'jetpack-protect-pkg' ) }
+							</EmptyState.Title>
+							<EmptyState.Description>
+								{ __(
+									'Threats you ignore will be listed here, where you can unignore them at any time.',
+									'jetpack-protect-pkg'
+								) }
+							</EmptyState.Description>
+						</EmptyState.Root>
+					)
 				}
 				data={ data }
 				fields={ fields }
 				actions={ actions }
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ onChangeView }
 				paginationInfo={ paginationInfo }
 				defaultLayouts={ DEFAULT_LAYOUTS }
 				getItemId={ getItemId }

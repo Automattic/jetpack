@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Registers the flag that retires the classic Stats page in favor of Stats v2.
  *
- * @since $$next-version$$
+ * @since 16.4
  */
 class Jetpack_Stats_Feature_Flags {
 

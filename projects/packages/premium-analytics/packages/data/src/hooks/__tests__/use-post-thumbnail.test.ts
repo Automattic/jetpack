@@ -167,6 +167,49 @@ describe( 'usePostThumbnails', () => {
 		);
 	} );
 
+	it.each( [
+		[ '150 posts', { post: 150 }, { post: 2, attachment: 2 } ],
+		[ '150 posts and 150 pages', { post: 150, page: 150 }, { post: 2, page: 2, attachment: 3 } ],
+	] )(
+		'resolves every thumbnail for %s in batches of at most 100',
+		( _description, countsByType: Record< string, number >, expectedBatches ) => {
+			const rows: { id: number; type: string }[] = [];
+			const records: Record< string, unknown[] > = { attachment: [] };
+			let id = 0;
+			for ( const [ type, count ] of Object.entries( countsByType ) ) {
+				records[ type ] = [];
+				for ( let index = 0; index < count; index++ ) {
+					id++;
+					rows.push( { id, type } );
+					records[ type ].push( { id, featured_media: 1000 + id } );
+					records.attachment.push( {
+						id: 1000 + id,
+						source_url: `https://example.com/${ id }.jpg`,
+					} );
+				}
+			}
+			mockEntityRecords( records );
+
+			const { result } = renderHook( () => usePostThumbnails( rows ) );
+
+			expect( result.current ).toEqual(
+				Object.fromEntries( rows.map( row => [ row.id, `https://example.com/${ row.id }.jpg` ] ) )
+			);
+			// useSelect reruns its mapping on every render, so count distinct queries.
+			const batches = new Map< string, string >();
+			for ( const [ , name, query ] of getEntityRecords.mock.calls ) {
+				expect( query.per_page ).toBe( query.include.length );
+				expect( query.per_page ).toBeLessThanOrEqual( 100 );
+				batches.set( `${ name }:${ query.include }`, name );
+			}
+			const batchCounts: Record< string, number > = {};
+			for ( const name of batches.values() ) {
+				batchCounts[ name ] = ( batchCounts[ name ] ?? 0 ) + 1;
+			}
+			expect( batchCounts ).toEqual( expectedBatches );
+		}
+	);
+
 	it( 'makes no entity requests without eligible rows', () => {
 		mockEntityRecords( {} );
 
