@@ -11,7 +11,7 @@ The relevant class is `Automattic\Jetpack\Connection\Jetpack_Connector`.
 `Jetpack_Connector::init()` is called automatically when you configure the connection package (it runs from `Manager::configure()`), so no extra setup is required in your plugin. Initialization wires up three things:
 
 1. **Connector registration** — on `wp_connectors_init`, registers a `wordpress_com` connector (a `cloud_service` type with `authentication.method = none`) in the core registry.
-2. **Script module** — on the Connectors admin screen, enqueues the `@automattic/jetpack-connection-connectors` script module (and its stylesheet), which provides a custom render function for the card. The module is built by webpack into `dist/connectors/`, and its `connectors-card.asset.php` lists the script modules (`module_dependencies`) and classic scripts (`dependencies`) it imports; the classic scripts are enqueued beside it. If either built file is missing, the card is skipped. The Tracks script (`jp-tracks`, w.js) is enqueued too when tracking is allowed (`Tracking::should_enable_tracking()`, as on My Jetpack), so the shared components' events are recorded. The card identifies the viewer to Tracks by their WordPress.com account (`initializeTracksIdentity()`), so dialogs that don't do it themselves still attribute their events.
+2. **Script module** — on the Connectors admin screen, enqueues the `@automattic/jetpack-connection-connectors` script module (and its stylesheet), which provides a custom render function for the card. The module is built by webpack into `dist/connectors/`, and its `connectors-card.asset.php` lists the script modules (`module_dependencies`) and classic scripts (`dependencies`) it imports; the classic scripts are enqueued beside it. If either built file is missing, the card is skipped. The Tracks script (`jp-tracks`, w.js) is enqueued too when tracking is allowed (`Tracking::should_enable_tracking()`, as on My Jetpack), so the shared components' events are recorded. It sets `window.jpTracksContext.blog_id` beside it, so every event on the screen carries `blog_id`. The card identifies the viewer to Tracks by their WordPress.com account (`initializeTracksIdentity()`), so dialogs that don't do it themselves still attribute their events.
 3. **Auth error capture** — on `jetpack_client_authorize_error`, stores the error so it can be surfaced in the card after an authorization attempt.
 
 ## What the card shows
@@ -56,6 +56,27 @@ Everything else is card-only and comes from `Jetpack_Connector::get_connector_da
 The rest — site and home URLs, SSO status, Safe Mode details, protected-owner state, hosting flags, auth errors, the connector's name, description, and logo, the redirect path, and the connected users link — is specific to the card. Card-only data is not added to `Initial_State`, which every consumer of the connection package receives.
 
 Actions that change only store data update the card in place, such as a non-owner disconnecting their own account. Actions that also change card-only data reload the page.
+
+## Tracking
+
+Every card event carries `context: 'connectors'` and `viewer_connection_type`: `owner` (connection owner), `user` (connected, not the owner) or `site_only` (the viewer's own account isn't connected, including an owner whose token is missing). Events are skipped in offline mode, where the card's actions are disabled. The card cannot bundle `@automattic/jetpack-analytics`, so it records through `trackConnectionEvent()` from the shared `jetpack-connection` script and does nothing when an older bundle lacks it.
+
+| Event | Fired when | Extra properties |
+| --- | --- | --- |
+| `jetpack_connection_card_view` | The card renders, once per page load. | |
+| `jetpack_connection_card_action_click` | A link or button on the card is clicked, before any dialog opens. | `action`: `connect_register` or `connect_authorize` (Connect or Connect account, depending on whether the site is registered), `disconnect_site`, `disconnect_account`, `transfer_ownership`, `connected_users` (best-effort: the link navigates away, which can drop the event), `details_open` (the card is expanded, via Details or Resolve), `details_modal`, `confirm_protected_owner`, `release_protected_owner`, or `safe_mode_disconnect_site` (the Safe Mode panel's button). |
+| `jetpack_idc_migrate`, `jetpack_idc_start_fresh`, `jetpack_idc_confirm_safe_mode` | A Safe Mode resolution is clicked. Names shared with the standard Identity Crisis screen, so split by `context`. Like that screen, also bumps the `jetpack-idc` MC stat (`migrate`, `start-fresh`, `confirm-safe-mode`), but only when the site allows tracking (`idc.bumpStats`). | `platform`: `woa`, `vip`, `newspack` or `self-hosted`, as on the Identity Crisis screen |
+| `jetpack_idc_disconnect_site` | The Safe Mode panel's disconnect is confirmed, after its `safe_mode_disconnect_site` click. | `platform` |
+
+The shared dialogs track by default, with the `context` their host passes (`trackingContext`, or `context` for the disconnect dialogs) and `null` when it passes none. They send no `viewer_connection_type`:
+
+| Event | Fired when | Extra properties |
+| --- | --- | --- |
+| `jetpack_connection_owner_transfer_click` | The transfer link in the owner's disconnect dialog is clicked. | `location`: `owner_disconnect_dialog` |
+| `jetpack_connection_owner_transfer_attempt`, `_success`, `_error` | An ownership transfer is submitted, accepted or refused. | `reason` on `_error`: the REST refusal code, `unknown` or `candidates_load_failed` |
+| `jetpack_connection_protected_owner_confirm`, `_release` | The confirm or release button is clicked. | |
+
+Not tracked: other buttons inside the shared dialogs, such as "Stay connected". Already tracked by the shared components, with the same context: the disconnect dialogs, and the connection error notice's reconnect and link clicks.
 
 ## Customization
 

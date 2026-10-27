@@ -27,6 +27,7 @@ class Scan_Section_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_protect_dashboard_scan_upsell_variant' );
 		\Jetpack_Options::delete_option( 'id' );
+		delete_option( \Automattic\Jetpack\Protect_Status\Scan_Status::OPTION_NAME );
 		parent::tear_down();
 	}
 
@@ -378,5 +379,34 @@ class Scan_Section_Test extends BaseTestCase {
 		}
 
 		$this->assertSame( $expected, Scan::get_upsell_variant() );
+	}
+
+	/**
+	 * Cached Scan reports, or null for none, and whether Scan has server credentials.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_credentials() {
+		return array(
+			'no cached report'     => array( null, null ),
+			'report without field' => array( (object) array( 'state' => 'idle' ), null ),
+			'no credentials'       => array( (object) array( 'credentials' => array() ), false ),
+			'managed credentials'  => array( (object) array( 'credentials' => array( (object) array( 'type' => 'managed' ) ) ), true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_credentials
+	 *
+	 * @param object|null $report   The cached Scan report.
+	 * @param bool|null   $expected Whether Scan has server credentials.
+	 */
+	#[DataProvider( 'provide_credentials' )]
+	public function test_credentials_are_read_from_the_cached_report( $report, $expected ) {
+		if ( null !== $report ) {
+			update_option( \Automattic\Jetpack\Protect_Status\Scan_Status::OPTION_NAME, maybe_serialize( $report ) );
+		}
+
+		$this->assertSame( $expected, self::call( 'has_credentials' ) );
 	}
 }
