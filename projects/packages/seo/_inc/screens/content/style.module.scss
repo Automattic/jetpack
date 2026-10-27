@@ -25,6 +25,9 @@
 .inspectorFooter {
 	position: sticky;
 	inset-block-end: 0;
+	// Above the noindex toggle's hidden checkbox (z-index: 1), which
+	// wp-components before 33.0 doesn't isolate.
+	z-index: 1;
 	margin-block-start: auto;
 	padding: var(--wpds-dimension-padding-md);
 	border-block-start:
