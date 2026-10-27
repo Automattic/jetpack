@@ -3,6 +3,7 @@
  */
 import {
 	ReportScopeProvider,
+	useReportScope,
 	chartInterval,
 	getDefaultPreset,
 	getDefaultReportParams,
@@ -180,7 +181,8 @@ const DECLARABLE_PRESET_IDS: readonly string[] = MENU_SURFACE_PRESETS_WITH_ALL_T
 /**
  * The `jpa/report-params` control: a date range over the presets the attribute's `elements`
  * list, with All time anchored on the item's `allTimeStart` when it carries one. No bucket
- * control; whether a comparison is offered is the host scope's call.
+ * control; whether a comparison is offered is the host scope's call, and so is the attention
+ * it draws when a widget sets the period.
  *
  * @param {DataFormControlProps< Partial< ReportParamsFieldAttributes > >} props - The DataForm control props.
  * @return The control.
@@ -189,6 +191,7 @@ export function ReportParamsField(
 	props: DataFormControlProps< Partial< ReportParamsFieldAttributes > >
 ) {
 	const { elements } = props.field;
+	const { attentionId } = useReportScope();
 	const presetIds = useMemo( () => {
 		const ids = ( elements ?? [] )
 			.map( element => element.value )
@@ -204,6 +207,7 @@ export function ReportParamsField(
 			{ ...props }
 			grain={ presetIds ? { presetIds } : undefined }
 			withIntervalControl={ false }
+			attentionId={ attentionId }
 		/>
 	);
 }
@@ -213,7 +217,9 @@ function ReportParamsControl( {
 	onChange,
 	withIntervalControl,
 	grain,
-}: DataFormControlProps< Partial< ReportParamsFieldAttributes > > & ReportParamsFieldOptions ) {
+	attentionId,
+}: DataFormControlProps< Partial< ReportParamsFieldAttributes > > &
+	ReportParamsFieldOptions & { attentionId?: number } ) {
 	const { presetIds, periods } = grain ?? {};
 	const committed = attributes?.reportParams ?? NO_REPORT_PARAMS;
 	const allTimeStart = useMemo(
@@ -377,6 +383,7 @@ function ReportParamsControl( {
 	return (
 		<DateFiltersPanel
 			range={ range }
+			attentionId={ attentionId }
 			appliedPresetId={ appliedParams.preset }
 			appliedRange={ appliedRange }
 			comparisonPresetId={

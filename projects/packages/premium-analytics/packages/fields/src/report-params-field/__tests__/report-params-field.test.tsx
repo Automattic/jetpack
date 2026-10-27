@@ -189,6 +189,41 @@ describe( 'ReportParamsField', () => {
 			} )
 		);
 	} );
+
+	it( 'draws the attention the host scope raises; a widget-owned control does not', () => {
+		const field = {
+			id: 'reportParams',
+			label: 'Date range',
+		} as unknown as DataFormControlProps< Partial< ReportParamsFieldAttributes > >[ 'field' ];
+		const { Edit } = reportParamsAttributeField< ReportParamsFieldAttributes >();
+		const WidgetField = Edit as ComponentType<
+			DataFormControlProps< ReportParamsFieldAttributes >
+		>;
+		// eslint-disable-next-line testing-library/no-node-access -- the fill is aria-hidden by design, so the DOM is the only place to reach it.
+		const fills = () => document.querySelectorAll( '.date-period-dropdown__attention' ).length;
+
+		const view = render(
+			<ReportScopeProvider openPeriod={ jest.fn() } attentionId={ 1 }>
+				<ReportParamsField data={ ATTRIBUTES } field={ field } onChange={ jest.fn() } />
+			</ReportScopeProvider>
+		);
+
+		expect( fills() ).toBe( 1 );
+
+		view.rerender(
+			<ReportScopeProvider openPeriod={ jest.fn() } attentionId={ 1 }>
+				<WidgetField
+					{ ...( {
+						data: ATTRIBUTES,
+						field,
+						onChange: jest.fn(),
+					} as unknown as DataFormControlProps< ReportParamsFieldAttributes > ) }
+				/>
+			</ReportScopeProvider>
+		);
+
+		expect( fills() ).toBe( 0 );
+	} );
 } );
 
 // A menu trigger is named by its visible bucket, a lone bucket by its "Chart interval: …" label.
