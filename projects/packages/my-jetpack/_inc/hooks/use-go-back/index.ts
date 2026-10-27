@@ -14,7 +14,7 @@ import type { MouseEvent } from 'react';
  *
  * @param options          - Options.
  * @param options.slug     - Product slug, recorded with the analytics event.
- * @param options.fallback - Route used when no tab is behind this screen in history. Defaults to the My Jetpack home (`/`).
+ * @param options.fallback - Route used when no tab is behind this screen in history and the page did not come from an allowed site. Defaults to `MyJetpackRoutes.Home`.
  * @return Object with the back link destination and its click handler with analytics.
  */
 export function useGoBack( {

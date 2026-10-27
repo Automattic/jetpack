@@ -8,7 +8,9 @@ import { useValueStore } from '../../context/value-store/valueStoreContext';
  * @return The entry's index, or null when it has none.
  */
 export function getHistoryIndex(): number | null {
-	return window.history.state?.idx ?? null;
+	// A `replaceState()` that drops the state makes the router's next push write `idx: NaN`.
+	const index = window.history.state?.idx;
+	return Number.isInteger( index ) ? index : null;
 }
 
 /**

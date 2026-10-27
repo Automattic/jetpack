@@ -177,4 +177,21 @@ describe( 'useGoBack', () => {
 			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/features' )
 		);
 	} );
+
+	it( 'goes back to the tab after a script resets the history state', async () => {
+		Object.defineProperty( document, 'referrer', { value: '', configurable: true } );
+		const user = userEvent.setup();
+		renderApp( '/features' );
+		const details = await screen.findByRole( 'link', { name: 'Details' } );
+		window.history.replaceState( {}, '' );
+		await user.click( details );
+		await user.click( await screen.findByRole( 'link', { name: 'Upgrade' } ) );
+		const historyLength = window.history.length;
+		await user.click( await screen.findByRole( 'link', { name: 'My Jetpack' } ) );
+
+		await waitFor( () =>
+			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/features' )
+		);
+		expect( window.history ).toHaveLength( historyLength );
+	} );
 } );
