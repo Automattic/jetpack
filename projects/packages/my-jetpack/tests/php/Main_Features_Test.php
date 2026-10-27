@@ -4,6 +4,8 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -53,6 +55,57 @@ class Main_Features_Test extends TestCase {
 		} finally {
 			remove_filter( 'all_plugins', $plugins );
 		}
+	}
+
+	public function test_local_catalog_links_protect_to_its_page_once_the_dashboard_loads() {
+		do_action( 'jetpack_protect_dashboard_initialized' );
+		try {
+			$features = array_column( Main_Features::get_state( true )['features'], null, 'slug' );
+			$this->assertSame( admin_url( 'admin.php?page=jetpack-protect' ), $features['protect-dashboard']['manage_url'] );
+		} finally {
+			unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		}
+	}
+
+	/**
+	 * Seed the catalog independently of other test classes' user caches.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		$user = wp_insert_user(
+			array(
+				'user_login' => 'feature_catalog_admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( is_wp_error( $user ) ? username_exists( 'feature_catalog_admin' ) : $user );
+		Wpcom_Products::reset_request_failures();
+		Wpcom_Products::reset_purchases_cache();
+		$this->own( array() );
+		$this->set_pro_available( false );
+	}
+
+	/**
+	 * @param bool $available Whether Pro is on sale.
+	 */
+	private function set_pro_available( $available ) {
+		$products = (object) array();
+		foreach ( array( 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly', 'jetpack_complete', 'jetpack_complete_bi_yearly', 'jetpack_complete_monthly', 'jetpack_backup_t1_yearly' ) as $slug ) {
+			$products->$slug = (object) array(
+				'available'     => str_starts_with( $slug, 'jetpack_pro_' ) ? $available : true,
+				'cost'          => 348,
+				'currency_code' => 'USD',
+				'product_term'  => str_ends_with( $slug, '_monthly' ) ? 'month' : ( str_ends_with( $slug, '_bi_yearly' ) ? 'two years' : 'year' ),
+			);
+		}
+		$filter = static fn() => array(
+			'response' => array( 'code' => 200 ),
+			'body'     => wp_json_encode( $products, JSON_UNESCAPED_SLASHES ),
+		);
+		add_filter( 'pre_http_request', $filter );
+		Wpcom_Products::get_products( true );
+		remove_filter( 'pre_http_request', $filter );
 	}
 
 	/**
@@ -145,6 +198,17 @@ class Main_Features_Test extends TestCase {
 		sort( $essential );
 
 		$this->assertSame( array( 'boost', 'jetpack-forms', 'protect-dashboard', 'stats' ), $essential );
+	}
+
+	/**
+	 * The page reads this without Jetpack's module list, so it must match the modules that need an account.
+	 */
+	public function test_features_that_need_an_account_say_so() {
+		$features = array_column( Main_Features::get_features( true ), 'needs_account', 'slug' );
+		$slugs    = array_keys( array_filter( $features ) );
+		sort( $slugs );
+
+		$this->assertSame( array( 'activity-log', 'backup', 'jetpack-ai', 'newsletter', 'social' ), $slugs );
 	}
 
 	/**
@@ -348,7 +412,7 @@ class Main_Features_Test extends TestCase {
 			foreach ( $feature['plans'] ?? array() as $plan ) {
 				$this->assertContains(
 					$plan,
-					array( 'backup', 'security', 'complete', 'growth' ),
+					array( 'backup', 'security', 'pro', 'complete', 'growth' ),
 					"Feature {$slug} lists an unknown plan: {$plan}"
 				);
 			}
@@ -394,15 +458,17 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * The badges name the bundles a feature is sold in, so an empty list would quietly
-	 * drop the only thing the modal says about buying it.
+	 * @dataProvider provide_pro_availability
+	 * @param bool $available Whether Pro is on sale.
 	 */
-	public function test_plan_badges_name_the_bundles_that_include_a_feature() {
+	#[DataProvider( 'provide_pro_availability' )]
+	public function test_plan_badges_name_the_bundles_that_include_a_feature( $available ) {
+		$this->set_pro_available( $available );
 		$features = array_column( Main_Features::get_features(), 'plans', 'slug' );
 		$backup   = array_column( $features['backup'], 'name', 'slug' );
 
 		$this->assertArrayHasKey( 'security', $backup );
-		$this->assertNotEmpty( $backup['security'] );
+		$this->assertSame( $available, isset( $backup['pro'] ) );
 		$this->assertArrayHasKey( 'complete', $backup );
 		// Blaze is not sold in a bundle, so it earns no badges.
 		$this->assertSame( array(), $features['blaze'] );
@@ -529,12 +595,13 @@ class Main_Features_Test extends TestCase {
 	 * Fakes the site's purchases, so ownership is read without a request to WordPress.com.
 	 *
 	 * @param string[] $product_slugs The WordPress.com product slugs the site pays for.
+	 * @param string   $expiry_status The purchases' expiry status.
 	 */
-	private function own( array $product_slugs ) {
+	private function own( array $product_slugs, $expiry_status = 'active' ) {
 		$purchases = array_map(
 			fn( $slug ) => (object) array(
 				'product_slug'  => $slug,
-				'expiry_status' => 'active',
+				'expiry_status' => $expiry_status,
 				'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
 			),
 			$product_slugs
@@ -564,6 +631,113 @@ class Main_Features_Test extends TestCase {
 		foreach ( array( 'activity-log', 'podcast', 'jetpack-forms', 'newsletter', 'anti-spam' ) as $slug ) {
 			$this->assertSame( '', $upgrades[ $slug ]['path'], "Feature {$slug} still offers an upgrade to a Complete site." );
 		}
+	}
+
+	/**
+	 * A host's upgrade URL reaches only a site that has something to buy, and only as a web address.
+	 *
+	 * @dataProvider provide_host_upgrade_urls
+	 *
+	 * @param string[]    $owned    The products the site pays for.
+	 * @param string      $url      The URL the host sends.
+	 * @param string|null $expected The URL the feature carries, or null for none.
+	 */
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_host_upgrade_url( $owned, $url, $expected ) {
+		$this->own( $owned );
+		$send_to_host = static function ( $upgrade ) use ( $url ) {
+			return array_merge( $upgrade, array( 'url' => $url ) );
+		};
+		add_filter( 'jetpack_my_jetpack_feature_upgrade', $send_to_host );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+		remove_filter( 'jetpack_my_jetpack_feature_upgrade', $send_to_host );
+
+		$this->assertSame( $expected, $upgrades['backup']['url'] ?? null );
+	}
+
+	/**
+	 * Data provider for test_host_upgrade_url.
+	 *
+	 * @return array
+	 */
+	public static function provide_host_upgrade_urls() {
+		return array(
+			'no plan'         => array( array(), 'https://example.com/plans', 'https://example.com/plans' ),
+			'owns Complete'   => array( array( 'jetpack_complete' ), 'https://example.com/plans', null ),
+			'javascript: URL' => array( array(), 'javascript:alert(1)', '' ),
+		);
+	}
+
+	/**
+	 * A filter that returns something other than an array leaves the upgrade as it was.
+	 */
+	public function test_non_array_upgrade_filter_keeps_the_upgrade() {
+		$before = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+		add_filter( 'jetpack_my_jetpack_feature_upgrade', '__return_empty_string' );
+
+		$after = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+		remove_filter( 'jetpack_my_jetpack_feature_upgrade', '__return_empty_string' );
+
+		$this->assertSame( $before, $after );
+	}
+
+	/**
+	 * Only Backup's card follows the plan instead of a switch.
+	 */
+	public function test_only_backup_is_plan_driven() {
+		$plan_driven = array_keys( array_filter( array_column( Main_Features::get_features(), 'plan_driven', 'slug' ) ) );
+
+		$this->assertSame( array( 'backup' ), $plan_driven );
+	}
+
+	/**
+	 * Next to an older Jetpack plugin the module still decides Backup, so its card keeps the switch.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_backup_is_not_plan_driven_next_to_an_older_jetpack() {
+		require_once __DIR__ . '/assets/older-jetpack-mock-plugin.txt';
+
+		$backup = array_column( Main_Features::get_features(), null, 'slug' )['backup'];
+
+		$this->assertFalse( $backup['plan_driven'] );
+	}
+
+	/**
+	 * An expired plan is sold again rather than counted as included, but only for a plan-driven feature.
+	 *
+	 * @dataProvider provide_plan_expiry
+	 *
+	 * @param string $slug          The feature slug.
+	 * @param string $product_slug  The purchase's product slug.
+	 * @param string $expiry_status The purchase's expiry status.
+	 * @param bool   $included      Whether the feature should count as included.
+	 */
+	#[DataProvider( 'provide_plan_expiry' )]
+	public function test_only_a_plan_driven_feature_counts_expiry( $slug, $product_slug, $expiry_status, $included ) {
+		$this->own( array( $product_slug ), $expiry_status );
+
+		$feature = array_column( Main_Features::get_features(), null, 'slug' )[ $slug ];
+
+		$this->assertSame( $included, $feature['included'] );
+		$this->assertSame( ! $included, '' !== $feature['upgrade']['path'] );
+	}
+
+	/**
+	 * Data provider for test_only_a_plan_driven_feature_counts_expiry.
+	 *
+	 * @return array
+	 */
+	public static function provide_plan_expiry() {
+		return array(
+			'active Backup'  => array( 'backup', 'jetpack_backup_t1_yearly', 'active', true ),
+			'expired Backup' => array( 'backup', 'jetpack_backup_t1_yearly', 'expired', false ),
+			'expired Search' => array( 'search', 'jetpack_search', 'expired', true ),
+		);
 	}
 
 	/**
@@ -668,9 +842,12 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * Without a product page of its own, the upgrade sells the cheapest bundle that includes the feature.
+	 * @dataProvider provide_pro_availability
+	 * @param bool $available Whether Pro is on sale.
 	 */
-	public function test_upgrade_falls_back_to_the_cheapest_bundle() {
+	#[DataProvider( 'provide_pro_availability' )]
+	public function test_upgrade_falls_back_to_the_cheapest_bundle( $available ) {
+		$this->set_pro_available( $available );
 		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
 
 		$this->assertSame( '/add-backup', $upgrades['activity-log']['path'] );
@@ -678,7 +855,7 @@ class Main_Features_Test extends TestCase {
 		$this->assertSame( '/add-growth', $upgrades['newsletter']['path'] );
 		$this->assertSame( '/add-growth', $upgrades['podcast']['path'] );
 		$this->assertSame( 'Jetpack Growth', $upgrades['podcast']['name'] );
-		$this->assertSame( '/add-complete', $upgrades['jetpack-forms']['path'] );
+		$this->assertSame( $available ? '/add-pro' : '/add-complete', $upgrades['jetpack-forms']['path'] );
 		$this->assertSame( '/add-akismet', $upgrades['anti-spam']['path'] );
 		$this->assertSame(
 			array(
@@ -686,6 +863,51 @@ class Main_Features_Test extends TestCase {
 				'name' => '',
 			),
 			$upgrades['blaze']
+		);
+	}
+
+	public function test_retired_bundles_are_not_offered_but_owned_names_remain() {
+		$this->set_pro_available( true );
+		$catalog = Wpcom_Products::get_products();
+		foreach ( array( 'jetpack_security_t1_yearly', 'jetpack_growth_yearly' ) as $slug ) {
+			$catalog->$slug = (object) array(
+				'available'     => false,
+				'cost'          => 348,
+				'currency_code' => 'USD',
+				'product_term'  => 'year',
+			);
+		}
+		update_user_meta( get_current_user_id(), Wpcom_Products::CACHE_META_NAME, $catalog );
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
+		$this->assertNotContains( 'security', array_column( $features['backup']['plans'], 'slug' ) );
+		$this->assertNotContains( 'growth', array_column( $features['podcast']['plans'], 'slug' ) );
+		$this->assertSame( '/add-pro', $features['podcast']['upgrade']['path'] );
+		$this->own( array( 'jetpack_security_t1_yearly' ) );
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
+		$plans    = array_column( $features['backup']['plans'], null, 'slug' );
+		$this->assertTrue( $plans['security']['owned'] );
+	}
+
+	/**
+	 * @dataProvider provide_pro_availability
+	 * @param bool $available Whether Pro is on sale.
+	 */
+	#[DataProvider( 'provide_pro_availability' )]
+	public function test_activity_log_copy_follows_pro_availability( $available ) {
+		$this->set_pro_available( $available );
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
+		$copy     = $features['activity-log']['paid_highlights'][0];
+		$this->assertSame( $available, false !== strpos( $copy, 'Jetpack Pro' ) );
+		$this->assertSame( ! $available, false !== strpos( $copy, 'Jetpack Security' ) );
+	}
+
+	/**
+	 * @return array Prelaunch and launched catalog states.
+	 */
+	public static function provide_pro_availability() {
+		return array(
+			'before launch' => array( false ),
+			'launched'      => array( true ),
 		);
 	}
 

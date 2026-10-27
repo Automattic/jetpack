@@ -104,7 +104,7 @@ class Dashboard_Data {
 		return array(
 			'overview' => array( __CLASS__, 'get_overview_data' ),
 			'settings' => array( __CLASS__, 'get_settings_data' ),
-			'ai'       => array( __CLASS__, 'get_ai_data' ),
+			'geo'      => array( __CLASS__, 'get_geo_data' ),
 			'content'  => array( __CLASS__, 'get_content_data' ),
 		);
 	}
@@ -565,6 +565,30 @@ class Dashboard_Data {
 	}
 
 	/**
+	 * Name of the SEO plugin Jetpack stepped aside for, or '' when Jetpack's SEO output is live.
+	 *
+	 * @return string
+	 */
+	private static function get_conflicting_seo_plugin() {
+		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
+		if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+			return '';
+		}
+
+		/**
+		 * Names the SEO plugin that owns the site's SEO output, so the SEO dashboard can say
+		 * so. Only read while `jetpack_disable_seo_tools` is true.
+		 *
+		 * @since 0.10.1
+		 *
+		 * @param string $name The plugin's display name, or '' when no plugin owns the output.
+		 */
+		$name = apply_filters( 'jetpack_seo_conflicting_plugin', '' );
+
+		return is_string( $name ) ? trim( $name ) : '';
+	}
+
+	/**
 	 * Drop the superseded legacy front page description once a modern one is saved.
 	 *
 	 * The front end falls back to the legacy option whenever the modern value is
@@ -1005,6 +1029,7 @@ class Dashboard_Data {
 			'plan'                    => array(
 				'seo_enabled_for_site' => $seo_enabled,
 			),
+			'conflicting_seo_plugin'  => self::get_conflicting_seo_plugin(),
 			// Whether the site-verification toggle can do anything here. False where
 			// that module isn't present — WordPress.com Simple ships no Jetpack modules
 			// and reports every one of them active — so the dashboard hides the control
@@ -1070,6 +1095,14 @@ class Dashboard_Data {
 		$title_formats_editable = self::is_jetpack_seo_enabled();
 		$front_page_desc        = self::get_front_page_meta_description();
 
+		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
+		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+			// Same for the description, which the helper swaps for the legacy fallback while
+			// another plugin owns the output. Show the one Jetpack resumes with; it's locked.
+			$modern          = get_option( self::FRONT_PAGE_META_OPTION );
+			$front_page_desc = $modern ? $modern : get_option( self::LEGACY_FRONT_PAGE_META_OPTION, '' );
+		}
+
 		// A site that set a front-page description back when it was free for all
 		// WordPress.com Simple sites keeps editing it, even when otherwise plan-gated:
 		// the value stays live in the legacy option. The gated Settings uses this to keep
@@ -1083,6 +1116,10 @@ class Dashboard_Data {
 
 		$sitemap_active = $modules->is_active( 'sitemaps' );
 		$simple         = ( new Host() )->is_wpcom_simple();
+
+		// Ask the conflict check, not the disable filter: anyone can hook that filter just to turn the tags off.
+		// @phan-suppress-next-line PhanUndeclaredFunction -- guarded by function_exists; lives in plugins/jetpack.
+		$canonical_conflicted = function_exists( 'jetpack_canonical_urls_check_conflicts' ) && jetpack_canonical_urls_check_conflicts( false );
 
 		return array(
 			'search_engines_visible'     => (int) get_option( 'blog_public', 1 ) === 1,
@@ -1098,6 +1135,7 @@ class Dashboard_Data {
 			// Simple reports every module active, so read its own switch ({@see Canonical_Urls}).
 			'canonical_active'           => $simple ? Canonical_Urls::is_enabled() : $modules->is_active( 'canonical-urls' ),
 			'canonical_switchable'       => $simple || self::has_module( 'canonical-urls' ),
+			'canonical_conflicted'       => $canonical_conflicted,
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'              => (object) $title_formats,
 			// Separator WordPress joins default document-title parts with. A page type
@@ -1106,6 +1144,7 @@ class Dashboard_Data {
 			// Settings tab replays that composition to preview it.
 			'title_separator'            => self::get_default_title_separator(),
 			'title_formats_editable'     => $title_formats_editable,
+			'conflicting_seo_plugin'     => self::get_conflicting_seo_plugin(),
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
 			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
@@ -1155,7 +1194,7 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Build the AI tab's initial state.
+	 * Build the GEO tab's initial state.
 	 *
 	 * The AI SEO Enhancer auto-generates SEO titles/descriptions/alt-text in the
 	 * editor (the generation itself is wpcom/AI-Assistant side); this exposes only
@@ -1168,11 +1207,12 @@ class Dashboard_Data {
 	 *
 	 * `aiSeoEnabled` is reported separately rather than folded into availability:
 	 * with the control off the card is disabled, not hidden, so the saved choice
-	 * stays visible — the same treatment the Traffic page gives it.
+	 * stays visible — the same treatment the Traffic page gives it. `aiEnabled`
+	 * reports the site-wide Jetpack AI switch so the tab can name which one is off.
 	 *
 	 * @return array
 	 */
-	public static function get_ai_data() {
+	public static function get_geo_data() {
 		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
 
 		// Jetpack_AI_Settings lives in plugins/jetpack, which bundles this package; guarded
@@ -1180,6 +1220,8 @@ class Dashboard_Data {
 		// does not exist, so the enhancer keeps its pre-control behavior.
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_AI_Settings lives in plugins/jetpack and is guarded by is_callable.
 		$ai_seo_on = ! is_callable( array( 'Jetpack_AI_Settings', 'is_ai_seo_enabled' ) ) || \Jetpack_AI_Settings::is_ai_seo_enabled();
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_AI_Settings lives in plugins/jetpack and is guarded by is_callable.
+		$ai_on = ! is_callable( array( 'Jetpack_AI_Settings', 'is_ai_enabled' ) ) || \Jetpack_AI_Settings::is_ai_enabled();
 
 		// Current_Plan comes from the jetpack-plans package (a dependency of this
 		// package since the plan-gating work), so it's always available here; the
@@ -1192,6 +1234,7 @@ class Dashboard_Data {
 				'available'    => $filter_on && $plan_supports,
 				'enabled'      => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 				'aiSeoEnabled' => $ai_seo_on,
+				'aiEnabled'    => $ai_on,
 			),
 			'llmsTxt'  => array(
 				'enabled'  => Llms_Txt::is_enabled(),

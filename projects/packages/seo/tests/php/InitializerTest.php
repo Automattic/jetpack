@@ -82,7 +82,7 @@ class InitializerTest extends TestCase {
 	 * The surface visibility contract remains available on Initializer.
 	 */
 	public function test_cross_plugin_contract_is_kept_on_initializer() {
-		$this->assertSame( 'jetpack_seo_surface_visible', Initializer::VISIBILITY_OPTION );
+		$this->assertSame( 'jetpack_seo_surface_visible_v2', Initializer::VISIBILITY_OPTION );
 
 		$this->assertTrue( method_exists( Initializer::class, 'is_available' ) );
 		$this->assertTrue( method_exists( Initializer::class, 'is_optin_available' ) );
@@ -228,7 +228,7 @@ class InitializerTest extends TestCase {
 		// The services self-hook on init(), so a stale registration from an earlier
 		// test would mask a missing one here.
 		remove_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) );
-		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), 10 );
+		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), Ai_Crawlers::ROBOTS_TXT_PRIORITY );
 		remove_action( 'after_setup_theme', array( Canonical_Urls::class, 'load_module' ) );
 
 		try {

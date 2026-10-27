@@ -14,7 +14,7 @@ use Automattic\Jetpack\Protect_Models\Status_Model;
  */
 class Status {
 
-	const PACKAGE_VERSION = '0.8.1';
+	const PACKAGE_VERSION = '0.9.1';
 	/**
 	 * Name of the option where status is stored
 	 *
@@ -57,6 +57,42 @@ class Status {
 	 * @return Status_Model
 	 */
 	public static function get_status( $refresh_from_wpcom = false ) {
+		$status_class = self::get_status_class( $refresh_from_wpcom );
+		self::$status = $status_class::get_status( $refresh_from_wpcom );
+		return self::$status;
+	}
+
+	/**
+	 * Gets the last status stored on the site, even if it has expired, without asking WordPress.com.
+	 *
+	 * @since 0.9.0
+	 *
+	 * @return Status_Model|null Null when no status has been stored yet.
+	 */
+	public static function get_cached_status() {
+		$status_class = self::get_status_class();
+		return $status_class::get_cached_status();
+	}
+
+	/**
+	 * Whether the stored status is missing or old enough that get_status() would fetch a new one.
+	 *
+	 * @since 0.9.0
+	 *
+	 * @return bool
+	 */
+	public static function is_cached_status_expired() {
+		$status_class = self::get_status_class();
+		return ! $status_class::should_use_cache() || $status_class::is_cache_expired();
+	}
+
+	/**
+	 * The class that provides this site's status: Scan's when the plan includes it, the Protect report otherwise.
+	 *
+	 * @param bool $refresh_from_wpcom Refresh the local plan cache from wpcom.
+	 * @return class-string<Scan_Status|Protect_Status>
+	 */
+	private static function get_status_class( $refresh_from_wpcom = false ) {
 		$use_scan_status = Plan::has_required_plan( $refresh_from_wpcom );
 
 		if ( defined( 'JETPACK_PROTECT_DEV__DATA_SOURCE' ) ) {
@@ -69,8 +105,7 @@ class Status {
 			}
 		}
 
-		self::$status = $use_scan_status ? Scan_Status::get_status( $refresh_from_wpcom ) : Protect_Status::get_status( $refresh_from_wpcom );
-		return self::$status;
+		return $use_scan_status ? Scan_Status::class : Protect_Status::class;
 	}
 
 	/**

@@ -1,7 +1,5 @@
 /* eslint-disable testing-library/no-node-access */
 import 'jetpack-js-tools/jest/setup-jest-dom';
-// Test dependencies come from the plugin, not the wp-build route package.
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { act, render, screen, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { observeLegacyOnboarding } from '../../_inc/overview/lib/modules-state-bridge';
@@ -20,9 +18,18 @@ beforeEach( () => {
 	mockScrollIntoView.mockClear();
 	mockDisconnect.mockClear();
 	jest.spyOn( window, 'ResizeObserver' ).mockImplementation( callback => {
-		resizeCallback = callback;
-		resizeObserver = { observe: jest.fn(), unobserve: jest.fn(), disconnect: mockDisconnect };
-		return resizeObserver;
+		const observer = {
+			observe: jest.fn( target => {
+				if ( target.contains( screen.queryByText( 'Performance Overview' ) ) ) {
+					resizeCallback = callback;
+					resizeObserver = observer;
+					observer.disconnect = mockDisconnect;
+				}
+			} ),
+			unobserve: jest.fn(),
+			disconnect: jest.fn(),
+		};
+		return observer;
 	} );
 } );
 
@@ -70,18 +77,21 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
 	default: ( {
 		title,
+		breadcrumbs,
 		subTitle,
 		actions,
 		children,
 	}: {
-		title: string;
+		title?: string;
+		breadcrumbs: ReactNode;
 		subTitle: string;
 		actions: ReactNode;
 		children: ReactNode;
 	} ) => (
 		<main>
 			<header>
-				<h1>{ title }</h1>
+				{ title && <h1>{ title }</h1> }
+				{ breadcrumbs }
 				<p>{ subTitle }</p>
 				{ actions }
 			</header>
@@ -102,7 +112,10 @@ const getSubpageMount = () => document.getElementById( 'jb-subpage-mount' );
 
 beforeEach( () => {
 	window.history.replaceState( null, '', '/?page=jetpack-boost' );
-	Object.assign( window, { wpApiSettings: { root: '/wp-json/', nonce: 'test-nonce' } } );
+	Object.assign( window, {
+		wpApiSettings: { root: '/wp-json/', nonce: 'test-nonce' },
+		Jetpack_Boost: { site: { myJetpack: true } },
+	} );
 	mockNavigate.mockReset();
 	setGettingStarted( false );
 } );
@@ -124,6 +137,33 @@ const setGettingStarted = ( value: boolean ) => {
 };
 
 describe( 'Boost dashboard stage', () => {
+	it.each( [
+		[ 'Overview', '' ],
+		[ 'Settings', SETTINGS_ARG ],
+	] )( 'keeps the Boost title on %s when My Jetpack is unavailable', ( _page, query ) => {
+		Object.assign( window, { Jetpack_Boost: { site: { myJetpack: false } } } );
+		window.history.replaceState( null, '', `/?page=jetpack-boost${ query }` );
+		render( <Stage /> );
+
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Boost' );
+		expect( screen.getAllByRole( 'heading', { level: 1, hidden: true } ) ).toHaveLength( 1 );
+		expect( screen.queryByRole( 'navigation', { name: 'Breadcrumbs' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Jetpack' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the Jetpack › Boost trail with one h1', () => {
+		render( <Stage /> );
+		expect( screen.getByRole( 'link', { name: 'Jetpack' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=my-jetpack'
+		);
+		expect(
+			screen.getByText( 'Boost', { selector: '[aria-current="page"]' } )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Boost' } ) ).not.toBeInTheDocument();
+		expect( screen.getAllByRole( 'heading', { level: 1, hidden: true } ) ).toHaveLength( 1 );
+	} );
+
 	it.each( [ '', SETTINGS_ARG, '&tab=settings', '&p=%2F%3Ftab%3Doverview' ] )(
 		'renders one page for %s and scrolls to its destination',
 		query => {

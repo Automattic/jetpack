@@ -19,6 +19,8 @@ export type ComparativeDatePointDate = DataPointDate & {
 	endDate?: Date;
 	/** Read out by the tooltip for a bucket with no reading, e.g. why it is missing. */
 	note?: string;
+	/** A bucket with no reading drawn at its `value` to keep the line whole; the tooltip reads no value. */
+	missing?: boolean;
 };
 
 export type ComparativeLineChartSeries = SeriesData & {
@@ -26,6 +28,8 @@ export type ComparativeLineChartSeries = SeriesData & {
 	data: ComparativeDatePointDate[];
 	/** A comparison series reads its group's, as it does the group's name. */
 	countLabel?: CountLabel;
+	/** A comparison whose points already sit on the dates they compare with, which `alignSeriesDates` keeps. */
+	aligned?: boolean;
 };
 
 /**

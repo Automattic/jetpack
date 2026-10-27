@@ -1,4 +1,4 @@
-import { filterMoreFeatures, groupMoreFeatures } from '../use-more-features';
+import { filterMoreFeatures, getModuleFeatureState, groupMoreFeatures } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
 
 const mod = ( slug: string, overrides: Partial< MyJetpackModule > = {} ): MyJetpackModule =>
@@ -44,6 +44,18 @@ const groups = [
 const slugsOf = ( grouped: ReturnType< typeof groupMoreFeatures > ) =>
 	grouped.map( group => [ group.label, group.states.map( state => state.feature.slug ) ] );
 
+it.each( [ 'long_description', 'module_tags' ] )(
+	'searches %s only for migrated module views',
+	field => {
+		const module = mod( 'alpha', { [ field ]: field === 'module_tags' ? [ 'needle' ] : 'needle' } );
+		const grouped = groupMoreFeatures( [], [], { alpha: module }, {}, {} );
+		expect( filterMoreFeatures( grouped, 'all', 'needle' ) ).toEqual( [] );
+		expect( slugsOf( filterMoreFeatures( grouped, 'all', 'needle', true ) ) ).toEqual( [
+			[ '', [ 'alpha' ] ],
+		] );
+	}
+);
+
 describe( 'groupMoreFeatures', () => {
 	const grouped = groupMoreFeatures(
 		features,
@@ -88,6 +100,24 @@ describe( 'groupMoreFeatures', () => {
 		expect( monitor.status ).toBe( 'active' );
 		expect( monitor.isSwitching ).toBe( true );
 	} );
+
+	it.each( [ false, true ] )(
+		'excludes the helper-owned custom content types module (active: %s)',
+		activated => {
+			const groupedWithCpt = groupMoreFeatures(
+				[],
+				[ { label: 'Writing', modules: [ 'custom-content-types', 'monitor' ] } ],
+				{
+					'custom-content-types': mod( 'custom-content-types', { activated } ),
+					monitor: mod( 'monitor' ),
+				},
+				{},
+				{}
+			);
+
+			expect( slugsOf( groupedWithCpt ) ).toEqual( [ [ 'Writing', [ 'monitor' ] ] ] );
+		}
+	);
 
 	it( 'filters by status and hides modules under plan and essential filters', () => {
 		const filtered = ( filter: Parameters< typeof filterMoreFeatures >[ 1 ] ) =>
@@ -157,9 +187,12 @@ describe( 'getHiddenModules', () => {
 		isBlockTheme: boolean,
 		...loads: Record< string, MyJetpackModule >[]
 	) => {
-		window.JetpackScriptData = {
-			myJetpack: { siteEditor: { isBlockTheme } },
-		} as Window[ 'JetpackScriptData' ];
+		window.myJetpackInitialState = {
+			deprecatedModules: [
+				'google-fonts',
+				...( isBlockTheme ? [ 'widgets', 'widget-visibility' ] : [] ),
+			],
+		} as Window[ 'myJetpackInitialState' ];
 		let hidden: Set< string > = new Set();
 		await jest.isolateModulesAsync( async () => {
 			const { getHiddenModules } = await import( '../use-more-features' );
@@ -202,4 +235,23 @@ describe( 'getHiddenModules', () => {
 		// Hidden, not moved: they must not resurface under Other.
 		expect( slugsOf( grouped ).flatMap( ( [ , slugs ] ) => slugs ) ).toEqual( [ 'widgets' ] );
 	} );
+} );
+
+it( 'keeps an account-required extra module visible and excludes it from Available', () => {
+	const module = {
+		module: 'notes',
+		name: 'Notifications',
+		available: false,
+		activated: true,
+		requires_user_connection: true,
+	} as MyJetpackModule;
+	const state = getModuleFeatureState( module, {}, true );
+	const accountGroups = [ { label: 'Other', states: [ state ] } ];
+	expect( state.control ).toEqual( {
+		kind: 'module',
+		module: expect.objectContaining( { module: 'notes', available: true } ),
+	} );
+	expect( state.accountNeeded ).toBe( true );
+	expect( filterMoreFeatures( accountGroups, 'all', '' )[ 0 ].states ).toEqual( [ state ] );
+	expect( filterMoreFeatures( accountGroups, 'available', '' ) ).toEqual( [] );
 } );

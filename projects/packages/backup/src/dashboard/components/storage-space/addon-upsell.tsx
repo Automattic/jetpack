@@ -1,3 +1,4 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { formatCurrency } from '@automattic/number-formatters';
 import { speak } from '@wordpress/a11y';
 import { createInterpolateElement, useCallback, useEffect } from '@wordpress/element';
@@ -230,13 +231,20 @@ export default function StorageAddonUpsell( {
 		>
 			{ copy.title && <Notice.Title>{ copy.title }</Notice.Title> }
 			<Notice.Description>{ copy.body }</Notice.Description>
-			{ href && (
-				<Notice.Actions>
+			<Notice.Actions>
+				{ href && (
 					<ButtonLink variant="solid" size="compact" href={ href } onClick={ recordClick }>
 						{ __( 'Upgrade now', 'jetpack-backup-pkg' ) }
 					</ButtonLink>
-				</Notice.Actions>
-			) }
+				) }
+				<Notice.ActionLink
+					openInNewTab
+					// Omitted rather than passed as undefined — see `useSiteSuffix`.
+					href={ getRedirectUrl( 'jetpack-backup-storage-retention', site ? { site } : {} ) }
+				>
+					{ __( 'Learn more', 'jetpack-backup-pkg' ) }
+				</Notice.ActionLink>
+			</Notice.Actions>
 			{ onDismiss && <Notice.CloseIconButton onClick={ onDismiss } /> }
 		</Notice.Root>
 	);

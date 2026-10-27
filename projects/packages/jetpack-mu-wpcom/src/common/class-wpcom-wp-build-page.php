@@ -46,7 +46,7 @@ abstract class WPCOM_WP_Build_Page {
 	 * `admin_menu` priority for register_page().
 	 *
 	 * After Jetpack's Admin_Menu (1000), so a slug it claimed is visible, and before
-	 * wpcom_add_jetpack_submenu() (999999), which reads whether this page owns its slug.
+	 * wpcom_add_jetpack_submenu() (999999), which reads whether the slug is claimed.
 	 */
 	const REGISTER_PRIORITY = 999998;
 
@@ -355,6 +355,9 @@ abstract class WPCOM_WP_Build_Page {
 		if ( ! static::owns_page() || ! wp_script_is( $handle, 'registered' ) || ! current_user_can( static::CAPABILITY ) ) {
 			return;
 		}
+
+		// wp-build has no `jetpackConfig` external, so @automattic/jetpack-config reads this global.
+		wp_add_inline_script( $handle, 'window.jetpackConfig = ' . wp_json_encode( array( 'consumer_slug' => 'jetpack-mu-wpcom' ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) . ';', 'before' );
 
 		if ( '' !== static::INITIAL_STATE_VAR ) {
 			// Inline JSON rather than wp_localize_script(), which stringifies top-level scalars.

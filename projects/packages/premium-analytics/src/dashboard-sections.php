@@ -81,6 +81,26 @@ function get_available_dashboard_section_slugs() {
 }
 
 /**
+ * Slugs of the available tabs whose window follows the plan's Stats date limits.
+ *
+ * @since 0.14.0
+ *
+ * @return string[]
+ */
+function get_plan_date_limited_section_slugs() {
+	$slugs = array();
+
+	foreach ( Dashboard_Section_Registry::get_instance()->get_available_sections( DASHBOARD_NAME ) as $section ) {
+		// An older copy of the class has no such property.
+		if ( ! empty( $section->follows_plan_date_limits ) ) {
+			$slugs[] = $section->slug;
+		}
+	}
+
+	return $slugs;
+}
+
+/**
  * Configures the section script data.
  *
  * @since 0.6.0
@@ -120,7 +140,7 @@ function configure_dashboard_preview_scope() {
 }
 
 /**
- * Injects the available section slugs, and whether the reader may see Stats, into JetpackScriptData.
+ * Injects the available section slugs, those the plan's date limits apply to, and whether the reader may see Stats, into JetpackScriptData.
  *
  * The same list travels over REST for the tab bar, but a report route reads no REST before
  * choosing its redirect, so it reads the slugs from boot data instead.
@@ -138,13 +158,33 @@ function inject_dashboard_sections_script_data( array $data ): array {
 	// Surfaces outside any section, such as feedback, post to Stats endpoints.
 	$data['premium_analytics']['can_view_stats'] = Capabilities::current_user_can_view_stats();
 
+	// Switching the dashboard off sends the reader to classic Stats, so the client is told where that is.
+	$data['premium_analytics']['classic_stats_url'] = get_classic_stats_url();
+
 	$sections = get_available_dashboard_section_slugs();
 
 	if ( null !== $sections ) {
-		$data['premium_analytics']['sections'] = $sections;
+		$data['premium_analytics']['sections']                   = $sections;
+		$data['premium_analytics']['plan_date_limited_sections'] = get_plan_date_limited_section_slugs();
 	}
 
 	return $data;
+}
+
+/**
+ * The URL of the classic Stats page, or null while no plugin registers a `stats` menu page.
+ *
+ * Read from the menu rather than `$admin_page_hooks`, which keys top-level pages only: with
+ * Odyssey Stats off, the Jetpack plugin registers the page under its own menu.
+ *
+ * @since 0.14.0
+ *
+ * @return string|null
+ */
+function get_classic_stats_url(): ?string {
+	$url = function_exists( 'menu_page_url' ) ? menu_page_url( 'stats', false ) : '';
+
+	return '' === $url ? null : $url;
 }
 
 /**
@@ -200,39 +240,39 @@ function get_dashboard_section_schema() {
 		'title'      => 'jetpack-premium-analytics-dashboard-section',
 		'type'       => 'object',
 		'properties' => array(
-			'id'                  => array(
+			'id'                      => array(
 				'description' => __( 'Namespaced section identifier.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
-			'slug'                => array(
+			'slug'                    => array(
 				'description' => __( 'URL-facing section slug, derived from the identifier.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
-			'label'               => array(
+			'label'                   => array(
 				'description' => __( 'Translated display label, naming the section tab.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
-			'title'               => array(
+			'title'                   => array(
 				'description' => __( 'Translated section heading, distinct from the tab label. Null falls back to the label.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
-			'order'               => array(
+			'order'                   => array(
 				'description' => __( 'Sort order, ascending.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'integer',
 				'readonly'    => true,
 			),
-			'date_filter'         => array(
+			'date_filter'             => array(
 				'description' => __( 'Which shape the section date filter takes: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'enum'        => Dashboard_Section::DATE_FILTERS,
 				'default'     => Dashboard_Section::DATE_FILTER_RANGE,
 				'readonly'    => true,
 			),
-			'date_filter_options' => array(
+			'date_filter_options'     => array(
 				'description' => __( 'What the section date filter supports, and where it renders.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'object',
 				'properties'  => array(
@@ -254,16 +294,29 @@ function get_dashboard_section_schema() {
 				),
 				'readonly'    => true,
 			),
-			'requires_sync'       => array(
+			'requires_sync'           => array(
 				'description' => __( 'Whether the section\'s numbers stay incomplete until the analytics initial full sync has finished.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'boolean',
 				'default'     => false,
 				'readonly'    => true,
 			),
-			'default_layout'      => array(
+			'notice'                  => array(
+				'description' => __( 'Message shown above the section widgets, or null when there is none.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => array( 'string', 'null' ),
+				'default'     => null,
+				'readonly'    => true,
+			),
+			'default_layout'          => array(
 				'description' => __( 'Bundled default widget layout.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'array',
 				'items'       => array( 'type' => 'object' ),
+				'readonly'    => true,
+			),
+			'insertable_widget_types' => array(
+				'description' => __( 'Widget types the section inserter offers on top of its default layout.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'array',
+				'items'       => array( 'type' => 'string' ),
+				'default'     => array(),
 				'readonly'    => true,
 			),
 		),

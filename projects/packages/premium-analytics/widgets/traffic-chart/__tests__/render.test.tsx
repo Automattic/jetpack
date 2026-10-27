@@ -10,8 +10,10 @@ import { getSettings, setSettings } from '@wordpress/date';
  */
 import TrafficChartRender from '../render';
 import useTrafficChart from '../use-traffic-chart';
-import widget from '../widget';
+import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
+import widget, { type TrafficChartAttributes } from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
+import type { ComponentType } from 'react';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
@@ -197,16 +199,57 @@ describe( 'Traffic chart type switch', () => {
 	} );
 } );
 
+describe( 'Traffic chart interval menu', () => {
+	afterEach( () => setMockRouteSearch( {} ) );
+
+	it( 'follows the chart type over a saved day on a year', () => {
+		setMockRouteSearch( { preset: 'last-12-months' } );
+		const field = widget.attributes.find( attribute => attribute.id === 'chartInterval' );
+		const Menu = field?.Edit as unknown as ComponentType< {
+			data: TrafficChartAttributes;
+			field: typeof field;
+			onChange: () => void;
+		} >;
+		const props = { field, onChange: jest.fn() };
+
+		const { rerender } = render(
+			<Menu { ...props } data={ { chartInterval: 'day', chartType: 'line' } } />
+		);
+		expect( screen.getByRole( 'button', { name: 'By days' } ) ).toBeInTheDocument();
+
+		rerender( <Menu { ...props } data={ { chartInterval: 'day', chartType: 'bar' } } /> );
+		expect( screen.getByRole( 'button', { name: 'By months' } ) ).toBeInTheDocument();
+	} );
+} );
+
 describe( 'TrafficChart bucket size', () => {
 	it.each( [
 		[ 'week', 'day' ],
 		[ 'month', 'week' ],
+		[ 'year', 'year' ],
 	] as const )( 'draws the saved bucket: %s', ( chartInterval, range ) => {
 		render(
 			<TrafficChartRender attributes={ { reportParams: reportParams( range ), chartInterval } } />
 		);
 
 		expect( requestedBucket() ).toBe( chartInterval );
+	} );
+
+	it.each( [
+		[ 'line', 'day' ],
+		[ 'bar', 'month' ],
+	] as const )( 'draws a saved day on a year as a %s chart: %s', ( chartType, expected ) => {
+		const year = {
+			from: '2025-07-01T00:00:00',
+			to: '2026-06-30T23:59:59',
+			interval: 'month',
+		} as ReportParams;
+
+		render(
+			<TrafficChartRender attributes={ { reportParams: year, chartInterval: 'day', chartType } } />
+		);
+
+		expect( requestedBucket() ).toBe( expected );
 	} );
 
 	it( "draws the range's default bucket, not the page's, when none is saved", () => {
@@ -229,6 +272,18 @@ describe( 'TrafficChart bucket size', () => {
 		);
 
 		expect( requestedBucket() ).toBe( 'hour' );
+	} );
+
+	it( 'draws days for a saved bucket the plan locks', () => {
+		render(
+			<ReportScopeProvider dateLimits={ { lockedPresetIds: [], lockedIntervals: [ 'week' ] } }>
+				<TrafficChartRender
+					attributes={ { reportParams: reportParams( 'day' ), chartInterval: 'week' } }
+				/>
+			</ReportScopeProvider>
+		);
+
+		expect( requestedBucket() ).toBe( 'day' );
 	} );
 
 	// The Group by attribute this widget used to declare (WOOA7S-1987): a saved

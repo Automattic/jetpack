@@ -8,6 +8,7 @@
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-ip": "@dev",
+		"automattic/jetpack-menu-badges": "@dev",
 		"automattic/jetpack-protect-models": "@dev",
 		"automattic/jetpack-protect-status": "@dev",
 		"automattic/jetpack-status": "@dev",
@@ -67,9 +68,8 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.3.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-protect/compare/v${old}...v${new}"

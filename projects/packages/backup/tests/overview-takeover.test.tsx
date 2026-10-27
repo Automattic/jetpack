@@ -34,7 +34,7 @@ const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected
 /**
  * One rewindable-activity entry, in WPCOM's shape.
  *
- * @param gridicon - `cloud` marks a backup row; anything else does not.
+ * @param gridicon - `cloud` makes a backup row; anything else is a post, which isn't one.
  * @return A raw activity entry.
  */
 function activityEntry( gridicon: string ) {
@@ -46,7 +46,8 @@ function activityEntry( gridicon: string ) {
 		rewind_id: '1786644531.123',
 		actor: { type: 'Application', name: 'Jetpack' },
 		content: { text: '46 plugins, 23 themes' },
-		name: 'rewind__backup_complete_full',
+		// The Overview also treats a rewindable entry with a backup name as a backup.
+		name: gridicon === 'cloud' ? 'rewind__backup_complete_full' : 'post__published',
 	};
 }
 
@@ -312,5 +313,43 @@ describe( 'Backup-state read failure', () => {
 				{ selector: '#a11y-speak-assertive' }
 			)
 		).resolves.toBeInTheDocument();
+	} );
+} );
+
+// Which guide "Learn more" opens depends on why the newest attempt failed. The status has to
+// travel from `/jetpack/v4/backups` to the link unchanged, so this goes through the Overview.
+describe( 'The Learn more link on failing backups', () => {
+	const failed = ( status: string ) => ( { ...UNUSABLE_BACKUP, status, discarded: '0' } );
+
+	beforeEach( () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: 'example.wordpress.com',
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+	} );
+
+	it.each( [
+		[ 'credential-error', 'jetpack-backup-credentials' ],
+		[ 'http-only-error', 'jetpack-backup-credentials' ],
+		[ 'not-accessible', 'jetpack-backup-site-unreachable' ],
+		[ 'error', 'jetpack-backup-troubleshooting' ],
+		[ 'a-status-wpcom-adds-later', 'jetpack-backup-troubleshooting' ],
+	] )( 'follows a newest attempt of %s to %s', async ( status, slug ) => {
+		const href = `https://jetpack.com/redirect/?source=${ slug }&site=example.wordpress.com`;
+
+		// The panel takes the body over when no restore point is listed...
+		mockEndpoints( { backups: [ failed( status ) ] } );
+		const { unmount } = render( <OverviewStage /> );
+		const panelLink = await screen.findByRole( 'link', { name: /^Learn more/ } );
+		expect( panelLink ).toHaveAttribute( 'href', href );
+		expect( panelLink ).toHaveAttribute( 'target', '_blank' );
+		unmount();
+
+		// ...and the banner stands in when restore points are listed.
+		queryClient.clear();
+		mockEndpoints( { backups: [ failed( status ) ], activity: [ activityEntry( 'cloud' ) ] } );
+		render( <OverviewStage /> );
+		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /^Learn more/ } ) ).toHaveAttribute( 'href', href );
 	} );
 } );

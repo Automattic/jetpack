@@ -1,0 +1,52 @@
+/**
+ * The plan a theme belongs to, on its card and in the preview.
+ */
+
+/* Literal colours: this screen loads neither color-studio nor the
+   block library, so --studio-* and --wp-admin-theme-color are both
+   undefined here. These are wp-admin's own text and border greys. */
+.wpcom-themes-tab__plan {
+	display: inline-block;
+	padding: 4px 8px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	background: #fff;
+	color: #1d2327;
+	font-size: 12px;
+	line-height: 1.2;
+}
+
+/* Core's cards position their own children, so the screenshot is
+   already a containing block. */
+.theme-browser .theme .wpcom-themes-tab__plan--on-screenshot {
+	position: absolute;
+	inset-block-start: 12px;
+	inset-inline-end: 12px;
+	z-index: 1;
+}
+
+.install-theme-info .wpcom-themes-tab__plan {
+	display: block;
+	width: fit-content;
+	margin-block-start: 10px;
+}
+
+/* Between core's tabs and its Feature Filter button. */
+.wpcom-themes-tab__pricing {
+	margin-inline: 10px;
+}
+
+/* Sized like core's own selects in this bar, to match its search box.
+   Core middle-aligns selects; baseline puts the text level with the tabs. */
+.wp-filter .wpcom-themes-tab__pricing select {
+	min-height: 32px;
+	line-height: 2.14286;
+	vertical-align: baseline;
+}
+
+@media screen and (max-width: 782px) {
+
+	.wp-filter .wpcom-themes-tab__pricing select {
+		min-height: 40px;
+	}
+}

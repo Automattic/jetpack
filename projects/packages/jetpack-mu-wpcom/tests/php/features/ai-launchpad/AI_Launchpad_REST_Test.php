@@ -322,6 +322,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( 'first_post_published' => true ), $data['checklist_statuses'] );
 		$this->assertFalse( $data['dismissed'] );
 		$this->assertTrue( $data['is_eligible'] );
+		$this->assertFalse( $data['ai_built'] );
 		$this->assertSame( home_url(), $data['site']['url'] );
 		$this->assertSame( get_bloginfo( 'name' ), $data['site']['title'] );
 		$this->assertSame( get_bloginfo( 'description' ), $data['site']['description'] );
@@ -676,6 +677,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame(
 			array(
 				'source'   => 'ai',
+				'ai_built' => false,
 				'inferred' => array(
 					'goal'  => 'write',
 					'niche' => 'hiking',
@@ -1457,6 +1459,170 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Records on the seeded list that it was tailored for an AI-built site.
+	 */
+	private function mark_list_ai_built() {
+		$envelope             = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$envelope['ai_built'] = true;
+		update_option( 'wpcom_ai_launchpad_ai_output', $envelope, false );
+	}
+
+	/**
+	 * A list tailored for an AI-built site never renders the builder's tasks, not even through the sell
+	 * goal's theme guarantee or the short-list backfill; a list tailored before the site was AI-built keeps them.
+	 *
+	 * @dataProvider provide_ai_built_lists
+	 *
+	 * @param string[] $seeded  The seeded task ids.
+	 * @param string   $goal    The goal.
+	 * @param bool     $flagged Whether the list was tailored for an AI-built site.
+	 * @param bool     $hidden  Whether every builder task stays hidden.
+	 */
+	#[DataProvider( 'provide_ai_built_lists' )]
+	public function test_get_hides_the_builders_tasks_on_an_ai_built_list( $seeded, $goal, $flagged, $hidden ) {
+		$this->seed_ai_output_with_tasks( $seeded, $goal );
+		if ( $flagged ) {
+			$this->mark_list_ai_built();
+		} else {
+			$this->seed_builder_spec();
+		}
+
+		$ids = $this->rendered_ids();
+
+		$this->assertSame( $hidden, array() === array_values( array_intersect( $ids, AI_Launchpad_REST::AI_BUILT_EXCLUDED_TASK_IDS ) ) );
+	}
+
+	/**
+	 * Data provider for test_get_hides_the_builders_tasks_on_an_ai_built_list.
+	 *
+	 * @return array
+	 */
+	public static function provide_ai_built_lists() {
+		return array(
+			'a short write list'                     => array( array( 'complete_profile', 'site_launched' ), 'write', true, true ),
+			'a sell list without a theme task'       => array( array( 'woo_products', 'site_launched' ), 'sell', true, true ),
+			'sell list, live spec only, not flagged' => array( array( 'woo_products', 'site_launched' ), 'sell', false, false ),
+		);
+	}
+
+	/**
+	 * Seeds a builder spec so the site counts as AI-built, with a site title for the inferred input.
+	 */
+	private function seed_builder_spec() {
+		update_option( 'blogname', 'Sunrise Bakery' );
+		update_option(
+			'big_sky_site_metadata',
+			wp_json_encode(
+				array(
+					'siteType'        => 'business',
+					'siteDescription' => 'A bakery.',
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+	}
+
+	/**
+	 * A site without a list gets the builder's input to tailor with, recorded as the wizard's answers.
+	 */
+	public function test_get_serves_the_builder_input() {
+		$this->seed_builder_spec();
+
+		$data = $this->call_api( 'GET' )->get_data();
+
+		$this->assertSame(
+			array(
+				'goal'        => 'build',
+				'site_name'   => 'Sunrise Bakery',
+				'description' => 'A bakery.',
+			),
+			$data['inferred_input']
+		);
+		$this->assertSame( 'build', $data['wizard']['goal'] );
+	}
+
+	/**
+	 * A wizard the user already finished keeps its answers, and its goal is the one tailored for.
+	 */
+	public function test_get_keeps_a_finished_wizards_goal() {
+		$this->seed_builder_spec();
+		$wizard = array(
+			'version'     => 1,
+			'goal'        => 'sell',
+			'site_name'   => 'My Shop',
+			'description' => 'Shoes.',
+		);
+		update_option( AI_Launchpad_REST::OPTION_WIZARD, $wizard, false );
+
+		$data = $this->call_api( 'GET' )->get_data();
+
+		$this->assertSame( 'sell', $data['inferred_input']['goal'] );
+		$this->assertSame( $wizard, get_option( AI_Launchpad_REST::OPTION_WIZARD ) );
+	}
+
+	/**
+	 * Only a site admin's load without a list gets the builder's input.
+	 *
+	 * @dataProvider provide_loads_without_input
+	 *
+	 * @param string $setup The setup to apply.
+	 */
+	#[DataProvider( 'provide_loads_without_input' )]
+	public function test_get_withholds_the_builder_input( $setup ) {
+		$this->seed_builder_spec();
+		if ( 'editor' === $setup ) {
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'dummy_editor',
+						'user_pass'  => 'dummy_pass',
+						'role'       => 'editor',
+					)
+				)
+			);
+		} elseif ( 'tailored' === $setup ) {
+			$this->seed_tailored_site();
+		} else {
+			delete_option( 'big_sky_site_metadata' );
+		}
+
+		$this->assertNull( $this->call_api( 'GET' )->get_data()['inferred_input'] );
+	}
+
+	/**
+	 * Data provider for test_get_withholds_the_builder_input.
+	 *
+	 * @return array
+	 */
+	public static function provide_loads_without_input() {
+		return array(
+			'an editor'        => array( 'editor' ),
+			'an existing list' => array( 'tailored' ),
+			'no builder spec'  => array( 'no_spec' ),
+		);
+	}
+
+	/**
+	 * A saved list records that the site was AI-built when it was tailored.
+	 */
+	public function test_put_tailored_records_whether_the_site_is_ai_built() {
+		update_option( 'big_sky_site_metadata', wp_json_encode( array( 'siteType' => 'business' ), JSON_UNESCAPED_SLASHES ) );
+		$payload          = self::valid_payload();
+		$payload['tasks'] = array_map(
+			function ( $id ) {
+				return array(
+					'id'       => $id,
+					'subtitle' => 'Subtitle for ' . $id . '.',
+				);
+			},
+			array( 'complete_profile', 'connect_social_media', 'add_site_icon', 'verify_email', 'domain_upsell', 'site_launched' )
+		);
+
+		$this->assertSame( 200, $this->call_api( 'PUT', '/tailored', $payload, array( 'source' => 'ai' ) )->get_status() );
+		$this->assertTrue( get_option( 'wpcom_ai_launchpad_ai_output' )['ai_built'] );
+	}
+
+	/**
 	 * A payload that breaks the output contract is rejected whole, with the code naming the broken rule, and
 	 * nothing is persisted.
 	 *
@@ -1480,7 +1646,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_invalid_payloads() {
 		return array(
-			'a seventh task'                         => array(
+			'a seventh task'                        => array(
 				static function ( $payload ) {
 					$payload['tasks'][] = array(
 						'id'       => 'drive_traffic',
@@ -1490,65 +1656,56 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'a missing required field'               => array(
+			'a missing required field'              => array(
 				static function ( $payload ) {
 					unset( $payload['first_post_draft'] );
 					return $payload;
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'an inferred_goal outside its enum'      => array(
+			'an inferred_goal outside its enum'     => array(
 				static function ( $payload ) {
 					$payload['inferred']['inferred_goal'] = 'cook';
 					return $payload;
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'a theme_category outside its enum'      => array(
+			'a theme_category outside its enum'     => array(
 				static function ( $payload ) {
 					$payload['inferred']['theme_category'] = 'hiking';
 					return $payload;
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'a page intro for an unknown page task'  => array(
+			'a page intro for an unknown page task' => array(
 				static function ( $payload ) {
 					$payload['page_intros'] = array( 'add_faq_page' => 'Answers to what people ask most.' );
 					return $payload;
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'fewer than four catalog-valid task ids' => array(
-				static function ( $payload ) {
-					$payload['tasks'][1]['id'] = 'made_up_task_one';
-					$payload['tasks'][2]['id'] = 'made_up_task_two';
-					$payload['tasks'][3]['id'] = 'made_up_task_three';
-					return $payload;
-				},
-				'ai_launchpad_unknown_tasks',
-			),
-			'a last task that is not a launch task'  => array(
+			'a last task that is not a launch task' => array(
 				static function ( $payload ) {
 					$payload['tasks'][5]['id'] = 'drive_traffic';
 					return $payload;
 				},
 				'ai_launchpad_missing_launch_task',
 			),
-			'a subtitle that is only a script tag'   => array(
+			'a subtitle that is only a script tag'  => array(
 				static function ( $payload ) {
 					$payload['tasks'][0]['subtitle'] = '<script>alert(1)</script>';
 					return $payload;
 				},
 				'ai_launchpad_invalid_subtitle',
 			),
-			'a subtitle containing a URL'            => array(
+			'a subtitle containing a URL'           => array(
 				static function ( $payload ) {
 					$payload['tasks'][0]['subtitle'] = 'Visit https://example.com for tips.';
 					return $payload;
 				},
 				'ai_launchpad_subtitle_contains_url',
 			),
-			'a subtitle containing template syntax'  => array(
+			'a subtitle containing template syntax' => array(
 				static function ( $payload ) {
 					$payload['tasks'][0]['subtitle'] = 'Write about {{brand_name}} today.';
 					return $payload;
@@ -1574,19 +1731,20 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that PUT /tailored drops unknown task IDs but persists when enough survive.
+	 * Test that PUT /tailored drops unknown task IDs and still persists when only the launch task survives.
 	 */
 	public function test_put_tailored_drops_unknown_task_ids() {
-		$payload                   = self::valid_payload();
-		$payload['tasks'][1]['id'] = 'made_up_task';
+		$payload = self::valid_payload();
+		for ( $i = 0; $i < 5; $i++ ) {
+			$payload['tasks'][ $i ]['id'] = 'made_up_task_' . $i;
+		}
 
 		$result = $this->call_api( 'PUT', '/tailored', $payload );
 
 		$this->assertSame( 200, $result->get_status() );
 
 		$persisted_tasks = get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['tasks'];
-		$this->assertCount( 5, $persisted_tasks );
-		$this->assertNotContains( 'made_up_task', array_column( $persisted_tasks, 'id' ) );
+		$this->assertSame( array( end( $payload['tasks'] )['id'] ), array_column( $persisted_tasks, 'id' ) );
 	}
 
 	/**

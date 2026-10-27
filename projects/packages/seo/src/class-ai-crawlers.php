@@ -15,7 +15,7 @@
  *
  * Caveat: the `robots_txt` filter only feeds WordPress's *virtual* robots.txt.
  * A detected static file in the WordPress installation is not modified — a
- * limitation surfaced in the AI tab (see {@see self::has_static_robots_txt()}).
+ * limitation surfaced in the GEO tab (see {@see self::has_static_robots_txt()}).
  *
  * @package automattic/jetpack-seo-package
  */
@@ -31,11 +31,19 @@ class Ai_Crawlers {
 	 * Option holding the sparse map of per-crawler overrides
 	 * (`slug => bool`, true = blocked). Only entries that deviate from the bot's
 	 * default policy are stored. Registered with `show_in_rest` by
-	 * {@see Dashboard_Data::register_rest_settings()} so the AI tab can save it.
+	 * {@see Dashboard_Data::register_rest_settings()} so the GEO tab can save it.
 	 *
 	 * @var string
 	 */
 	const OPTION = 'jetpack_seo_ai_crawler_overrides';
+
+	/**
+	 * The `robots_txt` priority: after WordPress.com Simple appends bare `Disallow`
+	 * lines at 11, which would otherwise land in the last AI crawler group.
+	 *
+	 * @var int
+	 */
+	const ROBOTS_TXT_PRIORITY = 12;
 
 	/**
 	 * Wire the robots.txt filter.
@@ -43,7 +51,7 @@ class Ai_Crawlers {
 	 * @return void
 	 */
 	public static function init() {
-		add_filter( 'robots_txt', array( __CLASS__, 'append_directives' ), 10, 2 );
+		add_filter( 'robots_txt', array( __CLASS__, 'append_directives' ), self::ROBOTS_TXT_PRIORITY, 2 );
 	}
 
 	/**
@@ -154,7 +162,7 @@ class Ai_Crawlers {
 	/**
 	 * Whether WordPress.com's site-wide data-sharing opt-out is enabled.
 	 *
-	 * Its later `robots_txt` filter remains authoritative over per-bot settings.
+	 * Its `robots_txt` filter remains authoritative over per-bot settings.
 	 *
 	 * @return bool
 	 */
@@ -271,7 +279,7 @@ class Ai_Crawlers {
 	 * Whether the site allows search-engine (and therefore AI-crawler) indexing.
 	 *
 	 * When `blog_public` is off, WordPress disallows everything in robots.txt, so
-	 * per-crawler controls are moot — the AI tab surfaces this instead of showing
+	 * per-crawler controls are moot — the GEO tab surfaces this instead of showing
 	 * toggles that can't take effect.
 	 *
 	 * @return bool
@@ -321,17 +329,15 @@ class Ai_Crawlers {
 	 * Append `Disallow: /` blocks for each blocked AI crawler to robots.txt.
 	 *
 	 * @param string $output The robots.txt content assembled so far.
-	 * @param bool   $public Whether the site is public (`blog_public`). When
-	 *                       false WordPress already disallows everything, but the
-	 *                       explicit per-bot blocks are still valid and harmless.
+	 * @param bool   $public Whether the site is public (`blog_public`). Unused: the
+	 *                       per-bot blocks apply either way.
 	 * @return string The robots.txt content with AI-crawler directives appended.
 	 */
 	public static function append_directives( $output, $public ) {
 		unset( $public );
 
-		// WordPress.com's existing privacy filter owns the site-wide opt-out and
-		// runs later at priority 12. Defer to it instead of emitting duplicate
-		// directives from this per-bot filter.
+		// WordPress.com's existing privacy filter owns the site-wide opt-out. Defer
+		// to it instead of emitting duplicate directives from this per-bot filter.
 		if ( self::is_path_based_multisite() || self::has_data_sharing_opt_out() ) {
 			return $output;
 		}
@@ -353,7 +359,7 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * The AI tab's crawler bootstrap payload: the catalog (camelCased for JS), the
+	 * The GEO tab's crawler bootstrap payload: the catalog (camelCased for JS), the
 	 * current sparse override map, and the environment flags that decide whether
 	 * the controls render or are replaced by an explanation.
 	 *
@@ -385,7 +391,7 @@ class Ai_Crawlers {
 
 	/**
 	 * URL of the settings screen holding "Prevent third-party sharing", linked from
-	 * the AI tab when that setting is governing crawler access.
+	 * the GEO tab when that setting is governing crawler access.
 	 *
 	 * Points at wp-admin → Settings → Reading, which is the same-origin home of the
 	 * option on the sites where it exists (WordPress.com). Left as a package method

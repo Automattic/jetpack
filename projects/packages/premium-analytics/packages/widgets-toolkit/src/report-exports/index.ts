@@ -41,6 +41,7 @@ export {
 	getLocationColumnLabel,
 	getLocationsReportQueryParams,
 	getLocationsReportSection,
+	getLocationsSectionLabel,
 	getLocationsScopeParams,
 	locationsCsvExporter,
 	supportsLocationsCountryFilter,
@@ -51,7 +52,6 @@ export {
 export {
 	aggregateUtmRows,
 	getUtmDimensionLabel,
-	getUtmDimensionOptions,
 	getUtmReportQueryParams,
 	getUtmReportSection,
 	utmCsvExporters,

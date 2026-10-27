@@ -12,7 +12,6 @@ import {
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
-	ExporterCsvDownloadButton,
 	WIDGET_ROW_LIMIT,
 	calculateDelta,
 	fileDownloadsCsvExporter,
@@ -20,27 +19,28 @@ import {
 	safeHttpUrl,
 	LeaderboardChart,
 	LeaderboardSkeleton,
-	ReportLink,
 	buildLeaderboardRow,
 	resolveLeaderboardRowAction,
 	sharePercentage,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
  */
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
-import { type FileDownloadsAttributes } from './widget';
 /**
  * Types
  */
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type FileDownloadsAttributes = Record< never, never >;
 
 type FileDownloadsRenderAttributes = FileDownloadsAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -125,11 +125,13 @@ export function FileDownloadsLeaderboard( {
 }: FileDownloadsLeaderboardProps ) {
 	return (
 		<LeaderboardChart
+			chartTitle={ __( 'Top downloaded', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows, withComparison ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Files', 'jetpack-premium-analytics-pkg' ), metric: 'downloads' } }
 		/>
 	);
 }
@@ -149,40 +151,36 @@ function FileDownloadsInner() {
 		__( 'You don’t have downloads recorded yet.', 'jetpack-premium-analytics-pkg' )
 	);
 
+	useReportActions( {
+		csv: {
+			exporter: fileDownloadsCsvExporter,
+			status: { isLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<div className={ styles.content }>
-				<WidgetState
-					isLoading={ emptyState.isLoading }
-					isFetching={ isFetching }
-					// `placeholderData` keeps the prior period's rows on screen, so a
-					// transient refetch failure should not replace them with an error.
-					isError={ rows.length === 0 && isError }
-					isEmpty={ rows.length === 0 }
-					error={ {
-						description: __(
-							"We couldn't load file downloads. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						actions: [
-							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-						],
-					} }
-					empty={ emptyState.empty }
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />
-				</WidgetState>
-			</div>
-			<WidgetFooter>
-				<ReportLink report="downloads" />
-				<ExporterCsvDownloadButton
-					exporter={ fileDownloadsCsvExporter }
-					status={ { isLoading, isFetching, isError: primary.isError } }
-					rowCount={ rows.length }
-				/>
-			</WidgetFooter>
-		</>
+		<div className={ styles.content }>
+			<WidgetState
+				isLoading={ emptyState.isLoading }
+				isFetching={ isFetching }
+				// `placeholderData` keeps the prior period's rows on screen, so a
+				// transient refetch failure should not replace them with an error.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ rows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load file downloads. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				} }
+				empty={ emptyState.empty }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
+				<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />
+			</WidgetState>
+		</div>
 	);
 }
 

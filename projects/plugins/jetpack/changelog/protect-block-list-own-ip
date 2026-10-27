@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Protect: Refuse to save a firewall block list that includes your own IP address.

@@ -25,10 +25,12 @@ return (
 		rows={ rows }
 		status={ { isLoading, isFetching, isError, hasComparison, refetch } }
 		error={ describeError( error, {
-			retryDescription: __( "We couldn't load video plays. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
+			retryDescription: __(
+				"We couldn't load video plays. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			),
 			onRetry: refetch,
 		} ) }
-		footer={ <ReportLink report="videos" /> }
 	/>
 );
 ```
@@ -170,7 +172,9 @@ action: {
 
 For a post, page, or email with a detail page inside the dashboard, use the `postLink` action.
 `PostTitleLink` chooses the destination: the internal detail route when the row carries a post
-ID, the public URL when it does not, and plain text when neither is usable.
+ID and the reader can open post details, the public URL otherwise, and plain text when neither is
+usable. A row whose title opens the detail route and that also has a public URL gets a trailing
+"View" action, which opens the live content in a new tab and shows on hover or focus.
 
 ```tsx
 const row = {
@@ -190,10 +194,10 @@ const row = {
 };
 ```
 
-A `postLink` row carries no media, and never becomes a chart button: a chart row that is a
-button cannot nest an anchor.
+A `postLink` row renders its media inside the link, and never becomes a chart button: a chart row
+that is a button cannot nest an anchor.
 
-Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Unlike `postLink`, a `videoLink` row renders its media inside the detail link. It is never a chart button.
+Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Like `postLink`, a `videoLink` row renders its media inside the detail link and gets the "View" action beside a title that opens it. It is never a chart button.
 
 ```tsx
 action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },
@@ -242,20 +246,22 @@ inline padding.
 
 ## Props
 
-| Prop               | Type                   | Default                                                                | Description                                                        |
-| ------------------ | ---------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `data`             | `LeaderboardChartData` | required                                                               | Array of leaderboard items with label, values, shares, and deltas  |
-| `className`        | `string`               | -                                                                      | Additional CSS classes for container                               |
-| `loading`          | `boolean`              | `false`                                                                | Shows loading skeleton when true                                   |
-| `withComparison`   | `boolean`              | `false`                                                                | Enables comparison mode with previous period data                  |
-| `withOverlayLabel` | `boolean`              | `false`                                                                | Places labels on top of bars instead of beside them                |
-| `legendLabels`     | `LegendLabels`         | `{ primary: 'Current period', comparison: 'Previous period' }`         | Custom legend labels                                               |
-| `showLegend`       | `boolean`              | `true`                                                                 | Whether to show the legend                                         |
-| `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true } }` | Value formatting configuration                                     |
-| `emptyState`       | `ReactNode`            | -                                                                      | Custom empty state content (overrides default)                     |
-| `emptyStateIcon`   | `ReactNode`            | The `search` magnifier                                                 | Icon to display in default empty state                             |
-| `emptyStateText`   | `string`               | `'We couldn’t find results for this time period.'`                     | Text for default empty state                                       |
-| `fitRows`          | `boolean`              | `true`                                                                 | Show only the rows that fit the widget height instead of scrolling |
+| Prop               | Type                   | Default                                                        | Description                                                                                                                                                    |
+| ------------------ | ---------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data`             | `LeaderboardChartData` | required                                                       | Array of leaderboard items with label, values, shares, and deltas                                                                                              |
+| `className`        | `string`               | -                                                              | Additional CSS classes for container                                                                                                                           |
+| `loading`          | `boolean`              | `false`                                                        | Shows loading skeleton when true                                                                                                                               |
+| `withComparison`   | `boolean`              | `false`                                                        | Enables comparison mode with previous period data                                                                                                              |
+| `withOverlayLabel` | `boolean`              | `false`                                                        | Places labels on top of bars instead of beside them                                                                                                            |
+| `legendLabels`     | `LegendLabels`         | `{ primary: 'Current period', comparison: 'Previous period' }` | Custom legend labels                                                                                                                                           |
+| `showLegend`       | `boolean`              | `true`                                                         | Whether to show the legend                                                                                                                                     |
+| `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true } }`      | Value formatting configuration                                                                                                                                 |
+| `emptyState`       | `ReactNode`            | -                                                              | Custom empty state content (overrides default)                                                                                                                 |
+| `emptyStateIcon`   | `ReactNode`            | The `search` magnifier                                         | Icon to display in default empty state                                                                                                                         |
+| `emptyStateText`   | `string`               | `'We couldn’t find results for this time period.'`             | Text for default empty state                                                                                                                                   |
+| `fitRows`          | `boolean`              | `true`                                                         | Show only the rows that fit the widget height instead of scrolling                                                                                             |
+| `columns`          | `LeaderboardColumns`   | -                                                              | Names the rows (`label`) and the metric in a header, hidden on height-1 tiles; the metric also adds the unit to an abbreviated value's tooltip (`4,186 views`) |
+| `chartTitle`       | `string`               | -                                                              | What the chart shows; the chart is named "Chart: <title>"                                                                                                      |
 
 ### LeaderboardChartData Type
 

@@ -4280,6 +4280,71 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A [contact-form] nested inside another renders as one form holding every field.
+	 *
+	 * @dataProvider nested_contact_form_shortcode_provider
+	 *
+	 * @param string $shortcode       Shortcode content with a nested form.
+	 * @param array  $expected_labels Labels of the fields the rendered form should hold.
+	 */
+	#[DataProvider( 'nested_contact_form_shortcode_provider' )]
+	public function test_nested_contact_form_shortcode_merges_into_outer_form( $shortcode, $expected_labels ) {
+		$html = apply_shortcodes( $shortcode );
+
+		$labels = array();
+		foreach ( Contact_Form::$last->fields as $field ) {
+			$labels[] = $field->get_attribute( 'label' );
+		}
+
+		$this->assertSame( 1, substr_count( $html, '<form' ) );
+		$this->assertSame( $expected_labels, $labels );
+	}
+
+	/**
+	 * A nested form's attributes fill in the ones the outer form left unset, without overriding it.
+	 */
+	public function test_nested_contact_form_shortcode_merges_attributes_with_outer_form_winning() {
+		apply_shortcodes( "[contact-form subject='Outer subject'][contact-form subject='Inner subject' to='inner@example.com' submit_button_text='Send it'][contact-field label='Email' type='email'/][/contact-form][/contact-form]" );
+
+		$form = Contact_Form::$last;
+		$this->assertSame( 'Outer subject', $form->get_attribute( 'subject' ) );
+		$this->assertSame( 'inner@example.com', $form->get_attribute( 'to' ) );
+		$this->assertSame( 'Send it', $form->get_attribute( 'submit_button_text' ) );
+	}
+
+	/**
+	 * Fields are built after a nested form's attributes are merged, so a subject field defaults to the inherited subject.
+	 */
+	public function test_nested_contact_form_shortcode_attributes_reach_fields() {
+		$html = apply_shortcodes( "[contact-form][contact-form subject='Inner subject'][contact-field label='Subject' type='subject'/][/contact-form][/contact-form]" );
+
+		$this->assertSame( 'Inner subject', Contact_Form::$last->get_attribute( 'subject' ) );
+		$this->assertStringContainsString( "value='Inner subject'", $html );
+	}
+
+	/**
+	 * Data provider for test_nested_contact_form_shortcode_merges_into_outer_form.
+	 *
+	 * @return array
+	 */
+	public static function nested_contact_form_shortcode_provider() {
+		return array(
+			'only a nested form'       => array(
+				"[contact-form][contact-form][contact-field label='Email' type='email'/][/contact-form][/contact-form]",
+				array( 'Email' ),
+			),
+			'field before nested form' => array(
+				"[contact-form][contact-field label='Name' type='name'/][contact-form][contact-field label='Email' type='email'/][/contact-form][/contact-form]",
+				array( 'Name', 'Email' ),
+			),
+			'self-closing nested form' => array(
+				"[contact-form][contact-field label='Name' type='name'/][contact-form /][/contact-form]",
+				array( 'Name' ),
+			),
+		);
+	}
+
+	/**
 	 * Test is_webhooks_enabled returns true by default.
 	 */
 	public function test_is_webhooks_enabled_default() {

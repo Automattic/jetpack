@@ -8,7 +8,9 @@
 namespace Automattic\Jetpack\Scan;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\My_Jetpack\Products\Protect;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Core_Json_Api_Endpoints;
 
@@ -104,6 +106,10 @@ class Admin_Sidebar_Link {
 	 * Jetpack_Core_Json_Api_Endpoints::rewind_data() serves it from that cache.
 	 */
 	public function refresh_state_cache() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return;
+		}
+
 		Jetpack_Core_Json_Api_Endpoints::get_scan_state();
 		Jetpack_Core_Json_Api_Endpoints::get_rewind_data();
 	}
@@ -131,12 +137,12 @@ class Admin_Sidebar_Link {
 	/**
 	 * Check if we should display the Scan menu item.
 	 *
-	 * It will only be displayed if site has Scan enabled, is not an Atomic site, and the stand-alone Protect plugin is not active, because it will have a menu item of its own.
+	 * It will only be displayed if site has Scan enabled, is not an Atomic site, and no Protect page is registered, because that has a menu item of its own.
 	 *
 	 * @return boolean
 	 */
 	private function should_show_scan() {
-		return $this->has_scan() && ! $this->has_protect_plugin() && ! ( new Host() )->is_woa_site();
+		return $this->has_scan() && ! $this->has_protect_page() && ! ( new Host() )->is_woa_site();
 	}
 
 	/**
@@ -166,19 +172,22 @@ class Admin_Sidebar_Link {
 	}
 
 	/**
-	 * Detects if Protect plugin is active.
+	 * Detects if the Protect plugin or the Protect dashboard module provides the Protect page.
 	 *
 	 * @return boolean
 	 */
-	private function has_protect_plugin() {
-		return class_exists( 'Jetpack_Protect' );
+	private function has_protect_page() {
+		if ( method_exists( Protect::class, 'has_protect_page' ) ) {
+			return Protect::has_protect_page();
+		}
+		return class_exists( 'Jetpack_Protect' ) || did_action( 'jetpack_protect_dashboard_initialized' );
 	}
 
 	/**
 	 * Triggers a cron job to refresh the Scan and Rewind state cache.
 	 */
 	private function maybe_refresh_transient_cache() {
-		if ( $this->schedule_refresh_checked ) {
+		if ( ( new Status() )->is_offline_mode() || $this->schedule_refresh_checked ) {
 			return;
 		}
 

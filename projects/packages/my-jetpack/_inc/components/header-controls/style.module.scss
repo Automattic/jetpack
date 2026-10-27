@@ -1,0 +1,80 @@
+// The shared Overview pieces bring their own margins; the gaps space them here.
+.content {
+	max-inline-size: 20rem;
+
+	ul {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+		margin: 0;
+	}
+
+	li {
+		margin: 0;
+	}
+
+	.illustration {
+		margin-block-end: 0;
+	}
+}
+
+// A circle around the avatar, not `Button`'s box; same colours and focus ring
+// as `Button`'s minimal variant.
+.trigger {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	inline-size: 32px;
+	block-size: 32px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	cursor: pointer;
+
+	&:hover,
+	&[data-popup-open] {
+		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	}
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: var(--wpds-border-width-focus);
+	}
+}
+
+.avatar {
+	inline-size: 24px;
+	block-size: 24px;
+	border-radius: 50%;
+}
+
+.dot {
+	position: absolute;
+	inset-block-start: 2px;
+	inset-inline-end: 2px;
+	inline-size: 8px;
+	block-size: 8px;
+	border-radius: 50%;
+	box-shadow: 0 0 0 2px var(--jp-white);
+	background-color: var(--jp-gray-40);
+
+	&.success {
+		background-color: var(--jp-green-50);
+	}
+
+	&.warning {
+		background-color: var(--jp-yellow-50);
+	}
+
+	&.error {
+		background-color: var(--jp-red);
+	}
+}
+
+.divider {
+	margin: 0;
+	border: 0;
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+}

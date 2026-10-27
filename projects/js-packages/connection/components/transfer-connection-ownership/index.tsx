@@ -9,12 +9,13 @@ import { useEffect } from 'react';
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store';
+import { isConnectionOwner } from '../../types';
 import OwnerCandidateList from './candidate-list';
 import TransferConfirmStep from './confirm-step';
 import TransferDoneStep from './done-step';
-import useOwnershipTransfer from './use-ownership-transfer';
+import useOwnershipTransfer, { type ConnectionOwnerCandidate } from './use-ownership-transfer';
 
-export type { ConnectionOwnerCandidate } from './use-ownership-transfer';
+export type { ConnectionOwnerCandidate };
 
 type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
 
@@ -27,6 +28,8 @@ export interface TransferConnectionOwnershipProps {
 	onTransferred?: ( newOwnerId: number ) => void;
 	/** Called while a transfer is in flight, so a host can hold its own exits shut. */
 	onBusyChange?: ( isBusy: boolean ) => void;
+	/** Surface to report Tracks events as, e.g. 'connectors'. Sent as null when omitted. */
+	trackingContext?: string;
 }
 
 /**
@@ -42,6 +45,7 @@ const TransferConnectionOwnership = ( {
 	apiNonce,
 	onTransferred,
 	onBusyChange,
+	trackingContext,
 }: TransferConnectionOwnershipProps ) => {
 	const {
 		candidates,
@@ -54,8 +58,10 @@ const TransferConnectionOwnership = ( {
 		transfer,
 		isTransferring,
 		error,
-	} = useOwnershipTransfer( { apiRoot, apiNonce, onTransferred } );
+	} = useOwnershipTransfer( { apiRoot, apiNonce, onTransferred, trackingContext } );
 
+	// Null only while the request is in flight: a failure resolves to an empty list.
+	const isLoading = null === candidates;
 	const hasCandidates = !! candidates?.length;
 
 	useEffect( () => {
@@ -66,6 +72,10 @@ const TransferConnectionOwnership = ( {
 		( select: StoreSelector ) => !! select( STORE_ID ).getHasProtectedOwner(),
 		[]
 	);
+	const currentOwner = useSelect( ( select: StoreSelector ) => {
+		const owner = select( STORE_ID ).getConnectionOwner();
+		return isConnectionOwner( owner ) ? owner : null;
+	}, [] );
 
 	if ( 'done' === step && selectedCandidate ) {
 		return (
@@ -86,6 +96,7 @@ const TransferConnectionOwnership = ( {
 			<Stack direction="column" gap="lg" className="jp-connection__transfer-ownership-form">
 				<TransferConfirmStep
 					candidate={ selectedCandidate }
+					currentOwner={ currentOwner }
 					isProtectedOwner={ isProtectedOwner }
 					error={ error }
 				/>
@@ -116,7 +127,7 @@ const TransferConnectionOwnership = ( {
 				error={ error }
 			/>
 
-			{ hasCandidates && (
+			{ ( isLoading || hasCandidates ) && (
 				<Stack direction="row" align="center" justify="flex-end" gap="sm">
 					<Button variant="solid" onClick={ confirm } disabled={ ! selectedId }>
 						{ __( 'Continue', 'jetpack-connection-js' ) }

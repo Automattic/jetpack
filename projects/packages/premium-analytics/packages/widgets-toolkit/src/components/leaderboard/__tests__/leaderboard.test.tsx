@@ -69,6 +69,12 @@ describe( 'Leaderboard', () => {
 		expect( screen.getByText( '3.8K' ) ).toBeInTheDocument();
 	} );
 
+	it( 'names the chart from chartTitle', () => {
+		renderLeaderboard( <Leaderboard rows={ ROWS } status={ READY } chartTitle="Top pages" /> );
+
+		expect( screen.getByRole( 'list', { name: 'Chart: Top pages' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'links detail rows with the dashboard window unless a row declares its own', () => {
 		renderLeaderboard(
 			<Leaderboard
@@ -235,18 +241,6 @@ describe( 'Leaderboard', () => {
 
 			expect( screen.getByText( 'Child' ) ).toBeInTheDocument();
 		} );
-	} );
-
-	it( 'renders the footer in every state', () => {
-		renderLeaderboard(
-			<Leaderboard
-				rows={ [] }
-				status={ { isLoading: true } }
-				footer={ <a href="/all">View all</a> }
-			/>
-		);
-
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
 	} );
 
 	describe( 'the bars variant', () => {
