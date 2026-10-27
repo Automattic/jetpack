@@ -18,7 +18,7 @@ export type LeaderboardPostLabelProps = {
 	label: string;
 
 	/**
-	 * Public URL of the content. Used only when there is no post ID.
+	 * Public URL of the content. Used when there is no post ID or no detail page to open.
 	 */
 	link?: string | null;
 

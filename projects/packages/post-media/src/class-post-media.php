@@ -12,5 +12,5 @@ namespace Automattic\Jetpack;
  */
 class Post_Media {
 
-	const PACKAGE_VERSION = '0.3.2';
+	const PACKAGE_VERSION = '0.3.3';
 }

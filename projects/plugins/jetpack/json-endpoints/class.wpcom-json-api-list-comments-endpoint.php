@@ -186,6 +186,9 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 					'trackback' => 'Return only trackbacks.',
 					'pingback'  => 'Return only pingbacks.',
 					'pings'     => 'Return both trackbacks and pingbacks.',
+					'like'      => 'Return only Fediverse likes.',
+					'repost'    => 'Return only Fediverse reposts.',
+					'quote'     => 'Return only Fediverse quotes.',
 				),
 				'status'            => array(
 					'approved'   => 'Return only approved comments.',
@@ -217,6 +220,9 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 
 		$args = $this->query_args();
 
+		// query_args() turns an omitted type into 'any', so only the raw request tells them apart.
+		$type_requested = isset( $this->api->query['type'] );
+
 		if ( $args['number'] < 1 ) {
 			$args['number'] = 20;
 		} elseif ( 100 < $args['number'] ) {
@@ -233,14 +239,31 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			$post_id    = 0;
 		}
 
+		$hidden_types = array();
+		if ( ! $type_requested ) {
+			/**
+			 * Comment types hidden from list requests that do not pass a type.
+			 *
+			 * The defaults are the Fediverse reactions the ActivityPub plugin stores as comments.
+			 * An explicit type, including 'any', still returns them.
+			 *
+			 * @since 16.4
+			 * @module json-api
+			 *
+			 * @param array $hidden_types Comment types to hide (default: 'like', 'repost', 'quote').
+			 */
+			$hidden_types = apply_filters( 'jetpack_api_untyped_hidden_comment_types', array( 'like', 'repost', 'quote' ) );
+		}
+
 		// We can't efficiently get the number of replies to a single comment.
 		$count = false;
 		$found = -1;
 
 		if ( ! $comment_id ) {
 			// We can get comment counts for the whole site or for a single post, but only for certain queries.
-			if ( 'any' === $args['type'] && ! isset( $args['after'] ) && ! isset( $args['before'] ) ) {
-				$count = $this->api->wp_count_comments( $post_id );
+			// Core's per-post count cannot exclude types, so untyped post requests use the count query below.
+			if ( 'any' === $args['type'] && ! isset( $args['after'] ) && ! isset( $args['before'] ) && ( ! $post_id || ! $hidden_types ) ) {
+				$count = $this->api->wp_count_comments( $post_id, $hidden_types );
 			}
 		}
 
@@ -280,7 +303,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			'order'        => $args['order'],
 			'type'         => 'any' === $args['type'] ? false : $args['type'],
 			'status'       => $status,
-			'type__not_in' => $exclude,
+			'type__not_in' => array_merge( $exclude, $hidden_types ),
 		);
 
 		if ( isset( $args['page'] ) ) {

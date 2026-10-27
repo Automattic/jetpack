@@ -237,13 +237,17 @@ const Editor = ( {
  *
  * @param container - Where the editor renders.
  * @param props     - Editor props.
+ * @return A function that unmounts the editor, for a host whose form comes and goes.
  */
 export const mountEditor = ( container: HTMLElement, props: EditorProps ) => {
 	registerEmbedBlock( props.labels, props.previewEmbeds ?? true );
 	registerImageBlock( props.labels, props.previewEmbeds ?? true );
-	createRoot( container ).render(
+	const root = createRoot( container );
+	root.render(
 		<Boundary onError={ props.onError }>
 			<Editor { ...props } />
 		</Boundary>
 	);
+
+	return () => root.unmount();
 };

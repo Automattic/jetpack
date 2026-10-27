@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { JetpackFooter } from '@jetpack-premium-analytics/externals';
 import { Page } from '@wordpress/admin-ui';
 import clsx from 'clsx';
 /**
@@ -22,6 +23,7 @@ export function DetailPageShell( { className, children, ...pageProps }: DetailPa
 	return (
 		<Page { ...pageProps } className={ clsx( styles.page, className ) }>
 			{ children }
+			<JetpackFooter />
 		</Page>
 	);
 }

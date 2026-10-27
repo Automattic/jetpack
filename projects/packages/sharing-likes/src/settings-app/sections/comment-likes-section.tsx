@@ -58,7 +58,7 @@ export function CommentLikesSection(): JSX.Element | null {
 				<SettingGroup>
 					<Text render={ <p /> }>
 						{ __(
-							'Comment Likes need a connection to WordPress.com, which is unavailable while your site is in offline mode.',
+							'Comment Likes need a connection to WordPress.com, which is unavailable while your site is in Offline Mode.',
 							'jetpack-sharing-likes'
 						) }
 					</Text>

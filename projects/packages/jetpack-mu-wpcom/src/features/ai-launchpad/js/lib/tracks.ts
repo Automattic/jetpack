@@ -250,6 +250,16 @@ export function trackWizardSiteDetailsChanged( props: { field: 'title' | 'descri
 }
 
 /**
+ * The wizard was skipped because the AI Website Builder already learned what it asks.
+ *
+ * @param props        - Event props.
+ * @param props.reason - Why the wizard was skipped.
+ */
+export function trackWizardBypassed( props: { reason: 'ai_builder' } ): void {
+	record( 'jetpack_ai_launchpad_wizard_bypassed', props );
+}
+
+/**
  * Records the wizard-completed event: the user finishes the wizard and lands on
  * the tasklist for the first time. Latched — repeat calls in the same page load
  * record nothing.
