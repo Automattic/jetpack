@@ -12,7 +12,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
-use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -24,7 +23,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.13.0';
+	const PACKAGE_VERSION = '0.14.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -286,9 +285,6 @@ class Analytics {
 		Connection_Configuration::configure();
 
 		Sync_Status_Tracker::configure();
-
-		// Opts in to the shared woocommerce_analytics sync module so Sync_Status_Tracker has a full sync to observe.
-		Sync_Configuration::register();
 	}
 
 	/**
@@ -379,6 +375,11 @@ class Analytics {
 			require_once __DIR__ . '/dashboard-first-visit.php';
 		}
 		configure_dashboard_first_visit();
+
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_assets_url' ) ) {
+			require_once __DIR__ . '/assets-url.php';
+		}
+		configure_assets_url();
 
 		// Temporary: carries a default layout move into layouts readers customized before it.
 		Stored_Layout_Move::register();

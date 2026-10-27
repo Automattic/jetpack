@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import { localTZDate } from '@jetpack-premium-analytics/datetime';
+import { isRepeatedHour, localTZDate } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatDateRange } from '@jetpack-premium-analytics/formatters';
+import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -30,5 +31,14 @@ export function formatBucketTooltipDate(
 		return formatDateRange( { from: localTZDate( start ), to: localTZDate( endDate ) } );
 	}
 
-	return formatDate( start, dateFormatForResolution( displayResolution ) );
+	const label = formatDate( start, dateFormatForResolution( displayResolution ) );
+
+	// The bucket holds both passes through the hour, so its reading spans two hours.
+	return displayResolution === 'hour' && isRepeatedHour( start )
+		? sprintf(
+				/* translators: %s: The date and time an hourly bucket starts. */
+				__( '%s (repeated hour)', 'jetpack-premium-analytics-pkg' ),
+				label
+			)
+		: label;
 }

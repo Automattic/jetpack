@@ -480,6 +480,89 @@ describe( 'Stats time-series normalizer', () => {
 		);
 	} );
 
+	// WP.com labels each UTC hour of the range in the one offset the request's `date` states.
+	const fixedOffsetLabels = ( firstUtcHour: string, count: number, offsetHours: number ) =>
+		Array.from( { length: count }, ( _, i ) =>
+			new Date( Date.parse( firstUtcHour ) + ( i + offsetHours ) * 3600000 )
+				.toISOString()
+				.slice( 0, 19 )
+				.replace( 'T', ' ' )
+		);
+	const hoursOf = ( day: string, hours: number[] ) =>
+		hours.map( hour => `${ day } ${ String( hour ).padStart( 2, '0' ) }:00` );
+	const allHours = Array.from( { length: 24 }, ( _, hour ) => hour );
+
+	it.each( [
+		{
+			name: 'fall-back',
+			query: { start_date: '2025-11-02T00:00:00.000-04:00', date: '2025-11-02T23:59:59.999-05:00' },
+			utcOffset: '-05:00',
+			labels: fixedOffsetLabels( '2025-11-02T04:00:00Z', 25, -5 ),
+			expected: hoursOf( '2025-11-02', allHours ),
+			// The EDT and EST 01:00 rows, merged.
+			oneAmViews: 2 + 3,
+		},
+		{
+			name: 'spring-forward',
+			query: { start_date: '2026-03-08T00:00:00.000-05:00', date: '2026-03-08T23:59:59.999-04:00' },
+			utcOffset: '-04:00',
+			labels: fixedOffsetLabels( '2026-03-08T05:00:00Z', 23, -4 ),
+			expected: hoursOf(
+				'2026-03-08',
+				allHours.filter( hour => hour !== 2 )
+			),
+			oneAmViews: 2,
+		},
+		{
+			name: 'half-hour zone',
+			zone: 'America/St_Johns',
+			query: { start_date: '2025-11-10T00:00:00.000-03:30', date: '2025-11-10T23:59:59.999-03:30' },
+			// WP.com truncates the request's -03:30 to whole hours.
+			utcOffset: '-03:00',
+			labels: fixedOffsetLabels( '2025-11-10T04:00:00Z', 24, -3 ),
+			expected: hoursOf( '2025-11-10', allHours ),
+			oneAmViews: 2,
+		},
+	] )(
+		'reads offset-requested hourly labels back into the site zone on a $name day',
+		( { zone = 'America/New_York', query, utcOffset, labels, expected, oneAmViews } ) => {
+			const result = sanitizeStatsTimeSeriesResponse(
+				{
+					unit: 'hour',
+					utc_offset: utcOffset,
+					fields: [ 'period', 'views' ],
+					data: labels.map( ( label, i ) => [ label, i + 1 ] ),
+				},
+				{ ...query, timezone: zone }
+			);
+
+			expect( result.data.map( row => row.time_interval ) ).toEqual( expected );
+			expect( result.data[ 1 ].views ).toBe( oneAmViews );
+			expect( result.summary.views ).toBe( ( labels.length * ( labels.length + 1 ) ) / 2 );
+		}
+	);
+
+	it( 'keeps hourly labels as sent when the request states no offset, merging the repeated hour', () => {
+		const labels = hoursOf( '2025-11-02', [ 0, 1, 1, ...allHours.slice( 2 ) ] ).map(
+			label => `${ label }:00`
+		);
+		const result = sanitizeStatsTimeSeriesResponse(
+			{
+				unit: 'hour',
+				// Today's offset, which says nothing about the labels' own.
+				utc_offset: '-04:00',
+				fields: [ 'period', 'views' ],
+				data: labels.map( ( label, i ) => [ label, i + 1 ] ),
+			},
+			{ start_date: '2025-11-02', date: '2025-11-02', timezone: 'America/New_York' }
+		);
+
+		expect( result.data.map( row => row.time_interval ) ).toEqual(
+			hoursOf( '2025-11-02', allHours )
+		);
+		expect( result.data[ 1 ].views ).toBe( 2 + 3 );
+	} );
+
 	// The shape `stats/subscribers` returns.
 	it( 'orders newest-first payloads oldest first', () => {
 		const result = sanitizeStatsTimeSeriesResponse(
