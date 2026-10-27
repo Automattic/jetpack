@@ -13,7 +13,7 @@ import type { Catalog, Flow } from '../types';
 const blankFlow = (): Flow => ( {
 	id: null,
 	name: '',
-	enabled: false,
+	enabled: true,
 	trigger: { type: '', config: {} },
 	steps: [],
 } );
