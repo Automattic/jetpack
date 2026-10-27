@@ -462,7 +462,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 					title={ __( 'Training crawlers', 'jetpack-seo' ) }
 					icon={ details }
 					intro={ __(
-						"These crawlers collect your content to train AI models. Blocking them doesn't change how your site appears in search results, including Google's AI Overviews. Blocking Google-Extended can also keep your content out of Gemini app answers.",
+						'These crawlers collect your content to train AI models. Block them to keep your content out of that training. Blocking Google-Extended also keeps it out of Gemini app answers.',
 						'jetpack-seo'
 					) }
 					crawlers={ trainingCrawlers }
