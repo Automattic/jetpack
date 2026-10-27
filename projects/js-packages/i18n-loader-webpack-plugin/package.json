@@ -35,7 +35,7 @@
 		"@wordpress/dependency-extraction-webpack-plugin": "6.57.0",
 		"@wordpress/i18n": "6.30.0",
 		"jest": "30.5.2",
-		"webpack": "5.111.1",
+		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
 	},
 	"peerDependencies": {

@@ -252,7 +252,13 @@ class Breadcrumb_Schema_Node {
 			return null;
 		}
 
-		$page = get_post( (int) get_option( 'page_for_posts' ) );
+		$page_id = (int) get_option( 'page_for_posts' );
+		if ( $page_id < 1 ) {
+			// get_post( 0 ) would return the global post, i.e. the current request's own post.
+			return null;
+		}
+
+		$page = get_post( $page_id );
 		return $page instanceof \WP_Post && 'publish' === $page->post_status && '' !== self::text( $page->post_title ) ? $page : null;
 	}
 
