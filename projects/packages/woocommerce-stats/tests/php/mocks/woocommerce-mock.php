@@ -34,6 +34,17 @@ if ( ! function_exists( 'get_woocommerce_currency_symbol' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wc_get_price_decimals' ) ) {
+	/**
+	 * Stub of wc_get_price_decimals(), set to 0 so it differs from the euro's default of 2.
+	 *
+	 * @return int
+	 */
+	function wc_get_price_decimals() {
+		return 0;
+	}
+}
+
 if ( ! function_exists( 'wc_get_order_statuses' ) ) {
 	/**
 	 * Stub of wc_get_order_statuses().

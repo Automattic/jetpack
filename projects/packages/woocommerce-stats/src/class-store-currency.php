@@ -26,7 +26,7 @@ class Store_Currency {
 	}
 
 	/**
-	 * Add the store currency code and symbol as `premium_analytics.store_currency`.
+	 * Add the store currency code, symbol and price decimals as `premium_analytics.store_currency`.
 	 *
 	 * @param array $data The script data passed by the assets package.
 	 * @return array The script data, unchanged without WooCommerce.
@@ -47,6 +47,10 @@ class Store_Currency {
 			'code'   => $code,
 			'symbol' => html_entity_decode( get_woocommerce_currency_symbol( $code ), ENT_QUOTES, 'UTF-8' ),
 		);
+
+		if ( function_exists( 'wc_get_price_decimals' ) ) {
+			$data['premium_analytics']['store_currency']['precision'] = wc_get_price_decimals();
+		}
 
 		return $data;
 	}

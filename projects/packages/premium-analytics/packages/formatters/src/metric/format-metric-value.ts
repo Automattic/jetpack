@@ -12,7 +12,7 @@ import { storeCurrencyFormatters } from './store-currency';
  * Metric type that determines the formatting strategy.
  *
  * - `number`     → `formatNumber` / `formatNumberCompact` (decimals default: 0)
- * - `currency`   → `formatCurrency` with symbol positioning (decimals from the currency)
+ * - `currency`   → `formatCurrency` with symbol positioning (decimals from the store, else the currency)
  * - `percentage` → `Intl` percent style, signDisplay defaults to `exceptZero` (decimals default: 2)
  * - `average`    → `formatNumber` (decimals default: 2), em dash for Infinity
  */
@@ -22,7 +22,7 @@ export type FormatMetricValueOptions = {
 	/**
 	 * Decimal precision of the full value; compact output picks its own.
 	 * Defaults to 0 for number and 2 for average/percentage; currency ignores it
-	 * and prints its own minor units.
+	 * and prints the store's price decimals, or the currency's own minor units.
 	 */
 	decimals?: number;
 
@@ -48,7 +48,7 @@ export type FormatMetricValueOptions = {
 
 	/**
 	 * ISO 4217 currency code (e.g. `'USD'`, `'EUR'`). Defaults to the WooCommerce store
-	 * currency, or USD on a site without a store.
+	 * currency, or USD on a site without a store. Only the default takes the store's price decimals.
 	 */
 	currencyCode?: string;
 };
@@ -109,6 +109,8 @@ export function formatMetricValue(
 			const store = storeCurrencyFormatters();
 			const { formatCurrency, getCurrencyObject } = store;
 			const code = currencyCode ?? store.code;
+			// Not by matching codes: WordAds pays in USD, even on a USD store with its own decimals.
+			const storeDecimals = currencyCode === undefined ? store.decimals : undefined;
 
 			if ( compact ) {
 				const { symbol, symbolPosition } = getCurrencyObject( 0, code );
@@ -147,7 +149,7 @@ export function formatMetricValue(
 					: `${ sign }${ compactFormatted }${ separator }${ symbol }`;
 			}
 
-			const baseFormatted = formatCurrency( numericValue, code );
+			const baseFormatted = formatCurrency( numericValue, code, { decimals: storeDecimals } );
 
 			if (
 				numericValue > 0 &&

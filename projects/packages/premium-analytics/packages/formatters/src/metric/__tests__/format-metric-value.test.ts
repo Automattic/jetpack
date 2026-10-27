@@ -121,7 +121,7 @@ describe( 'formatMetricValue', () => {
 			formatMetricValue( 100, 'currency' );
 			formatMetricValue( 1500, 'currency', { useMultipliers: true } );
 
-			expect( formatCurrency ).toHaveBeenCalledWith( 100, expected );
+			expect( formatCurrency ).toHaveBeenCalledWith( 100, expected, { decimals: undefined } );
 			expect( getCurrencyObject ).toHaveBeenCalledWith( 0, expected );
 		} );
 
@@ -130,7 +130,7 @@ describe( 'formatMetricValue', () => {
 
 			formatMetricValue( 100, 'currency', { currencyCode: 'USD' } );
 
-			expect( formatCurrency ).toHaveBeenCalledWith( 100, 'USD' );
+			expect( formatCurrency ).toHaveBeenCalledWith( 100, 'USD', { decimals: undefined } );
 		} );
 	} );
 
@@ -138,7 +138,7 @@ describe( 'formatMetricValue', () => {
 		it( 'delegates to formatCurrency', () => {
 			formatMetricValue( 192088.05, 'currency' );
 
-			expect( formatCurrency ).toHaveBeenCalledWith( 192088.05, 'USD' );
+			expect( formatCurrency ).toHaveBeenCalledWith( 192088.05, 'USD', { decimals: undefined } );
 		} );
 
 		it( 'formats currency without multipliers', () => {
@@ -150,7 +150,7 @@ describe( 'formatMetricValue', () => {
 				currencyCode: 'EUR',
 			} );
 
-			expect( formatCurrency ).toHaveBeenCalledWith( 100, 'EUR' );
+			expect( formatCurrency ).toHaveBeenCalledWith( 100, 'EUR', { decimals: undefined } );
 		} );
 
 		it( 'formats currency with multipliers', () => {
@@ -162,7 +162,7 @@ describe( 'formatMetricValue', () => {
 			expect( formatMetricValue( 1500, 'currency', { decimals: 0 } ) ).toBe(
 				formatMetricValue( 1500, 'currency' )
 			);
-			expect( formatCurrency ).toHaveBeenLastCalledWith( 1500, 'USD' );
+			expect( formatCurrency ).toHaveBeenLastCalledWith( 1500, 'USD', { decimals: undefined } );
 			expect(
 				formatMetricValue( 192088.05, 'currency', { useMultipliers: true, decimals: 2 } )
 			).toBe( '$192K' );
@@ -172,7 +172,7 @@ describe( 'formatMetricValue', () => {
 			expect( formatMetricValue( 472.13, 'currency', { useMultipliers: true } ) ).toBe(
 				formatMetricValue( 472.13, 'currency' )
 			);
-			expect( formatCurrency ).toHaveBeenLastCalledWith( 472.13, 'USD' );
+			expect( formatCurrency ).toHaveBeenLastCalledWith( 472.13, 'USD', { decimals: undefined } );
 		} );
 
 		it( 'formats currency with multipliers and signDisplay', () => {
