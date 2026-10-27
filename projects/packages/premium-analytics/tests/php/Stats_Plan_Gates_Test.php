@@ -708,8 +708,11 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->answer_plan_list_with( $personal );
 		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE );
 
-		foreach ( get_stats_plan_gates()['locked_sections'] as $section ) {
-			$this->assertSame( $expected, $section['plan_price'] );
+		// The second load reads back what the first one cached.
+		for ( $load = 1; $load <= 2; $load++ ) {
+			foreach ( get_stats_plan_gates()['locked_sections'] as $section ) {
+				$this->assertSame( $expected, $section['plan_price'], "Load $load" );
+			}
 		}
 	}
 
