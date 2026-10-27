@@ -8,9 +8,8 @@ export const VIEW_LIVE_ACTION_ID = 'view-live';
 
 /**
  * A report table's row action that opens the row's live post, page, video or
- * email in a new tab, as every row in classic Stats offered. DataViews draws a
- * primary action beside the row when it is hovered or focused, and in the row
- * menu on narrow viewports.
+ * email in a new tab, as every row in classic Stats offered. It sits in the
+ * row's actions menu, where the Referrers report keeps its actions.
  *
  * @param getUrl - The URL `toViewLiveUrl()` resolved for the row, or undefined for a row that gets no action.
  * @return The action.
@@ -21,7 +20,6 @@ export function createViewLiveAction< Item >(
 	return {
 		id: VIEW_LIVE_ACTION_ID,
 		label: __( 'View in new tab', 'jetpack-premium-analytics-pkg' ),
-		isPrimary: true,
 		isEligible: item => getUrl( item ) !== undefined,
 		callback: ( [ item ] ) => {
 			const url = getUrl( item );

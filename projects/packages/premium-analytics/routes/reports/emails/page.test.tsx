@@ -3,6 +3,7 @@
  */
 import { useStatsEmailSummary } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -82,11 +83,14 @@ describe( 'EmailsReportPage', () => {
 		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
 	} );
 
-	it( 'offers the live email from its row', () => {
+	it( 'offers the live email from the row menu', async () => {
 		mockEmailSummary();
 
 		render( <EmailsReportPage /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Actions' } ) );
 
-		expect( screen.getByRole( 'button', { name: 'View in new tab' } ) ).toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'menuitem', { name: 'View in new tab' } )
+		).resolves.toBeInTheDocument();
 	} );
 } );
