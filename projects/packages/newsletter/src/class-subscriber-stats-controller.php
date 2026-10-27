@@ -348,7 +348,7 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 		$query           = new WP_Query(
 			array(
 				'post_type'           => 'post',
-				'post_status'         => array( 'publish', 'draft' ),
+				'post_status'         => 'publish',
 				'posts_per_page'      => 10,
 				'orderby'             => 'date',
 				'order'               => 'DESC',
@@ -394,7 +394,6 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 		$posts = array();
 		foreach ( $query->posts as $post ) {
 			$metrics     = $summary_by_id[ $post->ID ] ?? null;
-			$status      = 'draft' === $post->post_status ? 'draft' : 'publish';
 			$title       = get_the_title( $post );
 			$image       = get_the_post_thumbnail_url( $post, 'thumbnail' );
 			$total_sends = is_array( $metrics ) && is_numeric( $metrics['total_sends'] ?? null ) ? (int) $metrics['total_sends'] : null;
@@ -403,9 +402,9 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 			$posts[] = array(
 				'id'               => (int) $post->ID,
 				'title'            => '' !== trim( $title ) ? $title : __( '(no title)', 'jetpack-newsletter' ),
-				'status'           => $status,
+				'status'           => 'publish',
 				'date'             => get_post_time( DATE_W3C, true, $post ),
-				'url'              => 'draft' === $status ? get_preview_post_link( $post ) : get_permalink( $post ),
+				'url'              => get_permalink( $post ),
 				'image'            => false !== $image ? $image : null,
 				'recipients'       => $recipients,
 				'openRatePercent'  => $recipients && is_array( $metrics ) && is_numeric( $metrics['opens_rate'] ?? null ) ? (float) $metrics['opens_rate'] : null,

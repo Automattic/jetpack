@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: Fix post, video and author stats pages that could crash with "Something went wrong" right after opening.
