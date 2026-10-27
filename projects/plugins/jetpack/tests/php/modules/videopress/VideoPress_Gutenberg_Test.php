@@ -29,7 +29,7 @@ class VideoPress_Gutenberg_Test extends WP_UnitTestCase {
 			return array( 'videopress' );
 		};
 
-		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 		add_filter( 'jetpack_active_modules', $modules );
 
 		try {
@@ -42,9 +42,11 @@ class VideoPress_Gutenberg_Test extends WP_UnitTestCase {
 				wp_scripts()->get_data( $handle, 'before' )
 			);
 		} finally {
-			remove_filter( 'jetpack_is_connection_ready', '__return_true' );
+			remove_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 			remove_filter( 'jetpack_active_modules', $modules );
-			\Patchwork\restore( $plan );
+			if ( $plan ) {
+				\Patchwork\restore( $plan );
+			}
 			$GLOBALS['wp_scripts'] = $saved_scripts;
 		}
 	}
