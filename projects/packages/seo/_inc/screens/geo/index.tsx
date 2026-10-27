@@ -51,7 +51,7 @@ const managedByPrivacyTooltip = __(
  * take effect, wrapping the notice that explains why.
  *
  * The four blocked states are mutually exclusive and shared this header
- * verbatim, so it lives here once — which also keeps the chip and heading on all
+ * verbatim, so it lives here once — which also keeps the icon and heading on all
  * four from drifting apart.
  *
  * @param props          - Component props.
@@ -141,7 +141,7 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( {
 
 interface CrawlerSectionProps {
 	title: string;
-	/** The chip glyph for this group's title. */
+	/** The glyph shown before this group's title. */
 	icon: ComponentProps< typeof CardTitleIcon >[ 'icon' ];
 	intro: string;
 	crawlers: AiCrawler[];
@@ -167,7 +167,7 @@ interface CrawlerSectionProps {
  *
  * @param props              - Component props.
  * @param props.title        - Section title.
- * @param props.icon         - The chip glyph shown before the title.
+ * @param props.icon         - The glyph shown before the title.
  * @param props.intro        - One-line description of the group's purpose.
  * @param props.crawlers     - The crawlers in this group.
  * @param props.type         - The crawler group's type.

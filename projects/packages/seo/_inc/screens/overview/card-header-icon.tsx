@@ -17,9 +17,9 @@ interface Props {
 }
 
 /**
- * Overview card header: a title led by an `@wordpress/icons` glyph in a small
- * plain icon. Shared by the four Overview cards so the icon markup and size
- * live in one place rather than being repeated (and drifting) per card.
+ * Overview card header: a title led by a plain `@wordpress/icons` glyph. Shared
+ * by the four Overview cards so the icon markup and size live in one place
+ * rather than being repeated (and drifting) per card.
  *
  * The icon itself comes from the shared `CardTitleIcon`, which the Settings
  * modules also use; this wrapper only adds the `Card.Header`/`Card.Title` shell
