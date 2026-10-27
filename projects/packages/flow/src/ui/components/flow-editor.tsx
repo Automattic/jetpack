@@ -88,15 +88,33 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 		}
 	};
 
+	let saveLabel: string = __( 'Save', 'jetpack-flow-pkg' );
+	if ( saving ) {
+		saveLabel = __( 'Saving…', 'jetpack-flow-pkg' );
+	} else if ( flow.id === null && flow.enabled ) {
+		saveLabel = __( 'Save and enable', 'jetpack-flow-pkg' );
+	}
+
 	const canSave = ! saving && !! flow.trigger.type && flow.steps.length > 0;
 
 	return (
 		<FlowPage
 			tab="new"
 			actions={
-				<Button className="jetpack-flow-save" disabled={ ! canSave } onClick={ save }>
-					{ saving ? __( 'Saving…', 'jetpack-flow-pkg' ) : __( 'Save', 'jetpack-flow-pkg' ) }
-				</Button>
+				<Stack align="center" gap="md">
+					{ flow.id !== null && (
+						<Button
+							variant="outline"
+							className="jetpack-flow-save"
+							onClick={ () => navigate( { href: '/' } ) }
+						>
+							{ __( 'Cancel', 'jetpack-flow-pkg' ) }
+						</Button>
+					) }
+					<Button className="jetpack-flow-save" disabled={ ! canSave } onClick={ save }>
+						{ saveLabel }
+					</Button>
+				</Stack>
 			}
 		>
 			<div className="jetpack-flow">
@@ -153,6 +171,21 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 								{ __( 'Copy inbound events URL', 'jetpack-flow-pkg' ) }
 							</Button>
 						</Stack>
+
+						<label className="jetpack-flow-toggle" htmlFor="jetpack-flow-enabled">
+							<input
+								id="jetpack-flow-enabled"
+								type="checkbox"
+								role="switch"
+								checked={ flow.enabled }
+								onChange={ event => setFlow( { ...flow, enabled: event.target.checked } ) }
+							/>
+							<Text>
+								{ flow.enabled
+									? __( 'Flow enabled', 'jetpack-flow-pkg' )
+									: __( 'Flow disabled', 'jetpack-flow-pkg' ) }
+							</Text>
+						</label>
 					</Stack>
 				) }
 			</div>
