@@ -6,6 +6,8 @@ export const STATS_PERIOD_DAYS = [ 7, 30 ] as const;
 
 export type StatsPeriodDays = ( typeof STATS_PERIOD_DAYS )[ number ];
 
+const DEFAULT_DAYS: StatsPeriodDays = STATS_PERIOD_DAYS[ 0 ];
+
 export type StatsPeriod = {
 	days: StatsPeriodDays;
 	/** How many periods back from the latest one the window is. */
@@ -25,9 +27,9 @@ const getStorageKey = () => {
 const readStoredDays = (): StatsPeriodDays => {
 	try {
 		const stored = Number( window.localStorage.getItem( getStorageKey() ) );
-		return STATS_PERIOD_DAYS.find( days => days === stored ) ?? 7;
+		return STATS_PERIOD_DAYS.find( days => days === stored ) ?? DEFAULT_DAYS;
 	} catch {
-		return 7;
+		return DEFAULT_DAYS;
 	}
 };
 
