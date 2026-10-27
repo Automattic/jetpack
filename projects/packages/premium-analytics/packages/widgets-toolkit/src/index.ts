@@ -332,7 +332,6 @@ export {
 	yearRange,
 	type PeriodBounds,
 	type FitWeekColumnsInput,
-	toDetailId,
 } from './helpers';
 
 /**

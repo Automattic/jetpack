@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
+import { VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import {
 	createReportOriginSearch,
 	pickReportNavigationParams,
 } from '@jetpack-premium-analytics/routing';
 import {
 	compareOptionalNumbers,
-	InternalLink,
 	MetricWithComparison,
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ReportThumbnail,
@@ -15,7 +15,6 @@ import {
 	VideoTitleLink,
 	getVideoPosterUrl,
 	HOURS_DATA_FORMAT,
-	toDetailId,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { video as videoIcon } from '@wordpress/icons';
@@ -85,34 +84,29 @@ function VideoTitle( { item }: { item: StatsVideoPlaysComparisonItem } ) {
 }
 
 /**
- * Render a video row's poster, linked to the same detail page as its title.
+ * Render a video row's poster, linked wherever the row's title goes. The
+ * thumbnail stays decorative, so the hidden title names the link.
  *
  * @param props      - Component props.
  * @param props.item - The video report row.
- * @return The poster, linked when the row has a detail page.
+ * @return The poster, linked like the title.
  */
 function VideoPoster( { item }: { item: StatsVideoPlaysComparisonItem } ) {
-	const thumbnail = (
-		<ReportThumbnail
-			thumbnailUrl={ getVideoPosterUrl( item.poster, 64, 64 ) }
-			fallbackIcon={ videoIcon }
-		/>
-	);
-	const videoId = toDetailId( item.id );
-
-	if ( videoId === undefined ) {
-		return thumbnail;
-	}
+	const title = getVideoTitle( item );
 
 	return (
-		<InternalLink
-			to="/video/$videoId"
-			params={ { videoId: String( videoId ) } }
+		<VideoTitleLink
+			id={ item.id }
+			label={ title }
+			link={ item.link }
 			search={ getVideoDetailSearch }
-			ariaLabel={ getVideoTitle( item ) }
 		>
-			{ thumbnail }
-		</InternalLink>
+			<ReportThumbnail
+				thumbnailUrl={ getVideoPosterUrl( item.poster, 64, 64 ) }
+				fallbackIcon={ videoIcon }
+			/>
+			<VisuallyHidden>{ title }</VisuallyHidden>
+		</VideoTitleLink>
 	);
 }
 

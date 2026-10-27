@@ -144,10 +144,12 @@ describe( 'videos fields', () => {
 		}
 	);
 
-	it( 'leaves the poster unlinked on a row without a detail page', () => {
+	it( 'links the poster to the live video, like the title, on a row without a detail page', () => {
 		renderVideosField( 'poster', { ...video, id: undefined } );
 
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		const link = screen.getByRole( 'link', { name: 'Launch video (opens in a new tab)' } );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/video/' );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'keeps the report-owned untitled fallback', () => {
