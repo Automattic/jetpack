@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { key } from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
+import { isCrawlerBlocked } from '../../data/blocked-crawlers';
 import CardHeaderIcon from './card-header-icon';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
@@ -56,7 +57,7 @@ const llmsNotPublishedLabel = __( 'llms.txt not published', 'jetpack-seo' );
  * "Manage" button deep-links there.
  *
  * @param props                      - Component props.
- * @param props.data                 - The crawler bootstrap (catalog + overrides + environment flags).
+ * @param props.data                 - The crawler bootstrap (catalog + blocked crawlers + environment flags).
  * @param props.searchEnginesVisible - Whether search engines may index the site (overlaid from Settings).
  * @param props.llmsTxt              - The llms.txt slice, rendered as a third status row.
  * @param props.onManage             - Opens the GEO tab.
@@ -69,7 +70,7 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 	const settingsApply =
 		canBeCrawled && ! data.staticRobotsTxt && ! data.dataSharingOptOut && ! data.pathBasedMultisite;
 
-	const isBotBlocked = ( bot: AiCrawler ): boolean => data.overrides[ bot.slug ] === true;
+	const isBotBlocked = ( bot: AiCrawler ): boolean => isCrawlerBlocked( data.blocked, bot );
 	const answerBots = data.catalog.filter( bot => bot.type === 'answer' );
 	const trainingBots = data.catalog.filter( bot => bot.type === 'training' );
 	const answerBlocked = answerBots.filter( isBotBlocked ).length;

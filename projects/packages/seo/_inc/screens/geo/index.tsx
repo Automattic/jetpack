@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { commentContent, details, key, page } from '@wordpress/icons';
 import { Badge, Card, CollapsibleCard, Link, Notice, Stack, Tooltip } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import { isCrawlerBlocked } from '../../data/blocked-crawlers';
 import './style.scss';
 import type { AiCrawler } from '../../data/geo-types';
 import type { GeoForm } from '../../data/use-geo';
@@ -423,7 +424,9 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 		const managedByPrivacySetting = crawlers.dataSharingOptOut;
 		const blockedSlugs = managedByPrivacySetting
 			? crawlers.dataSharingBlocked
-			: Object.keys( crawlers.overrides );
+			: crawlers.catalog
+					.filter( crawler => isCrawlerBlocked( crawlers.blocked, crawler ) )
+					.map( crawler => crawler.slug );
 		const lockedReason = managedByPrivacySetting ? managedByPrivacyTooltip : undefined;
 		const privacyNotice = managedByPrivacySetting ? (
 			<Notice.Root intent="info" className="jetpack-seo-geo__crawler-notice">
@@ -462,7 +465,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 					title={ __( 'Training crawlers', 'jetpack-seo' ) }
 					icon={ details }
 					intro={ __(
-						"These crawlers collect your content to train AI models. Blocking them doesn't change how your site appears in search results, including Google's AI Overviews. Blocking Google-Extended can also keep your content out of Gemini app answers.",
+						'These crawlers collect your content to train AI models. Block them to keep your content out of that training. Blocking Google-Extended also keeps it out of Gemini app answers.',
 						'jetpack-seo'
 					) }
 					crawlers={ trainingCrawlers }

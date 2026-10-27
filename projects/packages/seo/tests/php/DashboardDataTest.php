@@ -155,10 +155,13 @@ class DashboardDataTest extends SeoTestCase {
 			$this->assertIsBool( $geo['llmsTxt']['canServe'] );
 			$this->assertArrayHasKey( 'crawlers', $geo );
 			$this->assertIsArray( $geo['crawlers']['catalog'] );
-			// A sparse map, cast to an object by get_bootstrap_data() so an empty
-			// override set serializes as `{}` rather than `[]` — the same reason
-			// `title_formats` is cast in get_settings_data().
-			$this->assertIsObject( $geo['crawlers']['overrides'] );
+			$this->assertSame(
+				array(
+					'answer'   => array(),
+					'training' => array(),
+				),
+				$geo['crawlers']['blocked']
+			);
 			$this->assertIsBool( $geo['crawlers']['dataSharingOptOut'] );
 			$this->assertIsBool( $geo['crawlers']['pathBasedMultisite'] );
 		} finally {

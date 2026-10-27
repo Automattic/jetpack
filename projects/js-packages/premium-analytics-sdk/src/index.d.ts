@@ -250,6 +250,9 @@ export type ReportResult< TData > = {
 	primary: ReportQueryResult< TData >;
 	comparison: ReportQueryResult< TData >;
 	hasComparison: boolean;
+	// Where each period starts while a comparison is on, for `buildMetricTab`'s `periodStarts`.
+	// Absent on dashboards older than it.
+	periodStarts?: { current: string; comparison: string };
 	// The zone both periods were built under.
 	timezone: string;
 	// True while nothing on screen answers the current params; see WidgetState.

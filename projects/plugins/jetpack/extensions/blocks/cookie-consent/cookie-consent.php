@@ -166,7 +166,7 @@ add_action( 'wp_footer', __NAMESPACE__ . '\render_cookie_consent_template' );
 /**
  * Get the block Custom CSS rules queued so far.
  *
- * @since $$next-version$$
+ * @since 16.4
  *
  * @return string[] Rules, empty when the core handle is not in use.
  */
@@ -180,7 +180,7 @@ function get_custom_css_rules() {
  *
  * The banner renders in the footer, too late for rules it queues to print on their own.
  *
- * @since $$next-version$$
+ * @since 16.4
  *
  * @param string[] $rules_before Rules from get_custom_css_rules() before the render.
  */

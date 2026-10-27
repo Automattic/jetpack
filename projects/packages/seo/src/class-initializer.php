@@ -28,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.10.0';
+	const PACKAGE_VERSION = '0.10.1';
 
 	/**
 	 * WordPress.com site feature that enables the Jetpack SEO surface.
@@ -115,14 +115,6 @@ class Initializer {
 		// Gate the entire SEO surface behind its legacy filter or per-site feature.
 		if ( ! self::is_available() ) {
 			return;
-		}
-
-		// Runs before anything reads the AI crawler choices, and not before `init` because the
-		// crawler catalog loads translations.
-		if ( did_action( 'init' ) ) {
-			Ai_Crawlers::maybe_migrate_legacy_overrides();
-		} else {
-			add_action( 'init', array( Ai_Crawlers::class, 'maybe_migrate_legacy_overrides' ), 1 );
 		}
 
 		// The opt-in endpoint must be reachable even before the surface is visible, so

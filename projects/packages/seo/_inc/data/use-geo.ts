@@ -3,6 +3,7 @@ import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { withCrawlerBlocked, withGroupBlocked } from './blocked-crawlers';
 import { geoStore } from './geo-store';
 import { recordSeoEvent } from './record-seo-event';
 import type { AiCrawler, GeoState } from './geo-types';
@@ -130,19 +131,16 @@ export function useGeoForm(): GeoForm {
 			if ( ! crawlers ) {
 				return;
 			}
-			// Only blocked crawlers are stored; allowing one removes its entry.
-			const nextOverrides = { ...crawlers.overrides };
-			if ( blocked ) {
-				nextOverrides[ slug ] = true;
-			} else {
-				delete nextOverrides[ slug ];
+			const nextBlocked = withCrawlerBlocked( crawlers.blocked, crawlers.catalog, slug, blocked );
+			if ( nextBlocked === crawlers.blocked ) {
+				return;
 			}
 
 			const prevCrawlers = crawlers;
-			const nextCrawlers = { ...crawlers, overrides: nextOverrides };
+			const nextCrawlers = { ...crawlers, blocked: nextBlocked };
 			setCrawlers( nextCrawlers );
 			runSave(
-				{ jetpack_seo_ai_crawler_overrides: nextOverrides },
+				{ jetpack_seo_blocked_crawlers: nextBlocked },
 				() => {
 					persistCrawlers( nextCrawlers );
 					recordSeoEvent( 'jetpack_seo_bot_toggle_changed', 'geo', { bot: slug, blocked } );
@@ -158,23 +156,13 @@ export function useGeoForm(): GeoForm {
 			if ( ! crawlers ) {
 				return;
 			}
-			// Same rule as the single-crawler setter.
-			const nextOverrides = { ...crawlers.overrides };
-			crawlers.catalog
-				.filter( bot => bot.type === type )
-				.forEach( bot => {
-					if ( blocked ) {
-						nextOverrides[ bot.slug ] = true;
-					} else {
-						delete nextOverrides[ bot.slug ];
-					}
-				} );
+			const nextBlocked = withGroupBlocked( crawlers.blocked, type, blocked );
 
 			const prevCrawlers = crawlers;
-			const nextCrawlers = { ...crawlers, overrides: nextOverrides };
+			const nextCrawlers = { ...crawlers, blocked: nextBlocked };
 			setCrawlers( nextCrawlers );
 			runSave(
-				{ jetpack_seo_ai_crawler_overrides: nextOverrides },
+				{ jetpack_seo_blocked_crawlers: nextBlocked },
 				() => {
 					persistCrawlers( nextCrawlers );
 					recordSeoEvent( 'jetpack_seo_bot_toggle_changed', 'geo', {

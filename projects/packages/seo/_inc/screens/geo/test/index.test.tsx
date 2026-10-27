@@ -38,7 +38,7 @@ const crawlerForm = (
 			| 'dataSharingOptOut'
 			| 'pathBasedMultisite'
 			| 'restrictedSubdomain'
-			| 'overrides'
+			| 'blocked'
 		>
 	> = {}
 ): GeoForm => ( {
@@ -65,7 +65,7 @@ const crawlerForm = (
 				type: 'training',
 			},
 		],
-		overrides: {},
+		blocked: { answer: [], training: [] },
 		searchEnginesVisible: true,
 		restrictedSubdomain: false,
 		staticRobotsTxt: false,
@@ -142,7 +142,7 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 	it( 'tags each group header with its allow/block status', () => {
 		render(
 			<GeoScreen
-				form={ crawlerForm( { overrides: { gptbot: true, 'google-extended': true } } ) }
+				form={ crawlerForm( { blocked: { answer: [], training: 'all' } } ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
 			/>
@@ -157,7 +157,7 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 		// Block one of the two training bots so the group is neither all-allowed nor all-blocked.
 		render(
 			<GeoScreen
-				form={ crawlerForm( { overrides: { 'google-extended': true } } ) }
+				form={ crawlerForm( { blocked: { answer: [], training: [ 'google-extended' ] } } ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
 			/>
@@ -196,7 +196,10 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 		render(
 			<GeoScreen
 				// The owner's block is ignored while the opt-out decides robots.txt.
-				form={ crawlerForm( { dataSharingOptOut: true, overrides: { 'oai-searchbot': true } } ) }
+				form={ crawlerForm( {
+					dataSharingOptOut: true,
+					blocked: { answer: [ 'oai-searchbot' ], training: [] },
+				} ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
 			/>
@@ -274,7 +277,7 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
  */
 const allModulesForm = (): GeoForm => ( {
 	// Training crawlers blocked, so the two crawler groups show different badges.
-	...crawlerForm( { overrides: { gptbot: true, 'google-extended': true } } ),
+	...crawlerForm( { blocked: { answer: [], training: 'all' } } ),
 	enhancer: { available: true, enabled: false, aiSeoEnabled: true, aiEnabled: true },
 	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
 } );
@@ -367,7 +370,7 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 		// `gptbot` allowed, `google-extended` blocked.
 		render(
 			<GeoScreen
-				form={ crawlerForm( { overrides: { 'google-extended': true } } ) }
+				form={ crawlerForm( { blocked: { answer: [], training: [ 'google-extended' ] } } ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
 			/>

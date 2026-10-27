@@ -6,9 +6,9 @@
  * answer-engine bots) by appending per-user-agent `Disallow` rules to the
  * WordPress-generated robots.txt.
  *
- * The option `jetpack_seo_ai_crawler_overrides` maps each crawler the owner blocked
- * to `true`. Every other crawler is allowed, so robots.txt doesn't change when the
- * SEO page reaches a site (JETPACK-3135).
+ * The option `jetpack_seo_blocked_crawlers` holds the crawlers the owner blocked, per
+ * group. Every other crawler is allowed, so robots.txt doesn't change when the SEO page
+ * reaches a site (JETPACK-3135).
  *
  * Caveat: the `robots_txt` filter only feeds WordPress's *virtual* robots.txt.
  * A detected static file in the WordPress installation is not modified — a
@@ -25,19 +25,29 @@ namespace Automattic\Jetpack\SEO;
 class Ai_Crawlers {
 
 	/**
-	 * Option holding `slug => true` for each crawler the owner blocked. Registered with
+	 * Option holding the blocked crawlers as `array( 'answer' => …, 'training' => … )`, each
+	 * `'all'` (every crawler in the group, including ones added to the catalog later) or a
+	 * list of slugs. A missing group or an empty list blocks nothing. Registered with
 	 * `show_in_rest` by {@see Dashboard_Data::register_rest_settings()} so the GEO tab can save it.
 	 *
 	 * @var string
 	 */
-	const OPTION = 'jetpack_seo_ai_crawler_overrides';
+	const OPTION = 'jetpack_seo_blocked_crawlers';
 
 	/**
-	 * Option set once {@see self::maybe_migrate_legacy_overrides()} has run on this site.
+	 * The crawler groups, matching each catalog entry's `type`.
 	 *
-	 * @var string
+	 * @var string[]
 	 */
-	const MIGRATED_OPTION = 'jetpack_seo_ai_crawler_overrides_migrated';
+	const GROUPS = array( 'answer', 'training' );
+
+	/**
+	 * The `robots_txt` priority: after WordPress.com Simple appends bare `Disallow`
+	 * lines at 11, which would otherwise land in the last AI crawler group.
+	 *
+	 * @var int
+	 */
+	const ROBOTS_TXT_PRIORITY = 12;
 
 	/**
 	 * Wire the robots.txt filter.
@@ -45,13 +55,13 @@ class Ai_Crawlers {
 	 * @return void
 	 */
 	public static function init() {
-		add_filter( 'robots_txt', array( __CLASS__, 'append_directives' ), 10, 2 );
+		add_filter( 'robots_txt', array( __CLASS__, 'append_directives' ), self::ROBOTS_TXT_PRIORITY, 2 );
 	}
 
 	/**
 	 * The known AI crawler catalog: slug => [ label, user_agent, type ].
 	 *
-	 * `slug` is the stable key persisted in the override map and sent by the AI
+	 * `slug` is the stable key persisted in {@see self::OPTION} and sent by the GEO
 	 * tab; `user_agent` is the token written to the `User-agent:` robots line;
 	 * `label` is the human name shown in the UI; `type` is `answer` (fetches to
 	 * cite in live AI answers) or `training` (collects to train models).
@@ -139,7 +149,7 @@ class Ai_Crawlers {
 	/**
 	 * Whether WordPress.com's site-wide data-sharing opt-out is enabled.
 	 *
-	 * Its later `robots_txt` filter remains authoritative over per-bot settings.
+	 * Its `robots_txt` filter remains authoritative over per-bot settings.
 	 *
 	 * @return bool
 	 */
@@ -169,70 +179,47 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * The crawlers the owner blocked, as `slug => true`. Unknown slugs and entries
-	 * that aren't blocked are dropped.
+	 * The crawlers the owner blocked, per group.
 	 *
-	 * @return array<string, bool>
+	 * @return array<string, string|string[]> `'all'` or a list of slugs for each group.
 	 */
-	public static function get_overrides() {
-		$stored = get_option( self::OPTION, array() );
-		if ( ! is_array( $stored ) ) {
-			return array();
-		}
-
-		$catalog   = self::get_catalog();
-		$overrides = array();
-		foreach ( $stored as $slug => $blocked ) {
-			if ( isset( $catalog[ $slug ] ) && $blocked ) {
-				$overrides[ $slug ] = true;
-			}
-		}
-
-		return $overrides;
+	public static function get_blocked() {
+		return self::sanitize_blocked( get_option( self::OPTION, array() ) );
 	}
 
 	/**
-	 * Once per site: converts a map saved before allow-by-default (#54013) in which the owner
-	 * changed a training crawler.
+	 * Normalizes a stored or submitted {@see self::OPTION} value: both groups present, each
+	 * `'all'` or a list of slugs. Drops unknown slugs and slugs from the other group, and
+	 * saves a list naming every crawler in its group as `'all'`.
 	 *
-	 * That format saved a training crawler only as allowed (`false`) and left its unsaved siblings
-	 * blocked, so they're saved as blocked now. Keying on `false` leaves maps saved since alone.
-	 *
-	 * @return void
+	 * @param mixed      $value   The value to normalize.
+	 * @param array|null $catalog Optional {@see self::get_catalog()} result, to avoid building it again.
+	 * @return array<string, string|string[]>
 	 */
-	public static function maybe_migrate_legacy_overrides() {
-		if ( get_option( self::MIGRATED_OPTION ) ) {
-			return;
-		}
-
-		$stored = get_option( self::OPTION );
-		if ( is_array( $stored ) && self::has_legacy_training_entry( $stored ) ) {
-			$migrated = array_filter( $stored );
-			foreach ( self::get_catalog() as $slug => $info ) {
-				if ( 'training' === $info['type'] && ! array_key_exists( $slug, $stored ) ) {
-					$migrated[ $slug ] = true;
-				}
-			}
-			update_option( self::OPTION, $migrated );
-		}
-
-		update_option( self::MIGRATED_OPTION, true, true );
-	}
-
-	/**
-	 * Whether a stored map holds a training crawler saved as allowed, which only the old format did.
-	 *
-	 * @param array $stored The stored override map.
-	 * @return bool
-	 */
-	private static function has_legacy_training_entry( array $stored ) {
-		$catalog = self::get_catalog();
-		foreach ( $stored as $slug => $blocked ) {
-			if ( ! $blocked && isset( $catalog[ $slug ] ) && 'training' === $catalog[ $slug ]['type'] ) {
-				return true;
+	public static function sanitize_blocked( $value, $catalog = null ) {
+		$value   = is_array( $value ) ? $value : array();
+		$catalog = is_array( $catalog ) ? $catalog : self::get_catalog();
+		$groups  = array_fill_keys( self::GROUPS, array() );
+		foreach ( $catalog as $slug => $info ) {
+			if ( isset( $groups[ $info['type'] ] ) ) {
+				$groups[ $info['type'] ][] = $slug;
 			}
 		}
-		return false;
+
+		$blocked = array();
+		foreach ( $groups as $type => $slugs ) {
+			$group = $value[ $type ] ?? array();
+			if ( 'all' === $group ) {
+				$blocked[ $type ] = 'all';
+				continue;
+			}
+			$list             = is_array( $group )
+				? array_values( array_intersect( $slugs, array_filter( $group, 'is_string' ) ) )
+				: array();
+			$blocked[ $type ] = ( $slugs && count( $list ) === count( $slugs ) ) ? 'all' : $list;
+		}
+
+		return $blocked;
 	}
 
 	/**
@@ -255,8 +242,17 @@ class Ai_Crawlers {
 		if ( self::has_data_sharing_opt_out() ) {
 			return self::get_data_sharing_blocked_slugs();
 		}
-		// Catalog order, so robots.txt lists blocked crawlers the same way every time.
-		return array_keys( array_intersect_key( self::get_catalog(), self::get_overrides() ) );
+
+		$catalog = self::get_catalog();
+		$blocked = self::sanitize_blocked( get_option( self::OPTION, array() ), $catalog );
+		$slugs   = array();
+		foreach ( $catalog as $slug => $info ) {
+			$group = $blocked[ $info['type'] ] ?? array();
+			if ( 'all' === $group || in_array( $slug, $group, true ) ) {
+				$slugs[] = $slug;
+			}
+		}
+		return $slugs;
 	}
 
 	/**
@@ -313,17 +309,15 @@ class Ai_Crawlers {
 	 * Append `Disallow: /` blocks for each blocked AI crawler to robots.txt.
 	 *
 	 * @param string $output The robots.txt content assembled so far.
-	 * @param bool   $public Whether the site is public (`blog_public`). When
-	 *                       false WordPress already disallows everything, but the
-	 *                       explicit per-bot blocks are still valid and harmless.
+	 * @param bool   $public Whether the site is public (`blog_public`). Unused: the
+	 *                       per-bot blocks apply either way.
 	 * @return string The robots.txt content with AI-crawler directives appended.
 	 */
 	public static function append_directives( $output, $public ) {
 		unset( $public );
 
-		// WordPress.com's existing privacy filter owns the site-wide opt-out and
-		// runs later at priority 12. Defer to it instead of emitting duplicate
-		// directives from this per-bot filter.
+		// WordPress.com's existing privacy filter owns the site-wide opt-out. Defer
+		// to it instead of emitting duplicate directives from this per-bot filter.
 		if ( self::is_path_based_multisite() || self::has_data_sharing_opt_out() ) {
 			return $output;
 		}
@@ -364,7 +358,7 @@ class Ai_Crawlers {
 
 		return array(
 			'catalog'              => $catalog,
-			'overrides'            => (object) self::get_overrides(),
+			'blocked'              => self::get_blocked(),
 			'searchEnginesVisible' => self::search_engines_allowed(),
 			'restrictedSubdomain'  => self::is_crawl_restricted_subdomain(),
 			'staticRobotsTxt'      => self::has_static_robots_txt(),

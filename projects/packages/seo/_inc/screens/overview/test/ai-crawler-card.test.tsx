@@ -20,7 +20,7 @@ const buildCrawlers = ( overrides: Partial< Crawlers > = {} ): Crawlers => ( {
 		{ slug: 'perplexity', label: 'PerplexityBot', userAgent: 'PerplexityBot', type: 'answer' },
 		{ slug: 'gptbot', label: 'GPTBot', userAgent: 'GPTBot', type: 'training' },
 	],
-	overrides: {},
+	blocked: { answer: [], training: [] },
 	searchEnginesVisible: true,
 	restrictedSubdomain: false,
 	staticRobotsTxt: false,
