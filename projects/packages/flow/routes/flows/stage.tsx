@@ -159,13 +159,6 @@ function FlowsStage() {
 	const actions = useMemo< Action< Flow >[] >(
 		() => [
 			{
-				id: 'view',
-				label: __( 'View', 'jetpack-flow-pkg' ),
-				modalHeader: __( 'Flow details', 'jetpack-flow-pkg' ),
-				RenderModal: ( { items } ) =>
-					catalog ? <FlowSummary flow={ items[ 0 ] } catalog={ catalog } /> : null,
-			},
-			{
 				id: 'edit',
 				label: __( 'Edit', 'jetpack-flow-pkg' ),
 				isPrimary: true,
@@ -173,6 +166,7 @@ function FlowsStage() {
 			},
 			{
 				id: 'toggle',
+				isPrimary: true,
 				label: ( items: Flow[] ) =>
 					items[ 0 ]?.enabled
 						? __( 'Disable', 'jetpack-flow-pkg' )
@@ -182,6 +176,13 @@ function FlowsStage() {
 					await reload();
 				},
 				supportsBulk: true,
+			},
+			{
+				id: 'view',
+				label: __( 'View', 'jetpack-flow-pkg' ),
+				modalHeader: __( 'Flow details', 'jetpack-flow-pkg' ),
+				RenderModal: ( { items } ) =>
+					catalog ? <FlowSummary flow={ items[ 0 ] } catalog={ catalog } /> : null,
 			},
 			{
 				id: 'delete',
