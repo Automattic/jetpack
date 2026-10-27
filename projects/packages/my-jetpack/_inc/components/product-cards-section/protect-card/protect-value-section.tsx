@@ -2,7 +2,7 @@ import { QUERY_GET_PROTECT_DATA_KEY, REST_API_GET_PROTECT_DATA } from '../../../
 import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
 import LoadingBlock from '../../loading-block';
-import { AutoFirewallStatus } from './auto-firewall-status';
+import { FirewallStatus } from './firewall-status';
 import { ProtectInfoPopover } from './info-popover';
 import { LoginsBlockedStatus } from './logins-blocked-status';
 import { ScanAndThreatStatus } from './scan-threats-status';
@@ -55,11 +55,11 @@ const ProtectValueSection = () => {
 						<ScanAndThreatStatus data={ protectData } />
 					) }
 				</div>
-				<div className="value-section__auto-firewall">
+				<div className="value-section__firewall">
 					{ isLoading ? (
 						<LoadingBlock width="100%" height="20px" />
 					) : (
-						<AutoFirewallStatus data={ protectData } />
+						<FirewallStatus data={ protectData } />
 					) }
 				</div>
 				<div className="value-section__logins-blocked">

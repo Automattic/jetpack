@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-protect",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"private": true,
 	"description": "Shared Protect code for the Jetpack and Jetpack Protect plugins.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/protect/#readme",
@@ -46,9 +46,11 @@
 		]
 	},
 	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-scan": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-protect/init": "link:packages/init",
 		"@wordpress/admin-ui": "2.12.0",
 		"@wordpress/api-fetch": "7.57.0",

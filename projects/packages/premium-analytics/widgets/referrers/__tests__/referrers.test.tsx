@@ -7,6 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { createWidgetActionsHost } from '../../../tests/js/widget-host-test-utils';
 import ReferrersWidget, { toReferrerRow } from '../render';
 import type { StatsReferrersComparisonItem } from '@jetpack-premium-analytics/data';
 
@@ -245,15 +246,27 @@ describe( 'ReferrersWidget', () => {
 		} );
 	} );
 
-	it( 'links to the full Referrers report', () => {
+	it( 'declares the CSV download to its host once the rows settle', async () => {
+		mockApiFetch.mockResolvedValue( REFERRERS_RESPONSE );
+		const { WidgetActionsHost, declaredActions } = createWidgetActionsHost();
+
 		render(
-			<ReferrersWidget
-				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
-			/>
+			<WidgetActionsHost>
+				<ReferrersWidget
+					attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				/>
+			</WidgetActionsHost>
 		);
 
-		const link = screen.getByRole( 'link', { name: 'View all' } );
-		expect( link ).toHaveAttribute( 'href', expect.stringContaining( '/reports/referrers' ) );
+		await expect(
+			screen.findByRole( 'button', { name: /view referrers for search engines/i } )
+		).resolves.toBeInTheDocument();
+
+		await waitFor( () =>
+			expect( declaredActions() ).toEqual( [
+				expect.objectContaining( { id: 'download-csv', relevance: 'medium' } ),
+			] )
+		);
 	} );
 } );
 

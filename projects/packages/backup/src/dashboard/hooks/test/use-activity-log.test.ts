@@ -403,3 +403,127 @@ describe( 'useActivityById', () => {
 		expect( requestedPaths() ).toEqual( [ expect.stringContaining( 'sort_order=asc' ) ] );
 	} );
 } );
+
+describe( 'useActivityById for an id no loaded page holds', () => {
+	const UNLISTED_ID = '1786300000';
+
+	it.each( [ true, false ] )(
+		'exhausts a busy window unless it finds the backup (present: %s)',
+		async present => {
+			mockedApiFetch.mockImplementation( ( options: { path?: string } ) => {
+				const args = new URLSearchParams( options.path?.split( '?' )[ 1 ] );
+				if ( ! args.has( 'after' ) ) {
+					return Promise.resolve( DESCENDING );
+				}
+				const page = Number( args.get( 'page' ) );
+				return Promise.resolve( {
+					current: {
+						orderedItems:
+							present && page === 2
+								? [ backupEntry( UNLISTED_ID, '2026-08-09T18:26:40Z' ) ]
+								: Array.from( { length: 10 }, ( _, i ) => ( {
+										activity_id: `post-${ page }-${ i }`,
+										gridicon: 'posts',
+										summary: 'Post published',
+										published: '2026-08-09T18:26:39Z',
+									} ) ),
+					},
+					totalPages: 3,
+				} );
+			} );
+			const { result } = renderHook(
+				() => useActivityById( UNLISTED_ID, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+				{ wrapper: wrapper() }
+			);
+			await waitFor( () => expect( result.current.hasAnswered ).toBe( true ) );
+			expect( result.current.item?.id ?? null ).toBe(
+				present ? `activity-${ UNLISTED_ID }` : null
+			);
+			expect( windowRequests().map( args => args.get( 'page' ) ) ).toEqual(
+				present ? [ '1', '2' ] : [ '1', '2', '3' ]
+			);
+		}
+	);
+
+	it( 'gives up after three pages when the window is ignored', async () => {
+		mockedApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const args = new URLSearchParams( options.path?.split( '?' )[ 1 ] );
+			if ( ! args.has( 'after' ) ) {
+				return Promise.resolve( DESCENDING );
+			}
+			// The site's whole log, as WordPress.com returns it without the full activity log.
+			return Promise.resolve( {
+				current: {
+					orderedItems: Array.from( { length: 20 }, ( _, i ) => ( {
+						activity_id: `post-${ args.get( 'page' ) }-${ i }`,
+						gridicon: 'posts',
+						summary: 'Post published',
+						published: '2026-08-09T18:26:39Z',
+					} ) ),
+				},
+				totalPages: 50,
+			} );
+		} );
+		const { result } = renderHook(
+			() => useActivityById( UNLISTED_ID, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+			{ wrapper: wrapper() }
+		);
+		await waitFor( () => expect( result.current.hasAnswered ).toBe( true ) );
+		expect( result.current.item ).toBeFalsy();
+		expect( windowRequests().map( args => args.get( 'page' ) ) ).toEqual( [ '1', '2', '3' ] );
+	} );
+
+	/**
+	 * Requests for a time window rather than a page.
+	 *
+	 * @return The window requests' query args.
+	 */
+	function windowRequests(): URLSearchParams[] {
+		return requestedPaths()
+			.map( path => new URLSearchParams( path.split( '?' )[ 1 ] ) )
+			.filter( args => args.has( 'after' ) );
+	}
+
+	it.each( [ UNLISTED_ID, `${ UNLISTED_ID }.817` ] )(
+		'asks for the seconds around backup %s',
+		async rewindId => {
+			const { result } = renderHook(
+				() => useActivityById( rewindId, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+				{ wrapper: wrapper() }
+			);
+
+			await waitFor( () => expect( result.current.hasAnswered ).toBe( true ) );
+
+			expect( windowRequests() ).toHaveLength( 1 );
+			const args = windowRequests()[ 0 ];
+			expect( args.get( 'after' ) ).toBe( '2026-08-09T18:26:39Z' );
+			expect( args.get( 'before' ) ).toBe( '2026-08-09T18:26:42Z' );
+			expect( args.get( 'sort_order' ) ).toBe( 'asc' );
+		}
+	);
+
+	it( 'waits for that lookup rather than answering from the page', async () => {
+		mockedApiFetch.mockImplementation( ( options: { path?: string } ) =>
+			options?.path?.includes( 'after=' ) ? new Promise( () => {} ) : Promise.resolve( DESCENDING )
+		);
+		const { result } = renderHook(
+			() => useActivityById( UNLISTED_ID, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+			{ wrapper: wrapper() }
+		);
+
+		await waitFor( () => expect( windowRequests() ).toHaveLength( 1 ) );
+
+		expect( result.current ).toMatchObject( { item: null, hasAnswered: false, isFetching: true } );
+	} );
+
+	it( 'leaves any other id to the loaded pages', async () => {
+		const { result } = renderHook(
+			() => useActivityById( 'activity-unlisted', 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+			{ wrapper: wrapper() }
+		);
+
+		await waitFor( () => expect( result.current.hasAnswered ).toBe( true ) );
+
+		expect( windowRequests() ).toHaveLength( 0 );
+	} );
+} );

@@ -11,12 +11,5 @@
 		"*.css",
 		"*.scss",
 		"src/index.ts"
-	],
-	"dependencies": {
-		"@automattic/charts": "workspace:*",
-		"@visx/scale": "4.0.0",
-		"@wordpress/dataviews": "20.0.0",
-		"@wordpress/ui": "0.24.0",
-		"react": "19.3.0"
-	}
+	]
 }

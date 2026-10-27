@@ -91,6 +91,15 @@ describe( 'FeatureDelivery', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	it.each( [
+		[ 'module', moduleState( false, 'active' ) ],
+		[ 'plugin', { ...installedPlugin, status: 'active' } as FeatureState ],
+	] )( 'says why an active %s waiting for an account offers Connect', ( _, state ) => {
+		render( <FeatureDelivery state={ { ...state, accountNeeded: true } } /> );
+
+		expect( screen.getByText( 'Requires a connected WordPress.com account' ) ).toBeVisible();
+	} );
+
 	it( 'explains how to turn on a module nobody forced', () => {
 		render( <FeatureDelivery state={ moduleState( false, 'inactive' ) } /> );
 
@@ -226,6 +235,21 @@ describe( 'FeaturePaid', () => {
 			'href',
 			'#/add-complete?return_feature=jetpack-forms'
 		);
+	} );
+
+	it( 'keeps a plan name as text in offline Features', () => {
+		const previous = window.myJetpackInitialState;
+		window.myJetpackInitialState = { ...previous, isOfflineFeatures: true };
+		try {
+			render( <FeaturePaid state={ moduleState( false, 'inactive' ) } /> );
+
+			expect( screen.getByText( /Included in/ ) ).toHaveTextContent(
+				'Included in Jetpack Complete'
+			);
+			expect( screen.queryByRole( 'link', { name: 'Jetpack Complete' } ) ).not.toBeInTheDocument();
+		} finally {
+			window.myJetpackInitialState = previous;
+		}
 	} );
 
 	it( 'links to the upgrade for a feature that sells on its own, returning to it after checkout', () => {
@@ -448,6 +472,79 @@ describe( 'FeatureModal Free column', () => {
 		expect( screen.getByRole( 'link', { name: 'Jetpack Complete' } ) ).toBeVisible();
 		expect( screen.getByText( 'Jetpack module: Requires a Search plan' ) ).toBeVisible();
 		expect( screen.getByText( 'Inactive' ) ).toBeVisible();
+	} );
+
+	it( 'leaves the header with only the title once the flag drops the status badge', () => {
+		window.myJetpackInitialState.myJetpackFlags = {
+			accountConnect: true,
+		} as typeof window.myJetpackInitialState.myJetpackFlags;
+		try {
+			render(
+				<QueryClientProvider client={ new QueryClient() }>
+					<FeatureModal
+						state={ moduleState( false, 'active' ) }
+						position={ 1 }
+						total={ 1 }
+						onStep={ jest.fn() }
+						onClose={ jest.fn() }
+					/>
+				</QueryClientProvider>
+			);
+			expect( screen.queryByText( /^(Active|Inactive)$/ ) ).not.toBeInTheDocument();
+		} finally {
+			window.myJetpackInitialState.myJetpackFlags = undefined;
+		}
+	} );
+
+	it( 'shows the account reason once, outside the actions row', () => {
+		window.myJetpackInitialState.myJetpackFlags = {
+			accountConnect: true,
+		} as typeof window.myJetpackInitialState.myJetpackFlags;
+		try {
+			const state = resolveFeatureState(
+				{
+					...feature,
+					slug: 'jetpack-ai',
+					name: 'Jetpack AI',
+					product: 'jetpack-ai',
+					needs_account: true,
+					upgrade: { path: '/add-ai', name: 'Jetpack AI' },
+				},
+				'active',
+				undefined,
+				{
+					ai: {
+						module: 'ai',
+						available: false,
+						unavailable_reason: 'Requires a connected WordPress.com account',
+						requires_user_connection: true,
+						activated: false,
+					} as never,
+				},
+				{},
+				false,
+				true
+			);
+			render(
+				<QueryClientProvider client={ new QueryClient() }>
+					<FeatureModal
+						state={ state }
+						position={ 1 }
+						total={ 1 }
+						onStep={ jest.fn() }
+						onClose={ jest.fn() }
+					/>
+				</QueryClientProvider>
+			);
+			const reason = screen.getByText( 'Requires a connected WordPress.com account' );
+			const upgrade = screen.getByRole( 'link', { name: 'Upgrade to Jetpack AI' } );
+			// eslint-disable-next-line testing-library/no-node-access -- the actions row has no role to query.
+			const actions = upgrade.closest( '[data-feature-actions]' );
+			expect( reason ).toBeVisible();
+			expect( actions ).not.toContainElement( reason );
+		} finally {
+			window.myJetpackInitialState.myJetpackFlags = undefined;
+		}
 	} );
 
 	it( 'agrees with the card status for an unavailable feature with no standalone route', () => {

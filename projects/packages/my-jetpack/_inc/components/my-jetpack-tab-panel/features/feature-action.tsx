@@ -8,6 +8,7 @@ import { getProtectPageUrl } from '../../../utils/protect-page';
 import { leavePageFor } from '../../../utils/reload-page';
 import { ModuleToggle } from '../../module-toggle';
 import { getFeatureConnectReturnUrl, getSwitchLabel } from '../utils';
+import { CONNECT_INTENT_PARAM, rememberConnectIntent } from './connect-resume';
 import { UpgradeButton } from './feature-paid';
 import { getFeatureManageUrl, getForcedReason, offersConnect } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
@@ -28,7 +29,12 @@ export function useAccountConnection() {
 	return useCallback(
 		( state: FeatureState, origin: FeatureActionOrigin, action: ConnectionStartAction ) => {
 			tracking?.trackConnectionStart( state, origin, action );
-			leavePageFor( getUserConnectionUrl( { redirect_url: getFeatureConnectReturnUrl() } ) );
+			const intent = action === 'connect' ? rememberConnectIntent( state.feature.slug ) : null;
+			const returnUrl = getFeatureConnectReturnUrl(
+				undefined,
+				intent ? { [ CONNECT_INTENT_PARAM ]: intent } : {}
+			);
+			leavePageFor( getUserConnectionUrl( { redirect_url: returnUrl } ) );
 		},
 		[ tracking ]
 	);
@@ -180,7 +186,7 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 	}
 
 	if ( offersConnect( state ) ) {
-		return <ConnectButton state={ state } origin={ origin } describedby={ describedby } />;
+		return <ConnectButton state={ state } origin={ origin } />;
 	}
 
 	switch ( control.kind ) {
@@ -300,21 +306,19 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 type ConnectButtonProps = {
 	state: FeatureState;
 	origin: FeatureActionOrigin;
-	describedby?: string;
 	buttonRef?: Ref< HTMLButtonElement >;
 };
 
 /**
- * Start connecting the WordPress.com account a feature is waiting for, changing nothing else.
+ * Start connecting the WordPress.com account a feature is waiting for.
  *
- * @param {ConnectButtonProps} props             - The component props.
- * @param {FeatureState}       props.state       - Live state for the feature.
- * @param {string}             props.origin      - Which control this is.
- * @param {string}             props.describedby - Id of the element stating why it is needed.
- * @param {Ref}                props.buttonRef   - Ref to the button, for a caller that moves focus to it.
+ * @param {ConnectButtonProps} props           - The component props.
+ * @param {FeatureState}       props.state     - Live state for the feature.
+ * @param {string}             props.origin    - Which control this is.
+ * @param {Ref}                props.buttonRef - Ref to the button, for a caller that moves focus to it.
  * @return The rendered component.
  */
-export function ConnectButton( { state, origin, describedby, buttonRef }: ConnectButtonProps ) {
+export function ConnectButton( { state, origin, buttonRef }: ConnectButtonProps ) {
 	const connectAccount = useAccountConnection();
 	const onClick = useCallback(
 		() => connectAccount( state, origin, 'connect' ),
@@ -327,7 +331,6 @@ export function ConnectButton( { state, origin, describedby, buttonRef }: Connec
 			variant="outline"
 			size="compact"
 			onClick={ onClick }
-			aria-describedby={ describedby }
 			aria-label={ sprintf(
 				/* translators: %s is the feature name. */
 				__( 'Connect account for %s', 'jetpack-my-jetpack' ),

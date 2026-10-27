@@ -78,3 +78,75 @@ it( 'retries a locked HEAD on the same upload instead of creating another upload
 	expect( onError ).not.toHaveBeenCalled();
 	await upload.abort();
 } );
+
+/**
+ * Start an upload whose requests go through the given factory.
+ *
+ * @param signal        - Aborts the upload.
+ * @param createRequest - Builds each HTTP request tus sends.
+ */
+function uploadWithSignal( signal: AbortSignal, createRequest: jest.Mock ) {
+	const upload = resumableFileUploader( {
+		file: new File( [ 'abcdef' ], 'video.mp4', { type: 'video/mp4' } ),
+		tokenData: { token: 'token', url: 'https://example.com/uploads/', blogId: '1' },
+		onProgress: jest.fn(),
+		onSuccess: jest.fn(),
+		onError: jest.fn(),
+		signal,
+	} );
+	upload.options.httpStack = { getName: () => 'test', createRequest };
+}
+
+/**
+ * A request that never answers, so the upload stays in flight.
+ *
+ * @param method - HTTP method.
+ * @param url    - Request URL.
+ * @param abort  - Called when tus aborts the request.
+ * @return The request.
+ */
+function pendingRequest( method: string, url: string, abort: () => Promise< void > ): HttpRequest {
+	const headers: Record< string, string > = {};
+	const request = {
+		_method: method,
+		_url: url,
+		_headers: headers,
+		_xhr: { open: jest.fn() },
+		getMethod: () => method,
+		getURL: () => url,
+		setHeader: ( name: string, value: string ) => {
+			headers[ name ] = value;
+		},
+		getHeader: ( name: string ) => headers[ name ],
+		setProgressHandler: jest.fn(),
+		abort,
+		getUnderlyingObject: () => null,
+		send: () => new Promise< HttpResponse >( () => {} ),
+	};
+	return request;
+}
+
+it( 'never starts an upload whose signal aborted before tus could start it', async () => {
+	const createRequest = jest.fn();
+	const controller = new AbortController();
+	uploadWithSignal( controller.signal, createRequest );
+
+	controller.abort();
+	await new Promise( resolve => setTimeout( resolve, 50 ) );
+
+	expect( createRequest ).not.toHaveBeenCalled();
+} );
+
+it( 'aborts the request in flight when the signal aborts', async () => {
+	const abort = jest.fn( async () => {} );
+	const createRequest = jest.fn( ( method: string, url: string ) =>
+		pendingRequest( method, url, abort )
+	);
+	const controller = new AbortController();
+	uploadWithSignal( controller.signal, createRequest );
+	await waitFor( () => expect( createRequest ).toHaveBeenCalled() );
+
+	controller.abort();
+
+	expect( abort ).toHaveBeenCalled();
+} );

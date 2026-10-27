@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-videopress",
-	"version": "0.59.0",
+	"version": "0.60.0",
 	"private": true,
 	"description": "VideoPress package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/videopress/#readme",
@@ -88,8 +88,8 @@
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@babel/core": "7.29.7",
 		"@jest/globals": "30.5.2",
-		"@storybook/addon-docs": "10.4.6",
-		"@storybook/react": "10.4.6",
+		"@storybook/addon-docs": "10.6.3",
+		"@storybook/react": "10.6.3",
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/jest-dom": "^6.4.2",
 		"@testing-library/react": "16.3.3",
@@ -109,9 +109,9 @@
 		"require-from-string": "2.0.2",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"storybook": "10.4.6",
+		"storybook": "10.6.3",
 		"typescript": "6.0.3",
-		"webpack": "5.111.1",
+		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
 	},
 	"wpPlugin": {
