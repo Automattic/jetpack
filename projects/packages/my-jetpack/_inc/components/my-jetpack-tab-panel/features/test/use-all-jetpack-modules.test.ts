@@ -311,10 +311,14 @@ describe( 'the shared module request gate', () => {
 	} );
 } );
 
-describe( 'recovering a failed plugin switch', () => {
-	it.each( [ 'single', 'bulk' ] )(
-		'%s reads features before refreshing module overrides',
-		async mode => {
+describe( 'plugin switch refresh ordering', () => {
+	it.each( [
+		[ 'single', false ],
+		[ 'bulk', false ],
+		[ 'single', true ],
+	] )(
+		'%s reads features before refreshing module overrides (success: %s)',
+		async ( mode, success ) => {
 			window.myJetpackInitialState = {
 				isOfflineFeatures: true,
 			} as typeof window.myJetpackInitialState;
@@ -339,13 +343,16 @@ describe( 'recovering a failed plugin switch', () => {
 				.mockImplementation( jest.requireActual( '../use-main-features' ).useMainFeatures );
 			mockModules.current = { videopress: { ...mod( 'videopress', 'active' ), available: false } };
 			let settleFeatures: ( state: MainFeaturesState ) => void = () => {};
-			jest.mocked( apiFetch ).mockImplementation( ( { method } ) =>
-				method === 'POST'
-					? Promise.reject( new Error( 'Switch failed after deactivation' ) )
-					: new Promise( resolve => {
-							settleFeatures = resolve;
-						} )
-			);
+			jest
+				.mocked( apiFetch )
+				.mockClear()
+				.mockImplementation( ( { method } ) =>
+					method === 'POST' && ! success
+						? Promise.reject( new Error( 'Switch failed after deactivation' ) )
+						: new Promise( resolve => {
+								settleFeatures = resolve;
+							} )
+				);
 			const readWith: MainFeaturePluginStatus[] = [];
 			const deliverHostOverride = () => {
 				readWith.push(
@@ -356,9 +363,12 @@ describe( 'recovering a failed plugin switch', () => {
 				};
 			};
 			mockInvalidateResolution.mockReset().mockImplementation( deliverHostOverride );
-			mockFetchModules.mockReset().mockImplementation( async () => {
+			let settleModules: () => void = () => {};
+			mockFetchModules.mockReset().mockImplementation( () => {
 				deliverHostOverride();
-				return true;
+				return new Promise( resolve => {
+					settleModules = () => resolve( true );
+				} );
 			} );
 			const { result, rerender, unmount } = renderHook(
 				() => ( {
@@ -379,14 +389,27 @@ describe( 'recovering a failed plugin switch', () => {
 						: result.current.bulk.run( result.current.states, false );
 			} );
 			await waitFor( () =>
-				expect( apiFetch ).toHaveBeenCalledWith( { path: '/wpcom/v2/my-jetpack/site/features' } )
+				expect( apiFetch ).toHaveBeenCalledWith(
+					success
+						? expect.objectContaining( { method: 'POST' } )
+						: { path: '/wpcom/v2/my-jetpack/site/features' }
+				)
 			);
 			rerender();
 			await act( async () => {
 				settleFeatures( inactive );
+			} );
+			await waitFor( () => expect( readWith ).toEqual( [ 'inactive' ] ) );
+			rerender();
+			if ( mode === 'single' ) {
+				expect( result.current.plugin.isBusy ).toBe( true );
+			}
+			await act( async () => {
+				settleModules();
 				await request;
 			} );
 			rerender();
+			expect( result.current.plugin.isBusy ).toBe( false );
 			expect( result.current.states[ 0 ].control.kind ).toBe( 'module' );
 			expect( getForcedReason( result.current.states[ 0 ] ) ).toBe(
 				'Enabled by your host or site administrator'
