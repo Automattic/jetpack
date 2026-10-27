@@ -313,12 +313,13 @@ describe( 'the shared module request gate', () => {
 
 describe( 'plugin switch refresh ordering', () => {
 	it.each( [
-		[ 'single', false ],
-		[ 'bulk', false ],
-		[ 'single', true ],
-	] )(
-		'%s reads features before refreshing module overrides (success: %s)',
-		async ( mode, success ) => {
+		[ 'single', false, 'active' ],
+		[ 'bulk', false, 'active' ],
+		[ 'single', true, 'active' ],
+		[ 'single', true, 'inactive' ],
+	] as const )(
+		'%s reads features before refreshing module overrides (success: %s, Jetpack: %s)',
+		async ( mode, success, jetpack ) => {
 			window.myJetpackInitialState = {
 				isOfflineFeatures: true,
 			} as typeof window.myJetpackInitialState;
@@ -329,7 +330,7 @@ describe( 'plugin switch refresh ordering', () => {
 				plugin_status: 'active',
 				in_jetpack: true,
 			} as MainFeature;
-			const active: MainFeaturesState = { jetpack: 'active', features: [ feature ] };
+			const active: MainFeaturesState = { jetpack, features: [ feature ] };
 			const inactive: MainFeaturesState = {
 				...active,
 				features: [ { ...feature, plugin_status: 'inactive' } ],
@@ -366,6 +367,9 @@ describe( 'plugin switch refresh ordering', () => {
 			let settleModules: () => void = () => {};
 			mockFetchModules.mockReset().mockImplementation( () => {
 				deliverHostOverride();
+				if ( jetpack !== 'active' ) {
+					return Promise.resolve( true );
+				}
 				return new Promise( resolve => {
 					settleModules = () => resolve( true );
 				} );
@@ -399,10 +403,12 @@ describe( 'plugin switch refresh ordering', () => {
 			await act( async () => {
 				settleFeatures( inactive );
 			} );
-			await waitFor( () => expect( readWith ).toEqual( [ 'inactive' ] ) );
-			rerender();
-			if ( mode === 'single' ) {
-				expect( result.current.plugin.isBusy ).toBe( true );
+			if ( jetpack === 'active' ) {
+				await waitFor( () => expect( readWith ).toEqual( [ 'inactive' ] ) );
+				rerender();
+				if ( mode === 'single' ) {
+					expect( result.current.plugin.isBusy ).toBe( true );
+				}
 			}
 			await act( async () => {
 				settleModules();
@@ -410,11 +416,16 @@ describe( 'plugin switch refresh ordering', () => {
 			} );
 			rerender();
 			expect( result.current.plugin.isBusy ).toBe( false );
-			expect( result.current.states[ 0 ].control.kind ).toBe( 'module' );
-			expect( getForcedReason( result.current.states[ 0 ] ) ).toBe(
-				'Enabled by your host or site administrator'
-			);
-			expect( readWith ).toEqual( [ 'inactive' ] );
+			if ( jetpack === 'active' ) {
+				expect( result.current.states[ 0 ].control.kind ).toBe( 'module' );
+				expect( getForcedReason( result.current.states[ 0 ] ) ).toBe(
+					'Enabled by your host or site administrator'
+				);
+				expect( readWith ).toEqual( [ 'inactive' ] );
+			} else {
+				expect( mockFetchModules ).not.toHaveBeenCalled();
+				expect( client.getQueryData( QUERY_KEY ) ).toEqual( inactive );
+			}
 			unmount();
 			client.clear();
 		}

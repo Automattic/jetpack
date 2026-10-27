@@ -147,10 +147,12 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 			await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
 			return requestPluginSwitch( queryClient, plugin, action );
 		},
-		onSuccess: async ( _state, { action, leavesPage } ) => {
+		onSuccess: async ( state, { action, leavesPage } ) => {
 			// A product switches its Jetpack module along with its plugin, so the modules
 			// store More Features reads from is now behind.
-			await fetchModules();
+			if ( state.jetpack === 'active' ) {
+				await fetchModules();
+			}
 
 			const deactivated = sprintf(
 				/* translators: %s is a plugin or feature name. */
@@ -179,7 +181,9 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 		onError: async ( error: { message?: string }, { action } ) => {
 			// Read the site again: the plugin may well have been switched before whatever failed.
 			await queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
-			await fetchModules();
+			if ( queryClient.getQueryData< MainFeaturesState >( QUERY_KEY )?.jetpack === 'active' ) {
+				await fetchModules();
+			}
 
 			// Shown on the feature itself instead (see useInstallError).
 			if ( action === 'install' ) {
