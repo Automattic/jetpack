@@ -33,6 +33,7 @@ class AiCrawlersTest extends TestCase {
 		parent::setUp();
 		$this->blog_public = get_option( 'blog_public', null );
 		delete_option( Ai_Crawlers::OPTION );
+		delete_option( Ai_Crawlers::LEGACY_OPTION );
 		delete_option( 'wpcom_data_sharing_opt_out' );
 		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), Ai_Crawlers::ROBOTS_TXT_PRIORITY );
 		remove_filter(
@@ -48,7 +49,9 @@ class AiCrawlersTest extends TestCase {
 	 * @return void
 	 */
 	protected function tearDown(): void {
+		remove_filter( 'default_option_' . Ai_Crawlers::OPTION, array( Ai_Crawlers::class, 'migrate_legacy_overrides' ), Ai_Crawlers::MIGRATION_PRIORITY );
 		delete_option( Ai_Crawlers::OPTION );
+		delete_option( Ai_Crawlers::LEGACY_OPTION );
 		delete_option( 'wpcom_data_sharing_opt_out' );
 		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), Ai_Crawlers::ROBOTS_TXT_PRIORITY );
 		remove_filter(
@@ -163,6 +166,145 @@ class AiCrawlersTest extends TestCase {
 	#[DataProvider( 'provide_blocked_values' )]
 	public function test_sanitize_blocked( $value, $expected ) {
 		$this->assertSame( $expected, Ai_Crawlers::sanitize_blocked( $value ) );
+	}
+
+	/**
+	 * Old maps with no allowed training crawler.
+	 *
+	 * @return array<string, array{array, array}>
+	 */
+	public static function provide_legacy_maps() {
+		return array(
+			'answer engines blocked' => array(
+				array(
+					'perplexitybot' => true,
+					'oai-searchbot' => true,
+					'not-a-bot'     => true,
+				),
+				array(
+					'answer'   => array( 'oai-searchbot', 'perplexitybot' ),
+					'training' => array(),
+				),
+			),
+			'answer engine allowed'  => array(
+				array( 'perplexitybot' => false ),
+				array(
+					'answer'   => array(),
+					'training' => array(),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Only answer-engine blocks carry over, and the old option is deleted.
+	 *
+	 * @dataProvider provide_legacy_maps
+	 * @param array $legacy   The old option.
+	 * @param array $expected The new option.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_legacy_maps' )]
+	public function test_migration_carries_answer_blocks( $legacy, $expected ) {
+		update_option( Ai_Crawlers::LEGACY_OPTION, $legacy );
+		Ai_Crawlers::register_legacy_migration();
+
+		$this->assertSame( $expected, get_option( Ai_Crawlers::OPTION ) );
+		$this->assertSame( $expected, $this->stored( Ai_Crawlers::OPTION ) );
+		$this->assertFalse( $this->stored( Ai_Crawlers::LEGACY_OPTION ) );
+	}
+
+	/**
+	 * An option as the database holds it, bypassing the object cache.
+	 *
+	 * @param string $name Option name.
+	 * @return mixed The stored value, or false when there is no row.
+	 */
+	private function stored( $name ) {
+		wp_cache_delete( 'alloptions', 'options' );
+		wp_cache_delete( 'notoptions', 'options' );
+		wp_cache_delete( $name, 'options' );
+		return get_option( $name, false );
+	}
+
+	/**
+	 * Unsaved training crawlers stay blocked, including on the first read past register_setting()'s default.
+	 *
+	 * @return void
+	 */
+	public function test_migration_keeps_unsaved_training_crawlers_blocked() {
+		update_option(
+			Ai_Crawlers::LEGACY_OPTION,
+			array(
+				'gptbot'        => false,
+				'perplexitybot' => true,
+			)
+		);
+		register_setting( 'jetpack-seo-test', Ai_Crawlers::OPTION, array( 'default' => array() ) );
+		Ai_Crawlers::register_legacy_migration();
+
+		try {
+			$blocked = get_option( Ai_Crawlers::OPTION );
+		} finally {
+			unregister_setting( 'jetpack-seo-test', Ai_Crawlers::OPTION );
+		}
+
+		$training = array_keys( wp_list_filter( Ai_Crawlers::get_catalog(), array( 'type' => 'training' ) ) );
+		$this->assertSame(
+			array(
+				'answer'   => array( 'perplexitybot' ),
+				'training' => array_values( array_diff( $training, array( 'gptbot' ) ) ),
+			),
+			$blocked
+		);
+	}
+
+	/**
+	 * With no old option, a read returns the default and writes nothing.
+	 *
+	 * @return void
+	 */
+	public function test_migration_writes_nothing_without_an_old_option() {
+		Ai_Crawlers::register_legacy_migration();
+
+		$this->assertSame( 'missing', get_option( Ai_Crawlers::OPTION, 'missing' ) );
+		$this->assertFalse( $this->stored( Ai_Crawlers::OPTION ) );
+	}
+
+	/**
+	 * An existing new option wins, and the old one is kept.
+	 *
+	 * @return void
+	 */
+	public function test_migration_skips_an_existing_new_option() {
+		$current = array(
+			'answer'   => 'all',
+			'training' => array(),
+		);
+		update_option( Ai_Crawlers::OPTION, $current );
+		update_option( Ai_Crawlers::LEGACY_OPTION, array( 'gptbot' => false ) );
+		Ai_Crawlers::register_legacy_migration();
+
+		$this->assertSame( $current, get_option( Ai_Crawlers::OPTION ) );
+		$this->assertSame( array( 'gptbot' => false ), get_option( Ai_Crawlers::LEGACY_OPTION ) );
+	}
+
+	/**
+	 * A first save through update_option() migrates on the way in, then the saved value wins.
+	 *
+	 * @return void
+	 */
+	public function test_migration_survives_a_first_save() {
+		update_option( Ai_Crawlers::LEGACY_OPTION, array( 'perplexitybot' => true ) );
+		Ai_Crawlers::register_legacy_migration();
+		$saved = array(
+			'answer'   => array( 'oai-searchbot' ),
+			'training' => 'all',
+		);
+
+		$this->assertTrue( update_option( Ai_Crawlers::OPTION, $saved ) );
+		$this->assertSame( $saved, $this->stored( Ai_Crawlers::OPTION ) );
+		$this->assertFalse( $this->stored( Ai_Crawlers::LEGACY_OPTION ) );
 	}
 
 	/**
