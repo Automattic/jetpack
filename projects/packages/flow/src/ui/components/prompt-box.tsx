@@ -1,5 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, getLocaleData } from '@wordpress/i18n';
 import { arrowUp } from '@wordpress/icons';
 import { IconButton } from '@wordpress/ui';
 import { noAutofill } from '../no-autofill';
@@ -69,7 +69,8 @@ export function PromptBox( { value, busy, onChange, onSubmit }: Props ) {
 		const base = value.trim();
 		spoken.continuous = true;
 		spoken.interimResults = true;
-		spoken.lang = document.documentElement.lang || 'en-US';
+		const header = getLocaleData()?.[ '' ] as { lang?: string } | undefined;
+		spoken.lang = ( header?.lang ?? 'en_US' ).replace( '_', '-' );
 		spoken.onresult = event => {
 			const transcript = Array.from( event.results )
 				.map( result => result[ 0 ].transcript )
