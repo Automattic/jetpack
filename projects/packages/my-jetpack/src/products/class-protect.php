@@ -10,8 +10,10 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use WP_Error;
 use WP_REST_Response;
@@ -462,6 +464,19 @@ class Protect extends Hybrid_Product {
 			'jetpack_scan_monthly',
 			'jetpack_scan_bi_yearly',
 		);
+	}
+
+	/**
+	 * Whether the site pays for Scan, which on WordPress.com is Protect Status's call, as the Protect page's.
+	 *
+	 * @return bool
+	 */
+	public static function has_paid_plan_for_product() {
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return Plan::has_required_plan();
+		}
+
+		return parent::has_paid_plan_for_product();
 	}
 
 	/**

@@ -2,7 +2,10 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
+use Automattic\Jetpack\Protect_Status\Plan;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -33,6 +36,10 @@ class Protect_Product_Test extends TestCase {
 		remove_filter( 'jetpack_get_available_modules', array( $this, 'offer_jetpack_modules' ), PHP_INT_MAX );
 		\Jetpack_Options::delete_option( 'active_modules' );
 		delete_option( 'active_plugins' );
+		delete_option( 'jetpack_active_plan' );
+		delete_transient( Protect::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
+		Constants::clear_constants();
+		StatusCache::clear();
 	}
 
 	/**
@@ -191,5 +198,47 @@ class Protect_Product_Test extends TestCase {
 		$info = Protect::get_info();
 		$this->assertSame( $loaded, $info['has_protect_page'] );
 		$this->assertSame( $loaded, admin_url( 'admin.php?page=jetpack-protect' ) === $info['scan_results_url'] );
+	}
+
+	/**
+	 * On WordPress.com a plan's `scan` alone is not Scan, so the card still offers the upgrade; self-hosted keeps reading the feature.
+	 *
+	 * @dataProvider provide_scan_feature_hosts
+	 *
+	 * @param bool $woa      Whether the site is on WoA.
+	 * @param bool $expected Whether the site counts as paying for Scan.
+	 */
+	#[DataProvider( 'provide_scan_feature_hosts' )]
+	public function test_paid_plan_follows_protect_status_on_wordpress_com( $woa, $expected ) {
+		if ( $woa ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
+			StatusCache::clear();
+		}
+		set_transient( Protect::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array( 'scan' ) ) );
+		update_option(
+			'jetpack_active_plan',
+			array(
+				'product_slug' => 'jetpack_free',
+				'features'     => array( 'active' => array() ),
+			)
+		);
+		// Recompute Protect Status's memoized answer from this plan; an unconnected site skips the fetch.
+		Plan::has_required_plan( true );
+
+		$this->assertSame( $expected, Protect::has_paid_plan_for_product() );
+	}
+
+	/**
+	 * Data provider for test_paid_plan_follows_protect_status_on_wordpress_com.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_scan_feature_hosts() {
+		return array(
+			'self-hosted' => array( false, true ),
+			'WoA'         => array( true, false ),
+		);
 	}
 }
