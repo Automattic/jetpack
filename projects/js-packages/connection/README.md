@@ -174,6 +174,42 @@ const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnec
 </DisconnectDialog>
 ```
 
+## Component `DisconnectUserDialog`
+The `DisconnectUserDialog` component asks the viewer to confirm before disconnecting their own WordPress.com account, and decides which confirmation that is. It reads the viewer from the package store, so the host does not have to say whether they own the connection: an owner is warned that disconnecting them ends every user's connection and is offered the ownership transfer instead, and everyone else gets a plain confirm.
+
+The unlink itself runs through the store's `unlinkUser` action, which records the result, so surfaces reading connection state from the store reflect it without a page reload.
+
+### Properties
+- *apiRoot* - string (required), API root URL.
+- *apiNonce* - string (required), API Nonce.
+- *isOpen* - boolean, whether the dialog is open. Nothing renders when it is false.
+- *onClose* - callback (required), called when the dialog is dismissed without disconnecting.
+- *onUnlinked* - callback, called once the account has been disconnected. The dialog does not close itself, so the host decides what closes and whether to reload.
+- *onTransferOwnership* - callback, opens the host's ownership transfer flow. Omit it to hide that action from the owner's warning.
+- *context* - string, recorded with the dialog's analytics events. Leave it out only if the surface genuinely has no name: there is no default, so an omitted context is absent from the data rather than attributed to another surface.
+
+### Important Notes
+The dialog takes no props describing the viewer. It reads `isMaster` and the viewer's capabilities from the store, which `Initial_State` fills, so a host that renders it on a page without that script data will show the non-owner confirmation to everyone.
+
+`Disconnect` is disabled while the site is in offline mode, where WordPress.com cannot be reached to action it, and the dialog cannot be dismissed with ESC or a click outside while a request is in flight.
+
+### Basic Usage
+```jsx
+import { useState } from 'react';
+import { DisconnectUserDialog } from '@automattic/jetpack-connection';
+
+const [ isOpen, setIsOpen ] = useState( false );
+
+<DisconnectUserDialog
+	apiRoot={ APIRoot }
+	apiNonce={ APINonce }
+	isOpen={ isOpen }
+	context="my-surface"
+	onClose={ () => setIsOpen( false ) }
+	onUnlinked={ () => setIsOpen( false ) }
+/>
+```
+
 ## Component `TransferConnectionOwnership`
 The `TransferConnectionOwnership` component hands this site's WordPress.com connection to another connected administrator. It walks the user through choosing one, confirming what moves with ownership, and a success message.
 
@@ -186,6 +222,7 @@ On success it updates the package store with the new owner, so surfaces reading 
 - *apiNonce* - string (required), API Nonce.
 - *onTransferred* - callback, called with the new owner's local user ID once WordPress.com has accepted the change. Only needed for logic beyond the store update, such as analytics or closing the surrounding surface.
 - *onBusyChange* - callback, called with whether a transfer is in flight, so a host can hold its own exits shut while it runs.
+- *trackingContext* - string, the surface to report Tracks events as (`jetpack_connection_owner_transfer_attempt`, `_success` and `_error` with a `reason`). Sent as `context`, or `null` when omitted.
 
 ### Important Notes
 The component renders only the controls its own steps need: `Continue`, `Back` between steps, and the transfer itself. Leaving the flow is the host surface's business, so there is no Cancel, Close or Done button — add one in your own chrome if the surface needs it.
@@ -202,6 +239,9 @@ import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 	onTransferred={ () => setIsPanelOpen( false ) }
 />
 ```
+
+## Tracking connection events
+`ProtectedOwnerConfirmation`, `ProtectedOwnerRelease`, `TransferConnectionOwnership` and the transfer link in `DisconnectUserDialog` record Tracks events by default. The `trackingContext` prop (`context` for `DisconnectUserDialog`) is sent as the event's `context` property, or `null` when omitted. The package also exports `CONNECTION_EVENTS` (the canonical event names) `trackConnectionEvent( event, context, props )` and `bumpConnectionStat( group, name )` (an MC stat) for hosts that cannot bundle `@automattic/jetpack-analytics`, such as the Connectors card. Neither throws. `bumpConnectionStat` skips the Tracks script, so check that the site allows tracking before calling it.
 
 ## Fetching connection status and other data from the store
 The package relies on [controls](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#controls-2)
@@ -243,3 +283,5 @@ export default withSelect( select => {
 	}
 } )( SampleComponent );
 ```
+
+The status in the store comes from the page's initial state. Before an action that depends on the current state, such as registering the site, dispatch `refreshConnectionStatus()`: it reads the status from the server, records it in the store and resolves with it.

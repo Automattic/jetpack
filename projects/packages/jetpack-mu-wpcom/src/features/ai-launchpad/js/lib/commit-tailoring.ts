@@ -194,6 +194,8 @@ export interface CommitOptions {
 	pageIsLeaving?: () => Promise< boolean >;
 	/** Waits between automatic retries; setTimeout by default. */
 	sleep?: ( ms: number ) => Promise< void >;
+	/** Whether the site was built with AI, for the fallback; false by default. */
+	aiBuilt?: boolean;
 }
 
 /**
@@ -227,6 +229,7 @@ export async function commitTailoring(
 	const {
 		pageIsLeaving = () => Promise.resolve( false ),
 		sleep = ms => new Promise< void >( resolve => setTimeout( resolve, ms ) ),
+		aiBuilt = false,
 	} = options;
 	const sessionId = sessionIdProp( prepared.aiSessionId );
 	// Per write, so the save-failed events of a "Try again" carry on from the automatic attempts.
@@ -347,7 +350,7 @@ export async function commitTailoring(
 
 	// `attempts` in the write's telemetry counts the failed AI calls that preceded the fallback.
 	const fallbackOutput =
-		'fallback' === prepared.source ? prepared.output : selectFallback( input, copy );
+		'fallback' === prepared.source ? prepared.output : selectFallback( input, copy, aiBuilt );
 	const result = await write( fallbackOutput, 'fallback' );
 	if ( 'leaving' === result ) {
 		return null;

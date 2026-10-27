@@ -84,7 +84,7 @@ class Jetpack {
 	/**
 	 * Marks a Jetpack plugin whose Backup dashboard follows the site's plan, not the backup module.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @var bool
 	 */
@@ -853,7 +853,7 @@ class Jetpack {
 	/**
 	 * What switching a module off leaves unchanged, for interfaces that still offer it; empty when nothing.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param string $module Module slug.
 	 * @return string
@@ -919,13 +919,9 @@ class Jetpack {
 	/**
 	 * Whether the bundled Stats v2 dashboard is enabled.
 	 *
-	 * Stats v2 (formerly "Premium Analytics") ships with the plugin behind this
-	 * flag while it rolls out (WOOA7S-1595). When enabled it adds its own admin
-	 * menu alongside the existing Stats UI; it never replaces or hides the
-	 * legacy Stats menu, admin-bar entries, post-list column, or WP dashboard
-	 * widget. The Stats module's tracking is unaffected either way, and Stats v2
-	 * reads what that module collects, so while the module is off the plugin
-	 * answers false here before even reading the flag.
+	 * Stats v2 ships behind this flag (WOOA7S-1595). It reads what the Stats module
+	 * collects, so while the module is off this answers false before reading the flag.
+	 * The classic Stats menu stays beside it until `jetpack-stats-classic-page-retired` retires it.
 	 *
 	 * The package has to be loadable for this to be true, so a site with the
 	 * flag on but a missing package answers false here and never adds the
@@ -955,9 +951,13 @@ class Jetpack {
 		 *
 		 * @since 16.1
 		 *
-		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false).
+		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false), or true once the classic Stats page is retired.
 		 */
-		$flag = (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
+		$flag = (bool) apply_filters(
+			'jetpack_premium_analytics_enabled',
+			// A site that once switched Stats v2 off would otherwise be left with no Stats page.
+			Jetpack_Stats_Feature_Flags::is_classic_page_retired() || (bool) get_option( 'jetpack_premium_analytics_enabled' )
+		);
 
 		self::$premium_analytics_enabled = $flag && class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' );
 
@@ -969,6 +969,24 @@ class Jetpack {
 		}
 
 		return self::$premium_analytics_enabled;
+	}
+
+	/**
+	 * Options for booting Stats v2, which takes the plain Stats name and the pre-connection Stats page once classic Stats is retired.
+	 *
+	 * @return array
+	 */
+	private static function premium_analytics_options() {
+		if ( ! Jetpack_Stats_Feature_Flags::is_classic_page_retired() ) {
+			return array();
+		}
+
+		return array(
+			'menu_title'                         => static function () {
+				return __( 'Stats', 'jetpack' );
+			},
+			'replaces_pre_connection_stats_page' => true,
+		);
 	}
 
 	/**
@@ -1099,9 +1117,9 @@ class Jetpack {
 		}
 
 		// Stats v2 (WOOA7S-1595). Unlike Stats above it cannot be deferred when enabled — see
-		// Analytics::init() for why, and for why it takes no menu_title here.
+		// Analytics::init() for why.
 		if ( self::is_premium_analytics_enabled() ) {
-			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
+			\Automattic\Jetpack\PremiumAnalytics\Analytics::init( self::premium_analytics_options() );
 			if ( class_exists( 'Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard' ) ) {
 				\Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard::init();
 			}

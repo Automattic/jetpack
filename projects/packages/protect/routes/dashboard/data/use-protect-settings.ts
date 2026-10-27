@@ -3,6 +3,7 @@ import { dispatch } from '@wordpress/data';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordSettingEvents } from './setting-events';
 
 // One id, so a burst of saves shows one snackbar.
 const SAVED_NOTICE_ID = 'jetpack-protect-settings-saved';
@@ -30,6 +31,20 @@ function getWafErrorMessage( code: unknown ): string | undefined {
 		default:
 			return undefined;
 	}
+}
+
+/**
+ * Why the server refused a setting's value, which WordPress puts under `data.params` for `rest_invalid_param`.
+ *
+ * @param data - The REST error's data.
+ * @return The first reason, or undefined when there is none.
+ */
+function getInvalidParamMessage( data: unknown ): string | undefined {
+	const params = ( data as { params?: unknown } | undefined )?.params;
+	if ( ! params || typeof params !== 'object' ) {
+		return undefined;
+	}
+	return Object.values( params ).find( ( reason ): reason is string => typeof reason === 'string' );
 }
 
 /** Flat Jetpack settings, keyed by option or module slug, as `jetpack/v4/settings` returns them. */
@@ -150,11 +165,16 @@ export default function useProtectSettings(): ProtectSettingsData {
 					{ type: 'snackbar', id: SAVED_NOTICE_ID }
 				);
 			} catch ( e ) {
-				const { code, message } = ( e ?? {} ) as { code?: unknown; message?: string };
+				const { code, message, data } = ( e ?? {} ) as {
+					code?: unknown;
+					message?: string;
+					data?: unknown;
+				};
 				const wafMessage = getWafErrorMessage( code );
 				setFailure( {
 					message:
 						wafMessage ||
+						( code === 'rest_invalid_param' ? getInvalidParamMessage( data ) : undefined ) ||
 						message ||
 						__( 'Your change couldn’t be saved. Try again.', 'jetpack-protect-pkg' ),
 					keys,
@@ -186,6 +206,9 @@ export default function useProtectSettings(): ProtectSettingsData {
 					keys.forEach( key => next.splice( next.indexOf( key ), 1 ) );
 					return next;
 				} );
+			}
+			if ( saved ) {
+				recordSettingEvents( patch, before );
 			}
 			return saved;
 		},

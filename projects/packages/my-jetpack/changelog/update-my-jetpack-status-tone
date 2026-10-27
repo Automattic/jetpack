@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Export the product status label and tone helpers for reuse; no visible change.
-

@@ -10,27 +10,5 @@
 	],
 	"module": "build-module/index.mjs",
 	"wpScriptModuleExports": "./build-module/index.mjs",
-	"types": "src/index.ts",
-	"dependencies": {
-		"@jetpack-premium-analytics/data": "workspace:*",
-		"@jetpack-premium-analytics/datetime": "workspace:*",
-		"@jetpack-premium-analytics/externals": "workspace:*",
-		"@jetpack-premium-analytics/icons": "workspace:*",
-		"@jetpack-premium-analytics/routing": "workspace:*",
-		"@jetpack-premium-analytics/ui": "workspace:*",
-		"@wordpress/components": "42.0.0",
-		"@wordpress/element": "9.0.0",
-		"@wordpress/i18n": "^6.9.0",
-		"@wordpress/icons": "^18.0.0",
-		"@wordpress/private-apis": "2.0.0",
-		"@wordpress/route": "0.23.0",
-		"@wordpress/widget-primitives": "0.9.0",
-		"date-fns": "4.4.0",
-		"react": "19.3.0"
-	},
-	"devDependencies": {
-		"@storybook/react": "10.4.6",
-		"@testing-library/react": "16.3.3",
-		"@testing-library/user-event": "14.6.8"
-	}
+	"types": "src/index.ts"
 }

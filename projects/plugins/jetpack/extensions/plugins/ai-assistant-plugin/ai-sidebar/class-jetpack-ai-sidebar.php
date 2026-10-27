@@ -344,7 +344,8 @@ class Jetpack_AI_Sidebar {
 		$enabled = false;
 		if ( $host->is_wpcom_platform() && class_exists( 'Big_Sky' ) ) {
 			$default = $host->is_wpcom_simple() ? '1' : '0';
-			$enabled = (bool) get_option( 'big_sky_enable', $default );
+			// The plan check is the costly one, so it goes after the option.
+			$enabled = (bool) get_option( 'big_sky_enable', $default ) && self::has_wordpress_agent_plan();
 		}
 
 		/**
@@ -543,26 +544,34 @@ class Jetpack_AI_Sidebar {
 	 * Whether the site is eligible to turn the WordPress Agent on, whether or not
 	 * it has done so yet.
 	 *
-	 * Prefers the wpcom mu-plugin functions: the plan check cannot see the free
-	 * trial. Not gated on the Big_Sky class, which on Simple only loads once the
-	 * Agent is on.
+	 * Eligibility follows the plan, not the Big Sky sticker: a site downgraded to
+	 * Free keeps the sticker but is no longer offered the Agent. Not gated on the
+	 * Big_Sky class, which on Simple only loads once the Agent is on.
 	 *
 	 * @return bool
 	 */
 	private static function is_wordpress_agent_eligible(): bool {
 		$host = new Host();
 
-		if ( ! $host->is_wpcom_platform() ) {
-			return false;
+		return $host->is_wpcom_platform() && self::has_wordpress_agent_plan();
+	}
+
+	/**
+	 * Whether the site has a plan that grants the Big Sky feature.
+	 *
+	 * Prefers the mu-wpcom check, which also counts the Big Sky free trial that the
+	 * plan check cannot see. Atomic can run an older mu-wpcom without it, so fall
+	 * back to Current_Plan, which resolves through the platform plan features.
+	 *
+	 * @return bool
+	 */
+	private static function has_wordpress_agent_plan(): bool {
+		if ( function_exists( 'wpcom_site_has_wordpress_agent_plan' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by jetpack-mu-wpcom on WordPress.com; guarded above.
+			return wpcom_site_has_wordpress_agent_plan();
 		}
 
-		if ( function_exists( 'big_sky_is_available_for_site' ) && function_exists( 'big_sky_is_enabled' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded by function_exists() above.
-			return big_sky_is_available_for_site() || big_sky_is_enabled();
-		}
-
-		// Off Simple the plugin is only installed once the site qualifies.
-		return class_exists( 'Big_Sky' ) || Current_Plan::supports( 'big-sky' );
+		return Current_Plan::supports( 'big-sky' );
 	}
 
 	/**

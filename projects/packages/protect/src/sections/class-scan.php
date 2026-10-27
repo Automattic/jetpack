@@ -39,6 +39,13 @@ class Scan implements Dashboard_Section {
 	const SCANNING_STATUSES = array( 'provisioning', 'scheduled', 'scanning' );
 
 	/**
+	 * How many copy variants the free-plan upsell tests.
+	 *
+	 * @var int
+	 */
+	const UPSELL_VARIANTS = 8;
+
+	/**
 	 * Statuses that mean the first scan has not run yet when there is no report date.
 	 *
 	 * @var string[]
@@ -76,22 +83,62 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
-	 * The plan, where to manage or buy Scan, and the latest report.
+	 * The plan, where to set Scan's server credentials or buy Scan, and the latest report.
 	 *
 	 * @return array
 	 */
 	public function get_state() {
 		$has_plan = Dashboard::has_scan_plan();
+		// Fetched first: has_credentials() reads the report this caches.
+		$report = self::get_scan_report( $has_plan );
 
 		return array_merge(
 			array(
 				'hasPlan' => $has_plan,
 				'url'     => $has_plan
-					? Redirect::get_url( 'my-jetpack-manage-scan' )
-					: admin_url( 'admin.php?page=my-jetpack#/add-scan' ),
+					? Redirect::get_url( 'jetpack-settings-security-credentials' )
+					: Dashboard::get_scan_upgrade_url(),
 			),
-			self::get_scan_report( $has_plan )
+			$has_plan ? array( 'hasCredentials' => self::has_credentials() ) : array(
+				'upsellVariant'       => self::get_upsell_variant(),
+				'upsellVariantForced' => (bool) has_filter( 'jetpack_protect_dashboard_scan_upsell_variant' ),
+			),
+			$report
 		);
+	}
+
+	/**
+	 * Whether Scan has the server credentials it needs to auto-fix threats, from the cached Scan report.
+	 *
+	 * @return bool|null Null when there's no report to say.
+	 */
+	private static function has_credentials() {
+		$report = class_exists( Scan_Status::class ) ? Scan_Status::get_from_options() : null;
+		if ( ! is_object( $report ) || ! isset( $report->credentials ) || ! is_array( $report->credentials ) ) {
+			return null;
+		}
+		return ! empty( $report->credentials );
+	}
+
+	/**
+	 * Where this site's upsell copy rotation starts, spread across sites by blog ID.
+	 *
+	 * @return int From 1 to UPSELL_VARIANTS.
+	 */
+	public static function get_upsell_variant() {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		$variant = $blog_id > 0 ? ( $blog_id % self::UPSELL_VARIANTS ) + 1 : 1;
+
+		/**
+		 * Filters which free-plan Scan upsell copy the Protect dashboard shows; a filtered one isn't rotated.
+		 *
+		 * @since 0.3.0
+		 *
+		 * @param int $variant From 1 to 8.
+		 */
+		$variant = (int) apply_filters( 'jetpack_protect_dashboard_scan_upsell_variant', $variant );
+
+		return $variant >= 1 && $variant <= self::UPSELL_VARIANTS ? $variant : 1;
 	}
 
 	/**
