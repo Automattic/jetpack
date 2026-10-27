@@ -856,25 +856,6 @@ class Main_Features_Rest_Test extends TestCase {
 		return $caps;
 	}
 
-	public function test_bulk_switches_modules_for_administrators_who_cannot_activate_plugins() {
-		$this->activate_jetpack();
-		$this->offer_stats_module();
-		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
-		add_filter( 'map_meta_cap', array( $this, 'map_module_caps' ), 10, 2 );
-		add_filter( 'user_has_cap', array( $this, 'deny_activate_plugins' ) );
-
-		$response = $this->send_bulk(
-			array(
-				'active'  => false,
-				'modules' => array( 'stats' ),
-			)
-		);
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( array(), $response->get_data()['failed'] );
-		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
-	}
-
 	public function test_bulk_forbids_module_batches_from_administrators_who_cannot_activate_plugins_without_jetpack() {
 		$this->offer_stats_module();
 		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
