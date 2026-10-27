@@ -12,7 +12,7 @@ const getLabel = ( days: StatsPeriodDays ) =>
 		: __( 'Last 30 days', 'jetpack-my-jetpack' );
 
 /**
- * The Overview's Stats period dropdown, with the window's dates once stepped back from the latest.
+ * The Overview's Stats period dropdown, with the window's dates.
  *
  * @param {object}      props        - Component props.
  * @param {StatsPeriod} props.period - The window, from useStatsPeriod.
@@ -40,7 +40,7 @@ const StatsPeriodControl: FC< { period: StatsPeriod } > = ( { period } ) => {
 
 	return (
 		<Stack direction="row" align="center" gap="sm" wrap="wrap">
-			{ offset > 0 && <Text variant="body-md">{ dates }</Text> }
+			<Text variant="body-md">{ dates }</Text>
 			<PeriodSelector
 				presets={ presets }
 				value={ String( days ) }
