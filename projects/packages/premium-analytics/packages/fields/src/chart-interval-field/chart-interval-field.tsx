@@ -90,7 +90,6 @@ function createChartIntervalControl< T extends ChartIntervalFieldAttributes >(
 				unavailableOptions={ unavailableOptions }
 				unavailableHint={ unavailableHint }
 				value={ value }
-				withLabel
 				triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }
 				onChange={ next =>
 					onChange( { chartInterval: next as StatsPeriod } as Parameters< typeof onChange >[ 0 ] )

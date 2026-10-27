@@ -11,19 +11,24 @@ import OverviewSections from '../../product-cards-section/overview-sections';
 import SeoOptInCard from '../../seo-opt-in-card';
 import { A4AUpsell } from './a4a-upsell';
 import styles from './styles.module.scss';
+import type { ReactNode } from 'react';
 
 /**
  * The Overview content component. The full-width footer band (Plans +
  * Connection), when shown, lives in `OverviewFooter`, rendered by `TabContent`.
  *
+ * @param {object}    props               - Component props.
+ * @param {ReactNode} props.beforeContent - Notices, shown below the Welcome heading.
  * @return The rendered component.
  */
-export function OverviewContent() {
+export function OverviewContent( { beforeContent }: { beforeContent?: ReactNode } ) {
 	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	// Loads the plans the header's plan summary shows, so they're ready when it opens.
 	useSitePurchases( { enabled: isHeaderControlsEnabled() } );
 	// WordPress stores display names HTML-escaped.
-	const displayName = decodeEntities( getScriptData()?.user?.current_user?.display_name ?? '' );
+	const name =
+		getMyJetpackWindowInitialState()?.userFirstName ||
+		decodeEntities( getScriptData()?.user?.current_user?.display_name ?? '' );
 
 	return (
 		<div>
@@ -32,15 +37,16 @@ export function OverviewContent() {
 					<>
 						<div className={ styles.welcome }>
 							<Text variant="heading-xl" render={ <h2 /> }>
-								{ displayName
+								{ name
 									? sprintf(
-											/* translators: %s: The current user's display name. */
+											/* translators: %s: The current user's first name, or their display name. */
 											__( 'Welcome to Jetpack, %s!', 'jetpack-my-jetpack' ),
-											displayName
+											name
 										)
 									: __( 'Welcome to Jetpack', 'jetpack-my-jetpack' ) }
 							</Text>
 						</div>
+						{ beforeContent }
 						<OverviewSections />
 						<OverviewBlogPosts />
 					</>

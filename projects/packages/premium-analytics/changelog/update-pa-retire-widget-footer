@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Remove the inline widget footer: WidgetFooter, ReportLink, ExporterCsvDownloadButton and the Leaderboard footer prop. A widget declares its footer with useReportActions; widget contract 2.0.0.

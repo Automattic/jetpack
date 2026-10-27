@@ -299,6 +299,17 @@ describe( 'MetricTabsChart', () => {
 		}
 	} );
 
+	it.each( [
+		[ 'keeps a comparison the tab placed by period', true, true ],
+		[ 'leaves a comparison placed by position to the chart', undefined, undefined ],
+	] )( '%s', ( _name, previousAligned, aligned ) => {
+		render(
+			<MetricTabsChart metrics={ [ { ...METRIC, previousAligned } ] } dataFormat={ DATA_FORMAT } />
+		);
+
+		expect( recordedSeries( mockLineSpy )[ 1 ].aligned ).toBe( aligned );
+	} );
+
 	it( 'omits the transparent gradient for bars, which would erase the shadow bar', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
