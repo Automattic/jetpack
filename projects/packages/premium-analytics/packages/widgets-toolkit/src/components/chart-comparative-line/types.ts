@@ -28,6 +28,8 @@ export type ComparativeLineChartSeries = SeriesData & {
 	data: ComparativeDatePointDate[];
 	/** A comparison series reads its group's, as it does the group's name. */
 	countLabel?: CountLabel;
+	/** A comparison whose points already sit on the dates they compare with, which `alignSeriesDates` keeps. */
+	aligned?: boolean;
 };
 
 /**
