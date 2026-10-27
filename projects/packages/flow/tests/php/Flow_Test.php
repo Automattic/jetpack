@@ -24,13 +24,13 @@ class Flow_Test extends TestCase {
 	 * AI output is untrusted, so unknown triggers and actions must never be stored.
 	 */
 	public function test_sanitize_drops_unknown_triggers_and_actions() {
-		$this->assertNull( Flow_Store::sanitize_one( array( 'trigger' => array( 'type' => 'does_not_exist' ) ) ) );
+		$this->assertNull( Flow_Store::sanitize_one( array( 'triggers' => array( 'does_not_exist' ) ) ) );
 
 		$flow = Flow_Store::sanitize_one(
 			array(
-				'name'    => 'Valid',
-				'trigger' => array( 'type' => 'post_published' ),
-				'steps'   => array(
+				'name'     => 'Valid',
+				'triggers' => array( 'post_published', 'page_published' ),
+				'steps'    => array(
 					array( 'type' => 'rm_rf' ),
 					array(
 						'type'   => 'webhook',

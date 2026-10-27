@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Reads, validates and saves flows as `jetpack_flow` posts.
  *
- * A flow is `{ id, name, enabled, trigger: { type, config }, steps: [ { id, type, config } ] }`.
+ * A flow is `{ id, name, enabled, triggers: [ trigger IDs, any of which starts it ], steps: [ { id, type, config } ] }`.
  */
 class Flow_Store {
 
@@ -86,7 +86,7 @@ class Flow_Store {
 			$name = Planner::suggest_name( $clean );
 		}
 		if ( '' === $name ) {
-			$name = Catalog::triggers()[ $clean['trigger']['type'] ]['label'];
+			$name = Catalog::triggers()[ $clean['triggers'][0] ]['label'];
 		}
 
 		$post = array(
@@ -112,14 +112,18 @@ class Flow_Store {
 			wp_slash(
 				wp_json_encode(
 					array(
-						'trigger' => $clean['trigger'],
-						'steps'   => $clean['steps'],
+						'triggers' => $clean['triggers'],
+						'steps'    => $clean['steps'],
 					),
 					JSON_UNESCAPED_SLASHES
 				)
 			)
 		);
-		update_post_meta( $saved, Flow_Post_Type::META_TRIGGER, $clean['trigger']['type'] );
+		// One meta row per trigger, so a meta query on any one of them finds the flow.
+		delete_post_meta( $saved, Flow_Post_Type::META_TRIGGER );
+		foreach ( $clean['triggers'] as $trigger_id ) {
+			add_post_meta( $saved, Flow_Post_Type::META_TRIGGER, $trigger_id );
+		}
 
 		return self::get( $saved );
 	}
@@ -161,8 +165,9 @@ class Flow_Store {
 	 * @return array|null
 	 */
 	private static function from_post( $post ) {
-		$definition = json_decode( (string) get_post_meta( $post->ID, Flow_Post_Type::META_DEFINITION, true ), true );
-		if ( ! is_array( $definition ) || empty( $definition['trigger']['type'] ) ) {
+		$definition  = json_decode( (string) get_post_meta( $post->ID, Flow_Post_Type::META_DEFINITION, true ), true );
+		$trigger_ids = (array) ( $definition['triggers'] ?? array() );
+		if ( ! is_array( $definition ) || ! $trigger_ids ) {
 			return null;
 		}
 
@@ -171,7 +176,7 @@ class Flow_Store {
 			'name'     => $post->post_title,
 			'enabled'  => 'publish' === $post->post_status,
 			'modified' => get_post_modified_time( 'c', true, $post ),
-			'trigger'  => $definition['trigger'],
+			'triggers' => array_values( $trigger_ids ),
 			'steps'    => (array) ( $definition['steps'] ?? array() ),
 		);
 	}
@@ -187,10 +192,16 @@ class Flow_Store {
 			return null;
 		}
 
-		$triggers     = Catalog::triggers();
-		$actions      = Catalog::actions();
-		$trigger_type = sanitize_key( $flow['trigger']['type'] ?? '' );
-		if ( ! isset( $triggers[ $trigger_type ] ) ) {
+		$triggers    = Catalog::triggers();
+		$actions     = Catalog::actions();
+		$trigger_ids = array();
+		foreach ( (array) ( $flow['triggers'] ?? array() ) as $trigger_id ) {
+			$trigger_id = sanitize_key( (string) $trigger_id );
+			if ( isset( $triggers[ $trigger_id ] ) && ! in_array( $trigger_id, $trigger_ids, true ) ) {
+				$trigger_ids[] = $trigger_id;
+			}
+		}
+		if ( ! $trigger_ids ) {
 			return null;
 		}
 
@@ -209,13 +220,10 @@ class Flow_Store {
 		}
 
 		return array(
-			'name'    => sanitize_text_field( $flow['name'] ?? '' ),
-			'enabled' => ! empty( $flow['enabled'] ),
-			'trigger' => array(
-				'type'   => $trigger_type,
-				'config' => array(),
-			),
-			'steps'   => $steps,
+			'name'     => sanitize_text_field( $flow['name'] ?? '' ),
+			'enabled'  => ! empty( $flow['enabled'] ),
+			'triggers' => $trigger_ids,
+			'steps'    => $steps,
 		);
 	}
 

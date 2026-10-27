@@ -31,7 +31,15 @@ export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
 	const [ hover, setHover ] = useState< string | null >( null );
 	const [ open, setOpen ] = useState< string | null >( null );
 
-	const trigger = catalog.triggers.find( t => t.id === flow.trigger.type );
+	// Only tokens every trigger provides are safe to use in the steps.
+	const sharedTokens =
+		flow.triggers
+			.map( id => catalog.triggers.find( t => t.id === id )?.tokens ?? [] )
+			.reduce< string[] | null >(
+				( common, tokens ) =>
+					common ? common.filter( token => tokens.includes( token ) ) : tokens,
+				null
+			) ?? [];
 	const actionOf = ( type: string ) => catalog.actions.find( a => a.id === type );
 	const arriving = arrival > 0 ? 'is-arriving' : '';
 
@@ -45,7 +53,9 @@ export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
 		}
 		if ( index === 'trigger' ) {
 			if ( payload.kind === 'trigger' ) {
-				onChange( { ...flow, trigger: { type: payload.id, config: {} } } );
+				if ( ! flow.triggers.includes( payload.id ) ) {
+					onChange( { ...flow, triggers: [ ...flow.triggers, payload.id ] } );
+				}
 			}
 			return;
 		}
@@ -90,21 +100,52 @@ export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="sm">
+					{ flow.triggers.map( ( id, index ) => {
+						const trigger = catalog.triggers.find( t => t.id === id );
+						return (
+							<div
+								key={ `trigger-${ id }-${ arrival }` }
+								className={ `jetpack-flow-node jetpack-flow-node--trigger ${ arriving }${
+									hover === 'trigger' ? ' is-over' : ''
+								}` }
+								style={ delay( index ) }
+								{ ...zone( 'trigger', 'trigger' ) }
+							>
+								<Stack align="center" justify="space-between" gap="md">
+									<Stack align="center" gap="md">
+										{ trigger && <ProductIcon product={ trigger.product } size={ 28 } /> }
+										<Stack direction="column">
+											<Text variant="body-sm">
+												{ index === 0
+													? __( 'When…', 'jetpack-flow-pkg' )
+													: __( 'Or', 'jetpack-flow-pkg' ) }
+											</Text>
+											<Text variant="heading-sm">{ trigger?.label ?? id }</Text>
+										</Stack>
+									</Stack>
+									<Button
+										variant="minimal"
+										onClick={ () =>
+											onChange( { ...flow, triggers: flow.triggers.filter( t => t !== id ) } )
+										}
+									>
+										{ __( 'Remove', 'jetpack-flow-pkg' ) }
+									</Button>
+								</Stack>
+							</div>
+						);
+					} ) }
 					<div
-						key={ `trigger-${ arrival }` }
-						className={ `jetpack-flow-node jetpack-flow-node--trigger ${ arriving }${
+						className={ `jetpack-flow-slot jetpack-flow-slot--end${
 							hover === 'trigger' ? ' is-over' : ''
 						}` }
-						style={ delay( 0 ) }
 						{ ...zone( 'trigger', 'trigger' ) }
 					>
-						{ trigger && <ProductIcon product={ trigger.product } size={ 28 } /> }
-						<Stack direction="column">
-							<Text variant="body-sm">{ __( 'When…', 'jetpack-flow-pkg' ) }</Text>
-							<Text variant="heading-sm">
-								{ trigger?.label ?? __( 'Drop a trigger here', 'jetpack-flow-pkg' ) }
-							</Text>
-						</Stack>
+						<Text variant="body-sm">
+							{ flow.triggers.length === 0
+								? __( 'Drop a trigger here', 'jetpack-flow-pkg' )
+								: __( 'Drop another trigger here to start on either', 'jetpack-flow-pkg' ) }
+						</Text>
 					</div>
 
 					{ flow.steps.map( ( step, index ) => {
@@ -160,7 +201,7 @@ export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
 											config={ step.config }
 											catalog={ catalog }
 											tokens={ [
-												...( trigger?.tokens ?? [] ),
+												...sharedTokens,
 												...flow.steps
 													.slice( 0, index )
 													.flatMap(

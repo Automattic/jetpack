@@ -21,16 +21,20 @@ const DEFAULT_VIEW: View = {
 };
 
 function FlowSummary( { flow, catalog }: { flow: Flow; catalog: Catalog } ) {
-	const trigger = catalog.triggers.find( t => t.id === flow.trigger.type );
 	return (
 		<Stack direction="column" gap="md">
-			<Stack align="center" gap="sm">
-				{ trigger && <ProductIcon product={ trigger.product } size={ 24 } /> }
-				<Text variant="body-md">
-					{ __( 'When…', 'jetpack-flow-pkg' ) }{ ' ' }
-					<strong>{ trigger?.label ?? flow.trigger.type }</strong>
-				</Text>
-			</Stack>
+			{ flow.triggers.map( ( id, index ) => {
+				const trigger = catalog.triggers.find( t => t.id === id );
+				return (
+					<Stack key={ id } align="center" gap="sm">
+						{ trigger && <ProductIcon product={ trigger.product } size={ 24 } /> }
+						<Text variant="body-md">
+							{ index === 0 ? __( 'When…', 'jetpack-flow-pkg' ) : __( 'Or', 'jetpack-flow-pkg' ) }{ ' ' }
+							<strong>{ trigger?.label ?? id }</strong>
+						</Text>
+					</Stack>
+				);
+			} ) }
 			{ flow.steps.map( ( step, index ) => {
 				const action = catalog.actions.find( a => a.id === step.type );
 				return (
@@ -107,18 +111,23 @@ function FlowsStage() {
 			{
 				id: 'trigger',
 				label: __( 'When…', 'jetpack-flow-pkg' ),
-				getValue: ( { item } ) => item.trigger.type,
+				type: 'array',
+				getValue: ( { item } ) => item.triggers,
 				elements: ( catalog?.triggers ?? [] ).map( t => ( { value: t.id, label: t.label } ) ),
-				filterBy: { operators: [ 'isAny', 'isNone' ] },
-				render: ( { item } ) => {
-					const trigger = catalog?.triggers.find( t => t.id === item.trigger.type );
-					return (
-						<Stack align="center" gap="xs">
-							{ trigger && <ProductIcon product={ trigger.product } /> }
-							<span>{ trigger?.label ?? item.trigger.type }</span>
-						</Stack>
-					);
-				},
+				filterBy: { operators: [ 'isAny', 'isAll' ] },
+				render: ( { item } ) => (
+					<Stack direction="column" gap="xs" align="flex-start">
+						{ item.triggers.map( id => {
+							const trigger = catalog?.triggers.find( t => t.id === id );
+							return (
+								<Stack key={ id } align="center" gap="xs">
+									{ trigger && <ProductIcon product={ trigger.product } /> }
+									<span>{ trigger?.label ?? id }</span>
+								</Stack>
+							);
+						} ) }
+					</Stack>
+				),
 				enableGlobalSearch: true,
 			},
 			{

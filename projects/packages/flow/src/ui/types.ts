@@ -60,7 +60,7 @@ export type Flow = {
 	name: string;
 	enabled: boolean;
 	modified?: string;
-	trigger: { type: string; config: Record< string, string > };
+	triggers: string[];
 	steps: Step[];
 };
 

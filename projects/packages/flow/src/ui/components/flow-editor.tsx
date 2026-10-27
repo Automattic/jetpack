@@ -15,7 +15,7 @@ const blankFlow = (): Flow => ( {
 	id: null,
 	name: '',
 	enabled: true,
-	trigger: { type: '', config: {} },
+	triggers: [],
 	steps: [],
 } );
 
@@ -96,7 +96,7 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 		saveLabel = __( 'Save and enable', 'jetpack-flow-pkg' );
 	}
 
-	const canSave = ! saving && !! flow.trigger.type && flow.steps.length > 0;
+	const canSave = ! saving && flow.triggers.length > 0 && flow.steps.length > 0;
 
 	return (
 		<FlowPage

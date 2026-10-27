@@ -12,7 +12,7 @@ export function RequirementsNotice( { flow, catalog, onInstalled }: Props ) {
 	const [ error, setError ] = useState< string | null >( null );
 
 	const used = [
-		catalog.triggers.find( t => t.id === flow.trigger.type ),
+		...flow.triggers.map( id => catalog.triggers.find( t => t.id === id ) ),
 		...flow.steps.map( step => catalog.actions.find( a => a.id === step.type ) ),
 	];
 

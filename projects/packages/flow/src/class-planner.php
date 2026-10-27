@@ -56,22 +56,28 @@ class Planner {
 		);
 		foreach ( Catalog::triggers() as $id => $t ) {
 			$catalog['triggers'][ $id ] = array(
-				'label'  => $t['label'],
-				'tokens' => $t['tokens'] ?? array(),
+				'label'       => $t['label'],
+				'description' => $t['description'] ?? '',
+				'tokens'      => $t['tokens'] ?? array(),
 			);
 		}
 		foreach ( Catalog::actions() as $id => $a ) {
+			$fields = array();
+			foreach ( $a['fields'] as $field ) {
+				$fields[ $field['name'] ] = empty( $field['options'] ) ? $field['label'] : wp_list_pluck( $field['options'], 'value' );
+			}
 			$catalog['actions'][ $id ] = array(
-				'label'  => $a['label'],
-				'fields' => wp_list_pluck( $a['fields'], 'name' ),
+				'label'       => $a['label'],
+				'description' => $a['description'] ?? '',
+				'fields'      => $fields,
 			);
 		}
 
 		return 'You design automations for a WordPress site in the form "when X happens, do Y". '
 			. 'Use ONLY the trigger and action IDs in this catalog: ' . wp_json_encode( $catalog, JSON_UNESCAPED_SLASHES ) . '. '
-			. 'Reply with JSON only, no prose, with exactly ONE flow: {"flows":[{"name":"short title","trigger":"trigger_id","steps":[{"type":"action_id","config":{"field":"value"}}]}]}. '
+			. 'Reply with JSON only, no prose, with exactly ONE flow (list several trigger IDs only when the request says "or"): {"flows":[{"name":"short title","triggers":["trigger_id"],"steps":[{"type":"action_id","config":{"field":"value"}}]}]}. '
 			. 'In config text you may use {{token}} placeholders from the chosen trigger\'s tokens. '
-			. 'Leave user_id empty and write sensible subject and message text.';
+			. 'For fields that list allowed values, use one of them. Leave user_id empty and write sensible subject and message text.';
 	}
 
 	/**
@@ -87,7 +93,7 @@ class Planner {
 
 		$triggers = Catalog::triggers();
 		$actions  = Catalog::actions();
-		$parts    = array( 'When: ' . ( $triggers[ $flow['trigger']['type'] ]['label'] ?? '' ) );
+		$parts    = array( 'When: ' . implode( ' or ', array_map( static fn( $id ) => $triggers[ $id ]['label'] ?? '', $flow['triggers'] ) ) );
 		foreach ( $flow['steps'] as $step ) {
 			$parts[] = 'Then: ' . ( $actions[ $step['type'] ]['label'] ?? '' );
 		}
@@ -121,6 +127,9 @@ class Planner {
 				$builder = wp_ai_client_prompt( $prompt );
 				if ( method_exists( $builder, 'using_system_instruction' ) ) {
 					$builder = $builder->using_system_instruction( self::instructions() );
+				}
+				if ( method_exists( $builder, 'as_json_response' ) ) {
+					$builder = $builder->as_json_response();
 				}
 				$text = $builder->generate_text();
 				if ( is_string( $text ) && '' !== $text ) {
@@ -191,10 +200,10 @@ class Planner {
 
 		$clean = Flow_Store::sanitize_one(
 			array(
-				'name'    => $flow['name'] ?? '',
-				'enabled' => false,
-				'trigger' => array( 'type' => $flow['trigger'] ?? '' ),
-				'steps'   => $flow['steps'] ?? array(),
+				'name'     => $flow['name'] ?? '',
+				'enabled'  => false,
+				'triggers' => array_merge( (array) ( $flow['triggers'] ?? array() ), array( $flow['trigger'] ?? '' ) ),
+				'steps'    => $flow['steps'] ?? array(),
 			)
 		);
 		return $clean ? array( $clean ) : array();
@@ -272,10 +281,10 @@ class Planner {
 
 		$clean = Flow_Store::sanitize_one(
 			array(
-				'name'    => Catalog::triggers()[ $trigger ]['label'],
-				'enabled' => false,
-				'trigger' => array( 'type' => $trigger ),
-				'steps'   => $steps,
+				'name'     => Catalog::triggers()[ $trigger ]['label'],
+				'enabled'  => false,
+				'triggers' => array( $trigger ),
+				'steps'    => $steps,
 			)
 		);
 		return $clean ? array( $clean ) : array();
