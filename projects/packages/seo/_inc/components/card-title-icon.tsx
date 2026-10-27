@@ -24,9 +24,9 @@ interface Props {
  */
 const CardTitleIcon: FC< Props > = ( { icon, title } ) => (
 	<span className={ styles.cardTitle }>
-		<span className={ styles.titleIcon }>
-			<Icon icon={ icon } size={ 24 } />
-		</span>
+		{ /* 24px is the `size-sm` token. The Overview subtitle indent
+		     (`screens/overview/style.module.scss`) uses that token, so change both together. */ }
+		<Icon icon={ icon } size={ 24 } className={ styles.titleIcon } />
 		{ title }
 	</span>
 );

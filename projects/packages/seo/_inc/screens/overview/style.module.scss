@@ -63,9 +63,9 @@
 // `components/card-title-icon.module.scss`, which the Settings modules use too.
 
 // Optional scope line under a card title. Indented to start exactly where the
-// title text does: the icon's 24px width (`size-sm`) plus the icon-to-title gap
-// (`gap-sm`, from `card-title-icon.module.scss`), as tokens rather than a
-// hardcoded px.
+// title text does: the icon's 24px width (`size-sm`, set in
+// `components/card-title-icon.tsx`) plus the icon-to-title gap (`gap-sm`, from
+// `card-title-icon.module.scss`), as tokens rather than a hardcoded px.
 // The class is doubled to raise specificity to (0,2,0). `Text` renders this as
 // a `<p>` and also applies @wordpress/ui's global-CSS defense, whose `p.p`
 // selector is (0,1,1) — and, crucially, *unlayered*, since its job is to beat

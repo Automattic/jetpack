@@ -8,9 +8,9 @@
 	gap: var(--wpds-dimension-gap-sm);
 }
 
-// A 24px icon (the @wordpress/ui default) with no background. It takes the
-// title's color through `currentColor`, so it stays dark beside the title text.
+// The 24px icon itself, with no background. The `@wordpress/icons` glyphs
+// draw in `currentColor`, so it takes the title's dark text color.
+// `flex: none` keeps a long title from squeezing it.
 .titleIcon {
-	display: inline-flex;
 	flex: none;
 }
