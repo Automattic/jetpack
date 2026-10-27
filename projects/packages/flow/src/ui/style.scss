@@ -215,13 +215,43 @@ body.jetpack-flow {
 	inherits: false;
 }
 
+$jetpack-flow-rainbow: conic-gradient(from var(--jetpack-flow-angle), #069e08, #3858e9, #7be07d, #9fb0ff, #069e08);
+
 .jetpack-flow-prompt__border {
+	position: relative;
+	isolation: isolate;
 	padding: 3px;
 	border-radius: var(--wpds-border-radius-lg);
 
-	&.is-busy {
-		background: conic-gradient(from var(--jetpack-flow-angle), #069e08, #3858e9, #7be07d, #9fb0ff, #069e08);
-		animation: jetpack-flow-spin calc(var(--wpds-motion-duration-xl) * 10) linear infinite;
+	// The ring and a soft glow of the same colours fade in while building.
+	&::before,
+	&::after {
+		content: "";
+		position: absolute;
+		z-index: -1;
+		border-radius: inherit;
+		background: $jetpack-flow-rainbow;
+		opacity: 0;
+		transition: opacity var(--wpds-motion-duration-lg) var(--wpds-motion-easing-balanced);
+		animation: jetpack-flow-spin calc(var(--wpds-motion-duration-xl) * 3) linear infinite;
+		pointer-events: none;
+	}
+
+	&::before {
+		inset: 0;
+	}
+
+	&::after {
+		inset: calc(-1 * var(--wpds-dimension-gap-md));
+		filter: blur(var(--wpds-dimension-gap-xl));
+	}
+
+	&.is-busy::before {
+		opacity: 1;
+	}
+
+	&.is-busy::after {
+		opacity: 0.45;
 	}
 }
 
@@ -235,8 +265,12 @@ body.jetpack-flow {
 @media ( prefers-reduced-motion: reduce ) {
 
 	.jetpack-flow-enter,
-	.jetpack-flow-canvas__then,
-	.jetpack-flow-prompt__border.is-busy {
+	.jetpack-flow-canvas__then {
+		animation: none;
+	}
+
+	.jetpack-flow-prompt__border::before,
+	.jetpack-flow-prompt__border::after {
 		animation: none;
 	}
 }
