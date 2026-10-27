@@ -33,6 +33,7 @@ class AiCrawlersTest extends TestCase {
 		parent::setUp();
 		$this->blog_public = get_option( 'blog_public', null );
 		delete_option( Ai_Crawlers::OPTION );
+		delete_option( Ai_Crawlers::MIGRATED_OPTION );
 		delete_option( 'wpcom_data_sharing_opt_out' );
 		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), 10 );
 		remove_filter(
@@ -49,6 +50,7 @@ class AiCrawlersTest extends TestCase {
 	 */
 	protected function tearDown(): void {
 		delete_option( Ai_Crawlers::OPTION );
+		delete_option( Ai_Crawlers::MIGRATED_OPTION );
 		delete_option( 'wpcom_data_sharing_opt_out' );
 		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), 10 );
 		remove_filter(
@@ -137,6 +139,75 @@ class AiCrawlersTest extends TestCase {
 			),
 			$overrides
 		);
+	}
+
+	/**
+	 * An owner who allowed a training crawler under the old defaults keeps the rest of that group blocked.
+	 *
+	 * @return void
+	 */
+	public function test_migration_blocks_the_unsaved_training_crawlers() {
+		update_option(
+			Ai_Crawlers::OPTION,
+			array(
+				'gptbot'        => false,
+				'perplexitybot' => true,
+			)
+		);
+		Ai_Crawlers::maybe_migrate_legacy_overrides();
+
+		$expected = array( 'perplexitybot' );
+		foreach ( Ai_Crawlers::get_catalog() as $slug => $info ) {
+			if ( 'training' === $info['type'] && 'gptbot' !== $slug ) {
+				$expected[] = $slug;
+			}
+		}
+		$blocked = Ai_Crawlers::get_blocked_slugs();
+		sort( $expected );
+		sort( $blocked );
+		$this->assertSame( $expected, $blocked );
+	}
+
+	/**
+	 * The migration runs once, so a later `false` (e.g. from the old `/jetpack/v4/settings` route) isn't migrated.
+	 *
+	 * @return void
+	 */
+	public function test_migration_runs_once() {
+		Ai_Crawlers::maybe_migrate_legacy_overrides();
+		update_option( Ai_Crawlers::OPTION, array( 'gptbot' => false ) );
+		Ai_Crawlers::maybe_migrate_legacy_overrides();
+		$this->assertSame( array( 'gptbot' => false ), get_option( Ai_Crawlers::OPTION ) );
+	}
+
+	/**
+	 * Maps the migration must leave alone.
+	 *
+	 * @return array<string, array{mixed}>
+	 */
+	public static function provide_maps_the_migration_keeps() {
+		return array(
+			'nothing saved'                => array( false ),
+			'answer engines only'          => array( array( 'perplexitybot' => true ) ),
+			'allowed answer engine'        => array( array( 'perplexitybot' => false ) ),
+			'saved after allow-by-default' => array( array( 'gptbot' => true ) ),
+		);
+	}
+
+	/**
+	 * The migration changes nothing unless the old map holds a training crawler.
+	 *
+	 * @dataProvider provide_maps_the_migration_keeps
+	 * @param mixed $stored The stored option, or false when absent.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_maps_the_migration_keeps' )]
+	public function test_migration_keeps_other_maps( $stored ) {
+		if ( false !== $stored ) {
+			update_option( Ai_Crawlers::OPTION, $stored );
+		}
+		Ai_Crawlers::maybe_migrate_legacy_overrides();
+		$this->assertSame( $stored, get_option( Ai_Crawlers::OPTION ) );
 	}
 
 	/**

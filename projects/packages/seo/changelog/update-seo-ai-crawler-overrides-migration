@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: GEO: Keep the training crawlers blocked for owners who changed that group before every AI crawler became allowed by default. The new SEO page is still gated.
+

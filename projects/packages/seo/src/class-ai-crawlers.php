@@ -33,6 +33,13 @@ class Ai_Crawlers {
 	const OPTION = 'jetpack_seo_ai_crawler_overrides';
 
 	/**
+	 * Option set once {@see self::maybe_migrate_legacy_overrides()} has run on this site.
+	 *
+	 * @var string
+	 */
+	const MIGRATED_OPTION = 'jetpack_seo_ai_crawler_overrides_migrated';
+
+	/**
 	 * Wire the robots.txt filter.
 	 *
 	 * @return void
@@ -182,6 +189,50 @@ class Ai_Crawlers {
 		}
 
 		return $overrides;
+	}
+
+	/**
+	 * Once per site: converts a map saved before allow-by-default (#54013) in which the owner
+	 * changed a training crawler.
+	 *
+	 * That format saved a training crawler only as allowed (`false`) and left its unsaved siblings
+	 * blocked, so they're saved as blocked now. Keying on `false` leaves maps saved since alone.
+	 *
+	 * @return void
+	 */
+	public static function maybe_migrate_legacy_overrides() {
+		if ( get_option( self::MIGRATED_OPTION ) ) {
+			return;
+		}
+
+		$stored = get_option( self::OPTION );
+		if ( is_array( $stored ) && self::has_legacy_training_entry( $stored ) ) {
+			$migrated = array_filter( $stored );
+			foreach ( self::get_catalog() as $slug => $info ) {
+				if ( 'training' === $info['type'] && ! array_key_exists( $slug, $stored ) ) {
+					$migrated[ $slug ] = true;
+				}
+			}
+			update_option( self::OPTION, $migrated );
+		}
+
+		update_option( self::MIGRATED_OPTION, true, true );
+	}
+
+	/**
+	 * Whether a stored map holds a training crawler saved as allowed, which only the old format did.
+	 *
+	 * @param array $stored The stored override map.
+	 * @return bool
+	 */
+	private static function has_legacy_training_entry( array $stored ) {
+		$catalog = self::get_catalog();
+		foreach ( $stored as $slug => $blocked ) {
+			if ( ! $blocked && isset( $catalog[ $slug ] ) && 'training' === $catalog[ $slug ]['type'] ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
