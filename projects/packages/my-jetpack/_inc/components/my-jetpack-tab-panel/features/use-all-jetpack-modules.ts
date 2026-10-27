@@ -1,6 +1,6 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useAllProducts } from '../../../data/products/use-all-products';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { MyJetpackModule, JetpackModuleSlug } from '../../../types';
@@ -74,30 +74,38 @@ export function useAllJetpackModules(): {
 	);
 	const { data: products } = useAllProducts();
 	const localFeatures = isOfflineFeatures() ? state.features : null;
+	const cachedModules = useRef( { source: modules, normalized: modules } );
 
-	return useMemo(
-		() => ( {
-			modules: withoutPluginForcedOverrides(
-				modules,
-				localFeatures
-					? Object.fromEntries(
-							localFeatures
-								.filter( feature => feature.product )
-								.map( feature => [
-									feature.product,
-									{
-										standalonePluginInfo: {
-											isStandaloneActive: feature.plugin_status === 'active',
-										},
+	return useMemo( () => {
+		// Keep a plugin's cleared override on the cached module list until its replacement arrives.
+		const source =
+			localFeatures && cachedModules.current.source === modules
+				? cachedModules.current.normalized
+				: modules;
+		const normalized = withoutPluginForcedOverrides(
+			source,
+			localFeatures
+				? Object.fromEntries(
+						localFeatures
+							.filter( feature => feature.product )
+							.map( feature => [
+								feature.product,
+								{
+									standalonePluginInfo: {
+										isStandaloneActive: feature.plugin_status === 'active',
 									},
-								] )
-						)
-					: products
-			) as Record< JetpackModuleSlug, MyJetpackModule >,
+								},
+							] )
+					)
+				: products
+		);
+		cachedModules.current = { source: modules, normalized };
+
+		return {
+			modules: normalized as Record< JetpackModuleSlug, MyJetpackModule >,
 			isLoading,
 			hasLoaded,
 			hasFailed,
-		} ),
-		[ modules, products, localFeatures, isLoading, hasLoaded, hasFailed ]
-	);
+		};
+	}, [ modules, products, localFeatures, isLoading, hasLoaded, hasFailed ] );
 }

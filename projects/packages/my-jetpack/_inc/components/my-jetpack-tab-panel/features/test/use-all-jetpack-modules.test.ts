@@ -159,9 +159,9 @@ describe( 'useAllJetpackModules', () => {
 		}
 	);
 
-	it( 'keeps the offline plugin switch current after activation and deactivation', () => {
+	it.each( [ true, false ] )( 'keeps cached plugin controls: %s', offline => {
 		window.myJetpackInitialState = {
-			isOfflineFeatures: true,
+			isOfflineFeatures: offline,
 			myJetpackFlags: {},
 		} as typeof window.myJetpackInitialState;
 		const feature = {
@@ -172,7 +172,7 @@ describe( 'useAllJetpackModules', () => {
 			in_jetpack: true,
 		} as MainFeature;
 		const state: MainFeaturesState = { jetpack: 'active', features: [ feature ] };
-		mockProducts.current = {};
+		mockProducts.current = { videopress: product( 'videopress', false ) };
 		mockModules.current = {
 			videopress: { ...mod( 'videopress', false ), available: false, activated: false },
 		};
@@ -192,8 +192,9 @@ describe( 'useAllJetpackModules', () => {
 		expect( result.current.states[ 0 ].control.kind ).toBe( 'plugin' );
 
 		mockModules.current = {
-			videopress: { ...mod( 'videopress', 'active' ), available: false },
+			videopress: { ...mod( 'videopress', 'active' ), available: false, activated: ! offline },
 		};
+		mockProducts.current = { videopress: product( 'videopress', true ) };
 		const activated: MainFeaturesState = {
 			...state,
 			features: [ { ...feature, plugin_status: 'active' } ],
@@ -205,15 +206,34 @@ describe( 'useAllJetpackModules', () => {
 		expect( result.current.states[ 0 ].control.kind ).toBe( 'plugin' );
 		expect( getForcedReason( result.current.states[ 0 ] ) ).toBeNull();
 
+		mockProducts.current = { videopress: product( 'videopress', false ) };
+		jest.mocked( useMainFeatures ).mockReturnValue( { ...state, isPlaceholderData: false } );
+		rerender( state );
+
+		expect( result.current.states[ 0 ].status ).toBe( offline ? 'inactive' : 'active' );
+		expect( result.current.states[ 0 ].control.kind ).toBe( offline ? 'plugin' : 'module' );
+		expect( getForcedReason( result.current.states[ 0 ] ) ).toBe(
+			offline ? null : 'Enabled by your host or site administrator'
+		);
+
 		mockModules.current = {
 			videopress: { ...mod( 'videopress', false ), available: false, activated: false },
 		};
-		jest.mocked( useMainFeatures ).mockReturnValue( { ...state, isPlaceholderData: false } );
 		rerender( state );
 
 		expect( result.current.states[ 0 ].status ).toBe( 'inactive' );
 		expect( result.current.states[ 0 ].control.kind ).toBe( 'plugin' );
 		expect( getForcedReason( result.current.states[ 0 ] ) ).toBeNull();
+
+		mockModules.current = {
+			videopress: { ...mod( 'videopress', 'active' ), available: false },
+		};
+		rerender( state );
+
+		expect( result.current.states[ 0 ].control.kind ).toBe( 'module' );
+		expect( getForcedReason( result.current.states[ 0 ] ) ).toBe(
+			'Enabled by your host or site administrator'
+		);
 	} );
 } );
 
