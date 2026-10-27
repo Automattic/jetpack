@@ -16,9 +16,16 @@ export type OverviewSectionProps = {
  * @return {import('react').JSX.Element} The section.
  */
 const OverviewSection: FC< OverviewSectionProps > = ( { icon, title, headerEnd, children } ) => (
-	<Card.Root render={ <section /> }>
+	<Card.Root render={ <section /> } className={ styles.section }>
 		<Card.Header>
-			<Stack direction="row" align="center" justify="space-between" gap="sm">
+			<Stack
+				direction="row"
+				align="center"
+				justify="space-between"
+				gap="sm"
+				wrap="wrap"
+				className={ styles.heading }
+			>
 				<Stack direction="row" align="center" gap="sm">
 					<Icon icon={ icon } size={ 20 } />
 					<Card.Title render={ <h3 /> }>{ title }</Card.Title>
@@ -26,9 +33,7 @@ const OverviewSection: FC< OverviewSectionProps > = ( { icon, title, headerEnd, 
 				{ headerEnd }
 			</Stack>
 		</Card.Header>
-		<Card.Content>
-			<div className={ styles.items }>{ children }</div>
-		</Card.Content>
+		<div className={ styles.items }>{ children }</div>
 	</Card.Root>
 );
 

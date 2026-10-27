@@ -74,7 +74,7 @@ export interface WizardStepMeta {
  * value, not the single-screen takeover's 'jetpack-onboarding', so the two
  * flows stay separable in the connection funnel.
  */
-export const CONNECTION_FROM = 'jetpack-onboarding-wizard';
+export const CONNECTION_FROM = 'my_jetpack_onboarding';
 
 /*
  * Where WordPress.com sends the user back to once they have authorized. Relative

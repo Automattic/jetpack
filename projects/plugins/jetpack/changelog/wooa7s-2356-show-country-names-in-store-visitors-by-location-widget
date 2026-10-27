@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats: Show country names instead of country codes in the WooCommerce Store visitors by location widget and its CSV export.

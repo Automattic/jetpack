@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Leave days older than 30 out of the 30-day blocked-request count on sites that haven't blocked a request since.

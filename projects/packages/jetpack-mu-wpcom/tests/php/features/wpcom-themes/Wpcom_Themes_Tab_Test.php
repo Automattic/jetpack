@@ -9,6 +9,9 @@ use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Status\Cache;
+use Brain\Monkey;
+use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-themes/wpcom-themes-tab.php';
 
@@ -23,6 +26,13 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 * @var string
 	 */
 	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . WPCOM_THEMES_TAB_FLAG;
+
+	/**
+	 * Whether a test has mocked the site's plan, which tear_down has to undo.
+	 *
+	 * @var bool
+	 */
+	private $mocking = false;
 
 	/**
 	 * A theme as `/wpcom/v2/themes` returns it, trimmed to the fields we read.
@@ -121,6 +131,9 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		wp_cache_flush();
 
 		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
+		if ( $this->mocking ) {
+			Monkey\tearDown();
+		}
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -289,6 +302,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( self::THEME['screenshot'], $theme->screenshot_url );
 		// The demo site renders as a preview, without its own promos, given these args.
 		$this->assertSame( self::THEME['demo_uri'] . '?demo=true&iframe=true&theme_preview=true', $theme->preview_url );
+		$this->assertTrue( $theme->wpcom_marketplace_tab );
 	}
 
 	/**
@@ -389,6 +403,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertCount( 1, $result->themes );
 		$this->assertSame( 'organic-stax', $result->themes[0]->slug );
 		$this->assertSame( self::THEME['demo_uri'] . '?demo=true&iframe=true&theme_preview=true', $result->themes[0]->preview_url );
+		$this->assertTrue( $result->themes[0]->wpcom_marketplace_tab );
 		// One request by slug, rather than paging through the whole catalog to find it.
 		$this->assertCount( 1, $this->requests );
 		$this->assertStringContainsString( '/rest/v1.2/themes/organic-stax', $this->requests[0] );
@@ -495,6 +510,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 * Both are query values rather than paths, so both are encoded.
 	 */
 	public function test_checkout_returns_to_the_theme_it_was_bought_for() {
+		$this->site_has_plan( false );
 		$url = wpcom_themes_tab_checkout_url( 'example-bundle', 'example' );
 
 		$this->assertStringContainsString( 'https://wordpress.com/checkout/example.org/example-bundle', $url );
@@ -503,6 +519,14 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 			'redirect_to=' . rawurlencode( admin_url( 'theme-install.php?theme=example' ) ),
 			$url
 		);
+
+		$theme = wpcom_themes_tab_add_plan(
+			(object) array(
+				'slug'       => 'example',
+				'theme_tier' => 'woocommerce',
+			)
+		);
+		$this->assertSame( WPCom_Themes_Tiers::plan_for( 'woocommerce' ), $theme->required_plan );
 	}
 
 	/**
@@ -518,18 +542,22 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 'Included with plan', $theme->plan_badge );
 		$this->assertFalse( isset( $theme->upgrade_url ) );
+		$this->assertFalse( isset( $theme->required_plan ) );
 	}
 
 	/**
 	 * A partner theme names the product to price it by, and sells itself rather than a plan.
 	 */
 	public function test_a_partner_theme_is_priced_and_sold() {
+		// The site already has a paid plan, so only the theme is sold.
+		$this->site_has_plan( true );
 		$this->answer_with_partner_prices();
 
 		$theme = $this->add_plan_to_partner_theme();
 
 		// The theme lists its monthly product first, and the one to quote is still the yearly one.
 		$this->assertSame( 'theme_stax_yearly', $theme->price_product );
+		$this->assertSame( '', $theme->required_plan );
 		$this->assertStringContainsString( 'theme_stax_yearly', $theme->purchase_url );
 		$this->assertStringContainsString(
 			'redirect_to=' . rawurlencode( admin_url( 'theme-install.php?theme=organic-stax' ) ),
@@ -544,6 +572,13 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$url = wpcom_themes_tab_checkout_url( array( 'personal-bundle', 'theme_stax_yearly' ), 'organic-stax' );
 
 		$this->assertStringContainsString( '/checkout/example.org/personal-bundle,theme_stax_yearly?', $url );
+
+		$this->site_has_plan( false );
+		$this->answer_with_partner_prices();
+		$theme = $this->add_plan_to_partner_theme();
+
+		$this->assertSame( 'personal-bundle', $theme->required_plan );
+		$this->assertStringContainsString( '/personal-bundle,theme_stax_yearly?', $theme->purchase_url );
 	}
 
 	/**
@@ -587,6 +622,83 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The pricing filter keeps what the site can install with nothing to buy, before paging.
+	 *
+	 * @param bool          $has_plan  Whether the site's plan grants every tier.
+	 * @param array<object> $purchases The site's purchases.
+	 * @param string[]      $listed    Slugs the filter keeps.
+	 * @dataProvider provide_included_themes
+	 */
+	#[DataProvider( 'provide_included_themes' )]
+	public function test_the_pricing_filter_lists_only_what_the_plan_includes( bool $has_plan, array $purchases, array $listed ) {
+		$this->enable_tab();
+		$this->site_has_plan( $has_plan );
+		$GLOBALS['wpcom_get_site_purchases_test_value'] = $purchases;
+		$this->answer_wpcom(
+			array(
+				'tier=partner'     => array( 'body' => self::PARTNER_THEMES ),
+				'/products'        => self::STORE_PRODUCTS,
+				'/wpcom/v2/themes' => array(
+					'body' => array(
+						'themes' => array(
+							array_merge(
+								self::THEME,
+								array(
+									'id'         => 'free-theme',
+									'theme_tier' => array( 'slug' => 'free' ),
+								)
+							),
+							array_merge( self::THEME, array( 'id' => 'personal-theme' ) ),
+							array_merge( self::THEME, array( 'theme_tier' => array( 'slug' => 'partner' ) ) ),
+						),
+					),
+				),
+			)
+		);
+
+		$result = $this->query(
+			array(
+				'browse'        => WPCOM_THEMES_TAB,
+				'wpcom_pricing' => WPCOM_THEMES_TAB_INCLUDED,
+			)
+		);
+
+		$this->assertSame( $listed, array_column( $result->themes, 'slug' ) );
+		$this->assertSame( count( $listed ), $result->info['results'] );
+	}
+
+	/**
+	 * Plans and purchases, and the themes each leaves the filter listing.
+	 *
+	 * @return array<string, array{0: bool, 1: array<object>, 2: string[]}>
+	 */
+	public static function provide_included_themes(): array {
+		return array(
+			'no plan'                    => array( false, array(), array( 'free-theme' ) ),
+			'a plan'                     => array( true, array(), array( 'free-theme', 'personal-theme' ) ),
+			'a plan and a partner theme' => array(
+				true,
+				array( (object) array( 'billing_product_slug' => 'theme-stax' ) ),
+				array( 'free-theme', 'personal-theme', 'organic-stax' ),
+			),
+		);
+	}
+
+	/**
+	 * Say whether the site's plan grants every tier.
+	 *
+	 * @param bool $has Whether it does.
+	 * @return void
+	 */
+	private function site_has_plan( bool $has ) {
+		// Other suites leave their own expectation behind, which would refuse this stub.
+		Monkey\tearDown();
+		Monkey\setUp();
+		$this->mocking = true;
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( $has );
+	}
+
+	/**
 	 * The partner theme the fixtures price, as the grid hands it over.
 	 *
 	 * @return stdClass
@@ -598,6 +710,245 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 				'name'       => 'STAX',
 				'theme_tier' => 'partner',
 			)
+		);
+	}
+
+	/**
+	 * Answers WordPress.org's batch lookup, listing the slugs given and failing from one request on.
+	 *
+	 * Registered after the WordPress.com answers, which reply to every URL, so this one wins.
+	 *
+	 * @param callable $listed    Whether WordPress.org lists a slug.
+	 * @param int      $fail_from The request, counting from 1, that fails along with every later one.
+	 * @return stdClass Counts the requests made, in `n`.
+	 */
+	private function answer_wporg( callable $listed, int $fail_from = 0 ) {
+		$count = (object) array( 'n' => 0 );
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $listed, $fail_from, $count ) {
+				if ( ! str_contains( $url, 'api.wordpress.org/themes/info' ) ) {
+					return $preempt;
+				}
+
+				++$count->n;
+				if ( $fail_from && $count->n >= $fail_from ) {
+					return array(
+						'response' => array(
+							'code'    => 500,
+							'message' => 'Error',
+						),
+						'body'     => '',
+					);
+				}
+
+				wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
+				$body = array();
+				foreach ( explode( ',', $query['request']['slugs'] ) as $slug ) {
+					$body[ $slug ] = $listed( $slug ) ? array( 'slug' => $slug ) : array( 'error' => 'Theme not found' );
+				}
+
+				return array(
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			20,
+			3
+		);
+
+		return $count;
+	}
+
+	/**
+	 * WordPress.org caps a lookup at 100 themes, so a bigger catalog is asked about in batches.
+	 */
+	public function test_asks_wporg_about_the_catalog_in_batches_it_accepts() {
+		$themes = array();
+		for ( $i = 1; $i <= WPCom_Themes_Api::WP_ORG_BATCH_SIZE + 1; $i++ ) {
+			$themes[] = array_merge( self::THEME, array( 'id' => 'theme-' . $i ) );
+		}
+		$this->answer_with_themes( $themes );
+		$listed = array( 'theme-2', 'theme-101' );
+		$count  = $this->answer_wporg( fn( $slug ) => in_array( $slug, $listed, true ) );
+
+		$this->assertSame( $listed, wpcom_themes_tab_api()->fetch_wporg_slugs( array_column( $themes, 'id' ) ) );
+		$this->assertSame( 2, $count->n );
+	}
+
+	/**
+	 * Search also returns themes outside the catalog, such as older default themes, which are asked about too.
+	 */
+	public function test_asks_wporg_about_searched_themes_outside_the_catalog() {
+		$this->answer_with_themes( array( self::THEME ) );
+		$count = $this->answer_wporg( '__return_true' );
+
+		$this->assertSame(
+			array( 'organic-stax', 'twentytwentyone' ),
+			wpcom_themes_tab_api()->fetch_wporg_slugs( array( 'organic-stax', 'twentytwentyone' ) )
+		);
+		$this->assertSame( 2, $count->n );
+	}
+
+	/**
+	 * A failed batch would read as "not on WordPress.org" for its themes, so nothing is answered or kept.
+	 */
+	public function test_a_failed_wporg_batch_answers_nothing() {
+		$themes = array();
+		for ( $i = 1; $i <= WPCom_Themes_Api::WP_ORG_BATCH_SIZE + 1; $i++ ) {
+			$themes[] = array_merge( self::THEME, array( 'id' => 'theme-' . $i ) );
+		}
+		$this->answer_with_themes( $themes );
+		$count = $this->answer_wporg( '__return_true', 2 );
+
+		foreach ( array( 'first', 'second' ) as $call ) {
+			$this->assertNull( wpcom_themes_tab_api()->fetch_wporg_slugs( array( 'theme-1' ) ), "The $call call." );
+		}
+		// Two for the first call; the second asks again, which a cached failure would not.
+		$this->assertSame( 3, $count->n );
+	}
+
+	/**
+	 * Answers a search for "portfolio" with partner themes that match it in different ways.
+	 *
+	 * @return void
+	 */
+	private function answer_portfolio_search() {
+		$partner = fn( $id, $name ) => array_merge(
+			self::THEME,
+			array(
+				'id'         => $id,
+				'name'       => $name,
+				'theme_tier' => array( 'slug' => 'partner' ),
+			)
+		);
+		$sold    = fn( $id ) => array(
+			'id'              => $id,
+			'product_details' => array( array( 'product_slug' => "theme_{$id}_yearly" ) ),
+		);
+		$product = fn( $id ) => array(
+			'product_type'         => 'marketplace_theme',
+			'product_term'         => 'year',
+			'billing_product_slug' => "theme-{$id}",
+		);
+
+		$this->answer_wpcom(
+			array(
+				'tier=partner'     => array(
+					'body' => array(
+						'themes' => array( $sold( 'organic-stax' ), $sold( 'portfolio-twin' ), $sold( 'portfolio-pro' ) ),
+					),
+				),
+				'/products'        => array(
+					'theme_organic-stax_yearly'   => $product( 'organic-stax' ),
+					'theme_portfolio-twin_yearly' => $product( 'portfolio-twin' ),
+					'theme_portfolio-pro_yearly'  => $product( 'portfolio-pro' ),
+				),
+				'/wpcom/v2/themes' => array(
+					'body' => array(
+						'themes' => array(
+							// Matched by WordPress.com somewhere other than the name, and listed first.
+							$partner( 'organic-stax', 'STAX' ),
+							// Not sold, so it cannot be bought or installed.
+							$partner( 'portfolio-unsold', 'Portfolio Unsold' ),
+							// WordPress.org lists another author's theme under this slug.
+							$partner( 'portfolio-twin', 'Portfolio Twin' ),
+							$partner( 'portfolio-pro', 'Portfolio Pro' ),
+							array_merge(
+								self::THEME,
+								array(
+									'id'   => 'portfolio-plain',
+									'name' => 'Portfolio Plain',
+								)
+							),
+						),
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * A search's first page leads with up to two sold partner themes, names matching first, above
+	 * WordPress.org's results as they were.
+	 */
+	public function test_a_search_leads_with_matching_partner_themes() {
+		$this->enable_tab();
+		$this->site_has_plan( true );
+		$this->answer_portfolio_search();
+
+		$from_wporg = array( (object) array( 'slug' => 'portfolio-twin' ), (object) array( 'slug' => 'from-wporg' ) );
+		$result     = wpcom_themes_tab_splice_search_partners(
+			(object) array(
+				'info'   => array( 'results' => 2 ),
+				'themes' => $from_wporg,
+			),
+			'query_themes',
+			(object) array( 'search' => 'portfolio' )
+		);
+
+		$this->assertSame( array( 'portfolio-twin', 'portfolio-pro', 'portfolio-twin', 'from-wporg' ), array_column( $result->themes, 'slug' ) );
+		$this->assertSame( $from_wporg, array_slice( $result->themes, 2 ) );
+		$this->assertSame( 4, $result->info['results'] );
+
+		$offered = $result->themes[0];
+		$this->assertTrue( $offered->wpcom_search_slot );
+		$this->assertFalse( $offered->wpcom_marketplace_tab );
+		$this->assertStringContainsString(
+			'checkoutBackUrl=' . rawurlencode( admin_url( 'theme-install.php?search=portfolio' ) ),
+			$offered->purchase_url
+		);
+	}
+
+	/**
+	 * Only a keyword search's first page, with the tab on, gets partner themes.
+	 *
+	 * @param array $args        Themes API arguments.
+	 * @param bool  $tab_enabled Whether the Marketplace tab is on.
+	 * @dataProvider provide_results_left_alone
+	 */
+	#[DataProvider( 'provide_results_left_alone' )]
+	public function test_other_results_get_no_partner_themes( array $args, bool $tab_enabled ) {
+		if ( $tab_enabled ) {
+			$this->enable_tab();
+		}
+		$this->site_has_plan( true );
+		$this->answer_portfolio_search();
+
+		$result = wpcom_themes_tab_splice_search_partners(
+			(object) array(
+				'info'   => array( 'results' => 1 ),
+				'themes' => array( (object) array( 'slug' => 'from-wporg' ) ),
+			),
+			'query_themes',
+			(object) $args
+		);
+
+		$this->assertSame( array( 'from-wporg' ), array_column( $result->themes, 'slug' ) );
+		$this->assertSame( 1, $result->info['results'] );
+	}
+
+	/**
+	 * Requests that must come back as they went in.
+	 *
+	 * @return array<string, array{0: array, 1: bool}>
+	 */
+	public static function provide_results_left_alone(): array {
+		return array(
+			'a later page'         => array(
+				array(
+					'search' => 'portfolio',
+					'page'   => 2,
+				),
+				true,
+			),
+			'a term too short'     => array( array( 'search' => 'po' ), true ),
+			'a browse tab'         => array( array( 'browse' => 'popular' ), true ),
+			'the tab switched off' => array( array( 'search' => 'portfolio' ), false ),
 		);
 	}
 }
