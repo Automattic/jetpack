@@ -86,13 +86,6 @@ export function FlowCard( { flow, catalog, arrival, onChange }: Props ) {
 						placeholder={ __( 'Untitled flow', 'jetpack-flow-pkg' ) }
 						onChange={ event => onChange( { ...flow, name: event.target.value } ) }
 					/>
-					<Button
-						variant="outline"
-						aria-pressed={ flow.enabled }
-						onClick={ () => onChange( { ...flow, enabled: ! flow.enabled } ) }
-					>
-						{ flow.enabled ? __( 'On', 'jetpack-flow-pkg' ) : __( 'Off', 'jetpack-flow-pkg' ) }
-					</Button>
 				</Stack>
 			</Card.Header>
 			<Card.Content>
