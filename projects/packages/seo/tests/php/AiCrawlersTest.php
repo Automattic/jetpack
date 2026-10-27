@@ -195,6 +195,7 @@ class AiCrawlersTest extends TestCase {
 		Ai_Crawlers::init();
 		add_filter( 'robots_txt', $append_bare_line, 11 );
 		update_option( 'blog_public', 1 );
+		update_option( Ai_Crawlers::OPTION, array( 'gptbot' => true ) );
 
 		try {
 			$output = apply_filters( 'robots_txt', "User-agent: *\nDisallow: /wp-admin/\n", true );
