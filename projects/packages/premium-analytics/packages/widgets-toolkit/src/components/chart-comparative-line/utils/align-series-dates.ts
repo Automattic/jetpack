@@ -1,13 +1,59 @@
 /**
+ * External dependencies
+ */
+import { reportingTimeZone, toLocalTZ } from '@jetpack-premium-analytics/datetime';
+/**
  * Internal dependencies
  */
 import { resolvePrimarySeriesByGroup } from '../../../helpers/resolve-series-names';
-import type { ComparativeLineChartSeries } from '../types';
+import type { ComparativeDatePointDate, ComparativeLineChartSeries } from '../types';
+import type { TZDate } from '@jetpack-premium-analytics/datetime';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Read in the zone a bucket was stamped in, which a `TZDate` carries, so two days' hours
+// compare as numbers whatever their offsets.
+function clockTime( date: Date ): number {
+	const wall = toLocalTZ(
+		date.getTime(),
+		( date as Partial< TZDate > ).timeZone ?? reportingTimeZone()
+	);
+
+	return Date.UTC(
+		wall.getFullYear(),
+		wall.getMonth(),
+		wall.getDate(),
+		wall.getHours(),
+		wall.getMinutes()
+	);
+}
+
+function isSubDaily( points: ComparativeDatePointDate[] ): boolean {
+	return (
+		points.length > 1 && clockTime( points[ 1 ].date ) - clockTime( points[ 0 ].date ) < DAY_MS / 2
+	);
+}
+
+// A daylight saving day has 23 or 25 hours, so position stops naming the same hour.
+function alignByClockTime(
+	primary: ComparativeDatePointDate[],
+	comparison: ComparativeDatePointDate[]
+): ComparativeDatePointDate[] {
+	const primaryByClock = new Map( primary.map( point => [ clockTime( point.date ), point ] ) );
+	const shift = clockTime( primary[ 0 ].date ) - clockTime( comparison[ 0 ].date );
+
+	return comparison.flatMap( point => {
+		const slot = primaryByClock.get( clockTime( point.date ) + shift );
+
+		return slot ? [ { ...point, date: slot.date, realDate: point.date } ] : [];
+	} );
+}
 
 /**
- * Aligns comparison points onto the primary series by index, keeping their real dates
- * in `realDate` for tooltips. A grouped comparison aligns to its group's current period,
- * an ungrouped one to series[0], and one marked `aligned` stays where its producer put it.
+ * Aligns comparison points onto the primary series, keeping their real dates in
+ * `realDate` for tooltips: hourly points by clock time, coarser ones by position. A grouped
+ * comparison aligns to its group's current period, an ungrouped one to series[0], and one
+ * marked `aligned` stays where its producer put it.
  */
 export function alignSeriesDates(
 	series: ComparativeLineChartSeries[]
@@ -55,6 +101,13 @@ export function alignSeriesDates(
 
 		if ( primaryFirstMs === comparisonFirstMs ) {
 			return comparisonSeries;
+		}
+
+		if ( isSubDaily( primary.data ) ) {
+			return {
+				...comparisonSeries,
+				data: alignByClockTime( primary.data, comparisonSeries.data ),
+			};
 		}
 
 		return {

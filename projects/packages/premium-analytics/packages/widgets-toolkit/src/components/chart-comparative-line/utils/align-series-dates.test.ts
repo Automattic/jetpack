@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
+/**
  * Internal dependencies
  */
 import { alignSeriesDates } from './align-series-dates';
@@ -312,6 +316,47 @@ describe( 'alignSeriesDates', () => {
 				stroke: '#0000ff',
 				seriesLineStyle: { opacity: 0.5 },
 			} );
+		} );
+	} );
+
+	describe( 'hourly series across a daylight saving switch', () => {
+		// New York bucket starts from `start`, as the charts get them, skipping the instants in `skip`.
+		const hours = ( start: string, count: number, skip: string[] = [] ) =>
+			Array.from( { length: count }, ( _, i ) =>
+				toLocalTZ( new Date( start ).getTime() + i * 3600000, 'America/New_York' )
+			).filter( date => ! skip.includes( date.toISOString() ) );
+
+		const pairOf = ( result: ComparativeLineChartSeries[], realDate: string ) =>
+			result[ 1 ].data
+				.find( point => point.realDate?.toISOString() === realDate )
+				?.date.toISOString();
+
+		it( 'pairs a spring-forward day with the previous day by clock time', () => {
+			// Mar 8, 2026 has no 2 AM, so 23 buckets from midnight EST.
+			const primary = createSeries( 'Mar 8', hours( '2026-03-08T05:00:00Z', 23 ) );
+			const comparison = createComparison( 'Mar 7', hours( '2026-03-07T05:00:00Z', 24 ) );
+
+			const result = alignSeriesDates( [ primary, comparison ] );
+
+			// Mar 7 3 AM EST sits on Mar 8 3 AM EDT, and Mar 7 2 AM has no slot.
+			expect( pairOf( result, '2026-03-07T08:00:00.000Z' ) ).toBe( '2026-03-08T07:00:00.000Z' );
+			expect( pairOf( result, '2026-03-07T07:00:00.000Z' ) ).toBeUndefined();
+			expect( result[ 1 ].data ).toHaveLength( 23 );
+		} );
+
+		it( 'pairs a 24-hour window crossing the fall-back hour by clock time', () => {
+			// Nov 1 12 PM EDT to Nov 2 10 AM EST, with the repeated 1 AM merged into one bucket.
+			const primary = createSeries(
+				'Last 24 hours',
+				hours( '2025-11-01T16:00:00Z', 24, [ '2025-11-02T06:00:00.000Z' ] )
+			);
+			const comparison = createComparison( 'Previous', hours( '2025-10-31T16:00:00Z', 24 ) );
+
+			const result = alignSeriesDates( [ primary, comparison ] );
+
+			expect( pairOf( result, '2025-11-01T14:00:00.000Z' ) ).toBe( '2025-11-02T15:00:00.000Z' );
+			expect( pairOf( result, '2025-11-01T06:00:00.000Z' ) ).toBe( '2025-11-02T07:00:00.000Z' );
+			expect( pairOf( result, '2025-11-01T15:00:00.000Z' ) ).toBeUndefined();
 		} );
 	} );
 } );

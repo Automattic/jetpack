@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix hourly comparison bars being matched to the wrong hour on daylight saving days.
