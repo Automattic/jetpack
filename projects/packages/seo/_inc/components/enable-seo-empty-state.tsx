@@ -3,6 +3,7 @@
 import { __ } from '@wordpress/i18n';
 import { Button, EmptyState } from '@wordpress/ui';
 import useSeoToolsToggle from '../data/use-seo-tools-toggle';
+import styles from './enable-seo-empty-state.module.scss';
 import type { SeoTracksScreen } from '../data/record-seo-event';
 import type { FC } from 'react';
 
@@ -22,7 +23,7 @@ const EnableSeoEmptyState: FC< { screen: SeoTracksScreen } > = ( { screen } ) =>
 	const { isToggling, setActive } = useSeoToolsToggle( screen );
 
 	return (
-		<EmptyState.Root>
+		<EmptyState.Root className={ styles.root }>
 			<EmptyState.Title>{ __( 'Enable SEO tools', 'jetpack-seo' ) }</EmptyState.Title>
 			<EmptyState.Description>
 				{ __(
