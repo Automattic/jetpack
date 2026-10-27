@@ -11,40 +11,11 @@ use WP_Error;
 use WP_REST_Request;
 
 /**
- * The reports core `wc-analytics` routes can answer, mapped into the wpcom report shape.
+ * The reports core `wc-analytics` routes can answer, through one adapter per response shape.
  *
  * @since $$next-version$$
  */
 class Local_Report_Provider implements Report_Provider {
-
-	/**
-	 * Each route's core route and controller, and the wpcom fields core cannot produce.
-	 */
-	const ROUTES = array(
-		'orders/by-date' => array(
-			'core_route'         => '/wc-analytics/reports/revenue/stats',
-			'core_controller'    => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Revenue\\Stats\\Controller',
-			'unsupported_fields' => array(
-				'avg_items',
-				'cogs_amount',
-				'coupons',
-				'orders_value_gross',
-				'paid_net_sales',
-				'paid_orders_count',
-				'product_net_revenue',
-				'profit_margin',
-				'refunds',
-				'unpaid_net_sales',
-				'unpaid_orders_count',
-			),
-		),
-		// Stands in for the Stock notifications report, which WooCommerce does not ship yet.
-		'stock/summary'  => array(
-			'core_route'         => '/wc-analytics/reports/stock/stats',
-			'core_controller'    => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Stock\\Stats\\Controller',
-			'unsupported_fields' => array(),
-		),
-	);
 
 	/**
 	 * The report API's date types, by core's names.
@@ -61,7 +32,7 @@ class Local_Report_Provider implements Report_Provider {
 	const INTERVALS = array( 'hour', 'day', 'week', 'month', 'quarter', 'year' );
 
 	/**
-	 * Core's page size cap for intervals.
+	 * Core's page size cap, for intervals and for list rows.
 	 */
 	const PER_PAGE = 100;
 
@@ -69,6 +40,107 @@ class Local_Report_Provider implements Report_Provider {
 	 * Most intervals one request may ask for: every core page reruns the totals queries.
 	 */
 	const MAX_INTERVALS = 500;
+
+	/**
+	 * Stock statuses core's stock list filters by.
+	 */
+	const STOCK_TYPES = array( 'all', 'lowstock', 'instock', 'outofstock', 'onbackorder' );
+
+	/**
+	 * The reports this provider declares, by route.
+	 *
+	 * - `shape`: the adapter. `stats` is totals plus paged intervals, `totals` is totals only, `list` is paged rows.
+	 * - `params`: wpcom param => [ core param, value converter returning null when invalid, required ].
+	 * - `fields`: wpcom field => core field, or [ core field, count field ] for an average that is null
+	 *   over no items; null passes core's fields through, for a report with no wpcom counterpart.
+	 * - `unsupported_fields`: the wpcom fields core cannot produce.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function definitions() {
+		static $definitions = null;
+		if ( null !== $definitions ) {
+			return $definitions;
+		}
+
+		$definitions = array(
+			'orders/by-date' => array(
+				'shape'              => 'stats',
+				'core_route'         => '/wc-analytics/reports/revenue/stats',
+				'core_controller'    => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Revenue\\Stats\\Controller',
+				'params'             => self::range_params() + array(
+					'date_type' => array( 'date_type', fn( $value ) => self::DATE_TYPES[ $value ] ?? null, false ),
+				),
+				'fields'             => array(
+					'orders_no'           => 'orders_count',
+					'orders_value_net'    => 'net_revenue',
+					'total_sales'         => 'total_sales',
+					'average_order_value' => array( 'avg_order_value', 'orders_count' ),
+				),
+				'unsupported_fields' => array(
+					'avg_items',
+					'cogs_amount',
+					'coupons',
+					'orders_value_gross',
+					'paid_net_sales',
+					'paid_orders_count',
+					'product_net_revenue',
+					'profit_margin',
+					'refunds',
+					'unpaid_net_sales',
+					'unpaid_orders_count',
+				),
+			),
+			// These two stand in for the Stock notifications reports, which WooCommerce does not ship yet.
+			'stock/summary'  => array(
+				'shape'              => 'totals',
+				'core_route'         => '/wc-analytics/reports/stock/stats',
+				'core_controller'    => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Stock\\Stats\\Controller',
+				'params'             => array(),
+				'fields'             => null,
+				'unsupported_fields' => array(),
+			),
+			'stock/products' => array(
+				'shape'              => 'list',
+				'core_route'         => '/wc-analytics/reports/stock',
+				'core_controller'    => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Stock\\Controller',
+				'params'             => self::list_params() + array(
+					'type' => array( 'type', fn( $value ) => in_array( $value, self::STOCK_TYPES, true ) ? $value : null, false ),
+				),
+				'fields'             => null,
+				'unsupported_fields' => array(),
+			),
+		);
+
+		return $definitions;
+	}
+
+	/**
+	 * The params of a dated, bucketed report.
+	 *
+	 * @return array
+	 */
+	private static function range_params() {
+		return array(
+			'from'     => array( 'after', fn( $value ) => self::to_core_date( $value, 'T00:00:00' ), true ),
+			'to'       => array( 'before', fn( $value ) => self::to_core_date( $value, 'T23:59:59' ), true ),
+			'interval' => array( 'interval', fn( $value ) => in_array( $value, self::INTERVALS, true ) ? $value : null, true ),
+		);
+	}
+
+	/**
+	 * The paging and sorting params of a list report; core validates `orderby` against its own enum.
+	 *
+	 * @return array
+	 */
+	private static function list_params() {
+		return array(
+			'limit'   => array( 'per_page', fn( $value ) => ctype_digit( $value ) && (int) $value >= 1 && (int) $value <= self::PER_PAGE ? (int) $value : null, false ),
+			'page'    => array( 'page', fn( $value ) => ctype_digit( $value ) && (int) $value >= 1 ? (int) $value : null, false ),
+			'orderby' => array( 'orderby', fn( $value ) => '' !== $value ? $value : null, false ),
+			'order'   => array( 'order', fn( $value ) => in_array( $value, array( 'asc', 'desc' ), true ) ? $value : null, false ),
+		);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -83,7 +155,7 @@ class Local_Report_Provider implements Report_Provider {
 	 * @param string $route Report route.
 	 */
 	public function supports( $route ) {
-		return isset( self::ROUTES[ $route ] );
+		return isset( self::definitions()[ $route ] );
 	}
 
 	/**
@@ -93,7 +165,7 @@ class Local_Report_Provider implements Report_Provider {
 	 */
 	public function check_ready( $route ) {
 		// WooCommerce registers `wc-analytics` routes only once a request dispatches into the namespace.
-		return class_exists( self::ROUTES[ $route ]['core_controller'] ) ? true : self::feature_missing( 'core_controller_missing' );
+		return class_exists( self::definitions()[ $route ]['core_controller'] ) ? true : self::feature_missing( 'core_controller_missing' );
 	}
 
 	/**
@@ -118,45 +190,33 @@ class Local_Report_Provider implements Report_Provider {
 	 * @param array  $params Report query params.
 	 */
 	public function run( $route, array $params ) {
-		$definition = self::ROUTES[ $route ];
+		$definition = self::definitions()[ $route ];
 
-		$query = self::to_core_query( self::param_map( $route ), $params );
+		$query = self::to_core_query( $definition['params'], $params );
 		if ( is_wp_error( $query ) ) {
 			return $query;
 		}
 
-		$data = 'orders/by-date' === $route ? $this->run_orders( $definition['core_route'], $query ) : $this->run_stock( $definition['core_route'], $query );
-		if ( is_wp_error( $data ) ) {
-			return $data;
+		switch ( $definition['shape'] ) {
+			case 'stats':
+				$result = $this->run_stats( $definition, $query );
+				break;
+			case 'list':
+				$result = $this->run_list( $definition, $query );
+				break;
+			default:
+				$result = $this->run_totals( $definition, $query );
+		}
+		if ( is_wp_error( $result ) ) {
+			return $result;
 		}
 
 		return array(
-			'data'               => $data,
+			'data'               => $result['body'],
 			'status'             => 200,
-			'headers'            => array(),
+			'headers'            => $result['headers'],
 			'unsupported_fields' => $definition['unsupported_fields'],
 		);
-	}
-
-	/**
-	 * Each wpcom param a route accepts: the core param it becomes, the value converter (null when the
-	 * value is invalid), and whether it is required.
-	 *
-	 * @param string $route Report route.
-	 * @return array<string, array{0: string, 1: callable, 2: bool}>
-	 */
-	private static function param_map( $route ) {
-		$maps = array(
-			'orders/by-date' => array(
-				'from'      => array( 'after', fn( $value ) => self::to_core_date( $value, 'T00:00:00' ), true ),
-				'to'        => array( 'before', fn( $value ) => self::to_core_date( $value, 'T23:59:59' ), true ),
-				'interval'  => array( 'interval', fn( $value ) => in_array( $value, self::INTERVALS, true ) ? $value : null, true ),
-				'date_type' => array( 'date_type', fn( $value ) => self::DATE_TYPES[ $value ] ?? null, false ),
-			),
-			'stock/summary'  => array(),
-		);
-
-		return $maps[ $route ];
 	}
 
 	/**
@@ -209,13 +269,13 @@ class Local_Report_Provider implements Report_Provider {
 	}
 
 	/**
-	 * The orders report from core's revenue stats, every page of intervals, oldest first.
+	 * A core `…/stats` report: totals as the summary, every page of intervals as the rows, oldest first.
 	 *
-	 * @param string $core_route Core route.
-	 * @param array  $query      Core query params, from the param map.
-	 * @return array|WP_Error
+	 * @param array $definition The report definition.
+	 * @param array $query      Core query params, from the param map.
+	 * @return array|WP_Error `body` and `headers`.
 	 */
-	private function run_orders( $core_route, array $query ) {
+	private function run_stats( array $definition, array $query ) {
 		$query += array(
 			'orderby'  => 'date',
 			'order'    => 'asc',
@@ -231,12 +291,12 @@ class Local_Report_Provider implements Report_Provider {
 		$intervals = array();
 		$page      = 1;
 		do {
-			$response = $this->core_request( $core_route, $query + array( 'page' => $page ) );
+			$response = $this->core_request( $definition['core_route'], $query + array( 'page' => $page ) );
 			if ( is_wp_error( $response ) ) {
 				return $response;
 			}
 			$body      = self::to_array( $response->get_data() );
-			$totals    = $totals ?? $body['totals'];
+			$totals    = $totals ?? ( $body['totals'] ?? array() );
 			$intervals = array_merge( $intervals, $body['intervals'] ?? array() );
 			$pages     = (int) ( $response->get_headers()['X-WP-TotalPages'] ?? 1 );
 			// Core counts its own buckets; refuse rather than return a partial series.
@@ -245,59 +305,109 @@ class Local_Report_Provider implements Report_Provider {
 			}
 		} while ( ++$page <= $pages );
 
-		$summary               = self::map_orders_row( $totals );
-		$summary['date_start'] = $query['after'];
-		$summary['date_end']   = $query['before'];
+		$fields = $definition['fields'];
 
 		return array(
-			'summary' => $summary,
-			'data'    => array_map(
-				static function ( $interval ) {
-					return array(
-						'time_interval' => $interval['interval'],
-						'date_start'    => $interval['date_start'],
-						'date_end'      => $interval['date_end'],
-					) + self::map_orders_row( $interval['subtotals'] );
-				},
-				$intervals
+			'body'    => array(
+				'summary' => self::map_fields( $totals, $fields ) + array(
+					'date_start' => $query['after'],
+					'date_end'   => $query['before'],
+				),
+				'data'    => array_map(
+					static function ( $interval ) use ( $fields ) {
+						return array(
+							'time_interval' => $interval['interval'],
+							'date_start'    => $interval['date_start'],
+							'date_end'      => $interval['date_end'],
+						) + self::map_fields( $interval['subtotals'] ?? array(), $fields );
+					},
+					$intervals
+				),
 			),
+			'headers' => array(),
 		);
 	}
 
 	/**
-	 * Stock counts by status, from core's stock stats.
+	 * A core report with totals and no time series, such as stock counts.
 	 *
-	 * @param string $core_route Core route.
-	 * @param array  $query      Core query params, from the param map.
-	 * @return array|WP_Error
+	 * @param array $definition The report definition.
+	 * @param array $query      Core query params, from the param map.
+	 * @return array|WP_Error `body` and `headers`.
 	 */
-	private function run_stock( $core_route, array $query ) {
-		$response = $this->core_request( $core_route, $query );
+	private function run_totals( array $definition, array $query ) {
+		$response = $this->core_request( $definition['core_route'], $query );
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 
 		return array(
-			'summary' => self::to_array( $response->get_data() )['totals'] ?? array(),
-			'data'    => array(),
+			'body'    => array(
+				'summary' => self::map_fields( self::to_array( $response->get_data() )['totals'] ?? array(), $definition['fields'] ),
+				'data'    => array(),
+			),
+			'headers' => array(),
 		);
 	}
 
 	/**
-	 * The wpcom fields core's revenue stats can produce. The rest stay absent, never zero.
+	 * A core list report: one page of rows, with core's totals passed on as the wpcom paging headers.
 	 *
-	 * @param array $row Core totals or interval subtotals.
-	 * @return array
+	 * @param array $definition The report definition.
+	 * @param array $query      Core query params, from the param map.
+	 * @return array|WP_Error `body` and `headers`.
 	 */
-	private static function map_orders_row( array $row ) {
-		$orders = (int) $row['orders_count'];
+	private function run_list( array $definition, array $query ) {
+		$response = $this->core_request( $definition['core_route'], $query );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$headers = $response->get_headers();
+		$total   = (int) ( $headers['X-WP-Total'] ?? 0 );
+		$fields  = $definition['fields'];
 
 		return array(
-			'orders_no'           => $orders,
-			'orders_value_net'    => (float) $row['net_revenue'],
-			'total_sales'         => (float) $row['total_sales'],
-			'average_order_value' => $orders > 0 ? (float) $row['avg_order_value'] : null,
+			'body'    => array(
+				'summary' => array( 'total_items' => $total ),
+				'data'    => array_map(
+					static fn( $row ) => self::map_fields( $row, $fields ),
+					array_values( self::to_array( $response->get_data() ) )
+				),
+			),
+			'headers' => array(
+				'x-wp-total'      => (string) $total,
+				'x-wp-totalpages' => (string) (int) ( $headers['X-WP-TotalPages'] ?? 0 ),
+			),
 		);
+	}
+
+	/**
+	 * A core row in wpcom fields. A field core does not send stays absent, never zero.
+	 *
+	 * @param array      $row    Core totals, interval subtotals or list row.
+	 * @param array|null $fields The report's field map; null passes core's fields through.
+	 * @return array
+	 */
+	private static function map_fields( array $row, $fields ) {
+		unset( $row['_links'], $row['segments'] );
+		if ( null === $fields ) {
+			return $row;
+		}
+
+		$mapped = array();
+		foreach ( $fields as $wpcom_name => $source ) {
+			if ( is_array( $source ) ) {
+				list( $core_name, $count_name ) = $source;
+				if ( isset( $row[ $core_name ] ) && isset( $row[ $count_name ] ) ) {
+					$mapped[ $wpcom_name ] = $row[ $count_name ] > 0 ? $row[ $core_name ] : null;
+				}
+			} elseif ( array_key_exists( $source, $row ) ) {
+				$mapped[ $wpcom_name ] = $row[ $source ];
+			}
+		}
+
+		return $mapped;
 	}
 
 	/**
