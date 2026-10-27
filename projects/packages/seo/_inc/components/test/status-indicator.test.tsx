@@ -7,15 +7,21 @@ const { default: StatusIndicator } = await import( '../status-indicator' );
 
 describe( 'StatusIndicator', () => {
 	it.each( [
-		[ 'not-started', 'Not started' ],
-		[ 'in-progress', 'In progress' ],
-		[ 'complete', 'Complete' ],
-	] as const )( 'renders the %s state with a label and icon', ( status, label ) => {
-		const { container } = render( <StatusIndicator status={ status } /> );
+		[ 'not-started', 'Not started', 'draft' ],
+		[ 'in-progress', 'In progress', 'medium' ],
+		[ 'complete', 'Complete', 'stable' ],
+	] as const )( 'renders the %s state as a "%s" badge', ( status, label, intent ) => {
+		render( <StatusIndicator status={ status } /> );
 
-		expect( screen.getByText( label ) ).toBeInTheDocument();
-		// The state glyph is a decorative SVG with no accessible role of its own.
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- asserting the glyph rendered.
-		expect( container.querySelector( 'svg' ) ).toBeInTheDocument();
+		// The intent is a class on the `@wordpress/ui` Badge (e.g. `…__is-stable-intent`),
+		// the same colors the GEO crawler groups use.
+		expect( screen.getByText( label ).className ).toMatch( new RegExp( `is-${ intent }-intent` ) );
+	} );
+
+	it( 'renders text only, without the old state glyph', () => {
+		const { container } = render( <StatusIndicator status="complete" /> );
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- asserting no glyph rendered.
+		expect( container.querySelector( 'svg' ) ).not.toBeInTheDocument();
 	} );
 } );
