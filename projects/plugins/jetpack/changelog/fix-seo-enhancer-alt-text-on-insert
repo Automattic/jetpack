@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-SEO: Generate alt text for newly inserted images when "Auto-generate metadata" is on, even if "Image alt text" was unticked earlier.

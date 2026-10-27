@@ -579,7 +579,7 @@ class Dashboard_Data {
 		 * Names the SEO plugin that owns the site's SEO output, so the SEO dashboard can say
 		 * so. Only read while `jetpack_disable_seo_tools` is true.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.10.1
 		 *
 		 * @param string $name The plugin's display name, or '' when no plugin owns the output.
 		 */

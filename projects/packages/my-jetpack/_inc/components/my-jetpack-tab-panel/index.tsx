@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
+import { isHeaderControlsEnabled } from '../header-controls/slot';
 import { FullWidthSeparator } from './full-width-separator';
 import styles from './styles.module.scss';
 import { TabContent } from './tab-content';
@@ -26,6 +27,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 	const isNewUser = useIsJetpackUserNew();
 	const tabStartTimeRef = useRef< number >( Date.now() );
 	const lastNavigationSourceRef = useRef< 'internal' | 'external' >( 'external' );
+	const tabListRef = useRef< HTMLDivElement >( null );
 
 	// If the tab is not valid, use the default one.
 	const currentTab = useMemo( () => resolveMyJetpackSection( params.section ), [ params.section ] );
@@ -57,13 +59,22 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		[ navigate, currentTab, recordEvent, isNewUser ]
 	);
 
+	const pinsTabs = isHeaderControlsEnabled();
+
 	useEffect( () => {
 		// Reset navigation source for next change
 		lastNavigationSourceRef.current = 'external';
 
 		// Reset timer when tab changes
 		tabStartTimeRef.current = Date.now();
-	}, [ currentTab ] );
+
+		// Pinned tabs stay in view, so start the new tab at the top. The admin page scrolls the
+		// content between its header and footer, not the window, and that outlives a tab switch.
+		const scroller = pinsTabs && tabListRef.current?.closest( '.jp-admin-page__content' );
+		if ( scroller ) {
+			scroller.scrollTop = 0;
+		}
+	}, [ currentTab, pinsTabs ] );
 
 	// Canonicalize a stale or invalid section hash. `currentTab` already resolves
 	// such a hash to a real section for rendering, but `onTabSelect` only reacts to
@@ -109,10 +120,17 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 			className={ clsx(
 				styles[ 'tab-panel' ],
 				styles[ 'my-jetpack-tab-panel--full-width' ],
-				'jetpack-my-jetpack-tab-panel'
+				'jetpack-my-jetpack-tab-panel',
+				{ [ styles[ 'my-jetpack-tab-panel--pinned-tabs' ] ]: pinsTabs }
 			) }
 		>
-			<div className={ styles[ 'tab-list' ] }>
+			<div
+				ref={ tabListRef }
+				className={ clsx( {
+					'jp-admin-page-tabs': pinsTabs,
+					[ styles[ 'tab-list' ] ]: ! pinsTabs,
+				} ) }
+			>
 				<Tabs.List activateOnFocus>
 					{ tabs.map( tab => (
 						<Tabs.Tab key={ tab.name } value={ tab.name }>
@@ -123,7 +141,8 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 			</div>
 			{ tabs.map( tab => (
 				<Tabs.Panel key={ tab.name } value={ tab.name } className={ styles[ 'tab-content' ] }>
-					<FullWidthSeparator />
+					{ /* The pinned strip draws the divider itself. */ }
+					{ ! pinsTabs && <FullWidthSeparator /> }
 					<TabContent name={ tab.name } beforeContent={ beforeContent } />
 				</Tabs.Panel>
 			) ) }
