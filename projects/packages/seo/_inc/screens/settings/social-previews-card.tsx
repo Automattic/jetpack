@@ -179,7 +179,7 @@ const SocialPreviewsCard: FC< Props > = ( {
 				<Stack direction="column" gap="xl">
 					<Text variant="body-md" render={ <p /> }>
 						{ __(
-							'How your home page looks in search results and social shares. Updates as you edit the front-page description above.',
+							'How your home page looks in search results and social shares. Updates as you edit the front-page title structure and description above.',
 							'jetpack-seo'
 						) }
 					</Text>

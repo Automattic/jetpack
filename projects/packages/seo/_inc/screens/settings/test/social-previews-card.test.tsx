@@ -50,6 +50,16 @@ describe( 'SocialPreviewsCard', () => {
 		getSite.mockReturnValue( site );
 	} );
 
+	it( 'says it follows both the front-page title structure and the description', () => {
+		renderOpen();
+
+		expect(
+			screen.getByText(
+				'How your home page looks in search results and social shares. Updates as you edit the front-page title structure and description above.'
+			)
+		).toBeInTheDocument();
+	} );
+
 	it( 'uses the site tagline when the front-page description is empty', () => {
 		renderOpen();
 
