@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { Badge, Button, Icon, Link, Spinner, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
@@ -129,13 +129,11 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 		statusBadge = { ...ownStatusBadge, label: statusLabel };
 	}
 	const showsStatus = ! isHealthy || !! forcedOffReason;
-	// A busy action the user hasn't clicked is still loading, so it gets a skeleton rather than a spinner.
-	const [ wasActionClicked, setWasActionClicked ] = useState( false );
-	const actionOnClick = action?.onClick;
-	const onActionClick = useCallback( () => {
-		setWasActionClicked( true );
-		actionOnClick?.();
-	}, [ actionOnClick ] );
+	// A busy action is a skeleton until its link first shows, then a spinner, so a refetch never hides the link.
+	const [ hasShownAction, setHasShownAction ] = useState( false );
+	if ( action && ! action.disabled && ! hasShownAction ) {
+		setHasShownAction( true );
+	}
 
 	const productLinks: ReactNode[] = [];
 	if ( ( admin || action?.forEveryone ) && action && ! forcedOffReason ) {
@@ -148,7 +146,7 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 							render: (
 								<Button
 									variant="unstyled"
-									onClick={ onActionClick }
+									onClick={ action.onClick }
 									disabled={ action.disabled }
 									loading={ action.disabled }
 								/>
@@ -160,7 +158,7 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 			</Link>
 		);
 		let shownAction: ReactNode = actionLink;
-		if ( action.disabled && ! wasActionClicked ) {
+		if ( action.disabled && ! hasShownAction ) {
 			shownAction = <LoadingBlock key="action" width="96px" height="20px" />;
 		} else if ( action.disabled ) {
 			shownAction = (

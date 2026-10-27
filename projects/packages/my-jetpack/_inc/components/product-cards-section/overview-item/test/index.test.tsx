@@ -77,7 +77,7 @@ describe( 'OverviewItem', () => {
 		expect( screen.queryByText( 'Activate Stats' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows a busy action as a skeleton until the user clicks it, then ignores clicks', async () => {
+	it( 'shows a busy action as a skeleton until its link first shows, then as a disabled link', async () => {
 		const onClick = jest.fn();
 		const item = ( disabled: boolean ) => (
 			<OverviewItem
@@ -91,12 +91,11 @@ describe( 'OverviewItem', () => {
 		expect( screen.queryByRole( 'button', { name: 'Activate Stats' } ) ).not.toBeInTheDocument();
 
 		rerender( item( false ) );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Activate Stats' } ) );
 		rerender( item( true ) );
 
 		const button = screen.getByRole( 'button', { name: 'Activate Stats' } );
 		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
 		await userEvent.click( button );
-		expect( onClick ).toHaveBeenCalledTimes( 1 );
+		expect( onClick ).not.toHaveBeenCalled();
 	} );
 } );
