@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { DataSyncError } from './DataSyncError';
-import type { JSONSchema, ParsedValue } from './types';
+import type { AnySchema, JSONSchema, ParsedValue } from './types';
 
 export type RequestParams = string | JSONSchema;
 type RequestMethods = 'GET' | 'POST' | 'DELETE';
@@ -19,7 +19,7 @@ type GetRequestParams = Record< string, string | number | null | Array< string |
  *
  * Note: The keys are converted to be snake_case in Objects, but kebab-case in URLs.
  */
-export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema > > {
+export class DataSync< Schema extends AnySchema, Value extends z.infer< Schema > > {
 	/**
 	 * WordPress REST API Endpoint configuration.
 	 * @param wpDatasyncUrl - For example: http://localhost/wp-json/jetpack-favorites
@@ -133,7 +133,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * @param valueSchema - The Zod schema to validate the value against.
 	 * @returns The parsed value.
 	 */
-	private getWindowValue< V extends z.ZodSchema >(
+	private getWindowValue< V extends AnySchema >(
 		valueName: string,
 		valueSchema: V
 	): ParsedValue< V > {
@@ -417,7 +417,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * @param value - The value to send to the endpoint.
 	 * @returns A direct response from the endpoint.
 	 */
-	public ACTION = async < T extends RequestParams, R extends z.ZodSchema >(
+	public ACTION = async < T extends RequestParams, R extends AnySchema >(
 		name: string,
 		value: T,
 		schema: R

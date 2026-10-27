@@ -233,7 +233,7 @@ class Connection_Notice {
 			submitBtn.disabled = false;
 
 			results.classList.add( 'error-message' );
-			results.innerHTML = message || <?php echo wp_json_encode( esc_html__( 'Something went wrong. Please try again.', 'jetpack-connection' ), $json_flags ); ?>;
+			results.innerHTML = message || <?php echo wp_json_encode( esc_html__( 'An error occurred. Please try again.', 'jetpack-connection' ), $json_flags ); ?>;
 		}
 
 		fetch(
