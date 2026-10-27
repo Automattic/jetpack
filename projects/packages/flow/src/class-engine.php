@@ -312,6 +312,21 @@ class Engine {
 			case 'akismet_check':
 				return self::akismet_check( $c, $payload );
 
+			case 'sensei_enrol_learner':
+				return self::sensei_enrol( $c, $payload );
+
+			case 'sensei_create_course':
+				$id = wp_insert_post(
+					array(
+						'post_type'    => 'course',
+						'post_title'   => $c['title'] ?? '',
+						'post_content' => $c['content'] ?? '',
+						'post_status'  => 'draft',
+					),
+					true
+				);
+				return is_wp_error( $id ) ? $id : true;
+
 			case 'ai_summarize':
 			case 'ai_generate_text':
 			case 'ai_generate_image':
@@ -424,6 +439,33 @@ class Engine {
 			'ai_image_id'  => $id,
 		);
 		return true;
+	}
+
+	/**
+	 * Enrol an existing user in a Sensei course.
+	 *
+	 * @param array $c       Config with tokens replaced.
+	 * @param array $payload Trigger payload.
+	 * @return true|\WP_Error
+	 */
+	private static function sensei_enrol( $c, $payload ) {
+		if ( ! class_exists( 'Sensei_Utils' ) ) {
+			return new \WP_Error( 'sensei_missing', __( 'Sensei LMS is not active.', 'jetpack-flow-pkg' ) );
+		}
+
+		$user      = get_user_by( 'email', sanitize_email( $c['email'] ?? '' ) );
+		$course_id = (int) ( '' !== ( $c['course_id'] ?? '' ) ? $c['course_id'] : ( $payload['course_id'] ?? 0 ) );
+		if ( ! $user ) {
+			return new \WP_Error( 'no_user', __( 'No user has that email address.', 'jetpack-flow-pkg' ) );
+		}
+		if ( 'course' !== get_post_type( $course_id ) ) {
+			return new \WP_Error( 'no_course', __( 'Choose a Sensei course.', 'jetpack-flow-pkg' ) );
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Provided by Sensei LMS.
+		return \Sensei_Utils::start_user_on_course( $user->ID, $course_id )
+			? true
+			: new \WP_Error( 'sensei_failed', __( 'Could not enrol the learner.', 'jetpack-flow-pkg' ) );
 	}
 
 	/**
@@ -754,6 +796,31 @@ class Engine {
 					'name'     => $user->display_name,
 					'email'    => $user->user_email,
 					'username' => $user->user_login,
+				);
+
+			case 'sensei_course_enrolled':
+			case 'sensei_course_completed':
+			case 'sensei_lesson_completed':
+				$user = get_userdata( $args[0] ?? 0 );
+				$post = get_post( $args[1] ?? 0 );
+				if ( ! $user || ! $post ) {
+					return null;
+				}
+				$values = array(
+					'user_id' => $user->ID,
+					'name'    => $user->display_name,
+					'email'   => $user->user_email,
+				);
+				if ( 'sensei_lesson_completed' === $id ) {
+					return $values + array(
+						'lesson_title' => get_the_title( $post ),
+						'lesson_url'   => get_permalink( $post ),
+					);
+				}
+				return $values + array(
+					'course_id'    => $post->ID,
+					'course_title' => get_the_title( $post ),
+					'course_url'   => get_permalink( $post ),
 				);
 
 			case 'crm_contact_created':

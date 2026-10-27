@@ -11,6 +11,7 @@ const BRANDS: Brand[] = [
 	{ product: 'jetpack', name: 'Jetpack' },
 	{ product: 'wordpress', name: 'WordPress' },
 	{ product: 'akismet', name: 'Akismet' },
+	{ product: 'sensei', name: 'Sensei' },
 ];
 
 const AI_BRANDS: Brand[] = [

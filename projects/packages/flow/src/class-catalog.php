@@ -43,6 +43,10 @@ class Catalog {
 				'name' => 'Jetpack CRM',
 				'file' => 'zero-bs-crm/ZeroBSCRM.php',
 			),
+			'sensei-lms'  => array(
+				'name' => 'Sensei LMS',
+				'file' => 'sensei-lms/sensei-lms.php',
+			),
 		);
 	}
 
@@ -61,11 +65,14 @@ class Catalog {
 		$woo           = class_exists( 'WooCommerce' );
 		$crm           = function_exists( 'zeroBSCRM_install_core' ) || defined( 'ZBS_ROOTFILE' );
 		$akismet       = class_exists( 'Akismet' );
+		$sensei        = class_exists( 'Sensei_Main' );
 
 		$form_tokens  = array( 'name', 'email', 'message', 'form_title', 'entry_url' );
 		$order_tokens = array( 'order_id', 'order_total', 'currency', 'email', 'name', 'products' );
 		$post_tokens  = array( 'post_id', 'post_title', 'post_url', 'author_name', 'author_email' );
 		$spam_tokens  = array( 'name', 'email', 'message' );
+
+		$sensei_tokens = array( 'user_id', 'name', 'email', 'course_title', 'course_url' );
 
 		$triggers = array(
 			'post_published'            => array(
@@ -200,6 +207,36 @@ class Catalog {
 				'available'   => $akismet,
 				'requires'    => 'akismet',
 			),
+			'sensei_course_enrolled'    => array(
+				'label'       => __( 'Learner enrolled in a course', 'jetpack-flow-pkg' ),
+				'description' => __( 'A learner starts a Sensei course.', 'jetpack-flow-pkg' ),
+				'product'     => 'sensei',
+				'hook'        => 'sensei_user_course_start',
+				'args'        => 2,
+				'tokens'      => $sensei_tokens,
+				'available'   => $sensei,
+				'requires'    => 'sensei-lms',
+			),
+			'sensei_course_completed'   => array(
+				'label'       => __( 'Learner completes a course', 'jetpack-flow-pkg' ),
+				'description' => __( 'A learner finishes a Sensei course.', 'jetpack-flow-pkg' ),
+				'product'     => 'sensei',
+				'hook'        => 'sensei_user_course_end',
+				'args'        => 2,
+				'tokens'      => $sensei_tokens,
+				'available'   => $sensei,
+				'requires'    => 'sensei-lms',
+			),
+			'sensei_lesson_completed'   => array(
+				'label'       => __( 'Learner completes a lesson', 'jetpack-flow-pkg' ),
+				'description' => __( 'A learner finishes a Sensei lesson.', 'jetpack-flow-pkg' ),
+				'product'     => 'sensei',
+				'hook'        => 'sensei_user_lesson_end',
+				'args'        => 2,
+				'tokens'      => array( 'user_id', 'name', 'email', 'lesson_title', 'lesson_url' ),
+				'available'   => $sensei,
+				'requires'    => 'sensei-lms',
+			),
 			'payment_received'          => array(
 				'label'       => __( 'Payment received', 'jetpack-flow-pkg' ),
 				'description' => __( 'A WooCommerce payment completes.', 'jetpack-flow-pkg' ),
@@ -324,6 +361,21 @@ class Catalog {
 		if ( function_exists( 'wp_get_abilities' ) ) {
 			foreach ( wp_get_abilities() as $ability ) {
 				$abilities[ $ability->get_name() ] = $ability->get_label() ? $ability->get_label() : $ability->get_name();
+			}
+		}
+
+		$sensei_courses = array();
+		if ( class_exists( 'Sensei_Main' ) ) {
+			foreach ( get_posts(
+				array(
+					'post_type'   => 'course',
+					'post_status' => 'publish',
+					'numberposts' => 100,
+					'orderby'     => 'title',
+					'order'       => 'ASC',
+				)
+			) as $course ) {
+				$sensei_courses[ $course->ID ] = $course->post_title;
 			}
 		}
 
@@ -550,6 +602,37 @@ class Catalog {
 				),
 				'available'   => (bool) $abilities,
 				'requires'    => 'jetpack',
+			),
+			'sensei_enrol_learner'   => array(
+				'label'       => __( 'Enrol a learner in a Sensei course', 'jetpack-flow-pkg' ),
+				'description' => __( 'Start an existing user on a Sensei course.', 'jetpack-flow-pkg' ),
+				'product'     => 'sensei',
+				'fields'      => array(
+					$text( 'email', __( 'Learner email', 'jetpack-flow-pkg' ), true, 'text', array( 'default' => '{{email}}' ) ),
+					$text(
+						'course_id',
+						__( 'Course', 'jetpack-flow-pkg' ),
+						false,
+						'select',
+						array(
+							'default' => '',
+							'options' => $opts( array( '' => __( 'The course from the trigger', 'jetpack-flow-pkg' ) ) + $sensei_courses ),
+						)
+					),
+				),
+				'available'   => class_exists( 'Sensei_Main' ),
+				'requires'    => 'sensei-lms',
+			),
+			'sensei_create_course'   => array(
+				'label'       => __( 'Create a draft Sensei course', 'jetpack-flow-pkg' ),
+				'description' => __( 'Save a draft course with the trigger data.', 'jetpack-flow-pkg' ),
+				'product'     => 'sensei',
+				'fields'      => array(
+					$text( 'title', __( 'Title', 'jetpack-flow-pkg' ), true ),
+					$text( 'content', __( 'Description', 'jetpack-flow-pkg' ), false, 'textarea' ),
+				),
+				'available'   => class_exists( 'Sensei_Main' ),
+				'requires'    => 'sensei-lms',
 			),
 			'ai_summarize'           => array(
 				'label'       => __( 'Summarize with AI', 'jetpack-flow-pkg' ),

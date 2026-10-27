@@ -95,6 +95,20 @@ export function ProductIcon( { product, size = SIZE }: { product: Product; size?
 					<path fill="#fff" d="M5.8 18.4c0-3.2 2.8-5.2 6.2-5.2s6.2 2 6.2 5.2z" />
 				</svg>
 			);
+		case 'sensei':
+			return (
+				<svg
+					width={ size }
+					height={ size }
+					viewBox="0 0 24 24"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<circle cx="12" cy="12" r="12" fill="#43af99" />
+					<path fill="#fff" d="M12 5.5L3.5 9.5 12 13.5l6.2-2.9v4.3h1.6V9.5z" />
+					<path fill="#fff" d="M7 13.2v2.6c0 1.3 2.2 2.7 5 2.7s5-1.4 5-2.7v-2.6l-5 2.3z" />
+				</svg>
+			);
 		case 'claude':
 			return (
 				<svg

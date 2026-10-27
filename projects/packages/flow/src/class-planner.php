@@ -177,6 +177,8 @@ class Planner {
 		$trigger_words = array(
 			'form_spam_caught'          => array( 'form spam' ),
 			'comment_spam_caught'       => array( 'akismet', 'comment spam', 'held for spam' ),
+			'sensei_course_completed'   => array( 'completes a course', 'course complete', 'finishes a course' ),
+			'sensei_course_enrolled'    => array( 'enrol', 'sensei', 'course' ),
 			'podcast_episode_published' => array( 'podcast', 'episode' ),
 			'plugin_update_available'   => array( 'plugin update' ),
 			'wp_update_available'       => array( 'wordpress update', 'core update' ),

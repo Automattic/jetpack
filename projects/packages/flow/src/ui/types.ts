@@ -17,6 +17,7 @@ export type Product =
 	| 'mailpoet'
 	| 'akismet'
 	| 'crm'
+	| 'sensei'
 	| 'claude'
 	| 'google-ai'
 	| 'openai';
