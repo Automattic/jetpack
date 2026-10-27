@@ -12,6 +12,12 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX;
  */
 class WP_REST_WPCOM_Block_Editor_NUX_Status_Controller extends \WP_REST_Controller {
 	/**
+	 * Pseudo-scope and key of the Welcome Tour in the user's dismissed welcome guides.
+	 */
+	const WELCOME_TOUR_SCOPE = 'wpcom/block-editor-nux';
+	const WELCOME_TOUR_GUIDE = 'welcomeTour';
+
+	/**
 	 * WP_REST_WPCOM_Block_Editor_NUX_Status_Controller constructor.
 	 */
 	public function __construct() {
@@ -61,6 +67,16 @@ class WP_REST_WPCOM_Block_Editor_NUX_Status_Controller extends \WP_REST_Controll
 	}
 
 	/**
+	 * Whether the status lives in this site's user meta rather than in WordPress.com's global user
+	 * attribute, which Simple sites read and write through the `wpcom_block_editor_nux_*` hooks.
+	 *
+	 * @return bool
+	 */
+	private function is_status_stored_locally() {
+		return ! has_filter( 'wpcom_block_editor_nux_get_status' );
+	}
+
+	/**
 	 * Return the WPCOM NUX status
 	 *
 	 * This is only called for sites where the user hasn't already dismissed the tour.
@@ -90,12 +106,22 @@ class WP_REST_WPCOM_Block_Editor_NUX_Status_Controller extends \WP_REST_Controll
 			// disable welcome tour for authoring P2s.
 			// see: https://github.com/Automattic/wp-calypso/issues/62973.
 			$nux_status = 'disabled';
-		} elseif ( has_filter( 'wpcom_block_editor_nux_get_status' ) ) {
+		} elseif ( ! $this->is_status_stored_locally() ) {
 			$nux_status = apply_filters( 'wpcom_block_editor_nux_get_status', false );
-		} elseif ( ! metadata_exists( 'user', get_current_user_id(), 'wpcom_block_editor_nux_status' ) ) {
-			$nux_status = 'enabled';
 		} else {
-			$nux_status = get_user_meta( get_current_user_id(), 'wpcom_block_editor_nux_status', true );
+			$user_id    = get_current_user_id();
+			$nux_status = metadata_exists( 'user', $user_id, 'wpcom_block_editor_nux_status' )
+				? get_user_meta( $user_id, 'wpcom_block_editor_nux_status', true )
+				: 'enabled';
+
+			// Only ever hides the tour: re-opening it from the editor menu does not read this.
+			if ( 'enabled' === $nux_status && wpcom_editor_welcome_guides_is_enabled() ) {
+				/** This filter is documented in src/features/editor-welcome-guides/editor-welcome-guides.php */
+				$dismissed = apply_filters( 'wpcom_editor_welcome_guides_dismissed', array(), $user_id );
+				if ( in_array( self::WELCOME_TOUR_GUIDE, (array) ( $dismissed[ self::WELCOME_TOUR_SCOPE ] ?? array() ), true ) ) {
+					$nux_status = 'dismissed';
+				}
+			}
 		}
 
 		$show_welcome_guide = $this->show_wpcom_welcome_guide( $nux_status );
@@ -121,6 +147,13 @@ class WP_REST_WPCOM_Block_Editor_NUX_Status_Controller extends \WP_REST_Controll
 			do_action( 'wpcom_block_editor_nux_update_status', $nux_status );
 		}
 		update_user_meta( get_current_user_id(), 'wpcom_block_editor_nux_status', $nux_status );
+
+		// Re-enabling stays local to this site.
+		if ( 'dismissed' === $nux_status && $this->is_status_stored_locally() && wpcom_editor_welcome_guides_is_enabled() ) {
+			/** This action is documented in src/features/editor-welcome-guides/editor-welcome-guides.php */
+			do_action( 'wpcom_editor_welcome_guides_dismiss', get_current_user_id(), array( self::WELCOME_TOUR_SCOPE => array( self::WELCOME_TOUR_GUIDE ) ) );
+		}
+
 		return rest_ensure_response( array( 'show_welcome_guide' => $this->show_wpcom_welcome_guide( $nux_status ) ) );
 	}
 }

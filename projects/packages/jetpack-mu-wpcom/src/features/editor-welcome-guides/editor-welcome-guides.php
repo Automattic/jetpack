@@ -65,6 +65,11 @@ function wpcom_editor_welcome_guides_filter_preferences( $value, $user_id, $meta
 
 	$changed = false;
 	foreach ( $dismissed as $scope => $guides ) {
+		// Other scopes, like the Welcome Tour's, are not editor preferences.
+		if ( ! is_string( $scope ) || ! str_starts_with( $scope, 'core/' ) ) {
+			continue;
+		}
+
 		foreach ( (array) $guides as $guide ) {
 			if ( false !== ( $preferences[ $scope ][ $guide ] ?? null ) ) {
 				$preferences[ $scope ][ $guide ] = false;

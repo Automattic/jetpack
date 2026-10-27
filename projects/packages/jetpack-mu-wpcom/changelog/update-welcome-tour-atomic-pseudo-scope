@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Welcome Tour: On Atomic sites, hide the tour when the user has dismissed it on any of their WordPress.com sites, behind the editor-welcome-guides-per-user sticker.

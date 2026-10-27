@@ -114,6 +114,9 @@ class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 		$this->dismissed = array();
 		$this->assertSame( $stored, $this->read_preferences() );
 
+		$this->dismissed = array( 'wpcom/block-editor-nux' => array( 'welcomeTour' ) );
+		$this->assertSame( $stored, $this->read_preferences() );
+
 		$this->dismissed = array( 'core/edit-post' => array( 'welcomeGuide' ) );
 		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
 		$this->assertSame( $stored, $this->read_preferences() );
