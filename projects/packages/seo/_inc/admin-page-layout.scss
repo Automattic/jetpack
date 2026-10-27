@@ -116,3 +116,15 @@ body.toplevel_page_jetpack-seo {
 .jetpack-seo-page-content--flush {
 	padding: 0;
 }
+
+// A stage whose only content is a short message (the module-off empty state):
+// fill the content area and center the message in it. With the tabs hidden the
+// content div is the direct child of the layout mixin's flex column, so
+// `flex: 1 1 auto` stretches it to the space between the header and footer.
+.jetpack-seo-page-content--centered {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}

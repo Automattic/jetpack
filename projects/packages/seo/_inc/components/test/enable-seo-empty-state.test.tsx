@@ -11,24 +11,29 @@ jest.unstable_mockModule( '../../data/use-seo-tools-toggle', () => ( {
 	default: useSeoToolsToggle,
 } ) );
 
-const { default: EnableSeoCard } = await import( '../enable-seo-card' );
+const { default: EnableSeoEmptyState } = await import( '../enable-seo-empty-state' );
 
-describe( 'EnableSeoCard', () => {
+describe( 'EnableSeoEmptyState', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		useSeoToolsToggle.mockReturnValue( { isToggling: false, setActive } );
 	} );
 
-	it( 'renders the enable card', () => {
-		render( <EnableSeoCard screen="overview" /> );
+	it( 'renders the heading, the explanation and the enable button', () => {
+		render( <EnableSeoEmptyState screen="overview" /> );
 
-		// "Enable SEO tools" is both the card title and the button label.
+		// "Enable SEO tools" is both the heading and the button label.
+		expect( screen.getByRole( 'heading', { name: 'Enable SEO tools' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) ).toBeInTheDocument();
-		expect( screen.getByText( /SEO tools help your content get found/ ) ).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				'SEO tools help your content get found: customize titles and meta descriptions, generate a sitemap, verify your site with search engines, and control how pages look when shared. Turn it on to manage all of it from here.'
+			)
+		).toBeInTheDocument();
 	} );
 
 	it( 'calls setActive( true ) when the primary button is clicked', () => {
-		render( <EnableSeoCard screen="overview" /> );
+		render( <EnableSeoEmptyState screen="overview" /> );
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn) for a single click.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
@@ -37,7 +42,7 @@ describe( 'EnableSeoCard', () => {
 	} );
 
 	it( 'reports the screen it was rendered on, not always the Overview', () => {
-		render( <EnableSeoCard screen="geo" /> );
+		render( <EnableSeoEmptyState screen="geo" /> );
 
 		expect( useSeoToolsToggle ).toHaveBeenCalledWith( 'geo' );
 	} );
@@ -45,7 +50,7 @@ describe( 'EnableSeoCard', () => {
 	it( 'disables the button while toggling', () => {
 		useSeoToolsToggle.mockReturnValue( { isToggling: true, setActive } );
 
-		render( <EnableSeoCard screen="overview" /> );
+		render( <EnableSeoEmptyState screen="overview" /> );
 
 		expect( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) ).toHaveAttribute(
 			'aria-disabled',
