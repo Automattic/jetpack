@@ -45,14 +45,14 @@ describe( 'LoginProtectionCard', () => {
 		[ 'turned off since page load', {}, { protect: false }, false ],
 		[ 'turned on since page load', { bruteForce: off }, { protect: true }, true ],
 	] )(
-		'shows blocked logins only while brute force protection is %s',
+		'shows blocked logins only while login protection is %s',
 		( _name, state, settings, isOn ) => {
 			render( card( state, { settings } ) );
 
 			expect( screen.queryByText( '1,234' ) !== null ).toBe( isOn );
-			expect(
-				screen.queryByRole( 'switch', { name: 'Enable brute force protection' } ) === null
-			).toBe( isOn );
+			expect( screen.queryByRole( 'switch', { name: 'Enable login protection' } ) === null ).toBe(
+				isOn
+			);
 		}
 	);
 
@@ -66,7 +66,7 @@ describe( 'LoginProtectionCard', () => {
 	} );
 
 	it.each( [
-		[ 'Enable brute force protection', { bruteForce: off }, { protect: true } ],
+		[ 'Enable login protection', { bruteForce: off }, { protect: true } ],
 		[ 'Enable account protection', { accountProtection: off }, { 'account-protection': true } ],
 	] )( 'saves “%s” when it is switched on', async ( name, state, patch ) => {
 		const save = jest.fn();
@@ -78,7 +78,7 @@ describe( 'LoginProtectionCard', () => {
 	} );
 
 	it.each( [
-		[ 'Enable brute force protection', { bruteForce: unavailable }, 'Brute force protection' ],
+		[ 'Enable login protection', { bruteForce: unavailable }, 'Login protection' ],
 		[ 'Enable account protection', { accountProtection: unavailable }, 'Account protection' ],
 	] )( 'says why “%s” is disabled when unavailable', ( name, state, feature ) => {
 		render( card( state ) );
@@ -87,17 +87,15 @@ describe( 'LoginProtectionCard', () => {
 		expect( screen.getByText( `${ feature } isn’t available on this site.` ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps keyboard focus in the row when brute force protection turns on', async () => {
+	it( 'keeps keyboard focus in the row when login protection turns on', async () => {
 		const { rerender } = render( card( { bruteForce: off } ) );
 		await userEvent
 			.setup()
-			.click( screen.getByRole( 'switch', { name: 'Enable brute force protection' } ) );
+			.click( screen.getByRole( 'switch', { name: 'Enable login protection' } ) );
 
 		rerender( card( { bruteForce: off }, { settings: { protect: true } } ) );
 
-		expect(
-			screen.getByRole( 'link', { name: 'Configure brute force protection' } )
-		).toHaveFocus();
+		expect( screen.getByRole( 'link', { name: 'Configure login protection' } ) ).toHaveFocus();
 	} );
 
 	it.each( [
@@ -140,7 +138,7 @@ describe( 'LoginProtectionCard', () => {
 
 		await userEvent
 			.setup()
-			.click( screen.getByRole( 'link', { name: 'Configure brute force protection' } ) );
+			.click( screen.getByRole( 'link', { name: 'Configure login protection' } ) );
 
 		expect( openTab ).toHaveBeenCalledWith( 'settings', { section: 'loginProtection' } );
 	} );

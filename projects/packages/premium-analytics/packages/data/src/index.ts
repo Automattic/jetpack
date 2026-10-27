@@ -100,6 +100,12 @@ export {
 	type IntervalRange,
 } from './utils/periods';
 export {
+	isDashboardSectionAvailable,
+	isPostDetailAvailable,
+	POST_DETAIL_SECTION,
+	type DashboardSectionSlug,
+} from './utils/dashboard-sections';
+export {
 	getLockedFeature,
 	getLockedSection,
 	getLockedWidgetFeature,
@@ -107,6 +113,7 @@ export {
 	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export { getStatsCheckoutUrl } from './utils/stats-checkout-url';
 export {
 	applyStatsDatePolicy,
 	getPolicyDefaultPreset,

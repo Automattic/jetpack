@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "5.0.1",
+	"version": "6.0.0",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -52,6 +52,15 @@
 			"jetpack:src": "./components/jetpack-footer/index.tsx",
 			"types": "./build/components/jetpack-footer/index.d.ts",
 			"default": "./build/components/jetpack-footer/index.js"
+		},
+		"./jetpack-footer/style.scss": {
+			"jetpack:src": "./components/jetpack-footer/style.scss",
+			"default": "./build/components/jetpack-footer/style.scss"
+		},
+		"./jetpack-footer/unstyled": {
+			"jetpack:src": "./components/jetpack-footer/jetpack-footer.tsx",
+			"types": "./build/components/jetpack-footer/jetpack-footer.d.ts",
+			"default": "./build/components/jetpack-footer/jetpack-footer.js"
 		},
 		"./jetpack-logo": {
 			"jetpack:src": "./components/jetpack-logo/index.tsx",
@@ -140,7 +149,7 @@
 		"storybook": "10.6.3",
 		"ts-dedent": "2.2.0",
 		"typescript": "6.0.3",
-		"webpack": "5.111.1",
+		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
 	},
 	"peerDependencies": {
