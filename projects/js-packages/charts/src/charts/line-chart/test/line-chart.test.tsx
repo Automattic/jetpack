@@ -1743,12 +1743,20 @@ describe( 'LineChart', () => {
 					{ label: 'B', data: [ point( 2, 20 ) ] },
 				] );
 
-				const expected = [ 'A=1', 'B=20', 'A=3', 'A=3' ];
-				for ( const text of expected ) {
+				const expected = [
+					{ text: 'A=1', stop: 0 },
+					{ text: 'B=20', stop: 1 },
+					{ text: 'A=3', stop: 2 },
+					{ text: 'A=3', stop: 2 },
+				];
+				for ( const { text, stop } of expected ) {
 					await user.keyboard( '{ArrowRight}' );
-					await waitFor( () =>
-						expect( screen.getByTestId( 'rows-tooltip' ) ).toHaveTextContent( text )
-					);
+					await waitFor( () => {
+						expect( screen.getByTestId( `chart-tooltip-${ stop }` ) ).toBeInTheDocument();
+						expect( screen.getByTestId( 'rows-tooltip' ) ).toHaveTextContent(
+							new RegExp( `^${ text }$` )
+						);
+					} );
 				}
 			} );
 
