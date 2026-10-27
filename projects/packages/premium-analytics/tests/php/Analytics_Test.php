@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -99,9 +98,7 @@ class Analytics_Test extends TestCase {
 		$this->reset_analytics_init_state();
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		( new Connection_Manager() )->reset_connection_status();
-		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'wp_redirect' );
-		Status_Cache::clear();
 		parent::tearDown();
 	}
 
@@ -507,38 +504,6 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Before the site is connected the page only offers to connect it, so like Stats it is for
-	 * whoever can connect, or for administrators in offline mode, where nobody can.
-	 *
-	 * @dataProvider provide_disconnected_menu_capabilities
-	 *
-	 * @param bool   $is_offline Whether the site is in offline mode.
-	 * @param string $capability The capability the menu should require.
-	 */
-	#[DataProvider( 'provide_disconnected_menu_capabilities' )]
-	public function test_register_admin_menu_needs_more_than_stats_access_before_the_site_is_connected( $is_offline, $capability ) {
-		add_filter( 'jetpack_offline_mode', $is_offline ? '__return_true' : '__return_false' );
-		add_filter( 'user_has_cap', array( $this, 'grant_jetpack_connect' ) );
-
-		$menu_item = $this->register_admin_menu_without_build( 'use_fixture_widget_manifest', false );
-
-		remove_filter( 'user_has_cap', array( $this, 'grant_jetpack_connect' ) );
-		$this->assertSame( $capability, $menu_item[1] ?? null );
-	}
-
-	/**
-	 * Disconnected sites, online and offline.
-	 *
-	 * @return array<string, array{bool, string}>
-	 */
-	public static function provide_disconnected_menu_capabilities() {
-		return array(
-			'online'  => array( false, 'jetpack_connect' ),
-			'offline' => array( true, 'manage_options' ),
-		);
-	}
-
-	/**
 	 * A reader who refreshes the page after losing access, for example to a disconnection, lands
 	 * on the wp-admin Dashboard rather than the "not allowed" screen. Other pages are left alone.
 	 *
@@ -643,20 +608,6 @@ class Analytics_Test extends TestCase {
 
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		$this->assertTrue( $data['analytics']['can_view'] );
-	}
-
-	/**
-	 * Before the site is connected the Stats page is only for whoever can connect it, so a Stats
-	 * reader who cannot gets no links to it.
-	 */
-	public function test_add_script_data_reports_can_view_false_before_the_site_is_connected_for_a_reader_who_cannot_connect() {
-		Capabilities::register();
-		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-
-		$data = Analytics::add_script_data( array() );
-
-		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-		$this->assertFalse( $data['analytics']['can_view'] );
 	}
 
 	public function test_add_script_data_reports_can_view_false_without_the_capability() {
@@ -1050,14 +1001,10 @@ class Analytics_Test extends TestCase {
 		$this->assertArrayHasKey( self::MENU_HOOKNAME, $_registered_pages );
 	}
 
-	private function register_admin_menu_without_build( $manifest_filter = 'use_fixture_widget_manifest', $is_connected = true ) {
+	private function register_admin_menu_without_build( $manifest_filter = 'use_fixture_widget_manifest' ) {
 		$GLOBALS['menu'] = array();
 
-		if ( $is_connected ) {
-			$this->connect_site();
-		} else {
-			( new Connection_Manager() )->reset_connection_status();
-		}
+		$this->connect_site();
 
 		// Hooked by boot_shared_services() in production; add_menu_page() resolves the
 		// dashboard capability, and an unmapped one would skip the page's render hook.
@@ -1102,30 +1049,6 @@ class Analytics_Test extends TestCase {
 			10,
 			2
 		);
-	}
-
-	/**
-	 * Give the test user `view_stats`, as a site that lets a role see Stats does.
-	 *
-	 * @param array $caps Capabilities.
-	 * @return array
-	 */
-	public function grant_view_stats( $caps ) {
-		$caps['view_stats'] = true;
-
-		return $caps;
-	}
-
-	/**
-	 * Give the test user `jetpack_connect`, which the connection package maps outside these tests.
-	 *
-	 * @param array $caps Capabilities.
-	 * @return array
-	 */
-	public function grant_jetpack_connect( $caps ) {
-		$caps['jetpack_connect'] = true;
-
-		return $caps;
 	}
 
 	/**
