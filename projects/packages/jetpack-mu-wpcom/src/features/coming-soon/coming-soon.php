@@ -25,6 +25,9 @@ function should_show_coming_soon_page() {
 	if ( is_accessed_by_valid_share_link( $share_code ) ) {
 		track_preview_link_event();
 		setcookie( 'wp_share_code', $share_code, time() + 3600, '/', '', is_ssl(), true );
+		if ( (int) get_option( 'wpcom_public_coming_soon' ) === 1 ) {
+			add_action( 'wp_body_open', __NAMESPACE__ . '\render_share_link_banner' );
+		}
 		return false;
 	}
 
@@ -79,6 +82,36 @@ function is_accessed_by_valid_share_link( $share_code ) {
 	}
 
 	return true;
+}
+
+/**
+ * Mark a Coming Soon site seen through a share link as a preview, so it can't stand in for a launched site.
+ *
+ * The visitor can dismiss it for themselves; nobody can turn it off for everyone but by launching.
+ *
+ * @return void
+ */
+function render_share_link_banner() {
+	if ( isset( $_COOKIE['wpcom_share_link_banner_dismissed'] ) ) {
+		return;
+	}
+	$link = sprintf(
+		'<a href="%s" target="_blank" rel="noopener">%s</a>',
+		esc_url( 'https://wordpress.com/hosting/?utm_source=share_link_preview&utm_medium=referral&utm_campaign=preview_site_banner' ),
+		esc_html__( 'WordPress.com hosting ↗', 'jetpack-mu-wpcom' )
+	);
+	?>
+	<div id="wpcom-share-link-banner" class="wp-exclude-emoji" style="display:flex;align-items:center;gap:8px;padding:2px 32px;background:#3858e9;color:#fff;font:14px/1.4 -apple-system,system-ui,BlinkMacSystemFont,sans-serif;">
+		<p style="margin:14px 0;color:inherit;">
+			<?php
+			/* translators: %s: link to WordPress.com hosting. */
+			printf( esc_html__( 'This is a preview site, powered by %s', 'jetpack-mu-wpcom' ), $link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built and escaped above.
+			?>
+		</p>
+		<button type="button" aria-label="<?php esc_attr_e( 'Dismiss', 'jetpack-mu-wpcom' ); ?>" style="margin-left:auto;background:none;border:0;color:inherit;font-size:24px;line-height:1;cursor:pointer;" onclick="document.cookie='wpcom_share_link_banner_dismissed=1;path=/;max-age=31536000';this.parentNode.remove();">&times;</button>
+	</div>
+	<style>#wpcom-share-link-banner a{color:#fff;text-decoration:underline;text-underline-offset:4px}#wpcom-share-link-banner a:hover{text-decoration:none}</style>
+	<?php
 }
 
 /**
