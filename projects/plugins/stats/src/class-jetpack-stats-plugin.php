@@ -39,7 +39,9 @@ class Jetpack_Stats_Plugin {
 	 * Register hooks to initialize the plugin.
 	 */
 	public static function bootstrap() {
-		Classic_Stats::register_feature_flag();
+		if ( class_exists( Classic_Stats::class ) ) {
+			Classic_Stats::register_feature_flag();
+		}
 
 		add_action( 'plugins_loaded', array( self::class, 'configure_packages' ), 1 );
 		add_action( 'plugins_loaded', array( self::class, 'initialize_other_packages' ) );
@@ -82,7 +84,8 @@ class Jetpack_Stats_Plugin {
 		// Stats Admin package: the REST proxy to the WPCOM stats API used by the dashboard.
 		$config->ensure( 'stats_admin' );
 
-		if ( ! self::is_jetpack_plugin_active() && Enablement::is_enabled() ) {
+		// Another plugin may have loaded an older package without the shared rule.
+		if ( ! self::is_jetpack_plugin_active() && class_exists( Enablement::class ) && Enablement::is_enabled() ) {
 			Analytics::init();
 			Analytics_Dashboard::init();
 		}
@@ -113,7 +116,7 @@ class Jetpack_Stats_Plugin {
 
 		if ( ( new Connection_Manager() )->is_connected() ) {
 			// Once Stats v2 takes over, old `page=stats` links open it instead.
-			if ( ! Classic_Stats::is_retired() || ! Analytics::is_initialized() ) {
+			if ( ! method_exists( Analytics::class, 'is_initialized' ) || ! Analytics::is_initialized() || ! Classic_Stats::is_retired() ) {
 				Stats_Dashboard::init();
 			}
 			if ( ( new Modules() )->is_active( 'stats' ) ) {

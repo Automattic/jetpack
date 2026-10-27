@@ -935,7 +935,7 @@ class Jetpack {
 			return self::$premium_analytics_enabled;
 		}
 
-		// The fallback covers an older package, loaded ahead of ours, that predates the shared rule.
+		// The fallback covers an older package, loaded ahead of ours, that predates the shared rule and the retirement flag.
 		$enablement = 'Automattic\Jetpack\PremiumAnalytics\Enablement';
 		if ( method_exists( $enablement, 'is_enabled' ) ) {
 			$flag = $enablement::is_enabled();
@@ -945,7 +945,7 @@ class Jetpack {
 			/** This filter is documented in projects/packages/premium-analytics/src/class-enablement.php */
 			$flag = (bool) apply_filters(
 				'jetpack_premium_analytics_enabled',
-				Jetpack_Stats_Feature_Flags::is_classic_page_retired() || (bool) get_option( 'jetpack_premium_analytics_enabled' )
+				(bool) get_option( 'jetpack_premium_analytics_enabled' )
 			);
 		}
 
