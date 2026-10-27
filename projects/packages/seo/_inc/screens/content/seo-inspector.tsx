@@ -296,9 +296,6 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					/>
 				</Stack>
 			</Stack>
-			{ /* Pinned to the bottom of the sidebar while the fields scroll under it, so
-			     Save stays in reach however long the form is. Cancel on the left and the
-			     primary action on the right, like Jetpack Protect's threat details panel. */ }
 			<Stack
 				direction="row"
 				justify="space-between"
