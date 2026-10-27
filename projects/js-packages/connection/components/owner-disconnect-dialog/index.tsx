@@ -2,13 +2,14 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import restApi from '@automattic/jetpack-api';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
-import useRestApiInit from '../../hooks/use-rest-api-init';
+import { useCallback } from 'react';
+import { CONNECTION_EVENTS, trackConnectionEvent } from '../../helpers/connection-tracking.ts';
+import useUnlinkUser from '../../hooks/use-unlink-user';
 import DisconnectActionFooter from '../shared/disconnect-action-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
+import useConnection from '../use-connection';
 import './style.scss';
 import type { MouseEvent } from 'react';
 
@@ -21,12 +22,16 @@ interface OwnerDisconnectDialogProps {
 	apiRoot: string;
 	/** API nonce. */
 	apiNonce: string;
-	/** Callback after successful disconnection. */
-	onDisconnected?: () => void;
 	/** Callback after user is unlinked. */
 	onUnlinked?: () => void;
 	/** Opens the ownership transfer flow. Omit to hide that action. */
 	onTransferOwnership?: () => void;
+	/**
+	 * The context in which this component is being used, recorded with the dialog's events.
+	 * Deliberately undefined by default: a named fallback would attribute a caller that forgot
+	 * it to the wrong surface, where an absent one is findable in the data.
+	 */
+	context?: string;
 }
 
 /**
@@ -40,27 +45,29 @@ const OwnerDisconnectDialog = ( {
 	onClose,
 	apiRoot,
 	apiNonce,
-	onDisconnected,
 	onUnlinked,
 	onTransferOwnership,
+	context,
 }: OwnerDisconnectDialogProps ) => {
-	// Add state for disconnect status and error
-	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
-	const [ disconnectError, setDisconnectError ] = useState( '' );
+	const { isDisconnecting, error: disconnectError, unlink } = useUnlinkUser();
 
 	// Add these string constants
 	const disconnectingText = __( 'Disconnecting…', 'jetpack-connection-js' );
 	const disconnectText = __( 'Disconnect', 'jetpack-connection-js' );
 
-	// Initialize the REST API
-	useRestApiInit( apiRoot, apiNonce );
+	// The hook seeds the REST API singleton from these values, and reports offline mode,
+	// where WordPress.com cannot be reached to action the disconnect.
+	const { isOfflineMode } = useConnection( { apiRoot, apiNonce } );
 
 	const handleTransferClick = useCallback(
 		( e?: MouseEvent< HTMLElement > ) => {
 			e?.preventDefault();
+			trackConnectionEvent( CONNECTION_EVENTS.ownerTransferClick, context, {
+				location: 'owner_disconnect_dialog',
+			} );
 			onTransferOwnership?.();
 		},
-		[ onTransferOwnership ]
+		[ context, onTransferOwnership ]
 	);
 
 	const handleStayConnected = useCallback( () => {
@@ -68,55 +75,48 @@ const OwnerDisconnectDialog = ( {
 	}, [ onClose ] );
 
 	const handleDisconnectAnyway = useCallback( () => {
-		// Track disconnect click
 		jetpackAnalytics.tracks.recordEvent(
-			'jetpack_manage_connection_dialog_owner_disconnect_click'
+			'jetpack_manage_connection_dialog_owner_disconnect_click',
+			{ context }
 		);
 
-		setIsDisconnecting( true );
-		setDisconnectError( '' );
+		unlink( {
+			force: true,
+			disconnectAllUsers: true,
+			errorMessage: __(
+				'There was a problem disconnecting your account. Please try again.',
+				'jetpack-connection-js'
+			),
+		} ).then( succeeded => {
+			jetpackAnalytics.tracks.recordEvent(
+				succeeded
+					? 'jetpack_manage_connection_dialog_owner_disconnect_success'
+					: 'jetpack_manage_connection_dialog_owner_disconnect_error',
+				{ context }
+			);
 
-		// Disconnect owner with force and disconnect-all-users parameters
-		restApi
-			.unlinkUser( true, { disconnectAllUsers: true } )
-			.then( () => {
-				// Track successful disconnect
-				jetpackAnalytics.tracks.recordEvent(
-					'jetpack_manage_connection_dialog_owner_disconnect_success'
-				);
-				// Don't close modal or change state since page will reload
-				onDisconnected && onDisconnected();
+			if ( succeeded ) {
 				onUnlinked && onUnlinked();
-			} )
-			.catch( () => {
-				// Track failed disconnect
-				jetpackAnalytics.tracks.recordEvent(
-					'jetpack_manage_connection_dialog_owner_disconnect_error'
-				);
-				setDisconnectError(
-					__(
-						'There was a problem disconnecting your account. Please try again.',
-						'jetpack-connection-js'
-					)
-				);
-				setIsDisconnecting( false );
-			} );
-	}, [ onDisconnected, onUnlinked ] );
+			}
+		} );
+	}, [ context, onUnlinked, unlink ] );
 
 	return (
 		isOpen && (
 			<Modal
 				title=""
-				contentLabel={ __( 'Disconnect Owner Account', 'jetpack-connection-js' ) }
+				contentLabel={ __( 'Disconnect owner account', 'jetpack-connection-js' ) }
 				aria={ {
 					labelledby: 'jp-connection__owner-disconnect-dialog__heading',
 				} }
 				onRequestClose={ handleStayConnected }
+				shouldCloseOnEsc={ ! isDisconnecting }
+				shouldCloseOnClickOutside={ ! isDisconnecting }
 				className="jp-connection__disconnect-dialog"
 			>
 				<div className="jp-connection__disconnect-dialog__content">
 					<h1 id="jp-connection__owner-disconnect-dialog__heading">
-						{ __( 'Disconnect Owner Account', 'jetpack-connection-js' ) }
+						{ __( 'Disconnect owner account', 'jetpack-connection-js' ) }
 					</h1>
 					<p className="jp-connection__disconnect-dialog__large-text">
 						{ __(
@@ -129,14 +129,16 @@ const OwnerDisconnectDialog = ( {
 							title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
 							onClick={ handleTransferClick }
 							action="transfer"
+							disabled={ isDisconnecting }
 						/>
 					) }
 				</div>
 				<DisconnectActionFooter
 					stayLabel={ __( 'Stay connected', 'jetpack-connection-js' ) }
+					stayDisabled={ isDisconnecting }
 					onStay={ handleStayConnected }
 					disconnectLabel={ isDisconnecting ? disconnectingText : disconnectText }
-					disconnectDisabled={ isDisconnecting }
+					disconnectDisabled={ isDisconnecting || isOfflineMode }
 					onDisconnect={ handleDisconnectAnyway }
 					error={ disconnectError }
 				/>

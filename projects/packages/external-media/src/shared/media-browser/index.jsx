@@ -1,7 +1,8 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Spinner, Composite } from '@wordpress/components';
+import { Composite } from '@wordpress/components';
 import { useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Spinner, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import MediaBrowserSelectButton from './media-browser-select-button';
 import MediaItem from './media-item';
@@ -116,7 +117,9 @@ function MediaBrowser( {
 	}, [ pageHandle, isLoading, gridEl ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
-		<div
+		<Stack
+			direction="column"
+			align="start"
 			className={ clsx( {
 				'jetpack-external-media-browser': true,
 				[ className ]: true,
@@ -154,9 +157,9 @@ function MediaBrowser( {
 			) }
 
 			{ isLoading && (
-				<div className="jetpack-external-media-browser__loading">
+				<Stack align="center" justify="center" className="jetpack-external-media-browser__loading">
 					<Spinner />
-				</div>
+				</Stack>
 			) }
 
 			{ hasMediaItems && (
@@ -167,7 +170,7 @@ function MediaBrowser( {
 					onClick={ onCopyAndInsert }
 				/>
 			) }
-		</div>
+		</Stack>
 	);
 }
 

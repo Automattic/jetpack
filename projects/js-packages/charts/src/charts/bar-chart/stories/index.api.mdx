@@ -19,6 +19,7 @@ Main chart component with responsive behavior by default.
 | `height` | `number` | `400` | Chart height in pixels |
 | `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
+| `layout` | `'grouped' \| 'overlap'` | `'grouped'` | How series share a category. `overlap` draws every primary series in one slot and every `type: 'comparison'` series in a second, with each `group` a narrower, opaque bar in front of the one before it. See [overlap layout](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#overlap-layout). |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
 | `withBandHighlight` | `boolean` | `false` | Highlight the active band across the plot; requires tooltips. Uses the `--a8c-charts-color-surface-secondary` catalog role. |
 | `onBandHighlightChange` | `(selection: BandHighlightSelection \| null) => void` | - | Receive datum, series `key`, rendered point `index`, and `x`, `y`, `width`, `height` in SVG coordinates; requires tooltips, but not the built-in highlight. Emits initial selection on mount and null on dismissal or unmount. |
@@ -82,7 +83,7 @@ type SeriesData = {
 	group?: string;
 	options?: {
 		stroke?: string;
-		/** Render this series as a translucent "shadow" behind the primary bar in the same `group`. */
+		/** Render this series as a wider bar behind the primary bar in the same `group`. */
 		type?: 'comparison';
 	};
 };
@@ -90,22 +91,30 @@ type SeriesData = {
 
 ## Comparison Styling (theme)
 
-Comparison shadow bars are styled via the chart theme at `barChart.barStyles.comparison`:
+Comparison bars are styled via the chart theme at `barChart.barStyles.comparison`:
 
 | Key | Type | Default | Description |
 | --- | ---- | ------- | ----------- |
-| `widthFactor` | `number` | `1.5` | How much wider the comparison bar is than the primary. The comparison shadow is the standard slot width and the primary bar is narrowed to `1 / widthFactor` of the slot. |
-| `opacity` | `number` | `0.5` | Opacity of the comparison shadow bar. |
+| `widthFactor` | `number` | `1.5` | How much wider the comparison bar is than the primary. The comparison bar is the standard slot width and the primary bar is narrowed to `1 / widthFactor` of the slot. |
+| `opacity` | `number` | unset | **Deprecated.** Set, the comparison bar is drawn translucent in its primary's color instead of the opaque tones `BarChart` picks, and `BarChart` warns once in the console. |
 
 ```typescript
 <GlobalChartsProvider
 	theme={ {
-		barChart: { barStyles: { comparison: { widthFactor: 1.5, opacity: 0.5 } } },
+		barChart: { barStyles: { comparison: { widthFactor: 1.5 } } },
 	} }
 >
 	<BarChart data={ data } />
 </GlobalChartsProvider>
 ```
+
+Comparison styling applies to the `grouped` layout only. An `overlap` layout draws every bar opaque, at the thickness its layer sets.
+
+## Bar colors
+
+`useBarColors()` returns a function, `( series, { layout } ) => string[]`, that gives the color `BarChart` fills each series with in that layout, by index. Use it to color a custom tooltip's swatches.
+
+`useBarLegendItems( data, { layout, ...legendOptions }, legendShape? )` builds the legend items `BarChart` registers for its own and composition legends, for a custom legend. It takes the `useChartLegendItems` options plus `layout`. With a layout, every swatch takes its bar's color; in `overlap` the swatches are opaque and, without `collapseGroups`, the items are in slot order: every primary, then every comparison; in `grouped`, a collapsed group's swatch takes its comparison's tint. Without a layout, it returns `useChartLegendItems`' items unchanged.
 
 ## DataPointDate Type
 

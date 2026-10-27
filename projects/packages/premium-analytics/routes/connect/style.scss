@@ -1,3 +1,17 @@
-.jetpack-premium-analytics-connect-stage {
-	height: 100%;
+.jetpack-premium-analytics-connect-stage__content {
+	overflow-y: auto;
+}
+
+// The width and spacing the other Jetpack pricing pages give their table.
+.jetpack-premium-analytics-connect-stage__body {
+	box-sizing: border-box;
+	max-width: 1080px;
+	margin-block: 32px;
+	margin-inline: auto;
+	padding-block: 0 24px;
+	padding-inline: 24px;
+}
+
+.jetpack-premium-analytics-connect-stage__notice {
+	margin-block-end: var(--wpds-dimension-gap-xl);
 }

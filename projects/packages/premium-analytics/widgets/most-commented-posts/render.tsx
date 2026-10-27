@@ -6,17 +6,15 @@ import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	describeError,
 	sharePercentage,
-	ExporterCsvDownloadButton,
 	commentsPostsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -64,6 +62,14 @@ function MostCommentedPostsInner() {
 		} ) );
 	}, [ rows ] );
 
+	useReportActions( {
+		csv: {
+			exporter: commentsPostsCsvExporter,
+			status: { isLoading, isFetching, isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
 		<Stack className={ styles.root }>
 			<div className={ styles.content }>
@@ -100,18 +106,6 @@ function MostCommentedPostsInner() {
 					/>
 				</WidgetState>
 			</div>
-			<WidgetFooter>
-				<ReportLink
-					report="comments"
-					section="posts"
-					ariaLabel={ __( 'See the commented posts report', 'jetpack-premium-analytics-pkg' ) }
-				/>
-				<ExporterCsvDownloadButton
-					exporter={ commentsPostsCsvExporter }
-					status={ { isLoading, isFetching, isError } }
-					rowCount={ rows.length }
-				/>
-			</WidgetFooter>
 		</Stack>
 	);
 }
