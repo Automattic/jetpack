@@ -27,8 +27,10 @@ jest.unstable_mockModule( '../author-profile-card', () => ( {
 jest.unstable_mockModule( '../schema-card', () => ( {
 	default: () => <div>schema</div>,
 } ) );
+// Records its props so the wiring into it (the live title format) can be checked.
+const SocialPreviewsCard = jest.fn( () => <div>social previews</div> );
 jest.unstable_mockModule( '../social-previews-card', () => ( {
-	default: () => <div>social previews</div>,
+	default: SocialPreviewsCard,
 } ) );
 jest.unstable_mockModule( '../title-structure-field', () => ( {
 	default: () => <div>title structure</div>,
@@ -556,5 +558,37 @@ describe( 'Settings module text hierarchy', () => {
 		// `body-md` is also `Text`'s default, so the class alone would still pass if the
 		// `variant` prop were deleted outright. The `<p>` pins that it's a real paragraph.
 		expect( description.tagName ).toBe( 'P' );
+	} );
+} );
+
+describe( 'Search & social previews', () => {
+	// The Google preview shows the home page's document title, so it is fed the
+	// Front page format being edited in Title structure, not only the saved one.
+	it( 'passes the Front page title format and the separator to the previews', () => {
+		const frontPage = [
+			{ type: 'token', value: 'site_name' },
+			{ type: 'string', value: ' | ' },
+			{ type: 'token', value: 'tagline' },
+		] as SettingsResponse[ 'title_formats' ][ string ];
+
+		render(
+			<SettingsScreen
+				form={ buildForm( { title_formats: { front_page: frontPage }, title_separator: '–' } ) }
+			/>
+		);
+
+		expect( SocialPreviewsCard ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { frontPageTitleFormat: frontPage, titleSeparator: '–' } ),
+			undefined
+		);
+	} );
+
+	it( 'passes an empty format when the Front page keeps the default title', () => {
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( SocialPreviewsCard ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { frontPageTitleFormat: [] } ),
+			undefined
+		);
 	} );
 } );

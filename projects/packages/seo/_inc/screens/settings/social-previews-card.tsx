@@ -5,8 +5,10 @@ import { search } from '@wordpress/icons';
 import { Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import getSite from '../../data/get-site';
+import { buildDefaultPreview, buildPreview } from '../../data/title-format-tokens';
 import styles from './social-previews-card.module.scss';
 import type { SiteData } from '../../data/get-site';
+import type { TitleFormatToken } from '../../data/settings-types';
 import type { FC } from 'react';
 
 interface PreviewProps {
@@ -59,8 +61,22 @@ const XIcon: FC = () => (
 	</svg>
 );
 
+/**
+ * The home page's document title, which is what Google shows as the result's
+ * title: the Front page format from Title structure, or the title WordPress
+ * composes when that format is untouched (site name, separator, tagline). The
+ * front page only allows the site name and tagline, so both are filled with the
+ * site's real values and the preview never shows sample text.
+ */
+function frontPageTitle( site: SiteData, format: TitleFormatToken[], separator: string ): string {
+	const values = { site_name: site.title, tagline: site.tagline };
+	return format.length > 0
+		? buildPreview( format, values )
+		: buildDefaultPreview( 'front_page', separator, values );
+}
+
 /** How the home page appears as a Google search result. */
-const GooglePreview: FC< PreviewProps > = ( { site, description } ) => (
+const GooglePreview: FC< PreviewProps & { title: string } > = ( { site, title, description } ) => (
 	<Stack direction="column" gap="xs" className={ `${ styles.preview } ${ styles.google }` }>
 		<Stack direction="row" align="center" gap="sm">
 			{ site.icon && <img className={ styles.favicon } src={ site.icon } alt="" /> }
@@ -69,7 +85,7 @@ const GooglePreview: FC< PreviewProps > = ( { site, description } ) => (
 			</Text>
 		</Stack>
 		<Text variant="body-xl" className={ styles.googleTitle }>
-			{ site.title }
+			{ title }
 		</Text>
 		{ description && (
 			<Text variant="body-md" className={ styles.muted }>
@@ -106,30 +122,48 @@ const LinkCardPreview: FC< PreviewProps > = ( { site, description } ) => (
 interface Props {
 	/** The front-page meta description, from the Settings form (updates live). */
 	description: string;
+	/**
+	 * The Front page title format from Title structure, from the Settings form
+	 * (updates live). Empty when the site keeps WordPress's default title.
+	 */
+	frontPageTitleFormat: TitleFormatToken[];
+	/** The site's document-title separator, for the default front-page title. */
+	titleSeparator: string;
 }
 
 /**
  * Read-only preview of how the site's home page appears in Google search
  * results and when shared on Facebook/X. Driven by the bootstrapped site
- * identity plus the live front-page description from the Settings form, so the
- * preview tracks edits without a save. Renders nothing if site data is missing.
+ * identity plus the live front-page description and Front page title format
+ * from the Settings form, so the preview tracks edits without a save. Renders
+ * nothing if site data is missing.
+ *
+ * Only the Google title follows the title format: it is the page's document
+ * title. Facebook and X show the Open Graph title, which is the site name.
  *
  * The cards are simple in-house markup rather than the `@automattic/social-previews`
  * library: that library is built for the editor/webpack and misbehaves in this
  * page's wp-build environment (broken styles and, more seriously, it destabilized
  * the page's data loading). See the PR description for the full rationale.
  *
- * @param props             - Component props.
- * @param props.description - The current front-page description.
+ * @param props                      - Component props.
+ * @param props.description          - The current front-page description.
+ * @param props.frontPageTitleFormat - The current Front page title format.
+ * @param props.titleSeparator       - The site's document-title separator.
  * @return The search/social previews card, or null.
  */
-const SocialPreviewsCard: FC< Props > = ( { description } ) => {
+const SocialPreviewsCard: FC< Props > = ( {
+	description,
+	frontPageTitleFormat,
+	titleSeparator,
+} ) => {
 	const site = getSite();
 
 	if ( ! site ) {
 		return null;
 	}
 	const previewDescription = description || site.tagline;
+	const googleTitle = frontPageTitle( site, frontPageTitleFormat, titleSeparator );
 
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
@@ -159,7 +193,11 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 									{ __( 'Google search result', 'jetpack-seo' ) }
 								</Stack>
 							</Text>
-							<GooglePreview site={ site } description={ previewDescription } />
+							<GooglePreview
+								site={ site }
+								title={ googleTitle }
+								description={ previewDescription }
+							/>
 						</Stack>
 						<Stack direction="column" gap="md">
 							<Text variant="heading-lg" render={ <h3 /> }>
