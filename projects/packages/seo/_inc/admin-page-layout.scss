@@ -128,3 +128,10 @@ body.toplevel_page_jetpack-seo {
 	align-items: center;
 	justify-content: center;
 }
+
+// With the tabs shown (plan-gated Settings, see `SeoDisabledStage`) the content
+// div sits inside `Tabs.Root`, which is sized to its content. Let it grow so
+// the message centers in the space under the tab strip.
+.jetpack-seo-tabs:has(.jetpack-seo-page-content--centered) {
+	flex-grow: 1;
+}

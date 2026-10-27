@@ -1,4 +1,5 @@
 import DashboardPage from '../dashboard/dashboard-page';
+import { isGated } from '../data/is-gated';
 import EnableSeoEmptyState from './enable-seo-empty-state';
 import type { SeoTab } from '../dashboard/dashboard-nav';
 import type { FC } from 'react';
@@ -11,6 +12,10 @@ import type { FC } from 'react';
  * `Initializer::init()`), so they'd be editable-but-dead; hiding the tab bar
  * keeps the page from offering tabs that all lead to this same message.
  *
+ * Plan-gated sites keep the tabs: their reduced Overview stays up with the
+ * module off (see the Overview route stage), so this stage, reached there only
+ * from Settings, needs the tab bar to lead back to it.
+ *
  * Enabling SEO tools reloads the page (see `useSeoToolsToggle`), bringing the
  * full surface online.
  *
@@ -19,7 +24,7 @@ import type { FC } from 'react';
  * @return The module-off stage for the given tab.
  */
 const SeoDisabledStage: FC< { active: SeoTab } > = ( { active } ) => (
-	<DashboardPage active={ active } showTabs={ false } centered>
+	<DashboardPage active={ active } showTabs={ isGated() } centered>
 		<EnableSeoEmptyState screen={ active } />
 	</DashboardPage>
 );

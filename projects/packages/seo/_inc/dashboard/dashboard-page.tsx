@@ -24,7 +24,8 @@ interface Props {
 	flush?: boolean;
 	/**
 	 * Whether to render the tab bar. The module-off stage hides it, since every
-	 * tab would show the same enable prompt. Defaults to `true`.
+	 * tab would show the same enable prompt (except on plan-gated sites, see
+	 * `SeoDisabledStage`). Defaults to `true`.
 	 */
 	showTabs?: boolean;
 	/**

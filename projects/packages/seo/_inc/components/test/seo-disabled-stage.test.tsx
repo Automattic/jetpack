@@ -33,9 +33,13 @@ const DashboardPage = jest.fn(
 const EnableSeoEmptyState = jest.fn( ( { screen: tab }: { screen: string } ) => (
 	<div data-testid="enable-seo-empty-state" data-screen={ tab } />
 ) );
+const isGated = jest.fn< () => boolean >();
 
 jest.unstable_mockModule( '../../dashboard/dashboard-page', () => ( {
 	default: DashboardPage,
+} ) );
+jest.unstable_mockModule( '../../data/is-gated', () => ( {
+	isGated,
 } ) );
 jest.unstable_mockModule( '../enable-seo-empty-state', () => ( {
 	default: EnableSeoEmptyState,
@@ -46,6 +50,7 @@ const { default: SeoDisabledStage } = await import( '../seo-disabled-stage' );
 describe( 'SeoDisabledStage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		isGated.mockReturnValue( false );
 	} );
 
 	it( 'renders the enable prompt inside the dashboard chrome', () => {
@@ -59,6 +64,18 @@ describe( 'SeoDisabledStage', () => {
 
 		const page = screen.getByTestId( 'dashboard-page' );
 		expect( page ).toHaveAttribute( 'data-show-tabs', 'false' );
+		expect( page ).toHaveAttribute( 'data-centered', 'true' );
+	} );
+
+	// Gated sites keep their Overview with the module off, so Settings must keep a
+	// way back to it.
+	it( 'keeps the tabs on plan-gated sites', () => {
+		isGated.mockReturnValue( true );
+
+		render( <SeoDisabledStage active="settings" /> );
+
+		const page = screen.getByTestId( 'dashboard-page' );
+		expect( page ).toHaveAttribute( 'data-show-tabs', 'true' );
 		expect( page ).toHaveAttribute( 'data-centered', 'true' );
 	} );
 
