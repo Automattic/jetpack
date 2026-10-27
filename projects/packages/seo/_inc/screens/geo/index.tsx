@@ -1,8 +1,8 @@
 import { Button, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { commentContent, details, key, page } from '@wordpress/icons';
-import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
+import { Badge, Card, CollapsibleCard, Link, Notice, Stack, Tooltip } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import './style.scss';
 import type { AiCrawler } from '../../data/geo-types';
@@ -40,6 +40,10 @@ const allowedLabel = __( 'Allowed', 'jetpack-seo' );
 const blockedLabel = __( 'Blocked', 'jetpack-seo' );
 const partlyBlockedLabel = __( 'Partly blocked', 'jetpack-seo' );
 const crawlerAccessTitle = __( 'AI crawler access', 'jetpack-seo' );
+const managedByPrivacyTooltip = __(
+	'Set by your privacy settings while third-party sharing is turned off.',
+	'jetpack-seo'
+);
 
 /**
  * The card that stands in for the crawler groups when site-level controls can't
@@ -65,51 +69,72 @@ const CrawlerAccessCard: FC< { children: ReactNode } > = ( { children } ) => (
 );
 
 /**
- * Whether the owner blocked a crawler. Every other crawler is allowed.
+ * Explains a disabled toggle on hover when another setting decides its state.
  *
- * @param crawler   - The crawler to resolve.
- * @param overrides - The override map (`slug => blocked`).
- * @return Whether the crawler is blocked.
+ * @param props          - Component props.
+ * @param props.reason   - Why the toggle is locked; renders the toggle alone when absent.
+ * @param props.children - The toggle.
+ * @return The toggle, wrapped in a tooltip when locked.
  */
-const isCrawlerBlocked = ( crawler: AiCrawler, overrides: Record< string, boolean > ): boolean =>
-	overrides[ crawler.slug ] === true;
+const LockedTooltip: FC< { reason?: string; children: ReactNode } > = ( { reason, children } ) => {
+	if ( ! reason ) {
+		return <>{ children }</>;
+	}
+	// A div trigger, because a disabled input gets no hover events of its own.
+	return (
+		<Tooltip.Root>
+			<Tooltip.Trigger render={ <div /> }>{ children }</Tooltip.Trigger>
+			<Tooltip.Popup>{ reason }</Tooltip.Popup>
+		</Tooltip.Root>
+	);
+};
 
 interface CrawlerToggleProps {
 	crawler: AiCrawler;
 	blocked: boolean;
 	disabled: boolean;
+	lockedReason?: string;
 	onToggle: ( slug: string, blocked: boolean ) => void;
 }
 
 /**
- * A single "allow this crawler" toggle. Extracted so its change handler is a
- * stable callback (bound to the crawler's slug) rather than an inline arrow.
- * Toggling the switch *on* means "allow" (blocked = false).
+ * A single "Block this crawler" toggle: on means blocked. Extracted so its change
+ * handler is a stable callback bound to the crawler's slug.
  *
- * @param props          - Component props.
- * @param props.crawler  - The crawler this row represents.
- * @param props.blocked  - Whether the crawler is currently blocked.
- * @param props.disabled - Whether the toggle is disabled (mid-save).
- * @param props.onToggle - Called with `(slug, blocked)` on change.
+ * @param props              - Component props.
+ * @param props.crawler      - The crawler this row represents.
+ * @param props.blocked      - Whether the crawler is currently blocked.
+ * @param props.disabled     - Whether the toggle is disabled.
+ * @param props.lockedReason - Tooltip text when another setting decides the state.
+ * @param props.onToggle     - Called with `(slug, blocked)` on change.
  * @return The crawler toggle.
  */
-const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, onToggle } ) => {
+const CrawlerToggle: FC< CrawlerToggleProps > = ( {
+	crawler,
+	blocked,
+	disabled,
+	lockedReason,
+	onToggle,
+} ) => {
 	const handleChange = useCallback(
-		( allowed: boolean ) => onToggle( crawler.slug, ! allowed ),
+		( next: boolean ) => onToggle( crawler.slug, next ),
 		[ crawler.slug, onToggle ]
 	);
 
 	return (
-		<ToggleControl
-			label={ crawler.label }
-			// Module-scope labels (see top of file) so the production minifier can't
-			// fold `cond ? __() : __()` and break i18n extraction.
-			help={ blocked ? blockedLabel : allowedLabel }
-			checked={ ! blocked }
-			onChange={ handleChange }
-			disabled={ disabled }
-			__nextHasNoMarginBottom
-		/>
+		<LockedTooltip reason={ lockedReason }>
+			<ToggleControl
+				label={ sprintf(
+					/* translators: %s: AI crawler name, e.g. "ChatGPT (GPTBot)". */
+					__( 'Block %s', 'jetpack-seo' ),
+					crawler.label
+				) }
+				checked={ blocked }
+				onChange={ handleChange }
+				disabled={ disabled }
+				__nextHasNoMarginBottom
+			/>
+		</LockedTooltip>
 	);
 };
 
@@ -120,8 +145,11 @@ interface CrawlerSectionProps {
 	intro: string;
 	crawlers: AiCrawler[];
 	type: AiCrawler[ 'type' ];
-	overrides: Record< string, boolean >;
+	/** The slugs blocked right now. */
+	blockedSlugs: string[];
 	disabled: boolean;
+	/** Tooltip text for the disabled toggles when another setting decides their state. */
+	lockedReason?: string;
 	onToggle: ( slug: string, blocked: boolean ) => void;
 	onToggleAll: ( type: AiCrawler[ 'type' ], blocked: boolean ) => void;
 	/** The site's `/robots.txt` URL, linked under the description. */
@@ -132,8 +160,8 @@ interface CrawlerSectionProps {
 
 /**
  * A collapsible card listing one group of crawler toggles (answer engines or
- * training crawlers) with a one-line explanation of what the group does and an
- * "Allow all" master toggle for the group. Collapsed by default — the AI-crawler
+ * training crawlers) with a one-line explanation of what the group does and a
+ * "Block all" master toggle for the group. Collapsed by default — the AI-crawler
  * controls sit at the bottom of the tab and most people won't need to open them.
  *
  * @param props              - Component props.
@@ -142,10 +170,11 @@ interface CrawlerSectionProps {
  * @param props.intro        - One-line description of the group's purpose.
  * @param props.crawlers     - The crawlers in this group.
  * @param props.type         - The crawler group's type.
- * @param props.overrides    - The sparse override map (`slug => blocked`).
- * @param props.disabled     - Whether toggles are disabled (mid-save).
+ * @param props.blockedSlugs - The slugs blocked right now.
+ * @param props.disabled     - Whether toggles are disabled.
+ * @param props.lockedReason - Tooltip text when another setting decides the toggles' state.
  * @param props.onToggle     - Called with `(slug, blocked)` on a single toggle.
- * @param props.onToggleAll  - Called with `(type, blocked)` on the "Allow all" toggle.
+ * @param props.onToggleAll  - Called with `(type, blocked)` on the "Block all" toggle.
  * @param props.robotsTxtUrl - The site's `/robots.txt` URL, linked under the description.
  * @param props.notice       - Optional message shown at the top of the module.
  * @return The section card.
@@ -156,16 +185,18 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 	intro,
 	crawlers,
 	type,
-	overrides,
+	blockedSlugs,
 	disabled,
+	lockedReason,
 	onToggle,
 	onToggleAll,
 	robotsTxtUrl,
 	notice,
 } ) => {
-	// "Allow all" is on only when every crawler in the group is allowed; toggling
+	// "Block all" is on only when every crawler in the group is blocked; toggling
 	// it writes the whole group in one save (see `setCrawlerGroupBlocked`).
-	const blockedCount = crawlers.filter( crawler => isCrawlerBlocked( crawler, overrides ) ).length;
+	const isBlocked = ( crawler: AiCrawler ) => blockedSlugs.includes( crawler.slug );
+	const blockedCount = crawlers.filter( isBlocked ).length;
 	const allAllowed = blockedCount === 0;
 	const allBlocked = crawlers.length > 0 && blockedCount === crawlers.length;
 
@@ -190,9 +221,8 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 	}
 
 	// Extracted (not an inline arrow) for a stable callback, matching CrawlerToggle.
-	// Switching "Allow all" *on* means "allow the whole group" (blocked = false).
 	const handleToggleAll = useCallback(
-		( allowed: boolean ) => onToggleAll( type, ! allowed ),
+		( next: boolean ) => onToggleAll( type, next ),
 		[ type, onToggleAll ]
 	);
 
@@ -208,23 +238,19 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 					<Card.Title>
 						<CardTitleIcon icon={ icon } title={ title } />
 					</Card.Title>
-					{ /* The status tag reflects the toggle state; hide it when the toggles
-					   are governed elsewhere (the notice explains the state instead).
-					   `HeaderDescription` renders it visibly but marks it `aria-hidden` and
-					   wires `aria-describedby` on the trigger, so the state is announced as
-					   a description instead of becoming part of the button's name — the
-					   header wraps all its children in the trigger. */ }
-					{ ! notice && (
-						<CollapsibleCard.HeaderDescription>
-							<Badge intent={ statusIntent }>{ statusLabel }</Badge>
-						</CollapsibleCard.HeaderDescription>
-					) }
+					{ /* `HeaderDescription` renders the status tag visibly but marks it
+					   `aria-hidden` and wires `aria-describedby` on the trigger, so the state
+					   is announced as a description instead of becoming part of the button's
+					   name — the header wraps all its children in the trigger. */ }
+					<CollapsibleCard.HeaderDescription>
+						<Badge intent={ statusIntent }>{ statusLabel }</Badge>
+					</CollapsibleCard.HeaderDescription>
 				</Stack>
 			</CollapsibleCard.Header>
 			{ notice }
 			<CollapsibleCard.Content>
 				{ /* `lg` gap between the description group and the controls group gives the
-				   "View your robots.txt" link room above the "Allow all" toggle; the controls
+				   "View your robots.txt" link room above the "Block all" toggle; the controls
 				   keep their own tighter `md` rhythm in the nested Stack. */ }
 				<Stack direction="column" gap="lg">
 					<Stack direction="column" gap="xs">
@@ -240,20 +266,23 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 					</Stack>
 					<Stack direction="column" gap="md">
 						<div className="jetpack-seo-geo__crawler-bulk">
-							<ToggleControl
-								label={ __( 'Allow all', 'jetpack-seo' ) }
-								checked={ allAllowed }
-								onChange={ handleToggleAll }
-								disabled={ disabled }
-								__nextHasNoMarginBottom
-							/>
+							<LockedTooltip reason={ lockedReason }>
+								<ToggleControl
+									label={ __( 'Block all', 'jetpack-seo' ) }
+									checked={ allBlocked }
+									onChange={ handleToggleAll }
+									disabled={ disabled }
+									__nextHasNoMarginBottom
+								/>
+							</LockedTooltip>
 						</div>
 						{ crawlers.map( crawler => (
 							<CrawlerToggle
 								key={ crawler.slug }
 								crawler={ crawler }
-								blocked={ isCrawlerBlocked( crawler, overrides ) }
+								blocked={ isBlocked( crawler ) }
 								disabled={ disabled }
+								lockedReason={ lockedReason }
 								onToggle={ onToggle }
 							/>
 						) ) }
@@ -389,13 +418,13 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 		const answerCrawlers = crawlers.catalog.filter( crawler => crawler.type === 'answer' );
 		const trainingCrawlers = crawlers.catalog.filter( crawler => crawler.type === 'training' );
 
-		// WordPress.com's "Prevent third-party sharing" (Reading settings) is a
-		// distinct privacy control that already governs whether AI partners may use
-		// this site. While it's on, we let that setting rule: the modules stay
-		// visible so the user can see what's here, but the toggles are disabled and
-		// each explains why, with a link to the setting. Only reachable on
-		// WordPress.com — the option doesn't exist on self-hosted.
+		// WordPress.com's "Prevent third-party sharing" wins over these toggles (see
+		// `Ai_Crawlers::get_blocked_slugs()`), so they show its list, disabled.
 		const managedByPrivacySetting = crawlers.dataSharingOptOut;
+		const blockedSlugs = managedByPrivacySetting
+			? crawlers.dataSharingBlocked
+			: Object.keys( crawlers.overrides );
+		const lockedReason = managedByPrivacySetting ? managedByPrivacyTooltip : undefined;
 		const privacyNotice = managedByPrivacySetting ? (
 			<Notice.Root intent="info" className="jetpack-seo-geo__crawler-notice">
 				<Notice.Description>
@@ -416,13 +445,14 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 					title={ __( 'Answer engines', 'jetpack-seo' ) }
 					icon={ commentContent }
 					intro={ __(
-						'These crawlers fetch your pages so AI assistants can cite you in their answers. Keep them allowed to stay visible in tools like ChatGPT, Perplexity, and Claude.',
+						'These crawlers fetch your pages so AI assistants like ChatGPT, Perplexity, and Claude can cite you in their answers. Blocking them can keep your site out of those answers.',
 						'jetpack-seo'
 					) }
 					crawlers={ answerCrawlers }
 					type="answer"
-					overrides={ crawlers.overrides }
+					blockedSlugs={ blockedSlugs }
 					disabled={ isSaving || managedByPrivacySetting }
+					lockedReason={ lockedReason }
 					onToggle={ setCrawlerBlocked }
 					onToggleAll={ setCrawlerGroupBlocked }
 					robotsTxtUrl={ crawlers.robotsTxtUrl }
@@ -432,13 +462,14 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 					title={ __( 'Training crawlers', 'jetpack-seo' ) }
 					icon={ details }
 					intro={ __(
-						'These crawlers use your content to train AI models. Some — like Google Gemini — also power the AI answers shown above search results, so blocking them protects privacy but can cost you that visibility.',
+						"These crawlers collect your content to train AI models. Blocking them doesn't change how your site appears in search results, including Google's AI Overviews. Blocking Google-Extended can also keep your content out of Gemini app answers.",
 						'jetpack-seo'
 					) }
 					crawlers={ trainingCrawlers }
 					type="training"
-					overrides={ crawlers.overrides }
+					blockedSlugs={ blockedSlugs }
 					disabled={ isSaving || managedByPrivacySetting }
+					lockedReason={ lockedReason }
 					onToggle={ setCrawlerBlocked }
 					onToggleAll={ setCrawlerGroupBlocked }
 					robotsTxtUrl={ crawlers.robotsTxtUrl }

@@ -52,6 +52,8 @@ export interface GeoState {
 		staticRobotsTxt: boolean;
 		/** Whether WordPress.com's site-wide data-sharing opt-out overrides per-bot settings. */
 		dataSharingOptOut: boolean;
+		/** The crawler slugs that opt-out blocks while it's on. */
+		dataSharingBlocked: string[];
 		/** Whether the network shares one origin-level robots.txt across path-based sites. */
 		pathBasedMultisite: boolean;
 		/** URL of the "Prevent third-party sharing" setting, linked when it governs crawler access. */

@@ -55,8 +55,7 @@ class Ai_Crawlers {
 	 * `slug` is the stable key persisted in the override map and sent by the AI
 	 * tab; `user_agent` is the token written to the `User-agent:` robots line;
 	 * `label` is the human name shown in the UI; `type` is `answer` (fetches to
-	 * cite in live AI answers) or `training` (collects to train models; some, like
-	 * Google Gemini, also ground AI answers but are filed here).
+	 * cite in live AI answers) or `training` (collects to train models).
 	 *
 	 * @return array<string, array<string, string>>
 	 */
@@ -88,8 +87,9 @@ class Ai_Crawlers {
 				'user_agent' => 'Amzn-SearchBot',
 				'type'       => 'answer',
 			),
-			// Training crawlers collect content to train AI models. Some (e.g. Google
-			// Gemini) are also used to ground live AI answers.
+			// Training crawlers collect content to train AI models. Blocking them doesn't
+			// affect search results or Google's AI Overviews. Google-Extended also covers
+			// Gemini app answers.
 			'gptbot'             => array(
 				'label'      => __( 'ChatGPT (GPTBot)', 'jetpack-seo' ),
 				'user_agent' => 'GPTBot',
@@ -149,28 +149,24 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * Whether the existing data-sharing policy forces a catalog bot to be blocked.
+	 * The catalog slugs WordPress.com's data-sharing opt-out blocks while it's on.
 	 *
-	 * @param string $slug Catalog slug.
-	 * @return bool
+	 * Mirrors the user-agent list in jetpack-mu-wpcom's blog-privacy `robots_txt` filter.
+	 *
+	 * @return string[]
 	 */
-	private static function is_blocked_by_data_sharing_policy( $slug ) {
-		return self::has_data_sharing_opt_out()
-			&& in_array(
-				$slug,
-				array(
-					'amazonbot',
-					'applebot-extended',
-					'bytespider',
-					'ccbot',
-					'claudebot',
-					'google-extended',
-					'gptbot',
-					'meta-externalagent',
-					'perplexitybot',
-				),
-				true
-			);
+	public static function get_data_sharing_blocked_slugs() {
+		return array(
+			'amazonbot',
+			'applebot-extended',
+			'bytespider',
+			'ccbot',
+			'claudebot',
+			'google-extended',
+			'gptbot',
+			'meta-externalagent',
+			'perplexitybot',
+		);
 	}
 
 	/**
@@ -203,25 +199,21 @@ class Ai_Crawlers {
 	 * @return bool
 	 */
 	public static function is_blocked( $slug ) {
-		return self::is_blocked_by_data_sharing_policy( $slug ) || isset( self::get_overrides()[ $slug ] );
+		return in_array( $slug, self::get_blocked_slugs(), true );
 	}
 
 	/**
-	 * The catalog slugs currently blocked.
+	 * The catalog slugs currently blocked. While WordPress.com's data-sharing opt-out
+	 * is on, its list replaces the owner's choices, as it does in robots.txt.
 	 *
 	 * @return string[]
 	 */
 	public static function get_blocked_slugs() {
-		// Read the option once rather than calling is_blocked() per slug, which would
-		// re-read it and rebuild the catalog on every robots.txt render.
-		$overrides = self::get_overrides();
-		$blocked   = array();
-		foreach ( array_keys( self::get_catalog() ) as $slug ) {
-			if ( self::is_blocked_by_data_sharing_policy( $slug ) || isset( $overrides[ $slug ] ) ) {
-				$blocked[] = $slug;
-			}
+		if ( self::has_data_sharing_opt_out() ) {
+			return self::get_data_sharing_blocked_slugs();
 		}
-		return $blocked;
+		// Catalog order, so robots.txt lists blocked crawlers the same way every time.
+		return array_keys( array_intersect_key( self::get_catalog(), self::get_overrides() ) );
 	}
 
 	/**
@@ -309,8 +301,8 @@ class Ai_Crawlers {
 
 	/**
 	 * The GEO tab's crawler bootstrap payload: the catalog (camelCased for JS), the
-	 * current sparse override map, and the environment flags that decide whether
-	 * the controls render or are replaced by an explanation.
+	 * crawlers the owner blocked, the crawlers the data-sharing opt-out blocks, and the
+	 * environment flags that decide whether the controls render or are replaced by an explanation.
 	 *
 	 * @return array
 	 */
@@ -332,6 +324,7 @@ class Ai_Crawlers {
 			'restrictedSubdomain'  => self::is_crawl_restricted_subdomain(),
 			'staticRobotsTxt'      => self::has_static_robots_txt(),
 			'dataSharingOptOut'    => self::has_data_sharing_opt_out(),
+			'dataSharingBlocked'   => self::get_data_sharing_blocked_slugs(),
 			'pathBasedMultisite'   => self::is_path_based_multisite(),
 			'privacySettingsUrl'   => self::privacy_settings_url(),
 			'robotsTxtUrl'         => home_url( '/robots.txt' ),

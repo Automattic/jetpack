@@ -150,26 +150,21 @@ class AiCrawlersTest extends TestCase {
 	}
 
 	/**
-	 * WordPress.com's existing data-sharing opt-out wins over per-bot allows.
+	 * WordPress.com's data-sharing opt-out replaces the owner's choices.
 	 *
 	 * @return void
 	 */
-	public function test_data_sharing_opt_out_forces_legacy_blocks() {
+	public function test_data_sharing_opt_out_replaces_owner_choices() {
 		update_option( 'wpcom_data_sharing_opt_out', true );
-		update_option(
-			Ai_Crawlers::OPTION,
-			array(
-				'gptbot'          => false,
-				'google-extended' => false,
-				'perplexitybot'   => false,
-			)
-		);
+		update_option( Ai_Crawlers::OPTION, array( 'oai-searchbot' => true ) );
 
 		$this->assertTrue( Ai_Crawlers::is_blocked( 'gptbot' ) );
-		$this->assertTrue( Ai_Crawlers::is_blocked( 'google-extended' ) );
 		$this->assertTrue( Ai_Crawlers::is_blocked( 'perplexitybot' ) );
 		$this->assertFalse( Ai_Crawlers::is_blocked( 'oai-searchbot' ) );
-		$this->assertTrue( Ai_Crawlers::get_bootstrap_data()['dataSharingOptOut'] );
+
+		$bootstrap = Ai_Crawlers::get_bootstrap_data();
+		$this->assertTrue( $bootstrap['dataSharingOptOut'] );
+		$this->assertSame( Ai_Crawlers::get_data_sharing_blocked_slugs(), $bootstrap['dataSharingBlocked'] );
 	}
 
 	/**
@@ -229,14 +224,7 @@ class AiCrawlersTest extends TestCase {
 		);
 		update_option( 'blog_public', 1 );
 		update_option( 'wpcom_data_sharing_opt_out', true );
-		update_option(
-			Ai_Crawlers::OPTION,
-			array(
-				'gptbot'          => false,
-				'google-extended' => false,
-				'perplexitybot'   => false,
-			)
-		);
+		update_option( Ai_Crawlers::OPTION, array( 'oai-searchbot' => true ) );
 
 		$output = apply_filters( 'robots_txt', 'TEST', true );
 
@@ -248,13 +236,12 @@ class AiCrawlersTest extends TestCase {
 				'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\Blog_Privacy\\robots_txt'
 			)
 		);
-		$this->assertStringContainsString( "User-agent: GPTBot\nDisallow: /", $output );
-		$this->assertStringContainsString( "User-agent: Google-Extended\nDisallow: /", $output );
-		$this->assertStringContainsString( "User-agent: PerplexityBot\nDisallow: /", $output );
-		$this->assertStringNotContainsString( 'User-agent: OAI-SearchBot', $output );
-		$this->assertSame( 1, substr_count( $output, 'User-agent: GPTBot' ) );
-		$this->assertSame( 1, substr_count( $output, 'User-agent: Google-Extended' ) );
-		$this->assertSame( 1, substr_count( $output, 'User-agent: PerplexityBot' ) );
+		// The GEO tab shows get_data_sharing_blocked_slugs(), so it must match what WordPress.com writes.
+		$forced = Ai_Crawlers::get_data_sharing_blocked_slugs();
+		foreach ( Ai_Crawlers::get_catalog() as $slug => $info ) {
+			$expected = in_array( $slug, $forced, true ) ? 1 : 0;
+			$this->assertSame( $expected, substr_count( $output, 'User-agent: ' . $info['user_agent'] . "\n" ), $slug );
+		}
 	}
 
 	/**
