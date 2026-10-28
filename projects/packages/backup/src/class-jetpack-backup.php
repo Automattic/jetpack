@@ -567,7 +567,7 @@ class Jetpack_Backup {
 	 * A local copy of a live site keeps its tokens, and offline mode drops the identity-crisis
 	 * check, so WordPress.com would act on the live site's backups.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.2.0
 	 *
 	 * @return WP_Error|null Null outside offline mode.
 	 */
@@ -1373,7 +1373,7 @@ class Jetpack_Backup {
 	 * Returns the modernization filter's value, which defaults to true unless the site has the legacy dashboard sticker.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
-	 * @since $$next-version$$ Defaults to true.
+	 * @since 5.2.0 Defaults to true.
 	 *
 	 * @return bool
 	 */

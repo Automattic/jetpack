@@ -42,12 +42,14 @@ declare module '@automattic/jetpack-script-data' {
 					{
 						title: string;
 						description: string;
+						description_with_price: `${ string }%s${ string }`;
 						features: string[];
 						upgrade_label: string;
 						expand_label: string;
 						support_url: string;
 						upgrade_url: string;
 						open_widget_types: string[];
+						plan_price: { yearly: number; currency: string } | null;
 					}
 				>;
 				// The paid plan offer the banner shows, or null when the site does not qualify (see docs/dashboard-widgets.md). The URL is empty when there is nowhere to buy it, and `has_stats_product` says whether the site has the free Jetpack Stats product.

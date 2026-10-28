@@ -5,8 +5,13 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -47,6 +52,12 @@ class Jetpack_Email_Design_Editor {
 	 * Flags for JSON handed to a `<script>` tag.
 	 */
 	const JSON_FLAGS = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;
+
+	/**
+	 * The event the screen's arrival is recorded under, which reaches Tracks as
+	 * `jetpack_newsletter_email_design_view` -- `record_user_event()` adds the prefix itself.
+	 */
+	const VIEW_EVENT = 'newsletter_email_design_view';
 
 	/**
 	 * The hook suffix `add_theme_page()` returned, or null when the page is not registered.
@@ -190,6 +201,90 @@ class Jetpack_Email_Design_Editor {
 	public static function on_load() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		add_filter( 'admin_body_class', array( __CLASS__, 'add_fullscreen_body_class' ) );
+
+		// On `shutdown` rather than here: the Tracks pixel is a blocking request with a one-second
+		// timeout, so recorded now it would sit in front of the screen's first paint.
+		add_action( 'shutdown', array( __CLASS__, 'record_screen_view' ) );
+	}
+
+	/**
+	 * Record the arrival, with the route that brought the creator here.
+	 *
+	 * Server-side so the three routes are counted the same way: entered from the Appearance menu
+	 * there is no click to record, and recorded here it also counts a creator whose editor never
+	 * loaded, which the bundle's own events cannot. See NL-1088.
+	 */
+	public static function record_screen_view() {
+		// Jetpack's recorder refuses on Simple: it asks the terms of service and the user's
+		// connection, and a Simple site has neither to answer with. WordPress.com records its own
+		// events there instead, and does not prefix the name, so this passes the whole one.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			if ( function_exists( 'wpcom_record_tracks_event' ) ) {
+				wpcom_record_tracks_event( 'jetpack_' . self::VIEW_EVENT, self::screen_view_properties() );
+			}
+
+			return;
+		}
+
+		$connection = new Connection_Manager( 'jetpack' );
+
+		( new Tracking( 'jetpack', $connection ) )->record_user_event(
+			self::VIEW_EVENT,
+			self::screen_view_properties()
+		);
+	}
+
+	/**
+	 * What the arrival event carries.
+	 *
+	 * Separate from the call above because that one cannot be asserted: Tracks refuses to record
+	 * for a test user, before the event is built, so these are the only part of the contract with
+	 * whoever reads the funnel that a test can see.
+	 *
+	 * @return array
+	 */
+	private static function screen_view_properties() {
+		return array(
+			'source'    => self::read_source(),
+			'site_type' => self::site_type(),
+		);
+	}
+
+	/**
+	 * Which surface sent the creator here.
+	 *
+	 * An explicit arg rather than a guess at the others: the previewer's link carries neither
+	 * `post_id` nor `return` when the post is unsaved and has no id, which is indistinguishable
+	 * from the Appearance menu. Allowlisted because the arg is as hand-editable as any other.
+	 *
+	 * @return string
+	 */
+	private static function read_source() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read as an attribution label only, and allowlisted below.
+		$source = isset( $_GET['source'] ) ? sanitize_key( wp_unslash( $_GET['source'] ) ) : '';
+
+		if ( '' === $source ) {
+			return 'admin_menu';
+		}
+
+		return in_array( $source, array( 'newsletter_settings', 'preview_modal' ), true )
+			? $source
+			: 'unknown';
+	}
+
+	/**
+	 * The platform, spelled the way `getSiteType()` spells it for the screen's other events.
+	 *
+	 * @return string
+	 */
+	private static function site_type() {
+		$host = new Host();
+
+		if ( $host->is_wpcom_simple() ) {
+			return 'simple';
+		}
+
+		return $host->is_woa_site() ? 'woa' : 'jetpack';
 	}
 
 	/**
@@ -220,6 +315,7 @@ class Jetpack_Email_Design_Editor {
 		$asset = include $asset_path;
 
 		self::enqueue_block_editor_assets();
+		self::enqueue_tracks_transport();
 
 		// `@woocommerce/email-editor` opts into core's private APIs as `@wordpress/edit-site`,
 		// resolved against the site's `wp-private-apis`. Re-check on a package bump. NL-839 (j).
@@ -287,6 +383,12 @@ class Jetpack_Email_Design_Editor {
 				position: absolute;
 				inset-block-end: 20px;
 				inset-inline-start: 20px;
+			}
+			/* The screen is styles-only: the root block editing mode is `disabled`, so nothing is
+			   insertable and core filters disabled blocks out of List View. Drop when blocks land. NL-1086. */
+			#' . self::HANDLE . ' .editor-document-tools__inserter-toggle,
+			#' . self::HANDLE . ' .editor-document-tools__document-overview-toggle {
+				display: none;
 			}
 		';
 	}
@@ -357,7 +459,119 @@ class Jetpack_Email_Design_Editor {
 			// The post the canvas should preview, where the previewer sent one. The design itself
 			// stays site-wide. {@see self::preview_post_id()}
 			'postId'         => self::preview_post_id(),
+
+			// What the bundle needs to record its own events. {@see self::get_tracks_data()}
+			'tracks'         => self::get_tracks_data(),
 		);
+	}
+
+	/**
+	 * Enqueue the Tracks sender, where this site may send at all.
+	 *
+	 * `Jetpack_Gutenberg` enqueues `jp-tracks` for the block editor and then dequeues it whenever
+	 * `wp_should_load_block_editor_scripts_and_styles()` is false, which this screen is -- it is an
+	 * Appearance page, so `is_block_editor()` answers no. Without this the queue the analytics
+	 * package pushes onto is never drained and every event is silently lost.
+	 *
+	 * Simple already has it: `w.js` arrives with the masterbar there.
+	 */
+	private static function enqueue_tracks_transport() {
+		if ( ! self::can_send_tracks() || ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+	}
+
+	/**
+	 * Whether this site and this creator may be recorded.
+	 *
+	 * @return bool
+	 */
+	private static function can_send_tracks() {
+		// The gate below asks about the terms of service and the user's connection, which are both
+		// things a Simple site has none of, so it answers no there for a site that records
+		// everything else it does. WordPress.com loads the sender and identifies the user itself.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
+
+		$tracking = new Tracking( 'jetpack', new Connection_Manager( 'jetpack' ) );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() );
+	}
+
+	/**
+	 * The identity the bundle records against, or the refusal.
+	 *
+	 * Narrowed to the two fields the analytics package takes, so the email address and locale that
+	 * `get_connected_user_tracks_identity()` also returns stay out of the page's HTML. A site can
+	 * be allowed to send with no connected user, which records anonymously, so `canSend` is asked
+	 * separately rather than inferred from having an identity.
+	 *
+	 * @return array
+	 */
+	private static function get_tracks_data() {
+		if ( ! self::can_send_tracks() ) {
+			return array(
+				'canSend'  => false,
+				'userData' => null,
+				'blogId'   => null,
+			);
+		}
+
+		return array(
+			'canSend'  => true,
+			'userData' => self::tracks_identity(),
+			'blogId'   => self::tracks_blog_id(),
+		);
+	}
+
+	/**
+	 * Who the bundle records against, or nobody.
+	 *
+	 * Narrowed to the two fields the analytics package takes, so the email address and locale that
+	 * `get_connected_user_tracks_identity()` also returns stay out of the page's HTML.
+	 *
+	 * Nobody on Simple: WordPress.com has already identified the logged-in user to the sender it
+	 * loaded, and ours would replace that with an identity derived from a connection Simple does
+	 * not have. Elsewhere a site can still record with no connected user, anonymously, which is
+	 * why `canSend` is asked separately from this.
+	 *
+	 * @return array|null
+	 */
+	private static function tracks_identity() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return null;
+		}
+
+		$identity = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+
+		if ( ! $identity ) {
+			return null;
+		}
+
+		return array(
+			'userid'   => $identity['userid'],
+			'username' => $identity['username'],
+		);
+	}
+
+	/**
+	 * The WordPress.com blog the events name.
+	 *
+	 * Read the way the connected user's identity reads it, so both name one blog -- except on
+	 * Simple, where the blog is a WordPress.com blog already and the Jetpack option that names it
+	 * everywhere else is not what identifies it.
+	 *
+	 * @return int
+	 */
+	private static function tracks_blog_id() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return get_current_blog_id();
+		}
+
+		return (int) Jetpack_Options::get_option( 'id', 0 );
 	}
 
 	/**

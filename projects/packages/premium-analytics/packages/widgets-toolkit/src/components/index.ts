@@ -128,6 +128,12 @@ export {
 } from './post-highlight-card';
 export { VideoTitleLink, type VideoTitleLinkProps } from './video-title-link';
 export {
+	ViewLiveLink,
+	toViewLiveUrl,
+	type ViewLiveContent,
+	type ViewLiveLinkProps,
+} from './view-live-link';
+export {
 	SubscriberList,
 	SubscriberListSkeleton,
 	type SubscriberListItem,

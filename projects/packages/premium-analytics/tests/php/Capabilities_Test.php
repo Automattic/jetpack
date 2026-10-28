@@ -8,7 +8,9 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 
@@ -46,8 +48,83 @@ class Capabilities_Test extends BaseTestCase {
 			add_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
 		}
 		wp_set_current_user( 0 );
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
+		remove_all_filters( 'jetpack_offline_mode' );
+		Status_Cache::clear();
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Before the site is connected the page only offers to connect it, so like Stats it is for
+	 * whoever can connect, or for administrators in offline mode, where nobody can.
+	 *
+	 * @dataProvider provide_dashboard_page_capabilities
+	 *
+	 * @param bool   $is_connected Whether the site is connected.
+	 * @param bool   $is_offline   Whether the site is in offline mode.
+	 * @param string $capability   The capability the page should require.
+	 */
+	#[DataProvider( 'provide_dashboard_page_capabilities' )]
+	public function test_dashboard_page_capability_follows_the_connection( $is_connected, $is_offline, $capability ) {
+		if ( $is_connected ) {
+			$this->connect_site();
+		}
+		add_filter( 'jetpack_offline_mode', $is_offline ? '__return_true' : '__return_false' );
+		Status_Cache::clear();
+
+		$this->assertSame( $capability, Capabilities::dashboard_page_capability() );
+	}
+
+	/**
+	 * Connected, disconnected, and disconnected in offline mode.
+	 *
+	 * @return array<string, array{bool, bool, string}>
+	 */
+	public static function provide_dashboard_page_capabilities() {
+		return array(
+			'connected'            => array( true, false, Capabilities::VIEW_ANALYTICS ),
+			'disconnected'         => array( false, false, 'jetpack_connect' ),
+			'disconnected offline' => array( false, true, 'manage_options' ),
+		);
+	}
+
+	/**
+	 * Links to the Stats views follow the page, so before the site is connected a Stats reader
+	 * who cannot connect it gets none.
+	 *
+	 * @dataProvider provide_stats_readers
+	 *
+	 * @param bool $is_connected Whether the site is connected.
+	 * @param bool $can_connect  Whether the reader can connect the site.
+	 * @param bool $can_open     Whether the reader should be able to open the Stats views.
+	 */
+	#[DataProvider( 'provide_stats_readers' )]
+	public function test_stats_reader_can_open_stats_only_where_the_page_lets_them( $is_connected, $can_connect, $can_open ) {
+		if ( $is_connected ) {
+			$this->connect_site();
+		}
+		$user_id = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $user_id );
+		if ( $can_connect ) {
+			$this->grant_capability_to( $user_id, 'jetpack_connect' );
+		}
+
+		$this->assertSame( $can_open, Capabilities::current_user_can_open_stats() );
+	}
+
+	/**
+	 * A Stats reader on a connected site, and on a disconnected one with and without `jetpack_connect`.
+	 *
+	 * @return array<string, array{bool, bool, bool}>
+	 */
+	public static function provide_stats_readers() {
+		return array(
+			'connected site'                  => array( true, false, true ),
+			'disconnected, cannot connect it' => array( false, false, false ),
+			'disconnected, can connect it'    => array( false, true, true ),
+		);
 	}
 
 	/**

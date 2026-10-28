@@ -3,6 +3,7 @@ import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { IconButton } from '@wordpress/ui';
+import { useRecordThreatOpen } from '../../data/threat-events';
 import { useSearchParam } from '../scan/store';
 import ThreatDetails from '../scan/threat-details';
 import { HISTORY_THREAT_PARAM, loadHistory, useHistory } from './store';
@@ -17,6 +18,7 @@ export default function HistoryInspector() {
 	const { threats } = useHistory();
 	const threat = threats?.find( item => String( item.id ) === selected );
 	const onClose = useCallback( () => setThreat(), [ setThreat ] );
+	useRecordThreatOpen( threat );
 
 	// A shared link can open the inspector before the History tab has loaded the list.
 	useEffect( () => {

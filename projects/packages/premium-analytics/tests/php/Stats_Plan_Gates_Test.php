@@ -34,6 +34,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_locked_stats_sections
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_section_copy
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_personal_plan_price
  * @covers ::Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_upgrade_url
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates
@@ -54,6 +55,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_locked_stats_sections' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_section_copy' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_personal_plan_price' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_upgrade_url' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates' )]
@@ -78,6 +80,20 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	 * @var int
 	 */
 	private $plan_requests = 0;
+
+	/**
+	 * Plan list requests sent to WordPress.com during the test.
+	 *
+	 * @var int
+	 */
+	private $plan_list_requests = 0;
+
+	/**
+	 * The timeout the last plan list request carried.
+	 *
+	 * @var int|null
+	 */
+	private $plan_list_timeout;
 
 	/**
 	 * Host detection memoizes into the status cache, which outlives the constants.
@@ -141,7 +157,9 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		delete_transient( EMPTY_PLAN_REFRESH_TRANSIENT );
 		delete_transient( PURCHASE_PLAN_REFRESH_TRANSIENT );
 		delete_transient( PURCHASE_CACHE_INVALIDATION_TRANSIENT );
-		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		delete_transient( PERSONAL_PLAN_PRICE_TRANSIENT . get_current_user_id() );
+		wp_set_current_user( 0 );
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token', 'user_tokens' ) );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		remove_action( Widget_Type_Registry::REGISTER_ACTION, array( $this, 'register_plugin_widget_type' ), 20 );
 		unset( $GLOBALS['jpa_test_widget_manifest'] );
@@ -255,6 +273,8 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'stats PWYW is not'        => array( self::FREE_PLAN, $products( 'jetpack_stats_pwyw_yearly' ), STATS_TIER_JETPACK_FREE ),
 			'complete plan'            => array( $plan( 'jetpack_complete_monthly' ), array(), STATS_TIER_COMMERCIAL ),
 			'growth plan'              => array( $plan( 'jetpack_growth_yearly' ), array(), STATS_TIER_COMMERCIAL ),
+			'pro plan'                 => array( $plan( 'jetpack_pro_yearly' ), array(), STATS_TIER_COMMERCIAL ),
+			'pro bi-yearly plan'       => array( $plan( 'jetpack_pro_bi_yearly' ), array(), STATS_TIER_COMMERCIAL ),
 			'security plan is not'     => array( $plan( 'jetpack_security_t1_yearly' ), array(), STATS_TIER_JETPACK_FREE ),
 			'stats-commercial feature' => array( array( 'features' => array( 'active' => array( 'stats-commercial' ) ) ), array(), STATS_TIER_COMMERCIAL ),
 		);
@@ -633,11 +653,123 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		foreach ( $sections as $section ) {
 			$this->assertCount( 11, $section['features'] );
 			$this->assertSame( 'Get detailed insights into your site’s performance with a Personal plan.', $section['description'] );
+			$this->assertSame( 'Get detailed insights into your site’s performance for <strong>%s/month</strong> with a Personal plan.', $section['description_with_price'] );
 			$this->assertSame( 'Upgrade to Personal', $section['upgrade_label'] );
 			$this->assertSame( 'Show all Personal features', $section['expand_label'] );
 			$this->assertSame( 'https://wordpress.com/support/stats/', $section['support_url'] );
 			$this->assertStringContainsString( '/personal?redirect_to=', $section['upgrade_url'] );
 		}
+	}
+
+	/**
+	 * Connect a user and answer WordPress.com's plan list with the given Personal plan.
+	 *
+	 * @param array|null|\WP_Error $personal The Personal plan's fields, null to leave it out, or a failed request.
+	 */
+	private function answer_plan_list_with( $personal ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'plan_price_admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "user_token.secret.$user_id" ) );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $personal ) {
+				if ( false === strpos( $url, '/rest/v1.5/plans' ) ) {
+					return $preempt;
+				}
+				++$this->plan_list_requests;
+				$this->plan_list_timeout = $args['timeout'];
+				if ( is_wp_error( $personal ) ) {
+					return $personal;
+				}
+				$plans = array( array( 'product_slug' => 'free_plan' ) );
+				if ( null !== $personal ) {
+					$plans[] = array( 'product_slug' => 'personal-bundle' ) + $personal;
+				}
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( $plans, JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * A locked section carries the Personal plan's yearly price, or null when WordPress.com gives none, and a reload reuses either answer.
+	 *
+	 * @dataProvider provide_personal_plan_prices
+	 *
+	 * @param array|null|\WP_Error $personal The Personal plan's fields.
+	 * @param array|null           $expected The section's price.
+	 */
+	#[DataProvider( 'provide_personal_plan_prices' )]
+	public function test_locked_sections_carry_the_personal_plan_price( $personal, $expected ) {
+		$this->answer_plan_list_with( $personal );
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE );
+
+		for ( $load = 1; $load <= 2; $load++ ) {
+			foreach ( get_stats_plan_gates()['locked_sections'] as $section ) {
+				$this->assertSame( $expected, $section['plan_price'], "Load $load" );
+			}
+		}
+		$this->assertSame( 1, $this->plan_list_requests );
+		$this->assertSame( 5, $this->plan_list_timeout );
+	}
+
+	/**
+	 * Plan list answers and the price a section carries.
+	 *
+	 * @return array
+	 */
+	public static function provide_personal_plan_prices() {
+		return array(
+			'priced'        => array(
+				array(
+					'raw_price_integer' => 156000,
+					'currency_code'     => 'TWD',
+				),
+				array(
+					'yearly'   => 156000,
+					'currency' => 'TWD',
+				),
+			),
+			'missing plan'  => array( null, null ),
+			'no currency'   => array( array( 'raw_price_integer' => 4800 ), null ),
+			'zero price'    => array(
+				array(
+					'raw_price_integer' => 0,
+					'currency_code'     => 'USD',
+				),
+				null,
+			),
+			'request fails' => array( new \WP_Error( 'http_request_failed', 'Operation timed out' ), null ),
+		);
+	}
+
+	/**
+	 * A tier without locked sections never asks WordPress.com for the price.
+	 */
+	public function test_a_tier_without_locked_sections_never_asks_for_the_price() {
+		$this->answer_plan_list_with(
+			array(
+				'raw_price_integer' => 4800,
+				'currency_code'     => 'USD',
+			)
+		);
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_PAID );
+		get_stats_plan_gates();
+		$this->assertSame( 0, $this->plan_list_requests );
 	}
 
 	/**
@@ -780,6 +912,20 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 
 		$this->assertSame( 1, $this->plan_requests );
 		$this->assertSame( STATS_TIER_UNKNOWN, get_stats_plan_tier() );
+	}
+
+	public function test_unconnected_visit_does_not_throttle_the_refresh_after_connecting() {
+		$this->open_dashboard_with_counted_plan_fetches();
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		( new Connection_Manager() )->reset_connection_status();
+		maybe_refresh_jetpack_plan();
+
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+		maybe_refresh_jetpack_plan();
+
+		$this->assertSame( STATS_TIER_JETPACK_FREE, get_stats_plan_tier() );
 	}
 
 	public function test_refreshed_plan_feeds_the_tier() {

@@ -2702,7 +2702,7 @@ class Manager {
 	/**
 	 * Whether PHP's XML extension, which the XML-RPC connection needs, is available.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.14.0
 	 *
 	 * @return bool
 	 */

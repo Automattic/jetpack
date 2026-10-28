@@ -6,6 +6,7 @@ import { CardRow, ProtectCard } from '../../components/card';
 import IpListField from '../../components/settings/ip-list-field';
 import SettingToggle from '../../components/settings/setting-toggle';
 import FirewallToggle from './firewall-toggle';
+import HostFirewallCard from './host-firewall-card';
 import shieldFlame from './icon';
 import { AUTOMATIC_RULES, IP_ALLOW_LIST, IP_BLOCK_LIST, enabledKey } from './settings-keys';
 import type { FirewallContext } from './types';
@@ -114,6 +115,10 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 			),
 		[ save ]
 	);
+
+	if ( state?.providedByHost ) {
+		return <HostFirewallCard />;
+	}
 
 	if ( waf?.waf_supported === false ) {
 		return (

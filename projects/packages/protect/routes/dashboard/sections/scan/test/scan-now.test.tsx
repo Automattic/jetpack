@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { recordEvent } from '../../../data/tracks';
 import HeaderScanButton from '../header-scan-button';
 import ScanCard from '../scan-card';
 import ScanStartNotice from '../scan-start-notice';
@@ -8,6 +9,7 @@ import { resetScan, setScan } from '../store';
 import type { ScanState } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../../../data/tracks' );
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 	useNavigate: () => jest.fn(),
@@ -32,14 +34,17 @@ window.jetpackProtectDashboard = { scan: report };
  * Render a clean report and answer the scan request.
  *
  * @param answer - Resolves or rejects the POST.
- * @param ui     - What to render.
- * @param button - The button to click.
+ * @param ui     - What to render, with the header's Scan site button.
  * @return Resolves once the button is clicked.
  */
 function renderAndScan(
 	answer: () => Promise< unknown >,
-	ui = <ScanCard openTab={ jest.fn() } />,
-	button = 'Scan again now'
+	ui = (
+		<>
+			<HeaderScanButton />
+			<ScanCard openTab={ jest.fn() } />
+		</>
+	)
 ) {
 	mockApiFetch
 		.mockReset()
@@ -48,7 +53,7 @@ function renderAndScan(
 		);
 	setScan( () => report );
 	render( ui );
-	return userEvent.click( screen.getByRole( 'button', { name: button } ) );
+	return userEvent.click( screen.getByRole( 'button', { name: 'Scan site' } ) );
 }
 
 describe( 'Scan now', () => {
@@ -64,8 +69,17 @@ describe( 'Scan now', () => {
 			} )
 		);
 
-		await expect( screen.findByText( 'Your site is safe right now' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'No threats found' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Scanning…' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'records jetpack_scan_scan_now from the page header', async () => {
+		( recordEvent as jest.Mock ).mockClear();
+		await renderAndScan( () => new Promise( () => {} ) );
+
+		expect( ( recordEvent as jest.Mock ).mock.calls ).toEqual( [
+			[ 'jetpack_scan_scan_now', { has_plan: true } ],
+		] );
 	} );
 
 	it( 'shows why the scan didn’t start until dismissed, and stops showing it as running', async () => {
@@ -74,13 +88,14 @@ describe( 'Scan now', () => {
 			() => Promise.reject( { code: 'scan_not_started', message } ),
 			<>
 				<ScanStartNotice />
+				<HeaderScanButton />
 				<ScanCard openTab={ jest.fn() } />
 			</>
 		);
 
 		await expect( screen.findByText( message ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Scanning…' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Scan again now' } ) ).toBeEnabled();
+		expect( screen.getByRole( 'button', { name: 'Scan site' } ) ).toBeEnabled();
 
 		await userEvent.click( screen.getByRole( 'button', { name: /dismiss|close/i } ) );
 
@@ -88,14 +103,7 @@ describe( 'Scan now', () => {
 	} );
 
 	it( 'shows the scan as running in the card when started from the page header', async () => {
-		await renderAndScan(
-			() => new Promise( () => {} ),
-			<>
-				<HeaderScanButton />
-				<ScanCard openTab={ jest.fn() } />
-			</>,
-			'Scan now'
-		);
+		await renderAndScan( () => new Promise( () => {} ) );
 
 		expect( screen.getByRole( 'heading', { name: 'Scanning…' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Scanning…' } ) ).toHaveAttribute(
@@ -108,13 +116,37 @@ describe( 'Scan now', () => {
 		const free = { ...report, hasPlan: false };
 		mockApiFetch.mockReset().mockResolvedValue( free );
 		setScan( () => free );
-		const { container } = render( <ScanCard openTab={ jest.fn() } /> );
+		const { container } = render(
+			<>
+				<HeaderScanButton />
+				<ScanCard openTab={ jest.fn() } />
+			</>
+		);
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the burst is decorative and aria-hidden.
 		expect( container.querySelector( '.is-bursting' ) ).not.toBeInTheDocument();
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Check again now' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Scan site' } ) );
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the burst is decorative and aria-hidden.
 		await waitFor( () => expect( container.querySelector( '.is-bursting' ) ).toBeInTheDocument() );
 	} );
+
+	it.each( [
+		[ false, 'true', /Free vulnerability checks run once a day/ ],
+		[ true, 'false', '' ],
+	] )(
+		'with hasPlan %s, an hour after the last check, sets the header button aria-disabled to %s',
+		( hasPlan, disabled, description ) => {
+			const lastChecked = new Date( Date.now() - 60 * 60 * 1000 )
+				.toISOString()
+				.slice( 0, 19 )
+				.replace( 'T', ' ' );
+			setScan( () => ( { ...report, hasPlan, lastChecked } ) );
+			render( <HeaderScanButton /> );
+
+			const button = screen.getByRole( 'button', { name: 'Scan site' } );
+			expect( button ).toHaveAttribute( 'aria-disabled', disabled );
+			expect( button ).toHaveAccessibleDescription( description );
+		}
+	);
 } );

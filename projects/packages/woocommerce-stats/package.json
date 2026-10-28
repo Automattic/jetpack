@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-woocommerce-stats",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"private": true,
 	"description": "WooCommerce: the WooCommerce section of the Premium Analytics dashboard.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/woocommerce-stats/#readme",

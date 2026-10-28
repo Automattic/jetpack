@@ -33,6 +33,7 @@ export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
+export { pairComparisonBuckets, type ComparisonPeriodStarts } from './pair-comparison-buckets';
 export { dateFormatForResolution } from './tick-resolution-date-format';
 export type { ChartDisplayChartType } from './chart-display-attribute-fields';
 export {

@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Another `useRef()` with no parameters was added since the last time.
-
-

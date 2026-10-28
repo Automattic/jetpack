@@ -18,7 +18,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.14.8';
+	const PACKAGE_VERSION = '0.14.9';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -637,11 +637,13 @@ class Admin_Menu {
 		 *
 		 * Governs the sidebar entry only — a hidden item's page stays reachable by URL, so this
 		 * is not an access control. States: 'default' follows the item's feature, 'visible' shows it, 'hidden' removes it.
+		 * `jetpack_feature_policy` runs after this. Item keys and examples:
+		 * https://github.com/Automattic/jetpack/blob/trunk/projects/packages/admin-ui/README.md#host-control
 		 *
 		 * @since 0.12.0
 		 *
 		 * @param array $states     Map of item key (menu slug unless the item declared one) to state.
-		 * @param array $menu_items The registered menu items, for context.
+		 * @param array $menu_items The registered menu items, each with its menu_slug, capability, and args.
 		 */
 		$states = apply_filters( 'jetpack_admin_menu_visibility', $states, $items );
 

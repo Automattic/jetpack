@@ -95,6 +95,33 @@ describe( 'useReport', () => {
 		expect( calls[ 1 ].params ).not.toHaveProperty( 'compare_from' );
 	} );
 
+	it( 'names where each period starts while a comparison is on', () => {
+		const { result } = renderHook(
+			() =>
+				useReport(
+					params => ( {
+						queryKey: [ 'period-starts', params.from ],
+						queryFn: async () => ( { summary: {}, data: [] } ),
+						enabled: false,
+					} ),
+					{
+						from: '2026-06-01',
+						to: '2026-06-07',
+						compare_from: '2026-05-01',
+						compare_to: '2026-05-07',
+						comp: '1',
+						interval: 'day',
+					}
+				),
+			{ wrapper }
+		);
+
+		expect( result.current.periodStarts ).toEqual( {
+			current: '2026-06-01',
+			comparison: '2026-05-01',
+		} );
+	} );
+
 	it( 'records the reporting zone the params named', () => {
 		const queryFactory = (): UseQueryOptions< unknown > => ( {
 			queryKey: [ 'test-report' ],

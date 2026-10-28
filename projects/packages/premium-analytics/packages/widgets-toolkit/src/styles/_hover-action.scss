@@ -1,0 +1,21 @@
+// Include inside a row rule. The action it names stays out of sight until the
+// row is hovered or holds focus, as classic Stats showed its "View" action.
+// Touch viewports have no hover, so there it has to stay visible to exist.
+@mixin reveal-action-on-hover($action) {
+
+	#{$action} {
+		opacity: 0;
+	}
+
+	&:hover #{$action},
+	&:focus-within #{$action} {
+		opacity: 1;
+	}
+
+	@media (hover: none) {
+
+		#{$action} {
+			opacity: 1;
+		}
+	}
+}

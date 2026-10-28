@@ -123,6 +123,11 @@
 	min-inline-size: 0;
 }
 
+.metricHeader {
+	display: flex;
+	min-inline-size: 0;
+}
+
 .metricLabel {
 	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-newsletter",
-	"version": "0.18.1",
+	"version": "0.18.2",
 	"private": true,
 	"description": "Jetpack Newsletter functionality",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/newsletter/#readme",
@@ -92,7 +92,7 @@
 		"postcss-loader": "8.2.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"webpack": "5.111.1",
+		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
 	},
 	"optionalDependencies": {

@@ -2,10 +2,14 @@
  * External dependencies
  */
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
+import { pairComparisonBuckets } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, _n } from '@wordpress/i18n';
 import { postContent, seen } from '@wordpress/icons';
 import type { StatsVisitsResponse } from '@jetpack-premium-analytics/data';
-import type { TooltipExtraSeries } from '@jetpack-premium-analytics/widgets-toolkit';
+import type {
+	ComparisonPeriodStarts,
+	TooltipExtraSeries,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 const VIEWS_PER_VISITOR_FORMAT = { type: 'average' as const };
 
@@ -36,8 +40,8 @@ function numberOf( point: Record< string, unknown >, field: string ): number | u
  * @param report    - The report to read.
  * @param zone      - The report's reporting timezone.
  * @param valueOf   - The row's value for a bucket, or undefined for no reading.
- * @param axisDates - For a comparison period, the current period's bucket dates: each
- *                  bucket is placed on the current bucket in the same position.
+ * @param axisDates - For a comparison period, the current bucket date each of its
+ *                  buckets is placed on, by index; a bucket without one is left out.
  * @return The row's points, and the report's own bucket dates.
  */
 function readRow(
@@ -84,6 +88,38 @@ function postsPublishedOf( point: Record< string, unknown > ): number | undefine
 }
 
 /**
+ * The current bucket date each comparison bucket is placed on: the one it pairs with
+ * by period, or the one in its position when the period starts are unknown.
+ *
+ * @param current      - The current period's report.
+ * @param comparison   - The comparison period's report.
+ * @param currentDates - The current period's bucket dates.
+ * @param periodStarts - Where each period starts.
+ * @return The date per comparison bucket.
+ */
+function comparisonAxis(
+	current: Report,
+	comparison: Report,
+	currentDates: Array< Date | undefined >,
+	periodStarts?: ComparisonPeriodStarts
+): Array< Date | undefined > {
+	if ( ! periodStarts ) {
+		return currentDates;
+	}
+
+	const axis: Array< Date | undefined > = [];
+	pairComparisonBuckets( current?.data ?? [], comparison?.data ?? [], periodStarts ).forEach(
+		( pairedIndex, index ) => {
+			if ( pairedIndex !== undefined ) {
+				axis[ pairedIndex ] = currentDates[ index ];
+			}
+		}
+	);
+
+	return axis;
+}
+
+/**
  * Drop the buckets where both periods read 0, so a count row stays out of the
  * tooltip until one period has something to count, as in classic Stats. A 0
  * against a real count stays, so the row reads 0 rather than no data.
@@ -100,21 +136,24 @@ function omitZeroPairs( points: ExtraPoints, others: ExtraPoints ): ExtraPoints 
  * The rows classic Stats adds under the traffic chart's tooltip: views per
  * visitor, and the number of posts published in the bucket.
  *
- * @param current    - The current period's reports.
- * @param zone       - The reports' reporting timezone.
- * @param comparison - The comparison period's reports, when a comparison is on.
+ * @param current      - The current period's reports.
+ * @param zone         - The reports' reporting timezone.
+ * @param comparison   - The comparison period's reports, when a comparison is on.
+ * @param periodStarts - Where each period starts, to pair the comparison's buckets by period.
  * @return The extra series, each omitted when neither period has a reading for it.
  */
 export function buildTrafficTooltipExtras(
 	current: TrafficTooltipReports,
 	zone: string,
-	comparison?: TrafficTooltipReports
+	comparison?: TrafficTooltipReports,
+	periodStarts?: ComparisonPeriodStarts
 ): TooltipExtraSeries[] {
 	const rows = [
 		{
 			label: __( 'Views per visitor', 'jetpack-premium-analytics-pkg' ),
 			icon: seen,
 			dataFormat: VIEWS_PER_VISITOR_FORMAT,
+			currentReport: current.views,
 			current: readRow( current.views, zone, viewsPerVisitorOf ),
 			comparisonReport: comparison?.views,
 			valueOf: viewsPerVisitorOf,
@@ -124,6 +163,7 @@ export function buildTrafficTooltipExtras(
 			label: __( 'Posts published', 'jetpack-premium-analytics-pkg' ),
 			icon: postContent,
 			countLabel: postsPublishedLabel,
+			currentReport: current.posts,
 			current: readRow( current.posts, zone, postsPublishedOf ),
 			comparisonReport: comparison?.posts,
 			valueOf: postsPublishedOf,
@@ -138,13 +178,19 @@ export function buildTrafficTooltipExtras(
 				icon,
 				dataFormat,
 				countLabel,
+				currentReport,
 				current: own,
 				comparisonReport,
 				valueOf,
 				isCount,
 			} ) => {
 				const previous = comparisonReport
-					? readRow( comparisonReport, zone, valueOf, own.dates ).points
+					? readRow(
+							comparisonReport,
+							zone,
+							valueOf,
+							comparisonAxis( currentReport, comparisonReport, own.dates, periodStarts )
+						).points
 					: [];
 				const data = isCount ? omitZeroPairs( own.points, previous ) : own.points;
 				const previousData = isCount ? omitZeroPairs( previous, own.points ) : previous;

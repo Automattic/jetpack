@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Settings: Keep the newly picked category, explicit setting or cover image on screen while it saves, and go back to the saved one only if the save fails.

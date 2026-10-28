@@ -79,7 +79,7 @@ describe( 'GEO route stage', () => {
 		const geo = {
 			enhancer: { available: true, enabled: false, aiSeoEnabled: true, aiEnabled: true },
 			llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
-			crawlers: { catalog: [], overrides: {} },
+			crawlers: { catalog: [], blocked: { answer: [], training: [] } },
 		};
 		seed( geo );
 

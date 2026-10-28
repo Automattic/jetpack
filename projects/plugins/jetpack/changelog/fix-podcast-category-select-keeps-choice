@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Podcast: Keep a newly picked category, explicit setting or cover image on screen while it saves, instead of showing the old one until the save finishes.

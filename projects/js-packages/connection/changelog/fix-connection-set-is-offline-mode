@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Record the offline mode that setIsOfflineMode() is given.

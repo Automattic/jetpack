@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Run the timezone test passes in one Jest run instead of one per zone.
+

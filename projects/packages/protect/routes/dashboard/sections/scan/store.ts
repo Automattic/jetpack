@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useState, useSyncExternalStore } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
+import { recordEvent } from '../../data/tracks';
 import type { ScanState } from './types';
 
 export const SCAN_PATH = '/jetpack/v4/protect-dashboard/scan';
@@ -201,6 +202,7 @@ export function useScan(): ScanState | undefined {
  */
 export function startScan(): Promise< void > {
 	const hasPlan = !! getScan()?.hasPlan;
+	recordEvent( 'jetpack_scan_scan_now', { has_plan: hasPlan } );
 	// With Scan, show the scan as started right away; the free check only re-reads its report.
 	requestStore.set( () => ( {
 		...NO_REQUEST,
@@ -313,6 +315,15 @@ export function useScanPolling(): void {
 		);
 		return () => clearTimeout( timer );
 	}, [ isScanning, isHidden, polls ] );
+}
+
+/**
+ * Whether the host lets the site ignore threats.
+ *
+ * @return True unless the host turned ignoring off.
+ */
+export function useCanIgnore(): boolean {
+	return useScan()?.canIgnore !== false;
 }
 
 /**

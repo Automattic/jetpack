@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
-import { Button, Card, Stack, Text } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import { HISTORY_STATUS_PARAM } from '../history/store';
@@ -9,7 +9,7 @@ import LastScanned from './last-scanned';
 import SafeState from './safe-state';
 import ScanUpsell from './scan-upsell';
 import ScanningState from './scanning-state';
-import { checkScanAgain, startScan, useIsScanning, useScan, useScanRequest } from './store';
+import { checkScanAgain, useIsScanning, useScan, useScanRequest } from './store';
 import { loadIgnored } from './threat-actions';
 import threatsIcon from './threats-icon';
 import ThreatsList from './threats-list';
@@ -22,7 +22,7 @@ const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
 const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
 
 /**
- * The Scan card: start a scan, then review what it found or see that the site is safe.
+ * The Scan results card: what the latest scan found, or that it found nothing; scans start from the page header.
  *
  * @param props         - Component props.
  * @param props.openTab - Switches dashboard tabs, for the link to Scan history.
@@ -68,39 +68,24 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 		checkScanAgain().finally( () => setIsFetching( false ) );
 	}, [] );
 
-	// The running scan gets the whole card, without the header and footer.
-	if ( isScanning ) {
-		return (
-			<Card.Root
-				render={ <section /> }
-				className="jp-protect-card"
-				aria-label={ __( 'Scan', 'jetpack-protect-pkg' ) }
-			>
-				<Card.Content>
-					<ScanningState
-						scan={ scan }
-						onCheckAgain={ hasStoppedPolling ? refresh : undefined }
-						isChecking={ isFetching }
-					/>
-				</Card.Content>
-			</Card.Root>
-		);
-	}
-
 	const safeState = (
-		<SafeState
-			key={ finishedScans }
-			scan={ scan }
-			isStarting={ isStarting }
-			onScan={ startScan }
-			justScanned={ finishedScans > 0 }
-		/>
+		<SafeState key={ finishedScans } scan={ scan } justScanned={ finishedScans > 0 } />
 	);
 
 	let body;
-	if ( scan.error ) {
+	if ( isScanning ) {
 		body = (
-			<CardRow>
+			<CardRow className="jp-protect-scan__state">
+				<ScanningState
+					scan={ scan }
+					onCheckAgain={ hasStoppedPolling ? refresh : undefined }
+					isChecking={ isFetching }
+				/>
+			</CardRow>
+		);
+	} else if ( scan.error ) {
+		body = (
+			<CardRow className="jp-protect-scan__state">
 				<Stack direction="column" gap="sm" align="start">
 					<Text variant="body-md">
 						{ __(
@@ -115,7 +100,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			</CardRow>
 		);
 	} else if ( ! hasThreats ) {
-		body = <CardRow>{ safeState }</CardRow>;
+		body = <CardRow className="jp-protect-scan__state">{ safeState }</CardRow>;
 	} else {
 		body = (
 			<>
@@ -135,7 +120,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 					/>
 				</CardRow>
 				<CardRow className="jp-protect-card__threats">
-					<ThreatsList threats={ threats } canAct={ hasPlan } empty={ safeState } />
+					<ThreatsList threats={ threats } canAct={ hasPlan } />
 				</CardRow>
 			</>
 		);
@@ -144,7 +129,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	return (
 		<ProtectCard
 			icon={ hasThreats ? threatsIcon : shield }
-			title={ __( 'Scan', 'jetpack-protect-pkg' ) }
+			title={ __( 'Scan results', 'jetpack-protect-pkg' ) }
 			description={
 				hasPlan
 					? __(

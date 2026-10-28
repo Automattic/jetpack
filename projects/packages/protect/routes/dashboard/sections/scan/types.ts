@@ -17,7 +17,12 @@ export type ScanThreat = Omit< Threat, 'extension' > & {
 
 export type ScanState = {
 	hasPlan: boolean;
+	/** False when the host doesn't let the site ignore threats. */
+	canIgnore?: boolean;
+	/** Where to set Scan's server credentials with a plan, or to buy Scan without one. */
 	url: string;
+	/** Whether Scan has server credentials to auto-fix with; null when unknown. Only with a plan. */
+	hasCredentials?: boolean | null;
 	/** Which upsell copy this site sees, without Scan. */
 	upsellVariant?: number;
 	/** Whether a filter chose `upsellVariant`, so it's shown without rotating. */

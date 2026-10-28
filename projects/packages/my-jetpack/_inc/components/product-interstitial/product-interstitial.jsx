@@ -88,7 +88,7 @@ export default function ProductInterstitial( {
 
 	const { isUpgradableByBundle, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
+	const { onClickGoBack, backTo } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
 	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
@@ -217,7 +217,7 @@ export default function ProductInterstitial( {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ MyJetpackRoutes.Features }
+					to={ backTo }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-Comment: SEO: Warn when the front-page description runs longer than search results display, and say when it reaches the maximum length. The new SEO page is still gated.
-

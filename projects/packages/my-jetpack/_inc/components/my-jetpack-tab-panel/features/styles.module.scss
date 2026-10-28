@@ -398,7 +398,7 @@ $band-ground: #f8f8f8;
 }
 
 // Sticky so the filters stay reachable while scrolling a long grid. The
-// offset clears the wp-admin bar, which is fixed.
+// offset clears the tabs when they are pinned too.
 .toolbar {
 	background: var(--wpds-color-background-surface-neutral-strong);
 	border-color: var(--wpds-color-stroke-surface-neutral-weak);
@@ -406,7 +406,7 @@ $band-ground: #f8f8f8;
 	border-style: solid;
 	border-width: var(--wpds-border-width-xs);
 	container: features-toolbar / inline-size;
-	inset-block-start: 0;
+	inset-block-start: var(--my-jetpack-pinned-tabs-block-size, 0);
 	margin-block: var(--wpds-dimension-gap-md);
 	padding: var(--wpds-dimension-padding-md);
 	position: sticky;

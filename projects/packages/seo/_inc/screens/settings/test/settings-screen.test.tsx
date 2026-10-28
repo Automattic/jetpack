@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
 import type { ReactNode } from 'react';
@@ -69,6 +69,8 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		verification: { ...EMPTY_VERIFICATION },
 		search_engines_visible: false,
 		site_is_private: false,
+		site_is_coming_soon: false,
+		site_visibility_url: '',
 		sitemap_active: false,
 		sitemap_switchable: true,
 		sitemap_url: '',
@@ -157,26 +159,66 @@ describe( 'Another SEO plugin owning the output', () => {
 } );
 
 describe( 'Indexing toggle on an unpublished site', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	const indexingToggle = () =>
 		screen.getByRole( 'checkbox', { name: /Allow search engines to index this site/i } );
 
-	// WordPress.com stores a private or coming-soon site as a negative `blog_public`.
-	// Such a site isn't hidden from search by a setting, so no SEO toggle can reveal
-	// it — turning this on would have to publish the site, which isn't this surface's
-	// decision. Disabled and explained, rather than appearing to work.
-	it( 'is disabled and explains why when the site is private', () => {
-		render( <SettingsScreen form={ buildForm( { site_is_private: true } ) } /> );
+	const visibilityLink = () => screen.queryByRole( 'link', { name: 'Manage site visibility' } );
+	const visibilityUrl = 'http://example.com/wp-admin/options-reading.php';
+
+	it.each( [
+		[ 'private', { site_is_private: true }, /Your site is private/i ],
+		[
+			'Coming Soon',
+			{ site_is_private: true, site_is_coming_soon: true },
+			/Your site is in Coming Soon mode/i,
+		],
+	] )( 'is disabled, explained and linked when the site is %s', ( _, overrides, help ) => {
+		render(
+			<SettingsScreen form={ buildForm( { ...overrides, site_visibility_url: visibilityUrl } ) } />
+		);
 
 		expect( indexingToggle() ).toBeDisabled();
-		expect( screen.getByText( /Your site is private/i ) ).toBeInTheDocument();
+		expect( screen.getByText( help ) ).toBeInTheDocument();
+		expect( visibilityLink() ).toHaveAttribute( 'href', visibilityUrl );
 		expect( statusFor( 'Site visibility' ) ).toBeUndefined();
 	} );
 
+	it.each( [
+		[ 'shows', true ],
+		[ 'hides', false ],
+	] )( '%s the managed-elsewhere tooltip on hover', ( _, locked ) => {
+		jest.useFakeTimers();
+		render( <SettingsScreen form={ buildForm( { site_is_private: locked } ) } /> );
+
+		// A real pointer enters the toggle's wrapper on its way in and rests there.
+		// eslint-disable-next-line testing-library/no-node-access -- the tooltip wrapper has no role or name.
+		const wrapper = indexingToggle().closest(
+			'[data-base-ui-tooltip-trigger], [data-trigger-disabled]'
+		) as Element;
+		/* eslint-disable testing-library/prefer-user-event -- Match the package's existing interaction tests without adding a dependency. */
+		fireEvent.pointerMove( wrapper, { pointerType: 'mouse' } );
+		fireEvent.mouseEnter( wrapper );
+		fireEvent.mouseMove( wrapper );
+		/* eslint-enable testing-library/prefer-user-event */
+		act( () => jest.runAllTimers() );
+
+		expect( Boolean( screen.queryByText( 'Managed in your site visibility settings' ) ) ).toBe(
+			locked
+		);
+	} );
+
 	it( 'is enabled with the usual help text on a public site', () => {
-		render( <SettingsScreen form={ buildForm( { site_is_private: false } ) } /> );
+		render( <SettingsScreen form={ buildForm( { site_visibility_url: visibilityUrl } ) } /> );
 
 		expect( indexingToggle() ).toBeEnabled();
-		expect( screen.queryByText( /Your site is private/i ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( /Your site is (private|in Coming Soon)/i )
+		).not.toBeInTheDocument();
+		expect( visibilityLink() ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -328,15 +370,15 @@ describe( 'Settings module completion status', () => {
 	} );
 } );
 
-describe( 'Settings module title chips', () => {
-	// The chip must not swallow the title text: the header is how these modules are
+describe( 'Settings module title icons', () => {
+	// The icon must not swallow the title text: the header is how these modules are
 	// found by assistive tech, and by every other test in this file.
 	it.each( [ 'Site visibility', 'Site verification', 'Canonical URLs', 'Front-page description' ] )(
-		'renders %s with its title text and a leading icon chip',
+		'renders %s with its title text and a leading icon',
 		moduleTitle => {
 			render( <SettingsScreen form={ buildForm() } /> );
 
-			// `getByText` resolves to the chip wrapper, whose text content is the title
+			// `getByText` resolves to the title wrapper, whose text content is the title
 			// alone — the glyph beside it is a decorative SVG with no role.
 			const title = screen.getByText( moduleTitle );
 

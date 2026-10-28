@@ -62,7 +62,7 @@ export function ReportMetricChart( {
 }: ReportMetricChartProps ) {
 	const primary = report.primary.data;
 	const comparison = report.comparison.data;
-	const { hasComparison, timezone } = report;
+	const { hasComparison, timezone, periodStarts } = report;
 
 	const metrics = useMemo(
 		() => [
@@ -75,9 +75,20 @@ export function ReportMetricChart( {
 				countLabel,
 				noDataLabel,
 				zone: timezone,
+				periodStarts,
 			} ),
 		],
-		[ primary, comparison, hasComparison, field, label, countLabel, noDataLabel, timezone ]
+		[
+			primary,
+			comparison,
+			hasComparison,
+			field,
+			label,
+			countLabel,
+			noDataLabel,
+			timezone,
+			periodStarts,
+		]
 	);
 
 	return (

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Sync no order changes until the WooCommerce analytics module's first full sync starts.

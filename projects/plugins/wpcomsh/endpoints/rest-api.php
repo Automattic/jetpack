@@ -12,6 +12,7 @@ require_once __DIR__ . '/class-rest-api-code-deployment-logs-controller.php';
 require_once __DIR__ . '/rest-api-gutenberg-version.php';
 require_once __DIR__ . '/rest-api-logout.php';
 require_once __DIR__ . '/rest-api-reconnect.php';
+require_once __DIR__ . '/rest-api-wordpress-versions.php';
 
 /**
  * Initialize REST API.
@@ -30,5 +31,6 @@ function wpcomsh_rest_api_init() {
 	wpcomsh_rest_api_gutenberg_version_init();
 	wpcomsh_rest_api_logout_init();
 	wpcomsh_rest_api_reconnect_init();
+	wpcomsh_rest_api_wordpress_versions_init();
 }
 add_action( 'rest_api_init', 'wpcomsh_rest_api_init' );

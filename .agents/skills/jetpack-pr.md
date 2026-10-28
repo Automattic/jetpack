@@ -13,7 +13,11 @@ Instructions:
 3. Push the branch to the right remote (see "Choosing the remote" below)
 4. Prepare the PR content using the sections from .github/PULL_REQUEST_TEMPLATE.md:
    - Title: Clear summary of changes
-   - Fixes #: Link to issue if applicable (or remove if none)
+   - First line (the template's `Fixes #` line) references the issue, so Linear or GitHub can track it:
+     - `Fixes JETPACK-1234` when merging this PR completes the Linear issue, or `Fixes #1234` for a GitHub issue. Merging closes it.
+     - `Related to JETPACK-1234` when the issue stays open after this PR merges, for example when the PR covers only part of it.
+     - Remove the line when there is no issue.
+   - Related product discussion/links: only shorthands for the P2 posts and Slack threads where the change was discussed, such as `peKye1-1Z1-p2`. The issue ID lives on the first line alone, even though the template's comment mentions Linear here. Write `None.` when there are no discussions.
    - Proposed changes: Bullet points of functional changes
    - Testing instructions: Step-by-step how to test the changes
    - In the testing instructions, also state what you tested and what you did NOT test, so reviewers know where to focus. If you have a test site where the bug can be reproduced (e.g. a Jurassic Ninja site), include its URL — but never include private `*.wordpress.com` internal site URLs in the PR body; use the p2 shorthand (e.g. `peKye1-1Z1-p2`) instead.
