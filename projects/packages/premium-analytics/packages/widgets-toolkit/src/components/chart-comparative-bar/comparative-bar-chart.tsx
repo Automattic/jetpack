@@ -175,7 +175,8 @@ export function ComparativeBarChart( {
 	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
-	const { isSeriesVisible, setSeriesVisibility, hasSeededChart, theme } = useGlobalChartsContext();
+	const { isSeriesVisible, setSeriesVisibility, hasSeededChart, seedChartHiddenSeries, theme } =
+		useGlobalChartsContext();
 	const getBarColors = useBarColors();
 	const overlapLayout = layout === 'overlap' ? layout : undefined;
 	const previousPeriodToggle =
@@ -269,27 +270,39 @@ export function ComparativeBarChart( {
 		[ primarySeriesByGroup, isSeriesVisible, chartId ]
 	);
 
-	// Until the chart seeds its hidden series, the context still reports the previous period drawn.
+	// The provider's seed record survives remounts; this ID marks the default applied without hiding anything.
+	const previousPeriodSeedId = `${ chartId }:previous-period`;
 	let previousPeriodShown: boolean | undefined;
 	if ( previousPeriodToggle && pickedComparisonLabel !== undefined ) {
-		previousPeriodShown = hasSeededChart( chartId )
+		previousPeriodShown = hasSeededChart( previousPeriodSeedId )
 			? isSeriesVisible( chartId, pickedComparisonLabel )
 			: defaultPreviousPeriodShown;
 	}
 
-	const seededHiddenSeries = useMemo( () => {
-		if ( ! previousPeriodToggle ) {
-			return defaultHiddenSeries;
+	// Waits for comparison series, which can arrive after mount when the reader turns comparison on.
+	useLayoutEffect( () => {
+		if (
+			! previousPeriodToggle ||
+			comparisonIndexes.length === 0 ||
+			hasSeededChart( previousPeriodSeedId )
+		) {
+			return;
 		}
-		const hidden = defaultHiddenSeries ?? [];
-		return defaultPreviousPeriodShown
-			? hidden
-			: [ ...hidden, ...comparisonIndexes.map( index => alignedSeries[ index ].label ) ];
+		seedChartHiddenSeries( previousPeriodSeedId, [] );
+		if ( ! defaultPreviousPeriodShown ) {
+			for ( const index of comparisonIndexes ) {
+				setSeriesVisibility( chartId, alignedSeries[ index ].label, false );
+			}
+		}
 	}, [
 		previousPeriodToggle,
-		defaultHiddenSeries,
-		defaultPreviousPeriodShown,
 		comparisonIndexes,
+		previousPeriodSeedId,
+		hasSeededChart,
+		seedChartHiddenSeries,
+		defaultPreviousPeriodShown,
+		setSeriesVisibility,
+		chartId,
 		alignedSeries,
 	] );
 
@@ -523,7 +536,7 @@ export function ComparativeBarChart( {
 				data={ alignedSeries }
 				layout={ layout }
 				options={ chartOptions }
-				defaultHiddenSeries={ seededHiddenSeries }
+				defaultHiddenSeries={ defaultHiddenSeries }
 				legend={ legendConfig }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }

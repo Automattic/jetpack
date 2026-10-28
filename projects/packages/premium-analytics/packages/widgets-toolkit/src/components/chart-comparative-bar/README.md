@@ -43,7 +43,7 @@ second current-period series keeps its own dates.
 | `className`                   | `string`                      | No       | CSS class for the chart container                                                                                                                                                               |
 | `chartTitle`                  | `string`                      | No       | What the chart shows, such as the widget title; the chart is named "Chart: <title>"                                                                                                             |
 | `chartId`                     | `string`                      | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again                                                       |
-| `defaultHiddenSeries`         | `readonly string[]`           | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive`                                                                     |
+| `defaultHiddenSeries`         | `readonly string[]`           | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive` or `defaultPreviousPeriodShown`                                     |
 | `legendInteractive`           | `boolean`                     | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false`                                                                                     |
 | `comparisonLabel`             | `string`                      | No       | Names the comparison in each metric's previous-period legend item, e.g. "Prev. 30 days". Defaults to "Previous period"                                                                          |
 | `layout`                      | `'grouped' \| 'overlap'`      | No       | The bar chart's layout; see below. Defaults to `grouped`                                                                                                                                        |
@@ -55,7 +55,7 @@ second current-period series keeps its own dates.
 
 With `layout="overlap"`, the chart draws each `group` inside the one before it, and the previous period in a slot beside the current one. The bars are opaque and charts tones them, so the tooltip and legend swatches read their colors from the charts `useBarColors` hook instead of the series colors. The series keep their `group`s: `group` still names the metric. The legend names the previous period with one item, in the color of the picked metric's previous bar, or else of its widest shown bar.
 
-With `defaultPreviousPeriodShown`, that item becomes a toggle and the legend is interactive. The previous period starts as the prop says, and the charts context owns it after that, like `defaultHiddenSeries`. A metric's previous bar is drawn only while both the previous period and that metric are shown, and a hidden previous period leaves the tooltip too.
+With `defaultPreviousPeriodShown`, that item becomes a toggle and the legend is interactive. The previous period starts as the prop says, once comparison series exist, and the charts context owns it after that, like `defaultHiddenSeries`. A metric's previous bar is drawn only while both the previous period and that metric are shown.
 
 ## Date alignment and tooltips
 
@@ -66,7 +66,7 @@ cuts, is named by its span, and a whole year by the year alone.
 The chart draws comparison series as a separate shadow layer rather than a registered series, so
 their values never reach a custom `renderTooltip`. This component re-pairs them by date before
 handing the data to `DatedTooltip` — without that, the shadow bar would be visible but its value
-unreadable.
+unreadable. A hidden comparison series is left out of the tooltip.
 
 ## Y-axis domain
 
