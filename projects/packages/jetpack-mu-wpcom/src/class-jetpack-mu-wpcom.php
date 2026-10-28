@@ -144,6 +144,8 @@ class Jetpack_Mu_Wpcom {
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
+			// Match WPCOM site dashboard functionality for WordPress.com sites.
+			add_filter( 'jetpack_protect_threat_ignoring_enabled', '__return_false' );
 		}
 
 		// Premium Analytics offers the Ads tab on Simple and Atomic sites whose plan includes WordAds and that have it on.
