@@ -23,14 +23,15 @@ describe.each( [
 	[ 'ReportPageLayout', ReportLayout ],
 ] )( '%s', ( _name, Layout ) => {
 	it( 'ends its scroll area with the Jetpack footer', () => {
-		render(
+		const { container } = render(
 			<Layout>
 				<p>content</p>
 			</Layout>
 		);
 
-		expect(
-			screen.getByText( 'content' ).compareDocumentPosition( screen.getByText( 'Jetpack footer' ) )
-		).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+		// eslint-disable-next-line testing-library/no-node-access -- Which element ends the scroll root is the assertion.
+		expect( container.firstElementChild?.lastElementChild ).toBe(
+			screen.getByText( 'Jetpack footer' )
+		);
 	} );
 } );
