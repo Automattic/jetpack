@@ -47,7 +47,7 @@ const POST_PAGE: SingleReportPageRecord = {
 			slug: 'emails',
 			label: 'Emails',
 			default_layout: [ { uuid: 'b', type: 'jpa/b' } ],
-			controls: false,
+			controls: [],
 		},
 	],
 };
@@ -140,10 +140,19 @@ describe( 'resolveSingleReportSection', () => {
 } );
 
 describe( 'resolveSingleReportControls', () => {
-	const page = { ...POST_PAGE, controls: { presets: [ 'last-7-days' ] } };
+	const page = {
+		...POST_PAGE,
+		controls: [
+			{
+				id: 'range',
+				type: 'jpa/report-params',
+				elements: [ { value: 'last-7-days', label: 'Last 7 days' } ],
+			},
+		],
+	};
 
 	it( 'lets a section override the page, and inherit it with null', () => {
-		expect( resolveSingleReportControls( page, page.sections[ 1 ] ) ).toBe( false );
+		expect( resolveSingleReportControls( page, page.sections[ 1 ] ) ).toEqual( [] );
 		expect( resolveSingleReportControls( page, page.sections[ 0 ] ) ).toBe( page.controls );
 		expect( resolveSingleReportControls( VIDEO_PAGE, undefined ) ).toBeNull();
 	} );

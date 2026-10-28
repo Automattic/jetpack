@@ -69,7 +69,7 @@ const POST_PAGE = {
 	default_layout: [],
 	sections: [
 		{ slug: 'traffic', label: 'Traffic', default_layout: [], controls: null },
-		{ slug: 'emails', label: 'Emails', default_layout: [], controls: false },
+		{ slug: 'emails', label: 'Emails', default_layout: [], controls: [] },
 	],
 };
 

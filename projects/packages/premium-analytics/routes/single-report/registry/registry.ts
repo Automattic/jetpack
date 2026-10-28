@@ -6,9 +6,22 @@ import { isDashboardSectionAvailable } from '@jetpack-premium-analytics/data';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 /**
- * The date controls a page or a section declares: a presets list, false for none, null for the default.
+ * A header control a page or a section declares: a DataViews field of a type the stage binds
+ * to the page state, `jpa/report-params` today.
  */
-export type SingleReportControls = { presets: string[] } | false | null;
+export type SingleReportControlField = {
+	id: string;
+	type: string;
+	label?: string;
+	elements?: Array< { value: string | number | boolean | null; label: string } >;
+	[ key: string ]: unknown;
+};
+
+/**
+ * The header controls a page or a section declares: field declarations, empty for none,
+ * null for the default date control.
+ */
+export type SingleReportControls = SingleReportControlField[] | null;
 
 /**
  * An inner section of a single-report page, with its own layout.
@@ -30,7 +43,7 @@ export type SingleReportPageSection = {
 	default_layout: DashboardWidget[];
 
 	/*
-	 * The section's date controls; null inherits the page's.
+	 * The section's header controls; null inherits the page's.
 	 */
 	controls: SingleReportControls;
 };
@@ -80,7 +93,7 @@ export type SingleReportPageRecord = {
 	icon: string | null;
 
 	/*
-	 * The page's date controls; null for the detail presets.
+	 * The page's header controls; null for the default date control.
 	 */
 	controls: SingleReportControls;
 
@@ -193,11 +206,11 @@ export function getSingleReportLayout(
 }
 
 /**
- * The date controls the page renders: the active section's unless it inherits, else the page's.
+ * The header controls the page renders: the active section's unless it inherits, else the page's.
  *
  * @param page    - The page.
  * @param section - The active inner section, if any.
- * @return A presets list, false for no controls, null for the detail presets.
+ * @return The field declarations, empty for none, null for the default date control.
  */
 export function resolveSingleReportControls(
 	page: SingleReportPageRecord,

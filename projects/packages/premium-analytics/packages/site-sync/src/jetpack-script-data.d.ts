@@ -23,7 +23,7 @@ declare module '@automattic/jetpack-script-data' {
 				scope_param: string;
 				id_pattern: string;
 				icon: string | null;
-				controls: { presets: string[] } | false | null;
+				controls: Array< Record< string, unknown > > | null;
 				reports_page: string | null;
 				preferences_scope: string;
 				default_layout: Array< Record< string, unknown > >;
@@ -31,7 +31,7 @@ declare module '@automattic/jetpack-script-data' {
 					slug: string;
 					label: string;
 					default_layout: Array< Record< string, unknown > >;
-					controls: { presets: string[] } | false | null;
+					controls: Array< Record< string, unknown > > | null;
 				} >;
 			} >;
 			// Whether the reader may see Stats reports; a shop manager may see only the store's.

@@ -76,7 +76,7 @@ function SinglePageLayoutStory( {
 	} );
 	const header = videoHeaderSlots( summary, { label: 'Video', performanceRange: range } );
 	const controls = useMemo(
-		() => buildControlFields( withControls ? null : false ),
+		() => buildControlFields( withControls ? null : [] ),
 		[ withControls ]
 	);
 

@@ -50,7 +50,7 @@ const CLIP_PAGE = {
 	path: 'clip',
 	label: 'Clip',
 	icon: null,
-	controls: false,
+	controls: [],
 	reports_page: null,
 	preferences_scope: 'jetpack-premium-analytics/clip-detail',
 };

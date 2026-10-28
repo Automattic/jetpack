@@ -7,13 +7,12 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { SingleReportControls } from './registry';
+import type { SingleReportControlField, SingleReportControls } from './registry';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
-export const REPORT_PARAMS_FIELD_ID = 'reportParams';
-
 /**
- * The item the page's controls edit.
+ * The item the page's controls edit: `reportParams` is the key the `jpa/report-params` field
+ * reads and writes, `allTimeStart` the All time anchor it reads.
  */
 export type ControlsItem = {
 	reportParams: Record< string, unknown >;
@@ -21,25 +20,28 @@ export type ControlsItem = {
 };
 
 /**
- * The DataForm fields of a page's date controls: one `jpa/report-params` field over the
- * presets the record lists, the detail presets by default, or none at all.
+ * The control a record gets when it declares none: a date range over the detail presets.
+ *
+ * @return The field declaration.
+ */
+function defaultDateControl(): SingleReportControlField {
+	return {
+		id: 'reportParams',
+		type: 'jpa/report-params',
+		label: __( 'Date range', 'jetpack-premium-analytics-pkg' ),
+		elements: MENU_SURFACE_PRESETS_WITH_ALL_TIME.map( value => ( { value, label: value } ) ),
+	};
+}
+
+/**
+ * The DataForm fields of a page's header controls: the fields the record declares, resolved
+ * through the registered field types, or the default date control for a record without any.
  *
  * @param controls - The record's controls for the active section.
  * @return The resolved fields, empty for a page without controls.
  */
 export function buildControlFields( controls: SingleReportControls ): Field< ControlsItem >[] {
-	if ( controls === false ) {
-		return [];
-	}
+	const declarations = controls ?? [ defaultDateControl() ];
 
-	const presets: readonly string[] = controls?.presets ?? MENU_SURFACE_PRESETS_WITH_ALL_TIME;
-
-	return resolveFieldTypes( [
-		{
-			id: REPORT_PARAMS_FIELD_ID,
-			type: 'jpa/report-params',
-			label: __( 'Date range', 'jetpack-premium-analytics-pkg' ),
-			elements: presets.map( value => ( { value, label: value } ) ),
-		},
-	] ) as unknown as Field< ControlsItem >[];
+	return resolveFieldTypes( declarations ) as unknown as Field< ControlsItem >[];
 }

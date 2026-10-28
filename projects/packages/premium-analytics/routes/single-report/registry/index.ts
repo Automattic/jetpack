@@ -4,6 +4,7 @@ export {
 	isValidEntityId,
 	resolveSingleReportControls,
 	resolveSingleReportSection,
+	type SingleReportControlField,
 	type SingleReportControls,
 	type SingleReportPageRecord,
 	type SingleReportPageSection,
