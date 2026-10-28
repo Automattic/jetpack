@@ -272,6 +272,7 @@ final class Stats_Settings {
 			'api_active'        => function_exists( 'wp_has_consent' ),
 			'api_installed'     => file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ),
 			// Complianz answers this filter, but CookieYes sets the type only in the browser, hence `banner_plugin`.
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Defined by the WP Consent API plugin, checked just before.
 			'has_banner'        => function_exists( 'wp_get_consent_type' ) && (bool) wp_get_consent_type(),
 			'banner_plugin'     => $banner_plugin,
 			// What core's `wp/v2/plugins` route checks before it installs or activates.
