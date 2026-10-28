@@ -83,6 +83,8 @@ function register_block() {
 			'show_in_rest'      => true,
 			'single'            => true,
 			'type'              => 'string',
+			/* translators: Keep the quoted values, block names and meta keys in English. */
+			'description'       => __( 'Who can read the post on the site: "everybody" (the default, also when empty), "subscribers" (free and paid) or "paid_subscribers" (paid only). Anyone without access sees a subscribe prompt instead. "everybody" and "subscribers" posts are emailed to all subscribers, "paid_subscribers" posts only to paid ones; with newsletter categories on, only to those subscribed to one of its categories or to all content. To show a free preview, add a Paywall block (jetpack/paywall) where it should end: everything above it stays public, the post is emailed to all subscribers and cut off at the paywall for anyone without access, and an "everybody" post becomes subscribers-only below the block. "paid_subscribers" works only on sites that already have a paid newsletter tier. Without one, the owner first connects Stripe and adds a tier under Monetize > Payment Settings in the WordPress.com dashboard (Jetpack Cloud on self-hosted sites). If unsure a tier exists, check with the site owner first.', 'jetpack' ),
 			// The REST schema already rejects non-strings, but non-REST writers
 			// (importers, XML-RPC, WP-CLI, direct update_post_meta, sync) only pass
 			// through sanitize_meta(). Coerce anything that isn't a string to ''
@@ -108,6 +110,8 @@ function register_block() {
 			'show_in_rest'  => true,
 			'single'        => true,
 			'type'          => 'boolean',
+			/* translators: Keep the quoted values, block names and meta keys in English. */
+			'description'   => __( 'Set to true to publish without emailing the post to subscribers. The email is sent once, when the post goes live, so this has to be set in the request that publishes it, or any time before the date of a scheduled post. Once the post is published, changing it neither sends nor recalls the email. The default comes from the site\'s newsletter settings and can be either value, so send it explicitly when the email matters.', 'jetpack' ),
 			'auth_callback' => function () {
 				return wp_get_current_user()->has_cap( 'edit_posts' );
 			},
@@ -121,6 +125,8 @@ function register_block() {
 			'show_in_rest'  => true,
 			'single'        => true,
 			'type'          => 'integer',
+			/* translators: Keep the quoted values, block names and meta keys in English. */
+			'description'   => __( 'Only applies when _jetpack_newsletter_access is "paid_subscribers": the ID of the monthly paid newsletter tier a reader needs. Subscribers on that tier, its yearly plan or a plan priced the same or higher in the same currency can read the post and get the email. Unset or 0 lets every paid subscriber in, which is the right value unless the site owner names a specific tier. An ID that matches no tier is ignored.', 'jetpack' ),
 			'auth_callback' => function () {
 				return wp_get_current_user()->has_cap( 'edit_posts' );
 			},
@@ -134,6 +140,8 @@ function register_block() {
 			'show_in_rest'  => true,
 			'single'        => true,
 			'type'          => 'boolean',
+			/* translators: Keep the quoted values, block names and meta keys in English. */
+			'description'   => __( 'Computed on every save: true when the post has a Paywall block or its _jetpack_newsletter_access is "subscribers" or "paid_subscribers". Any value sent here is overwritten; change _jetpack_newsletter_access or the content instead.', 'jetpack' ),
 			'auth_callback' => function () {
 				return wp_get_current_user()->has_cap( 'edit_posts' );
 			},

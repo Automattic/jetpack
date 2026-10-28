@@ -6,7 +6,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { home, link, seen } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
-import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
 import clsx from 'clsx';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
@@ -44,12 +44,17 @@ const indexingHelp = __(
 	'Turning this off asks search engines to stop indexing your site — Google and Bing honor it, others ignore it. Same setting as Settings → Reading.',
 	'jetpack-seo'
 );
-// Shown when the site is unpublished: on WordPress.com a private or coming-soon
+// Shown when the site is unpublished: on WordPress.com a private or Coming Soon
 // site isn't hidden from search by a setting, so no SEO toggle can reveal it.
 const indexingPrivateHelp = __(
 	'Your site is private, so search engines cannot see it at all. Make it public in your site visibility settings to change this.',
 	'jetpack-seo'
 );
+const indexingComingSoonHelp = __(
+	'Your site is in Coming Soon mode, so search engines cannot see it yet. Launch it in your site visibility settings to change this.',
+	'jetpack-seo'
+);
+const indexingLockedTooltip = __( 'Managed in your site visibility settings', 'jetpack-seo' );
 const sitemapViewLabel = __( 'View sitemap', 'jetpack-seo' );
 const platformManagedHelp = __(
 	'This setting is managed by your hosting platform and cannot be changed here.',
@@ -188,6 +193,13 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	const canonicalStatus: SettingStatus = local.canonical_active ? 'complete' : 'not-started';
 	const frontPageStatus: SettingStatus = local.front_page_description ? 'complete' : 'not-started';
 
+	let indexingHelpText: string = indexingHelp;
+	if ( local.site_is_coming_soon ) {
+		indexingHelpText = indexingComingSoonHelp;
+	} else if ( local.site_is_private ) {
+		indexingHelpText = indexingPrivateHelp;
+	}
+
 	let canonicalHelpText: string = canonicalHelp;
 	if ( ! local.canonical_switchable ) {
 		canonicalHelpText = platformManagedHelp;
@@ -305,16 +317,31 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="lg">
-							<ToggleControl
-								label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
-								help={ local.site_is_private ? indexingPrivateHelp : indexingHelp }
-								checked={ local.search_engines_visible }
-								onChange={ next => commit( { search_engines_visible: next } ) }
-								// A private site is unpublished, not de-indexed. Turning this on would
-								// have to publish it, which is not this surface's decision to make.
-								disabled={ isSaving || local.site_is_private }
-								__nextHasNoMarginBottom
-							/>
+							<Stack direction="column" gap="xs">
+								{ /* A div trigger: the default button can't wrap the toggle's input. */ }
+								<Tooltip.Root disabled={ ! local.site_is_private }>
+									<Tooltip.Trigger render={ <div /> }>
+										<ToggleControl
+											label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
+											help={ indexingHelpText }
+											checked={ local.search_engines_visible }
+											onChange={ next => commit( { search_engines_visible: next } ) }
+											// A private site is unpublished, not de-indexed. Turning this on would
+											// have to publish it, which is not this surface's decision to make.
+											disabled={ isSaving || local.site_is_private }
+											__nextHasNoMarginBottom
+										/>
+									</Tooltip.Trigger>
+									<Tooltip.Popup positioner={ <Tooltip.Positioner align="start" /> }>
+										{ indexingLockedTooltip }
+									</Tooltip.Popup>
+								</Tooltip.Root>
+								{ local.site_is_private && (
+									<Link className={ styles.toggleLink } href={ local.site_visibility_url }>
+										{ __( 'Manage site visibility', 'jetpack-seo' ) }
+									</Link>
+								) }
+							</Stack>
 							<Stack direction="column" gap="xs">
 								<ToggleControl
 									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
@@ -338,7 +365,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 								{ simpleSite && <PlatformSitemapNotice /> }
 								{ sitemapEffectivelyOn && local.sitemap_url && (
 									<Link
-										className={ styles.sitemapLink }
+										className={ styles.toggleLink }
 										href={ local.sitemap_url }
 										openInNewTab
 										rel="noopener noreferrer"

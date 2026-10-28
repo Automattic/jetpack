@@ -1,10 +1,13 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useCallback, useRef, useState } from 'react';
+import { BarSeries, LineSeries, TooltipContext, XYChart } from '@visx/xychart';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { LineChartUnresponsive } from '../../../charts/line-chart/line-chart';
 import { GlobalChartsProvider } from '../../../providers';
 import { ChartScopeContext } from '../../../providers/chart-scope';
 import { AccessibleTooltip, XYChartTooltip, useKeyboardNavigation } from '../xy-chart-tooltip';
+import type { DataPointDate } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { ReactNode } from 'react';
 
 // A real chart is the harness rather than the subject: the crosshairs render only once visx has a data context and an open tooltip. The unresponsive export is what lets the test own the scope element — `withResponsive` otherwise provides its own wrapper as the scope.
@@ -46,6 +49,46 @@ const openTooltip = async () => {
 	await user.keyboard( '{ArrowRight}' );
 
 	return screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
+};
+
+const individualItems = [ 'First', 'Second' ].map( label => ( {
+	label,
+	data: [ { label: 'Jan', value: 10 } ],
+	options: {},
+} ) );
+const xAccessor = ( d: DataPointDate ) => d.label;
+const yAccessor = ( d: DataPointDate ) => d.value;
+const xScale = { type: 'band' } as const;
+const yScale = { type: 'linear' } as const;
+const renderKeys = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+	<div data-testid="keys">{ Object.keys( tooltipData?.datumByKey ?? {} ).join( ',' ) }</div>
+);
+
+const IndividualHarness = () => {
+	const [ selectedIndex, setSelectedIndex ] = useState( 0 );
+	const selectSecond = useCallback( () => setSelectedIndex( 1 ), [] );
+	return (
+		<GlobalChartsProvider>
+			<button onClick={ selectSecond }>next</button>
+			<XYChart width={ 300 } height={ 200 } xScale={ xScale } yScale={ yScale }>
+				{ individualItems.map( item => (
+					<BarSeries
+						key={ item.label }
+						dataKey={ item.label }
+						data={ item.data }
+						xAccessor={ xAccessor }
+						yAccessor={ yAccessor }
+					/>
+				) ) }
+				<XYChartTooltip
+					mode="individual"
+					series={ individualItems }
+					selectedIndex={ selectedIndex }
+					renderTooltip={ renderKeys }
+				/>
+			</XYChart>
+		</GlobalChartsProvider>
+	);
 };
 
 describe( 'XYChartTooltip', () => {
@@ -129,7 +172,98 @@ describe( 'XYChartTooltip', () => {
 
 		await expect( openTooltip() ).resolves.toHaveAttribute( 'stroke', '#dbdbdb' );
 	} );
+
+	it( 'lists only the selected item in individual mode as the selection moves', async () => {
+		const user = userEvent.setup();
+
+		render( <IndividualHarness /> );
+		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^First$/ );
+
+		await user.click( screen.getByRole( 'button', { name: 'next' } ) );
+
+		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^Second$/ );
+	} );
+
+	// Between April and May, visx hands Views its April point and Previous period, which has no April, its May point.
+	it.each( [
+		[ 'leaves out a series with no point at the nearest date', 0, 90, 'Views=10', false ],
+		[
+			'reads every series at the nearest date, not at its own nearest point',
+			90,
+			0,
+			'Views=40,Previous period=30',
+			true,
+		],
+	] )( '%s', async ( _name, viewsDistance, previousDistance, rows, previousGlyph ) => {
+		render(
+			<PointerHarness viewsDistance={ viewsDistance } previousDistance={ previousDistance } />
+		);
+
+		await expect( screen.findByTestId( 'rows' ) ).resolves.toHaveTextContent( rows );
+		expect( screen.getByTestId( 'xy-chart-tooltip-glyph-Views' ) ).toBeInTheDocument();
+		expect( !! screen.queryByTestId( 'xy-chart-tooltip-glyph-Previous period' ) ).toBe(
+			previousGlyph
+		);
+	} );
 } );
+
+const april = { date: new Date( '2025-04-01' ), value: 10 };
+const may = { date: new Date( '2025-05-01' ), value: 40 };
+const previousMay = { date: new Date( '2025-05-01' ), value: 30 };
+const dateAccessor = ( d: DataPointDate ) => d.date;
+const timeScale = { type: 'time' } as const;
+const renderRows = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+	<div data-testid="rows">
+		{ Object.entries( tooltipData?.datumByKey ?? {} )
+			.map( ( [ key, { datum } ] ) => `${ key }=${ datum.value }` )
+			.join( ',' ) }
+	</div>
+);
+
+type PointerDistances = { viewsDistance: number; previousDistance: number };
+
+const ReportPointer = ( { viewsDistance, previousDistance }: PointerDistances ) => {
+	const tooltipContext = useContext( TooltipContext );
+	useEffect( () => {
+		tooltipContext?.showTooltip( {
+			key: 'Views',
+			datum: april,
+			index: 0,
+			distanceX: viewsDistance,
+			distanceY: 0,
+		} );
+		tooltipContext?.showTooltip( {
+			key: 'Previous period',
+			datum: previousMay,
+			index: 0,
+			distanceX: previousDistance,
+			distanceY: 0,
+		} );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+	return null;
+};
+
+const PointerHarness = ( distances: PointerDistances ) => (
+	<GlobalChartsProvider>
+		<XYChart width={ 300 } height={ 200 } xScale={ timeScale } yScale={ yScale }>
+			<LineSeries
+				dataKey="Views"
+				data={ [ april, may ] }
+				xAccessor={ dateAccessor }
+				yAccessor={ yAccessor }
+			/>
+			<LineSeries
+				dataKey="Previous period"
+				data={ [ previousMay ] }
+				xAccessor={ dateAccessor }
+				yAccessor={ yAccessor }
+			/>
+			<ReportPointer { ...distances } />
+			<XYChartTooltip renderTooltip={ renderRows } showSeriesGlyphs />
+		</XYChart>
+	</GlobalChartsProvider>
+);
 
 // Mirrors the charts' markup: the focusable chart container wraps the element `chartRef` points at.
 const NavigationHarness = ( {

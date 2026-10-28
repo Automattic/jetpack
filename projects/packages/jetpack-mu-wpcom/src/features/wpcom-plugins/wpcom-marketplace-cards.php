@@ -197,12 +197,13 @@ function wpcom_marketplace_card_description_markup( $description, $plugin ) {
 
 	// The data attributes are what the tab's Tracks and kept details modals read off a card.
 	return sprintf(
-		'<span class="wpcom-marketplace-label">%s</span>%s<template class="wpcom-marketplace-strip" data-plugin="%s" data-saas="%s" data-installed="%s"%s>%s</template>',
+		'<span class="wpcom-marketplace-label">%s</span>%s<template class="wpcom-marketplace-strip" data-plugin="%s" data-saas="%s" data-installed="%s" data-needs-plan="%s"%s>%s</template>',
 		esc_html__( 'WordPress.com Marketplace', 'jetpack-mu-wpcom' ),
 		esc_html( wpcom_marketplace_card_description( $plugin ) ),
 		esc_attr( (string) ( $plugin['wpcom_product_slug'] ?? $plugin['slug'] ?? '' ) ),
 		$referral ? 'true' : 'false',
 		$installed ? 'true' : 'false',
+		! $installed && ! $referral && wpcom_marketplace_needs_plan() ? 'true' : 'false',
 		$requires_label,
 		wpcom_marketplace_card_strip( $plugin ) // Built from escaped parts.
 	);

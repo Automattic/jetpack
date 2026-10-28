@@ -129,6 +129,25 @@ The chart automatically handles negative growth with appropriate color coding:
 	];` }
 />
 
+### Negative Values
+
+A negative `currentShare` or `previousShare` switches every row to a diverging layout: bars grow out from a shared zero point, negative bars toward the inline start and positive bars toward the inline end. Zero sits in proportion to the range, so with shares from `-30` to `100` it falls 30 / 130 of the way across. Divide by the largest absolute value so both directions share one scale:
+
+<Canvas of={ LeaderboardChartStories.NegativeValues } />
+
+<Source
+	language="tsx"
+	code={ `const maxValue = Math.max(
+		...data.flatMap(item => [Math.abs(item.currentValue), Math.abs(item.previousValue)])
+	);
+
+	const processedData = data.map(item => ({
+		...item,
+		currentShare: (item.currentValue / maxValue) * 100, // -100 to 100
+		previousShare: (item.previousValue / maxValue) * 100,
+	}));` }
+/>
+
 ## Data Formatting
 
 ### Custom Value Formatting

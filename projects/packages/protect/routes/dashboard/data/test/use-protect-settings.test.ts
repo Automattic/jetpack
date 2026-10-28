@@ -112,12 +112,18 @@ describe( 'useProtectSettings', () => {
 		],
 		[ 'waf_error', 'The firewall couldn’t finish applying your change.', { list: 'stored' } ],
 		[ 'other_error', 'Raw server text', {} ],
+		[
+			'rest_invalid_param',
+			'Your IP address is on the block list.',
+			{},
+			{ params: { list: 'Your IP address is on the block list.' } },
+		],
 	] )(
 		'a failed save with the code %s shows "%s" and leaves %j',
-		async ( code, message, expected ) => {
+		async ( code, message, expected, data: object = {} ) => {
 			respondWith( {
 				get: Promise.resolve( { list: 'stored', other: 1 } ),
-				post: Promise.reject( { code, message: 'Raw server text' } ),
+				post: Promise.reject( { code, message: 'Raw server text', data } ),
 			} );
 			const { result } = renderHook( () => useProtectSettings() );
 

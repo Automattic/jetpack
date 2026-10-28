@@ -21,10 +21,12 @@ class Plans {
 	 * Get a list of all available plans from WordPress.com
 	 *
 	 * @since-jetpack 7.7.0
+	 * @since $$next-version$$ Accepts request arguments.
 	 *
+	 * @param array $args Request arguments, such as a `timeout` for a lookup in front of a page render.
 	 * @return array The plans list
 	 */
-	public static function get_plans() {
+	public static function get_plans( $args = array() ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if ( ! class_exists( 'Store_Product_List' ) ) {
 				require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
@@ -40,11 +42,14 @@ class Plans {
 			// since the latter only returns Jetpack Plans, but we're also interested in
 			// WordPress.com plans, for consumers of this method that run on WP.com.
 			'1.5',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new \Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
-				),
+			array_merge(
+				$args,
+				array(
+					'method'  => 'GET',
+					'headers' => array(
+						'X-Forwarded-For' => ( new \Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
+					),
+				)
 			),
 			null,
 			'rest'
@@ -62,13 +67,15 @@ class Plans {
 	 * Get plan information for a plan given its slug
 	 *
 	 * @since-jetpack 7.7.0
+	 * @since $$next-version$$ Accepts request arguments.
 	 *
 	 * @param string $plan_slug Plan slug.
+	 * @param array  $args      Request arguments, as accepted by `get_plans()`.
 	 *
 	 * @return object The plan object
 	 */
-	public static function get_plan( $plan_slug ) {
-		$plans = self::get_plans();
+	public static function get_plan( $plan_slug, $args = array() ) {
+		$plans = self::get_plans( $args );
 		if ( ! is_array( $plans ) ) {
 			return;
 		}

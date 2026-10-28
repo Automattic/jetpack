@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.13.0] - 2026-10-26
+### Added
+- Add a "What's new in Jetpack?" section with recent Jetpack.com blog posts to the Overview, shown only while the Overview v1 feature flag is on. [#53629]
+- Add the Overview v1 sections with Stats, Protect and Boost, shown only while the Overview v1 feature flag is on. [#53628]
+- Add the `jetpack_my_jetpack_feature_upgrade` filter, so a host can send a feature's Upgrade button to its own plans. [#53726]
+- Features: Add the default-off `my-jetpack-account-connect` flag, which starts the account connection from the Install or Connect button of features that need a WordPress.com account. [#53757]
+- Features: Offer Connect on Jetpack AI behind the default-off `my-jetpack-account-connect` flag when a WordPress.com account is all it is missing. [#53760]
+- Features: Turn a feature on when its account connection, started from its Connect button, returns to Features. This is behind the default-off `my-jetpack-account-connect` flag. [#53758]
+- Fill the Overview v1 sections with the remaining products and replace the old Overview content, shown only while the Overview v1 feature flag is on. [#53977]
+
+### Changed
+- Backup: Show Backup's state from the site's plan on its Features card instead of a switch, offering an upgrade, or a renewal for an expired plan. [#53726]
+- Greet the current user by name in the Overview heading, shown only while the Overview v1 feature flag is on. [#54041]
+- Header: Float the connection panel inside the page and tighten its spacing. [#54102]
+- Header: Leave the plan and connection out of the Overview, since the header shows them, while the header controls feature flag is on. [#53977]
+- Onboarding: Size the terms of service line through its Text variant instead of overriding the shared styles. [#53892]
+- Overview: Draw the sections as a compact bordered grid with a divider under each heading, shown only while the Overview v1 feature flag is on. [#54040]
+- Overview: Greet the user by their first name when their profile has one. [#54099]
+- Overview: Rename the "What's new in Jetpack?" closing link to "Read more", behind the Overview v1 feature flag. [#54042]
+- Overview: Show the Stats tabs as plain totals above an area chart, while the Overview v1 feature flag is on. [#54043]
+- Overview: Show the Welcome heading above notices and banners, behind the Overview v1 feature flag. [#54098]
+- Say "Your site is in Offline Mode" in the connection status, and name Offline Mode consistently with the Connectors screen. [#54034]
+- Speed up the dashboard by removing duplicate product and plan requests on page load. [#53946]
+- Update package dependencies. [#53951]
+
+### Fixed
+- Boost card: Fetch a new speed score when the saved one is incomplete, instead of showing an empty score. [#53918]
+- Features: Leave the menu badge count out of the name shown when a feature is added to the menu. [#54067]
+- Features: Retry loading the feature list after a rate-limited or unreadable response, and say the list is incomplete when it cannot be loaded. [#53988]
+- Header: Stop offering to purchase a plan or activate a license to sites with Jetpack Complete, shown only while the header controls feature flag is on. [#53977]
+- Help: Keep the help cards inside their column on narrow screens. [#53847]
+- Onboarding: Explain why connecting failed, with the underlying cause underneath when it helps. [#53289]
+- Overview: Line up the lock icon with the label on locked upgrade links. [#54038]
+- Products: Show the correct status and use the active plugin copy when turning products on or off with both stable and Beta or development copies installed. [#53994]
+- Protect card: Show the firewall as on whenever it is running, matching the Protect page. [#54055]
+- Stop offering retired Security and Growth plans while preserving existing subscriptions. [#53854]
+- Update the Account Protection activation message to describe what the feature does. [#53987]
+
 ## [6.12.0] - 2026-10-20
 ### Added
 - Add catalog-controlled Pro offers and preserve existing plan management. [#53421]
@@ -3100,6 +3138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.12.0...6.13.0
 [6.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.11.0...6.12.0
 [6.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.10.0...6.11.0
 [6.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.9.1...6.10.0

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -43,6 +43,19 @@ describe( 'MetricList', () => {
 
 		expect( screen.getByText( 'Email 0' ) ).toBeInTheDocument();
 		expect( screen.getByText( '1%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps a row action in the label cell, beside the label', () => {
+		render(
+			<MetricList
+				items={ [ { id: 1, label: 'Email', value: '5%', action: <a href="/view">View</a> } ] }
+			/>
+		);
+
+		const row = within( screen.getByRole( 'listitem' ) );
+		expect( row.getByRole( 'link', { name: 'View' } ) ).toBeInTheDocument();
+		expect( row.getByText( 'Email' ) ).toBeInTheDocument();
+		expect( row.getByText( '5%' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the empty state when there are no rows', () => {

@@ -7,6 +7,7 @@ import {
 	seriesLegendArgTypes,
 	extractLegendConfig,
 	medalCountsData,
+	temperatureData,
 	largeValuesData,
 	trafficData,
 	steadyTrafficData,
@@ -15,7 +16,8 @@ import {
 	type SeriesLegendStoryControls,
 } from '../../../stories';
 import BarChart from '../bar-chart';
-import type { ChartLegendConfig, SeriesData } from '../../../types';
+import type { ChartLegendConfig, DataPointDate, SeriesData } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
@@ -1042,4 +1044,38 @@ export const LabelOverflowEllipsis: Story = {
 			},
 		},
 	},
+};
+
+const [ newYork, london ] = temperatureData;
+const londonWithoutJanuary = [ newYork, { ...london, data: london.data.slice( 1 ) } ];
+
+const renderEverySeriesTooltip = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+	<div style={ { padding: '8px' } }>
+		<strong>{ tooltipData?.nearestDatum?.datum.date?.toISOString().slice( 0, 7 ) }</strong>
+		{ Object.entries( tooltipData?.datumByKey ?? {} ).map( ( [ key, { datum } ] ) => (
+			<div key={ key }>
+				{ key }: { datum.value }
+			</div>
+		) ) }
+	</div>
+);
+
+export const GroupedTooltipWithMissingDates: Story = {
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'A custom `renderTooltip` that lists every series in `tooltipData.datumByKey`, which the default grouped tooltip does not. **London** has no point in January, so the January tooltip lists only **New York**.',
+			},
+		},
+	},
+	render: () => (
+		<div style={ { width: '600px', height: '350px' } }>
+			<BarChart
+				withTooltips
+				data={ londonWithoutJanuary }
+				renderTooltip={ renderEverySeriesTooltip }
+			/>
+		</div>
+	),
 };
