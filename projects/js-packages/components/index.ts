@@ -42,7 +42,6 @@ export { default as JitmSlot } from './components/jitm-slot/index.tsx';
 export * from './components/icons/index.tsx';
 export { default as ThemeProvider } from './components/theme-provider/index.tsx';
 export { default as Text, H2, H3, Title } from './components/text/index.tsx';
-export { default as NumberControl } from './components/number-control/index.tsx';
 export { default as QRCode } from './components/qr-code/index.tsx';
 export { default as Button } from './components/button/index.tsx';
 export type { ButtonProps } from './components/button/types.ts';
@@ -66,6 +65,8 @@ export { default as ActionPopover } from './components/action-popover/index.tsx'
 export { default as UpsellBanner } from './components/upsell-banner/index.tsx';
 export { getUserLocale, cleanLocale } from './lib/locale/index.ts';
 export { default as StatCard } from './components/stat-card/index.tsx';
+export { default as PeriodSelector } from './components/period-selector/index.tsx';
+export type { PeriodPreset, PeriodSelectorProps } from './components/period-selector/types.ts';
 export { default as DiffViewer } from './components/diff-viewer/index.tsx';
 export { default as MarkedLines } from './components/marked-lines/index.tsx';
 export { default as DetailsViewer } from './components/details-viewer/index.tsx';

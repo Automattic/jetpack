@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: GEO: Allow every AI crawler until the owner blocks it, store blocks per group in `jetpack_seo_blocked_crawlers`, make the crawler toggles mean "block" when on, and show the forced state while "Prevent third-party sharing" is on. The new SEO page is still gated.
+

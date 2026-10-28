@@ -51,6 +51,13 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
+	 * The page's URL, used by the opt-in redirect and the SEO modules' Configure links.
+	 */
+	public function test_get_url_points_at_the_seo_page() {
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-seo' ), Admin_Page::get_url() );
+	}
+
+	/**
 	 * Read the `is_gated` flag the way the dashboard does — off the injected script
 	 * data — so the gate is exercised through its public surface.
 	 *
@@ -210,6 +217,32 @@ class AdminPageTest extends TestCase {
 
 		Admin_Page::restore_screen_id_after_wp_build();
 		$this->assertSame( 'jetpack_page_jetpack-seo', get_current_screen()->id );
+	}
+
+	/**
+	 * The menu must be visible even when seo-tools is off, so the user can turn it back on.
+	 * Verified by checking that no module gate is declared on the registered item.
+	 */
+	public function test_menu_item_is_registered_without_a_module_gate() {
+		Admin_Page::add_menu_item();
+
+		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$menu_items->setAccessible( true );
+		}
+		$items = $menu_items->getValue( null );
+
+		$seo_item = null;
+		foreach ( $items as $item ) {
+			if ( Admin_Page::MENU_SLUG === $item['menu_slug'] ) {
+				$seo_item = $item;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $seo_item, 'SEO menu item was not registered' );
+		$this->assertArrayNotHasKey( 'module', $seo_item['args'] ?? array() );
+		$this->assertSame( 'jetpack-seo', $seo_item['args']['key'] ?? null );
 	}
 
 	/**

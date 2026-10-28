@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Attribute activity to the correct site on Atomic and Jetpack sites.

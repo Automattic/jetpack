@@ -62,6 +62,15 @@ class Admin_Page {
 	private static $jitm_opt_out_screen_id = null;
 
 	/**
+	 * The SEO page's wp-admin URL.
+	 *
+	 * @return string
+	 */
+	public static function get_url() {
+		return admin_url( 'admin.php?page=' . self::MENU_SLUG );
+	}
+
+	/**
 	 * Register the admin menu item.
 	 *
 	 * Uses Admin_Menu so the page is reachable on wp-admin across all site
@@ -84,10 +93,11 @@ class Admin_Page {
 			self::MENU_SLUG,
 			$callback,
 			null,
-			// SEO has no My Jetpack product class, so the module is the only gate available.
+			// No module gate: the menu must stay visible even when seo-tools is off so the
+			// user can turn it back on from the page. Hosts may still use the
+			// jetpack_admin_menu_visibility filter to hide it via the 'jetpack-seo' key.
 			array(
-				'module' => 'seo-tools',
-				'key'    => 'jetpack-seo',
+				'key' => 'jetpack-seo',
 			)
 		);
 

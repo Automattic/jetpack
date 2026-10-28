@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { decideInitialView, isAllTasksMode } from './orchestration.ts';
+import { buildAutoInput, decideInitialView, isAllTasksMode } from './orchestration.ts';
 import type { TailoredOutput } from './types.ts';
 
 const PAYLOAD = {} as TailoredOutput;
@@ -18,9 +18,36 @@ describe( 'isAllTasksMode', () => {
 	} );
 } );
 
+const INFERRED = { goal: 'build', site_name: 'Acme', description: 'Tools' } as const;
+
 describe( 'decideInitialView', () => {
-	it( 'shows the wizard with no AI output (new user), the list with it (returning user)', () => {
-		assert.equal( decideInitialView( { ai_output: null } ), 'wizard' );
-		assert.equal( decideInitialView( { ai_output: { payload: PAYLOAD } } ), 'list' );
+	for ( const [ name, data, view ] of [
+		[ 'inferred_input', { ai_output: null, inferred_input: INFERRED }, 'auto' ],
+		[ 'nothing', { ai_output: null }, 'wizard' ],
+		[
+			'ai_output over the others',
+			{ ai_output: { payload: PAYLOAD }, inferred_input: INFERRED },
+			'list',
+		],
+	] as const ) {
+		it( `returns ${ view } for ${ name }`, () => {
+			assert.equal( decideInitialView( data ), view );
+		} );
+	}
+} );
+
+describe( 'buildAutoInput', () => {
+	it( 'writes in the site language and subtitles in the user language', () => {
+		const data = {
+			ai_output: null,
+			inferred_input: INFERRED,
+			site: { language: 'fr_FR' },
+			user_language: 'it_IT',
+		};
+		assert.deepEqual( buildAutoInput( data ), {
+			...INFERRED,
+			locale: 'fr_FR',
+			ui_locale: 'it_IT',
+		} );
 	} );
 } );
