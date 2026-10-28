@@ -59,7 +59,7 @@ describe( 'MetricTabsChart previous-period toggle', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'keeps the previous period the reader chose when the metric changes', async () => {
+	it( 'keeps the previous period the reader last chose across metric tabs', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render( <Wrapper /> );
 		const previousPeriodItem = () => screen.getByLabelText( /^Previous period/ );
@@ -69,7 +69,11 @@ describe( 'MetricTabsChart previous-period toggle', () => {
 		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'true' );
 
 		await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
-
 		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'true' );
+		await user.click( previousPeriodItem() );
+		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'false' );
+
+		await user.click( screen.getByRole( 'tab', { name: /Views/ } ) );
+		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'false' );
 	} );
 } );
