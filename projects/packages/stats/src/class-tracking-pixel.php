@@ -197,9 +197,10 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * Wrap the tracking pushes in a WP Consent API gate.
 	 *
 	 * The check runs in the browser because cached HTML is shared across visitors, deferred to
-	 * DOMContentLoaded (and re-run on the `wp_consent_type_defined` readiness event) so a
-	 * late-loading consent plugin is still honored. The check is idempotent, and fails closed: an
-	 * unavailable or throwing client-side API waits for a consent-change event instead of firing.
+	 * DOMContentLoaded (and re-run on the `wp_consent_type_defined` readiness event and on `load`,
+	 * for an API script an optimizer delayed) so a late-loading consent plugin is still honored. The
+	 * check is idempotent, and fails closed: an unavailable or throwing client-side API waits for a
+	 * consent-change event instead of firing.
 	 *
 	 * `_jpStatsFire.done` is set before the pushes, not after, so the gate is at-most-once even
 	 * if a push throws. Retrying can't recover: the stats sender assigns the beacon `src` before
@@ -222,13 +223,16 @@ function _jpStatsCheck() {
 	if ( typeof window.wp_has_consent !== "function" ) { return; }
 	try {
 		if ( window.wp_has_consent( "statistics" ) ) { _jpStatsFire(); }
-	} catch ( e ) {}
+	} catch ( e ) {
+		window.console && console.warn( "Jetpack Stats: wp_has_consent() threw, so this view was not counted.", e );
+	}
 }
 document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
 	if ( event && event.detail && event.detail.statistics === "allow" ) { _jpStatsFire(); }
 } );
 document.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 window.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
+window.addEventListener( "load", _jpStatsCheck, { once: true } );
 if ( document.readyState === "loading" ) {
 	document.addEventListener( "DOMContentLoaded", _jpStatsCheck, { once: true } );
 } else {

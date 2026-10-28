@@ -605,6 +605,7 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 		$this->assertStringContainsString( 'DOMContentLoaded', $gate );
 		$this->assertStringContainsString( 'document.readyState', $gate );
 		$this->assertStringContainsString( 'wp_consent_type_defined', $gate );
+		$this->assertStringContainsString( 'window.addEventListener( "load", _jpStatsCheck, { once: true } );', $gate );
 
 		$this->assertSame( 1, substr_count( $gate, '_stq.push([ "view",' ) );
 		$this->assertSame( 1, preg_match( '/function _jpStatsFire\(\) \{(.*?)\n\}/s', $gate, $matches ) );
@@ -619,7 +620,9 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 		$gate = $this->invoke_build_consent_gate();
 
 		$this->assertStringContainsString( 'if ( typeof window.wp_has_consent !== "function" ) { return; }', $gate );
-		$this->assertStringContainsString( '} catch ( e ) {}', $gate );
+		$this->assertSame( 1, preg_match( '/\} catch \( e \) \{(.*?)\n\t\}/s', $gate, $matches ) );
+		$this->assertStringNotContainsString( '_jpStatsFire', $matches[1] );
+		$this->assertStringContainsString( 'console.warn', $matches[1] );
 	}
 
 	/**
