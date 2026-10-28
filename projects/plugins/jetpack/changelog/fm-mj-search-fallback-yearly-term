@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Show the fallback starting price per month, billed yearly, instead of $100 a month on the Search upgrade page when prices cannot be loaded.
