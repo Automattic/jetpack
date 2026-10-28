@@ -197,6 +197,21 @@ jest.mock( '@wordpress/plugins', () => ( {
 	registerPlugin: ( ...args ) => mockRegisterPlugin( ...args ),
 } ) );
 
+const mockRecordEvent = jest.fn();
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: {
+		initialize: jest.fn(),
+		assignSuperProps: jest.fn(),
+		tracks: { recordEvent: ( ...args ) => mockRecordEvent( ...args ) },
+	},
+} ) );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getSiteType: () => 'jetpack',
+} ) );
+
 // The real stores rather than mocks. Mocking `@wordpress/data` wholesale drops `combineReducers`,
 // which `@wordpress/components` needs at import time by way of `@wordpress/rich-text`.
 const { render, screen } = require( '@testing-library/react' );
@@ -205,6 +220,15 @@ const userEvent = require( '@testing-library/user-event' ).default;
 const { select, dispatch } = jest.requireActual( '@wordpress/data' );
 const { store: noticesStore } = jest.requireActual( '@wordpress/notices' );
 const { store: coreStore } = jest.requireActual( '@wordpress/core-data' );
+
+// The cases below exercise the entry's exports directly rather than through `loadEntryPoint()`,
+// which means nothing has told this copy of the analytics module that the page may record. A mount
+// does it for the isolated copy itself. {@see pageData}
+jest.requireActual( '../src/analytics' ).initializeTracks( {
+	canSend: true,
+	userData: { userid: 7, username: 'creator' },
+	blogId: 12345,
+} );
 
 const ELEMENT_ID = 'jetpack-email-design-editor';
 
@@ -278,6 +302,11 @@ function pageData( overrides = {} ) {
 		},
 		userEmail: 'creator@example.com',
 		globalStylesPostId: 878,
+		tracks: {
+			canSend: true,
+			userData: { userid: 7, username: 'creator' },
+			blogId: 12345,
+		},
 		...overrides,
 	};
 }
@@ -349,6 +378,7 @@ describe( 'Email design editor entry point', () => {
 		mockDispatchLog.length = 0;
 		mockEnabledAreas.length = 0;
 		mockRegisterPlugin.mockClear();
+		mockRecordEvent.mockClear();
 		dispatch( 'core/interface' ).setActiveComplementaryArea( undefined );
 		dispatch( 'core/preferences' ).resetPreferences();
 		dispatch( 'core/editor' ).resetPanels();
@@ -462,6 +492,31 @@ describe( 'Email design editor entry point', () => {
 			await loadEntryPoint();
 
 			expect( renderedTheErrorState() ).toBe( true );
+		} );
+
+		// The arrival is recorded server-side, so this is the difference between a creator who
+		// reached the screen and one who got an editor. NL-1088.
+		it( 'records a load that failed', async () => {
+			mockApiFetch.mockRejectedValue( new Error( 'network' ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_newsletter_email_design_load_error',
+				{ site_type: 'jetpack' }
+			);
+		} );
+
+		it( 'records nothing when the site may not send', async () => {
+			mockApiFetch.mockRejectedValue( new Error( 'network' ) );
+			window.JetpackEmailDesignEditor = pageData( {
+				tracks: { canSend: false, userData: null, blogId: null },
+			} );
+
+			await loadEntryPoint();
+
+			expect( mockRecordEvent ).not.toHaveBeenCalled();
 		} );
 	} );
 
@@ -1898,6 +1953,52 @@ describe( 'Email design editor entry point', () => {
 			] );
 		} );
 
+		// The silent half of NL-939: a creator told nothing and a dashboard told nothing either.
+		it( 'records a save that kept nothing, with the halves it was sent', async () => {
+			mockApiFetch.mockResolvedValueOnce( { blog_id: 1, design: null, discarded: true } );
+
+			storeDesign( {
+				styles: { color: { background: '#c0ffee' }, typography: { fontSize: '16px' } },
+				settings: {},
+			} );
+
+			await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: { styles: {}, settings: {} },
+				},
+				jest.fn()
+			);
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_email_design_save', {
+				site_type: 'jetpack',
+				outcome: 'discarded',
+				style_keys: 'color,typography',
+				setting_keys: '',
+			} );
+		} );
+
+		it( 'records a save the route refused, and still raises it', async () => {
+			mockApiFetch.mockRejectedValueOnce( new Error( 'nope' ) );
+
+			await expect(
+				createDesignSaveMiddleware( ourId )(
+					{
+						path: `/wp/v2/global-styles/${ ourId }`,
+						method: 'PUT',
+						data: { styles: {}, settings: {} },
+					},
+					jest.fn()
+				)
+			).rejects.toThrow( 'nope' );
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_newsletter_email_design_save',
+				expect.objectContaining( { outcome: 'error' } )
+			);
+		} );
+
 		it( 'stays quiet when the design was kept', async () => {
 			mockApiFetch.mockResolvedValueOnce( {
 				blog_id: 1,
@@ -2127,6 +2228,48 @@ describe( 'Email design editor entry point', () => {
 			const paths = mockApiFetch.mock.calls.map( ( [ options ] ) => options.path );
 
 			expect( paths ).not.toContain( '/wpcom/v2/send-email-preview' );
+		} );
+
+		// The two failures are a product problem and a plumbing problem, and the package's own send
+		// events name neither: it records one error whatever happened, and carries the address.
+		it( 'records a refusal for want of a post as its own reason', async () => {
+			arrangeSend( [] );
+
+			await expect(
+				createTestSendMiddleware( ourId )( sendRequest, jest.fn() )
+			).rejects.toMatchObject( { error: expect.stringContaining( 'Publish a post' ) } );
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_newsletter_email_design_test_email_error',
+				{ site_type: 'jetpack', reason: 'no_post' }
+			);
+		} );
+
+		it( 'records a send the route refused separately from one it never attempted', async () => {
+			mockApiFetch.mockReset();
+			mockApiFetch.mockImplementation( options =>
+				options.path.startsWith( '/wp/v2/posts' )
+					? Promise.resolve( [ { id: 42 } ] )
+					: Promise.reject( { message: 'Sending failed.' } )
+			);
+
+			await expect(
+				createTestSendMiddleware( ourId )( sendRequest, jest.fn() )
+			).rejects.toMatchObject( { error: 'Sending failed.' } );
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_newsletter_email_design_test_email_error',
+				{ site_type: 'jetpack', reason: 'send_failed' }
+			);
+		} );
+
+		it( 'records a send that went through, without the address it went to', async () => {
+			await createTestSendMiddleware( ourId )( sendRequest, jest.fn() );
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_newsletter_email_design_test_email_send',
+				{ site_type: 'jetpack' }
+			);
 		} );
 
 		it( 'reshapes a failure into the key the editor prints', async () => {

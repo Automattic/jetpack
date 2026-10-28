@@ -36,6 +36,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { registerPlugin } from '@wordpress/plugins';
 import { addQueryArgs } from '@wordpress/url';
+import { designKeys, forwardEditorEvents, initializeTracks, recordDesignEvent } from './analytics';
 import { watchDerivedTextColor } from './derived-text-color';
 import { bundleRootFontSize, watchRootFontSize, withRootFontSize } from './root-font-size';
 
@@ -699,7 +700,11 @@ function ResetDesignControl( { id } ) {
 	);
 
 	const openConfirmation = useCallback( () => setIsConfirming( true ), [] );
-	const cancelConfirmation = useCallback( () => setIsConfirming( false ), [] );
+
+	const cancelConfirmation = useCallback( () => {
+		setIsConfirming( false );
+		recordDesignEvent( 'reset', { outcome: 'cancelled' } );
+	}, [] );
 
 	/**
 	 * Clear the design, then fetch the canvas again.
@@ -713,11 +718,15 @@ function ResetDesignControl( { id } ) {
 		try {
 			await resetDesign( id );
 
+			recordDesignEvent( 'reset', { outcome: 'reset' } );
+
 			// The canvas draws the block previews WordPress.com rendered, fetched once when the
 			// screen mounted and inline-styled for email clients, so it goes on showing the design
 			// that was stored then. Fetching them again is what shows the reset one. NL-970.
 			screenControls.reload();
 		} catch ( error ) {
+			recordDesignEvent( 'reset', { outcome: 'error' } );
+
 			// The notice deliberately does not name what failed; this does.
 			// eslint-disable-next-line no-console
 			console.error( 'Jetpack email design reset:', error );
@@ -876,11 +885,24 @@ export function createDesignSaveMiddleware( id ) {
 
 		const submitted = { styles: edited.styles ?? {}, settings: edited.settings ?? {} };
 
-		const saved = await apiFetch( {
-			path: BOOTSTRAP_PATH,
-			method: 'POST',
-			data: { design: submitted },
-		} );
+		const changed = {
+			style_keys: designKeys( submitted.styles ),
+			setting_keys: designKeys( submitted.settings ),
+		};
+
+		let saved;
+
+		try {
+			saved = await apiFetch( {
+				path: BOOTSTRAP_PATH,
+				method: 'POST',
+				data: { design: submitted },
+			} );
+		} catch ( error ) {
+			recordDesignEvent( 'save', { outcome: 'error', ...changed } );
+
+			throw error;
+		}
 
 		// The route answers with an envelope — `{ blog_id, design, discarded }` — around a read-back
 		// of what was stored, since sanitizing drops anything outside the theme.json schema. Unwrap
@@ -899,6 +921,12 @@ export function createDesignSaveMiddleware( id ) {
 				{ type: 'snackbar', isDismissible: true }
 			);
 		}
+
+		// The one outcome the package cannot see, because `discarded` never reaches a store.
+		recordDesignEvent( 'save', {
+			outcome: saved?.discarded ? 'discarded' : 'saved',
+			...changed,
+		} );
 
 		return {
 			id,
@@ -997,6 +1025,8 @@ export function createTestSendMiddleware( globalStylesPostId, previewPostId = nu
 			const id = previewPostId || ( await newestPublishedPostId() );
 
 			if ( ! id ) {
+				recordDesignEvent( 'test_email_error', { reason: 'no_post' } );
+
 				throw new TestSendError(
 					__(
 						'Publish a post first — test emails are sent using your most recent post.',
@@ -1007,15 +1037,23 @@ export function createTestSendMiddleware( globalStylesPostId, previewPostId = nu
 
 			// The package's own `postId` is this screen's template id, which the route would read
 			// as a post.
-			return await apiFetch( {
+			const sent = await apiFetch( {
 				path: TEST_SEND_TARGET,
 				method: 'POST',
 				data: { id, email: options.data?.email },
 			} );
+
+			// Recorded here rather than forwarded from the package, whose own send events carry the
+			// recipient's address and a `postId` that is this screen's template.
+			recordDesignEvent( 'test_email_send' );
+
+			return sent;
 		} catch ( error ) {
 			if ( error instanceof TestSendError ) {
 				throw error;
 			}
+
+			recordDesignEvent( 'test_email_error', { reason: 'send_failed' } );
 
 			throw new TestSendError(
 				error?.message ?? __( 'Your test email could not be sent.', 'jetpack' )
@@ -1115,6 +1153,12 @@ export async function mountEmailDesignEditor() {
 	}
 
 	const root = createRoot( container );
+
+	// Before the editor mounts, which is when the package reads the filter that turns its own
+	// events on. {@see forwardEditorEvents}
+	initializeTracks( data.tracks );
+	forwardEditorEvents();
+
 	let stopWatchingSidebar = null;
 	let stopDerivingTextColor = null;
 	let stopWatchingRootFontSize = null;
@@ -1181,6 +1225,10 @@ export async function mountEmailDesignEditor() {
 		stopWatchingSidebar?.();
 		stopDerivingTextColor?.();
 		stopWatchingRootFontSize?.();
+
+		// The screen's own view event is recorded server-side, so this is what tells the two apart:
+		// a creator who arrived and a creator who got an editor.
+		recordDesignEvent( 'load_error' );
 
 		// The notice deliberately does not name which half failed; this does.
 		// eslint-disable-next-line no-console
