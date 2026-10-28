@@ -30,8 +30,8 @@ class Event_Countdown_Email_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Build the saved block markup the way save.jsx writes it.
 	 *
-	 * @param string $date  Contents of the hidden date element.
-	 * @param string $title Event title.
+	 * @param string|int $date  Contents of the hidden date element.
+	 * @param string     $title Event title.
 	 * @return string
 	 */
 	private function block_markup( $date, $title = 'My Event' ) {
