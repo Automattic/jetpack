@@ -2,7 +2,9 @@ import { Tabs } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
+import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../../hooks/use-analytics';
+import { getHistoryEntryKey } from '../../hooks/use-go-back';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import { isHeaderControlsEnabled } from '../header-controls/slot';
 import { FullWidthSeparator } from './full-width-separator';
@@ -22,7 +24,8 @@ import type { ReactNode } from 'react';
 export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNode } ) {
 	const params = useParams();
 	const navigate = useNavigate();
-	const { search } = useLocation();
+	const location = useLocation();
+	const { search } = location;
 	const { recordEvent } = useAnalytics();
 	const isNewUser = useIsJetpackUserNew();
 	const tabStartTimeRef = useRef< number >( Date.now() );
@@ -99,6 +102,11 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] ); // track this only on page load
+
+	const [ , setLastTab ] = useValueStore( 'lastTab', null );
+	useEffect( () => {
+		setLastTab( { path: `/${ currentTab }${ search }`, key: getHistoryEntryKey() } );
+	}, [ currentTab, search, location, setLastTab ] );
 
 	const tabs = useMemo( () => getMyJetpackSections(), [] );
 

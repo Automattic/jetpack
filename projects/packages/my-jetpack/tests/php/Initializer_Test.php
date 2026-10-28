@@ -339,6 +339,8 @@ class Initializer_Test extends BaseTestCase {
 			return false;
 		};
 		add_filter( 'rest_enabled', $probe );
+		Initializer::register_feature_flags();
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_false' );
 		try {
 			ob_start();
 			Initializer::print_modules_fallback();
@@ -346,6 +348,8 @@ class Initializer_Test extends BaseTestCase {
 			$this->assertSame( 0, $probes );
 		} finally {
 			remove_filter( 'rest_enabled', $probe );
+			remove_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_false' );
+			Feature_Flags::reset();
 			$_GET = array();
 		}
 	}
@@ -1618,6 +1622,15 @@ class Initializer_Test extends BaseTestCase {
 	 */
 	public function test_my_jetpack_flags_hide_the_ai_module_toggle_without_compatible_jetpack() {
 		$this->assertFalse( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
+	}
+
+	public function test_modules_to_features_defaults_on() {
+		Initializer::register_feature_flags();
+		try {
+			$this->assertTrue( Feature_Flags::is_enabled( Initializer::MODULES_TO_FEATURES_FLAG ) );
+		} finally {
+			Feature_Flags::reset();
+		}
 	}
 
 	/**

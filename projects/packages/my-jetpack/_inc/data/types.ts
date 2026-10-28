@@ -35,8 +35,8 @@ export type ProductSnakeCase = StateProducts[ string ];
 
 export type ProductCamelCase = ToCamelCase< ProductSnakeCase > & {
 	pricingForUi: ToCamelCase< ProductSnakeCase[ 'pricing_for_ui' ] > & {
-		fullPricePerMonth: number;
-		discountPricePerMonth: number;
+		fullPricePerMonth?: number;
+		discountPricePerMonth?: number;
 	};
 };
 
