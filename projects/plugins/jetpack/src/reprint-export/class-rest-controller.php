@@ -14,6 +14,10 @@ use WP_REST_Controller;
 use WP_REST_Response;
 use WP_REST_Server;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Reprint exporter REST controller.
  */
