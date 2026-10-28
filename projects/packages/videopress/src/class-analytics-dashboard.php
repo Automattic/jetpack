@@ -53,9 +53,10 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-videopress-pkg';
 
 	/**
-	 * Lowest widget contract the build works against: 2.0.0, the start of the major it is built for.
+	 * Lowest widget contract the build works against: Top videos renders the `@wordpress/ui`
+	 * primitives the SDK shares, which the dashboard ships from 2.1.0.
 	 */
-	const MIN_WIDGET_API_VERSION = '2.0.0';
+	const MIN_WIDGET_API_VERSION = '2.1.0';
 
 	/**
 	 * Hook the registrant on the dashboard's registry action and the seed on its layout filter.

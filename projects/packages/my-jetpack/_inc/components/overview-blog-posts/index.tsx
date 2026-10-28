@@ -64,7 +64,7 @@ const OverviewBlogPosts: FC = () => {
 					) ) }
 				</Stack>
 				<Link href="https://jetpack.com/resources/" openInNewTab>
-					{ __( 'More from the Jetpack blog', 'jetpack-my-jetpack' ) }
+					{ __( 'Read more', 'jetpack-my-jetpack' ) }
 				</Link>
 			</Stack>
 		</OverviewSection>

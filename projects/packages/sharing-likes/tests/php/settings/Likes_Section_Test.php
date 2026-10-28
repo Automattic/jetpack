@@ -220,6 +220,6 @@ class Likes_Section_Test extends BaseTestCase {
 
 		$this->assertStringNotContainsString( 'name="wpl_default"', $markup );
 		$this->assertStringNotContainsString( 'Connect your site', $markup );
-		$this->assertStringContainsString( 'unavailable while your site is in offline mode', $markup );
+		$this->assertStringContainsString( 'unavailable while your site is in Offline Mode', $markup );
 	}
 }

@@ -56,3 +56,9 @@
 		margin-inline-start: auto;
 	}
 }
+
+.jp-protect-history-empty {
+	padding-block:
+		var(--wpds-dimension-padding-lg)
+		var(--wpds-dimension-padding-2xl);
+}

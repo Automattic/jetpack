@@ -59,7 +59,7 @@ describe( 'SiteVisibilityCard', () => {
 
 		expect( screen.getByText( 'Open to search engines' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Sitemap published' ) ).toBeInTheDocument();
-		// The Overview renders `EnableSeoCard` in place of these cards when SEO tools
+		// The page shows the enable prompt in place of these cards when SEO tools
 		// are off, so an "SEO tools active" row could only ever read "active".
 		expect( screen.queryByText( /SEO tools/ ) ).not.toBeInTheDocument();
 	} );

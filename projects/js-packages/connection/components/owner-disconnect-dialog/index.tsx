@@ -5,6 +5,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import { CONNECTION_EVENTS, trackConnectionEvent } from '../../helpers/connection-tracking.ts';
 import useUnlinkUser from '../../hooks/use-unlink-user';
 import DisconnectActionFooter from '../shared/disconnect-action-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
@@ -61,9 +62,12 @@ const OwnerDisconnectDialog = ( {
 	const handleTransferClick = useCallback(
 		( e?: MouseEvent< HTMLElement > ) => {
 			e?.preventDefault();
+			trackConnectionEvent( CONNECTION_EVENTS.ownerTransferClick, context, {
+				location: 'owner_disconnect_dialog',
+			} );
 			onTransferOwnership?.();
 		},
-		[ onTransferOwnership ]
+		[ context, onTransferOwnership ]
 	);
 
 	const handleStayConnected = useCallback( () => {
@@ -101,7 +105,7 @@ const OwnerDisconnectDialog = ( {
 		isOpen && (
 			<Modal
 				title=""
-				contentLabel={ __( 'Disconnect Owner Account', 'jetpack-connection-js' ) }
+				contentLabel={ __( 'Disconnect owner account', 'jetpack-connection-js' ) }
 				aria={ {
 					labelledby: 'jp-connection__owner-disconnect-dialog__heading',
 				} }
@@ -112,7 +116,7 @@ const OwnerDisconnectDialog = ( {
 			>
 				<div className="jp-connection__disconnect-dialog__content">
 					<h1 id="jp-connection__owner-disconnect-dialog__heading">
-						{ __( 'Disconnect Owner Account', 'jetpack-connection-js' ) }
+						{ __( 'Disconnect owner account', 'jetpack-connection-js' ) }
 					</h1>
 					<p className="jp-connection__disconnect-dialog__large-text">
 						{ __(

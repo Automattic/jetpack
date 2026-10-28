@@ -18,6 +18,17 @@ type Probe = { summary: Record< string, number > };
 export const useReportConforms: typeof Api.useReport< Probe > =
 	null as unknown as typeof Facade.useReport< Probe >;
 
+// And when the contract declares a `useReport` option the facade does not take: the signature check
+// above lets an extra optional key through, and the facade would ignore it at runtime.
+type UntakenReportOption = Exclude<
+	keyof Api.UseReportOptions,
+	keyof NonNullable< Parameters< typeof Facade.useReport >[ 2 ] >
+>;
+
+export const reportOptionsTaken: [ UntakenReportOption ] extends [ never ]
+	? true
+	: UntakenReportOption = true;
+
 // And when the facade's `Donut` stops accepting the props the contract declares.
 export const donutConforms: typeof Api.Donut = null as unknown as typeof Facade.Donut;
 

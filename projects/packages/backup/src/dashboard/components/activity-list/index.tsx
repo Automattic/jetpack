@@ -19,11 +19,14 @@ import {
 	rotateLeft,
 } from '@wordpress/icons';
 import { Badge, Card, Link, Stack, Text } from '@wordpress/ui';
+import { containingBackup } from '../../data/api/known-threats';
 import { formatDuration } from '../../data/durations';
 import { formatStorageSize } from '../../data/storage-units';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-activity-log';
 import { useBackupRuns, type BackupRunLookup } from '../../hooks/use-backup-runs';
+import { useBackupsKnownThreats } from '../../hooks/use-known-threats';
 import { isBackupItem } from '../../types/activity';
+import { KnownThreatsBadgeWithWarning } from '../known-threats/badge';
 import QueryError from '../query-error';
 import { formatRowDate } from './row-date';
 import { useNewBackupRow } from './use-new-backup-row';
@@ -204,6 +207,25 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 }
 
 /**
+ * Known-threats cell — the badge for a backup with known threats. A field of its own, below the
+ * description: DataViews describes each row's button with its fields, so screen readers hear it.
+ *
+ * @param props      - Component props.
+ * @param props.item - The activity item.
+ * @return The badge, or null when the backup has none.
+ */
+function KnownThreatsCell( { item }: { item: ActivityItem } ) {
+	const { data: knownThreats } = useBackupsKnownThreats();
+	const flagged = isBackupItem( item )
+		? ( containingBackup( knownThreats, item.rewindId )?.knownThreats?.flagged ?? 0 )
+		: 0;
+	if ( flagged === 0 ) {
+		return null;
+	}
+	return <KnownThreatsBadgeWithWarning count={ flagged } />;
+}
+
+/**
  * The Activity Log admin URL PHP emitted, or null when that page is not registered.
  *
  * @return The URL, or null.
@@ -349,6 +371,15 @@ export default function ActivityList( {
 				getValue: ( { item } ) =>
 					`${ rowDate( item ) }${ item.summary ? ` ${ item.summary }` : '' }`,
 				enableHiding: false,
+				filterBy: false,
+			},
+			{
+				id: 'knownThreats',
+				// Read before the badge, and hidden with it on rows without one.
+				label: __( 'Warning', 'jetpack-backup-pkg' ),
+				render: KnownThreatsCell,
+				enableHiding: false,
+				enableSorting: false,
 				filterBy: false,
 			},
 		],

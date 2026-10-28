@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Let Store performance switch between a line and a bar chart in the widget header.

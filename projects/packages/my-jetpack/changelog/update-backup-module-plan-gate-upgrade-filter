@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add the `jetpack_my_jetpack_feature_upgrade` filter, so a host can send a feature's Upgrade button to its own plans.

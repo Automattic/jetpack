@@ -1,7 +1,8 @@
 # `@jetpack-premium-analytics/externals`
 
 A passthrough script module for the heavy third-party libraries the dashboard shares:
-`@automattic/charts`, `@wordpress/ui`, and `@wordpress/dataviews`.
+`@automattic/charts`, `@wordpress/ui`, `@wordpress/dataviews`, and the `JetpackFooter` from
+`@automattic/jetpack-components`.
 
 ## Why this exists
 

@@ -1,12 +1,13 @@
 import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { shield } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import IpListField from '../../components/settings/ip-list-field';
 import SettingToggle from '../../components/settings/setting-toggle';
 import FirewallToggle from './firewall-toggle';
+import HostFirewallCard from './host-firewall-card';
+import shieldFlame from './icon';
 import { AUTOMATIC_RULES, IP_ALLOW_LIST, IP_BLOCK_LIST, enabledKey } from './settings-keys';
 import type { FirewallContext } from './types';
 
@@ -115,9 +116,13 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 		[ save ]
 	);
 
+	if ( state?.providedByHost ) {
+		return <HostFirewallCard />;
+	}
+
 	if ( waf?.waf_supported === false ) {
 		return (
-			<ProtectCard icon={ shield } title={ __( 'Firewall', 'jetpack-protect-pkg' ) }>
+			<ProtectCard icon={ shieldFlame } title={ __( 'Firewall', 'jetpack-protect-pkg' ) }>
 				<CardRow>
 					<Text variant="body-md">
 						{ __( 'The firewall isn’t available on your site’s hosting.', 'jetpack-protect-pkg' ) }
@@ -129,7 +134,7 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 
 	return (
 		<ProtectCard
-			icon={ shield }
+			icon={ shieldFlame }
 			title={ __( 'Firewall', 'jetpack-protect-pkg' ) }
 			status={
 				standalone

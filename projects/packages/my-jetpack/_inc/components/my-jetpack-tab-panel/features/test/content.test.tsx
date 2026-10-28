@@ -36,12 +36,14 @@ let mockMainFeatures: Record< string, unknown > = {
 
 let mockModules: Record< string, MyJetpackModule > = {};
 let mockModulesLoaded = true;
+let mockModulesFailed = false;
 const mockRecordEvent = jest.fn();
 jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( {
 		modules: mockModules,
 		isLoading: false,
 		hasLoaded: mockModulesLoaded,
+		hasFailed: mockModulesFailed,
 	} ),
 } ) );
 
@@ -122,6 +124,7 @@ describe( 'FeaturesContent', () => {
 	beforeEach( () => {
 		mockModules = {};
 		mockModulesLoaded = true;
+		mockModulesFailed = false;
 		mockRecordEvent.mockClear();
 		mockStates = [ activeStats ];
 		mockIsLoading = false;
@@ -342,6 +345,35 @@ describe( 'FeaturesContent', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Explore all' } ) );
 
 		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
+	} );
+
+	it( 'says the list is incomplete when the modules failed and none arrived', () => {
+		mockModulesFailed = true;
+		renderAt( '/' );
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'This list is incomplete' );
+	} );
+
+	it.each( [
+		[ 'the modules loaded', false ],
+		[ 'a refresh failed over a full list', true ],
+	] )( 'shows no incomplete-list notice when %s', ( _, failed ) => {
+		mockModulesFailed = failed;
+		mockModules = { stats: { module: 'stats', activated: true } as MyJetpackModule };
+		renderAt( '/' );
+
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'drops the incomplete-list notice once another request refills the modules', () => {
+		mockModulesFailed = true;
+		const { rerenderAt } = renderAt( '/' );
+		expect( screen.getByRole( 'alert' ) ).toBeInTheDocument();
+
+		mockModules = { stats: { module: 'stats', activated: true } as MyJetpackModule };
+		rerenderAt();
+
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'waits for the read to settle before calling an empty catalog a failure', () => {

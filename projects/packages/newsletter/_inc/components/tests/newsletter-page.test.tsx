@@ -112,6 +112,57 @@ beforeEach( () => {
 } );
 
 describe( 'NewsletterPage tab navigation', () => {
+	it.each( [ 'overview', 'subscribers' ] )(
+		'confirms before leaving dirty Settings for %s',
+		next => {
+			const confirm = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
+			try {
+				const { rerender } = render(
+					<NewsletterPage activeTab="settings" hasUnsavedChanges>
+						<div>panel body</div>
+					</NewsletterPage>
+				);
+				const destination = screen.getByRole( 'tab', {
+					name: next === 'overview' ? 'Overview' : 'Subscribers',
+				} );
+				const expectedNavigation = {
+					search: {
+						tab: next === 'overview' ? undefined : next,
+						subscriber: undefined,
+						u: undefined,
+					},
+				};
+
+				destination.click();
+
+				expect( mockNavigate ).not.toHaveBeenCalled();
+				expect( confirm ).toHaveBeenCalledTimes( 1 );
+
+				confirm.mockReturnValue( true );
+				destination.click();
+
+				expect( confirm ).toHaveBeenCalledTimes( 2 );
+				expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+				expect( mockNavigate.mock.calls[ 0 ][ 0 ] ).toStrictEqual( expectedNavigation );
+
+				confirm.mockClear();
+				mockNavigate.mockClear();
+				rerender(
+					<NewsletterPage activeTab="settings" hasUnsavedChanges={ false }>
+						<div>panel body</div>
+					</NewsletterPage>
+				);
+				destination.click();
+
+				expect( confirm ).not.toHaveBeenCalled();
+				expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+				expect( mockNavigate.mock.calls[ 0 ][ 0 ] ).toStrictEqual( expectedNavigation );
+			} finally {
+				confirm.mockRestore();
+			}
+		}
+	);
+
 	it( 'navigates to ?tab=settings and clears subscriber-detail params on switch', () => {
 		render(
 			<NewsletterPage activeTab="subscribers">

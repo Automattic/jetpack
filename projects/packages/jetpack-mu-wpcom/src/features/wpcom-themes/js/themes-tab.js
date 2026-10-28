@@ -73,6 +73,7 @@
 		link.dataset.themeTier = theme.theme_tier;
 		link.dataset.requiredPlan = theme.required_plan;
 		link.dataset.context = context;
+		link.dataset.source = theme.wpcom_search_slot ? 'search' : 'tab';
 		link.textContent = purchase.text;
 		// Core labels its own buttons per theme, which a grid of them needs.
 		if ( purchase.label ) {
@@ -279,4 +280,53 @@
 			)
 		);
 	}
+
+	const Collection = window.wp.themes.Collection;
+	if ( ! list || ! Collection ) {
+		return;
+	}
+
+	const PRICING_PARAM = 'wpcom_pricing';
+
+	const select = document.createElement( 'select' );
+	select.id = 'wpcom-themes-tab-pricing';
+	select.dataset.wpcomThemesPricing = '';
+	[
+		[ 'all', config.allPlans ],
+		[ config.included, config.includedLabel ],
+	].forEach( ( [ value, text ] ) => {
+		const option = document.createElement( 'option' );
+		option.value = value;
+		option.textContent = text;
+		select.appendChild( option );
+	} );
+
+	const label = document.createElement( 'label' );
+	label.className = 'screen-reader-text';
+	label.htmlFor = select.id;
+	label.textContent = config.pricingLabel;
+
+	const pricing = document.createElement( 'span' );
+	pricing.className = 'wpcom-themes-tab__pricing';
+	pricing.hidden = true;
+	pricing.appendChild( label );
+	pricing.appendChild( select );
+	list.insertAdjacentElement( 'afterend', pricing );
+
+	// Every view's request passes through here, so the filter shows only while the tab is listed.
+	const query = Collection.prototype.query;
+	Collection.prototype.query = function ( request ) {
+		const onTab = !! request && request.browse === config.sort;
+		pricing.hidden = ! onTab;
+
+		if ( onTab && select.value === config.included ) {
+			return query.call( this, { ...request, [ PRICING_PARAM ]: select.value } );
+		}
+
+		return query.call( this, request );
+	};
+
+	select.addEventListener( 'change', () =>
+		window.wp.themes.RunInstaller?.view?.browse( config.sort )
+	);
 } )();

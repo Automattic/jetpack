@@ -12,6 +12,7 @@ import clsx from 'clsx';
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
 import { ExternalLink } from '../external-link';
+import { useStatsUpgradeLinkProps } from '../stats-upgrade-link';
 import styles from './locked-widget.module.scss';
 
 type LockedStateProps = {
@@ -32,6 +33,10 @@ type LockedStateProps = {
 function LockedState( { feature, source, className }: LockedStateProps ) {
 	const trackEvent = useTrackEvent();
 	const locked = getLockedFeature( feature );
+	const upgradeLink = useStatsUpgradeLinkProps(
+		'jetpack-premium-analytics-locked-feature',
+		locked?.upgrade_url
+	);
 
 	return (
 		<EmptyState.Root className={ clsx( styles.root, className ) }>
@@ -49,10 +54,10 @@ function LockedState( { feature, source, className }: LockedStateProps ) {
 					} ) }
 				</EmptyState.Description>
 			) }
-			{ locked?.upgrade_url && (
+			{ locked && upgradeLink && (
 				<EmptyState.Actions>
 					<ButtonLink
-						href={ locked.upgrade_url }
+						{ ...upgradeLink }
 						onClick={ () =>
 							trackEvent( 'jetpack_premium_analytics_plan_upgrade_click', { feature, source } )
 						}

@@ -177,6 +177,42 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertTrue( apply_filters( 'jetpack_module_configurable_' . $module, false ) );
 	}
 
+	/**
+	 * The URL a host sends and the upgrade link that results (null for the default).
+	 *
+	 * @return array[]
+	 */
+	public static function provide_host_upgrade_urls() {
+		return array(
+			'host plans'      => array( 'https://example.com/plans', 'https://example.com/plans' ),
+			'javascript: URL' => array( 'javascript:alert(1)', null ),
+			'not an array'    => array( null, null ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_host_upgrade_urls
+	 *
+	 * @param string|null $url      The URL the host sends, or null to return a non-array.
+	 * @param string|null $expected The resulting link, or null for the unfiltered one.
+	 */
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_host_can_send_scan_upgrade_elsewhere( $url, $expected ) {
+		$default      = Dashboard::get_scan_upgrade_url();
+		$send_to_host = static function ( $upgrade, $slug ) use ( $url ) {
+			if ( null === $url ) {
+				return '';
+			}
+			return 'protect-dashboard' === $slug ? array_merge( $upgrade, array( 'url' => $url ) ) : $upgrade;
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
+
+		$link = Dashboard::get_scan_upgrade_url();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
+
+		$this->assertSame( $expected ?? $default, $link );
+	}
+
 	public function test_init_announces_the_dashboard() {
 		$this->assertGreaterThan( 0, did_action( 'jetpack_protect_dashboard_initialized' ) );
 	}
@@ -415,7 +451,7 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Whether the site agreed to the terms, whether it is offline, and whether the Tracks script loads.
+	 * Whether the site agreed to the terms, whether it is offline, and whether Tracks is allowed.
 	 *
 	 * @return array[]
 	 */
@@ -432,16 +468,20 @@ class Dashboard_Test extends BaseTestCase {
 	 *
 	 * @param bool $agreed   Whether the site agreed to the terms of service.
 	 * @param bool $offline  Whether Jetpack is in offline mode.
-	 * @param bool $expected Whether the Tracks script loads.
+	 * @param bool $expected Whether the Tracks script loads and the page may record.
 	 */
 	#[DataProvider( 'provide_tracking_states' )]
-	public function test_tracks_script_loads_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
+	public function test_tracks_loads_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
 		\Jetpack_Options::update_option( 'tos_agreed', $agreed );
 		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
 
 		Dashboard::enqueue_tracks_transport();
+		ob_start();
+		Dashboard::print_tracks_state();
+		$printed = ob_get_clean();
 
 		$this->assertSame( $expected, wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->assertSame( $expected, false !== strpos( $printed, 'window.jetpackProtectTracks = true;' ) );
 	}
 
 	/**

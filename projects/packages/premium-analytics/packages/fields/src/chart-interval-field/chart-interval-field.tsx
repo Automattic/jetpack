@@ -8,6 +8,8 @@ import {
 	normalizeReportParams,
 	useReportScope,
 	useScopeLockedIntervals,
+	type IntervalExtension,
+	type IntervalRange,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import { INTERVAL_TYPES } from '@jetpack-premium-analytics/datetime';
@@ -37,56 +39,83 @@ export function chartIntervalElements( periods: readonly [ StatsPeriod, ...Stats
 	return periods.map( period => ( { value: period, label: getIntervalLabel( period ) } ) );
 }
 
-function ChartIntervalControl( {
-	data,
-	field,
-	onChange,
-}: DataFormControlProps< ChartIntervalFieldAttributes & Partial< ReportParamsFieldAttributes > > ) {
-	// The host renders this outside the widget tree, so it reads the applied range off the route.
-	const search = useSearch( { strict: false } ) as Parameters< typeof normalizeReportParams >[ 0 ];
-	const ownRange =
-		data.reportParams && Object.keys( data.reportParams ).length > 0 ? data.reportParams : null;
-	const elements = field.elements;
-	const lockedIntervals = useScopeLockedIntervals();
-	const intervalUpsell = useReportScope().dateLimits?.intervalUpsell;
+/**
+ * A widget's own change to the buckets its range allows, read from its saved attributes.
+ */
+type ExtendIntervals< T > = ( range: IntervalRange, item: T ) => IntervalExtension;
 
-	// Clamp, don't rewrite: the saved bucket shows again once the range allows it.
-	const { options, lockedOptions, value } = useMemo( () => {
-		const periods = (
-			elements?.length ? elements.map( ( { value: period } ) => period ) : INTERVAL_TYPES
-		) as [ StatsPeriod, ...StatsPeriod[] ];
-		// Like the chart: a widget that owns its range reads it before the page's.
-		const params = normalizeReportParams( ownRange ?? search, getDefaultPreset() );
+function createChartIntervalControl< T extends ChartIntervalFieldAttributes >(
+	extendIntervals?: ExtendIntervals< T >
+) {
+	return function ChartIntervalControl( {
+		data,
+		field,
+		onChange,
+	}: DataFormControlProps< T & Partial< ReportParamsFieldAttributes > > ) {
+		// The host renders this outside the widget tree, so it reads the applied range off the route.
+		const search = useSearch( { strict: false } ) as Parameters<
+			typeof normalizeReportParams
+		>[ 0 ];
+		const ownRange =
+			data.reportParams && Object.keys( data.reportParams ).length > 0 ? data.reportParams : null;
+		const elements = field.elements;
+		const lockedIntervals = useScopeLockedIntervals();
+		const intervalUpsell = useReportScope().dateLimits?.intervalUpsell;
 
-		return {
-			...intervalMenuOptions( params, lockedIntervals, periods ),
-			value: chartInterval( { ...params, interval: data.chartInterval }, periods, lockedIntervals ),
-		};
-	}, [ elements, ownRange, search, data.chartInterval, lockedIntervals ] );
+		// Clamp, don't rewrite: the saved bucket shows again once the range allows it.
+		const { options, lockedOptions, unavailableOptions, unavailableHint, value } = useMemo( () => {
+			const periods = (
+				elements?.length ? elements.map( ( { value: period } ) => period ) : INTERVAL_TYPES
+			) as [ StatsPeriod, ...StatsPeriod[] ];
+			// Like the chart: a widget that owns its range reads it before the page's.
+			const params = normalizeReportParams( ownRange ?? search, getDefaultPreset() );
+			const extension = extendIntervals?.( params, data );
 
-	return (
-		<DateIntervalDropdown
-			options={ options }
-			lockedOptions={ lockedOptions }
-			lockUpsell={ intervalUpsell }
-			value={ value }
-			withLabel
-			triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }
-			onChange={ next => onChange( { chartInterval: next as StatsPeriod } ) }
-		/>
-	);
+			return {
+				...intervalMenuOptions( params, lockedIntervals, periods, extension ),
+				value: chartInterval(
+					{ ...params, interval: data.chartInterval },
+					periods,
+					lockedIntervals,
+					extension
+				),
+			};
+		}, [ elements, ownRange, search, data, lockedIntervals ] );
+
+		return (
+			<DateIntervalDropdown
+				options={ options }
+				lockedOptions={ lockedOptions }
+				lockUpsell={ intervalUpsell }
+				unavailableOptions={ unavailableOptions }
+				unavailableHint={ unavailableHint }
+				value={ value }
+				triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }
+				onChange={ next =>
+					onChange( { chartInterval: next as StatsPeriod } as Parameters< typeof onChange >[ 0 ] )
+				}
+			/>
+		);
+	};
 }
 
 /**
  * The "Chart interval" attribute a chart widget declares to save its own bucket size. Pair it
  * with `with_header_interval_control: false` on the section, so the header offers no second one.
+ *
+ * @param extendIntervals - The widget's own change to the buckets its range allows.
+ * @return The field.
  */
-export const chartIntervalField: WidgetAttributeField< ChartIntervalFieldAttributes > = {
-	id: 'chartInterval',
-	// A getter: this module loads before the translations do.
-	get label() {
-		return __( 'Chart interval', 'jetpack-premium-analytics-pkg' );
-	},
-	relevance: 'high',
-	Edit: ChartIntervalControl as WidgetAttributeField< ChartIntervalFieldAttributes >[ 'Edit' ],
-};
+export function chartIntervalAttributeField<
+	T extends ChartIntervalFieldAttributes = ChartIntervalFieldAttributes,
+>( extendIntervals?: ExtendIntervals< T > ): WidgetAttributeField< T > {
+	return {
+		id: 'chartInterval',
+		// A getter: this module loads before the translations do.
+		get label() {
+			return __( 'Chart interval', 'jetpack-premium-analytics-pkg' );
+		},
+		relevance: 'high',
+		Edit: createChartIntervalControl( extendIntervals ) as WidgetAttributeField< T >[ 'Edit' ],
+	};
+}

@@ -118,7 +118,7 @@ describe( 'ReferrersWidget', () => {
 
 		fireEvent.click( sourceButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 
-		// Third level: URL-backed leaf domains render as outbound links and the
+		// Third level: URL-backed leaf domains list with a "View" action and the
 		// back link is labelled after the parent list.
 		await expect( screen.findByText( 'google.com' ) ).resolves.toBeInTheDocument();
 
@@ -214,16 +214,17 @@ describe( 'ReferrersWidget', () => {
 		await expect( screen.findByText( 'jetpack.com' ) ).resolves.toBeInTheDocument();
 	} );
 
-	it( 'renders childless referrers with a URL as outbound links that open in a new tab', async () => {
+	it( 'offers a childless referrer with a URL from a "View in new tab" action, not from its name', async () => {
 		render(
 			<ReferrersWidget
 				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
-		const link = await screen.findByRole( 'link', { name: /jetpack\.com/i } );
-		expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/' );
-		expect( link ).toHaveAttribute( 'target', '_blank' );
+		const view = await screen.findByRole( 'link', { name: 'View "jetpack.com" in a new tab' } );
+		expect( view ).toHaveAttribute( 'href', 'https://jetpack.com/' );
+		expect( view ).toHaveAttribute( 'target', '_blank' );
+		expect( screen.queryByRole( 'link', { name: /^jetpack\.com/i } ) ).not.toBeInTheDocument();
 	} );
 
 	// Referrer rows derive from inbound request data rather than anything the site
@@ -246,7 +247,7 @@ describe( 'ReferrersWidget', () => {
 		} );
 	} );
 
-	it( 'declares View all to the Referrers report and the CSV download to its host', async () => {
+	it( 'declares the CSV download to its host once the rows settle', async () => {
 		mockApiFetch.mockResolvedValue( REFERRERS_RESPONSE );
 		const { WidgetActionsHost, declaredActions } = createWidgetActionsHost();
 
@@ -264,12 +265,6 @@ describe( 'ReferrersWidget', () => {
 
 		await waitFor( () =>
 			expect( declaredActions() ).toEqual( [
-				expect.objectContaining( {
-					id: 'view-all',
-					label: 'View all',
-					relevance: 'high',
-					href: expect.stringContaining( '&p=%2Freports%2Freferrers%3F' ),
-				} ),
 				expect.objectContaining( { id: 'download-csv', relevance: 'medium' } ),
 			] )
 		);

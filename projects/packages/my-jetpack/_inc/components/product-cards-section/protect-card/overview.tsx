@@ -24,7 +24,8 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const { recordEvent } = useAnalytics();
 	const { action: statusAction, forcedOffReason } = useStatusAction(
 		PRODUCT_SLUGS.PROTECT,
-		__( 'Activate Protect', 'jetpack-my-jetpack' )
+		__( 'Activate Protect', 'jetpack-my-jetpack' ),
+		null
 	);
 	const { isSiteConnected } = useMyJetpackConnection();
 	const {

@@ -55,7 +55,6 @@ function SearchTermsInner() {
 	);
 
 	useReportActions( {
-		report: 'search-terms',
 		csv: {
 			exporter: searchTermsCsvExporter,
 			status: { isLoading, isFetching, isError: isPrimaryError },

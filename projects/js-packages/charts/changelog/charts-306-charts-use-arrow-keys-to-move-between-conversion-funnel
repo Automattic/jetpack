@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Conversion funnel chart: Select a step and show its tooltip when it takes keyboard focus, move between steps with the arrow keys, and have screen readers read the tooltip as the step's description.

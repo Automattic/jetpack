@@ -72,7 +72,6 @@ function AuthorTopPostsInner() {
 	);
 
 	useReportActions( {
-		report: 'authors',
 		csv: {
 			exporter: csvExporter,
 			status: { isLoading, isFetching, isError: ! hasData && isError },

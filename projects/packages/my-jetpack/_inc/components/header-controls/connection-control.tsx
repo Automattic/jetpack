@@ -63,7 +63,8 @@ const ConnectionControl: FC = () => {
 	const triggerRef = useRef< HTMLButtonElement >( null );
 	const returnFocusRef = useRef( false );
 	// Never stale, so opening reuses what the Overview or an earlier open loaded.
-	const { data: purchases = null } = useSitePurchases( {
+	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
+	const { data: purchases = null, isError: hasPurchasesError } = useSitePurchases( {
 		enabled: isOpen,
 		staleTime: Infinity,
 	} );
@@ -113,13 +114,17 @@ const ConnectionControl: FC = () => {
 					/>
 					<span className={ clsx( styles.dot, styles[ state.status ] ) } />
 				</Popover.Trigger>
-				<Popover.Popup>
-					<Stack direction="column" gap="md" className={ styles.content }>
+				<Popover.Popup positioner={ <Popover.Positioner align="end" collisionPadding={ 16 } /> }>
+					<Stack direction="column" gap="lg" className={ styles.content }>
 						<Stack direction="column" gap="sm" align="start">
 							<Text variant="heading-md" render={ <Popover.Title /> }>
 								{ __( 'Connection', 'jetpack-my-jetpack' ) }
 							</Text>
-							<ConnectionStatus status={ state.status } showAvatar={ showAvatar } />
+							<ConnectionStatus
+								status={ state.status }
+								showAvatar={ showAvatar }
+								className={ styles.illustration }
+							/>
 							<Badge intent={ STATUS_INTENTS[ state.status ] }>{ getBadgeLabel( state ) }</Badge>
 							<ConnectionOwnerInfo />
 							{ state.isDiagnosis && restoreConnectionError && (
@@ -152,8 +157,10 @@ const ConnectionControl: FC = () => {
 								</Link>
 							) }
 						</Stack>
-						{ purchases && <hr className={ styles.divider } /> }
-						<PlanSummary purchases={ purchases } />
+						{ ( purchases || ( hasPurchasesError && isAdmin ) ) && (
+							<hr className={ styles.divider } />
+						) }
+						<PlanSummary purchases={ purchases } hasFailed={ hasPurchasesError } />
 					</Stack>
 				</Popover.Popup>
 			</Popover.Root>

@@ -1,11 +1,15 @@
-import { ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
+import {
+	ensureCoreSettingsReady,
+	isDashboardSectionAvailable,
+} from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
-import { isDashboardSectionAvailable, isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	ensureCoreSettingsReady: jest.fn(),
+	isDashboardSectionAvailable: jest.fn( () => true ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -13,7 +17,6 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
-	isDashboardSectionAvailable: jest.fn( () => true ),
 } ) );
 jest.mock( '../stats-date-window', () => ( {
 	limitStatsDateSearch: jest.fn( () => undefined ),

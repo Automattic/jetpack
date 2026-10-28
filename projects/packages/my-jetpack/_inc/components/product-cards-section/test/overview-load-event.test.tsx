@@ -25,7 +25,7 @@ jest.mock( '../../../data/utils/get-my-jetpack-window-state', () => ( {
 } ) );
 jest.mock( '../../../hooks/use-stats-visits', () => () => mockStatsVisits );
 jest.mock( '../overview-item/use-status-action', () => () => ( { isPending: false } ) );
-jest.mock( '../../stats-section/cards', () => () => null );
+jest.mock( '../stats-card/overview-stats', () => () => null );
 jest.mock( '../../../data/use-simple-query', () => () => ( {
 	data: { scanData: { num_threats: 0 }, wafConfig: {} },
 	isLoading: false,
@@ -41,6 +41,10 @@ jest.mock( '../boost-card/use-boost-speed-score', () => () => ( {
 	retry: jest.fn(),
 } ) );
 
+const StatsItem: FC< { admin: boolean } > = props => (
+	<StatsOverviewItem { ...props } period={ { days: 7, end: new Date() } } />
+);
+
 const loaded = {
 	data: { fields: [], data: [] },
 	isLoading: false,
@@ -52,9 +56,9 @@ describe( 'Overview load event', () => {
 	beforeEach( () => mockRecordEvent.mockClear() );
 
 	it.each< [ string, FC< { admin: boolean } >, string, object ] >( [
-		[ 'Stats, loaded', StatsOverviewItem, 'active', loaded ],
-		[ 'Stats, switched off', StatsOverviewItem, 'module_disabled', loaded ],
-		[ 'Stats, failed', StatsOverviewItem, 'active', { ...loaded, data: undefined, isError: true } ],
+		[ 'Stats, loaded', StatsItem, 'active', loaded ],
+		[ 'Stats, switched off', StatsItem, 'module_disabled', loaded ],
+		[ 'Stats, failed', StatsItem, 'active', { ...loaded, data: undefined, isError: true } ],
 		[ 'Protect', ProtectOverviewItem, 'active', loaded ],
 		[ 'Boost', BoostOverviewItem, 'active', loaded ],
 	] )( 'records it once for %s', ( _, Item, status, visits ) => {

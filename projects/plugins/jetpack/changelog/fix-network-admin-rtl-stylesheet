@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Network Admin: Load the RTL stylesheet on RTL sites. No visible change yet, as the page's styles have no direction-specific rules.
+
+

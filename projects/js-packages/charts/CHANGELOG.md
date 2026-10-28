@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.12.0] - 2026-10-26
+### Added
+- Bar chart: Add an overlap layout that draws each group inside the one before it, with comparisons in a slot beside them, and expose its bar colors through a `useBarColors` hook. [#53836]
+
+### Changed
+- Bar chart: Draw comparison bars opaque, in a tint of their primary's color that keeps 3:1 contrast, and deprecate the theme's `barChart.barStyles.comparison.opacity`. [#53836]
+- Bar chart: Mark the keyboard-selected bar with a two-tone focus ring in the design system's focus color, so it shows on any bar color. [#53830]
+- Update package dependencies. [#53951] [#54001]
+
+### Fixed
+- Line chart: Leave hidden series out of the keyboard tooltip. [#53910]
+
 ## [4.11.1] - 2026-10-20
 ### Changed
 - Internal updates.
@@ -1204,6 +1216,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.12.0]: https://github.com/Automattic/charts/compare/v4.11.1...v4.12.0
 [4.11.1]: https://github.com/Automattic/charts/compare/v4.11.0...v4.11.1
 [4.11.0]: https://github.com/Automattic/charts/compare/v4.10.0...v4.11.0
 [4.10.0]: https://github.com/Automattic/charts/compare/v4.9.0...v4.10.0

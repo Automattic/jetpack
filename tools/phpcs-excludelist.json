@@ -4,7 +4,6 @@
 	"projects/packages/connection/src/class-nonce-handler.php",
 	"projects/packages/google-analytics/src/class-legacy.php",
 	"projects/packages/google-analytics/src/class-universal.php",
-	"projects/packages/jetpack-mu-wpcom/src/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php",
 	"projects/packages/status/src/class-status.php",
 	"projects/packages/sync/src/class-queue.php",
 	"projects/packages/sync/src/class-replicastore.php",

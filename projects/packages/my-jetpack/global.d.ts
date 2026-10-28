@@ -447,6 +447,7 @@ type ProtectData = {
 		standalone_mode?: boolean;
 		waf_supported: boolean;
 		waf_enabled: boolean;
+		waf_provided_by_host?: boolean;
 	};
 };
 
@@ -776,6 +777,7 @@ interface Window {
 		sandboxedDomain: string;
 		isDevVersion: boolean;
 		userIsAdmin: string;
+		userFirstName: string;
 		isWelcomeTourActive: boolean;
 		seoOptIn: {
 			showCard: boolean;

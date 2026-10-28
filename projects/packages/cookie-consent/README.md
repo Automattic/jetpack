@@ -56,13 +56,19 @@ These are the supported, stable entry points consumers may depend on. Everything
 Cookie_Consent::uninstall( true );
 ```
 
+### More than one consumer
+
+The first enabled `init()` in a request wins; later `init()` calls from any consumer are no-ops until `deactivate()`. A disabled `init()` (`enabled` false) registers nothing and does not claim the package, so a later enabled `init()`, from the same or another consumer, still boots it.
+
+Call `init()` on the `init` action at a priority below 10, or earlier: with `ccpa_page` on, `init()` hooks the CCPA page creation to `init` at priority 10, which a later call misses for that request.
+
 ### Configuration
 
-`Cookie_Consent::init( array $config = array() )` takes the whole configuration as a single argument. `$config` is partial — every key is optional and falls back to a package default — and is resolved once, on the first `init()` call, via `Config_Schema` (see `src/schema/class-config-schema.php` for the full shape). The consuming plugin should pass everything it needs up front here.
+`Cookie_Consent::init( array $config = array() )` takes the whole configuration as a single argument. `$config` is partial — every key is optional and falls back to a package default — and is resolved via `Config_Schema` by each `init()` until the first enabled one, after which later configs are ignored (see `src/schema/class-config-schema.php` for the full shape). The consuming plugin should pass everything it needs up front here.
 
 #### Master switch
 
-Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at all, including the consent-log REST controller:
+Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at all, including the consent-log REST controller. A disabled `init()` does not claim the package (see [More than one consumer](#more-than-one-consumer)):
 
 ```php
 Cookie_Consent::init(
@@ -84,13 +90,20 @@ Cookie_Consent::init(
 			'ccpa_page'          => true,  // CCPA "Your Privacy Choices" opt-out page and directives.
 			'footer_links'       => true,  // Required footer legal links (Block Hooks + classic-theme fallback).
 			'consent_log'        => true,  // Consent-log REST controller (table, cron cleanup, routes) + frontend logging.
-			'tracks'             => true,  // Automattic Tracks (stats.wp.com/w.js) enqueue.
+			'tracks'             => true,  // Automattic usage stats: Tracks (stats.wp.com/w.js) and cookieless banner stats (pixel.wp.com/g.gif).
 			'geo'                => true,  // Geolocation-based consent model and Boost cache-key exclusion.
 			'page_deletion_lock' => false, // Reserved; not yet wired to a behavior.
 		),
 	)
 );
 ```
+
+Turning `tracks` off stops every usage-stats request the package makes to Automattic:
+
+- Tracks events (`stats.wp.com/w.js`), which also need analytics consent.
+- Identity-free aggregate stats (`pixel.wp.com/g.gif`, with the site's hostname), sent when the banner is shown (preview mode included); on "Reject all", "Customize", or the CCPA opt-out button; on a save without analytics; and when "Manage Privacy Preferences" opens with no stored choice or one without analytics. "Accept all", a save with analytics, and opening "Manage Privacy Preferences" with analytics allowed send a Tracks event instead.
+
+It does not stop the geolocation request (`public-api.wordpress.com/geo/` with the default `wpcom` provider); turn `geo` off for that.
 
 Turning `geo` off stops resolving a visitor's region and excluding the geo cookies from Jetpack Boost's cache key, but the frontend module still receives a `geo` config sub-object (with `geoEnabled: false`) rather than none at all, since the module dereferences it unconditionally.
 
@@ -100,6 +113,10 @@ The `banner`, `ccpa_page`, and `footer_links` toggles surface interactive consen
 - **Preferences modal** (the `wp_footer` banner/modal markup) is rendered when `banner` **or** `footer_links` is on, since the footer link reopens it. It starts hidden and only auto-shows when `banner` is on, so a `footer_links`-only site never pops the banner.
 - **Consent-log POST** is skipped by the frontend when `consent_log` is off (its REST route is not registered), so no consent submission fires a request that 404s; the banner/CCPA UI still works client-side.
 - **Default consent state** (WP Consent API consent type, auto-granted consent in opt-out/unregulated regions, Global Privacy Control handling) is established by the banner flow. A `ccpa_page`-only setup assumes an existing CMP owns those defaults; the opt-out page still records choices through the WP Consent API so such a CMP can pick them up.
+
+A Global Privacy Control (GPC) signal is an opt-out wherever the visitor's consent model honors it: always in CCPA regions, and in GDPR regions (every visitor when `geo` is off) unless `gdpr_honors_gpc` is `false`. It is checked on every page load: a returning visitor who allowed optional categories and later turned GPC on is opted out (non-required categories denied, `wp_consent_saved` dispatched with `opt-out`). A stored choice conflicts with GPC when any WP Consent API category mapped to a non-required category is `allow`. A choice the visitor makes with GPC on (accept, reject, or save, in the banner or "Manage Privacy Preferences") sets the functional `jetpack_cookie_consent_gpc` cookie and is kept. Where the region ignores GPC, the stored choice is kept for that load; each load rechecks it against the region in the geo cookies. Package-granted consent (`auto_granted`) does not set it on its own. In a CCPA region the footer "Manage Privacy Preferences" link, otherwise GDPR-only, is shown to a GPC visitor so they can reach that override. Where the region honors GPC, the banner and the preferences modal show the `gpc_notice` copy, telling the visitor that optional cookies are off and that saving with a category turned on overrides GPC for this site, and closing the modal grants nothing.
+
+While a stored choice conflicts with GPC, Tracks (w.js) for a returning visitor loads only after the region check: with no network request when `geo` is off or the region is in the geo cookies (the opt-out then runs when the script module loads, before `DOMContentLoaded`, so consumers reading `wp_has_consent()` there see it), otherwise after the geo lookup. If the lookup fails with `showOnError` off, the stored choice is kept and Tracks loads when it allows analytics.
 
 #### Nested config groups
 

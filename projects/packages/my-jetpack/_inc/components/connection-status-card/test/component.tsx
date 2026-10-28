@@ -351,7 +351,7 @@ describe( 'ConnectionStatusCard', () => {
 			);
 
 			expect( screen.getByText( 'Site and account connected' ) ).toBeInTheDocument();
-			expect( screen.queryByText( 'Offline mode' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Offline Mode' ) ).not.toBeInTheDocument();
 		} );
 
 		// Matched as a direct child of the heading: the manage-connection button holds its own chevron.

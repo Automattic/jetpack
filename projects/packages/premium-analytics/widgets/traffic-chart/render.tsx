@@ -24,6 +24,7 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { useNoPublishedPosts } from '../use-no-published-posts';
+import { trafficIntervalExtension } from './interval-extension';
 import styles from './style.module.css';
 import useTrafficChart from './use-traffic-chart';
 import { TRAFFIC_PERIODS, defaultChartType } from './widget';
@@ -68,7 +69,8 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 	const period: TrafficChartGranularity = chartInterval(
 		{ ...reportParams, interval },
 		TRAFFIC_PERIODS,
-		lockedIntervals
+		lockedIntervals,
+		trafficIntervalExtension( reportParams, chartType )
 	);
 
 	// Names the bucket size drawn, not the saved one: the range may clamp it,

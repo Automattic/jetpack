@@ -50,7 +50,7 @@ function SsoOptionToggle( {
 }
 
 /**
- * The Login protection settings: brute force protection, account protection and WordPress.com login.
+ * The Login protection settings, plus account protection and WordPress.com login.
  *
  * @param props          - The dashboard context.
  * @param props.state    - This section's state from PHP.
@@ -70,9 +70,6 @@ export default function LoginProtectionSettingsCard( {
 		<ProtectCard icon={ key } title={ __( 'Login protection', 'jetpack-protect-pkg' ) }>
 			<CardRow>
 				<Stack direction="column" gap="md">
-					<Text variant="body-lg" render={ <h3 /> } className="jp-protect-card__subheading">
-						{ __( 'Brute force protection', 'jetpack-protect-pkg' ) }
-					</Text>
 					<SettingToggle
 						data={ data }
 						name="protect"
@@ -88,7 +85,7 @@ export default function LoginProtectionSettingsCard( {
 						name="jetpack_waf_ip_allow_list_enabled"
 						label={ __( 'Always allow specific IP addresses', 'jetpack-protect-pkg' ) }
 						help={ __(
-							'Allowed addresses are never blocked by the firewall or brute force protection.',
+							'Allowed addresses are never blocked by the firewall or login protection.',
 							'jetpack-protect-pkg'
 						) }
 					/>

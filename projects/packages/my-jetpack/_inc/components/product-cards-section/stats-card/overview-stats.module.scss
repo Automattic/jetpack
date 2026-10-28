@@ -1,0 +1,30 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.tabs {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: var(--wpds-dimension-gap-sm);
+
+	@media (max-width: gb.$break-small) {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+.tab {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--wpds-dimension-gap-xs);
+	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
+	border-radius: var(--wpds-border-radius-md);
+	text-align: start;
+	cursor: var(--wpds-cursor-control);
+
+	&:not([aria-disabled="true"]):hover {
+		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	}
+
+	&.is-selected {
+		background-color: var(--wpds-color-background-surface-brand);
+	}
+}

@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\IdentityCrisis\UI;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -92,7 +93,7 @@ class Jetpack_Connector {
 			'wordpress_com',
 			array(
 				'name'           => 'Jetpack Connection',
-				'description'    => __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' ),
+				'description'    => __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com cloud services.', 'jetpack-connection' ),
 				'type'           => 'cloud_service',
 				'logo_url'       => static::get_connector_logo_url(),
 				'authentication' => array(
@@ -109,7 +110,7 @@ class Jetpack_Connector {
 	 *
 	 * @since 8.2.0
 	 * @since 9.11.0 Loads the webpack build from dist/, with its dependencies and version from the asset file.
-	 * @since $$next-version$$ Loads the Tracks script when tracking is allowed.
+	 * @since 9.14.0 Loads the Tracks script when tracking is allowed.
 	 */
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
@@ -155,8 +156,15 @@ class Jetpack_Connector {
 			Assets::enqueue_script( $handle );
 		}
 
+		// The analytics package adds blog_id to every event from this global. Ungated, as an identity crisis loads Tracks without consent; same line as Initial_State::render().
+		wp_add_inline_script(
+			'jetpack-connection',
+			sprintf( 'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %d;', \Jetpack_Options::get_option( 'id', 0 ) ),
+			'before'
+		);
+
 		// The shared components the card renders push Tracks events to _tkq; only w.js is needed to send them. Same gate as My Jetpack.
-		if ( ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+		if ( static::is_tracking_allowed() ) {
 			Tracking::register_tracks_functions_scripts();
 			wp_enqueue_script( 'jp-tracks' );
 		}
@@ -195,6 +203,7 @@ class Jetpack_Connector {
 	 *
 	 * @since 8.2.0
 	 * @since 9.13.0 Shared connection state moved to the jetpack-connection store.
+	 * @since 9.14.0 Adds `connectorsUrl`; sends `connectedUsersUrl` whenever there are account rows, including while the owner's token is broken.
 	 *
 	 * @param array $data Existing script module data.
 	 * @return array Filtered script module data.
@@ -202,13 +211,13 @@ class Jetpack_Connector {
 	public static function get_connector_data( $data ) {
 		$manager       = new Manager();
 		$is_registered = $manager->is_connected();
-		$is_connected  = $is_registered && $manager->has_connected_owner();
 
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']          = static::get_connectors_page_path();
+		$data['connectorsUrl']        = admin_url( $data['redirectUri'] );
 		$data['connectorName']        = 'Jetpack Connection';
-		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' );
+		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com cloud services.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = static::get_connector_logo_url();
 
 		$connected_plugins   = $manager->get_connected_plugins();
@@ -228,7 +237,9 @@ class Jetpack_Connector {
 			static::add_identity_crisis_data( $data );
 		}
 
-		if ( $is_connected ) {
+		// Not gated on has_connected_owner(): it is false when the owner's token breaks,
+		// and the card still lists the owner of record and a healthy viewer's account then.
+		if ( $is_registered && ( (int) \Jetpack_Options::get_option( 'master_user' ) > 0 || $manager->is_user_connected() ) ) {
 			$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
 		}
 
@@ -281,7 +292,21 @@ class Jetpack_Connector {
 			'wpcomHomeUrl'                   => ( is_array( $idc_urls ) && array_key_exists( 'wpcom_url', $idc_urls ) ) ? $idc_urls['wpcom_url'] : '',
 			'isDevelopmentSite'              => (bool) Status::is_development_site(),
 			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
+			// Guarded: an older UI class (mid-update, or the abandoned jetpack-identity-crisis package another plugin bundles) has it private.
+			'platform'                       => is_callable( array( UI::class, 'get_platform' ) ) ? UI::get_platform() : null,
+			'bumpStats'                      => static::is_tracking_allowed(),
 		);
+	}
+
+	/**
+	 * Whether the site allows tracking, the same gate My Jetpack uses for Tracks.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function is_tracking_allowed() {
+		return ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() );
 	}
 
 	/**

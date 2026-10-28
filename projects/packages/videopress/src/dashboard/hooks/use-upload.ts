@@ -4,15 +4,14 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { useCallback, useSyncExternalStore } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
-import { UploadTokenError } from '../../client/hooks/use-resumable-uploader';
-import getMediaToken from '../../client/lib/get-media-token';
-import resumableFileUploader from '../../client/lib/resumable-file-uploader';
 import { syncChapters } from '../../client/utils/video-chapters/sync-chapters';
-import { LIBRARY_QUERY_KEY, toLibraryItem } from './use-library';
+import { toLibraryItem } from '../utils/library-item';
+import { startVideoUpload } from '../utils/start-video-upload';
+import { LIBRARY_QUERY_KEY } from './use-library';
 import { patchToApi } from './use-update-video-meta';
-import type { ApiMediaItem } from './use-library';
 import type { VideoMediaProps } from '../../client/lib/resumable-file-uploader/types';
 import type { VideoDetailsPatch } from '../types/library';
+import type { ApiMediaItem } from '../utils/library-item';
 import type { QueryClient } from '@tanstack/react-query';
 
 export type UploadStatus = 'pending' | 'uploading' | 'success' | 'failed';
@@ -180,32 +179,22 @@ async function startNextPending( client: QueryClient ): Promise< void > {
 		} );
 		settle();
 	};
-	try {
-		const tokenData = await getMediaToken( 'upload-jwt' );
-		if ( ! tokenData?.token ) {
-			throw new UploadTokenError();
-		}
-		resumableFileUploader( {
-			file,
-			tokenData,
-			onProgress: ( sent, total ) => {
-				if ( ! settled && store.activeId === id ) {
-					updateItem( id, { progress: total > 0 ? sent / total : 0, status: 'uploading' } );
-				}
-			},
-			onSuccess: media => {
-				if ( settled || store.activeId !== id ) {
-					return;
-				}
-				updateItem( id, { progress: 1, status: 'success', mediaId: String( media.id ), media } );
-				settle();
-				void finishUpload( id, client );
-			},
-			onError,
-		} );
-	} catch ( error ) {
-		onError( error );
-	}
+	await startVideoUpload( file, {
+		onProgress: ( sent, total ) => {
+			if ( ! settled && store.activeId === id ) {
+				updateItem( id, { progress: total > 0 ? sent / total : 0, status: 'uploading' } );
+			}
+		},
+		onSuccess: media => {
+			if ( settled || store.activeId !== id ) {
+				return;
+			}
+			updateItem( id, { progress: 1, status: 'success', mediaId: String( media.id ), media } );
+			settle();
+			void finishUpload( id, client );
+		},
+		onError,
+	} );
 }
 
 /**

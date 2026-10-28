@@ -61,8 +61,8 @@ export type ReferrerRow = {
 	 */
 	previousValue?: number;
 	/**
-	 * External referrer URL. Used for row identity, comparison matching, and to
-	 * render leaf rows (no children) as an outbound link.
+	 * External referrer URL. Used for row identity, comparison matching, and for
+	 * the "View in new tab" action on leaf rows (no children).
 	 */
 	href?: string;
 	icon?: string | null;
@@ -116,6 +116,7 @@ function buildLeaderboardData(
 				media: { kind: 'favicon', url: row.icon ?? undefined },
 				action: resolveLeaderboardRowAction( {
 					href: row.href,
+					hrefAs: 'viewLink',
 					hasChildren,
 					drillDown: onDrillDown
 						? {
@@ -274,7 +275,6 @@ function ReferrersInner() {
 		: __( 'View all referrers', 'jetpack-premium-analytics-pkg' );
 
 	useReportActions( {
-		report: 'referrers',
 		csv: {
 			exporter: referrersCsvExporter,
 			status: { isLoading, isFetching, isError: primary.isError },

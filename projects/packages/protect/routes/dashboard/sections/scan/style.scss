@@ -12,6 +12,20 @@
 	&__row.jp-protect-card__threats {
 		padding: 0 0 var(--wpds-dimension-padding-sm);
 	}
+
+	// The stats row plus a one-threat list, so the card keeps its height
+	// as scans run and threats come and go.
+	&__row.jp-protect-scan__state {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		min-block-size: 332px;
+
+		.jp-protect-safe,
+		.jp-protect-scanning {
+			padding-block: 0;
+		}
+	}
 }
 
 .jp-protect-scanning {
@@ -126,14 +140,6 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 
 	&.is-celebrating > :nth-child(2) {
 		animation-delay: 160ms;
-	}
-
-	&.is-celebrating > :nth-child(3) {
-		animation-delay: 220ms;
-	}
-
-	&.is-celebrating > :nth-child(4) {
-		animation-delay: 280ms;
 	}
 
 	// Reduced motion: a fade, without movement or particles.
@@ -315,6 +321,77 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 		padding: 12px var(--wp-ui-card-padding, 24px);
 	}
 
+	// wp-admin sizes every h3 at 1.3em; the design keeps this one at body size.
+	&__heading {
+		margin: 0;
+		font: inherit;
+	}
+
+	&__toggle {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--wpds-dimension-gap-sm);
+		inline-size: 100%;
+		padding: var(--wpds-dimension-padding-xl) var(--wpds-dimension-padding-lg);
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		font-weight: 500;
+		text-align: start;
+		cursor: pointer;
+
+		svg {
+			transition: transform var(--wpds-motion-duration-sm) var(--wpds-motion-easing-balanced);
+		}
+
+		&[data-panel-open] svg {
+			transform: rotate(180deg);
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+
+			svg {
+				transition: none;
+			}
+		}
+	}
+
+	&__toolbar {
+		padding: 0 var(--wp-ui-card-padding, 24px) var(--wpds-dimension-padding-lg);
+	}
+
+	&__filters {
+		padding: 0 var(--wp-ui-card-padding, 24px) var(--wpds-dimension-padding-lg);
+	}
+
+	// One line per threat: the label truncates before the severity badge wraps.
+	&__row {
+		display: flex;
+		gap: var(--wpds-dimension-gap-sm);
+		align-items: center;
+		min-inline-size: 0;
+	}
+
+	&__title.is-inline {
+		gap: var(--wpds-dimension-gap-lg);
+		min-inline-size: 0;
+
+		// DataViews bolds its title field; the design bolds only the kind.
+		.jp-protect-threats__label {
+			display: block;
+			overflow: hidden;
+			font-weight: 400;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		strong {
+			font-weight: 500;
+		}
+	}
+
 	&__title {
 		display: flex;
 		gap: 12px;
@@ -347,7 +424,29 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 		min-inline-size: 0;
 	}
 
+	// DataViews shows primary actions only on hover; keep them visible.
+	.dataviews-view-table tr .dataviews-item-actions {
+
+		.components-button:not(.dataviews-all-actions-button) {
+			opacity: 1;
+		}
+	}
+
 	&__nowrap {
 		white-space: nowrap;
+	}
+
+	&__busy {
+		display: inline-flex;
+		gap: 8px;
+		align-items: center;
+	}
+
+	// DataViews has no row class, so the busy status mutes the rest of its row.
+	.dataviews-view-table__row:has(.jp-protect-threats__busy) > td {
+
+		&:not(.dataviews-view-table__actions-column, :has(.jp-protect-threats__busy)) {
+			opacity: 0.5;
+		}
 	}
 }

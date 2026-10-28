@@ -83,7 +83,7 @@ function get_available_dashboard_section_slugs() {
 /**
  * Slugs of the available tabs whose window follows the plan's Stats date limits.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @return string[]
  */
@@ -177,7 +177,7 @@ function inject_dashboard_sections_script_data( array $data ): array {
  * Read from the menu rather than `$admin_page_hooks`, which keys top-level pages only: with
  * Odyssey Stats off, the Jetpack plugin registers the page under its own menu.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @return string|null
  */

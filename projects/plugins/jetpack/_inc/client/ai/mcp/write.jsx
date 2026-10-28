@@ -21,6 +21,7 @@ import { getOverridesToMatch } from './group-intents';
 import { groupToolsByGroup } from './groups';
 import McpGroupCard, { McpToolSections } from './mcp-group-card';
 import McpToolbar from './mcp-toolbar';
+import RemoteAbilitiesSection from './remote-abilities-section';
 import { recordMcpTracksEvent } from './tracks';
 import useToolSearch from './use-tool-search';
 import {
@@ -35,15 +36,23 @@ import {
 /**
  * MCP Write tools view.
  *
- * @param {object}   props               - Component props.
- * @param {object}   props.mcpAbilities  - Full mcp_abilities object from the API.
- * @param {number}   props.blogId        - Current site's blog ID.
- * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
- * @param {Function} props.onUpdate      - Called with partial mcp_abilities update.
- * @param {string}   [props.anchor]      - Tool id from the URL hash, if any.
+ * @param {object}   props                   - Component props.
+ * @param {object}   props.mcpAbilities      - Full mcp_abilities object from the API.
+ * @param {number}   props.blogId            - Current site's blog ID.
+ * @param {Set}      props.savingToolIds     - Set of toolIds currently being saved.
+ * @param {Function} props.onUpdate          - Called with partial mcp_abilities update.
+ * @param {object}   [props.remoteAbilities] - Published-abilities state; omit to hide that section.
+ * @param {string}   [props.anchor]          - Tool id from the URL hash, if any.
  * @return {object} Component markup.
  */
-export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdate, anchor } ) {
+export default function McpWrite( {
+	mcpAbilities,
+	blogId,
+	savingToolIds,
+	onUpdate,
+	anchor,
+	remoteAbilities = null,
+} ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
 	const siteAbilities = getSiteMcpAbilities( mcpAbilities ?? {}, blogId );
@@ -190,6 +199,20 @@ export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdat
 						</Text>
 					</CardBody>
 				</Card>
+			) }
+
+			{ remoteAbilities && (
+				<RemoteAbilitiesSection
+					view="write"
+					mcpAbilities={ mcpAbilities }
+					blogId={ blogId }
+					remoteAbilities={ remoteAbilities }
+					defaultEnabled={ pageAllEnabled }
+					query={ query }
+					anchor={ anchor }
+					savingToolIds={ savingToolIds }
+					onUpdate={ onUpdate }
+				/>
 			) }
 		</Stack>
 	);

@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Explicitly set `selection: undefined` in `useReducer` callback for proper typing. Should be no change to functionality.
-
-

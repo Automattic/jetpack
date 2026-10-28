@@ -12,10 +12,7 @@ import {
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_LEGACY_PRODUCTS,
 } from './constants';
-import type { TabPanel } from '@wordpress/components';
-import type { ComponentProps } from 'react';
-
-type TabPanelProps = ComponentProps< typeof TabPanel >;
+import type { MyJetpackSection } from './types';
 
 // Carried by a pricing page opened from a feature's details, so checkout can return there.
 const RETURN_FEATURE_PARAM = 'return_feature';
@@ -95,8 +92,8 @@ export function getModulesManagementUrl( classicUrl: string ): string {
  *
  * @return The sections for the My Jetpack tab panel.
  */
-export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
-	const tabs = [
+export function getMyJetpackSections() {
+	const tabs: { name: MyJetpackSection; title: string }[] = [
 		{
 			name: MY_JETPACK_SECTION_OVERVIEW,
 			title: __( 'Overview', 'jetpack-my-jetpack' ),

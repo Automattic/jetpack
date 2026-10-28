@@ -14,7 +14,7 @@ use Automattic\Jetpack\Knowledge\Knowledge_Scopes_REST_Controller;
  * Provides Knowledge when Gutenberg's experiment is unavailable.
  */
 class Knowledge {
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.1.1';
 
 	/**
 	 * Whether this package has registered its fallback hooks.

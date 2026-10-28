@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add useReportActions: a widget declares its View all link and CSV download, and the dashboard renders them in the card footer.
