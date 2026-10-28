@@ -152,6 +152,7 @@ export {
 	type PageOptionsMenuProps,
 	ResetLayoutAction,
 	type ResetLayoutActionProps,
+	UtmUrlBuilderDialog,
 	LocationsGeoChart,
 	type LocationsGeoChartProps,
 	type LocationsGeoFocusCountry,
