@@ -10,7 +10,7 @@ import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
-import { forceStatsMockState } from '../../stories/force-stats-mock-state';
+import { forceStatsMockState, type ForcedMockState } from '../../stories/force-stats-mock-state';
 import UtmInsightsRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
@@ -29,9 +29,13 @@ interface UtmInsightsStoryControls {
 	withComparison: boolean;
 }
 
+type UtmDataState = 'data' | ForcedMockState;
+
+const UTM_DATA_STATES: UtmDataState[] = [ 'data', 'loading', 'empty', 'error', 'error-retryable' ];
+
 interface UtmInsightsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls, UtmInsightsStoryControls {
-	withData: boolean;
+	dataState: UtmDataState;
 }
 
 const meta = {
@@ -174,16 +178,16 @@ export const ByCampaign: Story = {
 // exactly as it does in product (size / edit-mode / host-environment controls).
 function UtmInsightsDashboardStory( {
 	withComparison,
-	withData,
+	dataState,
 	...dashboardArgs
 }: UtmInsightsDashboardStoryProps ) {
 	useEffect( () => {
-		if ( withData ) {
+		if ( dataState === 'data' ) {
 			return;
 		}
-		forceStatsMockState( 'stats/utm', 'empty' );
+		forceStatsMockState( 'stats/utm', dataState );
 		return () => forceStatsMockState( 'stats/utm', null );
-	}, [ withData ] );
+	}, [ dataState ] );
 
 	return (
 		<WidgetDashboardWithWidgetStory
@@ -201,17 +205,18 @@ function UtmInsightsDashboardStory( {
 
 export const WidgetDashboardWithWidget: DashboardStory = {
 	render: args => <UtmInsightsDashboardStory { ...args } />,
-	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS, withComparison: false, withData: true },
+	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS, withComparison: false, dataState: 'data' },
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params and deltas.',
 		},
-		withData: {
-			control: 'boolean',
+		dataState: {
+			control: 'radio',
+			options: UTM_DATA_STATES,
 			description:
-				'Serve UTM rows. Off, the report resolves with none and the widget shows its empty state.',
+				'What the UTM report request does: serve rows, never settle, resolve with none, or fail with a permission (`error`) or connection (`error-retryable`) 403.',
 		},
 	},
 };
