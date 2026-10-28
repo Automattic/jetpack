@@ -26,6 +26,11 @@ class Scan_Section_Test extends BaseTestCase {
 		delete_transient( Scan::HISTORY_CACHE );
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_protect_dashboard_scan_upsell_variant' );
+		remove_all_filters( 'jetpack_protect_threat_ignoring_enabled' );
+		remove_all_actions( 'rest_api_init' );
+		$GLOBALS['wp_rest_server'] = null;
+		delete_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
 		\Jetpack_Options::delete_option( 'id' );
 		delete_option( \Automattic\Jetpack\Protect_Status\Scan_Status::OPTION_NAME );
 		parent::tear_down();
@@ -82,6 +87,47 @@ class Scan_Section_Test extends BaseTestCase {
 		wp_set_current_user( $user_id );
 
 		$this->assertFalse( Scan::can_act_on_threats() );
+	}
+
+	/**
+	 * Test that a host turning ignoring off hides Ignore and refuses the ignore route, but leaves unignoring alone.
+	 *
+	 * @param string $action        `ignore` or `unignore`.
+	 * @param string $expected_code The error the route answers with.
+	 * @dataProvider provide_ignore_routes
+	 */
+	#[DataProvider( 'provide_ignore_routes' )]
+	public function test_hosts_can_turn_off_ignoring_but_not_unignoring( $action, $expected_code ) {
+		update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'admin',
+					'user_pass'  => 'pass',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		add_filter( 'jetpack_protect_threat_ignoring_enabled', '__return_false' );
+		add_action( 'rest_api_init', array( new Scan(), 'register_routes' ) );
+
+		$response = rest_do_request( new \WP_REST_Request( 'POST', "/jetpack/v4/protect-dashboard/scan/threats/1/$action" ) );
+
+		$this->assertFalse( ( new Scan() )->get_state()['canIgnore'] );
+		$this->assertSame( $expected_code, $response->as_error()->get_error_code() );
+	}
+
+	/**
+	 * The ignore routes, and what each answers with while ignoring is off and WordPress.com is unreachable.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_ignore_routes() {
+		return array(
+			'ignore'   => array( 'ignore', 'threat_ignoring_disabled' ),
+			'unignore' => array( 'unignore', 'threat_not_unignored' ),
+		);
 	}
 
 	/**
