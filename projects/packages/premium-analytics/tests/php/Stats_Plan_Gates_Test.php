@@ -89,6 +89,13 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	private $plan_list_requests = 0;
 
 	/**
+	 * The timeout the last plan list request carried.
+	 *
+	 * @var int|null
+	 */
+	private $plan_list_timeout;
+
+	/**
 	 * Host detection memoizes into the status cache, which outlives the constants.
 	 */
 	public function set_up() {
@@ -678,6 +685,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 					return $preempt;
 				}
 				++$this->plan_list_requests;
+				$this->plan_list_timeout = $args['timeout'];
 				if ( is_wp_error( $personal ) ) {
 					return $personal;
 				}
@@ -714,6 +722,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			}
 		}
 		$this->assertSame( 1, $this->plan_list_requests );
+		$this->assertSame( 5, $this->plan_list_timeout );
 	}
 
 	/**

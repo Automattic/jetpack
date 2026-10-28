@@ -351,7 +351,7 @@ function get_personal_plan_price() {
 		}
 	}
 
-	$plan     = Plans::get_plan( 'personal-bundle' );
+	$plan     = Plans::get_plan( 'personal-bundle', array( 'timeout' => 5 ) );
 	$yearly   = $plan->raw_price_integer ?? null;
 	$currency = $plan->currency_code ?? null;
 	$price    = null;
