@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Line up the column header above leaderboard rows with the row text, including in right-to-left languages.
