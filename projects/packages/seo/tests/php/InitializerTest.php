@@ -514,4 +514,98 @@ class InitializerTest extends TestCase {
 			$this->init_and_get_configuration_urls( false )
 		);
 	}
+
+	/**
+	 * Run a callback as a user of the given role, with `seo-tools` available but off.
+	 *
+	 * @param string   $role     User role.
+	 * @param callable $callback Test body.
+	 */
+	private function with_seo_tools_off( $role, callable $callback ) {
+		$available = static function () {
+			return array( 'seo-tools' );
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $available );
+		\Jetpack_Options::delete_option( 'active_modules' );
+		delete_option( Initializer::SEO_TOOLS_AUTO_ACTIVATED_OPTION );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => uniqid( 'seo-' ),
+					'user_pass'  => 'pass',
+					'role'       => $role,
+				)
+			)
+		);
+
+		try {
+			$callback();
+		} finally {
+			wp_set_current_user( 0 );
+			remove_filter( 'jetpack_get_available_standalone_modules', $available );
+			\Jetpack_Options::delete_option( 'active_modules' );
+			delete_option( Initializer::SEO_TOOLS_AUTO_ACTIVATED_OPTION );
+		}
+	}
+
+	/**
+	 * SEO tools starts off on a fresh install; turning it on must happen once, so a later
+	 * turn-off in My Jetpack sticks.
+	 */
+	public function test_activate_seo_tools_once_does_not_undo_a_later_turn_off() {
+		$this->with_seo_tools_off(
+			'administrator',
+			function () {
+				$modules = new \Automattic\Jetpack\Modules();
+
+				Initializer::activate_seo_tools_once();
+				$this->assertTrue( $modules->is_active( 'seo-tools' ) );
+
+				$modules->deactivate( 'seo-tools' );
+				Initializer::activate_seo_tools_once();
+				$this->assertFalse( $modules->is_active( 'seo-tools' ) );
+			}
+		);
+	}
+
+	/**
+	 * WordPress.com keeps its own module state, and only an admin's visit switches it on.
+	 *
+	 * @dataProvider provide_sites_left_alone
+	 *
+	 * @param string $role     User role.
+	 * @param bool   $on_wpcom Whether the site is on WordPress.com.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_sites_left_alone' )]
+	public function test_activate_seo_tools_once_leaves_module_off( $role, $on_wpcom ) {
+		$this->with_seo_tools_off(
+			$role,
+			function () use ( $on_wpcom ) {
+				if ( $on_wpcom ) {
+					\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+				}
+
+				try {
+					Initializer::activate_seo_tools_once();
+				} finally {
+					\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+				}
+
+				$this->assertSame( array(), \Jetpack_Options::get_option( 'active_modules', array() ) );
+				$this->assertFalse( get_option( Initializer::SEO_TOOLS_AUTO_ACTIVATED_OPTION ) );
+			}
+		);
+	}
+
+	/**
+	 * Sites where SEO tools must stay off.
+	 *
+	 * @return array<string, array{string, bool}>
+	 */
+	public static function provide_sites_left_alone() {
+		return array(
+			'WordPress.com site' => array( 'administrator', true ),
+			'non-admin visit'    => array( 'editor', false ),
+		);
+	}
 }

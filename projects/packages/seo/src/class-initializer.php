@@ -93,6 +93,13 @@ class Initializer {
 	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible_v2';
 
 	/**
+	 * Option recording that SEO tools was switched on once for a self-hosted site with the SEO page.
+	 *
+	 * @var string
+	 */
+	const SEO_TOOLS_AUTO_ACTIVATED_OPTION = 'jetpack_seo_tools_auto_activated';
+
+	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -170,6 +177,9 @@ class Initializer {
 		foreach ( array( 'seo-tools', 'verification-tools', 'sitemaps' ) as $module ) {
 			add_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
 		}
+
+		// Runs before `admin_head`, where the menu item for an inactive module is removed.
+		add_action( 'admin_init', array( __CLASS__, 'activate_seo_tools_once' ) );
 
 		// The page registers whenever the surface is visible, even with `seo-tools` off, so
 		// a saved link still offers "Enable SEO tools"; the menu item hides with the module.
@@ -328,6 +338,27 @@ class Initializer {
 			return false;
 		}
 		return ( new Modules() )->is_active( 'seo-tools' );
+	}
+
+	/**
+	 * Turn SEO tools on the first time an admin opens wp-admin on a self-hosted site with the
+	 * SEO page, since it starts off on a fresh install; only once, so turning it off sticks.
+	 *
+	 * @return void
+	 */
+	public static function activate_seo_tools_once() {
+		if (
+			( new Host() )->is_wpcom_platform()
+			|| get_option( self::SEO_TOOLS_AUTO_ACTIVATED_OPTION )
+			|| ! current_user_can( 'manage_options' )
+		) {
+			return;
+		}
+
+		// Activation fails before the site is connected; leave the option unset to retry.
+		if ( ( new Modules() )->activate( 'seo-tools', false, false ) ) {
+			update_option( self::SEO_TOOLS_AUTO_ACTIVATED_OPTION, true );
+		}
 	}
 
 	/**
