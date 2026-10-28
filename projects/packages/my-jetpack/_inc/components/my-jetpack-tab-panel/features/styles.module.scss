@@ -350,6 +350,12 @@ $band-ground: #f8f8f8;
 	text-decoration: underline;
 }
 
+// Marks where the list starts, for scrolling back to it. The negative margin
+// cancels the extra row gap the empty element would add.
+.list-start {
+	margin-block-end: calc(-1 * var(--wpds-dimension-gap-sm));
+}
+
 // The toolbar's own bottom margin already spaces this row from it.
 .modules-navigation {
 	margin-block-end: var(--wpds-dimension-gap-md);

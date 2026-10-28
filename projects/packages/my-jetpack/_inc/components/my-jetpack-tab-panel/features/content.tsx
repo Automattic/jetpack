@@ -361,6 +361,7 @@ function FeaturesTabContent() {
 	// A new filter or search can leave the page scrolled past the end of a shorter list, so a
 	// list whose start is hidden is brought back to just under the sticky toolbar.
 	const toolbarRef = useRef< HTMLDivElement >( null );
+	const listStartRef = useRef< HTMLDivElement >( null );
 	const listQueryRef = useRef( `${ filter }|${ search }` );
 
 	useLayoutEffect( () => {
@@ -372,7 +373,7 @@ function FeaturesTabContent() {
 
 		const content = contentRef.current;
 		const toolbar = toolbarRef.current;
-		const listStart = toolbar?.nextElementSibling as HTMLElement | null | undefined;
+		const listStart = listStartRef.current;
 		const toolbarBox = toolbar?.getBoundingClientRect();
 		if ( ! content || ! toolbar || ! listStart || ! toolbarBox ) {
 			return;
@@ -425,16 +426,6 @@ function FeaturesTabContent() {
 			) }
 			{ ! isOfflineFeatures() && <FeaturesBanner /> }
 
-			{ /* Always rendered, so a screen reader is listening before the count changes. Kept
-			above the toolbar, so the toolbar is followed by the start of the list. */ }
-			<p className="screen-reader-text" role="status">
-				{ sprintf(
-					/* translators: %d is how many features the filter or search matched. */
-					_n( '%d feature shown', '%d features shown', shownCount, 'jetpack-my-jetpack' ),
-					shownCount
-				) }
-			</p>
-
 			<Toolbar
 				ref={ toolbarRef }
 				view={ view }
@@ -448,6 +439,7 @@ function FeaturesTabContent() {
 				onSearchChange={ onSearchChange }
 				bulk={ view === 'list' && shownCount > 0 ? <BulkBar selection={ selection } /> : null }
 			/>
+			<div ref={ listStartRef } className={ styles[ 'list-start' ] } aria-hidden="true" />
 
 			{ ( moduleTag || hasModulesFallback ) && (
 				<Stack
@@ -482,6 +474,15 @@ function FeaturesTabContent() {
 					) }
 				</Stack>
 			) }
+
+			{ /* Always rendered, so a screen reader is listening before the count changes. */ }
+			<p className="screen-reader-text" role="status">
+				{ sprintf(
+					/* translators: %d is how many features the filter or search matched. */
+					_n( '%d feature shown', '%d features shown', shownCount, 'jetpack-my-jetpack' ),
+					shownCount
+				) }
+			</p>
 
 			{ view === 'list' && shownCount > 0 && <UnswitchableNote /> }
 
