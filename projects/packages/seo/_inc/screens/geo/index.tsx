@@ -2,7 +2,7 @@ import { Button, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { commentContent, details, key, page } from '@wordpress/icons';
-import { Badge, Card, CollapsibleCard, Link, Notice, Stack, Tooltip } from '@wordpress/ui';
+import { Badge, Card, CollapsibleCard, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import { isCrawlerBlocked } from '../../data/blocked-crawlers';
 import './style.scss';
@@ -51,7 +51,7 @@ const managedByPrivacyTooltip = __(
  * take effect, wrapping the notice that explains why.
  *
  * The four blocked states are mutually exclusive and shared this header
- * verbatim, so it lives here once — which also keeps the chip and heading on all
+ * verbatim, so it lives here once — which also keeps the icon and heading on all
  * four from drifting apart.
  *
  * @param props          - Component props.
@@ -141,7 +141,7 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( {
 
 interface CrawlerSectionProps {
 	title: string;
-	/** The chip glyph for this group's title. */
+	/** The glyph shown before this group's title. */
 	icon: ComponentProps< typeof CardTitleIcon >[ 'icon' ];
 	intro: string;
 	crawlers: AiCrawler[];
@@ -167,7 +167,7 @@ interface CrawlerSectionProps {
  *
  * @param props              - Component props.
  * @param props.title        - Section title.
- * @param props.icon         - The chip glyph shown before the title.
+ * @param props.icon         - The glyph shown before the title.
  * @param props.intro        - One-line description of the group's purpose.
  * @param props.crawlers     - The crawlers in this group.
  * @param props.type         - The crawler group's type.
@@ -296,7 +296,7 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 
 /**
  * GEO (Generative Engine Optimization) tab. Stacks (in a single centered column
- * matching the Settings tab's width):
+ * matching the Settings tab's width): a one-line intro spelling out "GEO",
  * llms.txt, the plan-gated AI SEO Enhancer, then the AI-crawler controls — split
  * into answer-engine and training groups. When the controls can't take effect,
  * they are replaced by an explanation instead of ineffective toggles.
@@ -499,6 +499,13 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 
 	return (
 		<div className="jetpack-seo-geo">
+			{ /* Spells out the acronym the tab is named after. */ }
+			<Text variant="body-md" render={ <p /> } className="jetpack-seo-geo__intro">
+				{ __(
+					'GEO stands for generative engine optimization. These settings control how AI sees and uses your site.',
+					'jetpack-seo'
+				) }
+			</Text>
 			{ llmsTxt && (
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>

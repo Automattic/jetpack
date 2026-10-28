@@ -636,14 +636,16 @@ class Protect extends Hybrid_Product {
 	public static function get_site_protect_data() {
 		$scan_data = Protect_Status::get_status();
 
-		$waf_config     = array();
-		$waf_supported  = false;
-		$is_waf_enabled = false;
+		$waf_config          = array();
+		$waf_supported       = false;
+		$is_waf_enabled      = false;
+		$is_provided_by_host = false;
 
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			$waf_config     = Waf_Runner::get_config();
-			$is_waf_enabled = Waf_Runner::is_enabled();
-			$waf_supported  = Waf_Runner::is_supported_environment();
+			$waf_config          = Waf_Runner::get_config();
+			$is_waf_enabled      = Waf_Runner::is_enabled();
+			$waf_supported       = Waf_Runner::is_supported_environment();
+			$is_provided_by_host = method_exists( Waf_Runner::class, 'is_provided_by_host' ) && Waf_Runner::is_provided_by_host();
 		}
 
 		return rest_ensure_response(
@@ -652,8 +654,9 @@ class Protect extends Hybrid_Product {
 				'wafConfig' => array_merge(
 					self::filter_waf_config_by_capability( $waf_config ),
 					array(
-						'waf_supported' => $waf_supported,
-						'waf_enabled'   => $is_waf_enabled,
+						'waf_supported'        => $waf_supported,
+						'waf_enabled'          => $is_waf_enabled,
+						'waf_provided_by_host' => $is_provided_by_host,
 					),
 					array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 				),
