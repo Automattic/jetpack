@@ -42,12 +42,14 @@
 	border-radius: var(--wpds-border-radius-md);
 }
 
-// Focused only programmatically, after the one-click install;
-// the ring shows for keyboard users.
+// Focused only programmatically, after the one-click install or
+// from the dashboard notice; the ring shows for keyboard users.
+.consentCard:focus,
 .consentStep:focus {
 	outline: none;
 }
 
+.consentCard:focus-visible,
 .consentStep:focus-visible {
 	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 	outline-offset: calc(-1 * var(--wpds-border-width-focus));
