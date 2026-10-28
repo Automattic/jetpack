@@ -414,7 +414,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get follower counts', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a breakdown of follower counts across email, WordPress.com, comment, and publicize (per-service) — answers "how is my audience growing?" in one call. Shape: { total, email, wpcom, comment, publicize: { <service>: count }, partial: bool, errors?: [string] }. `email` and `wpcom` are the site\'s email subscribers and WordPress.com followers; `comment` counts people following the comments on every post (following one post\'s comments is not counted); `publicize` is an object, empty when no social connection reports followers. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `followers` (`email` and `wpcom`), `comment_followers`, and `publicize_followers`. Counts fed by a failed sub-call are placeholders (0, or an empty `publicize`) rather than confirmed values, so cross-reference `errors` before treating them as authoritative. Precondition: site must be connected to WordPress.com.',
+				'Return a breakdown of follower counts across email, WordPress.com, comment, and publicize (per-service) — answers "how is my audience growing?" in one call. Shape: { total, email, wpcom, comment, publicize: { <service>: count }, partial: bool, errors?: [string] }. `email` and `wpcom` are the site\'s email subscribers and WordPress.com followers; `comment` counts people following the comments on every post (following one post\'s comments is not counted), and is reported as unknown through `errors` when WordPress.com does not list that count on its first page; `publicize` is an object, empty when no social connection reports followers. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `followers` (`email` and `wpcom`), `comment_followers`, and `publicize_followers`. Counts fed by a failed sub-call are placeholders (0, or an empty `publicize`) rather than confirmed values, so cross-reference `errors` before treating them as authoritative. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -870,6 +870,10 @@ class Stats_Abilities extends Registrar {
 		$email   = self::as_int( $followers, 'total_email' );
 		$wpcom   = self::as_int( $followers, 'total_wpcom' );
 		$comment = self::all_posts_comment_followers( $comment_followers );
+		if ( null === $comment ) {
+			$errors[] = 'comment_followers';
+			$comment  = 0;
+		}
 
 		$publicize_by_service = array();
 		if ( isset( $publicize['services'] ) && is_array( $publicize['services'] ) ) {
@@ -1240,17 +1244,18 @@ class Stats_Abilities extends Registrar {
 	 *
 	 * WordPress.com lists them as an "All Posts" row with id 0. Each other row counts one post's
 	 * followers, so summing rows counts people twice, and `total` counts rows rather than people.
+	 * Rows are ranked by followers, 20 to a page, so the "All Posts" row can sit on a later page.
 	 *
-	 * @param array $raw Raw WPCOM comment-followers response.
-	 * @return int
+	 * @param array $raw Raw WPCOM comment-followers response (first page).
+	 * @return int|null Null when the row may be on a later page, so the count is unknown.
 	 */
-	private static function all_posts_comment_followers( array $raw ): int {
+	private static function all_posts_comment_followers( array $raw ): ?int {
 		foreach ( self::rows_at( $raw, 'posts' ) as $row ) {
 			if ( isset( $row['id'] ) && 0 === (int) $row['id'] ) {
 				return self::as_int( $row, 'followers' );
 			}
 		}
-		return 0;
+		return self::as_int( $raw, 'pages' ) > 1 ? null : 0;
 	}
 
 	/**

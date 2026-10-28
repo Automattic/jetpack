@@ -1305,14 +1305,42 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertFalse( $result['partial'] );
 	}
 
-	public function test_get_followers_flags_partial_on_subcall_error(): void {
+	/**
+	 * A comment-follower count that failed, or whose "All Posts" row is beyond the first page, is not a confirmed 0.
+	 *
+	 * @return array
+	 */
+	public static function provide_unknown_comment_followers(): array {
+		return array(
+			'sub-call failed'               => array( new \WP_Error( 'boom', 'bad' ) ),
+			'All Posts row on a later page' => array(
+				array(
+					'pages' => 130,
+					'posts' => array(
+						array(
+							'id'        => 41,
+							'followers' => 90,
+						),
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_unknown_comment_followers
+	 *
+	 * @param array|\WP_Error $comment_followers Comment-followers sub-call result.
+	 */
+	#[DataProvider( 'provide_unknown_comment_followers' )]
+	public function test_get_followers_flags_unknown_comment_followers( $comment_followers ): void {
 		$this->filter_wpcom_stats(
 			array(
 				'get_followers'           => array(
 					'total_email' => 5,
 					'total_wpcom' => 10,
 				),
-				'get_comment_followers'   => new \WP_Error( 'boom', 'bad' ),
+				'get_comment_followers'   => $comment_followers,
 				'get_publicize_followers' => array( 'services' => array() ),
 			)
 		);
@@ -1320,7 +1348,8 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$result = Stats_Abilities::get_followers();
 
 		$this->assertTrue( $result['partial'] );
-		$this->assertContains( 'comment_followers', $result['errors'] );
+		$this->assertSame( array( 'comment_followers' ), $result['errors'] );
+		$this->assertSame( 0, $result['comment'] );
 		$this->assertSame( '{}', wp_json_encode( $result['publicize'], JSON_UNESCAPED_SLASHES ) );
 	}
 
