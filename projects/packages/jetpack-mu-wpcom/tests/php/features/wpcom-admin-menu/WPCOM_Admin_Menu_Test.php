@@ -689,11 +689,13 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		$submenu['jetpack'] = array(
 			array( 'Zzz Unlisted', 'manage_options', 'zzz-unlisted' ),
 			array( 'Settings', 'manage_options', $settings_slug ),
+			array( 'SEO', 'manage_options', 'jetpack-seo' ),
 		);
 
 		wpcom_add_jetpack_submenu();
 
 		$slugs = array_column( $submenu['jetpack'], 2 );
+		$this->assertLessThan( array_search( $settings_slug, $slugs, true ), array_search( 'jetpack-seo', $slugs, true ) );
 		$this->assertLessThan( array_search( 'zzz-unlisted', $slugs, true ), array_search( $settings_slug, $slugs, true ) );
 	}
 
