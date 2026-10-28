@@ -141,6 +141,7 @@ export default function TrafficChartCard(): JSX.Element {
 							{ /* The disabled trigger stays focusable, so its hover and focus reach this span. */ }
 							<Tooltip.Trigger render={ <span /> }>
 								<PeriodSelector
+									label={ __( 'Date range', 'jetpack-publicize-pkg' ) }
 									presets={ INTERVAL_OPTIONS }
 									value={ String( interval ) }
 									onChange={ onIntervalChange }
@@ -153,6 +154,7 @@ export default function TrafficChartCard(): JSX.Element {
 						</Tooltip.Root>
 					) : (
 						<PeriodSelector
+							label={ __( 'Date range', 'jetpack-publicize-pkg' ) }
 							presets={ INTERVAL_OPTIONS }
 							value={ String( interval ) }
 							onChange={ onIntervalChange }

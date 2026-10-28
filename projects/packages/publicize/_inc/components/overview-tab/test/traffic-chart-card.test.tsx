@@ -136,7 +136,7 @@ describe( 'TrafficChartCard period selector', () => {
 
 		render( <TrafficChartCard /> );
 
-		const trigger = screen.getByRole( 'button', { name: 'Last 7 days' } );
+		const trigger = screen.getByRole( 'button', { name: 'Date range: Last 7 days' } );
 		expect( trigger.getAttribute( 'aria-disabled' ) === 'true' ).toBe( isDisabled );
 	} );
 } );
