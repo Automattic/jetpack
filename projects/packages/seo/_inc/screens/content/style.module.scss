@@ -16,20 +16,25 @@
 	flex: 1;
 }
 
+// Inline padding matches the title bar's, so the fields line up with its title.
 .inspectorBody {
-	padding: var(--wpds-dimension-padding-md);
+	padding: var(--wpds-dimension-padding-2xl);
 }
 
-// Cancel / Save: at the bottom of the sidebar on short forms, and stuck to it
-// while longer ones scroll under them.
+// Cancel / Save in equal halves: at the bottom of the sidebar on short forms,
+// and stuck to it while longer ones scroll under them.
 .inspectorFooter {
 	position: sticky;
 	inset-block-end: 0;
 	// Above the noindex toggle's hidden checkbox (z-index: 1), which
 	// wp-components before 33.0 doesn't isolate.
 	z-index: 1;
+	display: grid;
+	grid-auto-columns: 1fr;
+	grid-auto-flow: column;
+	gap: var(--wpds-dimension-gap-sm);
 	margin-block-start: auto;
-	padding: var(--wpds-dimension-padding-md);
+	padding: var(--wpds-dimension-padding-lg);
 	border-block-start:
 		var(--wpds-border-width-xs) solid
 		var(--wpds-color-stroke-surface-neutral);

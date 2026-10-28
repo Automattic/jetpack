@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Content: Pin the SEO editor sidebar's Cancel and Save buttons to the bottom of the panel so they stay visible while the fields scroll. The new SEO page is still gated.
+Comment: Content: Give the SEO editor sidebar a title bar that stays put, and pin Cancel and Save to the bottom in equal halves so they stay visible while the fields scroll. The new SEO page is still gated.
 
