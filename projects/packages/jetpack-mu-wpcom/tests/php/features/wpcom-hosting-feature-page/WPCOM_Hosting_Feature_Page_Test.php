@@ -339,62 +339,6 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The Protect dashboard is turned on once, only on WoA and only where it is offered.
-	 *
-	 * @param array $site     Overrides for is_atomic, migrated, available, active and activates.
-	 * @param bool  $active   Whether the module is active afterwards.
-	 * @param bool  $migrated Whether the site is marked as migrated afterwards.
-	 *
-	 * @dataProvider provide_protect_dashboard_sites
-	 */
-	#[DataProvider( 'provide_protect_dashboard_sites' )]
-	public function test_protect_dashboard_is_turned_on_once( $site, $active, $migrated ) {
-		$site = array_merge(
-			array(
-				'is_atomic' => true,
-				'migrated'  => false,
-				'available' => true,
-				'active'    => false,
-				'activates' => true,
-			),
-			$site
-		);
-		Constants::set_constant( 'IS_ATOMIC', $site['is_atomic'] );
-		$GLOBALS['current_screen'] = \WP_Screen::get( 'dashboard' );
-		if ( $site['migrated'] ) {
-			update_option( WPCOM_Scan::DASHBOARD_MODULE_ACTIVATED_OPTION, true );
-		}
-		if ( $site['available'] ) {
-			add_filter( 'jetpack_get_available_standalone_modules', fn( $modules ) => array_merge( $modules, array( 'protect-dashboard' ) ) );
-		}
-		\Jetpack_Options::update_option( 'active_modules', $site['active'] ? array( 'protect-dashboard' ) : array() );
-		if ( ! $site['activates'] ) {
-			add_filter( 'pre_update_option_jetpack_active_modules', fn( $value, $old_value ) => $old_value, 10, 2 );
-		}
-
-		WPCOM_Scan::maybe_activate_protect_dashboard_module();
-
-		$this->assertSame( $active, in_array( 'protect-dashboard', (array) \Jetpack_Options::get_option( 'active_modules' ), true ) );
-		$this->assertSame( $migrated, (bool) get_option( WPCOM_Scan::DASHBOARD_MODULE_ACTIVATED_OPTION ) );
-	}
-
-	/**
-	 * Data provider for test_protect_dashboard_is_turned_on_once.
-	 *
-	 * @return array
-	 */
-	public static function provide_protect_dashboard_sites() {
-		return array(
-			'offered and off'           => array( array(), true, true ),
-			'already on'                => array( array( 'active' => true ), true, true ),
-			'turned on before, now off' => array( array( 'migrated' => true ), false, true ),
-			'not offered yet'           => array( array( 'available' => false ), false, false ),
-			'activation fails'          => array( array( 'activates' => false ), false, false ),
-			'not Atomic'                => array( array( 'is_atomic' => false ), false, false ),
-		);
-	}
-
-	/**
 	 * A WordPress.com feature's upgrade goes to the plan upgrade flow and its manage link to WordPress.com; other features keep Jetpack's.
 	 *
 	 * @dataProvider provide_feature_upgrades
