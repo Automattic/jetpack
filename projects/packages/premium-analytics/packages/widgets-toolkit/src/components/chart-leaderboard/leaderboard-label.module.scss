@@ -132,6 +132,13 @@
 	text-decoration: underline;
 }
 
+/* A plain label beside a "View" action still has to shrink for the ellipsis. */
+.plainLabel {
+	display: flex;
+	min-inline-size: 0;
+	max-inline-size: 100%;
+}
+
 /* Beside a "View" action the title keeps its own width so the arrow follows it,
  * and stretches over the row so the click target stays the row. */
 .row {
