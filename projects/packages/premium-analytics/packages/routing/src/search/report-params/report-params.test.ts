@@ -123,6 +123,12 @@ describe( 'origin window params', () => {
 		).toEqual( stored );
 	} );
 
+	it( 'stores the default preset when the linking page carried no window', () => {
+		expect( toReportOriginWindowParams( { post_id: '7' } ) ).toEqual( {
+			ref_preset: normalizeReportParams( {} ).preset,
+		} );
+	} );
+
 	it( 'keeps an interval the preset would not default to', () => {
 		expect(
 			toReportOriginWindowParams( {
@@ -243,6 +249,21 @@ describe( 'buildDashboardLink', () => {
 		);
 	} );
 
+	it( 'returns a page scoped by any param to the origin window its seed stored', () => {
+		expect.assertions( 2 );
+		expectLink(
+			buildDashboardLink( {
+				preset: 'all-time',
+				from: '2020-03-04',
+				to: '2026-09-15',
+				author_id: '7',
+				ref_preset: 'last-7-days',
+			} ),
+			'/',
+			{ preset: 'last-7-days' }
+		);
+	} );
+
 	it( 'drops page-scoped params, carrying only the report window', () => {
 		expect.assertions( 2 );
 		expectLink(
@@ -334,9 +355,16 @@ describe( 'buildReportLink', () => {
 		);
 	} );
 
-	it( 'carries no window from a detail page opened without one', () => {
-		expect( buildReportLink( 'posts', { from: '2020-03-04', post_id: '42' } ) ).toBe(
-			'/reports/posts'
+	it( 'returns a detail page opened without a window to the default one its seed stored', () => {
+		expect.assertions( 2 );
+		expectLink(
+			buildReportLink( 'posts', {
+				from: '2020-03-04',
+				post_id: '42',
+				...toReportOriginWindowParams( {} ),
+			} ),
+			'/reports/posts',
+			{ preset: normalizeReportParams( {} ).preset }
 		);
 	} );
 
