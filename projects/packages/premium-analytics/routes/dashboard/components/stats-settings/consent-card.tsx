@@ -272,7 +272,10 @@ function ConsentCardContent( { initialStatus }: { initialStatus: ConsentStatus }
 	} else {
 		bannerDescription = createInterpolateElement(
 			/* translators: <plugins /> is a list of cookie banner plugins, such as "Complianz, Cookiebot or CookieYes". */
-			__( 'Install one, such as <plugins />.', 'jetpack-premium-analytics-pkg' ),
+			__(
+				'Stats didn’t find one. If you use a cookie banner, make sure it supports the WP Consent API. If not, install one, such as <plugins />.',
+				'jetpack-premium-analytics-pkg'
+			),
 			{ plugins: <BannerPluginLinks plugins={ status.recommended_banners } /> }
 		);
 	}
@@ -311,7 +314,7 @@ function ConsentCardContent( { initialStatus }: { initialStatus: ConsentStatus }
 						<ConsentStep
 							step={ 1 }
 							done={ hasBanner }
-							pendingLabel={ __( 'None', 'jetpack-premium-analytics-pkg' ) }
+							pendingLabel={ __( 'Not found', 'jetpack-premium-analytics-pkg' ) }
 							title={ __( 'Cookie banner plugin', 'jetpack-premium-analytics-pkg' ) }
 							description={ bannerDescription }
 						/>

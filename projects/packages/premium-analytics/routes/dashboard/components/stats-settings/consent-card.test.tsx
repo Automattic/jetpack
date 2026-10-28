@@ -83,9 +83,9 @@ describe( 'ConsentCard', () => {
 
 		render( <ConsentCard /> );
 
-		expect( step( 'Cookie banner plugin' ).getByText( /^Install one, such as/ ) ).toHaveTextContent(
-			'Install one, such as Complianz or CookieYes.'
-		);
+		expect(
+			step( 'Cookie banner plugin' ).getByText( /^Stats didn’t find one/ )
+		).toHaveTextContent( 'If not, install one, such as Complianz or CookieYes.' );
 		expect( screen.getByRole( 'link', { name: /CookieYes/ } ) ).toHaveAttribute(
 			'href',
 			'https://wordpress.org/plugins/cookie-law-info/'
@@ -93,7 +93,7 @@ describe( 'ConsentCard', () => {
 	} );
 
 	it.each( [
-		[ 'nothing in place', {}, 'Not set up', 'None', 'Not installed' ],
+		[ 'nothing in place', {}, 'Not set up', 'Not found', 'Not installed' ],
 		[
 			'a banner and an inactive WP Consent API',
 			{ banner_plugin: 'CookieYes', api_installed: true },
@@ -105,7 +105,7 @@ describe( 'ConsentCard', () => {
 			'an active WP Consent API and no banner',
 			{ api_installed: true, api_active: true },
 			'Not set up',
-			'None',
+			'Not found',
 			'Active',
 		],
 		[

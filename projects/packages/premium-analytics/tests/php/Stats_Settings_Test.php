@@ -339,6 +339,7 @@ class Stats_Settings_Test extends BaseTestCase {
 		return array(
 			'CookieYes'             => array( array( 'akismet/akismet.php', 'cookie-law-info/cookie-law-info.php' ), 'CookieYes' ),
 			'Complianz premium'     => array( array( 'complianz-gdpr-premium/complianz-gpdr-premium.php' ), 'Complianz' ),
+			'one only listed'       => array( array( 'gdpr-cookie-compliance/moove-gdpr.php' ), 'GDPR Cookie Compliance' ),
 			'a lookalike directory' => array( array( 'cookie-law-info-extra/cookie-law-info.php' ), null ),
 			'no banner plugin'      => array( array( 'akismet/akismet.php' ), null ),
 		);
@@ -360,7 +361,7 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->assertSame( $expected, $consent['banner_plugin'] );
 	}
 
-	public function test_script_data_recommends_each_banner_plugin_once_by_its_wordpress_org_page() {
+	public function test_script_data_recommends_three_banner_plugins_by_their_wordpress_org_pages() {
 		$this->log_in_as( 'administrator' );
 
 		$consent = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
@@ -382,6 +383,16 @@ class Stats_Settings_Test extends BaseTestCase {
 			),
 			$consent['recommended_banners']
 		);
+	}
+
+	public function test_script_data_sees_a_banner_that_declares_its_consent_type_before_wp_consent_api_is_active() {
+		$this->log_in_as( 'administrator' );
+		add_filter( 'wp_get_consent_type', fn() => 'optin' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+
+		$consent = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
+
+		$this->assertFalse( $consent['api_active'] );
+		$this->assertTrue( $consent['has_banner'] );
 	}
 
 	public function test_script_data_says_when_file_mods_rule_out_installing() {

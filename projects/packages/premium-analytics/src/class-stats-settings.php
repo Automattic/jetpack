@@ -38,16 +38,36 @@ final class Stats_Settings {
 	private const FIELDS = array( 'admin_bar', 'roles', 'count_roles' );
 
 	/**
-	 * Cookie banner plugins known to support the WP Consent API, by plugin directory. The first directory of each name is its WordPress.org slug.
+	 * Cookie banner plugins that support the WP Consent API, by plugin directory: the WordPress.org ones its readme lists.
 	 *
 	 * @var string[]
 	 */
 	private const BANNER_PLUGINS = array(
-		'complianz-gdpr'         => 'Complianz',
-		'complianz-gdpr-premium' => 'Complianz',
-		'cookiebot'              => 'Cookiebot',
-		'cookie-law-info'        => 'CookieYes',
+		'arqam360-consent-privacy-pdplgdpr'       => 'Arqam360 Cookie Consent Banner',
+		'beautiful-and-responsive-cookie-consent' => 'Beautiful Cookie Consent Banner',
+		'clickio-consent'                         => 'Clickio Consent',
+		'complianz-gdpr'                          => 'Complianz',
+		'complianz-gdpr-premium'                  => 'Complianz',
+		'consent-manager'                         => 'consentmanager',
+		'cookie-law-info'                         => 'CookieYes',
+		'cookiebot'                               => 'Cookiebot',
+		'cookiefirst-gdpr-cookie-consent-banner'  => 'CookieFirst',
+		'cookiehub'                               => 'CookieHub',
+		'cookietractor'                           => 'CookieTractor',
+		'gdpr-cookie-compliance'                  => 'GDPR Cookie Compliance',
+		'ibamu'                                   => 'Lawwwing',
+		'iubenda-cookie-law-solution'             => 'iubenda',
+		'pressidium-cookie-consent'               => 'Pressidium Cookie Consent',
+		'sirdata-cmp'                             => 'Abconsent Sirdata CMP',
+		'trustarc-cookie-consent-manager'         => 'TrustArc Cookie Consent Manager',
 	);
+
+	/**
+	 * The banner plugins the card suggests, by WordPress.org slug.
+	 *
+	 * @var string[]
+	 */
+	private const RECOMMENDED_BANNERS = array( 'complianz-gdpr', 'cookiebot', 'cookie-law-info' );
 
 	/**
 	 * The Stats package's refusal of the current write, held until the route answers.
@@ -273,9 +293,9 @@ final class Stats_Settings {
 		}
 
 		$recommended_banners = array();
-		foreach ( array_unique( self::BANNER_PLUGINS ) as $slug => $name ) {
+		foreach ( self::RECOMMENDED_BANNERS as $slug ) {
 			$recommended_banners[] = array(
-				'name' => $name,
+				'name' => self::BANNER_PLUGINS[ $slug ],
 				'url'  => 'https://wordpress.org/plugins/' . $slug . '/',
 			);
 		}
@@ -283,9 +303,8 @@ final class Stats_Settings {
 		return array(
 			'api_active'          => function_exists( 'wp_has_consent' ),
 			'api_installed'       => file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ),
-			// Complianz answers this filter, but CookieYes sets the type only in the browser, hence `banner_plugin`.
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Defined by the WP Consent API plugin, checked just before.
-			'has_banner'          => function_exists( 'wp_get_consent_type' ) && (bool) wp_get_consent_type(),
+			// Some banners answer this filter even before the WP Consent API is active; others set the type only in the browser, hence `banner_plugin`.
+			'has_banner'          => (bool) apply_filters( 'wp_get_consent_type', '' ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- The WP Consent API's filter, which banner plugins answer.
 			'banner_plugin'       => $banner_plugin,
 			'recommended_banners' => $recommended_banners,
 			// What core's `wp/v2/plugins` route checks before it installs or activates.
