@@ -91,7 +91,7 @@ Provision a site with Jetpack already enabled and connected, and record what it 
 execute-tool: jurassic-ninja / provision-site (features: {"jetpack": "true", "jetpack-autoconnect": "true", "ledger": {"label": "<what you're testing>", "pr_url": "<PR url>", "linear_issue": "<KEY-1234>"}})
 ```
 
-Fill the `ledger` fields from what you know, and leave out any you don't: `label` is a short description (under 200 characters) such as the branch name or the change being tested; `pr_url` is the current branch's open PR (`gh pr view --json url -q .url`); `linear_issue` is the Linear key the user or the branch name gives (e.g. a branch ending in `-JETPACK-1234`). Leave out `jetpack-autoconnect` if the user said "don't connect Jetpack".
+Fill the `ledger` fields from what you know, and leave out any you don't: `label` is a short description (under 200 characters) such as the branch name or the change being tested; `pr_url` is the current branch's open PR (`gh pr view --json url -q .url`); `linear_issue` is the Linear key the user or the branch name gives, uppercased (e.g. `JETPACK-1234` from a branch ending in `-jetpack-1234`). Leave out `jetpack-autoconnect` if the user said "don't connect Jetpack".
 
 The response returns `domain`, `admin_login_url`, `ssh_command`, and `atomic_site_id`, plus `ledger_url` (the site's Mission Control page) or `ledger_error`. A `ledger_error` doesn't stop the site: warn the user and carry on. Configuration runs asynchronously, so poll until the site is ready:
 

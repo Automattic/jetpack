@@ -5,7 +5,8 @@ description: >
   human can review the PR's behavior live. Given a PR number or URL, it resolves the PR
   branch into an isolated worktree, provisions and Jetpack-connects a new JN site recorded
   in the JN ledger under the PR, builds and rsyncs the affected plugin(s), forces dev
-  autoloading, and reports the autologin link. Use when the user says "jn-pr-review", "/jn-pr-review", "review PR <n> on JN",
+  autoloading, and reports the autologin link. Use when the user says "jn-pr-review",
+  "/jn-pr-review", "review PR <n> on JN",
   "spin up a JN site for PR <n>", "test this PR on Jurassic Ninja", or gives a Jetpack PR
   number/URL and wants a live environment to click through. This sets up the environment
   only — it does not run automated code review.
@@ -45,8 +46,9 @@ gh pr view <PR> --repo Automattic/jetpack \
 Note the changed file paths (`.files[].path`) — they drive plugin detection in step 3.
 
 Also note the Linear issue the PR is for, if any: a key such as `JETPACK-1234` at the end of
-`headRefName`, or on a `Fixes`, `See` or `Related to` line in `body`. Take the first one;
-leave it out when the PR names none. Step 4 records it in the JN ledger.
+`headRefName` (branch names often carry it lowercased, as `-jetpack-1234`), or on a `Fixes`,
+`See` or `Related to` line in `body`. Take the first one, uppercased; leave it out when the
+PR names none. Step 4 records it in the JN ledger.
 
 ### 2. Create an isolated worktree (plain, no Docker)
 
@@ -125,9 +127,11 @@ teammates can find it by PR in Mission Control and join it:
   `status == 2`, so this normally returns `already_connected`; if autoconnect failed, it
   connects the site now. Capture `blog_id` and connection result.
 - `jurassic-ninja / update-ledger` (domain, `branch`: `headRefName`, `plugins`: the plugin
-  slug(s) from step 3). If `provision-site` returned `ledger_error`, also pass
+  slug(s) from step 3).
+- If `provision-site` returned `ledger_error`, make a second `update-ledger` call with
   `prs: ["<PR url>"]`, `label` and, if found, `linear_issues: ["<KEY-1234>"]`, so the
-  record is complete.
+  record is complete. Keep it separate: `update-ledger` saves nothing when any value is
+  invalid, so a bad PR or issue value must not also drop the branch and plugins.
 
 The ledger is bookkeeping, not part of the environment. If a ledger call fails or the
 `context-a8c` MCP can't reach the ledger, warn the user and carry on with the review site.
