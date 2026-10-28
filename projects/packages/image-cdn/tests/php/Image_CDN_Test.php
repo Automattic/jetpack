@@ -1630,9 +1630,10 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 		$original = $upload_dir['basedir'] . '/photo-e1700000000.jpg';
 		file_put_contents( $original, '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 
-		$sample_html = '<img src="' . $upload_dir['baseurl'] . '/photo-e1700000000-600x400.jpg' . $query . '" width="600" height="400" />';
+		$sample_html      = '<img src="' . $upload_dir['baseurl'] . '/photo-e1700000000-600x400.jpg' . $query . '" width="600" height="400" />';
+		$filtered_content = '';
 		try {
-			$filtered_content = Image_CDN::filter_the_content( $sample_html );
+			$filtered_content = (string) Image_CDN::filter_the_content( $sample_html );
 		} finally {
 			wp_delete_file( $original );
 		}
