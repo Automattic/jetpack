@@ -25,7 +25,8 @@ read it before writing your first rehearsal in a session instead of guessing ste
 ## When to write one
 
 One rehearsal per behavior a user of the change would notice: the screen that now loads, the
-setting that now saves, the notice that now appears. One to three per PR is typical. Write them
+setting that now saves, the notice that now appears, and one per screen size when the behavior
+differs on phones. One to three per PR is typical. Write them
 while developing, as soon as you know what "working" looks like.
 
 Skip it when nothing in the change can be reached from a browser, or when the only change is how
@@ -43,6 +44,7 @@ is missing, the site's Companion predates it; make a new site.
 {
   "requires": [ "jetpack" ],
   "covers": [ "packages/forms" ],
+  "viewport": "desktop",
   "steps": [
     { "goto": "/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fforms" },
     { "click": "[role=dialog] button[aria-label=\"Close\"]", "optional": true, "timeout": 4000 },
@@ -86,6 +88,15 @@ an entry can be either-or (`"jetpack or jetpack-premium-analytics"`).
 - **`requires`**: every plugin the steps depend on, so a site without one shows the rehearsal as
   disabled instead of failing it.
 - **`role`**: set it when the change is about what a non-admin can or can't do.
+- **`viewport`**: `"desktop"` or `"mobile"` (390 × 844) pins the rehearsal to that size in both
+  runners. Without it, the browser runner uses whatever the Desktop / Mobile switch says, and
+  steps written at one size often fail at the other: on phones the Forms dashboard moves
+  **Create a form** into a **More actions** menu
+  (`{ "click": "button[aria-label=\"More actions\"]" }`, then
+  `{ "click": "[role=menuitem]:has-text(\"Create a form\")" }`). Pin the size the steps were
+  written for. When the change matters on phones, add a second rehearsal pinned to `"mobile"`,
+  with `(mobile)` at the end of its title. Only the size changes, so `wp_is_mobile()` still sees
+  desktop and server-side mobile checks can't be rehearsed.
 - **`timeout`**: the default is 10 s per step. Block editor and wp-build dashboard pages often need
   `"timeout": 30000` at the rehearsal level.
 - **Selectors**: ids, `[role=tab]`, `aria-label`, `text=`. Not generated class names from CSS
@@ -156,7 +167,8 @@ Read results as JSON rather than from the screen:
 ssh -o BatchMode=yes {domain}@ssh.atomicsites.net "$WP rehearsal runs --rehearsal=<id> --ref=<label> --format=json"
 ```
 
-Each run has its `status`, `hash`, `runner` (`browser` or `playwright`), `build` and per-step `log`.
+Each run has its `status`, `hash`, `runner` (`browser` or `playwright`), `viewport`, `build` and
+per-step `log`.
 A failing step says what it waited for and what the page showed.
 
 If a step fails because the rehearsal is wrong rather than the code, fix the rehearsal. Never
