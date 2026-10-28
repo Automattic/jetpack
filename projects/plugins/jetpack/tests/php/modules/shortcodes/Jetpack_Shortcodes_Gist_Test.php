@@ -82,6 +82,7 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 
 		$this->assertSame( $link, $outputs[0] );
 		$this->assertSame( $link, apply_shortcodes( '[gist 57cc50246aab776e110060926a2face2 file="WP_Config.php"]' ) );
+		$this->assertStringContainsString( '#file-gitignore"', apply_shortcodes( '[gist 57cc50246aab776e110060926a2face2 file=".gitignore"]' ) );
 		$this->assertStringContainsString( "\n$link\n", $outputs[1] );
 		$this->assertSame( trim( $outputs[2] ), trim( $outputs[1] ) );
 		$this->assertSame( 0, $requests );

@@ -173,7 +173,7 @@ function github_gist_shortcode( $atts, $content = '' ) {
 			$gist_url .= '#file-' . $gist_info['file'];
 		} elseif ( ! empty( $atts['file'] ) ) {
 			// GitHub's file anchors replace anything that isn't a lowercase letter or digit with a dash.
-			$gist_url .= '#file-' . preg_replace( '/[^a-z0-9]+/', '-', strtolower( $atts['file'] ) );
+			$gist_url .= '#file-' . trim( preg_replace( '/[^a-z0-9]+/', '-', strtolower( $atts['file'] ) ), '-' );
 		}
 
 		return sprintf( '<a href="%1$s">%2$s</a>', esc_url( $gist_url ), esc_html( $gist_url ) );
