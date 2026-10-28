@@ -47,29 +47,6 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	const FEATURE = 'SCAN_SELF_SERVE';
 
 	/**
-	 * Calypso's Scan page, since nothing serves this slug on WoA once Scan is live.
-	 *
-	 * Drop this override to land back on `jetpack-protect` once the Jetpack plugin serves it.
-	 *
-	 * @param string|null $new_host The site's address after a transfer, when it changes.
-	 * @return string
-	 */
-	public static function get_live_feature_url( $new_host = null ) {
-		$host = $new_host ?? wp_parse_url( home_url(), PHP_URL_HOST );
-
-		return 'https://wordpress.com/scan/' . rawurlencode( (string) $host );
-	}
-
-	/**
-	 * Left in the sidebar as Jetpack > Protect, in place of Calypso's Scan.
-	 *
-	 * @return bool
-	 */
-	public static function hides_menu_entry() {
-		return false;
-	}
-
-	/**
 	 * Keep the Jetpack plugin's Protect dashboard off a WoA site whose plan lacks Scan, so this page's upgrade prompt keeps the slug.
 	 *
 	 * @param array $modules Available modules, keyed by slug.

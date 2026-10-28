@@ -153,49 +153,6 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	}
 
 	/**
-	 * Register the page, unless something else already serves the slug, and hide its entry.
-	 *
-	 * @return void
-	 */
-	public static function register_page() {
-		parent::register_page();
-
-		if ( static::owns_page() && static::hides_menu_entry() ) {
-			self::hide_menu_entry();
-		}
-	}
-
-	/**
-	 * Whether this page keeps its entry out of the sidebar.
-	 *
-	 * @return bool
-	 */
-	public static function hides_menu_entry() {
-		return true;
-	}
-
-	/**
-	 * Keep this page's entry out of the sidebar, since Calypso owns the nav; hidden rather
-	 * than removed, so the page stays reachable.
-	 *
-	 * Done here rather than in wpcom-admin-menu.php, which not every admin loads.
-	 *
-	 * @return void
-	 */
-	private static function hide_menu_entry() {
-		global $submenu;
-
-		foreach ( $submenu[ static::PARENT_SLUG ] ?? array() as $i => $item ) {
-			if ( static::MENU_SLUG !== ( $item[2] ?? null ) || str_contains( $item[4] ?? '', 'hide-if-js' ) ) {
-				continue;
-			}
-
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$submenu[ static::PARENT_SLUG ][ $i ][4] = trim( ( $item[4] ?? '' ) . ' hide-if-js' );
-		}
-	}
-
-	/**
 	 * The resolved prompt and everything it links to.
 	 *
 	 * @return array

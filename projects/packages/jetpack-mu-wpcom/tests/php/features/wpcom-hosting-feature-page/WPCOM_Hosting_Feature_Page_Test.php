@@ -386,9 +386,9 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	public static function provide_feature_upgrades() {
 		return array(
 			'backup, no plan'  => array( 'backup', false, 'backups-self-serve', '/wp-admin/admin.php?page=jetpack-backup' ),
-			'scan, no plan'    => array( 'protect-dashboard', false, 'scan-self-serve', 'https://wordpress.com/scan/%host%' ),
+			'scan, no plan'    => array( 'protect-dashboard', false, 'scan-self-serve', '/wp-admin/admin.php?page=jetpack-protect' ),
 			'backup, has plan' => array( 'backup', true, null, '/wp-admin/admin.php?page=jetpack-backup' ),
-			'scan, has plan'   => array( 'protect-dashboard', true, null, 'https://wordpress.com/scan/%host%' ),
+			'scan, has plan'   => array( 'protect-dashboard', true, null, '/wp-admin/admin.php?page=jetpack-protect' ),
 			'another feature'  => array( 'boost', false, null, null ),
 		);
 	}
@@ -486,8 +486,8 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_upgrade_landings() {
 		return array(
-			'Backup, served by the Jetpack plugin' => array( WPCOM_Backup::class, null ),
-			'Protect, served by Calypso'           => array( WPCOM_Scan::class, 'https://wordpress.com/scan/%host%' ),
+			'Backup, served by the Jetpack plugin'  => array( WPCOM_Backup::class, null ),
+			'Protect, served by the Jetpack plugin' => array( WPCOM_Scan::class, null ),
 		);
 	}
 
@@ -667,43 +667,6 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Protect stays in the sidebar in Scan's place; Backup leaves its entry to the WordPress.com
-	 * menu, which links Calypso in its place.
-	 *
-	 * @param string $page        Page class.
-	 * @param bool   $modernized  Whether the Backup modernization filter is on.
-	 * @param bool   $hidden      Whether the entry should be hidden.
-	 *
-	 * @dataProvider provide_sidebar_visibility
-	 */
-	#[DataProvider( 'provide_sidebar_visibility' )]
-	public function test_registered_page_sidebar_visibility( $page, $modernized, $hidden ) {
-		global $submenu;
-
-		$this->set_up_admin_menu();
-		add_filter( WPCOM_Backup::MODERNIZATION_FILTER, $modernized ? '__return_true' : '__return_false' );
-
-		$page::register_page();
-
-		$items = array_values( array_filter( $submenu['jetpack'], static fn ( $item ) => $page::MENU_SLUG === $item[2] ) );
-		$this->assertCount( 1, $items );
-		$this->assertSame( $hidden ? 'hide-if-js' : '', $items[0][4] ?? '' );
-	}
-
-	/**
-	 * Each page, the Backup modernization flag, and whether the entry is hidden.
-	 *
-	 * @return array[]
-	 */
-	public static function provide_sidebar_visibility() {
-		return array(
-			'Backup, modernized'      => array( WPCOM_Backup::class, true, false ),
-			'Backup, legacy'          => array( WPCOM_Backup::class, false, false ),
-			'Protect, either setting' => array( WPCOM_Scan::class, true, false ),
-		);
-	}
-
-	/**
 	 * Pinned because the value looks arbitrary in isolation and is easy to
 	 * "tidy" into something else, and links into the page depend on it.
 	 *
@@ -864,8 +827,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	public static function provide_transfer_landings() {
 		return array(
 			'Backup'  => array( WPCOM_Backup::class, 'https://example.wpcomstaging.com/wp-admin/admin.php?page=jetpack-backup' ),
-			// Calypso's Scan page until the Jetpack plugin serves jetpack-protect on WoA.
-			'Protect' => array( WPCOM_Scan::class, 'https://wordpress.com/scan/example.wpcomstaging.com' ),
+			'Protect' => array( WPCOM_Scan::class, 'https://example.wpcomstaging.com/wp-admin/admin.php?page=jetpack-protect' ),
 		);
 	}
 
