@@ -146,6 +146,21 @@ describe( 'ConsentCard', () => {
 		}
 	);
 
+	it( 'leaves focus where the user moved it while activating', async () => {
+		setConsent( { api_installed: true } );
+		let activate!: ( value: unknown ) => void;
+		mockApiFetch.mockReturnValue( new Promise( resolve => ( activate = resolve ) ) );
+		render( <ConsentCard /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Activate' } ) );
+		const link = screen.getByRole( 'link', { name: /Complianz/ } );
+		link.focus();
+		activate( {} );
+
+		await expect( step( 'WP Consent API' ).findByText( 'Active' ) ).resolves.toBeInTheDocument();
+		expect( link ).toHaveFocus();
+	} );
+
 	it( 'reports a failed install with the reason WordPress gave, and keeps the button', async () => {
 		setConsent( {} );
 		mockApiFetch.mockRejectedValue( { message: 'Could not create directory.' } );

@@ -392,13 +392,18 @@ class Stats_Settings_Test extends BaseTestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_script_data_reports_an_active_wp_consent_api() {
+	public function test_script_data_reports_an_active_wp_consent_api_and_the_banner_behind_it() {
 		require_once __DIR__ . '/mocks/wp-consent-api-mock.php';
 		$this->log_in_as( 'administrator' );
+		$without_banner = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
+		add_filter( 'wp_get_consent_type', fn() => 'optin' );
 
 		$consent = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
 
 		$this->assertTrue( $consent['api_active'] );
+		$this->assertFalse( $without_banner['has_banner'] );
+		$this->assertTrue( $consent['has_banner'] );
+		$this->assertNull( $consent['banner_plugin'] );
 	}
 
 	public function test_script_data_says_when_the_user_cannot_activate_wp_consent_api() {
