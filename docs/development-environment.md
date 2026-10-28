@@ -166,7 +166,7 @@ Once you're all set here, you can continue developing. If you're setting up a lo
 
 `jetpack build` will provide prompts to determine the project you need or you can pass it a complete command, like `jetpack build plugins/jetpack --deps`
 
-To skip projects whose inputs haven't changed since their last build, add `--cache`, as in `jetpack build plugins/jetpack --deps --cache`. Add `--force` to rebuild everything while refreshing the cache.
+`jetpack build` skips projects whose inputs and build outputs haven't changed since their last successful build. Add `--ignore-cache` to rebuild them anyway.
 
 ### Testing Jetpack cloud features
 
