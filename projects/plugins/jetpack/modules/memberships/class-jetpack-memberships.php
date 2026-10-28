@@ -775,12 +775,12 @@ class Jetpack_Memberships {
 		}
 		$prefix = $user_id . '_';
 		foreach ( array_keys( self::$user_is_paid_subscriber_cache ) as $cache_key ) {
-			if ( 0 === strpos( $cache_key, $prefix ) ) {
+			if ( str_starts_with( $cache_key, $prefix ) ) {
 				unset( self::$user_is_paid_subscriber_cache[ $cache_key ] );
 			}
 		}
 		foreach ( array_keys( self::$user_can_view_post_cache ) as $cache_key ) {
-			if ( 0 === strpos( $cache_key, $prefix ) ) {
+			if ( str_starts_with( $cache_key, $prefix ) ) {
 				unset( self::$user_can_view_post_cache[ $cache_key ] );
 			}
 		}
