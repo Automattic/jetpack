@@ -60,7 +60,8 @@ add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_edito
  * @return string
  */
 function render_email( $block_content, array $parsed_block, $rendering_context ) {
-	if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
+	if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ||
+		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Html_Processing_Helper' ) ) {
 		return '';
 	}
 
@@ -78,6 +79,8 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 	$email_attrs  = $parsed_block['email_attrs'] ?? array();
 	$theme_styles = is_object( $rendering_context ) && method_exists( $rendering_context, 'get_theme_styles' ) ? (array) $rendering_context->get_theme_styles() : array();
 	$color        = $email_attrs['color'] ?? $theme_styles['color']['text'] ?? '#000000';
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+	$color = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Html_Processing_Helper::sanitize_color( is_string( $color ) ? $color : '' );
 
 	// Each line is a stacked table with cell padding for the gaps: Outlook ignores margins on <p> and tables.
 	$lines     = array();
