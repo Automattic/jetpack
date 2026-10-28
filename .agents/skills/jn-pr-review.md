@@ -16,10 +16,9 @@ allowed-tools: Bash, Read, Glob, Grep
 
 # JN PR Review — live test environment for a Jetpack PR
 
-Given a Jetpack GitHub PR, deliver a working Jurassic Ninja site running
-that PR's code (Jetpack-connected unless the PR changes the connection), and report the
-autologin link. Environment provisioning only — no automated
-code review.
+Given a Jetpack GitHub PR, deliver a working Jurassic Ninja site running that PR's code
+(Jetpack-connected unless the PR changes the connection), and report the autologin link.
+Environment provisioning only — no automated code review.
 
 Run this from any Jetpack monorepo checkout that has a remote tracking `Automattic/jetpack`
 and a working `pnpm jetpack`. The worktree path created in step 2 is namespaced by the
