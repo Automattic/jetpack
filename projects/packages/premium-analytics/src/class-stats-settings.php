@@ -243,7 +243,7 @@ final class Stats_Settings {
 	/**
 	 * Whether visitor consent can reach Stats: the WP Consent API bridge, and a cookie banner plugin behind it.
 	 *
-	 * @return array
+	 * @return array{api_active: bool, api_installed: bool, has_banner: bool, banner_plugin: string|null, can_install: bool, can_activate: bool, file_mods_allowed: bool}
 	 */
 	private static function get_consent_status() {
 		$plugin_file = 'wp-consent-api/wp-consent-api.php';
