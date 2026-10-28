@@ -2,11 +2,14 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { RegistryProvider } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import { createNoticesRegistry } from '../../../tests/js/notice-test-utils';
 import { createWidgetActionsHost } from '../../../tests/js/widget-host-test-utils';
 import ReferrersWidget, { toReferrerRow } from '../render';
 import type { StatsReferrersComparisonItem } from '@jetpack-premium-analytics/data';
@@ -225,6 +228,37 @@ describe( 'ReferrersWidget', () => {
 		expect( view ).toHaveAttribute( 'href', 'https://jetpack.com/' );
 		expect( view ).toHaveAttribute( 'target', '_blank' );
 		expect( screen.queryByRole( 'link', { name: /^jetpack\.com/i } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'marks a childless referrer as spam from its row action and drops the row', async () => {
+		const user = userEvent.setup();
+		const { registry, createSuccessNotice } = createNoticesRegistry();
+
+		render(
+			<RegistryProvider value={ registry }>
+				<ReferrersWidget
+					attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				/>
+			</RegistryProvider>
+		);
+
+		await user.click( await screen.findByRole( 'button', { name: 'Mark "jetpack.com" as spam' } ) );
+		const dialog = await screen.findByRole( 'alertdialog', { name: 'Mark as spam' } );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Mark as spam' } ) );
+
+		await waitFor( () => expect( screen.queryByTitle( 'jetpack.com' ) ).not.toBeInTheDocument() );
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				method: 'POST',
+				path: expect.stringContaining( 'stats/referrers/spam/new?domain=jetpack.com' ),
+			} )
+		);
+		expect( createSuccessNotice ).toHaveBeenCalledWith(
+			'"jetpack.com" marked as spam.',
+			expect.objectContaining( { type: 'snackbar' } )
+		);
+		// Search Engines has children, so it offers no spam action.
+		expect( screen.queryByRole( 'button', { name: /as spam$/ } ) ).not.toBeInTheDocument();
 	} );
 
 	// Referrer rows derive from inbound request data rather than anything the site

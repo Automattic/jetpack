@@ -142,6 +142,19 @@ themselves. `resolveLeaderboardRowAction` returns it for a childless row when pa
 action: { kind: 'viewLink', href: 'https://example.com' },
 ```
 
+A row whose label stays put (`viewLink` or `static`) can also take a `trailingAction`, an element
+rendered after the "View" action and revealed with it, for a widget's own row actions such as the
+Top referrers widget's `MarkAsSpamButton`:
+
+```tsx
+...buildLeaderboardRow( {
+	label: 'example.com',
+	media: { kind: 'favicon', url: 'https://example.com/favicon.ico' },
+	action: { kind: 'viewLink', href: 'https://example.com' },
+	trailingAction: <MarkAsSpamButton domain="example.com" onConfirm={ markAsSpam } />,
+} ),
+```
+
 For a drill-down row, pass the chart-level action to the builder. Its result includes the
 `onClick` and `ariaLabel` fields expected by `LeaderboardChart`:
 

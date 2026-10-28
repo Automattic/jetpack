@@ -202,6 +202,26 @@ describe( 'buildLeaderboardRow', () => {
 		expect( screen.getByTitle( 'Pricing' ) ).toHaveClass( 'bars' );
 	} );
 
+	it.each( [
+		[ 'a static row', { kind: 'static' } as const ],
+		[ 'a "View" action', { kind: 'viewLink', href: 'https://example.com/' } as const ],
+	] )( 'renders a trailing action after %s, revealed with the row', ( _name, action ) => {
+		const row = buildLeaderboardRow( {
+			label: 'example.com',
+			media: { kind: 'favicon', url: 'https://example.com/favicon.ico' },
+			action,
+			trailingAction: <button>Flag</button>,
+		} );
+
+		render( row.label );
+
+		const flag = screen.getByRole( 'button', { name: 'Flag' } );
+		// eslint-disable-next-line testing-library/no-node-access -- The wrapper has no accessible query target.
+		expect( flag.parentElement ).toHaveClass( 'rowAction' );
+		expect( screen.getByTitle( 'example.com' ) ).not.toContainElement( flag );
+		expect( row ).not.toHaveProperty( 'onClick' );
+	} );
+
 	it( 'keeps the label plain beside a "View" action that opens the URL', () => {
 		const row = buildLeaderboardRow( {
 			label: 'example.com',

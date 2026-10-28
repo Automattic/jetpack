@@ -92,6 +92,11 @@ export type LeaderboardRowProps = {
 	media: LeaderboardRowMedia;
 	/** The mutually exclusive action applied to this chart row. */
 	action: LeaderboardRowAction;
+	/**
+	 * A row action rendered after the label, revealed with the "View" action on
+	 * hover or focus. Only rows whose label stays put (`viewLink`, `static`) take one.
+	 */
+	trailingAction?: ReactElement;
 	/** The look of the chart the row sits in. Only `list` insets the label and sizes the bar. */
 	variant?: LeaderboardVariant;
 };
@@ -141,6 +146,7 @@ export function LeaderboardRow( {
 	label,
 	media,
 	action,
+	trailingAction,
 	variant = 'list',
 }: LeaderboardRowProps ): ReactElement {
 	const rowClassName = clsx( styles.row, variant === 'bars' && styles.bars );
@@ -179,7 +185,7 @@ export function LeaderboardRow( {
 					>
 						{ content }
 					</TitleLink>
-					<ViewLiveLink href={ liveUrl } label={ label } className={ styles.viewAction } />
+					<ViewLiveLink href={ liveUrl } label={ label } className={ styles.rowAction } />
 				</span>
 			);
 		}
@@ -210,21 +216,24 @@ export function LeaderboardRow( {
 		);
 	}
 
-	// The label carries the tooltip itself, so the action keeps only its own.
-	if ( action.kind === 'viewLink' ) {
-		return (
-			<span className={ rowClassName }>
-				<span className={ styles.plainLabel } title={ label }>
-					<LeaderboardLabel label={ label } media={ media } />
-				</span>
-				<ViewLiveLink href={ action.href } label={ label } className={ styles.viewAction } />
-			</span>
-		);
-	}
-
 	const content = (
 		<LeaderboardLabel label={ label } media={ media } decorativeMedia={ action.kind === 'link' } />
 	);
+
+	// The label carries the tooltip itself, so each action keeps only its own.
+	if ( action.kind === 'viewLink' || ( action.kind === 'static' && trailingAction ) ) {
+		return (
+			<span className={ rowClassName }>
+				<span className={ styles.plainLabel } title={ label }>
+					{ content }
+				</span>
+				{ action.kind === 'viewLink' && (
+					<ViewLiveLink href={ action.href } label={ label } className={ styles.rowAction } />
+				) }
+				{ trailingAction && <span className={ styles.rowAction }>{ trailingAction }</span> }
+			</span>
+		);
+	}
 
 	if ( action.kind === 'link' ) {
 		return (

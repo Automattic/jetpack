@@ -86,11 +86,11 @@
 	white-space: nowrap;
 }
 
-/* A row with a detail page and a public URL offers both: the title inside and
- * a trailing "View" action. */
+/* A row whose label stays put offers its actions after it: "View in new tab",
+ * and whatever the widget adds. */
 .row {
 
-	@include reveal-action-on-hover(".viewAction");
+	@include reveal-action-on-hover(".rowAction");
 }
 
 /* The `bars` look lays the label above its bar: nothing to inset from or to
@@ -151,8 +151,10 @@
 	inset: 0;
 }
 
-/* The action sits above the stretched title so its own click wins. */
-.viewAction {
+/* The actions sit above the stretched title so their own clicks win. */
+.rowAction {
+	display: inline-flex;
+	flex: none;
 	position: relative;
 	z-index: 1;
 }

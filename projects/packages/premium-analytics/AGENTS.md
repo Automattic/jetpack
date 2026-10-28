@@ -816,7 +816,8 @@ Rows with children may be interactive and drill into a second-level leaderboard.
 children must not look like drill-down rows. If a row has an external `href` and no children,
 render it as a normal external link even when sibling rows drill down, unless the widget passes
 `hrefAs: 'viewLink'` on purpose: then the label stays plain text and the URL is offered from the
-"View in new tab" action beside it (the Top referrers widget does this, see STATS-565).
+"View in new tab" action beside it (the Top referrers widget does this, see STATS-565). A widget
+adds further row actions, such as "Mark as spam", through `trailingAction`, never by linking the row.
 
 When a leaderboard drills down, use `WidgetBackLink` from `widgets-toolkit` in the widget body
 to navigate back to the parent list. Keep the static widget title/icon in the framed widget host
