@@ -34,7 +34,6 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
-		invalidateResolution: jest.fn(),
 		fetchModules: mockFetchModules,
 	} ),
 	useSelect: () => undefined,

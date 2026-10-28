@@ -14,7 +14,6 @@ const mockModules: { current: Record< string, MyJetpackModule > | null } = { cur
 const mockProducts: { current: Record< string, ProductCamelCase > } = { current: {} };
 const mockGetJetpackModules = jest.fn( () => mockModules.current );
 const mockOfflineSeed: { current?: OfflineFeaturesSeed } = {};
-const mockInvalidateResolution = jest.fn();
 const mockFetchModules = jest.fn();
 let mockResolved = true;
 let mockFailed = false;
@@ -36,7 +35,6 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
-		invalidateResolution: mockInvalidateResolution,
 		fetchModules: mockFetchModules,
 	} ),
 	useSelect: ( selector: ( select: unknown ) => unknown ) =>
@@ -360,7 +358,6 @@ describe( 'plugin switch refresh ordering', () => {
 				videopress: { ...mod( 'videopress', 'active' ), available: false },
 			};
 		};
-		mockInvalidateResolution.mockReset().mockImplementation( deliverHostOverride );
 		let settleModules: () => void = () => {};
 		mockFetchModules.mockReset().mockImplementation( () => {
 			deliverHostOverride();
