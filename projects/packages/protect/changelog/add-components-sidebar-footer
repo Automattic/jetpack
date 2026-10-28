@@ -1,5 +1,5 @@
 Significance: patch
 Type: changed
-Comment: Threat details: Use the shared SidebarFooter component for the sidebar's actions.
+Comment: Threat details: Use the shared SidebarFooter for the sidebar's actions, which shows them in equal-width columns, with a lone action filling the footer.
 
 

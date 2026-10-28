@@ -1,5 +1,5 @@
 Significance: patch
 Type: changed
-Comment: Content: Use the shared SidebarFooter for the SEO editor sidebar's Cancel and Save. No visible change. The new SEO page is still gated.
+Comment: Content: Use the shared SidebarFooter for the SEO editor sidebar's Cancel and Save, which lines them up with the fields above. The new SEO page is still gated.
 
 
