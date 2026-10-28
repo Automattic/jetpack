@@ -34,8 +34,8 @@ something looks (the runner can't assert layout or color; use `jetpack-screensho
 ## 1. Get a site
 
 Provision one with `jetpack-test-jurassic-ninja` (or `jn-pr-review` for an existing PR). Before you
-sync your branch, the site runs released Jetpack: that is your "before" state. If Tools →
-Rehearsal is missing, the site predates it; make a new one.
+sync your branch, the site runs released Jetpack: that is your "before" state. If `wp rehearsal`
+is missing, the site's Companion predates it; make a new site.
 
 ## 2. Write the steps
 
@@ -74,7 +74,8 @@ can't satisfy it. These pass whether or not the change works:
 A rehearsal that fails because the site lacks a module, a connection, a feature flag or data
 looks exactly like a regression. Right after the `goto`, add a guard that the screen exists
 (`{ "expect": "h1", "toContainText": "…" }`) so a failure reads as "screen not available", and say
-in the PR what site state it needs. `requires` only checks plugins, and all of them must be active.
+in the PR what site state it needs. `requires` only checks plugins; each entry must be active, and
+an entry can be either-or (`"jetpack or jetpack-premium-analytics"`).
 
 ### Conventions
 
@@ -89,7 +90,7 @@ in the PR what site state it needs. `requires` only checks plugins, and all of t
   `"timeout": 30000` at the rehearsal level.
 - **Selectors**: ids, `[role=tab]`, `aria-label`, `text=`. Not generated class names from CSS
   modules (`a5fd8814f195aa5e__tab`). Write roles as CSS (`[role=tab]:has-text("Settings")`), which
-  works in the browser runner and the Playwright export alike. `text=` is a case-sensitive
+  reads the same in both runners. `text=` is a case-sensitive
   substring in the browser runner and case-insensitive in Playwright, so match the exact case.
   Text matching assumes the site is in English.
 - **URLs**: wp-build dashboards route only from `p=` (`&p=%2F%3Ftab%3Dsettings`); a top-level
@@ -100,57 +101,78 @@ in the PR what site state it needs. `requires` only checks plugins, and all of t
   counts every error since the run started, not just since the last step.
 - After a click that loads a page, expect something only the new page has.
 
-### What the browser runner can't do
+### Runner gotchas
 
-- Native `confirm`, `alert`, `prompt` and `beforeunload` dialogs freeze it until a human answers.
-  The Playwright export dismisses them (Cancel) and no step can accept one. Mark such a rehearsal
-  `"needs": "playwright"`, rehearse the Cancel path, and keep the OK path in prose.
+- **Native dialogs** (`confirm`, `alert`, `prompt`): answer them with a step placed *before* the
+  one that opens the dialog: `{ "dialog": "accept" }`, `{ "dialog": "dismiss" }` or
+  `{ "dialog": "accept", "value": "prompt text" }`. Unanswered dialogs are dismissed, so a
+  rehearsal of "asks before leaving" must accept or dismiss explicitly and then check the outcome.
 - Block content is inside the editor iframe: `iframe[name="editor-canvas"] >> [data-type="jetpack/contact-form"]`.
-- `click` doesn't wait for a button to become enabled; clicking a disabled one does nothing. Expect
-  `toBeEnabled` first.
 - `fill` works on inputs and textareas, not rich text; `press` sends keys, not characters.
-- It can't leave the site (WordPress.com connection flows), take screenshots, or open
-  CSS-`:hover`-only menus. Mark those `"needs": "playwright"`.
-
-Before saving, a matcher set to `false` (`"toBeVisible": false`) passes validation but still checks
-for the true case. Use `"not": true`.
+- The browser runner can't leave the site (WordPress.com connection flows), take screenshots, or
+  open CSS-`:hover`-only menus. Mark those `"needs": "playwright"`.
+- Invert a matcher with `"not": true`; `"toBeVisible": false` is rejected.
 
 ## 3. Save it on the site
 
-By hand: **Tools → Rehearsal → Add rehearsal**, paste the JSON, **Save**. Saving validates it.
-Agents: see "Without a browser" below.
+All commands below run over the site's SSH (access: `jetpack-test-jurassic-ninja`) from
+`/srv/htdocs`, as an administrator. Shorthand used here:
+
+```bash
+WP='cd /srv/htdocs && wp --user="$(wp user list --role=administrator --field=ID --number=1)"'
+ssh -o BatchMode=yes {domain}@ssh.atomicsites.net "$WP rehearsal save - --title='Forms: Create a form opens its dialog' --format=json" < rehearsal.json
+```
+
+`save` takes the rehearsal JSON (or what a share link returns with `&format=json`) from a file or
+`-` for stdin, validates it, and prints the post `id`, `hash`, `shareUrl` and `runUrl`. Saving the
+same title and steps again returns that rehearsal with `"existing": true` instead of a copy, so
+rerunning a script is safe.
+
+By hand: **Tools → Rehearsal → Add rehearsal**, paste the JSON, **Save**.
 
 ## 4. Run it
 
 Run it once **before** syncing your branch, where it should fail at the step you expect (not
 earlier), and once after, where it should pass. That pair is the strongest evidence a PR can carry.
 
-- **Browser runner** (preferred, because the run is saved on the site): press the rehearsal's
-  **Run** button and read the log under it. Keep the tab in the foreground; step timers pause in a
-  hidden tab. A failing step says what it waited for and what the page showed; **Copy errors**
-  gives a plain-text report of console errors.
-- **Playwright export**, for `"needs": "playwright"` rehearsals: fetch `<shareUrl>&format=playwright`
-  and run it with `STORAGE_STATE` pointing at a logged-in session (the README's "Running rehearsals
-  in Playwright" section). These runs are not saved on the site.
+Label every run with a `ref`, the branch name or PR number, so the runs for this work can be found
+again, by you or by a developer checking what an agent did.
 
-Read saved results as JSON instead of from the screen: the `rehearsal/v1/runs/search` route with
-`recipe=<post id>` returns each run's `status`, `hash`, `build`, per-step `log` and `errors`. Over
-plain HTTP it needs a REST nonce (cookies alone get a 401), so agents call it over SSH:
+- **Run link** (browser runner, no clicks): open `<runUrl>&ref=<label>` in a logged-in browser; the
+  runs start as soon as the screen loads. Wait for `#rh-app[data-run-status]` to become `pass`,
+  `fail`, `queued` or `error`; `data-run-ids` lists the saved runs. Keep the tab in the foreground,
+  since step timers pause in a hidden tab. `wp rehearsal list --format=json` gives each rehearsal's
+  `runUrl`.
+- **Playwright export**, for `"needs": "playwright"` rehearsals or with no browser tool: fetch
+  `<shareUrl>&format=playwright` and run it with `STORAGE_STATE` (an admin session, see "Logging
+  Playwright in") and `REHEARSAL_REF=<label>`. Each result is saved on the site as a run marked
+  "in Playwright".
+- **By hand**: the rehearsal's **Run** button; the log appears under it, and **Copy errors** gives
+  a plain-text report of console errors.
+
+Read results as JSON rather than from the screen:
 
 ```bash
-ssh -o BatchMode=yes {domain}@ssh.atomicsites.net 'cd /srv/htdocs && wp --user="$(wp user list --role=administrator --field=ID --number=1)" eval '"'"'$r = new WP_REST_Request( "GET", "/rehearsal/v1/runs/search" ); $r->set_param( "recipe", <post id> ); echo wp_json_encode( rest_do_request( $r )->get_data() );'"'"''
+ssh -o BatchMode=yes {domain}@ssh.atomicsites.net "$WP rehearsal runs --rehearsal=<id> --ref=<label> --format=json"
 ```
+
+Each run has its `status`, `hash`, `runner` (`browser` or `playwright`), `build` and per-step `log`.
+A failing step says what it waited for and what the page showed.
 
 If a step fails because the rehearsal is wrong rather than the code, fix the rehearsal. Never
 weaken a step just to get a pass. The rehearsal ID is a hash of the whole JSON except `format`
-(steps and settings, not the title, and key order counts), so any edit marks earlier results
-**Stale**.
+(steps and settings, not the title), so any edit marks earlier results **Stale**.
 
 ## 5. Put it in the PR
 
-Open the rehearsal (click its title) and, in **Share**, press **Copy as: GitHub**. Paste the block
-under **Testing instructions**, after a line like "Run the rehearsals below from Tools → Rehearsal
-on any JN site." Keep prose steps for what the rehearsals don't cover, and say which is which.
+```bash
+ssh -o BatchMode=yes {domain}@ssh.atomicsites.net "$WP rehearsal block <id>"
+```
+
+prints the PR block, the same one **Copy as: GitHub** copies: a `<!-- rehearsal v1 -->` marker,
+the ID and latest result, links, and the JSON folded away. Paste it under **Testing instructions**,
+after a line like "Run the rehearsals below from Tools → Rehearsal on any JN site." Keep prose
+steps for what the rehearsals don't cover, and say which is which.
 
 Keep the folded JSON in the block. Share links stop working when the JN site expires; the JSON
 recreates the rehearsal with the same ID on any site.
@@ -169,40 +191,16 @@ When the PR changes, rerun the rehearsals and refresh the blocks.
 2. Read the steps as critically as the code, before any site exists: would each expect fail
    without the change (see "Make it fail without your change")? Are `covers` and `requires`
    right? Say which steps prove nothing, and suggest the ones that would.
-3. Get a site on the PR branch (`jn-pr-review`) and install each rehearsal: paste its share link
-   into **Tools → Rehearsal → Install from link** while the author's site exists, or paste its
-   folded JSON into **Add rehearsal** when it doesn't. Either way the ID stays the same.
-4. Run them, and report each ID and result. A pass with the author's ID reproduces the author's
-   check; a fail comes with the step and what the page showed.
+3. Get a site on the PR branch (`jn-pr-review`) and install each rehearsal:
+   `wp rehearsal install "<share link>" --yes` while the author's site exists, or `wp rehearsal
+   save` its folded JSON when it doesn't (**Install from link** and **Add rehearsal** by hand).
+   Either way the ID stays the same.
+4. Run them with `ref` set to `review-<PR number>`, and report each ID and result. A pass with the
+   author's ID reproduces the author's check; a fail comes with the step and what the page showed.
 
-## Without a browser
+## Logging Playwright in
 
-**Save** over the site's SSH (access: `jetpack-test-jurassic-ninja`) by calling the REST route as an
-administrator. Write the PHP to your scratchpad:
-
-```php
-<?php
-$request = new WP_REST_Request( 'POST', '/rehearsal/v1/rehearsals' ); // `/rehearsals/<id>` updates.
-$request->set_param( 'title', 'Forms: Create a form opens its dialog' );
-$request->set_param( 'recipe', json_decode( <<<'JSON'
-{ "requires": [ "jetpack" ], "covers": [ "packages/forms" ], "steps": [ … ] }
-JSON
-, true ) );
-echo wp_json_encode( rest_do_request( $request )->get_data(), JSON_PRETTY_PRINT ), "\n";
-```
-
-```bash
-ssh -o BatchMode=yes {domain}@ssh.atomicsites.net \
-  'cd /srv/htdocs && wp --user="$(wp user list --role=administrator --field=ID --number=1)" eval-file -' \
-  < save-rehearsal.php
-```
-
-The response has the post `id`, the rehearsal `hash` and `shareUrl`. Errors: `rehearsal_invalid`
-carries the validation message; "Missing parameter(s): recipe" means the JSON didn't parse. Posting
-again creates a duplicate, so update by ID instead.
-
-**Log in for Playwright** without spending `?auto_login` or changing a password, by minting a
-session on the server:
+Mint a session on the server, without spending `?auto_login` or changing a password:
 
 ```bash
 ssh -o BatchMode=yes {domain}@ssh.atomicsites.net 'cd /srv/htdocs && wp eval '"'"'
@@ -216,33 +214,3 @@ echo LOGGED_IN_COOKIE, "=", wp_generate_auth_cookie( $u->ID, $exp, "logged_in", 
 
 Put both cookies (`domain: {domain}`, `path: /`, `httpOnly`, `secure`) in a Playwright storage
 state file. The monorepo's Playwright is in `tools/e2e-commons/node_modules`.
-
-**Run in the browser runner from Playwright**, so the run is still saved on the site: open
-`/wp-admin/tools.php?page=rehearsal`, click `button[aria-label^="Run <title>"]`, then wait for that
-row (`tr` containing the button) to contain `Passed` or `Failed`, and read the run with
-`runs/search`.
-
-**Build the PR block by hand** when you can't press Copy as: GitHub. Use the first 7 characters of
-the hash, keep the marker comment, and keep the two trailing spaces on the facts and result lines:
-
-````markdown
-<!-- rehearsal v1 -->
-#### Rehearsal: <title>
-
-Rehearsal `<first 7 of hash>` · <n> steps · covers `<project>`  
-<result line>  
-[View or install this rehearsal](<shareUrl>) · [JSON](<shareUrl>&format=json) · [Playwright test](<shareUrl>&format=playwright) (links work while <site host> exists)
-
-<details>
-<summary>Rehearsal JSON</summary>
-
-```json
-{ … }
-```
-
-</details>
-````
-
-The result line is `Last run: **Passed** on <build>, run #<id>, <YYYY-MM-DD>.` for a run saved on the
-site, `Ran in Playwright on <date>: **Passed** (not saved on the site).` for an export run, and
-`Not run since its last change.` otherwise.
