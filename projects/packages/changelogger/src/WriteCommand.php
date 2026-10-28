@@ -318,7 +318,7 @@ EOF
 	 */
 	protected static function chopPrSuffix( $content ) {
 		// Note that we need to account for multiple PRs already listed.
-		return preg_replace( '/( \[#\d+\])+$/', '', $content );
+		return preg_replace( '/(?: \[#\d+\])+$/', '', $content );
 	}
 
 	/**
