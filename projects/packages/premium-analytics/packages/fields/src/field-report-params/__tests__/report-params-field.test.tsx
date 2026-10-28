@@ -338,6 +338,17 @@ describe( 'report params field', () => {
 		expect( saved ).toHaveLength( 0 );
 	} );
 
+	it( 'reopens on the calendar for an applied custom range', async () => {
+		const user = userEvent.setup();
+		renderField( false, undefined, {
+			reportParams: { preset: 'custom', from: '2026-01-01', to: '2026-01-15' },
+		} );
+
+		await user.click( screen.getByRole( 'button', { name: /Jan 1/ } ) );
+
+		await expect( screen.findByRole( 'button', { name: 'Apply' } ) ).resolves.toBeInTheDocument();
+	} );
+
 	it( 'saves a bucket change without an Apply step', async () => {
 		const user = userEvent.setup();
 		const { latest } = renderField( true );
