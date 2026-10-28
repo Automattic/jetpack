@@ -126,6 +126,43 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 		expect( onPreviousPeriodShownChange ).toHaveBeenLastCalledWith( false );
 	} );
 
+	it.each( [ true, false ] )(
+		'reads defaultPreviousPeriodShown (%s) again when the chart remounts in the same provider',
+		async remountShown => {
+			const user = setupUser();
+			const onPreviousPeriodShownChange = jest.fn();
+			const host = ( mounted: boolean, shown: boolean ) => (
+				<GlobalChartsProvider>
+					<VisibilityProbe />
+					{ mounted && (
+						<ComparativeBarChart
+							chartId={ CHART_ID }
+							series={ SERIES }
+							dataFormat={ DATA_FORMAT }
+							layout="overlap"
+							comparisonLabel="Prev. 7 days"
+							defaultPreviousPeriodShown={ shown }
+							onPreviousPeriodShownChange={ onPreviousPeriodShownChange }
+						/>
+					) }
+				</GlobalChartsProvider>
+			);
+			const view = render( host( true, false ) );
+			await user.click( previousPeriodItem() );
+			expect( onPreviousPeriodShownChange ).toHaveBeenCalledTimes( 1 );
+
+			view.rerender( host( false, true ) );
+			view.rerender( host( true, remountShown ) );
+
+			expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', String( remountShown ) );
+			expect( [ 'Previous views', 'Previous visitors' ].map( isDrawn ) ).toEqual( [
+				remountShown,
+				remountShown,
+			] );
+			expect( onPreviousPeriodShownChange ).toHaveBeenCalledTimes( 1 );
+		}
+	);
+
 	it( "keeps a hidden metric's previous bar hidden", async () => {
 		const user = setupUser();
 		const view = renderChart( { defaultPreviousPeriodShown: false } );

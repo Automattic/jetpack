@@ -126,10 +126,10 @@ export type ComparativeBarChartProps = {
 	/** Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked. */
 	primarySeries?: string;
 
-	/** Start the previous period shown or hidden, and let the reader toggle it from the legend. Applied once per `chartId`. Omit it to keep the previous period always drawn, as today. */
+	/** Start the previous period shown or hidden, and let the reader toggle it from the legend. Read when the chart mounts, like `defaultValue`, so feed back the latest value from `onPreviousPeriodShownChange`. Omit it to keep the previous period always drawn. */
 	defaultPreviousPeriodShown?: boolean;
 
-	/** Called when the reader shows or hides the previous period from the legend. */
+	/** Called when the reader shows or hides the previous period from the legend, not when the default is applied. */
 	onPreviousPeriodShownChange?: ( shown: boolean ) => void;
 
 	/** Pointer-down on the plot, carrying the datum nearest the pointer. */
@@ -175,8 +175,7 @@ export function ComparativeBarChart( {
 	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
-	const { isSeriesVisible, setSeriesVisibility, hasSeededChart, seedChartHiddenSeries, theme } =
-		useGlobalChartsContext();
+	const { isSeriesVisible, setSeriesVisibility, theme } = useGlobalChartsContext();
 	const getBarColors = useBarColors();
 	const overlapLayout = layout === 'overlap' ? layout : undefined;
 	const previousPeriodToggle =
@@ -270,40 +269,31 @@ export function ComparativeBarChart( {
 		[ primarySeriesByGroup, isSeriesVisible, chartId ]
 	);
 
-	// The provider's seed record survives remounts; this ID marks the default applied without hiding anything.
-	const previousPeriodSeedId = `${ chartId }:previous-period`;
+	const [ defaultApplied, setDefaultApplied ] = useState( false );
 	let previousPeriodShown: boolean | undefined;
 	if ( previousPeriodToggle && pickedComparisonLabel !== undefined ) {
-		previousPeriodShown = hasSeededChart( previousPeriodSeedId )
+		previousPeriodShown = defaultApplied
 			? isSeriesVisible( chartId, pickedComparisonLabel )
 			: defaultPreviousPeriodShown;
 	}
 
 	// Waits for comparison series, which can arrive after mount when the reader turns comparison on.
 	useLayoutEffect( () => {
-		if (
-			! previousPeriodToggle ||
-			comparisonIndexes.length === 0 ||
-			hasSeededChart( previousPeriodSeedId )
-		) {
+		if ( ! previousPeriodToggle || pickedComparisonLabel === undefined || defaultApplied ) {
 			return;
 		}
-		seedChartHiddenSeries( previousPeriodSeedId, [] );
-		if ( ! defaultPreviousPeriodShown ) {
-			for ( const index of comparisonIndexes ) {
-				setSeriesVisibility( chartId, alignedSeries[ index ].label, false );
-			}
+		setDefaultApplied( true );
+		if ( isSeriesVisible( chartId, pickedComparisonLabel ) !== defaultPreviousPeriodShown ) {
+			setSeriesVisibility( chartId, pickedComparisonLabel, defaultPreviousPeriodShown );
 		}
 	}, [
 		previousPeriodToggle,
-		comparisonIndexes,
-		previousPeriodSeedId,
-		hasSeededChart,
-		seedChartHiddenSeries,
+		pickedComparisonLabel,
+		defaultApplied,
+		isSeriesVisible,
 		defaultPreviousPeriodShown,
 		setSeriesVisibility,
 		chartId,
-		alignedSeries,
 	] );
 
 	useLayoutEffect( () => {
