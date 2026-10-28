@@ -189,7 +189,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 					{
 						id: 'build-url',
 						label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
-						relevance: 'high',
+						relevance: 'medium',
 						callback: openBuilder,
 					},
 				]
