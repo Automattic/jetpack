@@ -149,6 +149,18 @@
 				.notice-main-content .notice-title {
 					margin: 0;
 				}
+
+				// One-line notice: keep the icon inline on small screens.
+				@media screen and ( max-width: 600px ) {
+
+					& {
+						padding-top: 24px;
+					}
+
+					.notice-icon-wrapper {
+						position: static;
+					}
+				}
 			}
 
 			.notice-icon-wrapper {
