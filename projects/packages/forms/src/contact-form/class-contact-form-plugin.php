@@ -104,6 +104,13 @@ class Contact_Form_Plugin {
 	);
 
 	/**
+	 * Number of responses loaded into memory at once while exporting.
+	 *
+	 * @var int
+	 */
+	const EXPORT_BATCH_SIZE = 100;
+
+	/**
 	 * GDrive export nonce field name
 	 *
 	 * @var string The nonce field name for GDrive export.
@@ -2976,88 +2983,118 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	public function get_export_feedback_data( $feedback_ids, $include_test_responses = false ) {
-		$feedback_data   = array();
-		$all_field_names = array();
-
-		// Collect all feedback responses and their compiled fields
-		foreach ( $feedback_ids as $feedback_id ) {
-			$response = Feedback::get( $feedback_id );
-			if ( ! $response instanceof Feedback ) {
-				continue; // Skip if the feedback is not an instance of Feedback.
-			}
-
-			// Skip test responses from form preview unless explicitly requested.
-			if ( ! $include_test_responses && $response->is_test() ) {
+		$results = array();
+		$header  = null;
+		foreach ( $this->get_export_rows( $feedback_ids, $include_test_responses ) as $row ) {
+			if ( null === $header ) {
+				$header = $row;
 				continue;
 			}
-
-			// Get fields with automatic duplicate handling (label-value shape includes counts)
-			$compiled_fields = $response->get_compiled_fields( 'csv', 'label-value' );
-
-			$feedback_data[ $feedback_id ] = array(
-				'response' => $response,
-				'fields'   => $compiled_fields,
-			);
-
-			// Collect all unique field names across all responses
-			$all_field_names = array_merge( $all_field_names, array_keys( $compiled_fields ) );
+			foreach ( $row as $index => $value ) {
+				$results[ $header[ $index ] ][] = $value;
+			}
 		}
-
-		// Get unique field names (this preserves the incremented labels like "Name (2)")
-		$all_field_names = array_unique( $all_field_names );
-
-		return $this->format_feedback_data_for_csv( $feedback_data, $all_field_names );
+		return $results;
 	}
 
 	/**
-	 * Returns an array of feedback data for CSV export.
+	 * Yields the export header row, then one row per response.
 	 *
-	 * @param array $feedback_data Array of feedback data with 'response' and 'fields' keys.
-	 * @param array $field_names   Array of field names to include in the results.
+	 * Rows are built one batch of responses at a time, so memory stays flat however many responses are exported.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int[] $feedback_ids           Feedback IDs to export.
+	 * @param bool  $include_test_responses Whether to include responses submitted from form preview.
+	 *
+	 * @return \Generator<array> Yields nothing when no response qualifies.
+	 */
+	public function get_export_rows( $feedback_ids, $include_test_responses = false ) {
+		// The header needs every response's field names, so the first pass collects only those.
+		$field_names = array();
+		$export_ids  = array();
+		foreach ( $this->get_export_feedback_batches( $feedback_ids, $include_test_responses ) as $feedback_id => $feedback ) {
+			$export_ids[] = $feedback_id;
+			// The label-value shape already de-duplicates labels, e.g. "Name (2)".
+			foreach ( array_keys( $feedback->get_compiled_fields( 'csv', 'label-value' ) ) as $field_name ) {
+				$field_names[ trim( $field_name ) ] = true;
+			}
+		}
+		$field_names = array_map( 'strval', array_keys( $field_names ) );
+
+		$is_first_row = true;
+		foreach ( $this->get_export_feedback_batches( $export_ids, true ) as $feedback_id => $feedback ) {
+			$row = $this->get_export_row( $feedback_id, $feedback, $field_names );
+			if ( $is_first_row ) {
+				$is_first_row = false;
+				yield array_keys( $row );
+			}
+			yield array_values( $row );
+		}
+	}
+
+	/**
+	 * Yields Feedback objects keyed by ID, dropping each batch from memory before loading the next.
+	 *
+	 * @param int[] $feedback_ids           Feedback IDs to load.
+	 * @param bool  $include_test_responses Whether to include responses submitted from form preview.
+	 *
+	 * @return \Generator<int, Feedback>
+	 */
+	private function get_export_feedback_batches( $feedback_ids, $include_test_responses ) {
+		foreach ( array_chunk( $feedback_ids, self::EXPORT_BATCH_SIZE ) as $batch ) {
+			_prime_post_caches( $batch, false, true );
+
+			foreach ( $batch as $feedback_id ) {
+				$feedback = Feedback::get( $feedback_id );
+				if ( ! $feedback instanceof Feedback ) {
+					continue;
+				}
+				if ( ! $include_test_responses && $feedback->is_test() ) {
+					continue;
+				}
+				yield $feedback_id => $feedback;
+			}
+
+			Feedback::clear_cache();
+			if ( function_exists( 'wp_cache_supports' ) && wp_cache_supports( 'flush_runtime' ) ) {
+				wp_cache_flush_runtime();
+			}
+		}
+	}
+
+	/**
+	 * Returns one response's export row, keyed by column name.
+	 *
+	 * @param int      $feedback_id Feedback ID.
+	 * @param Feedback $feedback    The response.
+	 * @param string[] $field_names Form field columns, in order; missing fields export as an empty string.
 	 *
 	 * @return array
 	 */
-	private function format_feedback_data_for_csv( $feedback_data, $field_names ) {
-		$results            = array();
+	private function get_export_row( $feedback_id, $feedback, $field_names ) {
+		$compiled_fields    = $feedback->get_compiled_fields( 'csv', 'label-value' );
 		$prefix_meta_fields = ' '; // Prefix all meta fields with a space to ensure that they don't clash with form field names.
-		foreach ( $feedback_data as $feedback_id => $data ) {
 
-			$feedback        = $data['response'];
-			$compiled_fields = $data['fields'];
+		$row = array(
+			$prefix_meta_fields . __( 'ID', 'jetpack-forms' )     => $feedback_id,
+			$prefix_meta_fields . __( 'Date', 'jetpack-forms' )   => $feedback->get_time(),
+			$prefix_meta_fields . __( 'Title', 'jetpack-forms' )  => $feedback->get_entry_title(),
+			$prefix_meta_fields . __( 'Source', 'jetpack-forms' ) => $feedback->get_entry_short_permalink(),
+		);
 
-			if ( ! $feedback instanceof Feedback ) {
-				continue; // Skip if the feedback is not an instance of Feedback.
-			}
-
-			$results[ $prefix_meta_fields . __( 'ID', 'jetpack-forms' ) ][]     = $feedback_id;
-			$results[ $prefix_meta_fields . __( 'Date', 'jetpack-forms' ) ][]   = $feedback->get_time();
-			$results[ $prefix_meta_fields . __( 'Title', 'jetpack-forms' ) ][]  = $feedback->get_entry_title();
-			$results[ $prefix_meta_fields . __( 'Source', 'jetpack-forms' ) ][] = $feedback->get_entry_short_permalink();
-			/**
-			 * Go through all the possible fields and check if the field is available
-			 * in the current feedback.
-			 *
-			 * If it is - add the data as a value.
-			 * If it is not - add an empty string, which is just a placeholder in the CSV.
-			 */
-			foreach ( $field_names as $single_field_name ) {
-				$trimmed_field_name = trim( $single_field_name );
-				if ( ! isset( $results[ $trimmed_field_name ] ) ) {
-					$results[ $trimmed_field_name ] = array();
-				}
-				// Use the compiled fields directly (which already have incremented labels)
-				$results[ $trimmed_field_name ][] = $compiled_fields[ $trimmed_field_name ] ?? '';
-			}
-
-			$results[ $prefix_meta_fields . __( 'Consent', 'jetpack-forms' ) ][] = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
-
-			// Convert null values to empty strings for proper CSV/export formatting.
-			$results[ $prefix_meta_fields . __( 'IP Address', 'jetpack-forms' ) ][]   = $feedback->get_ip_address() ?? '';
-			$results[ $prefix_meta_fields . __( 'Country code', 'jetpack-forms' ) ][] = $feedback->get_country_code() ?? '';
-			$results[ $prefix_meta_fields . __( 'Browser', 'jetpack-forms' ) ][]      = $feedback->get_browser() ?? '';
-
+		foreach ( $field_names as $field_name ) {
+			$row[ $field_name ] = $compiled_fields[ $field_name ] ?? '';
 		}
-		return $results;
+
+		$row[ $prefix_meta_fields . __( 'Consent', 'jetpack-forms' ) ] = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+
+		// Convert null values to empty strings for proper CSV/export formatting.
+		$row[ $prefix_meta_fields . __( 'IP Address', 'jetpack-forms' ) ]   = $feedback->get_ip_address() ?? '';
+		$row[ $prefix_meta_fields . __( 'Country code', 'jetpack-forms' ) ] = $feedback->get_country_code() ?? '';
+		$row[ $prefix_meta_fields . __( 'Browser', 'jetpack-forms' ) ]      = $feedback->get_browser() ?? '';
+
+		return $row;
 	}
 
 	/**
@@ -3101,10 +3138,38 @@ class Contact_Form_Plugin {
 
 	/**
 	 * Extracts feedback entries based on POST data.
+	 *
+	 * @return array|null Column name => values, or null when the request is not a permitted export.
 	 */
 	public function get_feedback_entries_from_post() {
+		$export = $this->get_export_feedback_ids_from_post();
+		if ( null === $export ) {
+			return null;
+		}
+		return $this->get_export_feedback_data( $export['ids'], $export['include_test_responses'] );
+	}
+
+	/**
+	 * Returns the export rows requested by POST data, header row first.
+	 *
+	 * @return \Generator<array>|null Null when the request is not a permitted export.
+	 */
+	private function get_export_rows_from_post() {
+		$export = $this->get_export_feedback_ids_from_post();
+		if ( null === $export ) {
+			return null;
+		}
+		return $this->get_export_rows( $export['ids'], $export['include_test_responses'] );
+	}
+
+	/**
+	 * Verifies an export request and returns the IDs of the responses it covers.
+	 *
+	 * @return array|null With 'ids' and 'include_test_responses' keys, or null when the request is not a permitted export.
+	 */
+	private function get_export_feedback_ids_from_post() {
 		if ( empty( $_POST['feedback_export_nonce_csv'] ) && empty( $_POST['feedback_export_nonce_gdrive'] ) ) {
-			return;
+			return null;
 		} elseif ( ! empty( $_POST['feedback_export_nonce_csv'] ) ) {
 			check_admin_referer( 'feedback_export', 'feedback_export_nonce_csv' );
 		} elseif ( ! empty( $_POST['feedback_export_nonce_gdrive'] ) ) {
@@ -3112,9 +3177,70 @@ class Contact_Form_Plugin {
 		}
 
 		if ( ! current_user_can( 'export' ) ) {
-			return;
+			return null;
 		}
 
+		$filters = array(
+			'status' => ! empty( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : '',
+			'search' => ! empty( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '',
+			'source' => ! empty( $_POST['source'] ) ? absint( $_POST['source'] ) : 0,
+		);
+
+		// Check if we want to download all the feedbacks or just a certain contact form
+		if ( ! empty( $_POST['post'] ) && $_POST['post'] !== 'all' ) {
+			$filters['form'] = (int) $_POST['post'];
+		}
+
+		// The dashboard applies a date range only when both ends are set and in order.
+		if ( ! empty( $_POST['after'] ) && ! empty( $_POST['before'] ) ) {
+			$before = sanitize_text_field( wp_unslash( $_POST['before'] ) );
+			$after  = sanitize_text_field( wp_unslash( $_POST['after'] ) );
+			if ( strtotime( $after ) && strtotime( $before ) && strtotime( $after ) < strtotime( $before ) ) {
+				$filters['after']  = $after;
+				$filters['before'] = $before;
+			}
+		}
+
+		$has_explicit_selection = ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] );
+		if ( $has_explicit_selection ) {
+			$filters['selected'] = array_map(
+				'intval',
+				$_POST['selected'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			);
+		}
+
+		// Test responses from form preview are excluded from bulk exports by
+		// default. When the user has explicitly picked specific rows (via the
+		// dashboard selection UI), we trust their selection and include any
+		// test responses that landed in it.
+		return array(
+			'ids'                    => $this->get_export_feedback_ids( $filters ),
+			'include_test_responses' => $has_explicit_selection,
+		);
+	}
+
+	/**
+	 * Returns the IDs of the responses an export covers, oldest first.
+	 *
+	 * Does no permission checks; callers must.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $filters {
+	 *     Optional. Filters to narrow the export.
+	 *
+	 *     @type int    $form     Only responses to the form on this post ID.
+	 *     @type string $status   'spam' or 'trash'; anything else exports the inbox.
+	 *     @type string $search   Search term.
+	 *     @type string $after    Only responses after this date; any format strtotime() accepts.
+	 *     @type string $before   Only responses before this date; any format strtotime() accepts.
+	 *     @type int[]  $selected Only these response IDs.
+	 *     @type int    $source   Only responses from this source post ID.
+	 * }
+	 *
+	 * @return int[]
+	 */
+	public function get_export_feedback_ids( $filters = array() ) {
 		$args = array(
 			'posts_per_page'   => -1,
 			'post_type'        => Feedback::POST_TYPE,
@@ -3125,42 +3251,31 @@ class Contact_Form_Plugin {
 			'date_query'       => array(),
 		);
 
-		// Check if we want to download all the feedbacks or just a certain contact form
-		if ( ! empty( $_POST['post'] ) && $_POST['post'] !== 'all' ) {
-			$args['post_parent'] = (int) $_POST['post'];
+		if ( ! empty( $filters['form'] ) ) {
+			$args['post_parent'] = (int) $filters['form'];
 		}
 
-		if ( ! empty( $_POST['status'] ) && in_array( $_POST['status'], array( 'spam', 'trash' ), true ) ) {
-			$args['post_status'] = sanitize_text_field( wp_unslash( $_POST['status'] ) );
+		if ( ! empty( $filters['status'] ) && in_array( $filters['status'], array( 'spam', 'trash' ), true ) ) {
+			$args['post_status'] = $filters['status'];
 		}
 
-		if ( ! empty( $_POST['search'] ) ) {
-			$args['s'] = sanitize_text_field( wp_unslash( $_POST['search'] ) );
+		if ( ! empty( $filters['search'] ) ) {
+			$args['s'] = $filters['search'];
 		}
 
-		if ( ! empty( $_POST['after'] ) && ! empty( $_POST['before'] ) ) {
-			$before = strtotime( sanitize_text_field( wp_unslash( $_POST['before'] ) ) );
-			$after  = strtotime( sanitize_text_field( wp_unslash( $_POST['after'] ) ) );
-			if ( $before && $after && $after < $before ) {
-				// date_query expects date strings/arrays, not timestamps.
-				$args['date_query']['after']  = gmdate( 'Y-m-d H:i:s', $after );
-				$args['date_query']['before'] = gmdate( 'Y-m-d H:i:s', $before );
+		// date_query expects date strings/arrays, not timestamps.
+		foreach ( array( 'after', 'before' ) as $bound ) {
+			$time = ! empty( $filters[ $bound ] ) ? strtotime( $filters[ $bound ] ) : false;
+			if ( $time ) {
+				$args['date_query'][ $bound ] = gmdate( 'Y-m-d H:i:s', $time );
 			}
 		}
 
-		$has_explicit_selection = ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] );
-		if ( $has_explicit_selection ) {
-			$args['include'] = array_filter(
-				array_map(
-					function ( $selected ) {
-						return intval( $selected );
-					},
-					$_POST['selected'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				)
-			);
+		if ( ! empty( $filters['selected'] ) ) {
+			$args['include'] = array_filter( array_map( 'intval', (array) $filters['selected'] ) );
 		}
 
-		$source_id = ! empty( $_POST['source'] ) ? absint( $_POST['source'] ) : 0;
+		$source_id = ! empty( $filters['source'] ) ? absint( $filters['source'] ) : 0;
 		$join_cb   = null;
 		$where_cb  = null;
 		$feedbacks = array();
@@ -3196,22 +3311,19 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		// Test responses from form preview are excluded from bulk exports by
-		// default. When the user has explicitly picked specific rows (via the
-		// dashboard selection UI), we trust their selection and include any
-		// test responses that landed in it.
-		return $this->get_export_feedback_data( $feedbacks, $has_explicit_selection );
+		return array_map( 'intval', $feedbacks );
 	}
 
 	/**
 	 * Download exported data as CSV
 	 */
 	public function download_feedback_as_csv() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verification is done on get_feedback_entries_from_post function
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verification is done on get_export_feedback_ids_from_post function
 		$post_data = wp_unslash( $_POST );
-		$data      = $this->get_feedback_entries_from_post();
+		$rows      = $this->get_export_rows_from_post();
 
-		if ( empty( $data ) ) {
+		// Runs the first pass and stops at the header row, before any output is sent.
+		if ( null === $rows || ! $rows->valid() ) {
 			return;
 		}
 
@@ -3230,16 +3342,6 @@ class Contact_Form_Plugin {
 			);
 		}
 
-		/**
-		 * Extract field names from `$data` for later use.
-		 */
-		$fields = array_keys( $data );
-
-		/**
-		 * Count how many rows will be exported.
-		 */
-		$row_count = count( reset( $data ) );
-
 		// Forces the download of the CSV instead of echoing
 		header( 'Content-Disposition: attachment; filename=' . $filename );
 		header( 'Pragma: no-cache' );
@@ -3248,29 +3350,12 @@ class Contact_Form_Plugin {
 
 		$output = fopen( 'php://output', 'w' );
 
-		/**
-		 * Print CSV headers
-		 */
-		fputcsv( $output, $fields, ',', '"', '' );
+		fputcsv( $output, $rows->current(), ',', '"', '' );
+		$rows->next();
 
-		/**
-		 * Print rows to the output.
-		 */
-		for ( $i = 0; $i < $row_count; $i++ ) {
-
-			$current_row = array();
-
-			/**
-			 * Put all the fields in `$current_row` array.
-			 */
-			foreach ( $fields as $single_field_name ) {
-				$current_row[] = $this->esc_csv( $data[ $single_field_name ][ $i ] );
-			}
-
-			/**
-			 * Output the complete CSV row
-			 */
-			fputcsv( $output, $current_row, ',', '"', '' );
+		while ( $rows->valid() ) {
+			fputcsv( $output, array_map( array( $this, 'esc_csv' ), $rows->current() ), ',', '"', '' );
+			$rows->next();
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
@@ -4048,30 +4133,15 @@ class Contact_Form_Plugin {
 			);
 		}
 
-		$grunion     = self::init();
-		$export_data = $grunion->get_feedback_entries_from_post();
+		$grunion = self::init();
+		$rows    = $grunion->get_export_rows_from_post();
 
-		$fields    = is_array( $export_data ) ? array_keys( $export_data ) : array();
-		$row_count = ! is_array( $export_data ) || empty( $export_data ) ? 0 : count( reset( $export_data ) );
-
-		$sheet_data = array( $fields );
-
-		for ( $i = 0; $i < $row_count; $i++ ) {
-
-			$current_row = array();
-
-			/**
-			 * Put all the fields in `$current_row` array.
-			 */
-			foreach ( $fields as $single_field_name ) {
-				if ( isset( $export_data[ $single_field_name ][ $i ] ) ) {
-					$current_row[] = $this->esc_csv( $export_data[ $single_field_name ][ $i ] );
-				} else {
-					$current_row[] = '';
-				}
-			}
-
-			$sheet_data[] = $current_row;
+		$sheet_data = array();
+		foreach ( $rows ?? array() as $row ) {
+			$sheet_data[] = empty( $sheet_data ) ? $row : array_map( array( $this, 'esc_csv' ), $row );
+		}
+		if ( empty( $sheet_data ) ) {
+			$sheet_data[] = array();
 		}
 
 		$user_id = (int) get_current_user_id();
