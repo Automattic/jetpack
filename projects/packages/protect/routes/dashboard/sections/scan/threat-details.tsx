@@ -1,3 +1,4 @@
+import SidebarFooter from '@automattic/jetpack-components/sidebar-footer';
 import { getFixerDescription, type Threat } from '@automattic/jetpack-scan';
 import { dateI18n } from '@wordpress/date';
 import { Fragment, useCallback, useEffect, useState } from '@wordpress/element';
@@ -316,15 +317,18 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 	}
 
 	return (
-		<div className="jp-protect-threat-details__footer">
-			{ busy === 'fixing' && (
-				<Text variant="body-sm" className="jp-protect-card__muted">
-					{ __(
-						'Jetpack is fixing this threat. You can close this panel; the list updates when it’s done.',
-						'jetpack-protect-pkg'
-					) }
-				</Text>
-			) }
+		<SidebarFooter
+			description={
+				busy === 'fixing' && (
+					<Text variant="body-sm" className="jp-protect-card__muted">
+						{ __(
+							'Jetpack is fixing this threat. You can close this panel; the list updates when it’s done.',
+							'jetpack-protect-pkg'
+						) }
+					</Text>
+				)
+			}
+		>
 			{ isIgnored ? (
 				<Button
 					variant="outline"
@@ -335,7 +339,7 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 					{ __( 'Unignore it', 'jetpack-protect-pkg' ) }
 				</Button>
 			) : (
-				<Stack direction="row" gap="sm" justify={ canIgnore ? 'space-between' : 'end' }>
+				<>
 					{ canIgnore && (
 						<Button
 							className="jp-protect-threat-details__ignore"
@@ -355,9 +359,9 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 								: __( 'Auto-fix it', 'jetpack-protect-pkg' ) }
 						</Button>
 					) }
-				</Stack>
+				</>
 			) }
-		</div>
+		</SidebarFooter>
 	);
 }
 
