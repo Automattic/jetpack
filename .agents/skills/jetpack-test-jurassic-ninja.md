@@ -85,13 +85,15 @@ Branch based on the result and what the user asked for:
 
 #### Site creation
 
-Provision a site with Jetpack already enabled:
+Provision a site with Jetpack already enabled and connected, and record what it is for in the JN ledger so teammates can find it in Mission Control and join it:
 
 ```
-execute-tool: jurassic-ninja / provision-site (features: {"jetpack": "true"})
+execute-tool: jurassic-ninja / provision-site (features: {"jetpack": "true", "jetpack-autoconnect": "true", "ledger": {"label": "<what you're testing>", "pr_url": "<PR url>", "linear_issue": "<KEY-1234>"}})
 ```
 
-The response returns `domain`, `admin_login_url`, `ssh_command`, and `atomic_site_id`. Configuration runs asynchronously, so poll until the site is ready:
+Fill the `ledger` fields from what you know, and leave out any you don't: `label` is a short description (under 200 characters) such as the branch name or the change being tested; `pr_url` is the current branch's open PR (`gh pr view --json url -q .url`); `linear_issue` is the Linear key the user or the branch name gives (e.g. a branch ending in `-JETPACK-1234`). Leave out `jetpack-autoconnect` if the user said "don't connect Jetpack".
+
+The response returns `domain`, `admin_login_url`, `ssh_command`, and `atomic_site_id`, plus `ledger_url` (the site's Mission Control page) or `ledger_error`. A `ledger_error` doesn't stop the site: warn the user and carry on. Configuration runs asynchronously, so poll until the site is ready:
 
 ```
 execute-tool: jurassic-ninja / list-sites (domain: <returned domain>, include_config: false)
@@ -107,7 +109,7 @@ If the site was just provisioned, call:
 execute-tool: jurassic-ninja / connect-jetpack (domain: <site domain>)
 ```
 
-This remotely links the site to Jetpack using the creator's WP.com account. Idempotent — returns `already_connected` when already linked and `connected` on first success. Skip if the user explicitly said "don't connect Jetpack".
+This remotely links the site to Jetpack using the creator's WP.com account. Idempotent — returns `already_connected` when already linked (as it normally is after `jetpack-autoconnect`) and `connected` on first success. Skip if the user explicitly said "don't connect Jetpack".
 
 ### Check 6: SSH access to Jurassic Ninja *(when using rsync or WP-CLI)*
 
@@ -308,6 +310,7 @@ pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/
 After sync (or after site creation for `provision-only`), show:
 - The admin login URL: `https://{domain}/?auto_login` (or the `admin_login_url` returned by `provision-site`).
 - Whether Jetpack is connected (from `connect-jetpack` output, if called).
+- For brand-new sites: the `ledger_url` from `provision-site`, or the ledger warning.
 - For `rsync` Jetpack-plugin flows: remind the user to set `define('JETPACK_AUTOLOAD_DEV', true);` in a mu-plugin on the remote site.
 - If `SSH_OK` was false: remind the user to set up SSH keys for a smoother experience next time.
 - For brand-new sites: note the site expires after 7 days of inactivity.

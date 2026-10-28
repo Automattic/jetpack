@@ -3,9 +3,9 @@ name: jn-pr-review
 description: >
   Spin up a fresh Jurassic Ninja site running the code from a Jetpack GitHub PR so a
   human can review the PR's behavior live. Given a PR number or URL, it resolves the PR
-  branch into an isolated worktree, provisions and Jetpack-connects a new JN site, builds
-  and rsyncs the affected plugin(s), forces dev autoloading, and reports the autologin
-  link. Use when the user says "jn-pr-review", "/jn-pr-review", "review PR <n> on JN",
+  branch into an isolated worktree, provisions and Jetpack-connects a new JN site recorded
+  in the JN ledger under the PR, builds and rsyncs the affected plugin(s), forces dev
+  autoloading, and reports the autologin link. Use when the user says "jn-pr-review", "/jn-pr-review", "review PR <n> on JN",
   "spin up a JN site for PR <n>", "test this PR on Jurassic Ninja", or gives a Jetpack PR
   number/URL and wants a live environment to click through. This sets up the environment
   only — it does not run automated code review.
@@ -39,10 +39,14 @@ PR (`gh pr view --json ...`).
 
 ```bash
 gh pr view <PR> --repo Automattic/jetpack \
-  --json number,title,headRefName,headRefOid,author,state,isDraft,files,url
+  --json number,title,body,headRefName,headRefOid,author,state,isDraft,files,url
 ```
 
 Note the changed file paths (`.files[].path`) — they drive plugin detection in step 3.
+
+Also note the Linear issue the PR is for, if any: a key such as `JETPACK-1234` at the end of
+`headRefName`, or on a `Fixes`, `See` or `Related to` line in `body`. Take the first one;
+leave it out when the PR names none. Step 4 records it in the JN ledger.
 
 ### 2. Create an isolated worktree (plain, no Docker)
 
@@ -89,12 +93,46 @@ without asking and state which plugin you chose.
 
 ### 4. Provision + connect a fresh JN site
 
-Per `jetpack-test-jurassic-ninja`:
+Per `jetpack-test-jurassic-ninja`, with the JN ledger recording what the site is for, so
+teammates can find it by PR in Mission Control and join it:
 
-- `jurassic-ninja / provision-site` with `features: {"jetpack": "true"}`.
+- `jurassic-ninja / find-sites-by-pr` (`pr_url`: the PR `url` from step 1). If teammates
+  already have live sites for this PR, list them in the report (domain, owner, label);
+  the user can `join-site` one of them instead next time. Still provision a fresh site.
+- `jurassic-ninja / provision-site` with:
+
+  ```json
+  {
+    "features": {
+      "jetpack": "true",
+      "jetpack-autoconnect": "true",
+      "ledger": {
+        "pr_url": "<PR url>",
+        "label": "PR <number>: <title>",
+        "linear_issue": "<KEY-1234>"
+      }
+    }
+  }
+  ```
+
+  Keep `label` under 200 characters (shorten the title if needed) and drop `linear_issue`
+  when step 1 found none. `jetpack-autoconnect` connects Jetpack to your WordPress.com
+  account while the site is configured. The response carries `ledger_url` (the site's
+  Mission Control page) or `ledger_error`.
 - Poll `jurassic-ninja / list-sites` (`domain`, `include_config:false`) until `status == 2`
   (cap ~3 min).
-- `jurassic-ninja / connect-jetpack` (domain). Capture `blog_id` and connection result.
+- `jurassic-ninja / connect-jetpack` (domain). Autoconnect runs before the site reaches
+  `status == 2`, so this normally returns `already_connected`; if autoconnect failed, it
+  connects the site now. Capture `blog_id` and connection result.
+- `jurassic-ninja / update-ledger` (domain, `branch`: `headRefName`, `plugins`: the plugin
+  slug(s) from step 3). If `provision-site` returned `ledger_error`, also pass
+  `prs: ["<PR url>"]`, `label` and, if found, `linear_issues: ["<KEY-1234>"]`, so the
+  record is complete.
+
+The ledger is bookkeeping, not part of the environment. If a ledger call fails or the
+`context-a8c` MCP can't reach the ledger, warn the user and carry on with the review site.
+Don't write the site's purpose anywhere else (no WordPress option over SSH, no local file);
+the ledger is the record.
 
 ### 5. Build + rsync each chosen plugin
 
@@ -157,12 +195,15 @@ Report concisely:
 - PR number + title.
 - Plugin(s) synced and worktree path.
 - JN domain, `status`, Jetpack connection (`blog_id`), `JETPACK_AUTOLOAD_DEV` set.
+- The `ledger_url` (Mission Control page), or the ledger warning if a ledger call failed,
+  plus any teammates' sites `find-sites-by-pr` found for the same PR.
 - Verification result (which file the class resolved to / PR string present).
 - **The autologin link: `https://<domain>/?auto_login`** and a hint at where to look
   (the wp-admin page the PR affects).
 - JN sites expire after 7 days of inactivity.
 - Cleanup hint: `git worktree remove "$WT"` (the repo-namespaced path from step 2) when
-  done — branch `pr-<PR>` is not auto-deleted.
+  done — branch `pr-<PR>` is not auto-deleted. Removing the worktree leaves the site and
+  its ledger record alone, since teammates may still be using the site.
 
 ## Notes
 
