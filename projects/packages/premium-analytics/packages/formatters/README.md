@@ -11,6 +11,7 @@ Thin wrapper over `@automattic/number-formatters` (numbers, currency) and
 ```typescript
 import {
 	formatMetricValue,
+	formatMonthlyPrice,
 	formatDate,
 	formatDateRange,
 	formatDateRangeCompact,
@@ -47,6 +48,15 @@ formatMetricValue( 192088, 'currency', {
 | `options.markBelowPrecision` | `boolean`                                             | `false`                                  | For `number`, show a positive value that rounds to zero as `< 0.1` (at one decimal) instead of `0.0`                                                                         |
 | `options.signDisplay`        | `Intl` sign mode                                      | `'auto'` (`'exceptZero'` for percentage) | Sign display                                                                                                                                                                 |
 | `options.currencyCode`       | `string`                                              | store currency, else `'USD'`             | ISO 4217 currency code. Defaults to the WooCommerce store currency from `JetpackScriptData`, printed with the store's own symbol                                             |
+
+## `formatMonthlyPrice( yearlyPrice, currencyCode )`
+
+Format a yearly price, in the currency's smallest unit as WordPress.com returns it, as a monthly price.
+
+```typescript
+formatMonthlyPrice( 4800, 'USD' ); // '$4'
+formatMonthlyPrice( 5400, 'USD' ); // '$4.50'
+```
 
 ## `formatDate( date, name? )`
 

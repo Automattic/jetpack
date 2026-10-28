@@ -1,19 +1,23 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { isBlobURL } from '@wordpress/blob';
 import {
 	MediaPlaceholder,
+	MediaUploadCheck,
 	BlockControls,
 	InspectorControls,
+	store as blockEditorStore,
 	useBlockProps,
 } from '@wordpress/block-editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
-import { withDispatch, withSelect } from '@wordpress/data';
+import { useSelect, withSelect } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
-import { mediaUpload } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pick } from 'lodash';
+import uploadFilesIndividually, {
+	isFileSelection,
+	usePlaceholderSaveLock,
+} from '../../shared/upload-files-individually';
 import metadata from './block.json';
 import { PanelControls, ToolbarControls } from './controls';
 import Slideshow from './slideshow';
@@ -49,11 +53,10 @@ export const SlideshowEdit = ( {
 	attributes,
 	setAttributes,
 	className,
+	clientId,
 	isSelected,
 	noticeOperations,
 	noticeUI,
-	lockPostSaving,
-	unlockPostSaving,
 	imageSizes,
 	resizedImages,
 } ) => {
@@ -62,6 +65,12 @@ export const SlideshowEdit = ( {
 	const blockProps = useBlockProps( {
 		className: className,
 	} );
+	const { getBlockAttributes } = useSelect( blockEditorStore );
+	const mediaUpload = useSelect(
+		select => select( blockEditorStore ).getSettings().mediaUpload,
+		[]
+	);
+	usePlaceholderSaveLock( images, `slideshowBlockLock-${ clientId }` );
 
 	const setImages = imgs => {
 		setAttributes( {
@@ -77,27 +86,23 @@ export const SlideshowEdit = ( {
 		}
 	}, [] );
 
-	const onSelectImages = imgs =>
-		setImages( imgs.map( image => pickRelevantMediaFiles( image, sizeSlug ) ) );
-
-	const addFiles = files => {
-		const lockName = 'slideshowBlockLock';
-
-		lockPostSaving( lockName );
-		mediaUpload( {
+	const addFiles = files =>
+		uploadFilesIndividually( {
+			files,
+			mediaUpload,
 			allowedTypes: ALLOWED_MEDIA_TYPES,
-			filesList: files,
-			onFileChange: imgs => {
-				const imagesNormalized = imgs.map( image => pickRelevantMediaFiles( image, sizeSlug ) );
-
-				setImages( [ ...( images || [] ), ...imagesNormalized ] );
-
-				if ( ! imagesNormalized.every( image => isBlobURL( image.url ) ) ) {
-					unlockPostSaving( lockName );
-				}
-			},
+			getItems: () => getBlockAttributes( clientId )?.images || [],
+			setItems: setImages,
+			toItem: media => pickRelevantMediaFiles( media, sizeSlug ),
 			onError: noticeOperations.createErrorNotice,
 		} );
+
+	const onSelectImages = imgs => {
+		if ( isFileSelection( imgs ) ) {
+			addFiles( imgs );
+			return;
+		}
+		setImages( imgs.map( image => pickRelevantMediaFiles( image, sizeSlug ) ) );
 	};
 
 	const uploadFromFiles = event => addFiles( event.target.files );
@@ -152,6 +157,7 @@ export const SlideshowEdit = ( {
 					),
 				} }
 				onSelect={ onSelectImages }
+				handleUpload={ false }
 				accept="image/*"
 				allowedTypes={ ALLOWED_MEDIA_TYPES }
 				multiple
@@ -171,21 +177,23 @@ export const SlideshowEdit = ( {
 					images={ images }
 					onError={ noticeOperations.createErrorNotice }
 				/>
-				<DropZone onFilesDrop={ addFiles } />
-				{ isSelected && (
-					<div className="wp-block-jetpack-slideshow__add-item">
-						<FormFileUpload
-							multiple
-							className="wp-block-jetpack-slideshow__add-item-button"
-							onChange={ uploadFromFiles }
-							accept="image/*"
-							icon="insert"
-							__next40pxDefaultSize={ true }
-						>
-							{ __( 'Upload an image', 'jetpack' ) }
-						</FormFileUpload>
-					</div>
-				) }
+				<MediaUploadCheck>
+					<DropZone onFilesDrop={ addFiles } />
+					{ isSelected && (
+						<div className="wp-block-jetpack-slideshow__add-item">
+							<FormFileUpload
+								multiple
+								className="wp-block-jetpack-slideshow__add-item-button"
+								onChange={ uploadFromFiles }
+								accept="image/*"
+								icon="insert"
+								__next40pxDefaultSize={ true }
+							>
+								{ __( 'Upload an image', 'jetpack' ) }
+							</FormFileUpload>
+						</div>
+					) }
+				</MediaUploadCheck>
 			</>
 		);
 	}
@@ -224,13 +232,6 @@ export default compose(
 		} );
 
 		return { imageSizes, resizedImages };
-	} ),
-	withDispatch( dispatch => {
-		const { lockPostSaving, unlockPostSaving } = dispatch( 'core/editor' );
-		return {
-			lockPostSaving,
-			unlockPostSaving,
-		};
 	} ),
 	withNotices
 )( SlideshowEdit );

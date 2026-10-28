@@ -4,13 +4,16 @@ import { clickEvent, trackMarketplaceTab } from './marketplace-tab-tracks.ts';
 
 describe( 'clickEvent', () => {
 	it( 'names each tracked link and sends the props Calypso sends', () => {
-		assert.deepEqual( clickEvent( 'purchase', { plugin: 'gravityforms', saas: 'false' } ), [
-			'wpcom_marketplace_tab_purchase_click',
-			{ plugin: 'gravityforms', is_saas_product: false },
-		] );
+		assert.deepEqual(
+			clickEvent( 'purchase', { plugin: 'gravityforms', saas: 'false', needsPlan: 'true' } ),
+			[
+				'wpcom_marketplace_tab_purchase_click',
+				{ plugin: 'gravityforms', is_saas_product: false, needs_plan_upgrade: true },
+			]
+		);
 		assert.deepEqual( clickEvent( 'get_started', { plugin: 'mailpoet-business', saas: 'true' } ), [
 			'wpcom_marketplace_tab_get_started_click',
-			{ plugin: 'mailpoet-business', is_saas_product: true },
+			{ plugin: 'mailpoet-business', is_saas_product: true, needs_plan_upgrade: false },
 		] );
 		assert.equal(
 			clickEvent( 'details', { plugin: 'gravityforms' } )?.[ 0 ],
@@ -69,7 +72,7 @@ describe( 'trackMarketplaceTab', () => {
 		assert.deepEqual( events.slice( 1 ), [
 			[
 				'wpcom_marketplace_tab_get_started_click',
-				{ plugin: 'mailpoet-business', is_saas_product: true },
+				{ plugin: 'mailpoet-business', is_saas_product: true, needs_plan_upgrade: false },
 			],
 		] );
 	} );

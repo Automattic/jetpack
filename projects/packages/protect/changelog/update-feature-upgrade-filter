@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Scan: Let a host change where the Scan upgrade link goes, through the `jetpack_feature_upgrade` filter.

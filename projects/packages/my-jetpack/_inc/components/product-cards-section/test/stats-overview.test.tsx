@@ -28,7 +28,7 @@ jest.mock( '../stats-card/overview-stats', () => ( { isLoading } ) => (
 
 describe( 'StatsOverviewItem', () => {
 	it( 'shows the Stats skeleton while the product status loads', () => {
-		render( <StatsOverviewItem admin /> );
+		render( <StatsOverviewItem admin period={ { days: 7, end: new Date() } } /> );
 
 		expect( screen.getByText( 'Stats skeleton' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Views in the last 7 days' ) ).not.toBeInTheDocument();
