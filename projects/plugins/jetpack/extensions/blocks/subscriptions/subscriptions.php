@@ -235,7 +235,11 @@ function is_wpcom() {
  */
 function reject_unknown_access_level( $prepared_post, $request ) {
 	// A missing value is left alone, and null deletes the meta, which core handles.
-	if ( is_wp_error( $prepared_post ) || ! isset( $request['meta'][ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ) ) {
+	if (
+		is_wp_error( $prepared_post )
+		|| ! $request instanceof \WP_REST_Request
+		|| ! isset( $request['meta'][ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] )
+	) {
 		return $prepared_post;
 	}
 
@@ -268,7 +272,7 @@ function reject_unknown_access_level( $prepared_post, $request ) {
 	return new \WP_Error(
 		'rest_invalid_param',
 		sprintf(
-			/* translators: 1: meta key, 2: comma-separated list of allowed values. Keep both in English. */
+			/* translators: 1: meta key, 2: comma-separated list of allowed values. Both are displayed in English. */
 			__( '%1$s must be one of %2$s.', 'jetpack' ),
 			META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 			'"' . implode( '", "', $allowed ) . '"'
