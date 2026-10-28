@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { ConsentCard } from './consent-card';
@@ -7,7 +7,7 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 const mockCreateSuccessNotice = jest.fn();
 const mockCreateErrorNotice = jest.fn();
-// A spread of the real module reads its lazy exports too early, so only `useDispatch` is swapped.
+// Swaps only `useDispatch`, for the reason stats-settings.test.tsx gives.
 jest.mock( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' );
 	return new Proxy( actual, {
@@ -84,6 +84,13 @@ describe( 'ConsentCard', () => {
 			'Inactive',
 		],
 		[
+			'an active WP Consent API and no banner',
+			{ api_installed: true, api_active: true },
+			'Not set up',
+			'None',
+			'Active',
+		],
+		[
 			'both in place',
 			{ has_banner: true, api_installed: true, api_active: true },
 			'Set up',
@@ -150,7 +157,24 @@ describe( 'ConsentCard', () => {
 			'WP Consent API could not be set up: Could not create directory.',
 			{ id: 'stats-consent-api-failed', type: 'snackbar' }
 		);
-		expect( screen.getByRole( 'button', { name: 'Install and activate' } ) ).toBeEnabled();
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Install and activate' } ) ).toBeEnabled()
+		);
+	} );
+
+	it( 'offers to activate when the install went through but activation failed', async () => {
+		setConsent( {} );
+		mockApiFetch
+			.mockRejectedValueOnce( { message: 'Plugin could not be activated.' } )
+			.mockResolvedValueOnce( { status: 'inactive' } );
+		render( <ConsentCard /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Install and activate' } ) );
+
+		await expect(
+			screen.findByRole( 'button', { name: 'Activate' } )
+		).resolves.toBeInTheDocument();
+		expect( step( 'WP Consent API' ).getByText( 'Inactive' ) ).toBeInTheDocument();
 	} );
 
 	it.each( [
@@ -162,12 +186,12 @@ describe( 'ConsentCard', () => {
 		[
 			'the user cannot install plugins',
 			{ can_install: false },
-			'You do not have permission to install plugins.',
+			'You do not have permission to install plugins here.',
 		],
 		[
 			'the user cannot activate the installed plugin',
 			{ api_installed: true, can_activate: false },
-			'You do not have permission to activate plugins.',
+			'You do not have permission to activate plugins here.',
 		],
 	] )( 'explains why it cannot set up WP Consent API when %s', ( _title, consent, reason ) => {
 		setConsent( consent );

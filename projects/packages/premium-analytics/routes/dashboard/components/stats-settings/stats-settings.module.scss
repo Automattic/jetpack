@@ -38,8 +38,8 @@
 	gap: var(--wpds-dimension-gap-lg);
 	margin: 0;
 	padding: var(--wpds-dimension-padding-md);
-	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
-	border-radius: 4px;
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
 }
 
 // Focused only programmatically, after the one-click install;

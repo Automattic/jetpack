@@ -593,8 +593,7 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 	}
 
 	/**
-	 * The tracking pushes must live inside the gate function and nowhere else, or a refactor
-	 * could emit them unconditionally and silently defeat the consent check.
+	 * Guards against pushes emitted outside _jpStatsFire().
 	 */
 	public function test_build_consent_gate_wraps_the_pushes() {
 		$gate = $this->invoke_build_consent_gate();
@@ -602,7 +601,6 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 		$this->assertStringContainsString( 'window.wp_has_consent( "statistics" )', $gate );
 		$this->assertStringContainsString( 'wp_listen_for_consent_change', $gate );
 
-		// Deferred to DOMContentLoaded, and re-run when a late consent script defines the type.
 		$this->assertStringContainsString( 'DOMContentLoaded', $gate );
 		$this->assertStringContainsString( 'document.readyState', $gate );
 		$this->assertStringContainsString( 'wp_consent_type_defined', $gate );
@@ -614,7 +612,7 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 	}
 
 	/**
-	 * An unavailable or throwing client-side API waits for a consent-change event instead of firing.
+	 * Test that the gate fails closed.
 	 */
 	public function test_build_consent_gate_fails_closed() {
 		$gate = $this->invoke_build_consent_gate();
@@ -625,8 +623,6 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 	}
 
 	/**
-	 * With the WP Consent API plugin active, the pushes go through the gate.
-	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
@@ -641,7 +637,7 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 	}
 
 	/**
-	 * Without the WP Consent API plugin, the pixel markup is byte-for-byte the historical output.
+	 * Test the markup without the WP Consent API plugin.
 	 */
 	public function test_build_stats_details_unchanged_without_consent_api() {
 		$this->assertFalse( function_exists( 'wp_has_consent' ), 'Test env must not define wp_has_consent.' );

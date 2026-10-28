@@ -29,6 +29,7 @@ type ConsentStatus = NonNullable<
 >;
 
 const WP_CONSENT_API_URL = 'https://wordpress.org/plugins/wp-consent-api/';
+const WP_CONSENT_API_ROUTE = '/wp/v2/plugins/wp-consent-api/wp-consent-api';
 
 /**
  * Install WP Consent API from WordPress.org and activate it, or activate the copy already installed.
@@ -39,7 +40,7 @@ const WP_CONSENT_API_URL = 'https://wordpress.org/plugins/wp-consent-api/';
 function connectConsentApi( installed: boolean ): Promise< unknown > {
 	return installed
 		? apiFetch( {
-				path: '/wp/v2/plugins/wp-consent-api/wp-consent-api',
+				path: WP_CONSENT_API_ROUTE,
 				method: 'PUT',
 				data: { status: 'active' },
 			} )
@@ -138,10 +139,11 @@ function ConsentCardContent( { initialStatus }: { initialStatus: ConsentStatus }
 	const connected = status.api_active && hasBanner;
 	const canConnect = status.api_installed ? status.can_activate : status.can_install;
 
-	// The action button unmounts once the plugin is active, so focus would fall to <body>.
+	// The action button unmounts once the plugin is active, so focus falls to <body> unless the user moved it.
 	useEffect( () => {
-		if ( justConnected ) {
-			apiStepRef.current?.focus( { preventScroll: true } );
+		const row = apiStepRef.current;
+		if ( justConnected && row?.ownerDocument.activeElement === row?.ownerDocument.body ) {
+			row?.focus( { preventScroll: true } );
 		}
 	}, [ justConnected ] );
 
@@ -167,6 +169,17 @@ function ConsentCardContent( { initialStatus }: { initialStatus: ConsentStatus }
 					: __( 'WP Consent API could not be set up.', 'jetpack-premium-analytics-pkg' ),
 				{ id: 'stats-consent-api-failed', type: 'snackbar' }
 			);
+			// An install can succeed before its activation fails, so read back what the site now has.
+			const plugin = await apiFetch< { status: string } >( { path: WP_CONSENT_API_ROUTE } ).catch(
+				() => null
+			);
+			if ( plugin ) {
+				setStatus( current => ( {
+					...current,
+					api_installed: true,
+					api_active: plugin.status === 'active',
+				} ) );
+			}
 		} finally {
 			setIsConnecting( false );
 		}
@@ -203,7 +216,7 @@ function ConsentCardContent( { initialStatus }: { initialStatus: ConsentStatus }
 	if ( ! status.api_active && ! canConnect ) {
 		if ( status.api_installed ) {
 			blockedReason = __(
-				'You do not have permission to activate plugins. Ask a site administrator to activate WP Consent API.',
+				'You do not have permission to activate plugins here. Ask whoever manages plugins on this site to activate WP Consent API.',
 				'jetpack-premium-analytics-pkg'
 			);
 		} else if ( ! status.file_mods_allowed ) {
@@ -213,7 +226,7 @@ function ConsentCardContent( { initialStatus }: { initialStatus: ConsentStatus }
 			);
 		} else {
 			blockedReason = __(
-				'You do not have permission to install plugins. Ask a site administrator to install WP Consent API.',
+				'You do not have permission to install plugins here. Ask whoever manages plugins on this site to install WP Consent API.',
 				'jetpack-premium-analytics-pkg'
 			);
 		}

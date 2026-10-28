@@ -30,6 +30,8 @@ class Stats_Settings_Test extends BaseTestCase {
 
 	const READER_VIEWS_OPTION = 'wpcom_reader_views_enabled';
 
+	const CONSENT_API_FILE = WP_PLUGIN_DIR . '/wp-consent-api/wp-consent-api.php';
+
 	/**
 	 * Users per role, as `count_users()` reports them. WorDBless has no users table to count.
 	 *
@@ -104,6 +106,11 @@ class Stats_Settings_Test extends BaseTestCase {
 		remove_all_filters( 'pre_update_option_' . self::READER_VIEWS_OPTION );
 		remove_all_filters( 'wp_is_large_user_count' );
 		remove_all_filters( 'file_mod_allowed' );
+		remove_all_filters( 'map_meta_cap' );
+		if ( file_exists( self::CONSENT_API_FILE ) ) {
+			unlink( self::CONSENT_API_FILE ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			rmdir( dirname( self::CONSENT_API_FILE ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+		}
 		delete_option( 'active_plugins' );
 		$this->reset_stats_options_cache();
 		remove_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ), 20 );
@@ -353,6 +360,51 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->assertTrue( $allowed['file_mods_allowed'] );
 		$this->assertFalse( $disallowed['can_install'] );
 		$this->assertFalse( $disallowed['file_mods_allowed'] );
+	}
+
+	public function test_script_data_reports_an_installed_but_inactive_wp_consent_api() {
+		$this->log_in_as( 'administrator' );
+		$missing = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
+		mkdir( dirname( self::CONSENT_API_FILE ), 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		file_put_contents( self::CONSENT_API_FILE, '<?php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+		$installed = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
+
+		$this->assertFalse( $missing['api_installed'] );
+		$this->assertTrue( $installed['api_installed'] );
+		$this->assertFalse( $installed['api_active'] );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_script_data_reports_an_active_wp_consent_api() {
+		require_once __DIR__ . '/mocks/wp-consent-api-mock.php';
+		$this->log_in_as( 'administrator' );
+
+		$consent = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
+
+		$this->assertTrue( $consent['api_active'] );
+	}
+
+	public function test_script_data_says_when_the_user_cannot_activate_wp_consent_api() {
+		$this->log_in_as( 'administrator' );
+		add_filter(
+			'map_meta_cap',
+			function ( $caps, $cap ) {
+				return 'activate_plugin' === $cap ? array( 'do_not_allow' ) : $caps;
+			},
+			10,
+			2
+		);
+
+		$consent = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
+
+		$this->assertTrue( $consent['can_install'] );
+		$this->assertFalse( $consent['can_activate'] );
 	}
 
 	/**
