@@ -51,6 +51,12 @@
 		.label {
 			padding-left: var(--wpds-dimension-padding-sm);
 		}
+
+		// The bar's 100% height needs a track that fills the row,
+		// not one sized to its content.
+		.barTrack {
+			align-self: stretch;
+		}
 	}
 
 	.bar {
@@ -74,6 +80,20 @@
 				var(--a8c-charts-motion-easing-entrance) both;
 		}
 
+		// Grows from zero, which is its inline-end edge.
+		&--negative {
+			transform-origin: right;
+		}
+
+		// transform-origin has no logical keywords, so mirror both origins in RTL.
+		[dir="rtl"] &--animated {
+			transform-origin: right;
+		}
+
+		[dir="rtl"] &--negative {
+			transform-origin: left;
+		}
+
 		@keyframes stretch {
 
 			from {
@@ -83,6 +103,20 @@
 			to {
 				transform: scaleX(1);
 			}
+		}
+	}
+
+	.barTrack {
+		display: grid;
+
+		.bar {
+			grid-column: 2;
+			justify-self: start;
+		}
+
+		.bar--negative {
+			grid-column: 1;
+			justify-self: end;
 		}
 	}
 }

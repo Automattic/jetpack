@@ -214,13 +214,14 @@ type LeaderboardEntryFields = {
 	previousValue?: number;
 
 	/**
-	 * Width of current bar, as % of the current value
+	 * Width of current bar, as % of the largest absolute value across rows. A negative share
+	 * extends the bar from a shared zero point toward the inline start, for every row.
 	 */
 	currentShare: number;
 
 	/**
-	 * Width of previous bar, as % of the current value. Omit when this row has
-	 * no matching comparison-period value.
+	 * Width of previous bar, as % of the largest absolute value across rows. Omit when this
+	 * row has no matching comparison-period value.
 	 */
 	previousShare?: number;
 

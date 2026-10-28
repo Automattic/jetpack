@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-cookie-consent",
-	"version": "0.1.0",
+	"version": "0.2.1",
 	"private": true,
 	"description": "GDPR cookie-consent banner, CCPA opt-out, and consent logging for WordPress.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/cookie-consent/#readme",

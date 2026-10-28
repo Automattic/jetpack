@@ -16,6 +16,7 @@ import {
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { getKeyboardStops } from '../../components/tooltip/private/keyboard-stops';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -387,17 +388,18 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return min < max ? [ min, max ] : undefined;
 		}, [ rescaleYOnVisibilityChange, dataSorted, isSeriesVisible, options?.yScale ] );
 
-		// Keyboard navigation steps through x positions, and the grouped tooltip reads every
-		// visible series at that position; the first visible series with a point there names it.
-		const activateSelectedPoint = useCallback(
-			( index: number ) => {
-				const series = visibleSeries.find( candidate => candidate.data[ index ] );
+		const stops = useMemo( () => getKeyboardStops( visibleSeries ), [ visibleSeries ] );
 
-				if ( series ) {
-					onDatumActivate?.( { datum: series.data[ index ], index, key: series.label } );
+		// The grouped tooltip reads every visible series at a stop; the first visible series with a point there names it.
+		const activateSelectedPoint = useCallback(
+			( stop: number ) => {
+				const match = stops.membersAt( stop )[ 0 ];
+
+				if ( match ) {
+					onDatumActivate?.( { datum: match.datum, index: match.index, key: match.series.label } );
 				}
 			},
-			[ visibleSeries, onDatumActivate ]
+			[ stops, onDatumActivate ]
 		);
 
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -406,7 +408,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints: Math.max( 0, ...visibleSeries.map( series => series.data.length ) ),
+			totalPoints: stops.count,
 			visibleSeriesKey,
 			onActivate: activateSelectedPoint,
 			preventTooltipScroll: tooltipPlacement === 'below-axis',
