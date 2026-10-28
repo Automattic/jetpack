@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Caption tracks: Preserve cue text containing bang comment terminators.

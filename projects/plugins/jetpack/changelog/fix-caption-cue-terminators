@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Keep caption cues intact when their text contains a bang comment terminator.

@@ -426,12 +426,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks extends \WP_REST_Cont
 	/**
 	 * Sanitize serialized caption-cue block content.
 	 *
-	 * The client canonicalizes cue text before saving, but a direct API call
-	 * could embed a WebVTT/comment terminator (`-->`) in a cue's text and corrupt
-	 * block parsing or the WebVTT the track is later serialized to. Re-parse the
-	 * blocks, keep only caption-cue blocks, neutralize the terminator in each
-	 * cue's text, and rebuild each cue as a void block from its name and
-	 * attributes only, so no submitted inner HTML survives into stored content.
+	 * Direct API calls can embed literal `--!>` comment terminators in cue text,
+	 * confusing block parsing before sanitization. Normalize them before parsing,
+	 * then keep only caption-cue blocks, neutralize decoded text, and rebuild each
+	 * cue as a void block from its name and attributes only.
 	 *
 	 * @param string $content Raw serialized block content.
 	 * @return string|\WP_Error Sanitized block content, or an error when the payload exceeds the size caps.
@@ -446,6 +444,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks extends \WP_REST_Cont
 			return self::track_too_large_error();
 		}
 
+		$content   = str_replace( '--!>', '->', $content );
 		$sanitized = array();
 		foreach ( parse_blocks( $content ) as $block ) {
 			if ( Caption_Tracks::CUE_BLOCK_NAME !== ( $block['blockName'] ?? '' ) ) {

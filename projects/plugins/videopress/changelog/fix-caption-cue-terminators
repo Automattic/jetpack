@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep caption cues intact when their text contains a bang comment terminator.
