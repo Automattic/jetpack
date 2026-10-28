@@ -23,14 +23,14 @@ abstract class Sharing_Source_Block {
 	/**
 	 * Sharing unique ID.
 	 *
-	 * @var int
+	 * @var string
 	 */
 	protected $id;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param int $id       Sharing source ID.
+	 * @param string $id Sharing source ID, the service name.
 	 */
 	public function __construct( $id ) {
 		$this->id = $id;
@@ -48,7 +48,7 @@ abstract class Sharing_Source_Block {
 	/**
 	 * Get unique sharing ID.
 	 *
-	 * @return int
+	 * @return string
 	 */
 	public function get_id() {
 		return $this->id;
@@ -57,7 +57,7 @@ abstract class Sharing_Source_Block {
 	/**
 	 * Get unique sharing ID. Similar to get_id().
 	 *
-	 * @return int
+	 * @return string
 	 */
 	public function get_class() {
 		return $this->id;
