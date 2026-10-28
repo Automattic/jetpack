@@ -1,9 +1,11 @@
-import { Button, ToggleControl } from '@wordpress/components';
-import { createInterpolateElement, useCallback } from '@wordpress/element';
+import { ToggleControl } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { commentContent, details, key, page } from '@wordpress/icons';
+import { Link as RouteLink } from '@wordpress/route';
 import { Badge, Card, CollapsibleCard, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import { ROUTE_BY_TAB } from '../../dashboard/dashboard-nav';
 import { isCrawlerBlocked } from '../../data/blocked-crawlers';
 import './style.scss';
 import type { AiCrawler } from '../../data/geo-types';
@@ -13,7 +15,6 @@ import type { ComponentProps, FC, ReactNode } from 'react';
 interface Props {
 	form: GeoForm;
 	searchEnginesVisible: boolean;
-	onManageVisibility: () => void;
 }
 
 // Jetpack's AI mark (three sparks), mirroring `AiIcon` in
@@ -35,6 +36,11 @@ const llmsTxtHelp = __(
 	'Publishes a curated, AI-readable map at /llms.txt to help AI assistants find and understand your supported content.',
 	'jetpack-seo'
 );
+const manageVisibilityLabel = __( 'Open site visibility settings', 'jetpack-seo' );
+// The Settings tab's site visibility section, as a router link for `render` props.
+const manageVisibilityLink = (
+	<RouteLink to={ ROUTE_BY_TAB.settings } search={ { focus: 'visibility' } as unknown as never } />
+);
 // Crawler-group status tags. Module-scope (not inline ternaries) so the
 // production minifier can't fold `cond ? __() : __()` and break i18n extraction.
 const allowedLabel = __( 'Allowed', 'jetpack-seo' );
@@ -55,7 +61,7 @@ const managedByPrivacyTooltip = __(
  * four from drifting apart.
  *
  * @param props          - Component props.
- * @param props.children - The notice, and any action, explaining the state.
+ * @param props.children - The notice explaining the state.
  * @return The crawler-access card.
  */
 const CrawlerAccessCard: FC< { children: ReactNode } > = ( { children } ) => (
@@ -307,10 +313,9 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
  * @param props                      - Component props.
  * @param props.form                 - The GEO form controller from `useGeoForm`.
  * @param props.searchEnginesVisible - Whether the site allows search-engine indexing.
- * @param props.onManageVisibility   - Opens the Settings visibility controls.
  * @return The GEO tab content.
  */
-const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility } ) => {
+const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 	const {
 		enhancer,
 		llmsTxt,
@@ -382,19 +387,19 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 		if ( ! searchEnginesVisible ) {
 			return (
 				<CrawlerAccessCard>
-					<Stack direction="column" gap="md">
-						<Notice.Root intent="info">
-							<Notice.Description>
-								{ __(
-									"Search engines and AI crawlers are all blocked because this site isn't set to be indexed. To choose which AI crawlers can access your site, allow search engines to index it first.",
-									'jetpack-seo'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-						<Button variant="link" onClick={ onManageVisibility }>
-							{ __( 'Open site visibility settings', 'jetpack-seo' ) }
-						</Button>
-					</Stack>
+					<Notice.Root intent="info">
+						<Notice.Description>
+							{ __(
+								"Search engines and AI crawlers are all blocked because this site isn't set to be indexed. To choose which AI crawlers can access your site, allow search engines to index it first.",
+								'jetpack-seo'
+							) }
+						</Notice.Description>
+						<Notice.Actions>
+							<Notice.ActionLink render={ manageVisibilityLink }>
+								{ manageVisibilityLabel }
+							</Notice.ActionLink>
+						</Notice.Actions>
+					</Notice.Root>
 				</CrawlerAccessCard>
 			);
 		}
@@ -434,11 +439,13 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 					{ __(
 						'AI crawler access is set by your privacy settings while third-party sharing is turned off. Turn sharing on to manage individual crawlers here.',
 						'jetpack-seo'
-					) }{ ' ' }
-					<Link href={ crawlers.privacySettingsUrl }>
-						{ __( 'Manage sharing settings', 'jetpack-seo' ) }
-					</Link>
+					) }
 				</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionLink href={ crawlers.privacySettingsUrl }>
+						{ __( 'Manage sharing settings', 'jetpack-seo' ) }
+					</Notice.ActionLink>
+				</Notice.Actions>
 			</Notice.Root>
 		) : undefined;
 
@@ -544,16 +551,13 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 								{ ! searchEnginesVisible && (
 									<Notice.Root intent="info" className="jetpack-seo-geo__llms-notice">
 										<Notice.Description>
-											{ createInterpolateElement(
-												__(
-													'To enable, allow search engines to index this site under <link>Settings</link>.',
-													'jetpack-seo'
-												),
-												{
-													link: <Button variant="link" onClick={ onManageVisibility } />,
-												}
-											) }
+											{ __( 'To enable, allow search engines to index this site.', 'jetpack-seo' ) }
 										</Notice.Description>
+										<Notice.Actions>
+											<Notice.ActionLink render={ manageVisibilityLink }>
+												{ manageVisibilityLabel }
+											</Notice.ActionLink>
+										</Notice.Actions>
 									</Notice.Root>
 								) }
 								{ llmsTxtEffectivelyOn && llmsTxt.canServe && (

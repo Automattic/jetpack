@@ -3605,7 +3605,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				if ( is_wp_error( $value ) ) {
 					return false;
 				}
-				// update_option() won't create an option whose value is `false`.
+				// An integer, as in Monitor::save_notifications_copy().
 				$value = (int) (bool) $value;
 				break;
 

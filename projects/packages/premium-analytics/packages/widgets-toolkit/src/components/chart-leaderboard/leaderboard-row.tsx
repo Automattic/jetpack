@@ -20,6 +20,12 @@ type LeaderboardRowLabelLink = Pick< InternalLinkProps, 'to' | 'params' | 'searc
 export type LeaderboardRowAction =
 	| { kind: 'link'; href: string }
 	| {
+			/** A row that stays put: a plain label with a "View in new tab" action beside it. */
+			kind: 'viewLink';
+			/** Public URL the action opens. Pass it through `safeHttpUrl()` first; this action does not check the scheme. */
+			href: string;
+	  }
+	| {
 			/** A post, page, or email with a detail page inside the dashboard. */
 			kind: 'postLink';
 			/** Post or page ID. Links to the internal detail route when the reader can open it. */
@@ -68,6 +74,11 @@ export type LeaderboardRowAction =
 export type LeaderboardRowActionOptions = {
 	/** An external destination used only when the row has no children. */
 	href?: string;
+	/**
+	 * How a childless row offers its `href`: as the row's own outbound link, or as
+	 * a "View in new tab" action beside a plain label.
+	 */
+	hrefAs?: 'link' | 'viewLink';
 	/** Whether selecting the row should take the user to a child leaderboard. */
 	hasChildren: boolean;
 	/** Drill-down behavior supplied by widgets that support child rows. */
@@ -112,7 +123,7 @@ export function resolveLeaderboardRowAction(
 	}
 
 	if ( ! options.hasChildren && options.href ) {
-		return { kind: 'link', href: options.href };
+		return { kind: options.hrefAs ?? 'link', href: options.href };
 	}
 
 	return { kind: 'static' };
@@ -195,6 +206,18 @@ export function LeaderboardRow( {
 				<InternalLink { ...action.link } className={ styles.labelLink }>
 					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
 				</InternalLink>
+			</span>
+		);
+	}
+
+	// The label carries the tooltip itself, so the action keeps only its own.
+	if ( action.kind === 'viewLink' ) {
+		return (
+			<span className={ rowClassName }>
+				<span className={ styles.plainLabel } title={ label }>
+					<LeaderboardLabel label={ label } media={ media } />
+				</span>
+				<ViewLiveLink href={ action.href } label={ label } className={ styles.viewAction } />
 			</span>
 		);
 	}
