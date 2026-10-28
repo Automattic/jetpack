@@ -181,6 +181,15 @@ function wpcom_marketplace_is_installed( array $plugin ) {
 }
 
 /**
+ * Whether buying a product here also means buying a plan, as on a free Simple site.
+ *
+ * @return bool
+ */
+function wpcom_marketplace_needs_plan() {
+	return function_exists( 'wpcom_site_has_feature' ) && ! wpcom_site_has_feature( 'install-purchased-plugins' );
+}
+
+/**
  * The billing term the tab sells at.
  *
  * Yearly only. Every product has both variations, but a switcher for the whole
@@ -353,7 +362,7 @@ function wpcom_marketplace_card_button( array $card, $back_url = '' ) {
 	}
 
 	// A site whose plan does not include it buys one in the same checkout, through the filter above.
-	if ( function_exists( 'wpcom_site_has_feature' ) && ! wpcom_site_has_feature( 'install-purchased-plugins' ) ) {
+	if ( wpcom_marketplace_needs_plan() ) {
 		return sprintf(
 			'<a class="button button-compact wpcom-marketplace-card__upgrade" href="%s" data-wpcom-marketplace-track="purchase" aria-label="%s">%s</a>',
 			esc_url( $checkout ),
