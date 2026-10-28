@@ -310,7 +310,7 @@ final class Image_CDN {
 	public static function parse_dimensions_from_filename( $src ) {
 		$width_height_string = array();
 
-		if ( preg_match( '#-(\d+)x(\d+)\.(?:' . implode( '|', self::$extensions ) . '){1}(?:\?.*)?$#i', $src, $width_height_string ) ) {
+		if ( preg_match( '#-(\d+)x(\d+)\.(?:' . implode( '|', self::$extensions ) . '){1}(?:[?\#].*)?$#i', $src, $width_height_string ) ) {
 			$width  = (int) $width_height_string[1];
 			$height = (int) $width_height_string[2];
 
@@ -586,7 +586,7 @@ final class Image_CDN {
 				}
 
 				// Detect if image source is for a custom-cropped thumbnail and prevent further URL manipulation.
-				if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode( '|', self::$extensions ) . '){1}$#i', basename( $src ), $filename ) ) {
+				if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode( '|', self::$extensions ) . '){1}$#i', basename( substr( $src, 0, strcspn( $src, '?#' ) ) ), $filename ) ) {
 					$fullsize_url = true;
 				}
 
@@ -1266,7 +1266,7 @@ final class Image_CDN {
 
 			// Only uploads have an original on disk; an off-site URL shorter than the base URL
 			// would otherwise give an empty path, and file_exists() would find the uploads directory.
-			if ( ! str_starts_with( $stripped_src, $upload_dir['baseurl'] ) ) {
+			if ( ! str_starts_with( $stripped_path, $upload_dir['baseurl'] ) ) {
 				return $src;
 			}
 

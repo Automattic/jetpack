@@ -408,12 +408,26 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	}
 
 	/**
-	 * Tests Photon will parse the dimensions from a filename that contains query parameters.
+	 * Tests Photon will parse the dimensions from a filename that contains query parameters or a fragment.
+	 *
+	 * @param string $suffix Query string or fragment after the filename.
+	 * @dataProvider get_test_image_cdn_parse_dimensions_from_filename_with_query_parameters_data_provider
 	 */
-	public function test_image_cdn_parse_dimensions_from_filename_with_query_parameters() {
-		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-148x148.jpg?foo=bar&baz=qux';
+	#[DataProvider( 'get_test_image_cdn_parse_dimensions_from_filename_with_query_parameters_data_provider' )]
+	public function test_image_cdn_parse_dimensions_from_filename_with_query_parameters( $suffix ) {
+		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-148x148.jpg' . $suffix;
 
 		$this->assertEquals( array( 148, 148 ), Image_CDN::parse_dimensions_from_filename( $image_url ) );
+	}
+
+	/**
+	 * Possible values for test_image_cdn_parse_dimensions_from_filename_with_query_parameters.
+	 */
+	public static function get_test_image_cdn_parse_dimensions_from_filename_with_query_parameters_data_provider() {
+		return array(
+			'query string' => array( '?foo=bar&baz=qux' ),
+			'fragment'     => array( '#top' ),
+		);
 	}
 
 	/**
@@ -1601,6 +1615,30 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 		$this->assertEquals( $expected, Image_CDN::strip_image_dimensions_maybe( $url ) );
 
 		wp_delete_attachment( $id );
+	}
+
+	/**
+	 * Tests Photon keeps the size of a custom-cropped thumbnail, whose `-e` original is the edited image.
+	 *
+	 * @param string $query Query string after the filename.
+	 * @dataProvider get_test_image_cdn_strip_image_dimensions_maybe_strips_resized_string_data_provider
+	 */
+	#[DataProvider( 'get_test_image_cdn_strip_image_dimensions_maybe_strips_resized_string_data_provider' )]
+	public function test_image_cdn_filter_the_content_keeps_custom_cropped_thumbnail_size( $query ) {
+		$upload_dir = wp_get_upload_dir();
+		wp_mkdir_p( $upload_dir['basedir'] );
+		$original = $upload_dir['basedir'] . '/photo-e1700000000.jpg';
+		file_put_contents( $original, '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+		$sample_html = '<img src="' . $upload_dir['baseurl'] . '/photo-e1700000000-600x400.jpg' . $query . '" width="600" height="400" />';
+		try {
+			$filtered_content = Image_CDN::filter_the_content( $sample_html );
+		} finally {
+			wp_delete_file( $original );
+		}
+		$attributes = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+
+		$this->assertStringContainsString( '/photo-e1700000000-600x400.jpg', $attributes['src']['value'] );
 	}
 
 	/**
