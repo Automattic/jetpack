@@ -48,12 +48,19 @@ function getBadgeLabel( state: ConnectionState ): string {
 	return state.label;
 }
 
+interface ConnectionControlProps {
+	/** The host page, e.g. 'my-jetpack' or 'boost', sent as `context` on connection Tracks events. */
+	trackingContext: string | undefined;
+}
+
 /**
  * The shared header's connection control: the viewer's avatar opening today's Overview Connection and Plan sections.
  *
+ * @param props                 - Component props.
+ * @param props.trackingContext - The host page, for Tracks.
  * @return The control.
  */
-const ConnectionControl: FC = () => {
+const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) => {
 	const state = useConnectionState();
 	const { apiRoot, apiNonce, isUserConnected, connectedPlugins, userConnectionData } =
 		useMyJetpackConnection();
@@ -61,7 +68,7 @@ const ConnectionControl: FC = () => {
 	const { errorGroups, showSupportLink, connectionErrorMessage, actions, restoreConnectionError } =
 		useConnectionErrorNotice( {
 			trackingCallback,
-			trackingContext: 'my-jetpack',
+			trackingContext,
 			trackingPlacement: 'header',
 			navigate: assignLocation,
 		} );
@@ -181,7 +188,7 @@ const ConnectionControl: FC = () => {
 					connectedUser={ userConnectionData }
 					isOpen={ isDialogOpen }
 					onClose={ closeManageDialog }
-					context="my-jetpack"
+					context={ trackingContext }
 					placement="header"
 				/>
 			) }

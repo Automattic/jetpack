@@ -9,7 +9,7 @@ import { getSimpleQueryKey } from '../../../data/use-simple-query';
 import useAnalytics from '../../../hooks/use-analytics';
 import { useConnectionState } from '../../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import { getHeaderControlsSlot, HEADER_CONTROLS_CONTAINER_ID } from '../slot';
+import { getHeaderControlsSlot } from '../slot';
 import type { ConnectionState } from '../../../hooks/use-connection-state';
 import type { ReactElement } from 'react';
 
@@ -103,7 +103,12 @@ beforeEach( () => {
 describe( 'getHeaderControls', () => {
 	it.each( [
 		[ 'getHeaderControls', 'off', getHeaderControls, { headerControls: false } ],
-		[ 'getHeaderControlsSlot', 'off', getHeaderControlsSlot, { headerControls: false } ],
+		[
+			'getHeaderControlsSlot',
+			'off',
+			() => getHeaderControlsSlot( 'boost' ),
+			{ headerControls: false },
+		],
 		[ 'getHeaderControls', 'missing, as from an older My Jetpack', getHeaderControls, {} ],
 	] )( '%s returns null while the flag is %s', ( _, __, getter, flags ) => {
 		setPageState( flags );
@@ -111,11 +116,14 @@ describe( 'getHeaderControls', () => {
 		expect( getter() ).toBeNull();
 	} );
 
-	it( 'returns the controls once the flag is on', () => {
+	it( 'returns the controls once the flag is on, reporting My Jetpack as the page', () => {
 		setPageState( { headerControls: true } );
 		render( <>{ getHeaderControls() }</> );
 
 		expect( screen.getByRole( 'button', { name: /^Connection:/ } ) ).toBeInTheDocument();
+		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
+			expect.objectContaining( { trackingContext: 'my-jetpack' } )
+		);
 	} );
 } );
 
@@ -126,7 +134,7 @@ describe( 'HeaderControls', () => {
 		[ 'REPAIR', 'button', 'Restore connection' ],
 	] as const )( 'offers the %s action', async ( action, role, name ) => {
 		mockUseConnectionState.mockReturnValue( stateWith( { action, status: 'warning' } ) );
-		render( <HeaderControls /> );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
 
 		const dialog = await openControl();
 
@@ -137,7 +145,7 @@ describe( 'HeaderControls', () => {
 		mockUseConnectionState.mockReturnValue(
 			stateWith( { id: 'safe-mode', action: 'RESOLVE_SAFE_MODE', status: 'warning' } )
 		);
-		render( <HeaderControls /> );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
 
 		const dialog = await openControl();
 
@@ -150,7 +158,7 @@ describe( 'HeaderControls', () => {
 		mockUseConnectionState.mockReturnValue(
 			stateWith( { action: 'REPAIR', status: 'error', isDiagnosis: true } )
 		);
-		render( <HeaderControls /> );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
 
 		const dialog = await openControl();
 		mockRestoreConnectionError.current = '';
@@ -162,7 +170,7 @@ describe( 'HeaderControls', () => {
 
 	it( 'returns focus to the control when the Manage connection dialog closes', async () => {
 		mockUseConnectionState.mockReturnValue( stateWith( { manageConnection: { type: 'dialog' } } ) );
-		render( <HeaderControls /> );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
 
 		const dialog = await openControl();
 		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Manage connection' } ) );
@@ -173,9 +181,9 @@ describe( 'HeaderControls', () => {
 		);
 	} );
 
-	it( "tags its connection Tracks events as from the header's placement", async () => {
+	it( "tags its connection Tracks events with the host page and the header's placement", async () => {
 		mockUseConnectionState.mockReturnValue( stateWith( { manageConnection: { type: 'dialog' } } ) );
-		render( <HeaderControls /> );
+		render( <HeaderControls trackingContext="boost" /> );
 
 		const dialog = await openControl();
 		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Manage connection' } ) );
@@ -183,17 +191,17 @@ describe( 'HeaderControls', () => {
 		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				trackingCallback: expect.any( Function ),
-				trackingContext: 'my-jetpack',
+				trackingContext: 'boost',
 				trackingPlacement: 'header',
 			} )
 		);
 		expect( mockManageConnectionDialog ).toHaveBeenCalledWith(
-			expect.objectContaining( { isOpen: true, context: 'my-jetpack', placement: 'header' } )
+			expect.objectContaining( { isOpen: true, context: 'boost', placement: 'header' } )
 		);
 	} );
 
 	it( 'loads the plan once, on first open', async () => {
-		render( <HeaderControls /> );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 
@@ -215,7 +223,7 @@ describe( 'HeaderControls', () => {
 			} ),
 			[]
 		);
-		render( <HeaderControls />, queryClient );
+		render( <HeaderControls trackingContext="my-jetpack" />, queryClient );
 
 		await openControl();
 
@@ -240,7 +248,7 @@ describe( 'HeaderControls', () => {
 				domain: 'example.com',
 			},
 		] );
-		render( <HeaderControls /> );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
 
 		await openControl();
 		await userEvent.click( await screen.findByRole( 'link', { name: /Manage your plan/ } ) );
@@ -270,7 +278,7 @@ describe( 'HeaderControls', () => {
 				domain: 'example.com',
 			},
 		] );
-		render( <HeaderControls /> );
+		render( <HeaderControls trackingContext="my-jetpack" /> );
 
 		await openControl();
 		await expect(
@@ -281,12 +289,16 @@ describe( 'HeaderControls', () => {
 } );
 
 describe( 'header controls script', () => {
-	it( 'renders into the container once the dashboard mounts it', async () => {
+	it( "renders into the dashboard's slot once mounted, reporting the page the slot names", async () => {
 		await import( '../../../header-controls-script' );
-		const container = document.createElement( 'div' );
-		container.id = HEADER_CONTROLS_CONTAINER_ID;
-		document.body.append( container );
+		setPageState( { headerControls: true } );
+		rtlRender( <>{ getHeaderControlsSlot( 'boost' ) }</> );
 
-		await waitFor( () => expect( within( container ).getByRole( 'button' ) ).toBeInTheDocument() );
+		await expect(
+			screen.findByRole( 'button', { name: /^Connection:/ } )
+		).resolves.toBeInTheDocument();
+		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
+			expect.objectContaining( { trackingContext: 'boost' } )
+		);
 	} );
 } );
