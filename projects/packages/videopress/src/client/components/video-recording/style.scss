@@ -1,0 +1,31 @@
+@use "../chapters-editor/tokens";
+
+.videopress-recording.components-modal__frame {
+	inline-size: min(960px, calc(100vw - 32px));
+	max-block-size: calc(100dvh - 40px);
+	max-inline-size: none;
+}
+
+.videopress-recording__workspace {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.videopress-recording__video {
+	display: block;
+	inline-size: 100%;
+	max-block-size: clamp(120px, calc(100dvh - 440px), 480px);
+	aspect-ratio: 16 / 9;
+	object-fit: contain;
+	background: #000;
+}
+
+.videopress-recording__actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	gap: 12px;
+}

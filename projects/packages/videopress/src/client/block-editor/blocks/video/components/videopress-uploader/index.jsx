@@ -15,6 +15,7 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import { Link } from '@wordpress/ui';
+import RecordVideoButton from '../../../../../components/video-recording';
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
 import { isSiteConnected } from '../../../../../lib/connection';
@@ -441,7 +442,9 @@ const VideoPressUploader = ( {
 				noticeOperations.removeAllNotices();
 				noticeOperations.createErrorNotice( error );
 			} }
-		/>
+		>
+			<RecordVideoButton onRecorded={ onSelectVideo } />
+		</MediaPlaceholder>
 	);
 };
 
