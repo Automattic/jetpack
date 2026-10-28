@@ -233,6 +233,10 @@ export interface MetricTabsChartProps {
 	 * Drawn in the plot, in place of the chart, for a metric with no non-zero reading in either period, so a window without data does not read as a flat zero line. The tabs stay, showing their zeros. Omit to draw that line.
 	 */
 	empty?: ReactNode;
+	/** Bars only: start the previous period shown or hidden, and let the reader toggle it from the legend. Each metric's chart reads it when it mounts. */
+	defaultPreviousPeriodShown?: boolean;
+	/** Bars only: called when the reader shows or hides the previous period from the legend. */
+	onPreviousPeriodShownChange?: ( shown: boolean ) => void;
 }
 
 /**
@@ -308,6 +312,8 @@ function MetricChart( {
 	baseline,
 	comparisonLabel,
 	empty,
+	defaultPreviousPeriodShown,
+	onPreviousPeriodShownChange,
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
@@ -322,6 +328,8 @@ function MetricChart( {
 	onDatumClick?: ( date: Date ) => void;
 	comparisonLabel?: string;
 	empty?: ReactNode;
+	defaultPreviousPeriodShown?: boolean;
+	onPreviousPeriodShownChange?: ( shown: boolean ) => void;
 } ) {
 	// Every other metric's current period, each in its own format. A counterpart
 	// is included too: the chart lists a drawn series once, so revealing it from
@@ -507,6 +515,8 @@ function MetricChart( {
 			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
 			tooltipExtras={ tooltipExtras }
+			defaultPreviousPeriodShown={ defaultPreviousPeriodShown }
+			onPreviousPeriodShownChange={ onPreviousPeriodShownChange }
 			layout="overlap"
 			primarySeries={ metric.label }
 			compactWhenShort
@@ -627,6 +637,8 @@ export function MetricTabsChart( {
 	tooltipMetrics = 'active',
 	baseline,
 	empty,
+	defaultPreviousPeriodShown,
+	onPreviousPeriodShownChange,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 	const reportParams = useContext( WidgetRootContext )?.reportParams;
@@ -735,6 +747,8 @@ export function MetricTabsChart( {
 						onDatumClick={ onDatumClick }
 						comparisonLabel={ comparisonLabel }
 						empty={ empty }
+						defaultPreviousPeriodShown={ defaultPreviousPeriodShown }
+						onPreviousPeriodShownChange={ onPreviousPeriodShownChange }
 					/>
 				</div>
 			</div>
@@ -810,6 +824,8 @@ export function MetricTabsChart( {
 							onDatumClick={ onDatumClick }
 							comparisonLabel={ comparisonLabel }
 							empty={ empty }
+							defaultPreviousPeriodShown={ defaultPreviousPeriodShown }
+							onPreviousPeriodShownChange={ onPreviousPeriodShownChange }
 						/>
 					) }
 				</div>
@@ -868,6 +884,8 @@ export function MetricTabsChart( {
 						onDatumClick={ onDatumClick }
 						comparisonLabel={ comparisonLabel }
 						empty={ empty }
+						defaultPreviousPeriodShown={ defaultPreviousPeriodShown }
+						onPreviousPeriodShownChange={ onPreviousPeriodShownChange }
 					/>
 				</Tabs.Panel>
 			) ) }
