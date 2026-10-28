@@ -178,8 +178,9 @@ class Initializer {
 			add_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
 		}
 
-		// Runs before `admin_head`, where the menu item for an inactive module is removed.
-		add_action( 'admin_init', array( __CLASS__, 'activate_seo_tools_once' ) );
+		// Priority 0 on `admin_menu`, ahead of Admin_Menu dropping items for inactive modules;
+		// `admin_init` fires after the menu is built, so the first visit would miss the item.
+		add_action( 'admin_menu', array( __CLASS__, 'activate_seo_tools_once' ), 0 );
 
 		// The page registers whenever the surface is visible, even with `seo-tools` off, so
 		// a saved link still offers "Enable SEO tools"; the menu item hides with the module.

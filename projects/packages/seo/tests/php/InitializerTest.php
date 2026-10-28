@@ -516,6 +516,35 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
+	 * The menu is built before `admin_init`, so a later hook would leave the first visit without it.
+	 */
+	public function test_seo_tools_is_switched_on_before_admin_menu_drops_inactive_items() {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
+		$callback = array( Initializer::class, 'activate_seo_tools_once' );
+
+		try {
+			Initializer::init();
+			\Automattic\Jetpack\Admin_UI\Admin_Menu::init();
+
+			$priority = has_action( 'admin_menu', $callback );
+			$this->assertIsInt( $priority );
+			$this->assertLessThan( has_action( 'admin_menu', array( \Automattic\Jetpack\Admin_UI\Admin_Menu::class, 'admin_menu_hook_callback' ) ), $priority );
+		} finally {
+			remove_action( 'admin_menu', $callback, 0 );
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			$this->remove_sitemap_toggle_hooks();
+			delete_option( Initializer::VISIBILITY_OPTION );
+			$initialized->setValue( null, false );
+		}
+	}
+
+	/**
 	 * Run a callback as a user of the given role, with `seo-tools` available but off.
 	 *
 	 * @param string   $role     User role.
