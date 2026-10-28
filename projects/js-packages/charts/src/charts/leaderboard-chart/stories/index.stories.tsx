@@ -13,6 +13,7 @@ import {
 	revenueMetricsData as largeValues,
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
+	netSalesBySourceData as netSalesData,
 	themeArgTypes,
 } from '../../../stories';
 import {
@@ -568,6 +569,27 @@ export const NegativeGrowth: Story = {
 		data: negativeGrowth,
 		withComparison: true,
 		loading: false,
+	},
+};
+
+export const NegativeValues: Story = {
+	args: {
+		data: netSalesData,
+		withComparison: true,
+		loading: false,
+		valueFormatter: ( value: number ) =>
+			formatMetricValue( value, 'currency', {
+				useMultipliers: false,
+				decimals: 0,
+			} ),
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'A negative `currentShare` or `previousShare` puts every row on a shared zero point, placed in proportion to the range of shares: negative bars extend toward the inline start and positive bars toward the inline end.',
+			},
+		},
 	},
 };
 

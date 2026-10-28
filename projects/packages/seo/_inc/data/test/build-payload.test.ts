@@ -15,6 +15,8 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	site_is_private: false,
+	site_is_coming_soon: false,
+	site_visibility_url: '',
 	search_engines_visible: true,
 	sitemap_active: false,
 	sitemap_switchable: true,

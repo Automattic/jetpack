@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Waf\Waf_Runner;
@@ -465,6 +466,15 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
+	 * Whether the site pays for Scan, by the same check as the Protect page.
+	 *
+	 * @return bool
+	 */
+	public static function has_paid_plan_for_product() {
+		return Plan::has_required_plan();
+	}
+
+	/**
 	 * Checks whether the product can be upgraded - i.e. this shows the /#add-protect interstitial
 	 *
 	 * @return boolean
@@ -547,6 +557,33 @@ class Protect extends Hybrid_Product {
 				'scan_results_url' => Scan::get_manage_url(),
 			)
 		);
+	}
+
+	/**
+	 * Where the card's upgrade goes: a host's plans when it sends them, else the Protect interstitial.
+	 *
+	 * @return ?string
+	 */
+	public static function get_purchase_url() {
+		if ( static::has_paid_plan_for_product() ) {
+			return parent::get_purchase_url();
+		}
+
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '/add-protect',
+				'name'     => 'Jetpack Scan', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=my-jetpack' ),
+			),
+			'protect-dashboard',
+			false
+		);
+
+		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
+
+		return $url ? $url : parent::get_purchase_url();
 	}
 
 	/**

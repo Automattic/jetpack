@@ -152,6 +152,24 @@ describe( 'LeaderboardChart', () => {
 		expect( container.querySelectorAll( '.bar' ) ).toHaveLength( 2 );
 	} );
 
+	it.each( [
+		[ 'a current share is negative', { currentShare: -40 }, true, 2 ],
+		[ 'a comparison share is negative', { previousShare: -40 }, true, 2 ],
+		[ 'only a hidden comparison share is negative', { previousShare: -40 }, false, 0 ],
+		[
+			'only a share without a comparison value is negative',
+			{ previousShare: -40, previousValue: undefined },
+			true,
+			0,
+		],
+		[ 'every share is positive', {}, true, 0 ],
+	] )( 'diverges the bars from zero when %s', ( _, override, withComparison, expected ) => {
+		const data = [ { ...mockData[ 0 ], ...override }, mockData[ 1 ] ];
+		render( <LeaderboardChart data={ data } withComparison={ withComparison } /> );
+
+		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( expected );
+	} );
+
 	it( 'shows custom label when provided', () => {
 		render(
 			<LeaderboardChart

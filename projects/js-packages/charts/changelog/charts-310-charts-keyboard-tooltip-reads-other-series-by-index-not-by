@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Read every series at the selected or hovered date in tooltips, so series that skip a date no longer pair points from different dates.

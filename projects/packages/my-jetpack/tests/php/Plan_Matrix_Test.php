@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products\Anti_Spam;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\My_Jetpack\Products\Boost;
@@ -319,6 +320,13 @@ class Plan_Matrix_Test extends TestCase {
 		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 		delete_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY );
 
+		// Storing a different plan clears Current_Plan's cached copy, which outlives the option.
+		Current_Plan::update_from_site_record(
+			array(
+				'plan'     => array( 'product_slug' => 'jetpack_free' ),
+				'products' => array(),
+			)
+		);
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 
@@ -426,6 +434,7 @@ class Plan_Matrix_Test extends TestCase {
 	private function apply_ownership( string $class, string $ownership ) {
 		if ( self::OWNERSHIP_NONE === $ownership ) {
 			$this->set_site_features( array() );
+			$this->set_synced_plan( array(), array() );
 			return;
 		}
 
@@ -437,6 +446,10 @@ class Plan_Matrix_Test extends TestCase {
 
 		$direct_plans = $class::get_paid_plan_product_slugs();
 		$product_slug = 'pro' === $ownership ? 'jetpack_pro_yearly' : ( self::OWNERSHIP_BUNDLE === $ownership ? 'jetpack_complete' : reset( $direct_plans ) );
+		$this->set_synced_plan(
+			array_filter( array( $class::$feature_identifying_paid_plan ) ),
+			self::OWNERSHIP_DIRECT === $ownership ? array( $product_slug ) : array()
+		);
 
 		set_transient(
 			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
@@ -448,6 +461,24 @@ class Plan_Matrix_Test extends TestCase {
 				),
 			),
 			HOUR_IN_SECONDS
+		);
+	}
+
+	/**
+	 * Seed the plan and products Jetpack syncs from wpcom, which Protect Status reads.
+	 *
+	 * @param string[] $features Feature slugs the plan grants.
+	 * @param string[] $products Product slugs the site owns.
+	 */
+	private function set_synced_plan( array $features, array $products ) {
+		Current_Plan::update_from_site_record(
+			array(
+				'plan'     => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => $features ),
+				),
+				'products' => array_map( fn( $slug ) => array( 'product_slug' => $slug ), $products ),
+			)
 		);
 	}
 
