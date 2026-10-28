@@ -1439,3 +1439,65 @@ class Share_Threads_Block extends Sharing_Source_Block {
 		parent::redirect_request( $url );
 	}
 }
+
+/**
+ * WordPress sharing button, letting readers repost the post on one of their own sites.
+ */
+class Share_WordPress_Block extends Sharing_Source_Block {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'wordpress'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'WordPress', 'jetpack' );
+	}
+
+	/**
+	 * Get the WordPress.com link that lets readers pick one of their sites and opens a draft quoting the post.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public function get_repost_url( $post ) {
+		$text = '';
+		if ( empty( $post->post_password ) ) {
+			$text = has_excerpt( $post ) ? $post->post_excerpt : $post->post_content;
+			$text = wp_trim_words( strip_shortcodes( $text ), 55 );
+		}
+
+		return add_query_arg(
+			array(
+				'url'           => rawurlencode( $this->get_share_url( $post->ID ) ),
+				'title'         => rawurlencode( $this->get_share_title( $post->ID ) ),
+				'text'          => rawurlencode( $text ),
+				// WordPress.com only builds the draft from these arguments when this flag is set.
+				'is_post_share' => 'true',
+			),
+			'https://wordpress.com/post'
+		);
+	}
+
+	/**
+	 * Process sharing request. Add actions that need to happen when sharing here.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param array   $post_data Array of information about the post we're sharing.
+	 *
+	 * @return void
+	 */
+	public function process_request( $post, array $post_data ) {
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		parent::redirect_request( $this->get_repost_url( $post ) );
+	}
+}

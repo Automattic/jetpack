@@ -6,7 +6,9 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Extensions\Sharing_Button_Block\Share_WordPress_Block;
 use Automattic\Jetpack\Sharing_Likes\Hooked_Blocks\Hooked_Blocks;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use function Automattic\Jetpack\Extensions\Sharing_Button_Block\register_block;
@@ -16,9 +18,11 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/sharing-button/sharing-but
 /**
  * @covers ::Automattic\Jetpack\Extensions\Sharing_Button_Block\register_block
  * @covers ::Automattic\Jetpack\Extensions\Sharing_Button_Block\render_block
+ * @covers \Automattic\Jetpack\Extensions\Sharing_Button_Block\Share_WordPress_Block
  */
 #[CoversFunction( 'Automattic\Jetpack\Extensions\Sharing_Button_Block\register_block' )]
 #[CoversFunction( 'Automattic\Jetpack\Extensions\Sharing_Button_Block\render_block' )]
+#[CoversClass( Share_WordPress_Block::class )]
 class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -120,5 +124,47 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 			$this->assertSame( $link['label_id'], $link['label_by'] );
 			$this->assertSame( "sharing-facebook-$post_id", $link['shared'] );
 		}
+	}
+
+	/**
+	 * The repost link prefills a WordPress.com draft, without the text of a protected post.
+	 *
+	 * @dataProvider provide_repost_passwords
+	 * @param string $password      Post password.
+	 * @param string $expected_text Expected `text` argument.
+	 */
+	#[DataProvider( 'provide_repost_passwords' )]
+	public function test_repost_url_prefills_wpcom_draft( $password, $expected_text ) {
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_title'    => 'Tips & tricks',
+				'post_excerpt'  => 'A short summary.',
+				'post_password' => $password,
+			)
+		);
+
+		$url = ( new Share_WordPress_Block( 'wordpress' ) )->get_repost_url( $post ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+		wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
+
+		$this->assertStringStartsWith( 'https://wordpress.com/post?', $url );
+		$this->assertSame(
+			array(
+				'url'           => get_permalink( $post ),
+				'title'         => 'Tips & tricks',
+				'text'          => $expected_text,
+				'is_post_share' => 'true',
+			),
+			$args
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_repost_passwords() {
+		return array(
+			'public'             => array( '', 'A short summary.' ),
+			'password-protected' => array( 'secret', '' ),
+		);
 	}
 }
