@@ -207,15 +207,17 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * The stats-admin pre-connection Stats page stays unless the host asks this dashboard to replace it.
+	 * The stats-admin pre-connection Stats page stays unless the host asks this dashboard to replace it, or classic Stats is retired.
 	 *
 	 * @param array $options Options passed to init().
+	 * @param bool  $retired Whether the classic Stats page is retired.
 	 * @param bool  $kept    Whether stats-admin still registers its page.
 	 * @dataProvider provide_pre_connection_stats_page_cases
 	 */
 	#[DataProvider( 'provide_pre_connection_stats_page_cases' )]
-	public function test_init_replaces_the_pre_connection_stats_page_on_request( $options, $kept ) {
+	public function test_when_init_replaces_the_pre_connection_stats_page( $options, $retired, $kept ) {
 		$this->reset_analytics_init_state();
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
 
 		Analytics::init( $options );
 
@@ -223,14 +225,15 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Data for test_init_replaces_the_pre_connection_stats_page_on_request.
+	 * Data for test_when_init_replaces_the_pre_connection_stats_page.
 	 *
 	 * @return array
 	 */
 	public static function provide_pre_connection_stats_page_cases() {
 		return array(
-			'kept by default'     => array( array(), true ),
-			'replaced on request' => array( array( 'replaces_pre_connection_stats_page' => true ), false ),
+			'kept by default'                  => array( array(), false, true ),
+			'replaced on request'              => array( array( 'replaces_pre_connection_stats_page' => true ), false, false ),
+			'replaced once classic is retired' => array( array(), true, false ),
 		);
 	}
 

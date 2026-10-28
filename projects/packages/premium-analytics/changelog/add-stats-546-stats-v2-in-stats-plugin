@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Let other plugins ask whether Stats v2 should be on and whether it booted, and share the flag that retires the classic Stats page.
+Let other plugins ask whether Stats v2 should be on and whether it booted, and share the flag that retires the classic Stats page, which now also replaces the pre-connection Stats page.

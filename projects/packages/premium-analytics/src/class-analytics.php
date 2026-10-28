@@ -84,7 +84,8 @@ class Analytics {
 	 *                         a textdomain can load, unlike init time.
 	 *                       - replaces_pre_connection_stats_page (bool): Stop stats-admin from
 	 *                         registering its own Stats page while the site is not connected, so
-	 *                         this dashboard is the only Stats entry. Defaults to false.
+	 *                         this dashboard is the only Stats entry. Defaults to whether classic
+	 *                         Stats is retired.
 	 *                       A later call still applies its options, so a host that calls this after
 	 *                       another plugin did keeps its configuration.
 	 * @return void
@@ -197,7 +198,7 @@ class Analytics {
 	}
 
 	/**
-	 * Let a host replace stats-admin's pre-connection Stats page with this dashboard.
+	 * Replace stats-admin's pre-connection Stats page with this dashboard when the host asks, or once classic Stats is retired.
 	 *
 	 * The callback reads the option when stats-admin initializes on `plugins_loaded`, so a host whose
 	 * init() call comes after another plugin's still takes effect.
@@ -208,7 +209,7 @@ class Analytics {
 		add_filter(
 			'jetpack_stats_admin_pre_connection_dashboard',
 			static function ( $register ) {
-				return self::$replaces_pre_connection_stats_page ? false : $register;
+				return self::$replaces_pre_connection_stats_page || Classic_Stats::is_retired() ? false : $register;
 			}
 		);
 	}
