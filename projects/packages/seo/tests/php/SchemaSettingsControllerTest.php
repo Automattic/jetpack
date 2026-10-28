@@ -25,6 +25,49 @@ use WP_REST_Response;
 class SchemaSettingsControllerTest extends TestCase {
 
 	/**
+	 * @dataProvider conflicted_write_requests
+	 */
+	#[DataProvider( 'conflicted_write_requests' )]
+	public function test_conflict_rejects_writes_but_keeps_saved_values_readable( $route, $method, $payload ) {
+		$admin = $this->make_user( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin->ID );
+		Schema_Settings::update( array( 'organization' => array( 'name' => 'Stored organization' ) ) );
+		Author_Schema_Node::update_profile( $admin->ID, array( 'jobTitle' => 'Stored job title' ) );
+		$schema   = Schema_Settings::get_editable();
+		$profile  = Author_Schema_Node::get_profile( $admin->ID );
+		$callback = array( Schema_Settings_Controller::class, 'register_routes' );
+		add_action( 'rest_api_init', $callback );
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+		try {
+			do_action( 'rest_api_init' );
+			$request = new WP_REST_Request( $method, '/jetpack/v4/seo/' . $route );
+			$request->set_header( 'Content-Type', 'application/json' );
+			$request->set_body( wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ) );
+			$response = rest_get_server()->dispatch( $request );
+			$this->assertSame( 409, $response->get_status() );
+			$this->assertSame( 'jetpack_seo_conflicting_plugin', $response->get_data()['code'] );
+			$this->assertSame( $schema, Schema_Settings::get_editable() );
+			$this->assertSame( $profile, Author_Schema_Node::get_profile( $admin->ID ) );
+			$read = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/seo/' . $route ) );
+			$this->assertSame( 200, $read->get_status() );
+			remove_filter( 'jetpack_disable_seo_tools', '__return_true' );
+			$this->assertSame( 200, rest_get_server()->dispatch( $request )->get_status() );
+		} finally {
+			remove_filter( 'jetpack_disable_seo_tools', '__return_true' );
+			remove_action( 'rest_api_init', $callback );
+		}
+	}
+
+	public static function conflicted_write_requests() {
+		$cases = array();
+		foreach ( array( 'POST', 'PUT', 'PATCH' ) as $method ) {
+			$cases[ 'schema ' . $method ] = array( 'schema-settings', $method, array( 'organization' => array( 'name' => 'Changed organization' ) ) );
+			$cases[ 'author ' . $method ] = array( 'author-profile', $method, array( 'jobTitle' => 'Changed job title' ) );
+		}
+		return $cases;
+	}
+
+	/**
 	 * Users created during the test.
 	 *
 	 * @var int[]

@@ -13,6 +13,7 @@ const saveLabel = __( 'Save', 'jetpack-seo' );
 interface Props {
 	/** The author-profile form controller, owned by the Author profile card. */
 	form: AuthorProfileForm;
+	disabled?: boolean;
 }
 
 /**
@@ -25,11 +26,12 @@ interface Props {
  * controller (so the header status and this form share one state) and passes it
  * in via `form`.
  *
- * @param props      - Component props.
- * @param props.form - The author-profile form controller from the card.
+ * @param props          - Component props.
+ * @param props.form     - The author-profile form controller from the card.
+ * @param props.disabled - Whether editing is disabled.
  * @return The Author profile form.
  */
-const AuthorProfileSection: FC< Props > = ( { form } ) => {
+const AuthorProfileSection: FC< Props > = ( { form, disabled = false } ) => {
 	const {
 		profile,
 		avatarUrl,
@@ -42,7 +44,7 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 		save,
 	} = form;
 	const { name, description, url, jobTitle, sameAs } = profile;
-	const disabled = isLoading || isSaving || hasLoadError;
+	const controlsDisabled = disabled || isLoading || isSaving || hasLoadError;
 	const accountOwned = '' !== accountProfileUrl;
 	const hasNameError = ! accountOwned && ! isLoading && ! hasLoadError && '' === name.trim();
 	const hasProfileErrors = hasProfileUrlErrors( sameAs );
@@ -118,7 +120,7 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 						label={ __( 'Name', 'jetpack-seo' ) }
 						value={ name }
 						onChange={ next => setProfileField( { name: next } ) }
-						disabled={ disabled }
+						disabled={ controlsDisabled }
 						help={ hasNameError ? __( 'Name is required.', 'jetpack-seo' ) : undefined }
 						aria-invalid={ hasNameError }
 						__next40pxDefaultSize
@@ -130,7 +132,7 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 						value={ description }
 						onChange={ next => setProfileField( { description: next } ) }
 						rows={ 3 }
-						disabled={ disabled }
+						disabled={ controlsDisabled }
 						__nextHasNoMarginBottom
 					/>
 
@@ -139,7 +141,7 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 						type="url"
 						value={ url }
 						onChange={ next => setProfileField( { url: next } ) }
-						disabled={ disabled }
+						disabled={ controlsDisabled }
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 					/>
@@ -157,7 +159,7 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 				label={ __( 'Job title', 'jetpack-seo' ) }
 				value={ jobTitle }
 				onChange={ next => setProfileField( { jobTitle: next } ) }
-				disabled={ disabled }
+				disabled={ controlsDisabled }
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
 			/>
@@ -167,13 +169,13 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 				help={ __( 'Links to your public profiles — Facebook, X, LinkedIn.', 'jetpack-seo' ) }
 				urls={ sameAs }
 				onChange={ next => setProfileField( { sameAs: next } ) }
-				disabled={ disabled }
+				disabled={ controlsDisabled }
 			/>
 
 			<Stack direction="row" justify="flex-end">
 				<Button
 					onClick={ save }
-					disabled={ disabled || ! isDirty || hasNameError || hasProfileErrors }
+					disabled={ controlsDisabled || ! isDirty || hasNameError || hasProfileErrors }
 					aria-label={ __( 'Save author profile', 'jetpack-seo' ) }
 				>
 					{ saveLabel }

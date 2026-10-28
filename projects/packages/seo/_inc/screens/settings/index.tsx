@@ -211,13 +211,27 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		? sprintf(
 				/* translators: %s: name of the SEO plugin that controls the site's SEO output, e.g. Yoast SEO. */
 				__(
-					'%s is managing your SEO titles and descriptions, so Jetpack’s settings for them are locked while it’s active.',
+					'%s is managing your SEO output, so Jetpack’s title, description, schema and author profile settings are locked while it’s active.',
 					'jetpack-seo'
 				),
 				local.conflicting_seo_plugin
 			)
 		: __(
-				'Another SEO plugin is managing your SEO titles and descriptions, so Jetpack’s settings for them are locked while it’s active.',
+				'Another SEO plugin is managing your SEO output, so Jetpack’s title, description, schema and author profile settings are locked while it’s active.',
+				'jetpack-seo'
+			);
+
+	const schemaDisabledReason = local.conflicting_seo_plugin
+		? sprintf(
+				/* translators: %1$s: name of the active SEO plugin. */
+				__(
+					'%1$s is managing your structured data. Your saved Jetpack settings are shown here but are not being used. Deactivate %1$s to edit these settings in Jetpack.',
+					'jetpack-seo'
+				),
+				local.conflicting_seo_plugin
+			)
+		: __(
+				'Another SEO plugin is managing your structured data. Your saved Jetpack settings are shown here but are not being used. Deactivate the conflicting SEO plugin to edit these settings in Jetpack.',
 				'jetpack-seo'
 			);
 
@@ -378,13 +392,18 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					{ /* Container for the site-level schema controls delivered by later
 				   issues. Own `id` so it can be deep-linked like `#verification`. */ }
 					<div id="schema" className={ styles.section }>
-						<SchemaCard initialSettings={ local.schema } onSave={ setSchemaSettings } />
+						<SchemaCard
+							initialSettings={ local.schema }
+							onSave={ setSchemaSettings }
+							disabled={ outputLocked }
+							disabledReason={ schemaDisabledReason }
+						/>
 					</div>
 
 					{ /* The signed-in user's Person / ProfilePage schema source — per-user,
 				   unlike the site-level Schema card above. */ }
 					<div id="author-profile" className={ styles.section }>
-						<AuthorProfileCard />
+						<AuthorProfileCard disabled={ outputLocked } disabledReason={ schemaDisabledReason } />
 					</div>
 
 					<CollapsibleCard.Root defaultOpen={ false }>

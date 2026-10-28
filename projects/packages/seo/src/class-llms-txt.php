@@ -74,6 +74,10 @@ class Llms_Txt {
 	 * @return bool
 	 */
 	public static function can_serve() {
+		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+			return false;
+		}
+
 		$has_static_file = defined( 'ABSPATH' ) && Static_Files::exists( 'llms.txt' );
 
 		/**
@@ -109,7 +113,7 @@ class Llms_Txt {
 	 * @return void
 	 */
 	public static function maybe_serve() {
-		if ( ! self::is_enabled() || 'llms.txt' !== self::request_path() ) {
+		if ( ! self::is_enabled() || 'llms.txt' !== self::request_path() || ! self::can_serve() ) {
 			return;
 		}
 

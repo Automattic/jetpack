@@ -1,7 +1,7 @@
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { code } from '@wordpress/icons';
-import { Button, Card, CollapsibleCard, Fieldset, Stack, Text } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Fieldset, Notice, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import { cleanProfileUrls } from '../../data/schema-settings-utils';
@@ -21,6 +21,8 @@ const SAVE_ERROR_ID = 'jetpack-seo-settings-schema-save-error';
 interface Props {
 	initialSettings: SchemaSettings;
 	onSave?: ( settings: SchemaSettings ) => void;
+	disabled?: boolean;
+	disabledReason?: string;
 }
 
 /**
@@ -40,9 +42,11 @@ interface Props {
  * @param root0                 - Component props.
  * @param root0.initialSettings - Settings bootstrap from the Settings screen.
  * @param root0.onSave          - Called with the saved schema payload after a successful save.
+ * @param root0.disabled        - Whether another plugin controls structured data.
+ * @param root0.disabledReason  - Explanation shown while editing is disabled.
  * @return The Schema settings card.
  */
-function SchemaCard( { initialSettings, onSave }: Props ) {
+function SchemaCard( { initialSettings, onSave, disabled = false, disabledReason }: Props ) {
 	const form = useSchemaSettings( initialSettings, onSave );
 	const {
 		organization,
@@ -96,6 +100,8 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 		hasProfileUrlErrors( organization.sameAs ) ||
 		( localBusiness.enabled && hasLocalBusinessErrors( form ) );
 
+	const saveDescriptionId = disabled ? 'jetpack-seo-schema-disabled' : SAVE_ERROR_ID;
+
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
 			<CollapsibleCard.Header render={ <h2 /> }>
@@ -109,7 +115,18 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<Stack direction="column" gap="lg">
+				<Stack
+					direction="column"
+					gap="lg"
+					role="group"
+					aria-label={ __( 'Schema settings', 'jetpack-seo' ) }
+					aria-describedby={ disabled ? 'jetpack-seo-schema-disabled' : undefined }
+				>
+					{ disabled && disabledReason && (
+						<Notice.Root intent="warning" id="jetpack-seo-schema-disabled">
+							<Notice.Description>{ disabledReason }</Notice.Description>
+						</Notice.Root>
+					) }
 					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'Structured data that tells search engines and AI assistants what your site is and who runs it. Add the details below and Jetpack adds the right markup automatically.',
@@ -125,8 +142,12 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 						) }
 						checked={ breadcrumbList.enabled }
 						// eslint-disable-next-line react/jsx-no-bind
-						onChange={ next => commitBreadcrumbList( { enabled: next } ) }
-						disabled={ isSaving }
+						onChange={ next => {
+							if ( ! disabled ) {
+								commitBreadcrumbList( { enabled: next } );
+							}
+						} }
+						disabled={ disabled || isSaving }
 						__nextHasNoMarginBottom
 					/>
 
@@ -140,8 +161,8 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 							{ __( 'Organization details', 'jetpack-seo' ) }
 						</Fieldset.Legend>
 						<Stack direction="column" gap="lg">
-							<OrganizationSection form={ form } />
-							<LocalBusinessSection form={ form } />
+							<OrganizationSection form={ form } disabled={ disabled } />
+							<LocalBusinessSection form={ form } disabled={ disabled } />
 
 							{ /* The visible label stays "Save" to match the other modules, but the
 							   accessible name names the module: this tab renders several "Save"
@@ -155,12 +176,13 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 								<Button
 									onClick={ saveOrganizationEntity }
 									disabled={
+										disabled ||
 										isSaving ||
 										! ( isOrganizationDirty || isLocalBusinessDirty ) ||
 										hasBlockingErrors
 									}
 									aria-label={ __( 'Save schema settings', 'jetpack-seo' ) }
-									aria-describedby={ hasBlockingErrors ? SAVE_ERROR_ID : undefined }
+									aria-describedby={ disabled || hasBlockingErrors ? saveDescriptionId : undefined }
 								>
 									{ __( 'Save', 'jetpack-seo' ) }
 								</Button>

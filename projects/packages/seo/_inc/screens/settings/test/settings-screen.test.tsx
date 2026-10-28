@@ -22,10 +22,18 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 // its completion threshold is one of the rules under test — but the Google field
 // inside it reaches for the verify endpoint, so that one field is stubbed.
 jest.unstable_mockModule( '../author-profile-card', () => ( {
-	default: () => <div>author</div>,
+	default: ( { disabled, disabledReason }: { disabled?: boolean; disabledReason?: string } ) => (
+		<div data-testid="author" aria-disabled={ disabled }>
+			{ disabled && disabledReason }author
+		</div>
+	),
 } ) );
 jest.unstable_mockModule( '../schema-card', () => ( {
-	default: () => <div>schema</div>,
+	default: ( { disabled, disabledReason }: { disabled?: boolean; disabledReason?: string } ) => (
+		<div data-testid="schema" aria-disabled={ disabled }>
+			{ disabled && disabledReason }schema
+		</div>
+	),
 } ) );
 jest.unstable_mockModule( '../social-previews-card', () => ( {
 	default: () => <div>social previews</div>,
@@ -514,5 +522,27 @@ describe( 'Settings module text hierarchy', () => {
 		// `body-md` is also `Text`'s default, so the class alone would still pass if the
 		// `variant` prop were deleted outright. The `<p>` pins that it's a real paragraph.
 		expect( description.tagName ).toBe( 'P' );
+	} );
+} );
+
+describe( 'Schema output ownership', () => {
+	it( 'keeps schema and author editors visible and disabled while another plugin owns the output', () => {
+		render(
+			<SettingsScreen
+				form={ buildForm( { title_formats_editable: false, conflicting_seo_plugin: 'Yoast SEO' } ) }
+			/>
+		);
+		for ( const card of [ 'schema', 'author' ] ) {
+			expect( screen.getByTestId( card ) ).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( screen.getByTestId( card ) ).toHaveTextContent(
+				'Yoast SEO is managing your structured data'
+			);
+			expect( screen.getByTestId( card ) ).toHaveTextContent(
+				'Your saved Jetpack settings are shown here but are not being used.'
+			);
+			expect( screen.getByTestId( card ) ).toHaveTextContent(
+				'Deactivate Yoast SEO to edit these settings in Jetpack.'
+			);
+		}
 	} );
 } );
