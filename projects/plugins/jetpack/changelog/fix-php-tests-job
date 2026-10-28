@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Preserve caption cues containing comment terminators when saving tracks.

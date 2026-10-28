@@ -491,18 +491,21 @@ class Caption_Tracks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Tests that the `--!>` comment-terminator variant is neutralized too.
+	 * Tests that comment terminators in cue text are neutralized.
 	 *
-	 * Block comments can be closed with `--!>` as well as `-->`, so both must be
-	 * defused to keep stored cue text from corrupting block parsing.
+	 * Both `-->` and `--!>` can close a block comment and corrupt block parsing.
 	 */
-	public function test_caption_track_content_neutralizes_bang_terminator() {
+	public function test_caption_track_content_neutralizes_comment_terminators() {
 		$blocks = $this->stored_cue_blocks(
-			'<!-- wp:videopress/caption-cue {"startTime":"00:00:00.000","endTime":"00:00:02.000","text":"Bad --!> cue"} /-->'
+			'<!-- wp:videopress/caption-cue {"startTime":"00:00:00.000","endTime":"00:00:02.000","text":"Bad --> cue"} /-->' .
+			'<!-- wp:videopress/caption-cue {"startTime":"00:00:02.000","endTime":"00:00:04.000","text":"Bad --!> cue"} /-->'
 		);
 
-		$this->assertCount( 1, $blocks );
-		$this->assertSame( 'Bad -> cue', $blocks[0]['attrs']['text'] );
+		$this->assertCount( 2, $blocks );
+		$this->assertSame(
+			array( 'Bad -> cue', 'Bad -> cue' ),
+			array_column( array_column( $blocks, 'attrs' ), 'text' )
+		);
 	}
 
 	/**

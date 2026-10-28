@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Captions: Preserve cue text containing comment terminators when saving tracks.

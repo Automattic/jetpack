@@ -446,6 +446,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks extends \WP_REST_Cont
 			return self::track_too_large_error();
 		}
 
+		// Escape terminators in JSON strings so they can't end a block before parsing.
+		$content = preg_replace_callback(
+			'/"(?:\\\\.|[^"\\\\])*"/s',
+			static function ( $matches ) {
+				return str_replace(
+					array( '--!>', '-->' ),
+					array( '--\\u0021\\u003e', '--\\u003e' ),
+					$matches[0]
+				);
+			},
+			$content
+		);
+
 		$sanitized = array();
 		foreach ( parse_blocks( $content ) as $block ) {
 			if ( Caption_Tracks::CUE_BLOCK_NAME !== ( $block['blockName'] ?? '' ) ) {
