@@ -13,7 +13,7 @@ type Tooltip = {
 	title: ReactElement | string;
 	text: ReactElement | string;
 };
-export type FirewallState = 'active' | 'inactive' | 'off';
+export type FirewallState = 'active' | 'host' | 'inactive' | 'off';
 export type TooltipContent = {
 	[ key in TooltipType ]: Tooltip;
 } & {
@@ -213,6 +213,13 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 
 		return {
 			active,
+			host: {
+				title: __( 'Firewall: On', 'jetpack-my-jetpack' ),
+				text: __(
+					'Your hosting provider runs a firewall for your site, so you’re all set.',
+					'jetpack-my-jetpack'
+				),
+			},
 			inactive: {
 				title: __( 'Firewall: Inactive', 'jetpack-my-jetpack' ),
 				text: __(

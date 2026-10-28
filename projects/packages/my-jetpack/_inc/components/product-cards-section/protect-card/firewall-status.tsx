@@ -22,12 +22,18 @@ export const FirewallStatus: FC< FirewallStatusProps > = ( { data } ) => {
 	const { isPluginActive = false, hasPaidPlanForProduct = false } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
 	const { firewallTooltips } = useProtectTooltipCopy( data );
-	const { waf_enabled: isWafEnabled, waf_supported: wafSupported } = data?.wafConfig || {};
+	const {
+		waf_enabled: isWafEnabled,
+		waf_supported: wafSupported,
+		waf_provided_by_host: providedByHost,
+	} = data?.wafConfig || {};
 	const isRunning = isPluginActive && isSiteConnected;
 
 	// The firewall module decides On, as on the Protect page; automatic rules only add to it.
 	let status: FirewallState = 'off';
-	if ( isRunning && ! wafSupported ) {
+	if ( isRunning && providedByHost ) {
+		status = 'host';
+	} else if ( isRunning && ! wafSupported ) {
 		status = 'inactive';
 	} else if ( isRunning && isWafEnabled ) {
 		status = 'active';
@@ -35,6 +41,11 @@ export const FirewallStatus: FC< FirewallStatusProps > = ( { data } ) => {
 
 	const display: Record< FirewallState, { text: string; alt: string; icon: string } > = {
 		active: {
+			text: __( 'On', 'jetpack-my-jetpack' ),
+			alt: __( 'Shield icon - Firewall Status: On', 'jetpack-my-jetpack' ),
+			icon: ShieldSuccess,
+		},
+		host: {
 			text: __( 'On', 'jetpack-my-jetpack' ),
 			alt: __( 'Shield icon - Firewall Status: On', 'jetpack-my-jetpack' ),
 			icon: ShieldSuccess,
