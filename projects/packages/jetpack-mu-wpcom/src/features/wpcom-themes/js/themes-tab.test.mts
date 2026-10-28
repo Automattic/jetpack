@@ -421,6 +421,8 @@ it( 'marks Activate for a theme the tab listed, however it is opened', () => {
 
 	assert.equal( page.activate( 'click', 'organic-stax' ), 'marketplace-tab' );
 	assert.equal( page.activate( 'auxclick', 'organic-stax' ), 'marketplace-tab' );
+	// As Simple sites activate it.
+	assert.equal( page.activate( 'click', 'pub%2Forganic-stax' ), 'marketplace-tab' );
 	assert.equal( page.activate( 'click', 'other' ), null );
 } );
 

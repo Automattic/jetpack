@@ -216,10 +216,12 @@
 				}
 
 				const url = new URL( link.href, window.location.href );
+				// Simple sites activate a WordPress.com theme by its directory too, as `pub/<slug>`.
+				const slug = ( url.searchParams.get( 'stylesheet' ) || '' ).split( '/' ).pop();
 				if (
 					url.pathname.endsWith( '/themes.php' ) &&
 					url.searchParams.get( 'action' ) === 'activate' &&
-					tabSlugs.has( url.searchParams.get( 'stylesheet' ) )
+					tabSlugs.has( slug )
 				) {
 					url.searchParams.set( ORIGIN_PARAM, ORIGIN );
 					link.href = url.href;
