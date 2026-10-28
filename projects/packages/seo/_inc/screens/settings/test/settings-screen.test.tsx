@@ -3,7 +3,7 @@ import { jest } from '@jest/globals';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
@@ -28,7 +28,9 @@ jest.unstable_mockModule( '../schema-card', () => ( {
 	default: () => <div>schema</div>,
 } ) );
 // Records its props so the wiring into it (the live title format) can be checked.
-const SocialPreviewsCard = jest.fn( () => <div>social previews</div> );
+const SocialPreviewsCard = jest.fn< ( props: Record< string, unknown > ) => ReactElement >( () => (
+	<div>social previews</div>
+) );
 jest.unstable_mockModule( '../social-previews-card', () => ( {
 	default: SocialPreviewsCard,
 } ) );
@@ -583,18 +585,16 @@ describe( 'Search & social previews', () => {
 			/>
 		);
 
-		expect( SocialPreviewsCard ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { frontPageTitleFormat: frontPage, titleSeparator: '–' } ),
-			undefined
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { frontPageTitleFormat: frontPage, titleSeparator: '–' } )
 		);
 	} );
 
 	it( 'passes an empty format when the Front page keeps the default title', () => {
 		render( <SettingsScreen form={ buildForm() } /> );
 
-		expect( SocialPreviewsCard ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { frontPageTitleFormat: [] } ),
-			undefined
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { frontPageTitleFormat: [] } )
 		);
 	} );
 } );
