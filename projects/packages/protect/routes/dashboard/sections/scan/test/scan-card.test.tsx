@@ -123,6 +123,20 @@ describe( 'ScanCard empty state', () => {
 			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 		}
 	);
+
+	it.each( [
+		[ false, 48, /Vulnerabilities are checked automatically every day\./ ],
+		[ false, 1, 'Next check in:' ],
+		[ true, 48, /Your site is scanned automatically every day\./ ],
+		[ true, 1, 'Next scan in:' ],
+	] )(
+		'with hasPlan %s, checked %i hours ago, words the next check for that plan',
+		async ( hasPlan, hoursAgo, next ) => {
+			renderCard( { hasPlan, lastChecked: checkedAgo( hoursAgo * HOUR_IN_MS ) } );
+
+			await expect( screen.findByText( next ) ).resolves.toBeInTheDocument();
+		}
+	);
 } );
 
 describe( 'ScanCard threat list', () => {
