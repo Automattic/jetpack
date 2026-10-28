@@ -160,6 +160,8 @@ Report concisely:
 - Verification result (which file the class resolved to / PR string present).
 - **The autologin link: `https://<domain>/?auto_login`** and a hint at where to look
   (the wp-admin page the PR affects).
+- If the PR body has `<!-- rehearsal v1 -->` blocks, say they can now be installed and run on
+  this site (see the `jetpack-rehearsal` skill).
 - JN sites expire after 7 days of inactivity.
 - Cleanup hint: `git worktree remove "$WT"` (the repo-namespaced path from step 2) when
   done — branch `pr-<PR>` is not auto-deleted.

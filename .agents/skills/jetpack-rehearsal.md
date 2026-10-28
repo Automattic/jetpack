@@ -1,50 +1,41 @@
 ---
 description: >
-  Write, run and share a Rehearsal (a repeatable JSON check run from Tools → Rehearsal on any
-  Jurassic Ninja site) for a user-facing Jetpack change, and put it in the PR so reviewers can
-  repeat exactly what the author checked. Use while building or fixing anything a site owner or
-  visitor would see or click (admin screens, blocks, settings, front-end output, onboarding
-  flows), when verifying such a change on a JN site, when opening or updating its PR, when
-  reviewing a PR whose body has a `<!-- rehearsal v1 -->` block, or when the user says
-  "rehearsal", "/jetpack-rehearsal", "add a rehearsal" or "rehearse this". Skip it for backend-only,
-  tooling, docs, test-only or refactor PRs with nothing to click.
+  Write, run and share Rehearsals (repeatable JSON browser checks, Tools → Rehearsal on every
+  Jurassic Ninja site) for user-facing Jetpack changes, and put them in the PR's testing
+  instructions so reviewers rerun exactly what the author checked. Use when verifying a
+  user-facing change on a JN site, when writing testing instructions or opening the PR for one,
+  when reviewing a user-facing PR (to run its `<!-- rehearsal v1 -->` blocks or propose some),
+  or when the user says "rehearsal", "/jetpack-rehearsal" or "rehearse this". Not for
+  backend-only, tooling or docs changes, committed e2e tests, or purely visual CSS fixes (use
+  jetpack-screenshot for those).
 ---
 
 # Jetpack Rehearsal
 
-A **rehearsal** is a short list of steps (go to a page, click, fill, expect) that the Companion
-plugin runs in the browser against a Jurassic Ninja site, saving every run on the site as a
-read-only record. Every new JN site has it under **Tools → Rehearsal**
-(`/wp-admin/tools.php?page=rehearsal`). The full step reference lives in the Companion repo's
-[`rehearsal/README.md`](https://github.com/Automattic/companion/blob/master/rehearsal/README.md);
-read it before writing your first rehearsal in a session, rather than guessing at step names.
+A **rehearsal** is a short JSON list of steps (go to a page, click, fill, expect) that the
+Companion plugin runs in the browser against a Jurassic Ninja site. Every run is saved on the site
+as a read-only record, so a developer can see exactly what an agent checked, and a reviewer can
+repeat it: two runs with the same rehearsal ID checked the same thing, on any site.
 
-Why bother, when you could just click through yourself:
-
-- **The agent's verification becomes visible.** A rehearsal is the checklist you ran, written down,
-  and its runs are on the site under **Recent runs**, filterable by who ran them. A developer can
-  see exactly what was checked and what the page showed when a step failed.
-- **Reviewers repeat the same check.** The rehearsal ID is a hash of the steps, so two runs with
-  the same ID checked the same thing, on any site. Testing instructions in prose drift; steps don't.
-- **It outlives the PR.** `covers` labels let a future CI job pick rehearsals by what changed.
+Every JN site has it under **Tools → Rehearsal** (`/wp-admin/tools.php?page=rehearsal`). The
+step reference is the Companion repo's
+[`rehearsal/README.md`](https://github.com/Automattic/companion/blob/master/rehearsal/README.md):
+read it before writing your first rehearsal in a session instead of guessing step names.
 
 ## When to write one
 
-Write one for each behavior a user of the change would notice: the screen that now loads, the
-setting that now saves, the block that now renders, the bug that no longer happens. One to three
-rehearsals per PR is typical; a rehearsal per acceptance criterion is a good rule of thumb.
+One rehearsal per behavior a user of the change would notice: the screen that now loads, the
+setting that now saves, the notice that now appears. One to three per PR is typical. Write them
+while developing, as soon as you know what "working" looks like.
 
-Write it **while** developing, not after: draft the steps as soon as you know what "working"
-looks like, run them against trunk to watch them fail (for a bug fix), then against your branch.
-That before/after is the strongest evidence a PR can carry.
+Skip it when nothing in the change can be reached from a browser, or when the only change is how
+something looks (the runner can't assert layout or color; use `jetpack-screenshot`).
 
-Skip it when nothing in the change can be reached from a browser.
+## 1. Get a site
 
-## 1. Get a site running the branch
-
-Use `jn-new` (new work) or `jn-pr-review` (an existing PR) to provision a site, and
-`jetpack-test-jurassic-ninja` to rsync the branch to it. Rehearsal ships with Companion, so there
-is nothing to install. If **Tools → Rehearsal** is missing, the site predates it; make a new one.
+Provision one with `jetpack-test-jurassic-ninja` (or `jn-pr-review` for an existing PR). Before you
+sync your branch, the site runs released Jetpack: that is your "before" state. If Tools →
+Rehearsal is missing, the site predates it; make a new one.
 
 ## 2. Write the steps
 
@@ -62,38 +53,137 @@ is nothing to install. If **Tools → Rehearsal** is missing, the site predates 
 }
 ```
 
-Conventions for Jetpack rehearsals:
+### Make it fail without your change
 
-- **Title**: `<Product>: <what a user sees working>`, the same prefix the changelog entry uses,
-  e.g. `Forms: "Create a form" opens its dialog`. Add `(changes the site)` when it saves,
-  creates or deletes anything.
-- **`covers`**: the monorepo project paths the change touches (`packages/forms`,
-  `plugins/jetpack`), so CI can select by changed project later.
-- **`requires`**: every plugin the steps depend on (`jetpack`, `jetpack-boost`, …), so a site
-  without it shows the rehearsal as disabled instead of failing it.
+This is what makes a rehearsal evidence rather than a page-load check. For **every** expect, name
+what the "before" site renders that makes it fail, and scope the selector to the changed part of
+the screen (`section:has-text("Top referrers") >> a`, not `a`), so a match elsewhere on the page
+can't satisfy it. These pass whether or not the change works:
+
+- A `"not": true` expect, or `toHaveCount: 0`, on a page that hasn't rendered yet. Put a positive
+  expect for the same area first.
+- "Nothing happened" checks (the tab stayed selected, no notice appeared) are true the instant the
+  click returns. Expect a positive sign of the new behavior instead, or wait on something that
+  only renders afterwards.
+- `toBeDisabled` on a Save button that is disabled anyway because the form is unchanged.
+- `toBeVisible` on a hover-revealed control: it ignores opacity, so `opacity: 0` counts as visible.
+- `waitFor` on `body`, `h1` or anything else every page has.
+
+### Check preconditions first
+
+A rehearsal that fails because the site lacks a module, a connection, a feature flag or data
+looks exactly like a regression. Right after the `goto`, add a guard that the screen exists
+(`{ "expect": "h1", "toContainText": "…" }`) so a failure reads as "screen not available", and say
+in the PR what site state it needs. `requires` only checks plugins, and all of them must be active.
+
+### Conventions
+
+- **Title**: `<Product>: <what a user sees working>`, the changelog entry's prefix. Add
+  `(changes the site)` when it saves, creates or deletes anything. Avoid quotes in titles: they
+  come back HTML-encoded (`&#8220;`) everywhere the title is shown.
+- **`covers`**: every monorepo project whose code the steps exercise, including unchanged ones.
+- **`requires`**: every plugin the steps depend on, so a site without one shows the rehearsal as
+  disabled instead of failing it.
 - **`role`**: set it when the change is about what a non-admin can or can't do.
-- Use stable selectors: ids, `role=`, `aria-label`, `text=`. Avoid generated class names from
-  CSS modules or emotion; they change between builds.
-- Make anything you create unique with `{{run}}` and find it again by that text, so reruns don't
-  trip over the last run's leftovers.
-- End with `{ "expectNoConsoleErrors": true }` unless the screen has known noise; then use
-  `"ignore"` with a regex for that noise rather than dropping the check.
+- **`timeout`**: the default is 10 s per step. Block editor and wp-build dashboard pages often need
+  `"timeout": 30000` at the rehearsal level.
+- **Selectors**: ids, `[role=tab]`, `aria-label`, `text=`. Not generated class names from CSS
+  modules (`a5fd8814f195aa5e__tab`). Write roles as CSS (`[role=tab]:has-text("Settings")`), which
+  works in the browser runner and the Playwright export alike. `text=` is a case-sensitive
+  substring in the browser runner and case-insensitive in Playwright, so match the exact case.
+  Text matching assumes the site is in English.
+- **URLs**: wp-build dashboards route only from `p=` (`&p=%2F%3Ftab%3Dsettings`); a top-level
+  `&tab=` is ignored. Copy the URL from the package's PHP URL helper or the browser.
+- **Unique data**: put `{{run}}` in anything you create and find it again by that text.
+- **Console errors**: end with `{ "expectNoConsoleErrors": true }`. For known noise use
+  `{ "expectNoConsoleErrors": { "ignore": [ "<regex>" ] } }` rather than dropping the step. It
+  counts every error since the run started, not just since the last step.
 - After a click that loads a page, expect something only the new page has.
-- The browser runner can't leave the site (WordPress.com connection flows), take screenshots, or
-  open CSS-`:hover`-only menus. For those set `"needs": "playwright"`.
+
+### What the browser runner can't do
+
+- Native `confirm`, `alert`, `prompt` and `beforeunload` dialogs freeze it until a human answers.
+  The Playwright export dismisses them (Cancel) and no step can accept one. Mark such a rehearsal
+  `"needs": "playwright"`, rehearse the Cancel path, and keep the OK path in prose.
+- Block content is inside the editor iframe: `iframe[name="editor-canvas"] >> [data-type="jetpack/contact-form"]`.
+- `click` doesn't wait for a button to become enabled; clicking a disabled one does nothing. Expect
+  `toBeEnabled` first.
+- `fill` works on inputs and textareas, not rich text; `press` sends keys, not characters.
+- It can't leave the site (WordPress.com connection flows), take screenshots, or open
+  CSS-`:hover`-only menus. Mark those `"needs": "playwright"`.
+
+Before saving, a matcher set to `false` (`"toBeVisible": false`) passes validation but still checks
+for the true case. Use `"not": true`.
 
 ## 3. Save it on the site
 
-By hand: **Tools → Rehearsal → Add rehearsal**, paste the JSON, **Save**. Saving validates it and
-says what is wrong.
+By hand: **Tools → Rehearsal → Add rehearsal**, paste the JSON, **Save**. Saving validates it.
+Agents: see "Without a browser" below.
 
-From an agent, over the site's SSH (see `jetpack-test-jurassic-ninja` for access), call the REST
-route as an administrator. Write the PHP to your scratchpad:
+## 4. Run it
+
+Run it once **before** syncing your branch, where it should fail at the step you expect (not
+earlier), and once after, where it should pass. That pair is the strongest evidence a PR can carry.
+
+- **Browser runner** (preferred, because the run is saved on the site): press the rehearsal's
+  **Run** button and read the log under it. Keep the tab in the foreground; step timers pause in a
+  hidden tab. A failing step says what it waited for and what the page showed; **Copy errors**
+  gives a plain-text report of console errors.
+- **Playwright export**, for `"needs": "playwright"` rehearsals: fetch `<shareUrl>&format=playwright`
+  and run it with `STORAGE_STATE` pointing at a logged-in session (the README's "Running rehearsals
+  in Playwright" section). These runs are not saved on the site.
+
+Read saved results as JSON instead of from the screen: the `rehearsal/v1/runs/search` route with
+`recipe=<post id>` returns each run's `status`, `hash`, `build`, per-step `log` and `errors`. Over
+plain HTTP it needs a REST nonce (cookies alone get a 401), so agents call it over SSH:
+
+```bash
+ssh -o BatchMode=yes {domain}@ssh.atomicsites.net 'cd /srv/htdocs && wp --user="$(wp user list --role=administrator --field=ID --number=1)" eval '"'"'$r = new WP_REST_Request( "GET", "/rehearsal/v1/runs/search" ); $r->set_param( "recipe", <post id> ); echo wp_json_encode( rest_do_request( $r )->get_data() );'"'"''
+```
+
+If a step fails because the rehearsal is wrong rather than the code, fix the rehearsal. Never
+weaken a step just to get a pass. The rehearsal ID is a hash of the whole JSON except `format`
+(steps and settings, not the title, and key order counts), so any edit marks earlier results
+**Stale**.
+
+## 5. Put it in the PR
+
+Open the rehearsal (click its title) and, in **Share**, press **Copy as: GitHub**. Paste the block
+under **Testing instructions**, after a line like "Run the rehearsals below from Tools → Rehearsal
+on any JN site." Keep prose steps for what the rehearsals don't cover, and say which is which.
+
+Keep the folded JSON in the block. Share links stop working when the JN site expires; the JSON
+recreates the rehearsal with the same ID on any site.
+
+`jurassic.ninja` URLs are fine in a public PR. Before any screenshot of the Rehearsal screen, turn
+off the JN credentials notice, which shows the site password:
+`wp option patch insert companion jurassic_ninja_credentials_notice 0`.
+
+When the PR changes, rerun the rehearsals and refresh the blocks.
+
+## Reviewing a PR
+
+1. Find the blocks: `gh pr view <n> --json body -q .body | grep -n 'rehearsal v1'`. If there are
+   none and the PR is user-facing, draft the rehearsals you would want from the diff and suggest
+   them in the review.
+2. Read the steps as critically as the code, before any site exists: would each expect fail
+   without the change (see "Make it fail without your change")? Are `covers` and `requires`
+   right? Say which steps prove nothing, and suggest the ones that would.
+3. Get a site on the PR branch (`jn-pr-review`) and install each rehearsal: paste its share link
+   into **Tools → Rehearsal → Install from link** while the author's site exists, or paste its
+   folded JSON into **Add rehearsal** when it doesn't. Either way the ID stays the same.
+4. Run them, and report each ID and result. A pass with the author's ID reproduces the author's
+   check; a fail comes with the step and what the page showed.
+
+## Without a browser
+
+**Save** over the site's SSH (access: `jetpack-test-jurassic-ninja`) by calling the REST route as an
+administrator. Write the PHP to your scratchpad:
 
 ```php
 <?php
 $request = new WP_REST_Request( 'POST', '/rehearsal/v1/rehearsals' ); // `/rehearsals/<id>` updates.
-$request->set_param( 'title', 'Forms: "Create a form" opens its dialog' );
+$request->set_param( 'title', 'Forms: Create a form opens its dialog' );
 $request->set_param( 'recipe', json_decode( <<<'JSON'
 { "requires": [ "jetpack" ], "covers": [ "packages/forms" ], "steps": [ … ] }
 JSON
@@ -107,41 +197,41 @@ ssh -o BatchMode=yes {domain}@ssh.atomicsites.net \
   < save-rehearsal.php
 ```
 
-The response has the post `id`, the rehearsal `hash`, and `shareUrl`. A `rehearsal_invalid` error
-carries the validation message; fix the JSON and post again.
+The response has the post `id`, the rehearsal `hash` and `shareUrl`. Errors: `rehearsal_invalid`
+carries the validation message; "Missing parameter(s): recipe" means the JSON didn't parse. Posting
+again creates a duplicate, so update by ID instead.
 
-## 4. Run it
+**Log in for Playwright** without spending `?auto_login` or changing a password, by minting a
+session on the server:
 
-- **In the browser runner** (preferred: the run is saved on the site, where the developer can see
-  it). With a browser tool, open `/wp-admin/tools.php?page=rehearsal`, press the rehearsal's
-  **Run** button, and read the log under it. Keep the tab in the foreground: background tabs
-  throttle timers and make steps time out. A failing step says what it waited for and what the
-  page showed; **Copy errors** gives a plain-text report of console errors.
-- **In Playwright** (for `needs: "playwright"`, or with no browser tool): fetch
-  `<shareUrl>&format=playwright` into a `.spec.ts` and run it with `STORAGE_STATE` pointing at a
-  logged-in session; the README's "Running rehearsals in Playwright" section has the commands.
-  These runs are **not** saved on the site, so paste the result into the PR yourself.
+```bash
+ssh -o BatchMode=yes {domain}@ssh.atomicsites.net 'cd /srv/htdocs && wp eval '"'"'
+$u = get_users( array( "role" => "administrator", "number" => 1 ) )[0];
+$exp = time() + 7200;
+$t = WP_Session_Tokens::get_instance( $u->ID )->create( $exp );
+echo SECURE_AUTH_COOKIE, "=", wp_generate_auth_cookie( $u->ID, $exp, "secure_auth", $t ), "\n";
+echo LOGGED_IN_COOKIE, "=", wp_generate_auth_cookie( $u->ID, $exp, "logged_in", $t ), "\n";
+'"'"''
+```
 
-For a bug fix, run it once before syncing the fix (it should fail) and once after (it should pass),
-and mention both in the PR.
+Put both cookies (`domain: {domain}`, `path: /`, `httpOnly`, `secure`) in a Playwright storage
+state file. The monorepo's Playwright is in `tools/e2e-commons/node_modules`.
 
-If a step fails because the rehearsal is wrong rather than the code, fix the rehearsal; that changes
-its ID, which marks earlier results **Stale**. Never weaken a step just to get a pass.
+**Run in the browser runner from Playwright**, so the run is still saved on the site: open
+`/wp-admin/tools.php?page=rehearsal`, click `button[aria-label^="Run <title>"]`, then wait for that
+row (`tr` containing the button) to contain `Passed` or `Failed`, and read the run with
+`runs/search`.
 
-## 5. Put it in the PR
-
-Open the rehearsal (click its title), and in **Share** press **Copy as: GitHub**. That copies a
-block starting `<!-- rehearsal v1 -->` with the ID, the last result and build, links to the share
-page, JSON and Playwright test, and the full JSON folded in `<details>`. Without a browser, build the
-same block from the REST response (keep the marker comment so tools can find it):
+**Build the PR block by hand** when you can't press Copy as: GitHub. Use the first 7 characters of
+the hash, keep the marker comment, and keep the two trailing spaces on the facts and result lines:
 
 ````markdown
 <!-- rehearsal v1 -->
-#### Rehearsal: Forms: "Create a form" opens its dialog
+#### Rehearsal: <title>
 
-Rehearsal `<first 8 of hash>` · 5 steps · covers `packages/forms`
-Last run: **Passed** on <build>, run #<n>, <date>.
-[View or install this rehearsal](<shareUrl>) · [JSON](<shareUrl>&format=json) · [Playwright test](<shareUrl>&format=playwright)
+Rehearsal `<first 7 of hash>` · <n> steps · covers `<project>`  
+<result line>  
+[View or install this rehearsal](<shareUrl>) · [JSON](<shareUrl>&format=json) · [Playwright test](<shareUrl>&format=playwright) (links work while <site host> exists)
 
 <details>
 <summary>Rehearsal JSON</summary>
@@ -153,26 +243,6 @@ Last run: **Passed** on <build>, run #<n>, <date>.
 </details>
 ````
 
-Put the blocks under **Testing instructions**, after a one-line pointer such as "Run the
-rehearsals below from Tools → Rehearsal on any JN site." Keep the prose steps for anything the
-rehearsals don't cover, and say which is which. The folded JSON is what matters: share links stop
-working when the JN site expires, and the JSON lets anyone recreate the rehearsal with the same ID.
-
-`jurassic.ninja` site URLs are fine in a public PR. Before any screenshot of the Rehearsal screen,
-turn off the JN credentials notice (Companion option `jurassic_ninja_credentials_notice`); it shows
-the site password.
-
-When the PR changes later, rerun the rehearsals on the updated branch and refresh the blocks, or add
-a rehearsal for new behavior.
-
-## Reviewing a PR that has rehearsals
-
-1. Find the blocks: `gh pr view <n> --json body -q .body | grep -n 'rehearsal v1'`.
-2. Get a site on the PR branch (`jn-pr-review`).
-3. Install each rehearsal: paste its share link into **Tools → Rehearsal → Install from link**
-   while the author's site exists, or save its folded JSON as in step 3 when it doesn't. Either
-   way the ID stays the same, so your result compares directly with the author's.
-4. Run them, and report the ID and result in the review. A pass with the same ID is the author's
-   check reproduced; a fail comes with the step and what the page showed.
-5. Read the steps as critically as the code. A rehearsal that only checks that a page loads, or
-   whose `expect` would pass on trunk too, proves nothing; say so, and suggest the step that would.
+The result line is `Last run: **Passed** on <build>, run #<id>, <YYYY-MM-DD>.` for a run saved on the
+site, `Ran in Playwright on <date>: **Passed** (not saved on the site).` for an export run, and
+`Not run since its last change.` otherwise.
