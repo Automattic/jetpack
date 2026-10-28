@@ -16,7 +16,7 @@ import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps, ComponentType } from 'react';
+import { useEffect, type ComponentProps, type ComponentType } from 'react';
 
 registerReportMocks();
 registerStatsMocks();
@@ -30,7 +30,9 @@ interface UtmInsightsStoryControls {
 }
 
 interface UtmInsightsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls, UtmInsightsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, UtmInsightsStoryControls {
+	withData: boolean;
+}
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/UtmInsights',
@@ -172,8 +174,17 @@ export const ByCampaign: Story = {
 // exactly as it does in product (size / edit-mode / host-environment controls).
 function UtmInsightsDashboardStory( {
 	withComparison,
+	withData,
 	...dashboardArgs
 }: UtmInsightsDashboardStoryProps ) {
+	useEffect( () => {
+		if ( withData ) {
+			return;
+		}
+		forceStatsMockState( 'stats/utm', 'empty' );
+		return () => forceStatsMockState( 'stats/utm', null );
+	}, [ withData ] );
+
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
@@ -190,12 +201,17 @@ function UtmInsightsDashboardStory( {
 
 export const WidgetDashboardWithWidget: DashboardStory = {
 	render: args => <UtmInsightsDashboardStory { ...args } />,
-	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS, withComparison: false },
+	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS, withComparison: false, withData: true },
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params and deltas.',
+		},
+		withData: {
+			control: 'boolean',
+			description:
+				'Serve UTM rows. Off, the report resolves with none and the widget shows its empty state.',
 		},
 	},
 };
