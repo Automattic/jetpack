@@ -126,7 +126,7 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		$body,
 		array(
 			'class' => 'wp-block-jetpack-event-countdown',
-			'style' => trim( $margin_style . ' width: 100%; border-collapse: collapse;' ),
+			'style' => trim( $margin_style . ' width: 100%; border-collapse: separate;' ),
 		),
 		array(
 			'align' => 'center',
