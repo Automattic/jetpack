@@ -192,8 +192,8 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 				);
 			}
 
-			// Read the site again: the plugin may have switched before whatever failed. This runs after
-			// the notice so a slow site does not delay it, and keeps the switch busy until it lands.
+			// Read the site again: the plugin may have switched before whatever failed. The switch
+			// stays busy until this lands.
 			await queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 			if ( queryClient.getQueryData< MainFeaturesState >( QUERY_KEY )?.jetpack === 'active' ) {
 				await fetchModules();

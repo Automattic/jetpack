@@ -172,7 +172,7 @@ export function useBulkFeatureSwitch() {
 					( error as { message?: string } )?.message ||
 						__( 'Could not change the selected features. Please try again.', 'jetpack-my-jetpack' )
 				);
-				// After the notice, so a slow site does not delay it; the run stays busy until this lands.
+				// The run stays busy until this lands.
 				await queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 				await fetchModules();
 			} finally {

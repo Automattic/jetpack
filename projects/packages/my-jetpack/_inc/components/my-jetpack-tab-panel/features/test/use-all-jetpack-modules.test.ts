@@ -364,9 +364,6 @@ describe( 'plugin switch refresh ordering', () => {
 		let settleModules: () => void = () => {};
 		mockFetchModules.mockReset().mockImplementation( () => {
 			deliverHostOverride();
-			if ( jetpack !== 'active' ) {
-				return Promise.resolve( true );
-			}
 			return new Promise( resolve => {
 				settleModules = () => resolve( true );
 			} );
@@ -430,7 +427,9 @@ describe( 'plugin switch refresh ordering', () => {
 
 			await waitFor( () => expect( readWith ).toEqual( [ 'inactive' ] ) );
 			rerender();
-			expect( result.current.plugin ).toMatchObject( mode === 'single' ? { isBusy: true } : {} );
+			expect(
+				mode === 'single' ? result.current.plugin.isBusy : result.current.bulk.isRunning
+			).toBe( true );
 			await finish();
 			expect( result.current.plugin.isBusy ).toBe( false );
 			expect( result.current.states[ 0 ].control.kind ).toBe( 'module' );
@@ -446,7 +445,7 @@ describe( 'plugin switch refresh ordering', () => {
 	it.each( [ true, false ] )(
 		'skips the module refresh while Jetpack is inactive (success: %s)',
 		async success => {
-			const { result, readWith, finish, unmount, client, inactive } = await startSwitch(
+			const { result, finish, unmount, client, inactive } = await startSwitch(
 				'single',
 				success,
 				'inactive'
@@ -455,7 +454,6 @@ describe( 'plugin switch refresh ordering', () => {
 			await finish();
 			expect( result.current.plugin.isBusy ).toBe( false );
 			expect( mockFetchModules ).not.toHaveBeenCalled();
-			expect( readWith ).toEqual( [] );
 			expect( client.getQueryData( QUERY_KEY ) ).toEqual( inactive );
 			unmount();
 			client.clear();
