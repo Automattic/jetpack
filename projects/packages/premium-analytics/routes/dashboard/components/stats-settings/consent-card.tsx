@@ -234,7 +234,7 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 		viewedThisLoad = true;
 		trackEvent( 'jetpack_premium_analytics_visitor_consent_card_view', {
 			set_up: connected,
-			blocked_by: blockedBy,
+			blocked_by: blockedBy ?? 'none',
 		} );
 		// Only the setup the card first showed.
 		// eslint-disable-next-line react-hooks/exhaustive-deps

@@ -316,7 +316,7 @@ describe( 'ConsentCard', () => {
 		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
 		expect( recordEvent ).toHaveBeenCalledWith(
 			'jetpack_premium_analytics_visitor_consent_card_view',
-			{ set_up: true, blocked_by: null }
+			{ set_up: true, blocked_by: 'none' }
 		);
 	} );
 
