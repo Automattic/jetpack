@@ -1,5 +1,6 @@
 import { act, renderHook, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { resetScan } from '../store';
 import * as threatActions from '../threat-actions';
 import { deleteSoftware, fixThreat } from '../threat-actions';
 import { useThreatRowActions } from '../threat-row-actions';
@@ -128,4 +129,31 @@ describe( 'useThreatRowActions with bulk actions', () => {
 		expect( run ).toHaveBeenCalledWith( threats, expect.any( Function ) );
 		run.mockRestore();
 	} );
+} );
+
+describe( 'useThreatRowActions where the host decides about ignoring', () => {
+	afterEach( () => {
+		delete window.jetpackProtectDashboard;
+		resetScan();
+	} );
+
+	it.each( [
+		[ 'ignore', 'current', false ],
+		[ 'unignore', 'ignored', true ],
+	] as const )(
+		'with ignoring turned off, %s on a %s threat is offered: %s',
+		( id, status, offered ) => {
+			const threat = { ...threatIn( 20 ), status };
+			const isEligible = ( canIgnore: boolean ) => {
+				window.jetpackProtectDashboard = { scan: { hasPlan: true, url: '', canIgnore } };
+				resetScan();
+				return renderHook( () => useThreatRowActions( open, true ) )
+					.result.current.find( action => action.id === id )
+					?.isEligible?.( threat );
+			};
+
+			expect( isEligible( true ) ).toBe( true );
+			expect( isEligible( false ) ).toBe( offered );
+		}
+	);
 } );
