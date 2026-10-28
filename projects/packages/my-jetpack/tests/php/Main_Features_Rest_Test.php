@@ -84,6 +84,15 @@ class Main_Features_Rest_Test extends TestCase {
 		WorDBless_Users::init()->clear_all_users();
 
 		foreach ( $this->carriers as $root ) {
+			$initializer = $root . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-initializer.php';
+			if ( is_dir( $initializer ) ) {
+				rmdir( $initializer );
+			} elseif ( file_exists( $initializer ) ) {
+				unlink( $initializer );
+			}
+			if ( is_dir( dirname( $initializer ) ) ) {
+				rmdir( dirname( $initializer ) );
+			}
 			foreach (
 				array(
 					$root . '/jetpack_vendor/automattic/jetpack-my-jetpack',
@@ -381,10 +390,12 @@ class Main_Features_Rest_Test extends TestCase {
 	/**
 	 * A plugin that carries My Jetpack, for the provider scan to find.
 	 *
-	 * @param string $folder The plugin's folder name.
+	 * @param string      $folder  The plugin's folder name.
+	 * @param string|null $version Package version; 'package' copies this package's Initializer file,
+	 *                            'directory' creates a directory in its place, and null leaves it missing.
 	 * @return string The folder's path, for removal.
 	 */
-	private function add_carrier( $folder ) {
+	private function add_carrier( $folder, $version = null ) {
 		$root = WP_PLUGIN_DIR . '/' . $folder;
 
 		if ( ! is_dir( $root . '/jetpack_vendor/automattic/jetpack-my-jetpack' ) ) {
@@ -392,6 +403,17 @@ class Main_Features_Rest_Test extends TestCase {
 		}
 
 		$this->carriers[] = $root;
+		if ( null !== $version ) {
+			$src = $root . '/jetpack_vendor/automattic/jetpack-my-jetpack/src';
+			mkdir( $src );
+			if ( 'package' === $version ) {
+				copy( __DIR__ . '/../../src/class-initializer.php', $src . '/class-initializer.php' );
+			} elseif ( 'directory' === $version ) {
+				mkdir( $src . '/class-initializer.php' );
+			} else {
+				file_put_contents( $src . '/class-initializer.php', "<?php class Initializer { const PACKAGE_VERSION = '$version'; }" );
+			}
+		}
 
 		return $root;
 	}
@@ -405,6 +427,60 @@ class Main_Features_Rest_Test extends TestCase {
 		update_option( 'active_plugins', array( 'my-jetpack-carrier/my-jetpack-carrier.php' ) );
 
 		$this->assertFalse( Main_Features::is_only_my_jetpack_provider( 'jetpack-boost' ) );
+	}
+
+	/**
+	 * @dataProvider remaining_carriers
+	 * @param array $versions Bundled versions or fixture types, in active plugin order.
+	 * @param bool  $offline Whether the site is offline.
+	 * @param bool  $enabled Whether offline Features is opted in.
+	 * @param bool  $refused Whether the hosting plugin must stay active.
+	 * @param bool  $network Whether the remaining carriers are network active.
+	 * @param array $excluded_folders Other plugin folders being deactivated in the same request.
+	 */
+	#[DataProvider( 'remaining_carriers' )]
+	public function test_remaining_carrier_must_support_the_current_page( $versions, $offline, $enabled, $refused, $network = false, $excluded_folders = array() ) {
+		$files = array();
+		foreach ( $versions as $index => $version ) {
+			$folder = 'my-jetpack-carrier-' . $index;
+			$this->add_carrier( $folder, $version );
+			$files[] = $folder . '/plugin.php';
+		}
+		if ( $network ) {
+			update_site_option( 'active_sitewide_plugins', array_fill_keys( $files, time() ) );
+		} else {
+			update_option( 'active_plugins', $files );
+		}
+		$offline_filter = $offline ? '__return_true' : '__return_false';
+		$enabled_filter = $enabled ? '__return_true' : '__return_false';
+		add_filter( 'jetpack_offline_mode', $offline_filter );
+		add_filter( 'jetpack_my_jetpack_offline_features', $enabled_filter );
+		\Automattic\Jetpack\Status\Cache::clear();
+		try {
+			$this->assertSame( $refused, Main_Features::is_only_my_jetpack_provider( 'jetpack-boost', $excluded_folders ) );
+		} finally {
+			remove_filter( 'jetpack_offline_mode', $offline_filter );
+			remove_filter( 'jetpack_my_jetpack_offline_features', $enabled_filter );
+			\Automattic\Jetpack\Status\Cache::clear();
+		}
+	}
+
+	/** @return array Remaining carrier cases. */
+	public static function remaining_carriers() {
+		return array(
+			'offline capable'     => array( array( '6.10.0' ), true, true, false ),
+			'offline excluded'    => array( array( '6.10.0' ), true, true, true, false, array( 'my-jetpack-carrier-0' ) ),
+			'offline older'       => array( array( '6.7.0' ), true, true, true ),
+			'online older'        => array( array( '6.7.0' ), false, true, false ),
+			'offline unknown'     => array( array( null ), true, true, true ),
+			'offline opt out'     => array( array( '6.7.0' ), true, false, false ),
+			'last older release'  => array( array( '6.9.1' ), true, true, true ),
+			'older before newer'  => array( array( '6.7.0', '6.10.0' ), true, true, false ),
+			'prerelease suffix'   => array( array( '6.13.0-alpha' ), true, true, false ),
+			'network active'      => array( array( '6.10.0' ), true, true, false, true ),
+			'package initializer' => array( array( 'package' ), true, true, false ),
+			'directory'           => array( array( 'directory' ), true, true, true ),
+		);
 	}
 
 	/**
@@ -636,6 +712,43 @@ class Main_Features_Rest_Test extends TestCase {
 		);
 
 		$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( new \WP_REST_Response( $off->get_data()['state'] ) ) );
+	}
+
+	/**
+	 * @dataProvider bulk_carrier_orders
+	 * @param string $scenario Plugin order or a batch naming capable Jetpack and the host.
+	 * @param bool   $host_refused Whether the hosting plugin must remain active.
+	 */
+	#[DataProvider( 'bulk_carrier_orders' )]
+	public function test_offline_bulk_keeps_a_capable_features_provider( $scenario, $host_refused ) {
+		$process = proc_open(
+			array( PHP_BINARY, '-d', 'display_errors=stderr', __DIR__ . '/fixtures/offline-bulk-handoff.php', $scenario ),
+			array( array( 'pipe', 'r' ), array( 'pipe', 'w' ), array( 'pipe', 'w' ) ),
+			$pipes
+		);
+		$this->assertIsResource( $process );
+		fclose( $pipes[0] );
+		$output = stream_get_contents( $pipes[1] );
+		$errors = stream_get_contents( $pipes[2] );
+		fclose( $pipes[1] );
+		fclose( $pipes[2] );
+		$this->assertSame( 0, proc_close( $process ), $errors );
+		$result = (array) json_decode( $output, true );
+		$this->assertSame( 'jetpack-videopress', $result['host'] );
+		$this->assertSame( 200, $result['status'] );
+		$this->assertSame( array( $host_refused ? 'jetpack-videopress' : 'jetpack' ), array_column( $result['failed'], 'slug' ) );
+		$this->assertSame( 'This plugin runs the page you are on, so it cannot be deactivated from here.', $result['failed'][0]['message'] );
+		$this->assertSame( $host_refused, in_array( 'jetpack-videopress/jetpack-videopress.php', $result['active'], true ) );
+		$this->assertSame( ! $host_refused, in_array( 'jetpack-boost/jetpack-boost.php', $result['active'], true ) );
+		$this->assertContains( 'jetpack/jetpack.php', $result['active'] );
+	}
+
+	/** @return array Bulk carrier orders. */
+	public static function bulk_carrier_orders() {
+		return array(
+			'host first'            => array( 'host-first', true ),
+			'capable Jetpack named' => array( 'jetpack-and-host', false ),
+		);
 	}
 
 	/**

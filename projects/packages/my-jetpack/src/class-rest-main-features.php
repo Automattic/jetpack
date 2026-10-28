@@ -230,9 +230,7 @@ class REST_Main_Features {
 		$action = $active ? 'activate' : 'deactivate';
 		$failed = array();
 
-		// Jetpack carries My Jetpack and is never switched off here, so while it is active no
-		// batch can take this page with it. Without it, any plugin in the batch might be the last
-		// carrier, and checking them one by one lets a batch switch off every carrier in turn.
+		// Without Jetpack, any plugin in the batch may be the last copy of My Jetpack.
 		$plugins_refused = ! $active && Main_Features::PLUGIN_ACTIVE !== Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG )
 			? new WP_Error( 'not_allowed', __( 'Plugins can only be deactivated together while the Jetpack plugin is active. Deactivate them one at a time instead.', 'jetpack-my-jetpack' ) )
 			: null;
@@ -241,8 +239,24 @@ class REST_Main_Features {
 			$plugins_refused = new WP_Error( 'not_allowed', __( 'Your account can’t activate or deactivate plugins on this site.', 'jetpack-my-jetpack' ) );
 		}
 
-		foreach ( array_unique( (array) $request->get_param( 'plugins' ) ) as $slug ) {
-			$result = $plugins_refused ? $plugins_refused : self::refuse_deactivation( $slug, $action );
+		$plugins          = array_unique( (array) $request->get_param( 'plugins' ) );
+		$excluded_folders = array();
+		// Jetpack stays active, but older copies cannot serve offline Features.
+		// Offline, the hosting-plugin check must exclude every plugin the batch would deactivate.
+		if ( ! $active && Initializer::is_offline_features_enabled() ) {
+			foreach ( $plugins as $slug ) {
+				if ( Product::JETPACK_PLUGIN_SLUG === $slug ) {
+					continue;
+				}
+				$file = Main_Features::get_plugin_file( $slug, Main_Features::get_product_class_for_plugin( $slug ) );
+				if ( $file ) {
+					$excluded_folders[] = dirname( $file );
+				}
+			}
+		}
+
+		foreach ( $plugins as $slug ) {
+			$result = $plugins_refused ? $plugins_refused : self::refuse_deactivation( $slug, $action, $excluded_folders );
 			$result = $result ? $result : self::run( $slug, $action );
 
 			if ( is_wp_error( $result ) ) {
@@ -373,13 +387,15 @@ class REST_Main_Features {
 	}
 
 	/**
-	 * Refuse to switch off Jetpack, or the plugin serving this page when nothing else carries My Jetpack.
+	 * Keep Jetpack active, and keep the serving plugin when no remaining copy can serve this page.
 	 *
-	 * @param string $slug   WordPress.org plugin slug.
-	 * @param string $action One of install, activate or deactivate.
+	 * @since $$next-version$$ Added the $excluded_folders parameter.
+	 * @param string   $slug             WordPress.org plugin slug.
+	 * @param string   $action           One of install, activate or deactivate.
+	 * @param string[] $excluded_folders Other plugin folders being deactivated in the same request.
 	 * @return WP_Error|null The refusal, or null when the action may go ahead.
 	 */
-	private static function refuse_deactivation( $slug, $action ) {
+	private static function refuse_deactivation( $slug, $action, $excluded_folders = array() ) {
 		if ( 'deactivate' !== $action ) {
 			return null;
 		}
@@ -388,7 +404,7 @@ class REST_Main_Features {
 		// refused only when nothing else could take over on the next load.
 		if ( Product::JETPACK_PLUGIN_SLUG === $slug
 			|| ( Main_Features::is_hosting_plugin( $slug )
-				&& Main_Features::is_only_my_jetpack_provider( Main_Features::get_hosting_plugin_slug() ) ) ) {
+				&& Main_Features::is_only_my_jetpack_provider( Main_Features::get_hosting_plugin_slug(), $excluded_folders ) ) ) {
 			return new WP_Error(
 				'not_allowed',
 				__( 'This plugin runs the page you are on, so it cannot be deactivated from here.', 'jetpack-my-jetpack' ),

@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Preserve an offline-capable Features provider behind the default-off offline Features switch.

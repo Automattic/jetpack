@@ -44,6 +44,8 @@ The offline Features entry is off by default. Register `add_filter( 'jetpack_my_
 
 Users need permission to edit posts and activate plugins, plus manage the network on multisite. The Jetpack plugin keeps its Modules and Settings entry for users who cannot access Features. Local modules can be switched and retain their state after reload. The Features controller refuses to activate modules that require a connection; standalone plugins can still be activated and may run their own activation steps, including Social enabling its module.
 
+Features refuses to deactivate the plugin serving the page unless another active plugin will remain with a My Jetpack copy that supports offline Features. The same restriction applies to bulk deactivation.
+
 Feature details retain plan names and explanations as plain text offline, without purchase links or upgrade buttons. The offline page hides the footer.
 
 The offline page skips product, ownership, notification, and history queries. The Jetpack plugin also suppresses its Scan toolbar notice and its signed status request, plus sidebar Scan and Rewind cache refreshes (including previously queued refreshes), in offline mode, whether or not offline Features is enabled. Other shared Jetpack code can still contact WordPress.com: the Search plan lookup with copied credentials and connected-user script data on a cold cache remain possible.
