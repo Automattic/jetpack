@@ -933,7 +933,7 @@ function sharing_process_requests() {
 		$sharer = new Sharing_Service();
 
 		$service = $sharer->get_service( sanitize_text_field( wp_unslash( $_GET['share'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $service ) {
+		if ( $service && $post instanceof WP_Post ) {
 			$service->process_request( $post, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		}
 	}
