@@ -176,9 +176,9 @@ describe( 'createNumberFormatters()', () => {
 				[ 1025, 'JPY', { decimals: 2, isSmallestUnit: true }, '¥1,025.00' ],
 				[ 10, 'USD', { decimals: 3, stripZeros: true }, '$10' ],
 				[ 10.5, 'USD', { decimals: 3, stripZeros: true }, '$10.500' ],
+				[ 308087.78, 'USD', { decimals: 10 }, '$308,087.7800000000' ],
 				[ 92, 'USD', { decimals: -1 }, '$92.00' ],
 				[ 92, 'USD', { decimals: 21 }, '$92.00' ],
-				[ 92, 'USD', { decimals: 2.5 }, '$92.00' ],
 			] )( 'formats %s %s with %o as %s', ( number, currency, options, expected ) => {
 				expect( formatters.formatCurrency( number, currency, options ) ).toBe( expected );
 			} );

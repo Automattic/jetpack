@@ -221,7 +221,9 @@ function getPrecisionForLocaleAndCurrency(
  */
 function scaleNumberForPrecision( number: number, currencyPrecision: number ): number {
 	const scale = Math.pow( 10, currencyPrecision );
-	return Math.round( number * scale ) / scale;
+	const rounded = Math.round( number * scale ) / scale;
+	// At high precision the round trip only adds float noise, which Intl would print as a digit.
+	return Math.abs( rounded - number ) <= 4 * Number.EPSILON * Math.abs( number ) ? number : rounded;
 }
 
 /**
