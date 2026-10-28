@@ -63,9 +63,15 @@ describe( 'UtmInsightsWidget', () => {
 	} );
 
 	it.each( [
-		[ 'there are no UTM visits', false ],
-		[ 'the first load is in flight', true ],
-	] )( 'leaves Build URL out of the footer while %s', ( _state, isLoading ) => {
+		[ 'there are no UTM visits', [], false ],
+		[ 'the first load is in flight', [], true ],
+		[
+			'a new period loads over the previous rows',
+			[ { label: 'newsletter / email', value: 18 } ],
+			true,
+		],
+	] )( 'leaves Build URL out of the footer while %s', ( _state, rows, isLoading ) => {
+		mockRows = rows;
 		mockIsLoading = isLoading;
 		const { declaredActions } = renderWithActionsHost( <UtmInsightsWidget attributes={ {} } /> );
 

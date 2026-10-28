@@ -167,7 +167,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 			className={ styles.backLink }
 		/>
 	) : null;
-	const offersFooterBuildUrl = isError || data.length > 0;
+	const offersFooterBuildUrl = ! isLoading && ( isError || data.length > 0 );
 	useReportActions( {
 		...( showReportLink && {
 			report: 'utm',
