@@ -190,38 +190,59 @@ describe( 'XYChartTooltip', () => {
 		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^First,Second$/ );
 	} );
 
-	it( 'leaves out a series the pointer finds only at another date', async () => {
-		render( <PointerHarness /> );
+	// Between April and May, visx hands Views its April point and Previous period, which has no April, its May point.
+	it.each( [
+		[ 'leaves out a series with no point at the nearest date', 0, 90, 'Views=10', false ],
+		[
+			'reads every series at the nearest date, not at its own nearest point',
+			90,
+			0,
+			'Views=40,Previous period=30',
+			true,
+		],
+	] )( '%s', async ( _name, viewsDistance, previousDistance, rows, previousGlyph ) => {
+		render(
+			<PointerHarness viewsDistance={ viewsDistance } previousDistance={ previousDistance } />
+		);
 
-		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^Views$/ );
+		await expect( screen.findByTestId( 'rows' ) ).resolves.toHaveTextContent( rows );
 		expect( screen.getByTestId( 'xy-chart-tooltip-glyph-Views' ) ).toBeInTheDocument();
-		expect(
-			screen.queryByTestId( 'xy-chart-tooltip-glyph-Previous period' )
-		).not.toBeInTheDocument();
+		expect( !! screen.queryByTestId( 'xy-chart-tooltip-glyph-Previous period' ) ).toBe(
+			previousGlyph
+		);
 	} );
 } );
 
 const april = { date: new Date( '2025-04-01' ), value: 10 };
-const may = { date: new Date( '2025-05-01' ), value: 400 };
+const may = { date: new Date( '2025-05-01' ), value: 40 };
+const previousMay = { date: new Date( '2025-05-01' ), value: 30 };
 const dateAccessor = ( d: DataPointDate ) => d.date;
 const timeScale = { type: 'time' } as const;
+const renderRows = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+	<div data-testid="rows">
+		{ Object.entries( tooltipData?.datumByKey ?? {} )
+			.map( ( [ key, { datum } ] ) => `${ key }=${ datum.value }` )
+			.join( ',' ) }
+	</div>
+);
 
-// Reports what visx's pointer handler does over April when Previous period has no April point.
-const HoverApril = () => {
+type PointerDistances = { viewsDistance: number; previousDistance: number };
+
+const ReportPointer = ( { viewsDistance, previousDistance }: PointerDistances ) => {
 	const tooltipContext = useContext( TooltipContext );
 	useEffect( () => {
 		tooltipContext?.showTooltip( {
 			key: 'Views',
 			datum: april,
 			index: 0,
-			distanceX: 0,
+			distanceX: viewsDistance,
 			distanceY: 0,
 		} );
 		tooltipContext?.showTooltip( {
 			key: 'Previous period',
-			datum: may,
+			datum: previousMay,
 			index: 0,
-			distanceX: 90,
+			distanceX: previousDistance,
 			distanceY: 0,
 		} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -229,23 +250,23 @@ const HoverApril = () => {
 	return null;
 };
 
-const PointerHarness = () => (
+const PointerHarness = ( distances: PointerDistances ) => (
 	<GlobalChartsProvider>
 		<XYChart width={ 300 } height={ 200 } xScale={ timeScale } yScale={ yScale }>
 			<LineSeries
 				dataKey="Views"
-				data={ [ april ] }
+				data={ [ april, may ] }
 				xAccessor={ dateAccessor }
 				yAccessor={ yAccessor }
 			/>
 			<LineSeries
 				dataKey="Previous period"
-				data={ [ may ] }
+				data={ [ previousMay ] }
 				xAccessor={ dateAccessor }
 				yAccessor={ yAccessor }
 			/>
-			<HoverApril />
-			<XYChartTooltip renderTooltip={ renderKeys } showSeriesGlyphs />
+			<ReportPointer { ...distances } />
+			<XYChartTooltip renderTooltip={ renderRows } showSeriesGlyphs />
 		</XYChart>
 	</GlobalChartsProvider>
 );

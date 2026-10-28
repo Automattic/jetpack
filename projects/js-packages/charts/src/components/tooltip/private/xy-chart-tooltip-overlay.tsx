@@ -9,7 +9,8 @@ import type {
 	RenderTooltipGlyphProps,
 	XyChartTooltipProps,
 } from '../../../visx/types';
-import type { TooltipContextType } from '@visx/xychart';
+import type { AxisScale } from '@visx/axis';
+import type { DataContextType, TooltipContextType } from '@visx/xychart';
 import type { CSSProperties, ReactNode } from 'react';
 
 const CROSSHAIR_STROKE_WIDTH = 1.5;
@@ -315,6 +316,9 @@ export const XyChartTooltipOverlay = < Datum extends object >(
 	props: XyChartTooltipProps< Datum >
 ) => {
 	const tooltipContext = useContext( TooltipContext ) as TooltipContextType< Datum > | null;
+	const dataRegistry = (
+		useContext( DataContext ) as DataContextType< AxisScale, AxisScale, Datum >
+	 )?.dataRegistry;
 	const [ container, setContainer ] = useState< HTMLElement | null >( null );
 
 	// Children of XYChart render inside its SVG, and the box needs an HTML parent.
@@ -330,7 +334,7 @@ export const XyChartTooltipOverlay = < Datum extends object >(
 					{ ...props }
 					tooltipContext={ {
 						...tooltipContext,
-						tooltipData: atNearestDate( tooltipContext.tooltipData ),
+						tooltipData: atNearestDate( tooltipContext.tooltipData, dataRegistry ),
 					} }
 					container={ container }
 				/>
