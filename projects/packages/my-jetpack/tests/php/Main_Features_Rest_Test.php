@@ -832,51 +832,57 @@ class Main_Features_Rest_Test extends TestCase {
 	 * @param string $expected_message Expected failure message.
 	 * @param bool   $expected_security_active Expected security module state.
 	 * @param bool   $expected_stats_active Expected stats module state.
+	 * @param bool   $deactivate_dashboard Whether the batch also deactivates the Protect page.
 	 */
 	#[DataProvider( 'protect_page_bulk_switches' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_bulk_respects_protect_page_ownership( $dashboard, $active, $can_manage, $security_active, $expected_failed, $expected_message, $expected_security_active, $expected_stats_active ) {
+	public function test_bulk_respects_protect_page_ownership( $dashboard, $active, $can_manage, $security_active, $expected_failed, $expected_message, $expected_security_active, $expected_stats_active, $deactivate_dashboard = false ) {
 		$security = array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' );
 		$modules  = array_merge( $security, array( 'stats' ) );
-		$offer    = fn( $available ) => array_values( array_unique( array_merge( $available, $modules ) ) );
+		if ( $deactivate_dashboard ) {
+			$modules[] = 'protect-dashboard';
+		}
+		$offer = fn( $available ) => array_values( array_unique( array_merge( $available, $modules ) ) );
 		add_filter( 'jetpack_get_available_standalone_modules', $offer );
 		if ( $can_manage ) {
 			add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
 		}
-		Jetpack_Options::update_option( 'active_modules', array_merge( $security_active ? $security : array(), $active ? array() : array( 'stats' ) ) );
+		$initial_modules = array_merge( $security_active ? $security : array(), $active ? array() : array( 'stats' ) );
+		if ( $deactivate_dashboard ) {
+			$initial_modules[] = 'protect-dashboard';
+		}
+		Jetpack_Options::update_option( 'active_modules', $initial_modules );
 		if ( $dashboard ) {
 			do_action( 'jetpack_protect_dashboard_initialized' );
 		}
 
-		try {
-			$response = $this->send_bulk(
-				array(
-					'active'  => $active,
-					'modules' => $modules,
-				)
-			);
-			$this->assertSame( 200, $response->get_status() );
-			$failed = $response->get_data()['failed'];
-			$this->assertSame( $expected_failed, array_column( $failed, 'slug' ) );
-			foreach ( $failed as $failure ) {
-				$this->assertSame( 'module', $failure['type'] );
-				$this->assertSame( $expected_message, $failure['message'] );
-			}
-			$saved = Jetpack_Options::get_option( 'active_modules', array() );
-			foreach ( $security as $slug ) {
-				$this->assertSame( $expected_security_active, in_array( $slug, $saved, true ), $slug );
-			}
-			$this->assertSame( $expected_stats_active, in_array( 'stats', $saved, true ) );
-		} finally {
-			remove_filter( 'jetpack_get_available_standalone_modules', $offer );
-			unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		$response = $this->send_bulk(
+			array(
+				'active'  => $active,
+				'modules' => $modules,
+			)
+		);
+		$this->assertSame( 200, $response->get_status() );
+		$failed = $response->get_data()['failed'];
+		$this->assertSame( $expected_failed, array_column( $failed, 'slug' ) );
+		foreach ( $failed as $failure ) {
+			$this->assertSame( 'module', $failure['type'] );
+			$this->assertSame( $expected_message, $failure['message'] );
+		}
+		$saved = Jetpack_Options::get_option( 'active_modules', array() );
+		foreach ( $security as $slug ) {
+			$this->assertSame( $expected_security_active, in_array( $slug, $saved, true ), $slug );
+		}
+		$this->assertSame( $expected_stats_active, in_array( 'stats', $saved, true ) );
+		if ( $deactivate_dashboard ) {
+			$this->assertNotContains( 'protect-dashboard', $saved );
 		}
 	}
 
 	public static function protect_page_bulk_switches() {
 		return array(
-			'Protect page on, already active' => array(
+			'Protect page on, already active'   => array(
 				'dashboard'                => true,
 				'active'                   => true,
 				'can_manage'               => true,
@@ -886,7 +892,7 @@ class Main_Features_Rest_Test extends TestCase {
 				'expected_security_active' => true,
 				'expected_stats_active'    => true,
 			),
-			'Protect page on, deactivate'     => array(
+			'Protect page on, deactivate'       => array(
 				'dashboard'                => true,
 				'active'                   => false,
 				'can_manage'               => true,
@@ -896,7 +902,18 @@ class Main_Features_Rest_Test extends TestCase {
 				'expected_security_active' => true,
 				'expected_stats_active'    => false,
 			),
-			'Protect page off, activate'      => array(
+			'Protect page deactivated in batch' => array(
+				'dashboard'                => true,
+				'active'                   => false,
+				'can_manage'               => true,
+				'security_active'          => true,
+				'expected_failed'          => array(),
+				'expected_message'         => '',
+				'expected_security_active' => false,
+				'expected_stats_active'    => false,
+				'deactivate_dashboard'     => true,
+			),
+			'Protect page off, activate'        => array(
 				'dashboard'                => false,
 				'active'                   => true,
 				'can_manage'               => true,
@@ -906,7 +923,7 @@ class Main_Features_Rest_Test extends TestCase {
 				'expected_security_active' => true,
 				'expected_stats_active'    => true,
 			),
-			'capability refusal wins'         => array(
+			'capability refusal wins'           => array(
 				'dashboard'                => true,
 				'active'                   => false,
 				'can_manage'               => false,

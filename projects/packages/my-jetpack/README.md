@@ -26,7 +26,7 @@ To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license
 
 With Jetpack active, users who can manage Jetpack modules can bulk activate or deactivate modules from the Features list even if they cannot activate plugins. Plugin rows in their batch fail individually with a permission message, without preventing permitted module changes.
 
-While the Protect dashboard manages security modules, Features excludes them from bulk selection. Direct bulk module requests also refuse those entries with “Managed in Protect. Change these settings on the Protect page.” while processing other permitted modules; users without module-management permission receive the permission refusal instead. Use Protect to manage these settings.
+While the Protect dashboard manages security modules, Features excludes them from bulk selection. Direct bulk module requests also refuse those entries with “Managed in Protect. Change these settings on the Protect page.” while processing other permitted modules; users without module-management permission receive the permission refusal instead.
 
 Where Features opens (sites registered with WordPress.com, and offline sites with the offline entry enabled), My Jetpack Features shows all eligible features by default, including unavailable modules and their reasons. Unavailable modules have no switch or bulk selection. Choose **Available** to exclude unavailable features, forced-off modules, and installed plugins forced inactive. Search spans all eligible features, and choosing a filter clears the search. Feature filters, search, layout, and an open feature remain in the URL across reloads.
 
