@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Rename the `jetpack_my_jetpack_feature_upgrade` filter to `jetpack_feature_upgrade`, which can also change a feature's manage link.

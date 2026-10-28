@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { key } from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
+import { isCrawlerBlocked } from '../../data/blocked-crawlers';
 import CardHeaderIcon from './card-header-icon';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
@@ -56,7 +57,7 @@ const llmsNotPublishedLabel = __( 'llms.txt not published', 'jetpack-seo' );
  * "Manage" button deep-links there.
  *
  * @param props                      - Component props.
- * @param props.data                 - The crawler bootstrap (catalog + overrides + environment flags).
+ * @param props.data                 - The crawler bootstrap (catalog + blocked crawlers + environment flags).
  * @param props.searchEnginesVisible - Whether search engines may index the site (overlaid from Settings).
  * @param props.llmsTxt              - The llms.txt slice, rendered as a third status row.
  * @param props.onManage             - Opens the GEO tab.
@@ -69,14 +70,11 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 	const settingsApply =
 		canBeCrawled && ! data.staticRobotsTxt && ! data.dataSharingOptOut && ! data.pathBasedMultisite;
 
-	// A crawler is blocked when its override says so, else by its group default
-	// (training blocked, other types allowed) — same resolution as the GEO tab.
-	const isBotBlocked = ( bot: AiCrawler ): boolean =>
-		data.overrides[ bot.slug ] ?? bot.type === 'training';
+	const isBotBlocked = ( bot: AiCrawler ): boolean => isCrawlerBlocked( data.blocked, bot );
 	const answerBots = data.catalog.filter( bot => bot.type === 'answer' );
 	const trainingBots = data.catalog.filter( bot => bot.type === 'training' );
-	const answerAllowed = answerBots.filter( bot => ! isBotBlocked( bot ) ).length;
-	const trainingBlocked = trainingBots.filter( bot => isBotBlocked( bot ) ).length;
+	const answerBlocked = answerBots.filter( isBotBlocked ).length;
+	const trainingBlocked = trainingBots.filter( isBotBlocked ).length;
 
 	// The card reports the state of optimization, not who owns it. An llms.txt that
 	// exists reads as published whoever wrote it — `canServe` is false precisely
@@ -109,11 +107,12 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 				{ settingsApply ? (
 					<Stack direction="column" gap="xs">
 						<StatusDot
-							status={ answerAllowed > 0 ? 'ok' : 'warn' }
+							// Blocking every answer engine keeps the site out of AI answers.
+							status={ answerBlocked < answerBots.length ? 'ok' : 'warn' }
 							label={ sprintf(
-								/* translators: %1$d is the number of allowed answer engines, %2$d the total. */
-								__( 'Answer engines: %1$d of %2$d allowed', 'jetpack-seo' ),
-								answerAllowed,
+								/* translators: %1$d is the number of blocked answer engines, %2$d the total. */
+								__( 'Answer engines: %1$d of %2$d blocked', 'jetpack-seo' ),
+								answerBlocked,
 								answerBots.length
 							) }
 						/>

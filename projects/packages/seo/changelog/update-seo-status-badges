@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Show the Settings modules' Complete / In progress / Not started status as badges, matching the GEO crawler group badges. The new SEO page is still gated.
+
