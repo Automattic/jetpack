@@ -2,6 +2,7 @@ import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
 import { getSoftwareActionLabels } from './labels';
+import { useCanIgnore } from './store';
 import { fixThreats, ignoreThreats, unignoreThreat, useGetThreatBusy } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { Action } from '@wordpress/dataviews';
@@ -28,15 +29,17 @@ function refocusRow( item: ScanThreat ) {
 /**
  * A row's DataViews actions: primary ones show as buttons without hovering, and the ⋯ menu lists them all.
  *
- * @param open    - Opens a threat in the inspector.
- * @param canAct  - Whether the site's plan can fix and ignore threats.
- * @param getBusy - Gets the action running on a threat.
- * @param onBulk  - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
+ * @param open      - Opens a threat in the inspector.
+ * @param canAct    - Whether the site's plan can fix and ignore threats.
+ * @param canIgnore - Whether the host lets the site ignore threats.
+ * @param getBusy   - Gets the action running on a threat.
+ * @param onBulk    - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
  * @return The actions.
  */
 function getThreatRowActions(
 	open: OpenThreat,
 	canAct: boolean,
+	canIgnore: boolean,
 	getBusy: ReturnType< typeof useGetThreatBusy >,
 	onBulk?: ( items: ScanThreat[] ) => void
 ): Action< ScanThreat >[] {
@@ -118,7 +121,8 @@ function getThreatRowActions(
 		{
 			id: 'ignore',
 			label: __( 'Ignore', 'jetpack-protect-pkg' ),
-			isEligible: item => canAct && item.status !== 'ignored' && item.status !== 'fixed',
+			isEligible: item =>
+				canAct && canIgnore && item.status !== 'ignored' && item.status !== 'fixed',
 			supportsBulk: !! onBulk,
 			callback: locking( ( items, from ) => {
 				onBulk?.( items );
@@ -158,9 +162,10 @@ export function useThreatRowActions(
 	canAct: boolean,
 	onBulk?: ( items: ScanThreat[] ) => void
 ): Action< ScanThreat >[] {
+	const canIgnore = useCanIgnore();
 	const getBusy = useGetThreatBusy();
 	return useMemo(
-		() => getThreatRowActions( open, canAct, getBusy, onBulk ),
-		[ open, canAct, getBusy, onBulk ]
+		() => getThreatRowActions( open, canAct, canIgnore, getBusy, onBulk ),
+		[ open, canAct, canIgnore, getBusy, onBulk ]
 	);
 }

@@ -45,8 +45,12 @@ export function EmailDesignSection( {
 
 	const buttonText = __( 'Edit email design', 'jetpack-newsletter' );
 
-	// So the editor's back button returns here rather than to the dashboard.
-	const href = addQueryArgs( emailDesignUrl, { return: window.location.href } );
+	// `return` so the editor's back button comes here rather than to the dashboard; `source` so the
+	// screen's own view event knows which of its three routes this is. See NL-1088.
+	const href = addQueryArgs( emailDesignUrl, {
+		return: window.location.href,
+		source: 'newsletter_settings',
+	} );
 
 	return (
 		<Card.Root>

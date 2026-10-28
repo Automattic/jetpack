@@ -25,7 +25,10 @@ const Template: StoryFn< typeof PeriodSelector > = args => {
 };
 
 export const _default = Template.bind( {} );
-_default.args = { presets, value: '7' };
+_default.args = { label: 'Date range', presets, value: '7' };
+
+export const Disabled = Template.bind( {} );
+Disabled.args = { label: 'Date range', presets, value: '7', disabled: true };
 
 const SteppingTemplate: StoryFn< typeof PeriodSelector > = args => {
 	const [ value, setValue ] = useState( args.value );
@@ -49,4 +52,4 @@ const SteppingTemplate: StoryFn< typeof PeriodSelector > = args => {
 };
 
 export const WithPreviousAndNext = SteppingTemplate.bind( {} );
-WithPreviousAndNext.args = { presets, value: '7' };
+WithPreviousAndNext.args = { label: 'Date range', presets, value: '7' };

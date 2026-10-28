@@ -6,6 +6,7 @@ import { Badge, Button, ButtonLink, Link, Stack, Text } from '@wordpress/ui';
 import useOpenThreat from '../use-open-threat';
 import { DeleteSoftwareButton } from './delete-software';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
+import { useCanIgnore } from './store';
 import { fixThreat, ignoreThreat, unignoreThreat, useThreatAction } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { ComponentProps, ReactNode } from 'react';
@@ -119,10 +120,15 @@ function Section( { title, children }: { title: string; children: ReactNode } ) 
 function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 	const { busy } = useThreatAction( threat.id );
 	const isIgnored = threat.status === 'ignored';
+	const canIgnore = useCanIgnore();
 	const open = useOpenThreat();
 	const onIgnore = useCallback( () => ignoreThreat( threat, open ), [ threat, open ] );
 	const onUnignore = useCallback( () => unignoreThreat( threat, open ), [ threat, open ] );
 	const onFix = useCallback( () => fixThreat( threat, open ), [ threat, open ] );
+
+	if ( ! canIgnore && ! isIgnored && ! threat.fixable ) {
+		return null;
+	}
 
 	return (
 		<div className="jp-protect-threat-details__footer">
@@ -144,17 +150,19 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 					{ __( 'Unignore it', 'jetpack-protect-pkg' ) }
 				</Button>
 			) : (
-				<Stack direction="row" gap="sm" justify="space-between">
-					<Button
-						className="jp-protect-threat-details__ignore"
-						variant="minimal"
-						tone="neutral"
-						onClick={ onIgnore }
-						loading={ busy === 'ignoring' }
-						disabled={ !! busy }
-					>
-						{ __( 'Ignore it', 'jetpack-protect-pkg' ) }
-					</Button>
+				<Stack direction="row" gap="sm" justify={ canIgnore ? 'space-between' : 'end' }>
+					{ canIgnore && (
+						<Button
+							className="jp-protect-threat-details__ignore"
+							variant="minimal"
+							tone="neutral"
+							onClick={ onIgnore }
+							loading={ busy === 'ignoring' }
+							disabled={ !! busy }
+						>
+							{ __( 'Ignore it', 'jetpack-protect-pkg' ) }
+						</Button>
+					) }
 					{ threat.fixable && (
 						<Button onClick={ onFix } loading={ busy === 'fixing' } disabled={ !! busy }>
 							{ busy === 'fixing'
