@@ -14,8 +14,8 @@ const POST_ID = 91;
 
 const SECTIONS = [
 	{ slug: 'post-traffic', label: 'Post traffic', default_layout: [], controls: null },
-	{ slug: 'email-opens', label: 'Email opens', default_layout: [], controls: false as const },
-	{ slug: 'email-clicks', label: 'Email clicks', default_layout: [], controls: false as const },
+	{ slug: 'email-opens', label: 'Email opens', default_layout: [], controls: [] },
+	{ slug: 'email-clicks', label: 'Email clicks', default_layout: [], controls: [] },
 ];
 
 const SUMMARY: PostSummary = {

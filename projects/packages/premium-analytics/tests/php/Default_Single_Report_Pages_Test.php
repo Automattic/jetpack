@@ -100,7 +100,7 @@ class Default_Single_Report_Pages_Test extends BaseTestCase {
 		$this->assertSame( 'jetpack-premium-analytics/post-detail', $record['preferences_scope'] );
 		$this->assertSame( array(), $record['default_layout'] );
 		$this->assertSame( array( 'post-traffic', 'email-opens', 'email-clicks' ), array_column( $record['sections'], 'slug' ) );
-		$this->assertSame( array( null, false, false ), array_column( $record['sections'], 'controls' ) );
+		$this->assertSame( array( null, array(), array() ), array_column( $record['sections'], 'controls' ) );
 		$this->assertSame( 'jpa/post-detail-highlights', $record['sections'][0]['default_layout'][0]['type'] );
 		$this->assertSame( 'jpa/email-time-series--total-opens', $record['sections'][1]['default_layout'][1]['type'] );
 		$this->assertSame( 'jpa/email-breakdown--top-links', $record['sections'][2]['default_layout'][5]['type'] );

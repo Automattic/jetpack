@@ -23,7 +23,7 @@ const EMAIL_SECTION = {
 			slug: 'email-opens',
 			label: 'Email opens',
 			default_layout: [],
-			controls: false as const,
+			controls: [],
 		},
 	},
 };
