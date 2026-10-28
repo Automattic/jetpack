@@ -245,7 +245,7 @@ function reject_unknown_access_level( $prepared_post, $request ) {
 
 	// Autosaves never store this meta, and the autosaves controller doesn't check
 	// for an error here, so rejecting would drop the author's autosaved edits.
-	if ( str_ends_with( $request->get_route(), '/autosaves' ) ) {
+	if ( str_ends_with( strtolower( $request->get_route() ), '/autosaves' ) ) {
 		return $prepared_post;
 	}
 
