@@ -1666,15 +1666,16 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The header's controls show only with the flag on, My Jetpack running, and offline Features off.
+	 * Header controls default on, allow rollback, and respect My Jetpack's exclusions.
 	 */
-	public function test_my_jetpack_flags_show_header_controls_only_when_the_flag_is_on() {
+	public function test_header_controls_default_on_with_false_override_and_exclusions() {
 		Initializer::register_feature_flags();
-		$this->assertFalse( Initializer::get_my_jetpack_flags()['headerControls'] );
 
-		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_true' );
 		try {
 			$this->assertTrue( Initializer::get_my_jetpack_flags()['headerControls'] );
+			add_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_false' );
+			$this->assertFalse( Initializer::get_my_jetpack_flags()['headerControls'] );
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_false' );
 
 			wp_set_current_user(
 				wp_insert_user(
@@ -1700,7 +1701,7 @@ class Initializer_Test extends BaseTestCase {
 			remove_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
 			remove_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
-			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_true' );
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_false' );
 			Feature_Flags::reset();
 		}
 	}
