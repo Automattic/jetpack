@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
+import SidebarFooter from '@automattic/jetpack-components/sidebar-footer';
 import { Page } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
 import { SelectControl, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
@@ -292,7 +293,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					description={ local.advanced_seo_description }
 				/>
 			</Stack>
-			<div className={ styles.inspectorFooter }>
+			<SidebarFooter>
 				<Button variant="minimal" tone="neutral" onClick={ onClose } disabled={ isSaving }>
 					{ __( 'Cancel', 'jetpack-seo' ) }
 				</Button>
@@ -307,7 +308,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 				>
 					{ __( 'Save', 'jetpack-seo' ) }
 				</Button>
-			</div>
+			</SidebarFooter>
 		</Page>
 	);
 };
