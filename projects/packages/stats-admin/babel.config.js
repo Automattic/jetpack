@@ -2,7 +2,10 @@ const config = {
 	presets: [
 		[
 			'@automattic/jetpack-webpack-config/babel/preset',
-			{ pluginReplaceTextdomain: { textdomain: 'jetpack-stats-admin' } },
+			{
+				// The script only calls array methods, which the preset mistakes for Iterator helpers.
+				autoWpPolyfill: false,
+			},
 		],
 	],
 };

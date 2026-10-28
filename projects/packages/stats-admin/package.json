@@ -18,28 +18,21 @@
 		"build": "pnpm run clean && webpack",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"clean": "rm -rf build/",
+		"test": "jest",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
 	],
-	"dependencies": {
-		"@automattic/charts": "workspace:*",
-		"@wordpress/api-fetch": "7.57.0",
-		"@wordpress/element": "9.0.0",
-		"@wordpress/i18n": "6.30.0",
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
-	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@babel/runtime": "7.29.7",
 		"@wordpress/browserslist-config": "6.57.0",
+		"jest": "30.5.2",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"webpack": "5.111.1",
+		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
 	}
 }

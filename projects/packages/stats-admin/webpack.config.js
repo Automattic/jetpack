@@ -5,7 +5,7 @@ module.exports = [
 	{
 		devtool: jetpackWebpackConfig.devtool,
 		entry: {
-			'admin-bar': './src/js/admin-bar/index.jsx',
+			'admin-bar': './src/js/admin-bar/index.js',
 		},
 		externals: {
 			...jetpackWebpackConfig.externals,
@@ -18,10 +18,6 @@ module.exports = [
 				jetpackWebpackConfig.TranspileRule( {
 					exclude: /node_modules\//,
 				} ),
-				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@automattic/' ],
-				} ),
-				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
 					extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
@@ -36,11 +32,7 @@ module.exports = [
 		optimization: {
 			...jetpackWebpackConfig.optimization,
 		},
-		plugins: [
-			...jetpackWebpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { bundleWpUiDeps: true },
-			} ),
-		],
+		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 		resolve: {
 			...jetpackWebpackConfig.resolve,
 		},

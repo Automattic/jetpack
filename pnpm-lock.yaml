@@ -5361,25 +5361,6 @@ importers:
         version: 30.5.2
 
   projects/packages/stats-admin:
-    dependencies:
-      '@automattic/charts':
-        specifier: workspace:*
-        version: link:../../js-packages/charts
-      '@wordpress/api-fetch':
-        specifier: 7.57.0
-        version: 7.57.0
-      '@wordpress/element':
-        specifier: 9.0.0
-        version: 9.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/i18n':
-        specifier: 6.30.0
-        version: 6.30.0
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -5387,24 +5368,24 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
       '@wordpress/browserslist-config':
         specifier: 6.57.0
         version: 6.57.0
+      jest:
+        specifier: 30.5.2
+        version: 30.5.2
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.111.1)
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
       webpack:
-        specifier: 5.111.1
-        version: 5.111.1(webpack-cli@7.2.1)
+        specifier: 5.112.2
+        version: 5.112.2(webpack-cli@7.2.1)
       webpack-cli:
         specifier: 7.2.1
-        version: 7.2.1(webpack@5.111.1)
+        version: 7.2.1(webpack@5.112.2)
 
   projects/packages/transport-helper: {}
 

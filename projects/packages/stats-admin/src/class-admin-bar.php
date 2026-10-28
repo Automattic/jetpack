@@ -132,7 +132,7 @@ class Admin_Bar {
 					'meta'  => array(
 						'menu_title' => __( 'Stats', 'jetpack-stats-admin' ),
 						'class'      => 'menupop',
-						'html'       => '<div class="ab-sub-wrapper"><div id="jetpack-stats-admin-bar-panel"></div></div>',
+						'html'       => self::get_seven_day_panel_html(),
 					),
 				)
 			);
@@ -156,6 +156,52 @@ class Admin_Bar {
 	}
 
 	/**
+	 * The hover panel of the 7-day chart. The script fills in the bars and totals once stats load.
+	 *
+	 * @return string
+	 */
+	private static function get_seven_day_panel_html() {
+		$metric = static function ( $key, $label ) {
+			return sprintf( '<div class="jp-stats-admin-bar-panel__metric"><dt>%s</dt><dd data-metric="%s">–</dd></div>', esc_html( $label ), esc_attr( $key ) );
+		};
+
+		return '<div class="ab-sub-wrapper"><div id="jetpack-stats-admin-bar-panel" class="jp-stats-admin-bar-panel" aria-live="polite">'
+			. '<div class="jp-stats-admin-bar-panel__title">' . esc_html__( 'Last 7 days', 'jetpack-stats-admin' ) . '</div>'
+			. '<span class="ab-label jp-stats-admin-bar-panel__bars" aria-hidden="true"></span>'
+			. '<dl class="jp-stats-admin-bar-panel__metrics">'
+			. $metric( 'views', __( 'Views', 'jetpack-stats-admin' ) )
+			. $metric( 'visitors', __( 'Visitors', 'jetpack-stats-admin' ) )
+			. '</dl>'
+			. '<p class="jp-stats-admin-bar-panel__error" hidden>' . esc_html__( 'Stats are unavailable right now.', 'jetpack-stats-admin' ) . '</p>'
+			. '</div>'
+			. '<ul class="ab-submenu jp-stats-admin-bar-panel__footer"><li><a class="ab-item" href="' . esc_url( self::get_seven_day_traffic_url() ) . '">' . esc_html__( 'View all stats', 'jetpack-stats-admin' ) . '</a></li></ul>'
+			. '</div>';
+	}
+
+	/**
+	 * The Traffic page for the same 7 days the chart shows, ending today in the site's timezone.
+	 *
+	 * @return string
+	 */
+	private static function get_seven_day_traffic_url() {
+		$today = new \DateTimeImmutable( 'now', wp_timezone() );
+		$start = $today->modify( '-6 days' )->format( 'Y-m-d' );
+		$end   = $today->format( 'Y-m-d' );
+		$url   = admin_url( 'admin.php?page=stats#!/stats/day/' . (int) \Jetpack_Options::get_option( 'id' ) . "?chartStart=$start&chartEnd=$end" );
+
+		/** This filter is documented in src/class-admin-bar.php */
+		return apply_filters(
+			'jetpack_stats_url',
+			$url,
+			array(
+				'view'  => 'traffic',
+				'start' => $start,
+				'end'   => $end,
+			)
+		);
+	}
+
+	/**
 	 * Enqueue the script that draws the 7-day chart and fills the hover panel.
 	 *
 	 * @return void
@@ -166,23 +212,22 @@ class Admin_Bar {
 			'../build/admin-bar.js',
 			__FILE__,
 			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-stats-admin',
-				'css_path'   => '../build/admin-bar.css',
-				'enqueue'    => true,
+				'in_footer' => true,
+				'css_path'  => '../build/admin-bar.css',
+				'enqueue'   => true,
 			)
 		);
 
 		$config = array(
-			'blogId'     => (int) \Jetpack_Options::get_option( 'id' ),
-			/**
-			 * Filters whether the 7-day chart shows made-up numbers instead of fetching stats, for design reviews on test sites.
-			 *
-			 * @since $$next-version$$
-			 *
-			 * @param bool $sample_data Whether to show sample data. Default false.
-			 */
-			'sampleData' => (bool) apply_filters( 'jetpack_stats_admin_bar_sample_data', false ),
+			'restUrl' => add_query_arg(
+				array(
+					'unit'        => 'day',
+					'quantity'    => 7,
+					'stat_fields' => 'views,visitors',
+				),
+				rest_url( 'jetpack/v4/stats-app/sites/' . (int) \Jetpack_Options::get_option( 'id' ) . '/stats/visits' )
+			),
+			'nonce'   => wp_create_nonce( 'wp_rest' ),
 		);
 
 		wp_add_inline_script(
@@ -229,7 +274,8 @@ class Admin_Bar {
 		/**
 		 * Filters a link to a Stats page, so a newer analytics dashboard can claim it.
 		 *
-		 * `$args['view']` names the page the link opens: `dashboard`, or `post` with the post in `$args['id']`.
+		 * `$args['view']` names the page the link opens: `dashboard`, `post` with the post in `$args['id']`,
+		 * or `traffic` with the first and last days, as `Y-m-d`, in `$args['start']` and `$args['end']`.
 		 * Return `$url` unchanged for a view the dashboard has no page for.
 		 *
 		 * @since 0.39.0
