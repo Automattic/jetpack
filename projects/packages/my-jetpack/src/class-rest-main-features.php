@@ -272,6 +272,7 @@ class REST_Main_Features {
 			? null
 			: new WP_Error( 'not_allowed', __( 'You are not allowed to manage Jetpack modules on this site.', 'jetpack-my-jetpack' ) );
 		$modules         = array_unique( (array) $request->get_param( 'modules' ) );
+		// The Protect page goes first, so the modules after it see whether it turned off.
 		if ( ! $active && in_array( Products\Protect::DASHBOARD_MODULE_NAME, $modules, true ) ) {
 			$modules = array_merge( array( Products\Protect::DASHBOARD_MODULE_NAME ), array_diff( $modules, array( Products\Protect::DASHBOARD_MODULE_NAME ) ) );
 		}

@@ -843,7 +843,11 @@ class Main_Features_Rest_Test extends TestCase {
 		$security = array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' );
 		$modules  = array_merge( $security, array( 'stats' ) );
 		if ( $include_dashboard ) {
-			$modules[] = 'protect-dashboard';
+			if ( $active ) {
+				array_unshift( $modules, 'protect-dashboard' );
+			} else {
+				$modules[] = 'protect-dashboard';
+			}
 		}
 		$offer = fn( $available ) => array_values( array_unique( array_merge( $available, $modules ) ) );
 		add_filter( 'jetpack_get_available_standalone_modules', $offer );
