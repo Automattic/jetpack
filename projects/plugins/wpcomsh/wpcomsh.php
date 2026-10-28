@@ -602,7 +602,7 @@ function wpcomsh_footer_rum_js() {
 }
 
 /**
- * Build an inline script that loads bilmur once the visitor allows anonymous statistics.
+ * Build an inline script that loads bilmur once the visitor allows statistics.
  *
  * The check runs in the browser because cached HTML is shared across visitors.
  *
@@ -621,10 +621,10 @@ function wpcomsh_rum_consent_gate_js( $script_url ) {
 		document.head.appendChild( script );
 	}
 	function check() {
-		if ( typeof window.wp_has_consent === "function" && window.wp_has_consent( "statistics-anonymous" ) ) { load(); }
+		if ( typeof window.wp_has_consent === "function" && window.wp_has_consent( "statistics" ) ) { load(); }
 	}
 	document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
-		if ( event.detail && event.detail[ "statistics-anonymous" ] === "allow" ) { load(); }
+		if ( event.detail && event.detail[ "statistics" ] === "allow" ) { load(); }
 	} );
 	document.addEventListener( "wp_consent_type_defined", check );
 	window.addEventListener( "wp_consent_type_defined", check );
