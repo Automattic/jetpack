@@ -2,7 +2,7 @@ import { Button, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { commentContent, details, key, page } from '@wordpress/icons';
-import { Badge, Card, CollapsibleCard, Link, Notice, Stack, Tooltip } from '@wordpress/ui';
+import { Badge, Card, CollapsibleCard, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import { isCrawlerBlocked } from '../../data/blocked-crawlers';
 import './style.scss';
@@ -296,7 +296,7 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 
 /**
  * GEO (Generative Engine Optimization) tab. Stacks (in a single centered column
- * matching the Settings tab's width):
+ * matching the Settings tab's width): a one-line intro spelling out "GEO",
  * llms.txt, the plan-gated AI SEO Enhancer, then the AI-crawler controls — split
  * into answer-engine and training groups. When the controls can't take effect,
  * they are replaced by an explanation instead of ineffective toggles.
@@ -499,6 +499,13 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 
 	return (
 		<div className="jetpack-seo-geo">
+			{ /* Spells out the acronym the tab is named after. */ }
+			<Text variant="body-md" render={ <p /> } className="jetpack-seo-geo__intro">
+				{ __(
+					'GEO stands for generative engine optimization. These settings control how AI sees and uses your site.',
+					'jetpack-seo'
+				) }
+			</Text>
 			{ llmsTxt && (
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>

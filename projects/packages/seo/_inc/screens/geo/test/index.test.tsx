@@ -80,6 +80,22 @@ const crawlerForm = (
 
 const noop = () => {};
 
+describe( 'GeoScreen (GEO tab) — intro', () => {
+	it( 'spells out the acronym at the top of the tab', () => {
+		const { container } = render(
+			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
+		);
+
+		const intro = screen.getByText(
+			'GEO stands for generative engine optimization. These settings control how AI sees and uses your site.'
+		);
+		expect( intro.tagName ).toBe( 'P' );
+		// The tab's own first child, so it sits above every module.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- asserting its position in the tab.
+		expect( container.querySelector( '.jetpack-seo-geo' )?.firstElementChild ).toBe( intro );
+	} );
+} );
+
 describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 	it( 'shows the view link and no warning when llms.txt can be served', () => {
 		render(
