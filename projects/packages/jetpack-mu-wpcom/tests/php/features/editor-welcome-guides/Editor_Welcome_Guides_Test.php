@@ -215,8 +215,9 @@ class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 		$this->dismissed = array( 'core/edit-site' => array( 'welcomeGuide' ) );
 
 		$this->read_preferences();
-		$this->read_preferences();
+		$preferences = $this->read_preferences();
 
+		$this->assertFalse( $preferences['core/edit-site']['welcomeGuide'] );
 		$this->assertCount( 1, $GLOBALS['wpcom_tracks_events'] );
 	}
 
