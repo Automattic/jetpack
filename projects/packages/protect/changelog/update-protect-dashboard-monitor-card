@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect dashboard: Show the uptime percentage next to the Downtime monitoring status, and drop the perfect uptime badge.

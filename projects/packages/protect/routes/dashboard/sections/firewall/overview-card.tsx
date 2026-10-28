@@ -33,6 +33,7 @@ import {
 } from './firewall-test';
 import FirewallToggle from './firewall-toggle';
 import FirewallUpsell from './firewall-upsell';
+import HostFirewallCard from './host-firewall-card';
 import shieldFlame from './icon';
 import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
@@ -56,6 +57,7 @@ const UNAVAILABLE: FirewallState = {
 	currentIp: '',
 	ipRules: {},
 	rulesUpdatedAt: null,
+	providedByHost: false,
 };
 
 // The only setting this card saves.
@@ -315,6 +317,10 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		notify( testResult.outcome, { learnMore: () => setDetailsOpen( true ) } );
 		setIsTesting( false );
 	}, [ active, blocks.recentBlocks ] );
+
+	if ( firewall.providedByHost ) {
+		return <HostFirewallCard />;
+	}
 
 	if ( ! firewall.available ) {
 		return <UnavailableCard icon={ shieldFlame } title={ title } />;

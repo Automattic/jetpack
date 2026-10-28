@@ -27,8 +27,10 @@ const FEATURES = Array.from( { length: 11 }, ( _, index ) => `Feature ${ index +
 
 /**
  * Publishes the Insights section as locked.
+ *
+ * @param planPrice - The Personal plan's yearly price, or null when WordPress.com gave none.
  */
-function lockInsights() {
+function lockInsights( planPrice: { yearly: number; currency: string } | null = null ) {
 	( getScriptData as jest.Mock ).mockReturnValue( {
 		premium_analytics: {
 			plan_gates: {
@@ -39,6 +41,9 @@ function lockInsights() {
 					insights: {
 						title: 'Unlock site insights',
 						description: 'Get detailed insights into your site’s performance with a Personal plan.',
+						description_with_price:
+							'Get detailed insights into your site’s performance for <strong>%s/month</strong> with a Personal plan.',
+						plan_price: planPrice,
 						features: FEATURES,
 						upgrade_label: 'Upgrade to Personal',
 						expand_label: 'Show all Personal features',
@@ -77,6 +82,19 @@ describe( 'LockedSection', () => {
 			'href',
 			SUPPORT_URL
 		);
+	} );
+
+	it.each( [
+		[ { yearly: 4800, currency: 'USD' }, '$4' ],
+		[ { yearly: 5400, currency: 'USD' }, '$4.50' ],
+		[ { yearly: 156000, currency: 'TWD' }, 'NT$130' ],
+	] )( 'quotes the monthly price of a %o yearly plan as %s', ( planPrice, monthly ) => {
+		lockInsights( planPrice );
+		render( <LockedSection section="insights" /> );
+
+		const sentence = `Get detailed insights into your site’s performance for ${ monthly }/month with a Personal plan.`;
+		expect( screen.getByText( `${ monthly }/month` ).tagName ).toBe( 'STRONG' );
+		expect( screen.getByText( ( _, element ) => element?.textContent === sentence ) ).toBeVisible();
 	} );
 
 	it( 'expands to every feature and collapses back', async () => {

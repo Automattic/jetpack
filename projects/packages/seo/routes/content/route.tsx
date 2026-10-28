@@ -5,7 +5,7 @@ import isSeoToolsActive from '../../_inc/data/is-seo-tools-active';
 export const route = {
 	/**
 	 * Show the inspector only when a post is selected and SEO tools are active —
-	 * when the module is off the stage shows the enable card instead of the list,
+	 * when the module is off the stage shows the enable prompt instead of the list,
 	 * so a deep-linked `?postId` shouldn't open the (non-savable) editor.
 	 *
 	 * @param props               - Route props.

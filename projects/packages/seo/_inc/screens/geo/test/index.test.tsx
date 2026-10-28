@@ -93,6 +93,20 @@ const crawlerForm = (
 	},
 } );
 
+describe( 'GeoScreen (GEO tab) — intro', () => {
+	it( 'spells out the acronym at the top of the tab', () => {
+		const { container } = render( <GeoScreen form={ allModulesForm() } searchEnginesVisible /> );
+
+		const intro = screen.getByText(
+			'GEO stands for generative engine optimization. These settings control how AI sees and uses your site.'
+		);
+		expect( intro.tagName ).toBe( 'P' );
+		// The tab's own first child, so it sits above every module.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- asserting its position in the tab.
+		expect( container.querySelector( '.jetpack-seo-geo' )?.firstElementChild ).toBe( intro );
+	} );
+} );
+
 describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 	it( 'shows the view link and no warning when llms.txt can be served', () => {
 		render( <GeoScreen form={ formWith( true ) } searchEnginesVisible /> );
@@ -276,9 +290,9 @@ const allModulesForm = (): GeoForm => ( {
 } );
 
 describe( 'GeoScreen (GEO tab) — module titles', () => {
-	// The chip must not swallow the title text, which is how these modules are found
+	// The icon must not swallow the title text, which is how these modules are found
 	// by assistive tech and by every other test in this file.
-	it( 'leads every module title with an icon chip, keeping the title readable', () => {
+	it( 'leads every module title with an icon, keeping the title readable', () => {
 		render( <GeoScreen form={ allModulesForm() } searchEnginesVisible /> );
 
 		for ( const title of [
@@ -287,7 +301,7 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 			'llms.txt',
 			'AI SEO Enhancer',
 		] ) {
-			// `getByText` resolves to the chip wrapper, whose text is the title alone —
+			// `getByText` resolves to the title wrapper, whose text is the title alone —
 			// the glyph beside it is a decorative SVG with no role of its own.
 			const heading = screen.getByText( title );
 			expect( heading ).toBeInTheDocument();
@@ -391,7 +405,7 @@ describe( 'GeoScreen (GEO tab) — module titles', () => {
 
 	// Only one blocked state renders at a time, and it stands for both crawler
 	// groups — so it carries the combined glyph rather than either group's.
-	it( 'still titles and chips the blocked state', () => {
+	it( 'still gives the blocked state its title and icon', () => {
 		render(
 			<GeoScreen form={ crawlerForm( { pathBasedMultisite: true } ) } searchEnginesVisible />
 		);

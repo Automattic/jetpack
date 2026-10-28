@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect: Use the Protect page's Scan plan check, so WordPress.com plans without Scan's UI are offered the upgrade.

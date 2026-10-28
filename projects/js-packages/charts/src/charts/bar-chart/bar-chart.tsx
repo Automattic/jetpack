@@ -47,6 +47,8 @@ import {
 	useBarStops,
 	useOverlapSlots,
 	getSelectedSlot,
+	isSameCategory,
+	membersAt,
 } from './private';
 import { useBarColors } from './use-bar-colors';
 import { useBarLegendItems } from './use-bar-legend-items';
@@ -442,12 +444,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			// Find the comparison value paired with the hovered primary series (same group)
 			// at the same category, so the tooltip can show both periods at once.
 			const comparisonEntry = comparisonEntries.find( entry => entry.primaryKey === primaryKey );
-			const comparisonDatum = comparisonEntry?.series.data.find( point => {
-				const p = point as DataPointDate;
-				return nearestDatum.label != null
-					? p.label === nearestDatum.label
-					: !! nearestDatum.date && !! p.date && p.date.getTime() === nearestDatum.date.getTime();
-			} ) as DataPointDate | undefined;
+			const comparisonDatum = comparisonEntry?.series.data.find( point =>
+				isSameCategory( point as DataPointDate, nearestDatum )
+			) as DataPointDate | undefined;
 
 			// With a paired comparison value, show the category as the header and one row
 			// per period (primary + comparison).
@@ -535,6 +534,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		() => getSelectedSlot( overlapSlots, selectedIndex ),
 		[ overlapSlots, selectedIndex ]
 	);
+
+	const selectedGroup = useMemo( () => {
+		const stop = overlapSlots || selectedIndex === undefined ? undefined : barAt( selectedIndex );
+		if ( ! stop ) {
+			return undefined;
+		}
+		return membersAt( primaryEntries, stop.datum, stop.key );
+	}, [ overlapSlots, selectedIndex, barAt, primaryEntries ] );
+
+	const selectedMembers = selectedSlot?.members ?? selectedGroup;
 
 	const selectedBar = useMemo( (): SelectedBar | undefined => {
 		if ( overlapSlots ) {
@@ -783,11 +792,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</WholeNumberTicks>
 										) }
 
-										{ withTooltips && selectedSlot && (
-											<SlotTooltipMembers
-												members={ selectedSlot.members }
-												index={ selectedSlot.index }
-											/>
+										{ withTooltips && selectedMembers && (
+											<SlotTooltipMembers members={ selectedMembers } />
 										) }
 										{ withTooltips && (
 											<XYChartTooltip
@@ -806,7 +812,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												keyboardFocusedClassName={
 													styles[ 'bar-chart__tooltip--keyboard-focused' ]
 												}
-												series={ stops.series }
 												mode="individual"
 											/>
 										) }

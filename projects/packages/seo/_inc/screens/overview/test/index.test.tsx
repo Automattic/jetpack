@@ -17,12 +17,6 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
-// Still stubbed: the Overview renders `EnableSeoCard` when the module is off, and
-// that card uses the toggle. Keeps the Overview off the module-toggle REST plumbing.
-jest.unstable_mockModule( '../../../data/use-seo-tools-toggle', () => ( {
-	default: () => ( { isToggling: false, setActive: jest.fn() } ),
-} ) );
-
 const { default: OverviewScreen } = await import( '../index' );
 
 const OFF_RAMP_TEXT = 'Using a different SEO solution?';

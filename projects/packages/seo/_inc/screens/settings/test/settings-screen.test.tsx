@@ -370,15 +370,15 @@ describe( 'Settings module completion status', () => {
 	} );
 } );
 
-describe( 'Settings module title chips', () => {
-	// The chip must not swallow the title text: the header is how these modules are
+describe( 'Settings module title icons', () => {
+	// The icon must not swallow the title text: the header is how these modules are
 	// found by assistive tech, and by every other test in this file.
 	it.each( [ 'Site visibility', 'Site verification', 'Canonical URLs', 'Front-page description' ] )(
-		'renders %s with its title text and a leading icon chip',
+		'renders %s with its title text and a leading icon',
 		moduleTitle => {
 			render( <SettingsScreen form={ buildForm() } /> );
 
-			// `getByText` resolves to the chip wrapper, whose text content is the title
+			// `getByText` resolves to the title wrapper, whose text content is the title
 			// alone — the glyph beside it is a decorative SVG with no role.
 			const title = screen.getByText( moduleTitle );
 
