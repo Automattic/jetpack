@@ -68,7 +68,7 @@ const POST_PAGE = {
 			default_layout: [
 				{ uuid: 'opens', type: 'jpa/email-top-row', attributes: { metric: 'opens' } },
 			],
-			controls: false,
+			controls: [],
 		},
 		{
 			slug: 'email-clicks',
@@ -76,7 +76,7 @@ const POST_PAGE = {
 			default_layout: [
 				{ uuid: 'clicks', type: 'jpa/email-top-row', attributes: { metric: 'clicks' } },
 			],
-			controls: false,
+			controls: [],
 		},
 	],
 };
