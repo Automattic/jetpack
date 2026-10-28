@@ -1,0 +1,180 @@
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import apiFetch from '@wordpress/api-fetch';
+import { ConsentCard } from './consent-card';
+
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+
+const mockCreateSuccessNotice = jest.fn();
+const mockCreateErrorNotice = jest.fn();
+// A spread of the real module reads its lazy exports too early, so only `useDispatch` is swapped.
+jest.mock( '@wordpress/data', () => {
+	const actual = jest.requireActual( '@wordpress/data' );
+	return new Proxy( actual, {
+		get: ( target, name ) =>
+			name === 'useDispatch'
+				? () => ( {
+						createErrorNotice: mockCreateErrorNotice,
+						createSuccessNotice: mockCreateSuccessNotice,
+					} )
+				: target[ name ],
+	} );
+} );
+
+const mockApiFetch = apiFetch as unknown as jest.Mock;
+
+const NOT_SET_UP = {
+	api_active: false,
+	api_installed: false,
+	has_banner: false,
+	banner_plugin: null,
+	can_install: true,
+	can_activate: true,
+	file_mods_allowed: true,
+};
+
+const setConsent = ( consent: Partial< typeof NOT_SET_UP > | undefined ) => {
+	window.JetpackScriptData = {
+		premium_analytics: {
+			stats_settings: {
+				roles: [],
+				features_url: null,
+				consent: consent && { ...NOT_SET_UP, ...consent },
+			},
+		},
+	} as typeof window.JetpackScriptData;
+};
+
+const step = ( name: string ) =>
+	within(
+		screen
+			.getAllByRole( 'listitem' )
+			.find( item => within( item ).queryByText( name ) ) as HTMLElement
+	);
+
+describe( 'ConsentCard', () => {
+	let user: ReturnType< typeof userEvent.setup >;
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		jest.clearAllMocks();
+		user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+		delete window.JetpackScriptData;
+	} );
+
+	it( 'renders nothing when the site sends no consent setup', () => {
+		setConsent( undefined );
+
+		const { container } = render( <ConsentCard /> );
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	it.each( [
+		[ 'nothing in place', {}, 'Not set up', 'None', 'Not installed' ],
+		[
+			'a banner and an inactive WP Consent API',
+			{ banner_plugin: 'CookieYes', api_installed: true },
+			'Not set up',
+			'Active',
+			'Inactive',
+		],
+		[
+			'both in place',
+			{ has_banner: true, api_installed: true, api_active: true },
+			'Set up',
+			'Active',
+			'Active',
+		],
+	] )( 'shows the state of %s', ( _title, consent, overall, banner, api ) => {
+		setConsent( consent );
+
+		render( <ConsentCard /> );
+
+		expect( screen.getByText( overall ) ).toBeInTheDocument();
+		expect( step( 'Cookie banner plugin' ).getByText( banner ) ).toBeInTheDocument();
+		expect( step( 'WP Consent API' ).getByText( api ) ).toBeInTheDocument();
+	} );
+
+	it.each( [
+		[
+			'installs',
+			{},
+			'Install and activate',
+			{
+				path: '/wp/v2/plugins',
+				method: 'POST',
+				data: { slug: 'wp-consent-api', status: 'active' },
+			},
+		],
+		[
+			'activates',
+			{ api_installed: true },
+			'Activate',
+			{
+				path: '/wp/v2/plugins/wp-consent-api/wp-consent-api',
+				method: 'PUT',
+				data: { status: 'active' },
+			},
+		],
+	] )(
+		'%s WP Consent API in place and keeps focus on its step',
+		async ( _title, consent, label, request ) => {
+			setConsent( { banner_plugin: 'Complianz', ...consent } );
+			mockApiFetch.mockResolvedValue( {} );
+			render( <ConsentCard /> );
+
+			await user.click( screen.getByRole( 'button', { name: label } ) );
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( request );
+			await expect( screen.findByText( 'Set up' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: label } ) ).not.toBeInTheDocument();
+			expect( step( 'WP Consent API' ).getByText( 'Active' ) ).toBeInTheDocument();
+			expect( screen.getAllByRole( 'listitem' )[ 1 ] ).toHaveFocus();
+			expect( mockCreateSuccessNotice ).toHaveBeenCalled();
+		}
+	);
+
+	it( 'reports a failed install with the reason WordPress gave, and keeps the button', async () => {
+		setConsent( {} );
+		mockApiFetch.mockRejectedValue( { message: 'Could not create directory.' } );
+		render( <ConsentCard /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Install and activate' } ) );
+
+		expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+			'WP Consent API could not be set up: Could not create directory.',
+			{ id: 'stats-consent-api-failed', type: 'snackbar' }
+		);
+		expect( screen.getByRole( 'button', { name: 'Install and activate' } ) ).toBeEnabled();
+	} );
+
+	it.each( [
+		[
+			'file modifications are disallowed',
+			{ can_install: false, file_mods_allowed: false },
+			'Plugins cannot be installed here due to your site configuration.',
+		],
+		[
+			'the user cannot install plugins',
+			{ can_install: false },
+			'You do not have permission to install plugins.',
+		],
+		[
+			'the user cannot activate the installed plugin',
+			{ api_installed: true, can_activate: false },
+			'You do not have permission to activate plugins.',
+		],
+	] )( 'explains why it cannot set up WP Consent API when %s', ( _title, consent, reason ) => {
+		setConsent( consent );
+
+		render( <ConsentCard /> );
+
+		expect( screen.getByText( reason, { exact: false } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+} );

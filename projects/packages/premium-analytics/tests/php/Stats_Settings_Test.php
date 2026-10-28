@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use ReflectionProperty;
@@ -102,6 +103,8 @@ class Stats_Settings_Test extends BaseTestCase {
 		remove_all_filters( 'pre_update_option_' . Stats_Options::OPTION_NAME );
 		remove_all_filters( 'pre_update_option_' . self::READER_VIEWS_OPTION );
 		remove_all_filters( 'wp_is_large_user_count' );
+		remove_all_filters( 'file_mod_allowed' );
+		delete_option( 'active_plugins' );
 		$this->reset_stats_options_cache();
 		remove_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ), 20 );
 		Constants::clear_single_constant( 'IS_WPCOM' );
@@ -307,6 +310,49 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->log_in_as( 'editor' );
 
 		$this->assertSame( array(), Stats_Settings::add_script_data( array() ) );
+	}
+
+	/**
+	 * Active plugins and the banner the consent card names for them.
+	 *
+	 * @return array
+	 */
+	public static function banner_plugin_provider() {
+		return array(
+			'CookieYes'             => array( array( 'akismet/akismet.php', 'cookie-law-info/cookie-law-info.php' ), 'CookieYes' ),
+			'Complianz premium'     => array( array( 'complianz-gdpr-premium/complianz-gpdr-premium.php' ), 'Complianz' ),
+			'a lookalike directory' => array( array( 'cookie-law-info-extra/cookie-law-info.php' ), null ),
+			'no banner plugin'      => array( array( 'akismet/akismet.php' ), null ),
+		);
+	}
+
+	/**
+	 * @dataProvider banner_plugin_provider
+	 *
+	 * @param string[]    $active_plugins Active plugin files.
+	 * @param string|null $expected       The banner plugin the card names.
+	 */
+	#[DataProvider( 'banner_plugin_provider' )]
+	public function test_script_data_names_the_active_banner_plugin( array $active_plugins, $expected ) {
+		$this->log_in_as( 'administrator' );
+		update_option( 'active_plugins', $active_plugins );
+
+		$consent = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
+
+		$this->assertSame( $expected, $consent['banner_plugin'] );
+	}
+
+	public function test_script_data_says_when_file_mods_rule_out_installing() {
+		$this->log_in_as( 'administrator' );
+		$allowed = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
+		add_filter( 'file_mod_allowed', '__return_false' );
+
+		$disallowed = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
+
+		$this->assertTrue( $allowed['can_install'] );
+		$this->assertTrue( $allowed['file_mods_allowed'] );
+		$this->assertFalse( $disallowed['can_install'] );
+		$this->assertFalse( $disallowed['file_mods_allowed'] );
 	}
 
 	/**

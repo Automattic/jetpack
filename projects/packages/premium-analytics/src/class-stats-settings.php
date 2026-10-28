@@ -201,7 +201,7 @@ final class Stats_Settings {
 	}
 
 	/**
-	 * Give the Settings tab the roles it lists, with how many users hold each, and the screen that switches the Stats module on and off.
+	 * Give the Settings tab the roles it lists, with how many users hold each, the screen that switches the Stats module on and off, and the visitor consent setup.
 	 *
 	 * @param array $data The script data.
 	 * @return array The script data with the Stats settings context added.
@@ -234,8 +234,51 @@ final class Stats_Settings {
 			'roles'        => $roles,
 			// Jetpack can be active without My Jetpack's screen, for example on Atomic, where wpcomsh skips it.
 			'features_url' => class_exists( 'Jetpack' ) && '' !== menu_page_url( 'my-jetpack', false ) ? admin_url( 'admin.php?page=my-jetpack#/features?search=stats' ) : null,
+			'consent'      => self::get_consent_status(),
 		);
 
 		return $data;
+	}
+
+	/**
+	 * Whether visitor consent can reach Stats: the WP Consent API bridge, and a cookie banner plugin behind it.
+	 *
+	 * @return array
+	 */
+	private static function get_consent_status() {
+		$plugin_file = 'wp-consent-api/wp-consent-api.php';
+
+		// Banner plugins known to support the WP Consent API, by plugin directory.
+		$banner_plugins = array(
+			'complianz-gdpr'         => 'Complianz',
+			'complianz-gdpr-premium' => 'Complianz',
+			'cookiebot'              => 'Cookiebot',
+			'cookie-law-info'        => 'CookieYes',
+		);
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+		if ( is_multisite() ) {
+			$active_plugins = array_merge( $active_plugins, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
+		}
+		$banner_plugin = null;
+		foreach ( $active_plugins as $active ) {
+			$dir = strtok( $active, '/' );
+			if ( isset( $banner_plugins[ $dir ] ) ) {
+				$banner_plugin = $banner_plugins[ $dir ];
+				break;
+			}
+		}
+
+		return array(
+			'api_active'        => function_exists( 'wp_has_consent' ),
+			'api_installed'     => file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ),
+			// Complianz answers this filter, but CookieYes sets the type only in the browser, hence `banner_plugin`.
+			'has_banner'        => function_exists( 'wp_get_consent_type' ) && (bool) wp_get_consent_type(),
+			'banner_plugin'     => $banner_plugin,
+			// What core's `wp/v2/plugins` route checks before it installs or activates.
+			'can_install'       => current_user_can( 'install_plugins' ) && current_user_can( 'activate_plugins' ),
+			'can_activate'      => current_user_can( 'activate_plugin', $plugin_file ),
+			// The check core's `install_plugins` capability makes first, so the card can say why it cannot install.
+			'file_mods_allowed' => wp_is_file_mod_allowed( 'capability_update_core' ),
+		);
 	}
 }

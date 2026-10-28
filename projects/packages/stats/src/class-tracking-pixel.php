@@ -185,14 +185,12 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 			$data['post']
 		);
 
-		// OFF (default): byte-for-byte identical to the historical output.
-		if ( ! Options::get_option( 'honor_cookie_consent' ) ) {
+		// Without the WP Consent API plugin there is no consent to honor, so the output stays byte-for-byte historical.
+		if ( ! function_exists( 'wp_has_consent' ) ) {
 			return "_stq = window._stq || [];\n" . $pushes;
 		}
 
-		// Fail closed when the WP Consent API plugin is active (an unavailable client-side API
-		// means "wait", not "fire"); fail open otherwise to preserve historical tracking.
-		return self::build_consent_gate( $pushes, ! function_exists( 'wp_has_consent' ) );
+		return self::build_consent_gate( $pushes );
 	}
 
 	/**
@@ -200,7 +198,8 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 *
 	 * The check runs in the browser because cached HTML is shared across visitors, deferred to
 	 * DOMContentLoaded (and re-run on the `wp_consent_type_defined` readiness event) so a
-	 * late-loading consent plugin is still honored. The check is idempotent.
+	 * late-loading consent plugin is still honored. The check is idempotent, and fails closed: an
+	 * unavailable or throwing client-side API waits for a consent-change event instead of firing.
 	 *
 	 * `_jpStatsFire.done` is set before the pushes, not after, so the gate is at-most-once even
 	 * if a push throws. Retrying can't recover: the stats sender assigns the beacon `src` before
@@ -208,13 +207,10 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * a replay would double-count it.
 	 *
 	 * @access private
-	 * @param string $pushes    The `_stq.push(...)` statements to gate.
-	 * @param bool   $fail_open Whether to fire when the client-side WP Consent API is unavailable.
+	 * @param string $pushes The `_stq.push(...)` statements to gate.
 	 * @return string
 	 */
-	private static function build_consent_gate( $pushes, $fail_open ) {
-		$fail_open_literal = $fail_open ? 'true' : 'false';
-
+	private static function build_consent_gate( $pushes ) {
 		return sprintf(
 			'_stq = window._stq || [];
 function _jpStatsFire() {
@@ -223,17 +219,10 @@ function _jpStatsFire() {
 	%1$s
 }
 function _jpStatsCheck() {
-	if ( typeof window.wp_has_consent === "function" ) {
-		var consented;
-		try {
-			consented = window.wp_has_consent( "statistics" );
-		} catch ( e ) {
-			consented = %2$s;
-		}
-		if ( consented ) { _jpStatsFire(); }
-		return;
-	}
-	if ( %2$s ) { _jpStatsFire(); }
+	if ( typeof window.wp_has_consent !== "function" ) { return; }
+	try {
+		if ( window.wp_has_consent( "statistics" ) ) { _jpStatsFire(); }
+	} catch ( e ) {}
 }
 document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
 	if ( event && event.detail && event.detail.statistics === "allow" ) { _jpStatsFire(); }
@@ -245,8 +234,7 @@ if ( document.readyState === "loading" ) {
 } else {
 	_jpStatsCheck();
 }',
-			$pushes,
-			$fail_open_literal
+			$pushes
 		);
 	}
 
