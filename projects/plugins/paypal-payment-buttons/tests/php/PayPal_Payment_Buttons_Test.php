@@ -98,6 +98,7 @@ class PayPal_Payment_Buttons_Test extends BaseTestCase {
 		$this->assertStringEndsWith( ' );', $before );
 
 		$data = json_decode( substr( $before, strlen( $prefix ), -3 ), true );
+		$this->assertIsArray( $data );
 		$this->assertSame( array( 'available' => true ), $data['available_blocks']['paypal-payment-buttons'] );
 		$this->assertIsArray( $data['feature_flags'] );
 	}
