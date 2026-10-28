@@ -538,7 +538,7 @@ class WriteCommandTest extends CommandTestCase {
 				0,
 				array( '{^$}m' ),
 				true,
-				"# Changelog\n\n## 1.0.2 - $date\n### Fixed\n- Fixed a neat thing. [#1] [#2] [#3]\n- Fixed another thing. [#4]\n- Fixed a third thing. [#8] [#9]\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
+				"# Changelog\n\n## 1.0.2 - $date\n### Fixed\n- Fixed a neat thing. [#1] [#2] [#3]\n- Fixed another thing. [#4]\n- Fixed a thing, no PR.\n- Fixed a third thing. [#8] [#9]\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
 			'Deduplication removes all changes'            => array(
 				array( '--deduplicate' => '1' ),
