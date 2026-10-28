@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Scan: Stop showing threat alerts in the admin menu and admin bar on WordPress.com sites, where the host handles threats.
+Scan: Stop showing threat alerts in the admin menu, admin bar, and My Jetpack on WordPress.com-hosted (Atomic) sites.
