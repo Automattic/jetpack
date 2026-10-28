@@ -499,7 +499,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 	public function test_caption_track_content_neutralizes_bang_terminator() {
 		// Escaped as the block serializer writes it: a raw `--!>` ends the comment early.
 		$blocks = $this->stored_cue_blocks(
-			'<!-- wp:videopress/caption-cue {"startTime":"00:00:00.000","endTime":"00:00:02.000","text":"Bad --!> cue"} /-->'
+			'<!-- wp:videopress/caption-cue {"startTime":"00:00:00.000","endTime":"00:00:02.000","text":"Bad \u002d\u002d!\u003e cue"} /-->'
 		);
 
 		$this->assertCount( 1, $blocks );
