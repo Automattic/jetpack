@@ -5,7 +5,6 @@ import {
 	PricingTableColumn,
 	PricingTableHeader,
 	PricingTableItem,
-	Text,
 } from '@automattic/jetpack-components';
 import { getRegistrationErrorSummary, useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
@@ -13,6 +12,7 @@ import { useCallback, useState } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
+import Notice from '../notice';
 import styles from './styles.module.scss';
 
 /**
@@ -97,6 +97,17 @@ const ConnectedPricingTable = () => {
 
 	return (
 		<>
+			{ registrationError && (
+				<div className={ styles.notice } role="alert">
+					<Notice
+						type="error"
+						message={
+							getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
+							__( 'An error occurred. Please try again.', 'jetpack-protect' )
+						}
+					/>
+				</div>
+			) }
 			<PricingTable { ...args }>
 				<PricingTableColumn primary>
 					<PricingTableHeader>
@@ -154,12 +165,6 @@ const ConnectedPricingTable = () => {
 						>
 							{ __( 'Start for free', 'jetpack-protect' ) }
 						</Button>
-						{ registrationError && (
-							<Text variant="body-small" className={ styles.error } role="alert">
-								{ getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
-									__( 'An error occurred. Please try again.', 'jetpack-protect' ) }
-							</Text>
-						) }
 					</PricingTableHeader>
 					<PricingTableItem
 						isIncluded={ true }
