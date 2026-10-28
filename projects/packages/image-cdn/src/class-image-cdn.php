@@ -1255,18 +1255,20 @@ final class Image_CDN {
 	 * @return string
 	 **/
 	public static function strip_image_dimensions_maybe( $src ) {
-		$stripped_src = $src;
+		// Match on the path alone, so a size URL with a query string (e.g. `?ver=2`) is stripped too; the query is kept.
+		$path_length = strcspn( $src, '?#' );
+		$path        = substr( $src, 0, $path_length );
 
 		// Build URL, first removing WP's resized string so we pass the original image to Photon.
-		if ( preg_match( '#(-\d+x\d+)\.(' . implode( '|', self::$extensions ) . '){1}$#i', $src, $src_parts ) ) {
-			$stripped_src = str_replace( $src_parts[1], '', $src );
-			$upload_dir   = wp_get_upload_dir();
+		if ( preg_match( '#(-\d+x\d+)\.(' . implode( '|', self::$extensions ) . '){1}$#i', $path, $src_parts ) ) {
+			$stripped_path = str_replace( $src_parts[1], '', $path );
+			$upload_dir    = wp_get_upload_dir();
 
 			// Extracts the file path to the image minus the base url.
-			$file_path = substr( $stripped_src, strlen( $upload_dir['baseurl'] ) );
+			$file_path = substr( $stripped_path, strlen( $upload_dir['baseurl'] ) );
 
 			if ( file_exists( $upload_dir['basedir'] . $file_path ) ) {
-				$src = $stripped_src;
+				$src = $stripped_path . substr( $src, $path_length );
 			}
 		}
 

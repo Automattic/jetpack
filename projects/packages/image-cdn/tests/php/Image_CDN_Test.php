@@ -1562,8 +1562,12 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 
 	/**
 	 * Tests Photon stripping the image dimensions from filename.
+	 *
+	 * @param string $query Query string after the filename.
+	 * @dataProvider get_test_image_cdn_strip_image_dimensions_maybe_strips_resized_string_data_provider
 	 */
-	public function test_image_cdn_strip_image_dimensions_maybe_strips_resized_string() {
+	#[DataProvider( 'get_test_image_cdn_strip_image_dimensions_maybe_strips_resized_string_data_provider' )]
+	public function test_image_cdn_strip_image_dimensions_maybe_strips_resized_string( $query ) {
 		$orig_filename = 'test-image-large.png';
 		$filename      = 'test-image-large-150x150.png';
 		$filepath      = DIR_TESTDATA . '/' . $orig_filename;
@@ -1575,13 +1579,23 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 		$upload_dir = wp_get_upload_dir();
 
 		$id  = $this->make_attachment( $upload );
-		$url = $upload_dir['url'] . '/' . $filename;
+		$url = $upload_dir['url'] . '/' . $filename . $query;
 
-		$expected = wp_get_attachment_url( $id );
+		$expected = wp_get_attachment_url( $id ) . $query;
 
 		$this->assertEquals( $expected, Image_CDN::strip_image_dimensions_maybe( $url ) );
 
 		wp_delete_attachment( $id );
+	}
+
+	/**
+	 * Possible values for test_image_cdn_strip_image_dimensions_maybe_strips_resized_string.
+	 */
+	public static function get_test_image_cdn_strip_image_dimensions_maybe_strips_resized_string_data_provider() {
+		return array(
+			'no query string' => array( '' ),
+			'query string'    => array( '?ver=2' ),
+		);
 	}
 
 	/**
