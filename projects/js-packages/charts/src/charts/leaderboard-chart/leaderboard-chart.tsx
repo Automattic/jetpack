@@ -301,9 +301,10 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	);
 	const shouldFitRows = fitRows && isMeasurable;
 	// Comparing adds a delta track so the values and the deltas each line up in a column
-	// of their own; without it the grid keeps its two tracks and the layout is unchanged.
+	// of their own; with either series hidden the grid keeps its two tracks.
 	const showComparisonColumn = withComparison && isComparisonVisible;
-	const templateColumns = showComparisonColumn ? 'minmax(0, 1fr) auto auto' : 'minmax(0, 1fr) auto';
+	const templateColumns =
+		showComparisonColumn && isPrimaryVisible ? 'minmax(0, 1fr) auto auto' : 'minmax(0, 1fr) auto';
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {

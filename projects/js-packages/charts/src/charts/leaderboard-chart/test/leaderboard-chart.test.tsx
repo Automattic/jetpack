@@ -751,30 +751,32 @@ describe( 'LeaderboardChart', () => {
 		const templateColumns = () =>
 			grid().style.getPropertyValue( '--wp-components-grid-template-columns' );
 
-		it.each( [
-			[ 'a delta track when comparing', true, 'minmax(0, 1fr) auto auto' ],
-			[ 'no delta track without a comparison', false, 'minmax(0, 1fr) auto' ],
-		] )( 'lays the rows out on %s', ( _name, withComparison, expected ) => {
-			render( <LeaderboardChart data={ mockData } withComparison={ withComparison } /> );
-
-			expect( templateColumns() ).toBe( expected );
-		} );
-
-		it( 'drops the delta track while the comparison series is hidden', async () => {
-			const user = userEvent.setup();
-			render(
-				<LeaderboardChart
-					data={ mockData }
-					withComparison={ true }
-					showLegend={ true }
-					legend={ { interactive: true } }
-				/>
-			);
-
-			await user.click( screen.getByRole( 'button', { name: /Previous period/ } ) );
+		it( 'lays the rows out without a delta track when not comparing', () => {
+			render( <LeaderboardChart data={ mockData } withComparison={ false } /> );
 
 			expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto' );
 		} );
+
+		it.each( [ [ 'Previous period' ], [ 'Current period' ] ] )(
+			'adds a delta track when comparing and drops it while "%s" is hidden',
+			async legendItem => {
+				const user = userEvent.setup();
+				render(
+					<LeaderboardChart
+						data={ mockData }
+						withComparison={ true }
+						showLegend={ true }
+						legend={ { interactive: true } }
+					/>
+				);
+
+				expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto auto' );
+
+				await user.click( screen.getByRole( 'button', { name: new RegExp( legendItem ) } ) );
+
+				expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto' );
+			}
+		);
 
 		it( 'hands the catalog role to the grid', () => {
 			render( <LeaderboardChart data={ mockData } /> );
