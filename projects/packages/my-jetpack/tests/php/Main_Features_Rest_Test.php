@@ -827,6 +827,7 @@ class Main_Features_Rest_Test extends TestCase {
 	 * @param bool   $dashboard Whether the Protect page owns the security modules.
 	 * @param bool   $active Whether to activate the modules.
 	 * @param bool   $can_manage Whether the user can manage modules.
+	 * @param bool   $security_active Whether security modules start active.
 	 * @param array  $expected_failed Expected failed module slugs.
 	 * @param string $expected_message Expected failure message.
 	 * @param bool   $expected_security_active Expected security module state.
@@ -835,7 +836,7 @@ class Main_Features_Rest_Test extends TestCase {
 	#[DataProvider( 'protect_page_bulk_switches' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_bulk_respects_protect_page_ownership( $dashboard, $active, $can_manage, $expected_failed, $expected_message, $expected_security_active, $expected_stats_active ) {
+	public function test_bulk_respects_protect_page_ownership( $dashboard, $active, $can_manage, $security_active, $expected_failed, $expected_message, $expected_security_active, $expected_stats_active ) {
 		$security = array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' );
 		$modules  = array_merge( $security, array( 'stats' ) );
 		$offer    = fn( $available ) => array_values( array_unique( array_merge( $available, $modules ) ) );
@@ -843,7 +844,7 @@ class Main_Features_Rest_Test extends TestCase {
 		if ( $can_manage ) {
 			add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
 		}
-		Jetpack_Options::update_option( 'active_modules', $active ? array() : $modules );
+		Jetpack_Options::update_option( 'active_modules', array_merge( $security_active ? $security : array(), $active ? array() : array( 'stats' ) ) );
 		if ( $dashboard ) {
 			do_action( 'jetpack_protect_dashboard_initialized' );
 		}
@@ -875,46 +876,41 @@ class Main_Features_Rest_Test extends TestCase {
 
 	public static function protect_page_bulk_switches() {
 		return array(
-			'Protect page on, activate'    => array(
+			'Protect page on, already active' => array(
 				true,
 				true,
 				true,
-				array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' ),
-				'Managed in Protect. Change these settings on the Protect page.',
-				false,
-				true,
-			),
-			'Protect page on, deactivate'  => array(
-				true,
-				false,
 				true,
 				array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' ),
 				'Managed in Protect. Change these settings on the Protect page.',
 				true,
+				true,
+			),
+			'Protect page on, deactivate'     => array(
+				true,
+				false,
+				true,
+				true,
+				array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' ),
+				'Managed in Protect. Change these settings on the Protect page.',
+				true,
 				false,
 			),
-			'Protect page off, activate'   => array(
+			'Protect page off, activate'      => array(
 				false,
 				true,
 				true,
+				false,
 				array(),
 				'',
 				true,
 				true,
 			),
-			'Protect page off, deactivate' => array(
-				false,
-				false,
-				true,
-				array(),
-				'',
-				false,
-				false,
-			),
-			'capability refusal wins'      => array(
+			'capability refusal wins'         => array(
 				true,
 				false,
 				false,
+				true,
 				array( 'waf', 'protect', 'account-protection', 'sso', 'monitor', 'stats' ),
 				'You are not allowed to manage Jetpack modules on this site.',
 				true,
