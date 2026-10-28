@@ -19,13 +19,14 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 let mockRows: UtmInsightsRow[] = [];
+let mockIsLoading = false;
 
 jest.mock( '../use-utm-insights', () => ( {
 	__esModule: true,
 	default: () => ( {
 		data: mockRows,
 		hasComparison: false,
-		isLoading: false,
+		isLoading: mockIsLoading,
 		isFetching: false,
 		hasData: mockRows.length > 0,
 		isError: false,
@@ -35,6 +36,7 @@ jest.mock( '../use-utm-insights', () => ( {
 beforeEach( () => {
 	jest.useFakeTimers();
 	mockRows = [];
+	mockIsLoading = false;
 } );
 
 const setupUser = () => userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
@@ -60,7 +62,11 @@ describe( 'UtmInsightsWidget', () => {
 		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'leaves Build URL to the empty state when there are no UTM visits', () => {
+	it.each( [
+		[ 'there are no UTM visits', false ],
+		[ 'the first load is in flight', true ],
+	] )( 'leaves Build URL out of the footer while %s', ( _state, isLoading ) => {
+		mockIsLoading = isLoading;
 		const { declaredActions } = renderWithActionsHost( <UtmInsightsWidget attributes={ {} } /> );
 
 		expect( declaredActions().map( action => action.id ) ).toEqual( [ 'view-all' ] );

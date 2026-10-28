@@ -167,7 +167,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 			className={ styles.backLink }
 		/>
 	) : null;
-	const showsEmptyState = ! isError && ! isLoading && data.length === 0;
+	const offersFooterBuildUrl = isError || data.length > 0;
 	useReportActions( {
 		...( showReportLink && {
 			report: 'utm',
@@ -178,16 +178,16 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 				rowCount: data.length,
 			},
 		} ),
-		actions: showsEmptyState
-			? []
-			: [
+		actions: offersFooterBuildUrl
+			? [
 					{
 						id: 'build-url',
 						label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
 						relevance: 'medium',
 						callback: openBuilder,
 					},
-				],
+				]
+			: [],
 	} );
 
 	return (
