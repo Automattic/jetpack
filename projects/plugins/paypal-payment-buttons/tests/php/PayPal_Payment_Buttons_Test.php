@@ -93,6 +93,12 @@ class PayPal_Payment_Buttons_Test extends BaseTestCase {
 
 		$before = implode( "\n", array_filter( (array) wp_scripts()->get_data( $handle, 'before' ) ) );
 		$this->assertEmpty( wp_scripts()->get_data( $handle, 'data' ) );
-		$this->assertSame( trim( file_get_contents( __DIR__ . '/../fixtures/editor-initial-state.js.txt' ) ), $before );
+		$prefix = trim( file_get_contents( __DIR__ . '/../fixtures/editor-initial-state.js.txt' ) ) . '( ';
+		$this->assertStringStartsWith( $prefix, $before );
+		$this->assertStringEndsWith( ' );', $before );
+
+		$data = json_decode( substr( $before, strlen( $prefix ), -3 ), true );
+		$this->assertSame( array( 'available' => true ), $data['available_blocks']['paypal-payment-buttons'] );
+		$this->assertIsArray( $data['feature_flags'] );
 	}
 }
