@@ -1,0 +1,57 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+// Shared by CheckboxCard and RadioCard, which differ only in their control.
+
+@mixin grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	column-gap: var(--wpds-dimension-gap-md);
+	row-gap: var(--wpds-dimension-gap-2xl);
+
+	@media (max-width: 720px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+// $selected matches the card while its control is selected.
+@mixin card($selected) {
+
+	&#{$selected} {
+		border-color: var(--wpds-color-stroke-interactive-brand-active);
+	}
+
+	&:hover:not(#{$selected}) {
+		border-color: var(--wpds-color-stroke-surface-neutral-strong);
+	}
+
+	&:has(:focus-visible) {
+
+		@include gb.outset-ring__focus();
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		transition: border-color 0.15s ease-out;
+	}
+}
+
+@mixin surface {
+	position: relative;
+}
+
+@mixin illustration {
+	display: flex;
+	aspect-ratio: 294 / 192;
+	background: var(--wpds-color-background-surface-neutral-weak);
+	cursor: var(--wpds-cursor-control);
+
+	> svg {
+		inline-size: 100%;
+		block-size: 100%;
+	}
+}
+
+@mixin control {
+	position: absolute;
+	inset-block-start: var(--wpds-dimension-padding-md);
+	inset-inline-start: var(--wpds-dimension-padding-md);
+}

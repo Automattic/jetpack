@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Image CDN: Fix some images hosted on other sites failing to load when their file name ends in a size like -600x400.

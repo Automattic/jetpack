@@ -133,6 +133,15 @@ const row = {
 };
 ```
 
+A `viewLink` row keeps the label as plain text and offers the URL from a "View in new tab"
+action beside it, revealed on hover or focus, for lists whose rows should not read as links
+themselves. `resolveLeaderboardRowAction` returns it for a childless row when passed
+`hrefAs: 'viewLink'`:
+
+```tsx
+action: { kind: 'viewLink', href: 'https://example.com' },
+```
+
 For a drill-down row, pass the chart-level action to the builder. Its result includes the
 `onClick` and `ariaLabel` fields expected by `LeaderboardChart`:
 
@@ -238,7 +247,7 @@ Pass a `thumbnail` a `fallbackIcon` to draw that glyph in a bordered box, instea
 
 Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
 It applies the shared precedence: drill-down for rows with children, external links for
-childless rows, and static content otherwise.
+childless rows (or a `viewLink` row, with `hrefAs: 'viewLink'`), and static content otherwise.
 
 Use `LeaderboardLabel` directly for media plus truncating text outside chart rows, such as a
 DataViews table cell. It deliberately does not add the chart row's 36px minimum block size or its

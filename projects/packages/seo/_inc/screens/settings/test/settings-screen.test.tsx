@@ -3,7 +3,7 @@ import { jest } from '@jest/globals';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
@@ -27,8 +27,12 @@ jest.unstable_mockModule( '../author-profile-card', () => ( {
 jest.unstable_mockModule( '../schema-card', () => ( {
 	default: () => <div>schema</div>,
 } ) );
+// Records its props so the wiring into it (the live title format) can be checked.
+const SocialPreviewsCard = jest.fn< ( props: Record< string, unknown > ) => ReactElement >( () => (
+	<div>social previews</div>
+) );
 jest.unstable_mockModule( '../social-previews-card', () => ( {
-	default: () => <div>social previews</div>,
+	default: SocialPreviewsCard,
 } ) );
 jest.unstable_mockModule( '../title-structure-field', () => ( {
 	default: () => <div>title structure</div>,
@@ -507,11 +511,9 @@ describe( 'WordPress.com Simple settings', () => {
 			expect( statusFor( 'Site visibility' ) ).toBe(
 				searchEnginesVisible ? 'Complete' : 'Not started'
 			);
-			expect(
-				screen.getByText(
-					'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
-				)
-			).toBeInTheDocument();
+			expect( toggle ).toHaveAccessibleDescription(
+				'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
+			);
 			expect( screen.getByRole( 'link', { name: /Explore hosting options/ } ) ).toHaveAttribute(
 				'href',
 				'https://wordpress.com/support/activate-your-plan/'
@@ -556,5 +558,41 @@ describe( 'Settings module text hierarchy', () => {
 		// `body-md` is also `Text`'s default, so the class alone would still pass if the
 		// `variant` prop were deleted outright. The `<p>` pins that it's a real paragraph.
 		expect( description.tagName ).toBe( 'P' );
+	} );
+} );
+
+describe( 'Search & social previews', () => {
+	// Earlier tests render the card too. Clear their calls so each assertion reads
+	// this test's render, and fails if the card isn't rendered at all.
+	beforeEach( () => {
+		SocialPreviewsCard.mockClear();
+	} );
+
+	// The previews show the home page's title, so they are fed the Front page
+	// format being edited in Title structure, not only the saved one.
+	it( 'passes the Front page title format and the separator to the previews', () => {
+		const frontPage = [
+			{ type: 'token', value: 'site_name' },
+			{ type: 'string', value: ' | ' },
+			{ type: 'token', value: 'tagline' },
+		] as SettingsResponse[ 'title_formats' ][ string ];
+
+		render(
+			<SettingsScreen
+				form={ buildForm( { title_formats: { front_page: frontPage }, title_separator: '–' } ) }
+			/>
+		);
+
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { frontPageTitleFormat: frontPage, titleSeparator: '–' } )
+		);
+	} );
+
+	it( 'passes an empty format when the Front page keeps the default title', () => {
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { frontPageTitleFormat: [] } )
+		);
 	} );
 } );

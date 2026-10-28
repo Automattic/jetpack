@@ -1,54 +1,26 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../selectable-card/selectable-card";
 
 .jp-checkbox-card-grid {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	column-gap: var(--wpds-dimension-gap-md);
-	row-gap: var(--wpds-dimension-gap-2xl);
 
-	@media (max-width: 720px) {
-		grid-template-columns: minmax(0, 1fr);
-	}
+	@include selectable-card.grid;
 }
 
 .jp-checkbox-card {
 
-	&[data-checked="true"] {
-		border-color: var(--wpds-color-stroke-interactive-brand-active);
-	}
-
-	&:hover:not([data-checked="true"]) {
-		border-color: var(--wpds-color-stroke-surface-neutral-strong);
-	}
-
-	&:has(:focus-visible) {
-
-		@include gb.outset-ring__focus();
-	}
-
-	@media (prefers-reduced-motion: no-preference) {
-		transition: border-color 0.15s ease-out;
-	}
+	@include selectable-card.card('[data-checked="true"]');
 }
 
 .jp-checkbox-card__surface {
-	position: relative;
+
+	@include selectable-card.surface;
 }
 
 .jp-checkbox-card__illustration {
-	display: flex;
-	aspect-ratio: 294 / 192;
-	background: var(--wpds-color-background-surface-neutral-weak);
-	cursor: var(--wpds-cursor-control);
 
-	> svg {
-		inline-size: 100%;
-		block-size: 100%;
-	}
+	@include selectable-card.illustration;
 }
 
 .jp-checkbox-card__checkbox {
-	position: absolute;
-	inset-block-start: var(--wpds-dimension-padding-md);
-	inset-inline-start: var(--wpds-dimension-padding-md);
+
+	@include selectable-card.control;
 }
