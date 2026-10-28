@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Stats\Abilities;
 use Automattic\Jetpack\Stats\Settings;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\WP_Abilities\Registrar;
+use Jetpack_Options;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -153,7 +154,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site stats overview', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, views over the last 7 and 30 days, the current posting streak, today\'s top post, and today\'s top referrer. Shape: { date, views_today, visitors_today, views_week, views_month, streak: { current_length, longest_length, longest_start, longest_end }, top_post: { id, title, views }, top_referrer: { name, views }, partial: bool, errors?: [string] }. `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `streak.current_length` is 0 unless the latest posting streak reaches today or yesterday. `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), and `referrers` (`top_referrer`). Fields fed by a failed sub-call are placeholders (0, empty, or null) rather than confirmed values, so cross-reference `errors` before treating a 0 or null as authoritative. If every sub-call fails, returns `jetpack_stats_data_unavailable`. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
+				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, views over the last 7 and 30 days, the current posting streak, today\'s top post, and today\'s top referrer. Shape: { site: { id, url }, date, views_today, visitors_today, views_week, views_month, streak: { current_length, longest_length, longest_start, longest_end }, top_post: { id, title, views }, top_referrer: { name, views }, partial: bool, errors?: [string] }. `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `streak.current_length` is 0 unless the latest posting streak reaches today or yesterday. `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), and `referrers` (`top_referrer`). Fields fed by a failed sub-call are null, `streak` included, as is a total covering a day WordPress.com did not report, so a 0 is always a measured zero. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -166,11 +167,12 @@ class Stats_Abilities extends Registrar {
 				'type'       => 'object',
 				'properties' => array(
 					'date'           => array( 'type' => 'string' ),
-					'views_today'    => array( 'type' => 'integer' ),
-					'visitors_today' => array( 'type' => 'integer' ),
-					'views_week'     => array( 'type' => 'integer' ),
-					'views_month'    => array( 'type' => 'integer' ),
-					'streak'         => array( 'type' => 'object' ),
+					'site'           => self::site_schema(),
+					'views_today'    => array( 'type' => array( 'integer', 'null' ) ),
+					'visitors_today' => array( 'type' => array( 'integer', 'null' ) ),
+					'views_week'     => array( 'type' => array( 'integer', 'null' ) ),
+					'views_month'    => array( 'type' => array( 'integer', 'null' ) ),
+					'streak'         => array( 'type' => array( 'object', 'null' ) ),
 					'top_post'       => array( 'type' => array( 'object', 'null' ) ),
 					'top_referrer'   => array( 'type' => array( 'object', 'null' ) ),
 					'partial'        => array( 'type' => 'boolean' ),
@@ -201,7 +203,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get top stats content', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Uniform shape: { type, period, date, num, max, items: [ { rank, label, value, href?, id? } ] } — agents MUST NOT see a different shape per type. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday. Precondition: site must be connected to WordPress.com.',
+				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Uniform shape: { site: { id, url }, type, period, date, num, max, items: [ { rank, label, value, href?, id? } ] } — agents MUST NOT see a different shape per type. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -244,6 +246,7 @@ class Stats_Abilities extends Registrar {
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
+					'site'   => self::site_schema(),
 					'type'   => array( 'type' => 'string' ),
 					'period' => array( 'type' => 'string' ),
 					'date'   => array( 'type' => 'string' ),
@@ -276,7 +279,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get views for a post', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return views history for a single post: total views, timeseries of per-period views, and the period metadata. Shape: { post_id, total_views, period, num, date, series: [ { date, views } ] }. `total_views` is the post\'s all-time view count. `series` always has `num` rows, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday) and periods with no views are 0. Returns `jetpack_stats_post_not_found` when no post has that ID. Accepts post_id as integer or numeric string (the literal "0" is rejected only because WordPress has no post 0 — any positive numeric value is legal). Precondition: site must be connected to WordPress.com. Related: call jetpack-stats/get-top-content with type=posts first and pass an item\'s `id` as `post_id`.',
+				'Return views history for a single post: total views, timeseries of per-period views, and the period metadata. Shape: { site: { id, url }, post_id, total_views, period, num, date, series: [ { date, views } ] }. `total_views` is the post\'s all-time view count, or null when WordPress.com does not report it. `series` always has `num` rows, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday) and periods with no views are 0. Returns `jetpack_stats_post_not_found` when no post has that ID. Accepts post_id as integer or numeric string (the literal "0" is rejected only because WordPress has no post 0 — any positive numeric value is legal). `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com. Related: call jetpack-stats/get-top-content with type=posts first and pass an item\'s `id` as `post_id`.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -311,8 +314,9 @@ class Stats_Abilities extends Registrar {
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
+					'site'        => self::site_schema(),
 					'post_id'     => array( 'type' => 'integer' ),
-					'total_views' => array( 'type' => 'integer' ),
+					'total_views' => array( 'type' => array( 'integer', 'null' ) ),
 					'period'      => array( 'type' => 'string' ),
 					'num'         => array( 'type' => 'integer' ),
 					'date'        => array( 'type' => 'string' ),
@@ -343,7 +347,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site visits timeseries', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". Shape: { period, num, date, fields, series: [ { date, views, visitors, likes, comments } ] }. Every series row always includes every field listed in the request (no per-row omission). Precondition: site must be connected to WordPress.com.',
+				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". Shape: { site: { id, url }, period, num, date, fields, series: [ { date, views, visitors, likes, comments } ] }. Every series row always includes every field listed in the request (no per-row omission); a value WordPress.com did not report, or reported as a negative "could not count" sentinel, is null rather than 0. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -383,6 +387,7 @@ class Stats_Abilities extends Registrar {
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
+					'site'   => self::site_schema(),
 					'period' => array( 'type' => 'string' ),
 					'num'    => array( 'type' => 'integer' ),
 					'date'   => array( 'type' => 'string' ),
@@ -414,7 +419,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get follower counts', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a breakdown of follower counts across email, WordPress.com, comment, and publicize (per-service) — answers "how is my audience growing?" in one call. Shape: { total, email, wpcom, comment, publicize: { <service>: count }, partial: bool, errors?: [string] }. `email` and `wpcom` are the site\'s email subscribers and WordPress.com followers; `comment` counts people following the comments on every post (following one post\'s comments is not counted), and is reported as unknown through `errors` when WordPress.com does not list that count on its first page; `publicize` is an object, empty when no social connection reports followers. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `followers` (`email` and `wpcom`), `comment_followers`, and `publicize_followers`. Counts fed by a failed sub-call are placeholders (0, or an empty `publicize`) rather than confirmed values, so cross-reference `errors` before treating them as authoritative. Precondition: site must be connected to WordPress.com.',
+				'Return a breakdown of follower counts across email, WordPress.com, comment, and publicize (per-service) — answers "how is my audience growing?" in one call. Shape: { site: { id, url }, total, email, wpcom, comment, publicize: { <service>: count }, partial: bool, errors?: [string] }. `email` and `wpcom` are the site\'s email subscribers and WordPress.com followers; `comment` counts people following the comments on every post (following one post\'s comments is not counted), and is reported as unknown through `errors` when WordPress.com does not list that count on its first page; `publicize` is an object, empty when no social connection reports followers. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `followers` (`email` and `wpcom`), `comment_followers`, and `publicize_followers`. Counts fed by a failed sub-call are null, `publicize` included, and `total` is null whenever any count is, so a 0 is always a measured zero. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -426,11 +431,12 @@ class Stats_Abilities extends Registrar {
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'total'     => array( 'type' => 'integer' ),
-					'email'     => array( 'type' => 'integer' ),
-					'wpcom'     => array( 'type' => 'integer' ),
-					'comment'   => array( 'type' => 'integer' ),
-					'publicize' => array( 'type' => 'object' ),
+					'site'      => self::site_schema(),
+					'total'     => array( 'type' => array( 'integer', 'null' ) ),
+					'email'     => array( 'type' => array( 'integer', 'null' ) ),
+					'wpcom'     => array( 'type' => array( 'integer', 'null' ) ),
+					'comment'   => array( 'type' => array( 'integer', 'null' ) ),
+					'publicize' => array( 'type' => array( 'object', 'null' ) ),
 					'partial'   => array( 'type' => 'boolean' ),
 					'errors'    => array( 'type' => 'array' ),
 				),
@@ -651,16 +657,18 @@ class Stats_Abilities extends Registrar {
 		// The series ends today, so its last row is today and its last 7 rows are the last 7 days.
 		$days     = self::normalize_visits_series( $values['visits'], array( 'views', 'visitors' ) );
 		$last_day = end( $days );
+		$last_day = false === $last_day ? array() : $last_day;
 		$top_post = self::first_post( self::normalize_top_content_items( 'posts', $values['top_posts'], $post_rows ) );
 		$top_ref  = self::normalize_top_content_items( 'referrers', $values['referrers'], 1 )[0] ?? null;
 
 		$out = array(
+			'site'           => self::site(),
 			'date'           => $today,
-			'views_today'    => $last_day ? $last_day['views'] : 0,
-			'visitors_today' => $last_day ? $last_day['visitors'] : 0,
-			'views_week'     => (int) array_sum( array_column( array_slice( $days, -7 ), 'views' ) ),
-			'views_month'    => (int) array_sum( array_column( $days, 'views' ) ),
-			'streak'         => self::extract_streak_summary( $values['streak'], $today ),
+			'views_today'    => $last_day['views'] ?? null,
+			'visitors_today' => $last_day['visitors'] ?? null,
+			'views_week'     => self::sum_or_null( array_slice( $days, -7 ), 'views' ),
+			'views_month'    => self::sum_or_null( $days, 'views' ),
+			'streak'         => in_array( 'streak', $errors, true ) ? null : self::extract_streak_summary( $values['streak'], $today ),
 			'top_post'       => null === $top_post ? null : array(
 				'id'    => $top_post['id'],
 				'title' => $top_post['label'],
@@ -729,6 +737,7 @@ class Stats_Abilities extends Registrar {
 		$items = self::normalize_top_content_items( $type, $raw, $max, isset( $args['summarize'] ) );
 
 		return array(
+			'site'   => self::site(),
 			'type'   => $type,
 			'period' => $period,
 			'date'   => $date,
@@ -780,8 +789,9 @@ class Stats_Abilities extends Registrar {
 		}
 
 		return array(
+			'site'        => self::site(),
 			'post_id'     => $post_id,
-			'total_views' => isset( $raw['views'] ) ? (int) $raw['views'] : 0,
+			'total_views' => self::count_or_null( $raw['views'] ?? null ),
 			'period'      => $period,
 			'num'         => $num,
 			'date'        => $date,
@@ -827,6 +837,7 @@ class Stats_Abilities extends Registrar {
 		}
 
 		return array(
+			'site'   => self::site(),
 			'period' => $period,
 			'num'    => $num,
 			'date'   => $date,
@@ -867,32 +878,36 @@ class Stats_Abilities extends Registrar {
 		$errors            = $composed['errors'];
 
 		// The counts are totals on the response; `subscribers` is only a page of rows.
-		$email   = self::as_int( $followers, 'total_email' );
-		$wpcom   = self::as_int( $followers, 'total_wpcom' );
-		$comment = self::all_posts_comment_followers( $comment_followers );
-		if ( null === $comment ) {
+		$email   = self::count_or_null( $followers['total_email'] ?? null );
+		$wpcom   = self::count_or_null( $followers['total_wpcom'] ?? null );
+		$comment = in_array( 'comment_followers', $errors, true ) ? null : self::all_posts_comment_followers( $comment_followers );
+		if ( null === $comment && ! in_array( 'comment_followers', $errors, true ) ) {
 			$errors[] = 'comment_followers';
-			$comment  = 0;
 		}
 
-		$publicize_by_service = array();
-		if ( isset( $publicize['services'] ) && is_array( $publicize['services'] ) ) {
-			foreach ( $publicize['services'] as $row ) {
+		$publicize_by_service = null;
+		if ( ! in_array( 'publicize_followers', $errors, true ) ) {
+			$publicize_by_service = array();
+			foreach ( self::rows_at( $publicize, 'services' ) as $row ) {
 				if ( isset( $row['service'] ) && isset( $row['followers'] ) ) {
 					$publicize_by_service[ (string) $row['service'] ] = (int) $row['followers'];
 				}
 			}
 		}
 
-		$total = $email + $wpcom + $comment + array_sum( $publicize_by_service );
+		$total = null;
+		if ( null !== $email && null !== $wpcom && null !== $comment && null !== $publicize_by_service ) {
+			$total = $email + $wpcom + $comment + array_sum( $publicize_by_service );
+		}
 
 		$out = array(
+			'site'      => self::site(),
 			'total'     => $total,
 			'email'     => $email,
 			'wpcom'     => $wpcom,
 			'comment'   => $comment,
 			// An empty PHP array would encode as `[]`, not the object the schema promises.
-			'publicize' => (object) $publicize_by_service,
+			'publicize' => null === $publicize_by_service ? null : (object) $publicize_by_service,
 			'partial'   => ! empty( $errors ),
 		);
 
@@ -1422,7 +1437,7 @@ class Stats_Abilities extends Registrar {
 			);
 			foreach ( $fields as $field ) {
 				$idx             = $field_idx[ $field ] ?? null;
-				$entry[ $field ] = ( null !== $idx && isset( $row[ $idx ] ) ) ? (int) $row[ $idx ] : 0;
+				$entry[ $field ] = self::count_or_null( null === $idx ? null : ( $row[ $idx ] ?? null ) );
 			}
 			$series[] = $entry;
 		}
@@ -1480,6 +1495,62 @@ class Stats_Abilities extends Registrar {
 			return $max;
 		}
 		return $v;
+	}
+
+	/**
+	 * Read a count WordPress.com reported, or null when it did not report one.
+	 *
+	 * Stats endpoints send -1 when they could not count, so a negative count is unknown too.
+	 *
+	 * @param mixed $raw Raw value.
+	 * @return int|null
+	 */
+	private static function count_or_null( $raw ): ?int {
+		return is_numeric( $raw ) && (int) $raw >= 0 ? (int) $raw : null;
+	}
+
+	/**
+	 * Total a field over rows, or null when there are none or any of them is unknown.
+	 *
+	 * @param array  $rows  Rows of `{ <field>: int|null }`.
+	 * @param string $field Field to total.
+	 * @return int|null
+	 */
+	private static function sum_or_null( array $rows, string $field ): ?int {
+		$values = array_column( $rows, $field );
+		if ( empty( $rows ) || count( $values ) < count( $rows ) || in_array( null, $values, true ) ) {
+			return null;
+		}
+		return (int) array_sum( $values );
+	}
+
+	/**
+	 * The site whose Stats a response reports, so an agent can confirm it read the site it asked for.
+	 *
+	 * `id` is the WordPress.com blog ID WPCOM_Stats queries.
+	 *
+	 * @return array{id: int, url: string}
+	 */
+	private static function site(): array {
+		return array(
+			'id'  => (int) Jetpack_Options::get_option( 'id' ),
+			'url' => home_url(),
+		);
+	}
+
+	/**
+	 * Output schema for `site`.
+	 *
+	 * @return array
+	 */
+	private static function site_schema(): array {
+		return array(
+			'type'       => 'object',
+			'properties' => array(
+				'id'  => array( 'type' => 'integer' ),
+				'url' => array( 'type' => 'string' ),
+			),
+		);
 	}
 
 	/**

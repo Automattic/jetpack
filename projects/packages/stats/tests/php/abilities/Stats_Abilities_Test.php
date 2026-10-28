@@ -479,7 +479,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	/**
-	 * A failing overview sub-call, the `errors` entry it causes, and a field it leaves as a placeholder.
+	 * A failing overview sub-call, the `errors` entry it causes, and a field it leaves unknown.
 	 *
 	 * @return array<string, array{0: string, 1: mixed, 2: string, 3: string, 4: mixed}>
 	 */
@@ -487,8 +487,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$error = new \WP_Error( 'boom', 'nope' );
 
 		return array(
-			'visits'                  => array( 'get_visits', $error, 'visits', 'views_today', 0 ),
-			'visits body is not JSON' => array( 'get_visits', null, 'visits', 'views_month', 0 ),
+			'visits'                  => array( 'get_visits', $error, 'visits', 'views_today', null ),
+			'visits body is not JSON' => array( 'get_visits', null, 'visits', 'views_month', null ),
+			'streak'                  => array( 'get_streak', $error, 'streak', 'streak', null ),
 			'top posts'               => array( 'get_top_posts', $error, 'top_posts', 'top_post', null ),
 			'referrers'               => array( 'get_referrers', $error, 'referrers', 'top_referrer', null ),
 		);
@@ -1240,22 +1241,23 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 	}
 
-	public function test_get_visits_always_includes_requested_fields_even_when_missing_from_backing(): void {
-		// If WPCOM omits a field, we still emit it as 0 so the agent can iterate uniformly.
+	public function test_get_visits_reports_requested_fields_it_could_not_read_as_null(): void {
+		// Every requested field is on every row, so the agent can iterate uniformly.
 		$this->filter_wpcom_stats(
 			array(
 				'get_visits' => array(
-					'fields' => array( 'period', 'views' ),
-					'data'   => array( array( '2026-04-23', 100 ) ),
+					'fields' => array( 'period', 'views', 'comments' ),
+					'data'   => array( array( '2026-04-23', 100, -1 ) ),
 				),
 			)
 		);
 
-		$result = Stats_Abilities::get_visits( array( 'fields' => array( 'views', 'likes' ) ) );
+		$result = Stats_Abilities::get_visits( array( 'fields' => array( 'views', 'likes', 'comments' ) ) );
 
-		$this->assertSame( array( 'views', 'likes' ), $result['fields'] );
+		$this->assertSame( array( 'views', 'likes', 'comments' ), $result['fields'] );
 		$this->assertSame( 100, $result['series'][0]['views'] );
-		$this->assertSame( 0, $result['series'][0]['likes'] );
+		$this->assertNull( $result['series'][0]['likes'], 'A field WordPress.com did not send is unknown, not 0.' );
+		$this->assertNull( $result['series'][0]['comments'], 'WordPress.com sends -1 when it could not count.' );
 	}
 
 	public function test_get_followers_composes_three_subcalls(): void {
@@ -1360,8 +1362,36 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 
 		$this->assertTrue( $result['partial'] );
 		$this->assertSame( array( 'comment_followers' ), $result['errors'] );
-		$this->assertSame( 0, $result['comment'] );
+		$this->assertNull( $result['comment'] );
+		$this->assertNull( $result['total'], 'A total over an unknown count is unknown.' );
+		$this->assertSame( 5, $result['email'] );
 		$this->assertSame( '{}', wp_json_encode( $result['publicize'], JSON_UNESCAPED_SLASHES ) );
+	}
+
+	public function test_every_reader_names_the_site_it_read(): void {
+		\Jetpack_Options::update_option( 'id', 1234 );
+		$post_id = wp_insert_post( array( 'post_title' => 'Hello' ) );
+		$this->filter_wpcom_stats(
+			self::overview_responses() + array(
+				'get_post_views'          => array( 'views' => 5 ),
+				'get_followers'           => array(
+					'total_email' => 1,
+					'total_wpcom' => 2,
+				),
+				'get_comment_followers'   => array(),
+				'get_publicize_followers' => array(),
+			)
+		);
+		$site = array(
+			'id'  => 1234,
+			'url' => home_url(),
+		);
+
+		$this->assertSame( $site, Stats_Abilities::get_site_overview()['site'] );
+		$this->assertSame( $site, Stats_Abilities::get_top_content( array( 'type' => 'posts' ) )['site'] );
+		$this->assertSame( $site, Stats_Abilities::get_post_views( array( 'post_id' => $post_id ) )['site'] );
+		$this->assertSame( $site, Stats_Abilities::get_visits()['site'] );
+		$this->assertSame( $site, Stats_Abilities::get_followers()['site'] );
 	}
 
 	public function test_get_settings_returns_whitelisted_fields_only(): void {
