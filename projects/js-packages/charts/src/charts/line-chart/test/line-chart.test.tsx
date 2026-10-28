@@ -1715,39 +1715,19 @@ describe( 'LineChart', () => {
 				screen.getByRole( 'application', { name: /line chart/i } ).focus();
 			};
 
-			it( 'reads every series at the selected date when series skip dates', async () => {
+			it( 'stops at every date any series has and reads each series there', async () => {
 				const user = userEvent.setup();
 				renderRows( [
-					{ label: 'Series A', data: [ point( 1, 1 ), point( 2, 2 ), point( 3, 3 ) ] },
-					{ label: 'Series B', data: [ point( 2, 20 ), point( 3, 30 ) ] },
-				] );
-
-				await user.keyboard( '{ArrowRight}' );
-				await expect( screen.findByTestId( 'rows-tooltip' ) ).resolves.toHaveTextContent(
-					'Series A=1'
-				);
-				expect( screen.getByTestId( 'rows-tooltip' ) ).not.toHaveTextContent( 'Series B' );
-
-				await user.keyboard( '{ArrowRight}' );
-				await waitFor( () =>
-					expect( screen.getByTestId( 'rows-tooltip' ) ).toHaveTextContent(
-						'Series A=2;Series B=20'
-					)
-				);
-			} );
-
-			it( 'stops at every date any series has', async () => {
-				const user = userEvent.setup();
-				renderRows( [
-					{ label: 'A', data: [ point( 1, 1 ), point( 3, 3 ) ] },
-					{ label: 'B', data: [ point( 2, 20 ) ] },
+					{ label: 'A', data: [ point( 1, 1 ), point( 2, 2 ), point( 3, 3 ) ] },
+					{ label: 'B', data: [ point( 2, 20 ), point( 4, 40 ) ] },
 				] );
 
 				const expected = [
 					{ text: 'A=1', stop: 0 },
-					{ text: 'B=20', stop: 1 },
+					{ text: 'A=2;B=20', stop: 1 },
 					{ text: 'A=3', stop: 2 },
-					{ text: 'A=3', stop: 2 },
+					{ text: 'B=40', stop: 3 },
+					{ text: 'B=40', stop: 3 },
 				];
 				for ( const { text, stop } of expected ) {
 					await user.keyboard( '{ArrowRight}' );
@@ -1768,7 +1748,9 @@ describe( 'LineChart', () => {
 				] );
 
 				await user.keyboard( '{ArrowRight}' );
-				await expect( screen.findByTestId( 'rows-tooltip' ) ).resolves.toHaveTextContent( 'B=' );
+				await expect( screen.findByTestId( 'rows-tooltip' ) ).resolves.toHaveTextContent(
+					/^A=1;B=null$/
+				);
 			} );
 
 			it( 'activates the first visible series with a point at the selected date', async () => {

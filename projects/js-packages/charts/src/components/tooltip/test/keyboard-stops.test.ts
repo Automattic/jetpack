@@ -10,4 +10,27 @@ describe( 'getKeyboardStops', () => {
 		expect( stops.count ).toBe( 1 );
 		expect( stops.membersAt( 1 ) ).toEqual( [] );
 	} );
+
+	it( 'steps through array indexes when no point has a date', () => {
+		const first = {
+			label: 'First',
+			data: [
+				{ label: 'Jan', value: 1 },
+				{ label: 'Feb', value: 2 },
+			],
+		};
+		const second = { label: 'Second', data: [ { label: 'Jan', value: 3 } ] };
+		const stops = getKeyboardStops( [ first, second ] );
+
+		expect( stops.count ).toBe( 2 );
+		expect( stops.membersAt( 0 ).map( ( { series, index } ) => [ series.label, index ] ) ).toEqual(
+			[
+				[ 'First', 0 ],
+				[ 'Second', 0 ],
+			]
+		);
+		expect( stops.membersAt( 1 ).map( ( { series, index } ) => [ series.label, index ] ) ).toEqual(
+			[ [ 'First', 1 ] ]
+		);
+	} );
 } );

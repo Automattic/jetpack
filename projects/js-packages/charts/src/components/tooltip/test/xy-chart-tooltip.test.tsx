@@ -64,7 +64,7 @@ const renderKeys = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => 
 	<div data-testid="keys">{ Object.keys( tooltipData?.datumByKey ?? {} ).join( ',' ) }</div>
 );
 
-const IndividualHarness = ( { mode = 'individual' }: { mode?: 'individual' | 'group' } ) => {
+const IndividualHarness = () => {
 	const [ selectedIndex, setSelectedIndex ] = useState( 0 );
 	const selectSecond = useCallback( () => setSelectedIndex( 1 ), [] );
 	return (
@@ -81,7 +81,7 @@ const IndividualHarness = ( { mode = 'individual' }: { mode?: 'individual' | 'gr
 					/>
 				) ) }
 				<XYChartTooltip
-					mode={ mode }
+					mode="individual"
 					series={ individualItems }
 					selectedIndex={ selectedIndex }
 					renderTooltip={ renderKeys }
@@ -182,12 +182,6 @@ describe( 'XYChartTooltip', () => {
 		await user.click( screen.getByRole( 'button', { name: 'next' } ) );
 
 		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^Second$/ );
-	} );
-
-	it( 'lists every series at the selected array index in group mode when no point has a date', async () => {
-		render( <IndividualHarness mode="group" /> );
-
-		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^First,Second$/ );
 	} );
 
 	// Between April and May, visx hands Views its April point and Previous period, which has no April, its May point.
