@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Leaderboard chart: Inset overlay labels from the inline start, so they keep their padding in right-to-left languages, and expose the label inset as a CSS custom property.
