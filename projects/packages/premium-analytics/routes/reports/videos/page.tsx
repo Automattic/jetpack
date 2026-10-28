@@ -10,7 +10,6 @@ import {
 	ReportPageShell,
 	ReportRecordsTable,
 	ExporterCsvAction,
-	toViewLiveUrl,
 	videosCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -22,7 +21,6 @@ import { type JSX } from 'react';
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
-import { createViewLiveAction } from '../view-live-action';
 import {
 	getVideosFields,
 	isVideoRowClickable,
@@ -80,14 +78,6 @@ function VideosReport(): JSX.Element {
 		() => getVideosFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
-	const actions = useMemo(
-		() => [
-			createViewLiveAction< StatsVideoPlaysComparisonItem >( video =>
-				toViewLiveUrl( 'video', video.id, video.link )
-			),
-		],
-		[]
-	);
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.videos;
@@ -121,7 +111,6 @@ function VideosReport(): JSX.Element {
 						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search videos', 'jetpack-premium-analytics-pkg' ) }
-						actions={ actions }
 						isItemClickable={ isVideoRowClickable }
 						renderItemLink={ renderVideoRowLink }
 					/>

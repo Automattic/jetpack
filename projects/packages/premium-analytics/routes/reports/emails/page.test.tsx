@@ -74,6 +74,14 @@ function mockEmailSummary() {
 }
 
 describe( 'EmailsReportPage', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'renders the summary rows with their 0–100 open rate as a percentage', () => {
 		mockEmailSummary();
 
@@ -84,10 +92,11 @@ describe( 'EmailsReportPage', () => {
 	} );
 
 	it( 'offers the live email from the row menu', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		mockEmailSummary();
 
 		render( <EmailsReportPage /> );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Actions' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Actions' } ) );
 
 		await expect(
 			screen.findByRole( 'menuitem', { name: 'View in new tab' } )

@@ -10,7 +10,6 @@ import { render } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { VIEW_LIVE_ACTION_ID } from '../view-live-action';
 import {
 	getVideosFields,
 	isVideoRowClickable,
@@ -36,7 +35,6 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
-	safeHttpUrl: jest.requireActual( '@jetpack-premium-analytics/ui' ).safeHttpUrl,
 	StatsBreadcrumbs: () => null,
 	StatsPageIcon: () => null,
 } ) );
@@ -53,7 +51,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	),
 	ReportRecordsTable: jest.fn( () => null ),
 	ExporterCsvAction: jest.fn( () => <button>Download</button> ),
-	toViewLiveUrl: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).toViewLiveUrl,
 	videosCsvExporter: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.videosCsvExporter,
 } ) );
@@ -107,21 +104,6 @@ function buildRecords( overrides: Partial< ReturnType< typeof useVideosReportRec
 describe( 'VideosReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-	} );
-
-	it( 'offers the live video from rows that open the detail page', () => {
-		useRecordsMock.mockReturnValue( buildRecords() );
-
-		render( <VideosReportPage /> );
-
-		const action = reportRecordsTableMock.mock.calls[ 0 ][ 0 ].actions?.[ 0 ];
-		expect( action?.id ).toBe( VIEW_LIVE_ACTION_ID );
-		expect( action?.isEligible?.( { ...videoRow, link: 'https://example.com/clip/' } ) ).toBe(
-			true
-		);
-		expect(
-			action?.isEligible?.( { ...videoRow, id: undefined, link: 'https://example.com/clip/' } )
-		).toBe( false );
 	} );
 
 	it( 'draws each video poster beside its title, linked to the detail page', () => {

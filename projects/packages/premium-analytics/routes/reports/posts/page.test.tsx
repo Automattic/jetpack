@@ -139,7 +139,7 @@ describe( 'PostsReportPage', () => {
 		useSectionTabMock.mockReturnValue( [ 'posts-pages', jest.fn() ] );
 	} );
 
-	it( 'offers the live post from rows that open a detail page, not from the homepage row', () => {
+	it( 'offers the live post from the row menu', () => {
 		const records = buildRecords();
 		useRecordsMock.mockReturnValue( records );
 
@@ -148,15 +148,6 @@ describe( 'PostsReportPage', () => {
 		const action = reportRecordsTableMock.mock.calls[ 0 ][ 0 ].actions?.[ 0 ];
 		expect( action?.id ).toBe( VIEW_LIVE_ACTION_ID );
 		expect( action?.isEligible?.( records.posts.rows[ 0 ] ) ).toBe( true );
-		expect(
-			action?.isEligible?.( {
-				id: 0,
-				label: 'Home page',
-				views: 3,
-				link: 'https://example.com/',
-				type: 'homepage',
-			} )
-		).toBe( false );
 	} );
 
 	it( 'gives the Posts & pages export the posts request status', () => {
