@@ -275,7 +275,18 @@ function wpcom_marketplace_price_rows( array $card ) {
 	}
 
 	$note = '';
-	if ( $has_yearly && '' !== $monthly ) {
+	if ( wpcom_marketplace_needs_plan() ) {
+		/**
+		 * Filters the line under a card's price on a site that buys a plan along with the product.
+		 *
+		 * It replaces the monthly price, since the plan is the other thing the buyer pays for.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $note Plain text.
+		 */
+		$note = '<span class="wpcom-marketplace-card__note">' . esc_html( (string) apply_filters( 'wpcom_marketplace_plan_note', __( 'Needs a paid plan', 'jetpack-mu-wpcom' ) ) ) . '</span>';
+	} elseif ( $has_yearly && '' !== $monthly ) {
 		// Worded as a condition, not "or": the button buys the year, so this is only what it is measured against.
 		/* translators: %s: Price per month, for example $9.90. */
 		$note = '<span class="wpcom-marketplace-card__note">' . esc_html( sprintf( __( '%s/month if billed monthly', 'jetpack-mu-wpcom' ), $monthly ) ) . '</span>';
