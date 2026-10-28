@@ -1,4 +1,4 @@
 Significance: patch
-Type: compat
+Type: other
+Comment: Protect page change; the combined Protect page entry in CHANGELOG.md covers it.
 
-Protect: Hide the Ignore threat action on WordPress.com sites, to match the WordPress.com dashboard.
