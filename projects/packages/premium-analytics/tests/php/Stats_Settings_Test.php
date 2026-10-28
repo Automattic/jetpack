@@ -482,4 +482,22 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->assertNull( $without_my_jetpack['features_url'] );
 		$this->assertSame( admin_url( 'admin.php?page=my-jetpack#/features?search=stats' ), $context['features_url'] );
 	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_script_data_links_to_the_modules_screen_where_the_host_redirects_my_jetpack() {
+		require_once __DIR__ . '/mocks/jetpack-plugin-mock.php';
+		$this->log_in_as( 'administrator' );
+		add_submenu_page( 'jetpack', 'My Jetpack', 'My Jetpack', 'manage_options', 'my-jetpack', '__return_null' );
+		add_submenu_page( '', 'Jetpack Settings', 'Settings', 'manage_options', 'jetpack_modules', '__return_null' );
+		add_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
+
+		$context = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings'];
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack_modules&s=stats' ), $context['features_url'] );
+	}
 }

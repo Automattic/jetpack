@@ -264,8 +264,7 @@ final class Stats_Settings {
 
 		$data['premium_analytics']['stats_settings'] = array(
 			'roles'        => $roles,
-			// Jetpack can be active without My Jetpack's screen, for example on Atomic, where wpcomsh skips it.
-			'features_url' => class_exists( 'Jetpack' ) && '' !== menu_page_url( 'my-jetpack', false ) ? admin_url( 'admin.php?page=my-jetpack#/features?search=stats' ) : null,
+			'features_url' => self::get_features_url(),
 			'consent'      => self::get_consent_status(),
 		);
 
@@ -329,5 +328,26 @@ final class Stats_Settings {
 		// `true` asks whether the blocker runs on the front end, since it never runs in wp-admin.
 		// @phan-suppress-next-line PhanUndeclaredFunction -- Defined by Complianz, checked just before.
 		return cmplz_integration_plugin_is_enabled( 'jetpack' ) && cmplz_can_run_cookie_blocker( true );
+	}
+
+	/**
+	 * Where the Stats module is switched on and off: My Jetpack's Features, or Jetpack's Modules screen where the host keeps people out of My Jetpack.
+	 *
+	 * @return string|null The URL, or null when the site has neither screen.
+	 */
+	private static function get_features_url() {
+		if ( ! class_exists( 'Jetpack' ) ) {
+			return null;
+		}
+
+		// WordPress.com turns this off on Atomic Personal and Premium plans, which hide My Jetpack and redirect it to Stats.
+		/** This filter is documented in projects/packages/my-jetpack/src/class-initializer.php */
+		$features_available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
+		// Jetpack can be active without My Jetpack's screen, for example on Atomic, where wpcomsh skips it.
+		if ( $features_available && '' !== menu_page_url( 'my-jetpack', false ) ) {
+			return admin_url( 'admin.php?page=my-jetpack#/features?search=stats' );
+		}
+
+		return '' !== menu_page_url( 'jetpack_modules', false ) ? admin_url( 'admin.php?page=jetpack_modules&s=stats' ) : null;
 	}
 }
