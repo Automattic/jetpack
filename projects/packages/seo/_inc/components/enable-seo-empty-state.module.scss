@@ -1,0 +1,6 @@
+// `EmptyState` caps itself at the small surface width (320px), which wraps
+// the explanation onto five lines. The prompt is the only thing on the page,
+// so let it run to the large surface width (560px): three lines, as designed.
+.root {
+	max-inline-size: var(--wpds-dimension-surface-width-lg);
+}

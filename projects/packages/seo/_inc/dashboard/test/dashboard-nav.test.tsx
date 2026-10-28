@@ -33,7 +33,7 @@ describe( 'DashboardNav', () => {
 	it( 'navigates to /geo when the GEO tab is selected', () => {
 		render( <DashboardNav active="overview">content</DashboardNav> );
 
-		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn), matching the sibling enable-seo-card test.
+		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn), matching the sibling enable-seo-empty-state test.
 		fireEvent.click( screen.getByRole( 'tab', { name: 'GEO' } ) );
 
 		expect( navigate ).toHaveBeenCalledWith( { href: '/geo' } );

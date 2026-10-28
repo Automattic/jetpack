@@ -5,7 +5,6 @@ import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice, Stack } from '@wordpress/ui';
-import EnableSeoCard from '../../components/enable-seo-card';
 import UpsellBanner from '../../components/upsell-banner';
 import { ROUTE_BY_TAB } from '../../dashboard/dashboard-nav';
 import { coverageStore } from '../../data/coverage-store';
@@ -104,18 +103,6 @@ const OverviewScreen: FC = () => {
 				</div>
 				<UpsellBanner />
 			</Stack>
-		);
-	}
-
-	// When the `seo-tools` module is off, the Overview shows only the enable
-	// affordance — the cards have nothing to act on until SEO tools are turned on,
-	// and the Settings surface isn't registered server-side yet. See
-	// `useSeoToolsToggle` and `Initializer::init()`.
-	if ( ! data.site_visibility.seo_tools_active ) {
-		return (
-			<div className={ styles.root }>
-				<EnableSeoCard screen="overview" />
-			</div>
 		);
 	}
 
