@@ -530,6 +530,8 @@ class WriteCommandTest extends CommandTestCase {
 						'other-thing'  => "Significance: patch\nType: fixed\n\nFixed another thing.\n",
 						'other-thing2' => "Significance: patch\nType: fixed\n\nFixed another thing. [#4]\n",
 						'third-thing'  => "Significance: patch\nType: fixed\n\nFixed a third thing. [#9] [#8] [#9]\n",
+						'no-pr-thing'  => "Significance: patch\nType: fixed\n\nFixed a thing, no PR.\n",
+						'no-pr-thing2' => "Significance: patch\nType: fixed\n\nFixed a thing, no PR.\n",
 					),
 				),
 				array(),
