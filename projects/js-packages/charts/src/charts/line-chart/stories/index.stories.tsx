@@ -896,8 +896,8 @@ ComparisonMulti.parameters = {
 	},
 };
 
-export const MissingDates: StoryObj< StoryArgs > = Template.bind( {} );
-MissingDates.args = {
+export const ComparisonSingleRagged: StoryObj< StoryArgs > = Template.bind( {} );
+ComparisonSingleRagged.args = {
 	...lineChartStoryArgs,
 	withTooltips: true,
 	showLegend: true,
@@ -919,7 +919,7 @@ MissingDates.args = {
 		},
 	],
 };
-MissingDates.parameters = {
+ComparisonSingleRagged.parameters = {
 	docs: {
 		description: {
 			story:
