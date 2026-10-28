@@ -22,7 +22,7 @@ export type LeaderboardRowAction =
 	| {
 			/** A row that stays put: a plain label with a "View in new tab" action beside it. */
 			kind: 'viewLink';
-			/** Public URL the action opens. */
+			/** Public URL the action opens. Pass it through `safeHttpUrl()` first; this action does not check the scheme. */
 			href: string;
 	  }
 	| {
