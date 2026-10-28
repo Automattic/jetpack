@@ -549,3 +549,51 @@ function wpcom_themes_tab_splice_search_partners( $result, $action, $args ) {
 	return $result;
 }
 add_filter( 'themes_api_result', 'wpcom_themes_tab_splice_search_partners', 10, 3 );
+
+/**
+ * Shows WordPress.com's copy of a theme both directories list, on Simple.
+ *
+ * A Simple site can activate ours without moving to Atomic, so it takes the WordPress.org card's
+ * place. Not a partner theme's slug, which WordPress.org uses for another author's theme.
+ *
+ * @param object|WP_Error $result Themes API response.
+ * @param string          $action Themes API action.
+ * @return object|WP_Error
+ */
+function wpcom_themes_tab_prefer_wpcom_copies( $result, $action ) {
+	if (
+		'query_themes' !== $action
+		|| ! is_object( $result )
+		|| ! isset( $result->themes )
+		|| ! is_array( $result->themes )
+		|| ! ( new Host() )->is_wpcom_simple()
+		|| ! wpcom_themes_tab_enabled()
+	) {
+		return $result;
+	}
+
+	$ours = array();
+	foreach ( wpcom_themes_tab_catalog() as $theme ) {
+		if ( WPCom_Themes_Tiers::PARTNER !== WPCom_Themes_Tiers::tier_of( $theme ) ) {
+			$ours[ $theme->id ] = $theme;
+		}
+	}
+
+	foreach ( $result->themes as $i => $theme ) {
+		$slug = is_object( $theme ) && empty( $theme->is_wpcom_theme ) ? ( $theme->slug ?? null ) : null;
+
+		if ( ! is_string( $slug ) || ! isset( $ours[ $slug ] ) ) {
+			continue;
+		}
+
+		$copy = wpcom_themes_tab_add_plan( wpcom_themes_tab_mapper()->map_wpcom_to_wporg( $ours[ $slug ] ) );
+
+		// Listed by core's tab, which installs and purchase clicks are attributed to.
+		$copy->wpcom_marketplace_tab = false;
+
+		$result->themes[ $i ] = $copy;
+	}
+
+	return $result;
+}
+add_filter( 'themes_api_result', 'wpcom_themes_tab_prefer_wpcom_copies', 10, 2 );
