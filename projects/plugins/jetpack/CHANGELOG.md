@@ -2,6 +2,75 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.4-a.7 - 2026-10-28
+### Enhancements
+- Firewall: Explain to a visitor blocked by the IP block list what happened and that site managers can log in for more information. [#54124]
+- My Jetpack: Open supported Modules links in Features. [#53992]
+- My Jetpack: Show the avatar and connection status control in the header by default, with access to connection and plan details. [#54225]
+- Newsletter: Describe the post audience, paid tier and email settings in the REST API schema, so AI agents and other API clients know which values to send. [#53736]
+- Newsletter: Open the email design screen in the same tab from the email preview, with a way back to the post. [#54125]
+- Newsletter: Remove the block inserter and List View from the email design screen, where neither had anything to show. [#54064]
+- Newsletter: Use the same status icons as the AI launchpad checklist. [#54084]
+- Premium Analytics: Add a "View in new tab" row action that opens the live post, page or email from the Posts & pages and Emails reports. [#54058]
+- Premium Analytics: Offer a referrer's site from a "View in new tab" action beside its name in the Top referrers widget, instead of linking the whole row out. [#54163]
+- Premium Analytics: Offer a yearly interval in the Traffic summary on ranges of three years or longer, and label a first or last month or year that the range cuts by its days. [#53965]
+- Premium Analytics: Open the live post, page, video or email in a new tab from its row in a Stats widget, beside the title that opens its stats. [#53996]
+- Premium Analytics: Show highlight metric notes in a styled tooltip that also opens on keyboard focus. [#54011]
+- Premium Analytics: Show the notice about a failed refresh at the top of the section, instead of inside the sticky header. [#54139]
+- Premium Analytics: Show the Personal plan's monthly price in the upgrade prompt that replaces a free WordPress.com site's Insights and Traffic sections. [#54136]
+- Premium Analytics: Show the Stats plan choice on a site that is not connected yet, and connect the site from it. [#53941]
+- Protect: Refuse to save a firewall block list that includes your own IP address. [#54122]
+- Protect: Show the firewall as on for WordPress.com-hosted sites, where the host provides it. [#53954]
+- Protect: Show the table, row and values a database threat was found in on the Protect dashboard, and delete a flagged option in place. [#54073]
+- Subscriptions: Add a filter to customize the format of the subscriber count. [#53926]
+
+### Improved compatibility
+- Protect: Hide the Ignore threat action on WordPress.com sites, to match the WordPress.com dashboard. [#53984]
+
+### Bug fixes
+- Admin pages: Keep administrators signed in on the Settings and Modules pages when another plugin's REST authentication filter returns an empty value such as null or false. [#53849]
+- AI Assistant: Keep the Excerpt field in the post editor when the AI excerpt panel cannot be loaded. [#53050]
+- Backup: Keep the dashboard available after a Jetpack Pro plan expires. [#54108]
+- Email Design: stop the screen offering the site's Styles panel, which changed the site's design rather than the email's. [#54169]
+- Hide the WordPress Agent and its notice on WordPress.com sites that no longer have a plan granting Big Sky. [#54005]
+- My Jetpack: Bring the first Features results into view after changing the filter or search while scrolled down. [#54201]
+- My Jetpack: Fix a fatal error when activating Jetpack beside an older standalone Jetpack plugin. [#54012]
+- My Jetpack: Let administrators who can manage modules but not plugins switch modules on and off in bulk from the Features list. [#54033]
+- My Jetpack: On WordPress.com, show Personal and Premium sites the vulnerability report and the Scan upgrade on the Protect card, since their plans don't include Scan. [#54071]
+- My Jetpack: Return to the tab you came from with the back link on product upgrade screens. [#54101]
+- Newsletter: Ask before switching dashboard tabs with unsaved settings changes. [#54093]
+- Newsletter: Reject unknown post audience values sent through the REST API instead of publishing the post to everyone. [#54131]
+- Newsletter: Show every active comped plan in the Subscribers list, including comps held alongside a paid plan, and leave out expired plans. [#53901]
+- Newsletter: Stop showing two "Please connect your user account" errors in the post editor to users who haven't connected their own WordPress.com account. [#54083]
+- Paywall block: Show Paid subscribers as unavailable in the toolbar, with a link to set up payments, matching the Content access panel. [#53856]
+- Premium Analytics: Compare each week, month or year in the Traffic summary and the WooCommerce tab's charts with the one covering the same days in the comparison period, instead of the one in the same position. [#53965]
+- Premium Analytics: Fix hourly Traffic chart times that were an hour off on daylight saving days. [#54015]
+- Premium Analytics: Hide Stats v2 from users who cannot connect the site until it is connected, as the Stats menu does, and send them to the Dashboard if they reload the page. [#54103]
+- Premium Analytics: Line up the values and the change badges in their own columns in the Stats list widgets when a comparison is on. [#54162]
+- Premium Analytics: Move between conversion funnel steps with the arrow keys, show each step's tooltip as soon as it takes keyboard focus, have screen readers read that tooltip, and label the tooltip's rate "Conversion rate". [#53637]
+- Premium Analytics: Recognize the Stats views included in Jetpack Pro on the upgrade page. [#54108]
+- Premium Analytics: Scroll the Jetpack footer with the page, instead of keeping it pinned to the bottom of the screen. [#54206]
+- Premium Analytics: Show the values for the selected date in chart tooltips when you move through a chart with the arrow keys. [#54132]
+- Protect: Link the Scan card on the Protect page's Settings tab to your server credentials, which Auto-fix needs, instead of a page with no Scan settings. [#53985]
+- Search: Show the fallback starting price per month, billed yearly, instead of $100 a month on the Search upgrade page when prices cannot be loaded. [#54024]
+- Site Accelerator: Fix some images hosted on other sites failing to load when their file name ends in a size like -600x400. [#54204]
+- Slideshow and Story blocks: Keep every file when uploading several at once with client-side media processing enabled. Slideshow and Tiled Gallery blocks: Hide the upload button from users who cannot upload. [#54127]
+- Stats: Show country names instead of country codes in the WooCommerce Store visitors by location widget and its CSV export. [#54107]
+- Subscriptions: Give the subscribe pop-up the site's page background from Global Styles so its text stays readable on dark styles. [#54091]
+- Subscriptions: Hide the subscribe modal, overlay, and floating button from readers awaiting subscription confirmation. [#54090]
+- Subscriptions: Make the subscribe pop-up a labelled dialog that takes keyboard focus and keeps Tab inside it until it closes. [#53906]
+- Subscriptions: Treat readers who follow a WordPress.com site in the Reader as subscribed in the Subscriptions widget, instead of showing them the subscribe form. [#53855]
+- VideoPress: Fix local video uploads reporting an error instead of inserting the Video block. [#54143]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Media: Prevent warnings when a large number of shortcodes are registered. [#54171]
+- Memberships: Fix clearing the cached paywall checks for a single user. [#54092]
+- Monitor: Move the module's logic into the new Monitor package. [#53691]
+- Newsletter: Record how creators use the email design screen. [#54167]
+- Update bundle recommendations in the plugin description for the Jetpack Pro launch. [#53978]
+- Update package dependencies. [#54117]
+- Update package dependencies. [#54118]
+
 ## 16.4-a.5 - 2026-10-26
 ### Enhancements
 - AI: Add a remote abilities allowlist to the MCP Read and Write views on self-hosted sites. [#53991]

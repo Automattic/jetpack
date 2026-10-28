@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix a fatal error when activating a Jetpack plugin beside an older one.

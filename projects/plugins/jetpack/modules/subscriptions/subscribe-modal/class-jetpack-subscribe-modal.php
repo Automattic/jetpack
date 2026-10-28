@@ -114,7 +114,7 @@ class Jetpack_Subscribe_Modal {
 	/**
 	 * Gives the modal the site's Global Styles page background, so the text it inherits from the page stays readable.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @return string CSS, or an empty string to keep the stylesheet's background.
 	 */
