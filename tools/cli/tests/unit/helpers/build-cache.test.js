@@ -190,7 +190,7 @@ describe( 'canSkip / writeManifest', () => {
 		// A pattern with a slash anchors to its .gitignore's directory, so this must be in the project.
 		await writeFile(
 			projectPath( '.gitignore' ),
-			'/build/\n/app/assets/dist/\nnode_modules/\n.DS_Store\n'
+			'/build/\n/app/assets/dist/\nnode_modules/\n.DS_Store\n/wordpress/\n/tests/e2e/output/\n'
 		);
 	} );
 	afterEach( async () => {
@@ -252,23 +252,31 @@ describe( 'canSkip / writeManifest', () => {
 			'a nested output directory is deleted',
 			() => fs.rm( projectPath( 'app/assets/dist' ), { recursive: true } ),
 		],
+		[
+			'an output under a nested wordpress/ directory is deleted',
+			() => fs.rm( projectPath( 'build/lib/wordpress/x.php' ) ),
+		],
 	] )( 'does not skip when %s', async ( _, mutate ) => {
 		await addOutput( 'build/one.js' );
 		await addOutput( 'build/two.js' );
 		await addOutput( 'app/assets/dist/bundle.js' );
+		await addOutput( 'build/lib/wordpress/x.php' );
 		await writeManifest( SLUG, 'fp1' );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
 		await mutate();
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
 
-	test.each( [ 'node_modules/dep/index.js', 'tests/e2e/node_modules/dep/index.js', '.DS_Store' ] )(
-		'still skips when non-output %s appears',
-		async file => {
-			await addOutput( 'build/out.js' );
-			await writeManifest( SLUG, 'fp1' );
-			await addOutput( file );
-			await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
-		}
-	);
+	test.each( [
+		'node_modules/dep/index.js',
+		'tests/e2e/node_modules/dep/index.js',
+		'.DS_Store',
+		'wordpress/wp-load.php',
+		'tests/e2e/output/log.txt',
+	] )( 'still skips when non-output %s appears', async file => {
+		await addOutput( 'build/out.js' );
+		await writeManifest( SLUG, 'fp1' );
+		await addOutput( file );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
+	} );
 } );

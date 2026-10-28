@@ -6,10 +6,8 @@ import { getBuildOrder } from './dependencyAnalysis.js';
 import { infrastructureFileSets } from './infrastructure-files.js';
 import { projectDir } from './install.js';
 
-// Bump to invalidate every cached build when the fingerprint algorithm or manifest format changes.
-const SCHEMA_VERSION = 2;
-
 // Files outside `projects/` that feed every build; no other root file affects a fingerprint.
+// Includes this file, so changing the fingerprint or manifest format invalidates every cached build.
 const TOOL_FILES = [
 	...infrastructureFileSets.build,
 	'tools/cli/helpers/build-cache.js',
@@ -20,10 +18,10 @@ const TOOL_FILES = [
 	'.nvmrc',
 ];
 
-// Ignored paths that are developer-local rather than build output, so losing one shouldn't force a
-// rebuild. Segment-anchored so nested copies like tests/e2e/node_modules/ match too.
+// Ignored paths that are dependencies, test artifacts or developer-local rather than build output,
+// so changing one shouldn't force a rebuild. The first group may nest; test artifacts sit at the root.
 const NON_OUTPUT =
-	/(^|\/)(node_modules|\.cache|\.phpunit\.cache|\.claude|\.playwright-mcp)\/|(^|\/)\.DS_Store$/;
+	/(^|\/)(node_modules|\.cache|\.phpunit\.cache|\.claude|\.playwright-mcp)\/|(^|\/)\.DS_Store$|^(wordpress|tests\/e2e|coverage|\.nyc_output|playwright-report|allure-results)\//;
 
 // isFile, not just exists: `git hash-object` fails on a directory, and fs.access follows a
 // symlink to one — an untracked symlink in the tree would abort the whole build.
@@ -202,9 +200,7 @@ export function fingerprintProjects( {
 			.sort()
 			.map( d => `${ d }:${ fps.get( d ) }` );
 		const h = crypto.createHash( 'sha256' );
-		h.update(
-			JSON.stringify( { v: SCHEMA_VERSION, mode, flags, toolVersion, files, changes, deps } )
-		);
+		h.update( JSON.stringify( { mode, flags, toolVersion, files, changes, deps } ) );
 		fps.set( slug, h.digest( 'hex' ) );
 	}
 	return fps;

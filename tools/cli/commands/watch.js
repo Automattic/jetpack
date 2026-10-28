@@ -104,7 +104,7 @@ export async function watch( project, composerJson, hot = false ) {
 	}
 
 	console.log( chalkJetpackGreen( `Watching '${ project }'...\nGo write some code.` ) );
-	// Watch rewrites outputs, so a later `jetpack build --cache` must not trust the old manifest.
+	// Watch rewrites outputs, so a later cached `jetpack build` must not trust the old manifest.
 	await invalidateManifest( project );
 	child_process.spawnSync( 'composer', [ scriptName ], {
 		cwd: path.resolve( `projects/${ project }` ),

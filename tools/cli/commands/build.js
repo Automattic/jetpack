@@ -88,14 +88,10 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: "Don't use uncommitted composer.lock files.",
 		} )
-		.option( 'cache', {
+		.option( 'ignore-cache', {
 			type: 'boolean',
 			description:
-				'Skip building projects whose inputs are unchanged since their last successful build. Ignored with --for-mirrors and in CI.',
-		} )
-		.option( 'force', {
-			type: 'boolean',
-			description: 'With --cache, rebuild every project but refresh the cache fingerprints.',
+				'Rebuild every project, even those whose inputs are unchanged since their last successful build.',
 		} )
 		.option( 'timing-output', {
 			type: 'string',
@@ -130,22 +126,16 @@ export async function handler( argv ) {
 	let dependencies = await getDependencies( process.cwd(), 'build' );
 
 	// Fingerprint before `filterDeps` narrows the graph; see `computeFingerprints`.
+	// No persistent cache between CI runs, and mirror builds do extra work a skip would break.
 	let cacheFingerprints = null;
-	if ( argv.cache && ( argv.forMirrors || process.env.CI ) ) {
-		// No persistent cache between CI runs, and mirror builds do extra work a skip would break.
-		console.warn(
-			chalk.yellow( 'Ignoring --cache: it is disabled with --for-mirrors and in CI.' )
-		);
-	} else if ( argv.cache ) {
+	if ( ! argv.forMirrors && ! process.env.CI ) {
 		try {
 			cacheFingerprints = await computeFingerprints( dependencies, argv );
 		} catch ( e ) {
 			console.warn(
-				chalk.yellow( `Building without --cache, fingerprinting failed: ${ e.message }` )
+				chalk.yellow( `Building without the cache, fingerprinting failed: ${ e.message }` )
 			);
 		}
-	} else if ( argv.force ) {
-		console.warn( chalk.yellow( 'Ignoring --force: it only has an effect with --cache.' ) );
 	}
 	const listr = new Listr( [], {
 		renderer: argv.v ? SilentRenderer : UpdateRenderer,
@@ -745,8 +735,8 @@ async function checkCollisions( basedir ) {
  */
 async function buildProject( t ) {
 	// Skip the whole project (install + build) when its inputs are unchanged and the outputs it
-	// produced last time are still present. `--force` rebuilds but still refreshes the manifest.
-	if ( t.ctx.cache && ! t.argv.force ) {
+	// produced last time are still present. `--ignore-cache` rebuilds but still refreshes the manifest.
+	if ( t.ctx.cache && ! t.argv.ignoreCache ) {
 		const fp = t.ctx.cache.fingerprints.get( t.project );
 		if ( fp && ( await canSkip( t.project, fp ) ) ) {
 			t.ctx.cache.cached++;
@@ -754,7 +744,7 @@ async function buildProject( t ) {
 			return;
 		}
 	}
-	// Even without --cache: this build rewrites outputs a previous --cache run recorded.
+	// Even when the cache is off: this build rewrites outputs a previous cached run recorded.
 	await invalidateManifest( t.project );
 
 	await t.setStatus( 'installing' );
