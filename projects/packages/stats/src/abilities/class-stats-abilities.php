@@ -343,32 +343,32 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site visits timeseries', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". Shape: { unit, quantity, date, fields, series: [ { date, views, visitors, likes, comments } ] }. Every series row always includes every field listed in the request (no per-row omission). Precondition: site must be connected to WordPress.com.',
+				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". Shape: { period, num, date, fields, series: [ { date, views, visitors, likes, comments } ] }. Every series row always includes every field listed in the request (no per-row omission). Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'default'              => array(),
 				'properties'           => array(
-					'unit'     => array(
+					'period' => array(
 						'type'        => 'string',
 						'description' => __( 'Granularity of each data point.', 'jetpack-stats-pkg' ),
 						'enum'        => self::PERIODS,
 						'default'     => 'day',
 					),
-					'quantity' => array(
+					'num'    => array(
 						'type'        => 'integer',
 						'description' => __( 'How many data points to return (1-90).', 'jetpack-stats-pkg' ),
 						'minimum'     => 1,
 						'maximum'     => 90,
 						'default'     => 30,
 					),
-					'date'     => array(
+					'date'   => array(
 						'type'        => 'string',
 						'description' => __( 'End date (YYYY-MM-DD). Defaults to today.', 'jetpack-stats-pkg' ),
 						'pattern'     => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
 					),
-					'fields'   => array(
+					'fields' => array(
 						'type'        => 'array',
 						'description' => __( 'Which metrics to include in each row. Defaults to views+visitors.', 'jetpack-stats-pkg' ),
 						'items'       => array(
@@ -383,11 +383,11 @@ class Stats_Abilities extends Registrar {
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'unit'     => array( 'type' => 'string' ),
-					'quantity' => array( 'type' => 'integer' ),
-					'date'     => array( 'type' => 'string' ),
-					'fields'   => array( 'type' => 'array' ),
-					'series'   => array( 'type' => 'array' ),
+					'period' => array( 'type' => 'string' ),
+					'num'    => array( 'type' => 'integer' ),
+					'date'   => array( 'type' => 'string' ),
+					'fields' => array( 'type' => 'array' ),
+					'series' => array( 'type' => 'array' ),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_visits' ),
@@ -798,9 +798,9 @@ class Stats_Abilities extends Registrar {
 	public static function get_visits( $input = null ) {
 		$input = is_array( $input ) ? $input : array();
 
-		$unit     = self::pick_period( $input['unit'] ?? null );
-		$quantity = self::clamp_int( $input['quantity'] ?? 30, 1, 90, 30 );
-		$date     = self::resolve_date( $input['date'] ?? null );
+		$period = self::pick_period( $input['period'] ?? null );
+		$num    = self::clamp_int( $input['num'] ?? 30, 1, 90, 30 );
+		$date   = self::resolve_date( $input['date'] ?? null );
 		if ( is_wp_error( $date ) ) {
 			return $date;
 		}
@@ -814,8 +814,8 @@ class Stats_Abilities extends Registrar {
 		}
 
 		$args = array(
-			'unit'        => $unit,
-			'quantity'    => $quantity,
+			'unit'        => $period,
+			'quantity'    => $num,
 			'date'        => $date,
 			'stat_fields' => implode( ',', $fields ),
 		);
@@ -827,11 +827,11 @@ class Stats_Abilities extends Registrar {
 		}
 
 		return array(
-			'unit'     => $unit,
-			'quantity' => $quantity,
-			'date'     => $date,
-			'fields'   => $fields,
-			'series'   => self::normalize_visits_series( $raw, $fields ),
+			'period' => $period,
+			'num'    => $num,
+			'date'   => $date,
+			'fields' => $fields,
+			'series' => self::normalize_visits_series( $raw, $fields ),
 		);
 	}
 
