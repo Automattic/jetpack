@@ -113,7 +113,7 @@ class WPCOMSH_RUM_Functions_Test extends WP_UnitTestCase {
 		array_pop( $GLOBALS['wp_current_filter'] );
 
 		$this->assertSame( ! $expect_gate, str_contains( $output, 'src="https://s0.wp.com/wp-content/js/bilmur.min.js' ) );
-		$this->assertSame( $expect_gate, str_contains( $output, 'wp_has_consent( "statistics-anonymous" )' ) );
+		$this->assertSame( $expect_gate, str_contains( $output, 'wp_has_consent( "statistics" )' ) );
 	}
 
 	/**
