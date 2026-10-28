@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -832,15 +833,16 @@ class Main_Features_Rest_Test extends TestCase {
 	 * @param string $expected_message Expected failure message.
 	 * @param bool   $expected_security_active Expected security module state.
 	 * @param bool   $expected_stats_active Expected stats module state.
-	 * @param bool   $deactivate_dashboard Whether the batch also deactivates the Protect page.
+	 * @param bool   $include_dashboard Whether the batch also switches the Protect page.
+	 * @param bool   $force_dashboard Whether the host forces the Protect page on.
 	 */
 	#[DataProvider( 'protect_page_bulk_switches' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_bulk_respects_protect_page_ownership( $dashboard, $active, $can_manage, $security_active, $expected_failed, $expected_message, $expected_security_active, $expected_stats_active, $deactivate_dashboard = false ) {
+	public function test_bulk_respects_protect_page_ownership( $dashboard, $active, $can_manage, $security_active, $expected_failed, $expected_message, $expected_security_active, $expected_stats_active, $include_dashboard = false, $force_dashboard = false ) {
 		$security = array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' );
 		$modules  = array_merge( $security, array( 'stats' ) );
-		if ( $deactivate_dashboard ) {
+		if ( $include_dashboard ) {
 			$modules[] = 'protect-dashboard';
 		}
 		$offer = fn( $available ) => array_values( array_unique( array_merge( $available, $modules ) ) );
@@ -849,10 +851,13 @@ class Main_Features_Rest_Test extends TestCase {
 			add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
 		}
 		$initial_modules = array_merge( $security_active ? $security : array(), $active ? array() : array( 'stats' ) );
-		if ( $deactivate_dashboard ) {
+		if ( $include_dashboard ) {
 			$initial_modules[] = 'protect-dashboard';
 		}
 		Jetpack_Options::update_option( 'active_modules', $initial_modules );
+		if ( $force_dashboard ) {
+			add_filter( 'jetpack_active_modules', fn( $active_modules ) => array_values( array_unique( array_merge( $active_modules, array( 'protect-dashboard' ) ) ) ) );
+		}
 		if ( $dashboard ) {
 			do_action( 'jetpack_protect_dashboard_initialized' );
 		}
@@ -868,21 +873,24 @@ class Main_Features_Rest_Test extends TestCase {
 		$this->assertSame( $expected_failed, array_column( $failed, 'slug' ) );
 		foreach ( $failed as $failure ) {
 			$this->assertSame( 'module', $failure['type'] );
-			$this->assertSame( $expected_message, $failure['message'] );
+			$message = $force_dashboard && 'protect-dashboard' === $failure['slug']
+				? 'Stays on: enabled by your host or site administrator.'
+				: $expected_message;
+			$this->assertSame( $message, $failure['message'] );
 		}
 		$saved = Jetpack_Options::get_option( 'active_modules', array() );
 		foreach ( $security as $slug ) {
 			$this->assertSame( $expected_security_active, in_array( $slug, $saved, true ), $slug );
 		}
 		$this->assertSame( $expected_stats_active, in_array( 'stats', $saved, true ) );
-		if ( $deactivate_dashboard ) {
-			$this->assertNotContains( 'protect-dashboard', $saved );
+		if ( $include_dashboard ) {
+			$this->assertSame( $active || $force_dashboard, ( new Modules() )->is_active( 'protect-dashboard' ) );
 		}
 	}
 
 	public static function protect_page_bulk_switches() {
 		return array(
-			'Protect page on, already active'   => array(
+			'Protect page on, already active'     => array(
 				'dashboard'                => true,
 				'active'                   => true,
 				'can_manage'               => true,
@@ -892,7 +900,7 @@ class Main_Features_Rest_Test extends TestCase {
 				'expected_security_active' => true,
 				'expected_stats_active'    => true,
 			),
-			'Protect page on, deactivate'       => array(
+			'Protect page on, deactivate'         => array(
 				'dashboard'                => true,
 				'active'                   => false,
 				'can_manage'               => true,
@@ -902,7 +910,7 @@ class Main_Features_Rest_Test extends TestCase {
 				'expected_security_active' => true,
 				'expected_stats_active'    => false,
 			),
-			'Protect page deactivated in batch' => array(
+			'Protect page deactivated in batch'   => array(
 				'dashboard'                => true,
 				'active'                   => false,
 				'can_manage'               => true,
@@ -911,9 +919,32 @@ class Main_Features_Rest_Test extends TestCase {
 				'expected_message'         => '',
 				'expected_security_active' => false,
 				'expected_stats_active'    => false,
-				'deactivate_dashboard'     => true,
+				'include_dashboard'        => true,
 			),
-			'Protect page off, activate'        => array(
+			'Protect page forced on in batch'     => array(
+				'dashboard'                => true,
+				'active'                   => false,
+				'can_manage'               => true,
+				'security_active'          => true,
+				'expected_failed'          => array( 'protect-dashboard', 'waf', 'protect', 'account-protection', 'sso', 'monitor' ),
+				'expected_message'         => 'Managed in Protect. Change these settings on the Protect page.',
+				'expected_security_active' => true,
+				'expected_stats_active'    => false,
+				'include_dashboard'        => true,
+				'force_dashboard'          => true,
+			),
+			'Protect page included in activation' => array(
+				'dashboard'                => true,
+				'active'                   => true,
+				'can_manage'               => true,
+				'security_active'          => false,
+				'expected_failed'          => array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' ),
+				'expected_message'         => 'Managed in Protect. Change these settings on the Protect page.',
+				'expected_security_active' => false,
+				'expected_stats_active'    => true,
+				'include_dashboard'        => true,
+			),
+			'Protect page off, activate'          => array(
 				'dashboard'                => false,
 				'active'                   => true,
 				'can_manage'               => true,
@@ -923,7 +954,7 @@ class Main_Features_Rest_Test extends TestCase {
 				'expected_security_active' => true,
 				'expected_stats_active'    => true,
 			),
-			'capability refusal wins'           => array(
+			'capability refusal wins'             => array(
 				'dashboard'                => true,
 				'active'                   => false,
 				'can_manage'               => false,

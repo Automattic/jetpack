@@ -272,9 +272,10 @@ class REST_Main_Features {
 			? null
 			: new WP_Error( 'not_allowed', __( 'You are not allowed to manage Jetpack modules on this site.', 'jetpack-my-jetpack' ) );
 		$modules         = array_unique( (array) $request->get_param( 'modules' ) );
-		$protect_modules = ! $active && in_array( Products\Protect::DASHBOARD_MODULE_NAME, $modules, true )
-			? array()
-			: Products\Protect::get_protect_page_module_urls();
+		if ( ! $active && in_array( Products\Protect::DASHBOARD_MODULE_NAME, $modules, true ) ) {
+			$modules = array_merge( array( Products\Protect::DASHBOARD_MODULE_NAME ), array_diff( $modules, array( Products\Protect::DASHBOARD_MODULE_NAME ) ) );
+		}
+		$protect_modules = Products\Protect::get_protect_page_module_urls();
 		$protect_refused = $protect_modules
 			? new WP_Error( 'managed_in_protect', __( 'Managed in Protect. Change these settings on the Protect page.', 'jetpack-my-jetpack' ) )
 			: null;
@@ -285,6 +286,9 @@ class REST_Main_Features {
 				$result = $protect_refused;
 			}
 			$result = $result ? $result : self::switch_module( $slug, $active );
+			if ( ! $active && Products\Protect::DASHBOARD_MODULE_NAME === $slug && true === $result && ! ( new Modules() )->is_active( $slug ) ) {
+				$protect_modules = array();
+			}
 
 			if ( is_wp_error( $result ) ) {
 				$failed[] = array(
