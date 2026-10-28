@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Features: Bring the first results into view after changing the filter or search while scrolled down.
