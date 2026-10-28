@@ -131,17 +131,29 @@ function check_single_report_pages_permission() {
 }
 
 /**
- * The REST schema of a page's or a section's date controls.
+ * The REST schema of a page's or a section's controls: DataViews field declarations.
  *
  * @return array
  */
 function get_single_report_page_controls_schema() {
 	return array(
-		'type'       => array( 'object', 'boolean', 'null' ),
-		'properties' => array(
-			'presets' => array(
-				'type'  => 'array',
-				'items' => array( 'type' => 'string' ),
+		'type'  => array( 'array', 'null' ),
+		'items' => array(
+			'type'       => 'object',
+			'properties' => array(
+				'id'       => array( 'type' => 'string' ),
+				'type'     => array( 'type' => 'string' ),
+				'label'    => array( 'type' => 'string' ),
+				'elements' => array(
+					'type'  => 'array',
+					'items' => array(
+						'type'       => 'object',
+						'properties' => array(
+							'value' => array( 'type' => array( 'string', 'number', 'boolean', 'null' ) ),
+							'label' => array( 'type' => 'string' ),
+						),
+					),
+				),
 			),
 		),
 	);

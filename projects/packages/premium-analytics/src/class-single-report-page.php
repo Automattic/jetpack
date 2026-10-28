@@ -18,6 +18,13 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 class Single_Report_Page {
 
 	/**
+	 * Field types a control may declare: the ones the client binds to the page state.
+	 *
+	 * @var string[]
+	 */
+	const CONTROL_FIELD_TYPES = array( 'jpa/report-params' );
+
+	/**
 	 * Dashboard the page belongs to.
 	 *
 	 * @var string
@@ -81,9 +88,9 @@ class Single_Report_Page {
 	public $icon = null;
 
 	/**
-	 * Date controls: `array( 'presets' => string[] )`, false for none, null for the detail presets.
+	 * Header controls: DataViews field declarations, empty for none, null for the default date control.
 	 *
-	 * @var array|false|null
+	 * @var array[]|null
 	 */
 	public $controls = null;
 
@@ -317,24 +324,31 @@ class Single_Report_Page {
 	}
 
 	/**
-	 * The date controls a page or a section declares: false for none, a list of preset slugs, or
-	 * null, the default, for anything else.
+	 * The controls a page or a section declares: the fields of a type the client binds, one per
+	 * type; false or an empty list for none; null, the default, for anything else.
 	 *
 	 * @param mixed $controls Declared controls.
-	 * @return array|false|null
+	 * @return array[]|null
 	 */
 	private static function normalize_controls( $controls ) {
-		if ( false === $controls ) {
-			return false;
+		if ( false === $controls || array() === $controls ) {
+			return array();
 		}
 
-		if ( ! is_array( $controls ) || ! isset( $controls['presets'] ) || ! is_array( $controls['presets'] ) ) {
+		// A control is a DataViews field, as a widget attribute is: the same vocabulary, the same sanitizer.
+		$fields = sanitize_widget_attributes( $controls );
+		if ( null === $fields ) {
 			return null;
 		}
 
-		$presets = array_values( array_unique( array_filter( $controls['presets'], array( self::class, 'is_valid_slug' ) ) ) );
+		$by_type = array();
+		foreach ( $fields as $field ) {
+			if ( isset( $field['type'] ) && in_array( $field['type'], self::CONTROL_FIELD_TYPES, true ) && ! isset( $by_type[ $field['type'] ] ) ) {
+				$by_type[ $field['type'] ] = $field;
+			}
+		}
 
-		return empty( $presets ) ? null : array( 'presets' => $presets );
+		return $by_type ? array_values( $by_type ) : null;
 	}
 
 	/**

@@ -211,7 +211,17 @@ class Single_Report_Page_Test extends BaseTestCase {
 			4
 		);
 
-		$page = register_single_report_page(
+		$range = array(
+			'id'       => 'reportParams',
+			'type'     => 'jpa/report-params',
+			'elements' => array(
+				array(
+					'value' => 'last-30-days',
+					'label' => 'Last 30 days',
+				),
+			),
+		);
+		$page  = register_single_report_page(
 			DASHBOARD_NAME,
 			'example/post',
 			array(
@@ -220,7 +230,7 @@ class Single_Report_Page_Test extends BaseTestCase {
 						'slug'           => 'traffic',
 						'label'          => 'Traffic',
 						'default_layout' => array( get_dashboard_default_widget_instance( 'a', 'example/a', 1 ) ),
-						'controls'       => array( 'presets' => array( 'last-30-days', 'all-time' ) ),
+						'controls'       => array( $range ),
 					),
 					array(
 						'slug'           => 'emails',
@@ -240,7 +250,7 @@ class Single_Report_Page_Test extends BaseTestCase {
 		$this->assertSame( array(), $record['default_layout'] );
 		$this->assertSame( array( 'traffic', 'emails' ), array_column( $record['sections'], 'slug' ) );
 		$this->assertSame( array( 'Traffic', 'emails' ), array_column( $record['sections'], 'label' ) );
-		$this->assertSame( array( array( 'presets' => array( 'last-30-days', 'all-time' ) ), false ), array_column( $record['sections'], 'controls' ) );
+		$this->assertSame( array( array( $range ), array() ), array_column( $record['sections'], 'controls' ) );
 		$this->assertSame( array( 'a' ), array_column( $record['sections'][0]['default_layout'], 'uuid' ) );
 		$this->assertSame( array( 'b', 'added' ), array_column( $record['sections'][1]['default_layout'], 'uuid' ) );
 		$this->assertContains( array( 'example/post', 'emails', true ), $seen );
@@ -285,25 +295,59 @@ class Single_Report_Page_Test extends BaseTestCase {
 	 * @return array[]
 	 */
 	public static function provide_declared_icon_and_controls() {
+		$range = array(
+			'id'       => 'reportParams',
+			'type'     => 'jpa/report-params',
+			'elements' => array(
+				array(
+					'value' => 'last-7-days',
+					'label' => 'Last 7 days',
+				),
+			),
+		);
+
 		return array(
-			'registered icon, deduplicated presets' => array(
+			'registered icon, one field per bound type' => array(
 				array(
 					'icon'     => 'jpa/video',
-					'controls' => array( 'presets' => array( 'last-7-days', 'all-time', 'last-7-days' ) ),
+					'controls' => array(
+						$range,
+						array(
+							'id'   => 'other',
+							'type' => 'jpa/report-params',
+						),
+						array(
+							'id'   => 'view',
+							'type' => 'jpa/select',
+						),
+					),
 				),
 				'jpa/video',
-				array( 'presets' => array( 'last-7-days', 'all-time' ) ),
+				array( $range ),
 			),
-			'no controls'                           => array( array( 'controls' => false ), null, false ),
-			'bare icon name, presets not a list'    => array(
+			'no controls'                               => array( array( 'controls' => false ), null, array() ),
+			'an empty list'                             => array( array( 'controls' => array() ), null, array() ),
+			'bare icon name, controls not a list'       => array(
 				array(
 					'icon'     => 'video',
-					'controls' => array( 'presets' => 'all-time' ),
+					'controls' => 'reportParams',
 				),
 				null,
 				null,
 			),
-			'no valid preset slug'                  => array( array( 'controls' => array( 'presets' => array( 'All Time', 7 ) ) ), null, null ),
+			'no field of a bound type'                  => array(
+				array(
+					'controls' => array(
+						array(
+							'id'   => 'view',
+							'type' => 'jpa/select',
+						),
+						array( 'type' => 'jpa/report-params' ),
+					),
+				),
+				null,
+				null,
+			),
 		);
 	}
 
