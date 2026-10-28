@@ -958,9 +958,9 @@ describe( 'Email design editor entry point', () => {
 			expect( mockCreatePreloadingMiddleware ).not.toHaveBeenCalled();
 			expect( renderedTheErrorState() ).toBe( false );
 
-			// The save and test-send middlewares still install: the page named a record even
-			// though the bundle carried none, and a write to it is still ours to catch.
-			expect( mockUse ).toHaveBeenCalledTimes( 2 );
+			// The save, test-send and read-only middlewares still install: the page named a
+			// record even though the bundle carried none, and a write to it is still ours to catch.
+			expect( mockUse ).toHaveBeenCalledTimes( 3 );
 		} );
 
 		describe( 'the Allow header the preloaded responses carry', () => {
@@ -2097,6 +2097,122 @@ describe( 'Email design editor entry point', () => {
 
 			expect( mockApiFetch ).not.toHaveBeenCalled();
 			expect( next ).toHaveBeenCalled();
+		} );
+	} );
+
+	describe( "when core offers the site's own Styles panel", () => {
+		const { createSiteStylesReadOnlyMiddleware } = jest.requireActual( '../src/index' );
+		const ourId = 999999999;
+		const siteId = 12;
+		const sitePath = `/wp/v2/global-styles/${ siteId }`;
+		const everything = 'GET, POST, PUT, PATCH, DELETE';
+
+		/**
+		 * What WordPress answers with for the site's own record.
+		 *
+		 * Shaped like a `parse: false` response, which is the only kind that carries the header
+		 * core-data derives the capability from.
+		 *
+		 * @param {string} allow - The `Allow` header it arrives with.
+		 * @return {object} A stand-in for the response.
+		 */
+		const siteResponse = allow => ( {
+			ok: true,
+			status: 200,
+			json: async () => ( { id: siteId, styles: { color: { text: '#abcdef' } } } ),
+			headers: {
+				get: name =>
+					'allow' === name.toLowerCase()
+						? allow
+						: ( { 'x-wp-totalpages': '3' }[ name.toLowerCase() ] ?? null ),
+			},
+		} );
+
+		it.each( [
+			[ 'the capability check', { path: sitePath, method: 'OPTIONS' } ],
+			[ 'the read the canvas paints from', { path: `${ sitePath }?context=view` } ],
+		] )( 'reports reads alone to %s', async ( _subject, options ) => {
+			const next = jest.fn( async () => siteResponse( everything ) );
+
+			// Both answers set the same permission and core-data keeps the last to arrive, so
+			// rewriting either one alone leaves the sidebar rendering.
+			const answer = await createSiteStylesReadOnlyMiddleware( ourId )(
+				{ ...options, parse: false },
+				next
+			);
+
+			expect( answer.headers.get( 'Allow' ) ).toBe( 'GET' );
+		} );
+
+		it( 'hands back the record and its other headers untouched', async () => {
+			const next = jest.fn( async () => siteResponse( everything ) );
+
+			const answer = await createSiteStylesReadOnlyMiddleware( ourId )(
+				{ path: sitePath, parse: false },
+				next
+			);
+
+			// The canvas takes the site's design from this body, so a stand-in that answers the
+			// capability but drops the record repaints the email.
+			await expect( answer.json() ).resolves.toEqual( {
+				id: siteId,
+				styles: { color: { text: '#abcdef' } },
+			} );
+			expect( answer.headers.get( 'X-WP-TotalPages' ) ).toBe( '3' );
+			expect( answer.status ).toBe( 200 );
+		} );
+
+		it( "leaves the email's own record editable", async () => {
+			const original = siteResponse( 'GET, POST, PUT' );
+			const next = jest.fn( async () => original );
+
+			const answer = await createSiteStylesReadOnlyMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }?context=edit`, parse: false },
+				next
+			);
+
+			// Our own record shares the path these are matched on. Catching it would take the
+			// Styles panel this screen exists for with it.
+			expect( answer ).toBe( original );
+		} );
+
+		it( 'leaves a parsed request alone', async () => {
+			const next = jest.fn( async () => ( { id: siteId } ) );
+
+			// A parsed response is the body itself: callers read its keys, not headers, and a
+			// stand-in for one would hand them a response object instead of the record.
+			await expect(
+				createSiteStylesReadOnlyMiddleware( ourId )( { path: sitePath }, next )
+			).resolves.toEqual( { id: siteId } );
+		} );
+
+		it( 'denies the site record when the bundle named no design of its own', async () => {
+			const next = jest.fn( async () => siteResponse( everything ) );
+
+			// Nothing here is ours to edit then, but core still offers the site's panel.
+			const answer = await createSiteStylesReadOnlyMiddleware( null )(
+				{ path: sitePath, method: 'OPTIONS', parse: false },
+				next
+			);
+
+			expect( answer.headers.get( 'Allow' ) ).toBe( 'GET' );
+		} );
+
+		it( 'installs the middleware on the screen', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			const options = { path: sitePath, method: 'OPTIONS', parse: false };
+			const next = async () => siteResponse( everything );
+			const answers = await Promise.all(
+				mockUse.mock.calls
+					// The preloading middleware is mocked as the map it was built from.
+					.filter( ( [ middleware ] ) => 'function' === typeof middleware )
+					.map( ( [ middleware ] ) => middleware( options, next ) )
+			);
+
+			expect( answers.map( answer => answer?.headers?.get( 'Allow' ) ) ).toContain( 'GET' );
 		} );
 	} );
 

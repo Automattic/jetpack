@@ -59,6 +59,9 @@ const BLOCK_EDITOR_STORE = 'core/block-editor';
 // A save arrives as any of these, depending on whether core-data creates or updates.
 const WRITE_METHODS = [ 'POST', 'PUT', 'PATCH' ];
 
+// Where both the email's design and the site's own theme styles are addressed.
+const GLOBAL_STYLES_PATH = '/wp/v2/global-styles/';
+
 // Addressed by name for a second reason as well: WordPress registers no `wp-interface` script, so
 // importing the package would add a dependency nothing answers and the bundle would never enqueue.
 const INTERFACE_STORE = 'core/interface';
@@ -844,6 +847,19 @@ export function registerEditorPlugin( globalStylesPostId = null ) {
 }
 
 /**
+ * The path a request addresses, without its query.
+ *
+ * Empty for a request made by `url` rather than by `path`, which the middlewares below do not
+ * claim.
+ *
+ * @param {object} options - The `apiFetch` options the middleware was handed.
+ * @return {string} The path, or an empty string.
+ */
+function requestPath( options ) {
+	return 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+}
+
+/**
  * Catch the Styles panel's save and send it to WordPress.com instead.
  *
  * The editor writes a core-data `globalStyles` entity, but the design is stored in a WordPress.com
@@ -858,10 +874,10 @@ export function registerEditorPlugin( globalStylesPostId = null ) {
  * @return {Function} An `apiFetch` middleware.
  */
 export function createDesignSaveMiddleware( id ) {
-	const target = `/wp/v2/global-styles/${ id }`;
+	const target = `${ GLOBAL_STYLES_PATH }${ id }`;
 
 	return async ( options, next ) => {
-		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+		const path = requestPath( options );
 		const method = ( options.method || 'GET' ).toUpperCase();
 
 		if ( target !== path || ! WRITE_METHODS.includes( method ) ) {
@@ -933,6 +949,60 @@ export function createDesignSaveMiddleware( id ) {
 			settings: objectOrEmpty( design.settings ),
 			styles: objectOrEmpty( design.styles ),
 		};
+	};
+}
+
+/**
+ * Report every global-styles record but the email's as read-only.
+ *
+ * `@wordpress/editor` renders core's Global Styles sidebar — the site's theme, not the email — for
+ * a `wp_template` whose viewer may update the site's global-styles record, which on a block theme
+ * an admin may. Saving from it changes the site, while the package's blanket notice says the email
+ * design was updated. See NL-1089.
+ *
+ * Denying the capability is the lever: core renders no read-only version of that sidebar, and the
+ * canvas is unaffected, since without it core reads the same record at view context.
+ *
+ * Rewritten rather than preloaded: both answers set the permission, see `globalStylesPreloads()`.
+ *
+ * @param {number|null} id - The global-styles id the bundle named, null when it sent none.
+ * @return {Function} An `apiFetch` middleware.
+ */
+export function createSiteStylesReadOnlyMiddleware( id ) {
+	const ours = id ? `${ GLOBAL_STYLES_PATH }${ id }` : null;
+
+	return async ( options, next ) => {
+		const path = requestPath( options );
+
+		// Only an unparsed response carries headers, and only a header sets a permission.
+		if ( false !== options.parse || ! path.startsWith( GLOBAL_STYLES_PATH ) || path === ours ) {
+			return next( options );
+		}
+
+		return readOnlyResponse( await next( options ) );
+	};
+}
+
+/**
+ * The same response, reporting reads as all it permits.
+ *
+ * A stand-in rather than the response itself, whose `Headers` are not ours to set. It carries what
+ * core-data reads off an unparsed one: the body, and whichever header it asks for by name.
+ *
+ * @param {object} response - What the request answered with.
+ * @return {object} The response to hand back instead.
+ */
+function readOnlyResponse( response ) {
+	return {
+		ok: response.ok,
+		status: response.status,
+		statusText: response.statusText,
+		headers: {
+			get: name =>
+				'allow' === String( name ).toLowerCase() ? 'GET' : response.headers.get( name ),
+		},
+		json: () => response.json(),
+		text: () => response.text(),
 	};
 }
 
@@ -1011,7 +1081,7 @@ async function newestPublishedPostId() {
  */
 export function createTestSendMiddleware( globalStylesPostId, previewPostId = null ) {
 	return async ( options, next ) => {
-		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+		const path = requestPath( options );
 		const method = ( options.method || 'GET' ).toUpperCase();
 
 		if ( TEST_SEND_PATH !== path || 'POST' !== method ) {
@@ -1187,6 +1257,9 @@ export async function mountEmailDesignEditor() {
 		if ( config.globalStylesPostId ) {
 			apiFetch.use( createDesignSaveMiddleware( config.globalStylesPostId ) );
 		}
+
+		// Unconditional: with no design of our own to edit, core's sidebar is still the site's.
+		apiFetch.use( createSiteStylesReadOnlyMiddleware( config.globalStylesPostId ) );
 
 		apiFetch.use( createTestSendMiddleware( config.globalStylesPostId, data.postId ?? null ) );
 
