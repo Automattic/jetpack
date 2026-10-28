@@ -1560,9 +1560,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 */
 	#[DataProvider( 'external_image_urls' )]
 	public function test_image_cdn_strip_image_dimensions_maybe_ignores_external_files( $ext_domain ) {
-		// The bug needs the uploads dir to exist; without it the short-URL row passes on trunk.
-		wp_mkdir_p( wp_get_upload_dir()['basedir'] );
-
 		$this->assertEquals( $ext_domain, Image_CDN::strip_image_dimensions_maybe( $ext_domain ) );
 	}
 
