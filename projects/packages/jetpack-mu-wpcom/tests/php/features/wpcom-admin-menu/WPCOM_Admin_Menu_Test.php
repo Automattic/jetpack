@@ -7,12 +7,14 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-scan/wpcom-scan.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
 /**
@@ -88,6 +90,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 		remove_all_filters( 'rsm_jetpack_ui_modernization_backup' );
+		WPCOM_Scan::reset();
 		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
 		delete_option( 'wpcom_admin_interface' );
 		delete_option( 'wpcom_ai_launchpad_no_guidance' );
@@ -524,6 +527,54 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			'filter off, page registered'      => array( 'filter off', true, 'calypso' ),
 			'legacy sticker, page registered'  => array( 'legacy sticker', true, 'calypso' ),
 			'default, nothing serves the slug' => array( 'default', false, 'calypso' ),
+		);
+	}
+
+	/**
+	 * A Protect page serving `jetpack-protect` takes Scan's place in the menu; otherwise Calypso's Scan stays.
+	 *
+	 * @dataProvider provide_protect_entry_cases
+	 *
+	 * @param string   $served_by 'protect page', 'upgrade prompt', or 'nothing'.
+	 * @param string[] $expected  The visible entries, in menu order.
+	 */
+	#[DataProvider( 'provide_protect_entry_cases' )]
+	public function test_jetpack_submenu_puts_protect_in_scans_place( $served_by, $expected ) {
+		global $submenu;
+
+		\Jetpack_Options::update_option( 'id', 200 );
+		// Registered before Protect, as Jetpack does, so only the reorder can put Protect first.
+		$submenu['jetpack'][] = array( 'Search', 'manage_options', 'jetpack-search', 'Search' );
+		if ( 'protect page' === $served_by ) {
+			$submenu['jetpack'][] = array( 'Protect', 'manage_options', 'jetpack-protect', 'Protect' );
+		}
+		if ( 'upgrade prompt' === $served_by ) {
+			WPCOM_Scan::register_page();
+		}
+
+		wpcom_add_jetpack_submenu();
+
+		$calypso = 'https://wordpress.com/scan/' . self::$domain;
+		$visible = array();
+		foreach ( $submenu['jetpack'] as $item ) {
+			if ( in_array( $item[2], array( $calypso, 'jetpack-protect', 'jetpack-search' ), true ) && ! str_contains( $item[4] ?? '', 'hide-if-js' ) ) {
+				$visible[] = $calypso === $item[2] ? 'calypso' : $item[2];
+			}
+		}
+
+		$this->assertSame( $expected, $visible );
+	}
+
+	/**
+	 * What serves the Protect slug, and the entries that should show.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_protect_entry_cases() {
+		return array(
+			'Protect page'   => array( 'protect page', array( 'jetpack-protect', 'jetpack-search' ) ),
+			'upgrade prompt' => array( 'upgrade prompt', array( 'calypso', 'jetpack-search' ) ),
+			'nothing'        => array( 'nothing', array( 'calypso', 'jetpack-search' ) ),
 		);
 	}
 

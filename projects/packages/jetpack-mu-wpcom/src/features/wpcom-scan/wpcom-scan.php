@@ -73,31 +73,6 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 
 		return $modules;
 	}
-
-	/**
-	 * Keep the Jetpack plugin's Protect page out of the sidebar while Calypso's Scan owns the nav.
-	 *
-	 * Matched on the item's module: the standalone Protect plugin shares the slug and keeps its entry.
-	 *
-	 * @param array $states     Map of Jetpack menu item key to visibility state.
-	 * @param array $menu_items The registered Jetpack menu items.
-	 * @return array
-	 */
-	public static function filter_admin_menu_visibility( $states, $menu_items ) {
-		// With the standalone Protect plugin active, its users keep a Protect entry, whichever page serves it.
-		if ( class_exists( 'Jetpack_Protect' ) ) {
-			return $states;
-		}
-
-		foreach ( (array) $menu_items as $item ) {
-			if ( self::MENU_SLUG === ( $item['menu_slug'] ?? null ) && self::DASHBOARD_MODULE === ( $item['args']['module'] ?? null ) ) {
-				$states[ $item['args']['key'] ?? self::MENU_SLUG ] = 'hidden';
-			}
-		}
-
-		return $states;
-	}
 }
 
 add_action( 'init', array( WPCOM_Scan::class, 'init' ) );
-add_filter( 'jetpack_admin_menu_visibility', array( WPCOM_Scan::class, 'filter_admin_menu_visibility' ), 10, 2 );
