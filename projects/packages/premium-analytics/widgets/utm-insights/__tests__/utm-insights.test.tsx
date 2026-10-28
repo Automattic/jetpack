@@ -52,11 +52,8 @@ describe( 'UtmInsightsWidget', () => {
 		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
 	} );
 
-	it.each( [
-		[ 'no UTM visits', [] ],
-		[ 'UTM visits', [ { label: 'newsletter / email', value: 18 } ] ],
-	] )( 'declares Build URL beside View all with %s', async ( _, rows ) => {
-		mockRows = rows;
+	it( 'declares Build URL beside View all when there are UTM visits', async () => {
+		mockRows = [ { label: 'newsletter / email', value: 18 } ];
 		const { runDeclaredAction } = await renderInWidgetRender( UtmInsightsWidget, {}, [
 			'view-all',
 			'build-url',
@@ -64,6 +61,12 @@ describe( 'UtmInsightsWidget', () => {
 
 		await runDeclaredAction( 'build-url' );
 		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'leaves Build URL to the empty state when there are no UTM visits', async () => {
+		const { declaredActions } = await renderInWidgetRender( UtmInsightsWidget, {}, [ 'view-all' ] );
+
+		expect( declaredActions().map( action => action.id ) ).not.toContain( 'build-url' );
 	} );
 
 	it.each( [

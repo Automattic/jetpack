@@ -181,14 +181,19 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 				}
 			: {}
 	);
-	useWidgetActions( [
-		{
-			id: 'build-url',
-			label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
-			relevance: 'high',
-			callback: openBuilder,
-		},
-	] );
+	const showsEmptyState = ! isError && ! isLoading && data.length === 0;
+	useWidgetActions(
+		showsEmptyState
+			? []
+			: [
+					{
+						id: 'build-url',
+						label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
+						relevance: 'high',
+						callback: openBuilder,
+					},
+				]
+	);
 
 	return (
 		<>
