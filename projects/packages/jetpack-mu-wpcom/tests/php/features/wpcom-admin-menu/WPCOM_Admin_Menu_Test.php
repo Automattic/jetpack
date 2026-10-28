@@ -531,7 +531,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A Protect page serving `jetpack-protect` takes Scan's place in the menu; otherwise Calypso's Scan stays.
+	 * Protect takes Scan's place in the menu, whichever page serves it, and Calypso's Scan is never added.
 	 *
 	 * @dataProvider provide_protect_entry_cases
 	 *
@@ -573,8 +573,9 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	public static function provide_protect_entry_cases() {
 		return array(
 			'Protect page'   => array( 'protect page', array( 'jetpack-protect', 'jetpack-search' ) ),
-			'upgrade prompt' => array( 'upgrade prompt', array( 'calypso', 'jetpack-search' ) ),
-			'nothing'        => array( 'nothing', array( 'calypso', 'jetpack-search' ) ),
+			'upgrade prompt' => array( 'upgrade prompt', array( 'jetpack-protect', 'jetpack-search' ) ),
+			// The Protect page's module is off on a plan that includes Scan.
+			'nothing'        => array( 'nothing', array( 'jetpack-search' ) ),
 		);
 	}
 

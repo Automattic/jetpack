@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Protect: On WoA, show Protect in the Jetpack menu in place of Scan once the Protect page is on.
+Protect: Replace Scan with Protect in the Jetpack menu, opening the Protect page or, without a plan that includes Scan, its upgrade prompt.

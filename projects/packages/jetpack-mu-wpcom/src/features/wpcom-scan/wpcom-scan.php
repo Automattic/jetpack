@@ -61,6 +61,15 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	}
 
 	/**
+	 * Left in the sidebar as Jetpack > Protect, in place of Calypso's Scan.
+	 *
+	 * @return bool
+	 */
+	public static function hides_menu_entry() {
+		return false;
+	}
+
+	/**
 	 * Keep the Jetpack plugin's Protect dashboard off a WoA site whose plan lacks Scan, so this page's upgrade prompt keeps the slug.
 	 *
 	 * @param array $modules Available modules, keyed by slug.
