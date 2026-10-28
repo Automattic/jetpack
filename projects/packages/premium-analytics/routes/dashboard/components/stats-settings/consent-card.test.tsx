@@ -28,6 +28,10 @@ const NOT_SET_UP = {
 	api_installed: false,
 	has_banner: false,
 	banner_plugin: null,
+	recommended_banners: [
+		{ name: 'Complianz', url: 'https://wordpress.org/plugins/complianz-gdpr/' },
+		{ name: 'CookieYes', url: 'https://wordpress.org/plugins/cookie-law-info/' },
+	],
 	can_install: true,
 	can_activate: true,
 	file_mods_allowed: true,
@@ -72,6 +76,20 @@ describe( 'ConsentCard', () => {
 		const { container } = render( <ConsentCard /> );
 
 		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	it( 'links each recommended banner plugin when none is active', () => {
+		setConsent( {} );
+
+		render( <ConsentCard /> );
+
+		expect( step( 'Cookie banner plugin' ).getByText( /^Install one, such as/ ) ).toHaveTextContent(
+			'Install one, such as Complianz or CookieYes.'
+		);
+		expect( screen.getByRole( 'link', { name: /CookieYes/ } ) ).toHaveAttribute(
+			'href',
+			'https://wordpress.org/plugins/cookie-law-info/'
+		);
 	} );
 
 	it.each( [

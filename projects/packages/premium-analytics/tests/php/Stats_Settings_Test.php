@@ -360,6 +360,30 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->assertSame( $expected, $consent['banner_plugin'] );
 	}
 
+	public function test_script_data_recommends_each_banner_plugin_once_by_its_wordpress_org_page() {
+		$this->log_in_as( 'administrator' );
+
+		$consent = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
+
+		$this->assertSame(
+			array(
+				array(
+					'name' => 'Complianz',
+					'url'  => 'https://wordpress.org/plugins/complianz-gdpr/',
+				),
+				array(
+					'name' => 'Cookiebot',
+					'url'  => 'https://wordpress.org/plugins/cookiebot/',
+				),
+				array(
+					'name' => 'CookieYes',
+					'url'  => 'https://wordpress.org/plugins/cookie-law-info/',
+				),
+			),
+			$consent['recommended_banners']
+		);
+	}
+
 	public function test_script_data_says_when_file_mods_rule_out_installing() {
 		$this->log_in_as( 'administrator' );
 		$allowed = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];

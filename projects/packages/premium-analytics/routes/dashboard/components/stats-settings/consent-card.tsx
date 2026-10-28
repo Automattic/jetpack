@@ -8,6 +8,7 @@ import {
 	Stack,
 	Text,
 } from '@jetpack-premium-analytics/externals';
+import { intlLocale } from '@jetpack-premium-analytics/formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import {
@@ -51,11 +52,33 @@ function connectConsentApi( installed: boolean ): Promise< unknown > {
 			} );
 }
 
-const BANNER_PLUGIN_LINKS = {
-	complianz: <Link href="https://wordpress.org/plugins/complianz-gdpr/" openInNewTab />,
-	cookiebot: <Link href="https://wordpress.org/plugins/cookiebot/" openInNewTab />,
-	cookieyes: <Link href="https://wordpress.org/plugins/cookie-law-info/" openInNewTab />,
-};
+/**
+ * Each recommended banner plugin as a link, joined the way the site's language lists alternatives.
+ *
+ * @param props         - Component props.
+ * @param props.plugins - The plugins, with their WordPress.org pages.
+ * @return The linked list.
+ */
+function BannerPluginLinks( { plugins }: { plugins: ConsentStatus[ 'recommended_banners' ] } ) {
+	const urls = new Map( plugins.map( ( { name, url } ) => [ name, url ] ) );
+	const parts = new Intl.ListFormat( intlLocale(), { type: 'disjunction' } ).formatToParts(
+		plugins.map( ( { name } ) => name )
+	);
+
+	return (
+		<>
+			{ parts.map( ( part, index ) =>
+				part.type === 'element' ? (
+					<Link key={ index } href={ urls.get( part.value ) } openInNewTab>
+						{ part.value }
+					</Link>
+				) : (
+					part.value
+				)
+			) }
+		</>
+	);
+}
 
 /**
  * One step of the setup: its state as a badge, and the action that completes it.
@@ -248,11 +271,9 @@ function ConsentCardContent( { initialStatus }: { initialStatus: ConsentStatus }
 		bannerDescription = __( 'A cookie banner plugin is active.', 'jetpack-premium-analytics-pkg' );
 	} else {
 		bannerDescription = createInterpolateElement(
-			__(
-				'Install one, such as <complianz>Complianz</complianz>, <cookiebot>Cookiebot</cookiebot> or <cookieyes>CookieYes</cookieyes>.',
-				'jetpack-premium-analytics-pkg'
-			),
-			BANNER_PLUGIN_LINKS
+			/* translators: <plugins /> is a list of cookie banner plugins, such as "Complianz, Cookiebot or CookieYes". */
+			__( 'Install one, such as <plugins />.', 'jetpack-premium-analytics-pkg' ),
+			{ plugins: <BannerPluginLinks plugins={ status.recommended_banners } /> }
 		);
 	}
 

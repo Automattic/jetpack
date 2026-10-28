@@ -38,6 +38,18 @@ final class Stats_Settings {
 	private const FIELDS = array( 'admin_bar', 'roles', 'count_roles' );
 
 	/**
+	 * Cookie banner plugins known to support the WP Consent API, by plugin directory. The first directory of each name is its WordPress.org slug.
+	 *
+	 * @var string[]
+	 */
+	private const BANNER_PLUGINS = array(
+		'complianz-gdpr'         => 'Complianz',
+		'complianz-gdpr-premium' => 'Complianz',
+		'cookiebot'              => 'Cookiebot',
+		'cookie-law-info'        => 'CookieYes',
+	);
+
+	/**
 	 * The Stats package's refusal of the current write, held until the route answers.
 	 *
 	 * @var \WP_Error|null
@@ -246,15 +258,7 @@ final class Stats_Settings {
 	 * @return array{api_active: bool, api_installed: bool, has_banner: bool, banner_plugin: string|null, can_install: bool, can_activate: bool, file_mods_allowed: bool}
 	 */
 	private static function get_consent_status() {
-		$plugin_file = 'wp-consent-api/wp-consent-api.php';
-
-		// Banner plugins known to support the WP Consent API, by plugin directory.
-		$banner_plugins = array(
-			'complianz-gdpr'         => 'Complianz',
-			'complianz-gdpr-premium' => 'Complianz',
-			'cookiebot'              => 'Cookiebot',
-			'cookie-law-info'        => 'CookieYes',
-		);
+		$plugin_file    = 'wp-consent-api/wp-consent-api.php';
 		$active_plugins = (array) get_option( 'active_plugins', array() );
 		if ( is_multisite() ) {
 			$active_plugins = array_merge( $active_plugins, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
@@ -262,24 +266,33 @@ final class Stats_Settings {
 		$banner_plugin = null;
 		foreach ( $active_plugins as $active ) {
 			$dir = strtok( $active, '/' );
-			if ( isset( $banner_plugins[ $dir ] ) ) {
-				$banner_plugin = $banner_plugins[ $dir ];
+			if ( isset( self::BANNER_PLUGINS[ $dir ] ) ) {
+				$banner_plugin = self::BANNER_PLUGINS[ $dir ];
 				break;
 			}
 		}
 
+		$recommended_banners = array();
+		foreach ( array_unique( self::BANNER_PLUGINS ) as $slug => $name ) {
+			$recommended_banners[] = array(
+				'name' => $name,
+				'url'  => 'https://wordpress.org/plugins/' . $slug . '/',
+			);
+		}
+
 		return array(
-			'api_active'        => function_exists( 'wp_has_consent' ),
-			'api_installed'     => file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ),
+			'api_active'          => function_exists( 'wp_has_consent' ),
+			'api_installed'       => file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ),
 			// Complianz answers this filter, but CookieYes sets the type only in the browser, hence `banner_plugin`.
 			// @phan-suppress-next-line PhanUndeclaredFunction -- Defined by the WP Consent API plugin, checked just before.
-			'has_banner'        => function_exists( 'wp_get_consent_type' ) && (bool) wp_get_consent_type(),
-			'banner_plugin'     => $banner_plugin,
+			'has_banner'          => function_exists( 'wp_get_consent_type' ) && (bool) wp_get_consent_type(),
+			'banner_plugin'       => $banner_plugin,
+			'recommended_banners' => $recommended_banners,
 			// What core's `wp/v2/plugins` route checks before it installs or activates.
-			'can_install'       => current_user_can( 'install_plugins' ) && current_user_can( 'activate_plugins' ),
-			'can_activate'      => current_user_can( 'activate_plugin', $plugin_file ),
+			'can_install'         => current_user_can( 'install_plugins' ) && current_user_can( 'activate_plugins' ),
+			'can_activate'        => current_user_can( 'activate_plugin', $plugin_file ),
 			// The check core's `install_plugins` capability makes first, so the card can say why it cannot install.
-			'file_mods_allowed' => wp_is_file_mod_allowed( 'capability_update_core' ),
+			'file_mods_allowed'   => wp_is_file_mod_allowed( 'capability_update_core' ),
 		);
 	}
 }

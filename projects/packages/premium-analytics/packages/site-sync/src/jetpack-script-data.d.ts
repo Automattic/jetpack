@@ -32,6 +32,7 @@ declare module '@automattic/jetpack-script-data' {
 					api_installed: boolean;
 					has_banner: boolean;
 					banner_plugin: string | null;
+					recommended_banners: Array< { name: string; url: string } >;
 					can_install: boolean;
 					can_activate: boolean;
 					file_mods_allowed: boolean;
