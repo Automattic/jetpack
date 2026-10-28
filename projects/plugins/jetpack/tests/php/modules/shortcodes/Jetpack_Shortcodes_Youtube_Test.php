@@ -12,6 +12,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * @covers ::jetpack_youtube_id
  * @covers ::jetpack_youtube_shortcode
  * @covers ::wpcom_youtube_get_regex
+ * @covers ::wpcom_youtube_wrap_oembed_html
  */
 #[CoversFunction( 'jetpack_shortcode_youtube_args' )]
 #[CoversFunction( 'jetpack_shortcode_youtube_dimensions' )]
@@ -19,6 +20,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 #[CoversFunction( 'jetpack_youtube_id' )]
 #[CoversFunction( 'jetpack_youtube_shortcode' )]
 #[CoversFunction( 'wpcom_youtube_get_regex' )]
+#[CoversFunction( 'wpcom_youtube_wrap_oembed_html' )]
 class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -390,5 +392,19 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 			$provider_url,
 			'https://www.youtube.com/oembed?url=' . rawurlencode( $expected )
 		);
+	}
+
+	/**
+	 * Core's oEmbed output for YouTube keeps its title and gets the embed-youtube span, once.
+	 */
+	public function test_wpcom_youtube_wrap_oembed_html() {
+		$url    = 'https://www.youtube.com/watch?v=k2pC5tV7it8';
+		$iframe = '<iframe title="Video title" width="500" height="281" src="https://www.youtube.com/embed/k2pC5tV7it8?feature=oembed"></iframe>';
+
+		$wrapped = wpcom_youtube_wrap_oembed_html( $iframe, $url );
+		$this->assertSame( '<span class="embed-youtube" style="text-align:center; display: block;">' . $iframe . '</span>', $wrapped );
+		$this->assertSame( $wrapped, wpcom_youtube_wrap_oembed_html( $wrapped, $url ) );
+		$this->assertSame( $iframe, wpcom_youtube_wrap_oembed_html( $iframe, 'https://vimeo.com/76979871' ) );
+		$this->assertFalse( wpcom_youtube_wrap_oembed_html( false, $url ) );
 	}
 }

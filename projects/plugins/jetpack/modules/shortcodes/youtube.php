@@ -555,6 +555,16 @@ function wpcom_youtube_get_regex() {
  * Add a new handler to automatically transform custom Youtube URLs (like playlists) into embeds.
  */
 function wpcom_youtube_embed_crazy_url_init() {
+	/*
+	 * Outside the REST API, let Core's oEmbed render YouTube URLs so the iframe keeps
+	 * the video title as its accessible name. wpcom_youtube_filter_pre_oembed_result()
+	 * still falls back to jetpack_youtube_id() for private videos, and
+	 * wpcom_youtube_wrap_oembed_html() adds the embed-youtube span.
+	 */
+	if ( ! defined( 'REST_API_REQUEST' ) ) {
+		return;
+	}
+
 	// Register the custom handler to provide the better support for the private video.
 	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', wpcom_youtube_get_regex(), 'wpcom_youtube_embed_crazy_url' );
 }
@@ -589,6 +599,30 @@ function wpcom_youtube_filter_pre_oembed_result( $result, $url, $args ) {
 	return jetpack_youtube_id( $url );
 }
 add_filter( 'pre_oembed_result', 'wpcom_youtube_filter_pre_oembed_result', 10, 3 );
+
+/**
+ * Wrap YouTube oEmbed output in the same embed-youtube span that jetpack_youtube_id() uses,
+ * so themes and custom CSS can target it whichever path rendered the embed.
+ *
+ * @since $$next-version$$
+ *
+ * @param string|false $html The cached oEmbed HTML, or false.
+ * @param string       $url  The embedded URL.
+ * @return string|false
+ */
+function wpcom_youtube_wrap_oembed_html( $html, $url ) {
+	if (
+		! $html
+		|| is_feed()
+		|| ! preg_match( wpcom_youtube_get_regex(), $url )
+		|| str_contains( $html, 'class="embed-youtube"' )
+	) {
+		return $html;
+	}
+
+	return sprintf( '<span class="embed-youtube" style="text-align:center; display: block;">%s</span>', $html );
+}
+add_filter( 'embed_oembed_html', 'wpcom_youtube_wrap_oembed_html', 10, 2 );
 
 /**
  * Remove the ending question mark from the video id of the YouTube URL.

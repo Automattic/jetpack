@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Shortcodes: Render YouTube URLs through Core oEmbed again outside the REST API so the embedded iframe keeps its title.
