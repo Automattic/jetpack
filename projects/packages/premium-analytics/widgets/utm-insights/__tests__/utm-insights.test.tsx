@@ -7,7 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { renderInWidgetRender } from '../../../tests/js/widget-host-test-utils';
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import { captureCsvDownloads } from '../../test-utils';
 import UtmInsightsWidget from '../render';
 import type { UtmInsightsRow } from '../use-utm-insights';
@@ -52,42 +52,37 @@ describe( 'UtmInsightsWidget', () => {
 		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'declares Build URL beside View all when there are UTM visits', async () => {
+	it( 'declares Build URL when there are UTM visits', async () => {
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		const { runDeclaredAction } = await renderInWidgetRender( UtmInsightsWidget, {}, [
-			'view-all',
-			'build-url',
-		] );
+		const { runDeclaredAction } = renderWithActionsHost( <UtmInsightsWidget attributes={ {} } /> );
 
 		await runDeclaredAction( 'build-url' );
 		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'leaves Build URL to the empty state when there are no UTM visits', async () => {
-		const { declaredActions } = await renderInWidgetRender( UtmInsightsWidget, {}, [ 'view-all' ] );
+	it( 'leaves Build URL to the empty state when there are no UTM visits', () => {
+		const { declaredActions } = renderWithActionsHost( <UtmInsightsWidget attributes={ {} } /> );
 
-		expect( declaredActions().map( action => action.id ) ).not.toContain( 'build-url' );
+		expect( declaredActions().map( action => action.id ) ).toEqual( [ 'view-all' ] );
 	} );
 
 	it.each( [
 		[ 'source-medium', {} ],
 		[ 'campaign-source-medium', { utmDimension: 'utm_campaign,utm_source,utm_medium' } ],
-	] as const )( 'declares View all to the %s report tab', async ( section, attributes ) => {
-		const { declaredLink } = await renderInWidgetRender( UtmInsightsWidget, attributes, [
-			'view-all',
-		] );
+	] as const )( 'declares View all to the %s report tab', ( section, attributes ) => {
+		const { declaredLink } = renderWithActionsHost(
+			<UtmInsightsWidget attributes={ attributes } />
+		);
 
 		const href = decodeURIComponent( declaredLink( 'view-all' )?.href ?? '' );
 		expect( href ).toContain( '/reports/utm' );
 		expect( href ).toContain( `section=${ section }` );
 	} );
 
-	it( 'keeps only Build URL when the host composition opts out of the report actions', async () => {
+	it( 'keeps only Build URL when the host composition opts out of the report actions', () => {
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		const { declaredActions } = await renderInWidgetRender(
-			UtmInsightsWidget,
-			{ showReportLink: false },
-			[ 'build-url' ]
+		const { declaredActions } = renderWithActionsHost(
+			<UtmInsightsWidget attributes={ { showReportLink: false } } />
 		);
 
 		expect( declaredActions().map( action => action.id ) ).toEqual( [ 'build-url' ] );
@@ -97,13 +92,13 @@ describe( 'UtmInsightsWidget', () => {
 		const downloads = captureCsvDownloads();
 		mockApiFetch.mockResolvedValue( {} );
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		const { findDeclaredAction } = await renderInWidgetRender(
-			UtmInsightsWidget,
-			{
-				utmDimension: 'utm_campaign,utm_source,utm_medium',
-				reportParams: { from: '2026-06-01', to: '2026-06-30' },
-			},
-			[ 'download-csv' ]
+		const { findDeclaredAction } = renderWithActionsHost(
+			<UtmInsightsWidget
+				attributes={ {
+					utmDimension: 'utm_campaign,utm_source,utm_medium',
+					reportParams: { from: '2026-06-01', to: '2026-06-30' },
+				} }
+			/>
 		);
 
 		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );

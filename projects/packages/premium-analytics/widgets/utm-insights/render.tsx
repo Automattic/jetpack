@@ -4,7 +4,6 @@
 import { search } from '@jetpack-premium-analytics/icons';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { useWidgetActions } from '@wordpress/widget-primitives';
 import {
 	WIDGET_ROW_LIMIT,
 	calculateDelta,
@@ -168,22 +167,18 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 			className={ styles.backLink }
 		/>
 	) : null;
-	useReportActions(
-		showReportLink
-			? {
-					report: 'utm',
-					section: reportSection,
-					csv: {
-						exporter: utmCsvExporters[ reportSection ],
-						status: { isLoading, isFetching, isError },
-						rowCount: data.length,
-					},
-				}
-			: {}
-	);
 	const showsEmptyState = ! isError && ! isLoading && data.length === 0;
-	useWidgetActions(
-		showsEmptyState
+	useReportActions( {
+		...( showReportLink && {
+			report: 'utm',
+			section: reportSection,
+			csv: {
+				exporter: utmCsvExporters[ reportSection ],
+				status: { isLoading, isFetching, isError },
+				rowCount: data.length,
+			},
+		} ),
+		actions: showsEmptyState
 			? []
 			: [
 					{
@@ -192,8 +187,8 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						relevance: 'medium',
 						callback: openBuilder,
 					},
-				]
-	);
+				],
+	} );
 
 	return (
 		<>
