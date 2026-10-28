@@ -895,3 +895,35 @@ ComparisonMulti.parameters = {
 		},
 	},
 };
+
+export const MissingDates: StoryObj< StoryArgs > = Template.bind( {} );
+MissingDates.args = {
+	...lineChartStoryArgs,
+	withTooltips: true,
+	showLegend: true,
+	smoothing: false,
+	data: [
+		{
+			...sampleData[ 0 ],
+			label: 'Views',
+			group: 'views',
+		},
+		{
+			...sampleData[ 1 ],
+			label: 'Views — previous',
+			group: 'views',
+			options: {
+				type: 'comparison' as const,
+			},
+			data: sampleData[ 1 ].data.slice( 1 ),
+		},
+	],
+};
+MissingDates.parameters = {
+	docs: {
+		description: {
+			story:
+				'A comparison series with no point in January. Hovering or arrowing to January lists only **Views**; the previous period appears from February, the first date it has.',
+		},
+	},
+};
