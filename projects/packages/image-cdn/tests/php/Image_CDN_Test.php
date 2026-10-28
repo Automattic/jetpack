@@ -1553,11 +1553,26 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 
 	/**
 	 * Tests that Photon will not strip the dimensions from an external URL.
+	 *
+	 * @dataProvider external_image_urls
+	 *
+	 * @param string $ext_domain An image URL on another domain.
 	 */
-	public function test_image_cdn_strip_image_dimensions_maybe_ignores_external_files() {
-		$ext_domain = 'https://some.domain/wp-content/uploads/2019/1/test-image-300x300.jpg';
-
+	#[DataProvider( 'external_image_urls' )]
+	public function test_image_cdn_strip_image_dimensions_maybe_ignores_external_files( $ext_domain ) {
 		$this->assertEquals( $ext_domain, Image_CDN::strip_image_dimensions_maybe( $ext_domain ) );
+	}
+
+	/**
+	 * Image URLs on another domain.
+	 *
+	 * @return array[]
+	 */
+	public static function external_image_urls() {
+		return array(
+			'longer than the uploads URL'  => array( 'https://some.domain/wp-content/uploads/2019/1/test-image-300x300.jpg' ),
+			'shorter than the uploads URL' => array( 'https://a.co/banner-2x1.jpg' ),
+		);
 	}
 
 	/**

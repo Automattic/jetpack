@@ -19,7 +19,6 @@ jest.unstable_mockModule( '@wordpress/data', () => ( {
 // a renderer: `useEffect` would be an invalid hook call outside a component, and
 // `useNavigate` would reach for a router that isn't mounted.
 jest.unstable_mockModule( '@wordpress/element', () => ( {
-	useCallback: ( fn: unknown ) => fn,
 	useEffect: () => undefined,
 } ) );
 jest.unstable_mockModule( '@wordpress/route', () => ( {

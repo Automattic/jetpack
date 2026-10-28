@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: When SEO tools are off, show only the page header and a centered "Enable SEO tools" prompt on every tab, with the tabs hidden except on plan-gated sites. The new SEO page is still gated.
+
