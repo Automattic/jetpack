@@ -68,8 +68,7 @@
 - Monitor: Move the module's logic into the new Monitor package. [#53691]
 - Newsletter: Record how creators use the email design screen. [#54167]
 - Update bundle recommendations in the plugin description for the Jetpack Pro launch. [#53978]
-- Update package dependencies. [#54117]
-- Update package dependencies. [#54118]
+- Update package dependencies. [#54117] [#54118]
 
 ## 16.4-a.5 - 2026-10-26
 ### Enhancements
