@@ -4,14 +4,16 @@ import type { ReactElement } from 'react';
 /**
  * Automattic Icon Logo component
  *
+ * The Automattic logo is black or white only: pass white for both colors on dark backgrounds.
+ *
  * @param {object} props            - Component props
- * @param {string} props.innerColor - Color code for the line in the middle of the logo.
- * @param {string} props.outerColor - Color code for the logo's outer
+ * @param {string} props.innerColor - Color code for the logo's ring.
+ * @param {string} props.outerColor - Color code for the slash inside the ring.
  * @return {ReactElement} Component template
  */
 export default function AutomatticIconLogo( {
-	innerColor = '#00A3E0',
-	outerColor = '#FFFFFF',
+	innerColor = '#000000',
+	outerColor = '#000000',
 }: {
 	innerColor: string;
 	outerColor: string;
@@ -22,20 +24,20 @@ export default function AutomatticIconLogo( {
 			fill="none"
 			fillRule="evenodd"
 			height="43"
-			viewBox="0 0 47 43"
+			viewBox="0 0 171 156"
 			width="47"
 			xmlns="http://www.w3.org/2000/svg"
 		>
 			<Path
 				fillRule="evenodd"
 				clipRule="evenodd"
-				d="M39.3164 20.9589C39.3164 13.2129 33.656 6.30469 23.4214 6.30469C13.1867 6.30469 7.58624 13.2129 7.58624 20.9589V21.9206C7.58624 29.6677 13.1867 36.6942 23.4214 36.6942C33.656 36.6942 39.3164 29.6677 39.3164 21.9206V20.9589ZM23.4214 43C9.21187 43 0 32.7913 0 22.1604V20.8407C0 10.0285 9.21187 0 23.4214 0C37.6919 0 46.9038 10.0285 46.9038 20.8407V22.1604C46.9038 32.7913 37.6919 43 23.4214 43Z"
+				d="M85.398 155.632C34.1992 155.632 1.01562 118.788 1.01562 80.3993V75.6007C1.01562 36.5611 34.1992 0.368164 85.398 0.368164C136.597 0.368164 169.984 36.5611 169.984 75.6007V80.3993C169.984 118.666 136.8 155.632 85.398 155.632ZM145.191 76.048C145.191 48.0696 122.323 23.1819 85.398 23.1819C48.4731 23.1819 25.9304 48.1103 25.9304 76.048V79.5047C25.9304 107.483 48.7984 132.859 85.398 132.859C121.998 132.859 145.191 107.483 145.191 79.5047V76.048Z"
 				fill={ innerColor }
 			/>
 			<Path
 				fillRule="evenodd"
 				clipRule="evenodd"
-				d="M28.4548 14.1897C29.752 15.0401 30.1158 16.8077 29.2739 18.1343L22.712 28.4682C21.8691 29.7959 20.1348 30.1799 18.8397 29.3295C17.5446 28.477 17.1765 26.7137 18.0205 25.386L24.5824 15.0522C25.4253 13.7256 27.1597 13.3404 28.4548 14.1897Z"
+				d="M62.7978 91.4965L87.6364 53.0284C91.1593 47.5724 98.4381 46.0054 103.894 49.5283L103.928 49.5504C109.384 53.0732 110.951 60.352 107.428 65.808L82.5899 104.276C79.067 109.732 71.7882 111.299 66.3322 107.776L66.298 107.754C60.842 104.231 59.275 96.9525 62.7978 91.4965Z"
 				fill={ outerColor }
 			/>
 		</SVG>
