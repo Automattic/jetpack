@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Models\Threat_Model;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
@@ -52,9 +53,14 @@ class Red_Bubble_Notifications_Test extends TestCase {
 		remove_filter( 'map_meta_cap', array( $this->manager, 'jetpack_connection_custom_caps' ), 1 );
 		remove_all_filters( 'jetpack_disconnect_cap' );
 		remove_all_filters( 'jetpack_protect_threat_notifications_enabled' );
-		remove_all_filters( 'pre_http_request' );
 		Protect_Status::$status = null;
-		Product::reset_site_features_cache();
+		// Storing a different plan clears Current_Plan's cached copy, which outlives the option.
+		Current_Plan::update_from_site_record(
+			array(
+				'plan'     => array( 'product_slug' => 'jetpack_free' ),
+				'products' => array(),
+			)
+		);
 		wp_set_current_user( 0 );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -161,19 +167,14 @@ class Red_Bubble_Notifications_Test extends TestCase {
 	 */
 	#[DataProvider( 'provide_threat_notification_cases' )]
 	public function test_protect_threats_alert_follows_the_host_filter( $notify, $expected ) {
-		add_filter(
-			'pre_http_request',
-			static function () {
-				return new \WP_Error( 'http_request_blocked', 'Blocked in tests.' );
-			}
-		);
-		set_transient(
-			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+		Current_Plan::update_from_site_record(
 			array(
-				'active'    => array( 'scan' ),
-				'available' => array(),
-			),
-			HOUR_IN_SECONDS
+				'plan'     => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => array( 'scan' ) ),
+				),
+				'products' => array(),
+			)
 		);
 		Protect_Status::$status = new Status_Model(
 			array(
