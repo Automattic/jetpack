@@ -9,6 +9,7 @@ import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/u
 import LineChart, { LineChartUnresponsive, renderDefaultTooltip } from '../line-chart';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { DataPointDate, SeriesData } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { ChartInstanceRef } from '../../private/chart-instance-context';
 import type { RenderLineGlyphProps } from '../types';
 
@@ -1693,6 +1694,80 @@ describe( 'LineChart', () => {
 				await user.keyboard( '{Enter}' );
 
 				expect( onDatumActivate ).not.toHaveBeenCalled();
+			} );
+		} );
+
+		describe( 'Keyboard stops by date', () => {
+			const point = ( day: number, value: number | null ) => ( {
+				date: new Date( `2024-01-0${ day }` ),
+				value,
+			} );
+			const rowsTooltip = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+				<div data-testid="rows-tooltip">
+					{ Object.values( tooltipData?.datumByKey ?? {} )
+						.map( ( { key, datum } ) => `${ key }=${ datum.value }` )
+						.sort()
+						.join( ';' ) }
+				</div>
+			);
+			const renderRows = ( data: SeriesData[], props = {} ) => {
+				renderWithTheme( { data, withTooltips: true, renderTooltip: rowsTooltip, ...props } );
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
+			};
+
+			it( 'stops at every date any series has and reads each series there', async () => {
+				const user = userEvent.setup();
+				renderRows( [
+					{ label: 'A', data: [ point( 1, 1 ), point( 2, 2 ), point( 3, 3 ) ] },
+					{ label: 'B', data: [ point( 2, 20 ), point( 4, 40 ) ] },
+				] );
+
+				const expected = [
+					{ text: 'A=1', stop: 0 },
+					{ text: 'A=2;B=20', stop: 1 },
+					{ text: 'A=3', stop: 2 },
+					{ text: 'B=40', stop: 3 },
+					{ text: 'B=40', stop: 3 },
+				];
+				for ( const { text, stop } of expected ) {
+					await user.keyboard( '{ArrowRight}' );
+					await waitFor( () => {
+						expect( screen.getByTestId( `chart-tooltip-${ stop }` ) ).toBeInTheDocument();
+						expect( screen.getByTestId( 'rows-tooltip' ) ).toHaveTextContent(
+							new RegExp( `^${ text }$` )
+						);
+					} );
+				}
+			} );
+
+			it( 'keeps a null point at the selected date', async () => {
+				const user = userEvent.setup();
+				renderRows( [
+					{ label: 'A', data: [ point( 1, 1 ), point( 2, 2 ) ] },
+					{ label: 'B', data: [ point( 1, null ), point( 2, 20 ) ] },
+				] );
+
+				await user.keyboard( '{ArrowRight}' );
+				await expect( screen.findByTestId( 'rows-tooltip' ) ).resolves.toHaveTextContent(
+					/^A=1;B=null$/
+				);
+			} );
+
+			it( 'activates the first visible series with a point at the selected date', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				const seriesB = { label: 'Series B', data: [ point( 1, 10 ), point( 2, 20 ) ] };
+				renderRows( [ { label: 'Series A', data: [ point( 2, 2 ) ] }, seriesB ], {
+					onDatumActivate,
+				} );
+
+				await user.keyboard( '{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					key: 'Series B',
+					index: 0,
+					datum: seriesB.data[ 0 ],
+				} );
 			} );
 		} );
 

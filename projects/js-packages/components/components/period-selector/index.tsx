@@ -18,6 +18,7 @@ export default function PeriodSelector< Value extends string >( {
 	onNext,
 	isPreviousDisabled = false,
 	isNextDisabled = false,
+	disabled = false,
 	className,
 }: PeriodSelectorProps< Value > ): JSX.Element {
 	const selected = presets.find( preset => preset.value === value );
@@ -28,7 +29,10 @@ export default function PeriodSelector< Value extends string >( {
 	return (
 		<Stack direction="row" align="center" gap="xs" className={ className }>
 			<Menu.Root>
-				<Menu.Trigger render={ <Button variant="outline" tone="neutral" size="compact" /> }>
+				<Menu.Trigger
+					render={ <Button variant="outline" tone="neutral" size="compact" /> }
+					disabled={ disabled }
+				>
 					<Button.Icon icon={ calendar } />
 					{ selected?.label ?? __( 'Select period', 'jetpack-components' ) }
 				</Menu.Trigger>
@@ -50,7 +54,7 @@ export default function PeriodSelector< Value extends string >( {
 					icon={ previousIcon }
 					label={ __( 'Previous period', 'jetpack-components' ) }
 					onClick={ onPrevious }
-					disabled={ isPreviousDisabled }
+					disabled={ disabled || isPreviousDisabled }
 				/>
 			) }
 			{ onNext && (
@@ -61,7 +65,7 @@ export default function PeriodSelector< Value extends string >( {
 					icon={ nextIcon }
 					label={ __( 'Next period', 'jetpack-components' ) }
 					onClick={ onNext }
-					disabled={ isNextDisabled }
+					disabled={ disabled || isNextDisabled }
 				/>
 			) }
 		</Stack>

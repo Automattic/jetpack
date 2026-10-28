@@ -507,11 +507,9 @@ describe( 'WordPress.com Simple settings', () => {
 			expect( statusFor( 'Site visibility' ) ).toBe(
 				searchEnginesVisible ? 'Complete' : 'Not started'
 			);
-			expect(
-				screen.getByText(
-					'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
-				)
-			).toBeInTheDocument();
+			expect( toggle ).toHaveAccessibleDescription(
+				'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
+			);
 			expect( screen.getByRole( 'link', { name: /Explore hosting options/ } ) ).toHaveAttribute(
 				'href',
 				'https://wordpress.com/support/activate-your-plan/'

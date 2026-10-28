@@ -27,6 +27,9 @@ const Template: StoryFn< typeof PeriodSelector > = args => {
 export const _default = Template.bind( {} );
 _default.args = { presets, value: '7' };
 
+export const Disabled = Template.bind( {} );
+Disabled.args = { presets, value: '7', disabled: true };
+
 const SteppingTemplate: StoryFn< typeof PeriodSelector > = args => {
 	const [ value, setValue ] = useState( args.value );
 	const [ offset, setOffset ] = useState( 0 );

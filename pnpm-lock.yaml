@@ -3416,6 +3416,8 @@ importers:
         specifier: 30.5.2
         version: 30.5.2
 
+  projects/packages/monitor: {}
+
   projects/packages/my-jetpack:
     dependencies:
       '@automattic/babel-plugin-replace-textdomain':

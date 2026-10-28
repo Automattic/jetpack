@@ -20,6 +20,8 @@ export type PeriodSelectorProps< Value extends string = string > = {
 	isPreviousDisabled?: boolean;
 	/** Whether there is no next period to step to, such as on the latest one. */
 	isNextDisabled?: boolean;
+	/** Whether the dropdown and both step buttons are disabled. */
+	disabled?: boolean;
 	/** Class name for the wrapper. */
 	className?: string;
 };
