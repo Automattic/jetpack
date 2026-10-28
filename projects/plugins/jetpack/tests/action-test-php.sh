@@ -9,6 +9,10 @@ if [[ "$WITH_WOOCOMMERCE" == true ]]; then
 	exit 0
 fi
 
+if [[ "$WITH_WPCOMSH" == true ]]; then
+	export JETPACK_TEST_WPCOMSH=1
+fi
+
 declare -A TESTS
 TESTS[normal]="phpunit-select-config 'phpunit.#.xml.dist'"
 
