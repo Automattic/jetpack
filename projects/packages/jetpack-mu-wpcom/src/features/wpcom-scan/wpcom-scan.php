@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
+use Automattic\Jetpack\Modules;
+
 require_once __DIR__ . '/../wpcom-hosting-feature-page/class-wpcom-hosting-feature-page.php';
 
 /**
@@ -24,6 +26,11 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	 * The Jetpack plugin module that serves MENU_SLUG with the Protect package's dashboard.
 	 */
 	const DASHBOARD_MODULE = 'protect-dashboard';
+
+	/**
+	 * Set once the Protect dashboard has been on, so a site that turns it off later keeps it off.
+	 */
+	const DASHBOARD_MODULE_ACTIVATED_OPTION = 'wpcom_protect_dashboard_activated';
 
 	/**
 	 * As declared in routes/wpcom-scan/package.json.
@@ -75,6 +82,34 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	}
 
 	/**
+	 * Turn the Protect dashboard on once for a WoA site that can have it.
+	 *
+	 * WoA sites passed the module's First Introduced version while it was unavailable there, so Jetpack's upgrade never turned it on.
+	 *
+	 * @return void
+	 */
+	public static function maybe_activate_protect_dashboard_module() {
+		if ( ! self::is_atomic() || ! is_admin() || get_option( self::DASHBOARD_MODULE_ACTIVATED_OPTION ) ) {
+			return;
+		}
+
+		$modules = new Modules();
+		// Unavailable without the Jetpack plugin, without self-serve Scan, or beside the standalone Protect plugin, so it is retried once offered.
+		if ( ! in_array( self::DASHBOARD_MODULE, $modules->get_available(), true ) ) {
+			return;
+		}
+
+		if ( ! $modules->is_active( self::DASHBOARD_MODULE ) ) {
+			$modules->activate( self::DASHBOARD_MODULE, false, false );
+		}
+
+		// Checked again rather than trusting activate(), which also refuses while the connection is not ready.
+		if ( $modules->is_active( self::DASHBOARD_MODULE ) ) {
+			update_option( self::DASHBOARD_MODULE_ACTIVATED_OPTION, true, false );
+		}
+	}
+
+	/**
 	 * Keep the Jetpack plugin's Protect page out of the sidebar while Calypso's Scan owns the nav.
 	 *
 	 * Matched on the item's module: the standalone Protect plugin shares the slug and keeps its entry.
@@ -101,3 +136,5 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 
 add_action( 'init', array( WPCOM_Scan::class, 'init' ) );
 add_filter( 'jetpack_admin_menu_visibility', array( WPCOM_Scan::class, 'filter_admin_menu_visibility' ), 10, 2 );
+// After Jetpack::activate_new_modules() on init 10, and before admin_menu registers the page.
+add_action( 'init', array( WPCOM_Scan::class, 'maybe_activate_protect_dashboard_module' ), 20 );
