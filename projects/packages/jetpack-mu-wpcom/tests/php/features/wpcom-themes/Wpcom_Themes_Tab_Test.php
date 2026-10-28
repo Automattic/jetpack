@@ -997,6 +997,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 					self::THEME,
 					array(
 						'id'         => 'twentytwentyfive',
+						'stylesheet' => 'pub/twentytwentyfive',
 						'name'       => 'Twenty Twenty-Five',
 						'theme_tier' => array( 'slug' => 'free' ),
 					)
@@ -1035,6 +1036,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$ours = $result->themes[0];
 		$this->assertTrue( $ours->is_wpcom_theme );
 		$this->assertSame( 'twentytwentyfive', $ours->slug );
+		$this->assertSame( 'pub/twentytwentyfive', $ours->wpcom_stylesheet );
 		$this->assertSame( 'Included with plan', $ours->plan_badge );
 		$this->assertFalse( $ours->wpcom_marketplace_tab );
 		$this->assertSame( $others, array_slice( $result->themes, 1 ) );
