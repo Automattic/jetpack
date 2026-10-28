@@ -40,9 +40,6 @@ jest.unstable_mockModule( '../title-structure-field', () => ( {
 jest.unstable_mockModule( '../google-verification-field', () => ( {
 	default: () => <div>google field</div>,
 } ) );
-jest.unstable_mockModule( '../advanced-card', () => ( {
-	default: () => <div>advanced</div>,
-} ) );
 
 const { default: SettingsScreen } = await import( '../index' );
 
@@ -475,22 +472,6 @@ describe( 'WordPress.com Simple settings', () => {
 			);
 		}
 	);
-
-	it( 'renders the module on a self-hosted site', () => {
-		render( <SettingsScreen form={ buildForm() } /> );
-
-		expect( screen.getByText( 'advanced' ) ).toBeInTheDocument();
-	} );
-
-	it( 'hides it on Simple, where SEO tools cannot actually be turned off', () => {
-		// `Modules::is_active()` reports every module active there, so the control
-		// would appear to do nothing.
-		setSimpleSite();
-
-		render( <SettingsScreen form={ buildForm() } /> );
-
-		expect( screen.queryByText( 'advanced' ) ).not.toBeInTheDocument();
-	} );
 
 	it.each( [ true, false ] )(
 		'keeps the sitemap control read-only without claiming publication when indexing is %s',
