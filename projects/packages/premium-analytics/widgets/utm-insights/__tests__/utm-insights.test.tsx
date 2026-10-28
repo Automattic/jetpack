@@ -7,6 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import { captureCsvDownloads } from '../../test-utils';
 import UtmInsightsWidget from '../render';
 import type { UtmInsightsRow } from '../use-utm-insights';
@@ -40,23 +41,42 @@ afterEach( () => {
 } );
 
 describe( 'UtmInsightsWidget', () => {
+	it( 'offers Build URL for an empty selection and keeps View all declared', async () => {
+		const user = userEvent.setup();
+		const { rerender, declaredAction } = renderWithActionsHost(
+			<UtmInsightsWidget attributes={ {} } />
+		);
+
+		expect( declaredAction( 'view-all' ) ).toBeDefined();
+		await user.click( screen.getByRole( 'button', { name: 'Build URL' } ) );
+		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
+
+		await user.keyboard( '{Escape}' );
+		mockRows = [ { label: 'newsletter / email', value: 18 } ];
+		rerender( <UtmInsightsWidget attributes={ {} } /> );
+		expect( screen.queryByRole( 'button', { name: 'Build URL' } ) ).not.toBeInTheDocument();
+	} );
+
 	it.each( [
 		[ 'source-medium', {} ],
 		[ 'campaign-source-medium', { utmDimension: 'utm_campaign,utm_source,utm_medium' } ],
-	] as const )( 'links View all to the %s report tab', ( section, attributes ) => {
-		render( <UtmInsightsWidget attributes={ attributes } /> );
+	] as const )( 'declares View all to the %s report tab', ( section, attributes ) => {
+		const { declaredLink } = renderWithActionsHost(
+			<UtmInsightsWidget attributes={ attributes } />
+		);
 
-		const href = screen.getByRole( 'link', { name: 'View all' } ).getAttribute( 'href' ) ?? '';
+		const href = decodeURIComponent( declaredLink( 'view-all' )?.href ?? '' );
 		expect( href ).toContain( '/reports/utm' );
 		expect( href ).toContain( `section=${ section }` );
 	} );
 
-	it( 'hides the report link and the download when the host composition opts out', () => {
+	it( 'declares neither the report link nor the download when the host composition opts out', () => {
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		render( <UtmInsightsWidget attributes={ { showReportLink: false } } /> );
+		const { declaredActions } = renderWithActionsHost(
+			<UtmInsightsWidget attributes={ { showReportLink: false } } />
+		);
 
-		expect( screen.queryByRole( 'link', { name: 'View all' } ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+		expect( declaredActions() ).toEqual( [] );
 	} );
 
 	it( 'downloads the full report for the active UTM dimension', async () => {
@@ -64,7 +84,7 @@ describe( 'UtmInsightsWidget', () => {
 		const downloads = captureCsvDownloads();
 		mockApiFetch.mockResolvedValue( {} );
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		render(
+		const { findDeclaredAction } = renderWithActionsHost(
 			<UtmInsightsWidget
 				attributes={ {
 					utmDimension: 'utm_campaign,utm_source,utm_medium',
@@ -73,7 +93,7 @@ describe( 'UtmInsightsWidget', () => {
 			/>
 		);
 
-		await downloads.clickAndSave( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 		const [ saved ] = downloads.files;
 		downloads.restore();
 
@@ -98,10 +118,13 @@ describe( 'UtmInsightsWidget', () => {
 			/>
 		);
 
+		expect( screen.getByText( 'Source / Medium' ) ).toBeInTheDocument();
+
 		await user.click(
 			screen.getByRole( 'button', { name: 'View posts for jetpack-forms / email' } )
 		);
 
+		expect( screen.getByText( 'Posts' ) ).toBeInTheDocument();
 		const titleLink = screen.getByRole( 'link', { name: 'Jetpack Forms' } );
 		const href = titleLink.getAttribute( 'href' ) ?? '';
 

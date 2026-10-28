@@ -4,9 +4,6 @@
  */
 
 import {
-	Card,
-	CardBody,
-	CardDivider,
 	Icon,
 	ToggleControl,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -23,16 +20,19 @@ import {
 	caution,
 	list,
 } from '@wordpress/icons';
-import { Badge, Button, Stack } from '@wordpress/ui';
+import { Badge, Button, Card, Stack } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import { isWriteTool } from './categories';
 import McpHowItWorks from './how-it-works';
 import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
+	getRemoteAbilityCategory,
 	getSiteContextToolIds,
 	getSiteLevelEnabled,
 	getSiteMcpAbilities,
+	getSiteRemoteGroups,
+	isRemoteAbilityEnabled,
 	mergeSiteMcpAbilities,
 } from './utils';
 
@@ -190,6 +190,7 @@ function ConnectRow( { title, description, onClick } ) {
  * @param {Set}      props.savingToolIds         - Set of toolIds currently being saved.
  * @param {Function} props.onNavigate            - Called with 'read' | 'write' | 'setup'.
  * @param {Function} props.onUpdate              - Called with partial mcp_abilities update.
+ * @param {object}   [props.remoteAbilities]     - Published-abilities state; counted in the badges when set.
  * @param {boolean}  [props.showActivityLog]     - Whether this view owns the activity log row
  *                                               (false when the Overview tab renders it instead).
  * @return {object} Component markup.
@@ -203,6 +204,7 @@ export default function McpHub( {
 	onNavigate,
 	onUpdate,
 	showActivityLog = true,
+	remoteAbilities = null,
 } ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
@@ -225,12 +227,35 @@ export default function McpHub( {
 	const defaultBadge = defaultToolEnabled
 		? { text: __( 'All enabled', 'jetpack' ), intent: 'success' }
 		: { text: __( 'Disabled', 'jetpack' ) };
-	const readBadge = hasSiteAbilityOverrides
-		? computeBadge( readTools, defaultToolEnabled )
-		: defaultBadge;
-	const writeBadge = hasSiteAbilityOverrides
-		? computeBadge( writeTools, defaultToolEnabled )
-		: defaultBadge;
+	// Published abilities count toward the badges, so they do not say
+	// "All enabled" while a site group is off.
+	const savedRemoteGroups = getSiteRemoteGroups( mcpAbilities ?? {}, blogId );
+	const remoteTools = { read: [], write: [] };
+	const allEnabledIn = tools => tools.length > 0 && tools.every( ( [ , t ] ) => t.enabled );
+	const remoteDefaults = { read: allEnabledIn( readTools ), write: allEnabledIn( writeTools ) };
+	for ( const ability of remoteAbilities?.abilities ?? [] ) {
+		const annotations = ability.meta?.annotations;
+		const category = getRemoteAbilityCategory( ability.name, annotations );
+		remoteTools[ category ].push( [
+			ability.name,
+			{
+				enabled: isRemoteAbilityEnabled(
+					savedRemoteGroups,
+					ability.name,
+					annotations,
+					remoteDefaults[ category ]
+				),
+			},
+		] );
+	}
+	const readBadge =
+		hasSiteAbilityOverrides || remoteTools.read.length
+			? computeBadge( [ ...readTools, ...remoteTools.read ], defaultToolEnabled )
+			: defaultBadge;
+	const writeBadge =
+		hasSiteAbilityOverrides || remoteTools.write.length
+			? computeBadge( [ ...writeTools, ...remoteTools.write ], defaultToolEnabled )
+			: defaultBadge;
 
 	const handleMcpToggle = useCallback(
 		enabled => {
@@ -263,17 +288,15 @@ export default function McpHub( {
 	return (
 		<>
 			<McpHowItWorks />
-			<Card className="jetpack-ai-mcp__access-card">
-				<CardBody>
+			<Card.Root className="jetpack-ai-mcp__access-card">
+				<Card.Header>
+					<Card.Title render={ <h2 /> }>{ __( 'External AI agent access', 'jetpack' ) }</Card.Title>
+				</Card.Header>
+				<Card.Content>
 					<Stack direction="column" gap="md">
-						<Stack direction="column" gap="xs">
-							<Text as="h2" weight={ 600 }>
-								{ __( 'External AI agent access', 'jetpack' ) }
-							</Text>
-							<Text variant="muted">
-								{ __( 'Allow external AI agents to access this site via MCP.', 'jetpack' ) }
-							</Text>
-						</Stack>
+						<Text variant="muted">
+							{ __( 'Allow external AI agents to access this site via MCP.', 'jetpack' ) }
+						</Text>
 						<ToggleControl
 							__nextHasNoMarginBottom
 							checked={ isMcpEnabled }
@@ -282,30 +305,27 @@ export default function McpHub( {
 							onChange={ handleMcpToggle }
 						/>
 					</Stack>
-				</CardBody>
-
-				{ isMcpEnabled && (
-					<>
-						<CardDivider />
-						<SummaryRow
-							icon={ seen }
-							title={ __( 'Read', 'jetpack' ) }
-							badge={ readBadge }
-							onClick={ navigateToRead }
-						/>
-						<CardDivider />
-						<SummaryRow
-							icon={ pencil }
-							title={ __( 'Write', 'jetpack' ) }
-							badge={ writeBadge }
-							onClick={ navigateToWrite }
-						/>
-					</>
-				) }
-			</Card>
+					{ isMcpEnabled && (
+						<Card.FullBleed className="jetpack-ai-mcp__summary-rows">
+							<SummaryRow
+								icon={ seen }
+								title={ __( 'Read', 'jetpack' ) }
+								badge={ readBadge }
+								onClick={ navigateToRead }
+							/>
+							<SummaryRow
+								icon={ pencil }
+								title={ __( 'Write', 'jetpack' ) }
+								badge={ writeBadge }
+								onClick={ navigateToWrite }
+							/>
+						</Card.FullBleed>
+					) }
+				</Card.Content>
+			</Card.Root>
 
 			{ isMcpEnabled && (
-				<Card className="jetpack-ai-mcp__action-card">
+				<Card.Root className="jetpack-ai-mcp__action-card">
 					<ConnectRow
 						title={ __( 'Connect external AI agent', 'jetpack' ) }
 						description={ __(
@@ -314,11 +334,11 @@ export default function McpHub( {
 						) }
 						onClick={ navigateToSetup }
 					/>
-				</Card>
+				</Card.Root>
 			) }
 
 			{ showActivityLog && isMcpEnabled && activityLogUrl && (
-				<Card className="jetpack-ai-mcp__action-card">
+				<Card.Root className="jetpack-ai-mcp__action-card">
 					<a
 						className="jetpack-ai-mcp__connect-row"
 						href={ activityLogUrl }
@@ -339,7 +359,7 @@ export default function McpHub( {
 							<Icon icon={ chevronRight } size={ 24 } />
 						</span>
 					</a>
-				</Card>
+				</Card.Root>
 			) }
 		</>
 	);

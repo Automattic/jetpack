@@ -1,6 +1,7 @@
 import { TextareaControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import PlaceholderToken from '../placeholder-token';
 import PlaceholdersHelp from '../placeholders-help';
 import styles from './styles.module.scss';
 import type { ReactNode } from 'react';
@@ -42,8 +43,8 @@ const getDefaultHelpText = () =>
 			'jetpack-publicize-pkg'
 		),
 		{
-			title: <code>{ '{title}' }</code>,
-			url: <code>{ '{url}' }</code>,
+			title: <PlaceholderToken>{ '{title}' }</PlaceholderToken>,
+			url: <PlaceholderToken>{ '{url}' }</PlaceholderToken>,
 		}
 	);
 

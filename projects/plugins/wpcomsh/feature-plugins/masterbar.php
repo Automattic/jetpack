@@ -247,6 +247,18 @@ function wpcomsh_get_wpcom_admin_interface_option() {
 add_filter( 'pre_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interface_option' );
 
 /**
+ * Use the Classic style (WP Admin) on a site that never chose an admin interface style, as WordPress.com does.
+ *
+ * It replaces a default the caller passes too, such as the one Settings > General passes to check a radio.
+ *
+ * @return string
+ */
+function wpcomsh_get_wpcom_admin_interface_default() {
+	return 'wp-admin';
+}
+add_filter( 'default_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interface_default' );
+
+/**
  * Color scheme from Calypso (/me/account) is stored as user option,
  * while color scheme from /wp-admin/profile.php is stored as user meta.
  *

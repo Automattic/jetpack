@@ -5,6 +5,7 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/acces
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 require_once __DIR__ . '/class-test-jetpack-token-subscription-service.php';
+require_once JETPACK__PLUGIN_DIR . 'tests/php/3rd-party/fixtures/Activitypub/functions.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
@@ -221,6 +222,23 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$GLOBALS['post'] = get_post( $post_id );
 		wp_set_current_user( $admin_user_id );
 		$this->assertTrue( current_visitor_can_access( array(), array() ) );
+	}
+
+	public function test_access_check_activitypub_render_ignores_editor_and_subscriber_token() {
+		list( , , $paid_subscriber_id, $plan_id ) = $this->set_up_users_and_plans();
+		$attributes                               = array( 'selectedPlanIds' => array( $plan_id ) );
+		$admin_user_id                            = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$GLOBALS['post']                          = get_post( $this->factory->post->create() );
+
+		wp_set_current_user( $paid_subscriber_id );
+		$this->set_returned_token( $this->get_payload( true, true ) );
+		$this->assertTrue( current_visitor_can_access( $attributes, array() ) );
+
+		add_filter( 'activitypub_is_activitypub_request', '__return_true' );
+		$this->assertFalse( current_visitor_can_access( $attributes, array() ) );
+
+		wp_set_current_user( $admin_user_id );
+		$this->assertFalse( current_visitor_can_access( $attributes, array() ) );
 	}
 
 	/**

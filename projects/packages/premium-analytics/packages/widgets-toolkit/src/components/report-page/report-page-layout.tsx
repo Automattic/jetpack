@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+import { JetpackFooter } from '@jetpack-premium-analytics/externals';
 import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
 import { createContext, useContext } from 'react';
@@ -12,6 +14,11 @@ import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactNode } from 'react';
 
 const ReportHasPeriodContext = createContext( false );
+
+const ALL_TIME_MENU = {
+	presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+	allTimeStartsOnServer: true,
+} as const;
 
 /**
  * Whether the report around the caller has a date window, so copy can speak of "this time period" only where one exists.
@@ -27,6 +34,11 @@ export interface ReportPageLayoutProps {
 	title: string;
 	/** Date-filter controller, from `useReportDateFilters`. Omit on a report with no date window. */
 	dateFilters?: ReportDateFilters;
+	/**
+	 * Offer All time. Only for a report whose query adds `getReportWindowParams()` and whose
+	 * endpoint reads `num: -1` as the whole history: `stats/video-plays` reads it as one day.
+	 */
+	withAllTime?: boolean;
 	/** Internal tab bar for pages with multiple views (e.g. Posts & Pages / Archives). */
 	tabs?: ReactNode;
 	/** The stacked report sections (chart, records table, …). */
@@ -35,23 +47,32 @@ export interface ReportPageLayoutProps {
 
 /**
  * Second-level report page scaffold: the scroll area below the page header,
- * holding the tabs, the section header pinned at its top, and the stacked
- * sections. The header shows only the range — interval/comparison controls
+ * holding the tabs, the section header pinned at its top, the stacked
+ * sections and the footer. The header shows only the range — interval/comparison controls
  * are hidden, not cleared, so they survive on the URL.
  *
  * @param {ReportPageLayoutProps} props - The component props.
  * @return The report page scaffold.
  */
-export function ReportPageLayout( { title, dateFilters, tabs, children }: ReportPageLayoutProps ) {
+export function ReportPageLayout( {
+	title,
+	dateFilters,
+	withAllTime = false,
+	tabs,
+	children,
+}: ReportPageLayoutProps ) {
 	return (
 		<div className={ styles.root }>
 			{ tabs }
 			<SectionHeader title={ title } pinned>
-				{ dateFilters ? <DateFiltersPanel { ...dateFilters } /> : null }
+				{ dateFilters ? (
+					<DateFiltersPanel { ...dateFilters } { ...( withAllTime ? ALL_TIME_MENU : {} ) } />
+				) : null }
 			</SectionHeader>
 			<ReportHasPeriodContext.Provider value={ !! dateFilters }>
 				<div className={ styles.sections }>{ children }</div>
 			</ReportHasPeriodContext.Provider>
+			<JetpackFooter />
 		</div>
 	);
 }

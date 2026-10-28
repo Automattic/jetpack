@@ -193,12 +193,13 @@ class Search extends Hybrid_Product {
 			// dashboard degrades to the production default, not the legacy single-card view.
 			$pricing['pricing_version'] = self::SEARCH_NEW_PRICING_VERSION;
 
-			// If the generic product pricing was also unavailable, fall back to a USD
-			// starting price so the pricing grid renders a price instead of "$0".
+			// If the generic product pricing was also unavailable, fall back to a USD yearly
+			// starting price so the pricing grid shows a monthly amount instead of "$0".
 			if ( empty( $pricing['full_price'] ) ) {
 				$pricing['currency_code']  = 'USD';
 				$pricing['full_price']     = self::FALLBACK_STARTING_PRICE_USD;
 				$pricing['discount_price'] = self::FALLBACK_STARTING_PRICE_USD;
+				$pricing['product_term']   = 'year';
 			}
 
 			return $pricing;
@@ -617,11 +618,12 @@ class Search extends Hybrid_Product {
 	 * Activates the product. Try to enable instant search after the Search module was enabled.
 	 *
 	 * @param bool|WP_Error $product_activation Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
+	 * @param bool          $local              Skip connected Search setup.
 	 * @return bool|WP_Error
 	 */
-	public static function do_product_specific_activation( $product_activation ) {
-		$product_activation = parent::do_product_specific_activation( $product_activation );
-		if ( is_wp_error( $product_activation ) ) {
+	public static function do_product_specific_activation( $product_activation, $local = false ) {
+		$product_activation = parent::do_product_specific_activation( $product_activation, $local );
+		if ( is_wp_error( $product_activation ) || $local ) {
 			return $product_activation;
 		}
 

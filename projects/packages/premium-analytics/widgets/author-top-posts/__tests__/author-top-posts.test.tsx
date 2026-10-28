@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import { captureCsvDownloads } from '../../test-utils';
 import AuthorTopPostsWidget from '../render';
 
@@ -84,10 +85,6 @@ describe( 'AuthorTopPostsWidget', () => {
 		);
 		expect( screen.getByRole( 'link', { name: 'Second post' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Not hers' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringMatching( /^\/reports\/authors\?/ )
-		);
 
 		const requestedPath = decodeURIComponent( mockApiFetch.mock.calls[ 0 ][ 0 ].path as string );
 		expect( requestedPath ).toContain( 'stats/top-authors' );
@@ -97,32 +94,36 @@ describe( 'AuthorTopPostsWidget', () => {
 	it( 'shows the generic empty state for an author missing from the period', async () => {
 		mockApiFetch.mockResolvedValue( TOP_AUTHORS_SUMMARY );
 
-		render(
+		const { declaredAction } = renderWithActionsHost(
 			<AuthorTopPostsWidget attributes={ { reportParams: { ...WINDOW_PARAMS, author_id: 42 } } } />
 		);
 
 		await expect(
 			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );
 
 	it( 'renders the scopeless empty state and makes no request without an author scope', async () => {
-		render( <AuthorTopPostsWidget attributes={ { reportParams: DEFAULT_PARAMS } } /> );
+		const { declaredAction } = renderWithActionsHost(
+			<AuthorTopPostsWidget attributes={ { reportParams: DEFAULT_PARAMS } } />
+		);
 
 		await expect(
 			screen.findByText( 'Open an author to see their top posts here.' )
 		).resolves.toBeInTheDocument();
 		expect( mockApiFetch ).not.toHaveBeenCalled();
-		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 	} );
 
 	it( 'downloads every one of this author’s posts from the report it already loaded', async () => {
 		downloads = captureCsvDownloads();
 		mockApiFetch.mockResolvedValue( TOP_AUTHORS_SUMMARY );
 
-		render( <AuthorTopPostsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
-		await downloads.clickAndSave( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
+		const { findDeclaredAction } = renderWithActionsHost(
+			<AuthorTopPostsWidget attributes={ { reportParams: WINDOW_PARAMS } } />
+		);
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 
 		const [ saved ] = downloads.files;
 		const lines = await downloads.lines();
@@ -143,7 +144,7 @@ describe( 'AuthorTopPostsWidget', () => {
 				: Promise.resolve( TOP_AUTHORS_SUMMARY )
 		);
 
-		render(
+		const { findDeclaredAction } = renderWithActionsHost(
 			<AuthorTopPostsWidget
 				attributes={ {
 					reportParams: {
@@ -156,9 +157,7 @@ describe( 'AuthorTopPostsWidget', () => {
 			/>
 		);
 
-		await expect(
-			screen.findByRole( 'button', { name: /Download CSV/ } )
-		).resolves.toBeInTheDocument();
+		await findDeclaredAction( 'download-csv' );
 		expect( mockApiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( { path: expect.stringContaining( '2026-06' ) } )
 		);

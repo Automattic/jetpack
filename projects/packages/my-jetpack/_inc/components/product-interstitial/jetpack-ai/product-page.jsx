@@ -31,7 +31,10 @@ const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-
  * @return {object} React component for the product page
  */
 export default function () {
-	const { onClickGoBack } = useGoBack( { slug: 'jetpack-ai', fallback: MyJetpackRoutes.Features } );
+	const { onClickGoBack, backTo } = useGoBack( {
+		slug: 'jetpack-ai',
+		fallback: MyJetpackRoutes.Features,
+	} );
 	const { detail, isLoading } = useProduct( 'jetpack-ai' );
 	const { description, aiAssistantFeature } = detail;
 	const [ showNotice, setShowNotice ] = useState( false );
@@ -199,7 +202,7 @@ export default function () {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ MyJetpackRoutes.Features }
+					to={ backTo }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
@@ -319,7 +322,7 @@ export default function () {
 											</Button>
 										</Notice.Actions>
 									) }
-									<Notice.CloseIcon onClick={ onNoticeClose } />
+									<Notice.CloseIconButton onClick={ onNoticeClose } />
 								</Notice.Root>
 							</div>
 						) }

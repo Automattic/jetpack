@@ -55,7 +55,7 @@ class Unconfigured_Subscription_Service implements Subscription_Service {
 	/**
 	 * An unconfigured service cannot establish subscription entitlement.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param array    $valid_plan_ids Required subscription plan IDs.
 	 * @param string   $access_level   Required access level.

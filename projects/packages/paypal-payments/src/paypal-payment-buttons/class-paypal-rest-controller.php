@@ -210,7 +210,7 @@ class PayPal_REST_Controller {
 								'required'    => false,
 								'type'        => 'boolean',
 								'default'     => false,
-								'description' => __( 'Whether this replaces a payment link PayPal no longer has.', 'jetpack-paypal-payments' ),
+								'description' => __( 'Whether this replaces a payment button PayPal no longer has.', 'jetpack-paypal-payments' ),
 							),
 						)
 					),
@@ -300,7 +300,7 @@ class PayPal_REST_Controller {
 						'unused_only' => array(
 							'type'        => 'boolean',
 							'default'     => false,
-							'description' => __( 'Keep the payment link when another published post still embeds it.', 'jetpack-paypal-payments' ),
+							'description' => __( 'Keep the payment button when another published post still embeds it.', 'jetpack-paypal-payments' ),
 						),
 						'post_id'     => array(
 							'type'        => 'integer',
@@ -790,16 +790,23 @@ class PayPal_REST_Controller {
 		$resource_id   = $request->get_param( 'resource_id' );
 		$resource_data = self::build_resource_data( $request );
 
+		// A PUT replaces the whole payment, and a link made through PayPal's API can hold
+		// keys the block has no control for, so read it first and carry those over.
+		$current = PayPal_API_Client::get_resource( $resource_id );
+		if ( is_wp_error( $current ) ) {
+			return self::api_error_to_rest_error( $current );
+		}
+		$resource_data = PayPal_Attribute_Mapper::merge_into_resource( $current, $resource_data );
+
 		$result = PayPal_API_Client::update_resource( $resource_id, $resource_data );
 
 		if ( is_wp_error( $result ) ) {
 			return self::api_error_to_rest_error( $result );
 		}
 
-		// PayPal answers a PUT with 204 and no code_snippets, so a caller that needs them asks
-		// for the resource to be read back; that read is how a block switching to stacked draws
-		// in the same save rather than after a reload. Only the re-read gets `attributes`: the
-		// echo has no `id`, and mapping it would blank the block's resourceId.
+		// PayPal answers a PUT with an empty 204, so a stacked block's save asks for a re-read
+		// to get its SDK URL in the same save. Only the re-read gets `attributes`. The echo has
+		// no code_snippets, so mapping it would blank a stacked block's scriptSrc.
 		if ( $request->get_param( 'include_snippets' ) ) {
 			$fresh = PayPal_API_Client::get_resource( $resource_id );
 			if ( ! is_wp_error( $fresh ) ) {
@@ -832,8 +839,8 @@ class PayPal_REST_Controller {
 						'message'     => sprintf(
 							/* translators: %d: number of published posts */
 							_n(
-								'Kept the payment link: %d other published post still uses it.',
-								'Kept the payment link: %d other published posts still use it.',
+								'Kept the payment button: %d other published post still uses it.',
+								'Kept the payment button: %d other published posts still use it.',
 								$others,
 								'jetpack-paypal-payments'
 							),

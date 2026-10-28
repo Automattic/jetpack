@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
@@ -126,6 +127,19 @@ class Admin_Page {
 		// MediaUpload (cover-image-control) reads wp.media.view — only defined after this runs.
 		add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
+	}
+
+	/**
+	 * Enqueue the JS translation loader so the dashboard's init module can download its catalogs.
+	 *
+	 * The loader is registered on every admin page by jetpack-assets but only enqueued when
+	 * something depends on it; the esbuild bundles don't pull it in.
+	 */
+	public static function enqueue_i18n_loader() {
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
+		}
 	}
 
 	/**
@@ -184,9 +198,19 @@ class Admin_Page {
 			}
 		}
 
-		// Self-hosted upsells the Growth plan; WordPress.com keeps Premium.
-		// `product_slug` is fed straight to the checkout URL; `plan_name` is a
-		// product name shown in the locked-preview copy (not translated).
+		$upgrade = array(
+			'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
+			'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
+		);
+		if ( ! $is_wpcom && method_exists( My_Jetpack_Products::class, 'get_bundle_offer' ) ) {
+			$offer = My_Jetpack_Products::get_bundle_offer( 'growth' );
+			if ( 'growth' !== ( $offer['slug'] ?? '' ) ) {
+				$upgrade = array(
+					'product_slug' => $offer['wpcom_product_slug'] ?? '',
+					'plan_name'    => $offer['title'] ?? '',
+				);
+			}
+		}
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
 			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
@@ -196,10 +220,7 @@ class Admin_Page {
 			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
 			'selected_category'   => self::get_selected_category(),
 			'tracks_user_data'    => self::get_tracks_user_data(),
-			'upgrade'             => array(
-				'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
-				'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
-			),
+			'upgrade'             => $upgrade,
 		);
 
 		return $data;
@@ -268,6 +289,13 @@ class Admin_Page {
 		}
 
 		require_once $build_index;
+
+		// wp-build hooks module registration to wp_default_scripts, which has
+		// already fired by admin_menu — call it directly or the init module
+		// never reaches the import map.
+		if ( function_exists( 'jetpack_podcast_register_script_modules' ) ) {
+			jetpack_podcast_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
 
 		WP_Build_Polyfills::register(
 			'jetpack-podcast',

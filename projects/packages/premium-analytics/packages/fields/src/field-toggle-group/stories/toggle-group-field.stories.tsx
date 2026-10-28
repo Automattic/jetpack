@@ -1,20 +1,17 @@
-import { chartLine } from '@jetpack-premium-analytics/icons';
-import { chartBar } from '@wordpress/icons';
 import { useState } from 'react';
 import ToggleGroupField from '../toggle-group-field';
 import type { DataFormControlProps, Option } from '@jetpack-premium-analytics/externals';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { ReactElement } from 'react';
 
 type ChartAttributes = { chartType?: string };
 
 // `Option` carries no `icon`, so the icon-bearing options name their own
-// shape, the way the toolkit's `CHART_TYPE_ELEMENTS` are built.
-type IconOption = Option & { icon: ReactElement };
+// shape, with the icon as a `jpa/<name>` reference.
+type IconOption = Option & { icon: string };
 
 const CHART_TYPES = [
-	{ value: 'line', label: 'Line chart', icon: chartLine },
-	{ value: 'bar', label: 'Bar chart', icon: chartBar },
+	{ value: 'line', label: 'Line chart', icon: 'jpa/chart-line' },
+	{ value: 'bar', label: 'Bar chart', icon: 'jpa/chart-bar' },
 ] satisfies IconOption[];
 
 const GRANULARITIES: Option[] = [
@@ -36,7 +33,9 @@ const meta: Meta< typeof ToggleGroupField > = {
 					'short, stable set of mutually exclusive options; longer or open-ended ones ' +
 					'belong in `SelectField`.\n\n' +
 					'Options that all carry an `icon` render as square icon segments, with the ' +
-					'label as the tooltip and the accessible name; anything else renders as text.',
+					'label as the tooltip and the accessible name; anything else renders as text. ' +
+					'An icon is an element or a `jpa/<name>` reference to the dashboard’s collection, ' +
+					'which is what a `widget.json` can carry.',
 			},
 		},
 	},

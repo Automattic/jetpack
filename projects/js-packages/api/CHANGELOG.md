@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [2.2.3] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [2.2.2] - 2026-10-19
+### Changed
+- Update package dependencies. [#53806]
+
+## [2.2.1] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## [2.2.0] - 2026-10-14
+### Added
+- Add methods to list connection owner candidates and set a new connection owner. [#53359]
+
 ## [2.1.0] - 2026-10-05
 ### Added
 - Search: Add an API method for activating the free Search product without a checkout. [#52655]
@@ -571,6 +587,10 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[2.2.3]: https://github.com/Automattic/jetpack-api/compare/v2.2.2...v2.2.3
+[2.2.2]: https://github.com/Automattic/jetpack-api/compare/v2.2.1...v2.2.2
+[2.2.1]: https://github.com/Automattic/jetpack-api/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-api/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/Automattic/jetpack-api/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Automattic/jetpack-api/compare/v1.0.35...v2.0.0
 [1.0.35]: https://github.com/Automattic/jetpack-api/compare/v1.0.34...v1.0.35

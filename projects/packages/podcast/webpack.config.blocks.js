@@ -7,7 +7,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
-import CopyWebpackPlugin from 'copy-webpack-plugin';
 
 const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
@@ -59,18 +58,15 @@ const sharedWebpackConfig = {
 export default [
 	{
 		...sharedWebpackConfig,
-		plugins: [
-			...sharedWebpackConfig.plugins,
-			new CopyWebpackPlugin( {
-				patterns: [
-					{
-						from: '**/block.json',
-						to: '[path][name][ext]',
-						context: path.join( __dirname, 'src/blocks' ),
-						noErrorOnMissing: true,
-					},
-				],
-			} ),
-		],
+		output: {
+			...sharedWebpackConfig.output,
+			copy: [
+				{
+					from: '**/block.json',
+					filename: '[path][name][ext]',
+					context: path.join( __dirname, 'src/blocks' ),
+				},
+			],
+		},
 	},
 ];

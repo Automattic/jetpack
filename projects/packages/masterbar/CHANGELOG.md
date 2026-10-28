@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.0] - 2026-10-26
+### Added
+- Admin menu: Add the jetpack_masterbar_upsell_nudge filter so the rendered upsell nudge can be suppressed. [#51815]
+
+## [0.29.5] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+
+## [0.29.4] - 2026-10-14
+### Changed
+- Update dependencies. [#52349]
+
+## [0.29.3] - 2026-10-12
+### Changed
+- Internal updates.
+
 ## [0.29.2] - 2026-10-05
 ### Changed
 - Update package dependencies. [#52999]
@@ -671,6 +687,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.30.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.5...v0.30.0
+[0.29.5]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.4...v0.29.5
+[0.29.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.3...v0.29.4
+[0.29.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.2...v0.29.3
 [0.29.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.1...v0.29.2
 [0.29.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.0...v0.29.1
 [0.29.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.28.3...v0.29.0

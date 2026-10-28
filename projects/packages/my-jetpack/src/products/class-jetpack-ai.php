@@ -121,11 +121,15 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
-	 * @return array[] Protect features comparison
+	 * @deprecated 6.10.0
+	 *
+	 * @return array[] Jetpack AI features comparison
 	 */
 	public static function get_features_by_tier() {
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
+
 		if ( ! self::are_tier_plans_enabled() ) {
-			return parent::get_features_by_tier();
+			return array();
 		}
 
 		$current_tier        = self::get_current_usage_tier();
@@ -529,18 +533,35 @@ class Jetpack_Ai extends Module_Product {
 	 * @return bool
 	 */
 	public static function is_feature_ui_enabled() {
+		return self::is_feature_ui_ready() && ( new Connection_Manager() )->has_connected_owner();
+	}
+
+	/**
+	 * Whether My Jetpack's AI feature controls are waiting only for the site's owner to connect.
+	 *
+	 * @since 6.13.0
+	 *
+	 * @return bool True when Jetpack is active with its AI module and settings, the site is registered,
+	 *              it is self-hosted or an Atomic internal testing environment, and no owner is connected yet.
+	 */
+	public static function is_feature_ui_waiting_for_owner() {
+		return self::is_feature_ui_ready() && ! ( new Connection_Manager() )->has_connected_owner();
+	}
+
+	/**
+	 * Whether the AI feature controls could show on this site, leaving out whether its owner is connected.
+	 *
+	 * @return bool
+	 */
+	private static function is_feature_ui_ready() {
 		if (
 			! self::is_plugin_active()
 			|| ! method_exists( '\\Jetpack', 'is_module' )
 			|| ! \Jetpack::is_module( 'ai' )
 			// @phan-suppress-next-line PhanUndeclaredClassReference -- Supplied by the optional Jetpack plugin.
 			|| ! method_exists( '\\Jetpack_AI_Settings', 'is_feature_enabled' )
+			|| ! self::is_site_connected()
 		) {
-			return false;
-		}
-
-		$connection = new Connection_Manager();
-		if ( ! $connection->is_connected() || ! $connection->has_connected_owner() ) {
 			return false;
 		}
 
@@ -557,7 +578,7 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Get the URL where the user manages the product.
 	 *
-	 * @return ?string
+	 * @return string
 	 */
 	public static function get_manage_url() {
 		if ( self::is_feature_ui_enabled() ) {

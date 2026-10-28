@@ -22,7 +22,10 @@ import {
 	recordPaymentRead,
 	syncBlocksBeforeSave,
 } from '../../src/paypal-payment-buttons/utils/sync-on-save';
-import { REQUIRED_FIELD_ERROR } from '../../src/paypal-payment-buttons/utils/validation';
+import {
+	ADDRESS_REQUIRED_ERROR,
+	REQUIRED_FIELD_ERROR,
+} from '../../src/paypal-payment-buttons/utils/validation';
 const apiFetch = require( '@wordpress/api-fetch' );
 
 const product = {
@@ -163,10 +166,29 @@ describe( 'isReadyForPayPal', () => {
 		).toBe( false );
 	} );
 
-	it.each( [ 'PROFILE', 'FREE' ] )( 'sends %s shipping with no fee', shippingMode => {
+	// PROFILE needs the address on.
+	it.each( [
+		[ 'PROFILE', true ],
+		[ 'FREE', false ],
+	] )( 'sends %s shipping with no fee', ( shippingMode, collectShippingAddress ) => {
 		expect(
-			isReadyForPayPal( { ...product, shippingEnabled: true, shippingMode, shippingValue: '' } )
+			isReadyForPayPal( {
+				...product,
+				shippingEnabled: true,
+				shippingMode,
+				shippingValue: '',
+				collectShippingAddress,
+			} )
 		).toBe( true );
+	} );
+
+	it.each( [
+		[ 'PROFILE shipping', { shippingEnabled: true, shippingMode: 'PROFILE' } ],
+		[ 'a profile tax', { taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } ],
+	] )( 'does not send %s to PayPal with the address off', ( _label, overrides ) => {
+		expect( heldBackReason( { ...product, ...overrides, collectShippingAddress: false } ) ).toBe(
+			ADDRESS_REQUIRED_ERROR
+		);
 	} );
 
 	it( 'sends a shipping fee of zero', () => {
@@ -206,7 +228,13 @@ describe( 'isReadyForPayPal', () => {
 	// PREFERENCE takes its rate from the merchant's PayPal profile.
 	it( 'lets a profile tax through with no value', () => {
 		expect(
-			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } )
+			isReadyForPayPal( {
+				...product,
+				taxEnabled: true,
+				taxType: 'PREFERENCE',
+				taxValue: '',
+				collectShippingAddress: true,
+			} )
 		).toBe( true );
 	} );
 
@@ -757,7 +785,7 @@ describe( 'syncBlocksBeforeSave', () => {
 
 			/**
 			 * Answer a PUT the way the server does: the payment for a caller that asked
-			 * for the snippets, PayPal's empty echo for everyone else.
+			 * for the snippets, and no `attributes` for everyone else.
 			 *
 			 * @param {object} options - The request.
 			 * @return {Promise<object>} The response.
@@ -1149,8 +1177,8 @@ describe( 'syncBlocksBeforeSave', () => {
 
 		// The save created this payment, so the next save can update it straight away.
 		it( 'updates a payment the previous save created', async () => {
-			// PayPal echoes back what it was sent. Answering with the old price instead
-			// would hide a read-back that reverts the merchant's edit.
+			// Answer with the sent price, like a read-back after the PUT, so the block keeps the
+			// merchant's edit.
 			const deps = fakeDeps( options =>
 				Promise.resolve( {
 					id: 'PLB-NEW1',

@@ -92,6 +92,16 @@ Consuming packages should add `@automattic/jetpack-wp-build-polyfills` as a devD
 "build:boot-proxy": "provide-boot-asset-file"
 ```
 
+## widget.json strings
+
+wp-build copies each widget's `widget.json` metadata into `build/widgets/registry.php` as plain literals, and the widget registry translates them at hydration with `_x( value, context, domain )`, the contexts coming from the widget i18n schema (`widget-i18n.json`). No extractor reads either file, so this package ships `emit-widget-strings`: run from a package directory after `wp-build`, it writes `build/widgets/widget-strings.php`, one `_x()` per translatable value with the exact context and the widget's text domain (or the package's `extra.textdomain` from composer.json). Nothing loads the file; it exists so `wp i18n make-pot` and translate.wordpress.org see the strings.
+
+```json
+"build:widget-strings": "emit-widget-strings --schema ../premium-analytics/src/widget-i18n.json"
+```
+
+`--schema` defaults to `src/widget-i18n.json`; `--domain` (composer.json `extra.textdomain`), `--widgets` (`widgets`) and `--out` (`build/widgets/widget-strings.php`) override the package domain, the widgets directory and the output path.
+
 ## Safety checks
 
 Two checks run after `webpack` (see the `build` script) so version skew in the bundled `@wordpress/*`

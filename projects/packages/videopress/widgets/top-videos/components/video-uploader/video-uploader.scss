@@ -1,0 +1,7 @@
+// Sizing only; the stack centers the body, which scrolls once it outgrows
+// the tile.
+.vp-top-videos-uploader {
+	block-size: 100%;
+	min-block-size: 0;
+	overflow-y: auto;
+}

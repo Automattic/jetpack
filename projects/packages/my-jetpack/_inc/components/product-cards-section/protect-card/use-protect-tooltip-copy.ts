@@ -6,14 +6,19 @@ import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
+import { getProtectPageUrl } from '../../../utils/protect-page';
 
-type TooltipType =
-	'pluginsThemesTooltip' | 'scanThreatsTooltip' | 'autoFirewallTooltip' | 'blockedLoginsTooltip';
+type TooltipType = 'pluginsThemesTooltip' | 'scanThreatsTooltip' | 'blockedLoginsTooltip';
+type Tooltip = {
+	title: ReactElement | string;
+	text: ReactElement | string;
+};
+export type FirewallState = 'active' | 'host' | 'inactive' | 'off';
 export type TooltipContent = {
-	[ key in TooltipType ]: {
-		title: ReactElement | string;
-		text: ReactElement | string;
-	};
+	[ key in TooltipType ]: Tooltip;
+} & {
+	// `active` is null while automatic rules run: nothing to explain.
+	firewallTooltips: Record< FirewallState, Tooltip | null >;
 };
 
 export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
@@ -34,11 +39,9 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 		threats = [],
 	} = data?.scanData || {};
 	const {
-		jetpack_waf_automatic_rules: isAutoFirewallEnabled,
+		jetpack_waf_automatic_rules: hasAutomaticRules,
 		blocked_logins: blockedLoginsCount,
 		brute_force_protection: hasBruteForceProtection,
-		waf_supported: wafSupported,
-		waf_enabled: isWafEnabled,
 	} = data?.wafConfig || {};
 
 	const pluginsCount = fromScanPlugins?.length || Object.keys( plugins ).length;
@@ -56,15 +59,32 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 		}
 		return isJetpackPluginActive() ? 'admin.php?page=jetpack#/settings' : null;
 	}, [ isStandaloneActive ] );
+	const loginSettingsLink = getProtectPageUrl( 'protect' ) ?? settingsLink;
+	const firewallSettingsLink = getProtectPageUrl( 'waf' ) ?? settingsLink;
+	let loginSettingsName = isStandaloneActive ? 'firewall settings' : 'Jetpack settings';
+	if ( getProtectPageUrl( 'protect' ) ) {
+		/* translators: "Protect" is a product name. */
+		loginSettingsName = __( 'Protect settings', 'jetpack-my-jetpack' );
+	}
 
 	const trackFirewallSettingsLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
 			page: 'my-jetpack',
 			feature: 'jetpack-protect',
 			location: 'auto-firewall-tooltip',
-			path: settingsLink,
+			path: firewallSettingsLink,
 		} );
-	}, [ recordEvent, settingsLink ] );
+	}, [ recordEvent, firewallSettingsLink ] );
+
+	// Same location as the firewall link, as before, so only the path tells them apart.
+	const trackLoginSettingsLinkClick = useCallback( () => {
+		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
+			page: 'my-jetpack',
+			feature: 'jetpack-protect',
+			location: 'auto-firewall-tooltip',
+			path: loginSettingsLink,
+		} );
+	}, [ recordEvent, loginSettingsLink ] );
 
 	const trackProtectDashboardLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
@@ -90,20 +110,20 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 			}
 			return {
 				title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
-				text: settingsLink
+				text: loginSettingsLink
 					? createInterpolateElement(
 							sprintf(
-								/* translators: %s is the location/page where the settings are located. Either "firewall settings" or "Jetpack settings". */
+								/* translators: %s is the location/page where the settings are located: "Protect settings", "firewall settings" or "Jetpack settings". */
 								__(
 									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
 									'jetpack-my-jetpack'
 								),
-								isStandaloneActive ? 'firewall settings' : 'Jetpack settings'
+								loginSettingsName
 							),
 							{
 								a: createElement( 'a', {
-									href: settingsLink,
-									onClick: trackFirewallSettingsLinkClick,
+									href: loginSettingsLink,
+									onClick: trackLoginSettingsLinkClick,
 								} ),
 							}
 						)
@@ -126,20 +146,20 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 			}
 			return {
 				title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
-				text: settingsLink
+				text: loginSettingsLink
 					? createInterpolateElement(
 							sprintf(
-								/* translators: %s is the location/page where the settings are located. Either "firewall settings" or "Jetpack settings". */
+								/* translators: %s is the location/page where the settings are located: "Protect settings", "firewall settings" or "Jetpack settings". */
 								__(
 									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
 									'jetpack-my-jetpack'
 								),
-								isStandaloneActive ? 'firewall settings' : 'Jetpack settings'
+								loginSettingsName
 							),
 							{
 								a: createElement( 'a', {
-									href: settingsLink,
-									onClick: trackFirewallSettingsLinkClick,
+									href: loginSettingsLink,
+									onClick: trackLoginSettingsLinkClick,
 								} ),
 							}
 						)
@@ -153,8 +173,75 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 		blockedLoginsCount,
 		hasBruteForceProtection,
 		isBruteForcePluginsActive,
-		isStandaloneActive,
-		settingsLink,
+		loginSettingsLink,
+		loginSettingsName,
+		trackLoginSettingsLinkClick,
+	] );
+
+	const firewallTooltips = useMemo( (): Record< FirewallState, Tooltip | null > => {
+		const withSettingsLink = ( text: string, withoutLink: string ) =>
+			firewallSettingsLink
+				? createInterpolateElement( text, {
+						a: createElement( 'a', {
+							href: firewallSettingsLink,
+							onClick: trackFirewallSettingsLinkClick,
+						} ),
+					} )
+				: withoutLink;
+
+		let active: Tooltip | null = null;
+		if ( ! hasAutomaticRules ) {
+			active = {
+				title: __( 'Firewall: On', 'jetpack-my-jetpack' ),
+				text: hasProtectPaidPlan
+					? withSettingsLink(
+							__(
+								'Automatic rules are off, so only the IP addresses you list are blocked. Turn them on in your <a>firewall settings</a>.',
+								'jetpack-my-jetpack'
+							),
+							__(
+								'Automatic rules are off, so only the IP addresses you list are blocked.',
+								'jetpack-my-jetpack'
+							)
+						)
+					: __(
+							'The firewall blocks the IP addresses you list. Upgrade for automatic rules that stop known attacks.',
+							'jetpack-my-jetpack'
+						),
+			};
+		}
+
+		return {
+			active,
+			host: {
+				title: __( 'Firewall: On', 'jetpack-my-jetpack' ),
+				text: __(
+					'Your hosting provider runs a firewall for your site, so you’re all set.',
+					'jetpack-my-jetpack'
+				),
+			},
+			inactive: {
+				title: __( 'Firewall: Inactive', 'jetpack-my-jetpack' ),
+				text: __(
+					'Jetpack’s firewall is off because your hosting provider already includes a built-in firewall with similar rules for your site.',
+					'jetpack-my-jetpack'
+				),
+			},
+			off: {
+				title: __( 'Firewall: Off', 'jetpack-my-jetpack' ),
+				text: withSettingsLink(
+					__(
+						'The firewall isn’t blocking any requests. Turn it on in your <a>firewall settings</a>.',
+						'jetpack-my-jetpack'
+					),
+					__( 'The firewall isn’t blocking any requests.', 'jetpack-my-jetpack' )
+				),
+			},
+		};
+	}, [
+		hasAutomaticRules,
+		hasProtectPaidPlan,
+		firewallSettingsLink,
 		trackFirewallSettingsLinkClick,
 	] );
 
@@ -235,35 +322,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 							'jetpack-my-jetpack'
 						),
 					},
-		autoFirewallTooltip:
-			( hasProtectPaidPlan && ( ! isAutoFirewallEnabled || ! isWafEnabled ) ) || ! wafSupported
-				? {
-						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
-						text: wafSupported
-							? createInterpolateElement(
-									__(
-										'You have Auto-Firewall disabled, visit your Protect <a>firewall settings</a> to activate.',
-										'jetpack-my-jetpack'
-									),
-									{
-										a: createElement( 'a', {
-											href: settingsLink,
-											onClick: trackFirewallSettingsLinkClick,
-										} ),
-									}
-								)
-							: __(
-									'Auto-Firewall is disabled as your hosting provider already includes a built-in firewall with similar rules for your site.',
-									'jetpack-my-jetpack'
-								),
-					}
-				: {
-						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
-						text: __(
-							'Upgrade required for activation. Manual rules available.',
-							'jetpack-my-jetpack'
-						),
-					},
+		firewallTooltips,
 		blockedLoginsTooltip: blockedLoginsTooltip,
 	};
 };

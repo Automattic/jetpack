@@ -28,15 +28,9 @@ body.jetpack_page_jetpack-activity-log {
 	flex: 1 1 auto;
 	padding: 0;
 
-	// Free-tier visual: a teaser of the table dissolves into the upsell
-	// card sitting directly below it. The mask gradient softens the
-	// bottom edge of the events list so the transition reads as a
-	// single connected surface (rather than a hard cut between table
-	// and card). `mask-image` is the standard property; the
-	// `-webkit-` prefix keeps Safari ≤ 15.4 in line. Capping the
-	// container height at a fixed pixel value prevents the table from
-	// claiming the full inner height and pushing the upsell off-screen.
-	&--free-tier .dataviews-layout__container {
+	// Jetpack's free-tier teaser: cap the table and fade its bottom edge into
+	// the upsell. Simple shows every row instead, as the hosting dashboard does.
+	&--free-tier:not(&--wpcom) .dataviews-layout__container {
 		max-height: 280px;
 		overflow: hidden;
 		mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
@@ -45,9 +39,7 @@ body.jetpack_page_jetpack-activity-log {
 
 	// On free tier, let DataViews size to its content (so it doesn't
 	// claim the full inner height via its own `height: 100%`) and let
-	// the inner wrapper carry the page's local scroll surface for short
-	// viewports. The fade + cap above keeps the natural total below
-	// most viewports, so this scroll rarely fires.
+	// the inner wrapper scroll the full list and the upsell below it.
 	&--free-tier .jp-activity-log__inner {
 		overflow: auto;
 

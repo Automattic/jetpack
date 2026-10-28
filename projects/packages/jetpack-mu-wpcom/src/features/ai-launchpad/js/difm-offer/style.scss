@@ -1,0 +1,101 @@
+// The "Site menu ad" card from the Launchpad Figma frames: a neutral surface
+// with an illustration, the copy, and the call to action. The call to action
+// sits under the copy at every width, like the WordPress Notice component, so
+// it stays clear of the dismiss button.
+.ai-launchpad-difm-offer {
+	position: relative;
+	// The query is on the banner's own width: the task column can be narrow
+	// at desktop viewport widths when the preview column is beside it.
+	container-type: inline-size;
+	// The end padding keeps the content clear of the dismiss button:
+	// 8px offset, 24px button, 8px gap.
+	padding-block: 16px;
+	padding-inline: 16px 40px;
+	border-radius: 8px;
+	background: var(--wpds-color-background-surface-neutral-weak);
+
+	&__content {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		grid-template-areas:
+			"image body"
+			"image cta";
+		align-items: start;
+		column-gap: 16px;
+	}
+
+	&__image {
+		grid-area: image;
+		width: 91px;
+		height: 100px;
+		border-radius: 4px;
+		// The illustration is 320x224. Cover crops it to the box without distortion.
+		object-fit: cover;
+	}
+
+	&__body {
+		grid-area: body;
+		min-width: 0;
+	}
+
+	// Explicit typography: wp-admin styles bare h2 and p elements.
+	&__title {
+		margin: 0;
+		padding: 0;
+		color: #000;
+		font-size: 13px;
+		font-weight: 500;
+		line-height: 20px;
+	}
+
+	&__description {
+		margin: 0;
+		padding-block-start: 4px;
+		color: #646970;
+		font-size: 12px;
+		line-height: 16px;
+		text-wrap: pretty;
+	}
+
+	// The CTA renders as a link; wp-admin's unlayered `a { color }` would win
+	// over its layered foreground color, so re-assert it with an unlayered rule.
+	&__cta {
+		grid-area: cta;
+		// A grid item stretches to its column by default. The button keeps the
+		// width of its label, as in the Notice component.
+		justify-self: start;
+		margin-block-start: 12px;
+
+		&,
+		&:hover,
+		&:focus,
+		&:active {
+			color: var(--wp-ui-button-foreground-color, #1e1e1e);
+		}
+	}
+
+	&__dismiss {
+		position: absolute;
+		inset-block-start: 8px;
+		inset-inline-end: 8px;
+	}
+
+	// A wide banner has room for a larger, landscape illustration. It keeps the
+	// 320x224 ratio and matches the height of the copy and the call to action.
+	// The query measures the content box: about 550px in a 1280px window with
+	// the preview column beside the task list, and 324px in the 380px mobile
+	// banner.
+	@container ( min-width: 480px ) {
+
+		&__content {
+			// 16px of banner padding plus 8px: the 24px start inset of the
+			// wide design.
+			margin-inline-start: 8px;
+		}
+
+		&__image {
+			width: 120px;
+			height: 84px;
+		}
+	}
+}

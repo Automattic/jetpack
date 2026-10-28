@@ -3,7 +3,7 @@
  * REST API endpoint for the Newsletter task lists (e.g. onboarding).
  *
  * @package automattic/jetpack
- * @since $$next-version$$
+ * @since 16.4
  */
 
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;

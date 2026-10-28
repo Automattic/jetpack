@@ -3,6 +3,12 @@
 // tests cross-check the rows against the package's own artwork.
 
 const mockApiFetch = jest.fn();
+let mockIsRtl = false;
+
+jest.mock( '@wordpress/i18n', () => ( {
+	...jest.requireActual( '@wordpress/i18n' ),
+	isRTL: () => mockIsRtl,
+} ) );
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -11,7 +17,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 
 // Imports must come after the jest.mock factories above.
 import { render, screen } from '@testing-library/react';
-import { Icon, file, page } from '@wordpress/icons';
+import { Icon, chevronLeft, chevronRight, file, page } from '@wordpress/icons';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../src/dashboard/components/file-browser';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
@@ -74,6 +80,7 @@ async function renderRows(): Promise< { folderRow: HTMLElement; fileRow: HTMLEle
 }
 
 beforeEach( () => {
+	mockIsRtl = false;
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 
@@ -134,4 +141,18 @@ describe( 'file browser row icons', () => {
 		expect( folderRow ).toHaveAttribute( 'aria-expanded', 'false' );
 		expect( fileRow ).not.toHaveAttribute( 'aria-expanded' );
 	} );
+
+	it.each( [
+		[ 'LTR', false, chevronRight, chevronLeft ],
+		[ 'RTL', true, chevronLeft, chevronRight ],
+	] )(
+		'points a closed folder chevron toward the inline end in %s',
+		async ( _l, rtl, want, other ) => {
+			mockIsRtl = rtl;
+			const { folderRow } = await renderRows();
+
+			expect( shapesIn( folderRow ) ).toContain( shapeOf( want ) );
+			expect( shapesIn( folderRow ) ).not.toContain( shapeOf( other ) );
+		}
+	);
 } );

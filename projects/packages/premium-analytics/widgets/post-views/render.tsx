@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	ChartEmptyState,
 	MetricTabsChart,
@@ -84,7 +83,6 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description: __(
 						'Open a post or page report to see its views here.',
 						'jetpack-premium-analytics-pkg'
@@ -98,7 +96,9 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
+					chartTitle={ __( 'Post views', 'jetpack-premium-analytics-pkg' ) }
 					empty={ <ChartEmptyState /> }
+					hideSingleMetricLabel
 				/>
 			</WidgetState>
 		</div>

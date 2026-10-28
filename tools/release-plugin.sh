@@ -20,7 +20,6 @@ RELEASE_STEPS=(
 	'do_trunk_and_prelease_branch_prep' 
 	'do_changelogs'
 	'do_readme'
-	'do_commit_changelog_and_readme'
 	'do_push_and_build'
 	'do_packagist_check'
 	'do_create_release_branches'
@@ -194,9 +193,16 @@ function do_changelogs {
 		tools/changelogger-release.sh "${ARGS[@]}"
 	done
 
+	git add --all
+	git commit -m "Aggregate raw changelogs and bump versions"
+
 	# When it completes, wait for user to edit anything they want, then push key to continue.
 	read -r -s -p $'Edit and save all the changelog entries you want in a separate terminal or in your text editor of choice.\nCheck for consistency between the different entries, and keep in mind that your plugin changelog will be used in the plugin readme file.\n\nOnce you are happy with your work, press enter to continue the release process.'
 	echo ""
+
+	if ! git diff --quiet; then
+		git commit -am "Edit changelogs"
+	fi
 }
 
 function do_readme {
@@ -218,19 +224,15 @@ function do_readme {
 		esac
 		pnpm jetpack release "$PLUGIN" readme "${ARGS[@]}"
 	done
-}
-
-function do_commit_changelog_and_readme {
-	verify_prerelease_branch
-	yellow "Committing changes."
-	git add --all
-	git commit -am "Changelog and readme.txt edits."
 
 	# If we're releasing Jetpack and it's a beta, amend the readme.txt
 	if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" == *-beta ]]; then
 		yellow "Releasing a beta for Jetpack, amending the readme.txt"
 		pnpm jetpack changelog squash plugins/jetpack readme
-		git commit -am "Amend readme.txt"
+	fi
+
+	if ! git diff --quiet; then
+		git commit -am "Update readme.txt"
 	fi
 }
 
@@ -349,10 +351,7 @@ function do_final_instructions {
 	echo 'Backport the changes into trunk by reviewing and merging the above PR.'
 
 	AUTO=()
-	MANUALTAG=()
-	MANUALTAGONLY=()
 	MANUALPUB=()
-	MANUALBOTH=()
 	for PLUGIN in "${!PROJECTS[@]}"; do
 		F="$BASE/projects/$PLUGIN/composer.json"
 		if ! jq -e '.extra["mirror-repo"] // false' "$F" &>/dev/null; then
@@ -360,24 +359,13 @@ function do_final_instructions {
 		fi
 
 		if ! jq -e '.extra["wp-plugin-slug"] // false' "$F" &>/dev/null; then
-			if ! jq -e '.extra["autotagger"]' "$F" &>/dev/null; then
-				MANUALTAGONLY+=( "$PLUGIN" )
-			fi
 			continue
 		fi
 
-		if jq -e '.extra["autotagger"]' "$F" &>/dev/null; then
-			if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
-				AUTO+=( "$PLUGIN" )
-			else
-				MANUALPUB+=( "$PLUGIN" )
-			fi
+		if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
+			AUTO+=( "$PLUGIN" )
 		else
-			if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
-				MANUALTAG+=( "$PLUGIN" )
-			else
-				MANUALBOTH+=( "$PLUGIN" )
-			fi
+			MANUALPUB+=( "$PLUGIN" )
 		fi
 	done
 
@@ -392,27 +380,6 @@ function do_final_instructions {
 		EOM
 	fi
 
-	if [[ ${#MANUALTAGONLY[@]} -gt 0 ]]; then
-		cat <<-EOM
-
-		For these plugins: ${MANUALTAGONLY[*]}
-		  1. Wait for the changes to appear in the mirror repo.
-		  2. Conduct a GitHub release.
-		EOM
-	fi
-
-	if [[ ${#MANUALTAG[@]} -gt 0 ]]; then
-		cat <<-EOM
-
-		For these plugins: ${MANUALTAG[*]}
-		  1. Wait for the changes to appear in the mirror repo.
-		  2. Conduct a GitHub release.
-		  3. Wait for the changes to be automatically deployed to SVN.
-		  4. Smoke test.
-		  5. Update the stable tag (if stable release): \`./tools/stable-tag.sh <plugin>\`
-		EOM
-	fi
-
 	if [[ ${#MANUALPUB[@]} -gt 0 ]]; then
 		cat <<-EOM
 
@@ -421,18 +388,6 @@ function do_final_instructions {
 		  2. Deploy to SVN: \`./tools/deploy-to-svn.sh <plugin> <tag>\`
 		  3. Smoke test.
 		  4. Update the stable tag (if stable release): \`./tools/stable-tag.sh <plugin>\`
-		EOM
-	fi
-
-	if [[ ${#MANUALBOTH[@]} -gt 0 ]]; then
-		cat <<-EOM
-
-		For these plugins: ${MANUALBOTH[*]}
-		  1. Wait for the changes to appear in the mirror repo.
-		  2. Conduct a GitHub release. 
-		  3. Deploy to SVN: \`./tools/deploy-to-svn.sh <plugin> <tag>\`
-		  4. Smoke test.
-		  5. Update the stable tag (if stable release): \`./tools/stable-tag.sh <plugin>\`
 		EOM
 	fi
 }

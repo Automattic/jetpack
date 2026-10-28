@@ -4,10 +4,10 @@ import { __ } from '@wordpress/i18n';
 import { blockTable, category } from '@wordpress/icons';
 import { IconButton, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback } from 'react';
+import { forwardRef, useCallback } from 'react';
 import styles from './styles.module.scss';
 import type { FeatureFilter } from './use-feature-filter';
-import type { ReactNode } from 'react';
+import type { ForwardedRef, ReactNode } from 'react';
 
 type FilterPillProps = {
 	countPending?: boolean;
@@ -104,12 +104,13 @@ type ToolbarProps = {
 	bulk?: ReactNode;
 };
 
-// Only these two are counted from live state; the rest come from the catalog and are
-// right from the first paint.
-const LIVE_COUNTS: FeatureFilter[] = [ 'active', 'inactive' ];
+// These are counted from live state; the rest come from the catalog.
+const LIVE_COUNTS: FeatureFilter[] = [ 'available', 'active', 'inactive' ];
 
 /**
  * The filter pills and the search box above the grid.
+ *
+ * Takes its ref through forwardRef: WordPress loads React 18, which keeps `ref` out of props.
  *
  * @param {ToolbarProps} props                - The component props.
  * @param {string}       props.view           - Whether the features show as a grid or a list.
@@ -122,27 +123,31 @@ const LIVE_COUNTS: FeatureFilter[] = [ 'active', 'inactive' ];
  * @param {string}       props.search         - The search term.
  * @param {Function}     props.onSearchChange - Updates the search term.
  * @param {ReactNode}    props.bulk           - The bulk bar, which sticks to the top with the filters.
+ * @param {object}       ref                  - Receives the sticky toolbar element.
  * @return The rendered component.
  */
-export function Toolbar( {
-	view,
-	onViewChange,
-	filter,
-	filters,
-	onFilterChange,
-	counts,
-	countsPending,
-	search,
-	onSearchChange,
-	bulk,
-}: ToolbarProps ) {
+function ToolbarWithRef(
+	{
+		view,
+		onViewChange,
+		filter,
+		filters,
+		onFilterChange,
+		counts,
+		countsPending,
+		search,
+		onSearchChange,
+		bulk,
+	}: ToolbarProps,
+	ref: ForwardedRef< HTMLDivElement >
+) {
 	const onSelectFilter = useCallback(
 		( value: string ) => onFilterChange( value as FeatureFilter ),
 		[ onFilterChange ]
 	);
 
 	return (
-		<div className={ styles.toolbar }>
+		<div ref={ ref } className={ styles.toolbar }>
 			<Stack direction="row" align="center" gap="md" wrap="wrap">
 				<Stack
 					direction="row"
@@ -167,8 +172,6 @@ export function Toolbar( {
 					) ) }
 				</Stack>
 
-				{ /* Below the breakpoint the pills above are hidden and this takes over: six
-				     of them stack one per row on a phone, which is most of the screen. */ }
 				<div className={ styles[ 'filter-select' ] }>
 					<SelectControl
 						__nextHasNoMarginBottom
@@ -205,16 +208,16 @@ export function Toolbar( {
 					value={ search }
 					onChange={ onSearchChange }
 					aria-label={ __( 'Search features', 'jetpack-my-jetpack' ) }
-					placeholder={ __( 'Search features', 'jetpack-my-jetpack' ) }
+					placeholder={ __( 'Search', 'jetpack-my-jetpack' ) }
 					className={ styles.search }
 				/>
 
 				<Stack
 					direction="row"
 					align="center"
+					gap="xs"
 					role="group"
 					aria-label={ __( 'Layout', 'jetpack-my-jetpack' ) }
-					className={ styles[ 'view-group' ] }
 				>
 					<ViewButton value="grid" current={ view } onSelect={ onViewChange } />
 					<ViewButton value="list" current={ view } onSelect={ onViewChange } />
@@ -225,3 +228,5 @@ export function Toolbar( {
 		</div>
 	);
 }
+
+export const Toolbar = forwardRef( ToolbarWithRef );

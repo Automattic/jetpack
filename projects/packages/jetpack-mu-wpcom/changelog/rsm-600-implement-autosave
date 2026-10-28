@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Write: Add periodic autosave with dirty state tracking, draft recovery, and unsaved changes warning.

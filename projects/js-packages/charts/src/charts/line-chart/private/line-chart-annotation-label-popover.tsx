@@ -1,13 +1,16 @@
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, version as reactVersion } from 'react';
 import { isSafari } from '../../../utils';
 import styles from '../line-chart.module.scss';
 import type { ButtonWithPopover, PopoverElement, ToggleEvent } from '../../../types';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 
 export const POPOVER_BUTTON_SIZE = 44;
+
+// @todo Remove this (and uses of it below) when we drop support for WordPress versions shipping React 18.
+const isReact18 = reactVersion.startsWith( '18.' );
 
 const CloseIcon = () => (
 	<svg
@@ -29,8 +32,8 @@ const CloseIcon = () => (
 interface LineChartAnnotationLabelWithPopoverProps {
 	title: string;
 	subtitle?: string;
-	renderLabel: FC< { title: string; subtitle?: string } >;
-	renderLabelPopover: FC< { title: string; subtitle?: string } >;
+	renderLabel: ( props: { title: string; subtitle?: string } ) => ReactNode;
+	renderLabelPopover: ( props: { title: string; subtitle?: string } ) => ReactNode;
 }
 
 const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopoverProps > = ( {
@@ -83,7 +86,9 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 		<div className={ styles[ 'line-chart__annotation-label' ] }>
 			<button
 				ref={ buttonRef }
-				{ ...( { popovertarget: popoverId } as ButtonWithPopover ) }
+				{ ...( isReact18
+					? ( { popovertarget: popoverId } as ButtonWithPopover )
+					: { popoverTarget: popoverId } ) }
 				className={ styles[ 'line-chart__annotation-label-trigger-button' ] }
 				style={ {
 					width: `${ POPOVER_BUTTON_SIZE }px`,
@@ -110,10 +115,15 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 						{ renderLabelPopover( { title, subtitle } ) }
 					</div>
 					<button
-						{ ...( {
-							popovertarget: popoverId,
-							popovertargetaction: 'hide',
-						} as ButtonWithPopover ) }
+						{ ...( isReact18
+							? ( {
+									popovertarget: popoverId,
+									popovertargetaction: 'hide',
+								} as ButtonWithPopover )
+							: {
+									popoverTarget: popoverId,
+									popoverTargetAction: 'hide',
+								} ) }
 						className={ styles[ 'line-chart__annotation-label-popover-close-button' ] }
 						aria-label={ __( 'Close', 'jetpack-charts' ) }
 					>

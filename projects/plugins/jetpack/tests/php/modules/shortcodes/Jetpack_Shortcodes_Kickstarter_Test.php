@@ -23,7 +23,7 @@ class Jetpack_Shortcodes_Kickstarter_Test extends WP_UnitTestCase {
 	public function test_shortcodes_kickstarter() {
 		$content = '[kickstarter]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 		$this->assertSame( '', $shortcode_content );
@@ -37,7 +37,7 @@ class Jetpack_Shortcodes_Kickstarter_Test extends WP_UnitTestCase {
 	public function test_shortcodes_kickstarter_invalid_url() {
 		$content = '[kickstarter url="https://kikstarter.com"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals( '<!-- Invalid Kickstarter URL -->', $shortcode_content );
 	}
@@ -53,7 +53,7 @@ class Jetpack_Shortcodes_Kickstarter_Test extends WP_UnitTestCase {
 		$url     = 'https://www.kickstarter.com/projects/peaktoplateau/yak-wool-baselayers-from-tibet-to-the-world';
 		$content = "[kickstarter url='$url']";
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<a href="https://www.kickstarter.com/projects/peaktoplateau/yak-wool-baselayers-from-tibet-to-the-world">', $shortcode_content );
 	}

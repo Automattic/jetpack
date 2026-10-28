@@ -13,6 +13,7 @@ Main chart component for displaying ranked data with optional comparison values.
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `data` | `LeaderboardEntry[]` | - | **Required.** Array of leaderboard entries to display |
+| `ariaLabel` | `string` | `'Leaderboard chart'` | Accessible name of the list. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names). Not the same as `LeaderboardEntry.ariaLabel`, which names a clickable row. |
 | `withComparison` | `boolean` | `false` | Whether to show comparison data (previous period bars and delta values) |
 | `withOverlayLabel` | `boolean` | `false` | Whether to overlay the label on top of the bar |
 | `primaryColor` | `string` | first palette slot | Primary color for current period bars |
@@ -43,12 +44,13 @@ interface LeaderboardEntry {
 	label: string | ReactElement; // Display name or React component
 	currentValue: number;        // Current period value
 	previousValue?: number;      // Previous period value; omit when no comparison row exists
-	currentShare: number;        // Current bar width (0-100)
-	previousShare?: number;      // Previous bar width (0-100)
+	currentShare: number;        // Current bar width (0-100, or -100-100 for negative values)
+	previousShare?: number;      // Previous bar width (same range as currentShare)
 	delta?: number;              // Percentage change; omit when unavailable
 	imageColor?: string;         // Optional color for the entry's image/icon
 	onClick?: ( event: MouseEvent ) => void; // Optional. Makes the whole row an interactive button (click + keyboard); the consumer supplies the action.
 	ariaLabel?: string;          // Optional. Accessible name for the row button when onClick is set; use for image-only JSX labels.
+	hasInteractiveLabel?: boolean; // Optional. The label holds its own link or button; the row button moves behind the row. When true, onClick and ariaLabel are required.
 }
 ```
 

@@ -16,12 +16,19 @@ export const mockBarChartLegendSpy = jest.fn();
 export const mockLineChartSpy = jest.fn();
 export const mockLineChartLegendSpy = jest.fn();
 
-// Mirrors the real theme: a comparison series shares its primary's colour and is
-// set apart only by opacity.
+// Mirrors the real theme: a comparison series shares its primary's color.
 const defaultElementStyles = ( { data }: ElementStylesParams ): ElementStyles => ( {
 	color: '#3858E9',
-	barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5, opacity: 0.5 } : {},
+	barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5 } : {},
 } );
+
+/**
+ * The fill the charts context reports for the bar at an index in an overlap layout.
+ *
+ * @param index - The series' index.
+ * @return A color unique to that index.
+ */
+export const mockOverlapBarColor = ( index: number ) => `#bar${ index }`;
 
 /** The sparkline margin the charts context's theme hands out. */
 export const mockSparklineMargin = { top: 2, right: 2, bottom: 2, left: 2 };
@@ -29,6 +36,7 @@ export const mockSparklineMargin = { top: 2, right: 2, bottom: 2, left: 2 };
 let elementStyles = defaultElementStyles;
 let hiddenSeries = new Set< string >();
 let chartHeight: number | undefined;
+let chartWidth: number | undefined;
 
 /**
  * Set the theme styles the charts context hands out.
@@ -59,6 +67,15 @@ export function setMockChartHeight( height?: number ): void {
 	chartHeight = height;
 }
 
+/**
+ * Set the width a resize observer reports on mount, alongside the height. Unset, it reports none.
+ *
+ * @param width - Measured width in px.
+ */
+export function setMockChartWidth( width?: number ): void {
+	chartWidth = width;
+}
+
 /** Clear the chart spies and restore the default theme, visibility and size. */
 export function resetMockCharts(): void {
 	[ mockBarChartSpy, mockBarChartLegendSpy, mockLineChartSpy, mockLineChartLegendSpy ].forEach(
@@ -67,6 +84,7 @@ export function resetMockCharts(): void {
 	setMockElementStyles();
 	setMockHiddenSeries();
 	setMockChartHeight();
+	setMockChartWidth();
 }
 
 const BarChart = ( props: { children?: ReactNode } ) => {
@@ -107,26 +125,40 @@ export const mockChartExternals = () => ( {
 		<div data-testid="sparkline" data-points={ data.join( ',' ) } />
 	),
 	// One item per non-comparison series, as `collapseGroups` would produce.
-	useChartLegendItems: ( data: ChartSeries[] ) =>
-		data
-			.filter( series => series.options?.type !== 'comparison' )
-			.map( series => ( { label: series.label, color: '#3858E9' } ) ),
+	useBarLegendItems: ( data: ChartSeries[], options?: { layout?: string } ) =>
+		data.flatMap( ( series, index ) =>
+			series.options?.type === 'comparison'
+				? []
+				: [
+						{
+							label: series.label,
+							color: options?.layout === 'overlap' ? mockOverlapBarColor( index ) : '#3858E9',
+						},
+					]
+		),
+	useBarColors: () => ( series: ChartSeries[], options?: { layout?: string } ) =>
+		series.map( ( data, index ) =>
+			options?.layout === 'overlap'
+				? mockOverlapBarColor( index )
+				: elementStyles( { data, index } ).color
+		),
 	useGlobalChartsContext: () => ( {
 		getElementStyles: ( params: ElementStylesParams ) => elementStyles( params ),
 		getHiddenSeries: () => new Set( hiddenSeries ),
+		isSeriesVisible: ( _chartId: string, label: string ) => ! hiddenSeries.has( label ),
 		theme: { sparkline: { margin: mockSparklineMargin } },
 	} ),
 } );
 
-/** Shared Jest replacement for `@wordpress/compose`, reporting the size `setMockChartHeight` set. */
+/** Shared Jest replacement for `@wordpress/compose`, reporting the size the `setMockChart*` helpers set. */
 export const mockWordPressCompose = {
 	// `@wordpress/data` needs the rest of the real module.
 	...jest.requireActual( '@wordpress/compose' ),
 	useResizeObserver:
-		( onResize: ( entries: { contentRect: { height: number } }[] ) => void ) =>
+		( onResize: ( entries: { contentRect: { height?: number; width?: number } }[] ) => void ) =>
 		( element: HTMLElement | null ) => {
-			if ( element && chartHeight !== undefined ) {
-				onResize( [ { contentRect: { height: chartHeight } } ] );
+			if ( element && ( chartHeight !== undefined || chartWidth !== undefined ) ) {
+				onResize( [ { contentRect: { height: chartHeight, width: chartWidth } } ] );
 			}
 		},
 };

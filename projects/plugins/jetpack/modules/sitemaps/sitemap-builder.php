@@ -917,11 +917,11 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 
 			// Add as many items to the buffer as possible.
 			while ( false === $buffer->is_full() ) {
-				$last_post_id_index       = abs( $last_post_id );
-				$start_from_post_id_index = $last_post_id_index ? $last_post_id_index + 1 : 0;
-				$urls                     = array_slice(
+				// The URLs are keyed from 1, so the last key written is also the offset of the next URL.
+				$last_post_id_index = abs( $last_post_id );
+				$urls               = array_slice(
 					$other_urls,
-					$start_from_post_id_index,
+					$last_post_id_index,
 					JP_SITEMAP_BATCH_SIZE,
 					true
 				);

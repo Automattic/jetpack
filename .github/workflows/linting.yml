@@ -106,7 +106,6 @@ jobs:
                 - '**.tsx'
                 - '**.cts'
                 - '**.mts'
-                - '**.svelte'
                 - '**.json'
                 - '**.jsonc'
                 - '**.json5'
@@ -128,7 +127,6 @@ jobs:
                 - '**.tsx'
                 - '**.cts'
                 - '**.mts'
-                - '**.svelte'
                 - '**.json'
                 - '**.jsonc'
                 - '**.json5'
@@ -703,18 +701,19 @@ jobs:
           exit $EXIT
 
   phan:
-    name: Static analysis
+    name: Static analysis (current)
     runs-on: ubuntu-latest
     needs: changed_files
     if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_phan == 'true'
-    timeout-minutes: 25 # 2025-11-20: Up to about 10 minutes now that we're running against the old WP and Woo stubs too.
+    timeout-minutes: 15 # 2026-10-14: Around 6 minutes.
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup tools
         uses: $/.github/actions/tool-setup
       - name: Pnpm install
         run: pnpm install
-      - name: Add back removed packages in case of a release branch.
+      - &phan_add_back_packages
+        name: Add back removed packages in case of a release branch.
         run: |
           echo "Checking for non-mirrored require-dev packages, in case this is testing a release branch"
           for FILE in projects/*/*/composer.json; do
@@ -731,14 +730,6 @@ jobs:
           done
       - name: Run phan
         run: pnpm jetpack phan --all -v --update-baseline --format github
-      - name: Run phan for previous WP version and old Woo
-        env:
-          # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
-          NO_PHAN_UNUSED_SUPPRESSION: 1
-        run: |
-          composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs php-stubs/woocommerce-stubs
-          # Don't re-update baselines here, only check.
-          pnpm jetpack phan --all -v --format github
       - name: Check baselines
         run: |
           # Anything changed? (with a side of printing the diff)
@@ -780,6 +771,28 @@ jobs:
             echo "::error::Phan baselines have changed (good job!). Run \`jetpack phan --update-baseline ${PROJECTS[*]}\` to update them."
           fi
           exit 1
+
+  phan_old_stubs:
+    name: Static analysis (old)
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_phan == 'true'
+    timeout-minutes: 15 # 2026-10-14: Around 6 minutes.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Setup tools
+        uses: $/.github/actions/tool-setup
+      - name: Pnpm install
+        run: pnpm install
+      - *phan_add_back_packages
+      - name: Downgrade stubs
+        run: composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs php-stubs/woocommerce-stubs
+      - name: Run phan
+        env:
+          # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
+          NO_PHAN_UNUSED_SUPPRESSION: 1
+        # Baselines are only updated and checked in the main static analysis job.
+        run: pnpm jetpack phan --all -v --format github
 
   mirror_repos:
     name: Mirror repo check

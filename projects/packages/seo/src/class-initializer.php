@@ -28,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.9.8';
+	const PACKAGE_VERSION = '0.10.1';
 
 	/**
 	 * WordPress.com site feature that enables the Jetpack SEO surface.
@@ -85,9 +85,12 @@ class Initializer {
 	 * Absent until seeded, in which case self-hosted defaults to hidden (the non-disruptive
 	 * default). See {@see Surface_Visibility::is_visible()}.
 	 *
+	 * Replaces `jetpack_seo_surface_visible`, which was seeded before the self-hosted rollout and
+	 * marked every install since as fresh; a new key makes every site re-seed once on upgrade.
+	 *
 	 * @var string
 	 */
-	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible';
+	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible_v2';
 
 	/**
 	 * Whether the package has been initialized.
@@ -113,6 +116,9 @@ class Initializer {
 		if ( ! self::is_available() ) {
 			return;
 		}
+
+		// Before anything can read the AI crawler choices.
+		Ai_Crawlers::register_legacy_migration();
 
 		// The opt-in endpoint must be reachable even before the surface is visible, so
 		// existing self-hosted installs can switch to the new experience from the legacy
@@ -159,6 +165,12 @@ class Initializer {
 			return;
 		}
 
+		// Each SEO module's configure URL defaults to Jetpack › Settings filtered to the
+		// module. Once the surface is visible that view only points here, so link here.
+		foreach ( array( 'seo-tools', 'verification-tools', 'sitemaps' ) as $module ) {
+			add_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
+		}
+
 		// The admin menu and app shell register whenever the surface is visible, even
 		// when the `seo-tools` module is inactive, so SEO stays discoverable and can be
 		// turned on from within the page itself (JETPACK-1700). When the module is off,
@@ -185,10 +197,10 @@ class Initializer {
 
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
-		// endpoints until then. Expose the core `blog_public` option to the REST settings
-		// endpoint so the Settings tab can save search-engine visibility via
-		// `/wp/v2/settings` (the Jetpack settings endpoint only accepts Jetpack options).
-		// Writes are still capability-gated by the core settings controller.
+		// endpoints until then. Everything the dashboard saves is exposed to WordPress
+		// core's `/wp/v2/settings` endpoint, which exists on every platform the package
+		// runs on and capability-gates writes itself; module activation, the one thing
+		// `register_setting()` can't express, has its own package-owned route.
 		if ( self::is_seo_tools_module_active() ) {
 			// Front-end JSON-LD schema output and author profile schema fields.
 			// Intentionally NOT gated: every site keeps emitting its structured data —
@@ -199,12 +211,12 @@ class Initializer {
 			Schema_Builder::init();
 			Author_Schema_Node::init();
 
-			// GEO-tab front-end services. These are paid surfaces on WordPress.com: a
-			// plan-gated site has the GEO tab hidden from its dashboard, so it must not
-			// keep emitting their front-end output either — otherwise it would still
-			// serve /llms.txt and AI-crawler robots.txt directives it doesn't qualify
-			// for. Self-hosted is never gated, so it always registers both.
+			// Paid front-end output. A plan-gated WordPress.com site has these controls
+			// hidden from its dashboard, so it must not keep emitting their output either —
+			// otherwise it would still serve /llms.txt, AI-crawler robots.txt directives and
+			// Simple's archive canonical tags it doesn't qualify for. Self-hosted is never gated.
 			if ( ! self::is_gated() ) {
+				Canonical_Urls::init();
 				// The /llms.txt handler. Self-hooks a front-end action, so it no-ops off
 				// the front end and stays behind the same gates as the schema above.
 				Llms_Txt::init();
@@ -213,7 +225,13 @@ class Initializer {
 				Ai_Crawlers::init();
 			}
 
-			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) );
+			// On `rest_api_init` rather than here: which option the front page description
+			// is stored in depends on `jetpack_disable_seo_tools`, which a conflicting SEO
+			// plugin can add from anywhere up to the end of `init`. Priority 5 is after all
+			// of those and before core builds the settings route at 99.
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
+			// Package-owned route for the three settings whose write switches a Jetpack module.
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
 		}
@@ -272,11 +290,11 @@ class Initializer {
 	 * FREE plan's supports list, so `Current_Plan::supports( 'advanced-seo' )` returns
 	 * true on self-hosted (never gated) and hijacks to `wpcom_site_has_feature()` on
 	 * WordPress.com, where it's false below the Premium plan. Mirrors the AI SEO
-	 * Enhancer's plan check in {@see Dashboard_Data::get_ai_data()}.
+	 * Enhancer's plan check in {@see Dashboard_Data::get_geo_data()}.
 	 *
 	 * Public because {@see Admin_Page::inject_script_data()} reads it to build the
 	 * dashboard's gating payload, and {@see self::init()} uses it to decide whether the
-	 * GEO-tab front-end services register at all.
+	 * paid front-end output registers at all.
 	 *
 	 * @return bool
 	 */

@@ -8,7 +8,6 @@ import {
 	baseSettings,
 	baseStatus,
 	renderWithData,
-	resetNotices,
 	setScriptData,
 	snackbarMessages,
 } from './helpers';
@@ -22,7 +21,6 @@ beforeEach( () => {
 	mockApiFetch.mockImplementation( ( { method } ) =>
 		Promise.resolve( method === 'PUT' ? baseSettings : baseStatus )
 	);
-	resetNotices();
 	setScriptData();
 } );
 
@@ -38,7 +36,7 @@ describe( 'LikeButtonsSection', () => {
 
 		expect(
 			screen.getByText(
-				'Like buttons need a connection to WordPress.com, which is unavailable while your site is in offline mode.'
+				'Like buttons need a connection to WordPress.com, which is unavailable while your site is in Offline Mode.'
 			)
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();

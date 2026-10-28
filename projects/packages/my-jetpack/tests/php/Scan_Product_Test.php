@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\My_Jetpack\Products\Scan;
+use Automattic\Jetpack\Redirect;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -29,7 +30,18 @@ class Scan_Product_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		deactivate_plugins( 'jetpack/jetpack.php' );
+		unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
 		parent::tearDown();
+	}
+
+	public function test_manage_url_is_jetpack_cloud_without_a_protect_page() {
+		$this->assertSame( Redirect::get_url( 'my-jetpack-manage-scan' ), Scan::get_manage_url() );
+	}
+
+	public function test_manage_url_is_the_protect_page_once_the_dashboard_loads() {
+		do_action( 'jetpack_protect_dashboard_initialized' );
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-protect' ), Scan::get_manage_url() );
 	}
 
 	public function test_post_checkout_url_is_the_scan_dashboard_with_jetpack() {

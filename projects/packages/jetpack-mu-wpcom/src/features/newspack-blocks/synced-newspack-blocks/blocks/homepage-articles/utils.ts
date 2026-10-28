@@ -7,7 +7,6 @@ import { times, isEqual, isNull, isUndefined, pick, pickBy } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { dispatch as wpDataDispatch } from '@wordpress/data';
 
 import { STORE_NAMESPACE } from './store';
 
@@ -244,13 +243,17 @@ export const postsBlockSelector = (
 	return props;
 };
 
+// STORE_NAMESPACE - TODO: move this to src/blocks/homepage-articles/store.js once it's TS.
+type Dispatch = ( namespace: string ) => {
+	reflow: () => void;
+};
+
 /**
  * wordpress/data dispatch for blocks using this custom store.
  */
-export const postsBlockDispatch = ( dispatch: typeof wpDataDispatch, { isEditorBlock }: { isEditorBlock: boolean } ) => {
+export const postsBlockDispatch = ( dispatch: Dispatch, { isEditorBlock }: { isEditorBlock: boolean } ) => {
 	return {
 		// Only editor blocks can trigger reflows.
-		// @ts-expect-error It's a string.
 		triggerReflow: isEditorBlock ? dispatch( STORE_NAMESPACE ).reflow : () => undefined,
 	};
 };

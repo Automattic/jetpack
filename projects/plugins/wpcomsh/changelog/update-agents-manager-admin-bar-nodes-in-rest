@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Make the help and Ask AI admin bar nodes available from the admin-bar REST endpoints, with the label, icon and destination a client needs.

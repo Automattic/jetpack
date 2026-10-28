@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.10.0 - 2026-10-14
+### Added
+- Connection: Add a Connected view to the Users page listing users with a linked WordPress.com account. [#53150]
+
+### Changed
+- General: Update minimum WordPress version to 7.0. [#51370]
+- Tested up to WordPress 7.1. [#51370]
+- Update package dependencies. [#51303] [#51399] [#51701] [#51802] [#52028] [#52187] [#52297] [#52999]
+
+### Removed
+- Updated PHP version requirements to PHP 7.4 or newer. [#51515]
+
+### Fixed
+- Connection: Fix a stale connection error state that could persist on healthy sites. [#52264]
+- Connection: Translate the Connectors card's text on sites that don't use English. [#53179]
+- Status: Detect a site served on any 127.0.0.0/8 loopback address, or on 0.0.0.0, as a local site. [#51311]
+
 ## 0.9.0 - 2026-08-14
 ### Changed
 - Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]

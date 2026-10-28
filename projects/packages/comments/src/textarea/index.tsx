@@ -1,5 +1,6 @@
 import { type TargetedEvent } from 'preact';
 import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
+import { logError } from '../shared/log-error';
 import { CommentSignals } from '../shared/state';
 import { recordEvent } from '../shared/tracks';
 import { loadEditor, matchTheme } from './load-editor';
@@ -20,8 +21,9 @@ export const Textarea = () => {
 	// Set by a click, so the editor's caret lands where it did; a keyboard arrival goes to the end.
 	const clicked = useRef( false );
 	const [ editor, setEditor ] = useState< 'none' | 'loading' | 'ready' | 'failed' >( 'none' );
-	const prompt = commentParent.value ? strings.replyPlaceholder : strings.placeholder;
-	const placeholder = `${ prompt }...`;
+	const placeholder = commentParent.value ? strings.replyPlaceholder : strings.placeholder;
+	// The loading copy animates its own dots, so it drops the translation's.
+	const prompt = placeholder.replace( /\s*(?:\.{3}|…+)$/u, '' );
 	const label = commentParent.value ? strings.replyLabel : strings.commentLabel;
 
 	const openEditor = useCallback(
@@ -37,24 +39,12 @@ export const Textarea = () => {
 				if ( focus && navigator.userActivation?.hasBeenActive === false ) {
 					return;
 				}
-				// A chunk that never arrived carries a `type` of missing, timeout or error, and its URL.
-				const { name, type, request } = ( error ?? {} ) as {
-					name?: string;
-					type?: string;
-					request?: unknown;
-				};
-				const chunk =
-					typeof request === 'string' ? request.split( '?' )[ 0 ].split( '/' ).pop() : undefined;
-				recordEvent( 'jetpack_comments_editor_error', {
-					stage,
-					error: name ?? typeof error,
-					...( type ? { type } : {} ),
-					...( chunk ? { chunk } : {} ),
-				} );
+				recordEvent( 'jetpack_comments_editor_error', { stage } );
+				logError( error, { stage } );
 			};
 			matchTheme( textarea.closest< HTMLElement >( '.jetpack-comments__box' )!, textarea );
 			setEditor( 'loading' );
-			loadEditor()
+			loadEditor( JetpackComments.editorLocale )
 				.then(
 					( { mountEditor } ) => {
 						// First: a cached chunk renders the editor this microtask, and it can only focus once shown.

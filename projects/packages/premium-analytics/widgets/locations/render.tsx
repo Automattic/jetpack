@@ -1,16 +1,14 @@
 /**
  * External dependencies
  */
-import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
+import { isStatsFeatureLocked, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import {
-	ExporterCsvDownloadButton,
 	LeaderboardChart,
 	LOCATIONS_GEO_MODES,
 	LocationsGeoChart,
-	ReportLink,
+	LockedWidget,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -18,6 +16,7 @@ import {
 	flagUrl,
 	getCombinedPeriodMax,
 	getLocationsReportSection,
+	getLocationsSectionLabel,
 	locationsCsvExporter,
 	sharePercentage,
 	useWidgetDrillDown,
@@ -26,6 +25,7 @@ import {
 	type LocationsGeoRow,
 	type LocationsScope,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Disabled } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -34,6 +34,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import useHeldLevel from './use-held-level';
 import useLocationViews, { type GeoMode, type LocationView } from './use-location-views';
@@ -60,6 +61,11 @@ type LocationsInnerProps = {
 	geoGranularity: NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
 };
 
+/** The level a drill-down depth lists: depth 1 is a country's regions, depth 2 a region's cities. */
+function getLevelMode( depth: number, geoGranularity: GeoGranularity ): GeoMode {
+	return depth === 0 ? geoGranularity : ( [ 'region', 'city' ] as const )[ depth - 1 ];
+}
+
 /**
  * Locations widget inner component. Reads report params from WidgetRoot
  * context. Attributes arrive already normalized by the outer component, so
@@ -77,12 +83,11 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	} = useWidgetDrillDown< LocationsDrillDown >();
 
 	const focusCountry = drillDownPath?.country;
-	let geoMode: GeoMode = geoGranularity;
 	let drillDepth = 0;
 	if ( drillDownPath ) {
-		geoMode = drillDownPath.region ? 'city' : 'region';
 		drillDepth = drillDownPath.region ? 2 : 1;
 	}
+	const geoMode = getLevelMode( drillDepth, geoGranularity );
 
 	const scope = useMemo(
 		(): LocationsScope | undefined =>
@@ -100,7 +105,19 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	} );
 
 	const { isLoading, isFetching, isError, refetch } = views;
-	const { data, hasComparison, isHeld } = useHeldLevel( { ...views, drillDepth, reportParams } );
+	const {
+		data,
+		hasComparison,
+		isHeld,
+		drillDepth: shownDepth,
+	} = useHeldLevel( { ...views, drillDepth, reportParams } );
+	const rowsLabel = getLocationsSectionLabel(
+		getLocationsReportSection( getLevelMode( shownDepth, geoGranularity ) )
+	);
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading: isLoading && ! isHeld, isError, isEmpty: data.length === 0 },
+		__( 'You don’t have locations recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
 
 	const csvExporter = useMemo(
 		() => locationsCsvExporter( getLocationsReportSection( geoMode ), scope ),
@@ -122,11 +139,13 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		[ data, isHeld ]
 	);
 
+	const regionsLocked = isStatsFeatureLocked( 'regions-cities' );
+
 	const leaderboardData = useMemo( () => {
 		const getDrillDownAction = ( location: LocationView ) => {
 			// The previous level's rows would drill with the new level's mode. Dropping the
 			// buttons also unmounts a focused one, which `WidgetState` catches.
-			if ( isHeld || ! location.countryCode ) {
+			if ( isHeld || ! location.countryCode || regionsLocked ) {
 				return { kind: 'static' as const };
 			}
 
@@ -192,7 +211,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 						: undefined,
 			};
 		} ) as LeaderboardChartData;
-	}, [ data, geoMode, hasComparison, isHeld, setDrillDownPath ] );
+	}, [ data, geoMode, hasComparison, isHeld, regionsLocked, setDrillDownPath ] );
 
 	// From a Countries-mode region, Back returns to that country's regions.
 	const parentCountry =
@@ -231,65 +250,71 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		</Stack>
 	) : null;
 
+	const chartTitle = __( 'Top locations', 'jetpack-premium-analytics-pkg' );
+
+	// View all opens the whole tab; only the download follows the drill-down.
+	useReportActions( {
+		report: 'locations',
+		section: getLocationsReportSection( geoGranularity ),
+		csv: {
+			exporter: csvExporter,
+			status: { isLoading, isFetching, isError },
+			rowCount: data.length,
+		},
+	} );
+
 	// The back link stays a sibling of <WidgetState> so users can drill back up
 	// from an empty or failed drilled view.
 	return (
-		<>
-			<div className={ styles.content }>
-				{ bodyHeader }
-				<div className={ styles.stateArea }>
-					<WidgetState
-						isLoading={ isLoading && ! isHeld }
-						isFetching={ isFetching }
-						isError={ isError }
-						isEmpty={ data.length === 0 }
-						error={ {
-							description: __(
-								"We couldn't load location data. Please try again in a moment.",
-								'jetpack-premium-analytics-pkg'
-							),
-							actions: [
-								{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-							],
-						} }
-					>
-						<div className={ styles.chartArea }>
-							<Disabled isDisabled={ isHeld } className={ styles.leaderboardPanel }>
-								<LeaderboardChart
-									data={ leaderboardData }
-									loading={ isHeld }
-									withOverlayLabel
-									withComparison={ hasComparison }
-									showLegend={ false }
-									dataFormat={ {
-										type: 'number',
-										options: { useMultipliers: true, decimals: 0 },
-									} }
-									className={ styles.leaderboard }
-								/>
-							</Disabled>
-							<div className={ styles.geoChart }>
-								<LocationsGeoChart
-									rows={ geoRows }
-									mode={ geoMode }
-									focusCountry={ focusCountry }
-									resizeDebounceTime={ 100 }
-								/>
-							</div>
+		<div className={ styles.content }>
+			{ bodyHeader }
+			<div className={ styles.stateArea }>
+				<WidgetState
+					isLoading={ emptyState.isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ data.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load location data. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					empty={ emptyState.empty }
+				>
+					<div className={ styles.chartArea }>
+						<Disabled isDisabled={ isHeld } className={ styles.leaderboardPanel }>
+							<LeaderboardChart
+								data={ leaderboardData }
+								loading={ isHeld }
+								withOverlayLabel
+								withComparison={ hasComparison }
+								showLegend={ false }
+								columns={ { label: rowsLabel, metric: 'views' } }
+								dataFormat={ {
+									type: 'number',
+									options: { useMultipliers: true, decimals: 0 },
+								} }
+								className={ styles.leaderboard }
+								chartTitle={ chartTitle }
+							/>
+						</Disabled>
+						<div className={ styles.geoChart }>
+							<LocationsGeoChart
+								chartTitle={ chartTitle }
+								rows={ geoRows }
+								mode={ geoMode }
+								focusCountry={ focusCountry }
+								resizeDebounceTime={ 100 }
+							/>
 						</div>
-					</WidgetState>
-				</div>
+					</div>
+				</WidgetState>
 			</div>
-			<WidgetFooter>
-				{ /* View all opens the whole tab; only the download follows the drill-down. */ }
-				<ReportLink report="locations" section={ getLocationsReportSection( geoGranularity ) } />
-				<ExporterCsvDownloadButton
-					exporter={ csvExporter }
-					status={ { isLoading, isFetching, isError } }
-					rowCount={ data.length }
-				/>
-			</WidgetFooter>
-		</>
+		</div>
 	);
 }
 
@@ -307,6 +332,15 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	)
 		? storedGranularity
 		: DEFAULT_GEO_GRANULARITY;
+
+	// Regions and cities are paid on plans that keep countries; without countries the whole widget locks.
+	if ( geoGranularity !== 'country' && isStatsFeatureLocked( 'regions-cities' ) ) {
+		return (
+			<WidgetRoot attributes={ attributes }>
+				<LockedWidget feature="regions-cities" />
+			</WidgetRoot>
+		);
+	}
 
 	return (
 		<WidgetRoot attributes={ attributes }>

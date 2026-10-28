@@ -1,5 +1,6 @@
 import { effect } from '@preact/signals';
 import { render } from 'preact';
+import { logError } from '../shared/log-error';
 import { CommentSignals, type CommentSignalsValue } from '../shared/state';
 
 /**
@@ -41,7 +42,7 @@ export const guestValue = ( {
  */
 export const mountDialog = ( form: HTMLFormElement, signals: CommentSignalsValue ) => {
 	const { isBoxOpen, isDialogOpen } = signals;
-	const { mustLogIn, identity } = JetpackComments;
+	const { mustLogIn, identity, user } = JetpackComments;
 	// Inside the form, so what it hands over posts with it. A page can hold two
 	// comment forms, both with core's id, so nothing here may find the form by id.
 	const host = form.appendChild(
@@ -50,8 +51,8 @@ export const mountDialog = ( form: HTMLFormElement, signals: CommentSignalsValue
 	const root = host.attachShadow( { mode: 'open' } );
 	// A returning guest can post without the dialog; once it renders, its own value takes over.
 	const stopGuestValue = effect( () => host.internals.setFormValue( guestValue( signals ) ) );
-	// Nothing opens the dialog where the only way in is the site's own login.
-	let loading = mustLogIn && ! identity.canSignIn;
+	// Nothing opens the dialog for a site user, or where the only way in is the site's own login.
+	let loading = Boolean( user ) || ( mustLogIn && ! identity.canSignIn );
 
 	const load = () => {
 		if ( loading ) {
@@ -71,8 +72,12 @@ export const mountDialog = ( form: HTMLFormElement, signals: CommentSignalsValue
 					root
 				);
 			} )
-			.catch( () => {
+			.catch( error => {
 				loading = false;
+				// Skips scripted focus and a hover preload, neither of which is user activation.
+				if ( navigator.userActivation?.hasBeenActive !== false ) {
+					logError( error, { stage: 'dialog' } );
+				}
 				// So the next submit or click asks again.
 				isDialogOpen.value = false;
 			} );

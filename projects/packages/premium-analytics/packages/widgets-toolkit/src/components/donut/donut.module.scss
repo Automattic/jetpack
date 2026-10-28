@@ -1,7 +1,23 @@
 .root {
+	container-type: inline-size;
 	inline-size: 100%;
 	min-inline-size: 120px;
 	block-size: 100%;
 	min-block-size: 0;
 	margin-inline: auto;
+}
+
+// A half ring fills a tile's width long before its height, so it takes the
+// cap the ring never needs.
+.halfRing {
+	inline-size: min(100%, 320px);
+	block-size: 100%;
+	min-block-size: 0;
+}
+
+@container (max-inline-size: 420px) {
+
+	.halfRing {
+		inline-size: min(100%, 220px);
+	}
 }

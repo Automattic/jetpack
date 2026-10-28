@@ -1,12 +1,12 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import useProduct from '../../../data/products/use-product';
-import useSimpleQuery from '../../../data/use-simple-query';
+import useSitePurchases from '../../../data/use-site-purchases';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import PlansSection from '../index';
 
 jest.mock( '../../../data/products/use-product' );
-jest.mock( '../../../data/use-simple-query' );
+jest.mock( '../../../data/use-site-purchases' );
 jest.mock( '../../../hooks/use-my-jetpack-connection' );
 jest.mock( '../../../hooks/use-analytics', () => ( {
 	__esModule: true,
@@ -30,7 +30,7 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 } ) );
 
 const mockUseProduct = useProduct as jest.MockedFunction< typeof useProduct >;
-const mockUseSimpleQuery = useSimpleQuery as jest.MockedFunction< typeof useSimpleQuery >;
+const mockUseSitePurchases = useSitePurchases as jest.MockedFunction< typeof useSitePurchases >;
 const mockUseMyJetpackConnection = useMyJetpackConnection as jest.MockedFunction<
 	typeof useMyJetpackConnection
 >;
@@ -49,11 +49,11 @@ const buildPurchase = ( product_name: string ): Purchase =>
 	} ) as unknown as Purchase;
 
 const setPurchases = ( purchases: Purchase[] ) => {
-	mockUseSimpleQuery.mockReturnValue( {
+	mockUseSitePurchases.mockReturnValue( {
 		data: purchases,
 		isLoading: false,
 		isError: false,
-	} as ReturnType< typeof useSimpleQuery > );
+	} as ReturnType< typeof useSitePurchases > );
 };
 
 describe( 'PlansSection', () => {

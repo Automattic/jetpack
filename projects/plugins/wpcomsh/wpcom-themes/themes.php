@@ -14,11 +14,8 @@ function wpcomsh_get_wpcom_themes_service_instance(): WPCom_Themes_Service {
 	static $instance;
 	if ( ! $instance ) {
 		// Load dependencies.
-		require_once __DIR__ . '/includes/class-wpcom-themes-mapper.php';
 		require_once __DIR__ . '/includes/class-wpcom-themes-merger.php';
-		require_once __DIR__ . '/includes/class-wpcom-themes-cache.php';
 		require_once __DIR__ . '/includes/class-wpcom-themes-service.php';
-		require_once __DIR__ . '/includes/class-wpcom-themes-api.php';
 
 		// Resolve and Inject dependencies.
 		$mapper               = new WPCom_Themes_Mapper();
@@ -41,14 +38,54 @@ function wpcomsh_get_wpcom_themes_service_instance(): WPCom_Themes_Service {
  * @return mixed|stdClass
  */
 function wpcomsh_remove_dot_org_themes_based_on_plan( $res ) {
-	if ( ! wpcom_site_has_feature( WPCOM_Features::COMMUNITY_THEMES ) ) {
-		$res->info['results'] = 0;
-		$res->themes          = array();
+	if ( wpcom_site_has_feature( WPCOM_Features::COMMUNITY_THEMES ) ) {
+		return $res;
+	}
+
+	return wpcomsh_keep_only_wpcom_themes( $res );
+}
+add_filter( 'themes_api_result', 'wpcomsh_remove_dot_org_themes_based_on_plan', 0, 1 );
+
+/**
+ * Drops the themes that came from WordPress.org out of a themes API result.
+ *
+ * @param mixed $res The result object.
+ *
+ * @return mixed|stdClass
+ */
+function wpcomsh_keep_only_wpcom_themes( $res ) {
+	// A single theme's details, rather than a list to filter.
+	if ( ! isset( $res->themes ) || ! is_array( $res->themes ) ) {
+		return $res;
+	}
+
+	$ours = array_values(
+		array_filter(
+			$res->themes,
+			function ( $theme ) {
+				return ! empty( $theme->is_wpcom_theme );
+			}
+		)
+	);
+
+	// Our own themes are already the ones this site may install, and the total counts every page
+	// rather than this one, so a result made of them is left as it is.
+	if ( count( $ours ) === count( $res->themes ) ) {
+		return $res;
+	}
+
+	/*
+	 * The rest came from WordPress.org, which this plan excludes. Clearing the total as well lets
+	 * the filters that run next set it from their own list, which is what they expect.
+	 */
+	$res->themes = $ours;
+
+	if ( isset( $res->info['results'] ) ) {
+		$res->info['results'] = count( $ours );
 	}
 
 	return $res;
 }
-add_filter( 'themes_api_result', 'wpcomsh_remove_dot_org_themes_based_on_plan', 0, 1 );
 
 /**
  * Process the themes API result and add the recommended WPCom themes to the Popular tab.
@@ -138,9 +175,23 @@ function wpcomsh_search_wpcom_themes_api_result( $res, string $action, $args ) {
 	$wpcom_themes_service = wpcomsh_get_wpcom_themes_service_instance();
 
 	// Add results to the resulting array.
-	return $wpcom_themes_service->filter_themes_api_result_search( $res, $search );
+	return $wpcom_themes_service->filter_themes_api_result_search( $res, $search, wpcomsh_search_prefers_wporg() );
 }
 add_filter( 'themes_api_result', 'wpcomsh_search_wpcom_themes_api_result', 1, 3 );
+
+/**
+ * Whether search shows WordPress.org's copy of a theme both directories list, rather than ours.
+ *
+ * Only behind the Marketplace tab's flag, and only where the plan shows WordPress.org's themes:
+ * elsewhere ours is the only copy the search can show.
+ *
+ * @return bool
+ */
+function wpcomsh_search_prefers_wporg(): bool {
+	return function_exists( 'wpcom_themes_tab_enabled' )
+		&& wpcom_themes_tab_enabled()
+		&& wpcom_site_has_feature( WPCOM_Features::COMMUNITY_THEMES );
+}
 
 /**
  * Process the themes API result and add WPCom themes when using the filter feature.
@@ -216,8 +267,8 @@ function wpcomsh_remove_symlink_wp_error( $code, $message, $data, WP_Error $erro
  * @return bool|mixed|WP_Error
  */
 function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
-	// Pre-requisites checks.
-	if ( ! $package || ! is_string( $package ) || ! $upgrader instanceof Theme_Upgrader ) {
+	// Pre-requisites checks. A WP.com theme's package is its slug; a URL or file path is some other theme.
+	if ( ! $package || ! is_string( $package ) || str_contains( $package, '/' ) || ! $upgrader instanceof Theme_Upgrader ) {
 		return $reply;
 	}
 
@@ -228,8 +279,15 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
 		return $reply;
 	}
 
+	$theme_type = wpcomsh_get_wpcom_theme_type( $wpcom_theme->slug );
+
+	// WP Cloud doesn't host it, so wpcomsh_theme_install_by_download() gets it instead.
+	if ( ! $theme_type ) {
+		return $reply;
+	}
+
 	$upgrader->skin->feedback( 'installing_package' );
-	$result = wpcomsh_jetpack_wpcom_theme_skip_download( false, $wpcom_theme->slug );
+	$result = wpcomsh_install_managed_theme( $wpcom_theme->slug, $theme_type );
 
 	if ( is_wp_error( $result ) && $result->get_error_code() !== 'wpcom_theme_already_installed' ) {
 		$upgrader->skin->feedback( 'process_failed' );
@@ -255,6 +313,57 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, $upgrader ) {
 	return new WP_Error( 'wpcomsh_theme_install_symlink' );
 }
 add_filter( 'upgrader_pre_download', 'wpcomsh_theme_install_by_symlink', 0, 4 );
+
+/**
+ * Install WPCom themes WP Cloud doesn't host by handing core their download, which it unpacks and installs.
+ *
+ * @param mixed  $reply    The result object.
+ * @param string $package  The package to install.
+ * @param mixed  $upgrader The upgrader component.
+ *
+ * @return mixed|string|WP_Error The downloaded package's path, or why there is none.
+ */
+function wpcomsh_theme_install_by_download( $reply, $package, $upgrader ) {
+	if ( false !== $reply || ! $package || ! is_string( $package ) || str_contains( $package, '/' ) || ! $upgrader instanceof Theme_Upgrader ) {
+		return $reply;
+	}
+
+	$wpcom_theme = wpcomsh_get_wpcom_themes_service_instance()->get_theme( $package );
+	if ( ! $wpcom_theme ) {
+		return $reply;
+	}
+
+	$download_link = wpcomsh_get_marketplace_theme_download_link( $wpcom_theme->slug );
+	if ( '' === $download_link ) {
+		return new WP_Error( 'wpcom_theme_not_installable', __( 'This theme could not be installed.', 'wpcomsh' ) );
+	}
+
+	return download_url( $download_link );
+}
+add_filter( 'upgrader_pre_download', 'wpcomsh_theme_install_by_download', 1, 4 );
+
+/**
+ * Where to download a marketplace theme this site owns, which WordPress.com lists only for owned themes.
+ *
+ * @param string $slug Theme slug.
+ *
+ * @return string The download link, empty when WordPress.com offers none for this site.
+ */
+function wpcomsh_get_marketplace_theme_download_link( string $slug ): string {
+	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( '/marketplace/themes/updates', '2', array(), null, 'wpcom' );
+	if ( is_wp_error( $response ) ) {
+		return '';
+	}
+
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+	foreach ( $body['updates'] ?? array() as $update ) {
+		if ( is_array( $update ) && ( $update['slug'] ?? '' ) === $slug && ! empty( $update['download_link'] ) ) {
+			return (string) $update['download_link'];
+		}
+	}
+
+	return '';
+}
 
 /**
  * Remove the symlink created for the WPCom theme when the theme is deleted.

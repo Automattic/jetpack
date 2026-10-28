@@ -1,6 +1,7 @@
 export {
 	REPORT_DATE_PARAM_KEYS,
 	omitComparisonReportParams,
+	omitReportDateParams,
 	pickReportDateParams,
 	pickReportNavigationParams,
 	pickReportOriginWindowParams,

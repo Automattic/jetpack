@@ -31,6 +31,7 @@ $config = make_phan_config(
 			'tests/php/lib/class-wpcom-features.php',
 			'tests/php/lib/class-email-verification.php',
 			'tests/php/lib/mock-functions.php',
+			'tests/php/files/mock-wpcomsh-site-sticker.php',
 			'tests/php/extensions/blocks/premium-content/mocks/class-blog-subscriber.php',
 			'tests/php/extensions/blocks/premium-content/mocks/class-blog-subscription.php',
 			'tests/php/extensions/blocks/premium-content/mocks/wpcom-subs-is-subscribed.php',
@@ -51,6 +52,7 @@ $config = make_phan_config(
 			// Make an exception to the above for packages/jetpack-mu-wpcom. Pulling in that whole package here seems more risky than beneficial.
 			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/class-jetpack-mu-wpcom.php', // class Jetpack_Mu_Wpcom
 			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/features/launchpad/launchpad.php', // function wpcom_launchpad_is_fse_next_steps_modal_hidden
+			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/common/class-wpcom-wp-build-page.php', // class WPCOM_WP_Build_Page
 		),
 	)
 );

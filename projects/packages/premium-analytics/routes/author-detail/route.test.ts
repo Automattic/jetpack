@@ -1,8 +1,15 @@
-import { needsReportDateParamsSeed, normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { isDashboardSectionAvailable, isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import {
+	isDashboardSectionAvailable,
+	isStatsFeatureLocked,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	isDashboardSectionAvailable: jest.fn( () => true ),
+	isStatsFeatureLocked: jest.fn( () => false ),
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	// Mirrors the real normalizer's relevant behavior: carries incoming params
@@ -19,7 +26,6 @@ jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
 	isVideoPressAvailable: jest.fn( () => true ),
-	isDashboardSectionAvailable: jest.fn( () => true ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -62,6 +68,18 @@ describe( 'author detail route.beforeLoad', () => {
 
 		await expect( beforeLoad( { authorId: '7' }, settledSearch ) ).rejects.toMatchObject( {
 			to: '/',
+		} );
+	} );
+
+	it( 'sends a plan-locked author to the locked Authors report, keeping its window and tab', async () => {
+		jest.mocked( isStatsFeatureLocked ).mockImplementationOnce( key => key === 'authors' );
+
+		await expect(
+			beforeLoad( { authorId: '7' }, { ...settledSearch, ds: 'traffic' } )
+		).rejects.toMatchObject( {
+			to: '/reports/$report',
+			params: { report: 'authors' },
+			search: { from: settledSearch.from, to: settledSearch.to, ds: 'traffic' },
 		} );
 	} );
 

@@ -74,6 +74,7 @@ jest.mock( '../src/settings/sections', () => ( {
 		emailContentProps.current = props;
 		return <div data-testid="email-content-section" />;
 	},
+	EmailDesignSection: () => <div data-testid="email-design-section" />,
 	EmailDefaultsSection: props => {
 		emailDefaultsProps.current = props;
 		return <div data-testid="email-defaults-section" />;
@@ -322,6 +323,154 @@ describe( 'NewsletterSettingsApp', () => {
 				expect( subscribeModalProps.current.hasChanges ).toBe( false );
 			} );
 			expect( subscribeModalProps.current.isSaving ).toBe( false );
+		} );
+	} );
+
+	describe( 'unsaved changes warning', () => {
+		beforeEach( () => {
+			useConnection.mockReturnValue( {
+				hasConnectedOwner: true,
+				isRegistered: true,
+				isUserConnected: true,
+			} );
+			subscribeModalProps.current = null;
+		} );
+
+		const leavePage = () => {
+			const event = new Event( 'beforeunload', { cancelable: true } );
+			window.dispatchEvent( event );
+			return event.defaultPrevented;
+		};
+
+		const stageSubscribeModalChange = async () => {
+			render( <NewsletterSettingsApp /> );
+			await waitFor( () => {
+				expect( subscribeModalProps.current ).not.toBeNull();
+			} );
+			await act( async () => {
+				subscribeModalProps.current.onChange( {
+					subscription_options: {
+						invitation: 'I',
+						welcome: 'W',
+						comment_follow: 'CF',
+						subscribe_modal_heading: 'Unsaved heading',
+					},
+				} );
+			} );
+			await waitFor( () => {
+				expect( subscribeModalProps.current.hasChanges ).toBe( true );
+			} );
+		};
+
+		it( 'lets the page close when nothing is unsaved', async () => {
+			render( <NewsletterSettingsApp /> );
+			await waitFor( () => {
+				expect( subscribeModalProps.current ).not.toBeNull();
+			} );
+
+			expect( leavePage() ).toBe( false );
+		} );
+
+		it( 'asks before leaving while a section has unsaved changes', async () => {
+			await stageSubscribeModalChange();
+
+			expect( leavePage() ).toBe( true );
+		} );
+
+		it( 'asks before leaving while the sender name has unsaved changes', async () => {
+			const onDirtyChange = jest.fn();
+			render( <NewsletterSettingsBody onDirtyChange={ onDirtyChange } /> );
+			await waitFor( () => expect( senderSettingsProps.current ).not.toBeNull() );
+
+			await act( async () => {
+				senderSettingsProps.current.onChange( {
+					jetpack_subscriptions_from_name: 'Unsaved sender',
+				} );
+			} );
+			await waitFor( () => expect( senderSettingsProps.current.hasChanges ).toBe( true ) );
+
+			expect( onDirtyChange ).toHaveBeenLastCalledWith( true );
+			expect( leavePage() ).toBe( true );
+		} );
+
+		it( 'stops asking once an auto-saved setting finishes saving', async () => {
+			let finishSave;
+			updateSettings.mockReturnValueOnce(
+				new Promise( resolve => {
+					finishSave = resolve;
+				} )
+			);
+			render( <NewsletterSettingsApp /> );
+			await waitFor( () => expect( emailContentProps.current ).not.toBeNull() );
+
+			await act( async () => {
+				emailContentProps.current.onChange( { wpcom_featured_image_in_email: true } );
+			} );
+			expect( leavePage() ).toBe( true );
+
+			await act( async () => {
+				finishSave( {} );
+			} );
+
+			expect( leavePage() ).toBe( false );
+		} );
+
+		it( 'stops asking once an auto-saved setting fails to save', async () => {
+			updateSettings.mockRejectedValueOnce( new Error( 'Network error' ) );
+			render( <NewsletterSettingsApp /> );
+			await waitFor( () => expect( emailContentProps.current ).not.toBeNull() );
+
+			await act( async () => {
+				emailContentProps.current.onChange( { wpcom_featured_image_in_email: true } );
+			} );
+
+			expect( console ).toHaveErrored();
+			expect( leavePage() ).toBe( false );
+		} );
+
+		it( 'keeps asking while another section is still unsaved after one saves', async () => {
+			updateSettings.mockResolvedValue( {} );
+			await stageSubscribeModalChange();
+			await act( async () => {
+				senderSettingsProps.current.onChange( {
+					jetpack_subscriptions_from_name: 'Unsaved sender',
+				} );
+			} );
+
+			await act( async () => {
+				subscribeModalProps.current.onSave();
+			} );
+			await waitFor( () => expect( subscribeModalProps.current.hasChanges ).toBe( false ) );
+
+			expect( leavePage() ).toBe( true );
+		} );
+
+		it( 'keeps asking after a save fails', async () => {
+			updateSettings.mockRejectedValueOnce( new Error( 'Network error' ) );
+			await stageSubscribeModalChange();
+
+			await act( async () => {
+				subscribeModalProps.current.onSave();
+			} );
+			await waitFor( () => expect( subscribeModalProps.current.isSaving ).toBe( false ) );
+
+			expect( console ).toHaveErrored();
+			expect( subscribeModalProps.current.hasChanges ).toBe( true );
+			expect( leavePage() ).toBe( true );
+		} );
+
+		it( 'stops asking once the changes are saved', async () => {
+			updateSettings.mockResolvedValue( {} );
+			await stageSubscribeModalChange();
+
+			await act( async () => {
+				subscribeModalProps.current.onSave();
+			} );
+			await waitFor( () => {
+				expect( subscribeModalProps.current.hasChanges ).toBe( false );
+			} );
+
+			expect( leavePage() ).toBe( false );
 		} );
 	} );
 

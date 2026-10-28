@@ -17,6 +17,7 @@ class Comment_Form {
 	const HANDLE       = 'jetpack-comments';
 	const NONCE_ACTION = 'jetpack_comments_form';
 	const NONCE_NAME   = 'jetpack_comments_form_nonce';
+	const THEME_FORM   = 'jetpack_comments_theme_form';
 
 	/**
 	 * Singleton instance.
@@ -162,7 +163,7 @@ class Comment_Form {
 	/**
 	 * Set the form arguments the app reads back out.
 	 *
-	 * @param array $args Comment form arguments.
+	 * @param array|mixed $args Comment form arguments. Null when an earlier filter drops them.
 	 * @return array
 	 */
 	public function comment_form_defaults( $args ) {
@@ -182,7 +183,7 @@ class Comment_Form {
 			$defaults['title_reply'] = $greeting;
 		}
 
-		$this->defaults = array_merge( $args, $defaults );
+		$this->defaults = array_merge( (array) $args, $defaults );
 
 		return $this->defaults;
 	}
@@ -190,13 +191,29 @@ class Comment_Form {
 	/**
 	 * Replace the submit field with the app.
 	 *
-	 * @param string $submit_field The submit field markup this replaces.
-	 * @param array  $args         Comment form arguments, after the theme's own.
+	 * @param string      $submit_field The submit field markup this replaces.
+	 * @param array|mixed $args         Comment form arguments, after the theme's own. Anything from a theme-built form.
 	 * @return string
 	 */
 	public function render( $submit_field, $args = array() ) {
 		if ( ! self::enabled_for_post_type() ) {
 			return $submit_field;
+		}
+
+		// A theme that builds its own form (Thesis) never runs comment_form(), so leave its form alone.
+		if ( ! is_array( $args ) || ! $this->defaults ) {
+			// The marker gives the comment its own Tracks event, and is where the script finds the form to
+			// add the nonce to, as enqueue_assets() does for the app. Again on DOMContentLoaded, for an optimizer.
+			return $submit_field
+				. '<input type="hidden" name="' . self::THEME_FORM . '" value="1" />'
+				. wp_get_inline_script_tag(
+					sprintf(
+						'(function(){function n(){Array.prototype.forEach.call(document.querySelectorAll(\'[name="%1$s"]\'),function(m){var f=m.form,i;if(f&&!f.querySelector(\'[name="%2$s"]\')){i=document.createElement("input");i.type="hidden";i.name="%2$s";i.value=%3$s;f.appendChild(i);}});}n();document.addEventListener("DOMContentLoaded",n);})();',
+						self::THEME_FORM,
+						self::NONCE_NAME,
+						wp_json_encode( wp_create_nonce( self::NONCE_ACTION ), JSON_HEX_TAG | JSON_HEX_AMP )
+					)
+				);
 		}
 
 		// The subscribe checkboxes the host drew: Jetpack's in this field, WordPress.com's from its own
@@ -297,6 +314,8 @@ class Comment_Form {
 			'subscriptions' => $args['subscriptions'] ?? array(),
 		);
 
+		$noscript = '';
+
 		// Core's own fields and submit, for a page whose settings another release rendered or whose script never ran.
 		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
 			$plain = '<p class="must-log-in">' . sprintf(
@@ -310,6 +329,11 @@ class Comment_Form {
 				. '<textarea id="comment" name="comment" rows="4" required></textarea></p>';
 
 			if ( ! is_user_logged_in() ) {
+				// Without script a guest has no nonce to post, so they get a note in place of fields that cannot send.
+				$noscript = '<noscript><style>.jetpack-comments{display:none!important}</style><p>'
+					. esc_html__( 'Turn on JavaScript to leave a comment.', 'jetpack-comments' )
+					. '</p></noscript>';
+
 				$commenter = wp_get_current_commenter();
 				$fields    = array(
 					'author' => array( __( 'Name', 'jetpack-comments' ), 'text', $commenter['comment_author'], $required ),
@@ -337,8 +361,8 @@ class Comment_Form {
 			. ' data-jetpack-comments="' . esc_attr( (string) wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) ) . '">'
 			. $plain
 			. '</div>'
-			. get_comment_id_fields( $post_id )
-			. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false );
+			. $noscript
+			. get_comment_id_fields( $post_id );
 	}
 
 	/**
@@ -405,10 +429,10 @@ class Comment_Form {
 				'reply'               => _x( 'Reply', 'verb', 'jetpack-comments' ),
 				'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
 				'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),
-				/* translators: The empty comment box's placeholder. The form adds "..." after it. */
-				'placeholder'         => __( 'Write a comment', 'jetpack-comments' ),
-				/* translators: The empty reply box's placeholder. The form adds "..." after it. */
-				'replyPlaceholder'    => __( 'Write a reply', 'jetpack-comments' ),
+				/* translators: The empty comment box's placeholder. */
+				'placeholder'         => __( 'Write a comment...', 'jetpack-comments' ),
+				/* translators: The empty reply box's placeholder. */
+				'replyPlaceholder'    => __( 'Write a reply...', 'jetpack-comments' ),
 				'name'                => __( 'Name', 'jetpack-comments' ),
 				'email'               => __( 'Email', 'jetpack-comments' ),
 				'emailHint'           => __( 'Address never made public', 'jetpack-comments' ),
@@ -443,7 +467,6 @@ class Comment_Form {
 			 * @param array $args    Comment form arguments.
 			 */
 			$strings = apply_filters( 'jetpack_comments_strings', $strings, $args );
-			$lengths = wp_get_comment_fields_max_lengths();
 			$style   = wp_styles()->query( self::HANDLE );
 
 			// Where a reader manages subscriptions to this site, which sends a WordPress.com account
@@ -468,10 +491,6 @@ class Comment_Form {
 					'styleUrl'               => $style ? html_entity_decode( (string) add_query_arg( 'ver', $style->ver, $style->src ), ENT_QUOTES ) : '',
 					'requireNameEmail'       => (bool) get_option( 'require_name_email' ),
 					'mustLogIn'              => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
-					'maxLength'              => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-					'blocks'                 => Block_Editor::is_enabled(),
-					'editorLocale'           => Block_Editor::is_enabled() ? Block_Editor::locale_data() : (object) array(),
-					'editor'                 => Block_Editor::labels(),
 					'site'                   => array(
 						'name'    => get_bloginfo( 'name' ),
 						'iconUrl' => (string) get_site_icon_url( 64 ),
@@ -480,12 +499,23 @@ class Comment_Form {
 					'tracks'                 => Tracks::is_enabled() ? array( 'platform' => Tracks::platform() ) : null,
 					'strings'                => $strings,
 				),
+				Block_Editor::settings(),
 				Identity::settings()
+			);
+
+			// The nonce is added by script, so a bot posting the form's fields has none. Inline and ES5, so
+			// a reader whose bundle never runs gets it too, and the plain form once the page has loaded.
+			// Added again on DOMContentLoaded, for an optimizer that moves this script above the form.
+			$fallback = sprintf(
+				'(function(){function n(){Array.prototype.forEach.call(document.forms,function(f){var i;if(f.querySelector(".jetpack-comments")&&!f.querySelector(\'[name="%1$s"]\')){i=document.createElement("input");i.type="hidden";i.name="%1$s";i.value=%2$s;f.appendChild(i);}});}n();document.addEventListener("DOMContentLoaded",n);})();'
+				. 'window.addEventListener("load",function(){Array.prototype.forEach.call(document.querySelectorAll(".jetpack-comments"),function(e){if(!/\\bis-(mounted|plain)\\b/.test(e.className)){e.className+=" is-plain";}});});',
+				self::NONCE_NAME,
+				wp_json_encode( wp_create_nonce( self::NONCE_ACTION ), JSON_HEX_TAG | JSON_HEX_AMP )
 			);
 
 			wp_add_inline_script(
 				self::HANDLE,
-				'window.JetpackComments = ' . wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'window.JetpackComments = ' . wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';' . $fallback,
 				'before'
 			);
 			$this->settings_printed = true;
@@ -496,51 +526,34 @@ class Comment_Form {
 	}
 
 	/**
-	 * Require a logged-in reader's comment to arrive with a nonce this site issued.
+	 * Require a comment to arrive with the nonce the script adds to the form, or a logged-in reader's from this site's own origin.
 	 *
-	 * A logged-out reader's would be the same string for everybody, which a page cache
-	 * serves past its expiry, so their comments go through core's checks alone, as core's form does.
+	 * A logged-out reader's is the same string for everybody, which a page cache serves
+	 * past its expiry, so for them it only has to be there: a bot posting the form's fields has none.
 	 *
 	 * @param int $comment_post_id The post being commented on.
 	 * @return void
 	 */
 	public function verify_nonce( $comment_post_id = 0 ) {
-		if ( ! self::enabled_for_post_type( $comment_post_id ) || ! is_user_logged_in() ) {
+		if ( ! self::enabled_for_post_type( $comment_post_id ) ) {
 			return;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- this is the nonce check.
 		$nonce = isset( $_POST[ self::NONCE_NAME ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::NONCE_NAME ] ) ) : '';
 
+		if ( ! is_user_logged_in() && '' !== $nonce ) {
+			return;
+		}
+
 		if ( wp_verify_nonce( $nonce, self::NONCE_ACTION ) ) {
 			return;
 		}
 
-		// A page cache can hand a logged-in reader a copy rendered for nobody, so
-		// the nonce they post is the anonymous one. wp_verify_nonce() reads the
-		// session token from the logged-in cookie, not the current user, so the
-		// cookie has to go too for the hash to match what a visitor was served.
-		if ( defined( 'LOGGED_IN_COOKIE' ) && isset( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
-			$user_id = get_current_user_id();
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Stashed and put back untouched.
-			$cookie = $_COOKIE[ LOGGED_IN_COOKIE ];
-
-			unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
-			wp_set_current_user( 0 );
-
-			$valid = (bool) wp_verify_nonce( $nonce, self::NONCE_ACTION );
-
-			$_COOKIE[ LOGGED_IN_COOKIE ] = $cookie;
-			wp_set_current_user( $user_id );
-
-			if ( $valid ) {
-				return;
-			}
-		}
-
-		// A stale nonce is what a page cache costs real readers.
-		if ( '' !== $nonce ) {
-			Tracks::record_refusal( 'nonce' );
+		// A forged post carries the other site's Origin, so this site's own covers a nonce that outlived
+		// its day or its login. Logged in only: a bot can send any Origin it likes.
+		if ( is_user_logged_in() && ! empty( $_SERVER['HTTP_ORIGIN'] ) && Checkpoint::is_same_site_request() ) {
+			return;
 		}
 
 		wp_die(

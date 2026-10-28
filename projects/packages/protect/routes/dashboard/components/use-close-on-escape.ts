@@ -1,6 +1,7 @@
 import { useEffect } from '@wordpress/element';
 
-const POPUP_SELECTOR = '[role="menu"], [role="listbox"], [role="dialog"], [role="alertdialog"]';
+export const POPUP_SELECTOR =
+	'[role="menu"], [role="listbox"], [role="dialog"], [role="alertdialog"]';
 
 /**
  * Call `onClose` when Escape is pressed anywhere on the page.

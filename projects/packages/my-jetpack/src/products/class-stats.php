@@ -202,7 +202,7 @@ class Stats extends Hybrid_Product {
 	}
 	/**
 	 * Checks whether the product can be upgraded to a different product.
-	 * Stats Commercial plan (highest tier) & Jetpack Complete are not upgradable.
+	 * Stats Commercial's highest tier and bundle subscriptions are not upgradable here.
 	 * Also we don't push PWYW users to upgrade.
 	 *
 	 * @return boolean
@@ -216,9 +216,10 @@ class Stats extends Hybrid_Product {
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( ! is_wp_error( $purchases_data ) && is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				// Jetpack complete includes Stats commercial & cannot be upgraded
+				// Stats changes for bundle owners go through plan management.
 				if (
 					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_pro_' ) ||
 					str_starts_with( $purchase->product_slug, 'jetpack_growth' )
 				) {
 					return false;

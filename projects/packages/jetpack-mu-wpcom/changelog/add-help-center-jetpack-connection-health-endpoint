@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Help Center: add a jetpack-connection-health REST proxy so Atomic sites can detect an unreachable site and route affected users to a human.

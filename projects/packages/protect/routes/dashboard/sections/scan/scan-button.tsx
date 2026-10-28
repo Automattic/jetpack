@@ -2,6 +2,7 @@ import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useId, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Popover, Stack, VisuallyHidden } from '@wordpress/ui';
+import { parseLastChecked } from './store';
 import type { ScanState } from './types';
 import type { ComponentProps } from 'react';
 
@@ -14,11 +15,8 @@ const DAY_IN_MS = 24 * 60 * 60 * 1000;
  * @return The time, or null when unknown.
  */
 export function getNextCheck( lastChecked?: string | null ): Date | null {
-	if ( ! lastChecked ) {
-		return null;
-	}
-	const next = new Date( new Date( lastChecked.replace( ' ', 'T' ) + 'Z' ).getTime() + DAY_IN_MS );
-	return Number.isNaN( next.getTime() ) ? null : next;
+	const last = parseLastChecked( lastChecked );
+	return last && new Date( last.getTime() + DAY_IN_MS );
 }
 
 /**
@@ -52,6 +50,7 @@ type Props = {
 	label: string;
 	variant?: ComponentProps< typeof Button >[ 'variant' ];
 	size?: ComponentProps< typeof Button >[ 'size' ];
+	disabled?: boolean;
 };
 
 /**
@@ -64,9 +63,18 @@ type Props = {
  * @param props.label      - The button text.
  * @param props.variant    - The button variant.
  * @param props.size       - The button size.
+ * @param props.disabled   - Disables the button, such as while a scan runs.
  * @return The button.
  */
-export default function ScanButton( { scan, isStarting, onScan, label, variant, size }: Props ) {
+export default function ScanButton( {
+	scan,
+	isStarting,
+	onScan,
+	label,
+	variant,
+	size,
+	disabled,
+}: Props ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const open = useCallback( () => setIsOpen( true ), [] );
 	const close = useCallback( () => setIsOpen( false ), [] );
@@ -81,7 +89,7 @@ export default function ScanButton( { scan, isStarting, onScan, label, variant, 
 			size={ size }
 			onClick={ onScan }
 			loading={ isStarting }
-			disabled={ isStarting || ! canScan }
+			disabled={ disabled || isStarting || ! canScan }
 			aria-describedby={ canScan ? undefined : descriptionId }
 		>
 			{ label }

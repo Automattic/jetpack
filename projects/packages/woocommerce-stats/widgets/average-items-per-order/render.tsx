@@ -13,8 +13,14 @@ import { __ } from '@wordpress/i18n';
  */
 import { ReportMetricChart } from '../../src/components/report-metric-chart';
 import { useReportOrders } from '../../src/reports';
-import type { AverageItemsPerOrderAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * @property chartType - How the series is drawn. Defaults to `line`.
+ */
+export type AverageItemsPerOrderAttributes = {
+	chartType?: ChartDisplayChartType;
+};
 
 type AverageItemsPerOrderRenderAttributes = AverageItemsPerOrderAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -33,10 +39,11 @@ function AverageItemsPerOrder( { chartType }: { chartType?: ChartDisplayChartTyp
 		<ReportMetricChart
 			report={ useReportOrders( reportParams ) }
 			chartType={ chartType }
+			chartTitle={ __( 'Average items per order', 'jetpack-woocommerce-stats-pkg' ) }
 			field="avg_items"
 			label={ __( 'Average items per order', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'average' } }
-			emptyText={ __( 'No orders in this period.', 'jetpack-woocommerce-stats-pkg' ) }
+			noDataLabel={ __( 'No orders in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 			errorText={ __(
 				"We couldn't load average items per order. Please try again in a moment.",
 				'jetpack-woocommerce-stats-pkg'

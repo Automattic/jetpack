@@ -5,6 +5,14 @@
 	margin-bottom: 3rem;
 }
 
+.welcome {
+	// Flex, so the tab panel's h2 margin doesn't collapse into this one.
+	display: flex;
+	flex-direction: column;
+	margin-block-end: calc(var(--spacing-base) * 3); // 24px, as between Overview sections.
+	text-align: center;
+}
+
 .jetpack-manage-upsell {
 	margin-bottom: 3rem;
 }

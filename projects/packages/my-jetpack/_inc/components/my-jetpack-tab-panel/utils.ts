@@ -1,4 +1,9 @@
-import { currentUserCan, getMyJetpackUrl, isSimpleSite } from '@automattic/jetpack-script-data';
+import {
+	currentUserCan,
+	getMyJetpackUrl,
+	getScriptData,
+	isSimpleSite,
+} from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import { MyJetpackRoutes } from '../../constants';
 import {
@@ -7,10 +12,7 @@ import {
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_LEGACY_PRODUCTS,
 } from './constants';
-import type { TabPanel } from '@wordpress/components';
-import type { ComponentProps } from 'react';
-
-type TabPanelProps = ComponentProps< typeof TabPanel >;
+import type { MyJetpackSection } from './types';
 
 // Carried by a pricing page opened from a feature's details, so checkout can return there.
 const RETURN_FEATURE_PARAM = 'return_feature';
@@ -42,13 +44,56 @@ export function getFeatureCheckoutReturnUrl( hash = window.location.hash ) {
 		: '';
 }
 
+// What an account connection started from Features brings back: the open feature, layout, search, tag
+// and filter. A status filter is left behind, since connecting can move the feature out of it.
+const CONNECT_RETURN_PARAMS = [ 'feature', 'view', 'search', 'module_tag', 'filter' ];
+const STATUS_FILTERS = [ 'available', 'active', 'inactive' ];
+
+/**
+ * Where an account connection started from Features returns to.
+ *
+ * Read from the hash rather than the router, so it still answers once an install has replaced the button that asked.
+ *
+ * @param hash  - The page's location hash.
+ * @param extra - More query values for the return, such as the click it comes back for.
+ * @return The admin URL of the same Features view.
+ */
+export function getFeatureConnectReturnUrl(
+	hash = window.location.hash,
+	extra: Record< string, string > = {}
+) {
+	const current = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' );
+	const kept = new URLSearchParams();
+	CONNECT_RETURN_PARAMS.forEach( key => {
+		const value = current.get( key );
+		if ( value && ! ( key === 'filter' && STATUS_FILTERS.includes( value ) ) ) {
+			kept.set( key, value );
+		}
+	} );
+	Object.entries( extra ).forEach( ( [ key, value ] ) => kept.set( key, value ) );
+	const query = kept.toString();
+
+	return getMyJetpackUrl( `#${ MyJetpackRoutes.Features }${ query ? `?${ query }` : '' }` );
+}
+
+/**
+ * Where links to manage Jetpack modules go, as the server decided: the Features tab when the site can use it, else the classic Modules screen.
+ *
+ * @param classicUrl - Classic Modules screen URL, used when the page data has no URL (an older My Jetpack package, or a page that does not send one).
+ * @return The management URL.
+ */
+export function getModulesManagementUrl( classicUrl: string ): string {
+	const data = getScriptData()?.myJetpack as { modulesManagementUrl?: string } | undefined;
+	return data?.modulesManagementUrl || classicUrl;
+}
+
 /**
  * Get the My Jetpack sections.
  *
  * @return The sections for the My Jetpack tab panel.
  */
-export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
-	const tabs = [
+export function getMyJetpackSections() {
+	const tabs: { name: MyJetpackSection; title: string }[] = [
 		{
 			name: MY_JETPACK_SECTION_OVERVIEW,
 			title: __( 'Overview', 'jetpack-my-jetpack' ),

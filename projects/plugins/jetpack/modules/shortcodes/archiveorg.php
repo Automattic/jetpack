@@ -72,7 +72,7 @@ function jetpack_archiveorg_shortcode( $atts ) {
 	$id = $atts['id'];
 
 	// Allow extra query parameters to be baked into the identifier, e.g. "myitem&playlist=1" or "myitem?playlist=1".
-	// In some environments a the_content filter encodes "&" to "&amp;" before do_shortcode runs, so the
+	// In some environments a the_content filter encodes "&" to "&amp;" before apply_shortcodes runs, so the
 	// parser receives "myitem&amp;playlist=1" — normalize that back before splitting. The sibling function
 	// jetpack_archiveorg_embed_to_shortcode() splits on "&amp;" for the same reason.
 	$id            = str_replace( '&amp;', '&', $id );

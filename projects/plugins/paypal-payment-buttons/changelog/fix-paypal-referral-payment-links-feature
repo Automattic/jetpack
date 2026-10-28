@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix "Connect with PayPal" failing its final checks. The setup request never asked PayPal for Payment Links & Buttons access, which every button needs.

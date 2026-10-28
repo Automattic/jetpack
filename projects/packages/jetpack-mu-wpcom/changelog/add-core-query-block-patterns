@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Block patterns: Re-register the core Query Loop patterns, which were excluded along with all other core patterns.

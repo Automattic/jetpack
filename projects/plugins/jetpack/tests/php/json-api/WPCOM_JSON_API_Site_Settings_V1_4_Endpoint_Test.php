@@ -284,6 +284,37 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Data provider for allow lists the endpoint must reject.
+	 *
+	 * @return array<string,array{array,string}> [ $allow_list, $expected_error_code ]
+	 */
+	public static function invalid_protect_allow_lists() {
+		return array(
+			'nested entry'    => array( array( array( '198.51.100.1' ) ), 'invalid_input' ),
+			'invalid address' => array( array( '198.51.100.1', 'not-an-ip' ), 'invalid_ip' ),
+		);
+	}
+
+	/**
+	 * An invalid allow list is rejected without changing the stored list.
+	 *
+	 * @dataProvider invalid_protect_allow_lists
+	 *
+	 * @param array  $allow_list          The posted allow list.
+	 * @param string $expected_error_code The expected error code.
+	 */
+	#[DataProvider( 'invalid_protect_allow_lists' )]
+	public function test_post_rejects_invalid_protect_allow_list( $allow_list, $expected_error_code ) {
+		update_option( 'jetpack_waf_ip_allow_list', '203.0.113.5' );
+
+		$response = $this->make_post_request( wp_json_encode( array( 'jetpack_protect_whitelist' => $allow_list ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertWPError( $response );
+		$this->assertSame( $expected_error_code, $response->get_error_code() );
+		$this->assertSame( '203.0.113.5', get_option( 'jetpack_waf_ip_allow_list' ) );
+	}
+
+	/**
 	 * The free tier description is capped to 500 characters to match the
 	 * paid-tier description field.
 	 */
@@ -813,6 +844,16 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_onboarding_profile bool'       => array( 'woocommerce_onboarding_profile', true, array( true ) ),
 			'woocommerce_onboarding_profile example'    => array( 'woocommerce_onboarding_profile', static::$onboarding_profile_example, static::$onboarding_profile_example ),
 			'show_on_front'                             => array( 'show_on_front', 'page', 'page' ),
+			'jetpack_protect_whitelist'                 => array(
+				'jetpack_protect_whitelist',
+				array( '203.0.113.5', '198.51.100.1-198.51.100.20' ),
+				array( 'local' => array( '203.0.113.5', '198.51.100.1 - 198.51.100.20' ) ),
+			),
+			'jetpack_protect_whitelist GET shape'       => array(
+				'jetpack_protect_whitelist',
+				array( 'local' => array( '203.0.113.5' ) ),
+				array( 'local' => array( '203.0.113.5' ) ),
+			),
 			'subscription_options html'                 => array(
 				'subscription_options',
 				array(

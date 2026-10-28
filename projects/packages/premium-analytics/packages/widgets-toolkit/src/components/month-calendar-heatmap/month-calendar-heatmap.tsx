@@ -14,6 +14,7 @@ import { useCallback, useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
+import { formatChartName } from '../../helpers/format-chart-name';
 import { CalendarHeatmapTooltip } from '../calendar-heatmap';
 import styles from './month-calendar-heatmap.module.scss';
 
@@ -25,8 +26,8 @@ export type MonthCalendarHeatmapProps = {
 	 * days outside the range are faded filler with no tooltip.
 	 */
 	range: MonthCalendarHeatmapRange;
-	/** Accessible name of the grid. */
-	ariaLabel: string;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle: string;
 	/** Renders a non-null value in the tooltip, already pluralized. */
 	formatValue: ( value: number ) => string;
 	/** Shown in the tooltip in place of a value when there is none. */
@@ -40,14 +41,12 @@ export type MonthCalendarHeatmapProps = {
 };
 
 /**
- * One mini calendar per month on a shared scale, months across and named
- * beneath, weeks starting on Monday. The blocks spread out in a wide tile; in a
- * narrow one only the grid scrolls, and a one-row tile drops the legend.
+ * One mini calendar per month on a shared scale, named beneath, weeks starting on Monday.
  */
 export function MonthCalendarHeatmap( {
 	valueByDay,
 	range,
-	ariaLabel,
+	chartTitle,
 	formatValue,
 	emptyLabel,
 	icon,
@@ -58,14 +57,33 @@ export function MonthCalendarHeatmap( {
 	// to the site's.
 	const { data, columnGroups } = useMonthCalendarHeatmapData( valueByDay, range );
 
-	// A tile too narrow for every month scrolls; open on the current month, once,
-	// so a viewer who scrolls back is not snapped forward on resize.
+	// Jump to the current month each time the months start to scroll, not while they keep
+	// scrolling, so a viewer who scrolls back is not snapped forward on resize. The chart
+	// re-lays the months out on its own, which shows up as a change to the grid's style.
 	const rootRef = useRef< HTMLDivElement >( null );
 	useLayoutEffect( () => {
 		const grid = rootRef.current?.querySelector< HTMLElement >( '[role="grid"]' );
-		if ( grid ) {
-			grid.scrollLeft = isRTL() ? -grid.scrollWidth : grid.scrollWidth;
+		if ( ! grid ) {
+			return;
 		}
+		let overflowing = false;
+		const openOnCurrentMonth = () => {
+			const next = grid.scrollWidth > grid.clientWidth;
+			if ( next && ! overflowing ) {
+				grid.scrollLeft = isRTL() ? -grid.scrollWidth : grid.scrollWidth;
+			}
+			overflowing = next;
+		};
+		openOnCurrentMonth();
+		const restyled = new MutationObserver( openOnCurrentMonth );
+		restyled.observe( grid, { attributes: true, attributeFilter: [ 'style' ] } );
+		const resized =
+			typeof ResizeObserver === 'undefined' ? null : new ResizeObserver( openOnCurrentMonth );
+		resized?.observe( grid );
+		return () => {
+			restyled.disconnect();
+			resized?.disconnect();
+		};
 	}, [] );
 
 	const renderTooltip = useCallback(
@@ -87,8 +105,9 @@ export function MonthCalendarHeatmap( {
 				data={ data }
 				columnGroups={ columnGroups }
 				compact
+				fitCells
 				keyboardNavigation="calendar"
-				ariaLabel={ ariaLabel }
+				ariaLabel={ formatChartName( chartTitle ) }
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
 				renderTooltip={ renderTooltip }

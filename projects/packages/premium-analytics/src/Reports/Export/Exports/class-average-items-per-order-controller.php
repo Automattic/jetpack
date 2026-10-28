@@ -71,11 +71,12 @@ class Average_Items_Per_Order_Controller extends Abstract_Csv_Report_Controller 
 	 * @return array The formatted row.
 	 */
 	public function format_row_for_csv( array $item, ?string $interval = null ): array {
-		$defaults = $this->get_default_values();
+		$defaults   = $this->get_default_values();
+		$has_orders = (int) ( $item['orders_no'] ?? $defaults['orders_no'] ) > 0 && isset( $item['avg_items'] );
 
 		return array(
 			'time_interval' => $this->format_time_interval( $item, $interval ),
-			'avg_items'     => self::format_amount( $item['avg_items'] ?? $defaults['avg_items'] ),
+			'avg_items'     => $has_orders ? self::format_amount( $item['avg_items'] ) : '',
 		);
 	}
 
@@ -86,6 +87,7 @@ class Average_Items_Per_Order_Controller extends Abstract_Csv_Report_Controller 
 	 */
 	public function get_default_values(): array {
 		return array(
+			'orders_no' => 0,
 			'avg_items' => 0,
 		);
 	}
@@ -99,6 +101,7 @@ class Average_Items_Per_Order_Controller extends Abstract_Csv_Report_Controller 
 		// time_interval, date_start, and date_end are always returned by the
 		// API for time-series endpoints and do not need to be requested.
 		return array(
+			'orders_no',
 			'avg_items',
 		);
 	}

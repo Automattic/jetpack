@@ -30,7 +30,7 @@ describe( 'MarkAsSpamConfirmationModal', () => {
 		await expect(
 			screen.findByRole( 'alertdialog', { name: 'Mark as spam', description: MESSAGE } )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus() );
 	} );
 
 	it( 'cancels on Escape', async () => {

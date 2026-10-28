@@ -158,7 +158,7 @@ class VideoPress_Video {
 	 *
 	 * @var stdClass|null
 	 * @since 1.3
-	 * @deprecated $$next-version$$ Flash player data is no longer used.
+	 * @deprecated 16.4 Flash player data is no longer used.
 	 */
 	public $players;
 

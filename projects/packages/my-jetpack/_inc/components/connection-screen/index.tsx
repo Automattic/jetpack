@@ -15,7 +15,7 @@ const ConnectionScreen: FC = () => {
 	const returnToPage = useMyJetpackReturnToPage();
 	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage className="jp-my-jetpack-connection" showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 				<Col className={ styles[ 'relative-col' ] }>
 					<CloseLink

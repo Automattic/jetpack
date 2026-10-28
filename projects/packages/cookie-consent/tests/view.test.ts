@@ -105,18 +105,25 @@ async function runAction( generator: Generator< unknown, unknown, unknown > ): P
 
 /**
  * Define the optional WP Consent API setter for tests that need the banner init path.
+ *
+ * @param {Function} implementation - Optional setter body, e.g. to write the consent cookie.
  */
-function mockWpSetConsent(): void {
+function mockWpSetConsent( implementation?: ( category: string, value: string ) => void ): void {
 	Object.defineProperty( window, 'wp_set_consent', {
 		configurable: true,
-		value: jest.fn(),
+		value: jest.fn( implementation ),
 	} );
 }
 
-beforeEach( async () => {
-	// Re-import per test so the module-level geoState singleton starts uninitialized.
+/**
+ * Import the view module fresh, so its module-level state and load-time code run again.
+ */
+async function importView(): Promise< void > {
 	jest.resetModules();
+	await import( '../src/modules/cookie-consent/view' );
+}
 
+beforeEach( async () => {
 	cookieWrites = [];
 	cookieJar = '';
 	imageSources = [];
@@ -138,10 +145,22 @@ beforeEach( async () => {
 	mockStore.mockImplementation( ( _namespace: string, config: StoreDefinition ) => {
 		storeActions = config.actions;
 		storeCallbacks = config.callbacks;
-		return config;
+		// Like the runtime, actions called from the view run their generators to completion.
+		const runtimeActions = Object.fromEntries(
+			Object.entries( config.actions ).map( ( [ name, action ] ) => [
+				name,
+				( ...args: unknown[] ) => {
+					const result = action( ...args );
+					return isGenerator( result ) ? runAction( result ) : result;
+				},
+			] )
+		);
+		return { ...config, actions: runtimeActions };
 	} );
 
-	await import( '../src/modules/cookie-consent/view' );
+	// Re-import per test so the module-level geoState singleton starts uninitialized.
+	mockGetConfig.mockReset();
+	await importView();
 } );
 
 afterEach( () => {
@@ -274,6 +293,323 @@ describe( 'updateContextFromGeolocation banner-feature gate', () => {
 	} );
 } );
 
+describe( 'GPC for a returning visitor', () => {
+	const ALL_ALLOWED =
+		'wp_consent_functional=allow; wp_consent_statistics=allow; wp_consent_statistics-anonymous=allow; wp_consent_marketing=allow';
+	let originalGpc: PropertyDescriptor | undefined;
+
+	const setGpc = ( value: boolean | undefined ) => {
+		Object.defineProperty( window.navigator, 'globalPrivacyControl', {
+			configurable: true,
+			value,
+		} );
+	};
+
+	const wpSetConsentCalls = () =>
+		( window.wp_set_consent as unknown as jest.Mock ).mock.calls as Array< [ string, string ] >;
+
+	// Write the consent cookie like the WP Consent API, so later reads see the opt-out.
+	const setConsentCookie = ( category: string, value: string ) => {
+		const name = `wp_consent_${ category }`;
+		cookieJar = [
+			...cookieJar.split( '; ' ).filter( pair => pair && ! pair.startsWith( `${ name }=` ) ),
+			`${ name }=${ value }`,
+		].join( '; ' );
+	};
+
+	beforeEach( () => {
+		originalGpc = Object.getOwnPropertyDescriptor( window.navigator, 'globalPrivacyControl' );
+		mockWpSetConsent( setConsentCookie );
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { _tkq?: unknown } )._tkq;
+		delete ( window as unknown as { wp_set_consent?: unknown } ).wp_set_consent;
+		document.getElementById( TRACKS_SCRIPT_ID )?.remove();
+		if ( originalGpc ) {
+			Object.defineProperty( window.navigator, 'globalPrivacyControl', originalGpc );
+		} else {
+			delete ( window.navigator as unknown as { globalPrivacyControl?: unknown } )
+				.globalPrivacyControl;
+		}
+	} );
+
+	it( 'keeps the stored choice on init when it was made with GPC on', async () => {
+		setGpc( true );
+		cookieJar = `${ ALL_ALLOWED }; jetpack_cookie_consent_gpc=1`;
+		mockGetContext.mockReturnValue( { showBanner: false } );
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await storeCallbacks.init();
+
+		expect( wpSetConsentCalls() ).toHaveLength( 0 );
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
+	} );
+
+	it( 'opts out a returning GDPR visitor who turned GPC on, without loading Tracks', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		const context = { showBanner: false };
+		mockGetContext.mockReturnValue( context );
+		mockGetConfig.mockReturnValue( makeConfig() );
+		mockGdprGeoLookup();
+
+		await storeCallbacks.init();
+
+		expect( wpSetConsentCalls() ).toContainEqual( [ 'marketing', 'deny' ] );
+		expect( wpSetConsentCalls() ).toContainEqual( [ 'statistics', 'deny' ] );
+		expect( context.showBanner ).toBe( false );
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
+	} );
+
+	it( 'opts out a returning visitor with geo off', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		mockGetContext.mockReturnValue( { showBanner: false } );
+		mockGetConfig.mockReturnValue( { ...makeConfig(), geoEnabled: false } );
+
+		await storeCallbacks.init();
+
+		expect( fetchMock ).not.toHaveBeenCalled();
+		expect( wpSetConsentCalls() ).toContainEqual( [ 'marketing', 'deny' ] );
+	} );
+
+	it( 'keeps the stored choice and loads Tracks when geo fails with showOnError off', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		mockGetContext.mockReturnValue( { showBanner: false } );
+		mockGetConfig.mockReturnValue( makeConfig( { showOnError: false } ) );
+		fetchMock.mockRejectedValue( new Error( 'network down' ) );
+
+		await storeCallbacks.init();
+
+		expect( wpSetConsentCalls() ).toHaveLength( 0 );
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
+		expect( console ).toHaveWarned();
+	} );
+
+	it( 'opts out at module load when the geo cookies hold the region', async () => {
+		setGpc( true );
+		cookieJar = `${ ALL_ALLOWED }; country_code=FR; region=Brittany`;
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await importView();
+
+		expect( fetchMock ).not.toHaveBeenCalled();
+		expect( wpSetConsentCalls() ).toContainEqual( [ 'statistics', 'deny' ] );
+		expect( cookieJar ).toContain( 'wp_consent_statistics=deny' );
+	} );
+
+	it( 'opts out at module load with geo off', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		mockGetConfig.mockReturnValue( { ...makeConfig(), geoEnabled: false } );
+
+		await importView();
+
+		expect( wpSetConsentCalls() ).toContainEqual( [ 'marketing', 'deny' ] );
+	} );
+
+	it( 'leaves the conflict to init at module load when the region needs a lookup', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await importView();
+
+		expect( fetchMock ).not.toHaveBeenCalled();
+		expect( wpSetConsentCalls() ).toHaveLength( 0 );
+	} );
+
+	it.each( [
+		[ 'opts out', { banner: false, footer_links: true }, true ],
+		[ 'leaves the choice to another CMP', { banner: false, footer_links: false }, false ],
+	] )( '%s at module load with only %o of the consent UI', async ( _, features, optedOut ) => {
+		setGpc( true );
+		setFeatures( { ...features, ccpa_page: true } );
+		cookieJar = `${ ALL_ALLOWED }; country_code=FR; region=Brittany`;
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await importView();
+
+		expect( wpSetConsentCalls().length > 0 ).toBe( optedOut );
+	} );
+
+	it( 'previews the banner with the GPC notice and optional categories off', async () => {
+		setGpc( true );
+		cookieJar = 'country_code=FR; region=Brittany';
+		mockGetConfig.mockReturnValue( { ...makeConfig(), forcePreview: true } );
+		await importView();
+		const context = {
+			showBanner: false,
+			gpcNotice: false,
+			categories: { required: true, analytics: true, advertising: false },
+		};
+		mockGetContext.mockReturnValue( context );
+
+		await storeCallbacks.init();
+
+		expect( fetchMock ).not.toHaveBeenCalled();
+		expect( context.showBanner ).toBe( true );
+		expect( context.gpcNotice ).toBe( true );
+		expect( context.categories.analytics ).toBe( false );
+	} );
+
+	describe( 'conflict notice', () => {
+		const GPC_OPTED_OUT =
+			'wp_consent_functional=allow; wp_consent_statistics=deny; wp_consent_statistics-anonymous=deny; wp_consent_marketing=deny';
+		const ANALYTICS_ON = {
+			target: Object.assign( document.createElement( 'input' ), {
+				type: 'checkbox',
+				checked: true,
+			} ),
+		};
+		ANALYTICS_ON.target.dataset.consentCategory = 'analytics';
+
+		const openFromFooter = async ( context: Record< string, unknown > ) => {
+			mockGetContext.mockReturnValue( context );
+			await storeCallbacks.init();
+			storeActions.openManagePreferences( { preventDefault: jest.fn() } );
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+		};
+
+		beforeEach( () => {
+			mockGetConfig.mockReturnValue( makeConfig() );
+		} );
+
+		it.each( [
+			[ 'a GDPR region', 'FR', 'Brittany', true ],
+			[ 'a CCPA region', 'US', 'California', true ],
+			[ 'a region that ignores GPC', 'US', 'Texas', false ],
+		] )( 'is shown in the footer modal for %s', async ( _, country, region, shown ) => {
+			setGpc( true );
+			cookieJar = `${ GPC_OPTED_OUT }; country_code=${ country }; region=${ region }`;
+			const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
+
+			await openFromFooter( context );
+
+			expect( context.showModal ).toBe( true );
+			expect( context.gpcNotice ).toBe( shown );
+		} );
+
+		it.each( [
+			[ 'shows', true, 'California', true ],
+			[ 'hides', false, 'California', false ],
+			[ 'hides', true, 'Texas', false ],
+		] )(
+			'%s the footer link to a US visitor with GPC %s in %s, which opens the notice',
+			async ( _, gpc, region, shown ) => {
+				setGpc( gpc );
+				cookieJar = `${ GPC_OPTED_OUT }; country_code=US; region=${ region }`;
+				const link = { isGdprManageLink: false };
+				mockGetContext.mockReturnValue( link );
+				await storeCallbacks.init();
+
+				expect( link.isGdprManageLink ).toBe( shown );
+
+				const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
+				await openFromFooter( context );
+
+				expect( context.gpcNotice ).toBe( shown );
+			}
+		);
+
+		it( 'is not shown with the banner to a GDPR visitor without GPC', async () => {
+			setGpc( false );
+			const context = { showBanner: false, gpcNotice: false };
+			mockGetContext.mockReturnValue( context );
+			mockGdprGeoLookup();
+
+			await runAction(
+				storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
+			);
+
+			expect( context.showBanner ).toBe( true );
+			expect( context.gpcNotice ).toBe( false );
+		} );
+
+		it( 'looks up the region for a returning visitor whose geo cookies expired', async () => {
+			setGpc( true );
+			cookieJar = GPC_OPTED_OUT;
+			mockGdprGeoLookup();
+			const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
+
+			await openFromFooter( context );
+
+			expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+			expect( context.gpcNotice ).toBe( true );
+		} );
+
+		it( 'sends one geo request when init and the footer link both need the region', async () => {
+			setGpc( true );
+			cookieJar = ALL_ALLOWED;
+			mockGdprGeoLookup();
+			const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
+			mockGetContext.mockReturnValue( context );
+
+			const initDone = storeCallbacks.init();
+			storeActions.openManagePreferences( { preventDefault: jest.fn() } );
+			await initDone;
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+			expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+			expect( context.gpcNotice ).toBe( true );
+		} );
+
+		it( 'grants nothing when the visitor switches a category on and then dismisses the modal', async () => {
+			setGpc( true );
+			cookieJar = `${ GPC_OPTED_OUT }; country_code=FR; region=Brittany`;
+			const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
+			await openFromFooter( context );
+
+			storeActions.toggleCategory( ANALYTICS_ON );
+			storeActions.onModalKeyDown( { key: 'Escape', preventDefault: jest.fn() } );
+			storeActions.closeModal();
+
+			expect( context.showModal ).toBe( false );
+			expect( wpSetConsentCalls() ).toHaveLength( 0 );
+			expect(
+				cookieWrites.some( write => write.startsWith( 'jetpack_cookie_consent_gpc=' ) )
+			).toBe( false );
+			expect( cookieJar ).toContain( 'wp_consent_statistics=deny' );
+		} );
+
+		it( 'keeps the choice over GPC when the visitor switches a category on and saves', async () => {
+			setGpc( true );
+			cookieJar = `${ GPC_OPTED_OUT }; country_code=FR; region=Brittany`;
+			const context = { showBanner: false, showModal: false, gpcNotice: false, categories: {} };
+			await openFromFooter( context );
+
+			storeActions.toggleCategory( ANALYTICS_ON );
+			storeActions.savePreferences();
+
+			expect( wpSetConsentCalls() ).toContainEqual( [ 'statistics', 'allow' ] );
+			expect( wpSetConsentCalls() ).toContainEqual( [ 'marketing', 'deny' ] );
+			expect(
+				cookieWrites.some( write => write.startsWith( 'jetpack_cookie_consent_gpc=1;' ) )
+			).toBe( true );
+		} );
+	} );
+
+	it( 'keeps the stored choice and loads Tracks in an unregulated region', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		const context = { showBanner: false };
+		mockGetContext.mockReturnValue( context );
+		mockGetConfig.mockReturnValue( makeConfig() );
+		fetchMock.mockResolvedValue( {
+			ok: true,
+			json: async () => ( { country_short: 'US', region: 'Texas' } ),
+		} as unknown as Response );
+
+		await storeCallbacks.init();
+
+		expect( wpSetConsentCalls() ).toHaveLength( 0 );
+		expect( context.showBanner ).toBe( false );
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
+	} );
+} );
+
 describe( 'updateContextFromGeolocation', () => {
 	it( 'does not show the manage-preferences link when geo resolution yields a null country', async () => {
 		const context = { isGdprManageLink: false };
@@ -342,6 +678,7 @@ describe( 'Tracks consent gating', () => {
 		mockWpSetConsent();
 		mockGetContext.mockReturnValue( {} );
 		mockGetConfig.mockReturnValue( makeConfig() );
+		mockGdprGeoLookup();
 
 		await storeCallbacks.init();
 		window.dispatchEvent(
@@ -364,6 +701,7 @@ describe( 'Tracks consent gating', () => {
 		mockWpSetConsent();
 		mockGetContext.mockReturnValue( {} );
 		mockGetConfig.mockReturnValue( makeConfig() );
+		mockGdprGeoLookup();
 
 		await storeCallbacks.init();
 		window.dispatchEvent(

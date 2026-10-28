@@ -240,7 +240,7 @@ Delete a payment resource. Returns success even if already deleted on PayPal (40
 
 Deletion is permanent: PayPal has no pause, deactivate, or restore operation, and a buyer who opens the deleted link is sent to `https://www.paypal.com/ncp/notfound`. Callers must confirm with the merchant before sending this request.
 
-**Query parameters:** `unused_only` (boolean) keeps the link when another published post still embeds it; `post_id` names one post to leave out of that count.
+**Query parameters:** `unused_only` (boolean) keeps the payment button when another published post still embeds it; `post_id` names one post to leave out of that count.
 
 **Response (200):**
 
@@ -266,7 +266,7 @@ Deletion is permanent: PayPal has no pause, deactivate, or restore operation, an
 | `price` | string | — | Price value (e.g., `29.99`) |
 | `currencyCode` | string | `USD` | ISO currency code |
 | `productDescription` | string | — | Product description |
-| `imageUrl` | string | — | Product image URL |
+| `imageUrl` | string | — | Product image URL. No longer set from the editor; kept for blocks that already have one |
 | `returnUrl` | string | — | Post-payment redirect URL |
 | `scriptSrc` | string | — | Legacy: PayPal script URL |
 | `hostedButtonId` | string | — | Legacy: hosted button ID |

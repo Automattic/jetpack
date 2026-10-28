@@ -11,6 +11,7 @@ import {
 	forwardRef,
 	useCallback,
 	useContext,
+	useMemo,
 } from 'react';
 import { ChartInstanceContext } from '../../../charts/private/chart-instance-context';
 import { useTextTruncation } from '../../../hooks';
@@ -115,7 +116,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 > = forwardRef< HTMLDivElement, BaseLegendProps >(
 	(
 		{
-			items,
+			items: allItems,
 			className,
 			orientation = 'horizontal',
 			alignment = 'center',
@@ -154,6 +155,31 @@ export const BaseLegend: ForwardRefExoticComponent<
 		const chartInstanceContext = useContext( ChartInstanceContext );
 		const standaloneScopeClass = useStandaloneScopeClass();
 
+		// Disabling interaction for the whole legend still preserves its series' visibility state.
+		const isSeriesVisible = useCallback(
+			( seriesLabel: string ) => {
+				if ( chartInstanceContext?.isSeriesVisible ) {
+					return chartInstanceContext.isSeriesVisible( seriesLabel );
+				}
+				if ( ! chartId || ! context ) {
+					return true;
+				}
+				return context.isSeriesVisible( chartId, seriesLabel );
+			},
+			[ chartId, chartInstanceContext, context ]
+		);
+
+		const items = useMemo(
+			() =>
+				allItems.filter(
+					item =>
+						item.interactive !== false ||
+						! item.describesSeries ||
+						isSeriesVisible( item.describesSeries )
+				),
+			[ allItems, isSeriesVisible ]
+		);
+
 		// Keep duplicate labels: a static comparison item can share a metric's name.
 		const domain = items.map( item => item.label );
 		const legendScale = scaleOrdinal( {
@@ -187,20 +213,6 @@ export const BaseLegend: ForwardRefExoticComponent<
 				}
 			},
 			[ interactive, chartId, context ]
-		);
-
-		// Disabling interaction for the whole legend still preserves its series' visibility state.
-		const isSeriesVisible = useCallback(
-			( seriesLabel: string ) => {
-				if ( chartInstanceContext?.isSeriesVisible ) {
-					return chartInstanceContext.isSeriesVisible( seriesLabel );
-				}
-				if ( ! chartId || ! context ) {
-					return true;
-				}
-				return context.isSeriesVisible( chartId, seriesLabel );
-			},
-			[ chartId, chartInstanceContext, context ]
 		);
 
 		// Create event handlers to avoid inline arrow functions
@@ -245,13 +257,19 @@ export const BaseLegend: ForwardRefExoticComponent<
 					<Stack
 						ref={ ref }
 						direction={ orientation === 'vertical' ? 'column' : 'row' }
-						gap={ orientation === 'vertical' ? 'sm' : 'lg' }
+						// Stack's gap is inline; horizontal gaps live in CSS so consumers can override them.
+						gap={ orientation === 'vertical' ? 'sm' : undefined }
 						align={ orientation === 'vertical' ? flexAlignment : undefined }
 						justify={ orientation === 'horizontal' ? flexAlignment : undefined }
 						wrap={ orientation === 'horizontal' ? 'wrap' : undefined }
 						role={ interactive ? undefined : 'list' }
 						data-testid={ `legend-${ orientation }` }
-						className={ clsx( standaloneScopeClass, styles.legend, className ) }
+						className={ clsx(
+							standaloneScopeClass,
+							styles.legend,
+							orientation === 'horizontal' && styles[ 'legend--horizontal' ],
+							className
+						) }
 						style={ theme.legend?.containerStyles }
 					>
 						{ labels.map( ( label, i ) => {

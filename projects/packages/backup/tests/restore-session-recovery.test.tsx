@@ -24,7 +24,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, within } from '@testing-library/react';
+import { act, render, within } from '@testing-library/react';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 import RestoreScreen from '../src/dashboard/screens/restore';
@@ -159,11 +159,11 @@ describe( 'Restore screen — a restore already running', () => {
 		// heading that silently changes date leaves the reader to work out
 		// why their checklist vanished.
 		const notice = await view.findByText( ALREADY_RUNNING );
-		expect( notice ).toHaveTextContent( /Aug 12, 2026/ );
+		expect( notice ).toHaveTextContent( /August 12, 2026/ );
 
 		const point = await view.findByText( /Restore point:/ );
-		expect( point ).toHaveTextContent( /Aug 12, 2026/ );
-		expect( point ).not.toHaveTextContent( /Aug 13, 2026/ );
+		expect( point ).toHaveTextContent( /August 12, 2026/ );
+		expect( point ).not.toHaveTextContent( /August 13, 2026/ );
 	} );
 
 	it( 'never arms the form while it is still finding out', async () => {
@@ -235,13 +235,22 @@ describe( 'Restore screen — a restore already running', () => {
 			return Promise.resolve( CAPABILITIES );
 		} );
 
-		const view = within( renderScreen() );
+		// A failed poll is temporary; only the silence deadline gives up.
+		jest.useFakeTimers();
+		try {
+			const view = within( renderScreen() );
+			for ( let elapsed = 0; elapsed <= 6 * 60_000; elapsed += 5000 ) {
+				await act( async () => {
+					await jest.advanceTimersByTimeAsync( 5000 );
+				} );
+			}
 
-		await expect(
-			view.findByText( /We've lost track of this restore/ )
-		).resolves.toBeInTheDocument();
-		expect( view.queryByText( ALREADY_RUNNING ) ).not.toBeInTheDocument();
-		// And still no way to start a second one.
-		expect( view.queryByRole( 'button', { name: CONFIRM } ) ).not.toBeInTheDocument();
+			expect( view.getByText( /We've lost track of this restore/ ) ).toBeInTheDocument();
+			expect( view.queryByText( ALREADY_RUNNING ) ).not.toBeInTheDocument();
+			// And still no way to start a second one.
+			expect( view.queryByRole( 'button', { name: CONFIRM } ) ).not.toBeInTheDocument();
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 } );

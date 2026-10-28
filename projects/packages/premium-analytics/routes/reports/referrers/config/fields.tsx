@@ -80,8 +80,7 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 					</Stack>
 				);
 
-				// Group/source rows keep DataViews' title treatment and never link
-				// away; only leaf referrers use the drilldown leaf treatment.
+				// Group/source rows never link away; only leaf referrers do.
 				if ( isGroup ) {
 					return label;
 				}

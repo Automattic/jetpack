@@ -1,4 +1,5 @@
 import type {
+	BarChartLayout,
 	BaseChartProps,
 	DataPointDate,
 	SeriesData,
@@ -19,8 +20,6 @@ export type BandHighlightSelection = {
 };
 
 export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
-	/** Accessible name of the chart. Defaults to a localized "Bar chart". */
-	ariaLabel?: string;
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */
@@ -35,6 +34,8 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVis
 	/** CSS class for each primary bar, in addition to visx-bar. */
 	barClassName?: ( datum: DataPointDate ) => string | undefined;
 	orientation?: 'horizontal' | 'vertical';
+	/** Defaults to `grouped`. */
+	layout?: BarChartLayout;
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
 	/** Highlight the active band across the plot when tooltips are enabled. */

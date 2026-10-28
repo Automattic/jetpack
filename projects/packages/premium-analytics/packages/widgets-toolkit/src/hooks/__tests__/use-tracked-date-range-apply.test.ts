@@ -108,6 +108,23 @@ describe( 'useTrackedDateRangeApply', () => {
 		expect( properties ).not.toHaveProperty( 'preset' );
 	} );
 
+	it( 'records the bucket the chart draws when the plan locks the range default', () => {
+		const { trackedOnChange, trackedOnApply } = renderTracked(
+			{},
+			{ ...DASHBOARD, lockedIntervals: [ 'week', 'month', 'year' ] }
+		);
+
+		act( () => {
+			trackedOnChange(
+				{ from: localTZDate( '2025-01-01', 'UTC' ), to: localTZDate( '2026-02-04', 'UTC' ) },
+				'custom'
+			);
+			trackedOnApply();
+		} );
+
+		expect( trackedProperties() ).toMatchObject( { interval: 'day' } );
+	} );
+
 	it( 'falls back to the rendered range when nothing was staged since the last apply', () => {
 		const { trackedOnChange, trackedOnApply } = renderTracked();
 

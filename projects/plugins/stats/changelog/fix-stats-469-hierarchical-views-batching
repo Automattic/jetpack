@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show view counts in the Pages list, and any list with more than 100 posts, instead of leaving them blank.

@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useContext, useMemo, type FC } from 'react';
+import { useContext, useMemo, type FC, type MouseEvent } from 'react';
 import { Legend } from '../../components/legend';
 import { usePrefersReducedMotion } from '../../hooks';
 import {
@@ -89,9 +89,72 @@ const hasDeltaValue = (
 	delta: number;
 } => hasPreviousValue( entry ) && entry.delta != null;
 
+/**
+ * A layered row's cell that takes pointer events of its own (a value tooltip)
+ * sits above the row button; pass its clicks on so they still drill down.
+ *
+ * @param event - The click on the row.
+ */
+function forwardCellClickToRowButton( event: MouseEvent< HTMLDivElement > ) {
+	if ( ( event.target as Element ).closest( 'a, button' ) ) {
+		return;
+	}
+
+	event.currentTarget.querySelector< HTMLButtonElement >( ':scope > button' )?.click();
+}
+
 const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
 );
+
+/** The largest negative and positive share magnitudes, which size each side of zero. */
+type DivergingScale = { negative: number; positive: number };
+
+const Bar = ( {
+	share,
+	color,
+	animation,
+	divergingScale,
+}: {
+	share: number;
+	color: string;
+	animation?: boolean;
+	divergingScale?: DivergingScale;
+} ) => {
+	const isNegative = share < 0;
+	const sideMax = divergingScale?.[ isNegative ? 'negative' : 'positive' ];
+	// A diverging bar is measured against the largest share on its own side of zero.
+	const width = sideMax ? ( Math.abs( share ) / sideMax ) * 100 : Math.abs( share );
+
+	const bar = (
+		<div
+			className={ clsx( styles.bar, {
+				[ styles[ 'bar--animated' ] ]: animation,
+				[ styles[ 'bar--negative' ] ]: divergingScale && isNegative,
+			} ) }
+			style={ {
+				width: getBarWidth( width ),
+				backgroundColor: color,
+			} }
+		></div>
+	);
+
+	if ( ! divergingScale ) {
+		return bar;
+	}
+
+	// Each side is as wide as its share of the full range, so zero sits where the range crosses it.
+	return (
+		<div
+			className={ styles.barTrack }
+			style={ {
+				gridTemplateColumns: `${ divergingScale.negative }fr ${ divergingScale.positive }fr`,
+			} }
+		>
+			{ bar }
+		</div>
+	);
+};
 
 const BarWithLabel = ( {
 	entry,
@@ -100,6 +163,7 @@ const BarWithLabel = ( {
 	primaryColor,
 	secondaryColor,
 	animation,
+	divergingScale,
 	isPrimaryVisible = true,
 	isComparisonVisible = true,
 }: {
@@ -108,43 +172,44 @@ const BarWithLabel = ( {
 	withOverlayLabel?: boolean;
 	primaryColor: string;
 	secondaryColor: string;
+	divergingScale?: DivergingScale;
 	isPrimaryVisible?: boolean;
 	isComparisonVisible?: boolean;
 	animation?: boolean;
 } ) => {
 	const showComparisonBar = withComparison && ! withOverlayLabel && isComparisonVisible;
 
+	const bars = (
+		<>
+			{ isPrimaryVisible && (
+				<Bar
+					share={ entry.currentShare }
+					color={ primaryColor }
+					animation={ animation }
+					divergingScale={ divergingScale }
+				/>
+			) }
+
+			{ showComparisonBar && hasPreviousValue( entry ) && (
+				<Bar
+					share={ entry.previousShare }
+					color={ secondaryColor }
+					animation={ animation }
+					divergingScale={ divergingScale }
+				/>
+			) }
+		</>
+	);
+
 	return (
 		<div
 			className={ clsx( styles.barWithLabelContainer, {
 				[ styles[ 'is-overlay' ] ]: withOverlayLabel,
 			} ) }
+			data-testid={ divergingScale ? 'leaderboard-chart-diverging-row' : undefined }
 		>
 			<BarLabel label={ entry.label } />
-
-			{ isPrimaryVisible && (
-				<div
-					className={ clsx( styles.bar, {
-						[ styles[ 'bar--animated' ] ]: animation,
-					} ) }
-					style={ {
-						width: getBarWidth( entry.currentShare ),
-						backgroundColor: primaryColor,
-					} }
-				></div>
-			) }
-
-			{ showComparisonBar && hasPreviousValue( entry ) && (
-				<div
-					className={ clsx( styles.bar, {
-						[ styles[ 'bar--animated' ] ]: animation,
-					} ) }
-					style={ {
-						width: getBarWidth( entry.previousShare ),
-						backgroundColor: secondaryColor,
-					} }
-				></div>
-			) }
+			{ bars }
 		</div>
 	);
 };
@@ -174,6 +239,7 @@ const BarWithLabel = ( {
  * @param props.children         - Child components for composition API
  * @param props.className        - Additional CSS class name
  * @param props.style            - Custom styling for the chart container
+ * @param props.ariaLabel        - Accessible name for the list, defaulting to "Leaderboard chart"
  * @return JSX element representing the leaderboard chart
  */
 const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
@@ -194,6 +260,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	legend = {},
 	legendLabels,
 	gap = 'md',
+	ariaLabel,
 	className,
 	style,
 	children,
@@ -251,6 +318,23 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		return ! isPrimaryVisible;
 	}, [ isPrimaryVisible, isComparisonVisible, withComparison, withOverlayLabel ] );
 
+	// One negative share puts every row on a shared zero point, so the bars stay comparable.
+	const divergingScale = useMemo( (): DivergingScale | undefined => {
+		const withComparisonBars = withComparison && ! withOverlayLabel;
+		const scale = { negative: 0, positive: 0 };
+		for ( const entry of data ?? [] ) {
+			const shares = [ entry.currentShare ];
+			if ( withComparisonBars && hasPreviousValue( entry ) ) {
+				shares.push( entry.previousShare );
+			}
+			for ( const share of shares ) {
+				const side = share < 0 ? 'negative' : 'positive';
+				scale[ side ] = Math.max( scale[ side ], Math.abs( share ) );
+			}
+		}
+		return scale.negative > 0 ? scale : undefined;
+	}, [ data, withComparison, withOverlayLabel ] );
+
 	// Validate data
 	const isDataValid = Boolean( data && data.length > 0 );
 
@@ -284,6 +368,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		data
 	);
 	const shouldFitRows = fitRows && isMeasurable;
+	// Comparing adds a delta track so the values and the deltas each line up in a column
+	// of their own; with either series hidden the grid keeps its two tracks.
+	const showComparisonColumn = withComparison && isComparisonVisible;
+	const templateColumns =
+		showComparisonColumn && isPrimaryVisible ? 'minmax(0, 1fr) auto auto' : 'minmax(0, 1fr) auto';
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
@@ -375,7 +464,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 						</div>
 					) : (
 						<Grid
-							templateColumns="minmax(0, 1fr) auto"
+							role="list"
+							aria-label={ ariaLabel ?? __( 'Leaderboard chart', 'jetpack-charts' ) }
+							templateColumns={ templateColumns }
 							rowGap={ ROW_GAP }
 							columnGap={ COLUMN_GAP }
 							data-leaderboard-grid
@@ -388,7 +479,6 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 									shouldFitRows && rowIndex >= fittedCount
 										? ( { visibility: 'hidden' } as const )
 										: undefined;
-								const showComparisonColumn = withComparison && isComparisonVisible;
 								const hasPreviousPeriodValue = hasPreviousValue( entry );
 								const hasDelta = hasDeltaValue( entry );
 								const showComparisonValue = showComparisonColumn && hasDelta;
@@ -408,15 +498,14 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 												withOverlayLabel={ withOverlayLabel }
 												primaryColor={ resolvedPrimaryColor }
 												secondaryColor={ resolvedSecondaryColor }
+												divergingScale={ divergingScale }
 												isPrimaryVisible={ isPrimaryVisible }
 												isComparisonVisible={ isComparisonVisible }
 												animation={ animation && ! loading && ! prefersReducedMotion }
 											/>
 										</Stack>
 
-										<Stack
-											direction="row"
-											gap="xs"
+										<div
 											className={ clsx( styles.valueContainer, {
 												[ styles.overlayLabel ]: withOverlayLabel,
 											} ) }
@@ -445,30 +534,63 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 													</VisuallyHidden>
 												</Text>
 											) }
-										</Stack>
+										</div>
 									</>
 								);
 
-								if ( entry.onClick ) {
+								if ( entry.onClick && entry.hasInteractiveLabel ) {
 									return (
-										<button
+										<div
 											key={ entry.id }
-											type="button"
+											role="listitem"
 											data-row-index={ rowIndex }
 											style={ rowStyle }
-											className={ clsx( styles.row, styles.interactiveRow ) }
-											onClick={ entry.onClick }
-											aria-label={ entry.ariaLabel }
+											className={ styles.rowItem }
 										>
-											{ rowCells }
-											<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
-										</button>
+											{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Mouse-only fallback; the row button carries keyboard access. */ }
+											<div
+												className={ clsx( styles.row, styles.interactiveRow, styles.layeredRow ) }
+												onClick={ forwardCellClickToRowButton }
+											>
+												{ rowCells }
+												<button
+													type="button"
+													className={ styles.rowButton }
+													onClick={ entry.onClick }
+													aria-label={ entry.ariaLabel }
+												/>
+												<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
+											</div>
+										</div>
+									);
+								}
+
+								if ( entry.onClick ) {
+									return (
+										<div
+											key={ entry.id }
+											role="listitem"
+											data-row-index={ rowIndex }
+											style={ rowStyle }
+											className={ styles.rowItem }
+										>
+											<button
+												type="button"
+												className={ clsx( styles.row, styles.interactiveRow ) }
+												onClick={ entry.onClick }
+												aria-label={ entry.ariaLabel }
+											>
+												{ rowCells }
+												<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
+											</button>
+										</div>
 									);
 								}
 
 								return (
 									<div
 										key={ entry.id }
+										role="listitem"
 										data-row-index={ rowIndex }
 										style={ rowStyle }
 										className={ styles.row }

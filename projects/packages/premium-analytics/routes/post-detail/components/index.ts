@@ -1,1 +1,1 @@
-export { postHeaderSlots } from './post-header-slots/post-header-slots';
+export { getPostTypeCopy, postHeaderSlots } from './post-header-slots/post-header-slots';

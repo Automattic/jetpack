@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { QueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -14,7 +15,7 @@ import {
 	statsAppReferrersUnmarkSpamMutation,
 } from '../stats-app-referrers-spam-query';
 import { statsArchivesQuery } from '../stats-archives-query';
-import { statsAuthorQuery } from '../stats-author-query';
+import { statsAuthorAllTimeOrApproximateQuery, statsAuthorQuery } from '../stats-author-query';
 import { statsClicksQuery } from '../stats-clicks-query';
 import { statsCountryViewsQuery } from '../stats-country-views-query';
 import { statsDevicesQuery } from '../stats-devices-query';
@@ -190,6 +191,51 @@ describe( 'Stats query factories', () => {
 			'author',
 			'UTC',
 		] );
+	} );
+
+	describe( 'statsAuthorAllTimeOrApproximateQuery', () => {
+		const ALL_TIME = /stats\/author\/7\?period=month&num=-1/;
+		const APPROXIMATE = /stats\/author\/7\?period=day&num=1&approximate=true/;
+
+		function run( reply: ( path: string ) => unknown ) {
+			mockApiFetch.mockImplementation( ( { path }: { path?: string } ) => {
+				const result = reply( path ?? '' );
+				return result instanceof Error || ( result as { error?: string } )?.error
+					? Promise.reject( result )
+					: Promise.resolve( result );
+			} );
+			return new QueryClient().fetchQuery( statsAuthorAllTimeOrApproximateQuery( 7 ) );
+		}
+
+		it( 'reads the all-time report when the author is within the post limit', async () => {
+			await expect(
+				run( () => ( { start_date: '2021-03-02', data: [] } ) )
+			).resolves.toMatchObject( { isApproximate: false, report: { startDate: '2021-03-02' } } );
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'falls back to the approximate report past the post limit', async () => {
+			await expect(
+				run( path =>
+					ALL_TIME.test( path )
+						? { error: 'too_many_posts', status: 400 }
+						: { first_content_date: '2023-07-04 10:00:00', data: [] }
+				)
+			).resolves.toMatchObject( {
+				isApproximate: true,
+				report: { firstContentDate: '2023-07-04 10:00:00' },
+			} );
+			expect(
+				mockApiFetch.mock.calls.map( ( [ { path } ] ) => APPROXIMATE.test( path ?? '' ) )
+			).toEqual( [ false, true ] );
+		} );
+
+		it( 'fails on any other all-time error without asking for the approximate report', async () => {
+			await expect(
+				run( () => ( { error: 'unknown_author', status: 404 } ) )
+			).rejects.toMatchObject( { error: 'unknown_author' } );
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		} );
 	} );
 
 	it( 'disables post stats queries until a positive post ID is available', () => {
@@ -619,41 +665,80 @@ describe( 'Stats query factories', () => {
 		}
 	);
 
+	it( 'leaves an all-time window to WPCOM as a summarized negative num', () => {
+		const params = statsReferrersQuery( {
+			from: '2020-01-01T00:00:00.000+00:00',
+			to: '2026-10-07T23:59:59.999+00:00',
+			interval: 'day',
+			num: -1,
+		} ).queryKey[ 5 ];
+
+		expect( params ).toMatchObject( {
+			num: -1,
+			summarize: 1,
+			date: '2026-10-07T23:59:59.999+00:00',
+		} );
+		expect( params ).not.toHaveProperty( 'start_date' );
+	} );
+
+	it( 'asks the UTM endpoint for all time in days', () => {
+		const query = statsUtmQuery( {
+			from: '2020-01-01',
+			to: '2026-10-07',
+			interval: 'day',
+			num: -1,
+		} );
+
+		expect( query.queryKey[ 5 ] ).toMatchObject( { days: -1, start_date: '' } );
+	} );
+
 	// The endpoint rewrites `max < 1` back to its default of 10 rather than reading
 	// it as "all rows", so a `0` must not reach it.
-	it( 'leaves a non-positive tags max off the request', () => {
-		expect( statsTagsQuery( { max: 0 } ).queryKey ).toEqual( [
+	it( 'sends the tags window as date and start_date, with max only when positive', () => {
+		const query = statsTagsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			max: 0,
+		} );
+
+		expect( query.queryKey ).toEqual( [
 			'stats',
 			'tags',
 			'1.1',
 			'stats/tags',
 			'GET',
-			{},
+			{ period: 'day', date: '2026-06-07', start_date: '2026-06-01', summarize: 1 },
 			undefined,
 			'tags',
 			'UTC',
 		] );
+		expect(
+			statsTagsQuery( { from: '2026-06-01', to: '2026-06-07', interval: 'day', max: 10 } )
+				.queryKey[ 5 ]
+		).toEqual( {
+			period: 'day',
+			date: '2026-06-07',
+			start_date: '2026-06-01',
+			max: 10,
+			summarize: 1,
+		} );
 	} );
 
-	// A date would change the cache key without changing a row. `StatsTagsParams`
-	// already rejects one, so this spreads past the type to cover untyped callers.
-	it( 'never sends a date on the tags query, whatever the selected period', () => {
-		const tagsQueryKey = ( period: Record< string, unknown > ) =>
-			statsTagsQuery( { max: 10, ...period } ).queryKey;
-		const maxOnly = [
-			'stats',
-			'tags',
-			'1.1',
-			'stats/tags',
-			'GET',
-			{ max: 10 },
-			undefined,
-			'tags',
-			'UTC',
-		];
+	// One ranking pass whatever the length: per-day keeps 50 posts a day and one
+	// pass keeps 50 for the window, so switching by length would make a longer
+	// range count fewer posts than a shorter one.
+	it.each( [
+		[ '1 day', '2026-06-01', '2026-06-01' ],
+		[ '365 days', '2025-07-02', '2026-07-01' ],
+	] )( 'summarizes the tags query at every length (%s)', ( _label, from, to ) => {
+		const params = statsTagsQuery( { from, to, interval: 'day' } ).queryKey[ 5 ] as Record<
+			string,
+			unknown
+		>;
 
-		expect( tagsQueryKey( { to: '2026-01-31T23:59:59.999-08:00' } ) ).toEqual( maxOnly );
-		expect( tagsQueryKey( { date: '2026-06-30', period: 'year', days: 365 } ) ).toEqual( maxOnly );
+		expect( params.summarize ).toBe( 1 );
+		expect( params.days ).toBeUndefined();
 	} );
 
 	it( 'builds devices query keys from the selected device property', () => {

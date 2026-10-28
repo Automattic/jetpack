@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useContext, useEffect } from 'preact/hooks';
 import { Footer } from '../footer';
+import { readPassport } from '../shared/checkpoint';
 import { markSubmitted, saveDraft } from '../shared/draft';
 import { CommentSignals } from '../shared/state';
 import { recordEvent } from '../shared/tracks';
@@ -135,6 +136,15 @@ export const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		const onPageShow = ( event: PageTransitionEvent ) => {
 			if ( event.persisted ) {
 				isPosting.value = false;
+
+				// The post spent the sign-in code, so a repost needs the passport it earned.
+				const current = commenter.peek();
+				if ( current.kind === 'wordpress' && current.code !== null ) {
+					const passport = readPassport();
+					commenter.value = passport
+						? { kind: 'wordpress', ...passport, code: null }
+						: { kind: 'unknown' };
+				}
 			}
 		};
 

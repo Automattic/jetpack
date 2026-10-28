@@ -338,6 +338,77 @@ class Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Entries mapped to a page on this site open in the same tab, keep the
+	 * playlist context and mark the video being viewed; videopress.com keeps a new tab.
+	 */
+	public function test_render_without_player_keeps_site_links_in_the_tab() {
+		add_filter(
+			'videopress_playlist_entry_url',
+			function ( $url, $guid ) {
+				return 'abcDEF12' === $guid ? home_url( '/videopress/?v=' . $guid ) : $url;
+			},
+			10,
+			2
+		);
+		add_filter( 'videopress_channel_enabled', '__return_true' );
+		set_query_var( \Automattic\Jetpack\VideoPress\Channel::QUERY_VAR, 1 );
+		$GLOBALS['post'] = get_post( $this->video_attachment( 'abcDEF12' ) ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$markup = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes(
+				array(
+					'showPlayer'        => false,
+					'videopressListKey' => 'mc',
+				)
+			)
+		);
+
+		$this->assertStringContainsString(
+			'<a class="videopress-playlist__select is-current" href="' . esc_url( home_url( '/videopress/?v=abcDEF12&list=mc' ) ) . '" aria-current="true" data-guid="abcDEF12"',
+			$markup
+		);
+		$this->assertStringContainsString( '<li class="videopress-playlist__entry is-current">', $markup );
+		$this->assertStringContainsString(
+			'<a class="videopress-playlist__select" href="https://videopress.com/v/ghiJKL34" target="_blank" rel="noopener noreferrer" data-guid="ghiJKL34"',
+			$markup
+		);
+		$this->assertSame( 1, substr_count( $markup, 'target="_blank"' ) );
+	}
+
+	/**
+	 * Entries carrying views and an upload time get the meta line; stored entries do not.
+	 */
+	public function test_render_entry_stats() {
+		$videos                   = $this->attributes()['videos'];
+		$videos[0]['views']       = 12345;
+		$videos[0]['publishedAt'] = time() - 3 * DAY_IN_SECONDS;
+
+		$markup = VideoPress_Initializer::render_videopress_playlist_block( $this->attributes( array( 'videos' => $videos ) ) );
+
+		$this->assertStringContainsString( '<span class="videopress-playlist__entry-stats">12K views · 3 days ago</span>', $markup );
+		$this->assertSame( 1, substr_count( $markup, 'videopress-playlist__entry-stats' ) );
+	}
+
+	/**
+	 * A VideoPress attachment whose GUID lookup is pre-cached.
+	 *
+	 * @param string $guid VideoPress GUID.
+	 * @return int Attachment ID.
+	 */
+	private function video_attachment( $guid ) {
+		$id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Video ' . $guid,
+			)
+		);
+		update_post_meta( $id, 'videopress_guid', $guid );
+		return $id;
+	}
+
+	/**
 	 * A hidden player set to show on click renders click-to-play entries and an
 	 * empty, hidden stage for the view script to reveal.
 	 */

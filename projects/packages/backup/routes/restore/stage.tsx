@@ -13,7 +13,7 @@ import './style.scss';
  * @return The Restore screen wrapped in the dashboard's query client.
  */
 const Stage = () => (
-	<ErrorBoundary>
+	<ErrorBoundary screen="restore">
 		<QueryClientProvider>
 			<RestoreScreen />
 		</QueryClientProvider>

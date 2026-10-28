@@ -1,5 +1,9 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 .dashboard {
 	min-block-size: 0;
+
+	@include jetpack-admin-page-header;
 
 	/*
 	 * Tweak Card layout to make it fit the screen.
@@ -18,6 +22,16 @@
 	// TODO: fix upstream in @wordpress/widget-dashboard.
 	[class*="__widget-header"][class*="__overlay"] {
 		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	}
+
+	// The footer strip takes its height from its content: a compact control
+	// makes it 12px taller than a text-only one, and it grows when the CSV
+	// download arrives. Pin it to the text-only strip, a 20px line in 12px of
+	// padding each side, where a 32px control still fits centered.
+	// TODO: remove once WordPress/gutenberg#85231 lands.
+	[class*="__widget-footer"] {
+		block-size: 44px;
+		padding-block: 0;
 	}
 }
 

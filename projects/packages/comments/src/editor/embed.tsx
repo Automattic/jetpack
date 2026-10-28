@@ -11,7 +11,14 @@ import {
 	ToolbarGroup,
 	VisuallyHidden,
 } from '@wordpress/components';
-import { renderToString, useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import {
+	RawHTML,
+	renderToString,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import type { EmbedAttributes, EmbedEditProps, EmbedLookup, EmbedPreview } from './types';
 import type { EditorLabels } from '../shared/types';
@@ -34,6 +41,13 @@ const hostOf = ( url: string ) => {
 	} catch {
 		return url;
 	}
+};
+
+// The pointer meets the overlay; this keeps Tab off the card's link too, which would leave the form mid-comment.
+const unfocusLinks = ( node: HTMLDivElement | null ) => {
+	node?.querySelectorAll( 'a' ).forEach( link => {
+		link.tabIndex = -1;
+	} );
 };
 
 const toParagraph = ( url: string ) =>
@@ -176,19 +190,26 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Em
 			{ controls }
 			<figure { ...blockProps }>
 				<div className="wp-block-embed__wrapper">
-					{ /* Same-origin, as core previews embeds, for the Referer YouTube wants. The route sanitizes the provider's HTML, so the frame holds markup alone. */ }
-					<SandBox
-						allowSameOrigin
-						html={ preview.html }
-						title={ sprintf(
-							/* translators: %s: host providing embed content e.g: www.youtube.com */
-							__( 'Embedded content from %s', 'default' ),
-							hostOf( url )
-						) }
-						onFocus={ onInteract }
-					/>
-					{ /* Catches the first click, so the block is selected before the frame gets the pointer. */ }
-					{ ! interactive && (
+					{ preview.card ? (
+						// The route builds the card from escaped text alone, as the comment will show it.
+						<div ref={ unfocusLinks }>
+							<RawHTML>{ preview.html }</RawHTML>
+						</div>
+					) : (
+						// Same-origin, as core previews embeds, for the Referer YouTube wants. The route sanitizes the provider's HTML, so the frame holds markup alone.
+						<SandBox
+							allowSameOrigin
+							html={ preview.html }
+							title={ sprintf(
+								/* translators: %s: host providing embed content e.g: www.youtube.com */
+								__( 'Embedded content from %s', 'default' ),
+								hostOf( url )
+							) }
+							onFocus={ onInteract }
+						/>
+					) }
+					{ /* Catches the first click, so the block is selected before the frame gets the pointer. A card's link stays covered. */ }
+					{ ( preview.card || ! interactive ) && (
 						// eslint-disable-next-line jsx-a11y/no-static-element-interactions
 						<div className="jetpack-comments__embed-overlay" onMouseUp={ onInteract } />
 					) }
@@ -214,6 +235,7 @@ export const registerEmbedBlock = ( editorLabels: EditorLabels, preview = true )
 	}
 
 	registerBlockType< EmbedAttributes >( NAME, {
+		apiVersion: 3,
 		title: _x( 'Embed', 'block title', 'default' ),
 		category: 'embed',
 		icon: embedContentIcon,

@@ -3,6 +3,8 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordSeoEvent } from './record-seo-event';
+import type { SeoTracksScreen } from './record-seo-event';
 
 // Pre-resolved so the production minifier can't fold an adjacent
 // `cond ? __(A) : __(B)` into `__(cond ? A : B)`, which breaks i18n
@@ -29,9 +31,10 @@ interface SeoToolsToggle {
  * into (or out of) its full state. The reload is the success feedback — a
  * snackbar wouldn't survive it — so we only surface a notice on failure.
  *
+ * @param screen - The screen the toggle was operated from, for Tracks.
  * @return The toggle controller.
  */
-export default function useSeoToolsToggle(): SeoToolsToggle {
+export default function useSeoToolsToggle( screen: SeoTracksScreen ): SeoToolsToggle {
 	const [ isToggling, setIsToggling ] = useState( false );
 	const { createErrorNotice } = useDispatch( noticesStore );
 
@@ -44,6 +47,11 @@ export default function useSeoToolsToggle(): SeoToolsToggle {
 					method: 'POST',
 					data: { active },
 				} );
+				// `use_beacon` makes w.js send with a keepalive fetch, which outlives the reload.
+				recordSeoEvent( 'jetpack_seo_tools_toggled', screen, {
+					enabled: active,
+					use_beacon: true,
+				} );
 				// Reload so the server re-registers (or tears down) the SEO surface.
 				window.location.reload();
 			} catch {
@@ -54,7 +62,7 @@ export default function useSeoToolsToggle(): SeoToolsToggle {
 				} );
 			}
 		},
-		[ createErrorNotice ]
+		[ createErrorNotice, screen ]
 	);
 
 	return { isToggling, setActive };

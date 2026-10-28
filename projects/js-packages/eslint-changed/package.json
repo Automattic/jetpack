@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/eslint-changed",
-	"version": "2.1.6",
+	"version": "2.1.7",
 	"description": "Run eslint on files, but only report warnings and errors from lines that were changed.",
 	"keywords": [
 		"eslint",
@@ -34,7 +34,7 @@
 	},
 	"devDependencies": {
 		"eslint": ">=7.0.0",
-		"jest": "30.5.1"
+		"jest": "30.5.2"
 	},
 	"peerDependencies": {
 		"eslint": ">=7.0.0"

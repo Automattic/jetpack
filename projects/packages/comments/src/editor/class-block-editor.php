@@ -52,6 +52,10 @@ class Block_Editor {
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allowed_html' ), 10, 2 );
 		// Ahead of wpautop at 30.
 		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5, 2 );
+		add_filter( 'render_block_core/image', array( Images::class, 'render_core' ), 10, 2 );
+		// Core writes the stored content into its comment emails; WordPress.com has its own templates.
+		add_filter( 'comment_notification_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
+		add_filter( 'comment_moderation_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
 		// The edit-comment screen, for a comment that holds blocks.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
 	}
@@ -86,7 +90,7 @@ class Block_Editor {
 			}
 
 			// Core translates block titles in PHP, so they are in its .mo, not the script files.
-			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code', 'Embed' ) as $title ) {
+			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code', 'Embed', 'Image' ) as $title ) {
 				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.TextDomainMismatch -- Core's own strings.
 				$messages[ "block title\u{0004}$title" ] = array( _x( $title, 'block title', 'default' ) );
 			}
@@ -138,10 +142,8 @@ class Block_Editor {
 	 * @return string
 	 */
 	public function forget_blocks( $content ) {
-		if ( $this->has_blocks && has_block( 'core/embed', $content ) ) {
-			// Core's own kses pass over block attributes wrote & as &amp; in each embed's URL.
-			// Put it back, or the editor's save no longer matches the markup when the comment is edited.
-			$content = wp_slash( serialize_blocks( self::restore_urls( parse_blocks( wp_unslash( $content ) ) ) ) );
+		if ( $this->has_blocks && ( has_block( 'core/embed', $content ) || has_block( 'core/image', $content ) ) ) {
+			$content = wp_slash( serialize_blocks( self::restore( parse_blocks( wp_unslash( $content ) ) ) ) );
 		}
 
 		$this->has_blocks = false;
@@ -150,22 +152,28 @@ class Block_Editor {
 	}
 
 	/**
-	 * The embed URLs as they were before kses, at every depth.
+	 * Undo kses at every depth: the embed and image URLs as they were.
 	 *
 	 * @param array $blocks Parsed blocks.
+	 * @param int   $images Images kept so far.
 	 * @return array
 	 */
-	private static function restore_urls( array $blocks ) {
-		foreach ( $blocks as &$block ) {
+	private static function restore( array $blocks, &$images = 0 ) {
+		foreach ( $blocks as $i => $block ) {
+			// Core's kses pass over block attributes wrote & as &amp; in each embed's URL. Put it back,
+			// or the editor's save no longer matches the markup when the comment is edited.
 			if ( 'core/embed' === $block['blockName'] && isset( $block['attrs']['url'] ) && is_string( $block['attrs']['url'] ) ) {
-				$block['attrs']['url'] = html_entity_decode( $block['attrs']['url'], ENT_QUOTES );
+				$blocks[ $i ]['attrs']['url'] = html_entity_decode( $block['attrs']['url'], ENT_QUOTES );
+			}
+
+			if ( 'core/image' === $block['blockName'] ) {
+				$blocks[ $i ] = Images::block( $block, null, $images ) ?? $block;
 			}
 
 			if ( $block['innerBlocks'] ) {
-				$block['innerBlocks'] = self::restore_urls( $block['innerBlocks'] );
+				$blocks[ $i ]['innerBlocks'] = self::restore( $block['innerBlocks'], $images );
 			}
 		}
-		unset( $block );
 
 		return $blocks;
 	}
@@ -173,8 +181,8 @@ class Block_Editor {
 	/**
 	 * Let the tags these blocks save through kses, for a comment that holds them.
 	 *
-	 * @param array  $tags    Allowed tags.
-	 * @param string $context The kses context.
+	 * @param array|mixed $tags    Allowed tags. Null when an earlier filter drops them.
+	 * @param string      $context The kses context.
 	 * @return array
 	 */
 	public function allowed_html( $tags, $context ) {
@@ -183,7 +191,7 @@ class Block_Editor {
 		}
 
 		return array_merge(
-			$tags,
+			(array) $tags,
 			array(
 				'p'          => array(),
 				'br'         => array(),
@@ -201,7 +209,7 @@ class Block_Editor {
 					'start'    => true,
 					'reversed' => true,
 				),
-				'figure'     => array( 'class' => array( 'values' => array( 'wp-block-embed' ) ) ),
+				'figure'     => array( 'class' => array( 'values' => array( 'wp-block-embed', 'wp-block-image' ) ) ),
 				'div'        => array( 'class' => array( 'values' => array( 'wp-block-embed__wrapper' ) ) ),
 			)
 		);
@@ -210,20 +218,124 @@ class Block_Editor {
 	/**
 	 * The comment's HTML without the block delimiters, and without any block the editor does not offer.
 	 *
-	 * @param string           $content Comment content.
+	 * @param string|mixed     $content Comment content.
 	 * @param \WP_Comment|null $comment The comment, where the caller has it.
-	 * @return string
+	 * @return string|mixed
 	 */
 	public static function render( $content, $comment = null ) {
-		if ( ! has_blocks( $content ) ) {
+		if ( ! is_string( $content ) || ! has_blocks( $content ) ) {
 			return $content;
 		}
 
-		// Only an approved comment on the front end draws a provider's embed; the rest show its link.
+		// Only an approved comment on the front end draws an embed or image; the rest show the link.
 		$embed = $comment instanceof \WP_Comment && '1' === (string) $comment->comment_approved && ! is_admin();
 
 		// With their attributes cleared, what is left of the delimiters is this shape alone.
 		return (string) preg_replace( '#<!-- /?wp:[a-z0-9/-]+ /?-->#', '', serialize_blocks( self::allowed( parse_blocks( $content ), $embed ) ) );
+	}
+
+	/**
+	 * Core's comment email, with the comment's block markup replaced by the text it draws.
+	 *
+	 * @param string|mixed $message    The email body.
+	 * @param int          $comment_id The comment the email is about.
+	 * @return string|mixed
+	 */
+	public static function render_in_email( $message, $comment_id ) {
+		if ( ! is_string( $message ) ) {
+			return $message;
+		}
+
+		$comment = get_comment( $comment_id );
+
+		if ( ! $comment instanceof \WP_Comment || ! has_blocks( $comment->comment_content ) ) {
+			return $message;
+		}
+
+		// The exact string core wrote, so a body another filter rewrote is left alone, not half replaced.
+		$raw = wp_specialchars_decode( $comment->comment_content );
+
+		// Pruned as if saving, which keeps how a list counts and leaves an embed as its URL, fetching nothing.
+		$text = self::blocks_to_text( self::allowed( parse_blocks( $comment->comment_content ) ) );
+
+		return str_replace( $raw, $text, $message );
+	}
+
+	/**
+	 * The comment's blocks as the plain text core's email body holds.
+	 *
+	 * @param array $blocks Parsed blocks, pruned to the ones the editor offers.
+	 * @param int   $depth  How far inside nested lists these blocks sit.
+	 * @return string
+	 */
+	private static function blocks_to_text( array $blocks, $depth = 0 ) {
+		$parts = array();
+
+		foreach ( $blocks as $block ) {
+			if ( 'core/list' === $block['blockName'] ) {
+				$parts[] = self::list_to_text( $block, $depth );
+				continue;
+			}
+
+			if ( 'core/image' === $block['blockName'] ) {
+				$parts[] = $block['attrs']['url'];
+				continue;
+			}
+
+			if ( 'core/quote' === $block['blockName'] ) {
+				// The marker WordPress.com's own comment emails use, so a quote still reads as one.
+				$lines   = explode( "\n", self::blocks_to_text( $block['innerBlocks'], $depth ) );
+				$parts[] = implode( "\n", array_map( fn( $line ) => rtrim( '> ' . $line ), $lines ) );
+				continue;
+			}
+
+			$text = self::inline_to_text( $block['innerHTML'] );
+
+			if ( '' !== $text ) {
+				$parts[] = $text;
+			}
+		}
+
+		return implode( "\n\n", $parts );
+	}
+
+	/**
+	 * A list's items, each marked the way the list is set to count.
+	 *
+	 * @param array $list  A core/list block.
+	 * @param int   $depth How far inside nested lists this list sits.
+	 * @return string
+	 */
+	private static function list_to_text( array $list, $depth ) {
+		$attrs    = is_array( $list['attrs'] ) ? $list['attrs'] : array();
+		$items    = $list['innerBlocks'];
+		$ordered  = ! empty( $attrs['ordered'] );
+		$reversed = $ordered && ! empty( $attrs['reversed'] );
+		$first    = isset( $attrs['start'] ) ? (int) $attrs['start'] : ( $reversed ? count( $items ) : 1 );
+		$indent   = str_repeat( '  ', $depth );
+		$lines    = array();
+
+		foreach ( $items as $i => $item ) {
+			$marker = $ordered ? ( $first + $i * ( $reversed ? -1 : 1 ) ) . '. ' : '* ';
+			$nested = self::blocks_to_text( $item['innerBlocks'], $depth + 1 );
+			$line   = $indent . $marker . self::inline_to_text( $item['innerHTML'] );
+
+			$lines[] = '' === $nested ? $line : $line . "\n" . $nested;
+		}
+
+		return implode( "\n", $lines );
+	}
+
+	/**
+	 * One block's markup as the text it reads like.
+	 *
+	 * @param string $html The block's inner HTML.
+	 * @return string
+	 */
+	private static function inline_to_text( $html ) {
+		$html = (string) preg_replace( '#<br\s*/?>#i', "\n", $html );
+
+		return trim( html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES, 'UTF-8' ) );
 	}
 
 	/**
@@ -280,7 +392,29 @@ class Block_Editor {
 	}
 
 	/**
-	 * What the editor needs from PHP: its own accessible names, and the embed route.
+	 * What a host needs to run the editor outside the comment form.
+	 *
+	 * @return array
+	 */
+	public static function settings() {
+		$lengths    = wp_get_comment_fields_max_lengths();
+		$assets_url = trailingslashit( Assets::normalize_path( plugins_url( '../../build', __FILE__ ) ) );
+		$asset      = include dirname( __DIR__, 2 ) . '/build/editor-loader.asset.php';
+
+		return array(
+			// Where the lazy chunks live; a plugin that combines scripts moves the bundle elsewhere.
+			'assetsUrl'    => $assets_url,
+			// Versioned like the chunks, since a host that does not enqueue the entry gets no version from WordPress.
+			'loaderUrl'    => $assets_url . 'editor-loader.js?minify=false&ver=' . $asset['version'],
+			'maxLength'    => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+			'blocks'       => self::is_enabled(),
+			'editorLocale' => self::is_enabled() ? self::locale_data() : (object) array(),
+			'editor'       => self::labels(),
+		);
+	}
+
+	/**
+	 * What the editor needs from PHP: its own strings, the embed route, and whether it offers images.
 	 *
 	 * @return array
 	 */
@@ -289,6 +423,8 @@ class Block_Editor {
 			'blockTools' => __( 'Block tools', 'jetpack-comments' ),
 			'addBlock'   => __( 'Add block', 'jetpack-comments' ),
 			'embedUrl'   => Embeds::is_enabled() ? Checkpoint_Endpoint::route_url( Embeds::ROUTE ) : '',
+			'images'     => Images::is_enabled(),
+			'imageError' => __( 'This image could not be loaded. Check its URL and try again.', 'jetpack-comments' ),
 		);
 	}
 
@@ -296,27 +432,20 @@ class Block_Editor {
 	 * The allowed blocks, at every depth.
 	 *
 	 * @param array     $blocks Parsed blocks.
-	 * @param bool|null $render Null while saving; at render, whether embeds may draw.
+	 * @param bool|null $render Null while saving; at render, whether embeds and images may draw.
+	 * @param int       $images Images kept so far.
 	 * @return array
 	 */
-	private static function allowed( array $blocks, $render = null ) {
+	private static function allowed( array $blocks, $render = null, &$images = 0 ) {
 		$kept = array();
 
 		foreach ( $blocks as $block ) {
-			// Verbum's editor also offered images, and captions on both; this one keeps their links and text.
+			// Verbum's editor also offered captions on both; this one keeps their text.
 			if ( 'core/image' === $block['blockName'] || 'core/embed' === $block['blockName'] ) {
-				$embed = 'core/embed' === $block['blockName'] ? Embeds::block( $block, $render ) : null;
+				$media = 'core/embed' === $block['blockName'] ? Embeds::block( $block, $render ) : Images::block( $block, $render, $images );
 
-				if ( $embed ) {
-					$kept[] = $embed;
-				} elseif ( 'core/image' === $block['blockName'] ) {
-					$tags = new \WP_HTML_Tag_Processor( $block['innerHTML'] );
-					$src  = $tags->next_tag( 'img' ) ? $tags->get_attribute( 'src' ) : null;
-					$link = is_string( $src ) ? esc_url_raw( $src, array( 'http', 'https' ) ) : '';
-
-					if ( $link ) {
-						$kept[] = self::paragraph( '<a href="' . esc_url( $link ) . '" rel="nofollow ugc">' . esc_html( $link ) . '</a>' );
-					}
+				if ( $media ) {
+					$kept[] = $media;
 				}
 
 				if ( preg_match( '#<figcaption[^>]*>(.*?)</figcaption>#s', $block['innerHTML'], $caption ) && '' !== trim( $caption[1] ) ) {
@@ -356,7 +485,7 @@ class Block_Editor {
 				}
 
 				// An image or embed in a quote can come back as more than one block.
-				foreach ( self::allowed( array( array_shift( $inner ) ), $render ) as $child ) {
+				foreach ( self::allowed( array( array_shift( $inner ) ), $render, $images ) as $child ) {
 					$block['innerBlocks'][]  = $child;
 					$block['innerContent'][] = null;
 				}

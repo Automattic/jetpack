@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: Treat readers who follow a WordPress.com site in the Reader as subscribed in the Subscriptions widget, instead of showing them the subscribe form.

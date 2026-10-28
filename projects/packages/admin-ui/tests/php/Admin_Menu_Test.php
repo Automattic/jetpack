@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Admin_UI;
 
 use Automattic\Jetpack\Feature_Policy;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -403,6 +405,85 @@ class Admin_Menu_Test extends TestCase {
 		$this->assertNotContains(
 			Admin_Menu::get_top_level_menu_item_slug(),
 			array( 'all-hidden-a', 'all-hidden-b' )
+		);
+	}
+
+	/**
+	 * Akismet's item sorts below POSITION_FIRST however Admin_Menu and Akismet are ordered.
+	 *
+	 * Runs alone because the Akismet_Admin stub, once loaded, would add Akismet to every other test's menu.
+	 *
+	 * @param string $order Which side hooks in first; see akismet_order_data().
+	 *
+	 * @dataProvider akismet_order_data
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[DataProvider( 'akismet_order_data' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_akismet_item_sorts_below_the_first_item( $order ) {
+		global $submenu;
+
+		require_once __DIR__ . '/stubs/class-akismet-admin.php';
+
+		// PHPUnit 9 does not run setUpBeforeClass() in the child process, so make the admin here.
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'akismet_order_admin',
+					'user_pass'  => 'pass',
+					'user_email' => 'akismet_order_admin@example.com',
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		// The Jetpack plugin fires jetpack_admin_menu at 998, before Admin_Menu registers at 1000.
+		add_action(
+			'admin_menu',
+			function () {
+				do_action( 'jetpack_admin_menu' );
+			},
+			998
+		);
+
+		if ( 'akismet-first' === $order ) {
+			\Akismet_Admin::admin_menu();
+		} else {
+			add_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+		}
+
+		if ( 'legacy-jetpack' === $order ) {
+			add_action(
+				'admin_menu',
+				function () {
+					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+				},
+				4
+			);
+		}
+
+		Admin_Menu::add_menu( 'First', 'First', 'edit_posts', 'akismet-first', '__return_null', Admin_Menu::POSITION_FIRST );
+
+		do_action( 'admin_menu' );
+
+		$slugs = array_column( $submenu['jetpack'], 2 );
+
+		$this->assertSame( 'akismet-first', $slugs[0] );
+		$this->assertCount( 1, array_keys( $slugs, 'akismet-key-config', true ) );
+	}
+
+	/**
+	 * Data provider for test_akismet_item_sorts_below_the_first_item.
+	 *
+	 * @return array
+	 */
+	public static function akismet_order_data() {
+		return array(
+			'Admin_Menu starts first'                 => array( 'admin-menu-first' ),
+			'Akismet hooks in first'                  => array( 'akismet-first' ),
+			'an older Jetpack unhooks Akismet itself' => array( 'legacy-jetpack' ),
 		);
 	}
 

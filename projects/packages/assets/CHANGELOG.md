@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.15] - 2026-10-26
+### Changed
+- Internal updates.
+
+## [5.0.14] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [5.0.13] - 2026-10-19
+### Changed
+- Update package dependencies. [#53806]
+
+## [5.0.12] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## [5.0.11] - 2026-10-14
+### Changed
+- Update dependencies. [#50674]
+
+## [5.0.10] - 2026-10-12
+### Changed
+- Update dependencies. [#50674]
+
 ## [5.0.9] - 2026-10-06
 ### Changed
 - Update dependencies. [#50674]
@@ -963,6 +987,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[5.0.15]: https://github.com/Automattic/jetpack-assets/compare/v5.0.14...v5.0.15
+[5.0.14]: https://github.com/Automattic/jetpack-assets/compare/v5.0.13...v5.0.14
+[5.0.13]: https://github.com/Automattic/jetpack-assets/compare/v5.0.12...v5.0.13
+[5.0.12]: https://github.com/Automattic/jetpack-assets/compare/v5.0.11...v5.0.12
+[5.0.11]: https://github.com/Automattic/jetpack-assets/compare/v5.0.10...v5.0.11
+[5.0.10]: https://github.com/Automattic/jetpack-assets/compare/v5.0.9...v5.0.10
 [5.0.9]: https://github.com/Automattic/jetpack-assets/compare/v5.0.8...v5.0.9
 [5.0.8]: https://github.com/Automattic/jetpack-assets/compare/v5.0.7...v5.0.8
 [5.0.7]: https://github.com/Automattic/jetpack-assets/compare/v5.0.6...v5.0.7

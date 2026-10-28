@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Internal: rename the new Podcast slug to 'podcast' in the Jetpack submenu reorder list; legacy 'podcasting' entry untouched.
-
-

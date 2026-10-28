@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useState } from 'react';
+import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { getFeatureIcon } from './icons';
 import styles from './styles.module.scss';
 
@@ -26,7 +27,7 @@ export function FeatureBand( { feature }: FeatureBandProps ) {
 	const onLoad = useCallback( () => setHasLoaded( true ), [] );
 	const onError = useCallback( () => setHasFailed( true ), [] );
 
-	if ( ! feature.screenshot || hasFailed ) {
+	if ( isOfflineFeatures() || ! feature.screenshot || hasFailed ) {
 		return (
 			<span className={ styles[ 'modal-band__glyph' ] } aria-hidden="true">
 				<Icon icon={ getFeatureIcon( feature.icon ) } size={ 48 } />

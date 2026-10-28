@@ -31,6 +31,20 @@ describe( 'title field upload pill', () => {
 		);
 	};
 
+	it( 'labels a conversion failure after the upload has completed', () => {
+		renderTitle(
+			makeLibraryItem( {
+				conversionFailed: true,
+				isProcessing: false,
+				upload: { status: 'idle', progress: 0 },
+			} )
+		);
+
+		expect( screen.getByText( 'Conversion failed' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Upload failed' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /^Processing/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'points a connection-caused failure at the connection notice', () => {
 		renderTitle(
 			makeLibraryItem( {

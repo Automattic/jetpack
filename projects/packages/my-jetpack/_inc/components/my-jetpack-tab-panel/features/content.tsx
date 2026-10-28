@@ -1,7 +1,11 @@
-import { _n, sprintf } from '@wordpress/i18n';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { Link, Notice, Stack } from '@wordpress/ui';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { BulkBar } from './bulk-bar';
+import { ConnectResume, useConnectResume } from './connect-resume';
 import { FeaturesEmptyState } from './empty-state';
 import { FeatureItem } from './feature-item';
 import { FeatureList, UnswitchableNote } from './feature-list';
@@ -13,7 +17,13 @@ import { MenuPointer } from './menu-pointer';
 import { MoreFeatures } from './more-features';
 import styles from './styles.module.scss';
 import { Toolbar } from './toolbar';
-import { getFeatureFilters, isFeatureFilter, matchesFilter } from './use-feature-filter';
+import { useAllJetpackModules } from './use-all-jetpack-modules';
+import {
+	getFeatureFilters,
+	isFeatureFilter,
+	matchesFilter,
+	matchesModuleTag,
+} from './use-feature-filter';
 import { useFeatureSearch } from './use-feature-search';
 import { useFeatureSelection } from './use-feature-selection';
 import { useMainFeatures } from './use-main-features';
@@ -36,6 +46,7 @@ const SEARCH_TRACKING_DELAY = 500;
  */
 function useFeaturesParams(): {
 	search: string;
+	moduleTag: string;
 	filter: FeatureFilter;
 	openSlug: string | null;
 	view: FeaturesView;
@@ -45,6 +56,7 @@ function useFeaturesParams(): {
 
 	return {
 		search: searchParams.get( 'search' ) || '',
+		moduleTag: searchParams.get( 'module_tag' ) || '',
 		filter: isFeatureFilter( filterParam ) ? filterParam : 'all',
 		openSlug: searchParams.get( 'feature' ),
 		view: searchParams.get( 'view' ) === 'list' ? 'list' : 'grid',
@@ -54,13 +66,17 @@ function useFeaturesParams(): {
 /**
  * The Features content component.
  *
- * Wraps the tab in its tracking, which needs the grid's state to report what a click was
- * made against — so the state is read here and the content below reads it again.
+ * Online tracking needs the grid's state here to report what a click was made against;
+ * offline content omits the tracking provider.
  *
  * @return The rendered component.
  */
 export function FeaturesContent() {
 	const { filter, search, view } = useFeaturesParams();
+
+	if ( isOfflineFeatures() ) {
+		return <FeaturesTabContent />;
+	}
 
 	return (
 		<FeaturesTrackingProvider filter={ filter } search={ search } view={ view }>
@@ -78,15 +94,22 @@ export function FeaturesContent() {
  * @return The rendered component.
  */
 function FeaturesTabContent() {
+	const contentRef = useRef< HTMLElement >( null );
 	const mainFeatures = useMainFeatures();
+	const { modules, hasLoaded: modulesLoaded, hasFailed: modulesFailed } = useAllJetpackModules();
 	const { states, isLoading } = useFeatureStates( mainFeatures );
 	const { pointer, dismissPointer } = useSidebarSync( mainFeatures.features );
 	const moreFeatures = useMoreFeatures( mainFeatures );
 	const tracking = useFeaturesTracking();
+	const allStates = useMemo(
+		() => [ ...states, ...moreFeatures.flatMap( group => group.states ) ],
+		[ states, moreFeatures ]
+	);
+	const turnOn = useConnectResume( allStates, ! isLoading && modulesLoaded );
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
 
-	const { search, filter, openSlug, view } = useFeaturesParams();
+	const { search, moduleTag, filter, openSlug, view } = useFeaturesParams();
 
 	const updateParams = useCallback(
 		( changes: Record< string, string | null > ) => {
@@ -105,21 +128,42 @@ function FeaturesTabContent() {
 		[ searchParams, setSearchParams ]
 	);
 
+	const legacyParams = new URLSearchParams( window.location.search );
+	const hasModulesFallback = legacyParams.get( 'modules_fallback' ) === '1';
+	const legacySearch = hasModulesFallback && legacyParams.get( 's' ) === search;
+	const classicUrl = getAdminUrl(
+		`admin.php?${ new URLSearchParams( {
+			page: 'jetpack_modules',
+			modules_fallback: '1',
+			...( search ? { s: search } : {} ),
+			...( moduleTag ? { module_tag: moduleTag } : {} ),
+		} ) }`
+	);
 	// Searching replaces the grid outright, so a term in play takes the filter's place
 	// rather than narrowing alongside it.
-	const results = useFeatureSearch( states, search );
+	const results = useFeatureSearch( states, search, legacySearch ? modules : undefined );
 	const visible = useMemo(
 		() =>
-			results ??
-			// A feature being switched stays put: its status has moved to what the click
-			// asked for, and dropping the card out of the list mid-request takes away the
-			// control and the place any error notice refers to.
-			states.filter( state => matchesFilter( state, filter ) || state.isSwitching ),
-		[ filter, results, states ]
+			(
+				results ??
+				// A feature being switched stays put: its status has moved to what the click
+				// asked for, and dropping the card out of the list mid-request takes away the
+				// control and the place any error notice refers to.
+				states.filter( state => matchesFilter( state, filter ) || state.isSwitching )
+			).filter( state => matchesModuleTag( state, moduleTag, modules, modulesLoaded ) ),
+		[ filter, results, states, moduleTag, modules, modulesLoaded ]
 	);
 	const visibleMore = useMemo(
-		() => filterMoreFeatures( moreFeatures, filter, search ),
-		[ moreFeatures, filter, search ]
+		() =>
+			filterMoreFeatures( moreFeatures, filter, search, legacySearch )
+				.map( group => ( {
+					...group,
+					states: group.states.filter( state =>
+						matchesModuleTag( state, moduleTag, modules, modulesLoaded )
+					),
+				} ) )
+				.filter( group => group.states.length > 0 ),
+		[ moreFeatures, filter, search, moduleTag, modules, modulesLoaded, legacySearch ]
 	);
 	// Flattened once: the bulk bar selects over both lists, and the counts read both.
 	const visibleMoreStates = useMemo(
@@ -136,15 +180,14 @@ function FeaturesTabContent() {
 	// Both lists, since a filter narrows both: the pills, and the count the filter event
 	// reports, are answers about the whole tab rather than about the grid alone.
 	const countable = useMemo(
-		() => [ ...states, ...moreFeatures.flatMap( group => group.states ) ],
-		[ states, moreFeatures ]
+		() => allStates.filter( state => matchesModuleTag( state, moduleTag, modules, modulesLoaded ) ),
+		[ allStates, moduleTag, modules, modulesLoaded ]
 	);
 
 	// Read once, so the pills hold steady until the visitor leaves the tab.
 	const [ ownedView ] = useState( () => filter === 'included' );
 	const filters = useMemo( () => getFeatureFilters( filter, ownedView ), [ filter, ownedView ] );
-	// Counted against every feature, not the visible ones, so a pill says how many it
-	// would show rather than how many survived the filter already in play.
+	// Pill counts ignore the search so choosing a filter shows the total it promises.
 	const counts = useMemo(
 		() =>
 			Object.fromEntries(
@@ -176,6 +219,10 @@ function FeaturesTabContent() {
 		},
 		[ updateParams ]
 	);
+	const clearModuleTag = useCallback( () => {
+		updateParams( { module_tag: null } );
+		contentRef.current?.querySelector< HTMLInputElement >( 'input[type="search"]' )?.focus();
+	}, [ updateParams ] );
 	const closeFeature = useCallback( () => updateParams( { feature: null } ), [ updateParams ] );
 
 	// The modal opens from a link as well as from a card, and closes by being navigated
@@ -311,27 +358,77 @@ function FeaturesTabContent() {
 		[ tracking, updateParams, view ]
 	);
 
+	// A new filter or search can leave the page scrolled past the end of a shorter list, so a
+	// list whose start is hidden is brought back to just under the sticky toolbar.
+	const toolbarRef = useRef< HTMLDivElement >( null );
+	const listStartRef = useRef< HTMLDivElement >( null );
+	const listQueryRef = useRef( `${ filter }|${ search }` );
+
+	useLayoutEffect( () => {
+		const query = `${ filter }|${ search }`;
+		if ( query === listQueryRef.current ) {
+			return;
+		}
+		listQueryRef.current = query;
+
+		const content = contentRef.current;
+		const toolbar = toolbarRef.current;
+		const listStart = listStartRef.current;
+		if ( ! content || ! toolbar || ! listStart ) {
+			return;
+		}
+		const toolbarBox = toolbar.getBoundingClientRect();
+		if ( listStart.getBoundingClientRect().top >= toolbarBox.bottom ) {
+			return;
+		}
+
+		// Where the list sits when the toolbar first sticks, so the toolbar itself stays put. Pinned
+		// tabs are cleared by the scroller's scroll-padding, set in ../styles.module.scss.
+		const gap =
+			parseFloat( getComputedStyle( toolbar ).marginBlockEnd ) +
+			parseFloat( getComputedStyle( content ).rowGap );
+		listStart.style.scrollMarginBlockStart = `${ toolbarBox.height + gap }px`;
+		listStart.scrollIntoView( { block: 'start' } );
+	}, [ filter, search ] );
+
 	// Arrow keys step through what the grid shows, so a filter or search bounds them too.
 	// Retaken once modules land, since a status filter reads every pending feature as inactive.
-	const stepOrder = useStepOrder( visible, openSlug, `${ filter }|${ search }|${ isLoading }` );
+	const stepOrder = useStepOrder(
+		visible,
+		openSlug,
+		`${ filter }|${ search }|${ moduleTag }|${ isLoading }`
+	);
 	const openIndex = stepOrder.findIndex( feature => feature.slug === openSlug );
 
-	// Neither read has anything to say yet: a seed-only catalog is not a failure to load
-	// one, and features whose modules are still in flight all read inactive, which would
-	// otherwise announce "nothing is active" on a site with plenty on.
-	// Only the status filters wait on the modules: a search or a plan filter is already
-	// a settled answer once the catalog is here, and an unreachable module read would
-	// otherwise leave those two with no message at all.
-	const onStatus = filter === 'active' || filter === 'inactive';
+	// Wait before showing empty status, tag, or migrated search results: every feature reads as
+	// inactive and unavailable until module data arrives. Available and migrated views stop waiting
+	// even when the module request fails.
+	const onModules =
+		filter === 'active' ||
+		filter === 'inactive' ||
+		( filter === 'available' && ! search.trim() && ! modulesLoaded );
 	const settling =
 		( mainFeatures.isPlaceholderData && mainFeatures.features.length === 0 ) ||
-		( onStatus && states.some( state => state.pending ) );
+		( onModules && states.some( state => state.pending ) ) ||
+		( ( Boolean( moduleTag ) || legacySearch ) && ! modulesLoaded );
 
 	return (
-		<section className={ styles.content }>
-			<FeaturesBanner />
+		<section ref={ contentRef } className={ styles.content }>
+			{ turnOn && <ConnectResume state={ turnOn } /> }
+			{ modulesFailed && Object.keys( modules ).length === 0 && (
+				<Notice.Root intent="error" role="alert">
+					<Notice.Title>
+						{ __( 'Some features could not be loaded', 'jetpack-my-jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __( 'This list is incomplete. Reload the page to try again.', 'jetpack-my-jetpack' ) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
+			{ ! isOfflineFeatures() && <FeaturesBanner /> }
 
 			<Toolbar
+				ref={ toolbarRef }
 				view={ view }
 				onViewChange={ onViewChange }
 				filter={ filter }
@@ -343,6 +440,41 @@ function FeaturesTabContent() {
 				onSearchChange={ onSearchChange }
 				bulk={ view === 'list' && shownCount > 0 ? <BulkBar selection={ selection } /> : null }
 			/>
+			<div ref={ listStartRef } className={ styles[ 'list-start' ] } aria-hidden="true" />
+
+			{ ( moduleTag || hasModulesFallback ) && (
+				<Stack
+					direction="row"
+					align="center"
+					gap="md"
+					wrap="wrap"
+					className={ styles[ 'modules-navigation' ] }
+				>
+					{ moduleTag && (
+						<>
+							<span>
+								{ sprintf(
+									/* translators: %s is a module tag name from the classic Modules screen, such as "Writing". */
+									__( 'Tag: %s', 'jetpack-my-jetpack' ),
+									moduleTag
+								) }
+							</span>
+							<Link
+								className={ styles[ 'link-button' ] }
+								render={ <button type="button" /> }
+								onClick={ clearModuleTag }
+							>
+								{ __( 'Clear tag', 'jetpack-my-jetpack' ) }
+							</Link>
+						</>
+					) }
+					{ hasModulesFallback && (
+						<Link href={ classicUrl } className={ styles[ 'classic-link' ] }>
+							{ __( 'Classic Modules list', 'jetpack-my-jetpack' ) }
+						</Link>
+					) }
+				</Stack>
+			) }
 
 			{ /* Always rendered, so a screen reader is listening before the count changes. */ }
 			<p className="screen-reader-text" role="status">
@@ -358,7 +490,7 @@ function FeaturesTabContent() {
 			{ shownCount === 0 && ! settling && (
 				<FeaturesEmptyState
 					search={ search }
-					filter={ filter }
+					filter={ moduleTag ? 'all' : filter }
 					hasCatalog={ mainFeatures.features.length > 0 }
 					onFilterChange={ onFilterChange }
 				/>
@@ -380,7 +512,7 @@ function FeaturesTabContent() {
 				selection={ selection }
 				jetpack={ mainFeatures.jetpack }
 				isList={ view === 'list' }
-				isNarrowed={ filter !== 'all' || Boolean( search ) }
+				isNarrowed={ filter !== 'all' || Boolean( search ) || Boolean( moduleTag ) }
 				isSearching={ Boolean( search ) }
 			/>
 

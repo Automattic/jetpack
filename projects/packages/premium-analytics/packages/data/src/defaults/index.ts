@@ -4,4 +4,8 @@ export {
 	getDefaultReportParams,
 	withDefaultComparison,
 } from './reports';
-export { DASHBOARD_PREFERENCES_SCOPE, rememberPreset } from './remembered-preset';
+export {
+	DASHBOARD_PREFERENCES_SCOPE,
+	rememberComparison,
+	rememberPreset,
+} from './remembered-preset';

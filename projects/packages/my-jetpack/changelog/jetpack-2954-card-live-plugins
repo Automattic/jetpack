@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Connection card: Ask for a user connection as soon as a plugin that needs one is switched on, without a reload.

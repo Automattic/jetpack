@@ -46,7 +46,3 @@ export const getEnabledFeatures = createSelector(
 	baseGetEnabledFeatures,
 	( state: SeoEnhancerState ) => [ state.features ]
 );
-
-export function isImageAltTextFeatureEnabled( state: SeoEnhancerState ) {
-	return getEnabledFeatures( state ).includes( 'images-alt-text' );
-}

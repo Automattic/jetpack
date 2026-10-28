@@ -48,8 +48,8 @@ export const DAY_COUNT_PRESETS: readonly PrimaryPresetId[] = [
 
 /**
  * The all-time marker. On the year surface it covers every year the surface
- * lists; on a detail page's quick surface it runs from the resource's own start
- * (its publish date) through today.
+ * lists; on a detail page it runs from the resource's own start (its publish
+ * date) through today. A report sends it as `num: -1`, so WPCOM picks the start.
  */
 export const PRESET_ALL_TIME = 'all-time' as const;
 
@@ -90,10 +90,12 @@ export const MENU_SURFACE_PRESET_GROUPS = [
 export const MENU_SURFACE_PRESETS = SELECTABLE_PRESETS;
 
 /**
- * What a resource detail page (post, video) offers: the whole menu, plus all
- * time, which such a page anchors on the resource's own publish date.
+ * The whole menu plus all time, as a detail page or a report offers it.
  */
-export const DETAIL_SURFACE_PRESETS = [ ...MENU_SURFACE_PRESETS, PRESET_ALL_TIME ] as const;
+export const MENU_SURFACE_PRESETS_WITH_ALL_TIME = [
+	...MENU_SURFACE_PRESETS,
+	PRESET_ALL_TIME,
+] as const;
 
 /**
  * Prefix of the per-year preset IDs, e.g. `year-2024`.

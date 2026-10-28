@@ -15,6 +15,12 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { formatChartName } from '../../helpers/format-chart-name';
+import {
+	formatListMetricCount,
+	getListMetricLabel,
+	type ListMetric,
+} from '../../helpers/list-metrics';
 import { AbbreviatedValue } from '../abbreviated-value';
 import { ChartEmptyState } from '../chart-empty-state';
 import styles from './leaderboard-chart.module.scss';
@@ -28,6 +34,13 @@ export type { LeaderboardChartData };
 export type LegendLabels = {
 	primary: string;
 	comparison: string;
+};
+
+/** What the rows are and what their values count, named in a header above them. */
+export type LeaderboardColumns = {
+	/** The rows, e.g. "Pages". */
+	label: string;
+	metric: ListMetric;
 };
 
 export type LeaderboardChartProps = {
@@ -64,6 +77,12 @@ export type LeaderboardChartProps = {
 	 * @default true
 	 */
 	fitRows?: boolean;
+
+	/** Names the rows and the metric above them, and the unit in the exact-value tooltip. */
+	columns?: LeaderboardColumns;
+
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 };
 
 /**
@@ -86,12 +105,23 @@ export function LeaderboardChart( {
 	emptyStateText,
 	style,
 	fitRows = true,
+	columns,
+	chartTitle,
 }: LeaderboardChartProps ) {
 	const { getElementStyles } = useGlobalChartsContext();
 
+	const metric = columns?.metric;
 	const valueFormatter = useMemo(
-		() => ( value: number ) => <AbbreviatedValue value={ value } dataFormat={ dataFormat } />,
-		[ dataFormat ]
+		() => ( value: number ) => (
+			<AbbreviatedValue
+				value={ value }
+				dataFormat={ dataFormat }
+				formatRestored={
+					metric ? exact => formatListMetricCount( metric, value, exact ) : undefined
+				}
+			/>
+		),
+		[ dataFormat, metric ]
 	);
 
 	// A translucent `primaryColor` would not survive `getElementStyles`, which strips
@@ -114,11 +144,18 @@ export function LeaderboardChart( {
 		<Stack
 			direction="column"
 			justify="space-between"
-			gap="lg"
-			className={ clsx( styles.container, className ) }
+			gap={ columns ? 'sm' : 'lg' }
+			className={ clsx( styles.container, columns && styles.hasColumns, className ) }
 		>
+			{ columns && (
+				<div className={ styles.columns }>
+					<span className={ styles.columnsLabel }>{ columns.label }</span>
+					<span className={ styles.columnsMetric }>{ getListMetricLabel( columns.metric ) }</span>
+				</div>
+			) }
 			<BaseLeaderboardChart
 				data={ data }
+				ariaLabel={ formatChartName( chartTitle ) }
 				loading={ loading }
 				withComparison={ withComparison }
 				valueFormatter={ valueFormatter }
@@ -132,7 +169,6 @@ export function LeaderboardChart( {
 			>
 				{ showLegend && (
 					<Legend
-						className={ styles.legend }
 						orientation="horizontal"
 						position="bottom"
 						alignment="center"

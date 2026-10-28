@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Widgets: Show what the values count above Top pages and Latest emails sent, and the unit in the tooltip of an abbreviated value.

@@ -62,16 +62,7 @@ describe( 'AuthorsWidget', () => {
 		);
 	} );
 
-	it( 'links to the Authors report', () => {
-		render( <AuthorsWidget attributes={ {} } /> );
-
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/authors' )
-		);
-	} );
-
-	it( 'links a drilled-down author post to its detail page', async () => {
+	it( 'links the author’s name to their page and a drilled-down post to its detail page', async () => {
 		const user = userEvent.setup();
 		mockApiFetch.mockResolvedValue( {
 			date: '2026-07-17',
@@ -91,6 +82,7 @@ describe( 'AuthorsWidget', () => {
 							},
 						],
 					},
+					{ author_id: 102, name: 'Guy Hawkins', views: 5, posts: [] },
 				],
 			},
 		} );
@@ -103,8 +95,22 @@ describe( 'AuthorsWidget', () => {
 			/>
 		);
 
-		await user.click( await screen.findByRole( 'button', { name: 'View posts by Jane Cooper' } ) );
+		const authorUrl = new URL(
+			( await screen.findByRole( 'link', { name: 'Jane Cooper' } ) ).getAttribute( 'href' ) ?? '',
+			'https://example.com'
+		);
+		expect( authorUrl.pathname ).toBe( '/author/101' );
+		expect( authorUrl.searchParams.get( 'ref' ) ).toBeNull();
+		expect( screen.getByRole( 'link', { name: 'Guy Hawkins' } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( '/author/102' )
+		);
 
+		expect( screen.getByText( 'Authors' ) ).toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'View posts by Jane Cooper' } ) );
+
+		expect( screen.getByText( 'Posts' ) ).toBeInTheDocument();
 		const link = screen.getByRole( 'link', { name: 'Quarterly update' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 

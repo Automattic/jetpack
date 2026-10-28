@@ -16,6 +16,7 @@ import userEvent from '@testing-library/user-event';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../src/dashboard/components/file-browser';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
+import type { FileSelection } from '../src/dashboard/components/file-browser';
 
 /** Selection is irrelevant to these assertions; the rows render regardless. */
 const noop = () => {};
@@ -31,15 +32,20 @@ const ROOT = {
 /**
  * Render the browser over the root listing.
  *
+ * @param selection         - Selection to render with.
+ * @param onSelectionChange - Receives the next selection.
  * @return Nothing; assertions read from `screen`.
  */
-async function renderBrowser(): Promise< void > {
+async function renderBrowser(
+	selection: FileSelection = EMPTY_FILE_SELECTION,
+	onSelectionChange: ( next: FileSelection ) => void = noop
+): Promise< void > {
 	render(
 		<QueryClientProvider>
 			<FileBrowser
 				rewindId="1786644531.123"
-				selection={ EMPTY_FILE_SELECTION }
-				onSelectionChange={ noop }
+				selection={ selection }
+				onSelectionChange={ onSelectionChange }
 			/>
 		</QueryClientProvider>
 	);
@@ -87,6 +93,51 @@ describe( 'row checkboxes', () => {
 
 		expect( new Set( names ).size ).toBe( names.length );
 	} );
+} );
+
+describe( 'the selection checkbox', () => {
+	const selectionOf = ( ...paths: string[] ): FileSelection => ( {
+		selected: new Set( paths ),
+		deselected: new Set(),
+	} );
+	const ALL = selectionOf( '/wp-content', '/wp-config.php', '/readme.txt' );
+	// As assistive tech reads it: `indeterminate` overrides `checked`.
+	const stateOf = ( box: HTMLInputElement ) => {
+		if ( box.indeterminate ) {
+			return 'mixed';
+		}
+		return box.checked ? 'checked' : 'unchecked';
+	};
+
+	// The mixed rows matter most: nothing undoes a clear, so a partial selection must survive a click.
+	it.each( [
+		[ 'nothing', EMPTY_FILE_SELECTION, 'Select all', 'unchecked', '0 items selected', ALL ],
+		[ 'some', selectionOf( '/wp-config.php' ), 'Select all', 'mixed', '1 item selected', ALL ],
+		[
+			'all but one file',
+			{ ...ALL, deselected: new Set( [ '/wp-content/index.php' ] ) },
+			'Select all',
+			'mixed',
+			// `wp-content` is unexpanded, so it still counts as one unit.
+			'3 items selected',
+			ALL,
+		],
+		[ 'everything', ALL, 'Clear selection', 'checked', '3 items selected', EMPTY_FILE_SELECTION ],
+	] )(
+		'with %s selected, is named for what a click does, and does it',
+		async ( _label, selection, name, state, count, next ) => {
+			const onSelectionChange = jest.fn();
+			await renderBrowser( selection, onSelectionChange );
+
+			const box = screen.getByRole< HTMLInputElement >( 'checkbox', { name } );
+			expect( box ).toHaveAccessibleDescription( count );
+			expect( stateOf( box ) ).toBe( state );
+
+			await userEvent.click( box );
+
+			expect( onSelectionChange ).toHaveBeenLastCalledWith( next );
+		}
+	);
 } );
 
 describe( 'the folder toggle', () => {

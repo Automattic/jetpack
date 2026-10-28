@@ -13,15 +13,52 @@ declare module '@automattic/jetpack-script-data' {
 			csv_exports_enabled?: boolean;
 			// Whether the site runs VideoPress, which gates the video surfaces.
 			has_videopress?: boolean;
-			// Whether the dashboard offers adding, removing and resetting widgets: the
-			// premium-analytics-dashboard-composition feature flag, read by the policy.
-			dashboard_composition_enabled?: boolean;
 			// Whether the reader may see Stats reports; a shop manager may see only the store's.
 			can_view_stats?: boolean;
+			// Where switching the dashboard off lands: the classic Stats page, or null while no plugin registers one.
+			classic_stats_url?: string | null;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];
+			// Slugs of the tabs whose dates follow the plan's Stats limits. Absent with `sections`.
+			plan_date_limited_sections?: string[];
 			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.
 			store_currency?: { code: string; symbol: string };
+			// The roles the Stats settings list, and the screen that switches Stats on and off; absent for users who cannot manage options.
+			stats_settings?: {
+				roles: Array< { slug: string; name: string; count: number | null } >;
+				features_url: string | null;
+			};
+			// The Stats features the site's plan lacks, each with its copy and upgrade URL (empty when there is nowhere to buy it), and the widget types they lock. Dashboard only.
+			plan_gates?: {
+				tier: string;
+				locked_features: Record<
+					string,
+					{ description: string; support_url: string; upgrade_url: string }
+				>;
+				locked_widget_types: Record< string, string >;
+				// Absent from servers that predate section gates.
+				locked_sections?: Record<
+					string,
+					{
+						title: string;
+						description: string;
+						description_with_price: `${ string }%s${ string }`;
+						features: string[];
+						upgrade_label: string;
+						expand_label: string;
+						support_url: string;
+						upgrade_url: string;
+						open_widget_types: string[];
+						plan_price: { yearly: number; currency: string } | null;
+					}
+				>;
+				// The paid plan offer the banner shows, or null when the site does not qualify (see docs/dashboard-widgets.md). The URL is empty when there is nowhere to buy it, and `has_stats_product` says whether the site has the free Jetpack Stats product.
+				free_site_upgrade?: { upgrade_url: string; has_stats_product: boolean } | null;
+			};
+			// URL of the dashboard's copied `build/images/` directory, with a trailing slash. Dashboard only.
+			assets_url?: string;
+			// The Stats purchase this page load returned from checkout with; absent on every other load.
+			purchase_success?: { type: 'paid' | 'free' };
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.

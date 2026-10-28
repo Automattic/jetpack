@@ -2,16 +2,24 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { resetMockCharts } from '../../../../../../tests/js/chart-test-utils';
+import {
+	mockOverlapBarColor,
+	resetMockCharts,
+	setMockChartWidth,
+	setMockElementStyles,
+} from '../../../../../../tests/js/chart-test-utils';
 import * as comparativeBarChart from '../../chart-comparative-bar/comparative-bar-chart';
 import * as comparativeLineChart from '../../chart-comparative-line/comparative-line-chart';
+import { WidgetRootContext } from '../../widget-root/context';
 import { MetricTabsChart } from '../metric-tabs-chart';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { MetricTab } from '../metric-tabs-chart';
+import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@jetpack-premium-analytics/externals', () =>
 	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
@@ -61,7 +69,9 @@ type ChartProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
 	legendInteractive?: boolean;
+	comparisonLabel?: string;
 	baseline?: 'zero' | 'padded';
+	layout?: string;
 	onPointerDown?: ( params: PointerParams ) => void;
 	onPointerUp?: ( params: PointerParams ) => void;
 	onDatumActivate?: ( params: { datum: unknown } ) => void;
@@ -106,6 +116,18 @@ const VISITORS: MetricTab = {
 	],
 	counterpartKey: 'views',
 };
+
+/** Params for the week of 2026-10-05 compared with the given window. */
+const comparedWith = ( preset: string, from: string, to: string ) =>
+	( {
+		from: '2026-10-05T00:00:00Z',
+		to: '2026-10-11T23:59:59.999Z',
+		interval: 'day',
+		comp: '1',
+		compare_from: `${ from }T00:00:00Z`,
+		compare_to: `${ to }T23:59:59.999Z`,
+		compare_preset: preset,
+	} ) as ReportParams;
 
 /** The props the most recent chart render received. */
 function recordedProps( spy: jest.Mock ): ChartProps {
@@ -156,12 +178,68 @@ describe( 'MetricTabsChart', () => {
 
 		render( <MetricTabsChart metrics={ [ describedMetric ] } dataFormat={ DATA_FORMAT } /> );
 
-		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Views' ) ).not.toHaveClass( /visually-hidden/ );
 		expect( screen.getByText( describedMetric.description ) ).toBeInTheDocument();
 		expect( screen.queryByTitle( describedMetric.description ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'tab' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'visually hides an opted-in single metric label without un-naming its series', () => {
+		render(
+			<MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } hideSingleMetricLabel />
+		);
+
+		expect( screen.getByText( 'Views' ) ).toHaveClass( /visually-hidden/ );
+		expect( recordedSeries( mockLineSpy )[ 0 ].label ).toBe( 'Views' );
+	} );
+
+	it( 'keeps labels visible when the opt-in is passed to multiple metrics', () => {
+		render(
+			<MetricTabsChart
+				metrics={ [ VIEWS, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+				hideSingleMetricLabel
+			/>
+		);
+
+		expect( screen.getByText( 'Views' ) ).not.toHaveClass( /visually-hidden/ );
+		expect( screen.getByText( 'Visitors' ) ).not.toHaveClass( /visually-hidden/ );
+	} );
+
+	it.each( [
+		[ 'spreads six cards over two even rows', 999, '3' ],
+		[ 'keeps six cards on one row when they fit', 1000, '6' ],
+	] )( '%s', ( _case, width, columns ) => {
+		setMockChartWidth( width );
+		const metrics = [ 'a', 'b', 'c', 'd', 'e', 'f' ].map( key => ( {
+			...METRIC,
+			key,
+			label: key,
+		} ) );
+
+		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } /> );
+
+		expect(
+			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-metric-tabs-columns' )
+		).toBe( columns );
+	} );
+
+	it( 'spells the figure out in the dropdown, which has room for it', () => {
+		setMockChartWidth( 100 );
+		const compact = { type: 'number' as const, options: { useMultipliers: true } };
+
+		render(
+			<MetricTabsChart
+				metrics={ [ { ...VIEWS, value: 12345, dataFormat: compact }, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+
+		const trigger = screen.getByRole( 'combobox' );
+		expect( trigger ).toHaveTextContent( '12,345' );
+		expect( trigger ).not.toHaveTextContent( '12.3K' );
 	} );
 
 	it( 'draws a bar chart when chartType is bar', () => {
@@ -180,6 +258,34 @@ describe( 'MetricTabsChart', () => {
 		);
 	} );
 
+	it.each( [
+		[ 'single-metric', 'line', mockLineSpy, [ METRIC ] ],
+		[ 'single-metric', 'bar', mockBarSpy, [ METRIC ] ],
+		[ 'tabbed', 'line', mockLineSpy, [ METRIC, VISITORS ] ],
+		[ 'tabbed', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
+		[ 'dropdown', 'line', mockLineSpy, [ METRIC, VISITORS ] ],
+		[ 'dropdown', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
+	] as const )( 'passes chartTitle to the %s %s chart', ( layout, type, spy, metrics ) => {
+		if ( layout === 'dropdown' ) {
+			setMockChartWidth( 100 );
+		}
+
+		render(
+			<MetricTabsChart
+				metrics={ [ ...metrics ] }
+				dataFormat={ DATA_FORMAT }
+				chartType={ type }
+				chartTitle="Traffic summary"
+			/>
+		);
+
+		expect( screen.queryByRole( 'tablist' ) !== null ).toBe( layout === 'tabbed' );
+		expect( screen.queryByRole( 'combobox' ) !== null ).toBe( layout === 'dropdown' );
+		expect( spy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { chartTitle: 'Traffic summary' } )
+		);
+	} );
+
 	it( 'keeps the previous period as a same-group comparison series in both chart types', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
@@ -191,6 +297,17 @@ describe( 'MetricTabsChart', () => {
 			expect( series[ 1 ].options?.type ).toBe( 'comparison' );
 			expect( series[ 1 ].data ).toEqual( METRIC.previous );
 		}
+	} );
+
+	it.each( [
+		[ 'keeps a comparison the tab placed by period', true, true ],
+		[ 'leaves a comparison placed by position to the chart', undefined, undefined ],
+	] )( '%s', ( _name, previousAligned, aligned ) => {
+		render(
+			<MetricTabsChart metrics={ [ { ...METRIC, previousAligned } ] } dataFormat={ DATA_FORMAT } />
+		);
+
+		expect( recordedSeries( mockLineSpy )[ 1 ].aligned ).toBe( aligned );
 	} );
 
 	it( 'omits the transparent gradient for bars, which would erase the shadow bar', () => {
@@ -219,6 +336,26 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.getAllByText( reason ) ).toHaveLength( 2 );
 		// The headline stands down to a placeholder rather than reporting a total
 		// the endpoint never returned.
+		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'draws the previous period under a headline with no value', () => {
+		render(
+			<MetricTabsChart
+				metrics={ [
+					{
+						...METRIC,
+						value: null,
+						current: METRIC.current.map( point => ( { ...point, value: null } ) ),
+					},
+				] }
+				dataFormat={ DATA_FORMAT }
+				empty={ <p>Nothing in this window.</p> }
+			/>
+		);
+
+		expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No data' ) ).toBeInTheDocument();
 		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
 	} );
 
@@ -464,6 +601,63 @@ describe( 'MetricTabsChart', () => {
 		expect( legendInteractive ).toBe( true );
 	} );
 
+	it( 'renames the comparison without touching what keeps the counterpart hidden', () => {
+		const chart = ( reportParams: ReportParams ) => (
+			<WidgetRootContext.Provider value={ { reportParams } }>
+				<MetricTabsChart
+					metrics={ [ { ...VIEWS, counterpartHidden: true }, VISITORS ] }
+					dataFormat={ DATA_FORMAT }
+				/>
+			</WidgetRootContext.Provider>
+		);
+
+		const { rerender } = render(
+			chart( comparedWith( 'previous-year', '2025-10-05', '2025-10-11' ) )
+		);
+		const before = recordedPropsFor( mockLineSpy, 'Views' );
+
+		rerender( chart( comparedWith( 'previous-period', '2026-09-28', '2026-10-04' ) ) );
+		const after = recordedPropsFor( mockLineSpy, 'Views' );
+
+		expect( [ before.comparisonLabel, after.comparisonLabel ] ).toEqual( [
+			'2025',
+			'Prev. 7 days',
+		] );
+		expect( after.chartId ).toBe( before.chartId );
+		expect( after.series.map( item => item.label ) ).toEqual(
+			before.series.map( item => item.label )
+		);
+		expect( after.defaultHiddenSeries ).toEqual( [ 'Visitors', 'Visitors · previous period' ] );
+	} );
+
+	it.each( [
+		[ 'bar chart', mockBarSpy, [ VIEWS, VISITORS ], 'bar', undefined, [ 0, 2 ] ],
+		[ 'narrow dropdown layout', mockLineSpy, [ VIEWS, VISITORS ], undefined, 100, [ 1, 0 ] ],
+		[ 'single metric', mockLineSpy, [ VIEWS ], undefined, undefined, [ 0, 0 ] ],
+	] as const )(
+		"hands the widget's comparison name to the %s",
+		( _layout, spy, metrics, chartType, width, [ selects, tabs ] ) => {
+			setMockChartWidth( width );
+			render(
+				<WidgetRootContext.Provider
+					value={ { reportParams: comparedWith( 'previous-year', '2025-10-05', '2025-10-11' ) } }
+				>
+					<MetricTabsChart
+						metrics={ [ ...metrics ] }
+						dataFormat={ DATA_FORMAT }
+						chartType={ chartType }
+					/>
+				</WidgetRootContext.Provider>
+			);
+
+			expect( [
+				screen.queryAllByRole( 'combobox' ).length,
+				screen.queryAllByRole( 'tab' ).length,
+			] ).toEqual( [ selects, tabs ] );
+			expect( recordedPropsFor( spy, 'Views' ).comparisonLabel ).toBe( '2025' );
+		}
+	);
+
 	it( 'swaps the pair around when the reader picks the counterpart', () => {
 		render( <MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } /> );
 
@@ -478,6 +672,85 @@ describe( 'MetricTabsChart', () => {
 		expect( after.series[ 2 ].label ).toBe( 'Views' );
 		// Each metric gets its own visibility bucket in the charts provider.
 		expect( after.chartId ).not.toBe( before.chartId );
+	} );
+
+	it.each( [
+		[
+			'a line in the accent, its counterpart in a dark shade',
+			'line',
+			mockLineSpy,
+			[ 'Views', 'Visitors' ],
+			[ '#3858E9', '#3858E9', '#1c2c75', '#1c2c75' ],
+		],
+		[
+			'overlapping bars, the larger metric behind, both left to the chart to tone, the previous period in grays',
+			'bar',
+			mockBarSpy,
+			[ 'Views', 'Views' ],
+			[
+				undefined,
+				'#cccccc',
+				undefined,
+				'var(--wpds-color-foreground-content-neutral-weak, #707070)',
+			],
+		],
+	] as const )(
+		'draws the selected metric and its counterpart as %s',
+		async ( _case, chartType, spy, [ viewsFirst, visitorsFirst ], expected ) => {
+			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? '#3858E9' : '#5AA61B' } ) );
+			const user = userEvent.setup();
+			render(
+				<MetricTabsChart
+					metrics={ [ VIEWS, VISITORS ] }
+					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+				/>
+			);
+			const strokes = ( label: string ) =>
+				recordedPropsFor( spy, label ).series.map( series => series.options?.stroke );
+
+			expect( strokes( viewsFirst ) ).toEqual( expected );
+			await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
+			expect( strokes( visitorsFirst ) ).toEqual( expected );
+		}
+	);
+
+	it( 'draws overlap bars that name the picked metric, its seeded-hidden counterpart still hidden', async () => {
+		const user = userEvent.setup();
+		render(
+			<MetricTabsChart
+				metrics={ [ VIEWS, { ...VISITORS, counterpartHidden: true } ] }
+				dataFormat={ DATA_FORMAT }
+				chartType="bar"
+			/>
+		);
+		await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
+
+		expect( recordedPropsFor( mockBarSpy, 'Views' ) ).toMatchObject( {
+			layout: 'overlap',
+			primarySeries: 'Visitors',
+			defaultHiddenSeries: [ 'Views', expect.stringContaining( 'Views' ) ],
+		} );
+	} );
+
+	it.each( [
+		[
+			'in the full accent and the solid gray in a chart without pairs',
+			[ METRIC ],
+			[ '#3858E9', 'var(--wpds-color-stroke-surface-neutral-strong, #8d8d8d)' ],
+		],
+		[
+			'in the front metric shade and dark gray in a chart that pairs other metrics',
+			[ { ...METRIC, key: 'comments' }, VIEWS, VISITORS ],
+			[ mockOverlapBarColor( 1 ), 'var(--wpds-color-foreground-content-neutral-weak, #707070)' ],
+		],
+	] )( 'draws a metric alone %s', ( _case, metrics, strokes ) => {
+		setMockElementStyles( () => ( { color: '#3858E9' } ) );
+		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } chartType="bar" /> );
+
+		expect(
+			recordedPropsFor( mockBarSpy, 'Views' ).series.map( series => series.options?.stroke )
+		).toEqual( strokes );
 	} );
 
 	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views

@@ -25,8 +25,6 @@ require_once __DIR__ . '/../../src/widget-availability.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_availability
  * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_environment
  * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types
- * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_plugin
- * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_plugin_gated_widget_types
  * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_capability
  * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_capability_gated_widget_types
  */
@@ -37,8 +35,6 @@ require_once __DIR__ . '/../../src/widget-availability.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_availability' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_environment' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_plugin' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_plugin_gated_widget_types' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_capability' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_capability_gated_widget_types' )]
 class Widget_Availability_Test extends BaseTestCase {
@@ -54,7 +50,6 @@ class Widget_Availability_Test extends BaseTestCase {
 		Cache::clear();
 		$GLOBALS['jpa_test_wpcom_features'] = array();
 		delete_option( 'jetpack_active_modules' );
-		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 
 		parent::tear_down();
@@ -88,10 +83,6 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'traffic',
 			),
 			array(
-				'name'     => 'jpa/plan-usage',
-				'category' => 'stats',
-			),
-			array(
 				'name'     => 'jpa/total-views',
 				'category' => 'stats',
 			),
@@ -115,75 +106,28 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Candidate set spanning the commerce categories and an ungated one.
+	 * Candidate set spanning every store-report and Stats category, plus an ungated one.
 	 *
 	 * @return array[] List of widget candidates.
 	 */
-	private function commerce_widget_candidates() {
+	private function capability_widget_candidates() {
 		return array(
 			array(
 				'name'     => 'jpa/traffic-chart',
 				'category' => 'traffic',
 			),
 			array(
-				'name'     => 'jpa/store-performance',
-				'category' => 'store',
+				'name'     => 'jpa/top-posts',
+				'category' => 'stats',
 			),
 			array(
-				'name'     => 'jpa/orders-over-time',
-				'category' => 'orders',
+				'name'     => 'jpa/subscribers-chart',
+				'category' => 'subscribers',
 			),
 			array(
-				'name'     => 'jpa/sales-by-coupon-usage',
-				'category' => 'coupons',
+				'name'     => 'jpa/hello-world',
+				'category' => 'demo',
 			),
-			array(
-				'name'     => 'jpa/bookings-over-time',
-				'category' => 'bookings',
-			),
-		);
-	}
-
-	/**
-	 * Candidate set spanning every store-report category, plus one served from
-	 * elsewhere.
-	 *
-	 * @return array[] List of widget candidates.
-	 */
-	private function store_report_widget_candidates() {
-		return array_merge(
-			$this->commerce_widget_candidates(),
-			array(
-				array(
-					'name'     => 'jpa/visitors-over-time',
-					'category' => 'visitors',
-				),
-			)
-		);
-	}
-
-	/**
-	 * Candidate set spanning every store-report and Stats category, plus an ungated one.
-	 *
-	 * @return array[] List of widget candidates.
-	 */
-	private function capability_widget_candidates() {
-		return array_merge(
-			$this->store_report_widget_candidates(),
-			array(
-				array(
-					'name'     => 'jpa/top-posts',
-					'category' => 'stats',
-				),
-				array(
-					'name'     => 'jpa/subscribers-chart',
-					'category' => 'subscribers',
-				),
-				array(
-					'name'     => 'jpa/hello-world',
-					'category' => 'demo',
-				),
-			)
 		);
 	}
 
@@ -223,14 +167,6 @@ class Widget_Availability_Test extends BaseTestCase {
 	 */
 	public function test_type_policy_keeps_file_downloads_on_simple() {
 		$this->assertContains( 'jpa/file-downloads', $this->available_names( true ) );
-	}
-
-	/**
-	 * Plan usage is held back regardless of host or features.
-	 */
-	public function test_type_policy_removes_plan_usage_everywhere() {
-		$this->assertNotContains( 'jpa/plan-usage', $this->available_names( false, false ) );
-		$this->assertNotContains( 'jpa/plan-usage', $this->available_names( true, true ) );
 	}
 
 	/**
@@ -337,19 +273,8 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Every held plan-usage type names a real manifest, so a renamed or moved widget
-	 * cannot lift the hold while the absence assertions above stay green.
-	 */
-	public function test_plan_usage_widget_types_match_the_manifest() {
-		$names = $this->manifest_widget_names();
-
-		foreach ( PLAN_USAGE_WIDGET_TYPES as $held ) {
-			$this->assertContains( $held, $names, "$held is held back but no manifest declares it." );
-		}
-	}
-
-	/**
-	 * Same guard for the held period widgets: each names a real manifest.
+	 * Every held period type names a real manifest, so a renamed or moved widget
+	 * cannot lift the hold while the absence assertions stay green.
 	 */
 	public function test_period_widget_types_match_the_manifest() {
 		$names = $this->manifest_widget_names();
@@ -522,66 +447,19 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Without WooCommerce (and thus without its Bookings extension), every
-	 * commerce category is dropped; the rest pass through.
-	 */
-	public function test_commerce_widgets_removed_without_woocommerce() {
-		$names = array_column( remove_plugin_gated_widget_types( $this->commerce_widget_candidates(), false, false ), 'name' );
-
-		$this->assertSame( array( 'jpa/traffic-chart' ), $names, 'Without WooCommerce only ungated categories remain.' );
-	}
-
-	/**
-	 * With WooCommerce but no Bookings extension, only `bookings` is dropped.
-	 */
-	public function test_bookings_widgets_removed_without_bookings_plugin() {
-		$names = array_column( remove_plugin_gated_widget_types( $this->commerce_widget_candidates(), true, false ), 'name' );
-
-		$this->assertNotContains( 'jpa/bookings-over-time', $names, 'Bookings widgets must be hidden without the Bookings extension.' );
-		$this->assertContains( 'jpa/store-performance', $names, 'Store widgets only need WooCommerce.' );
-		$this->assertContains( 'jpa/orders-over-time', $names, 'Orders widgets only need WooCommerce.' );
-		$this->assertContains( 'jpa/sales-by-coupon-usage', $names, 'Coupons widgets only need WooCommerce.' );
-	}
-
-	/**
-	 * With both plugins available, everything passes through.
-	 */
-	public function test_commerce_widgets_kept_with_both_plugins() {
-		$this->assertSame(
-			$this->commerce_widget_candidates(),
-			remove_plugin_gated_widget_types( $this->commerce_widget_candidates(), true, true ),
-			'With WooCommerce and Bookings available no candidate is dropped.'
-		);
-	}
-
-	/**
-	 * Candidates without a category are never plugin-gated.
-	 */
-	public function test_uncategorized_widgets_pass_through() {
-		$candidates = array( array( 'name' => 'jpa/no-category' ) );
-
-		$this->assertSame(
-			$candidates,
-			remove_plugin_gated_widget_types( $candidates, false, false ),
-			'A candidate without a category must not be plugin-gated.'
-		);
-	}
-
-	/**
 	 * Each reader keeps the categories whose reports they can fetch, and nothing else.
 	 *
 	 * @dataProvider provide_capability_gated_readers
 	 *
-	 * @param bool     $can_view_store_reports Whether the reader may see the store reports.
-	 * @param bool     $can_view_stats         Whether the reader may see the Stats reports.
-	 * @param string[] $expected               Names that survive.
+	 * @param bool     $can_view_stats Whether the reader may see the Stats reports.
+	 * @param string[] $expected       Names that survive.
 	 */
 	#[DataProvider( 'provide_capability_gated_readers' )]
-	public function test_capability_gated_widgets_follow_the_reader( $can_view_store_reports, $can_view_stats, $expected ) {
+	public function test_capability_gated_widgets_follow_the_reader( $can_view_stats, $expected ) {
 		$this->assertSame(
 			$expected,
 			array_column(
-				remove_capability_gated_widget_types( $this->capability_widget_candidates(), $can_view_store_reports, $can_view_stats ),
+				remove_capability_gated_widget_types( $this->capability_widget_candidates(), $can_view_stats ),
 				'name'
 			)
 		);
@@ -590,17 +468,12 @@ class Widget_Availability_Test extends BaseTestCase {
 	/**
 	 * Readers by the reports they may see.
 	 *
-	 * @return array<string, array{bool, bool, string[]}>
+	 * @return array<string, array{bool, string[]}>
 	 */
 	public static function provide_capability_gated_readers() {
-		$stats = array( 'jpa/traffic-chart', 'jpa/top-posts', 'jpa/subscribers-chart' );
-		$store = array( 'jpa/store-performance', 'jpa/orders-over-time', 'jpa/sales-by-coupon-usage', 'jpa/bookings-over-time', 'jpa/visitors-over-time' );
-
 		return array(
-			'administrator'  => array( true, true, array( 'jpa/traffic-chart', 'jpa/store-performance', 'jpa/orders-over-time', 'jpa/sales-by-coupon-usage', 'jpa/bookings-over-time', 'jpa/visitors-over-time', 'jpa/top-posts', 'jpa/subscribers-chart', 'jpa/hello-world' ) ),
-			'stats reader'   => array( false, true, array_merge( $stats, array( 'jpa/hello-world' ) ) ),
-			'shop manager'   => array( true, false, array_merge( $store, array( 'jpa/hello-world' ) ) ),
-			'neither report' => array( false, false, array( 'jpa/hello-world' ) ),
+			'stats reader' => array( true, array( 'jpa/traffic-chart', 'jpa/top-posts', 'jpa/subscribers-chart', 'jpa/hello-world' ) ),
+			'shop manager' => array( false, array( 'jpa/hello-world' ) ),
 		);
 	}
 
@@ -621,7 +494,7 @@ class Widget_Availability_Test extends BaseTestCase {
 		wp_set_current_user( $shop_manager );
 
 		$this->assertSame(
-			array( 'jpa/store-performance', 'jpa/orders-over-time', 'jpa/sales-by-coupon-usage', 'jpa/bookings-over-time', 'jpa/visitors-over-time', 'jpa/hello-world' ),
+			array( 'jpa/hello-world' ),
 			array_column(
 				filter_registrable_widget_types_by_capability( $this->capability_widget_candidates() ),
 				'name'
@@ -689,24 +562,6 @@ class Widget_Availability_Test extends BaseTestCase {
 
 		$this->assertContains( 'jpa/file-downloads', $names );
 		$this->assertContains( 'jpa/shares', $names );
-		$this->assertNotContains( 'jpa/plan-usage', $names, 'The plan-usage hold applies on Simple too.' );
-	}
-
-	/**
-	 * The registry-time callback follows the store section's availability
-	 * signal, so forcing the section visible also surfaces its widgets.
-	 */
-	public function test_registry_filter_callback_follows_section_availability() {
-		$this->assertFalse( is_woocommerce_dashboard_section_available(), 'The test environment must not have WooCommerce loaded.' );
-
-		$names = array_column( filter_registrable_widget_types_by_plugin( $this->commerce_widget_candidates() ), 'name' );
-		$this->assertSame( array( 'jpa/traffic-chart' ), $names, 'Without WooCommerce the callback drops every commerce category.' );
-
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-
-		$names = array_column( filter_registrable_widget_types_by_plugin( $this->commerce_widget_candidates() ), 'name' );
-		$this->assertContains( 'jpa/store-performance', $names, 'Forcing the section available must surface the store widgets.' );
-		$this->assertNotContains( 'jpa/bookings-over-time', $names, 'Bookings widgets still require the Bookings extension.' );
 	}
 
 	/**

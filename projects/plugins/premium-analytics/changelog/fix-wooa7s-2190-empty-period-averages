@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooCommerce: Show no value, rather than 0 with a -100% change, for store averages and conversion rate over a period with no orders or sessions.

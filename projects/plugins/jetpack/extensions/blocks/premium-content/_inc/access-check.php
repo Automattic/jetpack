@@ -58,6 +58,10 @@ function pre_render_checks() {
  * @return bool Whether the user can edit.
  */
 function current_user_can_edit() {
+	if ( is_rendering_for_activitypub() ) {
+		return false;
+	}
+
 	$user = wp_get_current_user();
 
 	return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
@@ -225,6 +229,11 @@ function prewarm_premium_content_session_cookie() {
  * @return bool Whether the use can view the content.
  */
 function current_visitor_can_access( $attributes, $block ) {
+	// The ActivityPub copy is public, so a subscriber token on the request must not unlock it.
+	if ( is_rendering_for_activitypub() ) {
+		return false;
+	}
+
 	/**
 	 * If the current WordPress install has as signed in user
 	 * they can see the content.
@@ -271,7 +280,7 @@ function current_visitor_can_access( $attributes, $block ) {
  *
  * Playback callers must use visitor_has_subscription_access_to_plan_ids() to exclude editorial access.
  *
- * @since $$next-version$$
+ * @since 16.4
  *
  * @param array    $selected_plan_ids Plan ids the content is gated behind.
  * @param int|null $post_id           Post the gated content belongs to. Defaults to the loop post, so
@@ -286,7 +295,7 @@ function visitor_can_access_plan_ids( $selected_plan_ids, $post_id = null ) {
 /**
  * Check the required plans without granting access for editing the embedding post.
  *
- * @since $$next-version$$
+ * @since 16.4
  *
  * @param array    $selected_plan_ids Required plan IDs from the stored content.
  * @param int|null $post_id           Post to check, or the loop post when omitted.
@@ -299,7 +308,7 @@ function visitor_has_subscription_access_to_plan_ids( $selected_plan_ids, $post_
 /**
  * Evaluate subscription plans for rendering or strict playback authorization.
  *
- * @since $$next-version$$
+ * @since 16.4
  *
  * @param array    $selected_plan_ids   Required subscription plan IDs.
  * @param int|null $post_id             Post to check.

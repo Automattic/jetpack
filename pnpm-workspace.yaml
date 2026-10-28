@@ -38,6 +38,8 @@ minimumReleaseAgeExclude:
   - '@wordpress/*'
   - 'gridicons'
   - 'wpcom-proxy-request'
+  # Renovate security update: zod@4.6.6
+  - zod@4.6.6
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
@@ -57,8 +59,6 @@ allowBuilds:
   unrs-resolver: false
   # Tries to rebuild itself if an environment variable is set.
   '@parcel/watcher': false
-  # Attempt to show "remember to install other stuff" spam.
-  svelte-preprocess: false
   # Attempt to show "support me" spam.
   core-js: false
   core-js-pure: false
@@ -79,10 +79,6 @@ audit:
 
 # Dependencies needing patching.
 patchedDependencies:
-
-  # Vite/esbuild doesn't like the `__esModule` + `exports["default"]` pattern, it winds up double-wrapping the default.
-  # See also https://github.com/WordPress/gutenberg/issues/39619
-  react-autosize-textarea: .pnpm-patches/react-autosize-textarea.patch
 
   # The wp-admin page template delegates boot init modules to initSinglePage(),
   # but WordPress cores bundling an older @wordpress/boot (e.g. WP 7.0) ignore

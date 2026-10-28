@@ -1,5 +1,12 @@
 import { DataViews } from '@wordpress/dataviews';
-import { createContext, useCallback, useContext, useEffect, useMemo } from '@wordpress/element';
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+} from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
@@ -12,11 +19,14 @@ import {
 	rotateLeft,
 } from '@wordpress/icons';
 import { Badge, Card, Link, Stack, Text } from '@wordpress/ui';
+import { containingBackup } from '../../data/api/known-threats';
 import { formatDuration } from '../../data/durations';
 import { formatStorageSize } from '../../data/storage-units';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-activity-log';
 import { useBackupRuns, type BackupRunLookup } from '../../hooks/use-backup-runs';
+import { useBackupsKnownThreats } from '../../hooks/use-known-threats';
 import { isBackupItem } from '../../types/activity';
+import { KnownThreatsBadgeWithWarning } from '../known-threats/badge';
 import QueryError from '../query-error';
 import { formatRowDate } from './row-date';
 import { useNewBackupRow } from './use-new-backup-row';
@@ -140,6 +150,28 @@ function TitleCell( { item, isNew }: { item: ActivityItem; isNew: boolean } ) {
 }
 
 /**
+ * A backup's size and duration as one line, in whichever of the two is known.
+ *
+ * @param run - The backup's run.
+ * @return The line, or an empty string when neither is known.
+ */
+function runMeta( run: NonNullable< ReturnType< BackupRunLookup > > ): string {
+	const parts = [
+		run.siteSize !== null && formatStorageSize( run.siteSize ),
+		run.duration !== null && formatDuration( run.duration, 'short' ),
+	].filter( ( part ): part is string => Boolean( part ) );
+
+	return parts.length === 2
+		? sprintf(
+				/* translators: %1$s and %2$s: two facts about one backup, such as its size and how long it took. */
+				__( '%1$s · %2$s', 'jetpack-backup-pkg' ),
+				parts[ 0 ],
+				parts[ 1 ]
+			)
+		: ( parts[ 0 ] ?? '' );
+}
+
+/**
  * Descriptions cell — single muted line with the timestamp, a backup's
  * size and duration once known, and the optional summary.
  *
@@ -151,19 +183,14 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 	const runFor = useContext( BackupRunsContext );
 	const run = isBackupItem( item ) ? runFor( item ) : null;
 	return (
-		<Stack direction="row" align="center" gap="md">
+		<Stack direction="row" align="center" gap="md" className="jpb-activity-list__description">
 			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
 				{ rowDate( item ) }
 			</Text>
 			{ /* Before the summary, which is the part that truncates. */ }
 			{ run && (
 				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__run">
-					{ [
-						run.siteSize !== null && formatStorageSize( run.siteSize ),
-						run.duration !== null && formatDuration( run.duration, 'short' ),
-					]
-						.filter( Boolean )
-						.join( ' · ' ) }
+					{ runMeta( run ) }
 				</Text>
 			) }
 			{ /*
@@ -177,6 +204,25 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 			) }
 		</Stack>
 	);
+}
+
+/**
+ * Known-threats cell — the badge for a backup with known threats. A field of its own, below the
+ * description: DataViews describes each row's button with its fields, so screen readers hear it.
+ *
+ * @param props      - Component props.
+ * @param props.item - The activity item.
+ * @return The badge, or null when the backup has none.
+ */
+function KnownThreatsCell( { item }: { item: ActivityItem } ) {
+	const { data: knownThreats } = useBackupsKnownThreats();
+	const flagged = isBackupItem( item )
+		? ( containingBackup( knownThreats, item.rewindId )?.knownThreats?.flagged ?? 0 )
+		: 0;
+	if ( flagged === 0 ) {
+		return null;
+	}
+	return <KnownThreatsBadgeWithWarning count={ flagged } />;
 }
 
 /**
@@ -269,19 +315,24 @@ export default function ActivityList( {
 		}
 	}, [ isFetching, isPaused, error, totalPages, page, view, onChangeView ] );
 
+	// Where focus goes once a successful retry takes the error, and its button, away.
+	const headingRef = useRef< HTMLHeadingElement >( null );
+
 	// DataViews shows its own "No results" whenever `data` is empty, and a
 	// failed request leaves it empty — so without this a 5xx tells the
 	// reader their site has no activity. The `empty` slot is the same node
 	// that copy renders in, so replacing it puts the reason exactly where
-	// the wrong answer used to be.
-	const failure = error ? (
-		<QueryError
-			title={ __( "We couldn't load your site's activity.", 'jetpack-backup-pkg' ) }
-			error={ error }
-			onRetry={ refetch }
-			isRetrying={ isFetching }
-		/>
-	) : undefined;
+	// the wrong answer used to be. Overview reports a log that never answered.
+	const failure =
+		error && totalPages !== null ? (
+			<QueryError
+				title={ __( "We couldn't load your site's activity.", 'jetpack-backup-pkg' ) }
+				error={ error }
+				onRetry={ refetch }
+				isRetrying={ isFetching }
+				returnFocusTo={ headingRef }
+			/>
+		) : undefined;
 
 	// A stale page DataViews kept, or a merged restore row, leaves the `empty`
 	// slot unrendered — so a failure then needs somewhere else to report from.
@@ -320,6 +371,15 @@ export default function ActivityList( {
 				getValue: ( { item } ) =>
 					`${ rowDate( item ) }${ item.summary ? ` ${ item.summary }` : '' }`,
 				enableHiding: false,
+				filterBy: false,
+			},
+			{
+				id: 'knownThreats',
+				// Read before the badge, and hidden with it on rows without one.
+				label: __( 'Warning', 'jetpack-backup-pkg' ),
+				render: KnownThreatsCell,
+				enableHiding: false,
+				enableSorting: false,
 				filterBy: false,
 			},
 		],
@@ -396,7 +456,7 @@ export default function ActivityList( {
 						className="jpb-activity-list__toolbar"
 					>
 						<Stack direction="column" gap="xs" className="jpb-activity-list__heading">
-							<Text variant="heading-lg" render={ <h2 /> }>
+							<Text variant="heading-lg" render={ <h2 /> } ref={ headingRef } tabIndex={ -1 }>
 								{ __( 'Latest backups', 'jetpack-backup-pkg' ) }
 							</Text>
 							<Text variant="body-sm" className="jpb-text-muted">

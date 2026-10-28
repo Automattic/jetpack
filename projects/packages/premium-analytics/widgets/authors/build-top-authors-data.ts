@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { toAuthorId } from '@jetpack-premium-analytics/data';
 import {
 	calculateDelta,
 	getCombinedPeriodMax,
@@ -44,6 +45,8 @@ export interface AuthorPost {
  */
 export interface AuthorLeaderboardRow {
 	id: string;
+	/** The author's user ID for the author page; `0` or absent when the row names no single author. */
+	authorId?: number;
 	label: string;
 	avatarUrl: string | null;
 	currentValue: number;
@@ -123,6 +126,7 @@ export function buildTopAuthorsData(
 
 		return {
 			id: author.key,
+			authorId: toAuthorId( author.id ?? undefined ),
 			label: getAuthorLabel( author ),
 			avatarUrl: author.icon ?? null,
 			currentValue: author.views,

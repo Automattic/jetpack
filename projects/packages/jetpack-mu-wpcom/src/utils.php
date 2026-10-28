@@ -9,6 +9,48 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
+ * Whether the site has a plan that grants the Big Sky feature.
+ *
+ * Simple reads the platform feature, and also counts the legacy Big Sky free trial,
+ * which has no plan. Atomic asks Jetpack's Current_Plan, which resolves through the
+ * platform plan features. Without either source the answer is true, which falls back to
+ * the option alone, so a host that cannot tell is not locked out.
+ *
+ * @return bool
+ */
+function wpcom_site_has_wordpress_agent_plan(): bool {
+	if ( function_exists( 'big_sky_is_available_for_site' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded above.
+		return (bool) big_sky_is_available_for_site() || wpcom_has_blog_sticker( 'big-sky-free-trial', get_wpcom_blog_id() );
+	}
+
+	if ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ) {
+		return \Automattic\Jetpack\Current_Plan::supports( 'big-sky' );
+	}
+
+	return true;
+}
+
+/**
+ * Whether the WordPress Agent is enabled on this site.
+ *
+ * Simple combines the platform state with the saved option; Atomic reads the option.
+ * Both also need a plan that grants Big Sky, so a site downgraded to Free, which
+ * keeps its sticker and option, falls back to the Jetpack AI panel.
+ *
+ * @return bool
+ */
+function wpcom_is_wordpress_agent_enabled(): bool {
+	// The plan check is the costly one, so it goes last.
+	if ( function_exists( 'big_sky_is_enabled' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded above.
+		return (bool) get_option( 'big_sky_enable', '1' ) && (bool) big_sky_is_enabled() && wpcom_site_has_wordpress_agent_plan();
+	}
+
+	return (bool) get_option( 'big_sky_enable', '0' ) && wpcom_site_has_wordpress_agent_plan();
+}
+
+/**
  * Whether the site is fully managed agency site.
  *
  * @return bool True if the site is fully managed agency site.
@@ -89,8 +131,6 @@ function wpcom_get_calypso_origin() {
 		'https://wordpress.com',
 		'http://my.localhost:3000',
 		'https://my.wordpress.com',
-		'http://my.woo.localhost:3000',
-		'https://my.woo.ai',
 	);
 	return in_array( $origin, $allowed, true ) ? $origin : 'https://wordpress.com';
 }

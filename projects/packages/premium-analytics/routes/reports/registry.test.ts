@@ -104,6 +104,11 @@ describe( 'REPORTS', () => {
 		return grouped;
 	}
 
+	// `isPostDetailAvailable()` checks only the tab, so a gate here would send post links to a redirect.
+	it( 'gates the posts report by its tab alone', () => {
+		expect( REPORTS.posts.isAvailable ).toBeUndefined();
+	} );
+
 	it( 'keys every report by its own id', () => {
 		const misKeyed = Object.entries( REPORTS )
 			.filter( ( [ key, { id } ] ) => key !== id )
@@ -123,11 +128,12 @@ describe( 'REPORTS', () => {
 				'locations',
 				'posts',
 				'search-terms',
+				'tags',
 				'videos',
 				'utm',
 				'referrers',
 			],
-			insights: [ 'annual-insights', 'comments', 'tags' ],
+			insights: [ 'annual-insights', 'comments' ],
 			subscribers: [ 'comment-followers', 'emails' ],
 			ads: [ 'earnings' ],
 		} );

@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Dialog, Stack } from '@wordpress/ui';
 import { tailor } from '../lib/tailor.ts';
@@ -37,6 +37,8 @@ interface Props {
 	uiLocale?: string;
 	// The site-language copy the fallback drafts are written from.
 	copy: SiteCopy;
+	// Whether the site was built with AI, which changes the fallback list.
+	aiBuilt?: boolean;
 	// Fired once Finish completes, with the persisted input and the in-flight
 	// tailor promise, so the host can swap to the tailored list.
 	onComplete?: ( input: WizardInput, tailoring: Promise< TailorResult > ) => void;
@@ -52,6 +54,7 @@ interface Props {
  * @param props.locale          - Site language forwarded to the payload.
  * @param props.uiLocale        - Account language the task subtitles are written in.
  * @param props.copy            - Site-language copy for the fallback drafts.
+ * @param props.aiBuilt         - Whether the site was built with AI, which changes the fallback list.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
  */
@@ -61,6 +64,7 @@ export function Wizard( {
 	locale = 'en',
 	uiLocale = locale,
 	copy,
+	aiBuilt = false,
 	onComplete,
 }: Props ) {
 	const [ step, setStep ] = useState< WizardStep >( 0 );
@@ -68,6 +72,7 @@ export function Wizard( {
 	const [ siteName, setSiteName ] = useState< string >( initialSiteName );
 	const [ intent, setIntent ] = useState< string >( initialIntent );
 	const [ skipping, setSkipping ] = useState( false );
+	const goalsTitleRef = useRef< HTMLHeadingElement >( null );
 
 	const state: WizardState = { goal, siteName, intent, locale, uiLocale };
 	// The analytics name of the current step, shared by every event that reports one.
@@ -77,6 +82,13 @@ export function Wizard( {
 	useEffect( () => {
 		trackViewed( { step: stepName } );
 	}, [ stepName ] );
+
+	// Back unmounts its own button, so move focus to the goals title instead of losing it to the page.
+	useEffect( () => {
+		if ( step === 0 ) {
+			goalsTitleRef.current?.focus();
+		}
+	}, [ step ] );
 
 	const handleNext = () => {
 		if ( ! isLastStep( step ) ) {
@@ -110,7 +122,7 @@ export function Wizard( {
 			} )
 			.catch( () => {} );
 
-		const tailoring = tailor( payload, copy );
+		const tailoring = tailor( payload, copy, aiBuilt );
 		trackWizardStepCompleted( { step: stepName } );
 		// One event per field the user actually modified, vs the pre-filled values.
 		if ( siteName.trim() !== initialSiteName.trim() ) {
@@ -152,6 +164,7 @@ export function Wizard( {
 			<Dialog.Popup
 				size="medium"
 				className="ai-launchpad-wizard"
+				initialFocus={ goalsTitleRef }
 				portal={ <Dialog.Portal className="ai-launchpad-wizard__portal" /> }
 			>
 				<Dialog.Content>
@@ -164,6 +177,7 @@ export function Wizard( {
 
 					{ step === 0 && (
 						<GoalsStep
+							titleRef={ goalsTitleRef }
 							value={ goal }
 							onChange={ nextGoal => {
 								trackWizardGoalClicked( { goal_clicked: nextGoal } );

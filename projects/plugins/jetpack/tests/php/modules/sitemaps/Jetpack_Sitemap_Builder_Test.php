@@ -307,6 +307,30 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Every URL from the other URLs filter is listed, across batches and sitemap files.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.4
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_other_urls_are_not_skipped_between_batches() {
+		$callback = $this->add_split_page_sitemap_fixture();
+
+		$this->builder->update_sitemap();
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$listed    = array();
+		foreach ( array( 'sitemap-1.xml', 'sitemap-2.xml', 'sitemap-3.xml' ) as $name ) {
+			preg_match_all( '#<loc>([^<]+)</loc>#', (string) $librarian->get_sitemap_text( $name, JP_PAGE_SITEMAP_TYPE ), $matches );
+			$listed = array_merge( $listed, $matches[1] );
+		}
+
+		$this->assertSame( array(), array_values( array_diff( call_user_func( $callback ), $listed ) ), 'URLs missing from the page sitemaps.' );
+	}
+
+	/**
 	 * Enough URLs to spill over JP_SITEMAP_MAX_ITEMS into a second page sitemap.
 	 *
 	 * @return callable The filter callback, so the caller can remove it again.

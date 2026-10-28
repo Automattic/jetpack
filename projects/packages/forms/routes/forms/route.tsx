@@ -1,23 +1,21 @@
 /**
  * WordPress dependencies
  */
-import { resolveSelect } from '@wordpress/data';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { preloadGlobalTabCounts } from '../../src/dashboard/wp-build/utils/preload';
-import { CONFIG_STORE } from '../../src/store/config/index.ts';
+import { waitForConfig } from '../../src/store/config/wait-for-config.ts';
 
 export const route = {
 	/**
 	 * Redirect to responses when Central Form Management is disabled.
 	 */
 	beforeLoad: async () => {
-		const config = await resolveSelect( CONFIG_STORE ).getConfig();
+		const config = await waitForConfig();
 
-		// Absent means the fetch is still in flight, not a disabled flag — see the note on
-		// `isFulfilled` in src/store/config/resolvers.ts.
+		// Null only when the fetch failed, which says nothing about the flag.
 		if ( config && ! config.isCentralFormManagementEnabled ) {
 			throw redirect( { href: '/responses/inbox' } );
 		}

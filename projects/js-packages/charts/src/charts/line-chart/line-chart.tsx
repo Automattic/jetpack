@@ -16,6 +16,7 @@ import {
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { getKeyboardStops } from '../../components/tooltip/private/keyboard-stops';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -272,6 +273,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		const legendInteractive = legend.interactive ?? false;
 		const legendCollapseGroups = legend.collapseGroups ?? false;
 		const legendComparisonItem = legend.comparisonItem ?? false;
+		const legendComparisonSeriesItems = legend.comparisonSeriesItems;
 		const legendShape = legend.shape ?? 'line';
 		const legendPosition = legend.position ?? 'bottom';
 
@@ -335,6 +337,15 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			} ) );
 		}, [ dataSorted, hiddenSeries ] );
 
+		const visibleSeries = useMemo(
+			() => dataSorted.filter( series => isSeriesVisible( series.label ) ),
+			[ dataSorted, isSeriesVisible ]
+		);
+		const visibleSeriesKey = useMemo(
+			() => JSON.stringify( visibleSeries.map( series => series.label ) ),
+			[ visibleSeries ]
+		);
+
 		// Check if all series are hidden
 		const allSeriesHidden = useMemo( () => {
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
@@ -377,18 +388,18 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return min < max ? [ min, max ] : undefined;
 		}, [ rescaleYOnVisibilityChange, dataSorted, isSeriesVisible, options?.yScale ] );
 
-		// Keyboard navigation steps through x positions, and the grouped tooltip
-		// reads every series at that position; the first series names the point.
-		const activateSelectedPoint = useCallback(
-			( index: number ) => {
-				const series = dataSorted[ 0 ];
-				const datum = series?.data[ index ];
+		const stops = useMemo( () => getKeyboardStops( visibleSeries ), [ visibleSeries ] );
 
-				if ( series && datum ) {
-					onDatumActivate?.( { datum, index, key: series.label } );
+		// The grouped tooltip reads every visible series at a stop; the first visible series with a point there names it.
+		const activateSelectedPoint = useCallback(
+			( stop: number ) => {
+				const match = stops.membersAt( stop )[ 0 ];
+
+				if ( match ) {
+					onDatumActivate?.( { datum: match.datum, index: match.index, key: match.series.label } );
 				}
 			},
-			[ dataSorted, onDatumActivate ]
+			[ stops, onDatumActivate ]
 		);
 
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -397,7 +408,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints: dataSorted[ 0 ]?.data.length || 0,
+			totalPoints: stops.count,
+			visibleSeriesKey,
 			onActivate: activateSelectedPoint,
 			preventTooltipScroll: tooltipPlacement === 'below-axis',
 		} );
@@ -423,8 +435,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		}, [ dataSorted, isSeriesVisible ] );
 
 		const hasWholeNumberValues = useMemo(
-			() => hasOnlyWholeNumbers( dataSorted.filter( series => isSeriesVisible( series.label ) ) ),
-			[ dataSorted, isSeriesVisible ]
+			() => hasOnlyWholeNumbers( visibleSeries ),
+			[ visibleSeries ]
 		);
 
 		const chartOptions = useMemo( () => {
@@ -481,12 +493,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		// Classified from the rendered series, like the axis above: a hidden
 		// hourly line must not leave the tooltip naming an hour the axis dropped.
 		const bucketInfo = useMemo(
-			() =>
-				getBucketInfo(
-					dataSorted.filter( series => isSeriesVisible( series.label ) ),
-					options?.axis?.x?.tickResolution
-				),
-			[ dataSorted, isSeriesVisible, options?.axis?.x?.tickResolution ]
+			() => getBucketInfo( visibleSeries, options?.axis?.x?.tickResolution ),
+			[ visibleSeries, options?.axis?.x?.tickResolution ]
 		);
 
 		const tooltipRenderGlyph = useMemo( () => {
@@ -523,6 +531,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
 				collapseGroups: legendCollapseGroups,
 				comparisonItem: legendComparisonItem,
+				comparisonSeriesItems: legendComparisonSeriesItems,
 				renderGlyph,
 			} ),
 			[
@@ -530,6 +539,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				glyphStyle?.radius,
 				legendCollapseGroups,
 				legendComparisonItem,
+				legendComparisonSeriesItems,
 				renderGlyph,
 			]
 		);
@@ -806,7 +816,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													keyboardFocusedClassName={
 														styles[ 'line-chart__tooltip--keyboard-focused' ]
 													}
-													series={ dataSorted }
+													series={ visibleSeries }
 												/>
 											) }
 

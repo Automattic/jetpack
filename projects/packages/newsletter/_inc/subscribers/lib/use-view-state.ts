@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { getScriptData } from '@automattic/jetpack-script-data';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { getBlogId } from './site';
 import type { SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { View } from '@wordpress/dataviews';
 
@@ -117,17 +119,84 @@ function writeViewToUrl( view: View ): URLSearchParams {
 }
 
 /**
+ * `localStorage` key for the remembered page size, per site and per user, or null when either id
+ * is unknown (so nothing is shared across sites or people using one browser).
+ *
+ * @return Storage key, or null.
+ */
+function perPageStorageKey(): string | null {
+	const blogId = getBlogId();
+	const userId = getScriptData()?.user?.current_user?.id;
+	return blogId && userId
+		? `jetpack-newsletter:subscribers-per-page:${ blogId }:${ userId }`
+		: null;
+}
+
+/**
+ * Read the page size the admin last chose, if any.
+ *
+ * @return Remembered page size, or undefined.
+ */
+function readSavedPerPage(): number | undefined {
+	const key = perPageStorageKey();
+	if ( ! key ) {
+		return undefined;
+	}
+	try {
+		const saved = Number( window.localStorage.getItem( key ) );
+		return Number.isFinite( saved ) && saved > 0 ? saved : undefined;
+	} catch {
+		// localStorage can be unavailable (privacy mode, blocked storage).
+		return undefined;
+	}
+}
+
+/**
+ * Remember the page size for the next visit.
+ *
+ * @param perPage - Page size to remember.
+ */
+function savePerPage( perPage: number | undefined ): void {
+	const key = perPageStorageKey();
+	if ( ! key || ! perPage ) {
+		return;
+	}
+	try {
+		window.localStorage.setItem( key, String( perPage ) );
+	} catch {
+		// localStorage can be unavailable or full; the URL still carries the choice.
+	}
+}
+
+/**
  * View-state hook with URL persistence. Initializes from `window.location.search` (so back/forward
  * and bookmarks restore the table state) and keeps the URL in sync via `history.replaceState`.
+ * The page size is also remembered per site and user, so a fresh visit without `pp` keeps the last choice.
  *
  * @param defaultView - Fallback view when the URL has no relevant params.
  * @return Tuple of `[view, setView]`, mirroring `useState`.
  */
 export function useViewState( defaultView: View ): [ View, ( next: View ) => void ] {
-	const [ view, setViewState ] = useState< View >( () => ( {
-		...defaultView,
-		...readViewFromUrl(),
-	} ) );
+	const [ view, setViewState ] = useState< View >( () => {
+		const savedPerPage = readSavedPerPage();
+		return {
+			...defaultView,
+			...( savedPerPage ? { perPage: savedPerPage } : {} ),
+			...readViewFromUrl(),
+		};
+	} );
+
+	// Save only sizes the admin picks here, not one that arrived in a shared link's `pp` param. This
+	// runs in the setter rather than an effect, since StrictMode runs effects twice on mount.
+	const setView = useCallback(
+		( next: View ) => {
+			if ( next.perPage !== view.perPage ) {
+				savePerPage( next.perPage );
+			}
+			setViewState( next );
+		},
+		[ view.perPage ]
+	);
 
 	// Sync URL when the view changes — but skip the very first render, since we just hydrated
 	// from the URL and would otherwise trigger an immediate replaceState with the same values.
@@ -144,5 +213,5 @@ export function useViewState( defaultView: View ): [ View, ( next: View ) => voi
 		window.history.replaceState( window.history.state, '', newUrl );
 	}, [ view ] );
 
-	return [ view, setViewState ];
+	return [ view, setView ];
 }

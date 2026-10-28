@@ -1,9 +1,10 @@
 import { useTooltip } from '@visx/tooltip';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { type FC, useRef, useMemo, useEffect, useState, useCallback, useContext } from 'react';
+import { type FC, useRef, useMemo, useState, useCallback, useContext, useId } from 'react';
 import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
-import { usePrefersReducedMotion } from '../../hooks';
+import { useElementSize, usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
@@ -14,29 +15,65 @@ import {
 } from '../../providers';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
-import { formatPercentage } from '../../utils';
+import { formatMetricValue, formatPercentage } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
-import { useFunnelSelection } from './private';
-import type { FunnelStep, ConversionFunnelChartProps } from './types';
+import { useFunnelSelection, useRovingStepFocus } from './private';
+import type { FunnelStep, FunnelTooltipContent, ConversionFunnelChartProps } from './types';
+
+/** Chart height (px) below which the funnel tightens its gaps so the bars keep their room. */
+const SHORT_CHART_HEIGHT = 180;
+
+const formatStepCount = ( count: number ) =>
+	sprintf(
+		/* translators: %s: Number of items that reached the funnel step. */
+		_n( '%s item', '%s items', count, 'jetpack-charts' ),
+		formatMetricValue( count )
+	);
+
+const getDefaultTooltipContent = ( step: FunnelStep ): FunnelTooltipContent => ( {
+	value: step.count === undefined ? undefined : formatStepCount( step.count ),
+	rows: [
+		{ label: __( 'Conversion rate', 'jetpack-charts' ), value: formatPercentage( step.rate ) },
+	],
+} );
+
+const getDefaultTooltipIds = ( tooltipId: string, { rows = [] }: FunnelTooltipContent ) => ( {
+	value: `${ tooltipId }-value`,
+	rows: rows.map( ( _, index ) => ( {
+		label: `${ tooltipId }-row-${ index }-label`,
+		value: `${ tooltipId }-row-${ index }-value`,
+	} ) ),
+} );
+
+// The step's name is its title line, so the description skips it.
+const getDefaultTooltipDescriptionIds = ( tooltipId: string, content: FunnelTooltipContent ) => {
+	const ids = getDefaultTooltipIds( tooltipId, content );
+	return [
+		...( content.value ? [ ids.value ] : [] ),
+		...ids.rows.flatMap( row => [ row.label, row.value ] ),
+	].join( ' ' );
+};
 
 /**
  * Internal ConversionFunnelChart component with chart registration
  *
- * @param props                  - Component props
- * @param props.chartId          - Optional unique identifier for the chart
- * @param props.mainRate         - Main conversion rate to highlight
- * @param props.changeIndicator  - Change indicator (e.g., +2%, -1.5%)
- * @param props.steps            - Array of funnel steps
- * @param props.loading          - Whether the chart is in loading state
- * @param props.animation        - Whether to show chart animation on initial render or not
- * @param props.className        - Additional CSS class name
- * @param props.height           - Height of the chart container. Falls back to style.height if set, otherwise defaults to "100%".
- * @param props.style            - Custom styling
- * @param props.renderStepLabel  - Custom render function for step labels
- * @param props.renderStepRate   - Custom render function for step rates
- * @param props.renderMainMetric - Custom render function for the entire main metric section
- * @param props.renderTooltip    - Custom render function for tooltip content
- * @param props.tooltipStyle     - Inline styles merged over the tooltip box defaults
+ * @param props                   - Component props
+ * @param props.chartId           - Optional unique identifier for the chart
+ * @param props.mainRate          - Main conversion rate to highlight
+ * @param props.changeIndicator   - Change indicator (e.g., +2%, -1.5%)
+ * @param props.steps             - Array of funnel steps
+ * @param props.loading           - Whether the chart is in loading state
+ * @param props.animation         - Whether to show chart animation on initial render or not
+ * @param props.className         - Additional CSS class name
+ * @param props.ariaLabel         - Accessible name for the chart group
+ * @param props.height            - Height of the chart container. Falls back to style.height if set, otherwise defaults to "100%".
+ * @param props.style             - Custom styling
+ * @param props.renderStepLabel   - Custom render function for step labels
+ * @param props.renderStepRate    - Custom render function for step rates
+ * @param props.renderMainMetric  - Custom render function for the entire main metric section
+ * @param props.renderTooltip     - Custom render function for tooltip content
+ * @param props.tooltipStyle      - Inline styles merged over the tooltip box defaults
+ * @param props.getTooltipContent - What each step's tooltip shows, which screen readers also read
  * @return JSX element representing the conversion funnel chart
  */
 const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
@@ -46,6 +83,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	loading = false,
 	animation,
 	className,
+	ariaLabel,
 	chartId: providedChartId,
 	height,
 	style,
@@ -54,167 +92,140 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	renderMainMetric,
 	renderTooltip,
 	tooltipStyle,
+	getTooltipContent = getDefaultTooltipContent,
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { getElementStyles, isColorPaletteResolved } = useGlobalChartsContext();
 	const chartRef = useRef< HTMLDivElement >( null );
-	const selectedBarRef = useRef< HTMLDivElement | null >( null );
+	const isPointerFocusRef = useRef( false );
 	const [ scopeNode, setScopeNode ] = useState< HTMLElement | null >( null );
+	const tooltipId = useId();
 
 	// Use @visx/tooltip hooks for tooltip positioning
 	const { tooltipData, tooltipLeft, tooltipTop, tooltipOpen, showTooltip, hideTooltip } =
 		useTooltip();
 
-	// Use custom hook for selection management
-	const { handleBarClick, handleBarKeyDown, clearSelection, getStepState } =
+	const { selectedStepId, selectStep, clearSelection, getStepState } =
 		useFunnelSelection( hideTooltip );
+	const stepIds = useMemo( () => steps?.map( step => step.id ) ?? [], [ steps ] );
+	const { getTabIndex, setStepElement, handleStepFocus, handleNavigationKey } = useRovingStepFocus(
+		stepIds,
+		selectedStepId
+	);
 	const standaloneScopeClass = useStandaloneScopeClass();
+	const [ measureChartRef, , chartHeight ] = useElementSize< HTMLDivElement >();
+	// A zero height is an unmeasured or hidden chart, not a short one.
+	const isShort = chartHeight > 0 && chartHeight < SHORT_CHART_HEIGHT;
+	const gap = isShort ? 'sm' : 'xl';
 	// Stable identity so React doesn't detach/reattach (and re-render the scope context) on every commit. Keep it firing on unmount (node === null).
-	const setChartRef = useCallback( ( node: HTMLDivElement | null ) => {
-		chartRef.current = node;
-		setScopeNode( node );
-	}, [] );
+	const setChartRef = useCallback(
+		( node: HTMLDivElement | null ) => {
+			chartRef.current = node;
+			setScopeNode( node );
+			measureChartRef( node );
+		},
+		[ measureChartRef ]
+	);
 
-	// Wrapper to clear selectedBarRef after clearing selection
-	const clearSelectionAndRef = useCallback( () => {
-		clearSelection();
-		selectedBarRef.current = null;
-		hideTooltip();
-	}, [ clearSelection, hideTooltip ] );
-
-	// Helper function to show tooltip at specific coordinates
-	const showTooltipAt = useCallback(
+	// Selecting a step shows its tooltip, anchored at the given point relative to the chart root.
+	const selectStepAt = useCallback(
 		( step: FunnelStep, x: number, y: number ) => {
-			showTooltip( {
-				tooltipData: step,
-				tooltipLeft: x,
-				tooltipTop: y - 10,
-			} );
-		},
-		[ showTooltip ]
-	);
-
-	// The chart root positions the tooltip, so coordinates are taken relative to it.
-	const getMouseTooltipCoords = useCallback( ( event: React.MouseEvent ) => {
-		const bounds = chartRef.current?.getBoundingClientRect();
-		if ( ! bounds ) {
-			return null;
-		}
-
-		return {
-			x: event.clientX - bounds.left,
-			y: event.clientY - bounds.top,
-		};
-	}, [] );
-
-	// Keyboard interaction anchors the tooltip at the top centre of the focused step.
-	const getKeyboardTooltipCoords = useCallback( ( event: React.KeyboardEvent ) => {
-		const bounds = chartRef.current?.getBoundingClientRect();
-		if ( ! bounds ) {
-			return null;
-		}
-
-		const rect = event.currentTarget.getBoundingClientRect();
-		return {
-			x: rect.left + rect.width / 2 - bounds.left,
-			y: rect.top - bounds.top,
-		};
-	}, [] );
-
-	// Helper function to handle step interaction (both click and keyboard)
-	const handleStepInteraction = useCallback(
-		(
-			step: FunnelStep,
-			event: React.MouseEvent | React.KeyboardEvent,
-			interactionType: 'click' | 'keyboard'
-		) => {
-			// Store reference to the interacted element
-			selectedBarRef.current = event.currentTarget as HTMLDivElement;
-
-			// Check if deselecting the same step
-			const { isClicked } = getStepState( step.id );
-			if ( isClicked ) {
-				// Deselecting - clear selection (tooltip will be hidden by hook)
-				if ( interactionType === 'click' ) {
-					handleBarClick( step.id );
-				} else {
-					handleBarKeyDown( step.id, event as React.KeyboardEvent );
-				}
-				return;
-			}
-
-			// Selecting - handle selection and show tooltip
-			if ( interactionType === 'click' ) {
-				handleBarClick( step.id );
-				const coords = getMouseTooltipCoords( event as React.MouseEvent );
-				if ( coords ) {
-					showTooltipAt( step, coords.x, coords.y );
-				}
-			} else {
-				handleBarKeyDown( step.id, event as React.KeyboardEvent );
-				const coords = getKeyboardTooltipCoords( event as React.KeyboardEvent );
-				if ( coords ) {
-					showTooltipAt( step, coords.x, coords.y );
-				}
+			selectStep( step.id );
+			const bounds = chartRef.current?.getBoundingClientRect();
+			if ( bounds ) {
+				showTooltip( {
+					tooltipData: step,
+					tooltipLeft: x - bounds.left,
+					tooltipTop: y - bounds.top - 10,
+				} );
 			}
 		},
-		[
-			getStepState,
-			handleBarClick,
-			handleBarKeyDown,
-			showTooltipAt,
-			getMouseTooltipCoords,
-			getKeyboardTooltipCoords,
-		]
+		[ selectStep, showTooltip ]
 	);
 
-	// Create handler factories to avoid arrow functions in JSX
+	const selectStepAtElement = useCallback(
+		( step: FunnelStep, element: HTMLElement ) => {
+			const rect = element.getBoundingClientRect();
+			selectStepAt( step, rect.left + rect.width / 2, rect.top );
+		},
+		[ selectStepAt ]
+	);
+
 	const stepHandlers = useMemo( () => {
 		const handlers = new Map<
 			string,
 			{
+				onPointerDown: () => void;
 				onClick: ( event: React.MouseEvent ) => void;
-				onKeyDown: ( event: React.KeyboardEvent ) => void;
+				onKeyDown: ( event: React.KeyboardEvent< HTMLElement > ) => void;
+				onFocus: ( event: React.FocusEvent< HTMLElement > ) => void;
+				ref: ( element: HTMLDivElement | null ) => void;
 			}
 		>();
 
 		steps.forEach( step => {
-			const onClick = ( event: React.MouseEvent ) => {
-				event.stopPropagation();
-				handleStepInteraction( step, event, 'click' );
+			// A press focuses the step before its click, which places the tooltip at the pointer instead.
+			const onPointerDown = () => {
+				isPointerFocusRef.current = true;
 			};
 
-			const onKeyDown = ( event: React.KeyboardEvent ) => {
-				if ( event.key === 'Enter' || event.key === ' ' ) {
-					handleStepInteraction( step, event, 'keyboard' );
-				} else {
-					// For other keys (like Escape), just handle the selection
-					selectedBarRef.current = event.currentTarget as HTMLDivElement;
-					handleBarKeyDown( step.id, event );
+			const onClick = ( event: React.MouseEvent ) => {
+				isPointerFocusRef.current = false;
+				selectStepAt( step, event.clientX, event.clientY );
+			};
+
+			const onFocus = ( event: React.FocusEvent< HTMLElement > ) => {
+				handleStepFocus( step.id );
+				if ( isPointerFocusRef.current ) {
+					isPointerFocusRef.current = false;
+				} else if ( step.id !== selectedStepId ) {
+					selectStepAtElement( step, event.currentTarget );
 				}
 			};
 
-			handlers.set( step.id, { onClick, onKeyDown } );
+			const onKeyDown = ( event: React.KeyboardEvent< HTMLElement > ) => {
+				isPointerFocusRef.current = false;
+				if ( handleNavigationKey( step.id, event ) ) {
+					return;
+				}
+
+				if ( event.key === 'Enter' || event.key === ' ' ) {
+					event.preventDefault();
+					selectStepAtElement( step, event.currentTarget );
+				} else if ( event.key === 'Escape' && selectedStepId !== null ) {
+					event.preventDefault();
+					clearSelection();
+				}
+			};
+
+			const ref = ( element: HTMLDivElement | null ) => setStepElement( step.id, element );
+
+			handlers.set( step.id, { onPointerDown, onClick, onKeyDown, onFocus, ref } );
 		} );
 
 		return handlers;
-	}, [ steps, handleStepInteraction, handleBarKeyDown ] );
+	}, [
+		steps,
+		selectedStepId,
+		selectStepAt,
+		selectStepAtElement,
+		clearSelection,
+		handleNavigationKey,
+		handleStepFocus,
+		setStepElement,
+	] );
 
-	// Handle document-level click to clear selection when clicking outside selected bar
-	useEffect( () => {
-		const handleDocumentClick = ( event: MouseEvent ) => {
-			// Only clear selection if there's an active selection and click is outside the selected bar
-			if ( selectedBarRef.current && ! selectedBarRef.current.contains( event.target as Node ) ) {
-				clearSelectionAndRef();
+	const handleStepsBlur = useCallback(
+		( event: React.FocusEvent< HTMLElement > ) => {
+			const leavesFunnel =
+				! event.currentTarget.contains( event.relatedTarget ) && document.hasFocus();
+			if ( leavesFunnel ) {
+				isPointerFocusRef.current = false;
+				clearSelection();
 			}
-		};
-
-		document.addEventListener( 'mousedown', handleDocumentClick );
-
-		return () => {
-			document.removeEventListener( 'mousedown', handleDocumentClick );
-		};
-	}, [ clearSelectionAndRef ] );
+		},
+		[ clearSelection ]
+	);
 
 	// Resolve height: explicit height prop > style.height > default 100%
 	const resolvedHeight = height ?? style?.height ?? '100%';
@@ -245,16 +256,37 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		</>
 	);
 
-	// Default tooltip rendering function
-	const renderDefaultTooltip = ( step: FunnelStep ) => (
-		<Stack direction="column" align="flex-start" gap="xs">
-			<div className={ styles[ 'tooltip-title' ] }>{ step.label }</div>
-			<div className={ styles[ 'tooltip-content' ] }>
-				{ formatPercentage( step.rate ) }
-				{ ` • ${ step.count ?? 'no' } items` }
-			</div>
-		</Stack>
-	);
+	const renderDefaultTooltip = ( step: FunnelStep, content: FunnelTooltipContent ) => {
+		const ids = getDefaultTooltipIds( tooltipId, content );
+		return (
+			<Stack direction="column" gap="xs">
+				<Stack direction="row" justify="space-between" align="baseline" gap="sm">
+					<span className={ styles[ 'tooltip-title' ] }>{ step.label }</span>
+					{ content.value && (
+						<span id={ ids.value } className={ styles[ 'tooltip-value' ] }>
+							{ content.value }
+						</span>
+					) }
+				</Stack>
+				{ content.rows?.map( ( row, index ) => (
+					<Stack
+						key={ row.label }
+						direction="row"
+						justify="space-between"
+						align="baseline"
+						gap="sm"
+					>
+						<span id={ ids.rows[ index ].label } className={ styles[ 'tooltip-label' ] }>
+							{ row.label }
+						</span>
+						<span id={ ids.rows[ index ].value } className={ styles[ 'tooltip-value' ] }>
+							{ row.value }
+						</span>
+					</Stack>
+				) ) }
+			</Stack>
+		);
+	};
 
 	// Validate data
 	const isDataValid = Boolean( steps && steps.length > 0 );
@@ -306,11 +338,34 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	// Calculate bar heights relative to the maximum (first step)
 	const maxRate = Math.max( ...steps.map( step => step.rate ) );
 
+	const tooltipStep = tooltipOpen ? ( tooltipData as FunnelStep | undefined ) : undefined;
+	let tooltipContent: React.ReactNode = null;
+	let tooltipDescriptionIds = '';
+	if ( tooltipStep ) {
+		const index = steps.findIndex( s => s.id === tooltipStep.id );
+		const content = getTooltipContent( tooltipStep, index );
+		if ( renderTooltip ) {
+			tooltipContent = renderTooltip( {
+				step: tooltipStep,
+				index,
+				content,
+				top: tooltipTop,
+				left: tooltipLeft,
+			} );
+			tooltipDescriptionIds = tooltipId;
+		} else {
+			tooltipContent = renderDefaultTooltip( tooltipStep, content );
+			tooltipDescriptionIds = getDefaultTooltipDescriptionIds( tooltipId, content );
+		}
+	}
+
 	return (
 		<Stack
 			direction="column"
-			gap="xl"
+			gap={ gap }
 			data-testid="conversion-funnel-chart"
+			role="group"
+			aria-label={ ariaLabel ?? __( 'Conversion funnel chart', 'jetpack-charts' ) }
 			ref={ setChartRef }
 			className={ clsx(
 				'conversion-funnel-chart',
@@ -336,10 +391,22 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				) }
 
 				{ /* Funnel Steps */ }
-				<Stack direction="row" align="flex-end" gap="lg" className={ styles[ 'funnel-container' ] }>
+				<Stack
+					direction="row"
+					align="flex-end"
+					gap="lg"
+					role="listbox"
+					aria-label={ __( 'Funnel steps', 'jetpack-charts' ) }
+					aria-orientation="horizontal"
+					onBlur={ handleStepsBlur }
+					className={ styles[ 'funnel-container' ] }
+				>
 					{ steps.map( ( step, index ) => {
 						const barHeight = ( step.rate / maxRate ) * 100;
-						const { isBlurred } = getStepState( step.id );
+						const { isSelected, isBlurred } = getStepState( step.id );
+						const handlers = stepHandlers.get( step.id );
+						const isDescribedByTooltip =
+							Boolean( tooltipContent && tooltipDescriptionIds ) && tooltipStep?.id === step.id;
 
 						return (
 							<Stack
@@ -351,10 +418,15 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 									isColorPaletteResolved && styles[ 'funnel-step--animated' ],
 									isBlurred && styles[ 'funnel-step--blurred' ]
 								) }
-								gap="xl"
+								gap={ gap }
 							>
-								{ /* Step Label and Rate */ }
-								<Stack direction="column" gap="xs">
+								{ /* Step label and rate. The option's name and description carry them, and a listbox may hold only options. */ }
+								<Stack
+									direction="column"
+									gap="xs"
+									className={ styles[ 'step-text' ] }
+									aria-hidden="true"
+								>
 									{ renderStepLabel ? (
 										renderStepLabel( {
 											step,
@@ -382,11 +454,21 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 									direction="column"
 									justify="flex-end"
 									className={ styles[ 'bar-container' ] }
-									onClick={ stepHandlers.get( step.id )?.onClick }
-									onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
-									role="button"
-									tabIndex={ isBlurred ? -1 : 0 }
-									aria-label={ step.label }
+									ref={ handlers?.ref }
+									onPointerDown={ handlers?.onPointerDown }
+									onClick={ handlers?.onClick }
+									onKeyDown={ handlers?.onKeyDown }
+									onFocus={ handlers?.onFocus }
+									role="option"
+									tabIndex={ getTabIndex( step.id ) }
+									aria-label={ sprintf(
+										/* translators: 1: Funnel step name, such as "Cart". 2: Its rate, such as "71.1%". */
+										__( '%1$s, %2$s', 'jetpack-charts' ),
+										step.label,
+										formatPercentage( step.rate )
+									) }
+									aria-selected={ isSelected }
+									aria-describedby={ isDescribedByTooltip ? tooltipDescriptionIds : undefined }
 								>
 									<div
 										className={ clsx( styles[ 'funnel-bar' ], {
@@ -405,32 +487,19 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				</Stack>
 			</ChartScopeContext.Provider>
 
-			{ tooltipOpen &&
-				tooltipData &&
-				( () => {
-					const tooltipContent = renderTooltip
-						? renderTooltip( {
-								step: tooltipData as FunnelStep,
-								index: steps.findIndex( s => s.id === ( tooltipData as FunnelStep ).id ),
-								top: tooltipTop,
-								left: tooltipLeft,
-							} )
-						: renderDefaultTooltip( tooltipData as FunnelStep );
-
-					// Don't render tooltip if renderTooltip returns falsy
-					if ( ! tooltipContent ) return null;
-
-					return (
-						<BoundedTooltip
-							top={ tooltipTop }
-							left={ tooltipLeft }
-							className={ standaloneScopeClass }
-							style={ tooltipStyle }
-						>
-							<div role="tooltip">{ tooltipContent }</div>
-						</BoundedTooltip>
-					);
-				} )() }
+			{ tooltipContent && (
+				<BoundedTooltip
+					top={ tooltipTop }
+					left={ tooltipLeft }
+					className={ standaloneScopeClass }
+					style={ tooltipStyle }
+				>
+					{ /* Read through the selected step's description, never on its own. */ }
+					<div id={ tooltipId } aria-hidden="true" data-testid="funnel-tooltip">
+						{ tooltipContent }
+					</div>
+				</BoundedTooltip>
+			) }
 		</Stack>
 	);
 };

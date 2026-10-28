@@ -32,7 +32,7 @@ const meta: Meta< typeof Donut > = {
 		docs: {
 			description: {
 				component:
-					'The breakdown widget body: hand it segments and the request status, and it renders the donut chart with the total in the center, the legend with a value and delta per segment, and the loading, error and empty states. Renders inside `WidgetRoot`.',
+					'The breakdown widget body: hand it segments and the request status, and it renders the chart with the total, the legend with a value and delta per segment, and the loading, error and empty states. `variant="half-ring"` draws the same breakdown as a semi-circle with the total under the arc; there is no separate semi-circle kind. Renders inside `WidgetRoot`.',
 			},
 		},
 	},
@@ -86,6 +86,34 @@ export const WithAnEmptySegment: Story = {
 		],
 		status: { ...READY, hasComparison: true },
 		format: { type: 'number', options: { useMultipliers: false, decimals: 0 } },
+	},
+};
+
+// The same kind as a half ring: the total moves under the arc.
+export const HalfRing: Story = {
+	args: {
+		segments: [
+			{ label: 'Mobile', value: 3820, previousValue: 3000 },
+			{ label: 'Desktop', value: 1210, previousValue: 1400 },
+			{ label: 'Tablet', value: 310, previousValue: 420 },
+		],
+		status: { ...READY, hasComparison: true },
+		variant: 'half-ring',
+	},
+};
+
+// Shares of a whole: the total would always read 100%, so the arc carries no figure.
+export const HalfRingShares: Story = {
+	args: {
+		segments: [
+			{ label: 'Desktop', value: 0.62, previousValue: 0.58 },
+			{ label: 'Mobile', value: 0.31, previousValue: 0.36 },
+			{ label: 'Tablet', value: 0.07, previousValue: 0.06 },
+		],
+		status: { ...READY, hasComparison: true },
+		format: { type: 'percentage', options: { decimals: 1, signDisplay: 'auto' } },
+		variant: 'half-ring',
+		withTotal: false,
 	},
 };
 

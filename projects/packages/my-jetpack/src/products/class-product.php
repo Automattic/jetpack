@@ -166,13 +166,6 @@ abstract class Product {
 	public static $requires_plan = false;
 
 	/**
-	 * Defines whether or not to show a product interstitial as tiered pricing or not
-	 *
-	 * @var bool
-	 */
-	public static $is_tiered_pricing = false;
-
-	/**
 	 * The feature slug that identifies the paid plan
 	 *
 	 * @var string
@@ -225,7 +218,7 @@ abstract class Product {
 	}
 
 	/**
-	 * Get the installed plugin filename, considering all possible filenames a plugin might have
+	 * Get the active installed copy, falling back to the first installed filename.
 	 *
 	 * @param string $plugin Which plugin to check. jetpack for the jetpack plugin or product for the product specific plugin.
 	 *
@@ -233,17 +226,24 @@ abstract class Product {
 	 */
 	public static function get_installed_plugin_filename( $plugin = 'product' ) {
 		$all_plugins = Plugins_Installer::get_plugins();
-		$filename    = 'jetpack' === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
+		$filename    = self::JETPACK_PLUGIN_SLUG === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
 		if ( ! is_array( $filename ) ) {
 			$filename = array( $filename );
 		}
+		$first_installed = null;
 		// Products without a standalone plugin don't declare a filename, so drop the empty values.
 		foreach ( array_filter( $filename ) as $name ) {
-			$installed = array_key_exists( $name, $all_plugins );
-			if ( $installed ) {
+			if ( ! isset( $all_plugins[ $name ] ) ) {
+				continue;
+			}
+			if ( $all_plugins[ $name ]['active'] ) {
 				return $name;
 			}
+			if ( null === $first_installed ) {
+				$first_installed = $name;
+			}
 		}
+		return $first_installed;
 	}
 
 	/**
@@ -267,12 +267,10 @@ abstract class Product {
 			'long_description'                => static::get_long_description(),
 			'tiers'                           => static::get_tiers(),
 			'features'                        => static::get_features(),
-			'features_by_tier'                => static::get_features_by_tier(),
 			/* End of legacy compatibility fields. */
 			'disclaimers'                     => static::get_disclaimers(),
 			'is_bundle'                       => static::is_bundle_product(),
 			'is_plugin_active'                => static::is_plugin_active(),
-			'is_tiered_pricing'               => static::$is_tiered_pricing,
 			'is_upgradable_by_bundle'         => static::is_upgradable_by_bundle(),
 			'is_feature'                      => static::$is_feature,
 			'supported_products'              => static::get_supported_products(),
@@ -329,7 +327,6 @@ abstract class Product {
 			'description'                   => static::get_description(),
 			'tiers'                         => static::get_tiers(),
 			'features'                      => static::get_features(),
-			'features_by_tier'              => static::get_features_by_tier(),
 			'long_description'              => static::get_long_description(),
 			'has_any_plan_for_product'      => static::has_any_plan_for_product(),
 			'has_free_plan_for_product'     => static::has_free_plan_for_product(),
@@ -342,6 +339,9 @@ abstract class Product {
 
 		if ( static::$slug === 'jetpack-ai' ) {
 			$product_data['ai-assistant-feature'] = static::get_ai_assistant_feature();
+		}
+		if ( in_array( static::$slug, array( 'security', 'growth' ), true ) ) {
+			$product_data['purchase_replacement'] = Products::get_bundle_offer( static::$slug );
 		}
 
 		return $product_data;
@@ -478,9 +478,13 @@ abstract class Product {
 	/**
 	 * Get the internationalized comparison of features grouped by each tier
 	 *
+	 * @deprecated 6.10.0
+	 *
 	 * @return array
 	 */
 	public static function get_features_by_tier() {
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
+
 		return array();
 	}
 
@@ -490,6 +494,34 @@ abstract class Product {
 	 * @return array
 	 */
 	abstract public static function get_pricing_for_ui();
+
+	/**
+	 * Prepare supported billing terms, requiring confirmed availability for Pro.
+	 *
+	 * @since 6.12.0
+	 * @param string[] $product_slugs Store product slugs, preferred term first.
+	 * @return array Pricing details and term choices.
+	 */
+	protected static function get_bundle_pricing( $product_slugs ) {
+		$terms = array();
+		foreach ( $product_slugs as $slug ) {
+			$product           = Wpcom_Products::get_product( $slug );
+			$valid_product     = is_object( $product ) && isset( $product->cost ) && isset( $product->currency_code ) && isset( $product->product_term ) && is_numeric( $product->cost ) && $product->cost >= 0;
+			$term              = array_merge(
+				array(
+					'available'          => false,
+					'wpcom_product_slug' => $slug,
+				),
+				$valid_product ? Wpcom_Products::get_product_pricing( $slug ) : array()
+			);
+			$expected_term     = str_ends_with( $slug, '_monthly' ) ? 'month' : ( str_ends_with( $slug, '_bi_yearly' ) ? 'two years' : 'year' );
+			$on_sale           = str_starts_with( $slug, 'jetpack_pro_' ) ? true === ( $product->available ?? false ) : false !== ( $product->available ?? null );
+			$term['available'] = $valid_product && $on_sale && ( $term['product_term'] ?? '' ) === $expected_term;
+			$terms[]           = $term;
+		}
+		$available = array_values( array_filter( $terms, fn( $term ) => true === $term['available'] ) );
+		return array_merge( $available[0] ?? $terms[0], array( 'terms' => $terms ) );
+	}
 
 	/**
 	 * Get the URL where the user can purchase the product iff it doesn't have an interstitial page in My Jetpack.
@@ -912,7 +944,7 @@ abstract class Product {
 			}
 			// Check specifically for inactive modules, which will prevent a product from being active
 			// Bundles have no module of their own, so they fall through to the plan checks below.
-		} elseif ( static::$module_name && ! static::is_bundle_product() && ! static::is_module_active() ) {
+		} elseif ( static::get_module_name() && ! static::is_bundle_product() && ! static::is_module_active() ) {
 			$status = Products::STATUS_MODULE_DISABLED;
 			// If there is not a plan associated with the disabled module, encourage a plan first
 			// Getting a plan set up should help resolve any connection issues
@@ -1001,10 +1033,22 @@ abstract class Product {
 	 * @return bool
 	 */
 	public static function is_module_active() {
-		if ( static::$module_name ) {
-			return ( new Modules() )->is_active( static::$module_name );
+		$module_name = static::get_module_name();
+		if ( $module_name ) {
+			return ( new Modules() )->is_active( $module_name );
 		}
 		return true;
+	}
+
+	/**
+	 * Get the Jetpack module that switches the product on, if any.
+	 *
+	 * @since 6.12.0
+	 *
+	 * @return ?string
+	 */
+	public static function get_module_name() {
+		return static::$module_name;
 	}
 
 	/**
@@ -1027,7 +1071,7 @@ abstract class Product {
 		}
 
 		// Default to installing the standalone plugin for the product
-		if ( ! self::is_plugin_installed() ) {
+		if ( ! self::is_plugin_installed() && static::should_use_standalone_plugin() ) {
 			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
 			if ( is_wp_error( $installed ) ) {
 				return $installed;
@@ -1043,6 +1087,17 @@ abstract class Product {
 			return $result;
 		}
 
+		return true;
+	}
+
+	/**
+	 * Whether activating the product installs and activates its standalone plugin, rather than relying on the Jetpack plugin.
+	 *
+	 * @since 6.12.0
+	 *
+	 * @return bool
+	 */
+	public static function should_use_standalone_plugin() {
 		return true;
 	}
 

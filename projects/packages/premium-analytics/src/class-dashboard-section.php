@@ -108,7 +108,7 @@ final class Dashboard_Section {
 	 *
 	 * @since 0.3.0
 	 * @since 0.5.0 Added `with_header_date_control`.
-	 * @since $$next-version$$ Added `with_header_interval_control`.
+	 * @since 0.12.0 Added `with_header_interval_control`.
 	 * @var array
 	 */
 	public $date_filter_options = array(
@@ -127,6 +127,22 @@ final class Dashboard_Section {
 	public $requires_sync = false;
 
 	/**
+	 * Whether the plan's Stats date limits apply to the section's window.
+	 *
+	 * @since 0.14.0
+	 * @var bool
+	 */
+	public $follows_plan_date_limits = false;
+
+	/**
+	 * Message, or a callback returning one, shown above the section's widgets; null when none.
+	 *
+	 * @since 0.13.0
+	 * @var string|callable|null
+	 */
+	private $notice = null;
+
+	/**
 	 * Availability flag or callback; null when the registration declared none.
 	 *
 	 * @var bool|callable|null
@@ -139,6 +155,14 @@ final class Dashboard_Section {
 	 * @var array|callable
 	 */
 	private $default_layout = array();
+
+	/**
+	 * Widget type names the inserter offers on top of the default layout's.
+	 *
+	 * @since 0.13.0
+	 * @var string[]
+	 */
+	private $insertable_widget_types = array();
 
 	/**
 	 * Constructor.
@@ -217,21 +241,62 @@ final class Dashboard_Section {
 	}
 
 	/**
+	 * Returns the message to show above the section's widgets, resolved for this request.
+	 *
+	 * @since 0.13.0
+	 *
+	 * @return string|null The message, or null when there is none.
+	 */
+	public function get_notice() {
+		$notice = is_callable( $this->notice ) ? call_user_func( $this->notice, $this ) : $this->notice;
+
+		return is_string( $notice ) && '' !== $notice ? $notice : null;
+	}
+
+	/**
+	 * Returns the widget types the section's inserter offers on top of its default layout, run
+	 * through the insertable-types filter.
+	 *
+	 * @since 0.13.0
+	 *
+	 * @return string[] Widget type names.
+	 */
+	public function get_insertable_widget_types() {
+		/**
+		 * Filters the widget types a dashboard section's inserter offers on top of its default layout.
+		 *
+		 * Runs for every section, so a callback adding a type to one switches on `$section_id`. A
+		 * type the widget type registry does not know is never offered.
+		 *
+		 * @since 0.13.0
+		 *
+		 * @param string[]          $types      The section's declared widget type names.
+		 * @param string            $section_id Namespaced section identifier, e.g. `analytics/traffic`.
+		 * @param Dashboard_Section $section    The section.
+		 */
+		$types = apply_filters( DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER, $this->insertable_widget_types, $this->id, $this );
+
+		return self::normalize_widget_type_names( $types );
+	}
+
+	/**
 	 * Returns the public REST representation.
 	 *
 	 * @return array
 	 */
 	public function to_array() {
 		return array(
-			'id'                  => $this->id,
-			'slug'                => $this->slug,
-			'label'               => $this->label,
-			'title'               => $this->title,
-			'order'               => (int) $this->order,
-			'date_filter'         => $this->date_filter,
-			'date_filter_options' => $this->date_filter_options,
-			'requires_sync'       => $this->requires_sync,
-			'default_layout'      => $this->get_default_layout(),
+			'id'                      => $this->id,
+			'slug'                    => $this->slug,
+			'label'                   => $this->label,
+			'title'                   => $this->title,
+			'order'                   => (int) $this->order,
+			'date_filter'             => $this->date_filter,
+			'date_filter_options'     => $this->date_filter_options,
+			'requires_sync'           => $this->requires_sync,
+			'notice'                  => $this->get_notice(),
+			'default_layout'          => $this->get_default_layout(),
+			'insertable_widget_types' => $this->get_insertable_widget_types(),
 		);
 	}
 
@@ -283,6 +348,14 @@ final class Dashboard_Section {
 			$this->requires_sync = (bool) $args['requires_sync'];
 		}
 
+		if ( isset( $args['follows_plan_date_limits'] ) ) {
+			$this->follows_plan_date_limits = (bool) $args['follows_plan_date_limits'];
+		}
+
+		if ( array_key_exists( 'notice', $args ) ) {
+			$this->notice = $args['notice'];
+		}
+
 		if ( array_key_exists( 'is_available', $args ) ) {
 			$this->is_available = $args['is_available'];
 		}
@@ -290,5 +363,30 @@ final class Dashboard_Section {
 		if ( array_key_exists( 'default_layout', $args ) ) {
 			$this->default_layout = $args['default_layout'];
 		}
+
+		if ( isset( $args['insertable_widget_types'] ) ) {
+			$this->insertable_widget_types = self::normalize_widget_type_names( $args['insertable_widget_types'] );
+		}
+	}
+
+	/**
+	 * Narrows a value to its distinct, non-empty widget type names, as a list.
+	 *
+	 * @param mixed $types Candidate widget type names.
+	 * @return string[]
+	 */
+	private static function normalize_widget_type_names( $types ) {
+		if ( ! is_array( $types ) ) {
+			return array();
+		}
+
+		$names = array_filter(
+			$types,
+			static function ( $type ) {
+				return is_string( $type ) && '' !== $type;
+			}
+		);
+
+		return array_values( array_unique( $names ) );
 	}
 }

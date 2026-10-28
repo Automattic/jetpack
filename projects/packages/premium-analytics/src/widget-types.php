@@ -6,8 +6,8 @@
  * Widget_Type_Registry from the registration action the registry fires on its
  * first read, so the plugin queries the registry instead of re-parsing the
  * manifest. On the way in, user-facing metadata strings are translated (per the
- * widget-i18n.json schema) and the `help`, `icon`, and `actions` fields
- * sanitized. Another plugin registers its widget types from the same action,
+ * widget-i18n.json schema) and the `help`, `icon`, `actions`, and
+ * `attributes` fields sanitized. Another plugin registers its widget types from the same action,
  * through register_widget_type().
  *
  * This is the problem-agnostic "core" layer (a PA-namespaced copy of the
@@ -45,7 +45,7 @@ const WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_widget_types';
  *
  * @since 0.9.0
  */
-const WIDGET_API_VERSION = '1.7.0';
+const WIDGET_API_VERSION = '2.1.0';
 
 /**
  * Returns the i18n schema describing which widget metadata fields are
@@ -71,11 +71,11 @@ function get_widget_metadata_i18n_schema() {
 /**
  * Translates a widget's user-facing metadata strings.
  *
- * Runs `title`, `description`, `help`, `actions`, and `keywords` through
- * the widget i18n schema, leaving every other key untouched. Unlike the
- * upstream copy, a widget with no `textdomain` falls back to the package
- * text domain instead of skipping translation: every bundled widget
- * shares it.
+ * Runs `title`, `description`, `help`, `actions`, `attributes`, and
+ * `keywords` through the widget i18n schema, leaving every other key
+ * untouched. Unlike the upstream copy, a widget with no `textdomain` falls
+ * back to the package text domain instead of skipping translation: every
+ * bundled widget shares it.
  *
  * @param array $widget Widget data from the build manifest.
  * @return array Widget data with its translatable strings localized.
@@ -84,7 +84,7 @@ function translate_widget_metadata( $widget ) {
 	$textdomain  = ! empty( $widget['textdomain'] ) ? $widget['textdomain'] : 'jetpack-premium-analytics-pkg';
 	$i18n_schema = get_widget_metadata_i18n_schema();
 
-	foreach ( array( 'title', 'description', 'help', 'actions', 'keywords' ) as $field ) {
+	foreach ( array( 'title', 'description', 'help', 'actions', 'attributes', 'keywords' ) as $field ) {
 		if ( isset( $widget[ $field ] ) && isset( $i18n_schema->$field ) ) {
 			$widget[ $field ] = translate_settings_using_i18n_schema( $i18n_schema->$field, $widget[ $field ], $textdomain );
 		}
@@ -263,6 +263,119 @@ function sanitize_widget_actions( $actions ) {
 }
 
 /**
+ * Sanitizes a widget attribute schema. A malformed or empty key drops, never
+ * the entry; an entry without a unique string `id` drops.
+ *
+ * @param mixed $attributes Attribute schema from the build manifest.
+ * @return array|null Sanitized schema, or null when no entry survives.
+ */
+function sanitize_widget_attributes( $attributes ) {
+	if ( ! is_array( $attributes ) ) {
+		return null;
+	}
+
+	$string_keys  = array( 'type', 'label', 'header', 'description', 'placeholder' );
+	$boolean_keys = array( 'readOnly', 'isDisabled', 'enableSorting', 'enableHiding', 'enableGlobalSearch' );
+
+	$sanitized = array();
+	$seen      = array();
+	foreach ( $attributes as $attribute ) {
+		if (
+			! is_array( $attribute ) ||
+			! isset( $attribute['id'] ) ||
+			! is_string( $attribute['id'] ) ||
+			'' === $attribute['id'] ||
+			isset( $seen[ $attribute['id'] ] )
+		) {
+			continue;
+		}
+		$seen[ $attribute['id'] ] = true;
+
+		$entry = array( 'id' => $attribute['id'] );
+
+		foreach ( $string_keys as $key ) {
+			if ( isset( $attribute[ $key ] ) && is_string( $attribute[ $key ] ) && '' !== $attribute[ $key ] ) {
+				$entry[ $key ] = $attribute[ $key ];
+			}
+		}
+
+		foreach ( $boolean_keys as $key ) {
+			if ( isset( $attribute[ $key ] ) && is_bool( $attribute[ $key ] ) ) {
+				$entry[ $key ] = $attribute[ $key ];
+			}
+		}
+
+		if ( isset( $attribute['elements'] ) && is_array( $attribute['elements'] ) ) {
+			$elements = array();
+			foreach ( $attribute['elements'] as $element ) {
+				if (
+					! is_array( $element ) ||
+					! array_key_exists( 'value', $element ) ||
+					! ( null === $element['value'] || is_scalar( $element['value'] ) ) ||
+					! isset( $element['label'] ) ||
+					! is_string( $element['label'] )
+				) {
+					continue;
+				}
+
+				$option = array(
+					'value' => $element['value'],
+					'label' => $element['label'],
+				);
+				if ( isset( $element['description'] ) && is_string( $element['description'] ) ) {
+					$option['description'] = $element['description'];
+				}
+				if ( isset( $element['icon'] ) ) {
+					$icon = sanitize_widget_icon( $element['icon'] );
+					if ( $icon ) {
+						$option['icon'] = $icon;
+					}
+				}
+				$elements[] = $option;
+			}
+
+			if ( $elements ) {
+				$entry['elements'] = $elements;
+			}
+		}
+
+		if (
+			isset( $attribute['filterBy'] ) &&
+			( false === $attribute['filterBy'] || ( is_array( $attribute['filterBy'] ) && array() !== $attribute['filterBy'] ) )
+		) {
+			$entry['filterBy'] = $attribute['filterBy'];
+		}
+
+		if ( ! empty( $attribute['format'] ) && is_array( $attribute['format'] ) ) {
+			$entry['format'] = $attribute['format'];
+		}
+
+		if ( isset( $attribute['isValid'] ) && is_array( $attribute['isValid'] ) ) {
+			$rules = $attribute['isValid'];
+			unset( $rules['custom'] );
+			if ( $rules ) {
+				$entry['isValid'] = $rules;
+			}
+		}
+
+		if (
+			isset( $attribute['Edit'] ) &&
+			( ( is_string( $attribute['Edit'] ) && '' !== $attribute['Edit'] ) || ( is_array( $attribute['Edit'] ) && array() !== $attribute['Edit'] ) )
+		) {
+			$entry['Edit'] = $attribute['Edit'];
+		}
+
+		if ( isset( $attribute['relevance'] ) && in_array( $attribute['relevance'], array( 'high', 'medium', 'low' ), true ) ) {
+			$entry['relevance'] = $attribute['relevance'];
+		}
+
+		$sanitized[] = $entry;
+	}
+
+	return $sanitized ? $sanitized : null;
+}
+
+/**
  * Constrains a widget icon reference to a registered icon name
  * (`collection/icon-name`); anything else drops silently to no icon.
  *
@@ -297,6 +410,7 @@ function sanitize_widget_icon( $icon ) {
  *     @type string $textdomain    Text domain for the metadata strings of a candidate that declares none.
  *     @type string $i18n_manifest URL of the build's i18n manifest, for a candidate that declares none.
  *     @type array  $former_names  Map of widget type name to the names it registered under before, for a candidate that declares none.
+ *     @type array  $plan_features Map of widget type name to its plan feature, for a candidate that declares none.
  * }
  * @param Widget_Type_Registry|null $registry Optional. The registry to write into. Defaults to the main instance.
  * @return void
@@ -332,6 +446,9 @@ function register_widget_types_from_manifest( array $widgets, array $args = arra
 		if ( empty( $widget['former_names'] ) && ! empty( $args['former_names'][ $widget['name'] ] ) ) {
 			$widget['former_names'] = $args['former_names'][ $widget['name'] ];
 		}
+		if ( empty( $widget['plan_feature'] ) && ! empty( $args['plan_features'][ $widget['name'] ] ) ) {
+			$widget['plan_feature'] = $args['plan_features'][ $widget['name'] ];
+		}
 
 		$widget = translate_widget_metadata( $widget );
 
@@ -347,14 +464,50 @@ function register_widget_types_from_manifest( array $widgets, array $args = arra
 				'help'          => sanitize_widget_help( $widget['help'] ?? null ),
 				'icon'          => sanitize_widget_icon( $widget['icon'] ?? null ),
 				'actions'       => sanitize_widget_actions( $widget['actions'] ?? null ),
+				'attributes'    => sanitize_widget_attributes( $widget['attributes'] ?? null ),
 				'keywords'      => $widget['keywords'] ?? null,
 				'textdomain'    => $widget['textdomain'] ?? null,
 				'i18n_manifest' => $widget['i18n_manifest'] ?? null,
 				'former_names'  => $widget['former_names'] ?? null,
+				'plan_feature'  => $widget['plan_feature'] ?? null,
 			)
 		);
 	}
 }
+
+/**
+ * The plan feature each of the package's own widget types shows, for the plan gates to lock.
+ * Locations needs only countries: regions and cities lock inside the widget.
+ */
+const WIDGET_TYPE_PLAN_FEATURES = array(
+	'jpa/stats-top-posts'                => 'top-posts',
+	'jpa/referrers'                      => 'referrers',
+	'jpa/locations'                      => 'countries',
+	'jpa/clicks'                         => 'clicks',
+	'jpa/file-downloads'                 => 'file-downloads',
+	'jpa/authors'                        => 'authors',
+	'jpa/author-top-posts'               => 'authors',
+	'jpa/author-performance'             => 'authors',
+	'jpa/search-terms'                   => 'search-terms',
+	'jpa/video-detail-views-performance' => 'videos',
+	'jpa/video-detail-embeds'            => 'videos',
+	'jpa/utm-insights'                   => 'utm',
+	'jpa/devices'                        => 'devices',
+	'jpa/top-platforms'                  => 'devices',
+	'jpa/annual-highlights'              => 'insights',
+	'jpa/all-time-stats'                 => 'insights',
+	'jpa/most-popular-time'              => 'insights',
+	'jpa/most-popular-day'               => 'insights',
+	'jpa/popular-post'                   => 'insights',
+	'jpa/latest-post'                    => 'insights',
+	'jpa/posting-activity'               => 'insights',
+	'jpa/views-over-years'               => 'insights',
+	'jpa/most-commented-posts'           => 'insights',
+	'jpa/most-commented-authors'         => 'insights',
+	'jpa/shares'                         => 'insights',
+	'jpa/tags'                           => 'tags',
+	'jpa/post-all-time-traffic'          => 'recent-7-days',
+);
 
 /**
  * Registers the package's own widget types from its build manifest.
@@ -375,7 +528,10 @@ function register_widget_types( $registry = null ) {
 	// No manifest URL: the page's boot init module loads the package's own catalogs.
 	register_widget_types_from_manifest(
 		jpa_get_registered_widget_modules(),
-		array( 'textdomain' => 'jetpack-premium-analytics-pkg' ),
+		array(
+			'textdomain'    => 'jetpack-premium-analytics-pkg',
+			'plan_features' => WIDGET_TYPE_PLAN_FEATURES,
+		),
 		$registry
 	);
 }

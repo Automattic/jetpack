@@ -51,6 +51,9 @@ const ids = ( range: Parameters< typeof getComparisonOptions >[ 0 ] ) =>
 const labels = ( range: Parameters< typeof getComparisonOptions >[ 0 ] ) =>
 	getComparisonOptions( range ).map( option => option.label );
 
+const legendLabels = ( range: Parameters< typeof getComparisonOptions >[ 0 ] ) =>
+	getComparisonOptions( range ).map( option => option.legendLabel );
+
 describe( 'comparison options', () => {
 	/*
 	 * The candidate set and its order are a design decision (WOOA7S-2028,
@@ -429,5 +432,42 @@ describe( 'comparison options', () => {
 			expect( option.label ).toBeTruthy();
 			expect( option.shortLabel ).toBeTruthy();
 		}
+	} );
+
+	it.each( [
+		[
+			'a single day',
+			daysRange( [ 2026, 7, 30 ], [ 2026, 7, 30 ] ),
+			[ 'Prev. day', 'Prev. week', 'Jul', '2025', 'Prev. year, weekday' ],
+		],
+		[
+			'a single day on the 1st',
+			daysRange( [ 2026, 8, 1 ], [ 2026, 8, 1 ] ),
+			[ 'Prev. day', 'Prev. week', 'Aug', '2025', 'Prev. year, weekday' ],
+		],
+		[
+			'eight days',
+			daysRange( [ 2026, 7, 23 ], [ 2026, 7, 30 ] ),
+			[ 'Prev. 8 days', 'Prev. 8 days, weekday', 'Jul', '2025', 'Prev. year, weekday' ],
+		],
+		[
+			'a single hour',
+			{ from: siteDate( 2026, 7, 31, 14 ), to: siteDate( 2026, 7, 31, 14, 59, 59, 999 ) },
+			[ 'Prev. hour', 'Prev. week', 'Jul', '2025', 'Prev. year, weekday' ],
+		],
+		[
+			'a rolling 24 hours',
+			{ from: siteDate( 2026, 7, 30, 15 ), to: siteDate( 2026, 7, 31, 14, 59, 59, 999 ) },
+			[ 'Prev. 24 hours', 'Prev. week', 'Jul', '2025', 'Prev. year, weekday' ],
+		],
+		[
+			'a whole month',
+			daysRange( [ 2026, 6, 1 ], [ 2026, 6, 31 ] ),
+			[ 'Prev. month', '2025', 'Prev. year, weekday' ],
+		],
+		[ 'a calendar year', daysRange( [ 2025, 0, 1 ], [ 2025, 11, 31 ] ), [ 'Prev. 12 months' ] ],
+		[ 'two calendar years', daysRange( [ 2024, 0, 1 ], [ 2025, 11, 31 ] ), [ 'Prev. 2 years' ] ],
+	] )( 'abbreviates every option for the chart legend for %s', ( _case, range, expected ) => {
+		expect( legendLabels( range ) ).toEqual( expected );
 	} );
 } );

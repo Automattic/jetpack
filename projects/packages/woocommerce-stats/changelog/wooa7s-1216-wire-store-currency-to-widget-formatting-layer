@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Pass the store currency to the dashboard, so store money shows in it instead of US dollars.

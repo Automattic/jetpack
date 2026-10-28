@@ -15,6 +15,7 @@ Main component for displaying conversion funnel visualizations.
 | `mainRate` | `number` | - | **Required.** Main conversion rate to highlight (0-100) |
 | `steps` | `FunnelStep[]` | - | **Required.** Array of funnel steps |
 | `changeIndicator` | `string` | - | Change indicator (e.g., "+2%", "-1.5%") |
+| `ariaLabel` | `string` | `'Conversion funnel chart'` | Accessible name. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names). |
 | `loading` | `boolean` | `false` | Whether the chart is in loading state |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Funnel bars grow from bottom to full height. Automatically respects user's `prefers-reduced-motion` system setting |
 | `height` | `string \| number` | `"100%"` | Height of the chart container. Accepts a number (pixels) or CSS string (e.g., `"400px"`, `"100%"`). Falls back to `style.height` if set, otherwise defaults to `"100%"` |
@@ -24,8 +25,9 @@ Main component for displaying conversion funnel visualizations.
 | `renderStepLabel` | `(props: StepLabelRenderProps) => ReactNode` | - | Custom render function for step labels |
 | `renderStepRate` | `(props: StepRateRenderProps) => ReactNode` | - | Custom render function for step rates |
 | `renderMainMetric` | `(props: MainMetricRenderProps) => ReactNode` | - | Custom render function for main metric section |
-| `renderTooltip` | `(props: TooltipRenderProps) => ReactNode` | - | Custom render function for tooltip content |
+| `renderTooltip` | `(props: TooltipRenderProps) => ReactNode` | - | Custom layout for the tooltip. Render `props.content`. Screen readers read the whole rendered tooltip as the selected step's description. |
 | `tooltipStyle` | `CSSProperties` | - | Inline styles merged over the tooltip box defaults |
+| `getTooltipContent` | `(step: FunnelStep, index: number) => FunnelTooltipContent` | The count beside the name and a "Conversion rate" row | What each step's tooltip shows. Screen readers read it after the selected step's name, e.g. "7,110 items Conversion rate 71.1%". |
 
 ## FunnelStep Type
 
@@ -60,9 +62,20 @@ interface MainMetricRenderProps {
 	changeColor?: string;
 }
 
+interface FunnelTooltipRow {
+	label: string;
+	value: string;
+}
+
+interface FunnelTooltipContent {
+	value?: string;            // Shown on the name's line, e.g. the count
+	rows?: FunnelTooltipRow[]; // Labeled lines below the name
+}
+
 interface TooltipRenderProps {
 	step: FunnelStep;
 	index: number;
+	content: FunnelTooltipContent; // Render it: screen readers read the rendered tooltip
 	top: number;
 	left: number;
 	/** @deprecated The tooltip box draws the package surface; this is no longer set. */

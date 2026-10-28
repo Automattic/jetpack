@@ -102,9 +102,9 @@ You can customize tooltip content using column roles. Add a tooltip column to yo
 	code={ `<GeoChart
 		data={ [
 			['Country', 'Value', { type: 'string', role: 'tooltip' }],
-			['United States', 1000, 'United States: 1,000 orders (40% of total)'],
-			['Canada', 500, 'Canada: 500 orders (20% of total)'],
-			['United Kingdom', 450, 'United Kingdom: 450 orders (18% of total)'],
+			['United States', 1000, '1,000 orders (40% of total)'],
+			['Canada', 500, '500 orders (20% of total)'],
+			['United Kingdom', 450, '450 orders (18% of total)'],
 		] }
 		width={ 800 }
 		height={ 500 }
@@ -121,9 +121,9 @@ For rich tooltip content with HTML formatting, add `p: { html: true }` to the to
 	language="tsx"
 	code={ `<GeoChart
 		data={ [
-			['Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } }],
-			['United States', 1000, '<b>United States</b><br/>1,000 orders'],
-			['Canada', 500, '<b>Canada</b><br/>500 orders'],
+			['Country', 'Orders', { type: 'string', role: 'tooltip', p: { html: true } }],
+			['United States', 1000, 'Orders: <strong>1,000</strong><br/>Share: <strong>40%</strong>'],
+			['Canada', 500, 'Orders: <strong>500</strong><br/>Share: <strong>20%</strong>'],
 		] }
 		width={ 800 }
 		height={ 500 }
@@ -155,32 +155,6 @@ Separate the display format from the actual value using cell objects with `v` (v
 />
 
 This ensures proper data scaling while displaying user-friendly labels.
-
-### Complex HTML Tooltips
-
-Combine HTML tooltips with custom styling for rich, interactive experiences:
-
-<Canvas of={ TooltipStories.Complex } />
-
-<Source
-	language="tsx"
-	code={ `<GeoChart
-		data={ [
-			['Country', 'Orders', { type: 'string', role: 'tooltip', p: { html: true } }],
-			[
-				'United States',
-				1000,
-				\`<div style="padding: 12px; font-family: sans-serif;">
-					<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">🇺🇸 United States</div>
-					<div style="color: #666;">Orders: <strong>1,000</strong></div>
-					<div style="color: #666;">Share: <strong>40%</strong></div>
-				</div>\`,
-			],
-		] }
-		width={ 800 }
-		height={ 500 }
-	/>` }
-/>
 
 ## Loading State
 
@@ -385,11 +359,9 @@ The Geo Chart uses Google Charts' default Mercator projection for world map visu
 
 ### Screen Reader Support
 
-Google Charts provides some built-in accessibility features. For better accessibility:
-
+- Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - Provide a data table or list alongside the chart
 - Use descriptive headings to introduce the geographical data
-- Consider adding `aria-label` or `aria-describedby` to the container element
 
 ### Focus Management
 

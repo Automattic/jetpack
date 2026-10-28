@@ -4,17 +4,14 @@
 
 	max-width: var(--max-container-width);
 	margin: 0 auto;
+}
 
-	:global(.components-tab-panel__tabs) {
-		position: relative;
-		z-index: 1;
-		padding-inline-start: 24px;
-		margin-block-end: -1px;
-
-		@media (max-width: gb.$break-medium ) {
-			padding-inline-start: 0.5rem;
-		}
-	}
+// Overlaps the separator below, so the active tab's indicator covers it.
+.tab-list {
+	position: relative;
+	z-index: 1;
+	padding-inline-start: 24px;
+	margin-block-end: -1px;
 }
 
 .tab-content-wrapper {
@@ -23,6 +20,11 @@
 
 	@media (max-width: gb.$break-medium ) {
 		padding-inline: 1.5rem;
+	}
+
+	// The wrapper pads the top already, so the JITM card drops its own.
+	> :global(.jp-jitm-slot) :global(.jitm-card) {
+		margin-block-start: 0;
 	}
 
 	h2 {
@@ -42,10 +44,8 @@
 	margin: 0 auto;
 }
 
-// The content surface TabPanel renders inside its
-// `.components-tab-panel__tab-content`: an off-white band with the inner
-// content centered. Shared so the single-section path (rendered without
-// TabPanel) matches the tabbed layout exactly.
+// A tab's content surface: an off-white band with the inner content centered.
+// Shared so the single-section view matches the tabbed one.
 @mixin tab-content-surface {
 	background-color: #fcfcfc;
 	display: flex;
@@ -64,7 +64,7 @@
 	}
 }
 
-// Single-section view: rendered directly, without a TabPanel wrapper.
+// Single-section view: rendered directly, without tabs.
 .single-tab-content {
 
 	@include tab-content-surface;
@@ -82,19 +82,26 @@
 	flex: 1;
 	flex-direction: column;
 
-	:global(.components-tab-panel__tabs) {
-		// @TODO: remove this once we can keep tabs consistent looking with core
-		// colors.
-		--wp-admin-theme-color: var(--jp-black);
-		--wp-admin-theme-color-darker-10: var(--jp-black-80);
-		--wp-admin-theme-color-darker-20: var(--jp-black-80);
-
-		padding-inline-start: 24px;
-	}
-
-	:global(.components-tab-panel__tab-content) {
+	.tab-content {
 
 		@include tab-content-surface;
 		flex: 1;
 	}
+}
+
+// The shared `.jp-admin-page-tabs` strip: a 48px row plus its divider.
+$pinned-tabs-block-size: calc(#{gb.$grid-unit-60} + var(--wpds-border-width-xs));
+
+.my-jetpack-tab-panel--pinned-tabs {
+	--my-jetpack-pinned-tabs-block-size: #{$pinned-tabs-block-size};
+
+	// Keeps content z-indexes, like the Features toolbar's, under the tabs.
+	.tab-content {
+		isolation: isolate;
+	}
+}
+
+// Focus moving up through the content would otherwise scroll it under the tabs.
+:global(.jp-admin-page__content):has(.my-jetpack-tab-panel--pinned-tabs) {
+	scroll-padding-block-start: $pinned-tabs-block-size;
 }

@@ -9,7 +9,7 @@ import {
 import { Button, Placeholder, Spinner, withNotices, ResizableBox } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { getActiveStyleName } from '../../shared/block-styles';
@@ -18,8 +18,10 @@ import metadata from './block.json';
 import Map from './component';
 import Controls from './controls';
 import { getCoordinates } from './get-coordinates.js';
+import getPointsAttributes from './get-points-attributes';
 import previewPlaceholder from './map-preview.jpg';
 import styles from './styles';
+import useAddressLookup from './use-address-lookup';
 import getMapProvider from './utils/get-map-provider';
 
 const icon = getBlockIconComponent( metadata );
@@ -85,41 +87,41 @@ const MapEdit = ( {
 
 	const mapStyle = getActiveStyleName( styles, className );
 	const mapProvider = getMapProvider( { mapStyle } );
+	const onSetPoints = value => setAttributes( getPointsAttributes( value, points ) );
 
-	const geoCodeAddress = () => {
-		if ( ! address || ! apiKey || mapProvider === 'mapkit' ) {
-			return;
+	const lookupAddress = useMemo( () => {
+		if ( ! apiKey || mapProvider === 'mapkit' ) {
+			return null;
 		}
+		return async query => {
+			const result = await getCoordinates( query, apiKey );
+			if ( ! result.features?.length ) {
+				throw new Error(
+					__(
+						'Could not find the coordinates of the provided address. Displaying default location. Feel free to add the location manually.',
+						'jetpack'
+					)
+				);
+			}
+			const feature = result.features[ 0 ];
+			return [
+				{
+					title: feature.text,
+					placeTitle: feature.text,
+					caption: feature.place_name,
+					id: feature.id,
+					coordinates: {
+						latitude: feature.center[ 1 ],
+						longitude: feature.center[ 0 ],
+					},
+				},
+			];
+		};
+	}, [ apiKey, mapProvider ] );
 
-		getCoordinates( address, apiKey )
-			.then( result => {
-				if ( ! result.features?.length ) {
-					onError(
-						null,
-						__(
-							'Could not find the coordinates of the provided address. Displaying default location. Feel free to add the location manually.',
-							'jetpack'
-						)
-					);
-				} else {
-					const feature = result.features[ 0 ];
-					const newPoint = [
-						{
-							title: feature.text,
-							placeTitle: feature.text,
-							caption: feature.place_name,
-							id: feature.id,
-							coordinates: {
-								latitude: feature.center[ 1 ],
-								longitude: feature.center[ 0 ],
-							},
-						},
-					];
-					setAttributes( { points: newPoint } );
-				}
-			} )
-			.catch( error => onError( null, error.message ) );
-	};
+	useAddressLookup( address, points, lookupAddress, onSetPoints, error =>
+		onError( null, error.message )
+	);
 
 	const apiCall = ( serviceApiKey = null, method = 'GET' ) => {
 		return new Promise( ( resolve, reject ) => {
@@ -160,7 +162,7 @@ const MapEdit = ( {
 		}
 		const newPoints = points.slice( 0 );
 		newPoints.push( point );
-		setAttributes( { points: newPoints } );
+		onSetPoints( newPoints );
 		setAddPointVisibility( false );
 	};
 
@@ -207,7 +209,7 @@ const MapEdit = ( {
 
 	useEffect( () => {
 		if ( mapProvider === 'mapbox' ) {
-			apiCall().then( geoCodeAddress );
+			apiCall();
 		} else {
 			setApiState( API_STATE_SUCCESS );
 		}
@@ -224,9 +226,6 @@ const MapEdit = ( {
 		const timeout = setTimeout( mapRef.current.sizeMap, 0 );
 		return () => clearTimeout( timeout );
 	}, [ align ] );
-
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	useEffect( geoCodeAddress, [ address ] );
 
 	useEffect( () => {
 		// Fetch API key when switching from mapkit to mapbox
@@ -306,6 +305,7 @@ const MapEdit = ( {
 					<Controls
 						attributes={ attributes }
 						setAttributes={ setAttributes }
+						onSetPoints={ onSetPoints }
 						apiKey={ apiKey }
 						apiKeySource={ apiKeySource }
 						apiKeyControl={ apiKeyControl }
@@ -320,6 +320,7 @@ const MapEdit = ( {
 					<Controls
 						attributes={ attributes }
 						setAttributes={ setAttributes }
+						onSetPoints={ onSetPoints }
 						apiKey={ apiKey }
 						apiKeySource={ apiKeySource }
 						apiKeyControl={ apiKeyControl }
@@ -362,7 +363,7 @@ const MapEdit = ( {
 							} }
 							admin={ true }
 							apiKey={ apiKey }
-							onSetPoints={ value => setAttributes( { points: value } ) }
+							onSetPoints={ onSetPoints }
 							onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
 							onMapLoaded={ () => setAddPointVisibility( ! points.length ) }
 							onMarkerClick={ () => setAddPointVisibility( false ) }

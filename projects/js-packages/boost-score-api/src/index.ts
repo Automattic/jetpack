@@ -345,3 +345,21 @@ export function calculateDaysSince( timestamp: number ): number {
 
 	return differenceInDays;
 }
+
+export type ScoreTier = 'good' | 'medium' | 'poor';
+
+/**
+ * The tier a speed score falls in.
+ *
+ * @param {number} score - Speed score, 0 to 100.
+ * @return {ScoreTier} The tier.
+ */
+export function getScoreTier( score: number ): ScoreTier {
+	if ( score > 70 ) {
+		return 'good';
+	}
+	if ( score > 50 ) {
+		return 'medium';
+	}
+	return 'poor';
+}

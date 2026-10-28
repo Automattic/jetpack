@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Make low values in heatmaps such as Posting activity easier to tell apart from empty cells, and show zero counts as empty.

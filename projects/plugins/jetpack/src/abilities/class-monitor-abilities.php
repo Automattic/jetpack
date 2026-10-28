@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack;
 use Jetpack_IXR_Client;
+use Jetpack_Monitor;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -225,10 +226,10 @@ class Monitor_Abilities extends Registrar {
 
 	/**
 	 * Execute: declarative state-setter. Idempotent — compares desired vs current
-	 * and returns changed=false when they match. Either way the local
-	 * `monitor_receive_notifications` option is synced to the remote value (after
-	 * the write on a change, and on the no-op path) so the legacy REST reader,
-	 * which trusts that option first, never reports a stale state.
+	 * and returns changed=false when they match. Either way the current user's
+	 * local copy of the value is synced to the remote one (after the write on a
+	 * change, and on the no-op path) so the legacy REST reader, which trusts that
+	 * copy first, never reports a stale state.
 	 *
 	 * @param array|null $input Input matching the ability's input_schema.
 	 * @return array|\WP_Error
@@ -270,14 +271,8 @@ class Monitor_Abilities extends Registrar {
 		}
 
 		if ( $desired === $current ) {
-			// Sync the local `monitor_receive_notifications` option to the
-			// known-good remote value even on a no-op. The legacy
-			// `Jetpack_Core_Json_Api_Endpoints::get_remote_value` reader trusts
-			// this option before falling back to a remote read, so a stale local
-			// value would let it report the wrong state. The changed=true path
-			// below mirrors the option after a write; mirroring here keeps the
-			// unchanged path self-healing too.
-			update_option( 'monitor_receive_notifications', $current );
+			// Sync even on a no-op, so a stale local copy heals itself.
+			Jetpack_Monitor::save_notifications_copy( $current );
 
 			return array(
 				'enabled' => $current,
@@ -290,10 +285,8 @@ class Monitor_Abilities extends Registrar {
 			return $applied;
 		}
 
-		// Mirror the write to the `monitor_receive_notifications` option so the
-		// legacy `Jetpack_Core_Json_Api_Endpoints::get_remote_value` reader — the
-		// only other reader of this option — stays in sync with the remote state.
-		update_option( 'monitor_receive_notifications', $desired );
+		// Keep the legacy REST reader's local copy in sync with the write.
+		Jetpack_Monitor::save_notifications_copy( $desired );
 
 		return array(
 			'enabled' => $desired,

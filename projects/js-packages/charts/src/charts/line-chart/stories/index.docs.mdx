@@ -230,6 +230,8 @@ Pair several metrics side by side, each with its own comparison overlay. With `l
 
 <Canvas of={ LineChartStories.ComparisonMulti } />
 
+To name each metric's comparison instead, pass `legend.comparisonSeriesItems` a function. Every comparison series then gets its own static item, labeled by calling the function with its metric's label (for example `` label => `${ label } (Prev. period)` ``), and the item is left out while its metric is hidden.
+
 ### Theme Integration
 
 Comparison styling can be set in your theme configuration:
@@ -754,7 +756,7 @@ Control chart layout with precise margin settings:
 ### Screen Reader Support
 
 - Chart container has `role="application"`, so screen readers pass arrow keys through to the chart's point navigation.
-- Set `ariaLabel` to name the chart after what it shows, so a screen reader user with several charts on a page can tell them apart.
+- Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - Data points are navigable and announced with values
 - Interactive elements have appropriate ARIA attributes
 - Interactive legend items announce their current visibility state ("visible" or "hidden")

@@ -27,6 +27,7 @@ const THE_EXCERPT_BLOCK = '[[[[[' . BLOCK_NAME . ']]]]]';
  */
 function register_block() {
 	if ( ! \Jetpack::is_module_active( 'subscriptions' ) ) {
+		\Jetpack_Gutenberg::set_extension_unavailable( 'paywall', 'missing_module', array( 'module' => 'subscriptions' ) );
 		return;
 	}
 	if ( ! class_exists( '\Jetpack_Memberships' ) ) {

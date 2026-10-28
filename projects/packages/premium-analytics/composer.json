@@ -10,6 +10,7 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-feature-flags": "@dev",
+		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
@@ -64,7 +65,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-premium-analytics",
 		"textdomain": "jetpack-premium-analytics-pkg",
 		"version-constants": {
@@ -74,7 +74,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.11.x-dev"
+			"dev-trunk": "0.14.x-dev"
 		}
 	}
 }

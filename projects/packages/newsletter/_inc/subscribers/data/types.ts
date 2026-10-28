@@ -50,6 +50,14 @@ export type Subscriber = {
 
 	// Paid / comp subscriptions, only present when `use_new_helper=true`.
 	plans?: SubscriptionPlan[];
+
+	bounce_retry?: BounceRetry | null;
+};
+
+// Bounce retry state, present when `subscription_status_reason` is `bounced`. Dates are ISO 8601 UTC.
+export type BounceRetry = {
+	can_retry: boolean;
+	sent_on: string | null;
 };
 
 export type SubscribersResponse = {
@@ -82,6 +90,16 @@ export type SubscribersQueryParams = {
 	sortOrder: SubscribersSortOrder;
 	search?: string;
 	filters: SubscribersFilter[];
+};
+
+/**
+ * The table's filters, search and sort, which the CSV download sends so the file matches the table.
+ */
+export type SubscribersExportQuery = {
+	filters: SubscribersFilter[];
+	search: string;
+	sort: SubscribersSortField;
+	sortOrder: SubscribersSortOrder;
 };
 
 export type RemoveSubscriberPayload = {
@@ -182,4 +200,9 @@ export type SubscriberStats = {
 	emails_sent: number;
 	unique_opens: number;
 	unique_clicks: number;
+};
+
+export type SendBounceConfirmationResponse = {
+	success: boolean;
+	bounce_retry?: BounceRetry | null;
 };

@@ -76,12 +76,7 @@ export const GATED_ATTRIBUTES = {
 	taxEnabled: [ 'taxType', 'taxName', 'taxValue' ],
 	handlingEnabled: [ 'handlingValue' ],
 	discountEnabled: [ 'discountType', 'discountValue' ],
-	shippingEnabled: [
-		'shippingMode',
-		'shippingValue',
-		'shippingAdditionalValue',
-		'collectShippingAddress',
-	],
+	shippingEnabled: [ 'shippingMode', 'shippingValue', 'shippingAdditionalValue' ],
 };
 
 /**

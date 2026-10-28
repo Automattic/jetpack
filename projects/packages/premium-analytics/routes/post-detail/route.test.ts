@@ -1,11 +1,15 @@
-import { ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
+import {
+	ensureCoreSettingsReady,
+	isDashboardSectionAvailable,
+} from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
-import { isDashboardSectionAvailable, isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	ensureCoreSettingsReady: jest.fn(),
+	isDashboardSectionAvailable: jest.fn( () => true ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -13,7 +17,10 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
-	isDashboardSectionAvailable: jest.fn( () => true ),
+} ) );
+jest.mock( '../stats-date-window', () => ( {
+	limitStatsDateSearch: jest.fn( () => undefined ),
+	dateWindowNotice: () => undefined,
 } ) );
 jest.mock( './config', () => ( {
 	resolveTabId: ( section: string ) => section,
@@ -87,6 +94,23 @@ describe( 'post detail route report origin', () => {
 		).toEqual( { ref_preset: 'last-7-days', ref_compare_preset: 'previous-period' } );
 		await expect( result ).rejects.not.toHaveProperty( 'search.from', '2026-06-10' );
 		await expect( result ).rejects.not.toHaveProperty( 'search.comp' );
+	} );
+
+	it( 'keeps an all-time linking window with its own start', async () => {
+		const result = route.beforeLoad( {
+			params: { postId: '42' },
+			search: { from: '2026-01-01', to: '2026-06-16', interval: 'month', preset: 'all-time' },
+		} );
+
+		await expect( result ).rejects.toMatchObject( {
+			search: {
+				preset: 'all-time',
+				post_id: '42',
+				ref_preset: 'all-time',
+				ref_from: '2026-01-01',
+				ref_to: '2026-06-16',
+			},
+		} );
 	} );
 
 	it( 'keeps the page its own range and the linking window when re-seeding a settled URL', async () => {

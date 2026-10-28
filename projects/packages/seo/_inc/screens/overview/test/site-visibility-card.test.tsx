@@ -31,12 +31,35 @@ const buildVisibility = ( overrides: Partial< Visibility > = {} ): Visibility =>
 const dotFor = ( label: string ) => screen.getByText( label ).getAttribute( 'data-status' );
 
 describe( 'SiteVisibilityCard', () => {
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it.each( [ true, false ] )(
+		'reports platform ownership on Simple when indexing is %s',
+		visible => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				site: { host: 'wpcom' },
+			};
+
+			render(
+				<SiteVisibilityCard
+					data={ buildVisibility( { search_engines_visible: visible } ) }
+					onManage={ jest.fn() }
+				/>
+			);
+
+			expect( screen.getByText( 'Sitemaps managed by WordPress.com' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /Sitemap (not )?published/ ) ).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'reports indexing and the sitemap, and nothing else', () => {
 		render( <SiteVisibilityCard data={ buildVisibility() } onManage={ jest.fn() } /> );
 
 		expect( screen.getByText( 'Open to search engines' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Sitemap published' ) ).toBeInTheDocument();
-		// The Overview renders `EnableSeoCard` in place of these cards when SEO tools
+		// The page shows the enable prompt in place of these cards when SEO tools
 		// are off, so an "SEO tools active" row could only ever read "active".
 		expect( screen.queryByText( /SEO tools/ ) ).not.toBeInTheDocument();
 	} );

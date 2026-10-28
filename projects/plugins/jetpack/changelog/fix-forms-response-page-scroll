@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Restore scrolling on the standalone single response page so long responses are no longer cut off.

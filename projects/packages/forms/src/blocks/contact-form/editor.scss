@@ -268,7 +268,8 @@
 
 	.block-editor-block-variation-picker__variation {
 
-		svg path:not([fill="none"]) {
+		// Filling the paths of a stroke-based icon would blot it.
+		svg:not([stroke]) path:not([fill="none"]) {
 			fill: currentColor;
 		}
 	}
@@ -1210,7 +1211,7 @@
 .jetpack-contact-form__integrations-panel {
 
 	/*
-	 * `LinkButton` renders an anchor with @wordpress/ui classes rather than
+	 * `ButtonLink` renders an anchor with @wordpress/ui classes rather than
 	 * `.components-button`, so it needs naming here to stay full-width alongside
 	 * the panel's other buttons.
 	 */

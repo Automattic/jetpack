@@ -21,6 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Download endpoints powering the Download screen:
  *   - POST /jetpack/v4/backups/download/{rewindId}            → ask WPCOM to build the archive
  *   - GET  /jetpack/v4/backups/download/{rewindId}/status     → poll progress
+ *   - GET  /jetpack/v4/backups/downloads                      → find a download already under way
  */
 class Download_Bridge {
 
@@ -85,6 +86,16 @@ class Download_Bridge {
 						'required' => true,
 					),
 				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/backups/downloads',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_downloads' ),
+				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
 			)
 		);
 	}
@@ -213,6 +224,15 @@ class Download_Bridge {
 			);
 		}
 
+		// While one download builds, WPCOM answers every request with that one, whichever backup it is of.
+		if ( isset( $body['rewindId'] ) && ! self::is_same_backup( $body['rewindId'], $rewind_id ) ) {
+			return new WP_Error(
+				'download_in_progress',
+				__( 'Another download is being prepared for this site. Try again once it finishes.', 'jetpack-backup-pkg' ),
+				array( 'status' => 409 )
+			);
+		}
+
 		return rest_ensure_response( array( 'id' => $download_id ) );
 	}
 
@@ -254,14 +274,6 @@ class Download_Bridge {
 	 * downloadId), and because it keeps the two download routes
 	 * symmetrical.
 	 *
-	 * The response is projected rather than forwarded, the way restore
-	 * status already is. WPCOM's payload carries **no status field**: it
-	 * attaches keys by branch — `url` and `validUntil` once the archive
-	 * is ready, `error` when it failed, and `progress` only while the
-	 * archive is still being built. Leaving that shape for the client to
-	 * interpret is what left the React layer testing three status strings
-	 * that never appear in the payload.
-	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return \WP_REST_Response|WP_Error
 	 */
@@ -295,10 +307,76 @@ class Download_Bridge {
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( ! is_array( $body ) ) {
-			$body = array();
+
+		return rest_ensure_response( self::project_download( is_array( $body ) ? $body : array(), $download_id ) );
+	}
+
+	/**
+	 * The site's latest downloads, so a reload can find one already under way.
+	 *
+	 * Proxies GET wpcom/v2 /sites/{id}/rewind/downloads, which lists the latest download not yet dismissed.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function get_downloads() {
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
 		}
 
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/rewind/downloads', $blog_id ),
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return Rest_Controller::transport_error( $response, 'download_list_fetch_failed' );
+		}
+
+		// Cast, as in `initiate_download()`.
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $status_code ) {
+			return Rest_Controller::upstream_error(
+				$response,
+				'download_list_fetch_failed',
+				__( 'Could not fetch download status.', 'jetpack-backup-pkg' )
+			);
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! wp_is_numeric_array( $body ) ) {
+			return new WP_Error(
+				'download_list_fetch_failed',
+				__( 'Could not fetch download status.', 'jetpack-backup-pkg' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$downloads = array();
+		foreach ( $body as $download ) {
+			if ( is_array( $download ) ) {
+				$downloads[] = self::project_download( $download, 0 );
+			}
+		}
+
+		return rest_ensure_response( $downloads );
+	}
+
+	/**
+	 * Shape one WPCOM download for the client.
+	 *
+	 * WPCOM's payload carries **no status field**: it attaches keys by
+	 * branch — `url` and `validUntil` once the archive is ready, `error`
+	 * when it failed, and `progress` only while it is still being built.
+	 *
+	 * @param array $body        One download as WPCOM sent it.
+	 * @param int   $download_id The id to report when the payload names none.
+	 * @return array The projected download.
+	 */
+	private static function project_download( array $body, $download_id ) {
 		$error   = isset( $body['error'] ) ? (string) $body['error'] : '';
 		$raw_url = isset( $body['url'] ) ? (string) $body['url'] : '';
 
@@ -328,25 +406,39 @@ class Download_Bridge {
 			// is in fact finished.
 			$status = 'failed';
 			$error  = __( 'The download link could not be used.', 'jetpack-backup-pkg' );
+		} elseif ( isset( $body['validUntil'] ) ) {
+			// WPCOM withdraws the link once it lapses, but keeps its expiry.
+			$status = 'expired';
 		} else {
 			$status = 'running';
 		}
 
-		return rest_ensure_response(
-			array(
-				'id'          => isset( $body['downloadId'] ) ? (int) $body['downloadId'] : $download_id,
-				'status'      => $status,
-				// 0-100, and absent entirely once the download leaves the
-				// in-flight branch. Clamped rather than trusted: the client
-				// feeds this straight to a progress bar, and the headline bug
-				// this projection replaces was a bar being handed 10000. Making
-				// the range true here means no future upstream change can
-				// reproduce that symptom.
-				'progress'    => isset( $body['progress'] ) ? max( 0, min( 100, (int) $body['progress'] ) ) : 0,
-				'url'         => $url,
-				'valid_until' => isset( $body['validUntil'] ) ? (string) $body['validUntil'] : '',
-				'error'       => $error,
-			)
+		return array(
+			'id'          => isset( $body['downloadId'] ) ? (int) $body['downloadId'] : $download_id,
+			'rewind_id'   => isset( $body['rewindId'] ) && is_scalar( $body['rewindId'] ) ? (string) $body['rewindId'] : '',
+			'status'      => $status,
+			// 0-100, absent once the download leaves the in-flight branch. Clamped, not
+			// trusted: the client hands it straight to a progress bar.
+			'progress'    => isset( $body['progress'] ) ? max( 0, min( 100, (int) $body['progress'] ) ) : 0,
+			'url'         => $url,
+			'valid_until' => isset( $body['validUntil'] ) ? (string) $body['validUntil'] : '',
+			'error'       => $error,
+		);
+	}
+
+	/**
+	 * Whether the rewind id WPCOM echoed names the backup that was asked for.
+	 *
+	 * Compared as numbers too, so a trailing zero or a JSON number still matches.
+	 *
+	 * @param mixed  $echoed    The rewind id WPCOM answered with.
+	 * @param string $requested The rewind id this request sent.
+	 * @return bool True when both name the same backup.
+	 */
+	private static function is_same_backup( $echoed, $requested ) {
+		return is_scalar( $echoed ) && (
+			(string) $echoed === $requested
+			|| ( is_numeric( $echoed ) && is_numeric( $requested ) && (float) $echoed === (float) $requested )
 		);
 	}
 }

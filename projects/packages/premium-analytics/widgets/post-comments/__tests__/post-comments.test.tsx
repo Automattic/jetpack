@@ -67,7 +67,9 @@ describe( 'PostCommentsWidget', () => {
 
 		renderWidget( 779 );
 
-		await expect( screen.findByText( 'There are no comments yet.' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( 'This post has no comments yet.' )
+		).resolves.toBeInTheDocument();
 		expect( mockApiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				path: expect.stringContaining( '/proxy/v1.1/posts/779/replies' ),

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Reports: Follow the WooCommerce Analytics date type setting instead of always using the order creation date.

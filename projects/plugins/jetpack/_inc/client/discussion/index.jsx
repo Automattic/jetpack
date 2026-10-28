@@ -48,11 +48,9 @@ export class Discussion extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Discussion Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ this.props.searchTerm
-						? __( 'Discussion', 'jetpack' )
-						: __( 'Manage advanced comment settings.', 'jetpack' ) }
-				</h2>
+				{ this.props.searchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Discussion', 'jetpack' ) }</h2>
+				) }
 				<Comments
 					{ ...commonProps }
 					isModuleFound={ this.props.isModuleFound }

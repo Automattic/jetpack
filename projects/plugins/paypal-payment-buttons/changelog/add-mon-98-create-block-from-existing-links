@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Offer the account's existing payment links when a new block is added, so a block can reuse one instead of creating another.

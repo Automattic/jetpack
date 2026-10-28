@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.3.5] - 2026-10-26
+### Changed
+- Block editor: Report that the Forms module is off when the form block is unavailable, so the editor can say why. [#53257]
+- Dashboard: Open on the remembered tab without a server-side redirect, saving a page load on every visit. [#53752]
+
+### Deprecated
+- Dashboard: Deprecate Dashboard::get_default_tab(), as the dashboard now picks its opening tab client-side. [#53752]
+
+### Fixed
+- Dashboard: Send sites without Central Form Management from the Forms list to the inbox even while settings are still loading. [#53752]
+
+## [8.3.4] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53675]
+- Update package dependencies. [#53806]
+- Use apply_shortcodes() terminology instead of do_shortcode(). [#53552]
+
+### Fixed
+- Fix a PHP warning and broken form when a contact form shortcode is nested inside another one. [#53603]
+- Form editor: Add labels and usage hints to the embed code and shortcode fields in the "add it to a page" dialog. [#53664]
+
+## [8.3.3] - 2026-10-12
+### Changed
+- Update package dependencies. [#53223]
+
+### Fixed
+- Contact Form: Keep brackets in submitted values escaped, so they cannot run shortcodes, on WordPress versions with the new HTML sanitizer. [#53335]
+- Dashboard: Fix error notices shown after deleting or trashing a form, even though it succeeded. [#53164]
+
+## [8.3.2] - 2026-10-12
+### Changed
+- Internal updates.
+
+## [8.3.1] - 2026-10-12
+### Fixed
+- Restore scrolling on the standalone single response page.
+
 ## [8.3.0] - 2026-10-05
 ### Added
 - Add conditional logic to form fields, available on WordPress.com Business plans and higher and on all Jetpack sites. [#52783]
@@ -2786,6 +2824,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[8.3.5]: https://github.com/automattic/jetpack-forms/compare/v8.3.4...v8.3.5
+[8.3.4]: https://github.com/automattic/jetpack-forms/compare/v8.3.3...v8.3.4
+[8.3.3]: https://github.com/automattic/jetpack-forms/compare/v8.3.2...v8.3.3
+[8.3.2]: https://github.com/automattic/jetpack-forms/compare/v8.3.1...v8.3.2
+[8.3.1]: https://github.com/automattic/jetpack-forms/compare/v8.3.0...v8.3.1
 [8.3.0]: https://github.com/automattic/jetpack-forms/compare/v8.2.2...v8.3.0
 [8.2.2]: https://github.com/automattic/jetpack-forms/compare/v8.2.1...v8.2.2
 [8.2.1]: https://github.com/automattic/jetpack-forms/compare/v8.2.0...v8.2.1

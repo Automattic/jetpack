@@ -13,6 +13,7 @@ use Automattic\Jetpack\Sharing_Likes\REST\Settings_Controller;
 use Automattic\Jetpack\Sharing_Likes\REST\Status_Controller;
 use Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section;
 use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 use WP_REST_Request;
@@ -207,6 +208,7 @@ final class Settings_App {
 				Placement_Section::choices()
 			),
 			'multibyte_supported' => function_exists( 'mb_stripos' ),
+			'private_site'        => ( new Status() )->is_private_site(),
 		);
 
 		return $data;

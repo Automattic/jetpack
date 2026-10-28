@@ -9,6 +9,7 @@ jest.mock( 'react', () => {
 
 let mockEnhancerAvailable = false;
 let mockCanAutoEnhance = true;
+const mockEnhancer = jest.fn( () => null );
 let mockIsModuleActive = true;
 let mockPublishSidebarOpen = false;
 const mockUpdateSeoData = jest.fn();
@@ -22,7 +23,7 @@ jest.mock( '../../ai-assistant-plugin/components/seo-enhancer/use-seo-requests',
 } ) );
 
 jest.mock( '../../ai-assistant-plugin/components/seo-enhancer', () => ( {
-	SeoEnhancer: () => null,
+	SeoEnhancer: props => mockEnhancer( props ),
 } ) );
 jest.mock( '../../ai-assistant-plugin/components/seo-enhancer/seo-summary', () => ( {
 	SeoSummary: () => null,
@@ -54,7 +55,9 @@ jest.mock( '@automattic/jetpack-shared-extension-utils/components', () => ( {
 jest.mock( '@automattic/jetpack-publicize/link-preview', () => ( {
 	LinkPreviewModalWithTrigger: () => null,
 } ) );
-jest.mock( '@automattic/jetpack-script-data', () => ( { isWpcomPlatformSite: () => false } ) );
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isWpcomPlatformSite: () => false,
+} ) );
 
 jest.mock( '@wordpress/editor', () => ( {
 	PluginDocumentSettingPanel: ( { children } ) => children,
@@ -115,6 +118,7 @@ describe( 'Seo panel', () => {
 	beforeEach( () => {
 		mockUseSeoRequests.mockClear();
 		mockUpdateSeoData.mockClear();
+		mockEnhancer.mockClear();
 		mockEnhancerAvailable = false;
 		mockCanAutoEnhance = true;
 		mockIsModuleActive = true;
@@ -155,6 +159,21 @@ describe( 'Seo panel', () => {
 		renderSeo();
 
 		expect( mockUseSeoRequests ).toHaveBeenCalled();
+	} );
+
+	it.each( [
+		[ 'hides the auto-generate toggle where auto mode cannot run', false ],
+		[ 'shows the auto-generate toggle where auto mode can run', true ],
+	] )( '%s', ( _label, canAutoEnhance ) => {
+		mockEnhancerAvailable = true;
+		mockCanAutoEnhance = canAutoEnhance;
+
+		renderSeo();
+
+		expect( mockEnhancer ).toHaveBeenCalled();
+		for ( const [ props ] of mockEnhancer.mock.calls ) {
+			expect( props.hideAutoEnhanceToggle ).toBe( ! canAutoEnhance );
+		}
 	} );
 
 	it( 'generates metadata once when the pre-publish sidebar opens', () => {

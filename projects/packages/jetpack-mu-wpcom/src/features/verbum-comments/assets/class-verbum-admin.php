@@ -38,21 +38,6 @@ class Verbum_Admin {
 	public $default_greeting = '';
 
 	/**
-	 * The default comment form color scheme - default is light
-	 *
-	 * @var string
-	 * @see ::set_default_color_theme_based_on_theme_settings()
-	 */
-	public $default_color_scheme = '';
-
-	/**
-	 * The default comment form color scheme - an empty array to start with
-	 *
-	 * @var array
-	 */
-	public $color_schemes = array();
-
-	/**
 	 * Class constructor
 	 */
 	public function __construct() {
@@ -73,16 +58,6 @@ class Verbum_Admin {
 
 		// Default option values.
 		$this->default_greeting = __( 'Leave a Reply', 'jetpack-mu-wpcom' );
-
-		// Default color scheme.
-		$this->default_color_scheme = 'light';
-
-		// Possible color schemes.
-		$this->color_schemes = array(
-			'light'       => __( 'Light', 'jetpack-mu-wpcom' ),
-			'dark'        => __( 'Dark', 'jetpack-mu-wpcom' ),
-			'transparent' => __( 'Transparent', 'jetpack-mu-wpcom' ),
-		);
 	}
 
 	/** Settings ************************************************************* */
@@ -102,7 +77,7 @@ class Verbum_Admin {
 
 		add_settings_field(
 			'enable_verbum_commenting',
-			__( 'Verbum', 'jetpack-mu-wpcom' ),
+			__( 'Jetpack Comments', 'jetpack-mu-wpcom' ),
 			array( $this, 'verbum_field' ),
 			'discussion'
 		);
@@ -142,23 +117,6 @@ class Verbum_Admin {
 			'highlander_comment_form_prompt',
 			array( $this, 'comment_form_greeting_sanitize' )
 		);
-
-		/**
-		 * Color Scheme
-		 */
-		add_settings_field(
-			'jetpack_comment_form_color_scheme',
-			__( 'Color Scheme', 'jetpack-mu-wpcom' ),
-			array( $this, 'comment_form_color_scheme_setting' ),
-			'discussion',
-			'jetpack_comment_form'
-		);
-
-		register_setting(
-			'discussion',
-			'jetpack_comment_form_color_scheme',
-			array( $this, 'comment_form_color_scheme_sanitize' )
-		);
 	}
 
 	/**
@@ -169,7 +127,7 @@ class Verbum_Admin {
 	public function comment_form_settings_section() {
 		?>
 
-		<p id="jetpack-comments-settings"><?php esc_html_e( 'Adjust your Comments form with a clever greeting and color-scheme.', 'jetpack-mu-wpcom' ); ?></p>
+		<p id="jetpack-comments-settings"><?php esc_html_e( 'Adjust your Comments form with a clever greeting.', 'jetpack-mu-wpcom' ); ?></p>
 
 		<?php
 	}
@@ -180,7 +138,7 @@ class Verbum_Admin {
 	public function verbum_field() {
 		?>
 			<label><input name="enable_verbum_commenting" type="checkbox" <?php checked( $this->is_verbum_enabled(), true, true ); ?> value="1" />
-				<?php esc_html_e( 'Let visitors use a WordPress.com or Facebook account to comment', 'jetpack-mu-wpcom' ); ?>
+				<?php esc_html_e( 'Replace the default comment form with Jetpack Comments, where visitors can also log in with WordPress.com', 'jetpack-mu-wpcom' ); ?>
 			</label>
 		<?php
 	}
@@ -249,54 +207,6 @@ class Verbum_Admin {
 		}
 
 		return wp_kses( $val, array() );
-	}
-
-	/**
-	 * Comment Form Color Scheme Setting
-	 */
-	public function comment_form_color_scheme_setting() {
-
-		// The color scheme.
-		$scheme = get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme );
-		?>
-
-		<fieldset>
-			<legend class="screen-reader-text"><?php esc_html_e( 'Color Scheme', 'jetpack-mu-wpcom' ); ?></legend>
-
-			<?php foreach ( $this->color_schemes as $key => $label ) : ?>
-
-				<label>
-					<input type="radio" name="jetpack_comment_form_color_scheme" id="jetpack-comment-form-color-scheme" value="<?php echo esc_attr( $key ); ?>" <?php checked( $scheme, $key ); ?>>
-					<?php echo esc_attr( $label ); ?>
-				</label>
-				<br />
-
-			<?php endforeach; ?>
-
-		</fieldset>
-
-		<?php
-	}
-
-	/**
-	 * Sanitize the color scheme
-	 *
-	 * @param string $val The color scheme string.
-	 * @return string|boolean
-	 */
-	public function comment_form_color_scheme_sanitize( $val ) {
-
-		// Delete the option if it's unknown, or the default.
-		if (
-			empty( $val ) || ! array_key_exists( $val, $this->color_schemes )
-			||
-			$val === $this->default_color_scheme
-		) {
-			delete_option( 'jetpack_comment_form_color_scheme' );
-			return false;
-		}
-
-		return $val;
 	}
 
 	/**

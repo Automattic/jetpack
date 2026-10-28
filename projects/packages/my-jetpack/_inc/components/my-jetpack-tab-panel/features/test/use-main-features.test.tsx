@@ -6,11 +6,13 @@ import {
 	pluginSwitchKey,
 	setRequestedSwitch,
 } from '../../../../data/requested-switch-state';
+import { reloadPage } from '../../../../utils/reload-page';
 import { useFeatureStates } from '../feature-state';
 import { useFeaturePlugin, useInstallError, useMainFeatures } from '../use-main-features';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
+jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
 
 const mockCreateErrorNotice = jest.fn();
 
@@ -23,6 +25,10 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+
+jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => () => ( {
+	hasConnectionError: false,
+} ) );
 
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { invalidateResolution: jest.fn() } ),
@@ -136,7 +142,7 @@ describe( 'installing a plugin', () => {
 
 		const { result } = renderInstall();
 
-		act( () => result.current.plugin.run( 'install' ) );
+		act( () => void result.current.plugin.run( 'install' ) );
 
 		await waitFor( () => expect( result.current.plugin.isBusy ).toBe( true ) );
 		expect( result.current.crm?.control.kind ).toBe( 'install-plugin' );
@@ -149,7 +155,7 @@ describe( 'installing a plugin', () => {
 		expect( result.current.plugin.isBusy ).toBe( false );
 	} );
 
-	it( 'keeps a failed install on the feature instead of a notice, until it is tried again', async () => {
+	it( 'keeps a failed install on the feature instead of a notice, until it is tried again, and says which attempt worked', async () => {
 		let attempts = 0;
 		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) => {
 			if ( method !== 'POST' ) {
@@ -163,16 +169,23 @@ describe( 'installing a plugin', () => {
 		} );
 
 		const { result } = renderInstall();
+		let outcome: Promise< boolean > = Promise.resolve( false );
 
-		act( () => result.current.plugin.run( 'install' ) );
+		act( () => {
+			outcome = result.current.plugin.run( 'install' );
+		} );
 
 		await waitFor( () => expect( result.current.error ).toBe( 'Could not download.' ) );
 		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
+		await expect( outcome ).resolves.toBe( false );
 
-		act( () => result.current.plugin.run( 'install' ) );
+		act( () => {
+			outcome = result.current.plugin.run( 'install' );
+		} );
 
 		await waitFor( () => expect( result.current.crm?.control.kind ).toBe( 'plugin' ) );
 		expect( result.current.error ).toBeNull();
+		await expect( outcome ).resolves.toBe( true );
 	} );
 
 	it( 'marks the install blocked, and why, when the user cannot make it', () => {
@@ -259,7 +272,7 @@ describe( 'useFeaturePlugin', () => {
 				wrapper: wrapper( client ),
 			} );
 
-			act( () => result.current.run( action ) );
+			act( () => void result.current.run( action ) );
 
 			await waitFor( () =>
 				expect( window.myJetpackInitialState.products.items.videopress.is_plugin_active ).toBe(
@@ -268,6 +281,28 @@ describe( 'useFeaturePlugin', () => {
 			);
 		}
 	);
+
+	it.each( [
+		[ 'reloads the page', false, 1 ],
+		[ 'leaves the page to a caller that navigates away', true, 0 ],
+	] )( '%s once Jetpack is on', async ( _, leavesPage, reloads ) => {
+		( reloadPage as jest.Mock ).mockClear();
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			method === 'POST' ? Promise.resolve( pageState ) : new Promise( () => undefined )
+		);
+		const client = new QueryClient( { defaultOptions: { mutations: { retry: false } } } );
+		const { result } = renderHook( () => useFeaturePlugin( 'jetpack', 'Jetpack' ), {
+			wrapper: wrapper( client ),
+		} );
+
+		let done: boolean | undefined;
+		await act( async () => {
+			done = await result.current.run( 'activate', { leavesPage } );
+		} );
+
+		expect( done ).toBe( true );
+		expect( reloadPage ).toHaveBeenCalledTimes( reloads );
+	} );
 
 	it( 'looks busy while another caller, such as a bulk switch, has asked for the plugin', () => {
 		mockApiFetch.mockImplementation( () => new Promise( () => undefined ) );
@@ -300,7 +335,7 @@ describe( 'useFeaturePlugin', () => {
 
 		expect( result.current.status( 'anti-spam' ) ).toBe( 'active' );
 
-		act( () => result.current.akismet.run( 'deactivate' ) );
+		act( () => void result.current.akismet.run( 'deactivate' ) );
 
 		// Well before the request settles at 400ms, so this is the asked-for value.
 		await waitFor( () => expect( result.current.status( 'anti-spam' ) ).toBe( 'inactive' ), {
@@ -326,7 +361,7 @@ describe( 'useFeaturePlugin', () => {
 
 		await waitFor( () => expect( result.current.status( 'anti-spam' ) ).toBe( 'active' ) );
 
-		act( () => result.current.akismet.run( 'deactivate' ) );
+		act( () => void result.current.akismet.run( 'deactivate' ) );
 
 		await waitFor( () => expect( result.current.status( 'anti-spam' ) ).toBe( 'inactive' ) );
 		await waitFor( () => expect( result.current.status( 'anti-spam' ) ).toBe( 'active' ) );
@@ -354,8 +389,8 @@ describe( 'useFeaturePlugin', () => {
 
 		await waitFor( () => expect( result.current.status( 'boost' ) ).toBe( 'active' ) );
 
-		act( () => result.current.akismet.run( 'deactivate' ) );
-		act( () => result.current.boost.run( 'deactivate' ) );
+		act( () => void result.current.akismet.run( 'deactivate' ) );
+		act( () => void result.current.boost.run( 'deactivate' ) );
 
 		await waitFor( () => expect( result.current.status( 'boost' ) ).toBe( 'inactive' ) );
 

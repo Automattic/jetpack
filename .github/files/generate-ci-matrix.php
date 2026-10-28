@@ -51,6 +51,9 @@ $default_matrix_vars = array(
 	// {string} A valid artifact name for any generated artifacts. If not given, will be derived from the name.
 	'artifact'            => null,
 
+	// (int|null) React version to test with.
+	'with-react-version'  => null,
+
 	// {bool} Whether to install WooCommerce.
 	'with-woocommerce'    => false,
 
@@ -63,15 +66,17 @@ $default_matrix_vars = array(
 	// {int|null} Total number of numbered splits, for `split-num`.
 	'split-total'         => null,
 
-	// {string|null} Project slug to run alone, with all CPUs.
-	'split-project'       => null,
+	// {string[]|null} Groups to run under one worker with all CPUs.
+	'split-groups'        => null,
 
 	// {string[]} Project slugs a `split-num` job skips, as they have their own job.
 	'split-exclude'       => array(),
 );
 
 // Matrix definitions. Each will be combined with `$default_matrix_vars` later in processing.
-$matrix = array();
+// Entries in `$to_split` are split into several jobs first, see "Split jobs" below.
+$matrix   = array();
+$to_split = array();
 
 // Add PHP tests.
 foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
@@ -115,43 +120,90 @@ $matrix[] = array(
 	'with-wpcomsh' => true,
 );
 
-// Add JS tests and coverage, with the same splits.
-// We specify projects we want on their own job, and then create some generic jobs to round-robin the rest.
-$js_project_splits = array( 'packages/premium-analytics', 'plugins/jetpack' );
-$js_generic_splits = 2;
+// Add PHP coverage as a split job.
+$to_split[] = array(
+	'name'         => 'Code coverage (PHP, %s)',
+	'script'       => 'test-php-coverage',
+	'wp'           => 'latest',
+	'timeout'      => 30, // 2026-09-14: Runs are at around 15 minutes each.
+	'coverage'     => true,
+	'split_config' => array(
+		'groups'  => array( 'jetpack' => 'plugins/jetpack' ),
+		'generic' => 1,
+	),
+);
+
+// Add JS tests and coverage
+$js_split_config = array(
+	'groups'  => array(
+		'slow' => array( 'packages/premium-analytics', 'plugins/jetpack' ),
+	),
+	'generic' => 2,
+);
 foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
-	$is_cov = $script === 'test-js-coverage';
-	$name   = $is_cov ? 'Code coverage (JS, %s)' : 'JS tests (%s)';
-	foreach ( $js_project_splits as $slug ) {
-		$matrix[] = array(
-			'name'          => sprintf( $name, basename( $slug ) ),
-			'script'        => $script,
-			'timeout'       => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
-			'coverage'      => $is_cov,
-			'split-project' => $slug,
+	$is_cov     = $script === 'test-js-coverage';
+	$to_split[] = array(
+		'name'         => $is_cov ? 'Code coverage (JS, %s)' : 'JS tests (%s)',
+		'script'       => $script,
+		'timeout'      => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
+		'coverage'     => $is_cov,
+		'split_config' => $js_split_config,
+	);
+}
+
+// Add JS React 18 test during the React 19 migration.
+// @todo Remove this when we drop support for WordPress Core versions containing React 18.
+$to_split[] = array(
+	'name'               => 'JS tests (React 18, %s)',
+	'script'             => 'test-js',
+	'timeout'            => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
+	'with-react-version' => 18,
+	'split_config'       => $js_split_config,
+);
+
+/*
+ * Split jobs: one job for each group in `split_config.groups`, then `split_config.generic` jobs to round-robin everything else.
+ * Groups are keyed by job name, with a project slug or an array of slugs as the value.
+ * For example, this config gives "Test name (jetpack)", "Test name (backup)", "Test name (1 of 2)", and "Test name (2 of 2)":
+ *
+ * array(
+ *   'name'         => 'Test name (%s)',
+ *   'split_config' => array(
+ *     'groups'  => array(
+ *       'jetpack' => 'plugins/jetpack',
+ *       'backup'  => array( 'packages/backup', 'plugins/backup' ),
+ *     ),
+ *     'generic' => 2,
+ *   ),
+ * )
+ */
+foreach ( $to_split as $m ) {
+	$split = $m['split_config'];
+	unset( $m['split_config'] );
+	$exclude = array();
+	foreach ( $split['groups'] as $group => $slugs ) {
+		$slugs    = array_values( (array) $slugs );
+		$exclude  = array_merge( $exclude, $slugs );
+		$matrix[] = array_merge(
+			$m,
+			array(
+				'name'         => sprintf( $m['name'], $group ),
+				'split-groups' => $slugs,
+			)
 		);
 	}
-	for ( $i = 1; $i <= $js_generic_splits; $i++ ) {
-		$matrix[] = array(
-			'name'          => sprintf( $name, "$i of $js_generic_splits" ),
-			'script'        => $script,
-			'timeout'       => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
-			'coverage'      => $is_cov,
-			'split-num'     => $i,
-			'split-total'   => $js_generic_splits,
-			'split-exclude' => $js_project_splits,
+	for ( $i = 1; $i <= $split['generic']; $i++ ) {
+		$matrix[] = array_merge(
+			$m,
+			array(
+				'name'          => sprintf( $m['name'], "$i of {$split['generic']}" ),
+				'split-num'     => $i,
+				'split-total'   => $split['generic'],
+				'split-exclude' => $exclude,
+			)
 		);
 	}
 }
-
-// Add PHP coverage.
-$matrix[] = array(
-	'name'     => 'Code coverage (PHP)',
-	'script'   => 'test-php-coverage',
-	'wp'       => 'latest',
-	'timeout'  => 30, // 2026-09-14: Runs are at around 15 minutes each.
-	'coverage' => true,
-);
 
 // END matrix definitions.
 // Now, validation.
@@ -295,9 +347,18 @@ foreach ( $matrix as &$m ) {
 		}
 	}
 
-	// Either use number or project.
-	if ( $m['split-num'] !== null && $m['split-project'] !== null ) {
-		error( "Keys `split-num` and `split-project` cannot both be set!\n%s", $orig );
+	if ( $m['split-groups'] !== null && ( ! is_array( $m['split-groups'] ) || ! $m['split-groups'] ) ) {
+		error( "Key `split-groups` must be a non-empty array or null!\n%s", $orig );
+	}
+
+	// Either use number or projects.
+	if ( $m['split-num'] !== null && $m['split-groups'] !== null ) {
+		error( "Keys `split-num` and `split-groups` cannot both be set!\n%s", $orig );
+	}
+
+	// Make sure `split_config` isn't in a normal `$matrix` entry instead of `$to_split`.
+	if ( isset( $m['split_config'] ) ) {
+		error( "Key `split_config` is only valid for entries in `\$to_split`!\n%s", $orig );
 	}
 }
 unset( $m );

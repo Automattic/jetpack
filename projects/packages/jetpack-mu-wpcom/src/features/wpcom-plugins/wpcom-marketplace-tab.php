@@ -30,7 +30,8 @@ function wpcom_marketplace_register_flag() {
 	Feature_Flags::register(
 		WPCOM_MARKETPLACE_TAB_FLAG,
 		array(
-			'default'     => false,
+			// On for every site. Kept as an off switch, per site or for all, until the tab has settled.
+			'default'     => true,
 			'description' => 'Show WordPress.com partner and premium plugins as a Marketplace tab on the Add Plugins screen.',
 			'owner'       => 'jetpack-mu-wpcom',
 		)
@@ -152,10 +153,40 @@ add_filter( 'install_plugins_table_api_args_' . WPCOM_MARKETPLACE_TAB, 'wpcom_ma
 /**
  * Whether this request is the Add Plugins screen, the details modal included.
  *
+ * Simple sites draw that screen from their own page, which calls itself core's screen.
+ *
  * @return bool
  */
 function wpcom_marketplace_on_plugin_install_screen() {
-	return isset( $GLOBALS['pagenow'] ) && 'plugin-install.php' === $GLOBALS['pagenow'];
+	if ( isset( $GLOBALS['pagenow'] ) && 'plugin-install.php' === $GLOBALS['pagenow'] ) {
+		return true;
+	}
+
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+
+	return null !== $screen && 'plugin-install' === $screen->id;
+}
+
+/**
+ * Whether a plugin is on this site already.
+ *
+ * Simple sites draw the Add Plugins screen without core's plugin install functions, and have
+ * nothing installed.
+ *
+ * @param array $plugin Plugin data.
+ * @return bool
+ */
+function wpcom_marketplace_is_installed( array $plugin ) {
+	return function_exists( 'install_plugin_install_status' ) && 'install' !== install_plugin_install_status( $plugin )['status'];
+}
+
+/**
+ * Whether buying a product here also means buying a plan, as on a free Simple site.
+ *
+ * @return bool
+ */
+function wpcom_marketplace_needs_plan() {
+	return function_exists( 'wpcom_site_has_feature' ) && ! wpcom_site_has_feature( 'install-purchased-plugins' );
 }
 
 /**
@@ -244,7 +275,18 @@ function wpcom_marketplace_price_rows( array $card ) {
 	}
 
 	$note = '';
-	if ( $has_yearly && '' !== $monthly ) {
+	if ( wpcom_marketplace_needs_plan() ) {
+		/**
+		 * Filters the line under a card's price on a site that buys a plan along with the product.
+		 *
+		 * It replaces the monthly price, since the plan is the other thing the buyer pays for.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $note Plain text.
+		 */
+		$note = '<span class="wpcom-marketplace-card__note">' . esc_html( (string) apply_filters( 'wpcom_marketplace_plan_note', __( 'Needs a paid plan', 'jetpack-mu-wpcom' ) ) ) . '</span>';
+	} elseif ( $has_yearly && '' !== $monthly ) {
 		// Worded as a condition, not "or": the button buys the year, so this is only what it is measured against.
 		/* translators: %s: Price per month, for example $9.90. */
 		$note = '<span class="wpcom-marketplace-card__note">' . esc_html( sprintf( __( '%s/month if billed monthly', 'jetpack-mu-wpcom' ), $monthly ) ) . '</span>';
@@ -267,10 +309,9 @@ function wpcom_marketplace_price_rows( array $card ) {
  * @return string Button markup.
  */
 function wpcom_marketplace_card_button( array $card, $back_url = '' ) {
-	$name   = (string) ( $card['name'] ?? $card['slug'] ?? '' );
-	$status = install_plugin_install_status( $card );
+	$name = (string) ( $card['name'] ?? $card['slug'] ?? '' );
 
-	if ( 'install' !== $status['status'] ) {
+	if ( wpcom_marketplace_is_installed( $card ) ) {
 		return function_exists( 'wp_get_plugin_action_button' )
 			? wp_get_plugin_action_button( $name, $card, true, true )
 			: '';
@@ -307,6 +348,19 @@ function wpcom_marketplace_card_button( array $card, $back_url = '' ) {
 
 	$checkout = Marketplace_Catalog::checkout_url( $card, WPCOM_MARKETPLACE_TERM, '' === $back_url ? wpcom_marketplace_tab_url() : $back_url );
 
+	/**
+	 * Filters where a Marketplace card's Purchase button leads.
+	 *
+	 * Simple sites add the plan the purchase needs, or send it through Calypso when the purchase
+	 * cannot go ahead.
+	 *
+	 * @since 6.11.0
+	 *
+	 * @param string $checkout Checkout URL, or empty when there is no store product.
+	 * @param array  $card     The product's card.
+	 */
+	$checkout = (string) apply_filters( 'wpcom_marketplace_checkout_url', $checkout, $card );
+
 	// Without a store product there is nothing to buy, so fall back to the product page.
 	if ( '' === $checkout ) {
 		return sprintf(
@@ -315,6 +369,17 @@ function wpcom_marketplace_card_button( array $card, $back_url = '' ) {
 			/* translators: %s: Plugin name. */
 			esc_attr( sprintf( __( 'Get started with %s', 'jetpack-mu-wpcom' ), $name ) ),
 			esc_html__( 'Get started', 'jetpack-mu-wpcom' )
+		);
+	}
+
+	// A site whose plan does not include it buys one in the same checkout, through the filter above.
+	if ( wpcom_marketplace_needs_plan() ) {
+		return sprintf(
+			'<a class="button button-compact wpcom-marketplace-card__upgrade" href="%s" data-wpcom-marketplace-track="purchase" aria-label="%s">%s</a>',
+			esc_url( $checkout ),
+			/* translators: %s: Plugin name. */
+			esc_attr( sprintf( __( 'Upgrade your plan and purchase %s', 'jetpack-mu-wpcom' ), $name ) ),
+			esc_html__( 'Upgrade and purchase', 'jetpack-mu-wpcom' )
 		);
 	}
 

@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { getKeyboardStops } from '../../components/tooltip/private/keyboard-stops';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -144,14 +145,22 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			[ seriesWithVisibility ]
 		);
 
+		const visibleDataSeries = useMemo(
+			() => dataSorted.filter( series => isSeriesVisible( series.label ) ),
+			[ dataSorted, isSeriesVisible ]
+		);
+
 		// A normalized stack (expand/wiggle/silhouette) turns whole-number data into
 		// fractions, so the filter is skipped for every offset but 'none'.
 		const hasWholeNumberValues = useMemo(
-			() =>
-				( ! stacked || stackOffset === 'none' ) &&
-				hasOnlyWholeNumbers( dataSorted.filter( series => isSeriesVisible( series.label ) ) ),
-			[ dataSorted, isSeriesVisible, stacked, stackOffset ]
+			() => ( ! stacked || stackOffset === 'none' ) && hasOnlyWholeNumbers( visibleDataSeries ),
+			[ visibleDataSeries, stacked, stackOffset ]
 		);
+		const visibleSeriesKey = useMemo(
+			() => JSON.stringify( visibleDataSeries.map( series => series.label ) ),
+			[ visibleDataSeries ]
+		);
+		const stops = useMemo( () => getKeyboardStops( visibleDataSeries ), [ visibleDataSeries ] );
 
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 			selectedIndex,
@@ -159,7 +168,8 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints: dataSorted[ 0 ]?.data.length || 0,
+			totalPoints: stops.count,
+			visibleSeriesKey,
 		} );
 
 		// Computed from the full data set (ignoring legend visibility) so the y-axis stays
@@ -262,8 +272,9 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 				glyphSize: 0,
 				collapseGroups: legend.collapseGroups ?? false,
 				comparisonItem: legend.comparisonItem ?? false,
+				comparisonSeriesItems: legend.comparisonSeriesItems,
 			} ),
-			[ legend.collapseGroups, legend.comparisonItem ]
+			[ legend.collapseGroups, legend.comparisonItem, legend.comparisonSeriesItems ]
 		);
 		const legendItems = useChartLegendItems( dataSorted, legendOptions, legendShape );
 
@@ -525,7 +536,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 														keyboardFocusedClassName={
 															styles[ 'area-chart__tooltip--keyboard-focused' ]
 														}
-														series={ dataSorted }
+														series={ visibleDataSeries }
 													/>
 													<HoverGlyphs
 														visibleSeries={ visibleSeries }

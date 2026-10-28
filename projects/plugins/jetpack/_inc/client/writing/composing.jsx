@@ -1,4 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { currentUserCan } from '@automattic/jetpack-script-data';
+import { getJetpackAiManageUrl } from '@automattic/jetpack-shared-extension-utils';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -210,7 +212,13 @@ export class Composing extends Component {
 			),
 			aiAssistantLink = (
 				<CompactCard className="jp-settings-card__configure-link">
-					<a href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }>
+					<a
+						href={
+							currentUserCan( 'manage_options' )
+								? getJetpackAiManageUrl()
+								: getRedirectUrl( 'org-ai' )
+						}
+					>
 						{ __( 'Learn more about all Jetpack AI features', 'jetpack' ) }
 					</a>
 				</CompactCard>

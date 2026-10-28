@@ -8,7 +8,7 @@ import { useCanQueryWpcom, useConnection } from './use-connection';
  * `useCapabilities` a second time for the reason and the retry.
  */
 export type GateState =
-	| { status: 'not-connected' | 'secondary-admin' | 'loading' | 'no-plan' | 'ready' }
+	| { status: 'offline' | 'not-connected' | 'secondary-admin' | 'loading' | 'no-plan' | 'ready' }
 	| {
 			status: 'error';
 			/** The capabilities read's error, held across a retry. */
@@ -23,13 +23,13 @@ export type GateState =
  * The single decision about whether this site can use the dashboard.
  *
  * Top-to-bottom, first match wins:
- * not-connected → secondary-admin → loading → error → no-plan → ready
+ * offline → not-connected → secondary-admin → loading → error → no-plan → ready
  *
  * A hook rather than context: `<BackupNowButton>` renders in `<Page>`'s header actions,
  * above this gate, so it cannot read the verdict through the tree. Both callers hit the
  * same React Query key, so the second costs a cache read and not a request.
  *
- * Only the last step is load-bearing. A pending or failed read leaves `data` undefined
+ * Only the first and last steps are load-bearing. A pending or failed read leaves `data` undefined
  * too, so the plan check has to follow both or it sells the upsell to a site that may
  * well be entitled. The rest of the chain is mutually exclusive, enforced in the hooks
  * below rather than by this ordering.
@@ -41,6 +41,12 @@ export function useGateState(): GateState {
 	// Hooks can't be called conditionally, so the connection state gates the request
 	// rather than the call: without a user connection the bridge can only answer 403.
 	const capabilities = useCapabilities( { enabled: useCanQueryWpcom() } );
+
+	// Ahead of the connect screens: a local site is often offline and unconnected too, and
+	// offline mode refuses connecting.
+	if ( connection.isOfflineMode ) {
+		return { status: 'offline' };
+	}
 
 	if ( ! connection.isFullyConnected ) {
 		return { status: 'not-connected' };

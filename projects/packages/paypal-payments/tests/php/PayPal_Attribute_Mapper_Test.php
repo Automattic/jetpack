@@ -1849,6 +1849,146 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 
 	// --- Constants ---
 
+	// --- merge_into_resource ---
+
+	/**
+	 * A payment as a GET returns it, with keys the block does not model.
+	 *
+	 * @return array
+	 */
+	private static function stored_payment() {
+		return array(
+			'id'               => 'PLB-42',
+			'payment_link'     => 'https://www.paypal.com/ncp/payment/PLB-42',
+			'links'            => array(
+				array(
+					'rel'  => 'payment_link',
+					'href' => 'https://www.paypal.com/ncp/payment/PLB-42',
+				),
+			),
+			'create_time'      => '2026-09-11T17:32:35Z',
+			'update_time'      => '2026-10-01T09:00:00Z',
+			'status'           => 'ACTIVE',
+			'code_snippets'    => array( 'single' => array( 'body' => '<a>' ) ),
+			'type'             => 'BUY_NOW',
+			'integration_mode' => 'LINK',
+			'reusable'         => 'MULTIPLE',
+			'return_url'       => 'https://example.com/thanks',
+			'future_field'     => 'kept',
+			'line_items'       => array(
+				array(
+					'name'                     => 'Old name',
+					'unit_amount'              => array(
+						'currency_code' => 'USD',
+						'value'         => '10.00',
+					),
+					'taxes'                    => array(
+						array(
+							'type'  => 'PERCENTAGE',
+							'value' => '7.5',
+						),
+					),
+					'shipping'                 => array(
+						array(
+							'type'  => 'FLAT',
+							'value' => '5.00',
+						),
+					),
+					'collect_shipping_address' => true,
+					'future_detail'            => 'kept',
+				),
+				array(
+					'name'        => 'Second item',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '3.00',
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * The body a block builds when every optional field is off.
+	 *
+	 * @return array
+	 */
+	private static function bare_update() {
+		return array(
+			'type'             => 'BUY_NOW',
+			'integration_mode' => 'LINK',
+			'reusable'         => 'MULTIPLE',
+			'line_items'       => array(
+				array(
+					'name'        => 'New name',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '12.00',
+					),
+				),
+			),
+		);
+	}
+
+	public function test_merge_keeps_keys_the_block_does_not_own() {
+		$merged = PayPal_Attribute_Mapper::merge_into_resource( self::stored_payment(), self::bare_update() );
+
+		$this->assertSame( 'kept', $merged['future_field'] );
+		$this->assertSame( 'kept', $merged['line_items'][0]['future_detail'] );
+		$this->assertSame( 'Second item', $merged['line_items'][1]['name'] );
+	}
+
+	public function test_merge_drops_an_owned_key_the_block_left_out() {
+		$merged = PayPal_Attribute_Mapper::merge_into_resource( self::stored_payment(), self::bare_update() );
+
+		$this->assertArrayNotHasKey( 'return_url', $merged );
+		$this->assertArrayNotHasKey( 'taxes', $merged['line_items'][0] );
+		$this->assertArrayNotHasKey( 'shipping', $merged['line_items'][0] );
+		$this->assertSame( 'New name', $merged['line_items'][0]['name'] );
+		$this->assertSame( '12.00', $merged['line_items'][0]['unit_amount']['value'] );
+	}
+
+	public function test_merge_strips_read_only_keys() {
+		$merged = PayPal_Attribute_Mapper::merge_into_resource( self::stored_payment(), self::bare_update() );
+
+		foreach ( PayPal_Attribute_Mapper::READ_ONLY_RESOURCE_KEYS as $key ) {
+			$this->assertArrayNotHasKey( $key, $merged );
+		}
+	}
+
+	/**
+	 * The flag always goes out: the block's value when sent, PayPal's when not.
+	 *
+	 * @param array $line_item The block's line item.
+	 * @param bool  $expected  What goes to PayPal.
+	 * @dataProvider address_collection_provider
+	 */
+	#[DataProvider( 'address_collection_provider' )]
+	public function test_merge_always_sends_address_collection( array $line_item, $expected ) {
+		$update               = self::bare_update();
+		$update['line_items'] = array( $line_item );
+
+		$merged = PayPal_Attribute_Mapper::merge_into_resource( self::stored_payment(), $update );
+
+		$this->assertSame( $expected, $merged['line_items'][0]['collect_shipping_address'] );
+	}
+
+	/**
+	 * @return array<string, array{0: array, 1: bool}>
+	 */
+	public static function address_collection_provider() {
+		return array(
+			'not sent keeps PayPal\'s' => array( array( 'name' => 'Widget' ), true ),
+			'sent off turns it off'    => array(
+				array(
+					'name'                     => 'Widget',
+					'collect_shipping_address' => false,
+				),
+				false,
+			),
+		);
+	}
+
 	/**
 	 * Test that length constant values are set correctly.
 	 */

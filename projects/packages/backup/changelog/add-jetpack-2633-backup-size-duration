@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Show each backup's site size and how long it took in the modernized dashboard, which is behind a feature flag.
-
-

@@ -1,11 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
-import {
-	getScriptData,
-	getSiteData,
-	getSiteType,
-	isWpcomPlatformSite,
-} from '@automattic/jetpack-script-data';
+import { getScriptData, getSiteType, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -82,11 +77,7 @@ const WritingPrompt = () => {
 		return null;
 	}
 
-	const blogId = getSiteData()?.wpcom?.blog_id;
-	const readerUrl = addQueryArgs(
-		'https://wordpress.com/reader',
-		blogId ? { origin_site_id: blogId } : {}
-	);
+	const readerUrl = 'https://wordpress.com/reader';
 	const openReaderInNewTab = ! isWpcomPlatformSite();
 
 	const promptPanel = (

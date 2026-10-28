@@ -341,3 +341,8 @@ $twitter-pofile-image-padding: 17px;
 .jp-stats-form-fieldset {
 	margin-bottom: 20px;
 }
+
+// Sits between settings cards, which carry only a bottom margin.
+.jp-seo-optin-banner {
+	margin-block-end: rem.convert(24px);
+}

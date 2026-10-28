@@ -15,9 +15,14 @@ import { route } from '../../package.json';
  */
 const ROUTE_FROM = route.path;
 
-type SectionSearch = {
+type SectionSearch = Record< string, unknown > & {
 	section?: string;
 };
+
+type SwitchSearch = (
+	id: DashboardSectionId,
+	search: Record< string, unknown >
+) => Record< string, unknown > | undefined;
 
 /**
  * Read and update the active dashboard section via the `?section=` search
@@ -27,17 +32,25 @@ type SectionSearch = {
  * `?section=` is validated against the available sections. A miss resolves to
  * the first section by order and the URL is rewritten to it.
  *
- * @param sections - The available sections, in order.
- * @return A tuple of the active section slug and a setter to change it.
+ * @param sections     - The available sections, in order.
+ * @param stageSlugs   - Slugs of the tabs the stage renders itself.
+ * @param switchSearch - Other search params a switch to a section commits with it.
+ * @return The active section slug, a setter to change it, and whether the URL has committed it.
  */
 export function useActiveSection(
-	sections: DashboardSection[]
-): [ DashboardSectionId, ( id: DashboardSectionId ) => void ] {
-	const { effective, stage, commit } = useStagedSearch< SectionSearch, typeof ROUTE_FROM >( {
+	sections: DashboardSection[],
+	stageSlugs: readonly string[] = [],
+	switchSearch?: SwitchSearch
+): [ DashboardSectionId, ( id: DashboardSectionId ) => void, boolean ] {
+	const { committed, effective, stage, commit } = useStagedSearch<
+		SectionSearch,
+		typeof ROUTE_FROM
+	>( {
 		from: ROUTE_FROM,
 	} );
 
-	const activeSection = resolveSectionId( effective.section, sections );
+	const activeSection = resolveSectionId( effective.section, sections, stageSlugs );
+	const isCommitted = activeSection === resolveSectionId( committed.section, sections, stageSlugs );
 
 	// Rewrite an unresolvable `?section=` to the slug actually rendered, so the
 	// URL never advertises a section that isn't shown. Replace instead of push:
@@ -57,11 +70,11 @@ export function useActiveSection(
 		( id: DashboardSectionId ) => {
 			// Stage + atomic commit, pushing one history entry per section switch so
 			// Back/Forward moves between sections. See useStagedSearch README.
-			stage( { section: id } );
+			stage( { ...switchSearch?.( id, committed ), section: id } );
 			commit( { replace: false } );
 		},
-		[ stage, commit ]
+		[ stage, commit, switchSearch, committed ]
 	);
 
-	return [ activeSection, setActiveSection ];
+	return [ activeSection, setActiveSection, isCommitted ];
 }

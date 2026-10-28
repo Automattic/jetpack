@@ -30,6 +30,21 @@
 		xhrRequest.send();
 	}
 
+	// The Protect dashboard's threat count script fetches the count for both the admin bar and its menu item.
+	if ( localized.count_event ) {
+		document.addEventListener( localized.count_event, function ( event ) {
+			ready( function () {
+				update_threats_link( event.detail.count );
+			} );
+		} );
+		if ( typeof window.jetpackProtectThreatCount === 'number' ) {
+			ready( function () {
+				update_threats_link( window.jetpackProtectThreatCount );
+			} );
+		}
+		return;
+	}
+
 	ready( function () {
 		fetch_scan_treats_and_add_link();
 	} );

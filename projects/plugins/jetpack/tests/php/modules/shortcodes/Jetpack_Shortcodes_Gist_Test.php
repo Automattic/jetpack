@@ -39,14 +39,14 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
+	 * Verify that calling apply_shortcodes with the shortcode doesn't return the same content.
 	 *
 	 * @since 6.6.0
 	 */
 	public function test_shortcodes_gist() {
 		$content = '[gist]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -143,12 +143,12 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 		}
 
 		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringContainsString( $expected, $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertEquals( $expected_amp, $shortcode_content );
 	}
 

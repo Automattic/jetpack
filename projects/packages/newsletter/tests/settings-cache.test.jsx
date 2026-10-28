@@ -28,6 +28,7 @@ jest.mock( '../src/settings/script-data', () => ( {
 jest.mock( '../src/settings/sections', () => ( {
 	EmailBylineSection: () => <div data-testid="email-byline-section" />,
 	EmailContentSection: () => <div data-testid="email-content-section" />,
+	EmailDesignSection: () => <div data-testid="email-design-section" />,
 	EmailDefaultsSection: () => <div data-testid="email-defaults-section" />,
 	EmailReplyToSettingsSection: () => <div data-testid="email-reply-to-settings-section" />,
 	EmailSenderSettingsSection: () => <div data-testid="email-sender-settings-section" />,

@@ -38,7 +38,8 @@ jobs:
     needs: create-matrix
     services:
       database:
-        image: ghcr.io/mariadb/mariadb:lts
+        # Only jobs with WordPress need a database. An empty image skips the service.
+        image: ${{ case( matrix.wp != 'none', 'ghcr.io/mariadb/mariadb:lts', '' ) }}
         env:
           MARIADB_ROOT_PASSWORD: root
         ports:
@@ -54,10 +55,11 @@ jobs:
       MONOREPO_BASE: ${{ github.workspace }}
       WITH_WOOCOMMERCE: ${{ matrix.with-woocommerce }}
       WITH_WPCOMSH: ${{ matrix.with-wpcomsh }}
+      WITH_REACT_VERSION: ${{ matrix.with-react-version }}
       COVERAGE: ${{ matrix.coverage }}
       SPLIT_NUM: ${{ matrix.split-num }}
       SPLIT_TOTAL: ${{ matrix.split-total }}
-      SPLIT_PROJECT: ${{ matrix.split-project }}
+      SPLIT_GROUPS: ${{ case( matrix.split-groups != null, toJSON( matrix.split-groups ), '' ) }}
       SPLIT_EXCLUDE: ${{ toJSON( matrix.split-exclude ) }}
     strategy:
       fail-fast: false
@@ -92,9 +94,17 @@ jobs:
 
       - name: Monorepo install
         run: |
-          echo "::group::Pnpm"
-          pnpm install
-          echo "::endgroup::"
+          if [[ "$WITH_REACT_VERSION" =~ ^[0-9]+$ ]]; then
+            echo "Overriding React version to $WITH_REACT_VERSION"
+            sed -i -e 's/^const withReactVersion = undefined;$/const withReactVersion = '"$WITH_REACT_VERSION"';/' .pnpmfile.cjs
+            echo "::group::Pnpm update"
+            pnpm update -r "react@^$WITH_REACT_VERSION" "react-dom@^$WITH_REACT_VERSION"
+            echo "::endgroup::"
+          else
+            echo "::group::Pnpm"
+            pnpm install
+            echo "::endgroup::"
+          fi
 
       - name: Detect changed projects
         id: changed
@@ -124,8 +134,8 @@ jobs:
           CHANGED=$( jq -c --argjson valid "$VALIDPROJECTS" 'with_entries( select( .key | IN( $valid[] ) ) )' <<<"$CHANGED" )
 
           # Narrow to this job's split, if any.
-          if [[ -n "$SPLIT_PROJECT" ]]; then
-            CHANGED=$( jq -c --arg p "$SPLIT_PROJECT" 'with_entries( select( .key == $p ) )' <<<"$CHANGED" )
+          if [[ -n "$SPLIT_GROUPS" ]]; then
+            CHANGED=$( jq -c --argjson p "$SPLIT_GROUPS" 'with_entries( select( .key | IN( $p[] ) ) )' <<<"$CHANGED" )
           elif (( SPLIT_NUM )); then
             # Exclude hard-coded projects and deal out every nth remaining, balanced by count.
             CHANGED=$( jq -c --argjson exclude "$SPLIT_EXCLUDE" --argjson num "$SPLIT_NUM" --argjson total "$SPLIT_TOTAL" 'keys - $exclude | with_entries( select( .key % $total == $num - 1 ) | { key: .value, value: true } )' <<<"$CHANGED" )
@@ -223,7 +233,7 @@ jobs:
           # Workers == number of CPUs.
           N=$( nproc )
           # Limit split projects to one worker, as Jest will use everything it can.
-          if [[ -n "$SPLIT_PROJECT" && ( $TEST_SCRIPT == 'test-js' || $TEST_SCRIPT == 'test-js-coverage' ) ]]; then
+          if [[ -n "$SPLIT_GROUPS" && ( $TEST_SCRIPT == 'test-js' || $TEST_SCRIPT == 'test-js-coverage' ) ]]; then
             echo "Enabling 1 worker for $N CPU(s)"
             N=1
           else
@@ -249,7 +259,7 @@ jobs:
             fi
 
             # Force one CPU per worker with generic JS test splits, allowing multiple projects to run in parallel workers, as otherwise Jest uses everything it can.
-            if [[ -z "$SPLIT_PROJECT" && ( "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ) ]]; then
+            if [[ -z "$SPLIT_GROUPS" && ( "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ) ]]; then
               taskset -cp "$WORKERID" $$ > /dev/null
               echo "Worker $WORKERID has availableParallelism() set to $( node -p 'require( "os" ).availableParallelism()' )"
             fi
@@ -383,7 +393,7 @@ jobs:
       - name: Upload artifacts
         id: upload-artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ${{ matrix.artifact }}
           path: artifacts
@@ -411,7 +421,7 @@ jobs:
         uses: $/.github/actions/tool-setup
 
       - name: Download coverage artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: 'Code coverage (*)'
           path: coverage_dl

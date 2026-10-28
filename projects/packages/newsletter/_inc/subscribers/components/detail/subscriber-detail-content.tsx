@@ -3,8 +3,9 @@ import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
-import { Card, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { __, sprintf } from '@wordpress/i18n';
+import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { useSendBounceConfirmationMutation } from '../../data/use-send-bounce-confirmation-mutation';
 import {
 	useSubscribedNewsletterCategories,
 	useSubscriberDetails,
@@ -14,8 +15,11 @@ import { formatMetric, formatRate } from '../../lib/format-metric';
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
 import SubscriptionStatusCell from '../cells/subscription-status-cell';
 import SubscriptionTypeCell from '../cells/subscription-type-cell';
-import type { Subscriber } from '../../data/types';
+import type { BounceRetry, Subscriber } from '../../data/types';
 import type { JSX } from 'react';
+
+// Matches Email_Deliverability::BOUNCE_RETRY_COOLDOWN on WordPress.com.
+const BOUNCE_RETRY_COOLDOWN_DAYS = 30;
 
 type Props = {
 	open: {
@@ -143,6 +147,78 @@ function DetailRow( {
 			<Text variant="body-md" render={ <span /> }>
 				{ value }
 			</Text>
+		</Stack>
+	);
+}
+
+/**
+ * Bounce explanation and "Send confirmation email" button for a bounced subscriber.
+ *
+ * @param props              - Component props.
+ * @param props.emailAddress - Subscriber email address; nothing renders without one.
+ * @param props.bounceRetry  - Bounce retry state from the API.
+ * @return Bounce retry block, or null without an email address.
+ */
+function BounceRetryNotice( {
+	emailAddress,
+	bounceRetry,
+}: {
+	emailAddress?: string;
+	bounceRetry?: BounceRetry | null;
+} ): JSX.Element | null {
+	const { mutate, isPending } = useSendBounceConfirmationMutation();
+	const canRetry = !! bounceRetry?.can_retry;
+
+	const send = useCallback( () => {
+		if ( emailAddress ) {
+			mutate( emailAddress );
+		}
+	}, [ emailAddress, mutate ] );
+
+	if ( ! emailAddress ) {
+		return null;
+	}
+
+	let message: string = __(
+		"We stopped sending emails to this subscriber after their address bounced. If you're sure their address is correct, you can send one confirmation email to ask to restart their subscription.",
+		'jetpack-newsletter'
+	);
+	if ( ! canRetry && bounceRetry?.sent_on ) {
+		const sentOn = new Date( bounceRetry.sent_on );
+		message = sprintf(
+			// translators: 1: date the confirmation email was sent, 2: number of days before another can be sent.
+			__(
+				'A confirmation email was sent on %1$s. If they haven’t confirmed, you can send another one after %2$d days.',
+				'jetpack-newsletter'
+			),
+			formatDate( sentOn.toISOString() ),
+			BOUNCE_RETRY_COOLDOWN_DAYS
+		);
+	} else if ( ! canRetry ) {
+		message = __(
+			"We stopped sending emails to this subscriber after their address bounced. You can't send a confirmation email right now. Try again later.",
+			'jetpack-newsletter'
+		);
+	}
+
+	return (
+		<Stack
+			direction="column"
+			gap="sm"
+			align="start"
+			className="jetpack-newsletter__detail-bounce-retry"
+		>
+			<Text variant="body-sm">{ message }</Text>
+			<Button
+				variant="outline"
+				tone="brand"
+				size="compact"
+				loading={ isPending }
+				disabled={ isPending || ! canRetry }
+				onClick={ send }
+			>
+				{ __( 'Send confirmation email', 'jetpack-newsletter' ) }
+			</Button>
 		</Stack>
 	);
 }
@@ -296,6 +372,12 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 						label={ __( 'Subscription type', 'jetpack-newsletter' ) }
 						value={ <SubscriptionTypeCell subscriber={ subscriber as Subscriber } /> }
 					/>
+					{ subscriber.subscription_status_reason === 'bounced' ? (
+						<BounceRetryNotice
+							emailAddress={ subscriber.email_address }
+							bounceRetry={ subscriber.bounce_retry }
+						/>
+					) : null }
 				</Stack>
 			</DetailSection>
 

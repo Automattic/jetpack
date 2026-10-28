@@ -340,6 +340,17 @@
 	overflow: hidden;
 }
 
+.vp-video-details__conversion-failed {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	margin: 0;
+	padding: var(--wpds-dimension-padding-lg);
+	color: #fff;
+	text-align: center;
+}
+
 .vp-video-details__upload-progress {
 	position: absolute;
 	inset: 0;
@@ -367,11 +378,14 @@
 }
 
 .vp-video-details__upload-bar {
-	--wp-components-color-foreground: #fff;
 	inline-size: 70%;
 	block-size: 4px;
 	background-color: rgb(255 255 255 / 40%);
 	text-align: start;
+
+	> div {
+		background-color: #fff;
+	}
 }
 
 .vp-video-details__upload-status {

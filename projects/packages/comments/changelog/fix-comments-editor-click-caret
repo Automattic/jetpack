@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep the caret where the reader clicked when the comment editor opens.

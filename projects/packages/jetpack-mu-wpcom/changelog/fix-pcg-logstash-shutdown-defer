@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Plugin Conflicts Guardian: defer logstash dispatch to shutdown so events from the activation-block path are no longer dropped before transmission.

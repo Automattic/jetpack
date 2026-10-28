@@ -180,7 +180,7 @@ export default function SelectFrameDialog( {
 					<Dialog.Title>
 						{ __( 'Select thumbnail from video', 'jetpack-videopress-pkg' ) }
 					</Dialog.Title>
-					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
+					<Dialog.CloseIconButton label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
 				</Dialog.Header>
 				<Dialog.Content>
 					{ isOpen && isLoading && <Spinner /> }

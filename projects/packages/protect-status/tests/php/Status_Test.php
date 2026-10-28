@@ -434,6 +434,32 @@ class Status_Test extends BaseTestCase {
 		$this->assertEquals( static::get_sample_api_response(), Protect_Status::get_from_options() );
 	}
 
+	public function test_get_cached_status_reads_an_expired_report_without_fetching() {
+		$this->mock_connection();
+		update_option( Protect_Status::OPTION_NAME, static::get_sample_api_response() );
+		update_option( Protect_Status::OPTION_TIMESTAMP_NAME, time() - 1 );
+		$requests = 0;
+		add_filter(
+			'pre_http_request',
+			function ( $response ) use ( &$requests ) {
+				++$requests;
+				return $response;
+			},
+			0
+		);
+
+		$status = Status::get_cached_status();
+
+		$this->assertEquals( $this->get_sample_status(), $status );
+		$this->assertTrue( Status::is_cached_status_expired() );
+		$this->assertSame( 0, $requests );
+	}
+
+	public function test_get_cached_status_is_null_before_the_first_report() {
+		$this->assertNull( Status::get_cached_status() );
+		$this->assertTrue( Status::is_cached_status_expired() );
+	}
+
 	/**
 	 * Test get total threats
 	 */

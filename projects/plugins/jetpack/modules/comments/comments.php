@@ -6,6 +6,7 @@
  */
 
 require __DIR__ . '/base.php';
+use Automattic\Jetpack\Comments\Comments;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status\Host;
 
@@ -125,25 +126,12 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
-	 * Whether the rebuilt Jetpack Comments form has taken over from this one.
-	 *
-	 * Guarded because this file and the jetpack-comments package can land in
-	 * either order on a staged deploy.
-	 *
-	 * @return bool
-	 */
-	private static function new_comments_enabled() {
-		return class_exists( '\Automattic\Jetpack\Comments\Comments' )
-			&& \Automattic\Jetpack\Comments\Comments::is_enabled();
-	}
-
-	/**
 	 * Setup actions for methods in this class
 	 *
 	 * @since 1.4
 	 */
 	protected function setup_actions() {
-		if ( self::new_comments_enabled() ) {
+		if ( Comments::is_enabled() ) {
 			return;
 		}
 
@@ -170,7 +158,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since 1.6.2
 	 */
 	protected function setup_filters() {
-		if ( self::new_comments_enabled() ) {
+		if ( Comments::is_enabled() ) {
 			return;
 		}
 
@@ -231,14 +219,12 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
-	 * Get the comment avatar from Gravatar or Twitter/Facebook.
-	 *
-	 * Leaving the Twitter reference for legacy comments even though support is no longer offered.
+	 * Get the comment avatar from Gravatar or Facebook.
 	 *
 	 * @since 1.4
 	 *
 	 * @param string $avatar  Current avatar URL.
-	 * @param string $comment Comment for the avatar.
+	 * @param mixed  $comment Comment, user, or email the avatar is for.
 	 * @param int    $size    Size of the avatar.
 	 *
 	 * @return string New avatar
@@ -253,7 +239,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		$foreign_avatar          = get_comment_meta( $comment->comment_ID, 'hc_avatar', true );
 		$foreign_avatar_hostname = wp_parse_url( $foreign_avatar, PHP_URL_HOST );
 		if ( ! $foreign_avatar_hostname ||
-			! preg_match( '/\.?(graph\.facebook\.com|twimg\.com)$/', $foreign_avatar_hostname ) ) {
+			! preg_match( '/\.?graph\.facebook\.com$/', $foreign_avatar_hostname ) ) {
 			return $avatar;
 		}
 

@@ -76,6 +76,17 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
 }
 
 /**
+ * Read a comparison preset from a URL or the UI, accepting underscores for hyphens.
+ *
+ * @param value - Raw preset ID, e.g. 'previous_period' or 'previous-period'.
+ * @return The canonical preset, or undefined if invalid.
+ */
+export function toComparisonPresetId( value?: string ): ComparisonPresetId | undefined {
+	const normalized = value?.replace( /_/g, '-' );
+	return isComparisonPresetId( normalized ) ? normalized : undefined;
+}
+
+/**
  * Count the calendar days in an inclusive range.
  *
  * @param from - Range start.

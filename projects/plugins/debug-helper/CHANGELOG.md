@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-10-14
+### Added
+- Package Provenance: Add a module showing which runtime serves each WordPress package on the current screen. [#50995]
+- Social Helper: Add a module to simulate Jetpack Social connection and service edge cases. [#50892]
+
+### Changed
+- Broken Token: Use the connection error factory when generating sample connection errors. [#50992]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Package Provenance: describe when the polyfills replace an already registered script module. [#51701]
+- Update package dependencies. [#48064]
+
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
 ## [2.2.5] - 2026-04-11
 ### Changed
 - Update package dependencies. [#46785] [#47505] [#47021]
@@ -171,6 +185,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial version.
 
+[2.3.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v2.2.5...v2.3.0
 [2.2.5]: https://github.com/Automattic/jetpack-debug-helper/compare/v2.2.4...v2.2.5
 [2.2.4]: https://github.com/Automattic/jetpack-debug-helper/compare/v2.2.3...v2.2.4
 [2.2.3]: https://github.com/Automattic/jetpack-debug-helper/compare/v2.2.2...v2.2.3

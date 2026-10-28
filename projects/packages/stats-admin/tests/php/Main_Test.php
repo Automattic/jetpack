@@ -47,6 +47,22 @@ class Main_Test extends Stats_TestCase {
 	}
 
 	/**
+	 * A host with its own pre-connection Stats page would otherwise show two Stats menus.
+	 */
+	public function test_leaves_the_dashboard_alone_when_the_host_opts_out() {
+		$this->disconnect_site();
+		add_filter( 'jetpack_stats_admin_pre_connection_dashboard', '__return_false' );
+
+		try {
+			Main::init();
+		} finally {
+			remove_filter( 'jetpack_stats_admin_pre_connection_dashboard', '__return_false' );
+		}
+
+		$this->assertFalse( has_action( 'admin_menu' ) );
+	}
+
+	/**
 	 * `Main` and `Dashboard` both hold static state, and hooks an earlier test added survive in
 	 * `$wp_filter`, so a test only sees what it registered itself if the run starts clean.
 	 */

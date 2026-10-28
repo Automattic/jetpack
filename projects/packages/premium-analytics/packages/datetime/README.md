@@ -201,7 +201,8 @@ up to 28 days (except where it coincides with another entry, as an exact week
 multiple usually does), the weekday-aligned year up to 364. Each option carries the resolved
 `range`, the `aliases` folded into it, a `label` naming the comparison target
 ("Previous 7 days", "Same period in July", "Same period in 2024", "Same period
-last year (match day of week)") and a trigger `shortLabel`.
+last year (match day of week)"), a trigger `shortLabel`, and a `legendLabel` a chart
+legend repeats after each metric ("Prev. 7 days", "Jul", "2024").
 
 **Parameters:**
 
@@ -212,6 +213,19 @@ last year (match day of week)") and a trigger `shortLabel`.
 
 **Returns:** `ComparisonOption[]` - Empty when the range is incomplete or
 inverted
+
+#### `findComparisonOption( options, id )`
+
+The option a comparison preset selects from `getComparisonOptions`, matching
+either its `id` or one of its `aliases`.
+
+**Parameters:**
+
+- `options`: `ComparisonOption[]` - Options from `getComparisonOptions`
+- `id`: `ComparisonPresetId` - The comparison preset
+
+**Returns:** `ComparisonOption | undefined` - `undefined` when no option in
+`options` has that id or alias
 
 ### Range Measurement
 

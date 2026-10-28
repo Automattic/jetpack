@@ -26,10 +26,10 @@ describe( 'toast', () => {
 	} );
 
 	it( 'creates a snackbar on the notices store', () => {
-		toast( 'success', 'Payment link deleted.' );
+		toast( 'success', 'Payment button deleted.' );
 
 		expect( mockDispatch ).toHaveBeenCalledWith( noticesStore );
-		expect( mockCreateNotice ).toHaveBeenCalledWith( 'success', 'Payment link deleted.', {
+		expect( mockCreateNotice ).toHaveBeenCalledWith( 'success', 'Payment button deleted.', {
 			type: 'snackbar',
 			id: undefined,
 		} );
@@ -60,7 +60,7 @@ describe( 'toast', () => {
 	it( 'leaves dismissal to the editor snackbar', () => {
 		const setTimeoutSpy = jest.spyOn( global, 'setTimeout' );
 
-		toast( 'success', 'Payment link deleted.' );
+		toast( 'success', 'Payment button deleted.' );
 
 		expect( setTimeoutSpy ).not.toHaveBeenCalled();
 	} );

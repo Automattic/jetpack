@@ -5,7 +5,6 @@ import {
 	ManageConnectionDialog,
 	useConnectionErrorNotice,
 } from '@automattic/jetpack-connection';
-import { currentUserCan, isWoASite } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -13,21 +12,16 @@ import { Icon, error as errorIcon } from '@wordpress/icons';
 import { Button as UIButton, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
-import {
-	connectionStatusCloud as cloud,
-	connectionStatusEmptyAvatar as emptyAvatar,
-	connectionStatusJetpackGray as jetpackGray,
-	connectionStatusJetpack as jetpack,
-} from '../../assets/inline-svgs';
 import { useAllProducts } from '../../data/products/use-all-products';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectionErrorTracking from '../../hooks/use-connection-error-tracking';
-import { useConnectionState } from '../../hooks/use-connection-state';
+import { canManageConnection, useConnectionState } from '../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import { ConnectionOwnerInfo } from './connection-owner-info';
+import { ConnectionStatus } from './connection-status';
 import styles from './styles.module.scss';
 import type { ConnectionStatusCardType } from './types';
 import type { MouseEvent } from 'react';
@@ -52,7 +46,6 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
 	const connectUserFn = onConnectUser || setUserIsConnecting;
-	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 
 	const { brokenModules } = lifecycleStats || {};
 	const { data: products, isLoading, isError } = useAllProducts();
@@ -141,8 +134,6 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const connectionErrorTrackingCallback = useConnectionErrorTracking();
 	const {
 		hasConnectionError,
-		severity,
-		errorTitle,
 		connectionErrorMessage,
 		errorGroups,
 		showSupportLink,
@@ -156,41 +147,22 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		navigate: assignLocation,
 	} );
 
-	// Ask for a user connection when a product that needs one has its plugin active.
-	const shouldAskForUserConnection = Object.values(
-		getMyJetpackWindowInitialState( 'products' )?.items ?? {}
-	).some( product => product?.requires_user_connection && product.is_plugin_active );
-	const state = useConnectionState(
-		{ hasConnectionError, severity, errorTitle },
-		shouldAskForUserConnection
-	);
+	// Show the connection itself during Safe Mode and offline mode.
+	const state = useConnectionState( { skipSafeMode: true, skipOfflineMode: true } );
 
-	// Prevent opening dialog for WoA sites when user is connection owner
-	const isConnectionOwner = userConnectionData.currentUser?.isMaster;
-	const shouldPreventDialog = isWoASite() && isConnectionOwner;
-	const allowDisconnect =
-		( currentUserCan( 'manage_options' ) || isUserConnected ) &&
-		! shouldPreventDialog &&
-		! ( isWoASite() && ! isUserConnected );
+	const allowDisconnect = canManageConnection(
+		isUserConnected,
+		!! userConnectionData.currentUser?.isMaster
+	);
 
 	return (
 		<section className={ styles[ 'connection-status-card' ] }>
 			<h3>{ title }</h3>
 
-			<div className={ styles.status }>
-				<div className={ styles[ 'avatar-wrapper' ] }>
-					<img src={ isRegistered ? jetpack : jetpackGray } alt="" className={ styles.jetpack } />
-					{ ( hasProductsThatRequireUserConnection || hasUserConnectionBrokenModules ) && (
-						<img
-							src={ isUserConnected && avatar ? avatar : emptyAvatar }
-							alt=""
-							className={ styles.avatar }
-						/>
-					) }
-				</div>
-				<div className={ clsx( styles.line, styles[ state.status ] ) } />
-				<img src={ cloud } alt="" className={ styles.cloud } />
-			</div>
+			<ConnectionStatus
+				status={ state.status }
+				showAvatar={ hasProductsThatRequireUserConnection || hasUserConnectionBrokenModules }
+			/>
 
 			<Stack
 				render={ <section /> }

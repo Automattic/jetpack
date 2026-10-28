@@ -19,7 +19,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { envelope, link, people, percent, seen, send } from '@wordpress/icons';
+import { link, people, percent, seen, send } from '@wordpress/icons';
 import { Icon, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
@@ -274,7 +274,6 @@ const EmailTopRowTiles = ( {
 							: undefined,
 					} }
 					empty={ {
-						icon: envelope,
 						description: hasSelection
 							? __( 'No stats are available for this email yet.', 'jetpack-premium-analytics-pkg' )
 							: __( 'Select an email to see its stats.', 'jetpack-premium-analytics-pkg' ),

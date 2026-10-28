@@ -13,7 +13,7 @@ Stacked-by-default area chart component with responsive behaviour.
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `data` | `SeriesData[]` | - | **Required.** Array of data series to display |
-| `ariaLabel` | `string` | `'Area chart'` | Accessible name of the chart. Name it after what it shows; give each chart on a page a different name. |
+| `ariaLabel` | `string` | `'Area chart'` | Accessible name. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names). |
 | `width` | `number?` | responsive | Chart width in pixels |
 | `height` | `number?` | responsive | Chart height in pixels |
 | `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
@@ -82,6 +82,9 @@ type SeriesChartLegendConfig = {
 	// Append a static "Comparison period" item styled like the `type: 'comparison'` series
 	// (a string replaces the label). Only added when those series have no item of their own.
 	comparisonItem?: boolean | string;
+	// Append one static item per comparison series instead, named from the label of the item it
+	// was folded into and left out while that series is hidden.
+	comparisonSeriesItems?: ( seriesLabel: string ) => string;
 	itemClassName?: string;
 	itemStyles?: LegendItemStyles;
 	labelStyles?: LegendLabelStyles;

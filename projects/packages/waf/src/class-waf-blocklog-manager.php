@@ -307,12 +307,34 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Read an option the firewall writes with its own connection, which leaves the object cache stale.
+	 *
+	 * That connection uses the network's base prefix, so on a multisite subsite these aren't the site's own options.
+	 *
+	 * @param string $name    The option name.
+	 * @param mixed  $default The value when the option doesn't exist.
+	 * @return mixed
+	 */
+	private static function get_stored_option( $name, $default ) {
+		global $wpdb;
+
+		if ( ! isset( $wpdb ) ) {
+			return get_option( $name, $default );
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- The cache is what's stale.
+		$value = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->base_prefix}options WHERE option_name = %s", $name ) );
+
+		return null === $value ? $default : maybe_unserialize( $value );
+	}
+
+	/**
 	 * Get the total number of blocked requests for today.
 	 *
 	 * @return int
 	 */
 	public static function get_current_day_block_count() {
-		$stats = get_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
+		$stats = self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
 		$today = gmdate( 'Y-m-d' );
 
 		return $stats[ $today ] ?? 0;
@@ -324,7 +346,8 @@ class Waf_Blocklog_Manager {
 	 * @return int
 	 */
 	public static function get_thirty_days_block_counts() {
-		$stats        = get_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
+		// Old days are only pruned when a block is written, so a quiet site still has them.
+		$stats        = self::filter_last_30_days( (array) self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() ) );
 		$total_blocks = 0;
 
 		foreach ( $stats as $count ) {
@@ -340,7 +363,7 @@ class Waf_Blocklog_Manager {
 	 * @return int
 	 */
 	public static function get_all_time_block_count() {
-		$all_time_block_count = get_option( self::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT, false );
+		$all_time_block_count = self::get_stored_option( self::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT, false );
 
 		if ( false !== $all_time_block_count ) {
 			return intval( $all_time_block_count );
@@ -350,11 +373,63 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Get the most recent blocked requests, newest first. The table keeps only the last 100.
+	 *
+	 * @since 0.30.0
+	 *
+	 * @param int $limit How many to return.
+	 * @return array<int, array{id: int, timestamp: string, ruleId: int, reason: string}> Timestamps are ISO 8601 UTC.
+	 */
+	public static function get_recent_blocks( $limit = 10 ) {
+		global $wpdb;
+
+		$suppress = $wpdb->suppress_errors();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom table, read on demand.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT log_id, timestamp, rule_id, reason FROM {$wpdb->base_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT %d",
+				$limit
+			),
+			ARRAY_A
+		);
+		$wpdb->suppress_errors( $suppress );
+
+		if ( ! is_array( $rows ) ) {
+			return array();
+		}
+
+		return array_map(
+			function ( $row ) {
+				return array(
+					'id'        => (int) $row['log_id'],
+					'timestamp' => str_replace( ' ', 'T', $row['timestamp'] ) . 'Z',
+					'ruleId'    => (int) $row['rule_id'],
+					'reason'    => (string) $row['reason'],
+				);
+			},
+			$rows
+		);
+	}
+
+	/**
 	 * Compute the initial all-time stats value.
 	 *
 	 * @return int The initial all-time stats value.
 	 */
 	private static function get_default_all_time_stat_value() {
+		global $wpdb;
+
+		// Inside WordPress, so connecting would load wp-config.php a second time.
+		if ( isset( $wpdb ) ) {
+			// The table doesn't exist until the firewall is first turned on.
+			$suppress = $wpdb->suppress_errors();
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom table.
+			$last_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->base_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
+			$wpdb->suppress_errors( $suppress );
+
+			return intval( $last_id );
+		}
+
 		$conn = self::connect_to_wordpress_db();
 		if ( ! $conn ) {
 			return 0;

@@ -1,0 +1,59 @@
+// GEO tab layout. A single, centered fixed-width column matching the Settings
+// tab's treatment — 660px is the established Jetpack settings-page width (see
+// settings/style.scss). The cards stack with a consistent gap.
+.jetpack-seo-geo {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+	max-inline-size: 660px;
+	margin-inline: auto;
+}
+
+// The line at the top of the tab that spells out "GEO". Muted, like the page
+// header's subtitle and the crawler groups' intros, so it reads as context
+// rather than as a module.
+.jetpack-seo-geo__intro {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+// Align llms.txt action links with the toggle's label/help text rather than the
+// switch. 40px matches @wordpress/components ToggleControl's help
+// margin-inline-start (≈ 36px switch + gap).
+.jetpack-seo-geo__llms-link {
+	align-self: flex-start;
+	margin-inline-start: 40px;
+}
+
+.jetpack-seo-geo__llms-notice {
+	margin-block-start: var(--wpds-dimension-gap-sm);
+	margin-inline-start: 40px;
+}
+
+// Muted intro line above the per-crawler toggles; reset the default paragraph
+// margins so it sits flush in the card's Stack.
+.jetpack-seo-geo__crawlers-intro {
+	margin: 0;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+// The group-level "Block all" master toggle, divided from the per-crawler
+// rows below so it reads as a control over the whole group.
+.jetpack-seo-geo__crawler-bulk {
+	padding-block-end: var(--wpds-dimension-gap-md);
+	border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral);
+}
+
+// The "managed by your privacy setting" notice sits between the header and the
+// collapsible content — a bare child of the card, so it doesn't inherit the
+// card's content padding. Inset it so its box lines up with the module content,
+// with vertical breathing room from the header and the card edge.
+.jetpack-seo-geo__crawler-notice {
+	margin-block: var(--wpds-dimension-gap-sm) var(--wpds-dimension-padding-2xl);
+	margin-inline: var(--wpds-dimension-padding-2xl);
+}
+
+// "View robots.txt" link under each crawler group's description. Aligned to the
+// start of the content (no toggle-label indent, unlike the llms.txt link).
+.jetpack-seo-geo__robots-link {
+	align-self: flex-start;
+}

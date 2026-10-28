@@ -361,7 +361,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Check subscription entitlement without granting access for editing the post.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param array    $valid_plan_ids Required subscription plan IDs.
 	 * @param string   $access_level   Required access level.

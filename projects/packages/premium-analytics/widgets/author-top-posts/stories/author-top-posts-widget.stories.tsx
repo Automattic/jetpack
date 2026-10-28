@@ -15,7 +15,6 @@ import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AuthorTopPostsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -94,7 +93,7 @@ function AuthorTopPostsDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ AUTHOR_TOP_POSTS_RENDER_MODULE }
 			renderComponent={ AuthorTopPostsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ getAttributes( { hasAuthorScope } ) }

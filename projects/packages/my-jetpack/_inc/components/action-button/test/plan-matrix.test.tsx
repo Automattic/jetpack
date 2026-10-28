@@ -83,8 +83,8 @@ jest.mock( '@wordpress/ui', () => {
 	return {
 		Badge: asElement( 'span' ),
 		Button: asElement( 'button' ),
+		ButtonLink: asElement( 'a' ),
 		Link: asElement( 'a' ),
-		LinkButton: asElement( 'a' ),
 	};
 } );
 

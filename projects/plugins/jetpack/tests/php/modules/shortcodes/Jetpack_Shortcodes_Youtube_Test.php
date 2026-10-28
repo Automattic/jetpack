@@ -11,12 +11,14 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * @covers ::wpcom_youtube_oembed_fetch_url
  * @covers ::jetpack_youtube_id
  * @covers ::jetpack_youtube_shortcode
+ * @covers ::wpcom_youtube_get_regex
  */
 #[CoversFunction( 'jetpack_shortcode_youtube_args' )]
 #[CoversFunction( 'jetpack_shortcode_youtube_dimensions' )]
 #[CoversFunction( 'wpcom_youtube_oembed_fetch_url' )]
 #[CoversFunction( 'jetpack_youtube_id' )]
 #[CoversFunction( 'jetpack_youtube_shortcode' )]
+#[CoversFunction( 'wpcom_youtube_get_regex' )]
 class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -53,7 +55,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	public function test_shortcodes_youtube() {
 		$content = '[youtube]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -67,7 +69,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 		$url        = 'http://www.youtube.com/watch?v=' . $youtube_id;
 		$content    = '[youtube=' . $url . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $youtube_id, $shortcode_content );
 	}
@@ -106,6 +108,40 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 				'https://youtube.com/shorts/VIDEO_ID',
 				'VIDEO_ID',
 			),
+			'live_url'     => array(
+				'https://www.youtube.com/live/VIDEO_ID',
+				'VIDEO_ID',
+			),
+		);
+	}
+
+	/**
+	 * @author robertbpugh
+	 * @dataProvider get_youtube_regex_urls
+	 * @since 16.4
+	 *
+	 * @param string $url      The URL to match.
+	 * @param bool   $expected Whether the regex should match it.
+	 */
+	#[DataProvider( 'get_youtube_regex_urls' )]
+	public function test_wpcom_youtube_get_regex_matches_url( $url, $expected ) {
+		$this->assertSame( $expected, (bool) preg_match( wpcom_youtube_get_regex(), $url ) );
+	}
+
+	/**
+	 * URLs the embed handler and the oEmbed fallback filter gate on.
+	 *
+	 * @return array
+	 */
+	public static function get_youtube_regex_urls() {
+		return array(
+			'watch_url'    => array( 'https://www.youtube.com/watch?v=VIDEO_ID', true ),
+			'short_url'    => array( 'https://youtu.be/VIDEO_ID', true ),
+			'v_url'        => array( 'https://www.youtube.com/v/VIDEO_ID', true ),
+			'playlist_url' => array( 'https://www.youtube.com/playlist?list=LIST_ID', true ),
+			'shorts_url'   => array( 'https://www.youtube.com/shorts/VIDEO_ID', false ),
+			'live_url'     => array( 'https://www.youtube.com/live/VIDEO_ID?si=SHARE_ID', true ),
+			'other_host'   => array( 'https://example.com/live/VIDEO_ID', false ),
 		);
 	}
 

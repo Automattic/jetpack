@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Show "Run speed test" as an icon on screens 480px wide or narrower, so the page title stays readable.

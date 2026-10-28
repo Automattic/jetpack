@@ -1026,7 +1026,7 @@ class WooCommerce_Analytics extends Module {
 				'tax_amount'            => $tax_amount,
 				'customer_id'           => $order->get_report_customer_id(),
 				'date_created'          => self::datetime_to_object( $order->get_date_created() ),
-				'cogs_amount'           => $is_refund_order ? -abs( $cogs_amount ) : $cogs_amount,
+				'cogs_amount'           => $this->get_signed_cogs_amount( $cogs_amount, $is_refund_order ),
 			);
 
 			$results[] = $product_data;
@@ -1065,6 +1065,21 @@ class WooCommerce_Analytics extends Module {
 	}
 
 	/**
+	 * Negate a COGS amount for refund orders, keeping null as "no COGS value".
+	 *
+	 * @param float|null $cogs_amount     The COGS amount.
+	 * @param bool       $is_refund_order Whether the order is a refund.
+	 * @return float|null The signed COGS amount, or null if not available.
+	 */
+	private function get_signed_cogs_amount( $cogs_amount, $is_refund_order ) {
+		if ( null === $cogs_amount || ! $is_refund_order ) {
+			return $cogs_amount;
+		}
+
+		return -abs( $cogs_amount );
+	}
+
+	/**
 	 * Get order product lookup data from database.
 	 *
 	 * @param int $order_id The order ID.
@@ -1098,7 +1113,7 @@ class WooCommerce_Analytics extends Module {
 				'tax_amount'            => floatval( $result['tax_amount'] ),
 				'order_item_id'         => intval( $result['order_item_id'] ),
 				'order_id'              => intval( $result['order_id'] ),
-				'cogs_amount'           => $is_refund_order ? -abs( $cogs_amount ) : $cogs_amount,
+				'cogs_amount'           => $this->get_signed_cogs_amount( $cogs_amount, $is_refund_order ),
 			);
 
 			$parsed_results[] = $product_data;

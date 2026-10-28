@@ -3,7 +3,7 @@
 
 // Metrics are separated by a hairline rather than boxed: each tile draws the
 // rule on the edge it shares with the tile before it, and the outer edges stay
-// open. Same weak stroke as WidgetFooter's rule in the same card.
+// open. Same weak stroke as the card footer's rule.
 $metric-tile-grid-divider: var(--wpds-border-width-xs) solid
 	var(--wpds-color-stroke-surface-neutral-weak);
 
@@ -125,8 +125,8 @@ $metric-tile-grid-divider: var(--wpds-border-width-xs) solid
 	border-inline-start: $metric-tile-grid-divider;
 }
 
-/* A height-1 body that also carries a footer is a few pixels shorter than a
- * row tile, so shed the tile's block padding at the shared short threshold. */
+/* A height-1 body under the card footer is a few pixels shorter than a row
+ * tile, so shed the tile's block padding at the shared short threshold. */
 @container (max-block-size: #{$widget-short-max-block-size}) {
 
 	.grid[data-layout="row"] .tile {

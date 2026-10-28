@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-/**
  * Internal dependencies
  */
 import { fetchReportConversionRate } from '../../api/report-conversion-rate-fetch';
@@ -22,7 +18,8 @@ type SanitizedConversionRateByDateItem = Override<
 		with_cart_addition: number;
 		reached_checkout: number;
 		completed_checkout: number;
-		conversion_rate: number; // calculated field
+		/** Calculated; null for a period with no sessions, which has no rate. */
+		conversion_rate: number | null;
 	}
 >;
 
@@ -36,9 +33,8 @@ function sanitizeConversionRateItem(
 	const reachedCheckoutNum = safeParseInt( item.reached_checkout );
 	const completedCheckoutNum = safeParseInt( item.completed_checkout );
 
-	// Calculate conversion rate as decimal (e.g., 0.035 for 3.5%)
-	// This format works with formatMetricValue 'percentage' type
-	const conversionRate = activeSessionsNum > 0 ? completedCheckoutNum / activeSessionsNum : 0;
+	// A decimal (0.035 for 3.5%), the shape formatMetricValue's 'percentage' type reads.
+	const conversionRate = activeSessionsNum > 0 ? completedCheckoutNum / activeSessionsNum : null;
 
 	return {
 		...withBucketStamps( item, zone ),
@@ -51,18 +47,9 @@ function sanitizeConversionRateItem(
 	};
 }
 
-type FunnelStep = {
-	id: string;
-	label: string;
-	count: number;
-	rate: number;
-};
-
 type SanitizedConversionRateByDateResponse = {
 	summary: SanitizedConversionRateByDateItem;
 	data: SanitizedConversionRateByDateItem[];
-	steps: FunnelStep[];
-	overallRate: number;
 };
 
 /**
@@ -86,48 +73,10 @@ export const sanitizeReportConversionRateResponse = (
 
 	const sanitizedSummary = sanitizeConversionRateItem( response?.summary || defaultSummary, zone );
 
-	const steps: FunnelStep[] = [
-		{
-			id: 'sessions',
-			label: __( 'Sessions', 'jetpack-woocommerce-stats-pkg' ),
-			count: sanitizedSummary.active_sessions,
-			rate: 100, // Starting point
-		},
-		{
-			id: 'cart-addition',
-			label: __( 'Cart', 'jetpack-woocommerce-stats-pkg' ),
-			count: sanitizedSummary.with_cart_addition,
-			rate:
-				sanitizedSummary.active_sessions > 0
-					? ( sanitizedSummary.with_cart_addition / sanitizedSummary.active_sessions ) * 100
-					: 0,
-		},
-		{
-			id: 'checkout',
-			label: __( 'Checkout', 'jetpack-woocommerce-stats-pkg' ),
-			count: sanitizedSummary.reached_checkout,
-			rate:
-				sanitizedSummary.active_sessions > 0
-					? ( sanitizedSummary.reached_checkout / sanitizedSummary.active_sessions ) * 100
-					: 0,
-		},
-		{
-			id: 'completed',
-			label: __( 'Purchase', 'jetpack-woocommerce-stats-pkg' ),
-			count: sanitizedSummary.completed_checkout,
-			rate:
-				sanitizedSummary.active_sessions > 0
-					? ( sanitizedSummary.completed_checkout / sanitizedSummary.active_sessions ) * 100
-					: 0,
-		},
-	];
-
 	return {
 		summary: sanitizedSummary,
 		data: response?.data
 			? response.data.map( item => sanitizeConversionRateItem( item, zone ) )
 			: [],
-		steps,
-		overallRate: sanitizedSummary.conversion_rate,
 	};
 };

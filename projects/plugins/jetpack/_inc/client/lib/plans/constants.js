@@ -52,6 +52,9 @@ export const PLAN_JETPACK_SECURITY_T1_MONTHLY = 'jetpack_security_t1_monthly';
 export const PLAN_JETPACK_SECURITY_T2_YEARLY = 'jetpack_security_t2_yearly';
 export const PLAN_JETPACK_SECURITY_T2_MONTHLY = 'jetpack_security_t2_monthly';
 export const PLAN_JETPACK_COMPLETE_BI_YEARLY = 'jetpack_complete_bi_yearly';
+export const PLAN_JETPACK_PRO_YEARLY = 'jetpack_pro_yearly';
+export const PLAN_JETPACK_PRO_BI_YEARLY = 'jetpack_pro_bi_yearly';
+export const PLAN_JETPACK_PRO_MONTHLY = 'jetpack_pro_monthly';
 export const PLAN_JETPACK_COMPLETE = 'jetpack_complete';
 export const PLAN_JETPACK_COMPLETE_MONTHLY = 'jetpack_complete_monthly';
 export const PLAN_JETPACK_BOOST_BI_YEARLY = 'jetpack_boost_bi_yearly';
@@ -118,6 +121,7 @@ export const JETPACK_MONTHLY_PLANS = [
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_MONTHLY,
 	PLAN_JETPACK_COMPLETE_MONTHLY,
+	PLAN_JETPACK_PRO_MONTHLY,
 	PLAN_JETPACK_GROWTH_MONTHLY,
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
@@ -140,6 +144,9 @@ export const JETPACK_LEGACY_PLANS_WITH_SECURITY_FEATURES = [
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 ];
 export const JETPACK_BUNDLES = [
+	PLAN_JETPACK_PRO_YEARLY,
+	PLAN_JETPACK_PRO_BI_YEARLY,
+	PLAN_JETPACK_PRO_MONTHLY,
 	PLAN_JETPACK_STARTER,
 	PLAN_JETPACK_STARTER_MONTHLY,
 	PLAN_JETPACK_SECURITY_T1_BI_YEARLY,
@@ -174,6 +181,9 @@ export const JETPACK_PLANS_WITH_BACKUP = [
 	PLAN_JETPACK_COMPLETE,
 	PLAN_JETPACK_COMPLETE_MONTHLY,
 	PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME,
+	PLAN_JETPACK_PRO_YEARLY,
+	PLAN_JETPACK_PRO_BI_YEARLY,
+	PLAN_JETPACK_PRO_MONTHLY,
 ];
 
 export const JETPACK_PLANS_WITH_ANTI_SPAM = [
@@ -200,6 +210,9 @@ export const JETPACK_PLANS_WITH_ANTI_SPAM = [
 	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
 	PLAN_JETPACK_SECURITY_REALTIME,
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
+	PLAN_JETPACK_PRO_YEARLY,
+	PLAN_JETPACK_PRO_BI_YEARLY,
+	PLAN_JETPACK_PRO_MONTHLY,
 ];
 
 export const JETPACK_COMPLETE_BUNDLES = [
@@ -737,6 +750,10 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_SECURITY_T2_YEARLY:
 		case PLAN_JETPACK_SECURITY_T2_MONTHLY:
 			return 'is-security-t2-plan';
+		case PLAN_JETPACK_PRO_YEARLY:
+		case PLAN_JETPACK_PRO_BI_YEARLY:
+		case PLAN_JETPACK_PRO_MONTHLY:
+			return 'is-jetpack-pro-plan';
 		case PLAN_JETPACK_COMPLETE_BI_YEARLY:
 		case PLAN_JETPACK_COMPLETE:
 		case PLAN_JETPACK_COMPLETE_MONTHLY:
@@ -912,6 +929,7 @@ export function containsBackupRealtime( planClass ) {
 		'is-security-t1-plan',
 		'is-security-t2-plan',
 		'is-complete-plan',
+		'is-jetpack-pro-plan',
 		'is-jetpack-golden-token-plan',
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.

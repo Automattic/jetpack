@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## 5.0.0 - 2026-10-14
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Sidebar: Register the VaultPress menu item through Jetpack's admin menu API so it sorts with the other Jetpack pages. [#52003]
+- Tested up to WordPress 7.1. [#48114] [#51370]
+- Update package dependencies. [#48064] [#48683] [#49448] [#50436] [#52028]
+
+### Removed
+- Updated PHP version requirements to PHP 7.4 or newer. [#51515]
+
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
 ## 4.0.7 - 2026-04-10
 ### Changed
 - Update package dependencies. [#46785] [#47021] [#47505]

@@ -16,6 +16,7 @@ import {
 	hasAnyOfTheseModules,
 	hasAnyPerformanceFeature,
 	hasAnySecurityFeature,
+	hasProtectPage as _hasProtectPage,
 	isModuleActivated,
 } from 'state/modules';
 import { filterSearch, getSearchTerm } from 'state/search';
@@ -33,11 +34,6 @@ const TAB_LABELS = {
 	'/earn': _x( 'Monetize', 'Navigation item.', 'jetpack' ),
 };
 
-// Routes that should highlight a different tab (e.g. /settings → /security).
-const ROUTE_ALIASES = {
-	'/settings': '/security',
-};
-
 /**
  * Settings page tab navigation using `@wordpress/ui` Tabs.
  *
@@ -51,6 +47,7 @@ const SettingsNavTabs = props => {
 		isWoASite,
 		userCanPublishPosts,
 		hasSecurityFeature,
+		hasProtectPage,
 		hasPerformanceFeature,
 		hasModules,
 		isModuleActive,
@@ -60,9 +57,6 @@ const SettingsNavTabs = props => {
 
 	const location = useLocation();
 	const navigate = useNavigate();
-
-	// Resolve the active tab value from the current route.
-	const activeTab = ROUTE_ALIASES[ location.pathname ] || location.pathname;
 
 	const trackNavClick = target => {
 		analytics.tracks.recordJetpackClick( {
@@ -106,7 +100,7 @@ const SettingsNavTabs = props => {
 	const visibleTabs = [];
 
 	if ( userCanManageModules ) {
-		if ( hasSecurityFeature ) {
+		if ( hasSecurityFeature && ! hasProtectPage ) {
 			visibleTabs.push( '/security' );
 		}
 		if ( hasPerformanceFeature ) {
@@ -155,6 +149,18 @@ const SettingsNavTabs = props => {
 		}
 	}
 
+	// /settings shows Security to admins, so with the Protect page it opens the first tab instead.
+	const isSettingsRoot = '/settings' === location.pathname;
+	const firstTab = userCanManageModules && hasProtectPage ? visibleTabs[ 0 ] : undefined;
+	const activeTab = isSettingsRoot ? ( firstTab ?? '/security' ) : location.pathname;
+	const shouldOpenFirstTab = isSettingsRoot && !! firstTab && ! searchFromUrl;
+
+	useEffect( () => {
+		if ( shouldOpenFirstTab ) {
+			navigate( firstTab, { replace: true } );
+		}
+	}, [ shouldOpenFirstTab, firstTab, navigate ] );
+
 	if ( visibleTabs.length === 0 ) {
 		return null;
 	}
@@ -168,6 +174,7 @@ const SettingsNavTabs = props => {
 				className="jp-settings-nav__tabs-root"
 			>
 				<Tabs.List
+					variant="minimal"
 					className="jp-settings-nav__tabs"
 					aria-label={ __( 'Jetpack settings sections', 'jetpack' ) }
 				>
@@ -201,6 +208,7 @@ export default connect(
 		isWoASite: _isWoASite( state ),
 		userCanPublishPosts: userCanPublish( state ),
 		hasSecurityFeature: hasAnySecurityFeature( state ),
+		hasProtectPage: _hasProtectPage( state ),
 		hasPerformanceFeature: hasAnyPerformanceFeature( state ),
 		hasModules: modules => hasAnyOfTheseModules( state, modules ),
 		isModuleActive: module => isModuleActivated( state, module ),

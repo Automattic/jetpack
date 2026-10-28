@@ -72,6 +72,11 @@
 	word-break: break-all;
 }
 
+.jetpack-newsletter__detail-bounce-retry {
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	padding-block-start: var(--wpds-dimension-padding-lg);
+}
+
 // Comp modal body. The dialog content is a scroll area (`overflow: auto`),
 // which clips the focus ring of the last control — the "Doesn't expire"
 // checkbox — as it sits flush against the bottom edge. Reserve a little space

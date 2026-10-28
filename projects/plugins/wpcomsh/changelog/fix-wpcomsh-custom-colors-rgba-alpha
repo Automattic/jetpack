@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Custom Colors: Fix translucent color rules being output as fully transparent.

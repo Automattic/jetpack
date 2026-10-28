@@ -1,4 +1,5 @@
 import { Stack } from '@wordpress/ui';
+import { useCallback } from 'react';
 import { action } from 'storybook/actions';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { useGlobalChartsContext } from '../../../providers';
@@ -12,6 +13,7 @@ import {
 	revenueMetricsData as largeValues,
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
+	netSalesBySourceData as netSalesData,
 	themeArgTypes,
 } from '../../../stories';
 import {
@@ -316,23 +318,44 @@ export const Loading: Story = {
 
 const onLeaderboardItemClick = action( 'leaderboard-item-click' );
 
+const InteractiveRowLabel = ( { children }: { children: React.ReactNode } ) => (
+	<span
+		style={ {
+			display: 'flex',
+			alignItems: 'center',
+			minHeight: '40px',
+			padding: '0 6px',
+			fontSize: '13px',
+		} }
+	>
+		{ children }
+	</span>
+);
+
+const onLeaderboardLabelLinkClick = action( 'label-link-click' );
+
+const DemoLabelLink = ( { entry }: { entry: LeaderboardEntry } ) => {
+	// Following even a hash link makes Storybook's manager redirect.
+	const handleClick = useCallback(
+		( event: React.MouseEvent< HTMLAnchorElement > ) => {
+			event.preventDefault();
+			onLeaderboardLabelLinkClick( entry.id );
+		},
+		[ entry.id ]
+	);
+
+	return (
+		<a href={ `#${ entry.id }` } onClick={ handleClick }>
+			{ entry.label }
+		</a>
+	);
+};
+
 export const Interactive: Story = {
 	args: {
 		data: sampleData.map( entry => ( {
 			...entry,
-			label: (
-				<span
-					style={ {
-						display: 'flex',
-						alignItems: 'center',
-						minHeight: '40px',
-						padding: '0 6px',
-						fontSize: '13px',
-					} }
-				>
-					{ entry.label }
-				</span>
-			),
+			label: <InteractiveRowLabel>{ entry.label }</InteractiveRowLabel>,
 			onClick: () => onLeaderboardItemClick( entry.id ),
 		} ) ),
 		withComparison: true,
@@ -352,42 +375,130 @@ export const Interactive: Story = {
 	},
 };
 
-export const MixedInteractivity: Story = {
+export const InteractiveLabel: Story = {
 	args: {
 		...sharedThemeArgs,
-		data: sampleData.map( ( entry, index ) =>
-			index % 2 === 0 ? { ...entry, onClick: () => onLeaderboardItemClick( entry.id ) } : entry
-		),
+		data: sampleData.map( entry => ( {
+			...entry,
+			// The span fills the label cell, so only the name itself is the link.
+			label: (
+				<InteractiveRowLabel>
+					<DemoLabelLink entry={ entry } />
+				</InteractiveRowLabel>
+			),
+			onClick: () => onLeaderboardItemClick( entry.id ),
+			ariaLabel: `View details for ${ entry.label }`,
+			hasInteractiveLabel: true,
+		} ) ),
 		withComparison: true,
 		withOverlayLabel: true,
+		style: {
+			'--a8c-charts-border-radius-leaderboard-bar': '4px',
+		},
 	},
 	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Interactive and non-interactive rows with the overlay-label presentation used by Jetpack Stats. Being clickable is a visual affordance only — it must not change a row height or column alignment, otherwise a drill-down that swaps clickable parent rows for non-clickable child rows visibly shifts the list.',
+					'A row that drills down and also links its label. With `hasInteractiveLabel`, clicking the name fires only `label-link-click` and clicking anywhere else on the row fires only `leaderboard-item-click`; Tab reaches the link, then the row button.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const button = canvas.getByRole( 'button', {
+			name: `View details for ${ sampleData[ 0 ].label }`,
+		} );
+
+		expect( button ).not.toContainElement(
+			canvas.getByRole( 'link', { name: String( sampleData[ 0 ].label ) } )
+		);
+	},
+};
+
+const MIXED_ROW_KINDS = [
+	'drill-down',
+	'drill-down-with-link',
+	'inert',
+	'link-only',
+	'drill-down',
+] as const;
+
+export const InteractiveMixed: Story = {
+	args: {
+		...sharedThemeArgs,
+		data: sampleData.map( ( entry, index ): LeaderboardEntry => {
+			const onClick = () => onLeaderboardItemClick( entry.id );
+
+			switch ( MIXED_ROW_KINDS[ index % MIXED_ROW_KINDS.length ] ) {
+				case 'drill-down':
+					return {
+						...entry,
+						label: <InteractiveRowLabel>{ entry.label }</InteractiveRowLabel>,
+						onClick,
+					};
+				case 'drill-down-with-link':
+					return {
+						...entry,
+						label: (
+							<InteractiveRowLabel>
+								<DemoLabelLink entry={ entry } />
+							</InteractiveRowLabel>
+						),
+						onClick,
+						ariaLabel: `View details for ${ entry.label }`,
+						hasInteractiveLabel: true,
+					};
+				case 'link-only':
+					return {
+						...entry,
+						label: (
+							<InteractiveRowLabel>
+								<DemoLabelLink entry={ entry } />
+							</InteractiveRowLabel>
+						),
+					};
+				default:
+					return {
+						...entry,
+						label: <InteractiveRowLabel>{ entry.label }</InteractiveRowLabel>,
+					};
+			}
+		} ),
+		withComparison: true,
+		withOverlayLabel: true,
+		style: {
+			'--a8c-charts-border-radius-leaderboard-bar': '4px',
+		},
+	},
+	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Drill-down rows, a drill-down row whose label is also a link, an inert row, and an inert row whose label is a link, with the overlay-label presentation used by Jetpack Stats. `hasInteractiveLabel` is set per entry, like `onClick`, and only the row that both drills down and links uses it; a row without `onClick` can hold a link without it. Being clickable is a visual affordance only — it must not change a row height or column alignment, otherwise a drill-down that swaps clickable parent rows for non-clickable child rows visibly shifts the list.',
 			},
 		},
 	},
 	play: async ( { canvasElement } ) => {
 		const grid = canvasElement.querySelector( '[class*="leaderboardChart__content"] > *' );
 
-		// Every entry uses the same row wrapper; only the interactive rows are buttons.
-		const rows = grid.querySelectorAll( ':scope > [class*="row"]' );
+		// Every entry is a list item; only the plain drill-down ones are a button directly.
+		const rows = grid.querySelectorAll( ':scope > [role="listitem"]' );
 		expect( rows ).toHaveLength( sampleData.length );
 
 		// The story must actually mix both row types for the rest to mean anything.
-		const interactiveRows = grid.querySelectorAll( ':scope > button[class*="row"]' ).length;
+		const interactiveRows = grid.querySelectorAll( ':scope > [role="listitem"] > button' ).length;
 		expect( interactiveRows ).toBeGreaterThan( 0 );
 		expect( interactiveRows ).toBeLessThan( sampleData.length );
 
-		// Both wrapper types must have the same height.
+		// Interactive and static list items must have the same height.
 		const heights = new Set( [ ...rows ].map( row => row.getBoundingClientRect().height ) );
 		expect( heights.size ).toBe( 1 );
 
-		// Column edges are read off the cells themselves — the button wrapper spans
-		// the full row even when its padding insets the cells inside it.
+		// Column edges are read off the cells themselves, since the row padding
+		// insets them from the list item edge.
 		const edge = ( selector: string, side: 'left' | 'right' ) =>
 			new Set(
 				[ ...grid.querySelectorAll( selector ) ].map( cell => cell.getBoundingClientRect()[ side ] )
@@ -458,6 +569,27 @@ export const NegativeGrowth: Story = {
 		data: negativeGrowth,
 		withComparison: true,
 		loading: false,
+	},
+};
+
+export const NegativeValues: Story = {
+	args: {
+		data: netSalesData,
+		withComparison: true,
+		loading: false,
+		valueFormatter: ( value: number ) =>
+			formatMetricValue( value, 'currency', {
+				useMultipliers: false,
+				decimals: 0,
+			} ),
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'A negative `currentShare` or `previousShare` puts every row on a shared zero point, placed in proportion to the range of shares: negative bars extend toward the inline start and positive bars toward the inline end.',
+			},
+		},
 	},
 };
 
@@ -773,7 +905,9 @@ export const FitRowsInteractive: Story = {
 	play: async ( { canvasElement } ) => {
 		await document.fonts.ready;
 
-		const rows = [ ...canvasElement.querySelectorAll< HTMLElement >( '[data-row-index]' ) ];
+		const rows = [
+			...canvasElement.querySelectorAll< HTMLElement >( '[data-row-index] > button' ),
+		];
 		const isHidden = ( row: HTMLElement ) => getComputedStyle( row ).visibility === 'hidden';
 
 		// The focus walk only means something if the height actually forces a cut.

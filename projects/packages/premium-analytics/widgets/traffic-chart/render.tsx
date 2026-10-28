@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { chartInterval, useReportScope } from '@jetpack-premium-analytics/data';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
+import {
+	chartInterval,
+	useReportScope,
+	useScopeLockedIntervals,
+} from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import {
 	bucketRange,
@@ -18,6 +23,8 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { useNoPublishedPosts } from '../use-no-published-posts';
+import { trafficIntervalExtension } from './interval-extension';
 import styles from './style.module.css';
 import useTrafficChart from './use-traffic-chart';
 import { TRAFFIC_PERIODS, defaultChartType } from './widget';
@@ -56,13 +63,15 @@ type TrafficChartInnerProps = {
  */
 function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const period: TrafficChartGranularity = chartInterval(
-		{ ...reportParams, interval },
-		TRAFFIC_PERIODS
-	);
-
 	// A host without a period to set leaves the bars inert.
 	const { openPeriod } = useReportScope();
+	const lockedIntervals = useScopeLockedIntervals();
+	const period: TrafficChartGranularity = chartInterval(
+		{ ...reportParams, interval },
+		TRAFFIC_PERIODS,
+		lockedIntervals,
+		trafficIntervalExtension( reportParams, chartType )
+	);
 
 	// Names the bucket size drawn, not the saved one: the range may clamp it,
 	// and the click must open the bar it hit.
@@ -93,11 +102,19 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 		refetch,
 	} = useTrafficChart( reportParams, period );
 	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics-pkg' );
+	const views = metricTabs.find( metric => metric.key === 'views' );
+	const viewsAreEmpty =
+		! isLoading &&
+		! isError &&
+		views?.value === 0 &&
+		views.current.every( point => point.value === 0 || point.value === null ) &&
+		( views.previous?.every( point => point.value === 0 || point.value === null ) ?? true );
+	const { noPublishedPosts, isChecking } = useNoPublishedPosts( viewsAreEmpty );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading }
+				isLoading={ isLoading || isChecking }
 				isFetching={ isFetching }
 				// `useTrafficChart` already gates `isError` per query on that query
 				// having no rows, so a transient refetch failure keeps the chart.
@@ -118,7 +135,23 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 					groupLabel={ groupLabel }
 					tickResolution={ period }
 					onDatumClick={ openBucket }
-					empty={ <ChartEmptyState /> }
+					chartTitle={ __( 'Traffic summary', 'jetpack-premium-analytics-pkg' ) }
+					empty={
+						noPublishedPosts ? (
+							<ChartEmptyState
+								text={ __(
+									"You haven't published any posts yet. Get started by creating your first one.",
+									'jetpack-premium-analytics-pkg'
+								) }
+								action={ {
+									label: __( 'Create post', 'jetpack-premium-analytics-pkg' ),
+									href: getAdminUrl( 'post-new.php' ),
+								} }
+							/>
+						) : (
+							<ChartEmptyState />
+						)
+					}
 				/>
 			</WidgetState>
 		</div>

@@ -13,6 +13,7 @@ const author: AuthorRow = {
 	id: 'id:42',
 	label: 'Ada Lovelace',
 	avatarUrl: 'https://example.com/ada.png',
+	authorId: '42',
 	isGroup: true,
 	views: 1234,
 };
@@ -65,10 +66,16 @@ describe( 'authors fields', () => {
 		} );
 	} );
 
-	it( 'renders the author name with its avatar', () => {
+	it( 'renders the author name with its avatar, linked to the author page', () => {
 		renderField( 'author', author );
 
-		expect( screen.getByText( 'Ada Lovelace' ) ).toBeInTheDocument();
+		const url = getMockRouteLinkUrl( screen.getByRole( 'link', { name: 'Ada Lovelace' } ) );
+		expect( url.pathname ).toBe( '/author/42' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+		} );
 		expect( screen.getByAltText( 'Avatar of Ada Lovelace' ) ).toHaveAttribute(
 			'src',
 			'https://example.com/ada.png'
@@ -77,13 +84,19 @@ describe( 'authors fields', () => {
 	} );
 
 	it( 'localizes the untracked-author sentinel for display and search', () => {
-		const untracked = { ...author, label: 'Untracked Authors', avatarUrl: null };
+		const untracked = {
+			...author,
+			label: 'Untracked Authors',
+			avatarUrl: null,
+			authorId: undefined,
+		};
 		const authorField = getAuthorsFields().find( candidate => candidate.id === 'author' );
 
 		expect( authorField?.getValue?.( { item: untracked } as never ) ).toBe( 'Untracked authors' );
 
 		renderField( 'author', untracked );
 		expect( screen.getByText( 'Untracked authors' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'links nested posts to their single-post details without external-link treatment', () => {

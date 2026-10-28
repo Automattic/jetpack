@@ -5,6 +5,7 @@ import {
 	getScoreLetter,
 	didScoresChange,
 	getScoreMovementPercentage,
+	getScoreTier,
 } from '../src/index';
 
 const mockData = {
@@ -288,5 +289,18 @@ describe( 'getScoreMovementPercentage', () => {
 		changedMockData.scores.noBoost.mobile = 70;
 
 		expect( getScoreMovementPercentage( changedMockData.scores ) ).toBe( 13 );
+	} );
+} );
+
+describe( 'getScoreTier', () => {
+	it.each( [
+		[ 0, 'poor' ],
+		[ 50, 'poor' ],
+		[ 51, 'medium' ],
+		[ 70, 'medium' ],
+		[ 71, 'good' ],
+		[ 100, 'good' ],
+	] )( 'puts a score of %i in the %s tier', ( score, tier ) => {
+		expect( getScoreTier( Number( score ) ) ).toBe( tier );
 	} );
 } );

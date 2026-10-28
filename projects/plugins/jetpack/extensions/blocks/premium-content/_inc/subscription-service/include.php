@@ -59,6 +59,19 @@ function subscription_service( $user_id = null ) {
 }
 
 /**
+ * Whether content is being rendered for ActivityPub, where it is published to everyone.
+ *
+ * Access checks must then ignore the request's own user and subscriber token.
+ *
+ * @since 16.4
+ *
+ * @return bool
+ */
+function is_rendering_for_activitypub() {
+	return function_exists( '\Activitypub\is_activitypub_request' ) && \Activitypub\is_activitypub_request();
+}
+
+/**
  * Gets the default service handling the premium content.
  *
  * @param  Subscription_Service $service If set, this service will be used by default.

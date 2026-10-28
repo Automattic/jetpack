@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.3.0 - 2026-10-26
+### Changed
+- Babel preset: Only add a dependency on `wp-polyfill` for polyfills that the supported WordPress releases include in it. This replaces the previously hardcoded default `autoWpPolyfill.exclude` list, which is now empty. [#53613]
+
+## 4.2.6 - 2026-10-20
+### Changed
+- Update dependencies.
+
+## 4.2.5 - 2026-10-19
+### Changed
+- Update dependencies.
+
+## 4.2.4 - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## 4.2.3 - 2026-10-14
+### Changed
+- Internal updates.
+
+## 4.2.2 - 2026-10-12
+### Changed
+- Internal updates.
+
 ## 4.2.1 - 2026-10-05
 ### Changed
 - Update package dependencies. [#52999]

@@ -77,7 +77,7 @@ class Users_Connection_Admin {
 	 * it carries, so without this, searching from the connected view silently searches
 	 * every user while the view still looks active. Core preserves `role` the same way.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.10.0
 	 *
 	 * @param string $which Which tablenav is being rendered, 'top' or 'bottom'.
 	 */
@@ -101,7 +101,7 @@ class Users_Connection_Admin {
 	 * list-table hooks but never shows the link, so honouring the argument there would
 	 * narrow those lists silently, by this site's tokens, with no way to clear it.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.10.0
 	 *
 	 * @return bool
 	 */
@@ -119,7 +119,7 @@ class Users_Connection_Admin {
 	/**
 	 * URL of the users list filtered to connected users.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.10.0
 	 *
 	 * @return string
 	 */
@@ -135,7 +135,7 @@ class Users_Connection_Admin {
 	 * key — that re-reads the option, and on managed hosts external storage serves it
 	 * with an uncached query. An ID here need not resolve to a user; see the count.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.10.0
 	 *
 	 * @return int[]
 	 */
@@ -176,7 +176,7 @@ class Users_Connection_Admin {
 	/**
 	 * Narrow the users list table query to connected users when the view is active.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.10.0
 	 *
 	 * @param array $args Query arguments for the list table's WP_User_Query.
 	 * @return array
@@ -213,7 +213,7 @@ class Users_Connection_Admin {
 	/**
 	 * Add a "Connected" view to the users list table.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.10.0
 	 *
 	 * @param string[] $views View links keyed by view name.
 	 * @return string[]
@@ -264,7 +264,7 @@ class Users_Connection_Admin {
 	 * drops those IDs and scopes to the current site. Ordered by ID so it does not
 	 * filesort on `user_login`, the default, which a count never needs.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.10.0
 	 *
 	 * @return int
 	 */

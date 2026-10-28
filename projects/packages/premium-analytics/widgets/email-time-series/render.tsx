@@ -10,7 +10,6 @@ import {
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	ChartEmptyState,
 	MetricTabsChart,
@@ -153,7 +152,6 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: retry } ],
 				} }
 				empty={ {
-					icon: reports,
 					description: __(
 						'Open an email report to see its timeline here.',
 						'jetpack-premium-analytics-pkg'
@@ -167,7 +165,9 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
+					chartTitle={ __( 'Email performance', 'jetpack-premium-analytics-pkg' ) }
 					empty={ <ChartEmptyState /> }
+					hideSingleMetricLabel
 				/>
 			</WidgetState>
 		</div>

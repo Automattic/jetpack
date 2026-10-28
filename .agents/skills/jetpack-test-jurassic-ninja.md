@@ -83,15 +83,37 @@ Branch based on the result and what the user asked for:
 - **Sites list is non-empty and user didn't ask for new**: pick the first site (most recently created) and proceed to Check 6 (if `rsync`) or jump to the workflow (if `provision-only`).
 - **Sites list is empty and user didn't ask for new**: fall through to **Site creation** — don't stop and ask. The skill's job is to deliver a working site.
 
+#### Decide whether to autoconnect
+
+Autoconnecting skips the connection flow, so a site for testing a change to the Jetpack connection, login or SSO must start unconnected: the tester connects it as part of the test. Decide before provisioning, from what the site is for. When it is for a PR, read `gh pr view --json files,title,labels,body`; otherwise read the current branch's changes (`git diff --name-only origin/trunk...HEAD`, using whichever remote tracks `Automattic/jetpack`). A request for a plain fresh site, with no branch or PR behind it, autoconnects.
+
+The change touches the connection when any of these holds:
+
+- **Changed paths:** `projects/packages/connection/` (including its `src/sso/` and `src/identity-crisis/`), `projects/js-packages/connection/`, `projects/js-packages/idc/`, `projects/plugins/wpcloud-sso/`, My Jetpack's connection screens and hooks (`projects/packages/my-jetpack/_inc/components/` `connection-screen/`, `connection-status-card/`, `connections-section/`, `onboarding-screen/`, and the `_inc/hooks/` whose names mention connect or connection), or the `jetpack` plugin's SSO module and connection UI (`projects/plugins/jetpack/modules/sso.php`, `_inc/client/security/sso.jsx`, `_inc/client/state/connection/`, and `_inc/client/components/` `connect-button/`, `connect-user-bar/`, `connection-banner/`, `owner-disconnect-dialog/`).
+- **Labels:** `[Package] Connection`, `[Package] Connection UI`, `[JS Package] Connection`, `[Package] Identity Crisis`, `[JS Package] IDC`, `IDC`, `Connect Flow`, `[Feature] SSO`, `[Plugin] Wpcloud Sso`.
+- **Title or description:** the PR says it changes connecting, disconnecting or reconnecting Jetpack, the user or site connection, the connection screens, Identity Crisis, or logging in with WordPress.com (SSO). Jetpack Social "connections" (`projects/packages/publicize/`, `projects/packages/external-connections/`) are a different thing and don't count.
+
+Other My Jetpack changes, such as product cards or pricing, don't count on their path alone.
+
+- **Touches the connection:** leave out `jetpack-autoconnect` and skip **Connect Jetpack** below. Report "Not autoconnected: this PR changes the connection, so connect it yourself as part of testing", naming the signal that decided it.
+- **Doesn't:** autoconnect as below.
+- **The user's word wins either way.** "Connect it anyway" autoconnects a connection change; "don't connect" or "don't connect Jetpack" leaves any site unconnected. Report which you did and that the user asked for it.
+
+This decides only for a site you create. When Check 5 reuses an existing site for a change that touches the connection, say in the report that the site may already be connected and offer to create a fresh, unconnected one.
+
+A login change outside the connection, such as `projects/packages/account-protection/` or the `[Feature] Account Protection` label, still autoconnects. Whichever way it goes, if the change touches the connection, login or SSO, warn the user that adding teammates to the site (`invite-to-site`, or a teammate's `join-site`) turns Jetpack SSO and match-by-email on once the site has a Jetpack user connection, which can change what's under test.
+
 #### Site creation
 
-Provision a site with Jetpack already enabled:
+Provision a site with Jetpack already enabled and, unless the step above said not to, connected, and record what it is for in the JN ledger so teammates can find it in Mission Control and join it:
 
 ```
-execute-tool: jurassic-ninja / provision-site (features: {"jetpack": "true"})
+execute-tool: jurassic-ninja / provision-site (features: {"jetpack": "true", "jetpack-autoconnect": "true", "ledger": {"label": "<what you're testing>", "pr_url": "<PR url>", "linear_issue": "<KEY-1234>"}})
 ```
 
-The response returns `domain`, `admin_login_url`, `ssh_command`, and `atomic_site_id`. Configuration runs asynchronously, so poll until the site is ready:
+Fill the `ledger` fields from what you know, and leave out any you don't: `label` is a short description (under 200 characters) such as the branch name or the change being tested; `pr_url` is the current branch's open PR (`gh pr view --json url -q .url`); `linear_issue` is the Linear key the user or the branch name gives, uppercased (e.g. `JETPACK-1234` from a branch ending in `-jetpack-1234`). Leave out `jetpack-autoconnect` when **Decide whether to autoconnect** said not to connect.
+
+The response returns `domain`, `admin_login_url`, `ssh_command`, and `atomic_site_id`, plus `ledger_url` (the site's Mission Control page) or `ledger_error`. A `ledger_error` doesn't stop the site: warn the user and carry on. Configuration runs asynchronously, so poll until the site is ready:
 
 ```
 execute-tool: jurassic-ninja / list-sites (domain: <returned domain>, include_config: false)
@@ -107,7 +129,7 @@ If the site was just provisioned, call:
 execute-tool: jurassic-ninja / connect-jetpack (domain: <site domain>)
 ```
 
-This remotely links the site to Jetpack using the creator's WP.com account. Idempotent — returns `already_connected` when already linked and `connected` on first success. Skip if the user explicitly said "don't connect Jetpack".
+This remotely links the site to Jetpack using the creator's WP.com account. Idempotent — returns `already_connected` when already linked (as it normally is after `jetpack-autoconnect`) and `connected` on first success. Skip it whenever you left out `jetpack-autoconnect`, since it would connect the site anyway.
 
 ### Check 6: SSH access to Jurassic Ninja *(when using rsync or WP-CLI)*
 
@@ -200,6 +222,14 @@ Notes that save time:
   grepping for a pattern containing `$`, quote it so the remote shell doesn't expand it —
   an unquoted `$host` silently becomes an empty string and a real match reports as zero.
 - Page caching is on. Add a cache-busting query param when verifying that a change took effect.
+- Password SSH locks out fast: on two sites in October 2026 the third login within about 15
+  minutes was refused, and the site stayed locked for at least 10 more. ssh also tries the
+  password three times per attempt unless told not to. Plan one login per site, do everything
+  in it, and pass `-o NumberOfPasswordPrompts=1`.
+- JN answers bursts of requests with HTTP 429. Load pages one at a time; on a 429, wait two
+  minutes before retrying.
+- The site's auto-login link works once. If a browser script needs to log in again later, save
+  its session on the first login.
 
 ## Gotchas when testing a Jetpack beta or branch build
 
@@ -221,6 +251,16 @@ jetpack-production`) and re-verify. To confirm which copy of a class is really l
 ```bash
 wp eval 'echo (new ReflectionClass("Automattic\\Jetpack\\Status\\Host"))->getFileName();'
 ```
+
+**Switching a site to a PR's build doesn't need SSH.** Once the PR's "Build all projects" check
+has passed, the Jetpack Beta plugin can activate the branch from wp-admin. The activate link is
+`/wp-admin/admin.php?page=jetpack-beta&activate-branch=pr%3A<branch, with / replaced by _>&plugin=jetpack&_wpnonce=<nonce>`;
+copy the nonce from any activate link on the Beta Tester page.
+
+**A passing build isn't proof Beta has it yet.** A switch made right after CI passed can keep
+the previous build. Before testing, read the "Currently Running" line on the Beta Tester page:
+the build string ends in `g<first characters of the PR's head SHA>`. If it doesn't match the
+head commit, switch again.
 
 **Autoloader conflicts need forcing to reproduce.** Some third-party plugins bundle older
 Jetpack packages with a plain Composer classmap and no Jetpack Autoloader. Merely activating
@@ -289,7 +329,8 @@ pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/
 
 After sync (or after site creation for `provision-only`), show:
 - The admin login URL: `https://{domain}/?auto_login` (or the `admin_login_url` returned by `provision-site`).
-- Whether Jetpack is connected (from `connect-jetpack` output, if called).
+- Whether Jetpack is connected (from `connect-jetpack` output, if called). For brand-new sites, whether you autoconnected and why (the connection signal, or the user's request), plus the SSO warning when the change touches the connection, login or SSO.
+- For brand-new sites: the `ledger_url` from `provision-site`, or the ledger warning.
 - For `rsync` Jetpack-plugin flows: remind the user to set `define('JETPACK_AUTOLOAD_DEV', true);` in a mu-plugin on the remote site.
 - If `SSH_OK` was false: remind the user to set up SSH keys for a smoother experience next time.
 - For brand-new sites: note the site expires after 7 days of inactivity.

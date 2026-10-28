@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Icon, plugins } from '@wordpress/icons';
-import { Card, LinkButton, Text } from '@wordpress/ui';
+import { Card, ButtonLink, Text } from '@wordpress/ui';
 import LicenseKeyLink from './license-key-link';
 
 /**
@@ -46,9 +46,9 @@ export default function NotConnectedScreen() {
 					) }
 				</Text>
 				<div className="jpb-gates__actions">
-					<LinkButton variant="solid" tone="brand" href={ JETPACK_CONNECT_URL }>
+					<ButtonLink variant="solid" tone="brand" href={ JETPACK_CONNECT_URL }>
 						{ __( 'Connect Jetpack', 'jetpack-backup-pkg' ) }
-					</LinkButton>
+					</ButtonLink>
 					<LicenseKeyLink />
 				</div>
 			</Card.Root>

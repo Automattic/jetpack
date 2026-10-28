@@ -51,9 +51,7 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		Status_Cache::clear();
 		$this->reset_menus();
 
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Jetpack_Settings_Feature_Flags::WP_BUILD );
 		wp_deregister_script( 'react-plugin' );
-		wp_dequeue_style( 'dops-css' );
 		wp_dequeue_style( 'components-css' );
 		set_current_screen( 'front' );
 
@@ -199,6 +197,23 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '<!-- START OF CALLBACK -->', $output );
 	}
 
+	public function test_falls_back_to_the_modules_list_on_rest_authentication_error() {
+		$calls  = 0;
+		$reject = static function () use ( &$calls ) {
+			++$calls;
+			return new WP_Error( 'rest_denied' );
+		};
+		add_filter( 'rest_authentication_errors', $reject, PHP_INT_MAX );
+		try {
+			$page = new Jetpack_Settings_React_Page();
+			$page->add_fallback_redirects();
+			$this->assertSame( 1, $calls );
+			$this->assertNotFalse( has_action( 'admin_head', array( $page, 'add_fallback_head_meta' ) ) );
+		} finally {
+			remove_filter( 'rest_authentication_errors', $reject, PHP_INT_MAX );
+		}
+	}
+
 	/**
 	 * Tests that the page falls back to the modules list when the REST API is off.
 	 */
@@ -248,15 +263,7 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		$this->assertFalse( $page->should_load_wp_build(), 'Not outside wp-admin.' );
 	}
 
-	public function test_kill_switch_keeps_the_webpack_page() {
-		set_current_screen( 'dashboard' );
-		$_GET['page'] = 'jetpack-settings';
-		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Settings_Feature_Flags::WP_BUILD, '__return_false' );
-
-		$this->assertFalse( ( new Jetpack_Settings_React_Page() )->should_load_wp_build() );
-	}
-
-	public function test_idc_blocked_page_keeps_the_webpack_page() {
+	public function test_idc_blocked_page_does_not_load_wp_build() {
 		set_current_screen( 'dashboard' );
 		$_GET['page'] = 'jetpack-settings';
 
@@ -281,15 +288,29 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		$this->assertFalse( ( new Jetpack_Settings_React_Page() )->should_render_wp_build() );
 	}
 
-	public function test_webpack_page_enqueues_the_bundle_and_its_styles() {
+	public function test_page_without_wp_build_enqueues_no_bundle() {
 		$page = new Jetpack_Settings_React_Page();
 		$page->page_admin_scripts();
-		$page->additional_styles();
 
-		$this->assertStringContainsString( '_inc/build/admin.js', wp_scripts()->registered['react-plugin']->src );
-		$this->assertStringContainsString( 'var Initial_State=', implode( '', (array) wp_scripts()->get_data( 'react-plugin', 'before' ) ) );
-		$this->assertTrue( wp_style_is( 'dops-css' ) );
+		$this->assertFalse( wp_script_is( 'react-plugin', 'registered' ) );
+	}
+
+	public function test_page_without_wp_build_explains_the_missing_build() {
+		ob_start();
+		( new Jetpack_Settings_React_Page() )->page_render();
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'jp-settings-build-error', $html );
+		$this->assertStringNotContainsString( 'jp-loading-placeholder', $html, 'The static.html pre-render is gone.' );
+	}
+
+	public function test_wrapper_styles_no_longer_load_the_settings_bundle_css() {
+		( new Jetpack_Settings_React_Page() )->additional_styles();
+
 		$this->assertTrue( wp_style_is( 'components-css' ) );
+		foreach ( wp_styles()->queue as $handle ) {
+			$this->assertStringNotContainsString( '_inc/build/admin', (string) wp_styles()->registered[ $handle ]->src );
+		}
 	}
 
 	public function test_wp_build_page_carries_the_state_without_the_bundle() {
@@ -301,7 +322,6 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		$this->assertTrue( wp_script_is( 'react-plugin' ) );
 		$this->assertContains( 'lodash', wp_scripts()->registered['react-plugin']->deps );
 		$this->assertStringContainsString( 'var Initial_State=', implode( '', (array) wp_scripts()->get_data( 'react-plugin', 'before' ) ) );
-		$this->assertFalse( wp_style_is( 'dops-css' ), 'The route bundle carries its own styles.' );
-		$this->assertFalse( wp_style_is( 'components-css' ) );
+		$this->assertFalse( wp_style_is( 'components-css' ), 'The route bundle carries its own styles.' );
 	}
 }

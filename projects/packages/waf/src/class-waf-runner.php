@@ -123,6 +123,30 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Whether the host runs its own firewall where Jetpack's can't run.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_provided_by_host() {
+		if ( self::is_supported_environment() ) {
+			return false;
+		}
+
+		/**
+		 * Filters whether the site's host runs its own firewall in place of Jetpack's.
+		 *
+		 * Only changes how the firewall's status is reported, as active rather than unavailable; it blocks nothing.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $provided Whether the host provides the firewall. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_protect_firewall_provided_by_host', false );
+	}
+
+	/**
 	 * Determines if the WAF module is enabled on the site.
 	 *
 	 * @return bool
@@ -260,6 +284,9 @@ class Waf_Runner {
 
 			// phpcs:ignore
 			$waf = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
+
+			// Before the rules, which stop at the IP allow list without saying why.
+			Waf_Self_Check::maybe_block( $waf );
 
 			// execute waf rules.
 			$rules_file_path = self::get_waf_file_path( JETPACK_WAF_ENTRYPOINT );

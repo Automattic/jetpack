@@ -64,7 +64,12 @@ const StatsLocations = ( { rows = [], isLoading = false, scopeLabel }: StatsLoca
 		<SectionCard title={ title } metric={ scopeLabel } className="podcast-stats-locations">
 			<div className="podcast-stats-locations__grid">
 				<div className="podcast-stats-locations__map">
-					<GeoChart data={ mapData } region="world" height={ 480 } />
+					<GeoChart
+						data={ mapData }
+						region="world"
+						height={ 480 }
+						ariaLabel={ __( 'Downloads by location', 'jetpack-podcast' ) }
+					/>
 				</div>
 				<div>
 					<h4 className="podcast-stats-locations__list-title">

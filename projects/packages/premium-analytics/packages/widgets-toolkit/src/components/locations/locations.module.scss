@@ -1,0 +1,43 @@
+.root {
+	// An inline-size container, so a narrow tile drops the map with CSS alone.
+	container-type: inline-size;
+	block-size: 100%;
+	min-block-size: 0;
+}
+
+.container {
+	display: grid;
+	grid-template-columns: 280fr 400fr;
+	column-gap: var(--wpds-dimension-gap-lg);
+	align-items: stretch;
+	block-size: 100%;
+	min-block-size: 0;
+}
+
+.list {
+	align-self: start;
+	min-inline-size: 0;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+.map {
+	min-inline-size: 0;
+	block-size: 100%;
+	// Google redraws the SVG on a resize debounce; clip the stale one
+	// meanwhile.
+	overflow: hidden;
+}
+
+// Between a one-column tile and a two-column one: the list alone fits the
+// former.
+@container (max-inline-size: 480px) {
+
+	.container {
+		grid-template-columns: 1fr;
+	}
+
+	.map {
+		display: none;
+	}
+}

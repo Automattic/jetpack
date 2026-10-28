@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Plugins: add a Marketplace tab to the Add Plugins screen, listing WordPress.com partner and premium plugins, and show it first. Behind the wpcom-plugins-marketplace-tab feature flag, off by default.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Remove the dead plugin_settings_page() method that mounted the retired legacy Social admin root.
-

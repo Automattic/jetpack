@@ -92,6 +92,7 @@ describe( 'the Restore screen during a running restore', () => {
 	// region that arrives together with its text is missed by screen readers.
 	// Exact text, so the region cannot widen to the per-poll percentage.
 	it.each( [
+		[ 'queued', 0, /^Your restore is queued and will begin automatically\.$/ ],
 		[ 'running', 0, /^Restoring from backup…$/ ],
 		[ 'finished', 100, /^Restore complete\.$/ ],
 		[ 'finished-with-errors', 100, /^Restore finished with errors$/ ],
@@ -125,5 +126,25 @@ describe( 'the Restore screen during a running restore', () => {
 		await startRestore();
 
 		await expect( screen.findByText( `${ percent }% complete` ) ).resolves.toBeInTheDocument();
+	} );
+} );
+
+describe( 'the Restore screen after a restore that finished with errors', () => {
+	it( 'links to the restore troubleshooting guide', async () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: 'example.wordpress.com',
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+		arrange( 100, 'Some files were skipped', 'finished-with-errors' );
+		render( <RestoreStage /> );
+
+		await startRestore();
+
+		const link = await screen.findByRole( 'link', { name: /^Learn more/ } );
+		expect( link ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-restore-troubleshooting&site=example.wordpress.com'
+		);
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 } );

@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Sections\Firewall as Protect_Firewall;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
@@ -1785,7 +1786,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => esc_html__( 'Blocked IP addresses', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
-				'validate_callback' => __CLASS__ . '::validate_string',
+				'validate_callback' => __CLASS__ . '::validate_waf_ip_block_list',
 				'sanitize_callback' => 'esc_textarea',
 				'jp_group'          => 'waf',
 			),
@@ -2531,7 +2532,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'Jetpack_SEO_Titles::sanitize_title_formats',
 			),
 
-			// AI tab (Jetpack > SEO). Plain option the SEO package reads to serve
+			// GEO tab (Jetpack > SEO). Plain option the SEO package reads to serve
 			// /llms.txt. The front-end behavior is gated inside the package; this
 			// only round-trips the persisted state alongside the other seo-tools
 			// settings.
@@ -2541,18 +2542,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'seo-tools',
-			),
-
-			// AI tab (Jetpack > SEO). Sparse per-crawler override map the SEO
-			// package reads to emit robots.txt directives for blocked AI crawlers.
-			// Stored as `slug => bool` (true = blocked); catalog validation and
-			// default-pruning happen in `Ai_Crawlers::get_overrides()`.
-			'jetpack_seo_ai_crawler_overrides'          => array(
-				'description'       => esc_html__( 'AI crawler allow/block overrides.', 'jetpack' ),
-				'type'              => 'object',
-				'default'           => array(),
-				'jp_group'          => 'seo-tools',
-				'sanitize_callback' => __CLASS__ . '::sanitize_ai_crawler_overrides',
 			),
 
 			// VideoPress.
@@ -3159,6 +3148,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Validates the firewall's IP block list, refusing one that would block the user saving it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string          $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_waf_ip_block_list( $value, $request, $param ) {
+		$is_string = self::validate_string( $value, $request, $param );
+		// Another plugin can load an older Protect package without the check.
+		if ( true !== $is_string || ! method_exists( Protect_Firewall::class, 'validate_ip_block_list' ) ) {
+			return $is_string;
+		}
+
+		// Check the list as the sanitize_callback will store it, since the firewall reads the stored copy.
+		return Protect_Firewall::validate_ip_block_list( esc_textarea( $value ) );
+	}
+
+	/**
 	 * Validates that the parameter is a string.
 	 *
 	 * @since 4.3.0
@@ -3274,29 +3285,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return array( 'administrator' );
 		}
 		return $value;
-	}
-
-	/**
-	 * Sanitize the AI crawler override map.
-	 *
-	 * Keeps the value package-agnostic: each key is normalized with sanitize_key()
-	 * and each value cast to bool. Catalog validation and default-pruning happen in
-	 * `Automattic\Jetpack\SEO\Ai_Crawlers::get_overrides()`.
-	 *
-	 * @param mixed $value The submitted override map.
-	 *
-	 * @return array<string, bool> Sanitized `slug => bool` map.
-	 */
-	public static function sanitize_ai_crawler_overrides( $value ) {
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-
-		$sanitized = array();
-		foreach ( $value as $k => $v ) {
-			$sanitized[ sanitize_key( $k ) ] = (bool) $v;
-		}
-		return $sanitized;
 	}
 
 	/**
@@ -3572,7 +3560,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_remote_value( $module, $option ) {
 
-		if ( in_array( $module, array( 'post-by-email' ), true ) ) {
+		// These are per-user values on WordPress.com, so each user gets their own local copy.
+		if ( in_array( $module, array( 'monitor', 'post-by-email' ), true ) ) {
 			$option .= get_current_user_id();
 		}
 
@@ -3597,6 +3586,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 					return false;
 				}
 				$value = Jetpack_Monitor::user_receives_notifications( false );
+				// Not saved: the user may not be connected yet, and would be stuck with this answer.
+				if ( is_wp_error( $value ) ) {
+					return false;
+				}
+				// An integer, as in Monitor::save_notifications_copy().
+				$value = (int) (bool) $value;
 				break;
 
 			case 'post-by-email':
@@ -3609,11 +3604,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$value = 'NULL'; // sentinel value so it actually gets set.
 				}
 				break;
-		}
-
-		// Normalize value to boolean.
-		if ( is_wp_error( $value ) || $value === null ) {
-			$value = false;
 		}
 
 		// Save option to use it next time.

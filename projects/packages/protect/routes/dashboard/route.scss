@@ -7,6 +7,21 @@ body.jetpack_page_jetpack-protect,
 body.toplevel_page_jetpack-protect {
 
 	@include jetpack-admin-page-layout-wp-build;
+
+	// Dialogs portal into <body>, under the admin menu (z-index 9990)
+	// unless lifted.
+	--wp-ui-dialog-z-index: 100000;
+}
+
+// Matches Boost's "Jetpack / Boost" trail. The width is what
+// the trail collapses into on narrow screens.
+.jp-protect-breadcrumbs {
+	flex: 1;
+}
+
+.jp-protect-breadcrumbs__item {
+	font-size: var(--wpds-typography-font-size-lg);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
 
 .jp-protect-dashboard__body {
@@ -17,10 +32,20 @@ body.toplevel_page_jetpack-protect {
 	padding: 24px;
 }
 
+.jp-protect-dashboard__notice {
+	margin-block-end: var(--wpds-dimension-gap-lg);
+}
+
 .jp-protect-dashboard__cards {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
+
+	// The 660px column of the other Jetpack settings screens.
+	&--settings {
+		max-inline-size: 660px;
+		margin-inline: auto;
+	}
 }
 
 .jp-protect-card {
@@ -28,21 +53,81 @@ body.toplevel_page_jetpack-protect {
 	// The row is full-bleed for its divider; the padding re-aligns its contents.
 	&__row {
 		box-sizing: border-box;
-		padding: 16px var(--wp-ui-card-padding);
+		padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
 		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	}
+
+	// Cells split by rules; each cell takes the row's padding,
+	// so the rules run edge to edge.
+	&__row.jp-protect-card__cells {
+		--jp-protect-cells: 2;
+
+		display: grid;
+		grid-template-columns: repeat(var(--jp-protect-cells), minmax(0, 1fr));
+		padding: 0;
+
+		> * {
+			box-sizing: border-box;
+			padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
+		}
+
+		> * + * {
+			border-inline-start:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral);
+		}
+
+		@media (max-width: 600px) {
+			grid-template-columns: minmax(0, 1fr);
+
+			> * + * {
+				border-inline-start: 0;
+				border-block-start:
+					var(--wpds-border-width-xs) solid
+					var(--wpds-color-stroke-surface-neutral);
+			}
+		}
 	}
 
 	&__muted {
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
+	&__error {
+		color: var(--wpds-color-foreground-content-error);
+	}
+
 	&__title {
 		margin: 0;
+	}
+
+	// Intro text above a card's first row, at the card's padding.
+	&__intro {
+		padding-block-end: 16px;
+
+		p {
+			margin: 0;
+		}
 	}
 
 	// A compact button's height, so headers without one match.
 	&__header-end {
 		min-block-size: var(--wpds-dimension-size-md);
+	}
+
+	// A button that opens something in place, styled as the links beside it.
+	&__link-button {
+		padding: 0;
+		line-height: 1.4;
+		color: var(--wpds-color-foreground-interactive-brand);
+		font-size: 13px;
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+		cursor: pointer;
+
+		&:hover {
+			color: var(--wpds-color-foreground-interactive-brand-active);
+		}
 	}
 
 	&__subheading {
@@ -60,5 +145,49 @@ body.toplevel_page_jetpack-protect {
 
 	[class*="__inspector"]:has(.jp-protect-inspector) {
 		min-inline-size: 360px;
+	}
+}
+
+.jp-protect-feature-upsell {
+
+	&__heading,
+	&__title {
+		font-weight: 500;
+	}
+
+	&__body {
+		display: flex;
+		gap: var(--wpds-dimension-gap-lg);
+		align-items: center;
+		justify-content: space-between;
+
+		// The button drops below the features, aligned with them.
+		@media (max-width: 600px) {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+	}
+
+	&__features {
+		display: grid;
+		flex: 1;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--wpds-dimension-gap-lg);
+
+		@media (max-width: 600px) {
+			grid-template-columns: minmax(0, 1fr);
+			align-self: stretch;
+		}
+	}
+
+	&__icon {
+		flex: none;
+		fill: none;
+		color: var(--wpds-color-foreground-interactive-brand);
+	}
+
+	&__button {
+		flex: none;
+		white-space: nowrap;
 	}
 }

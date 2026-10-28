@@ -6,6 +6,14 @@ import { SVG, Path } from '@wordpress/primitives';
 export const search = (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
 		<Path
+			d="M30.6373 10.2702L29.229 11.6839L36.2785 18.7603L37.687 17.3467Z"
+			fill="var(--wpds-color-stroke-surface-neutral-weak, #E0E0E0)"
+		/>
+		<Path
+			d="M36.2785 10.2718L29.229 17.3483L30.6373 18.762L37.687 11.6856Z"
+			fill="var(--wpds-color-stroke-surface-neutral-weak, #E0E0E0)"
+		/>
+		<Path
 			d="M23.0971 21.982L6.60742 38.5347L9.42724 41.3653L25.9169 24.8126L23.0971 21.982Z"
 			fill="var(--wpds-color-background-surface-neutral-weak, #F0F0F0)"
 		/>

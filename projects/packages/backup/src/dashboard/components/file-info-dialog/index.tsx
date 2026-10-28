@@ -79,7 +79,7 @@ export default function FileInfoDialog( { file, onClose }: Props ) {
 						<Icon icon={ fileIcon } size={ 20 } className="jpb-file-info-dialog__title-icon" />
 						<span dir="ltr">{ file.name }</span>
 					</Dialog.Title>
-					<Dialog.CloseIcon label={ __( 'Close preview', 'jetpack-backup-pkg' ) } />
+					<Dialog.CloseIconButton label={ __( 'Close preview', 'jetpack-backup-pkg' ) } />
 				</Dialog.Header>
 				<Dialog.Content className="jpb-file-info-dialog__body">
 					<FileInfoMeta modified={ modified } size={ size } mimeType={ mimeType } hash={ hash } />

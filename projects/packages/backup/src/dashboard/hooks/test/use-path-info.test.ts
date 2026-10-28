@@ -120,12 +120,25 @@ describe( 'formatFileSize', () => {
 	test.each( [
 		[ 0, '0 B' ],
 		[ 512, '512 B' ],
+		[ 1000, '1000 B' ],
 		[ 1024, '1 KB' ],
 		[ 3247, '3.2 KB' ],
 		[ 1048576, '1 MB' ],
 		[ 5368709120, '5 GB' ],
 	] )( 'formats %i bytes as %s', ( bytes, expected ) => {
 		expect( formatFileSize( bytes ) ).toBe( expected );
+	} );
+
+	test( 'uses the locale decimal separator', () => {
+		( window as { wp?: unknown } ).wp = {
+			date: { getSettings: () => ( { l10n: { locale: 'de_DE' } } ) },
+		};
+
+		try {
+			expect( formatFileSize( 3247 ) ).toBe( '3,2 KB' );
+		} finally {
+			delete ( window as { wp?: unknown } ).wp;
+		}
 	} );
 } );
 

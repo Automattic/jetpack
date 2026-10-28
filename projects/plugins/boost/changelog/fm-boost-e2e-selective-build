@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Limit the E2E build to the projects needed by the Boost test suites.

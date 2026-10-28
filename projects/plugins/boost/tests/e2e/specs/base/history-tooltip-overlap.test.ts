@@ -601,9 +601,9 @@ test( 'Score cards show gain badges, points help, and responsive dividers', asyn
 		'rgb(147, 99, 0)'
 	);
 	for ( const [ card, score, color ] of [
-		[ desktop.first(), 90, 'color(srgb 0 0.501961 0.188235 / 0.9)' ],
-		[ mobile, 60, 'color(srgb 0.980392 0.654902 0.329412 / 0.9)' ],
-		[ desktop.nth( 1 ), 40, 'color(srgb 0.8 0.0941176 0.0941176 / 0.9)' ],
+		[ desktop.first(), 90, 'rgb(0, 128, 48)' ],
+		[ mobile, 60, 'rgb(250, 167, 84)' ],
+		[ desktop.nth( 1 ), 40, 'rgb(204, 24, 24)' ],
 	] as const ) {
 		await expect( card.getByRole( 'progressbar' ) ).toHaveJSProperty( 'value', score );
 		await expect( card.getByRole( 'progressbar' ) ).toHaveAttribute( 'max', '100' );

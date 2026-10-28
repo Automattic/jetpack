@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.11.0 - 2026-10-14
+### Added
+- My Jetpack: Allow the Automattic for Agencies banner to be dismissed. [#51441]
+
+### Changed
+- Boost: Wait up to four minutes for slow speed tests in My Jetpack instead of timing out after two. [#51605]
+- Charts: follow the WordPress admin color scheme for chart series colors. [#51535]
+- General: Update minimum WordPress version to 7.0. [#49021] [#51370]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use. [#51410]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Tested up to WordPress 7.1. [#48114] [#51370]
+- Update composer.lock files. [#49415]
+- Updated package dependencies. [#48735] [#48064] [#48106] [#48405] [#48683] [#49012] [#49218] [#49273] [#49448] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183] [#50436] [#50510] [#50529] [#50751] [#51399] [#51701] [#51802] [#52028] [#52187] [#52297] [#52999]
+
+### Removed
+- Updated PHP version requirements to PHP 7.4 or newer. [#51515]
+
+### Fixed
+- Charts: draw labels at the design system's font weight and size. [#51452]
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+- My Jetpack: Keep the Automattic for Agencies banner hidden after dismissing it and switching tabs. [#51441]
+- My Jetpack: keep the stats chart tooltip under sticky and fixed page elements. [#51640]
+- My Jetpack: Stop repeating the partner lookup request on every page load. [#51441]
+- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen. [#51413]
+
 ## 0.10.0 - 2026-04-10
 ### Added
 - Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]

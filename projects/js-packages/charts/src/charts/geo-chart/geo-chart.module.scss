@@ -1,3 +1,5 @@
+@use "../../components/tooltip/surface" as tooltip;
+
 .container {
 	position: relative;
 	background-color: var(--a8c-charts-color-background, #fff);
@@ -8,5 +10,30 @@
 	// whole and grows the box instead.
 	:global(.google-visualization-tooltip) {
 		white-space: nowrap;
+		border: 0;
+
+		@include tooltip.surface;
+	}
+
+	:global(.google-visualization-tooltip-item-list) {
+		margin: 0;
+		padding: 0;
+	}
+
+	// The long chain outranks Google's `:first-child` item rule.
+	:global(.google-visualization-tooltip .google-visualization-tooltip-item-list .google-visualization-tooltip-item) {
+		margin: 0;
+		padding: 0;
+
+		&:first-child {
+			padding-block-end: var(--wpds-dimension-padding-md);
+		}
+	}
+
+	// Google writes these inline on every span.
+	:global(.google-visualization-tooltip-item) span {
+		color: inherit !important;
+		font-family: inherit !important;
+		font-size: inherit !important;
 	}
 }

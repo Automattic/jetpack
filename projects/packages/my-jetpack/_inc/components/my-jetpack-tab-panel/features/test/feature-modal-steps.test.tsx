@@ -1,7 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { version as reactVersion } from 'react';
 import { FeatureModal } from '../feature-modal';
 import type { FeatureState } from '../feature-state';
+
+const isReact18 = reactVersion.startsWith( '18.' );
 
 let mockIsDesktop = true;
 jest.mock( '@wordpress/compose', () => ( {
@@ -193,8 +196,12 @@ describe( 'FeatureModal stepping', () => {
 		rerender( modal( withScreenshot( 'podcast', 'Podcast' ) ) );
 
 		expect( screen.getByAltText( 'Podcast in use' ) ).toBeInTheDocument();
+
 		// React 18 warns about `fetchPriority`.
-		expect( console ).toHaveErrored();
+		if ( isReact18 ) {
+			// eslint-disable-next-line jest/no-conditional-expect
+			expect( console ).toHaveErrored();
+		}
 	} );
 
 	it( 'names the backdrop the way the view-transition rule expects', () => {

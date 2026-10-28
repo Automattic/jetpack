@@ -25,6 +25,8 @@ import {
 	validateReturnUrl,
 	sanitizePayPalUrl,
 	getUserFriendlyError,
+	getValidationErrors,
+	ADDRESS_REQUIRED_ERROR,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
 	REQUIRED_FIELD_ERROR,
@@ -381,6 +383,72 @@ describe( 'sanitizePayPalUrl', () => {
 	// JSON cannot carry `undefined`, so the no-argument call stays out of the fixture.
 	it( 'refuses a missing argument', () => {
 		expect( sanitizePayPalUrl() ).toBe( '' );
+	} );
+} );
+
+describe( 'getValidationErrors', () => {
+	const product = { productName: 'Test Widget', price: '29.99', currencyCode: 'USD' };
+	const profileTax = { taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' };
+	const profileShipping = { shippingEnabled: true, shippingMode: 'PROFILE' };
+
+	it( 'returns the address error for a profile tax with the address off', () => {
+		const errors = getValidationErrors( {
+			...product,
+			...profileTax,
+			collectShippingAddress: false,
+		} );
+
+		expect( errors.taxType ).toBe( ADDRESS_REQUIRED_ERROR );
+		expect( errors.shippingMode ).toBeNull();
+	} );
+
+	it( 'returns the address error for PROFILE shipping with the address off', () => {
+		const errors = getValidationErrors( {
+			...product,
+			...profileShipping,
+			collectShippingAddress: false,
+		} );
+
+		expect( errors.shippingMode ).toBe( ADDRESS_REQUIRED_ERROR );
+		expect( errors.taxType ).toBeNull();
+	} );
+
+	it( 'returns null for a profile tax and PROFILE shipping with the address on', () => {
+		const errors = getValidationErrors( {
+			...product,
+			...profileTax,
+			...profileShipping,
+			collectShippingAddress: true,
+		} );
+
+		expect( errors.taxType ).toBeNull();
+		expect( errors.shippingMode ).toBeNull();
+	} );
+
+	it( 'returns null for FREE shipping with the address off', () => {
+		const errors = getValidationErrors( {
+			...product,
+			shippingEnabled: true,
+			shippingMode: 'FREE',
+			shippingValue: '5.00',
+			collectShippingAddress: false,
+		} );
+
+		expect( errors.shippingMode ).toBeNull();
+	} );
+
+	it( 'returns null for a profile tax and PROFILE shipping with their toggles off', () => {
+		const errors = getValidationErrors( {
+			...product,
+			...profileTax,
+			...profileShipping,
+			taxEnabled: false,
+			shippingEnabled: false,
+			collectShippingAddress: false,
+		} );
+
+		expect( errors.taxType ).toBeNull();
+		expect( errors.shippingMode ).toBeNull();
 	} );
 } );
 

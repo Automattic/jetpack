@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.3.4] - 2026-10-26
+### Changed
+- Update package dependencies. [#53951]
+
+### Fixed
+- Dashboard: Activate free Search in place from "Start for free" instead of falling back to the $0 checkout. [#53397]
+- Instant Search: Open the filters panel below the results header on small screens, so the Filters toggle stays visible. [#53474]
+
+## [8.3.3] - 2026-10-19
+### Changed
+- Update dependencies. [#53618]
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53806]
+
+## [8.3.2] - 2026-10-12
+### Changed
+- Update dependencies. [#53250]
+
+### Fixed
+- Avoid requesting the Search plan in offline mode. [#53241]
+
+## [8.3.1] - 2026-10-12
+### Changed
+- Update dependencies.
+
 ## [8.3.0] - 2026-10-05
 ### Changed
 - Activate the free Search plan from the dashboard instead of sending you through a $0 checkout. [#52655]
@@ -1950,6 +1975,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[8.3.4]: https://github.com/Automattic/jetpack-search/compare/v8.3.3...v8.3.4
+[8.3.3]: https://github.com/Automattic/jetpack-search/compare/v8.3.2...v8.3.3
+[8.3.2]: https://github.com/Automattic/jetpack-search/compare/v8.3.1...v8.3.2
+[8.3.1]: https://github.com/Automattic/jetpack-search/compare/v8.3.0...v8.3.1
 [8.3.0]: https://github.com/Automattic/jetpack-search/compare/v8.2.1...v8.3.0
 [8.2.1]: https://github.com/Automattic/jetpack-search/compare/v8.2.0...v8.2.1
 [8.2.0]: https://github.com/Automattic/jetpack-search/compare/v8.1.3...v8.2.0

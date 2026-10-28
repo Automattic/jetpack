@@ -21,3 +21,13 @@ Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
 	value: () => {},
 	writable: true,
 } );
+
+// The Overview's state outlives an unmount by design, so each test starts as a fresh page load.
+beforeEach( () => {
+	require( '../src/dashboard/screens/overview-state' ).resetOverviewStateForTesting();
+} );
+
+// Required lazily: loaded up front, it would bind the real `speak()` before a test file mocks it.
+afterEach( () => {
+	require( '../src/dashboard/data/announce' ).resetAnnouncerForTesting();
+} );

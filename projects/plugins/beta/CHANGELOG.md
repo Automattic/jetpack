@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.3.1 - 2026-10-15
+### Changed
+- Sidebar: sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+- Update package dependencies. [#51947]
+- Update the Jetpack Beta plugin screenshot in the plugin documentation. [#50553]
+
+### Fixed
+- Prevent self-deletion when dev version is the only one installed. [#52487]
+
 ## 4.3.0 - 2026-07-15
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]

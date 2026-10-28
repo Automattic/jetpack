@@ -13,6 +13,7 @@ import { cleanForSlug } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import { getReportWindowParams } from './query-params';
 import type { ReportCsvExporter } from './types';
 import type { LocationsGeoMode } from '../components/locations-geo-chart';
 
@@ -52,6 +53,18 @@ export function getLocationColumnLabel( section: LocationsReportSection ): strin
 			return __( 'City', 'jetpack-premium-analytics-pkg' );
 		default:
 			return __( 'Country', 'jetpack-premium-analytics-pkg' );
+	}
+}
+
+/** The section's plural place type, which heads its report tab, widget header and dropdown option. */
+export function getLocationsSectionLabel( section: LocationsReportSection ): string {
+	switch ( section ) {
+		case 'regions':
+			return __( 'Regions', 'jetpack-premium-analytics-pkg' );
+		case 'cities':
+			return __( 'Cities', 'jetpack-premium-analytics-pkg' );
+		default:
+			return __( 'Countries', 'jetpack-premium-analytics-pkg' );
 	}
 }
 
@@ -113,6 +126,7 @@ export function getLocationsReportQueryParams(
 		period: 'day',
 		geoMode: LOCATIONS_GEO_MODES[ section ],
 		...getLocationsScopeParams( scope ),
+		...getReportWindowParams( reportParams ),
 	};
 }
 

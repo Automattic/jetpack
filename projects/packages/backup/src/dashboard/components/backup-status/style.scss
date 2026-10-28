@@ -13,6 +13,8 @@
 .jpb-backup-status {
 	display: flex;
 	flex: 1 1 auto;
+	// Lets the item shrink below the 660px card so its max-inline-size applies.
+	min-inline-size: 0;
 	align-items: center;
 	justify-content: center;
 
@@ -69,6 +71,8 @@
 		background-color: var(--wpds-color-background-track-neutral);
 
 		> div {
+			// No inset on the indicator, so EmptyState's `text-align: center` places it.
+			inset-inline-start: 0;
 			background-color: var(--wpds-color-background-interactive-brand-strong);
 		}
 	}
@@ -78,14 +82,16 @@
 // is a two-column grid at >= 961px and a third child would be auto-placed.
 .jpb-backup-status-banner,
 .jpb-backup-trouble-banner,
-.jpb-backup-warnings-banner {
+.jpb-backup-warnings-banner,
+.jpb-backup-failed-run-banner {
 	box-sizing: border-box;
 	inline-size: 100%;
 	margin-block-end: 16px;
 }
 
 .jpb-backup-trouble-banner,
-.jpb-backup-warnings-banner {
+.jpb-backup-warnings-banner,
+.jpb-backup-failed-run-banner {
 	padding: 12px 16px;
 	border-radius: 8px;
 }
@@ -104,6 +110,7 @@
 }
 
 // Caution: the site still has a usable restore point, so a lesser heads-up.
-.jpb-backup-warnings-banner {
+.jpb-backup-warnings-banner,
+.jpb-backup-failed-run-banner {
 	background-color: var(--wpds-color-background-surface-caution-weak);
 }

@@ -88,7 +88,7 @@ export function sanitizeStatsTagsResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsTagsItem > {
-	// `stats/tags` takes only `max`, so it never returns `days` or a `summary`.
+	// `stats/tags` returns one ranked list, never `days` or a `summary`.
 	const tags = coerceStatsArray< StatsRecord >( coerceStatsRecord( response ).tags ).map(
 		normalizeStatsTagsItem
 	);

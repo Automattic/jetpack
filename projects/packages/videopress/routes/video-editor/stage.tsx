@@ -206,7 +206,7 @@ function ConfirmDiscardDialog( {
 			<Dialog.Popup size="small">
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Discard changes?', 'jetpack-videopress-pkg' ) }</Dialog.Title>
-					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
+					<Dialog.CloseIconButton label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
 				</Dialog.Header>
 				{ /*
 				 * Dialog.Popup is an unpadded flex column; body padding comes
@@ -632,6 +632,21 @@ function EditorRoute( { id }: { id: string } ): ReactElement {
 
 	if ( ! video || ! isEditorEligible( video ) ) {
 		return <EditorNotFound videoId={ id } />;
+	}
+
+	if ( video.conversionFailed ) {
+		return (
+			<EditorChrome videoId={ id } breadcrumbLabel={ video.title || undefined }>
+				<div className="vp-video-editor vp-video-editor__processing" role="status">
+					<Text>
+						{ __(
+							'Conversion failed. Delete this video from your library and upload it again.',
+							'jetpack-videopress-pkg'
+						) }
+					</Text>
+				</div>
+			</EditorChrome>
+		);
 	}
 
 	if ( activeTool === 'trim' && isTrimCutEnabled() ) {

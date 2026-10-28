@@ -166,6 +166,8 @@ declare global {
 		triggerReflow: () => void;
 		className: string;
 		isSelected: boolean;
+		// Injected by the EditWithBlockProps wrapper via useBlockProps().
+		blockProps: { className?: string; [key: string]: unknown };
 	};
 }
 

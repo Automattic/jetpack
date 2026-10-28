@@ -1,8 +1,10 @@
-import { Spinner } from '@wordpress/components';
+import { Spinner, VisuallyHidden } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { useGateState } from '../../hooks/use-gate-state';
 import CapabilitiesErrorScreen from './capabilities-error';
 import NoBackupPlanScreen from './no-backup-plan';
 import NotConnectedScreen from './not-connected';
+import OfflineModeScreen from './offline-mode';
 import SecondaryAdminScreen from './secondary-admin';
 import './style.scss';
 import type { ReactNode } from 'react';
@@ -23,6 +25,10 @@ type Props = {
 export default function Gates( { children }: Props ) {
 	const gate = useGateState();
 
+	if ( gate.status === 'offline' ) {
+		return <OfflineModeScreen />;
+	}
+
 	if ( gate.status === 'not-connected' ) {
 		return <NotConnectedScreen />;
 	}
@@ -33,8 +39,11 @@ export default function Gates( { children }: Props ) {
 
 	if ( gate.status === 'loading' ) {
 		return (
-			<div className="jpb-gates__skeleton">
+			<div className="jpb-gates__skeleton" aria-busy="true">
 				<Spinner />
+				<VisuallyHidden>
+					{ __( 'Loading your backup details…', 'jetpack-backup-pkg' ) }
+				</VisuallyHidden>
 			</div>
 		);
 	}

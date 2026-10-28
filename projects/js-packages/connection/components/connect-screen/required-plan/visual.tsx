@@ -8,6 +8,7 @@ import debugFactory from 'debug';
 import ConnectScreenAction from '../action';
 import ConnectScreenLayout from '../layout';
 import type { Props as ConnectScreenRequiredPlanProps } from './types';
+import type { RegistrationErrorDisplay } from '../../../helpers/get-connect-screen-error-message';
 import type { MouseEventHandler } from 'react';
 import './style.scss';
 
@@ -35,6 +36,8 @@ type OwnProps = {
 	displayButtonError?: boolean;
 	// The connection error code
 	errorCode?: string;
+	// What to show for the registration error, from getRegistrationErrorDisplay()
+	errorDisplay?: RegistrationErrorDisplay;
 	// Whether the button loading state is active or not
 	buttonIsLoading?: boolean;
 	// Whether the site is in offline mode
@@ -63,6 +66,7 @@ function ConnectScreenRequiredPlanVisual( props: Props ) {
 		handleButtonClick = () => {},
 		displayButtonError = false,
 		errorCode,
+		errorDisplay,
 		buttonIsLoading = false,
 		logo,
 		isOfflineMode,
@@ -117,6 +121,7 @@ function ConnectScreenRequiredPlanVisual( props: Props ) {
 							buttonIsLoading={ buttonIsLoading }
 							displayButtonError={ displayButtonError }
 							errorCode={ errorCode }
+							errorDisplay={ errorDisplay }
 							isOfflineMode={ isOfflineMode }
 						/>
 					</PricingCard>

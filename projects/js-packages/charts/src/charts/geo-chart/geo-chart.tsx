@@ -3,11 +3,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { FC, useContext, useEffect, useMemo, useRef } from 'react';
+import { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Chart, type GoogleChartPackages, type ReactGoogleChartEvent } from 'react-google-charts';
 /**
  * Internal dependencies
  */
+import { TooltipTheme } from '../../components/tooltip/private/tooltip-theme';
 import {
 	GlobalChartsContext,
 	GlobalChartsProvider,
@@ -21,6 +22,7 @@ import { sanitizeHtml } from '../../utils/sanitize-html';
 import { Center } from '../private/center';
 import { withResponsive } from '../private/with-responsive';
 import styles from './geo-chart.module.scss';
+import { useTooltipPosition } from './private/use-tooltip-position';
 import type { GeoChartError, GeoChartProps } from './types';
 
 const DEFAULT_FEATURE_FILL_COLOR = '#ffffff';
@@ -90,6 +92,40 @@ function involvesGeoChartErrorElement( node: Node ): boolean {
 	);
 }
 
+const isTooltipColumn = ( column: unknown ): boolean =>
+	typeof column === 'object' && column !== null && 'role' in column && column.role === 'tooltip';
+
+// Google renders a column or cell as markup when its `p.html` is truthy, even the string 'false'.
+const hasHtmlFlag = ( columnOrCell: unknown ): boolean =>
+	typeof columnOrCell === 'object' &&
+	columnOrCell !== null &&
+	'p' in columnOrCell &&
+	typeof columnOrCell.p === 'object' &&
+	columnOrCell.p !== null &&
+	'html' in columnOrCell.p &&
+	!! columnOrCell.p.html;
+
+const sanitizeIfString = ( value: unknown ) =>
+	typeof value === 'string' ? sanitizeHtml( value ) : value;
+
+/**
+ * Sanitizes a tooltip cell Google will render as markup, whether a string or a `{ v, f, p }` object.
+ *
+ * @param cell - The tooltip cell.
+ * @return The cell with its markup sanitized.
+ */
+function sanitizeTooltipCell( cell: unknown ): unknown {
+	if ( typeof cell !== 'object' || cell === null ) {
+		return sanitizeIfString( cell );
+	}
+
+	return {
+		...cell,
+		...( 'v' in cell && { v: sanitizeIfString( cell.v ) } ),
+		...( 'f' in cell && { f: sanitizeIfString( cell.f ) } ),
+	};
+}
+
 /**
  * Normalizes the raw Google Charts error event into the GeoChart error shape.
  *
@@ -126,6 +162,7 @@ function normalizeGeoChartError( eventArgs: unknown ): GeoChartError {
  *
  * @param props                   - The props for the GeoChart component
  * @param props.data              - Data in Google Charts format (array of arrays with headers)
+ * @param props.ariaLabel         - Accessible name of the chart
  * @param props.width             - Width of the chart in pixels
  * @param props.height            - Height of the chart in pixels
  * @param props.region            - Region to display ('world', 'US', or ISO 3166-1 alpha-2 code)
@@ -140,6 +177,7 @@ function normalizeGeoChartError( eventArgs: unknown ): GeoChartError {
 const GeoChartInternal: FC< GeoChartProps > = ( {
 	className,
 	data,
+	ariaLabel,
 	width,
 	height,
 	region = 'world',
@@ -153,6 +191,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	const scopeElement = useChartScopeElement();
 	const containerRef = useRef< HTMLDivElement >( null );
 	const reportedErrorIdsRef = useRef< Set< string > >( new Set() );
+	const [ isLoaded, setIsLoaded ] = useState( false );
 
 	// The ChartWrapper `error` event does not fire for every draw failure —
 	// notably not when GeoChart's asynchronous map-file load fails (e.g.
@@ -195,7 +234,10 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		return () => observer.disconnect();
 	}, [ onError ] );
 
-	// Render loading placeholder
+	useTooltipPosition( containerRef );
+
+	const handleLoad = useCallback( () => setIsLoaded( true ), [] );
+
 	const loadingPlaceholder = (
 		<Center
 			className={ clsx( 'geo-chart', styles.container, className ) }
@@ -217,49 +259,30 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		normalizeColorToHex( CATALOG_POINTERS.surfaceSecondary, scopeElement, resolveCssVariable ) ||
 		DEFAULT_FEATURE_FILL_COLOR;
 
-	// Identify HTML tooltip column indices and sanitize their content to prevent XSS.
 	const sanitizedData = useMemo( () => {
 		if ( data.length === 0 ) {
-			return { data, hasHtmlTooltips: false };
+			return data;
 		}
 
-		const htmlTooltipIndices: number[] = [];
-		for ( let i = 0; i < data[ 0 ].length; i++ ) {
-			const col = data[ 0 ][ i ];
-			if (
-				typeof col === 'object' &&
-				col !== null &&
-				'role' in col &&
-				col.role === 'tooltip' &&
-				'p' in col &&
-				typeof col.p === 'object' &&
-				col.p !== null &&
-				'html' in col.p &&
-				col.p.html === true
-			) {
-				htmlTooltipIndices.push( i );
-			}
+		const tooltipColumns = data[ 0 ].flatMap( ( column, index ) =>
+			isTooltipColumn( column ) ? [ { index, isHtml: hasHtmlFlag( column ) } ] : []
+		);
+
+		if ( tooltipColumns.length === 0 ) {
+			return data;
 		}
 
-		if ( htmlTooltipIndices.length === 0 ) {
-			return { data, hasHtmlTooltips: false };
-		}
-
-		// Sanitize HTML content in tooltip columns for data rows (skip header row)
 		const sanitizedRows = data.slice( 1 ).map( row => {
 			const newRow = [ ...row ];
-			for ( const colIndex of htmlTooltipIndices ) {
-				if ( typeof newRow[ colIndex ] === 'string' ) {
-					newRow[ colIndex ] = sanitizeHtml( newRow[ colIndex ] as string );
+			for ( const { index, isHtml } of tooltipColumns ) {
+				if ( isHtml || hasHtmlFlag( newRow[ index ] ) ) {
+					newRow[ index ] = sanitizeTooltipCell( newRow[ index ] ) as ( typeof newRow )[ number ];
 				}
 			}
 			return newRow;
 		} );
 
-		return {
-			data: [ data[ 0 ], ...sanitizedRows ] as typeof data,
-			hasHtmlTooltips: true,
-		};
+		return [ data[ 0 ], ...sanitizedRows ] as typeof data;
 	}, [ data ] );
 
 	const options: GoogleChartOptions = useMemo(
@@ -272,7 +295,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			backgroundColor: backgroundColorHex,
 			datalessRegionColor: defaultFillColorHex,
 			defaultColor: defaultFillColorHex,
-			tooltip: { trigger: 'focus', isHtml: sanitizedData.hasHtmlTooltips },
+			tooltip: { trigger: 'focus', isHtml: true },
 			legend: 'none',
 			keepAspectRatio: true,
 		} ),
@@ -285,16 +308,26 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			fullColorHex,
 			backgroundColorHex,
 			defaultFillColorHex,
-			sanitizedData.hasHtmlTooltips,
 		]
 	);
 
-	const chartEvents = useMemo< ReactGoogleChartEvent[] | undefined >( () => {
+	const chartEvents = useMemo< ReactGoogleChartEvent[] >( () => {
+		const readyEvent: ReactGoogleChartEvent = {
+			eventName: 'ready',
+			// Google hardcodes aria-label="A chart." on its SVG, which repeats the chart's own name.
+			callback: () => {
+				containerRef.current
+					?.querySelectorAll( 'svg' )
+					.forEach( svg => svg.setAttribute( 'aria-hidden', 'true' ) );
+			},
+		};
+
 		if ( ! onError ) {
-			return undefined;
+			return [ readyEvent ];
 		}
 
 		return [
+			readyEvent,
 			{
 				eventName: 'error',
 				callback: ( { eventArgs } ) => {
@@ -307,20 +340,27 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	return (
 		<Center
 			ref={ containerRef }
+			role="group"
+			aria-label={ ariaLabel ?? __( 'Geo chart', 'jetpack-charts' ) }
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart"
 			style={ { width, height } }
 		>
-			<Chart
-				chartType="GeoChart"
-				chartPackages={ GEO_CHART_PACKAGES }
-				width={ width }
-				height={ height }
-				data={ sanitizedData.data }
-				options={ options }
-				chartEvents={ chartEvents }
-				loader={ loadingPlaceholder }
-			/>
+			{ /* Outside TooltipTheme, so a custom placeholder keeps the host theme; `loader` would put it inside. */ }
+			{ ! isLoaded && loadingPlaceholder }
+			{ /* Every `--wpds-*` read inside resolves for the dark tooltip; map colors must keep coming from scopeElement. */ }
+			<TooltipTheme>
+				<Chart
+					chartType="GeoChart"
+					chartPackages={ GEO_CHART_PACKAGES }
+					width={ width }
+					height={ height }
+					data={ sanitizedData }
+					options={ options }
+					chartEvents={ chartEvents }
+					onLoad={ handleLoad }
+				/>
+			</TooltipTheme>
 		</Center>
 	);
 };

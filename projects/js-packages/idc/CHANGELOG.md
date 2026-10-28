@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 1.1.0 - 2026-10-26
+### Added
+- Support React 19. [#53882]
+
+## 1.0.107 - 2026-10-20
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.106 - 2026-10-19
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.105 - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## 1.0.104 - 2026-10-14
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.103 - 2026-10-12
+### Changed
+- Update dependencies. [#46035]
+
 ## 1.0.102 - 2026-10-06
 ### Changed
 - Update dependencies. [#46035]

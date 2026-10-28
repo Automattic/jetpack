@@ -1,13 +1,14 @@
 /**
  * WordPress dependencies
  */
+import { lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl,
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon,
 	Spinner,
 } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { isValidElement, useCallback, useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -17,10 +18,33 @@ import type { DataFormControlProps, Option } from '@jetpack-premium-analytics/ex
 import type { ReactElement } from 'react';
 
 /**
- * An option rendered as an icon segment. `label` still names the option: it
- * becomes the segment's tooltip and its accessible name.
+ * An option rendered as an icon segment: the icon is an element, or a
+ * `jpa/<name>` reference to the dashboard's collection. `label` still names
+ * the option: it becomes the segment's tooltip and its accessible name.
  */
-type IconOption = Option & { icon: ReactElement };
+type IconOption = Option & { icon: ReactElement | string };
+
+type ResolvedIconOption = Option & { icon: ReactElement };
+
+/**
+ * Resolves each option's icon reference into its element. A reference the
+ * collection lacks drops the icon, so the row falls back to text segments
+ * instead of showing a blank one.
+ *
+ * @param elements - The options as the widget declares them.
+ * @return The options, with each resolvable icon reference replaced by its element.
+ */
+function resolveOptionIcons( elements: Option[] ): Option[] {
+	return elements.map( element => {
+		const { icon, ...option } = element as Partial< IconOption >;
+		if ( typeof icon !== 'string' ) {
+			return element;
+		}
+
+		const resolved = lookupWidgetIcon( icon );
+		return resolved ? { ...option, icon: resolved } : option;
+	} ) as Option[];
+}
 
 /**
  * Whether the options render as icons, which they do only when every one of
@@ -30,9 +54,10 @@ type IconOption = Option & { icon: ReactElement };
  * @param elements - The resolved options.
  * @return Whether every option carries an icon.
  */
-export function hasIconOptions( elements: Option[] ): elements is IconOption[] {
+export function hasIconOptions( elements: Option[] ): elements is ResolvedIconOption[] {
 	return (
-		elements.length > 0 && elements.every( element => !! ( element as Partial< IconOption > ).icon )
+		elements.length > 0 &&
+		elements.every( element => isValidElement( ( element as Partial< IconOption > ).icon ) )
 	);
 }
 
@@ -51,10 +76,11 @@ export default function ToggleGroupField< Item >( {
 	const disabled = field.isDisabled( { item: data, field } );
 	const value = getValue( { item: data } );
 
-	const { elements, isLoading } = useElements( {
+	const { elements: declaredElements, isLoading } = useElements( {
 		elements: field.elements,
 		getElements: field.getElements,
 	} );
+	const elements = useMemo( () => resolveOptionIcons( declaredElements ), [ declaredElements ] );
 
 	const onValueChange = useCallback(
 		( newValue: string | number | undefined ) => {

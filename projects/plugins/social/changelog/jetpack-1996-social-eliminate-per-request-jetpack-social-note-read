@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Social Notes: Avoid repeated database queries when Social Notes are disabled.

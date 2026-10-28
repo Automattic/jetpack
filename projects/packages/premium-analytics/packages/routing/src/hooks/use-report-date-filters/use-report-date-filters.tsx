@@ -2,9 +2,11 @@
  * External dependencies
  */
 import {
-	getAllowedIntervalsForPreset,
 	hasComparisonEnabled,
+	intervalMenuOptions,
 	resolveIntervalForRange,
+	useScopeLockedIntervals,
+	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
 import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
@@ -49,6 +51,9 @@ export type ReportDateFilters = {
 	 */
 	intervalOptions: IntervalType[];
 
+	/** The intervals the range would allow but the plan locks, for the control to show as locked. */
+	lockedIntervalOptions: LockableInterval[];
+
 	/**
 	 * Stage a primary range edit. `exactRange` stores the ends as given rather
 	 * than widening `to` to the end of its day: for a range a card computed,
@@ -78,10 +83,10 @@ export type ReportDateFilters = {
 /**
  * Parse search-param dates into a picker range, dropping unparseable values to
  * `undefined`. The picker reads these straight from the URL, so a malformed
- * `from`/`to` (e.g. a hand-edited or under-encoded deep link where the `+`
- * offset decoded to a space) must not become an invalid Date: the picker's
- * `formatToTimezoneNaiveString` throws on one and would white-screen the page,
- * and the trigger label would read "Invalid date".
+ * `from`/`to` (e.g. a hand-edited deep link with an offset that does not exist)
+ * must not become an invalid Date: the picker's `formatToTimezoneNaiveString`
+ * throws on one and would white-screen the page, and the trigger label would
+ * read "Invalid date".
  *
  * @param from     - The `from` search param.
  * @param to       - The `to` search param.
@@ -104,14 +109,23 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
  * everything `DateFiltersPanel` needs. Shared by every analytics page that
  * mounts the panel so the staged-search behavior stays identical across them.
  *
- * @param from - The route path the search params are bound to (e.g. `/`).
+ * @param from                          - The route path the search params are bound to (e.g. `/`).
+ * @param filterOptions                 - Hook options.
+ * @param filterOptions.lockedIntervals - The buckets the plan locks; defaults to the report scope's.
  * @return Props for `DateFiltersPanel`.
  */
-export function useReportDateFilters< TFrom extends string >( from: TFrom ): ReportDateFilters {
+export function useReportDateFilters< TFrom extends string >(
+	from: TFrom,
+	filterOptions: { lockedIntervals?: readonly LockableInterval[] } = {}
+): ReportDateFilters {
 	const { committed, effective, stage, commit, revert, isDirty } = useStagedSearch<
 		ReportQuerySearchParams,
 		TFrom
 	>( { from } );
+
+	// Report pages render inside their scope; the dashboard and detail stages sit above it and pass locks in.
+	const scopedLocks = useScopeLockedIntervals();
+	const lockedIntervals = filterOptions.lockedIntervals ?? scopedLocks;
 
 	const timeZone = reportingTimeZone();
 
@@ -139,13 +153,14 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 				exactRange: options?.exactRange,
 				resetIntervalOnPresetChange: true,
 				effective,
+				lockedIntervals,
 			} );
 
 			if ( patch ) {
 				stage( patch );
 			}
 		},
-		[ stage, effective ]
+		[ stage, effective, lockedIntervals ]
 	);
 
 	// Gated like the applied pair below: a link carrying `compare_preset` with no
@@ -182,9 +197,13 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 
 	// Listed and checked against the range being edited — see
 	// `getAllowedIntervalsForPreset` for why the draft and not the applied window.
-	const intervalOptions = useMemo(
-		() => getAllowedIntervalsForPreset( presetId, effective.from ?? '', effective.to ?? '' ),
-		[ presetId, effective.from, effective.to ]
+	const { options: intervalOptions, lockedOptions: lockedIntervalOptions } = useMemo(
+		() =>
+			intervalMenuOptions(
+				{ preset: presetId, from: effective.from, to: effective.to },
+				lockedIntervals
+			),
+		[ presetId, effective.from, effective.to, lockedIntervals ]
 	);
 
 	const interval = useMemo(
@@ -193,9 +212,10 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 				presetId,
 				effective.from ?? '',
 				effective.to ?? '',
-				effective.interval
+				effective.interval,
+				lockedIntervals
 			),
-		[ presetId, effective.from, effective.to, effective.interval ]
+		[ presetId, effective.from, effective.to, effective.interval, lockedIntervals ]
 	);
 
 	/**
@@ -248,14 +268,14 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	 */
 	const replaceRange = useCallback(
 		( nextRange: DateRange, nextPresetId: PrimaryPresetId ) => {
-			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
+			const patch = buildRangePatch( { nextRange, nextPresetId, effective, lockedIntervals } );
 
 			if ( patch ) {
 				stage( patch );
 				commit( { replace: true } );
 			}
 		},
-		[ stage, commit, effective ]
+		[ stage, commit, effective, lockedIntervals ]
 	);
 
 	return {
@@ -268,6 +288,7 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		appliedComparisonRange,
 		interval,
 		intervalOptions,
+		lockedIntervalOptions,
 		onChange,
 		onComparisonChange,
 		onIntervalChange,

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Write: Fix Backspace and figure deletion corrupting editor block structure.

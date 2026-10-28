@@ -78,7 +78,8 @@ type Result = {
 	state: EnqueueState;
 	/** User-facing reason the enqueue failed, or null. */
 	errorMessage: string | null;
-	enqueue: () => void;
+	/** Starts a request; `onError` runs once if that request fails. */
+	enqueue: ( onError?: ( message: string ) => void ) => void;
 	reset: () => void;
 };
 
@@ -160,9 +161,12 @@ export function useEnqueueBackup(): Result {
 
 	const { mutate, reset: resetMutation, isPending, isError, isSuccess, error } = mutation;
 
-	const enqueue = useCallback( () => {
-		mutate();
-	}, [ mutate ] );
+	const enqueue = useCallback(
+		( onError?: ( message: string ) => void ) => {
+			mutate( undefined, { onError: failure => onError?.( failure.message ) } );
+		},
+		[ mutate ]
+	);
 
 	const reset = useCallback( () => {
 		resetMutation();

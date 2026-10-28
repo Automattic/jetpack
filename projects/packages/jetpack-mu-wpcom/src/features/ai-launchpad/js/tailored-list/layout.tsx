@@ -29,6 +29,8 @@ function headingForGoal( goal: GoalSlug | null ): string {
 }
 
 interface Props {
+	// Replaces the goal heading, e.g. once every task is done.
+	heading?: string;
 	// The status line under the heading.
 	progressLabel: string;
 	// The wizard goal, used to pick the heading; null when unknown.
@@ -47,6 +49,7 @@ interface Props {
  * status line, the supplied content on the left, and the site preview on the right.
  *
  * @param props               - Component props.
+ * @param props.heading       - Replaces the goal heading.
  * @param props.progressLabel - The status line under the heading.
  * @param props.goal          - The wizard goal, used to pick the heading.
  * @param props.siteUrl       - The site's front-end URL (for the preview).
@@ -56,6 +59,7 @@ interface Props {
  * @return The layout element.
  */
 export function Layout( {
+	heading,
 	progressLabel,
 	goal,
 	siteUrl,
@@ -76,9 +80,9 @@ export function Layout( {
 				className="ai-launchpad-tailored-list__heading"
 			>
 				<Text variant="heading-2xl" render={ <h1 /> }>
-					{ headingForGoal( goal ) }
+					{ heading ?? headingForGoal( goal ) }
 				</Text>
-				<Text render={ <p /> } className="ai-launchpad-tailored-list__progress">
+				<Text render={ <p role="status" /> } className="ai-launchpad-tailored-list__progress">
 					{ progressLabel }
 				</Text>
 			</Stack>

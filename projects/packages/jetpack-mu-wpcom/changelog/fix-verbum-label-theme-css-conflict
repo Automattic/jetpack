@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Verbum comments: prevent theme label styles from breaking the email form fields.

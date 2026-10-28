@@ -1,3 +1,6 @@
+// CI hack. If you want to run tests against React 18 locally, you could set it to 18 and then run `pnpm dedupe` (just don't commit that change, or the resulting lockfile changes).
+const withReactVersion = undefined;
+
 /**
  * Fix package dependencies.
  *
@@ -23,6 +26,11 @@ async function fixDeps( pkg ) {
 				}
 			}
 		}
+	}
+
+	// Let's try just using the monorepo version.
+	if ( pkg.name === '@automattic/launchpad' && pkg.dependencies?.[ 'social-logos' ] ) {
+		pkg.dependencies[ 'social-logos' ] = 'workspace:*';
 	}
 
 	// lock()/unlock() pair through a module-scoped registry, so a prerelease
@@ -65,11 +73,6 @@ async function fixDeps( pkg ) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
-		}
-		// Broaden this one further until after this is merged and Renovate does a run:
-		// https://github.com/Automattic/jetpack/pull/52316
-		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
-			pkg.peerDependencies[ '@wordpress/theme' ] = '*';
 		}
 	}
 
@@ -135,7 +138,7 @@ async function fixDeps( pkg ) {
 	// Currently @types/wordpress__block-editor is the only one still in use; see also https://github.com/WordPress/gutenberg/issues/67691
 	if ( pkg.name.startsWith( '@types/wordpress__' ) && pkg.dependencies ) {
 		for ( const k of Object.keys( pkg.dependencies ) ) {
-			if ( k.startsWith( '@wordpress/' ) ) {
+			if ( k.startsWith( '@wordpress/' ) || k === '@types/react' ) {
 				pkg.dependencies[ k ] = '*';
 			}
 		}
@@ -150,13 +153,16 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ 'js-yaml' ] = '^4.2.0';
 	}
 
-	// Glob decided to deprecate everything <12, even though tons of stuff still depends on older versions.
-	// On the plus side, the net change from v10 to v13 is deleting the CLI from the package.
-	if ( pkg.dependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
-		pkg.dependencies.glob = '^13';
+	// A one-off script (`projects/packages/jetpack-mu-wpcom/bin/sync-newspack-blocks.sh`) runs `jscodeshift`, which relies on
+	// outdated dependencies that fails our trust policy. Specifically, `jscodeshift` → `@babel/register` → really old `make-dir` v2 (to still support node <10.12) → `semver` v5.
+	if ( pkg.name === 'make-dir' && pkg.dependencies?.semver === '^5.6.0' ) {
+		pkg.dependencies.semver = '^7.7.3';
 	}
-	if ( pkg.peerDependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
-		pkg.dependencies.glob = '^13';
+
+	// Outdated dep with a deprecated sub-dep.
+	// https://github.com/istanbuljs/babel-plugin-istanbul/issues/337
+	if ( pkg.name === 'babel-plugin-istanbul' && pkg.dependencies[ 'test-exclude' ] === '^7.0.1' ) {
+		pkg.dependencies[ 'test-exclude' ] = '^8.0.0';
 	}
 
 	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
@@ -177,10 +183,10 @@ async function fixDeps( pkg ) {
  * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
-	// Indirect deps that still depend on React <18.
+	// Deps that still depend on React <19.
 	const reactOldPkgs = new Set( [
-		// Still on 16.
-		'react-autosize-textarea', // @wordpress/block-editor <https://github.com/WordPress/gutenberg/issues/39619>
+		// Still on 18.
+		'@woocommerce/email-editor', // direct dep from plugins/jetpack
 	] );
 	if ( reactOldPkgs.has( pkg.name ) ) {
 		for ( const p of [ 'react', 'react-dom' ] ) {
@@ -189,16 +195,10 @@ function fixPeerDeps( pkg ) {
 			}
 
 			if (
-				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^16|16\.x)/ ) &&
-				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^17|17\.x)/ )
+				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^18|18(?:\.\d+)?\.x)/ ) &&
+				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^19|19(?:\.\d+)?\.x)/ )
 			) {
-				pkg.peerDependencies[ p ] += ' || ^17';
-			}
-			if (
-				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^17|17\.x)/ ) &&
-				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^18|18\.x)/ )
-			) {
-				pkg.peerDependencies[ p ] += ' || ^18';
+				pkg.peerDependencies[ p ] += ' || ^19';
 			}
 		}
 	}
@@ -208,7 +208,6 @@ function fixPeerDeps( pkg ) {
 		'eslint-plugin-import', // https://github.com/import-js/eslint-plugin-import/issues/3227
 		'eslint-plugin-jsx-a11y', // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1075
 		'eslint-plugin-react', // https://github.com/jsx-eslint/eslint-plugin-react/issues/3977
-		'@babel/eslint-parser', // https://github.com/babel/babel/issues/17951
 	] );
 	if ( eslintOldPkgs.has( pkg.name ) ) {
 		for ( const p of [ 'eslint' ] ) {
@@ -285,6 +284,22 @@ async function readPackage( pkg, context ) {
 	if ( pkg.name ) {
 		pkg = await fixDeps( pkg, context );
 		pkg = fixPeerDeps( pkg, context );
+
+		// CI hack.
+		if ( withReactVersion ) {
+			for ( const field of [
+				'dependencies',
+				'devDependencies',
+				'optionalDependencies',
+				'peerDependencies',
+			] ) {
+				for ( const dep of [ 'react', 'react-dom' ] ) {
+					if ( pkg[ field ]?.[ dep ] ) {
+						pkg[ field ][ dep ] = '^' + withReactVersion;
+					}
+				}
+			}
+		}
 	}
 	return pkg;
 }
@@ -330,6 +345,20 @@ function afterAllResolved( lockfile ) {
 			throw new Error(
 				// prettier-ignore
 				`You don't need \`jest-environment-jsdom\`. Our base config in \`tools/js-tools/jest/config.base.js\` already sets up a JSDOM environment from \`tools/js-tools/jest/fix-environment-jsdom.mjs\`, use that instead. pdWQjU-1vl-p2`
+			);
+		}
+
+		// Now that we've moved to React 19, prevent React 18 from being re-installed.
+		if (
+			! withReactVersion &&
+			( k.startsWith( 'react@18.' ) ||
+				k.startsWith( 'react-dom@18.' ) ||
+				k.startsWith( '@types/react@18.' ) ||
+				k.startsWith( '@types/react-dom@18.' ) )
+		) {
+			throw new Error(
+				// prettier-ignore
+				`We've moved to React 19. Something you've done has tried to install \`${ k }\`, which would be likely to cause problems.`
 			);
 		}
 

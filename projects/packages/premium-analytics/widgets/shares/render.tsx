@@ -12,7 +12,6 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { megaphone } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -21,8 +20,10 @@ import { Stack } from '@jetpack-premium-analytics/externals';
  */
 import styles from './style.module.css';
 import useShareViews from './use-share-views';
-import { type SharesAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type SharesAttributes = Record< never, never >;
 
 type SharesRenderAttributes = Partial< ReportParamsFieldAttributes > & SharesAttributes;
 type SharesWidgetProps = WidgetRenderProps< SharesRenderAttributes >;
@@ -69,21 +70,30 @@ function SharesInner() {
 						],
 					} }
 					empty={ {
-						icon: megaphone,
 						description: __(
-							'Learn where your content has been shared the most.',
+							'You don’t have shares recorded yet. Social can help you reach readers where they already are.',
 							'jetpack-premium-analytics-pkg'
 						),
+						action: {
+							label: __( 'Learn more', 'jetpack-premium-analytics-pkg' ),
+							href: 'https://jetpack.com/social/',
+							openInNewTab: true,
+						},
 					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
+						chartTitle={ __( 'All-time top social media shares', 'jetpack-premium-analytics-pkg' ) }
 						data={ leaderboardData }
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ {
 							type: 'number',
 							options: { useMultipliers: true, decimals: 0 },
+						} }
+						columns={ {
+							label: __( 'Platforms', 'jetpack-premium-analytics-pkg' ),
+							metric: 'shares',
 						} }
 					/>
 				</WidgetState>

@@ -8,7 +8,6 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import AllTimeStatsWidget from '../render';
-import widgetDefinition from '../widget';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -32,10 +31,6 @@ describe( 'AllTimeStatsWidget', () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( SITE_PAYLOAD );
-	} );
-
-	it( 'offers no attribute controls', () => {
-		expect( widgetDefinition.attributes ).toEqual( [] );
 	} );
 
 	it( 'shows every lifetime total', async () => {

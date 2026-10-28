@@ -483,3 +483,52 @@ export const ComparisonItem: Story = {
 		},
 	},
 };
+
+export const ComparisonSeriesItems: Story = {
+	render: () => (
+		<LineChart
+			withGradientFill={ false }
+			width={ 600 }
+			height={ 300 }
+			data={ [
+				{ ...lineChartData[ 0 ], group: 'desktop' },
+				{
+					label: 'Previous desktop',
+					group: 'desktop',
+					options: { type: 'comparison' },
+					data: [
+						{ date: new Date( '2023-01-01' ), value: 90 },
+						{ date: new Date( '2023-01-02' ), value: 110 },
+						{ date: new Date( '2023-01-03' ), value: 130 },
+					],
+				},
+				{ ...lineChartData[ 1 ], group: 'mobile' },
+				{
+					label: 'Previous mobile',
+					group: 'mobile',
+					options: { type: 'comparison' },
+					data: [
+						{ date: new Date( '2023-01-01' ), value: 70 },
+						{ date: new Date( '2023-01-02' ), value: 95 },
+						{ date: new Date( '2023-01-03' ), value: 85 },
+					],
+				},
+			] }
+			legend={ {
+				collapseGroups: true,
+				comparisonSeriesItems: label => `${ label } (Prev. period)`,
+				interactive: true,
+			} }
+		>
+			<LineChart.Legend interactive />
+		</LineChart>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Each metric gets its own static comparison item, named by `legend.comparisonSeriesItems`. Hiding **Mobile** also removes **Mobile (Prev. period)**.',
+			},
+		},
+	},
+};

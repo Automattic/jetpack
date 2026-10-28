@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Show every active comped plan in the Subscribers list, including comps held alongside a paid plan, and leave out expired plans.

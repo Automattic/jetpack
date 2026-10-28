@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Comments;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 
 /**
@@ -68,6 +69,7 @@ class Checkpoint {
 		add_action( 'pre_comment_on_post', array( $this, 'admit' ), 20 );
 		add_filter( 'preprocess_comment', array( $this, 'attribute' ), 0 );
 		add_action( 'comment_post', array( $this, 'record' ) );
+		add_filter( 'akismet_request_args', array( $this, 'akismet_request_args' ), 10, 2 );
 
 		Checkpoint_Endpoint::init();
 	}
@@ -170,7 +172,7 @@ class Checkpoint {
 	 * Redeem a code with WordPress.com.
 	 *
 	 * @param string $code The code the popup handed back.
-	 * @return array|WP_Error site_commenter_id, name, email, avatar.
+	 * @return array|WP_Error site_commenter_id, name, email, avatar, wpcom_user_id.
 	 */
 	public static function exchange( $code ) {
 		// The client stops verifying certificates for good on a host whose first request failed to.
@@ -209,6 +211,7 @@ class Checkpoint {
 				'name'              => sanitize_text_field( (string) ( $body['name'] ?? '' ) ),
 				'email'             => sanitize_email( (string) ( $body['email'] ?? '' ) ),
 				'avatar'            => esc_url_raw( (string) ( $body['avatar'] ?? '' ) ),
+				'wpcom_user_id'     => absint( $body['wpcom_user_id'] ?? 0 ),
 			);
 		}
 
@@ -235,18 +238,22 @@ class Checkpoint {
 			return;
 		}
 
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- A logged-out reader posts no nonce; is_same_site_request() guards the code.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- A logged-out reader posts no nonce; is_same_site_request() guards both fields.
 		$code        = isset( $_POST[ self::CODE_FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::CODE_FIELD ] ) ) : '';
 		$on_passport = ! empty( $_POST[ self::PASSPORT_FIELD ] );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
-		if ( '' !== $code ) {
-			// A form another site auto-submits can spend a code too, and the passport it
-			// earns lands in whichever browser sent it. Only this site's own pages may post one.
-			if ( ! self::is_same_site_request() ) {
-				self::refuse( new WP_Error( 'invalid_code', '', array( 'status' => 403 ) ) );
-			}
+		if ( '' === $code && ! $on_passport ) {
+			return;
+		}
 
+		// A form another site auto-submits can spend a code, landing the passport in whichever browser
+		// sent it, or arrive without the Lax passport cookie and have the refusal below revoke it.
+		if ( ! self::is_same_site_request() ) {
+			self::refuse( new WP_Error( 'invalid_code', '', array( 'status' => 403 ) ) );
+		}
+
+		if ( '' !== $code ) {
 			$identity = self::exchange( $code );
 
 			if ( is_wp_error( $identity ) ) {
@@ -254,7 +261,7 @@ class Checkpoint {
 			}
 
 			Passport::issue( $identity );
-		} elseif ( $on_passport ) {
+		} else {
 			$identity = Passport::read();
 
 			// The form showed a name the passport no longer backs, say after a
@@ -262,8 +269,6 @@ class Checkpoint {
 			if ( null === $identity ) {
 				self::refuse( new WP_Error( 'code_expired', '', array( 'status' => 403 ) ) );
 			}
-		} else {
-			return;
 		}
 
 		$this->identity = $identity;
@@ -275,36 +280,55 @@ class Checkpoint {
 
 	/**
 	 * Whether the browser says the request came from this site: the Origin or Referer
-	 * host against the home and site hosts, or Sec-Fetch-Site alone when a proxy
-	 * stripped both. Nothing at all is allowed through; another site's name is not.
+	 * origin against the home and site origins, or Sec-Fetch-Site alone when a proxy
+	 * stripped both. Nothing at all is refused: every browser that runs the sign-in flow sends Origin.
 	 *
 	 * @return bool
 	 */
 	public static function is_same_site_request() {
-		$hosts = array();
+		$origins = array();
 
 		// Both: a page on the home host posts to wp-comments-post.php on the site host.
 		foreach ( array( home_url(), site_url() ) as $url ) {
-			$host = wp_parse_url( $url, PHP_URL_HOST );
-
-			if ( is_string( $host ) ) {
-				$hosts[] = strtolower( $host );
-			}
+			$origins[] = self::origin( $url );
+			// A site still set to http:// but served over https posts from the https origin.
+			$origins[] = self::origin( set_url_scheme( $url, 'https' ) );
 		}
 
 		foreach ( array( 'HTTP_ORIGIN', 'HTTP_REFERER' ) as $header ) {
-			if ( empty( $_SERVER[ $header ] ) ) {
+			// A no-referrer policy posts Origin: null from this site's own pages too, so Sec-Fetch-Site decides.
+			if ( empty( $_SERVER[ $header ] ) || 'null' === $_SERVER[ $header ] ) {
 				continue;
 			}
 
-			$host = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ), PHP_URL_HOST );
+			$origin = self::origin( sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ) );
 
-			return is_string( $host ) && in_array( strtolower( $host ), $hosts, true );
+			return '' !== $origin && in_array( $origin, $origins, true );
 		}
 
 		$site = isset( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ) : '';
 
-		return '' === $site || in_array( $site, array( 'same-origin', 'none' ), true );
+		return in_array( $site, array( 'same-origin', 'none' ), true );
+	}
+
+	/**
+	 * A URL's origin as a browser writes it: scheme, host and any port other than the default.
+	 *
+	 * @param string $url The URL.
+	 * @return string The origin, or '' when the URL has none.
+	 */
+	private static function origin( $url ) {
+		$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
+		$host   = wp_parse_url( $url, PHP_URL_HOST );
+		$port   = wp_parse_url( $url, PHP_URL_PORT );
+
+		if ( ! $scheme || ! $host ) {
+			return '';
+		}
+
+		$port = in_array( "$scheme:$port", array( 'http:80', 'https:443' ), true ) ? '' : ( $port ? ":$port" : '' );
+
+		return strtolower( "$scheme://$host$port" );
 	}
 
 	/**
@@ -369,10 +393,40 @@ class Checkpoint {
 		$commentdata['comment_author']       = $this->identity['name'];
 		$commentdata['comment_author_email'] = $this->identity['email'];
 		$commentdata['comment_author_url']   = '';
-		$commentdata['user_id']              = 0;
-		$commentdata['user_ID']              = 0;
+
+		// The WordPress.com account, as Verbum attributed it. Elsewhere that id would name some local user.
+		$user_id = ( new Host() )->is_wpcom_simple() ? absint( $this->identity['wpcom_user_id'] ?? 0 ) : 0;
+		$user_id = $user_id && get_userdata( $user_id ) ? $user_id : 0;
+
+		$commentdata['user_id'] = $user_id;
+		$commentdata['user_ID'] = $user_id;
 
 		return $commentdata;
+	}
+
+	/**
+	 * Tell Akismet which WordPress.com account was verified, as Verbum's hc_post_as and hc_userid did.
+	 * This form never posts those fields, so any the request carried were forged.
+	 *
+	 * @param array  $args The request to Akismet.
+	 * @param string $path The Akismet endpoint.
+	 * @return array
+	 */
+	public function akismet_request_args( $args, $path ) {
+		if ( 'comment-check' !== $path || ! is_array( $args ) || ! Comment_Form::enabled_for_post_type( (int) ( $args['comment_post_ID'] ?? 0 ) ) ) {
+			return $args;
+		}
+
+		unset( $args['POST_hc_post_as'], $args['POST_hc_userid'] );
+
+		$user_id = null === $this->identity ? 0 : absint( $this->identity['wpcom_user_id'] ?? 0 );
+
+		if ( $user_id ) {
+			$args['POST_hc_post_as'] = 'wordpress'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- Verbum's service name.
+			$args['POST_hc_userid']  = (string) $user_id;
+		}
+
+		return $args;
 	}
 
 	/**

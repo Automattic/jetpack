@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Omnibar: fix misaligned items on <480px width due to specificity loss

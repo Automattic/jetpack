@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Admin Menu: on Atomic sites, Jetpack > Activity Log now opens the native wp-admin Activity Log page instead of the Calypso one.

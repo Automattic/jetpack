@@ -54,7 +54,6 @@ jest.mock( '@wordpress/components', () => ( {
 
 const noop = () => {};
 const wizardProps = {
-	setIsConnected: noop,
 	environment: 'production',
 	setEnvironment: noop,
 	showReconnect: false,

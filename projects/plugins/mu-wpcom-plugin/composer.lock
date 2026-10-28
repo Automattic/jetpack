@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b75cc6cc6217dbca51f8bee7af4e35e7",
+    "content-hash": "d04affc21ddcb5dcbdfed0e4316a3d51",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/block-delimiter",
-                "reference": "1f0d89f36879638d5fbe1addb3afd046d0f64423"
+                "reference": "7081fb18111ea0a30fe08d9503a72c2480a7fff4"
             },
             "require": {
                 "php": ">=7.4"
@@ -27,7 +27,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "branch-alias": {
                     "dev-trunk": "0.4.x-dev"
                 },
@@ -75,7 +74,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "1e2d4c0be3f72bc3cdd3d75609e70b76057e175a"
+                "reference": "4feb4eda7fca7e17d6887d41b9e021869d22297d"
             },
             "require": {
                 "php": ">=7.4"
@@ -89,7 +88,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-a8c-mc-stats",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v${old}...v${new}"
@@ -128,7 +126,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "0cf9cbcaa3fc3781a502120bf1c34edb741466c1"
+                "reference": "f43dba75b5f21db4d2f691b450ee7b70c5f80760"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -147,7 +145,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-admin-ui",
                 "textdomain": "jetpack-admin-ui",
                 "changelogger": {
@@ -205,7 +202,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "99f12ae359511bd50c0b8228ecf77b39a286db17"
+                "reference": "0a95efaf527d6b40473cb12edd7b0e6b783e5235"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -225,7 +222,6 @@
             "type": "jetpack-library",
             "extra": {
                 "autorelease": true,
-                "autotagger": true,
                 "branch-alias": {
                     "dev-trunk": "0.12.x-dev"
                 },
@@ -280,7 +276,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "6d00322a43b53eda3ce8b580086e25df04c69154"
+                "reference": "83f9bc253dc73f0df7852ff2f63117a7152bb6e2"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -298,7 +294,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-assets",
                 "textdomain": "jetpack-assets",
                 "changelogger": {
@@ -353,7 +348,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "7b71885d728755b989f21c3252cd5e4b594fb283"
+                "reference": "ff8533b394fb4d99b3d432329003a8f07331e8d4"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -376,7 +371,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-blaze",
                 "changelogger": {
                     "link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
@@ -429,7 +423,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
-                "reference": "76e216a263bb93bac7e3571ff3b96635a62d7358"
+                "reference": "1ad087997091b0bf6115f78dbac8025eab315f66"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -446,7 +440,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-blocks",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-blocks/compare/v${old}...v${new}"
@@ -485,7 +478,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "3ca7ceeb3a4a4a1bbc23b324613b2c5e6d6b916a"
+                "reference": "fe079177624682fcef339d70aeb01c54e04feee8"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -502,7 +495,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "branch-alias": {
                     "dev-trunk": "0.15.x-dev"
                 },
@@ -551,7 +543,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "fa388619a8a9e0d7d48231847678c98cac5aab42"
+                "reference": "68635cc111b7a5ea20c834f8ea07a2ccd099e04d"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -566,9 +558,8 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
@@ -613,7 +604,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/compat",
-                "reference": "9f288f9655ab02767d775b3dc90a7e2f189b8fce"
+                "reference": "88f4432ca303d56b1b04b0de52b052199c60c6cb"
             },
             "require": {
                 "php": ">=7.4"
@@ -623,7 +614,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-compat",
                 "textdomain": "jetpack-compat",
                 "changelogger": {
@@ -647,7 +637,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "166477ef60b5ec24fd3d62c9f722d83dafef9486"
+                "reference": "a89b03e67e349ab043d8b68542418e1352fd7b84"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
@@ -666,7 +656,6 @@
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-composer-plugin/compare/v${old}...v${new}"
                 },
-                "autotagger": true,
                 "branch-alias": {
                     "dev-trunk": "5.0.x-dev"
                 }
@@ -707,7 +696,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "6bf10704aa6241cf7d03a212d94e12ef109a15fc"
+                "reference": "25afa43714789e3adf80dea68b9eea169fa8a507"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -734,7 +723,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-connection",
                 "textdomain": "jetpack-connection",
                 "version-constants": {
@@ -744,7 +732,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.9.x-dev"
+                    "dev-trunk": "9.14.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -777,6 +765,12 @@
                 "test-php": [
                     "@composer phpunit"
                 ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
+                ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
@@ -795,7 +789,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "9dd9d4b4fdf3f99d987dfba3e08b8c648404e72f"
+                "reference": "11ab5d5276aee32134c01b1f64841ff348d7e465"
             },
             "require": {
                 "php": ">=7.4"
@@ -810,7 +804,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-constants",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-constants/compare/v${old}...v${new}"
@@ -849,7 +842,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "3c14040b9aac527477f9ea73ad5fea5b38a3a643"
+                "reference": "fe1d2554582b082a62e8ee69c921d32e7e06f817"
             },
             "require": {
                 "php": ">=7.4"
@@ -863,7 +856,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-device-detection",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
@@ -902,7 +894,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/explat",
-                "reference": "933ab516f5c53f07d12e96a1a451eccef2aeabeb"
+                "reference": "760df628c0005cfc9bfa32ec68dee38e3b35b90e"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -917,7 +909,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "branch-alias": {
                     "dev-trunk": "0.6.x-dev"
                 },
@@ -970,7 +961,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/feature-flags",
-                "reference": "d5def8cd2f0e9da4f405329c2d0304d37d0ed08c"
+                "reference": "98706892a3d976085d1b17c1288f4d0dee73ed83"
             },
             "require": {
                 "php": ">=7.4"
@@ -985,7 +976,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-feature-flags",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-feature-flags/compare/v${old}...v${new}"
@@ -1028,7 +1018,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/google-analytics",
-                "reference": "a6feed4be1c8ff1248c22a69502862b4331371a9"
+                "reference": "7c0710cc9be2dc84bd615f6cbd6cdcb75bef6e54"
             },
             "require": {
                 "automattic/jetpack-status": "@dev",
@@ -1044,9 +1034,8 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-google-analytics/compare/v${old}...v${new}"
@@ -1093,7 +1082,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/help-center",
-                "reference": "a24adfcd0992b5ba2a936a0296c56ebc70902f55"
+                "reference": "850496f169df4cfa1353b0f44d346911bb5fc3b2"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1112,9 +1101,8 @@
             "type": "jetpack-library",
             "extra": {
                 "autorelease": true,
-                "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-help-center/compare/v${old}...v${new}"
@@ -1161,7 +1149,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/image-cdn",
-                "reference": "1783a91194656178096caf095a1a6550bc3f8dd3"
+                "reference": "66dd6ba023c46fd45d73cfe025f3dc2e7cd31556"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1182,7 +1170,6 @@
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-image-cdn/compare/v${old}...v${new}"
                 },
-                "autotagger": true,
                 "branch-alias": {
                     "dev-trunk": "0.8.x-dev"
                 },
@@ -1221,7 +1208,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "958f6d3944e9839db8f22a4875e61a80500ee1e7"
+                "reference": "f3b7e33bea8e2522ec56a327788ac13f38204996"
             },
             "require": {
                 "php": ">=7.4"
@@ -1236,7 +1223,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-ip",
                 "changelogger": {
                     "link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
@@ -1279,7 +1265,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "99d706f07d021e037d61344db1943c4d911d3266"
+                "reference": "7fe8fde7addb6e3087291809d420f77c068845ff"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1301,7 +1287,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-jitm",
                 "textdomain": "jetpack-jitm",
                 "version-constants": {
@@ -1354,7 +1339,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "fb0c8e4d82cfdd03a1c8798527f9c6f2220c2512"
+                "reference": "25ffcc5ceec722b9f976838d9fc133febf128069"
             },
             "require": {
                 "php": ">=7.4"
@@ -1368,7 +1353,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-logo",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
@@ -1407,7 +1391,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "3d3deab408380c1ac914435e31349049f5fface7"
+                "reference": "41976f36cfd897177324cae6ae1abe8d8a4c979b"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1433,9 +1417,8 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.29.x-dev"
+                    "dev-trunk": "0.30.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -1488,7 +1471,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "7d4219c9eb55f85610f28c8de29e728fc6ce28b5"
+                "reference": "26210252752c36b833e3dd5d3b5ef01166231eb6"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1535,9 +1518,8 @@
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-mu-wpcom/compare/v${old}...v${new}"
                 },
-                "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "6.10.x-dev"
+                    "dev-trunk": "6.11.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1597,7 +1579,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "f134394713514724e589754e145e7bb1799221aa"
+                "reference": "7850956ffe95c26160b933636952768333894876"
             },
             "require": {
                 "php": ">=7.4"
@@ -1612,7 +1594,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-password-checker",
                 "textdomain": "jetpack-password-checker",
                 "changelogger": {
@@ -1652,7 +1633,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "5c14b8a379641981708c669dc2c93ab682bcab22"
+                "reference": "9788ebecf5ac37abea45fcbc9c46cb72a0c90e6b"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1670,13 +1651,12 @@
             },
             "type": "library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-plans",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.14.x-dev"
+                    "dev-trunk": "0.15.x-dev"
                 }
             },
             "autoload": {
@@ -1715,7 +1695,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/post-media",
-                "reference": "7b53c52041dd8ee095745c5c93cf27c5abd851bf"
+                "reference": "79cf6d7bc7ee5e288b1fefa9e98740a66014add3"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1733,7 +1713,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "branch-alias": {
                     "dev-trunk": "0.3.x-dev"
                 },
@@ -1782,7 +1761,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "339cb166bd2a090a1a187a39dece6569ae0c31b5"
+                "reference": "2456f4e34297f1474a3859e59171a9b8b303e095"
             },
             "require": {
                 "automattic/jetpack-status": "@dev",
@@ -1798,7 +1777,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-redirect",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-redirect/compare/v${old}...v${new}"
@@ -1837,7 +1815,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
-                "reference": "1a1b42db1c26f4aed285cf892d067f8e9d676b96"
+                "reference": "81117f00cbcc5e4f61e19ed2d4dfac98e5fecb79"
             },
             "require": {
                 "php": ">=7.4"
@@ -1852,7 +1830,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-roles",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-roles/compare/v${old}...v${new}"
@@ -1891,7 +1868,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/rtc",
-                "reference": "91c496d4778495af23f02b60a51cc3bf89bccf44"
+                "reference": "c4fc1f3d4a2b8829b80eab0154c21e9178370807"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1908,9 +1885,8 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-rtc/compare/v${old}...v${new}"
@@ -1957,7 +1933,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "9d2c199732027364c672b1dc26ddfc18b28eaf5c"
+                "reference": "c2e454a385934396fe77d67a3079d66ee3a8df92"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1977,7 +1953,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats",
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"
@@ -1986,7 +1961,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.22.x-dev"
+                    "dev-trunk": "0.23.x-dev"
                 },
                 "textdomain": "jetpack-stats-pkg"
             },
@@ -2025,7 +2000,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "cf5a3ba3eb5c2df14b58058ee3c9fbc9ea6d6eac"
+                "reference": "f117ff4d25339780312adb1b0521f184097cc3c4"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2048,10 +2023,9 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.38.x-dev"
+                    "dev-trunk": "0.39.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
@@ -2094,7 +2068,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "b4d480b82597c1bc07fffbeda5936d88a333a685"
+                "reference": "024d90ac86cbd9a9313243a0cb4d2c898ca4e323"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -2113,7 +2087,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-status",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
@@ -2158,7 +2131,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "d08b72b882c138a17ba10f01018ea4a83ed66f5e"
+                "reference": "d57681a025d25e941b66c0d31377850b340c80d0"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2181,7 +2154,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-sync",
                 "textdomain": "jetpack-sync",
                 "version-constants": {
@@ -2230,7 +2202,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-abilities",
-                "reference": "5df2e5fcdd38054d91409d699c741e4e8f37b9e3"
+                "reference": "a956e20141812d69729a524237e6ccc133b4f6d1"
             },
             "require": {
                 "php": ">=7.4"
@@ -2245,7 +2217,6 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-wp-abilities",
                 "changelogger": {
                     "link-template": "https://github.com/automattic/jetpack-wp-abilities/compare/v${old}...v${new}"
@@ -2288,7 +2259,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "9144327484320659363285e786e36df0f0473f5c"
+                "reference": "3792c3ad0773b3ff71ddba14ad508da01d600857"
             },
             "require": {
                 "php": ">=7.4"
@@ -2300,14 +2271,13 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-wp-build-polyfills",
                 "textdomain": "jetpack-wp-build-polyfills",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 }
             },
             "autoload": {
@@ -2354,7 +2324,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scheduled-updates",
-                "reference": "1d734f895ea86ef9d5fd576009144c9ac55d4727"
+                "reference": "376dd078b783e9265ede305a92775a1faff6c9a5"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2378,9 +2348,8 @@
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/scheduled-updates/compare/v${old}...v${new}"
                 },
-                "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.14.x-dev"
+                    "dev-trunk": "0.15.x-dev"
                 },
                 "textdomain": "jetpack-scheduled-updates",
                 "version-constants": {
@@ -2413,20 +2382,21 @@
         },
         {
             "name": "league/uri",
-            "version": "7.8.1",
+            "version": "7.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri.git",
-                "reference": "08cf38e3924d4f56238125547b5720496fac8fd4"
+                "reference": "fcc872a3d872aa13f935e0cd1887b9abb06da07f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri/zipball/08cf38e3924d4f56238125547b5720496fac8fd4",
-                "reference": "08cf38e3924d4f56238125547b5720496fac8fd4",
+                "url": "https://api.github.com/repos/thephpleague/uri/zipball/fcc872a3d872aa13f935e0cd1887b9abb06da07f",
+                "reference": "fcc872a3d872aa13f935e0cd1887b9abb06da07f",
                 "shasum": ""
             },
             "require": {
-                "league/uri-interfaces": "^7.8.1",
+                "ext-mbstring": "*",
+                "league/uri-interfaces": "^7.9.0",
                 "php": "^8.1",
                 "psr/http-factory": "^1"
             },
@@ -2499,7 +2469,7 @@
                 "docs": "https://uri.thephpleague.com",
                 "forum": "https://thephpleague.slack.com",
                 "issues": "https://github.com/thephpleague/uri-src/issues",
-                "source": "https://github.com/thephpleague/uri/tree/7.8.1"
+                "source": "https://github.com/thephpleague/uri/tree/7.9.0"
             },
             "funding": [
                 {
@@ -2507,20 +2477,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-03-15T20:22:25+00:00"
+            "time": "2026-10-16T15:19:33+00:00"
         },
         {
             "name": "league/uri-interfaces",
-            "version": "7.8.1",
+            "version": "7.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri-interfaces.git",
-                "reference": "85d5c77c5d6d3af6c54db4a78246364908f3c928"
+                "reference": "eb5f6d24e6a4fe0a8e9c78ded4eb1dfff1404f58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri-interfaces/zipball/85d5c77c5d6d3af6c54db4a78246364908f3c928",
-                "reference": "85d5c77c5d6d3af6c54db4a78246364908f3c928",
+                "url": "https://api.github.com/repos/thephpleague/uri-interfaces/zipball/eb5f6d24e6a4fe0a8e9c78ded4eb1dfff1404f58",
+                "reference": "eb5f6d24e6a4fe0a8e9c78ded4eb1dfff1404f58",
                 "shasum": ""
             },
             "require": {
@@ -2583,7 +2553,7 @@
                 "docs": "https://uri.thephpleague.com",
                 "forum": "https://thephpleague.slack.com",
                 "issues": "https://github.com/thephpleague/uri-src/issues",
-                "source": "https://github.com/thephpleague/uri-interfaces/tree/7.8.1"
+                "source": "https://github.com/thephpleague/uri-interfaces/tree/7.9.0"
             },
             "funding": [
                 {
@@ -2591,7 +2561,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-03-08T20:05:35+00:00"
+            "time": "2026-10-16T15:19:33+00:00"
         },
         {
             "name": "psr/http-factory",
@@ -2839,16 +2809,16 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v6.4.45",
+            "version": "v6.4.48",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "6dabf41c21957a2060f101bd7bf7e322989866bd"
+                "reference": "e3ff48b19ac71ee79f89021122211710b892ae0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/6dabf41c21957a2060f101bd7bf7e322989866bd",
-                "reference": "6dabf41c21957a2060f101bd7bf7e322989866bd",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/e3ff48b19ac71ee79f89021122211710b892ae0b",
+                "reference": "e3ff48b19ac71ee79f89021122211710b892ae0b",
                 "shasum": ""
             },
             "require": {
@@ -2885,7 +2855,7 @@
             "description": "Provides basic utilities for the filesystem",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/filesystem/tree/v6.4.45"
+                "source": "https://github.com/symfony/filesystem/tree/v6.4.48"
             },
             "funding": [
                 {
@@ -2905,7 +2875,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-23T07:59:31+00:00"
+            "time": "2026-10-06T17:30:58+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -2992,16 +2962,16 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.38.2",
+            "version": "v1.43.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6"
+                "reference": "4d5d331bf731e0aedbc6b2f5e61135b7b7996a72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
-                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/4d5d331bf731e0aedbc6b2f5e61135b7b7996a72",
+                "reference": "4d5d331bf731e0aedbc6b2f5e61135b7b7996a72",
                 "shasum": ""
             },
             "require": {
@@ -3053,7 +3023,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.2"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.43.0"
             },
             "funding": [
                 {
@@ -3073,7 +3043,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-27T06:59:30+00:00"
+            "time": "2026-09-24T15:19:04+00:00"
         }
     ],
     "packages-dev": [
@@ -3083,7 +3053,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/phpunit-select-config",
-                "reference": "f34d251d44e96b67a97272b464b69fc9ffb7de76"
+                "reference": "dfcffca1e9ed5b1de43c23b32de72906060c026e"
             },
             "require": {
                 "composer-runtime-api": "^2.2.2",
@@ -3099,7 +3069,6 @@
             ],
             "type": "library",
             "extra": {
-                "autotagger": true,
                 "branch-alias": {
                     "dev-trunk": "1.0.x-dev"
                 },
@@ -3200,16 +3169,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v5.8.0",
+            "version": "v5.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "044a6a392ff8ad0d61f14370a5fbbd0a0107152f"
+                "reference": "9e33da9553fe7786f0962b35f4e4ecf01be89def"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/044a6a392ff8ad0d61f14370a5fbbd0a0107152f",
-                "reference": "044a6a392ff8ad0d61f14370a5fbbd0a0107152f",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/9e33da9553fe7786f0962b35f4e4ecf01be89def",
+                "reference": "9e33da9553fe7786f0962b35f4e4ecf01be89def",
                 "shasum": ""
             },
             "require": {
@@ -3251,9 +3220,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v5.8.0"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v5.9.0"
             },
-            "time": "2026-07-04T14:30:18+00:00"
+            "time": "2026-09-13T18:51:52+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -3375,25 +3344,25 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "12.5.7",
+            "version": "12.5.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "186dab580576598076de6818596d12b61801880e"
+                "reference": "7440368d94738d54f2c1de24dbd3871793bbb0dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/186dab580576598076de6818596d12b61801880e",
-                "reference": "186dab580576598076de6818596d12b61801880e",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/7440368d94738d54f2c1de24dbd3871793bbb0dd",
+                "reference": "7440368d94738d54f2c1de24dbd3871793bbb0dd",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-libxml": "*",
                 "ext-xmlwriter": "*",
-                "nikic/php-parser": "^5.7.0",
+                "nikic/php-parser": "^5.9.0",
                 "php": ">=8.3",
-                "phpunit/php-text-template": "^5.0",
+                "phpunit/php-text-template": "^5.0.1",
                 "sebastian/complexity": "^5.0",
                 "sebastian/environment": "^8.1.2",
                 "sebastian/lines-of-code": "^4.0.1",
@@ -3401,7 +3370,7 @@
                 "theseer/tokenizer": "^2.0.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^12.5.28"
+                "phpunit/phpunit": "^12.5.37"
             },
             "suggest": {
                 "ext-pcov": "PHP extension that provides line coverage",
@@ -3439,7 +3408,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
                 "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.5.7"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.5.8"
             },
             "funding": [
                 {
@@ -3459,7 +3428,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-01T13:24:19+00:00"
+            "time": "2026-10-03T14:03:50+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -3600,23 +3569,23 @@
         },
         {
             "name": "phpunit/php-text-template",
-            "version": "5.0.0",
+            "version": "5.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-text-template.git",
-                "reference": "e1367a453f0eda562eedb4f659e13aa900d66c53"
+                "reference": "babab73b7ef9fae406f2eb3ee11323a61caa63d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-text-template/zipball/e1367a453f0eda562eedb4f659e13aa900d66c53",
-                "reference": "e1367a453f0eda562eedb4f659e13aa900d66c53",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-text-template/zipball/babab73b7ef9fae406f2eb3ee11323a61caa63d5",
+                "reference": "babab73b7ef9fae406f2eb3ee11323a61caa63d5",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "^12.0"
+                "phpunit/phpunit": "^12.5.37"
             },
             "type": "library",
             "extra": {
@@ -3648,15 +3617,27 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-text-template/issues",
                 "security": "https://github.com/sebastianbergmann/php-text-template/security/policy",
-                "source": "https://github.com/sebastianbergmann/php-text-template/tree/5.0.0"
+                "source": "https://github.com/sebastianbergmann/php-text-template/tree/5.0.1"
             },
             "funding": [
                 {
                     "url": "https://github.com/sebastianbergmann",
                     "type": "github"
+                },
+                {
+                    "url": "https://liberapay.com/sebastianbergmann",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
+                    "type": "thanks_dev"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/phpunit/php-text-template",
+                    "type": "tidelift"
                 }
             ],
-            "time": "2025-02-07T04:59:16+00:00"
+            "time": "2026-10-03T04:51:29+00:00"
         },
         {
             "name": "phpunit/php-timer",
@@ -3720,16 +3701,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.34",
+            "version": "12.5.40",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "6cbff63d670de92cb1cb3d2ff9f40327e9da9c7f"
+                "reference": "76bd3198f16aeb375a4d5f3626471445aed0966e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6cbff63d670de92cb1cb3d2ff9f40327e9da9c7f",
-                "reference": "6cbff63d670de92cb1cb3d2ff9f40327e9da9c7f",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/76bd3198f16aeb375a4d5f3626471445aed0966e",
+                "reference": "76bd3198f16aeb375a4d5f3626471445aed0966e",
                 "shasum": ""
             },
             "require": {
@@ -3743,10 +3724,10 @@
                 "phar-io/manifest": "^2.0.4",
                 "phar-io/version": "^3.2.1",
                 "php": ">=8.3",
-                "phpunit/php-code-coverage": "^12.5.7",
+                "phpunit/php-code-coverage": "^12.5.8",
                 "phpunit/php-file-iterator": "^6.0.2",
                 "phpunit/php-invoker": "^6.0.0",
-                "phpunit/php-text-template": "^5.0.0",
+                "phpunit/php-text-template": "^5.0.1",
                 "phpunit/php-timer": "^8.0.0",
                 "sebastian/cli-parser": "^4.2.1",
                 "sebastian/comparator": "^7.1.8",
@@ -3757,7 +3738,7 @@
                 "sebastian/object-enumerator": "^7.0.0",
                 "sebastian/recursion-context": "^7.0.1",
                 "sebastian/type": "^6.0.4",
-                "sebastian/version": "^6.0.0",
+                "sebastian/version": "^6.0.1",
                 "staabm/side-effects-detector": "^1.0.5"
             },
             "bin": [
@@ -3798,7 +3779,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.34"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.40"
             },
             "funding": [
                 {
@@ -3806,7 +3787,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-08-27T08:38:28+00:00"
+            "time": "2026-10-16T05:55:07+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -4677,16 +4658,16 @@
         },
         {
             "name": "sebastian/version",
-            "version": "6.0.0",
+            "version": "6.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/version.git",
-                "reference": "3e6ccf7657d4f0a59200564b08cead899313b53c"
+                "reference": "9e935a16187e14f39b0e79910dabd614972cdb26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/version/zipball/3e6ccf7657d4f0a59200564b08cead899313b53c",
-                "reference": "3e6ccf7657d4f0a59200564b08cead899313b53c",
+                "url": "https://api.github.com/repos/sebastianbergmann/version/zipball/9e935a16187e14f39b0e79910dabd614972cdb26",
+                "reference": "9e935a16187e14f39b0e79910dabd614972cdb26",
                 "shasum": ""
             },
             "require": {
@@ -4719,15 +4700,27 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/version/issues",
                 "security": "https://github.com/sebastianbergmann/version/security/policy",
-                "source": "https://github.com/sebastianbergmann/version/tree/6.0.0"
+                "source": "https://github.com/sebastianbergmann/version/tree/6.0.1"
             },
             "funding": [
                 {
                     "url": "https://github.com/sebastianbergmann",
                     "type": "github"
+                },
+                {
+                    "url": "https://liberapay.com/sebastianbergmann",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
+                    "type": "thanks_dev"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/sebastian/version",
+                    "type": "tidelift"
                 }
             ],
-            "time": "2025-02-07T05:00:38+00:00"
+            "time": "2026-10-04T05:50:08+00:00"
         },
         {
             "name": "staabm/side-effects-detector",

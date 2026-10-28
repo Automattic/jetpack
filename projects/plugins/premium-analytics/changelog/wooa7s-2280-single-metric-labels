@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide redundant labels from single-metric widgets whose titles already identify the metric.

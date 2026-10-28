@@ -5,6 +5,39 @@
 	margin-inline: calc(-1 * var(--wpds-dimension-padding-2xl));
 }
 
+// Same frame as the widget grid animation, so the slides do not jump in height.
+.storeStage {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wpds-dimension-gap-xl);
+	inline-size: 100%;
+	aspect-ratio: 400 / 302;
+	background-position: center;
+	background-size: cover;
+}
+
+.storeArrow:dir(rtl) {
+	transform: scaleX(-1);
+}
+
+.dots {
+	display: flex;
+	justify-content: center;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+.dot {
+	inline-size: 6px;
+	block-size: 6px;
+	border-radius: 50%;
+	background: var(--wpds-color-stroke-surface-neutral);
+}
+
+.dotActive {
+	background: var(--wpds-color-background-interactive-brand-strong);
+}
+
 // Anchored to the popup rather than the stage, so it stays put while the
 // content scrolls. White over the dark stage, whatever the neutral tone would
 // pick; the 4px inset lands the 24px glyph of the 32px button 8px from the

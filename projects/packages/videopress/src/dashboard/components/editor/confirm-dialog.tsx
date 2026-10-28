@@ -47,7 +47,7 @@ export default function StudioEditorConfirmDialog( {
 			<Dialog.Popup size="small">
 				<Dialog.Header>
 					<Dialog.Title>{ title }</Dialog.Title>
-					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
+					<Dialog.CloseIconButton label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
 				</Dialog.Header>
 
 				<Dialog.Content>

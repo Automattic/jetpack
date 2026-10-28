@@ -292,7 +292,7 @@ class SSO {
 			/**
 			 * Should we show the SSO login form?
 			 *
-			 * $_GET['jetpack-sso-default-form'] is used to provide a fallback in case JavaScript is not enabled.
+			 * $_GET['jetpack-sso-show-default-form'] is used to provide a fallback in case JavaScript is not enabled.
 			 *
 			 * The default_to_sso_login() method allows us to dynamically decide whether we show the SSO login form or not.
 			 * The SSO module uses the method to display the default login form if we cannot find a user to log in via SSO.

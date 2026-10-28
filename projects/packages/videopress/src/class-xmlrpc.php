@@ -66,9 +66,10 @@ class XMLRPC {
 			$this->current_user = $user;
 		}
 
-		$methods['jetpack.createMediaItem']             = array( $this, 'create_media_item' );
-		$methods['jetpack.updateVideoPressMediaItem']   = array( $this, 'update_videopress_media_item' );
-		$methods['jetpack.updateVideoPressPosterImage'] = array( $this, 'update_poster_image' );
+		$methods['jetpack.createMediaItem']                = array( $this, 'create_media_item' );
+		$methods['jetpack.updateVideoPressMediaItem']      = array( $this, 'update_videopress_media_item' );
+		$methods['jetpack.updateVideoPressMediaItemError'] = array( $this, 'update_videopress_media_item' );
+		$methods['jetpack.updateVideoPressPosterImage']    = array( $this, 'update_poster_image' );
 
 		return $methods;
 	}
@@ -94,7 +95,10 @@ class XMLRPC {
 				: sanitize_title( basename( $url ) );
 			$guid  = $media['guid'] ?? null;
 
-			$media_id = videopress_create_new_media_item( $title, $guid );
+			$media_id = videopress_create_new_media_item( $title, $guid, $media_item['minimum_attachment_id'] ?? 0 );
+			if ( is_wp_error( $media_id ) ) {
+				return array( 'errors' => array( $media_id->get_error_code() => $media_id->get_error_message() ) );
+			}
 
 			$post_update = array();
 			if ( isset( $media_item['description'] ) && '' !== $media_item['description'] ) {
@@ -152,6 +156,9 @@ class XMLRPC {
 		update_post_meta( $id, 'videopress_guid', $info['guid'] );
 
 		$meta = wp_get_attachment_metadata( $id );
+		if ( ! is_array( $meta ) ) {
+			$meta = array();
+		}
 
 		$meta['width']             = $info['width'];
 		$meta['height']            = $info['height'];
@@ -164,7 +171,7 @@ class XMLRPC {
 			$meta['file_statuses'][ $format ] = $status;
 		}
 
-		if ( ! get_post_meta( $id, '_thumbnail_id', true ) ) {
+		if ( ! empty( $info['poster'] ) && ! get_post_meta( $id, '_thumbnail_id', true ) ) {
 			// Update the poster in the VideoPress info.
 			$thumbnail_id = videopress_download_poster_image( $info['poster'], $id );
 
@@ -177,8 +184,9 @@ class XMLRPC {
 
 		videopress_update_meta_data( $id );
 
-		// update the meta to tell us that we're processing or complete
-		update_post_meta( $id, 'videopress_status', videopress_is_finished_processing( $id ) ? 'complete' : 'processing' );
+		// A later auxiliary-format callback must not erase an MP4 failure.
+		$failed = 'ERROR' === ( $meta['file_statuses']['mp4'] ?? '' );
+		update_post_meta( $id, 'videopress_status', $failed ? 'failed' : ( videopress_is_finished_processing( $id ) ? 'complete' : 'processing' ) );
 
 		return true;
 	}

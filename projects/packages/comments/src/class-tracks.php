@@ -134,7 +134,7 @@ class Tracks {
 	 * Record a comment the form turned away, where a browser on this site sent it. Anything else is a bot,
 	 * and would cost an outbound request to record.
 	 *
-	 * @param string $reason `nonce`, or the error code the sign-in was refused with.
+	 * @param string $reason The error code the sign-in was refused with.
 	 * @return void
 	 */
 	public static function record_refusal( $reason ) {
@@ -154,6 +154,19 @@ class Tracks {
 	public function comment_posted( $comment_id, $approved, $commentdata = array() ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Comment_Form::verify_nonce() checked it; its presence marks a comment this form sent.
 		if ( empty( $_POST[ Comment_Form::NONCE_NAME ] ) ) {
+			return;
+		}
+
+		// A theme drew its own form, so the app never showed on this site.
+		if ( ! empty( $_POST[ Comment_Form::THEME_FORM ] ) ) {
+			self::record(
+				'jetpack_comments_theme_form_posted',
+				array(
+					'theme'     => get_stylesheet(),
+					'status'    => (string) $approved,
+					'post_type' => (string) get_post_type( (int) ( $commentdata['comment_post_ID'] ?? 0 ) ),
+				)
+			);
 			return;
 		}
 

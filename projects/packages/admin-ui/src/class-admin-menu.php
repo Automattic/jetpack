@@ -18,7 +18,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.14.3';
+	const PACKAGE_VERSION = '0.14.9';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -237,6 +237,7 @@ class Admin_Menu {
 		self::$initialized            = false;
 		self::$top_level_initialized  = false;
 
+		remove_action( 'admin_menu', array( __CLASS__, 'take_over_akismet_menu' ), 4 );
 		remove_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 );
 		remove_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 );
 		remove_action( 'admin_menu', array( __CLASS__, 'top_level_menu_hook_callback' ), 1000 );
@@ -246,26 +247,35 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Handles the Akismet menu item when used alongside other stand-alone plugins
+	 * Registers the Akismet menu item through this class, so it sorts with the rest of the Jetpack menu.
 	 *
-	 * When Jetpack plugin is present, Akismet menu item is moved under the Jetpack top level menu, but if Akismet is active alongside other stand-alone plugins,
-	 * we use this method to move the menu item.
+	 * Akismet hooks admin_menu at priority 5 and, when the Jetpack plugin is active, defers its entry to
+	 * jetpack_admin_menu, which fires before this class registers its sorted items.
 	 */
 	private static function handle_akismet_menu() {
-		if ( class_exists( 'Akismet_Admin' ) ) {
-			add_action(
-				'admin_menu',
-				function () {
-					// Prevent Akismet from adding a menu item.
-					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
-
-					// Add an Anti-spam menu item for Jetpack.
-					self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
-				},
-				4
-			);
-
+		if ( ! class_exists( 'Akismet_Admin' ) ) {
+			return;
 		}
+
+		// Initialized after priority 5, as when My Jetpack is the first caller: Akismet has already deferred.
+		if ( has_action( 'jetpack_admin_menu', array( 'Akismet_Admin', 'load_menu' ) ) ) {
+			self::take_over_akismet_menu();
+		} else {
+			add_action( 'admin_menu', array( __CLASS__, 'take_over_akismet_menu' ), 4 );
+		}
+	}
+
+	/**
+	 * Stops Akismet from adding its own menu item and queues ours in its place.
+	 *
+	 * @return void
+	 */
+	public static function take_over_akismet_menu() {
+		// Older Jetpack plugins unhook Akismet's admin_menu callback themselves and rely on this item.
+		remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+		remove_action( 'jetpack_admin_menu', array( 'Akismet_Admin', 'load_menu' ) );
+
+		self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 	}
 
 	/**
@@ -627,11 +637,13 @@ class Admin_Menu {
 		 *
 		 * Governs the sidebar entry only — a hidden item's page stays reachable by URL, so this
 		 * is not an access control. States: 'default' follows the item's feature, 'visible' shows it, 'hidden' removes it.
+		 * `jetpack_feature_policy` runs after this. Item keys and examples:
+		 * https://github.com/Automattic/jetpack/blob/trunk/projects/packages/admin-ui/README.md#host-control
 		 *
 		 * @since 0.12.0
 		 *
 		 * @param array $states     Map of item key (menu slug unless the item declared one) to state.
-		 * @param array $menu_items The registered menu items, for context.
+		 * @param array $menu_items The registered menu items, each with its menu_slug, capability, and args.
 		 */
 		$states = apply_filters( 'jetpack_admin_menu_visibility', $states, $items );
 

@@ -70,4 +70,54 @@ describe( 'OnboardingWelcomeModal', () => {
 		).toBeInTheDocument();
 		expect( onDismiss ).not.toHaveBeenCalled();
 	} );
+
+	it.each( [
+		{ variant: 'store' as const, titles: [ 'Your Woo analytics in one place' ] },
+		{
+			variant: 'stats-and-store' as const,
+			titles: [ 'Welcome to the new Stats', 'Your store analytics integrated' ],
+		},
+	] )( 'walks the $variant slides before starting the tour', async ( { variant, titles } ) => {
+		const onStart = jest.fn();
+		render(
+			<OnboardingWelcomeModal
+				open
+				variant={ variant }
+				onStart={ onStart }
+				onDismiss={ jest.fn() }
+			/>
+		);
+
+		for ( const title of titles.slice( 0, -1 ) ) {
+			expect( screen.getByRole( 'dialog', { name: title } ) ).toBeInTheDocument();
+			await userEvent.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		}
+
+		expect( screen.getByRole( 'dialog', { name: titles.at( -1 ) } ) ).toBeInTheDocument();
+		expect( onStart ).not.toHaveBeenCalled();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Take a quick tour' } ) );
+		expect( onStart ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'tells a screen reader which slide it is on and reads out the next one', async () => {
+		render(
+			<OnboardingWelcomeModal
+				open
+				variant="stats-and-store"
+				onStart={ jest.fn() }
+				onDismiss={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getByRole( 'img', { name: 'Slide 1 of 2' } ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Next' } ) );
+
+		expect( screen.getByRole( 'img', { name: 'Slide 2 of 2' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'Slide 2 of 2: Your store analytics integrated', {
+				selector: '#a11y-speak-polite',
+			} )
+		).toBeInTheDocument();
+	} );
 } );

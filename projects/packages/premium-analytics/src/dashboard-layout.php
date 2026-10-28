@@ -34,14 +34,22 @@ const DASHBOARD_NAME = 'jetpack-premium-analytics_dashboard';
 const DASHBOARD_DEFAULT_LAYOUT_FILTER = 'jetpack_premium_analytics_dashboard_default_layout';
 
 /**
+ * Filter through which the widget types a section's inserter offers beyond its default layout
+ * are resolved. Documented where it runs, in Dashboard_Section::get_insertable_widget_types().
+ *
+ * @since 0.13.0
+ */
+const DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_dashboard_insertable_widget_types';
+
+/**
  * Builds a widget instance for a section's default layout.
  *
- * @param string $uuid       Widget instance UUID.
- * @param string $type       Widget type.
- * @param int    $order      Widget placement order.
- * @param int    $width      Widget placement width.
- * @param int    $height     Widget placement height.
- * @param array  $attributes Optional widget attributes.
+ * @param string     $uuid       Widget instance UUID.
+ * @param string     $type       Widget type.
+ * @param int        $order      Widget placement order.
+ * @param int|'full' $width      Column span, or 'full' to span the grid.
+ * @param int        $height     Widget placement height.
+ * @param array      $attributes Optional widget attributes.
  * @return array Widget instance.
  */
 function get_dashboard_default_widget_instance(

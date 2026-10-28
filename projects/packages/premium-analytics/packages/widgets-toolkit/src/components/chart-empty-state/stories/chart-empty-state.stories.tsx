@@ -19,7 +19,7 @@ const meta: Meta< typeof ChartEmptyState > = {
 		icon: {
 			control: false,
 			description:
-				'Icon to display in the empty state. Defaults to the search magnifier from @jetpack-premium-analytics/icons. Can be overridden with custom icons, or `null` for none.',
+				'Icon to display in the empty state. Defaults to the search magnifier from @jetpack-premium-analytics/icons. Can be overridden with custom icons.',
 		},
 		text: {
 			control: 'text',
@@ -131,6 +131,18 @@ export const ContainerSizes: Story = {
 			<WidgetCard title="Large (450px)" width="450px" height="350px">
 				<ChartEmptyState icon={ location } />
 			</WidgetCard>
+		</div>
+	),
+};
+
+/**
+ * A sparkline-high chart area, as a one-row metric chart leaves: the message
+ * sheds its icon and block padding so it fits on one line without scrolling.
+ */
+export const ShortChartArea: Story = {
+	render: () => (
+		<div style={ { width: '600px', height: '26px', outline: '1px dashed currentColor' } }>
+			<ChartEmptyState />
 		</div>
 	),
 };

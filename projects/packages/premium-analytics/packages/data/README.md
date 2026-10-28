@@ -14,7 +14,7 @@ available to routes and other internal packages within
 import {
 	AnalyticsQueryClientProvider,
 	useReport,
-	prefetchReport,
+	useStatsTopPosts,
 	// ... other exports
 } from '@jetpack-premium-analytics/data';
 ```
@@ -23,8 +23,6 @@ import {
 
 - **React Query Integration**: Built on `@tanstack/react-query` for
   caching and state management
-- **Prefetching Support**: Route-based data prefetching for improved
-  performance
 - **Data Processing**: Automatic sanitization of API responses
   (strings → numbers)
 - **Comparison Support**: Built-in primary + comparison data fetching
@@ -46,189 +44,51 @@ function App() {
 
 ### Fetching Data
 
+Every report goes through `useReport`: hand it a query factory and the report
+params, and it runs the primary request plus the comparison one when the params
+carry a comparison range. The Stats hooks (`useStatsTopPosts`,
+`useStatsReferrers`, `useStatsVisits`, …) are built on it, one per endpoint of
+the Stats API.
+
 ```tsx
-import {
-	useReportOrders,
-	useReportOrdersByProductType,
-	useReportOrderAttribution,
-	useReportCoupons,
-} from '@jetpack-premium-analytics/data';
+import { useStatsTopPosts } from '@jetpack-premium-analytics/data';
 
-function OrdersReport() {
-	// Orders endpoint separates primary and comparison periods
-	const { primary, comparison, hasComparison } = useReportOrders( {
-		from: '2025-07-01T00:00:00',
-		to: '2025-07-29T23:59:59',
-		interval: 'day',
-	} );
-}
-
-function OrdersByProductTypeReport() {
-	// Orders by product type with filtering support
-	const { primary, comparison, hasComparison } = useReportOrdersByProductType( {
-		from: '2025-07-01T00:00:00',
-		to: '2025-07-29T23:59:59',
-		interval: 'day',
-		filters: [
-			{
-				key: 'product_type',
-				value: [ 'simple' ],
-				compare: 'IN',
-			},
-		],
-	} );
-}
-
-function OrderAttributionReport() {
-	// Order attribution requires a view parameter
-	const { primary, comparison, hasComparison } = useReportOrderAttribution( {
-		from: '2025-07-01T00:00:00',
-		to: '2025-07-29T23:59:59',
-		interval: 'day',
-		view: 'channel', // 'channel' | 'source' | 'campaign' | 'device' | 'channel-source'
-	} );
-}
-
-function CouponsReport() {
-	// Coupons works like orders with separate comparison requests
-	const { primary, comparison, hasComparison } = useReportCoupons( {
-		from: '2025-07-01T00:00:00',
-		to: '2025-07-29T23:59:59',
-		interval: 'day',
-	} );
+function TopPosts( { reportParams } ) {
+	const { primary, comparison, hasComparison } = useStatsTopPosts( reportParams );
+	// `primary.data` is the sanitized report; `comparison.data` the previous
+	// period's when `hasComparison`.
 }
 ```
 
-### Prefetching
-
-```tsx
-import { prefetchReport, ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
-
-export const route = {
-	beforeLoad: async () => {
-		// Ensure site settings are loaded first
-		await ensureCoreSettingsReady();
-
-		// Now safely prefetch reports
-		await prefetchReport( 'orders' );
-	},
-};
-```
+The WooCommerce report client lives in the WooCommerce Stats package, which
+calls `useReport` with its own queries.
 
 ## API Reference
 
-### Individual Hooks (Recommended)
+### `useReport( queryFactory, params, options? )`
 
-#### `useReportOrders( params )`
-
-Fetches orders report data with automatic processing and comparison support.
+Runs a report's primary query, and its comparison query when `params` carry
+`compare_from` / `compare_to`.
 
 **Parameters:**
 
+- `queryFactory`: builds the query definition from the params of each request
 - `params`: `ReportParams` with `from`, `to`, `interval`, and optional comparison params
+- `options`: optional. `enabled` turns the queries off, `disabledComparisonKey` parks the comparison query, and `refreshNotice: false` keeps a failed refresh out of the stale-data notice (default `true`)
 
-**Returns:** `{ primary, comparison, hasComparison }`
+**Returns:** `{ primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error, refetch }`
 
-#### `useReportOrdersByProductType( params )`
-
-Fetches orders report data filtered by product type or other product characteristics with automatic processing and comparison support.
-
-**Parameters:**
-
-- `params`: `ReportParams` with `from`, `to`, `interval`, optional `filters` array, and optional comparison params
-
-**Filters Structure:**
-
-```typescript
-filters: Array< {
-	key: string; // e.g., 'product_type', 'virtual'
-	value: string | string[]; // e.g., ['simple'], '1'
-	compare: '=' | 'IN' | 'NOT IN' | '!=' | '>' | '<' | '>=' | '<=';
-} >;
-```
-
-**Common Filter Examples:**
-
-- Product types: `{ key: 'product_type', value: ['simple', 'variable'], compare: 'IN' }`
-- Virtual products: `{ key: 'virtual', value: '1', compare: '=' }`
-- Non-virtual products: `{ key: 'virtual', value: '0', compare: '=' }`
-
-**Returns:** `{ primary, comparison, hasComparison }`
-
-#### `useReportOrderAttribution( params )`
-
-Fetches order attribution data with built-in comparison handling.
-
-**Parameters:**
-
-- `params`: `ReportParams` with `from`, `to`, `interval`, `view`, and optional comparison params
-
-**Returns:** `{ primary, comparison, hasComparison }`
-
-#### `useReportCoupons( params )`
-
-Fetches coupons report data with automatic processing and comparison support.
-
-**Parameters:**
-
-- `params`: `ReportParams` with `from`, `to`, `interval`, and optional comparison params
-
-**Returns:** `{ primary, comparison, hasComparison }`
-
-### Legacy Hook (Deprecated)
-
-#### `useReport( reportType, params )`
-
-**⚠️ Deprecated:** Use individual hooks instead for better type safety and performance.
-
-**Parameters:**
-
-- `reportType`: `'orders'` | `'orders-by-product-type'` | `'order-attribution'` | `'coupons'`
-- `params`: `ReportParams`
-
-**Returns:** Same as individual hooks above
-
-### `prefetchReport( reportType, params )`
-
-Prefetches data for improved performance. Same parameters as `useReport`.
-
-**Usage:** Call in route `beforeLoad` functions for instant data loading
-
-**Returns:** Promise that resolves when data is prefetched
-
-**Caching:** Uses React Query cache, so subsequent `useReport` calls are
-instant
-
-**Example:**
-
-```tsx
-// Prefetch orders data
-await prefetchReport( 'orders', { from, to, interval } );
-
-// Prefetch orders by product type data
-await prefetchReport( 'orders-by-product-type', {
-	from,
-	to,
-	interval,
-	filters: [ { key: 'product_type', value: [ 'simple' ], compare: 'IN' } ],
-} );
-
-// Prefetch order attribution data
-await prefetchReport( 'order-attribution', { from, to, interval, view: 'channel' } );
-
-// Prefetch coupons data
-await prefetchReport( 'coupons', { from, to, interval } );
-```
-
-### `normalizeReportParams( params? )`
+### `normalizeReportParams( search?, defaultPreset?, { lockedIntervals }? )`
 
 Normalizes and validates report parameters, providing defaults when needed.
 
 **Parameters:**
 
-- `params`: Optional partial parameters object
+- `search`: Optional partial parameters object, as read off the URL
+- `defaultPreset`: `PresetType | undefined` - Preset to open on when `search` names no dates; defaults to `getDefaultPreset()`
+- `lockedIntervals`: `readonly LockableInterval[] | undefined` - Buckets the site's plan locks; the interval falls back to an open one. Defaults to none
 
-**Returns:** `{ primary, comparison? }` with normalized parameters
+**Returns:** `ReportParams` with normalized parameters
 
 **Defaults:** The reader's last applied preset, else their Jetpack Stats v1 range, else Last 7 days; daily interval when not specified
 
@@ -254,7 +114,7 @@ import { getDefaultIntervalForPeriod } from '@jetpack-premium-analytics/data';
 const interval = getDefaultIntervalForPeriod( 'last-7-days', from, to ); // 'day'
 ```
 
-### `resolveIntervalForRange( preset, from, to, current? )`
+### `resolveIntervalForRange( preset, from, to, current?, locked? )`
 
 Returns a valid interval for a date range. Keeps `current` when it is still
 allowed; otherwise returns the range default.
@@ -265,10 +125,11 @@ allowed; otherwise returns the range default.
 - `from`: `string`
 - `to`: `string`
 - `current`: `string | undefined` - Candidate interval to keep when still allowed
+- `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks; `day` when none is left
 
 **Returns:** `IntervalType`
 
-### `resolveIntervalForPresetChange( currentPreset, nextPreset, from, to, currentInterval? )`
+### `resolveIntervalForPresetChange( currentPreset, nextPreset, from, to, currentInterval?, locked? )`
 
 Returns a valid interval for a range picked while `currentPreset` was active.
 Switching to a different named preset returns that preset's default; any other
@@ -282,10 +143,26 @@ allowed.
 - `from`: `string`
 - `to`: `string`
 - `currentInterval`: `string | undefined` - Candidate interval to keep when still allowed
+- `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
 
 **Returns:** `IntervalType`
 
-### `needsReportDateParamsSeed( search? )`
+### `intervalMenuOptions( params, locked, periods?, extension? )`
+
+Returns what an interval menu lists: the buckets it can pick, the ones the widget withholds for
+now, and the ones the range could draw but `locked` withholds, to list after them with a lock. A
+bucket lands in one list only.
+
+**Parameters:**
+
+- `params`: `IntervalRange` (`{ preset?: PrimaryPresetId; from?: string; to?: string }`) - The range being edited
+- `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
+- `periods`: `readonly [ StatsPeriod, ...StatsPeriod[] ] | undefined` - The periods the chart draws; every bucket when omitted
+- `extension`: `IntervalExtension | undefined` - The widget's own changes: `extra` buckets added after the range's, and `unavailable` ones listed unpickable with a `hint`. Pass the same one to `chartInterval`
+
+**Returns:** `{ options: IntervalType[]; lockedOptions: LockableInterval[]; unavailableOptions: IntervalType[]; unavailableHint?: string }` - Each in the range's order, a widget's `extra` buckets last
+
+### `needsReportDateParamsSeed( search?, lockedIntervals? )`
 
 Returns whether report date params are incomplete or the interval is invalid
 for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
@@ -293,84 +170,90 @@ for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
 **Parameters:**
 
 - `search`: date-window fields from unnormalized report params (`from`, `to`, `interval`, `preset`)
+- `lockedIntervals`: `readonly LockableInterval[] | undefined` - Buckets the site's plan locks, so a locked `interval` needs a seed. Defaults to none
 
 **Returns:** `boolean`
 
-### `ORDER_ATTRIBUTION_VIEWS`
+### `getStatsDatePolicy()`
 
-Constant array of available order attribution views.
+Returns the `StatsDatePolicy` the site's plan sets, read from the Stats gates the server publishes
+(`recent-7-days`, `long-date-presets`, `intervals`) in the site's reporting timezone. A server that
+publishes no gates gets `OPEN_DATE_POLICY`.
 
-**Values:** `['channel', 'source', 'campaign', 'device', 'channel-source']`
+**Returns:** `StatsDatePolicy`
 
-**Example:**
+### `getSectionDatePolicy( section )`
 
-```tsx
-import { ORDER_ATTRIBUTION_VIEWS } from '@jetpack-premium-analytics/data';
+Returns `getStatsDatePolicy()` for a dashboard section whose registration sets
+`follows_plan_date_limits` (Traffic, and the reports and ranges opened on it), and
+`OPEN_DATE_POLICY` for any other.
+`isPlanDateLimitedSection( section )` answers the same question as a boolean.
 
-// Use in components for view selection
-const views = ORDER_ATTRIBUTION_VIEWS; // ['channel', 'source', ...]
-```
+**Returns:** `StatsDatePolicy`
+
+### `applyStatsDatePolicy( params, policy, landingPresetId? )`
+
+Moves a window the policy locks, or one that starts before its earliest day, to the policy's
+fallback preset, drops a comparison the policy does not offer, and keeps the interval off locked
+buckets.
+
+**Parameters:**
+
+- `params`: `ReportParams` - Normalized report params
+- `policy`: `StatsDatePolicy`
+- `landingPresetId`: `PresetType | undefined` - Where a replaced window lands instead of the fallback, when the policy allows it
+
+**Returns:** `{ params, isWindowAdjusted, isComparisonDropped }`
+
+### `getPolicyDefaultPreset( policy, defaultPreset? )`
+
+Returns the preset a page opens on when its URL names no dates: `defaultPreset` (the reader's
+own by default), or the policy's fallback when the policy locks it.
+
+**Returns:** `PresetType`
+
+### `isPresetLockedByPolicy( presetId, policy )`
+
+Returns whether the policy locks a preset. Either date limit locks every single-year preset.
+
+**Returns:** `boolean`
+
+### `isDateLimitedPolicy( policy )`
+
+Returns whether the policy sets any limit: a locked feature, or a locked bucket. `OPEN_DATE_POLICY`
+sets none.
+
+**Returns:** `boolean`
+
+### `ReportScopeProvider`'s `dateLimits`
+
+The date options the surface's plan locks, as `DateLimits`: the policy's `lockedPresetIds`,
+`earliestDate` and `lockedIntervals`, plus the `upsell` for locked periods and the
+`intervalUpsell` for locked chart intervals, each copy carrying its own `onUpgradeClick`.
+The date controls read it through `useReportScope()`; absent where the host applies no limits.
 
 ## Architecture
 
 ```
 src/
-├── api/                    # API functions and query keys
-│   ├── index.ts           # API exports
-│   ├── constants.ts       # Shared API endpoint constants
-│   ├── report-orders-fetch/                # Orders API client
-│   │   ├── index.ts       # Orders API exports
-│   │   └── report-orders-fetch.ts          # Orders API implementation
-│   ├── report-orders-by-product-type-fetch/  # Orders by product type API client
-│   │   ├── index.ts       # Orders by product type API exports
-│   │   └── report-orders-by-product-type-fetch.ts  # Orders by product type API implementation
-│   ├── report-order-attribution-summary-fetch/  # Attribution API client
-│   │   ├── index.ts       # Attribution API exports
-│   │   └── report-order-attribution-summary-fetch.ts  # Attribution API implementation
-│   └── report-coupons-fetch/               # Coupons API client
-│       ├── index.ts       # Coupons API exports
-│       └── report-coupons-fetch.ts         # Coupons API implementation
-├── queries/                # React Query configurations
-│   ├── index.ts           # Query exports
-│   ├── report-orders-query.ts              # Orders query definition
-│   ├── report-orders-by-product-type-query.ts  # Orders by product type query definition
-│   ├── report-order-attribution-summary-query.ts  # Attribution query definition
-│   └── report-coupons-query.ts             # Coupons query definition
-├── hooks/                  # React hooks
-│   ├── index.ts           # Hook exports
-│   └── use-report.ts      # Main useReport hook with comparison
-├── prefetch/               # Prefetching functions
-│   ├── index.ts           # Prefetch exports
-│   └── prefetch-report-orders.ts  # Multi-report prefetch logic (orders + attribution + coupons)
-├── processing/             # Data sanitization and transformation
-│   ├── orders/            # Orders-specific data processing
-│   ├── orders-by-product-type/  # Orders by product type data processing
-│   ├── coupons/           # Coupons data processing
-│   └── order-attribution/ # Attribution data processing
-├── providers/              # React Context providers
-│   ├── index.ts           # Provider exports
-│   └── query-client-provider.tsx  # React Query client setup
-├── defaults/               # Default parameters and configurations
-├── utils/                  # Utility functions
-│   ├── date.ts            # Date manipulation utilities (timezone-aware)
-│   ├── ensure-core-settings.ts  # Core settings initialization
-│   ├── interval.ts        # Interval calculation and optimization
-│   ├── search.ts          # Search parameter utilities
-│   └── types.ts           # Shared utility types (Override, etc.)
-└── types.ts                # TypeScript type definitions
+├── api/                    # Transport: the proxy fetchers and the CSV export request
+├── queries/                # React Query definitions, one per Stats endpoint
+├── hooks/                  # useReport and the Stats hooks built on it
+├── processing/             # Response sanitization (author, latest post, stats)
+├── providers/              # React Query client provider
+├── defaults/               # Default report params and presets
+└── utils/                  # Report params, intervals, timezone, API errors
 ```
 
 ### Data Flow
 
-1. **Route Prefetching**: `beforeLoad` calls `prefetchReport()` to load
-   data
-2. **Component Consumption**: Components use `useReport()` to access cached
-   data
-3. **Automatic Processing**: Raw API responses are sanitized
+1. **Component Consumption**: A component calls a hook, which builds the
+   query from the report params
+2. **Automatic Processing**: Raw API responses are sanitized
    (strings → numbers)
-4. **Comparison Handling**: Primary and comparison queries are managed
+3. **Comparison Handling**: Primary and comparison queries are managed
    automatically
-5. **Cache Management**: React Query handles caching, background updates,
+4. **Cache Management**: React Query handles caching, background updates,
    and invalidation
 
 ## Core Settings
@@ -409,20 +292,27 @@ This package exports the following public API:
 
 ### Hooks
 
-- `useReportOrders` - Hook for fetching orders report data
-- `useReportOrdersByProductType` - Hook for fetching orders by product type with filtering
-- `useReportOrderAttribution` - Hook for fetching order attribution data
-- `useReportCoupons` - Hook for fetching coupons report data
-- `useReport` - Legacy main hook for fetching report data (deprecated)
+- `useReport` - Run a report query with comparison support
+- `useStats*` - One hook per Stats endpoint (`useStatsTopPosts`, `useStatsReferrers`, `useStatsVisits`, …)
+- `useScopeLockedIntervals` - The buckets the nearest report scope's plan locks; none where it sets no date limits
 
 ### Functions
 
-- `prefetchReport` - Prefetch data for routes
 - `normalizeReportParams` - Normalize and validate parameters
 - `getDefaultIntervalForPeriod` - Default interval for a preset / range
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
+- `intervalMenuOptions` - The open, withheld and locked buckets an interval menu lists
+- `getDaysBetweenInclusive` - The calendar days a range spans, both ends counted
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
+- `getStatsDatePolicy` - The date limits the site's plan sets
+- `getSectionDatePolicy` - The date limits a dashboard section follows
+- `isPlanDateLimitedSection` - Whether a dashboard section's dates follow the plan
+- `applyStatsDatePolicy` - Keep report params within a date policy
+- `getPolicyDefaultPreset` - The preset a page opens on within a date policy
+- `isPresetLockedByPolicy` - Whether a date policy locks a preset
+- `isDateLimitedPolicy` - Whether a date policy sets any limit
+- `downloadReport` - Download one report as a CSV file
 
 ### Core Settings
 
@@ -430,8 +320,15 @@ This package exports the following public API:
 
 ### Constants
 
-- `ORDER_ATTRIBUTION_VIEWS` - Available attribution view types
+- `OPEN_DATE_POLICY` - The date policy of a plan that sets no limits
 
 ### Types
 
-- `ReportDataMap` - TypeScript type mapping for report data structures
+- `ReportParams` - The report params every hook takes
+- `LockableInterval` - A bucket a plan can lock (`week`, `month`, `year`)
+- `IntervalRange` - A range as the interval helpers read it (`preset`, `from`, `to`)
+- `IntervalExtension` - The buckets a widget adds to its range (`extra`) or lists unpickable with a hint (`unavailable`)
+- `StatsDatePolicy` - The date limits a plan sets: open, the last 7 days, or no long presets
+- `DateLimitFeature` - The Stats gate a date limit comes from
+- `DateLimits` - The date limits a report scope declares to its controls
+- `DateLimitUpsellCopy` - The copy, links and upgrade callback of an upsell beside locked date options

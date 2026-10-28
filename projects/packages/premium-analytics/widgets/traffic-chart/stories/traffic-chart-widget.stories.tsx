@@ -19,8 +19,10 @@ import {
 } from '../../stories/with-site-time-zone';
 import {
 	registerReportMocks,
+	setReportMockResponse,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import TrafficChartRender from '../render';
 import widgetDefinition, { type TrafficChartType } from '../widget';
 import widgetManifest from '../widget.json';
@@ -48,7 +50,10 @@ const CHART_TYPE_ARG_TYPES = {
 	},
 } as const;
 
-const DEFAULT_CHART_ARGS = { chartType: 'line' } as const;
+const DEFAULT_CHART_ARGS = { chartType: 'bar' } as const;
+
+// The full row, as the default dashboard layout places the widget.
+const DASHBOARD_STORY_ARGS = { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS, widgetWidth: 3 };
 
 function renderTrafficChart( { withComparison, chartType }: TrafficChartStoryControls ) {
 	return (
@@ -83,7 +88,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range and comparison come from the dashboard controls. The bucket size is the widget's own `chartInterval` attribute, clamped to what the range allows. \"Chart type\" is the `chartType` attribute (`relevance: 'high'`, so the host renders it in the widget header). Which metric is plotted is the chart's own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; at the hourly grain the second request asks for visitors, likes, and comments in daily buckets, so their cards still show the day totals (skipped for a window that does not cover whole days, such as `Last 24 hours`). Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
+					"Traffic over the selected period as selectable metric tabs (Views, Visitors, Likes, and Comments) over a comparative chart. The date range and comparison come from the dashboard controls. The bucket size is the widget's own `chartInterval` attribute, clamped to what the range allows. \"Chart type\" is the `chartType` attribute (`relevance: 'high'`, so the host renders it in the widget header). Which metric is plotted is the chart's own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is drawn too: as a same-color dashed line for `line`, or in gray in a slot beside the current period for `bar`. On the Views and Visitors tabs, `bar` draws visitors inside the views bar, as Jetpack Stats v1 does. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; at the hourly grain the second request asks for visitors, likes, and comments in daily buckets, so their cards still show the day totals (skipped for a window that does not cover whole days, such as `Last 24 hours`). Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
 			},
 		},
 	},
@@ -103,7 +108,8 @@ export const Default: Story = {
 };
 
 /**
- * Same close-up with the period-over-period delta and previous-period overlay.
+ * Same close-up with comparison on: the previous period takes a gray slot beside the current one,
+ * and on the Views and Visitors tabs visitors sits inside the views bar.
  */
 export const WithComparison: Story = {
 	render: renderTrafficChart,
@@ -112,21 +118,20 @@ export const WithComparison: Story = {
 };
 
 /**
- * The same widget drawn as bars — the `chartType` attribute set to `bar`.
+ * The same widget drawn as lines — the `chartType` attribute set to `line`.
  */
-export const BarChart: Story = {
+export const LineChart: Story = {
 	render: renderTrafficChart,
-	args: { withComparison: false, ...DEFAULT_CHART_ARGS, chartType: 'bar' },
+	args: { withComparison: false, chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
 /**
- * Bars with comparison on: the previous period renders as the translucent
- * shadow bar behind each current-period bar.
+ * Lines with comparison on: the previous period is a dashed line in the same color.
  */
-export const BarChartWithComparison: Story = {
+export const LineChartWithComparison: Story = {
 	render: renderTrafficChart,
-	args: { withComparison: true, ...DEFAULT_CHART_ARGS, chartType: 'bar' },
+	args: { withComparison: true, chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -150,7 +155,7 @@ export const Hourly: StoryObj< WidgetDashboardWithWidgetControls > = {
 			attributes={ { reportParams: getDefaultQueryParams( false, 'last-24-hours' ) } }
 		/>
 	),
-	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS },
+	args: { ...DASHBOARD_STORY_ARGS },
 	argTypes: { ...widgetDashboardWithWidgetArgTypes },
 };
 
@@ -189,7 +194,31 @@ export const Empty: Story = {
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
 		setReportMockState( 'stats/visits', 'empty' );
-		return () => setReportMockState( 'stats/visits', null );
+		setReportMockResponse( '/wp/v2/posts', [ { id: 1 } ] );
+		return () => {
+			setReportMockState( 'stats/visits', null );
+			setReportMockResponse( '/wp/v2/posts', null );
+		};
+	},
+};
+
+export const EmptyNoPosts: Story = {
+	render: () => renderTrafficChartOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		const scriptData = window.JetpackScriptData;
+		window.JetpackScriptData = {
+			...scriptData,
+			site: { ...scriptData?.site, admin_url: 'https://example.com/blog/wp-admin/' },
+		} as typeof window.JetpackScriptData;
+		setReportMockState( 'stats/visits', 'empty' );
+		forceStatsMockState( '/wp/v2/posts', 'empty' );
+		return () => {
+			window.JetpackScriptData = scriptData;
+			setReportMockState( 'stats/visits', null );
+			forceStatsMockState( '/wp/v2/posts', null );
+		};
 	},
 };
 
@@ -221,7 +250,7 @@ function TrafficChartDashboardStory( {
 export const WidgetDashboardWithWidget: StoryObj< TrafficChartDashboardStoryProps > = {
 	render: args => <TrafficChartDashboardStory { ...args } />,
 	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		...DASHBOARD_STORY_ARGS,
 		withComparison: true,
 		...DEFAULT_CHART_ARGS,
 	},

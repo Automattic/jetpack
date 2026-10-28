@@ -24,13 +24,39 @@ export function useStatsAppNotices( params?: StatsAppNoticesParams, options?: Us
 	return useStatsAppQuery( statsAppNoticesQuery( params ), options );
 }
 
-export function useStatsAppNoticeMutation() {
+const NOTICES_QUERY_KEY = [ 'stats-app', 'notices' ];
+
+/**
+ * Saves a notice's visibility. The change lands in the cache before the request
+ * does, so every mounted copy of the notice hides at once; a failure restores it.
+ *
+ * @param options         - Mutation options.
+ * @param options.onError - Runs after a failed save, even when the caller has since unmounted.
+ * @return The mutation.
+ */
+export function useStatsAppNoticeMutation( { onError }: { onError?: () => void } = {} ) {
 	const queryClient = useQueryClient();
 
 	return useMutation( {
 		mutationFn: ( data: StatsAppNoticeMutationParams ) => updateStatsAppNotice( data ),
-		onSuccess: () => {
-			queryClient.invalidateQueries( { queryKey: [ 'stats-app', 'notices' ] } );
+		onMutate: async ( data: StatsAppNoticeMutationParams ) => {
+			await queryClient.cancelQueries( { queryKey: NOTICES_QUERY_KEY } );
+			const previous = queryClient.getQueriesData< StatsAppNotices >( {
+				queryKey: NOTICES_QUERY_KEY,
+			} );
+			queryClient.setQueriesData< StatsAppNotices >( { queryKey: NOTICES_QUERY_KEY }, notices =>
+				notices ? { ...notices, [ data.id ]: false } : notices
+			);
+			return { previous };
+		},
+		onError: ( _error, _data, context ) => {
+			context?.previous.forEach( ( [ queryKey, notices ] ) =>
+				queryClient.setQueryData( queryKey, notices )
+			);
+			onError?.();
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries( { queryKey: NOTICES_QUERY_KEY } );
 		},
 	} );
 }

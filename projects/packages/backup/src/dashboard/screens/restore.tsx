@@ -1,10 +1,12 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
+import { speak } from '@wordpress/a11y';
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
-import { dateI18n } from '@wordpress/date';
-import { useCallback, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
 	arrowLeft,
+	arrowRight,
 	backup as backupIcon,
 	caution,
 	cloudDownload,
@@ -12,13 +14,30 @@ import {
 	error as errorIcon,
 } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
-import { Button, Card, EmptyState, LinkButton, Notice, Spinner, Stack, Text } from '@wordpress/ui';
+import {
+	Button,
+	Card,
+	EmptyState,
+	Link as ExternalLink,
+	ButtonLink,
+	Notice,
+	Spinner,
+	Stack,
+	Text,
+} from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
+import KnownThreatsWarning from '../components/known-threats';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
+import { announce } from '../data/announce';
+import { ACKNOWLEDGED_STATE_KEY } from '../data/api/known-threats';
+import { formatDate, formatDateTime } from '../data/date-format';
+import { useSiteSuffix } from '../hooks/use-connection';
 import { useGateState } from '../hooks/use-gate-state';
+import { useBackupsKnownThreats, useKnownThreats } from '../hooks/use-known-threats';
 import { useRestore } from '../hooks/use-restore';
+import { useStepFocus } from '../hooks/use-step-focus';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
 import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
 
@@ -47,13 +66,105 @@ const STILL_RUNNING_PHASES = new Set( [ 'checking', 'queued', 'progress' ] );
 export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
 	const gate = useGateState();
+	const siteSuffix = useSiteSuffix();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 
-	const { state, submit, reset, adopted } = useRestore( rewindId, gate.status === 'ready' );
-	const handleConfirm = useCallback( () => submit( items ), [ submit, items ] );
+	const { state, submit, reset, adopted, threatsRefused } = useRestore(
+		rewindId,
+		gate.status === 'ready'
+	);
+	// The only gate for a flagged backup, so Confirm waits for it. No Scan, an error or a timeout
+	// means no warning and a restore exactly as before.
+	const {
+		data: knownThreats = null,
+		refetch: refetchKnownThreats,
+		isLoading: checkingThreats,
+	} = useKnownThreats( rewindId, gate.status === 'ready' && isValidRewindId( rewindId ) );
+	// Ticked already when the backup details' own checkbox sent the reader here.
+	const [ acknowledged, setAcknowledged ] = useState(
+		() =>
+			( window.history.state as Record< string, unknown > | null )?.[ ACKNOWLEDGED_STATE_KEY ] ===
+			rewindId
+	);
+	const needsAcknowledgement = threatsRefused || ( knownThreats?.summary.flagged ?? 0 ) > 0;
+	const { data: backupsKnownThreats } = useBackupsKnownThreats( {
+		withCleanRewindId: true,
+		enabled: needsAcknowledgement,
+	} );
+	// A refusal means the screen's picture was stale: untick, and fetch the threats again.
+	useEffect( () => {
+		if ( threatsRefused ) {
+			setAcknowledged( false );
+			refetchKnownThreats();
+		}
+	}, [ threatsRefused, refetchKnownThreats ] );
+	const { ref: stepHeadingRef, arm: armStepFocus } = useStepFocus( state.phase );
+	const handleConfirm = useCallback( () => {
+		armStepFocus();
+		submit( items, needsAcknowledgement && acknowledged );
+	}, [ armStepFocus, submit, items, needsAcknowledgement, acknowledged ] );
+	// A new backup, opened from "Restore … backup instead": its warning (and the link that was
+	// focused) may be gone, so put focus on the heading and drop the old acknowledgement.
+	const headingNode = useRef< HTMLElement | null >( null );
+	const focusedRewindId = useRef( rewindId );
+	useEffect( () => {
+		if ( focusedRewindId.current === rewindId ) {
+			return;
+		}
+		focusedRewindId.current = rewindId;
+		setAcknowledged( false );
+		headingNode.current?.focus();
+	}, [ rewindId ] );
+	// Said once when the check that held Confirm back answers that the backup is clean. An
+	// unavailable check is not a clean one, so it says nothing.
+	const wasChecking = useRef( false );
+	useEffect( () => {
+		if ( checkingThreats ) {
+			wasChecking.current = true;
+		} else if ( wasChecking.current ) {
+			wasChecking.current = false;
+			if ( knownThreats?.summary.flagged === 0 ) {
+				announce( __( 'No known threats found in this backup.', 'jetpack-backup-pkg' ) );
+			}
+		}
+	}, [ checkingThreats, knownThreats ] );
+
+	// Focus stays on the checkbox; say that the restore it was blocking is open.
+	const handleAcknowledge = useCallback( ( next: boolean ) => {
+		setAcknowledged( next );
+		if ( next ) {
+			announce( __( 'You can now restore this backup.', 'jetpack-backup-pkg' ) );
+		}
+	}, [] );
+	const handleRetry = useCallback( () => {
+		armStepFocus();
+		reset();
+	}, [ armStepFocus, reset ] );
 	// An empty checklist would restore *everything* rather than nothing —
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
 	const hasSelection = hasSelectedItems( items );
+	const awaitingAcknowledgement = needsAcknowledgement && ! acknowledged;
+	let confirmHint = '';
+	if ( ! hasSelection ) {
+		confirmHint = __( 'Select at least one item to restore.', 'jetpack-backup-pkg' );
+	} else if ( checkingThreats ) {
+		confirmHint = __( 'Checking this backup for known threats…', 'jetpack-backup-pkg' );
+	} else if ( awaitingAcknowledgement ) {
+		confirmHint = __(
+			'To restore this backup, confirm that you understand it contains known threats.',
+			'jetpack-backup-pkg'
+		);
+	}
+
+	const lostTrack = __(
+		"We've lost track of this restore. It may still be running — you'll get an email when it finishes.",
+		'jetpack-backup-pkg'
+	);
+	useEffect( () => {
+		if ( state.phase === 'lost-track' ) {
+			speak( lostTrack, 'polite' );
+		}
+	}, [ state.phase, lostTrack ] );
 
 	// When the restore on screen was already running before this screen
 	// opened, the heading has to name *its* backup. It need not be the one
@@ -82,17 +193,19 @@ export default function RestoreScreen() {
 	const restorePoint = rewindIdToIso( shownRewindId );
 	const titles = {
 		checking: __( 'Checking for a restore in progress…', 'jetpack-backup-pkg' ),
+		queued: __( 'Your restore is queued and will begin automatically.', 'jetpack-backup-pkg' ),
 		progress: __( 'Restoring from backup…', 'jetpack-backup-pkg' ),
 		success: __( 'Restore complete.', 'jetpack-backup-pkg' ),
 		'success-with-errors': __( 'Restore finished with errors', 'jetpack-backup-pkg' ),
 	};
 	const announcement = titles[ state.phase as keyof typeof titles ] ?? '';
+	const isFormStep = state.phase === 'idle' || state.phase === 'checking';
 
 	return (
 		<DashboardLayout>
 			<div className="jpb-restore">
 				<Link to="/" className="jpb-restore__back">
-					<Icon icon={ arrowLeft } size={ 18 } />
+					<Icon icon={ isRTL() ? arrowRight : arrowLeft } size={ 18 } />
 					{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
 				</Link>
 				<Card.Root className="jpb-restore__card">
@@ -100,12 +213,25 @@ export default function RestoreScreen() {
 						<Stack direction="row" gap="sm" align="center">
 							<Icon icon={ backupIcon } />
 							<Stack direction="column" gap="xs">
-								<Text variant="body-lg" render={ <h2 /> }>
+								<Text
+									variant="body-lg"
+									render={ <h2 /> }
+									ref={ ( node: HTMLElement | null ) => {
+										headingNode.current = node;
+										if ( isFormStep ) {
+											stepHeadingRef( node );
+										}
+									} }
+									tabIndex={ -1 }
+								>
 									{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
 								</Text>
 								<Text variant="body-md" className="jpb-text-muted">
-									{ __( 'Restore point:', 'jetpack-backup-pkg' ) }{ ' ' }
-									{ dateI18n( 'M j, Y, g:i A', restorePoint, undefined ) }
+									{ sprintf(
+										/* translators: %s: date and time of the backup. */
+										__( 'Restore point: %s', 'jetpack-backup-pkg' ),
+										formatDateTime( restorePoint )
+									) }
 								</Text>
 							</Stack>
 						</Stack>
@@ -135,10 +261,23 @@ export default function RestoreScreen() {
 										) }
 									</Notice.Description>
 								</Notice.Root>
-								<Text className="jpb-text-muted jpb-restore__label">
-									{ __( 'Choose the items you wish to restore:', 'jetpack-backup-pkg' ) }
-								</Text>
-								<RestoreItemsChecklist value={ items } onChange={ setItems } />
+								<RestoreItemsChecklist
+									legend={ __( 'Choose the items you wish to restore:', 'jetpack-backup-pkg' ) }
+									legendClassName="jpb-restore__label"
+									value={ items }
+									onChange={ setItems }
+								/>
+								{ needsAcknowledgement && (
+									<KnownThreatsWarning
+										threats={ knownThreats }
+										acknowledged={ acknowledged }
+										onAcknowledge={ handleAcknowledge }
+										restoreInsteadPeriod={ backupsKnownThreats?.latest_without_known_threats }
+										restoreInsteadRewindId={
+											backupsKnownThreats?.latest_without_known_threats_rewind_id
+										}
+									/>
+								) }
 								{ /*
 								 * The live region is mounted unconditionally and only its text
 								 * changes. A region that appears together with its first message
@@ -160,16 +299,19 @@ export default function RestoreScreen() {
 									id={ SELECTION_HINT_ID }
 									variant="body-sm"
 									role="status"
-									className={ hasSelection ? 'jpb-visually-hidden' : undefined }
+									className={ confirmHint ? undefined : 'jpb-visually-hidden' }
 								>
-									{ hasSelection
-										? ''
-										: __( 'Select at least one item to restore.', 'jetpack-backup-pkg' ) }
+									{ confirmHint }
 								</Text>
 								<Button
 									className="jpb-restore__confirm"
 									variant="solid"
-									disabled={ ! hasSelection || state.phase === 'submitting' }
+									disabled={
+										! hasSelection ||
+										checkingThreats ||
+										awaitingAcknowledgement ||
+										state.phase === 'submitting'
+									}
 									aria-describedby={ SELECTION_HINT_ID }
 									onClick={ handleConfirm }
 								>
@@ -194,12 +336,13 @@ export default function RestoreScreen() {
 									className="jpb-restore__bar"
 									aria-label={ __( 'Waiting for your restore to begin', 'jetpack-backup-pkg' ) }
 								/>
-								<EmptyState.Title className="jpb-restore__status-title">
+								<EmptyState.Title
+									className="jpb-restore__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
-										{ __(
-											'Your restore is queued and will begin automatically.',
-											'jetpack-backup-pkg'
-										) }
+										{ titles.queued }
 									</Text>
 								</EmptyState.Title>
 							</EmptyState.Root>
@@ -218,7 +361,11 @@ export default function RestoreScreen() {
 								 * Scoped to the title, not the block: the percentage and message
 								 * below change on every 5s poll and would re-announce with it.
 								 */ }
-								<EmptyState.Title className="jpb-restore__status-title">
+								<EmptyState.Title
+									className="jpb-restore__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
 										{ titles.progress }
 									</Text>
@@ -238,6 +385,11 @@ export default function RestoreScreen() {
 								 */ }
 								{ state.message && (
 									<EmptyState.Description>{ state.message }</EmptyState.Description>
+								) }
+								{ state.reconnecting && (
+									<EmptyState.Description>
+										{ __( 'Reconnecting…', 'jetpack-backup-pkg' ) }
+									</EmptyState.Description>
 								) }
 							</EmptyState.Root>
 						) }
@@ -261,7 +413,7 @@ export default function RestoreScreen() {
 													"A restore of your %s backup is already running. You can't start another from here until it finishes.",
 													'jetpack-backup-pkg'
 												),
-												dateI18n( 'M j, Y', restorePoint, undefined )
+												formatDate( restorePoint )
 											)
 										: __(
 												"A restore is already running for this site. You can't start another from here until it finishes.",
@@ -278,15 +430,19 @@ export default function RestoreScreen() {
 										icon={ check }
 									/>
 								</EmptyState.Visual>
-								<EmptyState.Title className="jpb-restore__status-title">
+								<EmptyState.Title
+									className="jpb-restore__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
 										{ titles.success }
 									</Text>
 								</EmptyState.Title>
 								<EmptyState.Actions>
-									<LinkButton variant="solid" render={ <Link to="/" /> }>
+									<ButtonLink variant="solid" render={ <Link to="/" /> }>
 										{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
-									</LinkButton>
+									</ButtonLink>
 								</EmptyState.Actions>
 							</EmptyState.Root>
 						) }
@@ -304,7 +460,11 @@ export default function RestoreScreen() {
 										icon={ caution }
 									/>
 								</EmptyState.Visual>
-								<EmptyState.Title className="jpb-restore__status-title">
+								<EmptyState.Title
+									className="jpb-restore__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
 										{ titles[ 'success-with-errors' ] }
 									</Text>
@@ -314,10 +474,19 @@ export default function RestoreScreen() {
 										__( 'Some items could not be restored.', 'jetpack-backup-pkg' ) }
 								</EmptyState.Description>
 								<ErrorReference { ...state.reference } />
+								<ExternalLink
+									openInNewTab
+									href={ getRedirectUrl(
+										'jetpack-restore-troubleshooting',
+										siteSuffix ? { site: siteSuffix } : {}
+									) }
+								>
+									{ __( 'Learn more', 'jetpack-backup-pkg' ) }
+								</ExternalLink>
 								<EmptyState.Actions>
-									<LinkButton variant="solid" render={ <Link to="/" /> }>
+									<ButtonLink variant="solid" render={ <Link to="/" /> }>
 										{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
-									</LinkButton>
+									</ButtonLink>
 								</EmptyState.Actions>
 							</EmptyState.Root>
 						) }
@@ -333,7 +502,7 @@ export default function RestoreScreen() {
 						{ state.phase === 'unconfirmed' && (
 							<Stack direction="column" gap="sm">
 								<Notice.Root intent="warning">
-									<Notice.Description>
+									<Notice.Description ref={ stepHeadingRef } tabIndex={ -1 }>
 										{ __(
 											"We didn't hear back from WordPress.com. Checking whether your restore started…",
 											'jetpack-backup-pkg'
@@ -367,11 +536,8 @@ export default function RestoreScreen() {
 						{ state.phase === 'lost-track' && (
 							<Stack direction="column" gap="sm">
 								<Notice.Root intent="warning">
-									<Notice.Description>
-										{ __(
-											"We've lost track of this restore. It may still be running — you'll get an email when it finishes.",
-											'jetpack-backup-pkg'
-										) }
+									<Notice.Description ref={ stepHeadingRef } tabIndex={ -1 }>
+										{ lostTrack }
 									</Notice.Description>
 								</Notice.Root>
 								{ state.detail && (
@@ -396,7 +562,11 @@ export default function RestoreScreen() {
 										icon={ errorIcon }
 									/>
 								</EmptyState.Visual>
-								<EmptyState.Title className="jpb-restore__status-title">
+								<EmptyState.Title
+									className="jpb-restore__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
 										{ __( 'Restore failed', 'jetpack-backup-pkg' ) }
 									</Text>
@@ -404,7 +574,7 @@ export default function RestoreScreen() {
 								<EmptyState.Description>{ state.message }</EmptyState.Description>
 								<ErrorReference { ...state.reference } />
 								<EmptyState.Actions>
-									<Button variant="solid" onClick={ reset }>
+									<Button variant="solid" onClick={ handleRetry }>
 										{ __( 'Try again', 'jetpack-backup-pkg' ) }
 									</Button>
 								</EmptyState.Actions>

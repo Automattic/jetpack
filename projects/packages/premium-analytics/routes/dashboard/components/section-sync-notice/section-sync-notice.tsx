@@ -2,7 +2,9 @@
  * External dependencies
  */
 import { Notice } from '@jetpack-premium-analytics/externals';
+import { speak } from '@wordpress/a11y';
 import { __, sprintf } from '@wordpress/i18n';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -45,22 +47,39 @@ export function SectionSyncNotice( {
 		'Something went wrong while syncing your store data, so the numbers below are incomplete.',
 		'jetpack-premium-analytics-pkg'
 	);
-	if ( ! canRunSync ) {
-		const pendingMessage = __(
-			"Your store data hasn't finished syncing, so the numbers below are incomplete. It finishes once a site administrator opens this page.",
-			'jetpack-premium-analytics-pkg'
-		);
+	const pendingMessage = __(
+		"Your store data hasn't finished syncing, so the numbers below are incomplete. It finishes once a site administrator opens this page.",
+		'jetpack-premium-analytics-pkg'
+	);
 
+	// A retry clears the error before it settles, so reading `hasError` alone would
+	// drop the failure layout mid-click and flip the announcement back and forth.
+	const showError = hasError || isRetrying;
+
+	/*
+	 * Announce only status changes: the percentage updates every poll, and
+	 * repeating the full sentence that often would overwhelm screen readers.
+	 */
+	let announcement: string = syncingMessage;
+	let politeness: 'polite' | 'assertive' = 'polite';
+	if ( ! canRunSync ) {
+		announcement = pendingMessage;
+	} else if ( showError ) {
+		announcement = errorMessage;
+		politeness = 'assertive';
+	}
+	useEffect( () => {
+		speak( announcement, politeness );
+	}, [ announcement, politeness ] );
+
+	if ( ! canRunSync ) {
 		return (
-			<Notice.Root intent="info" spokenMessage={ pendingMessage } className={ styles.notice }>
+			<Notice.Root intent="info" className={ styles.notice }>
 				<Notice.Description>{ pendingMessage }</Notice.Description>
 			</Notice.Root>
 		);
 	}
 
-	// A retry clears the error before it settles, so reading `hasError` alone would
-	// drop the failure layout mid-click and flip the announcement back and forth.
-	const showError = hasError || isRetrying;
 	let message: string = syncingMessage;
 
 	if ( showError ) {
@@ -79,15 +98,7 @@ export function SectionSyncNotice( {
 	}
 
 	return (
-		/*
-		 * Announce only status changes: the percentage updates every poll, and
-		 * repeating the full sentence that often would overwhelm screen readers.
-		 */
-		<Notice.Root
-			intent={ showError ? 'error' : 'info' }
-			spokenMessage={ showError ? errorMessage : syncingMessage }
-			className={ styles.notice }
-		>
+		<Notice.Root intent={ showError ? 'error' : 'info' } className={ styles.notice }>
 			<Notice.Description>{ message }</Notice.Description>
 
 			{ showError && (

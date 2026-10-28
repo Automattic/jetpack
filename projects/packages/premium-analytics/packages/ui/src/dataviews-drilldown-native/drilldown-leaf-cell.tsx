@@ -24,14 +24,10 @@ export interface DrilldownLeafCellProps {
 }
 
 /**
- * Title-field cell shell for a drilldown leaf row.
- *
- * DataViews styles every title-field cell as a medium-weight neutral title,
- * but in a drilldown table only group parent rows are titles. Field renders
- * return group rows bare (so the native title styling applies) and wrap leaf
- * rows in this shell, which opts back out to body weight and restores the
- * link treatment DataViews' title styling suppresses. The link itself is
- * composed by the consumer — an external `Link` or an internal router link.
+ * Title-field cell shell for a drilldown leaf row: announces the row's group
+ * and restores the link treatment DataViews' title styling suppresses. The
+ * link itself is composed by the consumer — an external `Link` or an internal
+ * router link.
  */
 export function DrilldownLeafCell( { groupLabel, children }: DrilldownLeafCellProps ) {
 	return (

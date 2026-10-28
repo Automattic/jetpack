@@ -20,6 +20,7 @@ export {
 	authorPostsCsvExporter,
 	authorsCsvExporter,
 	getAuthorName,
+	getAuthorPostsQueryParams,
 	getAuthorsReportQueryParams,
 	type AuthorRow,
 } from './authors';
@@ -40,6 +41,7 @@ export {
 	getLocationColumnLabel,
 	getLocationsReportQueryParams,
 	getLocationsReportSection,
+	getLocationsSectionLabel,
 	getLocationsScopeParams,
 	locationsCsvExporter,
 	supportsLocationsCountryFilter,
@@ -50,7 +52,6 @@ export {
 export {
 	aggregateUtmRows,
 	getUtmDimensionLabel,
-	getUtmDimensionOptions,
 	getUtmReportQueryParams,
 	getUtmReportSection,
 	utmCsvExporters,

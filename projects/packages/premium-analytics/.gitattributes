@@ -7,6 +7,7 @@
 # Remember to end all directories with `/**` to properly tag every file.
 /build/**/*.map   production-exclude
 routes/**         production-exclude
+bin/**            production-exclude
 packages/**       production-exclude
 shims/**          production-exclude
 types/**          production-exclude

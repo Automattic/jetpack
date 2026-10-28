@@ -85,7 +85,7 @@ function AuthorsReport(): JSX.Element {
 				/>
 			}
 		>
-			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters } withAllTime>
 				<ReportErrorState
 					status={ records }
 					retryDescription={ __(

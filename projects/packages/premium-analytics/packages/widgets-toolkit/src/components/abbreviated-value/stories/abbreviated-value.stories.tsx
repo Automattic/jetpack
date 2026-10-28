@@ -29,14 +29,13 @@ export const Plain = {
 };
 
 /**
- * `restored` names the unit the figure leaves out, and keeps the tooltip on a
- * figure that was never shortened.
+ * `formatRestored` adds the unit to the exact figure in the tooltip.
  */
 export const Labelled = {
 	args: {
-		value: 432,
+		value: 18432,
 		dataFormat: { type: 'number', options: { useMultipliers: true } },
-		restored: '432 opens',
+		formatRestored: ( exact: string ) => `${ exact } opens`,
 	},
 };
 

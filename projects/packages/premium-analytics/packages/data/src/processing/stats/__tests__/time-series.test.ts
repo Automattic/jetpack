@@ -83,32 +83,63 @@ describe( 'Stats time-series normalizer', () => {
 		);
 	} );
 
-	it( 'stamps weeks the requested range cuts through with the range edges', () => {
-		const result = sanitizeStatsTimeSeriesResponse(
-			{
-				unit: 'week',
-				fields: [ 'period', 'views' ],
-				data: [
-					[ '2025W12W29', 3 ],
-					[ '2026W01W05', 4 ],
-					[ '2026W10W05', 5 ],
-				],
-			},
-			{ start_date: '2026-01-01T00:00:00.000+01:00', date: '2026-10-07T23:59:59.999+02:00' }
-		);
+	it.each( [
+		[
+			'week',
+			[ '2025W12W29', '2026W01W05', '2026W10W05' ],
+			'2026-01-01',
+			'2026-10-07',
+			[
+				[ '2026-01-01T00:00:00', '2026-01-04T23:59:59' ],
+				[ '2026-01-05T00:00:00', '2026-01-11T23:59:59' ],
+				[ '2026-10-05T00:00:00', '2026-10-07T23:59:59' ],
+			],
+		],
+		[
+			'month',
+			[ '2025-04-01', '2025-05-01', '2026-07-01' ],
+			'2025-04-11',
+			'2026-07-23',
+			[
+				[ '2025-04-11T00:00:00', '2025-04-30T23:59:59' ],
+				[ '2025-05-01T00:00:00', '2025-05-31T23:59:59' ],
+				[ '2026-07-01T00:00:00', '2026-07-23T23:59:59' ],
+			],
+		],
+		[
+			'year',
+			[ '2022-01-01', '2023-01-01', '2026-01-01' ],
+			'2022-06-15',
+			'2026-10-07',
+			[
+				[ '2022-06-15T00:00:00', '2022-12-31T23:59:59' ],
+				[ '2023-01-01T00:00:00', '2023-12-31T23:59:59' ],
+				[ '2026-01-01T00:00:00', '2026-10-07T23:59:59' ],
+			],
+		],
+	] )(
+		'stamps %s buckets the requested range cuts through with the range edges',
+		( unit, periods, from, to, expected ) => {
+			const result = sanitizeStatsTimeSeriesResponse(
+				{
+					unit,
+					fields: [ 'period', 'views' ],
+					data: periods.map( ( period, index ) => [ period, index + 3 ] ),
+				},
+				{ start_date: `${ from }T00:00:00.000+01:00`, date: `${ to }T23:59:59.999+02:00` }
+			);
 
-		expect( result.data.map( ( { date_start, date_end } ) => [ date_start, date_end ] ) ).toEqual( [
-			[ '2026-01-01T00:00:00', '2026-01-04T23:59:59' ],
-			[ '2026-01-05T00:00:00', '2026-01-11T23:59:59' ],
-			[ '2026-10-05T00:00:00', '2026-10-07T23:59:59' ],
-		] );
-		expect( result.summary ).toEqual(
-			expect.objectContaining( {
-				date_start: '2026-01-01T00:00:00',
-				date_end: '2026-10-07T23:59:59',
-			} )
-		);
-	} );
+			expect( result.data.map( ( { date_start, date_end } ) => [ date_start, date_end ] ) ).toEqual(
+				expected
+			);
+			expect( result.summary ).toEqual(
+				expect.objectContaining( {
+					date_start: `${ from }T00:00:00`,
+					date_end: `${ to }T23:59:59`,
+				} )
+			);
+		}
+	);
 
 	it( 'falls back to raw period strings for invalid ISO weeks', () => {
 		expect( sanitizeStatsTimeSeriesResponse( invalidWeekSubscribersFixture ).data[ 0 ] ).toEqual(
@@ -478,6 +509,89 @@ describe( 'Stats time-series normalizer', () => {
 				date_end: '2026-06-15T23:59:59',
 			} )
 		);
+	} );
+
+	// WP.com labels each UTC hour of the range in the one offset the request's `date` states.
+	const fixedOffsetLabels = ( firstUtcHour: string, count: number, offsetHours: number ) =>
+		Array.from( { length: count }, ( _, i ) =>
+			new Date( Date.parse( firstUtcHour ) + ( i + offsetHours ) * 3600000 )
+				.toISOString()
+				.slice( 0, 19 )
+				.replace( 'T', ' ' )
+		);
+	const hoursOf = ( day: string, hours: number[] ) =>
+		hours.map( hour => `${ day } ${ String( hour ).padStart( 2, '0' ) }:00` );
+	const allHours = Array.from( { length: 24 }, ( _, hour ) => hour );
+
+	it.each( [
+		{
+			name: 'fall-back',
+			query: { start_date: '2025-11-02T00:00:00.000-04:00', date: '2025-11-02T23:59:59.999-05:00' },
+			utcOffset: '-05:00',
+			labels: fixedOffsetLabels( '2025-11-02T04:00:00Z', 25, -5 ),
+			expected: hoursOf( '2025-11-02', allHours ),
+			// The EDT and EST 01:00 rows, merged.
+			oneAmViews: 2 + 3,
+		},
+		{
+			name: 'spring-forward',
+			query: { start_date: '2026-03-08T00:00:00.000-05:00', date: '2026-03-08T23:59:59.999-04:00' },
+			utcOffset: '-04:00',
+			labels: fixedOffsetLabels( '2026-03-08T05:00:00Z', 23, -4 ),
+			expected: hoursOf(
+				'2026-03-08',
+				allHours.filter( hour => hour !== 2 )
+			),
+			oneAmViews: 2,
+		},
+		{
+			name: 'half-hour zone',
+			zone: 'America/St_Johns',
+			query: { start_date: '2025-11-10T00:00:00.000-03:30', date: '2025-11-10T23:59:59.999-03:30' },
+			// WP.com truncates the request's -03:30 to whole hours.
+			utcOffset: '-03:00',
+			labels: fixedOffsetLabels( '2025-11-10T04:00:00Z', 24, -3 ),
+			expected: hoursOf( '2025-11-10', allHours ),
+			oneAmViews: 2,
+		},
+	] )(
+		'reads offset-requested hourly labels back into the site zone on a $name day',
+		( { zone = 'America/New_York', query, utcOffset, labels, expected, oneAmViews } ) => {
+			const result = sanitizeStatsTimeSeriesResponse(
+				{
+					unit: 'hour',
+					utc_offset: utcOffset,
+					fields: [ 'period', 'views' ],
+					data: labels.map( ( label, i ) => [ label, i + 1 ] ),
+				},
+				{ ...query, timezone: zone }
+			);
+
+			expect( result.data.map( row => row.time_interval ) ).toEqual( expected );
+			expect( result.data[ 1 ].views ).toBe( oneAmViews );
+			expect( result.summary.views ).toBe( ( labels.length * ( labels.length + 1 ) ) / 2 );
+		}
+	);
+
+	it( 'keeps hourly labels as sent when the request states no offset, merging the repeated hour', () => {
+		const labels = hoursOf( '2025-11-02', [ 0, 1, 1, ...allHours.slice( 2 ) ] ).map(
+			label => `${ label }:00`
+		);
+		const result = sanitizeStatsTimeSeriesResponse(
+			{
+				unit: 'hour',
+				// Today's offset, which says nothing about the labels' own.
+				utc_offset: '-04:00',
+				fields: [ 'period', 'views' ],
+				data: labels.map( ( label, i ) => [ label, i + 1 ] ),
+			},
+			{ start_date: '2025-11-02', date: '2025-11-02', timezone: 'America/New_York' }
+		);
+
+		expect( result.data.map( row => row.time_interval ) ).toEqual(
+			hoursOf( '2025-11-02', allHours )
+		);
+		expect( result.data[ 1 ].views ).toBe( 2 + 3 );
 	} );
 
 	// The shape `stats/subscribers` returns.

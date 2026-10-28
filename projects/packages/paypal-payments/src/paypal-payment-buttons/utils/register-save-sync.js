@@ -150,10 +150,10 @@ export function registerSaveSync( isEnabled ) {
 			// Set before the `changed` check: a PUT can change the payment and leave the block as
 			// it is. The create message replaces a pending update message, and stays until shown.
 			if ( saved.includes( true ) ) {
-				savedMessage = __( 'Payment link successfully created.', 'jetpack-paypal-payments' );
+				savedMessage = __( 'Payment button successfully created.', 'jetpack-paypal-payments' );
 				updatedEnvironment = null;
 			} else if ( saved.length && ! savedMessage ) {
-				savedMessage = __( 'Payment link changes saved.', 'jetpack-paypal-payments' );
+				savedMessage = __( 'Payment button changes saved.', 'jetpack-paypal-payments' );
 				updatedEnvironment = connection.environment;
 			}
 

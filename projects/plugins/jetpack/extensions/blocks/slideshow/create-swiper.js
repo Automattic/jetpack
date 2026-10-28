@@ -6,6 +6,9 @@ export default async function createSwiper(
 	callbacks = {}
 ) {
 	const defaultParams = {
+		a11y: {
+			slideRole: 'listitem', // Slides are <li> elements; Swiper's default 'group' role breaks the list.
+		},
 		effect: 'slide',
 		grabCursor: true,
 		init: true,

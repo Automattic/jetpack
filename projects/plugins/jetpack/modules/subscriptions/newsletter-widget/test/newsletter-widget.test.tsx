@@ -2,6 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { render, screen } from '@testing-library/react';
 import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import { NewsletterWidget, NewsletterWidgetProps } from '../src/components/newsletter-widget';
+import { TRACKS_EVENT_NAME_PREFIX } from '../src/constants';
 
 // The analytics destination is resolved from script data, which wp-admin prints
 // and this test does not. Mock it: the URL grammar is covered where the helper
@@ -34,6 +35,13 @@ jest.mock( '@wordpress/icons', () => ( {
 	payment: 'payment-icon-mock',
 } ) );
 
+const mockRecordEvent = jest.fn();
+const mockTracks = { recordEvent: mockRecordEvent };
+
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+	useAnalytics: () => ( { tracks: mockTracks } ),
+} ) );
+
 describe( 'NewsletterWidget', () => {
 	const defaultProps: NewsletterWidgetProps = {
 		site: 'example.com',
@@ -55,8 +63,18 @@ describe( 'NewsletterWidget', () => {
 	};
 
 	beforeEach( () => {
+		mockRecordEvent.mockClear();
 		jest.mocked( hasAnalyticsDashboard ).mockReturnValue( true );
 		jest.mocked( getAnalyticsUrl ).mockReturnValue( ANALYTICS_URL );
+	} );
+
+	it( 'records the widget view once when several links render', () => {
+		render( <NewsletterWidget { ...defaultProps } /> );
+
+		const viewCalls = mockRecordEvent.mock.calls.filter(
+			( [ eventName ] ) => eventName === `${ TRACKS_EVENT_NAME_PREFIX }_view`
+		);
+		expect( viewCalls ).toHaveLength( 1 );
 	} );
 
 	it( 'renders', () => {

@@ -114,7 +114,7 @@ describe( 'AdvancedCard', () => {
 		expandCard();
 
 		// `Initializer::init()` registers `Llms_Txt`/`Ai_Crawlers` behind `! is_gated()`
-		// and the AI tab is hidden from gated sites, so claiming these stop would
+		// and the GEO tab is hidden from gated sites, so claiming these stop would
 		// promise the end of something the site never had. Everything else still applies.
 		expect( screen.queryByText( /llms\.txt file stops being served/ ) ).not.toBeInTheDocument();
 		expect(

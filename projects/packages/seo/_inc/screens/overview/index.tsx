@@ -2,13 +2,13 @@
 
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice, Stack } from '@wordpress/ui';
-import EnableSeoCard from '../../components/enable-seo-card';
 import UpsellBanner from '../../components/upsell-banner';
-import { aiStore } from '../../data/ai-store';
+import { ROUTE_BY_TAB } from '../../dashboard/dashboard-nav';
 import { coverageStore } from '../../data/coverage-store';
+import { geoStore } from '../../data/geo-store';
 import getOverview from '../../data/get-overview';
 import { isGated } from '../../data/is-gated';
 import { settingsStore } from '../../data/settings-store';
@@ -34,33 +34,34 @@ const OverviewScreen: FC = () => {
 	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
 
 	// AI-crawler state lives in the same store the GEO tab uses (seeded from the
-	// page's `ai` preload), so the Overview reads it directly rather than adding a
+	// page's `geo` preload), so the Overview reads it directly rather than adding a
 	// crawler slice to the Overview payload.
-	const crawlers = useSelect( select => select( aiStore ).getCrawlers(), [] );
+	const crawlers = useSelect( select => select( geoStore ).getCrawlers(), [] );
 
-	const llmsTxt = useSelect( select => select( aiStore ).getLlmsTxt(), [] );
+	const llmsTxt = useSelect( select => select( geoStore ).getLlmsTxt(), [] );
 
 	// Deep-link to a Settings section: navigate to the Settings route with
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
 	const goToSection = useCallback(
 		( section: 'visibility' | 'verification' ) =>
-			navigate( { href: `/settings?focus=${ encodeURIComponent( section ) }` } ),
+			navigate( { href: `${ ROUTE_BY_TAB.settings }?focus=${ encodeURIComponent( section ) }` } ),
 		[ navigate ]
 	);
 
 	// Deep-link to the Content route.
-	const goToContent = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
+	const goToContent = useCallback( () => navigate( { href: ROUTE_BY_TAB.content } ), [ navigate ] );
 
 	// Deep-link to the Content route filtered to the rows still missing a field
 	// (`?needs=`, read by the Content screen). Clicking a coverage ring lands the
 	// user on exactly the content there's an action to take on.
 	const goToContentNeeds = useCallback(
-		( need: ContentNeed ) => navigate( { href: `/content?needs=${ encodeURIComponent( need ) }` } ),
+		( need: ContentNeed ) =>
+			navigate( { href: `${ ROUTE_BY_TAB.content }?needs=${ encodeURIComponent( need ) }` } ),
 		[ navigate ]
 	);
 
 	// Deep-link to the GEO route.
-	const goToAi = useCallback( () => navigate( { href: '/ai' } ), [ navigate ] );
+	const goToGeo = useCallback( () => navigate( { href: ROUTE_BY_TAB.geo } ), [ navigate ] );
 
 	if ( ! data ) {
 		return (
@@ -105,27 +106,24 @@ const OverviewScreen: FC = () => {
 		);
 	}
 
-	// When the `seo-tools` module is off, the Overview shows only the enable
-	// affordance — the cards have nothing to act on until SEO tools are turned on,
-	// and the Settings surface isn't registered server-side yet. See
-	// `useSeoToolsToggle` and `Initializer::init()`.
-	if ( ! data.site_visibility.seo_tools_active ) {
-		return (
-			<div className={ styles.root }>
-				<EnableSeoCard />
-			</div>
-		);
-	}
-
 	return (
 		<div className={ styles.root }>
 			{ ! data.plan.seo_enabled_for_site && (
-				<Notice.Root intent="warning">
+				<Notice.Root intent="warning" className={ styles.notice }>
 					<Notice.Description>
-						{ __(
-							'SEO tools are not enabled on this site. Some cards reflect the underlying WordPress options only.',
-							'jetpack-seo'
-						) }
+						{ data.conflicting_seo_plugin
+							? sprintf(
+									/* translators: %s: name of the SEO plugin that controls the site's SEO output, e.g. Yoast SEO. */
+									__(
+										'%s is managing your SEO titles and descriptions, so Jetpack’s are turned off.',
+										'jetpack-seo'
+									),
+									data.conflicting_seo_plugin
+								)
+							: __(
+									'SEO tools are not enabled on this site. Some cards reflect the underlying WordPress options only.',
+									'jetpack-seo'
+								) }
 					</Notice.Description>
 				</Notice.Root>
 			) }
@@ -146,7 +144,7 @@ const OverviewScreen: FC = () => {
 							settings?.search_engines_visible ?? crawlers.searchEnginesVisible
 						}
 						llmsTxt={ llmsTxt }
-						onManage={ goToAi }
+						onManage={ goToGeo }
 					/>
 				) }
 			</div>

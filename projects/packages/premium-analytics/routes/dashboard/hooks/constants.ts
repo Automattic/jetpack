@@ -15,5 +15,8 @@ export const DASHBOARD_GRID_SETTINGS_KEY = 'dashboardGridSettings';
 /** Preferences key holding when the reader completed or dismissed the onboarding, as an ISO date. */
 export const DASHBOARD_ONBOARDING_KEY = 'onboardingCompletedAt';
 
+/** Preferences key holding when the reader was shown the WooCommerce tab onboarding, as an ISO date. */
+export const DASHBOARD_STORE_ONBOARDING_KEY = 'storeOnboardingCompletedAt';
+
 /** Preferences key holding when the reader closed the feedback banner, as an ISO date. */
 export const DASHBOARD_FEEDBACK_BANNER_KEY = 'feedbackBannerClosedAt';

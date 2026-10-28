@@ -266,7 +266,7 @@ describe( 'what the popover says', () => {
 		const link = await screen.findByRole( 'link', { name: /reducing the backup size/ } );
 		expect( link ).toHaveAttribute(
 			'href',
-			'https://jetpack.com/support/backup/jetpack-vaultpress-backup-storage-and-retention/#reduce-storage-size'
+			'https://jetpack.com/redirect/?source=jetpack-backup-storage-reduce&site=example.wordpress.com'
 		);
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );

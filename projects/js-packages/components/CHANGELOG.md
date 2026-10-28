@@ -2,6 +2,51 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [6.0.0] - 2026-10-26
+### Added
+- AdminPage: Add an ariaLabel prop that names the page region when the header shows breadcrumbs instead of a title. [#54055]
+- AdminPage: Add a page action button that shows only its icon on screens 480px wide or narrower. [#53921]
+- JetpackFooter: Add an entry without the stylesheet, and export the stylesheet on its own, so script-module builds can bundle the footer. [#53971]
+- Support React 19. [#53882]
+
+### Changed
+- TermsOfService: Render with Text from @wordpress/ui. The `variant` prop now takes a @wordpress/ui Text variant, and the legacy Text spacing and `component` props are removed. [#53892]
+- Update package dependencies. [#53951]
+
+### Removed
+- Remove the `NumberControl` component. Use `InputControl` from `@wordpress/ui` instead. [#54046]
+
+### Fixed
+- AdminPage: Stop clearing the shared REST API nonce and root when a page doesn't pass them. [#53397]
+
+## [5.0.1] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [5.0.0] - 2026-10-19
+### Added
+- Add a CheckboxCard component. [#53733]
+- AdminPage: Add a `globalControls` slot for Jetpack-wide controls, shown after the page actions in the header. [#53631]
+
+### Changed
+- Gravatar: Use the WordPress Design System neutral surface color token for the placeholder background. [#53800]
+- Update package dependencies. [#53806]
+
+### Removed
+- Remove ProgressBar component. Use Progress or Meter from @wordpress/ui instead. [#53801]
+
+## [4.0.4] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## [4.0.3] - 2026-10-14
+### Changed
+- Update dependencies.
+
+## [4.0.2] - 2026-10-12
+### Changed
+- Internal updates.
+
 ## [4.0.1] - 2026-10-06
 ### Changed
 - Jetpack Footer: Link to the My Jetpack Features tab instead of the retired Products tab. [#52778]
@@ -1991,6 +2036,12 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[6.0.0]: https://github.com/Automattic/jetpack-components/compare/5.0.1...6.0.0
+[5.0.1]: https://github.com/Automattic/jetpack-components/compare/5.0.0...5.0.1
+[5.0.0]: https://github.com/Automattic/jetpack-components/compare/4.0.4...5.0.0
+[4.0.4]: https://github.com/Automattic/jetpack-components/compare/4.0.3...4.0.4
+[4.0.3]: https://github.com/Automattic/jetpack-components/compare/4.0.2...4.0.3
+[4.0.2]: https://github.com/Automattic/jetpack-components/compare/4.0.1...4.0.2
 [4.0.1]: https://github.com/Automattic/jetpack-components/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/Automattic/jetpack-components/compare/3.3.0...4.0.0
 [3.3.0]: https://github.com/Automattic/jetpack-components/compare/3.2.0...3.3.0

@@ -18,7 +18,6 @@ import { withStoryRouter } from '../../stories/with-story-router';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import FileDownloadsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -29,7 +28,7 @@ registerStatsMocks();
 
 const FILE_DOWNLOADS_RENDER_MODULE = 'storybook/file-downloads';
 
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface FileDownloadsStoryControls {
 	withComparison: boolean;

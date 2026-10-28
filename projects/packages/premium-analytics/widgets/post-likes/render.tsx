@@ -3,7 +3,6 @@
  */
 import { useStatsPostLikes, toPostId } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
 	SubscriberListSkeleton,
@@ -19,8 +18,16 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { PostLikesAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * The Latest likes widget has no configurable attributes: it always lists the
+ * likers of the post the page is scoped to (via `reportParams.post_id`).
+ * `Record< never, never >` (not `Record< string, never >`) so the render-only
+ * type can compose host fields such as `reportParams` without collapsing them
+ * to `never`.
+ */
+export type PostLikesAttributes = Record< never, never >;
 
 type PostLikesRenderAttributes = PostLikesAttributes & Partial< ReportParamsFieldAttributes >;
 type PostLikesWidgetProps = WidgetRenderProps< PostLikesRenderAttributes >;
@@ -79,7 +86,6 @@ function PostLikesInner() {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description:
 						postId <= 0
 							? __(
@@ -95,6 +101,11 @@ function PostLikesInner() {
 	);
 }
 
+/**
+ * Ported from the Jetpack Stats post detail "Post likes" card: the scoped post's
+ * likers, most recent first, with an "N more" footer past the rows shown. The
+ * list is a lifetime roster and is not date-scoped.
+ */
 export default function PostLikes( { attributes = {} }: PostLikesWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

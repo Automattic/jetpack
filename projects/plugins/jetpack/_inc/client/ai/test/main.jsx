@@ -116,8 +116,8 @@ function mockApiFetch( { featureGet = enabledSettings(), mcpGet = {}, featurePos
 	} );
 }
 
-// The design-system Notice mirrors its text into a hidden wp.a11y.speak live
-// region, so a bare text query matches twice. Ignore that region.
+// The page notice mirrors its text into a hidden wp.a11y.speak live region,
+// so a bare text query matches twice. Ignore that region.
 const IGNORE_A11Y = { ignore: 'script, style, .a11y-speak-region' };
 
 // An MCP payload for a connected site with MCP enabled: account tools make
@@ -371,7 +371,9 @@ describe( 'AI admin page (main.jsx)', () => {
 			);
 			// One page-level notice — AiFeatures must not render a second copy.
 			expect( screen.getAllByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).toHaveLength( 1 );
-			expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
+			await expect(
+				screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+			).resolves.toBeDisabled();
 		} );
 
 		test( 'a host without My Jetpack is sent to the modules page instead', async () => {
@@ -695,7 +697,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			render( <App /> );
 
 			await expect(
-				screen.findByText( 'Jetpack AI is not available in offline mode.', IGNORE_A11Y )
+				screen.findByText( 'Jetpack AI is not available in Offline Mode.', IGNORE_A11Y )
 			).resolves.toBeInTheDocument();
 			expect(
 				screen.queryByText( 'This site is not connected to WordPress.com.', IGNORE_A11Y )
@@ -790,7 +792,10 @@ describe( 'AI admin page (main.jsx)', () => {
 			'href',
 			'admin.php?page=my-jetpack#/connection'
 		);
-		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
+		// The notice needs no fetch; the switches do, so wait for them.
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).resolves.toBeDisabled();
 	} );
 
 	test( 'save-confirmation: a successful AI-settings save shows a success snackbar', async () => {

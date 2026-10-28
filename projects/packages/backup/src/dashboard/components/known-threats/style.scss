@@ -1,0 +1,52 @@
+.jpb-known-threats {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+
+	&__panel {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-sm);
+		padding-block-start: var(--wpds-dimension-padding-xs);
+		// Sets the open list apart from the "Restore … instead" link below it.
+		padding-block-end: var(--wpds-dimension-gap-md);
+
+		p {
+			margin: 0;
+		}
+	}
+
+	// The decision the warning asks for, set apart from the link above it.
+	&__acknowledgement {
+		margin-block-start: var(--wpds-dimension-gap-sm);
+		padding-block-start: var(--wpds-dimension-padding-md);
+		border-block-start:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-warning);
+	}
+
+	// One threat per item, stacked, so long paths have the full width at any size.
+	&__list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-md);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	&__threat {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+		margin: 0;
+	}
+
+	&__name {
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+	}
+
+	&__where {
+		overflow-wrap: break-word;
+	}
+}

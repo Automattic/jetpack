@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Add an E2E test for Stats errors through the proxy and an expired nonce.
+

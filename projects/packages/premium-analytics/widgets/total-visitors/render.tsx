@@ -19,10 +19,15 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { TotalVisitorsAttributes } from './widget';
 import type { StatsVisitsParams, StatsVisitsResponse } from '@jetpack-premium-analytics/data';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
+
+/**
+ * Configurable attributes for the Total visitors widget. There are none: the
+ * metric is fixed and the date range comes from the dashboard picker.
+ */
+export type TotalVisitorsAttributes = Record< never, never >;
 
 // Report params are usually URL-driven (WidgetRoot's fallback), but the host
 // and Storybook may also pass them via `attributes`.

@@ -1,6 +1,7 @@
 const mockGetScriptData = jest.fn();
 const mockRecordEvent = jest.fn();
 const mockApiFetch = jest.fn();
+const mockIsWpcomPlatformSite = jest.fn();
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -18,6 +19,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: ( ...args: unknown[] ) => mockGetScriptData( ...args ),
 	getSiteData: () => ( { wpcom: { blog_id: 42 } } ),
 	getSiteType: () => 'jetpack',
+	isWpcomPlatformSite: () => mockIsWpcomPlatformSite(),
 } ) );
 
 jest.mock( '../../subscriber-stats-chart', () => ( {
@@ -53,6 +55,8 @@ beforeEach( () => {
 	mockGetScriptData.mockReset();
 	mockRecordEvent.mockReset();
 	mockApiFetch.mockReset();
+	mockIsWpcomPlatformSite.mockReset();
+	mockIsWpcomPlatformSite.mockReturnValue( false );
 	mockApiFetch.mockReturnValue( new Promise( () => {} ) );
 	window.localStorage.clear();
 	mockGetScriptData.mockReturnValue( {
@@ -65,17 +69,27 @@ beforeEach( () => {
 } );
 
 describe( 'OverviewBody', () => {
-	it( 'greets the current user and renders the introductory content', () => {
+	it( 'greets the current user and titles the intro card "Jetpack Newsletter" on self-hosted sites', () => {
 		renderOverview();
 
 		expect(
 			screen.getByRole( 'heading', { level: 2, name: 'Welcome, Ada Lovelace' } )
 		).toBeInTheDocument();
 		expect(
-			screen.getByRole( 'heading', { level: 3, name: 'Newsletters on WordPress.com' } )
+			screen.getByRole( 'heading', { level: 3, name: 'Jetpack Newsletter' } )
 		).toBeInTheDocument();
 		expect(
 			screen.getByText( /a newsletter lets people subscribe with their email address/i )
+		).toBeInTheDocument();
+	} );
+
+	it( 'names WordPress.com in the intro heading on WordPress.com sites', () => {
+		mockIsWpcomPlatformSite.mockReturnValue( true );
+
+		renderOverview();
+
+		expect(
+			screen.getByRole( 'heading', { level: 3, name: 'Jetpack Newsletter on WordPress.com' } )
 		).toBeInTheDocument();
 	} );
 

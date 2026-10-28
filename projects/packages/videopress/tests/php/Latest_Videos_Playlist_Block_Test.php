@@ -219,6 +219,52 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Browse controls and numbered pagination render around the requested page,
+	 * and an empty result keeps the controls.
+	 */
+	public function test_render_browse_controls_and_pagination() {
+		\Automattic\Jetpack\VideoPress\Channel_Data::reset();
+		$this->create_video( 'oldest01', '2024-01-01 10:00:00', 60000 );
+		$this->create_video( 'middle02', '2024-02-01 10:00:00', 120000 );
+		$this->create_video( 'newest03', '2024-03-01 10:00:00', 180000 );
+		$_GET = array(
+			'videos-sort' => 'oldest',
+			'videos-page' => '2',
+			'keep'        => 'me',
+		);
+
+		$markup = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array(
+				'count'              => 2,
+				'showPlayer'         => false,
+				'showBrowseControls' => true,
+				'pagination'         => 'numbered',
+			)
+		);
+
+		$this->assertStringContainsString( '<form class="videopress-video-browser" method="get"', $markup );
+		$this->assertStringContainsString( '<input type="hidden" name="keep" value="me" />', $markup );
+		$this->assertStringContainsString( 'class="videopress-video-browser__sort is-current" name="videos-sort" value="oldest" aria-pressed="true"', $markup );
+		$this->assertStringContainsString( '<p class="videopress-video-browser__summary">Showing 3–3 of 3 videos</p>', $markup );
+		$this->assertStringContainsString( 'data-guid="newest03"', $markup );
+		$this->assertStringNotContainsString( 'data-guid="oldest01"', $markup );
+		$this->assertStringContainsString( '<span class="videopress-video-browser__page videopress-video-browser__page--number is-current" aria-current="page">2</span>', $markup );
+		$this->assertStringContainsString( 'videopress-video-browser__page--next is-disabled', $markup );
+		$this->assertStringNotContainsString( 'videopress-playlist__entry-stats', $markup );
+
+		$_GET   = array( 'videos-length' => 'long' );
+		$markup = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array(
+				'count'              => 2,
+				'showBrowseControls' => true,
+			)
+		);
+		$this->assertStringContainsString( '<form class="videopress-video-browser"', $markup );
+		$this->assertStringContainsString( 'No videos match these filters.', $markup );
+		$_GET = array();
+	}
+
+	/**
 	 * The newest VideoPress videos come back first, capped at the count, with
 	 * only the numeric metadata; other attachments are ignored.
 	 */

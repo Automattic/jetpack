@@ -32,7 +32,8 @@ type BulkResponse = { state: MainFeaturesState; failed: BulkFailure[] };
  * @return Whether the feature can be switched in bulk.
  */
 export function isBulkSwitchable( state: FeatureState ): boolean {
-	if ( state.pending || state.isSwitching ) {
+	// A feature waiting for an account connects one from its own control, which a batch cannot do.
+	if ( state.pending || state.isSwitching || state.accountNeeded ) {
 		return false;
 	}
 

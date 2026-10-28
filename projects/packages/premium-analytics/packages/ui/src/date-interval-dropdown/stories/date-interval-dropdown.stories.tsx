@@ -11,9 +11,8 @@ const meta: Meta< typeof DateIntervalDropdown > = {
 		docs: {
 			description: {
 				component:
-					'The bucket size every chart on the page draws. The trigger is a glyph, so ' +
-					'the menu is the only place the choice can be inspected: a range with a ' +
-					'single allowed bucket still opens one, listing it checked.\n\n' +
+					'The bucket size every chart on the page draws. The trigger names the active ' +
+					'bucket; a range with a single allowed bucket shows it without a menu.\n\n' +
 					'The options are a prop, derived upstream from the active range — the ' +
 					'consumer passes `getAllowedIntervalsForPreset()` rather than a fixed list, ' +
 					'so the menu can never offer a bucket the range would coerce away.',
@@ -32,13 +31,16 @@ type Story = StoryObj< typeof DateIntervalDropdown >;
 function DateIntervalDropdownWithState( {
 	options,
 	initialValue,
+	...props
 }: {
 	options: readonly IntervalType[];
 	initialValue: IntervalType;
-} ) {
+} & Partial< Parameters< typeof DateIntervalDropdown >[ 0 ] > ) {
 	const [ value, setValue ] = useState< IntervalType >( initialValue );
 
-	return <DateIntervalDropdown options={ options } value={ value } onChange={ setValue } />;
+	return (
+		<DateIntervalDropdown { ...props } options={ options } value={ value } onChange={ setValue } />
+	);
 }
 
 /**
@@ -49,8 +51,7 @@ export const Default: Story = {
 };
 
 /**
- * The `Last 7 days` range, which allows a single bucket. The menu still opens
- * and shows it checked, rather than hiding or disabling the control.
+ * The `Last 7 days` range, which allows a single bucket: named, but with no menu to open.
  */
 export const SingleOption: Story = {
 	render: () => <DateIntervalDropdownWithState options={ [ 'day' ] } initialValue="day" />,
@@ -63,5 +64,35 @@ export const SingleOption: Story = {
 export const CoarseRange: Story = {
 	render: () => (
 		<DateIntervalDropdownWithState options={ [ 'month', 'year' ] } initialValue="month" />
+	),
+};
+
+/**
+ * A `Last 90 days` range on a plan that locks weekly and monthly charts: days stay open,
+ * and the buckets the range would draw are listed with a lock and an upgrade.
+ */
+export const LockedBuckets: Story = {
+	render: () => (
+		<DateIntervalDropdownWithState
+			options={ [ 'day' ] }
+			lockedOptions={ [ 'week', 'month' ] }
+			lockUpsell={ {
+				description: 'Group your charts by week, month or year.',
+				supportUrl: '',
+				upgradeUrl: 'https://wordpress.com/plans',
+			} }
+			initialValue="day"
+		/>
+	),
+};
+
+export const UnavailableBuckets: Story = {
+	render: () => (
+		<DateIntervalDropdownWithState
+			options={ [ 'week', 'month' ] }
+			unavailableOptions={ [ 'day' ] }
+			unavailableHint="Switch to the line chart to see each day."
+			initialValue="week"
+		/>
 	),
 };

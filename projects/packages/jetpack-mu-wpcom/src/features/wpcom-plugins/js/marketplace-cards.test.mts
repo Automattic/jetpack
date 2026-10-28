@@ -45,13 +45,24 @@ function query( selector: string ) {
 	return document.querySelector( selector ) as HTMLElement;
 }
 
+// A tab opened by another page.
+const tab = { opener: {} };
+
 describe( 'Marketplace cards', () => {
 	before( async () => {
 		// jsdom fires its own DOMContentLoaded too early for the script, so the page is loaded again once it is in.
 		await parsed;
-		Object.assign( globalThis, { document, MutationObserver: dom.window.MutationObserver } );
+		Object.assign( globalThis, {
+			document,
+			MutationObserver: dom.window.MutationObserver,
+			window: tab,
+		} );
 		await import( './marketplace-cards.js' );
 		document.dispatchEvent( new dom.window.Event( 'DOMContentLoaded' ) );
+	} );
+
+	it( "drops the tab's opener, so checkout's Back leaves instead of messaging it", () => {
+		assert.equal( tab.opener, null );
 	} );
 
 	it( 'swaps our strip into Marketplace cards and leaves WordPress.org cards alone', () => {

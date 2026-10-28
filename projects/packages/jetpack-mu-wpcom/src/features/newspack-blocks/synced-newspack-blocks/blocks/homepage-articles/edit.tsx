@@ -115,7 +115,7 @@ class Edit extends Component< HomepageArticlesProps > {
 						</div>
 					) }{ ' ' }
 					{ showTagLabels && post.newspack_tag_labels && (
-						<div className="cat-links tag-labels">
+						<div className="tag-labels">
 							{ post.newspack_tag_labels.map( ( newspack_tag_label, index ) => {
 								return newspack_tag_label.link ? (
 									<a key={ index } href="#" className="tag-label flag">
@@ -747,6 +747,11 @@ const EditWithBlockProps = ( props: any ) => {
 	return <Edit { ...props } blockProps={ blockProps } />;
 };
 
-export default compose( [ withColors( { textColor: 'color' } ), withSelect( postsBlockSelector ), withDispatch( postsBlockDispatch ) ] as any )(
-	EditWithBlockProps
-);
+// withSelect/withDispatch type their map functions against the registry's own
+// loose signatures; the casts stay at this call site so the exported selector
+// and dispatcher keep their precise parameter types.
+export default compose( [
+	withColors( { textColor: 'color' } ),
+	withSelect( postsBlockSelector as any ),
+	withDispatch( postsBlockDispatch as any ),
+] as any )( EditWithBlockProps );

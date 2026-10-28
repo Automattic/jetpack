@@ -8,7 +8,7 @@ import clsx from 'clsx';
 import { useElementSize } from '../../hooks/use-element-size';
 import { ChartEmptyState } from '../chart-empty-state';
 import styles from './metric-list.module.scss';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 /** A label and its end-aligned value. */
 export type MetricListItem = {
@@ -16,8 +16,16 @@ export type MetricListItem = {
 	id: string | number;
 	/** Row label, including optional links. */
 	label: ReactNode;
-	/** Formatted value. */
-	value: ReactNode;
+	/** An action beside the label, shown when the row is hovered or holds focus. */
+	action?: ReactNode;
+	/** Formatted value, or one per value column. */
+	value: ReactNode | ReactNode[];
+};
+
+/** Headings for the label column and each value column. */
+export type MetricListColumns = {
+	label: string;
+	values: string[];
 };
 
 export type MetricListProps = {
@@ -29,8 +37,14 @@ export type MetricListProps = {
 	 * @default true
 	 */
 	fitRows?: boolean;
+	/** A header naming the columns, hidden on height-1 tiles. */
+	columns?: MetricListColumns;
 	className?: string;
 };
+
+function toCells( value: MetricListItem[ 'value' ] ): ReactNode[] {
+	return Array.isArray( value ) ? value : [ value ];
+}
 
 /**
  * Render a list of labels and end-aligned values.
@@ -42,30 +56,49 @@ export function MetricList( {
 	items = [],
 	emptyStateText,
 	fitRows = true,
+	columns,
 	className,
 }: MetricListProps ) {
 	const [ setRootRef, { height: rootHeight } ] = useElementSize< HTMLDivElement >();
+	const [ setHeaderRef, { height: headerHeight } ] = useElementSize< HTMLDivElement >();
 	const [ setRowRef, { height: rowHeight } ] = useElementSize< HTMLLIElement >();
 
 	// Show all rows until the list can be measured.
 	let visibleCount = items.length;
 	if ( fitRows && rowHeight > 0 && rootHeight > 0 ) {
 		// Both measurements arrive rounded from `useElementSize`, so no subpixel slack is needed.
-		const fits = Math.floor( rootHeight / rowHeight );
+		const fits = Math.floor( ( rootHeight - headerHeight ) / rowHeight );
 		visibleCount = Math.min( items.length, Math.max( 1, fits ) );
 	}
 
 	if ( items.length === 0 ) {
 		// Keep the caller's box so the empty state does not collapse in a flex column.
 		return (
-			<div className={ clsx( styles.root, className ) }>
+			<div className={ clsx( styles.root, styles.empty, className ) }>
 				<ChartEmptyState text={ emptyStateText } />
 			</div>
 		);
 	}
 
+	const valueCount = columns?.values.length ?? toCells( items[ 0 ].value ).length;
+	const gridStyle = { '--metric-list-value-count': valueCount } as CSSProperties;
+
 	return (
-		<div ref={ setRootRef } className={ clsx( styles.root, className ) }>
+		<div
+			ref={ setRootRef }
+			className={ clsx( styles.root, columns && styles.hasColumns, className ) }
+			style={ gridStyle }
+		>
+			{ columns && (
+				<div ref={ setHeaderRef } className={ styles.header } data-testid="metric-list-header">
+					<span className={ styles.headerLabel }>{ columns.label }</span>
+					{ columns.values.map( ( heading, index ) => (
+						<span key={ index } className={ styles.headerValue }>
+							{ heading }
+						</span>
+					) ) }
+				</div>
+			) }
 			<ul className={ styles.list }>
 				{ items.map( ( item, index ) => (
 					<li
@@ -75,8 +108,15 @@ export function MetricList( {
 						// Keep clipped links out of the focus order and accessibility tree.
 						hidden={ index >= visibleCount }
 					>
-						<span className={ styles.label }>{ item.label }</span>
-						<span className={ styles.value }>{ item.value }</span>
+						<span className={ styles.label }>
+							<span className={ styles.labelText }>{ item.label }</span>
+							{ item.action && <span className={ styles.action }>{ item.action }</span> }
+						</span>
+						{ toCells( item.value ).map( ( cell, cellIndex ) => (
+							<span key={ cellIndex } className={ styles.value }>
+								{ cell }
+							</span>
+						) ) }
 					</li>
 				) ) }
 			</ul>

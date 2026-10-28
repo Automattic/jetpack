@@ -3,6 +3,7 @@
  */
 import {
 	buildMetricTab,
+	ChartEmptyState,
 	MetricTabsChart,
 	WidgetState,
 	type ChartDisplayChartType,
@@ -10,7 +11,6 @@ import {
 	type ReportResult,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -36,8 +36,11 @@ type ReportMetricChartProps = {
 	dataFormat: DataFormat;
 	/** How the series is drawn. `MetricTabsChart` owns the default. */
 	chartType?: ChartDisplayChartType;
-	emptyText: string;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle: string;
 	errorText: string;
+	/** Shown in place of the value when the summary has no reading, e.g. an average over no orders. */
+	noDataLabel?: string;
 };
 
 /**
@@ -53,12 +56,13 @@ export function ReportMetricChart( {
 	countLabel,
 	dataFormat,
 	chartType,
-	emptyText,
+	chartTitle,
 	errorText,
+	noDataLabel,
 }: ReportMetricChartProps ) {
 	const primary = report.primary.data;
 	const comparison = report.comparison.data;
-	const { hasComparison, timezone } = report;
+	const { hasComparison, timezone, periodStarts } = report;
 
 	const metrics = useMemo(
 		() => [
@@ -69,10 +73,22 @@ export function ReportMetricChart( {
 				field,
 				label,
 				countLabel,
+				noDataLabel,
 				zone: timezone,
+				periodStarts,
 			} ),
 		],
-		[ primary, comparison, hasComparison, field, label, countLabel, timezone ]
+		[
+			primary,
+			comparison,
+			hasComparison,
+			field,
+			label,
+			countLabel,
+			noDataLabel,
+			timezone,
+			periodStarts,
+		]
 	);
 
 	return (
@@ -89,9 +105,15 @@ export function ReportMetricChart( {
 						{ label: __( 'Retry', 'jetpack-woocommerce-stats-pkg' ), onClick: report.refetch },
 					],
 				} }
-				empty={ { icon: chartBar, description: emptyText } }
 			>
-				<MetricTabsChart metrics={ metrics } dataFormat={ dataFormat } chartType={ chartType } />
+				<MetricTabsChart
+					metrics={ metrics }
+					dataFormat={ dataFormat }
+					chartType={ chartType }
+					empty={ <ChartEmptyState /> }
+					hideSingleMetricLabel
+					chartTitle={ chartTitle }
+				/>
 			</WidgetState>
 		</div>
 	);

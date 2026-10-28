@@ -7,7 +7,7 @@ Guidance for AI coding agents working in this package.
 Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connected sites — a React SPA in wp-admin. It consolidates two older surfaces:
 
 - **Jetpack Stats** — the Odyssey dashboard; backend from the `stats-admin` package, frontend built from `apps/odyssey-stats` in Calypso. Covers traffic, posts, subscribers, email stats, WordAds, and more.
-- **Woo Analytics** — store reports (orders, products, customers, coupons, order attribution), from the private repo at https://github.com/woocommerce/woocommerce-analytics.
+- **Woo Analytics** — store reports (orders, products, customers, coupons, order attribution), from the private repo at https://github.com/woocommerce/woocommerce-analytics. The WooCommerce tab, its widgets and their report client live in `projects/packages/woocommerce-stats`.
 
 - Composer package: `automattic/jetpack-premium-analytics`
 - PHP namespace: `Automattic\Jetpack\PremiumAnalytics`
@@ -45,7 +45,7 @@ src/widget-types.php                    # widget type API: registry helpers, met
 docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
-src/Sync/                               # PA glue for the shared woocommerce_analytics sync module
+src/Sync/                               # milestone tracker for the analytics full syncs
 packages/data/src/api/                  # frontend fetch helpers (apiFetch)
 packages/externals/                     # passthrough module for shared third-party libraries
 routes/                                 # lazy-loaded SPA pages; build/ is generated
@@ -59,9 +59,12 @@ pnpm run build / watch        # frontend build (one-off / on change)
 jetpack build --deps packages/premium-analytics
 ```
 
-`pnpm run build` bundles only this package: monorepo dependencies (charts,
-wp-build-polyfills, assets) must already be built. `jetpack build --deps` builds
-them first — use it after merging trunk or when charts exports look stale.
+`pnpm run build` bundles only this package; monorepo dependencies (charts,
+wp-build-polyfills, assets) must already be built. `jetpack build --deps` builds them
+too, but slowly: run it once per checkout or worktree, and again after merging trunk or
+when charts exports look stale. After an edit, `pnpm run build` is enough and takes
+seconds. `pnpm run watch` is faster but skips the text-domain stamp, so strings stay
+English until the next `pnpm run build`.
 
 ### Storybook serves the built artifact of some internal packages
 
@@ -85,7 +88,9 @@ there; the callback receives the registry being hydrated, for lookups such as
 REST, and fires that action once; `src/default-dashboard-sections.php` registers the package's own sections the same
 way. A section declares its default layout in the registration; the
 `jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
-any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.
+any section by id. The inserter offers the default layout's types plus the section's
+`insertable_widget_types`, which the `jetpack_premium_analytics_dashboard_insertable_widget_types`
+filter extends the same way. `docs/dashboard-sections.md` walks through the whole path with diagrams.
 
 Add widget types from another plugin: hook `jetpack_premium_analytics_register_widget_types`,
 compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the manifest
@@ -93,9 +98,8 @@ that plugin's wp-build generates (`register_widget_type()` registers a single ty
 registry hydrates on its first read, from the page boot dependencies or from REST, and fires that
 action once; `src/widget-types.php` registers the package's own build manifest the same way. A type
 that changes its name declares `former_names`, so layouts saved under the old one keep rendering it.
+A widget that shows only a paid Stats feature declares `plan_feature`, so a plan without it locks it.
 `docs/dashboard-widgets.md` walks through the path.
-
-Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
 
 ### Timing-dependent JS tests use fake timers
 
@@ -140,12 +144,14 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 | `jetpack-stats-dashboard`                        | `view_stats`               | whole prefix (busts read cache) |
 | `commercial-classification`                      | `view_stats`               | exact path                      |
 | `upgrades` (not under `/sites/`)                 | `view_stats`               | —                               |
+| `products` (fixed: `products?type=jetpack`)      | `view_stats`               | —                               |
 | `posts` (pattern-constrained: only `<id>/likes`) | `view_stats`               | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
-`force_refresh`) and `site`. Successful `GET`s are cached 5 min (key: path+version+params); add
-`force_refresh` to bypass. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
+`force_refresh`) and `site`. Successful `GET`s are cached 5 min (key: path+version+params+generation);
+add `force_refresh` to bypass. A dashboard load returning from a Stats checkout (`statsPurchaseSuccess`)
+also drops every cached read and the cached notices, at most once a minute. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
 `403 no_connection`, `500`/`502 api_error`, `405 rest_read_only`, `401`/`403` on a failed cap.
 
 The `jetpack-stats` write is the one body the proxy rewrites: it gains the submitting user's
@@ -161,7 +167,7 @@ gets its own route outside `proxy/`, like this.
 ### Adding a proxied endpoint
 
 To add a transparent forward, add a key to `PREFIX_CONFIG` (at least `capability`; add
-`writes` / `cache_bust` / `invalidates` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
+`writes` / `cache_bust` / `invalidates` / `inject_user_email` / `forward_visitor_ip` as needed) and cover it in `data_endpoint_matrix()`.
 
 ### Migrating from Stats / Woo Analytics
 
@@ -178,9 +184,8 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
-Every section the site qualifies for is shown as a tab, whichever one says yes. On the site's own
-opt-in, the WooCommerce tab also needs the `premium-analytics-store-section` feature flag, off by default; see
-`docs/dashboard-sections.md`. The tab itself registers from the WooCommerce stats package.
+Every section the site qualifies for is shown as a tab, whichever one says yes; see
+`docs/dashboard-sections.md`. The WooCommerce tab and its sync opt-in register from the WooCommerce stats package.
 
 The same list the tab bar gets over REST also reaches the client as
 `premium_analytics.sections` in the script data, which is what keeps `/reports/…` behind a hidden
@@ -194,16 +199,9 @@ Every route's `beforeLoad` that checks connection state, and every sync check, m
 `isPremiumAnalyticsSiteConnected()` / `isPremiumAnalyticsInitialSyncFinished()` from
 `routes/site-readiness.ts` — never read `getScriptData()?.connection?.connectionStatus?.isRegistered`
 or `getScriptData()?.premium_analytics?.initial_full_sync_finished` directly. Simple has no Jetpack
-connection, so a direct read silently evaluates to "not connected" there.
-
-That's more than one broken route: it's a redirect loop. `/connect` already goes through the
-shared helper and treats Simple as connected, so if a route added later skips the helpers, Simple
-hits that route, gets redirected to `/connect`, and `/connect` — seeing Simple as already
-connected — immediately redirects back to `/`. From the user's side this looks like "the page just
-bounces to the dashboard," with nothing in the console pointing at the cause. This shipped once
-(Automattic/jetpack#50266): the `/reports/$report` route was left reading script data directly
-when the other four routes were migrated to the shared helpers, so it fell out of sync with
-`/connect`'s guard and the two routes bounced traffic between each other on Simple.
+connection, so a direct read silently evaluates to "not connected" there, and the route then
+bounces between `/connect` and `/` with nothing in the console (Automattic/jetpack#50266). For a
+new guarded route, copy an existing `isPremiumAnalyticsSiteConnected` call in `routes/`.
 
 ### Initial analytics sync must not block rendering
 
@@ -216,29 +214,14 @@ independent of the active section. Do not start it when no available section req
 `isPremiumAnalyticsInitialSyncFinished()` for readiness checks so WordPress.com Simple remains
 supported.
 
-Adding a new route with a connection guard: grep `routes/` for
-`isPremiumAnalyticsSiteConnected` first and copy that shape — don't re-derive the check from
-script data.
-
-### Why the dashboard support routes moved from `jetpack/v4` to `wpcom/v2`
-
-The dashboard support routes (widget modules, sections) used to live under
-`jetpack/v4` — the self-hosted Jetpack plugin's own namespace. WPCOM's REST centralization doesn't
-recognize or expose that namespace for Simple sites, which run no Jetpack plugin at all, so those
-routes were unreachable from public-api. `wpcom/v2` is a namespace WPCOM's centralization already
-treats as site-specific by default for plain function-callback routes: registering under it is
-enough for WPCOM to rewrite and expose the route as `/wpcom/v2/sites/<blog_id>/...` through
-public-api, with no separate dotcom-side registration and no `wpcom_rest_api_v2_load_plugin()`
-class shim required. That's why the rename happened (Automattic/jetpack#50266), and it's why
-`Dashboard_Support_Routes::register()` exists as a standalone entry point WPCOM can call.
-
 ### Choosing a REST namespace for new endpoints
 
-**Any future Premium Analytics REST endpoint that needs to work on both connected Jetpack sites
-and WPCOM Simple must register under `wpcom/v2`** (via `DASHBOARD_REST_NAMESPACE` in
-`src/rest-namespace.php`), not `jetpack/v4` or a plugin-specific namespace — those only reach
-connected sites. An endpoint that's intentionally connected-site-only (e.g. the local data proxy,
-notices) can stay under `jetpack-premium-analytics/v1`, since Simple never calls it.
+**Any Premium Analytics REST endpoint that must work on both connected Jetpack sites and WPCOM
+Simple registers under `wpcom/v2`** (via `DASHBOARD_REST_NAMESPACE` in `src/rest-namespace.php`).
+WPCOM exposes that namespace for Simple sites with no dotcom-side registration; `jetpack/v4` and
+plugin-specific namespaces only reach connected sites. An endpoint that's intentionally
+connected-site-only (e.g. the local data proxy, notices) can stay under
+`jetpack-premium-analytics/v1`, since Simple never calls it.
 
 **WPCOM's public-api process calls `Dashboard_Support_Routes::register()` directly**
 (`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
@@ -255,9 +238,9 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 - A proxy 404 usually means the prefix isn't in `PREFIX_CONFIG`, not a missing WPCOM endpoint.
 - Reads are cached 5 min; add `force_refresh` if a screen looks stale.
 - `v2` vs `v1.x` changes the WPCOM base — a wrong version silently hits a different endpoint.
-- The `woocommerce_analytics` sync module lives in the jetpack-sync package
-  (`Sync\Configuration::register()` is the opt-in); `src/Sync/` holds only
-  PA-specific glue (Config bootstrap, bookings meta whitelist, milestone tracker).
+- The `woocommerce_analytics` sync module lives in the jetpack-sync package, and the
+  woocommerce-stats package opts in to it (`Sync_Configuration`) and backfills its lookup data
+  (`Lookup_Data_Backfill`); `src/Sync/` here holds only the milestone tracker both read.
 - Don't edit dashboard React in Calypso — it lives here now.
 - Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
   never `@automattic/jetpack-premium-analytics-*`.
@@ -318,13 +301,9 @@ lazy-loaded by the dashboard at runtime.
 > expected to shrink over time (much of it folding into `@automattic/charts`), so treat its
 > module paths as provisional rather than a long-term API.
 
-> **Legacy note.** Widgets currently under `packages/widgets-toolkit/src/widgets/*` (e.g.
-> `sales-by-coupon`, `sales-by-device`) predate this layout and are scheduled to be migrated.
-> Do not use them as templates for new work — follow the structure and story template below
-> instead.
-
 These rules apply to registered dashboard widgets: folders with `package.json`,
-`widget.json`, `widget.ts`, and `render.tsx` that the dashboard can lazy-load.
+`widget.json`, and `render.tsx` that the dashboard can lazy-load, plus `widget.ts` when some of
+its metadata cannot live in JSON.
 Presentational-only component folders under `widgets/` are out of scope unless they
 are being converted into registered widgets.
 
@@ -335,8 +314,8 @@ Each new widget MUST ship as a self-contained folder with these files:
 ```text
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
-├── widget.json                             # declarative metadata (name, icon, title, description, help, category, presentation)
-├── widget.ts                               # runtime-only definition (attributes, example)
+├── widget.json                             # everything JSON can carry: name, icon, title, description, help, category, presentation, static attributes, the View all action
+├── widget.ts                               # optional: only what JSON cannot (getElements/getValue/setValue, helper-built fields, example)
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx
 ```
@@ -349,8 +328,15 @@ Notes:
 - `icon` lives in `widget.json` too, as a `jpa/<name>` reference the dashboard resolves against
   the collection `packages/icons/src/resolve.ts` lists: `@wordpress/icons` glyphs by kebab-case
   name (`jpa/chart-bar`) plus the dashboard's own illustrations. A name outside that list
-  resolves to nothing, so add it to the map before naming it. A widget with nothing live keeps
-  `widget.ts` for its attribute type and exports `{}`.
+  resolves to nothing, so add it to the map before naming it.
+- An attribute is declared in `widget.json` whenever its field is static: `type`, `label`,
+  fixed `elements` (option icons as `jpa/<name>`), `relevance`. `widget.ts` carries only what
+  JSON cannot express: `getElements`, `getValue`/`setValue`, a field a helper builds
+  (`reportParamsAttributeField()`, `chartIntervalAttributeField()`), plus `example`, which the build does
+  not read from `widget.json` yet. Record and module entries merge by `id`, the record's first;
+  a module-only control keeps its position by listing `{ "id" }` in `widget.json` (see
+  `docs/dashboard-widgets.md`). A widget with none of that ships no `widget.ts`; its attribute
+  type lives in `render.tsx`.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
   `Leaderboard`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
@@ -371,7 +357,11 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { MyWidgetAttributes } from './widget';
+
+// A widget with a `widget.ts` imports this from './widget' instead.
+export type MyWidgetAttributes = {
+	view?: 'posts' | 'archives';
+};
 
 type MyWidgetRenderAttributes = MyWidgetAttributes & Partial< ReportParamsFieldAttributes >;
 
@@ -386,10 +376,11 @@ export default function MyWidget( {
 }
 ```
 
-The widget's own attribute shape is declared and exported once from `widget.ts`,
-alongside the `attributes`/`example` schema it describes. `render.tsx` imports that type;
-it may compose a render-only type with host fields like `Partial<ReportParamsFieldAttributes>`,
-but it must not re-declare the widget's own attributes. A widget with no own attributes
+The widget's own attribute shape is declared once: in `widget.ts` when the widget has one,
+alongside the `attributes`/`example` schema it describes, exported for `render.tsx` to import;
+otherwise in `render.tsx` itself. `render.tsx` may compose a
+render-only type with host fields like `Partial<ReportParamsFieldAttributes>`, but it must not
+re-declare the widget's own attributes. A widget with no own attributes
 must type its shape as `Record< never, never >`, not `Record< string, never >` — the
 latter's `[key: string]: never` index signature collapses composed host fields such as
 `reportParams` to `never`, while `Record< never, never >` composes cleanly.
@@ -430,9 +421,6 @@ not be merged.
 4. **Title**: `Packages/Premium Analytics/Widgets/<WidgetName>` (note: no "Widgets Toolkit"
    in the path — that path is reserved for the legacy widgets).
 5. **Tags**: Include `tags: [ 'autodocs' ]` so the widget shows up in auto-generated docs.
-6. **Storybook registration**: Add `projects/packages/premium-analytics/widgets` to
-   `projects/js-packages/storybook/storybook/projects.js` if it isn't there already. New
-   per-widget folders are picked up automatically once that root is registered.
 
 ### Story template
 
@@ -545,6 +533,9 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 };
 ```
 
+A widget without `widget.ts` drops the `widgetDefinition` import and passes the manifest
+alone: `createStoryWidgetType( widgetManifest )`.
+
 **3. `WithComparison` — only when the widget's hook populates `comparisonRows`** (see the
 criterion above). Add a `withComparison` control, thread it through the render helper, and add
 the second close-up. It should show the period-over-period values the render path consumes:
@@ -632,14 +623,14 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   legacy widgets that haven't been migrated yet.
 - Using the legacy `withWidgetRoot()` decorator for new stories — new widgets render via the
   real `WidgetDashboard` through the shared story helper instead.
-- Declaring `name`, `title`, `help`, `description`, `category`, or `presentation` in
-  `widget.ts` — `widget.json` is the source of truth for all declarative metadata; the
-  `widget.ts` default export carries only `attributes` and `example`, and `icon` is a
-  `widget.json` reference. Stories read the declarative fields from `widget.json` via
-  `createStoryWidgetType()`, which resolves the icon the way the host does.
-- Re-declaring the attribute type in `render.tsx` — the shape is declared once in `widget.ts`
-  and imported in `render.tsx`; render-only types may compose that imported shape with host
-  fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate the shape.
+- Declaring in `widget.ts` what `widget.json` can carry — `name`, `title`, `help`,
+  `description`, `category`, `presentation`, `icon`, or an attribute whose field is static.
+  `widget.json` is the source of truth; the `widget.ts` default export carries only the
+  attribute behavior JSON cannot express, and `example`. Stories read the declarative fields
+  from `widget.json` via `createStoryWidgetType()`, which resolves the icon the way the host does.
+- Declaring the attribute type twice — a widget with a `widget.ts` declares the shape there and
+  `render.tsx` imports it; one without declares it in `render.tsx`. Render-only types may compose
+  that shape with host fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate it.
 - Typing a zero-attribute widget as `Record< string, never >` — its `[key: string]: never`
   index signature collapses composed host fields like `reportParams` to `never` and breaks the
   typecheck. Use `Record< never, never >` instead.
@@ -664,9 +655,6 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   bundles the entire charting stack into that widget's render bundle; add a re-export to the
   toolkit's "Charts passthrough" section instead. The toolkit in turn takes charts from
   `@jetpack-premium-analytics/externals`, so a passthrough export costs nothing.
-- Porting a Stats widget and forgetting to add its endpoint to `routeStatsReport()` in
-  `register-report-mocks.ts` — stories will render an error state instead of mock data because
-  the middleware only intercepts Woo analytics paths by default.
 
 ### Stats widgets
 
@@ -694,7 +682,7 @@ the query factory — do not do it in the widget or the view hook.
 
 Stats list widgets request `WIDGET_ROW_LIMIT` from
 `@jetpack-premium-analytics/widgets-toolkit`. Do not add per-widget defaults or
-user-editable row counts; report pages handle larger result sets with pagination.
+user-editable row counts; report pages list the full result set.
 This rule covers Stats widgets only — the store widgets under
 `packages/widgets-toolkit/src/widgets/` predate it and set their own limits.
 
@@ -709,7 +697,13 @@ component owns the states, the skeleton, the shares and deltas, and the detail-l
 (`widgets/search-terms/render.tsx` is the reference). A breakdown widget renders `<Donut>` with its
 segments and the hook's status; it owns the states, the total, the legend and the deltas
 (the WooCommerce Stats package's widgets render it; `components/donut/stories/` shows the shape).
-Everything else renders its states through
+A half ring is the same kind with `variant="half-ring"`, as `widgets/devices` draws it; there is
+no separate semi-circle kind. A funnel widget renders `<Funnel>` with its steps in order, as
+counts, and the hook's status; it owns the rate of the whole, the shares, the tooltip and the
+states. A columns widget renders `<Columns>` with its columns, as figures of both periods, and
+the hook's status; it owns the series per period, the legend, the colors and the
+states. A locations widget renders `<Locations>` with its ranking and the hook's status;
+it owns the list with flags, the map and the states. Everything else renders its states through
 `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
@@ -759,19 +753,13 @@ area. Notes:
 - Omit `empty` for a period with no data: `<WidgetState>` then draws `ChartEmptyState`'s generic
   state, the `search` magnifier and "We couldn’t find results for this time period.". Pass
   `empty` only for a case that copy does not describe, such as a scope prompt ("Open a post to
-  see…") or a fixed window. Its `icon` is then the widget's own neutral glyph from
-  `@jetpack-premium-analytics/icons`, or none when omitted. Don't use a caution glyph: empty is
-  not an error.
+  see…") or a fixed window. Its `icon` defaults to the same magnifier; pass one only when the
+  widget needs its own neutral glyph from `@jetpack-premium-analytics/icons`. Don't use a
+  caution glyph: empty is not an error.
 - Keep interactive body chrome (dropdown, view selector, drill-down back link) as a **sibling**
   of `<WidgetState>`, not inside it, so it stays available in every state.
 - `<WidgetState>` covers only a widget's own data state; the host still owns the crash error
   boundary and the module-load `<Suspense>`.
-
-> Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
-> `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
-> migrated to `<WidgetState>` — follow the contract above, not those widgets. For a leaderboard,
-> `<Leaderboard>` is that wrapper, and `<Donut>` for a breakdown; the other widget kinds get theirs
-> as follow-ups.
 
 **Comparison data**
 
@@ -826,7 +814,9 @@ URLs do not need the guard.
 
 Rows with children may be interactive and drill into a second-level leaderboard. Rows without
 children must not look like drill-down rows. If a row has an external `href` and no children,
-render it as a normal external link even when sibling rows drill down.
+render it as a normal external link even when sibling rows drill down, unless the widget passes
+`hrefAs: 'viewLink'` on purpose: then the label stays plain text and the URL is offered from the
+"View in new tab" action beside it (the Top referrers widget does this, see STATS-565).
 
 When a leaderboard drills down, use `WidgetBackLink` from `widgets-toolkit` in the widget body
 to navigate back to the parent list. Keep the static widget title/icon in the framed widget host
@@ -835,14 +825,6 @@ selected parent label in every row when the back link already identifies the par
 controls such as dropdowns should stay in normal flex flow with the back link; when they wrap on
 narrow widget widths, order the dropdown above the back link so the back link can sit directly
 above the leaderboard or chart content.
-
-**Storybook mocks for Stats endpoints**
-
-`registerReportMocks()` covers Woo analytics paths (`/proxy/v2/analytics/reports/*`) out of
-the box. Stats proxy paths (`/proxy/v1.1/stats/*`) are NOT covered by default. For each new
-Stats endpoint, add fixture data under `packages/widgets-toolkit/src/stories/mocks/data/` and
-wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
-`data/search-terms.ts` for a reference implementation.
 
 **Visual conventions**
 
@@ -868,6 +850,3 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   member list. A hand-written copy drifts from the shared row box. `video-detail-embeds` is the
   one exception, a plain list rather than a leaderboard, and matches the shared row's 36px height
   and `padding-inline` by hand — not the rest of `.row`.
-- Loading / error / empty state: render through `<WidgetState>` (see "Loading / error / empty
-  state" above), not `LeaderboardChart`'s `emptyStateText` or a hand-rolled `data.length === 0`
-  branch. Empty uses a neutral glyph distinct from the error icon.

@@ -1,6 +1,6 @@
-import { AI_PATH, OVERVIEW_PATH, SETTINGS_PATH } from '../../get-preloaded';
+import { GEO_PATH, OVERVIEW_PATH, SETTINGS_PATH } from '../../get-preloaded';
 import { makeSchemaSettings } from './schema-settings-fixtures';
-import type { AiState } from '../../ai-types';
+import type { GeoState } from '../../geo-types';
 import type { ContentCoverage } from '../../overview-types';
 import type { SettingsResponse } from '../../settings-types';
 
@@ -29,18 +29,24 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	title_formats: {},
 	title_separator: '-',
 	title_formats_editable: true,
+	conflicting_seo_plugin: '',
 	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	site_is_private: false,
+	site_is_coming_soon: false,
+	site_visibility_url: '',
 	sitemap_active: false,
+	sitemap_switchable: true,
 	sitemap_url: '',
 	canonical_active: false,
+	canonical_switchable: true,
+	canonical_conflicted: false,
 	schema: SEEDED_SCHEMA,
 };
 
-export const SEEDED_AI: AiState = {
-	enhancer: { available: true, enabled: false, aiSeoEnabled: true },
+export const SEEDED_GEO: GeoState = {
+	enhancer: { available: true, enabled: false, aiSeoEnabled: true, aiEnabled: true },
 	llmsTxt: { enabled: false, url: 'https://example.com/llms.txt', canServe: true },
 	crawlers: {
 		catalog: [
@@ -63,11 +69,12 @@ export const SEEDED_AI: AiState = {
 				type: 'training',
 			},
 		],
-		overrides: {},
+		blocked: { answer: [], training: [] },
 		searchEnginesVisible: true,
 		restrictedSubdomain: false,
 		staticRobotsTxt: false,
 		dataSharingOptOut: false,
+		dataSharingBlocked: [],
 		pathBasedMultisite: false,
 		privacySettingsUrl: 'http://example.com/wp-admin/options-reading.php',
 		robotsTxtUrl: 'http://example.com/robots.txt',
@@ -79,7 +86,7 @@ export const SEEDED_AI: AiState = {
 		preload: {
 			[ OVERVIEW_PATH ]: { body: { content_coverage: SEEDED_COVERAGE } },
 			[ SETTINGS_PATH ]: { body: SEEDED_SETTINGS },
-			[ AI_PATH ]: { body: SEEDED_AI },
+			[ GEO_PATH ]: { body: SEEDED_GEO },
 		},
 	},
 };

@@ -6,6 +6,7 @@ import { fetchStatsTopAuthorsRows, type ReportParams } from '@jetpack-premium-an
  * Internal dependencies
  */
 import { authorPostsCsvExporter } from '../authors';
+import { getReportCsvFilename } from '../download-report-csv';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -27,7 +28,12 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 
 const fetchStatsTopAuthorsRowsMock = jest.mocked( fetchStatsTopAuthorsRows );
 
-const REPORT_PARAMS = { from: '2026-07-01', to: '2026-07-07', author_id: 7 } as ReportParams;
+const REPORT_PARAMS = {
+	from: '2026-07-01',
+	to: '2026-07-07',
+	preset: 'all-time',
+	author_id: 7,
+} as ReportParams;
 
 const post = ( id: number, label: string, views: number ) => ( {
 	id,
@@ -60,7 +66,7 @@ describe( 'authorPostsCsvExporter', () => {
 		] as Awaited< ReturnType< typeof fetchStatsTopAuthorsRows > > );
 	} );
 
-	it( 'exports every post by the author, in the report’s order', async () => {
+	it( 'exports every post by the author over the page’s own window, in the report’s order', async () => {
 		const exporter = authorPostsCsvExporter( 7, 'José Núñez' );
 		const rows = exporter.toCsvRows( await exporter.fetchItems( REPORT_PARAMS ) );
 
@@ -78,9 +84,9 @@ describe( 'authorPostsCsvExporter', () => {
 		] );
 	} );
 
-	it( 'names the file after the author', () => {
-		expect( authorPostsCsvExporter( 7, 'José Núñez' ).filenamePrefix ).toBe(
-			'author-jose-nunez-posts'
+	it( 'names the file after the author and the page’s window', () => {
+		expect( getReportCsvFilename( authorPostsCsvExporter( 7, 'José Núñez' ), REPORT_PARAMS ) ).toBe(
+			'author-jose-nunez-posts-2026-07-01_2026-07-07'
 		);
 		expect( authorPostsCsvExporter( 7, '' ).filenamePrefix ).toBe( 'author-7-posts' );
 	} );

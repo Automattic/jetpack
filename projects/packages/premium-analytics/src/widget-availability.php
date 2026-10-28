@@ -1,7 +1,7 @@
 <?php
 /**
  * Widget availability policy (consumer layer): drops developer-only, platform-unsupported,
- * plugin-gated and capability-gated candidates from a manifest at registry time, over the
+ * and capability-gated candidates from a manifest at registry time, over the
  * neutral hooks in widget-types.php. A dropped candidate never registers, so every reader sees
  * the same set; a type registered one by one with register_widget_type() skips this policy.
  *
@@ -12,26 +12,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/widget-types.php';
 require_once __DIR__ . '/widget-type-support.php';
-
-/**
- * Widget categories that are only meaningful with WooCommerce active.
- */
-const WOOCOMMERCE_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons' );
-
-/**
- * Widget categories that are only meaningful with WooCommerce Bookings active.
- *
- * Checked independently of WOOCOMMERCE_WIDGET_CATEGORIES: the Bookings
- * extension cannot run without WooCommerce, so its presence implies both.
- */
-const WOOCOMMERCE_BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
-
-/**
- * Widget categories whose data counts as a store report — by data source, not subject
- * matter: each reaches WPCOM via the proxy's `analytics` prefix (gated on
- * `view_woocommerce_reports`), including `visitors`, which reads `sessions/…` from it.
- */
-const STORE_REPORT_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons', 'bookings', 'visitors' );
 
 /**
  * Widget categories whose data counts as a Stats report: each reaches WPCOM through a proxy
@@ -95,69 +75,6 @@ function filter_registrable_widget_types_by_availability( $widget_candidates ) {
 
 add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_availability' );
 
-/**
- * Removes candidates whose commerce category lacks its backing plugin.
- *
- * Split from the hook callback so the branches are testable without touching
- * global plugin state.
- *
- * @param array $widget_candidates     Manifest candidates, each with a `category`.
- * @param bool  $woocommerce_available Whether WooCommerce is available.
- * @param bool  $bookings_available    Whether WooCommerce Bookings is available.
- * @return array The candidates, minus commerce categories missing their plugin.
- */
-function remove_plugin_gated_widget_types( $widget_candidates, $woocommerce_available, $bookings_available ) {
-	return array_values(
-		array_filter(
-			$widget_candidates,
-			static function ( $widget ) use ( $woocommerce_available, $bookings_available ) {
-				$category = $widget['category'] ?? '';
-
-				if ( ! $woocommerce_available && in_array( $category, WOOCOMMERCE_WIDGET_CATEGORIES, true ) ) {
-					return false;
-				}
-
-				if ( ! $bookings_available && in_array( $category, WOOCOMMERCE_BOOKINGS_WIDGET_CATEGORIES, true ) ) {
-					return false;
-				}
-
-				return true;
-			}
-		)
-	);
-}
-
-/**
- * Whether the WooCommerce Bookings extension is active.
- *
- * Mirrors the detection in woocommerce-analytics' Bookings sync module;
- * `is_plugin_active()` only exists in admin contexts, hence the guard.
- *
- * @return bool Whether WooCommerce Bookings was detected in the current request.
- */
-function is_bookings_plugin_active() {
-	return class_exists( 'WC_Bookings' )
-		|| ( function_exists( 'is_plugin_active' ) && \is_plugin_active( 'woocommerce-bookings/woocommerce-bookings.php' ) );
-}
-
-/**
- * Registry-time callback: hides commerce categories without their plugin, reading
- * WooCommerce availability through the store section's signal so section and widgets
- * agree; both entry points load default-dashboard-sections.php before the registry hydrates.
- *
- * @param array $widget_candidates Manifest candidates.
- * @return array The candidates, minus commerce categories missing their plugin.
- */
-function filter_registrable_widget_types_by_plugin( $widget_candidates ) {
-	return remove_plugin_gated_widget_types(
-		$widget_candidates,
-		is_woocommerce_dashboard_section_available(),
-		is_bookings_plugin_active()
-	);
-}
-
-add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_plugin' );
-
 // Subscriber widgets stay registered even when their section is hidden: their data
 // doesn't depend on the local module, and unregistering would break instances placed elsewhere.
 
@@ -167,49 +84,39 @@ add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrab
  * Split from the hook callback so both branches are testable without a user.
  *
  * @since 0.1.0
- * @since $$next-version$$ Added `$can_view_stats`.
+ * @since 0.13.0 Gates the Stats categories alone: the WooCommerce Stats package gates its own.
  *
- * @param array $widget_candidates      Manifest candidates, each with a `category`.
- * @param bool  $can_view_store_reports Whether the reader may see the store reports.
- * @param bool  $can_view_stats         Whether the reader may see the Stats reports.
- * @return array The candidates, minus the categories whose reports the reader can't see.
+ * @param array $widget_candidates Manifest candidates, each with a `category`.
+ * @param bool  $can_view_stats    Whether the reader may see the Stats reports.
+ * @return array The candidates, minus the Stats categories when the reader can't see them.
  */
-function remove_capability_gated_widget_types( $widget_candidates, $can_view_store_reports, $can_view_stats = true ) {
-	$hidden_categories = array_merge(
-		$can_view_store_reports ? array() : STORE_REPORT_WIDGET_CATEGORIES,
-		$can_view_stats ? array() : STATS_REPORT_WIDGET_CATEGORIES
-	);
-
-	if ( ! $hidden_categories ) {
+function remove_capability_gated_widget_types( $widget_candidates, $can_view_stats ) {
+	if ( $can_view_stats ) {
 		return $widget_candidates;
 	}
 
 	return array_values(
 		array_filter(
 			$widget_candidates,
-			static function ( $widget ) use ( $hidden_categories ) {
-				return ! in_array( $widget['category'] ?? '', $hidden_categories, true );
+			static function ( $widget ) {
+				return ! in_array( $widget['category'] ?? '', STATS_REPORT_WIDGET_CATEGORIES, true );
 			}
 		)
 	);
 }
 
 /**
- * Registry-time callback: hides widgets whose data the reader cannot fetch — a `view_stats`
- * reader would only collect 403s from the proxy's `analytics` prefix, and a shop manager from
- * the Stats prefixes. The registry is request-scoped, so filtering on the current user is safe here.
+ * Registry-time callback: hides widgets whose data the reader cannot fetch, since a shop manager
+ * would only collect 403s from the Stats prefixes. The registry is request-scoped, so filtering
+ * on the current user is safe here.
  *
  * @since 0.1.0
  *
  * @param array $widget_candidates Manifest candidates.
- * @return array The candidates, minus the categories whose reports the reader can't see.
+ * @return array The candidates, minus the Stats categories when the reader can't see them.
  */
 function filter_registrable_widget_types_by_capability( $widget_candidates ) {
-	return remove_capability_gated_widget_types(
-		$widget_candidates,
-		Capabilities::current_user_can_view_store_reports(),
-		Capabilities::current_user_can_view_stats()
-	);
+	return remove_capability_gated_widget_types( $widget_candidates, Capabilities::current_user_can_view_stats() );
 }
 
 add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_capability' );

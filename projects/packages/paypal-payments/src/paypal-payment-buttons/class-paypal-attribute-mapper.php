@@ -119,6 +119,65 @@ class PayPal_Attribute_Mapper {
 	const MAX_PRODUCT_ID_LENGTH = 50;
 
 	/**
+	 * Keys a GET returns that a PUT must not send back.
+	 *
+	 * `payment_link` is this package's own copy of the HATEOAS link.
+	 *
+	 * @since 0.13.0
+	 *
+	 * @var string[]
+	 */
+	const READ_ONLY_RESOURCE_KEYS = array(
+		'id',
+		'payment_link',
+		'links',
+		'create_time',
+		'update_time',
+		'status',
+		'code_snippets',
+	);
+
+	/**
+	 * Top-level keys the block edits, so a save clears one it leaves out.
+	 *
+	 * With OWNED_LINE_ITEM_KEYS, these are the keys api_response_to_attributes() reads
+	 * into editable attributes; change the three together.
+	 *
+	 * @since 0.13.0
+	 *
+	 * @var string[]
+	 */
+	const OWNED_RESOURCE_KEYS = array(
+		'integration_mode',
+		'return_url',
+		'line_items',
+	);
+
+	/**
+	 * Line item keys the block edits, so a save clears one it leaves out.
+	 *
+	 * `collect_shipping_address` is left off on purpose: PayPal turns address
+	 * collection on for a body without it, so it stays as PayPal had it when not sent.
+	 *
+	 * @since 0.13.0
+	 *
+	 * @var string[]
+	 */
+	const OWNED_LINE_ITEM_KEYS = array(
+		'name',
+		'unit_amount',
+		'description',
+		'product_id',
+		'variants',
+		'adjustable_quantity',
+		'customer_notes',
+		'taxes',
+		'shipping',
+		'handling',
+		'discounts',
+	);
+
+	/**
 	 * Convert block attributes to a PayPal API request body.
 	 *
 	 * Only the tests call this.
@@ -380,6 +439,55 @@ class PayPal_Attribute_Mapper {
 		$attributes['scriptSrc'] = self::extract_script_src( $response );
 
 		return $attributes;
+	}
+
+	/**
+	 * Lay a block's request body over the payment as PayPal holds it.
+	 *
+	 * A PUT replaces the whole payment, so a key the block does not model is lost
+	 * unless it is carried over from a GET. Owned keys are last-write-wins: set when
+	 * the body has them, dropped when it does not, since leaving one out is how a PUT
+	 * clears it. Line items merge per index, so a second item PayPal holds survives.
+	 *
+	 * @since 0.13.0
+	 *
+	 * @param array $current The payment as a GET returned it.
+	 * @param array $update  The body built from the block.
+	 * @return array The body to PUT.
+	 */
+	public static function merge_into_resource( array $current, array $update ) {
+		$merged = array_diff_key(
+			$current,
+			array_flip( self::READ_ONLY_RESOURCE_KEYS ),
+			array_flip( self::OWNED_RESOURCE_KEYS )
+		);
+
+		$current_items = isset( $current['line_items'] ) && is_array( $current['line_items'] )
+			? $current['line_items']
+			: array();
+
+		foreach ( $update as $key => $value ) {
+			if ( 'line_items' === $key ) {
+				continue;
+			}
+			$merged[ $key ] = $value;
+		}
+
+		if ( isset( $update['line_items'] ) && is_array( $update['line_items'] ) ) {
+			$merged['line_items'] = $current_items;
+			foreach ( $update['line_items'] as $index => $item ) {
+				$current_item = isset( $current_items[ $index ] ) && is_array( $current_items[ $index ] )
+					? $current_items[ $index ]
+					: array();
+
+				$merged['line_items'][ $index ] = array_merge(
+					array_diff_key( $current_item, array_flip( self::OWNED_LINE_ITEM_KEYS ) ),
+					$item
+				);
+			}
+		}
+
+		return $merged;
 	}
 
 	/**

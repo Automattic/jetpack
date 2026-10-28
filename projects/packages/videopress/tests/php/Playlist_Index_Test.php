@@ -168,14 +168,20 @@ class Playlist_Index_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A Latest Videos Playlist block, and the Video Playlist block it wraps as
-	 * its canvas, are not independent playlists and stay out of the index.
+	 * A Latest Videos Playlist block, the Video Playlist block it wraps as its
+	 * canvas, and a playlist block showing another playlist stay out of the index.
 	 */
 	public function test_extract_records_skips_dynamic_playlists() {
 		$post = $this->create_post(
 			'<!-- wp:videopress/latest-videos-playlist {"count":3} -->' .
 			$this->playlist_block( array( 'playlistId' => 'inner' ) ) .
 			'<!-- /wp:videopress/latest-videos-playlist -->' .
+			$this->playlist_block(
+				array(
+					'playlistId' => 'queue',
+					'source'     => 'index',
+				)
+			) .
 			$this->playlist_block(
 				array(
 					'playlistId'    => 'standalone',

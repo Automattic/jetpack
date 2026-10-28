@@ -142,24 +142,7 @@ call_user_func(
 				?>
 				<div class="newspack-post-subtitle newspack-post-subtitle--in-homepage-block">
 					<?php
-					$allowed_tags = array(
-						'b'      => true,
-						'strong' => true,
-						'i'      => true,
-						'em'     => true,
-						'mark'   => true,
-						'u'      => true,
-						'small'  => true,
-						'sub'    => true,
-						'sup'    => true,
-						'a'      => array(
-							'href'   => true,
-							'target' => true,
-							'rel'    => true,
-						),
-					);
-
-					echo wptexturize( wp_kses( $subtitle, $allowed_tags ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo wptexturize( Newspack_Blocks::sanitize_post_subtitle( $subtitle ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					?>
 				</div>
 			<?php endif; ?>

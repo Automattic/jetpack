@@ -37,7 +37,7 @@ class Shortcodes {
 	/**
 	 * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
 	 *
-	 * Handles youtu.be short links, /v/ paths, /shorts/ paths, playlist URLs, and encoded ampersands.
+	 * Handles youtu.be short links, /v/ paths, /shorts/ and /live/ paths, playlist URLs, and encoded ampersands.
 	 *
 	 * @since 0.1.0
 	 *
@@ -55,8 +55,8 @@ class Shortcodes {
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
 		$url = str_replace(
-			array( 'youtu.be/', '/v/', '/shorts/', '#!v=', '&amp;', '&#038;', 'playlist' ),
-			array( 'youtu.be/?v=', '/?v=', '/watch?v=', '?v=', '&', '&', 'videoseries' ),
+			array( 'youtu.be/', '/v/', '/shorts/', '/live/', '#!v=', '&amp;', '&#038;', 'playlist' ),
+			array( 'youtu.be/?v=', '/?v=', '/watch?v=', '/watch?v=', '?v=', '&', '&', 'videoseries' ),
 			$url
 		);
 

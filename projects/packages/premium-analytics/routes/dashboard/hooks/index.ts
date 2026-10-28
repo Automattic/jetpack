@@ -4,6 +4,7 @@ export { useDashboardPolicy } from './use-dashboard-policy';
 export { useDashboardSectionLayout } from './use-dashboard-section-layout';
 export { useDashboardSections } from './use-dashboard-sections';
 export { useFeedbackBanner } from './use-feedback-banner';
+export { useLockedSectionLayout } from './use-locked-section-layout';
 export { useOnboarding } from './use-onboarding';
 export { useRememberAppliedPreset } from './use-remember-applied-preset';
 export { useSectionDateFilter } from './use-section-date-filter';

@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.8.1';
+	const PACKAGE_VERSION = '0.8.2';
 
 	/**
 	 * Singleton.
@@ -1261,6 +1261,12 @@ final class Image_CDN {
 		if ( preg_match( '#(-\d+x\d+)\.(' . implode( '|', self::$extensions ) . '){1}$#i', $src, $src_parts ) ) {
 			$stripped_src = str_replace( $src_parts[1], '', $src );
 			$upload_dir   = wp_get_upload_dir();
+
+			// Only uploads have an original on disk; an off-site URL shorter than the base URL
+			// would otherwise give an empty path, and file_exists() would find the uploads directory.
+			if ( ! str_starts_with( $stripped_src, $upload_dir['baseurl'] ) ) {
+				return $src;
+			}
 
 			// Extracts the file path to the image minus the base url.
 			$file_path = substr( $stripped_src, strlen( $upload_dir['baseurl'] ) );

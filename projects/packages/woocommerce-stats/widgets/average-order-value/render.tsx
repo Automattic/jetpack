@@ -13,8 +13,14 @@ import { __ } from '@wordpress/i18n';
  */
 import { ReportMetricChart } from '../../src/components/report-metric-chart';
 import { useReportOrders } from '../../src/reports';
-import type { AverageOrderValueAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * @property chartType - How the series is drawn. Defaults to `line`.
+ */
+export type AverageOrderValueAttributes = {
+	chartType?: ChartDisplayChartType;
+};
 
 type AverageOrderValueRenderAttributes = AverageOrderValueAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -33,10 +39,11 @@ function AverageOrderValue( { chartType }: { chartType?: ChartDisplayChartType }
 		<ReportMetricChart
 			report={ useReportOrders( reportParams ) }
 			chartType={ chartType }
+			chartTitle={ __( 'Average order value', 'jetpack-woocommerce-stats-pkg' ) }
 			field="average_order_value"
 			label={ __( 'Average order value', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'currency' } }
-			emptyText={ __( 'No orders in this period.', 'jetpack-woocommerce-stats-pkg' ) }
+			noDataLabel={ __( 'No orders in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 			errorText={ __(
 				"We couldn't load average order value. Please try again in a moment.",
 				'jetpack-woocommerce-stats-pkg'

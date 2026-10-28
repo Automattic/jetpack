@@ -54,7 +54,25 @@ The React screen is the exception: behind `rsm_jetpack_ui_modernization_sharing_
 `routes/` and `packages/init/` sit at the root, where wp-build requires them); a
 later JS surface gets its own sibling directory. The screen takes Newsletter's
 Jetpack chrome on purpose. It reads `JetpackScriptData.sharing_likes` for its first
-render and saves through `src/rest/`.
+render and saves through `src/rest/`. Its data lives in one `@wordpress/data` store
+(`data/store.ts`), and every write goes through the queue in `data/writes.ts`, so
+requests reach the server one at a time, in order. Like Newsletter's settings, it
+uses neither TanStack Query nor `@wordpress/core-data`, which would load the block
+editor's scripts onto the page.
+
+Its services manager, under `src/settings-app/services/`, saves the enabled lists
+through `useSaveServices`, in the same write queue as every other save. Removing
+the last service on a block theme hands the section to the block with no way
+back, which is why that one removal asks first instead of offering Undo. Deleting
+a custom service leaves its ID in `sharing-services`, so `useCustomService` saves
+the lists again without it.
+
+In `BLOCK_CALL_TO_ACTION`, `TemplatePlacements` replaces the Site Editor link with
+one radio group per section, saving the template placements (see "Template
+placements" below): "Don't add it automatically" first, then a card for each side
+of the content. Picking a card saves a one-item list, and the first option an
+empty one. It falls back to the Site Editor link only where `settings` does not
+offer the key and no write is pending; while one is, the group shows disabled.
 
 ## Per-post switches
 
@@ -114,7 +132,9 @@ Atomic only.
 The "Switch to the … block" buttons still work on Simple, through settings
 rather than modules: `Feature_Actions` empties `sharing-services`, or sets
 `disabled_likes` and `disabled_reblogs` (the legacy widget renders for either
-button). `Environment::legacy_sharing_switched_off()` and
+button). It keeps a copy of the services it removes, which the template
+placements read so the hooked block keeps the site's buttons (see
+`Sharing_Buttons_Markup::remember_legacy_services()`). `Environment::legacy_sharing_switched_off()` and
 `legacy_likes_switched_off()` read them back, and `Section_State` treats that as
 off wherever the block is a route, so the section lands on `BLOCK_CALL_TO_ACTION`
 with no way back, as a deactivated module does. The same holds on Jetpack for an
@@ -230,13 +250,24 @@ Sharing, Likes and Comment Likes modules are active. Where the screen itself
 does not exist (`Environment::settings_screen_supported()`), every route
 answers 409.
 
-The routes offer what the PHP screen shows and nothing else. A setting whose
-section does not render it is missing from reads, and a write that includes it
-is refused before anything is saved. Each action is only accepted from the
-section variant that offers it. This is what stops the API from reopening the
-way back that `BLOCK_CALL_TO_ACTION` closes, so do not relax it for
-convenience. `sharing_admin_update` does not fire from REST, because its
+The routes offer what the section variants show and nothing else. A setting
+whose section variant does not show it is missing from reads, and a write that
+includes it is refused before anything is saved. Each action is only accepted
+from the section variant that offers it. This is what stops the API from
+reopening the way back that `BLOCK_CALL_TO_ACTION` closes, so do not relax it
+for convenience. `sharing_admin_update` does not fire from REST, because its
 consumers read `$_POST`.
+
+The template placements, `sharing_buttons_auto_add` and `likes_auto_add`, are
+the one pair of settings only the React screen shows; the PHP screen keeps its
+Site Editor link until it retires (CM-945). They are offered in
+`BLOCK_CALL_TO_ACTION` alone, so they place the block where the legacy feature
+is already off rather than reopening it, and `likes_auto_add` also needs
+`Environment::likes_supported()`, since offline mode reaches that variant with
+nothing to hook. Each holds one side of the content at most: a write with both
+is refused, not trimmed by `Template_Placements::update()`. `status` links the
+Site Editor to the single template (`site_editor_url`) and to the page template
+(`page_template_editor_url`), each empty when the theme has no such template.
 
 Comment Likes are one boolean, `comment_likes_enabled`, whatever the platform
 stores. They are offered wherever `Environment::likes_supported()` holds, like
@@ -254,6 +285,69 @@ The routes and `Post_Handler` save through the same writers:
 `Feature_Actions`. Add a setting to the writer, not to one of its two callers,
 and never call `Sharing_Service::set_global_options()` directly (see
 `Sharing_Options::update()`).
+
+## Template placements
+
+`src/hooked-blocks/` adds the Sharing Buttons and Like blocks to block themes'
+single post and page templates with the Block Hooks API, before or after
+`core/post-content`. `Template_Placements` owns the two options,
+`jetpack_sharing_buttons_auto_add` and `jetpack_likes_auto_add`, and is their
+only writer. `Hooked_Blocks` registers the filters from `Initializer::init()` on
+every request, and `Sharing_Buttons_Markup` builds the block with its buttons.
+That markup has to match `sharing-buttons/save.jsx` exactly, or the Site Editor
+flags the block as invalid.
+
+Simple only reaches `Initializer::init()` on admin and public-api requests (see
+above), so on its front end the Sharing Buttons block's `register_block()` calls
+`Hooked_Blocks::init()` instead; calling it twice is harmless.
+
+**One side of the content per block.** Core builds templates and patterns with
+`insert_hooked_blocks_and_set_ignored_hooked_blocks_metadata()`, which records
+a type in the anchor's `metadata.ignoredHookedBlocks` as soon as its `before`
+pass inserts it. The `after` pass then skips that type, so a block hooked on both
+sides only ever shows before. That list is per block type and anchor, not per
+position, and saving a template in the Site Editor writes it for good: a block
+the owner removed stays removed, a saved block stays when its placement is
+unset, and once the single template is saved with a block on one side, moving it
+to the other side adds nothing there. Tests that call `apply_block_hooks_to_content()`
+with plain `insert_hooked_blocks` miss all of this; go through `get_block_template()`.
+
+**Which templates.** Posts and pages get the blocks; the
+`jetpack_sharing_likes_template_placement_post_types` filter changes that list,
+and with it which `single-{type}` templates, custom templates and singular
+requests count. `single` and `singular` serve every post type without a template
+of its own, so on the front end a singular request for a post type outside the
+list gets nothing. That only holds while the template comes from the theme: once
+the owner saves it in the Site Editor, the blocks are ordinary blocks in it and
+show on every post type it serves. A custom template that declares no post
+types, such as one made from the post editor, gets nothing, as with Newsletter's
+Subscribe block: only the request could say whether it serves a listed post
+type, and the Site Editor's never does, so the owner could not see or remove
+what the front end added. A block the owner already placed by hand in the
+template, the pattern or the post being viewed is not added again; one in a
+template part or synced pattern is not seen. The post being viewed also keeps
+out what it keeps out of the legacy buttons: its own Sharing or Likes switch, a
+Like on a password-protected post, and on Simple a Like on a post that switched
+Likes on, since the legacy button still shows there.
+
+**Never resolve a template inside a callback** (see `Hooked_Blocks`):
+`get_block_template()`, `Environment::single_template_editor_url()`,
+`Environment::page_template_editor_url()` and the sections' `state()` all
+recurse from there.
+
+**Order after the content: Sharing Buttons, Like, then Newsletter's Subscribe**,
+as the legacy buttons and Subscribe's classic-theme fallback have it. Filters on
+one priority run in registration order, and Simple sets this package up on
+`init:10`, after Subscribe's `init:9`, so `hooked_block_types` runs at 5.
+
+**Patterns.** A pattern counts when its `templateTypes` include a post or page
+template, as a template's slug would, unless a front-end request for anything
+but those post types is rendering it. Otherwise it falls back to `is_singular()`
+for the listed post types, which is never true in the Site Editor's REST
+requests. So on a theme that puts `core/post-content` in an untyped pattern, the
+blocks show on the front end but not in the Site Editor, and saving that
+template there inlines the pattern and records both blocks as ignored for good.
+The default themes don't do this.
 
 ## Placement defaults
 
@@ -293,7 +387,8 @@ be asserted without a bootstrapped site. Environment lookups belong in
 
 **A block theme is available to tests.** `tests/php/fixtures/themes/block-theme`
 ships `templates/single.html`, which is what makes `wp_is_block_theme()` true and
-gives `Environment::single_template_editor_url()` a real target. The `Section_Environment`
+gives `Environment::single_template_editor_url()` a real target, and `templates/page.html`
+for the template placements and `page_template_editor_url()`. The `Section_Environment`
 trait registers the directory and pins the stylesheet to it; the suite's default
 theme is neither a block theme nor resolvable, so nothing reaches the block
 variants without that pin.

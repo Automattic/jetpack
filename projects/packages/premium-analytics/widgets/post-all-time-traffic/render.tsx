@@ -3,7 +3,6 @@
  */
 import { toPostId, useReportScope } from '@jetpack-premium-analytics/data';
 import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	HeatmapSkeleton,
 	MonthlyHeatmap,
@@ -95,7 +94,6 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 					: null
 			}
 			empty={ {
-				icon: reports,
 				description:
 					postId > 0
 						? __( 'No views yet.', 'jetpack-premium-analytics-pkg' )
@@ -107,6 +105,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 			renderLoading={ <HeatmapSkeleton /> }
 		>
 			<MonthlyHeatmap
+				chartTitle={ __( 'All-time traffic', 'jetpack-premium-analytics-pkg' ) }
 				rows={ heatmapRows }
 				{ ...monthlyHeatmapLabels( metric ) }
 				onSelect={ openMonth }

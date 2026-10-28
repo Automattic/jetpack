@@ -16,14 +16,14 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 export type { AuthorPostsRecord };
 
 /**
- * Read the author's oldest published post plus the total from the response
- * headers. The posts endpoint only reports the count as `X-WP-Total`, which
- * apiFetch's default parse step discards, so this parses the page itself.
+ * Read the author's published post total from the response headers. The posts
+ * endpoint only reports the count as `X-WP-Total`, which apiFetch's default
+ * parse step discards, so this parses the page itself.
  *
  * @param authorId - The author's user ID.
- * @return The raw posts page and its total.
+ * @return The raw total.
  */
-async function fetchAuthorPosts( authorId: number ): Promise< { posts: unknown; total: unknown } > {
+async function fetchAuthorPostTotal( authorId: number ): Promise< unknown > {
 	let result: unknown;
 	try {
 		result = await apiFetch( {
@@ -31,9 +31,7 @@ async function fetchAuthorPosts( authorId: number ): Promise< { posts: unknown; 
 				author: authorId,
 				status: 'publish',
 				per_page: 1,
-				orderby: 'date',
-				order: 'asc',
-				_fields: 'id,date',
+				_fields: 'id',
 			} ),
 			parse: false,
 		} );
@@ -45,16 +43,15 @@ async function fetchAuthorPosts( authorId: number ): Promise< { posts: unknown; 
 	// Storybook's mocks resolve plain data and ignore `parse`; a page of posts
 	// with no headers counts what it holds.
 	if ( ! isResponse( result ) ) {
-		return { posts: result, total: Array.isArray( result ) ? result.length : 0 };
+		return Array.isArray( result ) ? result.length : 0;
 	}
 
-	return { posts: await result.json(), total: result.headers.get( 'X-WP-Total' ) };
+	return result.headers.get( 'X-WP-Total' );
 }
 
 /**
- * React Query options for one author's published post count and first publish
- * date, the header subtitle's inputs. Kept apart from `authorSummaryQuery` so
- * a failure here only costs the subtitle.
+ * React Query options for one author's published post count, for the header
+ * subtitle. A failure here only costs the count.
  *
  * @param authorId - The author's user ID.
  * @return The query options.
@@ -63,9 +60,7 @@ export function authorPostsQuery( authorId: number ): UseQueryOptions< AuthorPos
 	return {
 		queryKey: [ 'author-posts', authorId ],
 		queryFn: async () => {
-			const { posts, total } = await fetchAuthorPosts( authorId );
-
-			return sanitizeAuthorPostsResponse( posts, total );
+			return sanitizeAuthorPostsResponse( await fetchAuthorPostTotal( authorId ) );
 		},
 		enabled: toAuthorId( authorId ) > 0,
 	};

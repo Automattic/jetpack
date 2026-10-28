@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Remove legacy Flash player support so videos using the `flashonly` shortcode option display again.

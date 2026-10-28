@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Replace `copy-webpack-plugin` with native `output.copy` added in v5.111.0. Should be no change to build output.
+
+

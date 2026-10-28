@@ -58,4 +58,35 @@ describe( 'ThreatsDataViews', () => {
 			screen.getByText( 'WooCommerce <= 3.2.3 - Authenticated PHP Object Injection' )
 		).toBeInTheDocument();
 	} );
+
+	it( 'renders the list layout for a threat of unknown type', async () => {
+		// No extension, filename or core signature, so getThreatType() returns null.
+		const unknown = {
+			id: 'unknown-1',
+			title: 'Unclassified threat',
+			severity: 5,
+			status: 'current',
+		};
+		window.localStorage.setItem(
+			'test:threats:view',
+			JSON.stringify( {
+				type: 'list',
+				search: '',
+				filters: [],
+				page: 1,
+				perPage: 20,
+				titleField: 'title',
+				mediaField: 'icon',
+				showMedia: true,
+				fields: [],
+			} )
+		);
+
+		render( <ThreatsDataViews data={ [ unknown ] } persistKey="test:threats:view" /> );
+		// eslint-disable-next-line testing-library/no-unnecessary-act -- No user action to wrap; this settles internal ariakit state
+		await act( async () => {} );
+
+		expect( screen.getByText( 'Unclassified threat' ) ).toBeInTheDocument();
+		window.localStorage.removeItem( 'test:threats:view' );
+	} );
 } );

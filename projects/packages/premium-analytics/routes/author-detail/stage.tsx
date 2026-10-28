@@ -3,13 +3,13 @@
  */
 import {
 	AnalyticsQueryClientProvider,
-	getApiErrorStatus,
 	PeriodChangeSignalProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import {
 	buildReportLink,
+	DashboardWidgetHostProvider,
 	pickReportNavigationParams,
 	usePeriodHost,
 	useReportDateFilters,
@@ -29,6 +29,7 @@ import {
 	DetailPageShell,
 	describeError,
 	useDetailPageCustomize,
+	useHostLinkSearch,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
 	type PageNoticeProps,
@@ -47,7 +48,7 @@ import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-modul
 import { toWidgetTypeBaseNames, withWidgetTypeAliases } from '../widget-type-aliases';
 import { authorHeaderSlots } from './components';
 import { AUTHOR_DETAIL_LAYOUT, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES } from './config';
-import { useAuthorAllTimeStart, useAuthorSummary } from './hooks';
+import { authorDisplayName, useAuthorAllTimeStart, useAuthorSummary } from './hooks';
 import { route } from './package.json';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 import type { JSX } from 'react';
@@ -131,6 +132,8 @@ function AuthorDetail(): JSX.Element {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportNavigationParams( search );
 
+	// The All-time traffic card shares the summary's request, so mounting cards
+	// over a failed one would refetch it and loop between loading and error.
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
 
 	// The All-time traffic card opens a month as this page's period.
@@ -157,40 +160,30 @@ function AuthorDetail(): JSX.Element {
 		surface: 'author_detail',
 	} );
 
-	// The trail is fixed to Stats / All authors / Author regardless of which report
-	// the reader arrived from: the author list is this page's only parent.
+	// The trail is Stats / All authors / <name> regardless of which report the reader
+	// arrived from. Only a resolved author is named: a failed refetch keeps the stale name.
+	const authorName = canRenderWidgets ? authorDisplayName( summary ) : undefined;
 	const breadcrumbs = useMemo(
 		() => [
 			{
 				label: __( 'All authors', 'jetpack-premium-analytics-pkg' ),
 				to: buildReportLink( 'authors', search ),
 			},
-			{ label: __( 'Author', 'jetpack-premium-analytics-pkg' ) },
+			{ label: authorName || __( 'Author', 'jetpack-premium-analytics-pkg' ) },
 		],
-		[ search ]
+		[ search, authorName ]
 	);
 
 	let notice: PageNoticeProps | null = null;
 
 	if ( summary.isError ) {
-		// Same split as the widgets, plus a 404: sites that hide the users
-		// endpoint answer with one, and no Retry brings it back.
-		notice =
-			getApiErrorStatus( summary.error ) === 404
-				? {
-						intent: 'info',
-						description: __(
-							"This site doesn't share author profiles.",
-							'jetpack-premium-analytics-pkg'
-						),
-					}
-				: describeError( summary.error, {
-						retryDescription: __(
-							"We couldn't load this author. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						onRetry: summary.refetch,
-					} );
+		notice = describeError( summary.error, {
+			retryDescription: __(
+				"We couldn't load this author. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			),
+			onRetry: summary.refetch,
+		} );
 	} else if ( summary.isNotFound ) {
 		notice = {
 			intent: 'info',
@@ -225,63 +218,65 @@ function AuthorDetail(): JSX.Element {
 				appliedRange={ dateFilters.appliedRange }
 			/>
 			<ReportScopeProvider openPeriod={ openPeriod }>
-				<WidgetDashboard.Policy canPerform={ canPerform }>
-					<WidgetDashboard
-						widgetTypes={ pageWidgetTypes }
-						isResolvingWidgetTypes={ isResolvingWidgetTypes }
-						resolveWidgetModule={ resolveWidgetModule }
-						layout={ layout }
-						onLayoutChange={ onLayoutChange }
-						onLayoutReset={ resetLayout }
-						gridSettings={ DETAIL_GRID }
-						editMode={ isCustomizing }
-						onEditChange={ onEditChange }
-					>
-						<DetailPageShell
-							visual={ <StatsPageIcon /> }
-							breadcrumbs={
-								<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
-									<StatsBreadcrumbs items={ breadcrumbs } />
-								</DetailPageBreadcrumbs>
-							}
-							actions={
-								<DetailPageActions
-									isCustomizing={ isCustomizing }
-									onCustomize={ canCustomize ? startCustomizing : undefined }
-									onReset={ resetToDefault }
-									editingActions={ <WidgetDashboard.Actions /> }
-								/>
-							}
+				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
+					<WidgetDashboard.Policy canPerform={ canPerform }>
+						<WidgetDashboard
+							widgetTypes={ pageWidgetTypes }
+							isResolvingWidgetTypes={ isResolvingWidgetTypes }
+							resolveWidgetModule={ resolveWidgetModule }
+							layout={ layout }
+							onLayoutChange={ onLayoutChange }
+							onLayoutReset={ resetLayout }
+							gridSettings={ DETAIL_GRID }
+							editMode={ isCustomizing }
+							onEditChange={ onEditChange }
 						>
-							<DetailPageLayout
-								header={ authorHeaderSlots( { summary } ) }
-								// The presets render in every summary state, so the range stays
-								// adjustable while the author loads or errors.
-								controls={
-									<DateFiltersPanel
-										{ ...dateFilters }
-										{ ...dateControls }
-										onChange={ onDateChange }
-										onApply={ onDateApply }
-										attentionId={ attentionId }
+							<DetailPageShell
+								visual={ <StatsPageIcon /> }
+								breadcrumbs={
+									<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
+										<StatsBreadcrumbs items={ breadcrumbs } />
+									</DetailPageBreadcrumbs>
+								}
+								actions={
+									<DetailPageActions
+										isCustomizing={ isCustomizing }
+										onCustomize={ canCustomize ? startCustomizing : undefined }
+										onReset={ resetToDefault }
+										editingActions={ <WidgetDashboard.Actions /> }
 									/>
 								}
-								returnToTopKey={ attentionId }
 							>
-								{ canRenderWidgets ? (
-									<DetailPageSection>
-										<WidgetDashboard.Widgets />
-									</DetailPageSection>
-								) : null }
-								{ notice ? (
-									<DetailPageSection>
-										<PageNotice { ...notice } />
-									</DetailPageSection>
-								) : null }
-							</DetailPageLayout>
-						</DetailPageShell>
-					</WidgetDashboard>
-				</WidgetDashboard.Policy>
+								<DetailPageLayout
+									header={ authorHeaderSlots( { summary } ) }
+									// The presets render in every summary state, so the range stays
+									// adjustable while the author loads or errors.
+									controls={
+										<DateFiltersPanel
+											{ ...dateFilters }
+											{ ...dateControls }
+											onChange={ onDateChange }
+											onApply={ onDateApply }
+											attentionId={ attentionId }
+										/>
+									}
+									returnToTopKey={ attentionId }
+								>
+									{ canRenderWidgets ? (
+										<DetailPageSection>
+											<WidgetDashboard.Widgets />
+										</DetailPageSection>
+									) : null }
+									{ notice ? (
+										<DetailPageSection>
+											<PageNotice { ...notice } />
+										</DetailPageSection>
+									) : null }
+								</DetailPageLayout>
+							</DetailPageShell>
+						</WidgetDashboard>
+					</WidgetDashboard.Policy>
+				</DashboardWidgetHostProvider>
 			</ReportScopeProvider>
 		</>
 	);

@@ -122,7 +122,7 @@ describe(
 		it( 'stamps real gettext calls but not gettext-shaped calls on other objects', () => {
 			// Runs before the strip tests below, matching the real build order
 			// (`build:stamp-textdomains` then `build:strip-unminified-prod`).
-			assert.ok( stampDir( FIXTURE_BUILD, DOMAIN ) > 0, 'some bundles were stamped' );
+			assert.ok( stampDir( FIXTURE_BUILD, DOMAIN ).count > 0, 'some bundles were stamped' );
 
 			for ( const file of [ 'routes/dashboard/content.js', 'routes/dashboard/content.min.js' ] ) {
 				const src = readFileSync( path.join( FIXTURE_BUILD, file ), 'utf8' );

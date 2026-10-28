@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { errorCode, isAmbiguousFailure } from '../data/api/_helpers';
+import { ApiError, errorCode, isAmbiguousFailure } from '../data/api/_helpers';
 import {
 	fetchRecentRestores,
 	fetchRestoreStatus,
@@ -14,6 +14,7 @@ import {
 } from '../data/api/restore';
 import { keys } from '../data/query-client';
 import { useAdoptedRestore } from './use-adopted-restore';
+import { RECONNECT_AFTER_FAILURES, usePollFailures } from './use-poll-failures';
 import type { AdoptedRestore } from './use-adopted-restore';
 import type { RestoreStatusResponse } from '../data/api/restore';
 import type { ReferenceId } from '../types/failure-reference';
@@ -21,8 +22,13 @@ import type { RestoreItems, RestoreState } from '../types/restore';
 
 type Result = {
 	state: RestoreState;
-	submit: ( items: RestoreItems ) => void;
+	submit: ( items: RestoreItems, acknowledgeThreats?: boolean ) => void;
 	reset: () => void;
+	/**
+	 * Set on a server-side refusal over unacknowledged known threats. An edge case: the screen
+	 * normally asks first, and is refused only when its own check was unavailable or out of date.
+	 */
+	threatsRefused: boolean;
 	/**
 	 * Set when the restore on screen was already running before this
 	 * screen opened, rather than started here. Carries the backup it is
@@ -41,7 +47,7 @@ type Result = {
  * no responsiveness and costs a WordPress.com round trip per tick for its
  * whole duration.
  */
-const POLL_INTERVAL_MS = 5000;
+export const POLL_INTERVAL_MS = 5000;
 
 /**
  * How long the screen will go without a recognisable sign of life before
@@ -73,8 +79,12 @@ type DeriveInput = {
 	/** Our restore, found already over in the collection; null when no row matches. */
 	settledOutcome: { succeeded: boolean; restoreId: number } | null;
 	statusError: Error | null;
+	/** Consecutive failed status polls since the last good one. */
+	pollFailures: number;
 	data: RestoreStatusResponse | undefined;
 	lostTrack: boolean;
+	/** Whether the restores collection has been read successfully since submitting. */
+	restoresRead: boolean;
 };
 
 /**
@@ -101,8 +111,10 @@ function deriveState( input: DeriveInput ): RestoreState {
 		restoreId,
 		settledOutcome,
 		statusError,
+		pollFailures,
 		data,
 		lostTrack,
+		restoresRead,
 	} = input;
 
 	if ( errorMessage ) {
@@ -143,6 +155,14 @@ function deriveState( input: DeriveInput ): RestoreState {
 						reference: { code: null, id: { kind: 'restore', value: settledOutcome.restoreId } },
 					};
 		}
+		// A collection we could not read has not shown that nothing started.
+		if ( lostTrack && ! restoresRead ) {
+			return {
+				phase: 'lost-track',
+				detail: unconfirmed,
+				reference: { code: failureCode, id: referenceId },
+			};
+		}
 		if ( lostTrack ) {
 			return {
 				phase: 'error',
@@ -162,7 +182,14 @@ function deriveState( input: DeriveInput ): RestoreState {
 	// likely still running — we just cannot watch it any more. Reporting
 	// that as an error offers a retry, which upstream refuses as a bare
 	// failure rather than as anything the reader can act on.
-	if ( restoreId !== null && statusError ) {
+	//
+	// Unless the last reading showed the restore alive, or there is no reading
+	// yet: then a failed poll is temporary, and the silence deadline decides.
+	if (
+		restoreId !== null &&
+		statusError &&
+		( lostTrack || ( data !== undefined && ! isSignOfLife( data.status ) ) )
+	) {
 		return {
 			phase: 'lost-track',
 			detail: statusError.message || null,
@@ -193,6 +220,7 @@ function deriveState( input: DeriveInput ): RestoreState {
 				phase: 'progress',
 				percent: Math.round( data.progress ?? 0 ),
 				message: data.message,
+				...( pollFailures >= RECONNECT_AFTER_FAILURES && { reconnecting: true } ),
 			};
 		default:
 			// `queued`, `not-found`, `unknown`, or nothing yet. All the
@@ -265,6 +293,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 	// Set once the restore is accepted, whether or not it came with an id.
 	// Distinguishes "queued, id unknown" from "not started".
 	const [ startedRewindId, setStartedRewindId ] = useState< string | null >( null );
+	const [ threatsRefused, setThreatsRefused ] = useState( false );
 	// When we last had a recognisable sign of life, and whether the
 	// deadline measured from it has passed.
 	//
@@ -292,7 +321,13 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		reset: resetMutation,
 		isPending,
 	} = useMutation( {
-		mutationFn: async ( items: RestoreItems ) => {
+		mutationFn: async ( {
+			items,
+			acknowledgeThreats,
+		}: {
+			items: RestoreItems;
+			acknowledgeThreats?: boolean;
+		} ) => {
 			// The mount lookup answered once, possibly a long time ago. A
 			// screen left open while a colleague started a restore from
 			// Calypso is the very scenario this hook exists for, just
@@ -307,7 +342,9 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 			if ( running !== null ) {
 				return { adopt: running } as const;
 			}
-			return { started: await initiateRestore( rewindId, items ) } as const;
+			return {
+				started: await initiateRestore( rewindId, items, acknowledgeThreats ),
+			} as const;
 		},
 		onSuccess: outcome => {
 			setFailureCode( null );
@@ -330,6 +367,12 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 			}
 		},
 		onError: ( err: Error ) => {
+			// The edge case where the server refused over known threats: nothing started, so go back
+			// to the confirm step and ask for the acknowledgement there.
+			if ( err instanceof ApiError && err.code === 'threats_not_acknowledged' ) {
+				setThreatsRefused( true );
+				return;
+			}
 			setFailureCode( errorCode( err ) );
 			// We never saw an answer, so the restore may be running. Enter
 			// the same recovery the no-id case uses and let it decide:
@@ -391,6 +434,16 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		enabled: recovering && enabled,
 		refetchInterval: recovering ? POLL_INTERVAL_MS : false,
 	} );
+
+	// Latched: a later unreadable read must not take back an earlier good one.
+	const [ restoresRead, setRestoresRead ] = useState( false );
+	const restoresData = restoresQuery.data;
+	const restoresUpdatedAt = restoresQuery.dataUpdatedAt;
+	useEffect( () => {
+		if ( aliveAt !== null && Array.isArray( restoresData ) && restoresUpdatedAt >= aliveAt ) {
+			setRestoresRead( true );
+		}
+	}, [ aliveAt, restoresData, restoresUpdatedAt ] );
 
 	const recoveredId = useMemo( () => {
 		if ( ! needsId || startedRewindId === null ) {
@@ -461,6 +514,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 	// Clearing `lostTrack` is what makes it mean "nothing heard lately"
 	// rather than "there was once a five-minute gap". Without it the flag
 	// latches on the first gap and no later evidence can undo it.
+	const pollFailures = usePollFailures( statusQuery.errorUpdatedAt, statusQuery.dataUpdatedAt );
 	const observedStatus = statusQuery.data?.status;
 	const statusUpdatedAt = statusQuery.dataUpdatedAt;
 	useEffect( () => {
@@ -486,7 +540,11 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		return () => clearTimeout( timer );
 	}, [ aliveAt, lostTrack, settled ] );
 
-	const submit = useCallback( ( items: RestoreItems ) => kickOff( items ), [ kickOff ] );
+	const submit = useCallback(
+		( items: RestoreItems, acknowledgeThreats?: boolean ) =>
+			kickOff( { items, acknowledgeThreats } ),
+		[ kickOff ]
+	);
 	const reset = useCallback( () => {
 		setAdopted( null );
 		setSubmittedId( null );
@@ -494,8 +552,10 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		setFailureCode( null );
 		setUnconfirmed( null );
 		setStartedRewindId( null );
+		setThreatsRefused( false );
 		setAliveAt( null );
 		setLostTrack( false );
+		setRestoresRead( false );
 		lastSeenUpdateAt.current = 0;
 		resetMutation();
 	}, [ resetMutation ] );
@@ -514,14 +574,17 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		restoreId,
 		settledOutcome,
 		statusError: statusQuery.error,
+		pollFailures,
 		data: statusQuery.data,
 		lostTrack,
+		restoresRead,
 	} );
 
 	return {
 		state,
 		submit,
 		reset,
+		threatsRefused,
 		adopted: adopted && ! hasOwnSubmission ? { rewindId: adopted.rewindId } : null,
 	};
 }

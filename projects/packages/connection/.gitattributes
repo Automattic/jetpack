@@ -7,7 +7,10 @@ docs/            export-ignore
 
 # Files not needed in the production build.
 # (see also entries in the monorepo root .gitattributes)
-src/js/**         production-exclude
-/dist/*.css.map   production-exclude
-/dist/*.js.map    production-exclude
+src/js/**                   production-exclude
+/dist/*.css.map             production-exclude
+/dist/*.js.map              production-exclude
+/dist/connectors/*.js.map   production-exclude
 src/identity-crisis/_inc/** production-exclude
+src/connectors/js/**        production-exclude
+/bin/**                     production-exclude

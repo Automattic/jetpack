@@ -143,12 +143,12 @@ export function deleteExistingLink( id ) {
 		return true;
 	};
 	return apiFetch( { path: `${ API_BASE }/buttons/${ id }`, method: 'DELETE' } )
-		.then( () => drop( __( 'Payment link deleted.', 'jetpack-paypal-payments' ) ) )
+		.then( () => drop( __( 'Payment button deleted.', 'jetpack-paypal-payments' ) ) )
 		.catch( err => {
 			// Already gone from PayPal, so the list is stale rather than the delete failed.
 			if ( isNotFound( err ) ) {
 				return drop(
-					__( 'The payment link was already removed from PayPal.', 'jetpack-paypal-payments' )
+					__( 'The payment button was already removed from PayPal.', 'jetpack-paypal-payments' )
 				);
 			}
 			toast( 'error', getUserFriendlyError( err ) );

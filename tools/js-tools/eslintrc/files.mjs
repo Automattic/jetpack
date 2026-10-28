@@ -12,7 +12,6 @@ export const javascriptFiles = [
 	'**/*.tsx',
 	'**/*.cts',
 	'**/*.mts',
-	'**/*.svelte',
 ];
 
 /**

@@ -19,3 +19,12 @@ export function getSharingLikesScriptData(): SharingLikesScriptData | undefined 
 export function getPlacementChoices(): PlacementChoice[] {
 	return getSharingLikesScriptData()?.placement_choices ?? [];
 }
+
+/**
+ * Whether the site is private, which restricts the services some hosts offer.
+ *
+ * @return Whether it is private.
+ */
+export function isPrivateSite(): boolean {
+	return getSharingLikesScriptData()?.private_site ?? false;
+}

@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Button, LinkButton } from '@wordpress/ui';
+import { Button, ButtonLink } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import useActivePlugins from '../../../hooks/use-active-plugins';
 import { getProductGroup } from '../../activation-screen/utils';
@@ -34,12 +34,12 @@ const PrimaryLink = props => {
 
 	if ( isJetpackSocialProduct && ( isJetpackActive || isJetpackSocialActive ) ) {
 		return (
-			<LinkButton
+			<ButtonLink
 				className="jp-license-activation-screen-success-info--button"
 				href={ siteAdminUrl + 'admin.php?page=jetpack-social' }
 			>
 				{ __( 'Configure my site', 'jetpack-licensing' ) }
-			</LinkButton>
+			</ButtonLink>
 		);
 	}
 
@@ -48,22 +48,22 @@ const PrimaryLink = props => {
 			? siteAdminUrl + 'admin.php?page=jetpack-protect'
 			: getRedirectUrl( 'jetpack-license-activation-success-scan', { site: siteRawUrl } );
 		return (
-			<LinkButton
+			<ButtonLink
 				className="jp-license-activation-screen-success-info--button"
 				href={ redirectSource }
 			>
 				{ __( 'View scan results', 'jetpack-licensing' ) }
-			</LinkButton>
+			</ButtonLink>
 		);
 	}
 
 	return (
-		<LinkButton
+		<ButtonLink
 			className="jp-license-activation-screen-success-info--button"
 			href={ getRedirectUrl( 'license-activation-view-my-plans', { site: siteRawUrl } ) }
 		>
 			{ __( 'View my plans', 'jetpack-licensing' ) }
-		</LinkButton>
+		</ButtonLink>
 	);
 };
 

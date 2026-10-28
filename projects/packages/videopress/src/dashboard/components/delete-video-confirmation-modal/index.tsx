@@ -100,7 +100,7 @@ export function DeleteVideoConfirmationDialog( {
 			<Dialog.Popup size="small">
 				<Dialog.Header>
 					<Dialog.Title>{ getDeleteVideoConfirmationTitle( count ) }</Dialog.Title>
-					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
+					<Dialog.CloseIconButton label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
 				</Dialog.Header>
 				<Dialog.Content>
 					<DeleteVideoConfirmationModal

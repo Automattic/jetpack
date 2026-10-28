@@ -40,29 +40,21 @@ describe( 'authorPostsQuery', () => {
 		expect( authorPostsQuery( 7 ).enabled ).toBe( true );
 	} );
 
-	it( 'reads the oldest post and the posts total header', async () => {
-		mockApiFetch.mockResolvedValueOnce(
-			postsResponse( [ { id: 3, date: '2023-07-04T10:00:00' } ], '12' )
-		);
+	it( 'reads the posts total header', async () => {
+		mockApiFetch.mockResolvedValueOnce( postsResponse( [ { id: 3 } ], '12' ) );
 
-		await expect( run( 7 ) ).resolves.toEqual( {
-			postCount: 12,
-			firstPublishedDate: '2023-07-04T10:00:00',
-		} );
+		await expect( run( 7 ) ).resolves.toEqual( { postCount: 12 } );
 
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
-			path: '/wp/v2/posts?author=7&status=publish&per_page=1&orderby=date&order=asc&_fields=id%2Cdate',
+			path: '/wp/v2/posts?author=7&status=publish&per_page=1&_fields=id',
 			parse: false,
 		} );
 	} );
 
 	it( 'counts a pre-parsed posts page when there are no headers to read', async () => {
-		mockApiFetch.mockResolvedValueOnce( [ { id: 3, date: '2024-01-01' } ] );
+		mockApiFetch.mockResolvedValueOnce( [ { id: 3 } ] );
 
-		await expect( run( 7 ) ).resolves.toEqual( {
-			postCount: 1,
-			firstPublishedDate: '2024-01-01',
-		} );
+		await expect( run( 7 ) ).resolves.toEqual( { postCount: 1 } );
 	} );
 
 	it( 'normalizes a failed response so the status survives', async () => {

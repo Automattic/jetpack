@@ -4,7 +4,7 @@
 import { AdminPage, Col, Container, TermsOfService } from '@automattic/jetpack-components';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
-import { LinkButton } from '@wordpress/ui';
+import { ButtonLink } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 /**
@@ -20,7 +20,6 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
-import ProductDetailTable from '../product-detail-table';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
 import styles from './style.module.scss';
 
@@ -63,7 +62,21 @@ export default function ProductInterstitial( {
 	feature = null,
 } ) {
 	const { detail } = useProduct( slug );
-	const { detail: bundleDetail } = useProduct( bundle );
+	const { detail: proDetail } = useProduct( 'pro' );
+	const { detail: legacyBundleDetail } = useProduct( bundle );
+	const proIsOnSale = proDetail?.pricingForUi?.catalogAvailable === true;
+	const legacyIsRetired = legacyBundleDetail?.pricingForUi?.available === false;
+	const preferredBundle =
+		proDetail?.pricingForUi?.available === true && ! proDetail?.hasPaidPlanForProduct
+			? 'pro'
+			: 'complete';
+	const fallbackBundle =
+		legacyIsRetired && ! legacyBundleDetail?.hasPaidPlanForProduct
+			? legacyBundleDetail?.purchaseReplacement?.slug
+			: bundle;
+	const offeredBundle = bundle && proIsOnSale ? preferredBundle : fallbackBundle;
+	const showSidebar = ! bundle || Boolean( offeredBundle || children );
+	const { detail: bundleDetail } = useProduct( offeredBundle );
 	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 
 	// Get the post activation URL for the product.
@@ -73,15 +86,18 @@ export default function ProductInterstitial( {
 		redirectUri = detail.postActivationUrlsByFeature[ feature ];
 	}
 
-	const { isUpgradableByBundle, pricingForUi, isTieredPricing } = detail;
+	const { isUpgradableByBundle, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
+	const { onClickGoBack, backTo } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
 	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri,
 	} );
-	const showBundledTOS = ! hideTOS && !! bundle;
+	const showBundledTOS =
+		! hideTOS &&
+		!! bundle &&
+		( ! ( proIsOnSale || legacyIsRetired ) || bundleDetail?.pricingForUi?.available === true );
 	const productName = detail?.title;
 	const bundleName = bundleDetail?.title;
 	const bundledTosLabels = [
@@ -127,8 +143,8 @@ export default function ProductInterstitial( {
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
 
 	const clickHandler = useCallback(
-		( checkout, product, tier ) => {
-			ctaCallback?.( { slug, product, tier } );
+		( checkout, product ) => {
+			ctaCallback?.( { slug, product } );
 
 			if ( product?.isBundle || directCheckout ) {
 				// Get straight to the checkout page.
@@ -149,12 +165,8 @@ export default function ProductInterstitial( {
 
 						// there is a separate hasRequiredTier, but it is not implemented
 						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
-						const isFree = tier
-							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
-							: product?.pricingForUi?.isFree;
-						const isUpgradeToHigherTier =
-							tier && product?.pricingForUi?.tiers?.[ tier ] && ! isFree && product?.isUpgradable;
-						const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || isUpgradeToHigherTier;
+						const isFree = product?.pricingForUi?.isFree;
+						const needsPurchase = ! isFree && ! hasPaidPlanForProduct;
 
 						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
 						// This is done because CRM is not part of the WP billing system
@@ -205,63 +217,52 @@ export default function ProductInterstitial( {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ MyJetpackRoutes.Features }
+					to={ backTo }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
 			actions={
 				existingLicenseKeyUrl ? (
-					<LinkButton size="compact" variant="outline" href={ existingLicenseKeyUrl }>
+					<ButtonLink size="compact" variant="outline" href={ existingLicenseKeyUrl }>
 						{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-					</LinkButton>
+					</ButtonLink>
 				) : null
 			}
 		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>
-					{ isTieredPricing ? (
-						<ProductDetailTable
-							slug={ slug }
-							clickHandler={ clickHandler }
-							onProductButtonClick={ clickHandler }
-							trackProductButtonClick={ trackProductOrBundleClick }
-							preferProductName={ preferProductName }
-							isFetching={ isActivating || siteIsRegistering }
-							isFetchingSuccess={ isSuccess }
-							feature={ feature }
-						/>
-					) : (
-						<Container
-							className={ ! isUpgradableByBundle ? styles.container : null }
-							horizontalSpacing={ 0 }
-							horizontalGap={ 0 }
-							fluid
-						>
-							<Col sm={ 4 } md={ 4 } lg={ 7 }>
-								<ProductDetailCard
-									slug={ slug }
-									trackButtonClick={ trackProductOrBundleClick }
-									onClick={ installsPlugin ? clickHandler : undefined }
-									className={ isUpgradableByBundle ? styles.container : null }
-									supportingInfo={ supportingInfo }
-									preferProductName={ preferProductName }
-									ctaButtonLabel={ ctaButtonLabel }
-									hideTOS={ hideTOS || showBundledTOS }
-									quantity={ quantity }
-									highlightLastFeature={ highlightLastFeature }
-									isFetching={ isActivating || siteIsRegistering }
-									isFetchingSuccess={ isSuccess }
-								/>
-							</Col>
+					<Container
+						className={ ! isUpgradableByBundle ? styles.container : null }
+						horizontalSpacing={ 0 }
+						horizontalGap={ 0 }
+						fluid
+					>
+						<Col sm={ 4 } md={ showSidebar ? 4 : 8 } lg={ showSidebar ? 7 : 12 }>
+							<ProductDetailCard
+								slug={ slug }
+								trackButtonClick={ trackProductOrBundleClick }
+								onClick={ installsPlugin ? clickHandler : undefined }
+								className={ isUpgradableByBundle ? styles.container : null }
+								supportingInfo={ supportingInfo }
+								preferProductName={ preferProductName }
+								ctaButtonLabel={ ctaButtonLabel }
+								hideTOS={ hideTOS || showBundledTOS }
+								quantity={ quantity }
+								highlightLastFeature={ highlightLastFeature }
+								isFetching={ isActivating || siteIsRegistering }
+								isFetchingSuccess={ isSuccess }
+							/>
+						</Col>
+						{ showSidebar && (
 							<Col
 								sm={ 4 }
 								md={ 4 }
 								lg={ 5 }
 								className={ clsx( styles.imageContainer, imageContainerClassName ) }
 							>
-								{ bundle ? (
+								{ bundle && offeredBundle && (
 									<ProductDetailCard
-										slug={ bundle }
+										slug={ offeredBundle }
 										trackButtonClick={ trackProductOrBundleClick }
 										onClick={ clickHandler }
 										className={ isUpgradableByBundle ? styles.container : null }
@@ -272,12 +273,11 @@ export default function ProductInterstitial( {
 										isFetchingSuccess={ isSuccess }
 										isUpsell={ true }
 									/>
-								) : (
-									children
 								) }
+								{ ! offeredBundle && children }
 							</Col>
-						</Container>
-					) }
+						) }
+					</Container>
 				</Col>
 				<Col>
 					{ showBundledTOS && (

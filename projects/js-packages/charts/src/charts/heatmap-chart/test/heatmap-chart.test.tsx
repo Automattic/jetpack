@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { buildMonthCalendarHeatmapData } from '../build-month-calendar-data';
@@ -486,8 +486,8 @@ describe( 'HeatmapChart', () => {
 		);
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '#6c83ef' );
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#283ea5' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '#7f93f1' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#3554df' );
 
 		document.body.removeChild( scope );
 	} );
@@ -586,7 +586,7 @@ const mockRects = () =>
 describe( 'HeatmapChart value text contrast', () => {
 	// The low end, a mid-tone, and the high end of the scale.
 	const scale: HeatmapColumn[] = [
-		{ label: 'W1', data: [ { value: 1 }, { value: 30 }, { value: 100 } ] },
+		{ label: 'W1', data: [ { value: 1 }, { value: 60 }, { value: 100 } ] },
 	];
 
 	let injectedStyle: HTMLStyleElement | null = null;
@@ -619,7 +619,7 @@ describe( 'HeatmapChart value text contrast', () => {
 	test( 'falls back to black on a mid-tone cell where neither role reaches AA', () => {
 		renderScale();
 
-		expect( screen.getByText( '30' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
+		expect( screen.getByText( '60' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
 	} );
 
 	test( 'reads the label roles once data arrives after an empty first render', () => {
@@ -691,7 +691,7 @@ describe( 'HeatmapChart value text contrast', () => {
 
 		renderScale( 'pinned-heatmap' );
 
-		[ '1', '30', '100' ].forEach( value =>
+		[ '1', '60', '100' ].forEach( value =>
 			expect( screen.getByText( value ) ).toHaveClass( 'heatmap-chart__cell-value', {
 				exact: true,
 			} )
@@ -966,6 +966,114 @@ describe( 'HeatmapChart column groups', () => {
 	} );
 } );
 
+describe( 'HeatmapChart fitCells', () => {
+	const threeMonths = Array.from( { length: 6 }, ( _, index ) => ( {
+		data: [ { value: index }, { value: index + 1 } ],
+	} ) );
+	const columnGroups = [
+		{ label: 'Jan', span: 2 },
+		{ label: 'Feb', span: 2 },
+		{ label: 'Mar', span: 2 },
+	];
+
+	let widthSpy: jest.SpyInstance;
+	let heightSpy: jest.SpyInstance;
+
+	beforeEach( () => {
+		widthSpy = jest.spyOn( Element.prototype, 'clientWidth', 'get' ).mockReturnValue( 400 );
+		heightSpy = jest.spyOn( Element.prototype, 'clientHeight', 'get' ).mockReturnValue( 400 );
+	} );
+
+	afterEach( () => {
+		widthSpy.mockRestore();
+		heightSpy.mockRestore();
+	} );
+
+	test( 'wraps the groups that fit better on a second band below the first, cells grown to match', () => {
+		renderChart( { data: threeMonths, columnGroups, compact: true, fitCells: true } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
+			'91px'
+		);
+		const [ , feb, mar ] = screen.getAllByTestId( 'heatmap-group-label' );
+		expect( feb ).toHaveStyle( { gridColumn: '5 / span 2', gridRow: '3' } );
+		// Band one takes rows 1-2, its labels 3 and the gap 4, so band two's labels sit on 7.
+		expect( mar ).toHaveStyle( { gridColumn: '2 / span 2', gridRow: '7' } );
+		const marchCell = screen
+			.getAllByTestId( 'heatmap-cell' )
+			.find( element => element.dataset.column === '4' && element.dataset.row === '0' );
+		expect( marchCell ).toHaveStyle( { gridColumn: '2', gridRow: '5' } );
+	} );
+
+	test( 'keeps the theme size, with a warning, when a column is a summary', () => {
+		renderChart( {
+			data: [
+				...threeMonths,
+				{ label: 'Total', summary: true, data: [ { value: 1 }, { value: 2 } ] },
+			],
+			columnGroups,
+			compact: true,
+			fitCells: true,
+		} );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
+			'11px'
+		);
+		expect( console ).toHaveWarned();
+	} );
+
+	test( 'leaves the grid the box less the content beside it', () => {
+		const offsetHeight = jest
+			.spyOn( HTMLElement.prototype, 'offsetHeight', 'get' )
+			.mockImplementation( function ( this: HTMLElement ) {
+				return this.dataset.testid === 'beside-grid' ? 100 : 0;
+			} );
+		try {
+			renderChart( {
+				data: threeMonths,
+				columnGroups,
+				compact: true,
+				fitCells: true,
+				children: <div data-testid="beside-grid" />,
+			} );
+			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+			expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
+				'66px'
+			);
+		} finally {
+			offsetHeight.mockRestore();
+		}
+	} );
+
+	test( 'refits within the resize delivery, before later observers read the grid', () => {
+		const observers: ResizeObserverCallback[] = [];
+		const original = window.ResizeObserver;
+		window.ResizeObserver = class {
+			constructor( private callback: ResizeObserverCallback ) {}
+			observe() {
+				observers.push( this.callback );
+			}
+			unobserve() {}
+			disconnect() {}
+		} as unknown as typeof ResizeObserver;
+		try {
+			renderChart( { data: threeMonths, columnGroups, compact: true, fitCells: true } );
+			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+			heightSpy.mockReturnValue( 100 );
+			let cellSize = '';
+			act( () => {
+				observers.forEach( callback => callback( [], {} as ResizeObserver ) );
+				cellSize = grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' );
+			} );
+			expect( cellSize ).toBe( '48px' );
+			const [ , , mar ] = screen.getAllByTestId( 'heatmap-group-label' );
+			expect( mar ).toHaveStyle( { gridRow: '3' } );
+		} finally {
+			window.ResizeObserver = original;
+		}
+	} );
+} );
+
 describe( 'HeatmapChart calendar navigation', () => {
 	const calendar = ( range: { start: string; end: string }, days: string[] ) =>
 		buildMonthCalendarHeatmapData(
@@ -1114,12 +1222,6 @@ describe( 'HeatmapChart calendar navigation', () => {
 } );
 
 describe( 'HeatmapChart naming and focus', () => {
-	test( 'names the grid from ariaLabel when given', () => {
-		renderChart( { ariaLabel: 'Monthly posting activity' } );
-		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'grid', { name: /heatmap chart/i } ) ).not.toBeInTheDocument();
-	} );
-
 	test( 'scrolls the keyboard-selected cell into view', async () => {
 		// jsdom has no scrollIntoView; the assertion is that the chart asks for it.
 		const scrollIntoView = jest.fn();

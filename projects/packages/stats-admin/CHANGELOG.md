@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.39.1 - 2026-10-26
+### Changed
+- Admin bar: Load the views chart without relying on the Stats page. [#53831]
+
+## 0.39.0 - 2026-10-12
+### Added
+- Add the jetpack_stats_url filter to the admin bar views chart, the admin bar Stats menu link and the post list Views column, and deprecate jetpack_stats_post_list_column_url in its favor. [#52905]
+- Stats app: Pass the site timezone to the app, so links into the new analytics dashboard keep whole days across daylight-saving changes. [#52905]
+
+### Changed
+- Admin bar: Add the Stats chart from admin_bar_menu, so the admin-bar REST endpoint returns it too. [#53082]
+- Settings: Save the WordPress.com Reader setting through the Stats package, and answer a save the site did not store with a 500 status. [#53357]
+
+### Fixed
+- Post list column: Show view counts on lists with more than 100 posts, such as Pages, instead of leaving them blank. [#53045]
+
 ## 0.38.2 - 2026-10-05
 ### Fixed
 - Decide the dashboard's paywalls from the site's current features rather than from a plan it cached before its last upgrade. [#52098]

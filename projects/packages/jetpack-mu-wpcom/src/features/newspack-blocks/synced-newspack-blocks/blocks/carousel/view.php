@@ -19,6 +19,12 @@ function newspack_blocks_render_block_carousel( $attributes ) {
 		return;
 	}
 
+	// Skip the query when a revision or autosave is being prepared for the REST
+	// API: the output is never shown, and the query is costly on large sites.
+	if ( Newspack_Blocks::is_rest_revision_or_autosave_render() ) {
+		return '';
+	}
+
 	static $newspack_blocks_carousel_id = 0;
 	global $newspack_blocks_post_id;
 
@@ -66,6 +72,10 @@ function newspack_blocks_render_block_carousel( $attributes ) {
 			// Get sponsors for this post.
 			$sponsors = Newspack_Blocks::get_all_sponsors( $post_id );
 
+			// Get tag labels for this post, but only when the block is set to show them
+			// (avoids a per-post taxonomy lookup when tag labels are disabled).
+			$tag_labels = ( $attributes['showTagLabels'] ?? true ) ? Newspack_Blocks::get_tag_labels( $post_id ) : null;
+
 			$counter++;
 			$has_featured_image = has_post_thumbnail();
 			$post_type          = get_post_type();
@@ -110,7 +120,7 @@ function newspack_blocks_render_block_carousel( $attributes ) {
 					<?php endif; ?>
 				</figure>
 
-				<?php if ( ! empty( $sponsors ) || $attributes['showCategory'] || $attributes['showTitle'] || $show_author || $show_date || $show_caption || $show_credit ) : ?>
+				<?php if ( ! empty( $sponsors ) || $attributes['showCategory'] || ! empty( $tag_labels ) || $attributes['showTitle'] || $show_author || $show_date || $show_caption || $show_credit ) : ?>
 					<div class="entry-wrapper">
 						<?php if ( ! empty( $sponsors ) || $attributes['showCategory'] ) : ?>
 							<div class="cat-links <?php if ( ! empty( $sponsors ) ) : ?>sponsor-label<?php endif; // phpcs:ignore Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace ?>">
@@ -128,6 +138,10 @@ function newspack_blocks_render_block_carousel( $attributes ) {
 								</div>
 							<?php
 						endif;
+
+						if ( ! empty( $tag_labels ) ) {
+							Newspack_Blocks::display_tag_labels( $tag_labels );
+						}
 
 						if ( $attributes['showTitle'] ) {
 							the_title( '<h3 class="entry-title"><a href="' . esc_url( $post_link ) . '" rel="bookmark">', '</a></h3>' );
@@ -381,6 +395,10 @@ function newspack_blocks_register_carousel() {
 					'showCategory'     => array(
 						'type'    => 'boolean',
 						'default' => false,
+					),
+					'showTagLabels'    => array(
+						'type'    => 'boolean',
+						'default' => true,
 					),
 					'showDate'         => array(
 						'type'    => 'boolean',

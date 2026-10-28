@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: `tsconfig.base.json` now brings in a `.d.ts` file with types for the console assertions. Remove local declaration.
-
-

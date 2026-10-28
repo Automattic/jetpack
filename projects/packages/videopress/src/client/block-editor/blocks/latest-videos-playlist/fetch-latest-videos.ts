@@ -15,6 +15,8 @@ import type { PlaylistEntry } from '../playlist/types';
 // Bounds of the "Number of videos" control; the PHP render clamps to the same range.
 export const MIN_VIDEO_COUNT = 1;
 export const MAX_VIDEO_COUNT = 20;
+// Page size limit when the block paginates; the PHP render clamps to the same value.
+export const MAX_PAGED_VIDEO_COUNT = 48;
 export const DEFAULT_VIDEO_COUNT = 5;
 
 /**
@@ -39,14 +41,15 @@ const GUID_PATTERN = /^[a-zA-Z0-9]{8}$/;
  * Clamp a requested count to the range the block supports.
  *
  * @param count - Requested number of videos.
+ * @param max   - Upper bound: MAX_PAGED_VIDEO_COUNT when the block paginates.
  * @return The count within bounds; the default when it isn't a number.
  */
-export function clampVideoCount( count: unknown ): number {
+export function clampVideoCount( count: unknown, max: number = MAX_VIDEO_COUNT ): number {
 	const value = Number( count );
 	if ( ! Number.isFinite( value ) ) {
 		return DEFAULT_VIDEO_COUNT;
 	}
-	return Math.min( MAX_VIDEO_COUNT, Math.max( MIN_VIDEO_COUNT, Math.round( value ) ) );
+	return Math.min( max, Math.max( MIN_VIDEO_COUNT, Math.round( value ) ) );
 }
 
 /**

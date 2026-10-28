@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-RTC: Fix PingHub WebSocket chunking so messages larger than 1024 bytes reassemble correctly. Each chunk now carries the room tag, instead of tagging the whole message once before chunking which left later chunks untagged and dropped on receive.

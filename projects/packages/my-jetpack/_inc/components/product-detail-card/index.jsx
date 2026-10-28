@@ -1,15 +1,15 @@
 import {
 	CheckmarkIcon,
 	getIconBySlug,
+	getRedirectUrl,
 	Text as JetpackText,
 	TermsOfService,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { getCurrencyObject } from '@automattic/number-formatters';
-import { Notice } from '@wordpress/components';
+import { formatCurrency, getCurrencyObject } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus, starFilled } from '@wordpress/icons';
-import { Link, Text } from '@wordpress/ui';
+import { Link, Notice, SelectControl, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { Fragment, useCallback, useState, useEffect } from 'react';
 import useProduct from '../../data/products/use-product';
@@ -95,6 +95,11 @@ const ProductDetailCard = ( {
 	} = getMyJetpackWindowInitialState();
 
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
+	const { detail: proDetail } = useProduct( 'pro' );
+	const isProExperience =
+		slug === 'pro' ||
+		proDetail?.pricingForUi?.catalogAvailable === true ||
+		( detail?.isBundle && detail?.pricingForUi?.available === false );
 
 	const {
 		name,
@@ -109,7 +114,24 @@ const ProductDetailCard = ( {
 		status,
 		pluginSlug,
 		postCheckoutUrl,
+		managePaidPlanPurchaseUrl,
 	} = detail;
+
+	const [ selectedTerm, setSelectedTerm ] = useState( '' );
+	const handleTermChange = useCallback( term => setSelectedTerm( term?.value ?? '' ), [] );
+	const availableTerms = pricingForUi?.terms?.filter( term => term.available === true ) || [];
+	const selectedPricing =
+		availableTerms.find( term => term.wpcomProductSlug === selectedTerm ) ||
+		availableTerms[ 0 ] ||
+		pricingForUi;
+	const bundleUnavailable =
+		isBundle && isProExperience && ! hasPaidPlanForProduct && selectedPricing?.available !== true;
+	const manageBundle = isBundle && hasPaidPlanForProduct && isProExperience;
+	const termLabels = {
+		year: __( 'Yearly', 'jetpack-my-jetpack' ),
+		'two years': __( 'Every two years', 'jetpack-my-jetpack' ),
+		month: __( 'Monthly', 'jetpack-my-jetpack' ),
+	};
 
 	const isBundleUpsell = isBundle && isUpsell;
 	const cantInstallPlugin = status === 'plugin_absent' && 'no' === fileSystemWriteAccess;
@@ -124,7 +146,7 @@ const ProductDetailCard = ( {
 		wpcomFreeProductSlug,
 		introductoryOffer,
 		productTerm,
-	} = pricingForUi || {};
+	} = selectedPricing || {};
 
 	const { recordEvent } = useAnalytics();
 
@@ -203,8 +225,10 @@ const ProductDetailCard = ( {
 						);
 					}
 
-					const SupportedProductIcon = getIconBySlug( iconSlug );
-					return <SupportedProductIcon key={ iconSlug } size={ 24 } />;
+					const SupportedProductIcon = getIconBySlug( iconSlug === 'jetpack-ai' ? 'ai' : iconSlug );
+					return SupportedProductIcon ? (
+						<SupportedProductIcon key={ iconSlug } size={ 24 } />
+					) : null;
 				} )
 		: null;
 
@@ -215,6 +239,8 @@ const ProductDetailCard = ( {
 			__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-my-jetpack' ),
 			price
 		);
+	} else if ( productTerm === 'two years' ) {
+		priceDescription = __( '/month, paid every two years', 'jetpack-my-jetpack' );
 	} else if ( productTerm === 'year' ) {
 		priceDescription = __( '/month, paid yearly', 'jetpack-my-jetpack' );
 	} else {
@@ -245,7 +271,7 @@ const ProductDetailCard = ( {
 	 * @return {object}            Icon Product component.
 	 */
 	function ProductIcon( { slug: iconSlug } ) {
-		const ProIcon = getIconBySlug( iconSlug );
+		const ProIcon = getIconBySlug( iconSlug === 'pro' ? 'jetpack' : iconSlug );
 		if ( ! ProIcon ) {
 			return null;
 		}
@@ -274,12 +300,31 @@ const ProductDetailCard = ( {
 					__( 'Get %s', 'jetpack-my-jetpack' ),
 					productMoniker
 				);
-	const ctaLabel = ctaButtonLabel || defaultCtaLabel;
+	const ctaLabel = manageBundle
+		? __( 'Manage plan', 'jetpack-my-jetpack' )
+		: ctaButtonLabel || defaultCtaLabel;
 
 	const clickHandler = useCallback( () => {
 		trackButtonClick( { cta_text: ctaLabel } );
-		onClick?.( mainCheckoutRedirect, detail );
-	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail, ctaLabel ] );
+		if ( bundleUnavailable ) {
+			return;
+		}
+		if ( manageBundle ) {
+			window.location.href = managePaidPlanPurchaseUrl;
+			return;
+		}
+		onClick?.( mainCheckoutRedirect, { ...detail, pricingForUi: selectedPricing } );
+	}, [
+		onClick,
+		trackButtonClick,
+		mainCheckoutRedirect,
+		detail,
+		ctaLabel,
+		bundleUnavailable,
+		manageBundle,
+		managePaidPlanPurchaseUrl,
+		selectedPricing,
+	] );
 
 	const trialClickHandler = useCallback( () => {
 		trackButtonClick( { custom_slug: wpcomFreeProductSlug, cta_text: 'Start for free' } );
@@ -287,6 +332,14 @@ const ProductDetailCard = ( {
 	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
 
 	const productPrice = introductoryOffer?.reason ? price : discountPrice;
+
+	if ( isBundleUpsell && bundleUnavailable ) {
+		return null;
+	}
+	const termOptions = availableTerms.map( term => ( {
+		label: termLabels[ term.productTerm ],
+		value: term.wpcomProductSlug,
+	} ) );
 
 	return (
 		<div
@@ -361,8 +414,43 @@ const ProductDetailCard = ( {
 
 				{ isProductLoading && <LoadingBlock width="100%" height="70px" spaceBelow /> }
 
-				{ needsPurchase && productPrice && (
+				{ isBundle && needsPurchase && availableTerms.length > 0 && (
+					<SelectControl
+						label={ __( 'Billing term', 'jetpack-my-jetpack' ) }
+						value={ termOptions.find( term => term.value === selectedPricing.wpcomProductSlug ) }
+						items={ termOptions }
+						onValueChange={ handleTermChange }
+					/>
+				) }
+				{ bundleUnavailable && (
+					<Notice.Root intent="info" role="status">
+						<Notice.Description>
+							{ pricingForUi?.requiresSupport
+								? __(
+										'This plan change requires assistance from our support team.',
+										'jetpack-my-jetpack'
+									)
+								: __(
+										'This plan is currently unavailable for purchase.',
+										'jetpack-my-jetpack'
+									) }{ ' ' }
+							<Link href={ getRedirectUrl( 'jetpack-contact-support' ) } openInNewTab>
+								{ __( 'Contact support', 'jetpack-my-jetpack' ) }
+							</Link>
+						</Notice.Description>
+					</Notice.Root>
+				) }
+				{ needsPurchase && ! bundleUnavailable && productPrice && (
 					<>
+						{ isBundle && availableTerms.length > 0 && (
+							<p>
+								{ sprintf(
+									/* translators: %s: the total price charged for the billing term. */
+									__( '%s billed per term', 'jetpack-my-jetpack' ),
+									formatCurrency( selectedPricing.discountPrice, currencyCode )
+								) }
+							</p>
+						) }
 						<div className={ styles[ 'price-container' ] }>
 							<Price value={ productPrice } currency={ currencyCode } isOld={ false } />
 							{ productPrice < price && (
@@ -393,31 +481,33 @@ const ProductDetailCard = ( {
 				) }
 
 				{ cantInstallPlugin && (
-					<Notice status="warning" isDismissible={ false }>
-						<Text
-							variant="body-lg"
-							style={ { margin: 0 } }
-							render={
-								<p>
-									{ sprintf(
-										// translators: %s is the plugin name.
-										__(
-											"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
-											'jetpack-my-jetpack'
-										),
-										productMoniker
-									) }
-									&nbsp;
-									<Link openInNewTab href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
-										{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
-									</Link>
-								</p>
-							}
-						></Text>
-					</Notice>
+					<Notice.Root intent="warning" role="status">
+						<Notice.Description render={ <div /> }>
+							<Text
+								variant="body-lg"
+								style={ { margin: 0 } }
+								render={
+									<p>
+										{ sprintf(
+											// translators: %s is the plugin name.
+											__(
+												"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
+												'jetpack-my-jetpack'
+											),
+											productMoniker
+										) }
+										&nbsp;
+										<Link openInNewTab href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
+											{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
+										</Link>
+									</p>
+								}
+							></Text>
+						</Notice.Description>
+					</Notice.Root>
 				) }
 
-				{ ! hideTOS && (
+				{ ! hideTOS && ! bundleUnavailable && ! manageBundle && (
 					<div className={ styles[ 'tos-container' ] }>
 						<TermsOfService
 							agreeButtonLabel={
@@ -440,7 +530,12 @@ const ProductDetailCard = ( {
 						hasMainCheckoutStarted={ hasMainCheckoutStarted }
 						isFetching={ isFetching }
 						isFetchingSuccess={ isFetchingSuccess }
-						cantInstallPlugin={ cantInstallPlugin }
+						cantInstallPlugin={
+							( cantInstallPlugin && ! ( isBundle && isProExperience ) ) ||
+							bundleUnavailable ||
+							( isProductLoading && isProExperience ) ||
+							( manageBundle && ! managePaidPlanPurchaseUrl )
+						}
 						isPrimary={ ! isBundleUpsell }
 						className={ styles[ 'checkout-button' ] }
 						label={ ctaLabel }

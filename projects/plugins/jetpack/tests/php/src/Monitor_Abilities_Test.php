@@ -36,6 +36,9 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		// The abilities save through Jetpack_Monitor, which only loads with the module.
+		require_once JETPACK__PLUGIN_DIR . 'modules/monitor.php';
+
 		$this->admin_id      = wp_insert_user(
 			array(
 				'user_login' => 'monitor_abilities_admin_' . wp_generate_password( 8, false, false ),
@@ -79,7 +82,7 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 		// registrar never registers and must never tear down.
 
 		delete_transient( 'monitor_last_downtime' );
-		delete_option( 'monitor_receive_notifications' );
+		delete_option( 'monitor_receive_notifications' . $this->admin_id );
 
 		parent::tear_down();
 	}
@@ -460,8 +463,13 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 	 * `Monitor_Abilities_Test_Stub` test double (defined below this class) overrides
 	 * the protected seams so we can drive `set_notifications()` through its
 	 * end-to-end logic without standing up a Jetpack token fixture.
+	 *
+	 * @dataProvider provider_flipped_states
+	 *
+	 * @param bool $desired The state to flip to.
 	 */
-	public function test_set_notifications_returns_changed_true_when_state_flips() {
+	#[DataProvider( 'provider_flipped_states' )]
+	public function test_set_notifications_returns_changed_true_when_state_flips( bool $desired ) {
 		wp_set_current_user( $this->admin_id );
 
 		add_filter(
@@ -473,18 +481,24 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 			}
 		);
 
-		Monitor_Abilities_Test_Stub::reset( false );
+		Monitor_Abilities_Test_Stub::reset( ! $desired );
 
-		$result = Monitor_Abilities_Test_Stub::set_notifications( array( 'enabled' => true ) );
+		$result = Monitor_Abilities_Test_Stub::set_notifications( array( 'enabled' => $desired ) );
 
 		$this->assertIsArray( $result );
-		$this->assertTrue( $result['enabled'] );
+		$this->assertSame( $desired, $result['enabled'] );
 		$this->assertTrue( $result['changed'] );
 		$this->assertSame( 1, Monitor_Abilities_Test_Stub::$apply_calls, 'IXR setNotifications should have been called exactly once.' );
-		$this->assertTrue( Monitor_Abilities_Test_Stub::$last_applied, 'apply_notifications_update should have been called with the desired value.' );
-		// `update_option` stores booleans as '1'/'' through the DB roundtrip; assert truthiness
-		// rather than the exact string so this test is robust to env differences.
-		$this->assertTrue( (bool) get_option( 'monitor_receive_notifications' ), 'monitor_receive_notifications option should mirror the new state.' );
+		$this->assertSame( $desired, Monitor_Abilities_Test_Stub::$last_applied, 'apply_notifications_update should have been called with the desired value.' );
+		$this->assertSame( $desired ? '1' : '0', (string) get_option( 'monitor_receive_notifications' . $this->admin_id, 'not stored' ), 'The user\'s monitor_receive_notifications option should mirror the new state.' );
+		$this->assertFalse( get_option( 'monitor_receive_notifications' ), 'The value must not be stored where other users would read it.' );
+	}
+
+	public static function provider_flipped_states(): array {
+		return array(
+			'off to on' => array( true ),
+			'on to off' => array( false ),
+		);
 	}
 
 	public function test_set_notifications_returns_changed_false_when_state_matches() {
@@ -503,7 +517,7 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 
 		// Seed a stale local option (false) that disagrees with the remote state
 		// (true) to exercise the self-healing sync on the no-op path.
-		update_option( 'monitor_receive_notifications', false );
+		update_option( 'monitor_receive_notifications' . $this->admin_id, 0 );
 
 		$result = Monitor_Abilities_Test_Stub::set_notifications( array( 'enabled' => true ) );
 
@@ -514,7 +528,7 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 		// Even on a no-op the local option is synced to the known-good remote
 		// value (true here) so the legacy REST reader, which trusts this option
 		// before going remote, can't surface a stale state.
-		$this->assertTrue( (bool) get_option( 'monitor_receive_notifications' ), 'No-op should still sync the mirrored option to the remote value.' );
+		$this->assertSame( '1', (string) get_option( 'monitor_receive_notifications' . $this->admin_id ), 'No-op should still sync the mirrored option to the remote value.' );
 	}
 
 	/**

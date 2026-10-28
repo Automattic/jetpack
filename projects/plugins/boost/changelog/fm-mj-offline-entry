@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Prepare gated offline Features entry; it remains unreleased and disabled by default.

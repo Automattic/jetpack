@@ -2,7 +2,10 @@
  * External dependencies
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { _n, sprintf } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import { formatListMetricCount } from './list-metrics';
 
 /**
  * A view count with its unit, pluralized and thousands-separated.
@@ -11,9 +14,9 @@ import { _n, sprintf } from '@wordpress/i18n';
  * own copy of the same plural forms to keep in sync.
  */
 export function formatViewCount( count: number ): string {
-	return sprintf(
-		/* translators: %s: number of views, e.g. "2,033". */
-		_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' ),
+	return formatListMetricCount(
+		'views',
+		count,
 		formatMetricValue( count, 'number', { decimals: 0 } )
 	);
 }

@@ -10,9 +10,9 @@
 // the same element wins. Chart roots deliberately do NOT re-declare these: an
 // element's own declaration beats an inherited one, so re-declaring lower down
 // would shadow a consumer override set inside the provider tree.
-// The tooltip box re-declares the catalog under its own class, so a rule on
-// .a8c-charts-scope does not land on the dark box.
-:where(.a8c-charts-scope, .a8c-charts-tooltip-scope) {
+// The tooltip boxes (ours and Google's GeoChart one) re-declare the catalog on
+// themselves, so a rule on .a8c-charts-scope does not land on the dark box.
+:where(.a8c-charts-scope, .a8c-charts-tooltip-scope, .geo-chart .google-visualization-tooltip) {
 	// The series palette. GlobalChartsProvider resolves these five slots at its
 	// wrapper and seeds ColorCache with whatever resolves; a slot that resolves
 	// to nothing is skipped, so setting only slots 1 and 3 gives a two-color
@@ -87,11 +87,13 @@
 
 	--a8c-charts-dimension-leaderboard-row-gap: var(--wpds-dimension-gap-md);
 	--a8c-charts-dimension-leaderboard-column-gap: var(--wpds-dimension-gap-xs);
+	--a8c-charts-dimension-legend-column-gap: var(--wpds-dimension-gap-lg);
+	--a8c-charts-dimension-legend-row-gap: var(--wpds-dimension-gap-sm);
 }
 
 @media (forced-colors: active) {
 
-	:where(.a8c-charts-scope, .a8c-charts-tooltip-scope) {
+	:where(.a8c-charts-scope, .a8c-charts-tooltip-scope, .geo-chart .google-visualization-tooltip) {
 		--a8c-charts-color-label-axis: CanvasText;
 		--a8c-charts-color-grid: GrayText;
 		--a8c-charts-color-axis-x: GrayText;

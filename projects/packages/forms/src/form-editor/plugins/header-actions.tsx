@@ -8,7 +8,7 @@ import { Fill } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import { LinkButton } from '@wordpress/ui';
+import { ButtonLink } from '@wordpress/ui';
 import './header-actions.scss';
 import { getResponsesUrl } from './utils';
 
@@ -32,14 +32,14 @@ export const HeaderActions = () => {
 
 	return (
 		<Fill name="PinnedItems/core">
-			<LinkButton
+			<ButtonLink
 				className="jetpack-form-header-actions__view-responses"
 				variant="outline"
 				size="compact"
 				href={ getResponsesUrl( postId ) }
 			>
 				{ __( 'View responses', 'jetpack-forms' ) }
-			</LinkButton>
+			</ButtonLink>
 		</Fill>
 	);
 };

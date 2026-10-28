@@ -7,12 +7,9 @@
 
 namespace Automattic\Jetpack\CookieConsent;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
-
 /**
- * @coversNothing
+ * Tests for the banner template.
  */
-#[CoversNothing]
 class Cookie_Banner_Content_Test extends TestCase {
 
 	/**
@@ -163,5 +160,24 @@ class Cookie_Banner_Content_Test extends TestCase {
 		$this->assertStringContainsString( 'href="https://example.com/cookies/"', $html );
 		$this->assertStringNotContainsString( '<a href=""', $html );
 		$this->assertStringNotContainsString( 'Privacy Policy', $html );
+	}
+
+	/**
+	 * The GPC notice ships hidden, so a visitor without GPC never sees it, and uses overridden copy.
+	 */
+	public function test_gpc_notice_renders_hidden_with_overridden_copy() {
+		$html = $this->render_template(
+			array(
+				'copy' => array(
+					'gpc_notice' => 'Custom GPC notice.',
+				),
+			)
+		);
+
+		$this->assertMatchesRegularExpression(
+			'/<p id="cookie-consent-modal-gpc-notice" [^>]*role="status" data-wp-bind--hidden="!context.gpcNotice" hidden>\\s*Custom GPC notice\\.\\s*<\\/p>/',
+			$html
+		);
+		$this->assertSame( 2, substr_count( $html, 'Custom GPC notice.' ) );
 	}
 }

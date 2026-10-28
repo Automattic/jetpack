@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show that Backup is unavailable in Offline Mode instead of the dashboard, so a local copy of a site can't act on the live site's backups.

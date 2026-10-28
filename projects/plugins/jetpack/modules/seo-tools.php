@@ -19,28 +19,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-// Suppress SEO Tools output if any of the following plugins is active.
+// Suppress SEO Tools output if any of the following plugins is active. Paid editions come
+// before the free plugins they run alongside, so the first match names the right one.
 $jetpack_seo_conflicting_plugins = array(
-	'wordpress-seo/wp-seo.php',
-	'wordpress-seo-premium/wp-seo-premium.php',
-	'all-in-one-seo-pack/all_in_one_seo_pack.php',
-	'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
-	'seo-by-rank-math/rank-math.php',
-	'autodescription/autodescription.php',
-	'slim-seo/slim-seo.php',
-	'wp-seopress/seopress.php',
-	'wp-seopress-pro/seopress-pro.php',
-	'seo-key/seo-key.php',
-	'seo-key-pro/seo-key.php',
+	'wordpress-seo-premium/wp-seo-premium.php'        => 'Yoast SEO Premium',
+	'wordpress-seo/wp-seo.php'                        => 'Yoast SEO',
+	'all-in-one-seo-pack-pro/all_in_one_seo_pack.php' => 'All in One SEO Pro',
+	'all-in-one-seo-pack/all_in_one_seo_pack.php'     => 'All in One SEO',
+	'seo-by-rank-math/rank-math.php'                  => 'Rank Math SEO',
+	'autodescription/autodescription.php'             => 'The SEO Framework',
+	'slim-seo/slim-seo.php'                           => 'Slim SEO',
+	'wp-seopress-pro/seopress-pro.php'                => 'SEOPress PRO',
+	'wp-seopress/seopress.php'                        => 'SEOPress',
+	'seo-key-pro/seo-key.php'                         => 'SEOKEY Pro',
+	'seo-key/seo-key.php'                             => 'SEOKEY',
 );
 
-foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
+foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin => $seo_plugin_name ) {
 	if ( Jetpack::is_plugin_active( $seo_plugin ) ) {
 		// Disable all custom meta tags that SEO tools manages.
 		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
 
 		// Also disable default meta tags.
 		add_filter( 'jetpack_seo_meta_tags_enabled', '__return_false' );
+
+		// Let the SEO dashboard name the plugin that now owns the output.
+		add_filter(
+			'jetpack_seo_conflicting_plugin',
+			static function () use ( $seo_plugin_name ) {
+				return $seo_plugin_name;
+			}
+		);
 		break;
 	}
 }

@@ -47,16 +47,18 @@ class REST_Main_Features {
 			)
 		);
 
-		register_rest_route(
-			self::ROUTE_NAMESPACE,
-			'my-jetpack/site/features/banner/dismiss',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => __CLASS__ . '::dismiss_banner',
-				// Anyone who can see My Jetpack sees the banner, so anyone who can see it may dismiss it.
-				'permission_callback' => array( Initializer::class, 'permissions_callback' ),
-			)
-		);
+		if ( ! Initializer::is_offline_features_enabled() ) {
+			register_rest_route(
+				self::ROUTE_NAMESPACE,
+				'my-jetpack/site/features/banner/dismiss',
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => __CLASS__ . '::dismiss_banner',
+					// Anyone who can see My Jetpack sees the banner, so anyone who can see it may dismiss it.
+					'permission_callback' => array( Initializer::class, 'permissions_callback' ),
+				)
+			);
+		}
 
 		register_rest_route(
 			self::ROUTE_NAMESPACE,
@@ -87,7 +89,7 @@ class REST_Main_Features {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => __CLASS__ . '::switch_many',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
+				'permission_callback' => __CLASS__ . '::bulk_permissions_callback',
 				'args'                => array(
 					'active'  => array(
 						'type'     => 'boolean',
@@ -118,6 +120,26 @@ class REST_Main_Features {
 	 */
 	public static function permissions_callback() {
 		return REST_Products::edit_permissions_callback();
+	}
+
+	/**
+	 * Whoever may switch plugins, or modules while Jetpack is active, may send a batch; each row is then checked on its own.
+	 *
+	 * Without Jetpack, nothing else lets a module manager who cannot switch plugins switch a module.
+	 *
+	 * @return bool
+	 */
+	public static function bulk_permissions_callback() {
+		return self::permissions_callback() || ( self::is_jetpack_active() && current_user_can( 'jetpack_manage_modules' ) );
+	}
+
+	/**
+	 * Whether the Jetpack plugin is active here, network activation included.
+	 *
+	 * @return bool
+	 */
+	private static function is_jetpack_active() {
+		return Main_Features::PLUGIN_ACTIVE === Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG );
 	}
 
 	/**
@@ -152,7 +174,7 @@ class REST_Main_Features {
 	 * @return \WP_REST_Response
 	 */
 	public static function get_state() {
-		return rest_ensure_response( Main_Features::get_state() );
+		return rest_ensure_response( Main_Features::get_state( Initializer::is_offline_features_enabled() ) );
 	}
 
 	/**
@@ -191,7 +213,7 @@ class REST_Main_Features {
 			return $result;
 		}
 
-		return rest_ensure_response( Main_Features::get_state() );
+		return rest_ensure_response( Main_Features::get_state( Initializer::is_offline_features_enabled() ) );
 	}
 
 	/**
@@ -208,15 +230,33 @@ class REST_Main_Features {
 		$action = $active ? 'activate' : 'deactivate';
 		$failed = array();
 
-		// Jetpack carries My Jetpack and is never switched off here, so while it is active no
-		// batch can take this page with it. Without it, any plugin in the batch might be the last
-		// carrier, and checking them one by one lets a batch switch off every carrier in turn.
+		// Without Jetpack, any plugin in the batch may be the last copy of My Jetpack.
 		$plugins_refused = ! $active && Main_Features::PLUGIN_ACTIVE !== Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG )
 			? new WP_Error( 'not_allowed', __( 'Plugins can only be deactivated together while the Jetpack plugin is active. Deactivate them one at a time instead.', 'jetpack-my-jetpack' ) )
 			: null;
+		// Multisite site administrators, and administrators whose host withholds plugin changes, may switch modules but not plugins.
+		if ( ! self::permissions_callback() ) {
+			$plugins_refused = new WP_Error( 'not_allowed', __( 'Your account can’t activate or deactivate plugins on this site.', 'jetpack-my-jetpack' ) );
+		}
 
-		foreach ( array_unique( (array) $request->get_param( 'plugins' ) ) as $slug ) {
-			$result = $plugins_refused ? $plugins_refused : self::refuse_deactivation( $slug, $action );
+		$plugins          = array_unique( (array) $request->get_param( 'plugins' ) );
+		$excluded_folders = array();
+		// Jetpack stays active, but older copies cannot serve offline Features.
+		// Offline, the hosting-plugin check must exclude every plugin the batch would deactivate.
+		if ( ! $active && Initializer::is_offline_features_enabled() ) {
+			foreach ( $plugins as $slug ) {
+				if ( Product::JETPACK_PLUGIN_SLUG === $slug ) {
+					continue;
+				}
+				$file = Main_Features::get_plugin_file( $slug, Main_Features::get_product_class_for_plugin( $slug ) );
+				if ( $file ) {
+					$excluded_folders[] = dirname( $file );
+				}
+			}
+		}
+
+		foreach ( $plugins as $slug ) {
+			$result = $plugins_refused ? $plugins_refused : self::refuse_deactivation( $slug, $action, $excluded_folders );
 			$result = $result ? $result : self::run( $slug, $action );
 
 			if ( is_wp_error( $result ) ) {
@@ -246,7 +286,7 @@ class REST_Main_Features {
 
 		return rest_ensure_response(
 			array(
-				'state'  => Main_Features::get_state(),
+				'state'  => Main_Features::get_state( Initializer::is_offline_features_enabled() ),
 				'failed' => $failed,
 			)
 		);
@@ -270,6 +310,12 @@ class REST_Main_Features {
 		// Already where it was asked to be: nothing to do, as with plugins above.
 		if ( $modules->is_active( $slug ) === $active ) {
 			return true;
+		}
+
+		if ( $active && Initializer::is_offline_features_enabled()
+			&& ! Main_Features::module_works_locally( $slug )
+		) {
+			return new WP_Error( 'switch_failed', __( 'Could not be switched on: unavailable in Offline Mode.', 'jetpack-my-jetpack' ) );
 		}
 
 		// Gotcha: activate() still redirects and exits when a legacy plugin it replaces (such as
@@ -341,13 +387,15 @@ class REST_Main_Features {
 	}
 
 	/**
-	 * Refuse to switch off Jetpack, or the plugin serving this page when nothing else carries My Jetpack.
+	 * Keep Jetpack active, and keep the serving plugin when no remaining copy can serve this page.
 	 *
-	 * @param string $slug   WordPress.org plugin slug.
-	 * @param string $action One of install, activate or deactivate.
+	 * @since $$next-version$$ Added the $excluded_folders parameter.
+	 * @param string   $slug             WordPress.org plugin slug.
+	 * @param string   $action           One of install, activate or deactivate.
+	 * @param string[] $excluded_folders Other plugin folders being deactivated in the same request.
 	 * @return WP_Error|null The refusal, or null when the action may go ahead.
 	 */
-	private static function refuse_deactivation( $slug, $action ) {
+	private static function refuse_deactivation( $slug, $action, $excluded_folders = array() ) {
 		if ( 'deactivate' !== $action ) {
 			return null;
 		}
@@ -356,7 +404,7 @@ class REST_Main_Features {
 		// refused only when nothing else could take over on the next load.
 		if ( Product::JETPACK_PLUGIN_SLUG === $slug
 			|| ( Main_Features::is_hosting_plugin( $slug )
-				&& Main_Features::is_only_my_jetpack_provider( Main_Features::get_hosting_plugin_slug() ) ) ) {
+				&& Main_Features::is_only_my_jetpack_provider( Main_Features::get_hosting_plugin_slug(), $excluded_folders ) ) ) {
 			return new WP_Error(
 				'not_allowed',
 				__( 'This plugin runs the page you are on, so it cannot be deactivated from here.', 'jetpack-my-jetpack' ),
@@ -368,7 +416,7 @@ class REST_Main_Features {
 	}
 
 	/**
-	 * Carry out the action on the plugin, through the product that owns it where there is one.
+	 * Carry out the action on the plugin and its product.
 	 *
 	 * @param string $slug   WordPress.org plugin slug.
 	 * @param string $action One of install, activate or deactivate.
@@ -387,13 +435,13 @@ class REST_Main_Features {
 				return new WP_Error( 'not_installed', __( 'That plugin is not installed.', 'jetpack-my-jetpack' ) );
 			}
 
-			// The product knows what else it switched on, such as the Jetpack module behind it.
-			if ( $product_class ) {
-				$deactivated = $product_class::deactivate();
-				return is_wp_error( $deactivated ) ? $deactivated : true;
+			$is_hybrid   = $product_class && is_subclass_of( $product_class, Hybrid_Product::class );
+			$module_name = $is_hybrid ? $product_class::get_module_name() : null;
+			deactivate_plugins( $file );
+			if ( $is_hybrid ) {
+				return $product_class::do_product_specific_deactivation( $module_name );
 			}
 
-			deactivate_plugins( $file );
 			return true;
 		}
 
@@ -429,7 +477,11 @@ class REST_Main_Features {
 		// A refusal is not fatal here — the plugin is on either way, so failing the request
 		// would contradict the state it returns and invite a retry of what already happened.
 		if ( $product_class ) {
-			$product_class::do_product_specific_activation( true );
+			if ( is_subclass_of( $product_class, Hybrid_Product::class ) ) {
+				$product_class::do_product_specific_activation( true, Initializer::is_offline_features_enabled() );
+			} else {
+				$product_class::do_product_specific_activation( true );
+			}
 		}
 
 		return true;

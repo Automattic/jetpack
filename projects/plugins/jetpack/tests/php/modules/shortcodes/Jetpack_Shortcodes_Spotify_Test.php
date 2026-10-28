@@ -16,14 +16,14 @@ class Jetpack_Shortcodes_Spotify_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
+	 * Verify that calling apply_shortcodes with the shortcode doesn't return the same content.
 	 *
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_spotify() {
 		$content = '[spotify]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -37,7 +37,7 @@ class Jetpack_Shortcodes_Spotify_Test extends WP_UnitTestCase {
 		$track_id = '55fQ9iIkC2qajnlvI1iMWO';
 		$content  = "[spotify spotify:track:$track_id]";
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( 'https://embed.spotify.com/?uri=' . rawurlencode( "spotify:track:$track_id" ), $shortcode_content );
 	}
@@ -52,7 +52,7 @@ class Jetpack_Shortcodes_Spotify_Test extends WP_UnitTestCase {
 		$track_url = "https://play.spotify.com/track/$track_id";
 		$content   = "[spotify $track_url]";
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( 'https://embed.spotify.com/?uri=' . rawurlencode( "https://play.spotify.com/track/$track_id" ), $shortcode_content );
 	}
@@ -102,7 +102,7 @@ class Jetpack_Shortcodes_Spotify_Test extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_spotify_lazy_loading() {
 		$content           = '[spotify https://open.spotify.com/album/4BC7xFBCxUMBEgGpxRBaCy width=\"400\" height=\"100\"]';
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<iframe', $shortcode_content );
 		$this->assertStringContainsString( 'loading="lazy"', $shortcode_content );

@@ -10,9 +10,16 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => mockSearch,
 } ) );
 
+jest.mock(
+	'@automattic/jetpack-script-data',
+	() =>
+		jest.requireActual( '../../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
+);
+
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { TZDate } from '@date-fns/tz';
 import { PeriodChangeSignalProvider, useSettlePeriodChange } from '@jetpack-premium-analytics/data';
 import { act, renderHook } from '@testing-library/react';
@@ -20,6 +27,7 @@ import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { planGatesScriptData } from '../../../../../../tests/js/plan-gates-test-utils';
 import { useOpenSectionRange } from '../use-open-section-range';
 import type { ReactNode } from 'react';
 
@@ -35,6 +43,7 @@ const NOVEMBER = {
 
 describe( 'useOpenSectionRange', () => {
 	beforeEach( () => {
+		( getScriptData as jest.Mock ).mockReturnValue( undefined );
 		mockNavigate.mockReset();
 		mockNavigate.mockImplementation(
 			( {
@@ -80,6 +89,24 @@ describe( 'useOpenSectionRange', () => {
 		act( () => result.current.open( 'traffic', NOVEMBER ) );
 
 		expect( result.current.traffic ).toEqual( expect.any( Number ) );
+	} );
+
+	it.each( [
+		[ 'traffic', 'day' ],
+		[ 'store', 'month' ],
+	] )( 'opens a long range on %s within its plan buckets: %s', ( section, interval ) => {
+		( getScriptData as jest.Mock ).mockReturnValue( planGatesScriptData( [ 'intervals' ] ) );
+		mockSearch = {};
+		const { result } = renderHook( () => useOpenSectionRange() );
+
+		act( () =>
+			result.current( section, {
+				from: new TZDate( '2025-01-01T00:00:00.000+00:00', 'UTC' ),
+				to: new TZDate( '2025-12-31T23:59:59.999+00:00', 'UTC' ),
+			} )
+		);
+
+		expect( mockSearch.interval ).toBe( interval );
 	} );
 
 	it( 'keeps the range ends exactly as given', () => {

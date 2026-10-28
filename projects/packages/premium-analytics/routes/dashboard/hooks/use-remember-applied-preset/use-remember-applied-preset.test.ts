@@ -14,10 +14,10 @@ import { useRememberAppliedPreset } from './use-remember-applied-preset';
 type PreferencesSelectors = { get: ( scope: string, name: string ) => unknown };
 type PreferencesActions = { set: ( scope: string, name: string, value: unknown ) => void };
 
-const remembered = () =>
+const remembered = ( name = 'datePreset' ) =>
 	( select( preferencesStore ) as unknown as PreferencesSelectors ).get(
 		DASHBOARD_PREFERENCES_SCOPE,
-		'datePreset'
+		name
 	);
 
 const RANGE = {
@@ -30,6 +30,11 @@ describe( 'useRememberAppliedPreset', () => {
 		( dispatch( preferencesStore ) as unknown as PreferencesActions ).set(
 			DASHBOARD_PREFERENCES_SCOPE,
 			'datePreset',
+			undefined
+		);
+		( dispatch( preferencesStore ) as unknown as PreferencesActions ).set(
+			DASHBOARD_PREFERENCES_SCOPE,
+			'comparison',
 			undefined
 		);
 	} );
@@ -65,5 +70,16 @@ describe( 'useRememberAppliedPreset', () => {
 		} );
 
 		expect( remembered() ).toBe( 'last-30-days' );
+	} );
+
+	it.each( [
+		[ 'No comparison', undefined, undefined, 'none' ],
+		[ 'a comparison preset', RANGE, 'previous-year', 'previous-year' ],
+	] as const )( 'remembers %s', ( _label, range, presetId, expected ) => {
+		const { result } = renderHook( () => useRememberAppliedPreset() );
+
+		act( () => result.current.onComparisonChange( range, presetId ) );
+
+		expect( remembered( 'comparison' ) ).toBe( expected );
 	} );
 } );

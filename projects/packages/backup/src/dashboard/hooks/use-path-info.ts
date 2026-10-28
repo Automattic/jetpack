@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { useQuery } from '@tanstack/react-query';
 import { _x, sprintf } from '@wordpress/i18n';
 import { fetchPathInfo } from '../data/api/path-info';
@@ -95,7 +96,9 @@ export function formatFileSize( bytes: number ): string {
 		unit++;
 	}
 
-	const rounded = String( Math.round( value * 10 ) / 10 );
+	const rounded = formatNumber( value, {
+		numberFormatOptions: { maximumFractionDigits: 1, useGrouping: false },
+	} );
 
 	switch ( unit ) {
 		case 1:

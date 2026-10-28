@@ -34,3 +34,19 @@ if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
 		return in_array( $feature, $GLOBALS['jpa_test_wpcom_features'] ?? array(), true );
 	}
 }
+
+/**
+ * Purchases the simulated Atomic site has synced. Defaults to one, so only a test that empties it reads as unsynced.
+ */
+$GLOBALS['jpa_test_wpcom_purchases'] = array( array( 'product_slug' => 'business-bundle' ) );
+
+if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+	/**
+	 * The simulated site's purchases.
+	 *
+	 * @return array
+	 */
+	function wpcom_get_site_purchases() {
+		return $GLOBALS['jpa_test_wpcom_purchases'] ?? array();
+	}
+}

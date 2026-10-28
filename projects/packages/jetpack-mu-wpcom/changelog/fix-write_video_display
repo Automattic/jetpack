@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Write: Fix video embeds not displaying after page reload on Simple and Atomic sites.

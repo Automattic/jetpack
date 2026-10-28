@@ -17,7 +17,7 @@
 		"cli-setup": "pnpm install && jetpack cli link",
 		"cli-unlink": "jetpack cli unlink",
 		"lint": "pnpm run lint-file .",
-		"lint-changed": "eslint-changed --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte --git",
+		"lint-changed": "eslint-changed --ext .js,.jsx,.cjs,.mjs,.ts,.tsx --git",
 		"lint-file": "eslint",
 		"lint-required": "ESLINT_IGNORE_REQUIRED=1 pnpm run lint --max-warnings=0",
 		"lint-style": "stylelint --allow-empty-input --globby-options '{\"gitignore\":true,\"ignore\":[\"tools/docker/data\",\"**/vendor/**\",\"**/jetpack_vendor/**\"]}'",
@@ -25,7 +25,7 @@
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
 		"prepare": "husky",
-		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,svelte,json,jsonc,json5}\"",
+		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,json,jsonc,json5}\"",
 		"typecheck": "pnpm --recursive --if-present --no-bail run typecheck",
 		"version-packages": "bash ./tools/version-packages.sh"
 	},

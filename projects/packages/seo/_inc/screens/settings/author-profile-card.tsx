@@ -11,10 +11,9 @@ import type { SettingStatus } from '../../components/status-indicator';
  * Per-user Author profile settings card.
  *
  * Holds the form behind the Person / ProfilePage schema for the signed-in
- * user: name, bio, website, and avatar come from (and write back to) the
- * WordPress user profile, plus the Jetpack-owned job title and social profile
- * fields. Site-level schema entities live in the Schema card; this card is
- * about the current user only.
+ * user: name, bio, website, and avatar from the WordPress user profile, plus
+ * the Jetpack-owned job title and social profile fields. Site-level schema
+ * entities live in the Schema card; this card is about the current user only.
  *
  * Collapsed by default and built from the shared `CollapsibleCard` compound,
  * matching the other Settings modules (Canonical URLs, Title structure, Site

@@ -27,6 +27,7 @@ import PageNotice, { getPageNoticeState } from './components/page-notice';
 import { GATED_VIEWS } from './constants';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
+import { splitViewAnchor } from './mcp/anchors';
 import McpConnectCallout from './mcp/connect-callout';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
@@ -34,6 +35,7 @@ import McpSetup from './mcp/setup';
 import { recordMcpTracksEvent } from './mcp/tracks';
 import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
+import useSiteAbilities from './mcp/use-site-abilities';
 import { getSiteLevelEnabled } from './mcp/utils';
 import McpWrite from './mcp/write';
 import AiOverview from './overview';
@@ -50,6 +52,7 @@ const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 // Sub-views are nested under their owning tab's path segment, so the active
 // tab is always the first segment of the view key.
 const MCP_SUB_VIEWS = [ 'mcp/read', 'mcp/write', 'mcp/setup' ];
+const ANCHOR_VIEWS = [ 'mcp/read', 'mcp/write' ];
 
 // The sub-views shipped as flat top-level hashes (#/setup) before they were
 // nested; keep old bookmarks and external links working.
@@ -74,11 +77,15 @@ const getTabViews = () => {
 
 // The first tab is the default: Overview when visible (matching the design),
 // otherwise the MCP hub. A hash pointing at a hidden view falls back too.
-const getViewFromHash = () => {
+const getRouteFromHash = () => {
 	const tabViews = getTabViews();
 	const raw = window.location.hash.replace( /^#\//, '' );
-	const hash = LEGACY_VIEW_ALIASES[ raw ] ?? raw;
-	return [ ...tabViews, ...MCP_SUB_VIEWS ].includes( hash ) ? hash : tabViews[ 0 ];
+	const { view, anchor } = splitViewAnchor(
+		LEGACY_VIEW_ALIASES[ raw ] ?? raw,
+		[ ...tabViews, ...MCP_SUB_VIEWS ],
+		ANCHOR_VIEWS
+	);
+	return { view: view ?? tabViews[ 0 ], anchor };
 };
 
 const VIEW_TITLES = {
@@ -203,8 +210,10 @@ export default function App() {
 		isOfflineMode = false,
 		showFeaturesView = false,
 		showA12sBadge = false,
+		isSelfHosted = false,
 	} = window?.jetpackAiSettings ?? {};
-	const [ view, setView ] = useState( getViewFromHash );
+	const [ route, setRoute ] = useState( getRouteFromHash );
+	const { view, anchor } = route;
 	// Save feedback goes through the snackbars boot's layout renders.
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -220,6 +229,9 @@ export default function App() {
 	const showConnectNotice = !! blogId && userUnlinked;
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings( { skip: showConnectNotice || ! blogId } );
+	const showRemoteAbilities = isSelfHosted && ! showConnectNotice && !! blogId;
+	const publishedAbilities = useSiteAbilities( { enabled: showRemoteAbilities } );
+	const remoteAbilities = showRemoteAbilities ? publishedAbilities : null;
 	const {
 		isLoading: isAiSettingsLoading,
 		savingKeys: aiSavingKeys,
@@ -249,7 +261,7 @@ export default function App() {
 	// The hash is the single source of truth for the current view: popstate
 	// covers back/forward, hashchange covers direct hash edits and links.
 	useEffect( () => {
-		const syncViewFromHash = () => setView( getViewFromHash() );
+		const syncViewFromHash = () => setRoute( getRouteFromHash() );
 		window.addEventListener( 'popstate', syncViewFromHash );
 		window.addEventListener( 'hashchange', syncViewFromHash );
 		return () => {
@@ -328,7 +340,7 @@ export default function App() {
 
 	const navigateToView = useCallback( newView => {
 		window.history.pushState( null, '', '#/' + newView );
-		setView( newView );
+		setRoute( { view: newView, anchor: null } );
 	}, [] );
 
 	// Set when navigation came from a control that unmounts with its view (the
@@ -479,9 +491,10 @@ export default function App() {
 						) }
 
 						{ ! isLoading && ! error && !! blogId && ! userUnlinked && hasMcpAccess && (
-							<Stack direction="column" gap="md">
+							<Stack direction="column" gap="lg">
 								{ view === 'mcp' && (
 									<McpHub
+										remoteAbilities={ remoteAbilities }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										activityLogUrl={ activityLogUrl }
@@ -497,6 +510,8 @@ export default function App() {
 								) }
 								{ view === 'mcp/read' && (
 									<McpRead
+										remoteAbilities={ remoteAbilities }
+										anchor={ anchor }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										savingToolIds={ savingToolIds }
@@ -505,6 +520,8 @@ export default function App() {
 								) }
 								{ view === 'mcp/write' && (
 									<McpWrite
+										remoteAbilities={ remoteAbilities }
+										anchor={ anchor }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										savingToolIds={ savingToolIds }

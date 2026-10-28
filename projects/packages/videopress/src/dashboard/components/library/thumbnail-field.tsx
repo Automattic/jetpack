@@ -36,6 +36,21 @@ export default function ThumbnailField( { item }: Props ) {
 				<img className="vp-library__thumbnail-image" src={ posterUrl } alt={ title } />
 			) : null }
 
+			{ isVideoPressIdle && item.conversionFailed ? (
+				<Stack
+					direction="column"
+					gap="xs"
+					align="center"
+					justify="center"
+					className="vp-library__failed"
+				>
+					<Text>{ __( 'Conversion failed', 'jetpack-videopress-pkg' ) }</Text>
+					<Text variant="body-sm">
+						{ __( 'Delete this video and upload it again.', 'jetpack-videopress-pkg' ) }
+					</Text>
+				</Stack>
+			) : null }
+
 			{ isVideoPressIdle && isProcessing ? (
 				<Stack
 					direction="column"

@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Products\Search as Search_Product;
 use Automattic\Jetpack\My_Jetpack\Products\Search_Stats as Search_Product_Stats;
+use Automattic\Jetpack\Status;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -277,11 +278,17 @@ class REST_Controller {
 	}
 
 	/**
-	 * Proxy the request to WPCOM and return the response.
+	 * Return the stored plan offline, or refresh it from WPCOM online.
 	 *
 	 * GET `jetpack/v4/search/plan`
 	 */
 	public function get_search_plan() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			$plan_info = ( new Plan() )->get_plan_info();
+			return false === $plan_info
+				? new WP_Error( 'site_offline', 'Site is in offline mode.', array( 'status' => 503 ) )
+				: $plan_info;
+		}
 		$response = ( new Plan() )->get_plan_info_from_wpcom();
 		return $this->make_proper_response( $response );
 	}

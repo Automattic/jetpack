@@ -224,6 +224,8 @@ Series colors work the same way, through the five `--a8c-charts-color-series-*` 
 
 The `theme` prop carries shape and spacing — `tickLength`, stroke widths, font weights, the heatmap's compact sizing, the annotation geometry. Colors are not among them: each one is a role you set in CSS, as above. If you are upgrading from a version whose `theme` took colors, `TOKENS.md` maps each of those fields to the role that replaces it.
 
+Give `svgLabelSmall.fontSize` and `svgLabelBig.fontSize` in pixels. Chart margins and pie labels cannot measure `rem`, `em`, `%` or `var()` sizes, so labels can clip.
+
 <Source
 	language="tsx"
 	code={ `<GlobalChartsProvider theme={ { tickLength: 6 } }>

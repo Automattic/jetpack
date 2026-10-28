@@ -5,6 +5,7 @@ import {
 import { renderHook, waitFor } from '@testing-library/react';
 import { useEffect, useState } from '@wordpress/element';
 import { useWidgetTypes } from '@wordpress/widget-primitives';
+import { LOCKED_RENDER_MODULE_PREFIX } from '../../routes/plan-locked-widgets';
 import {
 	createWidgetModuleResolver,
 	preloadWidgetModuleCatalogs,
@@ -13,6 +14,7 @@ import {
 	widgetModuleBundlePath,
 } from '../../routes/widget-module-i18n';
 import type { ResolveWidgetModule, WidgetModuleRecord } from '@wordpress/widget-primitives';
+import type { ReactElement } from 'react';
 
 type WidgetModule = Awaited< ReturnType< ResolveWidgetModule > >;
 
@@ -812,5 +814,59 @@ describe( 'useWidgetTypesWithI18n', () => {
 				} )
 			).toEqual( [] );
 		} );
+	} );
+} );
+
+describe( 'plan-locked widgets', () => {
+	const RECORDS = [
+		{
+			name: 'jpa/a',
+			widget_module: 'jetpack-premium-analytics/widgets/a/widget',
+			render_module: 'jetpack-premium-analytics/widgets/a/render',
+		},
+	] as WidgetModuleRecord[];
+
+	beforeEach( () => {
+		window.JetpackScriptData = {
+			premium_analytics: {
+				plan_gates: {
+					tier: 'paid',
+					locked_features: { utm: { description: '', support_url: '', upgrade_url: '' } },
+					locked_widget_types: { 'jpa/a': 'utm' },
+				},
+			},
+		} as unknown as typeof window.JetpackScriptData;
+	} );
+
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	it( 'points a locked type at the locked module', async () => {
+		useWidgetTypesMock.mockImplementation( records => [
+			records
+				? [ { name: 'jpa/a', renderModule: 'jetpack-premium-analytics/widgets/a/render' } ]
+				: [],
+			! records,
+		] );
+
+		const { result } = renderHook( () => useWidgetTypesWithI18n( RECORDS ) );
+
+		await waitFor( () =>
+			expect( result.current[ 0 ][ 0 ]?.renderModule ).toBe(
+				`${ LOCKED_RENDER_MODULE_PREFIX }jpa/a`
+			)
+		);
+	} );
+
+	it( 'resolves the locked module without importing the widget or its catalog', async () => {
+		const importModule = jest.fn( () => Promise.resolve( {} as WidgetModule ) );
+		const resolve = createWidgetModuleResolver( RECORDS, importModule );
+
+		const locked = await resolve( `${ LOCKED_RENDER_MODULE_PREFIX }jpa/a` );
+
+		expect( importModule ).not.toHaveBeenCalled();
+		expect( loadCatalogMock ).not.toHaveBeenCalled();
+		expect( ( locked.default as () => ReactElement )().props ).toEqual( { feature: 'utm' } );
 	} );
 } );

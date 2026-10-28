@@ -5,6 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { productDetailsQuery } from '../product-details-query';
 import { reportOrderAttributionSummaryQuery } from '../report-order-attribution-summary-query';
 import { reportVisitorsQuery } from '../report-visitors-query';
 
@@ -72,5 +73,38 @@ describe( 'reportOrderAttributionSummaryQuery', () => {
 		expect( paths ).toHaveLength( 2 );
 		expect( paths[ 0 ] ).toContain( '/order-attribution-by-product/device/summary' );
 		expect( paths[ 1 ] ).toContain( '/order-attribution-by-product/device/summary' );
+	} );
+} );
+
+describe( 'productDetailsQuery', () => {
+	it( 'keys the query by the products listed, in id order, and stays idle without any', async () => {
+		mockApiFetch.mockResolvedValue( [
+			{
+				id: 7,
+				permalink: 'https://shop.test/hat/',
+				images: [ { src: 'hat.jpg', alt: '' } ],
+			},
+		] );
+
+		expect( productDetailsQuery( [] ) ).toMatchObject( { enabled: false } );
+
+		const query = productDetailsQuery( [ 9, 7 ] );
+		const queryFn = query.queryFn as () => Promise< unknown >;
+
+		expect( query.queryKey ).toEqual( [ 'products', 'details', [ 7, 9 ] ] );
+		await expect( queryFn() ).resolves.toEqual( {
+			7: { image: { url: 'hat.jpg', alt: '' }, permalink: 'https://shop.test/hat/' },
+		} );
+		expect( ( mockApiFetch.mock.calls[ 0 ][ 0 ] as { path: string } ).path ).toContain(
+			'include=7%2C9'
+		);
+	} );
+
+	it( 'fails instead of caching a failed products request as no products', async () => {
+		mockApiFetch.mockRejectedValue( new Error( 'rest_forbidden' ) );
+
+		const queryFn = productDetailsQuery( [ 7 ] ).queryFn as () => Promise< unknown >;
+
+		await expect( queryFn() ).rejects.toThrow( 'rest_forbidden' );
 	} );
 } );

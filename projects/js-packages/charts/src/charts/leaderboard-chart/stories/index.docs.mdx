@@ -129,6 +129,25 @@ The chart automatically handles negative growth with appropriate color coding:
 	];` }
 />
 
+### Negative Values
+
+A negative `currentShare` or `previousShare` switches every row to a diverging layout: bars grow out from a shared zero point, negative bars toward the inline start and positive bars toward the inline end. Zero sits in proportion to the range, so with shares from `-30` to `100` it falls 30 / 130 of the way across. Divide by the largest absolute value so both directions share one scale:
+
+<Canvas of={ LeaderboardChartStories.NegativeValues } />
+
+<Source
+	language="tsx"
+	code={ `const maxValue = Math.max(
+		...data.flatMap(item => [Math.abs(item.currentValue), Math.abs(item.previousValue)])
+	);
+
+	const processedData = data.map(item => ({
+		...item,
+		currentShare: (item.currentValue / maxValue) * 100, // -100 to 100
+		previousShare: (item.previousValue / maxValue) * 100,
+	}));` }
+/>
+
 ## Data Formatting
 
 ### Custom Value Formatting
@@ -211,6 +230,10 @@ Handle different value ranges with conditional formatting:
 Any entry with an `onClick` field becomes a clickable, keyboard-accessible row. The row renders as a `<button>` (activatable with Enter or Space) and reveals a chevron on hover or focus. Rows without `onClick` remain inert.
 
 By default the button's accessible name is derived from its rendered content (the label plus the formatted value). For an image-only JSX label whose text content doesn't yield a clean name, set the optional `ariaLabel` field on the entry to give assistive tech a deterministic name.
+
+A label can't hold its own link or button inside the row button, since interactive elements can't be nested. For a row that needs both, set `hasInteractiveLabel: true` with `onClick` and a required `ariaLabel`. The row button then sits behind the row's cells and wraps no text, so it takes its name only from `ariaLabel`; the label's links and buttons sit above it and stay clickable, and Tab reaches them before the row button:
+
+<Canvas of={ LeaderboardChartStories.InteractiveLabel } />
 
 Configuring what happens on click — for example, drilling down into a sub-view — is the consumer's responsibility, not the chart's:
 
@@ -607,9 +630,11 @@ The Leaderboard Chart component supports an optional entry animation that create
 - Legend items can be toggled via keyboard using standard button interaction.
 - Rows with `onClick` render as native `<button>` elements and are activatable with Enter or Space.
 - An interactive row's accessible name comes from its content (label + value); set the entry's `ariaLabel` to override it for image-only labels.
+- A row with `hasInteractiveLabel` takes its name only from the required `ariaLabel`, and its label's links come before the row button in tab order.
 
 ### Screen Reader Support
 
+- Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - Uses semantic text content for labels and values.
 - Legend items expose visible labels and state when interactive.
 - Value and delta text supplement color-based feedback.

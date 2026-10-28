@@ -409,6 +409,30 @@ describe( 'video-editor stage', () => {
 		expect( screen.queryByTestId( 'chapters' ) ).not.toBeInTheDocument();
 	} );
 
+	it.each( [ true, false ] )(
+		'shows terminal failure before loading an editor (trim enabled: %s)',
+		async trimCut => {
+			setFeatures( { chaptersEditor: true, trimCut } );
+			installApi( {
+				media: makeRawMedia( {
+					media_details: {
+						file_statuses: { mp4: 'ERROR' },
+						videopress: { duration: 0, finished: true },
+					},
+				} ),
+				metaPosts: [],
+			} );
+			render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
+			await expect(
+				screen.findByText(
+					'Conversion failed. Delete this video from your library and upload it again.'
+				)
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTestId( 'chapters' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( /still processing/i ) ).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'shows the processing state for a video without a known duration', async () => {
 		setFeatures( { trimCut: false } );
 		installApi( {

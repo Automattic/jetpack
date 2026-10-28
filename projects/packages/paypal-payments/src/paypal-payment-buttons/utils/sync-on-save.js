@@ -224,10 +224,11 @@ async function createPayment( request, clientId, attributes, body ) {
 /**
  * What a create or update response says should change on the block.
  *
- * The server attaches `attributes` only when it read the resource back: a PUT echo has
- * no `id`, and mapping one would blank the block's resourceId. Diffing runs through the
- * same helper as the mount read-back, so variants compare the same way and an unchanged
- * block comes back empty.
+ * The server attaches `attributes` to a create, and to an update only when it read the
+ * payment back. A PUT echo is what the block sent plus `id`, with no code_snippets, so
+ * mapping one would blank a stacked block's scriptSrc. Diffing runs through the same
+ * helper as the mount read-back, so variants compare the same way and an unchanged block
+ * comes back empty.
  *
  * @param {object} attributes - The block's current attributes.
  * @param {object} response   - The API response.

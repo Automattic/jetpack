@@ -4,7 +4,7 @@ Tags: jetpack, stuff
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1
-Stable tag: 0.10.0
+Stable tag: 0.11.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,26 +33,31 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 0.10.0 - 2026-04-10
+### 0.11.0 - 2026-10-14
 #### Added
-- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
+- My Jetpack: Allow the Automattic for Agencies banner to be dismissed.
 
 #### Changed
-- Dependencies: Update lock file to keep root requirements in sync.
-- My Jetpack: Check red bubble notification async when cache is not available.
-- Remove header border-bottom from the admin page for a cleaner unified header appearance.
-- Switch to Native TypeScript compiler based on Go.
-- Update admin page footer design.
-- Update composer.lock.
-- Update dependencies.
-- Update design of the sidebar upsell.
-- Update package dependencies.
+- Boost: Wait up to four minutes for slow speed tests in My Jetpack instead of timing out after two.
+- Charts: follow the WordPress admin color scheme for chart series colors.
+- General: Update minimum WordPress version to 7.0.
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
+- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use.
+- Remove unneeded development and documentation files from the published plugin.
+- Tested up to WordPress 7.1.
+- Update composer.lock files.
+- Updated package dependencies.
 
 #### Removed
-- General: Update minimum WordPress version to 6.8.
+- Updated PHP version requirements to PHP 7.4 or newer.
 
 #### Fixed
-- Admin Page: Restore border on header component.
+- Charts: draw labels at the design system's font weight and size.
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
+- My Jetpack: Keep the Automattic for Agencies banner hidden after dismissing it and switching tabs.
+- My Jetpack: keep the stats chart tooltip under sticky and fixed page elements.
+- My Jetpack: Stop repeating the partner lookup request on every page load.
+- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen.
 
 == Arbitrary section ==
 

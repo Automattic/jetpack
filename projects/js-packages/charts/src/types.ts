@@ -191,7 +191,7 @@ export type DataPointDate = {
 	color?: string;
 };
 
-export type LeaderboardEntry = {
+type LeaderboardEntryFields = {
 	/**
 	 * Unique internal key (e.g., 'key-direct')
 	 */
@@ -214,13 +214,14 @@ export type LeaderboardEntry = {
 	previousValue?: number;
 
 	/**
-	 * Width of current bar, as % of the current value
+	 * Width of current bar, as % of the largest absolute value across rows. A negative share
+	 * extends the bar from a shared zero point toward the inline start, for every row.
 	 */
 	currentShare: number;
 
 	/**
-	 * Width of previous bar, as % of the current value. Omit when this row has
-	 * no matching comparison-period value.
+	 * Width of previous bar, as % of the largest absolute value across rows. Omit when this
+	 * row has no matching comparison-period value.
 	 */
 	previousShare?: number;
 
@@ -245,7 +246,8 @@ export type LeaderboardEntry = {
 	 * For links or other interactive affordances (external-link icons, info
 	 * tooltips), put them in the `label` render prop instead of using onClick —
 	 * a row is either a button (onClick) or carries interactive label content,
-	 * never both, since interactive elements cannot be nested in HTML.
+	 * never both, since interactive elements cannot be nested in HTML. The
+	 * exception is a row that sets `hasInteractiveLabel`.
 	 */
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 
@@ -260,6 +262,21 @@ export type LeaderboardEntry = {
 	 */
 	ariaLabel?: string;
 };
+
+export type LeaderboardEntry = LeaderboardEntryFields &
+	(
+		| { hasInteractiveLabel?: false }
+		| {
+				/**
+				 * Set when the `label` holds its own link or button. The row's button
+				 * then sits behind the row instead of around it, so both stay operable.
+				 * Requires `onClick`, and `ariaLabel` since the button wraps no text.
+				 */
+				hasInteractiveLabel: true;
+				onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
+				ariaLabel: string;
+		  }
+	);
 
 export type GradientStop = {
 	offset: string;
@@ -290,13 +307,21 @@ export type SeriesData = {
 
 /**
  * Visual styling for a bar series of a given semantic type (e.g. 'comparison').
- * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%);
- * `opacity` sets the shadow translucency.
+ * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%).
  */
 export type BarStyles = {
 	widthFactor?: number;
+	/**
+	 * Draws the comparison bar translucent, in its primary's color, instead of the opaque tones the chart picks.
+	 * @deprecated Comparison bars are opaque. Leave this unset; set the comparison series' `options.stroke` for a color of its own.
+	 */
 	opacity?: number;
 };
+
+/**
+ * How a bar chart places its series in a category. `grouped` puts each primary series in a slot of its own; `overlap` puts every primary in one slot and every comparison in a second, and overlaps the `group`s within each slot.
+ */
+export type BarChartLayout = 'grouped' | 'overlap';
 
 export type MultipleDataPointsDate = {
 	label: string;
@@ -378,9 +403,15 @@ export type ChartTheme = {
 	 *
 	 * `fontFamily: 'inherit'` is load-bearing here — it overrides the font stack
 	 * `buildChartTheme` injects inline on SVG `<text>`.
+	 *
+	 * Give `fontSize` in pixels (`12` or `'12px'`). Margins and pie labels cannot measure `rem`, `em`, `%` or `var()`, so they use the default size and labels can clip (CHARTS-303). An invalid size is dropped.
 	 */
 	svgLabelSmall?: Omit< TextProps, 'fill' >;
-	/** Styles for large SVG text (eg. axis titles), passed through to the XYChart theme. */
+	/**
+	 * Styles for large SVG text (eg. axis titles), passed through to the XYChart theme.
+	 *
+	 * Give `fontSize` in pixels, as for `svgLabelSmall`.
+	 */
 	svgLabelBig?: TextProps;
 	annotationStyles?: ThemeAnnotationStyles;
 	/** LeaderboardChart specific settings */
@@ -638,6 +669,9 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	shapeStyles?: LegendShapeStyles;
 };
 
+/** Names a comparison series' legend item after the label of the series it is compared with. */
+export type ComparisonItemLabel = ( seriesLabel: string ) => string;
+
 /**
  * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
  * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
@@ -658,6 +692,11 @@ export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
 	 * Pass a string to replace the default label.
 	 */
 	comparisonItem?: boolean | string;
+	/**
+	 * Append one static item per comparison series instead, named by calling this with the label
+	 * of the series it is compared with, and left out while that series is hidden.
+	 */
+	comparisonSeriesItems?: ComparisonItemLabel;
 };
 
 /**
@@ -688,6 +727,10 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 * Additional CSS class name for the chart container
 	 */
 	className?: string;
+	/**
+	 * Accessible name of the chart. Name it after what it shows, and give each chart on a page a different name. Each chart type has a localized default, such as "Line chart".
+	 */
+	ariaLabel?: string;
 	/**
 	 * Width of the chart container in pixels. When omitted, the chart fills its parent's width.
 	 */

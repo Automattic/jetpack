@@ -13,7 +13,6 @@ import {
 	registerReportMocks,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import MostCommentedPostsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -89,8 +88,7 @@ export const RetryableErrorState: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral comment
- * content glyph and "None of your posts or pages have comments yet.").
+ * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: renderMostCommentedPosts,
@@ -103,7 +101,7 @@ function MostCommentedPostsDashboardStory( dashboardArgs: WidgetDashboardWithWid
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ MOST_COMMENTED_POSTS_RENDER_MODULE }
 			renderComponent={ MostCommentedPostsRender as ComponentType< WidgetRenderProps< unknown > > }
 			// The report is all-time, so comparison params change nothing here; they

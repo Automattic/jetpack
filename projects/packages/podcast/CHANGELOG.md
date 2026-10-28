@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.3] - 2026-10-26
+### Changed
+- Settings: Use the same cards, column width, and spacing as the other Jetpack settings screens. [#53608]
+
+### Fixed
+- Recognize Pro subscriptions and offer an available plan when Growth is retired. [#53854]
+- Settings: Keep the newly picked category, explicit setting or cover image on screen while it saves, and go back to the saved one only if the save fails. [#53911]
+
+## [2.2.2] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+
+## [2.2.1] - 2026-10-14
+### Fixed
+- Load the dashboard's JavaScript translation catalogs so its strings are translated. [#53042]
+- Stats: Give the downloads by location map an accessible name for screen readers. [#53516]
+
+## [2.2.0] - 2026-10-12
+### Added
+- Podcast Episode block: Add a toggle to hide the episode author. [#53210]
+
+## [2.1.7] - 2026-10-12
+### Changed
+- Update dependencies.
+
 ## [2.1.6] - 2026-10-05
 ### Changed
 - Stats: Show the daily downloads chart tooltip on the shared chart tooltip surface. [#52850]
@@ -286,6 +311,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[2.2.3]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.2...v2.2.3
+[2.2.2]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.1...v2.2.2
+[2.2.1]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.7...v2.2.0
+[2.1.7]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.6...v2.1.7
 [2.1.6]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.5...v2.1.6
 [2.1.5]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.4...v2.1.5
 [2.1.4]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.3...v2.1.4

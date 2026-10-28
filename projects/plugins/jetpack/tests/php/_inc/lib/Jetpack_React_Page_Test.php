@@ -6,18 +6,169 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\Partner_Coupon;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-settings-page.php';
 
 /**
  * @covers \Jetpack_React_Page
+ * @covers \Jetpack_Settings_Page
  */
 #[CoversClass( Jetpack_React_Page::class )]
+#[CoversClass( Jetpack_Settings_Page::class )]
 class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	public function test_modules_management_link_defaults_to_features_and_allows_a_false_override() {
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		Initializer::register_feature_flags();
+
+		$this->assertSame( admin_url( 'admin.php?page=my-jetpack&modules_fallback=1#/features' ), Initializer::get_modules_management_url() );
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::MODULES_TO_FEATURES_FLAG, '__return_false' );
+		try {
+			$this->assertSame( admin_url( 'admin.php?page=jetpack_modules' ), Initializer::get_modules_management_url() );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::MODULES_TO_FEATURES_FLAG, '__return_false' );
+		}
+	}
+
+	public function test_classic_search_preserves_only_a_present_fallback_marker() {
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
+		$original_get = $_GET;
+		try {
+			foreach ( array( array(), array( 'modules_fallback' => '1' ) ) as $args ) {
+				$_GET = $args;
+				ob_start();
+				try {
+					( new Jetpack_Settings_Page() )->page_render();
+				} finally {
+					$html = ob_get_clean();
+				}
+				$this->assertSame( 1, preg_match( '/<form class="navbar-form".*?<\/form>/s', $html, $matches ) );
+				$this->assertSame( isset( $args['modules_fallback'] ), false !== strpos( $matches[0], '<input type="hidden" name="modules_fallback" value="1" />' ) );
+			}
+		} finally {
+			$_GET = $original_get;
+		}
+	}
+
+	/**
+	 * @dataProvider modules_navigation_cases
+	 */
+	#[DataProvider( 'modules_navigation_cases' )]
+	public function test_modules_navigation_preserves_supported_views_and_fallbacks( $args, $mode, $redirect ) {
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		$original_get              = $_GET;
+		$original_method           = $_SERVER['REQUEST_METHOD'] ?? null;
+		$_GET                      = array_merge( array( 'page' => 'jetpack_modules' ), $args );
+		$_SERVER['REQUEST_METHOD'] = $mode === 'post' ? 'POST' : 'GET';
+		remove_all_actions( 'admin_head' );
+		add_filter( 'jetpack_offline_mode', $mode === 'offline' ? '__return_true' : '__return_false' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::MODULES_TO_FEATURES_FLAG, '__return_true' );
+		$auth = static function ( $result ) use ( $mode ) {
+			return $mode === 'rest-error' ? new WP_Error( 'denied' ) : $result;
+		};
+		add_filter( 'rest_authentication_errors', $auth, 999 );
+		if ( $mode === 'rest-off' ) {
+			add_filter( 'rest_enabled', '__return_false' );
+		}
+		if ( $mode === 'host-redirect' ) {
+			add_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
+		}
+		if ( $mode === 'fonts-off' ) {
+			Jetpack::deactivate_module( 'google-fonts' );
+		}
+		$visibility = static function ( $states ) use ( $mode ) {
+			return $mode === 'host-hidden' ? array( 'stats' => 'hidden' ) : $states;
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $visibility );
+		if ( $mode === 'role' ) {
+			$user = wp_get_current_user();
+			$user->set_role( 'subscriber' );
+			$user->add_cap( 'jetpack_manage_modules' );
+		}
+		if ( $mode === 'notice' ) {
+			Jetpack::state( 'error', 'test-error' );
+		}
+		Status_Cache::clear();
+		try {
+			$page = new Jetpack_Settings_Page();
+			$page->add_page_actions( 'modules-test' );
+			do_action( 'load-modules-test' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- WordPress page-load hook.
+			ob_start();
+			try {
+				do_action( 'admin_head' );
+			} finally {
+				$html = ob_get_clean();
+			}
+			$this->assertSame( $redirect, false !== strpos( $html, 'window.location.replace(' ) );
+			if ( $redirect ) {
+				$this->assertStringContainsString( '#\\/features', $html );
+				if ( isset( $args['s'] ) ) {
+					$this->assertStringContainsString( 'search=' . rawurlencode( $args['s'] ), $html );
+				}
+				if ( isset( $args['module_tag'] ) ) {
+					$this->assertStringContainsString( 'module_tag=Jetpack%20Stats', $html );
+				}
+			}
+		} finally {
+			$_GET                      = $original_get;
+			$_SERVER['REQUEST_METHOD'] = $original_method;
+			Jetpack::state( 'error', '' );
+			remove_filter( 'rest_authentication_errors', $auth, 999 );
+			remove_filter( 'rest_enabled', '__return_false' );
+			remove_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
+			remove_filter( 'jetpack_my_jetpack_feature_visibility', $visibility );
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::MODULES_TO_FEATURES_FLAG, '__return_true' );
+		}
+	}
+
+	public static function modules_navigation_cases() {
+		return array(
+			'plain'                               => array( array(), 'online', true ),
+			'search encoding'                     => array( array( 's' => 'stats & visits' ), 'online', true ),
+			'tag'                                 => array( array( 'module_tag' => 'Jetpack Stats' ), 'online', true ),
+			'combined'                            => array(
+				array(
+					's'          => 'stats',
+					'module_tag' => 'Jetpack Stats',
+				),
+				'online',
+				true,
+			),
+			'host replaces My Jetpack with Stats' => array( array(), 'host-redirect', false ),
+			'hidden-only Fonts search'            => array( array( 's' => 'fonts' ), 'fonts-off', false ),
+			'hidden-only Fonts tag'               => array( array( 'module_tag' => 'Fonts' ), 'fonts-off', false ),
+			'host-hidden Stats tag'               => array( array( 'module_tag' => 'Jetpack Stats' ), 'host-hidden', false ),
+			'crafted key'                         => array( array( 'x#/features' => '1' ), 'offline', false ),
+			'unknown tag'                         => array( array( 'module_tag' => 'unknown' ), 'online', false ),
+			'purpose'                             => array( array( 'product_group' => 'grow' ), 'online', false ),
+			'state'                               => array( array( 'activated' => 'false' ), 'online', false ),
+			'availability'                        => array( array( 'offline_available' => 'all' ), 'online', false ),
+			'array'                               => array( array( 's' => array( 'stats' ) ), 'online', false ),
+			'action'                              => array(
+				array(
+					'action'   => 'activate',
+					'_wpnonce' => 'nonce',
+				),
+				'online',
+				false,
+			),
+			'offline entry enabled'               => array( array(), 'offline', false ),
+			'REST disabled'                       => array( array(), 'rest-off', false ),
+			'REST error'                          => array( array(), 'rest-error', false ),
+			'POST'                                => array( array(), 'post', false ),
+			'module manager'                      => array( array(), 'role', false ),
+			'pending notice'                      => array( array(), 'notice', false ),
+		);
+	}
 
 	/**
 	 * Log in as an administrator of a connected site.
@@ -25,8 +176,9 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		// Test the self-hosted path: wpcomsh hides My Jetpack on non-classic WoA sites.
+		// Test self-hosted permissions independently of wpcomsh's host and plan gates.
 		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
+		remove_filter( 'map_meta_cap', 'wpcomsh_map_feature_cap', 10 );
 
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
@@ -52,6 +204,8 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 		unset( $_GET['page'] );
 
 		( new Connection_Manager() )->reset_connection_status();
+		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_my_jetpack_offline_features' );
 		Status_Cache::clear();
 
 		parent::tear_down();
@@ -136,6 +290,33 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 
 		$this->assertSame( admin_url( 'admin.php?page=jetpack-settings' ), $table['fallback'] );
 		$this->assertSame( array( '/plans', '/plans-prompt', '/newsletter' ), array_keys( $table['routes'] ) );
+	}
+
+	/**
+	 * @dataProvider page_access_cases
+	 * @param bool $offline Whether the site is offline.
+	 * @param bool $restricted Whether the administrator lacks plugin activation.
+	 */
+	#[DataProvider( 'page_access_cases' )]
+	public function test_main_page_hands_over_only_to_an_accessible_my_jetpack_page( $offline, $restricted ) {
+		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
+		Status_Cache::clear();
+		wp_get_current_user()->add_cap( 'activate_plugins', ! $restricted );
+		$before = Jetpack_React_Page::get_legacy_route_redirects()['fallback'];
+		$this->assertSame( admin_url( 'admin.php?page=' . ( $offline ? 'jetpack-settings' : 'my-jetpack' ) ), $before );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		$after = Jetpack_React_Page::get_legacy_route_redirects()['fallback'];
+		$this->assertSame( admin_url( 'admin.php?page=' . ( $offline && $restricted ? 'jetpack-settings' : 'my-jetpack' ) ), $after );
+	}
+
+	/** @return array Landing permission cases. */
+	public static function page_access_cases() {
+		return array(
+			'offline full administrator'       => array( true, false ),
+			'offline restricted administrator' => array( true, true ),
+			'online full administrator'        => array( false, false ),
+			'online restricted administrator'  => array( false, true ),
+		);
 	}
 
 	/**

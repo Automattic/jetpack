@@ -801,6 +801,48 @@ describe( 'BaseLegend', () => {
 			expect( staticItem ).not.toHaveClass( 'legend-item--inactive' );
 		} );
 
+		it( 'leaves out a static item while its series is hidden, keeping later swatches aligned', async () => {
+			const user = userEvent.setup();
+			const items = [
+				{ label: 'Views', color: '#0000ff', seriesLabels: [ 'Views', 'Views · previous' ] },
+				{
+					label: 'Visitors',
+					color: '#00ff00',
+					seriesLabels: [ 'Visitors', 'Visitors · previous' ],
+				},
+				{
+					label: 'Views (Prev. 7 days)',
+					color: '#000088',
+					interactive: false,
+					describesSeries: 'Views · previous',
+				},
+				{
+					label: 'Visitors (Prev. 7 days)',
+					color: '#008800',
+					interactive: false,
+					describesSeries: 'Visitors · previous',
+				},
+			];
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ items } interactive chartId="test-chart" shape={ TestShape } />
+				</GlobalChartsProvider>
+			);
+
+			await user.click( screen.getByRole( 'button', { name: /^Views/ } ) );
+
+			expect( screen.getAllByTestId( 'legend-item' ).map( item => item.textContent ) ).toEqual( [
+				'Views',
+				'Visitors',
+				'Visitors (Prev. 7 days)',
+			] );
+			expect( screen.getAllByTestId( 'legend-marker' )[ 2 ] ).toHaveAttribute( 'fill', '#008800' );
+
+			await user.click( screen.getByRole( 'button', { name: /^Views/ } ) );
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 4 );
+		} );
+
 		it( 'keeps a comparison item distinct when its label collides', async () => {
 			const user = userEvent.setup();
 			const Example = () => {

@@ -1312,7 +1312,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 * the whole feature could be removed from the markup and they would all still pass.
 	 */
 	public function test_rendered_form_carries_form_fill_duration_markup() {
-		$html = do_shortcode( "[contact-form][contact-field label='Name' type='name' required='1'/][/contact-form]" );
+		$html = apply_shortcodes( "[contact-form][contact-field label='Name' type='name' required='1'/][/contact-form]" );
 
 		// Asserted as a pair: an unanchored `value=''` would also match the Name field, which
 		// renders an empty value of its own, so it would pass even if the duration input
@@ -1336,7 +1336,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_parse_contact_field_keeps_string_unchanged_when_no_escaping_necesssary() {
 		$shortcode = '[contact-field label="Name" type="name" required="1"/][contact-field label="Email" type="email" required="1"/][contact-field label="asdasd" type="text"/][contact-field id="1" required derp herp asd lkj]adsasd[/contact-field]';
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 
 		$this->assertEquals( $shortcode, $html );
 	}
@@ -1346,7 +1346,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_that_we_add_default_label_when_non_is_present() {
 		$shortcode = "[contact-field type='name' required='1' /]";
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 		$this->assertEquals( '[contact-field type="name" required="1" label="Name"/]', $html );
 	}
 
@@ -1355,7 +1355,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_that_we_remove_empty_options_from_form_field() {
 		$shortcode = "[contact-field type='select' required='1' options='fun,,run' label='fun times' values='go,,have some fun'/]";
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 		$this->assertEquals( '[contact-field type="select" required="1" options="fun,run" label="fun times" values="go,have some fun"/]', $html );
 	}
 
@@ -1364,7 +1364,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_array_values_with_commas_and_brackets() {
 		$shortcode = "[contact-field type='radio' options='\"foo\",bar&#044; baz,&#091;b&#092;rackets&#093;' label='fun &#093;&#091; times'/]";
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 		$this->assertEquals( '[contact-field type="radio" options="&quot;foo&quot;,bar&#044; baz,&#091;b&#092;rackets&#093;" label="fun &#093;&#091; times"/]', $html );
 	}
 
@@ -2319,7 +2319,7 @@ class Contact_Form_Test extends BaseTestCase {
 	public function test_parse_contact_field_escapes_things_inside_a_value_and_attribute_and_the_content() {
 
 		$shortcode = "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=''email'' req'uired='1'/][contact-field label='asdasd' type='text'/][contact-field id='1' required 'derp' herp asd lkj]adsasd[/contact-field]";
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 
 		/*
 		 * The expected string has some quotes escaped, since we want to make
@@ -2334,7 +2334,7 @@ class Contact_Form_Test extends BaseTestCase {
 	public function test_parse_contact_field_trims_content() {
 
 		$shortcode = '[contact-field id="1" required]     adsasd        [/contact-field]';
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 
 		/*
 		 * The expected string has some quotes escaped, since we want to make
@@ -4277,6 +4277,71 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$this->assertIsString( $result5, 'Parse should return a string with multiple fields' );
 		$this->assertStringNotContainsString( 'is-single-input-form', $result5, 'Should not have single-input-form class with multiple fields' );
+	}
+
+	/**
+	 * A [contact-form] nested inside another renders as one form holding every field.
+	 *
+	 * @dataProvider nested_contact_form_shortcode_provider
+	 *
+	 * @param string $shortcode       Shortcode content with a nested form.
+	 * @param array  $expected_labels Labels of the fields the rendered form should hold.
+	 */
+	#[DataProvider( 'nested_contact_form_shortcode_provider' )]
+	public function test_nested_contact_form_shortcode_merges_into_outer_form( $shortcode, $expected_labels ) {
+		$html = apply_shortcodes( $shortcode );
+
+		$labels = array();
+		foreach ( Contact_Form::$last->fields as $field ) {
+			$labels[] = $field->get_attribute( 'label' );
+		}
+
+		$this->assertSame( 1, substr_count( $html, '<form' ) );
+		$this->assertSame( $expected_labels, $labels );
+	}
+
+	/**
+	 * A nested form's attributes fill in the ones the outer form left unset, without overriding it.
+	 */
+	public function test_nested_contact_form_shortcode_merges_attributes_with_outer_form_winning() {
+		apply_shortcodes( "[contact-form subject='Outer subject'][contact-form subject='Inner subject' to='inner@example.com' submit_button_text='Send it'][contact-field label='Email' type='email'/][/contact-form][/contact-form]" );
+
+		$form = Contact_Form::$last;
+		$this->assertSame( 'Outer subject', $form->get_attribute( 'subject' ) );
+		$this->assertSame( 'inner@example.com', $form->get_attribute( 'to' ) );
+		$this->assertSame( 'Send it', $form->get_attribute( 'submit_button_text' ) );
+	}
+
+	/**
+	 * Fields are built after a nested form's attributes are merged, so a subject field defaults to the inherited subject.
+	 */
+	public function test_nested_contact_form_shortcode_attributes_reach_fields() {
+		$html = apply_shortcodes( "[contact-form][contact-form subject='Inner subject'][contact-field label='Subject' type='subject'/][/contact-form][/contact-form]" );
+
+		$this->assertSame( 'Inner subject', Contact_Form::$last->get_attribute( 'subject' ) );
+		$this->assertStringContainsString( "value='Inner subject'", $html );
+	}
+
+	/**
+	 * Data provider for test_nested_contact_form_shortcode_merges_into_outer_form.
+	 *
+	 * @return array
+	 */
+	public static function nested_contact_form_shortcode_provider() {
+		return array(
+			'only a nested form'       => array(
+				"[contact-form][contact-form][contact-field label='Email' type='email'/][/contact-form][/contact-form]",
+				array( 'Email' ),
+			),
+			'field before nested form' => array(
+				"[contact-form][contact-field label='Name' type='name'/][contact-form][contact-field label='Email' type='email'/][/contact-form][/contact-form]",
+				array( 'Name', 'Email' ),
+			),
+			'self-closing nested form' => array(
+				"[contact-form][contact-field label='Name' type='name'/][contact-form /][/contact-form]",
+				array( 'Name' ),
+			),
+		);
 	}
 
 	/**

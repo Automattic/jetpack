@@ -17,7 +17,7 @@ export type BoundedTooltipProps = Omit< TooltipBoxProps, 'children' > & {
 	placement?: TooltipPlacement;
 };
 
-const DEFAULT_OFFSET = 10;
+export const DEFAULT_OFFSET = 10;
 // Above anything else layered inside a chart, such as the zoom reset button (2).
 // Chart wrappers isolate their stacking context, so it never reaches page chrome.
 export const TOOLTIP_Z_INDEX = 3;
@@ -43,7 +43,7 @@ const findLayoutParent = ( node: Element ): Element | null => {
 // The first ancestor that cuts its overflow off. The box may leave the chart
 // wrapper but never this element, which is what a body-level portal used to
 // guarantee by never being inside one.
-const findClippingAncestor = ( wrapper: Element ): Element | null => {
+export const findClippingAncestor = ( wrapper: Element ): Element | null => {
 	let element = wrapper.parentElement;
 	while ( element && element !== document.body ) {
 		if ( isClipping( element ) ) {

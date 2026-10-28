@@ -1,40 +1,42 @@
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { createElement, useEffect } from '@wordpress/element';
 import { Link } from '@wordpress/ui';
-import { TRACKS_EVENT_NAME_PREFIX } from '../constants';
 import { createTracksEventHandler } from '../helpers';
-import type { ReactElement } from 'react';
+import type { TracksEventRecorder } from '../helpers';
+import type { ReactNode } from 'react';
+
+type DashboardLinkProps = {
+	internal: boolean;
+	href: string;
+	eventName: string;
+	tracks: TracksEventRecorder;
+	children?: ReactNode;
+};
 
 /**
- * Generates a Link component, that will be displayed differently
- * whether the link is external or stays within the platform.
+ * Link that records a click. External links open in a new tab.
  *
- * @param {boolean} internal - Whether the link points to an internal resource
- * @param {string}  href     - Link target URL
- * @param {string}  text     - The link text
- * @returns {ReactElement} The link component
+ * @param {DashboardLinkProps} props - Component props.
+ * @returns {import('react').JSX.Element} The link.
  */
-export const DashboardLink = (
-	internal: boolean,
-	href: string,
-	eventName: string,
-	text?: string
-): ReactElement => {
-	const { tracks } = useAnalytics();
+export const DashboardLink = ( {
+	internal,
+	href,
+	eventName,
+	tracks,
+	children,
+}: DashboardLinkProps ) => {
+	const onClick = createTracksEventHandler( tracks, eventName );
 
-	useEffect( () => {
-		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
-	}, [ tracks ] );
-
-	const isExternal = ! internal;
-	const elementType = isExternal ? Link : 'a';
-	const props: Record< string, unknown > = {
-		href,
-		onClick: createTracksEventHandler( tracks, eventName ),
-	};
-	if ( isExternal ) {
-		props.openInNewTab = true;
+	if ( ! internal ) {
+		return (
+			<Link href={ href } openInNewTab onClick={ onClick }>
+				{ children }
+			</Link>
+		);
 	}
 
-	return createElement( elementType, props, text ? text : undefined );
+	return (
+		<a href={ href } onClick={ onClick }>
+			{ children }
+		</a>
+	);
 };

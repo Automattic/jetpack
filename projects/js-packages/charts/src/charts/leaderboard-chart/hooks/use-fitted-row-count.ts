@@ -16,8 +16,8 @@ export const SUBPIXEL_TOLERANCE = 0.5;
  * depends on `--a8c-charts-dimension-leaderboard-row-gap`, label wrapping, and
  * whatever a caller renders as a label, so any restated number would drift.
  *
- * Every row is a direct grid child marked with `data-row-index`; interactive rows
- * use a button wrapper and non-interactive rows use a div wrapper.
+ * Every row is a `listitem` div, a direct grid child marked with `data-row-index`;
+ * interactive rows hold a button inside it.
  *
  * @param enabled  - Whether to measure at all. When false every row fits.
  * @param rowCount - Total number of rows rendered.

@@ -4,18 +4,18 @@
 
 ## How it resolves
 
-`src/styles/chart-scope.scss` declares the whole catalog once, on the `GlobalChartsProvider` wrapper, via `:where(.a8c-charts-scope, .a8c-charts-tooltip-scope)`. `:where()` keeps the rule at zero specificity, so a consumer rule targeting that same element wins without `!important`. It is declared on the wrapper rather than `:root` because `@wordpress/theme`'s `ThemeProvider` emits its generated `--wpds-*` ramp as inline styles on its own wrapper div — a `:root` declaration would miss a `ThemeProvider` entirely.
+`src/styles/chart-scope.scss` declares the whole catalog once, on the `GlobalChartsProvider` wrapper, via `:where(.a8c-charts-scope, .a8c-charts-tooltip-scope, .geo-chart .google-visualization-tooltip)`. `:where()` keeps the rule at zero specificity, so a consumer rule targeting that same element wins without `!important`. It is declared on the wrapper rather than `:root` because `@wordpress/theme`'s `ThemeProvider` emits its generated `--wpds-*` ramp as inline styles on its own wrapper div — a `:root` declaration would miss a `ThemeProvider` entirely.
 
 Chart roots deliberately do *not* carry the `a8c-charts-scope` class. Custom properties inherit down the tree, and an element only shadows an inherited value by re-declaring it, so a chart root that re-declared the catalog would beat an override set between it and the provider — closing off the one place consumers are meant to set overrides. This inheritance rule drives every precedence question below.
 
-The tooltip box, `TooltipBox`, is the exception, and on purpose. Like the `@wordpress/ui` Tooltip popup, it renders inside its own `ThemeProvider`, seeded with `--a8c-charts-color-tooltip-surface`, and carries its own `a8c-charts-tooltip-scope` class, so it re-declares the catalog under that dark theme. Every role read inside the box resolves for the dark surface, whatever theme the chart is in, and neither an override set on the chart nor a rule on `.a8c-charts-scope` reaches the box. To override a role inside every tooltip, target `.a8c-charts-tooltip-scope`. An `unstyled` box gets neither the theme nor the class.
+The tooltip box, `TooltipBox`, is the exception, and on purpose. Like the `@wordpress/ui` Tooltip popup, it renders inside its own `ThemeProvider`, seeded with `--a8c-charts-color-tooltip-surface`, and carries its own `a8c-charts-tooltip-scope` class, so it re-declares the catalog under that dark theme. Every role read inside the box resolves for the dark surface, whatever theme the chart is in, and neither an override set on the chart nor a rule on `.a8c-charts-scope` reaches the box. To override a role inside every tooltip, target `.a8c-charts-tooltip-scope`. An `unstyled` box gets neither the theme nor the class. `GeoChart`'s Google tooltip (`.google-visualization-tooltip`) follows the same pattern: the chart renders under the same dark theme and the selector above re-declares the catalog on it. It does not carry `a8c-charts-tooltip-scope`, so override a role there with `.geo-chart .google-visualization-tooltip`: any rule beats the zero-specificity `:where()`.
 
 `TrendIndicator` and `BaseLegend` carry the class only when no provider is above them (`useStandaloneScopeClass()`), so inside a provider they inherit its overrides like the chart they belong to.
 
 Catalog entries normally map to WPDS tokens. Source writes these mappings bare; the LightningCSS plugin in `tsdown.config.ts` injects the WPDS spec value as a fallback into `dist/`:
 
 ```scss
-:where(.a8c-charts-scope, .a8c-charts-tooltip-scope) {
+:where(.a8c-charts-scope, .a8c-charts-tooltip-scope, .geo-chart .google-visualization-tooltip) {
 	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral);
 }
 ```
@@ -152,12 +152,16 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-color
 | `--a8c-charts-border-radius-leaderboard-bar` | _(none — pill shape, no WPDS radius fits)_ | `9999px` |
 | `--a8c-charts-dimension-leaderboard-row-gap` | `--wpds-dimension-gap-md` | `12px` |
 | `--a8c-charts-dimension-leaderboard-column-gap` | `--wpds-dimension-gap-xs` | `4px` |
+| `--a8c-charts-dimension-legend-column-gap` | `--wpds-dimension-gap-lg` | `16px` |
+| `--a8c-charts-dimension-legend-row-gap` | `--wpds-dimension-gap-sm` | `8px` |
 | `--a8c-charts-elevation-xs` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003` |
 | `--a8c-charts-elevation-sm` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005` |
 
 The motion pair carries the one-shot reveal a data mark plays on first paint, across all six charts that animate in. It deliberately does **not** cover interaction motion: hover and transition timings read `--wpds-motion-*` directly, as interface chrome rather than a chart role.
 
 `--a8c-charts-border-radius-bar` rounds the conversion funnel's bars. `--a8c-charts-border-radius-bar-chart` rounds the bars of the bar chart and bar list chart; set it to a radius such as `var(--wpds-border-radius-sm)` to opt in. Bar charts apply it as the CSS `rx` property, so it rounds all four corners of a bar. It resolves in CSS at the bar, so an override set anywhere inside the provider tree applies, the chart's own class included; see [Precedence](#precedence) for overrides above the provider.
+
+The legend pair spaces the items of a horizontal legend: the column gap between items on one line, and the smaller row gap between lines once the legend wraps.
 
 The elevation fallbacks hold the values their removed `--wpds-elevation-*` tokens used to resolve to, until a replacement exists.
 

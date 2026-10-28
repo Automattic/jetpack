@@ -1,3 +1,4 @@
+import { forwardRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Skeleton } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
@@ -7,7 +8,7 @@ import StorageMeter from './meter';
 import StorageUsageDetails from './usage-details';
 import './style.scss';
 import type { StorageUsageLevelName } from '../../data/storage-usage-levels';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
 /**
  * The forecast worth putting behind an info button, or null for none.
@@ -57,9 +58,10 @@ type Props = {
  *
  * @param props          - Component props.
  * @param props.trailing - Content for the row's end.
+ * @param ref            - The row's region, which takes focus when the notice is closed.
  * @return The row, or null when there is nothing to show.
  */
-export default function StorageSpace( { trailing }: Props ) {
+export default forwardRef< HTMLElement, Props >( function StorageSpace( { trailing }, ref ) {
 	const usage = useStorageUsage();
 
 	// Hold the row's height while the requests are in flight, so the list below does not
@@ -82,6 +84,8 @@ export default function StorageSpace( { trailing }: Props ) {
 
 	return (
 		<section
+			ref={ ref }
+			tabIndex={ -1 }
 			className="jpb-storage-space"
 			aria-label={ __( 'Backup storage', 'jetpack-backup-pkg' ) }
 		>
@@ -105,7 +109,7 @@ export default function StorageSpace( { trailing }: Props ) {
 			{ trailing }
 		</section>
 	);
-}
+} );
 
 /**
  * The notice for a site whose storage is above `Normal`, for the top of the page.
@@ -113,9 +117,15 @@ export default function StorageSpace( { trailing }: Props ) {
  * Warning and Critical can be dismissed, and a worse level shows again. Full and
  * BackupsDiscarded cannot.
  *
+ * @param props               - Component props.
+ * @param props.returnFocusTo - Where focus goes when the notice is closed: the storage row.
  * @return The notice, or null.
  */
-export function StorageNotice() {
+export function StorageNotice( {
+	returnFocusTo,
+}: {
+	returnFocusTo: RefObject< HTMLElement | null >;
+} ) {
 	const usage = useStorageUsage();
 	const { isDismissible, isDismissed, dismiss } = useStorageNoticeDismissal( usage.usageLevel );
 
@@ -136,6 +146,7 @@ export function StorageNotice() {
 			daysOfBackupsSaved={ usage.daysOfBackupsSaved }
 			minDaysOfBackupsAllowed={ usage.minDaysOfBackupsAllowed }
 			onDismiss={ isDismissible ? dismiss : undefined }
+			returnFocusTo={ returnFocusTo }
 		/>
 	);
 }

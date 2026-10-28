@@ -4,12 +4,12 @@
 import {
 	ReportScopeProvider,
 	chartInterval,
-	drawableIntervals,
-	getAllowedIntervalsForPreset,
 	getDefaultPreset,
 	getDefaultReportParams,
 	hasComparisonEnabled,
+	intervalMenuOptions,
 	normalizeReportParams,
+	useScopeLockedIntervals,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -188,8 +188,11 @@ function ReportParamsControl( {
 	} = useStagedValue< ReportParams >( committed, saveReportParams );
 
 	const defaultPreset = getDefaultPreset();
+	const lockedIntervals = useScopeLockedIntervals();
 
-	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset );
+	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset, {
+		lockedIntervals,
+	} );
 
 	const range = {
 		from: decodeDateSearchParam( reportParams.from ),
@@ -296,19 +299,21 @@ function ReportParamsControl( {
 
 	// Staged, not committed: a range being drafted has to reshape the menu with
 	// it, or the click is dropped on Apply.
-	const intervalOptions = useMemo( () => {
-		const allowed = getAllowedIntervalsForPreset(
-			reportParams.preset,
-			reportParams.from ?? '',
-			reportParams.to ?? ''
-		);
-
-		return periods ? drawableIntervals( allowed, periods ) : allowed;
-	}, [ reportParams.preset, reportParams.from, reportParams.to, periods ] );
+	const { options: intervalOptions, lockedOptions: lockedIntervalOptions } = useMemo(
+		() =>
+			intervalMenuOptions(
+				{ preset: reportParams.preset, from: reportParams.from, to: reportParams.to },
+				lockedIntervals,
+				periods
+			),
+		[ reportParams.preset, reportParams.from, reportParams.to, periods, lockedIntervals ]
+	);
 
 	// Check what the chart draws, through the call the chart itself makes: a
 	// stored bucket the widget clamps away is not what is on screen.
-	const interval = periods ? chartInterval( reportParams, periods ) : reportParams.interval;
+	const interval = periods
+		? chartInterval( reportParams, periods, lockedIntervals )
+		: reportParams.interval;
 
 	const changeInterval = useCallback(
 		( nextInterval: IntervalType ) => {
@@ -342,6 +347,7 @@ function ReportParamsControl( {
 			withIntervalControl={ withIntervalControl }
 			interval={ interval }
 			intervalOptions={ intervalOptions }
+			lockedIntervalOptions={ lockedIntervalOptions }
 			onIntervalChange={ changeInterval }
 		/>
 	);

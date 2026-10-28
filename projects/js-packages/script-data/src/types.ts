@@ -68,6 +68,8 @@ export interface MyJetpackScriptData {
 	assetsUrl?: string;
 	/** Navigation data for released footers; current My Jetpack always points to Features. */
 	productsSection?: { slug: 'features'; label: string } | null;
+	/** Where Jetpack AI is managed: the Jetpack AI Hub, or My Jetpack's AI page while the Hub is not open to the site. */
+	aiManageUrl?: string;
 }
 
 export interface JetpackScriptData {

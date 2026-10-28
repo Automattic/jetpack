@@ -177,7 +177,7 @@ jobs:
           tar --owner=0 --group=0 --xz -cvvf "$FILENAME" -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
       - name: Store build as artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           path: ${{ env.FILENAME }}
           retention-days: 1
@@ -233,7 +233,7 @@ jobs:
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: partial-build-*.tar.xz
           merge-multiple: true
@@ -359,7 +359,7 @@ jobs:
           echo "any-built=$ANY_BUILT" >> "$GITHUB_OUTPUT"
 
       - name: Store build as artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           path: jetpack-build.tar.xz
           # Retain trunk builds for 7 days so we can manually download for branch comparisons. Branch builds only need one day so the beta builder can slurp it up to distribute.
@@ -368,7 +368,7 @@ jobs:
 
       - name: Store plugins.tsv as artifact
         if: steps.plugins.outputs.any == 'true'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           path: ${{ env.BUILD_BASE }}/plugins.tsv
           # We don't really care about this artifact, its presence is a flag to the post-build job.
@@ -376,7 +376,7 @@ jobs:
           archive: false
 
       - name: Create plugins artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: steps.plugin-zips.outputs.any-built == 'true'
         with:
           name: plugins
@@ -499,7 +499,7 @@ jobs:
 
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: partial-build-wpcom.tar.xz
       - name: Extract build archive
@@ -562,7 +562,7 @@ jobs:
 
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: jetpack-build.tar.xz
       - name: Extract build archive

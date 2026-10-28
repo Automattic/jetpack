@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.9] - 2026-10-26
+### Fixed
+- Keep the Akismet Anti-spam item in sorted order when the menu is set up after Akismet registers it. [#53943]
+
+## [0.14.8] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [0.14.7] - 2026-10-19
+### Changed
+- Update dependencies. [#48834]
+
+## [0.14.6] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## [0.14.5] - 2026-10-14
+### Changed
+- Update dependencies. [#48834]
+
+## [0.14.4] - 2026-10-12
+### Changed
+- Update dependencies. [#48834]
+
 ## [0.14.3] - 2026-10-05
 ### Changed
 - Update package dependencies. [#52999]
@@ -400,6 +424,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing menu visibility issues.
 
+[0.14.9]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.8...0.14.9
+[0.14.8]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.7...0.14.8
+[0.14.7]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.6...0.14.7
+[0.14.6]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.5...0.14.6
+[0.14.5]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.4...0.14.5
+[0.14.4]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.3...0.14.4
 [0.14.3]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.2...0.14.3
 [0.14.2]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.1...0.14.2
 [0.14.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.0...0.14.1

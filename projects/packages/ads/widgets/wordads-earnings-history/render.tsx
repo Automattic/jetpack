@@ -2,25 +2,25 @@
  * External dependencies
  */
 import {
-	Badge,
 	EarningsHistoryList,
 	flattenEarningsBreakdown,
-	ReportLink,
 	type ReportParamsFieldAttributes,
 	Stack,
+	useReportActions,
 	useStatsWordAdsEarnings,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { WordAdsEarningsHistoryAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type WordAdsEarningsHistoryAttributes = Record< never, never >;
 
 // Report params are dashboard-driven and injected via `attributes`; the earnings
 // endpoint ignores them, but WidgetRoot still expects them on `attributes`.
@@ -41,6 +41,23 @@ function WordAdsEarningsHistoryReport() {
 	// and the report is their only home now; most sites have none.
 	const adjustmentCount = Object.keys( data?.adjustment ?? {} ).length;
 
+	// Trailing, so View all keeps its place.
+	useReportActions(
+		adjustmentCount > 0
+			? {
+					id: 'adjustments',
+					report: 'earnings',
+					section: 'adjustments',
+					label: sprintf(
+						/* translators: %d: number of earnings adjustments. */
+						__( 'Adjustments (%d)', 'jetpack-ads-pkg' ),
+						adjustmentCount
+					),
+					relevance: 'medium',
+				}
+			: {}
+	);
+
 	return (
 		<Stack className={ styles.root }>
 			<div className={ styles.content }>
@@ -57,28 +74,15 @@ function WordAdsEarningsHistoryReport() {
 						actions: [ { label: __( 'Retry', 'jetpack-ads-pkg' ), onClick: refetch } ],
 					} }
 					empty={ {
-						description: __( 'No earnings history to show yet.', 'jetpack-ads-pkg' ),
+						description: __(
+							'No earnings yet. Once your ads have run for a full month, they will show up here.',
+							'jetpack-ads-pkg'
+						),
 					} }
 				>
 					<EarningsHistoryList rows={ rows } />
 				</WidgetState>
 			</div>
-			<WidgetFooter>
-				<ReportLink
-					report="earnings"
-					ariaLabel={ __( 'View all earnings history', 'jetpack-ads-pkg' ) }
-				/>
-				{ /* Second in the footer: View all keeps its place, this takes the far end. */ }
-				{ adjustmentCount > 0 && (
-					<ReportLink
-						report="earnings"
-						section="adjustments"
-						label={ __( 'Adjustments', 'jetpack-ads-pkg' ) }
-					>
-						<Badge intent="none">{ String( adjustmentCount ) }</Badge>
-					</ReportLink>
-				) }
-			</WidgetFooter>
 		</Stack>
 	);
 }

@@ -1,39 +1,30 @@
 .jp-protect-card {
 
-	// Full-bleed rows whose contents set their own padding.
-	&__row.jp-protect-card__stats,
-	&__row.jp-protect-card__threats {
-		padding: 0;
-	}
-
-	&__row.jp-protect-card__stats {
-		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+	&__row.jp-protect-card__cells.jp-protect-card__stats {
+		--jp-protect-cells: 3;
 
 		> * {
-			padding: 20px var(--wp-ui-card-padding);
-		}
-
-		> * + * {
-			border-inline-start:
-				var(--wpds-border-width-xs) solid
-				var(--wpds-color-stroke-surface-neutral);
-		}
-
-		@media (max-width: 600px) {
-			grid-template-columns: minmax(0, 1fr);
-
-			> * + * {
-				border-inline-start: 0;
-				border-block-start:
-					var(--wpds-border-width-xs) solid
-					var(--wpds-color-stroke-surface-neutral);
-			}
+			padding-block: var(--wpds-dimension-padding-xl);
 		}
 	}
 
+	// Full-bleed, so the threat list sets its own padding.
 	&__row.jp-protect-card__threats {
-		padding-block-end: 8px;
+		padding: 0 0 var(--wpds-dimension-padding-sm);
+	}
+
+	// The stats row plus a one-threat list, so the card keeps its height
+	// as scans run and threats come and go.
+	&__row.jp-protect-scan__state {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		min-block-size: 332px;
+
+		.jp-protect-safe,
+		.jp-protect-scanning {
+			padding-block: 0;
+		}
 	}
 }
 
@@ -93,12 +84,137 @@
 	}
 }
 
+// Spring (bounce 0.3, 0.5s visual duration) sampled into linear().
+$jp-protect-spring-duration: 977ms;
+$jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%, 0.451 12.8%, 0.565 15.4%, 0.669 17.9%, 0.76 20.5%, 0.836 23%, 0.899 25.6%, 0.948 28.1%, 0.984 30.7%, 1.011 33.3%, 1.028 35.8%, 1.039 38.4%, 1.044 40.9%, 1.045 43.5%, 1.043 46.1%, 1.039 48.6%, 1.034 51.2%, 1.029 53.7%, 1.024 56.3%, 1.019 58.9%, 1.014 61.4%, 1.01 64%, 1.007 66.5%, 1.004 69.1%, 1.002 71.6%, 1 74.2%, 0.999 76.8%, 0.999 79.3%, 0.998 81.9%, 0.998 84.4%, 0.998 87%, 0.998 89.6%, 0.998 92.1%, 0.999 94.7%, 0.999 97.2%, 0.999 99.8%, 1);
+
 .jp-protect-safe {
 	padding-block: 32px;
 	text-align: center;
 
 	&__details {
 		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__shield {
+		overflow: visible;
+	}
+
+	&__badge,
+	&__particle {
+		transform-box: fill-box;
+		transform-origin: center;
+	}
+
+
+	// Page load: a quiet settle. A scan finished on this page bursts instead.
+	&__badge {
+		animation: jp-protect-safe-settle var(--wpds-motion-duration-lg) var(--wpds-motion-easing-expressive) both;
+	}
+
+	&__check {
+		animation: jp-protect-safe-reveal var(--wpds-motion-duration-md) var(--wpds-motion-easing-expressive) 150ms both;
+	}
+
+	&__shield.is-bursting &__badge {
+		animation:
+			jp-protect-safe-pop $jp-protect-spring-duration $jp-protect-spring both,
+			jp-protect-safe-fade var(--wpds-motion-duration-md) var(--wpds-motion-easing-expressive) both;
+	}
+
+	&__shield.is-bursting &__check {
+		animation: jp-protect-safe-reveal 250ms var(--wpds-motion-easing-expressive) 180ms both;
+	}
+
+	// Only rendered for a burst.
+	&__particle {
+		opacity: 0;
+		animation:
+			jp-protect-safe-burst 700ms var(--wpds-motion-easing-expressive) 120ms both,
+			jp-protect-safe-burst-fade 700ms linear 120ms forwards;
+	}
+
+	&.is-celebrating > :nth-child(n + 2) {
+		animation: jp-protect-safe-rise var(--wpds-motion-duration-lg) var(--wpds-motion-easing-expressive) both;
+	}
+
+	&.is-celebrating > :nth-child(2) {
+		animation-delay: 160ms;
+	}
+
+	// Reduced motion: a fade, without movement or particles.
+	@media (prefers-reduced-motion: reduce) {
+
+		&__badge,
+		&__shield.is-bursting &__badge,
+		&.is-celebrating > :nth-child(n + 2) {
+			animation: jp-protect-safe-fade var(--wpds-motion-duration-md) ease both;
+		}
+
+		&__check,
+		&__shield.is-bursting &__check {
+			animation: none;
+		}
+
+		&__particle {
+			display: none;
+		}
+	}
+}
+
+@keyframes jp-protect-safe-settle {
+
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+}
+
+@keyframes jp-protect-safe-pop {
+
+	from {
+		transform: scale(0.9);
+	}
+}
+
+@keyframes jp-protect-safe-fade {
+
+	from {
+		opacity: 0;
+	}
+}
+
+@keyframes jp-protect-safe-reveal {
+
+	from {
+		clip-path: inset(0 100% 0 0);
+	}
+}
+
+@keyframes jp-protect-safe-rise {
+
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+}
+
+@keyframes jp-protect-safe-burst {
+
+	to {
+		transform: translate(var(--jp-protect-dx), var(--jp-protect-dy)) scale(0.5);
+	}
+}
+
+@keyframes jp-protect-safe-burst-fade {
+
+	0%,
+	45% {
+		opacity: 1;
+	}
+
+	to {
+		opacity: 0;
 	}
 }
 
@@ -121,6 +237,10 @@
 }
 
 .jp-protect-threat-details {
+	// Fill the sidebar, so the footer sits at its bottom on short details.
+	display: flex;
+	flex: 1;
+	flex-direction: column;
 
 	&__section {
 		padding: 24px;
@@ -163,6 +283,24 @@
 		line-height: 1.6;
 	}
 
+	&__fields {
+		display: grid;
+		grid-template-columns: max-content minmax(0, 1fr);
+		gap: 4px 16px;
+
+		dt {
+			color: var(--wpds-color-foreground-content-neutral-weak);
+		}
+
+		dd {
+			max-block-size: 12em;
+			margin: 0;
+			overflow: auto;
+			white-space: pre-wrap;
+			overflow-wrap: anywhere;
+		}
+	}
+
 	&__line {
 		display: block;
 		white-space: pre;
@@ -171,6 +309,7 @@
 	&__footer {
 		position: sticky;
 		inset-block-end: 0;
+		margin-block-start: auto;
 		display: flex;
 		flex-direction: column;
 		gap: 12px;
@@ -200,6 +339,77 @@
 		padding: 12px var(--wp-ui-card-padding, 24px);
 	}
 
+	// wp-admin sizes every h3 at 1.3em; the design keeps this one at body size.
+	&__heading {
+		margin: 0;
+		font: inherit;
+	}
+
+	&__toggle {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--wpds-dimension-gap-sm);
+		inline-size: 100%;
+		padding: var(--wpds-dimension-padding-xl) var(--wpds-dimension-padding-lg);
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		font-weight: 500;
+		text-align: start;
+		cursor: pointer;
+
+		svg {
+			transition: transform var(--wpds-motion-duration-sm) var(--wpds-motion-easing-balanced);
+		}
+
+		&[data-panel-open] svg {
+			transform: rotate(180deg);
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+
+			svg {
+				transition: none;
+			}
+		}
+	}
+
+	&__toolbar {
+		padding: 0 var(--wp-ui-card-padding, 24px) var(--wpds-dimension-padding-lg);
+	}
+
+	&__filters {
+		padding: 0 var(--wp-ui-card-padding, 24px) var(--wpds-dimension-padding-lg);
+	}
+
+	// One line per threat: the label truncates before the severity badge wraps.
+	&__row {
+		display: flex;
+		gap: var(--wpds-dimension-gap-sm);
+		align-items: center;
+		min-inline-size: 0;
+	}
+
+	&__title.is-inline {
+		gap: var(--wpds-dimension-gap-lg);
+		min-inline-size: 0;
+
+		// DataViews bolds its title field; the design bolds only the kind.
+		.jp-protect-threats__label {
+			display: block;
+			overflow: hidden;
+			font-weight: 400;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		strong {
+			font-weight: 500;
+		}
+	}
+
 	&__title {
 		display: flex;
 		gap: 12px;
@@ -221,7 +431,40 @@
 		}
 	}
 
+	&__label {
+		display: flex;
+		flex-direction: column;
+		white-space: normal;
+	}
+
+	// DataViews gives every cell a 15ch minimum; ours only need their content.
+	.dataviews-view-table .dataviews-view-table__cell-content-wrapper {
+		min-inline-size: 0;
+	}
+
+	// DataViews shows primary actions only on hover; keep them visible.
+	.dataviews-view-table tr .dataviews-item-actions {
+
+		.components-button:not(.dataviews-all-actions-button) {
+			opacity: 1;
+		}
+	}
+
 	&__nowrap {
 		white-space: nowrap;
+	}
+
+	&__busy {
+		display: inline-flex;
+		gap: 8px;
+		align-items: center;
+	}
+
+	// DataViews has no row class, so the busy status mutes the rest of its row.
+	.dataviews-view-table__row:has(.jp-protect-threats__busy) > td {
+
+		&:not(.dataviews-view-table__actions-column, :has(.jp-protect-threats__busy)) {
+			opacity: 0.5;
+		}
 	}
 }

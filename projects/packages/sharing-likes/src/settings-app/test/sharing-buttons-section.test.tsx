@@ -2,14 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { SharingButtonsSection } from '../sections/sharing-buttons-section';
-import {
-	apiCalls,
-	baseSettings,
-	baseStatus,
-	renderWithData,
-	resetNotices,
-	setScriptData,
-} from './helpers';
+import { apiCalls, baseSettings, baseStatus, renderWithData, setScriptData } from './helpers';
 import type { Services, Settings } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -45,7 +38,6 @@ function servicesRespond( list: Services ) {
 
 beforeEach( () => {
 	mockApiFetch.mockReset();
-	resetNotices();
 	setScriptData();
 } );
 
@@ -58,12 +50,14 @@ describe( 'SharingButtonsSection', () => {
 		servicesRespond( services );
 		renderWithData( <SharingButtonsSection /> );
 
-		await expect( screen.findByText( 'Facebook, X' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'group', { name: 'Shown as buttons' } )
+		).resolves.toBeInTheDocument();
 		expect(
 			screen.getByRole( 'heading', { level: 2, name: 'Sharing buttons' } )
 		).toBeInTheDocument();
-		expect( screen.getByText( 'Behind the More button:' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Email' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'group', { name: 'Behind the More button' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Email' } ) ).toBeInTheDocument();
 		expect(
 			screen.getByText( /Sharing buttons currently appear on: Posts, Pages\./ )
 		).toBeInTheDocument();
@@ -90,7 +84,7 @@ describe( 'SharingButtonsSection', () => {
 		renderWithData( <SharingButtonsSection /> );
 
 		await expect(
-			screen.findByText( 'No sharing services are turned on.' )
+			screen.findByRole( 'group', { name: 'Shown as buttons' } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /currently appear on/ ) ).not.toBeInTheDocument();
 	} );

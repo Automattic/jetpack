@@ -1,6 +1,6 @@
-import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
+import { formatDateTime } from '../../data/date-format';
 import { formatFileSize } from '../../hooks/use-path-info';
 
 /**
@@ -32,7 +32,7 @@ export default function FileInfoMeta( {
 			{ modified && (
 				<div>
 					<dt>{ __( 'Modified:', 'jetpack-backup-pkg' ) }</dt>
-					<dd>{ dateI18n( 'M j, Y, g:i A', modified, undefined ) }</dd>
+					<dd>{ formatDateTime( modified ) }</dd>
 				</div>
 			) }
 			{ size !== null && (

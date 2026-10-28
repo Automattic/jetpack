@@ -62,14 +62,9 @@ class Sharing extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Sharing Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ this.props.searchTerm
-						? __( 'Sharing', 'jetpack' )
-						: __(
-								'Share your content to social media, reaching new audiences and increasing engagement.',
-								'jetpack'
-							) }
-				</h2>
+				{ this.props.searchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Sharing', 'jetpack' ) }</h2>
+				) }
 				{ foundPublicize && <Publicize { ...commonProps } /> }
 				{ foundSharing && <ShareButtons { ...commonProps } /> }
 				{ foundLikes && <Likes { ...commonProps } /> }

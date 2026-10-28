@@ -27,7 +27,7 @@ class Jetpack_Shortcodes_Slideshare_Test extends WP_UnitTestCase {
 	public function test_shortcodes_slideshare() {
 		$content = '[slideshare]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -35,7 +35,7 @@ class Jetpack_Shortcodes_Slideshare_Test extends WP_UnitTestCase {
 	public function test_shortcodes_slideshare_id() {
 		$content = '[slideshare id=5342235]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -43,7 +43,7 @@ class Jetpack_Shortcodes_Slideshare_Test extends WP_UnitTestCase {
 	public function test_shortcodes_slideshare_id_content() {
 		$content = '[slideshare id=5342235]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertSame( 0, strpos( $shortcode_content, "<iframe src='https://www.slideshare.net/slideshow/embed_code/5342235'" ) );
 	}
@@ -51,7 +51,7 @@ class Jetpack_Shortcodes_Slideshare_Test extends WP_UnitTestCase {
 	public function test_shortcodes_slideshare_fb_arg() {
 		$content = '[slideshare id=5342235&amp;fb=0&amp;mw=0&amp;mh=0&amp;sc=no]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals( ! false, strpos( $shortcode_content, 'frameborder' ) );
 	}
@@ -59,7 +59,7 @@ class Jetpack_Shortcodes_Slideshare_Test extends WP_UnitTestCase {
 	public function test_shortcodes_slideshare_no_fb_arg() {
 		$content = '[slideshare id=5342235&amp;mw=0&amp;mh=0&amp;sc=no]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringNotContainsString( 'frameborder', $shortcode_content );
 	}

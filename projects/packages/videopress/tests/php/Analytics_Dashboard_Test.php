@@ -100,7 +100,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The manifest type registers with the package's text domain, manifest URL and former name.
+	 * The manifest type registers with the package's text domain, manifest URL, former name and plan feature.
 	 */
 	public function test_registers_the_top_videos_type_from_the_manifest() {
 		$registry = new Widget_Type_Registry();
@@ -114,6 +114,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'build/i18n-manifest.json?ver=' . Package_Version::PACKAGE_VERSION, $top_videos->i18n_manifest );
 		$this->assertSame( array( 'jpa/videopress' ), $top_videos->former_names );
 		$this->assertSame( Analytics_Dashboard::TOP_VIDEOS_TYPE, $registry->resolve_name( 'jpa/videopress' ) );
+		$this->assertSame( 'videos', $top_videos->plan_feature );
 	}
 
 	/**

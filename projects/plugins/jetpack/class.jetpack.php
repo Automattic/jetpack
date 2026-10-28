@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
@@ -80,6 +81,15 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
  * The Jetpack class.
  */
 class Jetpack {
+	/**
+	 * Marks a Jetpack plugin whose Backup dashboard follows the site's plan, not the backup module.
+	 *
+	 * @since 16.4
+	 *
+	 * @var bool
+	 */
+	const BACKUP_FOLLOWS_PLAN = true;
+
 	/**
 	 * XMLRPC server instance.
 	 *
@@ -662,6 +672,7 @@ class Jetpack {
 		 * a longer investigation to see if code is expecting the Gutenberg class to always be available.
 		 */
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
+		\Automattic\Jetpack\Plugin\Unavailable_Blocks::init();
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
 		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
@@ -840,21 +851,34 @@ class Jetpack {
 	}
 
 	/**
-	 * Enable the bundled Backup dashboard.
+	 * What switching a module off leaves unchanged, for interfaces that still offer it; empty when nothing.
 	 *
-	 * The standalone plugin initializes the package first, so with both active this is a no-op.
+	 * @since 16.4
 	 *
-	 * @return void
+	 * @param string $module Module slug.
+	 * @return string
 	 */
-	public static function configure_backup_package() {
-		// Not offered on multisite, which the Backup package does not support, or without a
-		// connected owner, since buying and managing backups needs a linked account.
-		if ( is_multisite() || ! self::is_connection_ready() || ! self::connection()->has_connected_owner() ) {
-			return;
+	public static function get_module_deactivation_note( $module ) {
+		return 'backup' === $module
+			? __( 'Backups are controlled by your site’s plan.', 'jetpack' )
+			: '';
+	}
+
+	/**
+	 * Whether to offer the bundled Backup dashboard; Backup::offers_jetpack_dashboard() decides.
+	 *
+	 * @return bool
+	 */
+	private static function offers_backup_dashboard() {
+		$product = 'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup';
+
+		if ( method_exists( $product, 'offers_jetpack_dashboard' ) ) {
+			return $product::offers_jetpack_dashboard();
 		}
 
-		if ( ! self::is_module_active( 'backup' ) ) {
-			return;
+		// Another plugin may have loaded an older My Jetpack without it: the same gates, on the current plan only.
+		if ( is_multisite() || ! self::is_connection_ready() || ! self::connection()->has_connected_owner() || ! Jetpack_Plan::supports( 'backups' ) ) {
+			return false;
 		}
 
 		/**
@@ -866,7 +890,18 @@ class Jetpack {
 		 *
 		 * @param bool $enabled Whether to initialize the bundled Backup dashboard. Default true.
 		 */
-		if ( ! apply_filters( 'jetpack_backup_dashboard_enabled', true ) ) {
+		return (bool) apply_filters( 'jetpack_backup_dashboard_enabled', true );
+	}
+
+	/**
+	 * Enable the bundled Backup dashboard.
+	 *
+	 * The standalone plugin initializes the package first, so with both active this is a no-op.
+	 *
+	 * @return void
+	 */
+	public static function configure_backup_package() {
+		if ( ! self::offers_backup_dashboard() ) {
 			return;
 		}
 
@@ -884,13 +919,9 @@ class Jetpack {
 	/**
 	 * Whether the bundled Stats v2 dashboard is enabled.
 	 *
-	 * Stats v2 (formerly "Premium Analytics") ships with the plugin behind this
-	 * flag while it rolls out (WOOA7S-1595). When enabled it adds its own admin
-	 * menu alongside the existing Stats UI; it never replaces or hides the
-	 * legacy Stats menu, admin-bar entries, post-list column, or WP dashboard
-	 * widget. The Stats module's tracking is unaffected either way, and Stats v2
-	 * reads what that module collects, so while the module is off the plugin
-	 * answers false here before even reading the flag.
+	 * Stats v2 ships behind this flag (WOOA7S-1595). It reads what the Stats module
+	 * collects, so while the module is off this answers false before reading the flag.
+	 * The classic Stats menu stays beside it until `jetpack-stats-classic-page-retired` retires it.
 	 *
 	 * The package has to be loadable for this to be true, so a site with the
 	 * flag on but a missing package answers false here and never adds the
@@ -920,9 +951,13 @@ class Jetpack {
 		 *
 		 * @since 16.1
 		 *
-		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false).
+		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false), or true once the classic Stats page is retired.
 		 */
-		$flag = (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
+		$flag = (bool) apply_filters(
+			'jetpack_premium_analytics_enabled',
+			// A site that once switched Stats v2 off would otherwise be left with no Stats page.
+			Jetpack_Stats_Feature_Flags::is_classic_page_retired() || (bool) get_option( 'jetpack_premium_analytics_enabled' )
+		);
 
 		self::$premium_analytics_enabled = $flag && class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' );
 
@@ -934,6 +969,24 @@ class Jetpack {
 		}
 
 		return self::$premium_analytics_enabled;
+	}
+
+	/**
+	 * Options for booting Stats v2, which takes the plain Stats name and the pre-connection Stats page once classic Stats is retired.
+	 *
+	 * @return array
+	 */
+	private static function premium_analytics_options() {
+		if ( ! Jetpack_Stats_Feature_Flags::is_classic_page_retired() ) {
+			return array();
+		}
+
+		return array(
+			'menu_title'                         => static function () {
+				return __( 'Stats', 'jetpack' );
+			},
+			'replaces_pre_connection_stats_page' => true,
+		);
 	}
 
 	/**
@@ -1064,9 +1117,9 @@ class Jetpack {
 		}
 
 		// Stats v2 (WOOA7S-1595). Unlike Stats above it cannot be deferred when enabled — see
-		// Analytics::init() for why, and for why it takes no menu_title here.
+		// Analytics::init() for why.
 		if ( self::is_premium_analytics_enabled() ) {
-			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
+			\Automattic\Jetpack\PremiumAnalytics\Analytics::init( self::premium_analytics_options() );
 			if ( class_exists( 'Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard' ) ) {
 				\Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard::init();
 			}
@@ -1189,6 +1242,13 @@ class Jetpack {
 
 		if ( ( new Modules() )->is_active( 'podcast' ) ) {
 			Podcast::init();
+		} else {
+			add_action(
+				'jetpack_register_gutenberg_extensions',
+				static function () {
+					Jetpack_Gutenberg::set_extension_unavailable( 'podcast-episode', 'missing_module', array( 'module' => 'podcast' ) );
+				}
+			);
 		}
 
 		/*
@@ -3181,15 +3241,18 @@ p {
 	 * first — with `$old_version === false` on a brand-new site (the same signal
 	 * {@see self::activate_subscriptions_module_for_existing_sites()} keys off). Fresh
 	 * installs are seeded visible; existing installs are seeded hidden and opt in later
-	 * via the legacy Traffic page or My Jetpack. `add_option()` makes this seed-once: it
-	 * never overrides a value a later opt-in (or opt-out) has set. WordPress.com sites
-	 * ignore this option entirely (always visible) — see
+	 * via the legacy Traffic page or My Jetpack. Deactivation deletes the stored version,
+	 * so a reactivation before this option exists counts as fresh. `add_option()` makes
+	 * this seed-once: it never overrides a value a later opt-in (or opt-out) has set.
+	 * WordPress.com sites ignore this option entirely (always visible) — see
 	 * {@see \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()}.
 	 *
 	 * @param string       $version     The new Jetpack version (unused).
 	 * @param string|false $old_version The previous version, or false on a fresh install.
 	 */
 	public static function seed_seo_visibility_cohort( $version, $old_version ) {
+		// Drop the superseded key (see VISIBILITY_OPTION); it plays no part in the seed.
+		delete_option( 'jetpack_seo_surface_visible' );
 		add_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION, ! $old_version );
 	}
 
@@ -4137,14 +4200,18 @@ p {
 	 *
 	 * @since 16.2
 	 *
+	 * @see Automattic\Jetpack\Connection\Utils::get_registration_error_description()
+	 *
 	 * @param string $error_code The WP_Error code.
 	 * @param string $message    The WP_Error message.
 	 * @return string The description, empty when the message is not user-facing copy.
 	 */
 	public static function get_registration_error_description( $error_code, $message ) {
-		// Manager::validate_remote_register_response() does not always put user-facing copy in the
-		// message slot: wpcom_5??, wpcom_408 and wpcom_bad_response store the HTTP status there,
-		// and jetpack_id stores the raw response body, which can also overflow the state cookie.
+		if ( method_exists( Connection_Utils::class, 'get_registration_error_description' ) ) {
+			return Connection_Utils::get_registration_error_description( $error_code, $message );
+		}
+
+		// Fallback for connection packages that predate it. A raw body would also overflow the state cookie.
 		if ( 'jetpack_id' === $error_code || is_numeric( $message ) ) {
 			return '';
 		}
@@ -4186,7 +4253,7 @@ p {
 					if ( $from ) {
 						static::connection()->add_register_request_param( 'from', (string) $from );
 					}
-					$registered = static::connection()->try_registration();
+					$registered = static::connection()->try_registration( true, true );
 					if ( is_wp_error( $registered ) ) {
 						$error = $registered->get_error_code();
 						self::state( 'error', $error );

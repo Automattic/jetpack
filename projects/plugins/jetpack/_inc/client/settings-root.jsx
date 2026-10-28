@@ -18,7 +18,7 @@ if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
 }
 
 /**
- * The Settings app, rendered by both the webpack entry and the wp-build stage.
+ * The Settings app, rendered by the wp-build stage.
  *
  * @return {import('react').ReactElement} The app.
  */
