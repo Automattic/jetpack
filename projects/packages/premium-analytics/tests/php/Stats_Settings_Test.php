@@ -67,6 +67,17 @@ class Stats_Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Deny the per-plugin activation check, as a network or host policy can.
+	 *
+	 * @param string[] $caps The primitive caps the meta cap maps to.
+	 * @param string   $cap  The meta cap being checked.
+	 * @return string[]
+	 */
+	public function deny_activate_plugin( $caps, $cap ) {
+		return 'activate_plugin' === $cap ? array( 'do_not_allow' ) : $caps;
+	}
+
+	/**
 	 * Drop the Stats package's per-request copy of the option, which would otherwise carry across tests.
 	 *
 	 * @return void
@@ -106,7 +117,7 @@ class Stats_Settings_Test extends BaseTestCase {
 		remove_all_filters( 'pre_update_option_' . self::READER_VIEWS_OPTION );
 		remove_all_filters( 'wp_is_large_user_count' );
 		remove_all_filters( 'file_mod_allowed' );
-		remove_all_filters( 'map_meta_cap' );
+		remove_filter( 'map_meta_cap', array( $this, 'deny_activate_plugin' ) );
 		if ( file_exists( self::CONSENT_API_FILE ) ) {
 			unlink( self::CONSENT_API_FILE ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 			rmdir( dirname( self::CONSENT_API_FILE ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
@@ -392,14 +403,7 @@ class Stats_Settings_Test extends BaseTestCase {
 
 	public function test_script_data_says_when_the_user_cannot_activate_wp_consent_api() {
 		$this->log_in_as( 'administrator' );
-		add_filter(
-			'map_meta_cap',
-			function ( $caps, $cap ) {
-				return 'activate_plugin' === $cap ? array( 'do_not_allow' ) : $caps;
-			},
-			10,
-			2
-		);
+		add_filter( 'map_meta_cap', array( $this, 'deny_activate_plugin' ), 10, 2 );
 
 		$consent = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
 

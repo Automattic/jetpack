@@ -149,40 +149,45 @@ function ConsentCardContent( { initialStatus }: { initialStatus: ConsentStatus }
 
 	const connect = useCallback( async () => {
 		setIsConnecting( true );
+		let active = false;
+		let failure: unknown = null;
 		try {
 			await connectConsentApi( status.api_installed );
+			active = true;
+		} catch ( error ) {
+			failure = error;
+			// An install can succeed before its activation fails, or the request can fail after both, so read back what the site has.
+			const plugin = await apiFetch< { status: string } >( { path: WP_CONSENT_API_ROUTE } ).catch(
+				() => null
+			);
+			if ( plugin ) {
+				active = plugin.status === 'active';
+				setStatus( current => ( { ...current, api_installed: true } ) );
+			}
+		}
+		setIsConnecting( false );
+
+		if ( active ) {
 			setStatus( current => ( { ...current, api_installed: true, api_active: true } ) );
 			setJustConnected( true );
 			createSuccessNotice( __( 'WP Consent API is active.', 'jetpack-premium-analytics-pkg' ), {
 				id: 'stats-consent-api-connected',
 				type: 'snackbar',
 			} );
-		} catch ( error ) {
-			const message = ( error as { message?: unknown } )?.message;
-			createErrorNotice(
-				typeof message === 'string'
-					? sprintf(
-							/* translators: %s: the reason WordPress gave. */
-							__( 'WP Consent API could not be set up: %s', 'jetpack-premium-analytics-pkg' ),
-							message
-						)
-					: __( 'WP Consent API could not be set up.', 'jetpack-premium-analytics-pkg' ),
-				{ id: 'stats-consent-api-failed', type: 'snackbar' }
-			);
-			// An install can succeed before its activation fails, so read back what the site now has.
-			const plugin = await apiFetch< { status: string } >( { path: WP_CONSENT_API_ROUTE } ).catch(
-				() => null
-			);
-			if ( plugin ) {
-				setStatus( current => ( {
-					...current,
-					api_installed: true,
-					api_active: plugin.status === 'active',
-				} ) );
-			}
-		} finally {
-			setIsConnecting( false );
+			return;
 		}
+
+		const message = ( failure as { message?: unknown } )?.message;
+		createErrorNotice(
+			typeof message === 'string'
+				? sprintf(
+						/* translators: %s: the reason WordPress gave. */
+						__( 'WP Consent API could not be set up: %s', 'jetpack-premium-analytics-pkg' ),
+						message
+					)
+				: __( 'WP Consent API could not be set up.', 'jetpack-premium-analytics-pkg' ),
+			{ id: 'stats-consent-api-failed', type: 'snackbar' }
+		);
 	}, [ status.api_installed, createSuccessNotice, createErrorNotice ] );
 
 	let apiAction: ReactNode;

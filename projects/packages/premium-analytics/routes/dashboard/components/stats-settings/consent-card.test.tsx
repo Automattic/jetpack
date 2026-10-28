@@ -162,6 +162,21 @@ describe( 'ConsentCard', () => {
 		);
 	} );
 
+	it( 'treats a failed request as a success when the plugin turns out to be active', async () => {
+		setConsent( { banner_plugin: 'Complianz' } );
+		mockApiFetch
+			.mockRejectedValueOnce( { code: 'invalid_json' } )
+			.mockResolvedValueOnce( { status: 'active' } );
+		render( <ConsentCard /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Install and activate' } ) );
+
+		await expect( screen.findByText( 'Set up' ) ).resolves.toBeInTheDocument();
+		expect( screen.getAllByRole( 'listitem' )[ 1 ] ).toHaveFocus();
+		expect( mockCreateSuccessNotice ).toHaveBeenCalled();
+		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
+	} );
+
 	it( 'offers to activate when the install went through but activation failed', async () => {
 		setConsent( {} );
 		mockApiFetch
