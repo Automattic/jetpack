@@ -93,7 +93,7 @@ class Initializer {
 	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible_v2';
 
 	/**
-	 * Option recording that SEO tools was switched on once for a self-hosted site with the SEO page.
+	 * Option recording that SEO tools was switched on once for a site with the SEO page.
 	 *
 	 * @var string
 	 */
@@ -341,14 +341,14 @@ class Initializer {
 	}
 
 	/**
-	 * Turn SEO tools on the first time an admin opens wp-admin on a self-hosted site with the
-	 * SEO page, since it starts off on a fresh install; only once, so turning it off sticks.
+	 * Turn SEO tools on the first time an admin opens wp-admin with the SEO page, since it can
+	 * start off; only once, so turning it off sticks. Simple runs every module regardless.
 	 *
 	 * @return void
 	 */
 	public static function activate_seo_tools_once() {
 		if (
-			( new Host() )->is_wpcom_platform()
+			( new Host() )->is_wpcom_simple()
 			|| get_option( self::SEO_TOOLS_AUTO_ACTIVATED_OPTION )
 			|| ! current_user_can( 'manage_options' )
 		) {

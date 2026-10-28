@@ -549,32 +549,64 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * SEO tools starts off on a fresh install; turning it on must happen once, so a later
-	 * turn-off in My Jetpack sticks.
+	 * SEO tools can start off; turning it on must happen once, so a later turn-off in My Jetpack sticks.
+	 *
+	 * @dataProvider provide_sites_switched_on
+	 *
+	 * @param bool $on_atomic Whether the site is on Atomic.
 	 */
-	public function test_activate_seo_tools_once_does_not_undo_a_later_turn_off() {
-		$this->with_seo_tools_off(
-			'administrator',
-			function () {
-				$modules = new \Automattic\Jetpack\Modules();
-
-				Initializer::activate_seo_tools_once();
-				$this->assertTrue( $modules->is_active( 'seo-tools' ) );
-
-				$modules->deactivate( 'seo-tools' );
-				Initializer::activate_seo_tools_once();
-				$this->assertFalse( $modules->is_active( 'seo-tools' ) );
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_sites_switched_on' )]
+	public function test_activate_seo_tools_once_does_not_undo_a_later_turn_off( $on_atomic ) {
+		$atomic = array( 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' );
+		if ( $on_atomic ) {
+			foreach ( $atomic as $constant ) {
+				\Automattic\Jetpack\Constants::set_constant( $constant, 1 );
 			}
+			\Automattic\Jetpack\Status\Cache::clear();
+			$this->assertTrue( ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() );
+		}
+
+		try {
+			$this->with_seo_tools_off(
+				'administrator',
+				function () {
+					$modules = new \Automattic\Jetpack\Modules();
+
+					Initializer::activate_seo_tools_once();
+					$this->assertTrue( $modules->is_active( 'seo-tools' ) );
+
+					$modules->deactivate( 'seo-tools' );
+					Initializer::activate_seo_tools_once();
+					$this->assertFalse( $modules->is_active( 'seo-tools' ) );
+				}
+			);
+		} finally {
+			foreach ( $atomic as $constant ) {
+				\Automattic\Jetpack\Constants::clear_single_constant( $constant );
+			}
+			\Automattic\Jetpack\Status\Cache::clear();
+		}
+	}
+
+	/**
+	 * Sites where SEO tools gets switched on once.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public static function provide_sites_switched_on() {
+		return array(
+			'self-hosted site' => array( false ),
+			'Atomic site'      => array( true ),
 		);
 	}
 
 	/**
-	 * WordPress.com keeps its own module state, and only an admin's visit switches it on.
+	 * Simple runs every module regardless, and only an admin's visit switches it on.
 	 *
 	 * @dataProvider provide_sites_left_alone
 	 *
 	 * @param string $role     User role.
-	 * @param bool   $on_wpcom Whether the site is on WordPress.com.
+	 * @param bool   $on_wpcom Whether the site is on WordPress.com Simple.
 	 */
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_sites_left_alone' )]
 	public function test_activate_seo_tools_once_leaves_module_off( $role, $on_wpcom ) {
@@ -604,8 +636,8 @@ class InitializerTest extends TestCase {
 	 */
 	public static function provide_sites_left_alone() {
 		return array(
-			'WordPress.com site' => array( 'administrator', true ),
-			'non-admin visit'    => array( 'editor', false ),
+			'WordPress.com Simple site' => array( 'administrator', true ),
+			'non-admin visit'           => array( 'editor', false ),
 		);
 	}
 }
