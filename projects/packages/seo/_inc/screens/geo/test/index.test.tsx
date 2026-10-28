@@ -113,7 +113,7 @@ describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 		conflictingPlugin => {
 			const form = formWith( false );
 			form.llmsTxt = { ...form.llmsTxt!, conflicted: true, conflictingPlugin };
-			jest.spyOn( form, 'setLlmsTxtEnabled' ).mockImplementation();
+			jest.spyOn( form, 'setLlmsTxtEnabled' );
 			render( <GeoScreen form={ form } searchEnginesVisible onManageVisibility={ noop } /> );
 			expect( screen.getByText( /Jetpack is not generating llms.txt while/ ) ).toHaveTextContent(
 				conflictingPlugin
