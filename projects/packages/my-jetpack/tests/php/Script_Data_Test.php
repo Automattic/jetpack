@@ -29,7 +29,6 @@ class Script_Data_Test extends BaseTestCase {
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		try {
-			$this->assertTrue( Initializer::should_initialize() );
 			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
 			$_GET['page'] = 'my-jetpack';
 			$site         = array(
@@ -73,7 +72,6 @@ class Script_Data_Test extends BaseTestCase {
 		$_GET['page'] = 'my-jetpack';
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		try {
 			wp_set_current_user(
 				wp_insert_user(
@@ -121,9 +119,12 @@ class Script_Data_Test extends BaseTestCase {
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		try {
-			$before = Initializer::add_admin_script_data( array() );
-			add_filter( 'jetpack_my_jetpack_offline_features', '__return_false' );
-			$this->assertSame( $before, Initializer::add_admin_script_data( array() ) );
+			$_GET['page'] = 'my-jetpack';
+			$before       = Initializer::add_admin_script_data( array() );
+			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+			$after = Initializer::add_admin_script_data( array() );
+			$this->assertArrayNotHasKey( 'offlineFeatures', $after['myJetpack'] );
+			$this->assertSame( $before, $after );
 			$this->assertSame( Main_Features::get_state(), REST_Main_Features::get_state()->get_data() );
 			$this->assertTrue( Initializer::should_initialize() );
 		} finally {
@@ -161,7 +162,6 @@ class Script_Data_Test extends BaseTestCase {
 			$this->assertCount( 1, $attempts, 'The online block lookup must reach the signed HTTP tripwire.' );
 			$attempts = array();
 			add_filter( 'jetpack_offline_mode', '__return_true' );
-			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 			\Automattic\Jetpack\Status\Cache::clear();
 			Initializer::add_script_data( array() );
 			$this->assertSame( array(), $attempts );

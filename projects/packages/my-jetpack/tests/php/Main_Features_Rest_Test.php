@@ -230,7 +230,6 @@ class Main_Features_Rest_Test extends TestCase {
 		Jetpack_Options::update_option( 'blog_token', 'copiedkey.copiedsecret' );
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		$attempts = array();
 		$tripwire = function ( $response, $args, $url ) use ( &$attempts ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress HTTP filter signature.
 			$attempts[] = $url;
@@ -302,7 +301,6 @@ class Main_Features_Rest_Test extends TestCase {
 	#[PreserveGlobalState( false )]
 	public function test_offline_module_activation_respects_connection_requirement( $plugin_route, $module, $active ) {
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		\Automattic\Jetpack\Status\Cache::clear();
 		require __DIR__ . '/fixtures/offline-module-info.php';
 		\Automattic\Jetpack\Connection\Utils::init_default_constants();
@@ -481,7 +479,7 @@ class Main_Features_Rest_Test extends TestCase {
 			'prerelease boundary'  => array( array( '6.14.0-alpha' ), true, true, true ),
 			'prerelease suffix'    => array( array( '6.15.0-alpha' ), true, true, false ),
 			'network active'       => array( array( '6.14.0' ), true, true, false, true ),
-			'package initializer'  => array( array( 'package' ), true, true, version_compare( Initializer::PACKAGE_VERSION, '6.14.0', '<' ) ),
+			'package initializer'  => array( array( 'package' ), true, true, version_compare( Initializer::PACKAGE_VERSION, Main_Features::MINIMUM_OFFLINE_FEATURES_VERSION, '<' ) ),
 			'directory'            => array( array( 'directory' ), true, true, true ),
 		);
 	}
