@@ -75,6 +75,8 @@ class Main_Features_Rest_Test extends TestCase {
 		parent::tearDown();
 
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		remove_filter( 'user_has_cap', array( $this, 'deny_activate_plugins' ) );
+		remove_filter( 'map_meta_cap', array( $this, 'map_module_caps' ) );
 		$this->withdraw_stats_module();
 		$this->remove_jetpack();
 		$this->set_plan_cache( null );
@@ -815,7 +817,8 @@ class Main_Features_Rest_Test extends TestCase {
 		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
 	}
 
-	public function test_bulk_forbids_users_who_cannot_activate_plugins() {
+	public function test_bulk_forbids_users_who_cannot_manage_modules() {
+		$this->activate_jetpack();
 		wp_set_current_user(
 			wp_insert_user(
 				array(
@@ -826,7 +829,99 @@ class Main_Features_Rest_Test extends TestCase {
 			)
 		);
 
+		add_filter( 'map_meta_cap', array( $this, 'map_module_caps' ), 10, 2 );
+
 		$this->assertSame( 403, $this->send_bulk( array( 'active' => true ) )->get_status() );
+	}
+
+	/**
+	 * Map the module capabilities to manage_options, as the sync package does on a real site.
+	 *
+	 * @param string[] $caps The primitive capabilities required.
+	 * @param string   $cap  The capability checked.
+	 * @return string[]
+	 */
+	public function map_module_caps( $caps, $cap ) {
+		return 'jetpack_manage_modules' === $cap ? array( 'manage_options' ) : $caps;
+	}
+
+	/**
+	 * Withhold plugin changes from the current user, as some hosts do from administrators.
+	 *
+	 * @param array $caps The user's capabilities.
+	 * @return array
+	 */
+	public function deny_activate_plugins( $caps ) {
+		$caps['activate_plugins'] = false;
+		return $caps;
+	}
+
+	public function test_bulk_forbids_module_batches_from_administrators_who_cannot_activate_plugins_without_jetpack() {
+		$this->offer_stats_module();
+		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+		add_filter( 'map_meta_cap', array( $this, 'map_module_caps' ), 10, 2 );
+		add_filter( 'user_has_cap', array( $this, 'deny_activate_plugins' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * @dataProvider bulk_directions
+	 *
+	 * @param bool $active Whether the batch switches on.
+	 */
+	#[DataProvider( 'bulk_directions' )]
+	public function test_bulk_refuses_plugin_rows_to_administrators_who_cannot_activate_plugins( $active ) {
+		$this->activate_jetpack();
+		if ( ! $active ) {
+			$this->send( 'jetpack-boost', 'activate' );
+		}
+		$this->offer_stats_module();
+		$plan             = Current_Plan::get();
+		$plan['supports'] = array_merge( (array) ( $plan['supports'] ?? array() ), array( 'stats' ) );
+		$this->set_plan_cache( $plan );
+		Jetpack_Options::update_option( 'active_modules', $active ? array() : array( 'stats' ) );
+		add_filter( 'map_meta_cap', array( $this, 'map_module_caps' ), 10, 2 );
+		add_filter( 'user_has_cap', array( $this, 'deny_activate_plugins' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => $active,
+				'plugins' => array( 'jetpack-boost' ),
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'type'    => 'plugin',
+					'slug'    => 'jetpack-boost',
+					'message' => 'Your account can’t activate or deactivate plugins on this site.',
+				),
+			),
+			$response->get_data()['failed']
+		);
+		$this->assertSame(
+			$active ? Main_Features::PLUGIN_INACTIVE : Main_Features::PLUGIN_ACTIVE,
+			$this->boost_status( new \WP_REST_Response( $response->get_data()['state'] ) )
+		);
+		$this->assertSame( $active, in_array( 'stats', Jetpack_Options::get_option( 'active_modules', array() ), true ) );
+	}
+
+	public static function bulk_directions() {
+		return array(
+			'activate'   => array( true ),
+			'deactivate' => array( false ),
+		);
 	}
 
 	/**

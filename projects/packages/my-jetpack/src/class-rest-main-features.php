@@ -89,7 +89,7 @@ class REST_Main_Features {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => __CLASS__ . '::switch_many',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
+				'permission_callback' => __CLASS__ . '::bulk_permissions_callback',
 				'args'                => array(
 					'active'  => array(
 						'type'     => 'boolean',
@@ -120,6 +120,26 @@ class REST_Main_Features {
 	 */
 	public static function permissions_callback() {
 		return REST_Products::edit_permissions_callback();
+	}
+
+	/**
+	 * Whoever may switch plugins, or modules while Jetpack is active, may send a batch; each row is then checked on its own.
+	 *
+	 * Without Jetpack, nothing else lets a module manager who cannot switch plugins switch a module.
+	 *
+	 * @return bool
+	 */
+	public static function bulk_permissions_callback() {
+		return self::permissions_callback() || ( self::is_jetpack_active() && current_user_can( 'jetpack_manage_modules' ) );
+	}
+
+	/**
+	 * Whether the Jetpack plugin is active here, network activation included.
+	 *
+	 * @return bool
+	 */
+	private static function is_jetpack_active() {
+		return Main_Features::PLUGIN_ACTIVE === Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG );
 	}
 
 	/**
@@ -216,6 +236,10 @@ class REST_Main_Features {
 		$plugins_refused = ! $active && Main_Features::PLUGIN_ACTIVE !== Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG )
 			? new WP_Error( 'not_allowed', __( 'Plugins can only be deactivated together while the Jetpack plugin is active. Deactivate them one at a time instead.', 'jetpack-my-jetpack' ) )
 			: null;
+		// Multisite site administrators, and administrators whose host withholds plugin changes, may switch modules but not plugins.
+		if ( ! self::permissions_callback() ) {
+			$plugins_refused = new WP_Error( 'not_allowed', __( 'Your account can’t activate or deactivate plugins on this site.', 'jetpack-my-jetpack' ) );
+		}
 
 		foreach ( array_unique( (array) $request->get_param( 'plugins' ) ) as $slug ) {
 			$result = $plugins_refused ? $plugins_refused : self::refuse_deactivation( $slug, $action );
