@@ -175,6 +175,26 @@ describe( 'MyJetpackTabPanel', () => {
 		expect( mockNavigate ).toHaveBeenLastCalledWith( `/${ MY_JETPACK_SECTION_OVERVIEW }` );
 	} );
 
+	it( 'switches back to a tab the route left without a tab press, such as on Back', async () => {
+		mockSection = MY_JETPACK_SECTION_FEATURES;
+
+		const { rerender } = render( <MyJetpackTabPanel /> );
+		mockSection = MY_JETPACK_SECTION_OVERVIEW;
+		rerender( <MyJetpackTabPanel /> );
+		await userEvent.click( screen.getByRole( 'tab', { name: 'Features' } ) );
+
+		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toEqual( [
+			[
+				'jetpack_myjetpack_tab_click',
+				expect.objectContaining( {
+					tab_name: MY_JETPACK_SECTION_FEATURES,
+					previous_tab: MY_JETPACK_SECTION_OVERVIEW,
+				} ),
+			],
+		] );
+		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_FEATURES }` );
+	} );
+
 	it( 'redirects the retired Products hash to Features, keeping its query', async () => {
 		mockSection = MY_JETPACK_SECTION_LEGACY_PRODUCTS;
 		mockSearch = '?filter=security';
