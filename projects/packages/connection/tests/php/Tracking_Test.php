@@ -461,6 +461,7 @@ class Tracking_Test extends TestCase {
 			'array, sent as [object Object] before' => array( array( 8735 ), $anon, null ),
 			'missing'                               => array( null, $anon, null ),
 			'non-numeric string'                    => array( 'abc', $anon, null ),
+			'zero'                                  => array( '0', $anon, null ),
 		);
 	}
 }
