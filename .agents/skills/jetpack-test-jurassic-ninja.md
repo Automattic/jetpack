@@ -89,7 +89,7 @@ Autoconnecting skips the connection flow, so a site for testing a change to the 
 
 The change touches the connection when any of these holds:
 
-- **Changed paths:** `projects/packages/connection/` (including its `src/sso/` and `src/identity-crisis/`), `projects/js-packages/connection/`, `projects/js-packages/idc/`, `projects/plugins/wpcloud-sso/`, My Jetpack's connection screens (`projects/packages/my-jetpack/_inc/components/connection-screen/`, `connection-status-card/`, `onboarding-screen/`), or the `jetpack` plugin's SSO module and connection UI (`projects/plugins/jetpack/modules/sso.php`, `_inc/client/security/sso.jsx`, `_inc/client/state/connection/`, and `_inc/client/components/` `connect-button/`, `connect-user-bar/`, `connection-banner/`, `owner-disconnect-dialog/`).
+- **Changed paths:** `projects/packages/connection/` (including its `src/sso/` and `src/identity-crisis/`), `projects/js-packages/connection/`, `projects/js-packages/idc/`, `projects/plugins/wpcloud-sso/`, My Jetpack's connection screens and hooks (`projects/packages/my-jetpack/_inc/components/` `connection-screen/`, `connection-status-card/`, `connections-section/`, `onboarding-screen/`, and the `_inc/hooks/` whose names mention connect or connection), or the `jetpack` plugin's SSO module and connection UI (`projects/plugins/jetpack/modules/sso.php`, `_inc/client/security/sso.jsx`, `_inc/client/state/connection/`, and `_inc/client/components/` `connect-button/`, `connect-user-bar/`, `connection-banner/`, `owner-disconnect-dialog/`).
 - **Labels:** `[Package] Connection`, `[Package] Connection UI`, `[JS Package] Connection`, `[Package] Identity Crisis`, `[JS Package] IDC`, `IDC`, `Connect Flow`, `[Feature] SSO`, `[Plugin] Wpcloud Sso`.
 - **Title or description:** the PR says it changes connecting, disconnecting or reconnecting Jetpack, the user or site connection, the connection screens, Identity Crisis, or logging in with WordPress.com (SSO). Jetpack Social "connections" (`projects/packages/publicize/`, `projects/packages/external-connections/`) are a different thing and don't count.
 
@@ -99,7 +99,9 @@ Other My Jetpack changes, such as product cards or pricing, don't count on their
 - **Doesn't:** autoconnect as below.
 - **The user's word wins either way.** "Connect it anyway" autoconnects a connection change; "don't connect" or "don't connect Jetpack" leaves any site unconnected. Report which you did and that the user asked for it.
 
-Whichever way it goes, if the change touches the connection, login or SSO, warn the user that adding teammates to the site (`invite-to-site`, or a teammate's `join-site`) turns Jetpack SSO and match-by-email on once the site has a Jetpack user connection, which can change what's under test.
+This decides only for a site you create. When Check 5 reuses an existing site for a change that touches the connection, say in the report that the site may already be connected and offer to create a fresh, unconnected one.
+
+A login change outside the connection, such as `projects/packages/account-protection/` or the `[Feature] Account Protection` label, still autoconnects. Whichever way it goes, if the change touches the connection, login or SSO, warn the user that adding teammates to the site (`invite-to-site`, or a teammate's `join-site`) turns Jetpack SSO and match-by-email on once the site has a Jetpack user connection, which can change what's under test.
 
 #### Site creation
 

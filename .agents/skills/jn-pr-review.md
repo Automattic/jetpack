@@ -207,7 +207,8 @@ a quick sanity check.
 Report concisely:
 - PR number + title.
 - Plugin(s) synced and worktree path.
-- JN domain, `status`, Jetpack connection (`blog_id`), `JETPACK_AUTOLOAD_DEV` set.
+- JN domain, `status`, Jetpack connection (`blog_id`, or "not connected"),
+  `JETPACK_AUTOLOAD_DEV` set.
 - Whether the site was autoconnected and why: the connection signal that ruled it out
   ("Not autoconnected: this PR changes the connection, so connect it yourself as part of
   testing"), or the user's request. When the PR touches the connection, login or SSO, also
