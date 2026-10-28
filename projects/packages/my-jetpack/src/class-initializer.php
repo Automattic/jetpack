@@ -1994,7 +1994,9 @@ class Initializer {
 	 * @return string[] Alert slugs.
 	 */
 	private static function get_alerts_counted_elsewhere() {
-		return Products\Protect::has_protect_page() ? array( 'protect_has_threats' ) : array();
+		// Without has_protect_page(), use the standalone plugin check this relied on before that method existed.
+		$has_protect_page = method_exists( Products\Protect::class, 'has_protect_page' ) ? Products\Protect::has_protect_page() : Products\Protect::is_standalone_plugin_active();
+		return $has_protect_page ? array( 'protect_has_threats' ) : array();
 	}
 
 	/**
