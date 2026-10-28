@@ -82,6 +82,11 @@
 			"types": "./build/components/product-price/index.d.ts",
 			"default": "./build/components/product-price/index.js"
 		},
+		"./radio-card": {
+			"jetpack:src": "./components/radio-card/index.tsx",
+			"types": "./build/components/radio-card/index.d.ts",
+			"default": "./build/components/radio-card/index.js"
+		},
 		"./tools/jp-redirect": {
 			"jetpack:src": "./tools/jp-redirect/index.ts",
 			"types": "./build/tools/jp-redirect/index.d.ts",

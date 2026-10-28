@@ -9,6 +9,7 @@ import { ExternalLink } from '../external-link';
 import { InternalLink, type InternalLinkProps } from '../internal-link';
 import { PostTitleLink } from '../post-title-link';
 import { VideoTitleLink } from '../video-title-link';
+import { ViewLiveLink, toViewLiveUrl } from '../view-live-link';
 import { LeaderboardLabel, type LeaderboardRowMedia } from './leaderboard-label';
 import styles from './leaderboard-label.module.scss';
 import type { LeaderboardVariant } from './leaderboard-variant';
@@ -19,11 +20,17 @@ type LeaderboardRowLabelLink = Pick< InternalLinkProps, 'to' | 'params' | 'searc
 export type LeaderboardRowAction =
 	| { kind: 'link'; href: string }
 	| {
+			/** A row that stays put: a plain label with a "View in new tab" action beside it. */
+			kind: 'viewLink';
+			/** Public URL the action opens. Pass it through `safeHttpUrl()` first; this action does not check the scheme. */
+			href: string;
+	  }
+	| {
 			/** A post, page, or email with a detail page inside the dashboard. */
 			kind: 'postLink';
 			/** Post or page ID. Links to the internal detail route when the reader can open it. */
 			id?: number | string;
-			/** Public URL. The link itself when there is no post ID or no detail page to open. */
+			/** Public URL. The "View" action beside a title that opens the detail page; the link itself otherwise. */
 			href?: string | null;
 			/**
 			 * Required, so a row cannot silently open the detail page on its own
@@ -36,7 +43,7 @@ export type LeaderboardRowAction =
 			kind: 'videoLink';
 			/** Video ID. Rows carrying one link to the internal detail route. */
 			id?: number | string;
-			/** Public URL. It becomes the link itself when there is no video ID. */
+			/** Public URL. The "View" action beside a title that opens the detail page; the link itself otherwise. */
 			href?: string | null;
 			/**
 			 * Required, so a row cannot silently open the detail page on its own
@@ -67,6 +74,11 @@ export type LeaderboardRowAction =
 export type LeaderboardRowActionOptions = {
 	/** An external destination used only when the row has no children. */
 	href?: string;
+	/**
+	 * How a childless row offers its `href`: as the row's own outbound link, or as
+	 * a "View in new tab" action beside a plain label.
+	 */
+	hrefAs?: 'link' | 'viewLink';
 	/** Whether selecting the row should take the user to a child leaderboard. */
 	hasChildren: boolean;
 	/** Drill-down behavior supplied by widgets that support child rows. */
@@ -111,7 +123,7 @@ export function resolveLeaderboardRowAction(
 	}
 
 	if ( ! options.hasChildren && options.href ) {
-		return { kind: 'link', href: options.href };
+		return { kind: options.hrefAs ?? 'link', href: options.href };
 	}
 
 	return { kind: 'static' };
@@ -134,32 +146,58 @@ export function LeaderboardRow( {
 	const rowClassName = clsx( styles.row, variant === 'bars' && styles.bars );
 	const rowLinkClassName = clsx( styles.rowLink, variant === 'bars' && styles.bars );
 
-	// Title-link rows put the row chrome on the link itself.
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
+		const liveUrl = toViewLiveUrl(
+			action.kind === 'postLink' ? 'post' : 'video',
+			action.id,
+			action.href
+		);
+		const content =
+			media.kind !== 'none' ? (
+				<LeaderboardLabel label={ label } media={ media } decorativeMedia />
+			) : undefined;
 		const titleLinkProps = {
 			id: action.id,
 			label,
 			link: action.href,
 			search: action.search,
 			title: label,
-			classNames: {
-				internal: rowLinkClassName,
-				external: rowLinkClassName,
-				plain: rowClassName,
-				text: styles.label,
-			},
 		};
 
-		if ( media.kind !== 'none' ) {
+		// A row with a "View" action holds two links, so the row chrome goes on a
+		// wrapper and the title keeps the tooltip.
+		if ( liveUrl !== undefined ) {
 			return (
-				<TitleLink { ...titleLinkProps }>
-					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
-				</TitleLink>
+				<span className={ rowClassName }>
+					<TitleLink
+						{ ...titleLinkProps }
+						classNames={ {
+							internal: clsx( styles.labelLink, styles.titleLink ),
+							text: styles.label,
+						} }
+					>
+						{ content }
+					</TitleLink>
+					<ViewLiveLink href={ liveUrl } label={ label } className={ styles.viewAction } />
+				</span>
 			);
 		}
 
-		return <TitleLink { ...titleLinkProps } />;
+		// With one link, the row chrome goes on the link itself.
+		return (
+			<TitleLink
+				{ ...titleLinkProps }
+				classNames={ {
+					internal: rowLinkClassName,
+					external: rowLinkClassName,
+					plain: rowClassName,
+					text: styles.label,
+				} }
+			>
+				{ content }
+			</TitleLink>
+		);
 	}
 
 	if ( ( action.kind === 'drillDown' || action.kind === 'static' ) && action.link ) {
@@ -168,6 +206,18 @@ export function LeaderboardRow( {
 				<InternalLink { ...action.link } className={ styles.labelLink }>
 					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
 				</InternalLink>
+			</span>
+		);
+	}
+
+	// The label carries the tooltip itself, so the action keeps only its own.
+	if ( action.kind === 'viewLink' ) {
+		return (
+			<span className={ rowClassName }>
+				<span className={ styles.plainLabel } title={ label }>
+					<LeaderboardLabel label={ label } media={ media } />
+				</span>
+				<ViewLiveLink href={ action.href } label={ label } className={ styles.viewAction } />
 			</span>
 		);
 	}

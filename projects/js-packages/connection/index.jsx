@@ -64,6 +64,11 @@ export * from './helpers/get-user-connect-kind.ts';
 export { getReconnectErrorMessage } from './helpers/get-reconnect-error-message.ts';
 export { getTracksIdentity, initializeTracksIdentity } from './helpers/tracks-identity.ts';
 export {
+	CONNECTION_EVENTS,
+	bumpConnectionStat,
+	trackConnectionEvent,
+} from './helpers/connection-tracking.ts';
+export {
 	getConnectScreenErrorMessage,
 	getRegistrationErrorCode,
 	getRegistrationErrorDescription,

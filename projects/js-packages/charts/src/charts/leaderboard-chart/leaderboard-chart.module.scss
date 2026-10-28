@@ -51,6 +51,12 @@
 		.label {
 			padding-left: var(--wpds-dimension-padding-sm);
 		}
+
+		// The bar's 100% height needs a track that fills the row,
+		// not one sized to its content.
+		.barTrack {
+			align-self: stretch;
+		}
 	}
 
 	.bar {
@@ -74,6 +80,20 @@
 				var(--a8c-charts-motion-easing-entrance) both;
 		}
 
+		// Grows from zero, which is its inline-end edge.
+		&--negative {
+			transform-origin: right;
+		}
+
+		// transform-origin has no logical keywords, so mirror both origins in RTL.
+		[dir="rtl"] &--animated {
+			transform-origin: right;
+		}
+
+		[dir="rtl"] &--negative {
+			transform-origin: left;
+		}
+
 		@keyframes stretch {
 
 			from {
@@ -85,11 +105,31 @@
 			}
 		}
 	}
+
+	.barTrack {
+		display: grid;
+
+		.bar {
+			grid-column: 2;
+			justify-self: start;
+		}
+
+		.bar--negative {
+			grid-column: 1;
+			justify-self: end;
+		}
+	}
 }
 
+// Spans the row's value and delta tracks and lays its cells out on them, so
+// the values and the deltas each end on their own column edge whatever width
+// the other takes.
 .valueContainer {
+	display: grid;
+	grid-column: 2 / -1;
+	grid-template-columns: subgrid;
 	align-items: center;
-	justify-content: flex-end;
+	justify-items: end;
 }
 
 .deltaValue {

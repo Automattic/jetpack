@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a refreshConnectionStatus() store action that reads the site's connection status from the server again.

@@ -15,6 +15,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_SEO_Utils;
 use WP_Error;
@@ -307,8 +308,8 @@ class Dashboard_Data {
 	/**
 	 * The SEO options exposed to `/wp/v2/settings`, keyed by option name.
 	 *
-	 * Types, defaults and sanitizers mirror what `/jetpack/v4/settings` enforced for
-	 * the same keys, so a save behaves the same as before wherever that route exists.
+	 * Types, defaults and sanitizers mirror what `/jetpack/v4/settings` enforces for
+	 * the keys it also exposes, so a save behaves the same through either route.
 	 *
 	 * @return array<string, array>
 	 */
@@ -327,14 +328,27 @@ class Dashboard_Data {
 			Ai_Crawlers::OPTION                   => array(
 				'type'              => 'object',
 				'default'           => array(),
-				'sanitize_callback' => array( __CLASS__, 'sanitize_ai_crawler_overrides' ),
+				'sanitize_callback' => array( Ai_Crawlers::class, 'sanitize_blocked' ),
 				'show_in_rest'      => array(
 					'schema' => array(
-						'type'                 => 'object',
-						// A sparse `crawler slug => blocked` map, so the keys are the
-						// catalog's, not a fixed property list. Ai_Crawlers::get_overrides()
-						// drops slugs it doesn't know on read.
-						'additionalProperties' => array( 'type' => 'boolean' ),
+						'type'       => 'object',
+						'properties' => array_fill_keys(
+							Ai_Crawlers::GROUPS,
+							array(
+								// Core needs `type` here as well as in `anyOf` (rest_default_additional_properties_to_false()).
+								'type'  => array( 'string', 'array' ),
+								'anyOf' => array(
+									array(
+										'type' => 'string',
+										'enum' => array( 'all' ),
+									),
+									array(
+										'type'  => 'array',
+										'items' => array( 'type' => 'string' ),
+									),
+								),
+							)
+						),
 					),
 				),
 			),
@@ -693,31 +707,30 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Whether the site is private or still in coming-soon, which WordPress.com records
-	 * as a negative `blog_public`. Always false on self-hosted, where the option is a
-	 * plain 0/1.
+	 * Whether a WordPress.com site is unpublished: private (a negative `blog_public`)
+	 * or Coming Soon. Always false on self-hosted, where the option is a plain 0/1.
 	 *
 	 * @return bool
 	 */
 	private static function is_site_private() {
-		return (int) get_option( 'blog_public', 1 ) < 0;
+		return (int) get_option( 'blog_public', 1 ) < 0 || self::is_site_coming_soon();
 	}
 
 	/**
-	 * Keep a WordPress.com site's private or coming-soon state out of reach of an SEO
-	 * toggle.
+	 * Whether the site is in WordPress.com's Coming Soon mode, which normally keeps
+	 * `blog_public` at 0, so only the platform's own flag tells it from a discouraged site.
 	 *
-	 * `blog_public` is a plain 0/1 on self-hosted, but WordPress.com also stores `-1`
-	 * for a private site and `-2` for one still in coming-soon. This dashboard only
-	 * offers "allow search engines to index this site", which writes 1 or 0 — so
-	 * without this, the owner of an unfinished site who flipped that toggle on
-	 * published it. Publishing a site is not a search-engine setting and isn't a
-	 * decision this surface asks for, so a negative stored value is left alone.
+	 * @return bool
+	 */
+	private static function is_site_coming_soon() {
+		return ( new Host() )->is_wpcom_platform() && (bool) ( new Status() )->is_coming_soon();
+	}
+
+	/**
+	 * Refuse an indexing write that would publish a private WordPress.com site or launch a Coming Soon one.
 	 *
-	 * The site's own visibility control is what changes it — and still can, because
-	 * this hangs off core's settings route rather than the option's sanitizer.
-	 * {@see self::get_settings_data()} reports `site_is_private` so the toggle can say
-	 * why it's disabled rather than silently doing nothing.
+	 * Needed because jetpack-mu-wpcom ends Coming Soon on any `blog_public` move away from 0. Hooked on
+	 * core's settings route, not the option's sanitizer, so the site's own visibility control still works.
 	 *
 	 * @param bool   $handled Whether another handler already wrote the setting.
 	 * @param string $name    Setting name.
@@ -729,9 +742,12 @@ class Dashboard_Data {
 			return $handled;
 		}
 
-		// Leave a write that keeps the site unpublished alone; only a move to a public
-		// value is refused.
-		return self::is_site_private() && (int) $value >= 0;
+		if ( (int) get_option( 'blog_public', 1 ) < 0 ) {
+			return (int) $value >= 0;
+		}
+
+		// A null write deletes the option, which reads back as the registered default of 1.
+		return self::is_site_coming_soon() && ( null === $value || (int) $value > 0 );
 	}
 
 	/**
@@ -834,25 +850,6 @@ class Dashboard_Data {
 		}
 
 		return $stored;
-	}
-
-	/**
-	 * Normalize the AI crawler override map to `slug => bool`.
-	 *
-	 * @param array $value Submitted overrides.
-	 * @return array
-	 */
-	public static function sanitize_ai_crawler_overrides( $value ) {
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-
-		$sanitized = array();
-		foreach ( $value as $slug => $blocked ) {
-			$sanitized[ sanitize_key( $slug ) ] = (bool) $blocked;
-		}
-
-		return $sanitized;
 	}
 
 	/**
@@ -1106,9 +1103,11 @@ class Dashboard_Data {
 
 		return array(
 			'search_engines_visible'     => (int) get_option( 'blog_public', 1 ) === 1,
-			// A private or coming-soon WordPress.com site isn't hidden from search by an
+			// A private or Coming Soon WordPress.com site isn't hidden from search by an
 			// SEO setting and can't be unhidden by one — see {@see self::block_publishing_a_private_site()}.
 			'site_is_private'            => self::is_site_private(),
+			'site_is_coming_soon'        => self::is_site_coming_soon(),
+			'site_visibility_url'        => Ai_Crawlers::privacy_settings_url(),
 			'sitemap_active'             => $sitemap_active,
 			'sitemap_switchable'         => self::has_module( 'sitemaps' ),
 			// The reachable sitemap URL (Jetpack serves a valid sitemap here as soon as

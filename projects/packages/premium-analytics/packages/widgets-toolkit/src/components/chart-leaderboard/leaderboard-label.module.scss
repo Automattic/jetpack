@@ -1,3 +1,5 @@
+@use "../../styles/hover-action" as *;
+
 .container {
 	min-inline-size: 0;
 	max-inline-size: 100%;
@@ -77,10 +79,18 @@
 	min-inline-size: 0;
 	max-inline-size: 100%;
 	padding-inline: var(--wpds-dimension-padding-md);
+	gap: var(--wpds-dimension-gap-xs);
 	overflow: hidden;
 	color: inherit;
 	text-decoration: none;
 	white-space: nowrap;
+}
+
+/* A row with a detail page and a public URL offers both: the title inside and
+ * a trailing "View" action. */
+.row {
+
+	@include reveal-action-on-hover(".viewAction");
 }
 
 /* The `bars` look lays the label above its bar: nothing to inset from or to
@@ -88,10 +98,6 @@
 .bars {
 	min-block-size: 0;
 	padding-inline: 0;
-}
-
-.rowLink {
-	gap: var(--wpds-dimension-gap-xs);
 }
 
 /* The design system renders the external-link arrow as a sibling of the
@@ -124,6 +130,31 @@
 .labelLink:hover .label,
 .labelLink:focus .label {
 	text-decoration: underline;
+}
+
+/* A plain label beside a "View" action still has to shrink for the ellipsis. */
+.plainLabel {
+	display: flex;
+	min-inline-size: 0;
+	max-inline-size: 100%;
+}
+
+/* Beside a "View" action the title keeps its own width so the arrow follows it,
+ * and stretches over the row so the click target stays the row. */
+.row {
+	position: relative;
+}
+
+.titleLink::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+/* The action sits above the stretched title so its own click wins. */
+.viewAction {
+	position: relative;
+	z-index: 1;
 }
 
 /* DataViews picker cells stretch media images to 100%. Widget previews render

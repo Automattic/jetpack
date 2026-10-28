@@ -13,6 +13,10 @@ const PAGE_TEMPLATE_URL = 'https://example.com/wp-admin/site-editor.php?p=page';
 
 const KEYS = { sharing: 'sharing_buttons_auto_add', likes: 'likes_auto_add' } as const;
 
+const NONE = 'Don’t add it automatically';
+const BEFORE = 'Before the content';
+const AFTER = 'After the content';
+
 /**
  * A promise and the functions that settle it.
  *
@@ -48,13 +52,24 @@ function renderCards(
 }
 
 /**
- * The card's checkbox.
+ * A placement's radio.
  *
- * @param name - Card title.
- * @return Checkbox.
+ * @param name - Card title, or the label of the option that adds nothing.
+ * @return Radio.
  */
-function card( name: string ) {
-	return screen.getByRole( 'checkbox', { name } );
+function radio( name: string ) {
+	return screen.getByRole( 'radio', { name } );
+}
+
+/**
+ * The label of the radio that is checked.
+ *
+ * @return Label.
+ */
+function checkedRadio(): string | undefined {
+	return [ NONE, BEFORE, AFTER ].find(
+		name => radio( name ).getAttribute( 'aria-checked' ) === 'true'
+	);
 }
 
 /**
@@ -63,7 +78,7 @@ function card( name: string ) {
  * @return Titles of the cards showing a link.
  */
 function cardsWithPreview(): string[] {
-	return [ 'Before the content', 'After the content' ].filter( title =>
+	return [ BEFORE, AFTER ].filter( title =>
 		within( screen.getByText( title ).parentElement as HTMLElement ).queryByRole( 'link', {
 			name: 'Preview and edit',
 		} )
@@ -81,18 +96,20 @@ afterEach( () => {
 
 describe( 'TemplatePlacements', () => {
 	it.each( [
-		[ 'sharing', [ 'after_content' ], 'Before the content', [ 'before_content' ] ],
-		[ 'likes', [ 'after_content' ], 'After the content', [] ],
-	] as [ Feature, TemplatePlacement[], string, TemplatePlacement[] ][] )(
-		'%s: from %j, clicking "%s" saves and ticks %j',
-		async ( feature, stored, clicked, sent ) => {
+		[ 'sharing', [], NONE, BEFORE, [ 'before_content' ] ],
+		[ 'sharing', [ 'before_content' ], BEFORE, AFTER, [ 'after_content' ] ],
+		[ 'likes', [ 'after_content' ], AFTER, NONE, [] ],
+	] as [ Feature, TemplatePlacement[], string, string, TemplatePlacement[] ][] )(
+		'%s: from %j ("%s"), picking "%s" saves %j',
+		async ( feature, stored, checkedFirst, clicked, sent ) => {
 			const user = userEvent.setup();
 			mockApiFetch.mockImplementation( ( { data } ) =>
 				Promise.resolve( { ...baseSettings, ...( data as Settings ) } )
 			);
 			renderCards( feature, stored );
+			expect( checkedRadio() ).toBe( checkedFirst );
 
-			await user.click( card( clicked ) );
+			await user.click( radio( clicked ) );
 
 			expect( apiCalls( 'PUT' ) ).toEqual( [
 				{
@@ -101,14 +118,7 @@ describe( 'TemplatePlacements', () => {
 					data: { [ KEYS[ feature ] ]: sent },
 				},
 			] );
-			expect( card( 'Before the content' ) ).toHaveAttribute(
-				'aria-checked',
-				String( sent.includes( 'before_content' ) )
-			);
-			expect( card( 'After the content' ) ).toHaveAttribute(
-				'aria-checked',
-				String( sent.includes( 'after_content' ) )
-			);
+			expect( checkedRadio() ).toBe( clicked );
 		}
 	);
 
@@ -120,14 +130,14 @@ describe( 'TemplatePlacements', () => {
 		);
 		renderCards( 'sharing', [ 'after_content' ] );
 
-		expect( cardsWithPreview() ).toEqual( [ 'After the content' ] );
-		await user.click( card( 'Before the content' ) );
+		expect( cardsWithPreview() ).toEqual( [ AFTER ] );
+		await user.click( radio( BEFORE ) );
 
-		expect( card( 'Before the content' ) ).toHaveAttribute( 'aria-checked', 'true' );
-		expect( card( 'After the content' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( checkedRadio() ).toBe( BEFORE );
+		expect( radio( AFTER ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
 		expect( cardsWithPreview() ).toEqual( [] );
 		save.resolve( { ...baseSettings, sharing_buttons_auto_add: [ 'before_content' ] } );
-		await waitFor( () => expect( cardsWithPreview() ).toEqual( [ 'Before the content' ] ) );
+		await waitFor( () => expect( cardsWithPreview() ).toEqual( [ BEFORE ] ) );
 		expect( screen.getByRole( 'link', { name: 'Preview and edit' } ) ).toHaveAttribute(
 			'href',
 			baseStatus.site_editor_url
@@ -146,9 +156,6 @@ describe( 'TemplatePlacements', () => {
 			expect(
 				screen.getByText( /Once you’ve saved a template in the Site Editor/ )
 			).toBeInTheDocument();
-			expect( screen.getByRole( 'group' ) ).toHaveAccessibleDescription(
-				'Pick one place: before or after the content.'
-			);
 		}
 	);
 
@@ -170,18 +177,18 @@ describe( 'TemplatePlacements', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Switch to the Like block' } ) );
 
-		await waitFor( () => expect( screen.getAllByRole( 'checkbox' ) ).toHaveLength( 2 ) );
+		await waitFor( () => expect( screen.getAllByRole( 'radio' ) ).toHaveLength( 3 ) );
 		screen
-			.getAllByRole( 'checkbox' )
-			.forEach( checkbox => expect( checkbox ).toHaveAttribute( 'aria-disabled', 'true' ) );
-		const group = screen.getByRole( 'group', { name: 'Add the Like block to posts and pages' } );
+			.getAllByRole( 'radio' )
+			.forEach( option => expect( option ).toHaveAttribute( 'aria-disabled', 'true' ) );
+		const group = screen.getByRole( 'radiogroup', {
+			name: 'Where should the Like block go on posts and pages?',
+		} );
 		expect( group ).toHaveAttribute( 'aria-busy', 'true' );
 		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
 
 		settings.resolve( { ...baseSettings, likes_auto_add: [] } );
-		await waitFor( () =>
-			expect( card( 'Before the content' ) ).not.toHaveAttribute( 'aria-disabled', 'true' )
-		);
+		await waitFor( () => expect( radio( BEFORE ) ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
 		expect( group ).toHaveAttribute( 'aria-busy', 'false' );
 	} );
 } );

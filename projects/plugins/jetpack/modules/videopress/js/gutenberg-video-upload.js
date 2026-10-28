@@ -147,6 +147,10 @@ window.videoPressDeleteTrack = function ( guid, kind, srcLang ) {
 };
 
 wp.apiFetch.use( function ( options, next ) {
+	if ( window.videoPressGutenbergUploadEnabled === false ) {
+		return next( options );
+	}
+
 	var path = options.path;
 	var method = options.method;
 	var body = options.body;
@@ -163,10 +167,16 @@ wp.apiFetch.use( function ( options, next ) {
 		return next( options );
 	}
 
+	var isVideoPressUpload = false;
+
 	// Get upload token.
 	wp.media
 		.ajax( 'videopress-get-upload-token', { async: false, data: { filename: file.name } } )
 		.done( function ( response ) {
+			if ( ! response.upload_token || ! response.upload_blog_id || ! response.upload_action_url ) {
+				return;
+			}
+
 			// Set auth header with upload token.
 			var headers = options.headers || {};
 			headers.Authorization =
@@ -188,7 +198,12 @@ wp.apiFetch.use( function ( options, next ) {
 			body.set( 'media[]', file );
 			body.delete( 'file' );
 			options.body = body;
+			isVideoPressUpload = true;
 		} );
+
+	if ( ! isVideoPressUpload ) {
+		return next( options );
+	}
 
 	var result = next( options );
 

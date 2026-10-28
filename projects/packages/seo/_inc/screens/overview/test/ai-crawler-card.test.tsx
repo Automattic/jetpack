@@ -20,11 +20,12 @@ const buildCrawlers = ( overrides: Partial< Crawlers > = {} ): Crawlers => ( {
 		{ slug: 'perplexity', label: 'PerplexityBot', userAgent: 'PerplexityBot', type: 'answer' },
 		{ slug: 'gptbot', label: 'GPTBot', userAgent: 'GPTBot', type: 'training' },
 	],
-	overrides: {},
+	blocked: { answer: [], training: [] },
 	searchEnginesVisible: true,
 	restrictedSubdomain: false,
 	staticRobotsTxt: false,
 	dataSharingOptOut: false,
+	dataSharingBlocked: [],
 	pathBasedMultisite: false,
 	privacySettingsUrl: 'https://example.test/privacy',
 	robotsTxtUrl: 'https://example.test/robots.txt',
@@ -82,8 +83,8 @@ describe( 'AiCrawlerCard', () => {
 	it( 'reports the crawler groups alongside llms.txt', () => {
 		renderCard();
 
-		expect( screen.getByText( 'Answer engines: 2 of 2 allowed' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Training crawlers: 1 of 1 blocked' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Answer engines: 0 of 2 blocked' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Training crawlers: 0 of 1 blocked' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'llms.txt published' ) ).toBeInTheDocument();
 	} );
 

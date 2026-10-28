@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: Keep the Excerpt field in the post editor when the AI excerpt panel cannot be loaded.

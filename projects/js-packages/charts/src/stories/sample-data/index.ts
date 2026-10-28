@@ -555,6 +555,71 @@ export const decliningMetricsData: LeaderboardEntry[] = [
 ];
 
 /**
+ * Net sales by source, where refunds push some sources below zero
+ *
+ * Shares are a % of the largest absolute value across both periods ($4,200)
+ * - Category: performance
+ * - Data points: 6
+ * - Suitable for: LeaderboardChart
+ */
+export const netSalesBySourceData: LeaderboardEntry[] = [
+	{
+		id: 'google',
+		label: 'Google',
+		currentValue: 4200,
+		previousValue: 3800,
+		currentShare: 100,
+		previousShare: 90.48,
+		delta: 10.53,
+	},
+	{
+		id: 'direct',
+		label: 'Direct',
+		currentValue: 2600,
+		previousValue: 2900,
+		currentShare: 61.9,
+		previousShare: 69.05,
+		delta: -10.34,
+	},
+	{
+		id: 'paid-search',
+		label: 'Paid search',
+		currentValue: 1500,
+		previousValue: 2200,
+		currentShare: 35.71,
+		previousShare: 52.38,
+		delta: -31.82,
+	},
+	{
+		id: 'facebook',
+		label: 'Facebook',
+		currentValue: 650,
+		previousValue: -300,
+		currentShare: 15.48,
+		previousShare: -7.14,
+		delta: 316.67,
+	},
+	{
+		id: 'affiliate',
+		label: 'Affiliate',
+		currentValue: -900,
+		previousValue: -400,
+		currentShare: -21.43,
+		previousShare: -9.52,
+		delta: -125,
+	},
+	{
+		id: 'newsletter',
+		label: 'Newsletter',
+		currentValue: -1800,
+		previousValue: 1200,
+		currentShare: -42.86,
+		previousShare: 28.57,
+		delta: -250,
+	},
+];
+
+/**
  * Leaderboard data with custom categories
  *
  * Leaderboard data including custom image colors

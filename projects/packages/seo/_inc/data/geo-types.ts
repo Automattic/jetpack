@@ -6,15 +6,21 @@
 
 /** One entry in the AI crawler catalog (see `Ai_Crawlers::get_catalog()`). */
 export interface AiCrawler {
-	/** Stable catalog key, persisted in the override map. */
+	/** Stable catalog key, persisted in the blocked-crawlers option. */
 	slug: string;
 	/** Human-readable name shown in the UI. */
 	label: string;
 	/** User-agent token written to the robots.txt `User-agent:` line. */
 	userAgent: string;
-	/** Training crawlers are blocked by default; answer-engine crawlers are allowed. */
+	/** Which group the crawler is listed under. */
 	type: 'answer' | 'training';
 }
+
+/**
+ * The crawlers the owner blocked, per group: `'all'` (every crawler in the group,
+ * including ones added later) or a list of slugs. Every other crawler is allowed.
+ */
+export type BlockedCrawlers = Record< AiCrawler[ 'type' ], 'all' | string[] >;
 
 export interface GeoState {
 	enhancer: {
@@ -42,12 +48,8 @@ export interface GeoState {
 	crawlers: {
 		/** The full AI crawler catalog. */
 		catalog: AiCrawler[];
-		/**
-		 * Sparse per-crawler overrides (`slug => blocked`). Only deviations from
-		 * each bot's default policy are present; absent slugs use the default
-		 * (training → blocked, answer → allowed).
-		 */
-		overrides: Record< string, boolean >;
+		/** The crawlers the owner blocked. */
+		blocked: BlockedCrawlers;
 		/** Whether search engines (and AI crawlers) may index the site. */
 		searchEnginesVisible: boolean;
 		/** Whether the site is on a crawl-restricted `*.wpcomstaging.com` subdomain. */
@@ -56,6 +58,8 @@ export interface GeoState {
 		staticRobotsTxt: boolean;
 		/** Whether WordPress.com's site-wide data-sharing opt-out overrides per-bot settings. */
 		dataSharingOptOut: boolean;
+		/** Crawlers WordPress.com's "Prevent third-party sharing" blocks while it's on. */
+		dataSharingBlocked: string[];
 		/** Whether the network shares one origin-level robots.txt across path-based sites. */
 		pathBasedMultisite: boolean;
 		/** URL of the "Prevent third-party sharing" setting, linked when it governs crawler access. */
