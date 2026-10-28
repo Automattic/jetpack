@@ -1,6 +1,6 @@
 import { Button, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { commentContent, details, key, page } from '@wordpress/icons';
 import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
@@ -449,7 +449,22 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 		);
 	};
 
-	const llmsTxtEffectivelyOn = Boolean( searchEnginesVisible && llmsTxt?.enabled );
+	const llmsTxtEffectivelyOn = Boolean(
+		searchEnginesVisible && llmsTxt?.enabled && ! llmsTxt.conflicted
+	);
+	const llmsTxtConflictNotice = llmsTxt?.conflictingPlugin
+		? sprintf(
+				/* translators: %1$s: name of the active SEO plugin. */
+				__(
+					'Jetpack is not generating llms.txt while %1$s is active. Your saved setting is retained. Deactivate %1$s to let Jetpack generate the file.',
+					'jetpack-seo'
+				),
+				llmsTxt.conflictingPlugin
+			)
+		: __(
+				'Jetpack is not generating llms.txt while another SEO plugin is active. Your saved setting is retained. Deactivate the conflicting SEO plugin to let Jetpack generate the file.',
+				'jetpack-seo'
+			);
 
 	let enhancerHelp: string | undefined;
 	if ( ! enhancer.aiSeoEnabled ) {
@@ -482,7 +497,12 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="md">
-							{ searchEnginesVisible && ! llmsTxt.canServe && (
+							{ llmsTxt.conflicted && (
+								<Notice.Root intent="warning">
+									<Notice.Description>{ llmsTxtConflictNotice }</Notice.Description>
+								</Notice.Root>
+							) }
+							{ searchEnginesVisible && ! llmsTxt.canServe && ! llmsTxt.conflicted && (
 								<Notice.Root intent="warning">
 									<Notice.Description>
 										{ __(
@@ -497,8 +517,13 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 									label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
 									help={ llmsTxtHelp }
 									checked={ llmsTxtEffectivelyOn }
-									onChange={ setLlmsTxtEnabled }
-									disabled={ isSaving || ! searchEnginesVisible }
+									// eslint-disable-next-line react/jsx-no-bind
+									onChange={ next => {
+										if ( ! llmsTxt.conflicted ) {
+											setLlmsTxtEnabled( next );
+										}
+									} }
+									disabled={ isSaving || ! searchEnginesVisible || llmsTxt.conflicted }
 									__nextHasNoMarginBottom
 								/>
 								{ ! searchEnginesVisible && (

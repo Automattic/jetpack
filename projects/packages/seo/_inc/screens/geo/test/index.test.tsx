@@ -15,7 +15,13 @@ import type { GeoForm } from '../../../data/use-geo';
  */
 const formWith = ( canServe: boolean ): GeoForm => ( {
 	enhancer: { available: false, enabled: false, aiSeoEnabled: true, aiEnabled: true },
-	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe },
+	llmsTxt: {
+		enabled: true,
+		url: 'https://example.com/llms.txt',
+		canServe,
+		conflicted: false,
+		conflictingPlugin: '',
+	},
 	crawlers: null,
 	isSaving: false,
 	setEnhancerEnabled: () => {},
@@ -101,6 +107,32 @@ describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 			screen.queryByRole( 'link', { name: /view your llms\.txt/i } )
 		).not.toBeInTheDocument();
 	} );
+
+	it.each( [ 'Yoast SEO', 'Rank Math SEO', '' ] )(
+		'explains a plugin conflict without file or host advice (%s)',
+		conflictingPlugin => {
+			const form = formWith( false );
+			form.llmsTxt = { ...form.llmsTxt!, conflicted: true, conflictingPlugin };
+			jest.spyOn( form, 'setLlmsTxtEnabled' ).mockImplementation();
+			render( <GeoScreen form={ form } searchEnginesVisible onManageVisibility={ noop } /> );
+			expect( screen.getByText( /Jetpack is not generating llms.txt while/ ) ).toHaveTextContent(
+				conflictingPlugin
+					? `Deactivate ${ conflictingPlugin }`
+					: 'Deactivate the conflicting SEO plugin'
+			);
+			expect( screen.queryByText( /hosting setup is already handling/ ) ).not.toBeInTheDocument();
+			const toggle = screen.getByRole( 'checkbox', { name: /generate an llms.txt file/i } );
+			expect( toggle ).toBeDisabled();
+			expect( toggle ).not.toBeChecked();
+			expect(
+				screen.queryByRole( 'link', { name: /view your llms.txt/i } )
+			).not.toBeInTheDocument();
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( toggle );
+			expect( form.setLlmsTxtEnabled ).not.toHaveBeenCalled();
+			expect( form.llmsTxt.enabled ).toBe( true );
+		}
+	);
 
 	it( 'disables llms.txt and links to visibility settings when indexing is blocked', () => {
 		const onManageVisibility = jest.fn();
@@ -248,7 +280,13 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 const allModulesForm = (): GeoForm => ( {
 	...crawlerForm(),
 	enhancer: { available: true, enabled: false, aiSeoEnabled: true, aiEnabled: true },
-	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
+	llmsTxt: {
+		enabled: true,
+		url: 'https://example.com/llms.txt',
+		canServe: true,
+		conflicted: false,
+		conflictingPlugin: '',
+	},
 } );
 
 describe( 'GeoScreen (GEO tab) — module titles', () => {

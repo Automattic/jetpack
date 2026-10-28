@@ -1237,9 +1237,11 @@ class Dashboard_Data {
 				'aiEnabled'    => $ai_on,
 			),
 			'llmsTxt'  => array(
-				'enabled'  => Llms_Txt::is_enabled(),
-				'url'      => home_url( '/llms.txt' ),
-				'canServe' => Llms_Txt::can_serve(),
+				'enabled'           => Llms_Txt::is_enabled(),
+				'url'               => home_url( '/llms.txt' ),
+				'canServe'          => Llms_Txt::can_serve(),
+				'conflicted'        => (bool) apply_filters( 'jetpack_disable_seo_tools', false ),
+				'conflictingPlugin' => self::get_conflicting_seo_plugin(),
 			),
 			'crawlers' => Ai_Crawlers::get_bootstrap_data(),
 		);
