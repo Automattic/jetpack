@@ -8,6 +8,8 @@ export type PeriodPreset< Value extends string = string > = {
 export type PeriodSelectorProps< Value extends string = string > = {
 	/** The presets the dropdown offers, in order. */
 	presets: PeriodPreset< Value >[];
+	/** Names what the control picks, such as "Date range"; screen readers hear it before the selected period. */
+	label?: string;
 	/** The selected preset's value. */
 	value: Value;
 	/** Called with the chosen preset's value. */
