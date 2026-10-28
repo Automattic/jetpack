@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Gist: Preserve formatting when embedding a GitHub Gist URL on its own line in post content.
+Gist: Preserve formatting when embedding a GitHub Gist URL on its own line in post content, and show a plain link to the gist in feeds.
