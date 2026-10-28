@@ -116,10 +116,10 @@ class Schema_Settings_Controller {
 			return false;
 		}
 
-		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+		if ( Seo_Tools::is_disabled() ) {
 			return new \WP_Error(
-				'jetpack_seo_conflicting_plugin',
-				__( 'Another SEO plugin is managing your structured data. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' ),
+				'jetpack_seo_tools_disabled',
+				__( 'Jetpack SEO is disabled on this site. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' ),
 				array( 'status' => 409 )
 			);
 		}

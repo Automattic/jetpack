@@ -65,7 +65,7 @@ class Llms_Txt {
 	 * @return bool
 	 */
 	public static function can_serve() {
-		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+		if ( Seo_Tools::is_disabled() ) {
 			return false;
 		}
 

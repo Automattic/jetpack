@@ -554,8 +554,7 @@ class Dashboard_Data {
 	 * @return bool
 	 */
 	private static function is_jetpack_seo_enabled_without_helper() {
-		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
-		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+		if ( Seo_Tools::is_disabled() ) {
 			return false;
 		}
 
@@ -565,27 +564,12 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Name of the SEO plugin Jetpack stepped aside for, or '' when Jetpack's SEO output is live.
+	 * Return the conflicting plugin's name for dashboard payloads.
 	 *
 	 * @return string
 	 */
 	private static function get_conflicting_seo_plugin() {
-		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
-		if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
-			return '';
-		}
-
-		/**
-		 * Names the SEO plugin that owns the site's SEO output, so the SEO dashboard can say
-		 * so. Only read while `jetpack_disable_seo_tools` is true.
-		 *
-		 * @since 0.10.1
-		 *
-		 * @param string $name The plugin's display name, or '' when no plugin owns the output.
-		 */
-		$name = apply_filters( 'jetpack_seo_conflicting_plugin', '' );
-
-		return is_string( $name ) ? trim( $name ) : '';
+		return Seo_Tools::get_conflicting_plugin() ?? '';
 	}
 
 	/**
@@ -1095,8 +1079,7 @@ class Dashboard_Data {
 		$title_formats_editable = self::is_jetpack_seo_enabled();
 		$front_page_desc        = self::get_front_page_meta_description();
 
-		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
-		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+		if ( Seo_Tools::is_disabled() ) {
 			// Same for the description, which the helper swaps for the legacy fallback while
 			// another plugin owns the output. Show the one Jetpack resumes with; it's locked.
 			$modern          = get_option( self::FRONT_PAGE_META_OPTION );
@@ -1240,7 +1223,7 @@ class Dashboard_Data {
 				'enabled'           => Llms_Txt::is_enabled(),
 				'url'               => home_url( '/llms.txt' ),
 				'canServe'          => Llms_Txt::can_serve(),
-				'conflicted'        => (bool) apply_filters( 'jetpack_disable_seo_tools', false ),
+				'disabled'          => Seo_Tools::is_disabled(),
 				'conflictingPlugin' => self::get_conflicting_seo_plugin(),
 			),
 			'crawlers' => Ai_Crawlers::get_bootstrap_data(),

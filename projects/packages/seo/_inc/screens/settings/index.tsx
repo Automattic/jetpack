@@ -77,7 +77,7 @@ const frontPageHelp = __(
 	'jetpack-seo'
 );
 const frontPageLockedHelp = __(
-	'Locked while another SEO plugin manages your SEO. Jetpack uses this again once it’s deactivated.',
+	'Locked while Jetpack SEO is disabled. Your saved description is retained.',
 	'jetpack-seo'
 );
 // Keep in step with the 155 quoted in `frontPageHelp`.
@@ -217,7 +217,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				local.conflicting_seo_plugin
 			)
 		: __(
-				'Another SEO plugin is managing your SEO output, so Jetpack’s title, description, schema and author profile settings are locked while it’s active.',
+				'Jetpack SEO is disabled on this site, so its title, description, schema and author profile settings are locked.',
 				'jetpack-seo'
 			);
 
@@ -231,7 +231,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				local.conflicting_seo_plugin
 			)
 		: __(
-				'Another SEO plugin is managing your structured data. Your saved Jetpack settings are shown here but are not being used. Deactivate the conflicting SEO plugin to edit these settings in Jetpack.',
+				'Jetpack SEO is disabled on this site. Your saved settings are shown here but are not being used. Editing is unavailable while SEO tools are disabled.',
 				'jetpack-seo'
 			);
 

@@ -80,16 +80,16 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 
 	// A host or static file can own the path; a plugin conflict pauses Jetpack generation.
 	const llmsPublished =
-		! llmsTxt?.conflicted && ( ! llmsTxt?.canServe || Boolean( llmsTxt?.enabled ) );
+		! llmsTxt?.disabled && ( ! llmsTxt?.canServe || Boolean( llmsTxt?.enabled ) );
 	let llmsLabel: string = llmsPublished ? llmsPublishedLabel : llmsNotPublishedLabel;
-	if ( llmsTxt?.conflicted ) {
+	if ( llmsTxt?.disabled ) {
 		llmsLabel = llmsTxt.conflictingPlugin
 			? sprintf(
 					/* translators: %s: name of the active SEO plugin. */
 					__( 'Jetpack llms.txt paused while %s is active', 'jetpack-seo' ),
 					llmsTxt.conflictingPlugin
 				)
-			: __( 'Jetpack llms.txt paused by another SEO plugin', 'jetpack-seo' );
+			: __( 'Jetpack llms.txt paused while SEO tools are disabled', 'jetpack-seo' );
 	}
 
 	// When the settings can't apply, choose the highest-precedence reason.

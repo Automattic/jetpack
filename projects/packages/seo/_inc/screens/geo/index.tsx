@@ -450,7 +450,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 	};
 
 	const llmsTxtEffectivelyOn = Boolean(
-		searchEnginesVisible && llmsTxt?.enabled && ! llmsTxt.conflicted
+		searchEnginesVisible && llmsTxt?.enabled && ! llmsTxt.disabled
 	);
 	const llmsTxtConflictNotice = llmsTxt?.conflictingPlugin
 		? sprintf(
@@ -462,7 +462,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 				llmsTxt.conflictingPlugin
 			)
 		: __(
-				'Jetpack is not generating llms.txt while another SEO plugin is active. Your saved setting is retained. Deactivate the conflicting SEO plugin to let Jetpack generate the file.',
+				'Jetpack is not generating llms.txt because SEO tools are disabled on this site. Your saved setting is retained.',
 				'jetpack-seo'
 			);
 
@@ -497,12 +497,12 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="md">
-							{ llmsTxt.conflicted && (
+							{ llmsTxt.disabled && (
 								<Notice.Root intent="warning">
 									<Notice.Description>{ llmsTxtConflictNotice }</Notice.Description>
 								</Notice.Root>
 							) }
-							{ searchEnginesVisible && ! llmsTxt.canServe && ! llmsTxt.conflicted && (
+							{ searchEnginesVisible && ! llmsTxt.canServe && ! llmsTxt.disabled && (
 								<Notice.Root intent="warning">
 									<Notice.Description>
 										{ __(
@@ -519,11 +519,11 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibilit
 									checked={ llmsTxtEffectivelyOn }
 									// eslint-disable-next-line react/jsx-no-bind
 									onChange={ next => {
-										if ( ! llmsTxt.conflicted ) {
+										if ( ! llmsTxt.disabled ) {
 											setLlmsTxtEnabled( next );
 										}
 									} }
-									disabled={ isSaving || ! searchEnginesVisible || llmsTxt.conflicted }
+									disabled={ isSaving || ! searchEnginesVisible || llmsTxt.disabled }
 									__nextHasNoMarginBottom
 								/>
 								{ ! searchEnginesVisible && (

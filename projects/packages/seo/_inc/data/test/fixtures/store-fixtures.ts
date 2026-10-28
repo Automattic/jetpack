@@ -49,7 +49,7 @@ export const SEEDED_GEO: GeoState = {
 		enabled: false,
 		url: 'https://example.com/llms.txt',
 		canServe: true,
-		conflicted: false,
+		disabled: false,
 		conflictingPlugin: '',
 	},
 	crawlers: {

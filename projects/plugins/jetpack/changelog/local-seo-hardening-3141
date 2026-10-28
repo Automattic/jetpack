@@ -1,4 +1,3 @@
 Significance: patch
 Type: bugfix
-
-SEO: Show saved schema and author settings as disabled when another SEO plugin manages output, and stop serving llms.txt.
+Comment: Show saved schema and author settings as disabled when another SEO plugin manages output, and stop serving llms.txt.

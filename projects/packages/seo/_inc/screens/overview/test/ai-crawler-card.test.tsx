@@ -41,7 +41,7 @@ const buildLlms = ( overrides: Partial< LlmsTxt > = {} ): LlmsTxt => ( {
 	enabled: true,
 	url: 'https://example.test/llms.txt',
 	canServe: true,
-	conflicted: false,
+	disabled: false,
 	conflictingPlugin: '',
 	...overrides,
 } );
@@ -112,7 +112,7 @@ describe( 'AiCrawlerCard', () => {
 		enabled => {
 			renderCard( {
 				llmsTxt: buildLlms( {
-					conflicted: true,
+					disabled: true,
 					conflictingPlugin: 'Yoast SEO',
 					canServe: false,
 					enabled,

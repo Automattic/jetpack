@@ -34,8 +34,8 @@ export interface GeoState {
 		url: string;
 		/** Whether Jetpack can serve llms.txt, considering files, hosting and plugin conflicts. */
 		canServe: boolean;
-		/** Whether another SEO plugin has disabled Jetpack's SEO output. */
-		conflicted: boolean;
+		/** Whether Jetpack SEO output is disabled by a plugin conflict or another filter. */
+		disabled: boolean;
 		/** The detected conflicting plugin's display name, or an empty string. */
 		conflictingPlugin: string;
 	};

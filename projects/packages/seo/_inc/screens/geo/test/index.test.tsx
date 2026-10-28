@@ -19,7 +19,7 @@ const formWith = ( canServe: boolean ): GeoForm => ( {
 		enabled: true,
 		url: 'https://example.com/llms.txt',
 		canServe,
-		conflicted: false,
+		disabled: false,
 		conflictingPlugin: '',
 	},
 	crawlers: null,
@@ -112,13 +112,13 @@ describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 		'explains a plugin conflict without file or host advice (%s)',
 		conflictingPlugin => {
 			const form = formWith( false );
-			form.llmsTxt = { ...form.llmsTxt!, conflicted: true, conflictingPlugin };
+			form.llmsTxt = { ...form.llmsTxt!, disabled: true, conflictingPlugin };
 			jest.spyOn( form, 'setLlmsTxtEnabled' );
 			render( <GeoScreen form={ form } searchEnginesVisible onManageVisibility={ noop } /> );
-			expect( screen.getByText( /Jetpack is not generating llms.txt while/ ) ).toHaveTextContent(
+			expect( screen.getByText( /Jetpack is not generating llms.txt/ ) ).toHaveTextContent(
 				conflictingPlugin
 					? `Deactivate ${ conflictingPlugin }`
-					: 'Deactivate the conflicting SEO plugin'
+					: 'SEO tools are disabled on this site'
 			);
 			expect( screen.queryByText( /hosting setup is already handling/ ) ).not.toBeInTheDocument();
 			const toggle = screen.getByRole( 'checkbox', { name: /generate an llms.txt file/i } );
@@ -284,7 +284,7 @@ const allModulesForm = (): GeoForm => ( {
 		enabled: true,
 		url: 'https://example.com/llms.txt',
 		canServe: true,
-		conflicted: false,
+		disabled: false,
 		conflictingPlugin: '',
 	},
 } );

@@ -138,7 +138,7 @@ describe( 'Another SEO plugin owning the output', () => {
 	// A plugin can switch Jetpack's output off without naming itself; the lock can't depend on the name.
 	it.each( [
 		[ 'Yoast SEO', /^Yoast SEO is managing your SEO/ ],
-		[ '', /^Another SEO plugin is managing your SEO/ ],
+		[ '', /^Jetpack SEO is disabled on this site, so its title/ ],
 	] )(
 		'with "%s" in charge, locks the description and hides the previews',
 		async ( plugin, notice ) => {
@@ -151,7 +151,7 @@ describe( 'Another SEO plugin owning the output', () => {
 			expect( screen.getByText( notice ) ).toBeInTheDocument();
 			expect( screen.queryByText( 'social previews' ) ).not.toBeInTheDocument();
 			await expect( openDescription() ).resolves.toBeDisabled();
-			expect( screen.getByText( /^Locked while another SEO plugin/ ) ).toBeInTheDocument();
+			expect( screen.getByText( /^Locked while Jetpack SEO is disabled/ ) ).toBeInTheDocument();
 		}
 	);
 

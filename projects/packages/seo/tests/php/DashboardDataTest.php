@@ -12,8 +12,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Dashboard_Data
+ * @covers \Automattic\Jetpack\SEO\Seo_Tools
  */
 #[CoversClass( Dashboard_Data::class )]
+#[CoversClass( Seo_Tools::class )]
 class DashboardDataTest extends SeoTestCase {
 
 	/**
@@ -389,11 +391,24 @@ class DashboardDataTest extends SeoTestCase {
 		$this->assertSame( $expected, Dashboard_Data::get_overview_data()['conflicting_seo_plugin'] );
 		$this->assertSame( $expected, Dashboard_Data::get_settings_data()['conflicting_seo_plugin'] );
 		$llms_txt = Dashboard_Data::get_geo_data()['llmsTxt'];
-		$this->assertSame( $disabled, $llms_txt['conflicted'] );
+		$this->assertSame( $disabled || null !== $name && '' !== trim( $name ), $llms_txt['disabled'] );
 		$this->assertSame( $expected, $llms_txt['conflictingPlugin'] );
-		if ( $disabled ) {
+		if ( $llms_txt['disabled'] ) {
 			$this->assertFalse( $llms_txt['canServe'] );
 		}
+	}
+
+	public function test_general_disable_filter_can_override_the_plugin_default() {
+		add_filter(
+			'jetpack_seo_conflicting_plugin',
+			static function () {
+				return 'Yoast SEO';
+			}
+		);
+		$this->assertTrue( Seo_Tools::is_disabled() );
+		add_filter( 'jetpack_disable_seo_tools', '__return_false' );
+		$this->assertFalse( Seo_Tools::is_disabled() );
+		$this->assertFalse( Dashboard_Data::get_geo_data()['llmsTxt']['disabled'] );
 	}
 
 	/**
@@ -401,10 +416,10 @@ class DashboardDataTest extends SeoTestCase {
 	 */
 	public static function provide_conflicting_seo_plugin_states() {
 		return array(
-			'no conflict'                     => array( false, null, '' ),
-			'Jetpack stepped aside'           => array( true, ' Yoast SEO ', 'Yoast SEO' ),
-			'unnamed conflict'                => array( true, null, '' ),
-			'named but Jetpack still outputs' => array( false, 'Yoast SEO', '' ),
+			'no conflict'                    => array( false, null, '' ),
+			'Jetpack stepped aside'          => array( true, ' Yoast SEO ', 'Yoast SEO' ),
+			'disabled without a plugin'      => array( true, null, '' ),
+			'conflict sets default disabled' => array( false, 'Yoast SEO', 'Yoast SEO' ),
 		);
 	}
 
