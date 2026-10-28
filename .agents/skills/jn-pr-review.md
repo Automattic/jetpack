@@ -3,9 +3,10 @@ name: jn-pr-review
 description: >
   Spin up a fresh Jurassic Ninja site running the code from a Jetpack GitHub PR so a
   human can review the PR's behavior live. Given a PR number or URL, it resolves the PR
-  branch into an isolated worktree, provisions and Jetpack-connects a new JN site recorded
-  in the JN ledger under the PR, builds and rsyncs the affected plugin(s), forces dev
-  autoloading, and reports the autologin link. Use when the user says "jn-pr-review",
+  branch into an isolated worktree, provisions a new JN site recorded in the JN ledger
+  under the PR (Jetpack-connected unless the PR changes the connection or SSO), builds
+  and rsyncs the affected plugin(s), forces dev autoloading, and reports the autologin
+  link. Use when the user says "jn-pr-review",
   "/jn-pr-review", "review PR <n> on JN",
   "spin up a JN site for PR <n>", "test this PR on Jurassic Ninja", or gives a Jetpack PR
   number/URL and wants a live environment to click through. This sets up the environment
@@ -15,8 +16,9 @@ allowed-tools: Bash, Read, Glob, Grep
 
 # JN PR Review — live test environment for a Jetpack PR
 
-Given a Jetpack GitHub PR, deliver a working, Jetpack-connected Jurassic Ninja site running
-that PR's code, and report the autologin link. Environment provisioning only — no automated
+Given a Jetpack GitHub PR, deliver a working Jurassic Ninja site running
+that PR's code (Jetpack-connected unless the PR changes the connection), and report the
+autologin link. Environment provisioning only — no automated
 code review.
 
 Run this from any Jetpack monorepo checkout that has a remote tracking `Automattic/jetpack`
@@ -40,10 +42,11 @@ PR (`gh pr view --json ...`).
 
 ```bash
 gh pr view <PR> --repo Automattic/jetpack \
-  --json number,title,body,headRefName,headRefOid,author,state,isDraft,files,url
+  --json number,title,body,labels,headRefName,headRefOid,author,state,isDraft,files,url
 ```
 
-Note the changed file paths (`.files[].path`) — they drive plugin detection in step 3.
+Note the changed file paths (`.files[].path`) — they drive plugin detection in step 3 and,
+with the title, labels and body, the autoconnect decision in step 4.
 
 Also note the Linear issue the PR is for, if any: a key such as `JETPACK-1234` at the end of
 `headRefName` (branch names often carry it lowercased, as `-jetpack-1234`), or on a `Fixes`,
@@ -96,7 +99,14 @@ without asking and state which plugin you chose.
 ### 4. Provision + connect a fresh JN site
 
 Per `jetpack-test-jurassic-ninja`, with the JN ledger recording what the site is for, so
-teammates can find it by PR in Mission Control and join it:
+teammates can find it by PR in Mission Control and join it.
+
+**First decide whether to autoconnect.** Apply that skill's **Decide whether to
+autoconnect** signals (paths, labels, title and description) to the PR from step 1. If the
+PR changes the Jetpack connection, login or SSO, the tester needs to go through the
+connection flow themselves, so leave out `jetpack-autoconnect` and skip `connect-jetpack`
+below. Otherwise autoconnect. The user's word wins either way: "connect it anyway" or
+"don't connect" overrides the signals.
 
 - `jurassic-ninja / find-sites-by-pr` (`pr_url`: the PR `url` from step 1). If teammates
   already have live sites for this PR, list them in the report (domain, owner, label);
@@ -119,13 +129,13 @@ teammates can find it by PR in Mission Control and join it:
 
   Keep `label` under 200 characters (shorten the title if needed) and drop `linear_issue`
   when step 1 found none. `jetpack-autoconnect` connects Jetpack to your WordPress.com
-  account while the site is configured. The response carries `ledger_url` (the site's
-  Mission Control page) or `ledger_error`.
+  account while the site is configured; leave it out when you decided not to autoconnect.
+  The response carries `ledger_url` (the site's Mission Control page) or `ledger_error`.
 - Poll `jurassic-ninja / list-sites` (`domain`, `include_config:false`) until `status == 2`
   (cap ~3 min).
-- `jurassic-ninja / connect-jetpack` (domain). Autoconnect runs before the site reaches
-  `status == 2`, so this normally returns `already_connected`; if autoconnect failed, it
-  connects the site now. Capture `blog_id` and connection result.
+- Only when autoconnecting: `jurassic-ninja / connect-jetpack` (domain). Autoconnect runs
+  before the site reaches `status == 2`, so this normally returns `already_connected`; if
+  autoconnect failed, it connects the site now. Capture `blog_id` and connection result.
 - `jurassic-ninja / update-ledger` (domain, `branch`: `headRefName`, `plugins`: the plugin
   slug(s) from step 3).
 - If `provision-site` returned `ledger_error`, make a second `update-ledger` call with
@@ -199,6 +209,11 @@ Report concisely:
 - PR number + title.
 - Plugin(s) synced and worktree path.
 - JN domain, `status`, Jetpack connection (`blog_id`), `JETPACK_AUTOLOAD_DEV` set.
+- Whether the site was autoconnected and why: the connection signal that ruled it out
+  ("Not autoconnected: this PR changes the connection, so connect it yourself as part of
+  testing"), or the user's request. When the PR touches the connection, login or SSO, also
+  warn that inviting teammates, or a teammate joining, turns Jetpack SSO on once the site
+  has a Jetpack user connection, which may affect what's under test.
 - The `ledger_url` (Mission Control page), or the ledger warning if a ledger call failed,
   plus any teammates' sites `find-sites-by-pr` found for the same PR.
 - Verification result (which file the class resolved to / PR string present).
