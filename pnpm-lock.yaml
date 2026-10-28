@@ -4402,6 +4402,9 @@ importers:
       '@wordpress/components':
         specifier: 43.0.0
         version: 43.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/compose':
+        specifier: 9.0.0
+        version: 9.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/data':
         specifier: 11.0.0
         version: 11.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

@@ -12,6 +12,7 @@ import {
 	unignoreThreat,
 	useGetThreatBusy,
 } from './threat-actions';
+import { openThreatFile } from './threat-file';
 import type { ScanThreat } from './types';
 import type { Action } from '@wordpress/dataviews';
 
@@ -67,6 +68,12 @@ function getThreatRowActions(
 			label: __( 'View', 'jetpack-protect-pkg' ),
 			isPrimary: true,
 			callback: ( [ item ] ) => item && open( item ),
+		},
+		{
+			id: 'view-file',
+			label: __( 'View file', 'jetpack-protect-pkg' ),
+			isEligible: item => canAct && !! item.filename,
+			callback: ( [ item ] ) => item && openThreatFile( item ),
 		},
 		// `auto-fix` and `auto-fix-delete` are mutually exclusive by isDeleteFix.
 		{

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Protect dashboard: Add a file viewer for Scan threats that shows the whole file with the flagged lines highlighted, what the file belongs to, and lets you delete a stray file or restore a changed WordPress core file, which marks the threat fixed.
