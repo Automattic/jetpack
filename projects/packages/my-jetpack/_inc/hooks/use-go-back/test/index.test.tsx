@@ -87,6 +87,7 @@ const UpgradeScreen = () => {
 				My Jetpack
 			</Link>
 			<Link to="/details">Details</Link>
+			<Link to="/overview">Overview</Link>
 		</>
 	);
 };
@@ -177,16 +178,16 @@ describe( 'useGoBack', () => {
 
 	it( 'goes to the fallback when the tab is ahead in history', async () => {
 		window.history.pushState( null, '', '#/outside' );
-		const { user, backLink } = await openUpgradeScreen( '/add-videopress', [], '' );
-		await user.click( backLink );
+		const { user } = await openUpgradeScreen( '/add-videopress', [], '' );
+		await user.click( screen.getByRole( 'link', { name: 'Overview' } ) );
 		await waitFor( () =>
-			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/features' )
+			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/overview' )
 		);
 
 		window.history.back();
-		const backLinkAgain = await screen.findByRole( 'link', { name: 'My Jetpack' } );
+		const backLink = await screen.findByRole( 'link', { name: 'My Jetpack' } );
 		const historyLength = window.history.length;
-		await user.click( backLinkAgain );
+		await user.click( backLink );
 
 		await waitFor( () =>
 			expect( screen.getByTestId( 'location' ) ).toHaveTextContent( '/features' )
