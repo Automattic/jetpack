@@ -47,6 +47,7 @@ import {
 	useBarStops,
 	useOverlapSlots,
 	getSelectedSlot,
+	isSameCategory,
 	membersAt,
 } from './private';
 import { useBarColors } from './use-bar-colors';
@@ -443,12 +444,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			// Find the comparison value paired with the hovered primary series (same group)
 			// at the same category, so the tooltip can show both periods at once.
 			const comparisonEntry = comparisonEntries.find( entry => entry.primaryKey === primaryKey );
-			const comparisonDatum = comparisonEntry?.series.data.find( point => {
-				const p = point as DataPointDate;
-				return nearestDatum.label != null
-					? p.label === nearestDatum.label
-					: !! nearestDatum.date && !! p.date && p.date.getTime() === nearestDatum.date.getTime();
-			} ) as DataPointDate | undefined;
+			const comparisonDatum = comparisonEntry?.series.data.find( point =>
+				isSameCategory( point as DataPointDate, nearestDatum )
+			) as DataPointDate | undefined;
 
 			// With a paired comparison value, show the category as the header and one row
 			// per period (primary + comparison).

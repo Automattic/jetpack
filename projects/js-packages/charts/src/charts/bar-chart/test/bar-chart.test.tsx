@@ -2026,6 +2026,39 @@ describe( 'BarChart', () => {
 				expect( tooltip ).toHaveTextContent( 'Previous period: 15' );
 			} );
 
+			test( 'pairs the comparison value by date when the bars have empty labels', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					withTooltips: true,
+					data: [
+						{
+							label: 'This period',
+							group: 'views',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: '' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: '' },
+							],
+						},
+						{
+							label: 'Previous period',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 15, label: '' },
+								{ date: new Date( '2024-01-02' ), value: 25, label: '' },
+							],
+						},
+					],
+				} );
+
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}' );
+
+				const tooltip = screen.getByTestId( 'chart-tooltip-1' );
+				expect( tooltip ).toHaveTextContent( 'This period: 20' );
+				expect( tooltip ).toHaveTextContent( 'Previous period: 25' );
+			} );
+
 			test( 'keyboard navigation past the first slot stays on the primary bar, not the comparison series', async () => {
 				const user = userEvent.setup();
 				renderWithTheme( {
