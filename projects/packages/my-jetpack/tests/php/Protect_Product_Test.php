@@ -236,4 +236,47 @@ class Protect_Product_Test extends TestCase {
 			'plan without Scan' => array( array(), false ),
 		);
 	}
+
+	/**
+	 * A host's upgrade URL replaces the card's only for a site without Scan, and only as a web address.
+	 *
+	 * @dataProvider provide_host_purchase_urls
+	 *
+	 * @param string[]    $plan_features The plan's active features.
+	 * @param string      $url           The URL the host sends.
+	 * @param string|null $expected      The card's purchase URL, or null for the interstitial.
+	 */
+	#[DataProvider( 'provide_host_purchase_urls' )]
+	public function test_host_purchase_url( $plan_features, $url, $expected ) {
+		Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => $plan_features ),
+				),
+			)
+		);
+		$send_to_host = static function ( $upgrade, $slug ) use ( $url ) {
+			return 'protect-dashboard' === $slug ? array_merge( $upgrade, array( 'url' => $url ) ) : $upgrade;
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
+
+		$purchase_url = Protect::get_purchase_url();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
+
+		$this->assertSame( $expected, $purchase_url );
+	}
+
+	/**
+	 * Data provider for test_host_purchase_url.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_host_purchase_urls() {
+		return array(
+			'no Scan'         => array( array(), 'https://example.com/plans', 'https://example.com/plans' ),
+			'has Scan'        => array( array( 'scan' ), 'https://example.com/plans', null ),
+			'javascript: URL' => array( array(), 'javascript:alert(1)', null ),
+		);
+	}
 }
