@@ -16,8 +16,11 @@ import { Palette } from './palette';
 import { ProductIcon } from './product-icon';
 import { StepFields } from './step-fields';
 import type { Catalog, Flow, Step } from '../types';
+import type { ReactNode } from 'react';
 
 type Props = {
+	/** True while the AI is building the flow. */
+	busy?: boolean;
 	flow: Flow;
 	catalog: Catalog;
 	onChange: ( flow: Flow ) => void;
@@ -51,6 +54,23 @@ function Wire( { onAdd }: { onAdd?: () => void } ) {
 	);
 }
 
+/** Gives the card a soft, one-sided glow that circles it while the AI works. */
+function Glow( {
+	active,
+	className,
+	children,
+}: {
+	active?: boolean;
+	className?: string;
+	children: ReactNode;
+} ) {
+	return (
+		<div className={ `jetpack-flow-glow${ active ? ' is-active' : '' } ${ className ?? '' }` }>
+			{ children }
+		</div>
+	);
+}
+
 function Or() {
 	return (
 		<div className="jetpack-flow-or jetpack-flow-enter">
@@ -60,7 +80,7 @@ function Or() {
 }
 
 /** One card holding every trigger, joined by "or". */
-function TriggerCard( { flow, catalog, onChange }: Props ) {
+function TriggerCard( { flow, catalog, busy, onChange }: Props ) {
 	const [ picking, setPicking ] = useState( false );
 	const chosen = flow.triggers.map( id => catalog.triggers.find( t => t.id === id ) );
 	const remaining = catalog.triggers.filter( t => ! flow.triggers.includes( t.id ) );
@@ -72,95 +92,97 @@ function TriggerCard( { flow, catalog, onChange }: Props ) {
 	};
 
 	return (
-		<Card.Root className="jetpack-flow-card">
-			<Card.Header>
-				<Card.Title>{ __( 'When…', 'jetpack-flow-pkg' ) }</Card.Title>
-			</Card.Header>
-			<Card.Content>
-				<Stack direction="column" gap="md">
-					{ flow.triggers.map( ( id, index ) => (
-						<Stack direction="column" gap="md" className="jetpack-flow-enter" key={ id }>
-							{ index > 0 && <Or /> }
-							<Stack align="center" justify="space-between" gap="md">
-								<Stack align="center" gap="md">
-									{ chosen[ index ] && (
-										<ProductIcon product={ chosen[ index ].product } size={ 28 } />
-									) }
-									<Text variant="heading-sm">{ chosen[ index ]?.label ?? id }</Text>
+		<Glow active={ busy }>
+			<Card.Root className="jetpack-flow-card">
+				<Card.Header>
+					<Card.Title>{ __( 'When…', 'jetpack-flow-pkg' ) }</Card.Title>
+				</Card.Header>
+				<Card.Content>
+					<Stack direction="column" gap="md">
+						{ flow.triggers.map( ( id, index ) => (
+							<Stack direction="column" gap="md" className="jetpack-flow-enter" key={ id }>
+								{ index > 0 && <Or /> }
+								<Stack align="center" justify="space-between" gap="md">
+									<Stack align="center" gap="md">
+										{ chosen[ index ] && (
+											<ProductIcon product={ chosen[ index ].product } size={ 28 } />
+										) }
+										<Text variant="heading-sm">{ chosen[ index ]?.label ?? id }</Text>
+									</Stack>
+									<Button
+										variant="minimal"
+										onClick={ () =>
+											onChange( { ...flow, triggers: flow.triggers.filter( t => t !== id ) } )
+										}
+									>
+										{ __( 'Remove', 'jetpack-flow-pkg' ) }
+									</Button>
 								</Stack>
+							</Stack>
+						) ) }
+
+						{ flow.triggers.length > 0 && remaining.length > 0 && <Or /> }
+						{ flow.triggers.length > 0 && remaining.length > 0 && ! picking && (
+							<Stack justify="center" className="jetpack-flow-enter">
+								<IconButton
+									variant="outline"
+									label={ __( 'Add another trigger', 'jetpack-flow-pkg' ) }
+									icon={ plus }
+									onClick={ () => setPicking( true ) }
+								/>
+							</Stack>
+						) }
+						{ showPalette && (
+							<Palette kind="trigger" items={ remaining } onPick={ item => pick( item.id ) } />
+						) }
+
+						{ flow.triggers.includes( 'inbound_event' ) && (
+							<Field.Root className="jetpack-flow-enter">
+								<Field.Label>{ __( 'Webhook URL', 'jetpack-flow-pkg' ) }</Field.Label>
+								<Stack align="center" gap="sm">
+									<Input
+										{ ...noAutofill }
+										readOnly
+										value={
+											flow.inbound_url ||
+											__( 'The secret URL appears after you save.', 'jetpack-flow-pkg' )
+										}
+									/>
+									<Button
+										variant="outline"
+										disabled={ ! flow.inbound_url }
+										onClick={ () => navigator.clipboard?.writeText( flow.inbound_url ?? '' ) }
+									>
+										{ __( 'Copy', 'jetpack-flow-pkg' ) }
+									</Button>
+								</Stack>
+								<Field.Description>
+									{ __(
+										'Send a GET or POST request here from any program. Treat the URL like a password.',
+										'jetpack-flow-pkg'
+									) }
+								</Field.Description>
+							</Field.Root>
+						) }
+						{ flow.triggers.some( id => catalog.triggers.find( t => t.id === id )?.inbound ) && (
+							<Stack justify="flex-end">
 								<Button
 									variant="minimal"
-									onClick={ () =>
-										onChange( { ...flow, triggers: flow.triggers.filter( t => t !== id ) } )
-									}
+									onClick={ () => navigator.clipboard?.writeText( catalog.inbound_url ) }
 								>
-									{ __( 'Remove', 'jetpack-flow-pkg' ) }
+									{ __( 'Copy inbound events URL', 'jetpack-flow-pkg' ) }
 								</Button>
 							</Stack>
-						</Stack>
-					) ) }
-
-					{ flow.triggers.length > 0 && remaining.length > 0 && <Or /> }
-					{ flow.triggers.length > 0 && remaining.length > 0 && ! picking && (
-						<Stack justify="center" className="jetpack-flow-enter">
-							<IconButton
-								variant="outline"
-								label={ __( 'Add another trigger', 'jetpack-flow-pkg' ) }
-								icon={ plus }
-								onClick={ () => setPicking( true ) }
-							/>
-						</Stack>
-					) }
-					{ showPalette && (
-						<Palette kind="trigger" items={ remaining } onPick={ item => pick( item.id ) } />
-					) }
-
-					{ flow.triggers.includes( 'inbound_event' ) && (
-						<Field.Root className="jetpack-flow-enter">
-							<Field.Label>{ __( 'Webhook URL', 'jetpack-flow-pkg' ) }</Field.Label>
-							<Stack align="center" gap="sm">
-								<Input
-									{ ...noAutofill }
-									readOnly
-									value={
-										flow.inbound_url ||
-										__( 'The secret URL appears after you save.', 'jetpack-flow-pkg' )
-									}
-								/>
-								<Button
-									variant="outline"
-									disabled={ ! flow.inbound_url }
-									onClick={ () => navigator.clipboard?.writeText( flow.inbound_url ?? '' ) }
-								>
-									{ __( 'Copy', 'jetpack-flow-pkg' ) }
-								</Button>
-							</Stack>
-							<Field.Description>
-								{ __(
-									'Send a GET or POST request here from any program. Treat the URL like a password.',
-									'jetpack-flow-pkg'
-								) }
-							</Field.Description>
-						</Field.Root>
-					) }
-					{ flow.triggers.some( id => catalog.triggers.find( t => t.id === id )?.inbound ) && (
-						<Stack justify="flex-end">
-							<Button
-								variant="minimal"
-								onClick={ () => navigator.clipboard?.writeText( catalog.inbound_url ) }
-							>
-								{ __( 'Copy inbound events URL', 'jetpack-flow-pkg' ) }
-							</Button>
-						</Stack>
-					) }
-				</Stack>
-			</Card.Content>
-		</Card.Root>
+						) }
+					</Stack>
+				</Card.Content>
+			</Card.Root>
+		</Glow>
 	);
 }
 
 /** The flow as a column of cards: one trigger card, then one card per action. */
-export function FlowCanvas( { flow, catalog, onChange }: Props ) {
+export function FlowCanvas( { flow, catalog, busy, onChange }: Props ) {
 	const [ pendingAt, setPendingAt ] = useState< number | null >( null );
 	const [ openId, setOpenId ] = useState< string | null >( null );
 
@@ -190,25 +212,27 @@ export function FlowCanvas( { flow, catalog, onChange }: Props ) {
 		pickingAt === index ? (
 			<>
 				<Wire />
-				<Card.Root className="jetpack-flow-card jetpack-flow-enter">
-					<Card.Header>
-						<Stack align="center" justify="space-between" gap="md">
-							<Card.Title>{ __( 'Then…', 'jetpack-flow-pkg' ) }</Card.Title>
-							{ flow.steps.length > 0 && (
-								<Button variant="minimal" onClick={ () => setPendingAt( null ) }>
-									{ __( 'Cancel', 'jetpack-flow-pkg' ) }
-								</Button>
-							) }
-						</Stack>
-					</Card.Header>
-					<Card.Content>
-						<Palette
-							kind="action"
-							items={ catalog.actions }
-							onPick={ item => insert( index, item.id ) }
-						/>
-					</Card.Content>
-				</Card.Root>
+				<Glow className="jetpack-flow-enter">
+					<Card.Root className="jetpack-flow-card">
+						<Card.Header>
+							<Stack align="center" justify="space-between" gap="md">
+								<Card.Title>{ __( 'Then…', 'jetpack-flow-pkg' ) }</Card.Title>
+								{ flow.steps.length > 0 && (
+									<Button variant="minimal" onClick={ () => setPendingAt( null ) }>
+										{ __( 'Cancel', 'jetpack-flow-pkg' ) }
+									</Button>
+								) }
+							</Stack>
+						</Card.Header>
+						<Card.Content>
+							<Palette
+								kind="action"
+								items={ catalog.actions }
+								onPick={ item => insert( index, item.id ) }
+							/>
+						</Card.Content>
+					</Card.Root>
+				</Glow>
 			</>
 		) : (
 			<Wire onAdd={ () => setPendingAt( index ) } />
@@ -216,7 +240,7 @@ export function FlowCanvas( { flow, catalog, onChange }: Props ) {
 
 	return (
 		<div className="jetpack-flow-canvas">
-			<TriggerCard flow={ flow } catalog={ catalog } onChange={ onChange } />
+			<TriggerCard flow={ flow } catalog={ catalog } busy={ busy } onChange={ onChange } />
 			{ flow.triggers.length > 0 && (
 				<div className="jetpack-flow-canvas__then">
 					{ flow.steps.map( ( step, index ) => {
@@ -224,59 +248,62 @@ export function FlowCanvas( { flow, catalog, onChange }: Props ) {
 						return (
 							<div className="jetpack-flow-canvas__item jetpack-flow-enter" key={ step.id }>
 								{ slot( index ) }
-								<CollapsibleCard.Root
-									className="jetpack-flow-card"
-									open={ openId === step.id }
-									onOpenChange={ open => setOpenId( open ? step.id : null ) }
-								>
-									<CollapsibleCard.Header>
-										<Stack align="center" gap="md">
-											{ action && <ProductIcon product={ action.product } size={ 28 } /> }
-											<Card.Title>{ action?.label ?? step.type }</Card.Title>
-										</Stack>
-									</CollapsibleCard.Header>
-									<CollapsibleCard.Content>
-										<Stack direction="column" gap="md">
-											{ action && (
-												<StepFields
-													item={ action }
-													config={ step.config }
-													catalog={ catalog }
-													tokens={ [
-														...sharedTokens,
-														...flow.steps
-															.slice( 0, index )
-															.flatMap(
-																previous =>
-																	catalog.actions.find( a => a.id === previous.type )?.outputs ?? []
-															),
-													] }
-													onChange={ config =>
-														onChange( {
-															...flow,
-															steps: flow.steps.map( s =>
-																s.id === step.id ? { ...s, config } : s
-															),
-														} )
-													}
-												/>
-											) }
-											<Stack justify="flex-end">
-												<Button
-													variant="minimal"
-													onClick={ () =>
-														onChange( {
-															...flow,
-															steps: flow.steps.filter( s => s.id !== step.id ),
-														} )
-													}
-												>
-													{ __( 'Remove action', 'jetpack-flow-pkg' ) }
-												</Button>
+								<Glow active={ busy }>
+									<CollapsibleCard.Root
+										className="jetpack-flow-card"
+										open={ openId === step.id }
+										onOpenChange={ open => setOpenId( open ? step.id : null ) }
+									>
+										<CollapsibleCard.Header>
+											<Stack align="center" gap="md">
+												{ action && <ProductIcon product={ action.product } size={ 28 } /> }
+												<Card.Title>{ action?.label ?? step.type }</Card.Title>
 											</Stack>
-										</Stack>
-									</CollapsibleCard.Content>
-								</CollapsibleCard.Root>
+										</CollapsibleCard.Header>
+										<CollapsibleCard.Content>
+											<Stack direction="column" gap="md">
+												{ action && (
+													<StepFields
+														item={ action }
+														config={ step.config }
+														catalog={ catalog }
+														tokens={ [
+															...sharedTokens,
+															...flow.steps
+																.slice( 0, index )
+																.flatMap(
+																	previous =>
+																		catalog.actions.find( a => a.id === previous.type )?.outputs ??
+																		[]
+																),
+														] }
+														onChange={ config =>
+															onChange( {
+																...flow,
+																steps: flow.steps.map( s =>
+																	s.id === step.id ? { ...s, config } : s
+																),
+															} )
+														}
+													/>
+												) }
+												<Stack justify="flex-end">
+													<Button
+														variant="minimal"
+														onClick={ () =>
+															onChange( {
+																...flow,
+																steps: flow.steps.filter( s => s.id !== step.id ),
+															} )
+														}
+													>
+														{ __( 'Remove action', 'jetpack-flow-pkg' ) }
+													</Button>
+												</Stack>
+											</Stack>
+										</CollapsibleCard.Content>
+									</CollapsibleCard.Root>
+								</Glow>
 							</div>
 						);
 					} ) }

@@ -29,11 +29,16 @@ const speechApi = (): ( new () => Recognition ) | undefined => {
 
 // The ui Icon reads the props of this element, so it must be a plain svg, not a component.
 const micIcon = (
-	<svg viewBox="0 0 24 24">
-		<path
-			fill="currentColor"
-			d="M12 2a5 5 0 0 0-5 5v5a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5zm0 2a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V7a3 3 0 0 1 3-3zm-7 8a1 1 0 0 1 1 1 6 6 0 0 0 12 0 1 1 0 1 1 2 0 8 8 0 0 1-7 7.93V22h3v2H8v-2h3v-1.07A8 8 0 0 1 4 13a1 1 0 0 1 1-1z"
-		/>
+	<svg
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth="1.5"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+	>
+		<rect x="9" y="3.75" width="6" height="10.5" rx="3" />
+		<path d="M6 11.5a6 6 0 0 0 12 0M12 17.5v2.75M9 20.25h6" />
 	</svg>
 );
 
@@ -91,7 +96,7 @@ export function PromptBox( { value, busy, onChange, onSubmit }: Props ) {
 
 	return (
 		<div className="jetpack-flow-prompt">
-			<div className={ `jetpack-flow-prompt__border${ busy ? ' is-busy' : '' }` }>
+			<div className="jetpack-flow-prompt__border">
 				<div className="jetpack-flow-prompt__box">
 					<textarea
 						{ ...noAutofill }

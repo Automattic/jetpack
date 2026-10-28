@@ -146,8 +146,42 @@ body.jetpack-flow {
 	}
 }
 
-.jetpack-flow-card {
+// Mostly transparent, so only one side of the card glows at a time.
+@property --jetpack-flow-angle {
+	syntax: "<angle>";
+	initial-value: 0deg;
+	inherits: false;
+}
+
+$jetpack-flow-glow: conic-gradient(from var(--jetpack-flow-angle), transparent 0, transparent 55%, #7be07d 72%, #3858e9 88%, transparent 100%);
+
+.jetpack-flow-glow {
+	position: relative;
+	isolation: isolate;
 	inline-size: min(100%, 520px);
+
+	// A soft crescent of green and blue circles the card while the AI works.
+	&::before {
+		content: "";
+		position: absolute;
+		inset: -2px;
+		z-index: -1;
+		border-radius: var(--wpds-border-radius-xl);
+		background: $jetpack-flow-glow;
+		filter: blur(var(--wpds-dimension-gap-md));
+		opacity: 0;
+		transition: opacity var(--wpds-motion-duration-lg) var(--wpds-motion-easing-balanced);
+		animation: jetpack-flow-spin calc(var(--wpds-motion-duration-xl) * 6) linear infinite;
+		pointer-events: none;
+	}
+
+	&.is-active::before {
+		opacity: 1;
+	}
+}
+
+.jetpack-flow-card {
+	inline-size: 100%;
 }
 
 .jetpack-flow-wire {
@@ -288,54 +322,10 @@ body.jetpack-flow {
 	}
 }
 
-// While building, a green-to-blue gradient rotates around the field.
-@property --jetpack-flow-angle {
-	syntax: "<angle>";
-	initial-value: 0deg;
-	inherits: false;
-}
-
-$jetpack-flow-rainbow: conic-gradient(from var(--jetpack-flow-angle), #069e08, #3858e9, #7be07d, #9fb0ff, #069e08);
-
 .jetpack-flow-prompt__border {
-	position: relative;
 	inline-size: 66.667%;
 	min-inline-size: min(100%, 320px);
 	margin-inline: auto;
-	isolation: isolate;
-	padding: 3px;
-	border-radius: calc(var(--wpds-border-radius-xl) + 3px);
-
-	// The ring and a soft glow of the same colours fade in while building.
-	&::before,
-	&::after {
-		content: "";
-		position: absolute;
-		z-index: -1;
-		border-radius: inherit;
-		background: $jetpack-flow-rainbow;
-		opacity: 0;
-		transition: opacity var(--wpds-motion-duration-lg) var(--wpds-motion-easing-balanced);
-		animation: jetpack-flow-spin calc(var(--wpds-motion-duration-xl) * 3) linear infinite;
-		pointer-events: none;
-	}
-
-	&::before {
-		inset: 0;
-	}
-
-	&::after {
-		inset: calc(-1 * var(--wpds-dimension-gap-md));
-		filter: blur(var(--wpds-dimension-gap-xl));
-	}
-
-	&.is-busy::before {
-		opacity: 1;
-	}
-
-	&.is-busy::after {
-		opacity: 0.45;
-	}
 }
 
 @keyframes jetpack-flow-spin {
@@ -352,8 +342,7 @@ $jetpack-flow-rainbow: conic-gradient(from var(--jetpack-flow-angle), #069e08, #
 		animation: none;
 	}
 
-	.jetpack-flow-prompt__border::before,
-	.jetpack-flow-prompt__border::after {
+	.jetpack-flow-glow::before {
 		animation: none;
 	}
 }

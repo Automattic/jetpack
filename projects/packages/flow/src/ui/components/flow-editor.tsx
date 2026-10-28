@@ -169,7 +169,7 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 							onInstalled={ () => fetchCatalog().then( setCatalog ) }
 						/>
 
-						<FlowCanvas flow={ flow } catalog={ catalog } onChange={ setFlow } />
+						<FlowCanvas flow={ flow } catalog={ catalog } busy={ planning } onChange={ setFlow } />
 
 						{ flow.steps.length > 0 && (
 							<Card.Root className="jetpack-flow-settings">
