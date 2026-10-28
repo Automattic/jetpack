@@ -1,5 +1,4 @@
 Significance: patch
-Type: fixed
-Comment: Fix the VideoPress switch in the unreleased offline Features screen.
+Type: changed
 
-
+Features: Keep a plugin's switch busy until its card has refreshed after turning the plugin on or off, and show the success message once the card is up to date.

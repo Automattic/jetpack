@@ -179,26 +179,25 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 			createSuccessNotice( message );
 		},
 		onError: async ( error: { message?: string }, { action } ) => {
-			// Read the site again: the plugin may well have been switched before whatever failed.
+			// A failed install is shown on the feature itself instead (see useInstallError).
+			if ( action !== 'install' ) {
+				// The route hands back what actually failed; a generic "try again" just invites the same click.
+				createErrorNotice(
+					error?.message ||
+						sprintf(
+							/* translators: %s is a plugin or feature name. */
+							__( 'Could not change %s. Please try again.', 'jetpack-my-jetpack' ),
+							name
+						)
+				);
+			}
+
+			// Read the site again: the plugin may have switched before whatever failed. This runs after
+			// the notice so a slow site does not delay it, and keeps the switch busy until it lands.
 			await queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 			if ( queryClient.getQueryData< MainFeaturesState >( QUERY_KEY )?.jetpack === 'active' ) {
 				await fetchModules();
 			}
-
-			// Shown on the feature itself instead (see useInstallError).
-			if ( action === 'install' ) {
-				return;
-			}
-
-			// The route hands back what actually failed; a generic "try again" just invites the same click.
-			createErrorNotice(
-				error?.message ||
-					sprintf(
-						/* translators: %s is a plugin or feature name. */
-						__( 'Could not change %s. Please try again.', 'jetpack-my-jetpack' ),
-						name
-					)
-			);
 		},
 	} );
 

@@ -374,6 +374,34 @@ describe( 'useFeaturePlugin', () => {
 		await waitFor( () => expect( result.current.status( 'anti-spam' ) ).toBe( 'active' ) );
 	} );
 
+	it( 'shows a failed switch’s notice before the refresh, and stays busy until the refresh lands', async () => {
+		let settleRead: () => void = () => undefined;
+		let settleModules: () => void = () => undefined;
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			method === 'POST'
+				? Promise.reject( new Error( 'nope' ) )
+				: new Promise( resolve => ( settleRead = () => resolve( pageState ) ) )
+		);
+		mockFetchModules.mockImplementationOnce(
+			() => new Promise( resolve => ( settleModules = () => resolve( true ) ) )
+		);
+
+		const { result } = renderTab();
+
+		act( () => void result.current.akismet.run( 'deactivate' ) );
+
+		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'nope' ) );
+		expect( mockFetchModules ).not.toHaveBeenCalled();
+		expect( result.current.akismet.isBusy ).toBe( true );
+
+		await act( async () => settleRead() );
+		await waitFor( () => expect( mockFetchModules ).toHaveBeenCalledTimes( 1 ) );
+		expect( result.current.akismet.isBusy ).toBe( true );
+
+		await act( async () => settleModules() );
+		await waitFor( () => expect( result.current.akismet.isBusy ).toBe( false ) );
+	} );
+
 	it( 'leaves a feature that is still being switched alone when another answers', async () => {
 		let settleAkismet: ( state: MainFeaturesState ) => void = () => undefined;
 

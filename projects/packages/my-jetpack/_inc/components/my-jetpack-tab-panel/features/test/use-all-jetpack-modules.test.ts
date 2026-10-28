@@ -185,7 +185,7 @@ describe( 'useAllJetpackModules', () => {
 
 	it.each( [
 		[ 'offline keeps the plugin switch until fresh modules arrive', true ],
-		[ 'online records trunk’s host label while modules refresh', false ],
+		[ 'online shows the host label until modules refresh', false ],
 	] as const )( '%s', ( _scenario, offline ) => {
 		window.myJetpackInitialState = {
 			isOfflineFeatures: offline,
@@ -312,129 +312,151 @@ describe( 'the shared module request gate', () => {
 } );
 
 describe( 'plugin switch refresh ordering', () => {
-	it.each( [
-		[ 'single', false, 'active' ],
-		[ 'bulk', false, 'active' ],
-		[ 'single', true, 'active' ],
-		[ 'single', true, 'inactive' ],
-		[ 'single', false, 'inactive' ],
-	] as const )(
-		'%s reads features before refreshing module overrides (success: %s, Jetpack: %s)',
-		async ( mode, success, jetpack ) => {
-			window.myJetpackInitialState = {
-				isOfflineFeatures: true,
-			} as typeof window.myJetpackInitialState;
-			const feature = {
-				slug: 'videopress',
-				product: 'videopress',
-				plugin: 'jetpack-videopress',
-				plugin_status: 'active',
-				in_jetpack: true,
-			} as MainFeature;
-			const active: MainFeaturesState = { jetpack, features: [ feature ] };
-			const inactive: MainFeaturesState = {
-				...active,
-				features: [ { ...feature, plugin_status: 'inactive' } ],
+	const startSwitch = async (
+		mode: 'single' | 'bulk',
+		success: boolean,
+		jetpack: MainFeaturesState[ 'jetpack' ]
+	) => {
+		window.myJetpackInitialState = {
+			isOfflineFeatures: true,
+		} as typeof window.myJetpackInitialState;
+		const feature = {
+			slug: 'videopress',
+			product: 'videopress',
+			plugin: 'jetpack-videopress',
+			plugin_status: 'active',
+			in_jetpack: true,
+		} as MainFeature;
+		const active: MainFeaturesState = { jetpack, features: [ feature ] };
+		const inactive: MainFeaturesState = {
+			...active,
+			features: [ { ...feature, plugin_status: 'inactive' } ],
+		};
+		const client = new QueryClient( {
+			defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+		} );
+		client.setQueryData( QUERY_KEY, active );
+		jest
+			.mocked( useMainFeatures )
+			.mockImplementation( jest.requireActual( '../use-main-features' ).useMainFeatures );
+		mockModules.current = { videopress: { ...mod( 'videopress', 'active' ), available: false } };
+		let settleFeatures: ( state: MainFeaturesState ) => void = () => {};
+		jest
+			.mocked( apiFetch )
+			.mockClear()
+			.mockImplementation( ( { method } ) =>
+				method === 'POST' && ! success
+					? Promise.reject( new Error( 'Switch failed after deactivation' ) )
+					: new Promise( resolve => {
+							settleFeatures = resolve;
+						} )
+			);
+		const readWith: MainFeaturePluginStatus[] = [];
+		const deliverHostOverride = () => {
+			readWith.push(
+				client.getQueryData< MainFeaturesState >( QUERY_KEY )!.features[ 0 ].plugin_status
+			);
+			mockModules.current = {
+				videopress: { ...mod( 'videopress', 'active' ), available: false },
 			};
-			const client = new QueryClient( {
-				defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+		};
+		mockInvalidateResolution.mockReset().mockImplementation( deliverHostOverride );
+		let settleModules: () => void = () => {};
+		mockFetchModules.mockReset().mockImplementation( () => {
+			deliverHostOverride();
+			if ( jetpack !== 'active' ) {
+				return Promise.resolve( true );
+			}
+			return new Promise( resolve => {
+				settleModules = () => resolve( true );
 			} );
-			client.setQueryData( QUERY_KEY, active );
-			jest
-				.mocked( useMainFeatures )
-				.mockImplementation( jest.requireActual( '../use-main-features' ).useMainFeatures );
-			mockModules.current = { videopress: { ...mod( 'videopress', 'active' ), available: false } };
-			let settleFeatures: ( state: MainFeaturesState ) => void = () => {};
-			jest
-				.mocked( apiFetch )
-				.mockClear()
-				.mockImplementation( ( { method } ) =>
-					method === 'POST' && ! success
-						? Promise.reject( new Error( 'Switch failed after deactivation' ) )
-						: new Promise( resolve => {
-								settleFeatures = resolve;
-							} )
-				);
-			const readWith: MainFeaturePluginStatus[] = [];
-			const deliverHostOverride = () => {
-				readWith.push(
-					client.getQueryData< MainFeaturesState >( QUERY_KEY )!.features[ 0 ].plugin_status
-				);
-				mockModules.current = {
-					videopress: { ...mod( 'videopress', 'active' ), available: false },
-				};
-			};
-			mockInvalidateResolution.mockReset().mockImplementation( deliverHostOverride );
-			let settleModules: () => void = () => {};
-			mockFetchModules.mockReset().mockImplementation( () => {
-				deliverHostOverride();
-				if ( jetpack !== 'active' ) {
-					return Promise.resolve( true );
-				}
-				return new Promise( resolve => {
-					settleModules = () => resolve( true );
+		} );
+		const view = renderHook(
+			() => ( {
+				states: useFeatureStates( useMainFeatures() ).states,
+				plugin: useFeaturePlugin( 'jetpack-videopress', 'VideoPress' ),
+				bulk: useBulkFeatureSwitch(),
+			} ),
+			{
+				wrapper: ( { children }: { children: ReactNode } ) =>
+					createElement( QueryClientProvider, { client }, children ),
+			}
+		);
+		let request: Promise< unknown > = Promise.resolve();
+		act( () => {
+			request =
+				mode === 'single'
+					? view.result.current.plugin.run( 'deactivate' )
+					: view.result.current.bulk.run( view.result.current.states, false );
+		} );
+		const postRequest = expect.objectContaining( { method: 'POST' } );
+		await waitFor( () =>
+			expect( apiFetch ).toHaveBeenCalledWith(
+				success ? postRequest : { path: '/wpcom/v2/my-jetpack/site/features' }
+			)
+		);
+		view.rerender();
+		await act( async () => {
+			settleFeatures( inactive );
+		} );
+
+		return {
+			...view,
+			client,
+			inactive,
+			readWith,
+			finish: async () => {
+				await act( async () => {
+					settleModules();
+					await request;
 				} );
-			} );
-			const { result, rerender, unmount } = renderHook(
-				() => ( {
-					states: useFeatureStates( useMainFeatures() ).states,
-					plugin: useFeaturePlugin( 'jetpack-videopress', 'VideoPress' ),
-					bulk: useBulkFeatureSwitch(),
-				} ),
-				{
-					wrapper: ( { children }: { children: ReactNode } ) =>
-						createElement( QueryClientProvider, { client }, children ),
-				}
+				view.rerender();
+			},
+		};
+	};
+
+	it.each( [
+		[ 'single', false ],
+		[ 'bulk', false ],
+		[ 'single', true ],
+	] as const )(
+		'%s reads features before refreshing module overrides (success: %s)',
+		async ( mode, success ) => {
+			const { result, rerender, readWith, finish, unmount, client } = await startSwitch(
+				mode,
+				success,
+				'active'
 			);
-			let request: Promise< unknown >;
-			act( () => {
-				request =
-					mode === 'single'
-						? result.current.plugin.run( 'deactivate' )
-						: result.current.bulk.run( result.current.states, false );
-			} );
-			const postRequest = expect.objectContaining( { method: 'POST' } );
-			await waitFor( () =>
-				expect( apiFetch ).toHaveBeenCalledWith(
-					success ? postRequest : { path: '/wpcom/v2/my-jetpack/site/features' }
-				)
-			);
+
+			await waitFor( () => expect( readWith ).toEqual( [ 'inactive' ] ) );
 			rerender();
-			await act( async () => {
-				settleFeatures( inactive );
-			} );
-			const expectedReads = jetpack === 'active' ? [ 'inactive' ] : [];
-			await waitFor( () => expect( readWith ).toEqual( expectedReads ) );
-			rerender();
-			const expectedPendingPlugin =
-				jetpack === 'active' && mode === 'single' ? { isBusy: true } : {};
-			expect( result.current.plugin ).toMatchObject( expectedPendingPlugin );
-			await act( async () => {
-				settleModules();
-				await request;
-			} );
-			rerender();
+			expect( result.current.plugin ).toMatchObject( mode === 'single' ? { isBusy: true } : {} );
+			await finish();
 			expect( result.current.plugin.isBusy ).toBe( false );
-			const outcome =
-				jetpack === 'active'
-					? {
-							control: result.current.states[ 0 ].control.kind,
-							reason: getForcedReason( result.current.states[ 0 ] ),
-							readWith,
-						}
-					: {
-							moduleRequests: mockFetchModules.mock.calls.length,
-							features: client.getQueryData( QUERY_KEY ),
-						};
-			expect( outcome ).toEqual(
-				jetpack === 'active'
-					? {
-							control: 'module',
-							reason: 'Enabled by your host or site administrator',
-							readWith: expectedReads,
-						}
-					: { moduleRequests: 0, features: inactive }
+			expect( result.current.states[ 0 ].control.kind ).toBe( 'module' );
+			expect( getForcedReason( result.current.states[ 0 ] ) ).toBe(
+				'Enabled by your host or site administrator'
 			);
+			expect( readWith ).toEqual( [ 'inactive' ] );
+			unmount();
+			client.clear();
+		}
+	);
+
+	it.each( [ true, false ] )(
+		'skips the module refresh while Jetpack is inactive (success: %s)',
+		async success => {
+			const { result, readWith, finish, unmount, client, inactive } = await startSwitch(
+				'single',
+				success,
+				'inactive'
+			);
+
+			await finish();
+			expect( result.current.plugin.isBusy ).toBe( false );
+			expect( mockFetchModules ).not.toHaveBeenCalled();
+			expect( readWith ).toEqual( [] );
+			expect( client.getQueryData( QUERY_KEY ) ).toEqual( inactive );
 			unmount();
 			client.clear();
 		}
