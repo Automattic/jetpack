@@ -1,11 +1,16 @@
-/* An icon-only button, drawn quiet beside the row's name and sized like the
-   "View in new tab" action next to it. */
+/* An icon-only button, drawn quiet beside the row's name, sized and coloured
+   like the "View in new tab" link next to it so the pair reads as one. */
 .button {
+	display: inline-flex;
 	flex: none;
+	align-items: center;
+	justify-content: center;
 	min-inline-size: var(--wpds-dimension-size-sm);
 	min-block-size: var(--wpds-dimension-size-sm);
 	padding: 0;
+	border-radius: var(--wpds-border-radius-sm);
 	color: var(--wpds-color-foreground-content-neutral-weak);
+	cursor: pointer;
 }
 
 .button:hover,

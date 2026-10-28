@@ -41,7 +41,7 @@ export function MarkAsSpamButton( {
 				<Tooltip.Trigger
 					render={
 						<Button
-							variant="minimal"
+							variant="unstyled"
 							size="compact"
 							className={ clsx( styles.button, className ) }
 							onClick={ open }
