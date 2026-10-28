@@ -2,6 +2,7 @@ import { DataContext, TooltipContext } from '@visx/xychart';
 import { useCallback, useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { TooltipBox } from '../tooltip-box';
+import { atNearestDate } from './at-nearest-date';
 import { BoundedTooltip, TOOLTIP_Z_INDEX } from './bounded-tooltip';
 import type {
 	CrosshairStyle,
@@ -327,7 +328,10 @@ export const XyChartTooltipOverlay = < Datum extends object >(
 			{ tooltipContext?.tooltipOpen && (
 				<XyChartTooltipContent
 					{ ...props }
-					tooltipContext={ tooltipContext }
+					tooltipContext={ {
+						...tooltipContext,
+						tooltipData: atNearestDate( tooltipContext.tooltipData ),
+					} }
 					container={ container }
 				/>
 			) }

@@ -1,7 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BarSeries, XYChart } from '@visx/xychart';
-import { useCallback, useRef, useState } from 'react';
+import { BarSeries, LineSeries, TooltipContext, XYChart } from '@visx/xychart';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { LineChartUnresponsive } from '../../../charts/line-chart/line-chart';
 import { GlobalChartsProvider } from '../../../providers';
 import { ChartScopeContext } from '../../../providers/chart-scope';
@@ -189,7 +189,66 @@ describe( 'XYChartTooltip', () => {
 
 		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^First,Second$/ );
 	} );
+
+	it( 'leaves out a series the pointer finds only at another date', async () => {
+		render( <PointerHarness /> );
+
+		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^Views$/ );
+		expect( screen.getByTestId( 'xy-chart-tooltip-glyph-Views' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByTestId( 'xy-chart-tooltip-glyph-Previous period' )
+		).not.toBeInTheDocument();
+	} );
 } );
+
+const april = { date: new Date( '2025-04-01' ), value: 10 };
+const may = { date: new Date( '2025-05-01' ), value: 400 };
+const dateAccessor = ( d: DataPointDate ) => d.date;
+const timeScale = { type: 'time' } as const;
+
+// Reports what visx's pointer handler does over April when Previous period has no April point.
+const HoverApril = () => {
+	const tooltipContext = useContext( TooltipContext );
+	useEffect( () => {
+		tooltipContext?.showTooltip( {
+			key: 'Views',
+			datum: april,
+			index: 0,
+			distanceX: 0,
+			distanceY: 0,
+		} );
+		tooltipContext?.showTooltip( {
+			key: 'Previous period',
+			datum: may,
+			index: 0,
+			distanceX: 90,
+			distanceY: 0,
+		} );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+	return null;
+};
+
+const PointerHarness = () => (
+	<GlobalChartsProvider>
+		<XYChart width={ 300 } height={ 200 } xScale={ timeScale } yScale={ yScale }>
+			<LineSeries
+				dataKey="Views"
+				data={ [ april ] }
+				xAccessor={ dateAccessor }
+				yAccessor={ yAccessor }
+			/>
+			<LineSeries
+				dataKey="Previous period"
+				data={ [ may ] }
+				xAccessor={ dateAccessor }
+				yAccessor={ yAccessor }
+			/>
+			<HoverApril />
+			<XYChartTooltip renderTooltip={ renderKeys } showSeriesGlyphs />
+		</XYChart>
+	</GlobalChartsProvider>
+);
 
 // Mirrors the charts' markup: the focusable chart container wraps the element `chartRef` points at.
 const NavigationHarness = ( {
