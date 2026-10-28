@@ -64,6 +64,7 @@ const StageInner = () => {
 			activeTab="stats"
 			actions={
 				<PeriodSelector< DateRange >
+					label={ __( 'Date range', 'jetpack-videopress-pkg' ) }
 					presets={ dateRangePresets }
 					value={ dateRange }
 					onChange={ setDateRange }
