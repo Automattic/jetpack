@@ -1264,6 +1264,12 @@ final class Image_CDN {
 			$stripped_path = str_replace( $src_parts[1], '', $path );
 			$upload_dir    = wp_get_upload_dir();
 
+			// Only uploads have an original on disk; an off-site URL shorter than the base URL
+			// would otherwise give an empty path, and file_exists() would find the uploads directory.
+			if ( ! str_starts_with( $stripped_src, $upload_dir['baseurl'] ) ) {
+				return $src;
+			}
+
 			// Extracts the file path to the image minus the base url.
 			$file_path = substr( $stripped_path, strlen( $upload_dir['baseurl'] ) );
 

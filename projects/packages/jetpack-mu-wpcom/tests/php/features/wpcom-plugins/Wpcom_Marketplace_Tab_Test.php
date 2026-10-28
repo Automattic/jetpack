@@ -1064,6 +1064,34 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A site that buys a plan with the product is told so where the monthly price was.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_the_note_names_the_plan_a_purchase_needs() {
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
+
+		$html = $this->price_html( $this->priced_card() );
+		$this->assertStringContainsString( '<span class="wpcom-marketplace-card__note">Needs a paid plan</span>', $html );
+		$this->assertStringNotContainsString( 'if billed monthly', $html );
+
+		$personal = static function () {
+			return 'Plus a <Personal> plan';
+		};
+		add_filter( 'wpcom_marketplace_plan_note', $personal );
+		$this->assertStringContainsString( 'Plus a &lt;Personal&gt; plan', $this->price_html( $this->priced_card() ) );
+		remove_filter( 'wpcom_marketplace_plan_note', $personal );
+
+		$referral                                     = $this->priced_card();
+		$referral['wpcom_pricing']['yearly']['type']  = 'saas_plugin';
+		$referral['wpcom_pricing']['monthly']['type'] = 'saas_plugin';
+		$this->assertStringNotContainsString( 'Needs a paid plan', $this->price_html( $referral ), 'Bought from the vendor.' );
+	}
+
+	/**
 	 * A product with no monthly variation has nothing to compare against, so it
 	 * shows the year alone.
 	 */
