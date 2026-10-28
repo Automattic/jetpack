@@ -594,9 +594,9 @@ function Dashboard(): JSX.Element {
 											</DashboardSectionProvider>
 										</SectionTabPanel>
 									) }
-								</DashboardSections>
 
-								<JetpackFooter />
+									<JetpackFooter />
+								</DashboardSections>
 
 								<WidgetDashboard.Commands />
 

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { JetpackFooter } from '@jetpack-premium-analytics/externals';
 import { SectionHeader } from '@jetpack-premium-analytics/ui';
 import { useReducedMotion } from '@wordpress/compose';
 import clsx from 'clsx';
@@ -44,7 +45,7 @@ export interface DetailPageLayoutProps {
 
 /**
  * Detail page scaffold: the scroll area holding the tabs, the resource header
- * pinned at its top, and the sections that scroll under it.
+ * pinned at its top, and the sections and footer that scroll under it.
  *
  * @param {DetailPageLayoutProps} props - The component props.
  * @return The detail page scaffold.
@@ -80,6 +81,7 @@ export function DetailPageLayout( {
 				</SectionHeader>
 			) }
 			{ children }
+			<JetpackFooter className={ styles.footer } />
 		</div>
 	);
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Scroll the Jetpack footer with the page, instead of keeping it pinned to the bottom of the screen.

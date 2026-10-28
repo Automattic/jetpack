@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Scroll the Jetpack footer with the page on the dashboard, report and detail pages, instead of keeping it pinned to the bottom of the screen.

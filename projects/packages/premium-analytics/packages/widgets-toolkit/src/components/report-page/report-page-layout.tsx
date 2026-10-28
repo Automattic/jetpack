@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+import { JetpackFooter } from '@jetpack-premium-analytics/externals';
 import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
 import { createContext, useContext } from 'react';
@@ -46,8 +47,8 @@ export interface ReportPageLayoutProps {
 
 /**
  * Second-level report page scaffold: the scroll area below the page header,
- * holding the tabs, the section header pinned at its top, and the stacked
- * sections. The header shows only the range — interval/comparison controls
+ * holding the tabs, the section header pinned at its top, the stacked
+ * sections and the footer. The header shows only the range — interval/comparison controls
  * are hidden, not cleared, so they survive on the URL.
  *
  * @param {ReportPageLayoutProps} props - The component props.
@@ -71,6 +72,7 @@ export function ReportPageLayout( {
 			<ReportHasPeriodContext.Provider value={ !! dateFilters }>
 				<div className={ styles.sections }>{ children }</div>
 			</ReportHasPeriodContext.Provider>
+			<JetpackFooter />
 		</div>
 	);
 }
