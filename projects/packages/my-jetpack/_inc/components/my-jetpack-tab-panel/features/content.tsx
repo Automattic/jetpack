@@ -382,7 +382,8 @@ function FeaturesTabContent() {
 			return;
 		}
 
-		// Where the list sits when the toolbar first sticks, so the toolbar itself stays put.
+		// Where the list sits when the toolbar first sticks, so the toolbar itself stays put. Pinned
+		// tabs are cleared by the scroller's scroll-padding, set in ../styles.module.scss.
 		const gap =
 			parseFloat( getComputedStyle( toolbar ).marginBlockEnd ) +
 			parseFloat( getComputedStyle( content ).rowGap );
