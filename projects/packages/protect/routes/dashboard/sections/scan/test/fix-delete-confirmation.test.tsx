@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { FixDeleteModal } from '../fix-delete-confirmation';
+import { FixDeleteConfirmation, FixDeleteModal } from '../fix-delete-confirmation';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 jest.mock( '@wordpress/route', () => ( {
@@ -43,4 +43,26 @@ describe( 'FixDeleteModal', () => {
 		);
 		expect( closeModal ).toHaveBeenCalled();
 	} );
+
+	it.each( [
+		[ 'plugins', 'inactive', 'active', /This plugin seems to be currently active/ ],
+		[ 'themes', 'inactive', 'parent', /This theme seems to be currently active/ ],
+		[ 'plugins', 'active', 'inactive', /This plugin seems to not currently be active/ ],
+		[ 'plugins', 'active', undefined, /This plugin seems to be currently active/ ],
+	] as const )(
+		'warns about a %s with scan status %s and live state %s',
+		( type, extensionStatus, state, warning ) => {
+			render(
+				<FixDeleteConfirmation
+					threat={ {
+						...threat,
+						fixable: { fixer: 'delete', extensionStatus },
+						extension: { ...threat.extension, type, state },
+					} }
+					onConfirm={ jest.fn() }
+				/>
+			);
+			expect( screen.getByText( warning ) ).toBeInTheDocument();
+		}
+	);
 } );

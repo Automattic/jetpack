@@ -59,7 +59,9 @@ export function FixDeleteConfirmation( {
 	const isTheme = threat.extension?.type === 'themes';
 	const slug = threat.extension?.slug || 'unknown-slug';
 	const fixable = threat.fixable || undefined;
-	const isActive = fixable?.extensionStatus === 'active';
+	// The site's live state wins over the scan report, which may predate an activation.
+	const state = threat.extension?.state ?? fixable?.extensionStatus;
+	const isActive = state === 'active' || state === 'parent';
 
 	let risk: string;
 	if ( isActive ) {
