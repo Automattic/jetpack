@@ -4,7 +4,7 @@ import { runInNewContext } from 'node:vm';
 
 // PHPUnit verifies that this fixture is the merge function in the inline script emitted by WordPress.
 const merge = readFileSync(
-	path.resolve( __dirname, '../../tests/fixtures/editor-initial-state.js.txt' ),
+	path.resolve( __dirname, '../../../tests/fixtures/editor-initial-state.js.txt' ),
 	'utf8'
 ).trim();
 
