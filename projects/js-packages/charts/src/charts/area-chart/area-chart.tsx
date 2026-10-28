@@ -145,13 +145,13 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			[ seriesWithVisibility ]
 		);
 
-		// A normalized stack (expand/wiggle/silhouette) turns whole-number data into
-		// fractions, so the filter is skipped for every offset but 'none'.
 		const visibleDataSeries = useMemo(
 			() => dataSorted.filter( series => isSeriesVisible( series.label ) ),
 			[ dataSorted, isSeriesVisible ]
 		);
 
+		// A normalized stack (expand/wiggle/silhouette) turns whole-number data into
+		// fractions, so the filter is skipped for every offset but 'none'.
 		const hasWholeNumberValues = useMemo(
 			() => ( ! stacked || stackOffset === 'none' ) && hasOnlyWholeNumbers( visibleDataSeries ),
 			[ visibleDataSeries, stacked, stackOffset ]
