@@ -118,9 +118,7 @@ describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 		const toggle = screen.getByRole( 'checkbox', { name: /generate an llms\.txt file/i } );
 		expect( toggle ).toBeDisabled();
 		expect( toggle ).not.toBeChecked();
-		expect( toggle ).toHaveAccessibleDescription(
-			'Allow search engines to index this site to publish llms.txt.'
-		);
+		expect( screen.getAllByText( /to enable, allow search engines/i ).length ).toBeGreaterThan( 0 );
 		expect( screen.getByRole( 'link', { name: 'Open site visibility settings' } ) ).toHaveAttribute(
 			'href',
 			'/settings?focus=visibility'

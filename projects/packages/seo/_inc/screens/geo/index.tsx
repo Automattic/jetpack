@@ -36,10 +36,6 @@ const llmsTxtHelp = __(
 	'Publishes a curated, AI-readable map at /llms.txt to help AI assistants find and understand your supported content.',
 	'jetpack-seo'
 );
-const llmsTxtBlockedHelp = __(
-	'Allow search engines to index this site to publish llms.txt.',
-	'jetpack-seo'
-);
 const manageVisibilityLabel = __( 'Open site visibility settings', 'jetpack-seo' );
 // The Settings tab's site visibility section, as a router link for `render` props.
 const manageVisibilityLink = (
@@ -539,16 +535,23 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 							<Stack direction="column" gap="xs">
 								<ToggleControl
 									label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
-									help={ searchEnginesVisible ? llmsTxtHelp : llmsTxtBlockedHelp }
+									help={ llmsTxtHelp }
 									checked={ llmsTxtEffectivelyOn }
 									onChange={ setLlmsTxtEnabled }
 									disabled={ isSaving || ! searchEnginesVisible }
 									__nextHasNoMarginBottom
 								/>
 								{ ! searchEnginesVisible && (
-									<Link className="jetpack-seo-geo__llms-link" render={ manageVisibilityLink }>
-										{ manageVisibilityLabel }
-									</Link>
+									<Notice.Root intent="info" className="jetpack-seo-geo__llms-notice">
+										<Notice.Description>
+											{ __( 'To enable, allow search engines to index this site.', 'jetpack-seo' ) }
+										</Notice.Description>
+										<Notice.Actions>
+											<Notice.ActionLink render={ manageVisibilityLink }>
+												{ manageVisibilityLabel }
+											</Notice.ActionLink>
+										</Notice.Actions>
+									</Notice.Root>
 								) }
 								{ llmsTxtEffectivelyOn && llmsTxt.canServe && (
 									<Link
