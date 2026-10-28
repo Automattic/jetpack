@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { connectionStatusEmptyAvatar as emptyAvatar } from '../../assets/inline-svgs';
 import useSitePurchases from '../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useConnectionErrorTracking from '../../hooks/use-connection-error-tracking';
 import { useConnectionState } from '../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
@@ -56,8 +57,14 @@ const ConnectionControl: FC = () => {
 	const state = useConnectionState();
 	const { apiRoot, apiNonce, isUserConnected, connectedPlugins, userConnectionData } =
 		useMyJetpackConnection();
+	const trackingCallback = useConnectionErrorTracking();
 	const { errorGroups, showSupportLink, connectionErrorMessage, actions, restoreConnectionError } =
-		useConnectionErrorNotice( { trackingContext: 'my-jetpack-header', navigate: assignLocation } );
+		useConnectionErrorNotice( {
+			trackingCallback,
+			trackingContext: 'my-jetpack',
+			trackingPlacement: 'header',
+			navigate: assignLocation,
+		} );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ isDialogOpen, setIsDialogOpen ] = useState( false );
 	const triggerRef = useRef< HTMLButtonElement >( null );
@@ -174,6 +181,8 @@ const ConnectionControl: FC = () => {
 					connectedUser={ userConnectionData }
 					isOpen={ isDialogOpen }
 					onClose={ closeManageDialog }
+					context="my-jetpack"
+					placement="header"
 				/>
 			) }
 		</>

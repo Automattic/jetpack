@@ -24,24 +24,31 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getMyJetpackUrl: ( section = '' ) => `admin.php?page=my-jetpack${ section }`,
 } ) );
 const mockRestoreConnectionError = { current: '' };
+const mockManageConnectionDialog = jest.fn();
+const mockUseConnectionErrorNotice = jest.fn();
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	ConnectionErrorDetails: () => null,
 	getReconnectErrorMessage: ( error: string ) =>
 		`There was an error reconnecting Jetpack. Error: ${ error }`,
 	getUserConnectionUrl: () => 'https://example.com/connect-user',
-	ManageConnectionDialog: ( { isOpen, onClose }: { isOpen: boolean; onClose: () => void } ) =>
-		isOpen ? (
-			<button type="button" onClick={ onClose }>
+	ManageConnectionDialog: ( props: { isOpen: boolean; onClose: () => void } ) => {
+		mockManageConnectionDialog( props );
+		return props.isOpen ? (
+			<button type="button" onClick={ props.onClose }>
 				Close dialog
 			</button>
-		) : null,
-	useConnectionErrorNotice: () => ( {
-		actions: [ { label: 'Restore connection', onClick: jest.fn() } ],
-		errorGroups: [],
-		showSupportLink: false,
-		connectionErrorMessage: '',
-		restoreConnectionError: mockRestoreConnectionError.current,
-	} ),
+		) : null;
+	},
+	useConnectionErrorNotice: ( args: unknown ) => {
+		mockUseConnectionErrorNotice( args );
+		return {
+			actions: [ { label: 'Restore connection', onClick: jest.fn() } ],
+			errorGroups: [],
+			showSupportLink: false,
+			connectionErrorMessage: '',
+			restoreConnectionError: mockRestoreConnectionError.current,
+		};
+	},
 } ) );
 
 const render = ( ui: ReactElement, queryClient = new QueryClient() ) =>
@@ -163,6 +170,25 @@ describe( 'HeaderControls', () => {
 
 		await waitFor( () =>
 			expect( screen.getByRole( 'button', { name: /^Connection:/ } ) ).toHaveFocus()
+		);
+	} );
+
+	it( "tags its connection Tracks events as from the header's placement", async () => {
+		mockUseConnectionState.mockReturnValue( stateWith( { manageConnection: { type: 'dialog' } } ) );
+		render( <HeaderControls /> );
+
+		const dialog = await openControl();
+		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Manage connection' } ) );
+
+		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				trackingCallback: expect.any( Function ),
+				trackingContext: 'my-jetpack',
+				trackingPlacement: 'header',
+			} )
+		);
+		expect( mockManageConnectionDialog ).toHaveBeenCalledWith(
+			expect.objectContaining( { isOpen: true, context: 'my-jetpack', placement: 'header' } )
 		);
 	} );
 
