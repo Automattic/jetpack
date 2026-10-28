@@ -374,10 +374,10 @@ function FeaturesTabContent() {
 		const content = contentRef.current;
 		const toolbar = toolbarRef.current;
 		const listStart = listStartRef.current;
-		const toolbarBox = toolbar?.getBoundingClientRect();
-		if ( ! content || ! toolbar || ! listStart || ! toolbarBox ) {
+		if ( ! content || ! toolbar || ! listStart ) {
 			return;
 		}
+		const toolbarBox = toolbar.getBoundingClientRect();
 		if ( listStart.getBoundingClientRect().top >= toolbarBox.bottom ) {
 			return;
 		}
