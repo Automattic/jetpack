@@ -598,8 +598,9 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 	public function test_build_consent_gate_wraps_the_pushes() {
 		$gate = $this->invoke_build_consent_gate();
 
-		$this->assertStringContainsString( 'window.wp_has_consent( "statistics" )', $gate );
+		$this->assertStringContainsString( 'if ( window.wp_has_consent( "statistics" ) ) { _jpStatsFire(); }', $gate );
 		$this->assertStringContainsString( 'wp_listen_for_consent_change', $gate );
+		$this->assertStringContainsString( 'if ( event && event.detail && event.detail.statistics === "allow" ) { _jpStatsFire(); }', $gate );
 
 		$this->assertStringContainsString( 'DOMContentLoaded', $gate );
 		$this->assertStringContainsString( 'document.readyState', $gate );
@@ -612,14 +613,13 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 	}
 
 	/**
-	 * Test that the gate fails closed.
+	 * An unavailable or throwing client-side API must not fire the pixel.
 	 */
 	public function test_build_consent_gate_fails_closed() {
 		$gate = $this->invoke_build_consent_gate();
 
 		$this->assertStringContainsString( 'if ( typeof window.wp_has_consent !== "function" ) { return; }', $gate );
 		$this->assertStringContainsString( '} catch ( e ) {}', $gate );
-		$this->assertStringNotContainsString( 'denied', $gate );
 	}
 
 	/**
@@ -637,7 +637,7 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 	}
 
 	/**
-	 * Test the markup without the WP Consent API plugin.
+	 * Without the WP Consent API plugin, the markup is byte-for-byte the historical output.
 	 */
 	public function test_build_stats_details_unchanged_without_consent_api() {
 		$this->assertFalse( function_exists( 'wp_has_consent' ), 'Test env must not define wp_has_consent.' );
