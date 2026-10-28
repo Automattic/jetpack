@@ -1,10 +1,17 @@
 /**
  * External dependencies
  */
-import { queryClient, ReportScopeProvider } from '@jetpack-premium-analytics/data';
+import {
+	DASHBOARD_PREFERENCES_SCOPE,
+	queryClient,
+	ReportScopeProvider,
+} from '@jetpack-premium-analytics/data';
 import { act, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { dispatch, select } from '@wordpress/data';
 import { getSettings, setSettings } from '@wordpress/date';
+import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
@@ -13,7 +20,7 @@ import useTrafficChart from '../use-traffic-chart';
 import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import widget, { type TrafficChartAttributes } from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
@@ -28,13 +35,21 @@ setSettings( {
 // The chart itself is not this file's subject: `useTrafficChart` resolves the
 // bucket. The stand-in records props so the click handler can be driven.
 const mockMetricTabsChart = jest.fn();
-jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	MetricTabsChart: ( props: unknown ) => {
-		mockMetricTabsChart( props );
-		return null;
-	},
-} ) );
+let mockDrawRealChart = false;
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
+	const actual = jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' );
+	return {
+		...actual,
+		MetricTabsChart: ( props: ComponentProps< typeof actual.MetricTabsChart > ) => {
+			mockMetricTabsChart( props );
+			return mockDrawRealChart ? (
+				<actual.GlobalChartsProvider>
+					<actual.MetricTabsChart { ...props } />
+				</actual.GlobalChartsProvider>
+			) : null;
+		},
+	};
+} );
 
 const mockUseTrafficChart = jest.mocked( useTrafficChart );
 const mockApiFetch = jest.mocked( apiFetch );
@@ -345,6 +360,62 @@ describe( 'TrafficChart drill-down', () => {
 		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } /> );
 
 		expect( chartClickHandler() ).toBeUndefined();
+	} );
+} );
+
+describe( 'TrafficChart previous period', () => {
+	afterEach( () => {
+		mockDrawRealChart = false;
+		dispatch( preferencesStore ).set(
+			DASHBOARD_PREFERENCES_SCOPE,
+			'trafficChartPreviousPeriod',
+			undefined
+		);
+	} );
+
+	it( 'remembers the previous period toggled from the legend', async () => {
+		mockDrawRealChart = true;
+		const points = ( values: number[] ) =>
+			values.map( ( value, index ) => ( {
+				date: new Date( Date.UTC( 2026, 5, index + 1 ) ),
+				value,
+			} ) );
+		mockUseTrafficChart.mockReturnValue( {
+			metrics: [
+				{
+					key: 'views',
+					label: 'Views',
+					value: 300,
+					current: points( [ 100, 200 ] ),
+					previous: points( [ 80, 120 ] ),
+				},
+			],
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		render(
+			<TrafficChartRender
+				attributes={ {
+					chartType: 'bar',
+					reportParams: {
+						...reportParams( 'day' ),
+						compare_from: '2026-05-01',
+						compare_to: '2026-05-30',
+					} as ReportParams,
+				} }
+			/>
+		);
+		const legendItem = screen.getByLabelText( /^Previous period/ );
+
+		expect( legendItem ).toHaveAttribute( 'aria-pressed', 'false' );
+		await user.click( legendItem );
+
+		expect(
+			select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'trafficChartPreviousPeriod' )
+		).toBe( true );
 	} );
 } );
 
