@@ -8,6 +8,7 @@ import {
 } from '../../../../data/requested-switch-state';
 import { reloadPage } from '../../../../utils/reload-page';
 import { useFeatureStates } from '../feature-state';
+import { useBulkFeatureSwitch } from '../use-bulk-feature-switch';
 import { useFeaturePlugin, useInstallError, useMainFeatures } from '../use-main-features';
 import type { ReactNode } from 'react';
 
@@ -400,6 +401,40 @@ describe( 'useFeaturePlugin', () => {
 
 		await act( async () => settleModules() );
 		await waitFor( () => expect( result.current.akismet.isBusy ).toBe( false ) );
+	} );
+
+	it( 'shows a failed bulk run’s notice before the refresh, and keeps running until the refresh lands', async () => {
+		let settleRead: () => void = () => undefined;
+		let settleModules: () => void = () => undefined;
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			method === 'POST'
+				? Promise.reject( new Error( 'Server error.' ) )
+				: new Promise( resolve => ( settleRead = () => resolve( pageState ) ) )
+		);
+		mockFetchModules.mockImplementationOnce(
+			() => new Promise( resolve => ( settleModules = () => resolve( true ) ) )
+		);
+		const client = new QueryClient( { defaultOptions: { mutations: { retry: false } } } );
+		const { result } = renderHook(
+			() => ( {
+				states: useFeatureStates( useMainFeatures() ).states,
+				bulk: useBulkFeatureSwitch(),
+			} ),
+			{ wrapper: wrapper( client ) }
+		);
+
+		act( () => void result.current.bulk.run( result.current.states, false ) );
+
+		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Server error.' ) );
+		expect( mockFetchModules ).not.toHaveBeenCalled();
+		expect( result.current.bulk.isRunning ).toBe( true );
+
+		await act( async () => settleRead() );
+		await waitFor( () => expect( mockFetchModules ).toHaveBeenCalledTimes( 1 ) );
+		expect( result.current.bulk.isRunning ).toBe( true );
+
+		await act( async () => settleModules() );
+		await waitFor( () => expect( result.current.bulk.isRunning ).toBe( false ) );
 	} );
 
 	it( 'leaves a feature that is still being switched alone when another answers', async () => {

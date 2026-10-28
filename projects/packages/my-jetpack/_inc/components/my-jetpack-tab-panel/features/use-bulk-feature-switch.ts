@@ -168,12 +168,13 @@ export function useBulkFeatureSwitch() {
 			} catch ( error ) {
 				// The request as a whole failed, so the site may have switched some, all or none.
 				failedSlugs = targets.map( state => state.feature.slug );
-				await queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
-				await fetchModules();
 				createErrorNotice(
 					( error as { message?: string } )?.message ||
 						__( 'Could not change the selected features. Please try again.', 'jetpack-my-jetpack' )
 				);
+				// After the notice, so a slow site does not delay it; the run stays busy until this lands.
+				await queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
+				await fetchModules();
 			} finally {
 				held.forEach( ( { key, token } ) => clearRequestedSwitch( key, token ) );
 				setIsRunning( false );
