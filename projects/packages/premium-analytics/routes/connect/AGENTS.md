@@ -3,18 +3,9 @@
 Companion to `README.md`. The mental model for how this route relates to Jetpack
 connectivity.
 
-## Scope: detect, don't connect
+## Scope: the plan choice connects the site
 
-This route does **not** implement a connection flow. It reads connection state
-through `isPremiumAnalyticsSiteConnected()` and, when the site is not connected,
-renders the `SiteNotConnected` screen. Actually connecting the site is the
-consumer's job (the Premium Analytics plugin, or Jetpack), built on
-`@automattic/jetpack-connection` (`ConnectScreen` / `useConnection`).
-
-If you are tempted to add an authorize button, registration call, or
-offline-mode handling here, stop — that belongs to the consumer. The package
-exists to avoid each consumer rebuilding the dashboard, not to own the connect
-UX.
+The route owns the pre-connection flow: the plan choice, site registration, and the hand-off to authorization or checkout (`use-plan-choice.ts`). It builds on `@automattic/jetpack-connection`'s store and `useConnection`, not on its `ConnectScreen`.
 
 ## Where connection state comes from
 
@@ -36,6 +27,3 @@ the connection package's
 - **Route guards are synchronous** — they cannot fetch. Use
   `isPremiumAnalyticsSiteConnected()` rather than reading the field directly;
   the helper also treats WordPress.com Simple as connected.
-- **Don't reintroduce a custom connect screen.** A custom design was used in the
-  standalone Woo Analytics app; under Jetpack we defer to the shared connection
-  components instead.

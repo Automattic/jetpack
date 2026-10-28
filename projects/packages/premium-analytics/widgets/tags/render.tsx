@@ -130,7 +130,6 @@ function TagsInner() {
 	}, [ data, selectGroup ] );
 
 	useReportActions( {
-		report: 'tags',
 		csv: {
 			exporter: tagsCsvExporter,
 			status: { isLoading, isFetching, isError },

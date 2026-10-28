@@ -62,6 +62,15 @@ class Admin_Page {
 	private static $jitm_opt_out_screen_id = null;
 
 	/**
+	 * The SEO page's wp-admin URL.
+	 *
+	 * @return string
+	 */
+	public static function get_url() {
+		return admin_url( 'admin.php?page=' . self::MENU_SLUG );
+	}
+
+	/**
 	 * Register the admin menu item.
 	 *
 	 * Uses Admin_Menu so the page is reachable on wp-admin across all site

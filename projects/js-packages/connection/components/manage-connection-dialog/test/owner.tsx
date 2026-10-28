@@ -66,7 +66,7 @@ describe( 'ManageConnectionDialog, for the connection owner', () => {
 		await user.click( screen.getByRole( 'link', { name: /Disconnect my user account/ } ) );
 
 		expect(
-			screen.getByRole( 'dialog', { name: 'Disconnect Owner Account' } )
+			screen.getByRole( 'dialog', { name: 'Disconnect owner account' } )
 		).toBeInTheDocument();
 		expect( mockUnlinkUser ).not.toHaveBeenCalled();
 	} );

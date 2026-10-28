@@ -26,6 +26,7 @@ import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useUploadIntake } from '../../src/dashboard/hooks/use-upload-intake';
+import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
 import { uploadToLibraryItem } from '../../src/dashboard/utils/upload-to-library-item';
 import { createPromoteLocal } from './promote-local';
 import { classifyUploadFailure } from './upload-failure';
@@ -126,6 +127,7 @@ const StageInner = () => {
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit, isFree, isUnlimited } = useFreeTier();
+	const runUpgrade = useVideoPressUpgrade();
 
 	const onChangeView = useCallback(
 		( next: View ) => {
@@ -467,6 +469,7 @@ const StageInner = () => {
 								onFiles={ handleFilesSelected }
 								disabled={ isAtLimit }
 								allowMultiple={ ! isFree || isUnlimited }
+								onUpgrade={ runUpgrade }
 							/>
 						</Card.Content>
 					</Card.Root>

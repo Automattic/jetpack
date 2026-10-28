@@ -1,4 +1,3 @@
-import { ToggleControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Badge, Button, Dialog, Stack, Text, TextareaControl, VisuallyHidden } from '@wordpress/ui';
@@ -11,37 +10,24 @@ type Props = {
 	data: ProtectSettingsData;
 	/** The setting holding the list; `enabledKey( name )` turns it on or off. */
 	name: string;
-	label: string;
-	description: string;
 	editLabel: string;
 	dialogTitle: string;
 	currentIp?: string;
 };
 
 /**
- * One of the firewall's IP lists: its on/off toggle, how many addresses it holds and a dialog to edit them.
+ * One of the firewall's IP lists: how many addresses it holds, and a dialog to edit them.
  *
  * @param props             - Component props.
  * @param props.data        - The settings and their save function.
  * @param props.name        - The setting holding the list.
- * @param props.label       - The toggle's label.
- * @param props.description - What the list does.
  * @param props.editLabel   - The link that opens the dialog.
  * @param props.dialogTitle - The dialog's title.
  * @param props.currentIp   - When set, the dialog offers to add the visitor's own address.
- * @return The rule.
+ * @return The link and its dialog.
  */
-export default function IpRule( {
-	data,
-	name,
-	label,
-	description,
-	editLabel,
-	dialogTitle,
-	currentIp,
-}: Props ) {
+export default function IpRule( { data, name, editLabel, dialogTitle, currentIp }: Props ) {
 	const { save, isSaving } = data;
-	const enabledName = enabledKey( name );
 	const saved = getIpList( data.settings, name );
 	const [ open, setOpen ] = useState( false );
 	const [ draft, setDraft ] = useState( saved );
@@ -61,10 +47,6 @@ export default function IpRule( {
 		[ saved ]
 	);
 
-	const onToggle = useCallback(
-		( value: boolean ) => save( { [ enabledName ]: value } ),
-		[ save, enabledName ]
-	);
 	const onChange = useCallback(
 		( event: ChangeEvent< HTMLTextAreaElement > ) => setDraft( event.target.value ),
 		[]
@@ -82,104 +64,101 @@ export default function IpRule( {
 	}, [ save, name, draft ] );
 
 	return (
-		<Stack direction="column" gap="sm" align="start">
-			<ToggleControl
-				__nextHasNoMarginBottom
-				label={
-					<Stack direction="row" gap="sm" align="center">
-						{ label }
-						<span aria-hidden="true">
-							<Badge intent="informational">{ String( count ) }</Badge>
-						</span>
-						<VisuallyHidden>
-							{ sprintf(
-								/* translators: %d is how many IP addresses are on a list. */
-								_n(
-									'%d address on the list',
-									'%d addresses on the list',
-									count,
+		<Dialog.Root open={ open } onOpenChange={ onOpenChange }>
+			<Dialog.Trigger
+				render={
+					<Button
+						variant="unstyled"
+						className="jp-protect-card__link-button jp-protect-ip-rule__trigger"
+					/>
+				}
+			>
+				{ editLabel }
+				<span aria-hidden="true">
+					<Badge intent="informational">{ String( count ) }</Badge>
+				</span>
+				<VisuallyHidden>
+					{ sprintf(
+						/* translators: %d is how many IP addresses are on a list. */
+						_n(
+							'%d address on the list',
+							'%d addresses on the list',
+							count,
+							'jetpack-protect-pkg'
+						),
+						count
+					) }
+				</VisuallyHidden>
+			</Dialog.Trigger>
+			<Dialog.Popup>
+				<Dialog.Header>
+					<Dialog.Title>{ dialogTitle }</Dialog.Title>
+					<Dialog.CloseIconButton />
+				</Dialog.Header>
+				<Dialog.Content>
+					<Stack direction="column" gap="sm" align="start">
+						{ ! data.settings?.[ enabledKey( name ) ] && (
+							<Text variant="body-sm" className="jp-protect-card__muted">
+								{ __(
+									'This list is turned off, so it has no effect until you turn it on in Settings.',
+									'jetpack-protect-pkg'
+								) }
+							</Text>
+						) }
+						{ saveFailed && data.error && (
+							<Text variant="body-sm" className="jp-protect-card__error" role="alert">
+								{ data.error }
+							</Text>
+						) }
+						<TextareaControl
+							className="jp-protect-ip-rule__field"
+							label={ __( 'IP addresses', 'jetpack-protect-pkg' ) }
+							description={ sprintf(
+								/* translators: 1: an example IP address range. 2: an example CIDR block. */
+								__(
+									'One per line. Use a range like %1$s or CIDR like %2$s.',
 									'jetpack-protect-pkg'
 								),
-								count
+								'12.12.12.1-12.12.12.100',
+								'12.12.12.0/24'
 							) }
-						</VisuallyHidden>
-					</Stack>
-				}
-				help={ description }
-				checked={ Boolean( data.settings?.[ enabledName ] ) }
-				disabled={ isSaving( enabledName ) }
-				onChange={ onToggle }
-			/>
-			<Dialog.Root open={ open } onOpenChange={ onOpenChange }>
-				<Dialog.Trigger
-					render={ <Button variant="unstyled" className="jp-protect-card__link-button" /> }
-				>
-					{ editLabel }
-				</Dialog.Trigger>
-				<Dialog.Popup>
-					<Dialog.Header>
-						<Dialog.Title>{ dialogTitle }</Dialog.Title>
-						<Dialog.CloseIconButton />
-					</Dialog.Header>
-					<Dialog.Content>
-						<Stack direction="column" gap="sm" align="start">
-							{ saveFailed && data.error && (
-								<Text variant="body-sm" className="jp-protect-ip-rule__error" role="alert">
-									{ data.error }
-								</Text>
-							) }
-							<TextareaControl
-								className="jp-protect-ip-rule__field"
-								label={ __( 'IP addresses', 'jetpack-protect-pkg' ) }
-								description={ sprintf(
-									/* translators: 1: an example IP address range. 2: an example CIDR block. */
-									__(
-										'One per line. Use a range like %1$s or CIDR like %2$s.',
-										'jetpack-protect-pkg'
-									),
-									'12.12.12.1-12.12.12.100',
-									'12.12.12.0/24'
-								) }
-								value={ draft }
-								onChange={ onChange }
-								rows={ 8 }
-							/>
-							{ currentIp && (
-								<Stack direction="row" gap="sm" align="center" wrap="wrap">
-									<Text variant="body-sm">
-										{ sprintf(
-											/* translators: %s is an IP address. */
-											__( 'Your IP address: %s', 'jetpack-protect-pkg' ),
-											currentIp
-										) }
-									</Text>
-									{ splitIps( draft ).includes( currentIp ) ? (
-										<Text variant="body-sm" className="jp-protect-card__muted">
-											{ __( 'Already on this list', 'jetpack-protect-pkg' ) }
-										</Text>
-									) : (
-										<Button
-											variant="unstyled"
-											className="jp-protect-card__link-button"
-											onClick={ onAddIp }
-										>
-											{ __( 'Add it to the list', 'jetpack-protect-pkg' ) }
-										</Button>
+							value={ draft }
+							onChange={ onChange }
+							rows={ 8 }
+						/>
+						{ currentIp && (
+							<Stack direction="row" gap="sm" align="center" wrap="wrap">
+								<Text variant="body-sm">
+									{ sprintf(
+										/* translators: %s is an IP address. */
+										__( 'Your IP address: %s', 'jetpack-protect-pkg' ),
+										currentIp
 									) }
-								</Stack>
-							) }
-						</Stack>
-					</Dialog.Content>
-					<Dialog.Footer>
-						<Dialog.Action variant="minimal">
-							{ __( 'Cancel', 'jetpack-protect-pkg' ) }
-						</Dialog.Action>
-						<Button onClick={ onSave } loading={ isSaving( name ) } disabled={ draft === saved }>
-							{ __( 'Save', 'jetpack-protect-pkg' ) }
-						</Button>
-					</Dialog.Footer>
-				</Dialog.Popup>
-			</Dialog.Root>
-		</Stack>
+								</Text>
+								{ splitIps( draft ).includes( currentIp ) ? (
+									<Text variant="body-sm" className="jp-protect-card__muted">
+										{ __( 'Already on this list', 'jetpack-protect-pkg' ) }
+									</Text>
+								) : (
+									<Button
+										variant="unstyled"
+										className="jp-protect-card__link-button"
+										onClick={ onAddIp }
+									>
+										{ __( 'Add it to the list', 'jetpack-protect-pkg' ) }
+									</Button>
+								) }
+							</Stack>
+						) }
+					</Stack>
+				</Dialog.Content>
+				<Dialog.Footer>
+					<Dialog.Action variant="minimal">{ __( 'Cancel', 'jetpack-protect-pkg' ) }</Dialog.Action>
+					<Button onClick={ onSave } loading={ isSaving( name ) } disabled={ draft === saved }>
+						{ __( 'Save', 'jetpack-protect-pkg' ) }
+					</Button>
+				</Dialog.Footer>
+			</Dialog.Popup>
+		</Dialog.Root>
 	);
 }

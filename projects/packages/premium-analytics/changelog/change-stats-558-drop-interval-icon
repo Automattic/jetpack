@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Name the chart interval on the year date filter too, and collapse its year pills when the interval's name grows past the room left.

@@ -200,6 +200,14 @@ Notes that save time:
   grepping for a pattern containing `$`, quote it so the remote shell doesn't expand it —
   an unquoted `$host` silently becomes an empty string and a real match reports as zero.
 - Page caching is on. Add a cache-busting query param when verifying that a change took effect.
+- Password SSH locks out fast: on two sites in October 2026 the third login within about 15
+  minutes was refused, and the site stayed locked for at least 10 more. ssh also tries the
+  password three times per attempt unless told not to. Plan one login per site, do everything
+  in it, and pass `-o NumberOfPasswordPrompts=1`.
+- JN answers bursts of requests with HTTP 429. Load pages one at a time; on a 429, wait two
+  minutes before retrying.
+- The site's auto-login link works once. If a browser script needs to log in again later, save
+  its session on the first login.
 
 ## Gotchas when testing a Jetpack beta or branch build
 
@@ -221,6 +229,16 @@ jetpack-production`) and re-verify. To confirm which copy of a class is really l
 ```bash
 wp eval 'echo (new ReflectionClass("Automattic\\Jetpack\\Status\\Host"))->getFileName();'
 ```
+
+**Switching a site to a PR's build doesn't need SSH.** Once the PR's "Build all projects" check
+has passed, the Jetpack Beta plugin can activate the branch from wp-admin. The activate link is
+`/wp-admin/admin.php?page=jetpack-beta&activate-branch=pr%3A<branch, with / replaced by _>&plugin=jetpack&_wpnonce=<nonce>`;
+copy the nonce from any activate link on the Beta Tester page.
+
+**A passing build isn't proof Beta has it yet.** A switch made right after CI passed can keep
+the previous build. Before testing, read the "Currently Running" line on the Beta Tester page:
+the build string ends in `g<first characters of the PR's head SHA>`. If it doesn't match the
+head commit, switch again.
 
 **Autoloader conflicts need forcing to reproduce.** Some third-party plugins bundle older
 Jetpack packages with a plain Composer classmap and no Jetpack Autoloader. Merely activating

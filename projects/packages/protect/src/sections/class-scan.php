@@ -83,26 +83,42 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
-	 * The plan, where to manage or buy Scan, and the latest report.
+	 * The plan, where to set Scan's server credentials or buy Scan, and the latest report.
 	 *
 	 * @return array
 	 */
 	public function get_state() {
 		$has_plan = Dashboard::has_scan_plan();
+		// Fetched first: has_credentials() reads the report this caches.
+		$report = self::get_scan_report( $has_plan );
 
 		return array_merge(
 			array(
-				'hasPlan' => $has_plan,
-				'url'     => $has_plan
-					? Redirect::get_url( 'my-jetpack-manage-scan' )
+				'hasPlan'   => $has_plan,
+				'canIgnore' => self::allows_ignoring(),
+				'url'       => $has_plan
+					? Redirect::get_url( 'jetpack-settings-security-credentials' )
 					: Dashboard::get_scan_upgrade_url(),
 			),
-			$has_plan ? array() : array(
+			$has_plan ? array( 'hasCredentials' => self::has_credentials() ) : array(
 				'upsellVariant'       => self::get_upsell_variant(),
 				'upsellVariantForced' => (bool) has_filter( 'jetpack_protect_dashboard_scan_upsell_variant' ),
 			),
-			self::get_scan_report( $has_plan )
+			$report
 		);
+	}
+
+	/**
+	 * Whether Scan has the server credentials it needs to auto-fix threats, from the cached Scan report.
+	 *
+	 * @return bool|null Null when there's no report to say.
+	 */
+	private static function has_credentials() {
+		$report = class_exists( Scan_Status::class ) ? Scan_Status::get_from_options() : null;
+		if ( ! is_object( $report ) || ! isset( $report->credentials ) || ! is_array( $report->credentials ) ) {
+			return null;
+		}
+		return ! empty( $report->credentials );
 	}
 
 	/**
@@ -117,7 +133,7 @@ class Scan implements Dashboard_Section {
 		/**
 		 * Filters which free-plan Scan upsell copy the Protect dashboard shows; a filtered one isn't rotated.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.3.0
 		 *
 		 * @param int $variant From 1 to 8.
 		 */
@@ -155,7 +171,7 @@ class Scan implements Dashboard_Section {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( __CLASS__, 'ignore_threat' ),
-				'permission_callback' => array( __CLASS__, 'can_act_on_threats' ),
+				'permission_callback' => array( __CLASS__, 'can_ignore_threats' ),
 			)
 		);
 
@@ -216,6 +232,37 @@ class Scan implements Dashboard_Section {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Whether the host lets site owners ignore threats.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function allows_ignoring() {
+		/**
+		 * Filters whether site owners can ignore threats; they can still unignore them. Hosts that fix threats themselves can turn this off.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $allowed Whether threats can be ignored. Default true.
+		 */
+		return (bool) apply_filters( 'jetpack_protect_threat_ignoring_enabled', true );
+	}
+
+	/**
+	 * Ignoring needs everything acting on a threat does, and a host that allows it.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function can_ignore_threats() {
+		$allowed = self::can_act_on_threats();
+		if ( true !== $allowed || self::allows_ignoring() ) {
+			return $allowed;
+		}
+		return new WP_Error( 'threat_ignoring_disabled', __( 'Threats can’t be ignored on this site.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 	}
 
 	/**

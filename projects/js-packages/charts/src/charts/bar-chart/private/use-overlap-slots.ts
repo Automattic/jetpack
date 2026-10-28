@@ -27,7 +27,7 @@ export type StopPosition = {
 	dataPointIndex: number;
 };
 
-export type SelectedSlot = SelectedBar & { index: number; members: SlotMember[] };
+export type SelectedSlot = SelectedBar & { members: SlotMember[] };
 
 /**
  * Whether two data points sit at the same category: the same label, or the same date.
@@ -37,7 +37,8 @@ export type SelectedSlot = SelectedBar & { index: number; members: SlotMember[] 
  * @return Whether `point` is at `category`.
  */
 export function isSameCategory( point: DataPointDate, category: DataPointDate ): boolean {
-	return category.label != null
+	// An empty label falls back to the date, as the band axis's accessor does.
+	return category.label
 		? point.label === category.label
 		: !! category.date && !! point.date && point.date.getTime() === category.date.getTime();
 }
@@ -101,7 +102,7 @@ export function useOverlapSlots(
  * @return The category key.
  */
 function categoryKey( point: DataPointDate ): string {
-	return point.label != null ? `label:${ point.label }` : `date:${ point.date?.getTime() }`;
+	return point.label ? `label:${ point.label }` : `date:${ point.date?.getTime() }`;
 }
 
 /**
@@ -153,6 +154,34 @@ function getStopPositions(
 }
 
 /**
+ * Every bar at a category, each with its own data point index, the keyboard stop last.
+ *
+ * @param entries  - The visible series.
+ * @param category - The data point naming the category.
+ * @param stopKey  - The series the keyboard stop is on.
+ * @return The category's bars; the last one shown becomes the tooltip's nearest datum.
+ */
+export function membersAt(
+	entries: SeriesEntry[],
+	category: DataPointDate,
+	stopKey: string
+): SlotMember[] {
+	const members = entries.flatMap( ( { series } ) => {
+		const index = ( series.data as DataPointDate[] ).findIndex( point =>
+			isSameCategory( point, category )
+		);
+		return index === -1
+			? []
+			: [ { key: series.label, datum: series.data[ index ] as DataPointDate, index } ];
+	} );
+
+	return [
+		...members.filter( ( { key } ) => key !== stopKey ),
+		...members.filter( ( { key } ) => key === stopKey ),
+	];
+}
+
+/**
  * The slot a keyboard index selects, and every bar at its category.
  *
  * @param slots         - The overlap layout.
@@ -169,13 +198,8 @@ export function getSelectedSlot(
 		return undefined;
 	}
 
-	const { slotKey, key: stopKey, datum: category, dataPointIndex } = position;
-	const members = slots.entries.flatMap( ( { series } ) => {
-		const datum = ( series.data as DataPointDate[] ).find( point =>
-			isSameCategory( point, category )
-		);
-		return datum ? [ { key: series.label, datum } ] : [];
-	} );
+	const { slotKey, key: stopKey, datum: category } = position;
+	const members = membersAt( slots.entries, category, stopKey );
 	const slotBars = members.filter(
 		( { key, datum } ) => isBarRendered( datum ) && slots.slotOf( key ) === slotKey
 	);
@@ -184,11 +208,6 @@ export function getSelectedSlot(
 		data: slotBars.map( ( { datum } ) => datum ),
 		slotKey,
 		thickness: Math.max( ...slotBars.map( ( { key } ) => slots.thicknessOf( key ) ) ),
-		index: dataPointIndex,
-		// The stop goes last: the last bar shown becomes the tooltip's nearest datum.
-		members: [
-			...members.filter( ( { key } ) => key !== stopKey ),
-			...members.filter( ( { key } ) => key === stopKey ),
-		],
+		members,
 	};
 }

@@ -2,6 +2,8 @@ import {
 	formatDatePartWithTime,
 	getDatePart,
 	parseExactLabel,
+	readSiteTimestamp,
+	toBucketStamp,
 } from '@jetpack-premium-analytics/datetime';
 import {
 	endOfISOWeek,
@@ -211,8 +213,8 @@ function getHourIntervalFields( date: string, hour: unknown ) {
 	const datePart = getDatePart( date ) ?? date;
 	const hourPart = String( Math.trunc( Number( hour ) ) || 0 ).padStart( 2, '0' );
 
-	// Like getStatsIntervalFields, these are timezone-naive calendar bucket labels — the API's
-	// hour is already site-local, so no offset is stamped for a consumer to convert across.
+	// Like getStatsIntervalFields, these are timezone-naive site-local bucket labels, so
+	// no offset is stamped for a consumer to convert across.
 	return {
 		time_interval: `${ datePart } ${ hourPart }:00`,
 		date_start: formatDatePartWithTime( datePart, `${ hourPart }:00:00` ),
@@ -224,7 +226,41 @@ function getHourIntervalFields( date: string, hour: unknown ) {
 // where the email timeline carries the hour in its own column.
 const packedHourlyPeriod = /^(\d{4}-\d{2}-\d{2})[T ](\d{2})/;
 
-function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: string ) {
+type HourlyLabelZones = { labelOffset: string; zone: string };
+
+// A request that states an offset gets every hourly label in that one fixed offset,
+// DST or not, so a transition day's labels must be read back into the site's zone.
+function getHourlyLabelZones(
+	response: StatsRecord,
+	query?: StatsQueryParams
+): HourlyLabelZones | undefined {
+	const statesOffset = [ query?.date, query?.start_date ].some(
+		value => typeof value === 'string' && !! readSiteTimestamp( value )?.offset
+	);
+
+	return statesOffset && typeof response.utc_offset === 'string' && query?.timezone
+		? { labelOffset: response.utc_offset, zone: query.timezone }
+		: undefined;
+}
+
+function getPackedHourIntervalFields( date: string, hour: string, zones?: HourlyLabelZones ) {
+	const local = zones
+		? toBucketStamp( `${ date }T${ hour }:00:00${ zones.labelOffset }`, zones.zone ).match(
+				packedHourlyPeriod
+			)
+		: null;
+
+	return local
+		? getHourIntervalFields( local[ 1 ], local[ 2 ] )
+		: getHourIntervalFields( date, hour );
+}
+
+function getRowIntervalFields(
+	row: StatsRecord,
+	rawPeriod: unknown,
+	unit: string,
+	zones?: HourlyLabelZones
+) {
 	if ( unit === 'hour' && row.hour !== undefined && typeof rawPeriod === 'string' ) {
 		return getHourIntervalFields( rawPeriod, row.hour );
 	}
@@ -233,11 +269,44 @@ function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: strin
 		const packed = rawPeriod.match( packedHourlyPeriod );
 
 		if ( packed ) {
-			return getHourIntervalFields( packed[ 1 ], packed[ 2 ] );
+			return getPackedHourIntervalFields( packed[ 1 ], packed[ 2 ], zones );
 		}
 	}
 
 	return getTimeSeriesIntervalFields( rawPeriod, unit );
+}
+
+type TimeSeriesBucket = { row: StatsRecord; range: StatsIntervalFields };
+
+function sumMetrics( row: StatsRecord, other: StatsRecord ): StatsRecord {
+	return Object.fromEntries(
+		Object.entries( row ).map( ( [ key, value ] ) => {
+			const addend = other[ key ];
+
+			return [
+				key,
+				! nonMetricFields.includes( key ) && typeof value === 'number' && typeof addend === 'number'
+					? value + addend
+					: ( value ?? addend ),
+			];
+		} )
+	);
+}
+
+// A fall-back day repeats an hour, which the chart could only draw as two points on one instant.
+function mergeRepeatedHours( buckets: TimeSeriesBucket[] ): TimeSeriesBucket[] {
+	const byStart = new Map< string, TimeSeriesBucket >();
+
+	buckets.forEach( bucket => {
+		const seen = byStart.get( bucket.range.date_start );
+
+		byStart.set(
+			bucket.range.date_start,
+			seen ? { ...seen, row: sumMetrics( seen.row, bucket.row ) } : bucket
+		);
+	} );
+
+	return [ ...byStart.values() ];
 }
 
 // Rows stamp their bounds as timezone-naive wall times, so the query's own offset
@@ -248,9 +317,12 @@ function toRangeBound( value: string | undefined, time: string ) {
 	return datePart ? formatDatePartWithTime( datePart, time ) : '';
 }
 
-// A week the requested range cuts through is stamped with the range's edge, so
-// no bucket claims a day outside it (UNI-842).
-function clipWeekToRange(
+// Units whose edge buckets the range cuts through are stamped with its edges, so
+// no bucket claims a day outside it (UNI-842, STATS-551, STATS-554). A cut month or
+// year sits nearer its neighbour, so its chart must pass `tickResolution`, not infer it.
+const CLIPPED_UNITS = new Set( [ 'week', 'month', 'year' ] );
+
+function clipToRange(
 	range: StatsIntervalFields,
 	start: string,
 	end: string
@@ -284,15 +356,17 @@ export function sanitizeStatsTimeSeriesResponse(
 	const unit = String( response.unit ?? query?.period ?? 'day' );
 	const rangeStart = toRangeBound( query?.start_date, DAY_START_TIME );
 	const rangeEnd = toRangeBound( query?.end_date ?? query?.date, DAY_END_TIME );
-	const buckets = parseTimeSeriesRows( payload ).map( row => {
+	const zones = unit === 'hour' ? getHourlyLabelZones( response, query ) : undefined;
+	const parsed = parseTimeSeriesRows( payload ).map( row => {
 		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
-		const range = getRowIntervalFields( row, rawPeriod, unit );
+		const range = getRowIntervalFields( row, rawPeriod, unit, zones );
 
 		return {
 			row,
-			range: unit === 'week' ? clipWeekToRange( range, rangeStart, rangeEnd ) : range,
+			range: CLIPPED_UNITS.has( unit ) ? clipToRange( range, rangeStart, rangeEnd ) : range,
 		};
 	} );
+	const buckets = unit === 'hour' ? mergeRepeatedHours( parsed ) : parsed;
 	// Filter before the summary, so dropped buckets inflate neither the totals nor
 	// the chart. Only an endpoint-specific sanitizer supplies a filter.
 	const kept = keepBucket ? buckets.filter( ( { range } ) => keepBucket( range ) ) : buckets;

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a REST endpoint that reports the WordPress versions WP Cloud's latest and beta tracks serve.

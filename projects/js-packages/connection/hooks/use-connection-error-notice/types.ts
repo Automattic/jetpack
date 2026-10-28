@@ -101,8 +101,20 @@ export interface ConnectionErrorProps {
 	trackingContext?: string;
 	/** Navigation handler for URL-based actions. Defaults to setting `window.location.href`. */
 	navigate?: ( url: string ) => void;
+	/** Where the reconnect CTA returns after reauthorizing the user. Defaults to My Jetpack. */
+	reconnectRedirectUrl?: string;
+	/** The `from` the reconnect CTA reports to WordPress.com. Defaults to 'my-jetpack'. */
+	reconnectFrom?: string;
 	/** Optional feature-supplied context line rendered above the shared cause/action. */
 	context?: string | ReactElement;
+}
+
+/** Props for `<ConnectionErrorView />`. */
+export interface ConnectionErrorViewProps {
+	/** The `useConnectionErrorNotice()` result to render. */
+	notice: UseConnectionErrorNoticeResult;
+	/** Optional context line, shown in place of the title. */
+	context?: ConnectionErrorProps[ 'context' ];
 }
 
 /**
