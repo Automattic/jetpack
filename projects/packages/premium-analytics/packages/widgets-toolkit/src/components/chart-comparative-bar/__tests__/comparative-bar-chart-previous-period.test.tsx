@@ -44,20 +44,24 @@ const VisibilityProbe = () => {
 };
 const isDrawn = ( label: string ) => isSeriesVisible( CHART_ID, label );
 
+const CURRENT_SERIES = SERIES.filter( item => item.options?.type !== 'comparison' );
+
+const chart = ( props: Partial< ComponentProps< typeof ComparativeBarChart > > = {} ) => (
+	<GlobalChartsProvider>
+		<VisibilityProbe />
+		<ComparativeBarChart
+			chartId={ CHART_ID }
+			series={ SERIES }
+			dataFormat={ DATA_FORMAT }
+			layout="overlap"
+			comparisonLabel="Prev. 7 days"
+			{ ...props }
+		/>
+	</GlobalChartsProvider>
+);
+
 const renderChart = ( props: Partial< ComponentProps< typeof ComparativeBarChart > > = {} ) =>
-	render(
-		<GlobalChartsProvider>
-			<VisibilityProbe />
-			<ComparativeBarChart
-				chartId={ CHART_ID }
-				series={ SERIES }
-				dataFormat={ DATA_FORMAT }
-				layout="overlap"
-				comparisonLabel="Prev. 7 days"
-				{ ...props }
-			/>
-		</GlobalChartsProvider>
-	);
+	render( chart( props ) );
 
 // jsdom measures the chart at zero width, which hides it from role queries.
 const legendButton = ( name: RegExp ) => {
@@ -79,18 +83,29 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 
 	const setupUser = () => userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-	it( 'starts with the previous period hidden and its legend item off', () => {
-		renderChart( { defaultPreviousPeriodShown: false } );
+	it.each( [ false, true ] )(
+		'starts with the previous period shown as defaultPreviousPeriodShown says (%s)',
+		shown => {
+			renderChart( { defaultPreviousPeriodShown: shown } );
+
+			expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', String( shown ) );
+			expect( [ 'Previous views', 'Previous visitors' ].map( isDrawn ) ).toEqual( [
+				shown,
+				shown,
+			] );
+		}
+	);
+
+	it( 'applies the default to comparison series that arrive after mount', () => {
+		const onPreviousPeriodShownChange = jest.fn();
+		const props = { defaultPreviousPeriodShown: false, onPreviousPeriodShownChange };
+		const view = renderChart( { ...props, series: CURRENT_SERIES } );
+
+		view.rerender( chart( props ) );
 
 		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'false' );
 		expect( [ 'Previous views', 'Previous visitors' ].map( isDrawn ) ).toEqual( [ false, false ] );
-	} );
-
-	it( 'starts shown when defaultPreviousPeriodShown is true', () => {
-		renderChart( { defaultPreviousPeriodShown: true } );
-
-		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'true' );
-		expect( [ 'Previous views', 'Previous visitors' ].map( isDrawn ) ).toEqual( [ true, true ] );
+		expect( onPreviousPeriodShownChange ).not.toHaveBeenCalled();
 	} );
 
 	it( 'draws the previous period when its legend item is clicked, and reports it', async () => {
@@ -134,7 +149,7 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 	it( 'has no previous-period item without comparison series', () => {
 		renderChart( {
 			defaultPreviousPeriodShown: false,
-			series: SERIES.filter( item => item.options?.type !== 'comparison' ),
+			series: CURRENT_SERIES,
 		} );
 
 		expect( screen.queryByText( 'Prev. 7 days' ) ).not.toBeInTheDocument();
