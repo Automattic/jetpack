@@ -26,6 +26,8 @@ export { default as Gravatar } from './components/gravatar/index.tsx';
 export type { GravatarProps } from './components/gravatar/index.tsx';
 export { default as CheckboxCard, CheckboxCardGrid } from './components/checkbox-card/index.tsx';
 export type { CheckboxCardProps, CheckboxCardGridProps } from './components/checkbox-card/types.ts';
+export { default as RadioCard, RadioCardGrid } from './components/radio-card/index.tsx';
+export type { RadioCardProps, RadioCardGridProps } from './components/radio-card/types.ts';
 export { default as IconTooltip } from './components/icon-tooltip/index.tsx';
 export { default as ActionButton } from './components/action-button/index.tsx';
 export { default as PricingCard } from './components/pricing-card/index.tsx';
