@@ -19,6 +19,16 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		// The wpcomsh run loads jetpack-mu-wpcom, which drops the module because the test site's plan has no Scan.
+		remove_filter( 'jetpack_get_available_modules', array( 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan', 'filter_available_modules' ) );
+	}
+
+	/**
 	 * Drop the flag filter and constants. The flag itself is registered by the plugin bootstrap, so no reset.
 	 */
 	public function tear_down() {
