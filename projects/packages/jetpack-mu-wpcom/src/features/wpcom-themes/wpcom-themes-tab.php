@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+use Automattic\Jetpack\Status\Host;
 
 // @codeCoverageIgnoreStart -- shadowed by the test stub in tests/lib/functions-wordpress.php.
 if ( ! function_exists( 'wpcom_themes_get_purchases' ) ) {
@@ -68,13 +69,13 @@ wpcom_themes_tab_register_flag();
 /**
  * Whether to show the tab on this site.
  *
- * Atomic only for now: Simple has no Add Themes screen to add a tab to, and this package ships
- * there too, so the host is checked rather than left to the screen's absence.
+ * Core's Add Themes screen can't be reached on Simple, so there the tab goes on WordPress.com's
+ * own copy of it, which asks this before it draws.
  *
  * @return bool
  */
 function wpcom_themes_tab_enabled() {
-	return is_woa_site() && Feature_Flags::is_enabled( WPCOM_THEMES_TAB_FLAG );
+	return ( new Host() )->is_wpcom_platform() && Feature_Flags::is_enabled( WPCOM_THEMES_TAB_FLAG );
 }
 
 /**

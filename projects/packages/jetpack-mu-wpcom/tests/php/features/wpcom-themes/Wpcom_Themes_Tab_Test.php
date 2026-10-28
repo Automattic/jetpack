@@ -165,6 +165,16 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Make the site a Simple one.
+	 *
+	 * @return void
+	 */
+	private function pretend_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		Cache::clear();
+	}
+
+	/**
 	 * Answers every request the same way, recording the URL.
 	 *
 	 * @param int    $code HTTP status code.
@@ -496,12 +506,35 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The tab is Atomic only, so the flag alone does not turn it on elsewhere.
+	 * The flag turns the tab on only where WordPress.com hosts the site.
+	 *
+	 * @param string $host    `self-hosted`, `atomic` or `simple`.
+	 * @param bool   $enabled Whether the tab should show.
+	 * @dataProvider provide_hosts
 	 */
-	public function test_flag_alone_does_not_enable_the_tab_off_atomic() {
+	#[DataProvider( 'provide_hosts' )]
+	public function test_the_flag_enables_the_tab_on_wpcom_hosts_only( string $host, bool $enabled ) {
+		if ( 'atomic' === $host ) {
+			$this->pretend_atomic();
+		} elseif ( 'simple' === $host ) {
+			$this->pretend_simple();
+		}
 		add_filter( self::FLAG_FILTER, '__return_true' );
 
-		$this->assertFalse( wpcom_themes_tab_enabled() );
+		$this->assertSame( $enabled, wpcom_themes_tab_enabled() );
+	}
+
+	/**
+	 * Hosts, and whether the flag shows the tab on each.
+	 *
+	 * @return array<string, array{0: string, 1: bool}>
+	 */
+	public static function provide_hosts(): array {
+		return array(
+			'self-hosted' => array( 'self-hosted', false ),
+			'Atomic'      => array( 'atomic', true ),
+			'Simple'      => array( 'simple', true ),
+		);
 	}
 
 	/**
