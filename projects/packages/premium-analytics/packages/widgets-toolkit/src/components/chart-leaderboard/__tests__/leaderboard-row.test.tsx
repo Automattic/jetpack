@@ -222,6 +222,21 @@ describe( 'buildLeaderboardRow', () => {
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );
 
+	it( 'keeps a drill-down row a layered button around its trailing action', () => {
+		const onClick = jest.fn();
+		const row = buildLeaderboardRow( {
+			label: 'example.com',
+			media: { kind: 'favicon', url: 'https://example.com/favicon.ico' },
+			action: { kind: 'drillDown', onClick, ariaLabel: 'View referrers for example.com' },
+			trailingAction: <button>Flag</button>,
+		} );
+
+		render( row.label );
+
+		expect( screen.getByRole( 'button', { name: 'Flag' } ) ).toBeInTheDocument();
+		expect( row ).toMatchObject( { onClick, hasInteractiveLabel: true } );
+	} );
+
 	it( 'keeps the label plain beside a "View" action that opens the URL', () => {
 		const row = buildLeaderboardRow( {
 			label: 'example.com',

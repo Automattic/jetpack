@@ -142,9 +142,10 @@ themselves. `resolveLeaderboardRowAction` returns it for a childless row when pa
 action: { kind: 'viewLink', href: 'https://example.com' },
 ```
 
-A row whose label stays put (`viewLink` or `static`) can also take a `trailingAction`, an element
-rendered after the "View" action and revealed with it, for a widget's own row actions such as the
-Top referrers widget's `MarkAsSpamButton`:
+A row can also take a `trailingAction`, an element rendered after the label (and after the "View"
+action when there is one) and revealed on hover or focus, for a widget's own row actions such as
+the Top referrers widget's `MarkAsSpamButton`. A drill-down row with one becomes a layered row, so
+the action's own click wins over the drill-down. Rows that link out as a whole drop it:
 
 ```tsx
 ...buildLeaderboardRow( {

@@ -92,7 +92,6 @@ export {
 	type WidgetBackLinkProps,
 	ExternalLink,
 	MarkAsSpamButton,
-	type MarkAsSpamButtonProps,
 	useMarkAsSpam,
 	type ExternalLinkProps,
 	InfoTip,

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { RegistryProvider } from '@wordpress/data';
@@ -70,6 +70,26 @@ const REFERRERS_RESPONSE = {
 	},
 };
 
+const DOMAIN_GROUP_REFERRERS_RESPONSE = {
+	date: '2026-06-29',
+	days: {},
+	summary: {
+		groups: [
+			{
+				group: 'example.com',
+				name: 'example.com',
+				total: 30,
+				results: [
+					{ name: 'example.com/', url: 'https://example.com/', views: 20 },
+					{ name: 'example.com/about/', url: 'https://example.com/about/', views: 10 },
+				],
+			},
+		],
+		other_views: 0,
+		total_views: 30,
+	},
+};
+
 // A single-result group renders as the result itself, so this is the shortest
 // path from an API-supplied URL to a rendered anchor.
 const HOSTILE_REFERRERS_RESPONSE = {
@@ -98,6 +118,7 @@ describe( 'ReferrersWidget', () => {
 	} );
 
 	it( 'drills down through nested referrer groups and navigates back', async () => {
+		const user = userEvent.setup();
 		render(
 			<ReferrersWidget
 				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
@@ -108,7 +129,7 @@ describe( 'ReferrersWidget', () => {
 			name: /view referrers for search engines/i,
 		} );
 
-		fireEvent.click( groupButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		await user.click( groupButton );
 
 		// Second level: sources inside the group can drill down again, and the
 		// back link points at the full top-level list.
@@ -119,26 +140,27 @@ describe( 'ReferrersWidget', () => {
 			name: /view referrers for google search/i,
 		} );
 
-		fireEvent.click( sourceButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		await user.click( sourceButton );
 
 		// Third level: URL-backed leaf domains list with a "View" action and the
 		// back link is labelled after the parent list.
 		await expect( screen.findByText( 'google.com' ) ).resolves.toBeInTheDocument();
 
-		fireEvent.click( screen.getByRole( 'button', { name: /search engines/i } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		await user.click( screen.getByRole( 'button', { name: /search engines/i } ) );
 
 		// Back at the second level, going back again returns to the top list.
 		await expect(
 			screen.findByRole( 'button', { name: /view referrers for google search/i } )
 		).resolves.toBeInTheDocument();
 
-		fireEvent.click( screen.getByRole( 'button', { name: /all referrers/i } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		await user.click( screen.getByRole( 'button', { name: /all referrers/i } ) );
 
 		await expect( screen.findByText( 'jetpack.com' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /all referrers/i } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the drill-down across date range changes while the path still resolves', async () => {
+		const user = userEvent.setup();
 		const { rerender } = render(
 			<ReferrersWidget
 				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
@@ -149,7 +171,7 @@ describe( 'ReferrersWidget', () => {
 			name: /view referrers for search engines/i,
 		} );
 
-		fireEvent.click( groupButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		await user.click( groupButton );
 		await expect(
 			screen.findByRole( 'button', { name: /view all referrers/i } )
 		).resolves.toBeInTheDocument();
@@ -169,6 +191,7 @@ describe( 'ReferrersWidget', () => {
 	} );
 
 	it( 'resets the drill-down when the drilled group disappears from the data', async () => {
+		const user = userEvent.setup();
 		const { rerender } = render(
 			<ReferrersWidget
 				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
@@ -179,7 +202,7 @@ describe( 'ReferrersWidget', () => {
 			name: /view referrers for search engines/i,
 		} );
 
-		fireEvent.click( groupButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		await user.click( groupButton );
 		await expect(
 			screen.findByRole( 'button', { name: /view all referrers/i } )
 		).resolves.toBeInTheDocument();
@@ -257,8 +280,29 @@ describe( 'ReferrersWidget', () => {
 			'"jetpack.com" marked as spam.',
 			expect.objectContaining( { type: 'snackbar' } )
 		);
-		// Search Engines has children, so it offers no spam action.
+		// Search Engines is a named source, not a domain, so it offers no spam action.
 		expect( screen.queryByRole( 'button', { name: /as spam$/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers "Mark as spam" on a domain group that drills down, without drilling down', async () => {
+		const user = userEvent.setup();
+		mockApiFetch.mockResolvedValue( DOMAIN_GROUP_REFERRERS_RESPONSE );
+
+		render(
+			<ReferrersWidget
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		const spam = await screen.findByRole( 'button', { name: 'Mark "example.com" as spam' } );
+		expect(
+			screen.getByRole( 'button', { name: 'View referrers for example.com' } )
+		).toBeInTheDocument();
+
+		await user.click( spam );
+
+		expect( screen.getByRole( 'alertdialog', { name: 'Mark as spam' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /all referrers/i } ) ).not.toBeInTheDocument();
 	} );
 
 	// Referrer rows derive from inbound request data rather than anything the site

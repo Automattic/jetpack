@@ -93,8 +93,9 @@ export type LeaderboardRowProps = {
 	/** The mutually exclusive action applied to this chart row. */
 	action: LeaderboardRowAction;
 	/**
-	 * A row action rendered after the label, revealed with the "View" action on
-	 * hover or focus. Only rows whose label stays put (`viewLink`, `static`) take one.
+	 * A row action rendered after the label, revealed on hover or focus (with the
+	 * "View" action when there is one). Rows that link out as a whole (`link`, and
+	 * `postLink`/`videoLink` without a detail page) drop it.
 	 */
 	trailingAction?: ReactElement;
 	/** The look of the chart the row sits in. Only `list` insets the label and sizes the bar. */
@@ -206,12 +207,15 @@ export function LeaderboardRow( {
 		);
 	}
 
+	const trailing = trailingAction && <span className={ styles.rowAction }>{ trailingAction }</span>;
+
 	if ( ( action.kind === 'drillDown' || action.kind === 'static' ) && action.link ) {
 		return (
 			<span className={ styles.row } title={ label }>
 				<InternalLink { ...action.link } className={ styles.labelLink }>
 					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
 				</InternalLink>
+				{ trailing }
 			</span>
 		);
 	}
@@ -221,7 +225,7 @@ export function LeaderboardRow( {
 	);
 
 	// The label carries the tooltip itself, so each action keeps only its own.
-	if ( action.kind === 'viewLink' || ( action.kind === 'static' && trailingAction ) ) {
+	if ( action.kind === 'viewLink' || ( action.kind !== 'link' && trailing ) ) {
 		return (
 			<span className={ rowClassName }>
 				<span className={ styles.plainLabel } title={ label }>
@@ -230,7 +234,7 @@ export function LeaderboardRow( {
 				{ action.kind === 'viewLink' && (
 					<ViewLiveLink href={ action.href } label={ label } className={ styles.rowAction } />
 				) }
-				{ trailingAction && <span className={ styles.rowAction }>{ trailingAction }</span> }
+				{ trailing }
 			</span>
 		);
 	}
@@ -261,7 +265,9 @@ export function buildLeaderboardRow( props: LeaderboardRowProps ): LeaderboardRo
 	if ( props.action.kind === 'drillDown' ) {
 		const button = { label, onClick: props.action.onClick, ariaLabel: props.action.ariaLabel };
 
-		return props.action.link ? { ...button, hasInteractiveLabel: true } : button;
+		return props.action.link || props.trailingAction
+			? { ...button, hasInteractiveLabel: true }
+			: button;
 	}
 
 	return { label };
