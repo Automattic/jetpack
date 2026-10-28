@@ -59,7 +59,7 @@ add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_edito
  * @param object $rendering_context The email rendering context.
  * @return string
  */
-function render_email( $block_content, array $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+function render_email( $block_content, array $parsed_block, $rendering_context ) {
 	if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
 		return '';
 	}
@@ -74,7 +74,13 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		$title = trim( wp_strip_all_tags( $m[1] ) );
 	}
 
-	$body      = '';
+	// Outlook does not inherit color into nested tables, so paint it on every cell like the engine's Text renderer.
+	$email_attrs  = $parsed_block['email_attrs'] ?? array();
+	$theme_styles = is_object( $rendering_context ) && method_exists( $rendering_context, 'get_theme_styles' ) ? (array) $rendering_context->get_theme_styles() : array();
+	$color        = $email_attrs['color'] ?? $theme_styles['color']['text'] ?? '#000000';
+
+	// Each line is a stacked table with cell padding for the gaps: Outlook ignores margins on <p> and tables.
+	$lines     = array();
 	$remaining = $timestamp - time();
 	if ( $remaining > 0 ) {
 		if ( $remaining >= DAY_IN_SECONDS ) {
@@ -88,37 +94,39 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 			$label = _nx( 'minute until', 'minutes until', $count, 'Countdown minutes remaining', 'jetpack-mu-wpcom' );
 		}
 
-		$body .= sprintf(
-			'<p style="margin: 0 0 4px; font-size: 56px; font-weight: 700; line-height: 1;">%s</p>',
-			esc_html( number_format_i18n( $count ) )
-		);
-		$body .= sprintf(
-			'<p style="margin: 0 0 16px; font-size: 14px; font-weight: 600; line-height: 1.4; text-transform: uppercase; letter-spacing: 1px;">%s</p>',
-			esc_html( $label )
-		);
+		$lines[] = array( number_format_i18n( $count ), 'font-size: 56px; line-height: 56px; font-weight: 700; padding: 0 0 4px;' );
+		$lines[] = array( $label, 'font-size: 14px; line-height: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 0 0 16px;' );
 	}
-
 	if ( '' !== $title ) {
-		$body .= sprintf(
-			'<p style="margin: 0 0 8px; font-size: 28px; font-weight: 700; line-height: 1.2;">%s</p>',
-			esc_html( $title )
-		);
+		$lines[] = array( $title, 'font-size: 28px; line-height: 34px; font-weight: 700; padding: 0 0 8px;' );
 	}
-
-	$body .= sprintf(
-		'<p style="margin: 0; font-size: 14px; line-height: 1.4;">%s</p>',
-		esc_html(
-			sprintf(
-				/* translators: 1: event date, 2: event time. */
-				__( '%1$s at %2$s', 'jetpack-mu-wpcom' ),
-				wp_date( get_option( 'date_format' ), $timestamp ),
-				wp_date( get_option( 'time_format' ), $timestamp )
-			)
-		)
+	$lines[] = array(
+		sprintf(
+			/* translators: 1: event date, 2: event time. */
+			__( '%1$s at %2$s', 'jetpack-mu-wpcom' ),
+			wp_date( get_option( 'date_format' ), $timestamp ),
+			wp_date( get_option( 'time_format' ), $timestamp )
+		),
+		'font-size: 14px; line-height: 20px; padding: 0;',
 	);
 
+	$body = '';
+	foreach ( $lines as $line ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		$body .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			esc_html( $line[0] ),
+			array(
+				'width' => '100%',
+				'style' => 'border-collapse: separate;',
+			),
+			array(
+				'align' => 'center',
+				'style' => 'text-align: center; mso-line-height-rule: exactly; color: ' . $color . '; ' . $line[1],
+			)
+		);
+	}
+
 	// The engine sets margin-top on every block after the first; core renderers add no other margin.
-	$email_attrs  = $parsed_block['email_attrs'] ?? array();
 	$margin_style = (string) \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin-top' ) ) ), '' );
 
 	// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
@@ -126,11 +134,12 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		$body,
 		array(
 			'class' => 'wp-block-jetpack-event-countdown',
-			'style' => trim( $margin_style . ' width: 100%; border-collapse: separate;' ),
+			'width' => '100%',
+			'style' => trim( $margin_style . ' min-width: 100%; border-collapse: separate;' ),
 		),
 		array(
 			'align' => 'center',
-			'style' => 'text-align: center; padding: 16px 0;',
+			'style' => 'text-align: center; word-break: break-word; color: ' . $color . '; padding: 16px 0;',
 		)
 	);
 }
