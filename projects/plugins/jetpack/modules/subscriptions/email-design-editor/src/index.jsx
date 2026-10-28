@@ -36,7 +36,9 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { registerPlugin } from '@wordpress/plugins';
 import { addQueryArgs } from '@wordpress/url';
+import { designKeys, forwardEditorEvents, initializeTracks, recordDesignEvent } from './analytics';
 import { watchDerivedTextColor } from './derived-text-color';
+import { bundleRootFontSize, watchRootFontSize, withRootFontSize } from './root-font-size';
 
 // Declared by the Jetpack plugin on every platform, answered by WordPress.com, so
 // the browser calls one local URL everywhere.
@@ -56,6 +58,9 @@ const BLOCK_EDITOR_STORE = 'core/block-editor';
 
 // A save arrives as any of these, depending on whether core-data creates or updates.
 const WRITE_METHODS = [ 'POST', 'PUT', 'PATCH' ];
+
+// Where both the email's design and the site's own theme styles are addressed.
+const GLOBAL_STYLES_PATH = '/wp/v2/global-styles/';
 
 // Addressed by name for a second reason as well: WordPress registers no `wp-interface` script, so
 // importing the package would add a dependency nothing answers and the bundle would never enqueue.
@@ -191,28 +196,30 @@ export function buildEditorConfig( bundle, data ) {
  * Appended to `styles` rather than replacing it: WordPress.com ships the email's own stylesheet
  * through that same array, and the package reads the whole of it.
  *
- * The one rule so far hides the featured image. `core/post-featured-image` is a core block, so
- * WordPress.com deliberately leaves it out of `blocks` — sending core definitions would replace
- * this site's working implementations with placeholders — and no `preview_html` can reach it.
- * Only WordPress.com knows whether a send carries the image, so the bundle reports that instead.
+ * One hides the featured image. `core/post-featured-image` is a core block, so WordPress.com
+ * deliberately leaves it out of `blocks` — sending core definitions would replace this site's
+ * working implementations with placeholders — and no `preview_html` can reach it. Only
+ * WordPress.com knows whether a send carries the image, so the bundle reports that instead.
+ *
+ * The other publishes the root font size image captions are sized from, which `watchRootFontSize`
+ * then keeps current.
  *
  * @param {object} settings - The editor settings assembled so far.
  * @param {object} bundle   - The response from the bootstrap route.
  * @return {object} The settings, with any extra canvas rules appended.
  */
 function withCanvasStyles( settings, bundle ) {
+	const styles = withRootFontSize( settings.styles, bundleRootFontSize( bundle ) );
+
 	// Strictly false. A bundle from before WordPress.com reported this omits the key, and hiding
 	// the image on that reading would be a regression on every blog that does send one.
-	if ( false !== bundle?.shows_featured_image ) {
-		return settings;
+	if ( false === bundle?.shows_featured_image ) {
+		styles.push( { css: '.wp-block-post-featured-image { display: none; }' } );
 	}
 
 	return {
 		...settings,
-		styles: [
-			...( Array.isArray( settings.styles ) ? settings.styles : [] ),
-			{ css: '.wp-block-post-featured-image { display: none; }' },
-		],
+		styles,
 	};
 }
 
@@ -696,7 +703,11 @@ function ResetDesignControl( { id } ) {
 	);
 
 	const openConfirmation = useCallback( () => setIsConfirming( true ), [] );
-	const cancelConfirmation = useCallback( () => setIsConfirming( false ), [] );
+
+	const cancelConfirmation = useCallback( () => {
+		setIsConfirming( false );
+		recordDesignEvent( 'reset', { outcome: 'cancelled' } );
+	}, [] );
 
 	/**
 	 * Clear the design, then fetch the canvas again.
@@ -710,11 +721,15 @@ function ResetDesignControl( { id } ) {
 		try {
 			await resetDesign( id );
 
+			recordDesignEvent( 'reset', { outcome: 'reset' } );
+
 			// The canvas draws the block previews WordPress.com rendered, fetched once when the
 			// screen mounted and inline-styled for email clients, so it goes on showing the design
 			// that was stored then. Fetching them again is what shows the reset one. NL-970.
 			screenControls.reload();
 		} catch ( error ) {
+			recordDesignEvent( 'reset', { outcome: 'error' } );
+
 			// The notice deliberately does not name what failed; this does.
 			// eslint-disable-next-line no-console
 			console.error( 'Jetpack email design reset:', error );
@@ -832,6 +847,19 @@ export function registerEditorPlugin( globalStylesPostId = null ) {
 }
 
 /**
+ * The path a request addresses, without its query.
+ *
+ * Empty for a request made by `url` rather than by `path`, which the middlewares below do not
+ * claim.
+ *
+ * @param {object} options - The `apiFetch` options the middleware was handed.
+ * @return {string} The path, or an empty string.
+ */
+function requestPath( options ) {
+	return 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+}
+
+/**
  * Catch the Styles panel's save and send it to WordPress.com instead.
  *
  * The editor writes a core-data `globalStyles` entity, but the design is stored in a WordPress.com
@@ -846,10 +874,10 @@ export function registerEditorPlugin( globalStylesPostId = null ) {
  * @return {Function} An `apiFetch` middleware.
  */
 export function createDesignSaveMiddleware( id ) {
-	const target = `/wp/v2/global-styles/${ id }`;
+	const target = `${ GLOBAL_STYLES_PATH }${ id }`;
 
 	return async ( options, next ) => {
-		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+		const path = requestPath( options );
 		const method = ( options.method || 'GET' ).toUpperCase();
 
 		if ( target !== path || ! WRITE_METHODS.includes( method ) ) {
@@ -873,11 +901,24 @@ export function createDesignSaveMiddleware( id ) {
 
 		const submitted = { styles: edited.styles ?? {}, settings: edited.settings ?? {} };
 
-		const saved = await apiFetch( {
-			path: BOOTSTRAP_PATH,
-			method: 'POST',
-			data: { design: submitted },
-		} );
+		const changed = {
+			style_keys: designKeys( submitted.styles ),
+			setting_keys: designKeys( submitted.settings ),
+		};
+
+		let saved;
+
+		try {
+			saved = await apiFetch( {
+				path: BOOTSTRAP_PATH,
+				method: 'POST',
+				data: { design: submitted },
+			} );
+		} catch ( error ) {
+			recordDesignEvent( 'save', { outcome: 'error', ...changed } );
+
+			throw error;
+		}
 
 		// The route answers with an envelope — `{ blog_id, design, discarded }` — around a read-back
 		// of what was stored, since sanitizing drops anything outside the theme.json schema. Unwrap
@@ -897,11 +938,71 @@ export function createDesignSaveMiddleware( id ) {
 			);
 		}
 
+		// The one outcome the package cannot see, because `discarded` never reaches a store.
+		recordDesignEvent( 'save', {
+			outcome: saved?.discarded ? 'discarded' : 'saved',
+			...changed,
+		} );
+
 		return {
 			id,
 			settings: objectOrEmpty( design.settings ),
 			styles: objectOrEmpty( design.styles ),
 		};
+	};
+}
+
+/**
+ * Report every global-styles record but the email's as read-only.
+ *
+ * `@wordpress/editor` renders core's Global Styles sidebar — the site's theme, not the email — for
+ * a `wp_template` whose viewer may update the site's global-styles record, which on a block theme
+ * an admin may. Saving from it changes the site, while the package's blanket notice says the email
+ * design was updated. See NL-1089.
+ *
+ * Denying the capability is the lever: core renders no read-only version of that sidebar, and the
+ * canvas is unaffected, since without it core reads the same record at view context.
+ *
+ * Rewritten rather than preloaded: both answers set the permission, see `globalStylesPreloads()`.
+ *
+ * @param {number|null} id - The global-styles id the bundle named, null when it sent none.
+ * @return {Function} An `apiFetch` middleware.
+ */
+export function createSiteStylesReadOnlyMiddleware( id ) {
+	const ours = id ? `${ GLOBAL_STYLES_PATH }${ id }` : null;
+
+	return async ( options, next ) => {
+		const path = requestPath( options );
+
+		// Only an unparsed response carries headers, and only a header sets a permission.
+		if ( false !== options.parse || ! path.startsWith( GLOBAL_STYLES_PATH ) || path === ours ) {
+			return next( options );
+		}
+
+		return readOnlyResponse( await next( options ) );
+	};
+}
+
+/**
+ * The same response, reporting reads as all it permits.
+ *
+ * A stand-in rather than the response itself, whose `Headers` are not ours to set. It carries what
+ * core-data reads off an unparsed one: the body, and whichever header it asks for by name.
+ *
+ * @param {object} response - What the request answered with.
+ * @return {object} The response to hand back instead.
+ */
+function readOnlyResponse( response ) {
+	return {
+		ok: response.ok,
+		status: response.status,
+		statusText: response.statusText,
+		headers: {
+			get: name =>
+				'allow' === String( name ).toLowerCase() ? 'GET' : response.headers.get( name ),
+		},
+		json: () => response.json(),
+		text: () => response.text(),
 	};
 }
 
@@ -980,7 +1081,7 @@ async function newestPublishedPostId() {
  */
 export function createTestSendMiddleware( globalStylesPostId, previewPostId = null ) {
 	return async ( options, next ) => {
-		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+		const path = requestPath( options );
 		const method = ( options.method || 'GET' ).toUpperCase();
 
 		if ( TEST_SEND_PATH !== path || 'POST' !== method ) {
@@ -994,6 +1095,8 @@ export function createTestSendMiddleware( globalStylesPostId, previewPostId = nu
 			const id = previewPostId || ( await newestPublishedPostId() );
 
 			if ( ! id ) {
+				recordDesignEvent( 'test_email_error', { reason: 'no_post' } );
+
 				throw new TestSendError(
 					__(
 						'Publish a post first — test emails are sent using your most recent post.',
@@ -1004,15 +1107,23 @@ export function createTestSendMiddleware( globalStylesPostId, previewPostId = nu
 
 			// The package's own `postId` is this screen's template id, which the route would read
 			// as a post.
-			return await apiFetch( {
+			const sent = await apiFetch( {
 				path: TEST_SEND_TARGET,
 				method: 'POST',
 				data: { id, email: options.data?.email },
 			} );
+
+			// Recorded here rather than forwarded from the package, whose own send events carry the
+			// recipient's address and a `postId` that is this screen's template.
+			recordDesignEvent( 'test_email_send' );
+
+			return sent;
 		} catch ( error ) {
 			if ( error instanceof TestSendError ) {
 				throw error;
 			}
+
+			recordDesignEvent( 'test_email_error', { reason: 'send_failed' } );
 
 			throw new TestSendError(
 				error?.message ?? __( 'Your test email could not be sent.', 'jetpack' )
@@ -1112,8 +1223,15 @@ export async function mountEmailDesignEditor() {
 	}
 
 	const root = createRoot( container );
+
+	// Before the editor mounts, which is when the package reads the filter that turns its own
+	// events on. {@see forwardEditorEvents}
+	initializeTracks( data.tracks );
+	forwardEditorEvents();
+
 	let stopWatchingSidebar = null;
 	let stopDerivingTextColor = null;
+	let stopWatchingRootFontSize = null;
 
 	try {
 		const bundle = await apiFetch( { path: bootstrapPath( data ) } );
@@ -1140,6 +1258,9 @@ export async function mountEmailDesignEditor() {
 			apiFetch.use( createDesignSaveMiddleware( config.globalStylesPostId ) );
 		}
 
+		// Unconditional: with no design of our own to edit, core's sidebar is still the site's.
+		apiFetch.use( createSiteStylesReadOnlyMiddleware( config.globalStylesPostId ) );
+
 		apiFetch.use( createTestSendMiddleware( config.globalStylesPostId, data.postId ?? null ) );
 
 		if ( preload ) {
@@ -1158,6 +1279,10 @@ export async function mountEmailDesignEditor() {
 				config.globalStylesPostId,
 				inheritedColors( bundle )
 			);
+
+			// Only a creator with the panel can change the size, and the canvas was built with the
+			// one the screen opened on.
+			stopWatchingRootFontSize = watchRootFontSize( bundleRootFontSize( bundle ) );
 		}
 
 		root.render(
@@ -1172,6 +1297,11 @@ export async function mountEmailDesignEditor() {
 	} catch ( error ) {
 		stopWatchingSidebar?.();
 		stopDerivingTextColor?.();
+		stopWatchingRootFontSize?.();
+
+		// The screen's own view event is recorded server-side, so this is what tells the two apart:
+		// a creator who arrived and a creator who got an editor.
+		recordDesignEvent( 'load_error' );
 
 		// The notice deliberately does not name which half failed; this does.
 		// eslint-disable-next-line no-console

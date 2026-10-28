@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -209,6 +210,54 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 
 		$this->assertSame( 400, $response->get_status() );
 		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	/**
+	 * A time window reaches WordPress.com, which is how the Overview finds a backup on no loaded page.
+	 */
+	public function test_forwards_a_time_window() {
+		$this->arrange_wpcom( array( 'current' => array( 'orderedItems' => array() ) ) );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$request->set_param( 'after', '2026-10-17T04:30:03Z' );
+		$request->set_param( 'before', '2026-10-17T04:30:06+00:00' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		parse_str( (string) wp_parse_url( $this->captured_url, PHP_URL_QUERY ), $query );
+		$this->assertSame( '2026-10-17T04:30:03Z', $query['after'] );
+		$this->assertSame( '2026-10-17T04:30:06+00:00', $query['before'] );
+	}
+
+	/**
+	 * A bound that isn't a date-time is refused before anything is sent upstream.
+	 *
+	 * @dataProvider provide_malformed_bounds
+	 * @param string $param Bound to set.
+	 * @param string $value Its malformed value.
+	 */
+	#[DataProvider( 'provide_malformed_bounds' )]
+	public function test_refuses_a_malformed_bound( $param, $value ) {
+		$this->arrange_wpcom( array( 'current' => array( 'orderedItems' => array() ) ) );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$request->set_param( $param, $value );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( '', $this->captured_url );
+	}
+
+	/**
+	 * Bounds that aren't ISO 8601 date-times.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public static function provide_malformed_bounds() {
+		return array(
+			'unix timestamp' => array( 'after', '1792247404' ),
+			'date only'      => array( 'before', '2026-10-17' ),
+		);
 	}
 
 	/**

@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { comment, postList } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -22,6 +23,8 @@ function renderMetricGrid() {
 }
 
 describe( 'MetricTileGrid', () => {
+	afterEach( () => jest.useRealTimers() );
+
 	it( 'renders metric tiles as a list', () => {
 		renderMetricGrid();
 
@@ -73,7 +76,9 @@ describe( 'MetricTileGrid', () => {
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'exposes a tile note as visually hidden assistive text', () => {
+	it( 'shows a tile note in a tooltip on the tile header', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render(
 			<MetricTileGrid
 				tiles={ [
@@ -82,6 +87,11 @@ describe( 'MetricTileGrid', () => {
 			/>
 		);
 
-		expect( screen.getByText( 'Sum of daily visitors.' ) ).toBeInTheDocument();
+		await user.hover( screen.getByText( 'Visitors' ) );
+		await act( () => jest.runAllTimersAsync() );
+
+		expect( screen.getByTestId( 'metric-note-tooltip' ) ).toHaveTextContent(
+			'Sum of daily visitors.'
+		);
 	} );
 } );

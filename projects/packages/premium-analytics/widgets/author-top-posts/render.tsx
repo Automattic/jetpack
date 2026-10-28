@@ -3,13 +3,10 @@
  */
 import { toAuthorId } from '@jetpack-premium-analytics/data';
 import {
-	ExporterCsvDownloadButton,
 	LeaderboardChart,
 	LeaderboardPostLabel,
 	LeaderboardSkeleton,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	authorPostsCsvExporter,
@@ -17,6 +14,7 @@ import {
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -73,53 +71,51 @@ function AuthorTopPostsInner() {
 		[ rows ]
 	);
 
+	useReportActions( {
+		csv: {
+			exporter: csvExporter,
+			status: { isLoading, isFetching, isError: ! hasData && isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<div className={ styles.content }>
-				<WidgetState
-					isLoading={ isLoading }
-					isFetching={ isFetching }
-					// Stale rows stay on screen through a failed background refetch.
-					isError={ ! hasData && isError }
-					isEmpty={ rows.length === 0 }
-					error={ describeError( error, {
-						retryDescription: __(
-							"We couldn't load this author's posts. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						onRetry: refetch,
-					} ) }
-					empty={
-						authorId <= 0
-							? {
-									description: __(
-										'Open an author to see their top posts here.',
-										'jetpack-premium-analytics-pkg'
-									),
-								}
-							: undefined
-					}
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<LeaderboardChart
-						chartTitle={ __( 'Top viewed posts', 'jetpack-premium-analytics-pkg' ) }
-						data={ chartData }
-						withOverlayLabel
-						showLegend={ false }
-						dataFormat={ DATA_FORMAT }
-						columns={ { label: __( 'Posts', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
-					/>
-				</WidgetState>
-			</div>
-			<WidgetFooter>
-				<ReportLink report="authors" />
-				<ExporterCsvDownloadButton
-					exporter={ csvExporter }
-					status={ { isLoading, isFetching, isError: ! hasData && isError } }
-					rowCount={ rows.length }
+		<div className={ styles.content }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// Stale rows stay on screen through a failed background refetch.
+				isError={ ! hasData && isError }
+				isEmpty={ rows.length === 0 }
+				error={ describeError( error, {
+					retryDescription: __(
+						"We couldn't load this author's posts. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: refetch,
+				} ) }
+				empty={
+					authorId <= 0
+						? {
+								description: __(
+									'Open an author to see their top posts here.',
+									'jetpack-premium-analytics-pkg'
+								),
+							}
+						: undefined
+				}
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
+				<LeaderboardChart
+					chartTitle={ __( 'Top viewed posts', 'jetpack-premium-analytics-pkg' ) }
+					data={ chartData }
+					withOverlayLabel
+					showLegend={ false }
+					dataFormat={ DATA_FORMAT }
+					columns={ { label: __( 'Posts', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
 				/>
-			</WidgetFooter>
-		</>
+			</WidgetState>
+		</div>
 	);
 }
 

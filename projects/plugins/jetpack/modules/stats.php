@@ -60,7 +60,10 @@ function stats_load() {
 	Stats_Admin_Bar::init();
 	Admin_Post_List_Column::register();
 
-	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
+	// Keep the classic page unless Stats v2 can take over; old links then open it via Stats_Links::open_retired_stats_page().
+	if ( ! Jetpack_Stats_Feature_Flags::is_classic_page_retired() || ! Jetpack::is_premium_analytics_enabled() ) {
+		add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
+	}
 
 	// Filter for adding the Jetpack plugin version to tracking stats.
 	add_filter( 'stats_array', 'filter_stats_array_add_jp_version' );

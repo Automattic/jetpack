@@ -32,7 +32,7 @@ This page covers sections only. Widget types have their own page, [Dashboard wid
 | `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                       |
 | `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                 |
 | `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                 |
-| `routes/site-readiness.ts`                         | `isDashboardSectionAvailable()`, the report routes' gate, fed by the inline script data.                                                                                  |
+| `packages/data/src/utils/dashboard-sections.ts`   | `isDashboardSectionAvailable()`, the report routes' gate, fed by the inline script data, and `isPostDetailAvailable()`, which post links read before linking to `/post/:id`. |
 
 ## When the section files load
 
@@ -121,7 +121,7 @@ The stage then builds the navigation from `{ slug, label }`, resolves the active
 
 A second, smaller channel carries only slugs. `inject_dashboard_sections_script_data()` puts `premium_analytics.sections`, and `premium_analytics.plan_date_limited_sections` for the sections that set `follows_plan_date_limits`, in `JetpackScriptData`, which `jetpack-assets` prints inline on the page.
 
-`isDashboardSectionAvailable()` reads it, and `getReportDefinition()` treats a report behind a hidden section as unknown, so the report and detail routes can redirect in `beforeLoad`, before any request. `getSectionDatePolicy()` reads the second list, so a route applies the plan's date limits there too.
+`isDashboardSectionAvailable()` reads it, and `getReportDefinition()` treats a report behind a hidden section as unknown, so the report and detail routes can redirect in `beforeLoad`, before any request. `PostTitleLink` reads the same gate, so a reader who cannot open a post's details gets its public page instead. `getSectionDatePolicy()` reads the second list, so a route applies the plan's date limits there too.
 
 The slug list exists because the report registry lives in the client today. Once reports register on the server, it goes away.
 
@@ -170,7 +170,7 @@ Reset deletes the stored entry rather than copying the default into it, so a sec
 
 A section that declares no layout opens in customize mode on the empty state, since `WidgetDashboard` treats an empty layout as "no widgets". A section meant to be read declares one.
 
-A section the site's plan locks is the exception: it shows only its open widgets, never enters customize mode, and renders the upgrade prompt below them (see [Locking a widget by plan](dashboard-widgets.md#locking-a-widget-by-plan)).
+A section the site's plan locks is the exception: it shows only its open widgets, enters customize mode only while it shows some, and renders the upgrade prompt below them (see [Locking a widget by plan](dashboard-widgets.md#locking-a-widget-by-plan)).
 
 ## Insertable widget types
 
@@ -259,7 +259,7 @@ The widget it seeds is the registrant's story, in [Dashboard widget types](dashb
 | The VideoPress package's layout seed, with and without the widget contract loaded, and its WordPress.com registrant | `projects/packages/videopress/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/videopress/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php`, `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Videopress_Widgets_Test.php` |
 | The REST entry point WordPress.com calls                                                                            | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                                                                                                                                            |
 | Navigation, active section, stored layouts, section heading                                                         | `routes/dashboard/**/*.test.ts(x)`                                                                                                                                                                                                                                       |
-| Reports behind a hidden section                                                                                     | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts`                                                                                                                                                                                                     |
+| Reports behind a hidden section                                                                                     | `routes/reports/registry.test.ts`, `packages/data/src/utils/__tests__/dashboard-sections.test.ts`                                                                                                                                                                        |
 
 ## Not covered here
 

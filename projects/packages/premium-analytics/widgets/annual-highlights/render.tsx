@@ -10,14 +10,12 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 import {
 	AnnualHighlightsSkeleton,
 	MetricTileGrid,
-	ReportLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
-	ExporterCsvDownloadButton,
 	annualInsightsCsvExporter,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { comment, page, postContent, starEmpty } from '@wordpress/icons';
@@ -85,6 +83,15 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 		},
 	];
 
+	useReportActions( {
+		csv: {
+			exporter: annualInsightsCsvExporter,
+			// Same gate as the error state: a failed refetch keeps the cached years.
+			status: { isLoading, isFetching, isError: ! data && isError },
+			rowCount: data?.years?.length ?? 0,
+		},
+	} );
+
 	return (
 		<div className={ styles.content }>
 			<WidgetState
@@ -106,15 +113,6 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 					<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 				</Stack>
 			</WidgetState>
-			<WidgetFooter>
-				<ReportLink report="annual-insights" />
-				<ExporterCsvDownloadButton
-					exporter={ annualInsightsCsvExporter }
-					// Same gate as the error state: a failed refetch keeps the cached years.
-					status={ { isLoading, isFetching, isError: ! data && isError } }
-					rowCount={ data?.years?.length ?? 0 }
-				/>
-			</WidgetFooter>
 		</div>
 	);
 }

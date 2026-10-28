@@ -23,7 +23,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * Namespaced section identifier. Its slug, `woocommerce`, keys the section's URL and stored layouts.
@@ -83,10 +83,9 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-woocommerce-stats-pkg';
 
 	/**
-	 * Lowest widget contract the build works against: Visitors by location draws `Locations`,
-	 * which the dashboard ships from 1.11.0.
+	 * Lowest widget contract the build works against: 2.0.0, the start of the major it is built for.
 	 */
-	const MIN_WIDGET_API_VERSION = '1.11.0';
+	const MIN_WIDGET_API_VERSION = '2.0.0';
 
 	/**
 	 * Widget categories the package builds but holds back from the tab for now: the bookings
@@ -133,16 +132,20 @@ class Analytics_Dashboard {
 	const DASHBOARD_PAGE_INIT_ACTION = 'jetpack-premium-analytics-wp-admin_init';
 
 	/**
-	 * Hook both registrants on the dashboard's registry actions, the Bookings metric on the dashboard
+	 * Register the sync opt-in, then hook both registrants on the dashboard's registry actions, the Bookings metric on the dashboard
 	 * page, the reports proxy on REST requests and its cache reset on the end of the initial sync,
 	 * and the store currency on the script data.
 	 *
 	 * Priority 20, after the dashboard package's own registrants: an older package that still
 	 * registers the section itself is found by slug and left alone.
 	 *
+	 * Call it before plugins_loaded completes, for the sync opt-in ({@see Sync_Configuration::register()}).
+	 *
 	 * @return void
 	 */
 	public static function init() {
+		Sync_Configuration::register();
+
 		add_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ), 20 );
 		add_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ), 20 );
 		add_action( self::DASHBOARD_PAGE_INIT_ACTION, array( __CLASS__, 'enqueue_store_performance_bookings' ) );
@@ -397,7 +400,7 @@ class Analytics_Dashboard {
 
 		$version = \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION;
 
-		return version_compare( $version, self::MIN_WIDGET_API_VERSION, '>=' ) && version_compare( $version, '2', '<' );
+		return version_compare( $version, self::MIN_WIDGET_API_VERSION, '>=' ) && version_compare( $version, '3', '<' );
 	}
 
 	/**

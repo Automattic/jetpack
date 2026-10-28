@@ -55,6 +55,26 @@ describe( 'useDashboardPolicy', () => {
 		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( true );
 	} );
 
+	it( 'lets a locked section move and resize its open widgets, but not add or remove one', () => {
+		const { result } = renderHook( () =>
+			useDashboardPolicy( { ...POLICY_INPUTS, lockedLayout: [ widget ] } )
+		);
+
+		expect( result.current( { operation: 'customize' } ) ).toBe( true );
+		expect( result.current( { operation: 'move', widget, widgetType } ) ).toBe( true );
+		expect( result.current( { operation: 'resize', widget, widgetType } ) ).toBe( true );
+		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( false );
+		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( false );
+	} );
+
+	it( 'offers no Customize on a locked section that shows no widget', () => {
+		const { result } = renderHook( () =>
+			useDashboardPolicy( { ...POLICY_INPUTS, lockedLayout: [] } )
+		);
+
+		expect( result.current( { operation: 'customize' } ) ).toBe( false );
+	} );
+
 	it( 'offers the insertable types, and no other', () => {
 		const { result } = renderHook( () => useDashboardPolicy( POLICY_INPUTS ) );
 

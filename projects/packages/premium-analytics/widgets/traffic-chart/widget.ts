@@ -9,11 +9,12 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import {
+	chartIntervalAttributeField,
 	chartIntervalElements,
-	chartIntervalField,
 	type ChartIntervalFieldAttributes,
 } from '@jetpack-premium-analytics/fields';
 import type { ChartDisplayChartType, CountLabel } from '@jetpack-premium-analytics/widgets-toolkit';
+import { trafficIntervalExtension } from './interval-extension';
 import { readStatsV1ChartType } from './stats-v1-chart-type';
 
 /**
@@ -24,6 +25,7 @@ export const TRAFFIC_PERIODS = [
 	'day',
 	'week',
 	'month',
+	'year',
 ] as const satisfies readonly StatsPeriod[];
 
 /**
@@ -104,7 +106,9 @@ export type TrafficChartAttributes = ChartIntervalFieldAttributes< TrafficChartG
 };
 
 const chartIntervalAttribute = {
-	...chartIntervalField,
+	...chartIntervalAttributeField< TrafficChartAttributes >( ( range, item ) =>
+		trafficIntervalExtension( range, item.chartType ?? defaultChartType() )
+	),
 	elements: chartIntervalElements( TRAFFIC_PERIODS ),
 };
 

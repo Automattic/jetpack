@@ -9,7 +9,13 @@ import { getProtectPageUrl } from '../../../utils/protect-page';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
-import { getModuleUnavailableNote, offersConnect } from './feature-state';
+import {
+	getForcedReason,
+	getModuleUnavailableNote,
+	needsAccountWithoutConnect,
+	offersConnect,
+} from './feature-state';
+import { isAccountConnectEnabled } from './mappings';
 import {
 	getFeatureStatusLabel,
 	getFeatureUnavailableReason,
@@ -84,8 +90,14 @@ export function FeatureItem( {
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen?.( feature.slug ), [ feature.slug, onOpen ] );
 	const unavailable = getFeatureUnavailableReason( state );
-	// The badge already says an account is needed, so the card does not repeat it.
-	const reason = ( ! state.accountNeeded && unavailable ) || getModuleUnavailableNote( state );
+	// Connect or Install already says an account is needed.
+	const reason =
+		( ( ! state.accountNeeded || needsAccountWithoutConnect( state ) ) && unavailable ) ||
+		getModuleUnavailableNote( state );
+	// With no Active or Inactive badge, this says why there is no switch, a host's choice or what
+	// the site can't run, unless the line above already does.
+	const forcedReason = isAccountConnectEnabled() ? getForcedReason( state ) : null;
+	const forcedNote = forcedReason !== reason ? forcedReason : null;
 	const statusId = `feature-status-${ feature.slug }`;
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
@@ -94,6 +106,12 @@ export function FeatureItem( {
 	// says what to do there and drops a status badge that would only confuse next to it.
 	const migration =
 		state.control.kind === 'module' ? getBlockThemeMigration( state.control.module ) : null;
+	// Manage in Protect stands in for the switch but cannot say whether the module is on.
+	const linksToProtect =
+		state.control.kind === 'module' &&
+		! getForcedReason( state ) &&
+		Boolean( getProtectPageUrl( state.control.module.module ) );
+	const statusLabel = migration ? null : getFeatureStatusLabel( state, linksToProtect );
 	// A card with details keeps its manage link in the modal; the stretched title would cover one here.
 	// A migration notice says the legacy settings no longer apply, so it gets no link either.
 	const settingsUrl =
@@ -151,9 +169,10 @@ export function FeatureItem( {
 						{ feature.name }
 					</Text>
 
-					{ isSettling && (
+					{ isSettling && ! isAccountConnectEnabled() && (
 						// The box a rendered Badge takes, measured: the heading row is laid out
-						// around it, so a shorter placeholder resizes every card on load.
+						// around it, so a shorter placeholder resizes every card on load. With the
+						// flag on, most cards settle with no badge, so none is held for them.
 						<LoadingPlaceholder
 							width={ 51 }
 							height={ 24 }
@@ -161,9 +180,9 @@ export function FeatureItem( {
 						/>
 					) }
 
-					{ ! isSettling && ! migration && (
+					{ ! isSettling && statusLabel && (
 						<Badge id={ statusId } intent={ isActive && ! unavailable ? 'stable' : 'none' }>
-							{ getFeatureStatusLabel( state ) }
+							{ statusLabel }
 						</Badge>
 					) }
 
@@ -179,6 +198,12 @@ export function FeatureItem( {
 				{ reason && (
 					<Text variant="body-sm" className={ styles[ 'install-notice' ] }>
 						{ reason }
+					</Text>
+				) }
+
+				{ forcedNote && (
+					<Text variant="body-sm" className={ styles[ 'install-notice' ] }>
+						{ forcedNote }
 					</Text>
 				) }
 
@@ -201,7 +226,7 @@ export function FeatureItem( {
 				<FeatureAction
 					state={ state }
 					origin={ origin }
-					describedby={ migration ? undefined : statusId }
+					describedby={ statusLabel ? statusId : undefined }
 				/>
 			</span>
 

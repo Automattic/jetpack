@@ -8,13 +8,10 @@ import {
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import {
-	ExporterCsvDownloadButton,
 	LeaderboardChart,
 	LeaderboardSkeleton,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	archivesCsvExporter,
@@ -32,6 +29,7 @@ import {
 	type LeaderboardChartData,
 	type LeaderboardRowAction,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -253,44 +251,42 @@ function TopPostsReport() {
 	} );
 	const withComparison = hasComparison;
 
+	useReportActions( {
+		report: 'posts',
+		section: 'posts-pages',
+		csv: {
+			exporter: postsPagesCsvExporter,
+			status: { isLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<div className={ styles.content }>
-				<WidgetState
-					isLoading={ isLoading }
-					isFetching={ isFetching }
-					// `placeholderData` keeps stale rows visible after a failed range change;
-					// only surface the error when nothing is on screen.
-					isError={ rows.length === 0 && isError }
-					isEmpty={ rows.length === 0 }
-					error={ {
-						description: __(
-							"We couldn't load posts and pages. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						actions: [
-							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-						],
-					} }
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<TopPostsLeaderboard
-						rows={ rows }
-						withComparison={ withComparison }
-						detailSearch={ detailSearch }
-						rowsLabel={ __( 'Pages', 'jetpack-premium-analytics-pkg' ) }
-					/>
-				</WidgetState>
-			</div>
-			<WidgetFooter>
-				<ReportLink report="posts" section="posts-pages" />
-				<ExporterCsvDownloadButton
-					exporter={ postsPagesCsvExporter }
-					status={ { isLoading, isFetching, isError: primary.isError } }
-					rowCount={ rows.length }
+		<div className={ styles.content }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// `placeholderData` keeps stale rows visible after a failed range change;
+				// only surface the error when nothing is on screen.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ rows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load posts and pages. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
+				<TopPostsLeaderboard
+					rows={ rows }
+					withComparison={ withComparison }
+					detailSearch={ detailSearch }
+					rowsLabel={ __( 'Pages', 'jetpack-premium-analytics-pkg' ) }
 				/>
-			</WidgetFooter>
-		</>
+			</WidgetState>
+		</div>
 	);
 }
 
@@ -403,45 +399,43 @@ function ArchivesReport() {
 			/>
 		);
 
+	useReportActions( {
+		report: 'posts',
+		section: 'archives',
+		csv: {
+			exporter: archivesCsvExporter,
+			status: { isLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<div className={ styles.content }>
-				{ backLink }
-				<WidgetState
-					isLoading={ isLoading }
-					isFetching={ isFetching }
-					// As above: keep the drilled rows visible through a transient refetch
-					// failure and only surface the error when there is nothing to show.
-					isError={ rows.length === 0 && isError }
-					isEmpty={ activeRows.length === 0 }
-					error={ {
-						description: __(
-							"We couldn't load archives. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						actions: [
-							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-						],
-					} }
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<TopPostsLeaderboard
-						rows={ activeRows }
-						withComparison={ withComparison }
-						onDrillDown={ handleDrillDown }
-						rowsLabel={ __( 'Archives', 'jetpack-premium-analytics-pkg' ) }
-					/>
-				</WidgetState>
-			</div>
-			<WidgetFooter>
-				<ReportLink report="posts" section="archives" />
-				<ExporterCsvDownloadButton
-					exporter={ archivesCsvExporter }
-					status={ { isLoading, isFetching, isError: primary.isError } }
-					rowCount={ rows.length }
+		<div className={ styles.content }>
+			{ backLink }
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// As above: keep the drilled rows visible through a transient refetch
+				// failure and only surface the error when there is nothing to show.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ activeRows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load archives. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
+				<TopPostsLeaderboard
+					rows={ activeRows }
+					withComparison={ withComparison }
+					onDrillDown={ handleDrillDown }
+					rowsLabel={ __( 'Archives', 'jetpack-premium-analytics-pkg' ) }
 				/>
-			</WidgetFooter>
-		</>
+			</WidgetState>
+		</div>
 	);
 }
 

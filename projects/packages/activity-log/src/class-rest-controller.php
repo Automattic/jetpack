@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Activity_Log;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
@@ -219,6 +220,16 @@ class REST_Controller {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/activity-log/known-threats',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_known_threats' ),
+				'permission_callback' => array( __CLASS__, 'permissions_callback' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/activity-log/actors',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -409,6 +420,76 @@ class REST_Controller {
 	 */
 	public static function get_activity_log_actors( WP_REST_Request $request ) {
 		return self::proxy_get( '/activity/actors', $request, array_keys( self::actors_args() ) );
+	}
+
+	/**
+	 * Whether this site checks backups for known threats. Only WoA sites do, for now.
+	 *
+	 * @return bool
+	 */
+	public static function known_threats_available() {
+		return ( new Host() )->is_woa_site();
+	}
+
+	/**
+	 * Known Scan threat counts for the site's newest 100 backups, by backup period.
+	 *
+	 * Without Scan, or off WoA, the answer is `threats_unavailable` (404) and the log shows no badges.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function get_known_threats() {
+		$unavailable = new WP_Error(
+			'threats_unavailable',
+			esc_html__( 'Known threats are not available for this site.', 'jetpack-activity-log' ),
+			array( 'status' => 404 )
+		);
+
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id || ! self::known_threats_available() ) {
+			return $unavailable;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/rewind/backups?number=100&page=1&known_threats_only=true', $blog_id ),
+			'3',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error( 'known_threats_request_failed', $response->get_error_message(), array( 'status' => 502 ) );
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		if ( 403 === $status ) {
+			return $unavailable;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( 200 !== $status || ! is_array( $body ) ) {
+			return new WP_Error(
+				'known_threats_request_failed',
+				esc_html__( 'Unable to fetch the known threats.', 'jetpack-activity-log' ),
+				array( 'status' => 502 )
+			);
+		}
+
+		// Every period is kept: a row belongs to the newest backup at or before its rewind id.
+		$backups = array();
+		foreach ( (array) ( $body['backups'] ?? array() ) as $backup ) {
+			if ( ! isset( $backup['object']['backup_period'] ) || ! is_numeric( $backup['object']['backup_period'] ) ) {
+				continue;
+			}
+			$known_threats = $backup['object']['known_threats'] ?? null;
+			$backups[]     = array(
+				'period'        => (int) $backup['object']['backup_period'],
+				'known_threats' => is_array( $known_threats ) ? $known_threats : null,
+			);
+		}
+
+		return rest_ensure_response( array( 'backups' => $backups ) );
 	}
 
 	/**

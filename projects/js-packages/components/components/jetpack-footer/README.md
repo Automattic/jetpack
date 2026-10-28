@@ -29,6 +29,15 @@ const menu = [
 <JetpackFooter menu={ menu } className="my-footer" />
 ```
 
+### Script-module builds
+
+Builds that can't bundle Sass imported from a dependency, such as wp-build script modules, can import the component and its stylesheet separately. Use the two together, since `unstyled` ships no styles:
+
+```js
+import '@automattic/jetpack-components/jetpack-footer/style.scss';
+import JetpackFooter from '@automattic/jetpack-components/jetpack-footer/unstyled';
+```
+
 ## Props
 
 - `className`: String - (default: `jetpack-footer`) the additional class name set on the element.

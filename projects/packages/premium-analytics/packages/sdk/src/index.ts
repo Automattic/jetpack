@@ -8,7 +8,6 @@ export {
 	Columns,
 	Donut,
 	EarningsHistoryList,
-	ExporterCsvDownloadButton,
 	Funnel,
 	Leaderboard,
 	Locations,
@@ -16,14 +15,13 @@ export {
 	MetricTabsChartSkeleton,
 	MetricTileGrid,
 	MetricTileGridSkeleton,
-	ReportLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildMetricTab,
 	describeError,
 	flattenEarningsBreakdown,
 	getVideoPosterUrl,
+	useReportActions,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 export {
@@ -44,4 +42,12 @@ export {
 	PRESET_LAST_7_DAYS,
 	toBucketStamp,
 } from '@jetpack-premium-analytics/datetime';
-export { Badge, Stack } from '@jetpack-premium-analytics/externals';
+export {
+	Badge,
+	Button,
+	ButtonLink,
+	Progress,
+	Stack,
+	Text,
+	VisuallyHidden,
+} from '@jetpack-premium-analytics/externals';

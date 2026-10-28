@@ -26,6 +26,26 @@ describe( 'matchDashboardHref', () => {
 			`${ PAGE }&p=%2Freports%2Flocations%3Fsection%3Dcountries%2Ccities`,
 			'/reports/locations?section=countries,cities',
 		],
+		[
+			'a JSON-quoted value, kept encoded for the route to read back as the string',
+			`${ PAGE }&p=%2Freports%2Freferrers%3Fcomp%3D%25221%2522`,
+			'/reports/referrers?comp=%221%22',
+		],
+		[
+			'a value the router reads as a number',
+			`${ PAGE }&p=%2Fposts%3Fauthor%3D12`,
+			'/posts?author=12',
+		],
+		[
+			'a value the router reads as a boolean',
+			`${ PAGE }&p=%2Fposts%3Fsticky%3Dtrue`,
+			'/posts?sticky=true',
+		],
+		[
+			'a value the router reads as JSON',
+			`${ PAGE }&p=%2Fposts%3Fview%3D%7B%22type%22%3A%22table%22%7D`,
+			'/posts?view={"type":"table"}',
+		],
 	] )( 'matches %s', ( _, href, expected ) => {
 		expect( matchDashboardHref( href, BASE ) ).toBe( expected );
 	} );

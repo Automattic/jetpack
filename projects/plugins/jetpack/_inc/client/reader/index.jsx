@@ -1,7 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
@@ -27,7 +26,6 @@ function Reader( props ) {
 		active,
 		isModuleFound,
 		searchTerm,
-		blogID,
 		isSavingAnyOption,
 		isReaderModuleActive,
 		readerModule,
@@ -119,10 +117,7 @@ function Reader( props ) {
 		</SettingsGroup>
 	);
 
-	const readerUrl = addQueryArgs(
-		'https://wordpress.com/reader/',
-		blogID ? { origin_site_id: blogID } : {}
-	);
+	const readerUrl = 'https://wordpress.com/reader/';
 	const visitReaderLink = (
 		<Card
 			compact

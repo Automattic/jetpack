@@ -44,10 +44,29 @@ export type WidgetStatus = {
 	refetch?: () => unknown;
 };
 
-// Footer chrome, until widgets declare their footer as actions the host renders.
-export declare const WidgetFooter: AnyComponent;
-export declare const ReportLink: AnyComponent;
-export declare const ExporterCsvDownloadButton: AnyComponent;
+// Report actions: the "View all" link and the report's CSV download, declared to the dashboard, which
+// renders them in the card footer. Returns whether the host places them.
+export declare function useReportActions( options: ReportActionsOptions ): boolean;
+export type ReportActionsOptions = {
+	// Action id of the link; a second call with another id adds a link beside "View all".
+	id?: string;
+	// Report id the link opens, as `/reports/<report>`; none for no link.
+	report?: string;
+	// Report tab the link opens (`?section=`).
+	section?: string;
+	// Link label; "View all" by default.
+	label?: string;
+	// Where the dashboard places the link; `high` (the footer's text action) by default.
+	relevance?: 'high' | 'medium' | 'low';
+	// The linked report's CSV download, offered once the rows settle; none for no download.
+	csv?: {
+		// The report's exporter, or the id of a report the dashboard exports.
+		exporter?: any;
+		report?: string;
+		status: { isLoading: boolean; isFetching: boolean; isError: boolean };
+		rowCount: number;
+	};
+};
 
 // Charts and metrics: parts of the metric tabs and metric tiles kinds, until those kinds exist.
 export declare const ChartEmptyState: AnyComponent;
@@ -231,6 +250,9 @@ export type ReportResult< TData > = {
 	primary: ReportQueryResult< TData >;
 	comparison: ReportQueryResult< TData >;
 	hasComparison: boolean;
+	// Where each period starts while a comparison is on, for `buildMetricTab`'s `periodStarts`.
+	// Absent on dashboards older than it.
+	periodStarts?: { current: string; comparison: string };
 	// The zone both periods were built under.
 	timezone: string;
 	// True while nothing on screen answers the current params; see WidgetState.
@@ -246,6 +268,8 @@ export type UseReportOptions = {
 	enabled?: boolean;
 	// Where the comparison query parks while the params carry no comparison.
 	disabledComparisonKey?: string[];
+	// Defaults to true. False for a query whose failure leaves the figures on screen current, such as product details.
+	refreshNotice?: boolean;
 };
 
 export declare function useReport< TData, TParams extends ReportParams = ReportParams >(
@@ -280,6 +304,18 @@ export type StatsVideoPlaysComparisonItem = any;
 export declare const EarningsHistoryList: AnyComponent;
 export declare function flattenEarningsBreakdown( ...args: any[] ): any;
 
-// UI primitives the widgets share with the dashboard, so no widget bundles its own copy.
+// UI primitives the widgets share with the dashboard, so no widget bundles its own copy. They go
+// the day `@wordpress/ui` ships as a script module and wp-build externalizes it on its own.
 export declare const Badge: AnyComponent;
+export declare const Button: AnyComponent;
+export declare const ButtonLink: AnyComponent;
+export declare const Progress: {
+	Root: AnyComponent;
+	Track: AnyComponent;
+	Indicator: AnyComponent;
+	Label: AnyComponent;
+	Value: AnyComponent;
+};
 export declare const Stack: AnyComponent;
+export declare const Text: AnyComponent;
+export declare const VisuallyHidden: AnyComponent;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a filter that lets the host skip the pre-connection Stats dashboard.

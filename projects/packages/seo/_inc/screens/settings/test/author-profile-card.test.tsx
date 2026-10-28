@@ -2,72 +2,31 @@ import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-// True-ESM Jest (`--experimental-vm-modules`): stub the core-data/notices edge with
-// `jest.unstable_mockModule`, then import the card dynamically. The card owns
-// the useAuthorProfile hook, which reads and writes the current user through the
-// core-data user entity — mocked here so the tests exercise the real hook,
-// section, and card UI without a network.
-const AUTHOR_RESPONSE = {
-	id: 123,
+// True-ESM Jest (`--experimental-vm-modules`): stub the REST and notices edges with
+// `jest.unstable_mockModule`, then import the card dynamically so the tests exercise
+// the real hook, section, and card UI without a network.
+const STORED_PROFILE = {
 	name: 'Jane Doe',
 	description: 'Writes about search.',
 	url: 'https://example.com/jane/',
-	avatar_urls: { 96: 'https://example.test/avatar.jpg' },
-	meta: {
-		jetpack_seo_job_title: 'Creator',
-		jetpack_seo_same_as: [ 'https://x.com/jane' ],
-	},
+	jobTitle: 'Creator',
+	sameAs: [ 'https://x.com/jane' ],
+	avatarUrl: 'https://example.test/avatar.jpg',
+	accountProfileUrl: '',
 };
 
-const useEntityRecord = jest.fn();
-const editEntity = jest.fn( ( patch: Record< string, unknown > ) => {
-	edits = { ...edits, ...patch };
-} );
-const saveEditedEntityRecord = jest.fn( () => Promise.resolve() );
+const mockApiFetch = jest.fn< ( options: { method?: string } ) => Promise< unknown > >();
 const createInfoNotice = jest.fn();
 const createSuccessNotice = jest.fn();
 const createErrorNotice = jest.fn();
-let currentUser: { id?: number } | undefined;
-let currentUserResolutionStatus: 'resolving' | 'finished' | 'error';
-let entityRecord: typeof AUTHOR_RESPONSE | null;
-// Local (in-browser) edits the mock replays into `editedRecord`; the store's
-// single source of truth. Meta is replaced (not merged) — the user entity has
-// no `mergedEdits`, matching the real behavior the hook relies on.
-let edits: Record< string, unknown >;
-let entityHasResolved: boolean;
-let entityIsResolving: boolean;
-let entityStatus: 'IDLE' | 'RESOLVING' | 'SUCCESS' | 'ERROR';
 
-const mockAuthorEntity = () => {
-	currentUser = { id: AUTHOR_RESPONSE.id };
-	currentUserResolutionStatus = 'finished';
-	entityRecord = AUTHOR_RESPONSE;
-	entityHasResolved = true;
-	entityIsResolving = false;
-	entityStatus = 'SUCCESS';
-};
-
-jest.unstable_mockModule( '@wordpress/core-data', () => ( {
-	store: 'core',
-	useEntityRecord,
-} ) );
+jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: mockApiFetch } ) );
 jest.unstable_mockModule( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.unstable_mockModule( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' ) as object;
 	return {
 		...actual,
-		useDispatch: () => ( {
-			createInfoNotice,
-			createSuccessNotice,
-			createErrorNotice,
-			saveEditedEntityRecord,
-		} ),
-		useSelect: ( callback: ( select: ( store: string ) => unknown ) => unknown ) =>
-			callback( () => ( {
-				getCurrentUser: () => currentUser,
-				getResolutionState: () => ( { status: currentUserResolutionStatus } ),
-				isSavingEntityRecord: () => false,
-			} ) ),
+		useDispatch: () => ( { createInfoNotice, createSuccessNotice, createErrorNotice } ),
 	};
 } );
 
@@ -82,29 +41,10 @@ const expand = () =>
 describe( 'AuthorProfileCard', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		currentUser = undefined;
-		currentUserResolutionStatus = 'resolving';
-		entityRecord = null;
-		edits = {};
-		entityHasResolved = false;
-		entityIsResolving = false;
-		entityStatus = 'IDLE';
-		// The user entity is the single source of truth: `editedRecord` is the
-		// persisted record with local edits replayed on top, `hasEdits` tracks
-		// dirtiness. No store subscription in the mock, so tests `rerender()` to
-		// flow a new edited state into the controlled inputs.
-		useEntityRecord.mockImplementation( () => ( {
-			record: entityRecord,
-			editedRecord: { ...( entityRecord ?? {} ), ...edits },
-			edit: editEntity,
-			hasEdits: Object.keys( edits ).length > 0,
-			isResolving: entityIsResolving,
-			hasResolved: entityHasResolved,
-			status: entityStatus,
-		} ) );
 	} );
 
 	it( 'renders collapsed by default, without a status while loading', () => {
+		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
 		renderCard();
 
 		expect( screen.getByRole( 'button', { name: /Author profile/ } ) ).toHaveAttribute(
@@ -114,20 +54,13 @@ describe( 'AuthorProfileCard', () => {
 		expect( screen.queryByText( 'Not started' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'keeps loading when core-data returns the initial empty current user', () => {
-		currentUser = {};
-		renderCard();
-
-		expect( screen.queryByText( 'Not started' ) ).not.toBeInTheDocument();
-		expect( createErrorNotice ).not.toHaveBeenCalled();
-	} );
-
-	it( 'renders the fields from the current user and reports complete in the header', async () => {
-		mockAuthorEntity();
+	it( 'renders the stored profile and reports complete in the header', async () => {
+		mockApiFetch.mockResolvedValue( STORED_PROFILE );
 		renderCard();
 		expand();
 
 		await expect( screen.findByDisplayValue( 'Jane Doe' ) ).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).toHaveBeenCalledWith( { path: '/jetpack/v4/seo/author-profile' } );
 		expect( screen.getByDisplayValue( 'Writes about search.' ) ).toBeInTheDocument();
 		expect( screen.getByDisplayValue( 'https://example.com/jane/' ) ).toBeInTheDocument();
 		expect( screen.getByDisplayValue( 'Creator' ) ).toBeInTheDocument();
@@ -136,42 +69,86 @@ describe( 'AuthorProfileCard', () => {
 			'src',
 			'https://example.test/avatar.jpg'
 		);
-		// Bio, website, job title, and a social profile are all filled, so all four
-		// counted fields are set and the module reports complete.
 		expect( screen.getByText( 'Complete' ) ).toBeInTheDocument();
 	} );
 
-	it( 'saves changes through the core user entity', async () => {
-		mockAuthorEntity();
-		const { rerender } = renderCard();
+	it( 'posts the cleaned profile and shows what the server stored', async () => {
+		// The stored job title comes back unchanged, as if the server had dropped the edit.
+		mockApiFetch.mockImplementation( ( { method } ) =>
+			Promise.resolve( method === 'POST' ? { ...STORED_PROFILE } : STORED_PROFILE )
+		);
+		renderCard();
 		expand();
 
 		const jobTitle = await screen.findByRole( 'textbox', { name: /Job title/ } );
 		// eslint-disable-next-line testing-library/prefer-user-event -- single change; see note above.
-		fireEvent.change( jobTitle, { target: { value: 'Lead Creator' } } );
-		// The mock has no store subscription; rerender so the staged edit flows
-		// into the controlled inputs and enables the (dirty) Save button.
-		rerender( <AuthorProfileCard /> );
+		fireEvent.change( jobTitle, { target: { value: '  Lead Creator  ' } } );
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'button', { name: /Save author profile/ } ) );
 
+		await waitFor( () => expect( createSuccessNotice ).toHaveBeenCalled() );
+		expect( mockApiFetch ).toHaveBeenLastCalledWith( {
+			path: '/jetpack/v4/seo/author-profile',
+			method: 'POST',
+			data: {
+				name: 'Jane Doe',
+				description: 'Writes about search.',
+				url: 'https://example.com/jane/',
+				jobTitle: 'Lead Creator',
+				sameAs: [ 'https://x.com/jane' ],
+			},
+		} );
+		expect( screen.getByRole( 'textbox', { name: /Job title/ } ) ).toHaveValue( 'Creator' );
+	} );
+
+	it( 'reports a failed load and locks the form so empty values cannot be saved', async () => {
+		mockApiFetch.mockRejectedValue( new Error( 'rest_forbidden' ) );
+		renderCard();
+		expand();
+
+		await waitFor( () =>
+			expect( createErrorNotice ).toHaveBeenCalledWith(
+				'Could not load author profile settings. Please try again.',
+				expect.anything()
+			)
+		);
+		expect( screen.getByRole( 'textbox', { name: 'Name' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'textbox', { name: /Job title/ } ) ).toBeDisabled();
+	} );
+
+	it( 'shows WordPress.com-owned fields as text and saves only the SEO fields', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...STORED_PROFILE,
+			description: '',
+			accountProfileUrl: 'https://my.wordpress.com/me/account',
+		} );
+		renderCard();
+		expand();
+
+		await expect( screen.findByText( 'Jane Doe' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'https://example.com/jane/' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Not set' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'textbox', { name: 'Name' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'textbox', { name: 'Bio' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'textbox', { name: 'Website' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Edit on WordPress.com/ } ) ).toHaveAttribute(
+			'href',
+			'https://my.wordpress.com/me/account'
+		);
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single change; see note above.
+		fireEvent.change( screen.getByRole( 'textbox', { name: /Job title/ } ), {
+			target: { value: 'Editor' },
+		} );
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
 		fireEvent.click( screen.getByRole( 'button', { name: /Save author profile/ } ) );
 
 		await waitFor( () =>
-			expect( saveEditedEntityRecord ).toHaveBeenCalledWith( 'root', 'user', 123, {
-				throwOnError: true,
+			expect( mockApiFetch ).toHaveBeenLastCalledWith( {
+				path: '/jetpack/v4/seo/author-profile',
+				method: 'POST',
+				data: { jobTitle: 'Editor', sameAs: [ 'https://x.com/jane' ] },
 			} )
 		);
-		// Save stages the full cleaned record. The user entity replaces meta edits,
-		// so both Jetpack keys ride the edit — the edited job title plus the
-		// untouched social profile.
-		expect( editEntity ).toHaveBeenLastCalledWith( {
-			name: 'Jane Doe',
-			description: 'Writes about search.',
-			url: 'https://example.com/jane/',
-			meta: {
-				jetpack_seo_job_title: 'Lead Creator',
-				jetpack_seo_same_as: [ 'https://x.com/jane' ],
-			},
-		} );
 	} );
 } );

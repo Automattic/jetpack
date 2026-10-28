@@ -13,6 +13,7 @@ import type {
 	ConnectionErrorProps,
 	ConnectionErrorSeverity,
 	ConnectionErrorViewer,
+	ConnectionErrorViewProps,
 	UseConnectionErrorNoticeResult,
 } from './types';
 import type { ReactElement } from 'react';
@@ -53,10 +54,13 @@ export default function useConnectionErrorNotice( {
 	customActions = null,
 	reconnectTrackingEvent,
 	navigate,
+	reconnectRedirectUrl,
+	reconnectFrom,
 }: ConnectionErrorProps = {} ): UseConnectionErrorNoticeResult {
 	const { connectionErrors, connectionOwner, userConnectionData } = useConnection( {} );
-	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
-		useRestoreConnection();
+	const { restoreConnection, isRestoringConnection, restoreConnectionError } = useRestoreConnection(
+		{ redirectUrl: reconnectRedirectUrl, from: reconnectFrom }
+	);
 
 	// Everything below is derived from the store and handed to consumers that key
 	// effects and memos off it (My Jetpack re-sets its notice whenever these
@@ -238,16 +242,17 @@ export default function useConnectionErrorNotice( {
 }
 
 /**
- * The package's ready-made connection error notice: the hook wired to the
- * presentational component.
+ * Render the connection error notice from a `useConnectionErrorNotice()` result.
  *
- * @param {ConnectionErrorProps} props - Action resolution options, plus an optional `context` line.
+ * For callers that already read the hook, e.g. for its `severity`, so it runs once.
+ *
+ * @param {ConnectionErrorViewProps} props - The hook result to render, plus an optional `context` line.
  * @return {ReactElement | null} The notice, or null when there is no error to show.
  */
-export function ConnectionError( {
+export function ConnectionErrorView( {
+	notice,
 	context,
-	...props
-}: ConnectionErrorProps = {} ): ReactElement | null {
+}: ConnectionErrorViewProps ): ReactElement | null {
 	const {
 		hasConnectionError,
 		severity,
@@ -262,7 +267,7 @@ export function ConnectionError( {
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
-	} = useConnectionErrorNotice( props );
+	} = notice;
 
 	if ( ! hasConnectionError ) {
 		return null;
@@ -291,4 +296,20 @@ export function ConnectionError( {
 			severity={ severity ?? 'error' }
 		/>
 	);
+}
+
+/**
+ * The package's ready-made connection error notice: the hook wired to the
+ * presentational component.
+ *
+ * @param {ConnectionErrorProps} props - Action resolution options, plus an optional `context` line.
+ * @return {ReactElement | null} The notice, or null when there is no error to show.
+ */
+export function ConnectionError( {
+	context,
+	...props
+}: ConnectionErrorProps = {} ): ReactElement | null {
+	const notice = useConnectionErrorNotice( props );
+
+	return <ConnectionErrorView notice={ notice } context={ context } />;
 }

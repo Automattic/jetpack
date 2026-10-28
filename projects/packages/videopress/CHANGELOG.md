@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.60.0] - 2026-10-26
+### Added
+- Make the Trim & cut editor available by default. [#54053]
+- Top videos widget: Upload the first video from the widget's empty state and follow it while it processes. [#53887]
+
+### Changed
+- Require widget contract 2.0.0 of the Premium Analytics dashboard. [#53885]
+- Top videos widget: Show the View all link and the CSV download in the card footer. [#53881]
+- Update package dependencies. [#53951]
+
+### Fixed
+- Dashboard: Show why connecting the site failed on the pricing and connect screens. [#53289]
+- Editor: Prevent timeline handles from jumping after releasing a drag outside the timeline. [#54049]
+- Keep the playhead in place when adjusting trim handles. [#54045]
+- Top videos widget: the title, description and help note declared in widget.json reach the translation catalog. [#53850]
+- Video block: Attach newly uploaded videos to the post or page being edited. [#54044]
+
 ## [0.59.0] - 2026-10-20
 ### Added
 - Channel blocks: Show authors a call to action, and optionally visitors a note, while a channel has no videos or playlists. [#53510]
@@ -2369,6 +2386,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.60.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.56.0...v0.57.0

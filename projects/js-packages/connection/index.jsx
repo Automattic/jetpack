@@ -27,9 +27,10 @@ export { default as ConnectionErrorDetails } from './components/connection-error
 export * from './components/connection-error-details/types.ts';
 export { default as ConnectionErrorNotice } from './components/connection-error-notice';
 export { default as ConnectionErrorSupportLink } from './components/connection-error-support-link';
-export { ConnectionError } from './hooks/use-connection-error-notice';
+export { ConnectionError, ConnectionErrorView } from './hooks/use-connection-error-notice';
 export { default as DisconnectDialog } from './components/disconnect-dialog';
 export { default as DisconnectCard } from './components/disconnect-card';
+export { default as DisconnectUserDialog } from './components/disconnect-user-dialog';
 export { default as useConnection } from './components/use-connection';
 export { default as ManageConnectionDialog } from './components/manage-connection-dialog';
 export { default as TransferConnectionOwnership } from './components/transfer-connection-ownership';
@@ -48,13 +49,25 @@ export { getProtectedOwnerReleaseCopy } from './components/protected-owner-relea
 export * from './components/protected-owner-release/types.ts';
 
 /**
+ * Re-exported so consumers restricted to this package's global — the Connectors card — can
+ * render the same consent notice as every other connection surface.
+ */
+export { TermsOfService } from '@automattic/jetpack-components';
+
+/**
  * Helpers.
  */
 export { default as thirdPartyCookiesFallbackHelper } from './helpers/third-party-cookies-fallback';
 export { default as getCalypsoOrigin } from './helpers/get-calypso-origin';
 export * from './helpers/get-user-connection-url.ts';
+export * from './helpers/get-user-connect-kind.ts';
 export { getReconnectErrorMessage } from './helpers/get-reconnect-error-message.ts';
 export { getTracksIdentity, initializeTracksIdentity } from './helpers/tracks-identity.ts';
+export {
+	CONNECTION_EVENTS,
+	bumpConnectionStat,
+	trackConnectionEvent,
+} from './helpers/connection-tracking.ts';
 export {
 	getConnectScreenErrorMessage,
 	getRegistrationErrorCode,

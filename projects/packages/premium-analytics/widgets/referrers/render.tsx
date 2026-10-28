@@ -9,10 +9,8 @@ import {
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -22,8 +20,8 @@ import {
 	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
+	useReportActions,
 	useWidgetRootContext,
-	ExporterCsvDownloadButton,
 	referrersCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -63,8 +61,8 @@ export type ReferrerRow = {
 	 */
 	previousValue?: number;
 	/**
-	 * External referrer URL. Used for row identity, comparison matching, and to
-	 * render leaf rows (no children) as an outbound link.
+	 * External referrer URL. Used for row identity, comparison matching, and for
+	 * the "View in new tab" action on leaf rows (no children).
 	 */
 	href?: string;
 	icon?: string | null;
@@ -118,6 +116,7 @@ function buildLeaderboardData(
 				media: { kind: 'favicon', url: row.icon ?? undefined },
 				action: resolveLeaderboardRowAction( {
 					href: row.href,
+					hrefAs: 'viewLink',
 					hasChildren,
 					drillDown: onDrillDown
 						? {
@@ -275,47 +274,43 @@ function ReferrersInner() {
 			)
 		: __( 'View all referrers', 'jetpack-premium-analytics-pkg' );
 
+	useReportActions( {
+		csv: {
+			exporter: referrersCsvExporter,
+			status: { isLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<div className={ styles.content }>
-				{ trail.length > 0 && (
-					<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
-				) }
-				<WidgetState
-					isLoading={ emptyState.isLoading }
-					isFetching={ isFetching }
-					// `placeholderData` keeps the prior period's rows on screen while `isError`
-					// flips true, so a transient refetch failure should not replace them.
-					isError={ rows.length === 0 && isError }
-					isEmpty={ rows.length === 0 }
-					error={ {
-						description: __(
-							"We couldn't load referrers. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						actions: [
-							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-						],
-					} }
-					empty={ emptyState.empty }
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<ReferrersLeaderboard
-						rows={ activeRows }
-						withComparison={ withComparison }
-						onDrillDown={ drillInto }
-					/>
-				</WidgetState>
-			</div>
-			<WidgetFooter>
-				<ReportLink report="referrers" />
-				<ExporterCsvDownloadButton
-					exporter={ referrersCsvExporter }
-					status={ { isLoading, isFetching, isError: primary.isError } }
-					rowCount={ rows.length }
+		<div className={ styles.content }>
+			{ trail.length > 0 && (
+				<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
+			) }
+			<WidgetState
+				isLoading={ emptyState.isLoading }
+				isFetching={ isFetching }
+				// `placeholderData` keeps the prior period's rows on screen while `isError`
+				// flips true, so a transient refetch failure should not replace them.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ rows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load referrers. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				} }
+				empty={ emptyState.empty }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
+				<ReferrersLeaderboard
+					rows={ activeRows }
+					withComparison={ withComparison }
+					onDrillDown={ drillInto }
 				/>
-			</WidgetFooter>
-		</>
+			</WidgetState>
+		</div>
 	);
 }
 

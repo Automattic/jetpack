@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.0] - 2026-10-26
+### Added
+- Overview: Open a backup from a link even when it is not on the activity page currently shown. [#53929]
+- Recognize Jetpack Pro licenses. [#53424]
+- Restore: On sites hosted on WordPress.com, warn about known security threats in a backup and ask for confirmation before restoring it. Backups with known threats are marked in the list, and the backup details show the warning. The Activity Log's "Restore backup" now opens this restore screen when the new dashboard is on. [#53755]
+
+### Changed
+- Show the redesigned dashboard by default. Return false from the `rsm_jetpack_ui_modernization_backup` filter to keep the legacy dashboard. [#53443]
+- Update package dependencies. [#53951]
+
+### Fixed
+- Backup: Explain why connecting the site failed instead of showing a generic error. [#53289]
+- Overview: Treat backups that finished with warnings as backups, so they can be opened and restored and their links work. [#53929]
+- Show a finished backup in the list without a page reload, even when WordPress.com is slow to list it, and add a "Backup complete" notice that stays until it is dismissed. [#53999]
+- Show that Backup is unavailable in Offline Mode instead of the dashboard, and refuse Backup requests while Jetpack is in Offline Mode. [#54070]
+
 ## [5.1.4] - 2026-10-19
 ### Changed
 - Update package dependencies. [#53004]
@@ -1273,6 +1289,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[5.2.0]: https://github.com/Automattic/jetpack-backup/compare/v5.1.4...v5.2.0
 [5.1.4]: https://github.com/Automattic/jetpack-backup/compare/v5.1.3...v5.1.4
 [5.1.3]: https://github.com/Automattic/jetpack-backup/compare/v5.1.2...v5.1.3
 [5.1.2]: https://github.com/Automattic/jetpack-backup/compare/v5.1.1...v5.1.2

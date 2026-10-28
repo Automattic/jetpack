@@ -1,0 +1,25 @@
+.section {
+	--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+}
+
+// The design's 32px heading row: a compact control's height.
+.heading {
+	min-block-size: var(--wpds-dimension-size-md);
+}
+
+// At most three columns; a short row still shares the full width.
+.items {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(max(240px, calc(100% / 3)), 1fr));
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	// Pushes the outer cells' end borders under the card's clipped edge,
+	// leaving only the inner lines.
+	margin-block-end: -1px;
+	margin-inline-end: -1px;
+
+	> * {
+		padding: var(--wpds-dimension-padding-lg);
+		border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		border-inline-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}

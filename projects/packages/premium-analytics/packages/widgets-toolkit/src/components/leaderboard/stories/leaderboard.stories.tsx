@@ -8,7 +8,6 @@ import { getDefaultQueryParams, normalizeReportParams } from '@jetpack-premium-a
 import { withStoryRouter } from '../../../../../../widgets/stories/with-story-router';
 import { registerReportMocks } from '../../../stories/mocks/register-report-mocks';
 import { WidgetCard } from '../../../stories/widget-card';
-import { ReportLink } from '../../report-link';
 import { WidgetRoot } from '../../widget-root';
 import { Leaderboard, type LeaderboardProps } from '../leaderboard';
 import type { LeaderboardRowInput } from '../build-leaderboard-chart-data';
@@ -58,12 +57,11 @@ const meta: Meta< typeof Leaderboard > = {
 			},
 		},
 	},
-	// The router is outermost: `ReportLink` and the detail links render route links.
+	// The router is outermost: the detail links render route links.
 	decorators: [ withCard, withWidgetRoot, withStoryRouter ],
 	args: {
 		rows: ROWS,
 		status: READY,
-		footer: <ReportLink report="videos" />,
 	},
 };
 

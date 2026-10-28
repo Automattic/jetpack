@@ -378,7 +378,8 @@ describe( 'NewsletterSettingsApp', () => {
 		} );
 
 		it( 'asks before leaving while the sender name has unsaved changes', async () => {
-			render( <NewsletterSettingsApp /> );
+			const onDirtyChange = jest.fn();
+			render( <NewsletterSettingsBody onDirtyChange={ onDirtyChange } /> );
 			await waitFor( () => expect( senderSettingsProps.current ).not.toBeNull() );
 
 			await act( async () => {
@@ -388,6 +389,7 @@ describe( 'NewsletterSettingsApp', () => {
 			} );
 			await waitFor( () => expect( senderSettingsProps.current.hasChanges ).toBe( true ) );
 
+			expect( onDirtyChange ).toHaveBeenLastCalledWith( true );
 			expect( leavePage() ).toBe( true );
 		} );
 

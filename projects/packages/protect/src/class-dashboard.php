@@ -8,8 +8,13 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 
@@ -27,7 +32,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * Sidebar menu slug, shared with the Jetpack Protect plugin so the page address never changes.
@@ -54,7 +59,7 @@ class Dashboard {
 	/**
 	 * The settings section that owns each Jetpack security module, for links from other screens.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @var array<string, string>
 	 */
@@ -229,7 +234,7 @@ class Dashboard {
 	/**
 	 * The Settings tab's URL, scrolled to a section's card.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @param string $section Section key, such as `firewall`; empty for the top of the tab.
 	 * @return string
@@ -246,7 +251,7 @@ class Dashboard {
 	/**
 	 * Each security module's card on the Settings tab, for screens that link here instead of offering the setting.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @return array<string, string> Settings URLs keyed by module slug.
 	 */
@@ -257,7 +262,7 @@ class Dashboard {
 	/**
 	 * Point a security module's Configure link at its card on the Settings tab.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @param string $url The URL Jetpack would use.
 	 * @return string
@@ -276,6 +281,29 @@ class Dashboard {
 	 */
 	public static function has_scan_plan() {
 		return Plan::has_required_plan();
+	}
+
+	/**
+	 * Where a site without Scan can buy it.
+	 *
+	 * @return string
+	 */
+	public static function get_scan_upgrade_url() {
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '/add-scan',
+				'name'     => 'Jetpack Scan', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
+			),
+			'protect-dashboard',
+			false
+		);
+
+		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
+
+		return $url ? $url : admin_url( 'admin.php?page=my-jetpack#/add-scan' );
 	}
 
 	/**
@@ -306,6 +334,49 @@ class Dashboard {
 		}
 
 		self::load_wp_build( dirname( __DIR__ ) . '/build/build.php' );
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_tracks_identity' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+	}
+
+	/**
+	 * Load the Tracks script that sends queued events; other packages only load it for some plans.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_tracks_transport() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		if ( ! self::can_use_analytics() ) {
+			return;
+		}
+
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+	}
+
+	/**
+	 * Add the connected WordPress.com user to the script data, for Tracks, unless another package already did.
+	 *
+	 * @param array $data The script data.
+	 * @return array
+	 */
+	public static function add_tracks_identity( $data ) {
+		if ( ! empty( $data['user']['current_user']['wpcom']['ID'] ) ) {
+			return $data;
+		}
+		$connected = ( new Connection_Manager() )->get_connected_user_data();
+		if ( empty( $connected['ID'] ) || empty( $connected['login'] ) ) {
+			return $data;
+		}
+		$data['user']['current_user']['wpcom'] = array_merge(
+			$data['user']['current_user']['wpcom'] ?? array(),
+			array(
+				'ID'    => $connected['ID'],
+				'login' => $connected['login'],
+			)
+		);
+		return $data;
 	}
 
 	/**
@@ -337,7 +408,7 @@ class Dashboard {
 	 *
 	 * The wp-build router reads search params only from inside `p`, so links name the ids at the top level instead.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @param array $query The request's query args.
 	 * @return string|null The URL, or null when the request needs no redirect.
@@ -451,6 +522,32 @@ class Dashboard {
 	}
 
 	/**
+	 * Whether the site and user allow Tracks, as on Jetpack's other admin pages.
+	 *
+	 * @since 0.3.0
+	 *
+	 * @return bool
+	 */
+	public static function can_use_analytics() {
+		$tracking = new Tracking( 'jetpack', new Connection_Manager( 'jetpack' ) );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() );
+	}
+
+	/**
+	 * Print the flag the page's Tracks client records under, only when Tracks is allowed.
+	 *
+	 * @since 0.3.0
+	 *
+	 * @return void
+	 */
+	public static function print_tracks_state() {
+		if ( self::can_use_analytics() ) {
+			wp_print_inline_script_tag( 'window.jetpackProtectTracks = true;' );
+		}
+	}
+
+	/**
 	 * Add the "Protect" item to the Jetpack sidebar, in place of the Jetpack Protect plugin's.
 	 *
 	 * @return void
@@ -487,6 +584,7 @@ class Dashboard {
 		$render_fn = self::RENDER_FUNCTION;
 		if ( function_exists( $render_fn ) ) {
 			self::print_initial_state();
+			self::print_tracks_state();
 			// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Checked with function_exists(); defined in the generated build/, which Phan excludes.
 			$render_fn();
 			return;

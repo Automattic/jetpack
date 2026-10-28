@@ -362,6 +362,37 @@ export const steadyTrafficData: SeriesData[] = [
 	},
 ];
 
+const week = ( values: number[] ) =>
+	[ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun' ].map( ( label, index ) => ( {
+		label,
+		value: values[ index ],
+	} ) );
+
+/**
+ * Weekly views and visitors, each paired with its previous period
+ *
+ * Each `type: 'comparison'` series shares its current series' `group`
+ * - Category: comparison
+ * - Data points: 7 per series
+ * - Suitable for: BarChart
+ */
+export const weeklyComparisonData: SeriesData[] = [
+	{ label: 'Views', group: 'views', data: week( [ 420, 580, 310, 750, 640, 380, 290 ] ) },
+	{
+		label: 'Previous views',
+		group: 'views',
+		options: { type: 'comparison' },
+		data: week( [ 510, 490, 430, 620, 700, 350, 330 ] ),
+	},
+	{ label: 'Visitors', group: 'visitors', data: week( [ 280, 390, 220, 500, 430, 260, 190 ] ) },
+	{
+		label: 'Previous visitors',
+		group: 'visitors',
+		options: { type: 'comparison' },
+		data: week( [ 340, 320, 290, 410, 460, 240, 210 ] ),
+	},
+];
+
 /**
  * Traffic sources leaderboard data
  *
@@ -520,6 +551,71 @@ export const decliningMetricsData: LeaderboardEntry[] = [
 		currentShare: 56.25,
 		previousShare: 60,
 		delta: -6.25,
+	},
+];
+
+/**
+ * Net sales by source, where refunds push some sources below zero
+ *
+ * Shares are a % of the largest absolute value across both periods ($4,200)
+ * - Category: performance
+ * - Data points: 6
+ * - Suitable for: LeaderboardChart
+ */
+export const netSalesBySourceData: LeaderboardEntry[] = [
+	{
+		id: 'google',
+		label: 'Google',
+		currentValue: 4200,
+		previousValue: 3800,
+		currentShare: 100,
+		previousShare: 90.48,
+		delta: 10.53,
+	},
+	{
+		id: 'direct',
+		label: 'Direct',
+		currentValue: 2600,
+		previousValue: 2900,
+		currentShare: 61.9,
+		previousShare: 69.05,
+		delta: -10.34,
+	},
+	{
+		id: 'paid-search',
+		label: 'Paid search',
+		currentValue: 1500,
+		previousValue: 2200,
+		currentShare: 35.71,
+		previousShare: 52.38,
+		delta: -31.82,
+	},
+	{
+		id: 'facebook',
+		label: 'Facebook',
+		currentValue: 650,
+		previousValue: -300,
+		currentShare: 15.48,
+		previousShare: -7.14,
+		delta: 316.67,
+	},
+	{
+		id: 'affiliate',
+		label: 'Affiliate',
+		currentValue: -900,
+		previousValue: -400,
+		currentShare: -21.43,
+		previousShare: -9.52,
+		delta: -125,
+	},
+	{
+		id: 'newsletter',
+		label: 'Newsletter',
+		currentValue: -1800,
+		previousValue: 1200,
+		currentShare: -42.86,
+		previousShare: 28.57,
+		delta: -250,
 	},
 ];
 

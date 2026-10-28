@@ -16,7 +16,7 @@ import { JetpackModuleSlug } from '../types';
 function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 	return {
 		'account-protection': __(
-			'Your login page now has rate-limiting and secure authentication safeguards.',
+			'Your site now checks logins for compromised passwords and flags weak new passwords.',
 			'jetpack-my-jetpack'
 		),
 		'activity-log': __(

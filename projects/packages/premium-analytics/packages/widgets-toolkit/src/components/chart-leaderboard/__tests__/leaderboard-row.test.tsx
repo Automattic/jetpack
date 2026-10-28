@@ -145,6 +145,16 @@ describe( 'resolveLeaderboardRowAction', () => {
 			{ kind: 'link', href: 'https://a.test' },
 		],
 		[
+			'offers the href as a "View" action when asked',
+			{ hasChildren: false, href: 'https://a.test', hrefAs: 'viewLink' as const },
+			{ kind: 'viewLink', href: 'https://a.test' },
+		],
+		[
+			'drills down over an href however the href would be offered',
+			{ hasChildren: true, href: 'https://a.test', hrefAs: 'viewLink' as const, drillDown },
+			{ kind: 'drillDown', ariaLabel: 'Drill' },
+		],
+		[
 			'stays static when a row has children but no handler, ignoring href',
 			{ hasChildren: true, href: 'https://a.test' },
 			{ kind: 'static' },
@@ -192,6 +202,26 @@ describe( 'buildLeaderboardRow', () => {
 		expect( screen.getByTitle( 'Pricing' ) ).toHaveClass( 'bars' );
 	} );
 
+	it( 'keeps the label plain beside a "View" action that opens the URL', () => {
+		const row = buildLeaderboardRow( {
+			label: 'example.com',
+			media: { kind: 'favicon', url: 'https://example.com/favicon.ico' },
+			action: { kind: 'viewLink', href: 'https://example.com/' },
+		} );
+
+		render( row.label );
+
+		expect( screen.queryByRole( 'link', { name: /example\.com$/ } ) ).not.toBeInTheDocument();
+		const view = screen.getByRole( 'link', { name: 'View "example.com" in a new tab' } );
+		expect( view ).toHaveAttribute( 'href', 'https://example.com/' );
+		expect( view ).toHaveAttribute( 'target', '_blank' );
+		// The tooltip stays on the label, so hovering the action shows only its own.
+		expect( screen.getByTitle( 'example.com' ) ).not.toContainElement( view );
+		// eslint-disable-next-line testing-library/no-node-access -- The wrapper has no accessible query target.
+		expect( view.parentElement ).toHaveClass( 'row' );
+		expect( row ).not.toHaveProperty( 'onClick' );
+	} );
+
 	it( 'keeps the list chrome by default', () => {
 		render(
 			buildLeaderboardRow( {
@@ -221,15 +251,98 @@ describe( 'buildLeaderboardRow', () => {
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );
 
-	it( 'puts a video row thumbnail inside its detail link', () => {
+	it.each( [
+		[ 'a video detail link', { kind: 'videoLink', id: 12, search: {} }, '/video/12' ],
+		[ 'a post detail link', { kind: 'postLink', id: 5, search: {} }, '/post/5' ],
+		[
+			'a public page link',
+			{ kind: 'postLink', href: 'https://example.com/hello/', search: {} },
+			'https://example.com/hello/',
+		],
+	] as const )( 'puts the thumbnail inside %s', ( _name, action, href ) => {
+		const row = buildLeaderboardRow( {
+			label: 'Hello',
+			media: { kind: 'thumbnail', url: 'https://example.com/p.jpg', alt: '' },
+			action: action as LeaderboardRowAction,
+		} );
+
+		render( row.label );
+
+		const link = screen.getByRole( 'link', { name: /^Hello/ } );
+		expect( link ).toHaveAttribute( 'href', href );
+		expect( link ).toContainElement( screen.getByRole( 'presentation' ) );
+	} );
+
+	it( 'keeps the thumbnail on a post row that links nowhere', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Hello',
+			media: { kind: 'thumbnail', url: 'https://example.com/p.jpg', alt: '' },
+			action: { kind: 'postLink', href: null, search: {} },
+		} );
+
+		render( row.label );
+
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		expect( screen.getByTitle( 'Hello' ) ).toContainElement( screen.getByRole( 'presentation' ) );
+	} );
+
+	it( 'adds a "View" action beside the title when a post row also has a public URL', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Hello',
+			media: { kind: 'none' },
+			action: { kind: 'postLink', id: 5, href: 'https://example.com/hello/', search: {} },
+		} );
+
+		render( row.label );
+
+		const title = screen.getByRole( 'link', { name: 'Hello' } );
+		expect( title ).toHaveAttribute( 'href', expect.stringMatching( /^\/post\/5/ ) );
+		// The tooltip stays on the title, so hovering the arrow shows only "View".
+		expect( title ).toHaveAttribute( 'title', 'Hello' );
+		const view = screen.getByRole( 'link', { name: 'View "Hello" in a new tab' } );
+		expect( view ).toHaveAttribute( 'href', 'https://example.com/hello/' );
+		expect( view ).toHaveAttribute( 'target', '_blank' );
+		expect( view ).not.toHaveAttribute( 'title' );
+		// The row chrome moves to the wrapper, so the look still applies.
+		// eslint-disable-next-line testing-library/no-node-access -- The wrapper has no accessible query target.
+		const wrapper = view.parentElement;
+		expect( wrapper ).toHaveClass( 'row' );
+		expect( wrapper ).toContainElement( title );
+		// The title stretches over the row, so the click target stays the row.
+		expect( title ).toHaveClass( 'titleLink' );
+	} );
+
+	it( 'links the title out, with no "View" action, when the reader cannot open post details', () => {
+		Object.defineProperty( window, 'JetpackScriptData', {
+			configurable: true,
+			value: { premium_analytics: { sections: [ 'woocommerce' ] } },
+		} );
+
+		try {
+			render(
+				buildLeaderboardRow( {
+					label: 'Hello',
+					media: { kind: 'none' },
+					action: { kind: 'postLink', id: 5, href: 'https://example.com/hello/', search: {} },
+				} ).label
+			);
+
+			expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
+			expect( screen.getByRole( 'link', { name: /^Hello/ } ) ).toHaveAttribute(
+				'href',
+				'https://example.com/hello/'
+			);
+		} finally {
+			delete window.JetpackScriptData;
+		}
+	} );
+
+	it( 'keeps a video row thumbnail inside its detail link, next to the "View" action', () => {
 		const row = buildLeaderboardRow( {
 			label: 'Launch',
-			media: {
-				kind: 'thumbnail',
-				url: 'https://example.com/p.jpg',
-				alt: '',
-			},
-			action: { kind: 'videoLink', id: 12, search: {} },
+			media: { kind: 'thumbnail', url: 'https://example.com/p.jpg', alt: '' },
+			action: { kind: 'videoLink', id: 12, href: 'https://example.com/launch/', search: {} },
+			variant: 'bars',
 		} );
 
 		render( row.label );
@@ -237,19 +350,26 @@ describe( 'buildLeaderboardRow', () => {
 		expect( screen.getByRole( 'link', { name: 'Launch' } ) ).toContainElement(
 			screen.getByRole( 'presentation' )
 		);
+		const view = screen.getByRole( 'link', { name: 'View "Launch" in a new tab' } );
+		expect( view ).toHaveAttribute( 'href', 'https://example.com/launch/' );
+		// eslint-disable-next-line testing-library/no-node-access -- The wrapper has no accessible query target.
+		expect( view.parentElement ).toHaveClass( 'bars' );
 	} );
 
-	it( 'keeps post rows as a bare post title link, even with a thumbnail', () => {
-		const row = buildLeaderboardRow( {
-			label: 'Hello',
-			media: { kind: 'thumbnail', url: 'https://example.com/hello.jpg', alt: '' },
-			action: { kind: 'postLink', id: 5, search: {} },
-		} );
+	it( 'offers no "View" action when the public URL has an unsupported scheme', () => {
+		render(
+			buildLeaderboardRow( {
+				label: 'Hello',
+				media: { kind: 'none' },
+				action: { kind: 'postLink', id: 5, href: 'javascript:alert(1)', search: {} },
+			} ).label
+		);
 
-		render( row.label );
-
-		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveAttribute( 'href', '/post/5' );
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
+		const title = screen.getByRole( 'link', { name: 'Hello' } );
+		expect( title ).toHaveAttribute( 'href', '/post/5' );
+		// The lone link carries the row chrome itself; a two-link wrapper would take it instead.
+		expect( title ).toHaveClass( 'rowLink' );
 	} );
 
 	it( 'returns chart button props for a drill-down without nesting an action', () => {

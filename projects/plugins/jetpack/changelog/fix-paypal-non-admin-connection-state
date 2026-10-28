@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-PayPal Payment Buttons: Stop telling editors and authors that PayPal is disconnected when they simply do not manage the connection, and stop offering them a reconnect flow they cannot complete.

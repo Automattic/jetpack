@@ -1,5 +1,5 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook } from '@testing-library/react';
+import { QueryClient, QueryClientProvider, QueryObserver } from '@tanstack/react-query';
+import { act, renderHook } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
 import { announce } from '../../data/announce';
 import { useRefreshActivityOnBackupComplete } from '../use-refresh-activity-on-backup-complete';
@@ -284,4 +284,134 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 			expect( result.current.failedRun ).toBe( failedRun );
 		}
 	);
+} );
+
+describe( 'when the activity log lags a finished run', () => {
+	beforeEach( () => jest.useFakeTimers() );
+	afterEach( () => jest.useRealTimers() );
+
+	/**
+	 * Mount mid-run, with the activity log's newest backup row at 'old'.
+	 *
+	 * @return The invalidation spy and a way to render the next state.
+	 */
+	function mountMidRun() {
+		const { client, wrapper } = makeWrapper();
+		const invalidate = jest.spyOn( client, 'invalidateQueries' );
+		const { rerender, result } = renderHook(
+			( [ state, activityTopId ]: [ BackupsState, string | null ] ) =>
+				useRefreshActivityOnBackupComplete(
+					state,
+					false,
+					state === 'complete' ? 'b' : 'a',
+					null,
+					activityTopId
+				),
+			{ wrapper, initialProps: [ 'in-progress', 'old' ] as [ BackupsState, string | null ] }
+		);
+		return { invalidate, rerender, result };
+	}
+
+	it( 'asks again until the newest activity row changes', () => {
+		const { invalidate, rerender, result } = mountMidRun();
+		rerender( [ 'complete', 'old' ] );
+		expect( invalidate ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.isAwaitingRow ).toBe( true );
+
+		act( () => {
+			jest.advanceTimersByTime( 6000 );
+		} );
+		expect( invalidate.mock.calls.length ).toBeGreaterThan( 1 );
+
+		rerender( [ 'complete', 'new' ] );
+		expect( result.current.isAwaitingRow ).toBe( false );
+		const settled = invalidate.mock.calls.length;
+		act( () => {
+			jest.advanceTimersByTime( 30_000 );
+		} );
+		expect( invalidate ).toHaveBeenCalledTimes( settled );
+	} );
+
+	it( 'gives up when the row never appears', () => {
+		const { invalidate, rerender, result } = mountMidRun();
+		rerender( [ 'complete', 'old' ] );
+
+		act( () => {
+			jest.advanceTimersByTime( 60_000 );
+		} );
+		expect( result.current.isAwaitingRow ).toBe( false );
+		const settled = invalidate.mock.calls.length;
+		act( () => {
+			jest.advanceTimersByTime( 60_000 );
+		} );
+		expect( invalidate ).toHaveBeenCalledTimes( settled );
+	} );
+
+	it( 'lets a slow request finish instead of cancelling it on the next tick', async () => {
+		const { client, wrapper } = makeWrapper();
+		let calls = 0;
+		const observer = new QueryObserver( client, {
+			queryKey: [ ...ACTIVITY_LOG_ROOT.queryKey, 'page-1' ],
+			// Slower than the retry interval.
+			queryFn: () => new Promise( resolve => setTimeout( () => resolve( ++calls ), 4000 ) ),
+		} );
+		observer.subscribe( () => {} );
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( 4000 );
+		} );
+		expect( observer.getCurrentResult().data ).toBe( 1 );
+
+		const { rerender } = renderHook(
+			( state: BackupsState ) =>
+				useRefreshActivityOnBackupComplete(
+					state,
+					false,
+					state === 'complete' ? 'b' : 'a',
+					null,
+					'old'
+				),
+			{ wrapper, initialProps: 'in-progress' as BackupsState }
+		);
+		rerender( 'complete' );
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( 10_000 );
+		} );
+		expect( observer.getCurrentResult().data ).toBeGreaterThan( 1 );
+		observer.destroy();
+	} );
+
+	it( 'does not keep asking after a run that made no backup', () => {
+		const { invalidate, rerender } = mountMidRun();
+		rerender( [ 'no-good-backups', 'old' ] );
+
+		act( () => {
+			jest.advanceTimersByTime( 30_000 );
+		} );
+		expect( invalidate ).toHaveBeenCalledTimes( 1 );
+	} );
+} );
+
+describe( 'completedRun', () => {
+	const ran: Step[] = [ [ 'complete', false, 'a' ], 'in-progress', [ 'complete', false, 'b' ] ];
+
+	it( 'is set once a run makes a new backup, until it is dismissed', () => {
+		const { result } = walk( ran );
+		expect( result.current.completedRun ).toBe( true );
+		act( () => result.current.dismissCompletedRun() );
+		expect( result.current.completedRun ).toBe( false );
+	} );
+
+	it( 'is cleared when the next run starts', () => {
+		expect( walk( [ ...ran, 'in-progress' ] ).result.current.completedRun ).toBe( false );
+	} );
+
+	it( 'is not set by a run that made no backup', () => {
+		const failed = attempt( 'x', 'error' );
+		const { result } = walk( [
+			[ 'complete', false, 'a' ],
+			[ 'in-progress', false, 'a' ],
+			[ 'complete', false, 'a', failed ],
+		] );
+		expect( result.current.completedRun ).toBe( false );
+	} );
 } );

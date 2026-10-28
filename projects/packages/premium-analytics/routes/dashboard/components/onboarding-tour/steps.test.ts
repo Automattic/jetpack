@@ -52,6 +52,23 @@ describe( 'onboardingTourSteps', () => {
 		] );
 	} );
 
+	it.each( [
+		{ withComparison: true, description: 'Pick any period and compare it with the one before it.' },
+		{ withComparison: false, description: 'See how your site did on any day of the last 7 days.' },
+	] )(
+		'describes the date step with withComparison $withComparison',
+		( { withComparison, description } ) => {
+			const steps = onboardingTourSteps(
+				{ firstWidget: null, dateControls: null, optionsMenu: null, sectionTabs: null },
+				{ withFeedback: false, withComparison }
+			);
+
+			expect( steps.find( step => step.title === 'A better date picker' )?.description ).toBe(
+				description
+			);
+		}
+	);
+
 	it( 'keeps the steps whose anchors are not mounted yet', () => {
 		const steps = onboardingTourSteps( {
 			firstWidget: null,

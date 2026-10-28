@@ -1114,10 +1114,11 @@ class WPCOM_JSON_API {
 	/**
 	 * Counts the number of comments on a site, including certain comment types.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param int      $post_id       Post ID.
+	 * @param string[] $exclude_types Comment types to leave out of a site-wide count. Ignored for a single post.
 	 * @return object The number of counts keyed by status, matching the output of https://developer.wordpress.org/reference/functions/get_comment_count/.
 	 */
-	public function wp_count_comments( $post_id ) {
+	public function wp_count_comments( $post_id, $exclude_types = array() ) {
 		global $wpdb;
 		if ( 0 !== $post_id ) {
 			return wp_count_comments( $post_id );
@@ -1157,6 +1158,8 @@ class WPCOM_JSON_API {
 		if ( empty( $include ) ) {
 			return wp_count_comments( $post_id );
 		}
+
+		$include = array_values( array_diff( $include, $exclude_types ) );
 
 		// The following caching mechanism is based on what the get_comments() function uses.
 

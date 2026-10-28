@@ -13,7 +13,12 @@ import {
 } from '../../../data/requested-switch-state';
 import { getOfflineFeaturesSeed, isOfflineFeatures } from '../../../data/utils/offline-features';
 import { linksTo } from '../../../utils/admin-menu-sync';
-import { getProductModules, isAccountConnectEnabled, PRODUCT_MODULES } from './mappings';
+import {
+	getProductModules,
+	isAccountConnectEnabled,
+	isAiToggleWaitingForAccount,
+	PRODUCT_MODULES,
+} from './mappings';
 import {
 	getFeatureUnavailableReason,
 	getModuleAvailability,
@@ -47,6 +52,15 @@ export type FeatureControl =
 	| { kind: 'install-plugin'; plugin: string; runsWithoutPlugin?: true; blocked?: InstallBlock }
 	| { kind: 'install-jetpack'; installed: boolean; blocked?: InstallBlock }
 	| { kind: 'none'; override?: 'active' | 'inactive' };
+
+type ConnectionStore = {
+	getConnectionStatus?: () => {
+		isRegistered: boolean;
+		hasConnectedOwner: boolean;
+		isUserConnected?: boolean;
+	};
+	getIsOfflineMode?: () => boolean;
+};
 
 // Why the current user can't make an install the card would otherwise offer.
 export type InstallBlock = Exclude< MainFeatureInstallAccess, 'allowed' >;
@@ -271,7 +285,13 @@ export function resolveFeatureState(
 			$module?.requires_user_connection ||
 			gatedModule?.requires_user_connection
 		);
-	const resolved = resolveMechanism( feature, jetpack, product, $module, gatedModule );
+	// The AI pre-release gate hides its switch; when the account is all AI lacks, the card offers Connect past the gate.
+	const aiWaitsForAccount =
+		feature.product === 'jetpack-ai' && needsAccountHere && isAiToggleWaitingForAccount();
+	const resolved =
+		aiWaitsForAccount && gatedModule
+			? resolveMechanism( feature, jetpack, product, gatedModule, undefined )
+			: resolveMechanism( feature, jetpack, product, $module, gatedModule );
 
 	return needsAccountHere ? withAccountNeeded( resolved, accountModule ) : resolved;
 }
@@ -480,14 +500,7 @@ export function useFeaturesNeedsAccount(): boolean {
 				return false;
 			}
 			// Read the connection store directly: useMyJetpackConnection needs page data that the offline Features page does not load.
-			const store = select( CONNECTION_STORE ) as unknown as {
-				getConnectionStatus?: () => {
-					isRegistered: boolean;
-					hasConnectedOwner: boolean;
-					isUserConnected?: boolean;
-				};
-				getIsOfflineMode?: () => boolean;
-			};
+			const store = select( CONNECTION_STORE ) as unknown as ConnectionStore;
 			const connection = store?.getConnectionStatus?.();
 			// A linked admin on a site whose owner left already has an account, so Connect would only loop.
 			return Boolean(
@@ -501,6 +514,20 @@ export function useFeaturesNeedsAccount(): boolean {
 	);
 
 	return waiting && ! hasConnectionError;
+}
+
+/**
+ * Whether the current admin's WordPress.com account is connected and the site has an owner.
+ *
+ * @return Whether features waiting for an account can now be turned on.
+ */
+export function useAccountConnected(): boolean {
+	return useSelect( select => {
+		const connection = (
+			select( CONNECTION_STORE ) as unknown as ConnectionStore
+		 )?.getConnectionStatus?.();
+		return Boolean( connection?.isUserConnected && connection.hasConnectedOwner );
+	}, [] );
 }
 
 /**
@@ -518,10 +545,23 @@ export function offersConnect( state: FeatureState ): boolean {
 }
 
 /**
+ * Whether a feature waits for an account with no control on its card, as Jetpack AI does while its
+ * switch is gated or an install the user can't make, so its card and details say so in words instead.
+ *
+ * @param state - Live state for the feature.
+ * @return Whether only a note can say the account is missing.
+ */
+export function needsAccountWithoutConnect( state: FeatureState ): boolean {
+	return Boolean(
+		state.accountNeeded && ( state.control.kind === 'none' || getInstallBlockReason( state ) )
+	);
+}
+
+/**
  * Mark a feature that waits for an account, which Available and bulk actions then leave out.
  *
- * Jetpack reports a module needing an account as unavailable on a site without one; the badge
- * says Needs user account instead, and one saved as on can still be switched off from its details.
+ * Jetpack reports a module needing an account as unavailable on a site without one; the card
+ * offers Connect instead, and one saved as on can still be switched off from its details.
  *
  * @param state         - The feature's resolved state.
  * @param accountModule - The module behind it, if Jetpack is active.

@@ -1,10 +1,11 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Link, Stack } from '@wordpress/ui';
+import { Link, Notice, Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { BulkBar } from './bulk-bar';
+import { ConnectResume, useConnectResume } from './connect-resume';
 import { FeaturesEmptyState } from './empty-state';
 import { FeatureItem } from './feature-item';
 import { FeatureList, UnswitchableNote } from './feature-list';
@@ -95,11 +96,16 @@ export function FeaturesContent() {
 function FeaturesTabContent() {
 	const contentRef = useRef< HTMLElement >( null );
 	const mainFeatures = useMainFeatures();
-	const { modules, hasLoaded: modulesLoaded } = useAllJetpackModules();
+	const { modules, hasLoaded: modulesLoaded, hasFailed: modulesFailed } = useAllJetpackModules();
 	const { states, isLoading } = useFeatureStates( mainFeatures );
 	const { pointer, dismissPointer } = useSidebarSync( mainFeatures.features );
 	const moreFeatures = useMoreFeatures( mainFeatures );
 	const tracking = useFeaturesTracking();
+	const allStates = useMemo(
+		() => [ ...states, ...moreFeatures.flatMap( group => group.states ) ],
+		[ states, moreFeatures ]
+	);
+	const turnOn = useConnectResume( allStates, ! isLoading && modulesLoaded );
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
 
@@ -174,11 +180,8 @@ function FeaturesTabContent() {
 	// Both lists, since a filter narrows both: the pills, and the count the filter event
 	// reports, are answers about the whole tab rather than about the grid alone.
 	const countable = useMemo(
-		() =>
-			[ ...states, ...moreFeatures.flatMap( group => group.states ) ].filter( state =>
-				matchesModuleTag( state, moduleTag, modules, modulesLoaded )
-			),
-		[ states, moreFeatures, moduleTag, modules, modulesLoaded ]
+		() => allStates.filter( state => matchesModuleTag( state, moduleTag, modules, modulesLoaded ) ),
+		[ allStates, moduleTag, modules, modulesLoaded ]
 	);
 
 	// Read once, so the pills hold steady until the visitor leaves the tab.
@@ -378,6 +381,17 @@ function FeaturesTabContent() {
 
 	return (
 		<section ref={ contentRef } className={ styles.content }>
+			{ turnOn && <ConnectResume state={ turnOn } /> }
+			{ modulesFailed && Object.keys( modules ).length === 0 && (
+				<Notice.Root intent="error" role="alert">
+					<Notice.Title>
+						{ __( 'Some features could not be loaded', 'jetpack-my-jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __( 'This list is incomplete. Reload the page to try again.', 'jetpack-my-jetpack' ) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
 			{ ! isOfflineFeatures() && <FeaturesBanner /> }
 
 			<Toolbar

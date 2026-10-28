@@ -274,7 +274,7 @@ export function omitReportDateParams< T extends Record< string, unknown > >(
  * @param value - The search value to serialize.
  * @return The querystring-ready value.
  */
-function stringifySearchValue( value: unknown ): string {
+export function stringifySearchValue( value: unknown ): string {
 	if ( typeof value === 'string' ) {
 		try {
 			JSON.parse( value );

@@ -31,7 +31,6 @@ return (
 			),
 			onRetry: refetch,
 		} ) }
-		footer={ <ReportLink report="videos" /> }
 	/>
 );
 ```
@@ -134,6 +133,15 @@ const row = {
 };
 ```
 
+A `viewLink` row keeps the label as plain text and offers the URL from a "View in new tab"
+action beside it, revealed on hover or focus, for lists whose rows should not read as links
+themselves. `resolveLeaderboardRowAction` returns it for a childless row when passed
+`hrefAs: 'viewLink'`:
+
+```tsx
+action: { kind: 'viewLink', href: 'https://example.com' },
+```
+
 For a drill-down row, pass the chart-level action to the builder. Its result includes the
 `onClick` and `ariaLabel` fields expected by `LeaderboardChart`:
 
@@ -173,7 +181,9 @@ action: {
 
 For a post, page, or email with a detail page inside the dashboard, use the `postLink` action.
 `PostTitleLink` chooses the destination: the internal detail route when the row carries a post
-ID, the public URL when it does not, and plain text when neither is usable.
+ID and the reader can open post details, the public URL otherwise, and plain text when neither is
+usable. A row whose title opens the detail route and that also has a public URL gets a trailing
+"View" action, which opens the live content in a new tab and shows on hover or focus.
 
 ```tsx
 const row = {
@@ -193,10 +203,10 @@ const row = {
 };
 ```
 
-A `postLink` row carries no media, and never becomes a chart button: a chart row that is a
-button cannot nest an anchor.
+A `postLink` row renders its media inside the link, and never becomes a chart button: a chart row
+that is a button cannot nest an anchor.
 
-Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Unlike `postLink`, a `videoLink` row renders its media inside the detail link. It is never a chart button.
+Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Like `postLink`, a `videoLink` row renders its media inside the detail link and gets the "View" action beside a title that opens it. It is never a chart button.
 
 ```tsx
 action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },
@@ -237,7 +247,7 @@ Pass a `thumbnail` a `fallbackIcon` to draw that glyph in a bordered box, instea
 
 Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
 It applies the shared precedence: drill-down for rows with children, external links for
-childless rows, and static content otherwise.
+childless rows (or a `viewLink` row, with `hrefAs: 'viewLink'`), and static content otherwise.
 
 Use `LeaderboardLabel` directly for media plus truncating text outside chart rows, such as a
 DataViews table cell. It deliberately does not add the chart row's 36px minimum block size or its

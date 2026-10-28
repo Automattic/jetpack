@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add emit-widget-strings, which writes a gettext reference stub for widget.json metadata so the strings reach translation catalogs.

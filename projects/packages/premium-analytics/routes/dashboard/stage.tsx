@@ -5,7 +5,7 @@ import {
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Stack } from '@jetpack-premium-analytics/externals';
+import { JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 import {
 	DashboardWidgetHostProvider,
 	usePeriodHost,
@@ -28,6 +28,7 @@ import {
 	DashboardSectionProvider,
 	PageOptionsMenu,
 	ResetLayoutAction,
+	useHostLinkSearch,
 	useTrackCustomize,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -146,7 +147,6 @@ function Dashboard(): JSX.Element {
 		() => getInsertableWidgetTypeNames( activeSectionRecord ? [ activeSectionRecord ] : [] ),
 		[ activeSectionRecord ]
 	);
-	const dashboardPolicy = useDashboardPolicy( { insertableWidgetTypes } );
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -206,75 +206,35 @@ function Dashboard(): JSX.Element {
 		},
 		[ layout, setLayout, trackCustomize ]
 	);
-	const { lockedSection, visibleLayout, onVisibleLayoutChange } = useLockedSectionLayout(
-		widgetSection,
-		layout,
-		onLayoutChange
-	);
+	const { lockedSection, visibleLayout, onVisibleLayoutChange, isHiddenWidget } =
+		useLockedSectionLayout( widgetSection, layout, onLayoutChange );
 	const isSectionLocked = !! lockedSection;
+	const dashboardPolicy = useDashboardPolicy( {
+		insertableWidgetTypes,
+		lockedLayout: isSectionLocked ? visibleLayout : undefined,
+	} );
+	const canCustomizeSection = dashboardPolicy( { operation: 'customize' } );
 	// Edit mode survives a tab switch, so leave it on arriving at a section that cannot be arranged.
 	// The exit is recorded against the section arrived at, as Done after any tab switch is.
 	useEffect( () => {
-		if ( editMode && isSectionLocked ) {
+		if ( editMode && ! canCustomizeSection ) {
 			onEditChange( false );
 		}
-	}, [ editMode, isSectionLocked, onEditChange ] );
-	// Settings has no layout to customize, and `WidgetDashboard` opens Customize over an empty one.
-	// A locked section has nothing to add, and its visible layout is often empty.
+	}, [ editMode, canCustomizeSection, onEditChange ] );
+	// Settings has no layout to customize.
 	const canPerform = useMemo< typeof dashboardPolicy >(
 		() =>
-			isSettingsActive || isSectionLocked
+			isSettingsActive
 				? request => request.operation !== 'customize' && dashboardPolicy( request )
 				: dashboardPolicy,
-		[ dashboardPolicy, isSettingsActive, isSectionLocked ]
+		[ dashboardPolicy, isSettingsActive ]
 	);
 	const resetToDefault = useCallback( () => {
 		trackCustomize.reset();
-		resetLayout();
+		// A locked section resets only what it shows, so an upgrade brings back the rest as arranged.
+		resetLayout( isHiddenWidget );
 		setEditMode( false );
-	}, [ resetLayout, trackCustomize ] );
-
-	// The tour's anchors, handed in by the elements below once they mount.
-	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
-	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
-	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
-	const [ tabListFrame, setTabListFrame ] = useState< HTMLDivElement | null >( null );
-	const tourAnchors = {
-		// Every tile is a section; the grid draws them in layout order.
-		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
-		dateControls: controlsAnchor,
-		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
-		sectionTabs: tabListFrame?.querySelector( '[role="tablist"]' ) ?? null,
-	};
-	// A step without its anchor is left out, so the counter counts what is on the page.
-	const tourStepsFor = ( flow: OnboardingFlow ) =>
-		onboardingTourSteps( tourAnchors, {
-			withFeedback: canSendFeedback(),
-			flow,
-			withCustomize: ! isSectionLocked,
-		} ).filter( step => step.anchor );
-	// Built every render rather than memoized: the anchors are looked up fresh, since the
-	// first widget mounts after its frame.
-	const tourStepsByFlow: Record< OnboardingFlow, OnboardingTourStep[] > = {
-		stats: tourStepsFor( 'stats' ),
-		store: tourStepsFor( 'store' ),
-		'stats-and-store': tourStepsFor( 'stats-and-store' ),
-	};
-
-	const defaultSection = resolveSectionId( undefined, sections );
-
-	// The journey introduces the default section at rest: not another tab, and
-	// not while the reader is already customizing.
-	const onboarding = useOnboarding( {
-		enabled: hasResolvedSections && ! editMode && activeSection === defaultSection,
-		hasStoreSection: hasStoreSection( sections ),
-		stepCounts: {
-			stats: tourStepsByFlow.stats.length,
-			store: tourStepsByFlow.store.length,
-			'stats-and-store': tourStepsByFlow[ 'stats-and-store' ].length,
-		},
-	} );
-	const tourSteps = tourStepsByFlow[ onboarding.flow ];
+	}, [ isHiddenWidget, resetLayout, trackCustomize ] );
 
 	// Only the widgets this section renders need metadata at boot; the full registry
 	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
@@ -309,6 +269,49 @@ function Dashboard(): JSX.Element {
 	const offersComparison =
 		offersDateComparison( dateFilterSurface, activeSectionRecord?.date_filter_options ) &&
 		planOffersComparison;
+
+	// The tour's anchors, handed in by the elements below once they mount.
+	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
+	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
+	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
+	const [ tabListFrame, setTabListFrame ] = useState< HTMLDivElement | null >( null );
+	const tourAnchors = {
+		// Every tile is a section; the grid draws them in layout order.
+		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
+		dateControls: controlsAnchor,
+		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
+		sectionTabs: tabListFrame?.querySelector( '[role="tablist"]' ) ?? null,
+	};
+	// A step without its anchor is left out, so the counter counts what is on the page.
+	const tourStepsFor = ( flow: OnboardingFlow ) =>
+		onboardingTourSteps( tourAnchors, {
+			withFeedback: canSendFeedback(),
+			flow,
+			withCustomize: canCustomizeSection,
+			withComparison: offersComparison,
+		} ).filter( step => step.anchor );
+	// Built every render rather than memoized: the anchors are looked up fresh, since the
+	// first widget mounts after its frame.
+	const tourStepsByFlow: Record< OnboardingFlow, OnboardingTourStep[] > = {
+		stats: tourStepsFor( 'stats' ),
+		store: tourStepsFor( 'store' ),
+		'stats-and-store': tourStepsFor( 'stats-and-store' ),
+	};
+
+	const defaultSection = resolveSectionId( undefined, sections );
+
+	// The journey introduces the default section at rest: not another tab, and
+	// not while the reader is already customizing.
+	const onboarding = useOnboarding( {
+		enabled: hasResolvedSections && ! editMode && activeSection === defaultSection,
+		hasStoreSection: hasStoreSection( sections ),
+		stepCounts: {
+			stats: tourStepsByFlow.stats.length,
+			store: tourStepsByFlow.store.length,
+			'stats-and-store': tourStepsByFlow[ 'stats-and-store' ].length,
+		},
+	} );
+	const tourSteps = tourStepsByFlow[ onboarding.flow ];
 
 	// Placement only: the date state is the same either way.
 	const showHeaderDateControl =
@@ -479,7 +482,7 @@ function Dashboard(): JSX.Element {
 				dateLimits={ dateLimits }
 			>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
-				<DashboardWidgetHostProvider>
+				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
 							widgetTypes={ widgetTypes }
@@ -507,7 +510,7 @@ function Dashboard(): JSX.Element {
 										<Stack ref={ setOptionsMenuFrame } direction="row">
 											<PageOptionsMenu
 												onCustomize={
-													editMode || isSettingsActive || isSectionLocked
+													editMode || isSettingsActive || ! canCustomizeSection
 														? undefined
 														: startCustomizing
 												}
@@ -535,7 +538,6 @@ function Dashboard(): JSX.Element {
 												ref={ setHeaderRef }
 												title={ resolveSectionHeading( section ) }
 												pinned
-												notice={ <RefreshFailureNotice /> }
 												controlsRef={ setControlsAnchor }
 											>
 												{ dateControls }
@@ -543,51 +545,57 @@ function Dashboard(): JSX.Element {
 
 											{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
 											{ activeSection === section.slug && isSectionCommitted ? (
-												<div className={ styles.body }>
-													{ ! editMode && <DashboardNotices /> }
+												<DashboardSectionProvider section={ section.slug }>
+													<div className={ styles.body }>
+														<RefreshFailureNotice />
+														{ ! editMode && <DashboardNotices /> }
 
-													{ /* Behind the onboarding journey: it introduces the tabs
-													     the banner asks about. */ }
-													<FeedbackBanner
-														enabled={
-															canSendFeedback() &&
-															! editMode &&
-															section.slug === defaultSection &&
-															onboarding.phase === 'closed'
-														}
-													/>
-
-													{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
-														<SectionSyncNotice
-															canRunSync={ canRunSync }
-															percentage={ syncStatus?.percentage ?? 0 }
-															hasError={ !! syncError }
-															onRetry={ retrySync }
-															isRetrying={ isRetryingSync }
+														{ /* Behind the onboarding journey: it introduces the tabs
+														     the banner asks about. */ }
+														<FeedbackBanner
+															enabled={
+																canSendFeedback() &&
+																! editMode &&
+																section.slug === defaultSection &&
+																onboarding.phase === 'closed'
+															}
 														/>
-													) : (
-														section.notice && <SectionNotice message={ section.notice } />
-													) }
 
-													{ ! isSectionLocked && <WidgetDashboard.NoWidgetsState /> }
-													<div ref={ setWidgetsFrame }>
-														<DashboardSectionProvider section={ section.slug }>
+														{ isSectionAwaitingSync( section, isSyncFinished ) &&
+														! isSyncComplete ? (
+															<SectionSyncNotice
+																canRunSync={ canRunSync }
+																percentage={ syncStatus?.percentage ?? 0 }
+																hasError={ !! syncError }
+																onRetry={ retrySync }
+																isRetrying={ isRetryingSync }
+															/>
+														) : (
+															section.notice && <SectionNotice message={ section.notice } />
+														) }
+
+														{ ! isSectionLocked && <WidgetDashboard.NoWidgetsState /> }
+														<div ref={ setWidgetsFrame }>
 															<WidgetDashboard.Widgets className={ styles.widgets } />
-														</DashboardSectionProvider>
+														</div>
+														{ isSectionLocked && <LockedSection section={ section.slug } /> }
 													</div>
-													{ isSectionLocked && <LockedSection section={ section.slug } /> }
-												</div>
+												</DashboardSectionProvider>
 											) : null }
 										</SectionTabPanel>
 									) ) }
 
 									{ hasSettingsTab && (
 										<SectionTabPanel value={ SETTINGS_SECTION } className={ styles.content }>
-											<div className={ styles.body }>
-												<StatsSettingsPanel />
-											</div>
+											<DashboardSectionProvider section={ SETTINGS_SECTION }>
+												<div className={ styles.body }>
+													<StatsSettingsPanel />
+												</div>
+											</DashboardSectionProvider>
 										</SectionTabPanel>
 									) }
+
+									<JetpackFooter />
 								</DashboardSections>
 
 								<WidgetDashboard.Commands />

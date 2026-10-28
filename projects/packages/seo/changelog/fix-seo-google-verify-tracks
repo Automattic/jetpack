@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Record a Tracks event when Google one-click verification saves the verification code, instead of at the next verification save.
-

@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: React 19 changes the order of properties generated on a node. Use `toContainHTML` from `@testing-library/jest-dom` instead.
-
-

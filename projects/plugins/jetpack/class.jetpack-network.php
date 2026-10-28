@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Tokens;
@@ -542,24 +543,16 @@ class Jetpack_Network {
 			return;
 		}
 
-		$script_asset = require $script_asset_path;
-
-		wp_enqueue_script(
+		Assets::register_script(
 			'jetpack-network-admin',
-			plugins_url( '_inc/build/network-admin.js', JETPACK__PLUGIN_FILE ),
-			$script_asset['dependencies'],
-			$script_asset['version'],
-			true
+			'_inc/build/network-admin.js',
+			JETPACK__PLUGIN_FILE,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack',
+				'enqueue'    => true,
+			)
 		);
-
-		wp_enqueue_style(
-			'jetpack-network-admin',
-			plugins_url( '_inc/build/network-admin.css', JETPACK__PLUGIN_FILE ),
-			array(),
-			$script_asset['version']
-		);
-
-		wp_set_script_translations( 'jetpack-network-admin', 'jetpack' );
 
 		wp_localize_script(
 			'jetpack-network-admin',

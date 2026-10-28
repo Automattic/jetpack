@@ -7,6 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { createWidgetActionsHost } from '../../../tests/js/widget-host-test-utils';
 import ReferrersWidget, { toReferrerRow } from '../render';
 import type { StatsReferrersComparisonItem } from '@jetpack-premium-analytics/data';
 
@@ -117,7 +118,7 @@ describe( 'ReferrersWidget', () => {
 
 		fireEvent.click( sourceButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 
-		// Third level: URL-backed leaf domains render as outbound links and the
+		// Third level: URL-backed leaf domains list with a "View" action and the
 		// back link is labelled after the parent list.
 		await expect( screen.findByText( 'google.com' ) ).resolves.toBeInTheDocument();
 
@@ -213,16 +214,17 @@ describe( 'ReferrersWidget', () => {
 		await expect( screen.findByText( 'jetpack.com' ) ).resolves.toBeInTheDocument();
 	} );
 
-	it( 'renders childless referrers with a URL as outbound links that open in a new tab', async () => {
+	it( 'offers a childless referrer with a URL from a "View in new tab" action, not from its name', async () => {
 		render(
 			<ReferrersWidget
 				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
-		const link = await screen.findByRole( 'link', { name: /jetpack\.com/i } );
-		expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/' );
-		expect( link ).toHaveAttribute( 'target', '_blank' );
+		const view = await screen.findByRole( 'link', { name: 'View "jetpack.com" in a new tab' } );
+		expect( view ).toHaveAttribute( 'href', 'https://jetpack.com/' );
+		expect( view ).toHaveAttribute( 'target', '_blank' );
+		expect( screen.queryByRole( 'link', { name: /^jetpack\.com/i } ) ).not.toBeInTheDocument();
 	} );
 
 	// Referrer rows derive from inbound request data rather than anything the site
@@ -245,15 +247,27 @@ describe( 'ReferrersWidget', () => {
 		} );
 	} );
 
-	it( 'links to the full Referrers report', () => {
+	it( 'declares the CSV download to its host once the rows settle', async () => {
+		mockApiFetch.mockResolvedValue( REFERRERS_RESPONSE );
+		const { WidgetActionsHost, declaredActions } = createWidgetActionsHost();
+
 		render(
-			<ReferrersWidget
-				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
-			/>
+			<WidgetActionsHost>
+				<ReferrersWidget
+					attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				/>
+			</WidgetActionsHost>
 		);
 
-		const link = screen.getByRole( 'link', { name: 'View all' } );
-		expect( link ).toHaveAttribute( 'href', expect.stringContaining( '/reports/referrers' ) );
+		await expect(
+			screen.findByRole( 'button', { name: /view referrers for search engines/i } )
+		).resolves.toBeInTheDocument();
+
+		await waitFor( () =>
+			expect( declaredActions() ).toEqual( [
+				expect.objectContaining( { id: 'download-csv', relevance: 'medium' } ),
+			] )
+		);
 	} );
 } );
 

@@ -155,7 +155,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 					<div class="jetpack-offline-notice">
 						<p class="jetpack-offline-notice__title"><?php esc_html_e( "You're working in Offline Mode", 'jetpack' ); ?></p>
 						<p class="jetpack-offline-notice__text">
-							<?php esc_html_e( 'Jetpack is running in Offline Mode, so features that need a connection to WordPress.com are paused for now — this is completely normal for local and development sites. Go ahead and activate or configure any of the modules below that work offline.', 'jetpack' ); ?>
+							<?php esc_html_e( 'Your site is in Offline Mode, so features that need a connection to WordPress.com are paused for now — this is completely normal for local and development sites. Go ahead and activate or configure any of the modules below that work offline.', 'jetpack' ); ?>
 							<a href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-development-mode' ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Learn more about Offline Mode.', 'jetpack' ); ?></a>
 						</p>
 					</div>
@@ -194,7 +194,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 							<?php endif; ?>
 							<?php $list_table->search_box( __( 'Search modules…', 'jetpack' ), 'srch-term' ); ?>
 							<?php if ( $is_offline_mode ) : ?>
-								<p><?php esc_html_e( 'Available in offline mode', 'jetpack' ); ?></p>
+								<p><?php esc_html_e( 'Available in Offline Mode', 'jetpack' ); ?></p>
 								<span class="dops-button-group button-group availability-filter">
 									<button type="button" class="dops-button is-compact button
 									<?php echo 'all' === $current_availability ? 'active' : ''; ?>

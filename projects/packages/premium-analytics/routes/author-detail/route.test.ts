@@ -1,12 +1,14 @@
 import {
+	isDashboardSectionAvailable,
 	isStatsFeatureLocked,
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
-import { isDashboardSectionAvailable, isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	isDashboardSectionAvailable: jest.fn( () => true ),
 	isStatsFeatureLocked: jest.fn( () => false ),
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
 	needsReportDateParamsSeed: jest.fn( () => false ),
@@ -24,7 +26,6 @@ jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
 	isVideoPressAvailable: jest.fn( () => true ),
-	isDashboardSectionAvailable: jest.fn( () => true ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {

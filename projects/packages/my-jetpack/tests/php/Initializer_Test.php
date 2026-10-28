@@ -339,6 +339,8 @@ class Initializer_Test extends BaseTestCase {
 			return false;
 		};
 		add_filter( 'rest_enabled', $probe );
+		Initializer::register_feature_flags();
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_false' );
 		try {
 			ob_start();
 			Initializer::print_modules_fallback();
@@ -346,6 +348,8 @@ class Initializer_Test extends BaseTestCase {
 			$this->assertSame( 0, $probes );
 		} finally {
 			remove_filter( 'rest_enabled', $probe );
+			remove_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_false' );
+			Feature_Flags::reset();
 			$_GET = array();
 		}
 	}
@@ -1620,6 +1624,15 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertFalse( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
 	}
 
+	public function test_modules_to_features_defaults_on() {
+		Initializer::register_feature_flags();
+		try {
+			$this->assertTrue( Feature_Flags::is_enabled( Initializer::MODULES_TO_FEATURES_FLAG ) );
+		} finally {
+			Feature_Flags::reset();
+		}
+	}
+
 	/**
 	 * Overview v1 shows only with its flag on.
 	 */
@@ -1630,6 +1643,22 @@ class Initializer_Test extends BaseTestCase {
 		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
 		try {
 			$this->assertTrue( Initializer::get_my_jetpack_flags()['overviewV1'] );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
+			Feature_Flags::reset();
+		}
+	}
+
+	/**
+	 * The blog posts route exists only with Overview v1's flag on.
+	 */
+	public function test_blog_posts_route_registers_only_when_overview_v1_is_on() {
+		Initializer::register_feature_flags();
+		$this->assertArrayNotHasKey( '/my-jetpack/v1/blog-posts', $this->capture_rest_routes() );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
+		try {
+			$this->assertArrayHasKey( '/my-jetpack/v1/blog-posts', $this->capture_rest_routes() );
 		} finally {
 			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
 			Feature_Flags::reset();

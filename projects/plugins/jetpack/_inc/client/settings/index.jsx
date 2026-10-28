@@ -32,7 +32,6 @@ class Settings extends Component {
 			searchTerm,
 			siteAdminUrl,
 			siteRawUrl,
-			blogID,
 			userCanManageModules,
 			hasAnyMatchingModule,
 		} = this.props;
@@ -77,7 +76,7 @@ class Settings extends Component {
 						active={ '/discussion' === pathname }
 						{ ...commonProps }
 					/>
-					<Reader active={ '/reader' === pathname } blogID={ blogID } { ...commonProps } />
+					<Reader active={ '/reader' === pathname } { ...commonProps } />
 					<Earn
 						siteRawUrl={ siteRawUrl }
 						active={ '/earn' === pathname }

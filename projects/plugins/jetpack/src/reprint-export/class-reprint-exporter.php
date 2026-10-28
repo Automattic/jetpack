@@ -1,6 +1,6 @@
 <?php
 /**
- * HMAC-authenticated, time-limited Reprint export for Pressable and Atomic
+ * Signed (public key, or HMAC where OpenSSL is missing), time-limited Reprint export for Pressable and Atomic
  * sites.
  *
  * @package automattic/jetpack
@@ -10,6 +10,9 @@ namespace Automattic\Jetpack\Reprint_Export;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Host;
+use WordPress\Reprint\Server\HTTPServer;
+use WordPress\Reprint\Server\RequestAuthenticator;
+use WordPress\Reprint\Server\Utils;
 
 /**
  * Reprint exporter for Jetpack (Pressable and WordPress.com/Atomic).
@@ -32,11 +35,29 @@ class Reprint_Exporter {
 	const ENABLED_OPTION = 'jetpack_reprint_exporter_enabled';
 
 	/**
-	 * Clock-skew tolerance, in seconds, allowed for HMAC signatures.
+	 * Option holding the enrolled Reprint public key, in one-line form.
+	 *
+	 * @var string
+	 */
+	const PUBLIC_KEY_OPTION = 'jetpack_reprint_exporter_public_key';
+
+	/**
+	 * The options only this class may write.
+	 *
+	 * @var string[]
+	 */
+	const GUARDED_OPTIONS = array(
+		self::SECRET_OPTION,
+		self::ENABLED_OPTION,
+		self::PUBLIC_KEY_OPTION,
+	);
+
+	/**
+	 * Clock-skew tolerance, in seconds, for request signatures and the window stamp.
 	 *
 	 * @var int
 	 */
-	const HMAC_CLOCK_SKEW = 300;
+	const CLOCK_SKEW = 300;
 
 	/**
 	 * Whether the exporter is in the middle of one of its own option writes.
@@ -57,7 +78,7 @@ class Reprint_Exporter {
 	}
 
 	/**
-	 * Blocks writes to the two export options from anywhere but this class.
+	 * Blocks writes to the export options from anywhere but this class.
 	 *
 	 * Whoever sets both can export the whole site, since they pick the secret
 	 * and can then sign their own requests. Allowed by where the write came
@@ -70,7 +91,7 @@ class Reprint_Exporter {
 	 * two, but nothing catches a write made earlier in a normal request.
 	 */
 	public static function protect_options() {
-		foreach ( array( self::SECRET_OPTION, self::ENABLED_OPTION ) as $option ) {
+		foreach ( self::GUARDED_OPTIONS as $option ) {
 			// Last word: a later filter must not be able to reinstate the value.
 			add_filter( "pre_update_option_{$option}", array( __CLASS__, 'veto_foreign_update' ), PHP_INT_MAX, 2 );
 		}
@@ -97,7 +118,7 @@ class Reprint_Exporter {
 	 * @param string $option The option being added.
 	 */
 	public static function veto_foreign_add( $option ) {
-		if ( self::SECRET_OPTION !== $option && self::ENABLED_OPTION !== $option ) {
+		if ( ! in_array( $option, self::GUARDED_OPTIONS, true ) ) {
 			return;
 		}
 
@@ -148,8 +169,9 @@ class Reprint_Exporter {
 		 * Fires when a Reprint export request ends in an export or an error.
 		 *
 		 * A request the handler ignores fires nothing, and no event carries the
-		 * secret or the signature. An export with no secret_rotated or
-		 * window_opened event before it used a secret this site did not create.
+		 * secret or the signature. An export with no secret_rotated,
+		 * public_key_installed or window_opened event before it used a credential
+		 * this site did not create.
 		 *
 		 * @since 16.2
 		 *
@@ -168,10 +190,12 @@ class Reprint_Exporter {
 	 * on a site that stays connected.
 	 */
 	public static function discard_credentials() {
-		$had_secret = delete_option( self::SECRET_OPTION );
-		$had_window = delete_option( self::ENABLED_OPTION );
+		$had_any = false;
+		foreach ( self::GUARDED_OPTIONS as $option ) {
+			$had_any = delete_option( $option ) || $had_any;
+		}
 
-		if ( $had_secret || $had_window ) {
+		if ( $had_any ) {
 			// current_filter() rather than a parameter: jetpack_site_registered
 			// passes a blog ID to its callbacks, which would land in one.
 			self::record_event(
@@ -185,10 +209,56 @@ class Reprint_Exporter {
 	 * Stores a newly created shared secret.
 	 *
 	 * @param string $secret The new secret.
-	 * @return bool Whether the secret was stored.
+	 * @return bool Whether the secret is now stored.
 	 */
 	public static function store_secret( $secret ) {
-		return self::write_option( self::SECRET_OPTION, $secret );
+		if ( ! is_string( $secret ) || '' === $secret ) {
+			return false;
+		}
+
+		self::write_option( self::SECRET_OPTION, $secret );
+
+		// Read back: update_option() reports false for an unchanged value.
+		return get_option( self::SECRET_OPTION ) === $secret;
+	}
+
+	/**
+	 * Stores a public key, replacing any earlier key.
+	 *
+	 * Takes the one-line form PublicKeyServer::assert_valid_public_key() returns.
+	 *
+	 * @param string $public_key The one-line public key.
+	 * @return bool Whether the key is now stored.
+	 */
+	public static function store_public_key( $public_key ) {
+		if ( ! is_string( $public_key ) || '' === $public_key ) {
+			return false;
+		}
+
+		self::write_option( self::PUBLIC_KEY_OPTION, $public_key );
+
+		return get_option( self::PUBLIC_KEY_OPTION ) === $public_key;
+	}
+
+	/**
+	 * The stored credentials and window, as the handler and the routes read them.
+	 *
+	 * The has_credential key refers only to the scheme this host accepts.
+	 *
+	 * @return array<string, bool>
+	 */
+	public static function get_state() {
+		$secret         = get_option( self::SECRET_OPTION, '' );
+		$has_secret     = is_string( $secret ) && '' !== $secret;
+		$public_key     = get_option( self::PUBLIC_KEY_OPTION, '' );
+		$has_public_key = is_string( $public_key ) && '' !== $public_key;
+
+		return array(
+			'has_secret'     => $has_secret,
+			'has_public_key' => $has_public_key,
+			'has_credential' => Utils::key_auth_required() ? $has_public_key : $has_secret,
+			'window_open'    => self::is_export_window_open(),
+		);
 	}
 
 	/**
@@ -255,12 +325,8 @@ class Reprint_Exporter {
 			return;
 		}
 
-		// Any origin: the client may run in a browser (Playground) from
-		// deployments we cannot know ahead of time, and origin is no boundary
-		// when every request needs the HMAC secret anyway. Preflights come
-		// before HMAC because browsers send them without credentials, and
-		// before the window check so a client whose window has closed can reach
-		// the 409 below.
+		// Any origin: every request must be signed, so origin is no boundary.
+		// Preflights precede the signature and window checks: browsers send them without credentials.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( $_SERVER['REQUEST_METHOD'] ) : '';
 		if ( 'OPTIONS' === $request_method ) {
@@ -274,23 +340,33 @@ class Reprint_Exporter {
 
 		// Without a valid signature a closed window answers nothing, so an idle
 		// site stays indistinguishable from one that never had the feature.
-		$window_open = self::is_export_window_open();
+		$state       = self::get_state();
+		$window_open = $state['window_open'];
+		$provision   = Utils::key_auth_required() ? 'install-public-key' : 'rotate-export-secret';
 
-		$secret = get_option( self::SECRET_OPTION, '' );
-		if ( ! is_string( $secret ) || '' === $secret ) {
+		if ( ! $state['has_credential'] ) {
 			if ( ! $window_open ) {
 				return;
 			}
-			$this->error( 503, 'Export not configured. Please rotate the shared secret via POST /jetpack/v4/reprint/rotate-export-secret.' );
+			$this->error( 503, "Export not configured. Provision a credential via POST /jetpack/v4/reprint/{$provision}.", RequestAuthenticator::REASON_NOT_CONFIGURED );
 			return;
 		}
 
-		$auth_error = $this->verify_hmac( $secret );
-		if ( null !== $auth_error ) {
+		$secret      = $state['has_secret'] ? get_option( self::SECRET_OPTION ) : null;
+		$public_keys = array();
+		if ( $state['has_public_key'] ) {
+			$public_key = get_option( self::PUBLIC_KEY_OPTION );
+
+			$public_keys[ Utils::public_key_fingerprint( $public_key ) ] = $public_key;
+		}
+
+		$auth_failure = $this->verify_signature( $secret, $public_keys );
+		if ( null !== $auth_failure ) {
 			if ( ! $window_open ) {
 				return;
 			}
-			$this->error( 403, $auth_error );
+			$not_configured = array( RequestAuthenticator::REASON_NOT_CONFIGURED, RequestAuthenticator::REASON_NO_KEYS_ENROLLED );
+			$this->error( in_array( $auth_failure['reason'], $not_configured, true ) ? 503 : 403, $auth_failure['message'], $auth_failure['reason'] );
 			return;
 		}
 
@@ -308,7 +384,7 @@ class Reprint_Exporter {
 		try {
 			$this->serve_export();
 		} catch ( \InvalidArgumentException $exception ) {
-			$this->error( 400, $exception->getMessage() );
+			$this->error( 400, $exception->getMessage(), 'invalid_request' );
 			return;
 		}
 
@@ -344,13 +420,12 @@ class Reprint_Exporter {
 		$enabled_at = (int) get_option( self::ENABLED_OPTION, 0 );
 		$now        = null === $now ? time() : (int) $now;
 		return $enabled_at > 0
-			&& $enabled_at <= $now + self::HMAC_CLOCK_SKEW
+			&& $enabled_at <= $now + self::CLOCK_SKEW
 			&& ( $now - $enabled_at ) <= HOUR_IN_SECONDS;
 	}
 
 	/**
-	 * Opens the export window by stamping the enabled option with the current
-	 * time.
+	 * Opens the export window by stamping the enabled option with the current time.
 	 *
 	 * @return int The unix timestamp the window was opened at.
 	 */
@@ -361,16 +436,34 @@ class Reprint_Exporter {
 	}
 
 	/**
-	 * Verifies the HMAC signature of the current request.
+	 * Verifies the current request's signature; Reprint picks the scheme the host accepts.
 	 *
-	 * Seam for tests to override without instantiating the real server.
+	 * Seam for tests to override without the real authenticator.
 	 *
-	 * @param string $secret The per-site shared secret.
-	 * @return string|null Error message on failure, null on success.
+	 * @param string|null          $secret      The valid shared secret, or null.
+	 * @param array<string,string> $public_keys Valid public keys by key id.
+	 * @return array|null Null on success, else array( 'message' => string, 'reason' => string ).
 	 */
-	protected function verify_hmac( $secret ) {
-		$hmac_server = new \Site_Export_HMAC_Server( $secret, self::HMAC_CLOCK_SKEW );
-		return $hmac_server->verify_globals();
+	protected function verify_signature( $secret, array $public_keys ) {
+		$authenticator = new RequestAuthenticator( $secret, $public_keys, self::CLOCK_SKEW );
+		$error         = $authenticator->verify_globals();
+		if ( null === $error ) {
+			return null;
+		}
+
+		return array(
+			'message' => $error,
+			'reason'  => $authenticator->last_error_reason() ?? RequestAuthenticator::REASON_AUTH_FAILED,
+		);
+	}
+
+	/**
+	 * Options for Reprint's HTTP server: pull endpoints only, never push.
+	 *
+	 * @return array
+	 */
+	public static function http_server_options() {
+		return array( 'default_directory' => ABSPATH );
 	}
 
 	/**
@@ -380,7 +473,7 @@ class Reprint_Exporter {
 	 */
 	protected function serve_export() {
 		$this->send_cors_headers();
-		\Site_Export_HTTP_Server::serve( array( 'default_directory' => ABSPATH ) );
+		HTTPServer::serve( self::http_server_options() );
 	}
 
 	/**
@@ -403,17 +496,28 @@ class Reprint_Exporter {
 	/**
 	 * Sends a JSON error response and terminates.
 	 *
-	 * @param int    $code    HTTP status code.
-	 * @param string $message Error description.
+	 * @param int         $code    HTTP status code.
+	 * @param string      $message Error description.
+	 * @param string|null $reason  Reprint's machine-readable reason code, or null.
 	 */
-	protected function error( $code, $message ) {
-		self::record_event(
-			'export_refused',
-			array(
-				'code'   => $code,
-				'reason' => $message,
-			)
+	protected function error( $code, $message, $reason = null ) {
+		$context = array( 'code' => $code );
+		// Without auth_version, Reprint clients report every refusal as an outdated plugin.
+		$body = array(
+			'error'        => $message,
+			'code'         => $code,
+			'auth_version' => Utils::AUTH_VERSION,
 		);
+		if ( null !== $reason ) {
+			// Only the code: Reprint's messages can echo the unauthenticated key id header.
+			$context['reason']      = $reason;
+			$context['reason_code'] = $reason;
+			$body['reason']         = $reason;
+		} else {
+			$context['reason'] = $message;
+		}
+
+		self::record_event( 'export_refused', $context );
 
 		$this->send_cors_headers();
 		if ( ! headers_sent() ) {
@@ -421,13 +525,7 @@ class Reprint_Exporter {
 			header( 'Content-Type: application/json' );
 		}
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-		echo json_encode(
-			array(
-				'error' => $message,
-				'code'  => $code,
-			),
-			JSON_FORCE_OBJECT
-		);
+		echo json_encode( $body, JSON_FORCE_OBJECT );
 		$this->terminate();
 	}
 

@@ -1,0 +1,118 @@
+$upgrade-pitch-max-inline-size: 500px;
+
+.page {
+	min-block-size: 0;
+}
+
+// Sizes the showcase to the visible height.
+.layout {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wpds-dimension-gap-lg);
+	flex: 1 1 auto;
+	min-block-size: 0;
+	padding: var(--wpds-dimension-padding-lg);
+	overflow-y: auto;
+	container-type: size;
+
+	@media (max-width: 900px) {
+		flex-direction: column;
+		align-items: stretch;
+	}
+}
+
+.pitch {
+	flex: 1 1 50%;
+	min-inline-size: 0;
+	align-items: center;
+	padding: var(--wpds-dimension-padding-xl);
+
+	> * {
+		inline-size: 100%;
+		max-inline-size: $upgrade-pitch-max-inline-size;
+	}
+}
+
+.benefits {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.check {
+	flex-shrink: 0;
+}
+
+.tierPlaceholder {
+	block-size: 160px;
+}
+
+.pitchPlaceholder {
+	block-size: 320px;
+}
+
+.footnote {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+// Illustration colours, as designed.
+.showcase {
+	position: sticky;
+	inset-block-start: 0;
+	flex: 1 1 50%;
+	min-inline-size: 0;
+	// `cqb` is the scroll box's content height, its padding already left out.
+	block-size: 100cqb;
+	overflow: hidden;
+	border-radius: 12px;
+	background: #003010;
+
+	&::before {
+		content: "";
+		position: absolute;
+		inset-block-start: -554px;
+		inset-inline-start: -17.7%;
+		inline-size: 852px;
+		block-size: 852px;
+		border-radius: 50%;
+		background: linear-gradient(270deg, #48ff50, #108642 47%, #2e38fa);
+		filter: blur(113px);
+	}
+
+	@media (max-width: 900px) {
+		position: relative;
+		// In the column layout a flex basis would win over the block size.
+		flex: none;
+		block-size: 480px;
+	}
+}
+
+.shots {
+	position: relative;
+	inline-size: 69.5%;
+	margin-inline: auto;
+	padding-block: 56px;
+}
+
+.shot {
+	position: relative;
+	display: block;
+	inline-size: 100%;
+	block-size: auto;
+	border-radius: var(--wpds-border-radius-md);
+
+	&:nth-child(2) {
+		margin-block-start: -4.28%;
+	}
+
+	&:nth-child(3) {
+		margin-block-start: -11.6%;
+	}
+
+	&:nth-child(4) {
+		margin-block-start: -7.82%;
+	}
+}

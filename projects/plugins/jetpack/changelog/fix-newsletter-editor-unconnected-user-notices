@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Stop showing two "Please connect your user account" errors in the post editor to users who haven't connected their own WordPress.com account.

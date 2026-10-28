@@ -2,21 +2,35 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { useSearch } from '@wordpress/route';
+import { recordPageView } from '../data/page-views';
 import { resetHistory } from '../sections/history/store';
 import { SCAN_PATH, resetScan, setScan } from '../sections/scan/store';
 import { stage as Stage } from '../stage';
 import type { ScanState } from '../sections/scan/types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../data/page-views', () => ( { recordPageView: jest.fn() } ) );
 const mockNavigate = jest.fn();
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: jest.fn(),
 	useNavigate: () => mockNavigate,
+	useLinkProps: () => ( { href: '#/' } ),
 } ) );
-jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
-	__esModule: true,
-	default: ( { children } ) => children,
-} ) );
+jest.mock( '@automattic/jetpack-components/admin-page', () => {
+	const { createElement, Fragment } = jest.requireActual( 'react' );
+	return {
+		__esModule: true,
+		default: ( { title, breadcrumbs, actions, children } ) =>
+			createElement(
+				Fragment,
+				null,
+				title && createElement( 'h1', null, title ),
+				breadcrumbs,
+				actions,
+				children
+			),
+	};
+} );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const mockUseSearch = useSearch as unknown as jest.Mock;
@@ -53,6 +67,7 @@ const requestsTo = ( path: string ) =>
 
 describe( 'Protect dashboard stage', () => {
 	beforeEach( () => {
+		( recordPageView as jest.Mock ).mockClear();
 		responses.clear();
 		mockApiFetch.mockReset().mockImplementation( ( { path } ) => {
 			const next = responses.get( path )?.shift();
@@ -65,19 +80,58 @@ describe( 'Protect dashboard stage', () => {
 
 	afterEach( () => {
 		delete window.jetpackProtectDashboard;
+		delete ( window as { JetpackScriptData?: object } ).JetpackScriptData;
 		resetScan();
 		resetHistory();
 	} );
 
 	it.each( [
-		[ 'an unknown tab falls back to Overview', { tab: 'bogus' }, 'Overview', 0 ],
-		[ 'Settings loads the settings', { tab: 'settings' }, 'Settings', 2 ],
-	] )( '%s', ( _name, search, selected, requests ) => {
+		[
+			'an unknown tab falls back to Overview',
+			{ tab: 'bogus', section: 'monitor' },
+			'Overview',
+			0,
+			[ 'overview', undefined ],
+		],
+		[
+			'Settings loads the settings',
+			{ tab: 'settings', section: 'monitor' },
+			'Settings',
+			2,
+			[ 'settings', 'monitor' ],
+		],
+		[
+			'Settings ignores an unknown section',
+			{ tab: 'settings', section: '<x>' },
+			'Settings',
+			2,
+			[ 'settings', undefined ],
+		],
+	] )( '%s', ( _name, search, selected, requests, pageView ) => {
 		mockUseSearch.mockReturnValue( search );
-		render( <Stage /> );
+		const { rerender } = render( <Stage /> );
+		rerender( <Stage /> );
 
 		expect( screen.getByRole( 'tab', { selected: true } ) ).toHaveTextContent( selected );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( requests );
+		expect( ( recordPageView as jest.Mock ).mock.calls ).toEqual( [ pageView ] );
+	} );
+
+	it.each( [
+		[ 'starts the header trail at Jetpack', true, {}, 'Protect' ],
+		[ 'keeps a plain title without My Jetpack', false, {}, 'Protect' ],
+		[ 'names the threat report in the trail', true, { threats: '5' }, 'Threats from your alert' ],
+	] )( '%s', ( _name, isAvailable, search, heading ) => {
+		( window as { JetpackScriptData?: object } ).JetpackScriptData = {
+			site: { admin_url: '/wp-admin/' },
+			myJetpack: { isAvailable },
+		};
+		window.jetpackProtectDashboard = { scan: { hasPlan: true, lastChecked } };
+		mockUseSearch.mockReturnValue( search );
+		render( <Stage /> );
+
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( heading );
+		expect( screen.queryByRole( 'link', { name: 'Jetpack' } ) !== null ).toBe( isAvailable );
 	} );
 
 	it.each( [
@@ -211,6 +265,19 @@ describe( 'Protect dashboard stage', () => {
 		expect( search( { threats: '5' } ) ).toEqual( {} );
 	} );
 
+	it( 'leaving the threat report records the Overview view', () => {
+		window.jetpackProtectDashboard = { scan: { hasPlan: true, lastChecked } };
+		mockUseSearch.mockReturnValue( { threats: '5' } );
+		const { rerender } = render( <Stage /> );
+		expect( recordPageView ).not.toHaveBeenCalled();
+
+		mockUseSearch.mockReturnValue( {} );
+		rerender( <Stage /> );
+
+		expect( screen.getByRole( 'tab', { selected: true } ) ).toHaveTextContent( 'Overview' );
+		expect( ( recordPageView as jest.Mock ).mock.calls ).toEqual( [ [ 'overview', undefined ] ] );
+	} );
+
 	it( 'switching tabs closes the threat inspector', async () => {
 		mockUseSearch.mockReturnValue( { threat: '7' } );
 		render( <Stage /> );
@@ -222,6 +289,70 @@ describe( 'Protect dashboard stage', () => {
 			threat: undefined,
 			historyThreat: undefined,
 			tab: 'settings',
+		} );
+	} );
+
+	it( 'shows why a scan started from the header failed, on a tab without the Scan card', async () => {
+		window.jetpackProtectDashboard = {
+			scan: { hasPlan: true, url: '#', error: false, scanning: false, lastChecked, threats: [] },
+		};
+		mockUseSearch.mockReturnValue( { tab: 'settings' } );
+		respond( SCAN_PATH, new Error( 'Unable to find a valid site.' ) );
+		render( <Stage /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Scan site' } ) );
+
+		await expect(
+			screen.findByText( 'Unable to find a valid site.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	describe( 'with a scan running', () => {
+		const running = {
+			hasPlan: true,
+			url: '#',
+			error: false,
+			scanning: true,
+			lastChecked,
+			threats: [],
+		};
+
+		beforeEach( () => {
+			jest.useFakeTimers();
+			window.jetpackProtectDashboard = { scan: running };
+			mockUseSearch.mockReturnValue( { tab: 'settings' } );
+		} );
+
+		afterEach( () => {
+			jest.useRealTimers();
+		} );
+
+		it( 'follows it from a tab without the Scan card', async () => {
+			respond( SCAN_PATH, { ...running, scanning: false } );
+			render( <Stage /> );
+			expect( screen.getByRole( 'button', { name: 'Scanning…' } ) ).toBeInTheDocument();
+
+			await act( () => jest.advanceTimersByTimeAsync( 5000 ) );
+
+			expect( screen.getByRole( 'button', { name: 'Scan site' } ) ).toBeInTheDocument();
+			expect( requestsTo( SCAN_PATH ) ).toBe( 1 );
+		} );
+
+		it( 'offers Check again in the header once polling gives up', async () => {
+			respond( SCAN_PATH, ...Array( 41 ).fill( running ) );
+			render( <Stage /> );
+			for ( let poll = 0; poll < 40; poll++ ) {
+				await act( () => jest.advanceTimersByTimeAsync( 15000 ) );
+			}
+			expect( requestsTo( SCAN_PATH ) ).toBe( 40 );
+
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			await user.click( screen.getByRole( 'button', { name: 'Check again' } ) );
+
+			expect( requestsTo( SCAN_PATH ) ).toBe( 41 );
+			await expect(
+				screen.findByRole( 'button', { name: 'Scanning…' } )
+			).resolves.toBeInTheDocument();
 		} );
 	} );
 } );

@@ -7,7 +7,12 @@ import {
 	type DetailPageHeaderSlots,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { envelope as envelopeIcon, page as pageIcon, post as postIcon } from '@wordpress/icons';
+import {
+	box as productIcon,
+	envelope as envelopeIcon,
+	page as pageIcon,
+	post as postIcon,
+} from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -29,15 +34,39 @@ type PostHeaderSlotsArgs = {
 };
 
 /**
- * Get the display label for a post type slug.
+ * The header wording for a post type slug; any type without its own reads as a post.
  *
  * @param type - The post type slug.
- * @return Human-readable type label.
+ * @return The type's label, fallback titles, view action and placeholder icon.
  */
-function getTypeLabel( type?: string ): string {
-	return type === 'page'
-		? __( 'Page', 'jetpack-premium-analytics-pkg' )
-		: __( 'Post', 'jetpack-premium-analytics-pkg' );
+export function getPostTypeCopy( type?: string ) {
+	if ( type === 'page' ) {
+		return {
+			label: __( 'Page', 'jetpack-premium-analytics-pkg' ),
+			untitled: __( 'Untitled page', 'jetpack-premium-analytics-pkg' ),
+			unavailable: __( 'Page unavailable', 'jetpack-premium-analytics-pkg' ),
+			view: __( 'View page', 'jetpack-premium-analytics-pkg' ),
+			icon: pageIcon,
+		};
+	}
+
+	if ( type === 'product' ) {
+		return {
+			label: __( 'Product', 'jetpack-premium-analytics-pkg' ),
+			untitled: __( 'Untitled product', 'jetpack-premium-analytics-pkg' ),
+			unavailable: __( 'Product unavailable', 'jetpack-premium-analytics-pkg' ),
+			view: __( 'View product', 'jetpack-premium-analytics-pkg' ),
+			icon: productIcon,
+		};
+	}
+
+	return {
+		label: __( 'Post', 'jetpack-premium-analytics-pkg' ),
+		untitled: __( 'Untitled post', 'jetpack-premium-analytics-pkg' ),
+		unavailable: __( 'Post unavailable', 'jetpack-premium-analytics-pkg' ),
+		view: __( 'View post', 'jetpack-premium-analytics-pkg' ),
+		icon: postIcon,
+	};
 }
 
 /**
@@ -57,6 +86,7 @@ export function postHeaderSlots( {
 	performanceRange,
 }: PostHeaderSlotsArgs ): DetailPageHeaderSlots {
 	const { title, type, publishedDate, imageUrl, isLoading } = summary;
+	const copy = getPostTypeCopy( type );
 
 	const formattedDate = formatPublishedDate( publishedDate );
 
@@ -72,9 +102,9 @@ export function postHeaderSlots( {
 						formattedDate
 					)
 				: sprintf(
-						/* translators: %1$s: "Post" or "Page". %2$s: the publish date, e.g. "Aug 19, 2025". */
+						/* translators: %1$s: "Post", "Page" or "Product". %2$s: the publish date, e.g. "Aug 19, 2025". */
 						__( '%1$s published on %2$s.', 'jetpack-premium-analytics-pkg' ),
-						getTypeLabel( type ),
+						copy.label,
 						formattedDate
 					);
 	}
@@ -95,9 +125,7 @@ export function postHeaderSlots( {
 	} else if ( imageUrl ) {
 		visual = <img src={ imageUrl } alt="" data-testid="post-summary-image" />;
 	} else {
-		visual = (
-			<Icon icon={ type === 'page' ? pageIcon : postIcon } size={ DETAIL_HEADER_GLYPH_SIZE } />
-		);
+		visual = <Icon icon={ copy.icon } size={ DETAIL_HEADER_GLYPH_SIZE } />;
 	}
 
 	// The title lands on its own request, so the header would otherwise read as
@@ -118,20 +146,9 @@ export function postHeaderSlots( {
 
 	// Matches the video header: a failed summary has no title or window to state.
 	if ( summary.isError ) {
-		return {
-			visual,
-			title:
-				type === 'page'
-					? __( 'Page unavailable', 'jetpack-premium-analytics-pkg' )
-					: __( 'Post unavailable', 'jetpack-premium-analytics-pkg' ),
-		};
+		return { visual, title: copy.unavailable };
 	}
 
 	// A post saved without a title still owes the reader an `h1`.
-	const fallbackTitle =
-		type === 'page'
-			? __( 'Untitled page', 'jetpack-premium-analytics-pkg' )
-			: __( 'Untitled post', 'jetpack-premium-analytics-pkg' );
-
-	return { visual, title: title?.trim() || fallbackTitle, subTitle: subtitle || undefined };
+	return { visual, title: title?.trim() || copy.untitled, subTitle: subtitle || undefined };
 }

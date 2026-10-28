@@ -1,5 +1,6 @@
 import { AnalyticsQueryClientProvider, useRefreshFailure } from '@jetpack-premium-analytics/data';
 import { StaleDataNotice } from '@jetpack-premium-analytics/ui';
+import styles from './refresh-failure-notice.module.scss';
 
 /**
  * Reads the shared query cache and renders the notice while a refresh is failing.
@@ -15,6 +16,7 @@ function ConnectedNotice() {
 
 	return (
 		<StaleDataNotice
+			className={ styles.notice }
 			updatedAt={ failure.dataUpdatedAt }
 			onRetry={ failure.canRetry ? failure.retry : undefined }
 			isRetrying={ failure.isRetrying }

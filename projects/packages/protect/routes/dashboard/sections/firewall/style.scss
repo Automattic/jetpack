@@ -111,25 +111,62 @@
 	}
 }
 
-.jp-protect-firewall-overview__stats {
-	display: grid;
-	inline-size: 100%;
-	grid-template-columns: repeat(3, 1fr);
-	gap: 24px;
+.jp-protect-firewall-overview {
 
-	@media (max-width: 600px) {
-		grid-template-columns: 1fr;
+	&__empty {
+		display: flex;
+		justify-content: center;
+		padding-block: 40px;
+
+		// 8px between the title and its description, as designed.
+		> * {
+			gap: 8px;
+		}
+	}
+
+	&__check {
+		color: var(--wpds-color-foreground-content-success-weak);
+	}
+
+	// Edit block list | Edit allow list | Configure Firewall, split by rules.
+	&__links {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px 16px;
+
+		// Two classes, so the link buttons' own `padding: 0` can't win on load order.
+		&.jp-protect-card__row > * + * {
+			padding-inline-start: 16px;
+			border-inline-start:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral);
+
+			// The links wrap here, and a rule would start the second line.
+			@media (max-width: 600px) {
+				padding-inline-start: 0;
+				border-inline-start: 0;
+			}
+		}
+
+		a,
+		.jp-protect-card__link-button {
+			font-size: 13px;
+			font-weight: 500;
+			text-decoration: none;
+
+			&:hover,
+			&:focus-visible {
+				text-decoration: underline;
+			}
+		}
 	}
 }
 
-.jp-protect-firewall-overview__columns {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 24px;
-
-	@media (max-width: 600px) {
-		grid-template-columns: 1fr;
-	}
+.jp-protect-ip-rule__trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .jp-protect-ip-rule__field {
@@ -140,15 +177,28 @@
 	}
 }
 
-.jp-protect-ip-rule__error {
-	color: var(--wpds-color-foreground-content-error);
-}
-
 .jp-protect-firewall-standalone {
 	margin: 0;
 
 	// The bootstrap path is one long word.
 	&__code {
 		overflow-wrap: anywhere;
+	}
+}
+
+.jp-protect-upgrade-gap {
+
+	&__icon {
+		flex: none;
+		color: var(--wpds-color-foreground-content-error-weak);
+	}
+
+	&__title {
+		font-weight: 500;
+	}
+
+	&__link {
+		flex: none;
+		white-space: nowrap;
 	}
 }

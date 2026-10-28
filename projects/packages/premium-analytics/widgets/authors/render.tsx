@@ -7,22 +7,20 @@ import {
 	authorDetailLinkProps,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	formatLegendLabels,
 	useWidgetDrillDown,
 	useWidgetRootContext,
-	ExporterCsvDownloadButton,
 	authorsCsvExporter,
 	type LeaderboardChartData,
 	type WidgetStateEmpty,
 	type LegendLabels,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useMemo } from 'react';
@@ -230,29 +228,27 @@ function AuthorsReport() {
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
+	useReportActions( {
+		csv: {
+			exporter: authorsCsvExporter,
+			status: { isLoading: isInitialLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<AuthorsLeaderboard
-				rows={ rows }
-				isLoading={ emptyState.isLoading }
-				isFetching={ isFetching }
-				// `placeholderData` keeps the prior period's rows on screen while `isError`
-				// flips true, so a transient refetch failure should not replace them.
-				isError={ rows.length === 0 && isError }
-				refetch={ refetch }
-				withComparison={ hasComparison }
-				legendLabels={ legendLabels }
-				empty={ emptyState.empty }
-			/>
-			<WidgetFooter>
-				<ReportLink report="authors" />
-				<ExporterCsvDownloadButton
-					exporter={ authorsCsvExporter }
-					status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
-					rowCount={ rows.length }
-				/>
-			</WidgetFooter>
-		</>
+		<AuthorsLeaderboard
+			rows={ rows }
+			isLoading={ emptyState.isLoading }
+			isFetching={ isFetching }
+			// `placeholderData` keeps the prior period's rows on screen while `isError`
+			// flips true, so a transient refetch failure should not replace them.
+			isError={ rows.length === 0 && isError }
+			refetch={ refetch }
+			withComparison={ hasComparison }
+			legendLabels={ legendLabels }
+			empty={ emptyState.empty }
+		/>
 	);
 }
 

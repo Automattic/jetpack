@@ -5,7 +5,13 @@ import userEvent from '@testing-library/user-event';
 // ESM test: static jest.mock does not work under --experimental-vm-modules, so mock the module
 // with unstable_mockModule (must run before the dynamic import of the component below).
 const mockFetchCandidates = jest.fn< () => Promise< unknown > >();
+const mockRecordEvent = jest.fn();
 const mockSetConnectionOwner = jest.fn< ( id: number ) => Promise< unknown > >();
+
+jest.unstable_mockModule( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: mockRecordEvent }, initialize: jest.fn() },
+} ) );
 
 jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 	__esModule: true,
@@ -268,5 +274,72 @@ describe( 'TransferConnectionOwnership', () => {
 		).not.toBeInTheDocument();
 		// The chooser prompt would be pointing at a list that is not there.
 		expect( screen.queryByText( /Choose a connected administrator/ ) ).not.toBeInTheDocument();
+	} );
+
+	describe( 'tracking', () => {
+		const transfer = async ( user: ReturnType< typeof userEvent.setup > ) => {
+			await chooseKazz( user );
+			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
+		};
+
+		it( 'reports the attempt and the success for a tracking context', async () => {
+			const user = userEvent.setup();
+			render( <TransferConnectionOwnership { ...props } trackingContext="connectors" /> );
+			await transfer( user );
+
+			await waitFor( () =>
+				expect( mockRecordEvent ).toHaveBeenCalledWith(
+					'jetpack_connection_owner_transfer_success',
+					{ context: 'connectors' }
+				)
+			);
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_connection_owner_transfer_attempt', {
+				context: 'connectors',
+			} );
+		} );
+
+		it.each( [
+			[ 'ownership_locked', 'ownership_locked' ],
+			[ 'new_owner_not_admin', 'new_owner_not_admin' ],
+			[ 'new_owner_not_connected', 'new_owner_not_connected' ],
+			[ 'new_owner_is_existing_owner', 'new_owner_is_existing_owner' ],
+			[ 'something_new', 'unknown' ],
+		] )( 'reports a %s refusal with reason %s', async ( code, reason ) => {
+			mockSetConnectionOwner.mockRejectedValue( apiError( code, 'Raw server text' ) );
+			const user = userEvent.setup();
+			render( <TransferConnectionOwnership { ...props } trackingContext="connectors" /> );
+			await transfer( user );
+
+			await waitFor( () =>
+				expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_connection_owner_transfer_error', {
+					reason,
+					context: 'connectors',
+				} )
+			);
+		} );
+
+		it( 'reports a candidate list that could not load', async () => {
+			mockFetchCandidates.mockRejectedValue( new Error( 'offline' ) );
+			render( <TransferConnectionOwnership { ...props } trackingContext="connectors" /> );
+
+			await waitFor( () =>
+				expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_connection_owner_transfer_error', {
+					reason: 'candidates_load_failed',
+					context: 'connectors',
+				} )
+			);
+		} );
+
+		it( 'reports a null context when none is passed', async () => {
+			const user = userEvent.setup();
+			render( <TransferConnectionOwnership { ...props } /> );
+			await transfer( user );
+
+			await waitFor( () => expect( mockSetConnectionOwner ).toHaveBeenCalled() );
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_connection_owner_transfer_attempt', {
+				context: null,
+			} );
+		} );
 	} );
 } );

@@ -1,8 +1,6 @@
 /**
  * External dependencies
  */
-import jetpackAnalytics from '@automattic/jetpack-analytics';
-import restApi from '@automattic/jetpack-api';
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -12,12 +10,12 @@ import useRestApiInit from '../../hooks/use-rest-api-init';
 /**
  * Internal dependencies
  */
-import ConnectionErrorNotice from '../connection-error-notice';
 import DisconnectDialog from '../disconnect-dialog';
-import OwnerDisconnectDialog from '../owner-disconnect-dialog';
+import DisconnectUserDialog from '../disconnect-user-dialog';
 import SharedHelpFooter from '../shared/help-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import TransferConnectionOwnership from '../transfer-connection-ownership';
+import type { ConnectionUserPermissions } from '../use-connection/types';
 import type { MouseEvent } from 'react';
 import './style.scss';
 
@@ -33,9 +31,7 @@ interface ManageConnectionUser {
 		/** Whether the user is the connection owner. */
 		isMaster?: boolean;
 		/** The user's capabilities. */
-		permissions?: {
-			manage_options?: boolean;
-		};
+		permissions?: ConnectionUserPermissions;
 	};
 }
 
@@ -87,9 +83,7 @@ const ManageConnectionDialog = ( {
 	onClose,
 }: ManageConnectionDialogProps ) => {
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
-	const [ isDisconnectingUser, setIsDisconnectingUser ] = useState( false );
-	const [ unlinkError, setUnlinkError ] = useState( '' );
-	const [ isOwnerDisconnectDialogOpen, setIsOwnerDisconnectDialogOpen ] = useState( false );
+	const [ isDisconnectUserDialogOpen, setIsDisconnectUserDialogOpen ] = useState( false );
 	const [ transferView, setTransferView ] = useState< TransferView | null >( null );
 	const [ isTransferring, setIsTransferring ] = useState( false );
 	const headingRef = useRef< HTMLHeadingElement >( null );
@@ -135,77 +129,21 @@ const ManageConnectionDialog = ( {
 		[ connectedUser.currentUser?.id, connectedUser.currentUser?.username ]
 	);
 
-	const _disconnectUser = useCallback( () => {
-		// Not connected to WPCOM? bail.
-		if ( ! connectedUser.currentUser?.isConnected ) {
-			return;
-		}
+	const handleDisconnectUser = useCallback( ( e?: MouseEvent< HTMLElement > ) => {
+		e && e.preventDefault();
+		setIsDisconnectUserDialogOpen( true );
+	}, [] );
 
-		setIsDisconnectingUser( true );
-		setUnlinkError( '' );
+	const handleCloseDisconnectUserDialog = useCallback( () => {
+		setIsDisconnectUserDialogOpen( false );
+	}, [] );
 
-		restApi
-			// Passing true to unlink will force the user disconnection
-			// This is needed for an admin to disconnect themselves
-			.unlinkUser( isCurrentUserAdmin )
-			.then( () => {
-				setIsDisconnectingUser( false );
-				onClose();
-				onUnlinked();
-			} )
-			.catch( () => {
-				let errorMessage: string = __(
-					'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please visit your plugins page and make sure all Jetpack plugins are updated.',
-					'jetpack-connection-js'
-				);
-				if ( ! isCurrentUserAdmin ) {
-					errorMessage = __(
-						'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please ask a site admin to update Jetpack',
-						'jetpack-connection-js'
-					);
-				}
-				setUnlinkError( errorMessage );
-				setIsDisconnectingUser( false );
-			} );
-	}, [
-		setIsDisconnectingUser,
-		setUnlinkError,
-		isCurrentUserAdmin,
-		onUnlinked,
-		onClose,
-		connectedUser,
-	] );
-
-	const handleDisconnectUser = useCallback(
-		( e?: MouseEvent< HTMLElement > ) => {
-			e && e.preventDefault();
-
-			// If user is connection owner, show warning modal instead of disconnecting
-			if ( connectedUser.currentUser?.isMaster ) {
-				setIsOwnerDisconnectDialogOpen( true );
-				return;
-			}
-
-			// Existing disconnect logic for non-owners
-			jetpackAnalytics.tracks.recordEvent(
-				'jetpack_manage_connection_dialog_disconnect_user_click',
-				{ context: context }
-			);
-			_disconnectUser();
-		},
-		[ _disconnectUser, context, connectedUser ]
-	);
-
-	const isControlsDisabled = useMemo( () => {
-		return isDisconnectingUser || isTransferring;
-	}, [ isDisconnectingUser, isTransferring ] );
-
-	// This is silly, but it's an optimizer workaround
-	const disconnectingText = __( 'Disconnecting…', 'jetpack-connection-js' );
-
-	const handleCloseOwnerDialog = useCallback( () => {
-		setIsOwnerDisconnectDialogOpen( false );
-	}, [ setIsOwnerDisconnectDialogOpen ] );
+	// A finished unlink leaves nothing to come back to, so close the action list behind it.
+	const handleUnlinked = useCallback( () => {
+		setIsDisconnectUserDialogOpen( false );
+		onClose();
+		onUnlinked();
+	}, [ onClose, onUnlinked ] );
 
 	const openTransferDialog = useCallback( ( e?: MouseEvent< HTMLElement > ) => {
 		e && e.preventDefault();
@@ -215,7 +153,7 @@ const ManageConnectionDialog = ( {
 	// Transferring is the way out of the owner-disconnect warning, so hand the user to
 	// that flow rather than running a second copy of it inside the warning.
 	const openTransferFromOwnerDialog = useCallback( () => {
-		setIsOwnerDisconnectDialogOpen( false );
+		setIsDisconnectUserDialogOpen( false );
 		setTransferView( 'choosing' );
 	}, [] );
 
@@ -284,6 +222,7 @@ const ManageConnectionDialog = ( {
 									apiNonce={ apiNonce }
 									onTransferred={ recordNewOwner }
 									onBusyChange={ setIsTransferring }
+									trackingContext={ context }
 								/>
 							) }
 							{ ! transferView &&
@@ -295,24 +234,17 @@ const ManageConnectionDialog = ( {
 										onClick={ openTransferDialog }
 										key="transfer"
 										action="transfer"
-										disabled={ isControlsDisabled }
+										disabled={ isTransferring }
 									/>
 								) }
 							{ ! transferView && connectedUser.currentUser?.isConnected && (
-								<>
-									{ '' !== unlinkError && <ConnectionErrorNotice message={ unlinkError } /> }
-									<ManageConnectionActionCard
-										title={
-											isDisconnectingUser
-												? disconnectingText
-												: __( 'Disconnect my user account', 'jetpack-connection-js' )
-										}
-										onClick={ handleDisconnectUser }
-										key="unlink"
-										action="unlink"
-										disabled={ isControlsDisabled }
-									/>
-								</>
+								<ManageConnectionActionCard
+									title={ __( 'Disconnect my user account', 'jetpack-connection-js' ) }
+									onClick={ handleDisconnectUser }
+									key="unlink"
+									action="unlink"
+									disabled={ isTransferring }
+								/>
 							) }
 							{ ! transferView && isCurrentUserAdmin && ! isWoASite() && (
 								<ManageConnectionActionCard
@@ -320,13 +252,13 @@ const ManageConnectionDialog = ( {
 									onClick={ openDisconnectDialog }
 									key="disconnect"
 									action="disconnect"
-									disabled={ isControlsDisabled }
+									disabled={ isTransferring }
 								/>
 							) }
 						</div>
 						<HelpFooter
 							onClose={ onClose }
-							disabled={ isControlsDisabled }
+							disabled={ isTransferring }
 							dismissLabel={ footerDismissLabel }
 						/>
 
@@ -342,15 +274,18 @@ const ManageConnectionDialog = ( {
 							context={ context }
 						/>
 
-						<OwnerDisconnectDialog
-							isOpen={ isOwnerDisconnectDialogOpen }
-							onClose={ handleCloseOwnerDialog }
-							apiRoot={ apiRoot }
-							apiNonce={ apiNonce }
-							onDisconnected={ onDisconnected }
-							onUnlinked={ onUnlinked }
-							onTransferOwnership={ openTransferFromOwnerDialog }
-						/>
+						{ /* Mounted only while open, so a failed attempt cannot survive a reopen. */ }
+						{ isDisconnectUserDialogOpen && (
+							<DisconnectUserDialog
+								isOpen
+								onClose={ handleCloseDisconnectUserDialog }
+								apiRoot={ apiRoot }
+								apiNonce={ apiNonce }
+								onUnlinked={ handleUnlinked }
+								onTransferOwnership={ openTransferFromOwnerDialog }
+								context={ context }
+							/>
+						) }
 					</Modal>
 				</>
 			) }
