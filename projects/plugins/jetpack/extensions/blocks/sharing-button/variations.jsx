@@ -87,13 +87,13 @@ export const variations = [
 		icon: <SocialLogo icon={ 'whatsapp' } size={ 24 } />,
 	},
 	{
-		name: 'wordpress-com',
-		attributes: { service: 'wordpress-com', label: 'WordPress.com' },
-		title: 'WordPress.com',
-		keywords: [ 'wordpress', 'reblog', 'repost', 'press this' ],
+		name: 'wordpress',
+		attributes: { service: 'wordpress', label: 'WordPress' },
+		title: 'WordPress',
+		keywords: [ 'reblog', 'repost', 'press this' ],
 		icon: <SocialLogo icon={ 'wordpress' } size={ 24 } />,
 		description: __(
-			'Write a new post on your WordPress.com site, with a link to this post.',
+			'Write a new post on your own WordPress site, with a link to this post.',
 			'jetpack'
 		),
 	},

@@ -44,8 +44,8 @@ if ( typeof window !== 'undefined' ) {
 					return;
 				}
 
-				// A WordPress.com repost goes through sign-in and a full editor, so it keeps the link's new tab.
-				if ( service === 'mail' || service === 'wordpress-com' ) {
+				// A WordPress repost goes through sign-in and a full editor, so it keeps the link's new tab.
+				if ( service === 'mail' || service === 'wordpress' ) {
 					return;
 				}
 

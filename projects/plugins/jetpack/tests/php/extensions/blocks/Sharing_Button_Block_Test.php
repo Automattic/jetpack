@@ -6,7 +6,8 @@
  */
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Extensions\Sharing_Button_Block\Share_WordPress_Com_Block;
+use Automattic\Jetpack\Extensions\Sharing_Button_Block\Jetpack_WordPress_Modal;
+use Automattic\Jetpack\Extensions\Sharing_Button_Block\Share_WordPress_Block;
 use Automattic\Jetpack\Sharing_Likes\Hooked_Blocks\Hooked_Blocks;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
@@ -14,15 +15,18 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use function Automattic\Jetpack\Extensions\Sharing_Button_Block\register_block;
 
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/sharing-button/sharing-button.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/sharing-button/components/class-jetpack-wordpress-modal.php';
 
 /**
  * @covers ::Automattic\Jetpack\Extensions\Sharing_Button_Block\register_block
  * @covers ::Automattic\Jetpack\Extensions\Sharing_Button_Block\render_block
- * @covers \Automattic\Jetpack\Extensions\Sharing_Button_Block\Share_WordPress_Com_Block
+ * @covers \Automattic\Jetpack\Extensions\Sharing_Button_Block\Share_WordPress_Block
+ * @covers \Automattic\Jetpack\Extensions\Sharing_Button_Block\Jetpack_WordPress_Modal
  */
 #[CoversFunction( 'Automattic\Jetpack\Extensions\Sharing_Button_Block\register_block' )]
 #[CoversFunction( 'Automattic\Jetpack\Extensions\Sharing_Button_Block\render_block' )]
-#[CoversClass( Share_WordPress_Com_Block::class )]
+#[CoversClass( Share_WordPress_Block::class )]
+#[CoversClass( Jetpack_WordPress_Modal::class )]
 class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -137,7 +141,7 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	public function test_repost_url_prefills_wpcom_draft( $post_args, $expected_text ) {
 		$post = self::factory()->post->create_and_get( array_merge( array( 'post_title' => 'Tips & tricks' ), $post_args ) );
 
-		$url = ( new Share_WordPress_Com_Block( 'wordpress-com' ) )->get_repost_url( $post );
+		$url = ( new Share_WordPress_Block( 'wordpress' ) )->get_repost_url( $post ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 		wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
 
 		$this->assertStringStartsWith( 'https://wordpress.com/post?', $url );
@@ -181,5 +185,90 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 				'',
 			),
 		);
+	}
+
+	/**
+	 * The own-site link opens the reader's editor, filled in for sites with or without Jetpack.
+	 *
+	 * @dataProvider provide_reader_sites
+	 * @param string $site          Site address the reader entered.
+	 * @param string $expected_base Expected link before its query.
+	 */
+	#[DataProvider( 'provide_reader_sites' )]
+	public function test_site_repost_url_opens_the_readers_editor( $site, $expected_base ) {
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_title'   => 'Tips & tricks',
+				'post_excerpt' => 'A short summary.',
+			)
+		);
+
+		$url = ( new Share_WordPress_Block( 'wordpress' ) )->get_site_repost_url( $post, $site ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+		wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
+
+		$this->assertSame( $expected_base, strtok( $url, '?' ) );
+		$this->assertSame( 'true', $args['is_post_share'] );
+		$this->assertSame( 'Tips & tricks', $args['post_title'] );
+		$this->assertSame( "A short summary.\n\n" . get_permalink( $post ), $args['content'] );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_reader_sites() {
+		return array(
+			'bare domain'  => array( ' example.com ', 'https://example.com/wp-admin/post-new.php' ),
+			'subdirectory' => array( 'http://example.com/blog', 'http://example.com/blog/wp-admin/post-new.php' ),
+		);
+	}
+
+	/**
+	 * Anything but an http(s) site address gets no link.
+	 *
+	 * @dataProvider provide_refused_sites
+	 * @param string $site Site address the reader entered.
+	 */
+	#[DataProvider( 'provide_refused_sites' )]
+	public function test_site_repost_url_refuses_other_addresses( $site ) {
+		$post = self::factory()->post->create_and_get();
+
+		$this->assertSame( '', ( new Share_WordPress_Block( 'wordpress' ) )->get_site_repost_url( $post, $site ) ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_refused_sites() {
+		return array(
+			'script' => array( 'javascript:alert(1)' ),
+			'ftp'    => array( 'ftp://example.com' ),
+			'empty'  => array( '' ),
+		);
+	}
+
+	/**
+	 * Both choices post back their destination with a valid nonce, or the repost fails the nonce check.
+	 */
+	public function test_modal_offers_both_destinations_with_a_nonce() {
+		ob_start();
+		Jetpack_WordPress_Modal::render_modal();
+		$tags = new WP_HTML_Tag_Processor( ob_get_clean() );
+
+		$destinations = array();
+		$nonces       = array();
+		while ( $tags->next_tag( 'INPUT' ) ) {
+			$name = $tags->get_attribute( 'name' );
+			if ( 'jetpack-wordpress-destination' === $name ) {
+				$destinations[] = (string) $tags->get_attribute( 'value' );
+			} elseif ( '_wpnonce' === $name ) {
+				$nonces[] = (string) $tags->get_attribute( 'value' );
+			}
+		}
+
+		$this->assertSame( array( 'wordpress.com', 'site' ), $destinations );
+		$this->assertCount( 2, $nonces );
+		foreach ( $nonces as $nonce ) {
+			$this->assertSame( 1, wp_verify_nonce( $nonce, Jetpack_WordPress_Modal::NONCE_ACTION ) );
+		}
 	}
 }

@@ -1442,15 +1442,15 @@ class Share_Threads_Block extends Sharing_Source_Block {
 }
 
 /**
- * WordPress.com sharing button.
+ * WordPress sharing button.
  */
-class Share_WordPress_Com_Block extends Sharing_Source_Block {
+class Share_WordPress_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
 	 * @var string
 	 */
-	public $shortname = 'wordpress-com';
+	public $shortname = 'wordpress'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 
 	/**
 	 * Service name.
@@ -1458,7 +1458,29 @@ class Share_WordPress_Com_Block extends Sharing_Source_Block {
 	 * @return string
 	 */
 	public function get_name() {
-		return __( 'WordPress.com', 'jetpack' );
+		return __( 'WordPress', 'jetpack' );
+	}
+
+	/**
+	 * Get the arguments that let the reader's site start a draft quoting the post.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return array
+	 */
+	private function get_repost_args( $post ) {
+		$text = '';
+		if ( ! Content_Gate::is_gated( $post ) ) {
+			$text = wp_trim_words( strip_shortcodes( has_excerpt( $post ) ? $post->post_excerpt : $post->post_content ) );
+		}
+
+		return array(
+			'url'           => $this->get_share_url( $post->ID ),
+			'title'         => $this->get_share_title( $post->ID ),
+			'text'          => $text,
+			// WordPress.com only builds the draft from these arguments when this flag is set.
+			'is_post_share' => 'true',
+		);
 	}
 
 	/**
@@ -1469,21 +1491,34 @@ class Share_WordPress_Com_Block extends Sharing_Source_Block {
 	 * @return string
 	 */
 	public function get_repost_url( $post ) {
-		$text = '';
-		if ( ! Content_Gate::is_gated( $post ) ) {
-			$text = wp_trim_words( strip_shortcodes( has_excerpt( $post ) ? $post->post_excerpt : $post->post_content ) );
+		return add_query_arg( rawurlencode_deep( $this->get_repost_args( $post ) ), 'https://wordpress.com/post' );
+	}
+
+	/**
+	 * Get the link to a new post on the reader's own WordPress site, quoting the post.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param string  $site Site address the reader entered, with or without a scheme.
+	 *
+	 * @return string Empty when the address is not a usable http(s) URL.
+	 */
+	public function get_site_repost_url( $post, $site ) {
+		$site = trim( $site );
+		if ( false === strpos( $site, '://' ) ) {
+			$site = 'https://' . $site;
 		}
 
-		return add_query_arg(
-			array(
-				'url'           => rawurlencode( $this->get_share_url( $post->ID ) ),
-				'title'         => rawurlencode( $this->get_share_title( $post->ID ) ),
-				'text'          => rawurlencode( $text ),
-				// WordPress.com only builds the draft from these arguments when this flag is set.
-				'is_post_share' => 'true',
-			),
-			'https://wordpress.com/post'
-		);
+		$site = esc_url_raw( $site, array( 'http', 'https' ) );
+		if ( '' === $site || ! wp_parse_url( $site, PHP_URL_HOST ) ) {
+			return '';
+		}
+
+		$args = $this->get_repost_args( $post );
+		// Core fills a new post from these two, for sites without Jetpack to read the arguments above.
+		$args['post_title'] = $args['title'];
+		$args['content']    = trim( $args['text'] . "\n\n" . $args['url'] );
+
+		return add_query_arg( rawurlencode_deep( $args ), trailingslashit( $site ) . 'wp-admin/post-new.php' );
 	}
 
 	/**
@@ -1495,9 +1530,38 @@ class Share_WordPress_Com_Block extends Sharing_Source_Block {
 	 * @return void
 	 */
 	public function process_request( $post, array $post_data ) {
+		require_once __DIR__ . '/components/class-jetpack-wordpress-modal.php';
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Only decides whether to ask first; the nonce is checked below.
+		if ( empty( $_POST['jetpack-wordpress-destination'] ) ) {
+			add_action( 'template_redirect', array( Jetpack_WordPress_Modal::class, 'modal' ) );
+			return;
+		}
+
+		check_admin_referer( Jetpack_WordPress_Modal::NONCE_ACTION );
+
+		$url = $this->get_repost_url( $post );
+		if ( 'site' === sanitize_key( wp_unslash( $_POST['jetpack-wordpress-destination'] ) ) ) {
+			$site = isset( $_POST['jetpack-wordpress-site'] ) ? sanitize_text_field( wp_unslash( $_POST['jetpack-wordpress-site'] ) ) : '';
+			$url  = $this->get_site_repost_url( $post, $site );
+
+			if ( '' === $url ) {
+				wp_safe_redirect(
+					add_query_arg(
+						array(
+							'share' => 'wordpress',
+							'nb'    => 1,
+						),
+						get_permalink( $post )
+					)
+				); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+				exit( 0 );
+			}
+		}
+
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		parent::redirect_request( $this->get_repost_url( $post ) );
+		parent::redirect_request( $url );
 	}
 }
