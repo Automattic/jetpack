@@ -238,6 +238,21 @@ async function oneRun( browserName, browserType, storageState, run ) {
 				continue;
 			}
 			const s = await settle( page );
+			if ( ! ( await page.locator( '#adminmenu' ).count() ) ) {
+				// An error page, such as Jurassic Ninja's rate limiting: drop the sample and recover.
+				rows.push( {
+					browser: browserName,
+					run,
+					pass,
+					dashboard: dashboard.name,
+					error: 'no admin page',
+				} );
+				console.log( JSON.stringify( rows.at( -1 ) ) );
+				await page.waitForTimeout( 60000 ); // eslint-disable-line playwright/no-wait-for-timeout
+				await page.goto( `${ site }/wp-admin/admin.php?page=${ start.pages[ 0 ] }` );
+				await settle( page );
+				continue;
+			}
 			rows.push( {
 				browser: browserName,
 				run,
