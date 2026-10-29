@@ -1,4 +1,3 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	Badge,
 	Button,
@@ -19,15 +18,10 @@ import {
 	useState,
 } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { updateConsentStatus, useConsentStatus } from './consent-status';
 import styles from './stats-settings.module.scss';
-import type { JetpackScriptData } from '@automattic/jetpack-script-data';
+import type { ConsentStatus } from './consent-status';
 import type { JSX, ReactNode, Ref } from 'react';
-
-type ConsentStatus = NonNullable<
-	NonNullable<
-		NonNullable< JetpackScriptData[ 'premium_analytics' ] >[ 'stats_settings' ]
-	>[ 'consent' ]
->;
 
 const WP_CONSENT_API_URL = 'https://wordpress.org/plugins/wp-consent-api/';
 const WP_CONSENT_API_ROUTE = '/wp/v2/plugins/wp-consent-api/wp-consent-api';
@@ -141,19 +135,18 @@ function ConsentStep( {
  * @return The card, or null when the site sent no consent status.
  */
 export function ConsentCard(): JSX.Element | null {
-	const status = getScriptData()?.premium_analytics?.stats_settings?.consent;
-	return status ? <ConsentCardContent initialStatus={ status } /> : null;
+	const status = useConsentStatus();
+	return status ? <ConsentCardContent status={ status } /> : null;
 }
 
 /**
- * The card's content, which tracks the setup as the one-click install changes it.
+ * The card's content, for the setup as it stands now.
  *
- * @param props               - Component props.
- * @param props.initialStatus - The setup the page loaded with.
+ * @param props        - Component props.
+ * @param props.status - The setup.
  * @return The card.
  */
-function ConsentCardContent( { initialStatus }: { initialStatus: ConsentStatus } ): JSX.Element {
-	const [ status, setStatus ] = useState( initialStatus );
+function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Element {
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	const [ justConnected, setJustConnected ] = useState( false );
 	const apiStepRef = useRef< HTMLLIElement >( null );
@@ -185,13 +178,13 @@ function ConsentCardContent( { initialStatus }: { initialStatus: ConsentStatus }
 			);
 			if ( plugin ) {
 				active = plugin.status === 'active';
-				setStatus( current => ( { ...current, api_installed: true } ) );
+				updateConsentStatus( { api_installed: true } );
 			}
 		}
 		setIsConnecting( false );
 
 		if ( active ) {
-			setStatus( current => ( { ...current, api_installed: true, api_active: true } ) );
+			updateConsentStatus( { api_installed: true, api_active: true } );
 			setJustConnected( true );
 			createSuccessNotice( __( 'WP Consent API is active.', 'jetpack-premium-analytics-pkg' ), {
 				id: 'stats-consent-api-connected',

@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { ConsentCard } from './consent-card';
+import { resetConsentStatusForTesting } from './consent-status';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -68,6 +69,7 @@ describe( 'ConsentCard', () => {
 	afterEach( () => {
 		jest.useRealTimers();
 		delete window.JetpackScriptData;
+		resetConsentStatusForTesting();
 	} );
 
 	it( 'renders nothing when the site sends no consent setup', () => {
@@ -163,6 +165,20 @@ describe( 'ConsentCard', () => {
 			expect( mockCreateSuccessNotice ).toHaveBeenCalled();
 		}
 	);
+
+	it( 'still shows WP Consent API as active after switching tabs remounts the card', async () => {
+		setConsent( { banner_plugin: 'Complianz', api_installed: true } );
+		mockApiFetch.mockResolvedValue( {} );
+		const { unmount } = render( <ConsentCard /> );
+		await user.click( screen.getByRole( 'button', { name: 'Activate' } ) );
+		await expect( screen.findByText( 'Set up' ) ).resolves.toBeInTheDocument();
+		unmount();
+
+		render( <ConsentCard /> );
+
+		expect( screen.getByText( 'Set up' ) ).toBeInTheDocument();
+		expect( step( 'WP Consent API' ).getByText( 'Active' ) ).toBeInTheDocument();
+	} );
 
 	it( 'leaves focus where the user moved it while activating', async () => {
 		setConsent( { api_installed: true } );
