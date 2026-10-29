@@ -42,13 +42,10 @@ export const Likes = withModuleSettingsFormHelpers(
 				isActive = this.props.getOptionValue( 'likes' );
 
 			const shouldShowLikeBlock = isBlockTheme && hasLikeBlock;
-			const likeTemplateUrl =
-				siteAdminUrl && this.props.themeStylesheet
-					? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
-							this.props.themeStylesheet
-						) }%2F%2Fsingle&canvas=edit`
-					: '';
-			const shouldUseLikeBlockAction = shouldShowLikeBlock && likeTemplateUrl;
+			const likeSettingsUrl = siteAdminUrl
+				? `${ siteAdminUrl }options-general.php?page=sharing#likes`
+				: '';
+			const shouldUseLikeBlockAction = shouldShowLikeBlock && likeSettingsUrl;
 			const isForcedActive = isActive && this.props.getModule?.( 'likes' )?.override === 'active';
 			let description = __(
 				'The Like button is a way for people on WordPress.com to show their appreciation for your content.',
@@ -58,7 +55,7 @@ export const Likes = withModuleSettingsFormHelpers(
 				description = isActive
 					? __( 'Legacy Like buttons cannot be customized on block themes.', 'jetpack' )
 					: _x(
-							'Add the Like block to your theme’s template.',
+							'Choose where the Like block goes on your posts and pages.',
 							'Like block migration instruction',
 							'jetpack'
 						);
@@ -107,8 +104,8 @@ export const Likes = withModuleSettingsFormHelpers(
 				}
 
 				return (
-					<Button rna compact href={ likeTemplateUrl } onClick={ this.trackClickConfigure }>
-						{ __( 'Open Site Editor', 'jetpack' ) }
+					<Button rna compact href={ likeSettingsUrl } onClick={ this.trackClickConfigure }>
+						{ __( 'Configure', 'jetpack' ) }
 					</Button>
 				);
 			};

@@ -80,7 +80,6 @@ describe( 'Sharing buttons settings', () => {
 		isBlockTheme: true,
 		isSavingAnyOption: isNotSaving,
 		siteAdminUrl: 'https://example.com/wp-admin/',
-		themeStylesheet: 'twentytwentyfour',
 		updateOptions,
 	};
 
@@ -96,7 +95,7 @@ describe( 'Sharing buttons settings', () => {
 			screen.getByText( 'Legacy sharing buttons cannot be customized on block themes.' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Configure' } ) ).not.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'link', { name: 'Configure your sharing buttons' } )
 		).not.toBeInTheDocument();
@@ -116,17 +115,17 @@ describe( 'Sharing buttons settings', () => {
 		);
 	} );
 
-	it( 'links inactive legacy sharing to the active theme Single template', async () => {
+	it( 'links inactive legacy sharing to Settings › Sharing', async () => {
 		const user = userEvent.setup();
 		render( <ShareButtons { ...defaultProps } /> );
 
 		expect(
-			screen.getByText( 'Add the Sharing Buttons block to your theme’s template.' )
+			screen.getByText( 'Choose where the Sharing Buttons block goes on your posts and pages.' )
 		).toBeInTheDocument();
-		const configureLink = screen.getByRole( 'link', { name: 'Open Site Editor' } );
+		const configureLink = screen.getByRole( 'link', { name: 'Configure' } );
 		expect( configureLink ).toHaveAttribute(
 			'href',
-			'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template%2Ftwentytwentyfour%2F%2Fsingle&canvas=edit'
+			'https://example.com/wp-admin/options-general.php?page=sharing'
 		);
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 		expect(
@@ -172,7 +171,7 @@ describe( 'Sharing buttons settings', () => {
 		expect(
 			screen.getByRole( 'link', { name: 'Configure your sharing buttons' } )
 		).toHaveAttribute( 'href', 'https://example.com/wp-admin/options-general.php?page=sharing' );
-		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Configure' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the legacy toggle and configuration link when the block is unavailable', () => {
@@ -219,6 +218,6 @@ describe( 'Sharing buttons settings', () => {
 		expect(
 			screen.queryByRole( 'button', { name: 'Switch to Sharing Buttons block' } )
 		).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Configure' } ) ).not.toBeInTheDocument();
 	} );
 } );

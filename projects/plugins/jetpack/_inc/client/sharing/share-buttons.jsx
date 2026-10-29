@@ -42,13 +42,10 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				isActive = this.props.getOptionValue( 'sharedaddy' );
 
 			const shouldShowSharingBlock = isBlockTheme && hasSharingBlock;
-			const sharingTemplateUrl =
-				siteAdminUrl && this.props.themeStylesheet
-					? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
-							this.props.themeStylesheet
-						) }%2F%2Fsingle&canvas=edit`
-					: '';
-			const shouldUseSharingBlockAction = shouldShowSharingBlock && sharingTemplateUrl;
+			const sharingSettingsUrl = siteAdminUrl
+				? `${ siteAdminUrl }options-general.php?page=sharing`
+				: '';
+			const shouldUseSharingBlockAction = shouldShowSharingBlock && sharingSettingsUrl;
 			const isForcedActive =
 				isActive && this.props.getModule?.( 'sharedaddy' )?.override === 'active';
 			let description = __(
@@ -59,7 +56,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				description = isActive
 					? __( 'Legacy sharing buttons cannot be customized on block themes.', 'jetpack' )
 					: _x(
-							'Add the Sharing Buttons block to your theme’s template.',
+							'Choose where the Sharing Buttons block goes on your posts and pages.',
 							'Sharing block migration instruction',
 							'jetpack'
 						);
@@ -79,7 +76,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 					<Card
 						compact
 						className="jp-settings-card__configure-link"
-						href={ `${ siteAdminUrl }options-general.php?page=sharing` }
+						href={ sharingSettingsUrl }
 						onClick={ this.trackClickConfigure }
 					>
 						{ __( 'Configure your sharing buttons', 'jetpack' ) }
@@ -128,8 +125,8 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				}
 
 				return (
-					<Button rna compact href={ sharingTemplateUrl } onClick={ this.trackClickConfigure }>
-						{ __( 'Open Site Editor', 'jetpack' ) }
+					<Button rna compact href={ sharingSettingsUrl } onClick={ this.trackClickConfigure }>
+						{ __( 'Configure', 'jetpack' ) }
 					</Button>
 				);
 			};
