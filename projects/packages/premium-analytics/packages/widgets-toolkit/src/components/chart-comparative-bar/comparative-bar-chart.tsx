@@ -269,7 +269,9 @@ export function ComparativeBarChart( {
 		[ primarySeriesByGroup, isSeriesVisible, chartId ]
 	);
 
-	const [ defaultApplied, setDefaultApplied ] = useState( false );
+	// Keyed by chartId: a consumer can swap the chart's identity without remounting it.
+	const [ defaultAppliedChartId, setDefaultAppliedChartId ] = useState< string >();
+	const defaultApplied = defaultAppliedChartId === chartId;
 	let previousPeriodShown: boolean | undefined;
 	if ( previousPeriodToggle && pickedComparisonLabel !== undefined ) {
 		previousPeriodShown = defaultApplied
@@ -282,7 +284,7 @@ export function ComparativeBarChart( {
 		if ( ! previousPeriodToggle || pickedComparisonLabel === undefined || defaultApplied ) {
 			return;
 		}
-		setDefaultApplied( true );
+		setDefaultAppliedChartId( chartId );
 		if ( isSeriesVisible( chartId, pickedComparisonLabel ) !== defaultPreviousPeriodShown ) {
 			setSeriesVisibility( chartId, pickedComparisonLabel, defaultPreviousPeriodShown );
 		}
@@ -318,18 +320,19 @@ export function ComparativeBarChart( {
 		chartId,
 	] );
 
-	const reportedPreviousPeriodShown = useRef( previousPeriodShown );
+	const reportedPreviousPeriodShown = useRef( { chartId, shown: previousPeriodShown } );
 	useEffect( () => {
 		const reported = reportedPreviousPeriodShown.current;
-		reportedPreviousPeriodShown.current = previousPeriodShown;
+		reportedPreviousPeriodShown.current = { chartId, shown: previousPeriodShown };
 		if (
-			reported !== undefined &&
+			reported.chartId === chartId &&
+			reported.shown !== undefined &&
 			previousPeriodShown !== undefined &&
-			reported !== previousPeriodShown
+			reported.shown !== previousPeriodShown
 		) {
 			onPreviousPeriodShownChange?.( previousPeriodShown );
 		}
-	}, [ previousPeriodShown, onPreviousPeriodShownChange ] );
+	}, [ chartId, previousPeriodShown, onPreviousPeriodShownChange ] );
 
 	// Overlap paints the previous period as one slot, so one item names it, in the color of the picked metric's previous bar, or else of its widest shown bar.
 	const legendItems = useMemo( () => {

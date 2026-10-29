@@ -55,7 +55,7 @@ second current-period series keeps its own dates.
 
 With `layout="overlap"`, the chart draws each `group` inside the one before it, and the previous period in a slot beside the current one. The bars are opaque and charts tones them, so the tooltip and legend swatches read their colors from the charts `useBarColors` hook instead of the series colors. The series keep their `group`s: `group` still names the metric. The legend names the previous period with one item, in the color of the picked metric's previous bar, or else of its widest shown bar.
 
-With `defaultPreviousPeriodShown`, that item becomes a toggle and the legend is interactive. Each time the chart mounts, the previous period starts as the prop says, once comparison series exist, and the charts context owns it after that. A consumer that remounts the chart, such as `MetricTabsChart` switching metrics, keeps the reader's choice by feeding the value from `onPreviousPeriodShownChange` back into the prop. A metric's previous bar is drawn only while both the previous period and that metric are shown.
+With `defaultPreviousPeriodShown`, that item becomes a toggle and the legend is interactive. Each time the chart mounts or its `chartId` changes, the previous period starts as the prop says, once comparison series exist, and the charts context owns it after that. A consumer that remounts the chart, such as `MetricTabsChart` switching metrics, keeps the reader's choice by feeding the value from `onPreviousPeriodShownChange` back into the prop. A metric's previous bar is drawn only while both the previous period and that metric are shown.
 
 ## Date alignment and tooltips
 
