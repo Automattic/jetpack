@@ -664,7 +664,8 @@ class Initializer {
 		register_block_type(
 			$metadata_file,
 			array(
-				'render_callback' => array( __CLASS__, 'render_videopress_playlist_block' ),
+				'render_callback'       => array( __CLASS__, 'render_videopress_playlist_block' ),
+				'render_email_callback' => array( Playlist_Block_Email_Renderer::class, 'render' ),
 			)
 		);
 	}
@@ -708,8 +709,9 @@ class Initializer {
 		register_block_type(
 			$metadata_file,
 			array(
-				'render_callback'   => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
-				'skip_inner_blocks' => true,
+				'render_callback'       => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
+				'render_email_callback' => array( Playlist_Block_Email_Renderer::class, 'render_latest_videos' ),
+				'skip_inner_blocks'     => true,
 			)
 		);
 	}
