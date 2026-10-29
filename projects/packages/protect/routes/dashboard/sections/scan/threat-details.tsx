@@ -129,7 +129,7 @@ function getResolution( threat: ScanThreat, canDelete: boolean ): string {
 			threat.database.table
 		);
 	}
-	if ( ! threat.filename ) {
+	if ( ! threat.filename && threat.status !== 'fixed' ) {
 		const type = threat.extension?.type;
 		if ( type === 'plugins' ) {
 			return __(
@@ -145,7 +145,7 @@ function getResolution( threat: ScanThreat, canDelete: boolean ): string {
 		}
 		if ( type === 'core' ) {
 			return __(
-				'No version of WordPress fixes this vulnerability yet. Update WordPress as soon as a release fixes it.',
+				'No version of WordPress fixes this vulnerability yet. Keep WordPress up to date, and update as soon as a release fixes it.',
 				'jetpack-protect-pkg'
 			);
 		}

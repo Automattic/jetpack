@@ -46,16 +46,23 @@ describe( 'ThreatDetails', () => {
 	} );
 
 	it.each( [
-		[ 'a vulnerable plugin', 'plugins', undefined, 'Deactivate and delete it' ],
-		[ 'a vulnerable theme', 'themes', undefined, 'Switch to another theme' ],
-		[ 'vulnerable WordPress', 'core', undefined, 'Update WordPress as soon as' ],
-		[ 'a file in a plugin', 'plugins', 'wp-content/plugins/akismet/x.php', 'Review the affected' ],
-	] as const )( 'advises on unfixable %s', ( _name, type, filename, advice ) => {
+		[ 'a vulnerable plugin', 'plugins', undefined, 'current', 'Deactivate and delete it' ],
+		[ 'a vulnerable theme', 'themes', undefined, 'current', 'Switch to another theme' ],
+		[ 'vulnerable WordPress', 'core', undefined, 'current', 'update as soon as' ],
+		[ 'a fixed vulnerable plugin', 'plugins', undefined, 'fixed', 'Review the affected' ],
+		[
+			'a file in a plugin',
+			'plugins',
+			'wp-content/plugins/akismet/x.php',
+			'current',
+			'Review the affected',
+		],
+	] as const )( 'advises on unfixable %s', ( _name, type, filename, status, advice ) => {
 		const threat: ScanThreat = {
 			id: 4,
 			signature: 'Vulnerable.WP.Extension',
 			title: 'Vulnerable plugin',
-			status: 'current',
+			status,
 			filename,
 			extension: { type, slug: 'akismet', name: 'Akismet', version: '1.0' },
 		};
