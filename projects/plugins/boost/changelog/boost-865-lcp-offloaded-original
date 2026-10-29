@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Optimize LCP Images: Stop cropping the LCP image when its original file is offloaded or deleted.
+LCP: Stop cropping the LCP image when its original file is offloaded or deleted.
