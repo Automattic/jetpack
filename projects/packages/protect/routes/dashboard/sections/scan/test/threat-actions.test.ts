@@ -214,19 +214,35 @@ describe( 'bulk actions', () => {
 		expect( bulkNotices() ).toEqual( [ expect.objectContaining( { status, content } ) ] );
 	} );
 
-	it( 'leaves a fix that deletes software out of a batch', async () => {
+	it.each( [
+		[ 'a fix that deletes software', { fixer: 'delete' as const } ],
+		[
+			'a fix Scan leaves out of bulk fixes',
+			{ fixer: 'update' as const, extras: { isBulkFixable: false } },
+		],
+	] )( 'leaves %s out of a batch', async ( _name, fixable ) => {
 		mockApiFetch.mockReset().mockResolvedValue( { status: 'fixed' } );
-		const deleting = {
-			...fileThreat( 61 ),
-			signature: 'Vulnerable.WP.Extension',
-			fixable: { fixer: 'delete' as const },
-		};
+		const excluded = { ...fileThreat( 61 ), signature: 'Vulnerable.WP.Extension', fixable };
 
-		await act( () => fixThreats( [ deleting, fileThreat( 62 ) ] ) );
+		await act( () => fixThreats( [ excluded, fileThreat( 62 ) ] ) );
 
 		expect( mockApiFetch.mock.calls.map( ( [ { path } ] ) => path ) ).toEqual( [
 			'/jetpack/v4/protect-dashboard/scan/threats/62/fix',
 		] );
+	} );
+
+	it( 'still fixes a threat left out of bulk fixes on its own', async () => {
+		mockApiFetch.mockReset().mockResolvedValue( { status: 'fixed' } );
+		const alone = {
+			...fileThreat( 63 ),
+			fixable: { fixer: 'update' as const, extras: { isBulkFixable: false } },
+		};
+
+		await act( () => fixThreats( [ alone ] ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: '/jetpack/v4/protect-dashboard/scan/threats/63/fix' } )
+		);
 	} );
 
 	// A fix's start answers `in_progress`, so its polls must wait outside the five slots.

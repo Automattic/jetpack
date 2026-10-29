@@ -462,7 +462,13 @@ let bulkRuns = 0;
  */
 export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Promise< void > {
 	// A fix that deletes software needs its slug confirmed first, so a batch never starts one.
-	const idle = threats.filter( threat => ! isBusy( threat.id ) && ! isDeleteFix( threat ) );
+	const idle = threats.filter(
+		threat =>
+			! isBusy( threat.id ) &&
+			! isDeleteFix( threat ) &&
+			// Like Protect, which fixes these one at a time but never as part of fixing several.
+			! ( threats.length > 1 && threat.fixable && threat.fixable.extras?.isBulkFixable === false )
+	);
 	if ( idle.length < 2 ) {
 		await Promise.all( idle.map( threat => fixThreat( threat, open ) ) );
 		return;

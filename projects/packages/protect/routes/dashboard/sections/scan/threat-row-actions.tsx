@@ -73,11 +73,7 @@ function getThreatRowActions(
 			id: 'auto-fix',
 			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item =>
-				canFix( item ) &&
-				! isDeleteFix( item ) &&
-				// Like Protect, which leaves these out of fixing all threats.
-				! ( item.fixable && item.fixable.extras?.isBulkFixable === false ),
+			isEligible: item => canFix( item ) && ! isDeleteFix( item ),
 			supportsBulk: !! onBulk,
 			// Not awaited: a fix can take minutes, and its snackbar follows it.
 			callback: locking( ( items, from ) => {

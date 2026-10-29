@@ -62,7 +62,11 @@ describe( 'useThreatRowActions', () => {
 	it.each( [
 		[ 'an update fix', { fixer: 'update' }, [ 'auto-fix' ] ],
 		[ 'a delete fix', { fixer: 'delete' }, [ 'auto-fix-delete' ] ],
-		[ 'a fix left out of bulk fixes', { fixer: 'update', extras: { isBulkFixable: false } }, [] ],
+		[
+			'a fix left out of bulk fixes',
+			{ fixer: 'update', extras: { isBulkFixable: false } },
+			[ 'auto-fix' ],
+		],
 	] as const )( 'picks the Auto-fix action for %s', ( _name, fixable, expected ) => {
 		const item = { ...threatIn( 4 ), signature: 'Vulnerable.WP.Extension', fixable };
 		const { result } = renderHook( () => useThreatRowActions( open, true ) );
