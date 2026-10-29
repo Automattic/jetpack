@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+require_once __DIR__ . '/mocks/class-mock-woocommerce-table-wrapper-helper.php';
 require_once __DIR__ . '/mocks/class-mock-woocommerce-video-renderer.php';
 require_once __DIR__ . '/../../src/utility-functions.php';
 
@@ -147,75 +148,47 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 		$this->assertSame( 0, preg_match( '#href="(?!' . preg_quote( get_permalink( $this->post_id ), '#' ) . ')#', $result ), 'Every link should open the post.' );
 	}
 
-	public function test_only_the_playlist_title_heading_is_kept_from_the_front_end() {
-		$front_end = '<figure class="videopress-playlist"><div class="videopress-playlist__heading"><h2 style="font-size:24px">My <em>series</em></h2></div><div class="videopress-playlist__body"><iframe></iframe><div><span>Up next</span><span>Playing</span><span>Private video</span></div></div></figure>';
+	/**
+	 * Title attributes, and whether the email shows the title heading.
+	 *
+	 * @return array
+	 */
+	public static function heading_provider() {
+		return array(
+			'title shown'  => array( array( 'playlistTitle' => 'My <series>' ), true ),
+			'title hidden' => array(
+				array(
+					'playlistTitle'     => 'My <series>',
+					'showPlaylistTitle' => false,
+				),
+				false,
+			),
+			'no title'     => array( array( 'playlistTitle' => '  ' ), false ),
+		);
+	}
 
-		$result = Playlist_Block_Email_Renderer::render( $front_end, $this->playlist_block( 3 ), $this->context() );
+	/**
+	 * @dataProvider heading_provider
+	 *
+	 * @param array $attrs     Block attributes.
+	 * @param bool  $has_title Whether the heading is expected.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'heading_provider' )]
+	public function test_heading_follows_the_playlist_title( $attrs, $has_title ) {
+		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( 3, $attrs ), $this->context() );
 
-		$this->assertStringContainsString( '<h2 style="font-size:24px">My <em>series</em></h2>', $result );
-		foreach ( array( '<iframe', 'Up next', 'Playing', 'Private video' ) as $front_end_only ) {
-			$this->assertStringNotContainsString( $front_end_only, $result );
+		if ( $has_title ) {
+			$this->assertStringContainsString( '>My &lt;series&gt;</h2>', $result );
+		} else {
+			$this->assertStringNotContainsString( '<h2', $result );
 		}
 	}
 
-	public function test_single_video_has_no_summary_or_grid() {
+	public function test_single_video_has_no_grid() {
 		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( 1 ), $this->context() );
 
 		$this->assertStringContainsString( 'vidGui01/poster.jpg', $result );
-		$this->assertStringNotContainsString( '1 video', $result );
-		$this->assertStringNotContainsString( '<table', $result );
-	}
-
-	/**
-	 * The summary line with and without the block's total runtime.
-	 *
-	 * @return array
-	 */
-	public static function summary_provider() {
-		return array(
-			'runtime shown'  => array( array(), '>4 videos · 12 min</p>' ),
-			'runtime hidden' => array( array( 'showTotalRuntime' => false ), '>4 videos</p>' ),
-		);
-	}
-
-	/**
-	 * @dataProvider summary_provider
-	 *
-	 * @param array  $attrs    Block attributes.
-	 * @param string $expected Summary line markup.
-	 */
-	#[\PHPUnit\Framework\Attributes\DataProvider( 'summary_provider' )]
-	public function test_summary_line_shows_count_and_runtime( $attrs, $expected ) {
-		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( 4, $attrs ), $this->context() );
-
-		$this->assertStringContainsString( $expected, $result );
-	}
-
-	/**
-	 * Grid display toggles, with markup each must show and leave out for the second video.
-	 *
-	 * @return array
-	 */
-	public static function grid_toggles_provider() {
-		return array(
-			'thumbnails hidden' => array( array( 'showThumbnail' => false ), '>Title 2</span>', 'vidGui02/poster.jpg' ),
-			'titles hidden'     => array( array( 'showTitle' => false ), 'alt="Title 2"', '>Title 2</span>' ),
-		);
-	}
-
-	/**
-	 * @dataProvider grid_toggles_provider
-	 *
-	 * @param array  $attrs   Block attributes.
-	 * @param string $present Markup the grid keeps.
-	 * @param string $absent  Markup the grid leaves out.
-	 */
-	#[\PHPUnit\Framework\Attributes\DataProvider( 'grid_toggles_provider' )]
-	public function test_grid_follows_the_display_toggles( $attrs, $present, $absent ) {
-		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( 3, $attrs ), $this->context() );
-
-		$this->assertStringContainsString( $present, $result );
-		$this->assertStringNotContainsString( $absent, $result );
+		$this->assertStringNotContainsString( '<img', $result );
 	}
 
 	/**

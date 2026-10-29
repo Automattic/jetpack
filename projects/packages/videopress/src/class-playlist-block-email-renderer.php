@@ -39,20 +39,22 @@ class Playlist_Block_Email_Renderer {
 	/**
 	 * Render the Video Playlist block for email.
 	 *
-	 * @param string $block_content     The block's front-end HTML, read for the playlist title heading.
+	 * @param string $block_content     The block's front-end HTML, unused: email builds its own markup.
 	 * @param array  $parsed_block      The parsed block data including attributes.
 	 * @param object $rendering_context Email rendering context.
 	 *
 	 * @return string
 	 */
-	public static function render( $block_content, $parsed_block, $rendering_context ) {
+	public static function render( $block_content, $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
-			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Video' ) ) {
+			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Video' ) ||
+			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
 			return '';
 		}
 
-		$entries  = Initializer::sanitize_playlist_entries( $parsed_block['attrs']['videos'] ?? null );
-		$post_url = get_permalink();
+		$attributes = $parsed_block['attrs'];
+		$entries    = Initializer::sanitize_playlist_entries( $attributes['videos'] ?? null );
+		$post_url   = get_permalink();
 
 		if ( ! $entries || empty( $post_url ) ) {
 			return '';
@@ -63,23 +65,16 @@ class Playlist_Block_Email_Renderer {
 			$videos[] = self::video_details( $entry['guid'], $index + 1 );
 		}
 
-		$attributes = $parsed_block['attrs'];
-		$enabled    = function ( $key ) use ( $attributes ) {
-			return isset( $attributes[ $key ] ) ? (bool) $attributes[ $key ] : true;
-		};
+		$width = self::layout_width( $parsed_block, $rendering_context );
 
-		$html  = self::render_heading( $block_content );
+		$title = isset( $attributes['playlistTitle'] ) && is_string( $attributes['playlistTitle'] ) ? trim( $attributes['playlistTitle'] ) : '';
+		$html  = (bool) ( $attributes['showPlaylistTitle'] ?? true ) && '' !== $title
+			? sprintf( '<h2 style="margin: 0 0 16px;">%s</h2>', esc_html( $title ) )
+			: '';
 		$html .= self::render_first_video( $videos[0], $post_url, $rendering_context );
 
-		if ( count( $entries ) > 1 ) {
-			$html .= self::render_summary( $entries, $enabled( 'showTotalRuntime' ) );
-			$html .= self::render_grid(
-				array_slice( $videos, 1 ),
-				$post_url,
-				self::layout_width( $parsed_block, $rendering_context ),
-				$enabled( 'showThumbnail' ),
-				$enabled( 'showTitle' )
-			);
+		if ( count( $videos ) > 1 ) {
+			$html .= self::render_grid( array_slice( $videos, 1 ), $post_url, $width );
 		}
 
 		$hidden = count( $entries ) - count( $videos );
@@ -92,13 +87,17 @@ class Playlist_Block_Email_Renderer {
 			);
 		}
 
-		$margin_top  = '';
-		$email_attrs = $parsed_block['email_attrs'] ?? array();
-		if ( ! empty( $email_attrs['margin-top'] ) && is_string( $email_attrs['margin-top'] ) ) {
-			$margin_top = 'margin-top: ' . $email_attrs['margin-top'] . ';';
-		}
+		$email_attrs  = $parsed_block['email_attrs'] ?? array();
+		$margin_style = (string) \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin', 'margin-top' ) ) ), '' );
 
-		return sprintf( '<div class="videopress-playlist-email" style="%s">%s</div>', esc_attr( $margin_top ), $html );
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		return \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			$html,
+			array(
+				'class' => 'videopress-playlist-email',
+				'style' => ltrim( sprintf( '%s width: 100%%; max-width: %dpx; border-collapse: collapse;', $margin_style, $width ) ),
+			)
+		);
 	}
 
 	/**
@@ -111,13 +110,13 @@ class Playlist_Block_Email_Renderer {
 	 * @return string
 	 */
 	public static function render_latest_videos( $block_content, $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$attributes            = isset( $parsed_block['attrs'] ) && is_array( $parsed_block['attrs'] ) ? $parsed_block['attrs'] : array();
-		list( $order, $count ) = Initializer::latest_videos_playlist_order_and_count( $attributes );
+		$attributes = isset( $parsed_block['attrs'] ) && is_array( $parsed_block['attrs'] ) ? $parsed_block['attrs'] : array();
+		$query      = Initializer::latest_videos_playlist_query( $attributes );
 
 		// Readers land on the post's first page with the block's own order, so ignore $_GET.
-		$entries = 'newest' === $order
-			? Data::get_latest_videopress_playlist_entries( $count )
-			: Channel_Data::browse( Channel_Data::browse_request( false, false, $order ), $count )['entries'];
+		$entries = 'newest' === $query['order']
+			? Data::get_latest_videopress_playlist_entries( $query['count'] )
+			: Channel_Data::browse( Channel_Data::browse_request( false, false, $query['order'] ), $query['count'] )['entries'];
 
 		$parsed_block['attrs']           = $attributes;
 		$parsed_block['attrs']['videos'] = $entries;
@@ -148,23 +147,6 @@ class Playlist_Block_Email_Renderer {
 			'title'  => '' !== $title ? $title : sprintf( __( 'Video %d', 'jetpack-videopress-pkg' ), $position ),
 			'poster' => $poster,
 		);
-	}
-
-	/**
-	 * The playlist title heading from the block's front-end HTML, already rendered for email.
-	 *
-	 * @param string $block_content The block's front-end HTML.
-	 *
-	 * @return string
-	 */
-	private static function render_heading( $block_content ) {
-		if ( ! is_string( $block_content )
-			|| ! preg_match( '#<div class="videopress-playlist__heading">(.*?)</div><div class="videopress-playlist__body">#s', $block_content, $matches )
-		) {
-			return '';
-		}
-
-		return $matches[1];
 	}
 
 	/**
@@ -202,39 +184,15 @@ class Playlist_Block_Email_Renderer {
 	}
 
 	/**
-	 * The "4 videos · 12 min" line introducing the grid.
+	 * The videos after the first as a table of linked thumbnails and titles.
 	 *
-	 * @param array $entries      Every playlist entry.
-	 * @param bool  $show_runtime Whether to add the total runtime.
-	 *
-	 * @return string
-	 */
-	private static function render_summary( $entries, $show_runtime ) {
-		$count = count( $entries );
-		/* translators: %d: number of videos in the playlist. */
-		$label   = sprintf( _n( '%d video', '%d videos', $count, 'jetpack-videopress-pkg' ), $count );
-		$runtime = $show_runtime ? Initializer::playlist_runtime_label( array_sum( array_column( $entries, 'durationMs' ) ) ) : '';
-		if ( '' !== $runtime ) {
-			$label .= ' · ' . $runtime;
-		}
-
-		return sprintf( '<p style="margin: 16px 0 8px; font-size: 14px;">%s</p>', esc_html( $label ) );
-	}
-
-	/**
-	 * The videos after the first as a table of linked thumbnails.
-	 *
-	 * Titles stay when thumbnails are hidden, so every cell keeps something to click.
-	 *
-	 * @param array  $videos          Video details.
-	 * @param string $post_url        Post URL.
-	 * @param int    $width           Block width in pixels.
-	 * @param bool   $show_thumbnails Whether to show the posters.
-	 * @param bool   $show_titles     Whether to show the titles.
+	 * @param array  $videos   Video details.
+	 * @param string $post_url Post URL.
+	 * @param int    $width    Block width in pixels.
 	 *
 	 * @return string
 	 */
-	private static function render_grid( $videos, $post_url, $width, $show_thumbnails, $show_titles ) {
+	private static function render_grid( $videos, $post_url, $width ) {
 		$image_width = (int) floor( $width / self::GRID_COLUMNS ) - 2 * self::GRID_CELL_PADDING;
 		$cell_style  = sprintf(
 			'width: %s%%; padding: %dpx; vertical-align: top;',
@@ -246,18 +204,12 @@ class Playlist_Block_Email_Renderer {
 		foreach ( array_chunk( $videos, self::GRID_COLUMNS ) as $row_videos ) {
 			$cells = '';
 			foreach ( $row_videos as $video ) {
-				$has_thumbnail = $show_thumbnails && '' !== $video['poster'];
-				$has_title     = $show_titles || ! $has_thumbnail;
-				$thumbnail     = $has_thumbnail
+				$thumbnail = '' !== $video['poster']
 					? sprintf(
-						'<img src="%1$s" alt="%2$s" width="%3$d" style="display: block; width: 100%%; max-width: %3$dpx; height: auto; border: 0; border-radius: 4px;" />',
+						'<img src="%1$s" alt="" width="%2$d" style="display: block; width: 100%%; max-width: %2$dpx; height: auto; margin-bottom: 4px; border: 0; border-radius: 4px;" />',
 						esc_url( $video['poster'] ),
-						$has_title ? '' : esc_attr( $video['title'] ),
 						$image_width
 					)
-					: '';
-				$title         = $has_title
-					? sprintf( '<span style="display: block; margin-top: %dpx;">%s</span>', $has_thumbnail ? 4 : 0, esc_html( $video['title'] ) )
 					: '';
 
 				$cells .= sprintf(
@@ -265,7 +217,7 @@ class Playlist_Block_Email_Renderer {
 					esc_attr( $cell_style ),
 					esc_url( $post_url ),
 					$thumbnail,
-					$title
+					esc_html( $video['title'] )
 				);
 			}
 
@@ -279,7 +231,7 @@ class Playlist_Block_Email_Renderer {
 		}
 
 		return sprintf(
-			'<table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="width: 100%%; border-collapse: collapse; table-layout: fixed;">%s</table>',
+			'<table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="width: 100%%; margin-top: 16px; border-collapse: collapse; table-layout: fixed;">%s</table>',
 			$rows
 		);
 	}

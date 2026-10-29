@@ -717,15 +717,15 @@ class Initializer {
 	}
 
 	/**
-	 * The sort order and page size a Latest Videos Playlist block asks for, clamped to what it allows.
+	 * The sort order, page size and pagination a Latest Videos Playlist block asks for, clamped to what it allows.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param array $block_attributes Block attributes.
 	 *
-	 * @return array{0: string, 1: int} One of Channel_Data::BROWSE_SORTS, and the number of videos per page.
+	 * @return array{order: string, count: int, paginated: bool} Order is one of Channel_Data::BROWSE_SORTS.
 	 */
-	public static function latest_videos_playlist_order_and_count( $block_attributes ) {
+	public static function latest_videos_playlist_query( $block_attributes ) {
 		$order     = isset( $block_attributes['orderBy'] ) && in_array( $block_attributes['orderBy'], Channel_Data::BROWSE_SORTS, true ) ? $block_attributes['orderBy'] : 'newest';
 		$paginated = isset( $block_attributes['pagination'] ) && 'numbered' === $block_attributes['pagination'];
 		$max_count = $paginated ? self::LATEST_VIDEOS_PLAYLIST_MAX_PAGED : self::LATEST_VIDEOS_PLAYLIST_MAX_COUNT;
@@ -733,7 +733,11 @@ class Initializer {
 			? (int) $block_attributes['count']
 			: self::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
 
-		return array( $order, max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( $max_count, $count ) ) );
+		return array(
+			'order'     => $order,
+			'count'     => max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( $max_count, $count ) ),
+			'paginated' => $paginated,
+		);
 	}
 
 	/**
@@ -747,10 +751,11 @@ class Initializer {
 	 * @return string Block markup, or an empty string when the site has no VideoPress videos.
 	 */
 	public static function render_videopress_latest_videos_playlist_block( $block_attributes, $content = '', $block = null ) {
-		list( $order, $count ) = self::latest_videos_playlist_order_and_count( $block_attributes );
-
+		$query      = self::latest_videos_playlist_query( $block_attributes );
+		$order      = $query['order'];
+		$count      = $query['count'];
+		$paginated  = $query['paginated'];
 		$controls   = ! empty( $block_attributes['showBrowseControls'] );
-		$paginated  = isset( $block_attributes['pagination'] ) && 'numbered' === $block_attributes['pagination'];
 		$exclude    = ! empty( $block_attributes['excludeCurrent'] ) ? array_filter( array( Channel::queried_guid() ) ) : array();
 		$show_meta  = ! empty( $block_attributes['showMeta'] );
 		$is_browsed = 'newest' !== $order || $controls || $paginated || $exclude || $show_meta;
