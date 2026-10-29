@@ -373,50 +373,58 @@ describe( 'TrafficChart previous period', () => {
 		);
 	} );
 
-	it( 'remembers the previous period toggled from the legend', async () => {
-		mockDrawRealChart = true;
-		const points = ( values: number[] ) =>
-			values.map( ( value, index ) => ( {
-				date: new Date( Date.UTC( 2026, 5, index + 1 ) ),
-				value,
-			} ) );
-		mockUseTrafficChart.mockReturnValue( {
-			metrics: [
-				{
-					key: 'views',
-					label: 'Views',
-					value: 300,
-					current: points( [ 100, 200 ] ),
-					previous: points( [ 80, 120 ] ),
-				},
-			],
-			isLoading: false,
-			isFetching: false,
-			isError: false,
-			refetch: jest.fn(),
-		} );
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		render(
-			<TrafficChartRender
-				attributes={ {
-					chartType: 'bar',
-					reportParams: {
-						...reportParams( 'day' ),
-						compare_from: '2026-05-01',
-						compare_to: '2026-05-30',
-					} as ReportParams,
-				} }
-			/>
-		);
-		const legendItem = screen.getByLabelText( /^Previous period/ );
+	it.each( [ false, true ] )(
+		'starts from the saved previous period (%s) and saves a toggle',
+		async saved => {
+			dispatch( preferencesStore ).set(
+				DASHBOARD_PREFERENCES_SCOPE,
+				'trafficChartPreviousPeriod',
+				saved
+			);
+			mockDrawRealChart = true;
+			const points = ( values: number[] ) =>
+				values.map( ( value, index ) => ( {
+					date: new Date( Date.UTC( 2026, 5, index + 1 ) ),
+					value,
+				} ) );
+			mockUseTrafficChart.mockReturnValue( {
+				metrics: [
+					{
+						key: 'views',
+						label: 'Views',
+						value: 300,
+						current: points( [ 100, 200 ] ),
+						previous: points( [ 80, 120 ] ),
+					},
+				],
+				isLoading: false,
+				isFetching: false,
+				isError: false,
+				refetch: jest.fn(),
+			} );
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			render(
+				<TrafficChartRender
+					attributes={ {
+						chartType: 'bar',
+						reportParams: {
+							...reportParams( 'day' ),
+							compare_from: '2026-05-01',
+							compare_to: '2026-05-30',
+						} as ReportParams,
+					} }
+				/>
+			);
+			const legendItem = screen.getByLabelText( /^Previous period/ );
 
-		expect( legendItem ).toHaveAttribute( 'aria-pressed', 'false' );
-		await user.click( legendItem );
+			expect( legendItem ).toHaveAttribute( 'aria-pressed', String( saved ) );
+			await user.click( legendItem );
 
-		expect(
-			select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'trafficChartPreviousPeriod' )
-		).toBe( true );
-	} );
+			expect(
+				select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'trafficChartPreviousPeriod' )
+			).toBe( ! saved );
+		}
+	);
 } );
 
 describe( 'TrafficChart with an idle window', () => {
