@@ -51,7 +51,7 @@
 			extends: [ 'monorepo:wordpress' ],
 			separateMajorMinor: false,
 			prPriority: 1,
-			// Gutenberg releases every two weeks; open the PR at the start of the cycle instead of waiting for the monthly window.
+			// Gutenberg releases every two weeks; open the PR as soon as updates are available.
 			schedule: [ 'at any time' ],
 			// Teams that can help test the bundled packages (dataviews, ui, build, the widget
 			// dashboard...), which are not externalized to WordPress and can change product UIs.
