@@ -16,6 +16,7 @@ import {
 	isDeleteFix,
 	unignoreThreat,
 	useThreatAction,
+	type ThreatActionState,
 	type ThreatRow,
 } from './threat-actions';
 import type { ScanThreat } from './types';
@@ -298,29 +299,35 @@ function DatabaseRow( {
 }
 
 /**
+ * The Auto-fix it button's label and state, given the action running on the threat.
+ *
+ * @param busy - The action running on the threat.
+ * @return Props for the button.
+ */
+const getFixButtonProps = ( busy: ThreatActionState[ 'busy' ] ) => ( {
+	loading: busy === 'fixing',
+	disabled: !! busy,
+	children:
+		busy === 'fixing'
+			? __( 'Fixing…', 'jetpack-protect-pkg' )
+			: __( 'Auto-fix it', 'jetpack-protect-pkg' ),
+} );
+
+/**
  * Auto-fix it for a fix that deletes the software, behind a confirmation that asks for its slug.
  *
  * @param props        - Component props.
  * @param props.threat - A threat whose fix deletes its software.
- * @param props.onFix  - Starts the fix.
  * @return The button and its confirmation.
  */
-function DeleteFixButton( { threat, onFix }: { threat: ScanThreat; onFix: () => void } ) {
+function DeleteFixButton( { threat }: { threat: ScanThreat } ) {
 	const { busy } = useThreatAction( threat.id );
 	const [ open, setOpen ] = useState( false );
-	const onCancel = useCallback( () => setOpen( false ), [] );
-	const onConfirm = useCallback( () => {
-		setOpen( false );
-		onFix();
-	}, [ onFix ] );
+	const onClose = useCallback( () => setOpen( false ), [] );
 
 	return (
 		<Dialog.Root open={ open } onOpenChange={ setOpen }>
-			<Dialog.Trigger render={ <Button loading={ busy === 'fixing' } disabled={ !! busy } /> }>
-				{ busy === 'fixing'
-					? __( 'Fixing…', 'jetpack-protect-pkg' )
-					: __( 'Auto-fix it', 'jetpack-protect-pkg' ) }
-			</Dialog.Trigger>
+			<Dialog.Trigger render={ <Button { ...getFixButtonProps( busy ) } /> } />
 			<Dialog.Popup>
 				<Dialog.Header>
 					<Dialog.Title>{ getDeleteFixTitle( threat ) }</Dialog.Title>
@@ -328,12 +335,7 @@ function DeleteFixButton( { threat, onFix }: { threat: ScanThreat; onFix: () => 
 				</Dialog.Header>
 				<Dialog.Content>
 					{ /* Mounted only while open, so the slug field starts empty each time. */ }
-					<FixDeleteConfirmation
-						threat={ threat }
-						isBusy={ !! busy }
-						onCancel={ onCancel }
-						onConfirm={ onConfirm }
-					/>
+					<FixDeleteConfirmation threat={ threat } onClose={ onClose } />
 				</Dialog.Content>
 			</Dialog.Popup>
 		</Dialog.Root>
@@ -394,13 +396,9 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 						</Button>
 					) }
 					{ threat.fixable && ! isDeleteFix( threat ) && (
-						<Button onClick={ onFix } loading={ busy === 'fixing' } disabled={ !! busy }>
-							{ busy === 'fixing'
-								? __( 'Fixing…', 'jetpack-protect-pkg' )
-								: __( 'Auto-fix it', 'jetpack-protect-pkg' ) }
-						</Button>
+						<Button onClick={ onFix } { ...getFixButtonProps( busy ) } />
 					) }
-					{ isDeleteFix( threat ) && <DeleteFixButton threat={ threat } onFix={ onFix } /> }
+					{ isDeleteFix( threat ) && <DeleteFixButton threat={ threat } /> }
 				</Stack>
 			) }
 		</div>
