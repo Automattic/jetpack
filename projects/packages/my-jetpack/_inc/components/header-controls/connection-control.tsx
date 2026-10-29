@@ -77,7 +77,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 	const triggerRef = useRef< HTMLButtonElement >( null );
 	const popupRef = useRef< HTMLDivElement >( null );
 	const returnFocusRef = useRef( false );
-	// Opening with a click or tap focuses the panel, since its first link shows a focus ring even then.
+	// Any open except from the keyboard (a click, tap or pen) focuses the panel, since its first link shows a focus ring even then.
 	// Opening from the keyboard still focuses that first link, as the library does by default.
 	const initialFocus = useCallback(
 		( type: string ) => ( type === 'keyboard' ? true : popupRef.current ),
