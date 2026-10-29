@@ -1,4 +1,3 @@
-import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useEffect, useReducer, useRef, useState } from 'react';
@@ -11,6 +10,8 @@ import {
 import Timeline from '../../../dashboard/components/editor/timeline/timeline';
 import { exportRecording } from '../../lib/video-recording/export';
 import { createHistory, withHistory } from '../chapters-editor/state/history';
+import RecordIcon from './record-icon';
+import RecordingStage from './recording-stage';
 
 const reducer = withHistory( editSessionReducer, {
 	equals: sessionEditsEqual,
@@ -90,13 +91,53 @@ export default function RecordingEditor( { file, onUpload, onRecordAgain, blocke
 
 	return (
 		<>
-			<video
-				className="videopress-recording__video"
-				ref={ playback.attachVideo }
+			<RecordingStage
+				label={ __( 'Recording preview', 'jetpack-videopress-pkg' ) }
 				src={ url || undefined }
-				playsInline
-				aria-label={ __( 'Recording preview', 'jetpack-videopress-pkg' ) }
-			/>
+				onVideoReady={ playback.attachVideo }
+			>
+				<div className="videopress-recording__overlay-top">
+					<button
+						type="button"
+						className="videopress-recording__overlay-button"
+						onClick={ playback.togglePlay }
+						disabled={ locked || ! playback.hasMetadata }
+					>
+						{ playback.playing
+							? __( 'Pause preview', 'jetpack-videopress-pkg' )
+							: __( 'Play preview', 'jetpack-videopress-pkg' ) }
+					</button>
+				</div>
+				{ exporting && (
+					<div className="videopress-recording__overlay-message" role="status">
+						{ sprintf(
+							/* translators: %d: video preparation progress percentage. */
+							__( 'Preparing video… %d%%. Keep this tab visible.', 'jetpack-videopress-pkg' ),
+							Math.round( progress * 100 )
+						) }
+					</div>
+				) }
+				<div className="videopress-recording__overlay-bottom videopress-recording__review-actions">
+					<button
+						type="button"
+						className="videopress-recording__overlay-button"
+						onClick={ onRecordAgain }
+						disabled={ locked }
+					>
+						<RecordIcon />
+						{ __( 'Record again', 'jetpack-videopress-pkg' ) }
+					</button>
+					<button
+						type="button"
+						className="videopress-recording__overlay-button videopress-recording__upload"
+						onClick={ () => void upload() }
+						disabled={ locked || ! session.durationMs || Boolean( playback.playbackError ) }
+						aria-busy={ exporting }
+					>
+						{ __( 'Upload recording', 'jetpack-videopress-pkg' ) }
+					</button>
+				</div>
+			</RecordingStage>
 			{ ( error || playback.playbackError ) && (
 				<Notice.Root intent="error">
 					<Notice.Description>{ error || playback.playbackError }</Notice.Description>
@@ -113,28 +154,6 @@ export default function RecordingEditor( { file, onUpload, onRecordAgain, blocke
 				onScrubStart={ playback.pause }
 				shortcutsEnabled={ ! locked }
 			/>
-			{ exporting && (
-				<p role="status">
-					{ sprintf(
-						/* translators: %d: video preparation progress percentage. */
-						__( 'Preparing video… %d%%. Keep this tab visible.', 'jetpack-videopress-pkg' ),
-						Math.round( progress * 100 )
-					) }
-				</p>
-			) }
-			<div className="videopress-recording__actions">
-				<Button variant="secondary" onClick={ onRecordAgain } disabled={ locked }>
-					{ __( 'Record again', 'jetpack-videopress-pkg' ) }
-				</Button>
-				<Button
-					variant="primary"
-					onClick={ () => void upload() }
-					disabled={ locked || ! session.durationMs || Boolean( playback.playbackError ) }
-					isBusy={ exporting }
-				>
-					{ __( 'Upload recording', 'jetpack-videopress-pkg' ) }
-				</Button>
-			</div>
 		</>
 	);
 }

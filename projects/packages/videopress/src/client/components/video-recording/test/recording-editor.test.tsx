@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { exportRecording } from '../../../lib/video-recording/export';
 import RecordingEditor from '../recording-editor';
 
+jest.mock( '../recording-stage', () => jest.requireActual( '../fixtures/recording-stage' ) );
+
 jest.mock( '../../../lib/video-recording/export', () => ( {
 	exportRecording: jest.fn(),
 } ) );

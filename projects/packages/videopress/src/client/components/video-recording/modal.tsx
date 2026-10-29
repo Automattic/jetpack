@@ -2,11 +2,16 @@ import { Button, Modal, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useEffect, useRef, useState } from 'react';
-import { getRecordingMimeType, recordStream } from '../../lib/video-recording';
+import { getRecordingMimeType } from '../../lib/video-recording';
+import { recordCamera } from '../../lib/video-recording/camera';
+import { getRecordingFilter } from '../../lib/video-recording/effects';
 import ConfirmationOverlay from '../caption-manager-modal/confirmation-overlay';
+import EffectPicker from './effect-picker';
 import RecordingEditor from './recording-editor';
+import RecordingStage from './recording-stage';
 import './style.scss';
 import type { Recording } from '../../lib/video-recording';
+import type { RecordingEffect } from '../../lib/video-recording/effects';
 
 /**
  * Own camera permission, recording, preview, and cleanup until upload handoff.
@@ -31,7 +36,13 @@ export default function RecordingModal( {
 	const [ error, setError ] = useState< string | null >( null );
 	const [ attempt, setAttempt ] = useState( 0 );
 	const [ confirmation, setConfirmation ] = useState< 'close' | 'again' | null >( null );
-	const videoRef = useRef< HTMLVideoElement >( null );
+	const [ cameraVideo, setCameraVideo ] = useState< HTMLVideoElement | null >( null );
+	const [ cameraReady, setCameraReady ] = useState( false );
+	const [ mirrored, setMirrored ] = useState( true );
+	const [ effect, setEffect ] = useState< RecordingEffect >( 'original' );
+	const effectRef = useRef( effect );
+	effectRef.current = effect;
+	const [ elapsed, setElapsed ] = useState( 0 );
 	const recording = useRef< Recording | null >( null );
 	const active = useRef( true );
 
@@ -59,7 +70,7 @@ export default function RecordingModal( {
 			return;
 		}
 		void navigator.mediaDevices
-			.getUserMedia( { video: true, audio: true } )
+			.getUserMedia( { video: { facingMode: { ideal: 'user' } }, audio: true } )
 			.then( media => {
 				camera = media;
 				if ( disposed ) {
@@ -87,10 +98,17 @@ export default function RecordingModal( {
 	}, [ attempt ] );
 
 	useEffect( () => {
-		if ( videoRef.current ) {
-			videoRef.current.srcObject = stream;
+		if ( state !== 'recording' ) {
+			return;
 		}
-	}, [ stream, file ] );
+		const started = Date.now();
+		setElapsed( 0 );
+		const timer = setInterval(
+			() => setElapsed( Math.floor( ( Date.now() - started ) / 1000 ) ),
+			1000
+		);
+		return () => clearInterval( timer );
+	}, [ state ] );
 
 	useEffect( () => {
 		if ( ! file && state !== 'recording' && state !== 'stopping' ) {
@@ -106,16 +124,17 @@ export default function RecordingModal( {
 
 	const failed = () => {
 		if ( active.current ) {
+			stream?.getTracks().forEach( track => track.stop() );
 			setState( 'error' );
 			setError( __( 'Recording failed. Please try again.', 'jetpack-videopress-pkg' ) );
 		}
 	};
 	const start = () => {
-		if ( ! stream ) {
+		if ( ! stream || ! cameraVideo || ! cameraReady ) {
 			return;
 		}
 		try {
-			recording.current = recordStream( stream );
+			recording.current = recordCamera( cameraVideo, stream, () => effectRef.current );
 			void recording.current.finished.then( result => {
 				if ( active.current ) {
 					setFile( result );
@@ -163,51 +182,90 @@ export default function RecordingModal( {
 						blocked={ confirmation !== null }
 					/>
 				) : (
-					<>
-						<video
-							ref={ videoRef }
-							className="videopress-recording__video"
-							autoPlay
-							muted
-							playsInline
-							aria-label={ __( 'Camera preview', 'jetpack-videopress-pkg' ) }
-						/>
+					<RecordingStage
+						label={ __( 'Camera preview', 'jetpack-videopress-pkg' ) }
+						stream={ stream }
+						mirrored={ mirrored }
+						filter={ getRecordingFilter( effect ) }
+						onVideoReady={ setCameraVideo }
+						onSourceReady={ setCameraReady }
+						onSourceError={ failed }
+					>
+						<div className="videopress-recording__overlay-top">
+							<span className="videopress-recording__status" role="status">
+								{ state === 'recording' || state === 'stopping' ? (
+									<>
+										<span className="videopress-recording__status-dot" aria-hidden="true" />
+										{ __( 'Recording', 'jetpack-videopress-pkg' ) }{ ' ' }
+										<span aria-hidden="true">
+											{ String( Math.floor( elapsed / 60 ) ).padStart( 2, '0' ) }:
+											{ String( elapsed % 60 ).padStart( 2, '0' ) }
+										</span>
+									</>
+								) : (
+									__( 'Camera preview', 'jetpack-videopress-pkg' )
+								) }
+							</span>
+							<button
+								type="button"
+								className="videopress-recording__overlay-button"
+								aria-pressed={ mirrored }
+								onClick={ () => setMirrored( value => ! value ) }
+								disabled={ confirmation !== null || state === 'stopping' }
+							>
+								{ __( 'Mirror preview', 'jetpack-videopress-pkg' ) }
+							</button>
+						</div>
 						{ state === 'loading' && (
-							<p role="status">
+							<div className="videopress-recording__overlay-message" role="status">
 								<Spinner />
 								{ __( 'Waiting for camera and microphone access…', 'jetpack-videopress-pkg' ) }
-							</p>
+							</div>
 						) }
 						{ error && (
-							<Notice.Root intent="error">
-								<Notice.Description>{ error }</Notice.Description>
-							</Notice.Root>
-						) }
-						<div className="videopress-recording__actions">
-							{ state === 'ready' && (
-								<Button variant="primary" onClick={ start } disabled={ confirmation !== null }>
-									{ __( 'Start recording', 'jetpack-videopress-pkg' ) }
-								</Button>
-							) }
-							{ ( state === 'recording' || state === 'stopping' ) && (
-								<>
-									<span role="status">{ __( 'Recording…', 'jetpack-videopress-pkg' ) }</span>
-									<Button
-										variant="primary"
-										onClick={ () => void stop() }
-										disabled={ state === 'stopping' || confirmation !== null }
-									>
-										{ __( 'Stop recording', 'jetpack-videopress-pkg' ) }
-									</Button>
-								</>
-							) }
-							{ state === 'error' && (
+							<div className="videopress-recording__overlay-message">
+								<Notice.Root intent="error">
+									<Notice.Description>{ error }</Notice.Description>
+								</Notice.Root>
 								<Button variant="secondary" onClick={ () => setAttempt( value => value + 1 ) }>
 									{ __( 'Try again', 'jetpack-videopress-pkg' ) }
 								</Button>
-							) }
+							</div>
+						) }
+						<div className="videopress-recording__overlay-bottom">
+							<EffectPicker
+								value={ effect }
+								onChange={ setEffect }
+								disabled={
+									confirmation !== null ||
+									! cameraReady ||
+									state === 'error' ||
+									state === 'stopping'
+								}
+							/>
+							<button
+								type="button"
+								className={ `videopress-recording__record-toggle${ state === 'recording' || state === 'stopping' ? ' is-recording' : '' }` }
+								disabled={
+									! cameraReady ||
+									confirmation !== null ||
+									state === 'loading' ||
+									state === 'error' ||
+									state === 'stopping'
+								}
+								onClick={ () => ( state === 'recording' ? void stop() : start() ) }
+							>
+								<span className="videopress-recording__record-ring" aria-hidden="true">
+									<span />
+								</span>
+								<span>
+									{ state === 'recording' || state === 'stopping'
+										? __( 'Stop recording', 'jetpack-videopress-pkg' )
+										: __( 'Start recording', 'jetpack-videopress-pkg' ) }
+								</span>
+							</button>
 						</div>
-					</>
+					</RecordingStage>
 				) }
 				{ confirmation && (
 					<ConfirmationOverlay

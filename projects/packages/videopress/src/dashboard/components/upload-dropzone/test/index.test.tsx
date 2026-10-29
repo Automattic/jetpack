@@ -4,6 +4,10 @@ import { makeRenamedTextFile, makeVideoFile } from '../../../test-utils/video-fi
 import UploadDropzone from '../index';
 import { selectFilesForPlan } from '../select-files';
 
+jest.mock( '../../../../client/components/video-recording/recording-stage', () =>
+	jest.requireActual( '../../../../client/components/video-recording/fixtures/recording-stage' )
+);
+
 const mockCreateErrorNotice = jest.fn();
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/data', () => ( {

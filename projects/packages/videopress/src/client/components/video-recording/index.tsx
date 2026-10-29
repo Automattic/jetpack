@@ -1,6 +1,7 @@
 import { Button, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { lazy, Suspense, useState } from 'react';
+import RecordIcon from './record-icon';
 
 const RecordingModal = lazy( () => import( /* webpackChunkName: "video-recording" */ './modal' ) );
 
@@ -21,7 +22,12 @@ export default function RecordVideoButton( { onRecorded, disabled = false }: Pro
 	const [ open, setOpen ] = useState( false );
 	return (
 		<>
-			<Button variant="secondary" disabled={ disabled } onClick={ () => setOpen( true ) }>
+			<Button
+				variant="secondary"
+				icon={ <RecordIcon /> }
+				disabled={ disabled }
+				onClick={ () => setOpen( true ) }
+			>
 				{ __( 'Record a video', 'jetpack-videopress-pkg' ) }
 			</Button>
 			{ open && (

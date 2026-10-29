@@ -1,12 +1,14 @@
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getRecordingMimeType, recordStream } from '../../../lib/video-recording';
+import { getRecordingMimeType } from '../../../lib/video-recording';
+import { recordCamera } from '../../../lib/video-recording/camera';
 import RecordingModal from '../modal';
 
 jest.mock( '../../../lib/video-recording', () => ( {
 	getRecordingMimeType: jest.fn(),
-	recordStream: jest.fn(),
 } ) );
+jest.mock( '../../../lib/video-recording/camera', () => ( { recordCamera: jest.fn() } ) );
+jest.mock( '../recording-stage', () => jest.requireActual( '../fixtures/recording-stage' ) );
 
 jest.mock( '../recording-editor', () => ( {
 	__esModule: true,
@@ -52,7 +54,7 @@ it( 'keeps the recorded file local until the user chooses upload', async () => {
 		return finished;
 	} );
 	const cancel = jest.fn();
-	jest.mocked( recordStream ).mockReturnValue( {
+	jest.mocked( recordCamera ).mockReturnValue( {
 		finished,
 		stop,
 		cancel,
@@ -62,7 +64,11 @@ it( 'keeps the recorded file local until the user chooses upload', async () => {
 	const onRecorded = jest.fn();
 	const { unmount } = render( <RecordingModal onClose={ jest.fn() } onRecorded={ onRecorded } /> );
 	await userEvent.click( await screen.findByRole( 'button', { name: 'Start recording' } ) );
-	expect( recordStream ).toHaveBeenCalledWith( stream );
+	expect( recordCamera ).toHaveBeenCalledWith(
+		expect.any( HTMLVideoElement ),
+		stream,
+		expect.any( Function )
+	);
 	await userEvent.click( screen.getByRole( 'button', { name: 'Stop recording' } ) );
 	await expect(
 		screen.findByRole( 'button', { name: 'Upload recording' } )
@@ -86,6 +92,38 @@ it( 'allows retrying denied permissions without uploading anything', async () =>
 	await expect( screen.findByRole( 'button', { name: 'Start recording' } ) ).resolves.toBeVisible();
 	expect( getUserMedia ).toHaveBeenCalledTimes( 2 );
 	expect( onRecorded ).not.toHaveBeenCalled();
+} );
+
+it( 'mirrors the camera monitor by default and allows turning mirroring off', async () => {
+	render( <RecordingModal onClose={ jest.fn() } onRecorded={ jest.fn() } /> );
+	expect( screen.getByLabelText( 'Camera preview' ) ).toHaveStyle( { transform: 'scaleX(-1)' } );
+	await userEvent.click( screen.getByRole( 'button', { name: 'Mirror preview' } ) );
+	expect( screen.getByLabelText( 'Camera preview' ) ).not.toHaveStyle( {
+		transform: 'scaleX(-1)',
+	} );
+} );
+
+it( 'keeps the selected effect current while recording', async () => {
+	jest.mocked( recordCamera ).mockReturnValue( {
+		finished: new Promise( () => {} ),
+		stop: jest.fn(),
+		cancel: jest.fn(),
+		pause: jest.fn(),
+		resume: jest.fn(),
+	} );
+	render( <RecordingModal onClose={ jest.fn() } onRecorded={ jest.fn() } /> );
+	const mono = await screen.findByRole( 'button', { name: 'Mono effect' } );
+
+	await userEvent.click( mono );
+	await userEvent.click( screen.getByRole( 'button', { name: 'Start recording' } ) );
+	const getEffect = jest.mocked( recordCamera ).mock.calls[ 0 ][ 2 ];
+	expect( getEffect() ).toBe( 'mono' );
+	await userEvent.click( screen.getByRole( 'button', { name: 'Warm effect' } ) );
+	expect( getEffect() ).toBe( 'warm' );
+	expect( screen.getByRole( 'button', { name: 'Warm effect' } ) ).toHaveAttribute(
+		'aria-pressed',
+		'true'
+	);
 } );
 
 it( 'does not request a camera when the uploader-compatible format is unavailable', async () => {
