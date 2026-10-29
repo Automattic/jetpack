@@ -22,7 +22,7 @@ import { useThreatRowActions } from './threat-row-actions';
 import threatsIcon from './threats-icon';
 import { getThreatFields } from './threats-list';
 import type { ScanThreat } from './types';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 const DEFAULT_LAYOUTS = { table: {} };
 const NO_THREATS: ScanThreat[] = [];
@@ -190,10 +190,34 @@ function ReportSafeState( {
 } ) {
 	const siteIsSafe = noOtherThreats && ! lastScanFailed;
 	let title: string = __( 'Nothing from your alert needs fixing', 'jetpack-protect-pkg' );
+	let details: ReactNode = (
+		<>
+			{ __( 'Other threats on your site still need attention.', 'jetpack-protect-pkg' ) }{ ' ' }
+			<TabLink tab="overview" onOpen={ openTab }>
+				{ __( 'See them on the Overview.', 'jetpack-protect-pkg' ) }
+			</TabLink>
+		</>
+	);
 	if ( siteIsSafe ) {
 		title = hasPlan
 			? __( 'Your site is safe right now', 'jetpack-protect-pkg' )
 			: __( 'No known vulnerabilities found', 'jetpack-protect-pkg' );
+		details = __(
+			'None of the threats from your alert need your attention.',
+			'jetpack-protect-pkg'
+		);
+	} else if ( noOtherThreats ) {
+		details = (
+			<>
+				{ __(
+					'Your last scan didn’t complete, so we can’t confirm the rest of your site is free of threats.',
+					'jetpack-protect-pkg'
+				) }{ ' ' }
+				<TabLink tab="overview" onOpen={ openTab }>
+					{ __( 'Scan again from the Overview.', 'jetpack-protect-pkg' ) }
+				</TabLink>
+			</>
+		);
 	}
 	return (
 		<Card.Root render={ <section /> } className="jp-protect-card" aria-label={ title }>
@@ -205,30 +229,7 @@ function ReportSafeState( {
 						{ title }
 					</Text>
 					<Text variant="body-lg" className="jp-protect-safe__details">
-						{ siteIsSafe &&
-							__(
-								'None of the threats from your alert need your attention.',
-								'jetpack-protect-pkg'
-							) }
-						{ ! siteIsSafe && noOtherThreats && (
-							<>
-								{ __(
-									'Your last scan didn’t complete, so we can’t confirm the rest of your site is free of threats.',
-									'jetpack-protect-pkg'
-								) }{ ' ' }
-								<TabLink tab="overview" onOpen={ openTab }>
-									{ __( 'Scan again from the Overview.', 'jetpack-protect-pkg' ) }
-								</TabLink>
-							</>
-						) }
-						{ ! noOtherThreats && (
-							<>
-								{ __( 'Other threats on your site still need attention.', 'jetpack-protect-pkg' ) }{ ' ' }
-								<TabLink tab="overview" onOpen={ openTab }>
-									{ __( 'See them on the Overview.', 'jetpack-protect-pkg' ) }
-								</TabLink>
-							</>
-						) }
+						{ details }
 					</Text>
 				</Stack>
 			</Card.Content>
