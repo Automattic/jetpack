@@ -10,8 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [1.2.11] - 2026-10-19
 ### Changed
-- Update package dependencies. [#53678]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53678] [#53806]
 
 ## [1.2.10] - 2026-09-28
 ### Changed

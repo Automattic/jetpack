@@ -10,12 +10,13 @@ const card = ( {
 	available = true,
 	monitor = true,
 	userConnected = true,
+	alertEmail = null as string | null,
 	saving = false,
 	save = jest.fn(),
 	refresh = jest.fn(),
 } = {} ) => (
 	<MonitorSettingsCard
-		state={ { available, active: monitor, uptimeDays: 40, userConnected } }
+		state={ { available, active: monitor, uptimeDays: 40, userConnected, alertEmail } }
 		settings={
 			{
 				settings: { monitor, monitor_receive_notifications: true },
@@ -44,6 +45,28 @@ describe( 'MonitorSettingsCard', () => {
 			screen.getByRole( 'switch', { name: label } ).getAttribute( 'aria-disabled' ) !== 'true';
 		expect( enabled( MONITOR ) ).toBe( canToggle );
 		expect( enabled( EMAIL ) ).toBe( canEmail );
+	} );
+
+	it.each( [
+		[
+			'the account address when it is known',
+			{ alertEmail: 'owner@example.com' },
+			'Emails go to owner@example.com, your WordPress.com account’s address.',
+		],
+		[
+			'the account without an address when it is unknown',
+			{},
+			'Emails go to your WordPress.com account’s address.',
+		],
+		[
+			'how to manage the emails without a connection',
+			{ userConnected: false, alertEmail: 'owner@example.com' },
+			'Connect your WordPress.com account to manage these emails.',
+		],
+	] )( 'names %s', ( _name, options, help ) => {
+		renderCard( options );
+
+		expect( screen.getByText( help ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the email toggle locked while a Monitor save is in flight', () => {

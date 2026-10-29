@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Features: Keep security modules managed in Protect out of bulk changes.

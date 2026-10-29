@@ -99,6 +99,7 @@ export function parseLastChecked( lastChecked?: string | null ): Date | null {
 export const resetScan = (): void => {
 	scanStore.reset();
 	requestStore.reset();
+	delete window.jetpackProtectThreatCount;
 	edits = [];
 	readsStarted = 0;
 	readApplied = 0;
@@ -118,6 +119,24 @@ export const getScan = () => scanStore.get();
  */
 export function setScan( update: ( scan: ScanState ) => ScanState ) {
 	scanStore.set( scan => scan && update( scan ) );
+	publishThreatCount( scanStore.get()?.threats?.length );
+}
+
+/**
+ * Show the active threat count in the Protect menu badge and the admin bar notice, as `js/threat-count.js` does.
+ *
+ * @param count - Active threats, or undefined when the report has no list.
+ */
+function publishThreatCount( count?: number ) {
+	if ( count === undefined || count === window.jetpackProtectThreatCount ) {
+		return;
+	}
+	// The menu slug and event name are Dashboard::MENU_SLUG and Threat_Count::EVENT.
+	window.jetpackMenuBadges?.setCount( 'jetpack-protect', count );
+	window.jetpackProtectThreatCount = count;
+	document.dispatchEvent(
+		new CustomEvent( 'jetpack-protect-threat-count', { detail: { count } } )
+	);
 }
 
 /**

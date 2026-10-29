@@ -35,8 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Overview: Title the intro card "Jetpack Newsletter", adding "on WordPress.com" only on WordPress.com sites. [#53600]
 - Settings: Use the shared CheckboxCard component for subscription placements. [#53733]
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 
 ## [0.18.0] - 2026-10-12
 ### Added
@@ -138,11 +137,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.7] - 2026-08-25
 ### Changed
-- Update dependencies. [#51423]
+- Update dependencies.
 
 ## [0.12.6] - 2026-08-20
 ### Changed
-- Update dependencies. [#51423]
+- Update dependencies.
 
 ## [0.12.5] - 2026-08-20
 ### Changed
@@ -386,7 +385,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.2] - 2026-03-02
 ### Changed
-- Update dependencies. [#47038]
+- Update dependencies.
 
 ## [0.5.1] - 2026-02-26
 ### Added
