@@ -1955,7 +1955,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'protect',
 			),
 			'jetpack_protect_global_whitelist'          => array(
-				'description'       => esc_html__( 'Protect global IP allow list', 'jetpack' ),
+				'description'       => esc_html__( 'Deprecated: use jetpack_waf_ip_allow_list instead. Writing this key replaces the site IP allow list.', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_string',

@@ -165,6 +165,19 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$this->assertSame( 0, get_option( $option_name ) );
 	}
 
+	public function test_update_protect_global_whitelist_is_deprecated_but_still_saves() {
+		$this->setExpectedDeprecated( 'jetpack/v4/settings' );
+		Jetpack::update_active_modules( array( 'protect' ) );
+
+		$request = new WP_REST_Request();
+		$request->set_body_params( array( 'jetpack_protect_global_whitelist' => '3.3.3.3' ) );
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( '3.3.3.3', get_option( 'jetpack_waf_ip_allow_list' ) );
+	}
+
 	/**
 	 * Tests the update of a comment subscription setting in the Jetpack_Core_API_Data::update_data() method.
 	 *

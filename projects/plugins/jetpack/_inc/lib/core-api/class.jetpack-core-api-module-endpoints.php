@@ -790,6 +790,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'jetpack_protect_global_whitelist':
+					_deprecated_argument( 'jetpack/v4/settings', 'jetpack-$$next-version$$', esc_html__( 'The jetpack_protect_global_whitelist setting is deprecated. Use jetpack_waf_ip_allow_list instead.', 'jetpack' ) );
 					$updated = Brute_Force_Protection_Shared_Functions::save_allow_list( explode( PHP_EOL, str_replace( array( ' ', ',' ), array( '', "\n" ), $value ) ) );
 
 					if ( is_wp_error( $updated ) ) {
