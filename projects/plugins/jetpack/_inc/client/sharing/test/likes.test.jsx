@@ -89,7 +89,9 @@ describe( 'Like buttons settings', () => {
 			screen.getByText( 'Legacy Like buttons cannot be customized on block themes.' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Configure' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Configure your Like buttons' } )
+		).not.toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Switch to the Like block' } ) );
 
@@ -117,7 +119,7 @@ describe( 'Like buttons settings', () => {
 			'href',
 			'https://jetpack.com/redirect/?source=jetpack-support-like-block'
 		);
-		const configureLink = screen.getByRole( 'link', { name: 'Configure' } );
+		const configureLink = screen.getByRole( 'link', { name: 'Configure your Like buttons' } );
 		expect( configureLink ).toHaveAttribute(
 			'href',
 			'https://example.com/wp-admin/options-general.php?page=sharing#likes'
@@ -155,7 +157,9 @@ describe( 'Like buttons settings', () => {
 		expect(
 			screen.queryByRole( 'button', { name: 'Switch to the Like block' } )
 		).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Configure' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Configure your Like buttons' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the legacy toggle when the Like block is unavailable', () => {
@@ -186,7 +190,19 @@ describe( 'Like buttons settings', () => {
 		expect(
 			screen.queryByRole( 'button', { name: 'Switch to the Like block' } )
 		).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Configure' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Configure your Like buttons' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'hides the configuration link in offline mode', () => {
+		render(
+			<Likes { ...defaultProps } isUnavailableInOfflineMode={ isUnavailableInOfflineMode } />
+		);
+
+		expect(
+			screen.queryByRole( 'link', { name: 'Configure your Like buttons' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'disables the toggle in offline mode', () => {

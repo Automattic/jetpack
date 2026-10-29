@@ -3,6 +3,7 @@ import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import Button from 'components/button';
+import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -42,16 +43,12 @@ export const Likes = withModuleSettingsFormHelpers(
 				isActive = this.props.getOptionValue( 'likes' );
 
 			const shouldShowLikeBlock = isBlockTheme && hasLikeBlock;
-			const likeSettingsUrl = siteAdminUrl
-				? `${ siteAdminUrl }options-general.php?page=sharing#likes`
-				: '';
-			const shouldUseLikeBlockAction = shouldShowLikeBlock && likeSettingsUrl;
 			const isForcedActive = isActive && this.props.getModule?.( 'likes' )?.override === 'active';
 			let description = __(
 				'The Like button is a way for people on WordPress.com to show their appreciation for your content.',
 				'jetpack'
 			);
-			if ( shouldUseLikeBlockAction ) {
+			if ( shouldShowLikeBlock ) {
 				description = isActive
 					? __( 'Legacy Like buttons cannot be customized on block themes.', 'jetpack' )
 					: _x(
@@ -62,10 +59,9 @@ export const Likes = withModuleSettingsFormHelpers(
 			}
 
 			/**
-			 * Use the legacy toggle where needed; otherwise guide block themes through
-			 * deactivating legacy likes before configuring the Like block.
+			 * Use the legacy toggle where needed; otherwise offer block themes the switch to the Like block.
 			 *
-			 * @return {import('react').ReactNode} The likes module action.
+			 * @return {import('react').ReactNode} The likes module action, if any.
 			 */
 			const moduleAction = () => {
 				const toggle = (
@@ -83,29 +79,21 @@ export const Likes = withModuleSettingsFormHelpers(
 					</ModuleToggle>
 				);
 
-				if ( ! shouldUseLikeBlockAction ) {
+				if ( ! shouldShowLikeBlock || isForcedActive ) {
 					return toggle;
 				}
 
-				if ( isForcedActive ) {
-					return toggle;
+				if ( ! isActive ) {
+					return null;
 				}
 
-				if ( isActive ) {
-					const isSwitching = this.props.isSavingAnyOption( 'likes' );
-
-					return (
-						<Button rna compact disabled={ isSwitching } onClick={ this.switchToLikeBlock }>
-							{ isSwitching
-								? _x( 'Switching…', 'Button caption', 'jetpack' )
-								: __( 'Switch to the Like block', 'jetpack' ) }
-						</Button>
-					);
-				}
+				const isSwitching = this.props.isSavingAnyOption( 'likes' );
 
 				return (
-					<Button rna compact href={ likeSettingsUrl } onClick={ this.trackClickConfigure }>
-						{ __( 'Configure', 'jetpack' ) }
+					<Button rna compact disabled={ isSwitching } onClick={ this.switchToLikeBlock }>
+						{ isSwitching
+							? _x( 'Switching…', 'Button caption', 'jetpack' )
+							: __( 'Switch to the Like block', 'jetpack' ) }
 					</Button>
 				);
 			};
@@ -134,6 +122,17 @@ export const Likes = withModuleSettingsFormHelpers(
 						<p>{ description }</p>
 						{ moduleAction() }
 					</SettingsGroup>
+
+					{ shouldShowLikeBlock && ! isActive && ! unavailableInOfflineMode && (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							href={ `${ siteAdminUrl }options-general.php?page=sharing#likes` }
+							onClick={ this.trackClickConfigure }
+						>
+							{ __( 'Configure your Like buttons', 'jetpack' ) }
+						</Card>
+					) }
 				</SettingsCard>
 			);
 		}

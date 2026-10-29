@@ -95,7 +95,6 @@ describe( 'Sharing buttons settings', () => {
 			screen.getByText( 'Legacy sharing buttons cannot be customized on block themes.' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Configure' } ) ).not.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'link', { name: 'Configure your sharing buttons' } )
 		).not.toBeInTheDocument();
@@ -122,15 +121,12 @@ describe( 'Sharing buttons settings', () => {
 		expect(
 			screen.getByText( 'Choose where the Sharing Buttons block goes on your posts and pages.' )
 		).toBeInTheDocument();
-		const configureLink = screen.getByRole( 'link', { name: 'Configure' } );
+		const configureLink = screen.getByRole( 'link', { name: 'Configure your sharing buttons' } );
 		expect( configureLink ).toHaveAttribute(
 			'href',
 			'https://example.com/wp-admin/options-general.php?page=sharing'
 		);
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
-		expect(
-			screen.queryByRole( 'link', { name: 'Configure your sharing buttons' } )
-		).not.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveAttribute(
 			'href',
 			'https://jetpack.com/redirect/?source=jetpack-support-sharing-block'
@@ -171,7 +167,6 @@ describe( 'Sharing buttons settings', () => {
 		expect(
 			screen.getByRole( 'link', { name: 'Configure your sharing buttons' } )
 		).toHaveAttribute( 'href', 'https://example.com/wp-admin/options-general.php?page=sharing' );
-		expect( screen.queryByRole( 'link', { name: 'Configure' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the legacy toggle and configuration link when the block is unavailable', () => {
@@ -218,6 +213,8 @@ describe( 'Sharing buttons settings', () => {
 		expect(
 			screen.queryByRole( 'button', { name: 'Switch to Sharing Buttons block' } )
 		).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Configure' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Configure your sharing buttons' } )
+		).not.toBeInTheDocument();
 	} );
 } );
