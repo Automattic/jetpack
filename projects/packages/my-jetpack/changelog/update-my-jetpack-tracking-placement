@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: Report connection events with the `my-jetpack` context and a placement for the header, the connection card and the page notice.

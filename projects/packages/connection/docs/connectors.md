@@ -68,7 +68,7 @@ Every card event carries `context: 'connectors'` and `viewer_connection_type`: `
 | `jetpack_idc_migrate`, `jetpack_idc_start_fresh`, `jetpack_idc_confirm_safe_mode` | A Safe Mode resolution is clicked. Names shared with the standard Identity Crisis screen, so split by `context`. Like that screen, also bumps the `jetpack-idc` MC stat (`migrate`, `start-fresh`, `confirm-safe-mode`), but only when the site allows tracking (`idc.bumpStats`). | `platform`: `woa`, `vip`, `newspack` or `self-hosted`, as on the Identity Crisis screen |
 | `jetpack_idc_disconnect_site` | The Safe Mode panel's disconnect is confirmed, after its `safe_mode_disconnect_site` click. | `platform` |
 
-The shared dialogs track by default, with the `context` their host passes (`trackingContext`, or `context` for the disconnect dialogs) and `null` when it passes none. They send no `viewer_connection_type`:
+The shared dialogs track by default, with the `context` their host passes (`trackingContext`, or `context` for the disconnect dialogs) and `null` when it passes none, plus `placement` when the host renders them in more than one place on a page (My Jetpack's `header` and `connection_card`). The shared header reports the page hosting it as `context`, e.g. `boost` on Boost's dashboard. They send no `viewer_connection_type`:
 
 | Event | Fired when | Extra properties |
 | --- | --- | --- |
