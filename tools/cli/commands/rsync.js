@@ -1,3 +1,4 @@
+import { spawnSync } from 'child_process';
 import { createWriteStream, existsSync } from 'fs';
 import fs from 'fs/promises';
 import os from 'os';
@@ -17,7 +18,6 @@ import { tracks } from '../helpers/analytics.js';
 import { projectDir } from '../helpers/install.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
 import { allProjectsByType, dirs } from '../helpers/projectHelpers.js';
-import { runCommand } from '../helpers/runCommand.js';
 
 const rsyncConfigStore = new Configstore( 'automattic/jetpack-cli/rsync' );
 let isOpenrsync = false;
@@ -100,6 +100,14 @@ export async function rsyncInit( argv ) {
 			await promptToManageConfig();
 		}
 		return;
+	}
+	if ( argv.password && process.env.RSYNC_PROXY_SOCKET ) {
+		console.error(
+			chalk.red(
+				'--password is not supported through the `jp` SSH proxy. Run `jetpack rsync` on the host instead.'
+			)
+		);
+		process.exit( 1 );
 	}
 	argv = await maybePromptForPlugin( argv );
 	argv = await maybePromptForDest( argv );
@@ -576,6 +584,30 @@ async function getUntrackedFiles( pluginPath ) {
 }
 
 /**
+ * Build rsync's `--rsh` option, if the default remote shell won't do.
+ *
+ * @param {string|null} password - SSH password for the remote host, or null.
+ * @param {object}      env      - Environment variables.
+ * @return {string|null} The option, or null to use rsync's default.
+ */
+export function getRshOption( password, env = process.env ) {
+	// Route SSH through the host, for Secure Enclave keys that can't be forwarded into Docker.
+	if ( env.RSYNC_PROXY_SOCKET ) {
+		const rshProxy = fileURLToPath(
+			new URL( '../../docker/bin/rsync-rsh-proxy.sh', import.meta.url )
+		);
+		return `--rsh=${ rshProxy }`;
+	}
+	// Try the password once and skip keys; a user's RSYNC_RSH options come first, so they win.
+	if ( password ) {
+		return `--rsh=${
+			env.RSYNC_RSH || 'ssh'
+		} -o NumberOfPasswordPrompts=1 -o PubkeyAuthentication=no`;
+	}
+	return null;
+}
+
+/**
  * Function that does the actual work of rsync.
  *
  * @param {string}      source   - Source path.
@@ -603,13 +635,9 @@ async function rsyncToDest( source, dest, password = null ) {
 			`--include-from=${ tmpFile.name }`,
 		];
 
-		// When RSYNC_PROXY_SOCKET is set, use the rsh-proxy script to route SSH through the host
-		// This enables support for Secure Enclave SSH keys that can't be forwarded into Docker
-		if ( process.env.RSYNC_PROXY_SOCKET ) {
-			const rshProxy = fileURLToPath(
-				new URL( '../../docker/bin/rsync-rsh-proxy.sh', import.meta.url )
-			);
-			rsyncArgs.push( `--rsh=${ rshProxy }` );
+		const rshOpt = getRshOption( password );
+		if ( rshOpt ) {
+			rsyncArgs.push( rshOpt );
 		}
 
 		rsyncArgs.push( source, dest );
@@ -629,7 +657,20 @@ async function rsyncToDest( source, dest, password = null ) {
 			runOpts.stdio = [ 'pipe', 'inherit', 'inherit' ];
 		}
 
-		await runCommand( 'rsync', rsyncArgs, runOpts );
+		const { status } = spawnSync( 'rsync', rsyncArgs, runOpts );
+		if ( status !== 0 ) {
+			// rsync exits 255 when ssh itself fails, as opposed to the remote rsync.
+			if ( password && status === 255 ) {
+				console.error(
+					chalk.red(
+						'The SSH connection failed. If the password was refused, do not rerun right away: some hosts, such as Jurassic Ninja, lock the site after repeated password logins (the third within about 15 minutes).'
+					)
+				);
+			} else {
+				console.error( 'There was a problem! See error above.' );
+			}
+			process.exit( status );
+		}
 	} catch ( e ) {
 		console.log( e );
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
@@ -833,7 +874,7 @@ export function rsyncDefine( yargs ) {
 				} )
 				.option( 'password', {
 					describe:
-						'SSH password for the remote host. Passed via SSH_ASKPASS. Note: the password may be visible in process listings.',
+						'SSH password for the remote host. Passed via SSH_ASKPASS. ssh tries it once and offers no keys (options appended to RSYNC_RSH, if set). Not supported through the `jp` SSH proxy. Note: the password may be visible in process listings.',
 					type: 'string',
 				} );
 		},
