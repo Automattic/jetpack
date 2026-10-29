@@ -22,6 +22,13 @@ class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 	private $digital_source_type = null;
 
 	/**
+	 * Source types by path or URL, so the edit hook reuses the editor's read.
+	 *
+	 * @var string[]
+	 */
+	private static $source_types = array();
+
+	/**
 	 * Saves the image, then writes the source's DigitalSourceType into it.
 	 *
 	 * @param string   $filename  Path to save the image to.
@@ -44,15 +51,34 @@ class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 	}
 
 	/**
-	 * Reads the DigitalSourceType from a path or a URL.
+	 * Writes the source's DigitalSourceType into an edited copy that has none.
+	 *
+	 * @param string $source Path or URL of the source image.
+	 * @param string $edited Path of the edited image.
+	 * @return bool Whether the type was written.
+	 */
+	public static function copy_digital_source_type( $source, $edited ) {
+		if ( '' !== self::read_tags( $edited )['type'] ) {
+			return false;
+		}
+
+		return self::write_digital_source_type( $edited, self::read_digital_source_type( $source ) );
+	}
+
+	/**
+	 * Reads the DigitalSourceType once per source.
 	 *
 	 * @param string $file Path or URL of the source image.
 	 * @return string The type, or '' when the file has none.
 	 */
 	private static function read_digital_source_type( $file ) {
-		return preg_match( '|^https?://|', $file )
-			? self::read_digital_source_type_from_url( $file )
-			: self::read_local_digital_source_type( $file );
+		if ( ! isset( self::$source_types[ $file ] ) ) {
+			self::$source_types[ $file ] = preg_match( '|^https?://|', $file )
+				? self::read_digital_source_type_from_url( $file )
+				: self::read_local_digital_source_type( $file );
+		}
+
+		return self::$source_types[ $file ];
 	}
 
 	/**

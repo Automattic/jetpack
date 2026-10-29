@@ -16,6 +16,7 @@ use WP_Error;
 use WP_Image_Editor;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/media/ai-marker-image-editor.php';
+require_once __DIR__ . '/fixtures/log-upload.php';
 
 /**
  * Runs the editor against fake exiftool and c2patool scripts, so the tests need neither tool.
@@ -60,10 +61,18 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	private $downloaded;
 
 	/**
+	 * URL download_url() fetched, when a test mocks the download.
+	 *
+	 * @var string
+	 */
+	private $requested_url;
+
+	/**
 	 * Keeps real tools and Imagick out of the tests.
 	 */
 	public function set_up() {
 		parent::set_up();
+		$GLOBALS['jetpack_wpcom_ai_marker_log_uploads'] = array();
 
 		add_filter( 'jetpack_wpcom_ai_marker_tool_path', '__return_empty_string' );
 		add_filter(
@@ -370,6 +379,141 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( 'write-failed' ), $this->stats );
 	}
 
+	public function test_an_image_edited_in_the_browser_gets_the_type_from_the_source_c2pa() {
+		$this->fake_exiftool( '', 0, true );
+		$this->fake_c2patool( array( 'manifests' => array( 'a' => self::manifest( self::AI_MARKER ) ) ) );
+		$source = $this->jpeg();
+		$edited = $this->jpeg();
+
+		$metadata = $this->filter_edited_image_metadata( $source, $edited );
+
+		$this->assertSame( array( $edited, $source ), $this->read_paths() );
+		$this->assertSame( array( '-m', '-q', '-overwrite_original', self::WRITE_ARG . self::AI_MARKER, $edited ), $this->calls( 'exiftool' )[2] );
+		$this->assertSame( wp_filesize( $edited ), $metadata['filesize'] );
+		$this->assertSame( array( 'from-c2pa', 'written' ), $this->stats );
+		$this->assertSame(
+			array(
+				array(
+					array(
+						'file' => $edited,
+						'type' => 'image/jpeg',
+					),
+					false,
+				),
+			),
+			$GLOBALS['jetpack_wpcom_ai_marker_log_uploads']
+		);
+	}
+
+	public function test_an_edited_image_that_has_a_type_is_left_alone() {
+		$this->fake_exiftool( self::CAMERA );
+		$edited = $this->jpeg();
+
+		$metadata = $this->filter_edited_image_metadata( $this->jpeg(), $edited );
+
+		$this->assertSame( array( $edited ), $this->read_paths() );
+		$this->assertSame( array(), $this->written_types() );
+		$this->assertSame( 1, $metadata['filesize'] );
+		$this->assertSame( array(), $GLOBALS['jetpack_wpcom_ai_marker_log_uploads'] );
+	}
+
+	public function test_an_edited_image_whose_source_has_no_type_is_left_alone() {
+		$this->fake_exiftool( '' );
+
+		$metadata = $this->filter_edited_image_metadata( $this->jpeg(), $this->jpeg() );
+
+		$this->assertSame( array(), $this->written_types() );
+		$this->assertSame( 1, $metadata['filesize'] );
+	}
+
+	public function test_an_edited_image_keeps_its_filesize_when_exiftool_cannot_write() {
+		$this->fake_exiftool( '', 1, true );
+		$this->fake_c2patool( array( 'manifests' => array( 'a' => self::manifest( self::AI_MARKER ) ) ) );
+
+		$metadata = $this->filter_edited_image_metadata( $this->jpeg(), $this->jpeg() );
+
+		$this->assertSame( 1, $metadata['filesize'] );
+		$this->assertSame( array( 'from-c2pa', 'write-failed' ), $this->stats );
+		$this->assertSame( array(), $GLOBALS['jetpack_wpcom_ai_marker_log_uploads'] );
+	}
+
+	/**
+	 * WordPress.com adds a private site's key to the URL through load_image_to_edit_attachmenturl.
+	 */
+	public function test_an_edited_image_reads_a_source_that_is_not_on_this_host_by_url() {
+		$this->fake_exiftool( '', 0, true );
+		$this->fake_c2patool( array( 'manifests' => array( 'a' => self::manifest( self::AI_MARKER ) ) ) );
+		$this->mock_download( $this->jpeg() );
+		add_filter(
+			'load_image_to_edit_attachmenturl',
+			function ( $url ) {
+				return add_query_arg( 'key', 'private', $url );
+			}
+		);
+
+		$this->filter_edited_image_metadata( $this->temp_path( 'jpeg' ), $this->jpeg() );
+
+		$this->assertStringEndsWith( '?key=private', $this->requested_url );
+		$this->assertSame( array( 'remote-source', 'from-c2pa', 'written' ), $this->stats );
+		$this->assertSame( array( self::AI_MARKER ), $this->written_types() );
+	}
+
+	/**
+	 * Core's edit endpoint applies the hook after the editor has read the same source.
+	 */
+	public function test_the_edit_hook_reuses_the_editors_read_of_the_source() {
+		$this->fake_exiftool( '' );
+		$source = $this->jpeg();
+		$edited = $this->temp_path( 'jpeg' );
+		wp_get_image_editor( $source )->save( $edited );
+
+		$this->filter_edited_image_metadata( $source, $edited );
+
+		$this->assertSame( array( $source, $edited ), $this->read_paths() );
+	}
+
+	public function test_skips_an_edited_image_that_is_not_on_this_host() {
+		$this->fake_exiftool( self::AI_MARKER );
+
+		$metadata = $this->filter_edited_image_metadata( $this->jpeg(), $this->temp_path( 'jpeg' ) );
+
+		$this->assertSame( array(), $this->calls( 'exiftool' ) );
+		$this->assertSame( array( 'filesize' => 1 ), $metadata );
+	}
+
+	/**
+	 * Applies wp_edited_image_metadata to a new attachment at $edited made from one at $source.
+	 *
+	 * @param string $source Path of the source image.
+	 * @param string $edited Path of the edited image.
+	 * @return array The filtered metadata.
+	 */
+	private function filter_edited_image_metadata( $source, $edited ) {
+		return apply_filters(
+			'wp_edited_image_metadata',
+			array( 'filesize' => 1 ),
+			$this->attachment( $edited ),
+			$this->attachment( $source )
+		);
+	}
+
+	/**
+	 * Creates a JPEG attachment for the file at $path.
+	 *
+	 * @param string $path Path of the image.
+	 * @return int The attachment ID.
+	 */
+	private function attachment( $path ) {
+		return wp_insert_attachment(
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_status'    => 'inherit',
+				'post_title'     => wp_basename( $path ),
+			),
+			$path
+		);
+	}
+
 	/**
 	 * Fakes exiftool: a read reports $type and maybe a C2PA box, a write exits with $write_status.
 	 *
@@ -516,31 +660,34 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	private function mock_download( $source ) {
 		add_filter(
 			'pre_http_request',
-			function ( $response, $args ) use ( $source ) {
+			function ( $response, $args, $url ) use ( $source ) {
 				if ( null === $source ) {
 					return new WP_Error( 'http_request_failed', 'Offline.' );
 				}
-				$this->downloaded = $args['filename'];
+				$this->requested_url = $url;
+				$this->downloaded    = $args['filename'];
 				copy( $source, $args['filename'] );
 
 				return array( 'response' => array( 'code' => 200 ) );
 			},
 			10,
-			2
+			3
 		);
 	}
 
 	/**
-	 * GD reads URLs with file_get_contents(), which tests can't mock, so load from disk, then set a URL.
+	 * GD reads URLs with file_get_contents(), which tests can't mock, so load from disk, then set a
+	 * URL the editor hasn't cached.
 	 *
 	 * @return WP_Image_Editor
 	 */
 	private function editor_loaded_by_url() {
 		$editor = wp_get_image_editor( $this->jpeg() );
+		$url    = 'https://example.files.wordpress.com/2026/10/ai-' . wp_generate_password( 12, false ) . '.jpeg';
 		(
 			/** @phan-closure-scope \WP_Image_Editor */
-			function () {
-				$this->file = 'https://example.files.wordpress.com/2026/10/ai.jpeg';
+			function () use ( $url ) {
+				$this->file = $url;
 			}
 		)->call( $editor );
 
