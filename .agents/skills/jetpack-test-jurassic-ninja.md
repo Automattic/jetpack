@@ -140,13 +140,13 @@ browser or the context-a8c tools (`connect-jetpack`, `add-jetpack-products`) ins
 Test key auth once:
 
 ```bash
-ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new {domain}@ssh.atomicsites.net exit 2>&1; echo "SSH_EXIT=$?"
+ssh -o BatchMode=yes -o ConnectTimeout=60 -o StrictHostKeyChecking=accept-new {domain}@ssh.atomicsites.net exit 2>&1; echo "SSH_EXIT=$?"
 ```
 
 Where `{domain}` is the domain of the target site (e.g. `foo.jurassic.ninja`). Always use
 `ssh.atomicsites.net`: the stanza below doesn't cover the `sftp.wp.com` host in `list-sites`'
 `ssh_command`. The key may need the user's approval on their device for each use, so an SSH
-call can sit waiting on them; if it hangs, ask the user rather than rerunning it.
+call can sit waiting on them.
 
 Every key-auth `ssh` uses `-o BatchMode=yes`, and every key-auth rsync sets
 `RSYNC_RSH='ssh -o BatchMode=yes'`: without it, ssh with no TTY falls through to password
@@ -155,13 +155,22 @@ prompts and burns failed attempts toward the lockout below.
 **If `SSH_EXIT=0`:** set `SSH_OK=true`. **Do not fetch the site password** — pulling it into
 the transcript is an avoidable credential leak.
 
-**If the output says `Permission denied`:** key auth was refused. Don't retry it. Check
-whether the stanza below is in effect with `ssh -G ssh.atomicsites.net | grep -i '^proxyjump'`
-(it prints `proxyjump proxy.automattic.com` when it is). If it is, tell the user key auth was
-refused even with the stanza in place. The likely cause is that this machine's key isn't the
-first SSH key in Mission Control, the only one a JN site syncs, at creation. Reordering or
-removing keys there helps only sites created afterwards; for now, use the password. If the
-stanza isn't in effect, show it:
+**If it fails:** don't loop on it. Check whether the stanza below is in effect with
+`ssh -G ssh.atomicsites.net | grep -i '^proxyjump'` (it prints
+`proxyjump proxy.automattic.com` when it is).
+
+- **Stanza in effect, `@ssh.atomicsites.net: Permission denied` or `Too many authentication
+  failures`:** key auth was refused. Tell the user so. When an Automattician creates a site
+  while signed in to JN, it copies only their first SSH key in Mission Control, so a likely
+  cause is that this machine's key isn't first. Reordering keys there helps only sites
+  created afterwards. Whether `provision-site` sites get keys at all is unknown. For now, use
+  the password.
+- **Stanza in effect, `agent refused operation` or a timeout:** the key approval on the user's
+  device was probably missed or declined. Ask the user to approve, then run the check once
+  more.
+- **Stanza in effect, any other error** (including a denial from `proxy.automattic.com`):
+  report it and stop, since a password login goes through the same proxy.
+- **Stanza not in effect:** show it, whatever the error, and use the password:
 
 > SSH key authentication to `ssh.atomicsites.net` failed. The documented setup for
 > Automatticians is to add this near the **top** of `~/.ssh/config`, above any `Host *` block:
@@ -175,11 +184,8 @@ stanza isn't in effect, show it:
 >
 > For now, I'll use the site password instead.
 
-**Any other failure** (timeout, proxy or connection error) isn't a key refusal: report it and
-stop, since a password login would fail the same way.
-
-After a refusal, set `SSH_OK=false` and **only now** fetch the site password, taking it from
-the returned config and never printing it:
+When falling back, set `SSH_OK=false` and **only now** fetch the site password, taking it
+from the returned config and never printing it:
 
 ```
 execute-tool: jurassic-ninja / list-sites (domain: <site domain>, include_passwords: true)
@@ -188,11 +194,13 @@ execute-tool: jurassic-ninja / list-sites (domain: <site domain>, include_passwo
 **Password auth locks out fast.** The third login within about 15 minutes is refused, and the
 site stays locked for at least 10 more. So:
 
-- Every rsync and every `ssh` or `expect` call is one login. Plan one rsync plus one shell
-  session per site: chain commands, or put the work in one `wp eval-file`. Anything more
-  waits out the window, or ask the user.
+- Every rsync and every `ssh` or `expect` call is one login, so the budget is two logins per
+  site: plan one rsync plus one shell session. Chain commands, or base64 a script and run it
+  with one `wp eval-file` or `bash`. Anything more waits out the window, or ask the user.
 - Pass `-o NumberOfPasswordPrompts=1 -o PubkeyAuthentication=no` to ssh, and set them in
   `RSYNC_RSH` for rsync (step 4); otherwise ssh tries the password three times per login.
+  `RSYNC_RSH` has no effect when `RSYNC_PROXY_SOCKET` is set; don't use the password then.
+- Substitute the password inside single quotes, writing any `'` in it as `'\''`.
 - After a refusal or lockout, stop. Wait at least 10 minutes, never retry in a loop, and tell
   the user if it blocks the task.
 
@@ -219,16 +227,17 @@ JN_PW='<JN_PASSWORD>' expect -c '
 set timeout 120
 log_user 0
 spawn ssh -o StrictHostKeyChecking=accept-new -o PubkeyAuthentication=no -o NumberOfPasswordPrompts=1 -T {domain}@ssh.atomicsites.net {cd /srv/htdocs && wp plugin list}
-expect -re "assword:" { send -- "$env(JN_PW)\r"; log_user 1 } timeout { puts "TIMEOUT"; exit 1 } eof { puts "NO_PROMPT"; exit 1 }
-set timeout -1
-expect eof
+expect -re "assword:" { send -- "$env(JN_PW)\r"; log_user 1 } timeout { puts "TIMEOUT"; exit 1 } eof { puts "NO_PROMPT: $expect_out(buffer)"; exit 1 }
+set timeout 600
+expect -re "assword:" { puts "REPROMPT"; exit 1 } timeout { puts "TIMEOUT"; exit 1 } eof
 catch wait result
 exit [lindex $result 3]
 '; echo "SSH_EXIT=$?"
 ```
 
-A non-zero `SSH_EXIT` with `Permission denied` in the output is a refused login: stop, per
-Check 6.
+`TIMEOUT`, `NO_PROMPT`, `REPROMPT` or `Permission denied` means the login failed: stop, per
+Check 6, rather than rerunning it. Any other non-zero `SSH_EXIT` is the remote command
+failing, after a login that still counts. Raise `timeout 600` for longer remote commands.
 
 Notes that save time:
 
