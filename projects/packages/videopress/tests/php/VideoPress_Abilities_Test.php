@@ -128,14 +128,25 @@ class VideoPress_Abilities_Test extends BaseTestCase {
 		update_option( 'videopress_abilities_enabled', true );
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		VideoPress_Abilities::init();
+		$previous_server           = $GLOBALS['wp_rest_server'] ?? null;
+		$GLOBALS['wp_rest_server'] = new \WP_REST_Server();
+		$controller                = new \WP_REST_Abilities_V1_Run_Controller();
+		add_action( 'rest_api_init', array( $controller, 'register_routes' ) );
+		do_action( 'rest_api_init' );
 		try {
 			$ability = wp_get_ability( 'videopress/get-settings' );
 			$this->assertNotNull( $ability );
+			$request  = new \WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/videopress/get-settings/run' );
+			$response = rest_get_server()->dispatch( $request );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertSame( Data::get_videopress_settings(), $response->get_data() );
 			$this->assertSame( Data::get_videopress_settings(), $ability->execute( array() ) );
 			$this->assertInstanceOf( \WP_Error::class, $ability->execute( array( 'site_id' => 42 ) ) );
 			wp_set_current_user( 0 );
 			$this->assertInstanceOf( \WP_Error::class, $ability->execute( array() ) );
 		} finally {
+			remove_action( 'rest_api_init', array( $controller, 'register_routes' ) );
+			$GLOBALS['wp_rest_server'] = $previous_server;
 			wp_unregister_ability( 'videopress/get-settings' );
 			wp_unregister_ability_category( 'videopress' );
 		}

@@ -68,6 +68,7 @@ class VideoPress_Abilities extends Registrar {
 				'description'         => __( 'Return effective VideoPress site settings and host type. This does not change settings or require an active VideoPress module.', 'jetpack-videopress-pkg' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
+					'default'              => array(),
 					'additionalProperties' => false,
 				),
 				'output_schema'       => array(

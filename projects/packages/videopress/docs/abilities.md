@@ -26,7 +26,7 @@ The settings read accepts an empty object and rejects unknown input fields. It p
 
 This ability is read-only and idempotent. It opts into REST with `meta.show_in_rest` and MCP with `meta.mcp.public`; discovery does not bypass its permission callback. The execution callback also checks permission for direct PHP callers.
 
-With authenticated administrator credentials, discover the `videopress` category at `/wp-json/wp-abilities/v1/abilities?category=videopress` and execute with `GET /wp-json/wp-abilities/v1/videopress/get-settings/run`. MCP clients use the installed adapter's discovery and execution tools.
+With authenticated administrator credentials, discover the `videopress` category at `/wp-json/wp-abilities/v1/abilities?category=videopress` and execute with `GET /wp-json/wp-abilities/v1/abilities/videopress/get-settings/run`. MCP clients use the installed adapter's discovery and execution tools.
 
 ## Incremental delivery
 
