@@ -76,42 +76,21 @@ export const WithComparison: Story = {
 	parameters: { reportParams: getDefaultQueryParams( true ) },
 };
 
+// Six rows fill the card; a seventh would drop out of view.
+const BAR_ROWS: LeaderboardRowInput[] = [
+	...ROWS.slice( 0, 4 ),
+	{ id: '6', label: 'Relaunch Teaser', value: 280, previousValue: -150 },
+	{ id: '7', label: 'Refunded Workshop', value: -450, previousValue: 200 },
+];
+
 export const Bars: Story = {
-	args: { variant: 'bars' },
+	args: { variant: 'bars', rows: BAR_ROWS },
 };
 
 export const BarsWithComparison: Story = {
-	args: { variant: 'bars', status: { ...READY, hasComparison: true } },
-	parameters: { reportParams: getDefaultQueryParams( true ) },
-};
-
-const NEGATIVE_ROWS: LeaderboardProps[ 'rows' ] = [
-	{ id: 'direct', label: 'Direct', value: 4200, previousValue: 3800 },
-	{ id: 'search', label: 'Search', value: 2600, previousValue: 2900 },
-	{ id: 'promo', label: 'Spring promo', value: 650, previousValue: -300 },
-	{ id: 'affiliate', label: 'Affiliate', value: -900, previousValue: 400 },
-];
-
-export const WithNegativeValues: Story = {
-	args: {
-		rows: NEGATIVE_ROWS,
-		status: { ...READY, hasComparison: true },
-	},
-	parameters: {
-		reportParams: getDefaultQueryParams( true ),
-		docs: {
-			description: {
-				story:
-					'In the list layout a negative value draws an empty bar, so every bar still starts under its label. The value and the change keep their sign.',
-			},
-		},
-	},
-};
-
-export const BarsWithNegativeValues: Story = {
 	args: {
 		variant: 'bars',
-		rows: NEGATIVE_ROWS,
+		rows: BAR_ROWS,
 		status: { ...READY, hasComparison: true },
 	},
 	parameters: {
