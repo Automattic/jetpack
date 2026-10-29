@@ -225,7 +225,7 @@ type LeaderboardEntryFields = {
 	previousShare?: number;
 
 	/**
-	 * Percentage change. Derived from the values when omitted. Unset when the row has no previous value, or the previous value is zero and the current value is not. A passed value wins.
+	 * Percentage change. Derived from the values when omitted; a passed value wins.
 	 */
 	delta?: number;
 

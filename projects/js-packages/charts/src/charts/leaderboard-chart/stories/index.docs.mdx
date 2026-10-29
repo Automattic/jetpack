@@ -313,7 +313,7 @@ An entry that omits `currentShare`, `previousShare` or `delta` gets them from `c
 
 - Shares are `value / max * 100`. `max` is the largest absolute value across all rows, so both periods share one scale. Previous values count toward `max` only when comparison bars draw (`withComparison` without `withOverlayLabel`).
 - `delta` is the change from `previousValue` as a percentage of its absolute value. It stays unset, and the row shows the unavailable placeholder, when the entry has no `previousValue` or `previousValue` is `0` and `currentValue` is not.
-- A value you pass wins over the derived one, field by field. Pass `currentShare` and `previousShare` for bars sized against something other than the largest row, such as a share of an external total.
+- A value you pass wins over the derived one, field by field. Pass `currentShare` and `previousShare` for bars sized against something other than the largest row, such as a share of an external total. Pass both shares or neither: a passed share and a derived one sit on different scales.
 
 <Source
 	language="tsx"

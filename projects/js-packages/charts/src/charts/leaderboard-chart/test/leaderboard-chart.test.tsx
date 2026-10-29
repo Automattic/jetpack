@@ -187,8 +187,8 @@ describe( 'LeaderboardChart', () => {
 	} );
 
 	it.each( [
-		[ 'comparison bars draw', false, 'calc(50%' ],
-		[ 'the overlay label hides comparison bars', true, 'calc(100%' ],
+		[ 'comparison bars draw', false, /^calc\(50%/ ],
+		[ 'the overlay label hides comparison bars', true, /^calc\(100%/ ],
 	] )( 'sizes the current bar against the max when %s', ( _, withOverlayLabel, expected ) => {
 		const data = [
 			{ id: 'a', label: 'A', currentValue: 50, previousValue: 100 },
@@ -198,9 +198,7 @@ describe( 'LeaderboardChart', () => {
 			<LeaderboardChart data={ data } withComparison withOverlayLabel={ withOverlayLabel } />
 		);
 
-		expect( screen.getAllByTestId( 'leaderboard-chart-bar' )[ 0 ].style.width ).toMatch(
-			new RegExp( `^${ expected.replace( '(', '\\(' ) }` )
-		);
+		expect( screen.getAllByTestId( 'leaderboard-chart-bar' )[ 0 ].style.width ).toMatch( expected );
 	} );
 
 	it( 'shows custom label when provided', () => {
