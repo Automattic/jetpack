@@ -233,7 +233,7 @@ export interface MetricTabsChartProps {
 	 * Drawn in the plot, in place of the chart, for a metric with no non-zero reading in either period, so a window without data does not read as a flat zero line. The tabs stay, showing their zeros. Omit to draw that line.
 	 */
 	empty?: ReactNode;
-	/** Bars only: start the previous period shown or hidden, and let the reader toggle it from the legend. Each metric's chart reads it when it mounts. */
+	/** Bars only; see `ComparativeBarChart`. Each metric's chart reads it when it mounts. */
 	defaultPreviousPeriodShown?: boolean;
 	/** Bars only: called when the reader shows or hides the previous period from the legend. */
 	onPreviousPeriodShownChange?: ( shown: boolean ) => void;
