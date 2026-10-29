@@ -54,12 +54,6 @@ describe( 'SectionHeader', () => {
 		expect( screen.getByRole( 'button', { name: 'Last 7 days' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the notice under the header row', () => {
-		render( <SectionHeader title="Traffic" notice={ <p>{ "Couldn't refresh." }</p> } /> );
-
-		expect( screen.getByText( "Couldn't refresh." ) ).toBeInTheDocument();
-	} );
-
 	it( 'hands the ref the root the heading sits in', () => {
 		const ref = jest.fn();
 

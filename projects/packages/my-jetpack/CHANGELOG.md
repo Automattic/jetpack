@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.14.0] - 2026-10-28
+### Added
+- Let people pick the Overview v1 Stats period and step through earlier periods, shown only while the Overview v1 feature flag is on. [#54106]
+- Overview: Type out the welcome heading and fade the sections in on first load, behind the `my-jetpack-overview-v1` flag. [#54104]
+
+### Changed
+- Header: Keep the tabs and the divider under them in view while scrolling, behind the `my-jetpack-header-controls` flag. [#54105]
+- Modules: Open supported Modules links in Features. [#53992]
+- Overview: Show skeletons for the Stats totals and chart while they load. [#54100]
+- Protect card: Show the firewall as on where the host provides its own. [#53954]
+- Rename the `jetpack_my_jetpack_feature_upgrade` filter to `jetpack_feature_upgrade`, which can also change a feature's manage link. [#54068]
+- Setup wizard: Start the connection with the standard my_jetpack_onboarding entry point, so WordPress.com shows its unified connection screen. This is behind the default-off `my-jetpack-onboarding-wizard` flag. [#54112]
+- Show shared header controls by default in My Jetpack and the modern Boost dashboard, with an avatar, connection status, and access to connection and plan details. [#54225]
+- Stats: Reuse visit counts loaded in the last minute instead of fetching them again. [#54154]
+- Tabs: Build the tab bar with the WordPress UI Tabs component. [#54109]
+- Update package dependencies. [#54118]
+
+### Fixed
+- Backup: Keep the dashboard available after a Jetpack Pro plan expires. [#54108]
+- Features: Bring the first results into view after changing the filter or search while scrolled down. [#54201]
+- Features tab: Let administrators who can manage Jetpack modules but not plugins switch modules on and off in bulk. [#54033]
+- Fix a fatal error when activating a Jetpack plugin beside an older one. [#54012]
+- Overview: Keep the Stats chart line at or above 0 before a sharp rise, while the Overview v1 feature flag is on. [#54199]
+- Overview: Name the Stats period dropdown for screen readers. [#54209]
+- Protect: Fix the URL of the upgrade screen opened from the Protect details page. [#54205]
+- Protect: Use the Protect page's Scan plan check, so WordPress.com plans without Scan's UI are offered the upgrade. [#54071]
+- Record the right previous tab in tab click analytics when arrow keys switch tabs in quick succession. [#54217]
+- Return to the tab you came from with the back link on product upgrade screens. [#54101]
+- Search: Show the fallback starting price per month, billed yearly, instead of $100 a month on the Search upgrade page when prices cannot be loaded. [#54024]
+- Show no paid plan price instead of $0 and NaN on upgrade pages with one price per plan, such as Stats, Backup, Social and VideoPress, when prices cannot be loaded. [#54024]
+
 ## [6.13.0] - 2026-10-26
 ### Added
 - Add a "What's new in Jetpack?" section with recent Jetpack.com blog posts to the Overview, shown only while the Overview v1 feature flag is on. [#53629]
@@ -3135,6 +3166,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.13.0...6.14.0
 [6.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.12.0...6.13.0
 [6.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.11.0...6.12.0
 [6.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.10.0...6.11.0

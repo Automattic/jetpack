@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-seo",
-	"version": "0.10.1",
+	"version": "0.10.2",
 	"private": true,
 	"description": "Jetpack SEO — the visibility command center for WordPress sites in the agentic web.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/seo/#readme",
@@ -42,6 +42,7 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@automattic/request-external-access": "1.0.1",
+		"@wordpress/admin-ui": "2.12.0",
 		"@wordpress/api-fetch": "7.57.0",
 		"@wordpress/components": "42.0.0",
 		"@wordpress/core-data": "8.2.0",

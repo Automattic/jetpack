@@ -20,9 +20,9 @@
 	justify-content: space-between;
 	gap: var(--wpds-dimension-gap-lg);
 
-	/* Match the row text: the focus-ring row inset, plus the label padding. */
+	/* Match the overlay row text: focus-ring reserve plus label inset. */
 	padding-inline:
-		calc(var(--wpds-border-width-focus) + var(--wpds-dimension-padding-sm))
+		calc(var(--wpds-border-width-focus) + var(--a8c-charts-dimension-leaderboard-label-inset))
 		var(--wpds-border-width-focus);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: var(--wpds-typography-font-size-xs);

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.2] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
 ## [0.13.1] - 2026-10-26
 ### Fixed
 - Stop telling editors and authors that PayPal is disconnected when they simply do not manage the connection, and stop offering them a reconnect flow they cannot complete. [#53793]
@@ -441,6 +445,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.13.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.12.2...v0.13.0
 [0.12.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.12.1...v0.12.2

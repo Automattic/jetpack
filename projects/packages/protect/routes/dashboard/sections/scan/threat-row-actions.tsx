@@ -1,8 +1,17 @@
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
+import { FixDeleteModal, getDeleteFixTitle } from './fix-delete-confirmation';
 import { getSoftwareActionLabels } from './labels';
-import { fixThreats, ignoreThreats, unignoreThreat, useGetThreatBusy } from './threat-actions';
+import { useCanIgnore } from './store';
+import {
+	fixThreats,
+	ignoreThreats,
+	isDeleteFix,
+	refocusRow,
+	unignoreThreat,
+	useGetThreatBusy,
+} from './threat-actions';
 import type { ScanThreat } from './types';
 import type { Action } from '@wordpress/dataviews';
 
@@ -11,32 +20,19 @@ type LinkKey = 'update' | 'deactivate' | 'details';
 type OpenThreat = ( item: ScanThreat ) => void;
 
 /**
- * Focus a threat's row when focus was lost, as when the button that started its action goes away.
- *
- * @param item - The threat.
- */
-function refocusRow( item: ScanThreat ) {
-	const title = Array.from( document.querySelectorAll< HTMLElement >( '[data-threat-id]' ) ).find(
-		element => element.dataset.threatId === String( item.id )
-	);
-	const { activeElement, body } = title?.ownerDocument ?? {};
-	if ( title && ( ! activeElement || activeElement === body ) ) {
-		title.focus();
-	}
-}
-
-/**
  * A row's DataViews actions: primary ones show as buttons without hovering, and the ⋯ menu lists them all.
  *
- * @param open    - Opens a threat in the inspector.
- * @param canAct  - Whether the site's plan can fix and ignore threats.
- * @param getBusy - Gets the action running on a threat.
- * @param onBulk  - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
+ * @param open      - Opens a threat in the inspector.
+ * @param canAct    - Whether the site's plan can fix and ignore threats.
+ * @param canIgnore - Whether the host lets the site ignore threats.
+ * @param getBusy   - Gets the action running on a threat.
+ * @param onBulk    - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
  * @return The actions.
  */
 function getThreatRowActions(
 	open: OpenThreat,
 	canAct: boolean,
+	canIgnore: boolean,
 	getBusy: ReturnType< typeof useGetThreatBusy >,
 	onBulk?: ( items: ScanThreat[] ) => void
 ): Action< ScanThreat >[] {
@@ -62,6 +58,8 @@ function getThreatRowActions(
 				setTimeout( () => refocusRow( item ) );
 			}
 		};
+	const canFix = ( item: ScanThreat ) =>
+		canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed';
 
 	const actions: Action< ScanThreat >[] = [
 		{
@@ -70,18 +68,26 @@ function getThreatRowActions(
 			isPrimary: true,
 			callback: ( [ item ] ) => item && open( item ),
 		},
+		// `auto-fix` and `auto-fix-delete` are mutually exclusive by isDeleteFix.
 		{
 			id: 'auto-fix',
 			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item =>
-				canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed',
+			isEligible: item => canFix( item ) && ! isDeleteFix( item ),
 			supportsBulk: !! onBulk,
 			// Not awaited: a fix can take minutes, and its snackbar follows it.
 			callback: locking( ( items, from ) => {
 				onBulk?.( items );
 				fixThreats( items, from );
 			} ),
+		},
+		{
+			id: 'auto-fix-delete',
+			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
+			isPrimary: true,
+			isEligible: item => canFix( item ) && isDeleteFix( item ),
+			modalHeader: ( [ item ] ) => ( item ? getDeleteFixTitle( item ) : '' ),
+			RenderModal: FixDeleteModal,
 		},
 		{
 			id: 'unignore',
@@ -118,7 +124,8 @@ function getThreatRowActions(
 		{
 			id: 'ignore',
 			label: __( 'Ignore', 'jetpack-protect-pkg' ),
-			isEligible: item => canAct && item.status !== 'ignored' && item.status !== 'fixed',
+			isEligible: item =>
+				canAct && canIgnore && item.status !== 'ignored' && item.status !== 'fixed',
 			supportsBulk: !! onBulk,
 			callback: locking( ( items, from ) => {
 				onBulk?.( items );
@@ -158,9 +165,10 @@ export function useThreatRowActions(
 	canAct: boolean,
 	onBulk?: ( items: ScanThreat[] ) => void
 ): Action< ScanThreat >[] {
+	const canIgnore = useCanIgnore();
 	const getBusy = useGetThreatBusy();
 	return useMemo(
-		() => getThreatRowActions( open, canAct, getBusy, onBulk ),
-		[ open, canAct, getBusy, onBulk ]
+		() => getThreatRowActions( open, canAct, canIgnore, getBusy, onBulk ),
+		[ open, canAct, canIgnore, getBusy, onBulk ]
 	);
 }

@@ -18,7 +18,10 @@ export const isHeaderControlsEnabled = (): boolean =>
 /**
  * The value for `AdminPage`'s `globalControls` outside My Jetpack: the element the controls render into.
  *
+ * @param trackingContext - The host page, sent as `context` on the controls' Tracks events, e.g. 'boost'.
  * @return The container, or null while the flag is off.
  */
-export const getHeaderControlsSlot = (): ReactNode =>
-	isHeaderControlsEnabled() ? <div id={ HEADER_CONTROLS_CONTAINER_ID } /> : null;
+export const getHeaderControlsSlot = ( trackingContext: string ): ReactNode =>
+	isHeaderControlsEnabled() ? (
+		<div id={ HEADER_CONTROLS_CONTAINER_ID } data-tracking-context={ trackingContext } />
+	) : null;

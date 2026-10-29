@@ -514,7 +514,7 @@ describe( 'ConnectionStatusCard', () => {
 
 			expect( mockRecordEvent ).toHaveBeenCalledWith(
 				'jetpack_connection_error_notice_link_click',
-				expect.objectContaining( { context: 'my-jetpack-connection-card' } )
+				expect.objectContaining( { context: 'my-jetpack', placement: 'connection_card' } )
 			);
 		} );
 

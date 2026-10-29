@@ -105,15 +105,17 @@ class Settings_App_Test extends BaseTestCase {
 	/**
 	 * The polyfills force-replace core script handles, so loading anywhere else breaks other screens.
 	 *
-	 * @param bool        $filter Whether the site opted in.
+	 * @param bool|null   $filter What the filter returns, or null to leave it unhooked.
 	 * @param string|null $page   The `page` query argument.
 	 * @param bool        $admin  Whether this is a wp-admin request.
 	 * @param bool        $loads  Expected result.
 	 * @dataProvider provide_requests
 	 */
 	#[DataProvider( 'provide_requests' )]
-	public function test_should_load_only_on_the_sharing_page_with_the_filter_on( bool $filter, ?string $page, bool $admin, bool $loads ): void {
-		add_filter( Settings_App::FILTER, $filter ? '__return_true' : '__return_false' );
+	public function test_should_load_only_on_the_sharing_page_unless_filtered_off( ?bool $filter, ?string $page, bool $admin, bool $loads ): void {
+		if ( null !== $filter ) {
+			add_filter( Settings_App::FILTER, $filter ? '__return_true' : '__return_false' );
+		}
 		$_GET = null === $page ? array() : array( 'page' => $page );
 		if ( ! $admin ) {
 			unset( $GLOBALS['current_screen'] );
@@ -125,15 +127,15 @@ class Settings_App_Test extends BaseTestCase {
 	/**
 	 * Requests and whether they load the app.
 	 *
-	 * @return array<string, array{bool, ?string, bool, bool}>
+	 * @return array<string, array{?bool, ?string, bool, bool}>
 	 */
 	public static function provide_requests(): array {
 		return array(
-			'opted in, Sharing page'    => array( true, 'sharing', true, true ),
+			'default, Sharing page'     => array( null, 'sharing', true, true ),
 			'filter off'                => array( false, 'sharing', true, false ),
-			'another settings page'     => array( true, 'jetpack', true, false ),
-			'no page argument'          => array( true, null, true, false ),
-			'not wp-admin (admin-menu)' => array( true, 'sharing', false, false ),
+			'another settings page'     => array( null, 'jetpack', true, false ),
+			'no page argument'          => array( null, null, true, false ),
+			'not wp-admin (admin-menu)' => array( null, 'sharing', false, false ),
 		);
 	}
 
@@ -188,10 +190,9 @@ class Settings_App_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Another settings page with the filter on loads nothing: no polyfills, no build, no script data.
+	 * Another settings page loads nothing: no polyfills, no build, no script data.
 	 */
 	public function test_maybe_load_does_nothing_on_another_page(): void {
-		add_filter( Settings_App::FILTER, '__return_true' );
 		$_GET['page'] = 'general';
 
 		Settings_App::maybe_load();

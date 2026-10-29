@@ -144,6 +144,30 @@ describe( 'buildRequestData', () => {
 		).toBe( '0' );
 	} );
 
+	// PayPal wants exactly one primary group even when no option is priced.
+	it( 'flags the first group primary when pricing is off', () => {
+		const item = buildRequestData(
+			{
+				...attributes,
+				variants: {
+					dimensions: [
+						{ _key: 'd1', name: 'Size', primary: false, options: [ { _key: 'o1', label: 'S' } ] },
+						{
+							_key: 'd2',
+							name: 'Color',
+							primary: false,
+							options: [ { _key: 'o2', label: 'Red' } ],
+						},
+					],
+				},
+			},
+			false
+		).line_items[ 0 ];
+
+		expect( item.variants.dimensions.map( dim => dim.primary ) ).toEqual( [ true, false ] );
+		expect( item.unit_amount ).toEqual( { currency_code: 'EUR', value: '9.99' } );
+	} );
+
 	it( 'sends the product price when the options do not carry their own', () => {
 		const item = buildRequestData(
 			{ ...attributes, variantsEnabled: false, variants: null },
