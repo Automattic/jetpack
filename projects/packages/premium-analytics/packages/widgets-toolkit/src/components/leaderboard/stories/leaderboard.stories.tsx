@@ -85,15 +85,33 @@ export const BarsWithComparison: Story = {
 	parameters: { reportParams: getDefaultQueryParams( true ) },
 };
 
+const NEGATIVE_ROWS: LeaderboardProps[ 'rows' ] = [
+	{ id: 'direct', label: 'Direct', value: 4200, previousValue: 3800 },
+	{ id: 'search', label: 'Search', value: 2600, previousValue: 2900 },
+	{ id: 'promo', label: 'Spring promo', value: 650, previousValue: -300 },
+	{ id: 'affiliate', label: 'Affiliate', value: -900, previousValue: 400 },
+];
+
+export const WithNegativeValues: Story = {
+	args: {
+		rows: NEGATIVE_ROWS,
+		status: { ...READY, hasComparison: true },
+	},
+	parameters: {
+		reportParams: getDefaultQueryParams( true ),
+		docs: {
+			description: {
+				story:
+					'In the list layout a negative value draws an empty bar, so every bar still starts under its label. The value and the change keep their sign.',
+			},
+		},
+	},
+};
+
 export const BarsWithNegativeValues: Story = {
 	args: {
 		variant: 'bars',
-		rows: [
-			{ id: 'direct', label: 'Direct', value: 4200, previousValue: 3800 },
-			{ id: 'search', label: 'Search', value: 2600, previousValue: 2900 },
-			{ id: 'promo', label: 'Spring promo', value: 650, previousValue: -300 },
-			{ id: 'affiliate', label: 'Affiliate', value: -900, previousValue: 400 },
-		],
+		rows: NEGATIVE_ROWS,
 		status: { ...READY, hasComparison: true },
 	},
 	parameters: {

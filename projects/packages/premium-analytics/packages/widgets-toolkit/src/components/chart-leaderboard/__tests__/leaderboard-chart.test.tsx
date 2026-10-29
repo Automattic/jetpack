@@ -51,6 +51,20 @@ describe( 'LeaderboardChart', () => {
 		).resolves.toHaveTextContent( '4,186 views' );
 	} );
 
+	it.each( [
+		[ 'clamps negative bars under an overlay label', true, 0 ],
+		[ 'diverges negative bars beside a label', false, 3 ],
+	] )( '%s', ( _, withOverlayLabel, divergingRows ) => {
+		renderChart( {
+			data: [ ...DATA, { id: 'refunds', label: 'Refunded', currentValue: -300 } ],
+			withOverlayLabel,
+		} );
+
+		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength(
+			divergingRows
+		);
+	} );
+
 	it( 'draws no header without columns', () => {
 		renderChart();
 
