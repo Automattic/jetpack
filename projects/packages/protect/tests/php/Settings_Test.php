@@ -158,6 +158,22 @@ class Settings_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_accepted_ip_lists_are_stored_escaped() {
+		// A host the firewall doesn't run on, so saving skips the rules rebuild, which needs a registered site.
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+
+		$result = self::save(
+			array(
+				'jetpack_waf_ip_allow_list' => '203.0.113.7&',
+				'jetpack_waf_ip_block_list' => '198.51.100.2&',
+			)
+		);
+
+		$this->assertNotInstanceOf( WP_Error::class, $result );
+		$this->assertSame( '203.0.113.7&amp;', get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ) );
+		$this->assertSame( '198.51.100.2&amp;', get_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ) );
+	}
+
 	public function test_module_a_filter_forces_on_reports_it_could_not_be_switched_off() {
 		Jetpack_Options::update_option( 'active_modules', array( 'protect' ) );
 		add_filter(
