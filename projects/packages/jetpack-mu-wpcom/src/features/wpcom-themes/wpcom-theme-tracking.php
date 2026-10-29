@@ -82,17 +82,18 @@ function wpcom_themes_tracks_get_origin() {
 	$referer      = wp_get_raw_referer();
 	$referer      = is_string( $referer ) ? $referer : '';
 	$referer_path = (string) wp_parse_url( $referer, PHP_URL_PATH );
+	wp_parse_str( (string) wp_parse_url( $referer, PHP_URL_QUERY ), $referer_query );
+
+	// On Simple, Add Themes is WordPress.com's own screen on themes.php.
+	$from_add_themes = substr( $referer_path, -strlen( 'theme-install.php' ) ) === 'theme-install.php'
+		|| ( substr( $referer_path, -strlen( '/themes.php' ) ) === '/themes.php' && ( $referer_query['page'] ?? '' ) === 'wpcom-install-theme' );
 
 	if ( $marker === 'marketplace-tab' ) {
 		return 'marketplace-tab';
 	}
 
-	if ( substr( $referer_path, -strlen( 'theme-install.php' ) ) === 'theme-install.php' ) {
-		wp_parse_str( (string) wp_parse_url( $referer, PHP_URL_QUERY ), $referer_query );
-
-		if ( ( $referer_query['browse'] ?? '' ) === 'wpcom' ) {
-			return 'marketplace-tab';
-		}
+	if ( $from_add_themes && ( $referer_query['browse'] ?? '' ) === 'wpcom' ) {
+		return 'marketplace-tab';
 	}
 
 	if ( $post_action === 'customize_save' || $customize === 'on' ) {
@@ -104,7 +105,7 @@ function wpcom_themes_tracks_get_origin() {
 	}
 
 	if ( $get_action === 'activate' ) {
-		if ( substr( $referer_path, -strlen( 'theme-install.php' ) ) === 'theme-install.php' ) {
+		if ( $from_add_themes ) {
 			return 'add-themes';
 		}
 

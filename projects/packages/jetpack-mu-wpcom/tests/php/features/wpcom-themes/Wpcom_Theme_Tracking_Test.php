@@ -67,6 +67,7 @@ class Wpcom_Theme_Tracking_Test extends \WorDBless\BaseTestCase {
 		$install = array( 'action' => 'install-theme' );
 		$preview = 'https://example.com/wp-admin/theme-install.php?theme=formwork';
 		$tab     = 'https://example.com/wp-admin/theme-install.php?browse=wpcom';
+		$simple  = 'https://example.com/wp-admin/themes.php?page=wpcom-install-theme';
 
 		return array(
 			'cli install'                   => array( 'cli', array( 'WP_CLI' ), array(), $install, '' ),
@@ -86,6 +87,9 @@ class Wpcom_Theme_Tracking_Test extends \WorDBless\BaseTestCase {
 			'rest api from tab referer'     => array( 'api', array( 'REST_API_REQUEST' ), array(), array(), $tab ),
 			'customizer flag'               => array( 'customizer', array(), array(), array( 'wp_customize' => 'on' ), '' ),
 			'activate from dashboard'       => array( 'other', array(), array( 'action' => 'activate' ), array(), 'https://example.com/wp-admin/index.php' ),
+			'activate from Simple preview'  => array( 'add-themes', array(), array( 'action' => 'activate' ), array(), $simple . '&theme=formwork' ),
+			'activate from Simple tab'      => array( 'marketplace-tab', array(), array( 'action' => 'activate' ), array(), $simple . '&browse=wpcom' ),
+			'activate from another page'    => array( 'themes', array(), array( 'action' => 'activate' ), array(), 'https://example.com/wp-admin/themes.php?page=other' ),
 		);
 	}
 }
