@@ -31,11 +31,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Firewall implements Dashboard_Section {
 
 	/**
-	 * The rule ID the firewall logs its own test under; matches `Waf_Self_Check::RULE_ID`.
-	 */
-	const SELF_CHECK_RULE_ID = -2;
-
-	/**
 	 * Headers a proxy names the visitor in. One that disagrees with the firewall's address means that address is the proxy's.
 	 */
 	const FORWARDING_HEADERS = array(
@@ -151,7 +146,7 @@ class Firewall implements Dashboard_Section {
 				// Not `Waf_Stats`' `thirty_days`, which spans 31 dates.
 				'blockedLast30Days' => $daily ? array_sum( array_column( $daily, 'count' ) ) : null,
 			),
-			self::get_test_summary( (int) $all )
+			self::get_test_summary()
 		);
 	}
 
@@ -188,25 +183,28 @@ class Firewall implements Dashboard_Section {
 	/**
 	 * Whether the firewall has blocked anything besides its own tests, and when it was last tested.
 	 *
-	 * The block log keeps about the last 100 rows, so an all-time count above that means real traffic was pruned.
+	 * The log covers blocks from before the firewall recorded whether any weren't tests, until they're pruned.
 	 *
-	 * @param int $all_time All-time blocked requests.
 	 * @return array{hasBlocked: bool, lastTestAt: string|null}
 	 */
-	private static function get_test_summary( $all_time ) {
+	private static function get_test_summary() {
 		global $wpdb;
+
+		// An older WAF package can't run the test, so nothing it logged is one.
+		$test_rule = class_exists( Waf_Self_Check::class ) ? Waf_Self_Check::RULE_ID : -2;
 
 		// The table doesn't exist until the firewall is first turned on.
 		$suppress = $wpdb->suppress_errors();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom table.
-		$row = $wpdb->get_row( $wpdb->prepare( "SELECT COUNT(*) AS total, SUM(rule_id = %d) AS tests, MAX(CASE WHEN rule_id = %d THEN timestamp END) AS last_test FROM {$wpdb->base_prefix}jetpack_waf_blocklog", self::SELF_CHECK_RULE_ID, self::SELF_CHECK_RULE_ID ) );
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT COUNT(*) AS total, SUM(rule_id = %d) AS tests, MAX(CASE WHEN rule_id = %d THEN timestamp END) AS last_test FROM {$wpdb->base_prefix}jetpack_waf_blocklog", $test_rule, $test_rule ) );
 		$wpdb->suppress_errors( $suppress );
 
-		$total = $row ? (int) $row->total : 0;
-		$tests = $row ? (int) $row->tests : 0;
+		$total    = $row ? (int) $row->total : 0;
+		$tests    = $row ? (int) $row->tests : 0;
+		$recorded = method_exists( Waf_Blocklog_Manager::class, 'has_blocked_requests' ) && Waf_Blocklog_Manager::has_blocked_requests();
 
 		return array(
-			'hasBlocked' => $total > $tests || $all_time > $total,
+			'hasBlocked' => $recorded || $total > $tests,
 			'lastTestAt' => $row && $row->last_test ? gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $row->last_test . ' UTC' ) ) : null,
 		);
 	}

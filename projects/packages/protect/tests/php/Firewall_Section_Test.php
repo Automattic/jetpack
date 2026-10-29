@@ -233,15 +233,19 @@ class Firewall_Section_Test extends BaseTestCase {
 	 * @dataProvider provide_blocklog_tables
 	 *
 	 * @param object|null $row          The block log summary row.
-	 * @param int         $all_time     All-time blocked requests.
+	 * @param int         $all_time     All-time blocked requests, tests included.
+	 * @param bool        $recorded     Whether the firewall recorded a block that wasn't a test.
 	 * @param bool        $has_blocked  The expected `hasBlocked`.
 	 * @param string|null $last_test_at The expected `lastTestAt`.
 	 */
 	#[DataProvider( 'provide_blocklog_tables' )]
-	public function test_tests_alone_dont_count_as_blocked_requests( $row, $all_time, $has_blocked, $last_test_at ) {
+	public function test_tests_alone_dont_count_as_blocked_requests( $row, $all_time, $recorded, $has_blocked, $last_test_at ) {
 		$stored = array(
 			Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT => (string) $all_time,
 		);
+		if ( $recorded ) {
+			$stored[ Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_HAS_BLOCKED ] = '1';
+		}
 		$tables = static function ( $rows, $query ) use ( $row, $stored ) {
 			if ( false !== strpos( $query, 'AS last_test FROM' ) ) {
 				return $row ? array( $row ) : array();
@@ -277,11 +281,12 @@ class Firewall_Section_Test extends BaseTestCase {
 		};
 
 		return array(
-			'only tests, past the last 10' => array( $row( 12, 12, '2026-10-09 16:54:03' ), 12, false, '2026-10-09T16:54:03Z' ),
-			'a real block among tests'     => array( $row( 12, 11, '2026-10-09 16:54:03' ), 12, true, '2026-10-09T16:54:03Z' ),
-			'real blocks pruned away'      => array( $row( 100, 100, '2026-10-09 16:54:03' ), 150, true, '2026-10-09T16:54:03Z' ),
-			'never tested'                 => array( $row( 3, 0, null ), 3, true, null ),
-			'no table yet'                 => array( null, 0, false, null ),
+			'only tests, past the last 10'           => array( $row( 12, 12, '2026-10-09 16:54:03' ), 12, false, false, '2026-10-09T16:54:03Z' ),
+			'a real block among tests'               => array( $row( 12, 11, '2026-10-09 16:54:03' ), 12, false, true, '2026-10-09T16:54:03Z' ),
+			'only tests, past the 100 the log keeps' => array( $row( 100, 100, '2026-10-09 16:54:03' ), 150, false, false, '2026-10-09T16:54:03Z' ),
+			'a recorded real block pruned away'      => array( $row( 100, 100, '2026-10-09 16:54:03' ), 150, true, true, '2026-10-09T16:54:03Z' ),
+			'never tested'                           => array( $row( 3, 0, null ), 3, false, true, null ),
+			'no table yet'                           => array( null, 0, false, false, null ),
 		);
 	}
 }
