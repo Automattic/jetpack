@@ -63,7 +63,7 @@ export default function PricingInterstitial( { slug } ) {
 	const bundleSlug = proIsOnSale ? preferredBundle : fallbackBundle;
 	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( bundleSlug );
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
+	const { onClickGoBack, backTo } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
@@ -413,14 +413,17 @@ export default function PricingInterstitial( { slug } ) {
 		} );
 	}, [ recordEvent, slug ] );
 
-	const handleGoBack = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_interstitial_go_back', {
-			product_slug: slug,
-		} );
+	const handleGoBack = useCallback(
+		event => {
+			recordEvent( 'jetpack_myjetpack_interstitial_go_back', {
+				product_slug: slug,
+			} );
 
-		// Call the original go back functionality
-		onClickGoBack();
-	}, [ recordEvent, slug, onClickGoBack ] );
+			// Call the original go back functionality
+			onClickGoBack( event );
+		},
+		[ recordEvent, slug, onClickGoBack ]
+	);
 
 	// If no config exists, fallback to old ProductInterstitial
 	if ( ! config ) {
@@ -436,7 +439,7 @@ export default function PricingInterstitial( { slug } ) {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ handleGoBack }
-					to={ MyJetpackRoutes.Features }
+					to={ backTo }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}

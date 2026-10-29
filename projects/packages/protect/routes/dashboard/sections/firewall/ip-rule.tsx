@@ -106,7 +106,7 @@ export default function IpRule( { data, name, editLabel, dialogTitle, currentIp 
 							</Text>
 						) }
 						{ saveFailed && data.error && (
-							<Text variant="body-sm" className="jp-protect-ip-rule__error" role="alert">
+							<Text variant="body-sm" className="jp-protect-card__error" role="alert">
 								{ data.error }
 							</Text>
 						) }

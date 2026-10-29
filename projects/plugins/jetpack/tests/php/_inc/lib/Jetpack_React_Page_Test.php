@@ -24,12 +24,18 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-settings-
 class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
-	public function test_modules_management_link_stays_classic_with_launch_flag_off() {
+	public function test_modules_management_link_defaults_to_features_and_allows_a_false_override() {
 		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		Initializer::register_feature_flags();
 
-		$this->assertSame( admin_url( 'admin.php?page=jetpack_modules' ), Initializer::get_modules_management_url() );
+		$this->assertSame( admin_url( 'admin.php?page=my-jetpack&modules_fallback=1#/features' ), Initializer::get_modules_management_url() );
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::MODULES_TO_FEATURES_FLAG, '__return_false' );
+		try {
+			$this->assertSame( admin_url( 'admin.php?page=jetpack_modules' ), Initializer::get_modules_management_url() );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::MODULES_TO_FEATURES_FLAG, '__return_false' );
+		}
 	}
 
 	public function test_classic_search_preserves_only_a_present_fallback_marker() {

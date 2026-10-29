@@ -342,6 +342,10 @@ class Waf_Runtime {
 		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE ) {
 			$protocol = isset( $_SERVER['SERVER_PROTOCOL'] ) ? wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) : 'HTTP';
 			header( $protocol . ' 403 Forbidden', true, $status_code );
+			if ( 'ip block list' === $reason ) {
+				// Plain English: in standalone mode WordPress, and so translation, is not loaded yet.
+				die( 'Access to this site from your IP address has been blocked. If you manage this site, please log in for additional information. Otherwise, contact the site owner.' );
+			}
 			die( "rule $rule_id - reason $reason" );
 		}
 	}

@@ -511,6 +511,39 @@ describe( 'FeaturesContent', () => {
 		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ 'a filter', 'hidden', 40, 1 ],
+		[ 'a search', 'hidden', 40, 1 ],
+		[ 'a filter', 'in view', 140, 0 ],
+	] )(
+		'after %s, with the start of the list %s, scrolls to it %d time(s)',
+		async ( trigger, _where, listTop, scrolls ) => {
+			const scrollIntoView = jest.fn();
+			Element.prototype.scrollIntoView = scrollIntoView;
+			// The toolbar is the one holding the search box; the list start is the only other box read.
+			const boxes = jest
+				.spyOn( HTMLElement.prototype, 'getBoundingClientRect' )
+				.mockImplementation( function ( this: HTMLElement ) {
+					// eslint-disable-next-line testing-library/no-node-access -- jsdom has no layout, so boxes are told apart by content.
+					const isToolbar = this.querySelector( 'input[type="search"]' ) !== null;
+					return ( isToolbar ? { top: 0, bottom: 100, height: 100 } : { top: listTop } ) as DOMRect;
+				} );
+			try {
+				renderAt( '/features' );
+				if ( trigger === 'a filter' ) {
+					await userEvent.click( screen.getByRole( 'button', { name: /^Available/ } ) );
+				} else {
+					await userEvent.type( screen.getByRole( 'searchbox', { name: 'Search features' } ), 's' );
+				}
+
+				expect( scrollIntoView ).toHaveBeenCalledTimes( scrolls );
+			} finally {
+				boxes.mockRestore();
+				delete ( Element.prototype as Partial< Element > ).scrollIntoView;
+			}
+		}
+	);
+
 	it( 'opens on the list when the URL asks for it', () => {
 		renderAt( '/features?view=list' );
 

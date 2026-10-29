@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Link, Stack } from '@wordpress/ui';
 import { useCallback, useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
@@ -8,27 +8,39 @@ import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpa
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useStatsVisits from '../../../hooks/use-stats-visits';
-import { getDetailedStatsHref, processStatsData, VISITS_OPTIONS } from '../../stats-section';
+import { getDetailedStatsHref, processStatsData } from '../../stats-section';
 import OverviewItem from '../overview-item';
 import useOverviewLoadEvent from '../overview-item/use-overview-load-event';
 import useStatusAction from '../overview-item/use-status-action';
 import OverviewStats from './overview-stats';
-import type { ProductCardComponent } from '../types';
+import { getStatsPeriodVisitsOptions } from './use-stats-period';
+import type { StatsPeriod } from './use-stats-period';
+import type { FC } from 'react';
 
-const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
+type StatsOverviewItemProps = {
+	admin: boolean;
+	period: Pick< StatsPeriod, 'days' | 'end' >;
+};
+
+const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) => {
 	const { blogID, isSiteConnected } = useMyJetpackConnection();
-	const { detail } = useProduct( PRODUCT_SLUGS.STATS );
+	const { detail, isLoading: isProductLoading } = useProduct( PRODUCT_SLUGS.STATS );
 	const { status, manageUrl } = detail || {};
 	const { premiumAnalyticsEnabled = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { recordEvent } = useAnalytics();
 	const isActive = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
+	const { days, end } = period;
+	const visitsOptions = useMemo(
+		() => getStatsPeriodVisitsOptions( { days, end } ),
+		[ days, end ]
+	);
 	const { data, isLoading, isFetching, isError, refetch } = useStatsVisits(
 		blogID,
 		isSiteConnected && isActive,
-		VISITS_OPTIONS
+		visitsOptions
 	);
-	const { counts, chartData } = useMemo( () => processStatsData( data ), [ data ] );
+	const { counts, chartData } = useMemo( () => processStatsData( data, days ), [ data, days ] );
 	const isRetrying = isError && isFetching;
 	const isStatsLoading = isLoading || isRetrying;
 	useOverviewLoadEvent( PRODUCT_SLUGS.STATS, isActive && isStatsLoading );
@@ -46,10 +58,12 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 
 	const detailedStatsHref = getDetailedStatsHref( manageUrl, premiumAnalyticsEnabled );
 
-	if ( isActive && ! isStatsLoading && ! isError ) {
+	// The status arrives with the products request, so the card shows its skeleton until then too.
+	if ( isProductLoading || ( isActive && ( isStatsLoading || ! isError ) ) ) {
 		return (
 			<Stack direction="column" gap="lg">
 				<OverviewStats
+					isLoading={ isProductLoading || isStatsLoading }
 					counts={ counts }
 					chartData={ chartData }
 					detailedStatsHref={ detailedStatsHref }
@@ -66,14 +80,16 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 		);
 	}
 
-	// The item stands in for the chart until there is data, as the chart's counts read 0 before it.
 	return (
 		<OverviewItem
 			slug={ PRODUCT_SLUGS.STATS }
 			admin={ admin }
-			label={ __( 'Views in the last 7 days', 'jetpack-my-jetpack' ) }
+			label={ sprintf(
+				/* translators: %d: number of days. */
+				_n( 'Views in the last %d day', 'Views in the last %d days', days, 'jetpack-my-jetpack' ),
+				days
+			) }
 			action={ isActive ? undefined : statusAction }
-			isLoading={ isActive && isStatsLoading }
 			error={
 				isActive && isError
 					? {
