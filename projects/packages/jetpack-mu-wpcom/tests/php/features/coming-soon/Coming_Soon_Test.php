@@ -290,4 +290,24 @@ class Coming_Soon_Test extends \WorDBless\BaseTestCase {
 
 		delete_option( 'wpcom_is_preview_site' );
 	}
+
+	/**
+	 * Share-link visitors see the banner on a preview site only.
+	 *
+	 * @return void
+	 */
+	public function test_share_link_banner_shows_only_on_a_preview() {
+		$render = function () {
+			ob_start();
+			render_share_link_banner();
+			return ob_get_clean();
+		};
+
+		$this->assertSame( '', $render(), 'Not a preview' );
+
+		update_option( 'wpcom_is_preview_site', 1 );
+		$this->assertStringContainsString( 'This is a preview site, powered by', $render() );
+
+		delete_option( 'wpcom_is_preview_site' );
+	}
 }

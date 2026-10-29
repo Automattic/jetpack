@@ -85,13 +85,17 @@ function is_accessed_by_valid_share_link( $share_code ) {
 }
 
 /**
- * Mark a Coming Soon site seen through a share link as a preview, so it can't stand in for a launched site.
+ * Mark an unpaid preview site seen through a share link as a preview, so it can't stand in for a bought site.
  *
- * The visitor can dismiss it for themselves; nobody can turn it off for everyone but by launching.
+ * Only for sites WordPress.com marks as previews (`wpcom_is_preview_site`); other Coming Soon
+ * sites' share links are unchanged. The visitor can dismiss it for themselves.
  *
  * @return void
  */
 function render_share_link_banner() {
+	if ( ! get_option( 'wpcom_is_preview_site' ) ) {
+		return;
+	}
 	$link = sprintf(
 		'<a href="%s" target="_blank" rel="noopener">%s</a>',
 		esc_url( 'https://wordpress.com/hosting/?utm_source=share_link_preview&utm_medium=referral&utm_campaign=preview_site_banner' ),
