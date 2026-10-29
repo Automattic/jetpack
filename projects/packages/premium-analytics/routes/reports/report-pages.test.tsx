@@ -50,6 +50,7 @@ jest.mock( './utm/config', () => ( {
 	getUtmFields: () => [],
 	getUtmTabLabel: () => 'Source / medium',
 	resolveSection: ( value: string | undefined ) => value ?? 'source-medium',
+	useBuildUrlAction: jest.requireActual( './utm/config/use-build-url-action' ).useBuildUrlAction,
 	useUtmReportRecords: jest.fn(),
 } ) );
 
