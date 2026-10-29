@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Stats;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WP_Query;
@@ -593,36 +594,50 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 	}
 
 	/**
-	 * Guards against pushes emitted outside _jpStatsFire().
+	 * What the gate does in a browser, as views counted, console warnings and an escaping error.
+	 *
+	 * @return array
 	 */
-	public function test_build_consent_gate_wraps_the_pushes() {
-		$gate = $this->invoke_build_consent_gate();
-
-		$this->assertStringContainsString( 'if ( window.wp_has_consent( "statistics" ) ) { _jpStatsFire(); }', $gate );
-		$this->assertStringContainsString( 'wp_listen_for_consent_change', $gate );
-		$this->assertStringContainsString( 'if ( event && event.detail && event.detail.statistics === "allow" ) { _jpStatsFire(); }', $gate );
-
-		$this->assertStringContainsString( 'DOMContentLoaded', $gate );
-		$this->assertStringContainsString( 'document.readyState', $gate );
-		$this->assertStringContainsString( 'wp_consent_type_defined', $gate );
-		$this->assertStringContainsString( 'window.addEventListener( "load", _jpStatsCheck, { once: true } );', $gate );
-
-		$this->assertSame( 1, substr_count( $gate, '_stq.push([ "view",' ) );
-		$this->assertSame( 1, preg_match( '/function _jpStatsFire\(\) \{(.*?)\n\}/s', $gate, $matches ) );
-		$this->assertStringContainsString( '_stq.push([ "view",', $matches[1] );
-		$this->assertStringNotContainsString( '_stq.push', str_replace( $matches[0], '', $gate ) );
+	public static function consent_gate_scenarios() {
+		return array(
+			'allowed before the page is ready'   => array( 'allowed before the page is ready', 1, 0, null ),
+			'denied, then allowed in the banner' => array( 'denied, then allowed in the banner', 1, 0, null ),
+			'consent API that loads only by the load event' => array( 'consent API that loads only by the load event', 1, 0, null ),
+			'consent API that never loads'       => array( 'consent API that never loads', 0, 0, null ),
+			'consent API that throws'            => array( 'consent API that throws', 0, 1, null ),
+			'stats sender that throws'           => array( 'stats sender that throws', 0, 0, 'stats sender' ),
+		);
 	}
 
 	/**
-	 * An unavailable or throwing client-side API must not fire the pixel.
+	 * Runs the gate under Node, since its behavior lives in the JavaScript, not in the PHP that prints it.
+	 *
+	 * @dataProvider consent_gate_scenarios
+	 * @param string      $scenario A scenario in consent-gate-harness.js.
+	 * @param int         $views    Views the gate should send.
+	 * @param int         $warnings Console warnings it should log.
+	 * @param string|null $error    The error that should escape it.
 	 */
-	public function test_build_consent_gate_fails_closed() {
-		$gate = $this->invoke_build_consent_gate();
+	#[DataProvider( 'consent_gate_scenarios' )]
+	public function test_consent_gate_in_a_browser( $scenario, $views, $warnings, $error ) {
+		if ( ! shell_exec( 'command -v node 2>/dev/null' ) ) {
+			$this->markTestSkipped( 'Node is unavailable.' );
+		}
+		$gate_file = tempnam( sys_get_temp_dir(), 'jp-stats-gate' );
+		file_put_contents( $gate_file, $this->invoke_build_consent_gate() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 
-		$this->assertStringContainsString( 'if ( typeof window.wp_has_consent !== "function" ) { return; }', $gate );
-		$this->assertSame( 1, preg_match( '/\} catch \( e \) \{(.*?)\n\t\}/s', $gate, $matches ) );
-		$this->assertStringNotContainsString( '_jpStatsFire', $matches[1] );
-		$this->assertStringContainsString( 'console.warn', $matches[1] );
+		$output = shell_exec( 'node ' . escapeshellarg( __DIR__ . '/consent-gate-harness.js' ) . ' ' . escapeshellarg( $gate_file ) . ' ' . escapeshellarg( $scenario ) . ' 2>&1' );
+		unlink( $gate_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+
+		$this->assertSame(
+			array(
+				'views'    => $views,
+				'warnings' => $warnings,
+				'error'    => $error,
+			),
+			json_decode( (string) $output, true ),
+			(string) $output
+		);
 	}
 
 	/**

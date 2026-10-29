@@ -196,16 +196,11 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	/**
 	 * Wrap the tracking pushes in a WP Consent API gate.
 	 *
-	 * The check runs in the browser because cached HTML is shared across visitors, deferred to
-	 * DOMContentLoaded (and re-run on the `wp_consent_type_defined` readiness event and on `load`,
-	 * for an API script an optimizer delayed) so a late-loading consent plugin is still honored. The
-	 * check is idempotent, and fails closed: an unavailable or throwing client-side API waits for a
-	 * consent-change event instead of firing.
+	 * It checks in the browser because cached HTML is shared across visitors, re-checks on
+	 * `wp_consent_type_defined` and `load` for a late consent plugin, and fails closed.
 	 *
-	 * `_jpStatsFire.done` is set before the pushes, not after, so the gate is at-most-once even
-	 * if a push throws. Retrying can't recover: the stats sender assigns the beacon `src` before
-	 * any of its fallible DOM work, so a later exception means the view was already counted and
-	 * a replay would double-count it.
+	 * `_jpStatsFire.done` is set before the pushes so a push that throws is never replayed: the
+	 * sender assigns the beacon `src` first, so that view was already counted.
 	 *
 	 * @access private
 	 * @param string $pushes The `_stq.push(...)` statements to gate.
@@ -221,11 +216,14 @@ function _jpStatsFire() {
 }
 function _jpStatsCheck() {
 	if ( typeof window.wp_has_consent !== "function" ) { return; }
+	var consented;
 	try {
-		if ( window.wp_has_consent( "statistics" ) ) { _jpStatsFire(); }
+		consented = window.wp_has_consent( "statistics" );
 	} catch ( e ) {
-		window.console && console.warn( "Jetpack Stats: wp_has_consent() threw, so this view was not counted.", e );
+		window.console && console.warn( "Jetpack Stats: wp_has_consent() threw, so Stats waits for a consent change.", e );
+		return;
 	}
+	if ( consented ) { _jpStatsFire(); }
 }
 document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
 	if ( event && event.detail && event.detail.statistics === "allow" ) { _jpStatsFire(); }
