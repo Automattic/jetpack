@@ -326,6 +326,31 @@ describe( 'FirewallOverviewCard', () => {
 			expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days57' );
 		} );
 
+		it( 'keeps the newest counts when an older read lands last', async () => {
+			const answers: Array< ( value: unknown ) => void > = [];
+			( apiFetch as unknown as jest.Mock ).mockImplementation(
+				() => new Promise( resolve => answers.push( resolve ) )
+			);
+			render( <FirewallOverviewCard { ...props } /> );
+			await tick();
+			await tick();
+
+			await act( async () => answers[ 1 ]( refreshed( 57 ) ) );
+			await act( async () => answers[ 0 ]( refreshed( 56 ) ) );
+
+			expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days57' );
+		} );
+
+		it( 'keeps the counts when a background read fails', async () => {
+			( apiFetch as unknown as jest.Mock ).mockRejectedValue( { code: 'fetch_error' } );
+			render( <FirewallOverviewCard { ...props } /> );
+
+			await tick();
+
+			expect( apiFetch ).toHaveBeenCalled();
+			expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days1' );
+		} );
+
 		it( 'refreshes the counts when the firewall is turned on', async () => {
 			const off = { ...props.state!, active: false };
 			const { rerender } = render( <FirewallOverviewCard { ...props } state={ off } /> );
