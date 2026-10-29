@@ -1111,7 +1111,7 @@ function sharing_display( $text = '', $echo = false ) {
 		 */
 		$enabled = apply_filters( 'sharing_enabled', $sharer->get_blog_services() );
 
-		if ( ! empty( $enabled['all'] ) && is_countable( $enabled['all'] ) ) {
+		if ( ! empty( $enabled['all'] ) ) {
 			$dir = get_option( 'text_direction' );
 
 			// Wrapper.
