@@ -1233,7 +1233,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "3e1db8c0f23f64de35dd2b3c74ce078fff4d93c5"
+                "reference": "a63d31a59fb2f254fe639ccd4345583a36b4f986"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1256,6 +1256,7 @@
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-protect": "@dev",
                 "automattic/jetpack-search": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/jetpack-videopress": "@dev",
@@ -1281,6 +1282,7 @@
                 },
                 "dependencies": {
                     "test-only": [
+                        "packages/protect",
                         "packages/search",
                         "packages/videopress",
                         "packages/waf"

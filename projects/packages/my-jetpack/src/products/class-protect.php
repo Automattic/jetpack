@@ -516,7 +516,6 @@ class Protect extends Hybrid_Product {
 	public static function get_protect_page_module_urls() {
 		// method_exists, not class_exists: an older bundled Protect package can ship the class without it.
 		$dashboard = 'Automattic\Jetpack\Protect\Dashboard';
-		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional Protect package, guarded by method_exists.
 		if ( ! did_action( 'jetpack_protect_dashboard_initialized' ) || ! method_exists( $dashboard, 'get_module_settings_urls' ) ) {
 			return array();
 		}
