@@ -472,7 +472,6 @@ const getCurrencyObject = ( {
 				sign = '+' as CurrencyObject[ 'sign' ];
 				localizedSign = pendingPrefix + part.value;
 				pendingPrefix = '';
-				return;
 		}
 	} );
 
