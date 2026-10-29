@@ -879,7 +879,7 @@ describe( 'features waiting for an account', () => {
 		[ 'Install Jetpack', false, 'install', accountJetpack( 'not-installed' ), 0, false ],
 		[ 'Activate Jetpack', true, 'activate', accountJetpack( 'inactive' ), 1, true ],
 	] as const )(
-		'connects after %s only once it succeeds (succeeds: %s), and asks Jetpack not to reload and remembers the click only for Jetpack',
+		'%s (succeeds: %s): asks Jetpack not to reload, connects only on success and remembers the click only for Jetpack',
 		async ( name, succeeds, action, state, connections, resumes ) => {
 			mockRun.mockReturnValueOnce( Promise.resolve( succeeds ) );
 			render( <FeatureAction state={ state } /> );
@@ -914,13 +914,14 @@ describe( 'features waiting for an account', () => {
 
 	type ReloadCase = { fails?: boolean; flagOff?: boolean; offline?: boolean };
 
-	it.each< [ string, FeatureState, typeof jetpack, ReloadCase, boolean ] >( [
-		[ 'reloads to turn the module on', noAccountJetpack, jetpack, {}, true ],
+	it.each< [ string, FeatureState, typeof jetpack, ReloadCase, boolean, boolean ] >( [
+		[ 'reloads to turn the module on', noAccountJetpack, jetpack, {}, true, true ],
 		[
 			'turns nothing on after a failed activation',
 			noAccountJetpack,
 			jetpack,
 			{ fails: true },
+			true,
 			false,
 		],
 		[
@@ -929,12 +930,27 @@ describe( 'features waiting for an account', () => {
 			jetpack,
 			{ flagOff: true },
 			false,
+			false,
 		],
-		[ 'leaves the reload to Jetpack offline', noAccountJetpack, jetpack, { offline: true }, false ],
-		[ "turns nothing on after another plugin's Install", missingBoost, boost, {}, false ],
+		[
+			'leaves the reload to Jetpack offline',
+			noAccountJetpack,
+			jetpack,
+			{ offline: true },
+			false,
+			false,
+		],
+		[ "turns nothing on after another plugin's Install", missingBoost, boost, {}, false, false ],
 	] )(
 		'%s when no account connection follows',
-		async ( _, state, plugin, { fails = false, flagOff = false, offline = false }, resumes ) => {
+		async (
+			_,
+			state,
+			plugin,
+			{ fails = false, flagOff = false, offline = false },
+			leavesPage,
+			resumes
+		) => {
 			setAccountConnect( ! flagOff );
 			window.myJetpackInitialState.isOfflineFeatures = offline;
 			const initialHash = '#/features?feature=activity-log&filter=inactive';
@@ -950,7 +966,6 @@ describe( 'features waiting for an account', () => {
 				window.myJetpackInitialState.isOfflineFeatures = false;
 			}
 
-			const leavesPage = state === noAccountJetpack && ! flagOff && ! offline;
 			expect( mockRun ).toHaveBeenCalledTimes( 1 );
 			expect( mockRun ).toHaveBeenCalledWith( expect.objectContaining( plugin ) );
 			expect( ( mockRun.mock.calls[ 0 ][ 0 ] as { leavesPage?: boolean } ).leavesPage ).toBe(
