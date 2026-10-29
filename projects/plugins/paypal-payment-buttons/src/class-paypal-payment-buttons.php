@@ -134,10 +134,15 @@ class PayPal_Payment_Buttons {
 			'feature_flags'    => Jetpack_PayPal_Payment_Buttons::add_editor_feature_flags( array() ),
 		);
 
-		wp_localize_script(
+		// Jetpack fills the same global, so add to it: wp_localize_script() would replace it.
+		wp_add_inline_script(
 			'jp-paypal-payments-ncps-blocks',
-			'Jetpack_Editor_Initial_State',
-			$availability_data
+			'( function ( data ) {
+	var state = ( window.Jetpack_Editor_Initial_State = window.Jetpack_Editor_Initial_State || {} );
+	state.available_blocks = Object.assign( {}, state.available_blocks, data.available_blocks );
+	state.feature_flags = Object.assign( {}, state.feature_flags, data.feature_flags );
+} )( ' . wp_json_encode( $availability_data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' );',
+			'before'
 		);
 	}
 

@@ -24,6 +24,7 @@ import {
 	getUtmDimensionLabel,
 	getUtmReportSection,
 	utmCsvExporters,
+	UtmUrlBuilderDialog,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -32,7 +33,6 @@ import {
  */
 import styles from './style.module.css';
 import useUtmInsights from './use-utm-insights';
-import { UtmUrlBuilderDialog } from './utm-url-builder-dialog';
 import { type UtmInsightsAttributes } from './widget';
 /**
  * Types
@@ -61,6 +61,7 @@ type UtmInsightsInnerProps = {
 function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ isBuilderOpen, setBuilderOpen ] = useState( false );
+	const openBuilder = useCallback( () => setBuilderOpen( true ), [] );
 	const closeBuilder = useCallback( () => setBuilderOpen( false ), [] );
 	const reportSection = getUtmReportSection( utmDimension );
 	const {
@@ -166,19 +167,28 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 			className={ styles.backLink }
 		/>
 	) : null;
-	useReportActions(
-		showReportLink
-			? {
-					report: 'utm',
-					section: reportSection,
-					csv: {
-						exporter: utmCsvExporters[ reportSection ],
-						status: { isLoading, isFetching, isError },
-						rowCount: data.length,
+	const offersFooterBuildUrl = ! isLoading && ( isError || data.length > 0 );
+	useReportActions( {
+		...( showReportLink && {
+			report: 'utm',
+			section: reportSection,
+			csv: {
+				exporter: utmCsvExporters[ reportSection ],
+				status: { isLoading, isFetching, isError },
+				rowCount: data.length,
+			},
+		} ),
+		actions: offersFooterBuildUrl
+			? [
+					{
+						id: 'build-url',
+						label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
+						relevance: 'medium',
+						callback: openBuilder,
 					},
-				}
-			: {}
-	);
+				]
+			: [],
+	} );
 
 	return (
 		<>
@@ -197,7 +207,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						),
 						action: {
 							label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
-							onClick: () => setBuilderOpen( true ),
+							onClick: openBuilder,
 						},
 					} }
 					error={ describeError( error, {

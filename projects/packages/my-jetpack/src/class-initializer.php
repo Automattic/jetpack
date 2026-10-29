@@ -1433,7 +1433,7 @@ class Initializer {
 		Feature_Flags::register(
 			self::HEADER_CONTROLS_FLAG,
 			array(
-				'default'     => false,
+				'default'     => true,
 				'description' => 'Show the global controls in the shared header of My Jetpack and Boost.',
 				'owner'       => 'my-jetpack',
 			)
