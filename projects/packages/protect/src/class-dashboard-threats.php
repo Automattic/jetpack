@@ -199,7 +199,8 @@ class Dashboard_Threats {
 		foreach ( (array) $extras as $key => $value ) {
 			$camel[ lcfirst( str_replace( '_', '', ucwords( $key, '_' ) ) ) ] = $value;
 		}
-		return array_merge( (array) $fixable, array( 'extras' => $camel ) );
+		// An object, so empty extras encode as `{}` rather than `[]`.
+		return array_merge( (array) $fixable, array( 'extras' => (object) $camel ) );
 	}
 
 	/**
