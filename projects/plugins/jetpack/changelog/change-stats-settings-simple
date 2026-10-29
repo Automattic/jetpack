@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: bugfix
 
-Premium Analytics: Let WordPress.com choose which Stats settings the Settings tab offers.
+Premium Analytics: Stop showing "Plan usage isn't available" on the Settings tab of WordPress.com sites, where Stats has no view cap.
