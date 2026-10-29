@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Features: Keep a plugin's switch busy until its card has refreshed after turning the plugin on or off, and show the success message once the card is up to date.

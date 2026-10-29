@@ -338,7 +338,7 @@ const PERSONAL_PLAN_PRICE_TRANSIENT = 'jetpack_premium_analytics_personal_price_
 /**
  * The Personal plan's yearly price in the current user's checkout currency, which a locked section quotes per month.
  *
- * @since $$next-version$$
+ * @since 0.15.0
  *
  * @return array{yearly:int, currency:string}|null The price in the currency's smallest unit, or null when WordPress.com has none.
  */
