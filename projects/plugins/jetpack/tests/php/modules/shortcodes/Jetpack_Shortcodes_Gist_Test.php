@@ -144,6 +144,36 @@ HTML;
 	}
 
 	/**
+	 * A gist URL and an enclosing [gist]ID[/gist] in the same post both render.
+	 */
+	public function test_gist_url_with_enclosing_shortcode_later_in_post() {
+		global $post;
+
+		$id      = '57cc50246aab776e110060926a2face2';
+		$content = "https://gist.github.com/$id\n\nBetween the gists.\n\n[gist]{$id}[/gist]";
+		$post    = self::factory()->post->create_and_get( array( 'post_content' => $content ) );
+		setup_postdata( $post );
+
+		$output = apply_filters( 'the_content', $post->post_content );
+
+		$this->assertStringNotContainsString( 'Invalid Gist ID', $output );
+		$this->assertStringContainsString( '<p>Between the gists.</p>', $output );
+		$this->assertSame( 2, substr_count( $output, '<div style="tab-size: 8" id="gist' ) );
+	}
+
+	/**
+	 * Outside the_content, the handler returns the gist markup rather than a shortcode.
+	 */
+	public function test_gist_url_renders_outside_the_content() {
+		global $wp_embed;
+
+		$output = $wp_embed->autoembed( 'https://gist.github.com/57cc50246aab776e110060926a2face2' );
+
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $output );
+		$this->assertStringNotContainsString( '[gist', $output );
+	}
+
+	/**
 	 * Test gist embeds (links in content transformed into embeds).
 	 *
 	 * @dataProvider gist_embed_data
