@@ -136,6 +136,24 @@ Common pages are already available through fixtures:
 - `editor` - Block editor interactions
 - `sidebar` - WordPress admin sidebar navigation
 
+## Admin shell regression suite
+
+`specs/admin-shell` is the acceptance suite for in-shell navigation (JETPACK-3406). It has its own config, `playwright.admin-shell.config.ts`, so it can run against any site with the shell on, without the Docker environment or the encrypted config. It runs in Chromium, Firefox and WebKit.
+
+```bash
+ADMIN_SHELL_URL=https://example.jurassic.ninja \
+ADMIN_SHELL_USER=demo ADMIN_SHELL_PASSWORD=... \
+ADMIN_SHELL_OFF_URL=https://other.jurassic.ninja \
+ADMIN_SHELL_OFF_USER=demo ADMIN_SHELL_OFF_PASSWORD=... \
+pnpm test:admin-shell
+```
+
+- `ADMIN_SHELL_URL` (default `http://localhost:8889`) must have `jetpack_admin_shell_enabled` on.
+- `ADMIN_SHELL_OFF_URL` is optional: a site with the shell off, for the `shell off` smoke projects. Without it they are skipped.
+- Add `--project='shell on: chromium'` to run one browser.
+
+Tests read shell state only through `readShell()` in `helpers/admin-shell-helper.ts`, which uses the `data-shell-page` / `data-shell-state` hooks. Until the client ships them it falls back to the spike's DOM; that branch is marked `SPIKE_DOM_FALLBACK`. Known bugs are `test.fail()` with a reason, so a fix shows up as an unexpected pass: remove the marker in the same PR.
+
 ## CI Configuration
 
 Both local runs and CI are sharing the same Docker based configuration.
