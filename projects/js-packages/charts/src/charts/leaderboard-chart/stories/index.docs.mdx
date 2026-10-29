@@ -34,7 +34,7 @@ For detailed information about component props, types, and method signatures, se
 
 ### Simple Leaderboard Chart
 
-The simplest leaderboard chart requires only a `data` prop with pre-processed leaderboard entries:
+The simplest leaderboard chart requires only a `data` prop with leaderboard entries. Bar shares and the percentage change are derived from the values:
 
 <Canvas of={ LeaderboardChartStories.WithoutComparison } />
 
@@ -47,18 +47,12 @@ The simplest leaderboard chart requires only a `data` prop with pre-processed le
 				label: 'Direct',
 				currentValue: 12500,
 				previousValue: 10000,
-				currentShare: 100,
-				previousShare: 80,
-				delta: 25,
 			},
 			{
 				id: 'social',
 				label: 'Social Media',
 				currentValue: 8750,
 				previousValue: 9500,
-				currentShare: 70,
-				previousShare: 76,
-				delta: -7.9,
 			}
 		]}
 	/>` }
@@ -66,7 +60,7 @@ The simplest leaderboard chart requires only a `data` prop with pre-processed le
 
 ### Required Props
 
-- **`data`**: Array of LeaderboardEntry objects with pre-processed data including shares and deltas
+- **`data`**: Array of LeaderboardEntry objects. `currentShare`, `previousShare` and `delta` are optional and derived from the values when omitted
 
 ### Optional Props
 
@@ -115,38 +109,22 @@ The chart automatically handles negative growth with appropriate color coding:
 
 <Source
 	language="tsx"
-	code={ `// Data with negative deltas will show in warning colors
+	code={ `// A previous value above the current value gives a negative delta (-20%), shown in warning colors
 	const dataWithDeclines = [
 		{
 			id: 'declining',
 			label: 'Declining Channel',
 			currentValue: 8000,
 			previousValue: 10000,
-			currentShare: 80,
-			previousShare: 100,
-			delta: -20, // Negative growth
 		}
 	];` }
 />
 
 ### Negative Values
 
-A negative `currentShare` or `previousShare` switches every row to a diverging layout: bars grow out from a shared zero point, negative bars toward the inline start and positive bars toward the inline end. Zero sits in proportion to the range, so with shares from `-30` to `100` it falls 30 / 130 of the way across. Divide by the largest absolute value so both directions share one scale:
+A negative value switches every row to a diverging layout: bars grow out from a shared zero point, negative bars toward the inline start and positive bars toward the inline end. Zero sits in proportion to the range, so with shares from `-30` to `100` it falls 30 / 130 of the way across. Derived shares divide by the largest absolute value, so both directions share one scale:
 
 <Canvas of={ LeaderboardChartStories.NegativeValues } />
-
-<Source
-	language="tsx"
-	code={ `const maxValue = Math.max(
-		...data.flatMap(item => [Math.abs(item.currentValue), Math.abs(item.previousValue)])
-	);
-
-	const processedData = data.map(item => ({
-		...item,
-		currentShare: (item.currentValue / maxValue) * 100, // -100 to 100
-		previousShare: (item.previousValue / maxValue) * 100,
-	}));` }
-/>
 
 ## Data Formatting
 
@@ -301,34 +279,20 @@ Automatically format large numeric values:
 
 ### Transforming Raw Data
 
-The LeaderboardChart expects pre-processed data. You'll need to transform your raw data into the required format:
+Map your raw data to the entry fields. The chart derives the shares and the percentage change from the values:
 
 <Source
 	language="tsx"
 	code={ `// Transform your raw data into LeaderboardEntry format
 	function transformRawData(rawData) {
-		const maxValue = Math.max(...rawData.map(item => item.current_period.value));
-
-		return rawData.map(item => {
-			// A row absent from the comparison period has an unknown previous
-			// value; leave the comparison fields undefined so the chart shows
-			// its missing-data placeholder.
-			const previousValue = item.previous_period?.value;
-
-			return {
-				id: item.id,
-				label: item.name,
-				currentValue: item.current_period.value,
-				previousValue,
-				currentShare: (item.current_period.value / maxValue) * 100,
-				previousShare: previousValue !== undefined ? (previousValue / maxValue) * 100 : undefined,
-				// Omit delta when the percentage change cannot be calculated,
-				// such as from a previous value of 0.
-				delta: previousValue
-					? ((item.current_period.value - previousValue) / previousValue) * 100
-					: undefined,
-			};
-		});
+		return rawData.map(item => ({
+			id: item.id,
+			label: item.name,
+			currentValue: item.current_period.value,
+			// A row absent from the comparison period has no previous value;
+			// the chart shows its missing-data placeholder.
+			previousValue: item.previous_period?.value,
+		}));
 	}
 
 	function ProcessedDataChart() {
@@ -345,30 +309,21 @@ The LeaderboardChart expects pre-processed data. You'll need to transform your r
 
 ### Share Calculation
 
-Calculate the `currentShare` and `previousShare` values to determine bar widths:
+An entry that omits `currentShare`, `previousShare` or `delta` gets them from `currentValue` and `previousValue`:
+
+- Shares are `value / max * 100`. `max` is the largest absolute value across all rows, so both periods share one scale. Previous values count toward `max` only when comparison bars draw (`withComparison` without `withOverlayLabel`).
+- `delta` is the change from `previousValue` as a percentage of its absolute value. It stays unset, and the row shows the unavailable placeholder, when the entry has no `previousValue` or `previousValue` is `0` and `currentValue` is not.
+- A value you pass wins over the derived one, field by field. Pass `currentShare` and `previousShare` for bars sized against something other than the largest row, such as a share of an external total.
 
 <Source
 	language="tsx"
-	code={ `// For relative scaling (bars relative to max value)
-	const maxCurrentValue = Math.max(...data.map(item => item.currentValue));
-	const maxPreviousValue = Math.max(...data.map(item => item.previousValue));
-
-	const processedData = data.map(item => ({
-		...item,
-		currentShare: (item.currentValue / maxCurrentValue) * 100,
-		previousShare: (item.previousValue / maxPreviousValue) * 100,
-	}));
-
-	// For absolute scaling (bars relative to same baseline)
-	const maxValue = Math.max(
-		...data.map(item => Math.max(item.currentValue, item.previousValue))
-	);
-
-	const processedData = data.map(item => ({
-		...item,
-		currentShare: (item.currentValue / maxValue) * 100,
-		previousShare: (item.previousValue / maxValue) * 100,
-	}));` }
+	code={ `// Bars sized as a share of a site total instead of the largest row
+	<LeaderboardChart
+		data={[
+			{ id: 'direct', label: 'Direct', currentValue: 12500, previousValue: 10000, currentShare: 25, previousShare: 20 },
+		]}
+		withComparison={true}
+	/>` }
 />
 
 ## Legends
@@ -601,10 +556,10 @@ The Leaderboard Chart component supports an optional entry animation that create
 
 <Source language="tsx" code={ `
 	const salesData = [
-		{ id: 'organic', label: 'Organic Search', currentValue: 45000, previousValue: 38000, currentShare: 100, previousShare: 84, delta: 18 },
-		{ id: 'paid', label: 'Paid Advertising', currentValue: 32000, previousValue: 35000, currentShare: 71, previousShare: 78, delta: -9 },
-		{ id: 'social', label: 'Social Media', currentValue: 18000, previousValue: 15000, currentShare: 40, previousShare: 33, delta: 20 },
-		{ id: 'email', label: 'Email Marketing', currentValue: 12000, previousValue: 11000, currentShare: 27, previousShare: 24, delta: 9 },
+		{ id: 'organic', label: 'Organic Search', currentValue: 45000, previousValue: 38000 },
+		{ id: 'paid', label: 'Paid Advertising', currentValue: 32000, previousValue: 35000 },
+		{ id: 'social', label: 'Social Media', currentValue: 18000, previousValue: 15000 },
+		{ id: 'email', label: 'Email Marketing', currentValue: 12000, previousValue: 11000 },
 	];
 
 	<LeaderboardChart data={salesData} withComparison={true} />
@@ -614,9 +569,9 @@ The Leaderboard Chart component supports an optional entry animation that create
 
 <Source language="tsx" code={ `
 	const trafficData = [
-		{ id: 'direct', label: 'Direct', currentValue: 15420, previousValue: 13200, currentShare: 100, previousShare: 86, delta: 17 },
-		{ id: 'search', label: 'Search Engines', currentValue: 12350, previousValue: 11800, currentShare: 80, previousShare: 77, delta: 5 },
-		{ id: 'social', label: 'Social Networks', currentValue: 8760, previousValue: 9200, currentShare: 57, previousShare: 60, delta: -5 },
+		{ id: 'direct', label: 'Direct', currentValue: 15420, previousValue: 13200 },
+		{ id: 'search', label: 'Search Engines', currentValue: 12350, previousValue: 11800 },
+		{ id: 'social', label: 'Social Networks', currentValue: 8760, previousValue: 9200 },
 	];
 
 	<LeaderboardChart data={trafficData} withComparison={true} />
