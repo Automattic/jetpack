@@ -71,6 +71,18 @@ class Dashboard_Threats {
 	}
 
 	/**
+	 * When Scan last finished a scan, for get_resolved(); null when the most recent one failed, so it can't clear fixes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param object|null $status The cached scan status.
+	 * @return string|null
+	 */
+	public static function get_scanned_at( $status ) {
+		return empty( $status->last_scan_failed ) ? ( $status->last_checked ?? null ) : null;
+	}
+
+	/**
 	 * Scan's current threats without the ones the site resolved since Scan last scanned.
 	 *
 	 * @param iterable    $threats      Scan's current threats.
