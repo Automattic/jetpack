@@ -71,10 +71,7 @@ const connectionStoreConfig = {
 	},
 };
 
-const renderWith = ( {
-	searchBlocksEnabled,
-	jetpackSettings,
-} ) => {
+const renderWith = ( { searchBlocksEnabled, jetpackSettings } ) => {
 	const registry = createRegistry();
 	const store = createReduxStore( STORE_ID, {
 		...storeConfig,
