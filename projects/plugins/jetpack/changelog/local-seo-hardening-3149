@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Keep hidden Jetpack menu items out of the remote dashboard menu.

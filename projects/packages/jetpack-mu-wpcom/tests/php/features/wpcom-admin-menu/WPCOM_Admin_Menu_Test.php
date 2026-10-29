@@ -716,27 +716,52 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * WoA can pair mu-wpcom with a Jetpack that serves Settings at either address.
+	 * Keep SEO in the platform menu order, including Simple without Jetpack Settings.
 	 *
-	 * @dataProvider provide_settings_addresses
+	 * @dataProvider provide_seo_menu_environments
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 *
-	 * @param string $address Which Settings address the Jetpack plugin registers.
+	 * @param bool        $simple  Whether this is a Simple site.
+	 * @param string|null $address Which Settings address the Jetpack plugin registers.
+	 * @param bool        $atomic Whether to define the Atomic hosting constants.
 	 */
-	#[DataProvider( 'provide_settings_addresses' )]
-	public function test_jetpack_submenu_orders_settings_at_either_address( $address ) {
+	#[DataProvider( 'provide_seo_menu_environments' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_jetpack_submenu_orders_seo_across_environments( $simple, $address, $atomic = true ) {
 		global $submenu;
+		if ( $simple ) {
+			define( 'IS_WPCOM', true );
+		} elseif ( $atomic ) {
+			define( 'ATOMIC_SITE_ID', 1 );
+			define( 'ATOMIC_CLIENT_ID', 2 );
+			define( 'WPCOMSH__PLUGIN_FILE', __FILE__ );
+		}
+		Status_Cache::clear();
 		\Jetpack_Options::update_option( 'id', 200 );
-		$settings_slug = 'legacy' === $address ? admin_url( 'admin.php?page=jetpack#/settings' ) : 'jetpack-settings';
+		$settings_slug = $address ? ( 'legacy' === $address ? admin_url( 'admin.php?page=jetpack#/settings' ) : 'jetpack-settings' ) : null;
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$submenu['jetpack'] = array(
 			array( 'Zzz Unlisted', 'manage_options', 'zzz-unlisted' ),
-			array( 'Settings', 'manage_options', $settings_slug ),
+			array( 'SEO', 'manage_options', 'jetpack-seo' ),
 		);
+		if ( $settings_slug ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu['jetpack'][] = array( 'Settings', 'manage_options', $settings_slug );
+		}
 
 		wpcom_add_jetpack_submenu();
 
 		$slugs = array_column( $submenu['jetpack'], 2 );
-		$this->assertLessThan( array_search( 'zzz-unlisted', $slugs, true ), array_search( $settings_slug, $slugs, true ) );
+		$this->assertContains( 'jetpack-seo', $slugs );
+		$this->assertLessThan( array_search( 'zzz-unlisted', $slugs, true ), array_search( 'jetpack-seo', $slugs, true ) );
+		if ( $settings_slug ) {
+			$this->assertSame( array_search( 'jetpack-seo', $slugs, true ) + 1, array_search( $settings_slug, $slugs, true ) );
+		} else {
+			$this->assertNotContains( 'jetpack-settings', $slugs );
+			$this->assertNotContains( admin_url( 'admin.php?page=jetpack#/settings' ), $slugs );
+		}
 	}
 
 	/**
@@ -744,10 +769,12 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public static function provide_settings_addresses() {
+	public static function provide_seo_menu_environments() {
 		return array(
-			'hash on page=jetpack'  => array( 'legacy' ),
-			'page=jetpack-settings' => array( 'own' ),
+			'Atomic legacy Settings'             => array( false, 'legacy' ),
+			'Atomic Settings'                    => array( false, 'own' ),
+			'Simple'                             => array( true, null ),
+			'Other host with WordPress.com menu' => array( false, 'own', false ),
 		);
 	}
 }
