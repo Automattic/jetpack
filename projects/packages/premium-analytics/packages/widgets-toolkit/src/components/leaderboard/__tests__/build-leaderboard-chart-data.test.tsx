@@ -23,9 +23,9 @@ describe( 'buildLeaderboardChartData', () => {
 
 		expect( data.map( row => row.currentValue ) ).toEqual( [ 80, 40, 20 ] );
 		expect( data.map( row => row.previousValue ) ).toEqual( [ 100, undefined, 10 ] );
-		expect( data.every( row => ! ( 'currentShare' in row ) ) ).toBe( true );
-		expect( data.every( row => ! ( 'previousShare' in row ) ) ).toBe( true );
-		expect( data.every( row => ! ( 'delta' in row ) ) ).toBe( true );
+		expect(
+			data.some( row => [ 'currentShare', 'previousShare', 'delta' ].some( key => key in row ) )
+		).toBe( false );
 	} );
 
 	it( 'keeps the first maxRows rows', () => {

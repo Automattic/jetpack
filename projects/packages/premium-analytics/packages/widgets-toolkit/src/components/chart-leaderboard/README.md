@@ -77,27 +77,18 @@ const data = [
 		label: 'Direct traffic',
 		currentValue: 125000,
 		previousValue: 98000,
-		currentShare: 42,
-		previousShare: 35,
-		delta: 27.55,
 	},
 	{
 		id: '2',
 		label: 'Google Ads',
 		currentValue: 87500,
 		previousValue: 92000,
-		currentShare: 29,
-		previousShare: 33,
-		delta: -4.89,
 	},
 	{
 		id: '3',
 		label: 'Email campaign',
 		currentValue: 53000,
 		previousValue: 61000,
-		currentShare: 18,
-		previousShare: 22,
-		delta: -13.11,
 	},
 ];
 
@@ -129,7 +120,6 @@ const row = {
 		action: { kind: 'link', href: 'https://example.com' },
 	} ),
 	currentValue: 100,
-	currentShare: 100,
 };
 ```
 
@@ -173,7 +163,6 @@ const row = {
 		},
 	} ),
 	currentValue: 100,
-	currentShare: 100,
 };
 ```
 
@@ -214,7 +203,6 @@ const row = {
 		},
 	} ),
 	currentValue: 100,
-	currentShare: 100,
 };
 ```
 
@@ -297,38 +285,17 @@ type LeaderboardChartData = Array< {
 	ariaLabel?: string;
 	currentValue: number;
 	previousValue?: number;
-	currentShare: number; // Percentage (0-100)
-	previousShare?: number; // Percentage (0-100); omitted when no comparison row matches
-	delta?: number; // Percentage change; omitted when no comparison row matches or unavailable
+	currentShare?: number; // Percentage (0-100); derived when omitted
+	previousShare?: number; // Percentage (0-100); derived when omitted
+	delta?: number; // Percentage change; derived when omitted
 } >;
 ```
 
-### Premium Analytics comparison bar scaling
+### Derived shares and deltas
 
-Premium Analytics comparison widgets use one shared scale so current and previous bar widths are
-directly comparable. Calculate the largest value represented across both periods and use it for
-both shares:
+Pass `currentValue` and `previousValue` only. The chart derives each share as `value / max * 100`, where `max` is the largest absolute value across the rows, counting previous values only when comparison bars draw (`withComparison` without `withOverlayLabel`). The delta is `( current - previous ) / |previous| * 100`, left unset when there is no previous value. A share or delta you pass wins over the derived one.
 
-```tsx
-import { getCombinedPeriodMax, sharePercentage } from '@jetpack-premium-analytics/widgets-toolkit';
-
-const maxValue = getCombinedPeriodMax(
-	rows.map( row => row.currentValue ),
-	rows.map( row => row.previousValue )
-);
-
-const data = rows.map( row => ( {
-	...row,
-	currentShare: sharePercentage( row.currentValue, maxValue ),
-	previousShare:
-		row.previousValue === undefined ? undefined : sharePercentage( row.previousValue, maxValue ),
-} ) );
-```
-
-Do not normalize each period against a separate maximum. That can render equal-width bars for
-different values and visually contradict the displayed delta. Build the maximum from visible
-primary rows and their matching comparison values; omit missing comparison values rather than
-treating them as zero.
+Leave a missing `previousValue` `undefined`, not `0`, so the chart shows the placeholder.
 
 ### DataFormat Type
 
