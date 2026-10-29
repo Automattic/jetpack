@@ -283,6 +283,24 @@ $jp-protect-spring: linear(0 0%, 0.032 2.6%, 0.109 5.1%, 0.214 7.7%, 0.331 10.2%
 		line-height: 1.6;
 	}
 
+	&__fields {
+		display: grid;
+		grid-template-columns: max-content minmax(0, 1fr);
+		gap: 4px 16px;
+
+		dt {
+			color: var(--wpds-color-foreground-content-neutral-weak);
+		}
+
+		dd {
+			max-block-size: 12em;
+			margin: 0;
+			overflow: auto;
+			white-space: pre-wrap;
+			overflow-wrap: anywhere;
+		}
+	}
+
 	&__line {
 		display: block;
 		white-space: pre;

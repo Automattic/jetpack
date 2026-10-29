@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-My Jetpack: Keep a plugin's switch on the Features tab busy until the site has been read again after a failed change; on sites that also run Jetpack, show the success message once the card is up to date.
+My Jetpack: On the Features tab, keep a plugin's switch busy until its card is up to date after a failed change, or after any change on sites that also run Jetpack.

@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -15,7 +15,6 @@ import { isGated } from '../../data/is-gated';
 import isVerificationSwitchable from '../../data/is-verification-switchable';
 import AdvancedCard from './advanced-card';
 import AuthorProfileCard from './author-profile-card';
-import PlatformSitemapNotice from './platform-sitemap-notice';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
 import styles from './style.module.scss';
@@ -60,6 +59,10 @@ const platformManagedHelp = __(
 	'This setting is managed by your hosting platform and cannot be changed here.',
 	'jetpack-seo'
 );
+const simpleSitemapHelp = __(
+	'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.',
+	'jetpack-seo'
+);
 const canonicalHelp = __(
 	"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
 	'jetpack-seo'
@@ -91,6 +94,10 @@ const descriptionMaxLength = 300;
 
 interface Props {
 	form: SettingsForm;
+}
+
+interface SeoHostingData {
+	seo?: { hosting_options_url?: string };
 }
 
 type SettingsSearch = Record< string, unknown > & { focus?: string };
@@ -161,7 +168,15 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// state (and the toggle below) is gated on `search_engines_visible`.
 	const simpleSite = isSimpleSite();
 	const sitemapEffectivelyOn = ! simpleSite && local.search_engines_visible && local.sitemap_active;
-	const sitemapIndexingHelp = local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp;
+	let sitemapHelpText: string = local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp;
+	if ( simpleSite ) {
+		sitemapHelpText = simpleSitemapHelp;
+	} else if ( ! local.sitemap_switchable ) {
+		sitemapHelpText = platformManagedHelp;
+	}
+	const hostingOptionsUrl = simpleSite
+		? ( getScriptData() as SeoHostingData )?.seo?.hosting_options_url
+		: undefined;
 	// Simple's module state cannot establish whether its platform sitemap is published.
 	const visibilityEnabledCount =
 		( local.search_engines_visible ? 1 : 0 ) +
@@ -345,11 +360,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							<Stack direction="column" gap="xs">
 								<ToggleControl
 									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
-									help={
-										simpleSite || ! local.sitemap_switchable
-											? platformManagedHelp
-											: sitemapIndexingHelp
-									}
+									help={ sitemapHelpText }
 									// Simple's disabled switch is not a sitemap publication-status indicator.
 									// Other hosts display off while indexing is blocked, preserving the preference.
 									checked={ sitemapEffectivelyOn }
@@ -362,7 +373,16 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 									}
 									__nextHasNoMarginBottom
 								/>
-								{ simpleSite && <PlatformSitemapNotice /> }
+								{ hostingOptionsUrl && (
+									<Link
+										className={ styles.toggleLink }
+										href={ hostingOptionsUrl }
+										openInNewTab
+										rel="noopener noreferrer"
+									>
+										{ __( 'Explore hosting options', 'jetpack-seo' ) }
+									</Link>
+								) }
 								{ sitemapEffectivelyOn && local.sitemap_url && (
 									<Link
 										className={ styles.toggleLink }
@@ -452,7 +472,13 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					{ frontPageDescriptionCard }
 
 					{ /* It previews Jetpack's tags, which aren't the ones a conflicting plugin outputs. */ }
-					{ ! outputLocked && <SocialPreviewsCard description={ local.front_page_description } /> }
+					{ ! outputLocked && (
+						<SocialPreviewsCard
+							description={ local.front_page_description }
+							frontPageTitleFormat={ local.title_formats.front_page ?? [] }
+							titleSeparator={ local.title_separator }
+						/>
+					) }
 				</>
 			) }
 

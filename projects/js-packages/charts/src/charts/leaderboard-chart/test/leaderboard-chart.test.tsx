@@ -766,6 +766,35 @@ describe( 'LeaderboardChart', () => {
 	describe( 'grid gaps', () => {
 		// eslint-disable-next-line testing-library/no-node-access -- The grid is rendered by `Grid` from @wordpress/components, which takes no test id.
 		const grid = () => document.querySelector< HTMLElement >( '[data-leaderboard-grid]' );
+		const templateColumns = () =>
+			grid().style.getPropertyValue( '--wp-components-grid-template-columns' );
+
+		it( 'lays the rows out without a delta track when not comparing', () => {
+			render( <LeaderboardChart data={ mockData } withComparison={ false } /> );
+
+			expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto' );
+		} );
+
+		it.each( [ [ 'Previous period' ], [ 'Current period' ] ] )(
+			'adds a delta track when comparing and drops it while "%s" is hidden',
+			async legendItem => {
+				const user = userEvent.setup();
+				render(
+					<LeaderboardChart
+						data={ mockData }
+						withComparison={ true }
+						showLegend={ true }
+						legend={ { interactive: true } }
+					/>
+				);
+
+				expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto auto' );
+
+				await user.click( screen.getByRole( 'button', { name: new RegExp( legendItem ) } ) );
+
+				expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto' );
+			}
+		);
 
 		it( 'hands the catalog role to the grid', () => {
 			render( <LeaderboardChart data={ mockData } /> );
