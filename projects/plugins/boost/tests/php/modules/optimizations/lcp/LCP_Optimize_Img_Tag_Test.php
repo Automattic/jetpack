@@ -435,6 +435,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 			'a 3:2 image with no fit in the markup: widened, not cropped' => array( 'width="1200" height="800"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ) ),
 			'object-fit: contain (Featured Image Scale): fits inside the box' => array( 'width="1200" height="800" style="aspect-ratio:3/5;object-fit:contain;"', array( '1236,825 1236w', '824,550 824w', '721,481 721w', '412,275 412w' ) ),
 			'a -600x400 size with 300x300 attributes: the size wins' => array( 'width="300" height="300"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), '{uploads}/image-600x400.jpg' ),
+			'a -600x400 size with a query string: the size wins' => array( 'width="300" height="300"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), '{uploads}/image-600x400.jpg?ver=2' ),
 			'a -2x1 name with no original to swap in: the attributes' => array( 'width="1200" height="800"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), '{uploads}/banner-2x1.jpg' ),
 			'object-fit: contain then cover: the last wins' => array( 'width="1200" height="800" style="object-fit:contain;object-fit:cover"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
 			'object-fit: contain !important then cover: the !important wins' => array( 'width="1200" height="800" style="object-fit:contain !important;object-fit:cover"', array( '1236,825 1236w', '824,550 824w', '721,481 721w', '412,275 412w' ) ),

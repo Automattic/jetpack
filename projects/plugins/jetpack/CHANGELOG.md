@@ -14,7 +14,7 @@
 - Premium Analytics: Add a "View in new tab" row action that opens the live post, page or email from the Posts & pages and Emails reports. [#54058]
 - Premium Analytics: Offer a referrer's site from a "View in new tab" action beside its name in the Top referrers widget, instead of linking the whole row out. [#54163]
 - Premium Analytics: Offer a yearly interval in the Traffic summary on ranges of three years or longer, and label a first or last month or year that the range cuts by its days. [#53965]
-- Premium Analytics: Open the live post, page, video or email in a new tab from its row in a Stats widget, beside the title that opens its stats. [#53996]
+- Premium Analytics: Open the live post, page or email in a new tab from its row in a Stats widget, beside the title that opens its stats. [#53996]
 - Premium Analytics: Show highlight metric notes in a styled tooltip that also opens on keyboard focus. [#54011]
 - Premium Analytics: Show the notice about a failed refresh at the top of the section, instead of inside the sticky header. [#54139]
 - Premium Analytics: Show the Personal plan's monthly price in the upgrade prompt that replaces a free WordPress.com site's Insights and Traffic sections. [#54136]

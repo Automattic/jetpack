@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show the Personal plan's monthly price in the upgrade prompt that replaces a free WordPress.com site's Insights and Traffic sections. [#54136]
 - Show the Stats plan choice on a site that is not connected yet, and connect the site from it. [#53941]
 - Stats: Add a "View in new tab" row action that opens the live post, page or email from the Posts & pages and Emails reports. [#54058]
-- Stats: Open the live post, page, video or email in a new tab from its row in a widget, beside the title that opens its stats. [#53996]
+- Stats: Open the live post, page or email in a new tab from its row in a widget, beside the title that opens its stats. [#53996]
 
 ### Changed
 - Dashboard: Show the notice about a failed refresh at the top of the section, instead of inside the sticky header. [#54139]

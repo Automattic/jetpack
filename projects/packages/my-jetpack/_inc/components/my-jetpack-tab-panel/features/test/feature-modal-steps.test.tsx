@@ -48,6 +48,7 @@ const openModal = ( props: { previous?: typeof stats; next?: typeof stats } ) =>
 describe( 'FeatureModal stepping', () => {
 	beforeEach( () => {
 		mockIsDesktop = true;
+		window.myJetpackInitialState = { ...window.myJetpackInitialState, isOfflineFeatures: false };
 	} );
 
 	it( 'steps to the neighboring features with the arrow keys', async () => {
@@ -168,7 +169,14 @@ describe( 'FeatureModal stepping', () => {
 		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveFocus();
 	} );
 
-	it( 'resets a failed band image when stepping to a feature with its own', () => {
+	it.each( [
+		[ 'online', false ],
+		[ 'offline', true ],
+	] as const )( '%s renders artwork after an image error', ( _mode, offline ) => {
+		window.myJetpackInitialState = {
+			...window.myJetpackInitialState,
+			isOfflineFeatures: offline,
+		};
 		const withScreenshot = ( slug: string, name: string ) =>
 			( {
 				...state,
@@ -190,6 +198,10 @@ describe( 'FeatureModal stepping', () => {
 		);
 		const { rerender } = render( modal( withScreenshot( 'forms', 'Forms' ) ) );
 
+		expect( screen.getByRole( 'img', { name: 'Forms in use' } ) ).toHaveAttribute(
+			'src',
+			'https://jetpack.com/forms.png'
+		);
 		fireEvent.error( screen.getByAltText( 'Forms in use' ) );
 		expect( screen.queryByAltText( 'Forms in use' ) ).not.toBeInTheDocument();
 
@@ -198,7 +210,7 @@ describe( 'FeatureModal stepping', () => {
 		expect( screen.getByAltText( 'Podcast in use' ) ).toBeInTheDocument();
 
 		// React 18 warns about `fetchPriority`.
-		if ( isReact18 ) {
+		if ( isReact18 && ! offline ) {
 			// eslint-disable-next-line jest/no-conditional-expect
 			expect( console ).toHaveErrored();
 		}

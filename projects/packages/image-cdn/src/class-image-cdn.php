@@ -310,7 +310,7 @@ final class Image_CDN {
 	public static function parse_dimensions_from_filename( $src ) {
 		$width_height_string = array();
 
-		if ( preg_match( '#-(\d+)x(\d+)\.(?:' . implode( '|', self::$extensions ) . '){1}(?:\?.*)?$#i', $src, $width_height_string ) ) {
+		if ( preg_match( '#-(\d+)x(\d+)\.(?:' . implode( '|', self::$extensions ) . '){1}(?:[?\#].*)?$#i', $src, $width_height_string ) ) {
 			$width  = (int) $width_height_string[1];
 			$height = (int) $width_height_string[2];
 
@@ -586,7 +586,7 @@ final class Image_CDN {
 				}
 
 				// Detect if image source is for a custom-cropped thumbnail and prevent further URL manipulation.
-				if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode( '|', self::$extensions ) . '){1}$#i', basename( $src ), $filename ) ) {
+				if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode( '|', self::$extensions ) . '){1}$#i', basename( substr( $src, 0, strcspn( $src, '?#' ) ) ), $filename ) ) {
 					$fullsize_url = true;
 				}
 
@@ -1255,24 +1255,26 @@ final class Image_CDN {
 	 * @return string
 	 **/
 	public static function strip_image_dimensions_maybe( $src ) {
-		$stripped_src = $src;
+		// Match on the path alone, so a size URL with a query string (e.g. `?ver=2`) is stripped too; the query is kept.
+		$path_length = strcspn( $src, '?#' );
+		$path        = substr( $src, 0, $path_length );
 
 		// Build URL, first removing WP's resized string so we pass the original image to Photon.
-		if ( preg_match( '#(-\d+x\d+)\.(' . implode( '|', self::$extensions ) . '){1}$#i', $src, $src_parts ) ) {
-			$stripped_src = str_replace( $src_parts[1], '', $src );
-			$upload_dir   = wp_get_upload_dir();
+		if ( preg_match( '#(-\d+x\d+)\.(' . implode( '|', self::$extensions ) . '){1}$#i', $path, $src_parts ) ) {
+			$stripped_path = str_replace( $src_parts[1], '', $path );
+			$upload_dir    = wp_get_upload_dir();
 
 			// Only uploads have an original on disk; an off-site URL shorter than the base URL
 			// would otherwise give an empty path, and file_exists() would find the uploads directory.
-			if ( ! str_starts_with( $stripped_src, $upload_dir['baseurl'] ) ) {
+			if ( ! str_starts_with( $stripped_path, $upload_dir['baseurl'] ) ) {
 				return $src;
 			}
 
 			// Extracts the file path to the image minus the base url.
-			$file_path = substr( $stripped_src, strlen( $upload_dir['baseurl'] ) );
+			$file_path = substr( $stripped_path, strlen( $upload_dir['baseurl'] ) );
 
 			if ( file_exists( $upload_dir['basedir'] . $file_path ) ) {
-				$src = $stripped_src;
+				$src = $stripped_path . substr( $src, $path_length );
 			}
 		}
 
