@@ -152,7 +152,7 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 	const focusApiStepOnActive = useRef( false );
 	const apiStepRef = useRef< HTMLLIElement >( null );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( 'core/notices' );
-	const hasBanner = status.has_banner || status.banner_plugin !== null;
+	const hasBanner = status.consent_type_declared || status.banner_plugin !== null;
 	const connected = hasBanner && ( status.api_active || status.banner_blocks_stats );
 	const canConnect = status.api_installed ? status.can_activate : status.can_install;
 

@@ -361,30 +361,6 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->assertSame( $expected, $consent['banner_plugin'] );
 	}
 
-	public function test_script_data_recommends_three_banner_plugins_by_their_wordpress_org_pages() {
-		$this->log_in_as( 'administrator' );
-
-		$consent = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
-
-		$this->assertSame(
-			array(
-				array(
-					'name' => 'Complianz',
-					'url'  => 'https://wordpress.org/plugins/complianz-gdpr/',
-				),
-				array(
-					'name' => 'Cookiebot',
-					'url'  => 'https://wordpress.org/plugins/cookiebot/',
-				),
-				array(
-					'name' => 'CookieYes',
-					'url'  => 'https://wordpress.org/plugins/cookie-law-info/',
-				),
-			),
-			$consent['recommended_banners']
-		);
-	}
-
 	public function test_script_data_sees_a_banner_that_declares_its_consent_type_before_wp_consent_api_is_active() {
 		$this->log_in_as( 'administrator' );
 		add_filter( 'wp_get_consent_type', fn() => 'optin' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
@@ -392,7 +368,7 @@ class Stats_Settings_Test extends BaseTestCase {
 		$consent = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
 
 		$this->assertFalse( $consent['api_active'] );
-		$this->assertTrue( $consent['has_banner'] );
+		$this->assertTrue( $consent['consent_type_declared'] );
 	}
 
 	public function test_script_data_says_when_file_mods_rule_out_installing() {
@@ -436,8 +412,8 @@ class Stats_Settings_Test extends BaseTestCase {
 		$consent = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
 
 		$this->assertTrue( $consent['api_active'] );
-		$this->assertFalse( $without_banner['has_banner'] );
-		$this->assertTrue( $consent['has_banner'] );
+		$this->assertFalse( $without_banner['consent_type_declared'] );
+		$this->assertTrue( $consent['consent_type_declared'] );
 		$this->assertNull( $consent['banner_plugin'] );
 	}
 

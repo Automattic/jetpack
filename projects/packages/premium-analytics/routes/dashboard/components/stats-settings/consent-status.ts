@@ -8,8 +8,11 @@ export type ConsentStatus = NonNullable<
 	>[ 'consent' ]
 >;
 
+// The fields the Settings card can change; the rest only the site decides.
+type ConsentChange = Partial< Pick< ConsentStatus, 'api_installed' | 'api_active' > >;
+
 // What the Settings card changed this load, over the setup the page loaded with.
-let changes: Partial< ConsentStatus > = {};
+let changes: ConsentChange = {};
 let cached: { loaded: ConsentStatus; changes: typeof changes; status: ConsentStatus } | undefined;
 const listeners = new Set< () => void >();
 
@@ -47,7 +50,7 @@ function subscribe( listener: () => void ) {
  *
  * @param change - The fields that changed.
  */
-export function updateConsentStatus( change: Partial< ConsentStatus > ) {
+export function updateConsentStatus( change: ConsentChange ) {
 	changes = { ...changes, ...change };
 	listeners.forEach( listener => listener() );
 }

@@ -27,7 +27,7 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 const NOT_SET_UP = {
 	api_active: false,
 	api_installed: false,
-	has_banner: false,
+	consent_type_declared: false,
 	banner_plugin: null,
 	banner_blocks_stats: false,
 	recommended_banners: [
@@ -113,7 +113,7 @@ describe( 'ConsentCard', () => {
 		],
 		[
 			'both in place',
-			{ has_banner: true, api_installed: true, api_active: true },
+			{ consent_type_declared: true, api_installed: true, api_active: true },
 			'Set up',
 			'Active',
 			'Active',
@@ -275,5 +275,19 @@ describe( 'ConsentCard', () => {
 
 		expect( screen.getByText( reason, { exact: false } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'explains nothing once WP Consent API is active, even without permission to install', () => {
+		setConsent( {
+			api_installed: true,
+			api_active: true,
+			can_install: false,
+			can_activate: false,
+			file_mods_allowed: false,
+		} );
+
+		render( <ConsentCard /> );
+
+		expect( screen.queryByText( /permission|cannot be installed/ ) ).not.toBeInTheDocument();
 	} );
 } );
