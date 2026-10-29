@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { reloadPage } from '../../../utils/reload-page';
 import { useModuleActivation } from '../../module-toggle';
+import { getFeatureConnectReturnUrl } from '../utils';
 import { useAccountConnected } from './feature-state';
 import { isAccountConnectEnabled } from './mappings';
 import { isBulkSwitchable } from './use-bulk-feature-switch';
@@ -13,7 +14,7 @@ import type { MyJetpackModule } from '../../../types';
 // The URL the click returns or reloads to names that click, so only that tab's own page load acts on it.
 export const CONNECT_INTENT_PARAM = 'connect_intent';
 
-const STORAGE_KEY = 'myJetpackFeatureConnectIntent';
+export const CONNECT_INTENT_STORAGE_KEY = 'myJetpackFeatureConnectIntent';
 // Long enough to sign up for a WordPress.com account on the way.
 const MAX_AGE_MS = 60 * 60 * 1000;
 
@@ -26,7 +27,7 @@ type ConnectIntent = { id: string; feature: string; at: number; route?: SetupRou
  */
 function forgetConnectIntent() {
 	try {
-		window.sessionStorage.removeItem( STORAGE_KEY );
+		window.sessionStorage.removeItem( CONNECT_INTENT_STORAGE_KEY );
 	} catch {
 		// Nothing was kept if storage is unavailable.
 	}
@@ -49,7 +50,7 @@ export function rememberConnectIntent(
 			byte.toString( 16 ).padStart( 2, '0' )
 		).join( '' );
 		const intent: ConnectIntent = { id, feature, at: Date.now(), route };
-		window.sessionStorage.setItem( STORAGE_KEY, JSON.stringify( intent ) );
+		window.sessionStorage.setItem( CONNECT_INTENT_STORAGE_KEY, JSON.stringify( intent ) );
 		// Going Back from WordPress.com can show this page again without loading it: that is an
 		// abandoned connection, not a return.
 		window.addEventListener(
@@ -80,11 +81,10 @@ export function isSetupResumeEnabled(): boolean {
 export function reloadToTurnOn( feature: string ) {
 	const id = rememberConnectIntent( feature, 'reload' );
 	if ( id ) {
-		const url = new URL( window.location.href );
-		const [ route, query = '' ] = url.hash.split( '?' );
-		const params = new URLSearchParams( query );
-		params.set( CONNECT_INTENT_PARAM, id );
-		url.hash = `${ route }?${ params }`;
+		const url = getFeatureConnectReturnUrl( window.location.hash, {
+			[ CONNECT_INTENT_PARAM ]: id,
+		} );
+		// Set the return address before reloading: changing only the part after # does not reload the page.
 		window.history.replaceState( window.history.state, '', url );
 	}
 	reloadPage();
@@ -121,7 +121,7 @@ function takeConnectIntent( returnId: string | null ) {
 
 	let intent: ConnectIntent | null;
 	try {
-		intent = JSON.parse( window.sessionStorage.getItem( STORAGE_KEY ) ?? 'null' );
+		intent = JSON.parse( window.sessionStorage.getItem( CONNECT_INTENT_STORAGE_KEY ) ?? 'null' );
 	} catch {
 		intent = null;
 	}
@@ -274,7 +274,8 @@ function TurnOnPlugin( {
 }
 
 /**
- * Turn on the feature the account was connected for; no Tracks event fires, since nobody clicked.
+ * Turn on the feature whose Connect, Install Jetpack or Activate Jetpack was clicked;
+ * no Tracks event fires, since nobody clicked.
  *
  * @param {object}       props       - The component props.
  * @param {FeatureState} props.state - The feature's live state.

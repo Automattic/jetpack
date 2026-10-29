@@ -2,6 +2,7 @@ import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { leavePageFor, reloadPage } from '../../../../utils/reload-page';
+import { CONNECT_INTENT_STORAGE_KEY } from '../connect-resume';
 import { FeatureAction } from '../feature-action';
 import { FeatureDelivery } from '../feature-delivery';
 import { FeatureItem } from '../feature-item';
@@ -868,8 +869,8 @@ describe( 'features waiting for an account', () => {
 
 	// The route the saved click names, or null when nothing was saved.
 	const storedRoute = () =>
-		JSON.parse( window.sessionStorage.getItem( 'myJetpackFeatureConnectIntent' ) ?? 'null' )
-			?.route ?? null;
+		JSON.parse( window.sessionStorage.getItem( CONNECT_INTENT_STORAGE_KEY ) ?? 'null' )?.route ??
+		null;
 
 	it.each( [
 		[ 'Install', true, 'install', accountPlugin( 'not-installed' ), 1, false ],
@@ -878,7 +879,7 @@ describe( 'features waiting for an account', () => {
 		[ 'Install Jetpack', false, 'install', accountJetpack( 'not-installed' ), 0, false ],
 		[ 'Activate Jetpack', true, 'activate', accountJetpack( 'inactive' ), 1, true ],
 	] as const )(
-		'connects after %s only once it succeeds (succeeds: %s), and asks Jetpack not to reload',
+		'connects after %s only once it succeeds (succeeds: %s), and asks Jetpack not to reload and remembers the click only for Jetpack',
 		async ( name, succeeds, action, state, connections, resumes ) => {
 			mockRun.mockReturnValueOnce( Promise.resolve( succeeds ) );
 			render( <FeatureAction state={ state } /> );
@@ -892,7 +893,10 @@ describe( 'features waiting for an account', () => {
 			expect( leavePageFor ).toHaveBeenCalledTimes( connections );
 			expect( getUserConnectionUrl ).toHaveBeenCalledTimes( connections );
 			const returnUrl = ( getUserConnectionUrl as jest.Mock ).mock.calls[ 0 ]?.[ 0 ].redirect_url;
-			expect( /connect_intent=[0-9a-f]{16}$/.test( returnUrl ) ).toBe( resumes );
+			const urlPattern = expect.stringMatching(
+				resumes ? /#\/features\?connect_intent=[0-9a-f]{16}$/ : /#\/features$/
+			);
+			expect( returnUrl ).toEqual( connections ? urlPattern : undefined );
 			expect( storedRoute() ).toBe( resumes ? 'connect' : null );
 		}
 	);
@@ -933,7 +937,8 @@ describe( 'features waiting for an account', () => {
 		async ( _, state, plugin, { fails = false, flagOff = false, offline = false }, resumes ) => {
 			setAccountConnect( ! flagOff );
 			window.myJetpackInitialState.isOfflineFeatures = offline;
-			window.location.hash = '#/features?feature=activity-log';
+			const initialHash = '#/features?feature=activity-log&filter=inactive';
+			window.location.hash = initialHash;
 			mockRun.mockReturnValueOnce( Promise.resolve( ! fails ) );
 			try {
 				render( <FeatureAction state={ state } /> );
@@ -953,11 +958,12 @@ describe( 'features waiting for an account', () => {
 			);
 			expect( reloadPage ).toHaveBeenCalledTimes( resumes ? 1 : 0 );
 			expect( leavePageFor ).not.toHaveBeenCalled();
-			expect(
-				/^#\/features\?feature=activity-log&connect_intent=[0-9a-f]{16}$/.test(
-					window.location.hash
-				)
-			).toBe( resumes );
+			const saved = JSON.parse(
+				window.sessionStorage.getItem( CONNECT_INTENT_STORAGE_KEY ) ?? 'null'
+			);
+			expect( window.location.hash ).toBe(
+				resumes ? `#/features?feature=activity-log&connect_intent=${ saved.id }` : initialHash
+			);
 			expect( storedRoute() ).toBe( resumes ? 'reload' : null );
 		}
 	);
