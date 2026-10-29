@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Premium Analytics: Stop showing "Plan usage isn't available" on the Settings tab of WordPress.com sites, where Stats has no view cap.
+Premium Analytics: Leave the plan usage card out of the Settings tab when the plan has no view limit, as on WordPress.com, instead of saying usage isn't available.
