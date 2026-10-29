@@ -141,8 +141,8 @@
 	max-inline-size: 100%;
 }
 
-/* Beside a "View" action the title keeps its own width so the arrow follows it,
- * and stretches over the row so the click target stays the row. */
+/* Beside a "View" action the title stretches over the row so the click target
+ * stays the row. */
 .row {
 	position: relative;
 }
