@@ -285,15 +285,15 @@ type LeaderboardChartData = Array< {
 	ariaLabel?: string;
 	currentValue: number;
 	previousValue?: number;
-	currentShare?: number; // Percentage (0-100); derived when omitted
-	previousShare?: number; // Percentage (0-100); derived when omitted
+	currentShare?: number; // Percentage of the largest value; derived when omitted
+	previousShare?: number; // Percentage of the largest value; derived when omitted
 	delta?: number; // Percentage change; derived when omitted
 } >;
 ```
 
 ### Derived shares and deltas
 
-Pass `currentValue` and `previousValue` only. The chart derives each share as `value / max * 100`, where `max` is the largest absolute value across the rows, counting previous values only when comparison bars draw (`withComparison` without `withOverlayLabel`). The delta is `( current - previous ) / |previous| * 100`, left unset when there is no previous value, or the previous value is 0 and the current value is not. A share or delta you pass wins over the derived one.
+Pass `currentValue` and `previousValue` only. The chart derives the shares and deltas; the rules are in the [Leaderboard Chart docs](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts-library-charts-leaderboard-chart--docs) under Share Calculation. This wrapper passes `negativeBars="clamp"` with `withOverlayLabel`, so a negative value draws an empty bar under its label instead of diverging.
 
 Leave a missing `previousValue` `undefined`, not `0`, so the chart shows the placeholder.
 
