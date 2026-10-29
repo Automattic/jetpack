@@ -900,6 +900,83 @@ describe( 'BaseLegend', () => {
 		} );
 	} );
 
+	describe( 'Controlled items', () => {
+		const VisibilityProbe = () => {
+			const { isSeriesVisible } = useGlobalChartsContext();
+			return (
+				<output data-testid="views-visible">
+					{ String( isSeriesVisible( 'test-chart', 'Views' ) ) }
+				</output>
+			);
+		};
+
+		it.each( [ false, true ] )( 'takes the pressed state from the item (%s)', pressed => {
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend
+						items={ [ { label: 'Previous period', color: '#000', pressed, onToggle: jest.fn() } ] }
+						interactive
+						chartId="test-chart"
+					/>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getByRole( 'button', { name: /Previous period/ } ) ).toHaveAttribute(
+				'aria-pressed',
+				String( pressed )
+			);
+		} );
+
+		it.each( [ 'click', 'Enter', ' ' ] )(
+			'calls onToggle on %s and leaves series visibility alone',
+			async interaction => {
+				const user = userEvent.setup();
+				const onToggle = jest.fn();
+				render(
+					<GlobalChartsProvider>
+						<BaseLegend
+							items={ [
+								{ label: 'Previous period', color: '#000', seriesLabels: [ 'Views' ], onToggle },
+							] }
+							interactive
+							chartId="test-chart"
+						/>
+						<VisibilityProbe />
+					</GlobalChartsProvider>
+				);
+
+				const button = screen.getByRole( 'button', { name: /Previous period/ } );
+				if ( interaction === 'click' ) {
+					await user.click( button );
+				} else {
+					button.focus();
+					await user.keyboard( interaction === ' ' ? ' ' : '{Enter}' );
+				}
+
+				expect( onToggle ).toHaveBeenCalledTimes( 1 );
+				expect( screen.getByTestId( 'views-visible' ) ).toHaveTextContent( 'true' );
+			}
+		);
+
+		it( 'stays static in a legend that is not interactive', async () => {
+			const user = userEvent.setup();
+			const onToggle = jest.fn();
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend
+						items={ [ { label: 'Previous period', color: '#000', pressed: true, onToggle } ] }
+						interactive={ false }
+						chartId="test-chart"
+					/>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+			await user.click( screen.getByTestId( 'legend-item' ) );
+			expect( onToggle ).not.toHaveBeenCalled();
+		} );
+	} );
+
 	describe( 'Non-interactive legend reflects hidden state', () => {
 		const HiddenSeriesHarness = ( { interactive }: { interactive: boolean } ) => {
 			const context = useGlobalChartsContext();

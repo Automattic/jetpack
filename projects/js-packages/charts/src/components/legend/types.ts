@@ -65,4 +65,8 @@ export type BaseLegendItem = {
 	interactive?: boolean;
 	/** Label of the series this static item describes; the item is left out while it is hidden. */
 	describesSeries?: string;
+	/** Pressed state of an item that has `onToggle`; defaults to not pressed. */
+	pressed?: boolean;
+	/** Makes an interactive legend item a toggle the consumer controls, instead of a series toggle. */
+	onToggle?: () => void;
 };

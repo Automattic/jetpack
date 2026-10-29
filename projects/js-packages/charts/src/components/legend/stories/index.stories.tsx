@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Button } from '@wordpress/components';
 import { Stack } from '@wordpress/ui';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { BarChart } from '../../../charts/bar-chart';
 import { LineChart } from '../../../charts/line-chart';
 import { PieChart } from '../../../charts/pie-chart';
@@ -243,6 +243,54 @@ const ProgrammaticVisibilityComponent = () => {
 
 export const ProgrammaticVisibility: Story = {
 	render: () => <ProgrammaticVisibilityComponent />,
+};
+
+const ControlledItemComponent = () => {
+	const [ showPrevious, setShowPrevious ] = useState( false );
+	const togglePrevious = useCallback( () => setShowPrevious( current => ! current ), [] );
+
+	return (
+		<Stack direction="column" gap="md">
+			<LineChart
+				chartId="controlled-item-demo"
+				data={ lineChartData }
+				showLegend={ false }
+				width={ 600 }
+				height={ 300 }
+				withGradientFill={ false }
+			/>
+			<Legend
+				chartId="controlled-item-demo"
+				interactive
+				shape="line"
+				items={ [
+					...lineChartData.map( ( series, index ) => ( {
+						label: series.label,
+						color: index === 0 ? '#3858e9' : '#d63638',
+					} ) ),
+					{
+						label: 'Previous period',
+						color: '#757575',
+						pressed: showPrevious,
+						onToggle: togglePrevious,
+					},
+				] }
+			/>
+			<p>{ showPrevious ? 'Previous period is shown.' : 'Previous period is hidden.' }</p>
+		</Stack>
+	);
+};
+
+export const ControlledItem: Story = {
+	render: () => <ControlledItemComponent />,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The Previous period item is not a series. It reports its pressed state and calls `onToggle` instead of changing series visibility, so the consumer decides what it controls.',
+			},
+		},
+	},
 };
 
 // Story showing a real-world dashboard layout with centralized legends

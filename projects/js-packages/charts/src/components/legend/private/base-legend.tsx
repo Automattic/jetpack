@@ -217,24 +217,28 @@ export const BaseLegend: ForwardRefExoticComponent<
 
 		// Create event handlers to avoid inline arrow functions
 		const createClickHandler = useCallback(
-			( seriesLabels: string[], itemInteractive: boolean ) => {
+			( seriesLabels: string[], itemInteractive: boolean, onToggle?: () => void ) => {
 				if ( ! itemInteractive ) {
 					return undefined;
 				}
-				return () => handleLegendClick( seriesLabels );
+				return () => ( onToggle ? onToggle() : handleLegendClick( seriesLabels ) );
 			},
 			[ handleLegendClick ]
 		);
 
 		const createKeyDownHandler = useCallback(
-			( seriesLabels: string[], itemInteractive: boolean ) => {
+			( seriesLabels: string[], itemInteractive: boolean, onToggle?: () => void ) => {
 				if ( ! itemInteractive ) {
 					return undefined;
 				}
 				return ( event: KeyboardEvent ) => {
 					if ( event.key === 'Enter' || event.key === ' ' ) {
 						event.preventDefault();
-						handleLegendClick( seriesLabels );
+						if ( onToggle ) {
+							onToggle();
+						} else {
+							handleLegendClick( seriesLabels );
+						}
 					}
 				};
 			},
@@ -278,11 +282,13 @@ export const BaseLegend: ForwardRefExoticComponent<
 							const seriesLabels = matchedItem?.seriesLabels?.length
 								? matchedItem.seriesLabels
 								: [ label.text ];
-							const visible =
-								matchedItem?.interactive === false || isSeriesVisible( seriesLabels[ 0 ] );
 							const itemInteractive = interactive && matchedItem?.interactive !== false;
-							const handleClick = createClickHandler( seriesLabels, itemInteractive );
-							const handleKeyDown = createKeyDownHandler( seriesLabels, itemInteractive );
+							const onToggle = itemInteractive ? matchedItem?.onToggle : undefined;
+							const visible = onToggle
+								? matchedItem.pressed === true
+								: matchedItem?.interactive === false || isSeriesVisible( seriesLabels[ 0 ] );
+							const handleClick = createClickHandler( seriesLabels, itemInteractive, onToggle );
+							const handleKeyDown = createKeyDownHandler( seriesLabels, itemInteractive, onToggle );
 
 							return (
 								<LegendItem
