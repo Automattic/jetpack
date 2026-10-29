@@ -1,0 +1,3 @@
+Significance: patch
+Type: bugfix
+Comment: Narrows the unreleased "View" action from #53996 so Top videos rows get none; no user-visible change on its own.
