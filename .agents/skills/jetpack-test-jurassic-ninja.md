@@ -133,85 +133,119 @@ This remotely links the site to Jetpack using the creator's WP.com account. Idem
 
 ### Check 6: SSH access to Jurassic Ninja *(when using rsync or WP-CLI)*
 
-Skip this entire check when neither SFTP nor shell is needed.
+Skip this entire check when neither SFTP nor shell is needed. Anything that doesn't need a
+shell, such as activating plugins, connecting Jetpack or adding products, goes through the
+browser or the context-a8c tools (`connect-jetpack`, `add-jetpack-products`) instead.
 
-Test whether the user has SSH key-based access configured for the JN SFTP host:
+Test key auth once:
 
 ```bash
-ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no {domain}@ssh.atomicsites.net exit 2>&1
+ssh -o BatchMode=yes -o ConnectTimeout=60 -o StrictHostKeyChecking=accept-new {domain}@ssh.atomicsites.net exit 2>&1; echo "SSH_EXIT=$?"
 ```
 
-Where `{domain}` is the domain of the target site (e.g. `foo.jurassic.ninja`).
+Where `{domain}` is the domain of the target site (e.g. `foo.jurassic.ninja`). Always use
+`ssh.atomicsites.net`: the stanza below doesn't cover the `sftp.wp.com` host in `list-sites`'
+`ssh_command`. The key may need the user's approval on their device for each use, so an SSH
+call can sit waiting on them.
 
-**If the command succeeds (exit code 0):** SSH keys are configured. Set `SSH_OK=true`. **Do not fetch the site password** — it isn't needed and pulling it into the transcript is an avoidable credential leak.
+Every key-auth `ssh` uses `-o BatchMode=yes`, and every key-auth rsync sets
+`RSYNC_RSH='ssh -o BatchMode=yes'`: without it, ssh with no TTY falls through to password
+prompts and burns failed attempts toward the lockout below.
 
-**If the command fails:** SSH key auth isn't configured. Tell the user:
+**If `SSH_EXIT=0`:** set `SSH_OK=true`. **Do not fetch the site password** — pulling it into
+the transcript is an avoidable credential leak.
 
-> SSH key authentication to `ssh.atomicsites.net` is not configured. If you are an Automattician, you can fix this by adding the following near the **top** of your `~/.ssh/config`, above any broad `Host *` stanza (SSH is first-match-wins, so a general block earlier in the file can shadow these settings):
+**If it fails:** don't loop on it. Check whether the stanza below is in effect with
+`ssh -G ssh.atomicsites.net | grep -i '^proxyjump'` (it prints
+`proxyjump proxy.automattic.com` when it is).
+
+- **Stanza in effect, `agent refused operation` or a timeout** (this takes precedence over the
+  next bullet): the key approval on the user's device was probably missed or declined. Ask
+  the user to approve, then run the check once more; if it fails again, go by the other
+  bullets.
+- **Stanza in effect, `@ssh.atomicsites.net: Permission denied` or `Too many authentication
+  failures`:** key auth was refused. Tell the user so. When an Automattician creates a site
+  while signed in to JN, it copies only their first SSH key in Mission Control, so a likely
+  cause is that this machine's key isn't first. Reordering keys there helps only sites
+  created afterwards. Whether `provision-site` sites get keys at all is unknown. For now, use
+  the password.
+- **Stanza in effect, any other error** (including a denial from `proxy.automattic.com`):
+  report it and stop, since a password login goes through the same proxy.
+- **Stanza not in effect:** show it, whatever the error, and use the password:
+
+> SSH key authentication to `ssh.atomicsites.net` failed. The documented setup for
+> Automatticians is to add this near the **top** of `~/.ssh/config`, above any `Host *` block:
 >
 > ```
-> Host ssh.atomicsites.net sftp.wp.com
+> Host ssh.atomicsites.net
+>     HostName ssh.atomicsites.net
 >     Include ~/.ssh/a8c-key.config
 >     ProxyJump proxy.automattic.com
 > ```
 >
-> This is a one-time setup that covers every JN site you create from now on — the key
-> authenticates you to a shared gateway, not to any individual site, so it keeps working
-> as sites come and go.
->
 > For now, I'll use the site password instead.
 
-Both hostnames are listed because JN's `ssh_command` hands out `sftp.wp.com` while the rsync
-step uses `ssh.atomicsites.net` — same gateway, two names. No `HostName` line is needed; it
-defaults to whichever name was used. Verify with:
-
-```bash
-ssh -o BatchMode=yes {domain}@ssh.atomicsites.net "cd /srv/htdocs && wp option get blogname"
-```
-
-`BatchMode=yes` makes it fail rather than silently fall back to a password prompt, so the
-result is an unambiguous yes/no on key auth.
-
-Then set `SSH_OK=false` and **only now** fetch the site password:
+When falling back, set `SSH_OK=false` and **only now** fetch the site password, taking it
+from the returned config and never printing it:
 
 ```
 execute-tool: jurassic-ninja / list-sites (domain: <site domain>, include_passwords: true)
 ```
 
-Pull the SFTP password out of the returned config and use it for the rsync or shell step. Don't print it back to the user.
+**Password auth locks out fast.** The third login within about 15 minutes is refused, and the
+site stays locked for at least 10 more. So:
+
+- Every rsync and every `ssh` or `expect` call is one login, so the budget is two logins per
+  site: plan one rsync plus one shell session. Chain commands, or base64 a script and run it
+  with one `wp eval-file` or `bash`. Anything more waits out the window, or ask the user.
+- Pass `-o NumberOfPasswordPrompts=1 -o PubkeyAuthentication=no` to ssh, and set them in
+  `RSYNC_RSH` for rsync (step 4); otherwise ssh tries the password three times per login.
+  `RSYNC_RSH` has no effect when `RSYNC_PROXY_SOCKET` is set; don't use the password then.
+- Substitute the password inside single quotes, writing any `'` in it as `'\''`.
+- After a refusal or lockout, stop. Wait at least 10 minutes, never retry in a loop, and tell
+  the user if it blocks the task.
 
 ## Running commands on the site
 
 To inspect or change site state — which package version actually loaded, options, logs,
-toggling plugins — run WP-CLI over SSH.
+toggling plugins — run WP-CLI over SSH. Run Check 6 first if it hasn't set `SSH_OK` yet.
 
-**If key auth works**, just run it directly:
+**If `SSH_OK=true`**, just run it directly:
 
 ```bash
-ssh {domain}@ssh.atomicsites.net "cd /srv/htdocs && wp plugin list"
+ssh -o BatchMode=yes {domain}@ssh.atomicsites.net "cd /srv/htdocs && wp plugin list"
 ```
 
-**If key auth is unavailable**, drive the password prompt with `expect` (the
-`context-a8c:jurassic-ninja-ssh` skill covers this too). Use the non-interactive form —
-passing the command as an argument to `ssh` — rather than sending keystrokes into a login
-shell, because a pty echoes and can mangle long input:
+**If `SSH_OK=false`**, drive the password prompt with `expect`, within the lockout rules in
+Check 6. Pass the command as an argument to `ssh` rather than sending keystrokes into a login
+shell, because a pty echoes and can mangle long input. The password goes in through the
+environment so Tcl can't reinterpret `$`, `[` or `\` in it. Keep the `expect` patterns
+unbraced on one line: a one-line `expect { ... }` is read as one literal pattern and never
+matches.
 
 ```bash
-expect -c '
+JN_PW='<JN_PASSWORD>' expect -c '
 set timeout 120
 log_user 0
-spawn ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -T {domain}@sftp.wp.com {cd /srv/htdocs && wp plugin list}
-expect { -re "assword:" { send "<JN_PASSWORD>\r"; log_user 1 } timeout { puts "TIMEOUT"; exit 1 } }
-expect eof
-'
+spawn ssh -o StrictHostKeyChecking=accept-new -o PubkeyAuthentication=no -o NumberOfPasswordPrompts=1 -T {domain}@ssh.atomicsites.net {cd /srv/htdocs && wp plugin list}
+expect -re "assword:" { send -- "$env(JN_PW)\r"; log_user 1 } timeout { puts "TIMEOUT"; exit 1 } eof { puts "NO_PROMPT: $expect_out(buffer)"; exit 1 }
+set timeout 600
+expect -re {s password: $} { puts "REPROMPT"; exit 1 } timeout { puts "CMD_TIMEOUT"; exit 1 } eof
+catch wait result
+exit [lindex $result 3]
+'; echo "SSH_EXIT=$?"
 ```
+
+`TIMEOUT`, `NO_PROMPT`, `REPROMPT` or `@ssh.atomicsites.net: Permission denied` means the
+login failed: stop, per Check 6, rather than rerunning it. `CMD_TIMEOUT` or any other non-zero
+`SSH_EXIT` is the remote command failing, after a login that still counts. Raise
+`timeout 600` for longer remote commands.
 
 Notes that save time:
 
 - The shell lands in the home directory. `wp` itself resolves the install from anywhere, but
   **relative paths do not** — `cd /srv/htdocs` first whenever a command names a file
   (`wp-content/plugins/...`), or use absolute paths.
-- Both `ssh.atomicsites.net` and `sftp.wp.com` work as hosts.
 - To run a non-trivial PHP snippet, base64-encode it locally, decode it remotely to a temp file,
   and run `wp eval-file`. This sidesteps every layer of shell/expect quoting.
 - `python3` is not installed on JN hosts. Use `php` for scripted file edits.
@@ -222,10 +256,6 @@ Notes that save time:
   grepping for a pattern containing `$`, quote it so the remote shell doesn't expand it —
   an unquoted `$host` silently becomes an empty string and a real match reports as zero.
 - Page caching is on. Add a cache-busting query param when verifying that a change took effect.
-- Password SSH locks out fast: on two sites in October 2026 the third login within about 15
-  minutes was refused, and the site stayed locked for at least 10 more. ssh also tries the
-  password three times per attempt unless told not to. Plan one login per site, do everything
-  in it, and pass `-o NumberOfPasswordPrompts=1`.
 - JN answers bursts of requests with HTTP 429. Load pages one at a time; on a 429, wait two
   minutes before retrying.
 - The site's auto-login link works once. If a browser script needs to log in again later, save
@@ -312,7 +342,7 @@ The SSH host is always `ssh.atomicsites.net`.
 **If `SSH_OK=true`** (key-based auth works):
 
 ```bash
-pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive
+RSYNC_RSH='ssh -o BatchMode=yes' pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive
 ```
 
 No `--password` flag — SSH keys handle auth.
@@ -320,10 +350,12 @@ No `--password` flag — SSH keys handle auth.
 **If `SSH_OK=false`** (falling back to the password fetched in Check 6):
 
 ```bash
-pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
+RSYNC_RSH='ssh -o NumberOfPasswordPrompts=1 -o PubkeyAuthentication=no' pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
 ```
 
-`--password` passes the SSH password automatically via `SSH_ASKPASS`.
+`--password` passes the SSH password via `SSH_ASKPASS` but sets no ssh options, so the
+`RSYNC_RSH` prefix supplies them. The rsync counts as a login, and so does any rerun: if it
+fails for any reason, follow the lockout rules in Check 6 rather than rerunning it.
 
 ### 5. Report results
 
@@ -332,7 +364,8 @@ After sync (or after site creation for `provision-only`), show:
 - Whether Jetpack is connected (from `connect-jetpack` output, if called). For brand-new sites, whether you autoconnected and why (the connection signal, or the user's request), plus the SSO warning when the change touches the connection, login or SSO.
 - For brand-new sites: the `ledger_url` from `provision-site`, or the ledger warning.
 - For `rsync` Jetpack-plugin flows: remind the user to set `define('JETPACK_AUTOLOAD_DEV', true);` in a mu-plugin on the remote site.
-- If `SSH_OK` was false: remind the user to set up SSH keys for a smoother experience next time.
+- If `SSH_OK` was false: repeat what Check 6 found, either the missing `~/.ssh/config` stanza
+  or a refusal with the stanza in place.
 - For brand-new sites: note the site expires after 7 days of inactivity.
 
 Do not echo back any site password in the final report, even if one was used for rsync.
