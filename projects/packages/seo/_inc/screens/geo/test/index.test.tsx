@@ -63,20 +63,20 @@ const crawlerForm = (
 		catalog: [
 			{
 				slug: 'oai-searchbot',
-				label: 'ChatGPT Search (OAI-SearchBot)',
-				userAgent: 'OAI-SearchBot',
+				label: 'ChatGPT Search',
+				userAgents: [ 'OAI-SearchBot' ],
 				type: 'answer',
 			},
 			{
 				slug: 'gptbot',
-				label: 'ChatGPT (GPTBot)',
-				userAgent: 'GPTBot',
+				label: 'ChatGPT',
+				userAgents: [ 'GPTBot' ],
 				type: 'training',
 			},
 			{
 				slug: 'google-extended',
-				label: 'Google Gemini (Google-Extended)',
-				userAgent: 'Google-Extended',
+				label: 'Google Gemini',
+				userAgents: [ 'Google-Extended' ],
 				type: 'training',
 			},
 		],
@@ -129,8 +129,8 @@ describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 	it( 'disables llms.txt and links to visibility settings when indexing is blocked', () => {
 		render( <GeoScreen form={ formWith( true ) } searchEnginesVisible={ false } /> );
 
-		const toggle = screen.getByRole( 'checkbox', { name: /generate an llms\.txt file/i } );
-		expect( toggle ).toBeDisabled();
+		const toggle = screen.getByRole( 'switch', { name: /generate an llms\.txt file/i } );
+		expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( toggle ).not.toBeChecked();
 		expect( screen.getAllByText( /to enable, allow search engines/i ).length ).toBeGreaterThan( 0 );
 		expect( screen.getByRole( 'link', { name: 'Open site visibility settings' } ) ).toHaveAttribute(
@@ -148,7 +148,8 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 		render( <GeoScreen form={ crawlerForm() } searchEnginesVisible /> );
 
 		expect( screen.getByText( 'Training crawlers' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Block Google Gemini (Google-Extended)' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Block Google Gemini' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Google-Extended' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'AI answers and training' ) ).not.toBeInTheDocument();
 	} );
 
@@ -178,14 +179,14 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 	} );
 
 	it.each( [
-		[ 'Block ChatGPT (GPTBot)', 0, 'setCrawlerBlocked', 'gptbot' ],
+		[ 'Block ChatGPT', 0, 'setCrawlerBlocked', 'gptbot' ],
 		[ 'Block all', 1, 'setCrawlerGroupBlocked', 'training' ],
 	] as const )( 'blocks when "%s" is switched on', ( name, index, setter, target ) => {
 		const form = { ...crawlerForm(), [ setter ]: jest.fn() };
 		render( <GeoScreen form={ form } searchEnginesVisible /> );
 
 		// Collapsed panels hide the toggles, so include hidden ones.
-		const toggle = screen.getAllByRole( 'checkbox', { name, hidden: true } )[ index ];
+		const toggle = screen.getAllByRole( 'switch', { name, hidden: true } )[ index ];
 		expect( toggle ).not.toBeChecked();
 		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep for a single click.
 		fireEvent.click( toggle );
@@ -223,13 +224,13 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 		const link = screen.getAllByRole( 'link', { name: /manage sharing settings/i } )[ 0 ];
 		expect( link ).toHaveAttribute( 'href', 'http://example.com/wp-admin/options-reading.php' );
 		// The (collapsed) toggles are disabled — include hidden so the closed panel counts.
-		const boxes = screen.getAllByRole( 'checkbox', { hidden: true } );
-		expect( boxes.length ).toBeGreaterThan( 0 );
-		expect( boxes.every( box => box.hasAttribute( 'disabled' ) ) ).toBe( true );
-		const toggle = ( name: string ) => screen.getByRole( 'checkbox', { name, hidden: true } );
-		expect( toggle( 'Block ChatGPT Search (OAI-SearchBot)' ) ).not.toBeChecked();
-		expect( toggle( 'Block ChatGPT (GPTBot)' ) ).toBeChecked();
-		expect( toggle( 'Block Google Gemini (Google-Extended)' ) ).toBeChecked();
+		const switches = screen.getAllByRole( 'switch', { hidden: true } );
+		expect( switches.length ).toBeGreaterThan( 0 );
+		expect( switches.every( el => el.getAttribute( 'aria-disabled' ) === 'true' ) ).toBe( true );
+		const toggle = ( name: string ) => screen.getByRole( 'switch', { name, hidden: true } );
+		expect( toggle( 'Block ChatGPT Search' ) ).not.toBeChecked();
+		expect( toggle( 'Block ChatGPT' ) ).toBeChecked();
+		expect( toggle( 'Block Google Gemini' ) ).toBeChecked();
 		const answerHeader = screen.getByRole( 'button', { name: /answer engines/i } );
 		const trainingHeader = screen.getByRole( 'button', { name: /training crawlers/i } );
 		expect( within( answerHeader ).getByText( 'Allowed' ) ).toBeInTheDocument();
@@ -244,7 +245,7 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 			'href',
 			'/settings?focus=visibility'
 		);
-		expect( screen.queryByText( 'Block Google Gemini (Google-Extended)' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Block Google Gemini' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'hides per-site controls on path-based multisite', () => {
@@ -253,7 +254,7 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 		);
 
 		expect( screen.getAllByText( /shares one robots\.txt/i ).length ).toBeGreaterThan( 0 );
-		expect( screen.queryByText( 'Block Google Gemini (Google-Extended)' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Block Google Gemini' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'explains a staging subdomain instead of offering controls', () => {
@@ -262,7 +263,7 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 		);
 
 		expect( screen.getAllByText( /temporary staging address/i ).length ).toBeGreaterThan( 0 );
-		expect( screen.queryByText( 'Block Google Gemini (Google-Extended)' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Block Google Gemini' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'accurately describes a detected static robots.txt file', () => {
@@ -436,8 +437,8 @@ describe( 'GeoScreen (GEO tab) — the AI SEO Enhancer card', () => {
 		);
 
 		expect(
-			screen.getByRole( 'checkbox', { name: /Automatically generate SEO title/ } )
-		).toBeDisabled();
+			screen.getByRole( 'switch', { name: /Automatically generate SEO title/ } )
+		).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( screen.getByText( message ) ).toBeInTheDocument();
 	} );
 
@@ -453,8 +454,8 @@ describe( 'GeoScreen (GEO tab) — the AI SEO Enhancer card', () => {
 		);
 
 		expect(
-			screen.getByRole( 'checkbox', { name: /Automatically generate SEO title/ } )
-		).toBeEnabled();
+			screen.getByRole( 'switch', { name: /Automatically generate SEO title/ } )
+		).not.toHaveAttribute( 'aria-disabled' );
 		expect( screen.queryByText( /AI SEO is turned off for this site/ ) ).not.toBeInTheDocument();
 	} );
 } );

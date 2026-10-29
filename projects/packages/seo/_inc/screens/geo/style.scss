@@ -17,8 +17,7 @@
 }
 
 // Align llms.txt action links with the toggle's label/help text rather than the
-// switch. 40px matches @wordpress/components ToggleControl's help
-// margin-inline-start (≈ 36px switch + gap).
+// switch. 40px matches SwitchControl's 32px switch plus its 8px gap.
 .jetpack-seo-geo__llms-link {
 	align-self: flex-start;
 	margin-inline-start: 40px;

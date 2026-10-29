@@ -52,20 +52,20 @@ export const SEEDED_GEO: GeoState = {
 		catalog: [
 			{
 				slug: 'perplexitybot',
-				label: 'Perplexity (PerplexityBot)',
-				userAgent: 'PerplexityBot',
+				label: 'Perplexity',
+				userAgents: [ 'PerplexityBot' ],
 				type: 'answer',
 			},
 			{
 				slug: 'gptbot',
-				label: 'ChatGPT (GPTBot)',
-				userAgent: 'GPTBot',
+				label: 'ChatGPT',
+				userAgents: [ 'GPTBot' ],
 				type: 'training',
 			},
 			{
 				slug: 'google-extended',
-				label: 'Google Gemini (Google-Extended)',
-				userAgent: 'Google-Extended',
+				label: 'Google Gemini',
+				userAgents: [ 'Google-Extended' ],
 				type: 'training',
 			},
 		],

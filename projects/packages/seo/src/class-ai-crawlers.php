@@ -75,87 +75,102 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * The known AI crawler catalog: slug => [ label, user_agent, type ].
+	 * The known AI crawler catalog: slug => [ label, user_agents, type ].
 	 *
 	 * `slug` is the stable key persisted in {@see self::OPTION} and sent by the GEO
-	 * tab; `user_agent` is the token written to the `User-agent:` robots line;
+	 * tab; `user_agents` are the tokens written to `User-agent:` robots lines, the
+	 * current one first and any older names the operator used after it;
 	 * `label` is the human name shown in the UI; `type` is `answer` (fetches to
 	 * cite in live AI answers) or `training` (collects to train models).
 	 *
-	 * @return array<string, array<string, string>>
+	 * @return array<string, array{label: string, user_agents: string[], type: string}>
 	 */
 	public static function get_catalog() {
-		// Labels are the name a user is most likely to recognize, with the exact
-		// robots.txt user-agent token in parentheses so a technical user can verify
-		// the emitted directive (and to disambiguate the search/training pairs, e.g.
-		// ChatGPT's GPTBot vs OAI-SearchBot).
+		// Labels are the name a user is most likely to recognize. The GEO tab lists the
+		// exact tokens under each so a technical user can verify the emitted directives.
 		$catalog = array(
 			// Answer-engine crawlers fetch pages so AI assistants can cite them in
 			// live answers. Blocking them costs AI visibility.
 			'oai-searchbot'      => array(
-				'label'      => __( 'ChatGPT Search (OAI-SearchBot)', 'jetpack-seo' ),
-				'user_agent' => 'OAI-SearchBot',
-				'type'       => 'answer',
+				'label'       => __( 'ChatGPT Search', 'jetpack-seo' ),
+				'user_agents' => array( 'OAI-SearchBot' ),
+				'type'        => 'answer',
 			),
 			'claude-searchbot'   => array(
-				'label'      => __( 'Claude Search (Claude-SearchBot)', 'jetpack-seo' ),
-				'user_agent' => 'Claude-SearchBot',
-				'type'       => 'answer',
+				'label'       => __( 'Claude Search', 'jetpack-seo' ),
+				'user_agents' => array( 'Claude-SearchBot' ),
+				'type'        => 'answer',
 			),
 			'perplexitybot'      => array(
-				'label'      => __( 'Perplexity (PerplexityBot)', 'jetpack-seo' ),
-				'user_agent' => 'PerplexityBot',
-				'type'       => 'answer',
+				'label'       => __( 'Perplexity', 'jetpack-seo' ),
+				'user_agents' => array( 'PerplexityBot' ),
+				'type'        => 'answer',
 			),
 			'amzn-searchbot'     => array(
-				'label'      => __( 'Amazon Alexa (Amzn-SearchBot)', 'jetpack-seo' ),
-				'user_agent' => 'Amzn-SearchBot',
-				'type'       => 'answer',
+				'label'       => __( 'Amazon Alexa', 'jetpack-seo' ),
+				'user_agents' => array( 'Amzn-SearchBot' ),
+				'type'        => 'answer',
+			),
+			'meta-webindexer'    => array(
+				'label'       => __( 'Meta AI Search', 'jetpack-seo' ),
+				'user_agents' => array( 'meta-webindexer' ),
+				'type'        => 'answer',
+			),
+			'duckassistbot'      => array(
+				'label'       => __( 'DuckDuckGo AI answers', 'jetpack-seo' ),
+				'user_agents' => array( 'DuckAssistBot' ),
+				'type'        => 'answer',
 			),
 			// Training crawlers collect content to train AI models. Blocking them doesn't
 			// affect search results or Google's AI Overviews. Google-Extended also covers
 			// Gemini app answers.
 			'gptbot'             => array(
-				'label'      => __( 'ChatGPT (GPTBot)', 'jetpack-seo' ),
-				'user_agent' => 'GPTBot',
-				'type'       => 'training',
+				'label'       => __( 'ChatGPT', 'jetpack-seo' ),
+				'user_agents' => array( 'GPTBot' ),
+				'type'        => 'training',
 			),
 			'claudebot'          => array(
-				'label'      => __( 'Claude (ClaudeBot)', 'jetpack-seo' ),
-				'user_agent' => 'ClaudeBot',
-				'type'       => 'training',
+				'label'       => __( 'Claude', 'jetpack-seo' ),
+				'user_agents' => array( 'ClaudeBot', 'anthropic-ai', 'Claude-Web' ),
+				'type'        => 'training',
 			),
 			'google-extended'    => array(
-				'label'      => __( 'Google Gemini (Google-Extended)', 'jetpack-seo' ),
-				'user_agent' => 'Google-Extended',
-				'type'       => 'training',
+				'label'       => __( 'Google Gemini', 'jetpack-seo' ),
+				'user_agents' => array( 'Google-Extended' ),
+				'type'        => 'training',
 			),
 			'applebot-extended'  => array(
-				'label'      => __( 'Apple Intelligence (Applebot-Extended)', 'jetpack-seo' ),
-				'user_agent' => 'Applebot-Extended',
-				'type'       => 'training',
+				'label'       => __( 'Apple Intelligence', 'jetpack-seo' ),
+				'user_agents' => array( 'Applebot-Extended' ),
+				'type'        => 'training',
 			),
 			'meta-externalagent' => array(
-				'label'      => __( 'Meta AI (meta-externalagent)', 'jetpack-seo' ),
-				'user_agent' => 'meta-externalagent',
-				'type'       => 'training',
+				'label'       => __( 'Meta AI', 'jetpack-seo' ),
+				'user_agents' => array( 'meta-externalagent', 'FacebookBot' ),
+				'type'        => 'training',
 			),
 			'bytespider'         => array(
-				'label'      => __( 'ByteDance (Bytespider)', 'jetpack-seo' ),
-				'user_agent' => 'Bytespider',
-				'type'       => 'training',
+				'label'       => __( 'ByteDance', 'jetpack-seo' ),
+				'user_agents' => array( 'Bytespider' ),
+				'type'        => 'training',
 			),
 			'ccbot'              => array(
-				'label'      => __( 'Common Crawl (CCBot)', 'jetpack-seo' ),
-				'user_agent' => 'CCBot',
-				'type'       => 'training',
+				'label'       => __( 'Common Crawl', 'jetpack-seo' ),
+				'user_agents' => array( 'CCBot' ),
+				'type'        => 'training',
 			),
 			'amazonbot'          => array(
 				// Amazon's own docs: Amazonbot "may be used to train Amazon AI
 				// models" (Amzn-SearchBot is the answer-engine bot above).
-				'label'      => __( 'Amazon (Amazonbot)', 'jetpack-seo' ),
-				'user_agent' => 'Amazonbot',
-				'type'       => 'training',
+				'label'       => __( 'Amazon', 'jetpack-seo' ),
+				'user_agents' => array( 'Amazonbot' ),
+				'type'        => 'training',
+			),
+			'omgili'             => array(
+				// Webz.io crawls to sell web data, including for AI training.
+				'label'       => __( 'Webz.io', 'jetpack-seo' ),
+				'user_agents' => array( 'omgili', 'omgilibot', 'Webzio-Extended' ),
+				'type'        => 'training',
 			),
 		);
 
@@ -190,6 +205,7 @@ class Ai_Crawlers {
 			'google-extended',
 			'gptbot',
 			'meta-externalagent',
+			'omgili',
 			'perplexitybot',
 		);
 	}
@@ -407,9 +423,11 @@ class Ai_Crawlers {
 
 		$lines = array( '', '# AI crawlers blocked via Jetpack SEO.' );
 		foreach ( $blocked as $slug ) {
-			$lines[] = 'User-agent: ' . $catalog[ $slug ]['user_agent'];
-			$lines[] = 'Disallow: /';
-			$lines[] = '';
+			foreach ( $catalog[ $slug ]['user_agents'] as $user_agent ) {
+				$lines[] = 'User-agent: ' . $user_agent;
+				$lines[] = 'Disallow: /';
+				$lines[] = '';
+			}
 		}
 
 		return $output . implode( "\n", $lines ) . "\n";
@@ -426,10 +444,10 @@ class Ai_Crawlers {
 		$catalog = array();
 		foreach ( self::get_catalog() as $slug => $info ) {
 			$catalog[] = array(
-				'slug'      => $slug,
-				'label'     => $info['label'],
-				'userAgent' => $info['user_agent'],
-				'type'      => $info['type'],
+				'slug'       => $slug,
+				'label'      => $info['label'],
+				'userAgents' => $info['user_agents'],
+				'type'       => $info['type'],
 			);
 		}
 

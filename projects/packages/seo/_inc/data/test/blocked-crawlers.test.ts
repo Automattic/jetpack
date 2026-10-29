@@ -2,9 +2,14 @@ import { isCrawlerBlocked, withCrawlerBlocked, withGroupBlocked } from '../block
 import type { AiCrawler, BlockedCrawlers } from '../geo-types';
 
 const catalog: AiCrawler[] = [
-	{ slug: 'oai-searchbot', label: 'OAI-SearchBot', userAgent: 'OAI-SearchBot', type: 'answer' },
-	{ slug: 'gptbot', label: 'GPTBot', userAgent: 'GPTBot', type: 'training' },
-	{ slug: 'ccbot', label: 'CCBot', userAgent: 'CCBot', type: 'training' },
+	{
+		slug: 'oai-searchbot',
+		label: 'OAI-SearchBot',
+		userAgents: [ 'OAI-SearchBot' ],
+		type: 'answer',
+	},
+	{ slug: 'gptbot', label: 'GPTBot', userAgents: [ 'GPTBot' ], type: 'training' },
+	{ slug: 'ccbot', label: 'CCBot', userAgents: [ 'CCBot' ], type: 'training' },
 ];
 const none: BlockedCrawlers = { answer: [], training: [] };
 
