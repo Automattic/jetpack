@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { ignoreThreat } from '../threat-actions';
 import ThreatDetails from '../threat-details';
 import type { ScanThreat } from '../types';
 
@@ -42,5 +43,18 @@ describe( 'ThreatDetails', () => {
 
 		expect( mockApiFetch ).toHaveBeenCalledTimes( confirms ? 0 : 1 );
 		expect( !! screen.queryByRole( 'button', { name: 'Confirm deletion' } ) ).toBe( confirms );
+	} );
+
+	it( 'disables Confirm deletion while another action runs on the threat', async () => {
+		const threat = threatIn( 3, 'delete' );
+		render( <ThreatDetails threat={ threat } canAct /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Auto-fix it' } ) );
+		await userEvent.type( screen.getByRole( 'textbox' ), 'akismet' );
+		const confirm = screen.getByRole( 'button', { name: 'Confirm deletion' } );
+		expect( confirm ).toHaveAttribute( 'aria-disabled', 'false' );
+
+		act( () => void ignoreThreat( threat ) );
+
+		expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 } );

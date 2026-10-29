@@ -328,7 +328,12 @@ function DeleteFixButton( { threat, onFix }: { threat: ScanThreat; onFix: () => 
 				</Dialog.Header>
 				<Dialog.Content>
 					{ /* Mounted only while open, so the slug field starts empty each time. */ }
-					<FixDeleteConfirmation threat={ threat } onCancel={ onCancel } onConfirm={ onConfirm } />
+					<FixDeleteConfirmation
+						threat={ threat }
+						isBusy={ !! busy }
+						onCancel={ onCancel }
+						onConfirm={ onConfirm }
+					/>
 				</Dialog.Content>
 			</Dialog.Popup>
 		</Dialog.Root>
