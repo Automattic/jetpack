@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { IconButton } from '@jetpack-premium-analytics/externals';
+import { Button, Icon, Tooltip } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
 import { link } from '@wordpress/icons';
 /**
@@ -25,17 +25,25 @@ export type UtmUrlBuilderButtonProps = {
  */
 export function UtmUrlBuilderButton( { label, onClick }: UtmUrlBuilderButtonProps ): JSX.Element {
 	return (
-		<IconButton
-			icon={ link }
-			label={ sprintf(
-				/* translators: %s: the title of a post or page. */
-				__( 'Build URL for "%s"', 'jetpack-premium-analytics-pkg' ),
-				label
-			) }
-			size="small"
-			variant="minimal"
-			type="button"
-			onClick={ onClick }
-		/>
+		<Tooltip.Root>
+			<Tooltip.Trigger
+				render={
+					<Button
+						size="small"
+						variant="minimal"
+						type="button"
+						onClick={ onClick }
+						aria-label={ sprintf(
+							/* translators: %s: the title of a post or page. */
+							__( 'Build URL for "%s"', 'jetpack-premium-analytics-pkg' ),
+							label
+						) }
+					>
+						<Icon icon={ link } size={ 16 } />
+					</Button>
+				}
+			/>
+			<Tooltip.Popup>{ __( 'Build URL', 'jetpack-premium-analytics-pkg' ) }</Tooltip.Popup>
+		</Tooltip.Root>
 	);
 }

@@ -13,7 +13,12 @@ describe( 'UtmUrlBuilderButton', () => {
 		const onClick = jest.fn();
 		render( <UtmUrlBuilderButton label="Hello" onClick={ onClick } /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Build URL for "Hello"' } ) );
+		const button = screen.getByRole( 'button', { name: 'Build URL for "Hello"' } );
+		await userEvent.hover( button );
+
+		await expect( screen.findByText( 'Build URL' ) ).resolves.toBeInTheDocument();
+
+		await userEvent.click( button );
 
 		expect( onClick ).toHaveBeenCalledTimes( 1 );
 	} );
