@@ -4,7 +4,7 @@
  * @package
  */
 
-import { withCurrency } from './resource-sync';
+import { withCurrency, withPrimaryDimension } from './resource-sync';
 import { SHIPPING_MODES_WITH_FEE } from './validation';
 
 /**
@@ -118,7 +118,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 				...( productDescription ? { description: productDescription } : {} ),
 				...( productId?.trim() ? { product_id: productId.trim() } : {} ),
 				...( variantsEnabled && variants
-					? { variants: withCurrency( variants, currencyCode || 'USD' ) }
+					? { variants: withPrimaryDimension( withCurrency( variants, currencyCode || 'USD' ) ) }
 					: {} ),
 				...( adjustableQuantity && maxQuantity > 1
 					? { adjustable_quantity: { maximum: parseInt( maxQuantity, 10 ) } }

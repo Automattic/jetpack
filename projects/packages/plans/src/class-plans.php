@@ -21,7 +21,7 @@ class Plans {
 	 * Get a list of all available plans from WordPress.com
 	 *
 	 * @since-jetpack 7.7.0
-	 * @since $$next-version$$ Accepts request arguments.
+	 * @since 0.16.0 Accepts request arguments.
 	 *
 	 * @param array $args Request arguments, such as a `timeout` for a lookup in front of a page render.
 	 * @return array The plans list
@@ -67,7 +67,7 @@ class Plans {
 	 * Get plan information for a plan given its slug
 	 *
 	 * @since-jetpack 7.7.0
-	 * @since $$next-version$$ Accepts request arguments.
+	 * @since 0.16.0 Accepts request arguments.
 	 *
 	 * @param string $plan_slug Plan slug.
 	 * @param array  $args      Request arguments, as accepted by `get_plans()`.

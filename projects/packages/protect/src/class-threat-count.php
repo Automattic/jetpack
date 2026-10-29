@@ -83,7 +83,7 @@ class Threat_Count {
 	 * @return void
 	 */
 	public static function register_menu_badge() {
-		if ( ! Dashboard::can_manage() ) {
+		if ( ! Dashboard::can_manage() || ! self::should_notify_threats() ) {
 			return;
 		}
 
@@ -114,7 +114,7 @@ class Threat_Count {
 	 * @return void
 	 */
 	public static function maybe_enqueue_refresh() {
-		if ( ( ! is_admin() && ! is_admin_bar_showing() ) || ! Dashboard::can_manage() || ! self::needs_refresh() ) {
+		if ( ( ! is_admin() && ! is_admin_bar_showing() ) || ! Dashboard::can_manage() || ! self::should_notify_threats() || ! self::needs_refresh() ) {
 			return;
 		}
 
@@ -184,5 +184,14 @@ class Threat_Count {
 		}
 
 		return rest_ensure_response( array( 'count' => count( Dashboard_Threats::without_resolved( $status->threats, $status->last_checked ?? null ) ) ) );
+	}
+
+	/**
+	 * Whether the host lets threats be announced in the menu and the admin bar.
+	 *
+	 * @return bool
+	 */
+	private static function should_notify_threats() {
+		return ! method_exists( Status::class, 'should_notify_threats' ) || Status::should_notify_threats();
 	}
 }

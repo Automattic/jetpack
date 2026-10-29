@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show no paid plan price instead of $0 and NaN on upgrade pages with one price per plan, such as Stats, Backup, Social and VideoPress, when prices cannot be loaded.
