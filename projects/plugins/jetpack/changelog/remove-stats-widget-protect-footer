@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove dashboard widget footer code that has not rendered since the legacy Stats widget was removed.
+
+
