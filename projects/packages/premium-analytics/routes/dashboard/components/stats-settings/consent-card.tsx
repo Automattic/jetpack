@@ -148,7 +148,8 @@ export function ConsentCard(): JSX.Element | null {
  */
 function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Element {
 	const [ isConnecting, setIsConnecting ] = useState( false );
-	const [ justConnected, setJustConnected ] = useState( false );
+	// A ref, not state: React 18 renders a store update apart from state updates, so state would move focus a commit late.
+	const focusApiStepOnActive = useRef( false );
 	const apiStepRef = useRef< HTMLLIElement >( null );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( 'core/notices' );
 	const hasBanner = status.has_banner || status.banner_plugin !== null;
@@ -157,11 +158,15 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 
 	// The action button unmounts once the plugin is active, so focus falls to <body> unless the user moved it.
 	useEffect( () => {
+		if ( ! status.api_active || ! focusApiStepOnActive.current ) {
+			return;
+		}
+		focusApiStepOnActive.current = false;
 		const row = apiStepRef.current;
-		if ( justConnected && row?.ownerDocument.activeElement === row?.ownerDocument.body ) {
+		if ( row?.ownerDocument.activeElement === row?.ownerDocument.body ) {
 			row?.focus( { preventScroll: true } );
 		}
-	}, [ justConnected ] );
+	}, [ status.api_active ] );
 
 	const connect = useCallback( async () => {
 		setIsConnecting( true );
@@ -184,8 +189,8 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 		setIsConnecting( false );
 
 		if ( active ) {
+			focusApiStepOnActive.current = true;
 			updateConsentStatus( { api_installed: true, api_active: true } );
-			setJustConnected( true );
 			createSuccessNotice( __( 'WP Consent API is active.', 'jetpack-premium-analytics-pkg' ), {
 				id: 'stats-consent-api-connected',
 				type: 'snackbar',
