@@ -266,7 +266,7 @@ class Coming_Soon_Test extends \WorDBless\BaseTestCase {
 	 * @return void
 	 */
 	public function test_preview_owner_banner_shows_only_to_the_owner_of_a_preview() {
-		$admin = wp_insert_user(
+		$admin  = wp_insert_user(
 			array(
 				'user_login' => 'preview-owner',
 				'user_pass'  => 'pass',

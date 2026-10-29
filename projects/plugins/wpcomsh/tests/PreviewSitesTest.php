@@ -30,7 +30,7 @@ class PreviewSitesTest extends WP_UnitTestCase {
 			'product_slug' => 'business-bundle',
 			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P1Y' ) )->format( 'c' ),
 		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $purchase ), JSON_UNESCAPED_SLASHES ) );
 		$this->assertFalse( get_option( 'wpcom_is_preview_site' ) );
 	}
 }
