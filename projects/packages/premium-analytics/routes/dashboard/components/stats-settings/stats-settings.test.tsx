@@ -25,7 +25,7 @@ jest.mock( '@wordpress/data', () => {
 	} );
 } );
 
-jest.mock( './plan-usage-card', () => ( { PlanUsageCard: () => null } ) );
+jest.mock( './plan-usage-card', () => ( { PlanUsageCard: () => 'Plan usage' } ) );
 
 const useStatsSettingsMock = useStatsSettings as jest.Mock;
 
@@ -41,8 +41,13 @@ const ROLES = [
 	{ slug: 'editor', name: 'Editor', count: null },
 ];
 
-const setScriptData = ( featuresUrl: string | null, fields?: string[] ) => {
+const setScriptData = (
+	featuresUrl: string | null,
+	fields?: string[],
+	isWpcomPlatform = false
+) => {
 	window.JetpackScriptData = {
+		site: { is_wpcom_platform: isWpcomPlatform },
 		premium_analytics: { stats_settings: { fields, roles: ROLES, features_url: featuresUrl } },
 	} as typeof window.JetpackScriptData;
 };
@@ -170,6 +175,22 @@ describe( 'StatsSettingsPanel', () => {
 		render( <StatsSettingsPanel /> );
 
 		expect( screen.queryByText( 'Activation' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'shows the plan usage off WordPress.com', false, 1 ],
+		[ 'leaves out the plan usage on WordPress.com, which has no view cap', true, 0 ],
+	] )( '%s', ( _title, isWpcomPlatform, count ) => {
+		setScriptData( null, undefined, isWpcomPlatform );
+		useStatsSettingsMock.mockReturnValue( {
+			settings: SETTINGS,
+			isError: false,
+			saveChange: jest.fn(),
+		} );
+
+		render( <StatsSettingsPanel /> );
+
+		expect( screen.queryAllByText( 'Plan usage' ) ).toHaveLength( count );
 	} );
 
 	it( 'leaves out a card whose settings the site does not offer', () => {
