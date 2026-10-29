@@ -26,7 +26,6 @@
 			<exclude>tests/FunctionsTest.php</exclude>
 			<exclude>tests/PlanNoticesTest.php</exclude>
 			<exclude>tests/PreviewSitesTest.php</exclude>
-			<exclude>tests/PreviewSitesTest.php</exclude>
 			<exclude>tests/WpcomFeaturesMapTest.php</exclude>
 			<exclude>tests/WpcomFeaturesTest.php</exclude>
 			<exclude>tests/WpcomSitePurchaseTest.php</exclude>
@@ -37,7 +36,6 @@
 			<file>tests/FrontendNoticesTest.php</file>
 			<file>tests/FunctionsTest.php</file>
 			<file>tests/PlanNoticesTest.php</file>
-			<file>tests/PreviewSitesTest.php</file>
 			<file>tests/PreviewSitesTest.php</file>
 			<file>tests/WpcomFeaturesMapTest.php</file>
 			<file>tests/WpcomFeaturesTest.php</file>
