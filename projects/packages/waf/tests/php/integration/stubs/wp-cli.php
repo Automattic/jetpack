@@ -17,6 +17,15 @@ class WP_CLI_Command {}
  */
 class WP_CLI {
 	/**
+	 * Print a warning, so tests can expect it as output.
+	 *
+	 * @param string $message Message.
+	 */
+	public static function warning( $message ) {
+		echo 'Warning: ' . $message . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
 	 * Swallow success output.
 	 *
 	 * @param string $message Message.

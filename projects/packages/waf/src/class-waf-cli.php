@@ -83,7 +83,7 @@ class CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Setup the WAF to run.
+	 * Turn on the firewall module and set up the WAF to run.
 	 * ## OPTIONS
 	 *
 	 * [<mode>]
@@ -101,6 +101,9 @@ class CLI extends WP_CLI_Command {
 	public function setup( $args ) {
 		// Let is_allowed_mode know we are running from the CLI
 		define( 'WAF_CLI_MODE', $args[0] );
+
+		// Turn the module on first: its activation hook resets the mode to "normal".
+		Waf_Runner::enable();
 
 		// Set the mode and generate the bootstrap
 		$this->mode( array( $args[0] ) );
@@ -136,6 +139,10 @@ class CLI extends WP_CLI_Command {
 			Waf_Runner::deactivate();
 		} catch ( \Exception $e ) {
 			WP_CLI::error( __( 'Jetpack WAF failed to fully deactivate.', 'jetpack-waf' ) );
+		}
+
+		if ( Waf_Runner::is_enabled() ) {
+			WP_CLI::warning( __( 'The firewall module is still active, so Jetpack will keep showing the firewall as on. A plugin or filter on this site is keeping it active.', 'jetpack-waf' ) );
 		}
 
 		return WP_CLI::success( __( 'Jetpack WAF has been deactivated.', 'jetpack-waf' ) );
