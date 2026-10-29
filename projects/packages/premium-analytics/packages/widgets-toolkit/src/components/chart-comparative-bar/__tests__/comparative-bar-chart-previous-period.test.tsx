@@ -151,8 +151,7 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 
 		const entry = ( key: string, value: number ) => ( { datum: { date: JULY_1, value }, key } );
 		/* eslint-disable testing-library/render-result-naming-convention --
-		   This is the chart's `renderTooltip` prop and its return value, not
-		   testing-library's `render()`; the rule matches on the name alone. */
+		   `renderTooltip` is the chart's prop, not testing-library's `render()`. */
 		const tooltip = lastBarChart().renderTooltip( {
 			tooltipData: {
 				nearestDatum: entry( 'Views', 100 ),
