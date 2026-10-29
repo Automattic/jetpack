@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Let a site declare whether it represents a person or an organization, and emit the matching schema entity as the site's publisher.

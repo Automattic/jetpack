@@ -743,6 +743,113 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
+	 * When the site represents a Person, the home page emits the site-level Person
+	 * node as the main entity — no Organization or WebSite publisher pointing at one —
+	 * and the WebSite references the Person as its `publisher`.
+	 */
+	public function test_emits_person_as_site_entity_on_front_page_when_selected() {
+		$this->set_site_name( 'Jane Rivera' );
+		Schema_Settings::update( array( 'siteRepresents' => 'person' ) );
+
+		$doc = $this->emit_front_page_document();
+
+		$person = $this->node_of_type( $doc, 'Person' );
+		$this->assertIsArray( $person, 'Expected the site-level Person node on the home page.' );
+		$this->assertSame( Schema_Node_Ids::site_person(), $person['@id'] );
+		$this->assertSame( 'Jane Rivera', $person['name'] );
+
+		// The Organization is not the site entity here, so it is not emitted.
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A person-site emits no Organization node.' );
+
+		$website = $this->node_of_type( $doc, 'WebSite' );
+		$this->assertIsArray( $website, 'Expected a WebSite node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::site_person(), $website['publisher']['@id'] );
+	}
+
+	/**
+	 * On a single post of a person-site, the Article references the site-level Person
+	 * as its `publisher` by `@id`, without duplicating the Person node onto the post.
+	 */
+	public function test_post_references_person_publisher_when_site_represents_person() {
+		$this->set_site_name( 'Jane Rivera' );
+		Schema_Settings::update( array( 'siteRepresents' => 'person' ) );
+
+		$doc = $this->emit_document( $this->make_post() );
+
+		$article = $this->node_of_type( $doc, 'Article' );
+		$this->assertIsArray( $article, 'Expected an Article node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::site_person(), $article['publisher']['@id'] );
+
+		// Site-level nodes live on the home page only; the post carries neither entity.
+		$this->assertNull( $this->node_of_type( $doc, 'Person' ), 'The site Person node lives on the home page only.' );
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A person-site emits no Organization node.' );
+	}
+
+	/**
+	 * On a person-site the author-archive Person carries no `worksFor` — there is no
+	 * Organization for the author to belong to, even though the site has a name.
+	 */
+	public function test_person_site_author_archive_person_has_no_works_for() {
+		$this->set_site_name( 'Jane Rivera' );
+		Schema_Settings::update( array( 'siteRepresents' => 'person' ) );
+		$user = $this->make_user();
+
+		$doc = $this->emit_author_document( $user );
+
+		$person = $this->node_of_type( $doc, 'Person' );
+		$this->assertIsArray( $person, 'Expected the author Person node in the graph.' );
+		$this->assertArrayNotHasKey( 'worksFor', $person, 'A person-site has no Organization to work for.' );
+	}
+
+	/**
+	 * Saved Person settings reach the emitted JSON-LD: a configured `name` override
+	 * and `sameAs` flow through Schema_Settings → Person_Schema_Node → the home page.
+	 */
+	public function test_front_page_person_reflects_saved_settings() {
+		$this->set_site_name( 'Jane Rivera' );
+		Schema_Settings::update(
+			array(
+				'siteRepresents' => 'person',
+				'person'         => array(
+					'name'   => 'Jane A. Rivera',
+					'sameAs' => array( 'https://linkedin.com/in/jane' ),
+				),
+			)
+		);
+
+		$doc = $this->emit_front_page_document();
+
+		$person = $this->node_of_type( $doc, 'Person' );
+		$this->assertIsArray( $person, 'Expected the site-level Person node on the home page.' );
+		$this->assertSame( 'Jane A. Rivera', $person['name'] );
+		$this->assertSame( array( 'https://linkedin.com/in/jane' ), $person['sameAs'] );
+	}
+
+	/**
+	 * LocalBusiness is a refinement of the Organization entity, so a person-site
+	 * emits no LocalBusiness node even when local-business details were configured
+	 * (e.g. before the admin switched the site to represent a person).
+	 */
+	public function test_person_site_drops_local_business_details() {
+		$this->set_site_name( 'Jane Rivera' );
+		Schema_Settings::update(
+			array(
+				'siteRepresents' => 'person',
+				'localBusiness'  => array(
+					'enabled' => true,
+					'address' => array( 'streetAddress' => '123 Main St' ),
+				),
+			)
+		);
+
+		$doc = $this->emit_front_page_document();
+
+		$this->assertIsArray( $this->node_of_type( $doc, 'Person' ), 'Expected the site-level Person node.' );
+		$this->assertNull( $this->node_of_type( $doc, 'LocalBusiness' ), 'A person-site emits no LocalBusiness node.' );
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A person-site emits no Organization node.' );
+	}
+
+	/**
 	 * A FAQPage on a single post carries no `publisher` (only Article references
 	 * one) and, like any post, does not carry the site-level Organization node.
 	 */

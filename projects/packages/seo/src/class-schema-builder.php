@@ -4,21 +4,21 @@
  *
  * Serializes Schema.org `@graph` documents into the page. The primary graph is
  * emitted in the document `<head>` and is assembled from independent,
- * condition-gated contributions: the site-level Organization node (optionally
- * extended as LocalBusiness) and WebSite node,
- * emitted on the home page only (Google treats them as single canonical site
- * entities), the page node (Article or FAQPage) built by {@see Post_Schema_Node}
- * on singular requests, Person/ProfilePage nodes on author archives, and a
- * BreadcrumbList on supported public requests. An Article references its
- * author's full Person node (added to the same graph) by `@id`, and — like the
- * WebSite node — references the home-page Organization as its `publisher` by
- * stable `@id` rather than duplicating the node. Emission is gated on
- * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()`.
+ * condition-gated contributions: the site-level entity node — an Organization
+ * (optionally extended as LocalBusiness) or a Person, whichever the admin has
+ * declared the site represents — and the WebSite node, emitted on the home page
+ * only (Google treats them as single canonical site entities), the page node
+ * (Article or FAQPage) built by {@see Post_Schema_Node} on singular requests,
+ * per-author Person/ProfilePage nodes on author archives, and a BreadcrumbList on
+ * supported public requests. An Article references its author's full Person node
+ * (added to the same graph) by `@id`, and — like the WebSite node — references the
+ * home-page site entity as its `publisher` by stable `@id` rather than duplicating
+ * the node. Emission is gated on `Jetpack_SEO_Utils::is_enabled_jetpack_seo()`.
  *
  * This class owns only the gating and serialization; the individual nodes and
  * their stable `@id`s live in their own builders ({@see Post_Schema_Node},
  * {@see Organization_Schema_Node}, {@see Local_Business_Schema_Node},
- * {@see Website_Schema_Node}, {@see Author_Schema_Node},
+ * {@see Person_Schema_Node}, {@see Website_Schema_Node}, {@see Author_Schema_Node},
  * {@see Breadcrumb_Schema_Node}, {@see Schema_Node_Ids}) and are assembled by
  * {@see Schema_Graph}.
  *
@@ -95,29 +95,45 @@ class Schema_Builder {
 	private static function build_document() {
 		$graph = new Schema_Graph();
 
-		// Effective Organization settings (stored overrides merged over site identity);
-		// an unconfigured site still yields a valid node from site identity alone. Build
-		// it regardless so we know whether `@id` references to it (publisher, worksFor)
-		// will resolve, but only add the full node on the home page.
-		$organization = Organization_Schema_Node::build( Schema_Settings::get_organization() );
-		$organization = Local_Business_Schema_Node::extend( $organization, Schema_Settings::get_local_business() );
+		// The site's main/publisher entity is either an Organization or a Person,
+		// per the admin's choice (default: organization, preserving prior behavior).
+		// Build it regardless of the current request so we know whether `@id`
+		// references to it (publisher, worksFor) will resolve, but only add the full
+		// node on the home page. `$organization` stays non-null only in the
+		// organization case, so it also gates the author `worksFor` link below.
+		if ( 'person' === Schema_Settings::get_site_represents() ) {
+			$organization = null;
+			$site_entity  = Person_Schema_Node::build( Schema_Settings::get_person() );
+			$publisher_id = Schema_Node_Ids::site_person();
+		} else {
+			// Effective Organization settings (stored overrides merged over site
+			// identity); an unconfigured site still yields a valid node from site
+			// identity alone, optionally extended with LocalBusiness details.
+			$organization = Organization_Schema_Node::build( Schema_Settings::get_organization() );
+			$organization = Local_Business_Schema_Node::extend( $organization, Schema_Settings::get_local_business() );
+			$site_entity  = $organization;
+			$publisher_id = Schema_Node_Ids::organization();
+		}
+		$has_site_entity = null !== $site_entity;
 
-		// Site-level nodes (Organization, WebSite) describe a single canonical
+		// Site-level nodes (the site entity + WebSite) describe a single canonical
 		// entity, so they belong on the home page only (Google's guidance) — never
-		// duplicated onto every post. WebSite references the Organization by @id.
+		// duplicated onto every post. WebSite references the site entity by @id.
 		if ( is_front_page() ) {
-			if ( null !== $organization ) {
-				$graph->add( $organization );
+			if ( $has_site_entity ) {
+				$graph->add( $site_entity );
 			}
 
 			$website = Website_Schema_Node::build();
-			if ( null !== $website && null !== $organization ) {
-				$website['publisher'] = array( '@id' => Schema_Node_Ids::organization() );
+			if ( null !== $website && $has_site_entity ) {
+				$website['publisher'] = array( '@id' => $publisher_id );
 			}
 			$graph->add( $website );
 		}
 
 		if ( is_author() ) {
+			// `worksFor` links the author to the site Organization only when the site
+			// represents one; a person-site has no Organization node to reference.
 			$person = self::build_person_node( get_queried_object(), null !== $organization );
 			if ( null !== $person ) {
 				$graph->add( $person );
@@ -130,12 +146,12 @@ class Schema_Builder {
 			$post_node = Post_Schema_Node::build( $post );
 			if ( null !== $post_node ) {
 				// Only the Article node carries publisher/author; FAQPage does not.
-				// Both are @id references: publisher points at the home-page
-				// Organization (never duplicated), author points at the full Person
-				// node added to this page's graph.
+				// Both are @id references: publisher points at the home-page site
+				// entity (the Organization or Person, never duplicated), author points
+				// at the full Person node added to this page's graph.
 				if ( 'Article' === ( $post_node['@type'] ?? '' ) ) {
-					if ( null !== $organization ) {
-						$post_node['publisher'] = array( '@id' => Schema_Node_Ids::organization() );
+					if ( $has_site_entity ) {
+						$post_node['publisher'] = array( '@id' => $publisher_id );
 					}
 					$person = self::build_person_node( (int) $post->post_author, null !== $organization );
 					if ( null !== $person ) {
