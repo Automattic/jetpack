@@ -448,7 +448,10 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 			'data-object-fit="cover" (Cover block): the box' => array( 'width="1200" height="800" data-object-fit="cover"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
 			'a square thumbnail of any upload: still 1:1' => array( 'width="300" height="300"', array( '2100,2100 1236w', '1400,1400 824w', '1225,1225 721w', '700,700 412w' ) ),
 			'a computed cover the markup does not show (theme CSS): the box' => array( 'width="1200" height="800"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ), 'https://example.com/image.jpg', 'cover' ),
-			'a computed fill over data-object-fit="cover": the computed fit wins' => array( 'width="1200" height="800" data-object-fit="cover"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), 'https://example.com/image.jpg', 'fill' ),
+			'a computed contain the markup does not show: fits inside the box' => array( 'width="1200" height="800"', array( '1236,825 1236w', '824,550 824w', '721,481 721w', '412,275 412w' ), 'https://example.com/image.jpg', 'contain' ),
+			'a computed cover the markup agrees with: the box' => array( 'width="1200" height="800" data-object-fit="cover"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ), 'https://example.com/image.jpg', 'cover' ),
+			'a computed cover over inline contain (stale report): widened, not cropped' => array( 'width="1200" height="800" style="object-fit:contain"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), 'https://example.com/image.jpg', 'cover' ),
+			'a computed fill over data-object-fit="cover" (stale report): widened' => array( 'width="1200" height="800" data-object-fit="cover"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), 'https://example.com/image.jpg', 'fill' ),
 		);
 	}
 

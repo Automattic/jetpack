@@ -171,13 +171,16 @@ class LCP_Optimize_Img_Tag {
 	 * @return string|null 'cover', 'contain', or null for any other fit.
 	 */
 	private function get_object_fit( $element ) {
-		if ( isset( $this->lcp_data['objectFit'] ) && is_string( $this->lcp_data['objectFit'] ) ) {
-			$fit = strtolower( $this->lcp_data['objectFit'] );
+		$fit = $this->get_marked_object_fit( $element );
 
-			return in_array( $fit, array( 'cover', 'contain' ), true ) ? $fit : null;
+		if ( isset( $this->lcp_data['objectFit'] ) && is_string( $this->lcp_data['objectFit'] ) ) {
+			$reported = strtolower( $this->lcp_data['objectFit'] );
+
+			// A template save doesn't redo the analysis, so when the markup disagrees, assume no fit: it never crops.
+			$fit = null === $fit || $fit === $reported ? $reported : null;
 		}
 
-		return $this->get_marked_object_fit( $element );
+		return in_array( $fit, array( 'cover', 'contain' ), true ) ? $fit : null;
 	}
 
 	/**
@@ -185,7 +188,7 @@ class LCP_Optimize_Img_Tag {
 	 * (data-object-fit) blocks do.
 	 *
 	 * @param WP_HTML_Tag_Processor $element The image tag.
-	 * @return string|null 'cover', 'contain', or null if the markup sets neither.
+	 * @return string|null The fit, lowercased, or null if the markup sets none.
 	 */
 	private function get_marked_object_fit( $element ) {
 		// Inline style first: its last !important declaration, else its last, as CSS applies them.
@@ -193,9 +196,7 @@ class LCP_Optimize_Img_Tag {
 		if ( is_string( $style ) && preg_match_all( '/(?:^|;)\s*object-fit\s*:\s*([a-z-]+)\s*(!important\s*)?(?=;|$)/i', $style, $matches ) ) {
 			$important = array_filter( $matches[2] );
 			$fits      = $important ? array_intersect_key( $matches[1], $important ) : $matches[1];
-			$fit       = strtolower( end( $fits ) );
-
-			return in_array( $fit, array( 'cover', 'contain' ), true ) ? $fit : null;
+			return strtolower( end( $fits ) );
 		}
 
 		if ( 'cover' === $element->get_attribute( 'data-object-fit' ) ) {
