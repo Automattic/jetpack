@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Extensions\Sharing_Button_Block;
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Post_Media\Images;
+use Automattic\Jetpack\SEO\Content_Gate;
 use WP_Post;
 
 /**
@@ -1441,7 +1442,7 @@ class Share_Threads_Block extends Sharing_Source_Block {
 }
 
 /**
- * WordPress sharing button, letting readers repost the post on one of their own sites.
+ * WordPress sharing button.
  */
 class Share_WordPress_Block extends Sharing_Source_Block {
 	/**
@@ -1469,9 +1470,8 @@ class Share_WordPress_Block extends Sharing_Source_Block {
 	 */
 	public function get_repost_url( $post ) {
 		$text = '';
-		if ( empty( $post->post_password ) ) {
-			$text = has_excerpt( $post ) ? $post->post_excerpt : $post->post_content;
-			$text = wp_trim_words( strip_shortcodes( $text ), 55 );
+		if ( ! Content_Gate::is_gated( $post ) ) {
+			$text = wp_trim_words( strip_shortcodes( has_excerpt( $post ) ? $post->post_excerpt : $post->post_content ) );
 		}
 
 		return add_query_arg(

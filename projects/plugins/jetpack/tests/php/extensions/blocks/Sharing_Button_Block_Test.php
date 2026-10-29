@@ -127,21 +127,15 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The repost link prefills a WordPress.com draft, without the text of a protected post.
+	 * The repost link prefills a WordPress.com draft, without the text of a gated post.
 	 *
-	 * @dataProvider provide_repost_passwords
-	 * @param string $password      Post password.
+	 * @dataProvider provide_reposted_posts
+	 * @param array  $post_args     Post fields on top of the title.
 	 * @param string $expected_text Expected `text` argument.
 	 */
-	#[DataProvider( 'provide_repost_passwords' )]
-	public function test_repost_url_prefills_wpcom_draft( $password, $expected_text ) {
-		$post = self::factory()->post->create_and_get(
-			array(
-				'post_title'    => 'Tips & tricks',
-				'post_excerpt'  => 'A short summary.',
-				'post_password' => $password,
-			)
-		);
+	#[DataProvider( 'provide_reposted_posts' )]
+	public function test_repost_url_prefills_wpcom_draft( $post_args, $expected_text ) {
+		$post = self::factory()->post->create_and_get( array_merge( array( 'post_title' => 'Tips & tricks' ), $post_args ) );
 
 		$url = ( new Share_WordPress_Block( 'wordpress' ) )->get_repost_url( $post ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 		wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
@@ -161,10 +155,31 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	/**
 	 * @return array
 	 */
-	public static function provide_repost_passwords() {
+	public static function provide_reposted_posts() {
 		return array(
-			'public'             => array( '', 'A short summary.' ),
-			'password-protected' => array( 'secret', '' ),
+			'excerpt'            => array( array( 'post_excerpt' => 'A short summary.' ), 'A short summary.' ),
+			'no excerpt'         => array(
+				array(
+					'post_excerpt' => '',
+					'post_content' => '<!-- wp:paragraph --><p>Words from the post body.</p><!-- /wp:paragraph -->',
+				),
+				'Words from the post body.',
+			),
+			'password-protected' => array(
+				array(
+					'post_excerpt'  => 'A short summary.',
+					'post_password' => 'secret',
+				),
+				'',
+			),
+			'subscribers only'   => array(
+				array(
+					'post_excerpt' => '',
+					'post_content' => 'Words for subscribers.',
+					'meta_input'   => array( '_jetpack_newsletter_access' => 'subscribers' ),
+				),
+				'',
+			),
 		);
 	}
 }
