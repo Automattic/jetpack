@@ -82,10 +82,10 @@ class WP_Dashboard_Odyssey_Widget {
 	}
 
 	/**
-	 * Draws the outline of the widget for the time its script takes to load: an Overview card
+	 * Renders the widget's skeleton for the time its script takes to load: an Overview card
 	 * with two totals and a chart, a lists card, a card with two counts, and the footer. The
 	 * widget replaces it when it mounts. Styled inline, since its stylesheet arrives with its
-	 * script, and the widget's own loader leaves an outline that is already here alone.
+	 * script, and the widget's own loader leaves a skeleton that is already here alone.
 	 */
 	private function render_loading_skeleton() {
 		?>

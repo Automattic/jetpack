@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Stats widget: draw the widget's outline while its script loads, instead of a spinner.
+Stats widget: render a loading skeleton instead of a spinner while the script loads.
