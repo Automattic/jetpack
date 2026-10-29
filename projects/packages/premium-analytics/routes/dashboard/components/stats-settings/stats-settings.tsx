@@ -23,6 +23,7 @@ import { ConsentCard } from './consent-card';
 import { PlanUsageCard } from './plan-usage-card';
 import { getFields } from './stats-settings-fields';
 import styles from './stats-settings.module.scss';
+import { usePlanUsage } from './use-plan-usage';
 import type { JSX } from 'react';
 
 type CardGroup = { id: string; label: string; children: Array< keyof StatsSettings > };
@@ -117,6 +118,21 @@ function getSettingChanges(
  * @return The Settings tab content.
  */
 export function StatsSettingsPanel(): JSX.Element {
+	return (
+		// Outside any widget, so outside the provider `WidgetRoot` mounts for widgets.
+		<AnalyticsQueryClientProvider>
+			<StatsSettingsContent />
+		</AnalyticsQueryClientProvider>
+	);
+}
+
+/**
+ * The Settings tab's cards, once it is known whether the plan usage card is among them.
+ *
+ * @return The Settings tab content.
+ */
+function StatsSettingsContent(): JSX.Element {
+	const { isLoading: isLoadingPlanUsage } = usePlanUsage();
 	const premiumAnalytics = getScriptData()?.premium_analytics;
 	const roles = premiumAnalytics?.stats_settings?.roles;
 	const featuresUrl = premiumAnalytics?.stats_settings?.features_url;
@@ -162,6 +178,18 @@ export function StatsSettingsPanel(): JSX.Element {
 		[ createErrorNotice, createSuccessNotice, saveChange, settings, trackEvent ]
 	);
 
+	// A plan without a view limit has no usage card, so hold the whole tab until that is known rather than shift it.
+	if ( isLoadingPlanUsage ) {
+		return (
+			<Stack direction="column" align="center" className={ styles.root } aria-busy="true">
+				<Spinner />
+				<VisuallyHidden role="status">
+					{ __( 'Loading your Stats settings…', 'jetpack-premium-analytics-pkg' ) }
+				</VisuallyHidden>
+			</Stack>
+		);
+	}
+
 	let form: JSX.Element;
 	if ( settings ) {
 		form = (
@@ -201,10 +229,7 @@ export function StatsSettingsPanel(): JSX.Element {
 
 	return (
 		<Stack direction="column" gap="xl" className={ styles.root }>
-			{ /* Outside any widget, so outside the provider `WidgetRoot` mounts for widgets. */ }
-			<AnalyticsQueryClientProvider>
-				<PlanUsageCard />
-			</AnalyticsQueryClientProvider>
+			<PlanUsageCard />
 			{ form }
 			<ConsentCard />
 			{ featuresUrl && (
