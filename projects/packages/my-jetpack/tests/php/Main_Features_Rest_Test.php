@@ -466,19 +466,19 @@ class Main_Features_Rest_Test extends TestCase {
 	/** @return array Remaining carrier cases. */
 	public static function remaining_carriers() {
 		return array(
-			'offline capable'      => array( array( '6.14.0' ), true, true, false ),
-			'offline excluded'     => array( array( '6.14.0' ), true, true, true, false, array( 'my-jetpack-carrier-0' ) ),
+			'offline capable'      => array( array( '6.15.0' ), true, true, false ),
+			'offline excluded'     => array( array( '6.15.0' ), true, true, true, false, array( 'my-jetpack-carrier-0' ) ),
 			'offline older'        => array( array( '6.7.0' ), true, true, true ),
 			'first opt-in release' => array( array( '6.10.0' ), true, true, true ),
 			'later opt-in release' => array( array( '6.12.0' ), true, true, true ),
 			'online older'         => array( array( '6.7.0' ), false, true, false ),
 			'offline unknown'      => array( array( null ), true, true, true ),
 			'offline opt out'      => array( array( '6.7.0' ), true, false, false ),
-			'last older release'   => array( array( '6.13.0' ), true, true, true ),
-			'older before newer'   => array( array( '6.7.0', '6.14.0' ), true, true, false ),
-			'prerelease boundary'  => array( array( '6.14.0-alpha' ), true, true, true ),
-			'prerelease suffix'    => array( array( '6.15.0-alpha' ), true, true, false ),
-			'network active'       => array( array( '6.14.0' ), true, true, false, true ),
+			'last older release'   => array( array( '6.14.0' ), true, true, true ),
+			'older before newer'   => array( array( '6.7.0', '6.15.0' ), true, true, false ),
+			'prerelease boundary'  => array( array( '6.15.0-alpha' ), true, true, true ),
+			'prerelease suffix'    => array( array( '6.16.0-alpha' ), true, true, false ),
+			'network active'       => array( array( '6.15.0' ), true, true, false, true ),
 			'package initializer'  => array( array( 'package' ), true, true, version_compare( Initializer::PACKAGE_VERSION, Main_Features::MINIMUM_OFFLINE_FEATURES_VERSION, '<' ) ),
 			'directory'            => array( array( 'directory' ), true, true, true ),
 		);

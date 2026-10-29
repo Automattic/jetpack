@@ -19,11 +19,11 @@ try {
 
 	$versions = array(
 		'jetpack'            => '6.8.0.1',
-		'jetpack-boost'      => '6.14.0',
-		'jetpack-videopress' => '6.14.0',
+		'jetpack-boost'      => '6.15.0',
+		'jetpack-videopress' => '6.15.0',
 	);
 	if ( 'jetpack-and-host' === $argv[1] ) {
-		$versions['jetpack']       = '6.14.0';
+		$versions['jetpack']       = '6.15.0';
 		$versions['jetpack-boost'] = '6.7.0';
 	}
 	$active = array();

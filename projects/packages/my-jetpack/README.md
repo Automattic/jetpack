@@ -50,7 +50,7 @@ The offline Features entry is on by default. To turn it off for rollback or test
 
 Users need permission to edit posts and activate plugins, plus manage the network on multisite. The Jetpack plugin keeps its Modules and Settings entry for users who cannot access Features. Local modules can be switched and retain their state after reload. The Features controller refuses to activate modules that require a connection; standalone plugins can still be activated and may run their own activation steps, including Social enabling its module.
 
-Features refuses to deactivate the plugin serving the page unless another active plugin will remain with My Jetpack 6.14.0 or later, which enables offline Features by default. The same restriction applies to bulk deactivation.
+Features refuses to deactivate the plugin serving the page unless another active plugin will remain with My Jetpack 6.15.0 or later, which enables offline Features by default. The same restriction applies to bulk deactivation.
 
 Feature details retain plan names and explanations as plain text offline, without purchase links or upgrade buttons. The offline page hides the footer.
 
