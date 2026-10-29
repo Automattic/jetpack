@@ -8,8 +8,20 @@ const mapValues = ( collection, callback ) =>
 				Object.entries( collection ).map( ( [ key, value ] ) => [ key, callback( value ) ] )
 			);
 
+const decodeKeys = ( object, keys ) => {
+	const decoded = { ...object };
+
+	keys.forEach( key => {
+		if ( object[ key ] ) {
+			decoded[ key ] = decodeEntities( object[ key ] );
+		}
+	} );
+
+	return decoded;
+};
+
 const decodeErrorMessage = error =>
-	error?.error_message ? { ...error, error_message: decodeEntities( error.error_message ) } : error;
+	error && typeof error === 'object' ? decodeKeys( error, [ 'error_message' ] ) : error;
 
 /**
  * Decode the display names in the initial state, which WordPress stores HTML-encoded.
@@ -22,40 +34,24 @@ const decodeInitialState = state => {
 	const decoded = { ...state };
 
 	if ( userConnectionData ) {
-		decoded.userConnectionData = { ...userConnectionData };
+		decoded.userConnectionData = decodeKeys( userConnectionData, [ 'connectionOwner' ] );
 
 		const { currentUser } = userConnectionData;
 
 		if ( currentUser ) {
-			decoded.userConnectionData.currentUser = { ...currentUser };
-
-			if ( currentUser.displayName ) {
-				decoded.userConnectionData.currentUser.displayName = decodeEntities(
-					currentUser.displayName
-				);
-			}
+			decoded.userConnectionData.currentUser = decodeKeys( currentUser, [ 'displayName' ] );
 
 			// WordPress.com stores its display names HTML-encoded too.
-			if ( currentUser.wpcomUser?.display_name ) {
-				decoded.userConnectionData.currentUser.wpcomUser = {
-					...currentUser.wpcomUser,
-					display_name: decodeEntities( currentUser.wpcomUser.display_name ),
-				};
+			if ( currentUser.wpcomUser ) {
+				decoded.userConnectionData.currentUser.wpcomUser = decodeKeys( currentUser.wpcomUser, [
+					'display_name',
+				] );
 			}
-		}
-
-		if ( userConnectionData.connectionOwner ) {
-			decoded.userConnectionData.connectionOwner = decodeEntities(
-				userConnectionData.connectionOwner
-			);
 		}
 	}
 
-	if ( connectionOwner?.displayName ) {
-		decoded.connectionOwner = {
-			...connectionOwner,
-			displayName: decodeEntities( connectionOwner.displayName ),
-		};
+	if ( connectionOwner ) {
+		decoded.connectionOwner = decodeKeys( connectionOwner, [ 'displayName' ] );
 	}
 
 	// The owner-error message names the owner. Keyed by error code, then by user ID.
