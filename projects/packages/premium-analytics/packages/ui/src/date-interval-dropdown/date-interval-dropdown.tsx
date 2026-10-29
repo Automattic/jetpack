@@ -149,6 +149,7 @@ export function DateIntervalDropdown( {
 	);
 	const hintId = useInstanceId( DateIntervalDropdown, 'date-interval-dropdown__hint' );
 	// None on a plan that locks intervals: a longer range there offers its buckets only locked.
+	// `lockUpsell` stands in for that lock, since scopes pass it only with `intervals` locked.
 	const hint =
 		options.length === 1 && ! lockedOptions.length && ! unavailableOptions.length && ! lockUpsell
 			? getLoneBucketHint( options[ 0 ] )
@@ -175,11 +176,7 @@ export function DateIntervalDropdown( {
 				</Button>
 			}
 		>
-			<NavigableMenu
-				role="menu"
-				aria-label={ triggerLabel }
-				aria-describedby={ hint ? hintId : undefined }
-			>
+			<NavigableMenu role="menu" aria-label={ triggerLabel }>
 				<MenuGroup label={ __( 'Chart interval', 'jetpack-premium-analytics-pkg' ) }>
 					{ options.map( option => {
 						const isSelected = option === value;
@@ -190,6 +187,7 @@ export function DateIntervalDropdown( {
 								role="menuitemradio"
 								isSelected={ isSelected }
 								icon={ isSelected ? check : undefined }
+								aria-describedby={ hint ? hintId : undefined }
 								onClick={ () => {
 									onChange( option );
 									setIsOpen( false );
