@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Stats: Stop counting visitors who have not allowed statistics cookies on sites that run the WP Consent API.

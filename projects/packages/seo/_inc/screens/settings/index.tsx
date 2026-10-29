@@ -472,7 +472,13 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					{ frontPageDescriptionCard }
 
 					{ /* It previews Jetpack's tags, which aren't the ones a conflicting plugin outputs. */ }
-					{ ! outputLocked && <SocialPreviewsCard description={ local.front_page_description } /> }
+					{ ! outputLocked && (
+						<SocialPreviewsCard
+							description={ local.front_page_description }
+							frontPageTitleFormat={ local.title_formats.front_page ?? [] }
+							titleSeparator={ local.title_separator }
+						/>
+					) }
 				</>
 			) }
 

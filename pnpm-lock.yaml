@@ -703,6 +703,9 @@ importers:
       '@wordpress/element':
         specifier: 9.0.0
         version: 9.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/html-entities':
+        specifier: 4.57.0
+        version: 4.57.0
       '@wordpress/i18n':
         specifier: 6.30.0
         version: 6.30.0
@@ -5135,6 +5138,9 @@ importers:
       '@automattic/request-external-access':
         specifier: 1.0.1
         version: 1.0.1
+      '@wordpress/admin-ui':
+        specifier: 2.12.0
+        version: 2.12.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/api-fetch':
         specifier: 7.57.0
         version: 7.57.0

@@ -19,6 +19,7 @@ import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { ConsentCard } from './consent-card';
 import { PlanUsageCard } from './plan-usage-card';
 import { getFields } from './stats-settings-fields';
 import styles from './stats-settings.module.scss';
@@ -191,6 +192,7 @@ export function StatsSettingsPanel(): JSX.Element {
 				<PlanUsageCard />
 			</AnalyticsQueryClientProvider>
 			{ form }
+			<ConsentCard />
 			{ featuresUrl && (
 				<Card.Root>
 					<Card.Header>

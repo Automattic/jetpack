@@ -38,6 +38,38 @@ final class Stats_Settings {
 	private const FIELDS = array( 'admin_bar', 'roles', 'count_roles' );
 
 	/**
+	 * Cookie banner plugins that support the WP Consent API, by plugin directory: the WordPress.org ones the WP Consent API readme lists.
+	 *
+	 * @var string[]
+	 */
+	private const BANNER_PLUGINS = array(
+		'arqam360-consent-privacy-pdplgdpr'       => 'Arqam360 Cookie Consent Banner',
+		'beautiful-and-responsive-cookie-consent' => 'Beautiful Cookie Consent Banner',
+		'clickio-consent'                         => 'Clickio Consent',
+		'complianz-gdpr'                          => 'Complianz',
+		'complianz-gdpr-premium'                  => 'Complianz',
+		'consent-manager'                         => 'consentmanager',
+		'cookie-law-info'                         => 'CookieYes',
+		'cookiebot'                               => 'Cookiebot',
+		'cookiefirst-gdpr-cookie-consent-banner'  => 'CookieFirst',
+		'cookiehub'                               => 'CookieHub',
+		'cookietractor'                           => 'CookieTractor',
+		'gdpr-cookie-compliance'                  => 'GDPR Cookie Compliance',
+		'ibamu'                                   => 'Lawwwing',
+		'iubenda-cookie-law-solution'             => 'iubenda',
+		'pressidium-cookie-consent'               => 'Pressidium Cookie Consent',
+		'sirdata-cmp'                             => 'Abconsent Sirdata CMP',
+		'trustarc-cookie-consent-manager'         => 'TrustArc Cookie Consent Manager',
+	);
+
+	/**
+	 * The banner plugins the card suggests, by WordPress.org slug.
+	 *
+	 * @var string[]
+	 */
+	private const RECOMMENDED_BANNERS = array( 'complianz-gdpr', 'cookiebot', 'cookie-law-info' );
+
+	/**
 	 * The Stats package's refusal of the current write, held until the route answers.
 	 *
 	 * @var \WP_Error|null
@@ -201,7 +233,7 @@ final class Stats_Settings {
 	}
 
 	/**
-	 * Give the Settings tab the roles it lists, with how many users hold each, and the screen that switches the Stats module on and off.
+	 * Give the Settings tab the roles it lists, with how many users hold each, the screen that switches the Stats module on and off, and the visitor consent setup.
 	 *
 	 * @param array $data The script data.
 	 * @return array The script data with the Stats settings context added.
@@ -234,8 +266,68 @@ final class Stats_Settings {
 			'roles'        => $roles,
 			// Jetpack can be active without My Jetpack's screen, for example on Atomic, where wpcomsh skips it.
 			'features_url' => class_exists( 'Jetpack' ) && '' !== menu_page_url( 'my-jetpack', false ) ? admin_url( 'admin.php?page=my-jetpack#/features?search=stats' ) : null,
+			'consent'      => self::get_consent_status(),
 		);
 
 		return $data;
+	}
+
+	/**
+	 * Whether visitor consent can reach Stats: the WP Consent API bridge, and a cookie banner plugin behind it.
+	 *
+	 * @return array{api_active: bool, api_installed: bool, consent_type_declared: bool, banner_plugin: string|null, banner_blocks_stats: bool, recommended_banners: list<array{name: string, url: string}>, can_install: bool, can_activate: bool, file_mods_allowed: bool}
+	 */
+	private static function get_consent_status() {
+		$plugin_file    = 'wp-consent-api/wp-consent-api.php';
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+		if ( is_multisite() ) {
+			$active_plugins = array_merge( $active_plugins, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
+		}
+		$banner_plugin = null;
+		foreach ( $active_plugins as $active ) {
+			$dir = strtok( $active, '/' );
+			if ( isset( self::BANNER_PLUGINS[ $dir ] ) ) {
+				$banner_plugin = self::BANNER_PLUGINS[ $dir ];
+				break;
+			}
+		}
+
+		$recommended_banners = array();
+		foreach ( self::RECOMMENDED_BANNERS as $slug ) {
+			$recommended_banners[] = array(
+				'name' => self::BANNER_PLUGINS[ $slug ],
+				'url'  => 'https://wordpress.org/plugins/' . $slug . '/',
+			);
+		}
+
+		return array(
+			'api_active'            => function_exists( 'wp_has_consent' ),
+			'api_installed'         => file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ),
+			// Some banners answer this filter even before the WP Consent API is active; others set the type only in the browser, hence `banner_plugin`.
+			'consent_type_declared' => (bool) apply_filters( 'wp_get_consent_type', '' ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- The WP Consent API's filter, which banner plugins answer.
+			'banner_plugin'         => $banner_plugin,
+			'banner_blocks_stats'   => self::banner_blocks_stats(),
+			'recommended_banners'   => $recommended_banners,
+			// What core's `wp/v2/plugins` route checks before it installs or activates.
+			'can_install'           => current_user_can( 'install_plugins' ) && current_user_can( 'activate_plugins' ),
+			'can_activate'          => current_user_can( 'activate_plugin', $plugin_file ),
+			// The check core's `install_plugins` capability makes first, so the card can say why it cannot install.
+			'file_mods_allowed'     => wp_is_file_mod_allowed( 'capability_update_core' ),
+		);
+	}
+
+	/**
+	 * Whether Complianz's Jetpack integration holds the Stats script until visitors allow statistics, with or without the WP Consent API.
+	 *
+	 * @return bool
+	 */
+	private static function banner_blocks_stats() {
+		if ( ! function_exists( 'cmplz_integration_plugin_is_enabled' ) || ! function_exists( 'cmplz_can_run_cookie_blocker' ) ) {
+			return false;
+		}
+
+		// `true` asks whether the blocker runs on the front end, since it never runs in wp-admin.
+		// @phan-suppress-next-line PhanUndeclaredFunction -- Defined by Complianz, checked just before.
+		return cmplz_integration_plugin_is_enabled( 'jetpack' ) && cmplz_can_run_cookie_blocker( true );
 	}
 }
