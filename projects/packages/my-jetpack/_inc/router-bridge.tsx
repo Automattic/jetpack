@@ -1,11 +1,21 @@
 import { useNavigate, useParams, useSearch } from '@wordpress/route';
 import { useMemo } from 'react';
-import { Router, createPath } from 'react-router';
-import { getRouteHref } from './utils/route-href';
+import { Router, parsePath } from 'react-router';
+import { fromRouteSearch, toRouteHref } from './utils/route-href';
 import type { ReactNode } from 'react';
 import type { Navigator, To } from 'react-router';
 
-const toHref = ( to: To ) => ( typeof to === 'string' ? to : createPath( to ) );
+const toHref = ( to: To ) => toRouteHref( typeof to === 'string' ? parsePath( to ) : to );
+
+/**
+ * The boot router's search values, JSON-parsed as it parses them.
+ *
+ * @return The values by name.
+ */
+export function useRouteSearch(): Record< string, unknown > {
+	// `@wordpress/route` types no route tree, so `from` needs a cast.
+	return useSearch( { from: '/$' as never, strict: false } );
+}
 
 /**
  * Runs screens still written against react-router under the boot router, which owns the URL.
@@ -15,10 +25,10 @@ const toHref = ( to: To ) => ( typeof to === 'string' ? to : createPath( to ) );
  * @return The bridged tree.
  */
 export function RouterBridge( { children }: { children: ReactNode } ) {
-	// Subscribed only so each navigation re-renders the tree; the location is read from the URL,
-	// which keeps search values as strings instead of the boot router's JSON-parsed ones.
-	useParams( { strict: false } as never );
-	useSearch( { strict: false } as never );
+	const { _splat: splat = '' } = useParams( { from: '/$' as never, strict: false } ) as {
+		_splat?: string;
+	};
+	const search = useRouteSearch();
 	const navigate = useNavigate();
 
 	const navigator = useMemo< Navigator >( () => {
@@ -37,7 +47,10 @@ export function RouterBridge( { children }: { children: ReactNode } ) {
 	}, [ navigate ] );
 
 	return (
-		<Router location={ getRouteHref() } navigator={ navigator }>
+		<Router
+			location={ { pathname: `/${ splat }`, search: fromRouteSearch( search ) } }
+			navigator={ navigator }
+		>
 			{ children }
 		</Router>
 	);

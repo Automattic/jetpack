@@ -29,6 +29,7 @@ import { useGoBack } from '../../hooks/use-go-back';
 import { useInterstitialsState } from '../../hooks/use-interstitials-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
@@ -447,7 +448,7 @@ export default function PricingInterstitial( { slug } ) {
 				<ButtonLink
 					size="compact"
 					variant="outline"
-					href={ getMyJetpackUrl( '#/add-license' ) }
+					href={ getMyJetpackRouteUrl( '/add-license' ) }
 					onClick={ handleLicenseActivationClick }
 				>
 					{ __( 'Use license key', 'jetpack-my-jetpack' ) }

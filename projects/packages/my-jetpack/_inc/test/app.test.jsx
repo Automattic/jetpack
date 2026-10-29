@@ -6,7 +6,8 @@ import { queryClient } from '../providers';
 import { getRouteHref } from '../utils/route-href';
 
 jest.mock( '@wordpress/api-fetch' );
-// A stand-in for the boot router: navigating writes `?p=` and re-renders its subscribers.
+// A stand-in for the boot router: the route lives in `?p=`, its search values JSON-parsed as the
+// router parses them, and navigating re-renders its subscribers.
 jest.mock( '@wordpress/route', () => {
 	const { useSyncExternalStore } = jest.requireActual( 'react' );
 	const listeners = new Set();
@@ -14,7 +15,18 @@ jest.mock( '@wordpress/route', () => {
 		listeners.add( listener );
 		return () => listeners.delete( listener );
 	};
-	const useHref = () => useSyncExternalStore( subscribe, () => globalThis.location.href );
+	const useRoute = () => {
+		const href = useSyncExternalStore( subscribe, () => globalThis.location.href );
+		const [ path, query = '' ] = ( new URL( href ).searchParams.get( 'p' ) || '/' ).split( '?' );
+		return { path, query };
+	};
+	const parse = value => {
+		try {
+			return JSON.parse( value );
+		} catch {
+			return value;
+		}
+	};
 	const navigate = ( { href, replace } ) => {
 		const url = new URL( globalThis.location.href );
 		url.searchParams.set( 'p', href );
@@ -23,11 +35,14 @@ jest.mock( '@wordpress/route', () => {
 	};
 	return {
 		useNavigate: () => navigate,
-		useParams: useHref,
-		useSearch: () => {
-			useHref();
-			return {};
-		},
+		useParams: () => ( { _splat: useRoute().path.slice( 1 ) } ),
+		useSearch: () =>
+			Object.fromEntries(
+				[ ...new URLSearchParams( useRoute().query ) ].map( ( [ key, value ] ) => [
+					key,
+					parse( value ),
+				] )
+			),
 	};
 } );
 jest.mock( '../hooks/use-my-jetpack-connection' );

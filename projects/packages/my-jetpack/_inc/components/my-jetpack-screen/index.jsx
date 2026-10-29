@@ -7,8 +7,8 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router';
+import { useContext, useEffect, useLayoutEffect, useRef } from 'react';
+import { useLocation, useParams } from 'react-router';
 /*
  * Internal dependencies
  */
@@ -25,7 +25,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
 import { useReplayPendingNotice } from '../../utils/pending-notice';
-import { getRouteHref } from '../../utils/route-href';
+import { toRouteHref } from '../../utils/route-href';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import { getHeaderControls } from '../header-controls';
 import IDCModal from '../idc-modal';
@@ -116,8 +116,8 @@ export default function MyJetpackScreen() {
 	const isNewUser = useIsJetpackUserNew();
 
 	const { recordEvent } = useAnalytics();
-	const [ reloading, setReloading ] = useState( false );
 	const params = useParams();
+	const routeLocation = useLocation();
 	const previousTabRef = useRef( null );
 
 	// useLayoutEffect gets called before useEffect.
@@ -152,21 +152,28 @@ export default function MyJetpackScreen() {
 		currentTab,
 	] );
 
-	const routeHref = getRouteHref();
-	if ( routeHref.includes( '?reload=true' ) ) {
-		// Clears the flag from the route and reloads the page.
-		const url = new URL( window.location.href );
-		url.searchParams.set( 'p', routeHref.replace( '?reload=true', '' ) );
-		window.history.replaceState( null, '', url );
-		window.location.reload();
+	const { pathname: routePath, search: routeSearch } = routeLocation;
+	const shouldReload = new URLSearchParams( routeSearch ).get( 'reload' ) === 'true';
 
-		setReloading( true );
-	}
+	useEffect( () => {
+		if ( shouldReload ) {
+			// Clears the flag from the route and reloads the page.
+			const routeParams = new URLSearchParams( routeSearch );
+			routeParams.delete( 'reload' );
+			const url = new URL( window.location.href );
+			url.searchParams.set(
+				'p',
+				toRouteHref( { pathname: routePath, search: routeParams.toString() } )
+			);
+			window.history.replaceState( null, '', url );
+			window.location.reload();
+		}
+	}, [ shouldReload, routePath, routeSearch ] );
 
 	// show welcome tour if user is redirected from the onboarding flow
 	const isRedirectingFromOnboarding = useQueryParameter( 'from' ) === 'jetpack-onboarding';
 
-	if ( reloading ) {
+	if ( shouldReload ) {
 		return null;
 	}
 

@@ -34,11 +34,11 @@ export function getFeaturePricingHref( path: string, feature: string ) {
  *
  * Read from the URL rather than the router, so the detail cards outside a route can use it.
  *
- * @param hash - The current route as a hash, such as `#/features?return_feature=stats`.
+ * @param route - The current route, such as `/features?return_feature=stats`.
  * @return The admin URL of the feature's details, or an empty string.
  */
-export function getFeatureCheckoutReturnUrl( hash = `#${ getRouteHref() }` ) {
-	const feature = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' ).get( RETURN_FEATURE_PARAM );
+export function getFeatureCheckoutReturnUrl( route = getRouteHref() ) {
+	const feature = new URLSearchParams( route.split( '?' )[ 1 ] ?? '' ).get( RETURN_FEATURE_PARAM );
 
 	return feature
 		? getMyJetpackUrl( `#${ MyJetpackRoutes.Features }?${ new URLSearchParams( { feature } ) }` )
@@ -55,15 +55,15 @@ const STATUS_FILTERS = [ 'available', 'active', 'inactive' ];
  *
  * Read from the URL rather than the router, so it still answers once an install has replaced the button that asked.
  *
- * @param hash  - The current route as a hash, such as `#/features?view=list`.
+ * @param route - The current route, such as `/features?view=list`.
  * @param extra - More query values for the return, such as the click it comes back for.
  * @return The admin URL of the same Features view.
  */
 export function getFeatureConnectReturnUrl(
-	hash = `#${ getRouteHref() }`,
+	route = getRouteHref(),
 	extra: Record< string, string > = {}
 ) {
-	const current = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' );
+	const current = new URLSearchParams( route.split( '?' )[ 1 ] ?? '' );
 	const kept = new URLSearchParams();
 	CONNECT_RETURN_PARAMS.forEach( key => {
 		const value = current.get( key );

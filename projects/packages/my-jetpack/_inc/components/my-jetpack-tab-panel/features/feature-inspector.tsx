@@ -1,6 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { check, close } from '@wordpress/icons';
 import { Badge, IconButton, Stack, Text } from '@wordpress/ui';
+import { useEffect } from 'react';
+import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { FeatureDelivery } from './feature-delivery';
 import { FeatureHighlights } from './feature-highlights';
 import { FeatureIcon } from './feature-icon';
@@ -9,8 +11,10 @@ import { FeatureLinks } from './feature-links';
 import { FeatureModalActions } from './feature-modal-actions';
 import { FeaturePaid } from './feature-paid';
 import { useFeatureStates } from './feature-state';
+import { FeaturesTrackingProvider } from './features-tracking-context';
 import { getFeatureStatusLabel, getFeatureUnavailableReason } from './module-availability';
 import styles from './styles.module.scss';
+import { readFeaturesParams } from './use-feature-filter';
 import { useMainFeatures } from './use-main-features';
 
 let inInspector = false;
@@ -33,20 +37,55 @@ export function areFeatureDetailsInInspector() {
 
 type FeatureInspectorProps = {
 	slug: string;
+	searchParams: URLSearchParams;
 	onClose: () => void;
 };
 
 /**
- * A feature's details in the wp-build inspector, built from the same parts as the modal.
+ * A feature's details in the wp-build inspector, reporting clicks against the grid beside it.
  *
- * @param {FeatureInspectorProps} props         - The component props.
- * @param {string}                props.slug    - The open feature's slug.
- * @param {Function}              props.onClose - Closes the inspector.
+ * @param {FeatureInspectorProps} props              - The component props.
+ * @param {string}                props.slug         - The open feature's slug.
+ * @param {URLSearchParams}       props.searchParams - The Features tab's query.
+ * @param {Function}              props.onClose      - Closes the inspector.
  * @return The rendered component.
  */
-export function FeatureInspector( { slug, onClose }: FeatureInspectorProps ) {
-	const { states } = useFeatureStates( useMainFeatures() );
+export function FeatureInspector( { slug, searchParams, onClose }: FeatureInspectorProps ) {
+	const { filter, search, view } = readFeaturesParams( searchParams );
+	const details = <FeatureDetails slug={ slug } onClose={ onClose } />;
+
+	if ( isOfflineFeatures() ) {
+		return details;
+	}
+
+	return (
+		<FeaturesTrackingProvider filter={ filter } search={ search } view={ view }>
+			{ details }
+		</FeaturesTrackingProvider>
+	);
+}
+
+/**
+ * A feature's details, built from the same parts as the modal.
+ *
+ * @param {object}   props         - The component props.
+ * @param {string}   props.slug    - The open feature's slug.
+ * @param {Function} props.onClose - Closes the inspector.
+ * @return The rendered component.
+ */
+function FeatureDetails( { slug, onClose }: Omit< FeatureInspectorProps, 'searchParams' > ) {
+	const mainFeatures = useMainFeatures();
+	const { states } = useFeatureStates( mainFeatures );
 	const state = states.find( item => item.feature.slug === slug );
+	// The modal never opened for a slug the site lacks; an empty seed is not yet a list to check.
+	const isUnknown =
+		! state && ( mainFeatures.features.length > 0 || ! mainFeatures.isPlaceholderData );
+
+	useEffect( () => {
+		if ( isUnknown ) {
+			onClose();
+		}
+	}, [ isUnknown, onClose ] );
 
 	if ( ! state ) {
 		return null;
