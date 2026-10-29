@@ -93,7 +93,7 @@ export const variations = [
 		keywords: [ 'reblog', 'repost', 'press this' ],
 		icon: <SocialLogo icon={ 'wordpress' } size={ 24 } />,
 		description: __(
-			'Let readers repost the post on one of their own WordPress sites.',
+			'Write a new post on your own WordPress site, with a link to this post.',
 			'jetpack'
 		),
 	},
