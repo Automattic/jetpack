@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -123,9 +122,9 @@ class Stats_Settings_Test extends BaseTestCase {
 			rmdir( dirname( self::CONSENT_API_FILE ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 		}
 		delete_option( 'active_plugins' );
+		remove_all_filters( Stats_Settings::FIELDS_FILTER );
 		$this->reset_stats_options_cache();
 		remove_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ), 20 );
-		Constants::clear_single_constant( 'IS_WPCOM' );
 		remove_filter( 'pre_count_users', array( $this, 'count_users' ) );
 		wp_set_current_user( 0 );
 
@@ -148,6 +147,25 @@ class Stats_Settings_Test extends BaseTestCase {
 				)
 			)
 		);
+	}
+
+	/**
+	 * Keep only some settings, as a host does, and rebuild the route's schema from them.
+	 *
+	 * @param string[] $fields Settings to keep.
+	 * @return void
+	 */
+	private function keep_fields( array $fields ) {
+		add_filter(
+			Stats_Settings::FIELDS_FILTER,
+			function () use ( $fields ) {
+				return $fields;
+			}
+		);
+		unregister_setting( self::GROUP, Stats_Options::OPTION_NAME );
+		unregister_setting( self::GROUP, self::READER_VIEWS_OPTION );
+		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
+		do_action( 'rest_api_init' );
 	}
 
 	/**
@@ -286,15 +304,35 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->assertSame( 1, get_option( self::READER_VIEWS_OPTION ) );
 	}
 
-	public function test_settings_are_not_exposed_on_a_simple_site() {
-		Constants::set_constant( 'IS_WPCOM', true );
-		unregister_setting( self::GROUP, Stats_Options::OPTION_NAME );
-		remove_action( 'rest_api_init', array( Stats_Settings::class, 'register' ) );
+	public function test_route_offers_only_the_fields_the_host_keeps() {
+		$this->log_in_as( 'administrator' );
+		update_option( Stats_Options::OPTION_NAME, array( 'roles' => array( 'administrator', 'editor' ) ) );
+		$this->keep_fields( array( 'admin_bar' ) );
 
-		Stats_Settings::configure();
-		do_action( 'rest_api_init' );
+		$data   = rest_get_server()->dispatch( new WP_REST_Request( 'GET', self::ROUTE ) )->get_data();
+		$status = $this->post_settings( array( Stats_Options::OPTION_NAME => array( 'roles' => array( 'administrator' ) ) ) )->get_status();
 
-		$this->assertArrayNotHasKey( Stats_Options::OPTION_NAME, get_registered_settings() );
+		$this->assertSame( array( 'admin_bar' => true ), $data[ Stats_Options::OPTION_NAME ] );
+		$this->assertArrayNotHasKey( self::READER_VIEWS_OPTION, $data );
+		$this->assertSame( 400, $status );
+		$this->assertSame( array( 'administrator', 'editor' ), get_option( Stats_Options::OPTION_NAME )['roles'] );
+	}
+
+	public function test_script_data_lists_the_fields_the_host_keeps_without_roles() {
+		$this->log_in_as( 'administrator' );
+		$this->keep_fields( array( 'admin_bar', self::READER_VIEWS_OPTION ) );
+
+		$context = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings'];
+
+		$this->assertSame( array( 'admin_bar', self::READER_VIEWS_OPTION ), $context['fields'] );
+		$this->assertSame( array(), $context['roles'] );
+	}
+
+	public function test_script_data_carries_nothing_when_the_host_keeps_no_field() {
+		$this->log_in_as( 'administrator' );
+		add_filter( Stats_Settings::FIELDS_FILTER, '__return_empty_array' );
+
+		$this->assertSame( array(), Stats_Settings::add_script_data( array() ) );
 	}
 
 	public function test_script_data_lists_the_roles_and_their_user_counts_for_an_administrator() {

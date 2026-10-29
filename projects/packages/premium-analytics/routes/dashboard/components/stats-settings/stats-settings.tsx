@@ -28,27 +28,40 @@ import type { JSX } from 'react';
 type CardGroup = { id: string; label: string; children: Array< keyof StatsSettings > };
 
 /**
- * The form's cards and the fields each one holds.
+ * The form's cards and the fields each one holds, keeping only the fields the site offers.
  *
- * @return The cards, in order.
+ * @param offered - The settings the site offers; every setting when the site does not say.
+ * @return The cards left holding a field, in order.
  */
-const getCardGroups = (): CardGroup[] => [
-	{
-		id: 'admin-bar',
-		label: __( 'Admin bar widget', 'jetpack-premium-analytics-pkg' ),
-		children: [ 'admin_bar' ],
-	},
-	{
-		id: 'permissions',
-		label: __( 'Manage permissions', 'jetpack-premium-analytics-pkg' ),
-		children: [ 'roles', 'count_roles' ],
-	},
-	{
-		id: 'reader',
-		label: __( 'WordPress.com Reader', 'jetpack-premium-analytics-pkg' ),
-		children: [ 'wpcom_reader_views_enabled' ],
-	},
-];
+const getCardGroups = ( offered?: string[] ): CardGroup[] => {
+	const groups: CardGroup[] = [
+		{
+			id: 'admin-bar',
+			label: __( 'Admin bar widget', 'jetpack-premium-analytics-pkg' ),
+			children: [ 'admin_bar' ],
+		},
+		{
+			id: 'permissions',
+			label: __( 'Manage permissions', 'jetpack-premium-analytics-pkg' ),
+			children: [ 'roles', 'count_roles' ],
+		},
+		{
+			id: 'reader',
+			label: __( 'WordPress.com Reader', 'jetpack-premium-analytics-pkg' ),
+			children: [ 'wpcom_reader_views_enabled' ],
+		},
+	];
+	if ( ! offered ) {
+		return groups;
+	}
+
+	return groups
+		.map( group => ( {
+			...group,
+			children: group.children.filter( id => offered.includes( id ) ),
+		} ) )
+		.filter( group => group.children.length > 0 );
+};
 
 // apiFetch writes these itself when the request never reached the site.
 const CLIENT_ERROR_CODES = [ 'fetch_error', 'offline_error' ];
@@ -107,8 +120,9 @@ export function StatsSettingsPanel(): JSX.Element {
 	const premiumAnalytics = getScriptData()?.premium_analytics;
 	const roles = premiumAnalytics?.stats_settings?.roles;
 	const featuresUrl = premiumAnalytics?.stats_settings?.features_url;
+	const offered = premiumAnalytics?.stats_settings?.fields;
 	const fields = useMemo( () => getFields( roles ?? [] ), [ roles ] );
-	const cardGroups = useMemo( getCardGroups, [] );
+	const cardGroups = useMemo( () => getCardGroups( offered ), [ offered ] );
 	const formLayout = useMemo< Form >(
 		() => ( { layout: { type: 'card', isCollapsible: false }, fields: cardGroups } ),
 		[ cardGroups ]

@@ -9,12 +9,18 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Settings as Stats_Package_Settings;
-use Automattic\Jetpack\Status\Host;
 
 /**
  * Exposes the Stats settings through core's `wp/v2/settings` route, and the role list the Settings tab offers through script data.
  */
 final class Stats_Settings {
+
+	/**
+	 * Filter for the settings the site offers, so a host can leave out the ones its Stats does not honor.
+	 *
+	 * @var string
+	 */
+	public const FIELDS_FILTER = 'jetpack_premium_analytics_stats_settings_fields';
 
 	/**
 	 * Settings group the options register under.
@@ -77,15 +83,11 @@ final class Stats_Settings {
 	private static $update_error = null;
 
 	/**
-	 * Hook the settings up, except on Simple sites, where WordPress.com owns the Stats settings.
+	 * Hook the settings up. The host that serves the site's REST API calls this before `rest_api_init`.
 	 *
 	 * @return void
 	 */
 	public static function configure() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			return;
-		}
-
 		add_action( 'rest_api_init', array( __CLASS__, 'register' ) );
 		// Counting users per role costs a query, so only the dashboard pays for it.
 		if ( Analytics::is_dashboard_request() ) {
@@ -99,51 +101,86 @@ final class Stats_Settings {
 	 * @return void
 	 */
 	public static function register() {
-		$role = array(
-			'type' => 'string',
-			'enum' => self::get_role_slugs(),
-		);
-
-		register_setting(
-			self::GROUP,
-			Stats_Options::OPTION_NAME,
-			array(
-				'type'         => 'object',
-				'show_in_rest' => array(
-					'schema' => array(
-						'type'                 => 'object',
-						'properties'           => array(
-							'admin_bar'   => array( 'type' => 'boolean' ),
-							'roles'       => array(
-								'type'     => 'array',
-								'items'    => $role,
-								'minItems' => 1,
-							),
-							'count_roles' => array(
-								'type'  => 'array',
-								'items' => $role,
-							),
-						),
-						'additionalProperties' => false,
-					),
+		$stats_fields = self::get_stats_option_fields();
+		if ( array() !== $stats_fields ) {
+			$role       = array(
+				'type' => 'string',
+				'enum' => self::get_role_slugs(),
+			);
+			$properties = array(
+				'admin_bar'   => array( 'type' => 'boolean' ),
+				'roles'       => array(
+					'type'     => 'array',
+					'items'    => $role,
+					'minItems' => 1,
 				),
-				'description'  => __( 'Jetpack Stats settings.', 'jetpack-premium-analytics-pkg' ),
-			)
-		);
-		register_setting(
-			self::GROUP,
-			self::READER_VIEWS_OPTION,
-			array(
-				'type'              => 'boolean',
-				'default'           => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => array( __CLASS__, 'sanitize_reader_views' ),
-				'description'       => __( 'Whether the WordPress.com Reader shows post views for this site.', 'jetpack-premium-analytics-pkg' ),
-			)
-		);
+				'count_roles' => array(
+					'type'  => 'array',
+					'items' => $role,
+				),
+			);
+
+			register_setting(
+				self::GROUP,
+				Stats_Options::OPTION_NAME,
+				array(
+					'type'         => 'object',
+					'show_in_rest' => array(
+						'schema' => array(
+							'type'                 => 'object',
+							'properties'           => array_intersect_key( $properties, array_flip( $stats_fields ) ),
+							'additionalProperties' => false,
+						),
+					),
+					'description'  => __( 'Jetpack Stats settings.', 'jetpack-premium-analytics-pkg' ),
+				)
+			);
+		}
+		if ( in_array( self::READER_VIEWS_OPTION, self::get_fields(), true ) ) {
+			register_setting(
+				self::GROUP,
+				self::READER_VIEWS_OPTION,
+				array(
+					'type'              => 'boolean',
+					'default'           => true,
+					'show_in_rest'      => true,
+					'sanitize_callback' => array( __CLASS__, 'sanitize_reader_views' ),
+					'description'       => __( 'Whether the WordPress.com Reader shows post views for this site.', 'jetpack-premium-analytics-pkg' ),
+				)
+			);
+		}
 		add_filter( 'rest_pre_get_setting', array( __CLASS__, 'get_stats_options' ), 10, 2 );
 		add_filter( 'rest_pre_update_setting', array( __CLASS__, 'update_stats_options' ), 10, 3 );
 		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'report_update_error' ) );
+	}
+
+	/**
+	 * The settings the site offers: the `stats_options` fields and the Reader setting, less any the host leaves out.
+	 *
+	 * @return string[]
+	 */
+	private static function get_fields() {
+		$fields = array_merge( self::FIELDS, array( self::READER_VIEWS_OPTION ) );
+
+		/**
+		 * Filters the Stats settings the dashboard's Settings tab and the settings route offer.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[] $fields `admin_bar`, `roles`, `count_roles` and `wpcom_reader_views_enabled`.
+		 */
+		$kept = apply_filters( self::FIELDS_FILTER, $fields );
+
+		return array_values( array_intersect( $fields, is_array( $kept ) ? $kept : array() ) );
+	}
+
+	/**
+	 * The `stats_options` fields the site offers.
+	 *
+	 * @return string[]
+	 */
+	private static function get_stats_option_fields() {
+		return array_values( array_intersect( self::FIELDS, self::get_fields() ) );
 	}
 
 	/**
@@ -176,7 +213,7 @@ final class Stats_Settings {
 			return $value;
 		}
 
-		return Stats_Package_Settings::get( self::FIELDS );
+		return Stats_Package_Settings::get( self::get_stats_option_fields() );
 	}
 
 	/**
@@ -193,7 +230,7 @@ final class Stats_Settings {
 		if ( self::READER_VIEWS_OPTION === $name ) {
 			$result = Stats_Package_Settings::update_reader_views( rest_sanitize_boolean( $value ) );
 		} elseif ( Stats_Options::OPTION_NAME === $name ) {
-			$result = Stats_Package_Settings::update( is_array( $value ) ? $value : array(), self::FIELDS );
+			$result = Stats_Package_Settings::update( is_array( $value ) ? $value : array(), self::get_stats_option_fields() );
 		} else {
 			return $updated;
 		}
@@ -233,16 +270,38 @@ final class Stats_Settings {
 	}
 
 	/**
-	 * Give the Settings tab the roles it lists, with how many users hold each, the screen that switches the Stats module on and off, and the visitor consent setup.
+	 * Give the Settings tab the settings it shows, the roles it lists with how many users hold each, the screen that switches the Stats module on and off, and the visitor consent setup.
 	 *
 	 * @param array $data The script data.
 	 * @return array The script data with the Stats settings context added.
 	 */
 	public static function add_script_data( $data ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		$fields = self::get_fields();
+		if ( array() === $fields || ! current_user_can( 'manage_options' ) ) {
 			return $data;
 		}
 
+		if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
+			$data['premium_analytics'] = array();
+		}
+
+		$data['premium_analytics']['stats_settings'] = array(
+			'fields'       => $fields,
+			'roles'        => array_intersect( array( 'roles', 'count_roles' ), $fields ) ? self::get_roles_with_counts() : array(),
+			// Jetpack can be active without My Jetpack's screen, for example on Atomic, where wpcomsh skips it.
+			'features_url' => class_exists( 'Jetpack' ) && '' !== menu_page_url( 'my-jetpack', false ) ? admin_url( 'admin.php?page=my-jetpack#/features?search=stats' ) : null,
+			'consent'      => self::get_consent_status(),
+		);
+
+		return $data;
+	}
+
+	/**
+	 * The site's editable roles, with how many users hold each.
+	 *
+	 * @return array[]
+	 */
+	private static function get_roles_with_counts() {
 		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/user.php';
 		}
@@ -258,18 +317,7 @@ final class Stats_Settings {
 			);
 		}
 
-		if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
-			$data['premium_analytics'] = array();
-		}
-
-		$data['premium_analytics']['stats_settings'] = array(
-			'roles'        => $roles,
-			// Jetpack can be active without My Jetpack's screen, for example on Atomic, where wpcomsh skips it.
-			'features_url' => class_exists( 'Jetpack' ) && '' !== menu_page_url( 'my-jetpack', false ) ? admin_url( 'admin.php?page=my-jetpack#/features?search=stats' ) : null,
-			'consent'      => self::get_consent_status(),
-		);
-
-		return $data;
+		return $roles;
 	}
 
 	/**
