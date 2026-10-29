@@ -128,6 +128,16 @@ export default function TrafficChartCard(): JSX.Element {
 	const showError = ! needsUpgrade && ! isLoading && hasError && ! hasData;
 	const showEmpty = ! needsUpgrade && ! isLoading && ! hasError && ! hasData && days !== undefined;
 
+	const periodSelector = (
+		<PeriodSelector
+			label={ __( 'Date range', 'jetpack-publicize-pkg' ) }
+			presets={ INTERVAL_OPTIONS }
+			value={ String( interval ) }
+			onChange={ onIntervalChange }
+			disabled={ needsUpgrade }
+		/>
+	);
+
 	return (
 		<Card.Root>
 			<Card.Header className="jetpack-social-overview__chart-header">
@@ -139,26 +149,13 @@ export default function TrafficChartCard(): JSX.Element {
 					{ needsUpgrade ? (
 						<Tooltip.Root>
 							{ /* The disabled trigger stays focusable, so its hover and focus reach this span. */ }
-							<Tooltip.Trigger render={ <span /> }>
-								<PeriodSelector
-									label={ __( 'Date range', 'jetpack-publicize-pkg' ) }
-									presets={ INTERVAL_OPTIONS }
-									value={ String( interval ) }
-									onChange={ onIntervalChange }
-									disabled
-								/>
-							</Tooltip.Trigger>
+							<Tooltip.Trigger render={ <span /> }>{ periodSelector }</Tooltip.Trigger>
 							<Tooltip.Popup>
 								{ __( 'Available with a paid plan', 'jetpack-publicize-pkg' ) }
 							</Tooltip.Popup>
 						</Tooltip.Root>
 					) : (
-						<PeriodSelector
-							label={ __( 'Date range', 'jetpack-publicize-pkg' ) }
-							presets={ INTERVAL_OPTIONS }
-							value={ String( interval ) }
-							onChange={ onIntervalChange }
-						/>
+						periodSelector
 					) }
 				</div>
 			</Card.Header>
