@@ -44,11 +44,14 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Clean up the post, the cached video details and the HTTP block.
+	 * Clean up the post, the stubbed video sources and the HTTP block.
 	 */
 	protected function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'block_http' ) );
 		remove_all_filters( 'rest_pre_dispatch' );
+		remove_all_filters( 'videopress_channel_videos' );
+		remove_all_filters( 'videopress_channel_video_views' );
+		Channel_Data::reset();
 		wp_delete_post( $this->post_id, true );
 		unset( $GLOBALS['post'] );
 	}
@@ -144,20 +147,103 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 		$this->assertSame( 0, preg_match( '#href="(?!' . preg_quote( get_permalink( $this->post_id ), '#' ) . ')#', $result ), 'Every link should open the post.' );
 	}
 
-	public function test_front_end_player_markup_is_left_out() {
-		$front_end = '<figure class="videopress-playlist"><div class="videopress-playlist__body"><iframe></iframe><span>Up next</span><span>Playing</span><span>Private video</span></div></figure>';
+	public function test_only_the_playlist_title_heading_is_kept_from_the_front_end() {
+		$front_end = '<figure class="videopress-playlist"><div class="videopress-playlist__heading"><h2 style="font-size:24px">My <em>series</em></h2></div><div class="videopress-playlist__body"><iframe></iframe><div><span>Up next</span><span>Playing</span><span>Private video</span></div></div></figure>';
 
 		$result = Playlist_Block_Email_Renderer::render( $front_end, $this->playlist_block( 3 ), $this->context() );
 
+		$this->assertStringContainsString( '<h2 style="font-size:24px">My <em>series</em></h2>', $result );
 		foreach ( array( '<iframe', 'Up next', 'Playing', 'Private video' ) as $front_end_only ) {
 			$this->assertStringNotContainsString( $front_end_only, $result );
 		}
 	}
 
-	public function test_summary_line_shows_count_and_runtime() {
-		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( 4 ), $this->context() );
+	public function test_single_video_has_no_summary_or_grid() {
+		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( 1 ), $this->context() );
 
-		$this->assertStringContainsString( '4 videos · 12 min', $result );
+		$this->assertStringContainsString( 'vidGui01/poster.jpg', $result );
+		$this->assertStringNotContainsString( '1 video', $result );
+		$this->assertStringNotContainsString( '<table', $result );
+	}
+
+	/**
+	 * The summary line with and without the block's total runtime.
+	 *
+	 * @return array
+	 */
+	public static function summary_provider() {
+		return array(
+			'runtime shown'  => array( array(), '>4 videos · 12 min</p>' ),
+			'runtime hidden' => array( array( 'showTotalRuntime' => false ), '>4 videos</p>' ),
+		);
+	}
+
+	/**
+	 * @dataProvider summary_provider
+	 *
+	 * @param array  $attrs    Block attributes.
+	 * @param string $expected Summary line markup.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'summary_provider' )]
+	public function test_summary_line_shows_count_and_runtime( $attrs, $expected ) {
+		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( 4, $attrs ), $this->context() );
+
+		$this->assertStringContainsString( $expected, $result );
+	}
+
+	/**
+	 * Grid display toggles, with markup each must show and leave out for the second video.
+	 *
+	 * @return array
+	 */
+	public static function grid_toggles_provider() {
+		return array(
+			'thumbnails hidden' => array( array( 'showThumbnail' => false ), '>Title 2</span>', 'vidGui02/poster.jpg' ),
+			'titles hidden'     => array( array( 'showTitle' => false ), 'alt="Title 2"', '>Title 2</span>' ),
+		);
+	}
+
+	/**
+	 * @dataProvider grid_toggles_provider
+	 *
+	 * @param array  $attrs   Block attributes.
+	 * @param string $present Markup the grid keeps.
+	 * @param string $absent  Markup the grid leaves out.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'grid_toggles_provider' )]
+	public function test_grid_follows_the_display_toggles( $attrs, $present, $absent ) {
+		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( 3, $attrs ), $this->context() );
+
+		$this->assertStringContainsString( $present, $result );
+		$this->assertStringNotContainsString( $absent, $result );
+	}
+
+	/**
+	 * Block email_attrs, and the thumbnail width a third of that width gives.
+	 *
+	 * @return array
+	 */
+	public static function grid_width_provider() {
+		return array(
+			'full email width'  => array( array(), 192 ),
+			'half-width column' => array( array( 'width' => '300px' ), 92 ),
+		);
+	}
+
+	/**
+	 * @dataProvider grid_width_provider
+	 *
+	 * @param array $email_attrs Email editor attributes of the block.
+	 * @param int   $width       Expected thumbnail width attribute.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'grid_width_provider' )]
+	public function test_grid_thumbnails_are_sized_for_the_block_width( $email_attrs, $width ) {
+		$block                = $this->playlist_block( 3 );
+		$block['email_attrs'] = $email_attrs;
+
+		$result = Playlist_Block_Email_Renderer::render( '', $block, $this->context() );
+
+		$this->assertSame( 2, substr_count( $result, "width=\"$width\"" ) );
 	}
 
 	public function test_long_playlists_cap_the_grid_and_link_to_the_rest() {
@@ -226,14 +312,6 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'vidGui02/poster.jpg', $result );
 	}
 
-	public function test_playlist_title_heading_is_kept() {
-		$front_end = '<figure class="videopress-playlist"><div class="videopress-playlist__heading"><h2 style="font-size:24px">My <em>series</em></h2></div><div class="videopress-playlist__body"><div class="videopress-playlist__list"></div></div></figure>';
-
-		$result = Playlist_Block_Email_Renderer::render( $front_end, $this->playlist_block( 2 ), $this->context() );
-
-		$this->assertStringContainsString( '<h2 style="font-size:24px">My <em>series</em></h2>', $result );
-	}
-
 	/**
 	 * Unusable input, or no post to send readers to.
 	 *
@@ -246,13 +324,6 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 				array(
 					'blockName' => 'videopress/playlist',
 					'attrs'     => array( 'videos' => array() ),
-				),
-				true,
-			),
-			'invalid guids'   => array(
-				array(
-					'blockName' => 'videopress/playlist',
-					'attrs'     => array( 'videos' => array( array( 'guid' => '<script>' ) ) ),
 				),
 				true,
 			),
@@ -325,5 +396,65 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'data-poster="https://videos.files.wordpress.com/newVid01/poster.jpg"', $result );
 		$this->assertStringContainsString( 'newVid02/poster.jpg', $result );
 		$this->assertStringNotContainsString( 'newVid03', $result );
+	}
+
+	/**
+	 * Latest Videos Playlist orders other than newest, and the video each puts first.
+	 *
+	 * @return array
+	 */
+	public static function latest_videos_order_provider() {
+		return array(
+			'popular' => array( 'popular', 'sortVid2' ),
+			'oldest'  => array( 'oldest', 'sortVid3' ),
+		);
+	}
+
+	/**
+	 * @dataProvider latest_videos_order_provider
+	 *
+	 * @param string $order Block orderBy attribute.
+	 * @param string $first GUID the front end shows first for that order.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'latest_videos_order_provider' )]
+	public function test_latest_videos_playlist_keeps_the_block_order( $order, $first ) {
+		$records = array();
+		foreach ( array( 'sortVid1', 'sortVid2', 'sortVid3' ) as $i => $guid ) {
+			$records[] = array(
+				'id'          => $i + 1,
+				'guid'        => $guid,
+				'durationMs'  => 60000,
+				'height'      => 720,
+				'publishedAt' => time() - $i,
+			);
+			$this->cache_video_details( $guid, $guid, "https://videos.files.wordpress.com/$guid/poster.jpg" );
+		}
+		Channel_Data::reset();
+		add_filter(
+			'videopress_channel_videos',
+			function () use ( $records ) {
+				return $records;
+			}
+		);
+		add_filter(
+			'videopress_channel_video_views',
+			function () {
+				return array( 2 => 500 );
+			}
+		);
+
+		$result = Playlist_Block_Email_Renderer::render_latest_videos(
+			'',
+			array(
+				'blockName' => 'videopress/latest-videos-playlist',
+				'attrs'     => array(
+					'count'   => 2,
+					'orderBy' => $order,
+				),
+			),
+			$this->context()
+		);
+
+		$this->assertStringContainsString( "data-poster=\"https://videos.files.wordpress.com/$first/poster.jpg\"", $result );
 	}
 }

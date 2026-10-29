@@ -63,12 +63,23 @@ class Playlist_Block_Email_Renderer {
 			$videos[] = self::video_details( $entry['guid'], $index + 1 );
 		}
 
+		$attributes = $parsed_block['attrs'];
+		$enabled    = function ( $key ) use ( $attributes ) {
+			return isset( $attributes[ $key ] ) ? (bool) $attributes[ $key ] : true;
+		};
+
 		$html  = self::render_heading( $block_content );
 		$html .= self::render_first_video( $videos[0], $post_url, $rendering_context );
 
 		if ( count( $entries ) > 1 ) {
-			$html .= self::render_summary( $entries );
-			$html .= self::render_grid( array_slice( $videos, 1 ), $post_url, self::layout_width( $rendering_context ) );
+			$html .= self::render_summary( $entries, $enabled( 'showTotalRuntime' ) );
+			$html .= self::render_grid(
+				array_slice( $videos, 1 ),
+				$post_url,
+				self::layout_width( $parsed_block, $rendering_context ),
+				$enabled( 'showThumbnail' ),
+				$enabled( 'showTitle' )
+			);
 		}
 
 		$hidden = count( $entries ) - count( $videos );
@@ -91,7 +102,7 @@ class Playlist_Block_Email_Renderer {
 	}
 
 	/**
-	 * Render the Latest Videos Playlist block for email: the site's newest videos as a playlist.
+	 * Render the Latest Videos Playlist block for email: the site's videos, in the block's order, as a playlist.
 	 *
 	 * @param string $block_content     The block's front-end HTML, unused: the block has no title.
 	 * @param array  $parsed_block      The parsed block data including attributes.
@@ -100,13 +111,16 @@ class Playlist_Block_Email_Renderer {
 	 * @return string
 	 */
 	public static function render_latest_videos( $block_content, $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$attributes = isset( $parsed_block['attrs'] ) && is_array( $parsed_block['attrs'] ) ? $parsed_block['attrs'] : array();
-		$count      = isset( $attributes['count'] ) && is_numeric( $attributes['count'] )
-			? (int) $attributes['count']
-			: Initializer::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
-		$count      = max( Initializer::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( Initializer::LATEST_VIDEOS_PLAYLIST_MAX_COUNT, $count ) );
+		$attributes            = isset( $parsed_block['attrs'] ) && is_array( $parsed_block['attrs'] ) ? $parsed_block['attrs'] : array();
+		list( $order, $count ) = Initializer::latest_videos_playlist_order_and_count( $attributes );
 
-		$parsed_block['attrs'] = array( 'videos' => Data::get_latest_videopress_playlist_entries( $count ) );
+		// Readers land on the post's first page with the block's own order, so ignore $_GET.
+		$entries = 'newest' === $order
+			? Data::get_latest_videopress_playlist_entries( $count )
+			: Channel_Data::browse( Channel_Data::browse_request( false, false, $order ), $count )['entries'];
+
+		$parsed_block['attrs']           = $attributes;
+		$parsed_block['attrs']['videos'] = $entries;
 
 		return self::render( '', $parsed_block, $rendering_context );
 	}
@@ -145,7 +159,7 @@ class Playlist_Block_Email_Renderer {
 	 */
 	private static function render_heading( $block_content ) {
 		if ( ! is_string( $block_content )
-			|| ! preg_match( '#<div class="videopress-playlist__heading">(.*)</div><div class="videopress-playlist__body">#s', $block_content, $matches )
+			|| ! preg_match( '#<div class="videopress-playlist__heading">(.*?)</div><div class="videopress-playlist__body">#s', $block_content, $matches )
 		) {
 			return '';
 		}
@@ -177,10 +191,7 @@ class Playlist_Block_Email_Renderer {
 			$video_renderer = new \Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Video();
 
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() in render().
-			$html = $video_renderer->render( $video_block['innerHTML'], $video_block, $rendering_context );
-			if ( ! empty( $html ) ) {
-				return $html;
-			}
+			return $video_renderer->render( $video_block['innerHTML'], $video_block, $rendering_context );
 		}
 
 		return sprintf(
@@ -193,15 +204,16 @@ class Playlist_Block_Email_Renderer {
 	/**
 	 * The "4 videos · 12 min" line introducing the grid.
 	 *
-	 * @param array $entries Every playlist entry.
+	 * @param array $entries      Every playlist entry.
+	 * @param bool  $show_runtime Whether to add the total runtime.
 	 *
 	 * @return string
 	 */
-	private static function render_summary( $entries ) {
+	private static function render_summary( $entries, $show_runtime ) {
 		$count = count( $entries );
 		/* translators: %d: number of videos in the playlist. */
 		$label   = sprintf( _n( '%d video', '%d videos', $count, 'jetpack-videopress-pkg' ), $count );
-		$runtime = Initializer::playlist_runtime_label( array_sum( array_column( $entries, 'durationMs' ) ) );
+		$runtime = $show_runtime ? Initializer::playlist_runtime_label( array_sum( array_column( $entries, 'durationMs' ) ) ) : '';
 		if ( '' !== $runtime ) {
 			$label .= ' · ' . $runtime;
 		}
@@ -212,13 +224,17 @@ class Playlist_Block_Email_Renderer {
 	/**
 	 * The videos after the first as a table of linked thumbnails.
 	 *
-	 * @param array  $videos   Video details.
-	 * @param string $post_url Post URL.
-	 * @param int    $width    Email content width in pixels.
+	 * Titles stay when thumbnails are hidden, so every cell keeps something to click.
+	 *
+	 * @param array  $videos          Video details.
+	 * @param string $post_url        Post URL.
+	 * @param int    $width           Block width in pixels.
+	 * @param bool   $show_thumbnails Whether to show the posters.
+	 * @param bool   $show_titles     Whether to show the titles.
 	 *
 	 * @return string
 	 */
-	private static function render_grid( $videos, $post_url, $width ) {
+	private static function render_grid( $videos, $post_url, $width, $show_thumbnails, $show_titles ) {
 		$image_width = (int) floor( $width / self::GRID_COLUMNS ) - 2 * self::GRID_CELL_PADDING;
 		$cell_style  = sprintf(
 			'width: %s%%; padding: %dpx; vertical-align: top;',
@@ -230,22 +246,26 @@ class Playlist_Block_Email_Renderer {
 		foreach ( array_chunk( $videos, self::GRID_COLUMNS ) as $row_videos ) {
 			$cells = '';
 			foreach ( $row_videos as $video ) {
-				$thumbnail = '' !== $video['poster']
+				$has_thumbnail = $show_thumbnails && '' !== $video['poster'];
+				$has_title     = $show_titles || ! $has_thumbnail;
+				$thumbnail     = $has_thumbnail
 					? sprintf(
-						'<a href="%1$s" target="_blank" rel="noopener noreferrer"><img src="%2$s" alt="%3$s" width="%4$d" style="display: block; width: 100%%; max-width: %4$dpx; height: auto; border: 0; border-radius: 4px;" /></a>',
-						esc_url( $post_url ),
+						'<img src="%1$s" alt="%2$s" width="%3$d" style="display: block; width: 100%%; max-width: %3$dpx; height: auto; border: 0; border-radius: 4px;" />',
 						esc_url( $video['poster'] ),
-						esc_attr( $video['title'] ),
+						$has_title ? '' : esc_attr( $video['title'] ),
 						$image_width
 					)
 					: '';
+				$title         = $has_title
+					? sprintf( '<span style="display: block; margin-top: %dpx;">%s</span>', $has_thumbnail ? 4 : 0, esc_html( $video['title'] ) )
+					: '';
 
 				$cells .= sprintf(
-					'<td style="%1$s">%2$s<p style="margin: 4px 0 0; font-size: 14px; line-height: 1.4;"><a href="%3$s" target="_blank" rel="noopener noreferrer">%4$s</a></p></td>',
+					'<td style="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer" style="display: block; font-size: 14px; line-height: 1.4;">%3$s%4$s</a></td>',
 					esc_attr( $cell_style ),
-					$thumbnail,
 					esc_url( $post_url ),
-					esc_html( $video['title'] )
+					$thumbnail,
+					$title
 				);
 			}
 
@@ -265,13 +285,19 @@ class Playlist_Block_Email_Renderer {
 	}
 
 	/**
-	 * The email content width, 600px unless the rendering context says otherwise.
+	 * The block's width in the email, e.g. narrower inside a column; else the content width, else 600px.
 	 *
+	 * @param array  $parsed_block      The parsed block data, with the email editor's email_attrs.
 	 * @param object $rendering_context Email rendering context.
 	 *
 	 * @return int Width in pixels.
 	 */
-	private static function layout_width( $rendering_context ) {
+	private static function layout_width( $parsed_block, $rendering_context ) {
+		$block_width = (int) ( $parsed_block['email_attrs']['width'] ?? 0 );
+		if ( $block_width > 0 ) {
+			return $block_width;
+		}
+
 		if ( is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
 			$width = (int) $rendering_context->get_layout_width_without_padding();
 			if ( $width > 0 ) {

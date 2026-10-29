@@ -22,15 +22,14 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Rend
 		public function render( $block_content, $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			$attrs = $parsed_block['attrs'] ?? array();
 
-			if ( empty( $attrs['poster'] ) ) {
-				return '';
-			}
-
-			return sprintf(
+			// Like the real renderer, always wrap in a spacer, even with nothing to show.
+			$video = empty( $attrs['poster'] ) ? '' : sprintf(
 				'<div class="email-video" data-poster="%s"><a href="%s">Play</a></div>',
 				esc_url( $attrs['poster'] ),
 				esc_url( $attrs['videoUrl'] ?? '' )
 			);
+
+			return '<div class="email-block-spacer">' . $video . '</div>';
 		}
 	}
 	class_alias( 'Mock_WooCommerce_Video_Renderer', '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Video' );
