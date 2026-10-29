@@ -19,6 +19,14 @@ use WorDBless\BaseTestCase;
 class Dashboard_Threats_Test extends BaseTestCase {
 
 	/**
+	 * Forget the fixes each test records.
+	 */
+	public function tear_down() {
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+		parent::tear_down();
+	}
+
+	/**
 	 * Threats, and the part of the formatted threat each one decides.
 	 *
 	 * @return array[]
@@ -382,7 +390,6 @@ class Dashboard_Threats_Test extends BaseTestCase {
 
 		$this->assertSame( $expected_open, array_column( $open, 'id' ) );
 		$this->assertSame( $expected_kept, array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
-		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 	}
 
 	/**
@@ -401,6 +408,5 @@ class Dashboard_Threats_Test extends BaseTestCase {
 
 		$this->assertSame( array(), $open );
 		$this->assertSame( array( '1' ), array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
-		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 	}
 }

@@ -555,8 +555,10 @@ class Dashboard_Test extends BaseTestCase {
 	 */
 	public static function provide_stored_scans() {
 		return array(
-			'a completed scan clears the fix' => array( false, array() ),
-			'a failed scan keeps it'          => array( true, array( '1' ) ),
+			'a first completed scan clears the fix' => array( false, false, array() ),
+			'a first failed scan keeps it'          => array( true, false, array( '1' ) ),
+			'a later completed scan clears the fix' => array( false, true, array() ),
+			'a later failed scan keeps it'          => array( true, true, array( '1' ) ),
 		);
 	}
 
@@ -566,10 +568,14 @@ class Dashboard_Test extends BaseTestCase {
 	 * @dataProvider provide_stored_scans
 	 *
 	 * @param bool     $failed   Whether the stored scan failed.
+	 * @param bool     $replaces Whether an earlier scan is already stored, so update_option fires instead of add_option.
 	 * @param string[] $expected Ids still recorded.
 	 */
 	#[DataProvider( 'provide_stored_scans' )]
-	public function test_storing_a_scan_prunes_recorded_fixes( $failed, $expected ) {
+	public function test_storing_a_scan_prunes_recorded_fixes( $failed, $replaces, $expected ) {
+		if ( $replaces ) {
+			update_option( Scan_Status::OPTION_NAME, maybe_serialize( (object) array( 'most_recent' => (object) array( 'timestamp' => gmdate( 'c', time() - DAY_IN_SECONDS ) ) ) ) );
+		}
 		Dashboard_Threats::resolve( array( 'id' => '1' ) );
 		$scan = (object) array(
 			'most_recent' => (object) array(
