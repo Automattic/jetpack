@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Remove a type cast made redundant by the @wordpress/components update.
-
-

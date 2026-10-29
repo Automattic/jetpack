@@ -3150,7 +3150,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates the firewall's IP block list, refusing one that would block the user saving it.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param string          $value Value to check.
 	 * @param WP_REST_Request $request The request sent to the WP REST API.

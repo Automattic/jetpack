@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Admin pages: Keep administrators signed in on the Settings and Modules pages when another plugin's REST authentication filter returns an empty value such as null or false.

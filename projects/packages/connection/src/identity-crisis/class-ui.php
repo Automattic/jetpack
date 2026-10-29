@@ -189,7 +189,7 @@ class UI {
 	/**
 	 * Get the site platform.
 	 *
-	 * @since $$next-version$$ Public, so the Connectors card can send the same value to Tracks.
+	 * @since 9.15.0 Public, so the Connectors card can send the same value to Tracks.
 	 *
 	 * @return string
 	 */

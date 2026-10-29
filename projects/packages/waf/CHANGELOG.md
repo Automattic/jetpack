@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.31.0] - 2026-10-28
+### Added
+- Add the `jetpack_protect_firewall_provided_by_host` filter, which lets a host report its own firewall as active where Jetpack's can't run. [#53954]
+
+### Changed
+- Explain to a visitor blocked by the IP block list what happened and that site managers can log in for more information. [#54124]
+
 ## [0.30.1] - 2026-10-26
 ### Fixed
 - Leave days older than 30 out of the 30-day blocked-request count on sites that haven't blocked a request since. [#53822]
@@ -599,6 +606,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.31.0]: https://github.com/Automattic/jetpack-waf/compare/v0.30.1...v0.31.0
 [0.30.1]: https://github.com/Automattic/jetpack-waf/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/Automattic/jetpack-waf/compare/v0.29.3...v0.30.0
 [0.29.3]: https://github.com/Automattic/jetpack-waf/compare/v0.29.2...v0.29.3
