@@ -36,6 +36,7 @@ class Status_Test extends BaseTestCase {
 	 */
 	protected function tear_down() {
 		$this->teardown_mock_data();
+		unset( $_GET['page'] );
 	}
 
 	/**
@@ -565,5 +566,33 @@ class Status_Test extends BaseTestCase {
 		$this->assertFalse( isset( $status->core->vulnerabilities ) );
 
 		remove_filter( 'pre_http_request', array( $this, 'return_broken_sample_response' ) );
+	}
+
+	/**
+	 * Requested `page` values and whether each is the Protect page.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_page_requests() {
+		return array(
+			'the Protect page' => array( 'jetpack-protect', true ),
+			'another page'     => array( 'jetpack', false ),
+			'no page'          => array( null, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_page_requests
+	 *
+	 * @param string|null $page     The requested `page`, or null for none.
+	 * @param bool        $expected Whether the request is for the Protect page.
+	 */
+	#[DataProvider( 'provide_page_requests' )]
+	public function test_is_protect_page_matches_only_the_protect_page( $page, $expected ) {
+		if ( null !== $page ) {
+			$_GET['page'] = $page;
+		}
+
+		$this->assertSame( $expected, Status::is_protect_page() );
 	}
 }

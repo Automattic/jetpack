@@ -1,16 +1,8 @@
 import { _n, sprintf } from '@wordpress/i18n';
 import { useEffect } from 'react';
 
-declare global {
-	interface Window {
-		jetpackMenuBadges?: { setCount: ( menuSlug: string, count: number ) => void };
-	}
-}
-
 /**
  * Keep the admin bar threat count and the Protect menu badge in step with the app's threat count.
- *
- * The admin bar node is rendered hidden on the Protect page when there are no threats, so it can appear later.
  *
  * @param {number} count - Active threats.
  */

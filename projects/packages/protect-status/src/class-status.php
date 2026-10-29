@@ -200,6 +200,18 @@ class Status {
 	}
 
 	/**
+	 * Whether the request is for the Protect page, served by the Protect plugin or the Protect dashboard.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_protect_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only compared against the page slug.
+		return isset( $_GET['page'] ) && 'jetpack-protect' === $_GET['page'];
+	}
+
+	/**
 	 * Checks the current status to see if there are any threats found
 	 *
 	 * @return boolean

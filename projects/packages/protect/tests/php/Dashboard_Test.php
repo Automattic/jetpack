@@ -37,7 +37,6 @@ class Dashboard_Test extends BaseTestCase {
 	public function tear_down() {
 		Admin_Menu::reset();
 		self::reset_sections();
-		unset( $_GET['page'] );
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'doing_it_wrong_run' );
@@ -295,34 +294,6 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertFalse( Dashboard::load_wp_build( $build_index ) );
 		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( Dashboard::class, 'enqueue_i18n_loader' ) ) );
 		$this->assertNotContains( 'jetpack-protect', array_merge( array(), ...array_values( WP_Build_Polyfills::get_consumers() ) ) );
-	}
-
-	/**
-	 * Requested `page` values and whether each is the dashboard's.
-	 *
-	 * @return array[]
-	 */
-	public static function provide_page_requests() {
-		return array(
-			'the Protect page' => array( Dashboard::MENU_SLUG, true ),
-			'another page'     => array( 'jetpack', false ),
-			'no page'          => array( null, false ),
-		);
-	}
-
-	/**
-	 * @dataProvider provide_page_requests
-	 *
-	 * @param string|null $page     The requested `page`, or null for none.
-	 * @param bool        $expected Whether the request is for the dashboard.
-	 */
-	#[DataProvider( 'provide_page_requests' )]
-	public function test_is_dashboard_request_matches_only_the_protect_page( $page, $expected ) {
-		if ( null !== $page ) {
-			$_GET['page'] = $page;
-		}
-
-		$this->assertSame( $expected, Dashboard::is_dashboard_request() );
 	}
 
 	/**

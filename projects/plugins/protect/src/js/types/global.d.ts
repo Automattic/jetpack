@@ -33,5 +33,6 @@ declare global {
 			accountProtection: AccountProtectionStatus;
 			waf: WafStatus;
 		};
+		jetpackMenuBadges?: { setCount: ( menuSlug: string, count: number ) => void };
 	}
 }
