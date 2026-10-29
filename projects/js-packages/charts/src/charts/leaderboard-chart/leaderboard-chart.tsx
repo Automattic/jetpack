@@ -323,17 +323,15 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		return ! isPrimaryVisible;
 	}, [ isPrimaryVisible, isComparisonVisible, withComparison, withOverlayLabel ] );
 
+	const withComparisonBars = withComparison && ! withOverlayLabel;
+
 	const resolvedData = useMemo(
-		() =>
-			resolveLeaderboardEntries( data ?? [], {
-				includePrevious: withComparison && ! withOverlayLabel,
-			} ),
-		[ data, withComparison, withOverlayLabel ]
+		() => resolveLeaderboardEntries( data ?? [], { includePrevious: withComparisonBars } ),
+		[ data, withComparisonBars ]
 	);
 
 	// One negative share puts every row on a shared zero point, so the bars stay comparable.
 	const divergingScale = useMemo( (): DivergingScale | undefined => {
-		const withComparisonBars = withComparison && ! withOverlayLabel;
 		const scale = { negative: 0, positive: 0 };
 		for ( const entry of resolvedData ) {
 			const shares = [ entry.currentShare ];
@@ -346,7 +344,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 			}
 		}
 		return scale.negative > 0 ? scale : undefined;
-	}, [ resolvedData, withComparison, withOverlayLabel ] );
+	}, [ resolvedData, withComparisonBars ] );
 
 	// Validate data
 	const isDataValid = Boolean( data && data.length > 0 );
