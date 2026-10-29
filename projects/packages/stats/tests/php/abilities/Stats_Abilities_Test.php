@@ -1158,6 +1158,21 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( $expected, $result['series'] );
 	}
 
+	public function test_get_post_views_reports_unknown_views_without_a_total(): void {
+		$post_id = wp_insert_post( array( 'post_title' => 'Hello' ) );
+		$this->filter_wpcom_stats( array( 'get_post_views' => array( 'data' => array() ) ) );
+
+		$result = Stats_Abilities::get_post_views(
+			array(
+				'post_id' => $post_id,
+				'num'     => 3,
+			)
+		);
+
+		$this->assertNull( $result['total_views'] );
+		$this->assertSame( array( null, null, null ), array_column( $result['series'], 'views' ) );
+	}
+
 	public function test_get_post_views_reports_an_unknown_post_without_asking_wpcom(): void {
 		$requests = $this->filter_wpcom_stats( array( 'get_post_views' => array() ) );
 
