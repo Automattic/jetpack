@@ -98,10 +98,12 @@ EOF
 		$output->writeln( 'Deduplicating changes...', OutputInterface::VERBOSITY_DEBUG );
 		$seen = array();
 		foreach ( $changes as $k => $change ) {
-			$key = self::chopPrSuffix( $change->getContent() );
+			list( $key, $prs ) = self::splitPrSuffixes( $change->getContent() );
 			if ( isset( $seen[ $key ] ) ) {
 				$output->writeln( "Found duplicate change '{$change->getContent()}'.", OutputInterface::VERBOSITY_DEBUG );
-				$seen[ $key ]->setContent( $seen[ $key ]->getContent() . substr( $change->getContent(), strlen( $key ) ) );
+				if ( $prs ) {
+					$seen[ $key ]->setContent( $seen[ $key ]->getContent() . ' ' . implode( ' ', $prs ) );
+				}
 				unset( $changes[ $k ] );
 			} else {
 				$seen[ $key ] = $change;
