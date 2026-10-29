@@ -151,11 +151,11 @@ class LCP_Optimize_Img_Tag {
 		}
 
 		$meta = $attachment_id ? wp_get_attachment_metadata( $attachment_id ) : false;
-		if ( empty( $meta['sizes'] ) || ! is_array( $meta['sizes'] ) ) {
+		if ( ! is_array( $meta ) || empty( $meta['sizes'] ) || ! is_array( $meta['sizes'] ) ) {
 			return false;
 		}
 
-		$file = wp_basename( (string) wp_parse_url( $src, PHP_URL_PATH ) );
+		$file = rawurldecode( wp_basename( (string) wp_parse_url( $src, PHP_URL_PATH ) ) );
 		foreach ( $meta['sizes'] as $size ) {
 			if ( is_array( $size ) && isset( $size['file'] ) && $size['file'] === $file ) {
 				return true;

@@ -438,6 +438,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	public static function registered_size_cases() {
 		return array(
 			'offloaded: the size wins'                => array( 'https://bucket.s3.amazonaws.com/2026/10/image-600x400.jpg', 'image-600x400.jpg', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ) ),
+			'a percent-encoded name: the size wins'   => array( 'https://bucket.s3.amazonaws.com/2026/10/%E5%A4%A9%E7%A9%BA-600x400.jpg', '天空-600x400.jpg', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ) ),
 			'original deleted: the size wins'         => array( '{uploads}/2026/10/image-600x400.jpg?ver=2', 'image-600x400.jpg', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ) ),
 			'not a size of the image: the attributes' => array( 'https://bucket.s3.amazonaws.com/2026/10/other-600x400.jpg', 'image-600x400.jpg', array( '2100,2100 1236w', '1400,1400 824w', '1225,1225 721w', '700,700 412w' ) ),
 		);
