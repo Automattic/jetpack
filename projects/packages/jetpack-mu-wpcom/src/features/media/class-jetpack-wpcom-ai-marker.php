@@ -80,10 +80,28 @@ class Jetpack_WPCOM_AI_Marker {
 	}
 
 	/**
+	 * Writes the source's AI type into an edited copy that has none.
+	 *
+	 * @param string $source Path or URL of the source image.
+	 * @param string $edited Path of the edited image.
+	 * @return bool Whether the type was written.
+	 */
+	public function copy( $source, $edited ) {
+		if ( '' !== $this->read( $edited ) ) {
+			return false;
+		}
+
+		$digital_source_type = $this->read( $source );
+
+		return '' !== $digital_source_type && $this->write( $edited, $digital_source_type );
+	}
+
+	/**
 	 * Writes the type with exiftool.
 	 *
 	 * @param string $filename            Path of the image.
 	 * @param string $digital_source_type The type to write.
+	 * @return bool Whether it worked.
 	 */
 	public function write( $filename, $digital_source_type ) {
 		try {
@@ -92,13 +110,16 @@ class Jetpack_WPCOM_AI_Marker {
 			$output = $this->run_tool( 'exiftool', 'write', array( $exiftool, '-config', '', '-m', '-q', '-overwrite_original', '-XMP-x:XMPToolkit=', '-XMP-iptcExt:DigitalSourceType=' . $digital_source_type, $filename ) );
 		} catch ( Throwable $e ) {
 			$this->log_error( 'write-error', array( 'error' => get_class( $e ) ) );
-			return;
+			return false;
 		}
 
 		// run_tool() counts and logs a failed write.
-		if ( null !== $output ) {
-			$this->bump_stat( 'written' );
+		if ( null === $output ) {
+			return false;
 		}
+
+		$this->bump_stat( 'written' );
+		return true;
 	}
 
 	/**

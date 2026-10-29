@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Media: keep the AI marker (the IPTC DigitalSourceType) on images edited in the browser, when the source has the marker only in C2PA.
