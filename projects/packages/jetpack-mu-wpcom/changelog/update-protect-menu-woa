@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Protect: Replace Scan with Protect in the Jetpack menu, and send Protect's links to the Protect page instead of Calypso's Scan.
+Protect: Add Protect to the Jetpack menu just below Scan, and send Protect's links to the Protect page instead of Calypso's Scan.

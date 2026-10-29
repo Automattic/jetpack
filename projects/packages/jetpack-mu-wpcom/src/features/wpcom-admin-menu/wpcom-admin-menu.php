@@ -411,9 +411,18 @@ function wpcom_add_jetpack_submenu() {
 	}
 	// @codeCoverageIgnoreEnd
 
-	// Jetpack > Protect replaces Jetpack's own Scan links, whether the Protect page or WPCOM_Scan's upgrade prompt serves it.
+	// Jetpack > Scan, shown above Protect until Scan's entry is retired.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+	add_submenu_page(
+		'jetpack',
+		/** "Scan" is a product name, do not translate. */
+		'Scan',
+		'Scan',
+		'manage_options',
+		'https://wordpress.com/scan/' . $domain,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
 
 	// Jetpack > Backup. Until the wp-admin page takes over, Calypso owns the nav and `jetpack-backup`
 	// is hidden rather than removed, so links into it keep working.
@@ -531,6 +540,7 @@ function wpcom_add_jetpack_submenu() {
 			'social',
 			'akismet-key-config',
 			'activity-log',
+			'scan',
 			'jetpack-protect',
 			'backup',
 			'forms',
