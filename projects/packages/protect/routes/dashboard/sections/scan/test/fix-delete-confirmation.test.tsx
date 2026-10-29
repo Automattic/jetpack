@@ -44,6 +44,21 @@ describe( 'FixDeleteModal', () => {
 		expect( closeModal ).toHaveBeenCalled();
 	} );
 
+	it( 'advises a backup for software not on WordPress.org', () => {
+		render(
+			<FixDeleteConfirmation
+				threat={ {
+					...threat,
+					fixable: { fixer: 'delete', extras: { isDotorg: false } },
+				} }
+				onConfirm={ jest.fn() }
+			/>
+		);
+		expect(
+			screen.getByText( /We did not find this plugin on WordPress.org/ )
+		).toBeInTheDocument();
+	} );
+
 	it.each( [
 		[ 'plugins', 'inactive', 'active', /This plugin seems to be currently active/ ],
 		[ 'themes', 'inactive', 'parent', /This theme seems to be currently active/ ],
