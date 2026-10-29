@@ -128,10 +128,6 @@ class WPCOM_Block_Editor_NUX {
 	 * Register the WPCOM Block Editor NUX endpoints.
 	 */
 	public function register_rest_api() {
-		require_once __DIR__ . '/class-wp-rest-wpcom-block-editor-nux-status-controller.php';
-		$controller = new WP_REST_WPCOM_Block_Editor_NUX_Status_Controller();
-		$controller->register_rest_route();
-
 		require_once __DIR__ . '/class-wp-rest-wpcom-block-editor-first-post-published-modal-controller.php';
 		$first_post_published_modal_controller = new WP_REST_WPCOM_Block_Editor_First_Post_Published_Modal_Controller();
 		$first_post_published_modal_controller->register_rest_route();
