@@ -6,7 +6,8 @@
  */
 
 /**
- * Keep `admin_bar` and the Reader setting: Simple's Stats ignores `roles`, and never counts the logged-in views `count_roles` picks.
+ * Keep `admin_bar` and the Reader setting: Simple's Stats ignores `roles`, never counts the logged-in views `count_roles` picks,
+ * and does not ask the WP Consent API, which Simple sites cannot install anyway.
  *
  * @since $$next-version$$
  *

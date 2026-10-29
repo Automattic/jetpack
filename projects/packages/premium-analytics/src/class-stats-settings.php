@@ -16,7 +16,7 @@ use Automattic\Jetpack\Stats\Settings as Stats_Package_Settings;
 final class Stats_Settings {
 
 	/**
-	 * Filter for the settings the site offers, so a host can leave out the ones its Stats does not honor.
+	 * Filter for the settings and the consent card the site offers, so a host can leave out what its Stats does not honor.
 	 *
 	 * @var string
 	 */
@@ -35,6 +35,13 @@ final class Stats_Settings {
 	 * @var string
 	 */
 	private const READER_VIEWS_OPTION = 'wpcom_reader_views_enabled';
+
+	/**
+	 * The visitor consent card's entry in the host's list. It is not a setting, so the route never offers it.
+	 *
+	 * @var string
+	 */
+	private const CONSENT = 'consent';
 
 	/**
 	 * The `stats_options` fields the Settings tab edits. The option also holds internal state, which the route never exposes.
@@ -158,21 +165,21 @@ final class Stats_Settings {
 	}
 
 	/**
-	 * The settings the site offers: the `stats_options` fields and the Reader setting, less any the host leaves out.
+	 * What the site offers: the `stats_options` fields, the Reader setting and the consent card, less any the host leaves out.
 	 *
 	 * @return string[]
 	 */
 	private static function get_fields() {
-		$fields = array_merge( self::FIELDS, array( self::READER_VIEWS_OPTION ) );
+		$fields = array_merge( self::FIELDS, array( self::READER_VIEWS_OPTION, self::CONSENT ) );
 
 		/**
-		 * Filters the Stats settings the dashboard's Settings tab and the settings route offer.
+		 * Filters the Stats settings the dashboard's Settings tab and the settings route offer, and whether the tab shows the visitor consent card.
 		 *
 		 * Keep at least one `stats_options` field with the Reader setting: the tab cannot load the Reader setting alone.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string[] $fields `admin_bar`, `roles`, `count_roles` and `wpcom_reader_views_enabled`.
+		 * @param string[] $fields `admin_bar`, `roles`, `count_roles`, `wpcom_reader_views_enabled` and `consent`.
 		 */
 		$kept = apply_filters( self::FIELDS_FILTER, $fields );
 
@@ -295,8 +302,10 @@ final class Stats_Settings {
 			'roles'        => array_intersect( array( 'roles', 'count_roles' ), $fields ) ? self::get_roles_with_counts() : array(),
 			// Jetpack can be active without My Jetpack's screen, for example on Atomic, where wpcomsh skips it.
 			'features_url' => class_exists( 'Jetpack' ) && '' !== menu_page_url( 'my-jetpack', false ) ? admin_url( 'admin.php?page=my-jetpack#/features?search=stats' ) : null,
-			'consent'      => self::get_consent_status(),
 		);
+		if ( in_array( self::CONSENT, $fields, true ) ) {
+			$data['premium_analytics']['stats_settings']['consent'] = self::get_consent_status();
+		}
 
 		return $data;
 	}
