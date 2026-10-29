@@ -160,7 +160,7 @@ class SSO {
 	/**
 	 * Let a plugin other than Jetpack offer SSO: make the `sso` module available, and start SSO while it is on.
 	 *
-	 * Call it before `plugins_loaded` ends. The Jetpack plugin loads its module file instead.
+	 * Call it before `after_setup_theme`, when the Jetpack plugin loads its modules; that plugin's own loader starts SSO.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -168,6 +168,31 @@ class SSO {
 	 */
 	public static function init_standalone() {
 		add_filter( 'jetpack_get_available_standalone_modules', array( __CLASS__, 'add_standalone_module' ) );
+
+		// Not sooner: the constructor resolves the current user, before other plugins have added their auth filters.
+		if ( did_action( 'after_setup_theme' ) ) {
+			self::maybe_start_standalone();
+		} else {
+			add_action( 'after_setup_theme', array( __CLASS__, 'maybe_start_standalone' ), -2 );
+		}
+	}
+
+	/**
+	 * Start SSO for a standalone plugin, under the conditions the Jetpack plugin's module loader would.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function maybe_start_standalone() {
+		if ( class_exists( 'Jetpack', false ) || ( new Status() )->is_offline_mode() ) {
+			return;
+		}
+
+		$connection = new Manager();
+		if ( ! $connection->is_connected() || ! $connection->has_connected_owner() ) {
+			return;
+		}
 
 		if ( ( new Modules() )->is_active( 'sso' ) ) {
 			self::get_instance();
