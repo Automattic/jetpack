@@ -371,6 +371,7 @@ describe( 'buildLeaderboardRow', () => {
 			[ 'Hello', 'View "Hello" in a new tab' ],
 		],
 		[ 'without a live URL', { id: 5, href: null }, [ 'Hello' ] ],
+		[ 'without a detail route', { href: 'https://example.com/hello/' }, [ 'Hello' ] ],
 	] )( 'renders the extra action after the title %s', async ( _name, target, expectedLinks ) => {
 		const onExtraClick = jest.fn();
 		render(
@@ -390,7 +391,7 @@ describe( 'buildLeaderboardRow', () => {
 			} ).label
 		);
 
-		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveClass( 'titleLink' );
+		expect( screen.getByRole( 'link', { name: /^Hello/ } ) ).toHaveClass( 'titleLink' );
 		const links = screen.getAllByRole( 'link' );
 		expect( links.map( link => link.getAttribute( 'aria-label' ) ?? link.textContent ) ).toEqual(
 			expectedLinks
