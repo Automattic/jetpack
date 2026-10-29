@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+VideoPress: Add an opt-in WordPress ability to inspect video settings through REST and MCP clients.

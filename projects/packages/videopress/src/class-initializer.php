@@ -120,6 +120,8 @@ class Initializer {
 
 		Module_Control::init();
 
+		Abilities\VideoPress_Abilities::init();
+
 		/*
 		 * The WPCOM REST API v2 endpoints only register routes/fields on REST
 		 * init, so defer constructing them (and autoloading their classes) until
