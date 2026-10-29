@@ -60,7 +60,7 @@ export class Footer extends Component {
 					version
 				),
 				title: __( 'View the Jetpack changelog on WordPress.org.', 'jetpack' ),
-				href: getRedirectUrl( 'https://wordpress.org/plugins/jetpack/', { anchor: 'developers' } ),
+				href: getRedirectUrl( 'jetpack-developers-wordpress-org' ),
 				target: '_blank',
 				onClick: this.trackVersionClick,
 			} );
