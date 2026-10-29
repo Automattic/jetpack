@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import type { View } from '@wordpress/dataviews';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
@@ -100,5 +100,36 @@ describe( 'ContentScreen — ?needs= deep-link seeding', () => {
 		render( <ContentScreen /> );
 
 		expect( capturedFields.some( field => field.id === 'titleFilter' ) ).toBe( true );
+	} );
+} );
+
+describe( 'ContentScreen — paused SEO output', () => {
+	beforeEach( () => {
+		useSearch.mockReturnValue( {} );
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it( 'shows the same banner as the other tabs while Jetpack SEO output is paused', () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { admin_url: 'https://example.com/wp-admin/' },
+			seo: { output: { paused: true, conflicting_plugin: 'Yoast SEO' } },
+		};
+
+		render( <ContentScreen /> );
+
+		expect(
+			screen.getByText(
+				'Yoast SEO is managing your site’s SEO, so Jetpack’s SEO output is paused. Your saved settings are kept. Deactivate Yoast SEO to use them.'
+			)
+		).toBeInTheDocument();
+	} );
+
+	it( 'shows no banner while Jetpack owns the output', () => {
+		render( <ContentScreen /> );
+
+		expect( screen.queryByText( /SEO output is/ ) ).not.toBeInTheDocument();
 	} );
 } );

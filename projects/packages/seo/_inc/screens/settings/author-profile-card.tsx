@@ -1,7 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { commentAuthorAvatar } from '@wordpress/icons';
-import { Card, CollapsibleCard, Notice, Stack } from '@wordpress/ui';
+import { Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import PausedNote from '../../components/paused-note';
 import StatusIndicator from '../../components/status-indicator';
 import { useAuthorProfile } from '../../data/use-author-profile';
 import AuthorProfileSection from './schema-settings/author-profile-section';
@@ -9,7 +10,6 @@ import type { SettingStatus } from '../../components/status-indicator';
 
 interface Props {
 	disabled?: boolean;
-	disabledReason?: string;
 }
 
 /**
@@ -24,12 +24,11 @@ interface Props {
  * matching the other Settings modules (Canonical URLs, Title structure, Site
  * verification, Schema).
  *
- * @param props                - Component props.
- * @param props.disabled       - Whether another plugin controls structured data.
- * @param props.disabledReason - Explanation shown while editing is disabled.
+ * @param props          - Component props.
+ * @param props.disabled - Whether editing is locked while Jetpack's SEO output is paused.
  * @return The Author profile settings card.
  */
-function AuthorProfileCard( { disabled = false, disabledReason }: Props ) {
+function AuthorProfileCard( { disabled = false }: Props ) {
 	const form = useAuthorProfile();
 	const { profile, isLoading, hasLoadError } = form;
 
@@ -45,7 +44,9 @@ function AuthorProfileCard( { disabled = false, disabledReason }: Props ) {
 	const setCount = fieldsSet.filter( Boolean ).length;
 
 	let profileStatus: SettingStatus = 'not-started';
-	if ( setCount === fieldsSet.length ) {
+	if ( disabled ) {
+		profileStatus = 'paused';
+	} else if ( setCount === fieldsSet.length ) {
 		profileStatus = 'complete';
 	} else if ( setCount > 0 ) {
 		profileStatus = 'in-progress';
@@ -76,11 +77,7 @@ function AuthorProfileCard( { disabled = false, disabledReason }: Props ) {
 					aria-label={ __( 'Author profile settings', 'jetpack-seo' ) }
 					aria-describedby={ disabled ? 'jetpack-seo-author-profile-disabled' : undefined }
 				>
-					{ disabled && disabledReason && (
-						<Notice.Root intent="warning" id="jetpack-seo-author-profile-disabled">
-							<Notice.Description>{ disabledReason }</Notice.Description>
-						</Notice.Root>
-					) }
+					{ disabled && <PausedNote id="jetpack-seo-author-profile-disabled" /> }
 					<AuthorProfileSection form={ form } disabled={ disabled } />
 				</Stack>
 			</CollapsibleCard.Content>

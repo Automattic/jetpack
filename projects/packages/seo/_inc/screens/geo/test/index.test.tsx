@@ -34,8 +34,6 @@ const formWith = ( canServe: boolean ): GeoForm => ( {
 		enabled: true,
 		url: 'https://example.com/llms.txt',
 		canServe,
-		disabled: false,
-		conflictingPlugin: '',
 	},
 	crawlers: null,
 	isSaving: false,
@@ -131,32 +129,6 @@ describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 			screen.queryByRole( 'link', { name: /view your llms\.txt/i } )
 		).not.toBeInTheDocument();
 	} );
-
-	it.each( [ 'Yoast SEO', 'Rank Math SEO', '' ] )(
-		'explains a plugin conflict without file or host advice (%s)',
-		conflictingPlugin => {
-			const form = formWith( false );
-			form.llmsTxt = { ...form.llmsTxt!, disabled: true, conflictingPlugin };
-			jest.spyOn( form, 'setLlmsTxtEnabled' );
-			render( <GeoScreen form={ form } searchEnginesVisible /> );
-			expect( screen.getByText( /Jetpack is not generating llms.txt/ ) ).toHaveTextContent(
-				conflictingPlugin
-					? `Deactivate ${ conflictingPlugin }`
-					: 'SEO tools are disabled on this site'
-			);
-			expect( screen.queryByText( /hosting setup is already handling/ ) ).not.toBeInTheDocument();
-			const toggle = screen.getByRole( 'checkbox', { name: /generate an llms.txt file/i } );
-			expect( toggle ).toBeDisabled();
-			expect( toggle ).not.toBeChecked();
-			expect(
-				screen.queryByRole( 'link', { name: /view your llms.txt/i } )
-			).not.toBeInTheDocument();
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.click( toggle );
-			expect( form.setLlmsTxtEnabled ).not.toHaveBeenCalled();
-			expect( form.llmsTxt.enabled ).toBe( true );
-		}
-	);
 
 	it( 'disables llms.txt and links to visibility settings when indexing is blocked', () => {
 		render( <GeoScreen form={ formWith( true ) } searchEnginesVisible={ false } /> );
@@ -322,8 +294,6 @@ const allModulesForm = (): GeoForm => ( {
 		enabled: true,
 		url: 'https://example.com/llms.txt',
 		canServe: true,
-		disabled: false,
-		conflictingPlugin: '',
 	},
 } );
 
@@ -495,4 +465,59 @@ describe( 'GeoScreen (GEO tab) — the AI SEO Enhancer card', () => {
 		).toBeEnabled();
 		expect( screen.queryByText( /AI SEO is turned off for this site/ ) ).not.toBeInTheDocument();
 	} );
+} );
+
+describe( 'GeoScreen (GEO tab) — paused SEO output', () => {
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it.each( [
+		[
+			'Yoast SEO',
+			'Yoast SEO is managing your site’s SEO, so Jetpack’s SEO output is paused. Your saved settings are kept. Deactivate Yoast SEO to use them.',
+			'Paused while Yoast SEO is active.',
+		],
+		[
+			'',
+			'Jetpack’s SEO output is turned off on this site. Your saved settings are kept.',
+			'Paused while Jetpack SEO is off.',
+		],
+	] )(
+		'with "%s" in charge, explains it once and shows llms.txt saved but locked',
+		( plugin, banner, line ) => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				site: { admin_url: 'https://example.com/wp-admin/' },
+				seo: { output: { paused: true, conflicting_plugin: plugin } },
+			};
+			// The server reports `canServe: false` while output is paused.
+			const form = {
+				...allModulesForm(),
+				llmsTxt: { ...allModulesForm().llmsTxt!, canServe: false },
+			};
+			jest.spyOn( form, 'setLlmsTxtEnabled' );
+			render( <GeoScreen form={ form } searchEnginesVisible /> );
+
+			expect( screen.getByText( banner ) ).toBeInTheDocument();
+			// The locked card says so in one short line; it doesn't re-explain the cause.
+			expect( screen.getAllByText( line ) ).toHaveLength( 1 );
+			expect( screen.queryByText( /hosting setup is already handling/ ) ).not.toBeInTheDocument();
+
+			// The saved "on" stays visible, locked.
+			const toggle = screen.getByRole( 'checkbox', { name: /generate an llms.txt file/i } );
+			expect( toggle ).toBeDisabled();
+			expect( toggle ).toBeChecked();
+			expect(
+				screen.queryByRole( 'link', { name: /view your llms.txt/i } )
+			).not.toBeInTheDocument();
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( toggle );
+			expect( form.setLlmsTxtEnabled ).not.toHaveBeenCalled();
+
+			// The Enhancer stays editable: the editor's auto-generation doesn't check the pause.
+			expect(
+				screen.getByRole( 'checkbox', { name: /Automatically generate SEO title/ } )
+			).toBeEnabled();
+		}
+	);
 } );

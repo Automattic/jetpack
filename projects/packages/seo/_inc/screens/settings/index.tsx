@@ -9,8 +9,11 @@ import { useSearch } from '@wordpress/route';
 import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
 import clsx from 'clsx';
 import CardTitleIcon from '../../components/card-title-icon';
+import PausedNote from '../../components/paused-note';
+import SeoPausedBanner from '../../components/seo-paused-banner';
 import StatusIndicator from '../../components/status-indicator';
 import UpsellBanner from '../../components/upsell-banner';
+import getOutput from '../../data/get-output';
 import { isGated } from '../../data/is-gated';
 import isVerificationSwitchable from '../../data/is-verification-switchable';
 import AdvancedCard from './advanced-card';
@@ -67,10 +70,6 @@ const canonicalHelp = __(
 	"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
 	'jetpack-seo'
 );
-const canonicalConflictHelp = __(
-	"Another SEO plugin is active, so Jetpack won't add canonical URLs to avoid conflicts. Deactivate that plugin to use this setting.",
-	'jetpack-seo'
-);
 // Figures are what search *displays*, not a limit we enforce. Google measures a
 // pixel width (920px desktop / 680px mobile), which works out around 155 and 120
 // characters.
@@ -82,10 +81,6 @@ const canonicalConflictHelp = __(
 // truncates on display by its own rules.
 const frontPageHelp = __(
 	'Shown under your site name in search results and social shares. About the first 155 characters display in search, or 120 on mobile.',
-	'jetpack-seo'
-);
-const frontPageLockedHelp = __(
-	'Locked while Jetpack SEO is disabled. Your saved description is retained.',
 	'jetpack-seo'
 );
 // Keep in step with the 155 quoted in `frontPageHelp`.
@@ -204,9 +199,13 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	);
 
 	// Single toggles and single fields are binary — they have no partial state,
-	// so they move straight from not-started to complete.
-	const canonicalStatus: SettingStatus = local.canonical_active ? 'complete' : 'not-started';
-	const frontPageStatus: SettingStatus = local.front_page_description ? 'complete' : 'not-started';
+	// so they move straight from not-started to complete. Canonical URLs pause while
+	// another SEO plugin is active, so its saved "on" doesn't read as complete then.
+	let canonicalStatus: SettingStatus = local.canonical_active ? 'complete' : 'not-started';
+	if ( local.canonical_conflicted ) {
+		canonicalStatus = 'paused';
+	}
+	let frontPageStatus: SettingStatus = local.front_page_description ? 'complete' : 'not-started';
 
 	let indexingHelpText: string = indexingHelp;
 	if ( local.site_is_coming_soon ) {
@@ -215,12 +214,9 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		indexingHelpText = indexingPrivateHelp;
 	}
 
-	let canonicalHelpText: string = canonicalHelp;
-	if ( ! local.canonical_switchable ) {
-		canonicalHelpText = platformManagedHelp;
-	} else if ( local.canonical_conflicted ) {
-		canonicalHelpText = canonicalConflictHelp;
-	}
+	const canonicalHelpText: string = local.canonical_switchable
+		? canonicalHelp
+		: platformManagedHelp;
 
 	// On plan-gated sites (below-Premium WordPress.com) the Settings tab keeps only
 	// the two always-valid sections (site visibility + verification, both backed by
@@ -231,36 +227,12 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// gated (the value stays live), so its card is shown below in that case too.
 	const gated = isGated();
 
-	// Another SEO plugin owns the output these fields feed, so they're locked. Gated sites
-	// report the output off too, but keep their grandfathered description editable.
-	const outputLocked = ! gated && ! local.title_formats_editable;
-	const lockedNotice = local.conflicting_seo_plugin
-		? sprintf(
-				/* translators: %s: name of the SEO plugin that controls the site's SEO output, e.g. Yoast SEO. */
-				__(
-					'%s is managing your SEO output, so Jetpack’s title, description, schema and author profile settings are locked while it’s active.',
-					'jetpack-seo'
-				),
-				local.conflicting_seo_plugin
-			)
-		: __(
-				'Jetpack SEO is disabled on this site, so its title, description, schema and author profile settings are locked.',
-				'jetpack-seo'
-			);
-
-	const schemaDisabledReason = local.conflicting_seo_plugin
-		? sprintf(
-				/* translators: %1$s: name of the active SEO plugin. */
-				__(
-					'%1$s is managing your structured data. Your saved Jetpack settings are shown here but are not being used. Deactivate %1$s to edit these settings in Jetpack.',
-					'jetpack-seo'
-				),
-				local.conflicting_seo_plugin
-			)
-		: __(
-				'Jetpack SEO is disabled on this site. Your saved settings are shown here but are not being used. Editing is unavailable while SEO tools are disabled.',
-				'jetpack-seo'
-			);
+	// Jetpack's SEO output is paused, so the fields that feed it are locked. Gated sites
+	// keep their grandfathered description editable.
+	const outputLocked = ! gated && getOutput().paused;
+	if ( outputLocked ) {
+		frontPageStatus = 'paused';
+	}
 
 	const frontPageDescriptionCard = (
 		<CollapsibleCard.Root defaultOpen={ false }>
@@ -276,6 +248,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="md">
+					{ outputLocked && <PausedNote /> }
 					<TextareaControl
 						// Short label: the design system renders control labels as 11px
 						// all-caps, which a sentence-length label is unreadable in. The
@@ -285,7 +258,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						// also on this tab and leave two controls indistinguishable to a
 						// screen reader.
 						label={ __( 'Home page description', 'jetpack-seo' ) }
-						help={ outputLocked ? frontPageLockedHelp : frontPageHelp }
+						help={ frontPageHelp }
 						value={ local.front_page_description }
 						onChange={ next => setField( { front_page_description: next } ) }
 						maxLength={ descriptionMaxLength }
@@ -325,11 +298,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
-			{ outputLocked && (
-				<Notice.Root intent="warning">
-					<Notice.Description>{ lockedNotice }</Notice.Description>
-				</Notice.Root>
-			) }
+			{ ! gated && <SeoPausedBanner /> }
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>
@@ -443,14 +412,13 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							initialSettings={ local.schema }
 							onSave={ setSchemaSettings }
 							disabled={ outputLocked }
-							disabledReason={ schemaDisabledReason }
 						/>
 					</div>
 
 					{ /* The signed-in user's Person / ProfilePage schema source — per-user,
 				   unlike the site-level Schema card above. */ }
 					<div id="author-profile" className={ styles.section }>
-						<AuthorProfileCard disabled={ outputLocked } disabledReason={ schemaDisabledReason } />
+						<AuthorProfileCard disabled={ outputLocked } />
 					</div>
 
 					<CollapsibleCard.Root defaultOpen={ false }>
@@ -465,14 +433,19 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							</Stack>
 						</CollapsibleCard.Header>
 						<CollapsibleCard.Content>
-							<ToggleControl
-								label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
-								help={ canonicalHelpText }
-								checked={ local.canonical_active }
-								onChange={ next => commit( { canonical_active: next } ) }
-								disabled={ isSaving || ! local.canonical_switchable || local.canonical_conflicted }
-								__nextHasNoMarginBottom
-							/>
+							<Stack direction="column" gap="md">
+								{ local.canonical_conflicted && <PausedNote /> }
+								<ToggleControl
+									label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
+									help={ canonicalHelpText }
+									checked={ local.canonical_active }
+									onChange={ next => commit( { canonical_active: next } ) }
+									disabled={
+										isSaving || ! local.canonical_switchable || local.canonical_conflicted
+									}
+									__nextHasNoMarginBottom
+								/>
+							</Stack>
 						</CollapsibleCard.Content>
 					</CollapsibleCard.Root>
 
@@ -484,20 +457,18 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						onSaveFormat={ pageType => commitTitleFormat( pageType ) }
 						isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
 						titleSeparator={ local.title_separator }
-						editable={ local.title_formats_editable }
+						editable={ ! outputLocked }
 						disabled={ isSaving }
 					/>
 
 					{ frontPageDescriptionCard }
 
-					{ /* It previews Jetpack's tags, which aren't the ones a conflicting plugin outputs. */ }
-					{ ! outputLocked && (
-						<SocialPreviewsCard
-							description={ local.front_page_description }
-							frontPageTitleFormat={ local.title_formats.front_page ?? [] }
-							titleSeparator={ local.title_separator }
-						/>
-					) }
+					<SocialPreviewsCard
+						description={ local.front_page_description }
+						frontPageTitleFormat={ local.title_formats.front_page ?? [] }
+						titleSeparator={ local.title_separator }
+						paused={ outputLocked }
+					/>
 				</>
 			) }
 

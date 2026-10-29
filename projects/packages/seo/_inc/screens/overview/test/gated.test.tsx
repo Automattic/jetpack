@@ -59,9 +59,6 @@ const buildOverview = (): OverviewResponse =>
 			with_description: 5,
 			with_search_visible: 5,
 		},
-		plan: {
-			seo_enabled_for_site: true,
-		},
 	} ) as OverviewResponse;
 
 describe( 'OverviewScreen — plan gating', () => {

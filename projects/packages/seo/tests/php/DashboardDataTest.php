@@ -101,16 +101,12 @@ class DashboardDataTest extends SeoTestCase {
 		$this->assertArrayHasKey( 'site_visibility', $overview );
 		$this->assertArrayHasKey( 'site_verification', $overview );
 		$this->assertArrayHasKey( 'content_coverage', $overview );
-		$this->assertArrayHasKey( 'plan', $overview );
 
 		$this->assertArrayHasKey( 'search_engines_visible', $overview['site_visibility'] );
 		$this->assertIsBool( $overview['site_visibility']['search_engines_visible'] );
 
 		$this->assertArrayHasKey( 'total', $overview['content_coverage'] );
 		$this->assertIsInt( $overview['content_coverage']['total'] );
-
-		$this->assertArrayHasKey( 'seo_enabled_for_site', $overview['plan'] );
-		$this->assertIsBool( $overview['plan']['seo_enabled_for_site'] );
 	}
 
 	/**
@@ -372,13 +368,16 @@ class DashboardDataTest extends SeoTestCase {
 	}
 
 	/**
+	 * Every tab reads one output state, so the per-tab payloads no longer carry their own copy.
+	 *
 	 * @dataProvider provide_conflicting_seo_plugin_states
 	 * @param bool        $disabled Whether `jetpack_disable_seo_tools` is on.
 	 * @param string|null $name     What `jetpack_seo_conflicting_plugin` returns, or null for no callback.
-	 * @param string      $expected The name both payloads should report.
+	 * @param bool        $paused   Whether the output should read as paused.
+	 * @param string      $expected The plugin name the output state should report.
 	 */
 	#[DataProvider( 'provide_conflicting_seo_plugin_states' )]
-	public function test_dashboard_names_the_conflicting_seo_plugin( $disabled, $name, $expected ) {
+	public function test_output_data_reports_the_pause_and_the_plugin( $disabled, $name, $paused, $expected ) {
 		if ( $disabled ) {
 			add_filter( 'jetpack_disable_seo_tools', '__return_true' );
 		}
@@ -391,12 +390,18 @@ class DashboardDataTest extends SeoTestCase {
 			);
 		}
 
-		$this->assertSame( $expected, Dashboard_Data::get_overview_data()['conflicting_seo_plugin'] );
-		$this->assertSame( $expected, Dashboard_Data::get_settings_data()['conflicting_seo_plugin'] );
+		$this->assertSame(
+			array(
+				'paused'             => $paused,
+				'conflicting_plugin' => $expected,
+			),
+			Dashboard_Data::get_output_data()
+		);
+		$this->assertArrayNotHasKey( 'conflicting_seo_plugin', Dashboard_Data::get_overview_data() );
+		$this->assertArrayNotHasKey( 'conflicting_seo_plugin', Dashboard_Data::get_settings_data() );
 		$llms_txt = Dashboard_Data::get_geo_data()['llmsTxt'];
-		$this->assertSame( $disabled || null !== $name && '' !== trim( $name ), $llms_txt['disabled'] );
-		$this->assertSame( $expected, $llms_txt['conflictingPlugin'] );
-		if ( $llms_txt['disabled'] ) {
+		$this->assertArrayNotHasKey( 'disabled', $llms_txt );
+		if ( $paused ) {
 			$this->assertFalse( $llms_txt['canServe'] );
 		}
 	}
@@ -411,18 +416,18 @@ class DashboardDataTest extends SeoTestCase {
 		$this->assertTrue( Seo_Tools::is_disabled() );
 		add_filter( 'jetpack_disable_seo_tools', '__return_false' );
 		$this->assertFalse( Seo_Tools::is_disabled() );
-		$this->assertFalse( Dashboard_Data::get_geo_data()['llmsTxt']['disabled'] );
+		$this->assertFalse( Dashboard_Data::get_output_data()['paused'] );
 	}
 
 	/**
-	 * @return array Step-aside state, filtered name, expected report.
+	 * @return array Disable filter, filtered name, expected pause, expected name.
 	 */
 	public static function provide_conflicting_seo_plugin_states() {
 		return array(
-			'no conflict'                    => array( false, null, '' ),
-			'Jetpack stepped aside'          => array( true, ' Yoast SEO ', 'Yoast SEO' ),
-			'disabled without a plugin'      => array( true, null, '' ),
-			'conflict sets default disabled' => array( false, 'Yoast SEO', 'Yoast SEO' ),
+			'no conflict'                    => array( false, null, false, '' ),
+			'Jetpack stepped aside'          => array( true, ' Yoast SEO ', true, 'Yoast SEO' ),
+			'disabled without a plugin'      => array( true, null, true, '' ),
+			'conflict sets default disabled' => array( false, 'Yoast SEO', true, 'Yoast SEO' ),
 		);
 	}
 
