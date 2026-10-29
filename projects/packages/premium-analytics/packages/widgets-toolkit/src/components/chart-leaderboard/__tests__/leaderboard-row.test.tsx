@@ -363,6 +363,37 @@ describe( 'buildLeaderboardRow', () => {
 		expect( title ).toHaveClass( 'titleLink' );
 	} );
 
+	it.each( [
+		[
+			'with a live URL',
+			{ id: 5, href: 'https://example.com/hello/' },
+			[ 'Hello', 'View "Hello" in a new tab' ],
+		],
+		[ 'without a live URL', { id: 5, href: null }, [ 'Hello' ] ],
+	] )( 'renders the extra action after the title %s', ( _name, target, expectedLinks ) => {
+		render(
+			buildLeaderboardRow( {
+				label: 'Hello',
+				media: { kind: 'none' },
+				action: {
+					kind: 'postLink',
+					...target,
+					search: {},
+					extraAction: <button type="button">Extra</button>,
+				},
+			} ).label
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveClass( 'titleLink' );
+		const links = screen.getAllByRole( 'link' );
+		expect( links.map( link => link.getAttribute( 'aria-label' ) ?? link.textContent ) ).toEqual(
+			expectedLinks
+		);
+		expect(
+			links.at( -1 )?.compareDocumentPosition( screen.getByRole( 'button', { name: 'Extra' } ) )
+		).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+	} );
+
 	it( 'links the title out, with no "View" action, when the reader cannot open post details', () => {
 		Object.defineProperty( window, 'JetpackScriptData', {
 			configurable: true,

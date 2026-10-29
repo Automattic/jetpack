@@ -203,6 +203,7 @@ export {
 	type UseReportCsvExportResult,
 } from './download-csv';
 export {
+	UtmUrlBuilderButton,
 	UtmUrlBuilderDialog,
 	getUtmUrlBuilderValues,
 	type UtmUrlBuilderValues,

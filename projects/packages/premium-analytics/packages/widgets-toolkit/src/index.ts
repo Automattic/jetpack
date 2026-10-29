@@ -154,6 +154,7 @@ export {
 	type PageOptionsMenuProps,
 	ResetLayoutAction,
 	type ResetLayoutActionProps,
+	UtmUrlBuilderButton,
 	UtmUrlBuilderDialog,
 	getUtmUrlBuilderValues,
 	type UtmUrlBuilderValues,
