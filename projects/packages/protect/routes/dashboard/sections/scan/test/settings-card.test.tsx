@@ -43,7 +43,7 @@ describe( 'ScanSettingsCard', () => {
 	it( 'leaves out server credentials where the host needs none', () => {
 		render(
 			<ScanSettingsCard
-				state={ { url: '', error: false, hasPlan: true } as ScanState }
+				state={ { url: '', error: false, hasPlan: true, needsCredentials: false } as ScanState }
 				settings={ {} as ProtectSettingsData }
 				openTab={ jest.fn() }
 			/>

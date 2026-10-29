@@ -670,17 +670,27 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * A host's manage URL replaces the feature's only for a site that has it, and only as a web address.
+	 * A host's manage URL replaces the feature's only for a site that has it, without the standalone plugin, and only as a web address.
 	 *
 	 * @dataProvider provide_host_manage_urls
 	 *
-	 * @param string[] $owned   The products the site pays for.
-	 * @param string   $url     The URL the host sends.
-	 * @param bool     $to_host Whether the feature's manage link becomes the host's.
+	 * @param string[] $owned      The products the site pays for.
+	 * @param string   $url        The URL the host sends.
+	 * @param bool     $to_host    Whether the feature's manage link becomes the host's.
+	 * @param bool     $standalone Whether the standalone Backup plugin is active.
 	 */
 	#[DataProvider( 'provide_host_manage_urls' )]
-	public function test_host_manage_url( $owned, $url, $to_host ) {
+	public function test_host_manage_url( $owned, $url, $to_host, $standalone = false ) {
 		$this->own( $owned );
+		if ( $standalone ) {
+			$plugin_dir = WP_PLUGIN_DIR . '/' . Products\Backup::$plugin_slug;
+			if ( ! file_exists( $plugin_dir ) ) {
+				mkdir( $plugin_dir, 0777, true );
+			}
+			copy( __DIR__ . '/assets/backup-mock-plugin.txt', $plugin_dir . '/jetpack-backup.php' );
+			wp_cache_delete( 'plugins', 'plugins' );
+			activate_plugins( Products\Backup::$plugin_slug . '/jetpack-backup.php' );
+		}
 		$default      = array_column( Main_Features::get_features(), 'manage_url', 'slug' )['backup'];
 		$send_to_host = static function ( $upgrade ) use ( $url ) {
 			return array_merge( $upgrade, array( 'manage_url' => $url ) );
@@ -689,6 +699,10 @@ class Main_Features_Test extends TestCase {
 
 		$features = array_column( Main_Features::get_features(), null, 'slug' );
 		remove_filter( 'jetpack_feature_upgrade', $send_to_host );
+
+		if ( $standalone ) {
+			deactivate_plugins( Products\Backup::$plugin_slug . '/jetpack-backup.php' );
+		}
 
 		$this->assertSame( $to_host ? $url : $default, $features['backup']['manage_url'] );
 		$this->assertArrayNotHasKey( 'manage_url', $features['backup']['upgrade'] );
@@ -701,9 +715,10 @@ class Main_Features_Test extends TestCase {
 	 */
 	public static function provide_host_manage_urls() {
 		return array(
-			'owns Complete'   => array( array( 'jetpack_complete' ), 'https://example.com/backup', true ),
-			'no plan'         => array( array(), 'https://example.com/backup', false ),
-			'javascript: URL' => array( array( 'jetpack_complete' ), 'javascript:alert(1)', false ),
+			'owns Complete'            => array( array( 'jetpack_complete' ), 'https://example.com/backup', true ),
+			'no plan'                  => array( array(), 'https://example.com/backup', false ),
+			'javascript: URL'          => array( array( 'jetpack_complete' ), 'javascript:alert(1)', false ),
+			'standalone plugin active' => array( array( 'jetpack_complete' ), 'https://example.com/backup', false, true ),
 		);
 	}
 

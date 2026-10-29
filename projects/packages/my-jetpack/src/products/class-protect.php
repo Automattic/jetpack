@@ -592,7 +592,8 @@ class Protect extends Hybrid_Product {
 	 * @return string The host's URL, or an empty string when the host sends none.
 	 */
 	private static function get_host_manage_url() {
-		if ( ! static::has_paid_plan_for_product() ) {
+		// The standalone plugin's own page keeps the card, as its menu entry does on WoA.
+		if ( static::is_standalone_plugin_active() || ! static::has_paid_plan_for_product() ) {
 			return '';
 		}
 

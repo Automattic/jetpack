@@ -281,16 +281,21 @@ class Protect_Product_Test extends TestCase {
 	}
 
 	/**
-	 * A host's manage URL takes over the card and Scan results from the Protect page, but only for a site with Scan.
+	 * A host's manage URL takes over the card and Scan results from the Protect page, but only for a site with Scan and no standalone plugin.
 	 *
 	 * @dataProvider provide_host_manage_urls
 	 *
 	 * @param string[] $plan_features The plan's active features.
 	 * @param bool     $to_host       Whether the links should go to the host.
+	 * @param bool     $standalone    Whether the standalone plugin is active.
 	 */
 	#[DataProvider( 'provide_host_manage_urls' )]
-	public function test_host_manage_url( $plan_features, $to_host ) {
-		do_action( 'jetpack_protect_dashboard_initialized' );
+	public function test_host_manage_url( $plan_features, $to_host, $standalone = false ) {
+		if ( $standalone ) {
+			$this->activate_standalone_plugin();
+		} else {
+			do_action( 'jetpack_protect_dashboard_initialized' );
+		}
 		Current_Plan::update_from_site_record(
 			array(
 				'plan' => array(
@@ -320,8 +325,9 @@ class Protect_Product_Test extends TestCase {
 	 */
 	public static function provide_host_manage_urls() {
 		return array(
-			'has Scan' => array( array( 'scan' ), true ),
-			'no Scan'  => array( array(), false ),
+			'has Scan'                    => array( array( 'scan' ), true ),
+			'no Scan'                     => array( array(), false ),
+			'has Scan, standalone plugin' => array( array( 'scan' ), false, true ),
 		);
 	}
 }

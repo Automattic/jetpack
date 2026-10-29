@@ -101,29 +101,42 @@ class Scan implements Dashboard_Section {
 		// Fetched first: has_credentials() reads the report this caches.
 		$report = self::get_scan_report( $has_plan );
 
-		$url = $has_plan ? self::get_credentials_url() : Dashboard::get_scan_upgrade_url();
+		if ( ! $has_plan ) {
+			$plan_state = array(
+				'url'                 => Dashboard::get_scan_upgrade_url(),
+				'upsellVariant'       => self::get_upsell_variant(),
+				'upsellVariantForced' => (bool) has_filter( 'jetpack_protect_dashboard_scan_upsell_variant' ),
+			);
+		} elseif ( self::needs_credentials() ) {
+			$plan_state = array(
+				'url'              => Redirect::get_url( 'jetpack-settings-security-credentials' ),
+				'needsCredentials' => true,
+				'hasCredentials'   => self::has_credentials(),
+			);
+		} else {
+			$plan_state = array(
+				'url'              => '',
+				'needsCredentials' => false,
+			);
+		}
 
 		return array_merge(
 			array(
 				'hasPlan'   => $has_plan,
 				'canIgnore' => self::allows_ignoring(),
-				'url'       => $url,
 			),
-			$has_plan ? ( $url ? array( 'hasCredentials' => self::has_credentials() ) : array() ) : array(
-				'upsellVariant'       => self::get_upsell_variant(),
-				'upsellVariantForced' => (bool) has_filter( 'jetpack_protect_dashboard_scan_upsell_variant' ),
-			),
+			$plan_state,
 			$report
 		);
 	}
 
 	/**
-	 * Where to set Scan's server credentials, or an empty string on WoA, where WordPress.com runs Scan without them.
+	 * Whether Scan needs server credentials to auto-fix; not on WoA, where WordPress.com runs Scan without them.
 	 *
-	 * @return string
+	 * @return bool
 	 */
-	private static function get_credentials_url() {
-		return ( new Host() )->is_woa_site() ? '' : Redirect::get_url( 'jetpack-settings-security-credentials' );
+	private static function needs_credentials() {
+		return ! ( new Host() )->is_woa_site();
 	}
 
 	/**

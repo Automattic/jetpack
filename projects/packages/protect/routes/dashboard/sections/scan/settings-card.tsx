@@ -28,7 +28,7 @@ export default function ScanSettingsCard( { state: scan }: ScanContext ) {
 			'jetpack-protect-pkg'
 		);
 		link = __( 'Get Scan for daily malware scanning and one-click fixes', 'jetpack-protect-pkg' );
-	} else if ( ! scan.url ) {
+	} else if ( scan.needsCredentials === false ) {
 		description = __( 'Scan checks your site for malware every day.', 'jetpack-protect-pkg' );
 	} else if ( scan.hasCredentials === false ) {
 		description = __(
