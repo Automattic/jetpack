@@ -331,6 +331,23 @@ const numberFormatCurrency = ( {
 };
 
 /**
+ * Unicode Bidirectional (Bidi) control marks used by CLDR / Intl.NumberFormat
+ * to preserve proper sign positioning in RTL locales:
+ * - \u200E: Left-to-Right Mark (LRM)
+ * - \u200F: Right-to-Left Mark (RLM)
+ * - \u061C: Arabic Letter Mark (ALM)
+ */
+const BIDI_MARKS = [ '\u200E', '\u200F', '\u061C' ];
+
+/**
+ * Checks whether a string represents a Unicode Bidirectional control mark.
+ *
+ * @param  value - The string value to check.
+ * @return {boolean} True if the value is a Bidi control mark.
+ */
+const isBidiMark = ( value: string ): boolean => BIDI_MARKS.includes( value );
+
+/**
  * Returns a formatted price object which can be used to manually render a
  * formatted currency (eg: if you wanted to render the currency symbol in a
  * different font size).
@@ -456,10 +473,7 @@ const getCurrencyObject = ( {
 			case 'literal':
 				if ( ! sign ) {
 					pendingPrefix += part.value;
-				} else if (
-					! localizedSign.includes( part.value ) &&
-					( part.value === '\u200E' || part.value === '\u200F' || part.value === '\u061C' )
-				) {
+				} else if ( isBidiMark( part.value ) && ! localizedSign.includes( part.value ) ) {
 					localizedSign += part.value;
 				}
 				return;
