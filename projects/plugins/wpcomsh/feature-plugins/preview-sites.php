@@ -33,11 +33,13 @@ function wpcomsh_is_preview_site() {
  * @return void
  */
 function wpcomsh_preview_site_banner() {
-	if ( ! wpcomsh_is_preview_site() || isset( $_COOKIE['wpcom_preview_banner_dismissed'] ) ) {
+	// Only share-link visitors and administrators can see a banner, so every other request stops here,
+	// before the persistent data read.
+	$share_code = function_exists( 'A8C\FSE\Coming_soon\get_share_code' ) ? A8C\FSE\Coming_soon\get_share_code() : '';
+	if ( ( ! $share_code && ! current_user_can( 'manage_options' ) ) || isset( $_COOKIE['wpcom_preview_banner_dismissed'] ) || ! wpcomsh_is_preview_site() ) {
 		return;
 	}
 
-	$share_code = function_exists( 'A8C\FSE\Coming_soon\get_share_code' ) ? A8C\FSE\Coming_soon\get_share_code() : '';
 	if ( $share_code && A8C\FSE\Coming_soon\is_accessed_by_valid_share_link( $share_code ) ) {
 		$link = sprintf(
 			'<a href="%s" target="_blank" rel="noopener">%s</a>',
