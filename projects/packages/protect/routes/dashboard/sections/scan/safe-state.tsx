@@ -86,7 +86,8 @@ type Props = {
  */
 export default function SafeState( { scan, justScanned = false }: Props ) {
 	const counts = getCheckedCounts( scan );
-	const nextCheck = getNextCheck( scan.lastChecked );
+	// Paid Scan has no daily limit, and the API gives no next-scan time, so only the free check counts down.
+	const nextCheck = scan.hasPlan ? null : getNextCheck( scan.lastChecked );
 	// No margin, so the countdown gives way as it reaches zero.
 	const nextScan = useHasPassed( nextCheck, 0 ) ? null : nextCheck;
 
@@ -100,7 +101,6 @@ export default function SafeState( { scan, justScanned = false }: Props ) {
 					counts.plugins,
 					counts.themes
 				),
-				nextLabel: __( 'Next scan in:', 'jetpack-protect-pkg' ),
 				next: __( 'Your site is scanned automatically every day.', 'jetpack-protect-pkg' ),
 			}
 		: {
@@ -114,7 +114,6 @@ export default function SafeState( { scan, justScanned = false }: Props ) {
 					counts.plugins,
 					counts.themes
 				),
-				nextLabel: __( 'Next check in:', 'jetpack-protect-pkg' ),
 				next: __( 'Vulnerabilities are checked automatically every day.', 'jetpack-protect-pkg' ),
 			};
 
@@ -136,7 +135,7 @@ export default function SafeState( { scan, justScanned = false }: Props ) {
 				{ nextScan ? (
 					<Stack direction="row" gap="sm" align="baseline">
 						<Text variant="body-md" className="jp-protect-safe__details">
-							{ copy.nextLabel }
+							{ __( 'Next check in:', 'jetpack-protect-pkg' ) }
 						</Text>
 						<Countdown to={ nextScan } />
 					</Stack>
