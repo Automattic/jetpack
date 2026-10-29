@@ -85,6 +85,28 @@ export const BarsWithComparison: Story = {
 	parameters: { reportParams: getDefaultQueryParams( true ) },
 };
 
+export const NegativeValues: Story = {
+	args: {
+		variant: 'bars',
+		rows: [
+			{ id: 'direct', label: 'Direct', value: 4200, previousValue: 3800 },
+			{ id: 'search', label: 'Search', value: 2600, previousValue: 2900 },
+			{ id: 'promo', label: 'Spring promo', value: 650, previousValue: -300 },
+			{ id: 'affiliate', label: 'Affiliate', value: -900, previousValue: 400 },
+		],
+		status: { ...READY, hasComparison: true },
+	},
+	parameters: {
+		reportParams: getDefaultQueryParams( true ),
+		docs: {
+			description: {
+				story:
+					'Net revenue after refunds can fall below zero. Negative values draw below a shared zero point, and a negative previous value still reads as a rise when the current value is higher.',
+			},
+		},
+	},
+};
+
 export const WithMediaAndLinks: Story = {
 	args: {
 		rows: [
