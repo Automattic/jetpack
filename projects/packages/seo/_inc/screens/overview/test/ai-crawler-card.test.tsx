@@ -16,9 +16,14 @@ type LlmsTxt = GeoState[ 'llmsTxt' ];
  */
 const buildCrawlers = ( overrides: Partial< Crawlers > = {} ): Crawlers => ( {
 	catalog: [
-		{ slug: 'oai-searchbot', label: 'OAI-SearchBot', userAgent: 'OAI-SearchBot', type: 'answer' },
-		{ slug: 'perplexity', label: 'PerplexityBot', userAgent: 'PerplexityBot', type: 'answer' },
-		{ slug: 'gptbot', label: 'GPTBot', userAgent: 'GPTBot', type: 'training' },
+		{
+			slug: 'oai-searchbot',
+			label: 'OAI-SearchBot',
+			userAgents: [ 'OAI-SearchBot' ],
+			type: 'answer',
+		},
+		{ slug: 'perplexity', label: 'PerplexityBot', userAgents: [ 'PerplexityBot' ], type: 'answer' },
+		{ slug: 'gptbot', label: 'GPTBot', userAgents: [ 'GPTBot' ], type: 'training' },
 	],
 	blocked: { answer: [], training: [] },
 	searchEnginesVisible: true,

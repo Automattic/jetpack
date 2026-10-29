@@ -1,9 +1,18 @@
-import { ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { commentContent, details, key, page } from '@wordpress/icons';
 import { Link as RouteLink } from '@wordpress/route';
-import { Badge, Card, CollapsibleCard, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
+import {
+	Badge,
+	Card,
+	CollapsibleCard,
+	Link,
+	Notice,
+	Stack,
+	SwitchControl,
+	Text,
+	Tooltip,
+} from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import { ROUTE_BY_TAB } from '../../dashboard/dashboard-nav';
 import { isCrawlerBlocked } from '../../data/blocked-crawlers';
@@ -130,16 +139,16 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( {
 
 	return (
 		<LockedTooltip reason={ lockedReason }>
-			<ToggleControl
+			<SwitchControl
 				label={ sprintf(
-					/* translators: %s: AI crawler name, e.g. "ChatGPT (GPTBot)". */
+					/* translators: %s: AI crawler name, e.g. "ChatGPT". */
 					__( 'Block %s', 'jetpack-seo' ),
 					crawler.label
 				) }
+				description={ crawler.userAgents.join( ', ' ) }
 				checked={ blocked }
-				onChange={ handleChange }
+				onCheckedChange={ handleChange }
 				disabled={ disabled }
-				__nextHasNoMarginBottom
 			/>
 		</LockedTooltip>
 	);
@@ -256,9 +265,8 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 			</CollapsibleCard.Header>
 			{ notice }
 			<CollapsibleCard.Content>
-				{ /* `lg` gap between the description group and the controls group gives the
-				   "View your robots.txt" link room above the "Block all" toggle; the controls
-				   keep their own tighter `md` rhythm in the nested Stack. */ }
+				{ /* `lg` gaps give the "View your robots.txt" link room above "Block all", and
+				   keep each crawler's user-agent line closer to its own toggle than the next. */ }
 				<Stack direction="column" gap="lg">
 					<Stack direction="column" gap="xs">
 						<p className="jetpack-seo-geo__crawlers-intro">{ intro }</p>
@@ -271,15 +279,14 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 							{ __( 'View your robots.txt', 'jetpack-seo' ) }
 						</Link>
 					</Stack>
-					<Stack direction="column" gap="md">
+					<Stack direction="column" gap="lg">
 						<div className="jetpack-seo-geo__crawler-bulk">
 							<LockedTooltip reason={ lockedReason }>
-								<ToggleControl
+								<SwitchControl
 									label={ __( 'Block all', 'jetpack-seo' ) }
 									checked={ allBlocked }
-									onChange={ handleToggleAll }
+									onCheckedChange={ handleToggleAll }
 									disabled={ disabled }
-									__nextHasNoMarginBottom
 								/>
 							</LockedTooltip>
 						</div>
@@ -540,13 +547,12 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 								</Notice.Root>
 							) }
 							<Stack direction="column" gap="xs">
-								<ToggleControl
+								<SwitchControl
 									label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
-									help={ llmsTxtHelp }
+									description={ llmsTxtHelp }
 									checked={ llmsTxtEffectivelyOn }
-									onChange={ setLlmsTxtEnabled }
+									onCheckedChange={ setLlmsTxtEnabled }
 									disabled={ isSaving || ! searchEnginesVisible }
-									__nextHasNoMarginBottom
 								/>
 								{ ! searchEnginesVisible && (
 									<Notice.Root intent="info" className="jetpack-seo-geo__llms-notice">
@@ -584,16 +590,15 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 						</Card.Title>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
-						<ToggleControl
+						<SwitchControl
 							label={ __(
 								'Automatically generate SEO title, SEO description, and image alt text for new posts',
 								'jetpack-seo'
 							) }
 							checked={ enhancer.enabled }
-							onChange={ setEnhancerEnabled }
+							onCheckedChange={ setEnhancerEnabled }
 							disabled={ isSaving || ! enhancer.aiSeoEnabled }
-							help={ enhancerHelp }
-							__nextHasNoMarginBottom
+							description={ enhancerHelp }
 						/>
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>
