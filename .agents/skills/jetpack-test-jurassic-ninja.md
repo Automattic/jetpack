@@ -140,26 +140,31 @@ browser or the context-a8c tools (`connect-jetpack`, `add-jetpack-products`) ins
 Test key auth once:
 
 ```bash
-ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no {domain}@ssh.atomicsites.net exit 2>&1
+ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new {domain}@ssh.atomicsites.net exit 2>&1; echo "SSH_EXIT=$?"
 ```
 
 Where `{domain}` is the domain of the target site (e.g. `foo.jurassic.ninja`). Always use
 `ssh.atomicsites.net`: the stanza below doesn't cover the `sftp.wp.com` host in `list-sites`'
-`ssh_command`. The a8c key is a Secure Enclave key, so AutoProxxy may ask the user to approve
-each use, and an SSH call can sit waiting on them.
+`ssh_command`. The key may need the user's approval on their device for each use, so an SSH
+call can sit waiting on them; if it hangs, ask the user rather than rerunning it.
 
-Every key-auth `ssh` uses `-o BatchMode=yes`: a bare `ssh` with no TTY falls through to
-password prompts and burns failed attempts toward the lockout below.
+Every key-auth `ssh` uses `-o BatchMode=yes`, and every key-auth rsync sets
+`RSYNC_RSH='ssh -o BatchMode=yes'`: without it, ssh with no TTY falls through to password
+prompts and burns failed attempts toward the lockout below.
 
-**If the command succeeds (exit code 0):** set `SSH_OK=true`. **Do not fetch the site
-password** — pulling it into the transcript is an avoidable credential leak.
+**If `SSH_EXIT=0`:** set `SSH_OK=true`. **Do not fetch the site password** — pulling it into
+the transcript is an avoidable credential leak.
 
-**If it fails:** tell the user, then continue on the password fallback. If the stanza below is
-already in place and the check still fails, say so rather than repeating the setup:
+**If the output says `Permission denied`:** key auth was refused. Don't retry it. Check
+whether the stanza below is in effect with `ssh -G ssh.atomicsites.net | grep -i '^proxyjump'`
+(it prints `proxyjump proxy.automattic.com` when it is). If it is, tell the user key auth was
+refused even with the stanza in place. The likely cause is that this machine's key isn't the
+first SSH key in Mission Control, the only one a JN site syncs, at creation. Reordering or
+removing keys there helps only sites created afterwards; for now, use the password. If the
+stanza isn't in effect, show it:
 
-> SSH key authentication to `ssh.atomicsites.net` failed. Without this stanza, ssh offers the
-> wrong key and the server refuses it. The documented setup for Automatticians is to add it
-> near the **top** of `~/.ssh/config`, above any `Host *` block:
+> SSH key authentication to `ssh.atomicsites.net` failed. The documented setup for
+> Automatticians is to add this near the **top** of `~/.ssh/config`, above any `Host *` block:
 >
 > ```
 > Host ssh.atomicsites.net
@@ -170,8 +175,11 @@ already in place and the check still fails, say so rather than repeating the set
 >
 > For now, I'll use the site password instead.
 
-Set `SSH_OK=false` and **only now** fetch the site password, taking it from the returned
-config and never printing it:
+**Any other failure** (timeout, proxy or connection error) isn't a key refusal: report it and
+stop, since a password login would fail the same way.
+
+After a refusal, set `SSH_OK=false` and **only now** fetch the site password, taking it from
+the returned config and never printing it:
 
 ```
 execute-tool: jurassic-ninja / list-sites (domain: <site domain>, include_passwords: true)
@@ -180,17 +188,18 @@ execute-tool: jurassic-ninja / list-sites (domain: <site domain>, include_passwo
 **Password auth locks out fast.** The third login within about 15 minutes is refused, and the
 site stays locked for at least 10 more. So:
 
-- Plan one rsync plus one shell session per site: chain commands, or put the work in one
-  `wp eval-file`.
-- Pass `-o NumberOfPasswordPrompts=1 -o PubkeyAuthentication=no`; otherwise ssh tries the
-  password three times per attempt.
+- Every rsync and every `ssh` or `expect` call is one login. Plan one rsync plus one shell
+  session per site: chain commands, or put the work in one `wp eval-file`. Anything more
+  waits out the window, or ask the user.
+- Pass `-o NumberOfPasswordPrompts=1 -o PubkeyAuthentication=no` to ssh, and set them in
+  `RSYNC_RSH` for rsync (step 4); otherwise ssh tries the password three times per login.
 - After a refusal or lockout, stop. Wait at least 10 minutes, never retry in a loop, and tell
   the user if it blocks the task.
 
 ## Running commands on the site
 
 To inspect or change site state — which package version actually loaded, options, logs,
-toggling plugins — run WP-CLI over SSH.
+toggling plugins — run WP-CLI over SSH. Run Check 6 first if it hasn't set `SSH_OK` yet.
 
 **If `SSH_OK=true`**, just run it directly:
 
@@ -200,17 +209,26 @@ ssh -o BatchMode=yes {domain}@ssh.atomicsites.net "cd /srv/htdocs && wp plugin l
 
 **If `SSH_OK=false`**, drive the password prompt with `expect`, within the lockout rules in
 Check 6. Pass the command as an argument to `ssh` rather than sending keystrokes into a login
-shell, because a pty echoes and can mangle long input:
+shell, because a pty echoes and can mangle long input. The password goes in through the
+environment so Tcl can't reinterpret `$`, `[` or `\` in it. Keep the `expect` patterns
+unbraced on one line: a one-line `expect { ... }` is read as one literal pattern and never
+matches.
 
 ```bash
-expect -c '
+JN_PW='<JN_PASSWORD>' expect -c '
 set timeout 120
 log_user 0
-spawn ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -o NumberOfPasswordPrompts=1 -T {domain}@ssh.atomicsites.net {cd /srv/htdocs && wp plugin list}
-expect { -re "assword:" { send "<JN_PASSWORD>\r"; log_user 1 } timeout { puts "TIMEOUT"; exit 1 } }
+spawn ssh -o StrictHostKeyChecking=accept-new -o PubkeyAuthentication=no -o NumberOfPasswordPrompts=1 -T {domain}@ssh.atomicsites.net {cd /srv/htdocs && wp plugin list}
+expect -re "assword:" { send -- "$env(JN_PW)\r"; log_user 1 } timeout { puts "TIMEOUT"; exit 1 } eof { puts "NO_PROMPT"; exit 1 }
+set timeout -1
 expect eof
-'
+catch wait result
+exit [lindex $result 3]
+'; echo "SSH_EXIT=$?"
 ```
+
+A non-zero `SSH_EXIT` with `Permission denied` in the output is a refused login: stop, per
+Check 6.
 
 Notes that save time:
 
@@ -313,7 +331,7 @@ The SSH host is always `ssh.atomicsites.net`.
 **If `SSH_OK=true`** (key-based auth works):
 
 ```bash
-pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive
+RSYNC_RSH='ssh -o BatchMode=yes' pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive
 ```
 
 No `--password` flag — SSH keys handle auth.
@@ -321,11 +339,12 @@ No `--password` flag — SSH keys handle auth.
 **If `SSH_OK=false`** (falling back to the password fetched in Check 6):
 
 ```bash
-pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
+RSYNC_RSH='ssh -o NumberOfPasswordPrompts=1 -o PubkeyAuthentication=no' pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
 ```
 
-`--password` passes the SSH password automatically via `SSH_ASKPASS`. The rsync counts as a
-login, so if it's refused, follow the lockout rules in Check 6 rather than rerunning it.
+`--password` passes the SSH password via `SSH_ASKPASS` but sets no ssh options, so the
+`RSYNC_RSH` prefix supplies them. The rsync counts as a login, and so does any rerun: if it
+fails for any reason, follow the lockout rules in Check 6 rather than rerunning it.
 
 ### 5. Report results
 
@@ -334,7 +353,8 @@ After sync (or after site creation for `provision-only`), show:
 - Whether Jetpack is connected (from `connect-jetpack` output, if called). For brand-new sites, whether you autoconnected and why (the connection signal, or the user's request), plus the SSO warning when the change touches the connection, login or SSO.
 - For brand-new sites: the `ledger_url` from `provision-site`, or the ledger warning.
 - For `rsync` Jetpack-plugin flows: remind the user to set `define('JETPACK_AUTOLOAD_DEV', true);` in a mu-plugin on the remote site.
-- If `SSH_OK` was false: remind the user to add the `~/.ssh/config` stanza from Check 6.
+- If `SSH_OK` was false: repeat what Check 6 found, either the missing `~/.ssh/config` stanza
+  or a refusal with the stanza in place.
 - For brand-new sites: note the site expires after 7 days of inactivity.
 
 Do not echo back any site password in the final report, even if one was used for rsync.

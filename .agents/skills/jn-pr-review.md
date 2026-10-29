@@ -155,11 +155,12 @@ From the worktree, build with package deps so package changes compile into the p
 pnpm jetpack build --deps plugins/<slug>
 ```
 
-Then rsync. Test key auth once first, and on failure show the `~/.ssh/config` stanza and fall
-back to the site password, both per Check 6 of the JN skill:
+Then rsync. Test key auth once first, per Check 6 of the JN skill, and use its step 4 command
+for the result: this one with key auth, the `--password` one otherwise. With password auth,
+syncing more than one plugin goes over the two-login budget, so ask the user first.
 
 ```bash
-pnpm jetpack rsync <slug> <domain>@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/<slug> --non-interactive
+RSYNC_RSH='ssh -o BatchMode=yes' pnpm jetpack rsync <slug> <domain>@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/<slug> --non-interactive
 ```
 
 **Reliability — the A8C proxy drops long transfers.** rsync over `proxy.automattic.com`
@@ -172,8 +173,13 @@ operation`. Two rules:
 2. **With key auth, retry — rsync resumes.** On a non-zero exit (or a log containing
    `rsync error` / `Broken pipe` / `There was a problem`), re-run the same command;
    already-transferred files are skipped. Allow up to ~3 attempts before surfacing the
-   failure to the user. With password auth, each attempt is a login, so follow the JN
-   skill's lockout rules instead.
+   failure to the user. Don't retry on `Permission denied`: that's a key refusal, so go to
+   the password fallback. With password auth, every attempt is a login, so follow the JN
+   skill's lockout rules instead of retrying.
+
+With password auth, steps 6 and 7 must run as one `expect` session (the JN skill's "Running
+commands on the site"): chain them into one remote command, since the rsync was the other
+login. With key auth, the `ssh ...` below is `ssh -o BatchMode=yes`.
 
 ### 6. Force dev autoloading (required for package changes)
 
