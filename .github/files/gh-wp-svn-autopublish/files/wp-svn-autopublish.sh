@@ -100,7 +100,14 @@ fi
 
 if [[ -n "$CI" ]]; then
 	echo "::group::Committing to SVN"
-	svn commit -m "Update to version $TAG from GitHub" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"
+	if ! svn commit -m "Update to version $TAG from GitHub" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"; then
+		# WP.org SVN can "fail" on large commits that did land, so check trunk's log to see if it really was successful.
+		if ! svn log -l 1 "https://plugins.svn.wordpress.org/$WPSLUG/trunk" | grep -qxF "Update to version $TAG from GitHub"; then
+			echo "::error::SVN commit failed."
+			exit 1
+		fi
+		echo "::warning::SVN reported a commit error, but the commit landed."
+	fi
 	echo '::endgroup::'
 else
 	echo "----"
