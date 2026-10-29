@@ -847,6 +847,38 @@ ComparisonSingle.parameters = {
 	},
 };
 
+export const ComparisonSingleRagged: StoryObj< StoryArgs > = Template.bind( {} );
+ComparisonSingleRagged.args = {
+	...lineChartStoryArgs,
+	withTooltips: true,
+	showLegend: true,
+	smoothing: false,
+	data: [
+		{
+			...sampleData[ 0 ],
+			label: 'Views',
+			group: 'views',
+		},
+		{
+			...sampleData[ 1 ],
+			label: 'Views — previous',
+			group: 'views',
+			options: {
+				type: 'comparison' as const,
+			},
+			data: sampleData[ 1 ].data.slice( 1 ),
+		},
+	],
+};
+ComparisonSingleRagged.parameters = {
+	docs: {
+		description: {
+			story:
+				'A comparison series with no point in January. Hovering or arrowing to January lists only **Views**; the previous period appears from February, the first date it has.',
+		},
+	},
+};
+
 // Two metrics side by side, each with its own previous-period comparison overlay. With
 // `legendCollapseGroups` the legend shows one item per group (Views, Visitors); because it is also
 // interactive, clicking one toggles both of that metric's series at once.

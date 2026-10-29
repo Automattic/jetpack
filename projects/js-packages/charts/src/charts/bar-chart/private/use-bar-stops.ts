@@ -10,8 +10,6 @@ export type StopBar = { datum: DataPointDate; index: number; key: string };
 
 export type BarStops = {
 	count: number;
-	/** The series `XYChartTooltip` reads a stop's datum from. Overlap has none: `SlotTooltipMembers` fills its tooltip. */
-	series: SeriesData[];
 	/** Changes when the stops do, so keyboard navigation starts over. */
 	key: string;
 	barAt: ( stop: number ) => StopBar | undefined;
@@ -85,5 +83,5 @@ export function useBarStops(
 		[ overlapSlots, series ]
 	);
 
-	return { count, series, key, barAt, stopOf };
+	return { count, key, barAt, stopOf };
 }

@@ -96,16 +96,18 @@ class Plan {
 	 * @return bool True when the site has a plan or product that supports the paid Protect tier.
 	 */
 	public static function has_required_plan( $force_refresh = false ) {
-		static $has_scan = null;
-		if ( null === $has_scan || $force_refresh ) {
-			$products = array_column( Current_Plan::get_products(), 'product_slug' );
+		// WordPress.com's Personal and Premium include `scan` without Scan's UI,
+		// so gate on `scan-self-serve` there, as Jetpack::show_scan_ui() does.
+		$feature = function_exists( 'wpcom_feature_exists' ) && wpcom_feature_exists( 'scan-self-serve' ) ? 'scan-self-serve' : 'scan';
 
-			// Check for a plan or product that enables scan.
-			$plan_supports_scan = Current_Plan::supports( 'scan', $force_refresh );
-			$has_scan_product   = count( array_intersect( array( 'jetpack_scan', 'jetpack_scan_monthly' ), $products ) ) > 0;
-			$has_scan           = $plan_supports_scan || $has_scan_product;
+		// Before the products: a refresh updates them too.
+		if ( Current_Plan::supports( $feature, $force_refresh ) ) {
+			return true;
 		}
 
-		return $has_scan;
+		// Every Scan product's slug starts with this: monthly, bi-yearly and the legacy real-time ones.
+		$products = array_column( Current_Plan::get_products(), 'product_slug' );
+
+		return array() !== array_filter( $products, fn( $slug ) => 0 === strpos( (string) $slug, 'jetpack_scan' ) );
 	}
 }

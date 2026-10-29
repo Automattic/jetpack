@@ -213,9 +213,9 @@ HTML;
 			return false;
 		}
 
-		// Don't show if user is subscribed to blog.
+		// Don't show if user is subscribed to blog or awaiting subscription confirmation.
 		require_once __DIR__ . '/../views.php';
-		if ( ! class_exists( 'Jetpack_Memberships' ) || Jetpack_Memberships::is_current_user_subscribed() ) {
+		if ( ! class_exists( 'Jetpack_Memberships' ) || Jetpack_Memberships::is_current_user_subscribed() || Jetpack_Memberships::user_is_pending_subscriber() ) {
 			return false;
 		}
 

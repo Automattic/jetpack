@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Let a later enabled `init()` boot the package after a disabled one, including from another consumer.
