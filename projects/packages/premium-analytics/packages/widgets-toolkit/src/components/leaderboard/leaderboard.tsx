@@ -188,7 +188,6 @@ export function Leaderboard( {
 	const data = useMemo(
 		() =>
 			buildLeaderboardChartData( activeRows, {
-				hasComparison,
 				maxRows: parent ? 0 : maxRows,
 				detailSearch,
 				drillDown: drillDown
@@ -196,7 +195,7 @@ export function Leaderboard( {
 					: undefined,
 				variant,
 			} ),
-		[ activeRows, hasComparison, parent, maxRows, detailSearch, drillDown, select, variant ]
+		[ activeRows, parent, maxRows, detailSearch, drillDown, select, variant ]
 	);
 
 	const legendLabels = useMemo(
