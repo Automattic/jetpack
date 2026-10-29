@@ -144,16 +144,17 @@ describe( 'ScanCard empty state', () => {
 	);
 
 	it.each( [
-		[ false, 48, /Vulnerabilities are checked automatically every day\./ ],
-		[ false, 1, 'Next check in:' ],
-		[ true, 48, /Your site is scanned automatically every day\./ ],
-		[ true, 1, 'Next scan in:' ],
+		[ false, 48, /Vulnerabilities are checked automatically every day\./, false ],
+		[ false, 1, 'Next check in:', true ],
+		[ true, 48, /Your site is scanned automatically every day\./, false ],
+		[ true, 1, /Your site is scanned automatically every day\./, false ],
 	] )(
 		'with hasPlan %s, checked %i hours ago, words the next check for that plan',
-		async ( hasPlan, hoursAgo, next ) => {
+		async ( hasPlan, hoursAgo, next, hasCountdown ) => {
 			renderCard( { hasPlan, lastChecked: checkedAgo( hoursAgo * HOUR_IN_MS ) } );
 
 			await expect( screen.findByText( next ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( /^Next (scan|check) in:$/ ) !== null ).toBe( hasCountdown );
 		}
 	);
 } );

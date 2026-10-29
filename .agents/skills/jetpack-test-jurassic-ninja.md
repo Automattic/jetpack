@@ -198,9 +198,8 @@ site stays locked for at least 10 more. So:
 - Every rsync and every `ssh` or `expect` call is one login, so the budget is two logins per
   site: plan one rsync plus one shell session. Chain commands, or base64 a script and run it
   with one `wp eval-file` or `bash`. Anything more waits out the window, or ask the user.
-- Pass `-o NumberOfPasswordPrompts=1 -o PubkeyAuthentication=no` to ssh, and set them in
-  `RSYNC_RSH` for rsync (step 4); otherwise ssh tries the password three times per login.
-  `RSYNC_RSH` has no effect when `RSYNC_PROXY_SOCKET` is set; don't use the password then.
+- Pass `-o NumberOfPasswordPrompts=1 -o PubkeyAuthentication=no` to ssh; otherwise ssh tries
+  the password three times per login. `jetpack rsync --password` adds them itself (step 4).
 - Substitute the password inside single quotes, writing any `'` in it as `'\''`.
 - After a refusal or lockout, stop. Wait at least 10 minutes, never retry in a loop, and tell
   the user if it blocks the task.
@@ -350,12 +349,12 @@ No `--password` flag — SSH keys handle auth.
 **If `SSH_OK=false`** (falling back to the password fetched in Check 6):
 
 ```bash
-RSYNC_RSH='ssh -o NumberOfPasswordPrompts=1 -o PubkeyAuthentication=no' pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
+pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
 ```
 
-`--password` passes the SSH password via `SSH_ASKPASS` but sets no ssh options, so the
-`RSYNC_RSH` prefix supplies them. The rsync counts as a login, and so does any rerun: if it
-fails for any reason, follow the lockout rules in Check 6 rather than rerunning it.
+`--password` passes the SSH password via `SSH_ASKPASS` and has ssh try it once without offering
+keys. The rsync counts as a login, and so does any rerun: if it fails for any reason, follow
+the lockout rules in Check 6 rather than rerunning it.
 
 ### 5. Report results
 
