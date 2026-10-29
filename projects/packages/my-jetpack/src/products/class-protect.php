@@ -51,8 +51,8 @@ class Protect extends Hybrid_Product {
 	 * Status_Model properties that may be exposed to users without `manage_options`.
 	 *
 	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders scan counts, the
-	 * last scan time and whether that scan failed from these. The rest of the status report -- the scan state, the error
-	 * details, the list of fixable threat IDs -- is administrator-only.
+	 * last scan time and whether that scan failed from these. The rest of the status report --
+	 * the scan state, the error details, the list of fixable threat IDs -- is administrator-only.
 	 *
 	 * @var string[]
 	 */

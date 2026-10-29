@@ -196,6 +196,7 @@ describe( 'ScanCard threat list', () => {
 			screen.getByRole( 'button', { name: /^Malicious code found in file: index\.php/ } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Critical' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /^Your last scan didn’t complete/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'drops threats that leave the list from the selection', async () => {
