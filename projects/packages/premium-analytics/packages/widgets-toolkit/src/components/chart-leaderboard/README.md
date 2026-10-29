@@ -260,7 +260,7 @@ inline padding.
 
 | Prop               | Type                   | Default                                                        | Description                                                                                                                                                    |
 | ------------------ | ---------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `data`             | `LeaderboardChartData` | required                                                       | Array of leaderboard items with label, values, shares, and deltas                                                                                              |
+| `data`             | `LeaderboardChartData` | required                                                       | Array of leaderboard items with label and values; shares and deltas are optional                                                                               |
 | `className`        | `string`               | -                                                              | Additional CSS classes for container                                                                                                                           |
 | `loading`          | `boolean`              | `false`                                                        | Shows loading skeleton when true                                                                                                                               |
 | `withComparison`   | `boolean`              | `false`                                                        | Enables comparison mode with previous period data                                                                                                              |
@@ -293,7 +293,7 @@ type LeaderboardChartData = Array< {
 
 ### Derived shares and deltas
 
-Pass `currentValue` and `previousValue` only. The chart derives each share as `value / max * 100`, where `max` is the largest absolute value across the rows, counting previous values only when comparison bars draw (`withComparison` without `withOverlayLabel`). The delta is `( current - previous ) / |previous| * 100`, left unset when there is no previous value. A share or delta you pass wins over the derived one.
+Pass `currentValue` and `previousValue` only. The chart derives each share as `value / max * 100`, where `max` is the largest absolute value across the rows, counting previous values only when comparison bars draw (`withComparison` without `withOverlayLabel`). The delta is `( current - previous ) / |previous| * 100`, left unset when there is no previous value, or the previous value is 0 and the current value is not. A share or delta you pass wins over the derived one.
 
 Leave a missing `previousValue` `undefined`, not `0`, so the chart shows the placeholder.
 
