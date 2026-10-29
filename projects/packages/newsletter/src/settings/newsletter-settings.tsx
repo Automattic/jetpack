@@ -118,6 +118,7 @@ export type NewsletterSettingsBodyProps = {
 	 * branches retire together with the legacy chrome in #48613.
 	 */
 	isModernized?: boolean;
+	onDirtyChange?: ( dirty: boolean ) => void;
 };
 
 /**
@@ -141,12 +142,14 @@ export type NewsletterSettingsBodyProps = {
  * @param props.hasConnectedOwner - Whether the active user has a connected WordPress.com owner account.
  * @param props.connectUrl        - URL the user is sent to when they need to connect.
  * @param props.isModernized      - When true, render the modernized IA; defaults to false (legacy layout).
+ * @param props.onDirtyChange     - Callback when settings have unsaved changes or pending autosaves.
  * @return The settings body.
  */
 export function NewsletterSettingsBody( {
 	hasConnectedOwner = true,
 	connectUrl,
 	isModernized = false,
+	onDirtyChange,
 }: NewsletterSettingsBodyProps ): JSX.Element | null {
 	// Seed from the module cache so a remount (e.g. returning to the Settings
 	// tab) paints immediately instead of flashing the full-page spinner.
@@ -205,6 +208,11 @@ export function NewsletterSettingsBody( {
 		hasWelcomeEmailChanges ||
 		hasSubscribeModalChanges ||
 		pendingAutoSaves > 0;
+
+	useEffect( () => {
+		onDirtyChange?.( mayLoseChanges );
+		return () => onDirtyChange?.( false );
+	}, [ mayLoseChanges, onDirtyChange ] );
 
 	// Ask the browser to confirm leaving the page while an edit is unsaved or still saving.
 	useEffect( () => {

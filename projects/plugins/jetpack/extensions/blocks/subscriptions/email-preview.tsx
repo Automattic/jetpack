@@ -468,9 +468,12 @@ const EmailDesignLink = ( { postId }: { postId: number } ) => {
 	// A new tab must not carry `return`: it would open the post in a second editor with no lock
 	// warning between them, as `wp_check_post_lock()` is silent when both are the same user.
 	const inNewTab = isPostDirty;
+	// `source` is sent unconditionally, unlike the other two: with an unsaved post that has no id
+	// this link is otherwise bare, and the screen could not tell it from the Appearance menu.
 	const href = addQueryArgs( emailDesignUrl, {
 		...( postId > 0 ? { post_id: postId } : {} ),
 		...( inNewTab ? {} : { return: window.location.href } ),
+		source: 'preview_modal',
 	} );
 
 	// The icon carries at every size so it becomes familiar; below `large` it carries alone,

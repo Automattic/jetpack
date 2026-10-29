@@ -22,6 +22,12 @@ add_action( 'init', function() {
 
 To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license`, add a filter on `jetpack_my_jetpack_should_enable_add_license_screen` and return false: `add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );` My Jetpack applies this filter automatically when initializing the offline Features entry described below.
 
+### Shared header controls
+
+The `my-jetpack-header-controls` flag is on by default. My Jetpack and the modern Boost dashboard show an avatar and connection status control that opens connection and plan details. Controls stay hidden when My Jetpack is disabled or using offline Features, and dashboards must opt in to show them. On connected sites, Boost loads purchases only when the control is opened.
+
+For rollback or testing, disable the controls with `add_filter( 'jetpack_feature_flag_enabled_my-jetpack-header-controls', '__return_false' );` in a must-use plugin.
+
 ### Managing features
 
 With Jetpack active, users who can manage Jetpack modules can bulk activate or deactivate modules from the Features list even if they cannot activate plugins. Plugin rows in their batch fail individually with a permission message, without preventing permitted module changes.

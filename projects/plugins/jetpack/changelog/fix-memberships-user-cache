@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Memberships: Fix clearing the cached paywall checks for a single user.
