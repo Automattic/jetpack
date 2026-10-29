@@ -339,7 +339,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A WordPress.com feature's upgrade goes to the plan upgrade flow and its manage link to WordPress.com; other features keep Jetpack's.
+	 * A WordPress.com feature's upgrade goes to the plan upgrade flow; a site that has it, and other features, keep Jetpack's links.
 	 *
 	 * @dataProvider provide_feature_upgrades
 	 *
@@ -363,12 +363,6 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		}
 
 		$live = str_replace( '%host%', (string) wp_parse_url( home_url(), PHP_URL_HOST ), $live );
-
-		if ( $site_has_feature ) {
-			$this->assertStringEndsWith( $live, $upgrade['manage_url'] );
-			return;
-		}
-
 		parse_str( (string) wp_parse_url( $upgrade['url'], PHP_URL_QUERY ), $query );
 
 		$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade?', $upgrade['url'] );
@@ -387,8 +381,8 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		return array(
 			'backup, no plan'  => array( 'backup', false, 'backups-self-serve', '/wp-admin/admin.php?page=jetpack-backup' ),
 			'scan, no plan'    => array( 'protect-dashboard', false, 'scan-self-serve', '/wp-admin/admin.php?page=jetpack-protect' ),
-			'backup, has plan' => array( 'backup', true, null, '/wp-admin/admin.php?page=jetpack-backup' ),
-			'scan, has plan'   => array( 'protect-dashboard', true, null, '/wp-admin/admin.php?page=jetpack-protect' ),
+			'backup, has plan' => array( 'backup', true, null, null ),
+			'scan, has plan'   => array( 'protect-dashboard', true, null, null ),
 			'another feature'  => array( 'boost', false, null, null ),
 		);
 	}

@@ -1,6 +1,6 @@
 <?php
 /**
- * Sends Jetpack's upgrade and manage links for a feature on WoA to WordPress.com.
+ * Sends Jetpack's upgrade links for a feature on WoA to WordPress.com's plans.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -23,7 +23,7 @@ class WPCOM_Feature_Upgrades {
 	);
 
 	/**
-	 * Send a feature's upgrade to the WordPress.com plans, and its manage link to where WordPress.com serves it.
+	 * Send a feature's upgrade to the WordPress.com plans; a site that has it keeps Jetpack's own manage link.
 	 *
 	 * @param array  $upgrade          Where the upgrade goes: `path`, `name`, `back_url`, and optionally `url` and `manage_url`.
 	 * @param string $slug             The My Jetpack feature slug.
@@ -31,15 +31,11 @@ class WPCOM_Feature_Upgrades {
 	 * @return array
 	 */
 	public static function filter_feature_upgrade( $upgrade, $slug, $site_has_feature ) {
-		if ( ! isset( self::PAGES[ $slug ] ) ) {
+		if ( $site_has_feature || ! isset( self::PAGES[ $slug ] ) ) {
 			return $upgrade;
 		}
 
 		$page = self::PAGES[ $slug ];
-
-		if ( $site_has_feature ) {
-			return array_merge( (array) $upgrade, array( 'manage_url' => $page::get_live_feature_url() ) );
-		}
 
 		return array(
 			'path' => '',
