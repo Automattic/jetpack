@@ -20,12 +20,7 @@
 - Premium Analytics: Show the Personal plan's monthly price in the upgrade prompt that replaces a free WordPress.com site's Insights and Traffic sections. [#54136]
 - Premium Analytics: Show the Stats plan choice on a site that is not connected yet, and connect the site from it. [#53941]
 - Protect: Refuse to save a firewall block list that includes your own IP address. [#54122]
-- Protect: Show the firewall as on for WordPress.com-hosted sites, where the host provides it. [#53954]
-- Protect: Show the table, row and values a database threat was found in on the Protect dashboard, and delete a flagged option in place. [#54073]
 - Subscriptions: Add a filter to customize the format of the subscriber count. [#53926]
-
-### Improved compatibility
-- Protect: Hide the Ignore threat action on WordPress.com sites, to match the WordPress.com dashboard. [#53984]
 
 ### Bug fixes
 - Admin pages: Keep administrators signed in on the Settings and Modules pages when another plugin's REST authentication filter returns an empty value such as null or false. [#53849]
@@ -51,7 +46,6 @@
 - Premium Analytics: Recognize the Stats views included in Jetpack Pro on the upgrade page. [#54108]
 - Premium Analytics: Scroll the Jetpack footer with the page, instead of keeping it pinned to the bottom of the screen. [#54206]
 - Premium Analytics: Show the values for the selected date in chart tooltips when you move through a chart with the arrow keys. [#54132]
-- Protect: Link the Scan card on the Protect page's Settings tab to your server credentials, which Auto-fix needs, instead of a page with no Scan settings. [#53985]
 - Search: Show the fallback starting price per month, billed yearly, instead of $100 a month on the Search upgrade page when prices cannot be loaded. [#54024]
 - Site Accelerator: Fix some images hosted on other sites failing to load when their file name ends in a size like -600x400. [#54204]
 - Slideshow and Story blocks: Keep every file when uploading several at once with client-side media processing enabled. Slideshow and Tiled Gallery blocks: Hide the upload button from users who cannot upload. [#54127]
