@@ -127,7 +127,13 @@ describe( 'UtmInsightsWidget', () => {
 				label: 'jetpack-forms / email',
 				value: 30,
 				children: [
-					{ postId: 12, label: 'Jetpack Forms', value: 20, href: 'https://example.com/forms/' },
+					{
+						postId: 12,
+						label: 'Jetpack Forms',
+						value: 20,
+						href: 'https://example.com/forms/',
+						urlBuilder: null,
+					},
 				],
 			},
 		];
@@ -236,7 +242,13 @@ describe( 'UtmInsightsWidget', () => {
 				label: 'spring-sale',
 				value: 18,
 				children: [
-					{ postId: 9, label: 'Landing page', value: 11, href: 'https://example.com/landing/' },
+					{
+						postId: 9,
+						label: 'Landing page',
+						value: 11,
+						href: 'https://example.com/landing/',
+						urlBuilder: null,
+					},
 				],
 			},
 		];

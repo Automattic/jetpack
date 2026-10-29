@@ -13,12 +13,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import {
-	getUtmUrlBuilderValues,
-	type UtmUrlBuilderValues,
-} from '../components/utm-url-builder-dialog';
+import { getUtmUrlBuilderValues } from '../components/utm-url-builder-dialog/url-builder-values';
 import { getReportWindowParams } from './query-params';
 import type { ReportCsvExporter } from './types';
+import type { UtmUrlBuilderValues } from '../components/utm-url-builder-dialog/utm-url-builder-dialog';
 
 /** The UTM report's tabs, one per endpoint dimension. */
 export type UtmReportSection =

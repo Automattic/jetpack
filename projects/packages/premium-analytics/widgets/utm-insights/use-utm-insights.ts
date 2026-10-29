@@ -17,7 +17,7 @@ export interface UtmInsightsChildRow {
 	value: number;
 	previousValue?: number;
 	href?: string | null;
-	urlBuilder?: Partial< UtmUrlBuilderValues > | null;
+	urlBuilder: Partial< UtmUrlBuilderValues > | null;
 }
 
 export interface UtmInsightsRow {
