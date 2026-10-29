@@ -134,7 +134,7 @@ const row = {
 ```
 
 A `viewLink` row keeps the label as plain text and offers the URL from a "View in new tab"
-action beside it, revealed on hover or focus, for lists whose rows should not read as links
+action at the end of the row, revealed on hover or focus, for lists whose rows should not read as links
 themselves. `resolveLeaderboardRowAction` returns it for a childless row when passed
 `hrefAs: 'viewLink'`:
 
@@ -182,8 +182,9 @@ action: {
 For a post, page, or email with a detail page inside the dashboard, use the `postLink` action.
 `PostTitleLink` chooses the destination: the internal detail route when the row carries a post
 ID and the reader can open post details, the public URL otherwise, and plain text when neither is
-usable. A row whose title opens the detail route and that also has a public URL gets a trailing
-"View" action, which opens the live content in a new tab and shows on hover or focus.
+usable. A row whose title opens the detail route and that also has a public URL gets a "View"
+action at the end of the row, before the value, which opens the live content in a new tab and
+shows on hover or focus.
 
 ```tsx
 const row = {
@@ -206,7 +207,7 @@ const row = {
 A `postLink` row renders its media inside the link, and never becomes a chart button: a chart row
 that is a button cannot nest an anchor.
 
-Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Like `postLink`, a `videoLink` row renders its media inside the detail link and gets the "View" action beside a title that opens it. It is never a chart button.
+Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Like `postLink`, a `videoLink` row renders its media inside the detail link and gets the "View" action at the end of the row. It is never a chart button.
 
 ```tsx
 action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },

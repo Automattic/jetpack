@@ -97,9 +97,11 @@
 	text-overflow: ellipsis;
 }
 
+/* At the end of the row, before the values, where classic Stats kept it. */
 .action {
 	display: inline-flex;
 	flex: none;
+	margin-inline-start: auto;
 }
 
 .labelText a {

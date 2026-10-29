@@ -153,10 +153,12 @@
 	inset: 0;
 }
 
-/* The action sits above the stretched title so its own click wins. */
+/* The action sits at the end of the row, before the value, where classic Stats
+ * kept it, and above the stretched title so its own click wins. */
 .viewAction {
 	position: relative;
 	z-index: 1;
+	margin-inline-start: auto;
 }
 
 /* DataViews picker cells stretch media images to 100%. Widget previews render

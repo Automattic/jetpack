@@ -16,7 +16,7 @@ export type MetricListItem = {
 	id: string | number;
 	/** Row label, including optional links. */
 	label: ReactNode;
-	/** An action beside the label, shown when the row is hovered or holds focus. */
+	/** An action at the end of the row, before the values, shown when the row is hovered or holds focus. */
 	action?: ReactNode;
 	/** Formatted value, or one per value column. */
 	value: ReactNode | ReactNode[];

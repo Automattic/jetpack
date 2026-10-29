@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Premium Analytics: Move the "View in new tab" action of a Stats widget row to the end of the row, before the value, as classic Stats placed it.

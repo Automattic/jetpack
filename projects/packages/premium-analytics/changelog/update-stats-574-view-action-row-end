@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats: Move the "View in new tab" action of a widget row to the end of the row, before the value, as classic Stats placed it.
