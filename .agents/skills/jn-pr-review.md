@@ -155,9 +155,8 @@ From the worktree, build with package deps so package changes compile into the p
 pnpm jetpack build --deps plugins/<slug>
 ```
 
-Then rsync (SSH key auth — test once with
-`ssh -o BatchMode=yes ... <domain>@ssh.atomicsites.net exit`; fall back to the site SFTP
-password only if key auth fails, per the JN skill):
+Then rsync. Test key auth once first, and on failure show the `~/.ssh/config` stanza and fall
+back to the site password, both per Check 6 of the JN skill:
 
 ```bash
 pnpm jetpack rsync <slug> <domain>@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/<slug> --non-interactive
@@ -170,9 +169,11 @@ operation`. Two rules:
 1. **Don't trust the exit code through a pipe.** Piping rsync into `tail`/`head` makes the
    shell report the pipe's exit, not rsync's. Redirect to a log and capture the real code:
    `pnpm jetpack rsync ... > /tmp/jn-rsync.log 2>&1; echo "RSYNC_EXIT=$?"`.
-2. **Retry — rsync resumes.** On a non-zero exit (or a log containing `rsync error` /
-   `Broken pipe` / `There was a problem`), re-run the same command; already-transferred
-   files are skipped. Allow up to ~3 attempts before surfacing the failure to the user.
+2. **With key auth, retry — rsync resumes.** On a non-zero exit (or a log containing
+   `rsync error` / `Broken pipe` / `There was a problem`), re-run the same command;
+   already-transferred files are skipped. Allow up to ~3 attempts before surfacing the
+   failure to the user. With password auth, each attempt is a login, so follow the JN
+   skill's lockout rules instead.
 
 ### 6. Force dev autoloading (required for package changes)
 

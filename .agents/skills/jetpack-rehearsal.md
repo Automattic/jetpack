@@ -127,7 +127,8 @@ an entry can be either-or (`"jetpack or jetpack-premium-analytics"`).
 ## 3. Save it on the site
 
 All commands below run over the site's SSH (access: `jetpack-test-jurassic-ninja`) from
-`/srv/htdocs`, as an administrator. Shorthand used here:
+`/srv/htdocs`, as an administrator. `BatchMode=yes` needs key auth; without it, use the
+password fallback in that skill's Check 6. Shorthand used here:
 
 ```bash
 WP='cd /srv/htdocs && wp --user="$(wp user list --role=administrator --field=ID --number=1)"'
