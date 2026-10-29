@@ -166,19 +166,6 @@ function github_gist_shortcode( $atts, $content = '' ) {
 		$id = $gist_info['id'] . '.json';
 	}
 
-	// Feed readers, like the WordPress.com Reader, don't load the gist styles, so link to the gist instead.
-	if ( is_feed() ) {
-		$gist_url = 'https://gist.github.com/' . $gist_info['id'];
-		if ( ! empty( $gist_info['file'] ) ) {
-			$gist_url .= '#file-' . $gist_info['file'];
-		} elseif ( ! empty( $atts['file'] ) ) {
-			// GitHub's file anchors replace anything that isn't a lowercase letter or digit with a dash.
-			$gist_url .= '#file-' . trim( preg_replace( '/[^a-z0-9]+/', '-', strtolower( $atts['file'] ) ), '-' );
-		}
-
-		return sprintf( '<a href="%1$s">%2$s</a>', esc_url( $gist_url ), esc_html( $gist_url ) );
-	}
-
 	// The file name can come from the URL passed, or from a shortcode attribute.
 	if ( ! empty( $gist_info['file'] ) ) {
 		$file = $gist_info['file'];

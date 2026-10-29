@@ -54,41 +54,6 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Feeds get a plain link to the gist, whether it was embedded by URL or by shortcode.
-	 */
-	public function test_gist_in_feed_is_a_link() {
-		global $post;
-
-		$url  = 'https://gist.github.com/jeherve/57cc50246aab776e110060926a2face2#file-wp-config-php';
-		$link = '<a href="https://gist.github.com/57cc50246aab776e110060926a2face2#file-wp-config-php">https://gist.github.com/57cc50246aab776e110060926a2face2#file-wp-config-php</a>';
-
-		$requests      = 0;
-		$http_response = function ( $preempt ) use ( &$requests ) {
-			++$requests;
-			return $preempt;
-		};
-		add_filter( 'pre_http_request', $http_response );
-
-		$this->go_to( get_feed_link() );
-		$this->assertTrue( is_feed() );
-
-		$outputs = array( apply_shortcodes( sprintf( '[gist %s]', $url ) ) );
-		foreach ( array( $url, sprintf( '[gist %s]', $url ) ) as $embed ) {
-			$post = self::factory()->post->create_and_get( array( 'post_content' => "Before.\n\n$embed\n\nAfter." ) );
-			setup_postdata( $post );
-			$outputs[] = apply_filters( 'the_content', $post->post_content );
-		}
-		remove_filter( 'pre_http_request', $http_response );
-
-		$this->assertSame( $link, $outputs[0] );
-		$this->assertSame( $link, apply_shortcodes( '[gist 57cc50246aab776e110060926a2face2 file="WP_Config.php"]' ) );
-		$this->assertStringContainsString( '#file-gitignore"', apply_shortcodes( '[gist 57cc50246aab776e110060926a2face2 file=".gitignore"]' ) );
-		$this->assertStringContainsString( "\n$link\n", $outputs[1] );
-		$this->assertSame( trim( $outputs[2] ), trim( $outputs[1] ) );
-		$this->assertSame( 0, $requests );
-	}
-
-	/**
 	 * Preserve multiline gist markup when embedding a URL through content filters.
 	 */
 	public function test_gist_url_preserves_shortcode_markup_through_content_filters() {
