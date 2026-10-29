@@ -15,7 +15,6 @@ use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Sections\Firewall as Protect_Firewall;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 use Automattic\Jetpack\Waf\Waf_Compatibility;
@@ -123,7 +122,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_scan_state',
-				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				'permission_callback' => __CLASS__ . '::view_scan_state_permission_check',
 			)
 		);
 
@@ -1086,6 +1085,25 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Verify that user can view the Scan state, the same users who see the Protect menu and the admin bar notice.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool|WP_Error Whether user has the capability 'manage_options'.
+	 */
+	public static function view_scan_state_permission_check() {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_view_scan_state',
+			REST_Connector::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
 	 * Verify that user can update Jetpack general settings.
 	 *
 	 * @since 4.3.0
@@ -1282,9 +1300,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$scan_state = self::scan_state();
 
 		if ( ! is_wp_error( $scan_state ) ) {
-			if ( ( new Host() )->is_woa_site() && ! empty( $scan_state->threats ) ) {
-				$scan_state->threats = array();
-			}
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',

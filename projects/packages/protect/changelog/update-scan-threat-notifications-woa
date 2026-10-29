@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide the threat count from the menu when the host turns off threat notifications.

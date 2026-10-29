@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Scan: Remove the dashboard's unused scan status code.

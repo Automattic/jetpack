@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Scan: Stop emptying the Jetpack scan state now that Jetpack hides threat alerts itself.
