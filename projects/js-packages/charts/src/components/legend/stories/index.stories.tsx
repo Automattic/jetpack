@@ -246,9 +246,25 @@ export const ProgrammaticVisibility: Story = {
 };
 
 const CONTROLLED_ITEM_COLORS = [ '#3858e9', '#d63638' ];
+const PREVIOUS_PERIOD_COLOR = '#757575';
+const PREVIOUS_PERIOD_VALUES = [
+	[ 90, 120, 130 ],
+	[ 70, 85, 80 ],
+];
 const controlledItemData: SeriesData[] = lineChartData.map( ( series, index ) => ( {
 	...series,
 	options: { stroke: CONTROLLED_ITEM_COLORS[ index ] },
+} ) );
+const previousPeriodData: SeriesData[] = lineChartData.map( ( series, index ) => ( {
+	label: `${ series.label } (previous period)`,
+	data: series.data.map( ( point, pointIndex ) => ( {
+		...point,
+		value: PREVIOUS_PERIOD_VALUES[ index ][ pointIndex ],
+	} ) ),
+	options: {
+		stroke: PREVIOUS_PERIOD_COLOR,
+		seriesLineStyle: { strokeDasharray: '4 4' },
+	},
 } ) );
 
 const ControlledItemComponent = () => {
@@ -259,7 +275,9 @@ const ControlledItemComponent = () => {
 		<Stack direction="column" gap="md">
 			<LineChart
 				chartId="controlled-item-demo"
-				data={ controlledItemData }
+				data={
+					showPrevious ? [ ...controlledItemData, ...previousPeriodData ] : controlledItemData
+				}
 				showLegend={ false }
 				width={ 600 }
 				height={ 300 }
@@ -276,13 +294,13 @@ const ControlledItemComponent = () => {
 					} ) ),
 					{
 						label: 'Previous period',
-						color: '#757575',
+						color: PREVIOUS_PERIOD_COLOR,
+						shapeStyle: { strokeDasharray: '4 4' },
 						pressed: showPrevious,
 						onToggle: togglePrevious,
 					},
 				] }
 			/>
-			<p>{ showPrevious ? 'Previous period is shown.' : 'Previous period is hidden.' }</p>
 		</Stack>
 	);
 };
@@ -293,7 +311,7 @@ export const ControlledItem: Story = {
 		docs: {
 			description: {
 				story:
-					'The Previous period item is not a series. It reports its pressed state and calls `onToggle` instead of changing series visibility, so the consumer decides what it controls.',
+					'The Previous period item is not a series. It reports its pressed state and calls `onToggle` instead of changing series visibility, so the consumer decides what it controls: here, whether the dashed previous-period lines are passed to the chart.',
 			},
 		},
 	},
