@@ -384,6 +384,17 @@ class Jetpack_Email_Design_Editor {
 				inset-block-end: 20px;
 				inset-inline-start: 20px;
 			}
+			/* Above the editor\'s own popovers and snackbars, which ask for 100000 inside this
+			   container, so nothing the editor renders shows through the reset. */
+			#' . self::HANDLE . ' .jetpack-email-design-reset-overlay {
+				position: absolute;
+				inset: 0;
+				z-index: 100001;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background-color: rgba(255, 255, 255, 0.82);
+			}
 			/* The screen is styles-only: the root block editing mode is `disabled`, so nothing is
 			   insertable and core filters disabled blocks out of List View. Drop when blocks land. NL-1086. */
 			#' . self::HANDLE . ' .editor-document-tools__inserter-toggle,
