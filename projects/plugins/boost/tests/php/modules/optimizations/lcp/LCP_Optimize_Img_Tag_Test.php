@@ -454,8 +454,8 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	private function get_srcset_candidates( $buffer, $computed_object_fit = null ) {
 		add_filter( 'jetpack_photon_development_mode', '__return_false' );
 
-		$data                = $this->create_lcp_data();
-		$data['html']        = $buffer;
+		$data         = $this->create_lcp_data();
+		$data['html'] = $buffer;
 		if ( $computed_object_fit ) {
 			$data['objectFit'] = $computed_object_fit;
 		}
