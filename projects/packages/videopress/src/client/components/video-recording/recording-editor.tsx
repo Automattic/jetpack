@@ -1,5 +1,6 @@
-import { Button, Notice } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { usePreviewPlayback } from '../../../dashboard/components/editor/preview/use-preview-playback';
 import {
@@ -97,9 +98,9 @@ export default function RecordingEditor( { file, onUpload, onRecordAgain, blocke
 				aria-label={ __( 'Recording preview', 'jetpack-videopress-pkg' ) }
 			/>
 			{ ( error || playback.playbackError ) && (
-				<Notice status="error" isDismissible={ false }>
-					{ error || playback.playbackError }
-				</Notice>
+				<Notice.Root intent="error">
+					<Notice.Description>{ error || playback.playbackError }</Notice.Description>
+				</Notice.Root>
 			) }
 			<Timeline
 				session={ session }

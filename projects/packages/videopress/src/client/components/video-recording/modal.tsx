@@ -1,5 +1,6 @@
-import { Button, Modal, Notice, Spinner } from '@wordpress/components';
+import { Button, Modal, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import { useEffect, useRef, useState } from 'react';
 import { getRecordingMimeType, recordStream } from '../../lib/video-recording';
 import ConfirmationOverlay from '../caption-manager-modal/confirmation-overlay';
@@ -178,9 +179,9 @@ export default function RecordingModal( {
 							</p>
 						) }
 						{ error && (
-							<Notice status="error" isDismissible={ false }>
-								{ error }
-							</Notice>
+							<Notice.Root intent="error">
+								<Notice.Description>{ error }</Notice.Description>
+							</Notice.Root>
 						) }
 						<div className="videopress-recording__actions">
 							{ state === 'ready' && (
