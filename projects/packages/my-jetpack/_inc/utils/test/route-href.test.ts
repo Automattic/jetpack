@@ -1,28 +1,16 @@
-import {
-	fromRouteSearch,
-	getLegacyHashHref,
-	getMyJetpackRouteUrl,
-	toRouteHref,
-} from '../route-href';
+import { fromRouteSearch, getMyJetpackRouteUrl, getRouteHref, toRouteHref } from '../route-href';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getMyJetpackUrl: ( section = '' ) =>
 		`http://example.org/wp-admin/admin.php?page=my-jetpack${ section }`,
 } ) );
 
-describe( 'getLegacyHashHref', () => {
-	it.each( [
-		[ '#/add-backup', '/add-backup' ],
-		[ '#/connection?skip_pricing=true', '/connection?skip_pricing=true' ],
-		[ '#/features?search=404&feature=stats', '/features?search=404&feature=stats' ],
-		[ '#/add-protect/scan', '/add-protect/scan' ],
-		[ '#/?reload=true', '/?reload=true' ],
-	] )( 'redirects %s to %s', ( hash, href ) => {
-		expect( getLegacyHashHref( hash ) ).toBe( href );
-	} );
+describe( 'getRouteHref', () => {
+	it( 'unquotes what the router quoted, so a return link does not quote it twice', () => {
+		const route = encodeURIComponent( '/features?search=%221.0%22&view=list' );
+		window.history.replaceState( null, '', `/wp-admin/admin.php?page=my-jetpack&p=${ route }` );
 
-	it.each( [ '', '#', '#/', '#wpbody-content' ] )( 'leaves %p alone', hash => {
-		expect( getLegacyHashHref( hash ) ).toBeNull();
+		expect( getRouteHref() ).toBe( '/features?search=1.0&view=list' );
 	} );
 } );
 

@@ -4,29 +4,36 @@ jest.mock( '@wordpress/route', () => ( {
 	redirect: ( options: object ) => ( { redirect: options } ),
 } ) );
 
+const thrownBy = ( run: () => void ) => {
+	try {
+		run();
+	} catch ( error ) {
+		return error;
+	}
+};
+
 describe( 'dashboard route', () => {
 	afterEach( () => window.history.replaceState( null, '', '/' ) );
 
-	it( 'replaces a `#/` link from before the boot router with its route', () => {
-		window.location.hash = '#/connection?skip_pricing=true';
+	it.each( [
+		[ '#/add-backup', '/add-backup' ],
+		[ '#/add-protect/scan', '/add-protect/scan' ],
+		[ '#/connection?skip_pricing=true', '/connection?skip_pricing=%22true%22' ],
+		[ '#/features?search=1.0&feature=stats', '/features?search=%221.0%22&feature=stats' ],
+	] )( 'replaces %s with its route', ( hash, href ) => {
+		window.location.hash = hash;
 
-		let thrown: unknown;
-		try {
-			route.beforeLoad();
-		} catch ( error ) {
-			thrown = error;
+		expect( thrownBy( route.beforeLoad ) ).toEqual( { redirect: { href, replace: true } } );
+	} );
+
+	it.each( [ '#wpbody-content', '#/', '#//example.com/x', '#/\\example.com/x' ] )(
+		'leaves %p alone',
+		hash => {
+			window.location.hash = hash;
+
+			expect( route.beforeLoad() ).toBeUndefined();
 		}
-
-		expect( thrown ).toEqual( {
-			redirect: { href: '/connection?skip_pricing=true', replace: true },
-		} );
-	} );
-
-	it( 'leaves any other hash alone', () => {
-		window.location.hash = '#wpbody-content';
-
-		expect( route.beforeLoad() ).toBeUndefined();
-	} );
+	);
 
 	it.each( [
 		[ 'features', 'stats', true ],

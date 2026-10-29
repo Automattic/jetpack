@@ -10,7 +10,7 @@ import styles from './styles.module.scss';
 import type { FC } from 'react';
 
 const ConnectionScreen: FC = () => {
-	// A link's `true` is parsed to a boolean; a screen still on react-router sends the string.
+	// The router hands back an unquoted `true` as a boolean and a quoted one as a string.
 	const shouldSkipPricing = String( useRouteSearch().skip_pricing ) === 'true';
 	const returnToPage = useMyJetpackReturnToPage();
 	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();

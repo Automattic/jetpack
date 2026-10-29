@@ -1,28 +1,5 @@
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 
-/**
- * The boot router's current href (path, search and hash), read the way its history reads it.
- *
- * @return The href, such as `/features?feature=stats`.
- */
-export function getRouteHref(): string {
-	const url = new URL( window.location.href );
-
-	return ( url.searchParams.get( 'p' ) || '/' ) + url.hash;
-}
-
-/**
- * The href a link from before My Jetpack moved to the boot router (`#/add-backup?x=1`) stands for.
- *
- * Boot reads such a link as `/` plus a hash; the hash is never sent to the server, so only the page can redirect it.
- *
- * @param hash - A location hash.
- * @return The href, or null for any other hash, such as `#wpbody-content`.
- */
-export function getLegacyHashHref( hash: string ): string | null {
-	return /^#\/./.test( hash ) ? hash.slice( 1 ) : null;
-}
-
 const parsesAsJson = ( value: string ) => {
 	try {
 		JSON.parse( value );
@@ -31,6 +8,49 @@ const parsesAsJson = ( value: string ) => {
 		return false;
 	}
 };
+
+const unquote = ( value: string ) => {
+	try {
+		const parsed = JSON.parse( value );
+		return typeof parsed === 'string' ? parsed : value;
+	} catch {
+		return value;
+	}
+};
+
+/**
+ * The boot router's current href, read the way its history reads it, with the values it quoted unquoted.
+ *
+ * @return The href, such as `/features?search=1.0`.
+ */
+export function getRouteHref(): string {
+	const url = new URL( window.location.href );
+	const route = new URL( url.searchParams.get( 'p' ) || '/', url.origin );
+	const query = new URLSearchParams();
+	route.searchParams.forEach( ( value, key ) => query.append( key, unquote( value ) ) );
+	const queryString = query.toString();
+
+	return route.pathname + ( queryString ? `?${ queryString }` : '' ) + route.hash + url.hash;
+}
+
+/**
+ * The href a link from before My Jetpack moved to the boot router (`#/add-backup?x=1`) stands for.
+ *
+ * Boot reads such a link as `/` plus a hash; the hash is never sent to the server, so only the page can redirect it.
+ * Its values are quoted as `toRouteHref()` quotes them, since a server-built link can't.
+ *
+ * @param hash - A location hash.
+ * @return The href, or null for any other hash, such as `#wpbody-content` or `#//host`.
+ */
+export function getLegacyHashHref( hash: string ): string | null {
+	if ( ! /^#\/[^/\\]/.test( hash ) ) {
+		return null;
+	}
+
+	const route = new URL( hash.slice( 1 ), 'http://route.invalid' );
+
+	return toRouteHref( { pathname: route.pathname, search: route.search, hash: route.hash } );
+}
 
 /**
  * A react-router path as a boot router href.
