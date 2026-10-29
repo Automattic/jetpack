@@ -5,10 +5,18 @@ import {
 	hasComparisonEnabled,
 	intervalMenuOptions,
 	resolveIntervalForRange,
+	useReportScope,
 	useScopeLockedIntervals,
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
-import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
+import {
+	canStepBackward,
+	clampRangeEndToToday,
+	PRESET_CUSTOM,
+	reportingTimeZone,
+	stepDateRange,
+	toLocalTZ,
+} from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -22,6 +30,7 @@ import type {
 	DateRange,
 	IntervalType,
 	PrimaryPresetId,
+	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 
 /**
@@ -66,6 +75,12 @@ export type ReportDateFilters = {
 	) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
+
+	/**
+	 * Step the applied window backward or forward by its own length and commit
+	 * it. Returns the window committed, so a caller can track it as applied.
+	 */
+	onStep: ( direction: StepDirection ) => DateRange | undefined;
 
 	onApply: () => void;
 	onCancel: () => void;
@@ -126,6 +141,7 @@ export function useReportDateFilters< TFrom extends string >(
 	// Report pages render inside their scope; the dashboard and detail stages sit above it and pass locks in.
 	const scopedLocks = useScopeLockedIntervals();
 	const lockedIntervals = filterOptions.lockedIntervals ?? scopedLocks;
+	const earliestDate = useReportScope().dateLimits?.earliestDate;
 
 	const timeZone = reportingTimeZone();
 
@@ -259,6 +275,61 @@ export function useReportDateFilters< TFrom extends string >(
 		[ interval, stage, commit, hasPrimaryDraft ]
 	);
 
+	/*
+	 * Commits and pushes a history entry so Back undoes the step. Steps the
+	 * applied range, not the staged one: the arrows sit outside the picker, so
+	 * stepping must not apply an open draft. A step before the plan's earliest
+	 * date is refused here too, since the route would redirect it away.
+	 */
+	const onStep = useCallback(
+		( direction: StepDirection ) => {
+			const stepOptions = { presetId: appliedPresetId };
+
+			if (
+				direction === 'previous' &&
+				! canStepBackward( appliedRange, { ...stepOptions, earliestDate } )
+			) {
+				return undefined;
+			}
+
+			const stepped = stepDateRange( appliedRange, direction, stepOptions );
+
+			if ( ! stepped ) {
+				return undefined;
+			}
+
+			// A forward step closes the running unit the window was measured
+			// against, which reaches past today; "12 months" returns to its to-date window.
+			const nextRange = clampRangeEndToToday( stepped, toLocalTZ( undefined, timeZone ) );
+			const patch = buildRangePatch( {
+				nextRange,
+				nextPresetId: PRESET_CUSTOM,
+				exactRange: true,
+				effective,
+				lockedIntervals,
+			} );
+
+			if ( ! patch ) {
+				return undefined;
+			}
+
+			stage( patch );
+			commit();
+
+			return nextRange;
+		},
+		[
+			appliedPresetId,
+			appliedRange,
+			commit,
+			earliestDate,
+			effective,
+			lockedIntervals,
+			stage,
+			timeZone,
+		]
+	);
+
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
 
@@ -292,6 +363,7 @@ export function useReportDateFilters< TFrom extends string >(
 		onChange,
 		onComparisonChange,
 		onIntervalChange,
+		onStep,
 		onApply,
 		onCancel,
 		canApply: isDirty,

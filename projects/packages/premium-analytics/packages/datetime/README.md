@@ -227,7 +227,7 @@ either its `id` or one of its `aliases`.
 **Returns:** `ComparisonOption | undefined` - `undefined` when no option in
 `options` has that id or alias
 
-### Range Measurement
+### Range Measurement and Stepping
 
 #### `getDateRangeSpan( range? )`
 
@@ -244,6 +244,37 @@ getDateRangeSpan( { from, to } );
 A whole-month range stays in days below two months and only collapses into
 years from two years up, so "Last 30 days" reads as 30 days and a
 twelve-month window as 12 months.
+
+#### `stepDateRange( range, direction, options? )`
+
+Shifts a range backward or forward (`'previous' | 'next'`) by its own length.
+Steps move in calendar units, so a step across a DST boundary keeps the wall
+clock; where a calendar step cannot be undone, it falls back to whole days.
+Pass the preset the range came from in `options.presetId`: a single whole
+month then steps by a month, "This month", "This year" and "12 months" step
+as their completed month or year, and "All time" does not step. Returns `undefined` when the
+range has no measurable span.
+
+```typescript
+stepDateRange( { from, to }, 'previous' ); // Last 7 days -> the 7 days before
+stepDateRange( { from, to }, 'previous', { presetId: 'last-month' } ); // the month before
+```
+
+#### `canStepForward( range, now, options? )`
+
+Whether the next window has already happened in full. Pass the site's `now`,
+not the browser's.
+
+#### `canStepBackward( range, options? )`
+
+Whether the previous window starts on or after `options.earliestDate`, the
+first day the plan lets the site read. Without a limit, any measurable window
+can step back.
+
+#### `clampRangeEndToToday( range, now )`
+
+Pulls a window's end back to the end of today when a forward step runs past
+it, so stepping out of "12 months" lands on the to-date window again.
 
 ## Types
 

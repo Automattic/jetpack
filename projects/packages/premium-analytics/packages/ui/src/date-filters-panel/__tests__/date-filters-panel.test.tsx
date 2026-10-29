@@ -44,6 +44,88 @@ describe( 'DateFiltersPanel', () => {
 		expect( screen.queryByRole( 'button', { name: 'Compare' } ) ).not.toBeInTheDocument();
 	} );
 
+	describe( 'period navigation', () => {
+		// A window whose next one has fully happened, so both arrows are live.
+		const steppedBack = {
+			from: new TZDate( '2020-07-01T00:00:00.000Z', 'UTC' ),
+			to: new TZDate( '2020-07-30T23:59:59.999Z', 'UTC' ),
+		};
+
+		it( 'steps the applied window from the arrows', async () => {
+			const onStep = jest.fn();
+			const user = userEvent.setup();
+
+			renderPanel( { onStep, appliedRange: steppedBack } );
+
+			await user.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
+			expect( onStep ).toHaveBeenCalledWith( 'previous' );
+
+			await user.click( screen.getByRole( 'button', { name: 'Next period' } ) );
+			expect( onStep ).toHaveBeenCalledWith( 'next' );
+		} );
+
+		it( 'renders no arrows without onStep', () => {
+			renderPanel();
+
+			expect( screen.queryByRole( 'button', { name: 'Previous period' } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'disables the forward arrow on the latest window', () => {
+			jest.useFakeTimers().setSystemTime( Date.parse( '2020-07-30T12:00:00.000Z' ) );
+
+			renderPanel( { onStep: jest.fn(), appliedRange: steppedBack } );
+
+			expect( screen.getByRole( 'button', { name: 'Next period' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( screen.getByRole( 'button', { name: 'Previous period' } ) ).not.toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			jest.useRealTimers();
+		} );
+
+		// The route would redirect a window before the plan's earliest date, so
+		// the arrow stops at it.
+		it( 'disables the back arrow at the earliest date the plan allows', () => {
+			render(
+				<ReportScopeProvider
+					dateLimits={ {
+						lockedPresetIds: [],
+						lockedIntervals: [],
+						earliestDate: steppedBack.from,
+					} }
+				>
+					{ panel( { onStep: jest.fn(), appliedRange: steppedBack } ) }
+				</ReportScopeProvider>
+			);
+
+			expect( screen.getByRole( 'button', { name: 'Previous period' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+		} );
+
+		it( 'disables both arrows on all time', () => {
+			renderPanel( {
+				onStep: jest.fn(),
+				appliedPresetId: 'all-time',
+				presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+				appliedRange: steppedBack,
+			} );
+
+			expect( screen.getByRole( 'button', { name: 'Previous period' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( screen.getByRole( 'button', { name: 'Next period' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+		} );
+	} );
+
 	// The comparison qualifies the range the presets just set; the interval only
 	// buckets the charts. Reading order follows that, so it is worth pinning.
 	it( 'places the comparison before the chart interval', () => {
@@ -277,15 +359,20 @@ describe( 'DateFiltersPanel', () => {
 	it( 'greys every control out while disabled', () => {
 		renderPanel( {
 			disabled: true,
+			onStep: jest.fn(),
+			appliedRange: {
+				from: new TZDate( '2020-07-01T00:00:00.000Z', 'UTC' ),
+				to: new TZDate( '2020-07-30T23:59:59.999Z', 'UTC' ),
+			},
 			withIntervalControl: true,
 			intervalOptions: [ 'day', 'week' ],
 			interval: 'day',
 			onIntervalChange: jest.fn(),
 		} );
 
-		// The period, the comparison and the interval.
+		// Both arrows, the period, the comparison and the interval.
 		const buttons = screen.getAllByRole( 'button' );
-		expect( buttons ).toHaveLength( 3 );
+		expect( buttons ).toHaveLength( 5 );
 		buttons.forEach( button => {
 			expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
 		} );

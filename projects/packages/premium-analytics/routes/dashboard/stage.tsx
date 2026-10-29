@@ -5,6 +5,7 @@ import {
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
 import { JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 import {
 	DashboardWidgetHostProvider,
@@ -337,6 +338,7 @@ function Dashboard(): JSX.Element {
 		onChange: changeDateRange,
 		onComparisonChange: changeComparison,
 		onApply: applyDateRange,
+		onStep: stepDateRange,
 	} = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
@@ -377,6 +379,22 @@ function Dashboard(): JSX.Element {
 			rememberOnComparisonChange( range, presetId );
 		},
 		[ changeComparison, rememberOnComparisonChange ]
+	);
+	// A step applies at once, as a custom range: tracked like one, and not remembered as a preset.
+	const onDateStep = useCallback< typeof stepDateRange >(
+		direction => {
+			const stepped = stepDateRange( direction );
+
+			if ( stepped ) {
+				trackedOnChange( stepped, PRESET_CUSTOM, { exactRange: true } );
+				trackedOnApply();
+				rememberOnChange( stepped, PRESET_CUSTOM );
+				rememberOnApply();
+			}
+
+			return stepped;
+		},
+		[ stepDateRange, trackedOnChange, trackedOnApply, rememberOnChange, rememberOnApply ]
 	);
 
 	/*
@@ -459,6 +477,7 @@ function Dashboard(): JSX.Element {
 					onChange={ onDateChange }
 					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
+					onStep={ onDateStep }
 					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attentionId }
 				/>

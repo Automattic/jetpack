@@ -1,9 +1,12 @@
 import {
 	computePrimaryRange,
+	stepDateRange,
 	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+	PRESET_CUSTOM,
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
+	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { setLocaleData, resetLocaleData } from '@wordpress/i18n';
 import { endOfDay, subDays, startOfDay } from 'date-fns';
@@ -155,6 +158,26 @@ function DateFiltersPanelStory( {
 		[ committedPrimary ]
 	);
 
+	// Stepping applies on click and takes the range off its preset, the way it
+	// commits through the report params in product.
+	const handleStep = useCallback( ( direction: StepDirection ) => {
+		const { range, presetId } = stagedPrimaryRef.current;
+		const stepped = stepDateRange( range, direction, { presetId } );
+
+		if ( ! stepped?.from || ! stepped.to ) {
+			return;
+		}
+
+		const nextPrimary: PrimaryFilterState = {
+			range: { from: stepped.from, to: stepped.to },
+			presetId: PRESET_CUSTOM,
+		};
+
+		stagedPrimaryRef.current = nextPrimary;
+		setStagedPrimary( nextPrimary );
+		setCommittedPrimary( nextPrimary );
+	}, [] );
+
 	const canApplyPrimary =
 		stagedPrimary.range.from !== committedPrimary.range.from ||
 		stagedPrimary.range.to !== committedPrimary.range.to ||
@@ -194,6 +217,7 @@ function DateFiltersPanelStory( {
 				onChange={ handlePrimaryChange }
 				onComparisonChange={ handleComparisonChange }
 				onIntervalChange={ setPickedInterval }
+				onStep={ handleStep }
 				onApply={ handlePrimaryApply }
 				onCancel={ handlePrimaryCancel }
 				canApply={ canApplyPrimary }
@@ -381,7 +405,7 @@ const LADDER_WIDTHS = [ 960, 782, 600, 360, 280 ];
 /**
  * One locale's bar at each reference width, so where it stops fitting is
  * visible rather than asserted. Annotated against the four preset pills
- * alone — a floor, since the trigger/comparison/interval share the line.
+ * alone — a floor, since the navigation/trigger/comparison/interval share the line.
  */
 function WidthLadder( { fixture }: { fixture: LocaleFixture } ) {
 	return (
