@@ -9,7 +9,7 @@ const onGetScan = () =>
 	recordEvent( 'jetpack_protect_scan_settings_get_scan_link_click', { use_beacon: true } );
 
 /**
- * The Settings tab's Scan card: links to the server credentials Auto-fix needs, or to Scan without a plan.
+ * The Settings tab's Scan card: links to the server credentials Auto-fix needs, where the host takes them, or to Scan without a plan.
  *
  * @param props       - The dashboard context.
  * @param props.state - The Scan section's state.
@@ -21,13 +21,15 @@ export default function ScanSettingsCard( { state: scan }: ScanContext ) {
 	}
 
 	let description: string;
-	let link: string;
+	let link = '';
 	if ( ! scan.hasPlan ) {
 		description = __(
 			'Your site is checked every day for known vulnerabilities in WordPress, plugins and themes. There’s nothing to set up.',
 			'jetpack-protect-pkg'
 		);
 		link = __( 'Get Scan for daily malware scanning and one-click fixes', 'jetpack-protect-pkg' );
+	} else if ( ! scan.url ) {
+		description = __( 'Scan checks your site for malware every day.', 'jetpack-protect-pkg' );
 	} else if ( scan.hasCredentials === false ) {
 		description = __(
 			'Scan checks your site for malware every day. Auto-fix needs your server credentials to repair threats.',
@@ -53,13 +55,15 @@ export default function ScanSettingsCard( { state: scan }: ScanContext ) {
 			<CardRow>
 				<Stack direction="column" gap="sm">
 					<Text variant="body-md">{ description }</Text>
-					<Link
-						href={ scan.url }
-						openInNewTab={ scan.hasPlan }
-						onClick={ scan.hasPlan ? undefined : onGetScan }
-					>
-						{ link }
-					</Link>
+					{ link && (
+						<Link
+							href={ scan.url }
+							openInNewTab={ scan.hasPlan }
+							onClick={ scan.hasPlan ? undefined : onGetScan }
+						>
+							{ link }
+						</Link>
+					) }
 				</Stack>
 			</CardRow>
 		</ProtectCard>

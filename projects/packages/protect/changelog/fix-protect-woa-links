@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Scan: Send WoA sites to WordPress.com to manage server credentials.
+Scan: Hide the server credentials link on WoA sites, which don't need them.

@@ -71,34 +71,38 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Server credentials are set on WordPress.com for a WoA site, and in Jetpack Cloud elsewhere.
+	 * A WoA site with Scan gets no credentials link or status, since WordPress.com runs Scan without them.
 	 *
 	 * @dataProvider provide_credentials_hosts
 	 *
-	 * @param bool   $is_woa Whether the site is on WoA.
-	 * @param string $slug   The redirect slug the link should use.
+	 * @param bool $is_woa Whether the site is on WoA.
 	 */
 	#[DataProvider( 'provide_credentials_hosts' )]
-	public function test_credentials_url_follows_the_host( $is_woa, $slug ) {
+	public function test_credentials_follow_the_host( $is_woa ) {
 		if ( $is_woa ) {
 			\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
 			\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
 			\Automattic\Jetpack\Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
 		}
+		update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
 
-		wp_parse_str( (string) wp_parse_url( self::call( 'get_credentials_url' ), PHP_URL_QUERY ), $query );
-		$this->assertSame( $slug, $query['source'] );
+		$state = ( new Scan() )->get_state();
+
+		$this->assertTrue( $state['hasPlan'] );
+		$this->assertSame( $is_woa, '' === $state['url'] );
+		$this->assertSame( ! $is_woa, array_key_exists( 'hasCredentials', $state ) );
 	}
 
 	/**
-	 * Data provider for test_credentials_url_follows_the_host.
+	 * Data provider for test_credentials_follow_the_host.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_credentials_hosts() {
 		return array(
-			'WoA'     => array( true, 'calypso-settings-security-credentials' ),
-			'not WoA' => array( false, 'jetpack-settings-security-credentials' ),
+			'WoA'     => array( true ),
+			'not WoA' => array( false ),
 		);
 	}
 

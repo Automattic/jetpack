@@ -101,13 +101,15 @@ class Scan implements Dashboard_Section {
 		// Fetched first: has_credentials() reads the report this caches.
 		$report = self::get_scan_report( $has_plan );
 
+		$url = $has_plan ? self::get_credentials_url() : Dashboard::get_scan_upgrade_url();
+
 		return array_merge(
 			array(
 				'hasPlan'   => $has_plan,
 				'canIgnore' => self::allows_ignoring(),
-				'url'       => $has_plan ? self::get_credentials_url() : Dashboard::get_scan_upgrade_url(),
+				'url'       => $url,
 			),
-			$has_plan ? array( 'hasCredentials' => self::has_credentials() ) : array(
+			$has_plan ? ( $url ? array( 'hasCredentials' => self::has_credentials() ) : array() ) : array(
 				'upsellVariant'       => self::get_upsell_variant(),
 				'upsellVariantForced' => (bool) has_filter( 'jetpack_protect_dashboard_scan_upsell_variant' ),
 			),
@@ -116,14 +118,12 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
-	 * Where to set Scan's server credentials: WordPress.com on WoA, the only host that takes them, else Jetpack Cloud.
+	 * Where to set Scan's server credentials, or an empty string on WoA, where WordPress.com runs Scan without them.
 	 *
 	 * @return string
 	 */
 	private static function get_credentials_url() {
-		return Redirect::get_url(
-			( new Host() )->is_woa_site() ? 'calypso-settings-security-credentials' : 'jetpack-settings-security-credentials'
-		);
+		return ( new Host() )->is_woa_site() ? '' : Redirect::get_url( 'jetpack-settings-security-credentials' );
 	}
 
 	/**
