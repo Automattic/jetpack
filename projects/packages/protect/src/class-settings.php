@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Protect;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Monitor\Monitor;
 use Automattic\Jetpack\Waf\REST_Controller as Waf_REST_Controller;
@@ -114,7 +115,7 @@ class Settings {
 		}
 
 		if ( ! empty( $settings['monitor'] ) ) {
-			$settings[ self::MONITOR_NOTIFICATIONS ] = Monitor::get_notifications();
+			$settings[ self::MONITOR_NOTIFICATIONS ] = self::get_monitor_notifications();
 		}
 
 		if ( isset( $settings['sso'] ) ) {
@@ -172,6 +173,31 @@ class Settings {
 		}
 
 		return self::get_settings();
+	}
+
+	/**
+	 * Whether the current user gets downtime emails: the local copy, or else WordPress.com's answer, which is then saved.
+	 *
+	 * @return bool
+	 */
+	private static function get_monitor_notifications() {
+		$value = get_option( Monitor::notifications_copy_option_name( get_current_user_id() ), 'does_not_exist' );
+		if ( 'does_not_exist' !== $value ) {
+			return (bool) $value;
+		}
+
+		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
+			return false;
+		}
+
+		$value = Monitor::user_receives_notifications();
+		// Not saved: the user may not be connected yet, and would be stuck with this answer.
+		if ( is_wp_error( $value ) ) {
+			return false;
+		}
+
+		Monitor::save_notifications_copy( $value );
+		return (bool) $value;
 	}
 
 	/**
