@@ -45,6 +45,8 @@ class Scan_Section_Test extends BaseTestCase {
 		\Jetpack_Options::delete_option( 'id' );
 		delete_option( Scan_Status::OPTION_NAME );
 		Scan_Status::$status = null;
+		\Automattic\Jetpack\Constants::clear_constants();
+		\Automattic\Jetpack\Status\Cache::clear();
 		if ( self::$row_lookup ) {
 			remove_filter( 'wordbless_wpdb_query_results', self::$row_lookup );
 			self::$row_lookup = null;
@@ -66,6 +68,38 @@ class Scan_Section_Test extends BaseTestCase {
 			$reflection->setAccessible( true );
 		}
 		return $reflection->invoke( null, ...$args );
+	}
+
+	/**
+	 * Server credentials are set on WordPress.com for a WoA site, and in Jetpack Cloud elsewhere.
+	 *
+	 * @dataProvider provide_credentials_hosts
+	 *
+	 * @param bool   $is_woa Whether the site is on WoA.
+	 * @param string $slug   The redirect slug the link should use.
+	 */
+	#[DataProvider( 'provide_credentials_hosts' )]
+	public function test_credentials_url_follows_the_host( $is_woa, $slug ) {
+		if ( $is_woa ) {
+			\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+			\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+			\Automattic\Jetpack\Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
+		}
+
+		wp_parse_str( (string) wp_parse_url( self::call( 'get_credentials_url' ), PHP_URL_QUERY ), $query );
+		$this->assertSame( $slug, $query['source'] );
+	}
+
+	/**
+	 * Data provider for test_credentials_url_follows_the_host.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_credentials_hosts() {
+		return array(
+			'WoA'     => array( true, 'calypso-settings-security-credentials' ),
+			'not WoA' => array( false, 'jetpack-settings-security-credentials' ),
+		);
 	}
 
 	/**

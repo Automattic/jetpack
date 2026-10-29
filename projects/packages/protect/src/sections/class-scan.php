@@ -16,6 +16,7 @@ use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -104,15 +105,24 @@ class Scan implements Dashboard_Section {
 			array(
 				'hasPlan'   => $has_plan,
 				'canIgnore' => self::allows_ignoring(),
-				'url'       => $has_plan
-					? Redirect::get_url( 'jetpack-settings-security-credentials' )
-					: Dashboard::get_scan_upgrade_url(),
+				'url'       => $has_plan ? self::get_credentials_url() : Dashboard::get_scan_upgrade_url(),
 			),
 			$has_plan ? array( 'hasCredentials' => self::has_credentials() ) : array(
 				'upsellVariant'       => self::get_upsell_variant(),
 				'upsellVariantForced' => (bool) has_filter( 'jetpack_protect_dashboard_scan_upsell_variant' ),
 			),
 			$report
+		);
+	}
+
+	/**
+	 * Where to set Scan's server credentials: WordPress.com on WoA, the only host that takes them, else Jetpack Cloud.
+	 *
+	 * @return string
+	 */
+	private static function get_credentials_url() {
+		return Redirect::get_url(
+			( new Host() )->is_woa_site() ? 'calypso-settings-security-credentials' : 'jetpack-settings-security-credentials'
 		);
 	}
 

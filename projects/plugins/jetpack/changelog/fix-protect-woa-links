@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Protect: Send WordPress.com-hosted sites to WordPress.com to manage Scan and server credentials.
