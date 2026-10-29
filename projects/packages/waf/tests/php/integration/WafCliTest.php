@@ -10,6 +10,8 @@ use Automattic\Jetpack\Waf\CLI;
 use Automattic\Jetpack\Waf\Waf_Constants;
 use Automattic\Jetpack\Waf\Waf_Initializer;
 use Automattic\Jetpack\Waf\Waf_Runner;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once __DIR__ . '/stubs/wp-cli.php';
 
@@ -91,8 +93,41 @@ final class WafCliTest extends WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Setup after teardown must turn the module back on and keep the requested mode.
+	 * Setup with a bad mode must fail before it turns anything on.
 	 */
+	public function testSetupWithAnInvalidModeChangesNothing() {
+		try {
+			( new CLI() )->setup( array( 'bogus' ) );
+			$this->fail( 'Expected setup to error.' );
+		} catch ( RuntimeException $e ) {
+			$this->assertFalse( Waf_Runner::is_enabled() );
+		}
+	}
+
+	/**
+	 * Setup must say so when the module cannot be turned on.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function testSetupWarnsWhenTheModuleCannotBeTurnedOn() {
+		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_waf_to_modules' ) );
+		$this->expectOutputRegex( '/Warning: The firewall module could not be turned on/' );
+
+		( new CLI() )->setup( array( 'normal' ) );
+	}
+
+	/**
+	 * Setup after teardown must turn the module back on and keep the requested mode.
+	 * Separate process: setup() defines WAF_CLI_MODE, which would leak into later tests.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function testSetupAfterTeardownTurnsTheModuleBackOn() {
 		Waf_Runner::enable();
 		( new CLI() )->teardown();

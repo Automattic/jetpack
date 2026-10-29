@@ -99,6 +99,11 @@ class CLI extends WP_CLI_Command {
 	 * @throws WP_CLI\ExitException If there is an error switching the mode.
 	 */
 	public function setup( $args ) {
+		// Check the mode before anything below turns the firewall on.
+		if ( empty( $args[0] ) || ! Waf_Runner::is_allowed_mode( $args[0] ) ) {
+			return WP_CLI::error( __( 'Specify a mode for the firewall: "silent" or "normal".', 'jetpack-waf' ) );
+		}
+
 		// Let is_allowed_mode know we are running from the CLI
 		define( 'WAF_CLI_MODE', $args[0] );
 
@@ -120,6 +125,10 @@ class CLI extends WP_CLI_Command {
 					$e->getMessage()
 				)
 			);
+		}
+
+		if ( ! Waf_Runner::is_enabled() ) {
+			WP_CLI::warning( __( 'The firewall module could not be turned on, so the firewall will not run inside WordPress. Check that the site is connected and its plan includes the firewall.', 'jetpack-waf' ) );
 		}
 
 		return WP_CLI::success( __( 'Jetpack WAF has successfully been set up.', 'jetpack-waf' ) );
