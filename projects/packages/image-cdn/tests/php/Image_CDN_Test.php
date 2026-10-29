@@ -1643,7 +1643,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	}
 
 	/**
-	 * Possible values for test_image_cdn_strip_image_dimensions_maybe_strips_resized_string.
+	 * Query strings after a size filename.
 	 */
 	public static function get_test_image_cdn_strip_image_dimensions_maybe_strips_resized_string_data_provider() {
 		return array(
