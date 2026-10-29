@@ -73,6 +73,8 @@ export const BLOCKS_REFRESH_INTERVAL = 60 * 1000;
 let readsStarted = 0;
 let readApplied = 0;
 let lastReadAt = Date.now();
+// Outlives the card, so coming back to this tab doesn't count as turning the firewall on.
+let lastSeenActive: boolean | null = null;
 
 /** Forget refreshed counts, so tests start from the page state. */
 export const resetFirewallBlocks = (): void => {
@@ -80,6 +82,7 @@ export const resetFirewallBlocks = (): void => {
 	readsStarted = 0;
 	readApplied = 0;
 	lastReadAt = Date.now();
+	lastSeenActive = null;
 };
 
 /**
@@ -111,11 +114,10 @@ const refreshQuietly = () => {
  */
 function useBlocksRefresh( active: boolean, activeAtLoad: boolean ): void {
 	const isHidden = useIsDocumentHidden();
-	const wasActive = useRef( activeAtLoad );
 
 	useEffect( () => {
-		const turnedOn = active && ! wasActive.current;
-		wasActive.current = active;
+		const turnedOn = active && ! ( lastSeenActive ?? activeAtLoad );
+		lastSeenActive = active;
 		if ( ! active || isHidden ) {
 			return;
 		}
@@ -125,7 +127,7 @@ function useBlocksRefresh( active: boolean, activeAtLoad: boolean ): void {
 		}
 		const timer = setInterval( refreshQuietly, BLOCKS_REFRESH_INTERVAL );
 		return () => clearInterval( timer );
-	}, [ active, isHidden ] );
+	}, [ active, isHidden, activeAtLoad ] );
 }
 
 const hasAnyBlocks = ( { blockedCount, recentBlocks }: FirewallBlocks ) =>
