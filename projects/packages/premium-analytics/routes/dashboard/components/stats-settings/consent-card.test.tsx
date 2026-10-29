@@ -308,7 +308,7 @@ describe( 'ConsentCard', () => {
 	);
 
 	it( 'records its view once per page load', () => {
-		setConsent( { has_banner: true, api_installed: true, api_active: true } );
+		setConsent( { consent_type_declared: true, api_installed: true, api_active: true } );
 
 		render( <ConsentCard /> ).unmount();
 		render( <ConsentCard /> );

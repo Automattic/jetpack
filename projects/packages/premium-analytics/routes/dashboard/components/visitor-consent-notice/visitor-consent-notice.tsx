@@ -38,7 +38,7 @@ export function useVisitorConsentNoticeVisibility(): boolean | undefined {
 		!! status &&
 		! status.api_active &&
 		! status.banner_blocks_stats &&
-		( status.has_banner || status.banner_plugin !== null );
+		( status.consent_type_declared || status.banner_plugin !== null );
 	const { data: notices, isError } = useStatsAppNotices( undefined, { enabled: eligible } );
 
 	if ( ! eligible ) {

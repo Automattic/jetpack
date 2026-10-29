@@ -34,7 +34,7 @@ const recordEvent = jest.mocked( analytics.tracks.recordEvent );
 const NOT_SET_UP = {
 	api_active: false,
 	api_installed: true,
-	has_banner: false,
+	consent_type_declared: false,
 	banner_plugin: 'Complianz',
 	banner_blocks_stats: false,
 	recommended_banners: [],
@@ -145,7 +145,7 @@ describe( 'VisitorConsentNotice', () => {
 		[ 'by name', {}, 'Stats doesn’t know what visitors choose in Complianz yet.' ],
 		[
 			'when its plugin is not one Stats knows',
-			{ banner_plugin: null, has_banner: true },
+			{ banner_plugin: null, consent_type_declared: true },
 			'Stats doesn’t know what visitors choose in your cookie banner yet.',
 		],
 	] )( 'invites the site to connect its cookie banner, %s', async ( _title, consent, text ) => {
