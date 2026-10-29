@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Protect;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Monitor\Monitor;
+use Automattic\Jetpack\Protect\Sections\Firewall;
 use Automattic\Jetpack\Waf\REST_Controller as Waf_REST_Controller;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use WP_Error;
@@ -136,7 +137,10 @@ class Settings {
 	 * @return array|WP_Error
 	 */
 	public static function update_settings( $request ) {
-		$patch   = (array) $request->get_json_params();
+		$patch = self::sanitize_ip_lists( (array) $request->get_json_params() );
+		if ( is_wp_error( $patch ) ) {
+			return $patch;
+		}
 		$modules = new Modules();
 
 		foreach ( $patch as $key => $value ) {
@@ -174,6 +178,52 @@ class Settings {
 		}
 
 		return self::get_settings();
+	}
+
+	/**
+	 * Check the IP lists as `jetpack/v4/settings` did, before anything is saved, and return the patch with them escaped.
+	 *
+	 * @param array $patch The requested changes.
+	 * @return array|WP_Error
+	 */
+	private static function sanitize_ip_lists( $patch ) {
+		foreach ( array( 'jetpack_waf_ip_allow_list', 'jetpack_waf_ip_block_list' ) as $key ) {
+			if ( ! array_key_exists( $key, $patch ) ) {
+				continue;
+			}
+			if ( ! is_string( $patch[ $key ] ) ) {
+				/* translators: %s is a setting name. */
+				return self::invalid_param( $key, sprintf( __( '%s must be a string.', 'jetpack-protect-pkg' ), $key ) );
+			}
+			// The firewall reads the stored copy, so check the list as it will be stored.
+			$patch[ $key ] = esc_textarea( $patch[ $key ] );
+			if ( 'jetpack_waf_ip_block_list' === $key ) {
+				$valid = Firewall::validate_ip_block_list( $patch[ $key ] );
+				if ( is_wp_error( $valid ) ) {
+					return self::invalid_param( $key, $valid->get_error_message() );
+				}
+			}
+		}
+		return $patch;
+	}
+
+	/**
+	 * A 400 error shaped like core's, whose `params` the dashboard shows.
+	 *
+	 * @param string $key     The setting.
+	 * @param string $message Why it was refused.
+	 * @return WP_Error
+	 */
+	private static function invalid_param( $key, $message ) {
+		return new WP_Error(
+			'rest_invalid_param',
+			/* translators: %s is a setting name. */
+			sprintf( __( 'Invalid parameter(s): %s', 'jetpack-protect-pkg' ), $key ),
+			array(
+				'status' => 400,
+				'params' => array( $key => $message ),
+			)
+		);
 	}
 
 	/**
