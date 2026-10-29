@@ -38,7 +38,7 @@
 		"@wordpress/element": "9.0.0",
 		"@wordpress/format-library": "5.57.0",
 		"@wordpress/notices": "5.57.0",
-		"@wordpress/theme": "2.3.0",
+		"@wordpress/theme": "3.0.0",
 		"playwright": "1.60.0",
 		"react": "19.3.0",
 		"react-dom": "19.3.0",

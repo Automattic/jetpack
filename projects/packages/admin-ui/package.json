@@ -28,7 +28,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@wordpress/browserslist-config": "6.57.0",
-		"@wordpress/theme": "2.3.0",
+		"@wordpress/theme": "3.0.0",
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
 		"sass-embedded": "1.97.3",

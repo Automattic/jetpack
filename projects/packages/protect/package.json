@@ -64,7 +64,7 @@
 		"@wordpress/icons": "18.0.0",
 		"@wordpress/notices": "5.57.0",
 		"@wordpress/route": "0.23.0",
-		"@wordpress/ui": "0.24.0",
+		"@wordpress/ui": "0.25.0",
 		"react": "19.3.0",
 		"react-dom": "19.3.0"
 	},
