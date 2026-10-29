@@ -6,7 +6,7 @@
  */
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Extensions\Sharing_Button_Block\Share_WordPress_Block;
+use Automattic\Jetpack\Extensions\Sharing_Button_Block\Share_WordPress_Com_Block;
 use Automattic\Jetpack\Sharing_Likes\Hooked_Blocks\Hooked_Blocks;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
@@ -18,11 +18,11 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/sharing-button/sharing-but
 /**
  * @covers ::Automattic\Jetpack\Extensions\Sharing_Button_Block\register_block
  * @covers ::Automattic\Jetpack\Extensions\Sharing_Button_Block\render_block
- * @covers \Automattic\Jetpack\Extensions\Sharing_Button_Block\Share_WordPress_Block
+ * @covers \Automattic\Jetpack\Extensions\Sharing_Button_Block\Share_WordPress_Com_Block
  */
 #[CoversFunction( 'Automattic\Jetpack\Extensions\Sharing_Button_Block\register_block' )]
 #[CoversFunction( 'Automattic\Jetpack\Extensions\Sharing_Button_Block\render_block' )]
-#[CoversClass( Share_WordPress_Block::class )]
+#[CoversClass( Share_WordPress_Com_Block::class )]
 class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -137,7 +137,7 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	public function test_repost_url_prefills_wpcom_draft( $post_args, $expected_text ) {
 		$post = self::factory()->post->create_and_get( array_merge( array( 'post_title' => 'Tips & tricks' ), $post_args ) );
 
-		$url = ( new Share_WordPress_Block( 'wordpress' ) )->get_repost_url( $post ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+		$url = ( new Share_WordPress_Com_Block( 'wordpress-com' ) )->get_repost_url( $post );
 		wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
 
 		$this->assertStringStartsWith( 'https://wordpress.com/post?', $url );

@@ -1442,15 +1442,15 @@ class Share_Threads_Block extends Sharing_Source_Block {
 }
 
 /**
- * WordPress sharing button.
+ * WordPress.com sharing button.
  */
-class Share_WordPress_Block extends Sharing_Source_Block {
+class Share_WordPress_Com_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
 	 * @var string
 	 */
-	public $shortname = 'wordpress'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+	public $shortname = 'wordpress-com';
 
 	/**
 	 * Service name.
@@ -1458,7 +1458,7 @@ class Share_WordPress_Block extends Sharing_Source_Block {
 	 * @return string
 	 */
 	public function get_name() {
-		return __( 'WordPress', 'jetpack' );
+		return __( 'WordPress.com', 'jetpack' );
 	}
 
 	/**

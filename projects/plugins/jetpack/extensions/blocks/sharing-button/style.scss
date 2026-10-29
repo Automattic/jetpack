@@ -103,6 +103,11 @@ a.jetpack-sharing-button__button {
 			background: var(--jetpack-social-logo-color-nextdoor);
 		}
 
+		// WordPress.com blue; the shared logo colors only know WordPress.
+		&.share-wordpress-com {
+			background: #3858e9;
+		}
+
 		&.share-print {
 			background: #c5c2c2;
 		}
