@@ -221,7 +221,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 				if ( ! itemInteractive ) {
 					return undefined;
 				}
-				return () => ( onToggle ? onToggle() : handleLegendClick( seriesLabels ) );
+				return onToggle ?? ( () => handleLegendClick( seriesLabels ) );
 			},
 			[ handleLegendClick ]
 		);
@@ -231,14 +231,11 @@ export const BaseLegend: ForwardRefExoticComponent<
 				if ( ! itemInteractive ) {
 					return undefined;
 				}
+				const toggle = onToggle ?? ( () => handleLegendClick( seriesLabels ) );
 				return ( event: KeyboardEvent ) => {
 					if ( event.key === 'Enter' || event.key === ' ' ) {
 						event.preventDefault();
-						if ( onToggle ) {
-							onToggle();
-						} else {
-							handleLegendClick( seriesLabels );
-						}
+						toggle();
 					}
 				};
 			},
