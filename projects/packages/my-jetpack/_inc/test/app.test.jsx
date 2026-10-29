@@ -2,8 +2,34 @@ import { render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import App from '../app';
 import useMyJetpackConnection from '../hooks/use-my-jetpack-connection';
+import { queryClient } from '../providers';
+import { getRouteHref } from '../utils/route-href';
 
 jest.mock( '@wordpress/api-fetch' );
+// A stand-in for the boot router: navigating writes `?p=` and re-renders its subscribers.
+jest.mock( '@wordpress/route', () => {
+	const { useSyncExternalStore } = jest.requireActual( 'react' );
+	const listeners = new Set();
+	const subscribe = listener => {
+		listeners.add( listener );
+		return () => listeners.delete( listener );
+	};
+	const useHref = () => useSyncExternalStore( subscribe, () => globalThis.location.href );
+	const navigate = ( { href, replace } ) => {
+		const url = new URL( globalThis.location.href );
+		url.searchParams.set( 'p', href );
+		globalThis.history[ replace ? 'replaceState' : 'pushState' ]( null, '', url );
+		listeners.forEach( listener => listener() );
+	};
+	return {
+		useNavigate: () => navigate,
+		useParams: useHref,
+		useSearch: () => {
+			useHref();
+			return {};
+		},
+	};
+} );
 jest.mock( '../hooks/use-my-jetpack-connection' );
 jest.mock( '../hooks/use-paid-menu-sync', () => ( { usePaidMenuSync: jest.fn() } ) );
 
@@ -18,6 +44,22 @@ jest.mock( '@automattic/jetpack-partner-coupon', () => ( {
 	PartnerCouponRedeem: () => <div data-testid="partner-coupon-screen" />,
 } ) );
 
+/**
+ * Point the page at a route the way the boot router stores it.
+ *
+ * @param {string} href - The route, such as `/connection`; empty for the bare page.
+ */
+function setRoute( href ) {
+	const url = new URL( window.location.href );
+	url.hash = '';
+	if ( href ) {
+		url.searchParams.set( 'p', href );
+	} else {
+		url.searchParams.delete( 'p' );
+	}
+	window.history.replaceState( null, '', url );
+}
+
 describe( 'App', () => {
 	// jsdom doesn't implement scrollTo; ScrollToTop calls it on mount.
 	beforeEach( () => {
@@ -26,16 +68,16 @@ describe( 'App', () => {
 		useMyJetpackConnection.mockReturnValue( {} );
 	} );
 
-	it( 'renders the home screen at the default hash route', () => {
-		window.location.hash = '';
+	it( 'renders the home screen at the default route', () => {
+		setRoute( '' );
 
 		render( <App /> );
 
 		expect( screen.getByTestId( 'my-jetpack-screen' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the home screen for an unknown hash route', () => {
-		window.location.hash = '#/not-a-real-route';
+	it( 'renders the home screen for an unknown route', () => {
+		setRoute( '/not-a-real-route' );
 
 		render( <App /> );
 
@@ -43,7 +85,7 @@ describe( 'App', () => {
 	} );
 
 	it( 'gives the connection route its scoped scrolling layout', () => {
-		window.location.hash = '#/connection';
+		setRoute( '/connection' );
 
 		render( <App /> );
 
@@ -53,7 +95,7 @@ describe( 'App', () => {
 	} );
 
 	it( 'renders the partner coupon screen in place of the routes', () => {
-		window.location.hash = '';
+		setRoute( '' );
 		window.myJetpackInitialState.partnerCoupon = {
 			coupon: {
 				coupon_code: 'JPTST_JPTA_abc123',
@@ -78,7 +120,7 @@ describe( 'App', () => {
 		const initial = window.myJetpackInitialState;
 		const scriptData = window.JetpackScriptData;
 		const local = { jetpack: 'inactive', features: [] };
-		window.location.hash = '#/features';
+		setRoute( '/features' );
 		window.myJetpackInitialState = {
 			...initial,
 			isOfflineFeatures: true,
@@ -124,11 +166,13 @@ describe( 'App', () => {
 
 		try {
 			for ( const entry of [ '/features', '/', '/connection' ] ) {
-				window.location.hash = `#${ entry }${ query }`;
+				setRoute( `${ entry }${ query }` );
 				for ( let load = 0; load < 2; load++ ) {
 					apiFetch.mockClear();
+					// A reload starts with an empty cache.
+					queryClient.clear();
 					const view = render( <App /> );
-					await waitFor( () => expect( window.location.hash ).toBe( `#/features${ query }` ) );
+					await waitFor( () => expect( getRouteHref() ).toBe( `/features${ query }` ) );
 					await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
 					expect( apiFetch ).toHaveBeenCalledWith( { path: '/wpcom/v2/my-jetpack/site/features' } );
 					expect( screen.getByRole( 'heading', { name: 'Features' } ) ).toBeInTheDocument();

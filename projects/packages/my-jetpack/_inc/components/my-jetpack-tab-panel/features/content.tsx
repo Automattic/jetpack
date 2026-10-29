@@ -7,6 +7,7 @@ import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { BulkBar } from './bulk-bar';
 import { ConnectResume, useConnectResume } from './connect-resume';
 import { FeaturesEmptyState } from './empty-state';
+import { areFeatureDetailsInInspector } from './feature-inspector';
 import { FeatureItem } from './feature-item';
 import { FeatureList, UnswitchableNote } from './feature-list';
 import { FeatureModal } from './feature-modal';
@@ -516,7 +517,7 @@ function FeaturesTabContent() {
 				isSearching={ Boolean( search ) }
 			/>
 
-			{ open && (
+			{ open && ! areFeatureDetailsInInspector() && (
 				<FeatureModal
 					state={ open }
 					previous={ openIndex > 0 ? stepOrder[ openIndex - 1 ] : undefined }

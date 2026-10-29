@@ -8,9 +8,10 @@ interface ProvidersProps {
 	children: ReactNode;
 }
 
-const Providers: FC< ProvidersProps > = ( { children } ) => {
-	const queryClient = new QueryClient();
+// One client for the page: the stage and the inspector are separate React trees that read the same data.
+export const queryClient = new QueryClient();
 
+const Providers: FC< ProvidersProps > = ( { children } ) => {
 	return (
 		<ThemeProvider>
 			<NoticeContextProvider>

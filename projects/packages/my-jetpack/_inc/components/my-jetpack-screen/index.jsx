@@ -25,6 +25,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
 import { useReplayPendingNotice } from '../../utils/pending-notice';
+import { getRouteHref } from '../../utils/route-href';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import { getHeaderControls } from '../header-controls';
 import IDCModal from '../idc-modal';
@@ -151,9 +152,12 @@ export default function MyJetpackScreen() {
 		currentTab,
 	] );
 
-	if ( window.location.hash.includes( '?reload=true' ) ) {
-		// Clears the query string and reloads the page.
-		window.history.replaceState( null, '', window.location.href.replace( '?reload=true', '' ) );
+	const routeHref = getRouteHref();
+	if ( routeHref.includes( '?reload=true' ) ) {
+		// Clears the flag from the route and reloads the page.
+		const url = new URL( window.location.href );
+		url.searchParams.set( 'p', routeHref.replace( '?reload=true', '' ) );
+		window.history.replaceState( null, '', url );
 		window.location.reload();
 
 		setReloading( true );
