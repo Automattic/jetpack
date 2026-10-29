@@ -101,4 +101,44 @@ class Jetpack_Protect_Test extends BaseTestCase {
 		$this->assertSame( $notify ? 1 : null, Notification_Counts::all()['jetpack-protect']['count'] ?? null );
 		$this->assertSame( $notify, null !== $admin_bar->get_node( 'jetpack-protect' ) );
 	}
+
+	/**
+	 * @dataProvider provide_protect_page_cases
+	 *
+	 * @param bool $on_protect_page Whether the Protect page is being viewed.
+	 */
+	#[DataProvider( 'provide_protect_page_cases' )]
+	public function test_admin_bar_keeps_a_hidden_node_on_the_protect_page_when_there_are_no_threats( $on_protect_page ) {
+		$status                        = get_option( Protect_Status::OPTION_NAME );
+		$status->core->vulnerabilities = array();
+		update_option( Protect_Status::OPTION_NAME, $status );
+		if ( $on_protect_page ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+			require_once ABSPATH . 'wp-admin/includes/screen.php';
+			set_current_screen( 'toplevel_page_jetpack-protect' );
+			$_GET['page'] = 'jetpack-protect';
+		}
+		$admin_bar = new WP_Admin_Bar();
+
+		( new Jetpack_Protect() )->admin_bar( $admin_bar );
+		unset( $_GET['page'], $GLOBALS['current_screen'] );
+
+		$node = $admin_bar->get_node( 'jetpack-protect' );
+		$this->assertSame( $on_protect_page, null !== $node );
+		if ( $on_protect_page ) {
+			$this->assertSame( 'hidden', $node->meta['class'] );
+		}
+	}
+
+	/**
+	 * Whether the Protect page is being viewed.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_protect_page_cases() {
+		return array(
+			'protect page' => array( true ),
+			'other page'   => array( false ),
+		);
+	}
 }

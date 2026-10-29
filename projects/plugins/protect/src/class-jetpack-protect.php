@@ -350,12 +350,14 @@ class Jetpack_Protect {
 
 		$total = Status::get_total_threats();
 
-		if ( $total > 0 ) {
+		// On the Protect page the app updates the count, so a hidden node is kept for a later scan to reveal.
+		if ( $total > 0 || self::is_protect_page() ) {
 			$args = array(
 				'id'    => 'jetpack-protect',
 				'title' => '<span class="ab-icon jp-protect-icon"></span><span class="ab-label">' . $total . '</span>',
 				'href'  => admin_url( 'admin.php?page=jetpack-protect' ),
 				'meta'  => array(
+					'class' => $total > 0 ? '' : 'hidden',
 					// translators: %d is the number of threats found.
 					'title' => sprintf( _n( '%d threat found by Jetpack Protect', '%d threats found by Jetpack Protect', $total, 'jetpack-protect' ), $total ),
 				),
@@ -363,6 +365,16 @@ class Jetpack_Protect {
 
 			$wp_admin_bar->add_node( $args );
 		}
+	}
+
+	/**
+	 * Whether the current request is the Protect admin page.
+	 *
+	 * @return bool
+	 */
+	private static function is_protect_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only compared, to decide whether to render a hidden node.
+		return is_admin() && isset( $_GET['page'] ) && 'jetpack-protect' === sanitize_text_field( wp_unslash( $_GET['page'] ) );
 	}
 
 	/**
