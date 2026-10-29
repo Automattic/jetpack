@@ -141,6 +141,18 @@ describe( 'HeaderControls', () => {
 		expect( dialog ).toContainElement( screen.getByRole( role, { name } ) );
 	} );
 
+	it( 'focuses the panel, not its first link, when it opens', async () => {
+		mockUseConnectionState.mockReturnValue(
+			stateWith( { action: 'CONNECT_USER', status: 'warning' } )
+		);
+		render( <HeaderControls trackingContext="my-jetpack" /> );
+
+		const dialog = await openControl();
+
+		await waitFor( () => expect( dialog ).toHaveFocus() );
+		expect( screen.getByRole( 'link', { name: 'Connect my account' } ) ).not.toHaveFocus();
+	} );
+
 	it( 'offers no action in Safe Mode', async () => {
 		mockUseConnectionState.mockReturnValue(
 			stateWith( { id: 'safe-mode', action: 'RESOLVE_SAFE_MODE', status: 'warning' } )

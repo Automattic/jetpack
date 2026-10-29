@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: Focus the unreleased header connection panel itself when it opens, not its first link.
+

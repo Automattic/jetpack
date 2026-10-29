@@ -75,6 +75,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ isDialogOpen, setIsDialogOpen ] = useState( false );
 	const triggerRef = useRef< HTMLButtonElement >( null );
+	const popupRef = useRef< HTMLDivElement >( null );
 	const returnFocusRef = useRef( false );
 	// Never stale, so opening reuses what the Overview or an earlier open loaded.
 	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
@@ -128,7 +129,12 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 					/>
 					<span className={ clsx( styles.dot, styles[ state.status ] ) } />
 				</Popover.Trigger>
-				<Popover.Popup positioner={ <Popover.Positioner align="end" collisionPadding={ 16 } /> }>
+				{ /* Focus the panel itself, not its first link, whose focus ring would show even after a mouse click. */ }
+				<Popover.Popup
+					ref={ popupRef }
+					initialFocus={ popupRef }
+					positioner={ <Popover.Positioner align="end" collisionPadding={ 16 } /> }
+				>
 					<Stack direction="column" gap="lg" className={ styles.content }>
 						<Stack direction="column" gap="sm" align="start">
 							<Text variant="heading-md" render={ <Popover.Title /> }>
