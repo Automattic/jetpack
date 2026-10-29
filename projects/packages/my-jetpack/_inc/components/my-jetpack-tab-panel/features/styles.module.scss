@@ -988,6 +988,11 @@ $band-props: (
 	}
 }
 
-.inspector {
+// The modal's band, shorter for the narrower inspector.
+.inspector-band {
+	block-size: 12rem;
+}
+
+.inspector-body {
 	padding: var(--wpds-dimension-padding-xl);
 }

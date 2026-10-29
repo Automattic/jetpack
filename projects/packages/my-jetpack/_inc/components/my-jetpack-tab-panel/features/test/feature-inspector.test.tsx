@@ -86,4 +86,22 @@ describe( 'FeatureInspector', () => {
 			} )
 		);
 	} );
+
+	it( 'takes focus, closes on Escape, and hands focus back to the card that opened it', async () => {
+		const card = document.createElement( 'button' );
+		document.body.append( card );
+		card.focus();
+		const onClose = jest.fn();
+
+		const { unmount } = render(
+			<FeatureInspector slug="boost" searchParams={ new URLSearchParams() } onClose={ onClose } />
+		);
+
+		expect( screen.getByRole( 'heading', { level: 2, name: 'Boost' } ) ).toHaveFocus();
+		await userEvent.keyboard( '{Escape}' );
+		expect( onClose ).toHaveBeenCalledTimes( 1 );
+		unmount();
+		expect( card ).toHaveFocus();
+		card.remove();
+	} );
 } );
