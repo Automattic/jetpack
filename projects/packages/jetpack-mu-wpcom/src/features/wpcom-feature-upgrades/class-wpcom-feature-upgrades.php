@@ -25,7 +25,7 @@ class WPCOM_Feature_Upgrades {
 	/**
 	 * Send a feature's upgrade to the WordPress.com plans; a site that has it keeps Jetpack's own manage link.
 	 *
-	 * @param array  $upgrade          Where the upgrade goes: `path`, `name`, `back_url`, and optionally `url` and `manage_url`.
+	 * @param array  $upgrade          Where the upgrade goes: `path`, `name`, `back_url`, and optionally `url`.
 	 * @param string $slug             The My Jetpack feature slug.
 	 * @param bool   $site_has_feature Whether the site already has the feature.
 	 * @return array

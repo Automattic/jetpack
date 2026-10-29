@@ -555,20 +555,19 @@ class Main_Features {
 	}
 
 	/**
-	 * Lets a host send a feature's Upgrade button to its own plans instead of Jetpack's, and its manage link to its own page.
+	 * Lets a host send a feature's Upgrade button to its own plans instead of Jetpack's.
 	 *
 	 * @param array  $upgrade          The Jetpack route, from get_upgrade().
 	 * @param string $slug             The feature slug.
 	 * @param bool   $site_has_feature Whether the site already has the feature.
-	 * @return array{path: string, name: string, url?: string, manage_url?: string}
+	 * @return array{path: string, name: string, url?: string}
 	 */
 	private static function filter_upgrade( array $upgrade, $slug, $site_has_feature ) {
 		/**
-		 * Filters where a feature's upgrade and manage links go, so a host can send them to its own plans.
+		 * Filters where a feature's upgrade link goes, so a host can send it to its own plans.
 		 *
 		 * Set `url` to an absolute address to replace the My Jetpack route, which also drops the
 		 * Jetpack plans the feature's details would otherwise link to; it is ignored when `$site_has_feature`.
-		 * Set `manage_url` to where a site that has the feature manages it, read only when `$site_has_feature`.
 		 *
 		 * @since 6.14.0
 		 *
@@ -591,11 +590,6 @@ class Main_Features {
 		// A site that already pays has nothing to buy, wherever a host would send it.
 		if ( ! $site_has_feature && ! empty( $filtered['url'] ) ) {
 			$result['url'] = esc_url_raw( (string) $filtered['url'] );
-		}
-
-		$manage_url = $site_has_feature ? esc_url_raw( (string) ( $filtered['manage_url'] ?? '' ) ) : '';
-		if ( $manage_url ) {
-			$result['manage_url'] = $manage_url;
 		}
 
 		return $result;
@@ -1063,10 +1057,6 @@ class Main_Features {
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
 			$included      = ! $local && self::is_included_in_plan( $definition, $product_class );
 			$upgrade       = $local ? null : self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included );
-			// A host's manage link doesn't replace an active standalone plugin's own page.
-			if ( is_array( $upgrade ) && $product_class && method_exists( $product_class, 'is_standalone_plugin_active' ) && $product_class::is_standalone_plugin_active() ) {
-				unset( $upgrade['manage_url'] );
-			}
 
 			$feature = array(
 				'slug'             => $slug,
@@ -1074,7 +1064,7 @@ class Main_Features {
 				'description'      => $definition['description'],
 				'long_description' => $definition['long_description'] ?? '',
 				'icon'             => $definition['icon'],
-				'manage_url'       => $upgrade['manage_url'] ?? self::get_feature_manage_url( $definition, $product_class, $local ),
+				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
 				// An older Jetpack plugin still lets the module decide, so the card keeps its switch there.
 				'plan_driven'      => ! empty( $definition['plan_driven'] ) && ( ! $product_class || ! method_exists( $product_class, 'is_plan_driven' ) || $product_class::is_plan_driven() ),
@@ -1087,7 +1077,7 @@ class Main_Features {
 				'free_highlights'  => $definition['free_highlights'] ?? array(),
 				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
 				'pricing_notes'    => $definition['pricing_notes'] ?? array(),
-				'upgrade'          => null === $upgrade ? null : array_diff_key( $upgrade, array( 'manage_url' => true ) ),
+				'upgrade'          => $upgrade,
 				'included'         => $included,
 				// Both notes tell the site what to buy next, which a site that pays already has.
 				'setup_note'       => $included ? '' : ( $definition['setup_note'] ?? '' ),

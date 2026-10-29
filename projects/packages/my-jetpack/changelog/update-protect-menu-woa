@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Features: Stop reading a host's `manage_url` from the `jetpack_feature_upgrade` filter, so Protect and Backup open their own pages.
