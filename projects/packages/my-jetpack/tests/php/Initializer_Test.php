@@ -1707,22 +1707,24 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Each flagged part of the page stays off unless its flag is turned on.
+	 * Page flags use their registered defaults and honor specific overrides.
 	 *
 	 * @dataProvider page_feature_flags
-	 * @param string $key  The page's name for the flag.
-	 * @param string $flag The registered flag.
+	 * @param string $key     The page's name for the flag.
+	 * @param string $flag    The registered flag.
+	 * @param bool   $default The registered default.
 	 */
 	#[DataProvider( 'page_feature_flags' )]
-	public function test_my_jetpack_flags_pass_each_flag_only_when_it_is_on( $key, $flag ) {
+	public function test_my_jetpack_flags_use_defaults_and_honor_overrides( $key, $flag, $default ) {
 		Initializer::register_feature_flags();
-		$this->assertFalse( Initializer::get_my_jetpack_flags()[ $key ] );
+		$this->assertSame( $default, Initializer::get_my_jetpack_flags()[ $key ] );
 
-		add_filter( 'jetpack_feature_flag_enabled_' . $flag, '__return_true' );
+		$override = $default ? '__return_false' : '__return_true';
+		add_filter( 'jetpack_feature_flag_enabled_' . $flag, $override );
 		try {
-			$this->assertTrue( Initializer::get_my_jetpack_flags()[ $key ] );
+			$this->assertSame( ! $default, Initializer::get_my_jetpack_flags()[ $key ] );
 		} finally {
-			remove_filter( 'jetpack_feature_flag_enabled_' . $flag, '__return_true' );
+			remove_filter( 'jetpack_feature_flag_enabled_' . $flag, $override );
 			Feature_Flags::reset();
 		}
 	}
@@ -1730,12 +1732,12 @@ class Initializer_Test extends BaseTestCase {
 	/**
 	 * The flags the page reads, by the name it reads them under.
 	 *
-	 * @return array<string, array{string, string}>
+	 * @return array<string, array{string, string, bool}>
 	 */
 	public static function page_feature_flags() {
 		return array(
-			'overview v1'     => array( 'overviewV1', Initializer::OVERVIEW_V1_FLAG ),
-			'account connect' => array( 'accountConnect', Initializer::ACCOUNT_CONNECT_FLAG ),
+			'overview v1'     => array( 'overviewV1', Initializer::OVERVIEW_V1_FLAG, false ),
+			'account connect' => array( 'accountConnect', Initializer::ACCOUNT_CONNECT_FLAG, true ),
 		);
 	}
 
