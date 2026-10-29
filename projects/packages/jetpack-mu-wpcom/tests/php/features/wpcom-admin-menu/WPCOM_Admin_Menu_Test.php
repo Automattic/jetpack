@@ -528,6 +528,48 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Jetpack > Protect is hidden with a class, which Calypso's sidebar honors, unless the standalone plugin is active.
+	 *
+	 * Runs in a separate process because the standalone row declares `Jetpack_Protect`.
+	 *
+	 * @dataProvider provide_protect_entry_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param bool $standalone Whether the standalone Protect plugin is active.
+	 * @param bool $hidden     Whether the entry should be hidden.
+	 */
+	#[DataProvider( 'provide_protect_entry_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_jetpack_submenu_hides_protect_entry( $standalone, $hidden ) {
+		global $submenu;
+
+		\Jetpack_Options::update_option( 'id', 200 );
+		if ( $standalone ) {
+			class_alias( get_class( new class() {} ), 'Jetpack_Protect' );
+		}
+		$submenu['jetpack'][] = array( 'Protect', 'manage_options', 'jetpack-protect', 'Jetpack Protect' );
+
+		wpcom_add_jetpack_submenu();
+
+		$item = current( wp_list_filter( $submenu['jetpack'], array( 2 => 'jetpack-protect' ) ) );
+		$this->assertSame( $hidden, str_contains( $item[4] ?? '', 'hide-if-js' ) );
+	}
+
+	/**
+	 * Whether the standalone plugin is active, and whether the entry should be hidden.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_protect_entry_cases() {
+		return array(
+			'Jetpack plugin only'       => array( false, true ),
+			'standalone plugin present' => array( true, false ),
+		);
+	}
+
+	/**
 	 * Tests wpcom_add_hosting_menu
 	 */
 	public function test_add_hosting_menu() {
