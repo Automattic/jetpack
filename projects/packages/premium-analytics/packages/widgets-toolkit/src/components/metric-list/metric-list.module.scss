@@ -1,3 +1,4 @@
+@use "../../styles/hover-action" as *;
 @use "../../styles/widget-container" as *;
 
 /*
@@ -71,6 +72,8 @@
 .row {
 	align-items: center;
 	min-block-size: 36px;
+
+	@include reveal-action-on-hover(".action");
 }
 
 /* The UA's [hidden] rule loses to .row's display, so restate it here. */
@@ -79,21 +82,33 @@
 }
 
 .label {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
 	min-inline-size: 0;
-	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);
 	font-size: var(--wpds-typography-font-size-md);
+}
+
+.labelText {
+	min-inline-size: 0;
+	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
 
-.label a {
+.action {
+	display: inline-flex;
+	flex: none;
+}
+
+.labelText a {
 	color: inherit;
 	text-decoration: none;
 }
 
-.label a:hover,
-.label a:focus {
+.labelText a:hover,
+.labelText a:focus {
 	text-decoration: underline;
 }
 

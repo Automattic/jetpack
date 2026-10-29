@@ -11,14 +11,6 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 	useNavigate: () => jest.fn(),
 } ) );
-// History's Fixed/Ignored Tabs have no Panels, which @wordpress/ui's dev check throws on.
-jest.mock( '@wordpress/ui', () => {
-	const passThrough = ( { children } ) => children;
-	return {
-		...jest.requireActual( '@wordpress/ui' ),
-		Tabs: { Root: passThrough, List: passThrough, Tab: passThrough },
-	};
-} );
 
 const mockRecordEvent = recordEvent as jest.Mock;
 

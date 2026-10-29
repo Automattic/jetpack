@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Settings: Lock the indexing toggle on WordPress.com Coming Soon sites, as on private ones, and link both to the site visibility settings, so turning it on can't launch the site. The new SEO page is still gated.

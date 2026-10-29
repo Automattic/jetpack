@@ -52,7 +52,7 @@ Jetpack Protect watches your site around the clock, and VaultPress Backup keeps 
 * Block spam comments and form responses with Akismet Anti-spam.
 * Auto-update individual plugins.
 
-Get every security feature in the [Jetpack Security plan](https://jetpack.com/redirect?source=org-security), or buy [VaultPress Backup](https://jetpack.com/redirect?source=org-backup), [Scan](https://jetpack.com/redirect?source=org-scan), and [Akismet Anti-spam](https://jetpack.com/redirect?source=org-spam) on their own.
+Get every security feature in [Jetpack Pro or Complete](https://jetpack.com/pricing/), or buy [VaultPress Backup](https://jetpack.com/redirect?source=org-backup), [Scan](https://jetpack.com/redirect?source=org-scan), and [Akismet Anti-spam](https://jetpack.com/redirect?source=org-spam) on their own.
 
 = Site analytics with Jetpack Stats =
 Get clear site statistics without being a data scientist.
@@ -100,7 +100,7 @@ Jetpack is updated monthly to work with the plugins and services you already use
 
 = Plans and products =
 * [Jetpack Complete](https://jetpack.com/redirect?source=org-complete) - Everything Jetpack offers: real-time security, top performance, and growth tools in one plan.
-* [Jetpack Security](https://jetpack.com/redirect?source=org-security) - Real-time backups, a web application firewall, malware scanning, and spam protection.
+* [Jetpack Pro](https://jetpack.com/pricing/) - Security, performance, and growth tools in one plan, including real-time backups, malware scanning, and spam protection.
 * [VaultPress Backup](https://jetpack.com/redirect?source=org-backup) - Save every change and get back online quickly with one-click restores.
 * [Jetpack Scan](https://jetpack.com/redirect?source=org-scan) - Automated malware scanning and a web application firewall, with one-click fixes.
 * [Jetpack AI](https://jetpack.com/redirect?source=org-ai) - Write, edit, and translate in the editor.
@@ -270,7 +270,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Screenshots ==
 
-1. Jetpack Security provides easy-to-use, comprehensive WordPress site security including backups, malware scanning, and spam protection.
+1. Jetpack Pro and Complete provide easy-to-use, comprehensive WordPress site security including backups, malware scanning, and spam protection.
 2. Save every change with real-time backups and get back online quickly with one-click restores.
 3. Automated malware scanning and one-click fixes keep your site one step ahead of security threats.
 4. Promote your newest posts, pages, and products across your social media channels.

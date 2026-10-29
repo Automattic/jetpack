@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Overview: Type out the welcome heading and fade the sections in on first load, behind the `my-jetpack-overview-v1` flag.

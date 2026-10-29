@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 import useActivatePlugins from '../../../data/products/use-activate-plugins';
 import useActivateSearchFreeProduct from '../../../data/products/use-activate-search-free-product';
 import useProduct from '../../../data/products/use-product';
+import { prepareProductData } from '../../../data/utils/prepare-product-data';
 import PricingInterstitial from '../pricing-interstitial';
 
 jest.mock( '../../../data/products/use-activate-plugins' );
@@ -68,7 +69,7 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 	PricingTableColumn: ( { children } ) => <div>{ children }</div>,
 	PricingTableHeader: ( { children } ) => <div>{ children }</div>,
 	PricingTableItem: () => <div />,
-	ProductPrice: () => <div />,
+	ProductPrice: jest.requireActual( '@automattic/jetpack-components/product-price' ).default,
 } ) );
 
 jest.mock( '@wordpress/ui', () => ( {
@@ -214,3 +215,22 @@ it.each( [ 'security', 'growth', 'complete' ] )(
 		expect( screen.getByTestId( 'bundle-offer' ) ).toHaveTextContent( legacyBundle );
 	}
 );
+
+it.each( [
+	// Only the mapper input matters here; Search's own server-side fallback price is not modelled.
+	[ 'not loaded', {}, [ '$0' ] ],
+	[
+		'loaded',
+		{ product_term: 'year', currency_code: 'USD', full_price: 120, discount_price: 60 },
+		[ '$0', '$5', '$10', '$5', '$10' ],
+	],
+] )( 'shows only real paid prices when the catalog is %s', ( _state, pricing, prices ) => {
+	const detail = prepareProductData( {
+		slug: 'search',
+		pricing_for_ui: { available: true, wpcom_product_slug: 'jetpack_search', ...pricing },
+	} );
+	useProduct.mockReturnValue( { detail, isLoading: false } );
+	const { container } = render( <PricingInterstitial slug="search" /> );
+	expect( container ).not.toHaveTextContent( 'NaN' );
+	expect( screen.queryAllByText( /^\$\d+$/ ).map( price => price.textContent ) ).toEqual( prices );
+} );

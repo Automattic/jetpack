@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: Give the subscribe pop-up the site's page background from Global Styles so its text stays readable on dark styles.

@@ -26,6 +26,8 @@ export { default as Gravatar } from './components/gravatar/index.tsx';
 export type { GravatarProps } from './components/gravatar/index.tsx';
 export { default as CheckboxCard, CheckboxCardGrid } from './components/checkbox-card/index.tsx';
 export type { CheckboxCardProps, CheckboxCardGridProps } from './components/checkbox-card/types.ts';
+export { default as RadioCard, RadioCardGrid } from './components/radio-card/index.tsx';
+export type { RadioCardProps, RadioCardGridProps } from './components/radio-card/types.ts';
 export { default as IconTooltip } from './components/icon-tooltip/index.tsx';
 export { default as ActionButton } from './components/action-button/index.tsx';
 export { default as PricingCard } from './components/pricing-card/index.tsx';
@@ -65,6 +67,8 @@ export { default as ActionPopover } from './components/action-popover/index.tsx'
 export { default as UpsellBanner } from './components/upsell-banner/index.tsx';
 export { getUserLocale, cleanLocale } from './lib/locale/index.ts';
 export { default as StatCard } from './components/stat-card/index.tsx';
+export { default as PeriodSelector } from './components/period-selector/index.tsx';
+export type { PeriodPreset, PeriodSelectorProps } from './components/period-selector/types.ts';
 export { default as DiffViewer } from './components/diff-viewer/index.tsx';
 export { default as MarkedLines } from './components/marked-lines/index.tsx';
 export { default as DetailsViewer } from './components/details-viewer/index.tsx';

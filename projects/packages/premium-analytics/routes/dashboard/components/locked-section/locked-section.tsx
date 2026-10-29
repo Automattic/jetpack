@@ -3,9 +3,11 @@
  */
 import { getLockedSection } from '@jetpack-premium-analytics/data';
 import { Button, ButtonLink, Icon, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { formatMonthlyPrice } from '@jetpack-premium-analytics/formatters';
 import { WidgetGridAnimation } from '@jetpack-premium-analytics/ui';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { check, chevronDown, chevronUp, lock } from '@wordpress/icons';
 import { useCallback, useEffect, useId, useState } from 'react';
 /**
@@ -69,6 +71,16 @@ export function LockedSection( { section }: { section: string } ) {
 		return null;
 	}
 
+	const description = locked.plan_price
+		? createInterpolateElement(
+				// eslint-disable-next-line @wordpress/valid-sprintf -- The server translates the format, typed to hold a `%s`.
+				sprintf(
+					locked.description_with_price,
+					formatMonthlyPrice( locked.plan_price.yearly, locked.plan_price.currency )
+				),
+				{ strong: <strong /> }
+			)
+		: locked.description;
 	const mainFeatures = locked.features.slice( 0, COLLAPSED_FEATURE_COUNT );
 	const moreFeatures = locked.features.slice( COLLAPSED_FEATURE_COUNT );
 	const featureList = ( features: string[], id?: string ) => (
@@ -92,7 +104,7 @@ export function LockedSection( { section }: { section: string } ) {
 							{ locked.title }
 						</Text>
 						<Text variant="body-lg" className={ styles.description }>
-							{ locked.description }
+							{ description }
 						</Text>
 					</Stack>
 					{ featureList( mainFeatures ) }

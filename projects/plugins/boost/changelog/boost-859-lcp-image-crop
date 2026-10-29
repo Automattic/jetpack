@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+LCP: Stop cropping optimized images whose box has a different shape, so images set to fit inside it (object-fit: contain) show in full.

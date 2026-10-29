@@ -9,7 +9,9 @@ namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Lcp;
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\Lcp;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_Optimize_Img_Tag;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
+use WP_HTML_Tag_Processor;
 
 /**
  * Class LCP_Optimize_Img_Tag_Test
@@ -47,6 +49,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 		parent::tear_down();
 		remove_all_filters( 'jetpack_photon_url' );
 		remove_all_filters( 'jetpack_boost_pre_should_skip_lcp_optimization' );
+		remove_all_filters( 'jetpack_photon_development_mode' );
 	}
 
 	/**
@@ -362,6 +365,86 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 				$label . ': a breakpoint with nothing to size from must be skipped rather than indexed.'
 			);
 		}
+	}
+
+	/**
+	 * @dataProvider srcset_cases
+	 */
+	#[DataProvider( 'srcset_cases' )]
+	public function test_srcset_keeps_the_image_proportions_at_the_box_density( $attributes, $expected_candidates, $src = 'https://example.com/image.jpg' ) {
+		add_filter( 'jetpack_photon_development_mode', '__return_false' );
+
+		$data                = $this->create_lcp_data();
+		$data['breakpoints'] = array(
+			array(
+				'maxWidth'        => 412,
+				'widthValue'      => '412px',
+				'imageDimensions' => array(
+					array(
+						'width'  => 412,
+						'height' => 700,
+					),
+				),
+			),
+		);
+
+		// Boost swaps a WordPress size for its original only if the original is on disk.
+		$original = null;
+		if ( str_contains( $src, '{uploads}' ) ) {
+			$uploads = wp_get_upload_dir();
+			wp_mkdir_p( $uploads['basedir'] );
+			$original = $uploads['basedir'] . '/image.jpg';
+			file_put_contents( $original, '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			$src = str_replace( '{uploads}', $uploads['baseurl'], $src );
+		}
+
+		$buffer = '<img class="wp-post-image" id="test-img" ' . $attributes . ' src="' . $src . '">';
+		$result = '';
+		try {
+			$result = ( new LCP_Optimize_Img_Tag( $data ) )->optimize_buffer( $buffer );
+		} finally {
+			if ( $original ) {
+				wp_delete_file( $original );
+			}
+		}
+
+		$processor = new WP_HTML_Tag_Processor( $result );
+		$processor->next_tag( 'img' );
+
+		$candidates = array();
+		foreach ( explode( ', ', (string) $processor->get_attribute( 'srcset' ) ) as $candidate ) {
+			list( $url, $descriptor ) = explode( ' ', $candidate );
+			parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
+
+			$candidates[] = ( $args['resize'] ?? '' ) . ' ' . $descriptor;
+		}
+
+		// Each descriptor is the 412px slot times a DPR, whatever size the file is.
+		$this->assertSame( '412px', $processor->get_attribute( 'sizes' ) );
+		$this->assertSame( $expected_candidates, $candidates );
+	}
+
+	/**
+	 * A 412x700 box at 1x, 1.75x, 2x and 3x, described as resize and descriptor.
+	 *
+	 * @return array[]
+	 */
+	public static function srcset_cases() {
+		return array(
+			'no dimensions: the box'                      => array( '', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
+			'a 3:2 image with no fit in the markup: widened, not cropped' => array( 'width="1200" height="800"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ) ),
+			'object-fit: contain (Featured Image Scale): fits inside the box' => array( 'width="1200" height="800" style="aspect-ratio:3/5;object-fit:contain;"', array( '1236,825 1236w', '824,550 824w', '721,481 721w', '412,275 412w' ) ),
+			'a -600x400 size with 300x300 attributes: the size wins' => array( 'width="300" height="300"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), '{uploads}/image-600x400.jpg' ),
+			'a -600x400 size with a query string: the size wins' => array( 'width="300" height="300"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), '{uploads}/image-600x400.jpg?ver=2' ),
+			'a -2x1 name with no original to swap in: the attributes' => array( 'width="1200" height="800"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), '{uploads}/banner-2x1.jpg' ),
+			'object-fit: contain then cover: the last wins' => array( 'width="1200" height="800" style="object-fit:contain;object-fit:cover"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
+			'object-fit: contain !important then cover: the !important wins' => array( 'width="1200" height="800" style="object-fit:contain !important;object-fit:cover"', array( '1236,825 1236w', '824,550 824w', '721,481 721w', '412,275 412w' ) ),
+			'inline contain over data-object-fit="cover": the inline style wins' => array( 'width="1200" height="800" data-object-fit="cover" style="object-fit:contain"', array( '1236,825 1236w', '824,550 824w', '721,481 721w', '412,275 412w' ) ),
+			'width="1e300": not a pixel size, the box'    => array( 'width="1e300" height="800"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
+			'object-fit: cover (Featured Image Scale): the box' => array( 'width="1200" height="800" style="aspect-ratio:3/5;object-fit:cover;"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
+			'data-object-fit="cover" (Cover block): the box' => array( 'width="1200" height="800" data-object-fit="cover"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
+			'a square thumbnail of any upload: still 1:1' => array( 'width="300" height="300"', array( '2100,2100 1236w', '1400,1400 824w', '1225,1225 721w', '700,700 412w' ) ),
+		);
 	}
 
 	/**

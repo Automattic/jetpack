@@ -447,6 +447,7 @@ type ProtectData = {
 		standalone_mode?: boolean;
 		waf_supported: boolean;
 		waf_enabled: boolean;
+		waf_provided_by_host?: boolean;
 	};
 };
 

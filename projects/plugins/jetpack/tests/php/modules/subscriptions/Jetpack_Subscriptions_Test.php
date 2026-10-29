@@ -8,6 +8,7 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/paywall/paywall.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
 use Automattic\Jetpack\Sync\Defaults;
@@ -654,6 +655,62 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 			// Removing the filter.
 			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
 		}
+	}
+
+	public static function subscribe_prompt_visibility_provider() {
+		$prompts  = array(
+			'modal'           => array( 'Jetpack_Subscribe_Modal', 'should_user_see_modal', 'post' ),
+			'overlay'         => array( 'Jetpack_Subscribe_Overlay', 'should_user_see_overlay', 'home' ),
+			'floating button' => array( 'Jetpack_Subscribe_Floating_Button', 'should_user_see_floating_button', 'post' ),
+		);
+		$statuses = array(
+			'unsubscribed' => array( null, true ),
+			'pending'      => array( 'pending', false ),
+			'active'       => array( 'active', false ),
+		);
+
+		$cases = array();
+		foreach ( $prompts as $prompt_name => $prompt ) {
+			foreach ( $statuses as $status_name => $status ) {
+				$cases[ "$prompt_name, $status_name" ] = array_merge( $prompt, $status );
+			}
+		}
+		return $cases;
+	}
+
+	/**
+	 * Subscribe prompts are only shown to readers who are neither subscribed nor awaiting confirmation.
+	 *
+	 * @param string      $prompt_class Prompt class name.
+	 * @param string      $method       Visibility method on the prompt.
+	 * @param string      $page         Page to visit: 'post' or 'home'.
+	 * @param string|null $blog_sub     Token blog_sub status, or null for no subscription.
+	 * @param bool        $expected     Whether the prompt should be shown.
+	 * @dataProvider subscribe_prompt_visibility_provider
+	 */
+	#[DataProvider( 'subscribe_prompt_visibility_provider' )]
+	public function test_subscribe_prompt_visibility_for_subscription_status( $prompt_class, $method, $page, $blog_sub, $expected ) {
+		wp_set_current_user( $this->regular_non_subscriber_id );
+		$post_id = $this->factory->post->create();
+		$this->go_to( 'post' === $page ? get_permalink( $post_id ) : home_url( '/' ) );
+
+		$service          = new class() extends Jetpack_Token_Subscription_Service {
+			public $payload = array();
+
+			public function get_token_payload() {
+				return $this->payload;
+			}
+		};
+		$service->payload = null === $blog_sub ? array() : array( 'blog_sub' => $blog_sub );
+		$inject_service   = static function () use ( $service ) {
+			return $service;
+		};
+		add_filter( 'earn_premium_content_subscription_service', $inject_service, PHP_INT_MAX );
+
+		$actual = $prompt_class::init()->$method();
+		remove_filter( 'earn_premium_content_subscription_service', $inject_service, PHP_INT_MAX );
+
+		$this->assertSame( $expected, $actual );
 	}
 
 	/**
