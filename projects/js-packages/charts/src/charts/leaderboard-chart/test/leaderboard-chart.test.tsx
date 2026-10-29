@@ -186,6 +186,23 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( expected );
 	} );
 
+	it.each( [
+		[ 'comparison bars draw', false, 'calc(50%' ],
+		[ 'the overlay label hides comparison bars', true, 'calc(100%' ],
+	] )( 'sizes the current bar against the max when %s', ( _, withOverlayLabel, expected ) => {
+		const data = [
+			{ id: 'a', label: 'A', currentValue: 50, previousValue: 100 },
+			{ id: 'b', label: 'B', currentValue: 25, previousValue: 10 },
+		] as LeaderboardEntry[];
+		render(
+			<LeaderboardChart data={ data } withComparison withOverlayLabel={ withOverlayLabel } />
+		);
+
+		expect( screen.getAllByTestId( 'leaderboard-chart-bar' )[ 0 ].style.width ).toMatch(
+			new RegExp( `^${ expected.replace( '(', '\\(' ) }` )
+		);
+	} );
+
 	it( 'shows custom label when provided', () => {
 		render(
 			<LeaderboardChart

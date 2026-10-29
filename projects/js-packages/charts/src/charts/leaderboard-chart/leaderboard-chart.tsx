@@ -132,6 +132,7 @@ const Bar = ( {
 
 	const bar = (
 		<div
+			data-testid="leaderboard-chart-bar"
 			className={ clsx( styles.bar, {
 				[ styles[ 'bar--animated' ] ]: animation,
 				[ styles[ 'bar--negative' ] ]: divergingScale && isNegative,

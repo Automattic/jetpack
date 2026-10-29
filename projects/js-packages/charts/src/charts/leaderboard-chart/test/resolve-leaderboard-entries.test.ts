@@ -33,6 +33,15 @@ describe( 'resolveLeaderboardEntries', () => {
 		] );
 	} );
 
+	it( 'lets a negative previous value set the max', () => {
+		const [ entry ] = resolveLeaderboardEntries(
+			toEntries( [ { currentValue: 10, previousValue: -40 } ] ),
+			{ includePrevious: true }
+		);
+
+		expect( entry ).toMatchObject( { currentShare: 25, previousShare: -100 } );
+	} );
+
 	it( 'ignores previous values for the max when comparison bars are not drawn', () => {
 		const result = resolveLeaderboardEntries( toEntries( comparisonRows ), {
 			includePrevious: false,

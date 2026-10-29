@@ -214,13 +214,13 @@ type LeaderboardEntryFields = {
 	previousValue?: number;
 
 	/**
-	 * Width of current bar, as %. Derived from the values when omitted, against one max of absolute values across all rows. Previous values count only when comparison bars draw. A passed value wins.
+	 * Width of current bar, as %. Derived from the values when omitted; a passed value wins.
 	 * A negative share extends the bar from a shared zero point toward the inline start, for every row.
 	 */
 	currentShare?: number;
 
 	/**
-	 * Width of previous bar, as %. Derived from `previousValue` when omitted, against the same max as `currentShare`. A passed value wins, e.g. for a share of an external total.
+	 * Width of previous bar, as %. Derived from `previousValue` when omitted; a passed value wins.
 	 */
 	previousShare?: number;
 
