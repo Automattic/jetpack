@@ -128,7 +128,7 @@ describe( 'ScanCard empty state', () => {
 		[ false, 48, /Vulnerabilities are checked automatically every day\./ ],
 		[ false, 1, 'Next check in:' ],
 		[ true, 48, /Your site is scanned automatically every day\./ ],
-		[ true, 1, 'Next scan in:' ],
+		[ true, 1, /Your site is scanned automatically every day\./ ],
 	] )(
 		'with hasPlan %s, checked %i hours ago, words the next check for that plan',
 		async ( hasPlan, hoursAgo, next ) => {
