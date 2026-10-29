@@ -14,7 +14,7 @@ export const VIDEO_DETAIL_LAYOUT: DashboardWidget[] = [
 	{
 		uuid: 'videopress-video-player',
 		type: 'videopress/video-player',
-		placement: { width: 1, height: 3, order: 20 },
+		placement: { width: 1, height: 2, order: 20 },
 	},
 	{
 		uuid: 'video-detail-embeds',
