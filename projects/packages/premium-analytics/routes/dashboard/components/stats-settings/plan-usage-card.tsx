@@ -90,9 +90,9 @@ function UsageMeter( {
 /**
  * The Settings tab's "Your current plan" card.
  *
- * @return The card.
+ * @return The card, or nothing when the plan has no limit to meter.
  */
-export function PlanUsageCard(): JSX.Element {
+export function PlanUsageCard(): JSX.Element | null {
 	const { data, isLoading, isError, refetch, limit, overLimitMonths } = usePlanUsage();
 	const overLimitMessage = getOverLimitMessage( overLimitMonths );
 	const trackEvent = useTrackEvent();
@@ -128,14 +128,8 @@ export function PlanUsageCard(): JSX.Element {
 			</Stack>
 		);
 	} else if ( limit === null ) {
-		content = (
-			<Text>
-				{ __(
-					"Plan usage isn't available for your current plan.",
-					'jetpack-premium-analytics-pkg'
-				) }
-			</Text>
-		);
+		// No limit to meter, as on WordPress.com or a plan without one; Calypso leaves its card out too.
+		return null;
 	} else {
 		content = (
 			<Stack direction="column" align="start" gap="lg">

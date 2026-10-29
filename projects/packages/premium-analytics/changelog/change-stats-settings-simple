@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Stats: Add a filter that lets the host choose which settings the Settings tab offers, and leave the plan usage off the tab on WordPress.com, where Stats has no view cap.
+Stats: Add a filter that lets the host choose which settings the Settings tab offers, and leave the plan usage card out when the plan has no view limit.

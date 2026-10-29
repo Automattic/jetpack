@@ -1,4 +1,4 @@
-import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	AnalyticsQueryClientProvider,
 	useStatsSettings,
@@ -201,13 +201,10 @@ export function StatsSettingsPanel(): JSX.Element {
 
 	return (
 		<Stack direction="column" gap="xl" className={ styles.root }>
-			{ /* WordPress.com includes Stats with no view cap, so it has no usage to meter. */ }
-			{ ! isWpcomPlatformSite() && (
-				// Outside any widget, so outside the provider `WidgetRoot` mounts for widgets.
-				<AnalyticsQueryClientProvider>
-					<PlanUsageCard />
-				</AnalyticsQueryClientProvider>
-			) }
+			{ /* Outside any widget, so outside the provider `WidgetRoot` mounts for widgets. */ }
+			<AnalyticsQueryClientProvider>
+				<PlanUsageCard />
+			</AnalyticsQueryClientProvider>
 			{ form }
 			<ConsentCard />
 			{ featuresUrl && (
