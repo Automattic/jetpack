@@ -301,6 +301,21 @@ export const ignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
 export const unignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
 	setIgnored( threat, false, open );
 
+/**
+ * Focus a threat's row when focus was lost, as when the button that started its action goes away.
+ *
+ * @param item - The threat.
+ */
+export function refocusRow( item: ScanThreat ) {
+	const title = Array.from( document.querySelectorAll< HTMLElement >( '[data-threat-id]' ) ).find(
+		element => element.dataset.threatId === String( item.id )
+	);
+	const { activeElement, body } = title?.ownerDocument ?? {};
+	if ( title && ( ! activeElement || activeElement === body ) ) {
+		title.focus();
+	}
+}
+
 /** How a fix ended; `pending` while it may still be running, here or on WordPress.com. */
 export type FixResult = 'fixed' | 'failed' | 'pending';
 
@@ -309,6 +324,20 @@ const isClientError = ( e: unknown ) => {
 	const status = ( e as { data?: { status?: number } } )?.data?.status;
 	return !! status && status >= 400 && status < 500 && status !== 408 && status !== 429;
 };
+
+/**
+ * Whether Scan's fix for the threat deletes the plugin or theme it is in.
+ *
+ * @param threat - The threat.
+ * @return True when the fix deletes the software.
+ */
+export function isDeleteFix( threat: ScanThreat ): boolean {
+	return (
+		threat.signature === 'Vulnerable.WP.Extension' &&
+		!! threat.fixable &&
+		threat.fixable.fixer === 'delete'
+	);
+}
 
 /**
  * Ask Scan to fix a threat, then follow the fix until it finishes.
@@ -432,7 +461,8 @@ let bulkRuns = 0;
  * @return Resolves once every fix has finished, failed, or run past the time Jetpack waits.
  */
 export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Promise< void > {
-	const idle = threats.filter( threat => ! isBusy( threat.id ) );
+	// A fix that deletes software needs its slug confirmed first, so a batch never starts one.
+	const idle = threats.filter( threat => ! isBusy( threat.id ) && ! isDeleteFix( threat ) );
 	if ( idle.length < 2 ) {
 		await Promise.all( idle.map( threat => fixThreat( threat, open ) ) );
 		return;

@@ -5,7 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { AlertDialog, Badge, Button, ButtonLink, Dialog, Link, Stack, Text } from '@wordpress/ui';
 import useOpenThreat from '../use-open-threat';
 import { DeleteSoftwareButton } from './delete-software';
-import { FixDeleteConfirmation, getDeleteFixTitle, isDeleteFix } from './fix-delete-confirmation';
+import { FixDeleteConfirmation, getDeleteFixTitle } from './fix-delete-confirmation';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import { THREAT_PARAM, useCanIgnore, useSearchParam } from './store';
 import {
@@ -13,6 +13,7 @@ import {
 	fixThreat,
 	getThreatRow,
 	ignoreThreat,
+	isDeleteFix,
 	unignoreThreat,
 	useThreatAction,
 	type ThreatRow,

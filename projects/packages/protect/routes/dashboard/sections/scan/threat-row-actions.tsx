@@ -1,31 +1,23 @@
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
-import { FixDeleteModal, getDeleteFixTitle, isDeleteFix } from './fix-delete-confirmation';
+import { FixDeleteModal, getDeleteFixTitle } from './fix-delete-confirmation';
 import { getSoftwareActionLabels } from './labels';
 import { useCanIgnore } from './store';
-import { fixThreats, ignoreThreats, unignoreThreat, useGetThreatBusy } from './threat-actions';
+import {
+	fixThreats,
+	ignoreThreats,
+	isDeleteFix,
+	refocusRow,
+	unignoreThreat,
+	useGetThreatBusy,
+} from './threat-actions';
 import type { ScanThreat } from './types';
 import type { Action } from '@wordpress/dataviews';
 
 type LinkKey = 'update' | 'deactivate' | 'details';
 
 type OpenThreat = ( item: ScanThreat ) => void;
-
-/**
- * Focus a threat's row when focus was lost, as when the button that started its action goes away.
- *
- * @param item - The threat.
- */
-function refocusRow( item: ScanThreat ) {
-	const title = Array.from( document.querySelectorAll< HTMLElement >( '[data-threat-id]' ) ).find(
-		element => element.dataset.threatId === String( item.id )
-	);
-	const { activeElement, body } = title?.ownerDocument ?? {};
-	if ( title && ( ! activeElement || activeElement === body ) ) {
-		title.focus();
-	}
-}
 
 /**
  * A row's DataViews actions: primary ones show as buttons without hovering, and the ⋯ menu lists them all.
@@ -76,11 +68,16 @@ function getThreatRowActions(
 			isPrimary: true,
 			callback: ( [ item ] ) => item && open( item ),
 		},
+		// `auto-fix` and `auto-fix-delete` are mutually exclusive by isDeleteFix.
 		{
 			id: 'auto-fix',
 			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item => canFix( item ) && ! isDeleteFix( item ),
+			isEligible: item =>
+				canFix( item ) &&
+				! isDeleteFix( item ) &&
+				// Like Protect, which leaves these out of fixing all threats.
+				! ( item.fixable && item.fixable.extras?.isBulkFixable === false ),
 			supportsBulk: !! onBulk,
 			// Not awaited: a fix can take minutes, and its snackbar follows it.
 			callback: locking( ( items, from ) => {

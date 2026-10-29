@@ -8,20 +8,6 @@ import type { RenderModalProps } from '@wordpress/dataviews';
 import type { ChangeEvent } from 'react';
 
 /**
- * Whether Scan's fix for the threat deletes the plugin or theme it is in.
- *
- * @param threat - The threat.
- * @return True when the fix deletes the software.
- */
-export function isDeleteFix( threat: ScanThreat ): boolean {
-	return (
-		threat.signature === 'Vulnerable.WP.Extension' &&
-		!! threat.fixable &&
-		threat.fixable.fixer === 'delete'
-	);
-}
-
-/**
  * The confirmation's title: "Delete this plugin?" or "Delete this theme?".
  *
  * @param threat - A threat whose fix deletes its software.

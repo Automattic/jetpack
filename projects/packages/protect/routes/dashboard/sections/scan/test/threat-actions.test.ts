@@ -214,6 +214,21 @@ describe( 'bulk actions', () => {
 		expect( bulkNotices() ).toEqual( [ expect.objectContaining( { status, content } ) ] );
 	} );
 
+	it( 'leaves a fix that deletes software out of a batch', async () => {
+		mockApiFetch.mockReset().mockResolvedValue( { status: 'fixed' } );
+		const deleting = {
+			...fileThreat( 61 ),
+			signature: 'Vulnerable.WP.Extension',
+			fixable: { fixer: 'delete' as const },
+		};
+
+		await act( () => fixThreats( [ deleting, fileThreat( 62 ) ] ) );
+
+		expect( mockApiFetch.mock.calls.map( ( [ { path } ] ) => path ) ).toEqual( [
+			'/jetpack/v4/protect-dashboard/scan/threats/62/fix',
+		] );
+	} );
+
 	// A fix's start answers `in_progress`, so its polls must wait outside the five slots.
 	it.each( [
 		[ 'ignoreThreats', ignoreThreats, {} ],
