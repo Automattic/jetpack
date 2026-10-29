@@ -94,12 +94,14 @@ describe( 'resolveLeaderboardEntries', () => {
 		}
 	);
 
-	it( 'does not set previousShare when there is no previous value', () => {
-		const [ entry ] = resolveLeaderboardEntries( toEntries( [ { currentValue: 5 } ] ), {
-			includePrevious: true,
-		} );
+	it( 'sizes rows without a previous value against the shared max', () => {
+		const result = resolveLeaderboardEntries(
+			toEntries( [ { currentValue: 50, previousValue: 100 }, { currentValue: 25 } ] ),
+			{ includePrevious: true }
+		);
 
-		expect( entry ).not.toHaveProperty( 'previousShare' );
+		expect( result.map( ( { currentShare } ) => currentShare ) ).toEqual( [ 50, 25 ] );
+		expect( result[ 1 ] ).not.toHaveProperty( 'previousShare' );
 	} );
 
 	it( 'gives shares of 0 when every value is 0', () => {
