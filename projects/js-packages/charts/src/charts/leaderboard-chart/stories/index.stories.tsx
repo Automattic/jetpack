@@ -106,6 +106,14 @@ const meta: Meta< StoryArgs > = {
 				defaultValue: { summary: 'false' },
 			},
 		},
+		negativeBars: {
+			control: 'inline-radio',
+			options: [ 'diverge', 'clamp' ],
+			description: 'How a negative value draws: from a shared zero point, or as an empty bar',
+			table: {
+				defaultValue: { summary: 'diverge' },
+			},
+		},
 		legendLabels: {
 			control: 'object',
 			description: 'Custom labels for legend items',
@@ -582,6 +590,23 @@ export const NegativeValues: Story = {
 			description: {
 				story:
 					'A negative value puts every row on a shared zero point, placed in proportion to the range of shares derived from the values: negative bars extend toward the inline start and positive bars toward the inline end.',
+			},
+		},
+	},
+};
+
+export const ClampedNegativeValues: Story = {
+	args: {
+		...NegativeValues.args,
+		withOverlayLabel: true,
+		negativeBars: 'clamp',
+	},
+	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'With `negativeBars="clamp"`, a negative value draws as an empty bar and the other bars are sized against the largest positive value.',
 			},
 		},
 	},

@@ -16,6 +16,7 @@ Main chart component for displaying ranked data with optional comparison values.
 | `ariaLabel` | `string` | `'Leaderboard chart'` | Accessible name of the list. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names). Not the same as `LeaderboardEntry.ariaLabel`, which names a clickable row. |
 | `withComparison` | `boolean` | `false` | Whether to show comparison data (previous period bars and delta values) |
 | `withOverlayLabel` | `boolean` | `false` | Whether to overlay the label on top of the bar |
+| `negativeBars` | `'diverge' \| 'clamp'` | `'diverge'` | How a negative value draws. `diverge` puts every row on a shared zero point. `clamp` draws a negative share as an empty bar and sizes the other bars against the largest positive value. Labels and deltas keep the real values either way. |
 | `primaryColor` | `string` | first palette slot | Primary color for current period bars |
 | `secondaryColor` | `string` | second palette slot | Secondary color for comparison period bars |
 | `valueFormatter` | `(value: number) => ReactNode` | `defaultValueFormatter` | Custom formatter for values; may return an element, e.g. to attach a tooltip |
@@ -58,7 +59,7 @@ interface LeaderboardEntry {
 
 An entry that omits `currentShare`, `previousShare` or `delta` gets them from `currentValue` and `previousValue`. Each field is resolved on its own: a passed value wins, and `undefined` means derive.
 
-- **Shares**: `value / max * 100`, where `max` is the largest absolute value across all rows. Previous values count toward `max` only when comparison bars draw (`withComparison` without `withOverlayLabel`). A `max` of `0` gives a share of `0`. `previousShare` is derived only when the entry has a `previousValue`.
+- **Shares**: `value / max * 100`, where `max` is the largest absolute value across all rows. Previous values count toward `max` only when comparison bars draw (`withComparison` without `withOverlayLabel`). A `max` of `0` gives a share of `0`. `previousShare` is derived only when the entry has a `previousValue`. With `negativeBars="clamp"`, `max` is the largest positive value and every share, passed or derived, is at least `0`.
 - **Delta**: `(currentValue - previousValue) / abs(previousValue) * 100`. It stays unset when the entry has no `previousValue`, or when `previousValue` is `0` and `currentValue` is not. Both values `0` gives `0`.
 
 ## CustomProperties Type

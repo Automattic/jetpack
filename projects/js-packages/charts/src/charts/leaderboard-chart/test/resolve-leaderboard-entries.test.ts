@@ -77,6 +77,27 @@ describe( 'resolveLeaderboardEntries', () => {
 		expect( result.map( ( { currentShare } ) => currentShare ) ).toEqual( [ -50, 100 ] );
 	} );
 
+	it( 'clamps negative shares to 0 and sizes the rest against the largest positive value', () => {
+		const result = resolveLeaderboardEntries(
+			toEntries( [
+				{ currentValue: -90, previousValue: 30 },
+				{ currentValue: 60, previousValue: -10, previousShare: -20 },
+			] ),
+			{ includePrevious: true, clampNegative: true }
+		);
+
+		expect(
+			result.map( ( { currentShare, previousShare, delta } ) => ( {
+				currentShare,
+				previousShare,
+				delta,
+			} ) )
+		).toEqual( [
+			{ currentShare: 0, previousShare: 50, delta: -400 },
+			{ currentShare: 100, previousShare: 0, delta: 700 },
+		] );
+	} );
+
 	it.each( [
 		{ currentValue: 5, previousValue: -10, expected: 150 },
 		{ currentValue: 0, previousValue: 0, expected: 0 },

@@ -126,6 +126,12 @@ A negative value switches every row to a diverging layout: bars grow out from a 
 
 <Canvas of={ LeaderboardChartStories.NegativeValues } />
 
+Set `negativeBars="clamp"` to keep every bar on one side instead. A negative value draws as an empty bar, and the other bars are sized against the largest positive value. The labels and deltas still show the real values:
+
+<Canvas of={ LeaderboardChartStories.ClampedNegativeValues } />
+
+<Source language="tsx" code={ `<LeaderboardChart data={ data } withOverlayLabel negativeBars="clamp" />` } />
+
 ## Data Formatting
 
 ### Custom Value Formatting

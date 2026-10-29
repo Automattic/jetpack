@@ -20,26 +20,32 @@ const toDelta = ( currentValue: number, previousValue: number | undefined ) => {
  * @param data                    - Leaderboard entries; passed shares and delta win over derived ones.
  * @param options                 - Resolver options.
  * @param options.includePrevious - Whether previous values count toward the shared max.
+ * @param options.clampNegative   - Whether a negative share draws as an empty bar instead of below zero.
  * @return Entries with `currentShare` always set.
  */
 export function resolveLeaderboardEntries(
 	data: LeaderboardEntry[],
-	{ includePrevious }: { includePrevious: boolean }
+	{ includePrevious, clampNegative = false }: { includePrevious: boolean; clampNegative?: boolean }
 ): ResolvedLeaderboardEntry[] {
+	const magnitude = clampNegative ? ( value: number ) => Math.max( value, 0 ) : Math.abs;
+	const clamp = ( share: number ) => ( clampNegative ? Math.max( share, 0 ) : share );
+
 	const max = data.reduce( ( largest, { currentValue, previousValue } ) => {
-		const previous = includePrevious && previousValue != null ? Math.abs( previousValue ) : 0;
-		return Math.max( largest, Math.abs( currentValue ), previous );
+		const previous = includePrevious && previousValue != null ? magnitude( previousValue ) : 0;
+		return Math.max( largest, magnitude( currentValue ), previous );
 	}, 0 );
 
 	return data.map( entry => {
-		const previousShare =
+		const passedOrDerivedPrevious =
 			entry.previousShare ??
 			( entry.previousValue != null ? toShare( entry.previousValue, max ) : undefined );
+		const previousShare =
+			passedOrDerivedPrevious !== undefined ? clamp( passedOrDerivedPrevious ) : undefined;
 		const delta = entry.delta ?? toDelta( entry.currentValue, entry.previousValue );
 
 		return {
 			...entry,
-			currentShare: entry.currentShare ?? toShare( entry.currentValue, max ),
+			currentShare: clamp( entry.currentShare ?? toShare( entry.currentValue, max ) ),
 			...( previousShare !== undefined && { previousShare } ),
 			...( delta !== undefined && { delta } ),
 		};

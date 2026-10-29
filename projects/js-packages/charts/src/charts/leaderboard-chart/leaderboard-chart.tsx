@@ -230,6 +230,7 @@ const BarWithLabel = ( {
  * @param props.height           - Optional height of the chart container in pixels
  * @param props.withComparison   - Whether to show comparison data
  * @param props.withOverlayLabel - Whether to overlay the label on top of the bar
+ * @param props.negativeBars     - How a negative value draws: from a shared zero point, or as an empty bar
  * @param props.primaryColor     - Primary color for current period bars
  * @param props.secondaryColor   - Secondary color for comparison period bars
  * @param props.valueFormatter   - Custom formatter for values
@@ -254,6 +255,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	height: propHeight,
 	withComparison = false,
 	withOverlayLabel = false,
+	negativeBars = 'diverge',
 	primaryColor,
 	secondaryColor,
 	valueFormatter = defaultValueFormatter,
@@ -326,8 +328,12 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	const withComparisonBars = withComparison && ! withOverlayLabel;
 
 	const resolvedData = useMemo(
-		() => resolveLeaderboardEntries( data ?? [], { includePrevious: withComparisonBars } ),
-		[ data, withComparisonBars ]
+		() =>
+			resolveLeaderboardEntries( data ?? [], {
+				includePrevious: withComparisonBars,
+				clampNegative: negativeBars === 'clamp',
+			} ),
+		[ data, withComparisonBars, negativeBars ]
 	);
 
 	// One negative share puts every row on a shared zero point, so the bars stay comparable.

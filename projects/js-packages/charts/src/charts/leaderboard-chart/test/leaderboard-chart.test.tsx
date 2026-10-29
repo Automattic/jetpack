@@ -186,6 +186,16 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( expected );
 	} );
 
+	it( 'keeps every bar on one side when negative bars clamp', () => {
+		const data = [
+			{ ...mockData[ 0 ], currentShare: undefined, currentValue: -40 },
+			mockData[ 1 ],
+		];
+		render( <LeaderboardChart data={ data } withComparison negativeBars="clamp" /> );
+
+		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( 0 );
+	} );
+
 	it.each( [
 		[ 'comparison bars draw', false, /^calc\(50%/ ],
 		[ 'the overlay label hides comparison bars', true, /^calc\(100%/ ],
