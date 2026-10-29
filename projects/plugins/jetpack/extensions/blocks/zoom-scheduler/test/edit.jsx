@@ -57,7 +57,7 @@ describe( 'ZoomSchedulerEdit', () => {
 			} )
 		).toHaveAttribute(
 			'href',
-			'https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0058092'
+			'https://wordpress.com/support/wordpress-editor/blocks/zoom-scheduler-block#find-your-zoom-scheduler-booking-page-url'
 		);
 	} );
 

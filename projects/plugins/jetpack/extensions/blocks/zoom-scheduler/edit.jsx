@@ -15,7 +15,8 @@ import { Link } from '@wordpress/ui';
 import metadata from './block.json';
 import { getEmbedUrl, normalizeUrl } from './utils';
 
-const HELP_URL = 'https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0058092';
+const HELP_URL =
+	'https://wordpress.com/support/wordpress-editor/blocks/zoom-scheduler-block#find-your-zoom-scheduler-booking-page-url';
 const SIGNUP_URL = 'https://scheduler.zoom.us/sign-up?signUpFrom=wordpress-com';
 // Keep in sync with the IFRAME_HEIGHT in render.php and min-block-size in view.scss.
 const IFRAME_HEIGHT = 900;
