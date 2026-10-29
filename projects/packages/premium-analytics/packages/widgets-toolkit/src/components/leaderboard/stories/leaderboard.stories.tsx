@@ -85,7 +85,7 @@ export const BarsWithComparison: Story = {
 	parameters: { reportParams: getDefaultQueryParams( true ) },
 };
 
-export const NegativeValues: Story = {
+export const BarsWithNegativeValues: Story = {
 	args: {
 		variant: 'bars',
 		rows: [
