@@ -108,6 +108,20 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 		expect( onPreviousPeriodShownChange ).not.toHaveBeenCalled();
 	} );
 
+	it( 'applies the default again when chartId changes without a remount', () => {
+		const onPreviousPeriodShownChange = jest.fn();
+		const props = { defaultPreviousPeriodShown: false, onPreviousPeriodShownChange };
+		const view = renderChart( props );
+
+		view.rerender( chart( { ...props, chartId: 'visitors' } ) );
+
+		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'false' );
+		expect(
+			[ 'Previous views', 'Previous visitors' ].map( label => isSeriesVisible( 'visitors', label ) )
+		).toEqual( [ false, false ] );
+		expect( onPreviousPeriodShownChange ).not.toHaveBeenCalled();
+	} );
+
 	it( 'draws the previous period when its legend item is clicked, and reports it', async () => {
 		const user = setupUser();
 		const onPreviousPeriodShownChange = jest.fn();
