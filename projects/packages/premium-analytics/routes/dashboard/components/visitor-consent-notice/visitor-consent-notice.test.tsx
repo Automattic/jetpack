@@ -36,6 +36,7 @@ const NOT_SET_UP = {
 	api_installed: true,
 	has_banner: false,
 	banner_plugin: 'Complianz',
+	banner_blocks_stats: false,
 	recommended_banners: [],
 	can_install: true,
 	can_activate: true,
@@ -164,6 +165,7 @@ describe( 'VisitorConsentNotice', () => {
 	it.each( [
 		[ 'WP Consent API is already active', { api_active: true }, {} ],
 		[ 'the site has no cookie banner', { banner_plugin: null }, {} ],
+		[ 'the banner already blocks Stats itself', { banner_blocks_stats: true }, {} ],
 		[ 'WordPress.com omits its state', {}, { visitor_consent_setup: undefined } ],
 		[ 'the user dismissed it', {}, { visitor_consent_setup: false } ],
 	] )( 'stays away when %s', async ( _title, consent, state ) => {

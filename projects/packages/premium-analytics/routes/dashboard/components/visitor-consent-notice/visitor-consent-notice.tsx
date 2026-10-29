@@ -35,7 +35,10 @@ export function resetVisitorConsentNoticeForTesting() {
 export function useVisitorConsentNoticeVisibility(): boolean | undefined {
 	const status = useConsentStatus();
 	const eligible =
-		!! status && ! status.api_active && ( status.has_banner || status.banner_plugin !== null );
+		!! status &&
+		! status.api_active &&
+		! status.banner_blocks_stats &&
+		( status.has_banner || status.banner_plugin !== null );
 	const { data: notices, isError } = useStatsAppNotices( undefined, { enabled: eligible } );
 
 	if ( ! eligible ) {
