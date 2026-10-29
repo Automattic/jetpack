@@ -155,6 +155,13 @@ export async function rsyncInit( argv ) {
 
 	if ( argv.watch ) {
 		await tracks( 'rsync_watch' );
+		if ( password ) {
+			console.warn(
+				chalk.yellow(
+					'Each sync is a separate password login. Hosts that lock out after repeated logins, such as Jurassic Ninja, may lock the site after a few changes.'
+				)
+			);
+		}
 		let watcher;
 		const rsyncAndUpdateWatches = async ( event, eventfile ) => {
 			if ( argv.v ) {
@@ -657,7 +664,13 @@ async function rsyncToDest( source, dest, password = null ) {
 			runOpts.stdio = [ 'pipe', 'inherit', 'inherit' ];
 		}
 
-		const { status } = spawnSync( 'rsync', rsyncArgs, runOpts );
+		const { status, signal, error } = spawnSync( 'rsync', rsyncArgs, runOpts );
+		if ( error || signal ) {
+			console.error(
+				chalk.red( `rsync did not run to completion: ${ error?.message ?? signal }` )
+			);
+			process.exit( 1 );
+		}
 		if ( status !== 0 ) {
 			// rsync exits 255 when ssh itself fails, as opposed to the remote rsync.
 			if ( password && status === 255 ) {
@@ -865,7 +878,7 @@ export function rsyncDefine( yargs ) {
 				} )
 				.option( 'watch', {
 					describe:
-						'Watch the plugin for changes and rsync on change. Note this will probably not be useful if rsync prompts for a password, unless --password is also provided.',
+						'Watch the plugin for changes and rsync on change. Note this will probably not be useful if rsync prompts for a password, unless --password is also provided, in which case each sync is a separate password login.',
 					type: 'boolean',
 				} )
 				.option( 'non-interactive', {
