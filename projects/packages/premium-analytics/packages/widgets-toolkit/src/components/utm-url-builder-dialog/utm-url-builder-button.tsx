@@ -7,6 +7,7 @@ import { link } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import styles from './utm-url-builder-button.module.scss';
 import type { JSX } from 'react';
 
 export type UtmUrlBuilderButtonProps = {
@@ -29,8 +30,8 @@ export function UtmUrlBuilderButton( { label, onClick }: UtmUrlBuilderButtonProp
 			<Tooltip.Trigger
 				render={
 					<Button
-						size="small"
-						variant="minimal"
+						className={ styles.button }
+						variant="unstyled"
 						type="button"
 						onClick={ onClick }
 						aria-label={ sprintf(
