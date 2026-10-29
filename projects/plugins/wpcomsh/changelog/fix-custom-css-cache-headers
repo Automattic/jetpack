@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Custom CSS: Fix repeated stylesheet downloads caused by plugin cookies and no-cache headers.
