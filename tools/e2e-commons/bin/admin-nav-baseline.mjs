@@ -270,7 +270,12 @@ const all = [];
 for ( const name of args.browsers.split( ',' ) ) {
 	const storageState = await login();
 	for ( let run = 1; run <= Number( args.runs ); run++ ) {
-		all.push( ...( await oneRun( name, BROWSERS[ name ], storageState, run ) ) );
+		try {
+			all.push( ...( await oneRun( name, BROWSERS[ name ], storageState, run ) ) );
+		} catch ( error ) {
+			// Keep the other runs' samples; a failed run shows up as a lower n.
+			console.error( `${ name } run ${ run } failed: ${ error.message.split( '\n' )[ 0 ] }` );
+		}
 	}
 }
 
