@@ -103,6 +103,8 @@ if [[ -n "$CI" ]]; then
 	echo "::group::Committing to SVN"
 	if ! svn commit -m "$COMMIT_MSG" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"; then
 		# WP.org SVN can "fail" on large commits that did land, so check trunk's log to see if it really was successful.
+		# But first let's give it some time to wrap up server-side.
+		sleep 60
 		if ! svn log -l 1 "https://plugins.svn.wordpress.org/$WPSLUG/trunk" | grep -qxF "$COMMIT_MSG"; then
 			echo "::error::SVN commit failed."
 			exit 1
