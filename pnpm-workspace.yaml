@@ -88,4 +88,8 @@ patchedDependencies:
   # It also restores the `boot-layout-container` class on the mount element,
   # which those older cores' Boot uses to size the page to the viewport; 0.22.0
   # dropped it and WordPress/gutenberg#82112 (unreleased) brings it back.
+  # It also adds shared script modules: `wp-build-shared` bundles the libraries
+  # in admin-ui's `wpSharedModules` once, pruned to its committed export list,
+  # and `wpPlugin.sharedModules` makes a consumer import them instead of
+  # bundling a copy, failing its build when it imports a name the list lacks.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch
