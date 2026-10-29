@@ -550,13 +550,11 @@ class Protect extends Hybrid_Product {
 	 * @return array
 	 */
 	public static function get_info() {
-		$host_url = static::get_host_manage_url();
-
 		return array_merge(
 			parent::get_info(),
 			array(
 				'has_protect_page' => static::has_protect_page(),
-				'scan_results_url' => $host_url ? $host_url : Scan::get_manage_url(),
+				'scan_results_url' => static::get_manage_url(),
 			)
 		);
 	}
