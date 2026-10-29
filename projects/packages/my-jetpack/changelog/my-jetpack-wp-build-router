@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Show feature details in a sidebar and move to the wp-build router; old links keep working.
