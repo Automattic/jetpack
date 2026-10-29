@@ -51,28 +51,6 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the AI Agent Access setting is added to the Sync options whitelist.
-	 */
-	public function test_add_ai_agents_sync_options_whitelist_adds_option() {
-		$this->assertSame(
-			array( 'existing_option', 'jetpack_ai_agents_enabled' ),
-			AiAssistantPlugin\add_ai_agents_sync_options_whitelist( array( 'existing_option' ) )
-		);
-	}
-
-	/**
-	 * Test that the AI Agent Access Sync whitelist entry is not duplicated.
-	 */
-	public function test_add_ai_agents_sync_options_whitelist_deduplicates_option() {
-		$this->assertSame(
-			array( 'jetpack_ai_agents_enabled', 'existing_option' ),
-			AiAssistantPlugin\add_ai_agents_sync_options_whitelist(
-				array( 'jetpack_ai_agents_enabled', 'existing_option' )
-			)
-		);
-	}
-
-	/**
 	 * Reset Jetpack Gutenberg extension availability.
 	 */
 	private function reset_availability() {

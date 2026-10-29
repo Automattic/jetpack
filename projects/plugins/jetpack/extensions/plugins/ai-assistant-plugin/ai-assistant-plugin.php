@@ -61,24 +61,6 @@ Jetpack_AI_Sidebar::init();
 require_once __DIR__ . '/reader-chat/class-jetpack-reader-chat.php';
 Jetpack_Reader_Chat::init();
 
-/**
- * Add the AI Agent Access setting to Jetpack Sync's option whitelist.
- *
- * Jetpack no longer exposes a control for `jetpack_ai_agents_enabled`, but
- * sites that opted in earlier still hold a value. Syncing the option keeps the
- * WP.com-hosted ability permission gate aligned with it.
- *
- * @since 15.9
- *
- * @param array $options Option names allowed to sync.
- * @return array Updated option names.
- */
-function add_ai_agents_sync_options_whitelist( array $options ): array {
-	$options[] = 'jetpack_ai_agents_enabled';
-	return array_values( array_unique( $options ) );
-}
-add_filter( 'jetpack_sync_options_whitelist', __NAMESPACE__ . '\add_ai_agents_sync_options_whitelist' );
-
 // Populate the available extensions with ai-assistant-plugin.
 add_filter(
 	'jetpack_set_available_extensions',
