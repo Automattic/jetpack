@@ -32,6 +32,7 @@ describe( 'toViewLiveUrl', () => {
 		[ 'the homepage ID', 0, 'https://example.com/' ],
 		[ 'no URL', 42, null ],
 		[ 'an unsupported scheme', 42, 'javascript:alert(1)' ],
+		[ 'a wp-admin URL', 42, 'https://example.com/wp-admin/media.php?action=edit&attachment_id=42' ],
 	] )( 'offers no action for a post row with %s', ( _, id, link ) => {
 		expect( toViewLiveUrl( 'post', id, link ) ).toBeUndefined();
 	} );
