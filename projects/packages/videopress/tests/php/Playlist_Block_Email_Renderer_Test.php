@@ -113,21 +113,47 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A rendering context with the default 600px email layout.
+	 * A rendering context with an email layout of the given width.
+	 *
+	 * @param string $width Layout width without padding.
 	 *
 	 * @return object
 	 */
-	private function context() {
-		return new class() {
+	private function context( $width = '480px' ) {
+		return new class( $width ) {
+			/**
+			 * Layout width.
+			 *
+			 * @var string
+			 */
+			private $width;
+
+			/**
+			 * @param string $width Layout width.
+			 */
+			public function __construct( $width ) {
+				$this->width = $width;
+			}
+
 			/**
 			 * Get layout width.
 			 *
 			 * @return string
 			 */
 			public function get_layout_width_without_padding() {
-				return '600px';
+				return $this->width;
 			}
 		};
+	}
+
+	/**
+	 * Assert the email has links, all of them to the post.
+	 *
+	 * @param string $result Rendered email markup.
+	 */
+	private function assert_links_open_the_post( $result ) {
+		$this->assertStringContainsString( 'href="', $result );
+		$this->assertSame( 0, preg_match( '#href="(?!' . preg_quote( get_permalink( $this->post_id ), '#' ) . ')#', $result ), 'Every link should open the post.' );
 	}
 
 	public function test_first_video_renders_as_poster_linking_to_the_post() {
@@ -138,14 +164,19 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 	}
 
 	public function test_other_videos_render_as_linked_thumbnails_with_titles() {
-		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( 3 ), $this->context() );
+		$block = $this->playlist_block( 3 );
+		$this->cache_video_details( 'vidGui03', 'Title <3>', 'https://videos.files.wordpress.com/vidGui03/poster.jpg' );
+
+		$result = Playlist_Block_Email_Renderer::render( '', $block, $this->context() );
 
 		foreach ( array( 2, 3 ) as $i ) {
 			$this->assertStringContainsString( "src=\"https://videos.files.wordpress.com/vidGui0$i/poster.jpg\"", $result );
-			$this->assertStringContainsString( "Title $i", $result );
 		}
+		$this->assertStringContainsString( 'Title 2', $result );
+		$this->assertStringContainsString( 'Title &lt;3&gt;', $result );
 		$this->assertSame( 1, substr_count( $result, 'vidGui01/poster.jpg' ), 'The first video should not repeat in the grid.' );
-		$this->assertSame( 0, preg_match( '#href="(?!' . preg_quote( get_permalink( $this->post_id ), '#' ) . ')#', $result ), 'Every link should open the post.' );
+		$this->assertSame( 3, substr_count( $result, '<td style="width: 33.33%' ), 'The last row should be padded to a full row.' );
+		$this->assert_links_open_the_post( $result );
 	}
 
 	/**
@@ -188,18 +219,18 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( 1 ), $this->context() );
 
 		$this->assertStringContainsString( 'vidGui01/poster.jpg', $result );
-		$this->assertStringNotContainsString( '<img', $result );
+		$this->assertStringNotContainsString( 'table-layout: fixed', $result );
 	}
 
 	/**
-	 * Block email_attrs, and the thumbnail width a third of that width gives.
+	 * Block email_attrs, the block width they give, and the thumbnail width a third of it gives.
 	 *
 	 * @return array
 	 */
 	public static function grid_width_provider() {
 		return array(
-			'full email width'  => array( array(), 192 ),
-			'half-width column' => array( array( 'width' => '300px' ), 92 ),
+			'email content width' => array( array(), 480, 152 ),
+			'half-width column'   => array( array( 'width' => '300px' ), 300, 92 ),
 		);
 	}
 
@@ -207,31 +238,59 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 	 * @dataProvider grid_width_provider
 	 *
 	 * @param array $email_attrs Email editor attributes of the block.
+	 * @param int   $block_width Expected block max-width.
 	 * @param int   $width       Expected thumbnail width attribute.
 	 */
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'grid_width_provider' )]
-	public function test_grid_thumbnails_are_sized_for_the_block_width( $email_attrs, $width ) {
+	public function test_grid_thumbnails_are_sized_for_the_block_width( $email_attrs, $block_width, $width ) {
 		$block                = $this->playlist_block( 3 );
 		$block['email_attrs'] = $email_attrs;
 
 		$result = Playlist_Block_Email_Renderer::render( '', $block, $this->context() );
 
+		$this->assertStringContainsString( "max-width: {$block_width}px;", $result );
 		$this->assertSame( 2, substr_count( $result, "width=\"$width\"" ) );
 	}
 
-	public function test_long_playlists_cap_the_grid_and_link_to_the_rest() {
-		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( 10 ), $this->context() );
+	public function test_wrapper_keeps_the_block_spacing() {
+		$block                = $this->playlist_block( 1 );
+		$block['email_attrs'] = array( 'margin-top' => '24px' );
+
+		$result = Playlist_Block_Email_Renderer::render( '', $block, $this->context() );
+
+		$this->assertStringContainsString( 'style="margin-top:24px; width: 100%;', $result );
+	}
+
+	/**
+	 * Playlist lengths, and the "more" link expected under the grid.
+	 *
+	 * @return array
+	 */
+	public static function grid_cap_provider() {
+		return array(
+			'every video fits' => array( 7, null ),
+			'too many videos'  => array( 10, '+ 3 more videos' ),
+		);
+	}
+
+	/**
+	 * @dataProvider grid_cap_provider
+	 *
+	 * @param int         $count Number of videos in the playlist.
+	 * @param string|null $more  Expected "more" link text, or null for none.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'grid_cap_provider' )]
+	public function test_long_playlists_cap_the_grid_and_link_to_the_rest( $count, $more ) {
+		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( $count ), $this->context() );
 
 		$this->assertStringContainsString( 'vidGui07/poster.jpg', $result );
 		$this->assertStringNotContainsString( 'vidGui08/poster.jpg', $result );
-		$this->assertStringContainsString( '+ 3 more videos', $result );
-	}
-
-	public function test_no_more_link_when_every_video_fits() {
-		$result = Playlist_Block_Email_Renderer::render( '', $this->playlist_block( 7 ), $this->context() );
-
-		$this->assertStringContainsString( 'vidGui07/poster.jpg', $result );
-		$this->assertStringNotContainsString( 'more video', $result );
+		if ( null === $more ) {
+			$this->assertStringNotContainsString( 'more video', $result );
+		} else {
+			$this->assertStringContainsString( $more, $result );
+		}
+		$this->assert_links_open_the_post( $result );
 	}
 
 	/**
@@ -283,6 +342,7 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'email-video', $result );
 		$this->assertStringContainsString( 'Visit the post to watch the video', $result );
 		$this->assertStringContainsString( 'vidGui02/poster.jpg', $result );
+		$this->assert_links_open_the_post( $result );
 	}
 
 	/**
@@ -323,6 +383,7 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 	public function test_latest_videos_playlist_renders_the_newest_videos() {
 		$this->cache_video_details( 'newVid01', 'Newest', 'https://videos.files.wordpress.com/newVid01/poster.jpg' );
 		$this->cache_video_details( 'newVid02', 'Second newest', 'https://videos.files.wordpress.com/newVid02/poster.jpg' );
+		$this->cache_video_details( 'newVid03', 'Third newest', 'https://videos.files.wordpress.com/newVid03/poster.jpg' );
 		add_filter(
 			'rest_pre_dispatch',
 			function ( $result, $server, $request ) {
@@ -372,25 +433,26 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Latest Videos Playlist orders other than newest, and the video each puts first.
+	 * Latest Videos Playlist settings the front end browses the site's videos for, and the video each puts first.
 	 *
 	 * @return array
 	 */
-	public static function latest_videos_order_provider() {
+	public static function latest_videos_browse_provider() {
 		return array(
-			'popular' => array( 'popular', 'sortVid2' ),
-			'oldest'  => array( 'oldest', 'sortVid3' ),
+			'popular'            => array( array( 'orderBy' => 'popular' ), 'sortVid2' ),
+			'oldest'             => array( array( 'orderBy' => 'oldest' ), 'sortVid3' ),
+			'newest, with stats' => array( array( 'showMeta' => true ), 'sortVid1' ),
 		);
 	}
 
 	/**
-	 * @dataProvider latest_videos_order_provider
+	 * @dataProvider latest_videos_browse_provider
 	 *
-	 * @param string $order Block orderBy attribute.
-	 * @param string $first GUID the front end shows first for that order.
+	 * @param array  $attrs Block attributes.
+	 * @param string $first GUID the front end shows first for those settings.
 	 */
-	#[\PHPUnit\Framework\Attributes\DataProvider( 'latest_videos_order_provider' )]
-	public function test_latest_videos_playlist_keeps_the_block_order( $order, $first ) {
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'latest_videos_browse_provider' )]
+	public function test_browsed_latest_videos_playlist_keeps_the_block_order( $attrs, $first ) {
 		$records = array();
 		foreach ( array( 'sortVid1', 'sortVid2', 'sortVid3' ) as $i => $guid ) {
 			$records[] = array(
@@ -420,14 +482,12 @@ class Playlist_Block_Email_Renderer_Test extends BaseTestCase {
 			'',
 			array(
 				'blockName' => 'videopress/latest-videos-playlist',
-				'attrs'     => array(
-					'count'   => 2,
-					'orderBy' => $order,
-				),
+				'attrs'     => array_merge( array( 'count' => 2 ), $attrs ),
 			),
 			$this->context()
 		);
 
 		$this->assertStringContainsString( "data-poster=\"https://videos.files.wordpress.com/$first/poster.jpg\"", $result );
+		$this->assertSame( 1, substr_count( $result, '<img' ), 'The grid should hold the one video the count leaves.' );
 	}
 }

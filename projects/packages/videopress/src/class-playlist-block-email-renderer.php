@@ -103,7 +103,7 @@ class Playlist_Block_Email_Renderer {
 	/**
 	 * Render the Latest Videos Playlist block for email: the site's videos, in the block's order, as a playlist.
 	 *
-	 * @param string $block_content     The block's front-end HTML, unused: the block has no title.
+	 * @param string $block_content     The block's front-end HTML, unused: email builds its own markup.
 	 * @param array  $parsed_block      The parsed block data including attributes.
 	 * @param object $rendering_context Email rendering context.
 	 *
@@ -113,10 +113,13 @@ class Playlist_Block_Email_Renderer {
 		$attributes = isset( $parsed_block['attrs'] ) && is_array( $parsed_block['attrs'] ) ? $parsed_block['attrs'] : array();
 		$query      = Initializer::latest_videos_playlist_query( $attributes );
 
+		// The same source as the front end, which has no current video to exclude on a post.
+		$is_browsed = 'newest' !== $query['order'] || $query['paginated'] || ! empty( $attributes['showBrowseControls'] ) || ! empty( $attributes['showMeta'] );
+
 		// Readers land on the post's first page with the block's own order, so ignore $_GET.
-		$entries = 'newest' === $query['order']
-			? Data::get_latest_videopress_playlist_entries( $query['count'] )
-			: Channel_Data::browse( Channel_Data::browse_request( false, false, $query['order'] ), $query['count'] )['entries'];
+		$entries = $is_browsed
+			? Channel_Data::browse( Channel_Data::browse_request( false, false, $query['order'] ), $query['count'] )['entries']
+			: Data::get_latest_videopress_playlist_entries( $query['count'] );
 
 		$parsed_block['attrs']           = $attributes;
 		$parsed_block['attrs']['videos'] = $entries;
@@ -195,8 +198,8 @@ class Playlist_Block_Email_Renderer {
 	private static function render_grid( $videos, $post_url, $width ) {
 		$image_width = (int) floor( $width / self::GRID_COLUMNS ) - 2 * self::GRID_CELL_PADDING;
 		$cell_style  = sprintf(
-			'width: %s%%; padding: %dpx; vertical-align: top;',
-			round( 100 / self::GRID_COLUMNS, 2 ),
+			'width: %.2F%%; padding: %dpx; vertical-align: top;',
+			100 / self::GRID_COLUMNS,
 			self::GRID_CELL_PADDING
 		);
 
