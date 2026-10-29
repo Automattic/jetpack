@@ -23,6 +23,10 @@ import { getAllHiddenMessage } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import { useFittedRowCount, useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
+import {
+	resolveLeaderboardEntries,
+	type ResolvedLeaderboardEntry,
+} from './private/resolve-leaderboard-entries';
 import type { LeaderboardChartProps } from './types';
 import type { LeaderboardEntry } from '../../types';
 
@@ -75,15 +79,15 @@ const getBarWidth = ( share: number ): string =>
 	`calc(${ share }% - var(--a8c-charts-dimension-leaderboard-bar-hover-inset, 0px) * ${ share } / 100)`;
 
 const hasPreviousValue = (
-	entry: LeaderboardEntry
-): entry is LeaderboardEntry & {
+	entry: ResolvedLeaderboardEntry
+): entry is ResolvedLeaderboardEntry & {
 	previousValue: number;
 	previousShare: number;
 } => entry.previousValue != null && entry.previousShare != null;
 
 const hasDeltaValue = (
-	entry: LeaderboardEntry
-): entry is LeaderboardEntry & {
+	entry: ResolvedLeaderboardEntry
+): entry is ResolvedLeaderboardEntry & {
 	previousValue: number;
 	previousShare: number;
 	delta: number;
@@ -167,7 +171,7 @@ const BarWithLabel = ( {
 	isPrimaryVisible = true,
 	isComparisonVisible = true,
 }: {
-	entry: LeaderboardEntry;
+	entry: ResolvedLeaderboardEntry;
 	withComparison?: boolean;
 	withOverlayLabel?: boolean;
 	primaryColor: string;
@@ -318,11 +322,19 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		return ! isPrimaryVisible;
 	}, [ isPrimaryVisible, isComparisonVisible, withComparison, withOverlayLabel ] );
 
+	const resolvedData = useMemo(
+		() =>
+			resolveLeaderboardEntries( data ?? [], {
+				includePrevious: withComparison && ! withOverlayLabel,
+			} ),
+		[ data, withComparison, withOverlayLabel ]
+	);
+
 	// One negative share puts every row on a shared zero point, so the bars stay comparable.
 	const divergingScale = useMemo( (): DivergingScale | undefined => {
 		const withComparisonBars = withComparison && ! withOverlayLabel;
 		const scale = { negative: 0, positive: 0 };
-		for ( const entry of data ?? [] ) {
+		for ( const entry of resolvedData ) {
 			const shares = [ entry.currentShare ];
 			if ( withComparisonBars && hasPreviousValue( entry ) ) {
 				shares.push( entry.previousShare );
@@ -333,7 +345,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 			}
 		}
 		return scale.negative > 0 ? scale : undefined;
-	}, [ data, withComparison, withOverlayLabel ] );
+	}, [ resolvedData, withComparison, withOverlayLabel ] );
 
 	// Validate data
 	const isDataValid = Boolean( data && data.length > 0 );
@@ -471,7 +483,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 							columnGap={ COLUMN_GAP }
 							data-leaderboard-grid
 						>
-							{ data.map( ( entry, rowIndex ) => {
+							{ resolvedData.map( ( entry, rowIndex ) => {
 								// visibility, not clipping: hidden rows keep their geometry (so a
 								// taller container can reveal them) but leave hit testing, focus,
 								// and the accessibility tree.

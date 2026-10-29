@@ -81,6 +81,22 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'derives the delta of entries that pass only values', () => {
+		render(
+			<LeaderboardChart
+				data={ [
+					{ id: 'up', label: 'Up', currentValue: 100, previousValue: 80 },
+					{ id: 'down', label: 'Down', currentValue: 50, previousValue: 100 },
+				] }
+				withComparison={ true }
+				deltaFormatter={ testDeltaFormatter }
+			/>
+		);
+
+		expect( screen.getByText( '25delta' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-50delta' ) ).toBeInTheDocument();
+	} );
+
 	it( 'shows a placeholder when a row has no previous value', () => {
 		render(
 			<LeaderboardChart

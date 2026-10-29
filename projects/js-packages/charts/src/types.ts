@@ -214,20 +214,18 @@ type LeaderboardEntryFields = {
 	previousValue?: number;
 
 	/**
-	 * Width of current bar, as % of the largest absolute value across rows. A negative share
-	 * extends the bar from a shared zero point toward the inline start, for every row.
+	 * Width of current bar, as %. Derived from the values when omitted, against one max of absolute values across both periods. A passed value wins, e.g. for a share of an external total.
+	 * A negative share extends the bar from a shared zero point toward the inline start, for every row.
 	 */
-	currentShare: number;
+	currentShare?: number;
 
 	/**
-	 * Width of previous bar, as % of the largest absolute value across rows. Omit when this
-	 * row has no matching comparison-period value.
+	 * Width of previous bar, as %. Derived from `previousValue` when omitted, against the same max as `currentShare`. A passed value wins, e.g. for a share of an external total.
 	 */
 	previousShare?: number;
 
 	/**
-	 * Delta of the entry. Omit when the percentage change is unavailable, such
-	 * as when the row has no comparison value or its previous value is zero.
+	 * Percentage change. Derived from the values when omitted, and left unset when the row has no previous value or it is zero. A passed value wins.
 	 */
 	delta?: number;
 
