@@ -1063,6 +1063,10 @@ class Main_Features {
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
 			$included      = ! $local && self::is_included_in_plan( $definition, $product_class );
 			$upgrade       = $local ? null : self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included );
+			// A host's manage link doesn't replace an active standalone plugin's own page.
+			if ( is_array( $upgrade ) && $product_class && method_exists( $product_class, 'is_standalone_plugin_active' ) && $product_class::is_standalone_plugin_active() ) {
+				unset( $upgrade['manage_url'] );
+			}
 
 			$feature = array(
 				'slug'             => $slug,

@@ -26,9 +26,11 @@ export type ScanState = {
 	hasPlan: boolean;
 	/** False when the host doesn't let the site ignore threats. */
 	canIgnore?: boolean;
-	/** Where to set Scan's server credentials with a plan, or to buy Scan without one. */
+	/** Where to set Scan's server credentials with a plan, or to buy Scan without one; empty when credentials aren't needed. */
 	url: string;
-	/** Whether Scan has server credentials to auto-fix with; null when unknown. Only with a plan. */
+	/** False where the host lets Scan auto-fix threats without server credentials. Only with a plan. */
+	needsCredentials?: boolean;
+	/** Whether Scan has server credentials to auto-fix with; null when unknown. Only when they're needed. */
 	hasCredentials?: boolean | null;
 	/** Which upsell copy this site sees, without Scan. */
 	upsellVariant?: number;
