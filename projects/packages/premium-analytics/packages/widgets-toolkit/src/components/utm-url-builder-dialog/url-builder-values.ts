@@ -18,7 +18,7 @@ export function getUtmUrlBuilderValues(
 	actions: StatsItemAction[] | undefined
 ): Partial< UtmUrlBuilderValues > | null {
 	const data = actions?.find( action => action.type === 'url-builder' )?.data;
-	if ( ! data || typeof data !== 'object' ) {
+	if ( ! data || typeof data !== 'object' || Array.isArray( data ) ) {
 		return null;
 	}
 
@@ -35,5 +35,5 @@ export function getUtmUrlBuilderValues(
 		}
 	}
 
-	return values;
+	return Object.keys( values ).length > 0 ? values : null;
 }

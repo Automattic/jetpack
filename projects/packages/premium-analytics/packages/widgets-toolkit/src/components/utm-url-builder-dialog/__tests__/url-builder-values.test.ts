@@ -36,6 +36,12 @@ describe( 'getUtmUrlBuilderValues', () => {
 			null,
 		],
 		[ 'returns null for non-object data', [ { type: 'url-builder', data: 'nope' } ], null ],
+		[ 'returns null for array data', [ { type: 'url-builder', data: [ 'x' ] } ], null ],
+		[
+			'returns null for an unsafe url and no UTM keys',
+			[ { type: 'url-builder', data: { url: 'javascript:alert(1)' } } ],
+			null,
+		],
 		[ 'returns null without actions', undefined, null ],
 	] )( '%s', ( _name, actions, expected ) => {
 		expect( getUtmUrlBuilderValues( actions ) ).toEqual( expected );

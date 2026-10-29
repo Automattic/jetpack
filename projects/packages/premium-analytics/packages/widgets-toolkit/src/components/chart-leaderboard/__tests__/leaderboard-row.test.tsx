@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { category, tag } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -370,7 +371,8 @@ describe( 'buildLeaderboardRow', () => {
 			[ 'Hello', 'View "Hello" in a new tab' ],
 		],
 		[ 'without a live URL', { id: 5, href: null }, [ 'Hello' ] ],
-	] )( 'renders the extra action after the title %s', ( _name, target, expectedLinks ) => {
+	] )( 'renders the extra action after the title %s', async ( _name, target, expectedLinks ) => {
+		const onExtraClick = jest.fn();
 		render(
 			buildLeaderboardRow( {
 				label: 'Hello',
@@ -379,7 +381,11 @@ describe( 'buildLeaderboardRow', () => {
 					kind: 'postLink',
 					...target,
 					search: {},
-					extraAction: <button type="button">Extra</button>,
+					extraAction: (
+						<button type="button" onClick={ onExtraClick }>
+							Extra
+						</button>
+					),
 				},
 			} ).label
 		);
@@ -392,6 +398,9 @@ describe( 'buildLeaderboardRow', () => {
 		expect(
 			links.at( -1 )?.compareDocumentPosition( screen.getByRole( 'button', { name: 'Extra' } ) )
 		).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Extra' } ) );
+		expect( onExtraClick ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'links the title out, with no "View" action, when the reader cannot open post details', () => {
