@@ -43,6 +43,13 @@ class Settings {
 	const MONITOR_NOTIFICATIONS = 'monitor_receive_notifications';
 
 	/**
+	 * Prefix of the per-user transient set while WordPress.com can't answer for that setting.
+	 *
+	 * @var string
+	 */
+	const MONITOR_NOTIFICATIONS_FAILED = 'jetpack_protect_monitor_notifications_failed_';
+
+	/**
 	 * SSO's options, stored locally as plain booleans, with the value SSO assumes while each is unset.
 	 *
 	 * @var bool[]
@@ -232,18 +239,21 @@ class Settings {
 	 * @return bool
 	 */
 	private static function get_monitor_notifications() {
-		$value = get_option( Monitor::notifications_copy_option_name( get_current_user_id() ), 'does_not_exist' );
+		$user_id = get_current_user_id();
+		$value   = get_option( Monitor::notifications_copy_option_name( $user_id ), 'does_not_exist' );
 		if ( 'does_not_exist' !== $value ) {
 			return (bool) $value;
 		}
 
-		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
+		$failed_key = self::MONITOR_NOTIFICATIONS_FAILED . $user_id;
+		if ( ! ( new Connection_Manager() )->is_user_connected() || get_transient( $failed_key ) ) {
 			return false;
 		}
 
 		$value = Monitor::user_receives_notifications();
-		// Not saved: the user may not be connected yet, and would be stuck with this answer.
+		// Not saved, since the user may not be connected yet; the transient only stops a remote call on every load.
 		if ( is_wp_error( $value ) ) {
+			set_transient( $failed_key, 1, 5 * MINUTE_IN_SECONDS );
 			return false;
 		}
 
