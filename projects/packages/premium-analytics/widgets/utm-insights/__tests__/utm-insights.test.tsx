@@ -158,6 +158,77 @@ describe( 'UtmInsightsWidget', () => {
 		expect( titleLink ).not.toHaveAttribute( 'target', '_blank' );
 	} );
 
+	it( 'opens Build URL pre-filled from a drilled-in post row', async () => {
+		const user = setupUser();
+		mockRows = [
+			{
+				label: 'newsletter / email',
+				value: 30,
+				children: [
+					{
+						postId: 12,
+						label: 'Jetpack Forms',
+						value: 20,
+						href: 'https://example.com/forms/',
+						urlBuilder: {
+							destination: 'https://example.com/forms/',
+							source: 'newsletter',
+							medium: 'email',
+						},
+					},
+				],
+			},
+		];
+		render( <UtmInsightsWidget attributes={ {} } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'View posts for newsletter / email' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Build URL for "Jetpack Forms"' } ) );
+
+		expect( screen.getByLabelText( 'Destination URL' ) ).toHaveValue(
+			'https://example.com/forms/'
+		);
+		expect( screen.getByLabelText( 'UTM source' ) ).toHaveValue( 'newsletter' );
+		expect( screen.getByLabelText( 'UTM medium' ) ).toHaveValue( 'email' );
+	} );
+
+	it( 'opens the footer Build URL empty after a row opened it', async () => {
+		const user = setupUser();
+		mockRows = [
+			{
+				label: 'newsletter / email',
+				value: 30,
+				children: [
+					{
+						postId: 12,
+						label: 'Jetpack Forms',
+						value: 20,
+						href: 'https://example.com/forms/',
+						urlBuilder: {
+							destination: 'https://example.com/forms/',
+							source: 'newsletter',
+							medium: 'email',
+						},
+					},
+				],
+			},
+		];
+		const { findDeclaredAction, runDeclaredAction } = renderWithActionsHost(
+			<UtmInsightsWidget attributes={ {} } />
+		);
+		await user.click( screen.getByRole( 'button', { name: 'View posts for newsletter / email' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Build URL for "Jetpack Forms"' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+
+		await findDeclaredAction( 'build-url' );
+		await runDeclaredAction( 'build-url' );
+
+		expect( screen.getByLabelText( 'Destination URL' ) ).toHaveValue( '' );
+		expect( screen.getByLabelText( 'UTM source' ) ).toHaveValue( '' );
+		expect( screen.getByLabelText( 'UTM medium' ) ).toHaveValue( '' );
+		expect( screen.getByLabelText( 'UTM campaign' ) ).toHaveValue( '' );
+	} );
+
 	it( 'names the active UTM dimension as the origin section', async () => {
 		const user = setupUser();
 		mockRows = [
