@@ -3,18 +3,10 @@
  */
 import { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 import { useCallback } from 'react';
 
-const PREFERENCES_STORE = 'core/preferences';
 const PREVIOUS_PERIOD_KEY = 'trafficChartPreviousPeriod';
-
-type PreferencesSelectors = {
-	get: ( scope: string, name: string ) => unknown;
-};
-
-type PreferencesActions = {
-	set: ( scope: string, name: string, value: boolean ) => void;
-};
 
 /**
  * Whether the reader switched the previous period on from the chart legend.
@@ -22,18 +14,21 @@ type PreferencesActions = {
  * @return Tuple `[ shown, setShown ]`; unset means off.
  */
 export function usePreviousPeriodShown(): [ boolean, ( shown: boolean ) => void ] {
-	const shown = useSelect( select => {
-		const preferences = select( PREFERENCES_STORE ) as unknown as PreferencesSelectors | undefined;
-		return preferences?.get( DASHBOARD_PREFERENCES_SCOPE, PREVIOUS_PERIOD_KEY ) === true;
-	}, [] );
+	const shown = useSelect(
+		select =>
+			select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, PREVIOUS_PERIOD_KEY ) === true,
+		[]
+	);
 
-	const preferences = useDispatch( PREFERENCES_STORE ) as unknown as PreferencesActions | undefined;
+	const { set } = useDispatch( preferencesStore );
 
 	const setShown = useCallback(
 		( next: boolean ) => {
-			void preferences?.set( DASHBOARD_PREFERENCES_SCOPE, PREVIOUS_PERIOD_KEY, next );
+			if ( next !== shown ) {
+				void set( DASHBOARD_PREFERENCES_SCOPE, PREVIOUS_PERIOD_KEY, next );
+			}
 		},
-		[ preferences ]
+		[ shown, set ]
 	);
 
 	return [ shown, setShown ];
