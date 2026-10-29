@@ -15,12 +15,14 @@ import type { Decorator, Meta, StoryObj } from '@storybook/react';
 
 registerReportMocks();
 
+// Six rows fill the card; a seventh would drop out of view.
 const ROWS: LeaderboardRowInput[] = [
 	{ id: '1', label: 'Getting Started Walkthrough', value: 3820, previousValue: 3000 },
 	{ id: '2', label: 'Product Launch Highlights', value: 2640, previousValue: 2700 },
 	{ id: '3', label: 'Customer Story: Acme', value: 1210, previousValue: 900 },
 	{ id: '4', label: 'Behind the Scenes', value: 640 },
-	{ id: '5', label: 'Q&A Session', value: 310, previousValue: 420 },
+	{ id: '6', label: 'Relaunch Teaser', value: 280, previousValue: -150 },
+	{ id: '7', label: 'Refunded Workshop', value: -450, previousValue: 200 },
 ];
 
 const READY = { isLoading: false, isError: false };
@@ -76,21 +78,13 @@ export const WithComparison: Story = {
 	parameters: { reportParams: getDefaultQueryParams( true ) },
 };
 
-// Six rows fill the card; a seventh would drop out of view.
-const BAR_ROWS: LeaderboardRowInput[] = [
-	...ROWS.slice( 0, 4 ),
-	{ id: '6', label: 'Relaunch Teaser', value: 280, previousValue: -150 },
-	{ id: '7', label: 'Refunded Workshop', value: -450, previousValue: 200 },
-];
-
 export const Bars: Story = {
-	args: { variant: 'bars', rows: BAR_ROWS },
+	args: { variant: 'bars' },
 };
 
 export const BarsWithComparison: Story = {
 	args: {
 		variant: 'bars',
-		rows: BAR_ROWS,
 		status: { ...READY, hasComparison: true },
 	},
 	parameters: {
