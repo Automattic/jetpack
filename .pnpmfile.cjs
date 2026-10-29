@@ -234,7 +234,8 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
-	// @wordpress/build has no release accepting @wordpress/theme 3.0.0 yet, whose only break is the Node minimum.
+	// @wordpress/build caps @wordpress/theme below 3.0.0, but theme 3.0.0 only raises the Node minimum.
+	// Safe until build supports it: p1792520152276519-slack-C05Q5HSS013
 	if (
 		pkg.name === '@wordpress/build' &&
 		pkg.peerDependencies?.[ '@wordpress/theme' ] === '>=0.8.0 <3.0.0'
