@@ -92,21 +92,51 @@ function is_accessed_by_valid_share_link( $share_code ) {
  * @return void
  */
 function render_share_link_banner() {
-	if ( isset( $_COOKIE['wpcom_share_link_banner_dismissed'] ) ) {
-		return;
-	}
 	$link = sprintf(
 		'<a href="%s" target="_blank" rel="noopener">%s</a>',
 		esc_url( 'https://wordpress.com/hosting/?utm_source=share_link_preview&utm_medium=referral&utm_campaign=preview_site_banner' ),
 		esc_html__( 'WordPress.com hosting ↗', 'jetpack-mu-wpcom' )
 	);
+	/* translators: %s: link to WordPress.com hosting. */
+	render_preview_banner( sprintf( esc_html__( 'This is a preview site, powered by %s', 'jetpack-mu-wpcom' ), $link ) );
+}
+
+/**
+ * Remind the owner of an unpaid preview site that it goes away unless they choose a plan.
+ *
+ * WordPress.com marks a preview through the `wpcom_is_preview_site` option until it is bought.
+ * The owner sees the site itself, never the Coming Soon page, so this is their banner.
+ *
+ * @return void
+ */
+function render_preview_owner_banner() {
+	if ( ! get_option( 'wpcom_is_preview_site' ) || ! current_user_can( 'manage_options' ) || get_share_code() ) {
+		return;
+	}
+	$link = sprintf(
+		'<a href="%s">%s</a>',
+		esc_url( 'https://wordpress.com/plans/' . \wpcom_get_site_slug() . '?utm_source=preview_site&utm_medium=banner' ),
+		esc_html__( 'Choose a plan to keep it ↗', 'jetpack-mu-wpcom' )
+	);
+	/* translators: %s: link to choose a plan for this site. */
+	render_preview_banner( sprintf( esc_html__( 'This is a preview site. %s', 'jetpack-mu-wpcom' ), $link ) );
+}
+add_action( 'wp_body_open', __NAMESPACE__ . '\render_preview_owner_banner' );
+
+/**
+ * Print the dismissible preview banner. A visitor's dismissal lasts a year, in their browser.
+ *
+ * @param string $message Escaped message HTML.
+ * @return void
+ */
+function render_preview_banner( $message ) {
+	if ( isset( $_COOKIE['wpcom_share_link_banner_dismissed'] ) ) {
+		return;
+	}
 	?>
 	<div id="wpcom-share-link-banner" class="wp-exclude-emoji" style="display:flex;align-items:center;gap:8px;padding:2px 32px;background:#3858e9;color:#fff;font:14px/1.4 -apple-system,system-ui,BlinkMacSystemFont,sans-serif;">
 		<p style="margin:14px 0;color:inherit;">
-			<?php
-			/* translators: %s: link to WordPress.com hosting. */
-			printf( esc_html__( 'This is a preview site, powered by %s', 'jetpack-mu-wpcom' ), $link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built and escaped above.
-			?>
+			<?php echo $message; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the caller. ?>
 		</p>
 		<button type="button" aria-label="<?php esc_attr_e( 'Dismiss', 'jetpack-mu-wpcom' ); ?>" style="margin-left:auto;background:none;border:0;color:inherit;font-size:24px;line-height:1;cursor:pointer;" onclick="document.cookie='wpcom_share_link_banner_dismissed=1;path=/;max-age=31536000';this.parentNode.remove();">&times;</button>
 	</div>

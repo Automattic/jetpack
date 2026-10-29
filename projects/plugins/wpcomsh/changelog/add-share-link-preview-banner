@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Preview sites: expose WordPress.com's preview mark as the wpcom_is_preview_site option.

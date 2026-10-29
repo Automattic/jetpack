@@ -259,4 +259,35 @@ class Coming_Soon_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( '', $share_code );
 	}
+
+	/**
+	 * The owner of an unpaid preview gets the choose-a-plan banner; nobody else does.
+	 *
+	 * @return void
+	 */
+	public function test_preview_owner_banner_shows_only_to_the_owner_of_a_preview() {
+		$admin = wp_insert_user(
+			array(
+				'user_login' => 'preview-owner',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		$render = function () {
+			ob_start();
+			render_preview_owner_banner();
+			return ob_get_clean();
+		};
+
+		wp_set_current_user( $admin );
+		$this->assertSame( '', $render(), 'Not a preview' );
+
+		update_option( 'wpcom_is_preview_site', 1 );
+		$this->assertStringContainsString( 'https://wordpress.com/plans/', $render() );
+
+		wp_set_current_user( 0 );
+		$this->assertSame( '', $render(), 'Not the owner' );
+
+		delete_option( 'wpcom_is_preview_site' );
+	}
 }
