@@ -14,8 +14,23 @@ jest.unstable_mockModule( '@automattic/jetpack-analytics', () => ( {
 	},
 } ) );
 
-const { CONNECTION_EVENTS, bumpConnectionStat, trackConnectionEvent } =
+const { CONNECTION_EVENTS, bumpConnectionStat, placementProps, trackConnectionEvent } =
 	await import( '../connection-tracking.ts' );
+
+describe( 'placementProps', () => {
+	it.each( [
+		[ undefined, {} ],
+		[ 'header' as const, { placement: 'header' } ],
+	] )( 'returns %p as %p', ( placement, expected ) => {
+		expect( placementProps( placement ) ).toStrictEqual( expected );
+	} );
+
+	// Checked by typecheck, not Jest: fails if ConnectionPlacement is widened to any string.
+	it( 'rejects a placement missing from ConnectionPlacement', () => {
+		// @ts-expect-error -- Unregistered placement; add new ones to ConnectionPlacement.
+		expect( placementProps( 'sidebar' ) ).toEqual( { placement: 'sidebar' } );
+	} );
+} );
 
 describe( 'trackConnectionEvent', () => {
 	beforeEach( () => {

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Show the React version of Settings > Sharing by default. Return false from the `rsm_jetpack_ui_modernization_sharing_likes` filter to keep the PHP screen.

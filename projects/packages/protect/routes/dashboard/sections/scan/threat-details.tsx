@@ -3,9 +3,10 @@ import { getFixerDescription, type Threat } from '@automattic/jetpack-scan';
 import { dateI18n } from '@wordpress/date';
 import { Fragment, useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { AlertDialog, Badge, Button, ButtonLink, Link, Stack, Text } from '@wordpress/ui';
+import { AlertDialog, Badge, Button, ButtonLink, Dialog, Link, Stack, Text } from '@wordpress/ui';
 import useOpenThreat from '../use-open-threat';
 import { DeleteSoftwareButton } from './delete-software';
+import { FixDeleteConfirmation, getDeleteFixTitle } from './fix-delete-confirmation';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import { THREAT_PARAM, useCanIgnore, useSearchParam } from './store';
 import {
@@ -13,6 +14,7 @@ import {
 	fixThreat,
 	getThreatRow,
 	ignoreThreat,
+	isDeleteFix,
 	unignoreThreat,
 	useThreatAction,
 	type ThreatRow,
@@ -297,6 +299,49 @@ function DatabaseRow( {
 }
 
 /**
+ * Auto-fix it for a fix that deletes the software, behind a confirmation that asks for its slug.
+ *
+ * @param props        - Component props.
+ * @param props.threat - A threat whose fix deletes its software.
+ * @param props.onFix  - Starts the fix.
+ * @return The button and its confirmation.
+ */
+function DeleteFixButton( { threat, onFix }: { threat: ScanThreat; onFix: () => void } ) {
+	const { busy } = useThreatAction( threat.id );
+	const [ open, setOpen ] = useState( false );
+	const onCancel = useCallback( () => setOpen( false ), [] );
+	const onConfirm = useCallback( () => {
+		setOpen( false );
+		onFix();
+	}, [ onFix ] );
+
+	return (
+		<Dialog.Root open={ open } onOpenChange={ setOpen }>
+			<Dialog.Trigger render={ <Button loading={ busy === 'fixing' } disabled={ !! busy } /> }>
+				{ busy === 'fixing'
+					? __( 'Fixing…', 'jetpack-protect-pkg' )
+					: __( 'Auto-fix it', 'jetpack-protect-pkg' ) }
+			</Dialog.Trigger>
+			<Dialog.Popup>
+				<Dialog.Header>
+					<Dialog.Title>{ getDeleteFixTitle( threat ) }</Dialog.Title>
+					<Dialog.CloseIconButton />
+				</Dialog.Header>
+				<Dialog.Content>
+					{ /* Mounted only while open, so the slug field starts empty each time. */ }
+					<FixDeleteConfirmation
+						threat={ threat }
+						isBusy={ !! busy }
+						onCancel={ onCancel }
+						onConfirm={ onConfirm }
+					/>
+				</Dialog.Content>
+			</Dialog.Popup>
+		</Dialog.Root>
+	);
+}
+
+/**
  * Ignore it, and Auto-fix it when Scan can, pinned to the bottom of the inspector.
  *
  * @param props        - Component props.
@@ -352,13 +397,14 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 							{ __( 'Ignore it', 'jetpack-protect-pkg' ) }
 						</Button>
 					) }
-					{ threat.fixable && (
+					{ threat.fixable && ! isDeleteFix( threat ) && (
 						<Button onClick={ onFix } loading={ busy === 'fixing' } disabled={ !! busy }>
 							{ busy === 'fixing'
 								? __( 'Fixing…', 'jetpack-protect-pkg' )
 								: __( 'Auto-fix it', 'jetpack-protect-pkg' ) }
 						</Button>
 					) }
+					{ isDeleteFix( threat ) && <DeleteFixButton threat={ threat } onFix={ onFix } /> }
 				</>
 			) }
 		</SidebarFooter>
