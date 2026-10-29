@@ -107,7 +107,7 @@ export function IpListDialog( {
 				<Dialog.Content>
 					<Stack direction="column" gap="sm" align="start">
 						{ saveFailed && data.error && (
-							<Text variant="body-sm" className="jp-protect-ip-rule__error" role="alert">
+							<Text variant="body-sm" className="jp-protect-card__error" role="alert">
 								{ data.error }
 							</Text>
 						) }

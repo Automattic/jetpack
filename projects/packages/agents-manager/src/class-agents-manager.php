@@ -20,7 +20,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.12.8';
+	const PACKAGE_VERSION = '0.12.9';
 
 	/**
 	 * Class instance.
@@ -34,7 +34,6 @@ class Agents_Manager {
 	 */
 	private function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
-		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 101 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 101 );
@@ -492,54 +491,6 @@ class Agents_Manager {
 		}
 
 		return $decoded;
-	}
-
-	/**
-	 * Update the calypso preferences.
-	 *
-	 * @param \stdClass $preferences The preferences.
-	 *
-	 * @return \stdClass The preferences.
-	 */
-	public function calypso_preferences_update( $preferences ) {
-		// Check if agents_manager_router_history exists and is a valid array structure
-		if ( ! isset( $preferences->agents_manager_router_history ) ||
-			! is_array( $preferences->agents_manager_router_history ) ) {
-			return $preferences;
-		}
-
-		$router_history = $preferences->agents_manager_router_history;
-
-		// Check if entries exist and is an array
-		if ( ! isset( $router_history['entries'] ) ||
-			! is_array( $router_history['entries'] ) ) {
-			return $preferences;
-		}
-
-		$entries = $router_history['entries'];
-
-		// Limit entries to 50 to prevent spamming entries in the router history.
-		if ( count( $entries ) > 50 ) {
-			// Keep only the last 49 entries and add the root entry at the beginning.
-			$entries = array_slice( $entries, -49 );
-			// Keep the start at root so the back button always works.
-			array_unshift(
-				$entries,
-				array(
-					'pathname' => '/',
-					'search'   => '',
-					'hash'     => '',
-					'key'      => 'default',
-					'state'    => null,
-				)
-			);
-
-			// Update the preferences object directly
-			$preferences->agents_manager_router_history['entries'] = $entries;
-			$preferences->agents_manager_router_history['index']   = 49;
-		}
-
-		return $preferences;
 	}
 
 	/**

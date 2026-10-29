@@ -1,5 +1,3 @@
-[![Reports status](https://img.shields.io/website?down_color=grey&down_message=Dashboard%20offline&style=for-the-badge&label=E2E%20TEST%20REPORTS&up_color=green&up_message=see%20dashboard&url=https%3A%2F%2Fautomattic.github.io%2Fjetpack-e2e-reports%2F%23%2F)](https://automattic.github.io/jetpack-e2e-reports)
-
 # Jetpack End-to-End tests
 
 Automated end-to-end acceptance tests for the Jetpack plugin.
@@ -16,7 +14,6 @@ These tests are using the [e2e commons package](../../../../../tools/e2e-commons
 - [Running tests](#running-tests)
 - [Tests Architecture](#tests-architecture)
 - [CI configuration](#ci-configuration)
-- [Test reports](#test-reports)
 
 ## Pre-requisites
 
@@ -143,7 +140,3 @@ Common pages are already available through fixtures:
 
 Both local runs and CI are sharing the same Docker based configuration.
 See [workflows prefixed with e2e](../../../../../.github/workflows) for CI configuration.
-
-## Test reports
-
-Test reports are generated for every CI run and stored in [jetpack-e2e-reports](https://github.com/Automattic/jetpack-e2e-reports) repo. A dashboard displaying information about stored reports can be accessed at this link: [https://automattic.github.io/jetpack-e2e-reports](https://automattic.github.io/jetpack-e2e-reports)

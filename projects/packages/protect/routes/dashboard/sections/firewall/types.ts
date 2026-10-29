@@ -30,6 +30,8 @@ export type FirewallState = {
 	ipRules: ProtectSettings;
 	/** When the automatic rules were last downloaded, in Unix seconds; null while they're off. */
 	rulesUpdatedAt: number | null;
+	/** Whether the host runs its own firewall where Jetpack's can't run, as WordPress.com does on WoA. */
+	providedByHost: boolean;
 };
 
 /** What `/firewall/blocks` returns, and the card keeps up to date after a test. */

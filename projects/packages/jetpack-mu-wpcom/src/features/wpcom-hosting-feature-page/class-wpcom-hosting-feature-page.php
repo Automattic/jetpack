@@ -420,25 +420,53 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	}
 
 	/**
-	 * Checkout, with the Business plan already in the cart.
+	 * On Simple, checkout with the Business plan already in the cart; on WoA, the plan upgrade flow.
 	 *
-	 * `redirect_to` returns a buyer to activate or use what they just bought, and
+	 * `redirect_to` returns a buyer to activate what they just bought, and
 	 * `checkoutBackUrl` returns someone who backs out; without it checkout falls back to /plans.
 	 *
 	 * @param string $domain Site domain.
 	 * @return string
 	 */
 	public static function get_upgrade_url( $domain ) {
+		// On WoA the purchase makes the feature live, so there is nothing to come back here for.
+		if ( self::is_atomic() ) {
+			return static::get_plan_upgrade_url();
+		}
+
 		$page_url = rawurlencode( static::get_page_url() );
-		// On Simple the buyer comes back here to activate; on WoA the purchase makes the feature live.
-		$return_url = self::is_atomic() ? rawurlencode( static::get_live_feature_url() ) : $page_url;
 
 		return add_query_arg(
 			array(
-				'redirect_to'     => $return_url,
+				'redirect_to'     => $page_url,
 				'checkoutBackUrl' => $page_url,
 			),
 			'https://wordpress.com/checkout/' . rawurlencode( (string) $domain ) . '/business'
+		);
+	}
+
+	/**
+	 * WordPress.com's plan upgrade flow, showing only plans with FEATURE, with Back to the page the link was on.
+	 *
+	 * The flow and checkout accept `back_to` and `redirect_to` only on the site's own host or WordPress.com.
+	 *
+	 * @param string $back_url The admin page the link is on; this page when empty or off this site.
+	 * @return string
+	 */
+	public static function get_plan_upgrade_url( $back_url = '' ) {
+		$back     = '' === $back_url ? '' : wp_validate_redirect( $back_url, '' );
+		$constant = '\WPCOM_Features::' . static::FEATURE;
+
+		return add_query_arg(
+			array_filter(
+				array(
+					'siteSlug'    => rawurlencode( wpcom_get_site_slug() ),
+					'feature'     => defined( $constant ) ? constant( $constant ) : '',
+					'back_to'     => rawurlencode( $back ? $back : static::get_page_url() ),
+					'redirect_to' => rawurlencode( static::get_live_feature_url() ),
+				)
+			),
+			'https://wordpress.com/setup/plan-upgrade'
 		);
 	}
 

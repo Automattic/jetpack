@@ -29,6 +29,7 @@ import {
 	runFirewallTest,
 } from './firewall-test';
 import FirewallToggle from './firewall-toggle';
+import HostFirewallCard from './host-firewall-card';
 import shieldFlame from './icon';
 import { IpListDialog } from './ip-list-dialog';
 import NothingToBlockNotice from './nothing-to-block-notice';
@@ -53,6 +54,7 @@ const UNAVAILABLE: FirewallState = {
 	currentIp: '',
 	ipRules: {},
 	rulesUpdatedAt: null,
+	providedByHost: false,
 };
 
 // The only setting this card saves.
@@ -301,6 +303,10 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const hasNothingToBlock = active && hasBlocks && needsBlockList && rulesUpdatedAt === null;
 	const showStaleRules = ! firewall.hasScan && ! isFreeEmptyState && rulesUpdatedAt !== null;
 	useRerenderEvery( 30000, !! lastTestAt );
+
+	if ( firewall.providedByHost ) {
+		return <HostFirewallCard />;
+	}
 
 	if ( ! firewall.available ) {
 		return <UnavailableCard icon={ shieldFlame } title={ title } />;

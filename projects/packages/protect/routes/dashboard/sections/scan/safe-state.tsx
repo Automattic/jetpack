@@ -1,6 +1,8 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
+import Countdown from '../../components/countdown';
 import { getCheckedCounts } from './labels';
+import { getNextCheck, useHasPassed } from './scan-button';
 import type { ScanState } from './types';
 import type { CSSProperties } from 'react';
 
@@ -84,6 +86,10 @@ type Props = {
  */
 export default function SafeState( { scan, justScanned = false }: Props ) {
 	const counts = getCheckedCounts( scan );
+	// Paid Scan has no daily limit, and the API gives no next-scan time, so only the free check counts down.
+	const nextCheck = scan.hasPlan ? null : getNextCheck( scan.lastChecked );
+	// No margin, so the countdown gives way as it reaches zero.
+	const nextScan = useHasPassed( nextCheck, 0 ) ? null : nextCheck;
 
 	// The free check only compares versions with known vulnerabilities, so it can't call the site safe.
 	const copy = scan.hasPlan
@@ -95,6 +101,7 @@ export default function SafeState( { scan, justScanned = false }: Props ) {
 					counts.plugins,
 					counts.themes
 				),
+				next: __( 'Your site is scanned automatically every day.', 'jetpack-protect-pkg' ),
 			}
 		: {
 				title: __( 'No vulnerabilities found', 'jetpack-protect-pkg' ),
@@ -107,6 +114,7 @@ export default function SafeState( { scan, justScanned = false }: Props ) {
 					counts.plugins,
 					counts.themes
 				),
+				next: __( 'Vulnerabilities are checked automatically every day.', 'jetpack-protect-pkg' ),
 			};
 
 	return (
@@ -124,6 +132,18 @@ export default function SafeState( { scan, justScanned = false }: Props ) {
 				<Text variant="body-md" className="jp-protect-safe__details">
 					{ copy.details }
 				</Text>
+				{ nextScan ? (
+					<Stack direction="row" gap="sm" align="baseline">
+						<Text variant="body-md" className="jp-protect-safe__details">
+							{ __( 'Next check in:', 'jetpack-protect-pkg' ) }
+						</Text>
+						<Countdown to={ nextScan } />
+					</Stack>
+				) : (
+					<Text variant="body-md" className="jp-protect-safe__details">
+						{ copy.next }
+					</Text>
+				) }
 			</Stack>
 		</Stack>
 	);

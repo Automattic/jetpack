@@ -6,6 +6,7 @@ import { recordEvent } from '../../../data/tracks';
 import { setScan, useScan } from '../store';
 import {
 	deleteSoftware,
+	deleteThreatRow,
 	fixThreat,
 	fixThreats,
 	ignoreThreat,
@@ -213,6 +214,37 @@ describe( 'bulk actions', () => {
 		expect( bulkNotices() ).toEqual( [ expect.objectContaining( { status, content } ) ] );
 	} );
 
+	it.each( [
+		[ 'a fix that deletes software', { fixer: 'delete' as const } ],
+		[
+			'a fix Scan leaves out of bulk fixes',
+			{ fixer: 'update' as const, extras: { isBulkFixable: false } },
+		],
+	] )( 'leaves %s out of a batch', async ( _name, fixable ) => {
+		mockApiFetch.mockReset().mockResolvedValue( { status: 'fixed' } );
+		const excluded = { ...fileThreat( 61 ), signature: 'Vulnerable.WP.Extension', fixable };
+
+		await act( () => fixThreats( [ excluded, fileThreat( 62 ) ] ) );
+
+		expect( mockApiFetch.mock.calls.map( ( [ { path } ] ) => path ) ).toEqual( [
+			'/jetpack/v4/protect-dashboard/scan/threats/62/fix',
+		] );
+	} );
+
+	it( 'still fixes a threat left out of bulk fixes on its own', async () => {
+		mockApiFetch.mockReset().mockResolvedValue( { status: 'fixed' } );
+		const alone = {
+			...fileThreat( 63 ),
+			fixable: { fixer: 'update' as const, extras: { isBulkFixable: false } },
+		};
+
+		await act( () => fixThreats( [ alone ] ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: '/jetpack/v4/protect-dashboard/scan/threats/63/fix' } )
+		);
+	} );
+
 	// A fix's start answers `in_progress`, so its polls must wait outside the five slots.
 	it.each( [
 		[ 'ignoreThreats', ignoreThreats, {} ],
@@ -363,5 +395,52 @@ describe( 'deleteSoftware', () => {
 
 		expect( error ).toMatch( /^Busy can’t be deleted while/ );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+} );
+
+describe( 'deleteThreatRow', () => {
+	const inOption = ( id: number ) => ( {
+		id,
+		title: 'Database threat',
+		database: { table: 'wp_options', pkColumn: 'option_id', pkValue: String( id ) },
+	} );
+
+	it( 'drops only the deleted option’s threat', async () => {
+		// The delete refreshes History, which answers with a list.
+		mockApiFetch
+			.mockReset()
+			.mockImplementation( ( { path }: { path: string } ) =>
+				Promise.resolve(
+					path.endsWith( '/history' ) ? [] : { threat: { ...inOption( 30 ), status: 'fixed' } }
+				)
+			);
+		setScan( current => ( { ...current, threats: [ inOption( 30 ), inOption( 31 ) ] } ) );
+		const { result } = renderHook( () => useScan() );
+
+		let error: string | null = 'not run';
+		await act( async () => {
+			error = await deleteThreatRow( inOption( 30 ) );
+		} );
+
+		expect( error ).toBeNull();
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/jetpack/v4/protect-dashboard/scan/threats/30/row',
+			method: 'DELETE',
+		} );
+		expect( result.current?.threats?.map( item => item.id ) ).toEqual( [ 31 ] );
+	} );
+
+	it.each( [
+		[ 'the server’s reason', { message: 'Nope' }, 'Nope' ],
+		[ 'a fallback', {}, 'The option couldn’t be deleted.' ],
+	] )( 'resolves to %s when the delete fails, and keeps the threat', async ( _name, e, reason ) => {
+		mockApiFetch.mockReset().mockRejectedValue( e );
+		setScan( current => ( { ...current, threats: [ inOption( 32 ) ] } ) );
+		const { result } = renderHook( () => useScan() );
+
+		await expect( deleteThreatRow( inOption( 32 ) ) ).resolves.toBe( reason );
+
+		expect( result.current?.threats?.map( item => item.id ) ).toEqual( [ 32 ] );
 	} );
 } );

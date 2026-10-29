@@ -5,6 +5,7 @@ import { __, _n, sprintf, type TransformedText } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { recordEvent } from '../../data/tracks';
+import { loadHistory } from '../history/store';
 import { getThreatLabel } from './labels';
 import { SCAN_PATH, createStore, editScan, getScan, startRead, startReportRead } from './store';
 import type { ScanState, ScanThreat } from './types';
@@ -300,6 +301,21 @@ export const ignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
 export const unignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
 	setIgnored( threat, false, open );
 
+/**
+ * Focus a threat's row when focus was lost, as when the button that started its action goes away.
+ *
+ * @param item - The threat.
+ */
+export function refocusRow( item: ScanThreat ) {
+	const title = Array.from( document.querySelectorAll< HTMLElement >( '[data-threat-id]' ) ).find(
+		element => element.dataset.threatId === String( item.id )
+	);
+	const { activeElement, body } = title?.ownerDocument ?? {};
+	if ( title && ( ! activeElement || activeElement === body ) ) {
+		title.focus();
+	}
+}
+
 /** How a fix ended; `pending` while it may still be running, here or on WordPress.com. */
 export type FixResult = 'fixed' | 'failed' | 'pending';
 
@@ -308,6 +324,20 @@ const isClientError = ( e: unknown ) => {
 	const status = ( e as { data?: { status?: number } } )?.data?.status;
 	return !! status && status >= 400 && status < 500 && status !== 408 && status !== 429;
 };
+
+/**
+ * Whether Scan's fix for the threat deletes the plugin or theme it is in.
+ *
+ * @param threat - The threat.
+ * @return True when the fix deletes the software.
+ */
+export function isDeleteFix( threat: ScanThreat ): boolean {
+	return (
+		threat.signature === 'Vulnerable.WP.Extension' &&
+		!! threat.fixable &&
+		threat.fixable.fixer === 'delete'
+	);
+}
 
 /**
  * Ask Scan to fix a threat, then follow the fix until it finishes.
@@ -431,7 +461,14 @@ let bulkRuns = 0;
  * @return Resolves once every fix has finished, failed, or run past the time Jetpack waits.
  */
 export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Promise< void > {
-	const idle = threats.filter( threat => ! isBusy( threat.id ) );
+	// A fix that deletes software needs its slug confirmed first, so a batch never starts one.
+	const idle = threats.filter(
+		threat =>
+			! isBusy( threat.id ) &&
+			! isDeleteFix( threat ) &&
+			// Like Protect, which fixes these one at a time but never as part of fixing several.
+			! ( threats.length > 1 && threat.fixable && threat.fixable.extras?.isBulkFixable === false )
+	);
 	if ( idle.length < 2 ) {
 		await Promise.all( idle.map( threat => fixThreat( threat, open ) ) );
 		return;
@@ -676,4 +713,51 @@ export function deleteSoftware( threat: ScanThreat ): Promise< string | null > {
 				)
 		)
 		.finally( () => ids.forEach( id => setBusy( id ) ) );
+}
+
+/** The database row a threat was found in, read from the site. */
+export type ThreatRow = { columns: Record< string, unknown >; canDelete: boolean };
+
+/**
+ * Read the database row a current threat was found in.
+ *
+ * @param threat - A database threat.
+ * @return The row.
+ */
+export const getThreatRow = ( threat: ScanThreat ): Promise< ThreatRow > =>
+	apiFetch< ThreatRow >( { path: threatPath( threat.id, 'row' ) } );
+
+/**
+ * Delete the option a threat was found in; the site then lists the threat as fixed.
+ *
+ * @param threat - A database threat.
+ * @return Resolves to an error message, or null once deleted.
+ */
+export function deleteThreatRow( threat: ScanThreat ): Promise< string | null > {
+	if ( isBusy( threat.id ) ) {
+		return Promise.resolve(
+			__( 'This threat is busy. Try again once that finishes.', 'jetpack-protect-pkg' )
+		);
+	}
+	setBusy( threat.id, 'deleting' );
+
+	return apiFetch( { path: threatPath( threat.id, 'row' ), method: 'DELETE' } )
+		.then( () => {
+			editScan( current => ( {
+				...current,
+				threats: ( current.threats ?? [] ).filter( item => item.id !== threat.id ),
+			} ) );
+			show(
+				threat,
+				__( 'Deleted the option and marked the threat as fixed.', 'jetpack-protect-pkg' ),
+				'success'
+			);
+			loadHistory( true );
+			return null;
+		} )
+		.catch(
+			( e: { message?: string } ) =>
+				e?.message || __( 'The option couldn’t be deleted.', 'jetpack-protect-pkg' )
+		)
+		.finally( () => setBusy( threat.id ) );
 }

@@ -142,22 +142,12 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	),
 	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
 		open ? <div data-testid="onboarding-welcome-modal" /> : null,
-	// Forwards the ref and marks the notice slot, since the stage relies on
-	// both: the ref feeds the year surface's measurement, and the notice's
-	// place in the slot is asserted below.
+	// Forwards the ref, which feeds the year surface's measurement.
 	SectionHeader: jest
 		.requireActual< typeof import( 'react' ) >( 'react' )
-		.forwardRef(
-			(
-				{ children, notice }: { children: ReactNode; notice?: ReactNode },
-				ref: ForwardedRef< HTMLDivElement >
-			) => (
-				<div ref={ ref }>
-					<div>{ children }</div>
-					<div data-testid="section-header-notice">{ notice }</div>
-				</div>
-			)
-		),
+		.forwardRef( ( { children }: { children: ReactNode }, ref: ForwardedRef< HTMLDivElement > ) => (
+			<div ref={ ref }>{ children }</div>
+		) ),
 	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
 		( mockMountedSectionSlugs ?? [ mockActiveSectionSlug ] ).includes( value ) ? (
 			<div>{ children }</div>
@@ -821,7 +811,7 @@ describe( 'Dashboard refresh-failure notice', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 	} );
 
-	it( 'pins one notice in the section header band, however many sections there are', () => {
+	it( 'renders one notice in the section body, however many sections there are', () => {
 		useDashboardSectionsMock.mockReturnValue( {
 			sections: [
 				{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
@@ -836,9 +826,11 @@ describe( 'Dashboard refresh-failure notice', () => {
 		const notices = screen.getAllByTestId( 'refresh-failure-notice' );
 		expect( notices ).toHaveLength( 1 );
 
-		// Through the header's slot, so it pins with the band rather than
-		// scrolling away among the widgets.
-		expect( screen.getByTestId( 'section-header-notice' ) ).toContainElement( notices[ 0 ] );
+		// The page's notice, not the header's: it scrolls with the widgets.
+		// eslint-disable-next-line testing-library/no-node-access -- The section body has no accessible query target.
+		expect( screen.getByTestId( 'dashboard-notices' ).parentElement ).toContainElement(
+			notices[ 0 ]
+		);
 	} );
 } );
 

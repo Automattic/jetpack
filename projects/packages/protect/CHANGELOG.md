@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-10-28
+### Added
+- Dashboard: Show the table, row and values a database threat was found in, and delete a flagged option in place. [#54073]
+- Firewall: Show the firewall as active where the host provides its own. [#53954]
+- Scan: Add a `jetpack_protect_threat_ignoring_enabled` filter, and hide the Ignore action where a host turns it off. [#53984]
+- Scan: Let a host change where the Scan upgrade link goes, through the `jetpack_feature_upgrade` filter. [#54068]
+
+### Changed
+- Firewall: Refuse to save a block list that includes your own IP address. [#54122]
+- Protect dashboard: Point the Settings tab's Scan card at the server credentials Auto-fix needs, instead of a Jetpack Cloud page with no Scan settings. [#53985]
+- Protect dashboard: Show the uptime percentage next to the Downtime monitoring status, and drop the perfect uptime badge. [#54081]
+
+### Fixed
+- Dashboard: Fix the History tab's Fixed/Ignored switch for screen readers. [#54110]
+
 ## [0.3.0] - 2026-10-26
 ### Added
 - Dashboard: Add search, filters, view options, and bulk Auto-fix and Ignore to the Scan card's threat list, under a heading that collapses it, with each threat on one line beside its severity. [#54055]
@@ -59,5 +74,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial version. [#53298]
 - Protect dashboard: Add a Scan history tab for sites with Jetpack Scan, show threat actions on row hover, and offer to delete unused plugins and themes that have threats. [#53196]
 
+[0.4.0]: https://github.com/Automattic/jetpack-protect/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Automattic/jetpack-protect/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Automattic/jetpack-protect/compare/v0.1.0...v0.2.0

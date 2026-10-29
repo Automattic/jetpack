@@ -49,11 +49,11 @@ loads (Likes or Comment Likes, and Sharing), outside any `is_admin()` branch:
 
 Calling either more than once is harmless.
 
-## React screen (preview)
+## React screen
 
-Settings > Sharing has a React version, off by default. To try it:
+Settings > Sharing renders a React version by default. To get the PHP screen back until it retires:
 
-	add_filter( 'rsm_jetpack_ui_modernization_sharing_likes', '__return_true' );
+	add_filter( 'rsm_jetpack_ui_modernization_sharing_likes', '__return_false' );
 
 Add it before `admin_menu` runs, for example from a plugin or mu-plugin: the filter is
 read on `admin_menu` at priority 1, so adding it on `admin_init` silently does nothing.
