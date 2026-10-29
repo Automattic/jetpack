@@ -59,10 +59,11 @@ class Jetpack_WPCOM_AI_Marker {
 	/**
 	 * Reads the AI DigitalSourceType from a path or a URL.
 	 *
-	 * @param string $file Path or URL of the source image.
+	 * @param string $file Path or URL of the image.
+	 * @param bool   $c2pa Whether to fall back to C2PA.
 	 * @return string The type, or '' when the file has no AI type or the host has no exiftool.
 	 */
-	public function read( $file ) {
+	public function read( $file, $c2pa = true ) {
 		// The marker is optional, so no error may stop the save.
 		try {
 			if ( ! jetpack_wpcom_ai_marker_tool_path( 'exiftool' ) ) {
@@ -70,8 +71,8 @@ class Jetpack_WPCOM_AI_Marker {
 			}
 
 			return preg_match( '|^https?://|', $file )
-				? $this->read_from_url( $file )
-				: $this->read_local( $file );
+				? $this->read_from_url( $file, $c2pa )
+				: $this->read_local( $file, $c2pa );
 		} catch ( Throwable $e ) {
 			// The class only: messages can hold file paths.
 			$this->log_error( 'read-error', array( 'error' => get_class( $e ) ) );
@@ -80,10 +81,29 @@ class Jetpack_WPCOM_AI_Marker {
 	}
 
 	/**
+	 * Writes the source's AI type into an edited copy that has none.
+	 *
+	 * @param string $source Path or URL of the source image.
+	 * @param string $edited Path of the edited image.
+	 * @return bool Whether the type was written.
+	 */
+	public function copy( $source, $edited ) {
+		// XMP only: a C2PA manifest the edit kept no longer matches the pixels.
+		if ( '' !== $this->read( $edited, false ) ) {
+			return false;
+		}
+
+		$digital_source_type = $this->read( $source );
+
+		return '' !== $digital_source_type && $this->write( $edited, $digital_source_type );
+	}
+
+	/**
 	 * Writes the type with exiftool.
 	 *
 	 * @param string $filename            Path of the image.
 	 * @param string $digital_source_type The type to write.
+	 * @return bool Whether it worked.
 	 */
 	public function write( $filename, $digital_source_type ) {
 		try {
@@ -92,22 +112,26 @@ class Jetpack_WPCOM_AI_Marker {
 			$output = $this->run_tool( 'exiftool', 'write', array( $exiftool, '-config', '', '-m', '-q', '-overwrite_original', '-XMP-x:XMPToolkit=', '-XMP-iptcExt:DigitalSourceType=' . $digital_source_type, $filename ) );
 		} catch ( Throwable $e ) {
 			$this->log_error( 'write-error', array( 'error' => get_class( $e ) ) );
-			return;
+			return false;
 		}
 
 		// run_tool() counts and logs a failed write.
-		if ( null !== $output ) {
-			$this->bump_stat( 'written' );
+		if ( null === $output ) {
+			return false;
 		}
+
+		$this->bump_stat( 'written' );
+		return true;
 	}
 
 	/**
 	 * Reads the AI DigitalSourceType from XMP, then from C2PA when the file has a manifest.
 	 *
-	 * @param string $file Path of the source image.
+	 * @param string $file Path of the image.
+	 * @param bool   $c2pa Whether to fall back to C2PA.
 	 * @return string The type, or '' when the file has no AI type.
 	 */
-	private function read_local( $file ) {
+	private function read_local( $file, $c2pa ) {
 		$exiftool = jetpack_wpcom_ai_marker_tool_path( 'exiftool' );
 		// No config file: exiftool runs it as Perl.
 		$output              = (string) $this->run_tool( 'exiftool', 'read', array( $exiftool, '-config', '', '-m', '-S', '-XMP-iptcExt:DigitalSourceType', '-JUMBF:JUMDLabel', $file ) );
@@ -116,16 +140,17 @@ class Jetpack_WPCOM_AI_Marker {
 			return $digital_source_type;
 		}
 
-		return str_contains( $output, 'JUMDLabel: ' ) ? $this->read_c2pa( $file ) : '';
+		return $c2pa && str_contains( $output, 'JUMDLabel: ' ) ? $this->read_c2pa( $file ) : '';
 	}
 
 	/**
 	 * Core loads the source by URL when the file isn't on this host.
 	 *
-	 * @param string $url URL of the source image.
+	 * @param string $url  URL of the image.
+	 * @param bool   $c2pa Whether to fall back to C2PA.
 	 * @return string The type, or '' when the file has no AI type or the download fails.
 	 */
-	private function read_from_url( $url ) {
+	private function read_from_url( $url, $c2pa ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$this->bump_stat( 'remote-source' );
 
@@ -136,7 +161,7 @@ class Jetpack_WPCOM_AI_Marker {
 		}
 
 		try {
-			return $this->read_local( $temp );
+			return $this->read_local( $temp, $c2pa );
 		} finally {
 			// wp_delete_file() hooks are for uploads.
 			unlink( $temp ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
