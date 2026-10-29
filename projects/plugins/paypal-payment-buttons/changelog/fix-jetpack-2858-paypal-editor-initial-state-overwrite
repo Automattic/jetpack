@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Editor: Stop replacing Jetpack's editor data, which removed the Excerpt field from the post editor on sites that also use Jetpack.

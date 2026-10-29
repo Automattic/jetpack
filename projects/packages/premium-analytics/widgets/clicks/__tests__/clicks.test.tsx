@@ -81,12 +81,6 @@ describe( 'ClicksWidget', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'declares View all to the Clicks report', () => {
-		const { declaredLink } = renderWithActionsHost( <ClicksWidget attributes={ {} } /> );
-
-		expect( declaredLink( 'view-all' )?.href ).toContain( '%2Freports%2Fclicks' );
-	} );
-
 	it( 'clears the stored drill-down when the selected link leaves the data', async () => {
 		const { rerender } = render(
 			<ClicksWidget

@@ -247,7 +247,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			 * The defaults are the Fediverse reactions the ActivityPub plugin stores as comments.
 			 * An explicit type, including 'any', still returns them.
 			 *
-			 * @since $$next-version$$
+			 * @since 16.4
 			 * @module json-api
 			 *
 			 * @param array $hidden_types Comment types to hide (default: 'like', 'repost', 'quote').

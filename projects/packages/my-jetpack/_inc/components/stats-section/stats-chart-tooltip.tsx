@@ -17,7 +17,7 @@ interface StatsChartTooltipProps {
 		};
 		datumByKey?: { [ key: string ]: { datum: DataPointDate } };
 	};
-	metricIcon: ReactElement;
+	metricIcon?: ReactElement;
 }
 
 /**
@@ -59,7 +59,7 @@ const StatsChartTooltip: FC< StatsChartTooltipProps > = ( { tooltipData, metricI
 					<li key={ point.key } className={ clsx( styles[ 'module-content-list-item' ] ) }>
 						<span className={ clsx( styles[ 'chart__tooltip-wrapper' ], styles.wrapper ) }>
 							<span className={ clsx( styles[ 'chart__tooltip-label' ], styles.label ) }>
-								<span className={ styles.gridicon }>{ metricIcon }</span>
+								{ metricIcon && <span className={ styles.gridicon }>{ metricIcon }</span> }
 								<span>{ point.key }</span>
 							</span>
 							<span className={ clsx( styles[ 'chart__tooltip-value' ], styles.value ) }>

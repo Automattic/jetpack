@@ -13,6 +13,17 @@ body.toplevel_page_jetpack-protect {
 	--wp-ui-dialog-z-index: 100000;
 }
 
+// Matches Boost's "Jetpack / Boost" trail. The width is what
+// the trail collapses into on narrow screens.
+.jp-protect-breadcrumbs {
+	flex: 1;
+}
+
+.jp-protect-breadcrumbs__item {
+	font-size: var(--wpds-typography-font-size-lg);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
 .jp-protect-dashboard__body {
 	box-sizing: border-box;
 	inline-size: 100%;
@@ -80,6 +91,10 @@ body.toplevel_page_jetpack-protect {
 
 	&__muted {
 		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__error {
+		color: var(--wpds-color-foreground-content-error);
 	}
 
 	&__title {
@@ -174,5 +189,39 @@ body.toplevel_page_jetpack-protect {
 	&__button {
 		flex: none;
 		white-space: nowrap;
+	}
+}
+
+.jp-protect-countdown {
+	color: var(--wpds-color-foreground-content-neutral);
+	// Equal-width digits, so the line doesn't jiggle as the seconds tick.
+	font-variant-numeric: tabular-nums;
+
+	&__part + &__part {
+		margin-inline-start: 0.3em;
+	}
+
+	&__digit {
+		display: inline-block;
+		animation: jp-protect-countdown-tick var(--wpds-motion-duration-md) var(--wpds-motion-easing-expressive) both;
+
+		@media (prefers-reduced-motion: reduce) {
+			animation-name: jp-protect-countdown-fade;
+		}
+	}
+}
+
+@keyframes jp-protect-countdown-tick {
+
+	from {
+		opacity: 0;
+		transform: translateY(-0.5em);
+	}
+}
+
+@keyframes jp-protect-countdown-fade {
+
+	from {
+		opacity: 0;
 	}
 }

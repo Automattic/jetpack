@@ -41,6 +41,8 @@ export type LockedFeature = {
 export type LockedSectionGate = {
 	title: string;
 	description: string;
+	/** `description` quoting the price, with `%s` for the formatted monthly price inside `<strong>`. */
+	description_with_price: `${ string }%s${ string }`;
 	features: string[];
 	upgrade_label: string;
 	expand_label: string;
@@ -48,6 +50,8 @@ export type LockedSectionGate = {
 	upgrade_url: string;
 	/** The widget types the section still shows; every other one is hidden. */
 	open_widget_types: string[];
+	/** The plan's yearly price in the currency's smallest unit, or null when WordPress.com has none. */
+	plan_price: { yearly: number; currency: string } | null;
 };
 
 /**

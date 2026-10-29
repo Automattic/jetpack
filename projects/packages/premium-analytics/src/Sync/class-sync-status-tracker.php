@@ -10,7 +10,8 @@ namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 use Automattic\Jetpack\Sync\Modules;
 
 /**
- * Listens for the end of the analytics full sync and persists a one-time milestone option.
+ * Listens for the end of the analytics full sync and persists a one-time milestone option, and
+ * records when each analytics module's first full sync starts.
  *
  * /jetpack/v4/sync/status reports current sync state but not whether the analytics full sync
  * has completed at least once — which is what tells the dashboard's store section its numbers are complete.
@@ -24,18 +25,18 @@ class Sync_Status_Tracker {
 	const INITIAL_ANALYTICS_SYNC_OPTION = 'jetpack_premium_analytics_initial_analytics_sync_finished';
 
 	/**
-	 * Timestamp of the first full woocommerce_analytics sync that finished under Premium Analytics, which,
-	 * unlike the standalone plugin's, sends the lookup data. {@see Lookup_Data_Backfill} also sets it when nothing is missing.
+	 * First full-sync start timestamps, keyed by analytics module name.
+	 *
+	 * @since 0.14.0
 	 */
-	const LOOKUP_DATA_SYNCED_OPTION = 'jetpack_premium_analytics_lookup_data_synced';
+	const ANALYTICS_SYNC_STARTED_OPTION = 'jetpack_premium_analytics_analytics_sync_started';
 
 	/**
-	 * Default sync-module names whose end-of-sync event flips the milestone. Provided by
-	 * WooCommerce Analytics, which registers a custom full-sync module under this key.
+	 * Consumer packages register their analytics module names through the sync-module filter.
 	 *
 	 * @var string[]
 	 */
-	const ANALYTICS_SYNC_MODULES = array( 'woocommerce_analytics' );
+	const ANALYTICS_SYNC_MODULES = array();
 
 	/**
 	 * Action hook fired once when the analytics milestone flips. Consumer plugins
@@ -52,7 +53,7 @@ class Sync_Status_Tracker {
 	const SYNC_STATUS_ROUTE = '/jetpack/v4/sync/status';
 
 	/**
-	 * Wire up the listener, the script-data filter, and the sync-status enricher.
+	 * Wire up the milestone listener, the full-sync start record, the script-data filter, and the sync-status enricher.
 	 *
 	 * Idempotent: safe to call more than once.
 	 *
@@ -60,6 +61,7 @@ class Sync_Status_Tracker {
 	 */
 	public static function configure() {
 		add_action( 'jetpack_sync_processed_actions', array( self::class, 'on_sync_processed_actions' ) );
+		add_action( 'jetpack_full_sync_start', array( self::class, 'on_full_sync_start' ) );
 		add_filter( 'jetpack_admin_js_script_data', array( self::class, 'inject_script_data' ) );
 		add_filter( 'rest_post_dispatch', array( self::class, 'enrich_sync_status_response' ), 10, 3 );
 	}
@@ -102,8 +104,8 @@ class Sync_Status_Tracker {
 	 */
 	public static function on_sync_processed_actions( array $actions ): void {
 		// Bail before the per-batch full-sync lookup ($module->get_status() bypasses
-		// the status cache) once both markers are set.
-		if ( self::milestone_reached() && self::lookup_data_synced() ) {
+		// the status cache) once the milestone is set.
+		if ( self::milestone_reached() ) {
 			return;
 		}
 
@@ -123,17 +125,15 @@ class Sync_Status_Tracker {
 	 */
 	public static function get_analytics_sync_modules(): array {
 		/**
-		 * Filter the sync-module names whose end-of-sync flips the analytics
-		 * milestone. Consumer plugins that register custom full-sync modules
-		 * can add their module keys here.
+		 * Filter the analytics module names whose starts are tracked and whose completion sets the milestone.
 		 *
-		 * @param string[] $module_names Default: array( 'woocommerce_analytics' ).
+		 * @param string[] $module_names Default: empty array.
 		 */
 		return (array) apply_filters( 'jetpack_premium_analytics_sync_modules', self::ANALYTICS_SYNC_MODULES );
 	}
 
 	/**
-	 * Set the milestone and the lookup data marker when the supplied full-sync status and actions represent the analytics sync ending.
+	 * Decide whether the supplied full-sync status and actions represent the analytics sync ending.
 	 *
 	 * Only a full sync whose config includes an analytics module counts — a generic sync can't mark
 	 * store data complete; split out so tests can exercise it without the sync module registry.
@@ -143,22 +143,11 @@ class Sync_Status_Tracker {
 	 * @return void
 	 */
 	public static function maybe_set_milestone( array $full_status, array $actions ): void {
-		$milestone_reached  = self::milestone_reached();
-		$lookup_data_synced = self::lookup_data_synced();
-		if ( $milestone_reached && $lookup_data_synced ) {
+		if ( self::milestone_reached() ) {
 			return;
 		}
 
-		$config = isset( $full_status['config'] ) ? (array) $full_status['config'] : array();
-		$active = array_filter(
-			self::get_analytics_sync_modules(),
-			static function ( $module_name ) use ( $config ) {
-				return ! empty( $config[ $module_name ] );
-			}
-		);
-		// An array config is a date range, a partial sync that leaves the other orders without lookup data.
-		$syncs_lookup_data = ! empty( $config['woocommerce_analytics'] ) && ! is_array( $config['woocommerce_analytics'] );
-		if ( ! $active && ! $syncs_lookup_data ) {
+		if ( ! self::includes_analytics_module( $full_status['config'] ?? array() ) ) {
 			return;
 		}
 
@@ -176,14 +165,8 @@ class Sync_Status_Tracker {
 			return;
 		}
 
-		if ( ! $lookup_data_synced && $syncs_lookup_data ) {
-			update_option( self::LOOKUP_DATA_SYNCED_OPTION, $finished_at );
-		}
-
-		if ( ! $milestone_reached && $active ) {
-			$full_status['finished'] = $finished_at;
-			self::set_milestone( $full_status );
-		}
+		$full_status['finished'] = $finished_at;
+		self::set_milestone( $full_status );
 	}
 
 	/**
@@ -231,6 +214,11 @@ class Sync_Status_Tracker {
 	 * @return void
 	 */
 	private static function set_milestone( array $full_status ): void {
+		// Record the finishing sync's modules first, so a milestone set after the update never reads as a legacy one.
+		if ( false === get_option( self::ANALYTICS_SYNC_STARTED_OPTION ) ) {
+			self::on_full_sync_start( $full_status['config'] ?? array() );
+		}
+
 		update_option( self::INITIAL_ANALYTICS_SYNC_OPTION, (int) $full_status['finished'] );
 
 		/**
@@ -239,6 +227,107 @@ class Sync_Status_Tracker {
 		 * @param array $full_status Final full-sync status (with `finished` timestamp).
 		 */
 		do_action( self::MILESTONE_ACTION, $full_status );
+	}
+
+	/**
+	 * Record each analytics module's first full-sync start.
+	 *
+	 * A milestone set before start records existed counts as a start of every module registered then.
+	 *
+	 * @since 0.14.0
+	 *
+	 * @param array|mixed $config Sync configuration of the full sync that began.
+	 * @return void
+	 */
+	public static function on_full_sync_start( $config ): void {
+		$config   = (array) $config;
+		$previous = (array) get_option( self::ANALYTICS_SYNC_STARTED_OPTION, array() );
+		$started  = $previous;
+		if ( self::is_legacy_start() ) {
+			$started = array_fill_keys( self::get_analytics_sync_modules(), self::milestone() );
+		}
+		foreach ( self::get_analytics_sync_modules() as $module_name ) {
+			if ( ! empty( $config[ $module_name ] ) && empty( $started[ $module_name ] ) ) {
+				$started[ $module_name ] = time();
+			}
+		}
+
+		if ( $started !== $previous ) {
+			update_option( self::ANALYTICS_SYNC_STARTED_OPTION, $started );
+		}
+	}
+
+	/**
+	 * Whether the given module's full sync has ever started on this site.
+	 *
+	 * @since 0.14.0
+	 *
+	 * @param string $module_name Sync module name.
+	 * @return bool
+	 */
+	public static function has_module_full_sync_started( string $module_name ): bool {
+		if ( self::is_legacy_start() ) {
+			return true;
+		}
+
+		$started = (array) get_option( self::ANALYTICS_SYNC_STARTED_OPTION, array() );
+		if ( (int) ( $started[ $module_name ] ?? 0 ) > 0 ) {
+			return true;
+		}
+
+		// A cached miss can predate another request's start, and a sync begun before start records existed never records one.
+		$started = (array) \Jetpack_Options::get_raw_option( self::ANALYTICS_SYNC_STARTED_OPTION, array() );
+		if ( (int) ( $started[ $module_name ] ?? 0 ) > 0 ) {
+			return true;
+		}
+
+		$full_status = self::get_full_sync_status();
+		if ( empty( $full_status['started'] ) || empty( $full_status['config'][ $module_name ] ) ) {
+			return false;
+		}
+
+		self::on_full_sync_start( $full_status['config'] );
+		return true;
+	}
+
+	/**
+	 * The stored full-sync status, read past the option cache.
+	 *
+	 * @return array
+	 */
+	private static function get_full_sync_status(): array {
+		$module = Modules::get_module( 'full-sync' );
+		if ( ! $module ) {
+			return array();
+		}
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $module';
+
+		return (array) $module->get_status();
+	}
+
+	/**
+	 * Whether the milestone predates the start records, so it stands in for them.
+	 *
+	 * @return bool
+	 */
+	private static function is_legacy_start(): bool {
+		return false === get_option( self::ANALYTICS_SYNC_STARTED_OPTION ) && self::milestone_reached();
+	}
+
+	/**
+	 * Whether a full-sync configuration covers an analytics module.
+	 *
+	 * @param array|mixed $config Full-sync configuration, keyed by module name.
+	 * @return bool
+	 */
+	private static function includes_analytics_module( $config ): bool {
+		$config = (array) $config;
+		foreach ( self::get_analytics_sync_modules() as $module_name ) {
+			if ( ! empty( $config[ $module_name ] ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -275,12 +364,14 @@ class Sync_Status_Tracker {
 	}
 
 	/**
-	 * Whether a full woocommerce_analytics sync finished under Premium Analytics, or the backfill found nothing missing.
+	 * Whether the first analytics full sync has finished.
+	 *
+	 * @since 0.14.0
 	 *
 	 * @return bool
 	 */
-	public static function lookup_data_synced(): bool {
-		return (int) get_option( self::LOOKUP_DATA_SYNCED_OPTION, 0 ) > 0;
+	public static function has_initial_sync_finished(): bool {
+		return self::milestone_reached();
 	}
 
 	/**

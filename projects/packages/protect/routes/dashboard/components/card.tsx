@@ -22,7 +22,7 @@ type CardProps = {
  * @param props.icon        - The feature's icon.
  * @param props.title       - The feature's name.
  * @param props.description - Optional line under the title.
- * @param props.titleAside  - Optional details beside the title, such as when it last ran.
+ * @param props.titleAside  - Optional details beside the title, such as a badge saying when it last ran.
  * @param props.status      - Optional status badge.
  * @param props.actions     - Optional controls beside the badge.
  * @param props.children    - The card's rows.
@@ -49,7 +49,7 @@ export function ProtectCard( {
 					<Icon icon={ icon } size={ 24 } />
 					<Stack direction="column" gap="xs">
 						{ titleAside ? (
-							<Stack direction="row" gap="sm" align="baseline" wrap="wrap">
+							<Stack direction="row" gap="sm" align="center" wrap="wrap">
 								{ cardTitle }
 								{ titleAside }
 							</Stack>

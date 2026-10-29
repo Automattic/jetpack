@@ -53,8 +53,6 @@ function MostCommentedAuthorsInner() {
 	);
 
 	useReportActions( {
-		report: 'comments',
-		section: 'authors',
 		csv: {
 			exporter: commentsAuthorsCsvExporter,
 			status: { isLoading, isFetching, isError },

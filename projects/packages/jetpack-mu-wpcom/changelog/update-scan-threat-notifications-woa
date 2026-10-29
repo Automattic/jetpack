@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Scan: Stop announcing threats in the admin menu, admin bar, and My Jetpack on Atomic sites.

@@ -67,14 +67,47 @@ class WPCom_Themes_Service {
 	 *
 	 * @param stdClass $wporg_theme_api_response The WP.org themes API result.
 	 * @param string   $search                   Search term.
+	 * @param bool     $prefer_wporg             Whether a theme WordPress.org also lists is left to it.
 	 *
 	 * @return stdClass The themes API result including wpcom themes.
 	 */
-	public function filter_themes_api_result_search( stdClass $wporg_theme_api_response, string $search ): stdClass {
+	public function filter_themes_api_result_search( stdClass $wporg_theme_api_response, string $search, bool $prefer_wporg = false ): stdClass {
 		$wpcom_search_themes = $this->api->search_themes( $search );
+
+		if ( $prefer_wporg ) {
+			$wpcom_search_themes = $this->without_wporg_themes( $wpcom_search_themes );
+		}
+
 		$wpcom_search_themes = $this->map_and_filter_wpcom_themes( $wpcom_search_themes );
 
 		return $this->merger->merge_by_wpcom_first( $wporg_theme_api_response, $wpcom_search_themes );
+	}
+
+	/**
+	 * Leaves out the themes WordPress.org also lists, so its copy shows wherever it ranks them.
+	 *
+	 * @param array $wpcom_themes WPCom themes.
+	 *
+	 * @return array The rest, or all of them when WordPress.org could not be asked, as before.
+	 */
+	protected function without_wporg_themes( array $wpcom_themes ): array {
+		// The lookup ships in jetpack-mu-wpcom, which an older copy may be loaded from.
+		$wporg = method_exists( $this->api, 'fetch_wporg_slugs' )
+			? $this->api->fetch_wporg_slugs( array_column( $wpcom_themes, 'id' ) )
+			: null;
+
+		if ( null === $wporg ) {
+			return $wpcom_themes;
+		}
+
+		$wporg = array_flip( $wporg );
+
+		return array_values(
+			array_filter(
+				$wpcom_themes,
+				fn( $theme ) => ! isset( $wporg[ $theme->id ?? '' ] )
+			)
+		);
 	}
 
 	/**

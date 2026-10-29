@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.13.0] - 2026-10-28
+### Added
+- Conversion funnel chart: Add `getTooltipContent` to set what each step's tooltip shows, which screen readers also read, and show the default tooltip's count and conversion rate as labeled lines. [#53637]
+- Leaderboard Chart: Show negative values as bars extending left of a shared zero point. [#53794]
+
+### Fixed
+- Conversion funnel chart: Select a step and show its tooltip when it takes keyboard focus, move between steps with the arrow keys, and have screen readers read the tooltip as the step's description. [#53637]
+- Leaderboard chart: Line the values up on the right edge and the deltas in a column of their own when a comparison is shown, instead of letting a wide delta push its row's value out of line. [#54162]
+- Read every series at the selected or hovered date in tooltips, so series that skip a date no longer pair points from different dates. [#54132]
+
+## [4.12.0] - 2026-10-26
+### Added
+- Bar chart: Add an overlap layout that draws each group inside the one before it, with comparisons in a slot beside them, and expose its bar colors through a `useBarColors` hook. [#53836]
+
+### Changed
+- Bar chart: Draw comparison bars opaque, in a tint of their primary's color that keeps 3:1 contrast, and deprecate the theme's `barChart.barStyles.comparison.opacity`. [#53836]
+- Bar chart: Mark the keyboard-selected bar with a two-tone focus ring in the design system's focus color, so it shows on any bar color. [#53830]
+- Update package dependencies. [#53951] [#54001]
+
+### Fixed
+- Line chart: Leave hidden series out of the keyboard tooltip. [#53910]
+
 ## [4.11.1] - 2026-10-20
 ### Changed
 - Internal updates.
@@ -1204,6 +1226,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.13.0]: https://github.com/Automattic/charts/compare/v4.12.0...v4.13.0
+[4.12.0]: https://github.com/Automattic/charts/compare/v4.11.1...v4.12.0
 [4.11.1]: https://github.com/Automattic/charts/compare/v4.11.0...v4.11.1
 [4.11.0]: https://github.com/Automattic/charts/compare/v4.10.0...v4.11.0
 [4.10.0]: https://github.com/Automattic/charts/compare/v4.9.0...v4.10.0

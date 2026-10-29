@@ -17,7 +17,7 @@ const DASHBOARD_FIRST_VISIT_OPTION = 'jetpack_premium_analytics_first_visit';
 /**
  * Configures the first-visit record.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @return void
  */
@@ -28,7 +28,7 @@ function configure_dashboard_first_visit() {
 /**
  * Stores the time of the first dashboard load, once per site.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @return void
  */
@@ -44,7 +44,7 @@ function record_dashboard_first_visit() {
 /**
  * The Unix time of the site's first dashboard load.
  *
- * @since $$next-version$$
+ * @since 0.14.0
  *
  * @return int|null Null until the dashboard has loaded once.
  */

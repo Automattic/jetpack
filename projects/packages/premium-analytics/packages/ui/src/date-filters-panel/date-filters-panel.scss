@@ -14,8 +14,14 @@
 		margin-bottom: 0;
 	}
 
+	// Wraps before squeezing: the comparison and interval labels have no
+	// shorter form.
+	&__row {
+		flex-wrap: wrap;
+	}
+
 	// Holds the row's only shrinkable item, the period dropdown, whose label
-	// ellipsizes, so this is where a row short of space gives.
+	// ellipsizes once even a line of its own is too narrow.
 	&__primary {
 		flex: 0 1 auto;
 	}

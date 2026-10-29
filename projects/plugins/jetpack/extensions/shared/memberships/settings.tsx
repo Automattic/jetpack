@@ -25,7 +25,12 @@ import {
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
 import { getAccessDescription } from './newsletter-copy';
-import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+import {
+	getPaidAccessState,
+	getPaidPlanLink,
+	getShowMisconfigurationWarning,
+	MisconfigurationWarning,
+} from './utils';
 import type { ReactElement } from 'react';
 
 interface ReachForAccessLevelKeyArgs {
@@ -277,26 +282,26 @@ export function NewsletterAccessRadioButtons( {
 	postHasPaywallBlock = false,
 	explainPaywallConstraint = true,
 }: NewsletterAccessRadioButtonsProps ) {
-	const isStripeConnected = stripeConnectUrl === null;
 	const { totalSubscribers, paidSubscribers, paidNewsletterSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
+	const isLoading = useSelect( select => select( membershipProductsStore ).isApiStateLoading() );
 
-	// Paid subscribers can only be chosen once Stripe is connected and a tier exists.
-	// Rather than hiding the option, we show it disabled alongside a link to set it up,
-	// so creators discover that paid newsletters are available to them.
-	const isPaidAvailable = isStripeConnected && hasTierPlans;
+	// Show paid disabled with a setup link beside it, so creators discover paid newsletters.
+	const { isPaidAvailable, showPaidAsDisabled, showSetupPrompt } = getPaidAccessState( {
+		stripeConnectUrl,
+		hasTierPlans,
+		isLoading,
+		accessLevel,
+	} );
 	const isPaidSelected = accessLevel === accessOptions.paid_subscribers.key;
-	// Keep the option selectable when it is already the saved value, so a post set to
-	// paid before Stripe was disconnected does not end up with nothing selected.
-	const showPaidAsDisabled = ! isPaidAvailable && ! isPaidSelected;
 
 	// A paywall block splits the post, so "the whole post is public" stops being an
 	// option it can express. The option stays visible and disabled — the same treatment
 	// paid subscribers gets — with a notice saying why, rather than the panel silently
-	// changing shape. The saved-value guard is the same as above: the paywall block
-	// moves the post off "everybody" when it is inserted, but until that lands we must
-	// not leave the group with nothing selected.
+	// changing shape. As with paid in getPaidAccessState, the saved value stays selectable:
+	// the paywall block moves the post off "everybody" when it is inserted, but until that
+	// lands we must not leave the group with nothing selected.
 	const isEverybodySelected = accessLevel === accessOptions.everybody.key;
 	const showEverybodyAsDisabled = !! postHasPaywallBlock && ! isEverybodySelected;
 
@@ -357,7 +362,7 @@ export function NewsletterAccessRadioButtons( {
 			value: accessOptions.paid_subscribers.key,
 			label: withCount( accessOptions.paid_subscribers.label, paidSubscribersReach ),
 			disabled: showPaidAsDisabled,
-			describedBy: showPaidAsDisabled ? setupLinkId : undefined,
+			describedBy: showSetupPrompt ? setupLinkId : undefined,
 		},
 	];
 
@@ -394,7 +399,7 @@ export function NewsletterAccessRadioButtons( {
 					) ) }
 				</div>
 			</fieldset>
-			{ showPaidAsDisabled && (
+			{ showSetupPrompt && (
 				<Link id={ setupLinkId } openInNewTab href={ getPaidPlanLink( hasTierPlans ) }>
 					{ __( 'Turn on paid subscribers', 'jetpack' ) }
 				</Link>

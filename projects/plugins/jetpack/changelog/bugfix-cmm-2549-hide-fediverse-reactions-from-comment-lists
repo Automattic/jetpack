@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Comments API: Hide Fediverse likes, reposts, and quotes from comment lists unless the request asks for a type.

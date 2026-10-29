@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Document that a widget without widget.ts declares its attribute type in render.tsx.
-

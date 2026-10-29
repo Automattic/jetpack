@@ -1,9 +1,13 @@
 import { AnalyticsQueryClientProvider, queryClient } from '@jetpack-premium-analytics/data';
+import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { PlanUsageCard } from './plan-usage-card';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/route', () => ( {
+	Link: jest.requireActual( '../../../../tests/js/route-test-utils' ).mockWordPressRoute.Link,
+} ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -74,14 +78,40 @@ describe( 'PlanUsageCard', () => {
 		expect( meter ).toHaveValue( 10000 );
 	} );
 
-	it( 'links Upgrade to the Stats purchase screen for the connected site', async () => {
+	it( 'links Upgrade to the dashboard upgrade page', async () => {
 		renderCard();
 
 		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
 			'href',
-			expect.stringContaining(
-				'https://example.com/wp-admin/admin.php?page=stats#!/stats/purchase/123456789'
-			)
+			expect.stringContaining( '/upgrade?source=jetpack-premium-analytics' )
+		);
+	} );
+
+	it( 'names the tab it sits in on the upgrade link, so the upgrade page returns to Settings', async () => {
+		render(
+			<AnalyticsQueryClientProvider>
+				<DashboardSectionProvider section="settings">
+					<PlanUsageCard />
+				</DashboardSectionProvider>
+			</AnalyticsQueryClientProvider>
+		);
+
+		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
+			'href',
+			expect.stringContaining( 'ds=settings' )
+		);
+	} );
+
+	it( 'keeps a WordPress.com site on the classic Stats purchase screen', async () => {
+		window.JetpackScriptData = {
+			site: { ...SITE, is_wpcom_platform: true },
+		} as typeof window.JetpackScriptData;
+
+		renderCard();
+
+		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
+			'href',
+			expect.stringContaining( 'admin.php?page=stats#!/stats/purchase/123456789' )
 		);
 	} );
 

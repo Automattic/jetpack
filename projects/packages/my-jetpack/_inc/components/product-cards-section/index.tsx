@@ -19,16 +19,6 @@ import styles from './style.module.scss';
 import VideopressCard from './videopress-card';
 import type { FC, ReactNode } from 'react';
 
-// Overview v1 shows these in its sections instead of the grid.
-const OVERVIEW_V1_SLUGS: JetpackModule[] = [
-	PRODUCT_SLUGS.STATS,
-	PRODUCT_SLUGS.PROTECT,
-	PRODUCT_SLUGS.BOOST,
-];
-
-const isInOverviewSections = ( slug: JetpackModule, overviewV1: boolean ) =>
-	overviewV1 && OVERVIEW_V1_SLUGS.includes( slug );
-
 type DisplayItemsProps = {
 	slugs: JetpackModule[];
 	isLoading: boolean;
@@ -89,20 +79,21 @@ export const shouldShowCompactStatsCard = (
 	! shouldShowFullStatsCard( showFullJetpackStatsCard, canUserViewStats, statsStatus );
 
 const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
-	const { showFullJetpackStatsCard = false, overviewV1 = false } =
-		getMyJetpackWindowInitialState( 'myJetpackFlags' );
-	const loadingPlaceholders = Array.from( {
-		length: overviewV1 ? 9 - OVERVIEW_V1_SLUGS.length : 9,
-	} );
+	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+	const loadingPlaceholders = Array.from( { length: 9 } );
 	const { userIsAdmin = false, canUserViewStats = false } = getMyJetpackWindowInitialState();
 	const { detail: statsDetail } = useProduct( PRODUCT_SLUGS.STATS );
 	const statsStatus = statsDetail?.status;
-	const showFullStatsCard =
-		! overviewV1 &&
-		shouldShowFullStatsCard( showFullJetpackStatsCard, canUserViewStats, statsStatus );
-	const showCompactStatsCard =
-		! overviewV1 &&
-		shouldShowCompactStatsCard( showFullJetpackStatsCard, canUserViewStats, statsStatus );
+	const showFullStatsCard = shouldShowFullStatsCard(
+		showFullJetpackStatsCard,
+		canUserViewStats,
+		statsStatus
+	);
+	const showCompactStatsCard = shouldShowCompactStatsCard(
+		showFullJetpackStatsCard,
+		canUserViewStats,
+		statsStatus
+	);
 	const isAdmin = userIsAdmin === '1';
 
 	const items: DisplayItemType = {
@@ -128,10 +119,6 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 			return false;
 		}
 
-		if ( isInOverviewSections( slug, overviewV1 ) ) {
-			return false;
-		}
-
 		if ( ! items[ slug ] ) {
 			return false;
 		}
@@ -141,7 +128,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 
 	return (
 		<>
-			{ isLoading && ! overviewV1 && (
+			{ isLoading && (
 				<Col className={ styles.fullStatsCard }>
 					<LoadingBlock width="100%" height="350px" />
 				</Col>
@@ -193,14 +180,10 @@ interface ProductCardsSectionProps {
 
 const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } ) => {
 	const { filteredOwnedProducts, isLoading } = useFilteredProducts();
-	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
-	const hasGridProducts = filteredOwnedProducts.some(
-		slug => ! isInOverviewSections( slug, overviewV1 )
-	);
 
 	return (
 		<>
-			{ ( isLoading || hasGridProducts ) && (
+			{ ( isLoading || filteredOwnedProducts.length > 0 ) && (
 				<Container
 					horizontalSpacing={ 0 }
 					horizontalGap={ noticeMessage ? 3 : 6 }

@@ -351,7 +351,7 @@ describe( 'ConnectionStatusCard', () => {
 			);
 
 			expect( screen.getByText( 'Site and account connected' ) ).toBeInTheDocument();
-			expect( screen.queryByText( 'Offline mode' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Offline Mode' ) ).not.toBeInTheDocument();
 		} );
 
 		// Matched as a direct child of the heading: the manage-connection button holds its own chevron.
@@ -514,7 +514,7 @@ describe( 'ConnectionStatusCard', () => {
 
 			expect( mockRecordEvent ).toHaveBeenCalledWith(
 				'jetpack_connection_error_notice_link_click',
-				expect.objectContaining( { context: 'my-jetpack-connection-card' } )
+				expect.objectContaining( { context: 'my-jetpack', placement: 'connection_card' } )
 			);
 		} );
 

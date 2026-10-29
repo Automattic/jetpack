@@ -42,16 +42,17 @@ import {
 	MAX_GROUP_PADDING,
 	COMPARISON_TICK_GAP_FACTOR,
 	BASE_BAND_PADDING_INNER,
-	countRenderedBars,
 	isBarRendered,
 	SlotTooltipMembers,
 	useBarStops,
 	useOverlapSlots,
 	getSelectedSlot,
+	isSameCategory,
+	membersAt,
 } from './private';
 import { useBarColors } from './use-bar-colors';
 import { useBarLegendItems } from './use-bar-legend-items';
-import type { ComparisonSeriesEntry } from './private';
+import type { ComparisonSeriesEntry, SelectedBar } from './private';
 import type { BarChartProps } from './types';
 import type { DataPointDate, SeriesData, Optional } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
@@ -443,12 +444,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			// Find the comparison value paired with the hovered primary series (same group)
 			// at the same category, so the tooltip can show both periods at once.
 			const comparisonEntry = comparisonEntries.find( entry => entry.primaryKey === primaryKey );
-			const comparisonDatum = comparisonEntry?.series.data.find( point => {
-				const p = point as DataPointDate;
-				return nearestDatum.label != null
-					? p.label === nearestDatum.label
-					: !! nearestDatum.date && !! p.date && p.date.getTime() === nearestDatum.date.getTime();
-			} ) as DataPointDate | undefined;
+			const comparisonDatum = comparisonEntry?.series.data.find( point =>
+				isSameCategory( point as DataPointDate, nearestDatum )
+			) as DataPointDate | undefined;
 
 			// With a paired comparison value, show the category as the header and one row
 			// per period (primary + comparison).
@@ -537,45 +535,25 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ overlapSlots, selectedIndex ]
 	);
 
-	const createKeyboardHighlightStyle = useCallback( () => {
-		// An overlap layout outlines its selected slot with `SelectedBarRing` instead.
-		if ( selectedIndex === undefined || isOverlap ) return '';
-
-		// Use only primary entries: comparison series have no .visx-bar elements, so
-		// their indices must not appear in the nth-child selector.
-		// Pattern: [series1[0], series2[0], series3[0], series1[1], series2[1], series3[1], ...]
-		const primaryCount = primaryEntries.length;
-		if ( ! primaryCount ) {
-			return '';
+	const selectedGroup = useMemo( () => {
+		const stop = overlapSlots || selectedIndex === undefined ? undefined : barAt( selectedIndex );
+		if ( ! stop ) {
+			return undefined;
 		}
-		const dataPointIndex = Math.floor( selectedIndex / primaryCount );
-		const seriesIndex = selectedIndex % primaryCount;
-		const seriesData = primaryEntries[ seriesIndex ]?.series;
-		const datum = seriesData?.data[ dataPointIndex ];
+		return membersAt( primaryEntries, stop.datum, stop.key );
+	}, [ overlapSlots, selectedIndex, barAt, primaryEntries ] );
 
-		if ( ! seriesData || ! datum || ! isBarRendered( datum ) ) {
-			return '';
+	const selectedMembers = selectedSlot?.members ?? selectedGroup;
+
+	const selectedBar = useMemo( (): SelectedBar | undefined => {
+		if ( overlapSlots ) {
+			return selectedSlot;
 		}
-
-		// The single .visx-bar-group holds series after series, and only the points visx drew a bar for.
-		const domBarIndex =
-			primaryEntries
-				.slice( 0, seriesIndex )
-				.reduce( ( count, { series } ) => count + countRenderedBars( series.data ), 0 ) +
-			countRenderedBars( seriesData.data.slice( 0, dataPointIndex ) );
-
-		// Use a CSS class selector instead of ID since useId() generates invalid CSS ID characters
-		const generatedStyles = `
-			.bar-chart[data-chart-id="bar-chart-${ chartId }"] .visx-bar-group .visx-bar:nth-child(${
-				domBarIndex + 1
-			}) {
-				stroke: #005fcc;
-				stroke-width: 2px;
-			}
-		`;
-
-		return generatedStyles;
-	}, [ selectedIndex, isOverlap, primaryEntries, chartId ] );
+		const bar = selectedIndex === undefined ? undefined : barAt( selectedIndex );
+		return bar && isBarRendered( bar.datum )
+			? { data: [ bar.datum ], slotKey: bar.key, thickness: 1 }
+			: undefined;
+	}, [ overlapSlots, selectedSlot, selectedIndex, barAt ] );
 
 	// Validate data first
 	const error = validateData( dataSorted );
@@ -606,7 +584,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	}
 
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
-	const highlightedBarStyle = createKeyboardHighlightStyle();
 
 	const legendPosition = legend.position ?? 'bottom';
 	const legendElement = showLegend && (
@@ -735,12 +712,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</>
 										) }
 
-										{ highlightedBarStyle && (
-											<style data-testid="bar-chart-keyboard-highlight">
-												{ highlightedBarStyle }
-											</style>
-										) }
-
 										{ allSeriesHidden ? (
 											<SvgEmptyState
 												x={ width / 2 }
@@ -768,8 +739,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										/>
 
 										<BarLayer
+											chartId={ chartId }
 											overlapSlots={ overlapSlots }
-											selectedSlot={ selectedSlot }
+											selectedBar={ selectedBar }
 											primaryEntries={ primaryEntries }
 											primaryKeys={ primaryKeys }
 											getBarBackground={ getBarBackground }
@@ -820,11 +792,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</WholeNumberTicks>
 										) }
 
-										{ withTooltips && selectedSlot && (
-											<SlotTooltipMembers
-												members={ selectedSlot.members }
-												index={ selectedSlot.index }
-											/>
+										{ withTooltips && selectedMembers && (
+											<SlotTooltipMembers members={ selectedMembers } />
 										) }
 										{ withTooltips && (
 											<XYChartTooltip
@@ -843,7 +812,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												keyboardFocusedClassName={
 													styles[ 'bar-chart__tooltip--keyboard-focused' ]
 												}
-												series={ stops.series }
 												mode="individual"
 											/>
 										) }

@@ -47,7 +47,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.12.0';
+	const PACKAGE_VERSION = '6.14.0';
 
 	/**
 	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
@@ -251,6 +251,15 @@ class Initializer {
 	 */
 	public static function use_local_module_options( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress REST filter signature.
 		if ( '/jetpack/v4/module/all' === $request->get_route() ) {
+			// Keep module activation editable when the standalone plugin is not running;
+			// a stale autoloaded VideoPress class can still attach its forcing filter.
+			if ( ! Jetpack_Constants::is_defined( 'JETPACK_VIDEOPRESS_ROOT_FILE' )
+				&& ! Products\Videopress::is_standalone_plugin_active()
+				&& remove_filter( 'jetpack_active_modules', array( \Automattic\Jetpack\VideoPress\Module_Control::class, 'add_videopress_to_array' ) )
+				&& class_exists( 'Jetpack_Modules_Overrides', false )
+			) {
+				\Jetpack_Modules_Overrides::instance()->clear_cache();
+			}
 			add_filter( 'default_option_monitor_receive_notifications', '__return_false' );
 			add_filter( 'default_option_post_by_email_address' . get_current_user_id(), '__return_false' );
 		}
@@ -971,6 +980,8 @@ class Initializer {
 				'assetsUrl'              => self::get_assets_url(),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
+				// wp_localize_script() decodes the HTML entities WordPress stores names with.
+				'userFirstName'          => (string) wp_get_current_user()->first_name,
 				'lifecycleStats'         => array(
 					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
 					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
@@ -1414,15 +1425,15 @@ class Initializer {
 		Feature_Flags::register(
 			self::ACCOUNT_CONNECT_FLAG,
 			array(
-				'default'     => false,
-				'description' => 'Connect the account from the Install or Connect button of Features cards that need one, and hide Active and Inactive where the control already shows the state.',
+				'default'     => true,
+				'description' => 'Connect the account from the Install or Connect button of Features cards that need one, hide Active and Inactive where the control already shows the state, exclude features from Available when their only action is an install the user cannot make, and show host restrictions below card descriptions.',
 				'owner'       => 'my-jetpack',
 			)
 		);
 		Feature_Flags::register(
 			self::HEADER_CONTROLS_FLAG,
 			array(
-				'default'     => false,
+				'default'     => true,
 				'description' => 'Show the global controls in the shared header of My Jetpack and Boost.',
 				'owner'       => 'my-jetpack',
 			)
@@ -1438,7 +1449,7 @@ class Initializer {
 		Feature_Flags::register(
 			self::MODULES_TO_FEATURES_FLAG,
 			array(
-				'default'     => false,
+				'default'     => true,
 				'description' => 'Open supported classic Modules links in Features.',
 				'owner'       => 'my-jetpack',
 			)
@@ -1983,7 +1994,9 @@ class Initializer {
 	 * @return string[] Alert slugs.
 	 */
 	private static function get_alerts_counted_elsewhere() {
-		return Products\Protect::has_protect_page() ? array( 'protect_has_threats' ) : array();
+		// Without has_protect_page(), use the standalone plugin check this relied on before that method existed.
+		$has_protect_page = method_exists( Products\Protect::class, 'has_protect_page' ) ? Products\Protect::has_protect_page() : Products\Protect::is_standalone_plugin_active();
+		return $has_protect_page ? array( 'protect_has_threats' ) : array();
 	}
 
 	/**

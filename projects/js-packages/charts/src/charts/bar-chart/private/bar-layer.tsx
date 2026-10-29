@@ -2,7 +2,8 @@ import { BarGroup, BarSeries } from '@visx/xychart';
 import ClassifiedBarSeries from './classified-bar-series';
 import { SelectedBarRing } from './selected-bar-ring';
 import SlottedBarSeries from './slotted-bar-series';
-import type { OverlapSlots, SelectedSlot } from './use-overlap-slots';
+import type { SelectedBar } from './selected-bar-ring';
+import type { OverlapSlots } from './use-overlap-slots';
 import type { DataPointDate, SeriesData } from '../../../types';
 import type { BarChartProps } from '../types';
 import type { AxisScale } from '@visx/axis';
@@ -15,8 +16,9 @@ type Accessors = Pick<
 >;
 
 type Props = Accessors & {
+	chartId: string;
 	overlapSlots: OverlapSlots | undefined;
-	selectedSlot: SelectedSlot | undefined;
+	selectedBar: SelectedBar | undefined;
 	primaryEntries: { series: SeriesData; index: number }[];
 	primaryKeys: string[];
 	getBarBackground: ( index: number ) => ( datum: DataPointDate ) => string;
@@ -26,11 +28,12 @@ type Props = Accessors & {
 };
 
 /**
- * Draws the bars in front of any comparison shadows: slotted bars and their ring for an overlap layout, else visx's grouped bars.
+ * Draws the bars in front of any comparison shadows, slotted for an overlap layout and grouped by visx otherwise, then the selected bar's ring.
  *
  * @param props                  - Component props.
+ * @param props.chartId          - The chart's id, which keeps the ring's clip path unique on a page with several charts.
  * @param props.overlapSlots     - The overlap layout, or undefined for a grouped one.
- * @param props.selectedSlot     - The overlap slot the keyboard has selected.
+ * @param props.selectedBar      - The bar or slot the keyboard has selected.
  * @param props.primaryEntries   - The visible primary series, for a grouped layout.
  * @param props.primaryKeys      - Their labels, in group order.
  * @param props.getBarBackground - Reads a series' bar fill.
@@ -42,8 +45,9 @@ type Props = Accessors & {
  * @return The bars.
  */
 export const BarLayer: FC< Props > = ( {
+	chartId,
 	overlapSlots,
-	selectedSlot,
+	selectedBar,
 	primaryEntries,
 	primaryKeys,
 	getBarBackground,
@@ -53,42 +57,29 @@ export const BarLayer: FC< Props > = ( {
 	xAccessor,
 	yAccessor,
 } ) => {
+	let bars;
 	if ( overlapSlots ) {
-		return (
-			<>
-				<g className="visx-bar-group">
-					{ overlapSlots.entries.map( ( { series, index } ) => (
-						<SlottedBarSeries
-							key={ series.label }
-							dataKey={ series.label }
-							data={ series.data as DataPointDate[] }
-							xAccessor={ xAccessor }
-							yAccessor={ yAccessor }
-							colorAccessor={ getBarBackground( index ) }
-							barClassName={ barClassName }
-							slotKeys={ overlapSlots.slotKeys }
-							slotKey={ overlapSlots.slotOf( series.label ) }
-							thickness={ overlapSlots.thicknessOf( series.label ) }
-							groupPadding={ groupPadding }
-						/>
-					) ) }
-				</g>
-				{ selectedSlot && (
-					<SelectedBarRing
-						selected={ selectedSlot }
-						slotKeys={ overlapSlots.slotKeys }
-						groupPadding={ groupPadding }
-						horizontal={ horizontal }
+		bars = (
+			<g className="visx-bar-group">
+				{ overlapSlots.entries.map( ( { series, index } ) => (
+					<SlottedBarSeries
+						key={ series.label }
+						dataKey={ series.label }
+						data={ series.data as DataPointDate[] }
 						xAccessor={ xAccessor }
-						yAccessor={ yAccessor as ( datum: DataPointDate ) => number | undefined }
+						yAccessor={ yAccessor }
+						colorAccessor={ getBarBackground( index ) }
+						barClassName={ barClassName }
+						slotKeys={ overlapSlots.slotKeys }
+						slotKey={ overlapSlots.slotOf( series.label ) }
+						thickness={ overlapSlots.thicknessOf( series.label ) }
+						groupPadding={ groupPadding }
 					/>
-				) }
-			</>
+				) ) }
+			</g>
 		);
-	}
-
-	if ( barClassName ) {
-		return (
+	} else if ( barClassName ) {
+		bars = (
 			<g className="visx-bar-group">
 				{ primaryEntries.map( ( { series, index } ) => (
 					<ClassifiedBarSeries
@@ -105,20 +96,37 @@ export const BarLayer: FC< Props > = ( {
 				) ) }
 			</g>
 		);
+	} else {
+		bars = (
+			<BarGroup padding={ groupPadding }>
+				{ primaryEntries.map( ( { series, index } ) => (
+					<BarSeries
+						key={ series.label }
+						dataKey={ series.label }
+						data={ series.data as DataPointDate[] }
+						xAccessor={ xAccessor }
+						yAccessor={ yAccessor }
+						colorAccessor={ getBarBackground( index ) }
+					/>
+				) ) }
+			</BarGroup>
+		);
 	}
 
 	return (
-		<BarGroup padding={ groupPadding }>
-			{ primaryEntries.map( ( { series, index } ) => (
-				<BarSeries
-					key={ series.label }
-					dataKey={ series.label }
-					data={ series.data as DataPointDate[] }
+		<>
+			{ bars }
+			{ selectedBar && (
+				<SelectedBarRing
+					chartId={ chartId }
+					selected={ selectedBar }
+					slotKeys={ overlapSlots?.slotKeys ?? primaryKeys }
+					groupPadding={ groupPadding }
+					horizontal={ horizontal }
 					xAccessor={ xAccessor }
-					yAccessor={ yAccessor }
-					colorAccessor={ getBarBackground( index ) }
+					yAccessor={ yAccessor as ( datum: DataPointDate ) => number | undefined }
 				/>
-			) ) }
-		</BarGroup>
+			) }
+		</>
 	);
 };

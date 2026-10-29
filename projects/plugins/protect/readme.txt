@@ -132,9 +132,9 @@ Jetpack Protect does not require the Jetpack plugin to run and secure your site.
 
 Jetpack Protect is a new WordPress security plugin from Jetpack containing our security features only. You can start with Jetpack Protect’s free vulnerability scanning features and upgrade Jetpack Protect to access automated malware scanning and our web application firewall. By upgrading Protect, you are enabling Jetpack Scan to the plugin.
 
-Jetpack Scan is a product that can be purchased for use in conjunction with the main Jetpack plugin or Jetpack Protect. Jetpack Scan includes automated malware scanning and our web application firewall but does not contain the vulnerability scanning feature from the Protect plugin. If you purchase Jetpack Security or Jetpack Complete, Jetpack Scan is also included in those bundles.
+Jetpack Scan is a product that can be purchased for use in conjunction with the main Jetpack plugin or Jetpack Protect. Jetpack Scan includes automated malware scanning and our web application firewall but does not contain the vulnerability scanning feature from the Protect plugin. If you purchase Jetpack Pro or Jetpack Complete, Jetpack Scan is also included in those bundles.
 
-If you are already a Jetpack Scan, Jetpack Security, or Jetpack Complete customer, you can also take advantage of Jetpack Protect’s vulnerability scanning feature by installing the Jetpack Protect plugin.
+If you are already a Jetpack Scan, Jetpack Security, Jetpack Pro, or Jetpack Complete customer, you can also take advantage of Jetpack Protect’s vulnerability scanning feature by installing the Jetpack Protect plugin.
 
 WPScan is an enterprise vulnerability scanning solution. It is not recommended for small to medium-sized businesses. If you are an enterprise company looking for custom WordPress site protection solutions, please visit: https://wpscan.com/
 

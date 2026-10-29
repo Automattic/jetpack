@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "2.13.2",
+	"version": "2.15.0",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -21,6 +21,7 @@
 	"exports": {
 		".": "./index.jsx",
 		"./connection-error-message": "./helpers/get-connect-screen-error-message.tsx",
+		"./get-calypso-origin": "./helpers/get-calypso-origin.ts",
 		"./get-user-connection-url": "./helpers/get-user-connection-url.ts",
 		"./hooks/use-product-checkout-workflow": "./hooks/use-product-checkout-workflow/index.tsx",
 		"./state/store-id": "./state/store-id.jsx",
@@ -43,6 +44,7 @@
 		"@wordpress/components": "42.0.0",
 		"@wordpress/data": "10.57.0",
 		"@wordpress/element": "9.0.0",
+		"@wordpress/html-entities": "4.57.0",
 		"@wordpress/i18n": "6.30.0",
 		"@wordpress/icons": "18.0.0",
 		"@wordpress/ui": "0.24.0",

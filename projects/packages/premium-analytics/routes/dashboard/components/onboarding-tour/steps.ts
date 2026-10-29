@@ -26,7 +26,7 @@ export type OnboardingTourOptions = {
 	/** The journey the tour belongs to. Defaults to the new Stats alone. */
 	flow?: OnboardingWelcomeVariant;
 
-	/** Whether the reader can arrange the section; a plan-locked one offers no Customize. Defaults to true. */
+	/** Whether the reader can arrange the section, which a plan can rule out. Defaults to true. */
 	withCustomize?: boolean;
 
 	/** Whether the date controls offer a comparison; a free site's last 7 days do not. Defaults to true. */

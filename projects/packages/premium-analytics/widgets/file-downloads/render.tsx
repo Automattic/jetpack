@@ -152,7 +152,6 @@ function FileDownloadsInner() {
 	);
 
 	useReportActions( {
-		report: 'downloads',
 		csv: {
 			exporter: fileDownloadsCsvExporter,
 			status: { isLoading, isFetching, isError: primary.isError },

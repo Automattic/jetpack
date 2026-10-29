@@ -13,11 +13,15 @@ Instructions:
 3. Push the branch to the right remote (see "Choosing the remote" below)
 4. Prepare the PR content using the sections from .github/PULL_REQUEST_TEMPLATE.md:
    - Title: Clear summary of changes
-   - Fixes #: Link to issue if applicable (or remove if none)
+   - First line (the template's `Fixes #` line) references the issue, so Linear or GitHub can track it:
+     - `Fixes JETPACK-1234` when merging this PR completes the Linear issue, or `Fixes #1234` for a GitHub issue. Merging closes it.
+     - `Related to JETPACK-1234` when the issue stays open after this PR merges, for example when the PR covers only part of it.
+     - Remove the line when there is no issue.
+   - Related product discussion/links: only shorthands for the P2 posts and Slack threads where the change was discussed, such as `peKye1-1Z1-p2`. The issue ID lives on the first line alone, even though the template's comment mentions Linear here. Write `None.` when there are no discussions.
    - Proposed changes: Bullet points of functional changes
    - Testing instructions: Step-by-step how to test the changes
    - In the testing instructions, also state what you tested and what you did NOT test, so reviewers know where to focus. If you have a test site where the bug can be reproduced (e.g. a Jurassic Ninja site), include its URL — but never include private `*.wordpress.com` internal site URLs in the PR body; use the p2 shorthand (e.g. `peKye1-1Z1-p2`) instead.
-5. If the diff touches UI (admin pages, blocks, components, CSS/SCSS, or JS/TSX under `projects/plugins/*` or `projects/js-packages/*`), suggest capturing real-screen before/after screenshots on a Jurassic Ninja site via the `jetpack-screenshot` skill and including them in the PR body. Skip the suggestion when the PR is purely backend/docs/tooling.
+5. If the diff touches UI (admin pages, blocks, components, CSS/SCSS, or JS/TSX under `projects/plugins/*` or `projects/js-packages/*`), suggest capturing real-screen before/after screenshots on a Jurassic Ninja site via the `jetpack-screenshot` skill and including them in the PR body. For the same user-facing diffs, add a rehearsal for each behavior a user would notice via the `jetpack-rehearsal` skill, and put its `<!-- rehearsal v1 -->` block under Testing instructions; if rehearsals were already run on a JN site for this branch, include those. Skip both suggestions when the PR is purely backend/docs/tooling.
 6. Create the PR using `gh pr create`, passing the prepared content via `--title` and `--body-file <path>` (never `--body` — heredoc escaping breaks on backticks and special characters). Always include `--assignee @me`.
 7. Add required labels:
    - `[Status] *` - use `[Status] In Progress` by default, or `[Status] Needs Review` if ready for review

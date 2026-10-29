@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useState, useSyncExternalStore } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
+import { recordEvent } from '../../data/tracks';
 import type { ScanState } from './types';
 
 export const SCAN_PATH = '/jetpack/v4/protect-dashboard/scan';
@@ -98,6 +99,7 @@ export function parseLastChecked( lastChecked?: string | null ): Date | null {
 export const resetScan = (): void => {
 	scanStore.reset();
 	requestStore.reset();
+	delete window.jetpackProtectThreatCount;
 	edits = [];
 	readsStarted = 0;
 	readApplied = 0;
@@ -117,6 +119,24 @@ export const getScan = () => scanStore.get();
  */
 export function setScan( update: ( scan: ScanState ) => ScanState ) {
 	scanStore.set( scan => scan && update( scan ) );
+	publishThreatCount( scanStore.get()?.threats?.length );
+}
+
+/**
+ * Show the active threat count in the Protect menu badge and the admin bar notice, as `js/threat-count.js` does.
+ *
+ * @param count - Active threats, or undefined when the report has no list.
+ */
+function publishThreatCount( count?: number ) {
+	if ( count === undefined || count === window.jetpackProtectThreatCount ) {
+		return;
+	}
+	// The menu slug and event name are Dashboard::MENU_SLUG and Threat_Count::EVENT.
+	window.jetpackMenuBadges?.setCount( 'jetpack-protect', count );
+	window.jetpackProtectThreatCount = count;
+	document.dispatchEvent(
+		new CustomEvent( 'jetpack-protect-threat-count', { detail: { count } } )
+	);
 }
 
 /**
@@ -201,6 +221,7 @@ export function useScan(): ScanState | undefined {
  */
 export function startScan(): Promise< void > {
 	const hasPlan = !! getScan()?.hasPlan;
+	recordEvent( 'jetpack_scan_scan_now', { has_plan: hasPlan } );
 	// With Scan, show the scan as started right away; the free check only re-reads its report.
 	requestStore.set( () => ( {
 		...NO_REQUEST,
@@ -313,6 +334,15 @@ export function useScanPolling(): void {
 		);
 		return () => clearTimeout( timer );
 	}, [ isScanning, isHidden, polls ] );
+}
+
+/**
+ * Whether the host lets the site ignore threats.
+ *
+ * @return True unless the host turned ignoring off.
+ */
+export function useCanIgnore(): boolean {
+	return useScan()?.canIgnore !== false;
 }
 
 /**

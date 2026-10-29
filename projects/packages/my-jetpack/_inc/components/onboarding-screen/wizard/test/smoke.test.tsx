@@ -181,7 +181,7 @@ describe( 'Wizard start screen', () => {
 		setupWizard();
 
 		expect( mockUseConnection ).toHaveBeenCalledWith( {
-			from: 'jetpack-onboarding-wizard',
+			from: 'my_jetpack_onboarding',
 			redirectUri: 'admin.php?page=my-jetpack&step=onboarding',
 			skipPricingPage: true,
 		} );

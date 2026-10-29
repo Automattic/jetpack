@@ -42,4 +42,12 @@ export {
 	PRESET_LAST_7_DAYS,
 	toBucketStamp,
 } from '@jetpack-premium-analytics/datetime';
-export { Badge, Stack } from '@jetpack-premium-analytics/externals';
+export {
+	Badge,
+	Button,
+	ButtonLink,
+	Progress,
+	Stack,
+	Text,
+	VisuallyHidden,
+} from '@jetpack-premium-analytics/externals';

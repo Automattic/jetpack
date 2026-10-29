@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Decode HTML entities in recent post titles on the Overview page.

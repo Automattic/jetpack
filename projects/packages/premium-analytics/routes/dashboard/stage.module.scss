@@ -1,5 +1,9 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 .dashboard {
 	min-block-size: 0;
+
+	@include jetpack-admin-page-header;
 
 	/*
 	 * Tweak Card layout to make it fit the screen.

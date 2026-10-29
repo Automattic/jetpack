@@ -250,6 +250,9 @@ export type ReportResult< TData > = {
 	primary: ReportQueryResult< TData >;
 	comparison: ReportQueryResult< TData >;
 	hasComparison: boolean;
+	// Where each period starts while a comparison is on, for `buildMetricTab`'s `periodStarts`.
+	// Absent on dashboards older than it.
+	periodStarts?: { current: string; comparison: string };
 	// The zone both periods were built under.
 	timezone: string;
 	// True while nothing on screen answers the current params; see WidgetState.
@@ -265,6 +268,8 @@ export type UseReportOptions = {
 	enabled?: boolean;
 	// Where the comparison query parks while the params carry no comparison.
 	disabledComparisonKey?: string[];
+	// Defaults to true. False for a query whose failure leaves the figures on screen current, such as product details.
+	refreshNotice?: boolean;
 };
 
 export declare function useReport< TData, TParams extends ReportParams = ReportParams >(
@@ -299,6 +304,18 @@ export type StatsVideoPlaysComparisonItem = any;
 export declare const EarningsHistoryList: AnyComponent;
 export declare function flattenEarningsBreakdown( ...args: any[] ): any;
 
-// UI primitives the widgets share with the dashboard, so no widget bundles its own copy.
+// UI primitives the widgets share with the dashboard, so no widget bundles its own copy. They go
+// the day `@wordpress/ui` ships as a script module and wp-build externalizes it on its own.
 export declare const Badge: AnyComponent;
+export declare const Button: AnyComponent;
+export declare const ButtonLink: AnyComponent;
+export declare const Progress: {
+	Root: AnyComponent;
+	Track: AnyComponent;
+	Indicator: AnyComponent;
+	Label: AnyComponent;
+	Value: AnyComponent;
+};
 export declare const Stack: AnyComponent;
+export declare const Text: AnyComponent;
+export declare const VisuallyHidden: AnyComponent;

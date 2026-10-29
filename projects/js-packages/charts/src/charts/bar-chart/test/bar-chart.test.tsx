@@ -11,17 +11,30 @@ import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import { steadyTrafficData } from '../../../stories/sample-data';
+import { selectedBarRingBounds } from '../../../test-utils/selected-bar-ring';
 import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
 import { useBarColors } from '../use-bar-colors';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { DataPointDate, SeriesData } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
 jest.mock( '../../../hooks/use-element-size', () => ( {
 	useElementSize: () => [ mockRefCallback, 500, 300 ],
 } ) );
+
+const geometryOf = ( element: Element ) =>
+	[ 'x', 'y', 'width', 'height' ].map( name =>
+		Number( element.getAttribute( name ) ).toFixed( 2 )
+	);
+
+const selectedRingGeometry = () =>
+	Object.values( selectedBarRingBounds() ).map( value => value.toFixed( 2 ) );
+
+// eslint-disable-next-line testing-library/no-node-access -- visx renders the bars and takes no test id.
+const visxBars = () => document.querySelectorAll( '.visx-bar' );
 
 describe( 'BarChart', () => {
 	const defaultProps = {
@@ -2013,6 +2026,39 @@ describe( 'BarChart', () => {
 				expect( tooltip ).toHaveTextContent( 'Previous period: 15' );
 			} );
 
+			test( 'pairs the comparison value by date when the bars have empty labels', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					withTooltips: true,
+					data: [
+						{
+							label: 'This period',
+							group: 'views',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: '' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: '' },
+							],
+						},
+						{
+							label: 'Previous period',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 15, label: '' },
+								{ date: new Date( '2024-01-02' ), value: 25, label: '' },
+							],
+						},
+					],
+				} );
+
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}' );
+
+				const tooltip = screen.getByTestId( 'chart-tooltip-1' );
+				expect( tooltip ).toHaveTextContent( 'This period: 20' );
+				expect( tooltip ).toHaveTextContent( 'Previous period: 25' );
+			} );
+
 			test( 'keyboard navigation past the first slot stays on the primary bar, not the comparison series', async () => {
 				const user = userEvent.setup();
 				renderWithTheme( {
@@ -2274,7 +2320,7 @@ describe( 'BarChart', () => {
 					await user.keyboard( '{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'No data' );
-					expect( screen.queryByTestId( 'bar-chart-keyboard-highlight' ) ).not.toBeInTheDocument();
+					expect( screen.queryByTestId( 'bar-chart-selected-ring' ) ).not.toBeInTheDocument();
 				} );
 
 				test( 'outlines the first rendered bar for the first bucket with a reading', async () => {
@@ -2285,9 +2331,7 @@ describe( 'BarChart', () => {
 					await user.keyboard( '{ArrowRight}{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( '20' );
-					expect( screen.getByTestId( 'bar-chart-keyboard-highlight' ) ).toHaveTextContent(
-						/\.visx-bar:nth-child\(1\) \{/
-					);
+					expect( selectedRingGeometry() ).toEqual( geometryOf( visxBars()[ 0 ] ) );
 				} );
 
 				test( 'skips the bars an earlier series left out when outlining a later series', async () => {
@@ -2318,9 +2362,7 @@ describe( 'BarChart', () => {
 					await user.keyboard( '{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-3' ) ).toHaveTextContent( '15' );
-					expect( screen.getByTestId( 'bar-chart-keyboard-highlight' ) ).toHaveTextContent(
-						/\.visx-bar:nth-child\(4\) \{/
-					);
+					expect( selectedRingGeometry() ).toEqual( geometryOf( visxBars()[ 3 ] ) );
 				} );
 			} );
 		} );
@@ -3545,6 +3587,87 @@ describe( 'BarChart', () => {
 			expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
 			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 		} );
+
+		const labelledViews = [
+			{ label: 'Apr', value: 29 },
+			{ label: 'May', value: 19 },
+		];
+		const april = new Date( '2025-04-01T00:00:00Z' );
+		const may = new Date( '2025-05-01T00:00:00Z' );
+
+		it.each( [
+			{
+				name: 'aligned series',
+				views: labelledViews,
+				visitors: [
+					{ label: 'Apr', value: 112 },
+					{ label: 'May', value: 80 },
+				],
+				presses: 3,
+				rows: [ 'Views=19@1', 'Visitors=80@1' ],
+				nearest: 'Views',
+			},
+			{
+				name: 'ragged series',
+				views: labelledViews,
+				visitors: [ { label: 'May', value: 80 } ],
+				presses: 2,
+				rows: [ 'Views=19@1', 'Visitors=80@0' ],
+				nearest: 'Visitors',
+			},
+			{
+				name: 'dated points with empty labels',
+				views: [
+					{ date: april, label: '', value: 29 },
+					{ date: may, label: '', value: 19 },
+				],
+				visitors: [
+					{ date: april, label: '', value: 112 },
+					{ date: may, label: '', value: 80 },
+				],
+				presses: 3,
+				rows: [ 'Views=19@1', 'Visitors=80@1' ],
+				nearest: 'Views',
+			},
+		] )(
+			'gives the keyboard tooltip only the bars at the selected category: $name',
+			async ( { views, visitors, presses, rows, nearest } ) => {
+				const user = userEvent.setup();
+				const renderTooltip = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+					<div>
+						<span data-testid="nearest">{ tooltipData?.nearestDatum?.key }</span>
+						{ Object.entries( tooltipData?.datumByKey ?? {} ).map(
+							( [ key, { datum, index } ] ) => (
+								<span
+									key={ key }
+									data-testid="row"
+								>{ `${ key }=${ datum.value }@${ index }` }</span>
+							)
+						) }
+					</div>
+				);
+
+				renderWithTheme( {
+					withTooltips: true,
+					renderTooltip,
+					data: [
+						{ label: 'Views', data: views, options: {} },
+						{ label: 'Visitors', data: visitors, options: {} },
+					],
+				} );
+
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
+				for ( let i = 0; i < presses; i++ ) {
+					await user.keyboard( '{ArrowRight}' );
+				}
+
+				expect( screen.getAllByTestId( 'row' ).map( row => row.textContent ) ).toEqual(
+					expect.arrayContaining( rows )
+				);
+				expect( screen.getAllByTestId( 'row' ) ).toHaveLength( rows.length );
+				expect( screen.getByTestId( 'nearest' ) ).toHaveTextContent( nearest );
+			}
+		);
 
 		it( 'stops at the last visible slot on a standard chart', async () => {
 			const user = userEvent.setup();

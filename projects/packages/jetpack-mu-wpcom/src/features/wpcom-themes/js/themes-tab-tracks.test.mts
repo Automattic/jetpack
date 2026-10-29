@@ -11,6 +11,7 @@ describe( 'clickEvent', () => {
 				themeTier: 'premium',
 				requiredPlan: 'value_bundle',
 				context: 'card',
+				source: 'tab',
 			} ),
 			[
 				'wpcom_marketplace_tab_theme_purchase_click',
@@ -20,12 +21,13 @@ describe( 'clickEvent', () => {
 					action: 'upgrade',
 					required_plan: 'value_bundle',
 					context: 'card',
+					source: 'tab',
 				},
 			]
 		);
 	} );
 
-	it( 'sends an empty plan for a subscribe link in the preview', () => {
+	it( 'sends an empty plan for a subscribe link in the preview of a search result', () => {
 		assert.deepEqual(
 			clickEvent( {
 				wpcomThemesTrack: 'subscribe',
@@ -33,6 +35,7 @@ describe( 'clickEvent', () => {
 				themeTier: 'partner',
 				requiredPlan: '',
 				context: 'preview',
+				source: 'search',
 			} ),
 			[
 				'wpcom_marketplace_tab_theme_purchase_click',
@@ -42,6 +45,7 @@ describe( 'clickEvent', () => {
 					action: 'subscribe',
 					required_plan: '',
 					context: 'preview',
+					source: 'search',
 				},
 			]
 		);
@@ -76,5 +80,27 @@ describe( 'trackThemesTab', () => {
 
 		assert.equal( events.length, 2 );
 		assert.equal( ( events[ 1 ] as unknown[] )[ 0 ], 'wpcom_marketplace_tab_theme_purchase_click' );
+	} );
+
+	it( "records a change of the pricing filter, and not of core's own filters", () => {
+		type OnChange = ( event: { target: unknown } ) => void;
+
+		const events: unknown[] = [];
+		let onChange: OnChange = () => {};
+		const doc = {
+			addEventListener: ( type: string, handler: OnChange ) => {
+				if ( type === 'change' ) {
+					onChange = handler;
+				}
+			},
+		} as unknown as Document;
+
+		trackThemesTab( doc, ( ...event ) => events.push( event ) );
+		onChange( { target: { dataset: { wpcomThemesPricing: '' }, value: 'included' } } );
+		onChange( { target: { dataset: {}, value: 'blog' } } );
+
+		assert.deepEqual( events, [
+			[ 'wpcom_marketplace_tab_theme_pricing_filter', { pricing: 'included' } ],
+		] );
 	} );
 } );

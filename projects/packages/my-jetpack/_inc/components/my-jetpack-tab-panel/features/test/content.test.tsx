@@ -36,12 +36,14 @@ let mockMainFeatures: Record< string, unknown > = {
 
 let mockModules: Record< string, MyJetpackModule > = {};
 let mockModulesLoaded = true;
+let mockModulesFailed = false;
 const mockRecordEvent = jest.fn();
 jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( {
 		modules: mockModules,
 		isLoading: false,
 		hasLoaded: mockModulesLoaded,
+		hasFailed: mockModulesFailed,
 	} ),
 } ) );
 
@@ -122,6 +124,7 @@ describe( 'FeaturesContent', () => {
 	beforeEach( () => {
 		mockModules = {};
 		mockModulesLoaded = true;
+		mockModulesFailed = false;
 		mockRecordEvent.mockClear();
 		mockStates = [ activeStats ];
 		mockIsLoading = false;
@@ -344,6 +347,35 @@ describe( 'FeaturesContent', () => {
 		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
 	} );
 
+	it( 'says the list is incomplete when the modules failed and none arrived', () => {
+		mockModulesFailed = true;
+		renderAt( '/' );
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'This list is incomplete' );
+	} );
+
+	it.each( [
+		[ 'the modules loaded', false ],
+		[ 'a refresh failed over a full list', true ],
+	] )( 'shows no incomplete-list notice when %s', ( _, failed ) => {
+		mockModulesFailed = failed;
+		mockModules = { stats: { module: 'stats', activated: true } as MyJetpackModule };
+		renderAt( '/' );
+
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'drops the incomplete-list notice once another request refills the modules', () => {
+		mockModulesFailed = true;
+		const { rerenderAt } = renderAt( '/' );
+		expect( screen.getByRole( 'alert' ) ).toBeInTheDocument();
+
+		mockModules = { stats: { module: 'stats', activated: true } as MyJetpackModule };
+		rerenderAt();
+
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'waits for the read to settle before calling an empty catalog a failure', () => {
 		mockStates = [];
 		mockMainFeatures = { features: [], isPlaceholderData: true };
@@ -478,6 +510,39 @@ describe( 'FeaturesContent', () => {
 
 		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'a filter', 'hidden', 40, 1 ],
+		[ 'a search', 'hidden', 40, 1 ],
+		[ 'a filter', 'in view', 140, 0 ],
+	] )(
+		'after %s, with the start of the list %s, scrolls to it %d time(s)',
+		async ( trigger, _where, listTop, scrolls ) => {
+			const scrollIntoView = jest.fn();
+			Element.prototype.scrollIntoView = scrollIntoView;
+			// The toolbar is the one holding the search box; the list start is the only other box read.
+			const boxes = jest
+				.spyOn( HTMLElement.prototype, 'getBoundingClientRect' )
+				.mockImplementation( function ( this: HTMLElement ) {
+					// eslint-disable-next-line testing-library/no-node-access -- jsdom has no layout, so boxes are told apart by content.
+					const isToolbar = this.querySelector( 'input[type="search"]' ) !== null;
+					return ( isToolbar ? { top: 0, bottom: 100, height: 100 } : { top: listTop } ) as DOMRect;
+				} );
+			try {
+				renderAt( '/features' );
+				if ( trigger === 'a filter' ) {
+					await userEvent.click( screen.getByRole( 'button', { name: /^Available/ } ) );
+				} else {
+					await userEvent.type( screen.getByRole( 'searchbox', { name: 'Search features' } ), 's' );
+				}
+
+				expect( scrollIntoView ).toHaveBeenCalledTimes( scrolls );
+			} finally {
+				boxes.mockRestore();
+				delete ( Element.prototype as Partial< Element > ).scrollIntoView;
+			}
+		}
+	);
 
 	it( 'opens on the list when the URL asks for it', () => {
 		renderAt( '/features?view=list' );

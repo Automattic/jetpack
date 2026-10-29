@@ -32,7 +32,7 @@ const AdvancedCard: FC = () => {
 		<CollapsibleCard.Root defaultOpen={ false }>
 			<CollapsibleCard.Header render={ <h2 /> }>
 				<Card.Title>
-					{ /* The standard brand chip, not a warning tint: a second chip treatment
+					{ /* The standard plain icon, not a warning tint: a second icon treatment
 					     would make this read as a different kind of module. The `caution`
 					     glyph says "read before acting"; the copy inside does the explaining. */ }
 					<CardTitleIcon icon={ caution } title={ __( 'Advanced', 'jetpack-seo' ) } />

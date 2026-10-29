@@ -150,6 +150,9 @@ describe( 'reportParamsAttributeField', () => {
 	} );
 } );
 
+// A menu trigger is named by its visible bucket, a lone bucket by its "Chart interval: …" label.
+const BUCKET_TRIGGER = /^(Chart interval: )?By \w+$/;
+
 describe( 'report params field', () => {
 	afterEach( () => {
 		jest.useRealTimers();
@@ -158,15 +161,14 @@ describe( 'report params field', () => {
 	it( 'offers no bucket control by default', () => {
 		renderField();
 
-		// Prefix, not the whole name: the trigger appends the active bucket.
-		expect( screen.queryByRole( 'button', { name: /^Chart interval/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: BUCKET_TRIGGER } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'offers the bucket control when asked for it', async () => {
 		renderField( true );
 
 		await expect(
-			screen.findByRole( 'button', { name: /^Chart interval/ } )
+			screen.findByRole( 'button', { name: BUCKET_TRIGGER } )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -246,7 +248,7 @@ describe( 'report params field', () => {
 		const user = userEvent.setup();
 		const { latest } = renderField( true );
 
-		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
+		await user.click( await screen.findByRole( 'button', { name: 'By days' } ) );
 		await user.click( await screen.findByRole( 'menuitemradio', { name: 'By weeks' } ) );
 
 		expect( latest() ).toEqual( expect.objectContaining( { interval: 'week' } ) );
@@ -276,12 +278,10 @@ describe( 'report params field', () => {
 		renderField( true );
 
 		await pickPeriod( user, 'Last 24 hours' );
-		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
-			screen.findByRole( 'menuitemradio', { name: 'By hours' } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'menuitemradio', { name: 'By days' } ) ).not.toBeInTheDocument();
+			screen.findByRole( 'button', { name: 'Chart interval: By hours' } )
+		).resolves.toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
 	it( 'leaves a custom range to its Apply step', async () => {
@@ -334,7 +334,7 @@ describe( 'report params field', () => {
 
 		await draftShortRange( user, 3 );
 		await user.click( screen.getByRole( 'button', { name: 'Apply' } ) );
-		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
+		await user.click( await screen.findByRole( 'button', { name: 'By days' } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By hours' } )
@@ -448,12 +448,10 @@ describe( 'report params field', () => {
 		await draftShortRange( user, 3 );
 		await setFromOutside( { preset: 'last-7-days', interval: 'day' } );
 
-		await user.click( screen.getByRole( 'button', { name: /^Chart interval/ } ) );
-
-		await expect(
-			screen.findByRole( 'menuitemradio', { name: 'By days' } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'menuitemradio', { name: 'By hours' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 } );
 
@@ -467,28 +465,22 @@ describe( 'buckets the widget cannot draw', () => {
 
 		// Two to six days is the window that puts hours on offer.
 		await draftShortRange( user, 3 );
-		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
-			screen.findByRole( 'menuitemradio', { name: 'By days' } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'menuitemradio', { name: 'By hours' } ) ).not.toBeInTheDocument();
+			screen.findByRole( 'button', { name: 'Chart interval: By days' } )
+		).resolves.toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
 	// Today, Yesterday and Last 24 hours allow hours alone, so narrowing on its
 	// own would leave the menu empty.
 	it( 'offers the bucket they clamp to when the range allows nothing else', async () => {
-		const user = userEvent.setup();
 		renderField( true, DAILY_REPORT, {
 			reportParams: { preset: 'last-24-hours', interval: 'hour' },
 		} );
 
-		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
-
 		await expect(
-			screen.findByRole( 'menuitemradio', { name: 'By days' } )
-		).resolves.toHaveAttribute( 'aria-checked', 'true' );
-		expect( screen.queryByRole( 'menuitemradio', { name: 'By hours' } ) ).not.toBeInTheDocument();
+			screen.findByRole( 'button', { name: 'Chart interval: By days' } )
+		).resolves.toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 } );
 

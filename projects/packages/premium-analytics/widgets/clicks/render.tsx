@@ -252,7 +252,6 @@ function ClicksInner() {
 	) : null;
 
 	useReportActions( {
-		report: 'clicks',
 		csv: {
 			exporter: clicksCsvExporter,
 			status: { isLoading, isFetching, isError: primary.isError },

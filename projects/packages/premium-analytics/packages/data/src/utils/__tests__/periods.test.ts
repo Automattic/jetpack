@@ -1,17 +1,38 @@
 /**
  * Internal dependencies
  */
+import { NO_LOCKED_INTERVALS, type IntervalType, type LockableInterval } from '../interval';
 import {
 	chartInterval,
 	defaultPeriodForInterval,
 	drawableIntervals,
 	intervalMenuOptions,
+	type IntervalExtension,
+	type IntervalRange,
 } from '../periods';
 
 // The period sets in use.
 const DAY_WEEK_MONTH = [ 'day', 'week', 'month' ] as const;
 const DAY_WEEK_MONTH_YEAR = [ 'day', 'week', 'month', 'year' ] as const;
 const HOUR_DAY_WEEK_MONTH = [ 'hour', 'day', 'week', 'month' ] as const;
+
+const LAST_30_DAYS = {
+	preset: 'last-30-days',
+	from: '2026-09-16',
+	to: '2026-10-15',
+} satisfies IntervalRange;
+const LAST_90_DAYS = {
+	preset: 'last-90-days',
+	from: '2026-07-18',
+	to: '2026-10-15',
+} satisfies IntervalRange;
+const LAST_12_MONTHS = {
+	preset: 'last-12-months',
+	from: '2025-11-01',
+	to: '2026-10-31',
+} satisfies IntervalRange;
+const ADD_DAYS: IntervalExtension = { extra: [ 'day' ] };
+const WITHHOLD_DAYS: IntervalExtension = { unavailable: { intervals: [ 'day' ], hint: 'H' } };
 
 describe( 'defaultPeriodForInterval', () => {
 	describe( 'day/week/month widgets (subscribers chart)', () => {
@@ -166,11 +187,30 @@ describe( 'chartInterval', () => {
 			'day'
 		);
 	} );
+
+	it.each<
+		[
+			string,
+			typeof LAST_30_DAYS | typeof LAST_90_DAYS | typeof LAST_12_MONTHS,
+			IntervalType | undefined,
+			IntervalExtension | undefined,
+			string,
+		]
+	>( [
+		[ 'clamps days away without an extension', LAST_90_DAYS, 'day', undefined, 'week' ],
+		[ 'draws a bucket the widget adds', LAST_90_DAYS, 'day', ADD_DAYS, 'day' ],
+		[ 'keeps the range default first', LAST_90_DAYS, undefined, ADD_DAYS, 'week' ],
+		[ 'draws months for a withheld bucket', LAST_12_MONTHS, 'day', WITHHOLD_DAYS, 'month' ],
+	] )( '%s', ( _, range, interval, extension, expected ) => {
+		expect(
+			chartInterval( { ...range, interval }, DAY_WEEK_MONTH, NO_LOCKED_INTERVALS, extension )
+		).toBe( expected );
+	} );
 } );
 
 describe( 'intervalMenuOptions', () => {
 	const MULTI_YEAR = { preset: undefined, from: '2023-01-01', to: '2026-06-30' };
-	const LAST_30_DAYS = { preset: 'last-30-days' as const, from: '2026-09-16', to: '2026-10-15' };
+	const CUSTOM_200_DAYS = { preset: undefined, from: '2026-01-01', to: '2026-07-19' };
 	const LOCKED = [ 'week', 'month', 'year' ] as const;
 
 	it.each( [
@@ -178,6 +218,50 @@ describe( 'intervalMenuOptions', () => {
 		[ 'a widget that declares no periods', MULTI_YEAR, undefined, [ 'day' ], [ 'month', 'year' ] ],
 		[ 'a chart without days', LAST_30_DAYS, [ 'week', 'month' ] as const, [ 'week' ], [] ],
 	] )( 'splits the buckets for %s', ( _, params, periods, options, lockedOptions ) => {
-		expect( intervalMenuOptions( params, LOCKED, periods ) ).toEqual( { options, lockedOptions } );
+		expect( intervalMenuOptions( params, LOCKED, periods ) ).toEqual( {
+			options,
+			lockedOptions,
+			unavailableOptions: [],
+		} );
+	} );
+
+	it.each< [ string, IntervalRange, readonly LockableInterval[], IntervalExtension, object ] >( [
+		[
+			'a bucket the widget adds, after the range default',
+			LAST_90_DAYS,
+			NO_LOCKED_INTERVALS,
+			ADD_DAYS,
+			{ options: [ 'week', 'month', 'day' ], lockedOptions: [], unavailableOptions: [] },
+		],
+		[
+			'no second copy of a bucket the range already offers',
+			LAST_30_DAYS,
+			NO_LOCKED_INTERVALS,
+			ADD_DAYS,
+			{ options: [ 'day', 'week' ], lockedOptions: [], unavailableOptions: [] },
+		],
+		[
+			'a bucket the widget withholds, with its hint',
+			LAST_90_DAYS,
+			NO_LOCKED_INTERVALS,
+			WITHHOLD_DAYS,
+			{
+				options: [ 'week', 'month' ],
+				lockedOptions: [],
+				unavailableOptions: [ 'day' ],
+				unavailableHint: 'H',
+			},
+		],
+		[
+			'a withheld bucket the plan already left open',
+			CUSTOM_200_DAYS,
+			LOCKED,
+			WITHHOLD_DAYS,
+			{ options: [ 'day' ], lockedOptions: [ 'week', 'month' ], unavailableOptions: [] },
+		],
+	] )( 'lists %s', ( _, params, locked, extension, expected ) => {
+		expect( intervalMenuOptions( params, locked, DAY_WEEK_MONTH, extension ) ).toStrictEqual(
+			expected
+		);
 	} );
 } );

@@ -49,6 +49,13 @@ class Main_Features {
 	const INSTALLS_NOT_PERMITTED = 'not_permitted';
 
 	/**
+	 * First My Jetpack release with the opt-in offline Features page.
+	 *
+	 * @since 6.14.0
+	 */
+	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.10.0';
+
+	/**
 	 * Whether module metadata proves it can run without either connection.
 	 *
 	 * @since 6.10.0
@@ -548,27 +555,29 @@ class Main_Features {
 	}
 
 	/**
-	 * Lets a host send a feature's Upgrade button to its own plans instead of Jetpack's.
+	 * Lets a host send a feature's Upgrade button to its own plans instead of Jetpack's, and its manage link to its own page.
 	 *
-	 * @param array  $upgrade  The Jetpack route, from get_upgrade().
-	 * @param string $slug     The feature slug.
-	 * @param bool   $included Whether the site already pays for the feature.
-	 * @return array{path: string, name: string, url?: string}
+	 * @param array  $upgrade          The Jetpack route, from get_upgrade().
+	 * @param string $slug             The feature slug.
+	 * @param bool   $site_has_feature Whether the site already has the feature.
+	 * @return array{path: string, name: string, url?: string, manage_url?: string}
 	 */
-	private static function filter_upgrade( array $upgrade, $slug, $included ) {
+	private static function filter_upgrade( array $upgrade, $slug, $site_has_feature ) {
 		/**
-		 * Filters where a My Jetpack feature's Upgrade button goes.
+		 * Filters where a feature's upgrade and manage links go, so a host can send them to its own plans.
 		 *
 		 * Set `url` to an absolute address to replace the My Jetpack route, which also drops the
-		 * Jetpack plans the feature's details would otherwise link to. Ignored when `$included`.
+		 * Jetpack plans the feature's details would otherwise link to; it is ignored when `$site_has_feature`.
+		 * Set `manage_url` to where a site that has the feature manages it, read only when `$site_has_feature`.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.14.0
 		 *
-		 * @param array  $upgrade  `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is.
-		 * @param string $slug     The feature slug.
-		 * @param bool   $included Whether the site already pays for the feature.
+		 * @param array  $upgrade          `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is,
+		 *                                 and `back_url`, the admin page the link is on, for a host flow to return to.
+		 * @param string $slug             The My Jetpack feature slug.
+		 * @param bool   $site_has_feature Whether the site already has the feature.
 		 */
-		$filtered = apply_filters( 'jetpack_my_jetpack_feature_upgrade', $upgrade, $slug, $included );
+		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade + array( 'back_url' => admin_url( 'admin.php?page=my-jetpack#/features' ) ), $slug, $site_has_feature );
 
 		if ( ! is_array( $filtered ) ) {
 			return $upgrade;
@@ -580,8 +589,13 @@ class Main_Features {
 		);
 
 		// A site that already pays has nothing to buy, wherever a host would send it.
-		if ( ! $included && ! empty( $filtered['url'] ) ) {
+		if ( ! $site_has_feature && ! empty( $filtered['url'] ) ) {
 			$result['url'] = esc_url_raw( (string) $filtered['url'] );
+		}
+
+		$manage_url = $site_has_feature ? esc_url_raw( (string) ( $filtered['manage_url'] ?? '' ) ) : '';
+		if ( $manage_url ) {
+			$result['manage_url'] = $manage_url;
 		}
 
 		return $result;
@@ -772,36 +786,18 @@ class Main_Features {
 	/**
 	 * The installed file for a plugin, by the names its product declares where there is one.
 	 *
-	 * Prefer an active copy when several declared folders are installed, including -dev checkouts.
-	 *
 	 * @param string      $slug          WordPress.org plugin slug.
 	 * @param string|null $product_class The product behind the plugin, when it has one.
 	 * @return string|false The plugin file, or false when it is not installed.
 	 */
 	public static function get_plugin_file( $slug, $product_class = null ) {
 		if ( Product::JETPACK_PLUGIN_SLUG === $slug ) {
-			$filenames = Product::JETPACK_PLUGIN_FILENAME;
+			return Product::get_installed_plugin_filename( Product::JETPACK_PLUGIN_SLUG ) ?? false;
 		} elseif ( $product_class && $product_class::$has_standalone_plugin ) {
-			$filenames = $product_class::get_plugin_filename();
-		} else {
-			return Plugins_Installer::get_plugin_id_by_slug( $slug );
+			return $product_class::get_installed_plugin_filename() ?? false;
 		}
 
-		$plugins   = Plugins_Installer::get_plugins();
-		$installed = false;
-		foreach ( (array) $filenames as $file ) {
-			if ( ! isset( $plugins[ $file ] ) ) {
-				continue;
-			}
-			if ( $plugins[ $file ]['active'] ) {
-				return $file;
-			}
-			if ( false === $installed ) {
-				$installed = $file;
-			}
-		}
-
-		return $installed;
+		return Plugins_Installer::get_plugin_id_by_slug( $slug );
 	}
 
 	/**
@@ -859,17 +855,16 @@ class Main_Features {
 	}
 
 	/**
-	 * Whether this plugin is the only active one carrying My Jetpack.
+	 * Whether no other active plugin can take over this My Jetpack page.
 	 *
-	 * Several plugins bundle it and the autoloader picks one, so the plugin serving this
-	 * page is often not the only one that could. Switching that one off is only a problem
-	 * when nothing else is left to take over.
-	 *
-	 * @param string $slug The plugin's folder name.
-	 * @return bool True when no other active plugin carries My Jetpack.
+	 * @since 6.14.0 Added the $excluded_folders parameter.
+	 * @param string   $slug             The plugin's folder name.
+	 * @param string[] $excluded_folders Other plugin folders being deactivated in the same request.
+	 * @return bool True when no other active plugin carries a suitable My Jetpack copy.
 	 */
-	public static function is_only_my_jetpack_provider( $slug ) {
-		$active = array_merge(
+	public static function is_only_my_jetpack_provider( $slug, $excluded_folders = array() ) {
+		$offline = Initializer::is_offline_features_enabled();
+		$active  = array_merge(
 			(array) get_option( 'active_plugins', array() ),
 			array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) )
 		);
@@ -877,11 +872,25 @@ class Main_Features {
 		foreach ( $active as $file ) {
 			$folder = dirname( (string) $file );
 
-			if ( '.' === $folder || $folder === $slug ) {
+			if ( '.' === $folder || $folder === $slug || in_array( $folder, $excluded_folders, true ) ) {
 				continue;
 			}
 
-			if ( is_dir( WP_PLUGIN_DIR . '/' . $folder . '/jetpack_vendor/automattic/jetpack-my-jetpack' ) ) {
+			$package = WP_PLUGIN_DIR . '/' . $folder . '/jetpack_vendor/automattic/jetpack-my-jetpack';
+			if ( ! is_dir( $package ) ) {
+				continue;
+			}
+
+			if ( ! $offline ) {
+				return false;
+			}
+
+			// Older copies cannot keep Features open offline. Read the bundled version without loading its classes.
+			$initializer = $package . '/src/class-initializer.php';
+			if ( is_file( $initializer ) && is_readable( $initializer )
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local bundled PHP metadata, not a remote URL.
+				&& preg_match( '/\bconst\s+PACKAGE_VERSION\s*=\s*[\'\"](\d+\.\d+\.\d+(?:[.\-+][\w.\-]+)?)[\'\"]\s*;/', file_get_contents( $initializer ), $version )
+				&& version_compare( $version[1], self::MINIMUM_OFFLINE_FEATURES_VERSION, '>=' ) ) {
 				return false;
 			}
 		}
@@ -1053,6 +1062,7 @@ class Main_Features {
 			$plugin        = $delivery['plugin'] ?? '';
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
 			$included      = ! $local && self::is_included_in_plan( $definition, $product_class );
+			$upgrade       = $local ? null : self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included );
 
 			$feature = array(
 				'slug'             => $slug,
@@ -1060,7 +1070,7 @@ class Main_Features {
 				'description'      => $definition['description'],
 				'long_description' => $definition['long_description'] ?? '',
 				'icon'             => $definition['icon'],
-				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
+				'manage_url'       => $upgrade['manage_url'] ?? self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
 				// An older Jetpack plugin still lets the module decide, so the card keeps its switch there.
 				'plan_driven'      => ! empty( $definition['plan_driven'] ) && ( ! $product_class || ! method_exists( $product_class, 'is_plan_driven' ) || $product_class::is_plan_driven() ),
@@ -1073,7 +1083,7 @@ class Main_Features {
 				'free_highlights'  => $definition['free_highlights'] ?? array(),
 				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
 				'pricing_notes'    => $definition['pricing_notes'] ?? array(),
-				'upgrade'          => $local ? null : self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included ),
+				'upgrade'          => null === $upgrade ? null : array_diff_key( $upgrade, array( 'manage_url' => true ) ),
 				'included'         => $included,
 				// Both notes tell the site what to buy next, which a site that pays already has.
 				'setup_note'       => $included ? '' : ( $definition['setup_note'] ?? '' ),

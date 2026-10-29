@@ -241,6 +241,7 @@ jest.mock( '@wordpress/route', () => ( {
 // the real report-origin validation.
 
 jest.mock( './components', () => ( {
+	getPostTypeCopy: jest.requireActual( './components' ).getPostTypeCopy,
 	postHeaderSlots: ( {
 		summary,
 		variant,
@@ -639,15 +640,17 @@ describe( 'post detail stage', () => {
 		expect( action ).toHaveAttribute( 'target', '_blank' );
 	} );
 
-	it( 'labels the action View page for a page', () => {
-		mockSummary( { type: 'page', url: 'https://example.com/about/' } );
+	it.each( [
+		[ 'page', 'View page' ],
+		[ 'product', 'View product' ],
+	] )( 'labels the action for a %s', ( type, label ) => {
+		mockSummary( { type, url: 'https://example.com/about/' } );
 
 		render( stage() );
 
-		expect( screen.getByRole( 'link', { name: 'View page(opens in a new tab)' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/about/'
-		);
+		expect(
+			screen.getByRole( 'link', { name: `${ label }(opens in a new tab)` } )
+		).toHaveAttribute( 'href', 'https://example.com/about/' );
 		expect(
 			screen.queryByRole( 'link', { name: 'View post(opens in a new tab)' } )
 		).not.toBeInTheDocument();

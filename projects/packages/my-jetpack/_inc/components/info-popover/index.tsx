@@ -9,7 +9,7 @@ import type { FC, ReactNode } from 'react';
 import './style.scss';
 
 export interface InfoPopoverProps {
-	/** What the popover explains, e.g. "Auto-Firewall"; names the trigger for assistive tech. */
+	/** What the popover explains, e.g. "Firewall"; names the trigger for assistive tech. */
 	label: string;
 	title: ReactNode;
 	text: ReactNode;
@@ -61,7 +61,7 @@ export const InfoPopover: FC< InfoPopoverProps > = ( {
 				aria-label={
 					triggerLabel ??
 					sprintf(
-						/* translators: %s is the name of the feature or stat the popover explains, e.g. "Auto-Firewall". */
+						/* translators: %s is the name of the feature or stat the popover explains, e.g. "Firewall". */
 						__( 'More about %s', 'jetpack-my-jetpack' ),
 						label
 					)

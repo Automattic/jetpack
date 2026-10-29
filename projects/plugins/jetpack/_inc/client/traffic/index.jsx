@@ -3,9 +3,7 @@ import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import QuerySite from 'components/data/query-site';
-import SimpleNotice from 'components/notice';
 import {
 	isSiteConnected,
 	isOfflineMode,
@@ -62,23 +60,22 @@ export class Traffic extends Component {
 
 		// Once the site is on the new SEO experience (fresh install / opted-in /
 		// WordPress.com), the SEO, Sitemaps, and Verification sections live in the
-		// dedicated SEO dashboard, so hide those legacy sections here and point to the
-		// new page. Existing self-hosted installs that haven't opted in keep them
-		// (JETPACK-1682).
+		// dedicated SEO dashboard, so hide those legacy sections here. Existing
+		// self-hosted installs that haven't opted in keep them (JETPACK-1682).
 		const seoMovedToDashboard = getScriptData()?.seo?.surface_visible === true;
-		// The opt-in and pointer notices cover every section that moves, so show them for any of
-		// those, including a "sitemap" or "verification" search that misses the SEO section.
+		// The opt-in notice covers every section that moves, so show it for any of those,
+		// including a "sitemap" or "verification" search that misses the SEO section.
 		const foundMovedToDashboard =
 			foundSeo || foundCanonicalUrls || foundSitemaps || foundVerification;
 
+		// Once moved, those sections render nothing here, so they no longer count as a match.
+		const foundLegacySeoSections = ! seoMovedToDashboard && foundMovedToDashboard;
+
 		if (
-			! foundSeo &&
-			! foundCanonicalUrls &&
+			! foundLegacySeoSections &&
 			! foundStats &&
 			! foundShortlinks &&
 			! foundRelated &&
-			! foundVerification &&
-			! foundSitemaps &&
 			! foundAnalytics &&
 			! foundBlaze
 		) {
@@ -102,31 +99,6 @@ export class Traffic extends Component {
 							anchor: 'seo',
 						} ) }
 					/>
-				) }
-				{ seoMovedToDashboard && foundMovedToDashboard && (
-					<SimpleNotice
-						status="is-info"
-						showDismiss={ false }
-						className="jp-seo-moved-banner"
-						title={ __( 'Jetpack SEO has its own dashboard', 'jetpack' ) }
-					>
-						<div className="jp-seo-moved-banner__content">
-							<p>
-								{ __(
-									'Manage your search engine optimization settings from the redesigned SEO dashboard.',
-									'jetpack'
-								) }
-							</p>
-							<Button
-								primary
-								rna
-								compact
-								href={ `${ this.props.siteAdminUrl }admin.php?page=jetpack-seo` }
-							>
-								{ __( 'Open the SEO dashboard', 'jetpack' ) }
-							</Button>
-						</div>
-					</SimpleNotice>
 				) }
 				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundAnalytics && (

@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { connectionStatusEmptyAvatar as emptyAvatar } from '../../assets/inline-svgs';
 import useSitePurchases from '../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useConnectionErrorTracking from '../../hooks/use-connection-error-tracking';
 import { useConnectionState } from '../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
@@ -47,23 +48,37 @@ function getBadgeLabel( state: ConnectionState ): string {
 	return state.label;
 }
 
+interface ConnectionControlProps {
+	/** The host page, e.g. 'my-jetpack' or 'boost', sent as `context` on connection Tracks events. */
+	trackingContext: string | undefined;
+}
+
 /**
  * The shared header's connection control: the viewer's avatar opening today's Overview Connection and Plan sections.
  *
+ * @param props                 - Component props.
+ * @param props.trackingContext - The host page, for Tracks.
  * @return The control.
  */
-const ConnectionControl: FC = () => {
+const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) => {
 	const state = useConnectionState();
 	const { apiRoot, apiNonce, isUserConnected, connectedPlugins, userConnectionData } =
 		useMyJetpackConnection();
+	const trackingCallback = useConnectionErrorTracking();
 	const { errorGroups, showSupportLink, connectionErrorMessage, actions, restoreConnectionError } =
-		useConnectionErrorNotice( { trackingContext: 'my-jetpack-header', navigate: assignLocation } );
+		useConnectionErrorNotice( {
+			trackingCallback,
+			trackingContext,
+			trackingPlacement: 'header',
+			navigate: assignLocation,
+		} );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ isDialogOpen, setIsDialogOpen ] = useState( false );
 	const triggerRef = useRef< HTMLButtonElement >( null );
 	const returnFocusRef = useRef( false );
 	// Never stale, so opening reuses what the Overview or an earlier open loaded.
-	const { data: purchases = null } = useSitePurchases( {
+	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
+	const { data: purchases = null, isError: hasPurchasesError } = useSitePurchases( {
 		enabled: isOpen,
 		staleTime: Infinity,
 	} );
@@ -113,13 +128,17 @@ const ConnectionControl: FC = () => {
 					/>
 					<span className={ clsx( styles.dot, styles[ state.status ] ) } />
 				</Popover.Trigger>
-				<Popover.Popup>
-					<Stack direction="column" gap="md" className={ styles.content }>
+				<Popover.Popup positioner={ <Popover.Positioner align="end" collisionPadding={ 16 } /> }>
+					<Stack direction="column" gap="lg" className={ styles.content }>
 						<Stack direction="column" gap="sm" align="start">
 							<Text variant="heading-md" render={ <Popover.Title /> }>
 								{ __( 'Connection', 'jetpack-my-jetpack' ) }
 							</Text>
-							<ConnectionStatus status={ state.status } showAvatar={ showAvatar } />
+							<ConnectionStatus
+								status={ state.status }
+								showAvatar={ showAvatar }
+								className={ styles.illustration }
+							/>
 							<Badge intent={ STATUS_INTENTS[ state.status ] }>{ getBadgeLabel( state ) }</Badge>
 							<ConnectionOwnerInfo />
 							{ state.isDiagnosis && restoreConnectionError && (
@@ -152,8 +171,10 @@ const ConnectionControl: FC = () => {
 								</Link>
 							) }
 						</Stack>
-						{ purchases && <hr className={ styles.divider } /> }
-						<PlanSummary purchases={ purchases } />
+						{ ( purchases || ( hasPurchasesError && isAdmin ) ) && (
+							<hr className={ styles.divider } />
+						) }
+						<PlanSummary purchases={ purchases } hasFailed={ hasPurchasesError } />
 					</Stack>
 				</Popover.Popup>
 			</Popover.Root>
@@ -167,6 +188,8 @@ const ConnectionControl: FC = () => {
 					connectedUser={ userConnectionData }
 					isOpen={ isDialogOpen }
 					onClose={ closeManageDialog }
+					context={ trackingContext }
+					placement="header"
 				/>
 			) }
 		</>

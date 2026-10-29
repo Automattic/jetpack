@@ -5,8 +5,10 @@ import { __, sprintf } from '@wordpress/i18n';
 import { cloudUpload } from '@wordpress/icons';
 import { Link, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
+import { useFocusHandoff } from '../../hooks/use-focus-handoff';
 import ErrorReference from '../error-reference';
 import {
+	backupReadyText,
 	completedWithWarningsText,
 	failedRunText,
 	noGoodBackupsText,
@@ -16,6 +18,7 @@ import { ContactSupportLine } from './index';
 import './style.scss';
 import type { BackupsState } from '../../types/backup';
 import type { FailureReference } from '../../types/failure-reference';
+import type { RefObject } from 'react';
 
 type Props = {
 	/** Completion of the running backup, 0–100. Omit while the backup is requested but not yet reported. */
@@ -55,6 +58,42 @@ export default function BackupStatusBanner( { progress }: Props ) {
 				{ isStarting && <Spinner className="jpb-backup-status-banner__spinner" /> }
 			</Notice.Title>
 			<Notice.Description>{ readySoon }</Notice.Description>
+		</Notice.Root>
+	);
+}
+
+/**
+ * Notice shown once a watched backup has finished, until the reader dismisses it or another notice replaces it.
+ *
+ * @param props               - Component props.
+ * @param props.onDismiss     - Closes the notice.
+ * @param props.isListing     - Whether the activity list still lacks the new backup, which keeps the spinner.
+ * @param props.returnFocusTo - Where focus goes if the notice goes away while holding it.
+ * @return The rendered banner.
+ */
+export function BackupCompleteBanner( {
+	onDismiss,
+	isListing,
+	returnFocusTo,
+}: {
+	onDismiss: () => void;
+	isListing: boolean;
+	returnFocusTo: RefObject< HTMLElement | null >;
+} ) {
+	const noticeRef = useFocusHandoff< HTMLDivElement >( returnFocusTo );
+
+	return (
+		<Notice.Root ref={ noticeRef } className="jpb-backup-status-banner" intent="success">
+			<Notice.Title className="jpb-backup-status-banner__title">
+				{ sprintf(
+					/* translators: %d: how much of the backup is complete, as a percentage. */
+					__( 'Backup complete (%d%% progress)', 'jetpack-backup-pkg' ),
+					100
+				) }
+				{ isListing && <Spinner className="jpb-backup-status-banner__spinner" /> }
+			</Notice.Title>
+			<Notice.Description>{ backupReadyText() }</Notice.Description>
+			<Notice.CloseIconButton onClick={ onDismiss } />
 		</Notice.Root>
 	);
 }

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { privacyStringToInt, LIBRARY_QUERY_KEY } from './use-library';
+import { privacyStringToInt } from '../utils/library-item';
+import { LIBRARY_QUERY_KEY } from './use-library';
 import type { LibraryItemPrivacy } from '../types/library';
 
 type Id = number | string;

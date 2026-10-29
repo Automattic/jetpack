@@ -13,15 +13,28 @@ const HEADER_TRACKS_PROPERTIES = { location: 'header' };
  *
  * @param props           - Component props.
  * @param props.purchases - The site's purchases, or null until they load.
- * @return The plans and their links, or nothing until they load.
+ * @param props.hasFailed - Whether loading the purchases failed.
+ * @return The plans and their links, only the links when the plans fail to load, or nothing while they load.
  */
-const PlanSummary: FC< { purchases: Purchase[] | null } > = ( { purchases } ) => {
-	if ( ! purchases ) {
-		return null;
-	}
+const PlanSummary: FC< { purchases: Purchase[] | null; hasFailed?: boolean } > = ( {
+	purchases,
+	hasFailed = false,
+} ) => {
+	// As `Complete::has_required_plan()`: the page state carries no plan flags, and Boost's dashboard no products.
+	const hasComplete = !! purchases?.some( ( { product_slug } ) =>
+		product_slug?.startsWith( 'jetpack_complete' )
+	);
+	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 
-	const hasComplete =
-		!! getMyJetpackWindowInitialState( 'products' )?.items?.complete?.has_paid_plan_for_product;
+	if ( ! purchases ) {
+		return hasFailed && isAdmin ? (
+			<PlanSectionFooter
+				numberOfPurchases={ 0 }
+				hasComplete={ hasComplete }
+				tracksProperties={ HEADER_TRACKS_PROPERTIES }
+			/>
+		) : null;
+	}
 
 	return (
 		<Stack direction="column" gap="sm">
@@ -45,7 +58,7 @@ const PlanSummary: FC< { purchases: Purchase[] | null } > = ( { purchases } ) =>
 					</Text>
 				</Stack>
 			) }
-			{ !! getMyJetpackWindowInitialState( 'userIsAdmin' ) && (
+			{ isAdmin && (
 				<PlanSectionFooter
 					numberOfPurchases={ purchases.length }
 					hasComplete={ hasComplete }

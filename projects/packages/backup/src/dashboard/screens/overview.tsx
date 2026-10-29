@@ -8,6 +8,7 @@ import BackupDetail from '../components/backup-detail';
 import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
 import BackupStatusBanner, {
+	BackupCompleteBanner,
 	BackupFailedRunBanner,
 	BackupTroubleBanner,
 	BackupWarningsBanner,
@@ -182,12 +183,14 @@ function OverviewBody() {
 	// through its own `useBackups`, so this screen has two observers of
 	// the state below — but the refresh must fire once per finished
 	// backup, not once per observer. See the hook's docblock.
-	const { finishedRuns, failedRun } = useRefreshActivityOnBackupComplete(
-		backupsState,
-		isBackupRequested,
-		backups.find( isUsableBackup )?.id ?? null,
-		backups[ 0 ] ?? null
-	);
+	const { finishedRuns, failedRun, completedRun, isAwaitingRow, dismissCompletedRun } =
+		useRefreshActivityOnBackupComplete(
+			backupsState,
+			isBackupRequested,
+			backups.find( isUsableBackup )?.id ?? null,
+			backups[ 0 ] ?? null,
+			defaultSelectedId
+		);
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.
 	// While it is still unknown, assume there *are* restore points:
@@ -321,6 +324,13 @@ function OverviewBody() {
 				/>
 			) }
 			{ backupsState === 'complete' && hasWarnings && <BackupWarningsBanner /> }
+			{ backupsState === 'complete' && completedRun && ! hasWarnings && ! failedRun && (
+				<BackupCompleteBanner
+					onDismiss={ dismissCompletedRun }
+					isListing={ isAwaitingRow }
+					returnFocusTo={ overviewRef }
+				/>
+			) }
 			{ backupsState === 'complete' && failedRun && (
 				<BackupFailedRunBanner willRetry={ failedRun === 'will-retry' } />
 			) }

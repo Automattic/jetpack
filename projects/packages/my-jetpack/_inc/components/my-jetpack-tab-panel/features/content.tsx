@@ -1,7 +1,7 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Link, Stack } from '@wordpress/ui';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link, Notice, Stack } from '@wordpress/ui';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { BulkBar } from './bulk-bar';
@@ -96,7 +96,7 @@ export function FeaturesContent() {
 function FeaturesTabContent() {
 	const contentRef = useRef< HTMLElement >( null );
 	const mainFeatures = useMainFeatures();
-	const { modules, hasLoaded: modulesLoaded } = useAllJetpackModules();
+	const { modules, hasLoaded: modulesLoaded, hasFailed: modulesFailed } = useAllJetpackModules();
 	const { states, isLoading } = useFeatureStates( mainFeatures );
 	const { pointer, dismissPointer } = useSidebarSync( mainFeatures.features );
 	const moreFeatures = useMoreFeatures( mainFeatures );
@@ -358,6 +358,39 @@ function FeaturesTabContent() {
 		[ tracking, updateParams, view ]
 	);
 
+	// A new filter or search can leave the page scrolled past the end of a shorter list, so a
+	// list whose start is hidden is brought back to just under the sticky toolbar.
+	const toolbarRef = useRef< HTMLDivElement >( null );
+	const listStartRef = useRef< HTMLDivElement >( null );
+	const listQueryRef = useRef( `${ filter }|${ search }` );
+
+	useLayoutEffect( () => {
+		const query = `${ filter }|${ search }`;
+		if ( query === listQueryRef.current ) {
+			return;
+		}
+		listQueryRef.current = query;
+
+		const content = contentRef.current;
+		const toolbar = toolbarRef.current;
+		const listStart = listStartRef.current;
+		if ( ! content || ! toolbar || ! listStart ) {
+			return;
+		}
+		const toolbarBox = toolbar.getBoundingClientRect();
+		if ( listStart.getBoundingClientRect().top >= toolbarBox.bottom ) {
+			return;
+		}
+
+		// Where the list sits when the toolbar first sticks, so the toolbar itself stays put. Pinned
+		// tabs are cleared by the scroller's scroll-padding, set in ../styles.module.scss.
+		const gap =
+			parseFloat( getComputedStyle( toolbar ).marginBlockEnd ) +
+			parseFloat( getComputedStyle( content ).rowGap );
+		listStart.style.scrollMarginBlockStart = `${ toolbarBox.height + gap }px`;
+		listStart.scrollIntoView( { block: 'start' } );
+	}, [ filter, search ] );
+
 	// Arrow keys step through what the grid shows, so a filter or search bounds them too.
 	// Retaken once modules land, since a status filter reads every pending feature as inactive.
 	const stepOrder = useStepOrder(
@@ -382,9 +415,20 @@ function FeaturesTabContent() {
 	return (
 		<section ref={ contentRef } className={ styles.content }>
 			{ turnOn && <ConnectResume state={ turnOn } /> }
+			{ modulesFailed && Object.keys( modules ).length === 0 && (
+				<Notice.Root intent="error" role="alert">
+					<Notice.Title>
+						{ __( 'Some features could not be loaded', 'jetpack-my-jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __( 'This list is incomplete. Reload the page to try again.', 'jetpack-my-jetpack' ) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
 			{ ! isOfflineFeatures() && <FeaturesBanner /> }
 
 			<Toolbar
+				ref={ toolbarRef }
 				view={ view }
 				onViewChange={ onViewChange }
 				filter={ filter }
@@ -396,6 +440,7 @@ function FeaturesTabContent() {
 				onSearchChange={ onSearchChange }
 				bulk={ view === 'list' && shownCount > 0 ? <BulkBar selection={ selection } /> : null }
 			/>
+			<div ref={ listStartRef } className={ styles[ 'list-start' ] } aria-hidden="true" />
 
 			{ ( moduleTag || hasModulesFallback ) && (
 				<Stack

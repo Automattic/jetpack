@@ -120,7 +120,7 @@ class Surface_Visibility {
 		return rest_ensure_response(
 			array(
 				'success'  => true,
-				'redirect' => admin_url( 'admin.php?page=' . Admin_Page::MENU_SLUG ),
+				'redirect' => Admin_Page::get_url(),
 			)
 		);
 	}

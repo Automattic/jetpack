@@ -12,7 +12,7 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
  * @param section        - The section slug.
  * @param layout         - The section's stored layout.
  * @param onLayoutChange - Stores a layout.
- * @return The section's gate, the layout to show and the save handler for it.
+ * @return The section's gate, the layout to show, its save handler, and which widgets it hides.
  */
 export function useLockedSectionLayout(
 	section: string,
@@ -22,30 +22,38 @@ export function useLockedSectionLayout(
 	lockedSection: LockedSectionGate | undefined;
 	visibleLayout: DashboardWidget[];
 	onVisibleLayoutChange: ( next: DashboardWidget[] ) => void;
+	isHiddenWidget: ( ( widget: DashboardWidget ) => boolean ) | undefined;
 } {
 	const lockedSection = getLockedSection( section );
 
-	const visibleLayout = useMemo(
+	const isHiddenWidget = useMemo(
 		() =>
 			lockedSection
-				? layout.filter( widget => lockedSection.open_widget_types.includes( widget.type ) )
-				: layout,
-		[ lockedSection, layout ]
+				? ( widget: DashboardWidget ) => ! lockedSection.open_widget_types.includes( widget.type )
+				: undefined,
+		[ lockedSection ]
 	);
 
-	// A locked section never enters edit mode, so a save here is an inline attribute edit of the
-	// same widgets, which the stored layout takes over by uuid.
+	const visibleLayout = useMemo(
+		() => ( isHiddenWidget ? layout.filter( widget => ! isHiddenWidget( widget ) ) : layout ),
+		[ isHiddenWidget, layout ]
+	);
+
+	// The policy denies insert and remove on a locked section, so a save carries the same widgets,
+	// which refill the open widgets' stored slots in their new order.
 	const onVisibleLayoutChange = useCallback(
 		( next: DashboardWidget[] ) => {
-			if ( ! lockedSection ) {
+			if ( ! isHiddenWidget ) {
 				onLayoutChange( next );
 				return;
 			}
-			const saved = new Map( next.map( widget => [ widget.uuid, widget ] ) );
-			onLayoutChange( layout.map( widget => saved.get( widget.uuid ) ?? widget ) );
+			const saved = [ ...next ];
+			onLayoutChange(
+				layout.map( widget => ( isHiddenWidget( widget ) ? widget : ( saved.shift() ?? widget ) ) )
+			);
 		},
-		[ lockedSection, layout, onLayoutChange ]
+		[ isHiddenWidget, layout, onLayoutChange ]
 	);
 
-	return { lockedSection, visibleLayout, onVisibleLayoutChange };
+	return { lockedSection, visibleLayout, onVisibleLayoutChange, isHiddenWidget };
 }

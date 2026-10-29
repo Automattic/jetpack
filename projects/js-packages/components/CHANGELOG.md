@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [6.1.0] - 2026-10-28
+### Added
+- Add a PeriodSelector component: a dropdown of period presets with optional previous and next buttons. [#54149]
+- Add a RadioCard component. [#54212]
+- AdminPage: Add a `jp-admin-page__content` class to the content container. [#54105]
+- PeriodSelector: Add a disabled prop. [#54202]
+- Period Selector: Add a label that screen readers announce with the selected period. [#54209]
+
+### Changed
+- AutomatticIconLogo: Use the black Automattic symbol by default, without blue. [#54208]
+- Update package dependencies. [#54118]
+
+## [6.0.0] - 2026-10-26
+### Added
+- AdminPage: Add an ariaLabel prop that names the page region when the header shows breadcrumbs instead of a title. [#54055]
+- AdminPage: Add a page action button that shows only its icon on screens 480px wide or narrower. [#53921]
+- JetpackFooter: Add an entry without the stylesheet, and export the stylesheet on its own, so script-module builds can bundle the footer. [#53971]
+- Support React 19. [#53882]
+
+### Changed
+- TermsOfService: Render with Text from @wordpress/ui. The `variant` prop now takes a @wordpress/ui Text variant, and the legacy Text spacing and `component` props are removed. [#53892]
+- Update package dependencies. [#53951]
+
+### Removed
+- Remove the `NumberControl` component. Use `InputControl` from `@wordpress/ui` instead. [#54046]
+
+### Fixed
+- AdminPage: Stop clearing the shared REST API nonce and root when a page doesn't pass them. [#53397]
+
 ## [5.0.1] - 2026-10-20
 ### Changed
 - Internal updates.
@@ -2019,6 +2048,8 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[6.1.0]: https://github.com/Automattic/jetpack-components/compare/6.0.0...6.1.0
+[6.0.0]: https://github.com/Automattic/jetpack-components/compare/5.0.1...6.0.0
 [5.0.1]: https://github.com/Automattic/jetpack-components/compare/5.0.0...5.0.1
 [5.0.0]: https://github.com/Automattic/jetpack-components/compare/4.0.4...5.0.0
 [4.0.4]: https://github.com/Automattic/jetpack-components/compare/4.0.3...4.0.4

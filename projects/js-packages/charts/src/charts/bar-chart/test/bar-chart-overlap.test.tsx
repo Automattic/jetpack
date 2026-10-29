@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
+import { selectedBarRingBounds as selectedRing } from '../../../test-utils/selected-bar-ring';
 import { BarChartUnresponsive } from '../bar-chart';
 import { useBarColors, type GetBarColors } from '../use-bar-colors';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
@@ -216,9 +217,7 @@ describe( 'BarChart overlap layout', () => {
 		pointer( 'pointermove', center( geometry( barRects()[ 4 ] ) ) );
 		await user.keyboard( '{ArrowRight}' );
 
-		expect( geometry( screen.getByTestId( 'bar-chart-selected-ring' ) ).x ).toBeCloseTo(
-			barOf( 'Previous views', 1 ).x
-		);
+		expect( selectedRing().x ).toBeCloseTo( barOf( 'Previous views', 1 ).x );
 	} );
 
 	it( 'steps the keyboard one slot at a time, outlining the whole slot', async () => {
@@ -228,16 +227,14 @@ describe( 'BarChart overlap layout', () => {
 		await user.tab();
 		await user.keyboard( '{ArrowRight}' );
 		const views = barOf( 'Views' );
-		const ring = geometry( screen.getByTestId( 'bar-chart-selected-ring' ) );
+		const ring = selectedRing();
 		expect( ring.x ).toBeCloseTo( views.x );
 		expect( ring.width ).toBeCloseTo( views.width );
 		expect( ring.y ).toBeCloseTo( views.y );
 		expect( ring.height ).toBeCloseTo( views.height );
 
 		await user.keyboard( '{ArrowRight}' );
-		expect( geometry( screen.getByTestId( 'bar-chart-selected-ring' ) ).x ).toBeCloseTo(
-			barOf( 'Previous views' ).x
-		);
+		expect( selectedRing().x ).toBeCloseTo( barOf( 'Previous views' ).x );
 	} );
 
 	it( 'lists every bar at the selected category in the keyboard tooltip, and reaches a slot whose front bar a shorter series leaves out', async () => {
@@ -254,9 +251,7 @@ describe( 'BarChart overlap layout', () => {
 			expect( tooltip ).toHaveTextContent( row )
 		);
 		expect( tooltip ).not.toHaveTextContent( 'Previous visitors' );
-		expect( geometry( screen.getByTestId( 'bar-chart-selected-ring' ) ).x ).toBeCloseTo(
-			barOf( 'Previous views', 1 ).x
-		);
+		expect( selectedRing().x ).toBeCloseTo( barOf( 'Previous views', 1 ).x );
 	} );
 
 	it( 'reaches every category a slot draws from the keyboard when its groups cover different categories', async () => {

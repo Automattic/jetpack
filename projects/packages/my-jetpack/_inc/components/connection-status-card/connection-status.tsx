@@ -14,6 +14,7 @@ type ConnectionStatusProps = {
 	status: ConnectionState[ 'status' ];
 	/** Whether to draw the account beside Jetpack: the viewer's avatar, or an empty one. */
 	showAvatar: boolean;
+	className?: string;
 };
 
 /**
@@ -22,14 +23,19 @@ type ConnectionStatusProps = {
  * @param props            - Component props.
  * @param props.status     - The connection's status.
  * @param props.showAvatar - Whether to draw the account.
+ * @param props.className  - Extra class for the wrapper.
  * @return The illustration.
  */
-export const ConnectionStatus: FC< ConnectionStatusProps > = ( { status, showAvatar } ) => {
+export const ConnectionStatus: FC< ConnectionStatusProps > = ( {
+	status,
+	showAvatar,
+	className,
+} ) => {
 	const { isRegistered, isUserConnected, userConnectionData } = useMyJetpackConnection();
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 
 	return (
-		<div className={ styles.status }>
+		<div className={ clsx( styles.status, className ) }>
 			<div className={ styles[ 'avatar-wrapper' ] }>
 				<img src={ isRegistered ? jetpack : jetpackGray } alt="" className={ styles.jetpack } />
 				{ showAvatar && (

@@ -104,6 +104,16 @@ export function turnGateOff( gate ) {
 let nextKey = 1;
 
 /**
+ * Whether an option group has at least one priced option.
+ *
+ * @param {object} dim - The option group.
+ * @return {boolean} True when an option carries an amount.
+ */
+function hasPricedOption( dim ) {
+	return ( dim.options || [] ).some( opt => `${ opt.unit_amount?.value ?? '' }`.trim() !== '' );
+}
+
+/**
  * Reduce a variants structure to what PayPal prices, so two copies compare on content.
  *
  * Editor-only `_key`s, the per-option currency and empty amounts are left out.
@@ -130,10 +140,10 @@ function comparableVariants( variants ) {
 /**
  * Put a payment's variants into the shape the variant builder edits.
  *
- * Adds the `_key`s the builder uses for React keys, and infers `primary` from
- * where the prices are when the payment does not carry the flag. `primary` is
- * what the form reads for "per-variant pricing is on", so a payment with no
- * prices at all leaves every group unflagged rather than guessing at the first.
+ * Adds the `_key`s the builder uses for React keys. PayPal flags exactly one group
+ * `primary` whether or not it is priced, but `primary` is what the form reads for
+ * "per-variant pricing is on", so the flag is kept only on a group that carries a
+ * price, and inferred from where the prices are when the payment has none.
  *
  * @param {object} variants - Variants data from the payment.
  * @return {object|null} Editable variants, or null when there are none.
@@ -145,20 +155,38 @@ export function normalizeResourceVariants( variants ) {
 	}
 
 	const hasPrimaryFlag = dimensions.some( dim => dim.primary );
-	const pricedIndex = dimensions.findIndex( dim =>
-		( dim.options || [] ).some( opt => `${ opt.unit_amount?.value ?? '' }`.trim() !== '' )
-	);
+	const pricedIndex = dimensions.findIndex( hasPricedOption );
 
 	return {
 		dimensions: dimensions.map( ( dim, i ) => ( {
 			...dim,
 			_key: dim._key || `rs-${ nextKey++ }`,
-			primary: hasPrimaryFlag ? !! dim.primary : pricedIndex === i,
+			primary: ( hasPrimaryFlag ? !! dim.primary : pricedIndex === i ) && hasPricedOption( dim ),
 			options: ( dim.options || [] ).map( opt => ( {
 				...opt,
 				_key: opt._key || `rs-${ nextKey++ }`,
 			} ) ),
 		} ) ),
+	};
+}
+
+/**
+ * Flag the first option group primary when none is.
+ *
+ * PayPal rejects variants without exactly one primary group, while the form only
+ * flags one once it carries prices. normalizeResourceVariants() drops the flag again.
+ *
+ * @param {object} variants - The variants data.
+ * @return {object} Variants with one primary group.
+ */
+export function withPrimaryDimension( variants ) {
+	if ( ! variants?.dimensions?.length || variants.dimensions.some( dim => dim.primary ) ) {
+		return variants;
+	}
+
+	return {
+		...variants,
+		dimensions: variants.dimensions.map( ( dim, i ) => ( { ...dim, primary: i === 0 } ) ),
 	};
 }
 

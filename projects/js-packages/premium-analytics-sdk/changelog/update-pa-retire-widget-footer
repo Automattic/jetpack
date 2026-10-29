@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Remove WidgetFooter, ReportLink and ExporterCsvDownloadButton; a widget declares its footer with useReportActions. Widget contract 2.0.0.

@@ -13,10 +13,6 @@
 	text-align: center;
 }
 
-.blog-posts:not(:empty) {
-	margin-block-end: calc(var(--spacing-base) * 3); // 24px, as between Overview sections.
-}
-
 .jetpack-manage-upsell {
 	margin-bottom: 3rem;
 }
