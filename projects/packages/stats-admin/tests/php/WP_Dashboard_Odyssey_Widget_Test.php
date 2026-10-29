@@ -92,6 +92,37 @@ class WP_Dashboard_Odyssey_Widget_Test extends Stats_TestCase {
 		$this->assertFalse( $this->widget_is_on_dashboard() );
 	}
 
+	public function test_render_draws_the_outline_while_the_script_loads() {
+		wp_set_current_user( $this->admin_id );
+
+		$markup = $this->render_widget();
+
+		$this->assertStringContainsString( 'class="jp-stats-widget-skeleton" role="status"', $markup );
+		$this->assertStringNotContainsString( 'loading-64.gif', $markup );
+		$this->assertStringNotContainsString( 'Please reload the page', $markup );
+	}
+
+	public function test_render_asks_for_a_reload_when_the_widget_was_hidden() {
+		wp_set_current_user( $this->admin_id );
+		update_user_option( $this->admin_id, 'metaboxhidden_dashboard', array( WP_Dashboard_Odyssey_Widget::DASHBOARD_WIDGET_ID ), true );
+
+		$markup = $this->render_widget();
+
+		$this->assertStringContainsString( 'Please reload the page', $markup );
+		$this->assertStringNotContainsString( 'jp-stats-widget-skeleton', $markup );
+	}
+
+	/**
+	 * The widget's markup.
+	 *
+	 * @return string
+	 */
+	private function render_widget() {
+		ob_start();
+		( new WP_Dashboard_Odyssey_Widget() )->render();
+		return ob_get_clean();
+	}
+
 	/**
 	 * Whether the Stats widget is queued on the dashboard.
 	 *

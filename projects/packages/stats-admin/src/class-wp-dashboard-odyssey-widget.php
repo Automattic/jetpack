@@ -61,24 +61,14 @@ class WP_Dashboard_Odyssey_Widget {
 		// The widget is always rendered, so if it was hidden and then toggled open, we need to ask user to refresh the page to load data properly.
 		$is_toggled_open = $this->is_widget_hidden();
 		?>
-		<div id="dashboard_stats" class="jp-stats-widget" style="min-height: 200px;">
+		<div id="dashboard_stats" class="jp-stats-widget">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats widget requires JavaScript to function properly.', 'jetpack-stats-admin' ); ?></div>
-			<div class="hide-if-no-js" style="height: 100%">
-				<img
-					class="jp-stats-widget-loading-spinner"
-					width="32"
-					height="32"
-					style="position: absolute; left: calc(50% - 28px); top: calc(50% - 36px);"
-					alt=<?php echo esc_attr( __( 'Loading', 'jetpack-stats-admin' ) ); ?>
-					src="//en.wordpress.com/i/loading/loading-64.gif"
-				/>
-				<p>
-				<?php
-				if ( $is_toggled_open ) {
-					echo esc_html__( 'Please reload the page to see your stats...', 'jetpack-stats-admin' );
-				}
-				?>
-				</p>
+			<div class="hide-if-no-js">
+				<?php if ( $is_toggled_open ) : ?>
+					<p><?php esc_html_e( 'Please reload the page to see your stats...', 'jetpack-stats-admin' ); ?></p>
+				<?php else : ?>
+					<?php $this->render_loading_skeleton(); ?>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php
@@ -89,6 +79,107 @@ class WP_Dashboard_Odyssey_Widget {
 		 * @since 3.4.0
 		 */
 		do_action( 'jetpack_dashboard_widget' );
+	}
+
+	/**
+	 * Draws the outline of the widget for the time its script takes to load: an Overview card
+	 * with two totals and a chart, a lists card, a card with two counts, and the footer. The
+	 * widget replaces it when it mounts. Styled inline, since its stylesheet arrives with its
+	 * script, and the widget's own loader leaves an outline that is already here alone.
+	 */
+	private function render_loading_skeleton() {
+		?>
+		<div class="jp-stats-widget-skeleton" role="status" aria-label="<?php esc_attr_e( 'Loading', 'jetpack-stats-admin' ); ?>">
+			<style>
+				.jp-stats-widget-skeleton{margin:-11px -12px -12px;padding:8px;display:flex;flex-direction:column;gap:8px;border-radius:0 0 8px 8px;background:#f6f7f7;font-size:0}
+				.jp-stats-widget-skeleton__card{padding:8px 12px 12px;border:1px solid #e0e0e0;border-radius:4px;background:#fff}
+				.jp-stats-widget-skeleton__header{display:flex;justify-content:space-between;align-items:center;min-height:32px;margin-bottom:8px}
+				.jp-stats-widget-skeleton__metrics{display:flex;gap:16px}
+				.jp-stats-widget-skeleton__metric{flex:1 1 0}
+				.jp-stats-widget-skeleton__rows{display:flex;flex-direction:column;gap:8px;padding:8px 0}
+				.jp-stats-widget-skeleton__row{display:flex;justify-content:space-between;gap:16px;min-height:20px;align-items:center}
+				.jp-stats-widget-skeleton__tabs{display:flex;margin:0 -12px;border-bottom:1px solid #dbdbdb}
+				.jp-stats-widget-skeleton__tab{flex:1;display:flex;justify-content:center;padding:14px 0}
+				.jp-stats-widget-skeleton__footer{display:flex;justify-content:space-between;align-items:center;padding:8px}
+				.jp-stats-widget-skeleton__bar{display:block;height:12px;border-radius:4px;background:#f4f4f4}
+				.jp-stats-widget-skeleton__bar.is-title{width:140px;height:16px}
+				.jp-stats-widget-skeleton__bar.is-control{width:112px;height:32px}
+				.jp-stats-widget-skeleton__bar.is-label{width:72px;height:14px;margin:3px 0}
+				.jp-stats-widget-skeleton__bar.is-value{width:64px;height:28px;margin:8px 0 4px}
+				.jp-stats-widget-skeleton__bar.is-chart{height:160px;border-radius:8px;margin-top:16px}
+				.jp-stats-widget-skeleton__bar.is-tab{width:96px}
+				.jp-stats-widget-skeleton__bar.is-row-title{width:60%}
+				.jp-stats-widget-skeleton__bar.is-row-value{width:46px}
+				.jp-stats-widget-skeleton__bar.is-link{width:72px;margin-top:16px}
+				.jp-stats-widget-skeleton__bar.is-logo{width:88px;height:20px}
+				.jp-stats-widget-skeleton__bar.is-footer-link{width:80px}
+				@media not (prefers-reduced-motion){.jp-stats-widget-skeleton__bar{animation:jp-stats-widget-skeleton-pulse 1.5s ease-in-out infinite}}
+				@media (forced-colors:active){.jp-stats-widget-skeleton__bar{border:1px solid CanvasText}}
+				@keyframes jp-stats-widget-skeleton-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+			</style>
+			<div class="jp-stats-widget-skeleton__card">
+				<div class="jp-stats-widget-skeleton__header">
+					<span class="jp-stats-widget-skeleton__bar is-title"></span>
+					<span class="jp-stats-widget-skeleton__bar is-control"></span>
+				</div>
+				<div class="jp-stats-widget-skeleton__metrics">
+					<div class="jp-stats-widget-skeleton__metric">
+						<span class="jp-stats-widget-skeleton__bar is-label"></span>
+						<span class="jp-stats-widget-skeleton__bar is-value"></span>
+					</div>
+					<div class="jp-stats-widget-skeleton__metric">
+						<span class="jp-stats-widget-skeleton__bar is-label"></span>
+						<span class="jp-stats-widget-skeleton__bar is-value"></span>
+					</div>
+				</div>
+				<span class="jp-stats-widget-skeleton__bar is-chart"></span>
+				<span class="jp-stats-widget-skeleton__bar is-link"></span>
+			</div>
+			<div class="jp-stats-widget-skeleton__card">
+				<div class="jp-stats-widget-skeleton__header">
+					<span class="jp-stats-widget-skeleton__bar is-title"></span>
+				</div>
+				<div class="jp-stats-widget-skeleton__tabs">
+					<div class="jp-stats-widget-skeleton__tab"><span class="jp-stats-widget-skeleton__bar is-tab"></span></div>
+					<div class="jp-stats-widget-skeleton__tab"><span class="jp-stats-widget-skeleton__bar is-tab"></span></div>
+				</div>
+				<div class="jp-stats-widget-skeleton__rows">
+					<div class="jp-stats-widget-skeleton__row">
+						<span class="jp-stats-widget-skeleton__bar is-row-title"></span>
+						<span class="jp-stats-widget-skeleton__bar is-row-value"></span>
+					</div>
+					<div class="jp-stats-widget-skeleton__row">
+						<span class="jp-stats-widget-skeleton__bar is-row-title"></span>
+						<span class="jp-stats-widget-skeleton__bar is-row-value"></span>
+					</div>
+					<div class="jp-stats-widget-skeleton__row">
+						<span class="jp-stats-widget-skeleton__bar is-row-title"></span>
+						<span class="jp-stats-widget-skeleton__bar is-row-value"></span>
+					</div>
+				</div>
+				<span class="jp-stats-widget-skeleton__bar is-link"></span>
+			</div>
+			<div class="jp-stats-widget-skeleton__card">
+				<div class="jp-stats-widget-skeleton__header">
+					<span class="jp-stats-widget-skeleton__bar is-title"></span>
+				</div>
+				<div class="jp-stats-widget-skeleton__metrics">
+					<div class="jp-stats-widget-skeleton__metric">
+						<span class="jp-stats-widget-skeleton__bar is-label"></span>
+						<span class="jp-stats-widget-skeleton__bar is-value"></span>
+					</div>
+					<div class="jp-stats-widget-skeleton__metric">
+						<span class="jp-stats-widget-skeleton__bar is-label"></span>
+						<span class="jp-stats-widget-skeleton__bar is-value"></span>
+					</div>
+				</div>
+			</div>
+			<div class="jp-stats-widget-skeleton__footer">
+				<span class="jp-stats-widget-skeleton__bar is-logo"></span>
+				<span class="jp-stats-widget-skeleton__bar is-footer-link"></span>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
