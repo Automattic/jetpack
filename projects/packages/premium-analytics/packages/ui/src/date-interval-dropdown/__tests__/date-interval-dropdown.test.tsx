@@ -205,7 +205,9 @@ describe( 'DateIntervalDropdown', () => {
 		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
 
 		expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toBeVisible();
-		expect( screen.getByRole( 'menu' ) ).not.toHaveAccessibleDescription();
+		expect(
+			screen.getByRole( 'menuitemradio', { name: 'By days' } )
+		).not.toHaveAccessibleDescription();
 	} );
 
 	it( 'gives no hint on a plan that locks the buckets a longer range would add', async () => {
@@ -221,7 +223,9 @@ describe( 'DateIntervalDropdown', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
 
-		expect( screen.getByRole( 'menu' ) ).not.toHaveAccessibleDescription();
+		expect(
+			screen.getByRole( 'menuitemradio', { name: 'By days' } )
+		).not.toHaveAccessibleDescription();
 	} );
 
 	it.each( [
@@ -239,8 +243,9 @@ describe( 'DateIntervalDropdown', () => {
 
 			await user.click( screen.getByRole( 'button', { name } ) );
 
-			expect( screen.getByRole( 'menuitemradio', { name } ) ).toBeChecked();
-			expect( screen.getByRole( 'menu' ) ).toHaveAccessibleDescription( hint );
+			const item = screen.getByRole( 'menuitemradio', { name } );
+			expect( item ).toBeChecked();
+			expect( item ).toHaveAccessibleDescription( hint );
 		}
 	);
 } );
