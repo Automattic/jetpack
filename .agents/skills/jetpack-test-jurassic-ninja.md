@@ -159,15 +159,16 @@ the transcript is an avoidable credential leak.
 `ssh -G ssh.atomicsites.net | grep -i '^proxyjump'` (it prints
 `proxyjump proxy.automattic.com` when it is).
 
+- **Stanza in effect, `agent refused operation` or a timeout** (this takes precedence over the
+  next bullet): the key approval on the user's device was probably missed or declined. Ask
+  the user to approve, then run the check once more; if it fails again, go by the other
+  bullets.
 - **Stanza in effect, `@ssh.atomicsites.net: Permission denied` or `Too many authentication
   failures`:** key auth was refused. Tell the user so. When an Automattician creates a site
   while signed in to JN, it copies only their first SSH key in Mission Control, so a likely
   cause is that this machine's key isn't first. Reordering keys there helps only sites
   created afterwards. Whether `provision-site` sites get keys at all is unknown. For now, use
   the password.
-- **Stanza in effect, `agent refused operation` or a timeout:** the key approval on the user's
-  device was probably missed or declined. Ask the user to approve, then run the check once
-  more.
 - **Stanza in effect, any other error** (including a denial from `proxy.automattic.com`):
   report it and stop, since a password login goes through the same proxy.
 - **Stanza not in effect:** show it, whatever the error, and use the password:
@@ -229,15 +230,16 @@ log_user 0
 spawn ssh -o StrictHostKeyChecking=accept-new -o PubkeyAuthentication=no -o NumberOfPasswordPrompts=1 -T {domain}@ssh.atomicsites.net {cd /srv/htdocs && wp plugin list}
 expect -re "assword:" { send -- "$env(JN_PW)\r"; log_user 1 } timeout { puts "TIMEOUT"; exit 1 } eof { puts "NO_PROMPT: $expect_out(buffer)"; exit 1 }
 set timeout 600
-expect -re "assword:" { puts "REPROMPT"; exit 1 } timeout { puts "TIMEOUT"; exit 1 } eof
+expect -re {s password: $} { puts "REPROMPT"; exit 1 } timeout { puts "CMD_TIMEOUT"; exit 1 } eof
 catch wait result
 exit [lindex $result 3]
 '; echo "SSH_EXIT=$?"
 ```
 
-`TIMEOUT`, `NO_PROMPT`, `REPROMPT` or `Permission denied` means the login failed: stop, per
-Check 6, rather than rerunning it. Any other non-zero `SSH_EXIT` is the remote command
-failing, after a login that still counts. Raise `timeout 600` for longer remote commands.
+`TIMEOUT`, `NO_PROMPT`, `REPROMPT` or `@ssh.atomicsites.net: Permission denied` means the
+login failed: stop, per Check 6, rather than rerunning it. `CMD_TIMEOUT` or any other non-zero
+`SSH_EXIT` is the remote command failing, after a login that still counts. Raise
+`timeout 600` for longer remote commands.
 
 Notes that save time:
 
