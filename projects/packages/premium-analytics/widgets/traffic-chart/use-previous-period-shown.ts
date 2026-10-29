@@ -27,13 +27,13 @@ export function usePreviousPeriodShown(): [ boolean, ( shown: boolean ) => void 
 		return preferences?.get( DASHBOARD_PREFERENCES_SCOPE, PREVIOUS_PERIOD_KEY ) === true;
 	}, [] );
 
-	const { set } = useDispatch( PREFERENCES_STORE ) as unknown as PreferencesActions;
+	const preferences = useDispatch( PREFERENCES_STORE ) as unknown as PreferencesActions | undefined;
 
 	const setShown = useCallback(
 		( next: boolean ) => {
-			void set( DASHBOARD_PREFERENCES_SCOPE, PREVIOUS_PERIOD_KEY, next );
+			void preferences?.set( DASHBOARD_PREFERENCES_SCOPE, PREVIOUS_PERIOD_KEY, next );
 		},
-		[ set ]
+		[ preferences ]
 	);
 
 	return [ shown, setShown ];

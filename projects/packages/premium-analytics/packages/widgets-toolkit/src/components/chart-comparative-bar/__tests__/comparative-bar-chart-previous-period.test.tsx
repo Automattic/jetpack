@@ -45,6 +45,12 @@ const VisibilityProbe = () => {
 const isDrawn = ( label: string ) => isSeriesVisible( CHART_ID, label );
 
 const CURRENT_SERIES = SERIES.filter( item => item.options?.type !== 'comparison' );
+const RENAMED_SERIES = [
+	series( 'Views', 'views' ),
+	series( 'Prev. 30 days views', 'views', true ),
+	series( 'Visitors', 'visitors' ),
+	series( 'Prev. 30 days visitors', 'visitors', true ),
+];
 
 const chart = ( props: Partial< ComponentProps< typeof ComparativeBarChart > > = {} ) => (
 	<GlobalChartsProvider>
@@ -108,19 +114,36 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 		expect( onPreviousPeriodShownChange ).not.toHaveBeenCalled();
 	} );
 
-	it( 'applies the default again when chartId changes without a remount', () => {
-		const onPreviousPeriodShownChange = jest.fn();
-		const props = { defaultPreviousPeriodShown: false, onPreviousPeriodShownChange };
-		const view = renderChart( props );
+	it.each( [
+		{
+			change: 'chartId',
+			next: { chartId: 'visitors' },
+			chartId: 'visitors',
+			comparisons: [ 'Previous views', 'Previous visitors' ],
+		},
+		{
+			change: 'the comparison labels',
+			next: { series: RENAMED_SERIES },
+			chartId: CHART_ID,
+			comparisons: [ 'Prev. 30 days views', 'Prev. 30 days visitors' ],
+		},
+	] )(
+		'applies the default again when $change change without a remount',
+		( { next, chartId, comparisons } ) => {
+			const onPreviousPeriodShownChange = jest.fn();
+			const props = { defaultPreviousPeriodShown: false, onPreviousPeriodShownChange };
+			const view = renderChart( props );
 
-		view.rerender( chart( { ...props, chartId: 'visitors' } ) );
+			view.rerender( chart( { ...props, ...next } ) );
 
-		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'false' );
-		expect(
-			[ 'Previous views', 'Previous visitors' ].map( label => isSeriesVisible( 'visitors', label ) )
-		).toEqual( [ false, false ] );
-		expect( onPreviousPeriodShownChange ).not.toHaveBeenCalled();
-	} );
+			expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'false' );
+			expect( comparisons.map( label => isSeriesVisible( chartId, label ) ) ).toEqual( [
+				false,
+				false,
+			] );
+			expect( onPreviousPeriodShownChange ).not.toHaveBeenCalled();
+		}
+	);
 
 	it( 'draws the previous period when its legend item is clicked, and reports it', async () => {
 		const user = setupUser();

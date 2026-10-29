@@ -126,10 +126,10 @@ export type ComparativeBarChartProps = {
 	/** Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked. */
 	primarySeries?: string;
 
-	/** Start the previous period shown or hidden, and let the reader toggle it from the legend. Read when the chart mounts, like `defaultValue`, so feed back the latest value from `onPreviousPeriodShownChange`. Omit it to keep the previous period always drawn. */
+	/** Start the previous period shown or hidden, and let the reader toggle it from the legend. Read like `defaultValue`; see the README. */
 	defaultPreviousPeriodShown?: boolean;
 
-	/** Called when the reader shows or hides the previous period from the legend, not when the default is applied. */
+	/** Called whenever the previous period is shown or hidden, except when the default is applied. */
 	onPreviousPeriodShownChange?: ( shown: boolean ) => void;
 
 	/** Pointer-down on the plot, carrying the datum nearest the pointer. */
@@ -269,9 +269,10 @@ export function ComparativeBarChart( {
 		[ primarySeriesByGroup, isSeriesVisible, chartId ]
 	);
 
-	// Keyed by chartId: a consumer can swap the chart's identity without remounting it.
-	const [ defaultAppliedChartId, setDefaultAppliedChartId ] = useState< string >();
-	const defaultApplied = defaultAppliedChartId === chartId;
+	// Keyed on the label too: a new date range renames the comparison, and the charts context shows an unseen label.
+	const defaultKey = `${ chartId }\u0000${ pickedComparisonLabel ?? '' }`;
+	const [ defaultAppliedKey, setDefaultAppliedKey ] = useState< string >();
+	const defaultApplied = defaultAppliedKey === defaultKey;
 	let previousPeriodShown: boolean | undefined;
 	if ( previousPeriodToggle && pickedComparisonLabel !== undefined ) {
 		previousPeriodShown = defaultApplied
@@ -284,7 +285,7 @@ export function ComparativeBarChart( {
 		if ( ! previousPeriodToggle || pickedComparisonLabel === undefined || defaultApplied ) {
 			return;
 		}
-		setDefaultAppliedChartId( chartId );
+		setDefaultAppliedKey( defaultKey );
 		if ( isSeriesVisible( chartId, pickedComparisonLabel ) !== defaultPreviousPeriodShown ) {
 			setSeriesVisibility( chartId, pickedComparisonLabel, defaultPreviousPeriodShown );
 		}
@@ -292,6 +293,7 @@ export function ComparativeBarChart( {
 		previousPeriodToggle,
 		pickedComparisonLabel,
 		defaultApplied,
+		defaultKey,
 		isSeriesVisible,
 		defaultPreviousPeriodShown,
 		setSeriesVisibility,
@@ -320,19 +322,19 @@ export function ComparativeBarChart( {
 		chartId,
 	] );
 
-	const reportedPreviousPeriodShown = useRef( { chartId, shown: previousPeriodShown } );
+	const reportedPreviousPeriodShown = useRef( { key: defaultKey, shown: previousPeriodShown } );
 	useEffect( () => {
 		const reported = reportedPreviousPeriodShown.current;
-		reportedPreviousPeriodShown.current = { chartId, shown: previousPeriodShown };
+		reportedPreviousPeriodShown.current = { key: defaultKey, shown: previousPeriodShown };
 		if (
-			reported.chartId === chartId &&
+			reported.key === defaultKey &&
 			reported.shown !== undefined &&
 			previousPeriodShown !== undefined &&
 			reported.shown !== previousPeriodShown
 		) {
 			onPreviousPeriodShownChange?.( previousPeriodShown );
 		}
-	}, [ chartId, previousPeriodShown, onPreviousPeriodShownChange ] );
+	}, [ defaultKey, previousPeriodShown, onPreviousPeriodShownChange ] );
 
 	// Overlap paints the previous period as one slot, so one item names it, in the color of the picked metric's previous bar, or else of its widest shown bar.
 	const legendItems = useMemo( () => {
